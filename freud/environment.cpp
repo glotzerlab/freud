@@ -49,16 +49,16 @@
         "name": "freud.environment",
         "sources": [
             "freud/environment.pyx",
+            "cpp/environment/AngularSeparation.cc",
+            "cpp/box/box.cc",
             "cpp/environment/BondOrder.cc",
+            "cpp/locality/NearestNeighbors.cc",
+            "cpp/util/HOOMDMatrix.cc",
+            "cpp/environment/MatchEnv.cc",
             "cpp/environment/Pairing2D.cc",
             "cpp/locality/NeighborList.cc",
-            "cpp/box/box.cc",
-            "cpp/locality/NearestNeighbors.cc",
-            "cpp/environment/LocalDescriptors.cc",
-            "cpp/environment/MatchEnv.cc",
             "cpp/locality/LinkCell.cc",
-            "cpp/environment/AngularSeparation.cc",
-            "cpp/util/HOOMDMatrix.cc"
+            "cpp/environment/LocalDescriptors.cc"
         ]
     },
     "module_name": "freud.environment"
@@ -1735,6 +1735,62 @@ static PyObject *__Pyx_Import(PyObject *name, PyObject *from_list, int level);
 /* ImportFrom.proto */
 static PyObject* __Pyx_ImportFrom(PyObject* module, PyObject* name);
 
+/* FetchCommonType.proto */
+static PyTypeObject* __Pyx_FetchCommonType(PyTypeObject* type);
+
+/* CythonFunction.proto */
+#define __Pyx_CyFunction_USED 1
+#define __Pyx_CYFUNCTION_STATICMETHOD  0x01
+#define __Pyx_CYFUNCTION_CLASSMETHOD   0x02
+#define __Pyx_CYFUNCTION_CCLASS        0x04
+#define __Pyx_CyFunction_GetClosure(f)\
+    (((__pyx_CyFunctionObject *) (f))->func_closure)
+#define __Pyx_CyFunction_GetClassObj(f)\
+    (((__pyx_CyFunctionObject *) (f))->func_classobj)
+#define __Pyx_CyFunction_Defaults(type, f)\
+    ((type *)(((__pyx_CyFunctionObject *) (f))->defaults))
+#define __Pyx_CyFunction_SetDefaultsGetter(f, g)\
+    ((__pyx_CyFunctionObject *) (f))->defaults_getter = (g)
+typedef struct {
+    PyCFunctionObject func;
+#if PY_VERSION_HEX < 0x030500A0
+    PyObject *func_weakreflist;
+#endif
+    PyObject *func_dict;
+    PyObject *func_name;
+    PyObject *func_qualname;
+    PyObject *func_doc;
+    PyObject *func_globals;
+    PyObject *func_code;
+    PyObject *func_closure;
+    PyObject *func_classobj;
+    void *defaults;
+    int defaults_pyobjects;
+    int flags;
+    PyObject *defaults_tuple;
+    PyObject *defaults_kwdict;
+    PyObject *(*defaults_getter)(PyObject *);
+    PyObject *func_annotations;
+} __pyx_CyFunctionObject;
+static PyTypeObject *__pyx_CyFunctionType = 0;
+#define __Pyx_CyFunction_NewEx(ml, flags, qualname, self, module, globals, code)\
+    __Pyx_CyFunction_New(__pyx_CyFunctionType, ml, flags, qualname, self, module, globals, code)
+static PyObject *__Pyx_CyFunction_New(PyTypeObject *, PyMethodDef *ml,
+                                      int flags, PyObject* qualname,
+                                      PyObject *self,
+                                      PyObject *module, PyObject *globals,
+                                      PyObject* code);
+static CYTHON_INLINE void *__Pyx_CyFunction_InitDefaults(PyObject *m,
+                                                         size_t size,
+                                                         int pyobjects);
+static CYTHON_INLINE void __Pyx_CyFunction_SetDefaultsTuple(PyObject *m,
+                                                            PyObject *tuple);
+static CYTHON_INLINE void __Pyx_CyFunction_SetDefaultsKwDict(PyObject *m,
+                                                             PyObject *dict);
+static CYTHON_INLINE void __Pyx_CyFunction_SetAnnotationsDict(PyObject *m,
+                                                              PyObject *dict);
+static int __pyx_CyFunction_init(void);
+
 /* CLineInTraceback.proto */
 #ifdef CYTHON_CLINE_IN_TRACEBACK
 #define __Pyx_CLineForTraceback(tstate, c_line)  (((CYTHON_CLINE_IN_TRACEBACK)) ? c_line : 0)
@@ -2082,30 +2138,52 @@ static PyObject *__pyx_builtin_RuntimeError;
 static PyObject *__pyx_builtin_ValueError;
 static PyObject *__pyx_builtin_range;
 static PyObject *__pyx_builtin_ImportError;
+static const char __pyx_k_b[] = "b";
+static const char __pyx_k_i[] = "i";
 static const char __pyx_k_k[] = "k";
 static const char __pyx_k_n[] = "n";
+static const char __pyx_k_r[] = "r";
+static const char __pyx_k_nO[] = "nO";
+static const char __pyx_k_nP[] = "nP";
 static const char __pyx_k_np[] = "np";
+static const char __pyx_k_nt[] = "nt";
 static const char __pyx_k_bod[] = "bod";
 static const char __pyx_k_box[] = "box";
+static const char __pyx_k_n_p[] = "n_p";
 static const char __pyx_k_ors[] = "ors";
+static const char __pyx_k_phi[] = "phi";
+static const char __pyx_k_sph[] = "sph";
 static const char __pyx_k_copy[] = "copy";
 static const char __pyx_k_lbod[] = "lbod";
 static const char __pyx_k_lmax[] = "lmax";
 static const char __pyx_k_main[] = "__main__";
 static const char __pyx_k_mode[] = "mode";
+static const char __pyx_k_nRef[] = "nRef";
 static const char __pyx_k_name[] = "__name__";
+static const char __pyx_k_nref[] = "nref";
 static const char __pyx_k_obcd[] = "obcd";
 static const char __pyx_k_oocd[] = "oocd";
+static const char __pyx_k_pair[] = "pair";
 static const char __pyx_k_rmax[] = "rmax";
+static const char __pyx_k_self[] = "self";
 static const char __pyx_k_test[] = "__test__";
 static const char __pyx_k_warn[] = "warn";
 static const char __pyx_k_dtype[] = "dtype";
 static const char __pyx_k_freud[] = "freud";
 static const char __pyx_k_getNP[] = "getNP";
+static const char __pyx_k_index[] = "index";
+static const char __pyx_k_l_max[] = "l_max";
+static const char __pyx_k_l_ors[] = "l_ors";
+static const char __pyx_k_match[] = "match";
+static const char __pyx_k_nRef1[] = "nRef1";
+static const char __pyx_k_nRef2[] = "nRef2";
+static const char __pyx_k_n_ref[] = "n_ref";
+static const char __pyx_k_nbins[] = "nbins";
 static const char __pyx_k_nlist[] = "nlist";
 static const char __pyx_k_numpy[] = "numpy";
 static const char __pyx_k_range[] = "range";
 static const char __pyx_k_shape[] = "shape";
+static const char __pyx_k_theta[] = "theta";
 static const char __pyx_k_common[] = "common";
 static const char __pyx_k_format[] = "format";
 static const char __pyx_k_getBox[] = "getBox";
@@ -2114,26 +2192,44 @@ static const char __pyx_k_getSph[] = "getSph";
 static const char __pyx_k_global[] = "global";
 static const char __pyx_k_hard_r[] = "hard_r";
 static const char __pyx_k_import[] = "__import__";
+static const char __pyx_k_l_mode[] = "l_mode";
+static const char __pyx_k_nEquiv[] = "nEquiv";
 static const char __pyx_k_points[] = "points";
 static const char __pyx_k_reduce[] = "__reduce__";
+static const char __pyx_k_result[] = "result";
+static const char __pyx_k_setBox[] = "setBox";
+static const char __pyx_k_cluster[] = "cluster";
+static const char __pyx_k_compute[] = "compute";
 static const char __pyx_k_flatten[] = "flatten";
 static const char __pyx_k_float32[] = "float32";
 static const char __pyx_k_getLMax[] = "getLMax";
 static const char __pyx_k_getPair[] = "getPair";
 static const char __pyx_k_getRMax[] = "getRMax";
+static const char __pyx_k_nGlobal[] = "nGlobal";
+static const char __pyx_k_nglobal[] = "nglobal";
+static const char __pyx_k_nlist_2[] = "nlist_";
 static const char __pyx_k_ref_ors[] = "ref_ors";
 static const char __pyx_k_reshape[] = "reshape";
+static const char __pyx_k_vec_map[] = "vec_map";
+static const char __pyx_k_clusters[] = "clusters";
 static const char __pyx_k_getMatch[] = "getMatch";
 static const char __pyx_k_getNSphs[] = "getNSphs";
 static const char __pyx_k_getTheta[] = "getTheta";
 static const char __pyx_k_getstate[] = "__getstate__";
+static const char __pyx_k_l_points[] = "l_points";
 static const char __pyx_k_locality[] = "locality";
+static const char __pyx_k_min_rmsd[] = "min_rmsd";
 static const char __pyx_k_n_bins_p[] = "n_bins_p";
 static const char __pyx_k_n_bins_t[] = "n_bins_t";
 static const char __pyx_k_setstate[] = "__setstate__";
 static const char __pyx_k_warnings[] = "warnings";
 static const char __pyx_k_TypeError[] = "TypeError";
 static const char __pyx_k_env_nlist[] = "env_nlist";
+static const char __pyx_k_isSimilar[] = "isSimilar";
+static const char __pyx_k_l_ref_ors[] = "l_ref_ors";
+static const char __pyx_k_neigh_ang[] = "neigh_ang";
+static const char __pyx_k_num_clust[] = "num_clust";
+static const char __pyx_k_pyx_state[] = "__pyx_state";
 static const char __pyx_k_reduce_ex[] = "__reduce_ex__";
 static const char __pyx_k_refPoints[] = "refPoints";
 static const char __pyx_k_threshold[] = "threshold";
@@ -2143,7 +2239,9 @@ static const char __pyx_k_array_name[] = "array_name";
 static const char __pyx_k_compDotTol[] = "compDotTol";
 static const char __pyx_k_contiguous[] = "contiguous";
 static const char __pyx_k_getNGlobal[] = "getNGlobal";
+static const char __pyx_k_global_ang[] = "global_ang";
 static const char __pyx_k_global_ors[] = "global_ors";
+static const char __pyx_k_matchMotif[] = "matchMotif";
 static const char __pyx_k_negative_m[] = "negative_m";
 static const char __pyx_k_points_ref[] = "points_ref";
 static const char __pyx_k_pyx_vtable[] = "__pyx_vtable__";
@@ -2152,47 +2250,126 @@ static const char __pyx_k_refPoints2[] = "refPoints2";
 static const char __pyx_k_ref_points[] = "ref_points";
 static const char __pyx_k_ImportError[] = "ImportError";
 static const char __pyx_k_convert_box[] = "convert_box";
+static const char __pyx_k_env_nlist_2[] = "env_nlist_";
+static const char __pyx_k_environment[] = "environment";
 static const char __pyx_k_equiv_quats[] = "equiv_quats";
 static const char __pyx_k_getClusters[] = "getClusters";
 static const char __pyx_k_getNBinsPhi[] = "getNBinsPhi";
 static const char __pyx_k_known_modes[] = "known_modes";
+static const char __pyx_k_l_refPoints[] = "l_refPoints";
 static const char __pyx_k_precomputed[] = "precomputed";
+static const char __pyx_k_results_map[] = "results_map";
 static const char __pyx_k_RuntimeError[] = "RuntimeError";
+static const char __pyx_k_computeNList[] = "computeNList";
 static const char __pyx_k_freud_common[] = "freud.common";
 static const char __pyx_k_freud_errors[] = "freud.errors";
 static const char __pyx_k_getBondOrder[] = "getBondOrder";
+static const char __pyx_k_l_global_ors[] = "l_global_ors";
+static const char __pyx_k_l_points_ref[] = "l_points_ref";
+static const char __pyx_k_l_refPoints1[] = "l_refPoints1";
+static const char __pyx_k_l_refPoints2[] = "l_refPoints2";
+static const char __pyx_k_l_ref_points[] = "l_ref_points";
+static const char __pyx_k_minRMSDMotif[] = "minRMSDMotif";
+static const char __pyx_k_min_rmsd_vec[] = "min_rmsd_vec";
+static const char __pyx_k_minimizeRMSD[] = "minimizeRMSD";
 static const char __pyx_k_neighborhood[] = "neighborhood";
 static const char __pyx_k_orientations[] = "orientations";
 static const char __pyx_k_registration[] = "registration";
+static const char __pyx_k_stringsource[] = "stringsource";
+static const char __pyx_k_threshold_sq[] = "threshold_sq";
+static const char __pyx_k_computeGlobal[] = "computeGlobal";
 static const char __pyx_k_convert_array[] = "convert_array";
 static const char __pyx_k_getNBinsTheta[] = "getNBinsTheta";
 static const char __pyx_k_getNReference[] = "getNReference";
 static const char __pyx_k_global_search[] = "global_search";
+static const char __pyx_k_l_equiv_quats[] = "l_equiv_quats";
 static const char __pyx_k_num_neighbors[] = "num_neighbors";
 static const char __pyx_k_reduce_cython[] = "__reduce_cython__";
+static const char __pyx_k_MatchEnv_getNP[] = "MatchEnv.getNP";
 static const char __pyx_k_freud_locality[] = "freud.locality";
+static const char __pyx_k_getEnvironment[] = "getEnvironment";
 static const char __pyx_k_getNumClusters[] = "getNumClusters";
+static const char __pyx_k_l_orientations[] = "l_orientations";
 static const char __pyx_k_particle_local[] = "particle_local";
+static const char __pyx_k_resetBondOrder[] = "resetBondOrder";
+static const char __pyx_k_rot_refPoints2[] = "rot_refPoints2";
+static const char __pyx_k_MatchEnv_setBox[] = "MatchEnv.setBox";
+static const char __pyx_k_computeNeighbor[] = "computeNeighbor";
+static const char __pyx_k_defaulted_nlist[] = "defaulted_nlist";
 static const char __pyx_k_getGlobalAngles[] = "getGlobalAngles";
+static const char __pyx_k_reduceBondOrder[] = "reduceBondOrder";
 static const char __pyx_k_setstate_cython[] = "__setstate_cython__";
+static const char __pyx_k_tot_environment[] = "tot_environment";
+static const char __pyx_k_BondOrder_getBox[] = "BondOrder.getBox";
+static const char __pyx_k_BondOrder_getPhi[] = "BondOrder.getPhi";
+static const char __pyx_k_MatchEnv_cluster[] = "MatchEnv.cluster";
+static const char __pyx_k_Pairing2D_getBox[] = "Pairing2D.getBox";
 static const char __pyx_k_compOrientations[] = "compOrientations";
 static const char __pyx_k_ref_orientations[] = "ref_orientations";
+static const char __pyx_k_BondOrder_compute[] = "BondOrder.compute";
+static const char __pyx_k_Pairing2D_compute[] = "Pairing2D.compute";
+static const char __pyx_k_Pairing2D_getPair[] = "Pairing2D.getPair";
 static const char __pyx_k_ascontiguousarray[] = "ascontiguousarray";
+static const char __pyx_k_freud_environment[] = "freud.environment";
 static const char __pyx_k_getNeighborAngles[] = "getNeighborAngles";
 static const char __pyx_k_getTotEnvironment[] = "getTotEnvironment";
+static const char __pyx_k_BondOrder_getTheta[] = "BondOrder.getTheta";
+static const char __pyx_k_MatchEnv_isSimilar[] = "MatchEnv.isSimilar";
+static const char __pyx_k_Pairing2D_getMatch[] = "Pairing2D.getMatch";
 static const char __pyx_k_cline_in_traceback[] = "cline_in_traceback";
+static const char __pyx_k_l_compOrientations[] = "l_compOrientations";
+static const char __pyx_k_l_ref_orientations[] = "l_ref_orientations";
 static const char __pyx_k_make_default_nlist[] = "make_default_nlist";
+static const char __pyx_k_MatchEnv_matchMotif[] = "MatchEnv.matchMotif";
+static const char __pyx_k_defaulted_env_nlist[] = "defaulted_env_nlist";
+static const char __pyx_k_BondOrder_accumulate[] = "BondOrder.accumulate";
+static const char __pyx_k_MatchEnv_getClusters[] = "MatchEnv.getClusters";
+static const char __pyx_k_BondOrder_getNBinsPhi[] = "BondOrder.getNBinsPhi";
+static const char __pyx_k_MatchEnv_minRMSDMotif[] = "MatchEnv.minRMSDMotif";
+static const char __pyx_k_MatchEnv_minimizeRMSD[] = "MatchEnv.minimizeRMSD";
+static const char __pyx_k_freud_environment_pyx[] = "freud/environment.pyx";
 static const char __pyx_k_make_default_nlist_nn[] = "make_default_nlist_nn";
+static const char __pyx_k_BondOrder_getBondOrder[] = "BondOrder.getBondOrder";
+static const char __pyx_k_LocalDescriptors_getNP[] = "LocalDescriptors.getNP";
+static const char __pyx_k_AngularSeparation_getNP[] = "AngularSeparation.getNP";
+static const char __pyx_k_BondOrder_getNBinsTheta[] = "BondOrder.getNBinsTheta";
 static const char __pyx_k_FreudDeprecationWarning[] = "FreudDeprecationWarning";
+static const char __pyx_k_LocalDescriptors_getSph[] = "LocalDescriptors.getSph";
+static const char __pyx_k_MatchEnv_getEnvironment[] = "MatchEnv.getEnvironment";
+static const char __pyx_k_MatchEnv_getNumClusters[] = "MatchEnv.getNumClusters";
+static const char __pyx_k_BondOrder_resetBondOrder[] = "BondOrder.resetBondOrder";
+static const char __pyx_k_LocalDescriptors_compute[] = "LocalDescriptors.compute";
+static const char __pyx_k_LocalDescriptors_getLMax[] = "LocalDescriptors.getLMax";
+static const char __pyx_k_LocalDescriptors_getRMax[] = "LocalDescriptors.getRMax";
+static const char __pyx_k_MatchEnv___reduce_cython[] = "MatchEnv.__reduce_cython__";
+static const char __pyx_k_BondOrder___reduce_cython[] = "BondOrder.__reduce_cython__";
+static const char __pyx_k_BondOrder_reduceBondOrder[] = "BondOrder.reduceBondOrder";
+static const char __pyx_k_LocalDescriptors_getNSphs[] = "LocalDescriptors.getNSphs";
+static const char __pyx_k_Pairing2D___reduce_cython[] = "Pairing2D.__reduce_cython__";
+static const char __pyx_k_MatchEnv___setstate_cython[] = "MatchEnv.__setstate_cython__";
+static const char __pyx_k_MatchEnv_getTotEnvironment[] = "MatchEnv.getTotEnvironment";
 static const char __pyx_k_ors_should_be_an_Nx4_array[] = "ors should be an Nx4 array";
+static const char __pyx_k_BondOrder___setstate_cython[] = "BondOrder.__setstate_cython__";
+static const char __pyx_k_Pairing2D___setstate_cython[] = "Pairing2D.__setstate_cython__";
 static const char __pyx_k_ndarray_is_not_C_contiguous[] = "ndarray is not C contiguous";
+static const char __pyx_k_AngularSeparation_getNGlobal[] = "AngularSeparation.getNGlobal";
+static const char __pyx_k_LocalDescriptors_computeNList[] = "LocalDescriptors.computeNList";
 static const char __pyx_k_points_should_be_an_Nx3_array[] = "points should be an Nx3 array";
 static const char __pyx_k_ref_ors_should_be_an_Nx4_array[] = "ref_ors should be an Nx4 array";
+static const char __pyx_k_AngularSeparation_computeGlobal[] = "AngularSeparation.computeGlobal";
+static const char __pyx_k_AngularSeparation_getNReference[] = "AngularSeparation.getNReference";
 static const char __pyx_k_The_environment_module_contains[] = "\nThe environment module contains functions which characterize the local\nenvironments of particles in the system. These methods use the positions and\norientations of particles in the local neighborhood of a given particle to\ncharacterize the particle environment.\n";
 static const char __pyx_k_numpy_core_multiarray_failed_to[] = "numpy.core.multiarray failed to import";
 static const char __pyx_k_orientations_must_have_the_same[] = "orientations must have the same size as points_ref";
 static const char __pyx_k_unknown_dtype_code_in_numpy_pxd[] = "unknown dtype code in numpy.pxd (%d)";
+static const char __pyx_k_AngularSeparation___reduce_cytho[] = "AngularSeparation.__reduce_cython__";
+static const char __pyx_k_AngularSeparation___setstate_cyt[] = "AngularSeparation.__setstate_cython__";
+static const char __pyx_k_AngularSeparation_computeNeighbo[] = "AngularSeparation.computeNeighbor";
+static const char __pyx_k_AngularSeparation_getGlobalAngle[] = "AngularSeparation.getGlobalAngles";
+static const char __pyx_k_AngularSeparation_getNeighborAng[] = "AngularSeparation.getNeighborAngles";
 static const char __pyx_k_Format_string_allocated_too_shor[] = "Format string allocated too short, see comment in numpy.pxd";
+static const char __pyx_k_LocalDescriptors___reduce_cython[] = "LocalDescriptors.__reduce_cython__";
+static const char __pyx_k_LocalDescriptors___setstate_cyth[] = "LocalDescriptors.__setstate_cython__";
 static const char __pyx_k_Non_native_byte_order_not_suppor[] = "Non-native byte order not supported";
 static const char __pyx_k_Orientations_must_be_given_to_or[] = "Orientations must be given to orient LocalDescriptors with particles' orientations";
 static const char __pyx_k_The_number_of_vectors_in_refPoin[] = "The number of vectors in refPoints1 must MATCH the number ofvectors in refPoints2";
@@ -2212,12 +2389,61 @@ static const char __pyx_k_refPoints_should_be_an_Nx3_array[] = "refPoints should
 static const char __pyx_k_ref_orientations_should_be_an_Nx[] = "ref_orientations should be an Nx4 array";
 static const char __pyx_k_ref_points_should_be_an_Nx3_arra[] = "ref_points should be an Nx3 array";
 static const char __pyx_k_Format_string_allocated_too_shor_2[] = "Format string allocated too short.";
+static PyObject *__pyx_n_s_AngularSeparation___reduce_cytho;
+static PyObject *__pyx_n_s_AngularSeparation___setstate_cyt;
+static PyObject *__pyx_n_s_AngularSeparation_computeGlobal;
+static PyObject *__pyx_n_s_AngularSeparation_computeNeighbo;
+static PyObject *__pyx_n_s_AngularSeparation_getGlobalAngle;
+static PyObject *__pyx_n_s_AngularSeparation_getNGlobal;
+static PyObject *__pyx_n_s_AngularSeparation_getNP;
+static PyObject *__pyx_n_s_AngularSeparation_getNReference;
+static PyObject *__pyx_n_s_AngularSeparation_getNeighborAng;
+static PyObject *__pyx_n_s_BondOrder___reduce_cython;
+static PyObject *__pyx_n_s_BondOrder___setstate_cython;
+static PyObject *__pyx_n_s_BondOrder_accumulate;
+static PyObject *__pyx_n_s_BondOrder_compute;
+static PyObject *__pyx_n_s_BondOrder_getBondOrder;
+static PyObject *__pyx_n_s_BondOrder_getBox;
+static PyObject *__pyx_n_s_BondOrder_getNBinsPhi;
+static PyObject *__pyx_n_s_BondOrder_getNBinsTheta;
+static PyObject *__pyx_n_s_BondOrder_getPhi;
+static PyObject *__pyx_n_s_BondOrder_getTheta;
+static PyObject *__pyx_n_s_BondOrder_reduceBondOrder;
+static PyObject *__pyx_n_s_BondOrder_resetBondOrder;
 static PyObject *__pyx_kp_u_Format_string_allocated_too_shor;
 static PyObject *__pyx_kp_u_Format_string_allocated_too_shor_2;
 static PyObject *__pyx_n_s_FreudDeprecationWarning;
 static PyObject *__pyx_n_s_ImportError;
+static PyObject *__pyx_n_s_LocalDescriptors___reduce_cython;
+static PyObject *__pyx_n_s_LocalDescriptors___setstate_cyth;
+static PyObject *__pyx_n_s_LocalDescriptors_compute;
+static PyObject *__pyx_n_s_LocalDescriptors_computeNList;
+static PyObject *__pyx_n_s_LocalDescriptors_getLMax;
+static PyObject *__pyx_n_s_LocalDescriptors_getNP;
+static PyObject *__pyx_n_s_LocalDescriptors_getNSphs;
+static PyObject *__pyx_n_s_LocalDescriptors_getRMax;
+static PyObject *__pyx_n_s_LocalDescriptors_getSph;
+static PyObject *__pyx_n_s_MatchEnv___reduce_cython;
+static PyObject *__pyx_n_s_MatchEnv___setstate_cython;
+static PyObject *__pyx_n_s_MatchEnv_cluster;
+static PyObject *__pyx_n_s_MatchEnv_getClusters;
+static PyObject *__pyx_n_s_MatchEnv_getEnvironment;
+static PyObject *__pyx_n_s_MatchEnv_getNP;
+static PyObject *__pyx_n_s_MatchEnv_getNumClusters;
+static PyObject *__pyx_n_s_MatchEnv_getTotEnvironment;
+static PyObject *__pyx_n_s_MatchEnv_isSimilar;
+static PyObject *__pyx_n_s_MatchEnv_matchMotif;
+static PyObject *__pyx_n_s_MatchEnv_minRMSDMotif;
+static PyObject *__pyx_n_s_MatchEnv_minimizeRMSD;
+static PyObject *__pyx_n_s_MatchEnv_setBox;
 static PyObject *__pyx_kp_u_Non_native_byte_order_not_suppor;
 static PyObject *__pyx_kp_s_Orientations_must_be_given_to_or;
+static PyObject *__pyx_n_s_Pairing2D___reduce_cython;
+static PyObject *__pyx_n_s_Pairing2D___setstate_cython;
+static PyObject *__pyx_n_s_Pairing2D_compute;
+static PyObject *__pyx_n_s_Pairing2D_getBox;
+static PyObject *__pyx_n_s_Pairing2D_getMatch;
+static PyObject *__pyx_n_s_Pairing2D_getPair;
 static PyObject *__pyx_n_s_RuntimeError;
 static PyObject *__pyx_kp_s_The_number_of_vectors_in_refPoin;
 static PyObject *__pyx_kp_s_This_class_is_deprecated_use_fre;
@@ -2228,18 +2454,29 @@ static PyObject *__pyx_n_s_ValueError;
 static PyObject *__pyx_n_s_accumulate;
 static PyObject *__pyx_n_s_array_name;
 static PyObject *__pyx_n_s_ascontiguousarray;
+static PyObject *__pyx_n_s_b;
 static PyObject *__pyx_n_s_bod;
 static PyObject *__pyx_n_s_box;
 static PyObject *__pyx_n_s_cline_in_traceback;
+static PyObject *__pyx_n_s_cluster;
+static PyObject *__pyx_n_s_clusters;
 static PyObject *__pyx_n_s_common;
 static PyObject *__pyx_n_s_compDotTol;
 static PyObject *__pyx_n_s_compOrientations;
+static PyObject *__pyx_n_s_compute;
+static PyObject *__pyx_n_s_computeGlobal;
+static PyObject *__pyx_n_s_computeNList;
+static PyObject *__pyx_n_s_computeNeighbor;
 static PyObject *__pyx_n_s_contiguous;
 static PyObject *__pyx_n_s_convert_array;
 static PyObject *__pyx_n_s_convert_box;
 static PyObject *__pyx_n_s_copy;
+static PyObject *__pyx_n_s_defaulted_env_nlist;
+static PyObject *__pyx_n_s_defaulted_nlist;
 static PyObject *__pyx_n_s_dtype;
 static PyObject *__pyx_n_s_env_nlist;
+static PyObject *__pyx_n_s_env_nlist_2;
+static PyObject *__pyx_n_s_environment;
 static PyObject *__pyx_n_s_equiv_quats;
 static PyObject *__pyx_kp_s_equiv_quats_should_be_an_N_equiv;
 static PyObject *__pyx_n_s_flatten;
@@ -2247,11 +2484,14 @@ static PyObject *__pyx_n_s_float32;
 static PyObject *__pyx_n_s_format;
 static PyObject *__pyx_n_s_freud;
 static PyObject *__pyx_n_s_freud_common;
+static PyObject *__pyx_n_s_freud_environment;
+static PyObject *__pyx_kp_s_freud_environment_pyx;
 static PyObject *__pyx_n_s_freud_errors;
 static PyObject *__pyx_n_s_freud_locality;
 static PyObject *__pyx_n_s_getBondOrder;
 static PyObject *__pyx_n_s_getBox;
 static PyObject *__pyx_n_s_getClusters;
+static PyObject *__pyx_n_s_getEnvironment;
 static PyObject *__pyx_n_s_getGlobalAngles;
 static PyObject *__pyx_n_s_getLMax;
 static PyObject *__pyx_n_s_getMatch;
@@ -2271,31 +2511,72 @@ static PyObject *__pyx_n_s_getTheta;
 static PyObject *__pyx_n_s_getTotEnvironment;
 static PyObject *__pyx_n_s_getstate;
 static PyObject *__pyx_n_s_global;
+static PyObject *__pyx_n_s_global_ang;
 static PyObject *__pyx_n_s_global_ors;
 static PyObject *__pyx_kp_s_global_ors_should_be_an_Nx4_arra;
 static PyObject *__pyx_n_s_global_search;
 static PyObject *__pyx_n_s_hard_r;
+static PyObject *__pyx_n_s_i;
 static PyObject *__pyx_n_s_import;
+static PyObject *__pyx_n_s_index;
+static PyObject *__pyx_n_s_isSimilar;
 static PyObject *__pyx_n_s_k;
 static PyObject *__pyx_n_s_known_modes;
+static PyObject *__pyx_n_s_l_compOrientations;
+static PyObject *__pyx_n_s_l_equiv_quats;
+static PyObject *__pyx_n_s_l_global_ors;
+static PyObject *__pyx_n_s_l_max;
+static PyObject *__pyx_n_s_l_mode;
+static PyObject *__pyx_n_s_l_orientations;
+static PyObject *__pyx_n_s_l_ors;
+static PyObject *__pyx_n_s_l_points;
+static PyObject *__pyx_n_s_l_points_ref;
+static PyObject *__pyx_n_s_l_refPoints;
+static PyObject *__pyx_n_s_l_refPoints1;
+static PyObject *__pyx_n_s_l_refPoints2;
+static PyObject *__pyx_n_s_l_ref_orientations;
+static PyObject *__pyx_n_s_l_ref_ors;
+static PyObject *__pyx_n_s_l_ref_points;
 static PyObject *__pyx_n_s_lbod;
 static PyObject *__pyx_n_s_lmax;
 static PyObject *__pyx_n_s_locality;
 static PyObject *__pyx_n_s_main;
 static PyObject *__pyx_n_s_make_default_nlist;
 static PyObject *__pyx_n_s_make_default_nlist_nn;
+static PyObject *__pyx_n_s_match;
+static PyObject *__pyx_n_s_matchMotif;
+static PyObject *__pyx_n_s_minRMSDMotif;
+static PyObject *__pyx_n_s_min_rmsd;
+static PyObject *__pyx_n_s_min_rmsd_vec;
+static PyObject *__pyx_n_s_minimizeRMSD;
 static PyObject *__pyx_n_s_mode;
 static PyObject *__pyx_n_s_n;
+static PyObject *__pyx_n_s_nEquiv;
+static PyObject *__pyx_n_s_nGlobal;
+static PyObject *__pyx_n_s_nO;
+static PyObject *__pyx_n_s_nP;
+static PyObject *__pyx_n_s_nRef;
+static PyObject *__pyx_n_s_nRef1;
+static PyObject *__pyx_n_s_nRef2;
 static PyObject *__pyx_n_s_n_bins_p;
 static PyObject *__pyx_n_s_n_bins_t;
+static PyObject *__pyx_n_s_n_p;
+static PyObject *__pyx_n_s_n_ref;
 static PyObject *__pyx_n_s_name;
+static PyObject *__pyx_n_s_nbins;
 static PyObject *__pyx_kp_u_ndarray_is_not_C_contiguous;
 static PyObject *__pyx_kp_u_ndarray_is_not_Fortran_contiguou;
 static PyObject *__pyx_n_s_negative_m;
+static PyObject *__pyx_n_s_neigh_ang;
 static PyObject *__pyx_n_s_neighborhood;
+static PyObject *__pyx_n_s_nglobal;
 static PyObject *__pyx_n_s_nlist;
+static PyObject *__pyx_n_s_nlist_2;
 static PyObject *__pyx_kp_s_no_default___reduce___due_to_non;
 static PyObject *__pyx_n_s_np;
+static PyObject *__pyx_n_s_nref;
+static PyObject *__pyx_n_s_nt;
+static PyObject *__pyx_n_s_num_clust;
 static PyObject *__pyx_n_s_num_neighbors;
 static PyObject *__pyx_n_s_numpy;
 static PyObject *__pyx_kp_s_numpy_core_multiarray_failed_to;
@@ -2307,15 +2588,20 @@ static PyObject *__pyx_kp_s_orientations_must_have_the_same;
 static PyObject *__pyx_kp_s_orientations_should_be_an_Nx4_ar;
 static PyObject *__pyx_n_s_ors;
 static PyObject *__pyx_kp_s_ors_should_be_an_Nx4_array;
+static PyObject *__pyx_n_s_pair;
 static PyObject *__pyx_n_s_particle_local;
+static PyObject *__pyx_n_s_phi;
 static PyObject *__pyx_n_s_points;
 static PyObject *__pyx_n_s_points_ref;
 static PyObject *__pyx_kp_s_points_ref_should_be_an_Nx3_arra;
 static PyObject *__pyx_kp_s_points_should_be_an_Nx3_array;
 static PyObject *__pyx_n_s_precomputed;
+static PyObject *__pyx_n_s_pyx_state;
 static PyObject *__pyx_n_s_pyx_vtable;
+static PyObject *__pyx_n_s_r;
 static PyObject *__pyx_n_s_range;
 static PyObject *__pyx_n_s_reduce;
+static PyObject *__pyx_n_s_reduceBondOrder;
 static PyObject *__pyx_n_s_reduce_cython;
 static PyObject *__pyx_n_s_reduce_ex;
 static PyObject *__pyx_n_s_refPoints;
@@ -2331,14 +2617,26 @@ static PyObject *__pyx_kp_s_ref_ors_should_be_an_Nx4_array;
 static PyObject *__pyx_n_s_ref_points;
 static PyObject *__pyx_kp_s_ref_points_should_be_an_Nx3_arra;
 static PyObject *__pyx_n_s_registration;
+static PyObject *__pyx_n_s_resetBondOrder;
 static PyObject *__pyx_n_s_reshape;
+static PyObject *__pyx_n_s_result;
+static PyObject *__pyx_n_s_results_map;
 static PyObject *__pyx_n_s_rmax;
+static PyObject *__pyx_n_s_rot_refPoints2;
+static PyObject *__pyx_n_s_self;
+static PyObject *__pyx_n_s_setBox;
 static PyObject *__pyx_n_s_setstate;
 static PyObject *__pyx_n_s_setstate_cython;
 static PyObject *__pyx_n_s_shape;
+static PyObject *__pyx_n_s_sph;
+static PyObject *__pyx_kp_s_stringsource;
 static PyObject *__pyx_n_s_test;
+static PyObject *__pyx_n_s_theta;
 static PyObject *__pyx_n_s_threshold;
+static PyObject *__pyx_n_s_threshold_sq;
+static PyObject *__pyx_n_s_tot_environment;
 static PyObject *__pyx_kp_u_unknown_dtype_code_in_numpy_pxd;
+static PyObject *__pyx_n_s_vec_map;
 static PyObject *__pyx_n_s_warn;
 static PyObject *__pyx_n_s_warnings;
 static int __pyx_pf_5freud_11environment_9BondOrder___cinit__(struct __pyx_obj_5freud_11environment_BondOrder *__pyx_v_self, float __pyx_v_rmax, float __pyx_v_k, unsigned int __pyx_v_n, unsigned int __pyx_v_n_bins_t, unsigned int __pyx_v_n_bins_p); /* proto */
@@ -2485,6 +2783,104 @@ static PyObject *__pyx_tuple__47;
 static PyObject *__pyx_tuple__48;
 static PyObject *__pyx_tuple__49;
 static PyObject *__pyx_tuple__50;
+static PyObject *__pyx_tuple__51;
+static PyObject *__pyx_tuple__53;
+static PyObject *__pyx_tuple__55;
+static PyObject *__pyx_tuple__57;
+static PyObject *__pyx_tuple__59;
+static PyObject *__pyx_tuple__61;
+static PyObject *__pyx_tuple__63;
+static PyObject *__pyx_tuple__65;
+static PyObject *__pyx_tuple__67;
+static PyObject *__pyx_tuple__69;
+static PyObject *__pyx_tuple__71;
+static PyObject *__pyx_tuple__73;
+static PyObject *__pyx_tuple__75;
+static PyObject *__pyx_tuple__77;
+static PyObject *__pyx_tuple__79;
+static PyObject *__pyx_tuple__81;
+static PyObject *__pyx_tuple__83;
+static PyObject *__pyx_tuple__85;
+static PyObject *__pyx_tuple__87;
+static PyObject *__pyx_tuple__89;
+static PyObject *__pyx_tuple__91;
+static PyObject *__pyx_tuple__93;
+static PyObject *__pyx_tuple__95;
+static PyObject *__pyx_tuple__97;
+static PyObject *__pyx_tuple__99;
+static PyObject *__pyx_tuple__101;
+static PyObject *__pyx_tuple__103;
+static PyObject *__pyx_tuple__105;
+static PyObject *__pyx_tuple__107;
+static PyObject *__pyx_tuple__109;
+static PyObject *__pyx_tuple__111;
+static PyObject *__pyx_tuple__113;
+static PyObject *__pyx_tuple__115;
+static PyObject *__pyx_tuple__117;
+static PyObject *__pyx_tuple__119;
+static PyObject *__pyx_tuple__121;
+static PyObject *__pyx_tuple__123;
+static PyObject *__pyx_tuple__125;
+static PyObject *__pyx_tuple__127;
+static PyObject *__pyx_tuple__129;
+static PyObject *__pyx_tuple__131;
+static PyObject *__pyx_tuple__133;
+static PyObject *__pyx_tuple__135;
+static PyObject *__pyx_tuple__137;
+static PyObject *__pyx_tuple__139;
+static PyObject *__pyx_tuple__141;
+static PyObject *__pyx_tuple__143;
+static PyObject *__pyx_tuple__145;
+static PyObject *__pyx_tuple__147;
+static PyObject *__pyx_codeobj__52;
+static PyObject *__pyx_codeobj__54;
+static PyObject *__pyx_codeobj__56;
+static PyObject *__pyx_codeobj__58;
+static PyObject *__pyx_codeobj__60;
+static PyObject *__pyx_codeobj__62;
+static PyObject *__pyx_codeobj__64;
+static PyObject *__pyx_codeobj__66;
+static PyObject *__pyx_codeobj__68;
+static PyObject *__pyx_codeobj__70;
+static PyObject *__pyx_codeobj__72;
+static PyObject *__pyx_codeobj__74;
+static PyObject *__pyx_codeobj__76;
+static PyObject *__pyx_codeobj__78;
+static PyObject *__pyx_codeobj__80;
+static PyObject *__pyx_codeobj__82;
+static PyObject *__pyx_codeobj__84;
+static PyObject *__pyx_codeobj__86;
+static PyObject *__pyx_codeobj__88;
+static PyObject *__pyx_codeobj__90;
+static PyObject *__pyx_codeobj__92;
+static PyObject *__pyx_codeobj__94;
+static PyObject *__pyx_codeobj__96;
+static PyObject *__pyx_codeobj__98;
+static PyObject *__pyx_codeobj__100;
+static PyObject *__pyx_codeobj__102;
+static PyObject *__pyx_codeobj__104;
+static PyObject *__pyx_codeobj__106;
+static PyObject *__pyx_codeobj__108;
+static PyObject *__pyx_codeobj__110;
+static PyObject *__pyx_codeobj__112;
+static PyObject *__pyx_codeobj__114;
+static PyObject *__pyx_codeobj__116;
+static PyObject *__pyx_codeobj__118;
+static PyObject *__pyx_codeobj__120;
+static PyObject *__pyx_codeobj__122;
+static PyObject *__pyx_codeobj__124;
+static PyObject *__pyx_codeobj__126;
+static PyObject *__pyx_codeobj__128;
+static PyObject *__pyx_codeobj__130;
+static PyObject *__pyx_codeobj__132;
+static PyObject *__pyx_codeobj__134;
+static PyObject *__pyx_codeobj__136;
+static PyObject *__pyx_codeobj__138;
+static PyObject *__pyx_codeobj__140;
+static PyObject *__pyx_codeobj__142;
+static PyObject *__pyx_codeobj__144;
+static PyObject *__pyx_codeobj__146;
+static PyObject *__pyx_codeobj__148;
 /* Late includes */
 
 /* "freud/environment.pyx":97
@@ -2708,7 +3104,8 @@ static void __pyx_pf_5freud_11environment_9BondOrder_2__dealloc__(struct __pyx_o
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_11environment_9BondOrder_5accumulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_11environment_9BondOrder_4accumulate[] = "Calculates the correlation function and adds to the current\n        histogram.\n\n        Args:\n            box (:class:`freud.box.Box`):\n                Simulation box.\n            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Reference points to calculate bonds.\n            ref_orientations ((:math:`N_{particles}`, 4)             :class:`numpy.ndarray`):\n                Reference orientations to calculate bonds.\n            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Points to calculate the bonding.\n            orientations ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Orientations to calculate the bonding.\n            mode (str, optional):\n                Mode to calculate bond order. Options are :code:`'bod'`,\n                :code:`'lbod'`, :code:`'obcd'`, or :code:`'oocd'`\n                (Default value = :code:`'bod'`).\n            nlist (:class:`freud.locality.NeighborList`, optional):\n                NeighborList to use to find bonds (Default value = None).\n        ";
+static char __pyx_doc_5freud_11environment_9BondOrder_4accumulate[] = "BondOrder.accumulate(self, box, ref_points, ref_orientations, points, orientations, str mode='bod', nlist=None)\nCalculates the correlation function and adds to the current\n        histogram.\n\n        Args:\n            box (:class:`freud.box.Box`):\n                Simulation box.\n            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Reference points to calculate bonds.\n            ref_orientations ((:math:`N_{particles}`, 4)             :class:`numpy.ndarray`):\n                Reference orientations to calculate bonds.\n            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Points to calculate the bonding.\n            orientations ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Orientations to calculate the bonding.\n            mode (str, optional):\n                Mode to calculate bond order. Options are :code:`'bod'`,\n                :code:`'lbod'`, :code:`'obcd'`, or :code:`'oocd'`\n                (Default value = :code:`'bod'`).\n            nlist (:class:`freud.locality.NeighborList`, optional):\n                NeighborList to use to find bonds (Default value = None).\n        ";
+static PyMethodDef __pyx_mdef_5freud_11environment_9BondOrder_5accumulate = {"accumulate", (PyCFunction)__pyx_pw_5freud_11environment_9BondOrder_5accumulate, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_11environment_9BondOrder_4accumulate};
 static PyObject *__pyx_pw_5freud_11environment_9BondOrder_5accumulate(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_box = 0;
   PyObject *__pyx_v_ref_points = 0;
@@ -3975,7 +4372,8 @@ static PyObject *__pyx_pf_5freud_11environment_9BondOrder_10bond_order___get__(s
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_11environment_9BondOrder_7getBondOrder(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_11environment_9BondOrder_6getBondOrder[] = "Get the bond order.\n\n        Returns:\n            :math:`\\left(N_{\\phi}, N_{\\theta} \\right)`             :class:`numpy.ndarray`:\n                Bond order.\n        ";
+static char __pyx_doc_5freud_11environment_9BondOrder_6getBondOrder[] = "BondOrder.getBondOrder(self)\nGet the bond order.\n\n        Returns:\n            :math:`\\left(N_{\\phi}, N_{\\theta} \\right)`             :class:`numpy.ndarray`:\n                Bond order.\n        ";
+static PyMethodDef __pyx_mdef_5freud_11environment_9BondOrder_7getBondOrder = {"getBondOrder", (PyCFunction)__pyx_pw_5freud_11environment_9BondOrder_7getBondOrder, METH_NOARGS, __pyx_doc_5freud_11environment_9BondOrder_6getBondOrder};
 static PyObject *__pyx_pw_5freud_11environment_9BondOrder_7getBondOrder(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -4186,7 +4584,8 @@ static PyObject *__pyx_pf_5freud_11environment_9BondOrder_3box___get__(struct __
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_11environment_9BondOrder_9getBox(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_11environment_9BondOrder_8getBox[] = "Get the box used in the calculation.\n\n        Returns:\n            :class:`freud.box.Box`: freud Box.\n        ";
+static char __pyx_doc_5freud_11environment_9BondOrder_8getBox[] = "BondOrder.getBox(self)\nGet the box used in the calculation.\n\n        Returns:\n            :class:`freud.box.Box`: freud Box.\n        ";
+static PyMethodDef __pyx_mdef_5freud_11environment_9BondOrder_9getBox = {"getBox", (PyCFunction)__pyx_pw_5freud_11environment_9BondOrder_9getBox, METH_NOARGS, __pyx_doc_5freud_11environment_9BondOrder_8getBox};
 static PyObject *__pyx_pw_5freud_11environment_9BondOrder_9getBox(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -4247,7 +4646,8 @@ static PyObject *__pyx_pf_5freud_11environment_9BondOrder_8getBox(struct __pyx_o
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_11environment_9BondOrder_11resetBondOrder(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_11environment_9BondOrder_10resetBondOrder[] = "Resets the values of the bond order in memory.";
+static char __pyx_doc_5freud_11environment_9BondOrder_10resetBondOrder[] = "BondOrder.resetBondOrder(self)\nResets the values of the bond order in memory.";
+static PyMethodDef __pyx_mdef_5freud_11environment_9BondOrder_11resetBondOrder = {"resetBondOrder", (PyCFunction)__pyx_pw_5freud_11environment_9BondOrder_11resetBondOrder, METH_NOARGS, __pyx_doc_5freud_11environment_9BondOrder_10resetBondOrder};
 static PyObject *__pyx_pw_5freud_11environment_9BondOrder_11resetBondOrder(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -4298,7 +4698,8 @@ static PyObject *__pyx_pf_5freud_11environment_9BondOrder_10resetBondOrder(struc
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_11environment_9BondOrder_13compute(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_11environment_9BondOrder_12compute[] = "Calculates the bond order histogram. Will overwrite the current\n        histogram.\n\n        Args:\n            box (:class:`freud.box.Box`):\n                Simulation box.\n            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Reference points to calculate bonds.\n            ref_orientations ((:math:`N_{particles}`, 4)             :class:`numpy.ndarray`):\n                Reference orientations to calculate bonds.\n            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Points to calculate the bonding.\n            orientations ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Orientations to calculate the bonding.\n            mode (str, optional):\n                Mode to calculate bond order. Options are :code:`'bod'`,\n                :code:`'lbod'`, :code:`'obcd'`, or :code:`'oocd'`\n                (Default value = :code:`'bod'`).\n            nlist (:class:`freud.locality.NeighborList`, optional):\n                NeighborList to use to find bonds (Default value = None).\n        ";
+static char __pyx_doc_5freud_11environment_9BondOrder_12compute[] = "BondOrder.compute(self, box, ref_points, ref_orientations, points, orientations, mode='bod', nlist=None)\nCalculates the bond order histogram. Will overwrite the current\n        histogram.\n\n        Args:\n            box (:class:`freud.box.Box`):\n                Simulation box.\n            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Reference points to calculate bonds.\n            ref_orientations ((:math:`N_{particles}`, 4)             :class:`numpy.ndarray`):\n                Reference orientations to calculate bonds.\n            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Points to calculate the bonding.\n            orientations ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Orientations to calculate the bonding.\n            mode (str, optional):\n                Mode to calculate bond order. Options are :code:`'bod'`,\n                :code:`'lbod'`, :code:`'obcd'`, or :code:`'oocd'`\n                (Default value = :code:`'bod'`).\n            nlist (:class:`freud.locality.NeighborList`, optional):\n                NeighborList to use to find bonds (Default value = None).\n        ";
+static PyMethodDef __pyx_mdef_5freud_11environment_9BondOrder_13compute = {"compute", (PyCFunction)__pyx_pw_5freud_11environment_9BondOrder_13compute, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_11environment_9BondOrder_12compute};
 static PyObject *__pyx_pw_5freud_11environment_9BondOrder_13compute(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_box = 0;
   PyObject *__pyx_v_ref_points = 0;
@@ -4577,7 +4978,8 @@ static PyObject *__pyx_pf_5freud_11environment_9BondOrder_12compute(struct __pyx
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_11environment_9BondOrder_15reduceBondOrder(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_11environment_9BondOrder_14reduceBondOrder[] = "Reduces the histogram in the values over N processors to a single\n        histogram. This is called automatically by\n        :py:meth:`freud.environment.BondOrder.getBondOrder()`.\n        ";
+static char __pyx_doc_5freud_11environment_9BondOrder_14reduceBondOrder[] = "BondOrder.reduceBondOrder(self)\nReduces the histogram in the values over N processors to a single\n        histogram. This is called automatically by\n        :py:meth:`freud.environment.BondOrder.getBondOrder()`.\n        ";
+static PyMethodDef __pyx_mdef_5freud_11environment_9BondOrder_15reduceBondOrder = {"reduceBondOrder", (PyCFunction)__pyx_pw_5freud_11environment_9BondOrder_15reduceBondOrder, METH_NOARGS, __pyx_doc_5freud_11environment_9BondOrder_14reduceBondOrder};
 static PyObject *__pyx_pw_5freud_11environment_9BondOrder_15reduceBondOrder(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -4710,7 +5112,8 @@ static PyObject *__pyx_pf_5freud_11environment_9BondOrder_5theta___get__(struct 
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_11environment_9BondOrder_17getTheta(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_11environment_9BondOrder_16getTheta[] = "Get :math:`\\theta`.\n\n        Returns:\n            :math:`\\left(N_{\\theta} \\right)` :class:`numpy.ndarray`:\n                Values of bin centers for :math:`\\theta`.\n        ";
+static char __pyx_doc_5freud_11environment_9BondOrder_16getTheta[] = "BondOrder.getTheta(self)\nGet :math:`\\theta`.\n\n        Returns:\n            :math:`\\left(N_{\\theta} \\right)` :class:`numpy.ndarray`:\n                Values of bin centers for :math:`\\theta`.\n        ";
+static PyMethodDef __pyx_mdef_5freud_11environment_9BondOrder_17getTheta = {"getTheta", (PyCFunction)__pyx_pw_5freud_11environment_9BondOrder_17getTheta, METH_NOARGS, __pyx_doc_5freud_11environment_9BondOrder_16getTheta};
 static PyObject *__pyx_pw_5freud_11environment_9BondOrder_17getTheta(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -4912,7 +5315,8 @@ static PyObject *__pyx_pf_5freud_11environment_9BondOrder_3phi___get__(struct __
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_11environment_9BondOrder_19getPhi(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_11environment_9BondOrder_18getPhi[] = "Get :math:`\\phi`.\n\n        Returns:\n            :math:`\\left(N_{\\phi} \\right)` :class:`numpy.ndarray`:\n                Values of bin centers for :math:`\\phi`.\n        ";
+static char __pyx_doc_5freud_11environment_9BondOrder_18getPhi[] = "BondOrder.getPhi(self)\nGet :math:`\\phi`.\n\n        Returns:\n            :math:`\\left(N_{\\phi} \\right)` :class:`numpy.ndarray`:\n                Values of bin centers for :math:`\\phi`.\n        ";
+static PyMethodDef __pyx_mdef_5freud_11environment_9BondOrder_19getPhi = {"getPhi", (PyCFunction)__pyx_pw_5freud_11environment_9BondOrder_19getPhi, METH_NOARGS, __pyx_doc_5freud_11environment_9BondOrder_18getPhi};
 static PyObject *__pyx_pw_5freud_11environment_9BondOrder_19getPhi(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -5114,7 +5518,8 @@ static PyObject *__pyx_pf_5freud_11environment_9BondOrder_12n_bins_theta___get__
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_11environment_9BondOrder_21getNBinsTheta(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_11environment_9BondOrder_20getNBinsTheta[] = "Get the number of bins in the :math:`\\theta`-dimension of histogram.\n\n        Returns:\n            unsigned int: :math:`N_{\\theta}`.\n        ";
+static char __pyx_doc_5freud_11environment_9BondOrder_20getNBinsTheta[] = "BondOrder.getNBinsTheta(self)\nGet the number of bins in the :math:`\\theta`-dimension of histogram.\n\n        Returns:\n            unsigned int: :math:`N_{\\theta}`.\n        ";
+static PyMethodDef __pyx_mdef_5freud_11environment_9BondOrder_21getNBinsTheta = {"getNBinsTheta", (PyCFunction)__pyx_pw_5freud_11environment_9BondOrder_21getNBinsTheta, METH_NOARGS, __pyx_doc_5freud_11environment_9BondOrder_20getNBinsTheta};
 static PyObject *__pyx_pw_5freud_11environment_9BondOrder_21getNBinsTheta(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -5267,7 +5672,8 @@ static PyObject *__pyx_pf_5freud_11environment_9BondOrder_10n_bins_phi___get__(s
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_11environment_9BondOrder_23getNBinsPhi(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_11environment_9BondOrder_22getNBinsPhi[] = "Get the number of bins in the :math:`\\phi`-dimension of histogram.\n\n        Returns:\n            unsigned int: :math:`N_{\\phi}`\n        ";
+static char __pyx_doc_5freud_11environment_9BondOrder_22getNBinsPhi[] = "BondOrder.getNBinsPhi(self)\nGet the number of bins in the :math:`\\phi`-dimension of histogram.\n\n        Returns:\n            unsigned int: :math:`N_{\\phi}`\n        ";
+static PyMethodDef __pyx_mdef_5freud_11environment_9BondOrder_23getNBinsPhi = {"getNBinsPhi", (PyCFunction)__pyx_pw_5freud_11environment_9BondOrder_23getNBinsPhi, METH_NOARGS, __pyx_doc_5freud_11environment_9BondOrder_22getNBinsPhi};
 static PyObject *__pyx_pw_5freud_11environment_9BondOrder_23getNBinsPhi(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -5336,6 +5742,8 @@ static PyObject *__pyx_pf_5freud_11environment_9BondOrder_22getNBinsPhi(struct _
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_11environment_9BondOrder_25__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static char __pyx_doc_5freud_11environment_9BondOrder_24__reduce_cython__[] = "BondOrder.__reduce_cython__(self)";
+static PyMethodDef __pyx_mdef_5freud_11environment_9BondOrder_25__reduce_cython__ = {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_11environment_9BondOrder_25__reduce_cython__, METH_NOARGS, __pyx_doc_5freud_11environment_9BondOrder_24__reduce_cython__};
 static PyObject *__pyx_pw_5freud_11environment_9BondOrder_25__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -5390,6 +5798,8 @@ static PyObject *__pyx_pf_5freud_11environment_9BondOrder_24__reduce_cython__(CY
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_11environment_9BondOrder_27__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
+static char __pyx_doc_5freud_11environment_9BondOrder_26__setstate_cython__[] = "BondOrder.__setstate_cython__(self, __pyx_state)";
+static PyMethodDef __pyx_mdef_5freud_11environment_9BondOrder_27__setstate_cython__ = {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_11environment_9BondOrder_27__setstate_cython__, METH_O, __pyx_doc_5freud_11environment_9BondOrder_26__setstate_cython__};
 static PyObject *__pyx_pw_5freud_11environment_9BondOrder_27__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -5659,7 +6069,8 @@ static void __pyx_pf_5freud_11environment_16LocalDescriptors_2__dealloc__(struct
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_11environment_16LocalDescriptors_5computeNList(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_11environment_16LocalDescriptors_4computeNList[] = "Compute the neighbor list for bonds from a set of source points to\n        a set of destination points.\n\n        Args:\n            box (:class:`freud.box.Box`):\n                Simulation box.\n            points_ref ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Source points to calculate the order parameter.\n            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,             optional):\n                Destination points to calculate the order parameter\n                (Default value = None).\n        ";
+static char __pyx_doc_5freud_11environment_16LocalDescriptors_4computeNList[] = "LocalDescriptors.computeNList(self, box, points_ref, points=None)\nCompute the neighbor list for bonds from a set of source points to\n        a set of destination points.\n\n        Args:\n            box (:class:`freud.box.Box`):\n                Simulation box.\n            points_ref ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Source points to calculate the order parameter.\n            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,             optional):\n                Destination points to calculate the order parameter\n                (Default value = None).\n        ";
+static PyMethodDef __pyx_mdef_5freud_11environment_16LocalDescriptors_5computeNList = {"computeNList", (PyCFunction)__pyx_pw_5freud_11environment_16LocalDescriptors_5computeNList, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_11environment_16LocalDescriptors_4computeNList};
 static PyObject *__pyx_pw_5freud_11environment_16LocalDescriptors_5computeNList(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_box = 0;
   PyObject *__pyx_v_points_ref = 0;
@@ -6251,7 +6662,8 @@ static PyObject *__pyx_pf_5freud_11environment_16LocalDescriptors_4computeNList(
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_11environment_16LocalDescriptors_7compute(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_11environment_16LocalDescriptors_6compute[] = "Calculates the local descriptors of bonds from a set of source\n        points to a set of destination points.\n\n        Args:\n            box (:class:`freud.box.Box`):\n                Simulation box.\n            num_neighbors (unsigned int):\n                Number of neighbors to compute with or to limit to, if the\n                neighbor list is precomputed.\n            points_ref ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Source points to calculate the order parameter.\n            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,             optional):\n                Destination points to calculate the order parameter\n                (Default value = None).\n            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`,             optional):\n                Orientation of each reference point (Default value = None).\n            mode (str, optional):\n                Orientation mode to use for environments, either\n                :code:`'neighborhood'` to use the orientation of the local\n                neighborhood, :code:`'particle_local'` to use the given\n                particle orientations, or :code:`'global'` to not rotate\n                environments (Default value = :code:`'neighborhood'`).\n            nlist (:class:`freud.locality.NeighborList`, optional):\n                Neighborlist to use to find bonds or :code:`'precomputed'` if\n                using :py:meth:`~.computeNList` (Default value = None).\n        ";
+static char __pyx_doc_5freud_11environment_16LocalDescriptors_6compute[] = "LocalDescriptors.compute(self, box, unsigned int num_neighbors, points_ref, points=None, orientations=None, mode='neighborhood', nlist=None)\nCalculates the local descriptors of bonds from a set of source\n        points to a set of destination points.\n\n        Args:\n            box (:class:`freud.box.Box`):\n                Simulation box.\n            num_neighbors (unsigned int):\n                Number of neighbors to compute with or to limit to, if the\n                neighbor list is precomputed.\n            points_ref ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Source points to calculate the order parameter.\n            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,             optional):\n                Destination points to calculate the order parameter\n                (Default value = None).\n            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`,             optional):\n                Orientation of each reference point (Default value = None).\n            mode (str, optional):\n                Orientation mode to use for environments, either\n                :code:`'neighborhood'` to use the orientation of the local\n                neighborhood, :code:`'particle_local'` to use the given\n                particle orientations, or :code:`'global'` to not rotate\n                environments (Default value = :code:`'neighborhood'`).\n            nlist (:class:`freud.locality.NeighborList`, optional):\n                Neighborlist to use to find bonds or :code:`'precomputed'` if\n                using :py:meth:`~.computeNList` (Default value = None).\n        ";
+static PyMethodDef __pyx_mdef_5freud_11environment_16LocalDescriptors_7compute = {"compute", (PyCFunction)__pyx_pw_5freud_11environment_16LocalDescriptors_7compute, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_11environment_16LocalDescriptors_6compute};
 static PyObject *__pyx_pw_5freud_11environment_16LocalDescriptors_7compute(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_box = 0;
   unsigned int __pyx_v_num_neighbors;
@@ -7525,7 +7937,8 @@ static PyObject *__pyx_pf_5freud_11environment_16LocalDescriptors_3sph___get__(s
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_11environment_16LocalDescriptors_9getSph(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_11environment_16LocalDescriptors_8getSph[] = "Get a reference to the last computed spherical harmonic array.\n\n        Returns:\n            :math:`\\left(N_{bonds}, \\text{SphWidth} \\right)`             :class:`numpy.ndarray`:\n                Order parameter.\n        ";
+static char __pyx_doc_5freud_11environment_16LocalDescriptors_8getSph[] = "LocalDescriptors.getSph(self)\nGet a reference to the last computed spherical harmonic array.\n\n        Returns:\n            :math:`\\left(N_{bonds}, \\text{SphWidth} \\right)`             :class:`numpy.ndarray`:\n                Order parameter.\n        ";
+static PyMethodDef __pyx_mdef_5freud_11environment_16LocalDescriptors_9getSph = {"getSph", (PyCFunction)__pyx_pw_5freud_11environment_16LocalDescriptors_9getSph, METH_NOARGS, __pyx_doc_5freud_11environment_16LocalDescriptors_8getSph};
 static PyObject *__pyx_pw_5freud_11environment_16LocalDescriptors_9getSph(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -7736,7 +8149,8 @@ static PyObject *__pyx_pf_5freud_11environment_16LocalDescriptors_13num_particle
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_11environment_16LocalDescriptors_11getNP(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_11environment_16LocalDescriptors_10getNP[] = "Get the number of particles.\n\n        Returns:\n            unsigned int: :math:`N_{particles}`.\n        ";
+static char __pyx_doc_5freud_11environment_16LocalDescriptors_10getNP[] = "LocalDescriptors.getNP(self)\nGet the number of particles.\n\n        Returns:\n            unsigned int: :math:`N_{particles}`.\n        ";
+static PyMethodDef __pyx_mdef_5freud_11environment_16LocalDescriptors_11getNP = {"getNP", (PyCFunction)__pyx_pw_5freud_11environment_16LocalDescriptors_11getNP, METH_NOARGS, __pyx_doc_5freud_11environment_16LocalDescriptors_10getNP};
 static PyObject *__pyx_pw_5freud_11environment_16LocalDescriptors_11getNP(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -7889,7 +8303,8 @@ static PyObject *__pyx_pf_5freud_11environment_16LocalDescriptors_13num_neighbor
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_11environment_16LocalDescriptors_13getNSphs(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_11environment_16LocalDescriptors_12getNSphs[] = "Get the number of neighbors.\n\n        Returns:\n            unsigned int: :math:`N_{neighbors}`.\n        ";
+static char __pyx_doc_5freud_11environment_16LocalDescriptors_12getNSphs[] = "LocalDescriptors.getNSphs(self)\nGet the number of neighbors.\n\n        Returns:\n            unsigned int: :math:`N_{neighbors}`.\n        ";
+static PyMethodDef __pyx_mdef_5freud_11environment_16LocalDescriptors_13getNSphs = {"getNSphs", (PyCFunction)__pyx_pw_5freud_11environment_16LocalDescriptors_13getNSphs, METH_NOARGS, __pyx_doc_5freud_11environment_16LocalDescriptors_12getNSphs};
 static PyObject *__pyx_pw_5freud_11environment_16LocalDescriptors_13getNSphs(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -8042,7 +8457,8 @@ static PyObject *__pyx_pf_5freud_11environment_16LocalDescriptors_5l_max___get__
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_11environment_16LocalDescriptors_15getLMax(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_11environment_16LocalDescriptors_14getLMax[] = "Get the maximum spherical harmonic :math:`l` to calculate for.\n\n        Returns:\n            unsigned int: :math:`l`.\n        ";
+static char __pyx_doc_5freud_11environment_16LocalDescriptors_14getLMax[] = "LocalDescriptors.getLMax(self)\nGet the maximum spherical harmonic :math:`l` to calculate for.\n\n        Returns:\n            unsigned int: :math:`l`.\n        ";
+static PyMethodDef __pyx_mdef_5freud_11environment_16LocalDescriptors_15getLMax = {"getLMax", (PyCFunction)__pyx_pw_5freud_11environment_16LocalDescriptors_15getLMax, METH_NOARGS, __pyx_doc_5freud_11environment_16LocalDescriptors_14getLMax};
 static PyObject *__pyx_pw_5freud_11environment_16LocalDescriptors_15getLMax(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -8195,7 +8611,8 @@ static PyObject *__pyx_pf_5freud_11environment_16LocalDescriptors_5r_max___get__
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_11environment_16LocalDescriptors_17getRMax(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_11environment_16LocalDescriptors_16getRMax[] = "Get the cutoff radius.\n\n        Returns:\n            float: :math:`r`.\n        ";
+static char __pyx_doc_5freud_11environment_16LocalDescriptors_16getRMax[] = "LocalDescriptors.getRMax(self)\nGet the cutoff radius.\n\n        Returns:\n            float: :math:`r`.\n        ";
+static PyMethodDef __pyx_mdef_5freud_11environment_16LocalDescriptors_17getRMax = {"getRMax", (PyCFunction)__pyx_pw_5freud_11environment_16LocalDescriptors_17getRMax, METH_NOARGS, __pyx_doc_5freud_11environment_16LocalDescriptors_16getRMax};
 static PyObject *__pyx_pw_5freud_11environment_16LocalDescriptors_17getRMax(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -8264,6 +8681,8 @@ static PyObject *__pyx_pf_5freud_11environment_16LocalDescriptors_16getRMax(stru
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_11environment_16LocalDescriptors_19__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static char __pyx_doc_5freud_11environment_16LocalDescriptors_18__reduce_cython__[] = "LocalDescriptors.__reduce_cython__(self)";
+static PyMethodDef __pyx_mdef_5freud_11environment_16LocalDescriptors_19__reduce_cython__ = {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_11environment_16LocalDescriptors_19__reduce_cython__, METH_NOARGS, __pyx_doc_5freud_11environment_16LocalDescriptors_18__reduce_cython__};
 static PyObject *__pyx_pw_5freud_11environment_16LocalDescriptors_19__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -8318,6 +8737,8 @@ static PyObject *__pyx_pf_5freud_11environment_16LocalDescriptors_18__reduce_cyt
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_11environment_16LocalDescriptors_21__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
+static char __pyx_doc_5freud_11environment_16LocalDescriptors_20__setstate_cython__[] = "LocalDescriptors.__setstate_cython__(self, __pyx_state)";
+static PyMethodDef __pyx_mdef_5freud_11environment_16LocalDescriptors_21__setstate_cython__ = {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_11environment_16LocalDescriptors_21__setstate_cython__, METH_O, __pyx_doc_5freud_11environment_16LocalDescriptors_20__setstate_cython__};
 static PyObject *__pyx_pw_5freud_11environment_16LocalDescriptors_21__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -8660,7 +9081,8 @@ static void __pyx_pf_5freud_11environment_8MatchEnv_2__dealloc__(struct __pyx_ob
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_11environment_8MatchEnv_5setBox(PyObject *__pyx_v_self, PyObject *__pyx_v_box); /*proto*/
-static char __pyx_doc_5freud_11environment_8MatchEnv_4setBox[] = "Reset the simulation box.\n\n        Args:\n            box(:class:`freud.box.Box`): Simulation box.\n        ";
+static char __pyx_doc_5freud_11environment_8MatchEnv_4setBox[] = "MatchEnv.setBox(self, box)\nReset the simulation box.\n\n        Args:\n            box(:class:`freud.box.Box`): Simulation box.\n        ";
+static PyMethodDef __pyx_mdef_5freud_11environment_8MatchEnv_5setBox = {"setBox", (PyCFunction)__pyx_pw_5freud_11environment_8MatchEnv_5setBox, METH_O, __pyx_doc_5freud_11environment_8MatchEnv_4setBox};
 static PyObject *__pyx_pw_5freud_11environment_8MatchEnv_5setBox(PyObject *__pyx_v_self, PyObject *__pyx_v_box) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -8801,7 +9223,8 @@ static PyObject *__pyx_pf_5freud_11environment_8MatchEnv_4setBox(struct __pyx_ob
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_11environment_8MatchEnv_7cluster(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_11environment_8MatchEnv_6cluster[] = "Determine clusters of particles with matching environments.\n\n        Args:\n            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Destination points to calculate the order parameter.\n            threshold (float):\n                Maximum magnitude of the vector difference between two vectors,\n                below which they are \"matching.\"\n            hard_r (bool):\n                If True, add all particles that fall within the threshold of\n                m_rmaxsq to the environment.\n            registration (bool):\n                If True, first use brute force registration to orient one set\n                of environment vectors with respect to the other set such that\n                it minimizes the RMSD between the two sets.\n            global_search (bool):\n                If True, do an exhaustive search wherein the environments of\n                every single pair of particles in the simulation are compared.\n                If False, only compare the environments of neighboring\n                particles.\n            env_nlist (:class:`freud.locality.NeighborList`, optional):\n                Neighborlist to use to find the environment of every particle\n                (Default value = None).\n            nlist (:class:`freud.locality.NeighborList`, optional):\n                Neighborlist to use to find neighbors of every particle, to\n                compare environments (Default value = None).\n        ";
+static char __pyx_doc_5freud_11environment_8MatchEnv_6cluster[] = "MatchEnv.cluster(self, points, threshold, hard_r=False, registration=False, global_search=False, env_nlist=None, nlist=None)\nDetermine clusters of particles with matching environments.\n\n        Args:\n            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Destination points to calculate the order parameter.\n            threshold (float):\n                Maximum magnitude of the vector difference between two vectors,\n                below which they are \"matching.\"\n            hard_r (bool):\n                If True, add all particles that fall within the threshold of\n                m_rmaxsq to the environment.\n            registration (bool):\n                If True, first use brute force registration to orient one set\n                of environment vectors with respect to the other set such that\n                it minimizes the RMSD between the two sets.\n            global_search (bool):\n                If True, do an exhaustive search wherein the environments of\n                every single pair of particles in the simulation are compared.\n                If False, only compare the environments of neighboring\n                particles.\n            env_nlist (:class:`freud.locality.NeighborList`, optional):\n                Neighborlist to use to find the environment of every particle\n                (Default value = None).\n            nlist (:class:`freud.locality.NeighborList`, optional):\n                Neighborlist to use to find neighbors of every particle, to\n                compare environments (Default value = None).\n        ";
+static PyMethodDef __pyx_mdef_5freud_11environment_8MatchEnv_7cluster = {"cluster", (PyCFunction)__pyx_pw_5freud_11environment_8MatchEnv_7cluster, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_11environment_8MatchEnv_6cluster};
 static PyObject *__pyx_pw_5freud_11environment_8MatchEnv_7cluster(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_points = 0;
   PyObject *__pyx_v_threshold = 0;
@@ -9705,7 +10128,8 @@ static PyObject *__pyx_pf_5freud_11environment_8MatchEnv_6cluster(struct __pyx_o
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_11environment_8MatchEnv_9matchMotif(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_11environment_8MatchEnv_8matchMotif[] = "Determine clusters of particles that match the motif provided by\n        refPoints.\n\n        Args:\n            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Particle positions.\n            refPoints ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Vectors that make up the motif against which we are matching.\n            threshold (float):\n                Maximum magnitude of the vector difference between two vectors,\n                below which they are considered \"matching.\"\n            registration (bool, optional):\n                If True, first use brute force registration to orient one set\n                of environment vectors with respect to the other set such that\n                it minimizes the RMSD between the two sets\n                (Default value = False).\n            nlist (:class:`freud.locality.NeighborList`, optional):\n                Neighborlist to use to find bonds (Default value = None).\n        ";
+static char __pyx_doc_5freud_11environment_8MatchEnv_8matchMotif[] = "MatchEnv.matchMotif(self, points, refPoints, threshold, registration=False, nlist=None)\nDetermine clusters of particles that match the motif provided by\n        refPoints.\n\n        Args:\n            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Particle positions.\n            refPoints ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Vectors that make up the motif against which we are matching.\n            threshold (float):\n                Maximum magnitude of the vector difference between two vectors,\n                below which they are considered \"matching.\"\n            registration (bool, optional):\n                If True, first use brute force registration to orient one set\n                of environment vectors with respect to the other set such that\n                it minimizes the RMSD between the two sets\n                (Default value = False).\n            nlist (:class:`freud.locality.NeighborList`, optional):\n                Neighborlist to use to find bonds (Default value = None).\n        ";
+static PyMethodDef __pyx_mdef_5freud_11environment_8MatchEnv_9matchMotif = {"matchMotif", (PyCFunction)__pyx_pw_5freud_11environment_8MatchEnv_9matchMotif, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_11environment_8MatchEnv_8matchMotif};
 static PyObject *__pyx_pw_5freud_11environment_8MatchEnv_9matchMotif(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_points = 0;
   PyObject *__pyx_v_refPoints = 0;
@@ -10514,7 +10938,8 @@ static PyObject *__pyx_pf_5freud_11environment_8MatchEnv_8matchMotif(struct __py
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_11environment_8MatchEnv_11minRMSDMotif(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_11environment_8MatchEnv_10minRMSDMotif[] = "Rotate (if registration=True) and permute the environments of all\n        particles to minimize their RMSD with respect to the motif provided by\n        refPoints.\n\n        Args:\n            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Particle positions.\n            refPoints ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Vectors that make up the motif against which we are matching.\n            registration (bool, optional):\n                If True, first use brute force registration to orient one set\n                of environment vectors with respect to the other set such that\n                it minimizes the RMSD between the two sets\n                (Default value = False).\n            nlist (:class:`freud.locality.NeighborList`, optional):\n                Neighborlist to use to find bonds (Default value = None).\n        Returns:\n            :math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:\n                Vector of minimal RMSD values, one value per particle.\n\n        ";
+static char __pyx_doc_5freud_11environment_8MatchEnv_10minRMSDMotif[] = "MatchEnv.minRMSDMotif(self, points, refPoints, registration=False, nlist=None)\nRotate (if registration=True) and permute the environments of all\n        particles to minimize their RMSD with respect to the motif provided by\n        refPoints.\n\n        Args:\n            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Particle positions.\n            refPoints ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Vectors that make up the motif against which we are matching.\n            registration (bool, optional):\n                If True, first use brute force registration to orient one set\n                of environment vectors with respect to the other set such that\n                it minimizes the RMSD between the two sets\n                (Default value = False).\n            nlist (:class:`freud.locality.NeighborList`, optional):\n                Neighborlist to use to find bonds (Default value = None).\n        Returns:\n            :math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:\n                Vector of minimal RMSD values, one value per particle.\n\n        ";
+static PyMethodDef __pyx_mdef_5freud_11environment_8MatchEnv_11minRMSDMotif = {"minRMSDMotif", (PyCFunction)__pyx_pw_5freud_11environment_8MatchEnv_11minRMSDMotif, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_11environment_8MatchEnv_10minRMSDMotif};
 static PyObject *__pyx_pw_5freud_11environment_8MatchEnv_11minRMSDMotif(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_points = 0;
   PyObject *__pyx_v_refPoints = 0;
@@ -11301,7 +11726,8 @@ static PyObject *__pyx_pf_5freud_11environment_8MatchEnv_10minRMSDMotif(struct _
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_11environment_8MatchEnv_13isSimilar(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_11environment_8MatchEnv_12isSimilar[] = "Test if the motif provided by refPoints1 is similar to the motif\n        provided by refPoints2.\n\n        Args:\n            refPoints1 ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Vectors that make up motif 1.\n            refPoints2 ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Vectors that make up motif 2.\n            threshold (float):\n                Maximum magnitude of the vector difference between two vectors,\n                below which they are considered \"matching.\"\n            registration (bool, optional):\n                If True, first use brute force registration to orient one set\n                of environment vectors with respect to the other set such that\n                it minimizes the RMSD between the two sets\n                (Default value = False).\n\n        Returns:\n            tuple ((:math:`\\left(N_{particles}, 3\\right)`             :class:`numpy.ndarray`), map[int, int]):\n                A doublet that gives the rotated (or not) set of\n                :code:`refPoints2`, and the mapping between the vectors of\n                :code:`refPoints1` and :code:`refPoints2` that will make them\n                correspond to each other. Empty if they do not correspond to\n                each other.\n        ";
+static char __pyx_doc_5freud_11environment_8MatchEnv_12isSimilar[] = "MatchEnv.isSimilar(self, refPoints1, refPoints2, threshold, registration=False)\nTest if the motif provided by refPoints1 is similar to the motif\n        provided by refPoints2.\n\n        Args:\n            refPoints1 ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Vectors that make up motif 1.\n            refPoints2 ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Vectors that make up motif 2.\n            threshold (float):\n                Maximum magnitude of the vector difference between two vectors,\n                below which they are considered \"matching.\"\n            registration (bool, optional):\n                If True, first use brute force registration to orient one set\n                of environment vectors with respect to the other set such that\n                it minimizes the RMSD between the two sets\n                (Default value = False).\n\n        Returns:\n            tuple ((:math:`\\left(N_{particles}, 3\\right)`             :class:`numpy.ndarray`), map[int, int]):\n                A doublet that gives the rotated (or not) set of\n                :code:`refPoints2`, and the mapping between the vectors of\n                :code:`refPoints1` and :code:`refPoints2` that will make them\n                correspond to each other. Empty if they do not correspond to\n                each other.\n        ";
+static PyMethodDef __pyx_mdef_5freud_11environment_8MatchEnv_13isSimilar = {"isSimilar", (PyCFunction)__pyx_pw_5freud_11environment_8MatchEnv_13isSimilar, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_11environment_8MatchEnv_12isSimilar};
 static PyObject *__pyx_pw_5freud_11environment_8MatchEnv_13isSimilar(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_refPoints1 = 0;
   PyObject *__pyx_v_refPoints2 = 0;
@@ -12262,7 +12688,8 @@ static PyObject *__pyx_pf_5freud_11environment_8MatchEnv_12isSimilar(struct __py
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_11environment_8MatchEnv_15minimizeRMSD(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_11environment_8MatchEnv_14minimizeRMSD[] = "Get the somewhat-optimal RMSD between the set of vectors refPoints1\n        and the set of vectors refPoints2.\n\n        Args:\n            refPoints1 ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Vectors that make up motif 1.\n            refPoints2 ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Vectors that make up motif 2.\n            registration (bool, optional):\n                If true, first use brute force registration to orient one set\n                of environment vectors with respect to the other set such that\n                it minimizes the RMSD between the two sets\n                (Default value = False).\n\n        Returns:\n            tuple (float, (:math:`\\left(N_{particles}, 3\\right)`             :class:`numpy.ndarray`), map[int, int]):\n                A triplet that gives the associated min_rmsd, rotated (or not)\n                set of refPoints2, and the mapping between the vectors of\n                refPoints1 and refPoints2 that somewhat minimizes the RMSD.\n        ";
+static char __pyx_doc_5freud_11environment_8MatchEnv_14minimizeRMSD[] = "MatchEnv.minimizeRMSD(self, refPoints1, refPoints2, registration=False)\nGet the somewhat-optimal RMSD between the set of vectors refPoints1\n        and the set of vectors refPoints2.\n\n        Args:\n            refPoints1 ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Vectors that make up motif 1.\n            refPoints2 ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Vectors that make up motif 2.\n            registration (bool, optional):\n                If true, first use brute force registration to orient one set\n                of environment vectors with respect to the other set such that\n                it minimizes the RMSD between the two sets\n                (Default value = False).\n\n        Returns:\n            tuple (float, (:math:`\\left(N_{particles}, 3\\right)`             :class:`numpy.ndarray`), map[int, int]):\n                A triplet that gives the associated min_rmsd, rotated (or not)\n                set of refPoints2, and the mapping between the vectors of\n                refPoints1 and refPoints2 that somewhat minimizes the RMSD.\n        ";
+static PyMethodDef __pyx_mdef_5freud_11environment_8MatchEnv_15minimizeRMSD = {"minimizeRMSD", (PyCFunction)__pyx_pw_5freud_11environment_8MatchEnv_15minimizeRMSD, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_11environment_8MatchEnv_14minimizeRMSD};
 static PyObject *__pyx_pw_5freud_11environment_8MatchEnv_15minimizeRMSD(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_refPoints1 = 0;
   PyObject *__pyx_v_refPoints2 = 0;
@@ -13294,7 +13721,8 @@ static PyObject *__pyx_pf_5freud_11environment_8MatchEnv_8clusters___get__(struc
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_11environment_8MatchEnv_17getClusters(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_11environment_8MatchEnv_16getClusters[] = "Get a reference to the particles, indexed into clusters according to\n        their matching local environments.\n\n        Returns:\n            :math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:\n                Clusters.\n        ";
+static char __pyx_doc_5freud_11environment_8MatchEnv_16getClusters[] = "MatchEnv.getClusters(self)\nGet a reference to the particles, indexed into clusters according to\n        their matching local environments.\n\n        Returns:\n            :math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:\n                Clusters.\n        ";
+static PyMethodDef __pyx_mdef_5freud_11environment_8MatchEnv_17getClusters = {"getClusters", (PyCFunction)__pyx_pw_5freud_11environment_8MatchEnv_17getClusters, METH_NOARGS, __pyx_doc_5freud_11environment_8MatchEnv_16getClusters};
 static PyObject *__pyx_pw_5freud_11environment_8MatchEnv_17getClusters(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -13414,7 +13842,8 @@ static PyObject *__pyx_pf_5freud_11environment_8MatchEnv_16getClusters(struct __
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_11environment_8MatchEnv_19getEnvironment(PyObject *__pyx_v_self, PyObject *__pyx_v_i); /*proto*/
-static char __pyx_doc_5freud_11environment_8MatchEnv_18getEnvironment[] = "Returns the set of vectors defining the environment indexed by i.\n\n        Args:\n            i (unsigned int): Environment index.\n\n        Returns:\n            :math:`\\left(N_{neighbors}, 3\\right)` :class:`numpy.ndarray`:\n            The array of vectors.\n        ";
+static char __pyx_doc_5freud_11environment_8MatchEnv_18getEnvironment[] = "MatchEnv.getEnvironment(self, i)\nReturns the set of vectors defining the environment indexed by i.\n\n        Args:\n            i (unsigned int): Environment index.\n\n        Returns:\n            :math:`\\left(N_{neighbors}, 3\\right)` :class:`numpy.ndarray`:\n            The array of vectors.\n        ";
+static PyMethodDef __pyx_mdef_5freud_11environment_8MatchEnv_19getEnvironment = {"getEnvironment", (PyCFunction)__pyx_pw_5freud_11environment_8MatchEnv_19getEnvironment, METH_O, __pyx_doc_5freud_11environment_8MatchEnv_18getEnvironment};
 static PyObject *__pyx_pw_5freud_11environment_8MatchEnv_19getEnvironment(PyObject *__pyx_v_self, PyObject *__pyx_v_i) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -13627,7 +14056,8 @@ static PyObject *__pyx_pf_5freud_11environment_8MatchEnv_15tot_environment___get
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_11environment_8MatchEnv_21getTotEnvironment(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_11environment_8MatchEnv_20getTotEnvironment[] = "Returns the matrix of all environments for all particles.\n\n        Returns:\n            :math:`\\left(N_{particles}, N_{neighbors}, 3\\right)`             :class:`numpy.ndarray`:\n                The array of vectors.\n        ";
+static char __pyx_doc_5freud_11environment_8MatchEnv_20getTotEnvironment[] = "MatchEnv.getTotEnvironment(self)\nReturns the matrix of all environments for all particles.\n\n        Returns:\n            :math:`\\left(N_{particles}, N_{neighbors}, 3\\right)`             :class:`numpy.ndarray`:\n                The array of vectors.\n        ";
+static PyMethodDef __pyx_mdef_5freud_11environment_8MatchEnv_21getTotEnvironment = {"getTotEnvironment", (PyCFunction)__pyx_pw_5freud_11environment_8MatchEnv_21getTotEnvironment, METH_NOARGS, __pyx_doc_5freud_11environment_8MatchEnv_20getTotEnvironment};
 static PyObject *__pyx_pw_5freud_11environment_8MatchEnv_21getTotEnvironment(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -13847,7 +14277,8 @@ static PyObject *__pyx_pf_5freud_11environment_8MatchEnv_13num_particles___get__
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_11environment_8MatchEnv_23getNP(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_11environment_8MatchEnv_22getNP[] = "Get the number of particles.\n\n        Returns:\n            unsigned int: :math:`N_{particles}`.\n        ";
+static char __pyx_doc_5freud_11environment_8MatchEnv_22getNP[] = "MatchEnv.getNP(self)\nGet the number of particles.\n\n        Returns:\n            unsigned int: :math:`N_{particles}`.\n        ";
+static PyMethodDef __pyx_mdef_5freud_11environment_8MatchEnv_23getNP = {"getNP", (PyCFunction)__pyx_pw_5freud_11environment_8MatchEnv_23getNP, METH_NOARGS, __pyx_doc_5freud_11environment_8MatchEnv_22getNP};
 static PyObject *__pyx_pw_5freud_11environment_8MatchEnv_23getNP(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -14000,7 +14431,8 @@ static PyObject *__pyx_pf_5freud_11environment_8MatchEnv_12num_clusters___get__(
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_11environment_8MatchEnv_25getNumClusters(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_11environment_8MatchEnv_24getNumClusters[] = "Get the number of clusters.\n\n        Returns:\n            unsigned int: :math:`N_{clusters}`.\n        ";
+static char __pyx_doc_5freud_11environment_8MatchEnv_24getNumClusters[] = "MatchEnv.getNumClusters(self)\nGet the number of clusters.\n\n        Returns:\n            unsigned int: :math:`N_{clusters}`.\n        ";
+static PyMethodDef __pyx_mdef_5freud_11environment_8MatchEnv_25getNumClusters = {"getNumClusters", (PyCFunction)__pyx_pw_5freud_11environment_8MatchEnv_25getNumClusters, METH_NOARGS, __pyx_doc_5freud_11environment_8MatchEnv_24getNumClusters};
 static PyObject *__pyx_pw_5freud_11environment_8MatchEnv_25getNumClusters(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -14069,6 +14501,8 @@ static PyObject *__pyx_pf_5freud_11environment_8MatchEnv_24getNumClusters(struct
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_11environment_8MatchEnv_27__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static char __pyx_doc_5freud_11environment_8MatchEnv_26__reduce_cython__[] = "MatchEnv.__reduce_cython__(self)";
+static PyMethodDef __pyx_mdef_5freud_11environment_8MatchEnv_27__reduce_cython__ = {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_11environment_8MatchEnv_27__reduce_cython__, METH_NOARGS, __pyx_doc_5freud_11environment_8MatchEnv_26__reduce_cython__};
 static PyObject *__pyx_pw_5freud_11environment_8MatchEnv_27__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -14123,6 +14557,8 @@ static PyObject *__pyx_pf_5freud_11environment_8MatchEnv_26__reduce_cython__(CYT
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_11environment_8MatchEnv_29__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
+static char __pyx_doc_5freud_11environment_8MatchEnv_28__setstate_cython__[] = "MatchEnv.__setstate_cython__(self, __pyx_state)";
+static PyMethodDef __pyx_mdef_5freud_11environment_8MatchEnv_29__setstate_cython__ = {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_11environment_8MatchEnv_29__setstate_cython__, METH_O, __pyx_doc_5freud_11environment_8MatchEnv_28__setstate_cython__};
 static PyObject *__pyx_pw_5freud_11environment_8MatchEnv_29__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -14449,7 +14885,8 @@ static void __pyx_pf_5freud_11environment_9Pairing2D_2__dealloc__(struct __pyx_o
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_11environment_9Pairing2D_5compute(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_11environment_9Pairing2D_4compute[] = "Calculates the correlation function and adds to the current\n        histogram.\n\n        Args:\n            box (:class:`freud.box.Box`):\n                Simulation box.\n            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Reference points to calculate the local density.\n            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):\n                Orientations to use in computation.\n            compOrientations ((:math:`N_{particles}`, 4)             :class:`numpy.ndarray`):\n                Possible orientations to check for bonds.\n            nlist (:class:`freud.locality.NeighborList`, optional):\n                Neighborlist to use to find bonds (Default value = None).\n        ";
+static char __pyx_doc_5freud_11environment_9Pairing2D_4compute[] = "Pairing2D.compute(self, box, points, orientations, compOrientations, nlist=None)\nCalculates the correlation function and adds to the current\n        histogram.\n\n        Args:\n            box (:class:`freud.box.Box`):\n                Simulation box.\n            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Reference points to calculate the local density.\n            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):\n                Orientations to use in computation.\n            compOrientations ((:math:`N_{particles}`, 4)             :class:`numpy.ndarray`):\n                Possible orientations to check for bonds.\n            nlist (:class:`freud.locality.NeighborList`, optional):\n                Neighborlist to use to find bonds (Default value = None).\n        ";
+static PyMethodDef __pyx_mdef_5freud_11environment_9Pairing2D_5compute = {"compute", (PyCFunction)__pyx_pw_5freud_11environment_9Pairing2D_5compute, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_11environment_9Pairing2D_4compute};
 static PyObject *__pyx_pw_5freud_11environment_9Pairing2D_5compute(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_box = 0;
   PyObject *__pyx_v_points = 0;
@@ -15221,7 +15658,8 @@ static PyObject *__pyx_pf_5freud_11environment_9Pairing2D_5match___get__(struct 
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_11environment_9Pairing2D_7getMatch(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_11environment_9Pairing2D_6getMatch[] = "Get the match.\n\n        Returns:\n            :math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:\n                The match.\n        ";
+static char __pyx_doc_5freud_11environment_9Pairing2D_6getMatch[] = "Pairing2D.getMatch(self)\nGet the match.\n\n        Returns:\n            :math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:\n                The match.\n        ";
+static PyMethodDef __pyx_mdef_5freud_11environment_9Pairing2D_7getMatch = {"getMatch", (PyCFunction)__pyx_pw_5freud_11environment_9Pairing2D_7getMatch, METH_NOARGS, __pyx_doc_5freud_11environment_9Pairing2D_6getMatch};
 static PyObject *__pyx_pw_5freud_11environment_9Pairing2D_7getMatch(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -15423,7 +15861,8 @@ static PyObject *__pyx_pf_5freud_11environment_9Pairing2D_4pair___get__(struct _
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_11environment_9Pairing2D_9getPair(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_11environment_9Pairing2D_8getPair[] = "Get the pair.\n\n        Returns:\n            :math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:\n                The pair.\n        ";
+static char __pyx_doc_5freud_11environment_9Pairing2D_8getPair[] = "Pairing2D.getPair(self)\nGet the pair.\n\n        Returns:\n            :math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:\n                The pair.\n        ";
+static PyMethodDef __pyx_mdef_5freud_11environment_9Pairing2D_9getPair = {"getPair", (PyCFunction)__pyx_pw_5freud_11environment_9Pairing2D_9getPair, METH_NOARGS, __pyx_doc_5freud_11environment_9Pairing2D_8getPair};
 static PyObject *__pyx_pw_5freud_11environment_9Pairing2D_9getPair(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -15625,7 +16064,8 @@ static PyObject *__pyx_pf_5freud_11environment_9Pairing2D_3box___get__(struct __
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_11environment_9Pairing2D_11getBox(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_11environment_9Pairing2D_10getBox[] = "Get the box used in the calculation.\n\n        Returns:\n            :class:`freud.box.Box`: freud Box.\n        ";
+static char __pyx_doc_5freud_11environment_9Pairing2D_10getBox[] = "Pairing2D.getBox(self)\nGet the box used in the calculation.\n\n        Returns:\n            :class:`freud.box.Box`: freud Box.\n        ";
+static PyMethodDef __pyx_mdef_5freud_11environment_9Pairing2D_11getBox = {"getBox", (PyCFunction)__pyx_pw_5freud_11environment_9Pairing2D_11getBox, METH_NOARGS, __pyx_doc_5freud_11environment_9Pairing2D_10getBox};
 static PyObject *__pyx_pw_5freud_11environment_9Pairing2D_11getBox(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -15684,6 +16124,8 @@ static PyObject *__pyx_pf_5freud_11environment_9Pairing2D_10getBox(struct __pyx_
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_11environment_9Pairing2D_13__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static char __pyx_doc_5freud_11environment_9Pairing2D_12__reduce_cython__[] = "Pairing2D.__reduce_cython__(self)";
+static PyMethodDef __pyx_mdef_5freud_11environment_9Pairing2D_13__reduce_cython__ = {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_11environment_9Pairing2D_13__reduce_cython__, METH_NOARGS, __pyx_doc_5freud_11environment_9Pairing2D_12__reduce_cython__};
 static PyObject *__pyx_pw_5freud_11environment_9Pairing2D_13__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -15738,6 +16180,8 @@ static PyObject *__pyx_pf_5freud_11environment_9Pairing2D_12__reduce_cython__(CY
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_11environment_9Pairing2D_15__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
+static char __pyx_doc_5freud_11environment_9Pairing2D_14__setstate_cython__[] = "Pairing2D.__setstate_cython__(self, __pyx_state)";
+static PyMethodDef __pyx_mdef_5freud_11environment_9Pairing2D_15__setstate_cython__ = {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_11environment_9Pairing2D_15__setstate_cython__, METH_O, __pyx_doc_5freud_11environment_9Pairing2D_14__setstate_cython__};
 static PyObject *__pyx_pw_5freud_11environment_9Pairing2D_15__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -16035,7 +16479,8 @@ static PyObject *__pyx_pf_5freud_11environment_17AngularSeparation_5nlist___get_
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_11environment_17AngularSeparation_5computeNeighbor(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_11environment_17AngularSeparation_4computeNeighbor[] = "Calculates the minimum angles of separation between ref_ors and ors,\n        checking for underlying symmetry as encoded in equiv_quats.\n\n        Args:\n            box (:class:`freud.box.Box`):\n                Simulation box.\n            orientations ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Orientations to calculate the order parameter.\n            ref_orientations ((:math:`N_{particles}`, 4)             :class:`numpy.ndarray`):\n                Reference orientations to calculate the order parameter.\n            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Reference points to calculate the order parameter.\n            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Points to calculate the order parameter.\n            nlist (:class:`freud.locality.NeighborList`, optional):\n                NeighborList to use to find bonds (Default value = None).\n            equiv_quats ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`,             optional):\n                The set of all equivalent quaternions that takes the particle\n                as it is defined to some global reference orientation.\n                Important: :code:`equiv_quats` must include both :math:`q` and\n                :math:`-q`, for all included quaternions.\n            nlist (:class:`freud.locality.NeighborList`, optional):\n                Neighborlist to use to find bonds (Default value = None).\n        ";
+static char __pyx_doc_5freud_11environment_17AngularSeparation_4computeNeighbor[] = "AngularSeparation.computeNeighbor(self, box, ref_ors, ors, ref_points, points, equiv_quats, nlist=None)\nCalculates the minimum angles of separation between ref_ors and ors,\n        checking for underlying symmetry as encoded in equiv_quats.\n\n        Args:\n            box (:class:`freud.box.Box`):\n                Simulation box.\n            orientations ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Orientations to calculate the order parameter.\n            ref_orientations ((:math:`N_{particles}`, 4)             :class:`numpy.ndarray`):\n                Reference orientations to calculate the order parameter.\n            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Reference points to calculate the order parameter.\n            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Points to calculate the order parameter.\n            nlist (:class:`freud.locality.NeighborList`, optional):\n                NeighborList to use to find bonds (Default value = None).\n            equiv_quats ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`,             optional):\n                The set of all equivalent quaternions that takes the particle\n                as it is defined to some global reference orientation.\n                Important: :code:`equiv_quats` must include both :math:`q` and\n                :math:`-q`, for all included quaternions.\n            nlist (:class:`freud.locality.NeighborList`, optional):\n                Neighborlist to use to find bonds (Default value = None).\n        ";
+static PyMethodDef __pyx_mdef_5freud_11environment_17AngularSeparation_5computeNeighbor = {"computeNeighbor", (PyCFunction)__pyx_pw_5freud_11environment_17AngularSeparation_5computeNeighbor, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_11environment_17AngularSeparation_4computeNeighbor};
 static PyObject *__pyx_pw_5freud_11environment_17AngularSeparation_5computeNeighbor(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_box = 0;
   PyObject *__pyx_v_ref_ors = 0;
@@ -17121,7 +17566,8 @@ static PyObject *__pyx_pf_5freud_11environment_17AngularSeparation_4computeNeigh
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_11environment_17AngularSeparation_7computeGlobal(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_11environment_17AngularSeparation_6computeGlobal[] = "Calculates the minimum angles of separation between global_ors and\n        ors, checking for underlying symmetry as encoded in equiv_quats.\n\n        Args:\n            ors ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Orientations to calculate the order parameter.\n            global_ors ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):\n                Reference orientations to calculate the order parameter.\n            equiv_quats ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):\n                The set of all equivalent quaternions that takes the particle\n                as it is defined to some global reference orientation.\n                Important: :code:`equiv_quats` must include both :math:`q` and\n                :math:`-q`, for all included quaternions.\n        ";
+static char __pyx_doc_5freud_11environment_17AngularSeparation_6computeGlobal[] = "AngularSeparation.computeGlobal(self, global_ors, ors, equiv_quats)\nCalculates the minimum angles of separation between global_ors and\n        ors, checking for underlying symmetry as encoded in equiv_quats.\n\n        Args:\n            ors ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Orientations to calculate the order parameter.\n            global_ors ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):\n                Reference orientations to calculate the order parameter.\n            equiv_quats ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):\n                The set of all equivalent quaternions that takes the particle\n                as it is defined to some global reference orientation.\n                Important: :code:`equiv_quats` must include both :math:`q` and\n                :math:`-q`, for all included quaternions.\n        ";
+static PyMethodDef __pyx_mdef_5freud_11environment_17AngularSeparation_7computeGlobal = {"computeGlobal", (PyCFunction)__pyx_pw_5freud_11environment_17AngularSeparation_7computeGlobal, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_11environment_17AngularSeparation_6computeGlobal};
 static PyObject *__pyx_pw_5freud_11environment_17AngularSeparation_7computeGlobal(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_global_ors = 0;
   PyObject *__pyx_v_ors = 0;
@@ -17844,7 +18290,8 @@ static PyObject *__pyx_pf_5freud_11environment_17AngularSeparation_15neighbor_an
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_11environment_17AngularSeparation_9getNeighborAngles(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_11environment_17AngularSeparation_8getNeighborAngles[] = "The neighbor angles in radians.\n\n        Returns:\n            :math:`\\left(N_{reference}, N_{neighbors} \\right)`             :class:`numpy.ndarray`:\n                Angles in radians.\n        ";
+static char __pyx_doc_5freud_11environment_17AngularSeparation_8getNeighborAngles[] = "AngularSeparation.getNeighborAngles(self)\nThe neighbor angles in radians.\n\n        Returns:\n            :math:`\\left(N_{reference}, N_{neighbors} \\right)`             :class:`numpy.ndarray`:\n                Angles in radians.\n        ";
+static PyMethodDef __pyx_mdef_5freud_11environment_17AngularSeparation_9getNeighborAngles = {"getNeighborAngles", (PyCFunction)__pyx_pw_5freud_11environment_17AngularSeparation_9getNeighborAngles, METH_NOARGS, __pyx_doc_5freud_11environment_17AngularSeparation_8getNeighborAngles};
 static PyObject *__pyx_pw_5freud_11environment_17AngularSeparation_9getNeighborAngles(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -18051,7 +18498,8 @@ static PyObject *__pyx_pf_5freud_11environment_17AngularSeparation_13global_angl
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_11environment_17AngularSeparation_11getGlobalAngles(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_11environment_17AngularSeparation_10getGlobalAngles[] = "The global angles in radians.\n\n        Returns:\n            :math:`\\left(N_{particles}, N_{global} \\right)`             :class:`numpy.ndarray`:\n                Angles in radians.\n        ";
+static char __pyx_doc_5freud_11environment_17AngularSeparation_10getGlobalAngles[] = "AngularSeparation.getGlobalAngles(self)\nThe global angles in radians.\n\n        Returns:\n            :math:`\\left(N_{particles}, N_{global} \\right)`             :class:`numpy.ndarray`:\n                Angles in radians.\n        ";
+static PyMethodDef __pyx_mdef_5freud_11environment_17AngularSeparation_11getGlobalAngles = {"getGlobalAngles", (PyCFunction)__pyx_pw_5freud_11environment_17AngularSeparation_11getGlobalAngles, METH_NOARGS, __pyx_doc_5freud_11environment_17AngularSeparation_10getGlobalAngles};
 static PyObject *__pyx_pw_5freud_11environment_17AngularSeparation_11getGlobalAngles(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -18262,7 +18710,8 @@ static PyObject *__pyx_pf_5freud_11environment_17AngularSeparation_3n_p___get__(
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_11environment_17AngularSeparation_13getNP(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_11environment_17AngularSeparation_12getNP[] = "Get the number of particles used in computing the last set.\n\n        Returns:\n            unsigned int: :math:`N_{particles}`.\n        ";
+static char __pyx_doc_5freud_11environment_17AngularSeparation_12getNP[] = "AngularSeparation.getNP(self)\nGet the number of particles used in computing the last set.\n\n        Returns:\n            unsigned int: :math:`N_{particles}`.\n        ";
+static PyMethodDef __pyx_mdef_5freud_11environment_17AngularSeparation_13getNP = {"getNP", (PyCFunction)__pyx_pw_5freud_11environment_17AngularSeparation_13getNP, METH_NOARGS, __pyx_doc_5freud_11environment_17AngularSeparation_12getNP};
 static PyObject *__pyx_pw_5freud_11environment_17AngularSeparation_13getNP(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -18415,7 +18864,8 @@ static PyObject *__pyx_pf_5freud_11environment_17AngularSeparation_5n_ref___get_
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_11environment_17AngularSeparation_15getNReference(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_11environment_17AngularSeparation_14getNReference[] = "Get the number of reference particles used in computing the neighbor\n        angles.\n\n        Returns:\n            unsigned int: :math:`N_{particles}`.\n        ";
+static char __pyx_doc_5freud_11environment_17AngularSeparation_14getNReference[] = "AngularSeparation.getNReference(self)\nGet the number of reference particles used in computing the neighbor\n        angles.\n\n        Returns:\n            unsigned int: :math:`N_{particles}`.\n        ";
+static PyMethodDef __pyx_mdef_5freud_11environment_17AngularSeparation_15getNReference = {"getNReference", (PyCFunction)__pyx_pw_5freud_11environment_17AngularSeparation_15getNReference, METH_NOARGS, __pyx_doc_5freud_11environment_17AngularSeparation_14getNReference};
 static PyObject *__pyx_pw_5freud_11environment_17AngularSeparation_15getNReference(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -18568,7 +19018,8 @@ static PyObject *__pyx_pf_5freud_11environment_17AngularSeparation_8n_global___g
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_11environment_17AngularSeparation_17getNGlobal(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_11environment_17AngularSeparation_16getNGlobal[] = "Get the number of global orientations to check against.\n\n        Returns:\n            unsigned int: :math:`N_{global orientations}`.\n        ";
+static char __pyx_doc_5freud_11environment_17AngularSeparation_16getNGlobal[] = "AngularSeparation.getNGlobal(self)\nGet the number of global orientations to check against.\n\n        Returns:\n            unsigned int: :math:`N_{global orientations}`.\n        ";
+static PyMethodDef __pyx_mdef_5freud_11environment_17AngularSeparation_17getNGlobal = {"getNGlobal", (PyCFunction)__pyx_pw_5freud_11environment_17AngularSeparation_17getNGlobal, METH_NOARGS, __pyx_doc_5freud_11environment_17AngularSeparation_16getNGlobal};
 static PyObject *__pyx_pw_5freud_11environment_17AngularSeparation_17getNGlobal(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -18634,6 +19085,8 @@ static PyObject *__pyx_pf_5freud_11environment_17AngularSeparation_16getNGlobal(
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_11environment_17AngularSeparation_19__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static char __pyx_doc_5freud_11environment_17AngularSeparation_18__reduce_cython__[] = "AngularSeparation.__reduce_cython__(self)";
+static PyMethodDef __pyx_mdef_5freud_11environment_17AngularSeparation_19__reduce_cython__ = {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_11environment_17AngularSeparation_19__reduce_cython__, METH_NOARGS, __pyx_doc_5freud_11environment_17AngularSeparation_18__reduce_cython__};
 static PyObject *__pyx_pw_5freud_11environment_17AngularSeparation_19__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -18688,6 +19141,8 @@ static PyObject *__pyx_pf_5freud_11environment_17AngularSeparation_18__reduce_cy
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_11environment_17AngularSeparation_21__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
+static char __pyx_doc_5freud_11environment_17AngularSeparation_20__setstate_cython__[] = "AngularSeparation.__setstate_cython__(self, __pyx_state)";
+static PyMethodDef __pyx_mdef_5freud_11environment_17AngularSeparation_21__setstate_cython__ = {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_11environment_17AngularSeparation_21__setstate_cython__, METH_O, __pyx_doc_5freud_11environment_17AngularSeparation_20__setstate_cython__};
 static PyObject *__pyx_pw_5freud_11environment_17AngularSeparation_21__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -21474,8 +21929,8 @@ static PyMethodDef __pyx_methods_5freud_11environment_BondOrder[] = {
   {"getPhi", (PyCFunction)__pyx_pw_5freud_11environment_9BondOrder_19getPhi, METH_NOARGS, __pyx_doc_5freud_11environment_9BondOrder_18getPhi},
   {"getNBinsTheta", (PyCFunction)__pyx_pw_5freud_11environment_9BondOrder_21getNBinsTheta, METH_NOARGS, __pyx_doc_5freud_11environment_9BondOrder_20getNBinsTheta},
   {"getNBinsPhi", (PyCFunction)__pyx_pw_5freud_11environment_9BondOrder_23getNBinsPhi, METH_NOARGS, __pyx_doc_5freud_11environment_9BondOrder_22getNBinsPhi},
-  {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_11environment_9BondOrder_25__reduce_cython__, METH_NOARGS, 0},
-  {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_11environment_9BondOrder_27__setstate_cython__, METH_O, 0},
+  {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_11environment_9BondOrder_25__reduce_cython__, METH_NOARGS, __pyx_doc_5freud_11environment_9BondOrder_24__reduce_cython__},
+  {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_11environment_9BondOrder_27__setstate_cython__, METH_O, __pyx_doc_5freud_11environment_9BondOrder_26__setstate_cython__},
   {0, 0, 0, 0}
 };
 
@@ -21639,8 +22094,8 @@ static PyMethodDef __pyx_methods_5freud_11environment_LocalDescriptors[] = {
   {"getNSphs", (PyCFunction)__pyx_pw_5freud_11environment_16LocalDescriptors_13getNSphs, METH_NOARGS, __pyx_doc_5freud_11environment_16LocalDescriptors_12getNSphs},
   {"getLMax", (PyCFunction)__pyx_pw_5freud_11environment_16LocalDescriptors_15getLMax, METH_NOARGS, __pyx_doc_5freud_11environment_16LocalDescriptors_14getLMax},
   {"getRMax", (PyCFunction)__pyx_pw_5freud_11environment_16LocalDescriptors_17getRMax, METH_NOARGS, __pyx_doc_5freud_11environment_16LocalDescriptors_16getRMax},
-  {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_11environment_16LocalDescriptors_19__reduce_cython__, METH_NOARGS, 0},
-  {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_11environment_16LocalDescriptors_21__setstate_cython__, METH_O, 0},
+  {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_11environment_16LocalDescriptors_19__reduce_cython__, METH_NOARGS, __pyx_doc_5freud_11environment_16LocalDescriptors_18__reduce_cython__},
+  {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_11environment_16LocalDescriptors_21__setstate_cython__, METH_O, __pyx_doc_5freud_11environment_16LocalDescriptors_20__setstate_cython__},
   {0, 0, 0, 0}
 };
 
@@ -21811,8 +22266,8 @@ static PyMethodDef __pyx_methods_5freud_11environment_MatchEnv[] = {
   {"getTotEnvironment", (PyCFunction)__pyx_pw_5freud_11environment_8MatchEnv_21getTotEnvironment, METH_NOARGS, __pyx_doc_5freud_11environment_8MatchEnv_20getTotEnvironment},
   {"getNP", (PyCFunction)__pyx_pw_5freud_11environment_8MatchEnv_23getNP, METH_NOARGS, __pyx_doc_5freud_11environment_8MatchEnv_22getNP},
   {"getNumClusters", (PyCFunction)__pyx_pw_5freud_11environment_8MatchEnv_25getNumClusters, METH_NOARGS, __pyx_doc_5freud_11environment_8MatchEnv_24getNumClusters},
-  {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_11environment_8MatchEnv_27__reduce_cython__, METH_NOARGS, 0},
-  {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_11environment_8MatchEnv_29__setstate_cython__, METH_O, 0},
+  {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_11environment_8MatchEnv_27__reduce_cython__, METH_NOARGS, __pyx_doc_5freud_11environment_8MatchEnv_26__reduce_cython__},
+  {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_11environment_8MatchEnv_29__setstate_cython__, METH_O, __pyx_doc_5freud_11environment_8MatchEnv_28__setstate_cython__},
   {0, 0, 0, 0}
 };
 
@@ -21963,8 +22418,8 @@ static PyMethodDef __pyx_methods_5freud_11environment_Pairing2D[] = {
   {"getMatch", (PyCFunction)__pyx_pw_5freud_11environment_9Pairing2D_7getMatch, METH_NOARGS, __pyx_doc_5freud_11environment_9Pairing2D_6getMatch},
   {"getPair", (PyCFunction)__pyx_pw_5freud_11environment_9Pairing2D_9getPair, METH_NOARGS, __pyx_doc_5freud_11environment_9Pairing2D_8getPair},
   {"getBox", (PyCFunction)__pyx_pw_5freud_11environment_9Pairing2D_11getBox, METH_NOARGS, __pyx_doc_5freud_11environment_9Pairing2D_10getBox},
-  {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_11environment_9Pairing2D_13__reduce_cython__, METH_NOARGS, 0},
-  {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_11environment_9Pairing2D_15__setstate_cython__, METH_O, 0},
+  {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_11environment_9Pairing2D_13__reduce_cython__, METH_NOARGS, __pyx_doc_5freud_11environment_9Pairing2D_12__reduce_cython__},
+  {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_11environment_9Pairing2D_15__setstate_cython__, METH_O, __pyx_doc_5freud_11environment_9Pairing2D_14__setstate_cython__},
   {0, 0, 0, 0}
 };
 
@@ -22137,8 +22592,8 @@ static PyMethodDef __pyx_methods_5freud_11environment_AngularSeparation[] = {
   {"getNP", (PyCFunction)__pyx_pw_5freud_11environment_17AngularSeparation_13getNP, METH_NOARGS, __pyx_doc_5freud_11environment_17AngularSeparation_12getNP},
   {"getNReference", (PyCFunction)__pyx_pw_5freud_11environment_17AngularSeparation_15getNReference, METH_NOARGS, __pyx_doc_5freud_11environment_17AngularSeparation_14getNReference},
   {"getNGlobal", (PyCFunction)__pyx_pw_5freud_11environment_17AngularSeparation_17getNGlobal, METH_NOARGS, __pyx_doc_5freud_11environment_17AngularSeparation_16getNGlobal},
-  {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_11environment_17AngularSeparation_19__reduce_cython__, METH_NOARGS, 0},
-  {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_11environment_17AngularSeparation_21__setstate_cython__, METH_O, 0},
+  {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_11environment_17AngularSeparation_19__reduce_cython__, METH_NOARGS, __pyx_doc_5freud_11environment_17AngularSeparation_18__reduce_cython__},
+  {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_11environment_17AngularSeparation_21__setstate_cython__, METH_O, __pyx_doc_5freud_11environment_17AngularSeparation_20__setstate_cython__},
   {0, 0, 0, 0}
 };
 
@@ -22247,12 +22702,61 @@ static struct PyModuleDef __pyx_moduledef = {
 #endif
 
 static __Pyx_StringTabEntry __pyx_string_tab[] = {
+  {&__pyx_n_s_AngularSeparation___reduce_cytho, __pyx_k_AngularSeparation___reduce_cytho, sizeof(__pyx_k_AngularSeparation___reduce_cytho), 0, 0, 1, 1},
+  {&__pyx_n_s_AngularSeparation___setstate_cyt, __pyx_k_AngularSeparation___setstate_cyt, sizeof(__pyx_k_AngularSeparation___setstate_cyt), 0, 0, 1, 1},
+  {&__pyx_n_s_AngularSeparation_computeGlobal, __pyx_k_AngularSeparation_computeGlobal, sizeof(__pyx_k_AngularSeparation_computeGlobal), 0, 0, 1, 1},
+  {&__pyx_n_s_AngularSeparation_computeNeighbo, __pyx_k_AngularSeparation_computeNeighbo, sizeof(__pyx_k_AngularSeparation_computeNeighbo), 0, 0, 1, 1},
+  {&__pyx_n_s_AngularSeparation_getGlobalAngle, __pyx_k_AngularSeparation_getGlobalAngle, sizeof(__pyx_k_AngularSeparation_getGlobalAngle), 0, 0, 1, 1},
+  {&__pyx_n_s_AngularSeparation_getNGlobal, __pyx_k_AngularSeparation_getNGlobal, sizeof(__pyx_k_AngularSeparation_getNGlobal), 0, 0, 1, 1},
+  {&__pyx_n_s_AngularSeparation_getNP, __pyx_k_AngularSeparation_getNP, sizeof(__pyx_k_AngularSeparation_getNP), 0, 0, 1, 1},
+  {&__pyx_n_s_AngularSeparation_getNReference, __pyx_k_AngularSeparation_getNReference, sizeof(__pyx_k_AngularSeparation_getNReference), 0, 0, 1, 1},
+  {&__pyx_n_s_AngularSeparation_getNeighborAng, __pyx_k_AngularSeparation_getNeighborAng, sizeof(__pyx_k_AngularSeparation_getNeighborAng), 0, 0, 1, 1},
+  {&__pyx_n_s_BondOrder___reduce_cython, __pyx_k_BondOrder___reduce_cython, sizeof(__pyx_k_BondOrder___reduce_cython), 0, 0, 1, 1},
+  {&__pyx_n_s_BondOrder___setstate_cython, __pyx_k_BondOrder___setstate_cython, sizeof(__pyx_k_BondOrder___setstate_cython), 0, 0, 1, 1},
+  {&__pyx_n_s_BondOrder_accumulate, __pyx_k_BondOrder_accumulate, sizeof(__pyx_k_BondOrder_accumulate), 0, 0, 1, 1},
+  {&__pyx_n_s_BondOrder_compute, __pyx_k_BondOrder_compute, sizeof(__pyx_k_BondOrder_compute), 0, 0, 1, 1},
+  {&__pyx_n_s_BondOrder_getBondOrder, __pyx_k_BondOrder_getBondOrder, sizeof(__pyx_k_BondOrder_getBondOrder), 0, 0, 1, 1},
+  {&__pyx_n_s_BondOrder_getBox, __pyx_k_BondOrder_getBox, sizeof(__pyx_k_BondOrder_getBox), 0, 0, 1, 1},
+  {&__pyx_n_s_BondOrder_getNBinsPhi, __pyx_k_BondOrder_getNBinsPhi, sizeof(__pyx_k_BondOrder_getNBinsPhi), 0, 0, 1, 1},
+  {&__pyx_n_s_BondOrder_getNBinsTheta, __pyx_k_BondOrder_getNBinsTheta, sizeof(__pyx_k_BondOrder_getNBinsTheta), 0, 0, 1, 1},
+  {&__pyx_n_s_BondOrder_getPhi, __pyx_k_BondOrder_getPhi, sizeof(__pyx_k_BondOrder_getPhi), 0, 0, 1, 1},
+  {&__pyx_n_s_BondOrder_getTheta, __pyx_k_BondOrder_getTheta, sizeof(__pyx_k_BondOrder_getTheta), 0, 0, 1, 1},
+  {&__pyx_n_s_BondOrder_reduceBondOrder, __pyx_k_BondOrder_reduceBondOrder, sizeof(__pyx_k_BondOrder_reduceBondOrder), 0, 0, 1, 1},
+  {&__pyx_n_s_BondOrder_resetBondOrder, __pyx_k_BondOrder_resetBondOrder, sizeof(__pyx_k_BondOrder_resetBondOrder), 0, 0, 1, 1},
   {&__pyx_kp_u_Format_string_allocated_too_shor, __pyx_k_Format_string_allocated_too_shor, sizeof(__pyx_k_Format_string_allocated_too_shor), 0, 1, 0, 0},
   {&__pyx_kp_u_Format_string_allocated_too_shor_2, __pyx_k_Format_string_allocated_too_shor_2, sizeof(__pyx_k_Format_string_allocated_too_shor_2), 0, 1, 0, 0},
   {&__pyx_n_s_FreudDeprecationWarning, __pyx_k_FreudDeprecationWarning, sizeof(__pyx_k_FreudDeprecationWarning), 0, 0, 1, 1},
   {&__pyx_n_s_ImportError, __pyx_k_ImportError, sizeof(__pyx_k_ImportError), 0, 0, 1, 1},
+  {&__pyx_n_s_LocalDescriptors___reduce_cython, __pyx_k_LocalDescriptors___reduce_cython, sizeof(__pyx_k_LocalDescriptors___reduce_cython), 0, 0, 1, 1},
+  {&__pyx_n_s_LocalDescriptors___setstate_cyth, __pyx_k_LocalDescriptors___setstate_cyth, sizeof(__pyx_k_LocalDescriptors___setstate_cyth), 0, 0, 1, 1},
+  {&__pyx_n_s_LocalDescriptors_compute, __pyx_k_LocalDescriptors_compute, sizeof(__pyx_k_LocalDescriptors_compute), 0, 0, 1, 1},
+  {&__pyx_n_s_LocalDescriptors_computeNList, __pyx_k_LocalDescriptors_computeNList, sizeof(__pyx_k_LocalDescriptors_computeNList), 0, 0, 1, 1},
+  {&__pyx_n_s_LocalDescriptors_getLMax, __pyx_k_LocalDescriptors_getLMax, sizeof(__pyx_k_LocalDescriptors_getLMax), 0, 0, 1, 1},
+  {&__pyx_n_s_LocalDescriptors_getNP, __pyx_k_LocalDescriptors_getNP, sizeof(__pyx_k_LocalDescriptors_getNP), 0, 0, 1, 1},
+  {&__pyx_n_s_LocalDescriptors_getNSphs, __pyx_k_LocalDescriptors_getNSphs, sizeof(__pyx_k_LocalDescriptors_getNSphs), 0, 0, 1, 1},
+  {&__pyx_n_s_LocalDescriptors_getRMax, __pyx_k_LocalDescriptors_getRMax, sizeof(__pyx_k_LocalDescriptors_getRMax), 0, 0, 1, 1},
+  {&__pyx_n_s_LocalDescriptors_getSph, __pyx_k_LocalDescriptors_getSph, sizeof(__pyx_k_LocalDescriptors_getSph), 0, 0, 1, 1},
+  {&__pyx_n_s_MatchEnv___reduce_cython, __pyx_k_MatchEnv___reduce_cython, sizeof(__pyx_k_MatchEnv___reduce_cython), 0, 0, 1, 1},
+  {&__pyx_n_s_MatchEnv___setstate_cython, __pyx_k_MatchEnv___setstate_cython, sizeof(__pyx_k_MatchEnv___setstate_cython), 0, 0, 1, 1},
+  {&__pyx_n_s_MatchEnv_cluster, __pyx_k_MatchEnv_cluster, sizeof(__pyx_k_MatchEnv_cluster), 0, 0, 1, 1},
+  {&__pyx_n_s_MatchEnv_getClusters, __pyx_k_MatchEnv_getClusters, sizeof(__pyx_k_MatchEnv_getClusters), 0, 0, 1, 1},
+  {&__pyx_n_s_MatchEnv_getEnvironment, __pyx_k_MatchEnv_getEnvironment, sizeof(__pyx_k_MatchEnv_getEnvironment), 0, 0, 1, 1},
+  {&__pyx_n_s_MatchEnv_getNP, __pyx_k_MatchEnv_getNP, sizeof(__pyx_k_MatchEnv_getNP), 0, 0, 1, 1},
+  {&__pyx_n_s_MatchEnv_getNumClusters, __pyx_k_MatchEnv_getNumClusters, sizeof(__pyx_k_MatchEnv_getNumClusters), 0, 0, 1, 1},
+  {&__pyx_n_s_MatchEnv_getTotEnvironment, __pyx_k_MatchEnv_getTotEnvironment, sizeof(__pyx_k_MatchEnv_getTotEnvironment), 0, 0, 1, 1},
+  {&__pyx_n_s_MatchEnv_isSimilar, __pyx_k_MatchEnv_isSimilar, sizeof(__pyx_k_MatchEnv_isSimilar), 0, 0, 1, 1},
+  {&__pyx_n_s_MatchEnv_matchMotif, __pyx_k_MatchEnv_matchMotif, sizeof(__pyx_k_MatchEnv_matchMotif), 0, 0, 1, 1},
+  {&__pyx_n_s_MatchEnv_minRMSDMotif, __pyx_k_MatchEnv_minRMSDMotif, sizeof(__pyx_k_MatchEnv_minRMSDMotif), 0, 0, 1, 1},
+  {&__pyx_n_s_MatchEnv_minimizeRMSD, __pyx_k_MatchEnv_minimizeRMSD, sizeof(__pyx_k_MatchEnv_minimizeRMSD), 0, 0, 1, 1},
+  {&__pyx_n_s_MatchEnv_setBox, __pyx_k_MatchEnv_setBox, sizeof(__pyx_k_MatchEnv_setBox), 0, 0, 1, 1},
   {&__pyx_kp_u_Non_native_byte_order_not_suppor, __pyx_k_Non_native_byte_order_not_suppor, sizeof(__pyx_k_Non_native_byte_order_not_suppor), 0, 1, 0, 0},
   {&__pyx_kp_s_Orientations_must_be_given_to_or, __pyx_k_Orientations_must_be_given_to_or, sizeof(__pyx_k_Orientations_must_be_given_to_or), 0, 0, 1, 0},
+  {&__pyx_n_s_Pairing2D___reduce_cython, __pyx_k_Pairing2D___reduce_cython, sizeof(__pyx_k_Pairing2D___reduce_cython), 0, 0, 1, 1},
+  {&__pyx_n_s_Pairing2D___setstate_cython, __pyx_k_Pairing2D___setstate_cython, sizeof(__pyx_k_Pairing2D___setstate_cython), 0, 0, 1, 1},
+  {&__pyx_n_s_Pairing2D_compute, __pyx_k_Pairing2D_compute, sizeof(__pyx_k_Pairing2D_compute), 0, 0, 1, 1},
+  {&__pyx_n_s_Pairing2D_getBox, __pyx_k_Pairing2D_getBox, sizeof(__pyx_k_Pairing2D_getBox), 0, 0, 1, 1},
+  {&__pyx_n_s_Pairing2D_getMatch, __pyx_k_Pairing2D_getMatch, sizeof(__pyx_k_Pairing2D_getMatch), 0, 0, 1, 1},
+  {&__pyx_n_s_Pairing2D_getPair, __pyx_k_Pairing2D_getPair, sizeof(__pyx_k_Pairing2D_getPair), 0, 0, 1, 1},
   {&__pyx_n_s_RuntimeError, __pyx_k_RuntimeError, sizeof(__pyx_k_RuntimeError), 0, 0, 1, 1},
   {&__pyx_kp_s_The_number_of_vectors_in_refPoin, __pyx_k_The_number_of_vectors_in_refPoin, sizeof(__pyx_k_The_number_of_vectors_in_refPoin), 0, 0, 1, 0},
   {&__pyx_kp_s_This_class_is_deprecated_use_fre, __pyx_k_This_class_is_deprecated_use_fre, sizeof(__pyx_k_This_class_is_deprecated_use_fre), 0, 0, 1, 0},
@@ -22263,18 +22767,29 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_accumulate, __pyx_k_accumulate, sizeof(__pyx_k_accumulate), 0, 0, 1, 1},
   {&__pyx_n_s_array_name, __pyx_k_array_name, sizeof(__pyx_k_array_name), 0, 0, 1, 1},
   {&__pyx_n_s_ascontiguousarray, __pyx_k_ascontiguousarray, sizeof(__pyx_k_ascontiguousarray), 0, 0, 1, 1},
+  {&__pyx_n_s_b, __pyx_k_b, sizeof(__pyx_k_b), 0, 0, 1, 1},
   {&__pyx_n_s_bod, __pyx_k_bod, sizeof(__pyx_k_bod), 0, 0, 1, 1},
   {&__pyx_n_s_box, __pyx_k_box, sizeof(__pyx_k_box), 0, 0, 1, 1},
   {&__pyx_n_s_cline_in_traceback, __pyx_k_cline_in_traceback, sizeof(__pyx_k_cline_in_traceback), 0, 0, 1, 1},
+  {&__pyx_n_s_cluster, __pyx_k_cluster, sizeof(__pyx_k_cluster), 0, 0, 1, 1},
+  {&__pyx_n_s_clusters, __pyx_k_clusters, sizeof(__pyx_k_clusters), 0, 0, 1, 1},
   {&__pyx_n_s_common, __pyx_k_common, sizeof(__pyx_k_common), 0, 0, 1, 1},
   {&__pyx_n_s_compDotTol, __pyx_k_compDotTol, sizeof(__pyx_k_compDotTol), 0, 0, 1, 1},
   {&__pyx_n_s_compOrientations, __pyx_k_compOrientations, sizeof(__pyx_k_compOrientations), 0, 0, 1, 1},
+  {&__pyx_n_s_compute, __pyx_k_compute, sizeof(__pyx_k_compute), 0, 0, 1, 1},
+  {&__pyx_n_s_computeGlobal, __pyx_k_computeGlobal, sizeof(__pyx_k_computeGlobal), 0, 0, 1, 1},
+  {&__pyx_n_s_computeNList, __pyx_k_computeNList, sizeof(__pyx_k_computeNList), 0, 0, 1, 1},
+  {&__pyx_n_s_computeNeighbor, __pyx_k_computeNeighbor, sizeof(__pyx_k_computeNeighbor), 0, 0, 1, 1},
   {&__pyx_n_s_contiguous, __pyx_k_contiguous, sizeof(__pyx_k_contiguous), 0, 0, 1, 1},
   {&__pyx_n_s_convert_array, __pyx_k_convert_array, sizeof(__pyx_k_convert_array), 0, 0, 1, 1},
   {&__pyx_n_s_convert_box, __pyx_k_convert_box, sizeof(__pyx_k_convert_box), 0, 0, 1, 1},
   {&__pyx_n_s_copy, __pyx_k_copy, sizeof(__pyx_k_copy), 0, 0, 1, 1},
+  {&__pyx_n_s_defaulted_env_nlist, __pyx_k_defaulted_env_nlist, sizeof(__pyx_k_defaulted_env_nlist), 0, 0, 1, 1},
+  {&__pyx_n_s_defaulted_nlist, __pyx_k_defaulted_nlist, sizeof(__pyx_k_defaulted_nlist), 0, 0, 1, 1},
   {&__pyx_n_s_dtype, __pyx_k_dtype, sizeof(__pyx_k_dtype), 0, 0, 1, 1},
   {&__pyx_n_s_env_nlist, __pyx_k_env_nlist, sizeof(__pyx_k_env_nlist), 0, 0, 1, 1},
+  {&__pyx_n_s_env_nlist_2, __pyx_k_env_nlist_2, sizeof(__pyx_k_env_nlist_2), 0, 0, 1, 1},
+  {&__pyx_n_s_environment, __pyx_k_environment, sizeof(__pyx_k_environment), 0, 0, 1, 1},
   {&__pyx_n_s_equiv_quats, __pyx_k_equiv_quats, sizeof(__pyx_k_equiv_quats), 0, 0, 1, 1},
   {&__pyx_kp_s_equiv_quats_should_be_an_N_equiv, __pyx_k_equiv_quats_should_be_an_N_equiv, sizeof(__pyx_k_equiv_quats_should_be_an_N_equiv), 0, 0, 1, 0},
   {&__pyx_n_s_flatten, __pyx_k_flatten, sizeof(__pyx_k_flatten), 0, 0, 1, 1},
@@ -22282,11 +22797,14 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_format, __pyx_k_format, sizeof(__pyx_k_format), 0, 0, 1, 1},
   {&__pyx_n_s_freud, __pyx_k_freud, sizeof(__pyx_k_freud), 0, 0, 1, 1},
   {&__pyx_n_s_freud_common, __pyx_k_freud_common, sizeof(__pyx_k_freud_common), 0, 0, 1, 1},
+  {&__pyx_n_s_freud_environment, __pyx_k_freud_environment, sizeof(__pyx_k_freud_environment), 0, 0, 1, 1},
+  {&__pyx_kp_s_freud_environment_pyx, __pyx_k_freud_environment_pyx, sizeof(__pyx_k_freud_environment_pyx), 0, 0, 1, 0},
   {&__pyx_n_s_freud_errors, __pyx_k_freud_errors, sizeof(__pyx_k_freud_errors), 0, 0, 1, 1},
   {&__pyx_n_s_freud_locality, __pyx_k_freud_locality, sizeof(__pyx_k_freud_locality), 0, 0, 1, 1},
   {&__pyx_n_s_getBondOrder, __pyx_k_getBondOrder, sizeof(__pyx_k_getBondOrder), 0, 0, 1, 1},
   {&__pyx_n_s_getBox, __pyx_k_getBox, sizeof(__pyx_k_getBox), 0, 0, 1, 1},
   {&__pyx_n_s_getClusters, __pyx_k_getClusters, sizeof(__pyx_k_getClusters), 0, 0, 1, 1},
+  {&__pyx_n_s_getEnvironment, __pyx_k_getEnvironment, sizeof(__pyx_k_getEnvironment), 0, 0, 1, 1},
   {&__pyx_n_s_getGlobalAngles, __pyx_k_getGlobalAngles, sizeof(__pyx_k_getGlobalAngles), 0, 0, 1, 1},
   {&__pyx_n_s_getLMax, __pyx_k_getLMax, sizeof(__pyx_k_getLMax), 0, 0, 1, 1},
   {&__pyx_n_s_getMatch, __pyx_k_getMatch, sizeof(__pyx_k_getMatch), 0, 0, 1, 1},
@@ -22306,31 +22824,72 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_getTotEnvironment, __pyx_k_getTotEnvironment, sizeof(__pyx_k_getTotEnvironment), 0, 0, 1, 1},
   {&__pyx_n_s_getstate, __pyx_k_getstate, sizeof(__pyx_k_getstate), 0, 0, 1, 1},
   {&__pyx_n_s_global, __pyx_k_global, sizeof(__pyx_k_global), 0, 0, 1, 1},
+  {&__pyx_n_s_global_ang, __pyx_k_global_ang, sizeof(__pyx_k_global_ang), 0, 0, 1, 1},
   {&__pyx_n_s_global_ors, __pyx_k_global_ors, sizeof(__pyx_k_global_ors), 0, 0, 1, 1},
   {&__pyx_kp_s_global_ors_should_be_an_Nx4_arra, __pyx_k_global_ors_should_be_an_Nx4_arra, sizeof(__pyx_k_global_ors_should_be_an_Nx4_arra), 0, 0, 1, 0},
   {&__pyx_n_s_global_search, __pyx_k_global_search, sizeof(__pyx_k_global_search), 0, 0, 1, 1},
   {&__pyx_n_s_hard_r, __pyx_k_hard_r, sizeof(__pyx_k_hard_r), 0, 0, 1, 1},
+  {&__pyx_n_s_i, __pyx_k_i, sizeof(__pyx_k_i), 0, 0, 1, 1},
   {&__pyx_n_s_import, __pyx_k_import, sizeof(__pyx_k_import), 0, 0, 1, 1},
+  {&__pyx_n_s_index, __pyx_k_index, sizeof(__pyx_k_index), 0, 0, 1, 1},
+  {&__pyx_n_s_isSimilar, __pyx_k_isSimilar, sizeof(__pyx_k_isSimilar), 0, 0, 1, 1},
   {&__pyx_n_s_k, __pyx_k_k, sizeof(__pyx_k_k), 0, 0, 1, 1},
   {&__pyx_n_s_known_modes, __pyx_k_known_modes, sizeof(__pyx_k_known_modes), 0, 0, 1, 1},
+  {&__pyx_n_s_l_compOrientations, __pyx_k_l_compOrientations, sizeof(__pyx_k_l_compOrientations), 0, 0, 1, 1},
+  {&__pyx_n_s_l_equiv_quats, __pyx_k_l_equiv_quats, sizeof(__pyx_k_l_equiv_quats), 0, 0, 1, 1},
+  {&__pyx_n_s_l_global_ors, __pyx_k_l_global_ors, sizeof(__pyx_k_l_global_ors), 0, 0, 1, 1},
+  {&__pyx_n_s_l_max, __pyx_k_l_max, sizeof(__pyx_k_l_max), 0, 0, 1, 1},
+  {&__pyx_n_s_l_mode, __pyx_k_l_mode, sizeof(__pyx_k_l_mode), 0, 0, 1, 1},
+  {&__pyx_n_s_l_orientations, __pyx_k_l_orientations, sizeof(__pyx_k_l_orientations), 0, 0, 1, 1},
+  {&__pyx_n_s_l_ors, __pyx_k_l_ors, sizeof(__pyx_k_l_ors), 0, 0, 1, 1},
+  {&__pyx_n_s_l_points, __pyx_k_l_points, sizeof(__pyx_k_l_points), 0, 0, 1, 1},
+  {&__pyx_n_s_l_points_ref, __pyx_k_l_points_ref, sizeof(__pyx_k_l_points_ref), 0, 0, 1, 1},
+  {&__pyx_n_s_l_refPoints, __pyx_k_l_refPoints, sizeof(__pyx_k_l_refPoints), 0, 0, 1, 1},
+  {&__pyx_n_s_l_refPoints1, __pyx_k_l_refPoints1, sizeof(__pyx_k_l_refPoints1), 0, 0, 1, 1},
+  {&__pyx_n_s_l_refPoints2, __pyx_k_l_refPoints2, sizeof(__pyx_k_l_refPoints2), 0, 0, 1, 1},
+  {&__pyx_n_s_l_ref_orientations, __pyx_k_l_ref_orientations, sizeof(__pyx_k_l_ref_orientations), 0, 0, 1, 1},
+  {&__pyx_n_s_l_ref_ors, __pyx_k_l_ref_ors, sizeof(__pyx_k_l_ref_ors), 0, 0, 1, 1},
+  {&__pyx_n_s_l_ref_points, __pyx_k_l_ref_points, sizeof(__pyx_k_l_ref_points), 0, 0, 1, 1},
   {&__pyx_n_s_lbod, __pyx_k_lbod, sizeof(__pyx_k_lbod), 0, 0, 1, 1},
   {&__pyx_n_s_lmax, __pyx_k_lmax, sizeof(__pyx_k_lmax), 0, 0, 1, 1},
   {&__pyx_n_s_locality, __pyx_k_locality, sizeof(__pyx_k_locality), 0, 0, 1, 1},
   {&__pyx_n_s_main, __pyx_k_main, sizeof(__pyx_k_main), 0, 0, 1, 1},
   {&__pyx_n_s_make_default_nlist, __pyx_k_make_default_nlist, sizeof(__pyx_k_make_default_nlist), 0, 0, 1, 1},
   {&__pyx_n_s_make_default_nlist_nn, __pyx_k_make_default_nlist_nn, sizeof(__pyx_k_make_default_nlist_nn), 0, 0, 1, 1},
+  {&__pyx_n_s_match, __pyx_k_match, sizeof(__pyx_k_match), 0, 0, 1, 1},
+  {&__pyx_n_s_matchMotif, __pyx_k_matchMotif, sizeof(__pyx_k_matchMotif), 0, 0, 1, 1},
+  {&__pyx_n_s_minRMSDMotif, __pyx_k_minRMSDMotif, sizeof(__pyx_k_minRMSDMotif), 0, 0, 1, 1},
+  {&__pyx_n_s_min_rmsd, __pyx_k_min_rmsd, sizeof(__pyx_k_min_rmsd), 0, 0, 1, 1},
+  {&__pyx_n_s_min_rmsd_vec, __pyx_k_min_rmsd_vec, sizeof(__pyx_k_min_rmsd_vec), 0, 0, 1, 1},
+  {&__pyx_n_s_minimizeRMSD, __pyx_k_minimizeRMSD, sizeof(__pyx_k_minimizeRMSD), 0, 0, 1, 1},
   {&__pyx_n_s_mode, __pyx_k_mode, sizeof(__pyx_k_mode), 0, 0, 1, 1},
   {&__pyx_n_s_n, __pyx_k_n, sizeof(__pyx_k_n), 0, 0, 1, 1},
+  {&__pyx_n_s_nEquiv, __pyx_k_nEquiv, sizeof(__pyx_k_nEquiv), 0, 0, 1, 1},
+  {&__pyx_n_s_nGlobal, __pyx_k_nGlobal, sizeof(__pyx_k_nGlobal), 0, 0, 1, 1},
+  {&__pyx_n_s_nO, __pyx_k_nO, sizeof(__pyx_k_nO), 0, 0, 1, 1},
+  {&__pyx_n_s_nP, __pyx_k_nP, sizeof(__pyx_k_nP), 0, 0, 1, 1},
+  {&__pyx_n_s_nRef, __pyx_k_nRef, sizeof(__pyx_k_nRef), 0, 0, 1, 1},
+  {&__pyx_n_s_nRef1, __pyx_k_nRef1, sizeof(__pyx_k_nRef1), 0, 0, 1, 1},
+  {&__pyx_n_s_nRef2, __pyx_k_nRef2, sizeof(__pyx_k_nRef2), 0, 0, 1, 1},
   {&__pyx_n_s_n_bins_p, __pyx_k_n_bins_p, sizeof(__pyx_k_n_bins_p), 0, 0, 1, 1},
   {&__pyx_n_s_n_bins_t, __pyx_k_n_bins_t, sizeof(__pyx_k_n_bins_t), 0, 0, 1, 1},
+  {&__pyx_n_s_n_p, __pyx_k_n_p, sizeof(__pyx_k_n_p), 0, 0, 1, 1},
+  {&__pyx_n_s_n_ref, __pyx_k_n_ref, sizeof(__pyx_k_n_ref), 0, 0, 1, 1},
   {&__pyx_n_s_name, __pyx_k_name, sizeof(__pyx_k_name), 0, 0, 1, 1},
+  {&__pyx_n_s_nbins, __pyx_k_nbins, sizeof(__pyx_k_nbins), 0, 0, 1, 1},
   {&__pyx_kp_u_ndarray_is_not_C_contiguous, __pyx_k_ndarray_is_not_C_contiguous, sizeof(__pyx_k_ndarray_is_not_C_contiguous), 0, 1, 0, 0},
   {&__pyx_kp_u_ndarray_is_not_Fortran_contiguou, __pyx_k_ndarray_is_not_Fortran_contiguou, sizeof(__pyx_k_ndarray_is_not_Fortran_contiguou), 0, 1, 0, 0},
   {&__pyx_n_s_negative_m, __pyx_k_negative_m, sizeof(__pyx_k_negative_m), 0, 0, 1, 1},
+  {&__pyx_n_s_neigh_ang, __pyx_k_neigh_ang, sizeof(__pyx_k_neigh_ang), 0, 0, 1, 1},
   {&__pyx_n_s_neighborhood, __pyx_k_neighborhood, sizeof(__pyx_k_neighborhood), 0, 0, 1, 1},
+  {&__pyx_n_s_nglobal, __pyx_k_nglobal, sizeof(__pyx_k_nglobal), 0, 0, 1, 1},
   {&__pyx_n_s_nlist, __pyx_k_nlist, sizeof(__pyx_k_nlist), 0, 0, 1, 1},
+  {&__pyx_n_s_nlist_2, __pyx_k_nlist_2, sizeof(__pyx_k_nlist_2), 0, 0, 1, 1},
   {&__pyx_kp_s_no_default___reduce___due_to_non, __pyx_k_no_default___reduce___due_to_non, sizeof(__pyx_k_no_default___reduce___due_to_non), 0, 0, 1, 0},
   {&__pyx_n_s_np, __pyx_k_np, sizeof(__pyx_k_np), 0, 0, 1, 1},
+  {&__pyx_n_s_nref, __pyx_k_nref, sizeof(__pyx_k_nref), 0, 0, 1, 1},
+  {&__pyx_n_s_nt, __pyx_k_nt, sizeof(__pyx_k_nt), 0, 0, 1, 1},
+  {&__pyx_n_s_num_clust, __pyx_k_num_clust, sizeof(__pyx_k_num_clust), 0, 0, 1, 1},
   {&__pyx_n_s_num_neighbors, __pyx_k_num_neighbors, sizeof(__pyx_k_num_neighbors), 0, 0, 1, 1},
   {&__pyx_n_s_numpy, __pyx_k_numpy, sizeof(__pyx_k_numpy), 0, 0, 1, 1},
   {&__pyx_kp_s_numpy_core_multiarray_failed_to, __pyx_k_numpy_core_multiarray_failed_to, sizeof(__pyx_k_numpy_core_multiarray_failed_to), 0, 0, 1, 0},
@@ -22342,15 +22901,20 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_kp_s_orientations_should_be_an_Nx4_ar, __pyx_k_orientations_should_be_an_Nx4_ar, sizeof(__pyx_k_orientations_should_be_an_Nx4_ar), 0, 0, 1, 0},
   {&__pyx_n_s_ors, __pyx_k_ors, sizeof(__pyx_k_ors), 0, 0, 1, 1},
   {&__pyx_kp_s_ors_should_be_an_Nx4_array, __pyx_k_ors_should_be_an_Nx4_array, sizeof(__pyx_k_ors_should_be_an_Nx4_array), 0, 0, 1, 0},
+  {&__pyx_n_s_pair, __pyx_k_pair, sizeof(__pyx_k_pair), 0, 0, 1, 1},
   {&__pyx_n_s_particle_local, __pyx_k_particle_local, sizeof(__pyx_k_particle_local), 0, 0, 1, 1},
+  {&__pyx_n_s_phi, __pyx_k_phi, sizeof(__pyx_k_phi), 0, 0, 1, 1},
   {&__pyx_n_s_points, __pyx_k_points, sizeof(__pyx_k_points), 0, 0, 1, 1},
   {&__pyx_n_s_points_ref, __pyx_k_points_ref, sizeof(__pyx_k_points_ref), 0, 0, 1, 1},
   {&__pyx_kp_s_points_ref_should_be_an_Nx3_arra, __pyx_k_points_ref_should_be_an_Nx3_arra, sizeof(__pyx_k_points_ref_should_be_an_Nx3_arra), 0, 0, 1, 0},
   {&__pyx_kp_s_points_should_be_an_Nx3_array, __pyx_k_points_should_be_an_Nx3_array, sizeof(__pyx_k_points_should_be_an_Nx3_array), 0, 0, 1, 0},
   {&__pyx_n_s_precomputed, __pyx_k_precomputed, sizeof(__pyx_k_precomputed), 0, 0, 1, 1},
+  {&__pyx_n_s_pyx_state, __pyx_k_pyx_state, sizeof(__pyx_k_pyx_state), 0, 0, 1, 1},
   {&__pyx_n_s_pyx_vtable, __pyx_k_pyx_vtable, sizeof(__pyx_k_pyx_vtable), 0, 0, 1, 1},
+  {&__pyx_n_s_r, __pyx_k_r, sizeof(__pyx_k_r), 0, 0, 1, 1},
   {&__pyx_n_s_range, __pyx_k_range, sizeof(__pyx_k_range), 0, 0, 1, 1},
   {&__pyx_n_s_reduce, __pyx_k_reduce, sizeof(__pyx_k_reduce), 0, 0, 1, 1},
+  {&__pyx_n_s_reduceBondOrder, __pyx_k_reduceBondOrder, sizeof(__pyx_k_reduceBondOrder), 0, 0, 1, 1},
   {&__pyx_n_s_reduce_cython, __pyx_k_reduce_cython, sizeof(__pyx_k_reduce_cython), 0, 0, 1, 1},
   {&__pyx_n_s_reduce_ex, __pyx_k_reduce_ex, sizeof(__pyx_k_reduce_ex), 0, 0, 1, 1},
   {&__pyx_n_s_refPoints, __pyx_k_refPoints, sizeof(__pyx_k_refPoints), 0, 0, 1, 1},
@@ -22366,14 +22930,26 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_ref_points, __pyx_k_ref_points, sizeof(__pyx_k_ref_points), 0, 0, 1, 1},
   {&__pyx_kp_s_ref_points_should_be_an_Nx3_arra, __pyx_k_ref_points_should_be_an_Nx3_arra, sizeof(__pyx_k_ref_points_should_be_an_Nx3_arra), 0, 0, 1, 0},
   {&__pyx_n_s_registration, __pyx_k_registration, sizeof(__pyx_k_registration), 0, 0, 1, 1},
+  {&__pyx_n_s_resetBondOrder, __pyx_k_resetBondOrder, sizeof(__pyx_k_resetBondOrder), 0, 0, 1, 1},
   {&__pyx_n_s_reshape, __pyx_k_reshape, sizeof(__pyx_k_reshape), 0, 0, 1, 1},
+  {&__pyx_n_s_result, __pyx_k_result, sizeof(__pyx_k_result), 0, 0, 1, 1},
+  {&__pyx_n_s_results_map, __pyx_k_results_map, sizeof(__pyx_k_results_map), 0, 0, 1, 1},
   {&__pyx_n_s_rmax, __pyx_k_rmax, sizeof(__pyx_k_rmax), 0, 0, 1, 1},
+  {&__pyx_n_s_rot_refPoints2, __pyx_k_rot_refPoints2, sizeof(__pyx_k_rot_refPoints2), 0, 0, 1, 1},
+  {&__pyx_n_s_self, __pyx_k_self, sizeof(__pyx_k_self), 0, 0, 1, 1},
+  {&__pyx_n_s_setBox, __pyx_k_setBox, sizeof(__pyx_k_setBox), 0, 0, 1, 1},
   {&__pyx_n_s_setstate, __pyx_k_setstate, sizeof(__pyx_k_setstate), 0, 0, 1, 1},
   {&__pyx_n_s_setstate_cython, __pyx_k_setstate_cython, sizeof(__pyx_k_setstate_cython), 0, 0, 1, 1},
   {&__pyx_n_s_shape, __pyx_k_shape, sizeof(__pyx_k_shape), 0, 0, 1, 1},
+  {&__pyx_n_s_sph, __pyx_k_sph, sizeof(__pyx_k_sph), 0, 0, 1, 1},
+  {&__pyx_kp_s_stringsource, __pyx_k_stringsource, sizeof(__pyx_k_stringsource), 0, 0, 1, 0},
   {&__pyx_n_s_test, __pyx_k_test, sizeof(__pyx_k_test), 0, 0, 1, 1},
+  {&__pyx_n_s_theta, __pyx_k_theta, sizeof(__pyx_k_theta), 0, 0, 1, 1},
   {&__pyx_n_s_threshold, __pyx_k_threshold, sizeof(__pyx_k_threshold), 0, 0, 1, 1},
+  {&__pyx_n_s_threshold_sq, __pyx_k_threshold_sq, sizeof(__pyx_k_threshold_sq), 0, 0, 1, 1},
+  {&__pyx_n_s_tot_environment, __pyx_k_tot_environment, sizeof(__pyx_k_tot_environment), 0, 0, 1, 1},
   {&__pyx_kp_u_unknown_dtype_code_in_numpy_pxd, __pyx_k_unknown_dtype_code_in_numpy_pxd, sizeof(__pyx_k_unknown_dtype_code_in_numpy_pxd), 0, 1, 0, 0},
+  {&__pyx_n_s_vec_map, __pyx_k_vec_map, sizeof(__pyx_k_vec_map), 0, 0, 1, 1},
   {&__pyx_n_s_warn, __pyx_k_warn, sizeof(__pyx_k_warn), 0, 0, 1, 1},
   {&__pyx_n_s_warnings, __pyx_k_warnings, sizeof(__pyx_k_warnings), 0, 0, 1, 1},
   {0, 0, 0, 0, 0, 0, 0}
@@ -22925,6 +23501,579 @@ static int __Pyx_InitCachedConstants(void) {
   __pyx_tuple__50 = PyTuple_Pack(1, __pyx_kp_s_numpy_core_umath_failed_to_impor); if (unlikely(!__pyx_tuple__50)) __PYX_ERR(2, 1012, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__50);
   __Pyx_GIVEREF(__pyx_tuple__50);
+
+  /* "freud/environment.pyx":107
+ *         del self.thisptr
+ * 
+ *     def accumulate(self, box, ref_points, ref_orientations, points,             # <<<<<<<<<<<<<<
+ *                    orientations, str mode="bod", nlist=None):
+ *         """Calculates the correlation function and adds to the current
+ */
+  __pyx_tuple__51 = PyTuple_Pack(18, __pyx_n_s_self, __pyx_n_s_box, __pyx_n_s_ref_points, __pyx_n_s_ref_orientations, __pyx_n_s_points, __pyx_n_s_orientations, __pyx_n_s_mode, __pyx_n_s_nlist, __pyx_n_s_b, __pyx_n_s_index, __pyx_n_s_defaulted_nlist, __pyx_n_s_nlist_2, __pyx_n_s_l_ref_points, __pyx_n_s_l_points, __pyx_n_s_l_ref_orientations, __pyx_n_s_l_orientations, __pyx_n_s_n_ref, __pyx_n_s_n_p); if (unlikely(!__pyx_tuple__51)) __PYX_ERR(0, 107, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__51);
+  __Pyx_GIVEREF(__pyx_tuple__51);
+  __pyx_codeobj__52 = (PyObject*)__Pyx_PyCode_New(8, 0, 18, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__51, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_environment_pyx, __pyx_n_s_accumulate, 107, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__52)) __PYX_ERR(0, 107, __pyx_L1_error)
+
+  /* "freud/environment.pyx":196
+ *         return self.getBondOrder()
+ * 
+ *     def getBondOrder(self):             # <<<<<<<<<<<<<<
+ *         """Get the bond order.
+ * 
+ */
+  __pyx_tuple__53 = PyTuple_Pack(4, __pyx_n_s_self, __pyx_n_s_bod, __pyx_n_s_nbins, __pyx_n_s_result); if (unlikely(!__pyx_tuple__53)) __PYX_ERR(0, 196, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__53);
+  __Pyx_GIVEREF(__pyx_tuple__53);
+  __pyx_codeobj__54 = (PyObject*)__Pyx_PyCode_New(1, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__53, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_environment_pyx, __pyx_n_s_getBondOrder, 196, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__54)) __PYX_ERR(0, 196, __pyx_L1_error)
+
+  /* "freud/environment.pyx":216
+ *         return self.getBox()
+ * 
+ *     def getBox(self):             # <<<<<<<<<<<<<<
+ *         """Get the box used in the calculation.
+ * 
+ */
+  __pyx_tuple__55 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__55)) __PYX_ERR(0, 216, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__55);
+  __Pyx_GIVEREF(__pyx_tuple__55);
+  __pyx_codeobj__56 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__55, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_environment_pyx, __pyx_n_s_getBox, 216, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__56)) __PYX_ERR(0, 216, __pyx_L1_error)
+
+  /* "freud/environment.pyx":224
+ *         return freud.box.BoxFromCPP(self.thisptr.getBox())
+ * 
+ *     def resetBondOrder(self):             # <<<<<<<<<<<<<<
+ *         """Resets the values of the bond order in memory."""
+ *         self.thisptr.reset()
+ */
+  __pyx_tuple__57 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__57)) __PYX_ERR(0, 224, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__57);
+  __Pyx_GIVEREF(__pyx_tuple__57);
+  __pyx_codeobj__58 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__57, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_environment_pyx, __pyx_n_s_resetBondOrder, 224, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__58)) __PYX_ERR(0, 224, __pyx_L1_error)
+
+  /* "freud/environment.pyx":228
+ *         self.thisptr.reset()
+ * 
+ *     def compute(self, box, ref_points, ref_orientations, points, orientations,             # <<<<<<<<<<<<<<
+ *                 mode="bod", nlist=None):
+ *         """Calculates the bond order histogram. Will overwrite the current
+ */
+  __pyx_tuple__59 = PyTuple_Pack(8, __pyx_n_s_self, __pyx_n_s_box, __pyx_n_s_ref_points, __pyx_n_s_ref_orientations, __pyx_n_s_points, __pyx_n_s_orientations, __pyx_n_s_mode, __pyx_n_s_nlist); if (unlikely(!__pyx_tuple__59)) __PYX_ERR(0, 228, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__59);
+  __Pyx_GIVEREF(__pyx_tuple__59);
+  __pyx_codeobj__60 = (PyObject*)__Pyx_PyCode_New(8, 0, 8, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__59, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_environment_pyx, __pyx_n_s_compute, 228, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__60)) __PYX_ERR(0, 228, __pyx_L1_error)
+
+  /* "freud/environment.pyx":257
+ *         return self
+ * 
+ *     def reduceBondOrder(self):             # <<<<<<<<<<<<<<
+ *         """Reduces the histogram in the values over N processors to a single
+ *         histogram. This is called automatically by
+ */
+  __pyx_tuple__61 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__61)) __PYX_ERR(0, 257, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__61);
+  __Pyx_GIVEREF(__pyx_tuple__61);
+  __pyx_codeobj__62 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__61, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_environment_pyx, __pyx_n_s_reduceBondOrder, 257, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__62)) __PYX_ERR(0, 257, __pyx_L1_error)
+
+  /* "freud/environment.pyx":268
+ *         return self.getTheta()
+ * 
+ *     def getTheta(self):             # <<<<<<<<<<<<<<
+ *         """Get :math:`\\theta`.
+ * 
+ */
+  __pyx_tuple__63 = PyTuple_Pack(4, __pyx_n_s_self, __pyx_n_s_theta, __pyx_n_s_nbins, __pyx_n_s_result); if (unlikely(!__pyx_tuple__63)) __PYX_ERR(0, 268, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__63);
+  __Pyx_GIVEREF(__pyx_tuple__63);
+  __pyx_codeobj__64 = (PyObject*)__Pyx_PyCode_New(1, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__63, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_environment_pyx, __pyx_n_s_getTheta, 268, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__64)) __PYX_ERR(0, 268, __pyx_L1_error)
+
+  /* "freud/environment.pyx":287
+ *         return self.getPhi()
+ * 
+ *     def getPhi(self):             # <<<<<<<<<<<<<<
+ *         """Get :math:`\\phi`.
+ * 
+ */
+  __pyx_tuple__65 = PyTuple_Pack(4, __pyx_n_s_self, __pyx_n_s_phi, __pyx_n_s_nbins, __pyx_n_s_result); if (unlikely(!__pyx_tuple__65)) __PYX_ERR(0, 287, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__65);
+  __Pyx_GIVEREF(__pyx_tuple__65);
+  __pyx_codeobj__66 = (PyObject*)__Pyx_PyCode_New(1, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__65, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_environment_pyx, __pyx_n_s_getPhi, 287, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__66)) __PYX_ERR(0, 287, __pyx_L1_error)
+
+  /* "freud/environment.pyx":305
+ *         return self.getNBinsTheta()
+ * 
+ *     def getNBinsTheta(self):             # <<<<<<<<<<<<<<
+ *         """Get the number of bins in the :math:`\\theta`-dimension of histogram.
+ * 
+ */
+  __pyx_tuple__67 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_nt); if (unlikely(!__pyx_tuple__67)) __PYX_ERR(0, 305, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__67);
+  __Pyx_GIVEREF(__pyx_tuple__67);
+  __pyx_codeobj__68 = (PyObject*)__Pyx_PyCode_New(1, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__67, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_environment_pyx, __pyx_n_s_getNBinsTheta, 305, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__68)) __PYX_ERR(0, 305, __pyx_L1_error)
+
+  /* "freud/environment.pyx":318
+ *         return self.getNBinsPhi()
+ * 
+ *     def getNBinsPhi(self):             # <<<<<<<<<<<<<<
+ *         """Get the number of bins in the :math:`\\phi`-dimension of histogram.
+ * 
+ */
+  __pyx_tuple__69 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_np); if (unlikely(!__pyx_tuple__69)) __PYX_ERR(0, 318, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__69);
+  __Pyx_GIVEREF(__pyx_tuple__69);
+  __pyx_codeobj__70 = (PyObject*)__Pyx_PyCode_New(1, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__69, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_environment_pyx, __pyx_n_s_getNBinsPhi, 318, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__70)) __PYX_ERR(0, 318, __pyx_L1_error)
+
+  /* "(tree fragment)":1
+ * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ * def __setstate_cython__(self, __pyx_state):
+ */
+  __pyx_tuple__71 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__71)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__71);
+  __Pyx_GIVEREF(__pyx_tuple__71);
+  __pyx_codeobj__72 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__71, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_reduce_cython, 1, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__72)) __PYX_ERR(1, 1, __pyx_L1_error)
+
+  /* "(tree fragment)":3
+ * def __reduce_cython__(self):
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ */
+  __pyx_tuple__73 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_pyx_state); if (unlikely(!__pyx_tuple__73)) __PYX_ERR(1, 3, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__73);
+  __Pyx_GIVEREF(__pyx_tuple__73);
+  __pyx_codeobj__74 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__73, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_setstate_cython, 3, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__74)) __PYX_ERR(1, 3, __pyx_L1_error)
+
+  /* "freud/environment.pyx":377
+ *         del self.thisptr
+ * 
+ *     def computeNList(self, box, points_ref, points=None):             # <<<<<<<<<<<<<<
+ *         """Compute the neighbor list for bonds from a set of source points to
+ *         a set of destination points.
+ */
+  __pyx_tuple__75 = PyTuple_Pack(9, __pyx_n_s_self, __pyx_n_s_box, __pyx_n_s_points_ref, __pyx_n_s_points, __pyx_n_s_b, __pyx_n_s_l_points_ref, __pyx_n_s_nRef, __pyx_n_s_l_points, __pyx_n_s_nP); if (unlikely(!__pyx_tuple__75)) __PYX_ERR(0, 377, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__75);
+  __Pyx_GIVEREF(__pyx_tuple__75);
+  __pyx_codeobj__76 = (PyObject*)__Pyx_PyCode_New(4, 0, 9, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__75, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_environment_pyx, __pyx_n_s_computeNList, 377, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__76)) __PYX_ERR(0, 377, __pyx_L1_error)
+
+  /* "freud/environment.pyx":417
+ *         return self
+ * 
+ *     def compute(self, box, unsigned int num_neighbors, points_ref, points=None,             # <<<<<<<<<<<<<<
+ *                 orientations=None, mode='neighborhood', nlist=None):
+ *         """Calculates the local descriptors of bonds from a set of source
+ */
+  __pyx_tuple__77 = PyTuple_Pack(17, __pyx_n_s_self, __pyx_n_s_box, __pyx_n_s_num_neighbors, __pyx_n_s_points_ref, __pyx_n_s_points, __pyx_n_s_orientations, __pyx_n_s_mode, __pyx_n_s_nlist, __pyx_n_s_b, __pyx_n_s_l_orientations, __pyx_n_s_l_points_ref, __pyx_n_s_nRef, __pyx_n_s_l_points, __pyx_n_s_nP, __pyx_n_s_l_mode, __pyx_n_s_nlist_2, __pyx_n_s_defaulted_nlist); if (unlikely(!__pyx_tuple__77)) __PYX_ERR(0, 417, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__77);
+  __Pyx_GIVEREF(__pyx_tuple__77);
+  __pyx_codeobj__78 = (PyObject*)__Pyx_PyCode_New(8, 0, 17, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__77, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_environment_pyx, __pyx_n_s_compute, 417, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__78)) __PYX_ERR(0, 417, __pyx_L1_error)
+
+  /* "freud/environment.pyx":517
+ *         return self.getSph()
+ * 
+ *     def getSph(self):             # <<<<<<<<<<<<<<
+ *         """Get a reference to the last computed spherical harmonic array.
+ * 
+ */
+  __pyx_tuple__79 = PyTuple_Pack(4, __pyx_n_s_self, __pyx_n_s_sph, __pyx_n_s_nbins, __pyx_n_s_result); if (unlikely(!__pyx_tuple__79)) __PYX_ERR(0, 517, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__79);
+  __Pyx_GIVEREF(__pyx_tuple__79);
+  __pyx_codeobj__80 = (PyObject*)__Pyx_PyCode_New(1, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__79, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_environment_pyx, __pyx_n_s_getSph, 517, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__80)) __PYX_ERR(0, 517, __pyx_L1_error)
+
+  /* "freud/environment.pyx":538
+ *         return self.getNP()
+ * 
+ *     def getNP(self):             # <<<<<<<<<<<<<<
+ *         """Get the number of particles.
+ * 
+ */
+  __pyx_tuple__81 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_np); if (unlikely(!__pyx_tuple__81)) __PYX_ERR(0, 538, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__81);
+  __Pyx_GIVEREF(__pyx_tuple__81);
+  __pyx_codeobj__82 = (PyObject*)__Pyx_PyCode_New(1, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__81, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_environment_pyx, __pyx_n_s_getNP, 538, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__82)) __PYX_ERR(0, 538, __pyx_L1_error)
+
+  /* "freud/environment.pyx":551
+ *         return self.getNSphs()
+ * 
+ *     def getNSphs(self):             # <<<<<<<<<<<<<<
+ *         """Get the number of neighbors.
+ * 
+ */
+  __pyx_tuple__83 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_n); if (unlikely(!__pyx_tuple__83)) __PYX_ERR(0, 551, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__83);
+  __Pyx_GIVEREF(__pyx_tuple__83);
+  __pyx_codeobj__84 = (PyObject*)__Pyx_PyCode_New(1, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__83, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_environment_pyx, __pyx_n_s_getNSphs, 551, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__84)) __PYX_ERR(0, 551, __pyx_L1_error)
+
+  /* "freud/environment.pyx":564
+ *         return self.getLMax()
+ * 
+ *     def getLMax(self):             # <<<<<<<<<<<<<<
+ *         """Get the maximum spherical harmonic :math:`l` to calculate for.
+ * 
+ */
+  __pyx_tuple__85 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_l_max); if (unlikely(!__pyx_tuple__85)) __PYX_ERR(0, 564, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__85);
+  __Pyx_GIVEREF(__pyx_tuple__85);
+  __pyx_codeobj__86 = (PyObject*)__Pyx_PyCode_New(1, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__85, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_environment_pyx, __pyx_n_s_getLMax, 564, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__86)) __PYX_ERR(0, 564, __pyx_L1_error)
+
+  /* "freud/environment.pyx":577
+ *         return self.getRMax()
+ * 
+ *     def getRMax(self):             # <<<<<<<<<<<<<<
+ *         """Get the cutoff radius.
+ * 
+ */
+  __pyx_tuple__87 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_r); if (unlikely(!__pyx_tuple__87)) __PYX_ERR(0, 577, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__87);
+  __Pyx_GIVEREF(__pyx_tuple__87);
+  __pyx_codeobj__88 = (PyObject*)__Pyx_PyCode_New(1, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__87, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_environment_pyx, __pyx_n_s_getRMax, 577, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__88)) __PYX_ERR(0, 577, __pyx_L1_error)
+
+  /* "(tree fragment)":1
+ * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ * def __setstate_cython__(self, __pyx_state):
+ */
+  __pyx_tuple__89 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__89)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__89);
+  __Pyx_GIVEREF(__pyx_tuple__89);
+  __pyx_codeobj__90 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__89, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_reduce_cython, 1, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__90)) __PYX_ERR(1, 1, __pyx_L1_error)
+
+  /* "(tree fragment)":3
+ * def __reduce_cython__(self):
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ */
+  __pyx_tuple__91 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_pyx_state); if (unlikely(!__pyx_tuple__91)) __PYX_ERR(1, 3, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__91);
+  __Pyx_GIVEREF(__pyx_tuple__91);
+  __pyx_codeobj__92 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__91, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_setstate_cython, 3, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__92)) __PYX_ERR(1, 3, __pyx_L1_error)
+
+  /* "freud/environment.pyx":624
+ *         del self.thisptr
+ * 
+ *     def setBox(self, box):             # <<<<<<<<<<<<<<
+ *         """Reset the simulation box.
+ * 
+ */
+  __pyx_tuple__93 = PyTuple_Pack(3, __pyx_n_s_self, __pyx_n_s_box, __pyx_n_s_b); if (unlikely(!__pyx_tuple__93)) __PYX_ERR(0, 624, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__93);
+  __Pyx_GIVEREF(__pyx_tuple__93);
+  __pyx_codeobj__94 = (PyObject*)__Pyx_PyCode_New(2, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__93, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_environment_pyx, __pyx_n_s_setBox, 624, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__94)) __PYX_ERR(0, 624, __pyx_L1_error)
+
+  /* "freud/environment.pyx":635
+ *         self.m_box = box
+ * 
+ *     def cluster(self, points, threshold, hard_r=False, registration=False,             # <<<<<<<<<<<<<<
+ *                 global_search=False, env_nlist=None, nlist=None):
+ *         """Determine clusters of particles with matching environments.
+ */
+  __pyx_tuple__95 = PyTuple_Pack(14, __pyx_n_s_self, __pyx_n_s_points, __pyx_n_s_threshold, __pyx_n_s_hard_r, __pyx_n_s_registration, __pyx_n_s_global_search, __pyx_n_s_env_nlist, __pyx_n_s_nlist, __pyx_n_s_l_points, __pyx_n_s_nP, __pyx_n_s_nlist_2, __pyx_n_s_env_nlist_2, __pyx_n_s_defaulted_nlist, __pyx_n_s_defaulted_env_nlist); if (unlikely(!__pyx_tuple__95)) __PYX_ERR(0, 635, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__95);
+  __Pyx_GIVEREF(__pyx_tuple__95);
+  __pyx_codeobj__96 = (PyObject*)__Pyx_PyCode_New(8, 0, 14, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__95, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_environment_pyx, __pyx_n_s_cluster, 635, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__96)) __PYX_ERR(0, 635, __pyx_L1_error)
+
+  /* "freud/environment.pyx":702
+ *             global_search)
+ * 
+ *     def matchMotif(self, points, refPoints, threshold, registration=False,             # <<<<<<<<<<<<<<
+ *                    nlist=None):
+ *         """Determine clusters of particles that match the motif provided by
+ */
+  __pyx_tuple__97 = PyTuple_Pack(12, __pyx_n_s_self, __pyx_n_s_points, __pyx_n_s_refPoints, __pyx_n_s_threshold, __pyx_n_s_registration, __pyx_n_s_nlist, __pyx_n_s_l_points, __pyx_n_s_l_refPoints, __pyx_n_s_nP, __pyx_n_s_nRef, __pyx_n_s_defaulted_nlist, __pyx_n_s_nlist_2); if (unlikely(!__pyx_tuple__97)) __PYX_ERR(0, 702, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__97);
+  __Pyx_GIVEREF(__pyx_tuple__97);
+  __pyx_codeobj__98 = (PyObject*)__Pyx_PyCode_New(6, 0, 12, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__97, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_environment_pyx, __pyx_n_s_matchMotif, 702, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__98)) __PYX_ERR(0, 702, __pyx_L1_error)
+
+  /* "freud/environment.pyx":753
+ *             registration)
+ * 
+ *     def minRMSDMotif(self, points, refPoints, registration=False, nlist=None):             # <<<<<<<<<<<<<<
+ *         """Rotate (if registration=True) and permute the environments of all
+ *         particles to minimize their RMSD with respect to the motif provided by
+ */
+  __pyx_tuple__99 = PyTuple_Pack(12, __pyx_n_s_self, __pyx_n_s_points, __pyx_n_s_refPoints, __pyx_n_s_registration, __pyx_n_s_nlist, __pyx_n_s_l_points, __pyx_n_s_l_refPoints, __pyx_n_s_nP, __pyx_n_s_nRef, __pyx_n_s_defaulted_nlist, __pyx_n_s_nlist_2, __pyx_n_s_min_rmsd_vec); if (unlikely(!__pyx_tuple__99)) __PYX_ERR(0, 753, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__99);
+  __Pyx_GIVEREF(__pyx_tuple__99);
+  __pyx_codeobj__100 = (PyObject*)__Pyx_PyCode_New(5, 0, 12, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__99, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_environment_pyx, __pyx_n_s_minRMSDMotif, 753, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__100)) __PYX_ERR(0, 753, __pyx_L1_error)
+
+  /* "freud/environment.pyx":806
+ *         return min_rmsd_vec
+ * 
+ *     def isSimilar(self, refPoints1, refPoints2, threshold, registration=False):             # <<<<<<<<<<<<<<
+ *         """Test if the motif provided by refPoints1 is similar to the motif
+ *         provided by refPoints2.
+ */
+  __pyx_tuple__101 = PyTuple_Pack(12, __pyx_n_s_self, __pyx_n_s_refPoints1, __pyx_n_s_refPoints2, __pyx_n_s_threshold, __pyx_n_s_registration, __pyx_n_s_l_refPoints1, __pyx_n_s_l_refPoints2, __pyx_n_s_nRef1, __pyx_n_s_nRef2, __pyx_n_s_threshold_sq, __pyx_n_s_vec_map, __pyx_n_s_rot_refPoints2); if (unlikely(!__pyx_tuple__101)) __PYX_ERR(0, 806, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__101);
+  __Pyx_GIVEREF(__pyx_tuple__101);
+  __pyx_codeobj__102 = (PyObject*)__Pyx_PyCode_New(5, 0, 12, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__101, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_environment_pyx, __pyx_n_s_isSimilar, 806, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__102)) __PYX_ERR(0, 806, __pyx_L1_error)
+
+  /* "freud/environment.pyx":868
+ *         return [rot_refPoints2, vec_map]
+ * 
+ *     def minimizeRMSD(self, refPoints1, refPoints2, registration=False):             # <<<<<<<<<<<<<<
+ *         """Get the somewhat-optimal RMSD between the set of vectors refPoints1
+ *         and the set of vectors refPoints2.
+ */
+  __pyx_tuple__103 = PyTuple_Pack(11, __pyx_n_s_self, __pyx_n_s_refPoints1, __pyx_n_s_refPoints2, __pyx_n_s_registration, __pyx_n_s_l_refPoints1, __pyx_n_s_l_refPoints2, __pyx_n_s_nRef1, __pyx_n_s_nRef2, __pyx_n_s_min_rmsd, __pyx_n_s_results_map, __pyx_n_s_rot_refPoints2); if (unlikely(!__pyx_tuple__103)) __PYX_ERR(0, 868, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__103);
+  __Pyx_GIVEREF(__pyx_tuple__103);
+  __pyx_codeobj__104 = (PyObject*)__Pyx_PyCode_New(4, 0, 11, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__103, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_environment_pyx, __pyx_n_s_minimizeRMSD, 868, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__104)) __PYX_ERR(0, 868, __pyx_L1_error)
+
+  /* "freud/environment.pyx":930
+ *         return self.getClusters()
+ * 
+ *     def getClusters(self):             # <<<<<<<<<<<<<<
+ *         """Get a reference to the particles, indexed into clusters according to
+ *         their matching local environments.
+ */
+  __pyx_tuple__105 = PyTuple_Pack(4, __pyx_n_s_self, __pyx_n_s_clusters, __pyx_n_s_nbins, __pyx_n_s_result); if (unlikely(!__pyx_tuple__105)) __PYX_ERR(0, 930, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__105);
+  __Pyx_GIVEREF(__pyx_tuple__105);
+  __pyx_codeobj__106 = (PyObject*)__Pyx_PyCode_New(1, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__105, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_environment_pyx, __pyx_n_s_getClusters, 930, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__106)) __PYX_ERR(0, 930, __pyx_L1_error)
+
+  /* "freud/environment.pyx":947
+ *         return result
+ * 
+ *     def getEnvironment(self, i):             # <<<<<<<<<<<<<<
+ *         """Returns the set of vectors defining the environment indexed by i.
+ * 
+ */
+  __pyx_tuple__107 = PyTuple_Pack(5, __pyx_n_s_self, __pyx_n_s_i, __pyx_n_s_environment, __pyx_n_s_nbins, __pyx_n_s_result); if (unlikely(!__pyx_tuple__107)) __PYX_ERR(0, 947, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__107);
+  __Pyx_GIVEREF(__pyx_tuple__107);
+  __pyx_codeobj__108 = (PyObject*)__Pyx_PyCode_New(2, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__107, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_environment_pyx, __pyx_n_s_getEnvironment, 947, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__108)) __PYX_ERR(0, 947, __pyx_L1_error)
+
+  /* "freud/environment.pyx":970
+ *         return self.getTotEnvironment()
+ * 
+ *     def getTotEnvironment(self):             # <<<<<<<<<<<<<<
+ *         """Returns the matrix of all environments for all particles.
+ * 
+ */
+  __pyx_tuple__109 = PyTuple_Pack(4, __pyx_n_s_self, __pyx_n_s_tot_environment, __pyx_n_s_nbins, __pyx_n_s_result); if (unlikely(!__pyx_tuple__109)) __PYX_ERR(0, 970, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__109);
+  __Pyx_GIVEREF(__pyx_tuple__109);
+  __pyx_codeobj__110 = (PyObject*)__Pyx_PyCode_New(1, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__109, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_environment_pyx, __pyx_n_s_getTotEnvironment, 970, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__110)) __PYX_ERR(0, 970, __pyx_L1_error)
+
+  /* "freud/environment.pyx":993
+ *         return self.getNP()
+ * 
+ *     def getNP(self):             # <<<<<<<<<<<<<<
+ *         """Get the number of particles.
+ * 
+ */
+  __pyx_tuple__111 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_np); if (unlikely(!__pyx_tuple__111)) __PYX_ERR(0, 993, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__111);
+  __Pyx_GIVEREF(__pyx_tuple__111);
+  __pyx_codeobj__112 = (PyObject*)__Pyx_PyCode_New(1, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__111, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_environment_pyx, __pyx_n_s_getNP, 993, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__112)) __PYX_ERR(0, 993, __pyx_L1_error)
+
+  /* "freud/environment.pyx":1006
+ *         return self.getNumClusters()
+ * 
+ *     def getNumClusters(self):             # <<<<<<<<<<<<<<
+ *         """Get the number of clusters.
+ * 
+ */
+  __pyx_tuple__113 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_num_clust); if (unlikely(!__pyx_tuple__113)) __PYX_ERR(0, 1006, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__113);
+  __Pyx_GIVEREF(__pyx_tuple__113);
+  __pyx_codeobj__114 = (PyObject*)__Pyx_PyCode_New(1, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__113, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_environment_pyx, __pyx_n_s_getNumClusters, 1006, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__114)) __PYX_ERR(0, 1006, __pyx_L1_error)
+
+  /* "(tree fragment)":1
+ * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ * def __setstate_cython__(self, __pyx_state):
+ */
+  __pyx_tuple__115 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__115)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__115);
+  __Pyx_GIVEREF(__pyx_tuple__115);
+  __pyx_codeobj__116 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__115, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_reduce_cython, 1, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__116)) __PYX_ERR(1, 1, __pyx_L1_error)
+
+  /* "(tree fragment)":3
+ * def __reduce_cython__(self):
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ */
+  __pyx_tuple__117 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_pyx_state); if (unlikely(!__pyx_tuple__117)) __PYX_ERR(1, 3, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__117);
+  __Pyx_GIVEREF(__pyx_tuple__117);
+  __pyx_codeobj__118 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__117, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_setstate_cython, 3, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__118)) __PYX_ERR(1, 3, __pyx_L1_error)
+
+  /* "freud/environment.pyx":1050
+ *         del self.thisptr
+ * 
+ *     def compute(self, box, points, orientations, compOrientations, nlist=None):             # <<<<<<<<<<<<<<
+ *         """Calculates the correlation function and adds to the current
+ *         histogram.
+ */
+  __pyx_tuple__119 = PyTuple_Pack(14, __pyx_n_s_self, __pyx_n_s_box, __pyx_n_s_points, __pyx_n_s_orientations, __pyx_n_s_compOrientations, __pyx_n_s_nlist, __pyx_n_s_b, __pyx_n_s_l_points, __pyx_n_s_l_compOrientations, __pyx_n_s_l_orientations, __pyx_n_s_nP, __pyx_n_s_nO, __pyx_n_s_defaulted_nlist, __pyx_n_s_nlist_2); if (unlikely(!__pyx_tuple__119)) __PYX_ERR(0, 1050, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__119);
+  __Pyx_GIVEREF(__pyx_tuple__119);
+  __pyx_codeobj__120 = (PyObject*)__Pyx_PyCode_New(6, 0, 14, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__119, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_environment_pyx, __pyx_n_s_compute, 1050, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__120)) __PYX_ERR(0, 1050, __pyx_L1_error)
+
+  /* "freud/environment.pyx":1101
+ *         return self.getMatch()
+ * 
+ *     def getMatch(self):             # <<<<<<<<<<<<<<
+ *         """Get the match.
+ * 
+ */
+  __pyx_tuple__121 = PyTuple_Pack(4, __pyx_n_s_self, __pyx_n_s_match, __pyx_n_s_nbins, __pyx_n_s_result); if (unlikely(!__pyx_tuple__121)) __PYX_ERR(0, 1101, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__121);
+  __Pyx_GIVEREF(__pyx_tuple__121);
+  __pyx_codeobj__122 = (PyObject*)__Pyx_PyCode_New(1, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__121, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_environment_pyx, __pyx_n_s_getMatch, 1101, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__122)) __PYX_ERR(0, 1101, __pyx_L1_error)
+
+  /* "freud/environment.pyx":1120
+ *         return self.getPair()
+ * 
+ *     def getPair(self):             # <<<<<<<<<<<<<<
+ *         """Get the pair.
+ * 
+ */
+  __pyx_tuple__123 = PyTuple_Pack(4, __pyx_n_s_self, __pyx_n_s_pair, __pyx_n_s_nbins, __pyx_n_s_result); if (unlikely(!__pyx_tuple__123)) __PYX_ERR(0, 1120, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__123);
+  __Pyx_GIVEREF(__pyx_tuple__123);
+  __pyx_codeobj__124 = (PyObject*)__Pyx_PyCode_New(1, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__123, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_environment_pyx, __pyx_n_s_getPair, 1120, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__124)) __PYX_ERR(0, 1120, __pyx_L1_error)
+
+  /* "freud/environment.pyx":1138
+ *         return self.getBox()
+ * 
+ *     def getBox(self):             # <<<<<<<<<<<<<<
+ *         """Get the box used in the calculation.
+ * 
+ */
+  __pyx_tuple__125 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__125)) __PYX_ERR(0, 1138, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__125);
+  __Pyx_GIVEREF(__pyx_tuple__125);
+  __pyx_codeobj__126 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__125, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_environment_pyx, __pyx_n_s_getBox, 1138, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__126)) __PYX_ERR(0, 1138, __pyx_L1_error)
+
+  /* "(tree fragment)":1
+ * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ * def __setstate_cython__(self, __pyx_state):
+ */
+  __pyx_tuple__127 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__127)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__127);
+  __Pyx_GIVEREF(__pyx_tuple__127);
+  __pyx_codeobj__128 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__127, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_reduce_cython, 1, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__128)) __PYX_ERR(1, 1, __pyx_L1_error)
+
+  /* "(tree fragment)":3
+ * def __reduce_cython__(self):
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ */
+  __pyx_tuple__129 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_pyx_state); if (unlikely(!__pyx_tuple__129)) __PYX_ERR(1, 3, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__129);
+  __Pyx_GIVEREF(__pyx_tuple__129);
+  __pyx_codeobj__130 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__129, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_setstate_cython, 3, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__130)) __PYX_ERR(1, 3, __pyx_L1_error)
+
+  /* "freud/environment.pyx":1184
+ *         return self.nlist_
+ * 
+ *     def computeNeighbor(self, box, ref_ors, ors, ref_points, points,             # <<<<<<<<<<<<<<
+ *                         equiv_quats, nlist=None):
+ *         """Calculates the minimum angles of separation between ref_ors and ors,
+ */
+  __pyx_tuple__131 = PyTuple_Pack(17, __pyx_n_s_self, __pyx_n_s_box, __pyx_n_s_ref_ors, __pyx_n_s_ors, __pyx_n_s_ref_points, __pyx_n_s_points, __pyx_n_s_equiv_quats, __pyx_n_s_nlist, __pyx_n_s_b, __pyx_n_s_defaulted_nlist, __pyx_n_s_nlist_2, __pyx_n_s_l_ref_ors, __pyx_n_s_l_ors, __pyx_n_s_l_equiv_quats, __pyx_n_s_nRef, __pyx_n_s_nP, __pyx_n_s_nEquiv); if (unlikely(!__pyx_tuple__131)) __PYX_ERR(0, 1184, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__131);
+  __Pyx_GIVEREF(__pyx_tuple__131);
+  __pyx_codeobj__132 = (PyObject*)__Pyx_PyCode_New(8, 0, 17, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__131, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_environment_pyx, __pyx_n_s_computeNeighbor, 1184, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__132)) __PYX_ERR(0, 1184, __pyx_L1_error)
+
+  /* "freud/environment.pyx":1263
+ *         return self
+ * 
+ *     def computeGlobal(self, global_ors, ors, equiv_quats):             # <<<<<<<<<<<<<<
+ *         """Calculates the minimum angles of separation between global_ors and
+ *         ors, checking for underlying symmetry as encoded in equiv_quats.
+ */
+  __pyx_tuple__133 = PyTuple_Pack(10, __pyx_n_s_self, __pyx_n_s_global_ors, __pyx_n_s_ors, __pyx_n_s_equiv_quats, __pyx_n_s_l_global_ors, __pyx_n_s_l_ors, __pyx_n_s_l_equiv_quats, __pyx_n_s_nGlobal, __pyx_n_s_nP, __pyx_n_s_nEquiv); if (unlikely(!__pyx_tuple__133)) __PYX_ERR(0, 1263, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__133);
+  __Pyx_GIVEREF(__pyx_tuple__133);
+  __pyx_codeobj__134 = (PyObject*)__Pyx_PyCode_New(4, 0, 10, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__133, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_environment_pyx, __pyx_n_s_computeGlobal, 1263, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__134)) __PYX_ERR(0, 1263, __pyx_L1_error)
+
+  /* "freud/environment.pyx":1316
+ *         return self.getNeighborAngles()
+ * 
+ *     def getNeighborAngles(self):             # <<<<<<<<<<<<<<
+ *         """The neighbor angles in radians.
+ * 
+ */
+  __pyx_tuple__135 = PyTuple_Pack(4, __pyx_n_s_self, __pyx_n_s_neigh_ang, __pyx_n_s_nbins, __pyx_n_s_result); if (unlikely(!__pyx_tuple__135)) __PYX_ERR(0, 1316, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__135);
+  __Pyx_GIVEREF(__pyx_tuple__135);
+  __pyx_codeobj__136 = (PyObject*)__Pyx_PyCode_New(1, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__135, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_environment_pyx, __pyx_n_s_getNeighborAngles, 1316, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__136)) __PYX_ERR(0, 1316, __pyx_L1_error)
+
+  /* "freud/environment.pyx":1337
+ *         return self.getGlobalAngles()
+ * 
+ *     def getGlobalAngles(self):             # <<<<<<<<<<<<<<
+ *         """The global angles in radians.
+ * 
+ */
+  __pyx_tuple__137 = PyTuple_Pack(4, __pyx_n_s_self, __pyx_n_s_global_ang, __pyx_n_s_nbins, __pyx_n_s_result); if (unlikely(!__pyx_tuple__137)) __PYX_ERR(0, 1337, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__137);
+  __Pyx_GIVEREF(__pyx_tuple__137);
+  __pyx_codeobj__138 = (PyObject*)__Pyx_PyCode_New(1, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__137, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_environment_pyx, __pyx_n_s_getGlobalAngles, 1337, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__138)) __PYX_ERR(0, 1337, __pyx_L1_error)
+
+  /* "freud/environment.pyx":1359
+ *         return self.getNP()
+ * 
+ *     def getNP(self):             # <<<<<<<<<<<<<<
+ *         """Get the number of particles used in computing the last set.
+ * 
+ */
+  __pyx_tuple__139 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_np); if (unlikely(!__pyx_tuple__139)) __PYX_ERR(0, 1359, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__139);
+  __Pyx_GIVEREF(__pyx_tuple__139);
+  __pyx_codeobj__140 = (PyObject*)__Pyx_PyCode_New(1, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__139, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_environment_pyx, __pyx_n_s_getNP, 1359, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__140)) __PYX_ERR(0, 1359, __pyx_L1_error)
+
+  /* "freud/environment.pyx":1372
+ *         return self.getNReference()
+ * 
+ *     def getNReference(self):             # <<<<<<<<<<<<<<
+ *         """Get the number of reference particles used in computing the neighbor
+ *         angles.
+ */
+  __pyx_tuple__141 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_nref); if (unlikely(!__pyx_tuple__141)) __PYX_ERR(0, 1372, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__141);
+  __Pyx_GIVEREF(__pyx_tuple__141);
+  __pyx_codeobj__142 = (PyObject*)__Pyx_PyCode_New(1, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__141, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_environment_pyx, __pyx_n_s_getNReference, 1372, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__142)) __PYX_ERR(0, 1372, __pyx_L1_error)
+
+  /* "freud/environment.pyx":1386
+ *         return self.getNGlobal()
+ * 
+ *     def getNGlobal(self):             # <<<<<<<<<<<<<<
+ *         """Get the number of global orientations to check against.
+ * 
+ */
+  __pyx_tuple__143 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_nglobal); if (unlikely(!__pyx_tuple__143)) __PYX_ERR(0, 1386, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__143);
+  __Pyx_GIVEREF(__pyx_tuple__143);
+  __pyx_codeobj__144 = (PyObject*)__Pyx_PyCode_New(1, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__143, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_environment_pyx, __pyx_n_s_getNGlobal, 1386, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__144)) __PYX_ERR(0, 1386, __pyx_L1_error)
+
+  /* "(tree fragment)":1
+ * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ * def __setstate_cython__(self, __pyx_state):
+ */
+  __pyx_tuple__145 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__145)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__145);
+  __Pyx_GIVEREF(__pyx_tuple__145);
+  __pyx_codeobj__146 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__145, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_reduce_cython, 1, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__146)) __PYX_ERR(1, 1, __pyx_L1_error)
+
+  /* "(tree fragment)":3
+ * def __reduce_cython__(self):
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ */
+  __pyx_tuple__147 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_pyx_state); if (unlikely(!__pyx_tuple__147)) __PYX_ERR(1, 3, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__147);
+  __Pyx_GIVEREF(__pyx_tuple__147);
+  __pyx_codeobj__148 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__147, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_setstate_cython, 3, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__148)) __PYX_ERR(1, 3, __pyx_L1_error)
   __Pyx_RefNannyFinishContext();
   return 0;
   __pyx_L1_error:;
@@ -23333,6 +24482,157 @@ if (!__Pyx_RefNanny) {
  */
   __pyx_t_3 = __pyx_f_5numpy_import_array(); if (unlikely(__pyx_t_3 == ((int)-1))) __PYX_ERR(0, 32, __pyx_L1_error)
 
+  /* "freud/environment.pyx":107
+ *         del self.thisptr
+ * 
+ *     def accumulate(self, box, ref_points, ref_orientations, points,             # <<<<<<<<<<<<<<
+ *                    orientations, str mode="bod", nlist=None):
+ *         """Calculates the correlation function and adds to the current
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_11environment_9BondOrder_5accumulate, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondOrder_accumulate, NULL, __pyx_n_s_freud_environment, __pyx_d, ((PyObject *)__pyx_codeobj__52)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 107, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_11environment_BondOrder->tp_dict, __pyx_n_s_accumulate, __pyx_t_2) < 0) __PYX_ERR(0, 107, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  PyType_Modified(__pyx_ptype_5freud_11environment_BondOrder);
+
+  /* "freud/environment.pyx":196
+ *         return self.getBondOrder()
+ * 
+ *     def getBondOrder(self):             # <<<<<<<<<<<<<<
+ *         """Get the bond order.
+ * 
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_11environment_9BondOrder_7getBondOrder, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondOrder_getBondOrder, NULL, __pyx_n_s_freud_environment, __pyx_d, ((PyObject *)__pyx_codeobj__54)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 196, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_11environment_BondOrder->tp_dict, __pyx_n_s_getBondOrder, __pyx_t_2) < 0) __PYX_ERR(0, 196, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  PyType_Modified(__pyx_ptype_5freud_11environment_BondOrder);
+
+  /* "freud/environment.pyx":216
+ *         return self.getBox()
+ * 
+ *     def getBox(self):             # <<<<<<<<<<<<<<
+ *         """Get the box used in the calculation.
+ * 
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_11environment_9BondOrder_9getBox, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondOrder_getBox, NULL, __pyx_n_s_freud_environment, __pyx_d, ((PyObject *)__pyx_codeobj__56)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 216, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_11environment_BondOrder->tp_dict, __pyx_n_s_getBox, __pyx_t_2) < 0) __PYX_ERR(0, 216, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  PyType_Modified(__pyx_ptype_5freud_11environment_BondOrder);
+
+  /* "freud/environment.pyx":224
+ *         return freud.box.BoxFromCPP(self.thisptr.getBox())
+ * 
+ *     def resetBondOrder(self):             # <<<<<<<<<<<<<<
+ *         """Resets the values of the bond order in memory."""
+ *         self.thisptr.reset()
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_11environment_9BondOrder_11resetBondOrder, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondOrder_resetBondOrder, NULL, __pyx_n_s_freud_environment, __pyx_d, ((PyObject *)__pyx_codeobj__58)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 224, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_11environment_BondOrder->tp_dict, __pyx_n_s_resetBondOrder, __pyx_t_2) < 0) __PYX_ERR(0, 224, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  PyType_Modified(__pyx_ptype_5freud_11environment_BondOrder);
+
+  /* "freud/environment.pyx":228
+ *         self.thisptr.reset()
+ * 
+ *     def compute(self, box, ref_points, ref_orientations, points, orientations,             # <<<<<<<<<<<<<<
+ *                 mode="bod", nlist=None):
+ *         """Calculates the bond order histogram. Will overwrite the current
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_11environment_9BondOrder_13compute, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondOrder_compute, NULL, __pyx_n_s_freud_environment, __pyx_d, ((PyObject *)__pyx_codeobj__60)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 228, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_11environment_BondOrder->tp_dict, __pyx_n_s_compute, __pyx_t_2) < 0) __PYX_ERR(0, 228, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  PyType_Modified(__pyx_ptype_5freud_11environment_BondOrder);
+
+  /* "freud/environment.pyx":257
+ *         return self
+ * 
+ *     def reduceBondOrder(self):             # <<<<<<<<<<<<<<
+ *         """Reduces the histogram in the values over N processors to a single
+ *         histogram. This is called automatically by
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_11environment_9BondOrder_15reduceBondOrder, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondOrder_reduceBondOrder, NULL, __pyx_n_s_freud_environment, __pyx_d, ((PyObject *)__pyx_codeobj__62)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 257, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_11environment_BondOrder->tp_dict, __pyx_n_s_reduceBondOrder, __pyx_t_2) < 0) __PYX_ERR(0, 257, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  PyType_Modified(__pyx_ptype_5freud_11environment_BondOrder);
+
+  /* "freud/environment.pyx":268
+ *         return self.getTheta()
+ * 
+ *     def getTheta(self):             # <<<<<<<<<<<<<<
+ *         """Get :math:`\\theta`.
+ * 
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_11environment_9BondOrder_17getTheta, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondOrder_getTheta, NULL, __pyx_n_s_freud_environment, __pyx_d, ((PyObject *)__pyx_codeobj__64)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 268, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_11environment_BondOrder->tp_dict, __pyx_n_s_getTheta, __pyx_t_2) < 0) __PYX_ERR(0, 268, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  PyType_Modified(__pyx_ptype_5freud_11environment_BondOrder);
+
+  /* "freud/environment.pyx":287
+ *         return self.getPhi()
+ * 
+ *     def getPhi(self):             # <<<<<<<<<<<<<<
+ *         """Get :math:`\\phi`.
+ * 
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_11environment_9BondOrder_19getPhi, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondOrder_getPhi, NULL, __pyx_n_s_freud_environment, __pyx_d, ((PyObject *)__pyx_codeobj__66)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 287, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_11environment_BondOrder->tp_dict, __pyx_n_s_getPhi, __pyx_t_2) < 0) __PYX_ERR(0, 287, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  PyType_Modified(__pyx_ptype_5freud_11environment_BondOrder);
+
+  /* "freud/environment.pyx":305
+ *         return self.getNBinsTheta()
+ * 
+ *     def getNBinsTheta(self):             # <<<<<<<<<<<<<<
+ *         """Get the number of bins in the :math:`\\theta`-dimension of histogram.
+ * 
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_11environment_9BondOrder_21getNBinsTheta, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondOrder_getNBinsTheta, NULL, __pyx_n_s_freud_environment, __pyx_d, ((PyObject *)__pyx_codeobj__68)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 305, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_11environment_BondOrder->tp_dict, __pyx_n_s_getNBinsTheta, __pyx_t_2) < 0) __PYX_ERR(0, 305, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  PyType_Modified(__pyx_ptype_5freud_11environment_BondOrder);
+
+  /* "freud/environment.pyx":318
+ *         return self.getNBinsPhi()
+ * 
+ *     def getNBinsPhi(self):             # <<<<<<<<<<<<<<
+ *         """Get the number of bins in the :math:`\\phi`-dimension of histogram.
+ * 
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_11environment_9BondOrder_23getNBinsPhi, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondOrder_getNBinsPhi, NULL, __pyx_n_s_freud_environment, __pyx_d, ((PyObject *)__pyx_codeobj__70)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 318, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_11environment_BondOrder->tp_dict, __pyx_n_s_getNBinsPhi, __pyx_t_2) < 0) __PYX_ERR(0, 318, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  PyType_Modified(__pyx_ptype_5freud_11environment_BondOrder);
+
+  /* "(tree fragment)":1
+ * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ * def __setstate_cython__(self, __pyx_state):
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_11environment_9BondOrder_25__reduce_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondOrder___reduce_cython, NULL, __pyx_n_s_freud_environment, __pyx_d, ((PyObject *)__pyx_codeobj__72)); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_reduce_cython, __pyx_t_2) < 0) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+
+  /* "(tree fragment)":3
+ * def __reduce_cython__(self):
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_11environment_9BondOrder_27__setstate_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondOrder___setstate_cython, NULL, __pyx_n_s_freud_environment, __pyx_d, ((PyObject *)__pyx_codeobj__74)); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 3, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_setstate_cython, __pyx_t_2) < 0) __PYX_ERR(1, 3, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+
   /* "freud/environment.pyx":364
  *             The cutoff radius.
  *     """
@@ -23373,6 +24673,467 @@ if (!__Pyx_RefNanny) {
   if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_11environment_LocalDescriptors->tp_dict, __pyx_n_s_known_modes, __pyx_t_2) < 0) __PYX_ERR(0, 364, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_11environment_LocalDescriptors);
+
+  /* "freud/environment.pyx":377
+ *         del self.thisptr
+ * 
+ *     def computeNList(self, box, points_ref, points=None):             # <<<<<<<<<<<<<<
+ *         """Compute the neighbor list for bonds from a set of source points to
+ *         a set of destination points.
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_11environment_16LocalDescriptors_5computeNList, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_LocalDescriptors_computeNList, NULL, __pyx_n_s_freud_environment, __pyx_d, ((PyObject *)__pyx_codeobj__76)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 377, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_11environment_LocalDescriptors->tp_dict, __pyx_n_s_computeNList, __pyx_t_2) < 0) __PYX_ERR(0, 377, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  PyType_Modified(__pyx_ptype_5freud_11environment_LocalDescriptors);
+
+  /* "freud/environment.pyx":417
+ *         return self
+ * 
+ *     def compute(self, box, unsigned int num_neighbors, points_ref, points=None,             # <<<<<<<<<<<<<<
+ *                 orientations=None, mode='neighborhood', nlist=None):
+ *         """Calculates the local descriptors of bonds from a set of source
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_11environment_16LocalDescriptors_7compute, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_LocalDescriptors_compute, NULL, __pyx_n_s_freud_environment, __pyx_d, ((PyObject *)__pyx_codeobj__78)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 417, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_11environment_LocalDescriptors->tp_dict, __pyx_n_s_compute, __pyx_t_2) < 0) __PYX_ERR(0, 417, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  PyType_Modified(__pyx_ptype_5freud_11environment_LocalDescriptors);
+
+  /* "freud/environment.pyx":517
+ *         return self.getSph()
+ * 
+ *     def getSph(self):             # <<<<<<<<<<<<<<
+ *         """Get a reference to the last computed spherical harmonic array.
+ * 
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_11environment_16LocalDescriptors_9getSph, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_LocalDescriptors_getSph, NULL, __pyx_n_s_freud_environment, __pyx_d, ((PyObject *)__pyx_codeobj__80)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 517, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_11environment_LocalDescriptors->tp_dict, __pyx_n_s_getSph, __pyx_t_2) < 0) __PYX_ERR(0, 517, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  PyType_Modified(__pyx_ptype_5freud_11environment_LocalDescriptors);
+
+  /* "freud/environment.pyx":538
+ *         return self.getNP()
+ * 
+ *     def getNP(self):             # <<<<<<<<<<<<<<
+ *         """Get the number of particles.
+ * 
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_11environment_16LocalDescriptors_11getNP, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_LocalDescriptors_getNP, NULL, __pyx_n_s_freud_environment, __pyx_d, ((PyObject *)__pyx_codeobj__82)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 538, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_11environment_LocalDescriptors->tp_dict, __pyx_n_s_getNP, __pyx_t_2) < 0) __PYX_ERR(0, 538, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  PyType_Modified(__pyx_ptype_5freud_11environment_LocalDescriptors);
+
+  /* "freud/environment.pyx":551
+ *         return self.getNSphs()
+ * 
+ *     def getNSphs(self):             # <<<<<<<<<<<<<<
+ *         """Get the number of neighbors.
+ * 
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_11environment_16LocalDescriptors_13getNSphs, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_LocalDescriptors_getNSphs, NULL, __pyx_n_s_freud_environment, __pyx_d, ((PyObject *)__pyx_codeobj__84)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 551, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_11environment_LocalDescriptors->tp_dict, __pyx_n_s_getNSphs, __pyx_t_2) < 0) __PYX_ERR(0, 551, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  PyType_Modified(__pyx_ptype_5freud_11environment_LocalDescriptors);
+
+  /* "freud/environment.pyx":564
+ *         return self.getLMax()
+ * 
+ *     def getLMax(self):             # <<<<<<<<<<<<<<
+ *         """Get the maximum spherical harmonic :math:`l` to calculate for.
+ * 
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_11environment_16LocalDescriptors_15getLMax, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_LocalDescriptors_getLMax, NULL, __pyx_n_s_freud_environment, __pyx_d, ((PyObject *)__pyx_codeobj__86)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 564, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_11environment_LocalDescriptors->tp_dict, __pyx_n_s_getLMax, __pyx_t_2) < 0) __PYX_ERR(0, 564, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  PyType_Modified(__pyx_ptype_5freud_11environment_LocalDescriptors);
+
+  /* "freud/environment.pyx":577
+ *         return self.getRMax()
+ * 
+ *     def getRMax(self):             # <<<<<<<<<<<<<<
+ *         """Get the cutoff radius.
+ * 
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_11environment_16LocalDescriptors_17getRMax, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_LocalDescriptors_getRMax, NULL, __pyx_n_s_freud_environment, __pyx_d, ((PyObject *)__pyx_codeobj__88)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 577, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_11environment_LocalDescriptors->tp_dict, __pyx_n_s_getRMax, __pyx_t_2) < 0) __PYX_ERR(0, 577, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  PyType_Modified(__pyx_ptype_5freud_11environment_LocalDescriptors);
+
+  /* "(tree fragment)":1
+ * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ * def __setstate_cython__(self, __pyx_state):
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_11environment_16LocalDescriptors_19__reduce_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_LocalDescriptors___reduce_cython, NULL, __pyx_n_s_freud_environment, __pyx_d, ((PyObject *)__pyx_codeobj__90)); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_reduce_cython, __pyx_t_2) < 0) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+
+  /* "(tree fragment)":3
+ * def __reduce_cython__(self):
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_11environment_16LocalDescriptors_21__setstate_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_LocalDescriptors___setstate_cyth, NULL, __pyx_n_s_freud_environment, __pyx_d, ((PyObject *)__pyx_codeobj__92)); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 3, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_setstate_cython, __pyx_t_2) < 0) __PYX_ERR(1, 3, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+
+  /* "freud/environment.pyx":624
+ *         del self.thisptr
+ * 
+ *     def setBox(self, box):             # <<<<<<<<<<<<<<
+ *         """Reset the simulation box.
+ * 
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_11environment_8MatchEnv_5setBox, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_MatchEnv_setBox, NULL, __pyx_n_s_freud_environment, __pyx_d, ((PyObject *)__pyx_codeobj__94)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 624, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_11environment_MatchEnv->tp_dict, __pyx_n_s_setBox, __pyx_t_2) < 0) __PYX_ERR(0, 624, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  PyType_Modified(__pyx_ptype_5freud_11environment_MatchEnv);
+
+  /* "freud/environment.pyx":635
+ *         self.m_box = box
+ * 
+ *     def cluster(self, points, threshold, hard_r=False, registration=False,             # <<<<<<<<<<<<<<
+ *                 global_search=False, env_nlist=None, nlist=None):
+ *         """Determine clusters of particles with matching environments.
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_11environment_8MatchEnv_7cluster, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_MatchEnv_cluster, NULL, __pyx_n_s_freud_environment, __pyx_d, ((PyObject *)__pyx_codeobj__96)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 635, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_11environment_MatchEnv->tp_dict, __pyx_n_s_cluster, __pyx_t_2) < 0) __PYX_ERR(0, 635, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  PyType_Modified(__pyx_ptype_5freud_11environment_MatchEnv);
+
+  /* "freud/environment.pyx":702
+ *             global_search)
+ * 
+ *     def matchMotif(self, points, refPoints, threshold, registration=False,             # <<<<<<<<<<<<<<
+ *                    nlist=None):
+ *         """Determine clusters of particles that match the motif provided by
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_11environment_8MatchEnv_9matchMotif, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_MatchEnv_matchMotif, NULL, __pyx_n_s_freud_environment, __pyx_d, ((PyObject *)__pyx_codeobj__98)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 702, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_11environment_MatchEnv->tp_dict, __pyx_n_s_matchMotif, __pyx_t_2) < 0) __PYX_ERR(0, 702, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  PyType_Modified(__pyx_ptype_5freud_11environment_MatchEnv);
+
+  /* "freud/environment.pyx":753
+ *             registration)
+ * 
+ *     def minRMSDMotif(self, points, refPoints, registration=False, nlist=None):             # <<<<<<<<<<<<<<
+ *         """Rotate (if registration=True) and permute the environments of all
+ *         particles to minimize their RMSD with respect to the motif provided by
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_11environment_8MatchEnv_11minRMSDMotif, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_MatchEnv_minRMSDMotif, NULL, __pyx_n_s_freud_environment, __pyx_d, ((PyObject *)__pyx_codeobj__100)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 753, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_11environment_MatchEnv->tp_dict, __pyx_n_s_minRMSDMotif, __pyx_t_2) < 0) __PYX_ERR(0, 753, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  PyType_Modified(__pyx_ptype_5freud_11environment_MatchEnv);
+
+  /* "freud/environment.pyx":806
+ *         return min_rmsd_vec
+ * 
+ *     def isSimilar(self, refPoints1, refPoints2, threshold, registration=False):             # <<<<<<<<<<<<<<
+ *         """Test if the motif provided by refPoints1 is similar to the motif
+ *         provided by refPoints2.
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_11environment_8MatchEnv_13isSimilar, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_MatchEnv_isSimilar, NULL, __pyx_n_s_freud_environment, __pyx_d, ((PyObject *)__pyx_codeobj__102)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 806, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_11environment_MatchEnv->tp_dict, __pyx_n_s_isSimilar, __pyx_t_2) < 0) __PYX_ERR(0, 806, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  PyType_Modified(__pyx_ptype_5freud_11environment_MatchEnv);
+
+  /* "freud/environment.pyx":868
+ *         return [rot_refPoints2, vec_map]
+ * 
+ *     def minimizeRMSD(self, refPoints1, refPoints2, registration=False):             # <<<<<<<<<<<<<<
+ *         """Get the somewhat-optimal RMSD between the set of vectors refPoints1
+ *         and the set of vectors refPoints2.
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_11environment_8MatchEnv_15minimizeRMSD, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_MatchEnv_minimizeRMSD, NULL, __pyx_n_s_freud_environment, __pyx_d, ((PyObject *)__pyx_codeobj__104)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 868, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_11environment_MatchEnv->tp_dict, __pyx_n_s_minimizeRMSD, __pyx_t_2) < 0) __PYX_ERR(0, 868, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  PyType_Modified(__pyx_ptype_5freud_11environment_MatchEnv);
+
+  /* "freud/environment.pyx":930
+ *         return self.getClusters()
+ * 
+ *     def getClusters(self):             # <<<<<<<<<<<<<<
+ *         """Get a reference to the particles, indexed into clusters according to
+ *         their matching local environments.
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_11environment_8MatchEnv_17getClusters, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_MatchEnv_getClusters, NULL, __pyx_n_s_freud_environment, __pyx_d, ((PyObject *)__pyx_codeobj__106)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 930, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_11environment_MatchEnv->tp_dict, __pyx_n_s_getClusters, __pyx_t_2) < 0) __PYX_ERR(0, 930, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  PyType_Modified(__pyx_ptype_5freud_11environment_MatchEnv);
+
+  /* "freud/environment.pyx":947
+ *         return result
+ * 
+ *     def getEnvironment(self, i):             # <<<<<<<<<<<<<<
+ *         """Returns the set of vectors defining the environment indexed by i.
+ * 
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_11environment_8MatchEnv_19getEnvironment, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_MatchEnv_getEnvironment, NULL, __pyx_n_s_freud_environment, __pyx_d, ((PyObject *)__pyx_codeobj__108)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 947, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_11environment_MatchEnv->tp_dict, __pyx_n_s_getEnvironment, __pyx_t_2) < 0) __PYX_ERR(0, 947, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  PyType_Modified(__pyx_ptype_5freud_11environment_MatchEnv);
+
+  /* "freud/environment.pyx":970
+ *         return self.getTotEnvironment()
+ * 
+ *     def getTotEnvironment(self):             # <<<<<<<<<<<<<<
+ *         """Returns the matrix of all environments for all particles.
+ * 
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_11environment_8MatchEnv_21getTotEnvironment, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_MatchEnv_getTotEnvironment, NULL, __pyx_n_s_freud_environment, __pyx_d, ((PyObject *)__pyx_codeobj__110)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 970, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_11environment_MatchEnv->tp_dict, __pyx_n_s_getTotEnvironment, __pyx_t_2) < 0) __PYX_ERR(0, 970, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  PyType_Modified(__pyx_ptype_5freud_11environment_MatchEnv);
+
+  /* "freud/environment.pyx":993
+ *         return self.getNP()
+ * 
+ *     def getNP(self):             # <<<<<<<<<<<<<<
+ *         """Get the number of particles.
+ * 
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_11environment_8MatchEnv_23getNP, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_MatchEnv_getNP, NULL, __pyx_n_s_freud_environment, __pyx_d, ((PyObject *)__pyx_codeobj__112)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 993, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_11environment_MatchEnv->tp_dict, __pyx_n_s_getNP, __pyx_t_2) < 0) __PYX_ERR(0, 993, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  PyType_Modified(__pyx_ptype_5freud_11environment_MatchEnv);
+
+  /* "freud/environment.pyx":1006
+ *         return self.getNumClusters()
+ * 
+ *     def getNumClusters(self):             # <<<<<<<<<<<<<<
+ *         """Get the number of clusters.
+ * 
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_11environment_8MatchEnv_25getNumClusters, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_MatchEnv_getNumClusters, NULL, __pyx_n_s_freud_environment, __pyx_d, ((PyObject *)__pyx_codeobj__114)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1006, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_11environment_MatchEnv->tp_dict, __pyx_n_s_getNumClusters, __pyx_t_2) < 0) __PYX_ERR(0, 1006, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  PyType_Modified(__pyx_ptype_5freud_11environment_MatchEnv);
+
+  /* "(tree fragment)":1
+ * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ * def __setstate_cython__(self, __pyx_state):
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_11environment_8MatchEnv_27__reduce_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_MatchEnv___reduce_cython, NULL, __pyx_n_s_freud_environment, __pyx_d, ((PyObject *)__pyx_codeobj__116)); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_reduce_cython, __pyx_t_2) < 0) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+
+  /* "(tree fragment)":3
+ * def __reduce_cython__(self):
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_11environment_8MatchEnv_29__setstate_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_MatchEnv___setstate_cython, NULL, __pyx_n_s_freud_environment, __pyx_d, ((PyObject *)__pyx_codeobj__118)); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 3, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_setstate_cython, __pyx_t_2) < 0) __PYX_ERR(1, 3, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+
+  /* "freud/environment.pyx":1050
+ *         del self.thisptr
+ * 
+ *     def compute(self, box, points, orientations, compOrientations, nlist=None):             # <<<<<<<<<<<<<<
+ *         """Calculates the correlation function and adds to the current
+ *         histogram.
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_11environment_9Pairing2D_5compute, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Pairing2D_compute, NULL, __pyx_n_s_freud_environment, __pyx_d, ((PyObject *)__pyx_codeobj__120)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1050, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_11environment_Pairing2D->tp_dict, __pyx_n_s_compute, __pyx_t_2) < 0) __PYX_ERR(0, 1050, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  PyType_Modified(__pyx_ptype_5freud_11environment_Pairing2D);
+
+  /* "freud/environment.pyx":1101
+ *         return self.getMatch()
+ * 
+ *     def getMatch(self):             # <<<<<<<<<<<<<<
+ *         """Get the match.
+ * 
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_11environment_9Pairing2D_7getMatch, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Pairing2D_getMatch, NULL, __pyx_n_s_freud_environment, __pyx_d, ((PyObject *)__pyx_codeobj__122)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1101, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_11environment_Pairing2D->tp_dict, __pyx_n_s_getMatch, __pyx_t_2) < 0) __PYX_ERR(0, 1101, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  PyType_Modified(__pyx_ptype_5freud_11environment_Pairing2D);
+
+  /* "freud/environment.pyx":1120
+ *         return self.getPair()
+ * 
+ *     def getPair(self):             # <<<<<<<<<<<<<<
+ *         """Get the pair.
+ * 
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_11environment_9Pairing2D_9getPair, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Pairing2D_getPair, NULL, __pyx_n_s_freud_environment, __pyx_d, ((PyObject *)__pyx_codeobj__124)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1120, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_11environment_Pairing2D->tp_dict, __pyx_n_s_getPair, __pyx_t_2) < 0) __PYX_ERR(0, 1120, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  PyType_Modified(__pyx_ptype_5freud_11environment_Pairing2D);
+
+  /* "freud/environment.pyx":1138
+ *         return self.getBox()
+ * 
+ *     def getBox(self):             # <<<<<<<<<<<<<<
+ *         """Get the box used in the calculation.
+ * 
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_11environment_9Pairing2D_11getBox, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Pairing2D_getBox, NULL, __pyx_n_s_freud_environment, __pyx_d, ((PyObject *)__pyx_codeobj__126)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1138, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_11environment_Pairing2D->tp_dict, __pyx_n_s_getBox, __pyx_t_2) < 0) __PYX_ERR(0, 1138, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  PyType_Modified(__pyx_ptype_5freud_11environment_Pairing2D);
+
+  /* "(tree fragment)":1
+ * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ * def __setstate_cython__(self, __pyx_state):
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_11environment_9Pairing2D_13__reduce_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Pairing2D___reduce_cython, NULL, __pyx_n_s_freud_environment, __pyx_d, ((PyObject *)__pyx_codeobj__128)); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_reduce_cython, __pyx_t_2) < 0) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+
+  /* "(tree fragment)":3
+ * def __reduce_cython__(self):
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_11environment_9Pairing2D_15__setstate_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Pairing2D___setstate_cython, NULL, __pyx_n_s_freud_environment, __pyx_d, ((PyObject *)__pyx_codeobj__130)); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 3, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_setstate_cython, __pyx_t_2) < 0) __PYX_ERR(1, 3, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+
+  /* "freud/environment.pyx":1184
+ *         return self.nlist_
+ * 
+ *     def computeNeighbor(self, box, ref_ors, ors, ref_points, points,             # <<<<<<<<<<<<<<
+ *                         equiv_quats, nlist=None):
+ *         """Calculates the minimum angles of separation between ref_ors and ors,
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_11environment_17AngularSeparation_5computeNeighbor, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_AngularSeparation_computeNeighbo, NULL, __pyx_n_s_freud_environment, __pyx_d, ((PyObject *)__pyx_codeobj__132)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1184, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_11environment_AngularSeparation->tp_dict, __pyx_n_s_computeNeighbor, __pyx_t_2) < 0) __PYX_ERR(0, 1184, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  PyType_Modified(__pyx_ptype_5freud_11environment_AngularSeparation);
+
+  /* "freud/environment.pyx":1263
+ *         return self
+ * 
+ *     def computeGlobal(self, global_ors, ors, equiv_quats):             # <<<<<<<<<<<<<<
+ *         """Calculates the minimum angles of separation between global_ors and
+ *         ors, checking for underlying symmetry as encoded in equiv_quats.
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_11environment_17AngularSeparation_7computeGlobal, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_AngularSeparation_computeGlobal, NULL, __pyx_n_s_freud_environment, __pyx_d, ((PyObject *)__pyx_codeobj__134)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1263, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_11environment_AngularSeparation->tp_dict, __pyx_n_s_computeGlobal, __pyx_t_2) < 0) __PYX_ERR(0, 1263, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  PyType_Modified(__pyx_ptype_5freud_11environment_AngularSeparation);
+
+  /* "freud/environment.pyx":1316
+ *         return self.getNeighborAngles()
+ * 
+ *     def getNeighborAngles(self):             # <<<<<<<<<<<<<<
+ *         """The neighbor angles in radians.
+ * 
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_11environment_17AngularSeparation_9getNeighborAngles, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_AngularSeparation_getNeighborAng, NULL, __pyx_n_s_freud_environment, __pyx_d, ((PyObject *)__pyx_codeobj__136)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1316, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_11environment_AngularSeparation->tp_dict, __pyx_n_s_getNeighborAngles, __pyx_t_2) < 0) __PYX_ERR(0, 1316, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  PyType_Modified(__pyx_ptype_5freud_11environment_AngularSeparation);
+
+  /* "freud/environment.pyx":1337
+ *         return self.getGlobalAngles()
+ * 
+ *     def getGlobalAngles(self):             # <<<<<<<<<<<<<<
+ *         """The global angles in radians.
+ * 
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_11environment_17AngularSeparation_11getGlobalAngles, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_AngularSeparation_getGlobalAngle, NULL, __pyx_n_s_freud_environment, __pyx_d, ((PyObject *)__pyx_codeobj__138)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1337, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_11environment_AngularSeparation->tp_dict, __pyx_n_s_getGlobalAngles, __pyx_t_2) < 0) __PYX_ERR(0, 1337, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  PyType_Modified(__pyx_ptype_5freud_11environment_AngularSeparation);
+
+  /* "freud/environment.pyx":1359
+ *         return self.getNP()
+ * 
+ *     def getNP(self):             # <<<<<<<<<<<<<<
+ *         """Get the number of particles used in computing the last set.
+ * 
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_11environment_17AngularSeparation_13getNP, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_AngularSeparation_getNP, NULL, __pyx_n_s_freud_environment, __pyx_d, ((PyObject *)__pyx_codeobj__140)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1359, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_11environment_AngularSeparation->tp_dict, __pyx_n_s_getNP, __pyx_t_2) < 0) __PYX_ERR(0, 1359, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  PyType_Modified(__pyx_ptype_5freud_11environment_AngularSeparation);
+
+  /* "freud/environment.pyx":1372
+ *         return self.getNReference()
+ * 
+ *     def getNReference(self):             # <<<<<<<<<<<<<<
+ *         """Get the number of reference particles used in computing the neighbor
+ *         angles.
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_11environment_17AngularSeparation_15getNReference, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_AngularSeparation_getNReference, NULL, __pyx_n_s_freud_environment, __pyx_d, ((PyObject *)__pyx_codeobj__142)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1372, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_11environment_AngularSeparation->tp_dict, __pyx_n_s_getNReference, __pyx_t_2) < 0) __PYX_ERR(0, 1372, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  PyType_Modified(__pyx_ptype_5freud_11environment_AngularSeparation);
+
+  /* "freud/environment.pyx":1386
+ *         return self.getNGlobal()
+ * 
+ *     def getNGlobal(self):             # <<<<<<<<<<<<<<
+ *         """Get the number of global orientations to check against.
+ * 
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_11environment_17AngularSeparation_17getNGlobal, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_AngularSeparation_getNGlobal, NULL, __pyx_n_s_freud_environment, __pyx_d, ((PyObject *)__pyx_codeobj__144)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1386, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_11environment_AngularSeparation->tp_dict, __pyx_n_s_getNGlobal, __pyx_t_2) < 0) __PYX_ERR(0, 1386, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  PyType_Modified(__pyx_ptype_5freud_11environment_AngularSeparation);
+
+  /* "(tree fragment)":1
+ * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ * def __setstate_cython__(self, __pyx_state):
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_11environment_17AngularSeparation_19__reduce_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_AngularSeparation___reduce_cytho, NULL, __pyx_n_s_freud_environment, __pyx_d, ((PyObject *)__pyx_codeobj__146)); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_reduce_cython, __pyx_t_2) < 0) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+
+  /* "(tree fragment)":3
+ * def __reduce_cython__(self):
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_11environment_17AngularSeparation_21__setstate_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_AngularSeparation___setstate_cyt, NULL, __pyx_n_s_freud_environment, __pyx_d, ((PyObject *)__pyx_codeobj__148)); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 3, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_setstate_cython, __pyx_t_2) < 0) __PYX_ERR(1, 3, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "freud/environment.pyx":1
  * # Copyright (c) 2010-2018 The Regents of the University of Michigan             # <<<<<<<<<<<<<<
@@ -25323,8 +27084,641 @@ bad:
     return value;
 }
 
+/* FetchCommonType */
+          static PyTypeObject* __Pyx_FetchCommonType(PyTypeObject* type) {
+    PyObject* fake_module;
+    PyTypeObject* cached_type = NULL;
+    fake_module = PyImport_AddModule((char*) "_cython_" CYTHON_ABI);
+    if (!fake_module) return NULL;
+    Py_INCREF(fake_module);
+    cached_type = (PyTypeObject*) PyObject_GetAttrString(fake_module, type->tp_name);
+    if (cached_type) {
+        if (!PyType_Check((PyObject*)cached_type)) {
+            PyErr_Format(PyExc_TypeError,
+                "Shared Cython type %.200s is not a type object",
+                type->tp_name);
+            goto bad;
+        }
+        if (cached_type->tp_basicsize != type->tp_basicsize) {
+            PyErr_Format(PyExc_TypeError,
+                "Shared Cython type %.200s has the wrong size, try recompiling",
+                type->tp_name);
+            goto bad;
+        }
+    } else {
+        if (!PyErr_ExceptionMatches(PyExc_AttributeError)) goto bad;
+        PyErr_Clear();
+        if (PyType_Ready(type) < 0) goto bad;
+        if (PyObject_SetAttrString(fake_module, type->tp_name, (PyObject*) type) < 0)
+            goto bad;
+        Py_INCREF(type);
+        cached_type = type;
+    }
+done:
+    Py_DECREF(fake_module);
+    return cached_type;
+bad:
+    Py_XDECREF(cached_type);
+    cached_type = NULL;
+    goto done;
+}
+
+/* CythonFunction */
+          #include <structmember.h>
+static PyObject *
+__Pyx_CyFunction_get_doc(__pyx_CyFunctionObject *op, CYTHON_UNUSED void *closure)
+{
+    if (unlikely(op->func_doc == NULL)) {
+        if (op->func.m_ml->ml_doc) {
+#if PY_MAJOR_VERSION >= 3
+            op->func_doc = PyUnicode_FromString(op->func.m_ml->ml_doc);
+#else
+            op->func_doc = PyString_FromString(op->func.m_ml->ml_doc);
+#endif
+            if (unlikely(op->func_doc == NULL))
+                return NULL;
+        } else {
+            Py_INCREF(Py_None);
+            return Py_None;
+        }
+    }
+    Py_INCREF(op->func_doc);
+    return op->func_doc;
+}
+static int
+__Pyx_CyFunction_set_doc(__pyx_CyFunctionObject *op, PyObject *value)
+{
+    PyObject *tmp = op->func_doc;
+    if (value == NULL) {
+        value = Py_None;
+    }
+    Py_INCREF(value);
+    op->func_doc = value;
+    Py_XDECREF(tmp);
+    return 0;
+}
+static PyObject *
+__Pyx_CyFunction_get_name(__pyx_CyFunctionObject *op)
+{
+    if (unlikely(op->func_name == NULL)) {
+#if PY_MAJOR_VERSION >= 3
+        op->func_name = PyUnicode_InternFromString(op->func.m_ml->ml_name);
+#else
+        op->func_name = PyString_InternFromString(op->func.m_ml->ml_name);
+#endif
+        if (unlikely(op->func_name == NULL))
+            return NULL;
+    }
+    Py_INCREF(op->func_name);
+    return op->func_name;
+}
+static int
+__Pyx_CyFunction_set_name(__pyx_CyFunctionObject *op, PyObject *value)
+{
+    PyObject *tmp;
+#if PY_MAJOR_VERSION >= 3
+    if (unlikely(value == NULL || !PyUnicode_Check(value))) {
+#else
+    if (unlikely(value == NULL || !PyString_Check(value))) {
+#endif
+        PyErr_SetString(PyExc_TypeError,
+                        "__name__ must be set to a string object");
+        return -1;
+    }
+    tmp = op->func_name;
+    Py_INCREF(value);
+    op->func_name = value;
+    Py_XDECREF(tmp);
+    return 0;
+}
+static PyObject *
+__Pyx_CyFunction_get_qualname(__pyx_CyFunctionObject *op)
+{
+    Py_INCREF(op->func_qualname);
+    return op->func_qualname;
+}
+static int
+__Pyx_CyFunction_set_qualname(__pyx_CyFunctionObject *op, PyObject *value)
+{
+    PyObject *tmp;
+#if PY_MAJOR_VERSION >= 3
+    if (unlikely(value == NULL || !PyUnicode_Check(value))) {
+#else
+    if (unlikely(value == NULL || !PyString_Check(value))) {
+#endif
+        PyErr_SetString(PyExc_TypeError,
+                        "__qualname__ must be set to a string object");
+        return -1;
+    }
+    tmp = op->func_qualname;
+    Py_INCREF(value);
+    op->func_qualname = value;
+    Py_XDECREF(tmp);
+    return 0;
+}
+static PyObject *
+__Pyx_CyFunction_get_self(__pyx_CyFunctionObject *m, CYTHON_UNUSED void *closure)
+{
+    PyObject *self;
+    self = m->func_closure;
+    if (self == NULL)
+        self = Py_None;
+    Py_INCREF(self);
+    return self;
+}
+static PyObject *
+__Pyx_CyFunction_get_dict(__pyx_CyFunctionObject *op)
+{
+    if (unlikely(op->func_dict == NULL)) {
+        op->func_dict = PyDict_New();
+        if (unlikely(op->func_dict == NULL))
+            return NULL;
+    }
+    Py_INCREF(op->func_dict);
+    return op->func_dict;
+}
+static int
+__Pyx_CyFunction_set_dict(__pyx_CyFunctionObject *op, PyObject *value)
+{
+    PyObject *tmp;
+    if (unlikely(value == NULL)) {
+        PyErr_SetString(PyExc_TypeError,
+               "function's dictionary may not be deleted");
+        return -1;
+    }
+    if (unlikely(!PyDict_Check(value))) {
+        PyErr_SetString(PyExc_TypeError,
+               "setting function's dictionary to a non-dict");
+        return -1;
+    }
+    tmp = op->func_dict;
+    Py_INCREF(value);
+    op->func_dict = value;
+    Py_XDECREF(tmp);
+    return 0;
+}
+static PyObject *
+__Pyx_CyFunction_get_globals(__pyx_CyFunctionObject *op)
+{
+    Py_INCREF(op->func_globals);
+    return op->func_globals;
+}
+static PyObject *
+__Pyx_CyFunction_get_closure(CYTHON_UNUSED __pyx_CyFunctionObject *op)
+{
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+static PyObject *
+__Pyx_CyFunction_get_code(__pyx_CyFunctionObject *op)
+{
+    PyObject* result = (op->func_code) ? op->func_code : Py_None;
+    Py_INCREF(result);
+    return result;
+}
+static int
+__Pyx_CyFunction_init_defaults(__pyx_CyFunctionObject *op) {
+    int result = 0;
+    PyObject *res = op->defaults_getter((PyObject *) op);
+    if (unlikely(!res))
+        return -1;
+    #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
+    op->defaults_tuple = PyTuple_GET_ITEM(res, 0);
+    Py_INCREF(op->defaults_tuple);
+    op->defaults_kwdict = PyTuple_GET_ITEM(res, 1);
+    Py_INCREF(op->defaults_kwdict);
+    #else
+    op->defaults_tuple = PySequence_ITEM(res, 0);
+    if (unlikely(!op->defaults_tuple)) result = -1;
+    else {
+        op->defaults_kwdict = PySequence_ITEM(res, 1);
+        if (unlikely(!op->defaults_kwdict)) result = -1;
+    }
+    #endif
+    Py_DECREF(res);
+    return result;
+}
+static int
+__Pyx_CyFunction_set_defaults(__pyx_CyFunctionObject *op, PyObject* value) {
+    PyObject* tmp;
+    if (!value) {
+        value = Py_None;
+    } else if (value != Py_None && !PyTuple_Check(value)) {
+        PyErr_SetString(PyExc_TypeError,
+                        "__defaults__ must be set to a tuple object");
+        return -1;
+    }
+    Py_INCREF(value);
+    tmp = op->defaults_tuple;
+    op->defaults_tuple = value;
+    Py_XDECREF(tmp);
+    return 0;
+}
+static PyObject *
+__Pyx_CyFunction_get_defaults(__pyx_CyFunctionObject *op) {
+    PyObject* result = op->defaults_tuple;
+    if (unlikely(!result)) {
+        if (op->defaults_getter) {
+            if (__Pyx_CyFunction_init_defaults(op) < 0) return NULL;
+            result = op->defaults_tuple;
+        } else {
+            result = Py_None;
+        }
+    }
+    Py_INCREF(result);
+    return result;
+}
+static int
+__Pyx_CyFunction_set_kwdefaults(__pyx_CyFunctionObject *op, PyObject* value) {
+    PyObject* tmp;
+    if (!value) {
+        value = Py_None;
+    } else if (value != Py_None && !PyDict_Check(value)) {
+        PyErr_SetString(PyExc_TypeError,
+                        "__kwdefaults__ must be set to a dict object");
+        return -1;
+    }
+    Py_INCREF(value);
+    tmp = op->defaults_kwdict;
+    op->defaults_kwdict = value;
+    Py_XDECREF(tmp);
+    return 0;
+}
+static PyObject *
+__Pyx_CyFunction_get_kwdefaults(__pyx_CyFunctionObject *op) {
+    PyObject* result = op->defaults_kwdict;
+    if (unlikely(!result)) {
+        if (op->defaults_getter) {
+            if (__Pyx_CyFunction_init_defaults(op) < 0) return NULL;
+            result = op->defaults_kwdict;
+        } else {
+            result = Py_None;
+        }
+    }
+    Py_INCREF(result);
+    return result;
+}
+static int
+__Pyx_CyFunction_set_annotations(__pyx_CyFunctionObject *op, PyObject* value) {
+    PyObject* tmp;
+    if (!value || value == Py_None) {
+        value = NULL;
+    } else if (!PyDict_Check(value)) {
+        PyErr_SetString(PyExc_TypeError,
+                        "__annotations__ must be set to a dict object");
+        return -1;
+    }
+    Py_XINCREF(value);
+    tmp = op->func_annotations;
+    op->func_annotations = value;
+    Py_XDECREF(tmp);
+    return 0;
+}
+static PyObject *
+__Pyx_CyFunction_get_annotations(__pyx_CyFunctionObject *op) {
+    PyObject* result = op->func_annotations;
+    if (unlikely(!result)) {
+        result = PyDict_New();
+        if (unlikely(!result)) return NULL;
+        op->func_annotations = result;
+    }
+    Py_INCREF(result);
+    return result;
+}
+static PyGetSetDef __pyx_CyFunction_getsets[] = {
+    {(char *) "func_doc", (getter)__Pyx_CyFunction_get_doc, (setter)__Pyx_CyFunction_set_doc, 0, 0},
+    {(char *) "__doc__",  (getter)__Pyx_CyFunction_get_doc, (setter)__Pyx_CyFunction_set_doc, 0, 0},
+    {(char *) "func_name", (getter)__Pyx_CyFunction_get_name, (setter)__Pyx_CyFunction_set_name, 0, 0},
+    {(char *) "__name__", (getter)__Pyx_CyFunction_get_name, (setter)__Pyx_CyFunction_set_name, 0, 0},
+    {(char *) "__qualname__", (getter)__Pyx_CyFunction_get_qualname, (setter)__Pyx_CyFunction_set_qualname, 0, 0},
+    {(char *) "__self__", (getter)__Pyx_CyFunction_get_self, 0, 0, 0},
+    {(char *) "func_dict", (getter)__Pyx_CyFunction_get_dict, (setter)__Pyx_CyFunction_set_dict, 0, 0},
+    {(char *) "__dict__", (getter)__Pyx_CyFunction_get_dict, (setter)__Pyx_CyFunction_set_dict, 0, 0},
+    {(char *) "func_globals", (getter)__Pyx_CyFunction_get_globals, 0, 0, 0},
+    {(char *) "__globals__", (getter)__Pyx_CyFunction_get_globals, 0, 0, 0},
+    {(char *) "func_closure", (getter)__Pyx_CyFunction_get_closure, 0, 0, 0},
+    {(char *) "__closure__", (getter)__Pyx_CyFunction_get_closure, 0, 0, 0},
+    {(char *) "func_code", (getter)__Pyx_CyFunction_get_code, 0, 0, 0},
+    {(char *) "__code__", (getter)__Pyx_CyFunction_get_code, 0, 0, 0},
+    {(char *) "func_defaults", (getter)__Pyx_CyFunction_get_defaults, (setter)__Pyx_CyFunction_set_defaults, 0, 0},
+    {(char *) "__defaults__", (getter)__Pyx_CyFunction_get_defaults, (setter)__Pyx_CyFunction_set_defaults, 0, 0},
+    {(char *) "__kwdefaults__", (getter)__Pyx_CyFunction_get_kwdefaults, (setter)__Pyx_CyFunction_set_kwdefaults, 0, 0},
+    {(char *) "__annotations__", (getter)__Pyx_CyFunction_get_annotations, (setter)__Pyx_CyFunction_set_annotations, 0, 0},
+    {0, 0, 0, 0, 0}
+};
+static PyMemberDef __pyx_CyFunction_members[] = {
+    {(char *) "__module__", T_OBJECT, offsetof(PyCFunctionObject, m_module), PY_WRITE_RESTRICTED, 0},
+    {0, 0, 0,  0, 0}
+};
+static PyObject *
+__Pyx_CyFunction_reduce(__pyx_CyFunctionObject *m, CYTHON_UNUSED PyObject *args)
+{
+#if PY_MAJOR_VERSION >= 3
+    return PyUnicode_FromString(m->func.m_ml->ml_name);
+#else
+    return PyString_FromString(m->func.m_ml->ml_name);
+#endif
+}
+static PyMethodDef __pyx_CyFunction_methods[] = {
+    {"__reduce__", (PyCFunction)__Pyx_CyFunction_reduce, METH_VARARGS, 0},
+    {0, 0, 0, 0}
+};
+#if PY_VERSION_HEX < 0x030500A0
+#define __Pyx_CyFunction_weakreflist(cyfunc) ((cyfunc)->func_weakreflist)
+#else
+#define __Pyx_CyFunction_weakreflist(cyfunc) ((cyfunc)->func.m_weakreflist)
+#endif
+static PyObject *__Pyx_CyFunction_New(PyTypeObject *type, PyMethodDef *ml, int flags, PyObject* qualname,
+                                      PyObject *closure, PyObject *module, PyObject* globals, PyObject* code) {
+    __pyx_CyFunctionObject *op = PyObject_GC_New(__pyx_CyFunctionObject, type);
+    if (op == NULL)
+        return NULL;
+    op->flags = flags;
+    __Pyx_CyFunction_weakreflist(op) = NULL;
+    op->func.m_ml = ml;
+    op->func.m_self = (PyObject *) op;
+    Py_XINCREF(closure);
+    op->func_closure = closure;
+    Py_XINCREF(module);
+    op->func.m_module = module;
+    op->func_dict = NULL;
+    op->func_name = NULL;
+    Py_INCREF(qualname);
+    op->func_qualname = qualname;
+    op->func_doc = NULL;
+    op->func_classobj = NULL;
+    op->func_globals = globals;
+    Py_INCREF(op->func_globals);
+    Py_XINCREF(code);
+    op->func_code = code;
+    op->defaults_pyobjects = 0;
+    op->defaults = NULL;
+    op->defaults_tuple = NULL;
+    op->defaults_kwdict = NULL;
+    op->defaults_getter = NULL;
+    op->func_annotations = NULL;
+    PyObject_GC_Track(op);
+    return (PyObject *) op;
+}
+static int
+__Pyx_CyFunction_clear(__pyx_CyFunctionObject *m)
+{
+    Py_CLEAR(m->func_closure);
+    Py_CLEAR(m->func.m_module);
+    Py_CLEAR(m->func_dict);
+    Py_CLEAR(m->func_name);
+    Py_CLEAR(m->func_qualname);
+    Py_CLEAR(m->func_doc);
+    Py_CLEAR(m->func_globals);
+    Py_CLEAR(m->func_code);
+    Py_CLEAR(m->func_classobj);
+    Py_CLEAR(m->defaults_tuple);
+    Py_CLEAR(m->defaults_kwdict);
+    Py_CLEAR(m->func_annotations);
+    if (m->defaults) {
+        PyObject **pydefaults = __Pyx_CyFunction_Defaults(PyObject *, m);
+        int i;
+        for (i = 0; i < m->defaults_pyobjects; i++)
+            Py_XDECREF(pydefaults[i]);
+        PyObject_Free(m->defaults);
+        m->defaults = NULL;
+    }
+    return 0;
+}
+static void __Pyx__CyFunction_dealloc(__pyx_CyFunctionObject *m)
+{
+    if (__Pyx_CyFunction_weakreflist(m) != NULL)
+        PyObject_ClearWeakRefs((PyObject *) m);
+    __Pyx_CyFunction_clear(m);
+    PyObject_GC_Del(m);
+}
+static void __Pyx_CyFunction_dealloc(__pyx_CyFunctionObject *m)
+{
+    PyObject_GC_UnTrack(m);
+    __Pyx__CyFunction_dealloc(m);
+}
+static int __Pyx_CyFunction_traverse(__pyx_CyFunctionObject *m, visitproc visit, void *arg)
+{
+    Py_VISIT(m->func_closure);
+    Py_VISIT(m->func.m_module);
+    Py_VISIT(m->func_dict);
+    Py_VISIT(m->func_name);
+    Py_VISIT(m->func_qualname);
+    Py_VISIT(m->func_doc);
+    Py_VISIT(m->func_globals);
+    Py_VISIT(m->func_code);
+    Py_VISIT(m->func_classobj);
+    Py_VISIT(m->defaults_tuple);
+    Py_VISIT(m->defaults_kwdict);
+    if (m->defaults) {
+        PyObject **pydefaults = __Pyx_CyFunction_Defaults(PyObject *, m);
+        int i;
+        for (i = 0; i < m->defaults_pyobjects; i++)
+            Py_VISIT(pydefaults[i]);
+    }
+    return 0;
+}
+static PyObject *__Pyx_CyFunction_descr_get(PyObject *func, PyObject *obj, PyObject *type)
+{
+    __pyx_CyFunctionObject *m = (__pyx_CyFunctionObject *) func;
+    if (m->flags & __Pyx_CYFUNCTION_STATICMETHOD) {
+        Py_INCREF(func);
+        return func;
+    }
+    if (m->flags & __Pyx_CYFUNCTION_CLASSMETHOD) {
+        if (type == NULL)
+            type = (PyObject *)(Py_TYPE(obj));
+        return __Pyx_PyMethod_New(func, type, (PyObject *)(Py_TYPE(type)));
+    }
+    if (obj == Py_None)
+        obj = NULL;
+    return __Pyx_PyMethod_New(func, obj, type);
+}
+static PyObject*
+__Pyx_CyFunction_repr(__pyx_CyFunctionObject *op)
+{
+#if PY_MAJOR_VERSION >= 3
+    return PyUnicode_FromFormat("<cyfunction %U at %p>",
+                                op->func_qualname, (void *)op);
+#else
+    return PyString_FromFormat("<cyfunction %s at %p>",
+                               PyString_AsString(op->func_qualname), (void *)op);
+#endif
+}
+static PyObject * __Pyx_CyFunction_CallMethod(PyObject *func, PyObject *self, PyObject *arg, PyObject *kw) {
+    PyCFunctionObject* f = (PyCFunctionObject*)func;
+    PyCFunction meth = f->m_ml->ml_meth;
+    Py_ssize_t size;
+    switch (f->m_ml->ml_flags & (METH_VARARGS | METH_KEYWORDS | METH_NOARGS | METH_O)) {
+    case METH_VARARGS:
+        if (likely(kw == NULL || PyDict_Size(kw) == 0))
+            return (*meth)(self, arg);
+        break;
+    case METH_VARARGS | METH_KEYWORDS:
+        return (*(PyCFunctionWithKeywords)meth)(self, arg, kw);
+    case METH_NOARGS:
+        if (likely(kw == NULL || PyDict_Size(kw) == 0)) {
+            size = PyTuple_GET_SIZE(arg);
+            if (likely(size == 0))
+                return (*meth)(self, NULL);
+            PyErr_Format(PyExc_TypeError,
+                "%.200s() takes no arguments (%" CYTHON_FORMAT_SSIZE_T "d given)",
+                f->m_ml->ml_name, size);
+            return NULL;
+        }
+        break;
+    case METH_O:
+        if (likely(kw == NULL || PyDict_Size(kw) == 0)) {
+            size = PyTuple_GET_SIZE(arg);
+            if (likely(size == 1)) {
+                PyObject *result, *arg0;
+                #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
+                arg0 = PyTuple_GET_ITEM(arg, 0);
+                #else
+                arg0 = PySequence_ITEM(arg, 0); if (unlikely(!arg0)) return NULL;
+                #endif
+                result = (*meth)(self, arg0);
+                #if !(CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS)
+                Py_DECREF(arg0);
+                #endif
+                return result;
+            }
+            PyErr_Format(PyExc_TypeError,
+                "%.200s() takes exactly one argument (%" CYTHON_FORMAT_SSIZE_T "d given)",
+                f->m_ml->ml_name, size);
+            return NULL;
+        }
+        break;
+    default:
+        PyErr_SetString(PyExc_SystemError, "Bad call flags in "
+                        "__Pyx_CyFunction_Call. METH_OLDARGS is no "
+                        "longer supported!");
+        return NULL;
+    }
+    PyErr_Format(PyExc_TypeError, "%.200s() takes no keyword arguments",
+                 f->m_ml->ml_name);
+    return NULL;
+}
+static CYTHON_INLINE PyObject *__Pyx_CyFunction_Call(PyObject *func, PyObject *arg, PyObject *kw) {
+    return __Pyx_CyFunction_CallMethod(func, ((PyCFunctionObject*)func)->m_self, arg, kw);
+}
+static PyObject *__Pyx_CyFunction_CallAsMethod(PyObject *func, PyObject *args, PyObject *kw) {
+    PyObject *result;
+    __pyx_CyFunctionObject *cyfunc = (__pyx_CyFunctionObject *) func;
+    if ((cyfunc->flags & __Pyx_CYFUNCTION_CCLASS) && !(cyfunc->flags & __Pyx_CYFUNCTION_STATICMETHOD)) {
+        Py_ssize_t argc;
+        PyObject *new_args;
+        PyObject *self;
+        argc = PyTuple_GET_SIZE(args);
+        new_args = PyTuple_GetSlice(args, 1, argc);
+        if (unlikely(!new_args))
+            return NULL;
+        self = PyTuple_GetItem(args, 0);
+        if (unlikely(!self)) {
+            Py_DECREF(new_args);
+            return NULL;
+        }
+        result = __Pyx_CyFunction_CallMethod(func, self, new_args, kw);
+        Py_DECREF(new_args);
+    } else {
+        result = __Pyx_CyFunction_Call(func, args, kw);
+    }
+    return result;
+}
+static PyTypeObject __pyx_CyFunctionType_type = {
+    PyVarObject_HEAD_INIT(0, 0)
+    "cython_function_or_method",
+    sizeof(__pyx_CyFunctionObject),
+    0,
+    (destructor) __Pyx_CyFunction_dealloc,
+    0,
+    0,
+    0,
+#if PY_MAJOR_VERSION < 3
+    0,
+#else
+    0,
+#endif
+    (reprfunc) __Pyx_CyFunction_repr,
+    0,
+    0,
+    0,
+    0,
+    __Pyx_CyFunction_CallAsMethod,
+    0,
+    0,
+    0,
+    0,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC,
+    0,
+    (traverseproc) __Pyx_CyFunction_traverse,
+    (inquiry) __Pyx_CyFunction_clear,
+    0,
+#if PY_VERSION_HEX < 0x030500A0
+    offsetof(__pyx_CyFunctionObject, func_weakreflist),
+#else
+    offsetof(PyCFunctionObject, m_weakreflist),
+#endif
+    0,
+    0,
+    __pyx_CyFunction_methods,
+    __pyx_CyFunction_members,
+    __pyx_CyFunction_getsets,
+    0,
+    0,
+    __Pyx_CyFunction_descr_get,
+    0,
+    offsetof(__pyx_CyFunctionObject, func_dict),
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+#if PY_VERSION_HEX >= 0x030400a1
+    0,
+#endif
+};
+static int __pyx_CyFunction_init(void) {
+    __pyx_CyFunctionType = __Pyx_FetchCommonType(&__pyx_CyFunctionType_type);
+    if (unlikely(__pyx_CyFunctionType == NULL)) {
+        return -1;
+    }
+    return 0;
+}
+static CYTHON_INLINE void *__Pyx_CyFunction_InitDefaults(PyObject *func, size_t size, int pyobjects) {
+    __pyx_CyFunctionObject *m = (__pyx_CyFunctionObject *) func;
+    m->defaults = PyObject_Malloc(size);
+    if (unlikely(!m->defaults))
+        return PyErr_NoMemory();
+    memset(m->defaults, 0, size);
+    m->defaults_pyobjects = pyobjects;
+    return m->defaults;
+}
+static CYTHON_INLINE void __Pyx_CyFunction_SetDefaultsTuple(PyObject *func, PyObject *tuple) {
+    __pyx_CyFunctionObject *m = (__pyx_CyFunctionObject *) func;
+    m->defaults_tuple = tuple;
+    Py_INCREF(tuple);
+}
+static CYTHON_INLINE void __Pyx_CyFunction_SetDefaultsKwDict(PyObject *func, PyObject *dict) {
+    __pyx_CyFunctionObject *m = (__pyx_CyFunctionObject *) func;
+    m->defaults_kwdict = dict;
+    Py_INCREF(dict);
+}
+static CYTHON_INLINE void __Pyx_CyFunction_SetAnnotationsDict(PyObject *func, PyObject *dict) {
+    __pyx_CyFunctionObject *m = (__pyx_CyFunctionObject *) func;
+    m->func_annotations = dict;
+    Py_INCREF(dict);
+}
+
 /* CLineInTraceback */
-          #ifndef CYTHON_CLINE_IN_TRACEBACK
+              #ifndef CYTHON_CLINE_IN_TRACEBACK
 static int __Pyx_CLineForTraceback(CYTHON_UNUSED PyThreadState *tstate, int c_line) {
     PyObject *use_cline;
     PyObject *ptype, *pvalue, *ptraceback;
@@ -25364,7 +27758,7 @@ static int __Pyx_CLineForTraceback(CYTHON_UNUSED PyThreadState *tstate, int c_li
 #endif
 
 /* CodeObjectCache */
-          static int __pyx_bisect_code_objects(__Pyx_CodeObjectCacheEntry* entries, int count, int code_line) {
+              static int __pyx_bisect_code_objects(__Pyx_CodeObjectCacheEntry* entries, int count, int code_line) {
     int start = 0, mid = 0, end = count - 1;
     if (end >= 0 && code_line > entries[end].code_line) {
         return count;
@@ -25444,7 +27838,7 @@ static void __pyx_insert_code_object(int code_line, PyCodeObject* code_object) {
 }
 
 /* AddTraceback */
-          #include "compile.h"
+              #include "compile.h"
 #include "frameobject.h"
 #include "traceback.h"
 static PyCodeObject* __Pyx_CreateCodeObjectForTraceback(
@@ -25529,7 +27923,7 @@ bad:
 }
 
 /* Declarations */
-          #if CYTHON_CCOMPLEX
+              #if CYTHON_CCOMPLEX
   #ifdef __cplusplus
     static CYTHON_INLINE __pyx_t_float_complex __pyx_t_float_complex_from_parts(float x, float y) {
       return ::std::complex< float >(x, y);
@@ -25549,7 +27943,7 @@ bad:
 #endif
 
 /* Arithmetic */
-          #if CYTHON_CCOMPLEX
+              #if CYTHON_CCOMPLEX
 #else
     static CYTHON_INLINE int __Pyx_c_eq_float(__pyx_t_float_complex a, __pyx_t_float_complex b) {
        return (a.real == b.real) && (a.imag == b.imag);
@@ -25705,8 +28099,8 @@ static void __Pyx_ReleaseBuffer(Py_buffer *view) {
 #endif
 
 
-          /* CIntFromPyVerify */
-          #define __PYX_VERIFY_RETURN_INT(target_type, func_type, func_value)\
+              /* CIntFromPyVerify */
+              #define __PYX_VERIFY_RETURN_INT(target_type, func_type, func_value)\
     __PYX__VERIFY_RETURN_INT(target_type, func_type, func_value, 0)
 #define __PYX_VERIFY_RETURN_INT_EXC(target_type, func_type, func_value)\
     __PYX__VERIFY_RETURN_INT(target_type, func_type, func_value, 1)
@@ -25728,7 +28122,7 @@ static void __Pyx_ReleaseBuffer(Py_buffer *view) {
     }
 
 /* CIntToPy */
-          static CYTHON_INLINE PyObject* __Pyx_PyInt_From_freud_3a__3a_environment_3a__3a_LocalDescriptorOrientation(freud::environment::LocalDescriptorOrientation value) {
+              static CYTHON_INLINE PyObject* __Pyx_PyInt_From_freud_3a__3a_environment_3a__3a_LocalDescriptorOrientation(freud::environment::LocalDescriptorOrientation value) {
     const freud::environment::LocalDescriptorOrientation neg_one = (freud::environment::LocalDescriptorOrientation) -1, const_zero = (freud::environment::LocalDescriptorOrientation) 0;
     const int is_unsigned = neg_one > const_zero;
     if (is_unsigned) {
@@ -25759,7 +28153,7 @@ static void __Pyx_ReleaseBuffer(Py_buffer *view) {
 }
 
 /* CIntToPy */
-          static CYTHON_INLINE PyObject* __Pyx_PyInt_From_unsigned_int(unsigned int value) {
+              static CYTHON_INLINE PyObject* __Pyx_PyInt_From_unsigned_int(unsigned int value) {
     const unsigned int neg_one = (unsigned int) -1, const_zero = (unsigned int) 0;
     const int is_unsigned = neg_one > const_zero;
     if (is_unsigned) {
@@ -25790,7 +28184,7 @@ static void __Pyx_ReleaseBuffer(Py_buffer *view) {
 }
 
 /* CIntToPy */
-          static CYTHON_INLINE PyObject* __Pyx_PyInt_From_long(long value) {
+              static CYTHON_INLINE PyObject* __Pyx_PyInt_From_long(long value) {
     const long neg_one = (long) -1, const_zero = (long) 0;
     const int is_unsigned = neg_one > const_zero;
     if (is_unsigned) {
@@ -25821,7 +28215,7 @@ static void __Pyx_ReleaseBuffer(Py_buffer *view) {
 }
 
 /* Declarations */
-          #if CYTHON_CCOMPLEX
+              #if CYTHON_CCOMPLEX
   #ifdef __cplusplus
     static CYTHON_INLINE __pyx_t_double_complex __pyx_t_double_complex_from_parts(double x, double y) {
       return ::std::complex< double >(x, y);
@@ -25841,7 +28235,7 @@ static void __Pyx_ReleaseBuffer(Py_buffer *view) {
 #endif
 
 /* Arithmetic */
-          #if CYTHON_CCOMPLEX
+              #if CYTHON_CCOMPLEX
 #else
     static CYTHON_INLINE int __Pyx_c_eq_double(__pyx_t_double_complex a, __pyx_t_double_complex b) {
        return (a.real == b.real) && (a.imag == b.imag);
@@ -25976,7 +28370,7 @@ static void __Pyx_ReleaseBuffer(Py_buffer *view) {
 #endif
 
 /* CIntToPy */
-          static CYTHON_INLINE PyObject* __Pyx_PyInt_From_int(int value) {
+              static CYTHON_INLINE PyObject* __Pyx_PyInt_From_int(int value) {
     const int neg_one = (int) -1, const_zero = (int) 0;
     const int is_unsigned = neg_one > const_zero;
     if (is_unsigned) {
@@ -26007,7 +28401,7 @@ static void __Pyx_ReleaseBuffer(Py_buffer *view) {
 }
 
 /* CIntToPy */
-          static CYTHON_INLINE PyObject* __Pyx_PyInt_From_enum__NPY_TYPES(enum NPY_TYPES value) {
+              static CYTHON_INLINE PyObject* __Pyx_PyInt_From_enum__NPY_TYPES(enum NPY_TYPES value) {
     const enum NPY_TYPES neg_one = (enum NPY_TYPES) -1, const_zero = (enum NPY_TYPES) 0;
     const int is_unsigned = neg_one > const_zero;
     if (is_unsigned) {
@@ -26038,7 +28432,7 @@ static void __Pyx_ReleaseBuffer(Py_buffer *view) {
 }
 
 /* CIntFromPy */
-          static CYTHON_INLINE unsigned int __Pyx_PyInt_As_unsigned_int(PyObject *x) {
+              static CYTHON_INLINE unsigned int __Pyx_PyInt_As_unsigned_int(PyObject *x) {
     const unsigned int neg_one = (unsigned int) -1, const_zero = (unsigned int) 0;
     const int is_unsigned = neg_one > const_zero;
 #if PY_MAJOR_VERSION < 3
@@ -26227,7 +28621,7 @@ raise_neg_overflow:
 }
 
 /* CIntFromPy */
-          static CYTHON_INLINE freud::environment::LocalDescriptorOrientation __Pyx_PyInt_As_freud_3a__3a_environment_3a__3a_LocalDescriptorOrientation(PyObject *x) {
+              static CYTHON_INLINE freud::environment::LocalDescriptorOrientation __Pyx_PyInt_As_freud_3a__3a_environment_3a__3a_LocalDescriptorOrientation(PyObject *x) {
     const freud::environment::LocalDescriptorOrientation neg_one = (freud::environment::LocalDescriptorOrientation) -1, const_zero = (freud::environment::LocalDescriptorOrientation) 0;
     const int is_unsigned = neg_one > const_zero;
 #if PY_MAJOR_VERSION < 3
@@ -26416,7 +28810,7 @@ raise_neg_overflow:
 }
 
 /* CIntFromPy */
-          static CYTHON_INLINE int __Pyx_PyInt_As_int(PyObject *x) {
+              static CYTHON_INLINE int __Pyx_PyInt_As_int(PyObject *x) {
     const int neg_one = (int) -1, const_zero = (int) 0;
     const int is_unsigned = neg_one > const_zero;
 #if PY_MAJOR_VERSION < 3
@@ -26605,7 +28999,7 @@ raise_neg_overflow:
 }
 
 /* CIntFromPy */
-          static CYTHON_INLINE size_t __Pyx_PyInt_As_size_t(PyObject *x) {
+              static CYTHON_INLINE size_t __Pyx_PyInt_As_size_t(PyObject *x) {
     const size_t neg_one = (size_t) -1, const_zero = (size_t) 0;
     const int is_unsigned = neg_one > const_zero;
 #if PY_MAJOR_VERSION < 3
@@ -26794,7 +29188,7 @@ raise_neg_overflow:
 }
 
 /* CIntFromPy */
-          static CYTHON_INLINE long __Pyx_PyInt_As_long(PyObject *x) {
+              static CYTHON_INLINE long __Pyx_PyInt_As_long(PyObject *x) {
     const long neg_one = (long) -1, const_zero = (long) 0;
     const int is_unsigned = neg_one > const_zero;
 #if PY_MAJOR_VERSION < 3
@@ -26983,7 +29377,7 @@ raise_neg_overflow:
 }
 
 /* FastTypeChecks */
-          #if CYTHON_COMPILING_IN_CPYTHON
+              #if CYTHON_COMPILING_IN_CPYTHON
 static int __Pyx_InBases(PyTypeObject *a, PyTypeObject *b) {
     while (a) {
         a = a->tp_base;
@@ -27083,7 +29477,7 @@ static CYTHON_INLINE int __Pyx_PyErr_GivenExceptionMatches2(PyObject *err, PyObj
 #endif
 
 /* CheckBinaryVersion */
-          static int __Pyx_check_binary_version(void) {
+              static int __Pyx_check_binary_version(void) {
     char ctversion[4], rtversion[4];
     PyOS_snprintf(ctversion, 4, "%d.%d", PY_MAJOR_VERSION, PY_MINOR_VERSION);
     PyOS_snprintf(rtversion, 4, "%s", Py_GetVersion());
@@ -27099,7 +29493,7 @@ static CYTHON_INLINE int __Pyx_PyErr_GivenExceptionMatches2(PyObject *err, PyObj
 }
 
 /* ModuleImport */
-          #ifndef __PYX_HAVE_RT_ImportModule
+              #ifndef __PYX_HAVE_RT_ImportModule
 #define __PYX_HAVE_RT_ImportModule
 static PyObject *__Pyx_ImportModule(const char *name) {
     PyObject *py_name = 0;
@@ -27117,7 +29511,7 @@ bad:
 #endif
 
 /* TypeImport */
-          #ifndef __PYX_HAVE_RT_ImportType
+              #ifndef __PYX_HAVE_RT_ImportType
 #define __PYX_HAVE_RT_ImportType
 static PyTypeObject *__Pyx_ImportType(const char *module_name, const char *class_name,
     size_t size, int strict)
@@ -27182,7 +29576,7 @@ bad:
 #endif
 
 /* FunctionImport */
-          #ifndef __PYX_HAVE_RT_ImportFunction
+              #ifndef __PYX_HAVE_RT_ImportFunction
 #define __PYX_HAVE_RT_ImportFunction
 static int __Pyx_ImportFunction(PyObject *module, const char *funcname, void (**f)(void), const char *sig) {
     PyObject *d = 0;
@@ -27236,7 +29630,7 @@ bad:
 #endif
 
 /* InitStrings */
-          static int __Pyx_InitStrings(__Pyx_StringTabEntry *t) {
+              static int __Pyx_InitStrings(__Pyx_StringTabEntry *t) {
     while (t->p) {
         #if PY_MAJOR_VERSION < 3
         if (t->is_unicode) {

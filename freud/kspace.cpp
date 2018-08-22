@@ -34,12 +34,12 @@
         "name": "freud.kspace",
         "sources": [
             "freud/kspace.pyx",
-            "cpp/locality/NeighborList.cc",
             "cpp/box/box.cc",
             "cpp/locality/NearestNeighbors.cc",
+            "cpp/util/HOOMDMatrix.cc",
+            "cpp/locality/NeighborList.cc",
             "cpp/locality/LinkCell.cc",
-            "cpp/kspace/kspace.cc",
-            "cpp/util/HOOMDMatrix.cc"
+            "cpp/kspace/kspace.cc"
         ]
     },
     "module_name": "freud.kspace"
@@ -2639,7 +2639,7 @@ static PyObject *__pyx_codeobj__216;
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_1meshgrid2(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_meshgrid2[] = "Computes an n-dimensional meshgrid.\n\n    source: http://stackoverflow.com/questions/1827489/numpy-meshgrid-in-3d\n\n    Args:\n        arrs (list): Arrays to meshgrid.\n\n    Returns:\n        :class:`tuple`: Tuple of arrays.\n    ";
+static char __pyx_doc_5freud_6kspace_meshgrid2[] = "meshgrid2(*arrs)\nComputes an n-dimensional meshgrid.\n\n    source: http://stackoverflow.com/questions/1827489/numpy-meshgrid-in-3d\n\n    Args:\n        arrs (list): Arrays to meshgrid.\n\n    Returns:\n        :class:`tuple`: Tuple of arrays.\n    ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_1meshgrid2 = {"meshgrid2", (PyCFunction)__pyx_pw_5freud_6kspace_1meshgrid2, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_meshgrid2};
 static PyObject *__pyx_pw_5freud_6kspace_1meshgrid2(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_arrs = 0;
@@ -3130,7 +3130,7 @@ static PyObject *__pyx_pf_5freud_6kspace_meshgrid2(CYTHON_UNUSED PyObject *__pyx
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_15SFactor3DPoints_1__init__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_15SFactor3DPoints___init__[] = "Initalize SFactor3DPoints.";
+static char __pyx_doc_5freud_6kspace_15SFactor3DPoints___init__[] = "SFactor3DPoints.__init__(self, box, g)\nInitalize SFactor3DPoints.";
 static PyMethodDef __pyx_mdef_5freud_6kspace_15SFactor3DPoints_1__init__ = {"__init__", (PyCFunction)__pyx_pw_5freud_6kspace_15SFactor3DPoints_1__init__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_15SFactor3DPoints___init__};
 static PyObject *__pyx_pw_5freud_6kspace_15SFactor3DPoints_1__init__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -4010,7 +4010,7 @@ static PyObject *__pyx_pf_5freud_6kspace_15SFactor3DPoints___init__(CYTHON_UNUSE
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_15SFactor3DPoints_3compute(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_15SFactor3DPoints_2compute[] = "Compute the static structure factor of a given set of points.\n\n        After calling :py:meth:`~.SFactor3DPoints.compute()`, you can access\n        the results with :py:meth:`~.SFactor3DPoints.getS()`,\n        :py:meth:`~.SFactor3DPoints.getSComplex()`, and the grid with\n        :py:meth:`~.SFactor3DPoints.getQ()`.\n\n        Args:\n            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Points used to compute the static structure factor.\n        ";
+static char __pyx_doc_5freud_6kspace_15SFactor3DPoints_2compute[] = "SFactor3DPoints.compute(self, points)\nCompute the static structure factor of a given set of points.\n\n        After calling :py:meth:`~.SFactor3DPoints.compute()`, you can access\n        the results with :py:meth:`~.SFactor3DPoints.getS()`,\n        :py:meth:`~.SFactor3DPoints.getSComplex()`, and the grid with\n        :py:meth:`~.SFactor3DPoints.getQ()`.\n\n        Args:\n            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Points used to compute the static structure factor.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_15SFactor3DPoints_3compute = {"compute", (PyCFunction)__pyx_pw_5freud_6kspace_15SFactor3DPoints_3compute, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_15SFactor3DPoints_2compute};
 static PyObject *__pyx_pw_5freud_6kspace_15SFactor3DPoints_3compute(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -4458,7 +4458,7 @@ static PyObject *__pyx_pf_5freud_6kspace_15SFactor3DPoints_2compute(CYTHON_UNUSE
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_15SFactor3DPoints_5getS(PyObject *__pyx_self, PyObject *__pyx_v_self); /*proto*/
-static char __pyx_doc_5freud_6kspace_15SFactor3DPoints_4getS[] = "Get the computed static structure factor.\n\n        Returns:\n            (X, Y) :class:`numpy.ndarray`:\n                The computed static structure factor as a copy.\n        ";
+static char __pyx_doc_5freud_6kspace_15SFactor3DPoints_4getS[] = "SFactor3DPoints.getS(self)\nGet the computed static structure factor.\n\n        Returns:\n            (X, Y) :class:`numpy.ndarray`:\n                The computed static structure factor as a copy.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_15SFactor3DPoints_5getS = {"getS", (PyCFunction)__pyx_pw_5freud_6kspace_15SFactor3DPoints_5getS, METH_O, __pyx_doc_5freud_6kspace_15SFactor3DPoints_4getS};
 static PyObject *__pyx_pw_5freud_6kspace_15SFactor3DPoints_5getS(PyObject *__pyx_self, PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
@@ -4651,7 +4651,7 @@ static PyObject *__pyx_pf_5freud_6kspace_15SFactor3DPoints_4getS(CYTHON_UNUSED P
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_15SFactor3DPoints_7getSComplex(PyObject *__pyx_self, PyObject *__pyx_v_self); /*proto*/
-static char __pyx_doc_5freud_6kspace_15SFactor3DPoints_6getSComplex[] = "Get the computed complex structure factor (if you need the phase\n        information).\n\n        Returns:\n            (X, Y) :class:`numpy.ndarray`:\n                The computed static structure factor, as a copy, without taking\n                the magnitude squared.\n        ";
+static char __pyx_doc_5freud_6kspace_15SFactor3DPoints_6getSComplex[] = "SFactor3DPoints.getSComplex(self)\nGet the computed complex structure factor (if you need the phase\n        information).\n\n        Returns:\n            (X, Y) :class:`numpy.ndarray`:\n                The computed static structure factor, as a copy, without taking\n                the magnitude squared.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_15SFactor3DPoints_7getSComplex = {"getSComplex", (PyCFunction)__pyx_pw_5freud_6kspace_15SFactor3DPoints_7getSComplex, METH_O, __pyx_doc_5freud_6kspace_15SFactor3DPoints_6getSComplex};
 static PyObject *__pyx_pw_5freud_6kspace_15SFactor3DPoints_7getSComplex(PyObject *__pyx_self, PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
@@ -4772,7 +4772,7 @@ static PyObject *__pyx_pf_5freud_6kspace_15SFactor3DPoints_6getSComplex(CYTHON_U
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_15SFactor3DPoints_9getQ(PyObject *__pyx_self, PyObject *__pyx_v_self); /*proto*/
-static char __pyx_doc_5freud_6kspace_15SFactor3DPoints_8getQ[] = "Get the :math:`q` values at each point.\n\n        The structure factor :code:`S[c,b,a]` is evaluated at the vector\n        :math:`q = \\left(qx\\left[a\\right], qy\\left[b\\right],\n        qz\\left[c\\right]\\right)`.\n\n        Returns:\n            tuple: (qx, qy, qz).\n        ";
+static char __pyx_doc_5freud_6kspace_15SFactor3DPoints_8getQ[] = "SFactor3DPoints.getQ(self)\nGet the :math:`q` values at each point.\n\n        The structure factor :code:`S[c,b,a]` is evaluated at the vector\n        :math:`q = \\left(qx\\left[a\\right], qy\\left[b\\right],\n        qz\\left[c\\right]\\right)`.\n\n        Returns:\n            tuple: (qx, qy, qz).\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_15SFactor3DPoints_9getQ = {"getQ", (PyCFunction)__pyx_pw_5freud_6kspace_15SFactor3DPoints_9getQ, METH_O, __pyx_doc_5freud_6kspace_15SFactor3DPoints_8getQ};
 static PyObject *__pyx_pw_5freud_6kspace_15SFactor3DPoints_9getQ(PyObject *__pyx_self, PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
@@ -4855,7 +4855,7 @@ static PyObject *__pyx_pf_5freud_6kspace_15SFactor3DPoints_8getQ(CYTHON_UNUSED P
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_16AnalyzeSFactor3D_1__init__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_16AnalyzeSFactor3D___init__[] = "Initialize the analyzer.";
+static char __pyx_doc_5freud_6kspace_16AnalyzeSFactor3D___init__[] = "AnalyzeSFactor3D.__init__(self, S)\nInitialize the analyzer.";
 static PyMethodDef __pyx_mdef_5freud_6kspace_16AnalyzeSFactor3D_1__init__ = {"__init__", (PyCFunction)__pyx_pw_5freud_6kspace_16AnalyzeSFactor3D_1__init__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_16AnalyzeSFactor3D___init__};
 static PyObject *__pyx_pw_5freud_6kspace_16AnalyzeSFactor3D_1__init__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -4994,7 +4994,7 @@ static PyObject *__pyx_pf_5freud_6kspace_16AnalyzeSFactor3D___init__(CYTHON_UNUS
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_16AnalyzeSFactor3D_3getPeakList(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_16AnalyzeSFactor3D_2getPeakList[] = "Get a list of peaks in the structure factor.\n\n        Args:\n            cut (float):\n                All :math:`S\\left(q\\right)` values greater than cut will be\n                counted as peaks.\n\n        Returns:\n            list: peaks, :math:`q` as lists.\n\n        ";
+static char __pyx_doc_5freud_6kspace_16AnalyzeSFactor3D_2getPeakList[] = "AnalyzeSFactor3D.getPeakList(self, cut)\nGet a list of peaks in the structure factor.\n\n        Args:\n            cut (float):\n                All :math:`S\\left(q\\right)` values greater than cut will be\n                counted as peaks.\n\n        Returns:\n            list: peaks, :math:`q` as lists.\n\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_16AnalyzeSFactor3D_3getPeakList = {"getPeakList", (PyCFunction)__pyx_pw_5freud_6kspace_16AnalyzeSFactor3D_3getPeakList, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_16AnalyzeSFactor3D_2getPeakList};
 static PyObject *__pyx_pw_5freud_6kspace_16AnalyzeSFactor3D_3getPeakList(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -5465,7 +5465,7 @@ static PyObject *__pyx_pf_5freud_6kspace_16AnalyzeSFactor3D_2getPeakList(CYTHON_
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_16AnalyzeSFactor3D_5getPeakDegeneracy(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_16AnalyzeSFactor3D_4getPeakDegeneracy[] = "Get a dictionary of peaks indexed by :math:`q^2`.\n\n        Args:\n            cut (:class:`numpy.ndarray`):\n                All :math:`S\\left(q\\right)` values greater than cut will be\n                counted as peaks.\n\n        Returns:\n            dict:\n                A dictionary with keys :math:`q^2` and a list of peaks for the\n                corresponding values.\n        ";
+static char __pyx_doc_5freud_6kspace_16AnalyzeSFactor3D_4getPeakDegeneracy[] = "AnalyzeSFactor3D.getPeakDegeneracy(self, cut)\nGet a dictionary of peaks indexed by :math:`q^2`.\n\n        Args:\n            cut (:class:`numpy.ndarray`):\n                All :math:`S\\left(q\\right)` values greater than cut will be\n                counted as peaks.\n\n        Returns:\n            dict:\n                A dictionary with keys :math:`q^2` and a list of peaks for the\n                corresponding values.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_16AnalyzeSFactor3D_5getPeakDegeneracy = {"getPeakDegeneracy", (PyCFunction)__pyx_pw_5freud_6kspace_16AnalyzeSFactor3D_5getPeakDegeneracy, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_16AnalyzeSFactor3D_4getPeakDegeneracy};
 static PyObject *__pyx_pw_5freud_6kspace_16AnalyzeSFactor3D_5getPeakDegeneracy(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -5919,7 +5919,7 @@ static PyObject *__pyx_pf_5freud_6kspace_16AnalyzeSFactor3D_4getPeakDegeneracy(C
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_16AnalyzeSFactor3D_7getSvsQ(PyObject *__pyx_self, PyObject *__pyx_v_self); /*proto*/
-static char __pyx_doc_5freud_6kspace_16AnalyzeSFactor3D_6getSvsQ[] = "Get a list of all :math:`S\\left(\\left|q\\right|\\right)` values vs\n        :math:`q^2`.\n\n        Returns:\n            :class:`numpy.ndarray`: S, qsquared.\n        ";
+static char __pyx_doc_5freud_6kspace_16AnalyzeSFactor3D_6getSvsQ[] = "AnalyzeSFactor3D.getSvsQ(self)\nGet a list of all :math:`S\\left(\\left|q\\right|\\right)` values vs\n        :math:`q^2`.\n\n        Returns:\n            :class:`numpy.ndarray`: S, qsquared.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_16AnalyzeSFactor3D_7getSvsQ = {"getSvsQ", (PyCFunction)__pyx_pw_5freud_6kspace_16AnalyzeSFactor3D_7getSvsQ, METH_O, __pyx_doc_5freud_6kspace_16AnalyzeSFactor3D_6getSvsQ};
 static PyObject *__pyx_pw_5freud_6kspace_16AnalyzeSFactor3D_7getSvsQ(PyObject *__pyx_self, PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
@@ -6383,7 +6383,7 @@ static PyObject *__pyx_pf_5freud_6kspace_16AnalyzeSFactor3D_6getSvsQ(CYTHON_UNUS
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_12SingleCell3D_1__init__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_12SingleCell3D___init__[] = "Initialize the single-cell data structure for FT calculation.";
+static char __pyx_doc_5freud_6kspace_12SingleCell3D___init__[] = "SingleCell3D.__init__(self, k=1800, ndiv=16, dK=0.01, boxMatrix=None, *args, **kwargs)\nInitialize the single-cell data structure for FT calculation.";
 static PyMethodDef __pyx_mdef_5freud_6kspace_12SingleCell3D_1__init__ = {"__init__", (PyCFunction)__pyx_pw_5freud_6kspace_12SingleCell3D_1__init__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_12SingleCell3D___init__};
 static PyObject *__pyx_pw_5freud_6kspace_12SingleCell3D_1__init__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -7557,7 +7557,7 @@ static PyObject *__pyx_pf_5freud_6kspace_12SingleCell3D___init__(CYTHON_UNUSED P
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_12SingleCell3D_3add_ptype(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_12SingleCell3D_2add_ptype[] = "Create internal data structures for new particle type by name.\n\n        Particle type is inactive when added because parameters must be set\n        before FT can be performed.\n\n        Args:\n            name (str): particle name\n        ";
+static char __pyx_doc_5freud_6kspace_12SingleCell3D_2add_ptype[] = "SingleCell3D.add_ptype(self, name)\nCreate internal data structures for new particle type by name.\n\n        Particle type is inactive when added because parameters must be set\n        before FT can be performed.\n\n        Args:\n            name (str): particle name\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_12SingleCell3D_3add_ptype = {"add_ptype", (PyCFunction)__pyx_pw_5freud_6kspace_12SingleCell3D_3add_ptype, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_12SingleCell3D_2add_ptype};
 static PyObject *__pyx_pw_5freud_6kspace_12SingleCell3D_3add_ptype(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -7879,7 +7879,7 @@ static PyObject *__pyx_pf_5freud_6kspace_12SingleCell3D_2add_ptype(CYTHON_UNUSED
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_12SingleCell3D_5remove_ptype(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_12SingleCell3D_4remove_ptype[] = "Remove internal data structures associated with ptype :code:`name`.\n\n        Args:\n            name (str): Particle type to remove.\n\n        .. note::\n            This shouldn't usually be necessary, since particle types may be\n            set inactive or have any of their properties updated through\n            `set_` methods.\n        ";
+static char __pyx_doc_5freud_6kspace_12SingleCell3D_4remove_ptype[] = "SingleCell3D.remove_ptype(self, name)\nRemove internal data structures associated with ptype :code:`name`.\n\n        Args:\n            name (str): Particle type to remove.\n\n        .. note::\n            This shouldn't usually be necessary, since particle types may be\n            set inactive or have any of their properties updated through\n            `set_` methods.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_12SingleCell3D_5remove_ptype = {"remove_ptype", (PyCFunction)__pyx_pw_5freud_6kspace_12SingleCell3D_5remove_ptype, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_12SingleCell3D_4remove_ptype};
 static PyObject *__pyx_pw_5freud_6kspace_12SingleCell3D_5remove_ptype(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -8570,7 +8570,7 @@ static PyObject *__pyx_pf_5freud_6kspace_12SingleCell3D_4remove_ptype(CYTHON_UNU
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_12SingleCell3D_7set_active(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_12SingleCell3D_6set_active[] = "Set particle type active.\n\n        Args:\n            name (str): Particle name.\n        ";
+static char __pyx_doc_5freud_6kspace_12SingleCell3D_6set_active[] = "SingleCell3D.set_active(self, name)\nSet particle type active.\n\n        Args:\n            name (str): Particle name.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_12SingleCell3D_7set_active = {"set_active", (PyCFunction)__pyx_pw_5freud_6kspace_12SingleCell3D_7set_active, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_12SingleCell3D_6set_active};
 static PyObject *__pyx_pw_5freud_6kspace_12SingleCell3D_7set_active(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -8825,7 +8825,7 @@ static PyObject *__pyx_pf_5freud_6kspace_12SingleCell3D_6set_active(CYTHON_UNUSE
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_12SingleCell3D_9set_inactive(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_12SingleCell3D_8set_inactive[] = "Set particle type inactive.\n\n        Args:\n            name (str): Particle name.\n        ";
+static char __pyx_doc_5freud_6kspace_12SingleCell3D_8set_inactive[] = "SingleCell3D.set_inactive(self, name)\nSet particle type inactive.\n\n        Args:\n            name (str): Particle name.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_12SingleCell3D_9set_inactive = {"set_inactive", (PyCFunction)__pyx_pw_5freud_6kspace_12SingleCell3D_9set_inactive, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_12SingleCell3D_8set_inactive};
 static PyObject *__pyx_pw_5freud_6kspace_12SingleCell3D_9set_inactive(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -9080,7 +9080,7 @@ static PyObject *__pyx_pf_5freud_6kspace_12SingleCell3D_8set_inactive(CYTHON_UNU
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_12SingleCell3D_11get_ptypes(PyObject *__pyx_self, PyObject *__pyx_v_self); /*proto*/
-static char __pyx_doc_5freud_6kspace_12SingleCell3D_10get_ptypes[] = "Get ordered list of particle names.\n\n        Returns:\n            list: List of particle names.\n        ";
+static char __pyx_doc_5freud_6kspace_12SingleCell3D_10get_ptypes[] = "SingleCell3D.get_ptypes(self)\nGet ordered list of particle names.\n\n        Returns:\n            list: List of particle names.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_12SingleCell3D_11get_ptypes = {"get_ptypes", (PyCFunction)__pyx_pw_5freud_6kspace_12SingleCell3D_11get_ptypes, METH_O, __pyx_doc_5freud_6kspace_12SingleCell3D_10get_ptypes};
 static PyObject *__pyx_pw_5freud_6kspace_12SingleCell3D_11get_ptypes(PyObject *__pyx_self, PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
@@ -9142,7 +9142,7 @@ static PyObject *__pyx_pf_5freud_6kspace_12SingleCell3D_10get_ptypes(CYTHON_UNUS
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_12SingleCell3D_13get_form_factors(PyObject *__pyx_self, PyObject *__pyx_v_self); /*proto*/
-static char __pyx_doc_5freud_6kspace_12SingleCell3D_12get_form_factors[] = "Get form factor names and indices.\n\n        Returns:\n            list: List of factor names and indices.\n        ";
+static char __pyx_doc_5freud_6kspace_12SingleCell3D_12get_form_factors[] = "SingleCell3D.get_form_factors(self)\nGet form factor names and indices.\n\n        Returns:\n            list: List of factor names and indices.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_12SingleCell3D_13get_form_factors = {"get_form_factors", (PyCFunction)__pyx_pw_5freud_6kspace_12SingleCell3D_13get_form_factors, METH_O, __pyx_doc_5freud_6kspace_12SingleCell3D_12get_form_factors};
 static PyObject *__pyx_pw_5freud_6kspace_12SingleCell3D_13get_form_factors(PyObject *__pyx_self, PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
@@ -9229,7 +9229,7 @@ static PyObject *__pyx_pf_5freud_6kspace_12SingleCell3D_12get_form_factors(CYTHO
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_12SingleCell3D_15set_form_factor(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_12SingleCell3D_14set_form_factor[] = "Set scattering form factor.\n\n        Args:\n            name (str):\n                Particle type name.\n            ff (str):\n                Scattering form factor named in\n                :py:meth:`~.SingleCell3D.get_form_factors()`.\n        ";
+static char __pyx_doc_5freud_6kspace_12SingleCell3D_14set_form_factor[] = "SingleCell3D.set_form_factor(self, name, ff)\nSet scattering form factor.\n\n        Args:\n            name (str):\n                Particle type name.\n            ff (str):\n                Scattering form factor named in\n                :py:meth:`~.SingleCell3D.get_form_factors()`.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_12SingleCell3D_15set_form_factor = {"set_form_factor", (PyCFunction)__pyx_pw_5freud_6kspace_12SingleCell3D_15set_form_factor, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_12SingleCell3D_14set_form_factor};
 static PyObject *__pyx_pw_5freud_6kspace_12SingleCell3D_15set_form_factor(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -9968,7 +9968,7 @@ static PyObject *__pyx_pf_5freud_6kspace_12SingleCell3D_14set_form_factor(CYTHON
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_12SingleCell3D_17set_param(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_12SingleCell3D_16set_param[] = "Set named parameter for named particle.\n\n        Args:\n            particle (str): Particle name.\n            param (str): Parameter name.\n            value (float): Parameter value.\n        ";
+static char __pyx_doc_5freud_6kspace_12SingleCell3D_16set_param[] = "SingleCell3D.set_param(self, particle, param, value)\nSet named parameter for named particle.\n\n        Args:\n            particle (str): Particle name.\n            param (str): Parameter name.\n            value (float): Parameter value.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_12SingleCell3D_17set_param = {"set_param", (PyCFunction)__pyx_pw_5freud_6kspace_12SingleCell3D_17set_param, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_12SingleCell3D_16set_param};
 static PyObject *__pyx_pw_5freud_6kspace_12SingleCell3D_17set_param(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -10393,7 +10393,7 @@ static PyObject *__pyx_pf_5freud_6kspace_12SingleCell3D_16set_param(CYTHON_UNUSE
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_12SingleCell3D_19set_scale(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_12SingleCell3D_18set_scale[] = "Set scale factor. Store global value and set for each particle type.\n\n        Args:\n            scale (float): nm per unit for input file coordinates.\n        ";
+static char __pyx_doc_5freud_6kspace_12SingleCell3D_18set_scale[] = "SingleCell3D.set_scale(self, scale)\nSet scale factor. Store global value and set for each particle type.\n\n        Args:\n            scale (float): nm per unit for input file coordinates.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_12SingleCell3D_19set_scale = {"set_scale", (PyCFunction)__pyx_pw_5freud_6kspace_12SingleCell3D_19set_scale, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_12SingleCell3D_18set_scale};
 static PyObject *__pyx_pw_5freud_6kspace_12SingleCell3D_19set_scale(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -10644,7 +10644,7 @@ static PyObject *__pyx_pf_5freud_6kspace_12SingleCell3D_18set_scale(CYTHON_UNUSE
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_12SingleCell3D_21set_box(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_12SingleCell3D_20set_box[] = "Set box matrix.\n\n        Args:\n            boxMatrix ((3, 3) :class:`numpy.ndarray`): Unit cell box matrix.\n        ";
+static char __pyx_doc_5freud_6kspace_12SingleCell3D_20set_box[] = "SingleCell3D.set_box(self, boxMatrix)\nSet box matrix.\n\n        Args:\n            boxMatrix ((3, 3) :class:`numpy.ndarray`): Unit cell box matrix.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_12SingleCell3D_21set_box = {"set_box", (PyCFunction)__pyx_pw_5freud_6kspace_12SingleCell3D_21set_box, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_12SingleCell3D_20set_box};
 static PyObject *__pyx_pw_5freud_6kspace_12SingleCell3D_21set_box(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -10815,7 +10815,7 @@ static PyObject *__pyx_pf_5freud_6kspace_12SingleCell3D_20set_box(CYTHON_UNUSED 
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_12SingleCell3D_23set_rq(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_12SingleCell3D_22set_rq[] = "Set positions and orientations for a particle type.\n\n        To best maintain valid state in the event of changing numbers of\n        particles, position and orientation are updated in a single method.\n\n        Args:\n            name (str):\n                Particle type name.\n            position ((N,3) :class:`numpy.ndarray`):\n                Array of particle positions.\n            orientation ((N,4) :class:`numpy.ndarray`):\n                Array of particle quaternions.\n        ";
+static char __pyx_doc_5freud_6kspace_12SingleCell3D_22set_rq[] = "SingleCell3D.set_rq(self, name, position, orientation)\nSet positions and orientations for a particle type.\n\n        To best maintain valid state in the event of changing numbers of\n        particles, position and orientation are updated in a single method.\n\n        Args:\n            name (str):\n                Particle type name.\n            position ((N,3) :class:`numpy.ndarray`):\n                Array of particle positions.\n            orientation ((N,4) :class:`numpy.ndarray`):\n                Array of particle quaternions.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_12SingleCell3D_23set_rq = {"set_rq", (PyCFunction)__pyx_pw_5freud_6kspace_12SingleCell3D_23set_rq, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_12SingleCell3D_22set_rq};
 static PyObject *__pyx_pw_5freud_6kspace_12SingleCell3D_23set_rq(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -11359,7 +11359,7 @@ static PyObject *__pyx_pf_5freud_6kspace_12SingleCell3D_22set_rq(CYTHON_UNUSED P
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_12SingleCell3D_25set_ndiv(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_12SingleCell3D_24set_ndiv[] = "Set number of grid divisions in diffraction image.\n\n        Args:\n            ndiv (int): Define diffraction image as ndiv x ndiv grid.\n        ";
+static char __pyx_doc_5freud_6kspace_12SingleCell3D_24set_ndiv[] = "SingleCell3D.set_ndiv(self, ndiv)\nSet number of grid divisions in diffraction image.\n\n        Args:\n            ndiv (int): Define diffraction image as ndiv x ndiv grid.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_12SingleCell3D_25set_ndiv = {"set_ndiv", (PyCFunction)__pyx_pw_5freud_6kspace_12SingleCell3D_25set_ndiv, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_12SingleCell3D_24set_ndiv};
 static PyObject *__pyx_pw_5freud_6kspace_12SingleCell3D_25set_ndiv(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -11478,7 +11478,7 @@ static PyObject *__pyx_pf_5freud_6kspace_12SingleCell3D_24set_ndiv(CYTHON_UNUSED
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_12SingleCell3D_27set_dK(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_12SingleCell3D_26set_dK[] = "Set grid spacing in diffraction image.\n\n        Args:\n            dK (float):\n                Difference in :math:`K` vector between two adjacent diffraction\n                image grid points.\n        ";
+static char __pyx_doc_5freud_6kspace_12SingleCell3D_26set_dK[] = "SingleCell3D.set_dK(self, dK)\nSet grid spacing in diffraction image.\n\n        Args:\n            dK (float):\n                Difference in :math:`K` vector between two adjacent diffraction\n                image grid points.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_12SingleCell3D_27set_dK = {"set_dK", (PyCFunction)__pyx_pw_5freud_6kspace_12SingleCell3D_27set_dK, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_12SingleCell3D_26set_dK};
 static PyObject *__pyx_pw_5freud_6kspace_12SingleCell3D_27set_dK(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -11649,7 +11649,7 @@ static PyObject *__pyx_pf_5freud_6kspace_12SingleCell3D_26set_dK(CYTHON_UNUSED P
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_12SingleCell3D_29set_k(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_12SingleCell3D_28set_k[] = "Set angular wave number of plane wave probe.\n\n        Args:\n            k (float): :math:`\\left|k_0\\right|`.\n        ";
+static char __pyx_doc_5freud_6kspace_12SingleCell3D_28set_k[] = "SingleCell3D.set_k(self, k)\nSet angular wave number of plane wave probe.\n\n        Args:\n            k (float): :math:`\\left|k_0\\right|`.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_12SingleCell3D_29set_k = {"set_k", (PyCFunction)__pyx_pw_5freud_6kspace_12SingleCell3D_29set_k, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_12SingleCell3D_28set_k};
 static PyObject *__pyx_pw_5freud_6kspace_12SingleCell3D_29set_k(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -11811,7 +11811,7 @@ static PyObject *__pyx_pf_5freud_6kspace_12SingleCell3D_28set_k(CYTHON_UNUSED Py
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_12SingleCell3D_31update_bases(PyObject *__pyx_self, PyObject *__pyx_v_self); /*proto*/
-static char __pyx_doc_5freud_6kspace_12SingleCell3D_30update_bases[] = "Update the direct and reciprocal space lattice vectors.\n\n        .. note::\n            If scale or boxMatrix is updated, the lattice vectors in direct and\n            reciprocal space need to be recalculated.\n\n        .. todo::\n            call automatically if scale, boxMatrix updated\n        ";
+static char __pyx_doc_5freud_6kspace_12SingleCell3D_30update_bases[] = "SingleCell3D.update_bases(self)\nUpdate the direct and reciprocal space lattice vectors.\n\n        .. note::\n            If scale or boxMatrix is updated, the lattice vectors in direct and\n            reciprocal space need to be recalculated.\n\n        .. todo::\n            call automatically if scale, boxMatrix updated\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_12SingleCell3D_31update_bases = {"update_bases", (PyCFunction)__pyx_pw_5freud_6kspace_12SingleCell3D_31update_bases, METH_O, __pyx_doc_5freud_6kspace_12SingleCell3D_30update_bases};
 static PyObject *__pyx_pw_5freud_6kspace_12SingleCell3D_31update_bases(PyObject *__pyx_self, PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
@@ -12249,7 +12249,7 @@ static PyObject *__pyx_pf_5freud_6kspace_12SingleCell3D_30update_bases(CYTHON_UN
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_12SingleCell3D_33update_K_constraint(PyObject *__pyx_self, PyObject *__pyx_v_self); /*proto*/
-static char __pyx_doc_5freud_6kspace_12SingleCell3D_32update_K_constraint[] = "Recalculate constraint used to select :math:`K` values.\n\n        The constraint used is a slab of epsilon thickness in a plane\n        perpendicular to the :math:`k_0` propagation, intended to provide easy\n        emulation of TEM or relatively high-energy scattering.\n        ";
+static char __pyx_doc_5freud_6kspace_12SingleCell3D_32update_K_constraint[] = "SingleCell3D.update_K_constraint(self)\nRecalculate constraint used to select :math:`K` values.\n\n        The constraint used is a slab of epsilon thickness in a plane\n        perpendicular to the :math:`k_0` propagation, intended to provide easy\n        emulation of TEM or relatively high-energy scattering.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_12SingleCell3D_33update_K_constraint = {"update_K_constraint", (PyCFunction)__pyx_pw_5freud_6kspace_12SingleCell3D_33update_K_constraint, METH_O, __pyx_doc_5freud_6kspace_12SingleCell3D_32update_K_constraint};
 static PyObject *__pyx_pw_5freud_6kspace_12SingleCell3D_33update_K_constraint(PyObject *__pyx_self, PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
@@ -12671,7 +12671,7 @@ static PyObject *__pyx_pf_5freud_6kspace_12SingleCell3D_32update_K_constraint(CY
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_12SingleCell3D_35update_Kpoints(PyObject *__pyx_self, PyObject *__pyx_v_self); /*proto*/
-static char __pyx_doc_5freud_6kspace_12SingleCell3D_34update_Kpoints[] = "Update :math:`K` points at which to evaluate FT.\n\n        .. note::\n            If the diffraction image dimensions change relative to the\n            reciprocal lattice, the :math:`K` points need to be recalculated.\n        ";
+static char __pyx_doc_5freud_6kspace_12SingleCell3D_34update_Kpoints[] = "SingleCell3D.update_Kpoints(self)\nUpdate :math:`K` points at which to evaluate FT.\n\n        .. note::\n            If the diffraction image dimensions change relative to the\n            reciprocal lattice, the :math:`K` points need to be recalculated.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_12SingleCell3D_35update_Kpoints = {"update_Kpoints", (PyCFunction)__pyx_pw_5freud_6kspace_12SingleCell3D_35update_Kpoints, METH_O, __pyx_doc_5freud_6kspace_12SingleCell3D_34update_Kpoints};
 static PyObject *__pyx_pw_5freud_6kspace_12SingleCell3D_35update_Kpoints(PyObject *__pyx_self, PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
@@ -12989,7 +12989,7 @@ static PyObject *__pyx_pf_5freud_6kspace_12SingleCell3D_34update_Kpoints(CYTHON_
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_12SingleCell3D_37calculate(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_12SingleCell3D_36calculate[] = "Calculate FT. The details and arguments will vary depending on\n        the form factor chosen for the particles.\n\n        For any particle type-dependent parameters passed as keyword arguments,\n        the parameter must be passed as a list of length :code:`max(p_type)+1`\n        with indices corresponding to the particle types defined. In other\n        words, type-dependent parameters are optional (depending on the set of\n        form factors being calculated), but if included must be defined for all\n        particle types.\n        ";
+static char __pyx_doc_5freud_6kspace_12SingleCell3D_36calculate[] = "SingleCell3D.calculate(self, *args, **kwargs)\nCalculate FT. The details and arguments will vary depending on\n        the form factor chosen for the particles.\n\n        For any particle type-dependent parameters passed as keyword arguments,\n        the parameter must be passed as a list of length :code:`max(p_type)+1`\n        with indices corresponding to the particle types defined. In other\n        words, type-dependent parameters are optional (depending on the set of\n        form factors being calculated), but if included must be defined for all\n        particle types.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_12SingleCell3D_37calculate = {"calculate", (PyCFunction)__pyx_pw_5freud_6kspace_12SingleCell3D_37calculate, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_12SingleCell3D_36calculate};
 static PyObject *__pyx_pw_5freud_6kspace_12SingleCell3D_37calculate(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -13330,7 +13330,8 @@ static PyObject *__pyx_pf_5freud_6kspace_12SingleCell3D_36calculate(CYTHON_UNUSE
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_9FTfactory_1__init__(PyObject *__pyx_self, PyObject *__pyx_v_self); /*proto*/
-static PyMethodDef __pyx_mdef_5freud_6kspace_9FTfactory_1__init__ = {"__init__", (PyCFunction)__pyx_pw_5freud_6kspace_9FTfactory_1__init__, METH_O, 0};
+static char __pyx_doc_5freud_6kspace_9FTfactory___init__[] = "FTfactory.__init__(self)";
+static PyMethodDef __pyx_mdef_5freud_6kspace_9FTfactory_1__init__ = {"__init__", (PyCFunction)__pyx_pw_5freud_6kspace_9FTfactory_1__init__, METH_O, __pyx_doc_5freud_6kspace_9FTfactory___init__};
 static PyObject *__pyx_pw_5freud_6kspace_9FTfactory_1__init__(PyObject *__pyx_self, PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -13428,7 +13429,7 @@ static PyObject *__pyx_pf_5freud_6kspace_9FTfactory___init__(CYTHON_UNUSED PyObj
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_9FTfactory_3getFTlist(PyObject *__pyx_self, PyObject *__pyx_v_self); /*proto*/
-static char __pyx_doc_5freud_6kspace_9FTfactory_2getFTlist[] = "Get an ordered list of named FT types.\n\n        Returns:\n            list: List of FT names.\n        ";
+static char __pyx_doc_5freud_6kspace_9FTfactory_2getFTlist[] = "FTfactory.getFTlist(self)\nGet an ordered list of named FT types.\n\n        Returns:\n            list: List of FT names.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_9FTfactory_3getFTlist = {"getFTlist", (PyCFunction)__pyx_pw_5freud_6kspace_9FTfactory_3getFTlist, METH_O, __pyx_doc_5freud_6kspace_9FTfactory_2getFTlist};
 static PyObject *__pyx_pw_5freud_6kspace_9FTfactory_3getFTlist(PyObject *__pyx_self, PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
@@ -13490,7 +13491,7 @@ static PyObject *__pyx_pf_5freud_6kspace_9FTfactory_2getFTlist(CYTHON_UNUSED PyO
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_9FTfactory_5getFTobject(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_9FTfactory_4getFTobject[] = "Get a new instance of an FT type from list returned by\n        :py:meth:`~.FTfactory.getFTlist()`.\n\n        Args:\n            i (int):\n                Index into list returned by :py:meth:`~.FTfactory.getFTlist()`.\n            args:\n                Argument object used to initialize FT, overriding default set\n                at :py:meth:`~.FTfactory.addFT()`.\n        ";
+static char __pyx_doc_5freud_6kspace_9FTfactory_4getFTobject[] = "FTfactory.getFTobject(self, i, args=None)\nGet a new instance of an FT type from list returned by\n        :py:meth:`~.FTfactory.getFTlist()`.\n\n        Args:\n            i (int):\n                Index into list returned by :py:meth:`~.FTfactory.getFTlist()`.\n            args:\n                Argument object used to initialize FT, overriding default set\n                at :py:meth:`~.FTfactory.addFT()`.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_9FTfactory_5getFTobject = {"getFTobject", (PyCFunction)__pyx_pw_5freud_6kspace_9FTfactory_5getFTobject, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_9FTfactory_4getFTobject};
 static PyObject *__pyx_pw_5freud_6kspace_9FTfactory_5getFTobject(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -13719,7 +13720,7 @@ static PyObject *__pyx_pf_5freud_6kspace_9FTfactory_4getFTobject(CYTHON_UNUSED P
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_9FTfactory_7addFT(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_9FTfactory_6addFT[] = "Add an FT class to the factory.\n\n        Args:\n            name (str):\n                Identifying string to be returned by getFTlist().\n            constructor (str):\n                Class / function name to be used to create new FT objects.\n            args (list):\n                Set default argument object to be used to construct FT objects.\n        ";
+static char __pyx_doc_5freud_6kspace_9FTfactory_6addFT[] = "FTfactory.addFT(self, name, constructor, args=None)\nAdd an FT class to the factory.\n\n        Args:\n            name (str):\n                Identifying string to be returned by getFTlist().\n            constructor (str):\n                Class / function name to be used to create new FT objects.\n            args (list):\n                Set default argument object to be used to construct FT objects.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_9FTfactory_7addFT = {"addFT", (PyCFunction)__pyx_pw_5freud_6kspace_9FTfactory_7addFT, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_9FTfactory_6addFT};
 static PyObject *__pyx_pw_5freud_6kspace_9FTfactory_7addFT(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -13934,7 +13935,8 @@ static PyObject *__pyx_pf_5freud_6kspace_9FTfactory_6addFT(CYTHON_UNUSED PyObjec
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_6FTbase_1__init__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyMethodDef __pyx_mdef_5freud_6kspace_6FTbase_1__init__ = {"__init__", (PyCFunction)__pyx_pw_5freud_6kspace_6FTbase_1__init__, METH_VARARGS|METH_KEYWORDS, 0};
+static char __pyx_doc_5freud_6kspace_6FTbase___init__[] = "FTbase.__init__(self, *args, **kwargs)";
+static PyMethodDef __pyx_mdef_5freud_6kspace_6FTbase_1__init__ = {"__init__", (PyCFunction)__pyx_pw_5freud_6kspace_6FTbase_1__init__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_6FTbase___init__};
 static PyObject *__pyx_pw_5freud_6kspace_6FTbase_1__init__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
   CYTHON_UNUSED PyObject *__pyx_v_args = 0;
@@ -14330,7 +14332,7 @@ static PyObject *__pyx_pf_5freud_6kspace_6FTbase___init__(CYTHON_UNUSED PyObject
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_6FTbase_3getFT(PyObject *__pyx_self, PyObject *__pyx_v_self); /*proto*/
-static char __pyx_doc_5freud_6kspace_6FTbase_2getFT[] = "Return Fourier Transform.\n\n        Returns:\n            :class:`numpy.ndarray`: Fourier Transform.\n        ";
+static char __pyx_doc_5freud_6kspace_6FTbase_2getFT[] = "FTbase.getFT(self)\nReturn Fourier Transform.\n\n        Returns:\n            :class:`numpy.ndarray`: Fourier Transform.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_6FTbase_3getFT = {"getFT", (PyCFunction)__pyx_pw_5freud_6kspace_6FTbase_3getFT, METH_O, __pyx_doc_5freud_6kspace_6FTbase_2getFT};
 static PyObject *__pyx_pw_5freud_6kspace_6FTbase_3getFT(PyObject *__pyx_self, PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
@@ -14392,7 +14394,7 @@ static PyObject *__pyx_pf_5freud_6kspace_6FTbase_2getFT(CYTHON_UNUSED PyObject *
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_6FTbase_5get_params(PyObject *__pyx_self, PyObject *__pyx_v_self); /*proto*/
-static char __pyx_doc_5freud_6kspace_6FTbase_4get_params[] = "Get the parameter names accessible with\n        :py:meth:`~.FTbase.set_parambyname()`.\n\n        Returns:\n            list: Parameter names.\n        ";
+static char __pyx_doc_5freud_6kspace_6FTbase_4get_params[] = "FTbase.get_params(self)\nGet the parameter names accessible with\n        :py:meth:`~.FTbase.set_parambyname()`.\n\n        Returns:\n            list: Parameter names.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_6FTbase_5get_params = {"get_params", (PyCFunction)__pyx_pw_5freud_6kspace_6FTbase_5get_params, METH_O, __pyx_doc_5freud_6kspace_6FTbase_4get_params};
 static PyObject *__pyx_pw_5freud_6kspace_6FTbase_5get_params(PyObject *__pyx_self, PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
@@ -14479,7 +14481,7 @@ static PyObject *__pyx_pf_5freud_6kspace_6FTbase_4get_params(CYTHON_UNUSED PyObj
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_6FTbase_7set_parambyname(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_6FTbase_6set_parambyname[] = "Set named parameter for object.\n\n        Args:\n            name (str):\n                Parameter name. Must exist in list returned by\n                :py:meth:`~.FTbase.get_params()`.\n            value (float):\n                Parameter value to set.\n        ";
+static char __pyx_doc_5freud_6kspace_6FTbase_6set_parambyname[] = "FTbase.set_parambyname(self, name, value)\nSet named parameter for object.\n\n        Args:\n            name (str):\n                Parameter name. Must exist in list returned by\n                :py:meth:`~.FTbase.get_params()`.\n            value (float):\n                Parameter value to set.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_6FTbase_7set_parambyname = {"set_parambyname", (PyCFunction)__pyx_pw_5freud_6kspace_6FTbase_7set_parambyname, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_6FTbase_6set_parambyname};
 static PyObject *__pyx_pw_5freud_6kspace_6FTbase_7set_parambyname(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -14753,7 +14755,7 @@ static PyObject *__pyx_pf_5freud_6kspace_6FTbase_6set_parambyname(CYTHON_UNUSED 
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_6FTbase_9get_parambyname(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_6FTbase_8get_parambyname[] = "Get named parameter for object.\n\n        Args:\n            name (str):\n                Parameter name. Must exist in list returned by\n                :py:meth:`~.FTbase.get_params()`.\n\n        Returns:\n            float: Parameter value.\n        ";
+static char __pyx_doc_5freud_6kspace_6FTbase_8get_parambyname[] = "FTbase.get_parambyname(self, name)\nGet named parameter for object.\n\n        Args:\n            name (str):\n                Parameter name. Must exist in list returned by\n                :py:meth:`~.FTbase.get_params()`.\n\n        Returns:\n            float: Parameter value.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_6FTbase_9get_parambyname = {"get_parambyname", (PyCFunction)__pyx_pw_5freud_6kspace_6FTbase_9get_parambyname, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_6FTbase_8get_parambyname};
 static PyObject *__pyx_pw_5freud_6kspace_6FTbase_9get_parambyname(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -14990,7 +14992,7 @@ static PyObject *__pyx_pf_5freud_6kspace_6FTbase_8get_parambyname(CYTHON_UNUSED 
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_6FTbase_11set_K(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_6FTbase_10set_K[] = "Set :math:`K` points to be evaluated.\n\n        Args:\n            K (:class:`numpy.ndarray`):\n                List of :math:`K` vectors at which to evaluate FT.\n        ";
+static char __pyx_doc_5freud_6kspace_6FTbase_10set_K[] = "FTbase.set_K(self, K)\nSet :math:`K` points to be evaluated.\n\n        Args:\n            K (:class:`numpy.ndarray`):\n                List of :math:`K` vectors at which to evaluate FT.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_6FTbase_11set_K = {"set_K", (PyCFunction)__pyx_pw_5freud_6kspace_6FTbase_11set_K, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_6FTbase_10set_K};
 static PyObject *__pyx_pw_5freud_6kspace_6FTbase_11set_K(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -15130,7 +15132,7 @@ static PyObject *__pyx_pf_5freud_6kspace_6FTbase_10set_K(CYTHON_UNUSED PyObject 
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_6FTbase_13set_scale(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_6FTbase_12set_scale[] = "Set scale.\n\n        Args:\n            scale (float): Scale.\n        ";
+static char __pyx_doc_5freud_6kspace_6FTbase_12set_scale[] = "FTbase.set_scale(self, scale)\nSet scale.\n\n        Args:\n            scale (float): Scale.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_6FTbase_13set_scale = {"set_scale", (PyCFunction)__pyx_pw_5freud_6kspace_6FTbase_13set_scale, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_6FTbase_12set_scale};
 static PyObject *__pyx_pw_5freud_6kspace_6FTbase_13set_scale(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -15292,7 +15294,7 @@ static PyObject *__pyx_pf_5freud_6kspace_6FTbase_12set_scale(CYTHON_UNUSED PyObj
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_6FTbase_15get_scale(PyObject *__pyx_self, PyObject *__pyx_v_self); /*proto*/
-static char __pyx_doc_5freud_6kspace_6FTbase_14get_scale[] = "Get scale.\n\n        Returns:\n            float: Scale.\n        ";
+static char __pyx_doc_5freud_6kspace_6FTbase_14get_scale[] = "FTbase.get_scale(self)\nGet scale.\n\n        Returns:\n            float: Scale.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_6FTbase_15get_scale = {"get_scale", (PyCFunction)__pyx_pw_5freud_6kspace_6FTbase_15get_scale, METH_O, __pyx_doc_5freud_6kspace_6FTbase_14get_scale};
 static PyObject *__pyx_pw_5freud_6kspace_6FTbase_15get_scale(PyObject *__pyx_self, PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
@@ -15354,7 +15356,7 @@ static PyObject *__pyx_pf_5freud_6kspace_6FTbase_14get_scale(CYTHON_UNUSED PyObj
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_6FTbase_17set_density(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_6FTbase_16set_density[] = "Set density.\n\n        Args:\n            density (:class:`numpy.complex64`): Density.\n        ";
+static char __pyx_doc_5freud_6kspace_6FTbase_16set_density[] = "FTbase.set_density(self, density)\nSet density.\n\n        Args:\n            density (:class:`numpy.complex64`): Density.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_6FTbase_17set_density = {"set_density", (PyCFunction)__pyx_pw_5freud_6kspace_6FTbase_17set_density, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_6FTbase_16set_density};
 static PyObject *__pyx_pw_5freud_6kspace_6FTbase_17set_density(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -15516,7 +15518,7 @@ static PyObject *__pyx_pf_5freud_6kspace_6FTbase_16set_density(CYTHON_UNUSED PyO
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_6FTbase_19get_density(PyObject *__pyx_self, PyObject *__pyx_v_self); /*proto*/
-static char __pyx_doc_5freud_6kspace_6FTbase_18get_density[] = "Get density.\n\n        Returns:\n            :class:`numpy.complex64`: Density.\n        ";
+static char __pyx_doc_5freud_6kspace_6FTbase_18get_density[] = "FTbase.get_density(self)\nGet density.\n\n        Returns:\n            :class:`numpy.complex64`: Density.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_6FTbase_19get_density = {"get_density", (PyCFunction)__pyx_pw_5freud_6kspace_6FTbase_19get_density, METH_O, __pyx_doc_5freud_6kspace_6FTbase_18get_density};
 static PyObject *__pyx_pw_5freud_6kspace_6FTbase_19get_density(PyObject *__pyx_self, PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
@@ -15578,7 +15580,7 @@ static PyObject *__pyx_pf_5freud_6kspace_6FTbase_18get_density(CYTHON_UNUSED PyO
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_6FTbase_21set_rq(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_6FTbase_20set_rq[] = "Set :math:`r`, :math:`q` values.\n\n        Args:\n            r (float): :math:`r`.\n            q (float): :math:`q`.\n        ";
+static char __pyx_doc_5freud_6kspace_6FTbase_20set_rq[] = "FTbase.set_rq(self, r, q)\nSet :math:`r`, :math:`q` values.\n\n        Args:\n            r (float): :math:`r`.\n            q (float): :math:`q`.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_6FTbase_21set_rq = {"set_rq", (PyCFunction)__pyx_pw_5freud_6kspace_6FTbase_21set_rq, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_6FTbase_20set_rq};
 static PyObject *__pyx_pw_5freud_6kspace_6FTbase_21set_rq(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -15948,7 +15950,8 @@ static PyObject *__pyx_pf_5freud_6kspace_6FTbase_20set_rq(CYTHON_UNUSED PyObject
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_7FTdelta_1__init__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyMethodDef __pyx_mdef_5freud_6kspace_7FTdelta_1__init__ = {"__init__", (PyCFunction)__pyx_pw_5freud_6kspace_7FTdelta_1__init__, METH_VARARGS|METH_KEYWORDS, 0};
+static char __pyx_doc_5freud_6kspace_7FTdelta___init__[] = "FTdelta.__init__(self, *args, **kwargs)";
+static PyMethodDef __pyx_mdef_5freud_6kspace_7FTdelta_1__init__ = {"__init__", (PyCFunction)__pyx_pw_5freud_6kspace_7FTdelta_1__init__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_7FTdelta___init__};
 static PyObject *__pyx_pw_5freud_6kspace_7FTdelta_1__init__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
   CYTHON_UNUSED PyObject *__pyx_v_args = 0;
@@ -16147,7 +16150,7 @@ static PyObject *__pyx_pf_5freud_6kspace_7FTdelta___init__(CYTHON_UNUSED PyObjec
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_7FTdelta_3set_K(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_7FTdelta_2set_K[] = "Set :math:`K` points to be evaluated.\n\n        Args:\n            K (:class:`numpy.ndarray`):\n                List of :math:`K` vectors at which to evaluate FT.\n        ";
+static char __pyx_doc_5freud_6kspace_7FTdelta_2set_K[] = "FTdelta.set_K(self, K)\nSet :math:`K` points to be evaluated.\n\n        Args:\n            K (:class:`numpy.ndarray`):\n                List of :math:`K` vectors at which to evaluate FT.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_7FTdelta_3set_K = {"set_K", (PyCFunction)__pyx_pw_5freud_6kspace_7FTdelta_3set_K, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_7FTdelta_2set_K};
 static PyObject *__pyx_pw_5freud_6kspace_7FTdelta_3set_K(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -16381,7 +16384,7 @@ static PyObject *__pyx_pf_5freud_6kspace_7FTdelta_2set_K(CYTHON_UNUSED PyObject 
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_7FTdelta_5set_scale(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_7FTdelta_4set_scale[] = "Set scale.\n\n        Args:\n            scale (float): Scale.\n\n        .. note::\n            For a scale factor, :math:`\\lambda`, affecting the scattering\n            density :math:`\\rho\\left(r\\right)`, :math:`S_{\\lambda}\\left\n            (k\\right) == \\lambda^3 * S\\left(\\lambda * k\\right)`\n        ";
+static char __pyx_doc_5freud_6kspace_7FTdelta_4set_scale[] = "FTdelta.set_scale(self, scale)\nSet scale.\n\n        Args:\n            scale (float): Scale.\n\n        .. note::\n            For a scale factor, :math:`\\lambda`, affecting the scattering\n            density :math:`\\rho\\left(r\\right)`, :math:`S_{\\lambda}\\left\n            (k\\right) == \\lambda^3 * S\\left(\\lambda * k\\right)`\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_7FTdelta_5set_scale = {"set_scale", (PyCFunction)__pyx_pw_5freud_6kspace_7FTdelta_5set_scale, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_7FTdelta_4set_scale};
 static PyObject *__pyx_pw_5freud_6kspace_7FTdelta_5set_scale(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -16615,7 +16618,7 @@ static PyObject *__pyx_pf_5freud_6kspace_7FTdelta_4set_scale(CYTHON_UNUSED PyObj
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_7FTdelta_7set_density(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_7FTdelta_6set_density[] = "Set density.\n\n        Args:\n            density (:class:`numpy.complex64`): density\n        ";
+static char __pyx_doc_5freud_6kspace_7FTdelta_6set_density[] = "FTdelta.set_density(self, density)\nSet density.\n\n        Args:\n            density (:class:`numpy.complex64`): density\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_7FTdelta_7set_density = {"set_density", (PyCFunction)__pyx_pw_5freud_6kspace_7FTdelta_7set_density, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_7FTdelta_6set_density};
 static PyObject *__pyx_pw_5freud_6kspace_7FTdelta_7set_density(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -16846,7 +16849,7 @@ static PyObject *__pyx_pf_5freud_6kspace_7FTdelta_6set_density(CYTHON_UNUSED PyO
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_7FTdelta_9set_rq(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_7FTdelta_8set_rq[] = "Set :math:`r`, :math:`q` values.\n\n        Args:\n            r (float): :math:`r`.\n            q (float): :math:`q`.\n        ";
+static char __pyx_doc_5freud_6kspace_7FTdelta_8set_rq[] = "FTdelta.set_rq(self, r, q)\nSet :math:`r`, :math:`q` values.\n\n        Args:\n            r (float): :math:`r`.\n            q (float): :math:`q`.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_7FTdelta_9set_rq = {"set_rq", (PyCFunction)__pyx_pw_5freud_6kspace_7FTdelta_9set_rq, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_7FTdelta_8set_rq};
 static PyObject *__pyx_pw_5freud_6kspace_7FTdelta_9set_rq(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -17095,7 +17098,7 @@ static PyObject *__pyx_pf_5freud_6kspace_7FTdelta_8set_rq(CYTHON_UNUSED PyObject
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_7FTdelta_11compute(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_7FTdelta_10compute[] = "Compute FT.\n\n        Calculate :math:`S = \\sum_{\\alpha} e^{-i \\mathbf{K} \\cdot\n        \\mathbf{r}_{\\alpha}}`.\n        ";
+static char __pyx_doc_5freud_6kspace_7FTdelta_10compute[] = "FTdelta.compute(self, *args, **kwargs)\nCompute FT.\n\n        Calculate :math:`S = \\sum_{\\alpha} e^{-i \\mathbf{K} \\cdot\n        \\mathbf{r}_{\\alpha}}`.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_7FTdelta_11compute = {"compute", (PyCFunction)__pyx_pw_5freud_6kspace_7FTdelta_11compute, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_7FTdelta_10compute};
 static PyObject *__pyx_pw_5freud_6kspace_7FTdelta_11compute(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -17290,7 +17293,8 @@ static PyObject *__pyx_pf_5freud_6kspace_7FTdelta_10compute(CYTHON_UNUSED PyObje
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_8FTsphere_1__init__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyMethodDef __pyx_mdef_5freud_6kspace_8FTsphere_1__init__ = {"__init__", (PyCFunction)__pyx_pw_5freud_6kspace_8FTsphere_1__init__, METH_VARARGS|METH_KEYWORDS, 0};
+static char __pyx_doc_5freud_6kspace_8FTsphere___init__[] = "FTsphere.__init__(self, *args, **kwargs)";
+static PyMethodDef __pyx_mdef_5freud_6kspace_8FTsphere_1__init__ = {"__init__", (PyCFunction)__pyx_pw_5freud_6kspace_8FTsphere_1__init__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_8FTsphere___init__};
 static PyObject *__pyx_pw_5freud_6kspace_8FTsphere_1__init__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
   PyObject *__pyx_v_args = 0;
@@ -17500,7 +17504,7 @@ static PyObject *__pyx_pf_5freud_6kspace_8FTsphere___init__(CYTHON_UNUSED PyObje
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_8FTsphere_3set_radius(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_8FTsphere_2set_radius[] = "Set radius parameter.\n\n        Args:\n            radius (float):\n                Sphere radius will be stored as given, but scaled by scale\n                parameter when used by methods.\n        ";
+static char __pyx_doc_5freud_6kspace_8FTsphere_2set_radius[] = "FTsphere.set_radius(self, radius)\nSet radius parameter.\n\n        Args:\n            radius (float):\n                Sphere radius will be stored as given, but scaled by scale\n                parameter when used by methods.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_8FTsphere_3set_radius = {"set_radius", (PyCFunction)__pyx_pw_5freud_6kspace_8FTsphere_3set_radius, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_8FTsphere_2set_radius};
 static PyObject *__pyx_pw_5freud_6kspace_8FTsphere_3set_radius(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -17680,7 +17684,7 @@ static PyObject *__pyx_pf_5freud_6kspace_8FTsphere_2set_radius(CYTHON_UNUSED PyO
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_8FTsphere_5get_radius(PyObject *__pyx_self, PyObject *__pyx_v_self); /*proto*/
-static char __pyx_doc_5freud_6kspace_8FTsphere_4get_radius[] = "Get radius parameter.\n\n        If appropriate, return value should be scaled by\n        :code:`get_parambyname('scale')` for interpretation.\n\n        Returns:\n            float: Unscaled radius.\n        ";
+static char __pyx_doc_5freud_6kspace_8FTsphere_4get_radius[] = "FTsphere.get_radius(self)\nGet radius parameter.\n\n        If appropriate, return value should be scaled by\n        :code:`get_parambyname('scale')` for interpretation.\n\n        Returns:\n            float: Unscaled radius.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_8FTsphere_5get_radius = {"get_radius", (PyCFunction)__pyx_pw_5freud_6kspace_8FTsphere_5get_radius, METH_O, __pyx_doc_5freud_6kspace_8FTsphere_4get_radius};
 static PyObject *__pyx_pw_5freud_6kspace_8FTsphere_5get_radius(PyObject *__pyx_self, PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
@@ -17779,7 +17783,8 @@ static PyObject *__pyx_pf_5freud_6kspace_8FTsphere_4get_radius(CYTHON_UNUSED PyO
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_12FTpolyhedron_1__init__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyMethodDef __pyx_mdef_5freud_6kspace_12FTpolyhedron_1__init__ = {"__init__", (PyCFunction)__pyx_pw_5freud_6kspace_12FTpolyhedron_1__init__, METH_VARARGS|METH_KEYWORDS, 0};
+static char __pyx_doc_5freud_6kspace_12FTpolyhedron___init__[] = "FTpolyhedron.__init__(self, *args, **kwargs)";
+static PyMethodDef __pyx_mdef_5freud_6kspace_12FTpolyhedron_1__init__ = {"__init__", (PyCFunction)__pyx_pw_5freud_6kspace_12FTpolyhedron_1__init__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_12FTpolyhedron___init__};
 static PyObject *__pyx_pw_5freud_6kspace_12FTpolyhedron_1__init__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
   PyObject *__pyx_v_args = 0;
@@ -17975,7 +17980,7 @@ static PyObject *__pyx_pf_5freud_6kspace_12FTpolyhedron___init__(CYTHON_UNUSED P
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_12FTpolyhedron_3set_K(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_12FTpolyhedron_2set_K[] = "Set :math:`K` points to be evaluated.\n\n        Args:\n            K (:class:`numpy.ndarray`):\n                List of :math:`K` vectors at which to evaluate FT.\n        ";
+static char __pyx_doc_5freud_6kspace_12FTpolyhedron_2set_K[] = "FTpolyhedron.set_K(self, K)\nSet :math:`K` points to be evaluated.\n\n        Args:\n            K (:class:`numpy.ndarray`):\n                List of :math:`K` vectors at which to evaluate FT.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_12FTpolyhedron_3set_K = {"set_K", (PyCFunction)__pyx_pw_5freud_6kspace_12FTpolyhedron_3set_K, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_12FTpolyhedron_2set_K};
 static PyObject *__pyx_pw_5freud_6kspace_12FTpolyhedron_3set_K(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -18209,7 +18214,7 @@ static PyObject *__pyx_pf_5freud_6kspace_12FTpolyhedron_2set_K(CYTHON_UNUSED PyO
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_12FTpolyhedron_5set_rq(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_12FTpolyhedron_4set_rq[] = "Set :math:`r`, :math:`q` values.\n\n        Args:\n            r (float): :math:`r`.\n            q (float): :math:`q`.\n        ";
+static char __pyx_doc_5freud_6kspace_12FTpolyhedron_4set_rq[] = "FTpolyhedron.set_rq(self, r, q)\nSet :math:`r`, :math:`q` values.\n\n        Args:\n            r (float): :math:`r`.\n            q (float): :math:`q`.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_12FTpolyhedron_5set_rq = {"set_rq", (PyCFunction)__pyx_pw_5freud_6kspace_12FTpolyhedron_5set_rq, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_12FTpolyhedron_4set_rq};
 static PyObject *__pyx_pw_5freud_6kspace_12FTpolyhedron_5set_rq(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -18458,7 +18463,7 @@ static PyObject *__pyx_pf_5freud_6kspace_12FTpolyhedron_4set_rq(CYTHON_UNUSED Py
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_12FTpolyhedron_7set_density(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_12FTpolyhedron_6set_density[] = "Set density.\n\n        Args:\n            density (:class:`numpy.complex64`): Density.\n        ";
+static char __pyx_doc_5freud_6kspace_12FTpolyhedron_6set_density[] = "FTpolyhedron.set_density(self, density)\nSet density.\n\n        Args:\n            density (:class:`numpy.complex64`): Density.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_12FTpolyhedron_7set_density = {"set_density", (PyCFunction)__pyx_pw_5freud_6kspace_12FTpolyhedron_7set_density, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_12FTpolyhedron_6set_density};
 static PyObject *__pyx_pw_5freud_6kspace_12FTpolyhedron_7set_density(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -18689,7 +18694,7 @@ static PyObject *__pyx_pf_5freud_6kspace_12FTpolyhedron_6set_density(CYTHON_UNUS
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_12FTpolyhedron_9set_params(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_12FTpolyhedron_8set_params[] = "Construct list of facet offsets.\n\n        Args:\n            verts ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Vertex coordinates.\n            facets ((:math:`N_{facets}`, 3) :class:`numpy.ndarray`):\n                Facet vertex indices.\n            norms ((:math:`N_{facets}`, 3) :class:`numpy.ndarray`):\n                Facet normals.\n            d ((:math:`N_{facets}-1`) :class:`numpy.ndarray`):\n                Facet distances.\n            area ((:math:`N_{facets}-1`) :class:`numpy.ndarray`):\n                Facet areas.\n            volume (float):\n                Polyhedron volume.\n        ";
+static char __pyx_doc_5freud_6kspace_12FTpolyhedron_8set_params[] = "FTpolyhedron.set_params(self, verts, facets, norms, d, areas, volume)\nConstruct list of facet offsets.\n\n        Args:\n            verts ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Vertex coordinates.\n            facets ((:math:`N_{facets}`, 3) :class:`numpy.ndarray`):\n                Facet vertex indices.\n            norms ((:math:`N_{facets}`, 3) :class:`numpy.ndarray`):\n                Facet normals.\n            d ((:math:`N_{facets}-1`) :class:`numpy.ndarray`):\n                Facet distances.\n            area ((:math:`N_{facets}-1`) :class:`numpy.ndarray`):\n                Facet areas.\n            volume (float):\n                Polyhedron volume.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_12FTpolyhedron_9set_params = {"set_params", (PyCFunction)__pyx_pw_5freud_6kspace_12FTpolyhedron_9set_params, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_12FTpolyhedron_8set_params};
 static PyObject *__pyx_pw_5freud_6kspace_12FTpolyhedron_9set_params(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -19224,7 +19229,7 @@ static PyObject *__pyx_pf_5freud_6kspace_12FTpolyhedron_8set_params(CYTHON_UNUSE
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_12FTpolyhedron_11set_radius(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_12FTpolyhedron_10set_radius[] = "Set radius of in-sphere.\n\n        Args:\n            radius (float):\n                Radius of inscribed sphere without scale applied.\n        ";
+static char __pyx_doc_5freud_6kspace_12FTpolyhedron_10set_radius[] = "FTpolyhedron.set_radius(self, radius)\nSet radius of in-sphere.\n\n        Args:\n            radius (float):\n                Radius of inscribed sphere without scale applied.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_12FTpolyhedron_11set_radius = {"set_radius", (PyCFunction)__pyx_pw_5freud_6kspace_12FTpolyhedron_11set_radius, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_12FTpolyhedron_10set_radius};
 static PyObject *__pyx_pw_5freud_6kspace_12FTpolyhedron_11set_radius(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -19399,7 +19404,7 @@ static PyObject *__pyx_pf_5freud_6kspace_12FTpolyhedron_10set_radius(CYTHON_UNUS
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_12FTpolyhedron_13get_radius(PyObject *__pyx_self, PyObject *__pyx_v_self); /*proto*/
-static char __pyx_doc_5freud_6kspace_12FTpolyhedron_12get_radius[] = "Get radius parameter.\n\n        If appropriate, return value should be scaled by\n        :code:`get_parambyname('scale')` for interpretation.\n\n        Returns:\n            float: Unscaled radius.\n        ";
+static char __pyx_doc_5freud_6kspace_12FTpolyhedron_12get_radius[] = "FTpolyhedron.get_radius(self)\nGet radius parameter.\n\n        If appropriate, return value should be scaled by\n        :code:`get_parambyname('scale')` for interpretation.\n\n        Returns:\n            float: Unscaled radius.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_12FTpolyhedron_13get_radius = {"get_radius", (PyCFunction)__pyx_pw_5freud_6kspace_12FTpolyhedron_13get_radius, METH_O, __pyx_doc_5freud_6kspace_12FTpolyhedron_12get_radius};
 static PyObject *__pyx_pw_5freud_6kspace_12FTpolyhedron_13get_radius(PyObject *__pyx_self, PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
@@ -19498,7 +19503,7 @@ static PyObject *__pyx_pf_5freud_6kspace_12FTpolyhedron_12get_radius(CYTHON_UNUS
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_12FTpolyhedron_15compute(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_12FTpolyhedron_14compute[] = "Compute FT.\n\n        Calculate :math:`S = \\sum_{\\alpha} e^{-i \\mathbf{K} \\cdot\n        \\mathbf{r}_{\\alpha}}`.\n        ";
+static char __pyx_doc_5freud_6kspace_12FTpolyhedron_14compute[] = "FTpolyhedron.compute(self, *args, **kwargs)\nCompute FT.\n\n        Calculate :math:`S = \\sum_{\\alpha} e^{-i \\mathbf{K} \\cdot\n        \\mathbf{r}_{\\alpha}}`.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_12FTpolyhedron_15compute = {"compute", (PyCFunction)__pyx_pw_5freud_6kspace_12FTpolyhedron_15compute, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_12FTpolyhedron_14compute};
 static PyObject *__pyx_pw_5freud_6kspace_12FTpolyhedron_15compute(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -19693,7 +19698,8 @@ static PyObject *__pyx_pf_5freud_6kspace_12FTpolyhedron_14compute(CYTHON_UNUSED 
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_18FTconvexPolyhedron_1__init__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyMethodDef __pyx_mdef_5freud_6kspace_18FTconvexPolyhedron_1__init__ = {"__init__", (PyCFunction)__pyx_pw_5freud_6kspace_18FTconvexPolyhedron_1__init__, METH_VARARGS|METH_KEYWORDS, 0};
+static char __pyx_doc_5freud_6kspace_18FTconvexPolyhedron___init__[] = "FTconvexPolyhedron.__init__(self, hull, *args, **kwargs)";
+static PyMethodDef __pyx_mdef_5freud_6kspace_18FTconvexPolyhedron_1__init__ = {"__init__", (PyCFunction)__pyx_pw_5freud_6kspace_18FTconvexPolyhedron_1__init__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_18FTconvexPolyhedron___init__};
 static PyObject *__pyx_pw_5freud_6kspace_18FTconvexPolyhedron_1__init__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
   PyObject *__pyx_v_hull = 0;
@@ -20341,7 +20347,7 @@ static PyObject *__pyx_pf_5freud_6kspace_18FTconvexPolyhedron___init__(CYTHON_UN
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_18FTconvexPolyhedron_3set_radius(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_18FTconvexPolyhedron_2set_radius[] = "Set radius of in-sphere.\n\n        Args:\n            radius (float):\n                Radius of inscribed sphere without scale applied.\n        ";
+static char __pyx_doc_5freud_6kspace_18FTconvexPolyhedron_2set_radius[] = "FTconvexPolyhedron.set_radius(self, radius)\nSet radius of in-sphere.\n\n        Args:\n            radius (float):\n                Radius of inscribed sphere without scale applied.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_18FTconvexPolyhedron_3set_radius = {"set_radius", (PyCFunction)__pyx_pw_5freud_6kspace_18FTconvexPolyhedron_3set_radius, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_18FTconvexPolyhedron_2set_radius};
 static PyObject *__pyx_pw_5freud_6kspace_18FTconvexPolyhedron_3set_radius(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -20516,7 +20522,7 @@ static PyObject *__pyx_pf_5freud_6kspace_18FTconvexPolyhedron_2set_radius(CYTHON
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_18FTconvexPolyhedron_5get_radius(PyObject *__pyx_self, PyObject *__pyx_v_self); /*proto*/
-static char __pyx_doc_5freud_6kspace_18FTconvexPolyhedron_4get_radius[] = "Get radius parameter.\n\n        If appropriate, return value should be scaled by\n        get_parambyname('scale') for interpretation.\n\n        Returns:\n            float: Unscaled radius.\n        ";
+static char __pyx_doc_5freud_6kspace_18FTconvexPolyhedron_4get_radius[] = "FTconvexPolyhedron.get_radius(self)\nGet radius parameter.\n\n        If appropriate, return value should be scaled by\n        get_parambyname('scale') for interpretation.\n\n        Returns:\n            float: Unscaled radius.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_18FTconvexPolyhedron_5get_radius = {"get_radius", (PyCFunction)__pyx_pw_5freud_6kspace_18FTconvexPolyhedron_5get_radius, METH_O, __pyx_doc_5freud_6kspace_18FTconvexPolyhedron_4get_radius};
 static PyObject *__pyx_pw_5freud_6kspace_18FTconvexPolyhedron_5get_radius(PyObject *__pyx_self, PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
@@ -20615,7 +20621,7 @@ static PyObject *__pyx_pf_5freud_6kspace_18FTconvexPolyhedron_4get_radius(CYTHON
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_18FTconvexPolyhedron_7compute_py(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_18FTconvexPolyhedron_6compute_py[] = "Compute FT.\n\n        Calculate :math:`P = F * S`:\n\n        * :math:`S = \\sum_{\\alpha} e^{-i \\mathbf{K} \\cdot           \\mathbf{r}_{\\alpha}}`.\n        * F is the analytical form factor for a polyhedron,\n          computed with :py:meth:`~.FTconvexPolyhedron.Spoly3D()`.\n        ";
+static char __pyx_doc_5freud_6kspace_18FTconvexPolyhedron_6compute_py[] = "FTconvexPolyhedron.compute_py(self, *args, **kwargs)\nCompute FT.\n\n        Calculate :math:`P = F * S`:\n\n        * :math:`S = \\sum_{\\alpha} e^{-i \\mathbf{K} \\cdot           \\mathbf{r}_{\\alpha}}`.\n        * F is the analytical form factor for a polyhedron,\n          computed with :py:meth:`~.FTconvexPolyhedron.Spoly3D()`.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_18FTconvexPolyhedron_7compute_py = {"compute_py", (PyCFunction)__pyx_pw_5freud_6kspace_18FTconvexPolyhedron_7compute_py, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_18FTconvexPolyhedron_6compute_py};
 static PyObject *__pyx_pw_5freud_6kspace_18FTconvexPolyhedron_7compute_py(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -21353,7 +21359,7 @@ static PyObject *__pyx_pf_5freud_6kspace_18FTconvexPolyhedron_6compute_py(CYTHON
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_18FTconvexPolyhedron_9Spoly2D(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_18FTconvexPolyhedron_8Spoly2D[] = "Calculate Fourier transform of polygon.\n\n        Args:\n            i (float):\n                Face index into self.hull simplex list.\n            k (:class:`numpy.ndarray`):\n                Angular wave vector at which to calculate\n                :math:`S\\left(i\\right)`.\n        ";
+static char __pyx_doc_5freud_6kspace_18FTconvexPolyhedron_8Spoly2D[] = "FTconvexPolyhedron.Spoly2D(self, i, k)\nCalculate Fourier transform of polygon.\n\n        Args:\n            i (float):\n                Face index into self.hull simplex list.\n            k (:class:`numpy.ndarray`):\n                Angular wave vector at which to calculate\n                :math:`S\\left(i\\right)`.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_18FTconvexPolyhedron_9Spoly2D = {"Spoly2D", (PyCFunction)__pyx_pw_5freud_6kspace_18FTconvexPolyhedron_9Spoly2D, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_18FTconvexPolyhedron_8Spoly2D};
 static PyObject *__pyx_pw_5freud_6kspace_18FTconvexPolyhedron_9Spoly2D(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -22422,7 +22428,7 @@ static PyObject *__pyx_pf_5freud_6kspace_18FTconvexPolyhedron_8Spoly2D(CYTHON_UN
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_18FTconvexPolyhedron_11Spoly3D(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_18FTconvexPolyhedron_10Spoly3D[] = "Calculate Fourier transform of polyhedron.\n\n        Args:\n            k (int):\n                Angular wave vector at which to calculate\n                :math:`S\\left(i\\right)`.\n        ";
+static char __pyx_doc_5freud_6kspace_18FTconvexPolyhedron_10Spoly3D[] = "FTconvexPolyhedron.Spoly3D(self, k)\nCalculate Fourier transform of polyhedron.\n\n        Args:\n            k (int):\n                Angular wave vector at which to calculate\n                :math:`S\\left(i\\right)`.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_18FTconvexPolyhedron_11Spoly3D = {"Spoly3D", (PyCFunction)__pyx_pw_5freud_6kspace_18FTconvexPolyhedron_11Spoly3D, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_18FTconvexPolyhedron_10Spoly3D};
 static PyObject *__pyx_pw_5freud_6kspace_18FTconvexPolyhedron_11Spoly3D(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -23104,7 +23110,7 @@ static PyObject *__pyx_pf_5freud_6kspace_18FTconvexPolyhedron_10Spoly3D(CYTHON_U
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_3rotate(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_2rotate[] = "Axis-angle rotation.\n\n    Args:\n        v (:class:`numpy.ndarray`): Vector to rotate.\n        u (:class:`numpy.ndarray`): Rotation axis.\n        theta (float): Rotation angle.\n    ";
+static char __pyx_doc_5freud_6kspace_2rotate[] = "rotate(v, u, theta)\nAxis-angle rotation.\n\n    Args:\n        v (:class:`numpy.ndarray`): Vector to rotate.\n        u (:class:`numpy.ndarray`): Rotation axis.\n        theta (float): Rotation angle.\n    ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_3rotate = {"rotate", (PyCFunction)__pyx_pw_5freud_6kspace_3rotate, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_2rotate};
 static PyObject *__pyx_pw_5freud_6kspace_3rotate(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_v = 0;
@@ -23978,7 +23984,7 @@ static PyObject *__pyx_pf_5freud_6kspace_2rotate(CYTHON_UNUSED PyObject *__pyx_s
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_5quatrot(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_4quatrot[] = "Apply a rotation quaternion.\n\n    Args:\n        b (:class:`numpy.ndarray`): Vector to be rotated.\n        a (:class:`numpy.ndarray`): Rotation quaternion.\n    ";
+static char __pyx_doc_5freud_6kspace_4quatrot[] = "quatrot(a, b)\nApply a rotation quaternion.\n\n    Args:\n        b (:class:`numpy.ndarray`): Vector to be rotated.\n        a (:class:`numpy.ndarray`): Rotation quaternion.\n    ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_5quatrot = {"quatrot", (PyCFunction)__pyx_pw_5freud_6kspace_5quatrot, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_4quatrot};
 static PyObject *__pyx_pw_5freud_6kspace_5quatrot(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_a = 0;
@@ -24336,7 +24342,7 @@ static PyObject *__pyx_pf_5freud_6kspace_4quatrot(CYTHON_UNUSED PyObject *__pyx_
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_10Constraint_1__init__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_10Constraint___init__[] = "Constructor.\n\n        R (float): Required parameter describes the circumsphere of influence\n            of the constraint for quick tests.\n        ";
+static char __pyx_doc_5freud_6kspace_10Constraint___init__[] = "Constraint.__init__(self, R, *args, **kwargs)\nConstructor.\n\n        R (float): Required parameter describes the circumsphere of influence\n            of the constraint for quick tests.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_10Constraint_1__init__ = {"__init__", (PyCFunction)__pyx_pw_5freud_6kspace_10Constraint_1__init__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_10Constraint___init__};
 static PyObject *__pyx_pw_5freud_6kspace_10Constraint_1__init__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -24461,7 +24467,7 @@ static PyObject *__pyx_pf_5freud_6kspace_10Constraint___init__(CYTHON_UNUSED PyO
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_10Constraint_3satisfies(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_10Constraint_2satisfies[] = "Constraint test.\n\n        Args:\n            v ((3) :class:`numpy.ndarray`): Vector to test against constraint.\n        ";
+static char __pyx_doc_5freud_6kspace_10Constraint_2satisfies[] = "Constraint.satisfies(self, v)\nConstraint test.\n\n        Args:\n            v ((3) :class:`numpy.ndarray`): Vector to test against constraint.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_10Constraint_3satisfies = {"satisfies", (PyCFunction)__pyx_pw_5freud_6kspace_10Constraint_3satisfies, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_10Constraint_2satisfies};
 static PyObject *__pyx_pw_5freud_6kspace_10Constraint_3satisfies(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   CYTHON_UNUSED PyObject *__pyx_v_self = 0;
@@ -24564,7 +24570,7 @@ static PyObject *__pyx_pf_5freud_6kspace_10Constraint_2satisfies(CYTHON_UNUSED P
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_20AlignedBoxConstraint_1__init__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_20AlignedBoxConstraint___init__[] = "Constructor.\n\n        Args:\n            R (float): Required parameter describes the circumsphere of\n                influence of the constraint for quick tests.\n        ";
+static char __pyx_doc_5freud_6kspace_20AlignedBoxConstraint___init__[] = "AlignedBoxConstraint.__init__(self, R, *args, **kwargs)\nConstructor.\n\n        Args:\n            R (float): Required parameter describes the circumsphere of\n                influence of the constraint for quick tests.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_20AlignedBoxConstraint_1__init__ = {"__init__", (PyCFunction)__pyx_pw_5freud_6kspace_20AlignedBoxConstraint_1__init__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_20AlignedBoxConstraint___init__};
 static PyObject *__pyx_pw_5freud_6kspace_20AlignedBoxConstraint_1__init__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -24790,7 +24796,7 @@ static PyObject *__pyx_pf_5freud_6kspace_20AlignedBoxConstraint___init__(CYTHON_
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_20AlignedBoxConstraint_3satisfies(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_20AlignedBoxConstraint_2satisfies[] = "Constraint test.\n\n        Args:\n            v ((3) :class:`numpy.ndarray`): Vector to test against constraint.\n        ";
+static char __pyx_doc_5freud_6kspace_20AlignedBoxConstraint_2satisfies[] = "AlignedBoxConstraint.satisfies(self, v)\nConstraint test.\n\n        Args:\n            v ((3) :class:`numpy.ndarray`): Vector to test against constraint.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_20AlignedBoxConstraint_3satisfies = {"satisfies", (PyCFunction)__pyx_pw_5freud_6kspace_20AlignedBoxConstraint_3satisfies, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_20AlignedBoxConstraint_2satisfies};
 static PyObject *__pyx_pw_5freud_6kspace_20AlignedBoxConstraint_3satisfies(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -25132,7 +25138,7 @@ static PyObject *__pyx_pf_5freud_6kspace_20AlignedBoxConstraint_2satisfies(CYTHO
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_7constrainedLatticePoints(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_6constrainedLatticePoints[] = "Generate a list of points satisfying a constraint.\n\n    Args:\n        v1 (:class:`numpy.ndarray`): Lattice vector 1 along which to test.\n        v2 (:class:`numpy.ndarray`): Lattice vector 2 along which to test.\n        v3 (:class:`numpy.ndarray`): Lattice vector 3 along which to test.\n        constraint (:py:class:`Constraint`): Constraint object to test lattice\n            points against.\n    ";
+static char __pyx_doc_5freud_6kspace_6constrainedLatticePoints[] = "constrainedLatticePoints(v1, v2, v3, constraint)\nGenerate a list of points satisfying a constraint.\n\n    Args:\n        v1 (:class:`numpy.ndarray`): Lattice vector 1 along which to test.\n        v2 (:class:`numpy.ndarray`): Lattice vector 2 along which to test.\n        v3 (:class:`numpy.ndarray`): Lattice vector 3 along which to test.\n        constraint (:py:class:`Constraint`): Constraint object to test lattice\n            points against.\n    ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_7constrainedLatticePoints = {"constrainedLatticePoints", (PyCFunction)__pyx_pw_5freud_6kspace_7constrainedLatticePoints, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_6constrainedLatticePoints};
 static PyObject *__pyx_pw_5freud_6kspace_7constrainedLatticePoints(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_v1 = 0;
@@ -26155,7 +26161,7 @@ static PyObject *__pyx_pf_5freud_6kspace_6constrainedLatticePoints(CYTHON_UNUSED
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_9reciprocalLattice3D(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_8reciprocalLattice3D[] = "Calculate reciprocal lattice vectors.\n\n    3D reciprocal lattice vectors with magnitude equal to angular wave number.\n\n    Args:\n        a1 (:class:`numpy.ndarray`): Real space lattice vector 1.\n        a2 (:class:`numpy.ndarray`): Real space lattice vector 2.\n        a3 (:class:`numpy.ndarray`): real space lattice vector 3.\n\n    Returns:\n        list: Reciprocal space vectors.\n\n    .. note::\n        For unit test, :code:`dot(g[i], a[j]) = 2 * pi * diracDelta(i, j)`:\n            list of reciprocal lattice vectors\n    ";
+static char __pyx_doc_5freud_6kspace_8reciprocalLattice3D[] = "reciprocalLattice3D(a1, a2, a3)\nCalculate reciprocal lattice vectors.\n\n    3D reciprocal lattice vectors with magnitude equal to angular wave number.\n\n    Args:\n        a1 (:class:`numpy.ndarray`): Real space lattice vector 1.\n        a2 (:class:`numpy.ndarray`): Real space lattice vector 2.\n        a3 (:class:`numpy.ndarray`): real space lattice vector 3.\n\n    Returns:\n        list: Reciprocal space vectors.\n\n    .. note::\n        For unit test, :code:`dot(g[i], a[j]) = 2 * pi * diracDelta(i, j)`:\n            list of reciprocal lattice vectors\n    ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_9reciprocalLattice3D = {"reciprocalLattice3D", (PyCFunction)__pyx_pw_5freud_6kspace_9reciprocalLattice3D, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_8reciprocalLattice3D};
 static PyObject *__pyx_pw_5freud_6kspace_9reciprocalLattice3D(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_a1 = 0;
@@ -26891,7 +26897,8 @@ static PyObject *__pyx_pf_5freud_6kspace_8reciprocalLattice3D(CYTHON_UNUSED PyOb
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_9DeltaSpot_1__init__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyMethodDef __pyx_mdef_5freud_6kspace_9DeltaSpot_1__init__ = {"__init__", (PyCFunction)__pyx_pw_5freud_6kspace_9DeltaSpot_1__init__, METH_VARARGS|METH_KEYWORDS, 0};
+static char __pyx_doc_5freud_6kspace_9DeltaSpot___init__[] = "DeltaSpot.__init__(self, shape, extent, *args, **kwargs)";
+static PyMethodDef __pyx_mdef_5freud_6kspace_9DeltaSpot_1__init__ = {"__init__", (PyCFunction)__pyx_pw_5freud_6kspace_9DeltaSpot_1__init__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_9DeltaSpot___init__};
 static PyObject *__pyx_pw_5freud_6kspace_9DeltaSpot_1__init__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
   PyObject *__pyx_v_shape = 0;
@@ -27229,7 +27236,7 @@ static PyObject *__pyx_pf_5freud_6kspace_9DeltaSpot___init__(CYTHON_UNUSED PyObj
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_9DeltaSpot_3set_xy(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_9DeltaSpot_2set_xy[] = "Set :math:`x`, :math:`y` values of spot center.\n\n        Args:\n            x (float):\n                x value of spot center.\n            y (float):\n                y value of spot center.\n        ";
+static char __pyx_doc_5freud_6kspace_9DeltaSpot_2set_xy[] = "DeltaSpot.set_xy(self, x, y)\nSet :math:`x`, :math:`y` values of spot center.\n\n        Args:\n            x (float):\n                x value of spot center.\n            y (float):\n                y value of spot center.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_9DeltaSpot_3set_xy = {"set_xy", (PyCFunction)__pyx_pw_5freud_6kspace_9DeltaSpot_3set_xy, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_9DeltaSpot_2set_xy};
 static PyObject *__pyx_pw_5freud_6kspace_9DeltaSpot_3set_xy(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -27638,7 +27645,7 @@ static PyObject *__pyx_pf_5freud_6kspace_9DeltaSpot_2set_xy(CYTHON_UNUSED PyObje
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_9DeltaSpot_5get_gridPoints(PyObject *__pyx_self, PyObject *__pyx_v_self); /*proto*/
-static char __pyx_doc_5freud_6kspace_9DeltaSpot_4get_gridPoints[] = "Get indices of sub-grid.\n\n        Based on the type of spot and its center, return the grid mask of\n        points containing the spot.\n        ";
+static char __pyx_doc_5freud_6kspace_9DeltaSpot_4get_gridPoints[] = "DeltaSpot.get_gridPoints(self)\nGet indices of sub-grid.\n\n        Based on the type of spot and its center, return the grid mask of\n        points containing the spot.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_9DeltaSpot_5get_gridPoints = {"get_gridPoints", (PyCFunction)__pyx_pw_5freud_6kspace_9DeltaSpot_5get_gridPoints, METH_O, __pyx_doc_5freud_6kspace_9DeltaSpot_4get_gridPoints};
 static PyObject *__pyx_pw_5freud_6kspace_9DeltaSpot_5get_gridPoints(PyObject *__pyx_self, PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
@@ -27700,7 +27707,7 @@ static PyObject *__pyx_pf_5freud_6kspace_9DeltaSpot_4get_gridPoints(CYTHON_UNUSE
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_9DeltaSpot_7makeSpot(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_9DeltaSpot_6makeSpot[] = "Generate intensity value(s) at sub-grid points.\n\n        Args:\n            cval (:class:`numpy.complex64`):\n                Complex valued amplitude used to generate spot intensity.\n        ";
+static char __pyx_doc_5freud_6kspace_9DeltaSpot_6makeSpot[] = "DeltaSpot.makeSpot(self, cval)\nGenerate intensity value(s) at sub-grid points.\n\n        Args:\n            cval (:class:`numpy.complex64`):\n                Complex valued amplitude used to generate spot intensity.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_9DeltaSpot_7makeSpot = {"makeSpot", (PyCFunction)__pyx_pw_5freud_6kspace_9DeltaSpot_7makeSpot, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_9DeltaSpot_6makeSpot};
 static PyObject *__pyx_pw_5freud_6kspace_9DeltaSpot_7makeSpot(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   CYTHON_UNUSED PyObject *__pyx_v_self = 0;
@@ -27868,7 +27875,7 @@ static PyObject *__pyx_pf_5freud_6kspace_9DeltaSpot_6makeSpot(CYTHON_UNUSED PyOb
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_12GaussianSpot_1__init__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_12GaussianSpot___init__[] = "Constructor.\n\n        ";
+static char __pyx_doc_5freud_6kspace_12GaussianSpot___init__[] = "GaussianSpot.__init__(self, shape, extent, *args, **kwargs)\nConstructor.\n\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_12GaussianSpot_1__init__ = {"__init__", (PyCFunction)__pyx_pw_5freud_6kspace_12GaussianSpot_1__init__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_12GaussianSpot___init__};
 static PyObject *__pyx_pw_5freud_6kspace_12GaussianSpot_1__init__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -28195,7 +28202,7 @@ static PyObject *__pyx_pf_5freud_6kspace_12GaussianSpot___init__(CYTHON_UNUSED P
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_12GaussianSpot_3set_xy(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_12GaussianSpot_2set_xy[] = "Set :math:`x`, :math:`y` values of spot center.\n\n        Args:\n            x (float):\n                x value of spot center.\n            y (float):\n                y value of spot center.\n        ";
+static char __pyx_doc_5freud_6kspace_12GaussianSpot_2set_xy[] = "GaussianSpot.set_xy(self, x, y)\nSet :math:`x`, :math:`y` values of spot center.\n\n        Args:\n            x (float):\n                x value of spot center.\n            y (float):\n                y value of spot center.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_12GaussianSpot_3set_xy = {"set_xy", (PyCFunction)__pyx_pw_5freud_6kspace_12GaussianSpot_3set_xy, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_12GaussianSpot_2set_xy};
 static PyObject *__pyx_pw_5freud_6kspace_12GaussianSpot_3set_xy(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -29166,7 +29173,7 @@ static PyObject *__pyx_pf_5freud_6kspace_12GaussianSpot_2set_xy(CYTHON_UNUSED Py
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_12GaussianSpot_5makeSpot(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_12GaussianSpot_4makeSpot[] = "Generate intensity value(s) at sub-grid points.\n\n        Args:\n            cval (:class:`numpy.complex64`):\n                Complex valued amplitude used to generate spot intensity.\n        ";
+static char __pyx_doc_5freud_6kspace_12GaussianSpot_4makeSpot[] = "GaussianSpot.makeSpot(self, cval)\nGenerate intensity value(s) at sub-grid points.\n\n        Args:\n            cval (:class:`numpy.complex64`):\n                Complex valued amplitude used to generate spot intensity.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_12GaussianSpot_5makeSpot = {"makeSpot", (PyCFunction)__pyx_pw_5freud_6kspace_12GaussianSpot_5makeSpot, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_12GaussianSpot_4makeSpot};
 static PyObject *__pyx_pw_5freud_6kspace_12GaussianSpot_5makeSpot(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -29470,7 +29477,7 @@ static PyObject *__pyx_pf_5freud_6kspace_12GaussianSpot_4makeSpot(CYTHON_UNUSED 
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_6kspace_12GaussianSpot_7set_sigma(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_6kspace_12GaussianSpot_6set_sigma[] = "Define Gaussian.\n\n        Args:\n            sigma (float): Width of the Gaussian spot.\n        ";
+static char __pyx_doc_5freud_6kspace_12GaussianSpot_6set_sigma[] = "GaussianSpot.set_sigma(self, sigma)\nDefine Gaussian.\n\n        Args:\n            sigma (float): Width of the Gaussian spot.\n        ";
 static PyMethodDef __pyx_mdef_5freud_6kspace_12GaussianSpot_7set_sigma = {"set_sigma", (PyCFunction)__pyx_pw_5freud_6kspace_12GaussianSpot_7set_sigma, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_6kspace_12GaussianSpot_6set_sigma};
 static PyObject *__pyx_pw_5freud_6kspace_12GaussianSpot_7set_sigma(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -31958,7 +31965,7 @@ if (!__Pyx_RefNanny) {
  *     """Computes an n-dimensional meshgrid.
  * 
  */
-  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_5freud_6kspace_1meshgrid2, NULL, __pyx_n_s_freud_kspace); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 19, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_6kspace_1meshgrid2, 0, __pyx_n_s_meshgrid2, NULL, __pyx_n_s_freud_kspace, __pyx_d, ((PyObject *)__pyx_codeobj__49)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 19, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_meshgrid2, __pyx_t_2) < 0) __PYX_ERR(0, 19, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -33016,7 +33023,7 @@ if (!__Pyx_RefNanny) {
  *     """Axis-angle rotation.
  * 
  */
-  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_5freud_6kspace_3rotate, NULL, __pyx_n_s_freud_kspace); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1165, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_6kspace_3rotate, 0, __pyx_n_s_rotate, NULL, __pyx_n_s_freud_kspace, __pyx_d, ((PyObject *)__pyx_codeobj__186)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1165, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_rotate, __pyx_t_2) < 0) __PYX_ERR(0, 1165, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -33028,7 +33035,7 @@ if (!__Pyx_RefNanny) {
  *     """Apply a rotation quaternion.
  * 
  */
-  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_5freud_6kspace_5quatrot, NULL, __pyx_n_s_freud_kspace); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1194, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_6kspace_5quatrot, 0, __pyx_n_s_quatrot, NULL, __pyx_n_s_freud_kspace, __pyx_d, ((PyObject *)__pyx_codeobj__188)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1194, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_quatrot, __pyx_t_2) < 0) __PYX_ERR(0, 1194, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -33145,7 +33152,7 @@ if (!__Pyx_RefNanny) {
  *     """Generate a list of points satisfying a constraint.
  * 
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_5freud_6kspace_7constrainedLatticePoints, NULL, __pyx_n_s_freud_kspace); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1270, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_6kspace_7constrainedLatticePoints, 0, __pyx_n_s_constrainedLatticePoints, NULL, __pyx_n_s_freud_kspace, __pyx_d, ((PyObject *)__pyx_codeobj__198)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1270, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_constrainedLatticePoints, __pyx_t_1) < 0) __PYX_ERR(0, 1270, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -33157,7 +33164,7 @@ if (!__Pyx_RefNanny) {
  *     """Calculate reciprocal lattice vectors.
  * 
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_5freud_6kspace_9reciprocalLattice3D, NULL, __pyx_n_s_freud_kspace); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1320, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_6kspace_9reciprocalLattice3D, 0, __pyx_n_s_reciprocalLattice3D, NULL, __pyx_n_s_freud_kspace, __pyx_d, ((PyObject *)__pyx_codeobj__200)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1320, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_reciprocalLattice3D, __pyx_t_1) < 0) __PYX_ERR(0, 1320, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;

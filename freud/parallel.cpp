@@ -37,12 +37,12 @@
         "name": "freud.parallel",
         "sources": [
             "freud/parallel.pyx",
-            "cpp/parallel/tbb_config.cc",
-            "cpp/locality/NeighborList.cc",
             "cpp/box/box.cc",
+            "cpp/parallel/tbb_config.cc",
             "cpp/locality/NearestNeighbors.cc",
-            "cpp/locality/LinkCell.cc",
-            "cpp/util/HOOMDMatrix.cc"
+            "cpp/util/HOOMDMatrix.cc",
+            "cpp/locality/NeighborList.cc",
+            "cpp/locality/LinkCell.cc"
         ]
     },
     "module_name": "freud.parallel"
@@ -968,13 +968,6 @@ static CYTHON_INLINE PyObject* __Pyx_PyObject_CallOneArg(PyObject *func, PyObjec
 /* Import.proto */
 static PyObject *__Pyx_Import(PyObject *name, PyObject *from_list, int level);
 
-/* PyObjectCallNoArg.proto */
-#if CYTHON_COMPILING_IN_CPYTHON
-static CYTHON_INLINE PyObject* __Pyx_PyObject_CallNoArg(PyObject *func);
-#else
-#define __Pyx_PyObject_CallNoArg(func) __Pyx_PyObject_Call(func, __pyx_empty_tuple, NULL)
-#endif
-
 /* FetchCommonType.proto */
 static PyTypeObject* __Pyx_FetchCommonType(PyTypeObject* type);
 
@@ -1030,6 +1023,13 @@ static CYTHON_INLINE void __Pyx_CyFunction_SetDefaultsKwDict(PyObject *m,
 static CYTHON_INLINE void __Pyx_CyFunction_SetAnnotationsDict(PyObject *m,
                                                               PyObject *dict);
 static int __pyx_CyFunction_init(void);
+
+/* PyObjectCallNoArg.proto */
+#if CYTHON_COMPILING_IN_CPYTHON
+static CYTHON_INLINE PyObject* __Pyx_PyObject_CallNoArg(PyObject *func);
+#else
+#define __Pyx_PyObject_CallNoArg(func) __Pyx_PyObject_Call(func, __pyx_empty_tuple, NULL)
+#endif
 
 /* SetNameInClass.proto */
 #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030500A1
@@ -1231,13 +1231,14 @@ static PyObject *__pyx_int_1;
 static PyObject *__pyx_tuple_;
 static PyObject *__pyx_tuple__3;
 static PyObject *__pyx_tuple__4;
-static PyObject *__pyx_tuple__6;
+static PyObject *__pyx_tuple__5;
 static PyObject *__pyx_tuple__7;
-static PyObject *__pyx_tuple__9;
+static PyObject *__pyx_tuple__8;
+static PyObject *__pyx_tuple__10;
 static PyObject *__pyx_codeobj__2;
-static PyObject *__pyx_codeobj__5;
-static PyObject *__pyx_codeobj__8;
-static PyObject *__pyx_codeobj__10;
+static PyObject *__pyx_codeobj__6;
+static PyObject *__pyx_codeobj__9;
+static PyObject *__pyx_codeobj__11;
 /* Late includes */
 
 /* "freud/parallel.pyx":25
@@ -1250,7 +1251,7 @@ static PyObject *__pyx_codeobj__10;
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_8parallel_1setNumThreads(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_8parallel_setNumThreads[] = "Set the number of threads for parallel computation.\n\n    .. moduleauthor:: Joshua Anderson <joaander@umich.edu>\n\n    Args:\n        nthreads(int, optional):\n            Number of threads to use. If None (default), use all threads\n            available.\n    ";
+static char __pyx_doc_5freud_8parallel_setNumThreads[] = "setNumThreads(nthreads=None)\nSet the number of threads for parallel computation.\n\n    .. moduleauthor:: Joshua Anderson <joaander@umich.edu>\n\n    Args:\n        nthreads(int, optional):\n            Number of threads to use. If None (default), use all threads\n            available.\n    ";
 static PyMethodDef __pyx_mdef_5freud_8parallel_1setNumThreads = {"setNumThreads", (PyCFunction)__pyx_pw_5freud_8parallel_1setNumThreads, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_8parallel_setNumThreads};
 static PyObject *__pyx_pw_5freud_8parallel_1setNumThreads(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_nthreads = 0;
@@ -1260,7 +1261,7 @@ static PyObject *__pyx_pw_5freud_8parallel_1setNumThreads(PyObject *__pyx_self, 
   {
     static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_nthreads,0};
     PyObject* values[1] = {0};
-    values[0] = ((PyObject *)Py_None);
+    values[0] = ((PyObject *)((PyObject *)Py_None));
     if (unlikely(__pyx_kwds)) {
       Py_ssize_t kw_args;
       const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
@@ -1421,7 +1422,8 @@ static PyObject *__pyx_pf_5freud_8parallel_setNumThreads(CYTHON_UNUSED PyObject 
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_8parallel_10NumThreads_1__init__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyMethodDef __pyx_mdef_5freud_8parallel_10NumThreads_1__init__ = {"__init__", (PyCFunction)__pyx_pw_5freud_8parallel_10NumThreads_1__init__, METH_VARARGS|METH_KEYWORDS, 0};
+static char __pyx_doc_5freud_8parallel_10NumThreads___init__[] = "NumThreads.__init__(self, N=None)";
+static PyMethodDef __pyx_mdef_5freud_8parallel_10NumThreads_1__init__ = {"__init__", (PyCFunction)__pyx_pw_5freud_8parallel_10NumThreads_1__init__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_8parallel_10NumThreads___init__};
 static PyObject *__pyx_pw_5freud_8parallel_10NumThreads_1__init__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
   PyObject *__pyx_v_N = 0;
@@ -1543,7 +1545,8 @@ static PyObject *__pyx_pf_5freud_8parallel_10NumThreads___init__(CYTHON_UNUSED P
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_8parallel_10NumThreads_3__enter__(PyObject *__pyx_self, PyObject *__pyx_v_self); /*proto*/
-static PyMethodDef __pyx_mdef_5freud_8parallel_10NumThreads_3__enter__ = {"__enter__", (PyCFunction)__pyx_pw_5freud_8parallel_10NumThreads_3__enter__, METH_O, 0};
+static char __pyx_doc_5freud_8parallel_10NumThreads_2__enter__[] = "NumThreads.__enter__(self)";
+static PyMethodDef __pyx_mdef_5freud_8parallel_10NumThreads_3__enter__ = {"__enter__", (PyCFunction)__pyx_pw_5freud_8parallel_10NumThreads_3__enter__, METH_O, __pyx_doc_5freud_8parallel_10NumThreads_2__enter__};
 static PyObject *__pyx_pw_5freud_8parallel_10NumThreads_3__enter__(PyObject *__pyx_self, PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -1658,7 +1661,8 @@ static PyObject *__pyx_pf_5freud_8parallel_10NumThreads_2__enter__(CYTHON_UNUSED
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_8parallel_10NumThreads_5__exit__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyMethodDef __pyx_mdef_5freud_8parallel_10NumThreads_5__exit__ = {"__exit__", (PyCFunction)__pyx_pw_5freud_8parallel_10NumThreads_5__exit__, METH_VARARGS|METH_KEYWORDS, 0};
+static char __pyx_doc_5freud_8parallel_10NumThreads_4__exit__[] = "NumThreads.__exit__(self, *args)";
+static PyMethodDef __pyx_mdef_5freud_8parallel_10NumThreads_5__exit__ = {"__exit__", (PyCFunction)__pyx_pw_5freud_8parallel_10NumThreads_5__exit__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_8parallel_10NumThreads_4__exit__};
 static PyObject *__pyx_pw_5freud_8parallel_10NumThreads_5__exit__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
   CYTHON_UNUSED PyObject *__pyx_v_args = 0;
@@ -1903,6 +1907,9 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple_);
   __Pyx_GIVEREF(__pyx_tuple_);
   __pyx_codeobj__2 = (PyObject*)__Pyx_PyCode_New(1, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple_, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_parallel_pyx, __pyx_n_s_setNumThreads, 25, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__2)) __PYX_ERR(0, 25, __pyx_L1_error)
+  __pyx_tuple__3 = PyTuple_Pack(1, ((PyObject *)Py_None)); if (unlikely(!__pyx_tuple__3)) __PYX_ERR(0, 25, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__3);
+  __Pyx_GIVEREF(__pyx_tuple__3);
 
   /* "freud/parallel.pyx":46
  * if (re.match("flux.", platform.node()) is not None) or (
@@ -1911,9 +1918,9 @@ static int __Pyx_InitCachedConstants(void) {
  * 
  * 
  */
-  __pyx_tuple__3 = PyTuple_Pack(1, __pyx_int_1); if (unlikely(!__pyx_tuple__3)) __PYX_ERR(0, 46, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__3);
-  __Pyx_GIVEREF(__pyx_tuple__3);
+  __pyx_tuple__4 = PyTuple_Pack(1, __pyx_int_1); if (unlikely(!__pyx_tuple__4)) __PYX_ERR(0, 46, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__4);
+  __Pyx_GIVEREF(__pyx_tuple__4);
 
   /* "freud/parallel.pyx":59
  *     """
@@ -1922,13 +1929,13 @@ static int __Pyx_InitCachedConstants(void) {
  *         self.restore_N = _numThreads
  *         self.N = N
  */
-  __pyx_tuple__4 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_N); if (unlikely(!__pyx_tuple__4)) __PYX_ERR(0, 59, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__4);
-  __Pyx_GIVEREF(__pyx_tuple__4);
-  __pyx_codeobj__5 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__4, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_parallel_pyx, __pyx_n_s_init, 59, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__5)) __PYX_ERR(0, 59, __pyx_L1_error)
-  __pyx_tuple__6 = PyTuple_Pack(1, ((PyObject *)Py_None)); if (unlikely(!__pyx_tuple__6)) __PYX_ERR(0, 59, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__6);
-  __Pyx_GIVEREF(__pyx_tuple__6);
+  __pyx_tuple__5 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_N); if (unlikely(!__pyx_tuple__5)) __PYX_ERR(0, 59, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__5);
+  __Pyx_GIVEREF(__pyx_tuple__5);
+  __pyx_codeobj__6 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__5, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_parallel_pyx, __pyx_n_s_init, 59, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__6)) __PYX_ERR(0, 59, __pyx_L1_error)
+  __pyx_tuple__7 = PyTuple_Pack(1, ((PyObject *)Py_None)); if (unlikely(!__pyx_tuple__7)) __PYX_ERR(0, 59, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__7);
+  __Pyx_GIVEREF(__pyx_tuple__7);
 
   /* "freud/parallel.pyx":63
  *         self.N = N
@@ -1937,10 +1944,10 @@ static int __Pyx_InitCachedConstants(void) {
  *         setNumThreads(self.N)
  * 
  */
-  __pyx_tuple__7 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__7)) __PYX_ERR(0, 63, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__7);
-  __Pyx_GIVEREF(__pyx_tuple__7);
-  __pyx_codeobj__8 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__7, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_parallel_pyx, __pyx_n_s_enter, 63, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__8)) __PYX_ERR(0, 63, __pyx_L1_error)
+  __pyx_tuple__8 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__8)) __PYX_ERR(0, 63, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__8);
+  __Pyx_GIVEREF(__pyx_tuple__8);
+  __pyx_codeobj__9 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__8, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_parallel_pyx, __pyx_n_s_enter, 63, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__9)) __PYX_ERR(0, 63, __pyx_L1_error)
 
   /* "freud/parallel.pyx":66
  *         setNumThreads(self.N)
@@ -1948,10 +1955,10 @@ static int __Pyx_InitCachedConstants(void) {
  *     def __exit__(self, *args):             # <<<<<<<<<<<<<<
  *         setNumThreads(self.restore_N)
  */
-  __pyx_tuple__9 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_args); if (unlikely(!__pyx_tuple__9)) __PYX_ERR(0, 66, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__9);
-  __Pyx_GIVEREF(__pyx_tuple__9);
-  __pyx_codeobj__10 = (PyObject*)__Pyx_PyCode_New(1, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS|CO_VARARGS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__9, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_parallel_pyx, __pyx_n_s_exit, 66, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__10)) __PYX_ERR(0, 66, __pyx_L1_error)
+  __pyx_tuple__10 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_args); if (unlikely(!__pyx_tuple__10)) __PYX_ERR(0, 66, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__10);
+  __Pyx_GIVEREF(__pyx_tuple__10);
+  __pyx_codeobj__11 = (PyObject*)__Pyx_PyCode_New(1, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS|CO_VARARGS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__10, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_parallel_pyx, __pyx_n_s_exit, 66, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__11)) __PYX_ERR(0, 66, __pyx_L1_error)
   __Pyx_RefNannyFinishContext();
   return 0;
   __pyx_L1_error:;
@@ -2250,8 +2257,9 @@ if (!__Pyx_RefNanny) {
  *     """Set the number of threads for parallel computation.
  * 
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_5freud_8parallel_1setNumThreads, NULL, __pyx_n_s_freud_parallel); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 25, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_8parallel_1setNumThreads, 0, __pyx_n_s_setNumThreads, NULL, __pyx_n_s_freud_parallel, __pyx_d, ((PyObject *)__pyx_codeobj__2)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 25, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
+  __Pyx_CyFunction_SetDefaultsTuple(__pyx_t_1, __pyx_tuple__3);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_setNumThreads, __pyx_t_1) < 0) __PYX_ERR(0, 25, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
@@ -2352,7 +2360,7 @@ if (!__Pyx_RefNanny) {
  */
     __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_setNumThreads); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 46, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_tuple__3, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 46, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_tuple__4, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 46, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -2383,9 +2391,9 @@ if (!__Pyx_RefNanny) {
  *         self.restore_N = _numThreads
  *         self.N = N
  */
-  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_8parallel_10NumThreads_1__init__, 0, __pyx_n_s_NumThreads___init, NULL, __pyx_n_s_freud_parallel, __pyx_d, ((PyObject *)__pyx_codeobj__5)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 59, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_8parallel_10NumThreads_1__init__, 0, __pyx_n_s_NumThreads___init, NULL, __pyx_n_s_freud_parallel, __pyx_d, ((PyObject *)__pyx_codeobj__6)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 59, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_CyFunction_SetDefaultsTuple(__pyx_t_1, __pyx_tuple__6);
+  __Pyx_CyFunction_SetDefaultsTuple(__pyx_t_1, __pyx_tuple__7);
   if (__Pyx_SetNameInClass(__pyx_t_3, __pyx_n_s_init, __pyx_t_1) < 0) __PYX_ERR(0, 59, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
@@ -2396,7 +2404,7 @@ if (!__Pyx_RefNanny) {
  *         setNumThreads(self.N)
  * 
  */
-  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_8parallel_10NumThreads_3__enter__, 0, __pyx_n_s_NumThreads___enter, NULL, __pyx_n_s_freud_parallel, __pyx_d, ((PyObject *)__pyx_codeobj__8)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 63, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_8parallel_10NumThreads_3__enter__, 0, __pyx_n_s_NumThreads___enter, NULL, __pyx_n_s_freud_parallel, __pyx_d, ((PyObject *)__pyx_codeobj__9)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 63, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   if (__Pyx_SetNameInClass(__pyx_t_3, __pyx_n_s_enter, __pyx_t_1) < 0) __PYX_ERR(0, 63, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -2407,7 +2415,7 @@ if (!__Pyx_RefNanny) {
  *     def __exit__(self, *args):             # <<<<<<<<<<<<<<
  *         setNumThreads(self.restore_N)
  */
-  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_8parallel_10NumThreads_5__exit__, 0, __pyx_n_s_NumThreads___exit, NULL, __pyx_n_s_freud_parallel, __pyx_d, ((PyObject *)__pyx_codeobj__10)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 66, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_8parallel_10NumThreads_5__exit__, 0, __pyx_n_s_NumThreads___exit, NULL, __pyx_n_s_freud_parallel, __pyx_d, ((PyObject *)__pyx_codeobj__11)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 66, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   if (__Pyx_SetNameInClass(__pyx_t_3, __pyx_n_s_exit, __pyx_t_1) < 0) __PYX_ERR(0, 66, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -2978,29 +2986,8 @@ bad:
     return module;
 }
 
-/* PyObjectCallNoArg */
-    #if CYTHON_COMPILING_IN_CPYTHON
-static CYTHON_INLINE PyObject* __Pyx_PyObject_CallNoArg(PyObject *func) {
-#if CYTHON_FAST_PYCALL
-    if (PyFunction_Check(func)) {
-        return __Pyx_PyFunction_FastCall(func, NULL, 0);
-    }
-#endif
-#ifdef __Pyx_CyFunction_USED
-    if (likely(PyCFunction_Check(func) || __Pyx_TypeCheck(func, __pyx_CyFunctionType))) {
-#else
-    if (likely(PyCFunction_Check(func))) {
-#endif
-        if (likely(PyCFunction_GET_FLAGS(func) & METH_NOARGS)) {
-            return __Pyx_PyObject_CallMethO(func, NULL);
-        }
-    }
-    return __Pyx_PyObject_Call(func, __pyx_empty_tuple, NULL);
-}
-#endif
-
 /* FetchCommonType */
-      static PyTypeObject* __Pyx_FetchCommonType(PyTypeObject* type) {
+    static PyTypeObject* __Pyx_FetchCommonType(PyTypeObject* type) {
     PyObject* fake_module;
     PyTypeObject* cached_type = NULL;
     fake_module = PyImport_AddModule((char*) "_cython_" CYTHON_ABI);
@@ -3039,7 +3026,7 @@ bad:
 }
 
 /* CythonFunction */
-      #include <structmember.h>
+    #include <structmember.h>
 static PyObject *
 __Pyx_CyFunction_get_doc(__pyx_CyFunctionObject *op, CYTHON_UNUSED void *closure)
 {
@@ -3631,6 +3618,27 @@ static CYTHON_INLINE void __Pyx_CyFunction_SetAnnotationsDict(PyObject *func, Py
     m->func_annotations = dict;
     Py_INCREF(dict);
 }
+
+/* PyObjectCallNoArg */
+        #if CYTHON_COMPILING_IN_CPYTHON
+static CYTHON_INLINE PyObject* __Pyx_PyObject_CallNoArg(PyObject *func) {
+#if CYTHON_FAST_PYCALL
+    if (PyFunction_Check(func)) {
+        return __Pyx_PyFunction_FastCall(func, NULL, 0);
+    }
+#endif
+#ifdef __Pyx_CyFunction_USED
+    if (likely(PyCFunction_Check(func) || __Pyx_TypeCheck(func, __pyx_CyFunctionType))) {
+#else
+    if (likely(PyCFunction_Check(func))) {
+#endif
+        if (likely(PyCFunction_GET_FLAGS(func) & METH_NOARGS)) {
+            return __Pyx_PyObject_CallMethO(func, NULL);
+        }
+    }
+    return __Pyx_PyObject_Call(func, __pyx_empty_tuple, NULL);
+}
+#endif
 
 /* CalculateMetaclass */
           static PyObject *__Pyx_CalculateMetaclass(PyTypeObject *metaclass, PyObject *bases) {
