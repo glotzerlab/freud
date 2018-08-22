@@ -14,6 +14,8 @@ import numpy as np
 from collections import namedtuple
 import freud.common
 
+import logging
+
 from freud.util._VectorMath cimport vec3
 from libcpp.string cimport string
 from libc.string cimport memcpy
@@ -25,6 +27,8 @@ cimport numpy as np
 # numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults
 np.import_array()
+
+logger = logging.getLogger(__name__)
 
 cdef class Box:
     """The freud Box class for simulation boxes.
@@ -134,7 +138,8 @@ cdef class Box:
             L = (L, L, L)
 
         if len(L) != 3:
-            raise TypeError('Could not setL({})'.format(L))
+            raise ValueError('setL must be called with a scalar or a list of '
+                             'length 3.')
 
         if self.is2D() and L[2] != 0:
             warnings.warn(
@@ -608,7 +613,7 @@ cdef class Box:
                 if dimensions is None:
                     dimensions = box.get('dimensions', None)
                 else:
-                    if dimensions != getattr(box, 'dimensions', dimensions):
+                    if dimensions != box.get('dimensions', dimensions):
                         raise ValueError(
                             "The provided dimensions argument conflicts with "
                             "the dimensions attribute of the provided box "
@@ -624,7 +629,8 @@ cdef class Box:
                 Lz = box[2] if len(box) > 2 else 0
                 xy, xz, yz = box[3:6] if len(box) >= 6 else (0, 0, 0)
         except:  # noqa
-            print('Supplied box cannot be converted to type freud.box.Box')
+            logger.debug('Supplied box cannot be converted to type '
+                         'freud.box.Box')
             raise
 
         # Infer dimensions if not provided.

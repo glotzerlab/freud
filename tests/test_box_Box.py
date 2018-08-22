@@ -23,6 +23,11 @@ class TestBox(unittest.TestCase):
         with self.assertRaises(ValueError):
             box = bx.Box(1, 2, is2D=False)
 
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            box = bx.Box(1, 2, 3, is2D=True)
+            self.assertTrue(len(w) == 1)
+
         box = bx.Box(1, 2)
         self.assertTrue(box.dimensions == 2)
 
@@ -58,9 +63,19 @@ class TestBox(unittest.TestCase):
         npt.assert_almost_equal(box.L, [7, 8, 9], decimal=2,
                                 err_msg="SetLFail")
 
+        box.setL(10)
+        npt.assert_almost_equal(box.L, [10, 10, 10], decimal=2,
+                                err_msg="SetLFail")
+
         box.setL([1, 2, 3])
         npt.assert_almost_equal(box.L, [1, 2, 3], decimal=2,
                                 err_msg="SetLFail")
+
+        with self.assertRaises(ValueError):
+            box.setL([1, 2, 3, 4])
+
+        with self.assertRaises(ValueError):
+            box.setL([1, 2])
 
     def test_get_tilt_factor(self):
         box = bx.Box(2, 2, 2, 1, 2, 3)
@@ -99,6 +114,9 @@ class TestBox(unittest.TestCase):
         npt.assert_almost_equal(box.wrap(testpoints)[0], -2, decimal=2,
                                 err_msg="WrapFail")
 
+        with self.assertRaises(ValueError):
+            box.wrap([1, 2])
+
     def test_wrap_multiple_particles(self):
         box = bx.Box(2, 2, 2, 1, 0, 0)
 
@@ -124,6 +142,11 @@ class TestBox(unittest.TestCase):
     def test_unwrap(self):
         box = bx.Box(2, 2, 2, 1, 0, 0)
 
+        testpoints = [0, -1, -1]
+        imgs = [1, 0, 0]
+        npt.assert_almost_equal(box.unwrap(testpoints, imgs), [2, -1, -1],
+                                decimal=2, err_msg="WrapFail")
+
         testpoints = [[0, -1, -1], [0, 0.5, 0]]
         imgs = [[1, 0, 0], [1, 1, 0]]
         npt.assert_almost_equal(box.unwrap(testpoints, imgs)[0, 0], 2,
@@ -133,6 +156,12 @@ class TestBox(unittest.TestCase):
         imgs = np.array(imgs)
         npt.assert_almost_equal(box.unwrap(testpoints, imgs)[0, 0], 2,
                                 decimal=2, err_msg="WrapFail")
+
+        with self.assertRaises(ValueError):
+            box.unwrap(testpoints, imgs[..., np.newaxis])
+
+        with self.assertRaises(ValueError):
+            box.unwrap(testpoints[:, :2], imgs)
 
     def test_images(self):
         box = bx.Box(2, 2, 2, 0, 0, 0)
@@ -160,11 +189,43 @@ class TestBox(unittest.TestCase):
         for i in range(10):
             npt.assert_array_equal(box.getImage(dims*i), [i, i, i])
 
+    def test_vectors(self):
+        """Test getting lattice vectors"""
+        b_list = [1, 2, 3, 0.1, 0.2, 0.3]
+        Lx, Ly, Lz, xy, xz, yz = b_list
+        box = bx.Box.from_box(b_list)
+        self.assertEqual(
+            box.getLatticeVector(0),
+            [Lx, 0, 0]
+        )
+        npt.assert_array_almost_equal(
+            box.getLatticeVector(1),
+            [xy*Ly, Ly, 0]
+        )
+        npt.assert_array_almost_equal(
+            box.getLatticeVector(2),
+            [xz*Lz, yz*Lz, Lz]
+        )
+
     def test_periodic(self):
         box = bx.Box(1, 2, 3, 0, 0, 0)
-        assert box.periodic == [True, True, True]
-        box.periodic = [False, False, False]
-        assert box.periodic == [False, False, False]
+        false = [False, False, False]
+        true = [True, True, True]
+        self.assertEqual(box.periodic, true)
+        self.assertEqual(box.getPeriodic(), true)
+        self.assertTrue(box.getPeriodicX())
+        self.assertTrue(box.getPeriodicY())
+        self.assertTrue(box.getPeriodicZ())
+
+        box.periodic = false
+        self.assertEqual(box.periodic, false)
+        self.assertEqual(box.getPeriodic(), false)
+        self.assertFalse(box.getPeriodicX())
+        self.assertFalse(box.getPeriodicY())
+        self.assertFalse(box.getPeriodicZ())
+
+        box.setPeriodic(*true)
+        self.assertEqual(box.periodic, true)
 
     def test_equal(self):
         box = bx.Box(2, 2, 2, 1, 0.5, 0.1)
@@ -200,16 +261,34 @@ class TestBox(unittest.TestCase):
         box3 = bx.Box.from_box(box_dict)
         self.assertEqual(box, box3)
 
+        with self.assertRaises(ValueError):
+            box_dict['dimensions'] = 3
+            bx.Box.from_box(box_dict, 2)
+
         BoxTuple = namedtuple('BoxTuple',
-                              ['Lx', 'Ly', 'Lz', 'xy', 'xz', 'yz'])
-        box3 = bx.Box.from_box(BoxTuple(2, 2, 2, 1, 0.5, 0.1))
+                              ['Lx', 'Ly', 'Lz', 'xy', 'xz', 'yz',
+                               'dimensions'])
+        box3 = bx.Box.from_box(BoxTuple(2, 2, 2, 1, 0.5, 0.1, 3))
         self.assertEqual(box, box3)
+
+        with self.assertRaises(ValueError):
+            bx.Box.from_box(BoxTuple(2, 2, 2, 1, 0.5, 0.1, 2), 3)
 
         box4 = bx.Box.from_box([2, 2, 2, 1, 0.5, 0.1])
         self.assertEqual(box, box4)
 
+        with self.assertRaises(ValueError):
+            bx.Box.from_box([2, 2, 2, 1, 0.5])
+
+        box2 = bx.Box.from_matrix(box.to_matrix())
+        self.assertTrue(np.isclose(box.to_matrix(), box2.to_matrix()).all())
+
     def test_matrix(self):
         box = bx.Box(2, 2, 2, 1, 0.5, 0.1)
+        box2 = bx.Box.from_matrix(box.to_matrix())
+        self.assertTrue(np.isclose(box.to_matrix(), box2.to_matrix()).all())
+
+        box = bx.Box(2, 2, 0, 0.5, 0, 0)
         box2 = bx.Box.from_matrix(box.to_matrix())
         self.assertTrue(np.isclose(box.to_matrix(), box2.to_matrix()).all())
 
