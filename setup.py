@@ -285,16 +285,24 @@ try:
               python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*',
               ext_modules=extensions)
 except SystemExit:
-    # For now, the only error we're explicitly checking for is whether or not
-    # TBB is missing
-    err_str = "'tbb/tbb.h' file not found"
+    # The errors we're explicitly checking for are whether or not
+    # TBB is missing, and whether a parallel compile resulted in a
+    # distutils-caused race condition.
+    parallel_err = "file not recognized: file truncated"
+    tbb_err = "'tbb/tbb.h' file not found"
+
     err_out = tfile.read().decode()
     sys.stderr.write(err_out)
-    if err_str in err_out:
-        sys.stderr.write("\n\033[1m Unable to find tbb. If you have TBB on "
+    if tbb_err in err_out:
+        sys.stderr.write("\n\033[1mUnable to find tbb. If you have TBB on "
                          "your system, try specifying the location using the "
                          "--TBB-ROOT or the --TBB-INCLUDE/--TBB-LINK "
                          "arguments to setup.py.\033[0m\n")
+    elif parallel_err in err_out and nthreads > 1:
+        sys.stderr.write("\n\033[1mYou attempted parallel compilation on a "
+                         "Python version where this leads to a race "
+                         "in distutils. Please recompile without the -j "
+                         "option and try again.\033[0m\n")
     else:
         raise
 except: # noqa
