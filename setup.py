@@ -148,10 +148,10 @@ else:
 
 if coverage_str in sys.argv:
     sys.argv.remove(coverage_str)
-    directives = {'linetrace': True}
+    directives = {'embedsignature': True, 'binding': True, 'linetrace': True}
     macros = [('CYTHON_TRACE', '1'), ('CYTHON_TRACE_NOGIL', '1')]
 else:
-    directives = {}
+    directives = {'embedsignature': True, 'binding': True}
     macros = []
 
 if cython_str in sys.argv:
