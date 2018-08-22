@@ -34,6 +34,7 @@ references:
       name: Build
       command: |
         echo "PYVER=${PYVER}"
+        rm freud/*.cpp
         python${PYVER} setup.py build_ext --inplace --COVERAGE --ENABLE-CYTHON
 
   test: &test
