@@ -388,6 +388,8 @@ cdef class Box:
             :class:`numpy.ndarray`:
                 Vectors unwrapped by the image indices provided.
         """
+        vecs = np.asarray(vecs)
+        imgs = np.asarray(imgs)
         if vecs.shape != imgs.shape:
             raise ValueError("imgs dimensions do not match vecs dimensions.")
 
