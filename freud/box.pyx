@@ -111,7 +111,7 @@ cdef class Box:
                     "has no effect!")
         else:
             if not (Lx and Ly and Lz):
-                raise ValueError("3D boxes must have nonzero lengths.")
+                raise ValueError("Lx, Ly and Lz must be nonzero for 2D boxes.")
         self.thisptr = new freud._box.Box(Lx, Ly, Lz, xy, xz, yz, is2D)
 
     def __dealloc__(self):

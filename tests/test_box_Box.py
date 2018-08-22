@@ -15,17 +15,17 @@ class TestBox(unittest.TestCase):
     def test_construct(self):
         """Test correct behavior for various constructor signatures"""
         with self.assertRaises(ValueError):
-            box = bx.Box()
+            bx.Box()
 
         with self.assertRaises(ValueError):
-            box = bx.Box(0, 0)
+            bx.Box(0, 0)
 
         with self.assertRaises(ValueError):
-            box = bx.Box(1, 2, is2D=False)
+            bx.Box(1, 2, is2D=False)
 
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
-            box = bx.Box(1, 2, 3, is2D=True)
+            bx.Box(1, 2, 3, is2D=True)
             self.assertTrue(len(w) == 1)
 
         box = bx.Box(1, 2)
@@ -268,29 +268,29 @@ class TestBox(unittest.TestCase):
         BoxTuple = namedtuple('BoxTuple',
                               ['Lx', 'Ly', 'Lz', 'xy', 'xz', 'yz',
                                'dimensions'])
-        box3 = bx.Box.from_box(BoxTuple(2, 2, 2, 1, 0.5, 0.1, 3))
-        self.assertEqual(box, box3)
+        box4 = bx.Box.from_box(BoxTuple(2, 2, 2, 1, 0.5, 0.1, 3))
+        self.assertEqual(box, box4)
 
         with self.assertRaises(ValueError):
             bx.Box.from_box(BoxTuple(2, 2, 2, 1, 0.5, 0.1, 2), 3)
 
-        box4 = bx.Box.from_box([2, 2, 2, 1, 0.5, 0.1])
-        self.assertEqual(box, box4)
+        box5 = bx.Box.from_box([2, 2, 2, 1, 0.5, 0.1])
+        self.assertEqual(box, box5)
 
         with self.assertRaises(ValueError):
             bx.Box.from_box([2, 2, 2, 1, 0.5])
 
-        box2 = bx.Box.from_matrix(box.to_matrix())
-        self.assertTrue(np.isclose(box.to_matrix(), box2.to_matrix()).all())
+        box6 = bx.Box.from_matrix(box.to_matrix())
+        self.assertTrue(np.isclose(box.to_matrix(), box6.to_matrix()).all())
 
     def test_matrix(self):
         box = bx.Box(2, 2, 2, 1, 0.5, 0.1)
         box2 = bx.Box.from_matrix(box.to_matrix())
         self.assertTrue(np.isclose(box.to_matrix(), box2.to_matrix()).all())
 
-        box = bx.Box(2, 2, 0, 0.5, 0, 0)
-        box2 = bx.Box.from_matrix(box.to_matrix())
-        self.assertTrue(np.isclose(box.to_matrix(), box2.to_matrix()).all())
+        box3 = bx.Box(2, 2, 0, 0.5, 0, 0)
+        box4 = bx.Box.from_matrix(box3.to_matrix())
+        self.assertTrue(np.isclose(box3.to_matrix(), box4.to_matrix()).all())
 
     def test_2_dimensional(self):
         box = bx.Box.square(L=1)
