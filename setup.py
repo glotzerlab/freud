@@ -139,6 +139,7 @@ def stderr_manager(f):
 warnings_str = "--PRINT-WARNINGS"
 coverage_str = "--COVERAGE"
 cython_str = "--ENABLE-CYTHON"
+parallel_str = "-j"
 
 if warnings_str in sys.argv:
     sys.argv.remove(warnings_str)
@@ -161,6 +162,13 @@ if cython_str in sys.argv:
 else:
     use_cython = False
     ext = '.cpp'
+
+if parallel_str in sys.argv:
+    # Delete both the option and the associated value from argv
+    i = sys.argv.index(parallel_str)
+    nthreads = int(sys.argv[i+1])
+else:
+    nthreads = 1
 
 
 #########################
@@ -236,7 +244,9 @@ for f, m in zip(files, modules):
 
 if use_cython:
     from Cython.Build import cythonize
-    extensions = cythonize(extensions, compiler_directives=directives)
+    extensions = cythonize(extensions,
+                           compiler_directives=directives,
+                           nthreads=nthreads)
 
 
 ####################################
