@@ -32,6 +32,8 @@ coordinate system used to represent the system.
 import numpy as np
 import freud.common
 import freud.locality
+import warnings
+from freud.errors import FreudDeprecationWarning
 
 from freud.util._VectorMath cimport vec3, quat
 from libc.string cimport memcpy
@@ -81,15 +83,20 @@ cdef class _PMFT:
         """
         return freud.box.BoxFromCPP(self.pmftptr.getBox())
 
-    def resetPCF(self):
+    def reset(self):
         """Resets the values of the PCF histograms in memory."""
         self.pmftptr.reset()
 
+    def resetPCF(self):
+        warnings.warn("Use .reset() instead of this method. "
+                      "This method will be removed in the future.",
+                      FreudDeprecationWarning)
+        self.reset()
+
     def reducePCF(self):
-        """Reduces the histogram in the values over N processors to a single
-        histogram. This is called automatically by
-        :py:meth:`freud.pmft.PMFT.PCF`.
-        """
+        warnings.warn("This method is automatically called internally. It "
+                      "will be removed in the future.",
+                      FreudDeprecationWarning)
         self.pmftptr.reducePCF()
 
     @property
@@ -131,7 +138,7 @@ cdef class PMFTR12(_PMFT):
     system described by :math:`r`, :math:`\\theta_1`, :math:`\\theta_2`.
 
     .. note::
-        2D: :py:class:`freud.pmft.PMFTR12` is only defined for 2D systems.
+        **2D:** :py:class:`freud.pmft.PMFTR12` is only defined for 2D systems.
         The points must be passed in as :code:`[x, y, 0]`.
         Failing to set z=0 will lead to undefined behavior.
 
@@ -187,27 +194,37 @@ cdef class PMFTR12(_PMFT):
         if type(self) is PMFTR12:
             del self.pmftr12ptr
 
-    def accumulate(self, box, ref_points, ref_orientations, points,
-                   orientations, nlist=None):
-        """Calculates the positional correlation function and adds to the current
-        histogram.
+    def accumulate(self, box, ref_points, ref_orientations, points=None,
+                   orientations=None, nlist=None):
+        """Calculates the positional correlation function and adds to the
+        current histogram.
 
         Args:
             box (:class:`freud.box.Box`):
                 Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Reference points to calculate the local density.
+                Reference points used in computation.
             ref_orientations ((:math:`N_{particles}`, 4) \
             :class:`numpy.ndarray`):
-                Angles of reference points to use in the calculation.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Points to calculate the local density.
-            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
-                Angles of particles to use in the calculation.
+                Reference orientations as angles used in computation.
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,
+            optional):
+                Points used in computation. Uses :code:`ref_points` if not
+                provided or :code:`None`.
+            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`,
+            optional):
+                Orientations as angles used in computation. Uses
+                :code:`ref_orientations` if not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find bonds (Default value = None).
+                NeighborList used to find bonds (Default value =
+                :code:`None`).
         """
         cdef freud.box.Box b = freud.common.convert_box(box)
+        if points is None:
+            points = ref_points
+        if orientations is None:
+            orientations = ref_orientations
+
         ref_points = freud.common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")
@@ -248,8 +265,8 @@ cdef class PMFTR12(_PMFT):
                                        nP)
         return self
 
-    def compute(self, box, ref_points, ref_orientations, points, orientations,
-                nlist=None):
+    def compute(self, box, ref_points, ref_orientations, points=None,
+                orientations=None, nlist=None):
         """Calculates the positional correlation function for the given points.
         Will overwrite the current histogram.
 
@@ -257,18 +274,23 @@ cdef class PMFTR12(_PMFT):
             box (:class:`freud.box.Box`):
                 Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Reference points to calculate the local density.
+                Reference points used in computation.
             ref_orientations ((:math:`N_{particles}`, 4) \
             :class:`numpy.ndarray`):
-                Reference orientations as angles to use in computation.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Points to calculate the local density.
-            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
-                Orientations as angles to use in computation.
+                Reference orientations as angles used in computation.
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,
+            optional):
+                Points used in computation. Uses :code:`ref_points` if not
+                provided or :code:`None`.
+            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`,
+            optional):
+                Orientations as angles used in computation. Uses
+                :code:`ref_orientations` if not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find bonds (Default value = None).
+                NeighborList used to find bonds (Default value =
+                :code:`None`).
         """
-        self.pmftr12ptr.reset()
+        self.reset()
         self.accumulate(box, ref_points, ref_orientations,
                         points, orientations, nlist)
         return self
@@ -436,7 +458,7 @@ cdef class PMFTXYT(_PMFT):
     PCF and n_bins_x, n_bins_y, n_bins_t is the number of bins in x, y, t.
 
     .. note::
-        2D: :py:class:`freud.pmft.PMFTXYT` is only defined for 2D systems.
+        **2D:** :py:class:`freud.pmft.PMFTXYT` is only defined for 2D systems.
         The points must be passed in as :code:`[x, y, 0]`.
         Failing to set z=0 will lead to undefined behavior.
 
@@ -496,8 +518,8 @@ cdef class PMFTXYT(_PMFT):
         if type(self) is PMFTXYT:
             del self.pmftxytptr
 
-    def accumulate(self, box, ref_points, ref_orientations, points,
-                   orientations, nlist=None):
+    def accumulate(self, box, ref_points, ref_orientations, points=None,
+                   orientations=None, nlist=None):
         """Calculates the positional correlation function and adds to the
         current histogram.
 
@@ -505,16 +527,21 @@ cdef class PMFTXYT(_PMFT):
             box (:class:`freud.box.Box`):
                 Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Reference points to calculate the local density.
+                Reference points used in computation.
             ref_orientations ((:math:`N_{particles}`, 4) \
             :class:`numpy.ndarray`):
-                Reference orientations as angles to use in computation.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Points to calculate the local density.
-            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
-                orientations as angles to use in computation.
+                Reference orientations as angles used in computation.
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,
+            optional):
+                Points used in computation. Uses :code:`ref_points` if not
+                provided or :code:`None`.
+            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`,
+            optional):
+                Orientations as angles used in computation. Uses
+                :code:`ref_orientations` if not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find bonds (Default value = None).
+                NeighborList used to find bonds (Default value =
+                :code:`None`).
         """
         cdef freud.box.Box b = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
@@ -557,8 +584,8 @@ cdef class PMFTXYT(_PMFT):
                                        nP)
         return self
 
-    def compute(self, box, ref_points, ref_orientations, points, orientations,
-                nlist=None):
+    def compute(self, box, ref_points, ref_orientations, points=None,
+                orientations=None, nlist=None):
         """Calculates the positional correlation function for the given points.
         Will overwrite the current histogram.
 
@@ -566,18 +593,23 @@ cdef class PMFTXYT(_PMFT):
             box (:class:`freud.box.Box`):
                 Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Reference points to calculate the local density.
+                Reference points used in computation.
             ref_orientations ((:math:`N_{particles}`, 4) \
             :class:`numpy.ndarray`):
-                Reference orientations as angles to use in computation.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Points to calculate the local density.
-            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
-                orientations as angles to use in computation.
+                Reference orientations as angles used in computation.
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,
+            optional):
+                Points used in computation. Uses :code:`ref_points` if not
+                provided or :code:`None`.
+            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`,
+            optional):
+                Orientations as angles used in computation. Uses
+                :code:`ref_orientations` if not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find bonds (Default value = None).
+                NeighborList used to find bonds (Default value =
+                :code:`None`).
         """
-        self.pmftxytptr.reset()
+        self.reset()
         self.accumulate(box, ref_points, ref_orientations,
                         points, orientations, nlist)
         return self
@@ -734,7 +766,7 @@ cdef class PMFTXY2D(_PMFT):
     which to compute the PCF and n_x and n_y are the number of bins in x and y.
 
     .. note::
-        2D: :py:class:`freud.pmft.PMFTXY2D` is only defined for 2D systems.
+        **2D:** :py:class:`freud.pmft.PMFTXY2D` is only defined for 2D systems.
         The points must be passed in as :code:`[x, y, 0]`.
         Failing to set z=0 will lead to undefined behavior.
 
@@ -786,24 +818,30 @@ cdef class PMFTXY2D(_PMFT):
         if type(self) is PMFTXY2D:
             del self.pmftxy2dptr
 
-    def accumulate(self, box, ref_points, ref_orientations, points,
-                   orientations, nlist=None):
+    def accumulate(self, box, ref_points, ref_orientations, points=None,
+                   orientations=None, nlist=None):
         """Calculates the positional correlation function and adds to the
         current histogram.
 
         Args:
-            box (:class:`freud.box.Box`): Simulation box.
+            box (:class:`freud.box.Box`):
+                Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Reference points to calculate the local density.
+                Reference points used in computation.
             ref_orientations ((:math:`N_{particles}`, 4) \
             :class:`numpy.ndarray`):
-                Angles of reference points to use in the calculation.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Points to calculate the local density.
-            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
-                Angles of particles to use in the calculation.
+                Reference orientations as angles used in computation.
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,
+            optional):
+                Points used in computation. Uses :code:`ref_points` if not
+                provided or :code:`None`.
+            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`,
+            optional):
+                Orientations as angles used in computation. Uses
+                :code:`ref_orientations` if not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find bonds (Default value = None).
+                NeighborList used to find bonds (Default value =
+                :code:`None`).
         """
         cdef freud.box.Box b = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
@@ -846,8 +884,8 @@ cdef class PMFTXY2D(_PMFT):
                                         n_p)
         return self
 
-    def compute(self, box, ref_points, ref_orientations, points, orientations,
-                nlist=None):
+    def compute(self, box, ref_points, ref_orientations, points=None,
+                orientations=None, nlist=None):
         """Calculates the positional correlation function for the given points.
         Will overwrite the current histogram.
 
@@ -855,18 +893,23 @@ cdef class PMFTXY2D(_PMFT):
             box (:class:`freud.box.Box`):
                 Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Reference points to calculate the local density.
+                Reference points used in computation.
             ref_orientations ((:math:`N_{particles}`, 4) \
             :class:`numpy.ndarray`):
-                Angles of reference points to use in the calculation.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Points to calculate the local density.
-            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
-                Angles of particles to use in the calculation.
+                Reference orientations as angles used in computation.
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,
+            optional):
+                Points used in computation. Uses :code:`ref_points` if not
+                provided or :code:`None`.
+            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`,
+            optional):
+                Orientations as angles used in computation. Uses
+                :code:`ref_orientations` if not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find bonds (Default value = None).
+                NeighborList used to find bonds (Default value =
+                :code:`None`).
         """
-        self.pmftxy2dptr.reset()
+        self.reset()
         self.accumulate(box, ref_points, ref_orientations,
                         points, orientations, nlist)
         return self
@@ -1057,12 +1100,18 @@ cdef class PMFTXYZ(_PMFT):
         if type(self) is PMFTXYZ:
             del self.pmftxyzptr
 
-    def resetPCF(self):
+    def reset(self):
         """Resets the values of the PCF histograms in memory."""
         self.pmftxyzptr.reset()
 
-    def accumulate(self, box, ref_points, ref_orientations, points,
-                   orientations, face_orientations=None, nlist=None):
+    def resetPCF(self):
+        warnings.warn("Use .reset() instead of this method. "
+                      "This method will be removed in the future.",
+                      FreudDeprecationWarning)
+        self.reset()
+
+    def accumulate(self, box, ref_points, ref_orientations, points=None,
+                   orientations=None, face_orientations=None, nlist=None):
         """Calculates the positional correlation function and adds to the
         current histogram.
 
@@ -1070,24 +1119,29 @@ cdef class PMFTXYZ(_PMFT):
             box (:class:`freud.box.Box`):
                 Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Reference points to calculate the local density.
+                Reference points used in computation.
             ref_orientations ((:math:`N_{particles}`, 4) \
             :class:`numpy.ndarray`):
-                Angles of reference points to use in the calculation.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Points to calculate the local density.
-            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
-                Angles of particles to use in the calculation.
+                Reference orientations as angles used in computation.
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,
+            optional):
+                Points used in computation. Uses :code:`ref_points` if not
+                provided or :code:`None`.
+            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`,
+            optional):
+                Orientations as angles used in computation. Uses
+                :code:`ref_orientations` if not provided or :code:`None`.
             face_orientations ((:math:`N_{particles}`, 4) \
             :class:`numpy.ndarray`, optional):
                 Orientations of particle faces to account for particle
                 symmetry. If not supplied by user, unit quaternions will be
-                supplied. If a 2D array of shape (:math:`N_f`, :math:`4`) or a
-                3D array of shape (1, :math:`N_f`, :math:`4`) is supplied, the
+                supplied. If a 2D array of shape (:math:`N_f`, 4) or a
+                3D array of shape (1, :math:`N_f`, 4) is supplied, the
                 supplied quaternions will be broadcast for all particles.
-                (Default value = None).
+                (Default value = :code:`None`).
             nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find bonds (Default value = None).
+                NeighborList used to find bonds (Default value =
+                :code:`None`).
         """
         cdef freud.box.Box b = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
@@ -1187,8 +1241,8 @@ cdef class PMFTXYZ(_PMFT):
                 nFaces)
         return self
 
-    def compute(self, box, ref_points, ref_orientations, points, orientations,
-                face_orientations=None, nlist=None):
+    def compute(self, box, ref_points, ref_orientations, points=None,
+                orientations=None, face_orientations=None, nlist=None):
         """Calculates the positional correlation function for the given points.
         Will overwrite the current histogram.
 
@@ -1196,35 +1250,39 @@ cdef class PMFTXYZ(_PMFT):
             box (:class:`freud.box.Box`):
                 Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Reference points to calculate the local density.
+                Reference points used in computation.
             ref_orientations ((:math:`N_{particles}`, 4) \
             :class:`numpy.ndarray`):
-                Angles of reference points to use in the calculation.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Points to calculate the local density.
-            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
-                Angles of particles to use in the calculation.
+                Reference orientations as angles used in computation.
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,
+            optional):
+                Points used in computation. Uses :code:`ref_points` if not
+                provided or :code:`None`.
+            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`,
+            optional):
+                Orientations as angles used in computation. Uses
+                :code:`ref_orientations` if not provided or :code:`None`.
             face_orientations ((:math:`N_{particles}`, 4) \
             :class:`numpy.ndarray`, optional):
                 Orientations of particle faces to account for particle
                 symmetry. If not supplied by user, unit quaternions will be
-                supplied. If a 2D array of shape (:math:`N_f`, :math:`4`) or a
-                3D array of shape (1, :math:`N_f`, :math:`4`) is supplied, the
+                supplied. If a 2D array of shape (:math:`N_f`, 4) or a
+                3D array of shape (1, :math:`N_f`, 4) is supplied, the
                 supplied quaternions will be broadcast for all particles.
-                (Default value = None).
+                (Default value = :code:`None`).
             nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find bonds (Default value = None).
+                NeighborList used to find bonds (Default value =
+                :code:`None`).
         """
-        self.pmftxyzptr.reset()
+        self.reset()
         self.accumulate(box, ref_points, ref_orientations,
                         points, orientations, face_orientations, nlist)
         return self
 
     def reducePCF(self):
-        """Reduces the histogram in the values over N processors to a single
-        histogram. This is called automatically by
-        :py:meth:`freud.pmft.PMFTXYZ.PCF`.
-        """
+        warnings.warn("This method is automatically called internally. It "
+                      "will be removed in the future.",
+                      FreudDeprecationWarning)
         self.pmftxyzptr.reducePCF()
 
     def getBinCounts(self):

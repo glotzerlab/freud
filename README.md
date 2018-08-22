@@ -142,7 +142,7 @@ open build/latex/freud.pdf
 
 ## Unit Tests
 
-The unit tests for freud use the Python :py:mod:`unittest` framework:
+The unit tests for freud use the Python `unittest` framework:
 
 ```bash
 # Run tests from the tests directory

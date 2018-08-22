@@ -9,6 +9,8 @@ import numpy as np
 import logging
 import copy
 import freud.common
+import warnings
+from freud.errors import FreudDeprecationWarning
 
 from libcpp.vector cimport vector
 from freud.util._VectorMath cimport vec3
@@ -166,6 +168,9 @@ class Voronoi:
         Args:
             box (:class:`freud.box.Box`): Simulation box.
         """
+        warnings.warn("Use the box with .compute() instead of this setter. "
+                      "This setter will be removed in the future.",
+                      FreudDeprecationWarning)
         cdef freud.box.Box b = freud.common.convert_box(box)
         self.box = b
 
@@ -175,6 +180,9 @@ class Voronoi:
         Args:
             buff (float): Buffer width.
         """
+        warnings.warn("Use constructor arguments instead of this setter. "
+                      "This setter will be removed in the future.",
+                      FreudDeprecationWarning)
         self.buff = buff
 
     def _qhull_compute(self, positions, box=None, buff=None):

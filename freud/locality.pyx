@@ -9,6 +9,8 @@ on their proximity to other points.
 import sys
 import numpy as np
 import freud.common
+import warnings
+from freud.errors import FreudDeprecationWarning
 
 from libcpp cimport bool as cbool
 from freud.util._VectorMath cimport vec3
@@ -104,7 +106,7 @@ cdef class NeighborList:
                 target points.
             weights (np.array, optional):
                 Array of per-bond weights (if :code:`None` is given, use a
-                value of 1 for each weight) (Default value = None).
+                value of 1 for each weight) (Default value = :code:`None`).
         """
         index_i = np.asarray(index_i, dtype=np.uint64)
         index_j = np.asarray(index_j, dtype=np.uint64)
@@ -191,7 +193,8 @@ cdef class NeighborList:
 
         Args:
             other (:py:class:`freud.locality.NeighborList`, optional):
-                A Neighborlist to copy into this object (Default value = None).
+                A NeighborList to copy into this object (Default value =
+                :code:`None`).
         """
         if other is not None:
             assert isinstance(other, NeighborList)
@@ -359,13 +362,13 @@ def make_default_nlist(box, ref_points, points, rmax, nlist=None,
         points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
             Points to construct the neighborlist.
         rmax (float):
-            The radius within which to find neighborst.
+            The radius within which to find neighbors.
         nlist (:class:`freud.locality.NeighborList`, optional):
-            NeighborList to use to find bonds (Default value = None).
+            NeighborList to use to find bonds (Default value = :code:`None`).
         exclude_ii (bool, optional):
             True if pairs of points with identical indices should be excluded;
             if None, is set to True if points is None or the same object as
-            ref_points (Default value = None).
+            ref_points (Default value = :code:`None`).
 
     Returns:
         tuple (:class:`freud.locality.NeighborList`, \
@@ -409,11 +412,11 @@ def make_default_nlist_nn(box, ref_points, points, n_neigh, nlist=None,
         n_neigh (int):
             The number of nearest neighbors to consider.
         nlist (:class:`freud.locality.NeighborList`, optional):
-            NeighborList to use to find bonds (Default value = None).
+            NeighborList to use to find bonds (Default value = :code:`None`).
         exclude_ii (bool, optional):
             True if pairs of points with identical indices should be excluded;
             if None, is set to True if points is None or the same object as
-            ref_points (Default value = None).
+            ref_points (Default value = :code:`None`).
         rmax_guess (float):
             Estimate of rmax, speeds up search if chosen properly.
 
@@ -516,7 +519,7 @@ cdef class LinkCell:
             evaluated with.
 
     .. note::
-        2D: :py:class:`freud.locality.LinkCell` properly handles 2D boxes.
+        **2D:** :py:class:`freud.locality.LinkCell` properly handles 2D boxes.
         The points must be passed in as :code:`[x, y, 0]`.
         Failing to set z=0 will lead to undefined behavior.
 
@@ -636,11 +639,11 @@ cdef class LinkCell:
                 Reference point coordinates.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, \
             optional):
-                Point coordinates (Default value = None).
+                Point coordinates (Default value = :code:`None`).
             exclude_ii (bool, optional):
                 True if pairs of points with identical indices should be
                 excluded; if None, is set to True if points is None or the same
-                object as ref_points (Default value = None).
+                object as ref_points (Default value = :code:`None`).
         """
         cdef freud.box.Box b = freud.common.convert_box(box)
         exclude_ii = (
@@ -692,11 +695,11 @@ cdef class LinkCell:
                 Reference point coordinates.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, \
             optional):
-                Point coordinates (Default value = None).
+                Point coordinates (Default value = :code:`None`).
             exclude_ii (bool, optional):
                 True if pairs of points with identical indices should be
                 excluded; if None, is set to True if points is None or the same
-                object as ref_points (Default value = None).
+                object as ref_points (Default value = :code:`None`).
         """
         return self.computeCellList(box, ref_points, points, exclude_ii)
 
@@ -819,11 +822,9 @@ cdef class NearestNeighbors:
         return self.thisptr.getNref()
 
     def setRMax(self, float rmax):
-        """Update the neighbor search distance guess.
-
-        Args:
-            rmax (float): Nearest neighbors search radius.
-        """
+        warnings.warn("Use constructor arguments instead of this setter. "
+                      "This setter will be removed in the future.",
+                      FreudDeprecationWarning)
         self.thisptr.setRMax(rmax)
 
     def setCutMode(self, strict_cut):
@@ -841,6 +842,9 @@ cdef class NearestNeighbors:
             strict_cut (bool): Whether to use a strict :code:`rmax` or allow
                 for automatic expansion.
         """
+        warnings.warn("Use constructor arguments instead of this setter. "
+                      "This setter will be removed in the future.",
+                      FreudDeprecationWarning)
         self.thisptr.setCutMode(strict_cut)
 
     @property
@@ -983,11 +987,12 @@ cdef class NearestNeighbors:
                 Reference point coordinates.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, \
             optional):
-                Point coordinates (Default value = None).
+                Point coordinates. Defaults to :code:`ref_points` if not
+                provided or :code:`None`.
             exclude_ii (bool, optional):
                 True if pairs of points with identical indices should be
                 excluded; if None, is set to True if points is None or the same
-                object as ref_points (Default value = None).
+                object as ref_points (Default value = :code:`None`).
         """
         cdef freud.box.Box b = freud.common.convert_box(box)
         exclude_ii = (
