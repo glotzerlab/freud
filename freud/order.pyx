@@ -73,17 +73,17 @@ cdef class CubaticOrderParameter:
             The quaternion of global orientation.
         particle_order_parameter (:class:`numpy.ndarray`):
              Cubatic order parameter.
-        particle_tensor (:math:`\\left(N_{particles}, 3, 3, 3, 3 \\right)` \
+        particle_tensor (:math:`\\left(N_{particles}, 3, 3, 3, 3 \\right)`\
         :class:`numpy.ndarray`):
             Rank 5 tensor corresponding to each individual particle
             orientation.
-        global_tensor (:math:`\\left(3, 3, 3, 3 \\right)`
+        global_tensor (:math:`\\left(3, 3, 3, 3 \\right)`\
         :class:`numpy.ndarray`):
             Rank 4 tensor corresponding to global orientation.
-        cubatic_tensor (:math:`\\left(3, 3, 3, 3 \\right)`
+        cubatic_tensor (:math:`\\left(3, 3, 3, 3 \\right)`\
         :class:`numpy.ndarray`):
             Rank 4 cubatic tensor.
-        gen_r4_tensor (:math:`\\left(3, 3, 3, 3 \\right)`
+        gen_r4_tensor (:math:`\\left(3, 3, 3, 3 \\right)`\
         :class:`numpy.ndarray`):
             Rank 4 tensor corresponding to each individual particle
             orientation.
@@ -316,7 +316,7 @@ cdef class NematicOrderParameter:
             Nematic order parameter.
         director (:math:`\\left(3 \\right)` :class:`numpy.ndarray`):
             The average nematic director.
-        particle_tensor (:math:`\\left(N_{particles}, 3, 3 \\right)`
+        particle_tensor (:math:`\\left(N_{particles}, 3, 3 \\right)`\
         :class:`numpy.ndarray`):
             One 3x3 matrix per-particle corresponding to each individual
             particle orientation.
