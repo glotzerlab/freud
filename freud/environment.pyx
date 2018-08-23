@@ -611,6 +611,8 @@ cdef class MatchEnv:
             The number of particles.
         num_clusters (unsigned int):
             The number of clusters.
+        clusters (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
+            The per-particle index indicating cluster membership.
     """
     def __cinit__(self, box, rmax, k):
         cdef freud.box.Box b = freud.common.convert_box(box)
@@ -1160,6 +1162,12 @@ cdef class AngularSeparation:
             angles.
         n_global (unsigned int):
             The number of global orientations to check against.
+        neighbor_angles ((:math:`\\left(N_{reference}, N_{neighbors} \\right)` \
+        :class:`numpy.ndarray`):
+            The neighbor angles in radians.
+        global_angles (:math:`\\left(N_{particles}, N_{global} \\right)` \
+            :class:`numpy.ndarray`): The global angles in radians.
+
     """
     def __cinit__(self, rmax, n):
         self.thisptr = new freud._environment.AngularSeparation()

@@ -59,6 +59,32 @@ cdef class CubaticOrderParameter:
             Number of replicate simulated annealing runs.
         seed (unsigned int):
             Random seed to use in calculations. If None, system time is used.
+
+    Attributes:
+        t_initial (float):
+            The value of the initial temperature.
+        t_final (float):
+            The value of the final temperature.
+        scale (float):
+            The scale
+        cubatic_order_parameter (float):
+            The cubatic order parameter.
+        orientation (:math:`\\left(4 \\right)` :class:`numpy.ndarray`):
+            The quaternion of global orientation.
+        particle_order_parameter (:class:`numpy.ndarray`):
+             Cubatic order parameter.
+        particle_tensor (:math:`\\left(N_{particles}, 3, 3, 3, 3 \\right)` \
+        :class:`numpy.ndarray`):
+            Rank 5 tensor corresponding to each individual particle orientation.
+        global_tensor (:math:`\\left(3, 3, 3, 3 \\right)`
+        :class:`numpy.ndarray`):
+            Rank 4 tensor corresponding to global orientation.
+        cubatic_tensor (:math:`\\left(3, 3, 3, 3 \\right)`
+        :class:`numpy.ndarray`):
+            Rank 4 cubatic tensor.
+        gen_r4_tensor (:math:`\\left(3, 3, 3, 3 \\right)`
+        :class:`numpy.ndarray`):
+            Rank 4 tensor corresponding to each individual particle orientation.
     """
     cdef freud._order.CubaticOrderParameter * thisptr
 
@@ -282,6 +308,19 @@ cdef class NematicOrderParameter:
         u (:math:`\\left(3 \\right)` :class:`numpy.ndarray`):
             The nematic director of a single particle in the reference state
             (without any rotation applied).
+
+    Attributes:
+        nematic_order_parameter (float):
+            Nematic order parameter.
+        director (:math:`\\left(3 \\right)` :class:`numpy.ndarray`):
+            The average nematic director.
+        particle_tensor (:math:`\\left(N_{particles}, 3, 3 \\right)`
+        :class:`numpy.ndarray`):
+            One 3x3 matrix per-particle corresponding to each individual
+            particle orientation.
+        nematic_tensor (:math:`\\left(3, 3 \\right)` :class:`numpy.ndarray`):
+            3x3 matrix corresponding to the average particle orientation.
+
     """
     cdef freud._order.NematicOrderParameter *thisptr
 

@@ -47,6 +47,12 @@ cdef class VoronoiBuffer:
 
     Args:
         box (py:class:`freud.box.Box`): Simulation box.
+
+    Attributes:
+        buffer_particles (:class:`np.ndarray`):
+            The buffer particles.
+        buffer_ids (:class:`np.ndarray`):
+            The buffer ids.
     """
     cdef freud._voronoi.VoronoiBuffer * thisptr
 
@@ -146,12 +152,33 @@ class Voronoi:
     to be correct if :code:`buff >= L/2` where :code:`L` is the longest side
     of the simulation box. For dense systems with particles filling the
     entire simulation volume, a smaller value for :code:`buff` is acceptable.
+    If the buffer width is too small, then some polytopes may not be closed
+    (they may have a boundary at infinity), and these polytopes' vertices are
+    excluded from the list.  If either the polytopes or volumes lists that are
+    computed is different from the size of the array of positions used in the
+    :py:meth:`freud.voronoi.Voronoi.compute()` method, try recomputing using a
+    larger buffer width.
 
     Args:
         box (:py:class:`freud.box.Box`):
             Simulation box.
         buff (float):
             Buffer width.
+
+    Attributes:
+        buffer (float):
+            Buffer width.
+        nlist (:class:`~.locality.NeighborList`):
+            Returns a weighted neighbor list.  In 2D systems, the bond weight
+            is the "ridge length" of the Voronoi boundary line between the
+            neighboring particles.  In 3D systems, the bond weight is the
+            "ridge area" of the Voronoi boundary polygon between the
+            neighboring particles.
+        polytopes (list[:class:`numpy.ndarray`]):
+            List of arrays, each containing Voronoi polytope vertices.
+        volumes ((:math:`\\left(N_{cells} \\right)`) :class:`numpy.ndarray`):
+            Returns an array of volumes (areas in 2D) corresponding to Voronoi
+            cells.
     """
     def __init__(self, box, buff=0.1):
         if not _SCIPY_AVAILABLE:
