@@ -132,7 +132,7 @@ cdef class VoronoiBuffer:
                       "of the buff_ids class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        return self.buff_ids
+        return self.buffer_ids
 
 
 class Voronoi:
