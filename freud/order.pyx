@@ -75,7 +75,8 @@ cdef class CubaticOrderParameter:
              Cubatic order parameter.
         particle_tensor (:math:`\\left(N_{particles}, 3, 3, 3, 3 \\right)` \
         :class:`numpy.ndarray`):
-            Rank 5 tensor corresponding to each individual particle orientation.
+            Rank 5 tensor corresponding to each individual particle
+            orientation.
         global_tensor (:math:`\\left(3, 3, 3, 3 \\right)`
         :class:`numpy.ndarray`):
             Rank 4 tensor corresponding to global orientation.
@@ -84,7 +85,8 @@ cdef class CubaticOrderParameter:
             Rank 4 cubatic tensor.
         gen_r4_tensor (:math:`\\left(3, 3, 3, 3 \\right)`
         :class:`numpy.ndarray`):
-            Rank 4 tensor corresponding to each individual particle orientation.
+            Rank 4 tensor corresponding to each individual particle
+            orientation.
     """
     cdef freud._order.CubaticOrderParameter * thisptr
 

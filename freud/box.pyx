@@ -133,8 +133,8 @@ cdef class Box:
     def L(self, value):
         try:
             if len(value) != 3:
-                raise ValueError('setL must be called with a scalar or a list of '
-                                 'length 3.')
+                raise ValueError('setL must be called with a scalar or a list '
+                                 'of length 3.')
         except TypeError:
             # Will fail if object has no length
             value = (value, value, value)

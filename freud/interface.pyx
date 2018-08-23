@@ -33,10 +33,14 @@ cdef class InterfaceMeasure:
         r_cut (float): Distance to search for particle neighbors.
 
     Attributes:
-        ref_point_count (int): Number of particles from :code:`ref_points` on the interface.
-        ref_point_ids (:class:`np.ndarray`): The particle IDs from :code:`ref_points`.
-        point_count (int): Number of particles from :code:`points` on the interface.
-        point_ids (:class:`np.ndarray`): The particle IDs from :code:`points`.
+        ref_point_count (int):
+            Number of particles from :code:`ref_points` on the interface.
+        ref_point_ids (:class:`np.ndarray`):
+            The particle IDs from :code:`ref_points`.
+        point_count (int):
+            Number of particles from :code:`points` on the interface.
+        point_ids (:class:`np.ndarray`):
+            The particle IDs from :code:`points`.
     """
     cdef float rmax
     cdef np.ndarray _ref_point_ids

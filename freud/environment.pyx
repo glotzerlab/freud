@@ -1162,7 +1162,7 @@ cdef class AngularSeparation:
             angles.
         n_global (unsigned int):
             The number of global orientations to check against.
-        neighbor_angles ((:math:`\\left(N_{reference}, N_{neighbors} \\right)` \
+        neighbor_angles ((:math:`\\left(N_{reference}, N_{neighbors} \\right)`
         :class:`numpy.ndarray`):
             The neighbor angles in radians.
         global_angles (:math:`\\left(N_{particles}, N_{global} \\right)` \
