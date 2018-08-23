@@ -81,11 +81,10 @@ cdef class VoronoiBuffer:
         return self.getBufferParticles()
 
     def getBufferParticles(self):
-        """Get buffer particles.
-
-        Returns:
-            :class:`np.ndarray`: The buffer particles.
-        """
+        warnings.warn("The getBufferParticles function is deprecated in favor "
+                      "of the buffer_particles class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         cdef unsigned int buffer_size = \
             dereference(self.thisptr.getBufferParticles().get()).size()
         cdef vec3[float] * buffer_points = \
@@ -109,11 +108,10 @@ cdef class VoronoiBuffer:
         return self.getBufferIds()
 
     def getBufferIds(self):
-        """Get buffer ids.
-
-        Returns:
-            :class:`np.ndarray`: The buffer ids.
-        """
+        warnings.warn("The getBufferIds function is deprecated in favor "
+                      "of the buff_ids class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         cdef unsigned int buffer_size = \
             dereference(self.thisptr.getBufferParticles().get()).size()
         if not buffer_size:

@@ -10,6 +10,9 @@ with :math:`\prod_{i=1}^N n_i` elements.
 """
 
 import numpy as np
+import warnings
+from freud.errors import FreudDeprecationWarning
+
 from freud.util cimport _Index1D
 cimport numpy as np
 
@@ -82,11 +85,10 @@ cdef class Index2D:
         return self.getNumElements()
 
     def getNumElements(self):
-        """Get the number of elements in the array.
-
-        Returns:
-            unsigned int: Number of elements in the array.
-        """
+        warnings.warn("The getNumElements function is deprecated in favor "
+                      "of the num_elements class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         return self.thisptr.getNumElements()
 
 cdef class Index3D:
@@ -155,9 +157,8 @@ cdef class Index3D:
         return self.getNumElements()
 
     def getNumElements(self):
-        """Get the number of elements in the array.
-
-        Returns:
-          unsigned int: Number of elements in the array.
-        """
+        warnings.warn("The getNumElements function is deprecated in favor "
+                      "of the num_elements class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         return self.thisptr.getNumElements()

@@ -31,7 +31,7 @@ cdef class FloatCF:
     """Computes the real pairwise correlation function.
 
     The correlation function is given by
-    :math:`C(r) = \\left\\langle s_1(0) \cdot s_2(r) \\right\\rangle` between
+    :math:`C(r) = \\left\\langle s_1(0) \\cdot s_2(r) \\right\\rangle` between
     two sets of points :math:`p_1` (:code:`ref_points`) and :math:`p_2`
     (:code:`points`) with associated values :math:`s_1` (:code:`ref_values`)
     and :math:`s_2` (:code:`values`). Computing the correlation function
@@ -164,13 +164,10 @@ cdef class FloatCF:
         return self.getRDF()
 
     def getRDF(self):
-        """Returns the radial distribution function.
-
-        Returns:
-            (:math:`N_{bins}`) :class:`numpy.ndarray`:
-                Expected (average) product of all values at a given radial
-                distance.
-        """
+        warnings.warn("The getRDF function is deprecated in favor "
+                      "of the rdf class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         cdef shared_ptr[double] rdf_ptr = self.thisptr.getRDF()
         cdef double * rdf = rdf_ptr.get()
         cdef np.npy_intp nbins[1]
@@ -185,11 +182,10 @@ cdef class FloatCF:
         return self.getBox()
 
     def getBox(self):
-        """Get the box used in the calculation.
-
-        Returns:
-            :class:`freud.box.Box`: freud Box.
-        """
+        warnings.warn("The getBox function is deprecated in favor "
+                      "of the box class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         return freud.box.BoxFromCPP(self.thisptr.getBox())
 
     def reset(self):
@@ -247,12 +243,10 @@ cdef class FloatCF:
         return self.getCounts()
 
     def getCounts(self):
-        """Get counts of each histogram bin.
-
-        Returns:
-            (:math:`N_{bins}`) :class:`numpy.ndarray`:
-                Counts of each histogram bin.
-        """
+        warnings.warn("The getCounts function is deprecated in favor "
+                      "of the counts class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         cdef unsigned int * counts = self.thisptr.getCounts().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.thisptr.getNBins()
@@ -266,11 +260,10 @@ cdef class FloatCF:
         return self.getR()
 
     def getR(self):
-        """Get bin centers.
-
-        Returns:
-            (:math:`N_{bins}`) :class:`numpy.ndarray`: Values of bin centers.
-        """
+        warnings.warn("The getR function is deprecated in favor "
+                      "of the R class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         cdef float * r = self.thisptr.getR().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.thisptr.getNBins()
@@ -283,7 +276,7 @@ cdef class ComplexCF:
     """Computes the complex pairwise correlation function.
 
     The correlation function is given by
-    :math:`C(r) = \\left\\langle s_1(0) \cdot s_2(r) \\right\\rangle` between
+    :math:`C(r) = \\left\\langle s_1(0) \\cdot s_2(r) \\right\\rangle` between
     two sets of points :math:`p_1` (:code:`ref_points`) and :math:`p_2`
     (:code:`points`) with associated values :math:`s_1` (:code:`ref_values`)
     and :math:`s_2` (:code:`values`). Computing the correlation function
@@ -418,13 +411,10 @@ cdef class ComplexCF:
         return self.getRDF()
 
     def getRDF(self):
-        """Get the RDF.
-
-        Returns:
-            (:math:`N_{bins}`) :class:`numpy.ndarray`:
-                Expected (average) product of all values at a given radial
-                distance.
-        """
+        warnings.warn("The getRDF function is deprecated in favor "
+                      "of the rdf class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         cdef shared_ptr[np.complex128_t] rdf_ptr = self.thisptr.getRDF()
         cdef np.complex128_t * rdf = rdf_ptr.get()
         cdef np.npy_intp nbins[1]
@@ -439,11 +429,10 @@ cdef class ComplexCF:
         return self.getBox()
 
     def getBox(self):
-        """Get the box used in the calculation.
-
-        Returns:
-            :class:`freud.box.Box`: freud Box.
-        """
+        warnings.warn("The getBox function is deprecated in favor "
+                      "of the box class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         return freud.box.BoxFromCPP(self.thisptr.getBox())
 
     def reset(self):
@@ -501,12 +490,10 @@ cdef class ComplexCF:
         return self.getCounts()
 
     def getCounts(self):
-        """Get the counts of each histogram bin.
-
-        Returns:
-            (:math:`N_{bins}`) :class:`numpy.ndarray`:
-                Counts of each histogram bin.
-        """
+        warnings.warn("The getCounts function is deprecated in favor "
+                      "of the counts class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         cdef unsigned int * counts = self.thisptr.getCounts().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.thisptr.getNBins()
@@ -520,11 +507,10 @@ cdef class ComplexCF:
         return self.getR()
 
     def getR(self):
-        """Get The value of bin centers.
-
-        Returns:
-            (:math:`N_{bins}`) :class:`numpy.ndarray`: Values of bin centers.
-        """
+        warnings.warn("The getR function is deprecated in favor "
+                      "of the R class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         cdef float * r = self.thisptr.getR().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.thisptr.getNBins()
@@ -596,11 +582,10 @@ cdef class GaussianDensity:
         return self.getBox()
 
     def getBox(self):
-        """Get the box used in the calculation.
-
-        Returns:
-            :class:`freud.box.Box`: freud Box.
-        """
+        warnings.warn("The getBox function is deprecated in favor "
+                      "of the box class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         return freud.box.BoxFromCPP(self.thisptr.getBox())
 
     def compute(self, box, points):
@@ -630,12 +615,10 @@ cdef class GaussianDensity:
         return self.getGaussianDensity()
 
     def getGaussianDensity(self):
-        """ Get the image grid with the Gaussian density.
-
-        Returns:
-            (:math:`w_x`, :math:`w_y`, :math:`w_z`) :class:`numpy.ndarray`:
-                Image (grid) with values of Gaussian.
-        """
+        warnings.warn("The gaussian_density function is deprecated in favor "
+                      "of the gaussian_density class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         cdef float * density = self.thisptr.getDensity().get()
         cdef np.npy_intp nbins[1]
         arraySize = self.thisptr.getWidthY() * self.thisptr.getWidthX()
@@ -710,11 +693,10 @@ cdef class LocalDensity:
         return self.getBox()
 
     def getBox(self):
-        """Get the box used in the calculation.
-
-        Returns:
-            :class:`freud.box.Box`: freud Box.
-        """
+        warnings.warn("The getBox function is deprecated in favor "
+                      "of the box class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         return freud.box.BoxFromCPP(self.thisptr.getBox())
 
     def compute(self, box, ref_points, points=None, nlist=None):
@@ -768,12 +750,10 @@ cdef class LocalDensity:
         return self.getDensity()
 
     def getDensity(self):
-        """Get the density array for each particle.
-
-        Returns:
-            (:math:`N_{particles}`) :class:`numpy.ndarray`:
-                Density array for each particle.
-        """
+        warnings.warn("The getDensity function is deprecated in favor "
+                      "of the density class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         cdef float * density = self.thisptr.getDensity().get()
         cdef np.npy_intp nref[1]
         nref[0] = <np.npy_intp> self.thisptr.getNRef()
@@ -787,12 +767,10 @@ cdef class LocalDensity:
         return self.getNumNeighbors()
 
     def getNumNeighbors(self):
-        """Return the number of neighbors for each particle.
-
-        Returns:
-            (:math:`N_{particles}`) :class:`numpy.ndarray`:
-                Number of neighbors for each particle.
-        """
+        warnings.warn("The getNumNeighbors function is deprecated in favor "
+                      "of the num_neighbors class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         cdef float * neighbors = self.thisptr.getNumNeighbors().get()
         cdef np.npy_intp nref[1]
         nref[0] = <np.npy_intp> self.thisptr.getNRef()
@@ -866,11 +844,10 @@ cdef class RDF:
         return self.getBox()
 
     def getBox(self):
-        """Get the box used in the calculation.
-
-        Returns:
-            :class:`freud.box.Box`: freud Box.
-        """
+        warnings.warn("The getBox function is deprecated in favor "
+                      "of the box class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         return freud.box.BoxFromCPP(self.thisptr.getBox())
 
     def accumulate(self, box, ref_points, points=None, nlist=None):
@@ -957,12 +934,10 @@ cdef class RDF:
         return self.getRDF()
 
     def getRDF(self):
-        """Histogram of RDF values.
-
-        Returns:
-            (:math:`N_{bins}`, 3) :class:`numpy.ndarray`:
-                Histogram of RDF values.
-        """
+        warnings.warn("The getRDF function is deprecated in favor "
+                      "of the rdf class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         cdef float * rdf = self.thisptr.getRDF().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.thisptr.getNBins()
@@ -976,12 +951,10 @@ cdef class RDF:
         return self.getR()
 
     def getR(self):
-        """Get values of the histogram bin centers.
-
-        Returns:
-            (:math:`N_{bins}`, 3) :class:`numpy.ndarray`:
-                Values of the histogram bin centers.
-        """
+        warnings.warn("The getR function is deprecated in favor "
+                      "of the R class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         cdef float * r = self.thisptr.getR().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.thisptr.getNBins()
@@ -995,12 +968,10 @@ cdef class RDF:
         return self.getNr()
 
     def getNr(self):
-        """Get the histogram of cumulative RDF values.
-
-        Returns:
-            (:math:`N_{bins}`, 3) :class:`numpy.ndarray`:
-                Histogram of cumulative RDF values.
-        """
+        warnings.warn("The getNr function is deprecated in favor "
+                      "of the n_r class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         cdef float * Nr = self.thisptr.getNr().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.thisptr.getNBins()

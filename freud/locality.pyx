@@ -557,11 +557,10 @@ cdef class LinkCell:
         return self.getBox()
 
     def getBox(self):
-        """Get the freud Box.
-
-        Returns:
-            :class:`freud.box.Box`: freud Box.
-        """
+        warnings.warn("The getBox function is deprecated in favor "
+                      "of the box class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         return freud.box.BoxFromCPP(self.thisptr.getBox())
 
     @property
@@ -569,11 +568,10 @@ cdef class LinkCell:
         return self.getNumCells()
 
     def getNumCells(self):
-        """Get the number of cells in this box.
-
-        Returns:
-            unsigned int: The number of cells in this box.
-        """
+        warnings.warn("The getNumCells function is deprecated in favor "
+                      "of the num_cells class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         return self.thisptr.getNumCells()
 
     def getCell(self, point):
@@ -778,10 +776,10 @@ cdef class NearestNeighbors:
         return self.getUINTMAX()
 
     def getUINTMAX(self):
-        """
-        Returns:
-            unsigned int: Value of C++ UINTMAX used to pad the arrays.
-        """
+        warnings.warn("The getUINTMAX function is deprecated in favor "
+                      "of the UINTMAX class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         return self.thisptr.getUINTMAX()
 
     @property
@@ -789,11 +787,10 @@ cdef class NearestNeighbors:
         return self.getBox()
 
     def getBox(self):
-        """Get the freud Box.
-
-        Returns:
-            :class:`freud.box.Box`: freud Box.
-        """
+        warnings.warn("The getBox function is deprecated in favor "
+                      "of the box class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         return freud.box.BoxFromCPP(self.thisptr.getBox())
 
     @property
@@ -801,11 +798,10 @@ cdef class NearestNeighbors:
         return self.getNumNeighbors()
 
     def getNumNeighbors(self):
-        """The number of neighbors this object will find.
-
-        Returns:
-            unsigned int: The number of neighbors this object will find.
-        """
+        warnings.warn("The getNumNeighbors function is deprecated in favor "
+                      "of the num_neighbors class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         return self.thisptr.getNumNeighbors()
 
     @property
@@ -813,12 +809,10 @@ cdef class NearestNeighbors:
         return self.getNRef()
 
     def getNRef(self):
-        """Get the number of particles this object found neighbors of.
-
-        Returns:
-            unsigned int:
-                The number of particles this object found neighbors of.
-        """
+        warnings.warn("The getNref function is deprecated in favor "
+                      "of the n_ref class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         return self.thisptr.getNref()
 
     def setRMax(self, float rmax):
@@ -852,11 +846,10 @@ cdef class NearestNeighbors:
         return self.getRMax()
 
     def getRMax(self):
-        """Return the current neighbor search distance guess.
-
-        Returns:
-            float: Nearest neighbors search radius.
-        """
+        warnings.warn("The getRMax function is deprecated in favor "
+                      "of the r_max class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         return self.thisptr.getRMax()
 
     def getNeighbors(self, unsigned int i):
@@ -927,13 +920,10 @@ cdef class NearestNeighbors:
         return self.getWrappedVectors()
 
     def getWrappedVectors(self):
-        """Return the wrapped vectors for computed neighbors. Array padded
-        with -1 for empty neighbors.
-
-        Returns:
-            :math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:
-                Wrapped vectors.
-        """
+        warnings.warn("The getWrappedVectors function is deprecated in favor "
+                      "of the wrapped_vectors class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         return self._getWrappedVectors()[0]
 
     def _getWrappedVectors(self):
@@ -965,13 +955,10 @@ cdef class NearestNeighbors:
         return self.getRsqList()
 
     def getRsqList(self):
-        """Return the entire Rsq values list.
-
-        Returns:
-            :math:`\\left(N_{particles}, N_{neighbors}\\right)` \
-            :class:`numpy.ndarray`:
-                Rsq list.
-        """
+        warnings.warn("The getRsqList function is deprecated in favor "
+                      "of the r_sq_list class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         (vecs, blank_mask) = self._getWrappedVectors()
         result = np.sum(vecs**2, axis=-1)
         result[blank_mask] = -1

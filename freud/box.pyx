@@ -13,6 +13,7 @@ import warnings
 import numpy as np
 from collections import namedtuple
 import freud.common
+from freud.errors import FreudDeprecationWarning
 
 import logging
 
@@ -118,20 +119,18 @@ cdef class Box:
         del self.thisptr
 
     def getL(self):
-        """Return the lengths of the box as a tuple (x, y, z).
-
-        Returns:
-            (float, float, float): Dimensions of the box as (x, y, z).
-        """
+        warnings.warn("The getL function is deprecated in favor "
+                      "of the L class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         cdef vec3[float] result = self.thisptr.getL()
         return (result.x, result.y, result.z)
 
     def setL(self, L):
-        """Set all side lengths of box to L.
-
-        Args:
-            L (float): Side length of box.
-        """
+        warnings.warn("The setL function is deprecated in favor "
+                      "of setting the L class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         try:
             len(L)
         except TypeError:
@@ -147,36 +146,64 @@ cdef class Box:
                 "has no effect!")
         self.thisptr.setL(L[0], L[1], L[2])
 
-    def getLx(self):
-        """Length of the x-dimension of the box.
+    @property
+    def L(self):
+        return self.getL()
 
-        Returns:
-            float: This box's x-dimension length.
-        """
+    @L.setter
+    def L(self, value):
+        self.setL(value)
+
+    def getLx(self):
+        warnings.warn("The getLx function is deprecated in favor "
+                      "of the Lx class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         return self.thisptr.getLx()
 
-    def getLy(self):
-        """Length of the y-dimension of the box.
+    @property
+    def Lx(self):
+        return self.getLx()
 
-        Returns:
-            float: This box's y-dimension length.
-        """
+    @Lx.setter
+    def Lx(self, value):
+        self.setL([value, self.Ly, self.Lz])
+
+    def getLy(self):
+        warnings.warn("The getLy function is deprecated in favor "
+                      "of the Ly class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         return self.thisptr.getLy()
 
-    def getLz(self):
-        """Length of the z-dimension of the box.
+    @property
+    def Ly(self):
+        return self.getLy()
 
-        Returns:
-            float: This box's z-dimension length.
-        """
+    @Ly.setter
+    def Ly(self, value):
+        self.setL([self.Lx, value, self.Lz])
+
+    def getLz(self):
+        warnings.warn("The getLz function is deprecated in favor "
+                      "of the Lz class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         return self.thisptr.getLz()
 
-    def getTiltFactorXY(self):
-        """Return the tilt factor xy.
+    @property
+    def Lz(self):
+        return self.getLz()
 
-        Returns:
-            float: This box's xy tilt factor.
-        """
+    @Lz.setter
+    def Lz(self, value):
+        self.setL([self.Lx, self.Ly, value])
+
+    def getTiltFactorXY(self):
+        warnings.warn("The getTiltFactorXY function is deprecated in favor "
+                      "of the xy class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         return self.thisptr.getTiltFactorXY()
 
     @property
@@ -184,11 +211,10 @@ cdef class Box:
         return self.getTiltFactorXY()
 
     def getTiltFactorXZ(self):
-        """Return the tilt factor xz.
-
-        Returns:
-            float: This box's xz tilt factor.
-        """
+        warnings.warn("The getTiltFactorXZ function is deprecated in favor "
+                      "of the xz class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         return self.thisptr.getTiltFactorXZ()
 
     @property
@@ -196,11 +222,10 @@ cdef class Box:
         return self.getTiltFactorXZ()
 
     def getTiltFactorYZ(self):
-        """Return the tilt factor yz.
-
-        Returns:
-            float: This box's yz tilt factor.
-        """
+        warnings.warn("The getTiltFactorYZ function is deprecated in favor "
+                      "of the yz class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         return self.thisptr.getTiltFactorYZ()
 
     @property
@@ -216,19 +241,26 @@ cdef class Box:
         return self.thisptr.is2D()
 
     def set2D(self, val):
-        """Set the dimensionality to 2D (True) or 3D (False).
-
-        Args:
-            val (bool): 2D=True, 3D=False.
-        """
+        warnings.warn("The set2D function is deprecated in favor "
+                      "of setting the dimensions class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         self.thisptr.set2D(bool(val))
 
-    def getLinv(self):
-        """Return the inverse lengths of the box (1/Lx, 1/Ly, 1/Lz).
+    @property
+    def dimensions(self):
+        return 2 if self.is2D() else 3
 
-        Returns:
-            (float, float, float): dimensions of the box as (1/Lx, 1/Ly, 1/Lz).
-        """
+    @dimensions.setter
+    def dimensions(self, value):
+        assert value == 2 or value == 3
+        self.set2D(value == 2)
+
+    def getLinv(self):
+        warnings.warn("The getLinv function is deprecated in favor "
+                      "of the Linv class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         cdef vec3[float] result = self.thisptr.getLinv()
         return (result.x, result.y, result.z)
 
@@ -237,11 +269,10 @@ cdef class Box:
         return self.getLinv()
 
     def getVolume(self):
-        """Return the box volume (area in 2D).
-
-        Returns:
-            float: Box volume.
-        """
+        warnings.warn("The getVolume function is deprecated in favor "
+                      "of the volume class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         return self.thisptr.getVolume()
 
     @property
@@ -249,16 +280,10 @@ cdef class Box:
         return self.getVolume()
 
     def getCoordinates(self, f):
-        """Alias for :py:meth:`~.makeCoordinates()`
-
-        .. deprecated:: 0.8
-           Use :py:meth:`~.makeCoordinates()` instead.
-
-        Args:
-            f (:math:`\\left(3\\right)` :class:`numpy.ndarray`):
-                Fractional coordinates :math:`\\left(x, y, z\\right)` between
-                0 and 1 within parallelepipedal box.
-        """
+        warnings.warn("The getCoordinates function is deprecated in favor "
+                      "of the makeCoordinates function and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         return self.makeCoordinates(f)
 
     def makeCoordinates(self, f):
@@ -425,26 +450,27 @@ cdef class Box:
         return [result.x, result.y, result.z]
 
     def getPeriodic(self):
-        """Get the box's periodicity in each dimension.
-
-        Returns:
-            list[bool, bool, bool]: Periodic attributes in x, y, z.
-        """
+        warnings.warn("The getPeriodic function is deprecated in favor "
+                      "of the periodic class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         periodic = self.thisptr.getPeriodic()
         return [periodic.x, periodic.y, periodic.z]
 
     def setPeriodic(self, x, y, z):
-        """Set the box's periodicity in each dimension.
-
-        Args:
-            x (bool):
-                True if periodic in x, False if not.
-            y (bool):
-                True if periodic in y, False if not.
-            z (bool):
-                True if periodic in z, False if not.
-        """
+        warnings.warn("The setPeriodic function is deprecated in favor "
+                      "of setting the periodic class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         self.thisptr.setPeriodic(x, y, z)
+
+    @property
+    def periodic(self):
+        return self.getPeriodic()
+
+    @periodic.setter
+    def periodic(self, periodic):
+        self.setPeriodic(periodic[0], periodic[1], periodic[2])
 
     def getPeriodicX(self):
         """Get the box periodicity in the x direction.
@@ -702,55 +728,6 @@ cdef class Box:
             raise TypeError("square() missing 1 required "
                             "positional argument: L")
         return cls(Lx=L, Ly=L, Lz=0, xy=0, xz=0, yz=0, is2D=True)
-
-    @property
-    def L(self):
-        return self.getL()
-
-    @L.setter
-    def L(self, value):
-        self.setL(value)
-
-    @property
-    def Lx(self):
-        return self.getLx()
-
-    @Lx.setter
-    def Lx(self, value):
-        self.setL([value, self.Ly, self.Lz])
-
-    @property
-    def Ly(self):
-        return self.getLy()
-
-    @Ly.setter
-    def Ly(self, value):
-        self.setL([self.Lx, value, self.Lz])
-
-    @property
-    def Lz(self):
-        return self.getLz()
-
-    @Lz.setter
-    def Lz(self, value):
-        self.setL([self.Lx, self.Ly, value])
-
-    @property
-    def dimensions(self):
-        return 2 if self.is2D() else 3
-
-    @dimensions.setter
-    def dimensions(self, value):
-        assert value == 2 or value == 3
-        self.set2D(value == 2)
-
-    @property
-    def periodic(self):
-        return self.getPeriodic()
-
-    @periodic.setter
-    def periodic(self, periodic):
-        self.setPeriodic(periodic[0], periodic[1], periodic[2])
 
     # Enable box to be pickled
     def __getinitargs__(self):

@@ -76,11 +76,10 @@ cdef class _PMFT:
         return self.getBox()
 
     def getBox(self):
-        """Get the box used in the calculation.
-
-        Returns:
-            :class:`freud.box.Box`: freud Box.
-        """
+        warnings.warn("The getBox function is deprecated in favor "
+                      "of the box class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         return freud.box.BoxFromCPP(self.pmftptr.getBox())
 
     def reset(self):
@@ -112,11 +111,10 @@ cdef class _PMFT:
         return self.getPMFT()
 
     def getPMFT(self):
-        """Get the potential of mean force and torque.
-
-        Returns:
-            (matches PCF) :class:`numpy.ndarray`: PMFT.
-        """
+        warnings.warn("The getPMFT function is deprecated in favor "
+                      "of the PMFT class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         return -np.log(np.copy(self.getPCF()))
 
     @property
@@ -124,11 +122,10 @@ cdef class _PMFT:
         return self.getRCut()
 
     def getRCut(self):
-        """Get the r_cut value used in the cell list.
-
-        Returns:
-            float: r_cut.
-        """
+        warnings.warn("The getRCut function is deprecated in favor "
+                      "of the r_cut class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         cdef float r_cut = self.pmftptr.getRCut()
         return r_cut
 
@@ -296,13 +293,10 @@ cdef class PMFTR12(_PMFT):
         return self
 
     def getBinCounts(self):
-        """Get the raw bin counts.
-
-        Returns:
-            :math:`\\left(N_{r}, N_{\\theta2}, N_{\\theta1}\\right)` \
-            :class:`numpy.ndarray`:
-                Bin Counts.
-        """
+        warnings.warn("The getBinCounts function is deprecated in favor "
+                      "of the bin_counts class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         cdef unsigned int * bin_counts = self.pmftr12ptr.getBinCounts().get()
         cdef np.npy_intp nbins[3]
         nbins[0] = <np.npy_intp> self.pmftr12ptr.getNBinsR()
@@ -314,13 +308,10 @@ cdef class PMFTR12(_PMFT):
         return result
 
     def getPCF(self):
-        """Get the positional correlation function.
-
-        Returns:
-            :math:`\\left(N_{r}, N_{\\theta2}, N_{\\theta1}\\right)` \
-            :class:`numpy.ndarray`:
-                PCF.
-        """
+        warnings.warn("The getPCF function is deprecated in favor "
+                      "of the PCF class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         cdef float * pcf = self.pmftr12ptr.getPCF().get()
         cdef np.npy_intp nbins[3]
         nbins[0] = <np.npy_intp> self.pmftr12ptr.getNBinsR()
@@ -335,12 +326,10 @@ cdef class PMFTR12(_PMFT):
         return self.getR()
 
     def getR(self):
-        """Get the array of r-values for the PCF histogram.
-
-        Returns:
-            :math:`\\left(N_{r}\\right)` :class:`numpy.ndarray`:
-                Bin centers of r-dimension of histogram.
-        """
+        warnings.warn("The getR function is deprecated in favor "
+                      "of the R class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         cdef float * r = self.pmftr12ptr.getR().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.pmftr12ptr.getNBinsR()
@@ -353,12 +342,10 @@ cdef class PMFTR12(_PMFT):
         return self.getT1()
 
     def getT1(self):
-        """Get the array of T1-values for the PCF histogram.
-
-        Returns:
-            :math:`\\left(N_{\\theta_1}\\right)` :class:`numpy.ndarray`:
-                Bin centers of T1-dimension of histogram.
-        """
+        warnings.warn("The getT1 function is deprecated in favor "
+                      "of the T1 class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         cdef float * T1 = self.pmftr12ptr.getT1().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.pmftr12ptr.getNBinsT1()
@@ -371,12 +358,10 @@ cdef class PMFTR12(_PMFT):
         return self.getT2()
 
     def getT2(self):
-        """Get the array of T2-values for the PCF histogram.
-
-        Returns:
-            :math:`\\left(N_{\\theta_2}\\right)` :class:`numpy.ndarray`:
-                Bin centers of T2-dimension of histogram.
-        """
+        warnings.warn("The getT2 function is deprecated in favor "
+                      "of the T2 class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         cdef float * T2 = self.pmftr12ptr.getT2().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.pmftr12ptr.getNBinsT2()
@@ -389,13 +374,10 @@ cdef class PMFTR12(_PMFT):
         return self.getInverseJacobian()
 
     def getInverseJacobian(self):
-        """Get the inverse Jacobian used in the PMFT.
-
-        Returns:
-            :math:`\\left(N_{r}, N_{\\theta2}, N_{\\theta1}\\right)` \
-            :class:`numpy.ndarray`:
-                Inverse Jacobian.
-        """
+        warnings.warn("The getInverseJacobian function is deprecated in favor "
+                      "of the inverse_jacobian class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         cdef float * inv_jac = self.pmftr12ptr.getInverseJacobian().get()
         cdef np.npy_intp nbins[3]
         nbins[0] = <np.npy_intp> self.pmftr12ptr.getNBinsR()
@@ -411,11 +393,10 @@ cdef class PMFTR12(_PMFT):
         return self.getNBinsR()
 
     def getNBinsR(self):
-        """Get the number of bins in the r-dimension of histogram.
-
-        Returns:
-            unsigned int: :math:`N_r`.
-        """
+        warnings.warn("The getNBinsR function is deprecated in favor "
+                      "of the n_bins_r class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         cdef unsigned int r = self.pmftr12ptr.getNBinsR()
         return r
 
@@ -424,11 +405,10 @@ cdef class PMFTR12(_PMFT):
         return self.getNBinsT1()
 
     def getNBinsT1(self):
-        """Get the number of bins in the T1-dimension of histogram.
-
-        Returns:
-            unsigned int: :math:`N_{\\theta_1}`.
-        """
+        warnings.warn("The getNBinsT1 function is deprecated in favor "
+                      "of the n_bins_T1 class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         cdef unsigned int T1 = self.pmftr12ptr.getNBinsT1()
         return T1
 
@@ -437,11 +417,10 @@ cdef class PMFTR12(_PMFT):
         return self.getNBinsT2()
 
     def getNBinsT2(self):
-        """Get the number of bins in the T2-dimension of histogram.
-
-        Returns:
-            unsigned int: :math:`N_{\\theta_2}`.
-        """
+        warnings.warn("The getNBinsT2 function is deprecated in favor "
+                      "of the n_bins_T2 class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         cdef unsigned int T2 = self.pmftr12ptr.getNBinsT2()
         return T2
 
@@ -615,13 +594,10 @@ cdef class PMFTXYT(_PMFT):
         return self
 
     def getBinCounts(self):
-        """Get the raw bin counts.
-
-        Returns:
-            :math:`\\left(N_{\\theta}, N_{y}, N_{x}\\right)` \
-            :class:`numpy.ndarray`:
-                Bin Counts.
-        """
+        warnings.warn("The getBinCounts function is deprecated in favor "
+                      "of the bin_counts class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         cdef unsigned int * bin_counts = self.pmftxytptr.getBinCounts().get()
         cdef np.npy_intp nbins[3]
         nbins[0] = <np.npy_intp> self.pmftxytptr.getNBinsT()
@@ -633,13 +609,10 @@ cdef class PMFTXYT(_PMFT):
         return result
 
     def getPCF(self):
-        """Get the positional correlation function.
-
-        Returns:
-            :math:`\\left(N_{\\theta}, N_{y}, N_{x}\\right)` \
-            :class:`numpy.ndarray`:
-                PCF.
-        """
+        warnings.warn("The getPCF function is deprecated in favor "
+                      "of the PCF class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         cdef float * pcf = self.pmftxytptr.getPCF().get()
         cdef np.npy_intp nbins[3]
         nbins[0] = <np.npy_intp> self.pmftxytptr.getNBinsT()
@@ -654,12 +627,10 @@ cdef class PMFTXYT(_PMFT):
         return self.getX()
 
     def getX(self):
-        """Get the array of x-values for the PCF histogram.
-
-        Returns:
-            :math:`\\left(N_{x}\\right)` :class:`numpy.ndarray`:
-                Bin centers of x-dimension of histogram.
-        """
+        warnings.warn("The getX function is deprecated in favor "
+                      "of the X class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         cdef float * x = self.pmftxytptr.getX().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.pmftxytptr.getNBinsX()
@@ -672,12 +643,10 @@ cdef class PMFTXYT(_PMFT):
         return self.getY()
 
     def getY(self):
-        """Get the array of y-values for the PCF histogram.
-
-        Returns:
-            :math:`\\left(N_{y}\\right)` :class:`numpy.ndarray`:
-                Bin centers of y-dimension of histogram.
-        """
+        warnings.warn("The getY function is deprecated in favor "
+                      "of the Y class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         cdef float * y = self.pmftxytptr.getY().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.pmftxytptr.getNBinsY()
@@ -690,12 +659,10 @@ cdef class PMFTXYT(_PMFT):
         return self.getT()
 
     def getT(self):
-        """Get the array of t-values for the PCF histogram.
-
-        Returns:
-            :math:`\\left(N_{\\theta}\\right)` :class:`numpy.ndarray`:
-                Bin centers of t-dimension of histogram.
-        """
+        warnings.warn("The getT function is deprecated in favor "
+                      "of the T class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         cdef float * t = self.pmftxytptr.getT().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.pmftxytptr.getNBinsT()
@@ -708,11 +675,10 @@ cdef class PMFTXYT(_PMFT):
         return self.getJacobian()
 
     def getJacobian(self):
-        """Get the Jacobian used in the PMFT.
-
-        Returns:
-            float: Jacobian.
-        """
+        warnings.warn("The getJacobian function is deprecated in favor "
+                      "of the jacobian class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         cdef float j = self.pmftxytptr.getJacobian()
         return j
 
@@ -721,11 +687,10 @@ cdef class PMFTXYT(_PMFT):
         return self.getNBinsX()
 
     def getNBinsX(self):
-        """Get the number of bins in the x-dimension of histogram.
-
-        Returns:
-            unsigned int: :math:`N_x`.
-        """
+        warnings.warn("The getNBinsX function is deprecated in favor "
+                      "of the n_bins_X class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         cdef unsigned int x = self.pmftxytptr.getNBinsX()
         return x
 
@@ -734,11 +699,10 @@ cdef class PMFTXYT(_PMFT):
         return self.getNBinsY()
 
     def getNBinsY(self):
-        """Get the number of bins in the y-dimension of histogram.
-
-        Returns:
-            unsigned int: :math:`N_y`.
-        """
+        warnings.warn("The getNBinsY function is deprecated in favor "
+                      "of the n_bins_Y class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         cdef unsigned int y = self.pmftxytptr.getNBinsY()
         return y
 
@@ -747,11 +711,10 @@ cdef class PMFTXYT(_PMFT):
         return self.getNBinsT()
 
     def getNBinsT(self):
-        """Get the number of bins in the t-dimension of histogram.
-
-        Returns:
-            unsigned int: :math:`N_{\\theta}`.
-        """
+        warnings.warn("The getNBinsT function is deprecated in favor "
+                      "of the n_bins_T class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         cdef unsigned int t = self.pmftxytptr.getNBinsT()
         return t
 
@@ -915,11 +878,10 @@ cdef class PMFTXY2D(_PMFT):
         return self
 
     def getPCF(self):
-        """Get the positional correlation function.
-
-        Returns:
-            :math:`\\left(N_{y}, N_{x}\\right)` :class:`numpy.ndarray`: PCF.
-        """
+        warnings.warn("The getPCF function is deprecated in favor "
+                      "of the PCF class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         cdef float * pcf = self.pmftxy2dptr.getPCF().get()
         cdef np.npy_intp nbins[2]
         nbins[0] = <np.npy_intp> self.pmftxy2dptr.getNBinsY()
@@ -929,12 +891,10 @@ cdef class PMFTXY2D(_PMFT):
         return result
 
     def getBinCounts(self):
-        """Get the raw bin counts (non-normalized).
-
-        Returns:
-            :math:`\\left(N_{y}, N_{x}\\right)` :class:`numpy.ndarray`:
-                Bin Counts.
-        """
+        warnings.warn("The getBinCounts function is deprecated in favor "
+                      "of the bin_counts class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         cdef unsigned int * bin_counts = self.pmftxy2dptr.getBinCounts().get()
         cdef np.npy_intp nbins[2]
         nbins[0] = <np.npy_intp> self.pmftxy2dptr.getNBinsY()
@@ -949,12 +909,10 @@ cdef class PMFTXY2D(_PMFT):
         return self.getX()
 
     def getX(self):
-        """Get the array of x-values for the PCF histogram.
-
-        Returns:
-            :math:`\\left(N_{x}\\right)` :class:`numpy.ndarray`:
-                Bin centers of x-dimension of histogram.
-        """
+        warnings.warn("The getX function is deprecated in favor "
+                      "of the X class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         cdef float * x = self.pmftxy2dptr.getX().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.pmftxy2dptr.getNBinsX()
@@ -967,12 +925,10 @@ cdef class PMFTXY2D(_PMFT):
         return self.getY()
 
     def getY(self):
-        """Get the array of y-values for the PCF histogram.
-
-        Returns:
-            :math:`\\left(N_{y}\\right)` :class:`numpy.ndarray`:
-                Bin centers of y-dimension of histogram.
-        """
+        warnings.warn("The getY function is deprecated in favor "
+                      "of the Y class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         cdef float * y = self.pmftxy2dptr.getY().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.pmftxy2dptr.getNBinsY()
@@ -985,11 +941,10 @@ cdef class PMFTXY2D(_PMFT):
         return self.getNBinsX()
 
     def getNBinsX(self):
-        """Get the number of bins in the x-dimension of histogram.
-
-        Returns:
-            unsigned int: :math:`N_x`.
-        """
+        warnings.warn("The getNBinsX function is deprecated in favor "
+                      "of the n_bins_X class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         cdef unsigned int x = self.pmftxy2dptr.getNBinsX()
         return x
 
@@ -998,11 +953,10 @@ cdef class PMFTXY2D(_PMFT):
         return self.getNBinsY()
 
     def getNBinsY(self):
-        """Get the number of bins in the y-dimension of histogram.
-
-        Returns:
-            unsigned int: :math:`N_y`.
-        """
+        warnings.warn("The getNBinsY function is deprecated in favor "
+                      "of the n_bins_Y class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         cdef unsigned int y = self.pmftxy2dptr.getNBinsY()
         return y
 
@@ -1011,11 +965,10 @@ cdef class PMFTXY2D(_PMFT):
         return self.getJacobian()
 
     def getJacobian(self):
-        """Get the Jacobian.
-
-        Returns:
-            float: Jacobian.
-        """
+        warnings.warn("The getJacobian function is deprecated in favor "
+                      "of the jacobian class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         cdef float j = self.pmftxy2dptr.getJacobian()
         return j
 
@@ -1286,12 +1239,10 @@ cdef class PMFTXYZ(_PMFT):
         self.pmftxyzptr.reducePCF()
 
     def getBinCounts(self):
-        """Get the raw bin counts.
-
-        Returns:
-            :math:`\\left(N_{z}, N_{y}, N_{x}\\right)` :class:`numpy.ndarray`:
-                Bin Counts.
-        """
+        warnings.warn("The getBinCounts function is deprecated in favor "
+                      "of the bin_counts class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         cdef unsigned int * bin_counts = self.pmftxyzptr.getBinCounts().get()
         cdef np.npy_intp nbins[3]
         nbins[0] = <np.npy_intp> self.pmftxyzptr.getNBinsZ()
@@ -1303,12 +1254,10 @@ cdef class PMFTXYZ(_PMFT):
         return result
 
     def getPCF(self):
-        """Get the positional correlation function.
-
-        Returns:
-            :math:`\\left(N_{z}, N_{y}, N_{x}\\right)` :class:`numpy.ndarray`:
-                PCF.
-        """
+        warnings.warn("The getPCF function is deprecated in favor "
+                      "of the PCF class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         cdef float * pcf = self.pmftxyzptr.getPCF().get()
         cdef np.npy_intp nbins[3]
         nbins[0] = <np.npy_intp> self.pmftxyzptr.getNBinsZ()
@@ -1319,12 +1268,10 @@ cdef class PMFTXYZ(_PMFT):
         return result
 
     def getPMFT(self):
-        """Get the potential of mean force and torque.
-
-        Returns:
-            :math:`\\left(N_{z}, N_{y}, N_{x}\\right)` :class:`numpy.ndarray`:
-                PMFT.
-        """
+        warnings.warn("The getPMFT function is deprecated in favor "
+                      "of the box class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         return -np.log(np.copy(self.getPCF()))
 
     @property
@@ -1332,12 +1279,10 @@ cdef class PMFTXYZ(_PMFT):
         return self.getX()
 
     def getX(self):
-        """Get the array of x-values for the PCF histogram.
-
-        Returns:
-            :math:`\\left(N_{x}\\right)` :class:`numpy.ndarray`:
-                Bin centers of x-dimension of histogram.
-        """
+        warnings.warn("The getx function is deprecated in favor "
+                      "of the X class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         cdef float * x = self.pmftxyzptr.getX().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.pmftxyzptr.getNBinsX()
@@ -1350,12 +1295,10 @@ cdef class PMFTXYZ(_PMFT):
         return self.getY()
 
     def getY(self):
-        """Get the array of y-values for the PCF histogram.
-
-        Returns:
-            :math:`\\left(N_{y}\\right)` :class:`numpy.ndarray`:
-                Bin centers of y-dimension of histogram.
-        """
+        warnings.warn("The getY function is deprecated in favor "
+                      "of the Y class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         cdef float * y = self.pmftxyzptr.getY().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.pmftxyzptr.getNBinsY()
@@ -1368,12 +1311,10 @@ cdef class PMFTXYZ(_PMFT):
         return self.getZ()
 
     def getZ(self):
-        """Get the array of z-values for the PCF histogram.
-
-        Returns:
-            :math:`\\left(N_{z}\\right)` :class:`numpy.ndarray`:
-                Bin centers of z-dimension of histogram.
-        """
+        warnings.warn("The getZ function is deprecated in favor "
+                      "of the Z class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         cdef float * z = self.pmftxyzptr.getZ().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.pmftxyzptr.getNBinsZ()
@@ -1386,11 +1327,10 @@ cdef class PMFTXYZ(_PMFT):
         return self.getNBinsX()
 
     def getNBinsX(self):
-        """Get the number of bins in the x-dimension of histogram.
-
-        Returns:
-           unsigned int: :math:`N_x`.
-        """
+        warnings.warn("The getNBinsX function is deprecated in favor "
+                      "of the n_bins_X class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         cdef unsigned int x = self.pmftxyzptr.getNBinsX()
         return x
 
@@ -1399,11 +1339,10 @@ cdef class PMFTXYZ(_PMFT):
         return self.getNBinsY()
 
     def getNBinsY(self):
-        """Get the number of bins in the y-dimension of histogram.
-
-        Returns:
-            unsigned int: :math:`N_y`.
-        """
+        warnings.warn("The getNBinsY function is deprecated in favor "
+                      "of the n_bins_Y class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         cdef unsigned int y = self.pmftxyzptr.getNBinsY()
         return y
 
@@ -1412,11 +1351,10 @@ cdef class PMFTXYZ(_PMFT):
         return self.getNBinsZ()
 
     def getNBinsZ(self):
-        """Get the number of bins in the z-dimension of histogram.
-
-        Returns:
-            unsigned int: :math:`N_z`.
-        """
+        warnings.warn("The getNBinsZ function is deprecated in favor "
+                      "of the Z class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         cdef unsigned int z = self.pmftxyzptr.getNBinsZ()
         return z
 
@@ -1425,10 +1363,9 @@ cdef class PMFTXYZ(_PMFT):
         return self.getJacobian()
 
     def getJacobian(self):
-        """Get the Jacobian.
-
-        Returns:
-            float: Jacobian.
-        """
+        warnings.warn("The getJacobian function is deprecated in favor "
+                      "of the jacobian class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         cdef float j = self.pmftxyzptr.getJacobian()
         return j
