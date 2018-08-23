@@ -213,6 +213,9 @@ class TestBox(unittest.TestCase):
         true = [True, True, True]
         self.assertEqual(box.periodic, true)
         self.assertEqual(box.getPeriodic(), true)
+        self.assertTrue(box.periodic_x)
+        self.assertTrue(box.periodic_y)
+        self.assertTrue(box.periodic_z)
         self.assertTrue(box.getPeriodicX())
         self.assertTrue(box.getPeriodicY())
         self.assertTrue(box.getPeriodicZ())
@@ -220,12 +223,32 @@ class TestBox(unittest.TestCase):
         box.periodic = false
         self.assertEqual(box.periodic, false)
         self.assertEqual(box.getPeriodic(), false)
+        self.assertFalse(box.periodic_x)
+        self.assertFalse(box.periodic_y)
+        self.assertFalse(box.periodic_z)
         self.assertFalse(box.getPeriodicX())
         self.assertFalse(box.getPeriodicY())
         self.assertFalse(box.getPeriodicZ())
 
         box.setPeriodic(*true)
         self.assertEqual(box.periodic, true)
+
+        box.periodic_x = False
+        box.periodic_y = False
+        box.periodic_z = False
+        self.assertEqual(box.periodic_x, False)
+        self.assertEqual(box.periodic_y, False)
+        self.assertEqual(box.periodic_z, False)
+
+        box.periodic = True
+        self.assertEqual(box.periodic, true)
+
+        box.setPeriodicX(False)
+        box.setPeriodicY(False)
+        box.setPeriodicZ(False)
+        self.assertEqual(box.periodic_x, False)
+        self.assertEqual(box.periodic_y, False)
+        self.assertEqual(box.periodic_z, False)
 
     def test_equal(self):
         box = bx.Box(2, 2, 2, 1, 0.5, 0.1)

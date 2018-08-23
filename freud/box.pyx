@@ -86,6 +86,12 @@ cdef class Box:
             The number of dimensions (2 or 3).
         periodic (list, settable):
             Whether or not the box is periodic.
+        periodic_x (list, settable):
+            Whether or not the box is periodic in x.
+        periodic_y (list, settable):
+            Whether or not the box is periodic in y.
+        periodic_z (list, settable):
+            Whether or not the box is periodic in z.
     """
     def __cinit__(self, Lx=None, Ly=None, Lz=None, xy=None, xz=None, yz=None,
                   is2D=None):
@@ -470,54 +476,77 @@ cdef class Box:
 
     @periodic.setter
     def periodic(self, periodic):
-        self.setPeriodic(periodic[0], periodic[1], periodic[2])
+        # Allow passing a single value
+        try:
+            self.setPeriodic(periodic[0], periodic[1], periodic[2])
+        except TypeError:
+            # Allow single value to be passed for all directions
+            self.setPeriodic(periodic, periodic, periodic)
+
+    @property
+    def periodic_x(self):
+        return self.getPeriodicX()
+
+    @periodic_x.setter
+    def periodic_x(self, periodic):
+        self.setPeriodicX(periodic)
+
+    @property
+    def periodic_y(self):
+        return self.getPeriodicY()
+
+    @periodic_y.setter
+    def periodic_y(self, periodic):
+        self.setPeriodicY(periodic)
+
+    @property
+    def periodic_z(self):
+        return self.getPeriodicZ()
+
+    @periodic_z.setter
+    def periodic_z(self, periodic):
+        self.setPeriodicZ(periodic)
 
     def getPeriodicX(self):
-        """Get the box periodicity in the x direction.
-
-        Returns:
-            bool: True if periodic, False if not.
-        """
+        warnings.warn("The getPeriodicX function is deprecated in favor "
+                      "of setting the periodic_x class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         return self.thisptr.getPeriodicX()
 
     def setPeriodicX(self, val):
-        """Set the box periodicity in the x direction.
-
-        Args:
-            val (bool): True if periodic, False if not.
-        """
+        warnings.warn("The setPeriodicX function is deprecated in favor "
+                      "of setting the periodic_x class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         return self.thisptr.setPeriodicX(val)
 
     def getPeriodicY(self):
-        """Get the box periodicity in the y direction..
-
-        Returns:
-            bool: True if periodic, False if not.
-        """
+        warnings.warn("The getPeriodicY function is deprecated in favor "
+                      "of setting the periodic_y class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         return self.thisptr.getPeriodicY()
 
     def setPeriodicY(self, val):
-        """Set the box periodicity in the y direction.
-
-        Args:
-            val (bool): True if periodic, False if not.
-        """
+        warnings.warn("The setPeriodicY function is deprecated in favor "
+                      "of setting the periodic_y class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         return self.thisptr.setPeriodicY(val)
 
     def getPeriodicZ(self):
-        """Get the box periodicity in the z direction.
-
-        Returns:
-            bool: True if periodic, False if not.
-        """
+        warnings.warn("The getPeriodicZ function is deprecated in favor "
+                      "of setting the periodic_z class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         return self.thisptr.getPeriodicZ()
 
     def setPeriodicZ(self, val):
-        """Set the box periodicity in the z direction.
-
-        Args:
-            val (bool): True if periodic, False if not.
-        """
+        warnings.warn("The setPeriodicZ function is deprecated in favor "
+                      "of setting the periodic_z class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         return self.thisptr.setPeriodicZ(val)
 
     def to_dict(self):

@@ -26,7 +26,6 @@ def quatRot(vec, q):
 
 class TestBond(unittest.TestCase):
     def setUp(self):
-        # We ignore warnings for test_2_dimensional
         warnings.simplefilter("ignore", category=FreudDeprecationWarning)
 
     def test_correct_bond(self):
