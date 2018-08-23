@@ -1,11 +1,17 @@
 import numpy as np
 import numpy.testing as npt
 from freud.environment import Pairing2D
+import
 from freud import box
+from freud.errors import FreudDeprecationWarning
 import unittest
 
 
 class TestPairing(unittest.TestCase):
+    def setUp(self):
+        # We ignore warnings for test_2_dimensional
+        warnings.simplefilter("ignore", category=FreudDeprecationWarning)
+
     # by Eric
     fbox = box.Box(Lx=10, Ly=10, is2D=True)
     pos = np.array([[-1, 0, 0], [0, 0, 0], [1, 0, 0]], dtype=np.float32)

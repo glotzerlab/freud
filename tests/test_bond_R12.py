@@ -1,10 +1,15 @@
 import numpy as np
 import numpy.testing as npt
 from freud import box, bond
+from freud.errors import FreudDeprecationWarning
+import warnings
 import unittest
 
 
 class TestBond(unittest.TestCase):
+    def setUp(self):
+        # We ignore warnings for test_2_dimensional
+        warnings.simplefilter("ignore", category=FreudDeprecationWarning)
 
     def test_correct_bond(self):
         # generate the bonding map
