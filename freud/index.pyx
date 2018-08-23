@@ -82,14 +82,14 @@ cdef class Index2D:
 
     @property
     def num_elements(self):
-        return self.getNumElements()
+        return self.thisptr.getNumElements()
 
     def getNumElements(self):
         warnings.warn("The getNumElements function is deprecated in favor "
                       "of the num_elements class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        return self.thisptr.getNumElements()
+        return self.num_elements
 
 cdef class Index3D:
     """freud-style indexer for flat arrays.
@@ -154,11 +154,11 @@ cdef class Index3D:
 
     @property
     def num_elements(self):
-        return self.getNumElements()
+        return self.thisptr.getNumElements()
 
     def getNumElements(self):
         warnings.warn("The getNumElements function is deprecated in favor "
                       "of the num_elements class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        return self.thisptr.getNumElements()
+        return self.num_elements

@@ -87,14 +87,14 @@ cdef class Cluster:
 
     @property
     def box(self):
-        return self.getBox()
+        return self.m_box
 
     def getBox(self):
         warnings.warn("The getBox function is deprecated in favor "
                       "of the box class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        return self.m_box
+        return self.box
 
     def computeClusters(self, points, nlist=None, box=None):
         """Compute the clusters for the given set of points.
@@ -154,35 +154,28 @@ cdef class Cluster:
 
     @property
     def num_clusters(self):
-        return self.getNumClusters()
+        return self.thisptr.getNumClusters()
 
     def getNumClusters(self):
         warnings.warn("The getNumClusters function is deprecated in favor "
                       "of the num_clusters class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        return self.thisptr.getNumClusters()
+        return self.num_clusters
 
     @property
     def num_particles(self):
-        return self.getNumParticles()
+        return self.thisptr.getNumParticles()
 
     def getNumParticles(self):
         warnings.warn("The getNumParticles function is deprecated in favor "
                       "of the num_particles class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        return self.thisptr.getNumParticles()
+        return self.num_particles
 
     @property
     def cluster_idx(self):
-        return self.getClusterIdx()
-
-    def getClusterIdx(self):
-        warnings.warn("The getClusterIdx function is deprecated in favor "
-                      "of the cluster_idx class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
         cdef unsigned int * cluster_idx_raw = \
             self.thisptr.getClusterIdx().get()
         cdef np.npy_intp nP[1]
@@ -192,17 +185,24 @@ cdef class Cluster:
                 1, nP, np.NPY_UINT32, <void*> cluster_idx_raw)
         return result
 
+    def getClusterIdx(self):
+        warnings.warn("The getClusterIdx function is deprecated in favor "
+                      "of the cluster_idx class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.cluster_idx
+
     @property
     def cluster_keys(self):
-        return self.getClusterKeys()
+        cluster_keys = self.thisptr.getClusterKeys()
+        return cluster_keys
 
     def getClusterKeys(self):
         warnings.warn("The getClusterKeys function is deprecated in favor "
                       "of the cluster_keys class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        cluster_keys = self.thisptr.getClusterKeys()
-        return cluster_keys
+        return self.cluster_keys
 
 
 cdef class ClusterProperties:
@@ -257,14 +257,14 @@ cdef class ClusterProperties:
 
     @property
     def box(self):
-        return self.getBox()
+        return self.m_box
 
     def getBox(self):
         warnings.warn("The getBox function is deprecated in favor "
                       "of the box class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        return self.m_box
+        return self.box
 
     def computeProperties(self, points, cluster_idx, box=None):
         """Compute properties of the point clusters.
@@ -311,24 +311,17 @@ cdef class ClusterProperties:
 
     @property
     def num_clusters(self):
-        return self.getNumClusters()
+        return self.thisptr.getNumClusters()
 
     def getNumClusters(self):
         warnings.warn("The getNumClusters function is deprecated in favor "
                       "of the num_clusters class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        return self.thisptr.getNumClusters()
+        return self.num_clusters
 
     @property
     def cluster_COM(self):
-        return self.getClusterCOM()
-
-    def getClusterCOM(self):
-        warnings.warn("The getClusterCOM function is deprecated in favor "
-                      "of the cluster_COM class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
         cdef vec3[float] * cluster_com_raw = self.thisptr.getClusterCOM().get()
         cdef np.npy_intp nClusters[2]
         nClusters[0] = <np.npy_intp> self.thisptr.getNumClusters()
@@ -338,15 +331,15 @@ cdef class ClusterProperties:
                 2, nClusters, np.NPY_FLOAT32, <void*> cluster_com_raw)
         return result
 
-    @property
-    def cluster_G(self):
-        return self.getClusterG()
-
-    def getClusterG(self):
-        warnings.warn("The getClusterG function is deprecated in favor "
-                      "of the cluster_G class attribute and will be "
+    def getClusterCOM(self):
+        warnings.warn("The getClusterCOM function is deprecated in favor "
+                      "of the cluster_COM class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
+        return self.cluster_COM
+
+    @property
+    def cluster_G(self):
         cdef float * cluster_G_raw = self.thisptr.getClusterG().get()
         cdef np.npy_intp nClusters[3]
         nClusters[0] = <np.npy_intp> self.thisptr.getNumClusters()
@@ -357,15 +350,15 @@ cdef class ClusterProperties:
                 3, nClusters, np.NPY_FLOAT32, <void*> cluster_G_raw)
         return result
 
-    @property
-    def cluster_sizes(self):
-        return self.getClusterSizes()
-
-    def getClusterSizes(self):
-        warnings.warn("The getClusterSizes function is deprecated in favor "
-                      "of the cluster_sizes class attribute and will be "
+    def getClusterG(self):
+        warnings.warn("The getClusterG function is deprecated in favor "
+                      "of the cluster_G class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
+        return self.cluster_G
+
+    @property
+    def cluster_sizes(self):
         cdef unsigned int * cluster_sizes_raw = \
             self.thisptr.getClusterSize().get()
         cdef np.npy_intp nClusters[1]
@@ -374,3 +367,10 @@ cdef class ClusterProperties:
             np.PyArray_SimpleNewFromData(
                 1, nClusters, np.NPY_UINT32, <void*> cluster_sizes_raw)
         return result
+
+    def getClusterSizes(self):
+        warnings.warn("The getClusterSizes function is deprecated in favor "
+                      "of the cluster_sizes class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.cluster_sizes

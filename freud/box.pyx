@@ -124,119 +124,127 @@ cdef class Box:
     def __dealloc__(self):
         del self.thisptr
 
+    @property
+    def L(self):
+        cdef vec3[float] result = self.thisptr.getL()
+        return (result.x, result.y, result.z)
+
+    @L.setter
+    def L(self, value):
+        try:
+            if len(value) != 3:
+                raise ValueError('setL must be called with a scalar or a list of '
+                                 'length 3.')
+        except TypeError:
+            # Will fail if object has no length
+            value = (value, value, value)
+
+        if self.is2D() and value[2] != 0:
+            warnings.warn(
+                "Specifying z-dimensions in a 2-dimensional box "
+                "has no effect!")
+        self.thisptr.setL(value[0], value[1], value[2])
+
     def getL(self):
         warnings.warn("The getL function is deprecated in favor "
                       "of the L class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        cdef vec3[float] result = self.thisptr.getL()
-        return (result.x, result.y, result.z)
+        return self.L
 
     def setL(self, L):
         warnings.warn("The setL function is deprecated in favor "
                       "of setting the L class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        try:
-            len(L)
-        except TypeError:
-            L = (L, L, L)
-
-        if len(L) != 3:
-            raise ValueError('setL must be called with a scalar or a list of '
-                             'length 3.')
-
-        if self.is2D() and L[2] != 0:
-            warnings.warn(
-                "Specifying z-dimensions in a 2-dimensional box "
-                "has no effect!")
-        self.thisptr.setL(L[0], L[1], L[2])
+        self.L = L
 
     @property
-    def L(self):
-        return self.getL()
+    def Lx(self):
+        return self.thisptr.getLx()
 
-    @L.setter
-    def L(self, value):
-        self.setL(value)
+    @Lx.setter
+    def Lx(self, value):
+        self.L = [value, self.Ly, self.Lz]
 
     def getLx(self):
         warnings.warn("The getLx function is deprecated in favor "
                       "of the Lx class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        return self.thisptr.getLx()
+        return self.Lx
 
     @property
-    def Lx(self):
-        return self.getLx()
+    def Ly(self):
+        return self.thisptr.getLy()
 
-    @Lx.setter
-    def Lx(self, value):
-        self.setL([value, self.Ly, self.Lz])
+    @Ly.setter
+    def Ly(self, value):
+        self.L = [self.Lx, value, self.Lz]
 
     def getLy(self):
         warnings.warn("The getLy function is deprecated in favor "
                       "of the Ly class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        return self.thisptr.getLy()
+        return self.Ly
 
     @property
-    def Ly(self):
-        return self.getLy()
+    def Lz(self):
+        return self.thisptr.getLz()
 
-    @Ly.setter
-    def Ly(self, value):
-        self.setL([self.Lx, value, self.Lz])
+    @Lz.setter
+    def Lz(self, value):
+        self.L = [self.Lx, self.Ly, value]
 
     def getLz(self):
         warnings.warn("The getLz function is deprecated in favor "
                       "of the Lz class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        return self.thisptr.getLz()
+        return self.Lz
 
     @property
-    def Lz(self):
-        return self.getLz()
-
-    @Lz.setter
-    def Lz(self, value):
-        self.setL([self.Lx, self.Ly, value])
+    def xy(self):
+        return self.thisptr.getTiltFactorXY()
 
     def getTiltFactorXY(self):
         warnings.warn("The getTiltFactorXY function is deprecated in favor "
                       "of the xy class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        return self.thisptr.getTiltFactorXY()
+        return self.xy
 
     @property
-    def xy(self):
-        return self.getTiltFactorXY()
+    def xz(self):
+        return self.thisptr.getTiltFactorXZ()
 
     def getTiltFactorXZ(self):
         warnings.warn("The getTiltFactorXZ function is deprecated in favor "
                       "of the xz class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        return self.thisptr.getTiltFactorXZ()
+        return self.xz
 
     @property
-    def xz(self):
-        return self.getTiltFactorXZ()
+    def yz(self):
+        return self.thisptr.getTiltFactorYZ()
 
     def getTiltFactorYZ(self):
         warnings.warn("The getTiltFactorYZ function is deprecated in favor "
                       "of the yz class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        return self.thisptr.getTiltFactorYZ()
+        return self.yz
 
     @property
-    def yz(self):
-        return self.getTiltFactorYZ()
+    def dimensions(self):
+        return 2 if self.is2D() else 3
+
+    @dimensions.setter
+    def dimensions(self, value):
+        assert value == 2 or value == 3
+        self.thisptr.set2D(bool(value == 2))
 
     def is2D(self):
         """Return if box is 2D (True) or 3D (False).
@@ -251,39 +259,30 @@ cdef class Box:
                       "of setting the dimensions class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        self.thisptr.set2D(bool(val))
+        self.dimensions = 2 if val else 3
 
     @property
-    def dimensions(self):
-        return 2 if self.is2D() else 3
-
-    @dimensions.setter
-    def dimensions(self, value):
-        assert value == 2 or value == 3
-        self.set2D(value == 2)
+    def Linv(self):
+        cdef vec3[float] result = self.thisptr.getLinv()
+        return (result.x, result.y, result.z)
 
     def getLinv(self):
         warnings.warn("The getLinv function is deprecated in favor "
                       "of the Linv class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        cdef vec3[float] result = self.thisptr.getLinv()
-        return (result.x, result.y, result.z)
+        return self.Linv
 
     @property
-    def Linv(self):
-        return self.getLinv()
+    def volume(self):
+        return self.thisptr.getVolume()
 
     def getVolume(self):
         warnings.warn("The getVolume function is deprecated in favor "
                       "of the volume class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        return self.thisptr.getVolume()
-
-    @property
-    def volume(self):
-        return self.getVolume()
+        return self.volume
 
     def getCoordinates(self, f):
         warnings.warn("The getCoordinates function is deprecated in favor "
@@ -485,69 +484,69 @@ cdef class Box:
 
     @property
     def periodic_x(self):
-        return self.getPeriodicX()
+        return self.thisptr.getPeriodicX()
 
     @periodic_x.setter
     def periodic_x(self, periodic):
-        self.setPeriodicX(periodic)
+        self.thisptr.setPeriodicX(periodic)
 
     @property
     def periodic_y(self):
-        return self.getPeriodicY()
+        return self.thisptr.getPeriodicY()
 
     @periodic_y.setter
     def periodic_y(self, periodic):
-        self.setPeriodicY(periodic)
+        self.thisptr.setPeriodicY(periodic)
 
     @property
     def periodic_z(self):
-        return self.getPeriodicZ()
+        return self.thisptr.getPeriodicZ()
 
     @periodic_z.setter
     def periodic_z(self, periodic):
-        self.setPeriodicZ(periodic)
+        self.thisptr.setPeriodicZ(periodic)
 
     def getPeriodicX(self):
         warnings.warn("The getPeriodicX function is deprecated in favor "
                       "of setting the periodic_x class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        return self.thisptr.getPeriodicX()
+        return self.periodic_x
 
     def setPeriodicX(self, val):
         warnings.warn("The setPeriodicX function is deprecated in favor "
                       "of setting the periodic_x class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        return self.thisptr.setPeriodicX(val)
+        self.periodic_x = val
 
     def getPeriodicY(self):
         warnings.warn("The getPeriodicY function is deprecated in favor "
                       "of setting the periodic_y class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        return self.thisptr.getPeriodicY()
+        return self.periodic_y
 
     def setPeriodicY(self, val):
         warnings.warn("The setPeriodicY function is deprecated in favor "
                       "of setting the periodic_y class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        return self.thisptr.setPeriodicY(val)
+        self.periodic_y = val
 
     def getPeriodicZ(self):
         warnings.warn("The getPeriodicZ function is deprecated in favor "
                       "of setting the periodic_z class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        return self.thisptr.getPeriodicZ()
+        return self.periodic_z
 
     def setPeriodicZ(self, val):
         warnings.warn("The setPeriodicZ function is deprecated in favor "
                       "of setting the periodic_z class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        return self.thisptr.setPeriodicZ(val)
+        self.periodic_z = val
 
     def to_dict(self):
         """Return box as dictionary.

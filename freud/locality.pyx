@@ -68,11 +68,11 @@ cdef class NeighborList:
         weights ((:math:`N_{bonds}`) :class:`np.ndarray`):
             The per-bond weights from the last set of points this object was
             evaluated with.
-        segments ((:math:`N_{ref\_points}`) :class:`np.ndarray`):
+        segments ((:math:`N_{ref\\_points}`) :class:`np.ndarray`):
             A segment array, which is an array of length :math:`N_{ref}`
             indicating the first bond index for each reference particle from
             the last set of points this object was evaluated with.
-        neighbor_counts ((:math:`N_{ref\_points}`) :class:`np.ndarray`):
+        neighbor_counts ((:math:`N_{ref\\_points}`) :class:`np.ndarray`):
             A neighbor count array, which is an array of length
             :math:`N_{ref}` indicating the number of neighbors for each
             reference particle from the last set of points this object was
@@ -87,7 +87,7 @@ cdef class NeighborList:
        # Get all vectors from central particles to their neighbors
        rijs = positions[nlist.index_j] - positions[nlist.index_i]
        box.wrap(rijs)
-    """ # noqa
+    """
 
     @classmethod
     def from_arrays(cls, Nref, Ntarget, index_i, index_j, weights=None):
@@ -554,25 +554,25 @@ cdef class LinkCell:
 
     @property
     def box(self):
-        return self.getBox()
+        return freud.box.BoxFromCPP(self.thisptr.getBox())
 
     def getBox(self):
         warnings.warn("The getBox function is deprecated in favor "
                       "of the box class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        return freud.box.BoxFromCPP(self.thisptr.getBox())
+        return self.box
 
     @property
     def num_cells(self):
-        return self.getNumCells()
+        return self.thisptr.getNumCells()
 
     def getNumCells(self):
         warnings.warn("The getNumCells function is deprecated in favor "
                       "of the num_cells class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        return self.thisptr.getNumCells()
+        return self.num_cells
 
     def getCell(self, point):
         """Returns the index of the cell containing the given point.
@@ -773,47 +773,47 @@ cdef class NearestNeighbors:
 
     @property
     def UINTMAX(self):
-        return self.getUINTMAX()
+        return self.thisptr.getUINTMAX()
 
     def getUINTMAX(self):
         warnings.warn("The getUINTMAX function is deprecated in favor "
                       "of the UINTMAX class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        return self.thisptr.getUINTMAX()
+        return self.UINTMAX
 
     @property
     def box(self):
-        return self.getBox()
+        return freud.box.BoxFromCPP(self.thisptr.getBox())
 
     def getBox(self):
         warnings.warn("The getBox function is deprecated in favor "
                       "of the box class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        return freud.box.BoxFromCPP(self.thisptr.getBox())
+        return self.box
 
     @property
     def num_neighbors(self):
-        return self.getNumNeighbors()
+        return self.thisptr.getNumNeighbors()
 
     def getNumNeighbors(self):
         warnings.warn("The getNumNeighbors function is deprecated in favor "
                       "of the num_neighbors class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        return self.thisptr.getNumNeighbors()
+        return self.num_neighbors
 
     @property
     def n_ref(self):
-        return self.getNRef()
+        return self.thisptr.getNref()
 
     def getNRef(self):
         warnings.warn("The getNref function is deprecated in favor "
                       "of the n_ref class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        return self.thisptr.getNref()
+        return self.n_ref
 
     def setRMax(self, float rmax):
         warnings.warn("Use constructor arguments instead of this setter. "
@@ -843,14 +843,14 @@ cdef class NearestNeighbors:
 
     @property
     def r_max(self):
-        return self.getRMax()
+        return self.thisptr.getRMax()
 
     def getRMax(self):
         warnings.warn("The getRMax function is deprecated in favor "
                       "of the r_max class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        return self.thisptr.getRMax()
+        return self.r_max
 
     def getNeighbors(self, unsigned int i):
         """Return the :math:`N` nearest neighbors of the reference point with
@@ -917,14 +917,14 @@ cdef class NearestNeighbors:
 
     @property
     def wrapped_vectors(self):
-        return self.getWrappedVectors()
+        return self._getWrappedVectors()[0]
 
     def getWrappedVectors(self):
         warnings.warn("The getWrappedVectors function is deprecated in favor "
                       "of the wrapped_vectors class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        return self._getWrappedVectors()[0]
+        return self.wrapped_vectors
 
     def _getWrappedVectors(self):
         result = np.empty(
@@ -952,17 +952,17 @@ cdef class NearestNeighbors:
 
     @property
     def r_sq_list(self):
-        return self.getRsqList()
+        (vecs, blank_mask) = self._getWrappedVectors()
+        result = np.sum(vecs**2, axis=-1)
+        result[blank_mask] = -1
+        return result
 
     def getRsqList(self):
         warnings.warn("The getRsqList function is deprecated in favor "
                       "of the r_sq_list class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        (vecs, blank_mask) = self._getWrappedVectors()
-        result = np.sum(vecs**2, axis=-1)
-        result[blank_mask] = -1
-        return result
+        return self.r_sq_list
 
     def compute(self, box, ref_points, points=None, exclude_ii=None):
         """Update the data structure for the given set of points.

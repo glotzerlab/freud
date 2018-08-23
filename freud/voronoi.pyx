@@ -78,13 +78,6 @@ cdef class VoronoiBuffer:
 
     @property
     def buffer_particles(self):
-        return self.getBufferParticles()
-
-    def getBufferParticles(self):
-        warnings.warn("The getBufferParticles function is deprecated in favor "
-                      "of the buffer_particles class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
         cdef unsigned int buffer_size = \
             dereference(self.thisptr.getBufferParticles().get()).size()
         cdef vec3[float] * buffer_points = \
@@ -103,15 +96,15 @@ cdef class VoronoiBuffer:
                                          <void*> dereference(bufferPar).data())
         return result
 
-    @property
-    def buffer_ids(self):
-        return self.getBufferIds()
-
-    def getBufferIds(self):
-        warnings.warn("The getBufferIds function is deprecated in favor "
-                      "of the buff_ids class attribute and will be "
+    def getBufferParticles(self):
+        warnings.warn("The getBufferParticles function is deprecated in favor "
+                      "of the buffer_particles class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
+        return self.buffer_particles
+
+    @property
+    def buffer_ids(self):
         cdef unsigned int buffer_size = \
             dereference(self.thisptr.getBufferParticles().get()).size()
         if not buffer_size:
@@ -127,6 +120,13 @@ cdef class VoronoiBuffer:
                 1, nbins, np.NPY_UINT32,
                 <void*> dereference(buffer_ids).data())
         return result
+
+    def getBufferIds(self):
+        warnings.warn("The getBufferIds function is deprecated in favor "
+                      "of the buff_ids class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.buff_ids
 
 
 class Voronoi:
@@ -157,8 +157,8 @@ class Voronoi:
         if not _SCIPY_AVAILABLE:
             raise RuntimeError("You cannot use this class without SciPy")
         cdef freud.box.Box b = freud.common.convert_box(box)
-        self.box = b
-        self.buff = buff
+        self._box = b
+        self._buff = buff
 
     def setBox(self, box):
         """Reset the simulation box.
@@ -170,7 +170,7 @@ class Voronoi:
                       "This setter will be removed in the future.",
                       FreudDeprecationWarning)
         cdef freud.box.Box b = freud.common.convert_box(box)
-        self.box = b
+        self._box = b
 
     def setBufferWidth(self, buff):
         """Reset the buffer width.
@@ -181,7 +181,7 @@ class Voronoi:
         warnings.warn("Use constructor arguments instead of this setter. "
                       "This setter will be removed in the future.",
                       FreudDeprecationWarning)
-        self.buff = buff
+        self._buff = buff
 
     def _qhull_compute(self, positions, box=None, buff=None):
         """Calls VoronoiBuffer and qhull
@@ -232,11 +232,11 @@ class Voronoi:
         # If box or buff is not specified, revert to object quantities
         cdef freud.box.Box b
         if box is None:
-            b = self.box
+            b = self._box
         else:
             b = freud.common.convert_box(box)
         if buff is None:
-            buff = self.buff
+            buff = self._buff
 
         self._qhull_compute(positions, b, buff)
 
@@ -247,28 +247,27 @@ class Voronoi:
             vertices = np.insert(vertices, 2, 0, 1)
 
         # Construct a list of polytope vertices
-        self.poly_verts = list()
+        self._poly_verts = list()
         for region in self.voronoi.point_region[:len(positions)]:
             if -1 in self.voronoi.regions[region]:
                 continue
-            self.poly_verts.append(vertices[self.voronoi.regions[region]])
+            self._poly_verts.append(vertices[self.voronoi.regions[region]])
         return self
 
     @property
     def buffer(self):
-        return self.getBuffer()
+        return self._buff
 
     def getBuffer(self):
-        """Returns the buffer width.
-
-        Returns:
-            float: Buffer width.
-        """
-        return self.buff
+        warnings.warn("The getBuffer function is deprecated in favor "
+                      "of the buffer class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.buffer
 
     @property
     def polytopes(self):
-        return self.getVoronoiPolytopes()
+        return self._poly_verts
 
     def getVoronoiPolytopes(self):
         """Returns a list of polytope vertices corresponding to Voronoi cells.
@@ -287,7 +286,11 @@ class Voronoi:
                 List of :class:`numpy.ndarray` containing Voronoi polytope
                 vertices.
         """
-        return self.poly_verts
+        warnings.warn("The getBuffer function is deprecated in favor "
+                      "of the buffer class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.polytopes
 
     def computeNeighbors(self, positions, box=None, buff=None,
                          exclude_ii=True):
@@ -330,11 +333,11 @@ class Voronoi:
         # If box or buff is not specified, revert to object quantities
         cdef freud.box.Box b
         if box is None:
-            b = self.box
+            b = self._box
         else:
             b = freud.common.convert_box(box)
         if buff is None:
-            buff = self.buff
+            buff = self._buff
 
         self._qhull_compute(positions, b, buff)
 
@@ -463,22 +466,6 @@ class Voronoi:
 
     @property
     def nlist(self):
-        return self.getNeighborList()
-
-    def getNeighborList(self):
-        """Returns a neighbor list object.
-
-        In the neighbor list, each neighbor pair has a weight value.
-
-        In 2D systems, the bond weight is the "ridge length" of the Voronoi
-        boundary line between the neighboring particles.
-
-        In 3D systems, the bond weight is the "ridge area" of the Voronoi
-        boundary polygon between the neighboring particles.
-
-        Returns:
-            :class:`~.locality.NeighborList`: Neighbor list.
-        """
         # Build neighbor list based on voronoi neighbors
         neighbor_list = copy.copy(self.firstShellNeighborList)
         weight = copy.copy(self.firstShellWeight)
@@ -506,6 +493,26 @@ class Voronoi:
             indexAry[:, 0], indexAry[:, 1], weights=indexAry[:, 2])
         return result
 
+    def getNeighborList(self):
+        """Returns a neighbor list object.
+
+        In the neighbor list, each neighbor pair has a weight value.
+
+        In 2D systems, the bond weight is the "ridge length" of the Voronoi
+        boundary line between the neighboring particles.
+
+        In 3D systems, the bond weight is the "ridge area" of the Voronoi
+        boundary polygon between the neighboring particles.
+
+        Returns:
+            :class:`~.locality.NeighborList`: Neighbor list.
+        """
+        warnings.warn("The getNeighborList function is deprecated in favor "
+                      "of the nlist class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.nlist
+
     def computeVolumes(self):
         """Computes volumes (areas in 2D) of Voronoi cells.
 
@@ -516,18 +523,18 @@ class Voronoi:
         :py:meth:`freud.voronoi.Voronoi.getVolumes()`.
         """
         polytope_verts = self.getVoronoiPolytopes()
-        self.poly_volumes = np.zeros(shape=len(polytope_verts))
+        self._poly_volumes = np.zeros(shape=len(polytope_verts))
 
         for i, verts in enumerate(polytope_verts):
-            is2D = np.all(self.poly_verts[0][:, -1] == 0)
+            is2D = np.all(self._poly_verts[0][:, -1] == 0)
             hull = ConvexHull(verts[:, :2 if is2D else 3])
-            self.poly_volumes[i] = hull.volume
+            self._poly_volumes[i] = hull.volume
 
         return self
 
     @property
     def volumes(self):
-        return self.getVolumes()
+        return self._poly_volumes
 
     def getVolumes(self):
         """Returns an array of volumes (areas in 2D) corresponding to Voronoi
@@ -551,4 +558,4 @@ class Voronoi:
             (:math:`\\left(N_{cells} \\right)`) :class:`numpy.ndarray`:
                 Voronoi polytope volumes/areas.
         """
-        return self.poly_volumes
+        return self.volumes

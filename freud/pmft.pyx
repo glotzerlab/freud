@@ -73,14 +73,14 @@ cdef class _PMFT:
 
     @property
     def box(self):
-        return self.getBox()
+        return freud.box.BoxFromCPP(self.pmftptr.getBox())
 
     def getBox(self):
         warnings.warn("The getBox function is deprecated in favor "
                       "of the box class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        return freud.box.BoxFromCPP(self.pmftptr.getBox())
+        return self.box
 
     def reset(self):
         """Resets the values of the PCF histograms in memory."""
@@ -99,35 +99,27 @@ cdef class _PMFT:
         self.pmftptr.reducePCF()
 
     @property
-    def bin_counts(self):
-        return self.getBinCounts()
-
-    @property
-    def PCF(self):
-        return self.getPCF()
-
-    @property
     def PMFT(self):
-        return self.getPMFT()
+        return -np.log(np.copy(self.getPCF()))
 
     def getPMFT(self):
         warnings.warn("The getPMFT function is deprecated in favor "
                       "of the PMFT class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        return -np.log(np.copy(self.getPCF()))
+        return self.PMFT
 
     @property
     def r_cut(self):
-        return self.getRCut()
+        cdef float r_cut = self.pmftptr.getRCut()
+        return r_cut
 
     def getRCut(self):
         warnings.warn("The getRCut function is deprecated in favor "
                       "of the r_cut class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        cdef float r_cut = self.pmftptr.getRCut()
-        return r_cut
+        return self.r_cut
 
 
 cdef class PMFTR12(_PMFT):
@@ -292,11 +284,8 @@ cdef class PMFTR12(_PMFT):
                         points, orientations, nlist)
         return self
 
-    def getBinCounts(self):
-        warnings.warn("The getBinCounts function is deprecated in favor "
-                      "of the bin_counts class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
+    @property
+    def bin_counts(self):
         cdef unsigned int * bin_counts = self.pmftr12ptr.getBinCounts().get()
         cdef np.npy_intp nbins[3]
         nbins[0] = <np.npy_intp> self.pmftr12ptr.getNBinsR()
@@ -307,11 +296,15 @@ cdef class PMFTR12(_PMFT):
                                          <void*> bin_counts)
         return result
 
-    def getPCF(self):
-        warnings.warn("The getPCF function is deprecated in favor "
-                      "of the PCF class attribute and will be "
+    def getBinCounts(self):
+        warnings.warn("The getBinCounts function is deprecated in favor "
+                      "of the bin_counts class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
+        return self.bin_counts
+
+    @property
+    def PCF(self):
         cdef float * pcf = self.pmftr12ptr.getPCF().get()
         cdef np.npy_intp nbins[3]
         nbins[0] = <np.npy_intp> self.pmftr12ptr.getNBinsR()
@@ -321,15 +314,15 @@ cdef class PMFTR12(_PMFT):
             np.PyArray_SimpleNewFromData(3, nbins, np.NPY_FLOAT32, <void*> pcf)
         return result
 
-    @property
-    def R(self):
-        return self.getR()
-
-    def getR(self):
-        warnings.warn("The getR function is deprecated in favor "
-                      "of the R class attribute and will be "
+    def getPCF(self):
+        warnings.warn("The getPCF function is deprecated in favor "
+                      "of the PCF class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
+        return self.PCF
+
+    @property
+    def R(self):
         cdef float * r = self.pmftr12ptr.getR().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.pmftr12ptr.getNBinsR()
@@ -337,15 +330,15 @@ cdef class PMFTR12(_PMFT):
             np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> r)
         return result
 
-    @property
-    def T1(self):
-        return self.getT1()
-
-    def getT1(self):
-        warnings.warn("The getT1 function is deprecated in favor "
-                      "of the T1 class attribute and will be "
+    def getR(self):
+        warnings.warn("The getR function is deprecated in favor "
+                      "of the R class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
+        return self.R
+
+    @property
+    def T1(self):
         cdef float * T1 = self.pmftr12ptr.getT1().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.pmftr12ptr.getNBinsT1()
@@ -353,15 +346,15 @@ cdef class PMFTR12(_PMFT):
             np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> T1)
         return result
 
-    @property
-    def T2(self):
-        return self.getT2()
-
-    def getT2(self):
-        warnings.warn("The getT2 function is deprecated in favor "
-                      "of the T2 class attribute and will be "
+    def getT1(self):
+        warnings.warn("The getT1 function is deprecated in favor "
+                      "of the T1 class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
+        return self.T1
+
+    @property
+    def T2(self):
         cdef float * T2 = self.pmftr12ptr.getT2().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.pmftr12ptr.getNBinsT2()
@@ -369,15 +362,15 @@ cdef class PMFTR12(_PMFT):
             np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> T2)
         return result
 
-    @property
-    def inverse_jacobian(self):
-        return self.getInverseJacobian()
-
-    def getInverseJacobian(self):
-        warnings.warn("The getInverseJacobian function is deprecated in favor "
-                      "of the inverse_jacobian class attribute and will be "
+    def getT2(self):
+        warnings.warn("The getT2 function is deprecated in favor "
+                      "of the T2 class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
+        return self.T2
+
+    @property
+    def inverse_jacobian(self):
         cdef float * inv_jac = self.pmftr12ptr.getInverseJacobian().get()
         cdef np.npy_intp nbins[3]
         nbins[0] = <np.npy_intp> self.pmftr12ptr.getNBinsR()
@@ -388,41 +381,48 @@ cdef class PMFTR12(_PMFT):
                                          <void*> inv_jac)
         return result
 
+    def getInverseJacobian(self):
+        warnings.warn("The getInverseJacobian function is deprecated in favor "
+                      "of the inverse_jacobian class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.inverse_jacobian
+
     @property
     def n_bins_r(self):
-        return self.getNBinsR()
+        cdef unsigned int r = self.pmftr12ptr.getNBinsR()
+        return r
 
     def getNBinsR(self):
         warnings.warn("The getNBinsR function is deprecated in favor "
                       "of the n_bins_r class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        cdef unsigned int r = self.pmftr12ptr.getNBinsR()
-        return r
+        return self.n_bins_r
 
     @property
     def n_bins_T1(self):
-        return self.getNBinsT1()
+        cdef unsigned int T1 = self.pmftr12ptr.getNBinsT1()
+        return T1
 
     def getNBinsT1(self):
         warnings.warn("The getNBinsT1 function is deprecated in favor "
                       "of the n_bins_T1 class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        cdef unsigned int T1 = self.pmftr12ptr.getNBinsT1()
-        return T1
+        return self.n_bins_T1
 
     @property
     def n_bins_T2(self):
-        return self.getNBinsT2()
+        cdef unsigned int T2 = self.pmftr12ptr.getNBinsT2()
+        return T2
 
     def getNBinsT2(self):
         warnings.warn("The getNBinsT2 function is deprecated in favor "
                       "of the n_bins_T2 class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        cdef unsigned int T2 = self.pmftr12ptr.getNBinsT2()
-        return T2
+        return self.n_bins_T2
 
 cdef class PMFTXYT(_PMFT):
     """Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ for
@@ -593,11 +593,8 @@ cdef class PMFTXYT(_PMFT):
                         points, orientations, nlist)
         return self
 
-    def getBinCounts(self):
-        warnings.warn("The getBinCounts function is deprecated in favor "
-                      "of the bin_counts class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
+    @property
+    def bin_counts(self):
         cdef unsigned int * bin_counts = self.pmftxytptr.getBinCounts().get()
         cdef np.npy_intp nbins[3]
         nbins[0] = <np.npy_intp> self.pmftxytptr.getNBinsT()
@@ -608,11 +605,15 @@ cdef class PMFTXYT(_PMFT):
                                          <void*> bin_counts)
         return result
 
-    def getPCF(self):
-        warnings.warn("The getPCF function is deprecated in favor "
-                      "of the PCF class attribute and will be "
+    def getBinCounts(self):
+        warnings.warn("The getBinCounts function is deprecated in favor "
+                      "of the bin_counts class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
+        return self.bin_counts
+
+    @property
+    def PCF(self):
         cdef float * pcf = self.pmftxytptr.getPCF().get()
         cdef np.npy_intp nbins[3]
         nbins[0] = <np.npy_intp> self.pmftxytptr.getNBinsT()
@@ -622,15 +623,15 @@ cdef class PMFTXYT(_PMFT):
             np.PyArray_SimpleNewFromData(3, nbins, np.NPY_FLOAT32, <void*> pcf)
         return result
 
-    @property
-    def X(self):
-        return self.getX()
-
-    def getX(self):
-        warnings.warn("The getX function is deprecated in favor "
-                      "of the X class attribute and will be "
+    def getPCF(self):
+        warnings.warn("The getPCF function is deprecated in favor "
+                      "of the PCF class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
+        return self.PCF
+
+    @property
+    def X(self):
         cdef float * x = self.pmftxytptr.getX().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.pmftxytptr.getNBinsX()
@@ -638,15 +639,15 @@ cdef class PMFTXYT(_PMFT):
             np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> x)
         return result
 
-    @property
-    def Y(self):
-        return self.getY()
-
-    def getY(self):
-        warnings.warn("The getY function is deprecated in favor "
-                      "of the Y class attribute and will be "
+    def getX(self):
+        warnings.warn("The getX function is deprecated in favor "
+                      "of the X class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
+        return self.X
+
+    @property
+    def Y(self):
         cdef float * y = self.pmftxytptr.getY().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.pmftxytptr.getNBinsY()
@@ -654,15 +655,15 @@ cdef class PMFTXYT(_PMFT):
             np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> y)
         return result
 
-    @property
-    def T(self):
-        return self.getT()
-
-    def getT(self):
-        warnings.warn("The getT function is deprecated in favor "
-                      "of the T class attribute and will be "
+    def getY(self):
+        warnings.warn("The getY function is deprecated in favor "
+                      "of the Y class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
+        return self.Y
+
+    @property
+    def T(self):
         cdef float * t = self.pmftxytptr.getT().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.pmftxytptr.getNBinsT()
@@ -670,53 +671,60 @@ cdef class PMFTXYT(_PMFT):
             np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> t)
         return result
 
+    def getT(self):
+        warnings.warn("The getT function is deprecated in favor "
+                      "of the T class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.T
+
     @property
     def jacobian(self):
-        return self.getJacobian()
+        cdef float j = self.pmftxytptr.getJacobian()
+        return j
 
     def getJacobian(self):
         warnings.warn("The getJacobian function is deprecated in favor "
                       "of the jacobian class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        cdef float j = self.pmftxytptr.getJacobian()
-        return j
+        return self.jacobian
 
     @property
     def n_bins_X(self):
-        return self.getNBinsX()
+        cdef unsigned int x = self.pmftxytptr.getNBinsX()
+        return x
 
     def getNBinsX(self):
         warnings.warn("The getNBinsX function is deprecated in favor "
                       "of the n_bins_X class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        cdef unsigned int x = self.pmftxytptr.getNBinsX()
-        return x
+        return self.n_bins_X
 
     @property
     def n_bins_Y(self):
-        return self.getNBinsY()
+        cdef unsigned int y = self.pmftxytptr.getNBinsY()
+        return y
 
     def getNBinsY(self):
         warnings.warn("The getNBinsY function is deprecated in favor "
                       "of the n_bins_Y class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        cdef unsigned int y = self.pmftxytptr.getNBinsY()
-        return y
+        return self.n_bins_Y
 
     @property
     def n_bins_T(self):
-        return self.getNBinsT()
+        cdef unsigned int t = self.pmftxytptr.getNBinsT()
+        return t
 
     def getNBinsT(self):
         warnings.warn("The getNBinsT function is deprecated in favor "
                       "of the n_bins_T class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        cdef unsigned int t = self.pmftxytptr.getNBinsT()
-        return t
+        return self.n_bins_T
 
 
 cdef class PMFTXY2D(_PMFT):
@@ -877,11 +885,8 @@ cdef class PMFTXY2D(_PMFT):
                         points, orientations, nlist)
         return self
 
-    def getPCF(self):
-        warnings.warn("The getPCF function is deprecated in favor "
-                      "of the PCF class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
+    @property
+    def PCF(self):
         cdef float * pcf = self.pmftxy2dptr.getPCF().get()
         cdef np.npy_intp nbins[2]
         nbins[0] = <np.npy_intp> self.pmftxy2dptr.getNBinsY()
@@ -890,11 +895,15 @@ cdef class PMFTXY2D(_PMFT):
             np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, <void*> pcf)
         return result
 
-    def getBinCounts(self):
-        warnings.warn("The getBinCounts function is deprecated in favor "
-                      "of the bin_counts class attribute and will be "
+    def getPCF(self):
+        warnings.warn("The getPCF function is deprecated in favor "
+                      "of the PCF class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
+        return self.PCF
+
+    @property
+    def bin_counts(self):
         cdef unsigned int * bin_counts = self.pmftxy2dptr.getBinCounts().get()
         cdef np.npy_intp nbins[2]
         nbins[0] = <np.npy_intp> self.pmftxy2dptr.getNBinsY()
@@ -904,15 +913,15 @@ cdef class PMFTXY2D(_PMFT):
                                          <void*> bin_counts)
         return result
 
-    @property
-    def X(self):
-        return self.getX()
-
-    def getX(self):
-        warnings.warn("The getX function is deprecated in favor "
-                      "of the X class attribute and will be "
+    def getBinCounts(self):
+        warnings.warn("The getBinCounts function is deprecated in favor "
+                      "of the bin_counts class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
+        return self.bin_counts
+
+    @property
+    def X(self):
         cdef float * x = self.pmftxy2dptr.getX().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.pmftxy2dptr.getNBinsX()
@@ -920,15 +929,15 @@ cdef class PMFTXY2D(_PMFT):
             np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> x)
         return result
 
-    @property
-    def Y(self):
-        return self.getY()
-
-    def getY(self):
-        warnings.warn("The getY function is deprecated in favor "
-                      "of the Y class attribute and will be "
+    def getX(self):
+        warnings.warn("The getX function is deprecated in favor "
+                      "of the X class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
+        return self.X
+
+    @property
+    def Y(self):
         cdef float * y = self.pmftxy2dptr.getY().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.pmftxy2dptr.getNBinsY()
@@ -936,41 +945,48 @@ cdef class PMFTXY2D(_PMFT):
             np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> y)
         return result
 
+    def getY(self):
+        warnings.warn("The getY function is deprecated in favor "
+                      "of the Y class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.Y
+
     @property
     def n_bins_X(self):
-        return self.getNBinsX()
+        cdef unsigned int x = self.pmftxy2dptr.getNBinsX()
+        return x
 
     def getNBinsX(self):
         warnings.warn("The getNBinsX function is deprecated in favor "
                       "of the n_bins_X class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        cdef unsigned int x = self.pmftxy2dptr.getNBinsX()
-        return x
+        return self.n_bins_X
 
     @property
     def n_bins_Y(self):
-        return self.getNBinsY()
+        cdef unsigned int y = self.pmftxy2dptr.getNBinsY()
+        return y
 
     def getNBinsY(self):
         warnings.warn("The getNBinsY function is deprecated in favor "
                       "of the n_bins_Y class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        cdef unsigned int y = self.pmftxy2dptr.getNBinsY()
-        return y
+        return self.n_bins_Y
 
     @property
     def jacobian(self):
-        return self.getJacobian()
+        cdef float j = self.pmftxy2dptr.getJacobian()
+        return j
 
     def getJacobian(self):
         warnings.warn("The getJacobian function is deprecated in favor "
                       "of the jacobian class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        cdef float j = self.pmftxy2dptr.getJacobian()
-        return j
+        return self.jacobian
 
 
 cdef class PMFTXYZ(_PMFT):
@@ -1238,11 +1254,8 @@ cdef class PMFTXYZ(_PMFT):
                       FreudDeprecationWarning)
         self.pmftxyzptr.reducePCF()
 
-    def getBinCounts(self):
-        warnings.warn("The getBinCounts function is deprecated in favor "
-                      "of the bin_counts class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
+    @property
+    def bin_counts(self):
         cdef unsigned int * bin_counts = self.pmftxyzptr.getBinCounts().get()
         cdef np.npy_intp nbins[3]
         nbins[0] = <np.npy_intp> self.pmftxyzptr.getNBinsZ()
@@ -1253,11 +1266,15 @@ cdef class PMFTXYZ(_PMFT):
                                          <void*> bin_counts)
         return result
 
-    def getPCF(self):
-        warnings.warn("The getPCF function is deprecated in favor "
-                      "of the PCF class attribute and will be "
+    def getBinCounts(self):
+        warnings.warn("The getBinCounts function is deprecated in favor "
+                      "of the bin_counts class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
+        return self.bin_counts
+
+    @property
+    def PCF(self):
         cdef float * pcf = self.pmftxyzptr.getPCF().get()
         cdef np.npy_intp nbins[3]
         nbins[0] = <np.npy_intp> self.pmftxyzptr.getNBinsZ()
@@ -1266,6 +1283,13 @@ cdef class PMFTXYZ(_PMFT):
         cdef np.ndarray[np.float32_t, ndim=3] result = \
             np.PyArray_SimpleNewFromData(3, nbins, np.NPY_FLOAT32, <void*> pcf)
         return result
+
+    def getPCF(self):
+        warnings.warn("The getPCF function is deprecated in favor "
+                      "of the PCF class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.PCF
 
     def getPMFT(self):
         warnings.warn("The getPMFT function is deprecated in favor "
@@ -1276,13 +1300,6 @@ cdef class PMFTXYZ(_PMFT):
 
     @property
     def X(self):
-        return self.getX()
-
-    def getX(self):
-        warnings.warn("The getx function is deprecated in favor "
-                      "of the X class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
         cdef float * x = self.pmftxyzptr.getX().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.pmftxyzptr.getNBinsX()
@@ -1290,15 +1307,15 @@ cdef class PMFTXYZ(_PMFT):
             np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> x)
         return result + self.shiftvec[0]
 
-    @property
-    def Y(self):
-        return self.getY()
-
-    def getY(self):
-        warnings.warn("The getY function is deprecated in favor "
-                      "of the Y class attribute and will be "
+    def getX(self):
+        warnings.warn("The getx function is deprecated in favor "
+                      "of the X class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
+        return self.X
+
+    @property
+    def Y(self):
         cdef float * y = self.pmftxyzptr.getY().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.pmftxyzptr.getNBinsY()
@@ -1306,15 +1323,15 @@ cdef class PMFTXYZ(_PMFT):
             np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> y)
         return result + self.shiftvec[1]
 
-    @property
-    def Z(self):
-        return self.getZ()
-
-    def getZ(self):
-        warnings.warn("The getZ function is deprecated in favor "
-                      "of the Z class attribute and will be "
+    def getY(self):
+        warnings.warn("The getY function is deprecated in favor "
+                      "of the Y class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
+        return self.Y
+
+    @property
+    def Z(self):
         cdef float * z = self.pmftxyzptr.getZ().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.pmftxyzptr.getNBinsZ()
@@ -1322,50 +1339,57 @@ cdef class PMFTXYZ(_PMFT):
             np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> z)
         return result + self.shiftvec[2]
 
+    def getZ(self):
+        warnings.warn("The getZ function is deprecated in favor "
+                      "of the Z class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.Z
+
     @property
     def n_bins_X(self):
-        return self.getNBinsX()
+        cdef unsigned int x = self.pmftxyzptr.getNBinsX()
+        return x
 
     def getNBinsX(self):
         warnings.warn("The getNBinsX function is deprecated in favor "
                       "of the n_bins_X class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        cdef unsigned int x = self.pmftxyzptr.getNBinsX()
-        return x
+        return self.n_bins_X
 
     @property
     def n_bins_Y(self):
-        return self.getNBinsY()
+        cdef unsigned int y = self.pmftxyzptr.getNBinsY()
+        return y
 
     def getNBinsY(self):
         warnings.warn("The getNBinsY function is deprecated in favor "
                       "of the n_bins_Y class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        cdef unsigned int y = self.pmftxyzptr.getNBinsY()
-        return y
+        return self.n_bins_Y
 
     @property
     def n_bins_Z(self):
-        return self.getNBinsZ()
+        cdef unsigned int z = self.pmftxyzptr.getNBinsZ()
+        return z
 
     def getNBinsZ(self):
         warnings.warn("The getNBinsZ function is deprecated in favor "
                       "of the Z class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        cdef unsigned int z = self.pmftxyzptr.getNBinsZ()
-        return z
+        return self.n_bins_Z
 
     @property
     def jacobian(self):
-        return self.getJacobian()
+        cdef float j = self.pmftxyzptr.getJacobian()
+        return j
 
     def getJacobian(self):
         warnings.warn("The getJacobian function is deprecated in favor "
                       "of the jacobian class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        cdef float j = self.pmftxyzptr.getJacobian()
-        return j
+        return self.jacobian

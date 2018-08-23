@@ -114,40 +114,40 @@ cdef class CubaticOrderParameter:
 
     @property
     def t_initial(self):
-        return self.get_t_initial()
+        return self.thisptr.getTInitial()
 
     def get_t_initial(self):
         warnings.warn("The get_t_initial function is deprecated in favor "
                       "of the t_initial class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        return self.thisptr.getTInitial()
+        return self.t_initial
 
     @property
     def t_final(self):
-        return self.get_t_final()
+        return self.thisptr.getTFinal()
 
     def get_t_final(self):
         warnings.warn("The get_t_final function is deprecated in favor "
                       "of the t_final class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        return self.thisptr.getTFinal()
+        return self.t_final
 
     @property
     def scale(self):
-        return self.get_scale()
+        return self.thisptr.getScale()
 
     def get_scale(self):
         warnings.warn("The get_scale function is deprecated in favor "
                       "of the scale class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        return self.thisptr.getScale()
+        return self.scale
 
     @property
     def cubatic_order_parameter(self):
-        return self.get_cubatic_order_parameter()
+        return self.thisptr.getCubaticOrderParameter()
 
     def get_cubatic_order_parameter(self):
         warnings.warn("The get_cubatic_order_parameter function is deprecated "
@@ -155,31 +155,24 @@ cdef class CubaticOrderParameter:
                       "attribute and will be removed in a future version of "
                       "freud.",
                       FreudDeprecationWarning)
-        return self.thisptr.getCubaticOrderParameter()
+        return self.cubatic_order_parameter
 
     @property
     def orientation(self):
-        return self.get_orientation()
+        cdef quat[float] q = self.thisptr.getCubaticOrientation()
+        cdef np.ndarray[float, ndim=1] result = np.array(
+            [q.s, q.v.x, q.v.y, q.v.z], dtype=np.float32)
+        return result
 
     def get_orientation(self):
         warnings.warn("The get_orientation function is deprecated in favor "
                       "of the orientation class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        cdef quat[float] q = self.thisptr.getCubaticOrientation()
-        cdef np.ndarray[float, ndim=1] result = np.array(
-            [q.s, q.v.x, q.v.y, q.v.z], dtype=np.float32)
-        return result
+        return self.orientation
 
     @property
     def particle_order_parameter(self):
-        return self.get_particle_op()
-
-    def get_particle_op(self):
-        warnings.warn("The get_particle_op function is deprecated in favor "
-                      "of the particle_order_parameter class attribute and "
-                      "will be removed in a future version of freud.",
-                      FreudDeprecationWarning)
         cdef float * particle_op = \
             self.thisptr.getParticleCubaticOrderParameter().get()
         cdef np.npy_intp nbins[1]
@@ -189,15 +182,15 @@ cdef class CubaticOrderParameter:
                                          <void*> particle_op)
         return result
 
+    def get_particle_op(self):
+        warnings.warn("The get_particle_op function is deprecated in favor "
+                      "of the particle_order_parameter class attribute and "
+                      "will be removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.particle_order_parameter
+
     @property
     def particle_tensor(self):
-        return self.get_particle_tensor()
-
-    def get_particle_tensor(self):
-        warnings.warn("The get_particle_tensor function is deprecated in "
-                      "favor of the particle_tensor class attribute and will "
-                      "be removed in a future version of freud.",
-                      FreudDeprecationWarning)
         cdef float * particle_tensor = self.thisptr.getParticleTensor().get()
         cdef np.npy_intp nbins[5]
         nbins[0] = <np.npy_intp> self.thisptr.getNumParticles()
@@ -210,15 +203,15 @@ cdef class CubaticOrderParameter:
                                          <void*> particle_tensor)
         return result
 
+    def get_particle_tensor(self):
+        warnings.warn("The get_particle_tensor function is deprecated in "
+                      "favor of the particle_tensor class attribute and will "
+                      "be removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.particle_tensor
+
     @property
     def global_tensor(self):
-        return self.get_global_tensor()
-
-    def get_global_tensor(self):
-        warnings.warn("The get_global_tensor function is deprecated in favor "
-                      "of the global_tensor class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
         cdef float * global_tensor = self.thisptr.getGlobalTensor().get()
         cdef np.npy_intp nbins[4]
         nbins[0] = <np.npy_intp> 3
@@ -230,15 +223,15 @@ cdef class CubaticOrderParameter:
                                          <void*> global_tensor)
         return result
 
-    @property
-    def cubatic_tensor(self):
-        return self.get_cubatic_tensor()
-
-    def get_cubatic_tensor(self):
-        warnings.warn("The get_cubatic_tensor function is deprecated in favor "
-                      "of the cubatic_tensor class attribute and will be "
+    def get_global_tensor(self):
+        warnings.warn("The get_global_tensor function is deprecated in favor "
+                      "of the global_tensor class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
+        return self.global_tensor
+
+    @property
+    def cubatic_tensor(self):
         cdef float * cubatic_tensor = self.thisptr.getCubaticTensor().get()
         cdef np.npy_intp nbins[4]
         nbins[0] = <np.npy_intp> 3
@@ -250,15 +243,15 @@ cdef class CubaticOrderParameter:
                                          <void*> cubatic_tensor)
         return result
 
-    @property
-    def gen_r4_tensor(self):
-        return self.get_gen_r4_tensor()
-
-    def get_gen_r4_tensor(self):
-        warnings.warn("The get_gen_r4_tensor function is deprecated in favor "
-                      "of the gen_r4_tensor class attribute and will be "
+    def get_cubatic_tensor(self):
+        warnings.warn("The get_cubatic_tensor function is deprecated in favor "
+                      "of the cubatic_tensor class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
+        return self.cubatic_tensor
+
+    @property
+    def gen_r4_tensor(self):
         cdef float * gen_r4_tensor = self.thisptr.getGenR4Tensor().get()
         cdef np.npy_intp nbins[4]
         nbins[0] = <np.npy_intp> 3
@@ -269,6 +262,13 @@ cdef class CubaticOrderParameter:
             np.PyArray_SimpleNewFromData(4, nbins, np.NPY_FLOAT32,
                                          <void*> gen_r4_tensor)
         return result
+
+    def get_gen_r4_tensor(self):
+        warnings.warn("The get_gen_r4_tensor function is deprecated in favor "
+                      "of the gen_r4_tensor class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.gen_r4_tensor
 
 
 cdef class NematicOrderParameter:
@@ -318,7 +318,7 @@ cdef class NematicOrderParameter:
 
     @property
     def nematic_order_parameter(self):
-        return self.get_nematic_order_parameter()
+        return self.thisptr.getNematicOrderParameter()
 
     def get_nematic_order_parameter(self):
         warnings.warn("The get_nematic_order_parameter function is deprecated "
@@ -326,31 +326,24 @@ cdef class NematicOrderParameter:
                       "attribute and will be removed in a future version of "
                       "freud.",
                       FreudDeprecationWarning)
-        return self.thisptr.getNematicOrderParameter()
+        return self.nematic_order_parameter
 
     @property
     def director(self):
-        return self.get_director()
+        cdef vec3[float] n = self.thisptr.getNematicDirector()
+        cdef np.ndarray[np.float32_t, ndim=1] result = np.array(
+            [n.x, n.y, n.z], dtype=np.float32)
+        return result
 
     def get_director(self):
         warnings.warn("The get_director function is deprecated in favor "
                       "of the director class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        cdef vec3[float] n = self.thisptr.getNematicDirector()
-        cdef np.ndarray[np.float32_t, ndim=1] result = np.array(
-            [n.x, n.y, n.z], dtype=np.float32)
-        return result
+        return self.director
 
     @property
     def particle_tensor(self):
-        return self.get_particle_tensor()
-
-    def get_particle_tensor(self):
-        warnings.warn("The get_particle_tensor function is deprecated in "
-                      "favor of the particle_tensor class attribute and will "
-                      "be removed in a future version of freud.",
-                      FreudDeprecationWarning)
         cdef float *particle_tensor = self.thisptr.getParticleTensor().get()
         cdef np.npy_intp nbins[3]
         nbins[0] = <np.npy_intp> self.thisptr.getNumParticles()
@@ -361,15 +354,15 @@ cdef class NematicOrderParameter:
                                          <void*> particle_tensor)
         return result
 
+    def get_particle_tensor(self):
+        warnings.warn("The get_particle_tensor function is deprecated in "
+                      "favor of the particle_tensor class attribute and will "
+                      "be removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.particle_tensor
+
     @property
     def nematic_tensor(self):
-        return self.get_nematic_tensor()
-
-    def get_nematic_tensor(self):
-        warnings.warn("The get_nematic_tensor function is deprecated in favor "
-                      "of the nematic_tensor class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
         cdef float *nematic_tensor = self.thisptr.getNematicTensor().get()
         cdef np.npy_intp nbins[2]
         nbins[0] = <np.npy_intp> 3
@@ -378,6 +371,13 @@ cdef class NematicOrderParameter:
             np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32,
                                          <void*> nematic_tensor)
         return result
+
+    def get_nematic_tensor(self):
+        warnings.warn("The get_nematic_tensor function is deprecated in favor "
+                      "of the nematic_tensor class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.get_nematic_tensor()
 
 cdef class HexOrderParameter:
     """Calculates the :math:`k`-atic order parameter for each particle in the
@@ -416,7 +416,7 @@ cdef class HexOrderParameter:
             Box used in the calculation.
         num_particles (unsigned int):
             Number of particles.
-        k (unsigned int):
+        K (unsigned int):
             Symmetry of the order parameter.
     """
     cdef freud._order.HexOrderParameter * thisptr
@@ -463,13 +463,6 @@ cdef class HexOrderParameter:
 
     @property
     def psi(self):
-        return self.getPsi()
-
-    def getPsi(self):
-        warnings.warn("The getPsi function is deprecated in favor "
-                      "of the psi class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
         cdef float complex * psi = self.thisptr.getPsi().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.thisptr.getNP()
@@ -478,40 +471,47 @@ cdef class HexOrderParameter:
                                          <void*> psi)
         return result
 
+    def getPsi(self):
+        warnings.warn("The getPsi function is deprecated in favor "
+                      "of the psi class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.psi
+
     @property
     def box(self):
-        return self.getBox()
+        return freud.box.BoxFromCPP(< freud._box.Box > self.thisptr.getBox())
 
     def getBox(self):
         warnings.warn("The getBox function is deprecated in favor "
                       "of the box class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        return freud.box.BoxFromCPP(< freud._box.Box > self.thisptr.getBox())
+        return self.box
 
     @property
     def num_particles(self):
-        return self.getNP()
+        cdef unsigned int np = self.thisptr.getNP()
+        return np
 
     def getNP(self):
         warnings.warn("The getNP function is deprecated in favor "
                       "of the box class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        cdef unsigned int np = self.thisptr.getNP()
-        return np
+        return self.num_particles
 
     @property
-    def k(self):
-        return self.getK()
+    def K(self):
+        cdef unsigned int k = self.thisptr.getK()
+        return k
 
     def getK(self):
         warnings.warn("The getK function is deprecated in favor "
-                      "of the k class attribute and will be "
+                      "of the K class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        cdef unsigned int k = self.thisptr.getK()
-        return k
+        return self.K
 
 cdef class TransOrderParameter:
     """Compute the translational order parameter for each particle.
@@ -577,13 +577,6 @@ cdef class TransOrderParameter:
 
     @property
     def d_r(self):
-        return self.getDr()
-
-    def getDr(self):
-        warnings.warn("The getDr function is deprecated in favor "
-                      "of the d_r class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
         cdef float complex * dr = self.thisptr.getDr().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.thisptr.getNP()
@@ -592,28 +585,35 @@ cdef class TransOrderParameter:
                                          <void*> dr)
         return result
 
+    def getDr(self):
+        warnings.warn("The getDr function is deprecated in favor "
+                      "of the d_r class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.d_r
+
     @property
     def box(self):
-        return self.getBox()
+        return freud.box.BoxFromCPP(< freud._box.Box > self.thisptr.getBox())
 
     def getBox(self):
         warnings.warn("The getBox function is deprecated in favor "
                       "of the box class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        return freud.box.BoxFromCPP(< freud._box.Box > self.thisptr.getBox())
+        return self.box
 
     @property
     def num_particles(self):
-        return self.getNP()
+        cdef unsigned int np = self.thisptr.getNP()
+        return np
 
     def getNP(self):
         warnings.warn("The getNP function is deprecated in favor "
                       "of the num_particles class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        cdef unsigned int np = self.thisptr.getNP()
-        return np
+        return self.num_particles
 
 cdef class LocalQl:
     """
@@ -696,18 +696,19 @@ cdef class LocalQl:
 
     @property
     def box(self):
-        return self.getBox()
-
-    @box.setter
-    def box(self, value):
-        self.setBox(value)
+        return freud.box.BoxFromCPP(< freud._box.Box > self.qlptr.getBox())
 
     def getBox(self):
         warnings.warn("The getBox function is deprecated in favor "
                       "of the box class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        return freud.box.BoxFromCPP(< freud._box.Box > self.qlptr.getBox())
+        return self.box
+
+    @box.setter
+    def box(self, value):
+        cdef freud.box.Box b = freud.common.convert_box(value)
+        self.qlptr.setBox(dereference(b.thisptr))
 
     def setBox(self, box):
         """Reset the simulation box.
@@ -715,30 +716,22 @@ cdef class LocalQl:
         Args:
             box (:class:`freud.box.Box`): Simulation box.
         """
-        cdef freud.box.Box b = freud.common.convert_box(box)
-        self.qlptr.setBox(dereference(b.thisptr))
+        self.box = box
 
     @property
     def num_particles(self):
-        return self.getNP()
+        cdef unsigned int np = self.qlptr.getNP()
+        return np
 
     def getNP(self):
         warnings.warn("The getNP function is deprecated in favor "
                       "of the num_particles class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        cdef unsigned int np = self.qlptr.getNP()
-        return np
+        return self.num_particles
 
     @property
     def Ql(self):
-        return self.getQl()
-
-    def getQl(self):
-        warnings.warn("The getQl function is deprecated in favor "
-                      "of the Ql class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
         cdef float * Ql = self.qlptr.getQl().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.qlptr.getNP()
@@ -746,15 +739,15 @@ cdef class LocalQl:
             np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> Ql)
         return result
 
-    @property
-    def ave_Ql(self):
-        return self.getAveQl()
-
-    def getAveQl(self):
-        warnings.warn("The getAveQl function is deprecated in favor "
-                      "of the ave_Ql class attribute and will be "
+    def getQl(self):
+        warnings.warn("The getQl function is deprecated in favor "
+                      "of the Ql class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
+        return self.Ql
+
+    @property
+    def ave_Ql(self):
         cdef float * Ql = self.qlptr.getAveQl().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.qlptr.getNP()
@@ -762,15 +755,15 @@ cdef class LocalQl:
             np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> Ql)
         return result
 
-    @property
-    def norm_Ql(self):
-        return self.getQlNorm()
-
-    def getQlNorm(self):
-        warnings.warn("The getQlNorm function is deprecated in favor "
-                      "of the norm_Ql class attribute and will be "
+    def getAveQl(self):
+        warnings.warn("The getAveQl function is deprecated in favor "
+                      "of the ave_Ql class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
+        return self.ave_Ql
+
+    @property
+    def norm_Ql(self):
         cdef float * Ql = self.qlptr.getQlNorm().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.qlptr.getNP()
@@ -778,21 +771,28 @@ cdef class LocalQl:
             np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> Ql)
         return result
 
-    @property
-    def ave_norm_Ql(self):
-        return self.getQlAveNorm()
-
-    def getQlAveNorm(self):
-        warnings.warn("The getQlAveNorm function is deprecated in favor "
-                      "of the ave_norm_Ql class attribute and will be "
+    def getQlNorm(self):
+        warnings.warn("The getQlNorm function is deprecated in favor "
+                      "of the norm_Ql class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
+        return self.norm_Ql
+
+    @property
+    def ave_norm_Ql(self):
         cdef float * Ql = self.qlptr.getQlAveNorm().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.qlptr.getNP()
         cdef np.ndarray[float, ndim=1] result = \
             np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> Ql)
         return result
+
+    def getQlAveNorm(self):
+        warnings.warn("The getQlAveNorm function is deprecated in favor "
+                      "of the ave_norm_Ql class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.ave_norm_Ql
 
     def compute(self, points, nlist=None):
         """Compute the local rotationally invariant :math:`Q_l` order
@@ -1152,13 +1152,6 @@ cdef class LocalWl(LocalQl):
 
     @property
     def ave_Wl(self):
-        return self.getAveWl()
-
-    def getAveWl(self):
-        warnings.warn("The getAveWl function is deprecated in favor "
-                      "of the ave_Wl class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
         cdef float complex * Wl = self.thisptr.getAveWl().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.qlptr.getNP()
@@ -1167,15 +1160,15 @@ cdef class LocalWl(LocalQl):
                                          <void*> Wl)
         return result
 
-    @property
-    def norm_Wl(self):
-        return self.getWlNorm()
-
-    def getWlNorm(self):
-        warnings.warn("The getWlNorm function is deprecated in favor "
-                      "of the norm_Wl class attribute and will be "
+    def getAveWl(self):
+        warnings.warn("The getAveWl function is deprecated in favor "
+                      "of the ave_Wl class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
+        return self.ave_Wl
+
+    @property
+    def norm_Wl(self):
         cdef float complex * Wl = self.thisptr.getWlNorm().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.qlptr.getNP()
@@ -1184,15 +1177,15 @@ cdef class LocalWl(LocalQl):
                                          <void*> Wl)
         return result
 
-    @property
-    def ave_norm_Wl(self):
-        return self.getWlAveNorm()
-
-    def getWlAveNorm(self):
-        warnings.warn("The getWlAveNorm function is deprecated in favor "
-                      "of the ave_norm_Wl class attribute and will be "
+    def getWlNorm(self):
+        warnings.warn("The getWlNorm function is deprecated in favor "
+                      "of the norm_Wl class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
+        return self.norm_Wl
+
+    @property
+    def ave_norm_Wl(self):
         cdef float complex * Wl = self.thisptr.getAveNormWl().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.qlptr.getNP()
@@ -1200,6 +1193,13 @@ cdef class LocalWl(LocalQl):
             np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX64,
                                          <void*> Wl)
         return result
+
+    def getWlAveNorm(self):
+        warnings.warn("The getWlAveNorm function is deprecated in favor "
+                      "of the ave_norm_Wl class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.ave_norm_Wl
 
 cdef class LocalWlNear(LocalWl):
     """
@@ -1476,18 +1476,14 @@ cdef class SolLiq:
 
     @property
     def box(self):
-        return self.getBox()
-
-    @box.setter
-    def box(self, value):
-        self.setBox(value)
+        return freud.box.BoxFromCPP(< freud._box.Box > self.thisptr.getBox())
 
     def getBox(self):
         warnings.warn("The getBox function is deprecated in favor "
                       "of the box class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        return freud.box.BoxFromCPP(< freud._box.Box > self.thisptr.getBox())
+        return self.box
 
     def setClusteringRadius(self, rcutCluster):
         """Reset the clustering radius.
@@ -1500,36 +1496,32 @@ cdef class SolLiq:
                       FreudDeprecationWarning)
         self.thisptr.setClusteringRadius(rcutCluster)
 
-    def setBox(self, box):
-        """Reset the simulation box.
-
-        Args:
-            box (:class:`freud.box.Box`): Simulation box.
-        """
-        cdef freud.box.Box b = freud.common.convert_box(box)
+    @box.setter
+    def box(self, value):
+        cdef freud.box.Box b = freud.common.convert_box(value)
         self.thisptr.setBox(dereference(b.thisptr))
+
+    def setBox(self, box):
+        warnings.warn("The setBox function is deprecated in favor "
+                      "of setting the box class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        self.box = box
 
     @property
     def largest_cluster_size(self):
-        return self.getLargestClusterSize()
+        cdef unsigned int clusterSize = self.thisptr.getLargestClusterSize()
+        return clusterSize
 
     def getLargestClusterSize(self):
         warnings.warn("The getLargestClusterSize function is deprecated in "
                       "favor of the largest_cluster_size class attribute and "
                       "will be removed in a future version of freud.",
                       FreudDeprecationWarning)
-        cdef unsigned int clusterSize = self.thisptr.getLargestClusterSize()
-        return clusterSize
+        return self.largest_cluster_size
 
     @property
     def cluster_sizes(self):
-        return self.getClusterSizes()
-
-    def getClusterSizes(self):
-        warnings.warn("The getClusterSizes function is deprecated in favor "
-                      "of the cluster_sizes class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
         cdef vector[unsigned int] clusterSizes = self.thisptr.getClusterSizes()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.thisptr.getNumClusters()
@@ -1538,15 +1530,15 @@ cdef class SolLiq:
                                          <void*> &clusterSizes)
         return result
 
-    @property
-    def Ql_mi(self):
-        return self.getQlmi()
-
-    def getQlmi(self):
-        warnings.warn("The getQlmi function is deprecated in favor "
-                      "of the Ql_mi class attribute and will be "
+    def getClusterSizes(self):
+        warnings.warn("The getClusterSizes function is deprecated in favor "
+                      "of the cluster_sizes class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
+        return self.cluster_sizes
+
+    @property
+    def Ql_mi(self):
         cdef float complex * Qlmi = self.thisptr.getQlmi().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.thisptr.getNP()
@@ -1555,15 +1547,15 @@ cdef class SolLiq:
                                          <void*> Qlmi)
         return result
 
-    @property
-    def clusters(self):
-        return self.getClusters()
-
-    def getClusters(self):
-        warnings.warn("The getClusters function is deprecated in favor "
-                      "of the clusters class attribute and will be "
+    def getQlmi(self):
+        warnings.warn("The getQlmi function is deprecated in favor "
+                      "of the Ql_mi class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
+        return self.Ql_mi
+
+    @property
+    def clusters(self):
         cdef unsigned int * clusters = self.thisptr.getClusters().get()
         cdef np.npy_intp nbins[1]
         # this is the correct number
@@ -1573,15 +1565,15 @@ cdef class SolLiq:
                                          <void*> clusters)
         return result
 
+    def getClusters(self):
+        warnings.warn("The getClusters function is deprecated in favor "
+                      "of the clusters class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.clusters
+
     @property
     def num_connections(self):
-        return self.getNumberOfConnections()
-
-    def getNumberOfConnections(self):
-        warnings.warn("The getNumberOfConnections function is deprecated in "
-                      "favor of the num_connections class attribute and will "
-                      "be removed in a future version of freud.",
-                      FreudDeprecationWarning)
         cdef unsigned int * connections = \
             self.thisptr.getNumberOfConnections().get()
         cdef np.npy_intp nbins[1]
@@ -1592,15 +1584,15 @@ cdef class SolLiq:
                                          <void*> connections)
         return result
 
+    def getNumberOfConnections(self):
+        warnings.warn("The getNumberOfConnections function is deprecated in "
+                      "favor of the num_connections class attribute and will "
+                      "be removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.num_connections
+
     @property
     def Ql_dot_ij(self):
-        return self.getNumberOfConnections()
-
-    def getQldot_ij(self):
-        warnings.warn("The getQldot_ij function is deprecated in favor "
-                      "of the Ql_dot_ij class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
         cdef vector[float complex] Qldot = self.thisptr.getQldot_ij()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.thisptr.getNumClusters()
@@ -1609,17 +1601,24 @@ cdef class SolLiq:
                                          <void*> &Qldot)
         return result
 
+    def getQldot_ij(self):
+        warnings.warn("The getQldot_ij function is deprecated in favor "
+                      "of the Ql_dot_ij class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.Ql_dot_ij
+
     @property
     def num_particles(self):
-        return self.getNP()
+        cdef unsigned int np = self.thisptr.getNP()
+        return np
 
     def getNP(self):
         warnings.warn("The getNumParticles function is deprecated in favor "
                       "of the num_particles class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        cdef unsigned int np = self.thisptr.getNP()
-        return np
+        return self.num_particles
 
 cdef class SolLiqNear(SolLiq):
     """

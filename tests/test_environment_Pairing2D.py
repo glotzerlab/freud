@@ -1,7 +1,7 @@
 import numpy as np
 import numpy.testing as npt
 from freud.environment import Pairing2D
-import
+import warnings
 from freud import box
 from freud.errors import FreudDeprecationWarning
 import unittest
