@@ -165,7 +165,7 @@ cdef class FloatCF:
 
     def getRDF(self):
         warnings.warn("The getRDF function is deprecated in favor "
-                      "of the rdf class attribute and will be "
+                      "of the RDF class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
         cdef shared_ptr[double] rdf_ptr = self.thisptr.getRDF()
@@ -412,7 +412,7 @@ cdef class ComplexCF:
 
     def getRDF(self):
         warnings.warn("The getRDF function is deprecated in favor "
-                      "of the rdf class attribute and will be "
+                      "of the RDF class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
         cdef shared_ptr[np.complex128_t] rdf_ptr = self.thisptr.getRDF()
@@ -615,7 +615,7 @@ cdef class GaussianDensity:
         return self.getGaussianDensity()
 
     def getGaussianDensity(self):
-        warnings.warn("The gaussian_density function is deprecated in favor "
+        warnings.warn("The getGaussianDensity function is deprecated in favor "
                       "of the gaussian_density class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
@@ -935,7 +935,7 @@ cdef class RDF:
 
     def getRDF(self):
         warnings.warn("The getRDF function is deprecated in favor "
-                      "of the rdf class attribute and will be "
+                      "of the RDF class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
         cdef float * rdf = self.thisptr.getRDF().get()
