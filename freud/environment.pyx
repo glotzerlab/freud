@@ -32,8 +32,7 @@ cimport numpy as np
 np.import_array()
 
 cdef class BondOrder:
-    """
-    Compute the bond order diagram for the system of particles.
+    """Compute the bond order diagram for the system of particles.
 
     Available modes of calculation:
 
@@ -1012,8 +1011,7 @@ cdef class MatchEnv:
         return self.num_clusters
 
 cdef class Pairing2D:
-    """
-    Compute pairs for the system of particles.
+    """Compute pairs for the system of particles.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 

@@ -1732,7 +1732,8 @@ cdef class SolLiqNear(SolLiq):
 
 
 class BondOrder(_EBO):
-    """
+    """**Deprecated** Compute the bond order diagram for the system of particles.
+
     .. note::
         This class is only retained for backwards compatibility.
         Please use :py:class:`freud.environment.BondOrder` instead.
@@ -1748,7 +1749,9 @@ class BondOrder(_EBO):
 
 
 class LocalDescriptors(_ELD):
-    """
+    """**Deprecated** Compute a set of descriptors (a numerical "fingerprint")
+    of a particle's local environment.
+
     .. note::
         This class is only retained for backwards compatibility.
         Please use :py:class:`freud.environment.LocalDescriptors` instead.
@@ -1764,8 +1767,10 @@ class LocalDescriptors(_ELD):
 
 
 class MatchEnv(_EME):
-    """
-    .. note::
+    """**Deprecated** Clusters particles according to whether their local
+    environments match or not, according to various shape matching metrics.  ..
+
+    note::
         This class is only retained for backwards compatibility.
         Please use :py:class:`freud.environment.MatchEnv` instead.
 
@@ -1780,7 +1785,7 @@ class MatchEnv(_EME):
 
 
 class Pairing2D(_EP):
-    """
+    """**Deprecated** Compute pairs for the system of particles.
     .. note::
         This class is only retained for backwards compatibility.
         Please use :py:mod:`freud.bond` instead.
@@ -1795,7 +1800,9 @@ class Pairing2D(_EP):
 
 
 class AngularSeparation(_EAS):
-    """
+    """**Deprecated** Calculates the minimum angles of separation between
+    particles and references.
+
     .. note::
         This class is only retained for backwards compatibility.
         Please use :py:class:`freud.environment.AngularSeparation` instead.
