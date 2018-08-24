@@ -5,17 +5,17 @@
 #include <stdexcept>
 #include <vector>
 
-#include "VoronoiBuffer.h"
+#include "ParticleBuffer.h"
 
 using namespace std;
 
-/*! \file VoronoiBuffer.cc
+/*! \file ParticleBuffer.cc
     \brief Computes a buffer of particles to support wrapped positions in qhull
 */
 
-namespace freud { namespace voronoi {
+namespace freud { namespace util {
 
-void VoronoiBuffer::compute(const vec3<float> *points,
+void ParticleBuffer::compute(const vec3<float> *points,
                             const unsigned int Np,
                             const float buff)
     {
@@ -86,4 +86,4 @@ void VoronoiBuffer::compute(const vec3<float> *points,
         }
     }
 
-}; }; // end namespace freud::voronoi
+}; }; // end namespace freud::util

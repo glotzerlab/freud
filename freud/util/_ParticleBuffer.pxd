@@ -8,12 +8,12 @@ cimport freud._box
 
 ctypedef unsigned int uint
 
-cdef extern from "VoronoiBuffer.cc" namespace "freud::voronoi":
+cdef extern from "ParticleBuffer.cc" namespace "freud::util":
     pass
 
-cdef extern from "VoronoiBuffer.h" namespace "freud::voronoi":
-    cdef cppclass VoronoiBuffer:
-        VoronoiBuffer(const freud._box.Box &)
+cdef extern from "ParticleBuffer.h" namespace "freud::util":
+    cdef cppclass ParticleBuffer:
+        ParticleBuffer(const freud._box.Box &)
         const freud._box.Box & getBox() const
         void compute(
             const vec3[float]*,

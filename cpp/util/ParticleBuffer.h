@@ -11,18 +11,18 @@
 #include "VectorMath.h"
 #include "Index1D.h"
 
-/*! \file VoronoiBuffer.h
+/*! \file ParticleBuffer.h
     \brief Computes a buffer of particles to support wrapped positions in qhull
 */
 
-namespace freud { namespace voronoi {
+namespace freud { namespace util {
 
 //! Locates the particles near the border of the box and computes their nearest images to pass to qhull
-class VoronoiBuffer
+class ParticleBuffer
     {
     public:
         //! Constructor
-        VoronoiBuffer(const box::Box& box):m_box(box){}
+        ParticleBuffer(const box::Box& box):m_box(box){}
 
         //! Get the simulation box
         const box::Box& getBox() const
@@ -51,6 +51,6 @@ class VoronoiBuffer
         std::shared_ptr< std::vector< unsigned int > > m_buffer_ids;
     };
 
-}; }; // end namespace freud::voronoi
+}; }; // end namespace freud::util
 
 #endif // VORONOI_BUFFER_H

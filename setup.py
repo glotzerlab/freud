@@ -203,6 +203,7 @@ ext_args = dict(
 # Need to find files manually; cythonize accepts glob syntax, but basic
 # extension modules with C++ do not
 files = glob.glob(os.path.join('freud', '*') + ext)
+files.extend(glob.glob(os.path.join('freud', 'util', '*') + ext))
 files.remove(os.path.join('freud', 'order' + ext))  # Is compiled separately
 modules = [f.replace(ext, '') for f in files]
 modules = [m.replace(os.path.sep, '.') for m in modules]
