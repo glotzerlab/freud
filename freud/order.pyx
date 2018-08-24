@@ -1772,9 +1772,9 @@ class LocalDescriptors(_ELD):
 
 class MatchEnv(_EME):
     """**Deprecated** Clusters particles according to whether their local
-    environments match or not, according to various shape matching metrics.  ..
+    environments match or not, according to various shape matching metrics.
 
-    note::
+    .. note::
         This class is only retained for backwards compatibility.
         Please use :py:class:`freud.environment.MatchEnv` instead.
 

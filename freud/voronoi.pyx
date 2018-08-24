@@ -129,7 +129,7 @@ cdef class VoronoiBuffer:
 
     def getBufferIds(self):
         warnings.warn("The getBufferIds function is deprecated in favor "
-                      "of the buff_ids class attribute and will be "
+                      "of the buffer_ids class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
         return self.buffer_ids

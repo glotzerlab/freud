@@ -86,11 +86,11 @@ cdef class Box:
             The number of dimensions (2 or 3).
         periodic (list, settable):
             Whether or not the box is periodic.
-        periodic_x (list, settable):
+        periodic_x (bool, settable):
             Whether or not the box is periodic in x.
-        periodic_y (list, settable):
+        periodic_y (bool, settable):
             Whether or not the box is periodic in y.
-        periodic_z (list, settable):
+        periodic_z (bool, settable):
             Whether or not the box is periodic in z.
     """
     def __cinit__(self, Lx=None, Ly=None, Lz=None, xy=None, xz=None, yz=None,

@@ -100,7 +100,7 @@ cdef class _PMFT:
 
     @property
     def PMFT(self):
-        return -np.log(np.copy(self.getPCF()))
+        return -np.log(np.copy(self.PCF))
 
     def getPMFT(self):
         warnings.warn("The getPMFT function is deprecated in favor "
@@ -1296,7 +1296,7 @@ cdef class PMFTXYZ(_PMFT):
                       "of the box class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        return -np.log(np.copy(self.getPCF()))
+        return -np.log(np.copy(self.PCF))
 
     @property
     def X(self):
