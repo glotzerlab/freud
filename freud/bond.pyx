@@ -31,8 +31,10 @@ as the :doc:`pmft` in freud.
 """
 
 import numpy as np
+import warnings
 import freud.common
 import freud.locality
+from freud.errors import FreudDeprecationWarning
 
 from cython.operator cimport dereference
 from freud.util._VectorMath cimport vec3, quat
@@ -139,43 +141,31 @@ cdef class BondingAnalysis:
 
     @property
     def bond_lifetimes(self):
-        return self.getBondLifetimes()
-
-    def getBondLifetimes(self):
-        """Return the bond lifetimes.
-
-        Returns:
-            (:math:`N_{particles}`, varying) :class:`numpy.ndarray`:
-                Lifetime of bonds.
-        """
         bonds = self.thisptr.getBondLifetimes()
         return bonds
 
+    def getBondLifetimes(self):
+        warnings.warn("The getBondLifetimes function is deprecated in favor "
+                      "of the bond_lifetimes class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.bond_lifetimes
+
     @property
     def overall_lifetimes(self):
-        return self.getOverallLifetimes()
-
-    def getOverallLifetimes(self):
-        """Return the overall lifetimes.
-
-        Returns:
-            (:math:`N_{particles}`, varying) :class:`numpy.ndarray`:
-                Lifetime of bonds.
-        """
         bonds = self.thisptr.getOverallLifetimes()
         ret_bonds = np.copy(np.asarray(bonds, dtype=np.uint32))
         return ret_bonds
 
+    def getOverallLifetimes(self):
+        warnings.warn("The getOverallLifetimes function is deprecated in "
+                      "favor of the overall_lifetimes class attribute and "
+                      "will be removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.overall_lifetimes
+
     @property
     def transition_matrix(self):
-        return self.getTransitionMatrix()
-
-    def getTransitionMatrix(self):
-        """Return the transition matrix.
-
-        Returns:
-            :class:`numpy.ndarray`: Transition matrix.
-        """
         cdef unsigned int * trans_matrix = \
             self.thisptr.getTransitionMatrix().get()
         cdef np.npy_intp nbins[2]
@@ -186,41 +176,45 @@ cdef class BondingAnalysis:
                 2, nbins, np.NPY_UINT32, <void*> trans_matrix)
         return result
 
+    def getTransitionMatrix(self):
+        warnings.warn("The getTransitionMatrix function is deprecated in "
+                      "favor of the transition_matrix class attribute and "
+                      "will be removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.transition_matrix
+
     @property
     def num_frames(self):
-        return self.getNumFrames()
+        return self.thisptr.getNumFrames()
 
     def getNumFrames(self):
-        """Get number of frames calculated.
-
-        Returns:
-            unsigned int: Number of frames.
-        """
-        return self.thisptr.getNumFrames()
+        warnings.warn("The getNumFrames function is deprecated in favor "
+                      "of the num_frames class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.num_frames
 
     @property
     def num_particles(self):
-        return self.getNumParticles()
+        return self.thisptr.getNumParticles()
 
     def getNumParticles(self):
-        """Get number of particles being tracked.
-
-        Returns:
-            unsigned int: Number of particles.
-        """
-        return self.thisptr.getNumParticles()
+        warnings.warn("The getNumParticles function is deprecated in favor "
+                      "of the num_particles class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.num_particles
 
     @property
     def num_bonds(self):
-        return self.getNumBonds()
+        return self.thisptr.getNumBonds()
 
     def getNumBonds(self):
-        """Get number of bonds tracked.
-
-        Returns:
-            unsigned int: Number of bonds.
-        """
-        return self.thisptr.getNumBonds()
+        warnings.warn("The getNumBonds function is deprecated in favor "
+                      "of the num_bonds class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.num_bonds
 
 cdef class BondingR12:
     """Compute bonds in a 2D system using a (:math:`r`, :math:`\\theta_1`,
@@ -338,14 +332,6 @@ cdef class BondingR12:
 
     @property
     def bonds(self):
-        return self.getBonds()
-
-    def getBonds(self):
-        """Return the particle bonds.
-
-        Returns:
-            :class:`numpy.ndarray`: Particle bonds.
-        """
         cdef unsigned int * bonds = self.thisptr.getBonds().get()
         cdef np.npy_intp nbins[2]
         nbins[0] = <np.npy_intp> self.thisptr.getNumParticles()
@@ -355,41 +341,45 @@ cdef class BondingR12:
                 2, nbins, np.NPY_UINT32, <void*> bonds)
         return result
 
+    def getBonds(self):
+        warnings.warn("The getBonds function is deprecated in favor "
+                      "of the bonds class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.bonds
+
     @property
     def box(self):
-        return self.getBox()
+        return freud.box.BoxFromCPP(self.thisptr.getBox())
 
     def getBox(self):
-        """Get the box used in the calculation.
-
-        Returns:
-            :py:class:`freud.box.Box`: freud Box.
-        """
-        return freud.box.BoxFromCPP(self.thisptr.getBox())
+        warnings.warn("The getBox function is deprecated in favor "
+                      "of the box class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.box
 
     @property
     def list_map(self):
-        return self.getListMap()
+        return self.thisptr.getListMap()
 
     def getListMap(self):
-        """Get the dict used to map bond idx to list idx.
-
-        Returns:
-            dict: The mapping from bond to particle index.
-        """
-        return self.thisptr.getListMap()
+        warnings.warn("The getListMap function is deprecated in favor "
+                      "of the list_map class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.list_map
 
     @property
     def rev_list_map(self):
-        return self.getRevListMap()
+        return self.thisptr.getRevListMap()
 
     def getRevListMap(self):
-        """Get the dict used to map list idx to bond idx.
-
-        Returns:
-            dict: The mapping from particle to bond index.
-        """
-        return self.thisptr.getRevListMap()
+        warnings.warn("The getRevListMap function is deprecated in favor "
+                      "of the rev_list_map class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.rev_list_map
 
 cdef class BondingXY2D:
     """Compute bonds in a 2D system using a (:math:`x`, :math:`y`) coordinate
@@ -511,14 +501,6 @@ cdef class BondingXY2D:
 
     @property
     def bonds(self):
-        return self.getBonds()
-
-    def getBonds(self):
-        """Return the particle bonds.
-
-        Returns:
-            :class:`numpy.ndarray`: Particle bonds.
-        """
         cdef unsigned int * bonds = self.thisptr.getBonds().get()
         cdef np.npy_intp nbins[2]
         nbins[0] = <np.npy_intp> self.thisptr.getNumParticles()
@@ -528,41 +510,45 @@ cdef class BondingXY2D:
                 2, nbins, np.NPY_UINT32, <void*> bonds)
         return result
 
+    def getBonds(self):
+        warnings.warn("The getBonds function is deprecated in favor "
+                      "of the bonds class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.bonds
+
     @property
     def box(self):
-        return self.getBox()
+        return freud.box.BoxFromCPP(self.thisptr.getBox())
 
     def getBox(self):
-        """Get the box used in the calculation.
-
-        Returns:
-            :class:`freud.box.Box`: freud Box.
-        """
-        return freud.box.BoxFromCPP(self.thisptr.getBox())
+        warnings.warn("The getBox function is deprecated in favor "
+                      "of the box class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.box
 
     @property
     def list_map(self):
-        return self.getListMap()
+        return self.thisptr.getListMap()
 
     def getListMap(self):
-        """Get the dict used to map list idx to bond idx.
-
-        Returns:
-            dict: The mapping from bond to particle index.
-        """
-        return self.thisptr.getListMap()
+        warnings.warn("The getListMap function is deprecated in favor "
+                      "of the list_map class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.list_map
 
     @property
     def rev_list_map(self):
-        return self.getRevListMap()
+        return self.thisptr.getRevListMap()
 
     def getRevListMap(self):
-        """Get the dict used to map list idx to bond idx.
-
-        Returns:
-            dict: The mapping from particle to bond index.
-        """
-        return self.thisptr.getRevListMap()
+        warnings.warn("The getRevListMap function is deprecated in favor "
+                      "of the rev_list_map class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.rev_list_map
 
 cdef class BondingXYT:
     """Compute bonds in a 2D system using a
@@ -687,14 +673,6 @@ cdef class BondingXYT:
 
     @property
     def bonds(self):
-        return self.getBonds()
-
-    def getBonds(self):
-        """Return the particle bonds.
-
-        Returns:
-            :class:`numpy.ndarray`: Particle bonds.
-        """
         cdef unsigned int * bonds = self.thisptr.getBonds().get()
         cdef np.npy_intp nbins[2]
         nbins[0] = <np.npy_intp> self.thisptr.getNumParticles()
@@ -704,41 +682,45 @@ cdef class BondingXYT:
                 2, nbins, np.NPY_UINT32, <void*> bonds)
         return result
 
+    def getBonds(self):
+        warnings.warn("The getBonds function is deprecated in favor "
+                      "of the bonds class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.bonds
+
     @property
     def box(self):
-        return self.getBox()
+        return freud.box.BoxFromCPP(self.thisptr.getBox())
 
     def getBox(self):
-        """Get the box used in the calculation.
-
-        Returns:
-            :class:`freud.box.Box`: freud Box.
-        """
-        return freud.box.BoxFromCPP(self.thisptr.getBox())
+        warnings.warn("The getBox function is deprecated in favor "
+                      "of the box class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.box
 
     @property
     def list_map(self):
-        return self.getListMap()
+        return self.thisptr.getListMap()
 
     def getListMap(self):
-        """Get the dict used to map list idx to bond idx.
-
-        Returns:
-            dict: The mapping from bond to particle index.
-        """
-        return self.thisptr.getListMap()
+        warnings.warn("The getListMap function is deprecated in favor "
+                      "of the list_map class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.list_map
 
     @property
     def rev_list_map(self):
-        return self.getRevListMap()
+        return self.thisptr.getRevListMap()
 
     def getRevListMap(self):
-        """Get the dict used to map list idx to bond idx.
-
-        Returns:
-            dict: The mapping from particle to bond index.
-        """
-        return self.thisptr.getRevListMap()
+        warnings.warn("The getRevListMap function is deprecated in favor "
+                      "of the rev_list_map class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.rev_list_map
 
 cdef class BondingXYZ:
     """Compute bonds in a 3D system using a
@@ -873,14 +855,6 @@ cdef class BondingXYZ:
 
     @property
     def bonds(self):
-        return self.getBonds()
-
-    def getBonds(self):
-        """Return the particle bonds.
-
-        Returns:
-            :class:`numpy.ndarray`: Particle bonds.
-        """
         cdef unsigned int * bonds = self.thisptr.getBonds().get()
         cdef np.npy_intp nbins[2]
         nbins[0] = <np.npy_intp> self.thisptr.getNumParticles()
@@ -890,38 +864,42 @@ cdef class BondingXYZ:
                 2, nbins, np.NPY_UINT32, <void*> bonds)
         return result
 
+    def getBonds(self):
+        warnings.warn("The getBonds function is deprecated in favor "
+                      "of the bonds class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.bonds
+
     @property
     def box(self):
-        return self.getBox()
+        return freud.box.BoxFromCPP(self.thisptr.getBox())
 
     def getBox(self):
-        """Get the box used in the calculation.
-
-        Returns:
-            :class:`freud.box.Box`: freud Box.
-        """
-        return freud.box.BoxFromCPP(self.thisptr.getBox())
+        warnings.warn("The getBox function is deprecated in favor "
+                      "of the box class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.box
 
     @property
     def list_map(self):
-        return self.getListMap()
+        return self.thisptr.getListMap()
 
     def getListMap(self):
-        """Get the dict used to map list idx to bond idx.
-
-        Returns:
-            dict: The mapping from bond to particle index.
-        """
-        return self.thisptr.getListMap()
+        warnings.warn("The getListMap function is deprecated in favor "
+                      "of the list_map class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.list_map
 
     @property
     def rev_list_map(self):
-        return self.getRevListMap()
+        return self.thisptr.getRevListMap()
 
     def getRevListMap(self):
-        """Get the dict used to map list idx to bond idx.
-
-        Returns:
-            dict: The mapping from particle to bond index.
-        """
-        return self.thisptr.getRevListMap()
+        warnings.warn("The getRevListMap function is deprecated in favor "
+                      "of the rev_list_map class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.rev_list_map

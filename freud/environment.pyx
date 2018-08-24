@@ -32,8 +32,7 @@ cimport numpy as np
 np.import_array()
 
 cdef class BondOrder:
-    """
-    Compute the bond order diagram for the system of particles.
+    """Compute the bond order diagram for the system of particles.
 
     Available modes of calculation:
 
@@ -201,16 +200,6 @@ cdef class BondOrder:
 
     @property
     def bond_order(self):
-        return self.getBondOrder()
-
-    def getBondOrder(self):
-        """Get the bond order.
-
-        Returns:
-            :math:`\\left(N_{\\phi}, N_{\\theta} \\right)` \
-            :class:`numpy.ndarray`:
-                Bond order.
-        """
         cdef float * bod = self.thisptr.getBondOrder().get()
         cdef np.npy_intp nbins[2]
         nbins[0] = <np.npy_intp> self.thisptr.getNBinsPhi()
@@ -219,17 +208,23 @@ cdef class BondOrder:
             2, nbins, np.NPY_FLOAT32, <void*> bod)
         return result
 
+    def getBondOrder(self):
+        warnings.warn("The getBondOrder function is deprecated in favor "
+                      "of the bond_order class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.bond_order
+
     @property
     def box(self):
-        return self.getBox()
+        return freud.box.BoxFromCPP(self.thisptr.getBox())
 
     def getBox(self):
-        """Get the box used in the calculation.
-
-        Returns:
-            :class:`freud.box.Box`: freud Box.
-        """
-        return freud.box.BoxFromCPP(self.thisptr.getBox())
+        warnings.warn("The getBox function is deprecated in favor "
+                      "of the box class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.box
 
     def reset(self):
         """Resets the values of the bond order in memory."""
@@ -283,15 +278,6 @@ cdef class BondOrder:
 
     @property
     def theta(self):
-        return self.getTheta()
-
-    def getTheta(self):
-        """Get :math:`\\theta`.
-
-        Returns:
-            :math:`\\left(N_{\\theta} \\right)` :class:`numpy.ndarray`:
-                Values of bin centers for :math:`\\theta`.
-        """
         cdef float * theta = self.thisptr.getTheta().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.thisptr.getNBinsTheta()
@@ -300,17 +286,15 @@ cdef class BondOrder:
                                          <void*> theta)
         return result
 
+    def getTheta(self):
+        warnings.warn("The getTheta function is deprecated in favor "
+                      "of the theta class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.theta
+
     @property
     def phi(self):
-        return self.getPhi()
-
-    def getPhi(self):
-        """Get :math:`\\phi`.
-
-        Returns:
-            :math:`\\left(N_{\\phi} \\right)` :class:`numpy.ndarray`:
-                Values of bin centers for :math:`\\phi`.
-        """
         cdef float * phi = self.thisptr.getPhi().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.thisptr.getNBinsPhi()
@@ -318,31 +302,36 @@ cdef class BondOrder:
             np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> phi)
         return result
 
+    def getPhi(self):
+        warnings.warn("The getPhi function is deprecated in favor "
+                      "of the phi class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.phi
+
     @property
     def n_bins_theta(self):
-        return self.getNBinsTheta()
-
-    def getNBinsTheta(self):
-        """Get the number of bins in the :math:`\\theta`-dimension of histogram.
-
-        Returns:
-            unsigned int: :math:`N_{\\theta}`.
-        """
         cdef unsigned int nt = self.thisptr.getNBinsTheta()
         return nt
 
+    def getNBinsTheta(self):
+        warnings.warn("The getNBinsTheta function is deprecated in favor "
+                      "of the n_bins_theta class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.n_bins_theta
+
     @property
     def n_bins_phi(self):
-        return self.getNBinsPhi()
-
-    def getNBinsPhi(self):
-        """Get the number of bins in the :math:`\\phi`-dimension of histogram.
-
-        Returns:
-            unsigned int: :math:`N_{\\phi}`
-        """
         cdef unsigned int np = self.thisptr.getNBinsPhi()
         return np
+
+    def getNBinsPhi(self):
+        warnings.warn("The getNBinsPhi function is deprecated in favor "
+                      "of the n_bins_phi class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.n_bins_phi
 
 cdef class LocalDescriptors:
     """Compute a set of descriptors (a numerical "fingerprint") of a particle's
@@ -533,16 +522,6 @@ cdef class LocalDescriptors:
 
     @property
     def sph(self):
-        return self.getSph()
-
-    def getSph(self):
-        """Get a reference to the last computed spherical harmonic array.
-
-        Returns:
-            :math:`\\left(N_{bonds}, \\text{SphWidth} \\right)` \
-            :class:`numpy.ndarray`:
-                Order parameter.
-        """
         cdef float complex * sph = self.thisptr.getSph().get()
         cdef np.npy_intp nbins[2]
         nbins[0] = <np.npy_intp> self.thisptr.getNSphs()
@@ -552,57 +531,60 @@ cdef class LocalDescriptors:
                                          <void*> sph)
         return result
 
+    def getSph(self):
+        warnings.warn("The getSph function is deprecated in favor "
+                      "of the sph class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.sph
+
     @property
     def num_particles(self):
-        return self.getNP()
-
-    def getNP(self):
-        """Get the number of particles.
-
-        Returns:
-            unsigned int: :math:`N_{particles}`.
-        """
         cdef unsigned int np = self.thisptr.getNP()
         return np
 
+    def getNP(self):
+        warnings.warn("The getNP function is deprecated in favor "
+                      "of the num_particles class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.num_particles
+
     @property
     def num_neighbors(self):
-        return self.getNSphs()
-
-    def getNSphs(self):
-        """Get the number of neighbors.
-
-        Returns:
-            unsigned int: :math:`N_{neighbors}`.
-        """
         cdef unsigned int n = self.thisptr.getNSphs()
         return n
 
+    def getNSphs(self):
+        warnings.warn("The getNSphs function is deprecated in favor "
+                      "of the num_neighbors class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.num_neighbors
+
     @property
     def l_max(self):
-        return self.getLMax()
-
-    def getLMax(self):
-        """Get the maximum spherical harmonic :math:`l` to calculate for.
-
-        Returns:
-            unsigned int: :math:`l`.
-        """
         cdef unsigned int l_max = self.thisptr.getLMax()
         return l_max
 
+    def getLMax(self):
+        warnings.warn("The getLMax function is deprecated in favor "
+                      "of the l_max class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.l_max
+
     @property
     def r_max(self):
-        return self.getRMax()
-
-    def getRMax(self):
-        """Get the cutoff radius.
-
-        Returns:
-            float: :math:`r`.
-        """
         cdef float r = self.thisptr.getRMax()
         return r
+
+    def getRMax(self):
+        warnings.warn("The getRMax function is deprecated in favor "
+                      "of the r_max class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.r_max
 
 cdef class MatchEnv:
     """Clusters particles according to whether their local environments match
@@ -628,6 +610,8 @@ cdef class MatchEnv:
             The number of particles.
         num_clusters (unsigned int):
             The number of clusters.
+        clusters (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
+            The per-particle index indicating cluster membership.
     """
     def __cinit__(self, box, rmax, k):
         cdef freud.box.Box b = freud.common.convert_box(box)
@@ -947,16 +931,6 @@ cdef class MatchEnv:
 
     @property
     def clusters(self):
-        return self.getClusters()
-
-    def getClusters(self):
-        """Get a reference to the particles, indexed into clusters according to
-        their matching local environments.
-
-        Returns:
-            :math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:
-                Clusters.
-        """
         cdef unsigned int * clusters = self.thisptr.getClusters().get()
         cdef np.npy_intp nbins[1]
         # this is the correct number
@@ -965,6 +939,13 @@ cdef class MatchEnv:
             np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32,
                                          <void*> clusters)
         return result
+
+    def getClusters(self):
+        warnings.warn("The getClusters function is deprecated in favor "
+                      "of the clusters class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.clusters
 
     def getEnvironment(self, i):
         """Returns the set of vectors defining the environment indexed by i.
@@ -987,16 +968,6 @@ cdef class MatchEnv:
 
     @property
     def tot_environment(self):
-        return self.getTotEnvironment()
-
-    def getTotEnvironment(self):
-        """Returns the matrix of all environments for all particles.
-
-        Returns:
-            :math:`\\left(N_{particles}, N_{neighbors}, 3\\right)` \
-            :class:`numpy.ndarray`:
-                The array of vectors.
-        """
         cdef vec3[float] * tot_environment = \
             self.thisptr.getTotEnvironment().get()
         cdef np.npy_intp nbins[3]
@@ -1008,35 +979,39 @@ cdef class MatchEnv:
                                          <void*> tot_environment)
         return result
 
+    def getTotEnvironment(self):
+        warnings.warn("The getTotEnvironment function is deprecated in favor "
+                      "of the tot_environment class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.tot_environment
+
     @property
     def num_particles(self):
-        return self.getNP()
-
-    def getNP(self):
-        """Get the number of particles.
-
-        Returns:
-            unsigned int: :math:`N_{particles}`.
-        """
         cdef unsigned int np = self.thisptr.getNP()
         return np
 
+    def getNP(self):
+        warnings.warn("The getNP function is deprecated in favor "
+                      "of the num_particles class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.num_particles
+
     @property
     def num_clusters(self):
-        return self.getNumClusters()
-
-    def getNumClusters(self):
-        """Get the number of clusters.
-
-        Returns:
-            unsigned int: :math:`N_{clusters}`.
-        """
         cdef unsigned int num_clust = self.thisptr.getNumClusters()
         return num_clust
 
+    def getNumClusters(self):
+        warnings.warn("The getNumClusters function is deprecated in favor "
+                      "of the num_clusters class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.num_clusters
+
 cdef class Pairing2D:
-    """
-    Compute pairs for the system of particles.
+    """Compute pairs for the system of particles.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
@@ -1119,15 +1094,6 @@ cdef class Pairing2D:
 
     @property
     def match(self):
-        return self.getMatch()
-
-    def getMatch(self):
-        """Get the match.
-
-        Returns:
-            :math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:
-                The match.
-        """
         cdef unsigned int * match = self.thisptr.getMatch().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.thisptr.getNumParticles()
@@ -1136,17 +1102,15 @@ cdef class Pairing2D:
                                          <void*> match)
         return result
 
+    def getMatch(self):
+        warnings.warn("The getMatch function is deprecated in favor "
+                      "of the match class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.match
+
     @property
     def pair(self):
-        return self.getPair()
-
-    def getPair(self):
-        """Get the pair.
-
-        Returns:
-            :math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:
-                The pair.
-        """
         cdef unsigned int * pair = self.thisptr.getPair().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.thisptr.getNumParticles()
@@ -1154,17 +1118,23 @@ cdef class Pairing2D:
             np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32, <void*> pair)
         return result
 
+    def getPair(self):
+        warnings.warn("The getPair function is deprecated in favor "
+                      "of the pair class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.pair
+
     @property
     def box(self):
-        return self.getBox()
+        return freud.box.BoxFromCPP(self.thisptr.getBox())
 
     def getBox(self):
-        """Get the box used in the calculation.
-
-        Returns:
-            :class:`freud.box.Box`: freud Box.
-        """
-        return freud.box.BoxFromCPP(self.thisptr.getBox())
+        warnings.warn("The getBox function is deprecated in favor "
+                      "of the box class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.box
 
 cdef class AngularSeparation:
     """Calculates the minimum angles of separation between particles and
@@ -1190,6 +1160,12 @@ cdef class AngularSeparation:
             angles.
         n_global (unsigned int):
             The number of global orientations to check against.
+        neighbor_angles ((:math:`\\left(N_{neighbors}, \\right)`\
+        :class:`numpy.ndarray`):
+            The neighbor angles in radians.
+        global_angles (:math:`\\left(N_{particles}, N_{global} \\right)`\
+        :class:`numpy.ndarray`):
+            The global angles in radians.
     """
     def __cinit__(self, rmax, n):
         self.thisptr = new freud._environment.AngularSeparation()
@@ -1333,17 +1309,6 @@ cdef class AngularSeparation:
 
     @property
     def neighbor_angles(self):
-        return self.getNeighborAngles()
-
-    def getNeighborAngles(self):
-        """The neighbor angles in radians.
-
-        Returns:
-            :math:`\\left(N_{reference}, N_{neighbors} \\right)` \
-            :class:`numpy.ndarray`:
-                Angles in radians.
-        """
-
         cdef float * neigh_ang = self.thisptr.getNeighborAngles().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> len(self.nlist)
@@ -1352,19 +1317,15 @@ cdef class AngularSeparation:
                                          <void*> neigh_ang)
         return result
 
+    def getNeighborAngles(self):
+        warnings.warn("The getNeighborAngles function is deprecated in favor "
+                      "of the neighbor_angles class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.neighbor_angles
+
     @property
     def global_angles(self):
-        return self.getGlobalAngles()
-
-    def getGlobalAngles(self):
-        """The global angles in radians.
-
-        Returns:
-            :math:`\\left(N_{particles}, N_{global} \\right)` \
-            :class:`numpy.ndarray`:
-                Angles in radians.
-        """
-
         cdef float * global_ang = self.thisptr.getGlobalAngles().get()
         cdef np.npy_intp nbins[2]
         nbins[0] = <np.npy_intp> self.thisptr.getNP()
@@ -1374,42 +1335,45 @@ cdef class AngularSeparation:
                                          <void*> global_ang)
         return result
 
+    def getGlobalAngles(self):
+        warnings.warn("The getGlobalAngles function is deprecated in favor "
+                      "of the global_angles class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.global_angles
+
     @property
     def n_p(self):
-        return self.getNP()
-
-    def getNP(self):
-        """Get the number of particles used in computing the last set.
-
-        Returns:
-            unsigned int: :math:`N_{particles}`.
-        """
         cdef unsigned int np = self.thisptr.getNP()
         return np
 
+    def getNP(self):
+        warnings.warn("The getNP function is deprecated in favor "
+                      "of the n_p class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.n_p
+
     @property
     def n_ref(self):
-        return self.getNReference()
-
-    def getNReference(self):
-        """Get the number of reference particles used in computing the neighbor
-        angles.
-
-        Returns:
-            unsigned int: :math:`N_{particles}`.
-        """
         cdef unsigned int nref = self.thisptr.getNref()
         return nref
 
+    def getNReference(self):
+        warnings.warn("The getNReference function is deprecated in favor "
+                      "of the n_ref class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.n_ref
+
     @property
     def n_global(self):
-        return self.getNGlobal()
-
-    def getNGlobal(self):
-        """Get the number of global orientations to check against.
-
-        Returns:
-            unsigned int: :math:`N_{global orientations}`.
-        """
         cdef unsigned int nglobal = self.thisptr.getNglobal()
         return nglobal
+
+    def getNGlobal(self):
+        warnings.warn("The getNGlobal function is deprecated in favor "
+                      "of the n_global class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.n_global

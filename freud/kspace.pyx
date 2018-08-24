@@ -1271,11 +1271,14 @@ def constrainedLatticePoints(v1, v2, v3, constraint):
     """Generate a list of points satisfying a constraint.
 
     Args:
-        v1 (:class:`numpy.ndarray`): Lattice vector 1 along which to test.
-        v2 (:class:`numpy.ndarray`): Lattice vector 2 along which to test.
-        v3 (:class:`numpy.ndarray`): Lattice vector 3 along which to test.
-        constraint (:py:class:`Constraint`): Constraint object to test lattice
-            points against.
+        v1 (:class:`numpy.ndarray`):
+            Lattice vector 1 along which to test.
+        v2 (:class:`numpy.ndarray`):
+            Lattice vector 2 along which to test.
+        v3 (:class:`numpy.ndarray`):
+            Lattice vector 3 along which to test.
+        constraint (:py:class:`Constraint`):
+            Constraint object to test lattice points against.
     """
     # Find shortest distance, G, possible with lattice vectors
     # See how many G, nmax, fit in bounding box radius R

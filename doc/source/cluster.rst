@@ -16,7 +16,7 @@ Cluster Module
     :synopsis: Find clusters
 
 .. autoclass:: freud.cluster.Cluster(box, rcut)
-    :members:
+    :members: computeClusterMembership, computeClusters
 
 .. autoclass:: freud.cluster.ClusterProperties(box)
-    :members:
+    :members: computeProperties

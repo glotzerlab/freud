@@ -19,21 +19,16 @@ Bond Module
     :synopsis: Calculate bonds
 
 .. autoclass:: freud.bond.BondingAnalysis(num_particles, num_bonds)
-    :members:
-    :inherited-members:
+    :members: compute, initialize
 
 .. autoclass:: freud.bond.BondingR12(r_max, bond_map, bond_list)
-    :members:
-    :inherited-members:
+    :members: compute
 
 .. autoclass:: freud.bond.BondingXY2D(x_max, y_max, bond_map, bond_list)
-    :members:
-    :inherited-members:
+    :members: compute
 
 .. autoclass:: freud.bond.BondingXYT(x_max, y_max, bond_map, bond_list)
-    :members:
-    :inherited-members:
+    :members: compute
 
 .. autoclass:: freud.bond.BondingXYZ(x_max, y_max, z_max, bond_map, bond_list)
-    :members:
-    :inherited-members:
+    :members: compute
