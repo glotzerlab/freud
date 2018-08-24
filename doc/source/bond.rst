@@ -20,25 +20,15 @@ Bond Module
 
 .. autoclass:: freud.bond.BondingAnalysis(num_particles, num_bonds)
     :members: compute, initialize
-    :inherited-members:
-    :no-undoc-members:
 
 .. autoclass:: freud.bond.BondingR12(r_max, bond_map, bond_list)
     :members: compute
-    :inherited-members:
-    :no-undoc-members:
 
 .. autoclass:: freud.bond.BondingXY2D(x_max, y_max, bond_map, bond_list)
     :members: compute
-    :inherited-members:
-    :no-undoc-members:
 
 .. autoclass:: freud.bond.BondingXYT(x_max, y_max, bond_map, bond_list)
     :members: compute
-    :inherited-members:
-    :no-undoc-members:
 
 .. autoclass:: freud.bond.BondingXYZ(x_max, y_max, z_max, bond_map, bond_list)
     :members: compute
-    :inherited-members:
-    :no-undoc-members:

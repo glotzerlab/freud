@@ -49,9 +49,9 @@ cdef class VoronoiBuffer:
         box (py:class:`freud.box.Box`): Simulation box.
 
     Attributes:
-        buffer_particles (:class:`np.ndarray`):
+        buffer_particles (:class:`numpy.ndarray`):
             The buffer particles.
-        buffer_ids (:class:`np.ndarray`):
+        buffer_ids (:class:`numpy.ndarray`):
             The buffer ids.
     """
     cdef freud._voronoi.VoronoiBuffer * thisptr

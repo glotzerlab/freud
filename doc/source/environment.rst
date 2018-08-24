@@ -21,20 +21,19 @@ Environment Module
     :synopsis: Analyze local particle environments
 
 .. autoclass:: freud.environment.BondOrder(rmax, k, n, nBinsT, nBinsP)
-    :members:
+    :members: accumulate, compute, reset
 
 .. autoclass:: freud.environment.LocalDescriptors(box, nNeigh, lmax, rmax)
-    :members:
+    :members: compute, computeNList
 
 .. autoclass:: freud.environment.MatchEnv(box, rmax, k)
-    :members:
+    :members: cluster, getEnvironment, isSimilar, matchMotif, minRMSDMotif, minimizeRMSD, setBox
 
 .. note::
     Pairing2D is deprecated and is replaced with :doc:`bond`.
 
 .. autoclass:: freud.environment.Pairing2D(rmax, k, compDotTol)
-    :members:
+    :members: compute
 
 .. autoclass:: freud.environment.AngularSeparation(box, rmax, n)
-    :members:
-
+    :members: computeGlobal, computeNeighbor
