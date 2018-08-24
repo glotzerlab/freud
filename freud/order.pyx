@@ -673,12 +673,14 @@ cdef class LocalQl:
     orientational order as follows: :math:`Q_l(i)=\\sqrt{\\frac{4\pi}{2l+1}
     \\displaystyle\\sum_{m=-l}^{l} |\\overline{Q}_{lm}|^2 }`.
 
-    The :py:meth:`~computeAve` method provides access to a variant of of this
+    The :py:meth:`~computeAve` method provides access to a variant of this
     parameter that performs a average over the first and second shell combined
-    [Lechner2008]_. To compute this parameter, for each particle i we
-    calculate the average :math:`Q_l` by summing the spherical harmonics
-    between particle i and its neighbors j with the spherical harmonics between
-    the neighbors k of each neighbor j in a local region.
+    [Lechner2008]_. To compute this parameter, we perform a second averaging
+    over the first neighbor shell of the particle to implicitly include
+    information about the second neighbor shell. This averaging is performed by
+    replacing the value :math:`\\overline{Q}_{lm}(i)` in the original
+    definition by the average value of :math:`\\overline{Q}_{lm}(k)` over all
+    the :math:`k` neighbors of particle :math:`i` as well as itself.
 
     The :py:meth:`~computeNorm` and :py:meth:`~computeAveNorm` methods provide
     normalized versions of :py:meth:`~compute` and :py:meth:`~computeAve`,
@@ -1071,12 +1073,14 @@ cdef class LocalWl(LocalQl):
     (CG coefficients). The resulting combination is rotationally (i.e. frame)
     invariant.
 
-    The :py:meth:`~computeAve` method provides access to a variant of of this
+    The :py:meth:`~computeAve` method provides access to a variant of this
     parameter that performs a average over the first and second shell combined
-    [Lechner2008]_. To compute this parameter, for each particle i we
-    calculate the average :math:`W_l` by summing the spherical harmonics
-    between particle i and its neighbors j with the spherical harmonics between
-    the neighbors k of each neighbor j in a local region.
+    [Lechner2008]_. To compute this parameter, we perform a second averaging
+    over the first neighbor shell of the particle to implicitly include
+    information about the second neighbor shell. This averaging is performed by
+    replacing the value :math:`\\overline{Q}_{lm}(i)` in the original
+    definition by the average value of :math:`\\overline{Q}_{lm}(k)` over all
+    the :math:`k` neighbors of particle :math:`i` as well as itself.
 
     The :py:meth:`~computeNorm` and :py:meth:`~computeAveNorm` methods provide
     normalized versions of :py:meth:`~compute` and :py:meth:`~computeAve`,
