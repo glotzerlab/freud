@@ -35,7 +35,7 @@ references:
       command: |
         echo "PYVER=${PYVER}"
         rm freud/*.cpp
-        python${PYVER} setup.py build_ext --inplace --COVERAGE --ENABLE-CYTHON
+        python${PYVER} setup.py build_ext --inplace --COVERAGE --ENABLE-CYTHON -j 8
 
   test: &test
     run:
@@ -97,6 +97,6 @@ workflows:
   version: 2
   all:
     jobs:
-      - test-py27
+#      - test-py27
       - test-py35
-      - test-py36
+#      - test-py36
