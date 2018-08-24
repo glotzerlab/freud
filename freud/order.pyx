@@ -657,9 +657,8 @@ cdef class TransOrderParameter:
         return self.num_particles
 
 cdef class LocalQl:
-    """
-    Compute the local Steinhardt [Steinhardt1983]_ rotationally invariant
-    :math:`Q_l` [Lechner2008]_ order parameter for a set of points.
+    """Compute the local Steinhardt [Steinhardt1983]_ rotationally invariant
+    :math:`Q_l` order parameter for a set of points.
 
     Implements the local rotationally invariant :math:`Q_l` order parameter
     described by Steinhardt. For a particle i, we calculate the average
@@ -667,19 +666,24 @@ cdef class LocalQl:
     and its neighbors :math:`j` in a local region:
     :math:`\\overline{Q}_{lm}(i) = \\frac{1}{N_b}
     \\displaystyle\\sum_{j=1}^{N_b} Y_{lm}(\\theta(\\vec{r}_{ij}),
-    \\phi(\\vec{r}_{ij}))`.
+    \\phi(\\vec{r}_{ij}))`. The particles included in the sum are determined
+    by the rmax argument to the constructor.
 
     This is then combined in a rotationally invariant fashion to remove local
     orientational order as follows: :math:`Q_l(i)=\\sqrt{\\frac{4\pi}{2l+1}
     \\displaystyle\\sum_{m=-l}^{l} |\\overline{Q}_{lm}|^2 }`.
 
-    Added first/second shell combined average :math:`Q_l` order parameter for
-    a set of points:
+    The :py:meth:`~computeAve` method provides access to a variant of of this
+    parameter that performs a average over the first and second shell combined
+    [Lechner2008]_. To compute this parameter, for each particle i we
+    calculate the average :math:`Q_l` by summing the spherical harmonics
+    between particle i and its neighbors j with the spherical harmonics between
+    the neighbors k of each neighbor j in a local region.
 
-    * Variation of the Steinhardt :math:`Q_l` order parameter
-    * For a particle i, we calculate the average :math:`Q_l` by summing the
-      spherical harmonics between particle i and its neighbors j and the
-      neighbors k of neighbor j in a local region.
+    The :py:meth:`~computeNorm` and :py:meth:`~computeAveNorm` methods provide
+    normalized versions of :py:meth:`~compute` and :py:meth:`~computeAve`,
+    where the normalization is performed by dividing by the average
+    :math:`Q_{lm}` values over all particles.
 
     .. moduleauthor:: Xiyu Du <xiyudu@umich.edu>
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
@@ -717,7 +721,7 @@ cdef class LocalQl:
             no neighbors).
 
     .. todo:: move box to compute, this is old API
-    """ # noqa
+    """
     cdef freud._order.LocalQl * qlptr
     cdef freud.box.Box m_box
     cdef rmax
@@ -836,8 +840,7 @@ cdef class LocalQl:
         return self.ave_norm_Ql
 
     def compute(self, points, nlist=None):
-        """Compute the local rotationally invariant :math:`Q_l` order
-        parameter.
+        """Compute the order parameter.
 
         Args:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
@@ -860,8 +863,7 @@ cdef class LocalQl:
         return self
 
     def computeAve(self, points, nlist=None):
-        """Compute the local rotationally invariant :math:`Q_l` order
-        parameter.
+        """Compute the order parameter over two nearest neighbor shells.
 
         Args:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
@@ -888,8 +890,8 @@ cdef class LocalQl:
         return self
 
     def computeNorm(self, points, nlist=None):
-        """Compute the local rotationally invariant :math:`Q_l` order
-        parameter.
+        """Compute the order parameter normalized by the average spherical
+        harmonic value over all the particles.
 
         Args:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
@@ -914,8 +916,9 @@ cdef class LocalQl:
         return self
 
     def computeAveNorm(self, points, nlist=None):
-        """Compute the local rotationally invariant :math:`Q_l` order
-        parameter.
+        """Compute the order parameter over two nearest neighbor shells
+        normalized by the average spherical harmonic value over all the
+        particles.
 
         Args:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
@@ -943,29 +946,10 @@ cdef class LocalQl:
         return self
 
 cdef class LocalQlNear(LocalQl):
-    """
-    Compute the local Steinhardt [Steinhardt1983]_ rotationally invariant
-    :math:`Q_l` order parameter [Lechner2008]_ for a set of points.
-
-    Implements the local rotationally invariant :math:`Q_l` order parameter
-    described by Steinhardt. For a particle i, we calculate the average
-    :math:`Q_l` by summing the spherical harmonics between particle :math:`i`
-    and its neighbors :math:`j` in a local region:
-    :math:`\\overline{Q}_{lm}(i) = \\frac{1}{N_b}
-    \\displaystyle\\sum_{j=1}^{N_b} Y_{lm}(\\theta(\\vec{r}_{ij}),
-    \\phi(\\vec{r}_{ij}))`
-
-    This is then combined in a rotationally invariant fashion to remove local
-    orientational order as follows: :math:`Q_l(i)=\\sqrt{\\frac{4\pi}{2l+1}
-    \\displaystyle\\sum_{m=-l}^{l} |\\overline{Q}_{lm}|^2 }`
-
-    Added first/second shell combined average :math:`Q_l` order parameter for
-    a set of points:
-
-    * Variation of the Steinhardt :math:`Q_l` Order parameter.
-    * For a particle i, we calculate the average :math:`Q_l` by summing the
-      spherical harmonics between particle i and its neighbors j and the
-      neighbors k of neighbor j in a local region.
+    """A variant of the :py:class:`~LocalQl` class that performs its average
+    over nearest neighbor particles as determined by an instance of
+    :py:class:`freud.locality.NeighborList`. The number of included neighbors
+    is determined by the kn parameter to the constructor.
 
     .. moduleauthor:: Xiyu Du <xiyudu@umich.edu>
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
@@ -1003,7 +987,7 @@ cdef class LocalQlNear(LocalQl):
             no neighbors).
 
     .. todo:: move box to compute, this is old API
-    """ # noqa
+    """
     cdef num_neigh
 
     def __cinit__(self, box, rmax, l, kn=12):
@@ -1025,8 +1009,7 @@ cdef class LocalQlNear(LocalQl):
             self.qlptr = NULL
 
     def computeAve(self, points, nlist=None):
-        """Compute the local rotationally invariant :math:`Q_l` order
-        parameter.
+        """Compute the order parameter over two nearest neighbor shells.
 
         Args:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
@@ -1040,8 +1023,8 @@ cdef class LocalQlNear(LocalQl):
         return super(LocalQlNear, self).computeAve(points, nlist_)
 
     def computeNorm(self, points, nlist=None):
-        """Compute the local rotationally invariant :math:`Q_l` order
-        parameter.
+        """Compute the order parameter normalized by the average spherical
+        harmonic value over all the particles.
 
         Args:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
@@ -1055,8 +1038,9 @@ cdef class LocalQlNear(LocalQl):
         return super(LocalQlNear, self).computeNorm(points, nlist_)
 
     def computeAveNorm(self, points, nlist=None):
-        """Compute the local rotationally invariant :math:`Q_l` order
-        parameter.
+        """Compute the order parameter over two nearest neighbor shells
+        normalized by the average spherical harmonic value over all the
+        particles.
 
         Args:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
@@ -1070,21 +1054,34 @@ cdef class LocalQlNear(LocalQl):
         return super(LocalQlNear, self).computeAveNorm(points, nlist_)
 
 cdef class LocalWl(LocalQl):
-    """
-    Compute the local Steinhardt [Steinhardt1983]_ rotationally invariant
-    :math:`W_l` order parameter [Lechner2008]_ for a set of points.
+    """Compute the local Steinhardt [Steinhardt1983]_ rotationally invariant
+    :math:`W_l` order parameter for a set of points.
 
     Implements the local rotationally invariant :math:`W_l` order parameter
-    described by Steinhardt that can aid in distinguishing  between FCC, HCP,
-    and BCC.
+    described by Steinhardt. For a particle i, we calculate the average
+    :math:`W_l` by summing the spherical harmonics between particle :math:`i`
+    and its neighbors :math:`j` in a local region:
+    :math:`\\overline{Q}_{lm}(i) = \\frac{1}{N_b}
+    \\displaystyle\\sum_{j=1}^{N_b} Y_{lm}(\\theta(\\vec{r}_{ij}),
+    \\phi(\\vec{r}_{ij}))`. The particles included in the sum are determined
+    by the rmax argument to the constructor.
 
-    Added first/second shell combined average :math:`W_l` order parameter for
-    a set of points:
+    The :math:`W_l` is then defined as a weighted average over the
+    :math:`\\overline{Q}_{lm}(i)` values using Wigner 3j symbols
+    (CG coefficients). The resulting combination is rotationally (i.e. frame)
+    invariant.
 
-    * Variation of the Steinhardt :math:`W_l` order parameter.
-    * For a particle i, we calculate the average :math:`W_l` by summing the
-      spherical harmonics between particle i and its neighbors j and the
-      neighbors k of neighbor j in a local region.
+    The :py:meth:`~computeAve` method provides access to a variant of of this
+    parameter that performs a average over the first and second shell combined
+    [Lechner2008]_. To compute this parameter, for each particle i we
+    calculate the average :math:`W_l` by summing the spherical harmonics
+    between particle i and its neighbors j with the spherical harmonics between
+    the neighbors k of each neighbor j in a local region.
+
+    The :py:meth:`~computeNorm` and :py:meth:`~computeAveNorm` methods provide
+    normalized versions of :py:meth:`~compute` and :py:meth:`~computeAve`,
+    where the normalization is performed by dividing by the average
+    :math:`Q_{lm}` values over all particles.
 
     .. moduleauthor:: Xiyu Du <xiyudu@umich.edu>
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
@@ -1107,21 +1104,6 @@ cdef class LocalWl(LocalQl):
             Box used in the calculation.
         num_particles (unsigned int):
             Number of particles.
-        Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
-            The last computed :math:`Q_l` for each particle (filled with NaN
-            for particles with no neighbors).
-        ave_Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
-            The last computed :math:`\\bar{Q_l}` for each particle (filled with
-            NaN for particles with no neighbors).
-        norm_Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
-            The last computed :math:`Q_l` for each particle normalized by the
-            value over all particles (filled with NaN for particles with no
-            neighbors).
-        ave_norm_Ql (:math:`\\left(N_{particles}\\right)` \
-        :class:`numpy.ndarray`):
-            The last computed :math:`\\bar{Q_l}` for each particle normalized
-            by the value over all particles (filled with NaN for particles with
-            no neighbors).
         Wl (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
             The last computed :math:`W_l` for each particle (filled with NaN
             for particles with no neighbors).
@@ -1243,21 +1225,10 @@ cdef class LocalWl(LocalQl):
         return self.ave_norm_Wl
 
 cdef class LocalWlNear(LocalWl):
-    """
-    Compute the local Steinhardt [Steinhardt1983]_ rotationally invariant
-    :math:`W_l` order parameter [Lechner2008]_ for a set of points.
-
-    Implements the local rotationally invariant :math:`W_l` order parameter
-    described by Steinhardt that can aid in distinguishing between FCC, HCP,
-    and BCC.
-
-    Added first/second shell combined average :math:`W_l` order parameter for a
-    set of points:
-
-    * Variation of the Steinhardt :math:`W_l` order parameter.
-    * For a particle i, we calculate the average :math:`W_l` by summing the
-      spherical harmonics between particle i and its neighbors j and the
-      neighbors k of neighbor j in a local region.
+    """A variant of the :py:class:`~LocalWl` class that performs its average
+    over nearest neighbor particles as determined by an instance of
+    :py:class:`freud.locality.NeighborList`. The number of included neighbors
+    is determined by the kn parameter to the constructor.
 
     .. moduleauthor:: Xiyu Du <xiyudu@umich.edu>
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
@@ -1279,21 +1250,6 @@ cdef class LocalWlNear(LocalWl):
             Box used in the calculation.
         num_particles (unsigned int):
             Number of particles.
-        Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
-            The last computed :math:`Q_l` for each particle (filled with NaN
-            for particles with no neighbors).
-        ave_Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
-            The last computed :math:`\\bar{Q_l}` for each particle (filled with
-            NaN for particles with no neighbors).
-        norm_Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
-            The last computed :math:`Q_l` for each particle normalized by the
-            value over all particles (filled with NaN for particles with no
-            neighbors).
-        ave_norm_Ql (:math:`\\left(N_{particles}\\right)` \
-        :class:`numpy.ndarray`):
-            The last computed :math:`\\bar{Q_l}` for each particle normalized
-            by the value over all particles (filled with NaN for particles with
-            no neighbors).
         Wl (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
             The last computed :math:`W_l` for each particle (filled with NaN
             for particles with no neighbors).
@@ -1328,8 +1284,7 @@ cdef class LocalWlNear(LocalWl):
         self.thisptr = NULL
 
     def computeAve(self, points, nlist=None):
-        """Compute the local rotationally invariant :math:`Q_l` order
-        parameter.
+        """Compute the order parameter over two nearest neighbor shells.
 
         Args:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
@@ -1343,8 +1298,8 @@ cdef class LocalWlNear(LocalWl):
         return super(LocalWlNear, self).computeAve(points, nlist_)
 
     def computeNorm(self, points, nlist=None):
-        """Compute the local rotationally invariant :math:`Q_l` order
-        parameter.
+        """Compute the order parameter normalized by the average spherical
+        harmonic value over all the particles.
 
         Args:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
@@ -1358,8 +1313,9 @@ cdef class LocalWlNear(LocalWl):
         return super(LocalWlNear, self).computeNorm(points, nlist_)
 
     def computeAveNorm(self, points, nlist=None):
-        """Compute the local rotationally invariant :math:`Q_l` order
-        parameter.
+        """Compute the order parameter over two nearest neighbor shells
+        normalized by the average spherical harmonic value over all the
+        particles.
 
         Args:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
@@ -1373,8 +1329,7 @@ cdef class LocalWlNear(LocalWl):
         return super(LocalWlNear, self).computeAveNorm(points, nlist_)
 
 cdef class SolLiq:
-    """
-    Computes dot products of :math:`Q_{lm}` between particles and uses these
+    """Computes dot products of :math:`Q_{lm}` between particles and uses these
     for clustering.
 
     .. moduleauthor:: Richmond Newman <newmanrs@umich.edu>
@@ -1438,8 +1393,7 @@ cdef class SolLiq:
         self.thisptr = NULL
 
     def compute(self, points, nlist=None):
-        """Compute the local rotationally invariant :math:`Q_l` order
-        parameter.
+        """Compute the solid-liquid order parameter.
 
         Args:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
@@ -1464,8 +1418,11 @@ cdef class SolLiq:
         return self
 
     def computeSolLiqVariant(self, points, nlist=None):
-        """Compute the local rotationally invariant :math:`Q_l` order
-        parameter.
+        """Compute a variant of the solid-liquid order parameter.
+
+        This variant method places a minimum threshold on the number
+        of solid-like bonds a particle must have to be considered solid-like
+        for clustering purposes.
 
         Args:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
@@ -1490,8 +1447,8 @@ cdef class SolLiq:
         return self
 
     def computeSolLiqNoNorm(self, points, nlist=None):
-        """Compute the local rotationally invariant :math:`Q_l` order
-        parameter.
+        """Compute the solid-liquid order parameter without normalizing the dot
+        product.
 
         Args:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
@@ -1527,7 +1484,7 @@ cdef class SolLiq:
         return self.box
 
     def setClusteringRadius(self, rcutCluster):
-        """Reset the clustering radius.
+        """Set the clustering radius.
 
         Args:
             rcutCluster (float): Radius for the cluster finding.
@@ -1662,9 +1619,10 @@ cdef class SolLiq:
         return self.num_particles
 
 cdef class SolLiqNear(SolLiq):
-    """
-    Computes dot products of :math:`Q_{lm}` between particles and uses these
-    for clustering.
+    """A variant of the :py:class:`~SolLiq` class that performs its average
+    over nearest neighbor particles as determined by an instance of
+    :py:class:`freud.locality.NeighborList`. The number of included neighbors
+    is determined by the kn parameter to the constructor.
 
     .. moduleauthor:: Richmond Newman <newmanrs@umich.edu>
 
