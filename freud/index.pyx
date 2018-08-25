@@ -10,6 +10,9 @@ with :math:`\prod_{i=1}^N n_i` elements.
 """
 
 import numpy as np
+import warnings
+from freud.errors import FreudDeprecationWarning
+
 from freud.util cimport _Index1D
 cimport numpy as np
 
@@ -35,10 +38,10 @@ cdef class Index2D:
 
     .. note::
 
-        freud indexes column-first i.e. ``Index2D(i, j)`` will return the
+        freud indexes column-first i.e. :code:`Index2D(i, j)` will return the
         :math:`1`-dimensional index of the :math:`i^{th}` column and the
         :math:`j^{th}` row. This is the opposite of what occurs in a
-        numpy array, in which ``array[i, j]`` returns the element in the
+        numpy array, in which :code:`array[i, j]` returns the element in the
         :math:`i^{th}` row and the :math:`j^{th}` column.
 
     .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
@@ -79,15 +82,14 @@ cdef class Index2D:
 
     @property
     def num_elements(self):
-        return self.getNumElements()
+        return self.thisptr.getNumElements()
 
     def getNumElements(self):
-        """Get the number of elements in the array.
-
-        Returns:
-            unsigned int: Number of elements in the array.
-        """
-        return self.thisptr.getNumElements()
+        warnings.warn("The getNumElements function is deprecated in favor "
+                      "of the num_elements class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.num_elements
 
 cdef class Index3D:
     """freud-style indexer for flat arrays.
@@ -152,12 +154,11 @@ cdef class Index3D:
 
     @property
     def num_elements(self):
-        return self.getNumElements()
+        return self.thisptr.getNumElements()
 
     def getNumElements(self):
-        """Get the number of elements in the array.
-
-        Returns:
-          unsigned int: Number of elements in the array.
-        """
-        return self.thisptr.getNumElements()
+        warnings.warn("The getNumElements function is deprecated in favor "
+                      "of the num_elements class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.num_elements

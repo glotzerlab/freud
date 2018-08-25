@@ -11,7 +11,7 @@ class TestSolLiq(unittest.TestCase):
 
         box = freud.box.Box.cube(10)
         np.random.seed(0)
-        positions = np.random.uniform(-box.getLx()/2, box.getLx()/2,
+        positions = np.random.uniform(-box.Lx/2, box.Lx/2,
                                       size=(N, 3)).astype(np.float32)
 
         comp = freud.order.SolLiq(box, 2, .7, 6, 6)
@@ -37,7 +37,7 @@ class TestSolLiqNear(unittest.TestCase):
 
         box = freud.box.Box.cube(10)
         np.random.seed(0)
-        positions = np.random.uniform(-box.getLx()/2, box.getLx()/2,
+        positions = np.random.uniform(-box.Lx/2, box.Lx/2,
                                       size=(N, 3)).astype(np.float32)
 
         comp = freud.order.SolLiqNear(box, 2, .7, 6, 6, 12)

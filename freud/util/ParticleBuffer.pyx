@@ -28,12 +28,20 @@ logger = logging.getLogger(__name__)
 np.import_array()
 
 cdef class ParticleBuffer:
-    """
+    """Replicates particles up to a buffer distance outside the box from
+    periodic images.
+
     .. moduleauthor:: Ben Schultz <baschult@umich.edu>
     .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
 
     Args:
         box (py:class:`freud.box.Box`): Simulation box.
+
+    Attributes:
+        buffer_particles (:class:`numpy.ndarray`):
+            The buffer particles.
+        buffer_ids (:class:`numpy.ndarray`):
+            The buffer ids.
     """
     def __cinit__(self, box):
         cdef freud.box.Box b = freud.common.convert_box(box)
@@ -41,11 +49,11 @@ cdef class ParticleBuffer:
             dereference(b.thisptr))
 
     def compute(self, points, float buffer):
-        """Compute the voronoi diagram.
+        """Compute the particle buffer.
 
         Args:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Points to calculate Voronoi diagram for.
+                Points used to calculate particle buffer.
             buffer (float):
                 Buffer distance within which to look for images.
         """
@@ -60,12 +68,8 @@ cdef class ParticleBuffer:
         self.thisptr.compute(<vec3[float]*> cPoints.data, Np, buffer)
         return self
 
-    def getBufferParticles(self):
-        """Get buffer particles.
-
-        Returns:
-            :class:`np.ndarray`: The buffer particles.
-        """
+    @property
+    def buffer_particles(self):
         cdef unsigned int buffer_size = \
             dereference(self.thisptr.getBufferParticles().get()).size()
         cdef vec3[float] * buffer_points = \
@@ -85,12 +89,15 @@ cdef class ParticleBuffer:
 
         return result
 
-    def getBufferIds(self):
-        """Get buffer ids.
+    def getBufferParticles(self):
+        warnings.warn("The getBufferParticles function is deprecated in favor "
+                      "of the buffer_particles class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.buffer_particles
 
-        Returns:
-            :class:`np.ndarray`: The buffer ids.
-        """
+    @property
+    def buffer_ids(self):
         cdef unsigned int buffer_size = \
             dereference(self.thisptr.getBufferParticles().get()).size()
         cdef unsigned int * buffer_ids = \
@@ -107,3 +114,10 @@ cdef class ParticleBuffer:
                                          <void*> dereference(bufferIds).data())
 
         return result
+
+    def getBufferIds(self):
+        warnings.warn("The getBufferIds function is deprecated in favor "
+                      "of the buffer_ids class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.buffer_ids

@@ -9,6 +9,8 @@ on their proximity to other points.
 import sys
 import numpy as np
 import freud.common
+import warnings
+from freud.errors import FreudDeprecationWarning
 
 from libcpp cimport bool as cbool
 from freud.util._VectorMath cimport vec3
@@ -31,7 +33,7 @@ cdef class NeighborList:
     NeighborList objects are constructed for two sets of position
     arrays A (alternatively *reference points*; of length :math:`n_A`)
     and B (alternatively *target points*; of length :math:`n_B`) and
-    hold a set of :math:`\left(i, j\\right): i < n_A, j < n_B` index
+    hold a set of :math:`\\left(i, j\\right): i < n_A, j < n_B` index
     pairs corresponding to near-neighbor points in A and B,
     respectively.
 
@@ -66,11 +68,11 @@ cdef class NeighborList:
         weights ((:math:`N_{bonds}`) :class:`np.ndarray`):
             The per-bond weights from the last set of points this object was
             evaluated with.
-        segments ((:math:`N_{ref\_points}`) :class:`np.ndarray`):
+        segments ((:math:`N_{ref\\_points}`) :class:`np.ndarray`):
             A segment array, which is an array of length :math:`N_{ref}`
             indicating the first bond index for each reference particle from
             the last set of points this object was evaluated with.
-        neighbor_counts ((:math:`N_{ref\_points}`) :class:`np.ndarray`):
+        neighbor_counts ((:math:`N_{ref\\_points}`) :class:`np.ndarray`):
             A neighbor count array, which is an array of length
             :math:`N_{ref}` indicating the number of neighbors for each
             reference particle from the last set of points this object was
@@ -85,7 +87,7 @@ cdef class NeighborList:
        # Get all vectors from central particles to their neighbors
        rijs = positions[nlist.index_j] - positions[nlist.index_i]
        box.wrap(rijs)
-    """ # noqa
+    """
 
     @classmethod
     def from_arrays(cls, Nref, Ntarget, index_i, index_j, weights=None):
@@ -104,7 +106,7 @@ cdef class NeighborList:
                 target points.
             weights (np.array, optional):
                 Array of per-bond weights (if :code:`None` is given, use a
-                value of 1 for each weight) (Default value = None).
+                value of 1 for each weight) (Default value = :code:`None`).
         """
         index_i = np.asarray(index_i, dtype=np.uint64)
         index_j = np.asarray(index_j, dtype=np.uint64)
@@ -191,7 +193,8 @@ cdef class NeighborList:
 
         Args:
             other (:py:class:`freud.locality.NeighborList`, optional):
-                A Neighborlist to copy into this object (Default value = None).
+                A NeighborList to copy into this object (Default value =
+                :code:`None`).
         """
         if other is not None:
             assert isinstance(other, NeighborList)
@@ -359,13 +362,13 @@ def make_default_nlist(box, ref_points, points, rmax, nlist=None,
         points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
             Points to construct the neighborlist.
         rmax (float):
-            The radius within which to find neighborst.
+            The radius within which to find neighbors.
         nlist (:class:`freud.locality.NeighborList`, optional):
-            NeighborList to use to find bonds (Default value = None).
+            NeighborList to use to find bonds (Default value = :code:`None`).
         exclude_ii (bool, optional):
             True if pairs of points with identical indices should be excluded;
             if None, is set to True if points is None or the same object as
-            ref_points (Default value = None).
+            ref_points (Default value = :code:`None`).
 
     Returns:
         tuple (:class:`freud.locality.NeighborList`, \
@@ -409,11 +412,11 @@ def make_default_nlist_nn(box, ref_points, points, n_neigh, nlist=None,
         n_neigh (int):
             The number of nearest neighbors to consider.
         nlist (:class:`freud.locality.NeighborList`, optional):
-            NeighborList to use to find bonds (Default value = None).
+            NeighborList to use to find bonds (Default value = :code:`None`).
         exclude_ii (bool, optional):
             True if pairs of points with identical indices should be excluded;
             if None, is set to True if points is None or the same object as
-            ref_points (Default value = None).
+            ref_points (Default value = :code:`None`).
         rmax_guess (float):
             Estimate of rmax, speeds up search if chosen properly.
 
@@ -516,7 +519,7 @@ cdef class LinkCell:
             evaluated with.
 
     .. note::
-        2D: :py:class:`freud.locality.LinkCell` properly handles 2D boxes.
+        **2D:** :py:class:`freud.locality.LinkCell` properly handles 2D boxes.
         The points must be passed in as :code:`[x, y, 0]`.
         Failing to set z=0 will lead to undefined behavior.
 
@@ -551,27 +554,25 @@ cdef class LinkCell:
 
     @property
     def box(self):
-        return self.getBox()
+        return freud.box.BoxFromCPP(self.thisptr.getBox())
 
     def getBox(self):
-        """Get the freud Box.
-
-        Returns:
-            :class:`freud.box.Box`: freud Box.
-        """
-        return freud.box.BoxFromCPP(self.thisptr.getBox())
+        warnings.warn("The getBox function is deprecated in favor "
+                      "of the box class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.box
 
     @property
     def num_cells(self):
-        return self.getNumCells()
+        return self.thisptr.getNumCells()
 
     def getNumCells(self):
-        """Get the number of cells in this box.
-
-        Returns:
-            unsigned int: The number of cells in this box.
-        """
-        return self.thisptr.getNumCells()
+        warnings.warn("The getNumCells function is deprecated in favor "
+                      "of the num_cells class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.num_cells
 
     def getCell(self, point):
         """Returns the index of the cell containing the given point.
@@ -636,11 +637,11 @@ cdef class LinkCell:
                 Reference point coordinates.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, \
             optional):
-                Point coordinates (Default value = None).
+                Point coordinates (Default value = :code:`None`).
             exclude_ii (bool, optional):
                 True if pairs of points with identical indices should be
                 excluded; if None, is set to True if points is None or the same
-                object as ref_points (Default value = None).
+                object as ref_points (Default value = :code:`None`).
         """
         cdef freud.box.Box b = freud.common.convert_box(box)
         exclude_ii = (
@@ -692,11 +693,11 @@ cdef class LinkCell:
                 Reference point coordinates.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, \
             optional):
-                Point coordinates (Default value = None).
+                Point coordinates (Default value = :code:`None`).
             exclude_ii (bool, optional):
                 True if pairs of points with identical indices should be
                 excluded; if None, is set to True if points is None or the same
-                object as ref_points (Default value = None).
+                object as ref_points (Default value = :code:`None`).
         """
         return self.computeCellList(box, ref_points, points, exclude_ii)
 
@@ -772,58 +773,52 @@ cdef class NearestNeighbors:
 
     @property
     def UINTMAX(self):
-        return self.getUINTMAX()
+        return self.thisptr.getUINTMAX()
 
     def getUINTMAX(self):
-        """
-        Returns:
-            unsigned int: Value of C++ UINTMAX used to pad the arrays.
-        """
-        return self.thisptr.getUINTMAX()
+        warnings.warn("The getUINTMAX function is deprecated in favor "
+                      "of the UINTMAX class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.UINTMAX
 
     @property
     def box(self):
-        return self.getBox()
+        return freud.box.BoxFromCPP(self.thisptr.getBox())
 
     def getBox(self):
-        """Get the freud Box.
-
-        Returns:
-            :class:`freud.box.Box`: freud Box.
-        """
-        return freud.box.BoxFromCPP(self.thisptr.getBox())
+        warnings.warn("The getBox function is deprecated in favor "
+                      "of the box class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.box
 
     @property
     def num_neighbors(self):
-        return self.getNumNeighbors()
+        return self.thisptr.getNumNeighbors()
 
     def getNumNeighbors(self):
-        """The number of neighbors this object will find.
-
-        Returns:
-            unsigned int: The number of neighbors this object will find.
-        """
-        return self.thisptr.getNumNeighbors()
+        warnings.warn("The getNumNeighbors function is deprecated in favor "
+                      "of the num_neighbors class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.num_neighbors
 
     @property
     def n_ref(self):
-        return self.getNRef()
-
-    def getNRef(self):
-        """Get the number of particles this object found neighbors of.
-
-        Returns:
-            unsigned int:
-                The number of particles this object found neighbors of.
-        """
         return self.thisptr.getNref()
 
-    def setRMax(self, float rmax):
-        """Update the neighbor search distance guess.
+    def getNRef(self):
+        warnings.warn("The getNref function is deprecated in favor "
+                      "of the n_ref class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.n_ref
 
-        Args:
-            rmax (float): Nearest neighbors search radius.
-        """
+    def setRMax(self, float rmax):
+        warnings.warn("Use constructor arguments instead of this setter. "
+                      "This setter will be removed in the future.",
+                      FreudDeprecationWarning)
         self.thisptr.setRMax(rmax)
 
     def setCutMode(self, strict_cut):
@@ -841,19 +836,21 @@ cdef class NearestNeighbors:
             strict_cut (bool): Whether to use a strict :code:`rmax` or allow
                 for automatic expansion.
         """
+        warnings.warn("Use constructor arguments instead of this setter. "
+                      "This setter will be removed in the future.",
+                      FreudDeprecationWarning)
         self.thisptr.setCutMode(strict_cut)
 
     @property
     def r_max(self):
-        return self.getRMax()
+        return self.thisptr.getRMax()
 
     def getRMax(self):
-        """Return the current neighbor search distance guess.
-
-        Returns:
-            float: Nearest neighbors search radius.
-        """
-        return self.thisptr.getRMax()
+        warnings.warn("The getRMax function is deprecated in favor "
+                      "of the r_max class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.r_max
 
     def getNeighbors(self, unsigned int i):
         """Return the :math:`N` nearest neighbors of the reference point with
@@ -920,17 +917,14 @@ cdef class NearestNeighbors:
 
     @property
     def wrapped_vectors(self):
-        return self.getWrappedVectors()
+        return self._getWrappedVectors()[0]
 
     def getWrappedVectors(self):
-        """Return the wrapped vectors for computed neighbors. Array padded
-        with -1 for empty neighbors.
-
-        Returns:
-            :math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:
-                Wrapped vectors.
-        """
-        return self._getWrappedVectors()[0]
+        warnings.warn("The getWrappedVectors function is deprecated in favor "
+                      "of the wrapped_vectors class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.wrapped_vectors
 
     def _getWrappedVectors(self):
         result = np.empty(
@@ -958,20 +952,17 @@ cdef class NearestNeighbors:
 
     @property
     def r_sq_list(self):
-        return self.getRsqList()
-
-    def getRsqList(self):
-        """Return the entire Rsq values list.
-
-        Returns:
-            :math:`\\left(N_{particles}, N_{neighbors}\\right)` \
-            :class:`numpy.ndarray`:
-                Rsq list.
-        """
         (vecs, blank_mask) = self._getWrappedVectors()
         result = np.sum(vecs**2, axis=-1)
         result[blank_mask] = -1
         return result
+
+    def getRsqList(self):
+        warnings.warn("The getRsqList function is deprecated in favor "
+                      "of the r_sq_list class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.r_sq_list
 
     def compute(self, box, ref_points, points=None, exclude_ii=None):
         """Update the data structure for the given set of points.
@@ -983,11 +974,12 @@ cdef class NearestNeighbors:
                 Reference point coordinates.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, \
             optional):
-                Point coordinates (Default value = None).
+                Point coordinates. Defaults to :code:`ref_points` if not
+                provided or :code:`None`.
             exclude_ii (bool, optional):
                 True if pairs of points with identical indices should be
                 excluded; if None, is set to True if points is None or the same
-                object as ref_points (Default value = None).
+                object as ref_points (Default value = :code:`None`).
         """
         cdef freud.box.Box b = freud.common.convert_box(box)
         exclude_ii = (

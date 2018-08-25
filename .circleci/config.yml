@@ -34,6 +34,7 @@ references:
       name: Build
       command: |
         echo "PYVER=${PYVER}"
+        rm freud/*.cpp
         python${PYVER} setup.py build_ext --inplace --COVERAGE --ENABLE-CYTHON
 
   test: &test
@@ -48,7 +49,6 @@ references:
       command: |
           export PATH=~/.local/bin:${PATH}
           coverage run -m unittest discover tests -v
-          export CODECOV_TOKEN=4ce7f171-1f0a-4cc9-a6c3-594a7af1987c
           bash <(curl -s https://codecov.io/bash)
 
   store: &store

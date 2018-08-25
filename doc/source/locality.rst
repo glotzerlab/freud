@@ -24,7 +24,7 @@ Locality Module
    :members:
 
 .. autoclass:: freud.locality.LinkCell(box, cell_width)
-   :members:
+   :members: compute, computeCellList, getCell, getCellNeighbors, itercell
 
 .. autoclass:: freud.locality.NearestNeighbors(rmax, n_neigh, scale=1.1, strict_cut=False)
-   :members:
+   :members: compute, getNeighborList, getNeighbors, getRsq, setCutMode

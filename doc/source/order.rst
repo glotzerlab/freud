@@ -29,34 +29,34 @@ Order Module
     :synopsis: Compute order parameters
 
 .. autoclass:: freud.order.CubaticOrderParameter(t_initial, t_final, scale, n_replicates, seed)
-    :members:
+    :members: compute
 
 .. autoclass:: freud.order.NematicOrderParameter(u)
-    :members:
+    :members: compute
 
 .. autoclass:: freud.order.HexOrderParameter(rmax, k, n)
-    :members:
+    :members: compute
 
 .. autoclass:: freud.order.TransOrderParameter(rmax, k, n)
-    :members:
+    :members: compute
 
 .. autoclass:: freud.order.LocalQl(box, rmax, l, rmin)
-    :members:
+    :members: compute, computeAve, computeAveNorm, computeNorm, setBox
 
 .. autoclass:: freud.order.LocalQlNear(box, rmax, l, kn)
-    :members:
+    :members: compute, computeAve, computeAveNorm, computeNorm, setBox
 
 .. autoclass:: freud.order.LocalWl(box, rmax, l)
-    :members:
+    :members: compute, computeAve, computeAveNorm, computeNorm, setBox
 
 .. autoclass:: freud.order.LocalWlNear(box, rmax, l, kn)
-    :members:
+    :members: compute, computeAve, computeAveNorm, computeNorm, setBox
 
 .. autoclass:: freud.order.SolLiq(box, rmax, Qthreshold, Sthreshold, l)
-    :members:
+    :members: compute, computeSolLiqNoNorm, computeSolLiqVariant
 
 .. autoclass:: freud.order.SolLiqNear(box, rmax, Qthreshold, Sthreshold, l)
-    :members:
+    :members: compute, computeSolLiqNoNorm, computeSolLiqVariant
 
 Deprecated Classes
 ==================
@@ -67,19 +67,16 @@ Bond Order
 ----------
 
 .. autoclass:: freud.order.BondOrder(rmax, k, n, nBinsT, nBinsP)
-    :members:
 
 Local Descriptors
 -----------------
 
 .. autoclass:: freud.order.LocalDescriptors(box, nNeigh, lmax, rmax)
-    :members:
 
 Environment Matching
 --------------------
 
 .. autoclass:: freud.order.MatchEnv(box, rmax, k)
-    :members:
 
 Pairing
 -------
@@ -88,10 +85,8 @@ Pairing
     Pairing2D is deprecated and is replaced with :doc:`bond`.
 
 .. autoclass:: freud.order.Pairing2D(rmax, k, compDotTol)
-    :members:
 
 Angular Separation
 ------------------
 
 .. autoclass:: freud.order.AngularSeparation(box, rmax, n)
-    :members:

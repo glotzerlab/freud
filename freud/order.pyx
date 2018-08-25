@@ -59,6 +59,34 @@ cdef class CubaticOrderParameter:
             Number of replicate simulated annealing runs.
         seed (unsigned int):
             Random seed to use in calculations. If None, system time is used.
+
+    Attributes:
+        t_initial (float):
+            The value of the initial temperature.
+        t_final (float):
+            The value of the final temperature.
+        scale (float):
+            The scale
+        cubatic_order_parameter (float):
+            The cubatic order parameter.
+        orientation (:math:`\\left(4 \\right)` :class:`numpy.ndarray`):
+            The quaternion of global orientation.
+        particle_order_parameter (:class:`numpy.ndarray`):
+             Cubatic order parameter.
+        particle_tensor (:math:`\\left(N_{particles}, 3, 3, 3, 3 \\right)`\
+        :class:`numpy.ndarray`):
+            Rank 5 tensor corresponding to each individual particle
+            orientation.
+        global_tensor (:math:`\\left(3, 3, 3, 3 \\right)`\
+        :class:`numpy.ndarray`):
+            Rank 4 tensor corresponding to global orientation.
+        cubatic_tensor (:math:`\\left(3, 3, 3, 3 \\right)`\
+        :class:`numpy.ndarray`):
+            Rank 4 cubatic tensor.
+        gen_r4_tensor (:math:`\\left(3, 3, 3, 3 \\right)`\
+        :class:`numpy.ndarray`):
+            Rank 4 tensor corresponding to each individual particle
+            orientation.
     """
     cdef freud._order.CubaticOrderParameter * thisptr
 
@@ -112,56 +140,67 @@ cdef class CubaticOrderParameter:
                 <quat[float]*> l_orientations.data, num_particles, 1)
         return self
 
-    def get_t_initial(self):
-        """Get initial temperature.
-
-        Returns:
-            float: Value of initial temperature.
-        """
+    @property
+    def t_initial(self):
         return self.thisptr.getTInitial()
 
-    def get_t_final(self):
-        """Get final temperature.
+    def get_t_initial(self):
+        warnings.warn("The get_t_initial function is deprecated in favor "
+                      "of the t_initial class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.t_initial
 
-        Returns:
-            float: Value of final temperature.
-        """
+    @property
+    def t_final(self):
         return self.thisptr.getTFinal()
 
-    def get_scale(self):
-        """Get scale.
+    def get_t_final(self):
+        warnings.warn("The get_t_final function is deprecated in favor "
+                      "of the t_final class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.t_final
 
-        Returns:
-            float: Value of scale.
-        """
+    @property
+    def scale(self):
         return self.thisptr.getScale()
 
-    def get_cubatic_order_parameter(self):
-        """Get cubatic order parameter.
+    def get_scale(self):
+        warnings.warn("The get_scale function is deprecated in favor "
+                      "of the scale class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.scale
 
-        Returns:
-            float: Cubatic order parameter.
-        """
+    @property
+    def cubatic_order_parameter(self):
         return self.thisptr.getCubaticOrderParameter()
 
-    def get_orientation(self):
-        """Get orientations.
+    def get_cubatic_order_parameter(self):
+        warnings.warn("The get_cubatic_order_parameter function is deprecated "
+                      "in favor of the cubatic_order_parameter class "
+                      "attribute and will be removed in a future version of "
+                      "freud.",
+                      FreudDeprecationWarning)
+        return self.cubatic_order_parameter
 
-        Returns:
-            :math:`\\left(4 \\right)` :class:`numpy.ndarray`:
-                Orientation of global orientation.
-        """
+    @property
+    def orientation(self):
         cdef quat[float] q = self.thisptr.getCubaticOrientation()
         cdef np.ndarray[float, ndim=1] result = np.array(
             [q.s, q.v.x, q.v.y, q.v.z], dtype=np.float32)
         return result
 
-    def get_particle_op(self):
-        """Get per-particle order parameter.
+    def get_orientation(self):
+        warnings.warn("The get_orientation function is deprecated in favor "
+                      "of the orientation class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.orientation
 
-        Returns:
-            :class:`np.ndarray`: Cubatic order parameter.
-        """
+    @property
+    def particle_order_parameter(self):
         cdef float * particle_op = \
             self.thisptr.getParticleCubaticOrderParameter().get()
         cdef np.npy_intp nbins[1]
@@ -171,15 +210,15 @@ cdef class CubaticOrderParameter:
                                          <void*> particle_op)
         return result
 
-    def get_particle_tensor(self):
-        """Get per-particle cubatic tensor.
+    def get_particle_op(self):
+        warnings.warn("The get_particle_op function is deprecated in favor "
+                      "of the particle_order_parameter class attribute and "
+                      "will be removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.particle_order_parameter
 
-        Returns:
-            :math:`\\left(N_{particles}, 3, 3, 3, 3 \\right)` \
-            :class:`numpy.ndarray`:
-                Rank 5 tensor corresponding to each individual particle
-                orientation.
-        """
+    @property
+    def particle_tensor(self):
         cdef float * particle_tensor = self.thisptr.getParticleTensor().get()
         cdef np.npy_intp nbins[5]
         nbins[0] = <np.npy_intp> self.thisptr.getNumParticles()
@@ -192,13 +231,15 @@ cdef class CubaticOrderParameter:
                                          <void*> particle_tensor)
         return result
 
-    def get_global_tensor(self):
-        """Get global tensor.
+    def get_particle_tensor(self):
+        warnings.warn("The get_particle_tensor function is deprecated in "
+                      "favor of the particle_tensor class attribute and will "
+                      "be removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.particle_tensor
 
-        Returns:
-            :math:`\\left(3, 3, 3, 3 \\right)` :class:`numpy.ndarray`:
-                Rank 4 tensor corresponding to global orientation.
-        """
+    @property
+    def global_tensor(self):
         cdef float * global_tensor = self.thisptr.getGlobalTensor().get()
         cdef np.npy_intp nbins[4]
         nbins[0] = <np.npy_intp> 3
@@ -210,13 +251,15 @@ cdef class CubaticOrderParameter:
                                          <void*> global_tensor)
         return result
 
-    def get_cubatic_tensor(self):
-        """Get cubatic tensor.
+    def get_global_tensor(self):
+        warnings.warn("The get_global_tensor function is deprecated in favor "
+                      "of the global_tensor class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.global_tensor
 
-        Returns:
-            :math:`\\left(3, 3, 3, 3 \\right)` :class:`numpy.ndarray`:
-                Rank 4 tensor corresponding to cubatic tensor.
-        """
+    @property
+    def cubatic_tensor(self):
         cdef float * cubatic_tensor = self.thisptr.getCubaticTensor().get()
         cdef np.npy_intp nbins[4]
         nbins[0] = <np.npy_intp> 3
@@ -228,14 +271,15 @@ cdef class CubaticOrderParameter:
                                          <void*> cubatic_tensor)
         return result
 
-    def get_gen_r4_tensor(self):
-        """Get R4 Tensor.
+    def get_cubatic_tensor(self):
+        warnings.warn("The get_cubatic_tensor function is deprecated in favor "
+                      "of the cubatic_tensor class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.cubatic_tensor
 
-        Returns:
-            :math:`\\left(3, 3, 3, 3 \\right)` :class:`numpy.ndarray`:
-                Rank 4 tensor corresponding to each individual particle
-                orientation.
-        """
+    @property
+    def gen_r4_tensor(self):
         cdef float * gen_r4_tensor = self.thisptr.getGenR4Tensor().get()
         cdef np.npy_intp nbins[4]
         nbins[0] = <np.npy_intp> 3
@@ -246,6 +290,13 @@ cdef class CubaticOrderParameter:
             np.PyArray_SimpleNewFromData(4, nbins, np.NPY_FLOAT32,
                                          <void*> gen_r4_tensor)
         return result
+
+    def get_gen_r4_tensor(self):
+        warnings.warn("The get_gen_r4_tensor function is deprecated in favor "
+                      "of the gen_r4_tensor class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.gen_r4_tensor
 
 
 cdef class NematicOrderParameter:
@@ -259,6 +310,19 @@ cdef class NematicOrderParameter:
         u (:math:`\\left(3 \\right)` :class:`numpy.ndarray`):
             The nematic director of a single particle in the reference state
             (without any rotation applied).
+
+    Attributes:
+        nematic_order_parameter (float):
+            Nematic order parameter.
+        director (:math:`\\left(3 \\right)` :class:`numpy.ndarray`):
+            The average nematic director.
+        particle_tensor (:math:`\\left(N_{particles}, 3, 3 \\right)`\
+        :class:`numpy.ndarray`):
+            One 3x3 matrix per-particle corresponding to each individual
+            particle orientation.
+        nematic_tensor (:math:`\\left(3, 3 \\right)` :class:`numpy.ndarray`):
+            3x3 matrix corresponding to the average particle orientation.
+
     """
     cdef freud._order.NematicOrderParameter *thisptr
 
@@ -293,34 +357,34 @@ cdef class NematicOrderParameter:
             self.thisptr.compute(<quat[float]*> l_orientations.data,
                                  num_particles)
 
-    def get_nematic_order_parameter(self):
-        """The nematic order parameter.
-
-        Returns:
-            float: Nematic order parameter.
-        """
+    @property
+    def nematic_order_parameter(self):
         return self.thisptr.getNematicOrderParameter()
 
-    def get_director(self):
-        """The director (eigenvector corresponding to the order parameter).
+    def get_nematic_order_parameter(self):
+        warnings.warn("The get_nematic_order_parameter function is deprecated "
+                      "in favor of the nematic_order_parameter class "
+                      "attribute and will be removed in a future version of "
+                      "freud.",
+                      FreudDeprecationWarning)
+        return self.nematic_order_parameter
 
-        Returns:
-            :math:`\\left(3 \\right)` :class:`numpy.ndarray`:
-                The average nematic director.
-        """
+    @property
+    def director(self):
         cdef vec3[float] n = self.thisptr.getNematicDirector()
         cdef np.ndarray[np.float32_t, ndim=1] result = np.array(
             [n.x, n.y, n.z], dtype=np.float32)
         return result
 
-    def get_particle_tensor(self):
-        """The full per-particle tensor of orientation information.
+    def get_director(self):
+        warnings.warn("The get_director function is deprecated in favor "
+                      "of the director class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.director
 
-        Returns:
-            :math:`\\left(N_{particles}, 3, 3 \\right)` :class:`numpy.ndarray`:
-                3x3 matrix corresponding to each individual particle
-                orientation.
-        """
+    @property
+    def particle_tensor(self):
         cdef float *particle_tensor = self.thisptr.getParticleTensor().get()
         cdef np.npy_intp nbins[3]
         nbins[0] = <np.npy_intp> self.thisptr.getNumParticles()
@@ -331,13 +395,15 @@ cdef class NematicOrderParameter:
                                          <void*> particle_tensor)
         return result
 
-    def get_nematic_tensor(self):
-        """The nematic Q tensor.
+    def get_particle_tensor(self):
+        warnings.warn("The get_particle_tensor function is deprecated in "
+                      "favor of the particle_tensor class attribute and will "
+                      "be removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.particle_tensor
 
-        Returns:
-            :math:`\\left(3, 3 \\right)` :class:`numpy.ndarray`:
-                3x3 matrix corresponding to the average particle orientation.
-        """
+    @property
+    def nematic_tensor(self):
         cdef float *nematic_tensor = self.thisptr.getNematicTensor().get()
         cdef np.npy_intp nbins[2]
         nbins[0] = <np.npy_intp> 3
@@ -346,6 +412,13 @@ cdef class NematicOrderParameter:
             np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32,
                                          <void*> nematic_tensor)
         return result
+
+    def get_nematic_tensor(self):
+        warnings.warn("The get_nematic_tensor function is deprecated in favor "
+                      "of the nematic_tensor class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.get_nematic_tensor()
 
 cdef class HexOrderParameter:
     """Calculates the :math:`k`-atic order parameter for each particle in the
@@ -363,9 +436,9 @@ cdef class HexOrderParameter:
     vector :math:`r_{ij}` and :math:`\\left( 1,0 \\right)`.
 
     .. note::
-        2D: :py:class:`freud.cluster.Cluster` properly handles 2D boxes.
-        The points must be passed in as :code:`[x, y, 0]`.
-        Failing to set z=0 will lead to undefined behavior.
+        **2D:** :py:class:`freud.order.HexOrderParameter` properly handles 2D
+        boxes. The points must be passed in as :code:`[x, y, 0]`. Failing to
+        set z=0 will lead to undefined behavior.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
@@ -384,7 +457,7 @@ cdef class HexOrderParameter:
             Box used in the calculation.
         num_particles (unsigned int):
             Number of particles.
-        k (unsigned int):
+        K (unsigned int):
             Symmetry of the order parameter.
     """
     cdef freud._order.HexOrderParameter * thisptr
@@ -431,15 +504,6 @@ cdef class HexOrderParameter:
 
     @property
     def psi(self):
-        return self.getPsi()
-
-    def getPsi(self):
-        """Get the order parameter.
-
-        Returns:
-            :math:`\\left(N_{particles} \\right)` :class:`numpy.ndarray`:
-                Order parameter.
-        """
         cdef float complex * psi = self.thisptr.getPsi().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.thisptr.getNP()
@@ -448,43 +512,47 @@ cdef class HexOrderParameter:
                                          <void*> psi)
         return result
 
+    def getPsi(self):
+        warnings.warn("The getPsi function is deprecated in favor "
+                      "of the psi class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.psi
+
     @property
     def box(self):
-        return self.getBox()
+        return freud.box.BoxFromCPP(< freud._box.Box > self.thisptr.getBox())
 
     def getBox(self):
-        """Get the box used in the calculation.
-
-        Returns:
-          :class:`freud.box.Box`: freud Box.
-        """
-        return freud.box.BoxFromCPP(< freud._box.Box > self.thisptr.getBox())
+        warnings.warn("The getBox function is deprecated in favor "
+                      "of the box class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.box
 
     @property
     def num_particles(self):
-        return self.getNP()
-
-    def getNP(self):
-        """Get the number of particles.
-
-        Returns:
-          unsigned int: :math:`N_{particles}`.
-        """
         cdef unsigned int np = self.thisptr.getNP()
         return np
 
+    def getNP(self):
+        warnings.warn("The getNP function is deprecated in favor "
+                      "of the box class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.num_particles
+
     @property
-    def k(self):
-        return self.getK()
-
-    def getK(self):
-        """Get the symmetry of the order parameter.
-
-        Returns:
-          unsigned int: :math:`k`.
-        """
+    def K(self):
         cdef unsigned int k = self.thisptr.getK()
         return k
+
+    def getK(self):
+        warnings.warn("The getK function is deprecated in favor "
+                      "of the K class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.K
 
 cdef class TransOrderParameter:
     """Compute the translational order parameter for each particle.
@@ -550,15 +618,6 @@ cdef class TransOrderParameter:
 
     @property
     def d_r(self):
-        return self.getDr()
-
-    def getDr(self):
-        """Get a reference to the last computed spherical harmonic array.
-
-        Returns:
-            :math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:
-                Order parameter.
-        """
         cdef float complex * dr = self.thisptr.getDr().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.thisptr.getNP()
@@ -567,35 +626,39 @@ cdef class TransOrderParameter:
                                          <void*> dr)
         return result
 
+    def getDr(self):
+        warnings.warn("The getDr function is deprecated in favor "
+                      "of the d_r class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.d_r
+
     @property
     def box(self):
-        return self.getBox()
+        return freud.box.BoxFromCPP(< freud._box.Box > self.thisptr.getBox())
 
     def getBox(self):
-        """Get the box used in the calculation.
-
-        Returns:
-            :class:`freud.box.Box`: freud Box.
-        """
-        return freud.box.BoxFromCPP(< freud._box.Box > self.thisptr.getBox())
+        warnings.warn("The getBox function is deprecated in favor "
+                      "of the box class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.box
 
     @property
     def num_particles(self):
-        return self.getNP()
-
-    def getNP(self):
-        """Get the number of particles.
-
-        Returns:
-            unsigned int: :math:`N_{particles}`.
-        """
         cdef unsigned int np = self.thisptr.getNP()
         return np
 
+    def getNP(self):
+        warnings.warn("The getNP function is deprecated in favor "
+                      "of the num_particles class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.num_particles
+
 cdef class LocalQl:
-    """
-    Compute the local Steinhardt [Steinhardt1983]_ rotationally invariant
-    :math:`Q_l` [Lechner2008]_ order parameter for a set of points.
+    """Compute the local Steinhardt [Steinhardt1983]_ rotationally invariant
+    :math:`Q_l` order parameter for a set of points.
 
     Implements the local rotationally invariant :math:`Q_l` order parameter
     described by Steinhardt. For a particle i, we calculate the average
@@ -603,19 +666,26 @@ cdef class LocalQl:
     and its neighbors :math:`j` in a local region:
     :math:`\\overline{Q}_{lm}(i) = \\frac{1}{N_b}
     \\displaystyle\\sum_{j=1}^{N_b} Y_{lm}(\\theta(\\vec{r}_{ij}),
-    \\phi(\\vec{r}_{ij}))`.
+    \\phi(\\vec{r}_{ij}))`. The particles included in the sum are determined
+    by the rmax argument to the constructor.
 
     This is then combined in a rotationally invariant fashion to remove local
     orientational order as follows: :math:`Q_l(i)=\\sqrt{\\frac{4\pi}{2l+1}
     \\displaystyle\\sum_{m=-l}^{l} |\\overline{Q}_{lm}|^2 }`.
 
-    Added first/second shell combined average :math:`Q_l` order parameter for
-    a set of points:
+    The :py:meth:`~computeAve` method provides access to a variant of this
+    parameter that performs a average over the first and second shell combined
+    [Lechner2008]_. To compute this parameter, we perform a second averaging
+    over the first neighbor shell of the particle to implicitly include
+    information about the second neighbor shell. This averaging is performed by
+    replacing the value :math:`\\overline{Q}_{lm}(i)` in the original
+    definition by the average value of :math:`\\overline{Q}_{lm}(k)` over all
+    the :math:`k` neighbors of particle :math:`i` as well as itself.
 
-    * Variation of the Steinhardt :math:`Q_l` order parameter
-    * For a particle i, we calculate the average :math:`Q_l` by summing the
-      spherical harmonics between particle i and its neighbors j and the
-      neighbors k of neighbor j in a local region.
+    The :py:meth:`~computeNorm` and :py:meth:`~computeAveNorm` methods provide
+    normalized versions of :py:meth:`~compute` and :py:meth:`~computeAve`,
+    where the normalization is performed by dividing by the average
+    :math:`Q_{lm}` values over all particles.
 
     .. moduleauthor:: Xiyu Du <xiyudu@umich.edu>
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
@@ -653,7 +723,7 @@ cdef class LocalQl:
             no neighbors).
 
     .. todo:: move box to compute, this is old API
-    """ # noqa
+    """
     cdef freud._order.LocalQl * qlptr
     cdef freud.box.Box m_box
     cdef rmax
@@ -673,19 +743,19 @@ cdef class LocalQl:
 
     @property
     def box(self):
-        return self.getBox()
+        return freud.box.BoxFromCPP(< freud._box.Box > self.qlptr.getBox())
+
+    def getBox(self):
+        warnings.warn("The getBox function is deprecated in favor "
+                      "of the box class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.box
 
     @box.setter
     def box(self, value):
-        self.setBox(value)
-
-    def getBox(self):
-        """Get the box used in the calculation.
-
-        Returns:
-            :class:`freud.box.Box`: freud Box.
-        """
-        return freud.box.BoxFromCPP(< freud._box.Box > self.qlptr.getBox())
+        cdef freud.box.Box b = freud.common.convert_box(value)
+        self.qlptr.setBox(dereference(b.thisptr))
 
     def setBox(self, box):
         """Reset the simulation box.
@@ -693,34 +763,22 @@ cdef class LocalQl:
         Args:
             box (:class:`freud.box.Box`): Simulation box.
         """
-        cdef freud.box.Box b = freud.common.convert_box(box)
-        self.qlptr.setBox(dereference(b.thisptr))
+        self.box = box
 
     @property
     def num_particles(self):
-        return self.getNP()
-
-    def getNP(self):
-        """Get the number of particles.
-
-        Returns:
-            unsigned int: :math:`N_{particles}`.
-        """
         cdef unsigned int np = self.qlptr.getNP()
         return np
 
+    def getNP(self):
+        warnings.warn("The getNP function is deprecated in favor "
+                      "of the num_particles class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.num_particles
+
     @property
     def Ql(self):
-        return self.getQl()
-
-    def getQl(self):
-        """Get a reference to the last computed :math:`Q_l` for each particle.
-        Returns NaN instead of :math:`Q_l` for particles with no neighbors.
-
-        Returns:
-            :math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:
-                Order parameter.
-        """
         cdef float * Ql = self.qlptr.getQl().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.qlptr.getNP()
@@ -728,18 +786,15 @@ cdef class LocalQl:
             np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> Ql)
         return result
 
+    def getQl(self):
+        warnings.warn("The getQl function is deprecated in favor "
+                      "of the Ql class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.Ql
+
     @property
     def ave_Ql(self):
-        return self.getAveQl()
-
-    def getAveQl(self):
-        """Get a reference to the last computed :math:`Q_l` for each particle.
-        Returns NaN instead of :math:`Q_l` for particles with no neighbors.
-
-        Returns:
-            :math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:
-                Order parameter.
-        """
         cdef float * Ql = self.qlptr.getAveQl().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.qlptr.getNP()
@@ -747,18 +802,15 @@ cdef class LocalQl:
             np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> Ql)
         return result
 
+    def getAveQl(self):
+        warnings.warn("The getAveQl function is deprecated in favor "
+                      "of the ave_Ql class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.ave_Ql
+
     @property
     def norm_Ql(self):
-        return self.getQlNorm()
-
-    def getQlNorm(self):
-        """Get a reference to the last computed :math:`Q_l` for each particle.
-        Returns NaN instead of :math:`Q_l` for particles with no neighbors.
-
-        Returns:
-            :math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:
-                Order parameter.
-        """
         cdef float * Ql = self.qlptr.getQlNorm().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.qlptr.getNP()
@@ -766,18 +818,15 @@ cdef class LocalQl:
             np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> Ql)
         return result
 
+    def getQlNorm(self):
+        warnings.warn("The getQlNorm function is deprecated in favor "
+                      "of the norm_Ql class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.norm_Ql
+
     @property
     def ave_norm_Ql(self):
-        return self.getQlAveNorm()
-
-    def getQlAveNorm(self):
-        """Get a reference to the last computed :math:`Q_l` for each particle.
-        Returns NaN instead of :math:`Q_l` for particles with no neighbors.
-
-        Returns:
-            :math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:
-                Order parameter.
-        """
         cdef float * Ql = self.qlptr.getQlAveNorm().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.qlptr.getNP()
@@ -785,9 +834,15 @@ cdef class LocalQl:
             np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> Ql)
         return result
 
+    def getQlAveNorm(self):
+        warnings.warn("The getQlAveNorm function is deprecated in favor "
+                      "of the ave_norm_Ql class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.ave_norm_Ql
+
     def compute(self, points, nlist=None):
-        """Compute the local rotationally invariant :math:`Q_l` order
-        parameter.
+        """Compute the order parameter.
 
         Args:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
@@ -810,8 +865,7 @@ cdef class LocalQl:
         return self
 
     def computeAve(self, points, nlist=None):
-        """Compute the local rotationally invariant :math:`Q_l` order
-        parameter.
+        """Compute the order parameter over two nearest neighbor shells.
 
         Args:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
@@ -838,8 +892,8 @@ cdef class LocalQl:
         return self
 
     def computeNorm(self, points, nlist=None):
-        """Compute the local rotationally invariant :math:`Q_l` order
-        parameter.
+        """Compute the order parameter normalized by the average spherical
+        harmonic value over all the particles.
 
         Args:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
@@ -864,8 +918,9 @@ cdef class LocalQl:
         return self
 
     def computeAveNorm(self, points, nlist=None):
-        """Compute the local rotationally invariant :math:`Q_l` order
-        parameter.
+        """Compute the order parameter over two nearest neighbor shells
+        normalized by the average spherical harmonic value over all the
+        particles.
 
         Args:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
@@ -893,29 +948,10 @@ cdef class LocalQl:
         return self
 
 cdef class LocalQlNear(LocalQl):
-    """
-    Compute the local Steinhardt [Steinhardt1983]_ rotationally invariant
-    :math:`Q_l` order parameter [Lechner2008]_ for a set of points.
-
-    Implements the local rotationally invariant :math:`Q_l` order parameter
-    described by Steinhardt. For a particle i, we calculate the average
-    :math:`Q_l` by summing the spherical harmonics between particle :math:`i`
-    and its neighbors :math:`j` in a local region:
-    :math:`\\overline{Q}_{lm}(i) = \\frac{1}{N_b}
-    \\displaystyle\\sum_{j=1}^{N_b} Y_{lm}(\\theta(\\vec{r}_{ij}),
-    \\phi(\\vec{r}_{ij}))`
-
-    This is then combined in a rotationally invariant fashion to remove local
-    orientational order as follows: :math:`Q_l(i)=\\sqrt{\\frac{4\pi}{2l+1}
-    \\displaystyle\\sum_{m=-l}^{l} |\\overline{Q}_{lm}|^2 }`
-
-    Added first/second shell combined average :math:`Q_l` order parameter for
-    a set of points:
-
-    * Variation of the Steinhardt :math:`Q_l` Order parameter.
-    * For a particle i, we calculate the average :math:`Q_l` by summing the
-      spherical harmonics between particle i and its neighbors j and the
-      neighbors k of neighbor j in a local region.
+    """A variant of the :py:class:`~LocalQl` class that performs its average
+    over nearest neighbor particles as determined by an instance of
+    :py:class:`freud.locality.NeighborList`. The number of included neighbors
+    is determined by the kn parameter to the constructor.
 
     .. moduleauthor:: Xiyu Du <xiyudu@umich.edu>
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
@@ -953,7 +989,7 @@ cdef class LocalQlNear(LocalQl):
             no neighbors).
 
     .. todo:: move box to compute, this is old API
-    """ # noqa
+    """
     cdef num_neigh
 
     def __cinit__(self, box, rmax, l, kn=12):
@@ -975,8 +1011,7 @@ cdef class LocalQlNear(LocalQl):
             self.qlptr = NULL
 
     def computeAve(self, points, nlist=None):
-        """Compute the local rotationally invariant :math:`Q_l` order
-        parameter.
+        """Compute the order parameter over two nearest neighbor shells.
 
         Args:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
@@ -990,8 +1025,8 @@ cdef class LocalQlNear(LocalQl):
         return super(LocalQlNear, self).computeAve(points, nlist_)
 
     def computeNorm(self, points, nlist=None):
-        """Compute the local rotationally invariant :math:`Q_l` order
-        parameter.
+        """Compute the order parameter normalized by the average spherical
+        harmonic value over all the particles.
 
         Args:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
@@ -1005,8 +1040,9 @@ cdef class LocalQlNear(LocalQl):
         return super(LocalQlNear, self).computeNorm(points, nlist_)
 
     def computeAveNorm(self, points, nlist=None):
-        """Compute the local rotationally invariant :math:`Q_l` order
-        parameter.
+        """Compute the order parameter over two nearest neighbor shells
+        normalized by the average spherical harmonic value over all the
+        particles.
 
         Args:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
@@ -1020,21 +1056,36 @@ cdef class LocalQlNear(LocalQl):
         return super(LocalQlNear, self).computeAveNorm(points, nlist_)
 
 cdef class LocalWl(LocalQl):
-    """
-    Compute the local Steinhardt [Steinhardt1983]_ rotationally invariant
-    :math:`W_l` order parameter [Lechner2008]_ for a set of points.
+    """Compute the local Steinhardt [Steinhardt1983]_ rotationally invariant
+    :math:`W_l` order parameter for a set of points.
 
     Implements the local rotationally invariant :math:`W_l` order parameter
-    described by Steinhardt that can aid in distinguishing  between FCC, HCP,
-    and BCC.
+    described by Steinhardt. For a particle i, we calculate the average
+    :math:`W_l` by summing the spherical harmonics between particle :math:`i`
+    and its neighbors :math:`j` in a local region:
+    :math:`\\overline{Q}_{lm}(i) = \\frac{1}{N_b}
+    \\displaystyle\\sum_{j=1}^{N_b} Y_{lm}(\\theta(\\vec{r}_{ij}),
+    \\phi(\\vec{r}_{ij}))`. The particles included in the sum are determined
+    by the rmax argument to the constructor.
 
-    Added first/second shell combined average :math:`W_l` order parameter for
-    a set of points:
+    The :math:`W_l` is then defined as a weighted average over the
+    :math:`\\overline{Q}_{lm}(i)` values using Wigner 3j symbols
+    (CG coefficients). The resulting combination is rotationally (i.e. frame)
+    invariant.
 
-    * Variation of the Steinhardt :math:`W_l` order parameter.
-    * For a particle i, we calculate the average :math:`W_l` by summing the
-      spherical harmonics between particle i and its neighbors j and the
-      neighbors k of neighbor j in a local region.
+    The :py:meth:`~computeAve` method provides access to a variant of this
+    parameter that performs a average over the first and second shell combined
+    [Lechner2008]_. To compute this parameter, we perform a second averaging
+    over the first neighbor shell of the particle to implicitly include
+    information about the second neighbor shell. This averaging is performed by
+    replacing the value :math:`\\overline{Q}_{lm}(i)` in the original
+    definition by the average value of :math:`\\overline{Q}_{lm}(k)` over all
+    the :math:`k` neighbors of particle :math:`i` as well as itself.
+
+    The :py:meth:`~computeNorm` and :py:meth:`~computeAveNorm` methods provide
+    normalized versions of :py:meth:`~compute` and :py:meth:`~computeAve`,
+    where the normalization is performed by dividing by the average
+    :math:`Q_{lm}` values over all particles.
 
     .. moduleauthor:: Xiyu Du <xiyudu@umich.edu>
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
@@ -1057,21 +1108,6 @@ cdef class LocalWl(LocalQl):
             Box used in the calculation.
         num_particles (unsigned int):
             Number of particles.
-        Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
-            The last computed :math:`Q_l` for each particle (filled with NaN
-            for particles with no neighbors).
-        ave_Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
-            The last computed :math:`\\bar{Q_l}` for each particle (filled with
-            NaN for particles with no neighbors).
-        norm_Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
-            The last computed :math:`Q_l` for each particle normalized by the
-            value over all particles (filled with NaN for particles with no
-            neighbors).
-        ave_norm_Ql (:math:`\\left(N_{particles}\\right)` \
-        :class:`numpy.ndarray`):
-            The last computed :math:`\\bar{Q_l}` for each particle normalized
-            by the value over all particles (filled with NaN for particles with
-            no neighbors).
         Wl (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
             The last computed :math:`W_l` for each particle (filled with NaN
             for particles with no neighbors).
@@ -1129,13 +1165,10 @@ cdef class LocalWl(LocalQl):
         return self.getWl()
 
     def getWl(self):
-        """Get a reference to the last computed :math:`W_l` for each particle.
-        Returns NaN instead of :math:`W_l` for particles with no neighbors.
-
-        Returns:
-            :math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:
-                Order parameter.
-        """
+        warnings.warn("The getWl function is deprecated in favor "
+                      "of the Wl class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         cdef float complex * Wl = self.thisptr.getWl().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.qlptr.getNP()
@@ -1146,16 +1179,6 @@ cdef class LocalWl(LocalQl):
 
     @property
     def ave_Wl(self):
-        return self.getAveWl()
-
-    def getAveWl(self):
-        """Get a reference to the last computed :math:`W_l` for each particle.
-        Returns NaN instead of :math:`W_l` for particles with no neighbors.
-
-        Returns:
-            :math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:
-                Order parameter.
-        """
         cdef float complex * Wl = self.thisptr.getAveWl().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.qlptr.getNP()
@@ -1164,18 +1187,15 @@ cdef class LocalWl(LocalQl):
                                          <void*> Wl)
         return result
 
+    def getAveWl(self):
+        warnings.warn("The getAveWl function is deprecated in favor "
+                      "of the ave_Wl class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.ave_Wl
+
     @property
     def norm_Wl(self):
-        return self.getWlNorm()
-
-    def getWlNorm(self):
-        """Get a reference to the last computed :math:`W_l` for each particle.
-        Returns NaN instead of :math:`W_l` for particles with no neighbors.
-
-        Returns:
-            :math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:
-                Order parameter.
-        """
         cdef float complex * Wl = self.thisptr.getWlNorm().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.qlptr.getNP()
@@ -1184,18 +1204,15 @@ cdef class LocalWl(LocalQl):
                                          <void*> Wl)
         return result
 
+    def getWlNorm(self):
+        warnings.warn("The getWlNorm function is deprecated in favor "
+                      "of the norm_Wl class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.norm_Wl
+
     @property
     def ave_norm_Wl(self):
-        return self.getWlAveNorm()
-
-    def getWlAveNorm(self):
-        """Get a reference to the last computed :math:`W_l` for each particle.
-        Returns NaN instead of :math:`W_l` for particles with no neighbors.
-
-        Returns:
-            :math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:
-                Order parameter.
-        """
         cdef float complex * Wl = self.thisptr.getAveNormWl().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.qlptr.getNP()
@@ -1204,22 +1221,18 @@ cdef class LocalWl(LocalQl):
                                          <void*> Wl)
         return result
 
+    def getWlAveNorm(self):
+        warnings.warn("The getWlAveNorm function is deprecated in favor "
+                      "of the ave_norm_Wl class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.ave_norm_Wl
+
 cdef class LocalWlNear(LocalWl):
-    """
-    Compute the local Steinhardt [Steinhardt1983]_ rotationally invariant
-    :math:`W_l` order parameter [Lechner2008]_ for a set of points.
-
-    Implements the local rotationally invariant :math:`W_l` order parameter
-    described by Steinhardt that can aid in distinguishing between FCC, HCP,
-    and BCC.
-
-    Added first/second shell combined average :math:`W_l` order parameter for a
-    set of points:
-
-    * Variation of the Steinhardt :math:`W_l` order parameter.
-    * For a particle i, we calculate the average :math:`W_l` by summing the
-      spherical harmonics between particle i and its neighbors j and the
-      neighbors k of neighbor j in a local region.
+    """A variant of the :py:class:`~LocalWl` class that performs its average
+    over nearest neighbor particles as determined by an instance of
+    :py:class:`freud.locality.NeighborList`. The number of included neighbors
+    is determined by the kn parameter to the constructor.
 
     .. moduleauthor:: Xiyu Du <xiyudu@umich.edu>
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
@@ -1241,21 +1254,6 @@ cdef class LocalWlNear(LocalWl):
             Box used in the calculation.
         num_particles (unsigned int):
             Number of particles.
-        Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
-            The last computed :math:`Q_l` for each particle (filled with NaN
-            for particles with no neighbors).
-        ave_Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
-            The last computed :math:`\\bar{Q_l}` for each particle (filled with
-            NaN for particles with no neighbors).
-        norm_Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
-            The last computed :math:`Q_l` for each particle normalized by the
-            value over all particles (filled with NaN for particles with no
-            neighbors).
-        ave_norm_Ql (:math:`\\left(N_{particles}\\right)` \
-        :class:`numpy.ndarray`):
-            The last computed :math:`\\bar{Q_l}` for each particle normalized
-            by the value over all particles (filled with NaN for particles with
-            no neighbors).
         Wl (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
             The last computed :math:`W_l` for each particle (filled with NaN
             for particles with no neighbors).
@@ -1290,8 +1288,7 @@ cdef class LocalWlNear(LocalWl):
         self.thisptr = NULL
 
     def computeAve(self, points, nlist=None):
-        """Compute the local rotationally invariant :math:`Q_l` order
-        parameter.
+        """Compute the order parameter over two nearest neighbor shells.
 
         Args:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
@@ -1305,8 +1302,8 @@ cdef class LocalWlNear(LocalWl):
         return super(LocalWlNear, self).computeAve(points, nlist_)
 
     def computeNorm(self, points, nlist=None):
-        """Compute the local rotationally invariant :math:`Q_l` order
-        parameter.
+        """Compute the order parameter normalized by the average spherical
+        harmonic value over all the particles.
 
         Args:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
@@ -1320,8 +1317,9 @@ cdef class LocalWlNear(LocalWl):
         return super(LocalWlNear, self).computeNorm(points, nlist_)
 
     def computeAveNorm(self, points, nlist=None):
-        """Compute the local rotationally invariant :math:`Q_l` order
-        parameter.
+        """Compute the order parameter over two nearest neighbor shells
+        normalized by the average spherical harmonic value over all the
+        particles.
 
         Args:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
@@ -1335,8 +1333,7 @@ cdef class LocalWlNear(LocalWl):
         return super(LocalWlNear, self).computeAveNorm(points, nlist_)
 
 cdef class SolLiq:
-    """
-    Computes dot products of :math:`Q_{lm}` between particles and uses these
+    """Computes dot products of :math:`Q_{lm}` between particles and uses these
     for clustering.
 
     .. moduleauthor:: Richmond Newman <newmanrs@umich.edu>
@@ -1400,8 +1397,7 @@ cdef class SolLiq:
         self.thisptr = NULL
 
     def compute(self, points, nlist=None):
-        """Compute the local rotationally invariant :math:`Q_l` order
-        parameter.
+        """Compute the solid-liquid order parameter.
 
         Args:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
@@ -1426,8 +1422,11 @@ cdef class SolLiq:
         return self
 
     def computeSolLiqVariant(self, points, nlist=None):
-        """Compute the local rotationally invariant :math:`Q_l` order
-        parameter.
+        """Compute a variant of the solid-liquid order parameter.
+
+        This variant method places a minimum threshold on the number
+        of solid-like bonds a particle must have to be considered solid-like
+        for clustering purposes.
 
         Args:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
@@ -1452,8 +1451,8 @@ cdef class SolLiq:
         return self
 
     def computeSolLiqNoNorm(self, points, nlist=None):
-        """Compute the local rotationally invariant :math:`Q_l` order
-        parameter.
+        """Compute the solid-liquid order parameter without normalizing the dot
+        product.
 
         Args:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
@@ -1479,64 +1478,52 @@ cdef class SolLiq:
 
     @property
     def box(self):
-        return self.getBox()
-
-    @box.setter
-    def box(self, value):
-        self.setBox(value)
-
-    def getBox(self):
-        """Get the box used in the calculation.
-
-        Returns:
-            :class:`freud.box.Box`: freud Box.
-        """
         return freud.box.BoxFromCPP(< freud._box.Box > self.thisptr.getBox())
 
+    def getBox(self):
+        warnings.warn("The getBox function is deprecated in favor "
+                      "of the box class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.box
+
     def setClusteringRadius(self, rcutCluster):
-        """Reset the clustering radius.
+        """Set the clustering radius.
 
         Args:
             rcutCluster (float): Radius for the cluster finding.
         """
+        warnings.warn("Use constructor arguments instead of this setter. "
+                      "This setter will be removed in the future.",
+                      FreudDeprecationWarning)
         self.thisptr.setClusteringRadius(rcutCluster)
 
-    def setBox(self, box):
-        """Reset the simulation box.
-
-        Args:
-            box(:class:`freud.box.Box`): Simulation box.
-        """
-        cdef freud.box.Box b = freud.common.convert_box(box)
+    @box.setter
+    def box(self, value):
+        cdef freud.box.Box b = freud.common.convert_box(value)
         self.thisptr.setBox(dereference(b.thisptr))
+
+    def setBox(self, box):
+        warnings.warn("The setBox function is deprecated in favor "
+                      "of setting the box class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        self.box = box
 
     @property
     def largest_cluster_size(self):
-        return self.getLargestClusterSize()
-
-    def getLargestClusterSize(self):
-        """Returns the largest cluster size. Must call a compute method first.
-
-        Returns:
-            unsigned int: Largest cluster size.
-        """
         cdef unsigned int clusterSize = self.thisptr.getLargestClusterSize()
         return clusterSize
 
+    def getLargestClusterSize(self):
+        warnings.warn("The getLargestClusterSize function is deprecated in "
+                      "favor of the largest_cluster_size class attribute and "
+                      "will be removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.largest_cluster_size
+
     @property
     def cluster_sizes(self):
-        return self.getClusterSizes()
-
-    def getClusterSizes(self):
-        """Return the sizes of all clusters.
-
-        Returns:
-            :math:`\\left(N_{clusters}\\right)` :class:`numpy.ndarray`:
-                The cluster sizes.
-
-        .. todo:: unsure of the best way to pass back, as this doesn't do
-                  what I want
-        """
         cdef vector[unsigned int] clusterSizes = self.thisptr.getClusterSizes()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.thisptr.getNumClusters()
@@ -1545,18 +1532,15 @@ cdef class SolLiq:
                                          <void*> &clusterSizes)
         return result
 
+    def getClusterSizes(self):
+        warnings.warn("The getClusterSizes function is deprecated in favor "
+                      "of the cluster_sizes class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.cluster_sizes
+
     @property
     def Ql_mi(self):
-        return self.getQlmi()
-
-    def getQlmi(self):
-        """Get a reference to the last computed :math:`Q_{lmi}` for each
-        particle.
-
-        Returns:
-            :math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:
-                Order parameter.
-        """
         cdef float complex * Qlmi = self.thisptr.getQlmi().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.thisptr.getNP()
@@ -1565,18 +1549,15 @@ cdef class SolLiq:
                                          <void*> Qlmi)
         return result
 
+    def getQlmi(self):
+        warnings.warn("The getQlmi function is deprecated in favor "
+                      "of the Ql_mi class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.Ql_mi
+
     @property
     def clusters(self):
-        return self.getClusters()
-
-    def getClusters(self):
-        """Get a reference to the last computed set of solid-like cluster
-        indices for each particle.
-
-        Returns:
-            :math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:
-                Clusters.
-        """
         cdef unsigned int * clusters = self.thisptr.getClusters().get()
         cdef np.npy_intp nbins[1]
         # this is the correct number
@@ -1586,17 +1567,15 @@ cdef class SolLiq:
                                          <void*> clusters)
         return result
 
+    def getClusters(self):
+        warnings.warn("The getClusters function is deprecated in favor "
+                      "of the clusters class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.clusters
+
     @property
     def num_connections(self):
-        return self.getNumberOfConnections()
-
-    def getNumberOfConnections(self):
-        """Get a reference to the number of connections per particle.
-
-        Returns:
-            :math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:
-                Clusters.
-        """
         cdef unsigned int * connections = \
             self.thisptr.getNumberOfConnections().get()
         cdef np.npy_intp nbins[1]
@@ -1607,20 +1586,15 @@ cdef class SolLiq:
                                          <void*> connections)
         return result
 
+    def getNumberOfConnections(self):
+        warnings.warn("The getNumberOfConnections function is deprecated in "
+                      "favor of the num_connections class attribute and will "
+                      "be removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.num_connections
+
     @property
     def Ql_dot_ij(self):
-        return self.getNumberOfConnections()
-
-    def getQldot_ij(self):
-        """Get a reference to the qldot_ij values.
-
-        Returns:
-            :math:`\\left(N_{clusters}\\right)` :class:`numpy.ndarray`:
-                The qldot values.
-
-        .. todo:: Figure out the size of this because apparently its size is
-                  just its size
-        """
         cdef vector[float complex] Qldot = self.thisptr.getQldot_ij()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp> self.thisptr.getNumClusters()
@@ -1629,23 +1603,30 @@ cdef class SolLiq:
                                          <void*> &Qldot)
         return result
 
+    def getQldot_ij(self):
+        warnings.warn("The getQldot_ij function is deprecated in favor "
+                      "of the Ql_dot_ij class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.Ql_dot_ij
+
     @property
     def num_particles(self):
-        return self.getNP()
-
-    def getNP(self):
-        """Get the number of particles.
-
-        Returns:
-          unsigned int: :math:`N_p`.
-        """
         cdef unsigned int np = self.thisptr.getNP()
         return np
 
+    def getNP(self):
+        warnings.warn("The getNumParticles function is deprecated in favor "
+                      "of the num_particles class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.num_particles
+
 cdef class SolLiqNear(SolLiq):
-    """
-    Computes dot products of :math:`Q_{lm}` between particles and uses these
-    for clustering.
+    """A variant of the :py:class:`~SolLiq` class that performs its average
+    over nearest neighbor particles as determined by an instance of
+    :py:class:`freud.locality.NeighborList`. The number of included neighbors
+    is determined by the kn parameter to the constructor.
 
     .. moduleauthor:: Richmond Newman <newmanrs@umich.edu>
 
@@ -1755,7 +1736,8 @@ cdef class SolLiqNear(SolLiq):
 
 
 class BondOrder(_EBO):
-    """
+    """**Deprecated** Compute the bond order diagram for the system of particles.
+
     .. note::
         This class is only retained for backwards compatibility.
         Please use :py:class:`freud.environment.BondOrder` instead.
@@ -1771,7 +1753,9 @@ class BondOrder(_EBO):
 
 
 class LocalDescriptors(_ELD):
-    """
+    """**Deprecated** Compute a set of descriptors (a numerical "fingerprint")
+    of a particle's local environment.
+
     .. note::
         This class is only retained for backwards compatibility.
         Please use :py:class:`freud.environment.LocalDescriptors` instead.
@@ -1787,7 +1771,9 @@ class LocalDescriptors(_ELD):
 
 
 class MatchEnv(_EME):
-    """
+    """**Deprecated** Clusters particles according to whether their local
+    environments match or not, according to various shape matching metrics.
+
     .. note::
         This class is only retained for backwards compatibility.
         Please use :py:class:`freud.environment.MatchEnv` instead.
@@ -1803,7 +1789,7 @@ class MatchEnv(_EME):
 
 
 class Pairing2D(_EP):
-    """
+    """**Deprecated** Compute pairs for the system of particles.
     .. note::
         This class is only retained for backwards compatibility.
         Please use :py:mod:`freud.bond` instead.
@@ -1818,7 +1804,9 @@ class Pairing2D(_EP):
 
 
 class AngularSeparation(_EAS):
-    """
+    """**Deprecated** Calculates the minimum angles of separation between
+    particles and references.
+
     .. note::
         This class is only retained for backwards compatibility.
         Please use :py:class:`freud.environment.AngularSeparation` instead.

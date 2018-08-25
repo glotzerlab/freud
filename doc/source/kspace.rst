@@ -83,4 +83,4 @@ Utilities
 
 .. autofunction:: freud.kspace.reciprocalLattice3D()
 
-.. autofunction:: freud.kspace.meshgrid2(*arrs)
+.. autofunction:: freud.kspace.meshgrid2
