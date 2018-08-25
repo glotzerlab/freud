@@ -10,6 +10,8 @@ import numpy as np
 import logging
 import copy
 import freud.common
+import warnings
+from freud.errors import FreudDeprecationWarning
 
 from libcpp.vector cimport vector
 from freud.util._VectorMath cimport vec3
