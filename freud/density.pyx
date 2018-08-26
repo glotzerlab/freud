@@ -813,12 +813,12 @@ cdef class RDF:
     Attributes:
         box (:py:class:`freud.box.Box`):
             Box used in the calculation.
-        RDF ((:math:`N_{bins}`) :class:`numpy.ndarray`):
+        RDF ((:math:`N_{bins}`,) :class:`numpy.ndarray`):
             Histogram of RDF values.
         R ((:math:`N_{bins}`, 3) :class:`numpy.ndarray`):
             The values of bin centers.
-        n_r ((:math:`N_{bins}`, 3) :class:`numpy.ndarray`):
-            Histogram of cumulative RDF values.
+        n_r ((:math:`N_{bins}`,) :class:`numpy.ndarray`):
+            Histogram of cumulative RDF values (*i.e.* the integrated RDF).
 
     .. versionchanged:: 0.7.0
        Added optional `rmin` argument.
