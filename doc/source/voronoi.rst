@@ -16,6 +16,3 @@ Voronoi Module
 
 .. autoclass:: freud.voronoi.Voronoi(box, buff)
     :members: compute, computeNeighbors, computeVolumes, getNeighborList, getNeighbors, getVolumes, getVoronoiPolytopes, setBox, setBufferWidth
-
-.. autoclass:: freud.voronoi.VoronoiBuffer(box)
-    :members: compute

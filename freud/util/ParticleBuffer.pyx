@@ -14,6 +14,7 @@ import warnings
 from freud.errors import FreudDeprecationWarning
 
 from libcpp.vector cimport vector
+from libcpp cimport bool as bool_t
 from freud.util._VectorMath cimport vec3
 from freud.util cimport _ParticleBuffer
 from cython.operator cimport dereference
@@ -37,7 +38,7 @@ cdef class ParticleBuffer:
     .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
 
     Args:
-        box (py:class:`freud.box.Box`): Simulation box.
+        box (:py:class:`freud.box.Box`): Simulation box.
 
     Attributes:
         buffer_particles (:class:`numpy.ndarray`):
@@ -50,14 +51,18 @@ cdef class ParticleBuffer:
         self.thisptr = new _ParticleBuffer.ParticleBuffer(
             dereference(b.thisptr))
 
-    def compute(self, points, float buffer):
+    def compute(self, points, float buffer, bool_t images=False):
         """Compute the particle buffer.
 
         Args:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Points used to calculate particle buffer.
             buffer (float):
-                Buffer distance within which to look for images.
+                Buffer distance for replication outside the box.
+            images (bool):
+                If ``False`` (default), ``buffer`` is a distance. If ``True``,
+                ``buffer`` is a number of images to replicate in each
+                dimension.
         """
         points = freud.common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name='points')
@@ -67,7 +72,7 @@ cdef class ParticleBuffer:
                 'Need a list of 3D points for ParticleBuffer.compute()')
         cdef np.ndarray cPoints = points
         cdef unsigned int Np = points.shape[0]
-        self.thisptr.compute(<vec3[float]*> cPoints.data, Np, buffer)
+        self.thisptr.compute(<vec3[float]*> cPoints.data, Np, buffer, images)
         return self
 
     @property

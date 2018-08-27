@@ -17,7 +17,8 @@ namespace freud { namespace util {
 
 void ParticleBuffer::compute(const vec3<float> *points,
                             const unsigned int Np,
-                            const float buff)
+                            const float buff,
+                            const bool images)
     {
     assert(points);
 
@@ -35,13 +36,29 @@ void ParticleBuffer::compute(const vec3<float> *points,
     float xy = m_box.getTiltFactorXY();
     float xz = m_box.getTiltFactorXZ();
     float yz = m_box.getTiltFactorYZ();
-  
-    float lx_2_buff = 0.5*lx + buff;
-    float ly_2_buff = 0.5*ly + buff;
-    float lz_2_buff = 0.5*lz + buff;
-    int ix = ceil(buff / lx);
-    int iy = ceil(buff / ly);
-    int iz = ceil(buff / lz);
+
+    float lx_2_buff, ly_2_buff, lz_2_buff;
+    int ix, iy, iz;
+
+    if (images)
+        {
+        ix = ceil(buff);
+        iy = ceil(buff);
+        iz = ceil(buff);
+        lx_2_buff = (ix + 0.5) * lx;
+        ly_2_buff = (iy + 0.5) * ly;
+        lz_2_buff = (iz + 0.5) * lz;
+        }
+    else
+        {
+        ix = ceil(buff / lx);
+        iy = ceil(buff / ly);
+        iz = ceil(buff / lz);
+        lx_2_buff = 0.5*lx + buff;
+        ly_2_buff = 0.5*ly + buff;
+        lz_2_buff = 0.5*lz + buff;
+        }
+
     if (m_box.is2D())
         {
         iz = 0;
@@ -49,7 +66,6 @@ void ParticleBuffer::compute(const vec3<float> *points,
         yz = 0;
         lz = 0;
         }
-
 
     vec3<float> img;
     buffer_parts.clear();

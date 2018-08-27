@@ -1,8 +1,8 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
-#ifndef VORONOIBUFFER_H
-#define VORONOIBUFFER_H
+#ifndef PARTICLE_BUFFER_H
+#define PARTICLE_BUFFER_H
 
 #include <memory>
 #include <vector>
@@ -33,7 +33,8 @@ class ParticleBuffer
         //! Compute the particle images
         void compute(const vec3<float> *points,
                      const unsigned int Np,
-                     const float buff);
+                     const float buff,
+                     const bool images);
 
         std::shared_ptr< std::vector< vec3<float> > > getBufferParticles()
             {
@@ -53,4 +54,4 @@ class ParticleBuffer
 
 }; }; // end namespace freud::util
 
-#endif // VORONOI_BUFFER_H
+#endif // PARTICLE_BUFFER_H
