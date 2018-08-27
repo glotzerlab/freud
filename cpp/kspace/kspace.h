@@ -104,7 +104,7 @@ class FTsphere: public FTdelta
         void set_radius(const float radius)
             {
             m_radius = radius;
-            m_volume = 4.0f * radius*radius*radius / 3.0f;
+            m_volume = 4.0f * M_PI * radius*radius*radius / 3.0f;
             }
 
     private:
