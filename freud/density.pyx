@@ -98,7 +98,8 @@ cdef class FloatCF:
                 Reference points used to calculate the correlation function.
             ref_values ((:math:`N_{particles}`) :class:`numpy.ndarray`):
                 Real values used to calculate the correlation function.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,
+            optional):
                 Points used to calculate the correlation function.
                 Uses :code:`ref_points` if not provided or :code:`None`.
             values ((:math:`N_{particles}`):
@@ -212,10 +213,11 @@ cdef class FloatCF:
                 Reference points used to calculate the correlation function.
             ref_values ((:math:`N_{particles}`) :class:`numpy.ndarray`):
                 Real values used to calculate the correlation function.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,
+            optional):
                 Points used to calculate the correlation function.
                 Uses :code:`ref_points` if not provided or :code:`None`.
-            values ((:math:`N_{particles}`):
+            values ((:math:`N_{particles}`, optional):
                 Real values used to calculate the correlation function.
                 Uses :code:`ref_values` if not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
@@ -344,7 +346,8 @@ cdef class ComplexCF:
                 Reference points used to calculate the correlation function.
             ref_values ((:math:`N_{particles}`) :class:`numpy.ndarray`):
                 Complex values used to calculate the correlation function.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,
+            optional):
                 Points used to calculate the correlation function.
                 Uses :code:`ref_points` if not provided or :code:`None`.
             values ((:math:`N_{particles}`):
@@ -459,10 +462,11 @@ cdef class ComplexCF:
                 Reference points used to calculate the correlation function.
             ref_values ((:math:`N_{particles}`) :class:`numpy.ndarray`):
                 Complex values used to calculate the correlation function.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,
+            optional):
                 Points used to calculate the correlation function.
                 Uses :code:`ref_points` if not provided or :code:`None`.
-            values ((:math:`N_{particles}`):
+            values ((:math:`N_{particles}`, optional):
                 Complex values used to calculate the correlation function.
                 Uses :code:`ref_values` if not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
@@ -708,8 +712,10 @@ cdef class LocalDensity:
                 Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference points to calculate the local density.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Points to calculate the local density.
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,
+            optional):
+                Points to calculate the local density. Uses :code:`ref_points`
+                if not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
@@ -858,7 +864,8 @@ cdef class RDF:
                 Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference points used to calculate the RDF.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,
+            optional):
                 Points used to calculate the RDF. Uses :code:`ref_points` if
                 not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
@@ -902,7 +909,8 @@ cdef class RDF:
                 Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference points used to calculate the RDF.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,
+            optional):
                 Points used to calculate the RDF. Uses :code:`ref_points` if
                 not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`):
