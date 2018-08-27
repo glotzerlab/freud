@@ -36,6 +36,7 @@ void ParticleBuffer::compute(const vec3<float> *points,
     float xy = m_box.getTiltFactorXY();
     float xz = m_box.getTiltFactorXZ();
     float yz = m_box.getTiltFactorYZ();
+    bool is2D = m_box.is2D();
 
     float lx_2_buff, ly_2_buff, lz_2_buff;
     int ix, iy, iz;
@@ -59,7 +60,7 @@ void ParticleBuffer::compute(const vec3<float> *points,
         lz_2_buff = 0.5*lz + buff;
         }
 
-    if (m_box.is2D())
+    if (is2D)
         {
         iz = 0;
         xz = 0;
@@ -90,7 +91,7 @@ void ParticleBuffer::compute(const vec3<float> *points,
                         float yadj = img.z*yz;
                         if (img.x < (lx_2_buff + xadj) && img.x > (-lx_2_buff + xadj) &&
                             img.y < (ly_2_buff + yadj) && img.y > (-ly_2_buff + yadj) &&
-                            img.z < lz_2_buff && img.z > -lz_2_buff)
+                            (is2D || img.z < lz_2_buff && img.z > -lz_2_buff))
                             {
                             buffer_parts.push_back(img);
                             buffer_ids.push_back(particle);
