@@ -601,6 +601,24 @@ cdef class Box:
         else:
             raise NotImplementedError("This comparison is not implemented")
 
+    def __mul__(arg1, arg2):
+        # Note Cython treats __mul__ and __rmul__ as one operation, so
+        # type checks are necessary.
+        if isinstance(arg1, freud.box.Box):
+            self = arg1
+            scale = arg2
+        else:
+            scale = arg1
+            self = arg2
+        if scale > 0:
+            return self.__class__(Lx=self.Lx*scale,
+                                  Ly=self.Ly*scale,
+                                  Lz=self.Lz*scale,
+                                  xy=self.xy, xz=self.xz, yz=self.yz,
+                                  is2D=self.is2D())
+        else:
+            raise ValueError("Box can only be multiplied by positive values.")
+
     @classmethod
     def from_box(cls, box, dimensions=None):
         """Initialize a box instance from a box-like object.

@@ -349,6 +349,18 @@ class TestBox(unittest.TestCase):
         self.assertEqual(square.yz, 0)
         self.assertEqual(square.dimensions, 2)
 
+    def test_multiply(self):
+        box = bx.Box(2, 3, 4, 1, 0.5, 0.1)
+        box2 = box * 2
+        self.assertTrue(np.isclose(box2.Lx, 4))
+        self.assertTrue(np.isclose(box2.Ly, 6))
+        self.assertTrue(np.isclose(box2.Lz, 8))
+        self.assertTrue(np.isclose(box2.xy, 1))
+        self.assertTrue(np.isclose(box2.xz, 0.5))
+        self.assertTrue(np.isclose(box2.yz, 0.1))
+        box3 = 2 * box
+        self.assertEqual(box2, box3)
+
 
 if __name__ == '__main__':
     unittest.main()
