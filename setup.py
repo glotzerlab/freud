@@ -1,4 +1,4 @@
-from setuptools import setup
+import setuptools
 from distutils.extension import Extension
 import numpy as np
 import io
@@ -8,6 +8,8 @@ import os
 import sys
 import platform
 import glob
+import multiprocessing.pool
+
 
 import logging
 
@@ -140,6 +142,7 @@ warnings_str = "--PRINT-WARNINGS"
 coverage_str = "--COVERAGE"
 cython_str = "--ENABLE-CYTHON"
 parallel_str = "-j"
+thread_str = "--NTHREAD"
 
 if warnings_str in sys.argv:
     sys.argv.remove(warnings_str)
@@ -169,6 +172,37 @@ if parallel_str in sys.argv:
     nthreads = int(sys.argv[i+1])
 else:
     nthreads = 1
+
+if thread_str in sys.argv:
+    i = sys.argv.index(thread_str)
+    sys.argv.remove(thread_str)
+    nthreads_ext = int(sys.argv[i])
+    del sys.argv[i]
+
+    # Hack for increasing parallelism during builds.
+    def parallelCCompile(self, sources, output_dir=None, macros=None,
+                         include_dirs=None, debug=0, extra_preargs=None,
+                         extra_postargs=None, depends=None):
+        # source: https://stackoverflow.com/questions/11013851/speeding-up-build-process-with-distutils  # noqa
+        # monkey-patch for parallel compilation
+        macros, objects, extra_postargs, pp_opts, build = self._setup_compile(
+            output_dir, macros, include_dirs, sources, depends, extra_postargs)
+        cc_args = self._get_cc_args(pp_opts, debug, extra_preargs)
+
+        # The number of parallel threads to attempt
+        N = nthreads_ext
+
+        def _single_compile(obj):
+            try:
+                src, ext = build[obj]
+            except KeyError:
+                return
+            self._compile(obj, src, ext, cc_args, extra_postargs, pp_opts)
+
+        # convert to list, imap is evaluated on-demand
+        list(multiprocessing.pool.ThreadPool(N).imap(_single_compile, objects))
+        return objects
+    setuptools.distutils.ccompiler.CCompiler.compile=parallelCCompile
 
 
 #########################
@@ -276,15 +310,15 @@ except ImportError:
 tfile = tempfile.TemporaryFile(mode='w+b')
 try:
     with stderr_manager(tfile):
-        setup(name='freud',
-              version=version,
-              description=desc,
-              long_description=readme,
-              long_description_content_type='text/markdown',
-              url='http://bitbucket.org/glotzer/freud',
-              packages=['freud'],
-              python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*',
-              ext_modules=extensions)
+        setuptools.setup(name='freud',
+                         version=version,
+                         description=desc,
+                         long_description=readme,
+                         long_description_content_type='text/markdown',
+                         url='http://bitbucket.org/glotzer/freud',
+                         packages=['freud'],
+                         python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*',
+                         ext_modules=extensions)
 except SystemExit:
     # The errors we're explicitly checking for are whether or not
     # TBB is missing, and whether a parallel compile resulted in a
