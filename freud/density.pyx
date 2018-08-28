@@ -655,10 +655,27 @@ cdef class LocalDensity:
     region.
 
     The values to compute the local density are set in the constructor.
-    :code:`r_cut` sets the maximum distance at which to calculate the local
-    density. :code:`volume` is the volume of a single particle.
-    :code:`diameter` is the diameter of the circumsphere of an individual
-    particle.
+    :code:`r_cut` sets the maximum distance at which data points are included
+    relative to a given reference point. :code:`volume` is the volume of a
+    single data points, and :code:`diameter` is the diameter of the
+    circumsphere of an individual data point. Note that the volume and diameter
+    do not affect the reference point; whether or not data points are counted
+    as neighbors of a given reference point is entirely determined by the
+    distance between reference point and data point center relative to
+    :code:`r_cut` and the :code:`diameter` of the data point.
+
+    In order to provide sufficiently smooth data, data points can be
+    fractionally counted towards the density.  Rather than perform
+    compute-intensive area (volume) overlap calculations to
+    determine the exact amount of overlap area (volume), the LocalDensity class
+    performs a simple linear interpolation relative to the centers of the data
+    points.  Specifically, a point is counted as one neighbor of a given
+    reference point if it is entirely contained within the :code:`r_cut`, half
+    of a neighbor if the distance to its center is exactly :code:`r_cut`, and
+    zero if its center is a distance greater than or equal to :code:`r_cut +
+    diameter` from the reference point's center. Graphically, this looks like:
+
+    .. image:: images/density.png
 
     .. note::
         **2D:** :py:class:`freud.density.LocalDensity` properly handles 2D
@@ -678,10 +695,10 @@ cdef class LocalDensity:
     Attributes:
         box (:py:class:`freud.box.Box`):
             Box used in the calculation.
-        density ((:math:`N_{particles}`) :class:`numpy.ndarray`):
-            Density per particle.
-        num_neighbors ((:math:`N_{particles}`) :class:`numpy.ndarray`):
-            Number of neighbors for each particle.
+        density ((:math:`N_{ref_points}`) :class:`numpy.ndarray`):
+            Density of points per ref_point.
+        num_neighbors ((:math:`N_{ref_points}`) :class:`numpy.ndarray`):
+            Number of neighbor points for each ref_point.
     """
     cdef freud._density.LocalDensity * thisptr
     cdef r_cut
