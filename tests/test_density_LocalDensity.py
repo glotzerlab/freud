@@ -32,17 +32,21 @@ class TestLD(unittest.TestCase):
         """Test that LocalDensity computes the correct density at each point"""
 
         self.ld.compute(self.box, self.pos, self.pos)
-        density = self.ld.density
+        self.assertTrue(self.box == box.Box.cube(10))
+        self.assertTrue(self.getBox() == box.Box.cube(10))
 
-        npt.assert_array_less(np.fabs(density - 10.0), 1.5)
+        npt.assert_array_less(np.fabs(self.ld.density - 10.0), 1.5)
+        npt.assert_array_less(np.fabs(self.ld.getDensity() - 10.0), 1.5)
 
-        neighbors = self.ld.num_neighbors
-        npt.assert_array_less(np.fabs(neighbors - 1130.973355292), 200)
+        npt.assert_array_less(
+            np.fabs(self.ld.num_neighbors - 1130.973355292), 200)
+        npt.assert_array_less(
+            np.fabs(self.ld.getNumNeighbors() - 1130.973355292), 200)
 
     @unittest.skipIf('CI' in os.environ, 'Skipping test on CI')
-    def test_oldapi(self):
+    def test_refpoints(self):
         """Test that LocalDensity can compute a correct density at each point
-        using the old API"""
+        using the reference points as the data points."""
 
         self.ld.compute(self.box, self.pos)
         density = self.ld.density

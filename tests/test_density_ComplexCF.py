@@ -149,8 +149,8 @@ class TestSummation(unittest.TestCase):
         c2 = cf.counts
         f2 = np.real(cf.RDF)
 
-        np.testing.assert_allclose(f1, f2)
-        np.testing.assert_array_equal(c1, c2)
+        npt.assert_allclose(f1, f2)
+        npt.assert_array_equal(c1, c2)
 
 
 if __name__ == '__main__':
