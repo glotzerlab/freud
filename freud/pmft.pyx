@@ -127,7 +127,7 @@ cdef class PMFTR12(_PMFT):
     system described by :math:`r`, :math:`\\theta_1`, :math:`\\theta_2`.
 
     .. note::
-        **2D:** :py:class:`freud.pmft.PMFTR12` is only defined for 2D systems.
+        **2D:** :class:`freud.pmft.PMFTR12` is only defined for 2D systems.
         The points must be passed in as :code:`[x, y, 0]`.
         Failing to set z=0 will lead to undefined behavior.
 
@@ -145,7 +145,7 @@ cdef class PMFTR12(_PMFT):
             Number of bins in t2.
 
     Attributes:
-        box (:py:class:`freud.box.Box`):
+        box (:class:`freud.box.Box`):
             Box used in the calculation.
         bin_counts (:math:`\\left(N_{r}, N_{\\theta2}, N_{\\theta1}\\right)`):
             Bin counts.
@@ -437,7 +437,7 @@ cdef class PMFTXYT(_PMFT):
     PCF and n_bins_x, n_bins_y, n_bins_t is the number of bins in x, y, t.
 
     .. note::
-        **2D:** :py:class:`freud.pmft.PMFTXYT` is only defined for 2D systems.
+        **2D:** :class:`freud.pmft.PMFTXYT` is only defined for 2D systems.
         The points must be passed in as :code:`[x, y, 0]`.
         Failing to set z=0 will lead to undefined behavior.
 
@@ -457,7 +457,7 @@ cdef class PMFTXYT(_PMFT):
             Number of bins in t.
 
     Attributes:
-        box (:py:class:`freud.box.Box`):
+        box (:class:`freud.box.Box`):
             Box used in the calculation.
         bin_counts (:math:`\\left(N_{\\theta}, N_{y}, N_{x}\\right)` \
         :class:`numpy.ndarray`):
@@ -737,7 +737,7 @@ cdef class PMFTXY2D(_PMFT):
     which to compute the PCF and n_x and n_y are the number of bins in x and y.
 
     .. note::
-        **2D:** :py:class:`freud.pmft.PMFTXY2D` is only defined for 2D systems.
+        **2D:** :class:`freud.pmft.PMFTXY2D` is only defined for 2D systems.
         The points must be passed in as :code:`[x, y, 0]`.
         Failing to set z=0 will lead to undefined behavior.
 
@@ -755,7 +755,7 @@ cdef class PMFTXY2D(_PMFT):
             Number of bins in y.
 
     Attributes:
-        box (:py:class:`freud.box.Box`):
+        box (:class:`freud.box.Box`):
             Box used in the calculation.
         bin_counts (:math:`\\left(N_{y}, N_{x}\\right)` \
         :class:`numpy.ndarray`):
@@ -1000,7 +1000,7 @@ cdef class PMFTXYZ(_PMFT):
     compute the PCF and n_x, n_y, and n_z are the number of bins in x, y, z.
 
     .. note::
-        3D: :py:class:`freud.pmft.PMFTXYZ` is only defined for 3D systems.
+        3D: :class:`freud.pmft.PMFTXYZ` is only defined for 3D systems.
         The points must be passed in as :code:`[x, y, z]`.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
@@ -1023,7 +1023,7 @@ cdef class PMFTXYZ(_PMFT):
             Vector pointing from [0,0,0] to the center of the PMFT.
 
     Attributes:
-        box (:py:class:`freud.box.Box`):
+        box (:class:`freud.box.Box`):
             Box used in the calculation.
         bin_counts (:math:`\\left(N_{z}, N_{y}, N_{x}\\right)` \
         :class:`numpy.ndarray`):

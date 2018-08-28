@@ -63,11 +63,11 @@ class SFactor3DPoints:
     \\frac{2\\pi}{L_z} \\hat{k}` for integer :math:`h,k,l: \\left[-g,g\\right]`
     and :math:`L_x, L_y, L_z` are the box lengths in each direction.
 
-    After calling :py:meth:`~.SFactor3DPoints.compute()`, access the :math:`q`
-    values with :py:meth:`~.SFactor3DPoints.getQ()`, the static structure
-    factor values with :py:meth:`~.SFactor3DPoints.getS()`, and (if needed)
+    After calling :meth:`~.SFactor3DPoints.compute()`, access the :math:`q`
+    values with :meth:`~.SFactor3DPoints.getQ()`, the static structure
+    factor values with :meth:`~.SFactor3DPoints.getS()`, and (if needed)
     the un-squared complex version of :math:`S` with
-    :py:meth:`~.SFactor3DPoints.getSComplex()`. All values are stored in 3D
+    :meth:`~.SFactor3DPoints.getSComplex()`. All values are stored in 3D
     :class:`numpy.ndarray` structures. They are indexed by :math:`a, b, c`
     where :math:`a=h+g, b=k+g, c=l+g`.
 
@@ -78,7 +78,7 @@ class SFactor3DPoints:
         qz\\left[c\\right]\\right)`.
 
     Args:
-        box (:py:class:`freud.box.Box`):
+        box (:class:`freud.box.Box`):
             The simulation box.
         g (int):
             The number of grid points for :math:`q` in each direction is 2*g+1.
@@ -109,10 +109,10 @@ class SFactor3DPoints:
     def compute(self, points):
         """Compute the static structure factor of a given set of points.
 
-        After calling :py:meth:`~.SFactor3DPoints.compute()`, you can access
-        the results with :py:meth:`~.SFactor3DPoints.getS()`,
-        :py:meth:`~.SFactor3DPoints.getSComplex()`, and the grid with
-        :py:meth:`~.SFactor3DPoints.getQ()`.
+        After calling :meth:`~.SFactor3DPoints.compute()`, you can access
+        the results with :meth:`~.SFactor3DPoints.getS()`,
+        :meth:`~.SFactor3DPoints.getSComplex()`, and the grid with
+        :meth:`~.SFactor3DPoints.getQ()`.
 
         Args:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
@@ -172,7 +172,7 @@ class AnalyzeSFactor3D:
     """Analyze the peaks in a 3D structure factor.
 
     Given a structure factor :math:`S\\left(q\\right)` computed by classes
-    such as :py:class:`~.SFactor3DPoints`, :py:class:`~.AnalyzeSFactor3D`
+    such as :class:`~.SFactor3DPoints`, :class:`~.AnalyzeSFactor3D`
     performs a variety of analysis tasks.
 
         * Identifies peaks.
@@ -451,7 +451,7 @@ class SingleCell3D:
                 Particle type name.
             ff (str):
                 Scattering form factor named in
-                :py:meth:`~.SingleCell3D.get_form_factors()`.
+                :meth:`~.SingleCell3D.get_form_factors()`.
         """
         i = self.ptype_name.index(name)
         j = self.fffactory.getFTlist().index(ff)
@@ -656,14 +656,14 @@ class FTfactory:
 
     def getFTobject(self, i, args=None):
         """Get a new instance of an FT type from list returned by
-        :py:meth:`~.FTfactory.getFTlist()`.
+        :meth:`~.FTfactory.getFTlist()`.
 
         Args:
             i (int):
-                Index into list returned by :py:meth:`~.FTfactory.getFTlist()`.
+                Index into list returned by :meth:`~.FTfactory.getFTlist()`.
             args:
                 Argument object used to initialize FT, overriding default set
-                at :py:meth:`~.FTfactory.addFT()`.
+                at :meth:`~.FTfactory.addFT()`.
         """
         constructor = self.constructor_list[i]
         if args is None:
@@ -721,7 +721,7 @@ class FTbase:
 
     def get_params(self):
         """Get the parameter names accessible with
-        :py:meth:`~.FTbase.set_parambyname()`.
+        :meth:`~.FTbase.set_parambyname()`.
 
         Returns:
             list: Parameter names.
@@ -734,7 +734,7 @@ class FTbase:
         Args:
             name (str):
                 Parameter name. Must exist in list returned by
-                :py:meth:`~.FTbase.get_params()`.
+                :meth:`~.FTbase.get_params()`.
             value (float):
                 Parameter value to set.
         """
@@ -751,7 +751,7 @@ class FTbase:
         Args:
             name (str):
                 Parameter name. Must exist in list returned by
-                :py:meth:`~.FTbase.get_params()`.
+                :meth:`~.FTbase.get_params()`.
 
         Returns:
             float: Parameter value.
@@ -1083,7 +1083,7 @@ class FTconvexPolyhedron(FTpolyhedron):
         * :math:`S = \\sum_{\\alpha} e^{-i \\mathbf{K} \\cdot \
           \\mathbf{r}_{\\alpha}}`.
         * F is the analytical form factor for a polyhedron,
-          computed with :py:meth:`~.FTconvexPolyhedron.Spoly3D()`.
+          computed with :meth:`~.FTconvexPolyhedron.Spoly3D()`.
         """
         # Return FT of delta function at one or more locations
         position = self.scale * self.position
@@ -1277,7 +1277,7 @@ def constrainedLatticePoints(v1, v2, v3, constraint):
             Lattice vector 2 along which to test.
         v3 (:class:`numpy.ndarray`):
             Lattice vector 3 along which to test.
-        constraint (:py:class:`Constraint`):
+        constraint (:class:`Constraint`):
             Constraint object to test lattice points against.
     """
     # Find shortest distance, G, possible with lattice vectors

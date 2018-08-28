@@ -80,7 +80,7 @@ cdef class BondOrder:
         bond_order (:math:`\\left(N_{\\phi}, N_{\\theta} \\right)` \
         :class:`numpy.ndarray`):
             Bond order.
-        box (:py:class:`freud.box.Box`):
+        box (:class:`freud.box.Box`):
             Box used in the calculation.
         theta (:math:`\\left(N_{\\theta} \\right)` :class:`numpy.ndarray`):
             The values of bin centers for :math:`\\theta`.
@@ -452,7 +452,7 @@ cdef class LocalDescriptors:
                 environments (Default value = :code:`'neighborhood'`).
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds or :code:`'precomputed'` if
-                using :py:meth:`~.computeNList` (Default value = :code:`None`).
+                using :meth:`~.computeNList` (Default value = :code:`None`).
         """
         cdef freud.box.Box b = freud.common.convert_box(box)
 
@@ -1016,7 +1016,7 @@ cdef class Pairing2D:
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
     .. deprecated:: 0.8.2
-       Use :py:mod:`freud.bond` instead.
+       Use :mod:`freud.bond` instead.
 
     Args:
         rmax (float):
@@ -1031,7 +1031,7 @@ cdef class Pairing2D:
             The match.
         pair (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
             The pair.
-        box (:py:class:`freud.box.Box`):
+        box (:class:`freud.box.Box`):
             Box used in the calculation.
     """
     def __cinit__(self, rmax, k, compDotTol):

@@ -46,7 +46,7 @@ cdef class VoronoiBuffer:
     .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
 
     Args:
-        box (py:class:`freud.box.Box`): Simulation box.
+        box (:class:`freud.box.Box`): Simulation box.
 
     Attributes:
         buffer_particles (:class:`numpy.ndarray`):
@@ -137,7 +137,7 @@ cdef class VoronoiBuffer:
 
 class Voronoi:
     """Compute the Voronoi tessellation of a 2D or 3D system using qhull.
-    This uses :py:class:`scipy.spatial.Voronoi`, accounting for periodic
+    This uses :class:`scipy.spatial.Voronoi`, accounting for periodic
     boundary conditions.
 
     .. moduleauthor:: Benjamin Schultz <baschult@umich.edu>
@@ -156,11 +156,11 @@ class Voronoi:
     (they may have a boundary at infinity), and these polytopes' vertices are
     excluded from the list.  If either the polytopes or volumes lists that are
     computed is different from the size of the array of positions used in the
-    :py:meth:`freud.voronoi.Voronoi.compute()` method, try recomputing using a
+    :meth:`freud.voronoi.Voronoi.compute()` method, try recomputing using a
     larger buffer width.
 
     Args:
-        box (:py:class:`freud.box.Box`):
+        box (:class:`freud.box.Box`):
             Simulation box.
         buff (float):
             Buffer width.
@@ -305,7 +305,7 @@ class Voronoi:
 
         The length of the list returned by this method should be the same
         as the array of positions used in the
-        :py:meth:`freud.voronoi.Voronoi.compute()` method, if all the polytopes
+        :meth:`freud.voronoi.Voronoi.compute()` method, if all the polytopes
         are closed. Otherwise try using a larger buffer width.
 
         Returns:
@@ -323,11 +323,11 @@ class Voronoi:
                          exclude_ii=True):
         """Compute the neighbors of each particle based on the Voronoi
         tessellation. One can include neighbors from multiple Voronoi shells by
-        specifying :code:`numShells` in :py:meth:`~.getNeighbors()`.
+        specifying :code:`numShells` in :meth:`~.getNeighbors()`.
         An example of computing neighbors from the first two Voronoi shells
         for a 2D mesh is shown below.
 
-        Retrieve the results with :py:meth:`~.getNeighbors()`.
+        Retrieve the results with :meth:`~.getNeighbors()`.
 
         Example::
 
@@ -465,7 +465,7 @@ class Voronoi:
     def getNeighbors(self, numShells):
         """Get :code:`numShells` of neighbors for each particle
 
-        Must call :py:meth:`~.computeNeighbors()` before this method.
+        Must call :meth:`~.computeNeighbors()` before this method.
 
         Args:
             numShells (int): Number of neighbor shells.
@@ -545,9 +545,9 @@ class Voronoi:
 
         .. versionadded:: 0.8
 
-        Must call :py:meth:`freud.voronoi.Voronoi.compute()` before this
+        Must call :meth:`freud.voronoi.Voronoi.compute()` before this
         method. Retrieve the results with
-        :py:meth:`freud.voronoi.Voronoi.getVolumes()`.
+        :meth:`freud.voronoi.Voronoi.getVolumes()`.
         """
         polytope_verts = self.getVoronoiPolytopes()
         self._poly_volumes = np.zeros(shape=len(polytope_verts))
@@ -569,7 +569,7 @@ class Voronoi:
 
         .. versionadded:: 0.8
 
-        Must call :py:meth:`freud.voronoi.Voronoi.computeVolumes()` before this
+        Must call :meth:`freud.voronoi.Voronoi.computeVolumes()` before this
         method.
 
         If the buffer width is too small, then some polytopes may not be
@@ -578,7 +578,7 @@ class Voronoi:
 
         The length of the list returned by this method should be the same
         as the array of positions used in the
-        :py:meth:`freud.voronoi.Voronoi.compute()` method, if all the polytopes
+        :meth:`freud.voronoi.Voronoi.compute()` method, if all the polytopes
         are closed. Otherwise try using a larger buffer width.
 
         Returns:

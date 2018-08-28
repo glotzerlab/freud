@@ -96,7 +96,7 @@ cdef class BondingAnalysis:
         Args:
             frame_0 ((:math:`N_{particles}`, :math:`N_{bonds}`) \
             :class:`numpy.ndarray`):
-                First bonding frame (as output from :py:class:`~.BondingR12`
+                First bonding frame (as output from :class:`~.BondingR12`
                 modules).
         """
         frame_0 = freud.common.convert_array(
@@ -120,11 +120,11 @@ cdef class BondingAnalysis:
             frame_0 ((:math:`N_{particles}`, :math:`N_{bonds}`) \
             :class:`numpy.ndarray`):
                 Current/previous bonding frame (as output from
-                :py:class:`.BondingR12` modules).
+                :class:`.BondingR12` modules).
             frame_1 ((:math:`N_{particles}`, :math:`N_{bonds}`) \
             :class:`numpy.ndarray`):
                 Next/current bonding frame (as output from
-                :py:class:`.BondingR12` modules).
+                :class:`.BondingR12` modules).
         """
         frame_0 = freud.common.convert_array(
             frame_0, 2, dtype=np.uint32, contiguous=True, array_name="frame_0")
@@ -235,7 +235,7 @@ cdef class BondingR12:
     Attributes:
         bonds (:class:`numpy.ndarray`):
             Particle bonds.
-        box (:py:class:`freud.box.Box`):
+        box (:class:`freud.box.Box`):
             Box used in the calculation.
         list_map (dict):
             The dict used to map bond index to list index.
@@ -402,7 +402,7 @@ cdef class BondingXY2D:
     Attributes:
         bonds (:class:`numpy.ndarray`):
             Particle bonds.
-        box (:py:class:`freud.box.Box`):
+        box (:class:`freud.box.Box`):
             Box used in the calculation.
         list_map (dict):
             The dict used to map bond index to list index.
@@ -574,7 +574,7 @@ cdef class BondingXYT:
     Attributes:
         bonds (:class:`numpy.ndarray`):
             Particle bonds.
-        box (:py:class:`freud.box.Box`):
+        box (:class:`freud.box.Box`):
             Box used in the calculation.
         list_map (dict):
             The dict used to map bond index to list index.
@@ -748,7 +748,7 @@ cdef class BondingXYZ:
     Attributes:
         bonds (:class:`numpy.ndarray`):
             Particle bonds.
-        box (:py:class:`freud.box.Box`):
+        box (:class:`freud.box.Box`):
             Box used in the calculation.
         list_map (dict):
             The dict used to map bond index to list index.

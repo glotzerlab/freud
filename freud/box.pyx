@@ -617,8 +617,8 @@ cdef class Box:
                   :code:`'Lx', 'Ly', 'Lz', 'xy', 'xz', 'yz', 'dimensions'`,
                   namedtuples with properties
                   :code:`Lx, Ly, Lz, xy, xz, yz, dimensions`,
-                  3x3 matrices (see :py:meth:`~.from_matrix()`),
-                  or existing :py:class:`freud.box.Box` objects.
+                  3x3 matrices (see :meth:`~.from_matrix()`),
+                  or existing :class:`freud.box.Box` objects.
 
                   If any of :code:`Lz, xy, xz, yz` are not provided, they will
                   be set to 0.

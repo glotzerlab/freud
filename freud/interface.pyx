@@ -29,7 +29,7 @@ cdef class InterfaceMeasure:
     .. moduleauthor:: Matthew Spellings <mspells@umich.edu>
 
     Args:
-        box (:py:class:`freud.box.Box`): Simulation box.
+        box (:class:`freud.box.Box`): Simulation box.
         r_cut (float): Distance to search for particle neighbors.
 
     Attributes:

@@ -45,7 +45,7 @@ cdef class FloatCF:
     bin.
 
     .. note::
-        **2D:** :py:class:`freud.density.FloatCF` properly handles 2D boxes.
+        **2D:** :class:`freud.density.FloatCF` properly handles 2D boxes.
         The points must be passed in as :code:`[x, y, 0]`.
         Failing to set z=0 will lead to undefined behavior.
 
@@ -67,7 +67,7 @@ cdef class FloatCF:
         RDF ((:math:`N_{bins}`) :class:`numpy.ndarray`):
             Expected (average) product of all values at a given radial
             distance.
-        box (:py:class:`freud.box.Box`):
+        box (:class:`freud.box.Box`):
             Box used in the calculation.
         counts ((:math:`N_{bins}`) :class:`numpy.ndarray`):
             The counts of each histogram bin.
@@ -290,7 +290,7 @@ cdef class ComplexCF:
     bin.
 
     .. note::
-        **2D:** :py:class:`freud.density.ComplexCF` properly handles 2D boxes.
+        **2D:** :class:`freud.density.ComplexCF` properly handles 2D boxes.
         The points must be passed in as :code:`[x, y, 0]`.
         Failing to set z=0 will lead to undefined behavior.
 
@@ -312,7 +312,7 @@ cdef class ComplexCF:
         RDF ((:math:`N_{bins}`) :class:`numpy.ndarray`):
             Expected (average) product of all values at a given radial
             distance.
-        box (:py:class:`freud.box.Box`):
+        box (:class:`freud.box.Box`):
             Box used in the calculation.
         counts ((:math:`N_{bins}`) :class:`numpy.ndarray`):
             The counts of each histogram bin.
@@ -555,7 +555,7 @@ cdef class GaussianDensity:
             Sigma parameter for Gaussian.
 
     Attributes:
-        box (:py:class:`freud.box.Box`):
+        box (:class:`freud.box.Box`):
             Box used in the calculation.
         gaussian_density ((:math:`w_x`, :math:`w_y`, :math:`w_z`) \
         :class:`numpy.ndarray`):
@@ -657,7 +657,7 @@ cdef class LocalDensity:
     particle.
 
     .. note::
-        **2D:** :py:class:`freud.density.LocalDensity` properly handles 2D
+        **2D:** :class:`freud.density.LocalDensity` properly handles 2D
         boxes. The points must be passed in as :code:`[x, y, 0]`. Failing to
         set z=0 will lead to undefined behavior.
 
@@ -672,7 +672,7 @@ cdef class LocalDensity:
             Diameter of particle circumsphere.
 
     Attributes:
-        box (:py:class:`freud.box.Box`):
+        box (:class:`freud.box.Box`):
             Box used in the calculation.
         density ((:math:`N_{particles}`) :class:`numpy.ndarray`):
             Density per particle.
@@ -798,7 +798,7 @@ cdef class RDF:
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
     .. note::
-        **2D:** :py:class:`freud.density.RDF` properly handles 2D boxes.
+        **2D:** :class:`freud.density.RDF` properly handles 2D boxes.
         The points must be passed in as :code:`[x, y, 0]`.
         Failing to set z=0 will lead to undefined behavior.
 
@@ -811,7 +811,7 @@ cdef class RDF:
             Minimum distance to calculate, defaults to 0.
 
     Attributes:
-        box (:py:class:`freud.box.Box`):
+        box (:class:`freud.box.Box`):
             Box used in the calculation.
         RDF ((:math:`N_{bins}`) :class:`numpy.ndarray`):
             Histogram of RDF values.
