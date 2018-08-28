@@ -61,27 +61,6 @@ class TestOCF(unittest.TestCase):
         # first bin is bad
         npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
 
-    @unittest.skipIf('CI' in os.environ, 'Skipping test on CI')
-    def test_random_point_without_cell_list(self):
-        rmax = 10.0
-        dr = 1.0
-        num_points = 10000
-        box_size = rmax*2
-        np.random.seed(0)
-        points = np.random.random_sample((num_points, 3)).astype(np.float32) \
-            * box_size - box_size/2
-        ang = np.random.random_sample((num_points)).astype(np.float64) \
-            * 2.0 * np.pi
-        comp = np.exp(1j*ang)
-        ocf = density.ComplexCF(rmax, dr)
-        ocf.accumulate(box.Box.square(box_size), points, comp,
-                       points, np.conj(comp))
-
-        correct = np.zeros(int(rmax/dr), dtype=np.complex64)
-        absolute_tolerance = 0.1
-        # first bin is bad
-        npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
-
     def test_value_point_with_cell_list(self):
         rmax = 10.0
         dr = 1.0
@@ -98,25 +77,6 @@ class TestOCF(unittest.TestCase):
 
         correct = np.ones(int(rmax/dr), dtype=np.float32) + \
             1j * np.zeros(int(rmax/dr), dtype=np.float32)
-        absolute_tolerance = 0.1
-        npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
-
-    @unittest.skipIf('CI' in os.environ, 'Skipping test on CI')
-    def test_value_point_without_cell_list(self):
-        rmax = 10.0
-        dr = 1.0
-        num_points = 10000
-        box_size = rmax*2
-        np.random.seed(0)
-        points = np.random.random_sample((num_points, 3)).astype(np.float32) \
-            * box_size - box_size/2
-        ang = np.zeros(int(num_points), dtype=np.float64)
-        comp = np.exp(1j*ang)
-        ocf = density.ComplexCF(rmax, dr)
-        ocf.accumulate(box.Box.square(box_size), points, comp,
-                       points, np.conj(comp))
-
-        correct = np.ones(int(rmax/dr), dtype=np.complex128)
         absolute_tolerance = 0.1
         npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
 
