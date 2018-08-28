@@ -2,6 +2,8 @@ import numpy as np
 import numpy.testing as npt
 from freud import box, density, parallel
 import unittest
+from freud.errors import FreudDeprecationWarning
+import warnings
 import os
 
 
@@ -21,7 +23,6 @@ class TestCorrelationFunction(unittest.TestCase):
 
 
 class TestR(unittest.TestCase):
-
     def test_generateR(self):
         rmax = 51.23
         dr = 0.1
@@ -40,6 +41,8 @@ class TestR(unittest.TestCase):
 
 
 class TestOCF(unittest.TestCase):
+    def setUp(self):
+        warnings.simplefilter("ignore", category=FreudDeprecationWarning)
 
     def test_random_points(self):
         rmax = 10.0
@@ -61,7 +64,7 @@ class TestOCF(unittest.TestCase):
         npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
         ocf.compute(box.Box.square(box_size), points, comp,
                     points, np.conj(comp))
-        npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
+        npt.assert_allclose(ocf.getRDF(), correct, atol=absolute_tolerance)
 
     def test_zero_points(self):
         rmax = 10.0
