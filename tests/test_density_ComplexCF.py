@@ -41,10 +41,10 @@ class TestR(unittest.TestCase):
 
 class TestOCF(unittest.TestCase):
 
-    def test_random_point_with_cell_list(self):
+    def test_random_points(self):
         rmax = 10.0
         dr = 1.0
-        num_points = 10000
+        num_points = 1000
         box_size = rmax*3.1
         np.random.seed(0)
         points = np.random.random_sample((num_points, 3)).astype(np.float32) \
@@ -53,18 +53,20 @@ class TestOCF(unittest.TestCase):
             * 2.0 * np.pi
         comp = np.exp(1j*ang)
         ocf = density.ComplexCF(rmax, dr)
-        ocf.accumulate(box.Box.square(box_size), points, comp,
-                       points, np.conj(comp))
-
         correct = np.zeros(int(rmax/dr), dtype=np.complex64)
         absolute_tolerance = 0.1
         # first bin is bad
+        ocf.accumulate(box.Box.square(box_size), points, comp,
+                       points, np.conj(comp))
+        npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
+        ocf.compute(box.Box.square(box_size), points, comp,
+                    points, np.conj(comp))
         npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
 
-    def test_value_point_with_cell_list(self):
+    def test_zero_points(self):
         rmax = 10.0
         dr = 1.0
-        num_points = 10000
+        num_points = 1000
         box_size = rmax*3.1
         np.random.seed(0)
         points = np.random.random_sample((num_points, 3)).astype(np.float32) \
