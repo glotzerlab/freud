@@ -59,20 +59,20 @@ cdef class FloatCF:
 
     Args:
         rmax (float):
-            Distance over which to calculate.
+            Maximum pointwise distance to include in the calculation.
         dr (float):
             Bin size.
 
     Attributes:
         RDF ((:math:`N_{bins}`) :class:`numpy.ndarray`):
-            Expected (average) product of all values at a given radial
-            distance.
+            Expected (average) product of all values at whose radial distance
+            falls within a given distance bin.
         box (:py:class:`freud.box.Box`):
-            Box used in the calculation.
+            The box used in the calculation.
         counts ((:math:`N_{bins}`) :class:`numpy.ndarray`):
-            The counts of each histogram bin.
+            The number of points in each histogram bin.
         R ((:math:`N_{bins}`) :class:`numpy.ndarray`):
-            The values of bin centers.
+            The centers of each bin.
     """
     cdef freud._density.CorrelationFunction[double] * thisptr
     cdef rmax
@@ -94,15 +94,15 @@ cdef class FloatCF:
         Args:
             box (:class:`freud.box.Box`):
                 Simulation box.
-            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            ref_points ((:math:`N_{ref_points}`, 3) :class:`numpy.ndarray`):
                 Reference points used to calculate the correlation function.
-            ref_values ((:math:`N_{particles}`) :class:`numpy.ndarray`):
+            ref_values ((:math:`N_{ref_points}`) :class:`numpy.ndarray`):
                 Real values used to calculate the correlation function.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,
+            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`,
             optional):
                 Points used to calculate the correlation function.
                 Uses :code:`ref_points` if not provided or :code:`None`.
-            values ((:math:`N_{particles}`):
+            values ((:math:`N_{points}`):
                 Real values used to calculate the correlation function.
                 Uses :code:`ref_values` if not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
@@ -209,15 +209,15 @@ cdef class FloatCF:
         Args:
             box (:class:`freud.box.Box`):
                 Simulation box.
-            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            ref_points ((:math:`N_{ref_points}`, 3) :class:`numpy.ndarray`):
                 Reference points used to calculate the correlation function.
-            ref_values ((:math:`N_{particles}`) :class:`numpy.ndarray`):
+            ref_values ((:math:`N_{ref_points}`) :class:`numpy.ndarray`):
                 Real values used to calculate the correlation function.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,
+            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`,
             optional):
                 Points used to calculate the correlation function.
                 Uses :code:`ref_points` if not provided or :code:`None`.
-            values ((:math:`N_{particles}`, optional):
+            values ((:math:`N_{points}`, optional):
                 Real values used to calculate the correlation function.
                 Uses :code:`ref_values` if not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
@@ -306,7 +306,7 @@ cdef class ComplexCF:
 
     Args:
         rmax (float):
-            Distance over which to calculate.
+            Maximum pointwise distance to include in the calculation.
         dr (float):
             Bin size.
 
@@ -317,9 +317,9 @@ cdef class ComplexCF:
         box (:py:class:`freud.box.Box`):
             Box used in the calculation.
         counts ((:math:`N_{bins}`) :class:`numpy.ndarray`):
-            The counts of each histogram bin.
+            The number of points in each histogram bin.
         R ((:math:`N_{bins}`) :class:`numpy.ndarray`):
-            The values of bin centers.
+            The centers of each bin.
     """
     cdef freud._density.CorrelationFunction[np.complex128_t] * thisptr
     cdef rmax
@@ -342,15 +342,15 @@ cdef class ComplexCF:
         Args:
             box (:class:`freud.box.Box`):
                 Simulation box.
-            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            ref_points ((:math:`N_{ref_points}`, 3) :class:`numpy.ndarray`):
                 Reference points used to calculate the correlation function.
-            ref_values ((:math:`N_{particles}`) :class:`numpy.ndarray`):
+            ref_values ((:math:`N_{ref_points}`) :class:`numpy.ndarray`):
                 Complex values used to calculate the correlation function.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,
+            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`,
             optional):
                 Points used to calculate the correlation function.
                 Uses :code:`ref_points` if not provided or :code:`None`.
-            values ((:math:`N_{particles}`):
+            values ((:math:`N_{points}`):
                 Complex values used to calculate the correlation function.
                 Uses :code:`ref_values` if not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
@@ -458,15 +458,15 @@ cdef class ComplexCF:
         Args:
             box (:class:`freud.box.Box`):
                 Simulation box.
-            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            ref_points ((:math:`N_{ref_points}`, 3) :class:`numpy.ndarray`):
                 Reference points used to calculate the correlation function.
-            ref_values ((:math:`N_{particles}`) :class:`numpy.ndarray`):
+            ref_values ((:math:`N_{ref_points}`) :class:`numpy.ndarray`):
                 Complex values used to calculate the correlation function.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,
+            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`,
             optional):
                 Points used to calculate the correlation function.
                 Uses :code:`ref_points` if not provided or :code:`None`.
-            values ((:math:`N_{particles}`, optional):
+            values ((:math:`N_{points}`, optional):
                 Complex values used to calculate the correlation function.
                 Uses :code:`ref_values` if not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
@@ -565,9 +565,9 @@ cdef class GaussianDensity:
         :class:`numpy.ndarray`):
             The image grid with the Gaussian density.
         counts ((:math:`N_{bins}`) :class:`numpy.ndarray`):
-            The counts of each histogram bin.
+            The number of points in each histogram bin.
         R ((:math:`N_{bins}`) :class:`numpy.ndarray`):
-            The values of bin centers.
+            The centers of each bin.
     """
     cdef freud._density.GaussianDensity * thisptr
 
@@ -599,7 +599,7 @@ cdef class GaussianDensity:
         Args:
             box (:class:`freud.box.Box`):
                 Simulation box.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
                 Points to calculate the local density.
         """
         cdef freud.box.Box b = freud.common.convert_box(box)
@@ -727,9 +727,9 @@ cdef class LocalDensity:
         Args:
             box (:class:`freud.box.Box`):
                 Simulation box.
-            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            ref_points ((:math:`N_{ref_points}`, 3) :class:`numpy.ndarray`):
                 Reference points to calculate the local density.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,
+            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`,
             optional):
                 Points to calculate the local density. Uses :code:`ref_points`
                 if not provided or :code:`None`.
@@ -827,11 +827,12 @@ cdef class RDF:
 
     Args:
         rmax (float):
-            Maximum distance to calculate.
+            Maximum interparticle distance to include in the calculate.
         dr (float):
             Distance between histogram bins.
-        rmin (float):
-            Minimum distance to calculate, defaults to 0.
+        rmin (float, optional):
+            Minimum interparticle distance to include in the calculate.
+            Defaults to 0.
 
     Attributes:
         box (:py:class:`freud.box.Box`):
@@ -839,7 +840,7 @@ cdef class RDF:
         RDF ((:math:`N_{bins}`,) :class:`numpy.ndarray`):
             Histogram of RDF values.
         R ((:math:`N_{bins}`, 3) :class:`numpy.ndarray`):
-            The values of bin centers.
+            The centers of each bin.
         n_r ((:math:`N_{bins}`,) :class:`numpy.ndarray`):
             Histogram of cumulative RDF values (*i.e.* the integrated RDF).
 
@@ -879,9 +880,9 @@ cdef class RDF:
         Args:
             box (:class:`freud.box.Box`):
                 Simulation box.
-            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            ref_points ((:math:`N_{ref_points}`, 3) :class:`numpy.ndarray`):
                 Reference points used to calculate the RDF.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,
+            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`,
             optional):
                 Points used to calculate the RDF. Uses :code:`ref_points` if
                 not provided or :code:`None`.
@@ -924,9 +925,9 @@ cdef class RDF:
         Args:
             box (:class:`freud.box.Box`):
                 Simulation box.
-            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            ref_points ((:math:`N_{ref_points}`, 3) :class:`numpy.ndarray`):
                 Reference points used to calculate the RDF.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,
+            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`,
             optional):
                 Points used to calculate the RDF. Uses :code:`ref_points` if
                 not provided or :code:`None`.
