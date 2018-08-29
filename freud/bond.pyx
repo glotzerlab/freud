@@ -271,14 +271,14 @@ cdef class BondingR12:
                 Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference points used to calculate the bonding.
-            ref_orientations ((:math:`N_{particles}`, 1) or
-            (:math:`N_{particles}`,) :class:`numpy.ndarray`):
+            ref_orientations ((:math:`N_{particles}`, 1) or \
+(:math:`N_{particles}`,) :class:`numpy.ndarray`):
                 Reference orientations as angles to use in computation.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Points used to calculate the bonding. Uses :code:`ref_points`
                 if not provided or :code:`None`.
-            orientations ((:math:`N_{particles}`, 1) or
-            (:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):
+            orientations ((:math:`N_{particles}`, 1) or \
+(:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):
                 Orientations as angles to use in computation. Uses
                 :code:`ref_orientations` if not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
@@ -439,14 +439,14 @@ cdef class BondingXY2D:
                 Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference points used to calculate the bonding.
-            ref_orientations ((:math:`N_{particles}`, 1) or
-            (:math:`N_{particles}`,) :class:`numpy.ndarray`):
+            ref_orientations ((:math:`N_{particles}`, 1) or \
+(:math:`N_{particles}`,) :class:`numpy.ndarray`):
                 Reference orientations as angles to use in computation.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Points used to calculate the bonding. Uses :code:`ref_points`
                 if not provided or :code:`None`.
-            orientations ((:math:`N_{particles}`, 1) or
-            (:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):
+            orientations ((:math:`N_{particles}`, 1) or \
+(:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):
                 Orientations as angles to use in computation. Uses
                 :code:`ref_orientations` if not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
@@ -612,14 +612,14 @@ cdef class BondingXYT:
                 Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference points used to calculate the bonding.
-            ref_orientations ((:math:`N_{particles}`, 1) or
-            (:math:`N_{particles}`,) :class:`numpy.ndarray`):
+            ref_orientations ((:math:`N_{particles}`, 1) or \
+(:math:`N_{particles}`,) :class:`numpy.ndarray`):
                 Reference orientations as angles to use in computation.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Points used to calculate the bonding. Uses :code:`ref_points`
                 if not provided or :code:`None`.
-            orientations ((:math:`N_{particles}`, 1) or
-            (:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):
+            orientations ((:math:`N_{particles}`, 1) or \
+(:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):
                 Orientations as angles to use in computation. Uses
                 :code:`ref_orientations` if not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):

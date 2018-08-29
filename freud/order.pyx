@@ -1333,8 +1333,7 @@ cdef class LocalWlNear(LocalWl):
         return super(LocalWlNear, self).computeAveNorm(points, nlist_)
 
 cdef class SolLiq:
-    """Computes dot products of :math:`Q_{lm}` between particles and uses these
-    for clustering.
+    """Uses dot products of :math:`Q_{lm}` between particles for clustering.
 
     .. moduleauthor:: Richmond Newman <newmanrs@umich.edu>
 
@@ -1623,10 +1622,10 @@ cdef class SolLiq:
         return self.num_particles
 
 cdef class SolLiqNear(SolLiq):
-    """A variant of the :py:class:`~SolLiq` class that performs its average
-    over nearest neighbor particles as determined by an instance of
-    :py:class:`freud.locality.NeighborList`. The number of included neighbors
-    is determined by the kn parameter to the constructor.
+    """A variant of the :py:class:`~SolLiq` class that performs its average \
+over nearest neighbor particles as determined by an instance of \
+:py:class:`freud.locality.NeighborList`. The number of included neighbors \
+is determined by the kn parameter to the constructor.
 
     .. moduleauthor:: Richmond Newman <newmanrs@umich.edu>
 
@@ -1790,6 +1789,7 @@ class MatchEnv(_EME):
 
 class Pairing2D(_EP):
     """**Deprecated** Compute pairs for the system of particles.
+
     .. note::
         This class is only retained for backwards compatibility.
         Please use :py:mod:`freud.bond` instead.
