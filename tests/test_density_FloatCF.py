@@ -83,6 +83,23 @@ class TestOCF(unittest.TestCase):
         absolute_tolerance = 0.1
         npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
 
+    def test_counts(self):
+        rmax = 10.0
+        dr = 1.0
+        num_points = 10
+        box_size = rmax*2
+        np.random.seed(0)
+        points = np.random.random_sample((num_points, 3)).astype(np.float32) \
+            * box_size - box_size/2
+        ang = np.zeros(int(num_points), dtype=np.float64)
+
+        vectors = points[np.newaxis, :, :] - points[:, np.newaxis, :]
+        correct = np.sum(np.linalg.norm(vectors, axis=-1) < np.sqrt(2*rmax**2))
+
+        ocf = density.FloatCF(rmax, dr)
+        ocf.compute(box.Box.square(box_size), points, ang)
+        self.assertEqual(np.sum(ocf.getCounts()), correct)
+
 
 if __name__ == '__main__':
     unittest.main()

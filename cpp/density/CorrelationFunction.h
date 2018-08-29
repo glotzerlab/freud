@@ -80,6 +80,7 @@ class CorrelationFunction
         //! Get a reference to the bin counts array
         std::shared_ptr<unsigned int> getCounts()
             {
+            reduceCorrelationFunction();
             return m_bin_counts;
             }
 
