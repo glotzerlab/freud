@@ -362,9 +362,12 @@ cdef class LocalDescriptors:
         :class:`numpy.ndarray`):
             A reference to the last computed spherical harmonic array.
         num_particles (unsigned int):
-            The number of particles.
+            The number of points passed to the last call to :meth:`~.compute`.
         num_neighbors (unsigned int):
-            The number of neighbors.
+            The number of neighbors used by the last call to compute. Bounded
+            from above by the number of reference points multiplied by the
+            lower of the num_neighbors arguments passed to the last compute
+            call or the constructor.
         l_max (unsigned int):
             The maximum spherical harmonic :math:`l` to calculate for.
         r_max (float):
@@ -386,6 +389,10 @@ cdef class LocalDescriptors:
     def computeNList(self, box, points_ref, points=None):
         """Compute the neighbor list for bonds from a set of source points to
         a set of destination points.
+
+        **Note that calling this function is insufficient to actually calculate
+        any of the descriptor quantities, and none of the class attribute
+        arrays will be populated by it.**
 
         Args:
             box (:class:`freud.box.Box`):

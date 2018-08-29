@@ -23,7 +23,7 @@ Environment Module
 .. autoclass:: freud.environment.BondOrder(rmax, k, n, nBinsT, nBinsP)
     :members: accumulate, compute, reset
 
-.. autoclass:: freud.environment.LocalDescriptors(box, nNeigh, lmax, rmax)
+.. autoclass:: freud.environment.LocalDescriptors(self, num_neighbors, lmax, rmax, negative_m=True)
     :members: compute, computeNList
 
 .. autoclass:: freud.environment.MatchEnv(box, rmax, k)
