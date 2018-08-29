@@ -65,6 +65,8 @@ class TestOCF(unittest.TestCase):
         ocf.compute(box.Box.square(box_size), points, comp,
                     points, np.conj(comp))
         npt.assert_allclose(ocf.getRDF(), correct, atol=absolute_tolerance)
+        self.assertEqual(box.Box.square(box_size), ocf.box)
+        self.assertEqual(box.Box.square(box_size), ocf.getBox())
 
     def test_zero_points(self):
         rmax = 10.0
@@ -84,6 +86,26 @@ class TestOCF(unittest.TestCase):
             1j * np.zeros(int(rmax/dr), dtype=np.float32)
         absolute_tolerance = 0.1
         npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
+
+    def test_counts(self):
+        rmax = 10.0
+        dr = 1.0
+        num_points = 10
+        box_size = rmax*2
+        np.random.seed(0)
+        points = np.random.random_sample((num_points, 3)).astype(np.float32) \
+            * box_size - box_size/2
+        ang = np.zeros(int(num_points), dtype=np.float64)
+        comp = np.exp(1j*ang)
+
+        vectors = points[np.newaxis, :, :] - points[:, np.newaxis, :]
+        correct = np.sum(np.linalg.norm(vectors, axis=-1) < np.sqrt(2*rmax**2))
+
+        ocf = density.FloatCF(rmax, dr)
+        ocf.compute(box.Box.square(box_size), points, comp,
+                    points, np.conj(comp))
+        self.assertEqual(np.sum(ocf.getCounts()), correct)
+        self.assertEqual(np.sum(ocf.counts), correct)
 
 
 class TestSummation(unittest.TestCase):

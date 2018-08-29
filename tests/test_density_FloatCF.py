@@ -44,7 +44,7 @@ class TestOCF(unittest.TestCase):
     def setUp(self):
         warnings.simplefilter("ignore", category=FreudDeprecationWarning)
 
-    def test_random_point_with_cell_list(self):
+    def test_random_points(self):
         rmax = 10.0
         dr = 1.0
         num_points = 1000
@@ -66,8 +66,10 @@ class TestOCF(unittest.TestCase):
         npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
         ocf.compute(box.Box.square(box_size), points, ang)
         npt.assert_allclose(ocf.getRDF(), correct, atol=absolute_tolerance)
+        self.assertEqual(box.Box.square(box_size), ocf.box)
+        self.assertEqual(box.Box.square(box_size), ocf.getBox())
 
-    def test_value_point_with_cell_list(self):
+    def test_zero_points(self):
         rmax = 10.0
         dr = 1.0
         num_points = 1000
@@ -99,6 +101,7 @@ class TestOCF(unittest.TestCase):
         ocf = density.FloatCF(rmax, dr)
         ocf.compute(box.Box.square(box_size), points, ang)
         self.assertEqual(np.sum(ocf.getCounts()), correct)
+        self.assertEqual(np.sum(ocf.counts), correct)
 
 
 if __name__ == '__main__':
