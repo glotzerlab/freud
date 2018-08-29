@@ -262,8 +262,7 @@ sources_in_all = [
 # Dict keys should be specified as the module name without
 # "freud.", i.e. not the fully qualified name.
 extra_module_sources = dict(
-    order=[os.path.join("cpp", "cluster", "Cluster.cc")],
-    _cy_kspace=[os.path.join("cpp", "kspace", "kspace.cc")]
+    order=[os.path.join("cpp", "cluster", "Cluster.cc")]
 )
 
 extensions = []
