@@ -527,10 +527,12 @@ cdef class GaussianDensity:
     """Computes the density of a system on a grid.
 
     Replaces particle positions with a Gaussian blur and calculates the
-    contribution from the grid based upon the distance of the grid cell from
-    the center of the Gaussian. The dimensions of the image (grid) are set in
-    the constructor, and can either be set equally for all dimensions or for
-    each dimension independently.
+    contribution from each to the proscribed grid based upon the distance of
+    the grid cell from the center of the Gaussian. The resulting data is a
+    regular grid of particle densities that can be used in standard algorithms
+    requiring evenly spaced point, such as Fast Fourier Transforms. The
+    dimensions of the image (grid) are set in the constructor, and can either
+    be set equally for all dimensions or for each dimension independently.
 
     - Constructor Calls:
 
