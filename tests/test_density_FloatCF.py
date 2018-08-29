@@ -7,21 +7,6 @@ import warnings
 import os
 
 
-class TestCorrelationFunction(unittest.TestCase):
-    def test_type_check(self):
-        boxlen = 10
-        N = 500
-        rmax, dr = 3, 0.1
-        bx = box.Box.cube(boxlen)
-        np.random.seed(0)
-        points = np.asarray(np.random.uniform(-boxlen/2, boxlen/2, (N, 3)),
-                            dtype=np.float32)
-        values = np.ones(N)
-        corrfun = density.FloatCF(rmax, dr)
-        corrfun.compute(bx, points, values, points, values.conj())
-        assert True
-
-
 class TestR(unittest.TestCase):
     def test_generateR(self):
         rmax = 51.23
