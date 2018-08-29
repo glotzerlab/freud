@@ -862,7 +862,7 @@ cdef class NearestNeighbors:
         """
         cdef unsigned int nNeigh = self.thisptr.getNumNeighbors()
         result = np.empty(nNeigh, dtype=np.uint32)
-        result[:] = self.getUINTMAX()
+        result[:] = self.UINTMAX
         cdef unsigned int start_idx = self.nlist.find_first_index(i)
         cdef unsigned int end_idx = self.nlist.find_first_index(i + 1)
         result[:end_idx - start_idx] = self.nlist.index_j[start_idx:end_idx]
@@ -880,7 +880,7 @@ cdef class NearestNeighbors:
         result = np.empty(
             (self.thisptr.getNref(), self.thisptr.getNumNeighbors()),
             dtype=np.uint32)
-        result[:] = self.getUINTMAX()
+        result[:] = self.UINTMAX
         idx_i, idx_j = self.nlist.index_i, self.nlist.index_j
         cdef size_t num_bonds = len(self.nlist.index_i)
         cdef size_t last_i = 0
