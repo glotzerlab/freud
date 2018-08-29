@@ -1070,8 +1070,8 @@ cdef class LocalWl(LocalQl):
 
     The :math:`W_l` is then defined as a weighted average over the
     :math:`\\overline{Q}_{lm}(i)` values using Wigner 3j symbols
-    (CG coefficients). The resulting combination is rotationally (i.e. frame)
-    invariant.
+    (Clebsch-Gordan coefficients). The resulting combination is rotationally
+    (i.e. frame) invariant.
 
     The :meth:`~computeAve` method provides access to a variant of this
     parameter that performs a average over the first and second shell combined

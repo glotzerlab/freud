@@ -14,5 +14,8 @@ Interface Module
 .. automodule:: freud.interface
     :synopsis: Measure interfaces
 
+Interface Measure
+=================
+
 .. autoclass:: freud.interface.InterfaceMeasure(box, r_cut)
    :members:
