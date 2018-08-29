@@ -1609,10 +1609,10 @@ cdef class SolLiq:
         return self.num_particles
 
 cdef class SolLiqNear(SolLiq):
-    """A variant of the :py:class:`~SolLiq` class that performs its average \
-over nearest neighbor particles as determined by an instance of \
-:py:class:`freud.locality.NeighborList`. The number of included neighbors \
-is determined by the kn parameter to the constructor.
+    """A variant of the :py:class:`~SolLiq` class that performs its average
+    over nearest neighbor particles as determined by an instance of
+    :py:class:`freud.locality.NeighborList`. The number of included neighbors
+    is determined by the kn parameter to the constructor.
 
     .. moduleauthor:: Richmond Newman <newmanrs@umich.edu>
 
