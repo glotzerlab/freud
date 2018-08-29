@@ -351,7 +351,7 @@ cdef class Box:
         Args:
             i (unsigned int):
                 Index (:math:`0 \\leq i < d`) of the lattice vector, where \
-                :math:`d` is the box dimension (2 or 3).
+:math:`d` is the box dimension (2 or 3).
 
         Returns:
             list[float, float, float]: Lattice vector with index :math:`i`.
@@ -372,13 +372,13 @@ cdef class Box:
 
         Args:
             vecs (:math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` \
-            :class:`numpy.ndarray`):
+:class:`numpy.ndarray`):
                 Single vector or array of :math:`N` vectors. The vectors are
                 altered in place and returned.
 
         Returns:
             :math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` \
-            :class:`numpy.ndarray`:
+:class:`numpy.ndarray`:
                 Vectors wrapped into the box.
         """
         vecs = np.asarray(vecs)
@@ -411,16 +411,16 @@ cdef class Box:
 
         Args:
             vecs (:math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` \
-            :class:`numpy.ndarray`):
+:class:`numpy.ndarray`):
                 Single vector or array of :math:`N` vectors. The vectors are
                 modified in place.
             imgs (:math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` \
-            :class:`numpy.ndarray`):
+:class:`numpy.ndarray`):
                 Single image index or array of :math:`N` image indices.
 
         Returns:
             :math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` \
-            :class:`numpy.ndarray`:
+:class:`numpy.ndarray`:
                 Vectors unwrapped by the image indices provided.
         """
         vecs = np.asarray(vecs)

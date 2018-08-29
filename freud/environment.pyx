@@ -78,7 +78,7 @@ cdef class BondOrder:
 
     Attributes:
         bond_order (:math:`\\left(N_{\\phi}, N_{\\theta} \\right)` \
-        :class:`numpy.ndarray`):
+:class:`numpy.ndarray`):
             Bond order.
         box (:py:class:`freud.box.Box`):
             Box used in the calculation.
@@ -114,7 +114,7 @@ cdef class BondOrder:
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference points used to calculate bonds.
             ref_orientations ((:math:`N_{particles}`, 4) \
-            :class:`numpy.ndarray`):
+:class:`numpy.ndarray`):
                 Reference orientations used to calculate bonds.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,
             optional):
@@ -247,7 +247,7 @@ cdef class BondOrder:
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference points used to calculate bonds.
             ref_orientations ((:math:`N_{particles}`, 4) \
-            :class:`numpy.ndarray`):
+:class:`numpy.ndarray`):
                 Reference orientations used to calculate bonds.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,
             optional):
@@ -359,7 +359,7 @@ cdef class LocalDescriptors:
 
     Attributes:
         sph (:math:`\\left(N_{bonds}, \\text{SphWidth} \\right)` \
-        :class:`numpy.ndarray`):
+:class:`numpy.ndarray`):
             A reference to the last computed spherical harmonic array.
         num_particles (unsigned int):
             The number of particles.
@@ -393,7 +393,7 @@ cdef class LocalDescriptors:
             points_ref ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Source points to calculate the order parameter.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, \
-            optional):
+optional):
                 Destination points to calculate the order parameter
                 (Default value = :code:`None`).
         """
@@ -437,11 +437,11 @@ cdef class LocalDescriptors:
             points_ref ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Source points to calculate the order parameter.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, \
-            optional):
+optional):
                 Destination points to calculate the order parameter
                 (Default value = :code:`None`).
             orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`, \
-            optional):
+optional):
                 Orientation of each reference point (Default value =
                 :code:`None`).
             mode (str, optional):
@@ -604,7 +604,7 @@ cdef class MatchEnv:
 
     Attributes:
         tot_environment (:math:`\\left(N_{particles}, N_{neighbors}, \
-        3\\right)` :class:`numpy.ndarray`):
+3\\right)` :class:`numpy.ndarray`):
             All environments for all particles.
         num_particles (unsigned int):
             The number of particles.
@@ -829,7 +829,7 @@ cdef class MatchEnv:
 
         Returns:
             tuple ((:math:`\\left(N_{particles}, 3\\right)` \
-            :class:`numpy.ndarray`), map[int, int]):
+:class:`numpy.ndarray`), map[int, int]):
                 A doublet that gives the rotated (or not) set of
                 :code:`refPoints2`, and the mapping between the vectors of
                 :code:`refPoints1` and :code:`refPoints2` that will make them
@@ -888,7 +888,7 @@ cdef class MatchEnv:
 
         Returns:
             tuple (float, (:math:`\\left(N_{particles}, 3\\right)` \
-            :class:`numpy.ndarray`), map[int, int]):
+:class:`numpy.ndarray`), map[int, int]):
                 A triplet that gives the associated min_rmsd, rotated (or not)
                 set of refPoints2, and the mapping between the vectors of
                 refPoints1 and refPoints2 that somewhat minimizes the RMSD.
@@ -1056,7 +1056,7 @@ cdef class Pairing2D:
             orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
                 Orientations to use in computation.
             compOrientations ((:math:`N_{particles}`, 4) \
-            :class:`numpy.ndarray`):
+:class:`numpy.ndarray`):
                 Possible orientations to check for bonds.
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value =
@@ -1161,10 +1161,10 @@ cdef class AngularSeparation:
         n_global (unsigned int):
             The number of global orientations to check against.
         neighbor_angles ((:math:`\\left(N_{neighbors}, \\right)`\
-        :class:`numpy.ndarray`):
+:class:`numpy.ndarray`):
             The neighbor angles in radians.
         global_angles (:math:`\\left(N_{particles}, N_{global} \\right)`\
-        :class:`numpy.ndarray`):
+:class:`numpy.ndarray`):
             The global angles in radians.
     """
     def __cinit__(self, rmax, n):
@@ -1197,7 +1197,7 @@ cdef class AngularSeparation:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Points used to calculate the order parameter.
             equiv_quats ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`, \
-            optional):
+optional):
                 The set of all equivalent quaternions that takes the particle
                 as it is defined to some global reference orientation.
                 Important: :code:`equiv_quats` must include both :math:`q` and

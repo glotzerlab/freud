@@ -568,7 +568,7 @@ cdef class GaussianDensity:
         box (:py:class:`freud.box.Box`):
             Box used in the calculation.
         gaussian_density ((:math:`w_x`, :math:`w_y`, :math:`w_z`) \
-        :class:`numpy.ndarray`):
+:class:`numpy.ndarray`):
             The image grid with the Gaussian density.
         counts ((:math:`N_{bins}`) :class:`numpy.ndarray`):
             The number of points in each histogram bin.

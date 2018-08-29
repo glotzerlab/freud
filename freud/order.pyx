@@ -74,17 +74,17 @@ cdef class CubaticOrderParameter:
         particle_order_parameter (:class:`numpy.ndarray`):
              Cubatic order parameter.
         particle_tensor (:math:`\\left(N_{particles}, 3, 3, 3, 3 \\right)`\
-        :class:`numpy.ndarray`):
+:class:`numpy.ndarray`):
             Rank 5 tensor corresponding to each individual particle
             orientation.
         global_tensor (:math:`\\left(3, 3, 3, 3 \\right)`\
-        :class:`numpy.ndarray`):
+:class:`numpy.ndarray`):
             Rank 4 tensor corresponding to global orientation.
         cubatic_tensor (:math:`\\left(3, 3, 3, 3 \\right)`\
-        :class:`numpy.ndarray`):
+:class:`numpy.ndarray`):
             Rank 4 cubatic tensor.
         gen_r4_tensor (:math:`\\left(3, 3, 3, 3 \\right)`\
-        :class:`numpy.ndarray`):
+:class:`numpy.ndarray`):
             Rank 4 tensor corresponding to each individual particle
             orientation.
     """
@@ -317,7 +317,7 @@ cdef class NematicOrderParameter:
         director (:math:`\\left(3 \\right)` :class:`numpy.ndarray`):
             The average nematic director.
         particle_tensor (:math:`\\left(N_{particles}, 3, 3 \\right)`\
-        :class:`numpy.ndarray`):
+:class:`numpy.ndarray`):
             One 3x3 matrix per-particle corresponding to each individual
             particle orientation.
         nematic_tensor (:math:`\\left(3, 3 \\right)` :class:`numpy.ndarray`):
@@ -341,7 +341,7 @@ cdef class NematicOrderParameter:
 
         Args:
             orientations (:math:`\\left(N_{particles}, 4 \\right)` \
-            :class:`numpy.ndarray`):
+:class:`numpy.ndarray`):
                 Orientations to calculate the order parameter.
         """
         orientations = freud.common.convert_array(
@@ -717,7 +717,7 @@ cdef class LocalQl:
             value over all particles (filled with NaN for particles with no
             neighbors).
         ave_norm_Ql (:math:`\\left(N_{particles}\\right)` \
-        :class:`numpy.ndarray`):
+:class:`numpy.ndarray`):
             The last computed :math:`\\bar{Q_l}` for each particle normalized
             by the value over all particles (filled with NaN for particles with
             no neighbors).
@@ -983,7 +983,7 @@ cdef class LocalQlNear(LocalQl):
             value over all particles (filled with NaN for particles with no
             neighbors).
         ave_norm_Ql (:math:`\\left(N_{particles}\\right)` \
-        :class:`numpy.ndarray`):
+:class:`numpy.ndarray`):
             The last computed :math:`\\bar{Q_l}` for each particle normalized
             by the value over all particles (filled with NaN for particles with
             no neighbors).
@@ -1119,7 +1119,7 @@ cdef class LocalWl(LocalQl):
             value over all particles (filled with NaN for particles with no
             neighbors).
         ave_norm_Wl (:math:`\\left(N_{particles}\\right)` \
-        :class:`numpy.ndarray`):
+:class:`numpy.ndarray`):
             The last computed :math:`\\bar{W}_l` for each particle normalized
             by the value over all particles (filled with NaN for particles with
             no neighbors).
@@ -1265,7 +1265,7 @@ cdef class LocalWlNear(LocalWl):
             value over all particles (filled with NaN for particles with no
             neighbors).
         ave_norm_Wl (:math:`\\left(N_{particles}\\right)` \
-        :class:`numpy.ndarray`):
+:class:`numpy.ndarray`):
             The last computed :math:`\\bar{W}_l` for each particle normalized
             by the value over all particles (filled with NaN for particles with
             no neighbors).
@@ -1371,10 +1371,10 @@ cdef class SolLiq:
             The last computed set of solid-like cluster indices for each
             particle.
         num_connections (:math:`\\left(N_{particles}\\right)` \
-        :class:`numpy.ndarray`):
+:class:`numpy.ndarray`):
             The number of connections per particle.
         Ql_dot_ij (:math:`\\left(N_{particles}\\right)` \
-        :class:`numpy.ndarray`):
+:class:`numpy.ndarray`):
             Reference to the qldot_ij values.
         num_particles (unsigned int):
             Number of particles.
@@ -1665,10 +1665,10 @@ cdef class SolLiqNear(SolLiq):
             The last computed set of solid-like cluster indices for each
             particle.
         num_connections (:math:`\\left(N_{particles}\\right)` \
-        :class:`numpy.ndarray`):
+:class:`numpy.ndarray`):
             The number of connections per particle.
         Ql_dot_ij (:math:`\\left(N_{particles}\\right)` \
-        :class:`numpy.ndarray`):
+:class:`numpy.ndarray`):
             Reference to the qldot_ij values.
         num_particles (unsigned int):
             Number of particles.

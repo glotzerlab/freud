@@ -162,7 +162,7 @@ cdef class PMFTR12(_PMFT):
         T2 (:math:`\\left(N_{\\theta2}\\right)` :class:`numpy.ndarray`):
             The array of T2-values for the PCF histogram.
         inverse_jacobian (:math:`\\left(N_{r}, N_{\\theta2}, \
-        N_{\\theta1}\\right)`):
+N_{\\theta1}\\right)`):
             The inverse Jacobian used in the PMFT.
         n_bins_r (unsigned int):
             The number of bins in the r-dimension of histogram.
@@ -265,7 +265,7 @@ cdef class PMFTR12(_PMFT):
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference points used in computation.
             ref_orientations ((:math:`N_{particles}`, 4) \
-            :class:`numpy.ndarray`):
+:class:`numpy.ndarray`):
                 Reference orientations as angles used in computation.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,
             optional):
@@ -460,13 +460,13 @@ cdef class PMFTXYT(_PMFT):
         box (:py:class:`freud.box.Box`):
             Box used in the calculation.
         bin_counts (:math:`\\left(N_{\\theta}, N_{y}, N_{x}\\right)` \
-        :class:`numpy.ndarray`):
+:class:`numpy.ndarray`):
             Bin counts.
         PCF (:math:`\\left(N_{\\theta}, N_{y}, N_{x}\\right)` \
-        :class:`numpy.ndarray`):
+:class:`numpy.ndarray`):
             The positional correlation function.
         PMFT (:math:`\\left(N_{\\theta}, N_{y}, N_{x}\\right)` \
-        :class:`numpy.ndarray`):
+:class:`numpy.ndarray`):
             The potential of mean force and torque.
         r_cut (float):
             The cutoff used in the cell list.
@@ -574,7 +574,7 @@ cdef class PMFTXYT(_PMFT):
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference points used in computation.
             ref_orientations ((:math:`N_{particles}`, 4) \
-            :class:`numpy.ndarray`):
+:class:`numpy.ndarray`):
                 Reference orientations as angles used in computation.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,
             optional):
@@ -758,7 +758,7 @@ cdef class PMFTXY2D(_PMFT):
         box (:py:class:`freud.box.Box`):
             Box used in the calculation.
         bin_counts (:math:`\\left(N_{y}, N_{x}\\right)` \
-        :class:`numpy.ndarray`):
+:class:`numpy.ndarray`):
             Bin counts.
         PCF (:math:`\\left(N_{y}, N_{x}\\right)` :class:`numpy.ndarray`):
             The positional correlation function.
@@ -866,7 +866,7 @@ cdef class PMFTXY2D(_PMFT):
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference points used in computation.
             ref_orientations ((:math:`N_{particles}`, 4) \
-            :class:`numpy.ndarray`):
+:class:`numpy.ndarray`):
                 Reference orientations as angles used in computation.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,
             optional):
@@ -1026,13 +1026,13 @@ cdef class PMFTXYZ(_PMFT):
         box (:py:class:`freud.box.Box`):
             Box used in the calculation.
         bin_counts (:math:`\\left(N_{z}, N_{y}, N_{x}\\right)` \
-        :class:`numpy.ndarray`):
+:class:`numpy.ndarray`):
             Bin counts.
         PCF (:math:`\\left(N_{z}, N_{y}, N_{x}\\right)` \
-        :class:`numpy.ndarray`):
+:class:`numpy.ndarray`):
             The positional correlation function.
         PMFT (:math:`\\left(N_{z}, N_{y}, N_{x}\\right)` \
-        :class:`numpy.ndarray`):
+:class:`numpy.ndarray`):
             The potential of mean force and torque.
         r_cut (float):
             The cutoff used in the cell list.
@@ -1090,7 +1090,7 @@ cdef class PMFTXYZ(_PMFT):
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference points used in computation.
             ref_orientations ((:math:`N_{particles}`, 4) \
-            :class:`numpy.ndarray`):
+:class:`numpy.ndarray`):
                 Reference orientations as angles used in computation.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,
             optional):
@@ -1101,7 +1101,7 @@ cdef class PMFTXYZ(_PMFT):
                 Orientations as angles used in computation. Uses
                 :code:`ref_orientations` if not provided or :code:`None`.
             face_orientations ((:math:`N_{particles}`, 4) \
-            :class:`numpy.ndarray`, optional):
+:class:`numpy.ndarray`, optional):
                 Orientations of particle faces to account for particle
                 symmetry. If not supplied by user, unit quaternions will be
                 supplied. If a 2D array of shape (:math:`N_f`, 4) or a
@@ -1221,7 +1221,7 @@ cdef class PMFTXYZ(_PMFT):
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference points used in computation.
             ref_orientations ((:math:`N_{particles}`, 4) \
-            :class:`numpy.ndarray`):
+:class:`numpy.ndarray`):
                 Reference orientations as angles used in computation.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,
             optional):
@@ -1232,7 +1232,7 @@ cdef class PMFTXYZ(_PMFT):
                 Orientations as angles used in computation. Uses
                 :code:`ref_orientations` if not provided or :code:`None`.
             face_orientations ((:math:`N_{particles}`, 4) \
-            :class:`numpy.ndarray`, optional):
+:class:`numpy.ndarray`, optional):
                 Orientations of particle faces to account for particle
                 symmetry. If not supplied by user, unit quaternions will be
                 supplied. If a 2D array of shape (:math:`N_f`, 4) or a

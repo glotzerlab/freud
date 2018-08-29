@@ -63,10 +63,10 @@ cdef class BondingAnalysis:
 
     Attributes:
         bond_lifetimes ((:math:`N_{particles}`, varying) \
-        :class:`numpy.ndarray`):
+:class:`numpy.ndarray`):
             Bond lifetimes.
         overall_lifetimes ((:math:`N_{particles}`, varying) \
-        :class:`numpy.ndarray`):
+:class:`numpy.ndarray`):
             Overall bond lifetimes.
         transition_matrix (:class:`numpy.ndarray`):
             Transition matrix.
@@ -95,7 +95,7 @@ cdef class BondingAnalysis:
 
         Args:
             frame_0 ((:math:`N_{particles}`, :math:`N_{bonds}`) \
-            :class:`numpy.ndarray`):
+:class:`numpy.ndarray`):
                 First bonding frame (as output from :py:class:`~.BondingR12`
                 modules).
         """
@@ -118,11 +118,11 @@ cdef class BondingAnalysis:
 
         Args:
             frame_0 ((:math:`N_{particles}`, :math:`N_{bonds}`) \
-            :class:`numpy.ndarray`):
+:class:`numpy.ndarray`):
                 Current/previous bonding frame (as output from
                 :py:class:`.BondingR12` modules).
             frame_1 ((:math:`N_{particles}`, :math:`N_{bonds}`) \
-            :class:`numpy.ndarray`):
+:class:`numpy.ndarray`):
                 Next/current bonding frame (as output from
                 :py:class:`.BondingR12` modules).
         """
@@ -788,7 +788,7 @@ cdef class BondingXYZ:
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference points used to calculate the bonding.
             ref_orientations ((:math:`N_{particles}`, 4) \
-            :class:`numpy.ndarray`):
+:class:`numpy.ndarray`):
                 Reference orientations as quaternions to use in computation.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Points used to calculate the bonding. Uses :code:`ref_points`
