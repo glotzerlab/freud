@@ -2,6 +2,31 @@
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## v0.10.0 - 2018-08-27
+
+### Added
+* codecov to track test coverage
+* Properties were added to MatchEnv, AngularSeparation, Cubatic/Nematic order parameters, Voronoi.
+
+### Changed
+* freud uses Cython and setup.py instead of CMake for installation.
+* Properties (not get functions) are the official way to access computed results.
+* Interface module has been improved significantly.
+* density.FloatCF, density.ComplexCF, order parameter documentation is improved
+* Many compute methods now use points, orientations from ref\_points, ref\_orientations if not provided
+* Reset methods have been renamed to `reset`
+
+### Fixed
+* `kspace` module had a missing factor of pi in the volume calculation of `FTsphere`.
+
+### Deprecated
+* Get functions have been deprecated.
+* Setter methods have been deprecated.
+* Reduce methods are called internally, so the user-facing methods have been deprecated.
+
+### Removed
+* GaussianDensity.resetDensity() is called internally.
+
 ## v0.9.0 - 2018-07-30
 
 ### Added

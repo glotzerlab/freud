@@ -44,10 +44,10 @@
         "name": "freud.interface",
         "sources": [
             "freud/interface.pyx",
-            "cpp/box/box.cc",
+            "cpp/locality/NeighborList.cc",
             "cpp/locality/NearestNeighbors.cc",
             "cpp/util/HOOMDMatrix.cc",
-            "cpp/locality/NeighborList.cc",
+            "cpp/box/box.cc",
             "cpp/locality/LinkCell.cc"
         ]
     },
@@ -1982,7 +1982,7 @@ static PyObject *__pyx_codeobj__18;
 static PyObject *__pyx_codeobj__20;
 /* Late includes */
 
-/* "freud/interface.pyx":39
+/* "freud/interface.pyx":49
  *     cdef np.ndarray _point_ids
  * 
  *     def __cinit__(self, float r_cut):             # <<<<<<<<<<<<<<
@@ -2016,18 +2016,18 @@ static int __pyx_pw_5freud_9interface_16InterfaceMeasure_1__cinit__(PyObject *__
         else goto __pyx_L5_argtuple_error;
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__cinit__") < 0)) __PYX_ERR(0, 39, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__cinit__") < 0)) __PYX_ERR(0, 49, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 1) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
     }
-    __pyx_v_r_cut = __pyx_PyFloat_AsFloat(values[0]); if (unlikely((__pyx_v_r_cut == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 39, __pyx_L3_error)
+    __pyx_v_r_cut = __pyx_PyFloat_AsFloat(values[0]); if (unlikely((__pyx_v_r_cut == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 49, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 1, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 39, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 1, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 49, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("freud.interface.InterfaceMeasure.__cinit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -2049,7 +2049,7 @@ static int __pyx_pf_5freud_9interface_16InterfaceMeasure___cinit__(struct __pyx_
   PyObject *__pyx_t_4 = NULL;
   __Pyx_RefNannySetupContext("__cinit__", 0);
 
-  /* "freud/interface.pyx":40
+  /* "freud/interface.pyx":50
  * 
  *     def __cinit__(self, float r_cut):
  *         self.rmax = r_cut             # <<<<<<<<<<<<<<
@@ -2058,71 +2058,71 @@ static int __pyx_pf_5freud_9interface_16InterfaceMeasure___cinit__(struct __pyx_
  */
   __pyx_v_self->rmax = __pyx_v_r_cut;
 
-  /* "freud/interface.pyx":41
+  /* "freud/interface.pyx":51
  *     def __cinit__(self, float r_cut):
  *         self.rmax = r_cut
  *         self._ref_point_ids = np.empty(0, dtype=np.uint32)             # <<<<<<<<<<<<<<
  *         self._point_ids = np.empty(0, dtype=np.uint32)
  * 
  */
-  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 41, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 51, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_empty); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 41, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_empty); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 51, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 41, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 51, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 41, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 51, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_uint32); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 41, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_uint32); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 51, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_dtype, __pyx_t_4) < 0) __PYX_ERR(0, 41, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_dtype, __pyx_t_4) < 0) __PYX_ERR(0, 51, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_tuple_, __pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 41, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_tuple_, __pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 51, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (!(likely(((__pyx_t_4) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_4, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 41, __pyx_L1_error)
+  if (!(likely(((__pyx_t_4) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_4, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 51, __pyx_L1_error)
   __Pyx_GIVEREF(__pyx_t_4);
   __Pyx_GOTREF(__pyx_v_self->_ref_point_ids);
   __Pyx_DECREF(((PyObject *)__pyx_v_self->_ref_point_ids));
   __pyx_v_self->_ref_point_ids = ((PyArrayObject *)__pyx_t_4);
   __pyx_t_4 = 0;
 
-  /* "freud/interface.pyx":42
+  /* "freud/interface.pyx":52
  *         self.rmax = r_cut
  *         self._ref_point_ids = np.empty(0, dtype=np.uint32)
  *         self._point_ids = np.empty(0, dtype=np.uint32)             # <<<<<<<<<<<<<<
  * 
  *     def compute(self, box, ref_points, points, nlist=None):
  */
-  __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 42, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 52, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_empty); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 42, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_empty); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 52, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 42, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 52, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 42, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 52, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_uint32); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 42, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_uint32); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 52, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_dtype, __pyx_t_3) < 0) __PYX_ERR(0, 42, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_dtype, __pyx_t_3) < 0) __PYX_ERR(0, 52, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_tuple__2, __pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 42, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_tuple__2, __pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 52, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 42, __pyx_L1_error)
+  if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 52, __pyx_L1_error)
   __Pyx_GIVEREF(__pyx_t_3);
   __Pyx_GOTREF(__pyx_v_self->_point_ids);
   __Pyx_DECREF(((PyObject *)__pyx_v_self->_point_ids));
   __pyx_v_self->_point_ids = ((PyArrayObject *)__pyx_t_3);
   __pyx_t_3 = 0;
 
-  /* "freud/interface.pyx":39
+  /* "freud/interface.pyx":49
  *     cdef np.ndarray _point_ids
  * 
  *     def __cinit__(self, float r_cut):             # <<<<<<<<<<<<<<
@@ -2145,7 +2145,7 @@ static int __pyx_pf_5freud_9interface_16InterfaceMeasure___cinit__(struct __pyx_
   return __pyx_r;
 }
 
-/* "freud/interface.pyx":44
+/* "freud/interface.pyx":54
  *         self._point_ids = np.empty(0, dtype=np.uint32)
  * 
  *     def compute(self, box, ref_points, points, nlist=None):             # <<<<<<<<<<<<<<
@@ -2193,13 +2193,13 @@ static PyObject *__pyx_pw_5freud_9interface_16InterfaceMeasure_3compute(PyObject
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_ref_points)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("compute", 0, 3, 4, 1); __PYX_ERR(0, 44, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("compute", 0, 3, 4, 1); __PYX_ERR(0, 54, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_points)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("compute", 0, 3, 4, 2); __PYX_ERR(0, 44, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("compute", 0, 3, 4, 2); __PYX_ERR(0, 54, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  3:
@@ -2209,7 +2209,7 @@ static PyObject *__pyx_pw_5freud_9interface_16InterfaceMeasure_3compute(PyObject
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "compute") < 0)) __PYX_ERR(0, 44, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "compute") < 0)) __PYX_ERR(0, 54, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -2229,7 +2229,7 @@ static PyObject *__pyx_pw_5freud_9interface_16InterfaceMeasure_3compute(PyObject
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("compute", 0, 3, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 44, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("compute", 0, 3, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 54, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("freud.interface.InterfaceMeasure.compute", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -2260,19 +2260,19 @@ static PyObject *__pyx_pf_5freud_9interface_16InterfaceMeasure_2compute(struct _
   __Pyx_INCREF(__pyx_v_points);
   __Pyx_INCREF(__pyx_v_nlist);
 
-  /* "freud/interface.pyx":56
+  /* "freud/interface.pyx":66
  *                 Neighborlist to use to find bonds (Default value = None).
  *         """
  *         b = freud.common.convert_box(box)             # <<<<<<<<<<<<<<
  *         ref_points = freud.common.convert_array(
  *             ref_points, 2, dtype=np.float32, contiguous=True,
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 56, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 66, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_common); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 56, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_common); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 66, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_convert_box); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 56, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_convert_box); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 66, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_t_3 = NULL;
@@ -2286,13 +2286,13 @@ static PyObject *__pyx_pf_5freud_9interface_16InterfaceMeasure_2compute(struct _
     }
   }
   if (!__pyx_t_3) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_box); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 56, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_box); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 66, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   } else {
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_v_box};
-      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 56, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 66, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
@@ -2300,19 +2300,19 @@ static PyObject *__pyx_pf_5freud_9interface_16InterfaceMeasure_2compute(struct _
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_v_box};
-      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 56, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 66, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
     #endif
     {
-      __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 56, __pyx_L1_error)
+      __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 66, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_GIVEREF(__pyx_t_3); PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_3); __pyx_t_3 = NULL;
       __Pyx_INCREF(__pyx_v_box);
       __Pyx_GIVEREF(__pyx_v_box);
       PyTuple_SET_ITEM(__pyx_t_4, 0+1, __pyx_v_box);
-      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 56, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 66, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     }
@@ -2321,30 +2321,30 @@ static PyObject *__pyx_pf_5freud_9interface_16InterfaceMeasure_2compute(struct _
   __pyx_v_b = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "freud/interface.pyx":57
+  /* "freud/interface.pyx":67
  *         """
  *         b = freud.common.convert_box(box)
  *         ref_points = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             ref_points, 2, dtype=np.float32, contiguous=True,
  *             array_name="ref_points")
  */
-  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 57, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 67, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_common); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 57, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_common); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 67, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 57, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 67, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/interface.pyx":58
+  /* "freud/interface.pyx":68
  *         b = freud.common.convert_box(box)
  *         ref_points = freud.common.convert_array(
  *             ref_points, 2, dtype=np.float32, contiguous=True,             # <<<<<<<<<<<<<<
  *             array_name="ref_points")
  *         points = freud.common.convert_array(
  */
-  __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 57, __pyx_L1_error)
+  __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 67, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_INCREF(__pyx_v_ref_points);
   __Pyx_GIVEREF(__pyx_v_ref_points);
@@ -2352,26 +2352,26 @@ static PyObject *__pyx_pf_5freud_9interface_16InterfaceMeasure_2compute(struct _
   __Pyx_INCREF(__pyx_int_2);
   __Pyx_GIVEREF(__pyx_int_2);
   PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_int_2);
-  __pyx_t_4 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 58, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 68, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 58, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 68, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_float32); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 58, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_float32); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 68, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_dtype, __pyx_t_5) < 0) __PYX_ERR(0, 58, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_dtype, __pyx_t_5) < 0) __PYX_ERR(0, 68, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_contiguous, Py_True) < 0) __PYX_ERR(0, 58, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_array_name, __pyx_n_s_ref_points) < 0) __PYX_ERR(0, 58, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_contiguous, Py_True) < 0) __PYX_ERR(0, 68, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_array_name, __pyx_n_s_ref_points) < 0) __PYX_ERR(0, 68, __pyx_L1_error)
 
-  /* "freud/interface.pyx":57
+  /* "freud/interface.pyx":67
  *         """
  *         b = freud.common.convert_box(box)
  *         ref_points = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             ref_points, 2, dtype=np.float32, contiguous=True,
  *             array_name="ref_points")
  */
-  __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_2, __pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 57, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_2, __pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 67, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -2379,30 +2379,30 @@ static PyObject *__pyx_pf_5freud_9interface_16InterfaceMeasure_2compute(struct _
   __Pyx_DECREF_SET(__pyx_v_ref_points, __pyx_t_5);
   __pyx_t_5 = 0;
 
-  /* "freud/interface.pyx":60
+  /* "freud/interface.pyx":70
  *             ref_points, 2, dtype=np.float32, contiguous=True,
  *             array_name="ref_points")
  *         points = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             points, 2, dtype=np.float32, contiguous=True, array_name="points")
  *         if ref_points.shape[1] != 3 or points.shape[1] != 3:
  */
-  __pyx_t_5 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 60, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 70, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_common); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 60, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_common); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 70, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 60, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 70, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "freud/interface.pyx":61
+  /* "freud/interface.pyx":71
  *             array_name="ref_points")
  *         points = freud.common.convert_array(
  *             points, 2, dtype=np.float32, contiguous=True, array_name="points")             # <<<<<<<<<<<<<<
  *         if ref_points.shape[1] != 3 or points.shape[1] != 3:
  *             raise RuntimeError('Need to provide array with x, y, z positions')
  */
-  __pyx_t_4 = PyTuple_New(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 60, __pyx_L1_error)
+  __pyx_t_4 = PyTuple_New(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 70, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_INCREF(__pyx_v_points);
   __Pyx_GIVEREF(__pyx_v_points);
@@ -2410,26 +2410,26 @@ static PyObject *__pyx_pf_5freud_9interface_16InterfaceMeasure_2compute(struct _
   __Pyx_INCREF(__pyx_int_2);
   __Pyx_GIVEREF(__pyx_int_2);
   PyTuple_SET_ITEM(__pyx_t_4, 1, __pyx_int_2);
-  __pyx_t_2 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 61, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 71, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 61, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 71, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_float32); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 61, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_float32); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 71, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_dtype, __pyx_t_3) < 0) __PYX_ERR(0, 61, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_dtype, __pyx_t_3) < 0) __PYX_ERR(0, 71, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_contiguous, Py_True) < 0) __PYX_ERR(0, 61, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_array_name, __pyx_n_s_points) < 0) __PYX_ERR(0, 61, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_contiguous, Py_True) < 0) __PYX_ERR(0, 71, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_array_name, __pyx_n_s_points) < 0) __PYX_ERR(0, 71, __pyx_L1_error)
 
-  /* "freud/interface.pyx":60
+  /* "freud/interface.pyx":70
  *             ref_points, 2, dtype=np.float32, contiguous=True,
  *             array_name="ref_points")
  *         points = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             points, 2, dtype=np.float32, contiguous=True, array_name="points")
  *         if ref_points.shape[1] != 3 or points.shape[1] != 3:
  */
-  __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_4, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 60, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_4, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 70, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
@@ -2437,54 +2437,54 @@ static PyObject *__pyx_pf_5freud_9interface_16InterfaceMeasure_2compute(struct _
   __Pyx_DECREF_SET(__pyx_v_points, __pyx_t_3);
   __pyx_t_3 = 0;
 
-  /* "freud/interface.pyx":62
+  /* "freud/interface.pyx":72
  *         points = freud.common.convert_array(
  *             points, 2, dtype=np.float32, contiguous=True, array_name="points")
  *         if ref_points.shape[1] != 3 or points.shape[1] != 3:             # <<<<<<<<<<<<<<
  *             raise RuntimeError('Need to provide array with x, y, z positions')
  * 
  */
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_ref_points, __pyx_n_s_shape); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 62, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_ref_points, __pyx_n_s_shape); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 72, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_3, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 62, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_3, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 72, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = PyObject_RichCompare(__pyx_t_2, __pyx_int_3, Py_NE); __Pyx_XGOTREF(__pyx_t_3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 62, __pyx_L1_error)
+  __pyx_t_3 = PyObject_RichCompare(__pyx_t_2, __pyx_int_3, Py_NE); __Pyx_XGOTREF(__pyx_t_3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 72, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_7 = __Pyx_PyObject_IsTrue(__pyx_t_3); if (unlikely(__pyx_t_7 < 0)) __PYX_ERR(0, 62, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_IsTrue(__pyx_t_3); if (unlikely(__pyx_t_7 < 0)) __PYX_ERR(0, 72, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   if (!__pyx_t_7) {
   } else {
     __pyx_t_6 = __pyx_t_7;
     goto __pyx_L4_bool_binop_done;
   }
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_points, __pyx_n_s_shape); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 62, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_points, __pyx_n_s_shape); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 72, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_3, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 62, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_3, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 72, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = PyObject_RichCompare(__pyx_t_2, __pyx_int_3, Py_NE); __Pyx_XGOTREF(__pyx_t_3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 62, __pyx_L1_error)
+  __pyx_t_3 = PyObject_RichCompare(__pyx_t_2, __pyx_int_3, Py_NE); __Pyx_XGOTREF(__pyx_t_3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 72, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_7 = __Pyx_PyObject_IsTrue(__pyx_t_3); if (unlikely(__pyx_t_7 < 0)) __PYX_ERR(0, 62, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_IsTrue(__pyx_t_3); if (unlikely(__pyx_t_7 < 0)) __PYX_ERR(0, 72, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_t_6 = __pyx_t_7;
   __pyx_L4_bool_binop_done:;
   if (unlikely(__pyx_t_6)) {
 
-    /* "freud/interface.pyx":63
+    /* "freud/interface.pyx":73
  *             points, 2, dtype=np.float32, contiguous=True, array_name="points")
  *         if ref_points.shape[1] != 3 or points.shape[1] != 3:
  *             raise RuntimeError('Need to provide array with x, y, z positions')             # <<<<<<<<<<<<<<
  * 
  *         if nlist is None:
  */
-    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_RuntimeError, __pyx_tuple__3, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 63, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_RuntimeError, __pyx_tuple__3, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 73, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_Raise(__pyx_t_3, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __PYX_ERR(0, 63, __pyx_L1_error)
+    __PYX_ERR(0, 73, __pyx_L1_error)
 
-    /* "freud/interface.pyx":62
+    /* "freud/interface.pyx":72
  *         points = freud.common.convert_array(
  *             points, 2, dtype=np.float32, contiguous=True, array_name="points")
  *         if ref_points.shape[1] != 3 or points.shape[1] != 3:             # <<<<<<<<<<<<<<
@@ -2493,7 +2493,7 @@ static PyObject *__pyx_pf_5freud_9interface_16InterfaceMeasure_2compute(struct _
  */
   }
 
-  /* "freud/interface.pyx":65
+  /* "freud/interface.pyx":75
  *             raise RuntimeError('Need to provide array with x, y, z positions')
  * 
  *         if nlist is None:             # <<<<<<<<<<<<<<
@@ -2504,16 +2504,16 @@ static PyObject *__pyx_pf_5freud_9interface_16InterfaceMeasure_2compute(struct _
   __pyx_t_7 = (__pyx_t_6 != 0);
   if (__pyx_t_7) {
 
-    /* "freud/interface.pyx":66
+    /* "freud/interface.pyx":76
  * 
  *         if nlist is None:
  *             lc = freud.locality.LinkCell(b, self.rmax)             # <<<<<<<<<<<<<<
  *             nlist = lc.compute(b, ref_points, points).nlist
  *         else:
  */
-    __pyx_t_3 = PyFloat_FromDouble(__pyx_v_self->rmax); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 66, __pyx_L1_error)
+    __pyx_t_3 = PyFloat_FromDouble(__pyx_v_self->rmax); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 76, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 66, __pyx_L1_error)
+    __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 76, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_INCREF(__pyx_v_b);
     __Pyx_GIVEREF(__pyx_v_b);
@@ -2521,20 +2521,20 @@ static PyObject *__pyx_pf_5freud_9interface_16InterfaceMeasure_2compute(struct _
     __Pyx_GIVEREF(__pyx_t_3);
     PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_t_3);
     __pyx_t_3 = 0;
-    __pyx_t_3 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_5freud_8locality_LinkCell), __pyx_t_2, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 66, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_5freud_8locality_LinkCell), __pyx_t_2, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 76, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __pyx_v_lc = __pyx_t_3;
     __pyx_t_3 = 0;
 
-    /* "freud/interface.pyx":67
+    /* "freud/interface.pyx":77
  *         if nlist is None:
  *             lc = freud.locality.LinkCell(b, self.rmax)
  *             nlist = lc.compute(b, ref_points, points).nlist             # <<<<<<<<<<<<<<
  *         else:
  *             nlist = nlist.copy().filter_r(b, ref_points, points, self.rmax)
  */
-    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_lc, __pyx_n_s_compute); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 67, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_lc, __pyx_n_s_compute); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 77, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __pyx_t_4 = NULL;
     __pyx_t_8 = 0;
@@ -2551,7 +2551,7 @@ static PyObject *__pyx_pf_5freud_9interface_16InterfaceMeasure_2compute(struct _
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[4] = {__pyx_t_4, __pyx_v_b, __pyx_v_ref_points, __pyx_v_points};
-      __pyx_t_3 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_8, 3+__pyx_t_8); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 67, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_8, 3+__pyx_t_8); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 77, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_GOTREF(__pyx_t_3);
     } else
@@ -2559,13 +2559,13 @@ static PyObject *__pyx_pf_5freud_9interface_16InterfaceMeasure_2compute(struct _
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[4] = {__pyx_t_4, __pyx_v_b, __pyx_v_ref_points, __pyx_v_points};
-      __pyx_t_3 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_8, 3+__pyx_t_8); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 67, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_8, 3+__pyx_t_8); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 77, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_GOTREF(__pyx_t_3);
     } else
     #endif
     {
-      __pyx_t_5 = PyTuple_New(3+__pyx_t_8); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 67, __pyx_L1_error)
+      __pyx_t_5 = PyTuple_New(3+__pyx_t_8); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 77, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
       if (__pyx_t_4) {
         __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -2579,18 +2579,18 @@ static PyObject *__pyx_pf_5freud_9interface_16InterfaceMeasure_2compute(struct _
       __Pyx_INCREF(__pyx_v_points);
       __Pyx_GIVEREF(__pyx_v_points);
       PyTuple_SET_ITEM(__pyx_t_5, 2+__pyx_t_8, __pyx_v_points);
-      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_5, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 67, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_5, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 77, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     }
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_nlist); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 67, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_nlist); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 77, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF_SET(__pyx_v_nlist, __pyx_t_2);
     __pyx_t_2 = 0;
 
-    /* "freud/interface.pyx":65
+    /* "freud/interface.pyx":75
  *             raise RuntimeError('Need to provide array with x, y, z positions')
  * 
  *         if nlist is None:             # <<<<<<<<<<<<<<
@@ -2600,7 +2600,7 @@ static PyObject *__pyx_pf_5freud_9interface_16InterfaceMeasure_2compute(struct _
     goto __pyx_L6;
   }
 
-  /* "freud/interface.pyx":69
+  /* "freud/interface.pyx":79
  *             nlist = lc.compute(b, ref_points, points).nlist
  *         else:
  *             nlist = nlist.copy().filter_r(b, ref_points, points, self.rmax)             # <<<<<<<<<<<<<<
@@ -2608,7 +2608,7 @@ static PyObject *__pyx_pf_5freud_9interface_16InterfaceMeasure_2compute(struct _
  *         self._ref_point_ids = np.unique(nlist.index_i)
  */
   /*else*/ {
-    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_nlist, __pyx_n_s_copy); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 69, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_nlist, __pyx_n_s_copy); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 79, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __pyx_t_4 = NULL;
     if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_5))) {
@@ -2621,17 +2621,17 @@ static PyObject *__pyx_pf_5freud_9interface_16InterfaceMeasure_2compute(struct _
       }
     }
     if (__pyx_t_4) {
-      __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 69, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 79, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     } else {
-      __pyx_t_3 = __Pyx_PyObject_CallNoArg(__pyx_t_5); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 69, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyObject_CallNoArg(__pyx_t_5); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 79, __pyx_L1_error)
     }
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_filter_r); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 69, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_filter_r); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 79, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_3 = PyFloat_FromDouble(__pyx_v_self->rmax); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 69, __pyx_L1_error)
+    __pyx_t_3 = PyFloat_FromDouble(__pyx_v_self->rmax); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 79, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __pyx_t_4 = NULL;
     __pyx_t_8 = 0;
@@ -2648,7 +2648,7 @@ static PyObject *__pyx_pf_5freud_9interface_16InterfaceMeasure_2compute(struct _
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_5)) {
       PyObject *__pyx_temp[5] = {__pyx_t_4, __pyx_v_b, __pyx_v_ref_points, __pyx_v_points, __pyx_t_3};
-      __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_5, __pyx_temp+1-__pyx_t_8, 4+__pyx_t_8); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 69, __pyx_L1_error)
+      __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_5, __pyx_temp+1-__pyx_t_8, 4+__pyx_t_8); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 79, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -2657,14 +2657,14 @@ static PyObject *__pyx_pf_5freud_9interface_16InterfaceMeasure_2compute(struct _
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_5)) {
       PyObject *__pyx_temp[5] = {__pyx_t_4, __pyx_v_b, __pyx_v_ref_points, __pyx_v_points, __pyx_t_3};
-      __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_5, __pyx_temp+1-__pyx_t_8, 4+__pyx_t_8); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 69, __pyx_L1_error)
+      __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_5, __pyx_temp+1-__pyx_t_8, 4+__pyx_t_8); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 79, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     } else
     #endif
     {
-      __pyx_t_1 = PyTuple_New(4+__pyx_t_8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 69, __pyx_L1_error)
+      __pyx_t_1 = PyTuple_New(4+__pyx_t_8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 79, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (__pyx_t_4) {
         __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -2681,7 +2681,7 @@ static PyObject *__pyx_pf_5freud_9interface_16InterfaceMeasure_2compute(struct _
       __Pyx_GIVEREF(__pyx_t_3);
       PyTuple_SET_ITEM(__pyx_t_1, 3+__pyx_t_8, __pyx_t_3);
       __pyx_t_3 = 0;
-      __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_1, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 69, __pyx_L1_error)
+      __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_1, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 79, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     }
@@ -2691,19 +2691,19 @@ static PyObject *__pyx_pf_5freud_9interface_16InterfaceMeasure_2compute(struct _
   }
   __pyx_L6:;
 
-  /* "freud/interface.pyx":71
+  /* "freud/interface.pyx":81
  *             nlist = nlist.copy().filter_r(b, ref_points, points, self.rmax)
  * 
  *         self._ref_point_ids = np.unique(nlist.index_i)             # <<<<<<<<<<<<<<
  *         self._point_ids = np.unique(nlist.index_j)
  *         return self
  */
-  __pyx_t_5 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 71, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 81, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_unique); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 71, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_unique); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 81, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_nlist, __pyx_n_s_index_i); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 71, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_nlist, __pyx_n_s_index_i); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 81, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_1))) {
@@ -2716,14 +2716,14 @@ static PyObject *__pyx_pf_5freud_9interface_16InterfaceMeasure_2compute(struct _
     }
   }
   if (!__pyx_t_3) {
-    __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_1, __pyx_t_5); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 71, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_1, __pyx_t_5); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 81, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_GOTREF(__pyx_t_2);
   } else {
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_1)) {
       PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_t_5};
-      __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_1, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 71, __pyx_L1_error)
+      __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_1, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 81, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
@@ -2732,45 +2732,45 @@ static PyObject *__pyx_pf_5freud_9interface_16InterfaceMeasure_2compute(struct _
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_1)) {
       PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_t_5};
-      __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_1, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 71, __pyx_L1_error)
+      __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_1, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 81, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     } else
     #endif
     {
-      __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 71, __pyx_L1_error)
+      __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 81, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_GIVEREF(__pyx_t_3); PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_3); __pyx_t_3 = NULL;
       __Pyx_GIVEREF(__pyx_t_5);
       PyTuple_SET_ITEM(__pyx_t_4, 0+1, __pyx_t_5);
       __pyx_t_5 = 0;
-      __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_4, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 71, __pyx_L1_error)
+      __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_4, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 81, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     }
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 71, __pyx_L1_error)
+  if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 81, __pyx_L1_error)
   __Pyx_GIVEREF(__pyx_t_2);
   __Pyx_GOTREF(__pyx_v_self->_ref_point_ids);
   __Pyx_DECREF(((PyObject *)__pyx_v_self->_ref_point_ids));
   __pyx_v_self->_ref_point_ids = ((PyArrayObject *)__pyx_t_2);
   __pyx_t_2 = 0;
 
-  /* "freud/interface.pyx":72
+  /* "freud/interface.pyx":82
  * 
  *         self._ref_point_ids = np.unique(nlist.index_i)
  *         self._point_ids = np.unique(nlist.index_j)             # <<<<<<<<<<<<<<
  *         return self
  * 
  */
-  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 72, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 82, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_unique); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 72, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_unique); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 82, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_nlist, __pyx_n_s_index_j); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 72, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_nlist, __pyx_n_s_index_j); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 82, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_t_5 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_4))) {
@@ -2783,14 +2783,14 @@ static PyObject *__pyx_pf_5freud_9interface_16InterfaceMeasure_2compute(struct _
     }
   }
   if (!__pyx_t_5) {
-    __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 72, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 82, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __Pyx_GOTREF(__pyx_t_2);
   } else {
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_4)) {
       PyObject *__pyx_temp[2] = {__pyx_t_5, __pyx_t_1};
-      __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_4, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 72, __pyx_L1_error)
+      __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_4, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 82, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -2799,33 +2799,33 @@ static PyObject *__pyx_pf_5freud_9interface_16InterfaceMeasure_2compute(struct _
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_4)) {
       PyObject *__pyx_temp[2] = {__pyx_t_5, __pyx_t_1};
-      __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_4, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 72, __pyx_L1_error)
+      __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_4, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 82, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     } else
     #endif
     {
-      __pyx_t_3 = PyTuple_New(1+1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 72, __pyx_L1_error)
+      __pyx_t_3 = PyTuple_New(1+1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 82, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_GIVEREF(__pyx_t_5); PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_5); __pyx_t_5 = NULL;
       __Pyx_GIVEREF(__pyx_t_1);
       PyTuple_SET_ITEM(__pyx_t_3, 0+1, __pyx_t_1);
       __pyx_t_1 = 0;
-      __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_3, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 72, __pyx_L1_error)
+      __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_3, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 82, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     }
   }
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 72, __pyx_L1_error)
+  if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 82, __pyx_L1_error)
   __Pyx_GIVEREF(__pyx_t_2);
   __Pyx_GOTREF(__pyx_v_self->_point_ids);
   __Pyx_DECREF(((PyObject *)__pyx_v_self->_point_ids));
   __pyx_v_self->_point_ids = ((PyArrayObject *)__pyx_t_2);
   __pyx_t_2 = 0;
 
-  /* "freud/interface.pyx":73
+  /* "freud/interface.pyx":83
  *         self._ref_point_ids = np.unique(nlist.index_i)
  *         self._point_ids = np.unique(nlist.index_j)
  *         return self             # <<<<<<<<<<<<<<
@@ -2837,7 +2837,7 @@ static PyObject *__pyx_pf_5freud_9interface_16InterfaceMeasure_2compute(struct _
   __pyx_r = ((PyObject *)__pyx_v_self);
   goto __pyx_L0;
 
-  /* "freud/interface.pyx":44
+  /* "freud/interface.pyx":54
  *         self._point_ids = np.empty(0, dtype=np.uint32)
  * 
  *     def compute(self, box, ref_points, points, nlist=None):             # <<<<<<<<<<<<<<
@@ -2865,11 +2865,11 @@ static PyObject *__pyx_pf_5freud_9interface_16InterfaceMeasure_2compute(struct _
   return __pyx_r;
 }
 
-/* "freud/interface.pyx":76
+/* "freud/interface.pyx":86
  * 
  *     @property
  *     def ref_point_count(self):             # <<<<<<<<<<<<<<
- *         """The number of particles from ``ref_points`` on the interface.
+ *         return len(self._ref_point_ids)
  * 
  */
 
@@ -2893,9 +2893,9 @@ static PyObject *__pyx_pf_5freud_9interface_16InterfaceMeasure_15ref_point_count
   Py_ssize_t __pyx_t_2;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "freud/interface.pyx":82
- *             int: Number of particles from ``ref_points`` on the interface.
- *         """
+  /* "freud/interface.pyx":87
+ *     @property
+ *     def ref_point_count(self):
  *         return len(self._ref_point_ids)             # <<<<<<<<<<<<<<
  * 
  *     @property
@@ -2903,19 +2903,19 @@ static PyObject *__pyx_pf_5freud_9interface_16InterfaceMeasure_15ref_point_count
   __Pyx_XDECREF(__pyx_r);
   __pyx_t_1 = ((PyObject *)__pyx_v_self->_ref_point_ids);
   __Pyx_INCREF(__pyx_t_1);
-  __pyx_t_2 = PyObject_Length(__pyx_t_1); if (unlikely(__pyx_t_2 == ((Py_ssize_t)-1))) __PYX_ERR(0, 82, __pyx_L1_error)
+  __pyx_t_2 = PyObject_Length(__pyx_t_1); if (unlikely(__pyx_t_2 == ((Py_ssize_t)-1))) __PYX_ERR(0, 87, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyInt_FromSsize_t(__pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 82, __pyx_L1_error)
+  __pyx_t_1 = PyInt_FromSsize_t(__pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 87, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/interface.pyx":76
+  /* "freud/interface.pyx":86
  * 
  *     @property
  *     def ref_point_count(self):             # <<<<<<<<<<<<<<
- *         """The number of particles from ``ref_points`` on the interface.
+ *         return len(self._ref_point_ids)
  * 
  */
 
@@ -2930,11 +2930,11 @@ static PyObject *__pyx_pf_5freud_9interface_16InterfaceMeasure_15ref_point_count
   return __pyx_r;
 }
 
-/* "freud/interface.pyx":85
+/* "freud/interface.pyx":90
  * 
  *     @property
  *     def ref_point_ids(self):             # <<<<<<<<<<<<<<
- *         """The IDs of particles from ``ref_points`` on the interface.
+ *         return self._ref_point_ids
  * 
  */
 
@@ -2957,8 +2957,8 @@ static PyObject *__pyx_pf_5freud_9interface_16InterfaceMeasure_13ref_point_ids__
   __Pyx_RefNannySetupContext("__get__", 0);
 
   /* "freud/interface.pyx":91
- *             :class:`np.ndarray`: The particle IDs from ``ref_points``.
- *         """
+ *     @property
+ *     def ref_point_ids(self):
  *         return self._ref_point_ids             # <<<<<<<<<<<<<<
  * 
  *     @property
@@ -2968,11 +2968,11 @@ static PyObject *__pyx_pf_5freud_9interface_16InterfaceMeasure_13ref_point_ids__
   __pyx_r = ((PyObject *)__pyx_v_self->_ref_point_ids);
   goto __pyx_L0;
 
-  /* "freud/interface.pyx":85
+  /* "freud/interface.pyx":90
  * 
  *     @property
  *     def ref_point_ids(self):             # <<<<<<<<<<<<<<
- *         """The IDs of particles from ``ref_points`` on the interface.
+ *         return self._ref_point_ids
  * 
  */
 
@@ -2987,7 +2987,7 @@ static PyObject *__pyx_pf_5freud_9interface_16InterfaceMeasure_13ref_point_ids__
  * 
  *     @property
  *     def point_count(self):             # <<<<<<<<<<<<<<
- *         """The number of particles from ``points`` on the interface.
+ *         return len(self._point_ids)
  * 
  */
 
@@ -3011,9 +3011,9 @@ static PyObject *__pyx_pf_5freud_9interface_16InterfaceMeasure_11point_count___g
   Py_ssize_t __pyx_t_2;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "freud/interface.pyx":100
- *             int: Number of particles from ``points`` on the interface.
- *         """
+  /* "freud/interface.pyx":95
+ *     @property
+ *     def point_count(self):
  *         return len(self._point_ids)             # <<<<<<<<<<<<<<
  * 
  *     @property
@@ -3021,9 +3021,9 @@ static PyObject *__pyx_pf_5freud_9interface_16InterfaceMeasure_11point_count___g
   __Pyx_XDECREF(__pyx_r);
   __pyx_t_1 = ((PyObject *)__pyx_v_self->_point_ids);
   __Pyx_INCREF(__pyx_t_1);
-  __pyx_t_2 = PyObject_Length(__pyx_t_1); if (unlikely(__pyx_t_2 == ((Py_ssize_t)-1))) __PYX_ERR(0, 100, __pyx_L1_error)
+  __pyx_t_2 = PyObject_Length(__pyx_t_1); if (unlikely(__pyx_t_2 == ((Py_ssize_t)-1))) __PYX_ERR(0, 95, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyInt_FromSsize_t(__pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 100, __pyx_L1_error)
+  __pyx_t_1 = PyInt_FromSsize_t(__pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 95, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -3033,7 +3033,7 @@ static PyObject *__pyx_pf_5freud_9interface_16InterfaceMeasure_11point_count___g
  * 
  *     @property
  *     def point_count(self):             # <<<<<<<<<<<<<<
- *         """The number of particles from ``points`` on the interface.
+ *         return len(self._point_ids)
  * 
  */
 
@@ -3048,12 +3048,11 @@ static PyObject *__pyx_pf_5freud_9interface_16InterfaceMeasure_11point_count___g
   return __pyx_r;
 }
 
-/* "freud/interface.pyx":103
+/* "freud/interface.pyx":98
  * 
  *     @property
  *     def point_ids(self):             # <<<<<<<<<<<<<<
- *         """The IDs of particles from ``points`` on the interface.
- * 
+ *         return self._point_ids
  */
 
 /* Python wrapper */
@@ -3074,9 +3073,9 @@ static PyObject *__pyx_pf_5freud_9interface_16InterfaceMeasure_9point_ids___get_
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "freud/interface.pyx":109
- *             :class:`np.ndarray`: The particle IDs from ``points``.
- *         """
+  /* "freud/interface.pyx":99
+ *     @property
+ *     def point_ids(self):
  *         return self._point_ids             # <<<<<<<<<<<<<<
  */
   __Pyx_XDECREF(__pyx_r);
@@ -3084,12 +3083,11 @@ static PyObject *__pyx_pf_5freud_9interface_16InterfaceMeasure_9point_ids___get_
   __pyx_r = ((PyObject *)__pyx_v_self->_point_ids);
   goto __pyx_L0;
 
-  /* "freud/interface.pyx":103
+  /* "freud/interface.pyx":98
  * 
  *     @property
  *     def point_ids(self):             # <<<<<<<<<<<<<<
- *         """The IDs of particles from ``points`` on the interface.
- * 
+ *         return self._point_ids
  */
 
   /* function exit code */
@@ -5752,10 +5750,10 @@ static PyMethodDef __pyx_methods_5freud_9interface_InterfaceMeasure[] = {
 };
 
 static struct PyGetSetDef __pyx_getsets_5freud_9interface_InterfaceMeasure[] = {
-  {(char *)"ref_point_count", __pyx_getprop_5freud_9interface_16InterfaceMeasure_ref_point_count, 0, (char *)"The number of particles from ``ref_points`` on the interface.\n\n        Returns:\n            int: Number of particles from ``ref_points`` on the interface.\n        ", 0},
-  {(char *)"ref_point_ids", __pyx_getprop_5freud_9interface_16InterfaceMeasure_ref_point_ids, 0, (char *)"The IDs of particles from ``ref_points`` on the interface.\n\n        Returns:\n            :class:`np.ndarray`: The particle IDs from ``ref_points``.\n        ", 0},
-  {(char *)"point_count", __pyx_getprop_5freud_9interface_16InterfaceMeasure_point_count, 0, (char *)"The number of particles from ``points`` on the interface.\n\n        Returns:\n            int: Number of particles from ``points`` on the interface.\n        ", 0},
-  {(char *)"point_ids", __pyx_getprop_5freud_9interface_16InterfaceMeasure_point_ids, 0, (char *)"The IDs of particles from ``points`` on the interface.\n\n        Returns:\n            :class:`np.ndarray`: The particle IDs from ``points``.\n        ", 0},
+  {(char *)"ref_point_count", __pyx_getprop_5freud_9interface_16InterfaceMeasure_ref_point_count, 0, (char *)0, 0},
+  {(char *)"ref_point_ids", __pyx_getprop_5freud_9interface_16InterfaceMeasure_ref_point_ids, 0, (char *)0, 0},
+  {(char *)"point_count", __pyx_getprop_5freud_9interface_16InterfaceMeasure_point_count, 0, (char *)0, 0},
+  {(char *)"point_ids", __pyx_getprop_5freud_9interface_16InterfaceMeasure_point_ids, 0, (char *)0, 0},
   {0, 0, 0, 0, 0}
 };
 
@@ -5785,7 +5783,7 @@ static PyTypeObject __pyx_type_5freud_9interface_InterfaceMeasure = {
   0, /*tp_setattro*/
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-  "Measures the interface between two sets of points.\n\n    .. moduleauthor:: Matthew Spellings <mspells@umich.edu>\n\n    Args:\n        box (:py:class:`freud.box.Box`): Simulation box.\n        r_cut (float): Distance to search for particle neighbors.\n    ", /*tp_doc*/
+  "Measures the interface between two sets of points.\n\n    .. moduleauthor:: Matthew Spellings <mspells@umich.edu>\n\n    Args:\n        box (:py:class:`freud.box.Box`): Simulation box.\n        r_cut (float): Distance to search for particle neighbors.\n\n    Attributes:\n        ref_point_count (int):\n            Number of particles from :code:`ref_points` on the interface.\n        ref_point_ids (:class:`np.ndarray`):\n            The particle IDs from :code:`ref_points`.\n        point_count (int):\n            Number of particles from :code:`points` on the interface.\n        point_ids (:class:`np.ndarray`):\n            The particle IDs from :code:`points`.\n    ", /*tp_doc*/
   __pyx_tp_traverse_5freud_9interface_InterfaceMeasure, /*tp_traverse*/
   __pyx_tp_clear_5freud_9interface_InterfaceMeasure, /*tp_clear*/
   0, /*tp_richcompare*/
@@ -5920,7 +5918,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {0, 0, 0, 0, 0, 0, 0}
 };
 static int __Pyx_InitCachedBuiltins(void) {
-  __pyx_builtin_RuntimeError = __Pyx_GetBuiltinName(__pyx_n_s_RuntimeError); if (!__pyx_builtin_RuntimeError) __PYX_ERR(0, 63, __pyx_L1_error)
+  __pyx_builtin_RuntimeError = __Pyx_GetBuiltinName(__pyx_n_s_RuntimeError); if (!__pyx_builtin_RuntimeError) __PYX_ERR(0, 73, __pyx_L1_error)
   __pyx_builtin_TypeError = __Pyx_GetBuiltinName(__pyx_n_s_TypeError); if (!__pyx_builtin_TypeError) __PYX_ERR(1, 2, __pyx_L1_error)
   __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_n_s_ValueError); if (!__pyx_builtin_ValueError) __PYX_ERR(2, 229, __pyx_L1_error)
   __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(2, 242, __pyx_L1_error)
@@ -5934,36 +5932,36 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__Pyx_InitCachedConstants", 0);
 
-  /* "freud/interface.pyx":41
+  /* "freud/interface.pyx":51
  *     def __cinit__(self, float r_cut):
  *         self.rmax = r_cut
  *         self._ref_point_ids = np.empty(0, dtype=np.uint32)             # <<<<<<<<<<<<<<
  *         self._point_ids = np.empty(0, dtype=np.uint32)
  * 
  */
-  __pyx_tuple_ = PyTuple_Pack(1, __pyx_int_0); if (unlikely(!__pyx_tuple_)) __PYX_ERR(0, 41, __pyx_L1_error)
+  __pyx_tuple_ = PyTuple_Pack(1, __pyx_int_0); if (unlikely(!__pyx_tuple_)) __PYX_ERR(0, 51, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple_);
   __Pyx_GIVEREF(__pyx_tuple_);
 
-  /* "freud/interface.pyx":42
+  /* "freud/interface.pyx":52
  *         self.rmax = r_cut
  *         self._ref_point_ids = np.empty(0, dtype=np.uint32)
  *         self._point_ids = np.empty(0, dtype=np.uint32)             # <<<<<<<<<<<<<<
  * 
  *     def compute(self, box, ref_points, points, nlist=None):
  */
-  __pyx_tuple__2 = PyTuple_Pack(1, __pyx_int_0); if (unlikely(!__pyx_tuple__2)) __PYX_ERR(0, 42, __pyx_L1_error)
+  __pyx_tuple__2 = PyTuple_Pack(1, __pyx_int_0); if (unlikely(!__pyx_tuple__2)) __PYX_ERR(0, 52, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__2);
   __Pyx_GIVEREF(__pyx_tuple__2);
 
-  /* "freud/interface.pyx":63
+  /* "freud/interface.pyx":73
  *             points, 2, dtype=np.float32, contiguous=True, array_name="points")
  *         if ref_points.shape[1] != 3 or points.shape[1] != 3:
  *             raise RuntimeError('Need to provide array with x, y, z positions')             # <<<<<<<<<<<<<<
  * 
  *         if nlist is None:
  */
-  __pyx_tuple__3 = PyTuple_Pack(1, __pyx_kp_s_Need_to_provide_array_with_x_y_z); if (unlikely(!__pyx_tuple__3)) __PYX_ERR(0, 63, __pyx_L1_error)
+  __pyx_tuple__3 = PyTuple_Pack(1, __pyx_kp_s_Need_to_provide_array_with_x_y_z); if (unlikely(!__pyx_tuple__3)) __PYX_ERR(0, 73, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__3);
   __Pyx_GIVEREF(__pyx_tuple__3);
 
@@ -6083,17 +6081,17 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__14);
   __Pyx_GIVEREF(__pyx_tuple__14);
 
-  /* "freud/interface.pyx":44
+  /* "freud/interface.pyx":54
  *         self._point_ids = np.empty(0, dtype=np.uint32)
  * 
  *     def compute(self, box, ref_points, points, nlist=None):             # <<<<<<<<<<<<<<
  *         """Compute the particles at the interface between the two given sets of
  *         points.
  */
-  __pyx_tuple__15 = PyTuple_Pack(7, __pyx_n_s_self, __pyx_n_s_box, __pyx_n_s_ref_points, __pyx_n_s_points, __pyx_n_s_nlist, __pyx_n_s_b, __pyx_n_s_lc); if (unlikely(!__pyx_tuple__15)) __PYX_ERR(0, 44, __pyx_L1_error)
+  __pyx_tuple__15 = PyTuple_Pack(7, __pyx_n_s_self, __pyx_n_s_box, __pyx_n_s_ref_points, __pyx_n_s_points, __pyx_n_s_nlist, __pyx_n_s_b, __pyx_n_s_lc); if (unlikely(!__pyx_tuple__15)) __PYX_ERR(0, 54, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__15);
   __Pyx_GIVEREF(__pyx_tuple__15);
-  __pyx_codeobj__16 = (PyObject*)__Pyx_PyCode_New(5, 0, 7, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__15, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_interface_pyx, __pyx_n_s_compute, 44, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__16)) __PYX_ERR(0, 44, __pyx_L1_error)
+  __pyx_codeobj__16 = (PyObject*)__Pyx_PyCode_New(5, 0, 7, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__15, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_interface_pyx, __pyx_n_s_compute, 54, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__16)) __PYX_ERR(0, 54, __pyx_L1_error)
 
   /* "(tree fragment)":1
  * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
@@ -6448,16 +6446,16 @@ if (!__Pyx_RefNanny) {
  */
   __pyx_t_2 = __pyx_f_5numpy_import_array(); if (unlikely(__pyx_t_2 == ((int)-1))) __PYX_ERR(0, 24, __pyx_L1_error)
 
-  /* "freud/interface.pyx":44
+  /* "freud/interface.pyx":54
  *         self._point_ids = np.empty(0, dtype=np.uint32)
  * 
  *     def compute(self, box, ref_points, points, nlist=None):             # <<<<<<<<<<<<<<
  *         """Compute the particles at the interface between the two given sets of
  *         points.
  */
-  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_9interface_16InterfaceMeasure_3compute, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_InterfaceMeasure_compute, NULL, __pyx_n_s_freud_interface, __pyx_d, ((PyObject *)__pyx_codeobj__16)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 44, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_9interface_16InterfaceMeasure_3compute, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_InterfaceMeasure_compute, NULL, __pyx_n_s_freud_interface, __pyx_d, ((PyObject *)__pyx_codeobj__16)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 54, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_9interface_InterfaceMeasure->tp_dict, __pyx_n_s_compute, __pyx_t_1) < 0) __PYX_ERR(0, 44, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_9interface_InterfaceMeasure->tp_dict, __pyx_n_s_compute, __pyx_t_1) < 0) __PYX_ERR(0, 54, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   PyType_Modified(__pyx_ptype_5freud_9interface_InterfaceMeasure);
 

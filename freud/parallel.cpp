@@ -37,11 +37,11 @@
         "name": "freud.parallel",
         "sources": [
             "freud/parallel.pyx",
-            "cpp/box/box.cc",
-            "cpp/parallel/tbb_config.cc",
-            "cpp/locality/NearestNeighbors.cc",
-            "cpp/util/HOOMDMatrix.cc",
             "cpp/locality/NeighborList.cc",
+            "cpp/locality/NearestNeighbors.cc",
+            "cpp/parallel/tbb_config.cc",
+            "cpp/util/HOOMDMatrix.cc",
+            "cpp/box/box.cc",
             "cpp/locality/LinkCell.cc"
         ]
     },

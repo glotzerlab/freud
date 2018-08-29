@@ -135,7 +135,7 @@ cdef class Cluster:
         """Compute the clusters with key membership.
         Loops over all particles and adds them to a list of sets.
         Each set contains all the keys that are part of that cluster.
-        Get the computed list with :py:meth:`~.getClusterKeys()`.
+        Get the computed list with :py:attr:`~cluster_keys`.
 
         Args:
             keys((:math:`N_{particles}`) :class:`numpy.ndarray`):
