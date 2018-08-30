@@ -18,11 +18,8 @@ using namespace tbb;
 namespace freud { namespace order {
 
 RotationalAutocorrelationFunction::RotationalAutocorrelationFunction(int l)
-    : m_Np(0)
+    : m_l(l), m_Np(0)
     {
-      //TKTK: probably need to delete the below two lines
-      //m_RAi = std::shared_ptr<complex<float> >(new complex<float> [m_Np]);
-      //memset((void*)m_RAi.get(), 0, sizeof(complex(float))*m_Np)
     }
 
 RotationalAutocorrelationFunction::~RotationalAutocorrelationFunction()
@@ -72,10 +69,13 @@ std::complex<float> hypersphere_harmonic(const std::complex<float> xi, std::comp
     //Doing a summation over non-negative exponents
     for ( int k=0; k <= min(a, b); k++)
       {
-        sum_tracker = sum_tracker + cpow(std::conj(xi),k) * cpow(zeta, b-k) *
+          if (l + k -a - b >= 0) //Need to ensure that we don't have any negative factorials below
+          {
+          sum_tracker = sum_tracker + cpow(std::conj(xi),k) * cpow(zeta, b-k) *
                             cpow(std::conj(zeta), a-k) * cpow(-xi, l+k-a-b) /
                             factorial(k) / factorial(l+k-a-b) /
                             factorial(a-k) / factorial(b-k);
+          }
       }
 
       //Use cpow(expression, 1/2) as a way to compute the square root
@@ -91,6 +91,7 @@ void RotationalAutocorrelationFunction::compute(
                 unsigned int Np)
     {
       // reallocate the output array if it is not the right size
+      //cout << "Currently inside the compute call " << endl;
       if (Np != m_Np)
           {
           m_RA_array = std::shared_ptr< std::complex<float> >(
@@ -108,8 +109,12 @@ void RotationalAutocorrelationFunction::compute(
           assert(Np > 0);
           assert(ref_ors.size == ors.size);
 
+
+
+
           for (size_t i=r.begin(); i!=r.end(); ++i)
               {
+              m_RA_array.get()[i] = 0;
               quat<float> q_i(ref_ors[i]);
               quat<float> q_t(ors[i]);
               //Transform the orientation quaternions for normalization purposes
@@ -122,20 +127,25 @@ void RotationalAutocorrelationFunction::compute(
                                                             quat_to_greek(qq_1);
               //At this point, we've transformed the quaternions to xi and zeta
 
-
+              //cout << "Just added value of " << angle_1.first << endl;
+              //cout << "Have an m_l of " << m_l << endl;
               signed int m1;
               signed int m2;
+
               //Need to loop through quantum numbers m1 and m2 which depend on l
               for (m1 = -1*m_l/2; m1<= m_l/2; m1++)
                 {
-                  for (m2 = -1*m_l/2; m1<= m_l/2; m2++)
+                  for (m2 = -1*m_l/2; m2<= m_l/2; m2++)
                   {
+                    //cout << " m1: " << m1 << " M2: " << m2 << endl;
                     std::complex <float> combined_value = std::conj(
                       hypersphere_harmonic(angle_0.first, angle_0.second,
                         m_l, m1, m2))
                        * hypersphere_harmonic(angle_1.first, angle_1.second,
                         m_l, m1, m2);
-                    m_RA_array.get()[i] = combined_value;
+                    m_RA_array.get()[i] += combined_value;
+                    cout << "l " << m_l << " Just added value of " << combined_value << endl;
+                    cout << "Value in array: " << m_RA_array.get()[i] << endl;
                   }
                 }
               }
@@ -144,9 +154,15 @@ void RotationalAutocorrelationFunction::compute(
       std::complex<float> RA_sum = 0;
       for (unsigned int i=0; i <= Np; i++)
       {
+          cout << "Value to add: " << m_RA_array.get()[i] << endl;
         RA_sum += m_RA_array.get()[i];
+        cout << "Cumulative value currently " << RA_sum << endl;
       }
-      float m_Ft = real(RA_sum) / Np;
+      cout << "Getting a sum of " << RA_sum << endl;
+      cout << "l " << m_l << " Real part is " << real(RA_sum) << endl;
+      m_Ft = real(RA_sum) / Np; //TKTK
+      //m_Ft = 1.0;
+      cout << "Manually set m_Ft to " << m_Ft << endl;
     };
 
 //std::shared_ptr<float> RotationalAutocorrelationFunction::getRotationalAutocorrelationFunction()

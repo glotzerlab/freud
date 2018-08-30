@@ -1774,7 +1774,7 @@ cdef class RotationalAutocorrelationFunction:
 
     """
     cdef freud._order.RotationalAutocorrelationFunction * thisptr
-    cdef unsigned int l
+    cdef int l
 
     def __cinit__(self, l):
         self.thisptr = new freud._order.RotationalAutocorrelationFunction(l)
@@ -1827,6 +1827,23 @@ cdef class RotationalAutocorrelationFunction:
         cdef float Ft = self.thisptr.getRotationalAutocorrelationFunction()
         return Ft
 
+#    def getRAArray(self):
+#        """Get the array full of computed values for the rotational auto-
+#        correlation function calculations.
+#
+#        Returns:
+#            array of complex numbers.
+#        """
+#
+#        cdef float complex * RA = self.thisptr.getRAArray().get()
+#        cdef np.npy_intp nbins[1]
+#        nbins[0] = <np.npy_intp> self.thisptr.getNP()
+#        cdef np.ndarray[np.complex64_t, ndim=1] result = \
+#            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX64,
+#                                         <void*> RA)
+#
+#        return result
+
     def getRAArray(self):
         """Get the array full of computed values for the rotational auto-
         correlation function calculations.
@@ -1856,6 +1873,14 @@ cdef class RotationalAutocorrelationFunction:
         """
         cdef unsigned int np = self.thisptr.getNP()
         return np
+
+    def getL(self):
+        """Get the quantum number l used in the calculation.
+        Returns:
+            unsigned int: l.
+        """
+        cdef unsigned int l = self.thisptr.getL()
+        return l
 
 
 class BondOrder(_EBO):

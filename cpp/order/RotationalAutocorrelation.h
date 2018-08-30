@@ -33,7 +33,13 @@ class RotationalAutocorrelationFunction
     {
     public:
         //! Constructor
-        RotationalAutocorrelationFunction(int l);
+        RotationalAutocorrelationFunction()
+        {}
+        RotationalAutocorrelationFunction(int l); //:m_l(l)
+//            {
+//            if (m_l < 2)
+//                throw std::invalid_argument("l must be two or greater!");
+//            }
 
         //! Destructor
         ~RotationalAutocorrelationFunction();
@@ -57,6 +63,7 @@ class RotationalAutocorrelationFunction
 
       float getRotationalAutocorrelationFunction()
           {
+          cout << "In the get function, have" << m_Ft << endl;
           return m_Ft;
           };
 
@@ -68,7 +75,7 @@ class RotationalAutocorrelationFunction
                 unsigned int Np);
 
     private:
-        float m_l;                 //!< Order of the hyperspherical harmonic
+        int m_l;                 //!< Order of the hyperspherical harmonic
         unsigned int m_Np;         //!< Last number of points computed
         float m_Ft;                //!< Real value of calculated R.A. function
 
