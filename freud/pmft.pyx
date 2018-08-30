@@ -1076,16 +1076,6 @@ cdef class PMFTXYZ(_PMFT):
         if type(self) is PMFTXYZ:
             del self.pmftxyzptr
 
-    def reset(self):
-        """Resets the values of the PCF histograms in memory."""
-        self.pmftxyzptr.reset()
-
-    def resetPCF(self):
-        warnings.warn("Use .reset() instead of this method. "
-                      "This method will be removed in the future.",
-                      FreudDeprecationWarning)
-        self.reset()
-
     def accumulate(self, box, ref_points, ref_orientations, points=None,
                    orientations=None, face_orientations=None, nlist=None):
         """Calculates the positional correlation function and adds to the
