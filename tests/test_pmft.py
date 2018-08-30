@@ -23,6 +23,7 @@ class TestPMFTR12(unittest.TestCase):
         myPMFT = freud.pmft.PMFTR12(maxR, nbinsR, nbinsT1, nbinsT2)
         myPMFT.accumulate(box, points, angles, points, angles)
         npt.assert_equal(myPMFT.box, freud.box.Box.square(boxSize))
+        # Test old methods
         npt.assert_equal(myPMFT.getBox(), freud.box.Box.square(boxSize))
 
     def test_bins(self):
@@ -66,10 +67,17 @@ class TestPMFTR12(unittest.TestCase):
         npt.assert_equal(nbinsT1, myPMFT.n_bins_T1)
         npt.assert_equal(nbinsT2, myPMFT.n_bins_T2)
 
-        pcf = myPMFT.PCF
-        npt.assert_equal(nbinsR, pcf.shape[0])
-        npt.assert_equal(nbinsT1, pcf.shape[2])
-        npt.assert_equal(nbinsT2, pcf.shape[1])
+        # Test old methods
+        npt.assert_equal(nbinsR, myPMFT.getNBinsR())
+        npt.assert_equal(nbinsT1, myPMFT.getNBinsT1())
+        npt.assert_equal(nbinsT2, myPMFT.getNBinsT2())
+
+        npt.assert_equal(myPMFT.PCF.shape, (nbinsR, nbinsT2, nbinsT1))
+        npt.assert_equal(myPMFT.PMFT.shape, (nbinsR, nbinsT2, nbinsT1))
+
+        # Test old methods
+        npt.assert_equal(myPMFT.getPCF().shape, (nbinsR, nbinsT2, nbinsT1))
+        npt.assert_equal(myPMFT.getPMFT().shape, (nbinsR, nbinsT2, nbinsT1))
 
 
 class TestPMFTXYT(unittest.TestCase):
@@ -90,6 +98,7 @@ class TestPMFTXYT(unittest.TestCase):
         myPMFT = freud.pmft.PMFTXYT(maxX, maxY, nbinsX, nbinsY, nbinsT)
         myPMFT.accumulate(box, points, angles, points, angles)
         npt.assert_equal(myPMFT.box, freud.box.Box.square(boxSize))
+        # Test old methods
         npt.assert_equal(myPMFT.getBox(), freud.box.Box.square(boxSize))
 
     def test_bins(self):
@@ -133,10 +142,17 @@ class TestPMFTXYT(unittest.TestCase):
         npt.assert_equal(nbinsY, myPMFT.n_bins_Y)
         npt.assert_equal(nbinsT, myPMFT.n_bins_T)
 
-        pcf = myPMFT.PCF
-        npt.assert_equal(nbinsX, pcf.shape[2])
-        npt.assert_equal(nbinsY, pcf.shape[1])
-        npt.assert_equal(nbinsT, pcf.shape[0])
+        # Test old methods
+        npt.assert_equal(nbinsX, myPMFT.getNBinsX())
+        npt.assert_equal(nbinsY, myPMFT.getNBinsY())
+        npt.assert_equal(nbinsT, myPMFT.getNBinsT())
+
+        npt.assert_equal(myPMFT.PCF.shape, (nbinsT, nbinsY, nbinsX))
+        npt.assert_equal(myPMFT.PMFT.shape, (nbinsT, nbinsY, nbinsX))
+
+        # Test old methods
+        npt.assert_equal(myPMFT.getPCF().shape, (nbinsT, nbinsY, nbinsX))
+        npt.assert_equal(myPMFT.getPMFT().shape, (nbinsT, nbinsY, nbinsX))
 
 
 class TestPMFTXY2D(unittest.TestCase):
@@ -156,6 +172,7 @@ class TestPMFTXY2D(unittest.TestCase):
         myPMFT = freud.pmft.PMFTXY2D(maxX, maxY, nbinsX, nbinsY)
         myPMFT.accumulate(box, points, angles, points, angles)
         npt.assert_equal(myPMFT.box, freud.box.Box.square(boxSize))
+        # Test old methods
         npt.assert_equal(myPMFT.getBox(), freud.box.Box.square(boxSize))
 
     def test_bins(self):
@@ -189,9 +206,16 @@ class TestPMFTXY2D(unittest.TestCase):
         npt.assert_equal(nbinsX, myPMFT.n_bins_X)
         npt.assert_equal(nbinsY, myPMFT.n_bins_Y)
 
-        pcf = myPMFT.PCF
-        npt.assert_equal(nbinsX, pcf.shape[1])
-        npt.assert_equal(nbinsY, pcf.shape[0])
+        # Test old methods
+        npt.assert_equal(nbinsX, myPMFT.getNBinsX())
+        npt.assert_equal(nbinsY, myPMFT.getNBinsY())
+
+        npt.assert_equal(myPMFT.PCF.shape, (nbinsY, nbinsX))
+        npt.assert_equal(myPMFT.PMFT.shape, (nbinsY, nbinsX))
+
+        # Test old methods
+        npt.assert_equal(myPMFT.getPCF().shape, (nbinsY, nbinsX))
+        npt.assert_equal(myPMFT.getPMFT().shape, (nbinsY, nbinsX))
 
     def test_two_particles(self):
         boxSize = 16.0
@@ -256,6 +280,7 @@ class TestPMFTXYZ(unittest.TestCase):
         myPMFT = freud.pmft.PMFTXYZ(maxX, maxY, maxZ, nbinsX, nbinsY, nbinsZ)
         myPMFT.accumulate(box, points, orientations, points, orientations)
         npt.assert_equal(myPMFT.box, freud.box.Box.cube(boxSize))
+        # Test old methods
         npt.assert_equal(myPMFT.getBox(), freud.box.Box.cube(boxSize))
 
     def test_bins(self):
@@ -299,10 +324,17 @@ class TestPMFTXYZ(unittest.TestCase):
         npt.assert_equal(nbinsY, myPMFT.n_bins_Y)
         npt.assert_equal(nbinsZ, myPMFT.n_bins_Z)
 
-        pcf = myPMFT.PCF
-        npt.assert_equal(nbinsX, pcf.shape[2])
-        npt.assert_equal(nbinsY, pcf.shape[1])
-        npt.assert_equal(nbinsZ, pcf.shape[0])
+        # Test old methods
+        npt.assert_equal(nbinsX, myPMFT.getNBinsX())
+        npt.assert_equal(nbinsY, myPMFT.getNBinsY())
+        npt.assert_equal(nbinsZ, myPMFT.getNBinsZ())
+
+        npt.assert_equal(myPMFT.PCF.shape, (nbinsZ, nbinsY, nbinsX))
+        npt.assert_equal(myPMFT.PMFT.shape, (nbinsZ, nbinsY, nbinsX))
+
+        # Test old methods
+        npt.assert_equal(myPMFT.getPCF().shape, (nbinsZ, nbinsY, nbinsX))
+        npt.assert_equal(myPMFT.getPMFT().shape, (nbinsZ, nbinsY, nbinsX))
 
     def test_shift_two_particles_dead_pixel(self):
         points = np.array([[1, 1, 1], [0, 0, 0]], dtype=np.float32)
