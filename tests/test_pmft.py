@@ -281,7 +281,7 @@ class TestPMFTXYT(unittest.TestCase):
             angle_bin = np.floor(
                 ((angle_j - np.arctan2(-delta_x[1], -delta_x[0])) %
                  (2. * np.pi)) / dT).astype(np.int32)
-            return [*xy_bins, angle_bin]
+            return [xy_bins[0], xy_bins[1], angle_bin]
 
         correct_bin_counts = np.zeros(shape=(nbinsT, nbinsY, nbinsX),
                                       dtype=np.int32)
