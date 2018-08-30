@@ -275,7 +275,7 @@ class TestPMFTXYT(unittest.TestCase):
             delta_x = point_j - point_i
             rot_mat = np.array([[np.cos(-angle_i), -np.sin(-angle_i)],
                                 [np.sin(-angle_i), np.cos(-angle_i)]])
-            rot_delta_x = rot_mat @ delta_x[:2]
+            rot_delta_x = np.matmul(rot_mat, delta_x[:2])
             xy_bins = np.floor((rot_delta_x + [maxX, maxY]) /
                                [dx, dy]).astype(np.int32)
             angle_bin = np.floor(
