@@ -892,23 +892,6 @@ cdef class PMFTXY2D(_PMFT):
         return self
 
     @property
-    def PCF(self):
-        cdef float * pcf = self.pmftxy2dptr.getPCF().get()
-        cdef np.npy_intp nbins[2]
-        nbins[0] = <np.npy_intp> self.pmftxy2dptr.getNBinsY()
-        nbins[1] = <np.npy_intp> self.pmftxy2dptr.getNBinsX()
-        cdef np.ndarray[np.float32_t, ndim=2] result = \
-            np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, <void*> pcf)
-        return result
-
-    def getPCF(self):
-        warnings.warn("The getPCF function is deprecated in favor "
-                      "of the PCF class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.PCF
-
-    @property
     def bin_counts(self):
         cdef unsigned int * bin_counts = self.pmftxy2dptr.getBinCounts().get()
         cdef np.npy_intp nbins[2]
@@ -925,6 +908,23 @@ cdef class PMFTXY2D(_PMFT):
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
         return self.bin_counts
+
+    @property
+    def PCF(self):
+        cdef float * pcf = self.pmftxy2dptr.getPCF().get()
+        cdef np.npy_intp nbins[2]
+        nbins[0] = <np.npy_intp> self.pmftxy2dptr.getNBinsY()
+        nbins[1] = <np.npy_intp> self.pmftxy2dptr.getNBinsX()
+        cdef np.ndarray[np.float32_t, ndim=2] result = \
+            np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, <void*> pcf)
+        return result
+
+    def getPCF(self):
+        warnings.warn("The getPCF function is deprecated in favor "
+                      "of the PCF class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.PCF
 
     @property
     def X(self):
@@ -1244,12 +1244,6 @@ cdef class PMFTXYZ(_PMFT):
         self.accumulate(box, ref_points, ref_orientations,
                         points, orientations, face_orientations, nlist)
         return self
-
-    def reducePCF(self):
-        warnings.warn("This method is automatically called internally. It "
-                      "will be removed in the future.",
-                      FreudDeprecationWarning)
-        self.pmftxyzptr.reducePCF()
 
     @property
     def bin_counts(self):
