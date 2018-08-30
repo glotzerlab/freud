@@ -73,6 +73,11 @@ class TestPMFTR12(unittest.TestCase):
         npt.assert_almost_equal(myPMFT.T1, listT1, decimal=3)
         npt.assert_almost_equal(myPMFT.T2, listT2, decimal=3)
 
+        # Test old methods
+        npt.assert_almost_equal(myPMFT.getR(), listR, decimal=3)
+        npt.assert_almost_equal(myPMFT.getT1(), listT1, decimal=3)
+        npt.assert_almost_equal(myPMFT.getT2(), listT2, decimal=3)
+
         npt.assert_equal(nbinsR, myPMFT.n_bins_R)
         npt.assert_equal(nbinsT1, myPMFT.n_bins_T1)
         npt.assert_equal(nbinsT2, myPMFT.n_bins_T2)
@@ -168,6 +173,11 @@ class TestPMFTXYT(unittest.TestCase):
         npt.assert_almost_equal(myPMFT.Y, listY, decimal=3)
         npt.assert_almost_equal(myPMFT.T, listT, decimal=3)
 
+        # Test old methods
+        npt.assert_almost_equal(myPMFT.getX(), listX, decimal=3)
+        npt.assert_almost_equal(myPMFT.getY(), listY, decimal=3)
+        npt.assert_almost_equal(myPMFT.getT(), listT, decimal=3)
+
         npt.assert_equal(nbinsX, myPMFT.n_bins_X)
         npt.assert_equal(nbinsY, myPMFT.n_bins_Y)
         npt.assert_equal(nbinsT, myPMFT.n_bins_T)
@@ -219,7 +229,6 @@ class TestPMFTXY2D(unittest.TestCase):
         # Test old methods
         npt.assert_equal(myPMFT.getRCut(), 5.0)
 
-
     def test_bins(self):
         maxX = 3.0
         maxY = 4.0
@@ -247,6 +256,10 @@ class TestPMFTXY2D(unittest.TestCase):
         # Compare expected bins to the info from pmft
         npt.assert_almost_equal(myPMFT.X, listX, decimal=3)
         npt.assert_almost_equal(myPMFT.Y, listY, decimal=3)
+
+        # Test old methods
+        npt.assert_almost_equal(myPMFT.getX(), listX, decimal=3)
+        npt.assert_almost_equal(myPMFT.getY(), listY, decimal=3)
 
         npt.assert_equal(nbinsX, myPMFT.n_bins_X)
         npt.assert_equal(nbinsY, myPMFT.n_bins_Y)
@@ -312,6 +325,7 @@ class TestPMFTXY2D(unittest.TestCase):
         myPMFT.resetPCF()
         npt.assert_allclose(myPMFT.bin_counts, 0,
                             atol=absoluteTolerance)
+
 
 class TestPMFTXYZ(unittest.TestCase):
     def setUp(self):
@@ -384,6 +398,11 @@ class TestPMFTXYZ(unittest.TestCase):
         npt.assert_almost_equal(myPMFT.X, listX, decimal=3)
         npt.assert_almost_equal(myPMFT.Y, listY, decimal=3)
         npt.assert_almost_equal(myPMFT.Z, listZ, decimal=3)
+
+        # Test old methods
+        npt.assert_almost_equal(myPMFT.getX(), listX, decimal=3)
+        npt.assert_almost_equal(myPMFT.getY(), listY, decimal=3)
+        npt.assert_almost_equal(myPMFT.getZ(), listZ, decimal=3)
 
         npt.assert_equal(nbinsX, myPMFT.n_bins_X)
         npt.assert_equal(nbinsY, myPMFT.n_bins_Y)
