@@ -2,11 +2,11 @@ import numpy as np
 import numpy.testing as npt
 from freud import box, pmft
 import unittest
+import warnings
 
 
-class TestBins(unittest.TestCase):
-    # this just tests from pmftXYZ but might want to add in others...
-    def test_generateBins(self):
+class TestBinsPMFTXYZ(unittest.TestCase):
+    def test_generate_bins(self):
         maxX = 5.23
         nbinsX = 100
         maxY = 5.23
@@ -17,7 +17,6 @@ class TestBins(unittest.TestCase):
         dy = (2.0 * maxY / float(nbinsY))
         dz = (2.0 * maxZ / float(nbinsZ))
 
-        # make sure the radius for each bin is generated correctly
         listX = np.zeros(nbinsX, dtype=np.float32)
         listY = np.zeros(nbinsY, dtype=np.float32)
         listZ = np.zeros(nbinsZ, dtype=np.float32)
@@ -39,20 +38,23 @@ class TestBins(unittest.TestCase):
 
         myPMFT = pmft.PMFTXYZ(maxX, maxY, maxZ, nbinsX, nbinsY, nbinsZ)
 
-        # get the info from pmft
+        # Compare expected bins to the info from pmft
+        npt.assert_almost_equal(myPMFT.X, listX, decimal=3)
+        npt.assert_almost_equal(myPMFT.Y, listY, decimal=3)
+        npt.assert_almost_equal(myPMFT.Z, listZ, decimal=3)
 
-        xArray = np.copy(myPMFT.X)
-        yArray = np.copy(myPMFT.Y)
-        zArray = np.copy(myPMFT.Z)
+        npt.assert_equal(nbinsX, myPMFT.n_bins_X)
+        npt.assert_equal(nbinsY, myPMFT.n_bins_Y)
+        npt.assert_equal(nbinsZ, myPMFT.n_bins_Z)
 
-        npt.assert_almost_equal(xArray, listX, decimal=3)
-        npt.assert_almost_equal(yArray, listY, decimal=3)
-        npt.assert_almost_equal(zArray, listZ, decimal=3)
+        pcf = myPMFT.PCF
+        npt.assert_equal(nbinsX, pcf.shape[2])
+        npt.assert_equal(nbinsY, pcf.shape[1])
+        npt.assert_equal(nbinsZ, pcf.shape[0])
 
 
-class TestBinsR12(unittest.TestCase):
-    # this just tests from pmftXYZ but might want to add in others...
-    def test_generateBins(self):
+class TestBinsPMFTR12(unittest.TestCase):
+    def test_generate_bins(self):
         maxR = 5.23
         nbinsR = 10
         nbinsT1 = 20
@@ -84,28 +86,23 @@ class TestBinsR12(unittest.TestCase):
 
         myPMFT = pmft.PMFTR12(maxR, nbinsR, nbinsT1, nbinsT2)
 
-        # get the info from pmft
+        # Compare expected bins to the info from pmft
+        npt.assert_almost_equal(myPMFT.R, listR, decimal=3)
+        npt.assert_almost_equal(myPMFT.T1, listT1, decimal=3)
+        npt.assert_almost_equal(myPMFT.T2, listT2, decimal=3)
 
-        rArray = np.copy(myPMFT.R)
-        T1Array = np.copy(myPMFT.T1)
-        T2Array = np.copy(myPMFT.T2)
-
-        npt.assert_almost_equal(rArray, listR, decimal=3)
-        npt.assert_almost_equal(T1Array, listT1, decimal=3)
-        npt.assert_almost_equal(T2Array, listT2, decimal=3)
-
-        npt.assert_equal(nbinsR, myPMFT.n_bins_r)
+        npt.assert_equal(nbinsR, myPMFT.n_bins_R)
         npt.assert_equal(nbinsT1, myPMFT.n_bins_T1)
         npt.assert_equal(nbinsT2, myPMFT.n_bins_T2)
 
-        pmftArr = myPMFT.PCF
-        npt.assert_equal(nbinsR, pmftArr.shape[0])
-        npt.assert_equal(nbinsT1, pmftArr.shape[2])
-        npt.assert_equal(nbinsT2, pmftArr.shape[1])
+        pcf = myPMFT.PCF
+        npt.assert_equal(nbinsR, pcf.shape[0])
+        npt.assert_equal(nbinsT1, pcf.shape[2])
+        npt.assert_equal(nbinsT2, pcf.shape[1])
 
 
-class TestPMFXY2DAccumulate(unittest.TestCase):
-    def test_twoParticlesWithCellList(self):
+class TestPMFTXY2DAccumulate(unittest.TestCase):
+    def test_two_particles_with_cell_list(self):
         boxSize = 16.0
         points = np.array([[-1.0, 0.0, 0.0], [1.0, 0.0, 0.0]],
                           dtype=np.float32)
@@ -139,10 +136,10 @@ class TestPMFXY2DAccumulate(unittest.TestCase):
         binY = int(np.floor(y / dy))
         correct[binY, binX] = 1
         absoluteTolerance = 0.1
-        pcfArray = myPMFT.bin_counts
-        npt.assert_allclose(pcfArray, correct, atol=absoluteTolerance)
+        bin_array = myPMFT.bin_counts
+        npt.assert_allclose(bin_array, correct, atol=absoluteTolerance)
 
-    def test_twoParticlesWithoutCellList(self):
+    def test_two_particles_without_cell_list(self):
         boxSize = 16.0
         points = np.array([[-1.0, 0.0, 0.0], [1.0, 0.0, 0.0]],
                           dtype=np.float32)
@@ -176,12 +173,12 @@ class TestPMFXY2DAccumulate(unittest.TestCase):
         binY = int(np.floor(y / dy))
         correct[binY, binX] = 1
         absoluteTolerance = 0.1
-        pcfArray = myPMFT.bin_counts
-        npt.assert_allclose(pcfArray, correct, atol=absoluteTolerance)
+        bin_array = myPMFT.bin_counts
+        npt.assert_allclose(bin_array, correct, atol=absoluteTolerance)
 
 
-class TestPMFXY2DCompute(unittest.TestCase):
-    def test_twoParticlesWithCellList(self):
+class TestPMFTXY2DCompute(unittest.TestCase):
+    def test_two_particles_with_cell_list(self):
         boxSize = 16.0
         points = np.array([[-1.0, 0.0, 0.0], [1.0, 0.0, 0.0]],
                           dtype=np.float32)
@@ -215,10 +212,10 @@ class TestPMFXY2DCompute(unittest.TestCase):
         binY = int(np.floor(y / dy))
         correct[binY, binX] = 1
         absoluteTolerance = 0.1
-        pcfArray = myPMFT.bin_counts
-        npt.assert_allclose(pcfArray, correct, atol=absoluteTolerance)
+        bin_array = myPMFT.bin_counts
+        npt.assert_allclose(bin_array, correct, atol=absoluteTolerance)
 
-    def test_twoParticlesWithoutCellList(self):
+    def test_two_particles_without_cell_list(self):
         boxSize = 16.0
         points = np.array([[-1.0, 0.0, 0.0], [1.0, 0.0, 0.0]],
                           dtype=np.float32)
@@ -251,8 +248,8 @@ class TestPMFXY2DCompute(unittest.TestCase):
         binY = int(np.floor(y / dy))
         correct[binY, binX] = 1
         absoluteTolerance = 0.1
-        pcfArray = myPMFT.bin_counts
-        npt.assert_allclose(pcfArray, correct, atol=absoluteTolerance)
+        bin_array = myPMFT.bin_counts
+        npt.assert_allclose(bin_array, correct, atol=absoluteTolerance)
 
 
 class TestPMFTXYZShift(unittest.TestCase):
@@ -266,14 +263,17 @@ class TestPMFTXYZShift(unittest.TestCase):
             pm.compute(box.Box.cube(3), points, orientations,
                        points, orientations, face_orientations=None)
 
+        # Ignore warnings about NaNs
+        warnings.simplefilter("ignore", category=RuntimeWarning)
+
         # Non-shifted pmft should have no non-inf valued voxels,
         # since the other point is outside the x/y/z max
-        infcheck_noshift = np.logical_not(np.isinf(noshift.PMFT)).sum()
+        infcheck_noshift = np.isfinite(noshift.PMFT).sum()
         # Shifted pmft should have one non-inf valued voxel
-        infcheck_shift = np.logical_not(np.isinf(shift.PMFT)).sum()
+        infcheck_shift = np.isfinite(shift.PMFT).sum()
 
-        assert(infcheck_noshift == 0)
-        assert(infcheck_shift == 1)
+        npt.assert_equal(infcheck_noshift, 0)
+        npt.assert_equal(infcheck_shift, 1)
 
 
 if __name__ == '__main__':
