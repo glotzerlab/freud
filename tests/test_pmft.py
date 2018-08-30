@@ -103,6 +103,58 @@ class TestPMFTR12(unittest.TestCase):
         npt.assert_equal(myPMFT.getPCF().shape, (nbinsR, nbinsT2, nbinsT1))
         npt.assert_equal(myPMFT.getPMFT().shape, (nbinsR, nbinsT2, nbinsT1))
 
+    def test_two_particles(self):
+        boxSize = 16.0
+        box = freud.box.Box.square(boxSize)
+        points = np.array([[-1.0, 0.0, 0.0], [1.0, 0.1, 0.0]],
+                          dtype=np.float32)
+        angles = np.array([0.0, np.pi/2], dtype=np.float32)
+        maxR = 5.23
+        nbinsR = 10
+        nbinsT1 = 20
+        nbinsT2 = 30
+        dr = (maxR / float(nbinsR))
+        dT1 = (2.0 * np.pi / float(nbinsT1))
+        dT2 = (2.0 * np.pi / float(nbinsT2))
+
+        # calculation for array idxs
+        def get_bin(point_i, point_j, angle_i, angle_j):
+            delta_x = point_j - point_i
+            r_bin = np.floor(np.linalg.norm(delta_x)/dr)
+            delta_t1 = np.arctan2(delta_x[1], delta_x[0])
+            delta_t2 = np.arctan2(-delta_x[1], -delta_x[0])
+            t1_bin = np.floor(((angle_i - delta_t1) % (2. * np.pi))/dT1)
+            t2_bin = np.floor(((angle_j - delta_t2) % (2. * np.pi))/dT2)
+            return np.array([r_bin, t2_bin, t1_bin], dtype=np.int32)
+
+        correct_bin_counts = np.zeros(shape=(nbinsR, nbinsT2, nbinsT1),
+                                      dtype=np.int32)
+        bins = get_bin(points[0], points[1], angles[0], angles[1])
+        correct_bin_counts[bins[0], bins[1], bins[2]] = 1
+        bins = get_bin(points[1], points[0], angles[1], angles[0])
+        correct_bin_counts[bins[0], bins[1], bins[2]] = 1
+        absoluteTolerance = 0.1
+
+        myPMFT = freud.pmft.PMFTR12(maxR, nbinsR, nbinsT1, nbinsT2)
+        myPMFT.accumulate(box, points, angles, points, angles)
+        npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
+                            atol=absoluteTolerance)
+        myPMFT.reset()
+        npt.assert_allclose(myPMFT.bin_counts, 0,
+                            atol=absoluteTolerance)
+        myPMFT.compute(box, points, angles, points, angles)
+        npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
+                            atol=absoluteTolerance)
+        # Test old methods
+        myPMFT.reducePCF()
+        myPMFT.resetPCF()
+        npt.assert_allclose(myPMFT.bin_counts, 0,
+                            atol=absoluteTolerance)
+
+        myPMFT.compute(box, points, angles)
+        npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
+                            atol=absoluteTolerance)
+
 
 class TestPMFTXYT(unittest.TestCase):
     def setUp(self):
@@ -245,8 +297,13 @@ class TestPMFTXYT(unittest.TestCase):
         npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
                             atol=absoluteTolerance)
         # Test old methods
+        myPMFT.reducePCF()
         myPMFT.resetPCF()
         npt.assert_allclose(myPMFT.bin_counts, 0,
+                            atol=absoluteTolerance)
+
+        myPMFT.compute(box, points, angles)
+        npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
                             atol=absoluteTolerance)
 
 
@@ -365,8 +422,13 @@ class TestPMFTXY2D(unittest.TestCase):
         npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
                             atol=absoluteTolerance)
         # Test old methods
+        myPMFT.reducePCF()
         myPMFT.resetPCF()
         npt.assert_allclose(myPMFT.bin_counts, 0,
+                            atol=absoluteTolerance)
+
+        myPMFT.compute(box, points, angles)
+        npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
                             atol=absoluteTolerance)
 
 
@@ -507,8 +569,13 @@ class TestPMFTXYZ(unittest.TestCase):
         npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
                             atol=absoluteTolerance)
         # Test old methods
+        myPMFT.reducePCF()
         myPMFT.resetPCF()
         npt.assert_allclose(myPMFT.bin_counts, 0,
+                            atol=absoluteTolerance)
+
+        myPMFT.compute(box, points, orientations)
+        npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
                             atol=absoluteTolerance)
 
     def test_shift_two_particles_dead_pixel(self):
