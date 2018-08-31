@@ -59,8 +59,9 @@ public:
 
     // TODO remove getRMax, it is essentially a speed hack that doesn't fit in once we have NeighborLists
     //! Get the maximum neighbor distance
-    unsigned int getRMax() const
+    float getRMax() const
         {
+            std::cout << "In C++: " << m_nn.getRMax() << std::endl;;
         return m_nn.getRMax();
         }
 
