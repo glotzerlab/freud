@@ -61,7 +61,6 @@ public:
     //! Get the maximum neighbor distance
     float getRMax() const
         {
-            std::cout << "In C++: " << m_nn.getRMax() << std::endl;;
         return m_nn.getRMax();
         }
 

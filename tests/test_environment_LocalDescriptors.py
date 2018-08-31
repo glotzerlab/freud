@@ -9,19 +9,33 @@ class TestLocalDescriptors(unittest.TestCase):
         N = 1000
         Nneigh = 4
         lmax = 8
+        rmax = 0.5
 
         box = freud.box.Box.cube(10)
         np.random.seed(0)
         positions = np.random.uniform(-box.Lx/2, box.Lx/2,
                                       size=(N, 3)).astype(np.float32)
 
-        comp = LocalDescriptors(Nneigh, lmax, .5, True)
+        comp = LocalDescriptors(Nneigh, lmax, rmax, True)
         comp.computeNList(box, positions)
         comp.compute(box, Nneigh, positions)
 
+        self.assertTrue(np.allclose(comp.sph, comp.getSph()))
         sphs = comp.sph
 
-        assert sphs.shape[0] == N*Nneigh
+        self.assertEqual(sphs.shape[0], N*Nneigh)
+
+        self.assertEqual(comp.num_particles, positions.shape[0])
+        self.assertEqual(comp.getNP(), positions.shape[0])
+
+        self.assertEqual(comp.num_neighbors/comp.num_particles, Nneigh)
+        self.assertEqual(comp.getNSphs()/comp.num_particles, Nneigh)
+
+        self.assertEqual(comp.l_max, lmax)
+        self.assertEqual(comp.getLMax(), lmax)
+
+        self.assertEqual(comp.r_max, rmax)
+        self.assertEqual(comp.getRMax(), rmax)
 
     def test_global(self):
         N = 1000
@@ -39,7 +53,7 @@ class TestLocalDescriptors(unittest.TestCase):
 
         sphs = comp.sph
 
-        assert sphs.shape[0] == N*Nneigh
+        self.assertEqual(sphs.shape[0], N*Nneigh)
 
     def test_particle_local(self):
         N = 1000
@@ -65,7 +79,7 @@ class TestLocalDescriptors(unittest.TestCase):
 
         sphs = comp.sph
 
-        assert sphs.shape[0] == N*Nneigh
+        self.assertEqual(sphs.shape[0], N*Nneigh)
 
     def test_unknown_modes(self):
         N = 1000
@@ -99,7 +113,7 @@ class TestLocalDescriptors(unittest.TestCase):
         comp.computeNList(box, positions, positions2)
         comp.compute(box, Nneigh, positions, positions2)
         sphs = comp.sph
-        assert sphs.shape[0] == N*Nneigh
+        self.assertEqual(sphs.shape[0], N*Nneigh)
 
 
 if __name__ == '__main__':
