@@ -82,10 +82,13 @@ std::complex<float> hypersphere_harmonic(const std::complex<float> xi, std::comp
 
       //Use cpow(expression, 1/2) as a way to compute the square root
 //    sum_tracker = sum_tracker * cpow(factorial(a) * factorial(l-a) *
-    sum_tracker *= cpow(factorial(a) * factorial(l-a) *
-                                     factorial(b) * factorial(l-b) / float(l+1),
-                                   1/2);
-    cout << "should be 0.577 or 1.15:   " << cpow(factorial(a) * factorial(l-a) * factorial(b) * factorial(l-b) / (float(l)+1), 1/2) << endl;
+    //sum_tracker *= cpow(factorial(a) * factorial(l-a) *
+    //                                 factorial(b) * factorial(l-b) / float(l+1),
+    //                               1/2);
+    sum_tracker *= sqrt(factorial(a) * factorial(l-a) *
+                        factorial(b) * factorial(l-b) / (float(l)+1));
+    //cout << "should be 0.577 or 1.15:   " << cpow(factorial(a) * factorial(l-a) * factorial(b) * factorial(l-b) / (float(l)+1), 1/2) << endl;
+    cout << "should be 0.577 or 1.15:   " << sqrt(factorial(a) * factorial(l-a) * factorial(b) * factorial(l-b) / (float(l)+1)) << endl;
     cout << a << " " << l-a << " " << b << endl;
     cout << factorial(a) << endl;
     cout << float(l)+1 << endl;
