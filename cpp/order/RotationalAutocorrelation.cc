@@ -88,11 +88,11 @@ std::complex<float> hypersphere_harmonic(const std::complex<float> xi, std::comp
     sum_tracker *= sqrt(factorial(a) * factorial(l-a) *
                         factorial(b) * factorial(l-b) / (float(l)+1));
     //cout << "should be 0.577 or 1.15:   " << cpow(factorial(a) * factorial(l-a) * factorial(b) * factorial(l-b) / (float(l)+1), 1/2) << endl;
-    cout << "should be 0.577 or 1.15:   " << sqrt(factorial(a) * factorial(l-a) * factorial(b) * factorial(l-b) / (float(l)+1)) << endl;
-    cout << a << " " << l-a << " " << b << endl;
-    cout << factorial(a) << endl;
-    cout << float(l)+1 << endl;
-    cout << cpow(1/3, 1/2) << endl;
+    //cout << "should be 0.577 or 1.15:   " << sqrt(factorial(a) * factorial(l-a) * factorial(b) * factorial(l-b) / (float(l)+1)) << endl;
+    //cout << a << " " << l-a << " " << b << endl;
+    //cout << factorial(a) << endl;
+    //cout << float(l)+1 << endl;
+    //cout << cpow(1/3, 1/2) << endl;
 
     return sum_tracker;
   }
@@ -156,12 +156,12 @@ void RotationalAutocorrelationFunction::compute(
                        * hypersphere_harmonic(angle_1.first, angle_1.second,
                         m_l, m1, m2);
                     m_RA_array.get()[i] += combined_value;
-                    if (real(combined_value) > 0.01)
-                    {
-                        cout << m1 << " " << m2 << "   " << combined_value << endl;
+                    //if (real(combined_value) > 0.01)
+                    //{
+                        //cout << m1 << " " << m2 << "   " << combined_value << endl;
 
-                        cout << hypersphere_harmonic(angle_1.first, angle_1.second,m_l, m1, m2) <<endl;
-                    }
+                        //cout << hypersphere_harmonic(angle_1.first, angle_1.second,m_l, m1, m2) <<endl;
+                    //}
                     //cout << "l " << m_l << " Just added value of " << combined_value << endl;
                     //cout << "Value in array: " << m_RA_array.get()[i] << endl;
                     //cout << "quat 0: " << qq_0.v.x << "  " << qq_0.s << endl;
@@ -179,13 +179,13 @@ void RotationalAutocorrelationFunction::compute(
       {
           //cout << "Value to add: " << m_RA_array.get()[i] << endl;
         RA_sum += m_RA_array.get()[i];
-        cout << "Cumulative value currently " << RA_sum << endl;
+        //cout << "Cumulative value currently " << RA_sum << endl;
       }
-      cout << "Getting a sum of " << RA_sum << endl;
+      //cout << "Getting a sum of " << RA_sum << endl;
       cout << "l " << m_l << " Real part is " << real(RA_sum) << endl;
       m_Ft = real(RA_sum) / Np; //TKTK
       //m_Ft = 1.0;
-      cout << "Manually set m_Ft to " << m_Ft << endl;
+      //cout << "Manually set m_Ft to " << m_Ft << endl;
     };
 
 //std::shared_ptr<float> RotationalAutocorrelationFunction::getRotationalAutocorrelationFunction()
