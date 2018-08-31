@@ -71,7 +71,9 @@ std::complex<float> hypersphere_harmonic(const std::complex<float> xi, std::comp
       {
           if (l + k -a - b >= 0) //Need to ensure that we don't have any negative factorials below
           {
-          sum_tracker = sum_tracker + cpow(std::conj(xi),k) * cpow(zeta, b-k) *
+          //sum_tracker = sum_tracker + cpow(std::conj(xi),k) * cpow(zeta, b-k) *
+          sum_tracker += cpow(std::conj(xi),k) * cpow(zeta, b-k) *
+
                             cpow(std::conj(zeta), a-k) * cpow(-xi, l+k-a-b) /
                             factorial(k) / factorial(l+k-a-b) /
                             factorial(a-k) / factorial(b-k);
@@ -79,9 +81,16 @@ std::complex<float> hypersphere_harmonic(const std::complex<float> xi, std::comp
       }
 
       //Use cpow(expression, 1/2) as a way to compute the square root
-    sum_tracker = sum_tracker * cpow(factorial(a) * factorial(l-a) *
+//    sum_tracker = sum_tracker * cpow(factorial(a) * factorial(l-a) *
+    sum_tracker *= cpow(factorial(a) * factorial(l-a) *
                                      factorial(b) * factorial(l-b) / float(l+1),
                                    1/2);
+    cout << "should be 0.577 or 1.15:   " << cpow(factorial(a) * factorial(l-a) * factorial(b) * factorial(l-b) / (float(l)+1), 1/2) << endl;
+    cout << a << " " << l-a << " " << b << endl;
+    cout << factorial(a) << endl;
+    cout << float(l)+1 << endl;
+    cout << cpow(1/3, 1/2) << endl;
+
     return sum_tracker;
   }
 
@@ -144,8 +153,19 @@ void RotationalAutocorrelationFunction::compute(
                        * hypersphere_harmonic(angle_1.first, angle_1.second,
                         m_l, m1, m2);
                     m_RA_array.get()[i] += combined_value;
-                    cout << "l " << m_l << " Just added value of " << combined_value << endl;
-                    cout << "Value in array: " << m_RA_array.get()[i] << endl;
+                    if (real(combined_value) > 0.01)
+                    {
+                        cout << m1 << " " << m2 << "   " << combined_value << endl;
+
+                        cout << hypersphere_harmonic(angle_1.first, angle_1.second,m_l, m1, m2) <<endl;
+                    }
+                    //cout << "l " << m_l << " Just added value of " << combined_value << endl;
+                    //cout << "Value in array: " << m_RA_array.get()[i] << endl;
+                    //cout << "quat 0: " << qq_0.v.x << "  " << qq_0.s << endl;
+                    //cout << "quat 1: " << qq_1.s << "  " << qq_1.v.x  << "  " << qq_1.v.y   << "  " << qq_1.v.z << endl;
+                    //cout << "angle 0: " << angle_0.first << "  " << angle_0.second << endl;
+                    //cout << "angle 1: " << angle_1.first << "  " << angle_1.second << endl;
+
                   }
                 }
               }
@@ -154,7 +174,7 @@ void RotationalAutocorrelationFunction::compute(
       std::complex<float> RA_sum = 0;
       for (unsigned int i=0; i <= Np; i++)
       {
-          cout << "Value to add: " << m_RA_array.get()[i] << endl;
+          //cout << "Value to add: " << m_RA_array.get()[i] << endl;
         RA_sum += m_RA_array.get()[i];
         cout << "Cumulative value currently " << RA_sum << endl;
       }
