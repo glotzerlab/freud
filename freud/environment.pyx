@@ -1167,13 +1167,24 @@ cdef class AngularSeparation:
             angles.
         n_global (unsigned int):
             The number of global orientations to check against.
-        neighbor_angles ((:math:`\\left(N_{neighbors}, \\right)`\
+        neighbor_angles ((:math:`\\left(N_{particles}\\timesN_{neighbors}, \\right)` :class:`numpy.ndarray`):
+            The neighbor angles in radians. **This field is only populated
+            after :py:meth`~.computeNeighbor` is called.** The array is ordered
+            according to the underlying neighborlist, so by default the points
+            are in the order passed into the constructor, and for every point
+            all its bonds are contiguous and are in increasing order of the id
+            of the neighbor particle. For example, in a simple 3 particle case
+            where particles are labeled (1, 2, 3) and two neighbors per
+            particle are requested , the order would be (1,2), (1,3), (2, 1),
+            (2, 3), (3, 1), (3, 2).
+        global_angles (:math:`\\left(N_{global}, N_{particles} \\right)`\
         :class:`numpy.ndarray`):
-            The neighbor angles in radians.
-        global_angles (:math:`\\left(N_{particles}, N_{global} \\right)`\
-        :class:`numpy.ndarray`):
-            The global angles in radians.
-    """
+            The global angles in radians. **This field is only populated after
+            :py:meth:`.computeGlobal` is called.**
+
+    .. todo Need to figure out what happens if you use a neighborlist with
+            strict_cut=True
+    """  # noqa: E501
     def __cinit__(self, rmax, n):
         self.thisptr = new freud._environment.AngularSeparation()
         self.rmax = rmax
@@ -1190,7 +1201,8 @@ cdef class AngularSeparation:
     def computeNeighbor(self, box, ref_ors, ors, ref_points, points,
                         equiv_quats, nlist=None):
         """Calculates the minimum angles of separation between ref_ors and ors,
-        checking for underlying symmetry as encoded in equiv_quats.
+        checking for underlying symmetry as encoded in equiv_quats. The result
+        is stored in the neighbor_angles class attribute.
 
         Args:
             box (:class:`freud.box.Box`):
@@ -1267,7 +1279,9 @@ cdef class AngularSeparation:
     def computeGlobal(self, global_ors, ors, equiv_quats):
         """Calculates the minimum angles of separation between
         :code:`global_ors` and :code:`ors`, checking for underlying symmetry as
-        encoded in :code`equiv_quats`.
+        encoded in :code`equiv_quats`. The result is stored in the
+        global_angles class attribute.
+
 
         Args:
             ors ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
