@@ -25,6 +25,8 @@ class TestBondOrder(unittest.TestCase):
         self.assertEqual(np.sum(bo.bond_order > 0), 12)
         self.assertEqual(bo.n_bins_theta, npt)
         self.assertEqual(bo.n_bins_phi, npp)
+        self.assertEqual(bo.box, box)
+        self.assertEqual(bo.getBox(), box)
 
         self.assertTrue(np.allclose(
             bo.theta, np.array([(2*i+1)*np.pi/6 for i in range(npt)])))
