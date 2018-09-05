@@ -131,8 +131,8 @@ class Voronoi:
         # Compute the buffer particles in C++
         vbuff = ParticleBuffer(box)
         vbuff.compute(positions, buff)
-        buff_ptls = vbuff.getBufferParticles()
-        buff_ids = vbuff.getBufferIds()
+        buff_ptls = vbuff.buffer_particles
+        buff_ids = vbuff.buffer_ids
 
         if buff_ptls.size > 0:
             self.expanded_points = np.concatenate((positions, buff_ptls))

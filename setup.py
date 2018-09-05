@@ -263,8 +263,7 @@ sources_in_all = [
 # Dict keys should be specified as the module name without
 # "freud.", i.e. not the fully qualified name.
 extra_module_sources = dict(
-    order=[os.path.join("cpp", "cluster", "Cluster.cc")],
-    _cy_kspace=[os.path.join("cpp", "kspace", "kspace.cc")]
+    order=[os.path.join("cpp", "cluster", "Cluster.cc")]
 )
 
 extensions = []
@@ -292,7 +291,7 @@ if use_cython:
 if platform.system() == 'Darwin':
     os.environ["MACOSX_DEPLOYMENT_TARGET"]= "10.9"
 
-version = '0.9.0'
+version = '0.10.0'
 
 # Read README for PyPI, fallback to short description if it fails.
 desc = 'Perform various analyses of particle simulations.'

@@ -32,7 +32,7 @@ Installing freud
 The recommended method of installing freud is using `conda <https://conda.io/docs/>`_ through the `conda-forge channel <https://conda-forge.org/>`_.
 First download and install `miniconda <https://conda.io/miniconda.html>`_ following `conda's instructions <https://conda.io/docs/user-guide/install/index.html>`_.
 Then, install freud from conda-forge:
-  
+
 .. code-block:: bash
 
     $ conda install -c conda-forge freud

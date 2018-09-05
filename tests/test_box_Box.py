@@ -300,11 +300,14 @@ class TestBox(unittest.TestCase):
         box5 = bx.Box.from_box([2, 2, 2, 1, 0.5, 0.1])
         self.assertEqual(box, box5)
 
+        box6 = bx.Box.from_box(np.array([2, 2, 2, 1, 0.5, 0.1]))
+        self.assertEqual(box, box6)
+
         with self.assertRaises(ValueError):
             bx.Box.from_box([2, 2, 2, 1, 0.5])
 
-        box6 = bx.Box.from_matrix(box.to_matrix())
-        self.assertTrue(np.isclose(box.to_matrix(), box6.to_matrix()).all())
+        box7 = bx.Box.from_matrix(box.to_matrix())
+        self.assertTrue(np.isclose(box.to_matrix(), box7.to_matrix()).all())
 
     def test_matrix(self):
         box = bx.Box(2, 2, 2, 1, 0.5, 0.1)

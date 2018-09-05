@@ -690,7 +690,7 @@ cdef class Box:
                             "The provided dimensions argument conflicts with "
                             "the dimensions attribute of the provided box "
                             "object.")
-            except (KeyError, TypeError):
+            except (IndexError, KeyError, TypeError):
                 if not len(box) in [2, 3, 6]:
                     raise ValueError(
                         "List-like objects must have length 2, 3, or 6 to be "
