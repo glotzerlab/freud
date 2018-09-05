@@ -351,12 +351,11 @@ cdef class Box:
 
         Args:
             i (unsigned int):
-                Index (:math:`0 \\leq i < d`) of the lattice vector, where \
-                :math:`d` is the box dimension (2 or 3).
+                Index (:math:`0 \\leq i < d`) of the lattice vector, where :math:`d` is the box dimension (2 or 3).
 
         Returns:
             list[float, float, float]: Lattice vector with index :math:`i`.
-        """
+        """  # noqa: E501
         cdef unsigned int index = i
         cdef vec3[float] result = self.thisptr.getLatticeVector(i)
         if self.thisptr.is2D():
@@ -372,16 +371,14 @@ cdef class Box:
                   input vectors.
 
         Args:
-            vecs (:math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` \
-            :class:`numpy.ndarray`):
+            vecs (:math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` :class:`numpy.ndarray`):
                 Single vector or array of :math:`N` vectors. The vectors are
                 altered in place and returned.
 
         Returns:
-            :math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` \
-            :class:`numpy.ndarray`:
+            :math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` :class:`numpy.ndarray`:
                 Vectors wrapped into the box.
-        """
+        """  # noqa: E501
         vecs = np.asarray(vecs)
         if vecs.ndim > 2 or vecs.shape[-1] != 3:
             raise ValueError(
@@ -411,19 +408,16 @@ cdef class Box:
         unwrap in each dimension.
 
         Args:
-            vecs (:math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` \
-            :class:`numpy.ndarray`):
+            vecs (:math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` :class:`numpy.ndarray`):
                 Single vector or array of :math:`N` vectors. The vectors are
                 modified in place.
-            imgs (:math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` \
-            :class:`numpy.ndarray`):
+            imgs (:math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` :class:`numpy.ndarray`):
                 Single image index or array of :math:`N` image indices.
 
         Returns:
-            :math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` \
-            :class:`numpy.ndarray`:
+            :math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` :class:`numpy.ndarray`:
                 Vectors unwrapped by the image indices provided.
-        """
+        """  # noqa: E501
         vecs = np.asarray(vecs)
         imgs = np.asarray(imgs)
         if vecs.shape != imgs.shape:
