@@ -234,6 +234,12 @@ cdef class BondOrder:
         nbins[1] = <np.npy_intp> self.thisptr.getNBinsTheta()
         cdef np.ndarray[float, ndim=2] result = np.PyArray_SimpleNewFromData(
             2, nbins, np.NPY_FLOAT32, <void*> bod)
+
+        # Because we divide by the surface areas, the bond order will actually
+        # be nans if we try to get the bond_order after resetting. This fixes
+        # that.
+        if np.all(np.isnan(result)):
+            result = np.zeros((nbins[0], nbins[1]), dtype=np.float32)
         return result
 
     def getBondOrder(self):
