@@ -93,7 +93,7 @@ class BondOrder
 
         std::shared_ptr<unsigned int> m_bin_counts;  //!< bin counts computed
         std::shared_ptr<float> m_bo_array;           //!< bond order array computed
-        std::shared_ptr<float> m_sa_array;           //!< bond order array computed
+        std::shared_ptr<float> m_sa_array;           //!< surface area array computed
         std::shared_ptr<float> m_theta_array;        //!< theta array computed
         std::shared_ptr<float> m_phi_array;          //!< phi order array computed
         tbb::enumerable_thread_specific<unsigned int *> m_local_bin_counts;

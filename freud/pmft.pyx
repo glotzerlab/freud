@@ -138,11 +138,11 @@ cdef class PMFTR12(_PMFT):
         r_max (float):
             Maximum distance at which to compute the PMFT.
         n_r (unsigned int):
-            Number of bins in r.
+            Number of bins in :math:`r`.
         n_t1 (unsigned int):
-            Number of bins in t1.
+            Number of bins in :math:`\\theta_1`.
         n_t2 (unsigned int):
-            Number of bins in t2.
+            Number of bins in :math:`\\theta_2`.
 
     Attributes:
         box (:py:class:`freud.box.Box`):
@@ -156,21 +156,22 @@ cdef class PMFTR12(_PMFT):
         r_cut (float):
             The cutoff used in the cell list.
         R (:math:`\\left(N_{r}\\right)` :class:`numpy.ndarray`):
-            The array of r-values for the PCF histogram.
+            The array of :math:`r`-values for the PCF histogram.
         T1 (:math:`\\left(N_{\\theta1}\\right)` :class:`numpy.ndarray`):
-            The array of T1-values for the PCF histogram.
+            The array of :math:`\\theta_1`-values for the PCF histogram.
         T2 (:math:`\\left(N_{\\theta2}\\right)` :class:`numpy.ndarray`):
-            The array of T2-values for the PCF histogram.
-        inverse_jacobian (:math:`\\left(N_{r}, N_{\\theta2}, \
-        N_{\\theta1}\\right)`):
+            The array of :math:`\\theta_2`-values for the PCF histogram.
+        inverse_jacobian (:math:`\\left(N_{r}, N_{\\theta2}, N_{\\theta1}\\right)`):
             The inverse Jacobian used in the PMFT.
-        n_bins_r (unsigned int):
-            The number of bins in the r-dimension of histogram.
+        n_bins_R (unsigned int):
+            The number of bins in the :math:`r`-dimension of the histogram.
         n_bins_T1 (unsigned int):
-            The number of bins in the T1-dimension of histogram.
+            The number of bins in the :math:`\\theta_1`-dimension of the
+            histogram.
         n_bins_T2 (unsigned int):
-            The number of bins in the T2-dimension of histogram.
-    """
+            The number of bins in the :math:`\\theta_2`-dimension of the
+            histogram.
+    """  # noqa: E501
     cdef freud._pmft.PMFTR12 * pmftr12ptr
 
     def __cinit__(self, r_max, n_r, n_t1, n_t2):
@@ -193,21 +194,19 @@ cdef class PMFTR12(_PMFT):
                 Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference points used in computation.
-            ref_orientations ((:math:`N_{particles}`, 1) or
-            (:math:`N_{particles}`,) :class:`numpy.ndarray`):
+            ref_orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`):
                 Reference orientations as angles used in computation.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,
             optional):
                 Points used in computation. Uses :code:`ref_points` if not
                 provided or :code:`None`.
-            orientations ((:math:`N_{particles}`, 1) or
-            (:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):
+            orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):
                 Orientations as angles used in computation. Uses
                 :code:`ref_orientations` if not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList used to find bonds (Default value =
                 :code:`None`).
-        """
+        """  # noqa: E501
         cdef freud.box.Box b = freud.common.convert_box(box)
         if points is None:
             points = ref_points
@@ -264,8 +263,7 @@ cdef class PMFTR12(_PMFT):
                 Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference points used in computation.
-            ref_orientations ((:math:`N_{particles}`, 4) \
-            :class:`numpy.ndarray`):
+            ref_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
                 Reference orientations as angles used in computation.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,
             optional):
@@ -278,7 +276,7 @@ cdef class PMFTR12(_PMFT):
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList used to find bonds (Default value =
                 :code:`None`).
-        """
+        """  # noqa: E501
         self.reset()
         self.accumulate(box, ref_points, ref_orientations,
                         points, orientations, nlist)
@@ -389,16 +387,16 @@ cdef class PMFTR12(_PMFT):
         return self.inverse_jacobian
 
     @property
-    def n_bins_r(self):
+    def n_bins_R(self):
         cdef unsigned int r = self.pmftr12ptr.getNBinsR()
         return r
 
     def getNBinsR(self):
         warnings.warn("The getNBinsR function is deprecated in favor "
-                      "of the n_bins_r class attribute and will be "
+                      "of the n_bins_R class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        return self.n_bins_r
+        return self.n_bins_R
 
     @property
     def n_bins_T1(self):
@@ -427,14 +425,16 @@ cdef class PMFTR12(_PMFT):
 cdef class PMFTXYT(_PMFT):
     """Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ for
     systems described by coordinates :math:`x`, :math:`y`, :math:`\\theta`
-    listed in the x, y, and t arrays.
+    listed in the ``X``, ``Y``, and ``T`` arrays.
 
-    The values of x, y, t to compute the PCF at are controlled by x_max, y_max
-    and n_bins_x, n_bins_y, n_bins_t parameters to the constructor.
-    The x_max and y_max parameters determine the minimum/maximum x, y values
+    The values of :math:`x, y, \\theta` at which to compute the PCF are
+    controlled by ``x_max``, ``y_max``, and ``n_x``, ``n_y``, ``n_t``
+    parameters to the constructor. The ``x_max`` and ``y_max`` parameters
+    determine the minimum/maximum :math:`x, y` values
     (:math:`\\min \\left(\\theta \\right) = 0`,
     (:math:`\\max \\left( \\theta \\right) = 2\\pi`) at which to compute the
-    PCF and n_bins_x, n_bins_y, n_bins_t is the number of bins in x, y, t.
+    PCF and ``n_x``, ``n_y``, ``n_t`` are the number of bins in
+    :math:`x, y, \\theta`.
 
     .. note::
         **2D:** :py:class:`freud.pmft.PMFTXYT` is only defined for 2D systems.
@@ -446,45 +446,43 @@ cdef class PMFTXYT(_PMFT):
 
     Args:
         x_max (float):
-            Maximum x distance at which to compute the PMFT.
+            Maximum :math:`x` distance at which to compute the PMFT.
         y_max (float):
-            Maximum y distance at which to compute the PMFT.
+            Maximum :math:`y` distance at which to compute the PMFT.
         n_x (unsigned int):
-            Number of bins in x.
+            Number of bins in :math:`x`.
         n_y (unsigned int):
-            Number of bins in y.
+            Number of bins in :math:`y`.
         n_t (unsigned int):
-            Number of bins in t.
+            Number of bins in :math:`\\theta`.
 
     Attributes:
         box (:py:class:`freud.box.Box`):
             Box used in the calculation.
-        bin_counts (:math:`\\left(N_{\\theta}, N_{y}, N_{x}\\right)` \
-        :class:`numpy.ndarray`):
+        bin_counts (:math:`\\left(N_{\\theta}, N_{y}, N_{x}\\right)` :class:`numpy.ndarray`):
             Bin counts.
-        PCF (:math:`\\left(N_{\\theta}, N_{y}, N_{x}\\right)` \
-        :class:`numpy.ndarray`):
+        PCF (:math:`\\left(N_{\\theta}, N_{y}, N_{x}\\right)` :class:`numpy.ndarray`):
             The positional correlation function.
-        PMFT (:math:`\\left(N_{\\theta}, N_{y}, N_{x}\\right)` \
-        :class:`numpy.ndarray`):
+        PMFT (:math:`\\left(N_{\\theta}, N_{y}, N_{x}\\right)` :class:`numpy.ndarray`):
             The potential of mean force and torque.
         r_cut (float):
             The cutoff used in the cell list.
         X (:math:`\\left(N_{x}\\right)` :class:`numpy.ndarray`):
-            The array of x-values for the PCF histogram.
+            The array of :math:`x`-values for the PCF histogram.
         Y (:math:`\\left(N_{y}\\right)` :class:`numpy.ndarray`):
-            The array of y-values for the PCF histogram.
+            The array of :math:`y`-values for the PCF histogram.
         T (:math:`\\left(N_{\\theta}\\right)` :class:`numpy.ndarray`):
-            The array of T-values for the PCF histogram.
+            The array of :math:`\\theta`-values for the PCF histogram.
         jacobian (float):
             The Jacobian used in the PMFT.
-        n_bins_x (unsigned int):
-            The number of bins in the x-dimension of histogram.
-        n_bins_y (unsigned int):
-            The number of bins in the y-dimension of histogram.
+        n_bins_X (unsigned int):
+            The number of bins in the :math:`x`-dimension of the histogram.
+        n_bins_Y (unsigned int):
+            The number of bins in the :math:`y`-dimension of the histogram.
         n_bins_T (unsigned int):
-            The number of bins in the T-dimension of histogram.
-    """
+            The number of bins in the :math:`\\theta`-dimension of the
+            histogram.
+    """  # noqa: E501
     cdef freud._pmft.PMFTXYT * pmftxytptr
 
     def __cinit__(self, x_max, y_max, n_x, n_y, n_t):
@@ -507,22 +505,25 @@ cdef class PMFTXYT(_PMFT):
                 Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference points used in computation.
-            ref_orientations ((:math:`N_{particles}`, 1) or
-            (:math:`N_{particles}`,) :class:`numpy.ndarray`):
+            ref_orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`):
                 Reference orientations as angles used in computation.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,
             optional):
                 Points used in computation. Uses :code:`ref_points` if not
                 provided or :code:`None`.
-            orientations ((:math:`N_{particles}`, 1) or
-            (:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):
+            orientations ((:math:`N_{particles}`, 1) or \ (:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):
                 Orientations as angles used in computation. Uses
                 :code:`ref_orientations` if not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList used to find bonds (Default value =
                 :code:`None`).
-        """
+        """  # noqa: E501
         cdef freud.box.Box b = freud.common.convert_box(box)
+        if points is None:
+            points = ref_points
+        if orientations is None:
+            orientations = ref_orientations
+
         ref_points = freud.common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")
@@ -573,8 +574,7 @@ cdef class PMFTXYT(_PMFT):
                 Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference points used in computation.
-            ref_orientations ((:math:`N_{particles}`, 4) \
-            :class:`numpy.ndarray`):
+            ref_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
                 Reference orientations as angles used in computation.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,
             optional):
@@ -587,7 +587,7 @@ cdef class PMFTXYT(_PMFT):
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList used to find bonds (Default value =
                 :code:`None`).
-        """
+        """  # noqa: E501
         self.reset()
         self.accumulate(box, ref_points, ref_orientations,
                         points, orientations, nlist)
@@ -729,12 +729,13 @@ cdef class PMFTXYT(_PMFT):
 
 cdef class PMFTXY2D(_PMFT):
     """Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ in
-    coordinates :math:`x`, :math:`y` listed in the x and y arrays.
+    coordinates :math:`x`, :math:`y` listed in the ``X`` and ``Y`` arrays.
 
-    The values of x and y to compute the PCF at are controlled by x_max, y_max,
-    n_x, and n_y parameters to the constructor.
-    The x_max and y_max parameters determine the minimum/maximum distance at
-    which to compute the PCF and n_x and n_y are the number of bins in x and y.
+    The values of :math:`x` and :math:`y` at which to compute the PCF are
+    controlled by ``x_max``, ``y_max``, ``n_x``, and ``n_y`` parameters to the
+    constructor. The ``x_max`` and ``y_max`` parameters determine the
+    minimum/maximum distance at which to compute the PCF and ``n_x`` and
+    ``n_y`` are the number of bins in :math:`x` and :math:`y`.
 
     .. note::
         **2D:** :py:class:`freud.pmft.PMFTXY2D` is only defined for 2D systems.
@@ -746,19 +747,18 @@ cdef class PMFTXY2D(_PMFT):
 
     Args:
         x_max (float):
-            Maximum x distance at which to compute the PMFT.
+            Maximum :math:`x` distance at which to compute the PMFT.
         y_max (float):
-            Maximum y distance at which to compute the PMFT.
+            Maximum :math:`y` distance at which to compute the PMFT.
         n_x (unsigned int):
-            Number of bins in x.
+            Number of bins in :math:`x`.
         n_y (unsigned int):
-            Number of bins in y.
+            Number of bins in :math:`y`.
 
     Attributes:
         box (:py:class:`freud.box.Box`):
             Box used in the calculation.
-        bin_counts (:math:`\\left(N_{y}, N_{x}\\right)` \
-        :class:`numpy.ndarray`):
+        bin_counts (:math:`\\left(N_{y}, N_{x}\\right)` :class:`numpy.ndarray`):
             Bin counts.
         PCF (:math:`\\left(N_{y}, N_{x}\\right)` :class:`numpy.ndarray`):
             The positional correlation function.
@@ -767,16 +767,16 @@ cdef class PMFTXY2D(_PMFT):
         r_cut (float):
             The cutoff used in the cell list.
         X (:math:`\\left(N_{x}\\right)` :class:`numpy.ndarray`):
-            The array of x-values for the PCF histogram.
+            The array of :math:`x`-values for the PCF histogram.
         Y (:math:`\\left(N_{y}\\right)` :class:`numpy.ndarray`):
-            The array of y-values for the PCF histogram.
+            The array of :math:`y`-values for the PCF histogram.
         jacobian (float):
             The Jacobian used in the PMFT.
-        n_bins_x (unsigned int):
-            The number of bins in the x-dimension of histogram.
-        n_bins_y (unsigned int):
-            The number of bins in the y-dimension of histogram.
-    """
+        n_bins_X (unsigned int):
+            The number of bins in the :math:`x`-dimension of the histogram.
+        n_bins_Y (unsigned int):
+            The number of bins in the :math:`y`-dimension of the histogram.
+    """  # noqa: E501
     cdef freud._pmft.PMFTXY2D * pmftxy2dptr
 
     def __cinit__(self, x_max, y_max, n_x, n_y):
@@ -799,22 +799,25 @@ cdef class PMFTXY2D(_PMFT):
                 Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference points used in computation.
-            ref_orientations ((:math:`N_{particles}`, 1) or
-            (:math:`N_{particles}`,) :class:`numpy.ndarray`):
+            ref_orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`):
                 Reference orientations as angles used in computation.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,
             optional):
                 Points used in computation. Uses :code:`ref_points` if not
                 provided or :code:`None`.
-            orientations ((:math:`N_{particles}`, 1) or
-            (:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):
+            orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):
                 Orientations as angles used in computation. Uses
                 :code:`ref_orientations` if not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList used to find bonds (Default value =
                 :code:`None`).
-        """
+        """  # noqa: E501
         cdef freud.box.Box b = freud.common.convert_box(box)
+        if points is None:
+            points = ref_points
+        if orientations is None:
+            orientations = ref_orientations
+
         ref_points = freud.common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")
@@ -865,8 +868,7 @@ cdef class PMFTXY2D(_PMFT):
                 Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference points used in computation.
-            ref_orientations ((:math:`N_{particles}`, 4) \
-            :class:`numpy.ndarray`):
+            ref_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
                 Reference orientations as angles used in computation.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,
             optional):
@@ -879,28 +881,11 @@ cdef class PMFTXY2D(_PMFT):
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList used to find bonds (Default value =
                 :code:`None`).
-        """
+        """  # noqa: E501
         self.reset()
         self.accumulate(box, ref_points, ref_orientations,
                         points, orientations, nlist)
         return self
-
-    @property
-    def PCF(self):
-        cdef float * pcf = self.pmftxy2dptr.getPCF().get()
-        cdef np.npy_intp nbins[2]
-        nbins[0] = <np.npy_intp> self.pmftxy2dptr.getNBinsY()
-        nbins[1] = <np.npy_intp> self.pmftxy2dptr.getNBinsX()
-        cdef np.ndarray[np.float32_t, ndim=2] result = \
-            np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, <void*> pcf)
-        return result
-
-    def getPCF(self):
-        warnings.warn("The getPCF function is deprecated in favor "
-                      "of the PCF class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.PCF
 
     @property
     def bin_counts(self):
@@ -919,6 +904,23 @@ cdef class PMFTXY2D(_PMFT):
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
         return self.bin_counts
+
+    @property
+    def PCF(self):
+        cdef float * pcf = self.pmftxy2dptr.getPCF().get()
+        cdef np.npy_intp nbins[2]
+        nbins[0] = <np.npy_intp> self.pmftxy2dptr.getNBinsY()
+        nbins[1] = <np.npy_intp> self.pmftxy2dptr.getNBinsX()
+        cdef np.ndarray[np.float32_t, ndim=2] result = \
+            np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, <void*> pcf)
+        return result
+
+    def getPCF(self):
+        warnings.warn("The getPCF function is deprecated in favor "
+                      "of the PCF class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.PCF
 
     @property
     def X(self):
@@ -991,13 +993,14 @@ cdef class PMFTXY2D(_PMFT):
 
 cdef class PMFTXYZ(_PMFT):
     """Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ in
-    coordinates :math:`x`, :math:`y`, :math:`z`, listed in the x, y, and z
-    arrays.
+    coordinates :math:`x`, :math:`y`, :math:`z`, listed in the ``X``, ``Y``,
+    and ``Z`` arrays.
 
-    The values of x, y, z to compute the PCF at are controlled by x_max, y_max,
-    z_max, n_x, n_y, and n_z parameters to the constructor. The x_max, y_max,
-    and z_max parameters determine the minimum/maximum distance at which to
-    compute the PCF and n_x, n_y, and n_z are the number of bins in x, y, z.
+    The values of :math:`x, y, z` at which to compute the PCF are controlled by
+    ``x_max``, ``y_max``, ``z_max``, ``n_x``, ``n_y``, and ``n_z`` parameters
+    to the constructor. The ``x_max``, ``y_max``, and ``z_max`` parameters]
+    determine the minimum/maximum distance at which to compute the PCF and
+    ``n_x``, ``n_y``, and ``n_z`` are the number of bins in :math:`x, y, z`.
 
     .. note::
         3D: :py:class:`freud.pmft.PMFTXYZ` is only defined for 3D systems.
@@ -1008,49 +1011,46 @@ cdef class PMFTXYZ(_PMFT):
 
     Args:
         x_max (float):
-            Maximum x distance at which to compute the PMFT.
+            Maximum :math:`x` distance at which to compute the PMFT.
         y_max (float):
-            Maximum y distance at which to compute the PMFT.
+            Maximum :math:`y` distance at which to compute the PMFT.
         z_max (float):
-            Maximum z distance at which to compute the PMFT.
+            Maximum :math:`z` distance at which to compute the PMFT.
         n_x (unsigned int):
-            Number of bins in x.
+            Number of bins in :math:`x`.
         n_y (unsigned int):
-            Number of bins in y.
+            Number of bins in :math:`y`.
         n_z (unsigned int):
-            Number of bins in z.
+            Number of bins in :math:`z`.
         shiftvec (list):
-            Vector pointing from [0,0,0] to the center of the PMFT.
+            Vector pointing from ``[0, 0, 0]`` to the center of the PMFT.
 
     Attributes:
         box (:py:class:`freud.box.Box`):
             Box used in the calculation.
-        bin_counts (:math:`\\left(N_{z}, N_{y}, N_{x}\\right)` \
-        :class:`numpy.ndarray`):
+        bin_counts (:math:`\\left(N_{z}, N_{y}, N_{x}\\right)` :class:`numpy.ndarray`):
             Bin counts.
-        PCF (:math:`\\left(N_{z}, N_{y}, N_{x}\\right)` \
-        :class:`numpy.ndarray`):
+        PCF (:math:`\\left(N_{z}, N_{y}, N_{x}\\right)` :class:`numpy.ndarray`):
             The positional correlation function.
-        PMFT (:math:`\\left(N_{z}, N_{y}, N_{x}\\right)` \
-        :class:`numpy.ndarray`):
+        PMFT (:math:`\\left(N_{z}, N_{y}, N_{x}\\right)` :class:`numpy.ndarray`):
             The potential of mean force and torque.
         r_cut (float):
             The cutoff used in the cell list.
         X (:math:`\\left(N_{x}\\right)` :class:`numpy.ndarray`):
-            The array of x-values for the PCF histogram.
+            The array of :math:`x`-values for the PCF histogram.
         Y (:math:`\\left(N_{y}\\right)` :class:`numpy.ndarray`):
-            The array of y-values for the PCF histogram.
+            The array of :math:`y`-values for the PCF histogram.
         Z (:math:`\\left(N_{z}\\right)` :class:`numpy.ndarray`):
-            The array of z-values for the PCF histogram.
+            The array of :math:`z`-values for the PCF histogram.
         jacobian (float):
             The Jacobian used in the PMFT.
-        n_bins_x (unsigned int):
-            The number of bins in the x-dimension of histogram.
-        n_bins_y (unsigned int):
-            The number of bins in the y-dimension of histogram.
-        n_bins_z (unsigned int):
-            The number of bins in the z-dimension of histogram.
-    """
+        n_bins_X (unsigned int):
+            The number of bins in the :math:`x`-dimension of the histogram.
+        n_bins_Y (unsigned int):
+            The number of bins in the :math:`y`-dimension of the histogram.
+        n_bins_Z (unsigned int):
+            The number of bins in the :math:`z`-dimension of the histogram.
+    """  # noqa: E501
     cdef freud._pmft.PMFTXYZ * pmftxyzptr
     cdef shiftvec
 
@@ -1069,16 +1069,6 @@ cdef class PMFTXYZ(_PMFT):
         if type(self) is PMFTXYZ:
             del self.pmftxyzptr
 
-    def reset(self):
-        """Resets the values of the PCF histograms in memory."""
-        self.pmftxyzptr.reset()
-
-    def resetPCF(self):
-        warnings.warn("Use .reset() instead of this method. "
-                      "This method will be removed in the future.",
-                      FreudDeprecationWarning)
-        self.reset()
-
     def accumulate(self, box, ref_points, ref_orientations, points=None,
                    orientations=None, face_orientations=None, nlist=None):
         """Calculates the positional correlation function and adds to the
@@ -1089,19 +1079,16 @@ cdef class PMFTXYZ(_PMFT):
                 Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference points used in computation.
-            ref_orientations ((:math:`N_{particles}`, 4) \
-            :class:`numpy.ndarray`):
+            ref_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
                 Reference orientations as angles used in computation.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,
             optional):
                 Points used in computation. Uses :code:`ref_points` if not
                 provided or :code:`None`.
-            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`,
-            optional):
+            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`, optional):
                 Orientations as angles used in computation. Uses
                 :code:`ref_orientations` if not provided or :code:`None`.
-            face_orientations ((:math:`N_{particles}`, 4) \
-            :class:`numpy.ndarray`, optional):
+            face_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`, optional):
                 Orientations of particle faces to account for particle
                 symmetry. If not supplied by user, unit quaternions will be
                 supplied. If a 2D array of shape (:math:`N_f`, 4) or a
@@ -1111,8 +1098,13 @@ cdef class PMFTXYZ(_PMFT):
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList used to find bonds (Default value =
                 :code:`None`).
-        """
+        """  # noqa: E501
         cdef freud.box.Box b = freud.common.convert_box(box)
+        if points is None:
+            points = ref_points
+        if orientations is None:
+            orientations = ref_orientations
+
         ref_points = freud.common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")
@@ -1220,8 +1212,7 @@ cdef class PMFTXYZ(_PMFT):
                 Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference points used in computation.
-            ref_orientations ((:math:`N_{particles}`, 4) \
-            :class:`numpy.ndarray`):
+            ref_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
                 Reference orientations as angles used in computation.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,
             optional):
@@ -1231,8 +1222,7 @@ cdef class PMFTXYZ(_PMFT):
             optional):
                 Orientations as angles used in computation. Uses
                 :code:`ref_orientations` if not provided or :code:`None`.
-            face_orientations ((:math:`N_{particles}`, 4) \
-            :class:`numpy.ndarray`, optional):
+            face_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`, optional):
                 Orientations of particle faces to account for particle
                 symmetry. If not supplied by user, unit quaternions will be
                 supplied. If a 2D array of shape (:math:`N_f`, 4) or a
@@ -1242,17 +1232,11 @@ cdef class PMFTXYZ(_PMFT):
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList used to find bonds (Default value =
                 :code:`None`).
-        """
+        """  # noqa: E501
         self.reset()
         self.accumulate(box, ref_points, ref_orientations,
                         points, orientations, face_orientations, nlist)
         return self
-
-    def reducePCF(self):
-        warnings.warn("This method is automatically called internally. It "
-                      "will be removed in the future.",
-                      FreudDeprecationWarning)
-        self.pmftxyzptr.reducePCF()
 
     @property
     def bin_counts(self):
@@ -1291,13 +1275,6 @@ cdef class PMFTXYZ(_PMFT):
                       FreudDeprecationWarning)
         return self.PCF
 
-    def getPMFT(self):
-        warnings.warn("The getPMFT function is deprecated in favor "
-                      "of the box class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return -np.log(np.copy(self.PCF))
-
     @property
     def X(self):
         cdef float * x = self.pmftxyzptr.getX().get()
@@ -1308,7 +1285,7 @@ cdef class PMFTXYZ(_PMFT):
         return result + self.shiftvec[0]
 
     def getX(self):
-        warnings.warn("The getx function is deprecated in favor "
+        warnings.warn("The getX function is deprecated in favor "
                       "of the X class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
@@ -1377,7 +1354,7 @@ cdef class PMFTXYZ(_PMFT):
 
     def getNBinsZ(self):
         warnings.warn("The getNBinsZ function is deprecated in favor "
-                      "of the Z class attribute and will be "
+                      "of the n_bins_Z class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
         return self.n_bins_Z

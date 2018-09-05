@@ -62,11 +62,9 @@ cdef class BondingAnalysis:
             Number of bonds to track.
 
     Attributes:
-        bond_lifetimes ((:math:`N_{particles}`, varying) \
-        :class:`numpy.ndarray`):
+        bond_lifetimes ((:math:`N_{particles}`, varying) :class:`numpy.ndarray`):
             Bond lifetimes.
-        overall_lifetimes ((:math:`N_{particles}`, varying) \
-        :class:`numpy.ndarray`):
+        overall_lifetimes ((:math:`N_{particles}`, varying) :class:`numpy.ndarray`):
             Overall bond lifetimes.
         transition_matrix (:class:`numpy.ndarray`):
             Transition matrix.
@@ -76,7 +74,7 @@ cdef class BondingAnalysis:
             Number of tracked particles.
         num_bonds (unsigned int):
             Number of tracked bonds.
-    """
+    """  # noqa: E501
     cdef freud._bond.BondingAnalysis * thisptr
     cdef unsigned int num_particles
     cdef unsigned int num_bonds
@@ -94,11 +92,10 @@ cdef class BondingAnalysis:
         """Calculates the changes in bonding states from one frame to the next.
 
         Args:
-            frame_0 ((:math:`N_{particles}`, :math:`N_{bonds}`) \
-            :class:`numpy.ndarray`):
+            frame_0 ((:math:`N_{particles}`, :math:`N_{bonds}`) :class:`numpy.ndarray`):
                 First bonding frame (as output from :py:class:`~.BondingR12`
                 modules).
-        """
+        """  # noqa: E501
         frame_0 = freud.common.convert_array(
             frame_0, 2, dtype=np.uint32, contiguous=True, array_name="frame_0")
         if (frame_0.shape[0] != self.num_particles):
@@ -117,15 +114,13 @@ cdef class BondingAnalysis:
         """Calculates the changes in bonding states from one frame to the next.
 
         Args:
-            frame_0 ((:math:`N_{particles}`, :math:`N_{bonds}`) \
-            :class:`numpy.ndarray`):
+            frame_0 ((:math:`N_{particles}`, :math:`N_{bonds}`) :class:`numpy.ndarray`):
                 Current/previous bonding frame (as output from
                 :py:class:`.BondingR12` modules).
-            frame_1 ((:math:`N_{particles}`, :math:`N_{bonds}`) \
-            :class:`numpy.ndarray`):
+            frame_1 ((:math:`N_{particles}`, :math:`N_{bonds}`) :class:`numpy.ndarray`):
                 Next/current bonding frame (as output from
                 :py:class:`.BondingR12` modules).
-        """
+        """  # noqa: E501
         frame_0 = freud.common.convert_array(
             frame_0, 2, dtype=np.uint32, contiguous=True, array_name="frame_0")
         frame_1 = freud.common.convert_array(
@@ -271,20 +266,18 @@ cdef class BondingR12:
                 Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference points used to calculate the bonding.
-            ref_orientations ((:math:`N_{particles}`, 1) or
-            (:math:`N_{particles}`,) :class:`numpy.ndarray`):
+            ref_orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`):
                 Reference orientations as angles to use in computation.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Points used to calculate the bonding. Uses :code:`ref_points`
                 if not provided or :code:`None`.
-            orientations ((:math:`N_{particles}`, 1) or
-            (:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):
+            orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):
                 Orientations as angles to use in computation. Uses
                 :code:`ref_orientations` if not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
-        """
+        """  # noqa: E501
         cdef freud.box.Box b = freud.common.convert_box(box)
 
         if points is None:
@@ -439,20 +432,18 @@ cdef class BondingXY2D:
                 Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference points used to calculate the bonding.
-            ref_orientations ((:math:`N_{particles}`, 1) or
-            (:math:`N_{particles}`,) :class:`numpy.ndarray`):
+            ref_orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`):
                 Reference orientations as angles to use in computation.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Points used to calculate the bonding. Uses :code:`ref_points`
                 if not provided or :code:`None`.
-            orientations ((:math:`N_{particles}`, 1) or
-            (:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):
+            orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):
                 Orientations as angles to use in computation. Uses
                 :code:`ref_orientations` if not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
-        """
+        """  # noqa: E501
         cdef freud.box.Box b = freud.common.convert_box(box)
 
         if points is None:
@@ -612,20 +603,18 @@ cdef class BondingXYT:
                 Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference points used to calculate the bonding.
-            ref_orientations ((:math:`N_{particles}`, 1) or
-            (:math:`N_{particles}`,) :class:`numpy.ndarray`):
+            ref_orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`):
                 Reference orientations as angles to use in computation.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Points used to calculate the bonding. Uses :code:`ref_points`
                 if not provided or :code:`None`.
-            orientations ((:math:`N_{particles}`, 1) or
-            (:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):
+            orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):
                 Orientations as angles to use in computation. Uses
                 :code:`ref_orientations` if not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
-        """
+        """  # noqa: E501
         cdef freud.box.Box b = freud.common.convert_box(box)
 
         if points is None:
@@ -787,8 +776,7 @@ cdef class BondingXYZ:
                 Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference points used to calculate the bonding.
-            ref_orientations ((:math:`N_{particles}`, 4) \
-            :class:`numpy.ndarray`):
+            ref_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
                 Reference orientations as quaternions to use in computation.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Points used to calculate the bonding. Uses :code:`ref_points`
@@ -799,7 +787,7 @@ cdef class BondingXYZ:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
-        """
+        """  # noqa: E501
         cdef freud.box.Box b = freud.common.convert_box(box)
 
         if points is None:

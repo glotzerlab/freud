@@ -21,4 +21,4 @@ References and Citations
           local bond order parameters. Journal of Chemical Physics, 129(11). https://doi.org/10.1063/1.2977970
 
 .. [Steinhardt1983] P.J. Steinhardt, D.R. Nelson, and M. Ronchetti (1983). Bond-orientational order in liquids and
-          glasses. Phys. Rev. B 28(784). https://doi.org/10.1103/PhysRevFluids.2.093301
+          glasses. Phys. Rev. B 28(784). https://doi.org/10.1103/PhysRevB.28.784

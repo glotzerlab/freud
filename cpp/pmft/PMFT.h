@@ -68,7 +68,7 @@ class PMFT
         unsigned int m_frame_counter;      //!< number of frames calc'd
         unsigned int m_n_ref;              //!< The number of reference points
         unsigned int m_n_p;                //!< The number of points
-        bool m_reduce;                     //!< Whether or not the PCF has been reduced yet
+        bool m_reduce;                     //!< Whether or not the PCF needs to be reduced
 
         std::shared_ptr<float> m_pcf_array;            //!< array of pcf computed
         std::shared_ptr<unsigned int> m_bin_counts;    //!< Counts for each bin
