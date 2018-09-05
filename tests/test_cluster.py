@@ -2,9 +2,13 @@ import numpy as np
 import freud
 import unittest
 import util
+from freud.errors import FreudDeprecationWarning
+import warnings
 
 
 class TestCluster(unittest.TestCase):
+    def setUp(self):
+        warnings.simplefilter("ignore", category=FreudDeprecationWarning)
 
     def test_cluster_props(self):
         Nlattice = 4
@@ -21,13 +25,52 @@ class TestCluster(unittest.TestCase):
         Ngrid = positions[-1].shape[0]
         positions = np.array(positions).reshape((-1, 3))
 
+        # Test box access
+        clust = freud.cluster.Cluster(box, 0.5)
+        self.assertEqual(clust.box, box)
+        self.assertEqual(clust.getBox(), box)
+
+        # Test with explicit box provided
+        clust.computeClusters(positions, box=box)
+
+        # Test all deprecated APIs
+        props = freud.cluster.ClusterProperties(box)
+        props.computeProperties(positions, clust.cluster_idx, box=box)
+        self.assertEqual(props.num_clusters, Ngrid)
+        self.assertTrue(np.all(props.cluster_sizes == Nrep))
+
+        # Test without explicit box provided
+        clust.computeClusters(positions)
+
+        # Test all property APIs
+        props = freud.cluster.ClusterProperties(box)
+        props.computeProperties(positions, clust.getClusterIdx(), box=box)
+        self.assertEqual(props.getNumClusters(), Ngrid)
+        self.assertTrue(np.all(props.getClusterSizes() == Nrep))
+
+    def test_cluster_props_advanced(self):
+        """Test radius of gyration and COM calculations"""
+        box = freud.box.Box.square(L=5)
+        positions = np.array([[0, -2, 0],
+                              [0, -2, 0],
+                              [0, 2, 0],
+                              [-0.1, 1.9, 0]])
         clust = freud.cluster.Cluster(box, 0.5)
         clust.computeClusters(positions, box=box)
 
         props = freud.cluster.ClusterProperties(box)
         props.computeProperties(positions, clust.cluster_idx, box=box)
-        self.assertEqual(props.num_clusters, Ngrid)
-        self.assertTrue(np.all(props.cluster_sizes == Nrep))
+
+        com_1 = np.array([[0, -2, 0]])
+        com_2 = np.array([[-0.05, 1.95, 0]])
+        g_tensor_2 = np.array([[0.0025, 0.0025, 0],
+                               [0.0025, 0.0025, 0],
+                               [0, 0, 0]])
+        self.assertTrue(np.all(props.cluster_COM[0, :] == com_1))
+        self.assertTrue(np.allclose(props.getClusterCOM()[1, :], com_2))
+        self.assertTrue(np.all(props.cluster_G[0] == 0))
+        self.assertTrue(np.allclose(props.cluster_G[1], g_tensor_2))
+        self.assertTrue(np.all(props.cluster_G == props.getClusterG()))
 
     def test_cluster_keys(self):
         Nlattice = 4
@@ -49,6 +92,7 @@ class TestCluster(unittest.TestCase):
         clust.computeClusterMembership(np.array(range(Nrep*Ngrid)))
 
         self.assertEqual(len(clust.cluster_keys), Ngrid)
+        self.assertEqual(len(clust.getClusterKeys()), Ngrid)
 
         ckeys = np.array(clust.cluster_keys) % Ngrid
         check_values = np.arange(Ngrid)[:, np.newaxis].repeat(Nrep, axis=1)

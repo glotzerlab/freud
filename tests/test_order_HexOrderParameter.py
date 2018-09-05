@@ -8,13 +8,13 @@ class TestHexOrderParameter(unittest.TestCase):
     def test_getK(self):
         rmax = 3
         hop = freud.order.HexOrderParameter(rmax)
-        npt.assert_equal(hop.k, 6)
+        npt.assert_equal(hop.K, 6)
 
     def test_getK_pass(self):
         rmax = 3
         k = 3
         hop = freud.order.HexOrderParameter(rmax, k)
-        npt.assert_equal(hop.k, 3)
+        npt.assert_equal(hop.K, 3)
 
     def test_getNP(self):
         boxlen = 10

@@ -6,17 +6,12 @@
         "depends": [
             "/usr/lib/python3.7/site-packages/numpy/core/include/numpy/arrayobject.h",
             "/usr/lib/python3.7/site-packages/numpy/core/include/numpy/ufuncobject.h",
-            "cpp/box/box.cc",
             "cpp/box/box.h",
-            "cpp/locality/LinkCell.cc",
             "cpp/locality/LinkCell.h",
-            "cpp/locality/NearestNeighbors.cc",
             "cpp/locality/NearestNeighbors.h",
-            "cpp/locality/NeighborList.cc",
             "cpp/locality/NeighborList.h",
             "cpp/util/Index1D.h",
             "cpp/util/VectorMath.h",
-            "cpp/voronoi/VoronoiBuffer.cc",
             "cpp/voronoi/VoronoiBuffer.h"
         ],
         "extra_compile_args": [
@@ -32,7 +27,6 @@
             "cpp/util",
             "cpp/order",
             "cpp/parallel",
-            "cpp/interface",
             "cpp/cluster",
             "cpp/environment",
             "cpp/locality",
@@ -41,7 +35,8 @@
             "cpp/voronoi",
             "cpp/registration",
             "cpp/pmft",
-            "cpp/kspace"
+            "cpp/kspace",
+            "/usr/include"
         ],
         "language": "c++",
         "libraries": [
@@ -50,7 +45,12 @@
         "name": "freud.voronoi",
         "sources": [
             "freud/voronoi.pyx",
-            "cpp/util/HOOMDMatrix.cc"
+            "cpp/voronoi/VoronoiBuffer.cc",
+            "cpp/locality/NeighborList.cc",
+            "cpp/locality/NearestNeighbors.cc",
+            "cpp/util/HOOMDMatrix.cc",
+            "cpp/box/box.cc",
+            "cpp/locality/LinkCell.cc"
         ]
     },
     "module_name": "freud.voronoi"
@@ -642,16 +642,11 @@ static CYTHON_INLINE float __PYX_NAN() {
 #include <memory>
 #include <string.h>
 #include <string>
-#include "box.cc"
 #include "box.h"
-#include "VoronoiBuffer.cc"
 #include "VoronoiBuffer.h"
 #include "Index1D.h"
-#include "NeighborList.cc"
 #include "NeighborList.h"
-#include "LinkCell.cc"
 #include "LinkCell.h"
-#include "NearestNeighbors.cc"
 #include "NearestNeighbors.h"
 #include <stdio.h>
 #include "numpy/arrayobject.h"
@@ -930,7 +925,7 @@ typedef struct {
  * 
  * ctypedef unsigned int uint             # <<<<<<<<<<<<<<
  * 
- * cdef extern from "VoronoiBuffer.cc" namespace "freud::voronoi":
+ * cdef extern from "VoronoiBuffer.h" namespace "freud::voronoi":
  */
 typedef unsigned int __pyx_t_5freud_8_voronoi_uint;
 
@@ -1265,7 +1260,7 @@ struct __pyx_obj_5freud_8locality_NearestNeighbors {
 };
 
 
-/* "freud/voronoi.pyx":41
+/* "freud/voronoi.pyx":43
  * np.import_array()
  * 
  * cdef class VoronoiBuffer:             # <<<<<<<<<<<<<<
@@ -2099,6 +2094,7 @@ int __pyx_module_is_main_freud__voronoi = 0;
 
 /* Implementation of 'freud.voronoi' */
 static PyObject *__pyx_builtin_ImportError;
+static PyObject *__pyx_builtin_property;
 static PyObject *__pyx_builtin_RuntimeError;
 static PyObject *__pyx_builtin_TypeError;
 static PyObject *__pyx_builtin_range;
@@ -2110,11 +2106,12 @@ static const char __pyx_k_i[] = "i";
 static const char __pyx_k_j[] = "j";
 static const char __pyx_k_k[] = "k";
 static const char __pyx_k_x[] = "x";
+static const char __pyx_k_Np[] = "Np";
 static const char __pyx_k_c0[] = "c0";
 static const char __pyx_k_c1[] = "c1";
 static const char __pyx_k_c2[] = "c2";
 static const char __pyx_k_np[] = "np";
-static const char __pyx_k__46[] = "_";
+static const char __pyx_k__60[] = "_";
 static const char __pyx_k_abs[] = "abs";
 static const char __pyx_k_all[] = "all";
 static const char __pyx_k_box[] = "box";
@@ -2137,11 +2134,14 @@ static const char __pyx_k_roll[] = "roll";
 static const char __pyx_k_self[] = "self";
 static const char __pyx_k_size[] = "size";
 static const char __pyx_k_test[] = "__test__";
+static const char __pyx_k_warn[] = "warn";
 static const char __pyx_k_array[] = "array";
+static const char __pyx_k_box_2[] = "_box";
 static const char __pyx_k_count[] = "count";
 static const char __pyx_k_cross[] = "cross";
 static const char __pyx_k_dtype[] = "dtype";
 static const char __pyx_k_freud[] = "freud";
+static const char __pyx_k_nlist[] = "nlist";
 static const char __pyx_k_numpy[] = "numpy";
 static const char __pyx_k_range[] = "range";
 static const char __pyx_k_shape[] = "shape";
@@ -2151,6 +2151,7 @@ static const char __pyx_k_zeros[] = "zeros";
 static const char __pyx_k_append[] = "append";
 static const char __pyx_k_arange[] = "arange";
 static const char __pyx_k_argmax[] = "argmax";
+static const char __pyx_k_buff_2[] = "_buff";
 static const char __pyx_k_buffer[] = "buffer";
 static const char __pyx_k_common[] = "common";
 static const char __pyx_k_import[] = "__import__";
@@ -2170,6 +2171,7 @@ static const char __pyx_k_weight[] = "weight";
 static const char __pyx_k_Voronoi[] = "Voronoi";
 static const char __pyx_k_added_i[] = "added_i";
 static const char __pyx_k_added_j[] = "added_j";
+static const char __pyx_k_cPoints[] = "cPoints";
 static const char __pyx_k_compute[] = "compute";
 static const char __pyx_k_float32[] = "float32";
 static const char __pyx_k_index_i[] = "index_i";
@@ -2177,6 +2179,7 @@ static const char __pyx_k_index_j[] = "index_j";
 static const char __pyx_k_logging[] = "logging";
 static const char __pyx_k_prepare[] = "__prepare__";
 static const char __pyx_k_regions[] = "regions";
+static const char __pyx_k_volumes[] = "volumes";
 static const char __pyx_k_voronoi[] = "voronoi";
 static const char __pyx_k_warning[] = "warning";
 static const char __pyx_k_weights[] = "weights";
@@ -2184,10 +2187,12 @@ static const char __pyx_k_buff_ids[] = "buff_ids";
 static const char __pyx_k_getstate[] = "__getstate__";
 static const char __pyx_k_indexAry[] = "indexAry";
 static const char __pyx_k_norm_vec[] = "norm_vec";
+static const char __pyx_k_property[] = "property";
 static const char __pyx_k_qualname[] = "__qualname__";
 static const char __pyx_k_qvoronoi[] = "qvoronoi";
 static const char __pyx_k_setstate[] = "__setstate__";
 static const char __pyx_k_vertices[] = "vertices";
+static const char __pyx_k_warnings[] = "warnings";
 static const char __pyx_k_TypeError[] = "TypeError";
 static const char __pyx_k_buff_ptls[] = "buff_ptls";
 static const char __pyx_k_enumerate[] = "enumerate";
@@ -2195,15 +2200,18 @@ static const char __pyx_k_getBuffer[] = "getBuffer";
 static const char __pyx_k_getLogger[] = "getLogger";
 static const char __pyx_k_metaclass[] = "__metaclass__";
 static const char __pyx_k_numShells[] = "numShells";
+static const char __pyx_k_polytopes[] = "polytopes";
 static const char __pyx_k_positions[] = "positions";
+static const char __pyx_k_pyx_state[] = "__pyx_state";
 static const char __pyx_k_reduce_ex[] = "__reduce_ex__";
 static const char __pyx_k_ConvexHull[] = "ConvexHull";
 static const char __pyx_k_ValueError[] = "ValueError";
 static const char __pyx_k_array_name[] = "array_name";
+static const char __pyx_k_buffer_ids[] = "buffer_ids";
 static const char __pyx_k_contiguous[] = "contiguous";
 static const char __pyx_k_exclude_ii[] = "exclude_ii";
 static const char __pyx_k_getVolumes[] = "getVolumes";
-static const char __pyx_k_poly_verts[] = "poly_verts";
+static const char __pyx_k_poly_verts[] = "_poly_verts";
 static const char __pyx_k_pyx_vtable[] = "__pyx_vtable__";
 static const char __pyx_k_ImportError[] = "ImportError";
 static const char __pyx_k_concatenate[] = "concatenate";
@@ -2212,13 +2220,16 @@ static const char __pyx_k_from_arrays[] = "from_arrays";
 static const char __pyx_k_RuntimeError[] = "RuntimeError";
 static const char __pyx_k_expanded_ids[] = "expanded_ids";
 static const char __pyx_k_freud_common[] = "freud.common";
+static const char __pyx_k_freud_errors[] = "freud.errors";
 static const char __pyx_k_getBufferIds[] = "getBufferIds";
 static const char __pyx_k_getNeighbors[] = "getNeighbors";
 static const char __pyx_k_numNeighbors[] = "numNeighbors";
 static const char __pyx_k_point_region[] = "point_region";
-static const char __pyx_k_poly_volumes[] = "poly_volumes";
+static const char __pyx_k_poly_volumes[] = "_poly_volumes";
 static const char __pyx_k_ridge_points[] = "ridge_points";
+static const char __pyx_k_stringsource[] = "stringsource";
 static const char __pyx_k_vor_vertices[] = "vor_vertices";
+static const char __pyx_k_Voronoi_nlist[] = "Voronoi.nlist";
 static const char __pyx_k_convert_array[] = "convert_array";
 static const char __pyx_k_freud_voronoi[] = "freud.voronoi";
 static const char __pyx_k_neighbor_list[] = "neighbor_list";
@@ -2227,6 +2238,7 @@ static const char __pyx_k_reduce_cython[] = "__reduce_cython__";
 static const char __pyx_k_scipy_spatial[] = "scipy.spatial";
 static const char __pyx_k_vertex_coords[] = "vertex_coords";
 static const char __pyx_k_Voronoi___init[] = "Voronoi.__init__";
+static const char __pyx_k_Voronoi_buffer[] = "Voronoi.buffer";
 static const char __pyx_k_Voronoi_setBox[] = "Voronoi.setBox";
 static const char __pyx_k_computeVolumes[] = "computeVolumes";
 static const char __pyx_k_polytope_verts[] = "polytope_verts";
@@ -2235,12 +2247,15 @@ static const char __pyx_k_ridge_vertices[] = "ridge_vertices";
 static const char __pyx_k_setBufferWidth[] = "setBufferWidth";
 static const char __pyx_k_SCIPY_AVAILABLE[] = "_SCIPY_AVAILABLE";
 static const char __pyx_k_Voronoi_compute[] = "Voronoi.compute";
+static const char __pyx_k_Voronoi_volumes[] = "Voronoi.volumes";
 static const char __pyx_k_expanded_points[] = "expanded_points";
 static const char __pyx_k_getNeighborList[] = "getNeighborList";
 static const char __pyx_k_setstate_cython[] = "__setstate_cython__";
+static const char __pyx_k_buffer_particles[] = "buffer_particles";
 static const char __pyx_k_computeNeighbors[] = "computeNeighbors";
 static const char __pyx_k_firstShellWeight[] = "firstShellWeight";
 static const char __pyx_k_Voronoi_getBuffer[] = "Voronoi.getBuffer";
+static const char __pyx_k_Voronoi_polytopes[] = "Voronoi.polytopes";
 static const char __pyx_k_freud_voronoi_pyx[] = "freud/voronoi.pyx";
 static const char __pyx_k_Voronoi_getVolumes[] = "Voronoi.getVolumes";
 static const char __pyx_k_cline_in_traceback[] = "cline_in_traceback";
@@ -2248,21 +2263,33 @@ static const char __pyx_k_getBufferParticles[] = "getBufferParticles";
 static const char __pyx_k_dummy_neighbor_list[] = "dummy_neighbor_list";
 static const char __pyx_k_getVoronoiPolytopes[] = "getVoronoiPolytopes";
 static const char __pyx_k_Voronoi_getNeighbors[] = "Voronoi.getNeighbors";
+static const char __pyx_k_VoronoiBuffer_compute[] = "VoronoiBuffer.compute";
 static const char __pyx_k_Voronoi__qhull_compute[] = "Voronoi._qhull_compute";
 static const char __pyx_k_Voronoi_computeVolumes[] = "Voronoi.computeVolumes";
 static const char __pyx_k_Voronoi_setBufferWidth[] = "Voronoi.setBufferWidth";
 static const char __pyx_k_firstShellNeighborList[] = "firstShellNeighborList";
+static const char __pyx_k_FreudDeprecationWarning[] = "FreudDeprecationWarning";
 static const char __pyx_k_Voronoi_getNeighborList[] = "Voronoi.getNeighborList";
 static const char __pyx_k_Voronoi_computeNeighbors[] = "Voronoi.computeNeighbors";
+static const char __pyx_k_VoronoiBuffer_getBufferIds[] = "VoronoiBuffer.getBufferIds";
 static const char __pyx_k_Voronoi_getVoronoiPolytopes[] = "Voronoi.getVoronoiPolytopes";
 static const char __pyx_k_ndarray_is_not_C_contiguous[] = "ndarray is not C contiguous";
+static const char __pyx_k_VoronoiBuffer___reduce_cython[] = "VoronoiBuffer.__reduce_cython__";
+static const char __pyx_k_The_getBufferParticles_function[] = "The getBufferParticles function is deprecated in favor of the buffer_particles class attribute and will be removed in a future version of freud.";
+static const char __pyx_k_The_getNeighborList_function_is[] = "The getNeighborList function is deprecated in favor of the nlist class attribute and will be removed in a future version of freud.";
 static const char __pyx_k_The_voronoi_module_contains_too[] = "\nThe voronoi module contains tools to characterize Voronoi cells of a system.\n";
+static const char __pyx_k_VoronoiBuffer___setstate_cython[] = "VoronoiBuffer.__setstate_cython__";
 static const char __pyx_k_numpy_core_multiarray_failed_to[] = "numpy.core.multiarray failed to import";
 static const char __pyx_k_unknown_dtype_code_in_numpy_pxd[] = "unknown dtype code in numpy.pxd (%d)";
-static const char __pyx_k_Compute_the_Voronoi_tessellation[] = "Compute the Voronoi tessellation of a 2D or 3D system using qhull.\n    This uses :py:class:`scipy.spatial.Voronoi`, accounting for periodic\n    boundary conditions.\n\n    .. moduleauthor:: Benjamin Schultz <baschult@umich.edu>\n    .. moduleauthor:: Yina Geng <yinageng@umich.edu>\n    .. moduleauthor:: Mayank Agrawal <amayank@umich.edu>\n    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>\n\n    Since qhull does not support periodic boundary conditions natively, we\n    expand the box to include a portion of the particles' periodic images.\n    The buffer width is given by the parameter :code:`buff`. The\n    computation of Voronoi tessellations and neighbors is only guaranteed\n    to be correct if :code:`buff >= L/2` where :code:`L` is the longest side\n    of the simulation box. For dense systems with particles filling the\n    entire simulation volume, a smaller value for :code:`buff` is acceptable.\n\n    Args:\n        box (:py:class:`freud.box.Box`):\n            Simulation box.\n        buff (float):\n            Buffer width.\n    ";
+static const char __pyx_k_Compute_the_Voronoi_tessellation[] = "Compute the Voronoi tessellation of a 2D or 3D system using qhull.\n    This uses :py:class:`scipy.spatial.Voronoi`, accounting for periodic\n    boundary conditions.\n\n    .. moduleauthor:: Benjamin Schultz <baschult@umich.edu>\n    .. moduleauthor:: Yina Geng <yinageng@umich.edu>\n    .. moduleauthor:: Mayank Agrawal <amayank@umich.edu>\n    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>\n\n    Since qhull does not support periodic boundary conditions natively, we\n    expand the box to include a portion of the particles' periodic images.\n    The buffer width is given by the parameter :code:`buff`. The\n    computation of Voronoi tessellations and neighbors is only guaranteed\n    to be correct if :code:`buff >= L/2` where :code:`L` is the longest side\n    of the simulation box. For dense systems with particles filling the\n    entire simulation volume, a smaller value for :code:`buff` is acceptable.\n    If the buffer width is too small, then some polytopes may not be closed\n    (they may have a boundary at infinity), and these polytopes' vertices are\n    excluded from the list.  If either the polytopes or volumes lists that are\n    computed is different from the size of the array of positions used in the\n    :py:meth:`freud.voronoi.Voronoi.compute()` method, try recomputing using a\n    larger buffer width.\n\n    Args:\n        box (:py:class:`freud.box.Box`):\n            Simulation box.\n        buff (float):\n            Buffer width.\n\n    Attributes:\n        buffer (float):\n            Buffer width.\n        nlist (:class:`~.locality.NeighborList`):\n            Returns a weighted neighbor list.  In 2D systems, the bond weight\n            is the \"ridge length\" of the Voronoi boundary line between the\n            neighboring particles.  In 3D systems, the bond weight is the\n            \"ridge area\" of the Voronoi boundary polygon between the\n            neighboring particles.\n        polytopes (list[:class:`numpy.ndarray`]):\n    ""        List of arrays, each containing Voronoi polytope vertices.\n        volumes ((:math:`\\left(N_{cells} \\right)`) :class:`numpy.ndarray`):\n            Returns an array of volumes (areas in 2D) corresponding to Voronoi\n            cells.\n    ";
 static const char __pyx_k_Format_string_allocated_too_shor[] = "Format string allocated too short, see comment in numpy.pxd";
 static const char __pyx_k_Need_a_list_of_3D_points_for_Vor[] = "Need a list of 3D points for VoronoiBuffer.compute()";
 static const char __pyx_k_Non_native_byte_order_not_suppor[] = "Non-native byte order not supported";
+static const char __pyx_k_The_getBufferIds_function_is_dep[] = "The getBufferIds function is deprecated in favor of the buffer_ids class attribute and will be removed in a future version of freud.";
+static const char __pyx_k_The_getBuffer_function_is_deprec[] = "The getBuffer function is deprecated in favor of the buffer class attribute and will be removed in a future version of freud.";
+static const char __pyx_k_Use_constructor_arguments_instea[] = "Use constructor arguments instead of this setter. This setter will be removed in the future.";
+static const char __pyx_k_Use_the_box_with_compute_instead[] = "Use the box with .compute() instead of this setter. This setter will be removed in the future.";
+static const char __pyx_k_VoronoiBuffer_getBufferParticles[] = "VoronoiBuffer.getBufferParticles";
 static const char __pyx_k_You_cannot_use_this_class_withou[] = "You cannot use this class without scipy";
 static const char __pyx_k_ndarray_is_not_Fortran_contiguou[] = "ndarray is not Fortran contiguous";
 static const char __pyx_k_no_default___reduce___due_to_non[] = "no default __reduce__ due to non-trivial __cinit__";
@@ -2274,17 +2301,31 @@ static PyObject *__pyx_kp_s_Compute_the_Voronoi_tessellation;
 static PyObject *__pyx_n_s_ConvexHull;
 static PyObject *__pyx_kp_u_Format_string_allocated_too_shor;
 static PyObject *__pyx_kp_u_Format_string_allocated_too_shor_2;
+static PyObject *__pyx_n_s_FreudDeprecationWarning;
 static PyObject *__pyx_n_s_ImportError;
 static PyObject *__pyx_n_s_N;
 static PyObject *__pyx_kp_s_Need_a_list_of_3D_points_for_Vor;
 static PyObject *__pyx_kp_u_Non_native_byte_order_not_suppor;
+static PyObject *__pyx_n_s_Np;
 static PyObject *__pyx_n_s_RuntimeError;
 static PyObject *__pyx_n_s_SCIPY_AVAILABLE;
+static PyObject *__pyx_kp_s_The_getBufferIds_function_is_dep;
+static PyObject *__pyx_kp_s_The_getBufferParticles_function;
+static PyObject *__pyx_kp_s_The_getBuffer_function_is_deprec;
+static PyObject *__pyx_kp_s_The_getNeighborList_function_is;
 static PyObject *__pyx_n_s_TypeError;
+static PyObject *__pyx_kp_s_Use_constructor_arguments_instea;
+static PyObject *__pyx_kp_s_Use_the_box_with_compute_instead;
 static PyObject *__pyx_n_s_ValueError;
 static PyObject *__pyx_n_s_Voronoi;
+static PyObject *__pyx_n_s_VoronoiBuffer___reduce_cython;
+static PyObject *__pyx_n_s_VoronoiBuffer___setstate_cython;
+static PyObject *__pyx_n_s_VoronoiBuffer_compute;
+static PyObject *__pyx_n_s_VoronoiBuffer_getBufferIds;
+static PyObject *__pyx_n_s_VoronoiBuffer_getBufferParticles;
 static PyObject *__pyx_n_s_Voronoi___init;
 static PyObject *__pyx_n_s_Voronoi__qhull_compute;
+static PyObject *__pyx_n_s_Voronoi_buffer;
 static PyObject *__pyx_n_s_Voronoi_compute;
 static PyObject *__pyx_n_s_Voronoi_computeNeighbors;
 static PyObject *__pyx_n_s_Voronoi_computeVolumes;
@@ -2293,11 +2334,14 @@ static PyObject *__pyx_n_s_Voronoi_getNeighborList;
 static PyObject *__pyx_n_s_Voronoi_getNeighbors;
 static PyObject *__pyx_n_s_Voronoi_getVolumes;
 static PyObject *__pyx_n_s_Voronoi_getVoronoiPolytopes;
+static PyObject *__pyx_n_s_Voronoi_nlist;
+static PyObject *__pyx_n_s_Voronoi_polytopes;
 static PyObject *__pyx_n_s_Voronoi_setBox;
 static PyObject *__pyx_n_s_Voronoi_setBufferWidth;
+static PyObject *__pyx_n_s_Voronoi_volumes;
 static PyObject *__pyx_kp_s_You_cannot_use_this_class_withou;
 static PyObject *__pyx_kp_s_You_cannot_use_this_class_withou_2;
-static PyObject *__pyx_n_s__46;
+static PyObject *__pyx_n_s__60;
 static PyObject *__pyx_n_s_abs;
 static PyObject *__pyx_n_s_added_i;
 static PyObject *__pyx_n_s_added_j;
@@ -2309,13 +2353,18 @@ static PyObject *__pyx_n_s_array;
 static PyObject *__pyx_n_s_array_name;
 static PyObject *__pyx_n_s_b;
 static PyObject *__pyx_n_s_box;
+static PyObject *__pyx_n_s_box_2;
 static PyObject *__pyx_n_s_buff;
+static PyObject *__pyx_n_s_buff_2;
 static PyObject *__pyx_n_s_buff_ids;
 static PyObject *__pyx_n_s_buff_ptls;
 static PyObject *__pyx_n_s_buffer;
+static PyObject *__pyx_n_s_buffer_ids;
+static PyObject *__pyx_n_s_buffer_particles;
 static PyObject *__pyx_n_s_c0;
 static PyObject *__pyx_n_s_c1;
 static PyObject *__pyx_n_s_c2;
+static PyObject *__pyx_n_s_cPoints;
 static PyObject *__pyx_n_s_cline_in_traceback;
 static PyObject *__pyx_n_s_common;
 static PyObject *__pyx_n_s_compute;
@@ -2341,6 +2390,7 @@ static PyObject *__pyx_n_s_firstShellWeight;
 static PyObject *__pyx_n_s_float32;
 static PyObject *__pyx_n_s_freud;
 static PyObject *__pyx_n_s_freud_common;
+static PyObject *__pyx_n_s_freud_errors;
 static PyObject *__pyx_n_s_freud_voronoi;
 static PyObject *__pyx_kp_s_freud_voronoi_pyx;
 static PyObject *__pyx_n_s_from_arrays;
@@ -2375,6 +2425,7 @@ static PyObject *__pyx_n_s_name;
 static PyObject *__pyx_kp_u_ndarray_is_not_C_contiguous;
 static PyObject *__pyx_kp_u_ndarray_is_not_Fortran_contiguou;
 static PyObject *__pyx_n_s_neighbor_list;
+static PyObject *__pyx_n_s_nlist;
 static PyObject *__pyx_kp_s_no_default___reduce___due_to_non;
 static PyObject *__pyx_n_s_norm;
 static PyObject *__pyx_n_s_norm_vec;
@@ -2389,9 +2440,12 @@ static PyObject *__pyx_n_s_points;
 static PyObject *__pyx_n_s_poly_verts;
 static PyObject *__pyx_n_s_poly_volumes;
 static PyObject *__pyx_n_s_polytope_verts;
+static PyObject *__pyx_n_s_polytopes;
 static PyObject *__pyx_n_s_positions;
 static PyObject *__pyx_n_s_prepare;
 static PyObject *__pyx_n_s_projected_area;
+static PyObject *__pyx_n_s_property;
+static PyObject *__pyx_n_s_pyx_state;
 static PyObject *__pyx_n_s_pyx_vtable;
 static PyObject *__pyx_n_s_qhull_compute;
 static PyObject *__pyx_n_s_qualname;
@@ -2418,6 +2472,7 @@ static PyObject *__pyx_n_s_setstate;
 static PyObject *__pyx_n_s_setstate_cython;
 static PyObject *__pyx_n_s_shape;
 static PyObject *__pyx_n_s_size;
+static PyObject *__pyx_kp_s_stringsource;
 static PyObject *__pyx_n_s_test;
 static PyObject *__pyx_n_s_uint32;
 static PyObject *__pyx_kp_u_unknown_dtype_code_in_numpy_pxd;
@@ -2428,16 +2483,21 @@ static PyObject *__pyx_n_s_vertex_coords;
 static PyObject *__pyx_n_s_vertices;
 static PyObject *__pyx_n_s_verts;
 static PyObject *__pyx_n_s_volume;
+static PyObject *__pyx_n_s_volumes;
 static PyObject *__pyx_n_s_vor_vertices;
 static PyObject *__pyx_n_s_voronoi;
+static PyObject *__pyx_n_s_warn;
 static PyObject *__pyx_n_s_warning;
+static PyObject *__pyx_n_s_warnings;
 static PyObject *__pyx_n_s_weight;
 static PyObject *__pyx_n_s_weights;
 static PyObject *__pyx_n_s_x;
 static PyObject *__pyx_n_s_zeros;
 static int __pyx_pf_5freud_7voronoi_13VoronoiBuffer___cinit__(struct __pyx_obj_5freud_7voronoi_VoronoiBuffer *__pyx_v_self, PyObject *__pyx_v_box); /* proto */
 static PyObject *__pyx_pf_5freud_7voronoi_13VoronoiBuffer_2compute(struct __pyx_obj_5freud_7voronoi_VoronoiBuffer *__pyx_v_self, PyObject *__pyx_v_points, float __pyx_v_buffer); /* proto */
+static PyObject *__pyx_pf_5freud_7voronoi_13VoronoiBuffer_16buffer_particles___get__(struct __pyx_obj_5freud_7voronoi_VoronoiBuffer *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_5freud_7voronoi_13VoronoiBuffer_4getBufferParticles(struct __pyx_obj_5freud_7voronoi_VoronoiBuffer *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_5freud_7voronoi_13VoronoiBuffer_10buffer_ids___get__(struct __pyx_obj_5freud_7voronoi_VoronoiBuffer *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_5freud_7voronoi_13VoronoiBuffer_6getBufferIds(struct __pyx_obj_5freud_7voronoi_VoronoiBuffer *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_5freud_7voronoi_13VoronoiBuffer_8__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_5freud_7voronoi_VoronoiBuffer *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_5freud_7voronoi_13VoronoiBuffer_10__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_5freud_7voronoi_VoronoiBuffer *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
@@ -2446,13 +2506,17 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_2setBox(CYTHON_UNUSED PyObjec
 static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_4setBufferWidth(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_buff); /* proto */
 static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_6_qhull_compute(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_positions, PyObject *__pyx_v_box, PyObject *__pyx_v_buff); /* proto */
 static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_8compute(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_positions, PyObject *__pyx_v_box, PyObject *__pyx_v_buff); /* proto */
-static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_10getBuffer(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_12getVoronoiPolytopes(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_positions, PyObject *__pyx_v_box, PyObject *__pyx_v_buff, PyObject *__pyx_v_exclude_ii); /* proto */
-static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_16getNeighbors(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_numShells); /* proto */
-static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_18getNeighborList(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_20computeVolumes(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_22getVolumes(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_10buffer(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_12getBuffer(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14polytopes(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_16getVoronoiPolytopes(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_18computeNeighbors(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_positions, PyObject *__pyx_v_box, PyObject *__pyx_v_buff, PyObject *__pyx_v_exclude_ii); /* proto */
+static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_20getNeighbors(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_numShells); /* proto */
+static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_22nlist(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_24getNeighborList(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_26computeVolumes(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_28volumes(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_30getVolumes(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self); /* proto */
 static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, Py_buffer *__pyx_v_info, int __pyx_v_flags); /* proto */
 static void __pyx_pf_5numpy_7ndarray_2__releasebuffer__(PyArrayObject *__pyx_v_self, Py_buffer *__pyx_v_info); /* proto */
 static PyObject *__pyx_tp_new_5freud_7voronoi_VoronoiBuffer(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
@@ -2493,35 +2557,53 @@ static PyObject *__pyx_tuple__27;
 static PyObject *__pyx_tuple__28;
 static PyObject *__pyx_tuple__29;
 static PyObject *__pyx_tuple__31;
-static PyObject *__pyx_tuple__32;
-static PyObject *__pyx_tuple__34;
-static PyObject *__pyx_tuple__36;
-static PyObject *__pyx_tuple__38;
+static PyObject *__pyx_tuple__33;
+static PyObject *__pyx_tuple__35;
+static PyObject *__pyx_tuple__37;
 static PyObject *__pyx_tuple__39;
 static PyObject *__pyx_tuple__41;
 static PyObject *__pyx_tuple__42;
 static PyObject *__pyx_tuple__44;
-static PyObject *__pyx_tuple__47;
+static PyObject *__pyx_tuple__46;
+static PyObject *__pyx_tuple__48;
 static PyObject *__pyx_tuple__49;
-static PyObject *__pyx_tuple__50;
+static PyObject *__pyx_tuple__51;
 static PyObject *__pyx_tuple__52;
 static PyObject *__pyx_tuple__54;
 static PyObject *__pyx_tuple__56;
+static PyObject *__pyx_tuple__58;
+static PyObject *__pyx_tuple__61;
+static PyObject *__pyx_tuple__63;
+static PyObject *__pyx_tuple__64;
+static PyObject *__pyx_tuple__66;
+static PyObject *__pyx_tuple__68;
+static PyObject *__pyx_tuple__70;
+static PyObject *__pyx_tuple__72;
+static PyObject *__pyx_tuple__74;
 static PyObject *__pyx_codeobj__30;
-static PyObject *__pyx_codeobj__33;
-static PyObject *__pyx_codeobj__35;
-static PyObject *__pyx_codeobj__37;
+static PyObject *__pyx_codeobj__32;
+static PyObject *__pyx_codeobj__34;
+static PyObject *__pyx_codeobj__36;
+static PyObject *__pyx_codeobj__38;
 static PyObject *__pyx_codeobj__40;
 static PyObject *__pyx_codeobj__43;
 static PyObject *__pyx_codeobj__45;
-static PyObject *__pyx_codeobj__48;
-static PyObject *__pyx_codeobj__51;
+static PyObject *__pyx_codeobj__47;
+static PyObject *__pyx_codeobj__50;
 static PyObject *__pyx_codeobj__53;
 static PyObject *__pyx_codeobj__55;
 static PyObject *__pyx_codeobj__57;
+static PyObject *__pyx_codeobj__59;
+static PyObject *__pyx_codeobj__62;
+static PyObject *__pyx_codeobj__65;
+static PyObject *__pyx_codeobj__67;
+static PyObject *__pyx_codeobj__69;
+static PyObject *__pyx_codeobj__71;
+static PyObject *__pyx_codeobj__73;
+static PyObject *__pyx_codeobj__75;
 /* Late includes */
 
-/* "freud/voronoi.pyx":51
+/* "freud/voronoi.pyx":59
  *     cdef freud._voronoi.VoronoiBuffer * thisptr
  * 
  *     def __cinit__(self, box):             # <<<<<<<<<<<<<<
@@ -2555,7 +2637,7 @@ static int __pyx_pw_5freud_7voronoi_13VoronoiBuffer_1__cinit__(PyObject *__pyx_v
         else goto __pyx_L5_argtuple_error;
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__cinit__") < 0)) __PYX_ERR(0, 51, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__cinit__") < 0)) __PYX_ERR(0, 59, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 1) {
       goto __pyx_L5_argtuple_error;
@@ -2566,7 +2648,7 @@ static int __pyx_pw_5freud_7voronoi_13VoronoiBuffer_1__cinit__(PyObject *__pyx_v
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 1, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 51, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 1, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 59, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("freud.voronoi.VoronoiBuffer.__cinit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -2591,34 +2673,34 @@ static int __pyx_pf_5freud_7voronoi_13VoronoiBuffer___cinit__(struct __pyx_obj_5
   PyObject *__pyx_t_6 = NULL;
   __Pyx_RefNannySetupContext("__cinit__", 0);
 
-  /* "freud/voronoi.pyx":52
+  /* "freud/voronoi.pyx":60
  * 
  *     def __cinit__(self, box):
  *         if not _SCIPY_AVAILABLE:             # <<<<<<<<<<<<<<
  *             raise RuntimeError("You cannot use this class without scipy")
  *         cdef freud.box.Box b = freud.common.convert_box(box)
  */
-  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_SCIPY_AVAILABLE); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 52, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_SCIPY_AVAILABLE); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 60, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 52, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 60, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_t_3 = ((!__pyx_t_2) != 0);
   if (unlikely(__pyx_t_3)) {
 
-    /* "freud/voronoi.pyx":53
+    /* "freud/voronoi.pyx":61
  *     def __cinit__(self, box):
  *         if not _SCIPY_AVAILABLE:
  *             raise RuntimeError("You cannot use this class without scipy")             # <<<<<<<<<<<<<<
  *         cdef freud.box.Box b = freud.common.convert_box(box)
  *         self.thisptr = new freud._voronoi.VoronoiBuffer(dereference(b.thisptr))
  */
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_RuntimeError, __pyx_tuple_, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 53, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_RuntimeError, __pyx_tuple_, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 61, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_Raise(__pyx_t_1, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __PYX_ERR(0, 53, __pyx_L1_error)
+    __PYX_ERR(0, 61, __pyx_L1_error)
 
-    /* "freud/voronoi.pyx":52
+    /* "freud/voronoi.pyx":60
  * 
  *     def __cinit__(self, box):
  *         if not _SCIPY_AVAILABLE:             # <<<<<<<<<<<<<<
@@ -2627,19 +2709,19 @@ static int __pyx_pf_5freud_7voronoi_13VoronoiBuffer___cinit__(struct __pyx_obj_5
  */
   }
 
-  /* "freud/voronoi.pyx":54
+  /* "freud/voronoi.pyx":62
  *         if not _SCIPY_AVAILABLE:
  *             raise RuntimeError("You cannot use this class without scipy")
  *         cdef freud.box.Box b = freud.common.convert_box(box)             # <<<<<<<<<<<<<<
  *         self.thisptr = new freud._voronoi.VoronoiBuffer(dereference(b.thisptr))
  * 
  */
-  __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 54, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 62, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_common); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 54, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_common); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 62, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_convert_box); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 54, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_convert_box); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 62, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __pyx_t_5 = NULL;
@@ -2653,13 +2735,13 @@ static int __pyx_pf_5freud_7voronoi_13VoronoiBuffer___cinit__(struct __pyx_obj_5
     }
   }
   if (!__pyx_t_5) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_v_box); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 54, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_v_box); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 62, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   } else {
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_4)) {
       PyObject *__pyx_temp[2] = {__pyx_t_5, __pyx_v_box};
-      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_4, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 54, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_4, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 62, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
@@ -2667,29 +2749,29 @@ static int __pyx_pf_5freud_7voronoi_13VoronoiBuffer___cinit__(struct __pyx_obj_5
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_4)) {
       PyObject *__pyx_temp[2] = {__pyx_t_5, __pyx_v_box};
-      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_4, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 54, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_4, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 62, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
     #endif
     {
-      __pyx_t_6 = PyTuple_New(1+1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 54, __pyx_L1_error)
+      __pyx_t_6 = PyTuple_New(1+1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 62, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_6);
       __Pyx_GIVEREF(__pyx_t_5); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_5); __pyx_t_5 = NULL;
       __Pyx_INCREF(__pyx_v_box);
       __Pyx_GIVEREF(__pyx_v_box);
       PyTuple_SET_ITEM(__pyx_t_6, 0+1, __pyx_v_box);
-      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 54, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 62, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     }
   }
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5freud_3box_Box))))) __PYX_ERR(0, 54, __pyx_L1_error)
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5freud_3box_Box))))) __PYX_ERR(0, 62, __pyx_L1_error)
   __pyx_v_b = ((struct __pyx_obj_5freud_3box_Box *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "freud/voronoi.pyx":55
+  /* "freud/voronoi.pyx":63
  *             raise RuntimeError("You cannot use this class without scipy")
  *         cdef freud.box.Box b = freud.common.convert_box(box)
  *         self.thisptr = new freud._voronoi.VoronoiBuffer(dereference(b.thisptr))             # <<<<<<<<<<<<<<
@@ -2698,7 +2780,7 @@ static int __pyx_pf_5freud_7voronoi_13VoronoiBuffer___cinit__(struct __pyx_obj_5
  */
   __pyx_v_self->thisptr = new freud::voronoi::VoronoiBuffer((*__pyx_v_b->thisptr));
 
-  /* "freud/voronoi.pyx":51
+  /* "freud/voronoi.pyx":59
  *     cdef freud._voronoi.VoronoiBuffer * thisptr
  * 
  *     def __cinit__(self, box):             # <<<<<<<<<<<<<<
@@ -2722,7 +2804,7 @@ static int __pyx_pf_5freud_7voronoi_13VoronoiBuffer___cinit__(struct __pyx_obj_5
   return __pyx_r;
 }
 
-/* "freud/voronoi.pyx":57
+/* "freud/voronoi.pyx":65
  *         self.thisptr = new freud._voronoi.VoronoiBuffer(dereference(b.thisptr))
  * 
  *     def compute(self, points, float buffer):             # <<<<<<<<<<<<<<
@@ -2732,7 +2814,8 @@ static int __pyx_pf_5freud_7voronoi_13VoronoiBuffer___cinit__(struct __pyx_obj_5
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_7voronoi_13VoronoiBuffer_3compute(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_7voronoi_13VoronoiBuffer_2compute[] = "Compute the voronoi diagram.\n\n        Args:\n            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Points to calculate Voronoi diagram for.\n            buffer (float):\n                Buffer distance within which to look for images.\n        ";
+static char __pyx_doc_5freud_7voronoi_13VoronoiBuffer_2compute[] = "VoronoiBuffer.compute(self, points, float buffer)\nCompute the voronoi diagram.\n\n        Args:\n            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Points to calculate Voronoi diagram for.\n            buffer (float):\n                Buffer distance within which to look for images.\n        ";
+static PyMethodDef __pyx_mdef_5freud_7voronoi_13VoronoiBuffer_3compute = {"compute", (PyCFunction)__pyx_pw_5freud_7voronoi_13VoronoiBuffer_3compute, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7voronoi_13VoronoiBuffer_2compute};
 static PyObject *__pyx_pw_5freud_7voronoi_13VoronoiBuffer_3compute(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_points = 0;
   float __pyx_v_buffer;
@@ -2762,11 +2845,11 @@ static PyObject *__pyx_pw_5freud_7voronoi_13VoronoiBuffer_3compute(PyObject *__p
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_buffer)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("compute", 1, 2, 2, 1); __PYX_ERR(0, 57, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("compute", 1, 2, 2, 1); __PYX_ERR(0, 65, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "compute") < 0)) __PYX_ERR(0, 57, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "compute") < 0)) __PYX_ERR(0, 65, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -2775,11 +2858,11 @@ static PyObject *__pyx_pw_5freud_7voronoi_13VoronoiBuffer_3compute(PyObject *__p
       values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
     }
     __pyx_v_points = values[0];
-    __pyx_v_buffer = __pyx_PyFloat_AsFloat(values[1]); if (unlikely((__pyx_v_buffer == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 57, __pyx_L3_error)
+    __pyx_v_buffer = __pyx_PyFloat_AsFloat(values[1]); if (unlikely((__pyx_v_buffer == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 65, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("compute", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 57, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("compute", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 65, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("freud.voronoi.VoronoiBuffer.compute", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -2807,30 +2890,30 @@ static PyObject *__pyx_pf_5freud_7voronoi_13VoronoiBuffer_2compute(struct __pyx_
   __Pyx_RefNannySetupContext("compute", 0);
   __Pyx_INCREF(__pyx_v_points);
 
-  /* "freud/voronoi.pyx":66
+  /* "freud/voronoi.pyx":74
  *                 Buffer distance within which to look for images.
  *         """
  *         points = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             points, 2, dtype=np.float32, contiguous=True, array_name='points')
  * 
  */
-  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 66, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 74, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_common); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 66, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_common); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 74, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 66, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 74, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/voronoi.pyx":67
+  /* "freud/voronoi.pyx":75
  *         """
  *         points = freud.common.convert_array(
  *             points, 2, dtype=np.float32, contiguous=True, array_name='points')             # <<<<<<<<<<<<<<
  * 
  *         if points.shape[1] != 3:
  */
-  __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 66, __pyx_L1_error)
+  __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 74, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_INCREF(__pyx_v_points);
   __Pyx_GIVEREF(__pyx_v_points);
@@ -2838,26 +2921,26 @@ static PyObject *__pyx_pf_5freud_7voronoi_13VoronoiBuffer_2compute(struct __pyx_
   __Pyx_INCREF(__pyx_int_2);
   __Pyx_GIVEREF(__pyx_int_2);
   PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_int_2);
-  __pyx_t_3 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 67, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 75, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 67, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 75, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_float32); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 67, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_float32); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 75, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_dtype, __pyx_t_5) < 0) __PYX_ERR(0, 67, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_dtype, __pyx_t_5) < 0) __PYX_ERR(0, 75, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_contiguous, Py_True) < 0) __PYX_ERR(0, 67, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_array_name, __pyx_n_s_points) < 0) __PYX_ERR(0, 67, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_contiguous, Py_True) < 0) __PYX_ERR(0, 75, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_array_name, __pyx_n_s_points) < 0) __PYX_ERR(0, 75, __pyx_L1_error)
 
-  /* "freud/voronoi.pyx":66
+  /* "freud/voronoi.pyx":74
  *                 Buffer distance within which to look for images.
  *         """
  *         points = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             points, 2, dtype=np.float32, contiguous=True, array_name='points')
  * 
  */
-  __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 66, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 74, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -2865,38 +2948,38 @@ static PyObject *__pyx_pf_5freud_7voronoi_13VoronoiBuffer_2compute(struct __pyx_
   __Pyx_DECREF_SET(__pyx_v_points, __pyx_t_5);
   __pyx_t_5 = 0;
 
-  /* "freud/voronoi.pyx":69
+  /* "freud/voronoi.pyx":77
  *             points, 2, dtype=np.float32, contiguous=True, array_name='points')
  * 
  *         if points.shape[1] != 3:             # <<<<<<<<<<<<<<
  *             raise RuntimeError(
  *                 'Need a list of 3D points for VoronoiBuffer.compute()')
  */
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_points, __pyx_n_s_shape); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 69, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_points, __pyx_n_s_shape); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 77, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_3 = __Pyx_GetItemInt(__pyx_t_5, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 69, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_GetItemInt(__pyx_t_5, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 77, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_5 = PyObject_RichCompare(__pyx_t_3, __pyx_int_3, Py_NE); __Pyx_XGOTREF(__pyx_t_5); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 69, __pyx_L1_error)
+  __pyx_t_5 = PyObject_RichCompare(__pyx_t_3, __pyx_int_3, Py_NE); __Pyx_XGOTREF(__pyx_t_5); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 77, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_t_5); if (unlikely(__pyx_t_6 < 0)) __PYX_ERR(0, 69, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_t_5); if (unlikely(__pyx_t_6 < 0)) __PYX_ERR(0, 77, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   if (unlikely(__pyx_t_6)) {
 
-    /* "freud/voronoi.pyx":70
+    /* "freud/voronoi.pyx":78
  * 
  *         if points.shape[1] != 3:
  *             raise RuntimeError(             # <<<<<<<<<<<<<<
  *                 'Need a list of 3D points for VoronoiBuffer.compute()')
  *         cdef np.ndarray cPoints = points
  */
-    __pyx_t_5 = __Pyx_PyObject_Call(__pyx_builtin_RuntimeError, __pyx_tuple__2, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 70, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_Call(__pyx_builtin_RuntimeError, __pyx_tuple__2, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 78, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_Raise(__pyx_t_5, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __PYX_ERR(0, 70, __pyx_L1_error)
+    __PYX_ERR(0, 78, __pyx_L1_error)
 
-    /* "freud/voronoi.pyx":69
+    /* "freud/voronoi.pyx":77
  *             points, 2, dtype=np.float32, contiguous=True, array_name='points')
  * 
  *         if points.shape[1] != 3:             # <<<<<<<<<<<<<<
@@ -2905,36 +2988,36 @@ static PyObject *__pyx_pf_5freud_7voronoi_13VoronoiBuffer_2compute(struct __pyx_
  */
   }
 
-  /* "freud/voronoi.pyx":72
+  /* "freud/voronoi.pyx":80
  *             raise RuntimeError(
  *                 'Need a list of 3D points for VoronoiBuffer.compute()')
  *         cdef np.ndarray cPoints = points             # <<<<<<<<<<<<<<
  *         cdef unsigned int Np = points.shape[0]
  *         self.thisptr.compute(<vec3[float]*> cPoints.data, Np, buffer)
  */
-  if (!(likely(((__pyx_v_points) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_points, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 72, __pyx_L1_error)
+  if (!(likely(((__pyx_v_points) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_points, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 80, __pyx_L1_error)
   __pyx_t_5 = __pyx_v_points;
   __Pyx_INCREF(__pyx_t_5);
   __pyx_v_cPoints = ((PyArrayObject *)__pyx_t_5);
   __pyx_t_5 = 0;
 
-  /* "freud/voronoi.pyx":73
+  /* "freud/voronoi.pyx":81
  *                 'Need a list of 3D points for VoronoiBuffer.compute()')
  *         cdef np.ndarray cPoints = points
  *         cdef unsigned int Np = points.shape[0]             # <<<<<<<<<<<<<<
  *         self.thisptr.compute(<vec3[float]*> cPoints.data, Np, buffer)
  *         return self
  */
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_points, __pyx_n_s_shape); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 73, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_points, __pyx_n_s_shape); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 81, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_3 = __Pyx_GetItemInt(__pyx_t_5, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 73, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_GetItemInt(__pyx_t_5, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 81, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_7 = __Pyx_PyInt_As_unsigned_int(__pyx_t_3); if (unlikely((__pyx_t_7 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 73, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyInt_As_unsigned_int(__pyx_t_3); if (unlikely((__pyx_t_7 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 81, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_v_Np = __pyx_t_7;
 
-  /* "freud/voronoi.pyx":74
+  /* "freud/voronoi.pyx":82
  *         cdef np.ndarray cPoints = points
  *         cdef unsigned int Np = points.shape[0]
  *         self.thisptr.compute(<vec3[float]*> cPoints.data, Np, buffer)             # <<<<<<<<<<<<<<
@@ -2945,22 +3028,22 @@ static PyObject *__pyx_pf_5freud_7voronoi_13VoronoiBuffer_2compute(struct __pyx_
     __pyx_v_self->thisptr->compute(((vec3<float>  *)__pyx_v_cPoints->data), __pyx_v_Np, __pyx_v_buffer);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(0, 74, __pyx_L1_error)
+    __PYX_ERR(0, 82, __pyx_L1_error)
   }
 
-  /* "freud/voronoi.pyx":75
+  /* "freud/voronoi.pyx":83
  *         cdef unsigned int Np = points.shape[0]
  *         self.thisptr.compute(<vec3[float]*> cPoints.data, Np, buffer)
  *         return self             # <<<<<<<<<<<<<<
  * 
- *     def getBufferParticles(self):
+ *     @property
  */
   __Pyx_XDECREF(__pyx_r);
   __Pyx_INCREF(((PyObject *)__pyx_v_self));
   __pyx_r = ((PyObject *)__pyx_v_self);
   goto __pyx_L0;
 
-  /* "freud/voronoi.pyx":57
+  /* "freud/voronoi.pyx":65
  *         self.thisptr = new freud._voronoi.VoronoiBuffer(dereference(b.thisptr))
  * 
  *     def compute(self, points, float buffer):             # <<<<<<<<<<<<<<
@@ -2985,29 +3068,28 @@ static PyObject *__pyx_pf_5freud_7voronoi_13VoronoiBuffer_2compute(struct __pyx_
   return __pyx_r;
 }
 
-/* "freud/voronoi.pyx":77
- *         return self
+/* "freud/voronoi.pyx":86
  * 
- *     def getBufferParticles(self):             # <<<<<<<<<<<<<<
- *         """Get buffer particles.
- * 
+ *     @property
+ *     def buffer_particles(self):             # <<<<<<<<<<<<<<
+ *         cdef unsigned int buffer_size = \
+ *             dereference(self.thisptr.getBufferParticles().get()).size()
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_7voronoi_13VoronoiBuffer_5getBufferParticles(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_7voronoi_13VoronoiBuffer_4getBufferParticles[] = "Get buffer particles.\n\n        Returns:\n            :class:`np.ndarray`: The buffer particles.\n        ";
-static PyObject *__pyx_pw_5freud_7voronoi_13VoronoiBuffer_5getBufferParticles(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_5freud_7voronoi_13VoronoiBuffer_16buffer_particles_1__get__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_5freud_7voronoi_13VoronoiBuffer_16buffer_particles_1__get__(PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("getBufferParticles (wrapper)", 0);
-  __pyx_r = __pyx_pf_5freud_7voronoi_13VoronoiBuffer_4getBufferParticles(((struct __pyx_obj_5freud_7voronoi_VoronoiBuffer *)__pyx_v_self));
+  __Pyx_RefNannySetupContext("__get__ (wrapper)", 0);
+  __pyx_r = __pyx_pf_5freud_7voronoi_13VoronoiBuffer_16buffer_particles___get__(((struct __pyx_obj_5freud_7voronoi_VoronoiBuffer *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_5freud_7voronoi_13VoronoiBuffer_4getBufferParticles(struct __pyx_obj_5freud_7voronoi_VoronoiBuffer *__pyx_v_self) {
+static PyObject *__pyx_pf_5freud_7voronoi_13VoronoiBuffer_16buffer_particles___get__(struct __pyx_obj_5freud_7voronoi_VoronoiBuffer *__pyx_v_self) {
   unsigned int __pyx_v_buffer_size;
   CYTHON_UNUSED vec3<float>  *__pyx_v_buffer_points;
   std::vector<vec3<float> >  *__pyx_v_bufferPar;
@@ -3024,14 +3106,14 @@ static PyObject *__pyx_pf_5freud_7voronoi_13VoronoiBuffer_4getBufferParticles(st
   PyObject *__pyx_t_5 = NULL;
   PyObject *__pyx_t_6 = NULL;
   PyArrayObject *__pyx_t_7 = NULL;
-  __Pyx_RefNannySetupContext("getBufferParticles", 0);
+  __Pyx_RefNannySetupContext("__get__", 0);
   __pyx_pybuffer_result.pybuffer.buf = NULL;
   __pyx_pybuffer_result.refcount = 0;
   __pyx_pybuffernd_result.data = NULL;
   __pyx_pybuffernd_result.rcbuffer = &__pyx_pybuffer_result;
 
-  /* "freud/voronoi.pyx":84
- *         """
+  /* "freud/voronoi.pyx":88
+ *     def buffer_particles(self):
  *         cdef unsigned int buffer_size = \
  *             dereference(self.thisptr.getBufferParticles().get()).size()             # <<<<<<<<<<<<<<
  *         cdef vec3[float] * buffer_points = \
@@ -3039,7 +3121,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_13VoronoiBuffer_4getBufferParticles(st
  */
   __pyx_v_buffer_size = (*__pyx_v_self->thisptr->getBufferParticles().get()).size();
 
-  /* "freud/voronoi.pyx":86
+  /* "freud/voronoi.pyx":90
  *             dereference(self.thisptr.getBufferParticles().get()).size()
  *         cdef vec3[float] * buffer_points = \
  *             &dereference(self.thisptr.getBufferParticles().get())[0]             # <<<<<<<<<<<<<<
@@ -3048,7 +3130,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_13VoronoiBuffer_4getBufferParticles(st
  */
   __pyx_v_buffer_points = (&((*__pyx_v_self->thisptr->getBufferParticles().get())[0]));
 
-  /* "freud/voronoi.pyx":87
+  /* "freud/voronoi.pyx":91
  *         cdef vec3[float] * buffer_points = \
  *             &dereference(self.thisptr.getBufferParticles().get())[0]
  *         if not buffer_size:             # <<<<<<<<<<<<<<
@@ -3058,7 +3140,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_13VoronoiBuffer_4getBufferParticles(st
   __pyx_t_1 = ((!(__pyx_v_buffer_size != 0)) != 0);
   if (__pyx_t_1) {
 
-    /* "freud/voronoi.pyx":88
+    /* "freud/voronoi.pyx":92
  *             &dereference(self.thisptr.getBufferParticles().get())[0]
  *         if not buffer_size:
  *             return np.array([[]], dtype=np.float32)             # <<<<<<<<<<<<<<
@@ -3066,33 +3148,33 @@ static PyObject *__pyx_pf_5freud_7voronoi_13VoronoiBuffer_4getBufferParticles(st
  *         cdef vector[vec3[float]]*bufferPar = \
  */
     __Pyx_XDECREF(__pyx_r);
-    __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 88, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 92, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_array); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 88, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_array); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 92, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_2 = PyList_New(0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 88, __pyx_L1_error)
+    __pyx_t_2 = PyList_New(0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 92, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_4 = PyList_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 88, __pyx_L1_error)
+    __pyx_t_4 = PyList_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 92, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_GIVEREF(__pyx_t_2);
     PyList_SET_ITEM(__pyx_t_4, 0, __pyx_t_2);
     __pyx_t_2 = 0;
-    __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 88, __pyx_L1_error)
+    __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 92, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_GIVEREF(__pyx_t_4);
     PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_t_4);
     __pyx_t_4 = 0;
-    __pyx_t_4 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 88, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 92, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_5 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 88, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 92, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_float32); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 88, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_float32); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 92, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_dtype, __pyx_t_6) < 0) __PYX_ERR(0, 88, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_dtype, __pyx_t_6) < 0) __PYX_ERR(0, 92, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_2, __pyx_t_4); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 88, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_2, __pyx_t_4); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 92, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -3101,7 +3183,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_13VoronoiBuffer_4getBufferParticles(st
     __pyx_t_6 = 0;
     goto __pyx_L0;
 
-    /* "freud/voronoi.pyx":87
+    /* "freud/voronoi.pyx":91
  *         cdef vec3[float] * buffer_points = \
  *             &dereference(self.thisptr.getBufferParticles().get())[0]
  *         if not buffer_size:             # <<<<<<<<<<<<<<
@@ -3110,7 +3192,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_13VoronoiBuffer_4getBufferParticles(st
  */
   }
 
-  /* "freud/voronoi.pyx":91
+  /* "freud/voronoi.pyx":95
  * 
  *         cdef vector[vec3[float]]*bufferPar = \
  *             self.thisptr.getBufferParticles().get()             # <<<<<<<<<<<<<<
@@ -3119,7 +3201,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_13VoronoiBuffer_4getBufferParticles(st
  */
   __pyx_v_bufferPar = __pyx_v_self->thisptr->getBufferParticles().get();
 
-  /* "freud/voronoi.pyx":93
+  /* "freud/voronoi.pyx":97
  *             self.thisptr.getBufferParticles().get()
  *         cdef np.npy_intp nbins[2]
  *         nbins[0] = buffer_size             # <<<<<<<<<<<<<<
@@ -3128,7 +3210,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_13VoronoiBuffer_4getBufferParticles(st
  */
   (__pyx_v_nbins[0]) = __pyx_v_buffer_size;
 
-  /* "freud/voronoi.pyx":94
+  /* "freud/voronoi.pyx":98
  *         cdef np.npy_intp nbins[2]
  *         nbins[0] = buffer_size
  *         nbins[1] = 3             # <<<<<<<<<<<<<<
@@ -3137,22 +3219,22 @@ static PyObject *__pyx_pf_5freud_7voronoi_13VoronoiBuffer_4getBufferParticles(st
  */
   (__pyx_v_nbins[1]) = 3;
 
-  /* "freud/voronoi.pyx":97
+  /* "freud/voronoi.pyx":101
  * 
  *         cdef np.ndarray[float, ndim=2] result = \
  *             np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32,             # <<<<<<<<<<<<<<
  *                                          <void*> dereference(bufferPar).data())
- * 
+ *         return result
  */
-  __pyx_t_6 = PyArray_SimpleNewFromData(2, __pyx_v_nbins, NPY_FLOAT32, ((void *)(*__pyx_v_bufferPar).data())); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 97, __pyx_L1_error)
+  __pyx_t_6 = PyArray_SimpleNewFromData(2, __pyx_v_nbins, NPY_FLOAT32, ((void *)(*__pyx_v_bufferPar).data())); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 101, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  if (!(likely(((__pyx_t_6) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_6, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 97, __pyx_L1_error)
+  if (!(likely(((__pyx_t_6) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_6, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 101, __pyx_L1_error)
   __pyx_t_7 = ((PyArrayObject *)__pyx_t_6);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_result.rcbuffer->pybuffer, (PyObject*)__pyx_t_7, &__Pyx_TypeInfo_float, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {
       __pyx_v_result = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_result.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 96, __pyx_L1_error)
+      __PYX_ERR(0, 100, __pyx_L1_error)
     } else {__pyx_pybuffernd_result.diminfo[0].strides = __pyx_pybuffernd_result.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_result.diminfo[0].shape = __pyx_pybuffernd_result.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_result.diminfo[1].strides = __pyx_pybuffernd_result.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_result.diminfo[1].shape = __pyx_pybuffernd_result.rcbuffer->pybuffer.shape[1];
     }
   }
@@ -3160,24 +3242,24 @@ static PyObject *__pyx_pf_5freud_7voronoi_13VoronoiBuffer_4getBufferParticles(st
   __pyx_v_result = ((PyArrayObject *)__pyx_t_6);
   __pyx_t_6 = 0;
 
-  /* "freud/voronoi.pyx":100
+  /* "freud/voronoi.pyx":103
+ *             np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32,
  *                                          <void*> dereference(bufferPar).data())
- * 
  *         return result             # <<<<<<<<<<<<<<
  * 
- *     def getBufferIds(self):
+ *     def getBufferParticles(self):
  */
   __Pyx_XDECREF(__pyx_r);
   __Pyx_INCREF(((PyObject *)__pyx_v_result));
   __pyx_r = ((PyObject *)__pyx_v_result);
   goto __pyx_L0;
 
-  /* "freud/voronoi.pyx":77
- *         return self
+  /* "freud/voronoi.pyx":86
  * 
- *     def getBufferParticles(self):             # <<<<<<<<<<<<<<
- *         """Get buffer particles.
- * 
+ *     @property
+ *     def buffer_particles(self):             # <<<<<<<<<<<<<<
+ *         cdef unsigned int buffer_size = \
+ *             dereference(self.thisptr.getBufferParticles().get()).size()
  */
 
   /* function exit code */
@@ -3193,7 +3275,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_13VoronoiBuffer_4getBufferParticles(st
     __Pyx_ErrFetch(&__pyx_type, &__pyx_value, &__pyx_tb);
     __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_result.rcbuffer->pybuffer);
   __Pyx_ErrRestore(__pyx_type, __pyx_value, __pyx_tb);}
-  __Pyx_AddTraceback("freud.voronoi.VoronoiBuffer.getBufferParticles", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("freud.voronoi.VoronoiBuffer.buffer_particles.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   goto __pyx_L2;
   __pyx_L0:;
@@ -3205,32 +3287,172 @@ static PyObject *__pyx_pf_5freud_7voronoi_13VoronoiBuffer_4getBufferParticles(st
   return __pyx_r;
 }
 
-/* "freud/voronoi.pyx":102
+/* "freud/voronoi.pyx":105
  *         return result
  * 
- *     def getBufferIds(self):             # <<<<<<<<<<<<<<
- *         """Get buffer ids.
- * 
+ *     def getBufferParticles(self):             # <<<<<<<<<<<<<<
+ *         warnings.warn("The getBufferParticles function is deprecated in favor "
+ *                       "of the buffer_particles class attribute and will be "
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_7voronoi_13VoronoiBuffer_7getBufferIds(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_7voronoi_13VoronoiBuffer_6getBufferIds[] = "Get buffer ids.\n\n        Returns:\n            :class:`np.ndarray`: The buffer ids.\n        ";
-static PyObject *__pyx_pw_5freud_7voronoi_13VoronoiBuffer_7getBufferIds(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_5freud_7voronoi_13VoronoiBuffer_5getBufferParticles(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static char __pyx_doc_5freud_7voronoi_13VoronoiBuffer_4getBufferParticles[] = "VoronoiBuffer.getBufferParticles(self)";
+static PyMethodDef __pyx_mdef_5freud_7voronoi_13VoronoiBuffer_5getBufferParticles = {"getBufferParticles", (PyCFunction)__pyx_pw_5freud_7voronoi_13VoronoiBuffer_5getBufferParticles, METH_NOARGS, __pyx_doc_5freud_7voronoi_13VoronoiBuffer_4getBufferParticles};
+static PyObject *__pyx_pw_5freud_7voronoi_13VoronoiBuffer_5getBufferParticles(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("getBufferIds (wrapper)", 0);
-  __pyx_r = __pyx_pf_5freud_7voronoi_13VoronoiBuffer_6getBufferIds(((struct __pyx_obj_5freud_7voronoi_VoronoiBuffer *)__pyx_v_self));
+  __Pyx_RefNannySetupContext("getBufferParticles (wrapper)", 0);
+  __pyx_r = __pyx_pf_5freud_7voronoi_13VoronoiBuffer_4getBufferParticles(((struct __pyx_obj_5freud_7voronoi_VoronoiBuffer *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_5freud_7voronoi_13VoronoiBuffer_6getBufferIds(struct __pyx_obj_5freud_7voronoi_VoronoiBuffer *__pyx_v_self) {
+static PyObject *__pyx_pf_5freud_7voronoi_13VoronoiBuffer_4getBufferParticles(struct __pyx_obj_5freud_7voronoi_VoronoiBuffer *__pyx_v_self) {
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  PyObject *__pyx_t_2 = NULL;
+  PyObject *__pyx_t_3 = NULL;
+  PyObject *__pyx_t_4 = NULL;
+  int __pyx_t_5;
+  PyObject *__pyx_t_6 = NULL;
+  __Pyx_RefNannySetupContext("getBufferParticles", 0);
+
+  /* "freud/voronoi.pyx":106
+ * 
+ *     def getBufferParticles(self):
+ *         warnings.warn("The getBufferParticles function is deprecated in favor "             # <<<<<<<<<<<<<<
+ *                       "of the buffer_particles class attribute and will be "
+ *                       "removed in a future version of freud.",
+ */
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 106, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 106, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+
+  /* "freud/voronoi.pyx":109
+ *                       "of the buffer_particles class attribute and will be "
+ *                       "removed in a future version of freud.",
+ *                       FreudDeprecationWarning)             # <<<<<<<<<<<<<<
+ *         return self.buffer_particles
+ * 
+ */
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 109, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_4 = NULL;
+  __pyx_t_5 = 0;
+  if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
+    __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_3);
+    if (likely(__pyx_t_4)) {
+      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
+      __Pyx_INCREF(__pyx_t_4);
+      __Pyx_INCREF(function);
+      __Pyx_DECREF_SET(__pyx_t_3, function);
+      __pyx_t_5 = 1;
+    }
+  }
+  #if CYTHON_FAST_PYCALL
+  if (PyFunction_Check(__pyx_t_3)) {
+    PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getBufferParticles_function, __pyx_t_2};
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 106, __pyx_L1_error)
+    __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __Pyx_GOTREF(__pyx_t_1);
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  } else
+  #endif
+  #if CYTHON_FAST_PYCCALL
+  if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
+    PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getBufferParticles_function, __pyx_t_2};
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 106, __pyx_L1_error)
+    __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __Pyx_GOTREF(__pyx_t_1);
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  } else
+  #endif
+  {
+    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 106, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_6);
+    if (__pyx_t_4) {
+      __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4); __pyx_t_4 = NULL;
+    }
+    __Pyx_INCREF(__pyx_kp_s_The_getBufferParticles_function);
+    __Pyx_GIVEREF(__pyx_kp_s_The_getBufferParticles_function);
+    PyTuple_SET_ITEM(__pyx_t_6, 0+__pyx_t_5, __pyx_kp_s_The_getBufferParticles_function);
+    __Pyx_GIVEREF(__pyx_t_2);
+    PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_5, __pyx_t_2);
+    __pyx_t_2 = 0;
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 106, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
+    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+  }
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "freud/voronoi.pyx":110
+ *                       "removed in a future version of freud.",
+ *                       FreudDeprecationWarning)
+ *         return self.buffer_particles             # <<<<<<<<<<<<<<
+ * 
+ *     @property
+ */
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_buffer_particles); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 110, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+
+  /* "freud/voronoi.pyx":105
+ *         return result
+ * 
+ *     def getBufferParticles(self):             # <<<<<<<<<<<<<<
+ *         warnings.warn("The getBufferParticles function is deprecated in favor "
+ *                       "of the buffer_particles class attribute and will be "
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_3);
+  __Pyx_XDECREF(__pyx_t_4);
+  __Pyx_XDECREF(__pyx_t_6);
+  __Pyx_AddTraceback("freud.voronoi.VoronoiBuffer.getBufferParticles", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "freud/voronoi.pyx":113
+ * 
+ *     @property
+ *     def buffer_ids(self):             # <<<<<<<<<<<<<<
+ *         cdef unsigned int buffer_size = \
+ *             dereference(self.thisptr.getBufferParticles().get()).size()
+ */
+
+/* Python wrapper */
+static PyObject *__pyx_pw_5freud_7voronoi_13VoronoiBuffer_10buffer_ids_1__get__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_5freud_7voronoi_13VoronoiBuffer_10buffer_ids_1__get__(PyObject *__pyx_v_self) {
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("__get__ (wrapper)", 0);
+  __pyx_r = __pyx_pf_5freud_7voronoi_13VoronoiBuffer_10buffer_ids___get__(((struct __pyx_obj_5freud_7voronoi_VoronoiBuffer *)__pyx_v_self));
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_5freud_7voronoi_13VoronoiBuffer_10buffer_ids___get__(struct __pyx_obj_5freud_7voronoi_VoronoiBuffer *__pyx_v_self) {
   unsigned int __pyx_v_buffer_size;
-  CYTHON_UNUSED unsigned int *__pyx_v_buffer_ids;
-  std::vector<unsigned int>  *__pyx_v_bufferIds;
+  std::vector<unsigned int>  *__pyx_v_buffer_ids;
   npy_intp __pyx_v_nbins[1];
   PyArrayObject *__pyx_v_result = 0;
   __Pyx_LocalBuf_ND __pyx_pybuffernd_result;
@@ -3244,33 +3466,24 @@ static PyObject *__pyx_pf_5freud_7voronoi_13VoronoiBuffer_6getBufferIds(struct _
   PyObject *__pyx_t_5 = NULL;
   PyObject *__pyx_t_6 = NULL;
   PyArrayObject *__pyx_t_7 = NULL;
-  __Pyx_RefNannySetupContext("getBufferIds", 0);
+  __Pyx_RefNannySetupContext("__get__", 0);
   __pyx_pybuffer_result.pybuffer.buf = NULL;
   __pyx_pybuffer_result.refcount = 0;
   __pyx_pybuffernd_result.data = NULL;
   __pyx_pybuffernd_result.rcbuffer = &__pyx_pybuffer_result;
 
-  /* "freud/voronoi.pyx":109
- *         """
+  /* "freud/voronoi.pyx":115
+ *     def buffer_ids(self):
  *         cdef unsigned int buffer_size = \
  *             dereference(self.thisptr.getBufferParticles().get()).size()             # <<<<<<<<<<<<<<
- *         cdef unsigned int * buffer_ids = \
- *             &dereference(self.thisptr.getBufferIds().get())[0]
- */
-  __pyx_v_buffer_size = (*__pyx_v_self->thisptr->getBufferParticles().get()).size();
-
-  /* "freud/voronoi.pyx":111
- *             dereference(self.thisptr.getBufferParticles().get()).size()
- *         cdef unsigned int * buffer_ids = \
- *             &dereference(self.thisptr.getBufferIds().get())[0]             # <<<<<<<<<<<<<<
  *         if not buffer_size:
  *             return np.array([[]], dtype=np.uint32)
  */
-  __pyx_v_buffer_ids = (&((*__pyx_v_self->thisptr->getBufferIds().get())[0]));
+  __pyx_v_buffer_size = (*__pyx_v_self->thisptr->getBufferParticles().get()).size();
 
-  /* "freud/voronoi.pyx":112
- *         cdef unsigned int * buffer_ids = \
- *             &dereference(self.thisptr.getBufferIds().get())[0]
+  /* "freud/voronoi.pyx":116
+ *         cdef unsigned int buffer_size = \
+ *             dereference(self.thisptr.getBufferParticles().get()).size()
  *         if not buffer_size:             # <<<<<<<<<<<<<<
  *             return np.array([[]], dtype=np.uint32)
  * 
@@ -3278,41 +3491,41 @@ static PyObject *__pyx_pf_5freud_7voronoi_13VoronoiBuffer_6getBufferIds(struct _
   __pyx_t_1 = ((!(__pyx_v_buffer_size != 0)) != 0);
   if (__pyx_t_1) {
 
-    /* "freud/voronoi.pyx":113
- *             &dereference(self.thisptr.getBufferIds().get())[0]
+    /* "freud/voronoi.pyx":117
+ *             dereference(self.thisptr.getBufferParticles().get()).size()
  *         if not buffer_size:
  *             return np.array([[]], dtype=np.uint32)             # <<<<<<<<<<<<<<
  * 
- *         cdef vector[unsigned int]*bufferIds = self.thisptr.getBufferIds().get()
+ *         cdef vector[unsigned int] * buffer_ids = \
  */
     __Pyx_XDECREF(__pyx_r);
-    __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 113, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 117, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_array); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 113, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_array); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 117, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_2 = PyList_New(0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 113, __pyx_L1_error)
+    __pyx_t_2 = PyList_New(0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 117, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_4 = PyList_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 113, __pyx_L1_error)
+    __pyx_t_4 = PyList_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 117, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_GIVEREF(__pyx_t_2);
     PyList_SET_ITEM(__pyx_t_4, 0, __pyx_t_2);
     __pyx_t_2 = 0;
-    __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 113, __pyx_L1_error)
+    __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 117, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_GIVEREF(__pyx_t_4);
     PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_t_4);
     __pyx_t_4 = 0;
-    __pyx_t_4 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 113, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 117, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_5 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 113, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 117, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_uint32); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 113, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_uint32); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 117, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_dtype, __pyx_t_6) < 0) __PYX_ERR(0, 113, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_dtype, __pyx_t_6) < 0) __PYX_ERR(0, 117, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_2, __pyx_t_4); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 113, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_2, __pyx_t_4); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 117, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -3321,26 +3534,26 @@ static PyObject *__pyx_pf_5freud_7voronoi_13VoronoiBuffer_6getBufferIds(struct _
     __pyx_t_6 = 0;
     goto __pyx_L0;
 
-    /* "freud/voronoi.pyx":112
- *         cdef unsigned int * buffer_ids = \
- *             &dereference(self.thisptr.getBufferIds().get())[0]
+    /* "freud/voronoi.pyx":116
+ *         cdef unsigned int buffer_size = \
+ *             dereference(self.thisptr.getBufferParticles().get()).size()
  *         if not buffer_size:             # <<<<<<<<<<<<<<
  *             return np.array([[]], dtype=np.uint32)
  * 
  */
   }
 
-  /* "freud/voronoi.pyx":115
- *             return np.array([[]], dtype=np.uint32)
+  /* "freud/voronoi.pyx":120
  * 
- *         cdef vector[unsigned int]*bufferIds = self.thisptr.getBufferIds().get()             # <<<<<<<<<<<<<<
+ *         cdef vector[unsigned int] * buffer_ids = \
+ *             self.thisptr.getBufferIds().get()             # <<<<<<<<<<<<<<
  *         cdef np.npy_intp nbins[1]
  *         nbins[0] = buffer_size
  */
-  __pyx_v_bufferIds = __pyx_v_self->thisptr->getBufferIds().get();
+  __pyx_v_buffer_ids = __pyx_v_self->thisptr->getBufferIds().get();
 
-  /* "freud/voronoi.pyx":117
- *         cdef vector[unsigned int]*bufferIds = self.thisptr.getBufferIds().get()
+  /* "freud/voronoi.pyx":122
+ *             self.thisptr.getBufferIds().get()
  *         cdef np.npy_intp nbins[1]
  *         nbins[0] = buffer_size             # <<<<<<<<<<<<<<
  * 
@@ -3348,22 +3561,22 @@ static PyObject *__pyx_pf_5freud_7voronoi_13VoronoiBuffer_6getBufferIds(struct _
  */
   (__pyx_v_nbins[0]) = __pyx_v_buffer_size;
 
-  /* "freud/voronoi.pyx":120
+  /* "freud/voronoi.pyx":125
  * 
  *         cdef np.ndarray[unsigned int, ndim=1] result = \
- *             np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32,             # <<<<<<<<<<<<<<
- *                                          <void*> dereference(bufferIds).data())
- * 
+ *             np.PyArray_SimpleNewFromData(             # <<<<<<<<<<<<<<
+ *                 1, nbins, np.NPY_UINT32,
+ *                 <void*> dereference(buffer_ids).data())
  */
-  __pyx_t_6 = PyArray_SimpleNewFromData(1, __pyx_v_nbins, NPY_UINT32, ((void *)(*__pyx_v_bufferIds).data())); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 120, __pyx_L1_error)
+  __pyx_t_6 = PyArray_SimpleNewFromData(1, __pyx_v_nbins, NPY_UINT32, ((void *)(*__pyx_v_buffer_ids).data())); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 125, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  if (!(likely(((__pyx_t_6) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_6, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 120, __pyx_L1_error)
+  if (!(likely(((__pyx_t_6) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_6, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 125, __pyx_L1_error)
   __pyx_t_7 = ((PyArrayObject *)__pyx_t_6);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_result.rcbuffer->pybuffer, (PyObject*)__pyx_t_7, &__Pyx_TypeInfo_unsigned_int, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack) == -1)) {
       __pyx_v_result = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_result.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 119, __pyx_L1_error)
+      __PYX_ERR(0, 124, __pyx_L1_error)
     } else {__pyx_pybuffernd_result.diminfo[0].strides = __pyx_pybuffernd_result.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_result.diminfo[0].shape = __pyx_pybuffernd_result.rcbuffer->pybuffer.shape[0];
     }
   }
@@ -3371,24 +3584,24 @@ static PyObject *__pyx_pf_5freud_7voronoi_13VoronoiBuffer_6getBufferIds(struct _
   __pyx_v_result = ((PyArrayObject *)__pyx_t_6);
   __pyx_t_6 = 0;
 
-  /* "freud/voronoi.pyx":123
- *                                          <void*> dereference(bufferIds).data())
- * 
+  /* "freud/voronoi.pyx":128
+ *                 1, nbins, np.NPY_UINT32,
+ *                 <void*> dereference(buffer_ids).data())
  *         return result             # <<<<<<<<<<<<<<
  * 
- * 
+ *     def getBufferIds(self):
  */
   __Pyx_XDECREF(__pyx_r);
   __Pyx_INCREF(((PyObject *)__pyx_v_result));
   __pyx_r = ((PyObject *)__pyx_v_result);
   goto __pyx_L0;
 
-  /* "freud/voronoi.pyx":102
- *         return result
+  /* "freud/voronoi.pyx":113
  * 
- *     def getBufferIds(self):             # <<<<<<<<<<<<<<
- *         """Get buffer ids.
- * 
+ *     @property
+ *     def buffer_ids(self):             # <<<<<<<<<<<<<<
+ *         cdef unsigned int buffer_size = \
+ *             dereference(self.thisptr.getBufferParticles().get()).size()
  */
 
   /* function exit code */
@@ -3404,13 +3617,155 @@ static PyObject *__pyx_pf_5freud_7voronoi_13VoronoiBuffer_6getBufferIds(struct _
     __Pyx_ErrFetch(&__pyx_type, &__pyx_value, &__pyx_tb);
     __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_result.rcbuffer->pybuffer);
   __Pyx_ErrRestore(__pyx_type, __pyx_value, __pyx_tb);}
-  __Pyx_AddTraceback("freud.voronoi.VoronoiBuffer.getBufferIds", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("freud.voronoi.VoronoiBuffer.buffer_ids.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   goto __pyx_L2;
   __pyx_L0:;
   __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_result.rcbuffer->pybuffer);
   __pyx_L2:;
   __Pyx_XDECREF((PyObject *)__pyx_v_result);
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "freud/voronoi.pyx":130
+ *         return result
+ * 
+ *     def getBufferIds(self):             # <<<<<<<<<<<<<<
+ *         warnings.warn("The getBufferIds function is deprecated in favor "
+ *                       "of the buffer_ids class attribute and will be "
+ */
+
+/* Python wrapper */
+static PyObject *__pyx_pw_5freud_7voronoi_13VoronoiBuffer_7getBufferIds(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static char __pyx_doc_5freud_7voronoi_13VoronoiBuffer_6getBufferIds[] = "VoronoiBuffer.getBufferIds(self)";
+static PyMethodDef __pyx_mdef_5freud_7voronoi_13VoronoiBuffer_7getBufferIds = {"getBufferIds", (PyCFunction)__pyx_pw_5freud_7voronoi_13VoronoiBuffer_7getBufferIds, METH_NOARGS, __pyx_doc_5freud_7voronoi_13VoronoiBuffer_6getBufferIds};
+static PyObject *__pyx_pw_5freud_7voronoi_13VoronoiBuffer_7getBufferIds(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("getBufferIds (wrapper)", 0);
+  __pyx_r = __pyx_pf_5freud_7voronoi_13VoronoiBuffer_6getBufferIds(((struct __pyx_obj_5freud_7voronoi_VoronoiBuffer *)__pyx_v_self));
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_5freud_7voronoi_13VoronoiBuffer_6getBufferIds(struct __pyx_obj_5freud_7voronoi_VoronoiBuffer *__pyx_v_self) {
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  PyObject *__pyx_t_2 = NULL;
+  PyObject *__pyx_t_3 = NULL;
+  PyObject *__pyx_t_4 = NULL;
+  int __pyx_t_5;
+  PyObject *__pyx_t_6 = NULL;
+  __Pyx_RefNannySetupContext("getBufferIds", 0);
+
+  /* "freud/voronoi.pyx":131
+ * 
+ *     def getBufferIds(self):
+ *         warnings.warn("The getBufferIds function is deprecated in favor "             # <<<<<<<<<<<<<<
+ *                       "of the buffer_ids class attribute and will be "
+ *                       "removed in a future version of freud.",
+ */
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 131, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 131, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+
+  /* "freud/voronoi.pyx":134
+ *                       "of the buffer_ids class attribute and will be "
+ *                       "removed in a future version of freud.",
+ *                       FreudDeprecationWarning)             # <<<<<<<<<<<<<<
+ *         return self.buffer_ids
+ * 
+ */
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 134, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_4 = NULL;
+  __pyx_t_5 = 0;
+  if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
+    __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_3);
+    if (likely(__pyx_t_4)) {
+      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
+      __Pyx_INCREF(__pyx_t_4);
+      __Pyx_INCREF(function);
+      __Pyx_DECREF_SET(__pyx_t_3, function);
+      __pyx_t_5 = 1;
+    }
+  }
+  #if CYTHON_FAST_PYCALL
+  if (PyFunction_Check(__pyx_t_3)) {
+    PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getBufferIds_function_is_dep, __pyx_t_2};
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 131, __pyx_L1_error)
+    __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __Pyx_GOTREF(__pyx_t_1);
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  } else
+  #endif
+  #if CYTHON_FAST_PYCCALL
+  if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
+    PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getBufferIds_function_is_dep, __pyx_t_2};
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 131, __pyx_L1_error)
+    __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __Pyx_GOTREF(__pyx_t_1);
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  } else
+  #endif
+  {
+    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 131, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_6);
+    if (__pyx_t_4) {
+      __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4); __pyx_t_4 = NULL;
+    }
+    __Pyx_INCREF(__pyx_kp_s_The_getBufferIds_function_is_dep);
+    __Pyx_GIVEREF(__pyx_kp_s_The_getBufferIds_function_is_dep);
+    PyTuple_SET_ITEM(__pyx_t_6, 0+__pyx_t_5, __pyx_kp_s_The_getBufferIds_function_is_dep);
+    __Pyx_GIVEREF(__pyx_t_2);
+    PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_5, __pyx_t_2);
+    __pyx_t_2 = 0;
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 131, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
+    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+  }
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "freud/voronoi.pyx":135
+ *                       "removed in a future version of freud.",
+ *                       FreudDeprecationWarning)
+ *         return self.buffer_ids             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_buffer_ids); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 135, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+
+  /* "freud/voronoi.pyx":130
+ *         return result
+ * 
+ *     def getBufferIds(self):             # <<<<<<<<<<<<<<
+ *         warnings.warn("The getBufferIds function is deprecated in favor "
+ *                       "of the buffer_ids class attribute and will be "
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_3);
+  __Pyx_XDECREF(__pyx_t_4);
+  __Pyx_XDECREF(__pyx_t_6);
+  __Pyx_AddTraceback("freud.voronoi.VoronoiBuffer.getBufferIds", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
@@ -3424,6 +3779,8 @@ static PyObject *__pyx_pf_5freud_7voronoi_13VoronoiBuffer_6getBufferIds(struct _
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_7voronoi_13VoronoiBuffer_9__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static char __pyx_doc_5freud_7voronoi_13VoronoiBuffer_8__reduce_cython__[] = "VoronoiBuffer.__reduce_cython__(self)";
+static PyMethodDef __pyx_mdef_5freud_7voronoi_13VoronoiBuffer_9__reduce_cython__ = {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_7voronoi_13VoronoiBuffer_9__reduce_cython__, METH_NOARGS, __pyx_doc_5freud_7voronoi_13VoronoiBuffer_8__reduce_cython__};
 static PyObject *__pyx_pw_5freud_7voronoi_13VoronoiBuffer_9__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -3478,6 +3835,8 @@ static PyObject *__pyx_pf_5freud_7voronoi_13VoronoiBuffer_8__reduce_cython__(CYT
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_7voronoi_13VoronoiBuffer_11__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
+static char __pyx_doc_5freud_7voronoi_13VoronoiBuffer_10__setstate_cython__[] = "VoronoiBuffer.__setstate_cython__(self, __pyx_state)";
+static PyMethodDef __pyx_mdef_5freud_7voronoi_13VoronoiBuffer_11__setstate_cython__ = {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_7voronoi_13VoronoiBuffer_11__setstate_cython__, METH_O, __pyx_doc_5freud_7voronoi_13VoronoiBuffer_10__setstate_cython__};
 static PyObject *__pyx_pw_5freud_7voronoi_13VoronoiBuffer_11__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
@@ -3523,8 +3882,8 @@ static PyObject *__pyx_pf_5freud_7voronoi_13VoronoiBuffer_10__setstate_cython__(
   return __pyx_r;
 }
 
-/* "freud/voronoi.pyx":150
- *             Buffer width.
+/* "freud/voronoi.pyx":183
+ *             cells.
  *     """
  *     def __init__(self, box, buff=0.1):             # <<<<<<<<<<<<<<
  *         if not _SCIPY_AVAILABLE:
@@ -3533,7 +3892,8 @@ static PyObject *__pyx_pf_5freud_7voronoi_13VoronoiBuffer_10__setstate_cython__(
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_1__init__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyMethodDef __pyx_mdef_5freud_7voronoi_7Voronoi_1__init__ = {"__init__", (PyCFunction)__pyx_pw_5freud_7voronoi_7Voronoi_1__init__, METH_VARARGS|METH_KEYWORDS, 0};
+static char __pyx_doc_5freud_7voronoi_7Voronoi___init__[] = "Voronoi.__init__(self, box, buff=0.1)";
+static PyMethodDef __pyx_mdef_5freud_7voronoi_7Voronoi_1__init__ = {"__init__", (PyCFunction)__pyx_pw_5freud_7voronoi_7Voronoi_1__init__, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7voronoi_7Voronoi___init__};
 static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_1__init__(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
   PyObject *__pyx_v_box = 0;
@@ -3567,7 +3927,7 @@ static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_1__init__(PyObject *__pyx_sel
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_box)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 0, 2, 3, 1); __PYX_ERR(0, 150, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 0, 2, 3, 1); __PYX_ERR(0, 183, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
@@ -3577,7 +3937,7 @@ static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_1__init__(PyObject *__pyx_sel
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 150, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 183, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -3595,7 +3955,7 @@ static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_1__init__(PyObject *__pyx_sel
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__init__", 0, 2, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 150, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__init__", 0, 2, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 183, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("freud.voronoi.Voronoi.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -3620,34 +3980,34 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi___init__(CYTHON_UNUSED PyObje
   PyObject *__pyx_t_6 = NULL;
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "freud/voronoi.pyx":151
+  /* "freud/voronoi.pyx":184
  *     """
  *     def __init__(self, box, buff=0.1):
  *         if not _SCIPY_AVAILABLE:             # <<<<<<<<<<<<<<
  *             raise RuntimeError("You cannot use this class without SciPy")
  *         cdef freud.box.Box b = freud.common.convert_box(box)
  */
-  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_SCIPY_AVAILABLE); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 151, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_SCIPY_AVAILABLE); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 184, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 151, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 184, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_t_3 = ((!__pyx_t_2) != 0);
   if (unlikely(__pyx_t_3)) {
 
-    /* "freud/voronoi.pyx":152
+    /* "freud/voronoi.pyx":185
  *     def __init__(self, box, buff=0.1):
  *         if not _SCIPY_AVAILABLE:
  *             raise RuntimeError("You cannot use this class without SciPy")             # <<<<<<<<<<<<<<
  *         cdef freud.box.Box b = freud.common.convert_box(box)
- *         self.box = b
+ *         self._box = b
  */
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_RuntimeError, __pyx_tuple__5, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 152, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_RuntimeError, __pyx_tuple__5, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 185, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_Raise(__pyx_t_1, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __PYX_ERR(0, 152, __pyx_L1_error)
+    __PYX_ERR(0, 185, __pyx_L1_error)
 
-    /* "freud/voronoi.pyx":151
+    /* "freud/voronoi.pyx":184
  *     """
  *     def __init__(self, box, buff=0.1):
  *         if not _SCIPY_AVAILABLE:             # <<<<<<<<<<<<<<
@@ -3656,19 +4016,19 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi___init__(CYTHON_UNUSED PyObje
  */
   }
 
-  /* "freud/voronoi.pyx":153
+  /* "freud/voronoi.pyx":186
  *         if not _SCIPY_AVAILABLE:
  *             raise RuntimeError("You cannot use this class without SciPy")
  *         cdef freud.box.Box b = freud.common.convert_box(box)             # <<<<<<<<<<<<<<
- *         self.box = b
- *         self.buff = buff
+ *         self._box = b
+ *         self._buff = buff
  */
-  __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 153, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 186, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_common); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 153, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_common); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 186, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_convert_box); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 153, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_convert_box); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 186, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __pyx_t_5 = NULL;
@@ -3682,13 +4042,13 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi___init__(CYTHON_UNUSED PyObje
     }
   }
   if (!__pyx_t_5) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_v_box); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 153, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_v_box); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 186, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   } else {
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_4)) {
       PyObject *__pyx_temp[2] = {__pyx_t_5, __pyx_v_box};
-      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_4, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 153, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_4, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 186, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
@@ -3696,48 +4056,48 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi___init__(CYTHON_UNUSED PyObje
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_4)) {
       PyObject *__pyx_temp[2] = {__pyx_t_5, __pyx_v_box};
-      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_4, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 153, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_4, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 186, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
     #endif
     {
-      __pyx_t_6 = PyTuple_New(1+1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 153, __pyx_L1_error)
+      __pyx_t_6 = PyTuple_New(1+1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 186, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_6);
       __Pyx_GIVEREF(__pyx_t_5); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_5); __pyx_t_5 = NULL;
       __Pyx_INCREF(__pyx_v_box);
       __Pyx_GIVEREF(__pyx_v_box);
       PyTuple_SET_ITEM(__pyx_t_6, 0+1, __pyx_v_box);
-      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 153, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 186, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     }
   }
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5freud_3box_Box))))) __PYX_ERR(0, 153, __pyx_L1_error)
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5freud_3box_Box))))) __PYX_ERR(0, 186, __pyx_L1_error)
   __pyx_v_b = ((struct __pyx_obj_5freud_3box_Box *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "freud/voronoi.pyx":154
+  /* "freud/voronoi.pyx":187
  *             raise RuntimeError("You cannot use this class without SciPy")
  *         cdef freud.box.Box b = freud.common.convert_box(box)
- *         self.box = b             # <<<<<<<<<<<<<<
- *         self.buff = buff
+ *         self._box = b             # <<<<<<<<<<<<<<
+ *         self._buff = buff
  * 
  */
-  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_box, ((PyObject *)__pyx_v_b)) < 0) __PYX_ERR(0, 154, __pyx_L1_error)
+  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_box_2, ((PyObject *)__pyx_v_b)) < 0) __PYX_ERR(0, 187, __pyx_L1_error)
 
-  /* "freud/voronoi.pyx":155
+  /* "freud/voronoi.pyx":188
  *         cdef freud.box.Box b = freud.common.convert_box(box)
- *         self.box = b
- *         self.buff = buff             # <<<<<<<<<<<<<<
+ *         self._box = b
+ *         self._buff = buff             # <<<<<<<<<<<<<<
  * 
  *     def setBox(self, box):
  */
-  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_buff, __pyx_v_buff) < 0) __PYX_ERR(0, 155, __pyx_L1_error)
+  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_buff_2, __pyx_v_buff) < 0) __PYX_ERR(0, 188, __pyx_L1_error)
 
-  /* "freud/voronoi.pyx":150
- *             Buffer width.
+  /* "freud/voronoi.pyx":183
+ *             cells.
  *     """
  *     def __init__(self, box, buff=0.1):             # <<<<<<<<<<<<<<
  *         if not _SCIPY_AVAILABLE:
@@ -3761,8 +4121,8 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi___init__(CYTHON_UNUSED PyObje
   return __pyx_r;
 }
 
-/* "freud/voronoi.pyx":157
- *         self.buff = buff
+/* "freud/voronoi.pyx":190
+ *         self._buff = buff
  * 
  *     def setBox(self, box):             # <<<<<<<<<<<<<<
  *         """Reset the simulation box.
@@ -3771,7 +4131,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi___init__(CYTHON_UNUSED PyObje
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_3setBox(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_7voronoi_7Voronoi_2setBox[] = "Reset the simulation box.\n\n        Args:\n            box (:class:`freud.box.Box`): Simulation box.\n        ";
+static char __pyx_doc_5freud_7voronoi_7Voronoi_2setBox[] = "Voronoi.setBox(self, box)\nReset the simulation box.\n\n        Args:\n            box (:class:`freud.box.Box`): Simulation box.\n        ";
 static PyMethodDef __pyx_mdef_5freud_7voronoi_7Voronoi_3setBox = {"setBox", (PyCFunction)__pyx_pw_5freud_7voronoi_7Voronoi_3setBox, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7voronoi_7Voronoi_2setBox};
 static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_3setBox(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -3802,11 +4162,11 @@ static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_3setBox(PyObject *__pyx_self,
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_box)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("setBox", 1, 2, 2, 1); __PYX_ERR(0, 157, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("setBox", 1, 2, 2, 1); __PYX_ERR(0, 190, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "setBox") < 0)) __PYX_ERR(0, 157, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "setBox") < 0)) __PYX_ERR(0, 190, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -3819,7 +4179,7 @@ static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_3setBox(PyObject *__pyx_self,
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("setBox", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 157, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("setBox", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 190, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("freud.voronoi.Voronoi.setBox", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -3840,81 +4200,154 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_2setBox(CYTHON_UNUSED PyObjec
   PyObject *__pyx_t_2 = NULL;
   PyObject *__pyx_t_3 = NULL;
   PyObject *__pyx_t_4 = NULL;
+  int __pyx_t_5;
+  PyObject *__pyx_t_6 = NULL;
   __Pyx_RefNannySetupContext("setBox", 0);
 
-  /* "freud/voronoi.pyx":163
+  /* "freud/voronoi.pyx":196
  *             box (:class:`freud.box.Box`): Simulation box.
  *         """
- *         cdef freud.box.Box b = freud.common.convert_box(box)             # <<<<<<<<<<<<<<
- *         self.box = b
- * 
+ *         warnings.warn("Use the box with .compute() instead of this setter. "             # <<<<<<<<<<<<<<
+ *                       "This setter will be removed in the future.",
+ *                       FreudDeprecationWarning)
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 163, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 196, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_common); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 163, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 196, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_convert_box); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 163, __pyx_L1_error)
+
+  /* "freud/voronoi.pyx":198
+ *         warnings.warn("Use the box with .compute() instead of this setter. "
+ *                       "This setter will be removed in the future.",
+ *                       FreudDeprecationWarning)             # <<<<<<<<<<<<<<
+ *         cdef freud.box.Box b = freud.common.convert_box(box)
+ *         self._box = b
+ */
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 198, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = NULL;
-  if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
-    __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_2);
-    if (likely(__pyx_t_3)) {
-      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_2);
-      __Pyx_INCREF(__pyx_t_3);
+  __pyx_t_4 = NULL;
+  __pyx_t_5 = 0;
+  if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
+    __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_3);
+    if (likely(__pyx_t_4)) {
+      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
+      __Pyx_INCREF(__pyx_t_4);
       __Pyx_INCREF(function);
-      __Pyx_DECREF_SET(__pyx_t_2, function);
+      __Pyx_DECREF_SET(__pyx_t_3, function);
+      __pyx_t_5 = 1;
     }
   }
-  if (!__pyx_t_3) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_box); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 163, __pyx_L1_error)
+  #if CYTHON_FAST_PYCALL
+  if (PyFunction_Check(__pyx_t_3)) {
+    PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_Use_the_box_with_compute_instead, __pyx_t_2};
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 196, __pyx_L1_error)
+    __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __Pyx_GOTREF(__pyx_t_1);
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  } else
+  #endif
+  #if CYTHON_FAST_PYCCALL
+  if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
+    PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_Use_the_box_with_compute_instead, __pyx_t_2};
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 196, __pyx_L1_error)
+    __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __Pyx_GOTREF(__pyx_t_1);
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  } else
+  #endif
+  {
+    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 196, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_6);
+    if (__pyx_t_4) {
+      __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4); __pyx_t_4 = NULL;
+    }
+    __Pyx_INCREF(__pyx_kp_s_Use_the_box_with_compute_instead);
+    __Pyx_GIVEREF(__pyx_kp_s_Use_the_box_with_compute_instead);
+    PyTuple_SET_ITEM(__pyx_t_6, 0+__pyx_t_5, __pyx_kp_s_Use_the_box_with_compute_instead);
+    __Pyx_GIVEREF(__pyx_t_2);
+    PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_5, __pyx_t_2);
+    __pyx_t_2 = 0;
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 196, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
+    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+  }
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "freud/voronoi.pyx":199
+ *                       "This setter will be removed in the future.",
+ *                       FreudDeprecationWarning)
+ *         cdef freud.box.Box b = freud.common.convert_box(box)             # <<<<<<<<<<<<<<
+ *         self._box = b
+ * 
+ */
+  __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 199, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_common); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 199, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_6);
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_convert_box); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 199, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+  __pyx_t_6 = NULL;
+  if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_3))) {
+    __pyx_t_6 = PyMethod_GET_SELF(__pyx_t_3);
+    if (likely(__pyx_t_6)) {
+      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
+      __Pyx_INCREF(__pyx_t_6);
+      __Pyx_INCREF(function);
+      __Pyx_DECREF_SET(__pyx_t_3, function);
+    }
+  }
+  if (!__pyx_t_6) {
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_v_box); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 199, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   } else {
     #if CYTHON_FAST_PYCALL
-    if (PyFunction_Check(__pyx_t_2)) {
-      PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_v_box};
-      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 163, __pyx_L1_error)
-      __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+    if (PyFunction_Check(__pyx_t_3)) {
+      PyObject *__pyx_temp[2] = {__pyx_t_6, __pyx_v_box};
+      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 199, __pyx_L1_error)
+      __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
     #endif
     #if CYTHON_FAST_PYCCALL
-    if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
-      PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_v_box};
-      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 163, __pyx_L1_error)
-      __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+    if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
+      PyObject *__pyx_temp[2] = {__pyx_t_6, __pyx_v_box};
+      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 199, __pyx_L1_error)
+      __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
     #endif
     {
-      __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 163, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_4);
-      __Pyx_GIVEREF(__pyx_t_3); PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_3); __pyx_t_3 = NULL;
+      __pyx_t_2 = PyTuple_New(1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 199, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_2);
+      __Pyx_GIVEREF(__pyx_t_6); PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_t_6); __pyx_t_6 = NULL;
       __Pyx_INCREF(__pyx_v_box);
       __Pyx_GIVEREF(__pyx_v_box);
-      PyTuple_SET_ITEM(__pyx_t_4, 0+1, __pyx_v_box);
-      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 163, __pyx_L1_error)
+      PyTuple_SET_ITEM(__pyx_t_2, 0+1, __pyx_v_box);
+      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_2, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 199, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
-      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+      __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     }
   }
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5freud_3box_Box))))) __PYX_ERR(0, 163, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5freud_3box_Box))))) __PYX_ERR(0, 199, __pyx_L1_error)
   __pyx_v_b = ((struct __pyx_obj_5freud_3box_Box *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "freud/voronoi.pyx":164
- *         """
+  /* "freud/voronoi.pyx":200
+ *                       FreudDeprecationWarning)
  *         cdef freud.box.Box b = freud.common.convert_box(box)
- *         self.box = b             # <<<<<<<<<<<<<<
+ *         self._box = b             # <<<<<<<<<<<<<<
  * 
  *     def setBufferWidth(self, buff):
  */
-  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_box, ((PyObject *)__pyx_v_b)) < 0) __PYX_ERR(0, 164, __pyx_L1_error)
+  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_box_2, ((PyObject *)__pyx_v_b)) < 0) __PYX_ERR(0, 200, __pyx_L1_error)
 
-  /* "freud/voronoi.pyx":157
- *         self.buff = buff
+  /* "freud/voronoi.pyx":190
+ *         self._buff = buff
  * 
  *     def setBox(self, box):             # <<<<<<<<<<<<<<
  *         """Reset the simulation box.
@@ -3929,6 +4362,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_2setBox(CYTHON_UNUSED PyObjec
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
+  __Pyx_XDECREF(__pyx_t_6);
   __Pyx_AddTraceback("freud.voronoi.Voronoi.setBox", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
@@ -3938,8 +4372,8 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_2setBox(CYTHON_UNUSED PyObjec
   return __pyx_r;
 }
 
-/* "freud/voronoi.pyx":166
- *         self.box = b
+/* "freud/voronoi.pyx":202
+ *         self._box = b
  * 
  *     def setBufferWidth(self, buff):             # <<<<<<<<<<<<<<
  *         """Reset the buffer width.
@@ -3948,7 +4382,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_2setBox(CYTHON_UNUSED PyObjec
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_5setBufferWidth(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_7voronoi_7Voronoi_4setBufferWidth[] = "Reset the buffer width.\n\n        Args:\n            buff (float): Buffer width.\n        ";
+static char __pyx_doc_5freud_7voronoi_7Voronoi_4setBufferWidth[] = "Voronoi.setBufferWidth(self, buff)\nReset the buffer width.\n\n        Args:\n            buff (float): Buffer width.\n        ";
 static PyMethodDef __pyx_mdef_5freud_7voronoi_7Voronoi_5setBufferWidth = {"setBufferWidth", (PyCFunction)__pyx_pw_5freud_7voronoi_7Voronoi_5setBufferWidth, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7voronoi_7Voronoi_4setBufferWidth};
 static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_5setBufferWidth(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -3979,11 +4413,11 @@ static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_5setBufferWidth(PyObject *__p
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_buff)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("setBufferWidth", 1, 2, 2, 1); __PYX_ERR(0, 166, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("setBufferWidth", 1, 2, 2, 1); __PYX_ERR(0, 202, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "setBufferWidth") < 0)) __PYX_ERR(0, 166, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "setBufferWidth") < 0)) __PYX_ERR(0, 202, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -3996,7 +4430,7 @@ static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_5setBufferWidth(PyObject *__p
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("setBufferWidth", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 166, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("setBufferWidth", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 202, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("freud.voronoi.Voronoi.setBufferWidth", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -4012,19 +4446,96 @@ static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_5setBufferWidth(PyObject *__p
 static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_4setBufferWidth(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_buff) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  PyObject *__pyx_t_2 = NULL;
+  PyObject *__pyx_t_3 = NULL;
+  PyObject *__pyx_t_4 = NULL;
+  int __pyx_t_5;
+  PyObject *__pyx_t_6 = NULL;
   __Pyx_RefNannySetupContext("setBufferWidth", 0);
 
-  /* "freud/voronoi.pyx":172
+  /* "freud/voronoi.pyx":208
  *             buff (float): Buffer width.
  *         """
- *         self.buff = buff             # <<<<<<<<<<<<<<
+ *         warnings.warn("Use constructor arguments instead of this setter. "             # <<<<<<<<<<<<<<
+ *                       "This setter will be removed in the future.",
+ *                       FreudDeprecationWarning)
+ */
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 208, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 208, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+
+  /* "freud/voronoi.pyx":210
+ *         warnings.warn("Use constructor arguments instead of this setter. "
+ *                       "This setter will be removed in the future.",
+ *                       FreudDeprecationWarning)             # <<<<<<<<<<<<<<
+ *         self._buff = buff
+ * 
+ */
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 210, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_4 = NULL;
+  __pyx_t_5 = 0;
+  if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
+    __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_3);
+    if (likely(__pyx_t_4)) {
+      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
+      __Pyx_INCREF(__pyx_t_4);
+      __Pyx_INCREF(function);
+      __Pyx_DECREF_SET(__pyx_t_3, function);
+      __pyx_t_5 = 1;
+    }
+  }
+  #if CYTHON_FAST_PYCALL
+  if (PyFunction_Check(__pyx_t_3)) {
+    PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_Use_constructor_arguments_instea, __pyx_t_2};
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 208, __pyx_L1_error)
+    __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __Pyx_GOTREF(__pyx_t_1);
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  } else
+  #endif
+  #if CYTHON_FAST_PYCCALL
+  if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
+    PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_Use_constructor_arguments_instea, __pyx_t_2};
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 208, __pyx_L1_error)
+    __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __Pyx_GOTREF(__pyx_t_1);
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  } else
+  #endif
+  {
+    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 208, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_6);
+    if (__pyx_t_4) {
+      __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4); __pyx_t_4 = NULL;
+    }
+    __Pyx_INCREF(__pyx_kp_s_Use_constructor_arguments_instea);
+    __Pyx_GIVEREF(__pyx_kp_s_Use_constructor_arguments_instea);
+    PyTuple_SET_ITEM(__pyx_t_6, 0+__pyx_t_5, __pyx_kp_s_Use_constructor_arguments_instea);
+    __Pyx_GIVEREF(__pyx_t_2);
+    PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_5, __pyx_t_2);
+    __pyx_t_2 = 0;
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 208, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
+    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+  }
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "freud/voronoi.pyx":211
+ *                       "This setter will be removed in the future.",
+ *                       FreudDeprecationWarning)
+ *         self._buff = buff             # <<<<<<<<<<<<<<
  * 
  *     def _qhull_compute(self, positions, box=None, buff=None):
  */
-  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_buff, __pyx_v_buff) < 0) __PYX_ERR(0, 172, __pyx_L1_error)
+  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_buff_2, __pyx_v_buff) < 0) __PYX_ERR(0, 211, __pyx_L1_error)
 
-  /* "freud/voronoi.pyx":166
- *         self.box = b
+  /* "freud/voronoi.pyx":202
+ *         self._box = b
  * 
  *     def setBufferWidth(self, buff):             # <<<<<<<<<<<<<<
  *         """Reset the buffer width.
@@ -4035,6 +4546,11 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_4setBufferWidth(CYTHON_UNUSED
   __pyx_r = Py_None; __Pyx_INCREF(Py_None);
   goto __pyx_L0;
   __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_3);
+  __Pyx_XDECREF(__pyx_t_4);
+  __Pyx_XDECREF(__pyx_t_6);
   __Pyx_AddTraceback("freud.voronoi.Voronoi.setBufferWidth", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
@@ -4043,8 +4559,8 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_4setBufferWidth(CYTHON_UNUSED
   return __pyx_r;
 }
 
-/* "freud/voronoi.pyx":174
- *         self.buff = buff
+/* "freud/voronoi.pyx":213
+ *         self._buff = buff
  * 
  *     def _qhull_compute(self, positions, box=None, buff=None):             # <<<<<<<<<<<<<<
  *         """Calls VoronoiBuffer and qhull
@@ -4053,7 +4569,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_4setBufferWidth(CYTHON_UNUSED
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_7_qhull_compute(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_7voronoi_7Voronoi_6_qhull_compute[] = "Calls VoronoiBuffer and qhull\n\n        Args:\n            positions ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Points to calculate Voronoi diagram for.\n            box (:class:`freud.box.Box`):\n                Simulation box (Default value = None).\n            buff (float):\n                Buffer distance within which to look for images\n                (Default value = None).\n        ";
+static char __pyx_doc_5freud_7voronoi_7Voronoi_6_qhull_compute[] = "Voronoi._qhull_compute(self, positions, box=None, buff=None)\nCalls VoronoiBuffer and qhull\n\n        Args:\n            positions ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Points to calculate Voronoi diagram for.\n            box (:class:`freud.box.Box`):\n                Simulation box (Default value = None).\n            buff (float):\n                Buffer distance within which to look for images\n                (Default value = None).\n        ";
 static PyMethodDef __pyx_mdef_5freud_7voronoi_7Voronoi_7_qhull_compute = {"_qhull_compute", (PyCFunction)__pyx_pw_5freud_7voronoi_7Voronoi_7_qhull_compute, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7voronoi_7Voronoi_6_qhull_compute};
 static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_7_qhull_compute(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -4092,7 +4608,7 @@ static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_7_qhull_compute(PyObject *__p
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_positions)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("_qhull_compute", 0, 2, 4, 1); __PYX_ERR(0, 174, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("_qhull_compute", 0, 2, 4, 1); __PYX_ERR(0, 213, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
@@ -4108,7 +4624,7 @@ static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_7_qhull_compute(PyObject *__p
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "_qhull_compute") < 0)) __PYX_ERR(0, 174, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "_qhull_compute") < 0)) __PYX_ERR(0, 213, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -4129,7 +4645,7 @@ static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_7_qhull_compute(PyObject *__p
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("_qhull_compute", 0, 2, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 174, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("_qhull_compute", 0, 2, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 213, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("freud.voronoi.Voronoi._qhull_compute", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -4160,26 +4676,26 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_6_qhull_compute(CYTHON_UNUSED
   PyObject *__pyx_t_10 = NULL;
   __Pyx_RefNannySetupContext("_qhull_compute", 0);
 
-  /* "freud/voronoi.pyx":187
+  /* "freud/voronoi.pyx":226
  *         """
  *         # Compute the buffer particles in C++
  *         vbuff = VoronoiBuffer(box)             # <<<<<<<<<<<<<<
  *         vbuff.compute(positions, buff)
  *         buff_ptls = vbuff.getBufferParticles()
  */
-  __pyx_t_1 = __Pyx_PyObject_CallOneArg(((PyObject *)__pyx_ptype_5freud_7voronoi_VoronoiBuffer), __pyx_v_box); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 187, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_CallOneArg(((PyObject *)__pyx_ptype_5freud_7voronoi_VoronoiBuffer), __pyx_v_box); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 226, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_vbuff = ((struct __pyx_obj_5freud_7voronoi_VoronoiBuffer *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "freud/voronoi.pyx":188
+  /* "freud/voronoi.pyx":227
  *         # Compute the buffer particles in C++
  *         vbuff = VoronoiBuffer(box)
  *         vbuff.compute(positions, buff)             # <<<<<<<<<<<<<<
  *         buff_ptls = vbuff.getBufferParticles()
  *         buff_ids = vbuff.getBufferIds()
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_vbuff), __pyx_n_s_compute); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 188, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_vbuff), __pyx_n_s_compute); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 227, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   __pyx_t_4 = 0;
@@ -4196,7 +4712,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_6_qhull_compute(CYTHON_UNUSED
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_2)) {
     PyObject *__pyx_temp[3] = {__pyx_t_3, __pyx_v_positions, __pyx_v_buff};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_4, 2+__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 188, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_4, 2+__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 227, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_GOTREF(__pyx_t_1);
   } else
@@ -4204,13 +4720,13 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_6_qhull_compute(CYTHON_UNUSED
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
     PyObject *__pyx_temp[3] = {__pyx_t_3, __pyx_v_positions, __pyx_v_buff};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_4, 2+__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 188, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_4, 2+__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 227, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_GOTREF(__pyx_t_1);
   } else
   #endif
   {
-    __pyx_t_5 = PyTuple_New(2+__pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 188, __pyx_L1_error)
+    __pyx_t_5 = PyTuple_New(2+__pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 227, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     if (__pyx_t_3) {
       __Pyx_GIVEREF(__pyx_t_3); PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_3); __pyx_t_3 = NULL;
@@ -4221,21 +4737,21 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_6_qhull_compute(CYTHON_UNUSED
     __Pyx_INCREF(__pyx_v_buff);
     __Pyx_GIVEREF(__pyx_v_buff);
     PyTuple_SET_ITEM(__pyx_t_5, 1+__pyx_t_4, __pyx_v_buff);
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_5, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 188, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_5, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 227, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "freud/voronoi.pyx":189
+  /* "freud/voronoi.pyx":228
  *         vbuff = VoronoiBuffer(box)
  *         vbuff.compute(positions, buff)
  *         buff_ptls = vbuff.getBufferParticles()             # <<<<<<<<<<<<<<
  *         buff_ids = vbuff.getBufferIds()
  * 
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_vbuff), __pyx_n_s_getBufferParticles); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 189, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_vbuff), __pyx_n_s_getBufferParticles); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 228, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_5 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -4248,24 +4764,24 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_6_qhull_compute(CYTHON_UNUSED
     }
   }
   if (__pyx_t_5) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 189, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 228, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   } else {
-    __pyx_t_1 = __Pyx_PyObject_CallNoArg(__pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 189, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_CallNoArg(__pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 228, __pyx_L1_error)
   }
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_v_buff_ptls = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "freud/voronoi.pyx":190
+  /* "freud/voronoi.pyx":229
  *         vbuff.compute(positions, buff)
  *         buff_ptls = vbuff.getBufferParticles()
  *         buff_ids = vbuff.getBufferIds()             # <<<<<<<<<<<<<<
  * 
  *         if buff_ptls.size > 0:
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_vbuff), __pyx_n_s_getBufferIds); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 190, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_vbuff), __pyx_n_s_getBufferIds); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 229, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_5 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -4278,44 +4794,44 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_6_qhull_compute(CYTHON_UNUSED
     }
   }
   if (__pyx_t_5) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 190, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 229, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   } else {
-    __pyx_t_1 = __Pyx_PyObject_CallNoArg(__pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 190, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_CallNoArg(__pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 229, __pyx_L1_error)
   }
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_v_buff_ids = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "freud/voronoi.pyx":192
+  /* "freud/voronoi.pyx":231
  *         buff_ids = vbuff.getBufferIds()
  * 
  *         if buff_ptls.size > 0:             # <<<<<<<<<<<<<<
  *             self.expanded_points = np.concatenate((positions, buff_ptls))
  *             self.expanded_ids = np.concatenate((
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_buff_ptls, __pyx_n_s_size); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 192, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_buff_ptls, __pyx_n_s_size); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 231, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = PyObject_RichCompare(__pyx_t_1, __pyx_int_0, Py_GT); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 192, __pyx_L1_error)
+  __pyx_t_2 = PyObject_RichCompare(__pyx_t_1, __pyx_int_0, Py_GT); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 231, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_6 < 0)) __PYX_ERR(0, 192, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_6 < 0)) __PYX_ERR(0, 231, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   if (__pyx_t_6) {
 
-    /* "freud/voronoi.pyx":193
+    /* "freud/voronoi.pyx":232
  * 
  *         if buff_ptls.size > 0:
  *             self.expanded_points = np.concatenate((positions, buff_ptls))             # <<<<<<<<<<<<<<
  *             self.expanded_ids = np.concatenate((
  *                 np.arange(len(positions)), buff_ids))
  */
-    __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 193, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 232, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_concatenate); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 193, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_concatenate); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 232, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __pyx_t_1 = PyTuple_New(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 193, __pyx_L1_error)
+    __pyx_t_1 = PyTuple_New(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 232, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_INCREF(__pyx_v_positions);
     __Pyx_GIVEREF(__pyx_v_positions);
@@ -4334,14 +4850,14 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_6_qhull_compute(CYTHON_UNUSED
       }
     }
     if (!__pyx_t_3) {
-      __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 193, __pyx_L1_error)
+      __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 232, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
       __Pyx_GOTREF(__pyx_t_2);
     } else {
       #if CYTHON_FAST_PYCALL
       if (PyFunction_Check(__pyx_t_5)) {
         PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_t_1};
-        __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_5, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 193, __pyx_L1_error)
+        __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_5, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 232, __pyx_L1_error)
         __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
         __Pyx_GOTREF(__pyx_t_2);
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -4350,55 +4866,55 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_6_qhull_compute(CYTHON_UNUSED
       #if CYTHON_FAST_PYCCALL
       if (__Pyx_PyFastCFunction_Check(__pyx_t_5)) {
         PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_t_1};
-        __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_5, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 193, __pyx_L1_error)
+        __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_5, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 232, __pyx_L1_error)
         __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
         __Pyx_GOTREF(__pyx_t_2);
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
       } else
       #endif
       {
-        __pyx_t_7 = PyTuple_New(1+1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 193, __pyx_L1_error)
+        __pyx_t_7 = PyTuple_New(1+1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 232, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_7);
         __Pyx_GIVEREF(__pyx_t_3); PyTuple_SET_ITEM(__pyx_t_7, 0, __pyx_t_3); __pyx_t_3 = NULL;
         __Pyx_GIVEREF(__pyx_t_1);
         PyTuple_SET_ITEM(__pyx_t_7, 0+1, __pyx_t_1);
         __pyx_t_1 = 0;
-        __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_7, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 193, __pyx_L1_error)
+        __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_7, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 232, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_2);
         __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
       }
     }
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_expanded_points, __pyx_t_2) < 0) __PYX_ERR(0, 193, __pyx_L1_error)
+    if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_expanded_points, __pyx_t_2) < 0) __PYX_ERR(0, 232, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-    /* "freud/voronoi.pyx":194
+    /* "freud/voronoi.pyx":233
  *         if buff_ptls.size > 0:
  *             self.expanded_points = np.concatenate((positions, buff_ptls))
  *             self.expanded_ids = np.concatenate((             # <<<<<<<<<<<<<<
  *                 np.arange(len(positions)), buff_ids))
  *         else:
  */
-    __pyx_t_5 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 194, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 233, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_concatenate); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 194, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_concatenate); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 233, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-    /* "freud/voronoi.pyx":195
+    /* "freud/voronoi.pyx":234
  *             self.expanded_points = np.concatenate((positions, buff_ptls))
  *             self.expanded_ids = np.concatenate((
  *                 np.arange(len(positions)), buff_ids))             # <<<<<<<<<<<<<<
  *         else:
  *             self.expanded_points = positions
  */
-    __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 195, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 234, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_arange); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 195, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_arange); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 234, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __pyx_t_8 = PyObject_Length(__pyx_v_positions); if (unlikely(__pyx_t_8 == ((Py_ssize_t)-1))) __PYX_ERR(0, 195, __pyx_L1_error)
-    __pyx_t_1 = PyInt_FromSsize_t(__pyx_t_8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 195, __pyx_L1_error)
+    __pyx_t_8 = PyObject_Length(__pyx_v_positions); if (unlikely(__pyx_t_8 == ((Py_ssize_t)-1))) __PYX_ERR(0, 234, __pyx_L1_error)
+    __pyx_t_1 = PyInt_FromSsize_t(__pyx_t_8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 234, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __pyx_t_9 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -4411,14 +4927,14 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_6_qhull_compute(CYTHON_UNUSED
       }
     }
     if (!__pyx_t_9) {
-      __pyx_t_5 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 195, __pyx_L1_error)
+      __pyx_t_5 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 234, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
       __Pyx_GOTREF(__pyx_t_5);
     } else {
       #if CYTHON_FAST_PYCALL
       if (PyFunction_Check(__pyx_t_3)) {
         PyObject *__pyx_temp[2] = {__pyx_t_9, __pyx_t_1};
-        __pyx_t_5 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 195, __pyx_L1_error)
+        __pyx_t_5 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 234, __pyx_L1_error)
         __Pyx_XDECREF(__pyx_t_9); __pyx_t_9 = 0;
         __Pyx_GOTREF(__pyx_t_5);
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -4427,26 +4943,26 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_6_qhull_compute(CYTHON_UNUSED
       #if CYTHON_FAST_PYCCALL
       if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
         PyObject *__pyx_temp[2] = {__pyx_t_9, __pyx_t_1};
-        __pyx_t_5 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 195, __pyx_L1_error)
+        __pyx_t_5 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 234, __pyx_L1_error)
         __Pyx_XDECREF(__pyx_t_9); __pyx_t_9 = 0;
         __Pyx_GOTREF(__pyx_t_5);
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
       } else
       #endif
       {
-        __pyx_t_10 = PyTuple_New(1+1); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 195, __pyx_L1_error)
+        __pyx_t_10 = PyTuple_New(1+1); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 234, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_10);
         __Pyx_GIVEREF(__pyx_t_9); PyTuple_SET_ITEM(__pyx_t_10, 0, __pyx_t_9); __pyx_t_9 = NULL;
         __Pyx_GIVEREF(__pyx_t_1);
         PyTuple_SET_ITEM(__pyx_t_10, 0+1, __pyx_t_1);
         __pyx_t_1 = 0;
-        __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_10, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 195, __pyx_L1_error)
+        __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_10, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 234, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
         __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
       }
     }
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 195, __pyx_L1_error)
+    __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 234, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_GIVEREF(__pyx_t_5);
     PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_5);
@@ -4465,14 +4981,14 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_6_qhull_compute(CYTHON_UNUSED
       }
     }
     if (!__pyx_t_5) {
-      __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_7, __pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 194, __pyx_L1_error)
+      __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_7, __pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 233, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_GOTREF(__pyx_t_2);
     } else {
       #if CYTHON_FAST_PYCALL
       if (PyFunction_Check(__pyx_t_7)) {
         PyObject *__pyx_temp[2] = {__pyx_t_5, __pyx_t_3};
-        __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_7, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 194, __pyx_L1_error)
+        __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_7, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 233, __pyx_L1_error)
         __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
         __Pyx_GOTREF(__pyx_t_2);
         __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -4481,37 +4997,37 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_6_qhull_compute(CYTHON_UNUSED
       #if CYTHON_FAST_PYCCALL
       if (__Pyx_PyFastCFunction_Check(__pyx_t_7)) {
         PyObject *__pyx_temp[2] = {__pyx_t_5, __pyx_t_3};
-        __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_7, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 194, __pyx_L1_error)
+        __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_7, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 233, __pyx_L1_error)
         __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
         __Pyx_GOTREF(__pyx_t_2);
         __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       } else
       #endif
       {
-        __pyx_t_10 = PyTuple_New(1+1); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 194, __pyx_L1_error)
+        __pyx_t_10 = PyTuple_New(1+1); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 233, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_10);
         __Pyx_GIVEREF(__pyx_t_5); PyTuple_SET_ITEM(__pyx_t_10, 0, __pyx_t_5); __pyx_t_5 = NULL;
         __Pyx_GIVEREF(__pyx_t_3);
         PyTuple_SET_ITEM(__pyx_t_10, 0+1, __pyx_t_3);
         __pyx_t_3 = 0;
-        __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_7, __pyx_t_10, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 194, __pyx_L1_error)
+        __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_7, __pyx_t_10, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 233, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_2);
         __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
       }
     }
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-    /* "freud/voronoi.pyx":194
+    /* "freud/voronoi.pyx":233
  *         if buff_ptls.size > 0:
  *             self.expanded_points = np.concatenate((positions, buff_ptls))
  *             self.expanded_ids = np.concatenate((             # <<<<<<<<<<<<<<
  *                 np.arange(len(positions)), buff_ids))
  *         else:
  */
-    if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_expanded_ids, __pyx_t_2) < 0) __PYX_ERR(0, 194, __pyx_L1_error)
+    if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_expanded_ids, __pyx_t_2) < 0) __PYX_ERR(0, 233, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-    /* "freud/voronoi.pyx":192
+    /* "freud/voronoi.pyx":231
  *         buff_ids = vbuff.getBufferIds()
  * 
  *         if buff_ptls.size > 0:             # <<<<<<<<<<<<<<
@@ -4521,7 +5037,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_6_qhull_compute(CYTHON_UNUSED
     goto __pyx_L3;
   }
 
-  /* "freud/voronoi.pyx":197
+  /* "freud/voronoi.pyx":236
  *                 np.arange(len(positions)), buff_ids))
  *         else:
  *             self.expanded_points = positions             # <<<<<<<<<<<<<<
@@ -4529,22 +5045,22 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_6_qhull_compute(CYTHON_UNUSED
  * 
  */
   /*else*/ {
-    if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_expanded_points, __pyx_v_positions) < 0) __PYX_ERR(0, 197, __pyx_L1_error)
+    if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_expanded_points, __pyx_v_positions) < 0) __PYX_ERR(0, 236, __pyx_L1_error)
 
-    /* "freud/voronoi.pyx":198
+    /* "freud/voronoi.pyx":237
  *         else:
  *             self.expanded_points = positions
  *             self.expanded_ids = np.arange(len(positions))             # <<<<<<<<<<<<<<
  * 
  *         # Use only the first two components if the box is 2D
  */
-    __pyx_t_7 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 198, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 237, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
-    __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_arange); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 198, __pyx_L1_error)
+    __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_arange); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 237, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_10);
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-    __pyx_t_8 = PyObject_Length(__pyx_v_positions); if (unlikely(__pyx_t_8 == ((Py_ssize_t)-1))) __PYX_ERR(0, 198, __pyx_L1_error)
-    __pyx_t_7 = PyInt_FromSsize_t(__pyx_t_8); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 198, __pyx_L1_error)
+    __pyx_t_8 = PyObject_Length(__pyx_v_positions); if (unlikely(__pyx_t_8 == ((Py_ssize_t)-1))) __PYX_ERR(0, 237, __pyx_L1_error)
+    __pyx_t_7 = PyInt_FromSsize_t(__pyx_t_8); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 237, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     __pyx_t_3 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_10))) {
@@ -4557,14 +5073,14 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_6_qhull_compute(CYTHON_UNUSED
       }
     }
     if (!__pyx_t_3) {
-      __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_10, __pyx_t_7); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 198, __pyx_L1_error)
+      __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_10, __pyx_t_7); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 237, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
       __Pyx_GOTREF(__pyx_t_2);
     } else {
       #if CYTHON_FAST_PYCALL
       if (PyFunction_Check(__pyx_t_10)) {
         PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_t_7};
-        __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_10, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 198, __pyx_L1_error)
+        __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_10, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 237, __pyx_L1_error)
         __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
         __Pyx_GOTREF(__pyx_t_2);
         __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
@@ -4573,38 +5089,38 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_6_qhull_compute(CYTHON_UNUSED
       #if CYTHON_FAST_PYCCALL
       if (__Pyx_PyFastCFunction_Check(__pyx_t_10)) {
         PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_t_7};
-        __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_10, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 198, __pyx_L1_error)
+        __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_10, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 237, __pyx_L1_error)
         __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
         __Pyx_GOTREF(__pyx_t_2);
         __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
       } else
       #endif
       {
-        __pyx_t_5 = PyTuple_New(1+1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 198, __pyx_L1_error)
+        __pyx_t_5 = PyTuple_New(1+1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 237, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
         __Pyx_GIVEREF(__pyx_t_3); PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_3); __pyx_t_3 = NULL;
         __Pyx_GIVEREF(__pyx_t_7);
         PyTuple_SET_ITEM(__pyx_t_5, 0+1, __pyx_t_7);
         __pyx_t_7 = 0;
-        __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_10, __pyx_t_5, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 198, __pyx_L1_error)
+        __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_10, __pyx_t_5, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 237, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_2);
         __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
       }
     }
     __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
-    if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_expanded_ids, __pyx_t_2) < 0) __PYX_ERR(0, 198, __pyx_L1_error)
+    if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_expanded_ids, __pyx_t_2) < 0) __PYX_ERR(0, 237, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   }
   __pyx_L3:;
 
-  /* "freud/voronoi.pyx":201
+  /* "freud/voronoi.pyx":240
  * 
  *         # Use only the first two components if the box is 2D
  *         if box.is2D():             # <<<<<<<<<<<<<<
  *             self.expanded_points = self.expanded_points[:, :2]
  * 
  */
-  __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_v_box, __pyx_n_s_is2D); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 201, __pyx_L1_error)
+  __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_v_box, __pyx_n_s_is2D); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 240, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_10);
   __pyx_t_5 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_10))) {
@@ -4617,33 +5133,33 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_6_qhull_compute(CYTHON_UNUSED
     }
   }
   if (__pyx_t_5) {
-    __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_10, __pyx_t_5); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 201, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_10, __pyx_t_5); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 240, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   } else {
-    __pyx_t_2 = __Pyx_PyObject_CallNoArg(__pyx_t_10); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 201, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_CallNoArg(__pyx_t_10); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 240, __pyx_L1_error)
   }
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
-  __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_6 < 0)) __PYX_ERR(0, 201, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_6 < 0)) __PYX_ERR(0, 240, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   if (__pyx_t_6) {
 
-    /* "freud/voronoi.pyx":202
+    /* "freud/voronoi.pyx":241
  *         # Use only the first two components if the box is 2D
  *         if box.is2D():
  *             self.expanded_points = self.expanded_points[:, :2]             # <<<<<<<<<<<<<<
  * 
  *         # Use qhull to get the points
  */
-    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_expanded_points); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 202, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_expanded_points); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 241, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_10 = __Pyx_PyObject_GetItem(__pyx_t_2, __pyx_tuple__8); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 202, __pyx_L1_error)
+    __pyx_t_10 = __Pyx_PyObject_GetItem(__pyx_t_2, __pyx_tuple__8); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 241, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_10);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_expanded_points, __pyx_t_10) < 0) __PYX_ERR(0, 202, __pyx_L1_error)
+    if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_expanded_points, __pyx_t_10) < 0) __PYX_ERR(0, 241, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
 
-    /* "freud/voronoi.pyx":201
+    /* "freud/voronoi.pyx":240
  * 
  *         # Use only the first two components if the box is 2D
  *         if box.is2D():             # <<<<<<<<<<<<<<
@@ -4652,16 +5168,16 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_6_qhull_compute(CYTHON_UNUSED
  */
   }
 
-  /* "freud/voronoi.pyx":205
+  /* "freud/voronoi.pyx":244
  * 
  *         # Use qhull to get the points
  *         self.voronoi = qvoronoi(self.expanded_points)             # <<<<<<<<<<<<<<
  * 
  *     def compute(self, positions, box=None, buff=None):
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_qvoronoi); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 205, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_qvoronoi); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 244, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_expanded_points); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 205, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_expanded_points); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 244, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __pyx_t_7 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -4674,14 +5190,14 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_6_qhull_compute(CYTHON_UNUSED
     }
   }
   if (!__pyx_t_7) {
-    __pyx_t_10 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_5); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 205, __pyx_L1_error)
+    __pyx_t_10 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_5); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 244, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_GOTREF(__pyx_t_10);
   } else {
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[2] = {__pyx_t_7, __pyx_t_5};
-      __pyx_t_10 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 205, __pyx_L1_error)
+      __pyx_t_10 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 244, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
       __Pyx_GOTREF(__pyx_t_10);
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
@@ -4690,30 +5206,30 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_6_qhull_compute(CYTHON_UNUSED
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[2] = {__pyx_t_7, __pyx_t_5};
-      __pyx_t_10 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 205, __pyx_L1_error)
+      __pyx_t_10 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 244, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
       __Pyx_GOTREF(__pyx_t_10);
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     } else
     #endif
     {
-      __pyx_t_3 = PyTuple_New(1+1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 205, __pyx_L1_error)
+      __pyx_t_3 = PyTuple_New(1+1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 244, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_GIVEREF(__pyx_t_7); PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_7); __pyx_t_7 = NULL;
       __Pyx_GIVEREF(__pyx_t_5);
       PyTuple_SET_ITEM(__pyx_t_3, 0+1, __pyx_t_5);
       __pyx_t_5 = 0;
-      __pyx_t_10 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_3, NULL); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 205, __pyx_L1_error)
+      __pyx_t_10 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_3, NULL); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 244, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_10);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     }
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_voronoi, __pyx_t_10) < 0) __PYX_ERR(0, 205, __pyx_L1_error)
+  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_voronoi, __pyx_t_10) < 0) __PYX_ERR(0, 244, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
 
-  /* "freud/voronoi.pyx":174
- *         self.buff = buff
+  /* "freud/voronoi.pyx":213
+ *         self._buff = buff
  * 
  *     def _qhull_compute(self, positions, box=None, buff=None):             # <<<<<<<<<<<<<<
  *         """Calls VoronoiBuffer and qhull
@@ -4742,7 +5258,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_6_qhull_compute(CYTHON_UNUSED
   return __pyx_r;
 }
 
-/* "freud/voronoi.pyx":207
+/* "freud/voronoi.pyx":246
  *         self.voronoi = qvoronoi(self.expanded_points)
  * 
  *     def compute(self, positions, box=None, buff=None):             # <<<<<<<<<<<<<<
@@ -4752,7 +5268,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_6_qhull_compute(CYTHON_UNUSED
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_9compute(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_7voronoi_7Voronoi_8compute[] = "Compute Voronoi diagram.\n\n        Args:\n            positions ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Points to calculate Voronoi diagram for.\n            box (:class:`freud.box.Box`):\n                Simulation box (Default value = None).\n            buff (float):\n                Buffer distance within which to look for images\n                (Default value = None).\n        ";
+static char __pyx_doc_5freud_7voronoi_7Voronoi_8compute[] = "Voronoi.compute(self, positions, box=None, buff=None)\nCompute Voronoi diagram.\n\n        Args:\n            positions ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Points to calculate Voronoi diagram for.\n            box (:class:`freud.box.Box`):\n                Simulation box (Default value = None).\n            buff (float):\n                Buffer distance within which to look for images\n                (Default value = None).\n        ";
 static PyMethodDef __pyx_mdef_5freud_7voronoi_7Voronoi_9compute = {"compute", (PyCFunction)__pyx_pw_5freud_7voronoi_7Voronoi_9compute, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7voronoi_7Voronoi_8compute};
 static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_9compute(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -4791,7 +5307,7 @@ static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_9compute(PyObject *__pyx_self
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_positions)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("compute", 0, 2, 4, 1); __PYX_ERR(0, 207, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("compute", 0, 2, 4, 1); __PYX_ERR(0, 246, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
@@ -4807,7 +5323,7 @@ static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_9compute(PyObject *__pyx_self
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "compute") < 0)) __PYX_ERR(0, 207, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "compute") < 0)) __PYX_ERR(0, 246, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -4828,7 +5344,7 @@ static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_9compute(PyObject *__pyx_self
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("compute", 0, 2, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 207, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("compute", 0, 2, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 246, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("freud.voronoi.Voronoi.compute", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -4860,54 +5376,54 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_8compute(CYTHON_UNUSED PyObje
   __Pyx_RefNannySetupContext("compute", 0);
   __Pyx_INCREF(__pyx_v_buff);
 
-  /* "freud/voronoi.pyx":222
+  /* "freud/voronoi.pyx":261
  *         # If box or buff is not specified, revert to object quantities
  *         cdef freud.box.Box b
  *         if box is None:             # <<<<<<<<<<<<<<
- *             b = self.box
+ *             b = self._box
  *         else:
  */
   __pyx_t_1 = (__pyx_v_box == Py_None);
   __pyx_t_2 = (__pyx_t_1 != 0);
   if (__pyx_t_2) {
 
-    /* "freud/voronoi.pyx":223
+    /* "freud/voronoi.pyx":262
  *         cdef freud.box.Box b
  *         if box is None:
- *             b = self.box             # <<<<<<<<<<<<<<
+ *             b = self._box             # <<<<<<<<<<<<<<
  *         else:
  *             b = freud.common.convert_box(box)
  */
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_box); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 223, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_box_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 262, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_ptype_5freud_3box_Box))))) __PYX_ERR(0, 223, __pyx_L1_error)
+    if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_ptype_5freud_3box_Box))))) __PYX_ERR(0, 262, __pyx_L1_error)
     __pyx_v_b = ((struct __pyx_obj_5freud_3box_Box *)__pyx_t_3);
     __pyx_t_3 = 0;
 
-    /* "freud/voronoi.pyx":222
+    /* "freud/voronoi.pyx":261
  *         # If box or buff is not specified, revert to object quantities
  *         cdef freud.box.Box b
  *         if box is None:             # <<<<<<<<<<<<<<
- *             b = self.box
+ *             b = self._box
  *         else:
  */
     goto __pyx_L3;
   }
 
-  /* "freud/voronoi.pyx":225
- *             b = self.box
+  /* "freud/voronoi.pyx":264
+ *             b = self._box
  *         else:
  *             b = freud.common.convert_box(box)             # <<<<<<<<<<<<<<
  *         if buff is None:
- *             buff = self.buff
+ *             buff = self._buff
  */
   /*else*/ {
-    __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 225, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 264, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_common); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 225, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_common); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 264, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_convert_box); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 225, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_convert_box); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 264, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __pyx_t_5 = NULL;
@@ -4921,13 +5437,13 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_8compute(CYTHON_UNUSED PyObje
       }
     }
     if (!__pyx_t_5) {
-      __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_v_box); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 225, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_v_box); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 264, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
     } else {
       #if CYTHON_FAST_PYCALL
       if (PyFunction_Check(__pyx_t_4)) {
         PyObject *__pyx_temp[2] = {__pyx_t_5, __pyx_v_box};
-        __pyx_t_3 = __Pyx_PyFunction_FastCall(__pyx_t_4, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 225, __pyx_L1_error)
+        __pyx_t_3 = __Pyx_PyFunction_FastCall(__pyx_t_4, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 264, __pyx_L1_error)
         __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
         __Pyx_GOTREF(__pyx_t_3);
       } else
@@ -4935,70 +5451,70 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_8compute(CYTHON_UNUSED PyObje
       #if CYTHON_FAST_PYCCALL
       if (__Pyx_PyFastCFunction_Check(__pyx_t_4)) {
         PyObject *__pyx_temp[2] = {__pyx_t_5, __pyx_v_box};
-        __pyx_t_3 = __Pyx_PyCFunction_FastCall(__pyx_t_4, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 225, __pyx_L1_error)
+        __pyx_t_3 = __Pyx_PyCFunction_FastCall(__pyx_t_4, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 264, __pyx_L1_error)
         __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
         __Pyx_GOTREF(__pyx_t_3);
       } else
       #endif
       {
-        __pyx_t_6 = PyTuple_New(1+1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 225, __pyx_L1_error)
+        __pyx_t_6 = PyTuple_New(1+1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 264, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_6);
         __Pyx_GIVEREF(__pyx_t_5); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_5); __pyx_t_5 = NULL;
         __Pyx_INCREF(__pyx_v_box);
         __Pyx_GIVEREF(__pyx_v_box);
         PyTuple_SET_ITEM(__pyx_t_6, 0+1, __pyx_v_box);
-        __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_6, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 225, __pyx_L1_error)
+        __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_6, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 264, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_3);
         __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
       }
     }
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_ptype_5freud_3box_Box))))) __PYX_ERR(0, 225, __pyx_L1_error)
+    if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_ptype_5freud_3box_Box))))) __PYX_ERR(0, 264, __pyx_L1_error)
     __pyx_v_b = ((struct __pyx_obj_5freud_3box_Box *)__pyx_t_3);
     __pyx_t_3 = 0;
   }
   __pyx_L3:;
 
-  /* "freud/voronoi.pyx":226
+  /* "freud/voronoi.pyx":265
  *         else:
  *             b = freud.common.convert_box(box)
  *         if buff is None:             # <<<<<<<<<<<<<<
- *             buff = self.buff
+ *             buff = self._buff
  * 
  */
   __pyx_t_2 = (__pyx_v_buff == Py_None);
   __pyx_t_1 = (__pyx_t_2 != 0);
   if (__pyx_t_1) {
 
-    /* "freud/voronoi.pyx":227
+    /* "freud/voronoi.pyx":266
  *             b = freud.common.convert_box(box)
  *         if buff is None:
- *             buff = self.buff             # <<<<<<<<<<<<<<
+ *             buff = self._buff             # <<<<<<<<<<<<<<
  * 
  *         self._qhull_compute(positions, b, buff)
  */
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_buff); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 227, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_buff_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 266, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF_SET(__pyx_v_buff, __pyx_t_3);
     __pyx_t_3 = 0;
 
-    /* "freud/voronoi.pyx":226
+    /* "freud/voronoi.pyx":265
  *         else:
  *             b = freud.common.convert_box(box)
  *         if buff is None:             # <<<<<<<<<<<<<<
- *             buff = self.buff
+ *             buff = self._buff
  * 
  */
   }
 
-  /* "freud/voronoi.pyx":229
- *             buff = self.buff
+  /* "freud/voronoi.pyx":268
+ *             buff = self._buff
  * 
  *         self._qhull_compute(positions, b, buff)             # <<<<<<<<<<<<<<
  * 
  *         vertices = self.voronoi.vertices
  */
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_qhull_compute); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 229, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_qhull_compute); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 268, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_6 = NULL;
   __pyx_t_7 = 0;
@@ -5015,7 +5531,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_8compute(CYTHON_UNUSED PyObje
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_4)) {
     PyObject *__pyx_temp[4] = {__pyx_t_6, __pyx_v_positions, ((PyObject *)__pyx_v_b), __pyx_v_buff};
-    __pyx_t_3 = __Pyx_PyFunction_FastCall(__pyx_t_4, __pyx_temp+1-__pyx_t_7, 3+__pyx_t_7); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 229, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyFunction_FastCall(__pyx_t_4, __pyx_temp+1-__pyx_t_7, 3+__pyx_t_7); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 268, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
     __Pyx_GOTREF(__pyx_t_3);
   } else
@@ -5023,13 +5539,13 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_8compute(CYTHON_UNUSED PyObje
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_4)) {
     PyObject *__pyx_temp[4] = {__pyx_t_6, __pyx_v_positions, ((PyObject *)__pyx_v_b), __pyx_v_buff};
-    __pyx_t_3 = __Pyx_PyCFunction_FastCall(__pyx_t_4, __pyx_temp+1-__pyx_t_7, 3+__pyx_t_7); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 229, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyCFunction_FastCall(__pyx_t_4, __pyx_temp+1-__pyx_t_7, 3+__pyx_t_7); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 268, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
     __Pyx_GOTREF(__pyx_t_3);
   } else
   #endif
   {
-    __pyx_t_5 = PyTuple_New(3+__pyx_t_7); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 229, __pyx_L1_error)
+    __pyx_t_5 = PyTuple_New(3+__pyx_t_7); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 268, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     if (__pyx_t_6) {
       __Pyx_GIVEREF(__pyx_t_6); PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_6); __pyx_t_6 = NULL;
@@ -5043,36 +5559,36 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_8compute(CYTHON_UNUSED PyObje
     __Pyx_INCREF(__pyx_v_buff);
     __Pyx_GIVEREF(__pyx_v_buff);
     PyTuple_SET_ITEM(__pyx_t_5, 2+__pyx_t_7, __pyx_v_buff);
-    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_5, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 229, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_5, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 268, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   }
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "freud/voronoi.pyx":231
+  /* "freud/voronoi.pyx":270
  *         self._qhull_compute(positions, b, buff)
  * 
  *         vertices = self.voronoi.vertices             # <<<<<<<<<<<<<<
  * 
  *         # Add a z-component of 0 if the box is 2D
  */
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_voronoi); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 231, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_voronoi); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 270, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_vertices); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 231, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_vertices); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 270, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_v_vertices = __pyx_t_4;
   __pyx_t_4 = 0;
 
-  /* "freud/voronoi.pyx":234
+  /* "freud/voronoi.pyx":273
  * 
  *         # Add a z-component of 0 if the box is 2D
  *         if b.is2D():             # <<<<<<<<<<<<<<
  *             vertices = np.insert(vertices, 2, 0, 1)
  * 
  */
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_b), __pyx_n_s_is2D); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 234, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_b), __pyx_n_s_is2D); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 273, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_5 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_3))) {
@@ -5085,27 +5601,27 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_8compute(CYTHON_UNUSED PyObje
     }
   }
   if (__pyx_t_5) {
-    __pyx_t_4 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 234, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 273, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   } else {
-    __pyx_t_4 = __Pyx_PyObject_CallNoArg(__pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 234, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_CallNoArg(__pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 273, __pyx_L1_error)
   }
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_t_4); if (unlikely(__pyx_t_1 < 0)) __PYX_ERR(0, 234, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_t_4); if (unlikely(__pyx_t_1 < 0)) __PYX_ERR(0, 273, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   if (__pyx_t_1) {
 
-    /* "freud/voronoi.pyx":235
+    /* "freud/voronoi.pyx":274
  *         # Add a z-component of 0 if the box is 2D
  *         if b.is2D():
  *             vertices = np.insert(vertices, 2, 0, 1)             # <<<<<<<<<<<<<<
  * 
  *         # Construct a list of polytope vertices
  */
-    __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 235, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 274, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_insert); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 235, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_insert); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 274, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __pyx_t_3 = NULL;
@@ -5123,7 +5639,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_8compute(CYTHON_UNUSED PyObje
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_5)) {
       PyObject *__pyx_temp[5] = {__pyx_t_3, __pyx_v_vertices, __pyx_int_2, __pyx_int_0, __pyx_int_1};
-      __pyx_t_4 = __Pyx_PyFunction_FastCall(__pyx_t_5, __pyx_temp+1-__pyx_t_7, 4+__pyx_t_7); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 235, __pyx_L1_error)
+      __pyx_t_4 = __Pyx_PyFunction_FastCall(__pyx_t_5, __pyx_temp+1-__pyx_t_7, 4+__pyx_t_7); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 274, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_GOTREF(__pyx_t_4);
     } else
@@ -5131,13 +5647,13 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_8compute(CYTHON_UNUSED PyObje
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_5)) {
       PyObject *__pyx_temp[5] = {__pyx_t_3, __pyx_v_vertices, __pyx_int_2, __pyx_int_0, __pyx_int_1};
-      __pyx_t_4 = __Pyx_PyCFunction_FastCall(__pyx_t_5, __pyx_temp+1-__pyx_t_7, 4+__pyx_t_7); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 235, __pyx_L1_error)
+      __pyx_t_4 = __Pyx_PyCFunction_FastCall(__pyx_t_5, __pyx_temp+1-__pyx_t_7, 4+__pyx_t_7); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 274, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_GOTREF(__pyx_t_4);
     } else
     #endif
     {
-      __pyx_t_6 = PyTuple_New(4+__pyx_t_7); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 235, __pyx_L1_error)
+      __pyx_t_6 = PyTuple_New(4+__pyx_t_7); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 274, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_6);
       if (__pyx_t_3) {
         __Pyx_GIVEREF(__pyx_t_3); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_3); __pyx_t_3 = NULL;
@@ -5154,7 +5670,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_8compute(CYTHON_UNUSED PyObje
       __Pyx_INCREF(__pyx_int_1);
       __Pyx_GIVEREF(__pyx_int_1);
       PyTuple_SET_ITEM(__pyx_t_6, 3+__pyx_t_7, __pyx_int_1);
-      __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_6, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 235, __pyx_L1_error)
+      __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_6, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 274, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     }
@@ -5162,7 +5678,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_8compute(CYTHON_UNUSED PyObje
     __Pyx_DECREF_SET(__pyx_v_vertices, __pyx_t_4);
     __pyx_t_4 = 0;
 
-    /* "freud/voronoi.pyx":234
+    /* "freud/voronoi.pyx":273
  * 
  *         # Add a z-component of 0 if the box is 2D
  *         if b.is2D():             # <<<<<<<<<<<<<<
@@ -5171,41 +5687,41 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_8compute(CYTHON_UNUSED PyObje
  */
   }
 
-  /* "freud/voronoi.pyx":238
+  /* "freud/voronoi.pyx":277
  * 
  *         # Construct a list of polytope vertices
- *         self.poly_verts = list()             # <<<<<<<<<<<<<<
+ *         self._poly_verts = list()             # <<<<<<<<<<<<<<
  *         for region in self.voronoi.point_region[:len(positions)]:
  *             if -1 in self.voronoi.regions[region]:
  */
-  __pyx_t_4 = PyList_New(0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 238, __pyx_L1_error)
+  __pyx_t_4 = PyList_New(0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 277, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_poly_verts, __pyx_t_4) < 0) __PYX_ERR(0, 238, __pyx_L1_error)
+  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_poly_verts, __pyx_t_4) < 0) __PYX_ERR(0, 277, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "freud/voronoi.pyx":239
+  /* "freud/voronoi.pyx":278
  *         # Construct a list of polytope vertices
- *         self.poly_verts = list()
+ *         self._poly_verts = list()
  *         for region in self.voronoi.point_region[:len(positions)]:             # <<<<<<<<<<<<<<
  *             if -1 in self.voronoi.regions[region]:
  *                 continue
  */
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_voronoi); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 239, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_voronoi); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 278, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_point_region); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 239, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_point_region); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 278, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_8 = PyObject_Length(__pyx_v_positions); if (unlikely(__pyx_t_8 == ((Py_ssize_t)-1))) __PYX_ERR(0, 239, __pyx_L1_error)
-  __pyx_t_4 = __Pyx_PyObject_GetSlice(__pyx_t_5, 0, __pyx_t_8, NULL, NULL, NULL, 0, 1, 1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 239, __pyx_L1_error)
+  __pyx_t_8 = PyObject_Length(__pyx_v_positions); if (unlikely(__pyx_t_8 == ((Py_ssize_t)-1))) __PYX_ERR(0, 278, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetSlice(__pyx_t_5, 0, __pyx_t_8, NULL, NULL, NULL, 0, 1, 1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 278, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   if (likely(PyList_CheckExact(__pyx_t_4)) || PyTuple_CheckExact(__pyx_t_4)) {
     __pyx_t_5 = __pyx_t_4; __Pyx_INCREF(__pyx_t_5); __pyx_t_8 = 0;
     __pyx_t_9 = NULL;
   } else {
-    __pyx_t_8 = -1; __pyx_t_5 = PyObject_GetIter(__pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 239, __pyx_L1_error)
+    __pyx_t_8 = -1; __pyx_t_5 = PyObject_GetIter(__pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 278, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_9 = Py_TYPE(__pyx_t_5)->tp_iternext; if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 239, __pyx_L1_error)
+    __pyx_t_9 = Py_TYPE(__pyx_t_5)->tp_iternext; if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 278, __pyx_L1_error)
   }
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   for (;;) {
@@ -5213,17 +5729,17 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_8compute(CYTHON_UNUSED PyObje
       if (likely(PyList_CheckExact(__pyx_t_5))) {
         if (__pyx_t_8 >= PyList_GET_SIZE(__pyx_t_5)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_4 = PyList_GET_ITEM(__pyx_t_5, __pyx_t_8); __Pyx_INCREF(__pyx_t_4); __pyx_t_8++; if (unlikely(0 < 0)) __PYX_ERR(0, 239, __pyx_L1_error)
+        __pyx_t_4 = PyList_GET_ITEM(__pyx_t_5, __pyx_t_8); __Pyx_INCREF(__pyx_t_4); __pyx_t_8++; if (unlikely(0 < 0)) __PYX_ERR(0, 278, __pyx_L1_error)
         #else
-        __pyx_t_4 = PySequence_ITEM(__pyx_t_5, __pyx_t_8); __pyx_t_8++; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 239, __pyx_L1_error)
+        __pyx_t_4 = PySequence_ITEM(__pyx_t_5, __pyx_t_8); __pyx_t_8++; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 278, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_4);
         #endif
       } else {
         if (__pyx_t_8 >= PyTuple_GET_SIZE(__pyx_t_5)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_4 = PyTuple_GET_ITEM(__pyx_t_5, __pyx_t_8); __Pyx_INCREF(__pyx_t_4); __pyx_t_8++; if (unlikely(0 < 0)) __PYX_ERR(0, 239, __pyx_L1_error)
+        __pyx_t_4 = PyTuple_GET_ITEM(__pyx_t_5, __pyx_t_8); __Pyx_INCREF(__pyx_t_4); __pyx_t_8++; if (unlikely(0 < 0)) __PYX_ERR(0, 278, __pyx_L1_error)
         #else
-        __pyx_t_4 = PySequence_ITEM(__pyx_t_5, __pyx_t_8); __pyx_t_8++; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 239, __pyx_L1_error)
+        __pyx_t_4 = PySequence_ITEM(__pyx_t_5, __pyx_t_8); __pyx_t_8++; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 278, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_4);
         #endif
       }
@@ -5233,7 +5749,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_8compute(CYTHON_UNUSED PyObje
         PyObject* exc_type = PyErr_Occurred();
         if (exc_type) {
           if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-          else __PYX_ERR(0, 239, __pyx_L1_error)
+          else __PYX_ERR(0, 278, __pyx_L1_error)
         }
         break;
       }
@@ -5242,71 +5758,71 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_8compute(CYTHON_UNUSED PyObje
     __Pyx_XDECREF_SET(__pyx_v_region, __pyx_t_4);
     __pyx_t_4 = 0;
 
-    /* "freud/voronoi.pyx":240
- *         self.poly_verts = list()
+    /* "freud/voronoi.pyx":279
+ *         self._poly_verts = list()
  *         for region in self.voronoi.point_region[:len(positions)]:
  *             if -1 in self.voronoi.regions[region]:             # <<<<<<<<<<<<<<
  *                 continue
- *             self.poly_verts.append(vertices[self.voronoi.regions[region]])
+ *             self._poly_verts.append(vertices[self.voronoi.regions[region]])
  */
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_voronoi); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 240, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_voronoi); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 279, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_regions); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 240, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_regions); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 279, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __pyx_t_4 = __Pyx_PyObject_GetItem(__pyx_t_6, __pyx_v_region); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 240, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_GetItem(__pyx_t_6, __pyx_v_region); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 279, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    __pyx_t_1 = (__Pyx_PySequence_ContainsTF(__pyx_int_neg_1, __pyx_t_4, Py_EQ)); if (unlikely(__pyx_t_1 < 0)) __PYX_ERR(0, 240, __pyx_L1_error)
+    __pyx_t_1 = (__Pyx_PySequence_ContainsTF(__pyx_int_neg_1, __pyx_t_4, Py_EQ)); if (unlikely(__pyx_t_1 < 0)) __PYX_ERR(0, 279, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __pyx_t_2 = (__pyx_t_1 != 0);
     if (__pyx_t_2) {
 
-      /* "freud/voronoi.pyx":241
+      /* "freud/voronoi.pyx":280
  *         for region in self.voronoi.point_region[:len(positions)]:
  *             if -1 in self.voronoi.regions[region]:
  *                 continue             # <<<<<<<<<<<<<<
- *             self.poly_verts.append(vertices[self.voronoi.regions[region]])
+ *             self._poly_verts.append(vertices[self.voronoi.regions[region]])
  *         return self
  */
       goto __pyx_L6_continue;
 
-      /* "freud/voronoi.pyx":240
- *         self.poly_verts = list()
+      /* "freud/voronoi.pyx":279
+ *         self._poly_verts = list()
  *         for region in self.voronoi.point_region[:len(positions)]:
  *             if -1 in self.voronoi.regions[region]:             # <<<<<<<<<<<<<<
  *                 continue
- *             self.poly_verts.append(vertices[self.voronoi.regions[region]])
+ *             self._poly_verts.append(vertices[self.voronoi.regions[region]])
  */
     }
 
-    /* "freud/voronoi.pyx":242
+    /* "freud/voronoi.pyx":281
  *             if -1 in self.voronoi.regions[region]:
  *                 continue
- *             self.poly_verts.append(vertices[self.voronoi.regions[region]])             # <<<<<<<<<<<<<<
+ *             self._poly_verts.append(vertices[self.voronoi.regions[region]])             # <<<<<<<<<<<<<<
  *         return self
  * 
  */
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_poly_verts); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 242, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_poly_verts); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 281, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_voronoi); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 242, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_voronoi); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 281, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_regions); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 242, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_regions); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 281, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    __pyx_t_6 = __Pyx_PyObject_GetItem(__pyx_t_3, __pyx_v_region); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 242, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyObject_GetItem(__pyx_t_3, __pyx_v_region); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 281, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_3 = __Pyx_PyObject_GetItem(__pyx_v_vertices, __pyx_t_6); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 242, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetItem(__pyx_v_vertices, __pyx_t_6); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 281, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    __pyx_t_10 = __Pyx_PyObject_Append(__pyx_t_4, __pyx_t_3); if (unlikely(__pyx_t_10 == ((int)-1))) __PYX_ERR(0, 242, __pyx_L1_error)
+    __pyx_t_10 = __Pyx_PyObject_Append(__pyx_t_4, __pyx_t_3); if (unlikely(__pyx_t_10 == ((int)-1))) __PYX_ERR(0, 281, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-    /* "freud/voronoi.pyx":239
+    /* "freud/voronoi.pyx":278
  *         # Construct a list of polytope vertices
- *         self.poly_verts = list()
+ *         self._poly_verts = list()
  *         for region in self.voronoi.point_region[:len(positions)]:             # <<<<<<<<<<<<<<
  *             if -1 in self.voronoi.regions[region]:
  *                 continue
@@ -5315,19 +5831,19 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_8compute(CYTHON_UNUSED PyObje
   }
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "freud/voronoi.pyx":243
+  /* "freud/voronoi.pyx":282
  *                 continue
- *             self.poly_verts.append(vertices[self.voronoi.regions[region]])
+ *             self._poly_verts.append(vertices[self.voronoi.regions[region]])
  *         return self             # <<<<<<<<<<<<<<
  * 
- *     def getBuffer(self):
+ *     @property
  */
   __Pyx_XDECREF(__pyx_r);
   __Pyx_INCREF(__pyx_v_self);
   __pyx_r = __pyx_v_self;
   goto __pyx_L0;
 
-  /* "freud/voronoi.pyx":207
+  /* "freud/voronoi.pyx":246
  *         self.voronoi = qvoronoi(self.expanded_points)
  * 
  *     def compute(self, positions, box=None, buff=None):             # <<<<<<<<<<<<<<
@@ -5353,60 +5869,202 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_8compute(CYTHON_UNUSED PyObje
   return __pyx_r;
 }
 
-/* "freud/voronoi.pyx":245
- *         return self
+/* "freud/voronoi.pyx":285
  * 
- *     def getBuffer(self):             # <<<<<<<<<<<<<<
- *         """Returns the buffer width.
+ *     @property
+ *     def buffer(self):             # <<<<<<<<<<<<<<
+ *         return self._buff
  * 
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_11getBuffer(PyObject *__pyx_self, PyObject *__pyx_v_self); /*proto*/
-static char __pyx_doc_5freud_7voronoi_7Voronoi_10getBuffer[] = "Returns the buffer width.\n\n        Returns:\n            float: Buffer width.\n        ";
-static PyMethodDef __pyx_mdef_5freud_7voronoi_7Voronoi_11getBuffer = {"getBuffer", (PyCFunction)__pyx_pw_5freud_7voronoi_7Voronoi_11getBuffer, METH_O, __pyx_doc_5freud_7voronoi_7Voronoi_10getBuffer};
-static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_11getBuffer(PyObject *__pyx_self, PyObject *__pyx_v_self) {
+static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_11buffer(PyObject *__pyx_self, PyObject *__pyx_v_self); /*proto*/
+static char __pyx_doc_5freud_7voronoi_7Voronoi_10buffer[] = "Voronoi.buffer(self)";
+static PyMethodDef __pyx_mdef_5freud_7voronoi_7Voronoi_11buffer = {"buffer", (PyCFunction)__pyx_pw_5freud_7voronoi_7Voronoi_11buffer, METH_O, __pyx_doc_5freud_7voronoi_7Voronoi_10buffer};
+static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_11buffer(PyObject *__pyx_self, PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("getBuffer (wrapper)", 0);
-  __pyx_r = __pyx_pf_5freud_7voronoi_7Voronoi_10getBuffer(__pyx_self, ((PyObject *)__pyx_v_self));
+  __Pyx_RefNannySetupContext("buffer (wrapper)", 0);
+  __pyx_r = __pyx_pf_5freud_7voronoi_7Voronoi_10buffer(__pyx_self, ((PyObject *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_10getBuffer(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self) {
+static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_10buffer(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
-  __Pyx_RefNannySetupContext("getBuffer", 0);
+  __Pyx_RefNannySetupContext("buffer", 0);
 
-  /* "freud/voronoi.pyx":251
- *             float: Buffer width.
- *         """
- *         return self.buff             # <<<<<<<<<<<<<<
+  /* "freud/voronoi.pyx":286
+ *     @property
+ *     def buffer(self):
+ *         return self._buff             # <<<<<<<<<<<<<<
  * 
- *     def getVoronoiPolytopes(self):
+ *     def getBuffer(self):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_buff); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 251, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_buff_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 286, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/voronoi.pyx":245
- *         return self
+  /* "freud/voronoi.pyx":285
  * 
- *     def getBuffer(self):             # <<<<<<<<<<<<<<
- *         """Returns the buffer width.
+ *     @property
+ *     def buffer(self):             # <<<<<<<<<<<<<<
+ *         return self._buff
  * 
  */
 
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_AddTraceback("freud.voronoi.Voronoi.buffer", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "freud/voronoi.pyx":288
+ *         return self._buff
+ * 
+ *     def getBuffer(self):             # <<<<<<<<<<<<<<
+ *         warnings.warn("The getBuffer function is deprecated in favor "
+ *                       "of the buffer class attribute and will be "
+ */
+
+/* Python wrapper */
+static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_13getBuffer(PyObject *__pyx_self, PyObject *__pyx_v_self); /*proto*/
+static char __pyx_doc_5freud_7voronoi_7Voronoi_12getBuffer[] = "Voronoi.getBuffer(self)";
+static PyMethodDef __pyx_mdef_5freud_7voronoi_7Voronoi_13getBuffer = {"getBuffer", (PyCFunction)__pyx_pw_5freud_7voronoi_7Voronoi_13getBuffer, METH_O, __pyx_doc_5freud_7voronoi_7Voronoi_12getBuffer};
+static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_13getBuffer(PyObject *__pyx_self, PyObject *__pyx_v_self) {
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("getBuffer (wrapper)", 0);
+  __pyx_r = __pyx_pf_5freud_7voronoi_7Voronoi_12getBuffer(__pyx_self, ((PyObject *)__pyx_v_self));
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_12getBuffer(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self) {
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  PyObject *__pyx_t_2 = NULL;
+  PyObject *__pyx_t_3 = NULL;
+  PyObject *__pyx_t_4 = NULL;
+  int __pyx_t_5;
+  PyObject *__pyx_t_6 = NULL;
+  __Pyx_RefNannySetupContext("getBuffer", 0);
+
+  /* "freud/voronoi.pyx":289
+ * 
+ *     def getBuffer(self):
+ *         warnings.warn("The getBuffer function is deprecated in favor "             # <<<<<<<<<<<<<<
+ *                       "of the buffer class attribute and will be "
+ *                       "removed in a future version of freud.",
+ */
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 289, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 289, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+
+  /* "freud/voronoi.pyx":292
+ *                       "of the buffer class attribute and will be "
+ *                       "removed in a future version of freud.",
+ *                       FreudDeprecationWarning)             # <<<<<<<<<<<<<<
+ *         return self.buffer
+ * 
+ */
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 292, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_4 = NULL;
+  __pyx_t_5 = 0;
+  if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
+    __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_3);
+    if (likely(__pyx_t_4)) {
+      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
+      __Pyx_INCREF(__pyx_t_4);
+      __Pyx_INCREF(function);
+      __Pyx_DECREF_SET(__pyx_t_3, function);
+      __pyx_t_5 = 1;
+    }
+  }
+  #if CYTHON_FAST_PYCALL
+  if (PyFunction_Check(__pyx_t_3)) {
+    PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getBuffer_function_is_deprec, __pyx_t_2};
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 289, __pyx_L1_error)
+    __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __Pyx_GOTREF(__pyx_t_1);
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  } else
+  #endif
+  #if CYTHON_FAST_PYCCALL
+  if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
+    PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getBuffer_function_is_deprec, __pyx_t_2};
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 289, __pyx_L1_error)
+    __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __Pyx_GOTREF(__pyx_t_1);
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  } else
+  #endif
+  {
+    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 289, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_6);
+    if (__pyx_t_4) {
+      __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4); __pyx_t_4 = NULL;
+    }
+    __Pyx_INCREF(__pyx_kp_s_The_getBuffer_function_is_deprec);
+    __Pyx_GIVEREF(__pyx_kp_s_The_getBuffer_function_is_deprec);
+    PyTuple_SET_ITEM(__pyx_t_6, 0+__pyx_t_5, __pyx_kp_s_The_getBuffer_function_is_deprec);
+    __Pyx_GIVEREF(__pyx_t_2);
+    PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_5, __pyx_t_2);
+    __pyx_t_2 = 0;
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 289, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
+    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+  }
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "freud/voronoi.pyx":293
+ *                       "removed in a future version of freud.",
+ *                       FreudDeprecationWarning)
+ *         return self.buffer             # <<<<<<<<<<<<<<
+ * 
+ *     @property
+ */
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_buffer); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 293, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+
+  /* "freud/voronoi.pyx":288
+ *         return self._buff
+ * 
+ *     def getBuffer(self):             # <<<<<<<<<<<<<<
+ *         warnings.warn("The getBuffer function is deprecated in favor "
+ *                       "of the buffer class attribute and will be "
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_3);
+  __Pyx_XDECREF(__pyx_t_4);
+  __Pyx_XDECREF(__pyx_t_6);
   __Pyx_AddTraceback("freud.voronoi.Voronoi.getBuffer", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
@@ -5415,8 +6073,70 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_10getBuffer(CYTHON_UNUSED PyO
   return __pyx_r;
 }
 
-/* "freud/voronoi.pyx":253
- *         return self.buff
+/* "freud/voronoi.pyx":296
+ * 
+ *     @property
+ *     def polytopes(self):             # <<<<<<<<<<<<<<
+ *         return self._poly_verts
+ * 
+ */
+
+/* Python wrapper */
+static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_15polytopes(PyObject *__pyx_self, PyObject *__pyx_v_self); /*proto*/
+static char __pyx_doc_5freud_7voronoi_7Voronoi_14polytopes[] = "Voronoi.polytopes(self)";
+static PyMethodDef __pyx_mdef_5freud_7voronoi_7Voronoi_15polytopes = {"polytopes", (PyCFunction)__pyx_pw_5freud_7voronoi_7Voronoi_15polytopes, METH_O, __pyx_doc_5freud_7voronoi_7Voronoi_14polytopes};
+static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_15polytopes(PyObject *__pyx_self, PyObject *__pyx_v_self) {
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("polytopes (wrapper)", 0);
+  __pyx_r = __pyx_pf_5freud_7voronoi_7Voronoi_14polytopes(__pyx_self, ((PyObject *)__pyx_v_self));
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14polytopes(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self) {
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  __Pyx_RefNannySetupContext("polytopes", 0);
+
+  /* "freud/voronoi.pyx":297
+ *     @property
+ *     def polytopes(self):
+ *         return self._poly_verts             # <<<<<<<<<<<<<<
+ * 
+ *     def getVoronoiPolytopes(self):
+ */
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_poly_verts); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 297, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+
+  /* "freud/voronoi.pyx":296
+ * 
+ *     @property
+ *     def polytopes(self):             # <<<<<<<<<<<<<<
+ *         return self._poly_verts
+ * 
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_AddTraceback("freud.voronoi.Voronoi.polytopes", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "freud/voronoi.pyx":299
+ *         return self._poly_verts
  * 
  *     def getVoronoiPolytopes(self):             # <<<<<<<<<<<<<<
  *         """Returns a list of polytope vertices corresponding to Voronoi cells.
@@ -5424,42 +6144,118 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_10getBuffer(CYTHON_UNUSED PyO
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_13getVoronoiPolytopes(PyObject *__pyx_self, PyObject *__pyx_v_self); /*proto*/
-static char __pyx_doc_5freud_7voronoi_7Voronoi_12getVoronoiPolytopes[] = "Returns a list of polytope vertices corresponding to Voronoi cells.\n\n        If the buffer width is too small, then some polytopes may not be\n        closed (they may have a boundary at infinity), and these polytopes'\n        vertices are excluded from the list.\n\n        The length of the list returned by this method should be the same\n        as the array of positions used in the\n        :py:meth:`freud.voronoi.Voronoi.compute()` method, if all the polytopes\n        are closed. Otherwise try using a larger buffer width.\n\n        Returns:\n            list:\n                List of :class:`numpy.ndarray` containing Voronoi polytope\n                vertices.\n        ";
-static PyMethodDef __pyx_mdef_5freud_7voronoi_7Voronoi_13getVoronoiPolytopes = {"getVoronoiPolytopes", (PyCFunction)__pyx_pw_5freud_7voronoi_7Voronoi_13getVoronoiPolytopes, METH_O, __pyx_doc_5freud_7voronoi_7Voronoi_12getVoronoiPolytopes};
-static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_13getVoronoiPolytopes(PyObject *__pyx_self, PyObject *__pyx_v_self) {
+static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_17getVoronoiPolytopes(PyObject *__pyx_self, PyObject *__pyx_v_self); /*proto*/
+static char __pyx_doc_5freud_7voronoi_7Voronoi_16getVoronoiPolytopes[] = "Voronoi.getVoronoiPolytopes(self)\nReturns a list of polytope vertices corresponding to Voronoi cells.\n\n        If the buffer width is too small, then some polytopes may not be\n        closed (they may have a boundary at infinity), and these polytopes'\n        vertices are excluded from the list.\n\n        The length of the list returned by this method should be the same\n        as the array of positions used in the\n        :py:meth:`freud.voronoi.Voronoi.compute()` method, if all the polytopes\n        are closed. Otherwise try using a larger buffer width.\n\n        Returns:\n            list:\n                List of :class:`numpy.ndarray` containing Voronoi polytope\n                vertices.\n        ";
+static PyMethodDef __pyx_mdef_5freud_7voronoi_7Voronoi_17getVoronoiPolytopes = {"getVoronoiPolytopes", (PyCFunction)__pyx_pw_5freud_7voronoi_7Voronoi_17getVoronoiPolytopes, METH_O, __pyx_doc_5freud_7voronoi_7Voronoi_16getVoronoiPolytopes};
+static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_17getVoronoiPolytopes(PyObject *__pyx_self, PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("getVoronoiPolytopes (wrapper)", 0);
-  __pyx_r = __pyx_pf_5freud_7voronoi_7Voronoi_12getVoronoiPolytopes(__pyx_self, ((PyObject *)__pyx_v_self));
+  __pyx_r = __pyx_pf_5freud_7voronoi_7Voronoi_16getVoronoiPolytopes(__pyx_self, ((PyObject *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_12getVoronoiPolytopes(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self) {
+static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_16getVoronoiPolytopes(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
+  PyObject *__pyx_t_2 = NULL;
+  PyObject *__pyx_t_3 = NULL;
+  PyObject *__pyx_t_4 = NULL;
+  int __pyx_t_5;
+  PyObject *__pyx_t_6 = NULL;
   __Pyx_RefNannySetupContext("getVoronoiPolytopes", 0);
 
-  /* "freud/voronoi.pyx":270
+  /* "freud/voronoi.pyx":316
  *                 vertices.
  *         """
- *         return self.poly_verts             # <<<<<<<<<<<<<<
+ *         warnings.warn("The getBuffer function is deprecated in favor "             # <<<<<<<<<<<<<<
+ *                       "of the buffer class attribute and will be "
+ *                       "removed in a future version of freud.",
+ */
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 316, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 316, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+
+  /* "freud/voronoi.pyx":319
+ *                       "of the buffer class attribute and will be "
+ *                       "removed in a future version of freud.",
+ *                       FreudDeprecationWarning)             # <<<<<<<<<<<<<<
+ *         return self.polytopes
+ * 
+ */
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 319, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_4 = NULL;
+  __pyx_t_5 = 0;
+  if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
+    __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_3);
+    if (likely(__pyx_t_4)) {
+      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
+      __Pyx_INCREF(__pyx_t_4);
+      __Pyx_INCREF(function);
+      __Pyx_DECREF_SET(__pyx_t_3, function);
+      __pyx_t_5 = 1;
+    }
+  }
+  #if CYTHON_FAST_PYCALL
+  if (PyFunction_Check(__pyx_t_3)) {
+    PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getBuffer_function_is_deprec, __pyx_t_2};
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 316, __pyx_L1_error)
+    __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __Pyx_GOTREF(__pyx_t_1);
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  } else
+  #endif
+  #if CYTHON_FAST_PYCCALL
+  if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
+    PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getBuffer_function_is_deprec, __pyx_t_2};
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 316, __pyx_L1_error)
+    __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __Pyx_GOTREF(__pyx_t_1);
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  } else
+  #endif
+  {
+    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 316, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_6);
+    if (__pyx_t_4) {
+      __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4); __pyx_t_4 = NULL;
+    }
+    __Pyx_INCREF(__pyx_kp_s_The_getBuffer_function_is_deprec);
+    __Pyx_GIVEREF(__pyx_kp_s_The_getBuffer_function_is_deprec);
+    PyTuple_SET_ITEM(__pyx_t_6, 0+__pyx_t_5, __pyx_kp_s_The_getBuffer_function_is_deprec);
+    __Pyx_GIVEREF(__pyx_t_2);
+    PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_5, __pyx_t_2);
+    __pyx_t_2 = 0;
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 316, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
+    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+  }
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "freud/voronoi.pyx":320
+ *                       "removed in a future version of freud.",
+ *                       FreudDeprecationWarning)
+ *         return self.polytopes             # <<<<<<<<<<<<<<
  * 
  *     def computeNeighbors(self, positions, box=None, buff=None,
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_poly_verts); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 270, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_polytopes); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 320, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/voronoi.pyx":253
- *         return self.buff
+  /* "freud/voronoi.pyx":299
+ *         return self._poly_verts
  * 
  *     def getVoronoiPolytopes(self):             # <<<<<<<<<<<<<<
  *         """Returns a list of polytope vertices corresponding to Voronoi cells.
@@ -5469,6 +6265,10 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_12getVoronoiPolytopes(CYTHON_
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_3);
+  __Pyx_XDECREF(__pyx_t_4);
+  __Pyx_XDECREF(__pyx_t_6);
   __Pyx_AddTraceback("freud.voronoi.Voronoi.getVoronoiPolytopes", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
@@ -5477,8 +6277,8 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_12getVoronoiPolytopes(CYTHON_
   return __pyx_r;
 }
 
-/* "freud/voronoi.pyx":272
- *         return self.poly_verts
+/* "freud/voronoi.pyx":322
+ *         return self.polytopes
  * 
  *     def computeNeighbors(self, positions, box=None, buff=None,             # <<<<<<<<<<<<<<
  *                          exclude_ii=True):
@@ -5486,10 +6286,10 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_12getVoronoiPolytopes(CYTHON_
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_15computeNeighbors(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_7voronoi_7Voronoi_14computeNeighbors[] = "Compute the neighbors of each particle based on the Voronoi\n        tessellation. One can include neighbors from multiple Voronoi shells by\n        specifying :code:`numShells` in :py:meth:`~.getNeighbors()`.\n        An example of computing neighbors from the first two Voronoi shells\n        for a 2D mesh is shown below.\n\n        Retrieve the results with :py:meth:`~.getNeighbors()`.\n\n        Example::\n\n            from freud import box, voronoi\n            import numpy as np\n            vor = voronoi.Voronoi(box.Box(5, 5, is2D=True))\n            pos = np.array([[0, 0, 0], [0, 1, 0], [0, 2, 0],\n                            [1, 0, 0], [1, 1, 0], [1, 2, 0],\n                            [2, 0, 0], [2, 1, 0], [2, 2, 0]], dtype=np.float32)\n            first_shell = vor.computeNeighbors(pos).getNeighbors(1)\n            second_shell = vor.computeNeighbors(pos).getNeighbors(2)\n            print('First shell:', first_shell)\n            print('Second shell:', second_shell)\n\n        .. note:: Input positions must be a 3D array. For 2D, set the z value\n                  to 0.\n\n        Args:\n            positions ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Points to calculate Voronoi diagram for.\n            box (:class:`freud.box.Box`):\n                Simulation box (Default value = None).\n            buff (float):\n                Buffer distance within which to look for images\n                (Default value = None).\n            exclude_ii (bool, optional):\n                True if pairs of points with identical indices should be\n                excluded (Default value = True).\n        ";
-static PyMethodDef __pyx_mdef_5freud_7voronoi_7Voronoi_15computeNeighbors = {"computeNeighbors", (PyCFunction)__pyx_pw_5freud_7voronoi_7Voronoi_15computeNeighbors, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7voronoi_7Voronoi_14computeNeighbors};
-static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_15computeNeighbors(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_19computeNeighbors(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_5freud_7voronoi_7Voronoi_18computeNeighbors[] = "Voronoi.computeNeighbors(self, positions, box=None, buff=None, exclude_ii=True)\nCompute the neighbors of each particle based on the Voronoi\n        tessellation. One can include neighbors from multiple Voronoi shells by\n        specifying :code:`numShells` in :py:meth:`~.getNeighbors()`.\n        An example of computing neighbors from the first two Voronoi shells\n        for a 2D mesh is shown below.\n\n        Retrieve the results with :py:meth:`~.getNeighbors()`.\n\n        Example::\n\n            from freud import box, voronoi\n            import numpy as np\n            vor = voronoi.Voronoi(box.Box(5, 5, is2D=True))\n            pos = np.array([[0, 0, 0], [0, 1, 0], [0, 2, 0],\n                            [1, 0, 0], [1, 1, 0], [1, 2, 0],\n                            [2, 0, 0], [2, 1, 0], [2, 2, 0]], dtype=np.float32)\n            first_shell = vor.computeNeighbors(pos).getNeighbors(1)\n            second_shell = vor.computeNeighbors(pos).getNeighbors(2)\n            print('First shell:', first_shell)\n            print('Second shell:', second_shell)\n\n        .. note:: Input positions must be a 3D array. For 2D, set the z value\n                  to 0.\n\n        Args:\n            positions ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Points to calculate Voronoi diagram for.\n            box (:class:`freud.box.Box`):\n                Simulation box (Default value = None).\n            buff (float):\n                Buffer distance within which to look for images\n                (Default value = None).\n            exclude_ii (bool, optional):\n                True if pairs of points with identical indices should be\n                excluded (Default value = True).\n        ";
+static PyMethodDef __pyx_mdef_5freud_7voronoi_7Voronoi_19computeNeighbors = {"computeNeighbors", (PyCFunction)__pyx_pw_5freud_7voronoi_7Voronoi_19computeNeighbors, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7voronoi_7Voronoi_18computeNeighbors};
+static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_19computeNeighbors(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
   PyObject *__pyx_v_positions = 0;
   PyObject *__pyx_v_box = 0;
@@ -5504,7 +6304,7 @@ static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_15computeNeighbors(PyObject *
     values[2] = ((PyObject *)((PyObject *)Py_None));
     values[3] = ((PyObject *)((PyObject *)Py_None));
 
-    /* "freud/voronoi.pyx":273
+    /* "freud/voronoi.pyx":323
  * 
  *     def computeNeighbors(self, positions, box=None, buff=None,
  *                          exclude_ii=True):             # <<<<<<<<<<<<<<
@@ -5538,7 +6338,7 @@ static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_15computeNeighbors(PyObject *
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_positions)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("computeNeighbors", 0, 2, 5, 1); __PYX_ERR(0, 272, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("computeNeighbors", 0, 2, 5, 1); __PYX_ERR(0, 322, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
@@ -5560,7 +6360,7 @@ static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_15computeNeighbors(PyObject *
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "computeNeighbors") < 0)) __PYX_ERR(0, 272, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "computeNeighbors") < 0)) __PYX_ERR(0, 322, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -5584,16 +6384,16 @@ static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_15computeNeighbors(PyObject *
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("computeNeighbors", 0, 2, 5, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 272, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("computeNeighbors", 0, 2, 5, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 322, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("freud.voronoi.Voronoi.computeNeighbors", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(__pyx_self, __pyx_v_self, __pyx_v_positions, __pyx_v_box, __pyx_v_buff, __pyx_v_exclude_ii);
+  __pyx_r = __pyx_pf_5freud_7voronoi_7Voronoi_18computeNeighbors(__pyx_self, __pyx_v_self, __pyx_v_positions, __pyx_v_box, __pyx_v_buff, __pyx_v_exclude_ii);
 
-  /* "freud/voronoi.pyx":272
- *         return self.poly_verts
+  /* "freud/voronoi.pyx":322
+ *         return self.polytopes
  * 
  *     def computeNeighbors(self, positions, box=None, buff=None,             # <<<<<<<<<<<<<<
  *                          exclude_ii=True):
@@ -5605,7 +6405,7 @@ static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_15computeNeighbors(PyObject *
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_positions, PyObject *__pyx_v_box, PyObject *__pyx_v_buff, PyObject *__pyx_v_exclude_ii) {
+static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_18computeNeighbors(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_positions, PyObject *__pyx_v_box, PyObject *__pyx_v_buff, PyObject *__pyx_v_exclude_ii) {
   struct __pyx_obj_5freud_3box_Box *__pyx_v_b = 0;
   PyObject *__pyx_v_ridge_points = NULL;
   PyObject *__pyx_v_ridge_vertices = NULL;
@@ -5655,54 +6455,54 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
   __Pyx_RefNannySetupContext("computeNeighbors", 0);
   __Pyx_INCREF(__pyx_v_buff);
 
-  /* "freud/voronoi.pyx":312
+  /* "freud/voronoi.pyx":362
  *         # If box or buff is not specified, revert to object quantities
  *         cdef freud.box.Box b
  *         if box is None:             # <<<<<<<<<<<<<<
- *             b = self.box
+ *             b = self._box
  *         else:
  */
   __pyx_t_1 = (__pyx_v_box == Py_None);
   __pyx_t_2 = (__pyx_t_1 != 0);
   if (__pyx_t_2) {
 
-    /* "freud/voronoi.pyx":313
+    /* "freud/voronoi.pyx":363
  *         cdef freud.box.Box b
  *         if box is None:
- *             b = self.box             # <<<<<<<<<<<<<<
+ *             b = self._box             # <<<<<<<<<<<<<<
  *         else:
  *             b = freud.common.convert_box(box)
  */
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_box); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 313, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_box_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 363, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_ptype_5freud_3box_Box))))) __PYX_ERR(0, 313, __pyx_L1_error)
+    if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_ptype_5freud_3box_Box))))) __PYX_ERR(0, 363, __pyx_L1_error)
     __pyx_v_b = ((struct __pyx_obj_5freud_3box_Box *)__pyx_t_3);
     __pyx_t_3 = 0;
 
-    /* "freud/voronoi.pyx":312
+    /* "freud/voronoi.pyx":362
  *         # If box or buff is not specified, revert to object quantities
  *         cdef freud.box.Box b
  *         if box is None:             # <<<<<<<<<<<<<<
- *             b = self.box
+ *             b = self._box
  *         else:
  */
     goto __pyx_L3;
   }
 
-  /* "freud/voronoi.pyx":315
- *             b = self.box
+  /* "freud/voronoi.pyx":365
+ *             b = self._box
  *         else:
  *             b = freud.common.convert_box(box)             # <<<<<<<<<<<<<<
  *         if buff is None:
- *             buff = self.buff
+ *             buff = self._buff
  */
   /*else*/ {
-    __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 315, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 365, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_common); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 315, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_common); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 365, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_convert_box); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 315, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_convert_box); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 365, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __pyx_t_5 = NULL;
@@ -5716,13 +6516,13 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
       }
     }
     if (!__pyx_t_5) {
-      __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_v_box); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 315, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_v_box); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 365, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
     } else {
       #if CYTHON_FAST_PYCALL
       if (PyFunction_Check(__pyx_t_4)) {
         PyObject *__pyx_temp[2] = {__pyx_t_5, __pyx_v_box};
-        __pyx_t_3 = __Pyx_PyFunction_FastCall(__pyx_t_4, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 315, __pyx_L1_error)
+        __pyx_t_3 = __Pyx_PyFunction_FastCall(__pyx_t_4, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 365, __pyx_L1_error)
         __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
         __Pyx_GOTREF(__pyx_t_3);
       } else
@@ -5730,70 +6530,70 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
       #if CYTHON_FAST_PYCCALL
       if (__Pyx_PyFastCFunction_Check(__pyx_t_4)) {
         PyObject *__pyx_temp[2] = {__pyx_t_5, __pyx_v_box};
-        __pyx_t_3 = __Pyx_PyCFunction_FastCall(__pyx_t_4, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 315, __pyx_L1_error)
+        __pyx_t_3 = __Pyx_PyCFunction_FastCall(__pyx_t_4, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 365, __pyx_L1_error)
         __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
         __Pyx_GOTREF(__pyx_t_3);
       } else
       #endif
       {
-        __pyx_t_6 = PyTuple_New(1+1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 315, __pyx_L1_error)
+        __pyx_t_6 = PyTuple_New(1+1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 365, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_6);
         __Pyx_GIVEREF(__pyx_t_5); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_5); __pyx_t_5 = NULL;
         __Pyx_INCREF(__pyx_v_box);
         __Pyx_GIVEREF(__pyx_v_box);
         PyTuple_SET_ITEM(__pyx_t_6, 0+1, __pyx_v_box);
-        __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_6, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 315, __pyx_L1_error)
+        __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_6, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 365, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_3);
         __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
       }
     }
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_ptype_5freud_3box_Box))))) __PYX_ERR(0, 315, __pyx_L1_error)
+    if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_ptype_5freud_3box_Box))))) __PYX_ERR(0, 365, __pyx_L1_error)
     __pyx_v_b = ((struct __pyx_obj_5freud_3box_Box *)__pyx_t_3);
     __pyx_t_3 = 0;
   }
   __pyx_L3:;
 
-  /* "freud/voronoi.pyx":316
+  /* "freud/voronoi.pyx":366
  *         else:
  *             b = freud.common.convert_box(box)
  *         if buff is None:             # <<<<<<<<<<<<<<
- *             buff = self.buff
+ *             buff = self._buff
  * 
  */
   __pyx_t_2 = (__pyx_v_buff == Py_None);
   __pyx_t_1 = (__pyx_t_2 != 0);
   if (__pyx_t_1) {
 
-    /* "freud/voronoi.pyx":317
+    /* "freud/voronoi.pyx":367
  *             b = freud.common.convert_box(box)
  *         if buff is None:
- *             buff = self.buff             # <<<<<<<<<<<<<<
+ *             buff = self._buff             # <<<<<<<<<<<<<<
  * 
  *         self._qhull_compute(positions, b, buff)
  */
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_buff); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 317, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_buff_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 367, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF_SET(__pyx_v_buff, __pyx_t_3);
     __pyx_t_3 = 0;
 
-    /* "freud/voronoi.pyx":316
+    /* "freud/voronoi.pyx":366
  *         else:
  *             b = freud.common.convert_box(box)
  *         if buff is None:             # <<<<<<<<<<<<<<
- *             buff = self.buff
+ *             buff = self._buff
  * 
  */
   }
 
-  /* "freud/voronoi.pyx":319
- *             buff = self.buff
+  /* "freud/voronoi.pyx":369
+ *             buff = self._buff
  * 
  *         self._qhull_compute(positions, b, buff)             # <<<<<<<<<<<<<<
  * 
  *         ridge_points = self.voronoi.ridge_points
  */
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_qhull_compute); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 319, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_qhull_compute); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 369, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_6 = NULL;
   __pyx_t_7 = 0;
@@ -5810,7 +6610,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_4)) {
     PyObject *__pyx_temp[4] = {__pyx_t_6, __pyx_v_positions, ((PyObject *)__pyx_v_b), __pyx_v_buff};
-    __pyx_t_3 = __Pyx_PyFunction_FastCall(__pyx_t_4, __pyx_temp+1-__pyx_t_7, 3+__pyx_t_7); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 319, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyFunction_FastCall(__pyx_t_4, __pyx_temp+1-__pyx_t_7, 3+__pyx_t_7); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 369, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
     __Pyx_GOTREF(__pyx_t_3);
   } else
@@ -5818,13 +6618,13 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_4)) {
     PyObject *__pyx_temp[4] = {__pyx_t_6, __pyx_v_positions, ((PyObject *)__pyx_v_b), __pyx_v_buff};
-    __pyx_t_3 = __Pyx_PyCFunction_FastCall(__pyx_t_4, __pyx_temp+1-__pyx_t_7, 3+__pyx_t_7); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 319, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyCFunction_FastCall(__pyx_t_4, __pyx_temp+1-__pyx_t_7, 3+__pyx_t_7); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 369, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
     __Pyx_GOTREF(__pyx_t_3);
   } else
   #endif
   {
-    __pyx_t_5 = PyTuple_New(3+__pyx_t_7); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 319, __pyx_L1_error)
+    __pyx_t_5 = PyTuple_New(3+__pyx_t_7); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 369, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     if (__pyx_t_6) {
       __Pyx_GIVEREF(__pyx_t_6); PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_6); __pyx_t_6 = NULL;
@@ -5838,111 +6638,111 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
     __Pyx_INCREF(__pyx_v_buff);
     __Pyx_GIVEREF(__pyx_v_buff);
     PyTuple_SET_ITEM(__pyx_t_5, 2+__pyx_t_7, __pyx_v_buff);
-    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_5, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 319, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_5, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 369, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   }
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "freud/voronoi.pyx":321
+  /* "freud/voronoi.pyx":371
  *         self._qhull_compute(positions, b, buff)
  * 
  *         ridge_points = self.voronoi.ridge_points             # <<<<<<<<<<<<<<
  *         ridge_vertices = self.voronoi.ridge_vertices
  *         vor_vertices = self.voronoi.vertices
  */
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_voronoi); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 321, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_voronoi); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 371, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_ridge_points); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 321, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_ridge_points); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 371, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_v_ridge_points = __pyx_t_4;
   __pyx_t_4 = 0;
 
-  /* "freud/voronoi.pyx":322
+  /* "freud/voronoi.pyx":372
  * 
  *         ridge_points = self.voronoi.ridge_points
  *         ridge_vertices = self.voronoi.ridge_vertices             # <<<<<<<<<<<<<<
  *         vor_vertices = self.voronoi.vertices
  *         N = len(positions)
  */
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_voronoi); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 322, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_voronoi); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 372, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_ridge_vertices); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 322, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_ridge_vertices); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 372, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __pyx_v_ridge_vertices = __pyx_t_3;
   __pyx_t_3 = 0;
 
-  /* "freud/voronoi.pyx":323
+  /* "freud/voronoi.pyx":373
  *         ridge_points = self.voronoi.ridge_points
  *         ridge_vertices = self.voronoi.ridge_vertices
  *         vor_vertices = self.voronoi.vertices             # <<<<<<<<<<<<<<
  *         N = len(positions)
  * 
  */
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_voronoi); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 323, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_voronoi); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 373, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_vertices); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 323, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_vertices); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 373, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_v_vor_vertices = __pyx_t_4;
   __pyx_t_4 = 0;
 
-  /* "freud/voronoi.pyx":324
+  /* "freud/voronoi.pyx":374
  *         ridge_vertices = self.voronoi.ridge_vertices
  *         vor_vertices = self.voronoi.vertices
  *         N = len(positions)             # <<<<<<<<<<<<<<
  * 
  *         # Nearest neighbor index for each point
  */
-  __pyx_t_8 = PyObject_Length(__pyx_v_positions); if (unlikely(__pyx_t_8 == ((Py_ssize_t)-1))) __PYX_ERR(0, 324, __pyx_L1_error)
+  __pyx_t_8 = PyObject_Length(__pyx_v_positions); if (unlikely(__pyx_t_8 == ((Py_ssize_t)-1))) __PYX_ERR(0, 374, __pyx_L1_error)
   __pyx_v_N = __pyx_t_8;
 
-  /* "freud/voronoi.pyx":327
+  /* "freud/voronoi.pyx":377
  * 
  *         # Nearest neighbor index for each point
  *         self.firstShellNeighborList = [[] for _ in range(N)]             # <<<<<<<<<<<<<<
  * 
  *         # Weight between nearest neighbors, which is the length of ridge
  */
-  __pyx_t_4 = PyList_New(0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 327, __pyx_L1_error)
+  __pyx_t_4 = PyList_New(0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 377, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_8 = __pyx_v_N;
   __pyx_t_9 = __pyx_t_8;
   for (__pyx_t_10 = 0; __pyx_t_10 < __pyx_t_9; __pyx_t_10+=1) {
     __pyx_v__ = __pyx_t_10;
-    __pyx_t_3 = PyList_New(0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 327, __pyx_L1_error)
+    __pyx_t_3 = PyList_New(0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 377, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    if (unlikely(__Pyx_ListComp_Append(__pyx_t_4, (PyObject*)__pyx_t_3))) __PYX_ERR(0, 327, __pyx_L1_error)
+    if (unlikely(__Pyx_ListComp_Append(__pyx_t_4, (PyObject*)__pyx_t_3))) __PYX_ERR(0, 377, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   }
-  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_firstShellNeighborList, __pyx_t_4) < 0) __PYX_ERR(0, 327, __pyx_L1_error)
+  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_firstShellNeighborList, __pyx_t_4) < 0) __PYX_ERR(0, 377, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "freud/voronoi.pyx":331
+  /* "freud/voronoi.pyx":381
  *         # Weight between nearest neighbors, which is the length of ridge
  *         # between two points in 2D or the area of the ridge facet in 3D
  *         self.firstShellWeight = [[] for _ in range(N)]             # <<<<<<<<<<<<<<
  *         for (k, (index_i, index_j)) in enumerate(ridge_points):
  * 
  */
-  __pyx_t_4 = PyList_New(0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 331, __pyx_L1_error)
+  __pyx_t_4 = PyList_New(0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 381, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_8 = __pyx_v_N;
   __pyx_t_9 = __pyx_t_8;
   for (__pyx_t_10 = 0; __pyx_t_10 < __pyx_t_9; __pyx_t_10+=1) {
     __pyx_v__ = __pyx_t_10;
-    __pyx_t_3 = PyList_New(0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 331, __pyx_L1_error)
+    __pyx_t_3 = PyList_New(0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 381, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    if (unlikely(__Pyx_ListComp_Append(__pyx_t_4, (PyObject*)__pyx_t_3))) __PYX_ERR(0, 331, __pyx_L1_error)
+    if (unlikely(__Pyx_ListComp_Append(__pyx_t_4, (PyObject*)__pyx_t_3))) __PYX_ERR(0, 381, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   }
-  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_firstShellWeight, __pyx_t_4) < 0) __PYX_ERR(0, 331, __pyx_L1_error)
+  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_firstShellWeight, __pyx_t_4) < 0) __PYX_ERR(0, 381, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "freud/voronoi.pyx":332
+  /* "freud/voronoi.pyx":382
  *         # between two points in 2D or the area of the ridge facet in 3D
  *         self.firstShellWeight = [[] for _ in range(N)]
  *         for (k, (index_i, index_j)) in enumerate(ridge_points):             # <<<<<<<<<<<<<<
@@ -5955,26 +6755,26 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
     __pyx_t_3 = __pyx_v_ridge_points; __Pyx_INCREF(__pyx_t_3); __pyx_t_8 = 0;
     __pyx_t_11 = NULL;
   } else {
-    __pyx_t_8 = -1; __pyx_t_3 = PyObject_GetIter(__pyx_v_ridge_points); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 332, __pyx_L1_error)
+    __pyx_t_8 = -1; __pyx_t_3 = PyObject_GetIter(__pyx_v_ridge_points); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 382, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_11 = Py_TYPE(__pyx_t_3)->tp_iternext; if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 332, __pyx_L1_error)
+    __pyx_t_11 = Py_TYPE(__pyx_t_3)->tp_iternext; if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 382, __pyx_L1_error)
   }
   for (;;) {
     if (likely(!__pyx_t_11)) {
       if (likely(PyList_CheckExact(__pyx_t_3))) {
         if (__pyx_t_8 >= PyList_GET_SIZE(__pyx_t_3)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_5 = PyList_GET_ITEM(__pyx_t_3, __pyx_t_8); __Pyx_INCREF(__pyx_t_5); __pyx_t_8++; if (unlikely(0 < 0)) __PYX_ERR(0, 332, __pyx_L1_error)
+        __pyx_t_5 = PyList_GET_ITEM(__pyx_t_3, __pyx_t_8); __Pyx_INCREF(__pyx_t_5); __pyx_t_8++; if (unlikely(0 < 0)) __PYX_ERR(0, 382, __pyx_L1_error)
         #else
-        __pyx_t_5 = PySequence_ITEM(__pyx_t_3, __pyx_t_8); __pyx_t_8++; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 332, __pyx_L1_error)
+        __pyx_t_5 = PySequence_ITEM(__pyx_t_3, __pyx_t_8); __pyx_t_8++; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 382, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
         #endif
       } else {
         if (__pyx_t_8 >= PyTuple_GET_SIZE(__pyx_t_3)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_5 = PyTuple_GET_ITEM(__pyx_t_3, __pyx_t_8); __Pyx_INCREF(__pyx_t_5); __pyx_t_8++; if (unlikely(0 < 0)) __PYX_ERR(0, 332, __pyx_L1_error)
+        __pyx_t_5 = PyTuple_GET_ITEM(__pyx_t_3, __pyx_t_8); __Pyx_INCREF(__pyx_t_5); __pyx_t_8++; if (unlikely(0 < 0)) __PYX_ERR(0, 382, __pyx_L1_error)
         #else
-        __pyx_t_5 = PySequence_ITEM(__pyx_t_3, __pyx_t_8); __pyx_t_8++; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 332, __pyx_L1_error)
+        __pyx_t_5 = PySequence_ITEM(__pyx_t_3, __pyx_t_8); __pyx_t_8++; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 382, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
         #endif
       }
@@ -5984,7 +6784,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
         PyObject* exc_type = PyErr_Occurred();
         if (exc_type) {
           if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-          else __PYX_ERR(0, 332, __pyx_L1_error)
+          else __PYX_ERR(0, 382, __pyx_L1_error)
         }
         break;
       }
@@ -5996,7 +6796,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
       if (unlikely(size != 2)) {
         if (size > 2) __Pyx_RaiseTooManyValuesError(2);
         else if (size >= 0) __Pyx_RaiseNeedMoreValuesError(size);
-        __PYX_ERR(0, 332, __pyx_L1_error)
+        __PYX_ERR(0, 382, __pyx_L1_error)
       }
       #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
       if (likely(PyTuple_CheckExact(sequence))) {
@@ -6009,15 +6809,15 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
       __Pyx_INCREF(__pyx_t_6);
       __Pyx_INCREF(__pyx_t_12);
       #else
-      __pyx_t_6 = PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 332, __pyx_L1_error)
+      __pyx_t_6 = PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 382, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_6);
-      __pyx_t_12 = PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 332, __pyx_L1_error)
+      __pyx_t_12 = PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 382, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_12);
       #endif
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     } else {
       Py_ssize_t index = -1;
-      __pyx_t_13 = PyObject_GetIter(__pyx_t_5); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 332, __pyx_L1_error)
+      __pyx_t_13 = PyObject_GetIter(__pyx_t_5); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 382, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_13);
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
       __pyx_t_14 = Py_TYPE(__pyx_t_13)->tp_iternext;
@@ -6025,7 +6825,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
       __Pyx_GOTREF(__pyx_t_6);
       index = 1; __pyx_t_12 = __pyx_t_14(__pyx_t_13); if (unlikely(!__pyx_t_12)) goto __pyx_L11_unpacking_failed;
       __Pyx_GOTREF(__pyx_t_12);
-      if (__Pyx_IternextUnpackEndCheck(__pyx_t_14(__pyx_t_13), 2) < 0) __PYX_ERR(0, 332, __pyx_L1_error)
+      if (__Pyx_IternextUnpackEndCheck(__pyx_t_14(__pyx_t_13), 2) < 0) __PYX_ERR(0, 382, __pyx_L1_error)
       __pyx_t_14 = NULL;
       __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
       goto __pyx_L12_unpacking_done;
@@ -6033,7 +6833,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
       __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
       __pyx_t_14 = NULL;
       if (__Pyx_IterFinish() == 0) __Pyx_RaiseNeedMoreValuesError(index);
-      __PYX_ERR(0, 332, __pyx_L1_error)
+      __PYX_ERR(0, 382, __pyx_L1_error)
       __pyx_L12_unpacking_done:;
     }
     __Pyx_XDECREF_SET(__pyx_v_index_i, __pyx_t_6);
@@ -6042,41 +6842,41 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
     __pyx_t_12 = 0;
     __Pyx_INCREF(__pyx_t_4);
     __Pyx_XDECREF_SET(__pyx_v_k, __pyx_t_4);
-    __pyx_t_5 = __Pyx_PyInt_AddObjC(__pyx_t_4, __pyx_int_1, 1, 0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 332, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyInt_AddObjC(__pyx_t_4, __pyx_int_1, 1, 0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 382, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_4);
     __pyx_t_4 = __pyx_t_5;
     __pyx_t_5 = 0;
 
-    /* "freud/voronoi.pyx":334
+    /* "freud/voronoi.pyx":384
  *         for (k, (index_i, index_j)) in enumerate(ridge_points):
  * 
  *             if index_i >= N and index_j >= N:             # <<<<<<<<<<<<<<
  *                 # Ignore the ridges between two buffer particles
  *                 continue
  */
-    __pyx_t_5 = PyInt_FromSsize_t(__pyx_v_N); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 334, __pyx_L1_error)
+    __pyx_t_5 = PyInt_FromSsize_t(__pyx_v_N); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 384, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_12 = PyObject_RichCompare(__pyx_v_index_i, __pyx_t_5, Py_GE); __Pyx_XGOTREF(__pyx_t_12); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 334, __pyx_L1_error)
+    __pyx_t_12 = PyObject_RichCompare(__pyx_v_index_i, __pyx_t_5, Py_GE); __Pyx_XGOTREF(__pyx_t_12); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 384, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_12); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 334, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_12); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 384, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
     if (__pyx_t_2) {
     } else {
       __pyx_t_1 = __pyx_t_2;
       goto __pyx_L14_bool_binop_done;
     }
-    __pyx_t_12 = PyInt_FromSsize_t(__pyx_v_N); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 334, __pyx_L1_error)
+    __pyx_t_12 = PyInt_FromSsize_t(__pyx_v_N); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 384, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_12);
-    __pyx_t_5 = PyObject_RichCompare(__pyx_v_index_j, __pyx_t_12, Py_GE); __Pyx_XGOTREF(__pyx_t_5); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 334, __pyx_L1_error)
+    __pyx_t_5 = PyObject_RichCompare(__pyx_v_index_j, __pyx_t_12, Py_GE); __Pyx_XGOTREF(__pyx_t_5); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 384, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
-    __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_5); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 334, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_5); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 384, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __pyx_t_1 = __pyx_t_2;
     __pyx_L14_bool_binop_done:;
     if (__pyx_t_1) {
 
-      /* "freud/voronoi.pyx":336
+      /* "freud/voronoi.pyx":386
  *             if index_i >= N and index_j >= N:
  *                 # Ignore the ridges between two buffer particles
  *                 continue             # <<<<<<<<<<<<<<
@@ -6085,7 +6885,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
  */
       goto __pyx_L9_continue;
 
-      /* "freud/voronoi.pyx":334
+      /* "freud/voronoi.pyx":384
  *         for (k, (index_i, index_j)) in enumerate(ridge_points):
  * 
  *             if index_i >= N and index_j >= N:             # <<<<<<<<<<<<<<
@@ -6094,37 +6894,37 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
  */
     }
 
-    /* "freud/voronoi.pyx":338
+    /* "freud/voronoi.pyx":388
  *                 continue
  * 
  *             index_i = self.expanded_ids[index_i]             # <<<<<<<<<<<<<<
  *             index_j = self.expanded_ids[index_j]
  * 
  */
-    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_expanded_ids); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 338, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_expanded_ids); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 388, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_12 = __Pyx_PyObject_GetItem(__pyx_t_5, __pyx_v_index_i); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 338, __pyx_L1_error)
+    __pyx_t_12 = __Pyx_PyObject_GetItem(__pyx_t_5, __pyx_v_index_i); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 388, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_12);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_DECREF_SET(__pyx_v_index_i, __pyx_t_12);
     __pyx_t_12 = 0;
 
-    /* "freud/voronoi.pyx":339
+    /* "freud/voronoi.pyx":389
  * 
  *             index_i = self.expanded_ids[index_i]
  *             index_j = self.expanded_ids[index_j]             # <<<<<<<<<<<<<<
  * 
  *             assert index_i < N
  */
-    __pyx_t_12 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_expanded_ids); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 339, __pyx_L1_error)
+    __pyx_t_12 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_expanded_ids); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 389, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_12);
-    __pyx_t_5 = __Pyx_PyObject_GetItem(__pyx_t_12, __pyx_v_index_j); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 339, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_GetItem(__pyx_t_12, __pyx_v_index_j); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 389, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
     __Pyx_DECREF_SET(__pyx_v_index_j, __pyx_t_5);
     __pyx_t_5 = 0;
 
-    /* "freud/voronoi.pyx":341
+    /* "freud/voronoi.pyx":391
  *             index_j = self.expanded_ids[index_j]
  * 
  *             assert index_i < N             # <<<<<<<<<<<<<<
@@ -6133,20 +6933,20 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
  */
     #ifndef CYTHON_WITHOUT_ASSERTIONS
     if (unlikely(!Py_OptimizeFlag)) {
-      __pyx_t_5 = PyInt_FromSsize_t(__pyx_v_N); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 341, __pyx_L1_error)
+      __pyx_t_5 = PyInt_FromSsize_t(__pyx_v_N); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 391, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
-      __pyx_t_12 = PyObject_RichCompare(__pyx_v_index_i, __pyx_t_5, Py_LT); __Pyx_XGOTREF(__pyx_t_12); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 341, __pyx_L1_error)
+      __pyx_t_12 = PyObject_RichCompare(__pyx_v_index_i, __pyx_t_5, Py_LT); __Pyx_XGOTREF(__pyx_t_12); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 391, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-      __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_t_12); if (unlikely(__pyx_t_1 < 0)) __PYX_ERR(0, 341, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_t_12); if (unlikely(__pyx_t_1 < 0)) __PYX_ERR(0, 391, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
       if (unlikely(!__pyx_t_1)) {
         PyErr_SetNone(PyExc_AssertionError);
-        __PYX_ERR(0, 341, __pyx_L1_error)
+        __PYX_ERR(0, 391, __pyx_L1_error)
       }
     }
     #endif
 
-    /* "freud/voronoi.pyx":342
+    /* "freud/voronoi.pyx":392
  * 
  *             assert index_i < N
  *             assert index_j < N             # <<<<<<<<<<<<<<
@@ -6155,40 +6955,40 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
  */
     #ifndef CYTHON_WITHOUT_ASSERTIONS
     if (unlikely(!Py_OptimizeFlag)) {
-      __pyx_t_12 = PyInt_FromSsize_t(__pyx_v_N); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 342, __pyx_L1_error)
+      __pyx_t_12 = PyInt_FromSsize_t(__pyx_v_N); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 392, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_12);
-      __pyx_t_5 = PyObject_RichCompare(__pyx_v_index_j, __pyx_t_12, Py_LT); __Pyx_XGOTREF(__pyx_t_5); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 342, __pyx_L1_error)
+      __pyx_t_5 = PyObject_RichCompare(__pyx_v_index_j, __pyx_t_12, Py_LT); __Pyx_XGOTREF(__pyx_t_5); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 392, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
-      __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_t_5); if (unlikely(__pyx_t_1 < 0)) __PYX_ERR(0, 342, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_t_5); if (unlikely(__pyx_t_1 < 0)) __PYX_ERR(0, 392, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
       if (unlikely(!__pyx_t_1)) {
         PyErr_SetNone(PyExc_AssertionError);
-        __PYX_ERR(0, 342, __pyx_L1_error)
+        __PYX_ERR(0, 392, __pyx_L1_error)
       }
     }
     #endif
 
-    /* "freud/voronoi.pyx":344
+    /* "freud/voronoi.pyx":394
  *             assert index_j < N
  * 
  *             if exclude_ii and index_i == index_j:             # <<<<<<<<<<<<<<
  *                 continue
  * 
  */
-    __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_v_exclude_ii); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 344, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_v_exclude_ii); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 394, __pyx_L1_error)
     if (__pyx_t_2) {
     } else {
       __pyx_t_1 = __pyx_t_2;
       goto __pyx_L17_bool_binop_done;
     }
-    __pyx_t_5 = PyObject_RichCompare(__pyx_v_index_i, __pyx_v_index_j, Py_EQ); __Pyx_XGOTREF(__pyx_t_5); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 344, __pyx_L1_error)
-    __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_5); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 344, __pyx_L1_error)
+    __pyx_t_5 = PyObject_RichCompare(__pyx_v_index_i, __pyx_v_index_j, Py_EQ); __Pyx_XGOTREF(__pyx_t_5); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 394, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_5); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 394, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __pyx_t_1 = __pyx_t_2;
     __pyx_L17_bool_binop_done:;
     if (__pyx_t_1) {
 
-      /* "freud/voronoi.pyx":345
+      /* "freud/voronoi.pyx":395
  * 
  *             if exclude_ii and index_i == index_j:
  *                 continue             # <<<<<<<<<<<<<<
@@ -6197,7 +6997,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
  */
       goto __pyx_L9_continue;
 
-      /* "freud/voronoi.pyx":344
+      /* "freud/voronoi.pyx":394
  *             assert index_j < N
  * 
  *             if exclude_ii and index_i == index_j:             # <<<<<<<<<<<<<<
@@ -6206,7 +7006,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
  */
     }
 
-    /* "freud/voronoi.pyx":347
+    /* "freud/voronoi.pyx":397
  *                 continue
  * 
  *             added_i = False             # <<<<<<<<<<<<<<
@@ -6215,39 +7015,39 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
  */
     __pyx_v_added_i = 0;
 
-    /* "freud/voronoi.pyx":348
+    /* "freud/voronoi.pyx":398
  * 
  *             added_i = False
  *             if index_j not in self.firstShellNeighborList[index_i]:             # <<<<<<<<<<<<<<
  *                 self.firstShellNeighborList[index_i].append(index_j)
  *                 added_i = True
  */
-    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_firstShellNeighborList); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 348, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_firstShellNeighborList); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 398, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_12 = __Pyx_PyObject_GetItem(__pyx_t_5, __pyx_v_index_i); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 348, __pyx_L1_error)
+    __pyx_t_12 = __Pyx_PyObject_GetItem(__pyx_t_5, __pyx_v_index_i); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 398, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_12);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __pyx_t_1 = (__Pyx_PySequence_ContainsTF(__pyx_v_index_j, __pyx_t_12, Py_NE)); if (unlikely(__pyx_t_1 < 0)) __PYX_ERR(0, 348, __pyx_L1_error)
+    __pyx_t_1 = (__Pyx_PySequence_ContainsTF(__pyx_v_index_j, __pyx_t_12, Py_NE)); if (unlikely(__pyx_t_1 < 0)) __PYX_ERR(0, 398, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
     __pyx_t_2 = (__pyx_t_1 != 0);
     if (__pyx_t_2) {
 
-      /* "freud/voronoi.pyx":349
+      /* "freud/voronoi.pyx":399
  *             added_i = False
  *             if index_j not in self.firstShellNeighborList[index_i]:
  *                 self.firstShellNeighborList[index_i].append(index_j)             # <<<<<<<<<<<<<<
  *                 added_i = True
  * 
  */
-      __pyx_t_12 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_firstShellNeighborList); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 349, __pyx_L1_error)
+      __pyx_t_12 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_firstShellNeighborList); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 399, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_12);
-      __pyx_t_5 = __Pyx_PyObject_GetItem(__pyx_t_12, __pyx_v_index_i); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 349, __pyx_L1_error)
+      __pyx_t_5 = __Pyx_PyObject_GetItem(__pyx_t_12, __pyx_v_index_i); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 399, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
       __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
-      __pyx_t_15 = __Pyx_PyObject_Append(__pyx_t_5, __pyx_v_index_j); if (unlikely(__pyx_t_15 == ((int)-1))) __PYX_ERR(0, 349, __pyx_L1_error)
+      __pyx_t_15 = __Pyx_PyObject_Append(__pyx_t_5, __pyx_v_index_j); if (unlikely(__pyx_t_15 == ((int)-1))) __PYX_ERR(0, 399, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-      /* "freud/voronoi.pyx":350
+      /* "freud/voronoi.pyx":400
  *             if index_j not in self.firstShellNeighborList[index_i]:
  *                 self.firstShellNeighborList[index_i].append(index_j)
  *                 added_i = True             # <<<<<<<<<<<<<<
@@ -6256,7 +7056,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
  */
       __pyx_v_added_i = 1;
 
-      /* "freud/voronoi.pyx":348
+      /* "freud/voronoi.pyx":398
  * 
  *             added_i = False
  *             if index_j not in self.firstShellNeighborList[index_i]:             # <<<<<<<<<<<<<<
@@ -6265,7 +7065,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
  */
     }
 
-    /* "freud/voronoi.pyx":352
+    /* "freud/voronoi.pyx":402
  *                 added_i = True
  * 
  *             added_j = False             # <<<<<<<<<<<<<<
@@ -6274,39 +7074,39 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
  */
     __pyx_v_added_j = 0;
 
-    /* "freud/voronoi.pyx":353
+    /* "freud/voronoi.pyx":403
  * 
  *             added_j = False
  *             if index_i not in self.firstShellNeighborList[index_j]:             # <<<<<<<<<<<<<<
  *                 self.firstShellNeighborList[index_j].append(index_i)
  *                 added_j = True
  */
-    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_firstShellNeighborList); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 353, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_firstShellNeighborList); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 403, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_12 = __Pyx_PyObject_GetItem(__pyx_t_5, __pyx_v_index_j); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 353, __pyx_L1_error)
+    __pyx_t_12 = __Pyx_PyObject_GetItem(__pyx_t_5, __pyx_v_index_j); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 403, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_12);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __pyx_t_2 = (__Pyx_PySequence_ContainsTF(__pyx_v_index_i, __pyx_t_12, Py_NE)); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 353, __pyx_L1_error)
+    __pyx_t_2 = (__Pyx_PySequence_ContainsTF(__pyx_v_index_i, __pyx_t_12, Py_NE)); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 403, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
     __pyx_t_1 = (__pyx_t_2 != 0);
     if (__pyx_t_1) {
 
-      /* "freud/voronoi.pyx":354
+      /* "freud/voronoi.pyx":404
  *             added_j = False
  *             if index_i not in self.firstShellNeighborList[index_j]:
  *                 self.firstShellNeighborList[index_j].append(index_i)             # <<<<<<<<<<<<<<
  *                 added_j = True
  * 
  */
-      __pyx_t_12 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_firstShellNeighborList); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 354, __pyx_L1_error)
+      __pyx_t_12 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_firstShellNeighborList); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 404, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_12);
-      __pyx_t_5 = __Pyx_PyObject_GetItem(__pyx_t_12, __pyx_v_index_j); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 354, __pyx_L1_error)
+      __pyx_t_5 = __Pyx_PyObject_GetItem(__pyx_t_12, __pyx_v_index_j); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 404, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
       __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
-      __pyx_t_15 = __Pyx_PyObject_Append(__pyx_t_5, __pyx_v_index_i); if (unlikely(__pyx_t_15 == ((int)-1))) __PYX_ERR(0, 354, __pyx_L1_error)
+      __pyx_t_15 = __Pyx_PyObject_Append(__pyx_t_5, __pyx_v_index_i); if (unlikely(__pyx_t_15 == ((int)-1))) __PYX_ERR(0, 404, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-      /* "freud/voronoi.pyx":355
+      /* "freud/voronoi.pyx":405
  *             if index_i not in self.firstShellNeighborList[index_j]:
  *                 self.firstShellNeighborList[index_j].append(index_i)
  *                 added_j = True             # <<<<<<<<<<<<<<
@@ -6315,7 +7115,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
  */
       __pyx_v_added_j = 1;
 
-      /* "freud/voronoi.pyx":353
+      /* "freud/voronoi.pyx":403
  * 
  *             added_j = False
  *             if index_i not in self.firstShellNeighborList[index_j]:             # <<<<<<<<<<<<<<
@@ -6324,7 +7124,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
  */
     }
 
-    /* "freud/voronoi.pyx":357
+    /* "freud/voronoi.pyx":407
  *                 added_j = True
  * 
  *             if not added_i and not added_j:             # <<<<<<<<<<<<<<
@@ -6342,7 +7142,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
     __pyx_L22_bool_binop_done:;
     if (__pyx_t_1) {
 
-      /* "freud/voronoi.pyx":358
+      /* "freud/voronoi.pyx":408
  * 
  *             if not added_i and not added_j:
  *                 continue             # <<<<<<<<<<<<<<
@@ -6351,7 +7151,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
  */
       goto __pyx_L9_continue;
 
-      /* "freud/voronoi.pyx":357
+      /* "freud/voronoi.pyx":407
  *                 added_j = True
  * 
  *             if not added_i and not added_j:             # <<<<<<<<<<<<<<
@@ -6360,28 +7160,28 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
  */
     }
 
-    /* "freud/voronoi.pyx":360
+    /* "freud/voronoi.pyx":410
  *                 continue
  * 
  *             if -1 not in ridge_vertices[k]:             # <<<<<<<<<<<<<<
  *                 if b.is2D():
  *                     # The weight for a 2D system is the
  */
-    __pyx_t_5 = __Pyx_PyObject_GetItem(__pyx_v_ridge_vertices, __pyx_v_k); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 360, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_GetItem(__pyx_v_ridge_vertices, __pyx_v_k); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 410, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_1 = (__Pyx_PySequence_ContainsTF(__pyx_int_neg_1, __pyx_t_5, Py_NE)); if (unlikely(__pyx_t_1 < 0)) __PYX_ERR(0, 360, __pyx_L1_error)
+    __pyx_t_1 = (__Pyx_PySequence_ContainsTF(__pyx_int_neg_1, __pyx_t_5, Py_NE)); if (unlikely(__pyx_t_1 < 0)) __PYX_ERR(0, 410, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __pyx_t_2 = (__pyx_t_1 != 0);
     if (__pyx_t_2) {
 
-      /* "freud/voronoi.pyx":361
+      /* "freud/voronoi.pyx":411
  * 
  *             if -1 not in ridge_vertices[k]:
  *                 if b.is2D():             # <<<<<<<<<<<<<<
  *                     # The weight for a 2D system is the
  *                     # length of the ridge line
  */
-      __pyx_t_12 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_b), __pyx_n_s_is2D); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 361, __pyx_L1_error)
+      __pyx_t_12 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_b), __pyx_n_s_is2D); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 411, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_12);
       __pyx_t_6 = NULL;
       if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_12))) {
@@ -6394,73 +7194,73 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
         }
       }
       if (__pyx_t_6) {
-        __pyx_t_5 = __Pyx_PyObject_CallOneArg(__pyx_t_12, __pyx_t_6); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 361, __pyx_L1_error)
+        __pyx_t_5 = __Pyx_PyObject_CallOneArg(__pyx_t_12, __pyx_t_6); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 411, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
       } else {
-        __pyx_t_5 = __Pyx_PyObject_CallNoArg(__pyx_t_12); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 361, __pyx_L1_error)
+        __pyx_t_5 = __Pyx_PyObject_CallNoArg(__pyx_t_12); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 411, __pyx_L1_error)
       }
       __Pyx_GOTREF(__pyx_t_5);
       __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
-      __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_5); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 361, __pyx_L1_error)
+      __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_5); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 411, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
       if (__pyx_t_2) {
 
-        /* "freud/voronoi.pyx":364
+        /* "freud/voronoi.pyx":414
  *                     # The weight for a 2D system is the
  *                     # length of the ridge line
  *                     weight = np.linalg.norm(             # <<<<<<<<<<<<<<
  *                         vor_vertices[ridge_vertices[k][0]] -
  *                         vor_vertices[ridge_vertices[k][1]])
  */
-        __pyx_t_12 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 364, __pyx_L1_error)
+        __pyx_t_12 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 414, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_12);
-        __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_12, __pyx_n_s_linalg); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 364, __pyx_L1_error)
+        __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_12, __pyx_n_s_linalg); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 414, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_6);
         __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
-        __pyx_t_12 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_norm); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 364, __pyx_L1_error)
+        __pyx_t_12 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_norm); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 414, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_12);
         __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
 
-        /* "freud/voronoi.pyx":365
+        /* "freud/voronoi.pyx":415
  *                     # length of the ridge line
  *                     weight = np.linalg.norm(
  *                         vor_vertices[ridge_vertices[k][0]] -             # <<<<<<<<<<<<<<
  *                         vor_vertices[ridge_vertices[k][1]])
  *                 else:
  */
-        __pyx_t_6 = __Pyx_PyObject_GetItem(__pyx_v_ridge_vertices, __pyx_v_k); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 365, __pyx_L1_error)
+        __pyx_t_6 = __Pyx_PyObject_GetItem(__pyx_v_ridge_vertices, __pyx_v_k); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 415, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_6);
-        __pyx_t_13 = __Pyx_GetItemInt(__pyx_t_6, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 365, __pyx_L1_error)
+        __pyx_t_13 = __Pyx_GetItemInt(__pyx_t_6, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 415, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_13);
         __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-        __pyx_t_6 = __Pyx_PyObject_GetItem(__pyx_v_vor_vertices, __pyx_t_13); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 365, __pyx_L1_error)
+        __pyx_t_6 = __Pyx_PyObject_GetItem(__pyx_v_vor_vertices, __pyx_t_13); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 415, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_6);
         __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
 
-        /* "freud/voronoi.pyx":366
+        /* "freud/voronoi.pyx":416
  *                     weight = np.linalg.norm(
  *                         vor_vertices[ridge_vertices[k][0]] -
  *                         vor_vertices[ridge_vertices[k][1]])             # <<<<<<<<<<<<<<
  *                 else:
  *                     # The weight for a 3D system is the ridge polygon area
  */
-        __pyx_t_13 = __Pyx_PyObject_GetItem(__pyx_v_ridge_vertices, __pyx_v_k); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 366, __pyx_L1_error)
+        __pyx_t_13 = __Pyx_PyObject_GetItem(__pyx_v_ridge_vertices, __pyx_v_k); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 416, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_13);
-        __pyx_t_16 = __Pyx_GetItemInt(__pyx_t_13, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 366, __pyx_L1_error)
+        __pyx_t_16 = __Pyx_GetItemInt(__pyx_t_13, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 416, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_16);
         __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
-        __pyx_t_13 = __Pyx_PyObject_GetItem(__pyx_v_vor_vertices, __pyx_t_16); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 366, __pyx_L1_error)
+        __pyx_t_13 = __Pyx_PyObject_GetItem(__pyx_v_vor_vertices, __pyx_t_16); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 416, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_13);
         __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
 
-        /* "freud/voronoi.pyx":365
+        /* "freud/voronoi.pyx":415
  *                     # length of the ridge line
  *                     weight = np.linalg.norm(
  *                         vor_vertices[ridge_vertices[k][0]] -             # <<<<<<<<<<<<<<
  *                         vor_vertices[ridge_vertices[k][1]])
  *                 else:
  */
-        __pyx_t_16 = PyNumber_Subtract(__pyx_t_6, __pyx_t_13); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 365, __pyx_L1_error)
+        __pyx_t_16 = PyNumber_Subtract(__pyx_t_6, __pyx_t_13); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 415, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_16);
         __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
         __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
@@ -6475,14 +7275,14 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
           }
         }
         if (!__pyx_t_13) {
-          __pyx_t_5 = __Pyx_PyObject_CallOneArg(__pyx_t_12, __pyx_t_16); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 364, __pyx_L1_error)
+          __pyx_t_5 = __Pyx_PyObject_CallOneArg(__pyx_t_12, __pyx_t_16); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 414, __pyx_L1_error)
           __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
           __Pyx_GOTREF(__pyx_t_5);
         } else {
           #if CYTHON_FAST_PYCALL
           if (PyFunction_Check(__pyx_t_12)) {
             PyObject *__pyx_temp[2] = {__pyx_t_13, __pyx_t_16};
-            __pyx_t_5 = __Pyx_PyFunction_FastCall(__pyx_t_12, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 364, __pyx_L1_error)
+            __pyx_t_5 = __Pyx_PyFunction_FastCall(__pyx_t_12, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 414, __pyx_L1_error)
             __Pyx_XDECREF(__pyx_t_13); __pyx_t_13 = 0;
             __Pyx_GOTREF(__pyx_t_5);
             __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
@@ -6491,20 +7291,20 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
           #if CYTHON_FAST_PYCCALL
           if (__Pyx_PyFastCFunction_Check(__pyx_t_12)) {
             PyObject *__pyx_temp[2] = {__pyx_t_13, __pyx_t_16};
-            __pyx_t_5 = __Pyx_PyCFunction_FastCall(__pyx_t_12, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 364, __pyx_L1_error)
+            __pyx_t_5 = __Pyx_PyCFunction_FastCall(__pyx_t_12, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 414, __pyx_L1_error)
             __Pyx_XDECREF(__pyx_t_13); __pyx_t_13 = 0;
             __Pyx_GOTREF(__pyx_t_5);
             __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
           } else
           #endif
           {
-            __pyx_t_6 = PyTuple_New(1+1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 364, __pyx_L1_error)
+            __pyx_t_6 = PyTuple_New(1+1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 414, __pyx_L1_error)
             __Pyx_GOTREF(__pyx_t_6);
             __Pyx_GIVEREF(__pyx_t_13); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_13); __pyx_t_13 = NULL;
             __Pyx_GIVEREF(__pyx_t_16);
             PyTuple_SET_ITEM(__pyx_t_6, 0+1, __pyx_t_16);
             __pyx_t_16 = 0;
-            __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_12, __pyx_t_6, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 364, __pyx_L1_error)
+            __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_12, __pyx_t_6, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 414, __pyx_L1_error)
             __Pyx_GOTREF(__pyx_t_5);
             __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
           }
@@ -6513,7 +7313,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
         __Pyx_XDECREF_SET(__pyx_v_weight, __pyx_t_5);
         __pyx_t_5 = 0;
 
-        /* "freud/voronoi.pyx":361
+        /* "freud/voronoi.pyx":411
  * 
  *             if -1 not in ridge_vertices[k]:
  *                 if b.is2D():             # <<<<<<<<<<<<<<
@@ -6523,7 +7323,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
         goto __pyx_L25;
       }
 
-      /* "freud/voronoi.pyx":376
+      /* "freud/voronoi.pyx":426
  *                     # See link below for sample code and further explanation
  *                     # http://geomalgorithms.com/a01-_area.html#area3D_Polygon()
  *                     vertex_coords = np.array([vor_vertices[i]             # <<<<<<<<<<<<<<
@@ -6531,30 +7331,30 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
  * 
  */
       /*else*/ {
-        __pyx_t_12 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 376, __pyx_L1_error)
+        __pyx_t_12 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 426, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_12);
-        __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_12, __pyx_n_s_array); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 376, __pyx_L1_error)
+        __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_12, __pyx_n_s_array); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 426, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_6);
         __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
-        __pyx_t_12 = PyList_New(0); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 376, __pyx_L1_error)
+        __pyx_t_12 = PyList_New(0); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 426, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_12);
 
-        /* "freud/voronoi.pyx":377
+        /* "freud/voronoi.pyx":427
  *                     # http://geomalgorithms.com/a01-_area.html#area3D_Polygon()
  *                     vertex_coords = np.array([vor_vertices[i]
  *                                               for i in ridge_vertices[k]])             # <<<<<<<<<<<<<<
  * 
  *                     # Get a unit normal vector to the polygonal facet
  */
-        __pyx_t_16 = __Pyx_PyObject_GetItem(__pyx_v_ridge_vertices, __pyx_v_k); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 377, __pyx_L1_error)
+        __pyx_t_16 = __Pyx_PyObject_GetItem(__pyx_v_ridge_vertices, __pyx_v_k); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 427, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_16);
         if (likely(PyList_CheckExact(__pyx_t_16)) || PyTuple_CheckExact(__pyx_t_16)) {
           __pyx_t_13 = __pyx_t_16; __Pyx_INCREF(__pyx_t_13); __pyx_t_9 = 0;
           __pyx_t_17 = NULL;
         } else {
-          __pyx_t_9 = -1; __pyx_t_13 = PyObject_GetIter(__pyx_t_16); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 377, __pyx_L1_error)
+          __pyx_t_9 = -1; __pyx_t_13 = PyObject_GetIter(__pyx_t_16); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 427, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_13);
-          __pyx_t_17 = Py_TYPE(__pyx_t_13)->tp_iternext; if (unlikely(!__pyx_t_17)) __PYX_ERR(0, 377, __pyx_L1_error)
+          __pyx_t_17 = Py_TYPE(__pyx_t_13)->tp_iternext; if (unlikely(!__pyx_t_17)) __PYX_ERR(0, 427, __pyx_L1_error)
         }
         __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
         for (;;) {
@@ -6562,17 +7362,17 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
             if (likely(PyList_CheckExact(__pyx_t_13))) {
               if (__pyx_t_9 >= PyList_GET_SIZE(__pyx_t_13)) break;
               #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-              __pyx_t_16 = PyList_GET_ITEM(__pyx_t_13, __pyx_t_9); __Pyx_INCREF(__pyx_t_16); __pyx_t_9++; if (unlikely(0 < 0)) __PYX_ERR(0, 377, __pyx_L1_error)
+              __pyx_t_16 = PyList_GET_ITEM(__pyx_t_13, __pyx_t_9); __Pyx_INCREF(__pyx_t_16); __pyx_t_9++; if (unlikely(0 < 0)) __PYX_ERR(0, 427, __pyx_L1_error)
               #else
-              __pyx_t_16 = PySequence_ITEM(__pyx_t_13, __pyx_t_9); __pyx_t_9++; if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 377, __pyx_L1_error)
+              __pyx_t_16 = PySequence_ITEM(__pyx_t_13, __pyx_t_9); __pyx_t_9++; if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 427, __pyx_L1_error)
               __Pyx_GOTREF(__pyx_t_16);
               #endif
             } else {
               if (__pyx_t_9 >= PyTuple_GET_SIZE(__pyx_t_13)) break;
               #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-              __pyx_t_16 = PyTuple_GET_ITEM(__pyx_t_13, __pyx_t_9); __Pyx_INCREF(__pyx_t_16); __pyx_t_9++; if (unlikely(0 < 0)) __PYX_ERR(0, 377, __pyx_L1_error)
+              __pyx_t_16 = PyTuple_GET_ITEM(__pyx_t_13, __pyx_t_9); __Pyx_INCREF(__pyx_t_16); __pyx_t_9++; if (unlikely(0 < 0)) __PYX_ERR(0, 427, __pyx_L1_error)
               #else
-              __pyx_t_16 = PySequence_ITEM(__pyx_t_13, __pyx_t_9); __pyx_t_9++; if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 377, __pyx_L1_error)
+              __pyx_t_16 = PySequence_ITEM(__pyx_t_13, __pyx_t_9); __pyx_t_9++; if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 427, __pyx_L1_error)
               __Pyx_GOTREF(__pyx_t_16);
               #endif
             }
@@ -6582,7 +7382,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
               PyObject* exc_type = PyErr_Occurred();
               if (exc_type) {
                 if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-                else __PYX_ERR(0, 377, __pyx_L1_error)
+                else __PYX_ERR(0, 427, __pyx_L1_error)
               }
               break;
             }
@@ -6591,19 +7391,19 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
           __Pyx_XDECREF_SET(__pyx_v_i, __pyx_t_16);
           __pyx_t_16 = 0;
 
-          /* "freud/voronoi.pyx":376
+          /* "freud/voronoi.pyx":426
  *                     # See link below for sample code and further explanation
  *                     # http://geomalgorithms.com/a01-_area.html#area3D_Polygon()
  *                     vertex_coords = np.array([vor_vertices[i]             # <<<<<<<<<<<<<<
  *                                               for i in ridge_vertices[k]])
  * 
  */
-          __pyx_t_16 = __Pyx_PyObject_GetItem(__pyx_v_vor_vertices, __pyx_v_i); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 376, __pyx_L1_error)
+          __pyx_t_16 = __Pyx_PyObject_GetItem(__pyx_v_vor_vertices, __pyx_v_i); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 426, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_16);
-          if (unlikely(__Pyx_ListComp_Append(__pyx_t_12, (PyObject*)__pyx_t_16))) __PYX_ERR(0, 376, __pyx_L1_error)
+          if (unlikely(__Pyx_ListComp_Append(__pyx_t_12, (PyObject*)__pyx_t_16))) __PYX_ERR(0, 426, __pyx_L1_error)
           __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
 
-          /* "freud/voronoi.pyx":377
+          /* "freud/voronoi.pyx":427
  *                     # http://geomalgorithms.com/a01-_area.html#area3D_Polygon()
  *                     vertex_coords = np.array([vor_vertices[i]
  *                                               for i in ridge_vertices[k]])             # <<<<<<<<<<<<<<
@@ -6623,14 +7423,14 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
           }
         }
         if (!__pyx_t_13) {
-          __pyx_t_5 = __Pyx_PyObject_CallOneArg(__pyx_t_6, __pyx_t_12); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 376, __pyx_L1_error)
+          __pyx_t_5 = __Pyx_PyObject_CallOneArg(__pyx_t_6, __pyx_t_12); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 426, __pyx_L1_error)
           __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
           __Pyx_GOTREF(__pyx_t_5);
         } else {
           #if CYTHON_FAST_PYCALL
           if (PyFunction_Check(__pyx_t_6)) {
             PyObject *__pyx_temp[2] = {__pyx_t_13, __pyx_t_12};
-            __pyx_t_5 = __Pyx_PyFunction_FastCall(__pyx_t_6, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 376, __pyx_L1_error)
+            __pyx_t_5 = __Pyx_PyFunction_FastCall(__pyx_t_6, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 426, __pyx_L1_error)
             __Pyx_XDECREF(__pyx_t_13); __pyx_t_13 = 0;
             __Pyx_GOTREF(__pyx_t_5);
             __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
@@ -6639,20 +7439,20 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
           #if CYTHON_FAST_PYCCALL
           if (__Pyx_PyFastCFunction_Check(__pyx_t_6)) {
             PyObject *__pyx_temp[2] = {__pyx_t_13, __pyx_t_12};
-            __pyx_t_5 = __Pyx_PyCFunction_FastCall(__pyx_t_6, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 376, __pyx_L1_error)
+            __pyx_t_5 = __Pyx_PyCFunction_FastCall(__pyx_t_6, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 426, __pyx_L1_error)
             __Pyx_XDECREF(__pyx_t_13); __pyx_t_13 = 0;
             __Pyx_GOTREF(__pyx_t_5);
             __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
           } else
           #endif
           {
-            __pyx_t_16 = PyTuple_New(1+1); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 376, __pyx_L1_error)
+            __pyx_t_16 = PyTuple_New(1+1); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 426, __pyx_L1_error)
             __Pyx_GOTREF(__pyx_t_16);
             __Pyx_GIVEREF(__pyx_t_13); PyTuple_SET_ITEM(__pyx_t_16, 0, __pyx_t_13); __pyx_t_13 = NULL;
             __Pyx_GIVEREF(__pyx_t_12);
             PyTuple_SET_ITEM(__pyx_t_16, 0+1, __pyx_t_12);
             __pyx_t_12 = 0;
-            __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_t_16, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 376, __pyx_L1_error)
+            __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_t_16, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 426, __pyx_L1_error)
             __Pyx_GOTREF(__pyx_t_5);
             __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
           }
@@ -6661,52 +7461,52 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
         __Pyx_XDECREF_SET(__pyx_v_vertex_coords, __pyx_t_5);
         __pyx_t_5 = 0;
 
-        /* "freud/voronoi.pyx":380
+        /* "freud/voronoi.pyx":430
  * 
  *                     # Get a unit normal vector to the polygonal facet
  *                     r01 = vertex_coords[1] - vertex_coords[0]             # <<<<<<<<<<<<<<
  *                     r12 = vertex_coords[2] - vertex_coords[1]
  *                     norm_vec = np.cross(r01, r12)
  */
-        __pyx_t_5 = __Pyx_GetItemInt(__pyx_v_vertex_coords, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 380, __pyx_L1_error)
+        __pyx_t_5 = __Pyx_GetItemInt(__pyx_v_vertex_coords, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 430, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
-        __pyx_t_6 = __Pyx_GetItemInt(__pyx_v_vertex_coords, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 380, __pyx_L1_error)
+        __pyx_t_6 = __Pyx_GetItemInt(__pyx_v_vertex_coords, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 430, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_6);
-        __pyx_t_16 = PyNumber_Subtract(__pyx_t_5, __pyx_t_6); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 380, __pyx_L1_error)
+        __pyx_t_16 = PyNumber_Subtract(__pyx_t_5, __pyx_t_6); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 430, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_16);
         __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
         __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
         __Pyx_XDECREF_SET(__pyx_v_r01, __pyx_t_16);
         __pyx_t_16 = 0;
 
-        /* "freud/voronoi.pyx":381
+        /* "freud/voronoi.pyx":431
  *                     # Get a unit normal vector to the polygonal facet
  *                     r01 = vertex_coords[1] - vertex_coords[0]
  *                     r12 = vertex_coords[2] - vertex_coords[1]             # <<<<<<<<<<<<<<
  *                     norm_vec = np.cross(r01, r12)
  *                     norm_vec /= np.linalg.norm(norm_vec)
  */
-        __pyx_t_16 = __Pyx_GetItemInt(__pyx_v_vertex_coords, 2, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 381, __pyx_L1_error)
+        __pyx_t_16 = __Pyx_GetItemInt(__pyx_v_vertex_coords, 2, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 431, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_16);
-        __pyx_t_6 = __Pyx_GetItemInt(__pyx_v_vertex_coords, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 381, __pyx_L1_error)
+        __pyx_t_6 = __Pyx_GetItemInt(__pyx_v_vertex_coords, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 431, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_6);
-        __pyx_t_5 = PyNumber_Subtract(__pyx_t_16, __pyx_t_6); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 381, __pyx_L1_error)
+        __pyx_t_5 = PyNumber_Subtract(__pyx_t_16, __pyx_t_6); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 431, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
         __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
         __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
         __Pyx_XDECREF_SET(__pyx_v_r12, __pyx_t_5);
         __pyx_t_5 = 0;
 
-        /* "freud/voronoi.pyx":382
+        /* "freud/voronoi.pyx":432
  *                     r01 = vertex_coords[1] - vertex_coords[0]
  *                     r12 = vertex_coords[2] - vertex_coords[1]
  *                     norm_vec = np.cross(r01, r12)             # <<<<<<<<<<<<<<
  *                     norm_vec /= np.linalg.norm(norm_vec)
  * 
  */
-        __pyx_t_6 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 382, __pyx_L1_error)
+        __pyx_t_6 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 432, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_6);
-        __pyx_t_16 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_cross); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 382, __pyx_L1_error)
+        __pyx_t_16 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_cross); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 432, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_16);
         __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
         __pyx_t_6 = NULL;
@@ -6724,7 +7524,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
         #if CYTHON_FAST_PYCALL
         if (PyFunction_Check(__pyx_t_16)) {
           PyObject *__pyx_temp[3] = {__pyx_t_6, __pyx_v_r01, __pyx_v_r12};
-          __pyx_t_5 = __Pyx_PyFunction_FastCall(__pyx_t_16, __pyx_temp+1-__pyx_t_7, 2+__pyx_t_7); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 382, __pyx_L1_error)
+          __pyx_t_5 = __Pyx_PyFunction_FastCall(__pyx_t_16, __pyx_temp+1-__pyx_t_7, 2+__pyx_t_7); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 432, __pyx_L1_error)
           __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
           __Pyx_GOTREF(__pyx_t_5);
         } else
@@ -6732,13 +7532,13 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
         #if CYTHON_FAST_PYCCALL
         if (__Pyx_PyFastCFunction_Check(__pyx_t_16)) {
           PyObject *__pyx_temp[3] = {__pyx_t_6, __pyx_v_r01, __pyx_v_r12};
-          __pyx_t_5 = __Pyx_PyCFunction_FastCall(__pyx_t_16, __pyx_temp+1-__pyx_t_7, 2+__pyx_t_7); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 382, __pyx_L1_error)
+          __pyx_t_5 = __Pyx_PyCFunction_FastCall(__pyx_t_16, __pyx_temp+1-__pyx_t_7, 2+__pyx_t_7); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 432, __pyx_L1_error)
           __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
           __Pyx_GOTREF(__pyx_t_5);
         } else
         #endif
         {
-          __pyx_t_12 = PyTuple_New(2+__pyx_t_7); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 382, __pyx_L1_error)
+          __pyx_t_12 = PyTuple_New(2+__pyx_t_7); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 432, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_12);
           if (__pyx_t_6) {
             __Pyx_GIVEREF(__pyx_t_6); PyTuple_SET_ITEM(__pyx_t_12, 0, __pyx_t_6); __pyx_t_6 = NULL;
@@ -6749,7 +7549,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
           __Pyx_INCREF(__pyx_v_r12);
           __Pyx_GIVEREF(__pyx_v_r12);
           PyTuple_SET_ITEM(__pyx_t_12, 1+__pyx_t_7, __pyx_v_r12);
-          __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_16, __pyx_t_12, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 382, __pyx_L1_error)
+          __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_16, __pyx_t_12, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 432, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_5);
           __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
         }
@@ -6757,19 +7557,19 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
         __Pyx_XDECREF_SET(__pyx_v_norm_vec, __pyx_t_5);
         __pyx_t_5 = 0;
 
-        /* "freud/voronoi.pyx":383
+        /* "freud/voronoi.pyx":433
  *                     r12 = vertex_coords[2] - vertex_coords[1]
  *                     norm_vec = np.cross(r01, r12)
  *                     norm_vec /= np.linalg.norm(norm_vec)             # <<<<<<<<<<<<<<
  * 
  *                     # Determine projection axis:
  */
-        __pyx_t_16 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 383, __pyx_L1_error)
+        __pyx_t_16 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 433, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_16);
-        __pyx_t_12 = __Pyx_PyObject_GetAttrStr(__pyx_t_16, __pyx_n_s_linalg); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 383, __pyx_L1_error)
+        __pyx_t_12 = __Pyx_PyObject_GetAttrStr(__pyx_t_16, __pyx_n_s_linalg); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 433, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_12);
         __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
-        __pyx_t_16 = __Pyx_PyObject_GetAttrStr(__pyx_t_12, __pyx_n_s_norm); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 383, __pyx_L1_error)
+        __pyx_t_16 = __Pyx_PyObject_GetAttrStr(__pyx_t_12, __pyx_n_s_norm); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 433, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_16);
         __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
         __pyx_t_12 = NULL;
@@ -6783,13 +7583,13 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
           }
         }
         if (!__pyx_t_12) {
-          __pyx_t_5 = __Pyx_PyObject_CallOneArg(__pyx_t_16, __pyx_v_norm_vec); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 383, __pyx_L1_error)
+          __pyx_t_5 = __Pyx_PyObject_CallOneArg(__pyx_t_16, __pyx_v_norm_vec); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 433, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_5);
         } else {
           #if CYTHON_FAST_PYCALL
           if (PyFunction_Check(__pyx_t_16)) {
             PyObject *__pyx_temp[2] = {__pyx_t_12, __pyx_v_norm_vec};
-            __pyx_t_5 = __Pyx_PyFunction_FastCall(__pyx_t_16, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 383, __pyx_L1_error)
+            __pyx_t_5 = __Pyx_PyFunction_FastCall(__pyx_t_16, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 433, __pyx_L1_error)
             __Pyx_XDECREF(__pyx_t_12); __pyx_t_12 = 0;
             __Pyx_GOTREF(__pyx_t_5);
           } else
@@ -6797,45 +7597,45 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
           #if CYTHON_FAST_PYCCALL
           if (__Pyx_PyFastCFunction_Check(__pyx_t_16)) {
             PyObject *__pyx_temp[2] = {__pyx_t_12, __pyx_v_norm_vec};
-            __pyx_t_5 = __Pyx_PyCFunction_FastCall(__pyx_t_16, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 383, __pyx_L1_error)
+            __pyx_t_5 = __Pyx_PyCFunction_FastCall(__pyx_t_16, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 433, __pyx_L1_error)
             __Pyx_XDECREF(__pyx_t_12); __pyx_t_12 = 0;
             __Pyx_GOTREF(__pyx_t_5);
           } else
           #endif
           {
-            __pyx_t_6 = PyTuple_New(1+1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 383, __pyx_L1_error)
+            __pyx_t_6 = PyTuple_New(1+1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 433, __pyx_L1_error)
             __Pyx_GOTREF(__pyx_t_6);
             __Pyx_GIVEREF(__pyx_t_12); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_12); __pyx_t_12 = NULL;
             __Pyx_INCREF(__pyx_v_norm_vec);
             __Pyx_GIVEREF(__pyx_v_norm_vec);
             PyTuple_SET_ITEM(__pyx_t_6, 0+1, __pyx_v_norm_vec);
-            __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_16, __pyx_t_6, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 383, __pyx_L1_error)
+            __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_16, __pyx_t_6, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 433, __pyx_L1_error)
             __Pyx_GOTREF(__pyx_t_5);
             __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
           }
         }
         __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
-        __pyx_t_16 = __Pyx_PyNumber_InPlaceDivide(__pyx_v_norm_vec, __pyx_t_5); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 383, __pyx_L1_error)
+        __pyx_t_16 = __Pyx_PyNumber_InPlaceDivide(__pyx_v_norm_vec, __pyx_t_5); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 433, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_16);
         __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
         __Pyx_DECREF_SET(__pyx_v_norm_vec, __pyx_t_16);
         __pyx_t_16 = 0;
 
-        /* "freud/voronoi.pyx":389
+        /* "freud/voronoi.pyx":439
  *                     # vector. We project along the c0 axis and use c1, c2 axes
  *                     # for computing the projected area.
  *                     c0 = np.argmax(np.abs(norm_vec))             # <<<<<<<<<<<<<<
  *                     c1 = (c0 + 1) % 3
  *                     c2 = (c0 + 2) % 3
  */
-        __pyx_t_5 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 389, __pyx_L1_error)
+        __pyx_t_5 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 439, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
-        __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_argmax); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 389, __pyx_L1_error)
+        __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_argmax); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 439, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_6);
         __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-        __pyx_t_12 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 389, __pyx_L1_error)
+        __pyx_t_12 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 439, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_12);
-        __pyx_t_13 = __Pyx_PyObject_GetAttrStr(__pyx_t_12, __pyx_n_s_abs); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 389, __pyx_L1_error)
+        __pyx_t_13 = __Pyx_PyObject_GetAttrStr(__pyx_t_12, __pyx_n_s_abs); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 439, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_13);
         __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
         __pyx_t_12 = NULL;
@@ -6849,13 +7649,13 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
           }
         }
         if (!__pyx_t_12) {
-          __pyx_t_5 = __Pyx_PyObject_CallOneArg(__pyx_t_13, __pyx_v_norm_vec); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 389, __pyx_L1_error)
+          __pyx_t_5 = __Pyx_PyObject_CallOneArg(__pyx_t_13, __pyx_v_norm_vec); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 439, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_5);
         } else {
           #if CYTHON_FAST_PYCALL
           if (PyFunction_Check(__pyx_t_13)) {
             PyObject *__pyx_temp[2] = {__pyx_t_12, __pyx_v_norm_vec};
-            __pyx_t_5 = __Pyx_PyFunction_FastCall(__pyx_t_13, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 389, __pyx_L1_error)
+            __pyx_t_5 = __Pyx_PyFunction_FastCall(__pyx_t_13, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 439, __pyx_L1_error)
             __Pyx_XDECREF(__pyx_t_12); __pyx_t_12 = 0;
             __Pyx_GOTREF(__pyx_t_5);
           } else
@@ -6863,19 +7663,19 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
           #if CYTHON_FAST_PYCCALL
           if (__Pyx_PyFastCFunction_Check(__pyx_t_13)) {
             PyObject *__pyx_temp[2] = {__pyx_t_12, __pyx_v_norm_vec};
-            __pyx_t_5 = __Pyx_PyCFunction_FastCall(__pyx_t_13, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 389, __pyx_L1_error)
+            __pyx_t_5 = __Pyx_PyCFunction_FastCall(__pyx_t_13, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 439, __pyx_L1_error)
             __Pyx_XDECREF(__pyx_t_12); __pyx_t_12 = 0;
             __Pyx_GOTREF(__pyx_t_5);
           } else
           #endif
           {
-            __pyx_t_18 = PyTuple_New(1+1); if (unlikely(!__pyx_t_18)) __PYX_ERR(0, 389, __pyx_L1_error)
+            __pyx_t_18 = PyTuple_New(1+1); if (unlikely(!__pyx_t_18)) __PYX_ERR(0, 439, __pyx_L1_error)
             __Pyx_GOTREF(__pyx_t_18);
             __Pyx_GIVEREF(__pyx_t_12); PyTuple_SET_ITEM(__pyx_t_18, 0, __pyx_t_12); __pyx_t_12 = NULL;
             __Pyx_INCREF(__pyx_v_norm_vec);
             __Pyx_GIVEREF(__pyx_v_norm_vec);
             PyTuple_SET_ITEM(__pyx_t_18, 0+1, __pyx_v_norm_vec);
-            __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_13, __pyx_t_18, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 389, __pyx_L1_error)
+            __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_13, __pyx_t_18, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 439, __pyx_L1_error)
             __Pyx_GOTREF(__pyx_t_5);
             __Pyx_DECREF(__pyx_t_18); __pyx_t_18 = 0;
           }
@@ -6892,14 +7692,14 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
           }
         }
         if (!__pyx_t_13) {
-          __pyx_t_16 = __Pyx_PyObject_CallOneArg(__pyx_t_6, __pyx_t_5); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 389, __pyx_L1_error)
+          __pyx_t_16 = __Pyx_PyObject_CallOneArg(__pyx_t_6, __pyx_t_5); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 439, __pyx_L1_error)
           __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
           __Pyx_GOTREF(__pyx_t_16);
         } else {
           #if CYTHON_FAST_PYCALL
           if (PyFunction_Check(__pyx_t_6)) {
             PyObject *__pyx_temp[2] = {__pyx_t_13, __pyx_t_5};
-            __pyx_t_16 = __Pyx_PyFunction_FastCall(__pyx_t_6, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 389, __pyx_L1_error)
+            __pyx_t_16 = __Pyx_PyFunction_FastCall(__pyx_t_6, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 439, __pyx_L1_error)
             __Pyx_XDECREF(__pyx_t_13); __pyx_t_13 = 0;
             __Pyx_GOTREF(__pyx_t_16);
             __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
@@ -6908,20 +7708,20 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
           #if CYTHON_FAST_PYCCALL
           if (__Pyx_PyFastCFunction_Check(__pyx_t_6)) {
             PyObject *__pyx_temp[2] = {__pyx_t_13, __pyx_t_5};
-            __pyx_t_16 = __Pyx_PyCFunction_FastCall(__pyx_t_6, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 389, __pyx_L1_error)
+            __pyx_t_16 = __Pyx_PyCFunction_FastCall(__pyx_t_6, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 439, __pyx_L1_error)
             __Pyx_XDECREF(__pyx_t_13); __pyx_t_13 = 0;
             __Pyx_GOTREF(__pyx_t_16);
             __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
           } else
           #endif
           {
-            __pyx_t_18 = PyTuple_New(1+1); if (unlikely(!__pyx_t_18)) __PYX_ERR(0, 389, __pyx_L1_error)
+            __pyx_t_18 = PyTuple_New(1+1); if (unlikely(!__pyx_t_18)) __PYX_ERR(0, 439, __pyx_L1_error)
             __Pyx_GOTREF(__pyx_t_18);
             __Pyx_GIVEREF(__pyx_t_13); PyTuple_SET_ITEM(__pyx_t_18, 0, __pyx_t_13); __pyx_t_13 = NULL;
             __Pyx_GIVEREF(__pyx_t_5);
             PyTuple_SET_ITEM(__pyx_t_18, 0+1, __pyx_t_5);
             __pyx_t_5 = 0;
-            __pyx_t_16 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_t_18, NULL); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 389, __pyx_L1_error)
+            __pyx_t_16 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_t_18, NULL); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 439, __pyx_L1_error)
             __Pyx_GOTREF(__pyx_t_16);
             __Pyx_DECREF(__pyx_t_18); __pyx_t_18 = 0;
           }
@@ -6930,44 +7730,44 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
         __Pyx_XDECREF_SET(__pyx_v_c0, __pyx_t_16);
         __pyx_t_16 = 0;
 
-        /* "freud/voronoi.pyx":390
+        /* "freud/voronoi.pyx":440
  *                     # for computing the projected area.
  *                     c0 = np.argmax(np.abs(norm_vec))
  *                     c1 = (c0 + 1) % 3             # <<<<<<<<<<<<<<
  *                     c2 = (c0 + 2) % 3
  * 
  */
-        __pyx_t_16 = __Pyx_PyInt_AddObjC(__pyx_v_c0, __pyx_int_1, 1, 0); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 390, __pyx_L1_error)
+        __pyx_t_16 = __Pyx_PyInt_AddObjC(__pyx_v_c0, __pyx_int_1, 1, 0); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 440, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_16);
-        __pyx_t_6 = __Pyx_PyInt_RemainderObjC(__pyx_t_16, __pyx_int_3, 3, 0); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 390, __pyx_L1_error)
+        __pyx_t_6 = __Pyx_PyInt_RemainderObjC(__pyx_t_16, __pyx_int_3, 3, 0); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 440, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_6);
         __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
         __Pyx_XDECREF_SET(__pyx_v_c1, __pyx_t_6);
         __pyx_t_6 = 0;
 
-        /* "freud/voronoi.pyx":391
+        /* "freud/voronoi.pyx":441
  *                     c0 = np.argmax(np.abs(norm_vec))
  *                     c1 = (c0 + 1) % 3
  *                     c2 = (c0 + 2) % 3             # <<<<<<<<<<<<<<
  * 
  *                     vc1 = vertex_coords[:, c1]
  */
-        __pyx_t_6 = __Pyx_PyInt_AddObjC(__pyx_v_c0, __pyx_int_2, 2, 0); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 391, __pyx_L1_error)
+        __pyx_t_6 = __Pyx_PyInt_AddObjC(__pyx_v_c0, __pyx_int_2, 2, 0); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 441, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_6);
-        __pyx_t_16 = __Pyx_PyInt_RemainderObjC(__pyx_t_6, __pyx_int_3, 3, 0); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 391, __pyx_L1_error)
+        __pyx_t_16 = __Pyx_PyInt_RemainderObjC(__pyx_t_6, __pyx_int_3, 3, 0); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 441, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_16);
         __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
         __Pyx_XDECREF_SET(__pyx_v_c2, __pyx_t_16);
         __pyx_t_16 = 0;
 
-        /* "freud/voronoi.pyx":393
+        /* "freud/voronoi.pyx":443
  *                     c2 = (c0 + 2) % 3
  * 
  *                     vc1 = vertex_coords[:, c1]             # <<<<<<<<<<<<<<
  *                     vc2 = vertex_coords[:, c2]
  * 
  */
-        __pyx_t_16 = PyTuple_New(2); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 393, __pyx_L1_error)
+        __pyx_t_16 = PyTuple_New(2); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 443, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_16);
         __Pyx_INCREF(__pyx_slice__9);
         __Pyx_GIVEREF(__pyx_slice__9);
@@ -6975,20 +7775,20 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
         __Pyx_INCREF(__pyx_v_c1);
         __Pyx_GIVEREF(__pyx_v_c1);
         PyTuple_SET_ITEM(__pyx_t_16, 1, __pyx_v_c1);
-        __pyx_t_6 = __Pyx_PyObject_GetItem(__pyx_v_vertex_coords, __pyx_t_16); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 393, __pyx_L1_error)
+        __pyx_t_6 = __Pyx_PyObject_GetItem(__pyx_v_vertex_coords, __pyx_t_16); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 443, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_6);
         __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
         __Pyx_XDECREF_SET(__pyx_v_vc1, __pyx_t_6);
         __pyx_t_6 = 0;
 
-        /* "freud/voronoi.pyx":394
+        /* "freud/voronoi.pyx":444
  * 
  *                     vc1 = vertex_coords[:, c1]
  *                     vc2 = vertex_coords[:, c2]             # <<<<<<<<<<<<<<
  * 
  *                     # Use shoelace formula for the projected area
  */
-        __pyx_t_6 = PyTuple_New(2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 394, __pyx_L1_error)
+        __pyx_t_6 = PyTuple_New(2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 444, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_6);
         __Pyx_INCREF(__pyx_slice__10);
         __Pyx_GIVEREF(__pyx_slice__10);
@@ -6996,40 +7796,40 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
         __Pyx_INCREF(__pyx_v_c2);
         __Pyx_GIVEREF(__pyx_v_c2);
         PyTuple_SET_ITEM(__pyx_t_6, 1, __pyx_v_c2);
-        __pyx_t_16 = __Pyx_PyObject_GetItem(__pyx_v_vertex_coords, __pyx_t_6); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 394, __pyx_L1_error)
+        __pyx_t_16 = __Pyx_PyObject_GetItem(__pyx_v_vertex_coords, __pyx_t_6); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 444, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_16);
         __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
         __Pyx_XDECREF_SET(__pyx_v_vc2, __pyx_t_16);
         __pyx_t_16 = 0;
 
-        /* "freud/voronoi.pyx":397
+        /* "freud/voronoi.pyx":447
  * 
  *                     # Use shoelace formula for the projected area
  *                     projected_area = 0.5*np.abs(             # <<<<<<<<<<<<<<
  *                         np.dot(vc1, np.roll(vc2, 1)) -
  *                         np.dot(vc2, np.roll(vc1, 1)))
  */
-        __pyx_t_6 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 397, __pyx_L1_error)
+        __pyx_t_6 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 447, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_6);
-        __pyx_t_18 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_abs); if (unlikely(!__pyx_t_18)) __PYX_ERR(0, 397, __pyx_L1_error)
+        __pyx_t_18 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_abs); if (unlikely(!__pyx_t_18)) __PYX_ERR(0, 447, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_18);
         __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
 
-        /* "freud/voronoi.pyx":398
+        /* "freud/voronoi.pyx":448
  *                     # Use shoelace formula for the projected area
  *                     projected_area = 0.5*np.abs(
  *                         np.dot(vc1, np.roll(vc2, 1)) -             # <<<<<<<<<<<<<<
  *                         np.dot(vc2, np.roll(vc1, 1)))
  * 
  */
-        __pyx_t_5 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 398, __pyx_L1_error)
+        __pyx_t_5 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 448, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
-        __pyx_t_13 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_dot); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 398, __pyx_L1_error)
+        __pyx_t_13 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_dot); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 448, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_13);
         __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-        __pyx_t_12 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 398, __pyx_L1_error)
+        __pyx_t_12 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 448, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_12);
-        __pyx_t_19 = __Pyx_PyObject_GetAttrStr(__pyx_t_12, __pyx_n_s_roll); if (unlikely(!__pyx_t_19)) __PYX_ERR(0, 398, __pyx_L1_error)
+        __pyx_t_19 = __Pyx_PyObject_GetAttrStr(__pyx_t_12, __pyx_n_s_roll); if (unlikely(!__pyx_t_19)) __PYX_ERR(0, 448, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_19);
         __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
         __pyx_t_12 = NULL;
@@ -7047,7 +7847,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
         #if CYTHON_FAST_PYCALL
         if (PyFunction_Check(__pyx_t_19)) {
           PyObject *__pyx_temp[3] = {__pyx_t_12, __pyx_v_vc2, __pyx_int_1};
-          __pyx_t_5 = __Pyx_PyFunction_FastCall(__pyx_t_19, __pyx_temp+1-__pyx_t_7, 2+__pyx_t_7); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 398, __pyx_L1_error)
+          __pyx_t_5 = __Pyx_PyFunction_FastCall(__pyx_t_19, __pyx_temp+1-__pyx_t_7, 2+__pyx_t_7); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 448, __pyx_L1_error)
           __Pyx_XDECREF(__pyx_t_12); __pyx_t_12 = 0;
           __Pyx_GOTREF(__pyx_t_5);
         } else
@@ -7055,13 +7855,13 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
         #if CYTHON_FAST_PYCCALL
         if (__Pyx_PyFastCFunction_Check(__pyx_t_19)) {
           PyObject *__pyx_temp[3] = {__pyx_t_12, __pyx_v_vc2, __pyx_int_1};
-          __pyx_t_5 = __Pyx_PyCFunction_FastCall(__pyx_t_19, __pyx_temp+1-__pyx_t_7, 2+__pyx_t_7); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 398, __pyx_L1_error)
+          __pyx_t_5 = __Pyx_PyCFunction_FastCall(__pyx_t_19, __pyx_temp+1-__pyx_t_7, 2+__pyx_t_7); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 448, __pyx_L1_error)
           __Pyx_XDECREF(__pyx_t_12); __pyx_t_12 = 0;
           __Pyx_GOTREF(__pyx_t_5);
         } else
         #endif
         {
-          __pyx_t_20 = PyTuple_New(2+__pyx_t_7); if (unlikely(!__pyx_t_20)) __PYX_ERR(0, 398, __pyx_L1_error)
+          __pyx_t_20 = PyTuple_New(2+__pyx_t_7); if (unlikely(!__pyx_t_20)) __PYX_ERR(0, 448, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_20);
           if (__pyx_t_12) {
             __Pyx_GIVEREF(__pyx_t_12); PyTuple_SET_ITEM(__pyx_t_20, 0, __pyx_t_12); __pyx_t_12 = NULL;
@@ -7072,7 +7872,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
           __Pyx_INCREF(__pyx_int_1);
           __Pyx_GIVEREF(__pyx_int_1);
           PyTuple_SET_ITEM(__pyx_t_20, 1+__pyx_t_7, __pyx_int_1);
-          __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_19, __pyx_t_20, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 398, __pyx_L1_error)
+          __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_19, __pyx_t_20, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 448, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_5);
           __Pyx_DECREF(__pyx_t_20); __pyx_t_20 = 0;
         }
@@ -7092,7 +7892,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
         #if CYTHON_FAST_PYCALL
         if (PyFunction_Check(__pyx_t_13)) {
           PyObject *__pyx_temp[3] = {__pyx_t_19, __pyx_v_vc1, __pyx_t_5};
-          __pyx_t_6 = __Pyx_PyFunction_FastCall(__pyx_t_13, __pyx_temp+1-__pyx_t_7, 2+__pyx_t_7); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 398, __pyx_L1_error)
+          __pyx_t_6 = __Pyx_PyFunction_FastCall(__pyx_t_13, __pyx_temp+1-__pyx_t_7, 2+__pyx_t_7); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 448, __pyx_L1_error)
           __Pyx_XDECREF(__pyx_t_19); __pyx_t_19 = 0;
           __Pyx_GOTREF(__pyx_t_6);
           __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
@@ -7101,14 +7901,14 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
         #if CYTHON_FAST_PYCCALL
         if (__Pyx_PyFastCFunction_Check(__pyx_t_13)) {
           PyObject *__pyx_temp[3] = {__pyx_t_19, __pyx_v_vc1, __pyx_t_5};
-          __pyx_t_6 = __Pyx_PyCFunction_FastCall(__pyx_t_13, __pyx_temp+1-__pyx_t_7, 2+__pyx_t_7); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 398, __pyx_L1_error)
+          __pyx_t_6 = __Pyx_PyCFunction_FastCall(__pyx_t_13, __pyx_temp+1-__pyx_t_7, 2+__pyx_t_7); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 448, __pyx_L1_error)
           __Pyx_XDECREF(__pyx_t_19); __pyx_t_19 = 0;
           __Pyx_GOTREF(__pyx_t_6);
           __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
         } else
         #endif
         {
-          __pyx_t_20 = PyTuple_New(2+__pyx_t_7); if (unlikely(!__pyx_t_20)) __PYX_ERR(0, 398, __pyx_L1_error)
+          __pyx_t_20 = PyTuple_New(2+__pyx_t_7); if (unlikely(!__pyx_t_20)) __PYX_ERR(0, 448, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_20);
           if (__pyx_t_19) {
             __Pyx_GIVEREF(__pyx_t_19); PyTuple_SET_ITEM(__pyx_t_20, 0, __pyx_t_19); __pyx_t_19 = NULL;
@@ -7119,27 +7919,27 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
           __Pyx_GIVEREF(__pyx_t_5);
           PyTuple_SET_ITEM(__pyx_t_20, 1+__pyx_t_7, __pyx_t_5);
           __pyx_t_5 = 0;
-          __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_13, __pyx_t_20, NULL); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 398, __pyx_L1_error)
+          __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_13, __pyx_t_20, NULL); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 448, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_6);
           __Pyx_DECREF(__pyx_t_20); __pyx_t_20 = 0;
         }
         __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
 
-        /* "freud/voronoi.pyx":399
+        /* "freud/voronoi.pyx":449
  *                     projected_area = 0.5*np.abs(
  *                         np.dot(vc1, np.roll(vc2, 1)) -
  *                         np.dot(vc2, np.roll(vc1, 1)))             # <<<<<<<<<<<<<<
  * 
  *                     # Project back to get the true area (which is the weight)
  */
-        __pyx_t_20 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_20)) __PYX_ERR(0, 399, __pyx_L1_error)
+        __pyx_t_20 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_20)) __PYX_ERR(0, 449, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_20);
-        __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_20, __pyx_n_s_dot); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 399, __pyx_L1_error)
+        __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_20, __pyx_n_s_dot); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 449, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
         __Pyx_DECREF(__pyx_t_20); __pyx_t_20 = 0;
-        __pyx_t_19 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_19)) __PYX_ERR(0, 399, __pyx_L1_error)
+        __pyx_t_19 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_19)) __PYX_ERR(0, 449, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_19);
-        __pyx_t_12 = __Pyx_PyObject_GetAttrStr(__pyx_t_19, __pyx_n_s_roll); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 399, __pyx_L1_error)
+        __pyx_t_12 = __Pyx_PyObject_GetAttrStr(__pyx_t_19, __pyx_n_s_roll); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 449, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_12);
         __Pyx_DECREF(__pyx_t_19); __pyx_t_19 = 0;
         __pyx_t_19 = NULL;
@@ -7157,7 +7957,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
         #if CYTHON_FAST_PYCALL
         if (PyFunction_Check(__pyx_t_12)) {
           PyObject *__pyx_temp[3] = {__pyx_t_19, __pyx_v_vc1, __pyx_int_1};
-          __pyx_t_20 = __Pyx_PyFunction_FastCall(__pyx_t_12, __pyx_temp+1-__pyx_t_7, 2+__pyx_t_7); if (unlikely(!__pyx_t_20)) __PYX_ERR(0, 399, __pyx_L1_error)
+          __pyx_t_20 = __Pyx_PyFunction_FastCall(__pyx_t_12, __pyx_temp+1-__pyx_t_7, 2+__pyx_t_7); if (unlikely(!__pyx_t_20)) __PYX_ERR(0, 449, __pyx_L1_error)
           __Pyx_XDECREF(__pyx_t_19); __pyx_t_19 = 0;
           __Pyx_GOTREF(__pyx_t_20);
         } else
@@ -7165,13 +7965,13 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
         #if CYTHON_FAST_PYCCALL
         if (__Pyx_PyFastCFunction_Check(__pyx_t_12)) {
           PyObject *__pyx_temp[3] = {__pyx_t_19, __pyx_v_vc1, __pyx_int_1};
-          __pyx_t_20 = __Pyx_PyCFunction_FastCall(__pyx_t_12, __pyx_temp+1-__pyx_t_7, 2+__pyx_t_7); if (unlikely(!__pyx_t_20)) __PYX_ERR(0, 399, __pyx_L1_error)
+          __pyx_t_20 = __Pyx_PyCFunction_FastCall(__pyx_t_12, __pyx_temp+1-__pyx_t_7, 2+__pyx_t_7); if (unlikely(!__pyx_t_20)) __PYX_ERR(0, 449, __pyx_L1_error)
           __Pyx_XDECREF(__pyx_t_19); __pyx_t_19 = 0;
           __Pyx_GOTREF(__pyx_t_20);
         } else
         #endif
         {
-          __pyx_t_21 = PyTuple_New(2+__pyx_t_7); if (unlikely(!__pyx_t_21)) __PYX_ERR(0, 399, __pyx_L1_error)
+          __pyx_t_21 = PyTuple_New(2+__pyx_t_7); if (unlikely(!__pyx_t_21)) __PYX_ERR(0, 449, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_21);
           if (__pyx_t_19) {
             __Pyx_GIVEREF(__pyx_t_19); PyTuple_SET_ITEM(__pyx_t_21, 0, __pyx_t_19); __pyx_t_19 = NULL;
@@ -7182,7 +7982,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
           __Pyx_INCREF(__pyx_int_1);
           __Pyx_GIVEREF(__pyx_int_1);
           PyTuple_SET_ITEM(__pyx_t_21, 1+__pyx_t_7, __pyx_int_1);
-          __pyx_t_20 = __Pyx_PyObject_Call(__pyx_t_12, __pyx_t_21, NULL); if (unlikely(!__pyx_t_20)) __PYX_ERR(0, 399, __pyx_L1_error)
+          __pyx_t_20 = __Pyx_PyObject_Call(__pyx_t_12, __pyx_t_21, NULL); if (unlikely(!__pyx_t_20)) __PYX_ERR(0, 449, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_20);
           __Pyx_DECREF(__pyx_t_21); __pyx_t_21 = 0;
         }
@@ -7202,7 +8002,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
         #if CYTHON_FAST_PYCALL
         if (PyFunction_Check(__pyx_t_5)) {
           PyObject *__pyx_temp[3] = {__pyx_t_12, __pyx_v_vc2, __pyx_t_20};
-          __pyx_t_13 = __Pyx_PyFunction_FastCall(__pyx_t_5, __pyx_temp+1-__pyx_t_7, 2+__pyx_t_7); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 399, __pyx_L1_error)
+          __pyx_t_13 = __Pyx_PyFunction_FastCall(__pyx_t_5, __pyx_temp+1-__pyx_t_7, 2+__pyx_t_7); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 449, __pyx_L1_error)
           __Pyx_XDECREF(__pyx_t_12); __pyx_t_12 = 0;
           __Pyx_GOTREF(__pyx_t_13);
           __Pyx_DECREF(__pyx_t_20); __pyx_t_20 = 0;
@@ -7211,14 +8011,14 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
         #if CYTHON_FAST_PYCCALL
         if (__Pyx_PyFastCFunction_Check(__pyx_t_5)) {
           PyObject *__pyx_temp[3] = {__pyx_t_12, __pyx_v_vc2, __pyx_t_20};
-          __pyx_t_13 = __Pyx_PyCFunction_FastCall(__pyx_t_5, __pyx_temp+1-__pyx_t_7, 2+__pyx_t_7); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 399, __pyx_L1_error)
+          __pyx_t_13 = __Pyx_PyCFunction_FastCall(__pyx_t_5, __pyx_temp+1-__pyx_t_7, 2+__pyx_t_7); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 449, __pyx_L1_error)
           __Pyx_XDECREF(__pyx_t_12); __pyx_t_12 = 0;
           __Pyx_GOTREF(__pyx_t_13);
           __Pyx_DECREF(__pyx_t_20); __pyx_t_20 = 0;
         } else
         #endif
         {
-          __pyx_t_21 = PyTuple_New(2+__pyx_t_7); if (unlikely(!__pyx_t_21)) __PYX_ERR(0, 399, __pyx_L1_error)
+          __pyx_t_21 = PyTuple_New(2+__pyx_t_7); if (unlikely(!__pyx_t_21)) __PYX_ERR(0, 449, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_21);
           if (__pyx_t_12) {
             __Pyx_GIVEREF(__pyx_t_12); PyTuple_SET_ITEM(__pyx_t_21, 0, __pyx_t_12); __pyx_t_12 = NULL;
@@ -7229,20 +8029,20 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
           __Pyx_GIVEREF(__pyx_t_20);
           PyTuple_SET_ITEM(__pyx_t_21, 1+__pyx_t_7, __pyx_t_20);
           __pyx_t_20 = 0;
-          __pyx_t_13 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_21, NULL); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 399, __pyx_L1_error)
+          __pyx_t_13 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_21, NULL); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 449, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_13);
           __Pyx_DECREF(__pyx_t_21); __pyx_t_21 = 0;
         }
         __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-        /* "freud/voronoi.pyx":398
+        /* "freud/voronoi.pyx":448
  *                     # Use shoelace formula for the projected area
  *                     projected_area = 0.5*np.abs(
  *                         np.dot(vc1, np.roll(vc2, 1)) -             # <<<<<<<<<<<<<<
  *                         np.dot(vc2, np.roll(vc1, 1)))
  * 
  */
-        __pyx_t_5 = PyNumber_Subtract(__pyx_t_6, __pyx_t_13); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 398, __pyx_L1_error)
+        __pyx_t_5 = PyNumber_Subtract(__pyx_t_6, __pyx_t_13); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 448, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
         __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
         __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
@@ -7257,14 +8057,14 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
           }
         }
         if (!__pyx_t_13) {
-          __pyx_t_16 = __Pyx_PyObject_CallOneArg(__pyx_t_18, __pyx_t_5); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 397, __pyx_L1_error)
+          __pyx_t_16 = __Pyx_PyObject_CallOneArg(__pyx_t_18, __pyx_t_5); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 447, __pyx_L1_error)
           __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
           __Pyx_GOTREF(__pyx_t_16);
         } else {
           #if CYTHON_FAST_PYCALL
           if (PyFunction_Check(__pyx_t_18)) {
             PyObject *__pyx_temp[2] = {__pyx_t_13, __pyx_t_5};
-            __pyx_t_16 = __Pyx_PyFunction_FastCall(__pyx_t_18, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 397, __pyx_L1_error)
+            __pyx_t_16 = __Pyx_PyFunction_FastCall(__pyx_t_18, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 447, __pyx_L1_error)
             __Pyx_XDECREF(__pyx_t_13); __pyx_t_13 = 0;
             __Pyx_GOTREF(__pyx_t_16);
             __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
@@ -7273,52 +8073,52 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
           #if CYTHON_FAST_PYCCALL
           if (__Pyx_PyFastCFunction_Check(__pyx_t_18)) {
             PyObject *__pyx_temp[2] = {__pyx_t_13, __pyx_t_5};
-            __pyx_t_16 = __Pyx_PyCFunction_FastCall(__pyx_t_18, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 397, __pyx_L1_error)
+            __pyx_t_16 = __Pyx_PyCFunction_FastCall(__pyx_t_18, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 447, __pyx_L1_error)
             __Pyx_XDECREF(__pyx_t_13); __pyx_t_13 = 0;
             __Pyx_GOTREF(__pyx_t_16);
             __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
           } else
           #endif
           {
-            __pyx_t_6 = PyTuple_New(1+1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 397, __pyx_L1_error)
+            __pyx_t_6 = PyTuple_New(1+1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 447, __pyx_L1_error)
             __Pyx_GOTREF(__pyx_t_6);
             __Pyx_GIVEREF(__pyx_t_13); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_13); __pyx_t_13 = NULL;
             __Pyx_GIVEREF(__pyx_t_5);
             PyTuple_SET_ITEM(__pyx_t_6, 0+1, __pyx_t_5);
             __pyx_t_5 = 0;
-            __pyx_t_16 = __Pyx_PyObject_Call(__pyx_t_18, __pyx_t_6, NULL); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 397, __pyx_L1_error)
+            __pyx_t_16 = __Pyx_PyObject_Call(__pyx_t_18, __pyx_t_6, NULL); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 447, __pyx_L1_error)
             __Pyx_GOTREF(__pyx_t_16);
             __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
           }
         }
         __Pyx_DECREF(__pyx_t_18); __pyx_t_18 = 0;
 
-        /* "freud/voronoi.pyx":397
+        /* "freud/voronoi.pyx":447
  * 
  *                     # Use shoelace formula for the projected area
  *                     projected_area = 0.5*np.abs(             # <<<<<<<<<<<<<<
  *                         np.dot(vc1, np.roll(vc2, 1)) -
  *                         np.dot(vc2, np.roll(vc1, 1)))
  */
-        __pyx_t_18 = PyNumber_Multiply(__pyx_float_0_5, __pyx_t_16); if (unlikely(!__pyx_t_18)) __PYX_ERR(0, 397, __pyx_L1_error)
+        __pyx_t_18 = PyNumber_Multiply(__pyx_float_0_5, __pyx_t_16); if (unlikely(!__pyx_t_18)) __PYX_ERR(0, 447, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_18);
         __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
         __Pyx_XDECREF_SET(__pyx_v_projected_area, __pyx_t_18);
         __pyx_t_18 = 0;
 
-        /* "freud/voronoi.pyx":402
+        /* "freud/voronoi.pyx":452
  * 
  *                     # Project back to get the true area (which is the weight)
  *                     weight = projected_area / np.abs(norm_vec[c0])             # <<<<<<<<<<<<<<
  *             else:
  *                 # This point was on the boundary, so as far as qhull
  */
-        __pyx_t_16 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 402, __pyx_L1_error)
+        __pyx_t_16 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 452, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_16);
-        __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_16, __pyx_n_s_abs); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 402, __pyx_L1_error)
+        __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_16, __pyx_n_s_abs); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 452, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_6);
         __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
-        __pyx_t_16 = __Pyx_PyObject_GetItem(__pyx_v_norm_vec, __pyx_v_c0); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 402, __pyx_L1_error)
+        __pyx_t_16 = __Pyx_PyObject_GetItem(__pyx_v_norm_vec, __pyx_v_c0); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 452, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_16);
         __pyx_t_5 = NULL;
         if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_6))) {
@@ -7331,14 +8131,14 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
           }
         }
         if (!__pyx_t_5) {
-          __pyx_t_18 = __Pyx_PyObject_CallOneArg(__pyx_t_6, __pyx_t_16); if (unlikely(!__pyx_t_18)) __PYX_ERR(0, 402, __pyx_L1_error)
+          __pyx_t_18 = __Pyx_PyObject_CallOneArg(__pyx_t_6, __pyx_t_16); if (unlikely(!__pyx_t_18)) __PYX_ERR(0, 452, __pyx_L1_error)
           __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
           __Pyx_GOTREF(__pyx_t_18);
         } else {
           #if CYTHON_FAST_PYCALL
           if (PyFunction_Check(__pyx_t_6)) {
             PyObject *__pyx_temp[2] = {__pyx_t_5, __pyx_t_16};
-            __pyx_t_18 = __Pyx_PyFunction_FastCall(__pyx_t_6, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_18)) __PYX_ERR(0, 402, __pyx_L1_error)
+            __pyx_t_18 = __Pyx_PyFunction_FastCall(__pyx_t_6, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_18)) __PYX_ERR(0, 452, __pyx_L1_error)
             __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
             __Pyx_GOTREF(__pyx_t_18);
             __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
@@ -7347,26 +8147,26 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
           #if CYTHON_FAST_PYCCALL
           if (__Pyx_PyFastCFunction_Check(__pyx_t_6)) {
             PyObject *__pyx_temp[2] = {__pyx_t_5, __pyx_t_16};
-            __pyx_t_18 = __Pyx_PyCFunction_FastCall(__pyx_t_6, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_18)) __PYX_ERR(0, 402, __pyx_L1_error)
+            __pyx_t_18 = __Pyx_PyCFunction_FastCall(__pyx_t_6, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_18)) __PYX_ERR(0, 452, __pyx_L1_error)
             __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
             __Pyx_GOTREF(__pyx_t_18);
             __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
           } else
           #endif
           {
-            __pyx_t_13 = PyTuple_New(1+1); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 402, __pyx_L1_error)
+            __pyx_t_13 = PyTuple_New(1+1); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 452, __pyx_L1_error)
             __Pyx_GOTREF(__pyx_t_13);
             __Pyx_GIVEREF(__pyx_t_5); PyTuple_SET_ITEM(__pyx_t_13, 0, __pyx_t_5); __pyx_t_5 = NULL;
             __Pyx_GIVEREF(__pyx_t_16);
             PyTuple_SET_ITEM(__pyx_t_13, 0+1, __pyx_t_16);
             __pyx_t_16 = 0;
-            __pyx_t_18 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_t_13, NULL); if (unlikely(!__pyx_t_18)) __PYX_ERR(0, 402, __pyx_L1_error)
+            __pyx_t_18 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_t_13, NULL); if (unlikely(!__pyx_t_18)) __PYX_ERR(0, 452, __pyx_L1_error)
             __Pyx_GOTREF(__pyx_t_18);
             __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
           }
         }
         __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-        __pyx_t_6 = __Pyx_PyNumber_Divide(__pyx_v_projected_area, __pyx_t_18); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 402, __pyx_L1_error)
+        __pyx_t_6 = __Pyx_PyNumber_Divide(__pyx_v_projected_area, __pyx_t_18); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 452, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_6);
         __Pyx_DECREF(__pyx_t_18); __pyx_t_18 = 0;
         __Pyx_XDECREF_SET(__pyx_v_weight, __pyx_t_6);
@@ -7374,7 +8174,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
       }
       __pyx_L25:;
 
-      /* "freud/voronoi.pyx":360
+      /* "freud/voronoi.pyx":410
  *                 continue
  * 
  *             if -1 not in ridge_vertices[k]:             # <<<<<<<<<<<<<<
@@ -7384,7 +8184,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
       goto __pyx_L24;
     }
 
-    /* "freud/voronoi.pyx":406
+    /* "freud/voronoi.pyx":456
  *                 # This point was on the boundary, so as far as qhull
  *                 # is concerned its ridge goes out to infinity
  *                 weight = 0             # <<<<<<<<<<<<<<
@@ -7397,7 +8197,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
     }
     __pyx_L24:;
 
-    /* "freud/voronoi.pyx":408
+    /* "freud/voronoi.pyx":458
  *                 weight = 0
  * 
  *             if added_i:             # <<<<<<<<<<<<<<
@@ -7407,22 +8207,22 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
     __pyx_t_2 = (__pyx_v_added_i != 0);
     if (__pyx_t_2) {
 
-      /* "freud/voronoi.pyx":409
+      /* "freud/voronoi.pyx":459
  * 
  *             if added_i:
  *                 self.firstShellWeight[index_i].append(weight)             # <<<<<<<<<<<<<<
  *             if added_j:
  *                 self.firstShellWeight[index_j].append(weight)
  */
-      __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_firstShellWeight); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 409, __pyx_L1_error)
+      __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_firstShellWeight); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 459, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_6);
-      __pyx_t_18 = __Pyx_PyObject_GetItem(__pyx_t_6, __pyx_v_index_i); if (unlikely(!__pyx_t_18)) __PYX_ERR(0, 409, __pyx_L1_error)
+      __pyx_t_18 = __Pyx_PyObject_GetItem(__pyx_t_6, __pyx_v_index_i); if (unlikely(!__pyx_t_18)) __PYX_ERR(0, 459, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_18);
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-      __pyx_t_15 = __Pyx_PyObject_Append(__pyx_t_18, __pyx_v_weight); if (unlikely(__pyx_t_15 == ((int)-1))) __PYX_ERR(0, 409, __pyx_L1_error)
+      __pyx_t_15 = __Pyx_PyObject_Append(__pyx_t_18, __pyx_v_weight); if (unlikely(__pyx_t_15 == ((int)-1))) __PYX_ERR(0, 459, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_18); __pyx_t_18 = 0;
 
-      /* "freud/voronoi.pyx":408
+      /* "freud/voronoi.pyx":458
  *                 weight = 0
  * 
  *             if added_i:             # <<<<<<<<<<<<<<
@@ -7431,7 +8231,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
  */
     }
 
-    /* "freud/voronoi.pyx":410
+    /* "freud/voronoi.pyx":460
  *             if added_i:
  *                 self.firstShellWeight[index_i].append(weight)
  *             if added_j:             # <<<<<<<<<<<<<<
@@ -7441,22 +8241,22 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
     __pyx_t_2 = (__pyx_v_added_j != 0);
     if (__pyx_t_2) {
 
-      /* "freud/voronoi.pyx":411
+      /* "freud/voronoi.pyx":461
  *                 self.firstShellWeight[index_i].append(weight)
  *             if added_j:
  *                 self.firstShellWeight[index_j].append(weight)             # <<<<<<<<<<<<<<
  * 
  *         return self
  */
-      __pyx_t_18 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_firstShellWeight); if (unlikely(!__pyx_t_18)) __PYX_ERR(0, 411, __pyx_L1_error)
+      __pyx_t_18 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_firstShellWeight); if (unlikely(!__pyx_t_18)) __PYX_ERR(0, 461, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_18);
-      __pyx_t_6 = __Pyx_PyObject_GetItem(__pyx_t_18, __pyx_v_index_j); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 411, __pyx_L1_error)
+      __pyx_t_6 = __Pyx_PyObject_GetItem(__pyx_t_18, __pyx_v_index_j); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 461, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_6);
       __Pyx_DECREF(__pyx_t_18); __pyx_t_18 = 0;
-      __pyx_t_15 = __Pyx_PyObject_Append(__pyx_t_6, __pyx_v_weight); if (unlikely(__pyx_t_15 == ((int)-1))) __PYX_ERR(0, 411, __pyx_L1_error)
+      __pyx_t_15 = __Pyx_PyObject_Append(__pyx_t_6, __pyx_v_weight); if (unlikely(__pyx_t_15 == ((int)-1))) __PYX_ERR(0, 461, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
 
-      /* "freud/voronoi.pyx":410
+      /* "freud/voronoi.pyx":460
  *             if added_i:
  *                 self.firstShellWeight[index_i].append(weight)
  *             if added_j:             # <<<<<<<<<<<<<<
@@ -7465,7 +8265,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
  */
     }
 
-    /* "freud/voronoi.pyx":332
+    /* "freud/voronoi.pyx":382
  *         # between two points in 2D or the area of the ridge facet in 3D
  *         self.firstShellWeight = [[] for _ in range(N)]
  *         for (k, (index_i, index_j)) in enumerate(ridge_points):             # <<<<<<<<<<<<<<
@@ -7477,7 +8277,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "freud/voronoi.pyx":413
+  /* "freud/voronoi.pyx":463
  *                 self.firstShellWeight[index_j].append(weight)
  * 
  *         return self             # <<<<<<<<<<<<<<
@@ -7489,8 +8289,8 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
   __pyx_r = __pyx_v_self;
   goto __pyx_L0;
 
-  /* "freud/voronoi.pyx":272
- *         return self.poly_verts
+  /* "freud/voronoi.pyx":322
+ *         return self.polytopes
  * 
  *     def computeNeighbors(self, positions, box=None, buff=None,             # <<<<<<<<<<<<<<
  *                          exclude_ii=True):
@@ -7538,7 +8338,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
   return __pyx_r;
 }
 
-/* "freud/voronoi.pyx":415
+/* "freud/voronoi.pyx":465
  *         return self
  * 
  *     def getNeighbors(self, numShells):             # <<<<<<<<<<<<<<
@@ -7547,10 +8347,10 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_14computeNeighbors(CYTHON_UNU
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_17getNeighbors(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_7voronoi_7Voronoi_16getNeighbors[] = "Get :code:`numShells` of neighbors for each particle\n\n        Must call :py:meth:`~.computeNeighbors()` before this method.\n\n        Args:\n            numShells (int): Number of neighbor shells.\n        ";
-static PyMethodDef __pyx_mdef_5freud_7voronoi_7Voronoi_17getNeighbors = {"getNeighbors", (PyCFunction)__pyx_pw_5freud_7voronoi_7Voronoi_17getNeighbors, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7voronoi_7Voronoi_16getNeighbors};
-static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_17getNeighbors(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_21getNeighbors(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_5freud_7voronoi_7Voronoi_20getNeighbors[] = "Voronoi.getNeighbors(self, numShells)\nGet :code:`numShells` of neighbors for each particle\n\n        Must call :py:meth:`~.computeNeighbors()` before this method.\n\n        Args:\n            numShells (int): Number of neighbor shells.\n        ";
+static PyMethodDef __pyx_mdef_5freud_7voronoi_7Voronoi_21getNeighbors = {"getNeighbors", (PyCFunction)__pyx_pw_5freud_7voronoi_7Voronoi_21getNeighbors, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7voronoi_7Voronoi_20getNeighbors};
+static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_21getNeighbors(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
   PyObject *__pyx_v_numShells = 0;
   PyObject *__pyx_r = 0;
@@ -7579,11 +8379,11 @@ static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_17getNeighbors(PyObject *__py
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_numShells)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("getNeighbors", 1, 2, 2, 1); __PYX_ERR(0, 415, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("getNeighbors", 1, 2, 2, 1); __PYX_ERR(0, 465, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "getNeighbors") < 0)) __PYX_ERR(0, 415, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "getNeighbors") < 0)) __PYX_ERR(0, 465, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -7596,20 +8396,20 @@ static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_17getNeighbors(PyObject *__py
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("getNeighbors", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 415, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("getNeighbors", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 465, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("freud.voronoi.Voronoi.getNeighbors", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_5freud_7voronoi_7Voronoi_16getNeighbors(__pyx_self, __pyx_v_self, __pyx_v_numShells);
+  __pyx_r = __pyx_pf_5freud_7voronoi_7Voronoi_20getNeighbors(__pyx_self, __pyx_v_self, __pyx_v_numShells);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_16getNeighbors(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_numShells) {
+static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_20getNeighbors(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_numShells) {
   PyObject *__pyx_v_neighbor_list = NULL;
   CYTHON_UNUSED PyObject *__pyx_v__ = NULL;
   PyObject *__pyx_v_dummy_neighbor_list = NULL;
@@ -7637,19 +8437,19 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_16getNeighbors(CYTHON_UNUSED 
   PyObject *__pyx_t_16 = NULL;
   __Pyx_RefNannySetupContext("getNeighbors", 0);
 
-  /* "freud/voronoi.pyx":423
+  /* "freud/voronoi.pyx":473
  *             numShells (int): Number of neighbor shells.
  *         """
  *         neighbor_list = copy.copy(self.firstShellNeighborList)             # <<<<<<<<<<<<<<
  *         # delete [] in neighbor_list
  *         neighbor_list = [x for x in neighbor_list if len(x) > 0]
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_copy); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 423, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_copy); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 473, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_copy); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 423, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_copy); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 473, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_firstShellNeighborList); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 423, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_firstShellNeighborList); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 473, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -7662,14 +8462,14 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_16getNeighbors(CYTHON_UNUSED 
     }
   }
   if (!__pyx_t_4) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 423, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 473, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_GOTREF(__pyx_t_1);
   } else {
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_3)) {
       PyObject *__pyx_temp[2] = {__pyx_t_4, __pyx_t_2};
-      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 423, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 473, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -7678,20 +8478,20 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_16getNeighbors(CYTHON_UNUSED 
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
       PyObject *__pyx_temp[2] = {__pyx_t_4, __pyx_t_2};
-      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 423, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 473, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     } else
     #endif
     {
-      __pyx_t_5 = PyTuple_New(1+1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 423, __pyx_L1_error)
+      __pyx_t_5 = PyTuple_New(1+1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 473, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
       __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_4); __pyx_t_4 = NULL;
       __Pyx_GIVEREF(__pyx_t_2);
       PyTuple_SET_ITEM(__pyx_t_5, 0+1, __pyx_t_2);
       __pyx_t_2 = 0;
-      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_5, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 423, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_5, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 473, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     }
@@ -7700,39 +8500,39 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_16getNeighbors(CYTHON_UNUSED 
   __pyx_v_neighbor_list = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "freud/voronoi.pyx":425
+  /* "freud/voronoi.pyx":475
  *         neighbor_list = copy.copy(self.firstShellNeighborList)
  *         # delete [] in neighbor_list
  *         neighbor_list = [x for x in neighbor_list if len(x) > 0]             # <<<<<<<<<<<<<<
  *         for _ in range(numShells - 1):
  *             dummy_neighbor_list = copy.copy(neighbor_list)
  */
-  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 425, __pyx_L1_error)
+  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 475, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   if (likely(PyList_CheckExact(__pyx_v_neighbor_list)) || PyTuple_CheckExact(__pyx_v_neighbor_list)) {
     __pyx_t_3 = __pyx_v_neighbor_list; __Pyx_INCREF(__pyx_t_3); __pyx_t_6 = 0;
     __pyx_t_7 = NULL;
   } else {
-    __pyx_t_6 = -1; __pyx_t_3 = PyObject_GetIter(__pyx_v_neighbor_list); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 425, __pyx_L1_error)
+    __pyx_t_6 = -1; __pyx_t_3 = PyObject_GetIter(__pyx_v_neighbor_list); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 475, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_7 = Py_TYPE(__pyx_t_3)->tp_iternext; if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 425, __pyx_L1_error)
+    __pyx_t_7 = Py_TYPE(__pyx_t_3)->tp_iternext; if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 475, __pyx_L1_error)
   }
   for (;;) {
     if (likely(!__pyx_t_7)) {
       if (likely(PyList_CheckExact(__pyx_t_3))) {
         if (__pyx_t_6 >= PyList_GET_SIZE(__pyx_t_3)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_5 = PyList_GET_ITEM(__pyx_t_3, __pyx_t_6); __Pyx_INCREF(__pyx_t_5); __pyx_t_6++; if (unlikely(0 < 0)) __PYX_ERR(0, 425, __pyx_L1_error)
+        __pyx_t_5 = PyList_GET_ITEM(__pyx_t_3, __pyx_t_6); __Pyx_INCREF(__pyx_t_5); __pyx_t_6++; if (unlikely(0 < 0)) __PYX_ERR(0, 475, __pyx_L1_error)
         #else
-        __pyx_t_5 = PySequence_ITEM(__pyx_t_3, __pyx_t_6); __pyx_t_6++; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 425, __pyx_L1_error)
+        __pyx_t_5 = PySequence_ITEM(__pyx_t_3, __pyx_t_6); __pyx_t_6++; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 475, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
         #endif
       } else {
         if (__pyx_t_6 >= PyTuple_GET_SIZE(__pyx_t_3)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_5 = PyTuple_GET_ITEM(__pyx_t_3, __pyx_t_6); __Pyx_INCREF(__pyx_t_5); __pyx_t_6++; if (unlikely(0 < 0)) __PYX_ERR(0, 425, __pyx_L1_error)
+        __pyx_t_5 = PyTuple_GET_ITEM(__pyx_t_3, __pyx_t_6); __Pyx_INCREF(__pyx_t_5); __pyx_t_6++; if (unlikely(0 < 0)) __PYX_ERR(0, 475, __pyx_L1_error)
         #else
-        __pyx_t_5 = PySequence_ITEM(__pyx_t_3, __pyx_t_6); __pyx_t_6++; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 425, __pyx_L1_error)
+        __pyx_t_5 = PySequence_ITEM(__pyx_t_3, __pyx_t_6); __pyx_t_6++; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 475, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
         #endif
       }
@@ -7742,7 +8542,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_16getNeighbors(CYTHON_UNUSED 
         PyObject* exc_type = PyErr_Occurred();
         if (exc_type) {
           if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-          else __PYX_ERR(0, 425, __pyx_L1_error)
+          else __PYX_ERR(0, 475, __pyx_L1_error)
         }
         break;
       }
@@ -7750,35 +8550,35 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_16getNeighbors(CYTHON_UNUSED 
     }
     __Pyx_XDECREF_SET(__pyx_v_x, __pyx_t_5);
     __pyx_t_5 = 0;
-    __pyx_t_8 = PyObject_Length(__pyx_v_x); if (unlikely(__pyx_t_8 == ((Py_ssize_t)-1))) __PYX_ERR(0, 425, __pyx_L1_error)
+    __pyx_t_8 = PyObject_Length(__pyx_v_x); if (unlikely(__pyx_t_8 == ((Py_ssize_t)-1))) __PYX_ERR(0, 475, __pyx_L1_error)
     __pyx_t_9 = ((__pyx_t_8 > 0) != 0);
     if (__pyx_t_9) {
-      if (unlikely(__Pyx_ListComp_Append(__pyx_t_1, (PyObject*)__pyx_v_x))) __PYX_ERR(0, 425, __pyx_L1_error)
+      if (unlikely(__Pyx_ListComp_Append(__pyx_t_1, (PyObject*)__pyx_v_x))) __PYX_ERR(0, 475, __pyx_L1_error)
     }
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF_SET(__pyx_v_neighbor_list, __pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "freud/voronoi.pyx":426
+  /* "freud/voronoi.pyx":476
  *         # delete [] in neighbor_list
  *         neighbor_list = [x for x in neighbor_list if len(x) > 0]
  *         for _ in range(numShells - 1):             # <<<<<<<<<<<<<<
  *             dummy_neighbor_list = copy.copy(neighbor_list)
  *             for i in range(len(neighbor_list)):
  */
-  __pyx_t_1 = __Pyx_PyInt_SubtractObjC(__pyx_v_numShells, __pyx_int_1, 1, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 426, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_SubtractObjC(__pyx_v_numShells, __pyx_int_1, 1, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 476, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_builtin_range, __pyx_t_1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 426, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_builtin_range, __pyx_t_1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 476, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   if (likely(PyList_CheckExact(__pyx_t_3)) || PyTuple_CheckExact(__pyx_t_3)) {
     __pyx_t_1 = __pyx_t_3; __Pyx_INCREF(__pyx_t_1); __pyx_t_6 = 0;
     __pyx_t_7 = NULL;
   } else {
-    __pyx_t_6 = -1; __pyx_t_1 = PyObject_GetIter(__pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 426, __pyx_L1_error)
+    __pyx_t_6 = -1; __pyx_t_1 = PyObject_GetIter(__pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 476, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_7 = Py_TYPE(__pyx_t_1)->tp_iternext; if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 426, __pyx_L1_error)
+    __pyx_t_7 = Py_TYPE(__pyx_t_1)->tp_iternext; if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 476, __pyx_L1_error)
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   for (;;) {
@@ -7786,17 +8586,17 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_16getNeighbors(CYTHON_UNUSED 
       if (likely(PyList_CheckExact(__pyx_t_1))) {
         if (__pyx_t_6 >= PyList_GET_SIZE(__pyx_t_1)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_3 = PyList_GET_ITEM(__pyx_t_1, __pyx_t_6); __Pyx_INCREF(__pyx_t_3); __pyx_t_6++; if (unlikely(0 < 0)) __PYX_ERR(0, 426, __pyx_L1_error)
+        __pyx_t_3 = PyList_GET_ITEM(__pyx_t_1, __pyx_t_6); __Pyx_INCREF(__pyx_t_3); __pyx_t_6++; if (unlikely(0 < 0)) __PYX_ERR(0, 476, __pyx_L1_error)
         #else
-        __pyx_t_3 = PySequence_ITEM(__pyx_t_1, __pyx_t_6); __pyx_t_6++; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 426, __pyx_L1_error)
+        __pyx_t_3 = PySequence_ITEM(__pyx_t_1, __pyx_t_6); __pyx_t_6++; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 476, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_3);
         #endif
       } else {
         if (__pyx_t_6 >= PyTuple_GET_SIZE(__pyx_t_1)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_3 = PyTuple_GET_ITEM(__pyx_t_1, __pyx_t_6); __Pyx_INCREF(__pyx_t_3); __pyx_t_6++; if (unlikely(0 < 0)) __PYX_ERR(0, 426, __pyx_L1_error)
+        __pyx_t_3 = PyTuple_GET_ITEM(__pyx_t_1, __pyx_t_6); __Pyx_INCREF(__pyx_t_3); __pyx_t_6++; if (unlikely(0 < 0)) __PYX_ERR(0, 476, __pyx_L1_error)
         #else
-        __pyx_t_3 = PySequence_ITEM(__pyx_t_1, __pyx_t_6); __pyx_t_6++; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 426, __pyx_L1_error)
+        __pyx_t_3 = PySequence_ITEM(__pyx_t_1, __pyx_t_6); __pyx_t_6++; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 476, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_3);
         #endif
       }
@@ -7806,7 +8606,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_16getNeighbors(CYTHON_UNUSED 
         PyObject* exc_type = PyErr_Occurred();
         if (exc_type) {
           if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-          else __PYX_ERR(0, 426, __pyx_L1_error)
+          else __PYX_ERR(0, 476, __pyx_L1_error)
         }
         break;
       }
@@ -7815,16 +8615,16 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_16getNeighbors(CYTHON_UNUSED 
     __Pyx_XDECREF_SET(__pyx_v__, __pyx_t_3);
     __pyx_t_3 = 0;
 
-    /* "freud/voronoi.pyx":427
+    /* "freud/voronoi.pyx":477
  *         neighbor_list = [x for x in neighbor_list if len(x) > 0]
  *         for _ in range(numShells - 1):
  *             dummy_neighbor_list = copy.copy(neighbor_list)             # <<<<<<<<<<<<<<
  *             for i in range(len(neighbor_list)):
  *                 numNeighbors = len(neighbor_list[i])
  */
-    __pyx_t_5 = __Pyx_GetModuleGlobalName(__pyx_n_s_copy); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 427, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_GetModuleGlobalName(__pyx_n_s_copy); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 477, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_copy); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 427, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_copy); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 477, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __pyx_t_5 = NULL;
@@ -7838,13 +8638,13 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_16getNeighbors(CYTHON_UNUSED 
       }
     }
     if (!__pyx_t_5) {
-      __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_neighbor_list); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 427, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_neighbor_list); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 477, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
     } else {
       #if CYTHON_FAST_PYCALL
       if (PyFunction_Check(__pyx_t_2)) {
         PyObject *__pyx_temp[2] = {__pyx_t_5, __pyx_v_neighbor_list};
-        __pyx_t_3 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 427, __pyx_L1_error)
+        __pyx_t_3 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 477, __pyx_L1_error)
         __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
         __Pyx_GOTREF(__pyx_t_3);
       } else
@@ -7852,19 +8652,19 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_16getNeighbors(CYTHON_UNUSED 
       #if CYTHON_FAST_PYCCALL
       if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
         PyObject *__pyx_temp[2] = {__pyx_t_5, __pyx_v_neighbor_list};
-        __pyx_t_3 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 427, __pyx_L1_error)
+        __pyx_t_3 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 477, __pyx_L1_error)
         __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
         __Pyx_GOTREF(__pyx_t_3);
       } else
       #endif
       {
-        __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 427, __pyx_L1_error)
+        __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 477, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_4);
         __Pyx_GIVEREF(__pyx_t_5); PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_5); __pyx_t_5 = NULL;
         __Pyx_INCREF(__pyx_v_neighbor_list);
         __Pyx_GIVEREF(__pyx_v_neighbor_list);
         PyTuple_SET_ITEM(__pyx_t_4, 0+1, __pyx_v_neighbor_list);
-        __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_4, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 427, __pyx_L1_error)
+        __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_4, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 477, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_3);
         __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       }
@@ -7873,32 +8673,32 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_16getNeighbors(CYTHON_UNUSED 
     __Pyx_XDECREF_SET(__pyx_v_dummy_neighbor_list, __pyx_t_3);
     __pyx_t_3 = 0;
 
-    /* "freud/voronoi.pyx":428
+    /* "freud/voronoi.pyx":478
  *         for _ in range(numShells - 1):
  *             dummy_neighbor_list = copy.copy(neighbor_list)
  *             for i in range(len(neighbor_list)):             # <<<<<<<<<<<<<<
  *                 numNeighbors = len(neighbor_list[i])
  *                 for j in range(numNeighbors):
  */
-    __pyx_t_8 = PyObject_Length(__pyx_v_neighbor_list); if (unlikely(__pyx_t_8 == ((Py_ssize_t)-1))) __PYX_ERR(0, 428, __pyx_L1_error)
+    __pyx_t_8 = PyObject_Length(__pyx_v_neighbor_list); if (unlikely(__pyx_t_8 == ((Py_ssize_t)-1))) __PYX_ERR(0, 478, __pyx_L1_error)
     __pyx_t_10 = __pyx_t_8;
     for (__pyx_t_11 = 0; __pyx_t_11 < __pyx_t_10; __pyx_t_11+=1) {
       __pyx_v_i = __pyx_t_11;
 
-      /* "freud/voronoi.pyx":429
+      /* "freud/voronoi.pyx":479
  *             dummy_neighbor_list = copy.copy(neighbor_list)
  *             for i in range(len(neighbor_list)):
  *                 numNeighbors = len(neighbor_list[i])             # <<<<<<<<<<<<<<
  *                 for j in range(numNeighbors):
  *                     dummy_neighbor_list[i] = dummy_neighbor_list[i] + \
  */
-      __pyx_t_3 = __Pyx_GetItemInt(__pyx_v_neighbor_list, __pyx_v_i, Py_ssize_t, 1, PyInt_FromSsize_t, 0, 1, 1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 429, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_GetItemInt(__pyx_v_neighbor_list, __pyx_v_i, Py_ssize_t, 1, PyInt_FromSsize_t, 0, 1, 1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 479, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
-      __pyx_t_12 = PyObject_Length(__pyx_t_3); if (unlikely(__pyx_t_12 == ((Py_ssize_t)-1))) __PYX_ERR(0, 429, __pyx_L1_error)
+      __pyx_t_12 = PyObject_Length(__pyx_t_3); if (unlikely(__pyx_t_12 == ((Py_ssize_t)-1))) __PYX_ERR(0, 479, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       __pyx_v_numNeighbors = __pyx_t_12;
 
-      /* "freud/voronoi.pyx":430
+      /* "freud/voronoi.pyx":480
  *             for i in range(len(neighbor_list)):
  *                 numNeighbors = len(neighbor_list[i])
  *                 for j in range(numNeighbors):             # <<<<<<<<<<<<<<
@@ -7910,98 +8710,98 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_16getNeighbors(CYTHON_UNUSED 
       for (__pyx_t_14 = 0; __pyx_t_14 < __pyx_t_13; __pyx_t_14+=1) {
         __pyx_v_j = __pyx_t_14;
 
-        /* "freud/voronoi.pyx":431
+        /* "freud/voronoi.pyx":481
  *                 numNeighbors = len(neighbor_list[i])
  *                 for j in range(numNeighbors):
  *                     dummy_neighbor_list[i] = dummy_neighbor_list[i] + \             # <<<<<<<<<<<<<<
  *                         self.firstShellNeighborList[neighbor_list[i][j]]
  * 
  */
-        __pyx_t_3 = __Pyx_GetItemInt(__pyx_v_dummy_neighbor_list, __pyx_v_i, Py_ssize_t, 1, PyInt_FromSsize_t, 0, 1, 1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 431, __pyx_L1_error)
+        __pyx_t_3 = __Pyx_GetItemInt(__pyx_v_dummy_neighbor_list, __pyx_v_i, Py_ssize_t, 1, PyInt_FromSsize_t, 0, 1, 1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 481, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_3);
 
-        /* "freud/voronoi.pyx":432
+        /* "freud/voronoi.pyx":482
  *                 for j in range(numNeighbors):
  *                     dummy_neighbor_list[i] = dummy_neighbor_list[i] + \
  *                         self.firstShellNeighborList[neighbor_list[i][j]]             # <<<<<<<<<<<<<<
  * 
  *                 # remove duplicates
  */
-        __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_firstShellNeighborList); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 432, __pyx_L1_error)
+        __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_firstShellNeighborList); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 482, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_2);
-        __pyx_t_4 = __Pyx_GetItemInt(__pyx_v_neighbor_list, __pyx_v_i, Py_ssize_t, 1, PyInt_FromSsize_t, 0, 1, 1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 432, __pyx_L1_error)
+        __pyx_t_4 = __Pyx_GetItemInt(__pyx_v_neighbor_list, __pyx_v_i, Py_ssize_t, 1, PyInt_FromSsize_t, 0, 1, 1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 482, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_4);
-        __pyx_t_5 = __Pyx_GetItemInt(__pyx_t_4, __pyx_v_j, Py_ssize_t, 1, PyInt_FromSsize_t, 0, 1, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 432, __pyx_L1_error)
+        __pyx_t_5 = __Pyx_GetItemInt(__pyx_t_4, __pyx_v_j, Py_ssize_t, 1, PyInt_FromSsize_t, 0, 1, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 482, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
         __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-        __pyx_t_4 = __Pyx_PyObject_GetItem(__pyx_t_2, __pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 432, __pyx_L1_error)
+        __pyx_t_4 = __Pyx_PyObject_GetItem(__pyx_t_2, __pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 482, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_4);
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
         __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-        /* "freud/voronoi.pyx":431
+        /* "freud/voronoi.pyx":481
  *                 numNeighbors = len(neighbor_list[i])
  *                 for j in range(numNeighbors):
  *                     dummy_neighbor_list[i] = dummy_neighbor_list[i] + \             # <<<<<<<<<<<<<<
  *                         self.firstShellNeighborList[neighbor_list[i][j]]
  * 
  */
-        __pyx_t_5 = PyNumber_Add(__pyx_t_3, __pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 431, __pyx_L1_error)
+        __pyx_t_5 = PyNumber_Add(__pyx_t_3, __pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 481, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
         __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
         __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-        if (unlikely(__Pyx_SetItemInt(__pyx_v_dummy_neighbor_list, __pyx_v_i, __pyx_t_5, Py_ssize_t, 1, PyInt_FromSsize_t, 0, 1, 1) < 0)) __PYX_ERR(0, 431, __pyx_L1_error)
+        if (unlikely(__Pyx_SetItemInt(__pyx_v_dummy_neighbor_list, __pyx_v_i, __pyx_t_5, Py_ssize_t, 1, PyInt_FromSsize_t, 0, 1, 1) < 0)) __PYX_ERR(0, 481, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
       }
 
-      /* "freud/voronoi.pyx":435
+      /* "freud/voronoi.pyx":485
  * 
  *                 # remove duplicates
  *                 dummy_neighbor_list[i] = list(set(dummy_neighbor_list[i]))             # <<<<<<<<<<<<<<
  * 
  *                 if i in dummy_neighbor_list[i]:
  */
-      __pyx_t_5 = __Pyx_GetItemInt(__pyx_v_dummy_neighbor_list, __pyx_v_i, Py_ssize_t, 1, PyInt_FromSsize_t, 0, 1, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 435, __pyx_L1_error)
+      __pyx_t_5 = __Pyx_GetItemInt(__pyx_v_dummy_neighbor_list, __pyx_v_i, Py_ssize_t, 1, PyInt_FromSsize_t, 0, 1, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 485, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
-      __pyx_t_4 = PySet_New(__pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 435, __pyx_L1_error)
+      __pyx_t_4 = PySet_New(__pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 485, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-      __pyx_t_5 = PySequence_List(__pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 435, __pyx_L1_error)
+      __pyx_t_5 = PySequence_List(__pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 485, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      if (unlikely(__Pyx_SetItemInt(__pyx_v_dummy_neighbor_list, __pyx_v_i, __pyx_t_5, Py_ssize_t, 1, PyInt_FromSsize_t, 0, 1, 1) < 0)) __PYX_ERR(0, 435, __pyx_L1_error)
+      if (unlikely(__Pyx_SetItemInt(__pyx_v_dummy_neighbor_list, __pyx_v_i, __pyx_t_5, Py_ssize_t, 1, PyInt_FromSsize_t, 0, 1, 1) < 0)) __PYX_ERR(0, 485, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-      /* "freud/voronoi.pyx":437
+      /* "freud/voronoi.pyx":487
  *                 dummy_neighbor_list[i] = list(set(dummy_neighbor_list[i]))
  * 
  *                 if i in dummy_neighbor_list[i]:             # <<<<<<<<<<<<<<
  *                     dummy_neighbor_list[i].remove(i)
  * 
  */
-      __pyx_t_5 = PyInt_FromSsize_t(__pyx_v_i); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 437, __pyx_L1_error)
+      __pyx_t_5 = PyInt_FromSsize_t(__pyx_v_i); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 487, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
-      __pyx_t_4 = __Pyx_GetItemInt(__pyx_v_dummy_neighbor_list, __pyx_v_i, Py_ssize_t, 1, PyInt_FromSsize_t, 0, 1, 1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 437, __pyx_L1_error)
+      __pyx_t_4 = __Pyx_GetItemInt(__pyx_v_dummy_neighbor_list, __pyx_v_i, Py_ssize_t, 1, PyInt_FromSsize_t, 0, 1, 1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 487, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
-      __pyx_t_9 = (__Pyx_PySequence_ContainsTF(__pyx_t_5, __pyx_t_4, Py_EQ)); if (unlikely(__pyx_t_9 < 0)) __PYX_ERR(0, 437, __pyx_L1_error)
+      __pyx_t_9 = (__Pyx_PySequence_ContainsTF(__pyx_t_5, __pyx_t_4, Py_EQ)); if (unlikely(__pyx_t_9 < 0)) __PYX_ERR(0, 487, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       __pyx_t_15 = (__pyx_t_9 != 0);
       if (__pyx_t_15) {
 
-        /* "freud/voronoi.pyx":438
+        /* "freud/voronoi.pyx":488
  * 
  *                 if i in dummy_neighbor_list[i]:
  *                     dummy_neighbor_list[i].remove(i)             # <<<<<<<<<<<<<<
  * 
  *             neighbor_list = copy.copy(dummy_neighbor_list)
  */
-        __pyx_t_5 = __Pyx_GetItemInt(__pyx_v_dummy_neighbor_list, __pyx_v_i, Py_ssize_t, 1, PyInt_FromSsize_t, 0, 1, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 438, __pyx_L1_error)
+        __pyx_t_5 = __Pyx_GetItemInt(__pyx_v_dummy_neighbor_list, __pyx_v_i, Py_ssize_t, 1, PyInt_FromSsize_t, 0, 1, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 488, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
-        __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_remove); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 438, __pyx_L1_error)
+        __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_remove); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 488, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_3);
         __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-        __pyx_t_5 = PyInt_FromSsize_t(__pyx_v_i); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 438, __pyx_L1_error)
+        __pyx_t_5 = PyInt_FromSsize_t(__pyx_v_i); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 488, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
         __pyx_t_2 = NULL;
         if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_3))) {
@@ -8014,14 +8814,14 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_16getNeighbors(CYTHON_UNUSED 
           }
         }
         if (!__pyx_t_2) {
-          __pyx_t_4 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 438, __pyx_L1_error)
+          __pyx_t_4 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 488, __pyx_L1_error)
           __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
           __Pyx_GOTREF(__pyx_t_4);
         } else {
           #if CYTHON_FAST_PYCALL
           if (PyFunction_Check(__pyx_t_3)) {
             PyObject *__pyx_temp[2] = {__pyx_t_2, __pyx_t_5};
-            __pyx_t_4 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 438, __pyx_L1_error)
+            __pyx_t_4 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 488, __pyx_L1_error)
             __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
             __Pyx_GOTREF(__pyx_t_4);
             __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
@@ -8030,20 +8830,20 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_16getNeighbors(CYTHON_UNUSED 
           #if CYTHON_FAST_PYCCALL
           if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
             PyObject *__pyx_temp[2] = {__pyx_t_2, __pyx_t_5};
-            __pyx_t_4 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 438, __pyx_L1_error)
+            __pyx_t_4 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 488, __pyx_L1_error)
             __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
             __Pyx_GOTREF(__pyx_t_4);
             __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
           } else
           #endif
           {
-            __pyx_t_16 = PyTuple_New(1+1); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 438, __pyx_L1_error)
+            __pyx_t_16 = PyTuple_New(1+1); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 488, __pyx_L1_error)
             __Pyx_GOTREF(__pyx_t_16);
             __Pyx_GIVEREF(__pyx_t_2); PyTuple_SET_ITEM(__pyx_t_16, 0, __pyx_t_2); __pyx_t_2 = NULL;
             __Pyx_GIVEREF(__pyx_t_5);
             PyTuple_SET_ITEM(__pyx_t_16, 0+1, __pyx_t_5);
             __pyx_t_5 = 0;
-            __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_16, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 438, __pyx_L1_error)
+            __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_16, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 488, __pyx_L1_error)
             __Pyx_GOTREF(__pyx_t_4);
             __Pyx_DECREF(__pyx_t_16); __pyx_t_16 = 0;
           }
@@ -8051,7 +8851,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_16getNeighbors(CYTHON_UNUSED 
         __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
         __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-        /* "freud/voronoi.pyx":437
+        /* "freud/voronoi.pyx":487
  *                 dummy_neighbor_list[i] = list(set(dummy_neighbor_list[i]))
  * 
  *                 if i in dummy_neighbor_list[i]:             # <<<<<<<<<<<<<<
@@ -8061,16 +8861,16 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_16getNeighbors(CYTHON_UNUSED 
       }
     }
 
-    /* "freud/voronoi.pyx":440
+    /* "freud/voronoi.pyx":490
  *                     dummy_neighbor_list[i].remove(i)
  * 
  *             neighbor_list = copy.copy(dummy_neighbor_list)             # <<<<<<<<<<<<<<
  * 
  *         return neighbor_list
  */
-    __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_copy); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 440, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_copy); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 490, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_16 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_copy); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 440, __pyx_L1_error)
+    __pyx_t_16 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_copy); if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 490, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_16);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __pyx_t_3 = NULL;
@@ -8084,13 +8884,13 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_16getNeighbors(CYTHON_UNUSED 
       }
     }
     if (!__pyx_t_3) {
-      __pyx_t_4 = __Pyx_PyObject_CallOneArg(__pyx_t_16, __pyx_v_dummy_neighbor_list); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 440, __pyx_L1_error)
+      __pyx_t_4 = __Pyx_PyObject_CallOneArg(__pyx_t_16, __pyx_v_dummy_neighbor_list); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 490, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
     } else {
       #if CYTHON_FAST_PYCALL
       if (PyFunction_Check(__pyx_t_16)) {
         PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_v_dummy_neighbor_list};
-        __pyx_t_4 = __Pyx_PyFunction_FastCall(__pyx_t_16, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 440, __pyx_L1_error)
+        __pyx_t_4 = __Pyx_PyFunction_FastCall(__pyx_t_16, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 490, __pyx_L1_error)
         __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
         __Pyx_GOTREF(__pyx_t_4);
       } else
@@ -8098,19 +8898,19 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_16getNeighbors(CYTHON_UNUSED 
       #if CYTHON_FAST_PYCCALL
       if (__Pyx_PyFastCFunction_Check(__pyx_t_16)) {
         PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_v_dummy_neighbor_list};
-        __pyx_t_4 = __Pyx_PyCFunction_FastCall(__pyx_t_16, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 440, __pyx_L1_error)
+        __pyx_t_4 = __Pyx_PyCFunction_FastCall(__pyx_t_16, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 490, __pyx_L1_error)
         __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
         __Pyx_GOTREF(__pyx_t_4);
       } else
       #endif
       {
-        __pyx_t_5 = PyTuple_New(1+1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 440, __pyx_L1_error)
+        __pyx_t_5 = PyTuple_New(1+1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 490, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
         __Pyx_GIVEREF(__pyx_t_3); PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_3); __pyx_t_3 = NULL;
         __Pyx_INCREF(__pyx_v_dummy_neighbor_list);
         __Pyx_GIVEREF(__pyx_v_dummy_neighbor_list);
         PyTuple_SET_ITEM(__pyx_t_5, 0+1, __pyx_v_dummy_neighbor_list);
-        __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_16, __pyx_t_5, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 440, __pyx_L1_error)
+        __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_16, __pyx_t_5, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 490, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_4);
         __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
       }
@@ -8119,7 +8919,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_16getNeighbors(CYTHON_UNUSED 
     __Pyx_DECREF_SET(__pyx_v_neighbor_list, __pyx_t_4);
     __pyx_t_4 = 0;
 
-    /* "freud/voronoi.pyx":426
+    /* "freud/voronoi.pyx":476
  *         # delete [] in neighbor_list
  *         neighbor_list = [x for x in neighbor_list if len(x) > 0]
  *         for _ in range(numShells - 1):             # <<<<<<<<<<<<<<
@@ -8129,19 +8929,19 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_16getNeighbors(CYTHON_UNUSED 
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "freud/voronoi.pyx":442
+  /* "freud/voronoi.pyx":492
  *             neighbor_list = copy.copy(dummy_neighbor_list)
  * 
  *         return neighbor_list             # <<<<<<<<<<<<<<
  * 
- *     def getNeighborList(self):
+ *     @property
  */
   __Pyx_XDECREF(__pyx_r);
   __Pyx_INCREF(__pyx_v_neighbor_list);
   __pyx_r = __pyx_v_neighbor_list;
   goto __pyx_L0;
 
-  /* "freud/voronoi.pyx":415
+  /* "freud/voronoi.pyx":465
  *         return self
  * 
  *     def getNeighbors(self, numShells):             # <<<<<<<<<<<<<<
@@ -8169,30 +8969,30 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_16getNeighbors(CYTHON_UNUSED 
   return __pyx_r;
 }
 
-/* "freud/voronoi.pyx":444
- *         return neighbor_list
+/* "freud/voronoi.pyx":495
  * 
- *     def getNeighborList(self):             # <<<<<<<<<<<<<<
- *         """Returns a neighbor list object.
- * 
+ *     @property
+ *     def nlist(self):             # <<<<<<<<<<<<<<
+ *         # Build neighbor list based on voronoi neighbors
+ *         neighbor_list = copy.copy(self.firstShellNeighborList)
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_19getNeighborList(PyObject *__pyx_self, PyObject *__pyx_v_self); /*proto*/
-static char __pyx_doc_5freud_7voronoi_7Voronoi_18getNeighborList[] = "Returns a neighbor list object.\n\n        In the neighbor list, each neighbor pair has a weight value.\n\n        In 2D systems, the bond weight is the \"ridge length\" of the Voronoi\n        boundary line between the neighboring particles.\n\n        In 3D systems, the bond weight is the \"ridge area\" of the Voronoi\n        boundary polygon between the neighboring particles.\n\n        Returns:\n            :class:`~.locality.NeighborList`: Neighbor list.\n        ";
-static PyMethodDef __pyx_mdef_5freud_7voronoi_7Voronoi_19getNeighborList = {"getNeighborList", (PyCFunction)__pyx_pw_5freud_7voronoi_7Voronoi_19getNeighborList, METH_O, __pyx_doc_5freud_7voronoi_7Voronoi_18getNeighborList};
-static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_19getNeighborList(PyObject *__pyx_self, PyObject *__pyx_v_self) {
+static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_23nlist(PyObject *__pyx_self, PyObject *__pyx_v_self); /*proto*/
+static char __pyx_doc_5freud_7voronoi_7Voronoi_22nlist[] = "Voronoi.nlist(self)";
+static PyMethodDef __pyx_mdef_5freud_7voronoi_7Voronoi_23nlist = {"nlist", (PyCFunction)__pyx_pw_5freud_7voronoi_7Voronoi_23nlist, METH_O, __pyx_doc_5freud_7voronoi_7Voronoi_22nlist};
+static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_23nlist(PyObject *__pyx_self, PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("getNeighborList (wrapper)", 0);
-  __pyx_r = __pyx_pf_5freud_7voronoi_7Voronoi_18getNeighborList(__pyx_self, ((PyObject *)__pyx_v_self));
+  __Pyx_RefNannySetupContext("nlist (wrapper)", 0);
+  __pyx_r = __pyx_pf_5freud_7voronoi_7Voronoi_22nlist(__pyx_self, ((PyObject *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_18getNeighborList(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self) {
+static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_22nlist(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self) {
   PyObject *__pyx_v_neighbor_list = NULL;
   PyObject *__pyx_v_weight = NULL;
   PyObject *__pyx_v_count = NULL;
@@ -8214,21 +9014,21 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_18getNeighborList(CYTHON_UNUS
   Py_ssize_t __pyx_t_9;
   int __pyx_t_10;
   PyObject *__pyx_t_11 = NULL;
-  __Pyx_RefNannySetupContext("getNeighborList", 0);
+  __Pyx_RefNannySetupContext("nlist", 0);
 
-  /* "freud/voronoi.pyx":459
- *         """
+  /* "freud/voronoi.pyx":497
+ *     def nlist(self):
  *         # Build neighbor list based on voronoi neighbors
  *         neighbor_list = copy.copy(self.firstShellNeighborList)             # <<<<<<<<<<<<<<
  *         weight = copy.copy(self.firstShellWeight)
  * 
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_copy); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 459, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_copy); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 497, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_copy); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 459, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_copy); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 497, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_firstShellNeighborList); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 459, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_firstShellNeighborList); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 497, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -8241,14 +9041,14 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_18getNeighborList(CYTHON_UNUS
     }
   }
   if (!__pyx_t_4) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 459, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 497, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_GOTREF(__pyx_t_1);
   } else {
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_3)) {
       PyObject *__pyx_temp[2] = {__pyx_t_4, __pyx_t_2};
-      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 459, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 497, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -8257,20 +9057,20 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_18getNeighborList(CYTHON_UNUS
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
       PyObject *__pyx_temp[2] = {__pyx_t_4, __pyx_t_2};
-      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 459, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 497, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     } else
     #endif
     {
-      __pyx_t_5 = PyTuple_New(1+1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 459, __pyx_L1_error)
+      __pyx_t_5 = PyTuple_New(1+1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 497, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
       __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_4); __pyx_t_4 = NULL;
       __Pyx_GIVEREF(__pyx_t_2);
       PyTuple_SET_ITEM(__pyx_t_5, 0+1, __pyx_t_2);
       __pyx_t_2 = 0;
-      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_5, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 459, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_5, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 497, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     }
@@ -8279,19 +9079,19 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_18getNeighborList(CYTHON_UNUS
   __pyx_v_neighbor_list = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "freud/voronoi.pyx":460
+  /* "freud/voronoi.pyx":498
  *         # Build neighbor list based on voronoi neighbors
  *         neighbor_list = copy.copy(self.firstShellNeighborList)
  *         weight = copy.copy(self.firstShellWeight)             # <<<<<<<<<<<<<<
  * 
  *         # Count number of elements in neighbor_list
  */
-  __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_copy); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 460, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_copy); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 498, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_copy); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 460, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_copy); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 498, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_firstShellWeight); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 460, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_firstShellWeight); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 498, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_2 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_5))) {
@@ -8304,14 +9104,14 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_18getNeighborList(CYTHON_UNUS
     }
   }
   if (!__pyx_t_2) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 460, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 498, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_GOTREF(__pyx_t_1);
   } else {
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_5)) {
       PyObject *__pyx_temp[2] = {__pyx_t_2, __pyx_t_3};
-      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_5, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 460, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_5, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 498, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -8320,20 +9120,20 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_18getNeighborList(CYTHON_UNUS
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_5)) {
       PyObject *__pyx_temp[2] = {__pyx_t_2, __pyx_t_3};
-      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_5, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 460, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_5, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 498, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     } else
     #endif
     {
-      __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 460, __pyx_L1_error)
+      __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 498, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_GIVEREF(__pyx_t_2); PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_2); __pyx_t_2 = NULL;
       __Pyx_GIVEREF(__pyx_t_3);
       PyTuple_SET_ITEM(__pyx_t_4, 0+1, __pyx_t_3);
       __pyx_t_3 = 0;
-      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 460, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 498, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     }
@@ -8342,7 +9142,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_18getNeighborList(CYTHON_UNUS
   __pyx_v_weight = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "freud/voronoi.pyx":463
+  /* "freud/voronoi.pyx":501
  * 
  *         # Count number of elements in neighbor_list
  *         count = 0             # <<<<<<<<<<<<<<
@@ -8352,51 +9152,51 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_18getNeighborList(CYTHON_UNUS
   __Pyx_INCREF(__pyx_int_0);
   __pyx_v_count = __pyx_int_0;
 
-  /* "freud/voronoi.pyx":464
+  /* "freud/voronoi.pyx":502
  *         # Count number of elements in neighbor_list
  *         count = 0
  *         for i in range(len(neighbor_list)):             # <<<<<<<<<<<<<<
  *             count += len(neighbor_list[i])
  * 
  */
-  __pyx_t_6 = PyObject_Length(__pyx_v_neighbor_list); if (unlikely(__pyx_t_6 == ((Py_ssize_t)-1))) __PYX_ERR(0, 464, __pyx_L1_error)
+  __pyx_t_6 = PyObject_Length(__pyx_v_neighbor_list); if (unlikely(__pyx_t_6 == ((Py_ssize_t)-1))) __PYX_ERR(0, 502, __pyx_L1_error)
   __pyx_t_7 = __pyx_t_6;
   for (__pyx_t_8 = 0; __pyx_t_8 < __pyx_t_7; __pyx_t_8+=1) {
     __pyx_v_i = __pyx_t_8;
 
-    /* "freud/voronoi.pyx":465
+    /* "freud/voronoi.pyx":503
  *         count = 0
  *         for i in range(len(neighbor_list)):
  *             count += len(neighbor_list[i])             # <<<<<<<<<<<<<<
  * 
  *         # indexAry layout:
  */
-    __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_neighbor_list, __pyx_v_i, Py_ssize_t, 1, PyInt_FromSsize_t, 0, 1, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 465, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_neighbor_list, __pyx_v_i, Py_ssize_t, 1, PyInt_FromSsize_t, 0, 1, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 503, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_9 = PyObject_Length(__pyx_t_1); if (unlikely(__pyx_t_9 == ((Py_ssize_t)-1))) __PYX_ERR(0, 465, __pyx_L1_error)
+    __pyx_t_9 = PyObject_Length(__pyx_t_1); if (unlikely(__pyx_t_9 == ((Py_ssize_t)-1))) __PYX_ERR(0, 503, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __pyx_t_1 = PyInt_FromSsize_t(__pyx_t_9); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 465, __pyx_L1_error)
+    __pyx_t_1 = PyInt_FromSsize_t(__pyx_t_9); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 503, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_5 = PyNumber_InPlaceAdd(__pyx_v_count, __pyx_t_1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 465, __pyx_L1_error)
+    __pyx_t_5 = PyNumber_InPlaceAdd(__pyx_v_count, __pyx_t_1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 503, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __Pyx_DECREF_SET(__pyx_v_count, __pyx_t_5);
     __pyx_t_5 = 0;
   }
 
-  /* "freud/voronoi.pyx":471
+  /* "freud/voronoi.pyx":509
  *         # Second column is neighbor particle index,
  *         # Third column is weight = ridge length
  *         indexAry = np.zeros([count, 3], float)             # <<<<<<<<<<<<<<
  *         j = 0
  *         for i in range(len(neighbor_list)):
  */
-  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 471, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 509, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_zeros); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 471, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_zeros); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 509, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyList_New(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 471, __pyx_L1_error)
+  __pyx_t_1 = PyList_New(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 509, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_INCREF(__pyx_v_count);
   __Pyx_GIVEREF(__pyx_v_count);
@@ -8419,7 +9219,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_18getNeighborList(CYTHON_UNUS
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_4)) {
     PyObject *__pyx_temp[3] = {__pyx_t_3, __pyx_t_1, ((PyObject *)(&PyFloat_Type))};
-    __pyx_t_5 = __Pyx_PyFunction_FastCall(__pyx_t_4, __pyx_temp+1-__pyx_t_10, 2+__pyx_t_10); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 471, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyFunction_FastCall(__pyx_t_4, __pyx_temp+1-__pyx_t_10, 2+__pyx_t_10); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 509, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -8428,14 +9228,14 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_18getNeighborList(CYTHON_UNUS
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_4)) {
     PyObject *__pyx_temp[3] = {__pyx_t_3, __pyx_t_1, ((PyObject *)(&PyFloat_Type))};
-    __pyx_t_5 = __Pyx_PyCFunction_FastCall(__pyx_t_4, __pyx_temp+1-__pyx_t_10, 2+__pyx_t_10); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 471, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyCFunction_FastCall(__pyx_t_4, __pyx_temp+1-__pyx_t_10, 2+__pyx_t_10); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 509, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   } else
   #endif
   {
-    __pyx_t_2 = PyTuple_New(2+__pyx_t_10); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 471, __pyx_L1_error)
+    __pyx_t_2 = PyTuple_New(2+__pyx_t_10); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 509, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     if (__pyx_t_3) {
       __Pyx_GIVEREF(__pyx_t_3); PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_t_3); __pyx_t_3 = NULL;
@@ -8446,7 +9246,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_18getNeighborList(CYTHON_UNUS
     __Pyx_GIVEREF(((PyObject *)(&PyFloat_Type)));
     PyTuple_SET_ITEM(__pyx_t_2, 1+__pyx_t_10, ((PyObject *)(&PyFloat_Type)));
     __pyx_t_1 = 0;
-    __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_2, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 471, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_2, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 509, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   }
@@ -8454,7 +9254,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_18getNeighborList(CYTHON_UNUS
   __pyx_v_indexAry = __pyx_t_5;
   __pyx_t_5 = 0;
 
-  /* "freud/voronoi.pyx":472
+  /* "freud/voronoi.pyx":510
  *         # Third column is weight = ridge length
  *         indexAry = np.zeros([count, 3], float)
  *         j = 0             # <<<<<<<<<<<<<<
@@ -8464,49 +9264,49 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_18getNeighborList(CYTHON_UNUS
   __Pyx_INCREF(__pyx_int_0);
   __pyx_v_j = __pyx_int_0;
 
-  /* "freud/voronoi.pyx":473
+  /* "freud/voronoi.pyx":511
  *         indexAry = np.zeros([count, 3], float)
  *         j = 0
  *         for i in range(len(neighbor_list)):             # <<<<<<<<<<<<<<
  *             N = len(neighbor_list[i])
  *             indexAry[j:j + N, 0] = i
  */
-  __pyx_t_6 = PyObject_Length(__pyx_v_neighbor_list); if (unlikely(__pyx_t_6 == ((Py_ssize_t)-1))) __PYX_ERR(0, 473, __pyx_L1_error)
+  __pyx_t_6 = PyObject_Length(__pyx_v_neighbor_list); if (unlikely(__pyx_t_6 == ((Py_ssize_t)-1))) __PYX_ERR(0, 511, __pyx_L1_error)
   __pyx_t_7 = __pyx_t_6;
   for (__pyx_t_8 = 0; __pyx_t_8 < __pyx_t_7; __pyx_t_8+=1) {
     __pyx_v_i = __pyx_t_8;
 
-    /* "freud/voronoi.pyx":474
+    /* "freud/voronoi.pyx":512
  *         j = 0
  *         for i in range(len(neighbor_list)):
  *             N = len(neighbor_list[i])             # <<<<<<<<<<<<<<
  *             indexAry[j:j + N, 0] = i
  *             indexAry[j:j + N, 1] = np.array(neighbor_list[i])
  */
-    __pyx_t_5 = __Pyx_GetItemInt(__pyx_v_neighbor_list, __pyx_v_i, Py_ssize_t, 1, PyInt_FromSsize_t, 0, 1, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 474, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_GetItemInt(__pyx_v_neighbor_list, __pyx_v_i, Py_ssize_t, 1, PyInt_FromSsize_t, 0, 1, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 512, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_9 = PyObject_Length(__pyx_t_5); if (unlikely(__pyx_t_9 == ((Py_ssize_t)-1))) __PYX_ERR(0, 474, __pyx_L1_error)
+    __pyx_t_9 = PyObject_Length(__pyx_t_5); if (unlikely(__pyx_t_9 == ((Py_ssize_t)-1))) __PYX_ERR(0, 512, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __pyx_t_5 = PyInt_FromSsize_t(__pyx_t_9); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 474, __pyx_L1_error)
+    __pyx_t_5 = PyInt_FromSsize_t(__pyx_t_9); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 512, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_XDECREF_SET(__pyx_v_N, __pyx_t_5);
     __pyx_t_5 = 0;
 
-    /* "freud/voronoi.pyx":475
+    /* "freud/voronoi.pyx":513
  *         for i in range(len(neighbor_list)):
  *             N = len(neighbor_list[i])
  *             indexAry[j:j + N, 0] = i             # <<<<<<<<<<<<<<
  *             indexAry[j:j + N, 1] = np.array(neighbor_list[i])
  *             indexAry[j:j + N, 2] = np.array(weight[i])
  */
-    __pyx_t_5 = PyInt_FromSsize_t(__pyx_v_i); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 475, __pyx_L1_error)
+    __pyx_t_5 = PyInt_FromSsize_t(__pyx_v_i); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 513, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_4 = PyNumber_Add(__pyx_v_j, __pyx_v_N); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 475, __pyx_L1_error)
+    __pyx_t_4 = PyNumber_Add(__pyx_v_j, __pyx_v_N); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 513, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_2 = PySlice_New(__pyx_v_j, __pyx_t_4, Py_None); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 475, __pyx_L1_error)
+    __pyx_t_2 = PySlice_New(__pyx_v_j, __pyx_t_4, Py_None); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 513, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __pyx_t_4 = PyTuple_New(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 475, __pyx_L1_error)
+    __pyx_t_4 = PyTuple_New(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 513, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_GIVEREF(__pyx_t_2);
     PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_2);
@@ -8514,23 +9314,23 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_18getNeighborList(CYTHON_UNUS
     __Pyx_GIVEREF(__pyx_int_0);
     PyTuple_SET_ITEM(__pyx_t_4, 1, __pyx_int_0);
     __pyx_t_2 = 0;
-    if (unlikely(PyObject_SetItem(__pyx_v_indexAry, __pyx_t_4, __pyx_t_5) < 0)) __PYX_ERR(0, 475, __pyx_L1_error)
+    if (unlikely(PyObject_SetItem(__pyx_v_indexAry, __pyx_t_4, __pyx_t_5) < 0)) __PYX_ERR(0, 513, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-    /* "freud/voronoi.pyx":476
+    /* "freud/voronoi.pyx":514
  *             N = len(neighbor_list[i])
  *             indexAry[j:j + N, 0] = i
  *             indexAry[j:j + N, 1] = np.array(neighbor_list[i])             # <<<<<<<<<<<<<<
  *             indexAry[j:j + N, 2] = np.array(weight[i])
  *             j += N
  */
-    __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 476, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 514, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_array); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 476, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_array); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 514, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __pyx_t_4 = __Pyx_GetItemInt(__pyx_v_neighbor_list, __pyx_v_i, Py_ssize_t, 1, PyInt_FromSsize_t, 0, 1, 1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 476, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_GetItemInt(__pyx_v_neighbor_list, __pyx_v_i, Py_ssize_t, 1, PyInt_FromSsize_t, 0, 1, 1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 514, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __pyx_t_1 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -8543,14 +9343,14 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_18getNeighborList(CYTHON_UNUS
       }
     }
     if (!__pyx_t_1) {
-      __pyx_t_5 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 476, __pyx_L1_error)
+      __pyx_t_5 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 514, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_GOTREF(__pyx_t_5);
     } else {
       #if CYTHON_FAST_PYCALL
       if (PyFunction_Check(__pyx_t_2)) {
         PyObject *__pyx_temp[2] = {__pyx_t_1, __pyx_t_4};
-        __pyx_t_5 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 476, __pyx_L1_error)
+        __pyx_t_5 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 514, __pyx_L1_error)
         __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
         __Pyx_GOTREF(__pyx_t_5);
         __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
@@ -8559,31 +9359,31 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_18getNeighborList(CYTHON_UNUS
       #if CYTHON_FAST_PYCCALL
       if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
         PyObject *__pyx_temp[2] = {__pyx_t_1, __pyx_t_4};
-        __pyx_t_5 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 476, __pyx_L1_error)
+        __pyx_t_5 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 514, __pyx_L1_error)
         __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
         __Pyx_GOTREF(__pyx_t_5);
         __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       } else
       #endif
       {
-        __pyx_t_3 = PyTuple_New(1+1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 476, __pyx_L1_error)
+        __pyx_t_3 = PyTuple_New(1+1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 514, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_3);
         __Pyx_GIVEREF(__pyx_t_1); PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_1); __pyx_t_1 = NULL;
         __Pyx_GIVEREF(__pyx_t_4);
         PyTuple_SET_ITEM(__pyx_t_3, 0+1, __pyx_t_4);
         __pyx_t_4 = 0;
-        __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_3, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 476, __pyx_L1_error)
+        __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_3, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 514, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
         __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       }
     }
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_2 = PyNumber_Add(__pyx_v_j, __pyx_v_N); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 476, __pyx_L1_error)
+    __pyx_t_2 = PyNumber_Add(__pyx_v_j, __pyx_v_N); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 514, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_3 = PySlice_New(__pyx_v_j, __pyx_t_2, Py_None); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 476, __pyx_L1_error)
+    __pyx_t_3 = PySlice_New(__pyx_v_j, __pyx_t_2, Py_None); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 514, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 476, __pyx_L1_error)
+    __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 514, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_GIVEREF(__pyx_t_3);
     PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_t_3);
@@ -8591,23 +9391,23 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_18getNeighborList(CYTHON_UNUS
     __Pyx_GIVEREF(__pyx_int_1);
     PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_int_1);
     __pyx_t_3 = 0;
-    if (unlikely(PyObject_SetItem(__pyx_v_indexAry, __pyx_t_2, __pyx_t_5) < 0)) __PYX_ERR(0, 476, __pyx_L1_error)
+    if (unlikely(PyObject_SetItem(__pyx_v_indexAry, __pyx_t_2, __pyx_t_5) < 0)) __PYX_ERR(0, 514, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-    /* "freud/voronoi.pyx":477
+    /* "freud/voronoi.pyx":515
  *             indexAry[j:j + N, 0] = i
  *             indexAry[j:j + N, 1] = np.array(neighbor_list[i])
  *             indexAry[j:j + N, 2] = np.array(weight[i])             # <<<<<<<<<<<<<<
  *             j += N
  * 
  */
-    __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 477, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 515, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_array); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 477, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_array); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 515, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_2 = __Pyx_GetItemInt(__pyx_v_weight, __pyx_v_i, Py_ssize_t, 1, PyInt_FromSsize_t, 0, 1, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 477, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_GetItemInt(__pyx_v_weight, __pyx_v_i, Py_ssize_t, 1, PyInt_FromSsize_t, 0, 1, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 515, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __pyx_t_4 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -8620,14 +9420,14 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_18getNeighborList(CYTHON_UNUS
       }
     }
     if (!__pyx_t_4) {
-      __pyx_t_5 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 477, __pyx_L1_error)
+      __pyx_t_5 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 515, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       __Pyx_GOTREF(__pyx_t_5);
     } else {
       #if CYTHON_FAST_PYCALL
       if (PyFunction_Check(__pyx_t_3)) {
         PyObject *__pyx_temp[2] = {__pyx_t_4, __pyx_t_2};
-        __pyx_t_5 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 477, __pyx_L1_error)
+        __pyx_t_5 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 515, __pyx_L1_error)
         __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
         __Pyx_GOTREF(__pyx_t_5);
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -8636,31 +9436,31 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_18getNeighborList(CYTHON_UNUS
       #if CYTHON_FAST_PYCCALL
       if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
         PyObject *__pyx_temp[2] = {__pyx_t_4, __pyx_t_2};
-        __pyx_t_5 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 477, __pyx_L1_error)
+        __pyx_t_5 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 515, __pyx_L1_error)
         __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
         __Pyx_GOTREF(__pyx_t_5);
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       } else
       #endif
       {
-        __pyx_t_1 = PyTuple_New(1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 477, __pyx_L1_error)
+        __pyx_t_1 = PyTuple_New(1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 515, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_1);
         __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_t_4); __pyx_t_4 = NULL;
         __Pyx_GIVEREF(__pyx_t_2);
         PyTuple_SET_ITEM(__pyx_t_1, 0+1, __pyx_t_2);
         __pyx_t_2 = 0;
-        __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_1, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 477, __pyx_L1_error)
+        __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_1, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 515, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
       }
     }
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_3 = PyNumber_Add(__pyx_v_j, __pyx_v_N); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 477, __pyx_L1_error)
+    __pyx_t_3 = PyNumber_Add(__pyx_v_j, __pyx_v_N); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 515, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_1 = PySlice_New(__pyx_v_j, __pyx_t_3, Py_None); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 477, __pyx_L1_error)
+    __pyx_t_1 = PySlice_New(__pyx_v_j, __pyx_t_3, Py_None); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 515, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 477, __pyx_L1_error)
+    __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 515, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_GIVEREF(__pyx_t_1);
     PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_1);
@@ -8668,67 +9468,67 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_18getNeighborList(CYTHON_UNUS
     __Pyx_GIVEREF(__pyx_int_2);
     PyTuple_SET_ITEM(__pyx_t_3, 1, __pyx_int_2);
     __pyx_t_1 = 0;
-    if (unlikely(PyObject_SetItem(__pyx_v_indexAry, __pyx_t_3, __pyx_t_5) < 0)) __PYX_ERR(0, 477, __pyx_L1_error)
+    if (unlikely(PyObject_SetItem(__pyx_v_indexAry, __pyx_t_3, __pyx_t_5) < 0)) __PYX_ERR(0, 515, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-    /* "freud/voronoi.pyx":478
+    /* "freud/voronoi.pyx":516
  *             indexAry[j:j + N, 1] = np.array(neighbor_list[i])
  *             indexAry[j:j + N, 2] = np.array(weight[i])
  *             j += N             # <<<<<<<<<<<<<<
  * 
  *         result = freud.locality.NeighborList.from_arrays(
  */
-    __pyx_t_5 = PyNumber_InPlaceAdd(__pyx_v_j, __pyx_v_N); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 478, __pyx_L1_error)
+    __pyx_t_5 = PyNumber_InPlaceAdd(__pyx_v_j, __pyx_v_N); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 516, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF_SET(__pyx_v_j, __pyx_t_5);
     __pyx_t_5 = 0;
   }
 
-  /* "freud/voronoi.pyx":480
+  /* "freud/voronoi.pyx":518
  *             j += N
  * 
  *         result = freud.locality.NeighborList.from_arrays(             # <<<<<<<<<<<<<<
  *             len(neighbor_list), len(neighbor_list),
  *             indexAry[:, 0], indexAry[:, 1], weights=indexAry[:, 2])
  */
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_8locality_NeighborList), __pyx_n_s_from_arrays); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 480, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_8locality_NeighborList), __pyx_n_s_from_arrays); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 518, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
 
-  /* "freud/voronoi.pyx":481
+  /* "freud/voronoi.pyx":519
  * 
  *         result = freud.locality.NeighborList.from_arrays(
  *             len(neighbor_list), len(neighbor_list),             # <<<<<<<<<<<<<<
  *             indexAry[:, 0], indexAry[:, 1], weights=indexAry[:, 2])
  *         return result
  */
-  __pyx_t_6 = PyObject_Length(__pyx_v_neighbor_list); if (unlikely(__pyx_t_6 == ((Py_ssize_t)-1))) __PYX_ERR(0, 481, __pyx_L1_error)
-  __pyx_t_3 = PyInt_FromSsize_t(__pyx_t_6); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 481, __pyx_L1_error)
+  __pyx_t_6 = PyObject_Length(__pyx_v_neighbor_list); if (unlikely(__pyx_t_6 == ((Py_ssize_t)-1))) __PYX_ERR(0, 519, __pyx_L1_error)
+  __pyx_t_3 = PyInt_FromSsize_t(__pyx_t_6); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 519, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_6 = PyObject_Length(__pyx_v_neighbor_list); if (unlikely(__pyx_t_6 == ((Py_ssize_t)-1))) __PYX_ERR(0, 481, __pyx_L1_error)
-  __pyx_t_1 = PyInt_FromSsize_t(__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 481, __pyx_L1_error)
+  __pyx_t_6 = PyObject_Length(__pyx_v_neighbor_list); if (unlikely(__pyx_t_6 == ((Py_ssize_t)-1))) __PYX_ERR(0, 519, __pyx_L1_error)
+  __pyx_t_1 = PyInt_FromSsize_t(__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 519, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
 
-  /* "freud/voronoi.pyx":482
+  /* "freud/voronoi.pyx":520
  *         result = freud.locality.NeighborList.from_arrays(
  *             len(neighbor_list), len(neighbor_list),
  *             indexAry[:, 0], indexAry[:, 1], weights=indexAry[:, 2])             # <<<<<<<<<<<<<<
  *         return result
  * 
  */
-  __pyx_t_2 = __Pyx_PyObject_GetItem(__pyx_v_indexAry, __pyx_tuple__12); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 482, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetItem(__pyx_v_indexAry, __pyx_tuple__12); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 520, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_4 = __Pyx_PyObject_GetItem(__pyx_v_indexAry, __pyx_tuple__14); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 482, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetItem(__pyx_v_indexAry, __pyx_tuple__14); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 520, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
 
-  /* "freud/voronoi.pyx":480
+  /* "freud/voronoi.pyx":518
  *             j += N
  * 
  *         result = freud.locality.NeighborList.from_arrays(             # <<<<<<<<<<<<<<
  *             len(neighbor_list), len(neighbor_list),
  *             indexAry[:, 0], indexAry[:, 1], weights=indexAry[:, 2])
  */
-  __pyx_t_11 = PyTuple_New(4); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 480, __pyx_L1_error)
+  __pyx_t_11 = PyTuple_New(4); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 518, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_11);
   __Pyx_GIVEREF(__pyx_t_3);
   PyTuple_SET_ITEM(__pyx_t_11, 0, __pyx_t_3);
@@ -8743,28 +9543,28 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_18getNeighborList(CYTHON_UNUS
   __pyx_t_2 = 0;
   __pyx_t_4 = 0;
 
-  /* "freud/voronoi.pyx":482
+  /* "freud/voronoi.pyx":520
  *         result = freud.locality.NeighborList.from_arrays(
  *             len(neighbor_list), len(neighbor_list),
  *             indexAry[:, 0], indexAry[:, 1], weights=indexAry[:, 2])             # <<<<<<<<<<<<<<
  *         return result
  * 
  */
-  __pyx_t_4 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 482, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 520, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_2 = __Pyx_PyObject_GetItem(__pyx_v_indexAry, __pyx_tuple__16); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 482, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetItem(__pyx_v_indexAry, __pyx_tuple__16); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 520, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_weights, __pyx_t_2) < 0) __PYX_ERR(0, 482, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_weights, __pyx_t_2) < 0) __PYX_ERR(0, 520, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/voronoi.pyx":480
+  /* "freud/voronoi.pyx":518
  *             j += N
  * 
  *         result = freud.locality.NeighborList.from_arrays(             # <<<<<<<<<<<<<<
  *             len(neighbor_list), len(neighbor_list),
  *             indexAry[:, 0], indexAry[:, 1], weights=indexAry[:, 2])
  */
-  __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_11, __pyx_t_4); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 480, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_11, __pyx_t_4); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 518, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
@@ -8772,24 +9572,24 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_18getNeighborList(CYTHON_UNUS
   __pyx_v_result = __pyx_t_2;
   __pyx_t_2 = 0;
 
-  /* "freud/voronoi.pyx":483
+  /* "freud/voronoi.pyx":521
  *             len(neighbor_list), len(neighbor_list),
  *             indexAry[:, 0], indexAry[:, 1], weights=indexAry[:, 2])
  *         return result             # <<<<<<<<<<<<<<
  * 
- *     def computeVolumes(self):
+ *     def getNeighborList(self):
  */
   __Pyx_XDECREF(__pyx_r);
   __Pyx_INCREF(__pyx_v_result);
   __pyx_r = __pyx_v_result;
   goto __pyx_L0;
 
-  /* "freud/voronoi.pyx":444
- *         return neighbor_list
+  /* "freud/voronoi.pyx":495
  * 
- *     def getNeighborList(self):             # <<<<<<<<<<<<<<
- *         """Returns a neighbor list object.
- * 
+ *     @property
+ *     def nlist(self):             # <<<<<<<<<<<<<<
+ *         # Build neighbor list based on voronoi neighbors
+ *         neighbor_list = copy.copy(self.firstShellNeighborList)
  */
 
   /* function exit code */
@@ -8800,7 +9600,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_18getNeighborList(CYTHON_UNUS
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
   __Pyx_XDECREF(__pyx_t_11);
-  __Pyx_AddTraceback("freud.voronoi.Voronoi.getNeighborList", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("freud.voronoi.Voronoi.nlist", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_neighbor_list);
@@ -8815,8 +9615,150 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_18getNeighborList(CYTHON_UNUS
   return __pyx_r;
 }
 
-/* "freud/voronoi.pyx":485
+/* "freud/voronoi.pyx":523
  *         return result
+ * 
+ *     def getNeighborList(self):             # <<<<<<<<<<<<<<
+ *         """Returns a neighbor list object.
+ * 
+ */
+
+/* Python wrapper */
+static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_25getNeighborList(PyObject *__pyx_self, PyObject *__pyx_v_self); /*proto*/
+static char __pyx_doc_5freud_7voronoi_7Voronoi_24getNeighborList[] = "Voronoi.getNeighborList(self)\nReturns a neighbor list object.\n\n        In the neighbor list, each neighbor pair has a weight value.\n\n        In 2D systems, the bond weight is the \"ridge length\" of the Voronoi\n        boundary line between the neighboring particles.\n\n        In 3D systems, the bond weight is the \"ridge area\" of the Voronoi\n        boundary polygon between the neighboring particles.\n\n        Returns:\n            :class:`~.locality.NeighborList`: Neighbor list.\n        ";
+static PyMethodDef __pyx_mdef_5freud_7voronoi_7Voronoi_25getNeighborList = {"getNeighborList", (PyCFunction)__pyx_pw_5freud_7voronoi_7Voronoi_25getNeighborList, METH_O, __pyx_doc_5freud_7voronoi_7Voronoi_24getNeighborList};
+static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_25getNeighborList(PyObject *__pyx_self, PyObject *__pyx_v_self) {
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("getNeighborList (wrapper)", 0);
+  __pyx_r = __pyx_pf_5freud_7voronoi_7Voronoi_24getNeighborList(__pyx_self, ((PyObject *)__pyx_v_self));
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_24getNeighborList(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self) {
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  PyObject *__pyx_t_2 = NULL;
+  PyObject *__pyx_t_3 = NULL;
+  PyObject *__pyx_t_4 = NULL;
+  int __pyx_t_5;
+  PyObject *__pyx_t_6 = NULL;
+  __Pyx_RefNannySetupContext("getNeighborList", 0);
+
+  /* "freud/voronoi.pyx":537
+ *             :class:`~.locality.NeighborList`: Neighbor list.
+ *         """
+ *         warnings.warn("The getNeighborList function is deprecated in favor "             # <<<<<<<<<<<<<<
+ *                       "of the nlist class attribute and will be "
+ *                       "removed in a future version of freud.",
+ */
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 537, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 537, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+
+  /* "freud/voronoi.pyx":540
+ *                       "of the nlist class attribute and will be "
+ *                       "removed in a future version of freud.",
+ *                       FreudDeprecationWarning)             # <<<<<<<<<<<<<<
+ *         return self.nlist
+ * 
+ */
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 540, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_4 = NULL;
+  __pyx_t_5 = 0;
+  if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
+    __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_3);
+    if (likely(__pyx_t_4)) {
+      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
+      __Pyx_INCREF(__pyx_t_4);
+      __Pyx_INCREF(function);
+      __Pyx_DECREF_SET(__pyx_t_3, function);
+      __pyx_t_5 = 1;
+    }
+  }
+  #if CYTHON_FAST_PYCALL
+  if (PyFunction_Check(__pyx_t_3)) {
+    PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getNeighborList_function_is, __pyx_t_2};
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 537, __pyx_L1_error)
+    __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __Pyx_GOTREF(__pyx_t_1);
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  } else
+  #endif
+  #if CYTHON_FAST_PYCCALL
+  if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
+    PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getNeighborList_function_is, __pyx_t_2};
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 537, __pyx_L1_error)
+    __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __Pyx_GOTREF(__pyx_t_1);
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  } else
+  #endif
+  {
+    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 537, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_6);
+    if (__pyx_t_4) {
+      __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4); __pyx_t_4 = NULL;
+    }
+    __Pyx_INCREF(__pyx_kp_s_The_getNeighborList_function_is);
+    __Pyx_GIVEREF(__pyx_kp_s_The_getNeighborList_function_is);
+    PyTuple_SET_ITEM(__pyx_t_6, 0+__pyx_t_5, __pyx_kp_s_The_getNeighborList_function_is);
+    __Pyx_GIVEREF(__pyx_t_2);
+    PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_5, __pyx_t_2);
+    __pyx_t_2 = 0;
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 537, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
+    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+  }
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "freud/voronoi.pyx":541
+ *                       "removed in a future version of freud.",
+ *                       FreudDeprecationWarning)
+ *         return self.nlist             # <<<<<<<<<<<<<<
+ * 
+ *     def computeVolumes(self):
+ */
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_nlist); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 541, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+
+  /* "freud/voronoi.pyx":523
+ *         return result
+ * 
+ *     def getNeighborList(self):             # <<<<<<<<<<<<<<
+ *         """Returns a neighbor list object.
+ * 
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_3);
+  __Pyx_XDECREF(__pyx_t_4);
+  __Pyx_XDECREF(__pyx_t_6);
+  __Pyx_AddTraceback("freud.voronoi.Voronoi.getNeighborList", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "freud/voronoi.pyx":543
+ *         return self.nlist
  * 
  *     def computeVolumes(self):             # <<<<<<<<<<<<<<
  *         """Computes volumes (areas in 2D) of Voronoi cells.
@@ -8824,21 +9766,21 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_18getNeighborList(CYTHON_UNUS
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_21computeVolumes(PyObject *__pyx_self, PyObject *__pyx_v_self); /*proto*/
-static char __pyx_doc_5freud_7voronoi_7Voronoi_20computeVolumes[] = "Computes volumes (areas in 2D) of Voronoi cells.\n\n        .. versionadded:: 0.8\n\n        Must call :py:meth:`freud.voronoi.Voronoi.compute()` before this\n        method. Retrieve the results with\n        :py:meth:`freud.voronoi.Voronoi.getVolumes()`.\n        ";
-static PyMethodDef __pyx_mdef_5freud_7voronoi_7Voronoi_21computeVolumes = {"computeVolumes", (PyCFunction)__pyx_pw_5freud_7voronoi_7Voronoi_21computeVolumes, METH_O, __pyx_doc_5freud_7voronoi_7Voronoi_20computeVolumes};
-static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_21computeVolumes(PyObject *__pyx_self, PyObject *__pyx_v_self) {
+static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_27computeVolumes(PyObject *__pyx_self, PyObject *__pyx_v_self); /*proto*/
+static char __pyx_doc_5freud_7voronoi_7Voronoi_26computeVolumes[] = "Voronoi.computeVolumes(self)\nComputes volumes (areas in 2D) of Voronoi cells.\n\n        .. versionadded:: 0.8\n\n        Must call :py:meth:`freud.voronoi.Voronoi.compute()` before this\n        method. Retrieve the results with\n        :py:meth:`freud.voronoi.Voronoi.getVolumes()`.\n        ";
+static PyMethodDef __pyx_mdef_5freud_7voronoi_7Voronoi_27computeVolumes = {"computeVolumes", (PyCFunction)__pyx_pw_5freud_7voronoi_7Voronoi_27computeVolumes, METH_O, __pyx_doc_5freud_7voronoi_7Voronoi_26computeVolumes};
+static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_27computeVolumes(PyObject *__pyx_self, PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("computeVolumes (wrapper)", 0);
-  __pyx_r = __pyx_pf_5freud_7voronoi_7Voronoi_20computeVolumes(__pyx_self, ((PyObject *)__pyx_v_self));
+  __pyx_r = __pyx_pf_5freud_7voronoi_7Voronoi_26computeVolumes(__pyx_self, ((PyObject *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_20computeVolumes(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self) {
+static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_26computeVolumes(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self) {
   PyObject *__pyx_v_polytope_verts = NULL;
   PyObject *__pyx_v_i = NULL;
   PyObject *__pyx_v_verts = NULL;
@@ -8858,14 +9800,14 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_20computeVolumes(CYTHON_UNUSE
   int __pyx_t_10;
   __Pyx_RefNannySetupContext("computeVolumes", 0);
 
-  /* "freud/voronoi.pyx":494
+  /* "freud/voronoi.pyx":552
  *         :py:meth:`freud.voronoi.Voronoi.getVolumes()`.
  *         """
  *         polytope_verts = self.getVoronoiPolytopes()             # <<<<<<<<<<<<<<
- *         self.poly_volumes = np.zeros(shape=len(polytope_verts))
+ *         self._poly_volumes = np.zeros(shape=len(polytope_verts))
  * 
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_getVoronoiPolytopes); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 494, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_getVoronoiPolytopes); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 552, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -8878,47 +9820,47 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_20computeVolumes(CYTHON_UNUSE
     }
   }
   if (__pyx_t_3) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 494, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 552, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   } else {
-    __pyx_t_1 = __Pyx_PyObject_CallNoArg(__pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 494, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_CallNoArg(__pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 552, __pyx_L1_error)
   }
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_v_polytope_verts = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "freud/voronoi.pyx":495
+  /* "freud/voronoi.pyx":553
  *         """
  *         polytope_verts = self.getVoronoiPolytopes()
- *         self.poly_volumes = np.zeros(shape=len(polytope_verts))             # <<<<<<<<<<<<<<
+ *         self._poly_volumes = np.zeros(shape=len(polytope_verts))             # <<<<<<<<<<<<<<
  * 
  *         for i, verts in enumerate(polytope_verts):
  */
-  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 495, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 553, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_zeros); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 495, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_zeros); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 553, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 495, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 553, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_4 = PyObject_Length(__pyx_v_polytope_verts); if (unlikely(__pyx_t_4 == ((Py_ssize_t)-1))) __PYX_ERR(0, 495, __pyx_L1_error)
-  __pyx_t_3 = PyInt_FromSsize_t(__pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 495, __pyx_L1_error)
+  __pyx_t_4 = PyObject_Length(__pyx_v_polytope_verts); if (unlikely(__pyx_t_4 == ((Py_ssize_t)-1))) __PYX_ERR(0, 553, __pyx_L1_error)
+  __pyx_t_3 = PyInt_FromSsize_t(__pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 553, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_shape, __pyx_t_3) < 0) __PYX_ERR(0, 495, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_shape, __pyx_t_3) < 0) __PYX_ERR(0, 553, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_empty_tuple, __pyx_t_1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 495, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_empty_tuple, __pyx_t_1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 553, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_poly_volumes, __pyx_t_3) < 0) __PYX_ERR(0, 495, __pyx_L1_error)
+  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_poly_volumes, __pyx_t_3) < 0) __PYX_ERR(0, 553, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "freud/voronoi.pyx":497
- *         self.poly_volumes = np.zeros(shape=len(polytope_verts))
+  /* "freud/voronoi.pyx":555
+ *         self._poly_volumes = np.zeros(shape=len(polytope_verts))
  * 
  *         for i, verts in enumerate(polytope_verts):             # <<<<<<<<<<<<<<
- *             is2D = np.all(self.poly_verts[0][:, -1] == 0)
+ *             is2D = np.all(self._poly_verts[0][:, -1] == 0)
  *             hull = ConvexHull(verts[:, :2 if is2D else 3])
  */
   __Pyx_INCREF(__pyx_int_0);
@@ -8927,26 +9869,26 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_20computeVolumes(CYTHON_UNUSE
     __pyx_t_1 = __pyx_v_polytope_verts; __Pyx_INCREF(__pyx_t_1); __pyx_t_4 = 0;
     __pyx_t_5 = NULL;
   } else {
-    __pyx_t_4 = -1; __pyx_t_1 = PyObject_GetIter(__pyx_v_polytope_verts); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 497, __pyx_L1_error)
+    __pyx_t_4 = -1; __pyx_t_1 = PyObject_GetIter(__pyx_v_polytope_verts); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 555, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_5 = Py_TYPE(__pyx_t_1)->tp_iternext; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 497, __pyx_L1_error)
+    __pyx_t_5 = Py_TYPE(__pyx_t_1)->tp_iternext; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 555, __pyx_L1_error)
   }
   for (;;) {
     if (likely(!__pyx_t_5)) {
       if (likely(PyList_CheckExact(__pyx_t_1))) {
         if (__pyx_t_4 >= PyList_GET_SIZE(__pyx_t_1)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_2 = PyList_GET_ITEM(__pyx_t_1, __pyx_t_4); __Pyx_INCREF(__pyx_t_2); __pyx_t_4++; if (unlikely(0 < 0)) __PYX_ERR(0, 497, __pyx_L1_error)
+        __pyx_t_2 = PyList_GET_ITEM(__pyx_t_1, __pyx_t_4); __Pyx_INCREF(__pyx_t_2); __pyx_t_4++; if (unlikely(0 < 0)) __PYX_ERR(0, 555, __pyx_L1_error)
         #else
-        __pyx_t_2 = PySequence_ITEM(__pyx_t_1, __pyx_t_4); __pyx_t_4++; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 497, __pyx_L1_error)
+        __pyx_t_2 = PySequence_ITEM(__pyx_t_1, __pyx_t_4); __pyx_t_4++; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 555, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_2);
         #endif
       } else {
         if (__pyx_t_4 >= PyTuple_GET_SIZE(__pyx_t_1)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_2 = PyTuple_GET_ITEM(__pyx_t_1, __pyx_t_4); __Pyx_INCREF(__pyx_t_2); __pyx_t_4++; if (unlikely(0 < 0)) __PYX_ERR(0, 497, __pyx_L1_error)
+        __pyx_t_2 = PyTuple_GET_ITEM(__pyx_t_1, __pyx_t_4); __Pyx_INCREF(__pyx_t_2); __pyx_t_4++; if (unlikely(0 < 0)) __PYX_ERR(0, 555, __pyx_L1_error)
         #else
-        __pyx_t_2 = PySequence_ITEM(__pyx_t_1, __pyx_t_4); __pyx_t_4++; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 497, __pyx_L1_error)
+        __pyx_t_2 = PySequence_ITEM(__pyx_t_1, __pyx_t_4); __pyx_t_4++; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 555, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_2);
         #endif
       }
@@ -8956,7 +9898,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_20computeVolumes(CYTHON_UNUSE
         PyObject* exc_type = PyErr_Occurred();
         if (exc_type) {
           if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-          else __PYX_ERR(0, 497, __pyx_L1_error)
+          else __PYX_ERR(0, 555, __pyx_L1_error)
         }
         break;
       }
@@ -8966,33 +9908,33 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_20computeVolumes(CYTHON_UNUSE
     __pyx_t_2 = 0;
     __Pyx_INCREF(__pyx_t_3);
     __Pyx_XDECREF_SET(__pyx_v_i, __pyx_t_3);
-    __pyx_t_2 = __Pyx_PyInt_AddObjC(__pyx_t_3, __pyx_int_1, 1, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 497, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyInt_AddObjC(__pyx_t_3, __pyx_int_1, 1, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 555, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_3);
     __pyx_t_3 = __pyx_t_2;
     __pyx_t_2 = 0;
 
-    /* "freud/voronoi.pyx":498
+    /* "freud/voronoi.pyx":556
  * 
  *         for i, verts in enumerate(polytope_verts):
- *             is2D = np.all(self.poly_verts[0][:, -1] == 0)             # <<<<<<<<<<<<<<
+ *             is2D = np.all(self._poly_verts[0][:, -1] == 0)             # <<<<<<<<<<<<<<
  *             hull = ConvexHull(verts[:, :2 if is2D else 3])
- *             self.poly_volumes[i] = hull.volume
+ *             self._poly_volumes[i] = hull.volume
  */
-    __pyx_t_6 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 498, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 556, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
-    __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_all); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 498, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_all); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 556, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_poly_verts); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 498, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_poly_verts); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 556, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
-    __pyx_t_8 = __Pyx_GetItemInt(__pyx_t_6, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 498, __pyx_L1_error)
+    __pyx_t_8 = __Pyx_GetItemInt(__pyx_t_6, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 556, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_8);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    __pyx_t_6 = __Pyx_PyObject_GetItem(__pyx_t_8, __pyx_tuple__18); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 498, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyObject_GetItem(__pyx_t_8, __pyx_tuple__18); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 556, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-    __pyx_t_8 = __Pyx_PyInt_EqObjC(__pyx_t_6, __pyx_int_0, 0, 0); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 498, __pyx_L1_error)
+    __pyx_t_8 = __Pyx_PyInt_EqObjC(__pyx_t_6, __pyx_int_0, 0, 0); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 556, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_8);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     __pyx_t_6 = NULL;
@@ -9006,14 +9948,14 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_20computeVolumes(CYTHON_UNUSE
       }
     }
     if (!__pyx_t_6) {
-      __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_7, __pyx_t_8); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 498, __pyx_L1_error)
+      __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_7, __pyx_t_8); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 556, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
       __Pyx_GOTREF(__pyx_t_2);
     } else {
       #if CYTHON_FAST_PYCALL
       if (PyFunction_Check(__pyx_t_7)) {
         PyObject *__pyx_temp[2] = {__pyx_t_6, __pyx_t_8};
-        __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_7, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 498, __pyx_L1_error)
+        __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_7, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 556, __pyx_L1_error)
         __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
         __Pyx_GOTREF(__pyx_t_2);
         __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
@@ -9022,20 +9964,20 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_20computeVolumes(CYTHON_UNUSE
       #if CYTHON_FAST_PYCCALL
       if (__Pyx_PyFastCFunction_Check(__pyx_t_7)) {
         PyObject *__pyx_temp[2] = {__pyx_t_6, __pyx_t_8};
-        __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_7, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 498, __pyx_L1_error)
+        __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_7, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 556, __pyx_L1_error)
         __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
         __Pyx_GOTREF(__pyx_t_2);
         __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
       } else
       #endif
       {
-        __pyx_t_9 = PyTuple_New(1+1); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 498, __pyx_L1_error)
+        __pyx_t_9 = PyTuple_New(1+1); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 556, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_9);
         __Pyx_GIVEREF(__pyx_t_6); PyTuple_SET_ITEM(__pyx_t_9, 0, __pyx_t_6); __pyx_t_6 = NULL;
         __Pyx_GIVEREF(__pyx_t_8);
         PyTuple_SET_ITEM(__pyx_t_9, 0+1, __pyx_t_8);
         __pyx_t_8 = 0;
-        __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_7, __pyx_t_9, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 498, __pyx_L1_error)
+        __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_7, __pyx_t_9, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 556, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_2);
         __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
       }
@@ -9044,16 +9986,16 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_20computeVolumes(CYTHON_UNUSE
     __Pyx_XDECREF_SET(__pyx_v_is2D, __pyx_t_2);
     __pyx_t_2 = 0;
 
-    /* "freud/voronoi.pyx":499
+    /* "freud/voronoi.pyx":557
  *         for i, verts in enumerate(polytope_verts):
- *             is2D = np.all(self.poly_verts[0][:, -1] == 0)
+ *             is2D = np.all(self._poly_verts[0][:, -1] == 0)
  *             hull = ConvexHull(verts[:, :2 if is2D else 3])             # <<<<<<<<<<<<<<
- *             self.poly_volumes[i] = hull.volume
+ *             self._poly_volumes[i] = hull.volume
  * 
  */
-    __pyx_t_7 = __Pyx_GetModuleGlobalName(__pyx_n_s_ConvexHull); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 499, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_GetModuleGlobalName(__pyx_n_s_ConvexHull); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 557, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
-    __pyx_t_10 = __Pyx_PyObject_IsTrue(__pyx_v_is2D); if (unlikely(__pyx_t_10 < 0)) __PYX_ERR(0, 499, __pyx_L1_error)
+    __pyx_t_10 = __Pyx_PyObject_IsTrue(__pyx_v_is2D); if (unlikely(__pyx_t_10 < 0)) __PYX_ERR(0, 557, __pyx_L1_error)
     if (__pyx_t_10) {
       __Pyx_INCREF(__pyx_int_2);
       __pyx_t_9 = __pyx_int_2;
@@ -9061,10 +10003,10 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_20computeVolumes(CYTHON_UNUSE
       __Pyx_INCREF(__pyx_int_3);
       __pyx_t_9 = __pyx_int_3;
     }
-    __pyx_t_8 = PySlice_New(Py_None, __pyx_t_9, Py_None); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 499, __pyx_L1_error)
+    __pyx_t_8 = PySlice_New(Py_None, __pyx_t_9, Py_None); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 557, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_8);
     __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
-    __pyx_t_9 = PyTuple_New(2); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 499, __pyx_L1_error)
+    __pyx_t_9 = PyTuple_New(2); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 557, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_9);
     __Pyx_INCREF(__pyx_slice__19);
     __Pyx_GIVEREF(__pyx_slice__19);
@@ -9072,7 +10014,7 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_20computeVolumes(CYTHON_UNUSE
     __Pyx_GIVEREF(__pyx_t_8);
     PyTuple_SET_ITEM(__pyx_t_9, 1, __pyx_t_8);
     __pyx_t_8 = 0;
-    __pyx_t_8 = __Pyx_PyObject_GetItem(__pyx_v_verts, __pyx_t_9); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 499, __pyx_L1_error)
+    __pyx_t_8 = __Pyx_PyObject_GetItem(__pyx_v_verts, __pyx_t_9); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 557, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_8);
     __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
     __pyx_t_9 = NULL;
@@ -9086,14 +10028,14 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_20computeVolumes(CYTHON_UNUSE
       }
     }
     if (!__pyx_t_9) {
-      __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_7, __pyx_t_8); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 499, __pyx_L1_error)
+      __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_7, __pyx_t_8); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 557, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
       __Pyx_GOTREF(__pyx_t_2);
     } else {
       #if CYTHON_FAST_PYCALL
       if (PyFunction_Check(__pyx_t_7)) {
         PyObject *__pyx_temp[2] = {__pyx_t_9, __pyx_t_8};
-        __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_7, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 499, __pyx_L1_error)
+        __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_7, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 557, __pyx_L1_error)
         __Pyx_XDECREF(__pyx_t_9); __pyx_t_9 = 0;
         __Pyx_GOTREF(__pyx_t_2);
         __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
@@ -9102,20 +10044,20 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_20computeVolumes(CYTHON_UNUSE
       #if CYTHON_FAST_PYCCALL
       if (__Pyx_PyFastCFunction_Check(__pyx_t_7)) {
         PyObject *__pyx_temp[2] = {__pyx_t_9, __pyx_t_8};
-        __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_7, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 499, __pyx_L1_error)
+        __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_7, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 557, __pyx_L1_error)
         __Pyx_XDECREF(__pyx_t_9); __pyx_t_9 = 0;
         __Pyx_GOTREF(__pyx_t_2);
         __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
       } else
       #endif
       {
-        __pyx_t_6 = PyTuple_New(1+1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 499, __pyx_L1_error)
+        __pyx_t_6 = PyTuple_New(1+1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 557, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_6);
         __Pyx_GIVEREF(__pyx_t_9); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_9); __pyx_t_9 = NULL;
         __Pyx_GIVEREF(__pyx_t_8);
         PyTuple_SET_ITEM(__pyx_t_6, 0+1, __pyx_t_8);
         __pyx_t_8 = 0;
-        __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_7, __pyx_t_6, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 499, __pyx_L1_error)
+        __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_7, __pyx_t_6, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 557, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_2);
         __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
       }
@@ -9124,46 +10066,46 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_20computeVolumes(CYTHON_UNUSE
     __Pyx_XDECREF_SET(__pyx_v_hull, __pyx_t_2);
     __pyx_t_2 = 0;
 
-    /* "freud/voronoi.pyx":500
- *             is2D = np.all(self.poly_verts[0][:, -1] == 0)
+    /* "freud/voronoi.pyx":558
+ *             is2D = np.all(self._poly_verts[0][:, -1] == 0)
  *             hull = ConvexHull(verts[:, :2 if is2D else 3])
- *             self.poly_volumes[i] = hull.volume             # <<<<<<<<<<<<<<
+ *             self._poly_volumes[i] = hull.volume             # <<<<<<<<<<<<<<
  * 
  *         return self
  */
-    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_hull, __pyx_n_s_volume); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 500, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_hull, __pyx_n_s_volume); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 558, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_poly_volumes); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 500, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_poly_volumes); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 558, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
-    if (unlikely(PyObject_SetItem(__pyx_t_7, __pyx_v_i, __pyx_t_2) < 0)) __PYX_ERR(0, 500, __pyx_L1_error)
+    if (unlikely(PyObject_SetItem(__pyx_t_7, __pyx_v_i, __pyx_t_2) < 0)) __PYX_ERR(0, 558, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-    /* "freud/voronoi.pyx":497
- *         self.poly_volumes = np.zeros(shape=len(polytope_verts))
+    /* "freud/voronoi.pyx":555
+ *         self._poly_volumes = np.zeros(shape=len(polytope_verts))
  * 
  *         for i, verts in enumerate(polytope_verts):             # <<<<<<<<<<<<<<
- *             is2D = np.all(self.poly_verts[0][:, -1] == 0)
+ *             is2D = np.all(self._poly_verts[0][:, -1] == 0)
  *             hull = ConvexHull(verts[:, :2 if is2D else 3])
  */
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "freud/voronoi.pyx":502
- *             self.poly_volumes[i] = hull.volume
+  /* "freud/voronoi.pyx":560
+ *             self._poly_volumes[i] = hull.volume
  * 
  *         return self             # <<<<<<<<<<<<<<
  * 
- *     def getVolumes(self):
+ *     @property
  */
   __Pyx_XDECREF(__pyx_r);
   __Pyx_INCREF(__pyx_v_self);
   __pyx_r = __pyx_v_self;
   goto __pyx_L0;
 
-  /* "freud/voronoi.pyx":485
- *         return result
+  /* "freud/voronoi.pyx":543
+ *         return self.nlist
  * 
  *     def computeVolumes(self):             # <<<<<<<<<<<<<<
  *         """Computes volumes (areas in 2D) of Voronoi cells.
@@ -9192,8 +10134,70 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_20computeVolumes(CYTHON_UNUSE
   return __pyx_r;
 }
 
-/* "freud/voronoi.pyx":504
- *         return self
+/* "freud/voronoi.pyx":563
+ * 
+ *     @property
+ *     def volumes(self):             # <<<<<<<<<<<<<<
+ *         return self._poly_volumes
+ * 
+ */
+
+/* Python wrapper */
+static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_29volumes(PyObject *__pyx_self, PyObject *__pyx_v_self); /*proto*/
+static char __pyx_doc_5freud_7voronoi_7Voronoi_28volumes[] = "Voronoi.volumes(self)";
+static PyMethodDef __pyx_mdef_5freud_7voronoi_7Voronoi_29volumes = {"volumes", (PyCFunction)__pyx_pw_5freud_7voronoi_7Voronoi_29volumes, METH_O, __pyx_doc_5freud_7voronoi_7Voronoi_28volumes};
+static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_29volumes(PyObject *__pyx_self, PyObject *__pyx_v_self) {
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("volumes (wrapper)", 0);
+  __pyx_r = __pyx_pf_5freud_7voronoi_7Voronoi_28volumes(__pyx_self, ((PyObject *)__pyx_v_self));
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_28volumes(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self) {
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  __Pyx_RefNannySetupContext("volumes", 0);
+
+  /* "freud/voronoi.pyx":564
+ *     @property
+ *     def volumes(self):
+ *         return self._poly_volumes             # <<<<<<<<<<<<<<
+ * 
+ *     def getVolumes(self):
+ */
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_poly_volumes); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 564, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+
+  /* "freud/voronoi.pyx":563
+ * 
+ *     @property
+ *     def volumes(self):             # <<<<<<<<<<<<<<
+ *         return self._poly_volumes
+ * 
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_AddTraceback("freud.voronoi.Voronoi.volumes", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "freud/voronoi.pyx":566
+ *         return self._poly_volumes
  * 
  *     def getVolumes(self):             # <<<<<<<<<<<<<<
  *         """Returns an array of volumes (areas in 2D) corresponding to Voronoi
@@ -9201,40 +10205,40 @@ static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_20computeVolumes(CYTHON_UNUSE
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_23getVolumes(PyObject *__pyx_self, PyObject *__pyx_v_self); /*proto*/
-static char __pyx_doc_5freud_7voronoi_7Voronoi_22getVolumes[] = "Returns an array of volumes (areas in 2D) corresponding to Voronoi\n        cells.\n\n        .. versionadded:: 0.8\n\n        Must call :py:meth:`freud.voronoi.Voronoi.computeVolumes()` before this\n        method.\n\n        If the buffer width is too small, then some polytopes may not be\n        closed (they may have a boundary at infinity), and these polytopes'\n        volumes/areas are excluded from the list.\n\n        The length of the list returned by this method should be the same\n        as the array of positions used in the\n        :py:meth:`freud.voronoi.Voronoi.compute()` method, if all the polytopes\n        are closed. Otherwise try using a larger buffer width.\n\n        Returns:\n            (:math:`\\left(N_{cells} \\right)`) :class:`numpy.ndarray`:\n                Voronoi polytope volumes/areas.\n        ";
-static PyMethodDef __pyx_mdef_5freud_7voronoi_7Voronoi_23getVolumes = {"getVolumes", (PyCFunction)__pyx_pw_5freud_7voronoi_7Voronoi_23getVolumes, METH_O, __pyx_doc_5freud_7voronoi_7Voronoi_22getVolumes};
-static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_23getVolumes(PyObject *__pyx_self, PyObject *__pyx_v_self) {
+static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_31getVolumes(PyObject *__pyx_self, PyObject *__pyx_v_self); /*proto*/
+static char __pyx_doc_5freud_7voronoi_7Voronoi_30getVolumes[] = "Voronoi.getVolumes(self)\nReturns an array of volumes (areas in 2D) corresponding to Voronoi\n        cells.\n\n        .. versionadded:: 0.8\n\n        Must call :py:meth:`freud.voronoi.Voronoi.computeVolumes()` before this\n        method.\n\n        If the buffer width is too small, then some polytopes may not be\n        closed (they may have a boundary at infinity), and these polytopes'\n        volumes/areas are excluded from the list.\n\n        The length of the list returned by this method should be the same\n        as the array of positions used in the\n        :py:meth:`freud.voronoi.Voronoi.compute()` method, if all the polytopes\n        are closed. Otherwise try using a larger buffer width.\n\n        Returns:\n            (:math:`\\left(N_{cells} \\right)`) :class:`numpy.ndarray`:\n                Voronoi polytope volumes/areas.\n        ";
+static PyMethodDef __pyx_mdef_5freud_7voronoi_7Voronoi_31getVolumes = {"getVolumes", (PyCFunction)__pyx_pw_5freud_7voronoi_7Voronoi_31getVolumes, METH_O, __pyx_doc_5freud_7voronoi_7Voronoi_30getVolumes};
+static PyObject *__pyx_pw_5freud_7voronoi_7Voronoi_31getVolumes(PyObject *__pyx_self, PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("getVolumes (wrapper)", 0);
-  __pyx_r = __pyx_pf_5freud_7voronoi_7Voronoi_22getVolumes(__pyx_self, ((PyObject *)__pyx_v_self));
+  __pyx_r = __pyx_pf_5freud_7voronoi_7Voronoi_30getVolumes(__pyx_self, ((PyObject *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_22getVolumes(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self) {
+static PyObject *__pyx_pf_5freud_7voronoi_7Voronoi_30getVolumes(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("getVolumes", 0);
 
-  /* "freud/voronoi.pyx":526
+  /* "freud/voronoi.pyx":588
  *                 Voronoi polytope volumes/areas.
  *         """
- *         return self.poly_volumes             # <<<<<<<<<<<<<<
+ *         return self.volumes             # <<<<<<<<<<<<<<
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_poly_volumes); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 526, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_volumes); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 588, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/voronoi.pyx":504
- *         return self
+  /* "freud/voronoi.pyx":566
+ *         return self._poly_volumes
  * 
  *     def getVolumes(self):             # <<<<<<<<<<<<<<
  *         """Returns an array of volumes (areas in 2D) corresponding to Voronoi
@@ -11738,13 +12742,27 @@ static void __pyx_tp_dealloc_5freud_7voronoi_VoronoiBuffer(PyObject *o) {
   (*Py_TYPE(o)->tp_free)(o);
 }
 
+static PyObject *__pyx_getprop_5freud_7voronoi_13VoronoiBuffer_buffer_particles(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_5freud_7voronoi_13VoronoiBuffer_16buffer_particles_1__get__(o);
+}
+
+static PyObject *__pyx_getprop_5freud_7voronoi_13VoronoiBuffer_buffer_ids(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_5freud_7voronoi_13VoronoiBuffer_10buffer_ids_1__get__(o);
+}
+
 static PyMethodDef __pyx_methods_5freud_7voronoi_VoronoiBuffer[] = {
   {"compute", (PyCFunction)__pyx_pw_5freud_7voronoi_13VoronoiBuffer_3compute, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_7voronoi_13VoronoiBuffer_2compute},
   {"getBufferParticles", (PyCFunction)__pyx_pw_5freud_7voronoi_13VoronoiBuffer_5getBufferParticles, METH_NOARGS, __pyx_doc_5freud_7voronoi_13VoronoiBuffer_4getBufferParticles},
   {"getBufferIds", (PyCFunction)__pyx_pw_5freud_7voronoi_13VoronoiBuffer_7getBufferIds, METH_NOARGS, __pyx_doc_5freud_7voronoi_13VoronoiBuffer_6getBufferIds},
-  {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_7voronoi_13VoronoiBuffer_9__reduce_cython__, METH_NOARGS, 0},
-  {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_7voronoi_13VoronoiBuffer_11__setstate_cython__, METH_O, 0},
+  {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_7voronoi_13VoronoiBuffer_9__reduce_cython__, METH_NOARGS, __pyx_doc_5freud_7voronoi_13VoronoiBuffer_8__reduce_cython__},
+  {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_7voronoi_13VoronoiBuffer_11__setstate_cython__, METH_O, __pyx_doc_5freud_7voronoi_13VoronoiBuffer_10__setstate_cython__},
   {0, 0, 0, 0}
+};
+
+static struct PyGetSetDef __pyx_getsets_5freud_7voronoi_VoronoiBuffer[] = {
+  {(char *)"buffer_particles", __pyx_getprop_5freud_7voronoi_13VoronoiBuffer_buffer_particles, 0, (char *)0, 0},
+  {(char *)"buffer_ids", __pyx_getprop_5freud_7voronoi_13VoronoiBuffer_buffer_ids, 0, (char *)0, 0},
+  {0, 0, 0, 0, 0}
 };
 
 static PyTypeObject __pyx_type_5freud_7voronoi_VoronoiBuffer = {
@@ -11773,7 +12791,7 @@ static PyTypeObject __pyx_type_5freud_7voronoi_VoronoiBuffer = {
   0, /*tp_setattro*/
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE, /*tp_flags*/
-  "\n    .. moduleauthor:: Ben Schultz <baschult@umich.edu>\n    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>\n\n    Args:\n        box (py:class:`freud.box.Box`): Simulation box.\n    ", /*tp_doc*/
+  "\n    .. moduleauthor:: Ben Schultz <baschult@umich.edu>\n    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>\n\n    Args:\n        box (py:class:`freud.box.Box`): Simulation box.\n\n    Attributes:\n        buffer_particles (:class:`numpy.ndarray`):\n            The buffer particles.\n        buffer_ids (:class:`numpy.ndarray`):\n            The buffer ids.\n    ", /*tp_doc*/
   0, /*tp_traverse*/
   0, /*tp_clear*/
   0, /*tp_richcompare*/
@@ -11782,7 +12800,7 @@ static PyTypeObject __pyx_type_5freud_7voronoi_VoronoiBuffer = {
   0, /*tp_iternext*/
   __pyx_methods_5freud_7voronoi_VoronoiBuffer, /*tp_methods*/
   0, /*tp_members*/
-  0, /*tp_getset*/
+  __pyx_getsets_5freud_7voronoi_VoronoiBuffer, /*tp_getset*/
   0, /*tp_base*/
   0, /*tp_dict*/
   0, /*tp_descr_get*/
@@ -11846,17 +12864,31 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_ConvexHull, __pyx_k_ConvexHull, sizeof(__pyx_k_ConvexHull), 0, 0, 1, 1},
   {&__pyx_kp_u_Format_string_allocated_too_shor, __pyx_k_Format_string_allocated_too_shor, sizeof(__pyx_k_Format_string_allocated_too_shor), 0, 1, 0, 0},
   {&__pyx_kp_u_Format_string_allocated_too_shor_2, __pyx_k_Format_string_allocated_too_shor_2, sizeof(__pyx_k_Format_string_allocated_too_shor_2), 0, 1, 0, 0},
+  {&__pyx_n_s_FreudDeprecationWarning, __pyx_k_FreudDeprecationWarning, sizeof(__pyx_k_FreudDeprecationWarning), 0, 0, 1, 1},
   {&__pyx_n_s_ImportError, __pyx_k_ImportError, sizeof(__pyx_k_ImportError), 0, 0, 1, 1},
   {&__pyx_n_s_N, __pyx_k_N, sizeof(__pyx_k_N), 0, 0, 1, 1},
   {&__pyx_kp_s_Need_a_list_of_3D_points_for_Vor, __pyx_k_Need_a_list_of_3D_points_for_Vor, sizeof(__pyx_k_Need_a_list_of_3D_points_for_Vor), 0, 0, 1, 0},
   {&__pyx_kp_u_Non_native_byte_order_not_suppor, __pyx_k_Non_native_byte_order_not_suppor, sizeof(__pyx_k_Non_native_byte_order_not_suppor), 0, 1, 0, 0},
+  {&__pyx_n_s_Np, __pyx_k_Np, sizeof(__pyx_k_Np), 0, 0, 1, 1},
   {&__pyx_n_s_RuntimeError, __pyx_k_RuntimeError, sizeof(__pyx_k_RuntimeError), 0, 0, 1, 1},
   {&__pyx_n_s_SCIPY_AVAILABLE, __pyx_k_SCIPY_AVAILABLE, sizeof(__pyx_k_SCIPY_AVAILABLE), 0, 0, 1, 1},
+  {&__pyx_kp_s_The_getBufferIds_function_is_dep, __pyx_k_The_getBufferIds_function_is_dep, sizeof(__pyx_k_The_getBufferIds_function_is_dep), 0, 0, 1, 0},
+  {&__pyx_kp_s_The_getBufferParticles_function, __pyx_k_The_getBufferParticles_function, sizeof(__pyx_k_The_getBufferParticles_function), 0, 0, 1, 0},
+  {&__pyx_kp_s_The_getBuffer_function_is_deprec, __pyx_k_The_getBuffer_function_is_deprec, sizeof(__pyx_k_The_getBuffer_function_is_deprec), 0, 0, 1, 0},
+  {&__pyx_kp_s_The_getNeighborList_function_is, __pyx_k_The_getNeighborList_function_is, sizeof(__pyx_k_The_getNeighborList_function_is), 0, 0, 1, 0},
   {&__pyx_n_s_TypeError, __pyx_k_TypeError, sizeof(__pyx_k_TypeError), 0, 0, 1, 1},
+  {&__pyx_kp_s_Use_constructor_arguments_instea, __pyx_k_Use_constructor_arguments_instea, sizeof(__pyx_k_Use_constructor_arguments_instea), 0, 0, 1, 0},
+  {&__pyx_kp_s_Use_the_box_with_compute_instead, __pyx_k_Use_the_box_with_compute_instead, sizeof(__pyx_k_Use_the_box_with_compute_instead), 0, 0, 1, 0},
   {&__pyx_n_s_ValueError, __pyx_k_ValueError, sizeof(__pyx_k_ValueError), 0, 0, 1, 1},
   {&__pyx_n_s_Voronoi, __pyx_k_Voronoi, sizeof(__pyx_k_Voronoi), 0, 0, 1, 1},
+  {&__pyx_n_s_VoronoiBuffer___reduce_cython, __pyx_k_VoronoiBuffer___reduce_cython, sizeof(__pyx_k_VoronoiBuffer___reduce_cython), 0, 0, 1, 1},
+  {&__pyx_n_s_VoronoiBuffer___setstate_cython, __pyx_k_VoronoiBuffer___setstate_cython, sizeof(__pyx_k_VoronoiBuffer___setstate_cython), 0, 0, 1, 1},
+  {&__pyx_n_s_VoronoiBuffer_compute, __pyx_k_VoronoiBuffer_compute, sizeof(__pyx_k_VoronoiBuffer_compute), 0, 0, 1, 1},
+  {&__pyx_n_s_VoronoiBuffer_getBufferIds, __pyx_k_VoronoiBuffer_getBufferIds, sizeof(__pyx_k_VoronoiBuffer_getBufferIds), 0, 0, 1, 1},
+  {&__pyx_n_s_VoronoiBuffer_getBufferParticles, __pyx_k_VoronoiBuffer_getBufferParticles, sizeof(__pyx_k_VoronoiBuffer_getBufferParticles), 0, 0, 1, 1},
   {&__pyx_n_s_Voronoi___init, __pyx_k_Voronoi___init, sizeof(__pyx_k_Voronoi___init), 0, 0, 1, 1},
   {&__pyx_n_s_Voronoi__qhull_compute, __pyx_k_Voronoi__qhull_compute, sizeof(__pyx_k_Voronoi__qhull_compute), 0, 0, 1, 1},
+  {&__pyx_n_s_Voronoi_buffer, __pyx_k_Voronoi_buffer, sizeof(__pyx_k_Voronoi_buffer), 0, 0, 1, 1},
   {&__pyx_n_s_Voronoi_compute, __pyx_k_Voronoi_compute, sizeof(__pyx_k_Voronoi_compute), 0, 0, 1, 1},
   {&__pyx_n_s_Voronoi_computeNeighbors, __pyx_k_Voronoi_computeNeighbors, sizeof(__pyx_k_Voronoi_computeNeighbors), 0, 0, 1, 1},
   {&__pyx_n_s_Voronoi_computeVolumes, __pyx_k_Voronoi_computeVolumes, sizeof(__pyx_k_Voronoi_computeVolumes), 0, 0, 1, 1},
@@ -11865,11 +12897,14 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_Voronoi_getNeighbors, __pyx_k_Voronoi_getNeighbors, sizeof(__pyx_k_Voronoi_getNeighbors), 0, 0, 1, 1},
   {&__pyx_n_s_Voronoi_getVolumes, __pyx_k_Voronoi_getVolumes, sizeof(__pyx_k_Voronoi_getVolumes), 0, 0, 1, 1},
   {&__pyx_n_s_Voronoi_getVoronoiPolytopes, __pyx_k_Voronoi_getVoronoiPolytopes, sizeof(__pyx_k_Voronoi_getVoronoiPolytopes), 0, 0, 1, 1},
+  {&__pyx_n_s_Voronoi_nlist, __pyx_k_Voronoi_nlist, sizeof(__pyx_k_Voronoi_nlist), 0, 0, 1, 1},
+  {&__pyx_n_s_Voronoi_polytopes, __pyx_k_Voronoi_polytopes, sizeof(__pyx_k_Voronoi_polytopes), 0, 0, 1, 1},
   {&__pyx_n_s_Voronoi_setBox, __pyx_k_Voronoi_setBox, sizeof(__pyx_k_Voronoi_setBox), 0, 0, 1, 1},
   {&__pyx_n_s_Voronoi_setBufferWidth, __pyx_k_Voronoi_setBufferWidth, sizeof(__pyx_k_Voronoi_setBufferWidth), 0, 0, 1, 1},
+  {&__pyx_n_s_Voronoi_volumes, __pyx_k_Voronoi_volumes, sizeof(__pyx_k_Voronoi_volumes), 0, 0, 1, 1},
   {&__pyx_kp_s_You_cannot_use_this_class_withou, __pyx_k_You_cannot_use_this_class_withou, sizeof(__pyx_k_You_cannot_use_this_class_withou), 0, 0, 1, 0},
   {&__pyx_kp_s_You_cannot_use_this_class_withou_2, __pyx_k_You_cannot_use_this_class_withou_2, sizeof(__pyx_k_You_cannot_use_this_class_withou_2), 0, 0, 1, 0},
-  {&__pyx_n_s__46, __pyx_k__46, sizeof(__pyx_k__46), 0, 0, 1, 1},
+  {&__pyx_n_s__60, __pyx_k__60, sizeof(__pyx_k__60), 0, 0, 1, 1},
   {&__pyx_n_s_abs, __pyx_k_abs, sizeof(__pyx_k_abs), 0, 0, 1, 1},
   {&__pyx_n_s_added_i, __pyx_k_added_i, sizeof(__pyx_k_added_i), 0, 0, 1, 1},
   {&__pyx_n_s_added_j, __pyx_k_added_j, sizeof(__pyx_k_added_j), 0, 0, 1, 1},
@@ -11881,13 +12916,18 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_array_name, __pyx_k_array_name, sizeof(__pyx_k_array_name), 0, 0, 1, 1},
   {&__pyx_n_s_b, __pyx_k_b, sizeof(__pyx_k_b), 0, 0, 1, 1},
   {&__pyx_n_s_box, __pyx_k_box, sizeof(__pyx_k_box), 0, 0, 1, 1},
+  {&__pyx_n_s_box_2, __pyx_k_box_2, sizeof(__pyx_k_box_2), 0, 0, 1, 1},
   {&__pyx_n_s_buff, __pyx_k_buff, sizeof(__pyx_k_buff), 0, 0, 1, 1},
+  {&__pyx_n_s_buff_2, __pyx_k_buff_2, sizeof(__pyx_k_buff_2), 0, 0, 1, 1},
   {&__pyx_n_s_buff_ids, __pyx_k_buff_ids, sizeof(__pyx_k_buff_ids), 0, 0, 1, 1},
   {&__pyx_n_s_buff_ptls, __pyx_k_buff_ptls, sizeof(__pyx_k_buff_ptls), 0, 0, 1, 1},
   {&__pyx_n_s_buffer, __pyx_k_buffer, sizeof(__pyx_k_buffer), 0, 0, 1, 1},
+  {&__pyx_n_s_buffer_ids, __pyx_k_buffer_ids, sizeof(__pyx_k_buffer_ids), 0, 0, 1, 1},
+  {&__pyx_n_s_buffer_particles, __pyx_k_buffer_particles, sizeof(__pyx_k_buffer_particles), 0, 0, 1, 1},
   {&__pyx_n_s_c0, __pyx_k_c0, sizeof(__pyx_k_c0), 0, 0, 1, 1},
   {&__pyx_n_s_c1, __pyx_k_c1, sizeof(__pyx_k_c1), 0, 0, 1, 1},
   {&__pyx_n_s_c2, __pyx_k_c2, sizeof(__pyx_k_c2), 0, 0, 1, 1},
+  {&__pyx_n_s_cPoints, __pyx_k_cPoints, sizeof(__pyx_k_cPoints), 0, 0, 1, 1},
   {&__pyx_n_s_cline_in_traceback, __pyx_k_cline_in_traceback, sizeof(__pyx_k_cline_in_traceback), 0, 0, 1, 1},
   {&__pyx_n_s_common, __pyx_k_common, sizeof(__pyx_k_common), 0, 0, 1, 1},
   {&__pyx_n_s_compute, __pyx_k_compute, sizeof(__pyx_k_compute), 0, 0, 1, 1},
@@ -11913,6 +12953,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_float32, __pyx_k_float32, sizeof(__pyx_k_float32), 0, 0, 1, 1},
   {&__pyx_n_s_freud, __pyx_k_freud, sizeof(__pyx_k_freud), 0, 0, 1, 1},
   {&__pyx_n_s_freud_common, __pyx_k_freud_common, sizeof(__pyx_k_freud_common), 0, 0, 1, 1},
+  {&__pyx_n_s_freud_errors, __pyx_k_freud_errors, sizeof(__pyx_k_freud_errors), 0, 0, 1, 1},
   {&__pyx_n_s_freud_voronoi, __pyx_k_freud_voronoi, sizeof(__pyx_k_freud_voronoi), 0, 0, 1, 1},
   {&__pyx_kp_s_freud_voronoi_pyx, __pyx_k_freud_voronoi_pyx, sizeof(__pyx_k_freud_voronoi_pyx), 0, 0, 1, 0},
   {&__pyx_n_s_from_arrays, __pyx_k_from_arrays, sizeof(__pyx_k_from_arrays), 0, 0, 1, 1},
@@ -11947,6 +12988,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_kp_u_ndarray_is_not_C_contiguous, __pyx_k_ndarray_is_not_C_contiguous, sizeof(__pyx_k_ndarray_is_not_C_contiguous), 0, 1, 0, 0},
   {&__pyx_kp_u_ndarray_is_not_Fortran_contiguou, __pyx_k_ndarray_is_not_Fortran_contiguou, sizeof(__pyx_k_ndarray_is_not_Fortran_contiguou), 0, 1, 0, 0},
   {&__pyx_n_s_neighbor_list, __pyx_k_neighbor_list, sizeof(__pyx_k_neighbor_list), 0, 0, 1, 1},
+  {&__pyx_n_s_nlist, __pyx_k_nlist, sizeof(__pyx_k_nlist), 0, 0, 1, 1},
   {&__pyx_kp_s_no_default___reduce___due_to_non, __pyx_k_no_default___reduce___due_to_non, sizeof(__pyx_k_no_default___reduce___due_to_non), 0, 0, 1, 0},
   {&__pyx_n_s_norm, __pyx_k_norm, sizeof(__pyx_k_norm), 0, 0, 1, 1},
   {&__pyx_n_s_norm_vec, __pyx_k_norm_vec, sizeof(__pyx_k_norm_vec), 0, 0, 1, 1},
@@ -11961,9 +13003,12 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_poly_verts, __pyx_k_poly_verts, sizeof(__pyx_k_poly_verts), 0, 0, 1, 1},
   {&__pyx_n_s_poly_volumes, __pyx_k_poly_volumes, sizeof(__pyx_k_poly_volumes), 0, 0, 1, 1},
   {&__pyx_n_s_polytope_verts, __pyx_k_polytope_verts, sizeof(__pyx_k_polytope_verts), 0, 0, 1, 1},
+  {&__pyx_n_s_polytopes, __pyx_k_polytopes, sizeof(__pyx_k_polytopes), 0, 0, 1, 1},
   {&__pyx_n_s_positions, __pyx_k_positions, sizeof(__pyx_k_positions), 0, 0, 1, 1},
   {&__pyx_n_s_prepare, __pyx_k_prepare, sizeof(__pyx_k_prepare), 0, 0, 1, 1},
   {&__pyx_n_s_projected_area, __pyx_k_projected_area, sizeof(__pyx_k_projected_area), 0, 0, 1, 1},
+  {&__pyx_n_s_property, __pyx_k_property, sizeof(__pyx_k_property), 0, 0, 1, 1},
+  {&__pyx_n_s_pyx_state, __pyx_k_pyx_state, sizeof(__pyx_k_pyx_state), 0, 0, 1, 1},
   {&__pyx_n_s_pyx_vtable, __pyx_k_pyx_vtable, sizeof(__pyx_k_pyx_vtable), 0, 0, 1, 1},
   {&__pyx_n_s_qhull_compute, __pyx_k_qhull_compute, sizeof(__pyx_k_qhull_compute), 0, 0, 1, 1},
   {&__pyx_n_s_qualname, __pyx_k_qualname, sizeof(__pyx_k_qualname), 0, 0, 1, 1},
@@ -11990,6 +13035,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_setstate_cython, __pyx_k_setstate_cython, sizeof(__pyx_k_setstate_cython), 0, 0, 1, 1},
   {&__pyx_n_s_shape, __pyx_k_shape, sizeof(__pyx_k_shape), 0, 0, 1, 1},
   {&__pyx_n_s_size, __pyx_k_size, sizeof(__pyx_k_size), 0, 0, 1, 1},
+  {&__pyx_kp_s_stringsource, __pyx_k_stringsource, sizeof(__pyx_k_stringsource), 0, 0, 1, 0},
   {&__pyx_n_s_test, __pyx_k_test, sizeof(__pyx_k_test), 0, 0, 1, 1},
   {&__pyx_n_s_uint32, __pyx_k_uint32, sizeof(__pyx_k_uint32), 0, 0, 1, 1},
   {&__pyx_kp_u_unknown_dtype_code_in_numpy_pxd, __pyx_k_unknown_dtype_code_in_numpy_pxd, sizeof(__pyx_k_unknown_dtype_code_in_numpy_pxd), 0, 1, 0, 0},
@@ -12000,9 +13046,12 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_vertices, __pyx_k_vertices, sizeof(__pyx_k_vertices), 0, 0, 1, 1},
   {&__pyx_n_s_verts, __pyx_k_verts, sizeof(__pyx_k_verts), 0, 0, 1, 1},
   {&__pyx_n_s_volume, __pyx_k_volume, sizeof(__pyx_k_volume), 0, 0, 1, 1},
+  {&__pyx_n_s_volumes, __pyx_k_volumes, sizeof(__pyx_k_volumes), 0, 0, 1, 1},
   {&__pyx_n_s_vor_vertices, __pyx_k_vor_vertices, sizeof(__pyx_k_vor_vertices), 0, 0, 1, 1},
   {&__pyx_n_s_voronoi, __pyx_k_voronoi, sizeof(__pyx_k_voronoi), 0, 0, 1, 1},
+  {&__pyx_n_s_warn, __pyx_k_warn, sizeof(__pyx_k_warn), 0, 0, 1, 1},
   {&__pyx_n_s_warning, __pyx_k_warning, sizeof(__pyx_k_warning), 0, 0, 1, 1},
+  {&__pyx_n_s_warnings, __pyx_k_warnings, sizeof(__pyx_k_warnings), 0, 0, 1, 1},
   {&__pyx_n_s_weight, __pyx_k_weight, sizeof(__pyx_k_weight), 0, 0, 1, 1},
   {&__pyx_n_s_weights, __pyx_k_weights, sizeof(__pyx_k_weights), 0, 0, 1, 1},
   {&__pyx_n_s_x, __pyx_k_x, sizeof(__pyx_k_x), 0, 0, 1, 1},
@@ -12010,11 +13059,12 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {0, 0, 0, 0, 0, 0, 0}
 };
 static int __Pyx_InitCachedBuiltins(void) {
-  __pyx_builtin_ImportError = __Pyx_GetBuiltinName(__pyx_n_s_ImportError); if (!__pyx_builtin_ImportError) __PYX_ERR(0, 29, __pyx_L1_error)
-  __pyx_builtin_RuntimeError = __Pyx_GetBuiltinName(__pyx_n_s_RuntimeError); if (!__pyx_builtin_RuntimeError) __PYX_ERR(0, 53, __pyx_L1_error)
+  __pyx_builtin_ImportError = __Pyx_GetBuiltinName(__pyx_n_s_ImportError); if (!__pyx_builtin_ImportError) __PYX_ERR(0, 31, __pyx_L1_error)
+  __pyx_builtin_property = __Pyx_GetBuiltinName(__pyx_n_s_property); if (!__pyx_builtin_property) __PYX_ERR(0, 284, __pyx_L1_error)
+  __pyx_builtin_RuntimeError = __Pyx_GetBuiltinName(__pyx_n_s_RuntimeError); if (!__pyx_builtin_RuntimeError) __PYX_ERR(0, 61, __pyx_L1_error)
   __pyx_builtin_TypeError = __Pyx_GetBuiltinName(__pyx_n_s_TypeError); if (!__pyx_builtin_TypeError) __PYX_ERR(1, 2, __pyx_L1_error)
-  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 327, __pyx_L1_error)
-  __pyx_builtin_enumerate = __Pyx_GetBuiltinName(__pyx_n_s_enumerate); if (!__pyx_builtin_enumerate) __PYX_ERR(0, 332, __pyx_L1_error)
+  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 377, __pyx_L1_error)
+  __pyx_builtin_enumerate = __Pyx_GetBuiltinName(__pyx_n_s_enumerate); if (!__pyx_builtin_enumerate) __PYX_ERR(0, 382, __pyx_L1_error)
   __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_n_s_ValueError); if (!__pyx_builtin_ValueError) __PYX_ERR(2, 229, __pyx_L1_error)
   return 0;
   __pyx_L1_error:;
@@ -12025,25 +13075,25 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__Pyx_InitCachedConstants", 0);
 
-  /* "freud/voronoi.pyx":53
+  /* "freud/voronoi.pyx":61
  *     def __cinit__(self, box):
  *         if not _SCIPY_AVAILABLE:
  *             raise RuntimeError("You cannot use this class without scipy")             # <<<<<<<<<<<<<<
  *         cdef freud.box.Box b = freud.common.convert_box(box)
  *         self.thisptr = new freud._voronoi.VoronoiBuffer(dereference(b.thisptr))
  */
-  __pyx_tuple_ = PyTuple_Pack(1, __pyx_kp_s_You_cannot_use_this_class_withou); if (unlikely(!__pyx_tuple_)) __PYX_ERR(0, 53, __pyx_L1_error)
+  __pyx_tuple_ = PyTuple_Pack(1, __pyx_kp_s_You_cannot_use_this_class_withou); if (unlikely(!__pyx_tuple_)) __PYX_ERR(0, 61, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple_);
   __Pyx_GIVEREF(__pyx_tuple_);
 
-  /* "freud/voronoi.pyx":70
+  /* "freud/voronoi.pyx":78
  * 
  *         if points.shape[1] != 3:
  *             raise RuntimeError(             # <<<<<<<<<<<<<<
  *                 'Need a list of 3D points for VoronoiBuffer.compute()')
  *         cdef np.ndarray cPoints = points
  */
-  __pyx_tuple__2 = PyTuple_Pack(1, __pyx_kp_s_Need_a_list_of_3D_points_for_Vor); if (unlikely(!__pyx_tuple__2)) __PYX_ERR(0, 70, __pyx_L1_error)
+  __pyx_tuple__2 = PyTuple_Pack(1, __pyx_kp_s_Need_a_list_of_3D_points_for_Vor); if (unlikely(!__pyx_tuple__2)) __PYX_ERR(0, 78, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__2);
   __Pyx_GIVEREF(__pyx_tuple__2);
 
@@ -12066,104 +13116,104 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__4);
   __Pyx_GIVEREF(__pyx_tuple__4);
 
-  /* "freud/voronoi.pyx":152
+  /* "freud/voronoi.pyx":185
  *     def __init__(self, box, buff=0.1):
  *         if not _SCIPY_AVAILABLE:
  *             raise RuntimeError("You cannot use this class without SciPy")             # <<<<<<<<<<<<<<
  *         cdef freud.box.Box b = freud.common.convert_box(box)
- *         self.box = b
+ *         self._box = b
  */
-  __pyx_tuple__5 = PyTuple_Pack(1, __pyx_kp_s_You_cannot_use_this_class_withou_2); if (unlikely(!__pyx_tuple__5)) __PYX_ERR(0, 152, __pyx_L1_error)
+  __pyx_tuple__5 = PyTuple_Pack(1, __pyx_kp_s_You_cannot_use_this_class_withou_2); if (unlikely(!__pyx_tuple__5)) __PYX_ERR(0, 185, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__5);
   __Pyx_GIVEREF(__pyx_tuple__5);
 
-  /* "freud/voronoi.pyx":202
+  /* "freud/voronoi.pyx":241
  *         # Use only the first two components if the box is 2D
  *         if box.is2D():
  *             self.expanded_points = self.expanded_points[:, :2]             # <<<<<<<<<<<<<<
  * 
  *         # Use qhull to get the points
  */
-  __pyx_slice__6 = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice__6)) __PYX_ERR(0, 202, __pyx_L1_error)
+  __pyx_slice__6 = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice__6)) __PYX_ERR(0, 241, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_slice__6);
   __Pyx_GIVEREF(__pyx_slice__6);
-  __pyx_slice__7 = PySlice_New(Py_None, __pyx_int_2, Py_None); if (unlikely(!__pyx_slice__7)) __PYX_ERR(0, 202, __pyx_L1_error)
+  __pyx_slice__7 = PySlice_New(Py_None, __pyx_int_2, Py_None); if (unlikely(!__pyx_slice__7)) __PYX_ERR(0, 241, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_slice__7);
   __Pyx_GIVEREF(__pyx_slice__7);
-  __pyx_tuple__8 = PyTuple_Pack(2, __pyx_slice__6, __pyx_slice__7); if (unlikely(!__pyx_tuple__8)) __PYX_ERR(0, 202, __pyx_L1_error)
+  __pyx_tuple__8 = PyTuple_Pack(2, __pyx_slice__6, __pyx_slice__7); if (unlikely(!__pyx_tuple__8)) __PYX_ERR(0, 241, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__8);
   __Pyx_GIVEREF(__pyx_tuple__8);
 
-  /* "freud/voronoi.pyx":393
+  /* "freud/voronoi.pyx":443
  *                     c2 = (c0 + 2) % 3
  * 
  *                     vc1 = vertex_coords[:, c1]             # <<<<<<<<<<<<<<
  *                     vc2 = vertex_coords[:, c2]
  * 
  */
-  __pyx_slice__9 = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice__9)) __PYX_ERR(0, 393, __pyx_L1_error)
+  __pyx_slice__9 = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice__9)) __PYX_ERR(0, 443, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_slice__9);
   __Pyx_GIVEREF(__pyx_slice__9);
 
-  /* "freud/voronoi.pyx":394
+  /* "freud/voronoi.pyx":444
  * 
  *                     vc1 = vertex_coords[:, c1]
  *                     vc2 = vertex_coords[:, c2]             # <<<<<<<<<<<<<<
  * 
  *                     # Use shoelace formula for the projected area
  */
-  __pyx_slice__10 = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice__10)) __PYX_ERR(0, 394, __pyx_L1_error)
+  __pyx_slice__10 = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice__10)) __PYX_ERR(0, 444, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_slice__10);
   __Pyx_GIVEREF(__pyx_slice__10);
 
-  /* "freud/voronoi.pyx":482
+  /* "freud/voronoi.pyx":520
  *         result = freud.locality.NeighborList.from_arrays(
  *             len(neighbor_list), len(neighbor_list),
  *             indexAry[:, 0], indexAry[:, 1], weights=indexAry[:, 2])             # <<<<<<<<<<<<<<
  *         return result
  * 
  */
-  __pyx_slice__11 = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice__11)) __PYX_ERR(0, 482, __pyx_L1_error)
+  __pyx_slice__11 = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice__11)) __PYX_ERR(0, 520, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_slice__11);
   __Pyx_GIVEREF(__pyx_slice__11);
-  __pyx_tuple__12 = PyTuple_Pack(2, __pyx_slice__11, __pyx_int_0); if (unlikely(!__pyx_tuple__12)) __PYX_ERR(0, 482, __pyx_L1_error)
+  __pyx_tuple__12 = PyTuple_Pack(2, __pyx_slice__11, __pyx_int_0); if (unlikely(!__pyx_tuple__12)) __PYX_ERR(0, 520, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__12);
   __Pyx_GIVEREF(__pyx_tuple__12);
-  __pyx_slice__13 = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice__13)) __PYX_ERR(0, 482, __pyx_L1_error)
+  __pyx_slice__13 = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice__13)) __PYX_ERR(0, 520, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_slice__13);
   __Pyx_GIVEREF(__pyx_slice__13);
-  __pyx_tuple__14 = PyTuple_Pack(2, __pyx_slice__13, __pyx_int_1); if (unlikely(!__pyx_tuple__14)) __PYX_ERR(0, 482, __pyx_L1_error)
+  __pyx_tuple__14 = PyTuple_Pack(2, __pyx_slice__13, __pyx_int_1); if (unlikely(!__pyx_tuple__14)) __PYX_ERR(0, 520, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__14);
   __Pyx_GIVEREF(__pyx_tuple__14);
-  __pyx_slice__15 = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice__15)) __PYX_ERR(0, 482, __pyx_L1_error)
+  __pyx_slice__15 = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice__15)) __PYX_ERR(0, 520, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_slice__15);
   __Pyx_GIVEREF(__pyx_slice__15);
-  __pyx_tuple__16 = PyTuple_Pack(2, __pyx_slice__15, __pyx_int_2); if (unlikely(!__pyx_tuple__16)) __PYX_ERR(0, 482, __pyx_L1_error)
+  __pyx_tuple__16 = PyTuple_Pack(2, __pyx_slice__15, __pyx_int_2); if (unlikely(!__pyx_tuple__16)) __PYX_ERR(0, 520, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__16);
   __Pyx_GIVEREF(__pyx_tuple__16);
 
-  /* "freud/voronoi.pyx":498
+  /* "freud/voronoi.pyx":556
  * 
  *         for i, verts in enumerate(polytope_verts):
- *             is2D = np.all(self.poly_verts[0][:, -1] == 0)             # <<<<<<<<<<<<<<
+ *             is2D = np.all(self._poly_verts[0][:, -1] == 0)             # <<<<<<<<<<<<<<
  *             hull = ConvexHull(verts[:, :2 if is2D else 3])
- *             self.poly_volumes[i] = hull.volume
+ *             self._poly_volumes[i] = hull.volume
  */
-  __pyx_slice__17 = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice__17)) __PYX_ERR(0, 498, __pyx_L1_error)
+  __pyx_slice__17 = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice__17)) __PYX_ERR(0, 556, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_slice__17);
   __Pyx_GIVEREF(__pyx_slice__17);
-  __pyx_tuple__18 = PyTuple_Pack(2, __pyx_slice__17, __pyx_int_neg_1); if (unlikely(!__pyx_tuple__18)) __PYX_ERR(0, 498, __pyx_L1_error)
+  __pyx_tuple__18 = PyTuple_Pack(2, __pyx_slice__17, __pyx_int_neg_1); if (unlikely(!__pyx_tuple__18)) __PYX_ERR(0, 556, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__18);
   __Pyx_GIVEREF(__pyx_tuple__18);
 
-  /* "freud/voronoi.pyx":499
+  /* "freud/voronoi.pyx":557
  *         for i, verts in enumerate(polytope_verts):
- *             is2D = np.all(self.poly_verts[0][:, -1] == 0)
+ *             is2D = np.all(self._poly_verts[0][:, -1] == 0)
  *             hull = ConvexHull(verts[:, :2 if is2D else 3])             # <<<<<<<<<<<<<<
- *             self.poly_volumes[i] = hull.volume
+ *             self._poly_volumes[i] = hull.volume
  * 
  */
-  __pyx_slice__19 = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice__19)) __PYX_ERR(0, 499, __pyx_L1_error)
+  __pyx_slice__19 = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice__19)) __PYX_ERR(0, 557, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_slice__19);
   __Pyx_GIVEREF(__pyx_slice__19);
 
@@ -12264,161 +13314,266 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__28);
   __Pyx_GIVEREF(__pyx_tuple__28);
 
-  /* "freud/voronoi.pyx":150
- *             Buffer width.
+  /* "freud/voronoi.pyx":65
+ *         self.thisptr = new freud._voronoi.VoronoiBuffer(dereference(b.thisptr))
+ * 
+ *     def compute(self, points, float buffer):             # <<<<<<<<<<<<<<
+ *         """Compute the voronoi diagram.
+ * 
+ */
+  __pyx_tuple__29 = PyTuple_Pack(5, __pyx_n_s_self, __pyx_n_s_points, __pyx_n_s_buffer, __pyx_n_s_cPoints, __pyx_n_s_Np); if (unlikely(!__pyx_tuple__29)) __PYX_ERR(0, 65, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__29);
+  __Pyx_GIVEREF(__pyx_tuple__29);
+  __pyx_codeobj__30 = (PyObject*)__Pyx_PyCode_New(3, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__29, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_compute, 65, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__30)) __PYX_ERR(0, 65, __pyx_L1_error)
+
+  /* "freud/voronoi.pyx":105
+ *         return result
+ * 
+ *     def getBufferParticles(self):             # <<<<<<<<<<<<<<
+ *         warnings.warn("The getBufferParticles function is deprecated in favor "
+ *                       "of the buffer_particles class attribute and will be "
+ */
+  __pyx_tuple__31 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__31)) __PYX_ERR(0, 105, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__31);
+  __Pyx_GIVEREF(__pyx_tuple__31);
+  __pyx_codeobj__32 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__31, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_getBufferParticles, 105, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__32)) __PYX_ERR(0, 105, __pyx_L1_error)
+
+  /* "freud/voronoi.pyx":130
+ *         return result
+ * 
+ *     def getBufferIds(self):             # <<<<<<<<<<<<<<
+ *         warnings.warn("The getBufferIds function is deprecated in favor "
+ *                       "of the buffer_ids class attribute and will be "
+ */
+  __pyx_tuple__33 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__33)) __PYX_ERR(0, 130, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__33);
+  __Pyx_GIVEREF(__pyx_tuple__33);
+  __pyx_codeobj__34 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__33, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_getBufferIds, 130, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__34)) __PYX_ERR(0, 130, __pyx_L1_error)
+
+  /* "(tree fragment)":1
+ * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ * def __setstate_cython__(self, __pyx_state):
+ */
+  __pyx_tuple__35 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__35)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__35);
+  __Pyx_GIVEREF(__pyx_tuple__35);
+  __pyx_codeobj__36 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__35, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_reduce_cython, 1, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__36)) __PYX_ERR(1, 1, __pyx_L1_error)
+
+  /* "(tree fragment)":3
+ * def __reduce_cython__(self):
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ */
+  __pyx_tuple__37 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_pyx_state); if (unlikely(!__pyx_tuple__37)) __PYX_ERR(1, 3, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__37);
+  __Pyx_GIVEREF(__pyx_tuple__37);
+  __pyx_codeobj__38 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__37, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_setstate_cython, 3, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__38)) __PYX_ERR(1, 3, __pyx_L1_error)
+
+  /* "freud/voronoi.pyx":183
+ *             cells.
  *     """
  *     def __init__(self, box, buff=0.1):             # <<<<<<<<<<<<<<
  *         if not _SCIPY_AVAILABLE:
  *             raise RuntimeError("You cannot use this class without SciPy")
  */
-  __pyx_tuple__29 = PyTuple_Pack(4, __pyx_n_s_self, __pyx_n_s_box, __pyx_n_s_buff, __pyx_n_s_b); if (unlikely(!__pyx_tuple__29)) __PYX_ERR(0, 150, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__29);
-  __Pyx_GIVEREF(__pyx_tuple__29);
-  __pyx_codeobj__30 = (PyObject*)__Pyx_PyCode_New(3, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__29, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_init, 150, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__30)) __PYX_ERR(0, 150, __pyx_L1_error)
-  __pyx_tuple__31 = PyTuple_Pack(1, ((PyObject*)__pyx_float_0_1)); if (unlikely(!__pyx_tuple__31)) __PYX_ERR(0, 150, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__31);
-  __Pyx_GIVEREF(__pyx_tuple__31);
+  __pyx_tuple__39 = PyTuple_Pack(4, __pyx_n_s_self, __pyx_n_s_box, __pyx_n_s_buff, __pyx_n_s_b); if (unlikely(!__pyx_tuple__39)) __PYX_ERR(0, 183, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__39);
+  __Pyx_GIVEREF(__pyx_tuple__39);
+  __pyx_codeobj__40 = (PyObject*)__Pyx_PyCode_New(3, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__39, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_init, 183, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__40)) __PYX_ERR(0, 183, __pyx_L1_error)
+  __pyx_tuple__41 = PyTuple_Pack(1, ((PyObject*)__pyx_float_0_1)); if (unlikely(!__pyx_tuple__41)) __PYX_ERR(0, 183, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__41);
+  __Pyx_GIVEREF(__pyx_tuple__41);
 
-  /* "freud/voronoi.pyx":157
- *         self.buff = buff
+  /* "freud/voronoi.pyx":190
+ *         self._buff = buff
  * 
  *     def setBox(self, box):             # <<<<<<<<<<<<<<
  *         """Reset the simulation box.
  * 
  */
-  __pyx_tuple__32 = PyTuple_Pack(3, __pyx_n_s_self, __pyx_n_s_box, __pyx_n_s_b); if (unlikely(!__pyx_tuple__32)) __PYX_ERR(0, 157, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__32);
-  __Pyx_GIVEREF(__pyx_tuple__32);
-  __pyx_codeobj__33 = (PyObject*)__Pyx_PyCode_New(2, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__32, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_setBox, 157, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__33)) __PYX_ERR(0, 157, __pyx_L1_error)
+  __pyx_tuple__42 = PyTuple_Pack(3, __pyx_n_s_self, __pyx_n_s_box, __pyx_n_s_b); if (unlikely(!__pyx_tuple__42)) __PYX_ERR(0, 190, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__42);
+  __Pyx_GIVEREF(__pyx_tuple__42);
+  __pyx_codeobj__43 = (PyObject*)__Pyx_PyCode_New(2, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__42, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_setBox, 190, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__43)) __PYX_ERR(0, 190, __pyx_L1_error)
 
-  /* "freud/voronoi.pyx":166
- *         self.box = b
+  /* "freud/voronoi.pyx":202
+ *         self._box = b
  * 
  *     def setBufferWidth(self, buff):             # <<<<<<<<<<<<<<
  *         """Reset the buffer width.
  * 
  */
-  __pyx_tuple__34 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_buff); if (unlikely(!__pyx_tuple__34)) __PYX_ERR(0, 166, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__34);
-  __Pyx_GIVEREF(__pyx_tuple__34);
-  __pyx_codeobj__35 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__34, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_setBufferWidth, 166, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__35)) __PYX_ERR(0, 166, __pyx_L1_error)
+  __pyx_tuple__44 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_buff); if (unlikely(!__pyx_tuple__44)) __PYX_ERR(0, 202, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__44);
+  __Pyx_GIVEREF(__pyx_tuple__44);
+  __pyx_codeobj__45 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__44, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_setBufferWidth, 202, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__45)) __PYX_ERR(0, 202, __pyx_L1_error)
 
-  /* "freud/voronoi.pyx":174
- *         self.buff = buff
+  /* "freud/voronoi.pyx":213
+ *         self._buff = buff
  * 
  *     def _qhull_compute(self, positions, box=None, buff=None):             # <<<<<<<<<<<<<<
  *         """Calls VoronoiBuffer and qhull
  * 
  */
-  __pyx_tuple__36 = PyTuple_Pack(7, __pyx_n_s_self, __pyx_n_s_positions, __pyx_n_s_box, __pyx_n_s_buff, __pyx_n_s_vbuff, __pyx_n_s_buff_ptls, __pyx_n_s_buff_ids); if (unlikely(!__pyx_tuple__36)) __PYX_ERR(0, 174, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__36);
-  __Pyx_GIVEREF(__pyx_tuple__36);
-  __pyx_codeobj__37 = (PyObject*)__Pyx_PyCode_New(4, 0, 7, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__36, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_qhull_compute, 174, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__37)) __PYX_ERR(0, 174, __pyx_L1_error)
-  __pyx_tuple__38 = PyTuple_Pack(2, ((PyObject *)Py_None), ((PyObject *)Py_None)); if (unlikely(!__pyx_tuple__38)) __PYX_ERR(0, 174, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__38);
-  __Pyx_GIVEREF(__pyx_tuple__38);
+  __pyx_tuple__46 = PyTuple_Pack(7, __pyx_n_s_self, __pyx_n_s_positions, __pyx_n_s_box, __pyx_n_s_buff, __pyx_n_s_vbuff, __pyx_n_s_buff_ptls, __pyx_n_s_buff_ids); if (unlikely(!__pyx_tuple__46)) __PYX_ERR(0, 213, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__46);
+  __Pyx_GIVEREF(__pyx_tuple__46);
+  __pyx_codeobj__47 = (PyObject*)__Pyx_PyCode_New(4, 0, 7, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__46, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_qhull_compute, 213, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__47)) __PYX_ERR(0, 213, __pyx_L1_error)
+  __pyx_tuple__48 = PyTuple_Pack(2, ((PyObject *)Py_None), ((PyObject *)Py_None)); if (unlikely(!__pyx_tuple__48)) __PYX_ERR(0, 213, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__48);
+  __Pyx_GIVEREF(__pyx_tuple__48);
 
-  /* "freud/voronoi.pyx":207
+  /* "freud/voronoi.pyx":246
  *         self.voronoi = qvoronoi(self.expanded_points)
  * 
  *     def compute(self, positions, box=None, buff=None):             # <<<<<<<<<<<<<<
  *         """Compute Voronoi diagram.
  * 
  */
-  __pyx_tuple__39 = PyTuple_Pack(7, __pyx_n_s_self, __pyx_n_s_positions, __pyx_n_s_box, __pyx_n_s_buff, __pyx_n_s_b, __pyx_n_s_vertices, __pyx_n_s_region); if (unlikely(!__pyx_tuple__39)) __PYX_ERR(0, 207, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__39);
-  __Pyx_GIVEREF(__pyx_tuple__39);
-  __pyx_codeobj__40 = (PyObject*)__Pyx_PyCode_New(4, 0, 7, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__39, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_compute, 207, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__40)) __PYX_ERR(0, 207, __pyx_L1_error)
-  __pyx_tuple__41 = PyTuple_Pack(2, ((PyObject *)Py_None), ((PyObject *)Py_None)); if (unlikely(!__pyx_tuple__41)) __PYX_ERR(0, 207, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__41);
-  __Pyx_GIVEREF(__pyx_tuple__41);
+  __pyx_tuple__49 = PyTuple_Pack(7, __pyx_n_s_self, __pyx_n_s_positions, __pyx_n_s_box, __pyx_n_s_buff, __pyx_n_s_b, __pyx_n_s_vertices, __pyx_n_s_region); if (unlikely(!__pyx_tuple__49)) __PYX_ERR(0, 246, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__49);
+  __Pyx_GIVEREF(__pyx_tuple__49);
+  __pyx_codeobj__50 = (PyObject*)__Pyx_PyCode_New(4, 0, 7, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__49, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_compute, 246, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__50)) __PYX_ERR(0, 246, __pyx_L1_error)
+  __pyx_tuple__51 = PyTuple_Pack(2, ((PyObject *)Py_None), ((PyObject *)Py_None)); if (unlikely(!__pyx_tuple__51)) __PYX_ERR(0, 246, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__51);
+  __Pyx_GIVEREF(__pyx_tuple__51);
 
-  /* "freud/voronoi.pyx":245
- *         return self
+  /* "freud/voronoi.pyx":285
  * 
- *     def getBuffer(self):             # <<<<<<<<<<<<<<
- *         """Returns the buffer width.
+ *     @property
+ *     def buffer(self):             # <<<<<<<<<<<<<<
+ *         return self._buff
  * 
  */
-  __pyx_tuple__42 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__42)) __PYX_ERR(0, 245, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__42);
-  __Pyx_GIVEREF(__pyx_tuple__42);
-  __pyx_codeobj__43 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__42, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_getBuffer, 245, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__43)) __PYX_ERR(0, 245, __pyx_L1_error)
+  __pyx_tuple__52 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__52)) __PYX_ERR(0, 285, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__52);
+  __Pyx_GIVEREF(__pyx_tuple__52);
+  __pyx_codeobj__53 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__52, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_buffer, 285, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__53)) __PYX_ERR(0, 285, __pyx_L1_error)
 
-  /* "freud/voronoi.pyx":253
- *         return self.buff
+  /* "freud/voronoi.pyx":288
+ *         return self._buff
+ * 
+ *     def getBuffer(self):             # <<<<<<<<<<<<<<
+ *         warnings.warn("The getBuffer function is deprecated in favor "
+ *                       "of the buffer class attribute and will be "
+ */
+  __pyx_tuple__54 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__54)) __PYX_ERR(0, 288, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__54);
+  __Pyx_GIVEREF(__pyx_tuple__54);
+  __pyx_codeobj__55 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__54, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_getBuffer, 288, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__55)) __PYX_ERR(0, 288, __pyx_L1_error)
+
+  /* "freud/voronoi.pyx":296
+ * 
+ *     @property
+ *     def polytopes(self):             # <<<<<<<<<<<<<<
+ *         return self._poly_verts
+ * 
+ */
+  __pyx_tuple__56 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__56)) __PYX_ERR(0, 296, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__56);
+  __Pyx_GIVEREF(__pyx_tuple__56);
+  __pyx_codeobj__57 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__56, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_polytopes, 296, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__57)) __PYX_ERR(0, 296, __pyx_L1_error)
+
+  /* "freud/voronoi.pyx":299
+ *         return self._poly_verts
  * 
  *     def getVoronoiPolytopes(self):             # <<<<<<<<<<<<<<
  *         """Returns a list of polytope vertices corresponding to Voronoi cells.
  * 
  */
-  __pyx_tuple__44 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__44)) __PYX_ERR(0, 253, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__44);
-  __Pyx_GIVEREF(__pyx_tuple__44);
-  __pyx_codeobj__45 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__44, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_getVoronoiPolytopes, 253, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__45)) __PYX_ERR(0, 253, __pyx_L1_error)
+  __pyx_tuple__58 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__58)) __PYX_ERR(0, 299, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__58);
+  __Pyx_GIVEREF(__pyx_tuple__58);
+  __pyx_codeobj__59 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__58, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_getVoronoiPolytopes, 299, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__59)) __PYX_ERR(0, 299, __pyx_L1_error)
 
-  /* "freud/voronoi.pyx":272
- *         return self.poly_verts
+  /* "freud/voronoi.pyx":322
+ *         return self.polytopes
  * 
  *     def computeNeighbors(self, positions, box=None, buff=None,             # <<<<<<<<<<<<<<
  *                          exclude_ii=True):
  *         """Compute the neighbors of each particle based on the Voronoi
  */
-  __pyx_tuple__47 = PyTuple_Pack(28, __pyx_n_s_self, __pyx_n_s_positions, __pyx_n_s_box, __pyx_n_s_buff, __pyx_n_s_exclude_ii, __pyx_n_s_b, __pyx_n_s_ridge_points, __pyx_n_s_ridge_vertices, __pyx_n_s_vor_vertices, __pyx_n_s_N, __pyx_n_s_k, __pyx_n_s_index_i, __pyx_n_s_index_j, __pyx_n_s_added_i, __pyx_n_s_added_j, __pyx_n_s_weight, __pyx_n_s_vertex_coords, __pyx_n_s_r01, __pyx_n_s_r12, __pyx_n_s_norm_vec, __pyx_n_s_c0, __pyx_n_s_c1, __pyx_n_s_c2, __pyx_n_s_vc1, __pyx_n_s_vc2, __pyx_n_s_projected_area, __pyx_n_s__46, __pyx_n_s_i); if (unlikely(!__pyx_tuple__47)) __PYX_ERR(0, 272, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__47);
-  __Pyx_GIVEREF(__pyx_tuple__47);
-  __pyx_codeobj__48 = (PyObject*)__Pyx_PyCode_New(5, 0, 28, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__47, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_computeNeighbors, 272, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__48)) __PYX_ERR(0, 272, __pyx_L1_error)
-  __pyx_tuple__49 = PyTuple_Pack(3, ((PyObject *)Py_None), ((PyObject *)Py_None), ((PyObject *)Py_True)); if (unlikely(!__pyx_tuple__49)) __PYX_ERR(0, 272, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__49);
-  __Pyx_GIVEREF(__pyx_tuple__49);
+  __pyx_tuple__61 = PyTuple_Pack(28, __pyx_n_s_self, __pyx_n_s_positions, __pyx_n_s_box, __pyx_n_s_buff, __pyx_n_s_exclude_ii, __pyx_n_s_b, __pyx_n_s_ridge_points, __pyx_n_s_ridge_vertices, __pyx_n_s_vor_vertices, __pyx_n_s_N, __pyx_n_s_k, __pyx_n_s_index_i, __pyx_n_s_index_j, __pyx_n_s_added_i, __pyx_n_s_added_j, __pyx_n_s_weight, __pyx_n_s_vertex_coords, __pyx_n_s_r01, __pyx_n_s_r12, __pyx_n_s_norm_vec, __pyx_n_s_c0, __pyx_n_s_c1, __pyx_n_s_c2, __pyx_n_s_vc1, __pyx_n_s_vc2, __pyx_n_s_projected_area, __pyx_n_s__60, __pyx_n_s_i); if (unlikely(!__pyx_tuple__61)) __PYX_ERR(0, 322, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__61);
+  __Pyx_GIVEREF(__pyx_tuple__61);
+  __pyx_codeobj__62 = (PyObject*)__Pyx_PyCode_New(5, 0, 28, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__61, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_computeNeighbors, 322, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__62)) __PYX_ERR(0, 322, __pyx_L1_error)
+  __pyx_tuple__63 = PyTuple_Pack(3, ((PyObject *)Py_None), ((PyObject *)Py_None), ((PyObject *)Py_True)); if (unlikely(!__pyx_tuple__63)) __PYX_ERR(0, 322, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__63);
+  __Pyx_GIVEREF(__pyx_tuple__63);
 
-  /* "freud/voronoi.pyx":415
+  /* "freud/voronoi.pyx":465
  *         return self
  * 
  *     def getNeighbors(self, numShells):             # <<<<<<<<<<<<<<
  *         """Get :code:`numShells` of neighbors for each particle
  * 
  */
-  __pyx_tuple__50 = PyTuple_Pack(9, __pyx_n_s_self, __pyx_n_s_numShells, __pyx_n_s_neighbor_list, __pyx_n_s__46, __pyx_n_s_dummy_neighbor_list, __pyx_n_s_i, __pyx_n_s_numNeighbors, __pyx_n_s_j, __pyx_n_s_x); if (unlikely(!__pyx_tuple__50)) __PYX_ERR(0, 415, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__50);
-  __Pyx_GIVEREF(__pyx_tuple__50);
-  __pyx_codeobj__51 = (PyObject*)__Pyx_PyCode_New(2, 0, 9, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__50, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_getNeighbors, 415, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__51)) __PYX_ERR(0, 415, __pyx_L1_error)
+  __pyx_tuple__64 = PyTuple_Pack(9, __pyx_n_s_self, __pyx_n_s_numShells, __pyx_n_s_neighbor_list, __pyx_n_s__60, __pyx_n_s_dummy_neighbor_list, __pyx_n_s_i, __pyx_n_s_numNeighbors, __pyx_n_s_j, __pyx_n_s_x); if (unlikely(!__pyx_tuple__64)) __PYX_ERR(0, 465, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__64);
+  __Pyx_GIVEREF(__pyx_tuple__64);
+  __pyx_codeobj__65 = (PyObject*)__Pyx_PyCode_New(2, 0, 9, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__64, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_getNeighbors, 465, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__65)) __PYX_ERR(0, 465, __pyx_L1_error)
 
-  /* "freud/voronoi.pyx":444
- *         return neighbor_list
+  /* "freud/voronoi.pyx":495
+ * 
+ *     @property
+ *     def nlist(self):             # <<<<<<<<<<<<<<
+ *         # Build neighbor list based on voronoi neighbors
+ *         neighbor_list = copy.copy(self.firstShellNeighborList)
+ */
+  __pyx_tuple__66 = PyTuple_Pack(9, __pyx_n_s_self, __pyx_n_s_neighbor_list, __pyx_n_s_weight, __pyx_n_s_count, __pyx_n_s_i, __pyx_n_s_indexAry, __pyx_n_s_j, __pyx_n_s_N, __pyx_n_s_result); if (unlikely(!__pyx_tuple__66)) __PYX_ERR(0, 495, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__66);
+  __Pyx_GIVEREF(__pyx_tuple__66);
+  __pyx_codeobj__67 = (PyObject*)__Pyx_PyCode_New(1, 0, 9, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__66, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_nlist, 495, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__67)) __PYX_ERR(0, 495, __pyx_L1_error)
+
+  /* "freud/voronoi.pyx":523
+ *         return result
  * 
  *     def getNeighborList(self):             # <<<<<<<<<<<<<<
  *         """Returns a neighbor list object.
  * 
  */
-  __pyx_tuple__52 = PyTuple_Pack(9, __pyx_n_s_self, __pyx_n_s_neighbor_list, __pyx_n_s_weight, __pyx_n_s_count, __pyx_n_s_i, __pyx_n_s_indexAry, __pyx_n_s_j, __pyx_n_s_N, __pyx_n_s_result); if (unlikely(!__pyx_tuple__52)) __PYX_ERR(0, 444, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__52);
-  __Pyx_GIVEREF(__pyx_tuple__52);
-  __pyx_codeobj__53 = (PyObject*)__Pyx_PyCode_New(1, 0, 9, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__52, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_getNeighborList, 444, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__53)) __PYX_ERR(0, 444, __pyx_L1_error)
+  __pyx_tuple__68 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__68)) __PYX_ERR(0, 523, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__68);
+  __Pyx_GIVEREF(__pyx_tuple__68);
+  __pyx_codeobj__69 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__68, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_getNeighborList, 523, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__69)) __PYX_ERR(0, 523, __pyx_L1_error)
 
-  /* "freud/voronoi.pyx":485
- *         return result
+  /* "freud/voronoi.pyx":543
+ *         return self.nlist
  * 
  *     def computeVolumes(self):             # <<<<<<<<<<<<<<
  *         """Computes volumes (areas in 2D) of Voronoi cells.
  * 
  */
-  __pyx_tuple__54 = PyTuple_Pack(6, __pyx_n_s_self, __pyx_n_s_polytope_verts, __pyx_n_s_i, __pyx_n_s_verts, __pyx_n_s_is2D, __pyx_n_s_hull); if (unlikely(!__pyx_tuple__54)) __PYX_ERR(0, 485, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__54);
-  __Pyx_GIVEREF(__pyx_tuple__54);
-  __pyx_codeobj__55 = (PyObject*)__Pyx_PyCode_New(1, 0, 6, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__54, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_computeVolumes, 485, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__55)) __PYX_ERR(0, 485, __pyx_L1_error)
+  __pyx_tuple__70 = PyTuple_Pack(6, __pyx_n_s_self, __pyx_n_s_polytope_verts, __pyx_n_s_i, __pyx_n_s_verts, __pyx_n_s_is2D, __pyx_n_s_hull); if (unlikely(!__pyx_tuple__70)) __PYX_ERR(0, 543, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__70);
+  __Pyx_GIVEREF(__pyx_tuple__70);
+  __pyx_codeobj__71 = (PyObject*)__Pyx_PyCode_New(1, 0, 6, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__70, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_computeVolumes, 543, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__71)) __PYX_ERR(0, 543, __pyx_L1_error)
 
-  /* "freud/voronoi.pyx":504
- *         return self
+  /* "freud/voronoi.pyx":563
+ * 
+ *     @property
+ *     def volumes(self):             # <<<<<<<<<<<<<<
+ *         return self._poly_volumes
+ * 
+ */
+  __pyx_tuple__72 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__72)) __PYX_ERR(0, 563, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__72);
+  __Pyx_GIVEREF(__pyx_tuple__72);
+  __pyx_codeobj__73 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__72, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_volumes, 563, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__73)) __PYX_ERR(0, 563, __pyx_L1_error)
+
+  /* "freud/voronoi.pyx":566
+ *         return self._poly_volumes
  * 
  *     def getVolumes(self):             # <<<<<<<<<<<<<<
  *         """Returns an array of volumes (areas in 2D) corresponding to Voronoi
  *         cells.
  */
-  __pyx_tuple__56 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__56)) __PYX_ERR(0, 504, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__56);
-  __Pyx_GIVEREF(__pyx_tuple__56);
-  __pyx_codeobj__57 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__56, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_getVolumes, 504, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__57)) __PYX_ERR(0, 504, __pyx_L1_error)
+  __pyx_tuple__74 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__74)) __PYX_ERR(0, 566, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__74);
+  __Pyx_GIVEREF(__pyx_tuple__74);
+  __pyx_codeobj__75 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__74, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_voronoi_pyx, __pyx_n_s_getVolumes, 566, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__75)) __PYX_ERR(0, 566, __pyx_L1_error)
   __Pyx_RefNannyFinishContext();
   return 0;
   __pyx_L1_error:;
@@ -12476,13 +13631,13 @@ static int __Pyx_modinit_type_init_code(void) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__Pyx_modinit_type_init_code", 0);
   /*--- Type init code ---*/
-  if (PyType_Ready(&__pyx_type_5freud_7voronoi_VoronoiBuffer) < 0) __PYX_ERR(0, 41, __pyx_L1_error)
+  if (PyType_Ready(&__pyx_type_5freud_7voronoi_VoronoiBuffer) < 0) __PYX_ERR(0, 43, __pyx_L1_error)
   __pyx_type_5freud_7voronoi_VoronoiBuffer.tp_print = 0;
   if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_5freud_7voronoi_VoronoiBuffer.tp_dictoffset && __pyx_type_5freud_7voronoi_VoronoiBuffer.tp_getattro == PyObject_GenericGetAttr)) {
     __pyx_type_5freud_7voronoi_VoronoiBuffer.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
-  if (PyObject_SetAttrString(__pyx_m, "VoronoiBuffer", (PyObject *)&__pyx_type_5freud_7voronoi_VoronoiBuffer) < 0) __PYX_ERR(0, 41, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_5freud_7voronoi_VoronoiBuffer) < 0) __PYX_ERR(0, 41, __pyx_L1_error)
+  if (PyObject_SetAttrString(__pyx_m, "VoronoiBuffer", (PyObject *)&__pyx_type_5freud_7voronoi_VoronoiBuffer) < 0) __PYX_ERR(0, 43, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_5freud_7voronoi_VoronoiBuffer) < 0) __PYX_ERR(0, 43, __pyx_L1_error)
   __pyx_ptype_5freud_7voronoi_VoronoiBuffer = &__pyx_type_5freud_7voronoi_VoronoiBuffer;
   __Pyx_RefNannyFinishContext();
   return 0;
@@ -12748,7 +13903,7 @@ if (!__Pyx_RefNanny) {
  * import logging
  * import copy             # <<<<<<<<<<<<<<
  * import freud.common
- * 
+ * import warnings
  */
   __pyx_t_1 = __Pyx_Import(__pyx_n_s_copy, 0, -1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 10, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
@@ -12759,36 +13914,69 @@ if (!__Pyx_RefNanny) {
  * import logging
  * import copy
  * import freud.common             # <<<<<<<<<<<<<<
- * 
- * from libcpp.vector cimport vector
+ * import warnings
+ * from freud.errors import FreudDeprecationWarning
  */
   __pyx_t_1 = __Pyx_Import(__pyx_n_s_freud_common, 0, -1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 11, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_freud, __pyx_t_1) < 0) __PYX_ERR(0, 11, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "freud/voronoi.pyx":23
+  /* "freud/voronoi.pyx":12
+ * import copy
+ * import freud.common
+ * import warnings             # <<<<<<<<<<<<<<
+ * from freud.errors import FreudDeprecationWarning
+ * 
+ */
+  __pyx_t_1 = __Pyx_Import(__pyx_n_s_warnings, 0, -1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 12, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_warnings, __pyx_t_1) < 0) __PYX_ERR(0, 12, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "freud/voronoi.pyx":13
+ * import freud.common
+ * import warnings
+ * from freud.errors import FreudDeprecationWarning             # <<<<<<<<<<<<<<
+ * 
+ * from libcpp.vector cimport vector
+ */
+  __pyx_t_1 = PyList_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 13, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __Pyx_INCREF(__pyx_n_s_FreudDeprecationWarning);
+  __Pyx_GIVEREF(__pyx_n_s_FreudDeprecationWarning);
+  PyList_SET_ITEM(__pyx_t_1, 0, __pyx_n_s_FreudDeprecationWarning);
+  __pyx_t_2 = __Pyx_Import(__pyx_n_s_freud_errors, __pyx_t_1, -1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 13, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_1 = __Pyx_ImportFrom(__pyx_t_2, __pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 13, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_FreudDeprecationWarning, __pyx_t_1) < 0) __PYX_ERR(0, 13, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+
+  /* "freud/voronoi.pyx":25
  * 
  * 
  * logger = logging.getLogger(__name__)             # <<<<<<<<<<<<<<
  * 
  * try:
  */
-  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_logging); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 23, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_getLogger); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 23, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_logging); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 25, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_name); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 23, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_getLogger); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 25, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 23, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_name); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 25, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_t_1, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 25, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_logger, __pyx_t_3) < 0) __PYX_ERR(0, 23, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_logger, __pyx_t_3) < 0) __PYX_ERR(0, 25, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "freud/voronoi.pyx":25
+  /* "freud/voronoi.pyx":27
  * logger = logging.getLogger(__name__)
  * 
  * try:             # <<<<<<<<<<<<<<
@@ -12804,58 +13992,58 @@ if (!__Pyx_RefNanny) {
     __Pyx_XGOTREF(__pyx_t_6);
     /*try:*/ {
 
-      /* "freud/voronoi.pyx":26
+      /* "freud/voronoi.pyx":28
  * 
  * try:
  *     from scipy.spatial import Voronoi as qvoronoi             # <<<<<<<<<<<<<<
  *     from scipy.spatial import ConvexHull
  *     _SCIPY_AVAILABLE = True
  */
-      __pyx_t_3 = PyList_New(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 26, __pyx_L2_error)
+      __pyx_t_3 = PyList_New(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 28, __pyx_L2_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_INCREF(__pyx_n_s_Voronoi);
       __Pyx_GIVEREF(__pyx_n_s_Voronoi);
       PyList_SET_ITEM(__pyx_t_3, 0, __pyx_n_s_Voronoi);
-      __pyx_t_1 = __Pyx_Import(__pyx_n_s_scipy_spatial, __pyx_t_3, -1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 26, __pyx_L2_error)
-      __Pyx_GOTREF(__pyx_t_1);
+      __pyx_t_2 = __Pyx_Import(__pyx_n_s_scipy_spatial, __pyx_t_3, -1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 28, __pyx_L2_error)
+      __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      __pyx_t_3 = __Pyx_ImportFrom(__pyx_t_1, __pyx_n_s_Voronoi); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 26, __pyx_L2_error)
+      __pyx_t_3 = __Pyx_ImportFrom(__pyx_t_2, __pyx_n_s_Voronoi); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 28, __pyx_L2_error)
       __Pyx_GOTREF(__pyx_t_3);
-      if (PyDict_SetItem(__pyx_d, __pyx_n_s_qvoronoi, __pyx_t_3) < 0) __PYX_ERR(0, 26, __pyx_L2_error)
+      if (PyDict_SetItem(__pyx_d, __pyx_n_s_qvoronoi, __pyx_t_3) < 0) __PYX_ERR(0, 28, __pyx_L2_error)
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+      __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-      /* "freud/voronoi.pyx":27
+      /* "freud/voronoi.pyx":29
  * try:
  *     from scipy.spatial import Voronoi as qvoronoi
  *     from scipy.spatial import ConvexHull             # <<<<<<<<<<<<<<
  *     _SCIPY_AVAILABLE = True
  * except ImportError:
  */
-      __pyx_t_1 = PyList_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 27, __pyx_L2_error)
-      __Pyx_GOTREF(__pyx_t_1);
+      __pyx_t_2 = PyList_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 29, __pyx_L2_error)
+      __Pyx_GOTREF(__pyx_t_2);
       __Pyx_INCREF(__pyx_n_s_ConvexHull);
       __Pyx_GIVEREF(__pyx_n_s_ConvexHull);
-      PyList_SET_ITEM(__pyx_t_1, 0, __pyx_n_s_ConvexHull);
-      __pyx_t_3 = __Pyx_Import(__pyx_n_s_scipy_spatial, __pyx_t_1, -1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 27, __pyx_L2_error)
+      PyList_SET_ITEM(__pyx_t_2, 0, __pyx_n_s_ConvexHull);
+      __pyx_t_3 = __Pyx_Import(__pyx_n_s_scipy_spatial, __pyx_t_2, -1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 29, __pyx_L2_error)
       __Pyx_GOTREF(__pyx_t_3);
-      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-      __pyx_t_1 = __Pyx_ImportFrom(__pyx_t_3, __pyx_n_s_ConvexHull); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 27, __pyx_L2_error)
-      __Pyx_GOTREF(__pyx_t_1);
-      if (PyDict_SetItem(__pyx_d, __pyx_n_s_ConvexHull, __pyx_t_1) < 0) __PYX_ERR(0, 27, __pyx_L2_error)
-      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+      __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+      __pyx_t_2 = __Pyx_ImportFrom(__pyx_t_3, __pyx_n_s_ConvexHull); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 29, __pyx_L2_error)
+      __Pyx_GOTREF(__pyx_t_2);
+      if (PyDict_SetItem(__pyx_d, __pyx_n_s_ConvexHull, __pyx_t_2) < 0) __PYX_ERR(0, 29, __pyx_L2_error)
+      __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-      /* "freud/voronoi.pyx":28
+      /* "freud/voronoi.pyx":30
  *     from scipy.spatial import Voronoi as qvoronoi
  *     from scipy.spatial import ConvexHull
  *     _SCIPY_AVAILABLE = True             # <<<<<<<<<<<<<<
  * except ImportError:
  *     qvoronoi = None
  */
-      if (PyDict_SetItem(__pyx_d, __pyx_n_s_SCIPY_AVAILABLE, Py_True) < 0) __PYX_ERR(0, 28, __pyx_L2_error)
+      if (PyDict_SetItem(__pyx_d, __pyx_n_s_SCIPY_AVAILABLE, Py_True) < 0) __PYX_ERR(0, 30, __pyx_L2_error)
 
-      /* "freud/voronoi.pyx":25
+      /* "freud/voronoi.pyx":27
  * logger = logging.getLogger(__name__)
  * 
  * try:             # <<<<<<<<<<<<<<
@@ -12868,11 +14056,11 @@ if (!__Pyx_RefNanny) {
     __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
     goto __pyx_L7_try_end;
     __pyx_L2_error:;
-    __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
+    __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-    /* "freud/voronoi.pyx":29
+    /* "freud/voronoi.pyx":31
  *     from scipy.spatial import ConvexHull
  *     _SCIPY_AVAILABLE = True
  * except ImportError:             # <<<<<<<<<<<<<<
@@ -12882,66 +14070,66 @@ if (!__Pyx_RefNanny) {
     __pyx_t_7 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_ImportError);
     if (__pyx_t_7) {
       __Pyx_AddTraceback("freud.voronoi", __pyx_clineno, __pyx_lineno, __pyx_filename);
-      if (__Pyx_GetException(&__pyx_t_3, &__pyx_t_1, &__pyx_t_2) < 0) __PYX_ERR(0, 29, __pyx_L4_except_error)
+      if (__Pyx_GetException(&__pyx_t_3, &__pyx_t_2, &__pyx_t_1) < 0) __PYX_ERR(0, 31, __pyx_L4_except_error)
       __Pyx_GOTREF(__pyx_t_3);
-      __Pyx_GOTREF(__pyx_t_1);
       __Pyx_GOTREF(__pyx_t_2);
+      __Pyx_GOTREF(__pyx_t_1);
 
-      /* "freud/voronoi.pyx":30
+      /* "freud/voronoi.pyx":32
  *     _SCIPY_AVAILABLE = True
  * except ImportError:
  *     qvoronoi = None             # <<<<<<<<<<<<<<
  *     msg = ('scipy.spatial.Voronoi is not available (requires scipy 0.12+),'
  *            'so freud.voronoi is not available.')
  */
-      if (PyDict_SetItem(__pyx_d, __pyx_n_s_qvoronoi, Py_None) < 0) __PYX_ERR(0, 30, __pyx_L4_except_error)
+      if (PyDict_SetItem(__pyx_d, __pyx_n_s_qvoronoi, Py_None) < 0) __PYX_ERR(0, 32, __pyx_L4_except_error)
 
-      /* "freud/voronoi.pyx":31
+      /* "freud/voronoi.pyx":33
  * except ImportError:
  *     qvoronoi = None
  *     msg = ('scipy.spatial.Voronoi is not available (requires scipy 0.12+),'             # <<<<<<<<<<<<<<
  *            'so freud.voronoi is not available.')
  *     logger.warning(msg)
  */
-      if (PyDict_SetItem(__pyx_d, __pyx_n_s_msg, __pyx_kp_s_scipy_spatial_Voronoi_is_not_ava) < 0) __PYX_ERR(0, 31, __pyx_L4_except_error)
+      if (PyDict_SetItem(__pyx_d, __pyx_n_s_msg, __pyx_kp_s_scipy_spatial_Voronoi_is_not_ava) < 0) __PYX_ERR(0, 33, __pyx_L4_except_error)
 
-      /* "freud/voronoi.pyx":33
+      /* "freud/voronoi.pyx":35
  *     msg = ('scipy.spatial.Voronoi is not available (requires scipy 0.12+),'
  *            'so freud.voronoi is not available.')
  *     logger.warning(msg)             # <<<<<<<<<<<<<<
  *     _SCIPY_AVAILABLE = False
  * 
  */
-      __pyx_t_8 = __Pyx_GetModuleGlobalName(__pyx_n_s_logger); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 33, __pyx_L4_except_error)
+      __pyx_t_8 = __Pyx_GetModuleGlobalName(__pyx_n_s_logger); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 35, __pyx_L4_except_error)
       __Pyx_GOTREF(__pyx_t_8);
-      __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_t_8, __pyx_n_s_warning); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 33, __pyx_L4_except_error)
+      __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_t_8, __pyx_n_s_warning); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 35, __pyx_L4_except_error)
       __Pyx_GOTREF(__pyx_t_9);
       __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-      __pyx_t_8 = __Pyx_GetModuleGlobalName(__pyx_n_s_msg); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 33, __pyx_L4_except_error)
+      __pyx_t_8 = __Pyx_GetModuleGlobalName(__pyx_n_s_msg); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 35, __pyx_L4_except_error)
       __Pyx_GOTREF(__pyx_t_8);
-      __pyx_t_10 = __Pyx_PyObject_CallOneArg(__pyx_t_9, __pyx_t_8); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 33, __pyx_L4_except_error)
+      __pyx_t_10 = __Pyx_PyObject_CallOneArg(__pyx_t_9, __pyx_t_8); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 35, __pyx_L4_except_error)
       __Pyx_GOTREF(__pyx_t_10);
       __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
       __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
       __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
 
-      /* "freud/voronoi.pyx":34
+      /* "freud/voronoi.pyx":36
  *            'so freud.voronoi is not available.')
  *     logger.warning(msg)
  *     _SCIPY_AVAILABLE = False             # <<<<<<<<<<<<<<
  * 
  * 
  */
-      if (PyDict_SetItem(__pyx_d, __pyx_n_s_SCIPY_AVAILABLE, Py_False) < 0) __PYX_ERR(0, 34, __pyx_L4_except_error)
+      if (PyDict_SetItem(__pyx_d, __pyx_n_s_SCIPY_AVAILABLE, Py_False) < 0) __PYX_ERR(0, 36, __pyx_L4_except_error)
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
       goto __pyx_L3_exception_handled;
     }
     goto __pyx_L4_except_error;
     __pyx_L4_except_error:;
 
-    /* "freud/voronoi.pyx":25
+    /* "freud/voronoi.pyx":27
  * logger = logging.getLogger(__name__)
  * 
  * try:             # <<<<<<<<<<<<<<
@@ -12961,195 +14149,347 @@ if (!__Pyx_RefNanny) {
     __pyx_L7_try_end:;
   }
 
-  /* "freud/voronoi.pyx":39
+  /* "freud/voronoi.pyx":41
  * # numpy must be initialized. When using numpy from C or Cython you must
  * # _always_ do that, or you will have segfaults
  * np.import_array()             # <<<<<<<<<<<<<<
  * 
  * cdef class VoronoiBuffer:
  */
-  __pyx_t_7 = __pyx_f_5numpy_import_array(); if (unlikely(__pyx_t_7 == ((int)-1))) __PYX_ERR(0, 39, __pyx_L1_error)
+  __pyx_t_7 = __pyx_f_5numpy_import_array(); if (unlikely(__pyx_t_7 == ((int)-1))) __PYX_ERR(0, 41, __pyx_L1_error)
 
-  /* "freud/voronoi.pyx":126
+  /* "freud/voronoi.pyx":65
+ *         self.thisptr = new freud._voronoi.VoronoiBuffer(dereference(b.thisptr))
+ * 
+ *     def compute(self, points, float buffer):             # <<<<<<<<<<<<<<
+ *         """Compute the voronoi diagram.
+ * 
+ */
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_13VoronoiBuffer_3compute, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_VoronoiBuffer_compute, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__30)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 65, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7voronoi_VoronoiBuffer->tp_dict, __pyx_n_s_compute, __pyx_t_1) < 0) __PYX_ERR(0, 65, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  PyType_Modified(__pyx_ptype_5freud_7voronoi_VoronoiBuffer);
+
+  /* "freud/voronoi.pyx":105
+ *         return result
+ * 
+ *     def getBufferParticles(self):             # <<<<<<<<<<<<<<
+ *         warnings.warn("The getBufferParticles function is deprecated in favor "
+ *                       "of the buffer_particles class attribute and will be "
+ */
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_13VoronoiBuffer_5getBufferParticles, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_VoronoiBuffer_getBufferParticles, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__32)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 105, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7voronoi_VoronoiBuffer->tp_dict, __pyx_n_s_getBufferParticles, __pyx_t_1) < 0) __PYX_ERR(0, 105, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  PyType_Modified(__pyx_ptype_5freud_7voronoi_VoronoiBuffer);
+
+  /* "freud/voronoi.pyx":130
+ *         return result
+ * 
+ *     def getBufferIds(self):             # <<<<<<<<<<<<<<
+ *         warnings.warn("The getBufferIds function is deprecated in favor "
+ *                       "of the buffer_ids class attribute and will be "
+ */
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_13VoronoiBuffer_7getBufferIds, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_VoronoiBuffer_getBufferIds, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__34)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 130, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7voronoi_VoronoiBuffer->tp_dict, __pyx_n_s_getBufferIds, __pyx_t_1) < 0) __PYX_ERR(0, 130, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  PyType_Modified(__pyx_ptype_5freud_7voronoi_VoronoiBuffer);
+
+  /* "(tree fragment)":1
+ * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ * def __setstate_cython__(self, __pyx_state):
+ */
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_13VoronoiBuffer_9__reduce_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_VoronoiBuffer___reduce_cython, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__36)); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_reduce_cython, __pyx_t_1) < 0) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "(tree fragment)":3
+ * def __reduce_cython__(self):
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
+ *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
+ */
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_13VoronoiBuffer_11__setstate_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_VoronoiBuffer___setstate_cython, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__38)); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 3, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_setstate_cython, __pyx_t_1) < 0) __PYX_ERR(1, 3, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "freud/voronoi.pyx":138
  * 
  * 
  * class Voronoi:             # <<<<<<<<<<<<<<
  *     """Compute the Voronoi tessellation of a 2D or 3D system using qhull.
  *     This uses :py:class:`scipy.spatial.Voronoi`, accounting for periodic
  */
-  __pyx_t_2 = __Pyx_Py3MetaclassPrepare((PyObject *) NULL, __pyx_empty_tuple, __pyx_n_s_Voronoi, __pyx_n_s_Voronoi, (PyObject *) NULL, __pyx_n_s_freud_voronoi, __pyx_kp_s_Compute_the_Voronoi_tessellation); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 126, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_1 = __Pyx_Py3MetaclassPrepare((PyObject *) NULL, __pyx_empty_tuple, __pyx_n_s_Voronoi, __pyx_n_s_Voronoi, (PyObject *) NULL, __pyx_n_s_freud_voronoi, __pyx_kp_s_Compute_the_Voronoi_tessellation); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 138, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
 
-  /* "freud/voronoi.pyx":150
- *             Buffer width.
+  /* "freud/voronoi.pyx":183
+ *             cells.
  *     """
  *     def __init__(self, box, buff=0.1):             # <<<<<<<<<<<<<<
  *         if not _SCIPY_AVAILABLE:
  *             raise RuntimeError("You cannot use this class without SciPy")
  */
-  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_1__init__, 0, __pyx_n_s_Voronoi___init, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__30)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 150, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_CyFunction_SetDefaultsTuple(__pyx_t_1, __pyx_tuple__31);
-  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_init, __pyx_t_1) < 0) __PYX_ERR(0, 150, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_1__init__, 0, __pyx_n_s_Voronoi___init, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__40)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 183, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_CyFunction_SetDefaultsTuple(__pyx_t_2, __pyx_tuple__41);
+  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_init, __pyx_t_2) < 0) __PYX_ERR(0, 183, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/voronoi.pyx":157
- *         self.buff = buff
+  /* "freud/voronoi.pyx":190
+ *         self._buff = buff
  * 
  *     def setBox(self, box):             # <<<<<<<<<<<<<<
  *         """Reset the simulation box.
  * 
  */
-  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_3setBox, 0, __pyx_n_s_Voronoi_setBox, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__33)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 157, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_setBox, __pyx_t_1) < 0) __PYX_ERR(0, 157, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_3setBox, 0, __pyx_n_s_Voronoi_setBox, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__43)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 190, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_setBox, __pyx_t_2) < 0) __PYX_ERR(0, 190, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/voronoi.pyx":166
- *         self.box = b
+  /* "freud/voronoi.pyx":202
+ *         self._box = b
  * 
  *     def setBufferWidth(self, buff):             # <<<<<<<<<<<<<<
  *         """Reset the buffer width.
  * 
  */
-  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_5setBufferWidth, 0, __pyx_n_s_Voronoi_setBufferWidth, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__35)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 166, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_setBufferWidth, __pyx_t_1) < 0) __PYX_ERR(0, 166, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_5setBufferWidth, 0, __pyx_n_s_Voronoi_setBufferWidth, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__45)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 202, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_setBufferWidth, __pyx_t_2) < 0) __PYX_ERR(0, 202, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/voronoi.pyx":174
- *         self.buff = buff
+  /* "freud/voronoi.pyx":213
+ *         self._buff = buff
  * 
  *     def _qhull_compute(self, positions, box=None, buff=None):             # <<<<<<<<<<<<<<
  *         """Calls VoronoiBuffer and qhull
  * 
  */
-  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_7_qhull_compute, 0, __pyx_n_s_Voronoi__qhull_compute, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__37)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 174, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_CyFunction_SetDefaultsTuple(__pyx_t_1, __pyx_tuple__38);
-  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_qhull_compute, __pyx_t_1) < 0) __PYX_ERR(0, 174, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_7_qhull_compute, 0, __pyx_n_s_Voronoi__qhull_compute, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__47)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 213, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_CyFunction_SetDefaultsTuple(__pyx_t_2, __pyx_tuple__48);
+  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_qhull_compute, __pyx_t_2) < 0) __PYX_ERR(0, 213, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/voronoi.pyx":207
+  /* "freud/voronoi.pyx":246
  *         self.voronoi = qvoronoi(self.expanded_points)
  * 
  *     def compute(self, positions, box=None, buff=None):             # <<<<<<<<<<<<<<
  *         """Compute Voronoi diagram.
  * 
  */
-  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_9compute, 0, __pyx_n_s_Voronoi_compute, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__40)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 207, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_CyFunction_SetDefaultsTuple(__pyx_t_1, __pyx_tuple__41);
-  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_compute, __pyx_t_1) < 0) __PYX_ERR(0, 207, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_9compute, 0, __pyx_n_s_Voronoi_compute, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__50)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 246, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_CyFunction_SetDefaultsTuple(__pyx_t_2, __pyx_tuple__51);
+  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_compute, __pyx_t_2) < 0) __PYX_ERR(0, 246, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/voronoi.pyx":245
- *         return self
+  /* "freud/voronoi.pyx":285
  * 
- *     def getBuffer(self):             # <<<<<<<<<<<<<<
- *         """Returns the buffer width.
+ *     @property
+ *     def buffer(self):             # <<<<<<<<<<<<<<
+ *         return self._buff
  * 
  */
-  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_11getBuffer, 0, __pyx_n_s_Voronoi_getBuffer, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__43)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 245, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_getBuffer, __pyx_t_1) < 0) __PYX_ERR(0, 245, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_11buffer, 0, __pyx_n_s_Voronoi_buffer, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__53)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 285, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
 
-  /* "freud/voronoi.pyx":253
- *         return self.buff
+  /* "freud/voronoi.pyx":284
+ *         return self
+ * 
+ *     @property             # <<<<<<<<<<<<<<
+ *     def buffer(self):
+ *         return self._buff
+ */
+  __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_builtin_property, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 284, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_buffer, __pyx_t_3) < 0) __PYX_ERR(0, 285, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+
+  /* "freud/voronoi.pyx":288
+ *         return self._buff
+ * 
+ *     def getBuffer(self):             # <<<<<<<<<<<<<<
+ *         warnings.warn("The getBuffer function is deprecated in favor "
+ *                       "of the buffer class attribute and will be "
+ */
+  __pyx_t_3 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_13getBuffer, 0, __pyx_n_s_Voronoi_getBuffer, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__55)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 288, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_getBuffer, __pyx_t_3) < 0) __PYX_ERR(0, 288, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+
+  /* "freud/voronoi.pyx":296
+ * 
+ *     @property
+ *     def polytopes(self):             # <<<<<<<<<<<<<<
+ *         return self._poly_verts
+ * 
+ */
+  __pyx_t_3 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_15polytopes, 0, __pyx_n_s_Voronoi_polytopes, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__57)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 296, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+
+  /* "freud/voronoi.pyx":295
+ *         return self.buffer
+ * 
+ *     @property             # <<<<<<<<<<<<<<
+ *     def polytopes(self):
+ *         return self._poly_verts
+ */
+  __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_builtin_property, __pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 295, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_polytopes, __pyx_t_2) < 0) __PYX_ERR(0, 296, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+
+  /* "freud/voronoi.pyx":299
+ *         return self._poly_verts
  * 
  *     def getVoronoiPolytopes(self):             # <<<<<<<<<<<<<<
  *         """Returns a list of polytope vertices corresponding to Voronoi cells.
  * 
  */
-  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_13getVoronoiPolytopes, 0, __pyx_n_s_Voronoi_getVoronoiPolytopes, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__45)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 253, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_getVoronoiPolytopes, __pyx_t_1) < 0) __PYX_ERR(0, 253, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_17getVoronoiPolytopes, 0, __pyx_n_s_Voronoi_getVoronoiPolytopes, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__59)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 299, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_getVoronoiPolytopes, __pyx_t_2) < 0) __PYX_ERR(0, 299, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/voronoi.pyx":272
- *         return self.poly_verts
+  /* "freud/voronoi.pyx":322
+ *         return self.polytopes
  * 
  *     def computeNeighbors(self, positions, box=None, buff=None,             # <<<<<<<<<<<<<<
  *                          exclude_ii=True):
  *         """Compute the neighbors of each particle based on the Voronoi
  */
-  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_15computeNeighbors, 0, __pyx_n_s_Voronoi_computeNeighbors, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__48)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 272, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_CyFunction_SetDefaultsTuple(__pyx_t_1, __pyx_tuple__49);
-  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_computeNeighbors, __pyx_t_1) < 0) __PYX_ERR(0, 272, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_19computeNeighbors, 0, __pyx_n_s_Voronoi_computeNeighbors, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__62)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 322, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_CyFunction_SetDefaultsTuple(__pyx_t_2, __pyx_tuple__63);
+  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_computeNeighbors, __pyx_t_2) < 0) __PYX_ERR(0, 322, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/voronoi.pyx":415
+  /* "freud/voronoi.pyx":465
  *         return self
  * 
  *     def getNeighbors(self, numShells):             # <<<<<<<<<<<<<<
  *         """Get :code:`numShells` of neighbors for each particle
  * 
  */
-  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_17getNeighbors, 0, __pyx_n_s_Voronoi_getNeighbors, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__51)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 415, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_getNeighbors, __pyx_t_1) < 0) __PYX_ERR(0, 415, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_21getNeighbors, 0, __pyx_n_s_Voronoi_getNeighbors, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__65)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 465, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_getNeighbors, __pyx_t_2) < 0) __PYX_ERR(0, 465, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/voronoi.pyx":444
+  /* "freud/voronoi.pyx":495
+ * 
+ *     @property
+ *     def nlist(self):             # <<<<<<<<<<<<<<
+ *         # Build neighbor list based on voronoi neighbors
+ *         neighbor_list = copy.copy(self.firstShellNeighborList)
+ */
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_23nlist, 0, __pyx_n_s_Voronoi_nlist, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__67)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 495, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+
+  /* "freud/voronoi.pyx":494
  *         return neighbor_list
+ * 
+ *     @property             # <<<<<<<<<<<<<<
+ *     def nlist(self):
+ *         # Build neighbor list based on voronoi neighbors
+ */
+  __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_builtin_property, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 494, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_nlist, __pyx_t_3) < 0) __PYX_ERR(0, 495, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+
+  /* "freud/voronoi.pyx":523
+ *         return result
  * 
  *     def getNeighborList(self):             # <<<<<<<<<<<<<<
  *         """Returns a neighbor list object.
  * 
  */
-  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_19getNeighborList, 0, __pyx_n_s_Voronoi_getNeighborList, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__53)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 444, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_getNeighborList, __pyx_t_1) < 0) __PYX_ERR(0, 444, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_3 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_25getNeighborList, 0, __pyx_n_s_Voronoi_getNeighborList, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__69)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 523, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_getNeighborList, __pyx_t_3) < 0) __PYX_ERR(0, 523, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "freud/voronoi.pyx":485
- *         return result
+  /* "freud/voronoi.pyx":543
+ *         return self.nlist
  * 
  *     def computeVolumes(self):             # <<<<<<<<<<<<<<
  *         """Computes volumes (areas in 2D) of Voronoi cells.
  * 
  */
-  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_21computeVolumes, 0, __pyx_n_s_Voronoi_computeVolumes, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__55)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 485, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_computeVolumes, __pyx_t_1) < 0) __PYX_ERR(0, 485, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_3 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_27computeVolumes, 0, __pyx_n_s_Voronoi_computeVolumes, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__71)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 543, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_computeVolumes, __pyx_t_3) < 0) __PYX_ERR(0, 543, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "freud/voronoi.pyx":504
+  /* "freud/voronoi.pyx":563
+ * 
+ *     @property
+ *     def volumes(self):             # <<<<<<<<<<<<<<
+ *         return self._poly_volumes
+ * 
+ */
+  __pyx_t_3 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_29volumes, 0, __pyx_n_s_Voronoi_volumes, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__73)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 563, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+
+  /* "freud/voronoi.pyx":562
  *         return self
+ * 
+ *     @property             # <<<<<<<<<<<<<<
+ *     def volumes(self):
+ *         return self._poly_volumes
+ */
+  __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_builtin_property, __pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 562, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_volumes, __pyx_t_2) < 0) __PYX_ERR(0, 563, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+
+  /* "freud/voronoi.pyx":566
+ *         return self._poly_volumes
  * 
  *     def getVolumes(self):             # <<<<<<<<<<<<<<
  *         """Returns an array of volumes (areas in 2D) corresponding to Voronoi
  *         cells.
  */
-  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_23getVolumes, 0, __pyx_n_s_Voronoi_getVolumes, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__57)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 504, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_getVolumes, __pyx_t_1) < 0) __PYX_ERR(0, 504, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7voronoi_7Voronoi_31getVolumes, 0, __pyx_n_s_Voronoi_getVolumes, NULL, __pyx_n_s_freud_voronoi, __pyx_d, ((PyObject *)__pyx_codeobj__75)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 566, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (__Pyx_SetNameInClass(__pyx_t_1, __pyx_n_s_getVolumes, __pyx_t_2) < 0) __PYX_ERR(0, 566, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/voronoi.pyx":126
+  /* "freud/voronoi.pyx":138
  * 
  * 
  * class Voronoi:             # <<<<<<<<<<<<<<
  *     """Compute the Voronoi tessellation of a 2D or 3D system using qhull.
  *     This uses :py:class:`scipy.spatial.Voronoi`, accounting for periodic
  */
-  __pyx_t_1 = __Pyx_Py3ClassCreate(((PyObject*)&__Pyx_DefaultClassType), __pyx_n_s_Voronoi, __pyx_empty_tuple, __pyx_t_2, NULL, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 126, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_Voronoi, __pyx_t_1) < 0) __PYX_ERR(0, 126, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_2 = __Pyx_Py3ClassCreate(((PyObject*)&__Pyx_DefaultClassType), __pyx_n_s_Voronoi, __pyx_empty_tuple, __pyx_t_1, NULL, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 138, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_Voronoi, __pyx_t_2) < 0) __PYX_ERR(0, 138, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "freud/voronoi.pyx":1
  * # Copyright (c) 2010-2018 The Regents of the University of Michigan             # <<<<<<<<<<<<<<
  * # This file is from the freud project, released under the BSD 3-Clause License.
  * 
  */
-  __pyx_t_2 = __Pyx_PyDict_NewPresized(0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_test, __pyx_t_2) < 0) __PYX_ERR(0, 1, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_1 = __Pyx_PyDict_NewPresized(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_test, __pyx_t_1) < 0) __PYX_ERR(0, 1, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1008
  *         raise ImportError("numpy.core.umath failed to import")

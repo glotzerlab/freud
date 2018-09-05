@@ -13,8 +13,9 @@ Voronoi Module
 
 .. automodule:: freud.voronoi
     :synopsis: Characterize Voronoi cells
-    :members:
 
 .. autoclass:: freud.voronoi.Voronoi(box, buff)
-    :members:
+    :members: compute, computeNeighbors, computeVolumes, getNeighborList, getNeighbors, getVolumes, getVoronoiPolytopes, setBox, setBufferWidth
 
+.. autoclass:: freud.voronoi.VoronoiBuffer(box)
+    :members: compute

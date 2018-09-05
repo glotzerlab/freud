@@ -1,6 +1,8 @@
 import numpy as np
 import numpy.testing as npt
 from freud import box, bond
+from freud.errors import FreudDeprecationWarning
+import warnings
 import unittest
 
 
@@ -23,6 +25,9 @@ def quatRot(vec, q):
 
 
 class TestBond(unittest.TestCase):
+    def setUp(self):
+        warnings.simplefilter("ignore", category=FreudDeprecationWarning)
+
     def test_correct_bond(self):
         # generate the bonding map
         nx = 70

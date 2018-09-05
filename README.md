@@ -10,7 +10,7 @@ The freud library provides users the ability to analyze molecular dynamics and M
 for advanced metrics such as the radial distribution function and various order parameters. Its modules work with
 and return NumPy arrays, and are able to process both 2D and 3D data. Features in freud include computing the radial
 distribution function, local density, hexagonal order parameter and local bond order parameters,
-Voronoi tessellations, k-space quantities, and more.
+potentials of mean force and torque (PMFTs), Voronoi tessellations, and more.
 
 When using freud to process data for publication, please [use this citation](https://doi.org/10.5281/zenodo.166564).
 
@@ -142,7 +142,7 @@ open build/latex/freud.pdf
 
 ## Unit Tests
 
-The unit tests for freud use the Python :py:mod:`unittest` framework:
+The unit tests for freud use the Python `unittest` framework:
 
 ```bash
 # Run tests from the tests directory

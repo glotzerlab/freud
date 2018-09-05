@@ -28,20 +28,20 @@ class TestNematicOrder(unittest.TestCase):
         op_parallel = nop(u)
         op_parallel.compute(orientations)
 
-        self.assertTrue(op_parallel.get_nematic_order_parameter() == 1)
-        self.assertTrue(np.all(op_parallel.get_director() == u))
+        self.assertTrue(op_parallel.nematic_order_parameter == 1)
+        self.assertTrue(np.all(op_parallel.director == u))
         self.assertTrue(np.all(
-            op_parallel.get_nematic_tensor() == np.diag([1, -0.5, -0.5])))
+            op_parallel.nematic_tensor == np.diag([1, -0.5, -0.5])))
 
         # Test for perpendicular to molecular axis
         u = np.array([0, 1, 0])
         op_perp = nop(u)
         op_perp.compute(orientations)
 
-        self.assertTrue(op_perp.get_nematic_order_parameter() == 1)
-        self.assertTrue(np.all(op_perp.get_director() == u))
+        self.assertTrue(op_perp.nematic_order_parameter == 1)
+        self.assertTrue(np.all(op_perp.director == u))
         self.assertTrue(np.all(
-            op_perp.get_nematic_tensor() == np.diag([-0.5, 1, -0.5])))
+            op_perp.nematic_tensor == np.diag([-0.5, 1, -0.5])))
 
     def test_imperfect(self):
         """Test imperfectly aligned systems.
@@ -62,10 +62,10 @@ class TestNematicOrder(unittest.TestCase):
         op = nop(u)
         op.compute(orientations)
 
-        self.assertTrue(np.allclose(op.get_nematic_order_parameter(), 0.25))
-        self.assertTrue(np.all(op.get_director() == u))
+        self.assertTrue(np.allclose(op.nematic_order_parameter, 0.25))
+        self.assertTrue(np.all(op.director == u))
         self.assertTrue(np.allclose(
-            op.get_nematic_tensor(), np.diag([0.25, -0.5, 0.25])))
+            op.nematic_tensor, np.diag([0.25, -0.5, 0.25])))
 
         # Rotating 90 about z gives some tensor components in y
         axes = np.zeros(shape=(N, 3), dtype=np.float32)
@@ -79,10 +79,10 @@ class TestNematicOrder(unittest.TestCase):
         op = nop(u)
         op.compute(orientations)
 
-        self.assertTrue(np.allclose(op.get_nematic_order_parameter(), 0.25))
-        self.assertTrue(np.all(op.get_director() == np.array([0, 1, 0])))
+        self.assertTrue(np.allclose(op.nematic_order_parameter, 0.25))
+        self.assertTrue(np.all(op.director == np.array([0, 1, 0])))
         self.assertTrue(np.allclose(
-            op.get_nematic_tensor(), np.diag([0.25, 0.25, -0.5])))
+            op.nematic_tensor, np.diag([0.25, 0.25, -0.5])))
 
 
 if __name__ == '__main__':
