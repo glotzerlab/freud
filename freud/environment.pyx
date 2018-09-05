@@ -32,35 +32,63 @@ cimport numpy as np
 np.import_array()
 
 cdef class BondOrder:
-    """Compute the bond order diagram for the system of particles.
+    """Compute the bond orientational order diagram for the system of
+    particles.
 
-    Available modes of calculation:
+    The bond orientational order diagram (BOOD) is a way of studying the
+    average local environments experienced by particles. In a BOOD, a particle
+    and its nearest neighbors (determined by either a prespecified number of
+    neighbors or simply a cutoff distance) are treated as connected by a bond
+    joining their centers. All of the bonds in the system are then binned by
+    their azimuthal (:math:`\\theta`) and polar (:math:`\\phi`) angles to
+    indicate the location of a particle's neighbors relative to itself. The
+    distance between the particle and its neighbor is only important when
+    determining whether it is counted as a neighbor, but is not part of the
+    BOOD; as such, the BOOD can be viewed as a projection of all bonds onto the
+    unit sphere. The resulting 2D histogram provides insight into how particles
+    are situated relative to one-another in a system.
 
-    * If :code:`mode='bod'` (Bond Order Diagram, *default*):
-      Create the 2D histogram containing the number of bonds formed through
-      the surface of a unit sphere based on the azimuthal
-      :math:`\\left( \\theta \\right)` and polar
-      :math:`\\left( \\phi \\right)` angles.
+    This class provides access to the classical BOOD as well as a few useful
+    variants. These variants can be accessed *via* the :code:`mode` arguments
+    to the :py:meth:`~BondOrder.compute` or :py:meth:`~BondOrder.accumulate`
+    methods. Available modes of calculation are:
 
-    * If :code:`mode='lbod'` (Local Bond Order Diagram):
-      Create the 2D histogram containing the number of bonds formed, rotated
-      into the local orientation of the central particle, through the surface
-      of a unit sphere based on the azimuthal :math:`\\left( \\theta \\right)`
-      and polar :math:`\\left( \\phi \\right)` angles.
+    * :code:`'bod'` (Bond Order Diagram, *default*):
+      This mode constructs the default BOOD, which is the 2D histogram
+      containing the number of bonds formed through each azimuthal
+      :math:`\\left( \\theta \\right)` and polar :math:`\\left( \\phi \\right)`
+      angle.
 
-    * If :code:`mode='obcd'` (Orientation Bond Correlation Diagram):
-      Create the 2D histogram containing the number of bonds formed, rotated
-      by the rotation that takes the orientation of neighboring particle j to
-      the orientation of each particle i, through the surface of a unit sphere
-      based on the azimuthal :math:`\\left( \\theta \\right)` and polar
-      :math:`\\left( \\phi \\right)` angles.
+    * :code:`'lbod'` (Local Bond Order Diagram):
+      In this mode, a particle's neighbors are rotated into the local frame of
+      the particle before the BOOD is calculated, *i.e.* the directions of
+      bonds are determined relative to the orientation of the particle rather
+      than relative to the global reference frame. An example of when this mode
+      would be useful is when a system is composed of multiple grains of the
+      same crystal; the normal BOOD would show twice as many peaks as expected,
+      but using this mode, the bonds would be superimposed.
 
-    * If :code:`mode='oocd'` (Orientation Orientation Correlation Diagram):
-      Create the 2D histogram containing the directors of neighboring particles
-      (:math:`\\hat{z}` rotated by their quaternion), rotated into the local
-      orientation of the central particle, through the surface of a unit
-      sphere based on the azimuthal :math:`\\left( \\theta \\right)` and
-      polar :math:`\\left( \\phi \\right)` angles.
+    * :code:`'obcd'` (Orientation Bond Correlation Diagram):
+      This mode aims to quantify the degree of orientational as well as
+      translational ordering. As a first step, the rotation that would align a
+      particle's neighbor with the particle is calculated. Then, the neighbor
+      is rotated **around the central particle** by that amount, which actually
+      changes the direction of the bond. One example of how this mode could be
+      useful is in identifying plastic crystals, which exhibit translational
+      but not orientational ordering. Normally, the BOOD for a plastic crystal
+      would exhibit clear structure since there is translational order, but
+      with this mode, the neighbor positions would actually be modified,
+      resulting in an isotropic (disordered) BOOD.
+
+    * :code:`'oocd'` (Orientation Orientation Correlation Diagram):
+      This mode is substantially different from the other modes. Rather than
+      compute the histogram of neighbor bonds, this mode instead computes a
+      histogram of the directors of neighboring particles, where the director
+      is defined as the basis vector :math:`\\hat{z}` rotated by the neighbor's
+      quaternion. The directors are then rotated into the central particle's
+      reference frame. This mode provides insight into the local orientational
+      environment of particles, indicating, on average, how a particle's
+      neighbors are oriented.
 
     .. moduleauthor:: Erin Teich <erteich@umich.edu>
 
@@ -344,6 +372,11 @@ cdef class LocalDescriptors:
     than this number, the last one or more rows of bond spherical
     harmonics for each particle will not be set.
 
+    .. note: **You must always call computeNList before calling compute, the
+             NeighborList will not be populated until this is called. However,
+             the compute method must be called to actually calculate the
+             descriptors.**
+
     .. moduleauthor:: Matthew Spellings <mspells@umich.edu>
 
     Args:
@@ -390,10 +423,6 @@ cdef class LocalDescriptors:
         """Compute the neighbor list for bonds from a set of source points to
         a set of destination points.
 
-        **Note that calling this function is insufficient to actually calculate
-        any of the descriptor quantities, and none of the class attribute
-        arrays will be populated by it.**
-
         Args:
             box (:class:`freud.box.Box`):
                 Simulation box.
@@ -434,6 +463,8 @@ cdef class LocalDescriptors:
                 orientations=None, mode='neighborhood', nlist=None):
         """Calculates the local descriptors of bonds from a set of source
         points to a set of destination points.
+
+        .. note: **You must always call computeNList before this method.**
 
         Args:
             box (:class:`freud.box.Box`):
