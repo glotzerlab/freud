@@ -618,18 +618,6 @@ cdef class LocalDescriptors:
                       FreudDeprecationWarning)
         return self.l_max
 
-    @property
-    def r_max(self):
-        cdef float r = self.thisptr.getRMax()
-        return r
-
-    def getRMax(self):
-        warnings.warn("The getRMax function is deprecated in favor "
-                      "of the r_max class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.r_max
-
 cdef class MatchEnv:
     """Clusters particles according to whether their local environments match
     or not, according to various shape matching metrics.
@@ -1206,18 +1194,13 @@ cdef class AngularSeparation:
             The number of global orientations to check against.
         neighbor_angles ((:math:`\\left(N_{particles}\\timesN_{neighbors}, \\right)` :class:`numpy.ndarray`):
             The neighbor angles in radians. **This field is only populated
-            after :py:meth`~.computeNeighbor` is called.** The array is ordered
-            according to the underlying neighborlist, so by default the points
-            are in the order passed into the constructor, and for every point
-            all its bonds are contiguous and are in increasing order of the id
-            of the neighbor particle. For example, in a simple 3 particle case
-            where particles are labeled (1, 2, 3) and two neighbors per
-            particle are requested , the order would be (1,2), (1,3), (2, 1),
-            (2, 3), (3, 1), (3, 2).
+            after :py:meth`~.computeNeighbor` is called.** The angles
+            are stored in the order of the neighborlist object.
         global_angles (:math:`\\left(N_{global}, N_{particles} \\right)`\
         :class:`numpy.ndarray`):
             The global angles in radians. **This field is only populated after
-            :py:meth:`.computeGlobal` is called.**
+            :py:meth:`.computeGlobal` is called.** The angles
+            are stored in the order of the neighborlist object.
 
     .. todo Need to figure out what happens if you use a neighborlist with
             strict_cut=True
@@ -1239,7 +1222,7 @@ cdef class AngularSeparation:
                         equiv_quats, nlist=None):
         """Calculates the minimum angles of separation between ref_ors and ors,
         checking for underlying symmetry as encoded in equiv_quats. The result
-        is stored in the neighbor_angles class attribute.
+        is stored in the :code:`neighbor_angles` class attribute.
 
         Args:
             box (:class:`freud.box.Box`):
@@ -1317,7 +1300,7 @@ cdef class AngularSeparation:
         """Calculates the minimum angles of separation between
         :code:`global_ors` and :code:`ors`, checking for underlying symmetry as
         encoded in :code`equiv_quats`. The result is stored in the
-        global_angles class attribute.
+        :code:`global_angles` class attribute.
 
 
         Args:

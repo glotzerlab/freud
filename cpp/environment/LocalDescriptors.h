@@ -57,13 +57,6 @@ public:
         return m_lmax;
         }
 
-    // TODO remove getRMax, it is essentially a speed hack that doesn't fit in once we have NeighborLists
-    //! Get the maximum neighbor distance
-    float getRMax() const
-        {
-        return m_nn.getRMax();
-        }
-
     //! Get the number of particles
     unsigned int getNP() const
         {
