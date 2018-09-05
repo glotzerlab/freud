@@ -3,7 +3,6 @@ import freud
 import unittest
 from freud.errors import FreudDeprecationWarning
 import warnings
-import rowan
 import util
 
 

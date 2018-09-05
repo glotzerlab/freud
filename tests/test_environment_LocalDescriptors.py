@@ -34,9 +34,6 @@ class TestLocalDescriptors(unittest.TestCase):
         self.assertEqual(comp.l_max, lmax)
         self.assertEqual(comp.getLMax(), lmax)
 
-        self.assertEqual(comp.r_max, rmax)
-        self.assertEqual(comp.getRMax(), rmax)
-
     def test_global(self):
         N = 1000
         Nneigh = 4
