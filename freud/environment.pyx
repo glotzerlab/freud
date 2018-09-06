@@ -1460,8 +1460,8 @@ cdef class LocalBondProjection:
     def nlist(self):
         return self.nlist_
 
-    def compute(self, box, ref_points, ref_ors, points, equiv_quats, proj_vecs,
-                nlist=None):
+    def compute(self, box, proj_vecs, ref_points, ref_ors, points=None,
+                equiv_quats=np.array([[1, 0, 0, 0]]), nlist=None):
         """Calculates the maximal projections of nearest neighbor bonds
         (between :code:`ref_points` and :code:`points`) onto the set of
         reference vectors :code:`proj_vecs`, defined in the local reference
@@ -1503,6 +1503,8 @@ cdef class LocalBondProjection:
         if ref_ors.shape[1] != 4:
             raise TypeError('ref_ors should be an Nx4 array')
 
+        if points is None:
+            points = ref_points
         points = freud.common.convert_array(
             points, 2, dtype=np.float32, contiguous=True,
             array_name="points")
