@@ -74,22 +74,24 @@ class CubaticOrderParameter
 
     private:
 
-        float m_t_initial;
-        float m_t_final;
-        float m_scale;
-        tensor4<float> m_gen_r4_tensor;
-        unsigned int m_n;                //!< Last number of points computed
-        unsigned int m_replicates;       //!< Number of replicates
+        float m_t_initial;                                   //!< Initial temperature for simulated annealing.
+        float m_t_final;                                     //!< Final temperature for simulated annealing.
+        float m_scale;                                       //!< Scaling factor to reduce temperature.
+        unsigned int m_n;                                    //!< Last number of points computed.
+        unsigned int m_replicates;                           //!< Number of replicates.
 
-        float m_cubatic_order_parameter;
-        quat<float> m_cubatic_orientation;
-        std::shared_ptr<float> m_particle_order_parameter;
+        float m_cubatic_order_parameter;                     //!< The value of the order parameter.
+        quat<float> m_cubatic_orientation;                   //!< The cubatic orientation.
+
+        tensor4<float> m_gen_r4_tensor;
         tensor4<float> m_global_tensor;
-        std::shared_ptr<float> m_sp_global_tensor;
         tensor4<float> m_cubatic_tensor;
-        std::shared_ptr<float> m_sp_cubatic_tensor;
+
+        std::shared_ptr<float> m_particle_order_parameter;   //!< The per-particle value of the order parameter.
+        std::shared_ptr<float> m_sp_global_tensor;           //!< Shared pointer for global tensor, only used to return values to Python.
+        std::shared_ptr<float> m_sp_cubatic_tensor;          //!< Shared pointer for cubatic tensor, only used to return values to Python.
         std::shared_ptr<float> m_particle_tensor;
-        std::shared_ptr<float> m_sp_gen_r4_tensor;
+        std::shared_ptr<float> m_sp_gen_r4_tensor;           //!< Shared pointer for r4 tensor, only used to return values to Python.
 
         // saru rng
         Saru m_saru;
