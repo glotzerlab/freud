@@ -91,7 +91,7 @@ void ParticleBuffer::compute(const vec3<float> *points,
                         float yadj = img.z*yz;
                         if (img.x < (lx_2_buff + xadj) && img.x > (-lx_2_buff + xadj) &&
                             img.y < (ly_2_buff + yadj) && img.y > (-ly_2_buff + yadj) &&
-                            (is2D || img.z < lz_2_buff && img.z > -lz_2_buff))
+                            (is2D || (img.z < lz_2_buff && img.z > -lz_2_buff)))
                             {
                             buffer_parts.push_back(img);
                             buffer_ids.push_back(particle);
