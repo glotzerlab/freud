@@ -1419,17 +1419,38 @@ cdef class LocalBondProjection:
 
     .. moduleauthor:: Erin Teich
 
-    """
+    Args:
+        rmax (float):
+            Cutoff radius.
+        num_neighbors (unsigned int):
+            The number of neighbors.
+
+    Attributes:
+        projections ((:math:`\\left(N_{reference}, N_{neighbors}, N_{projection\_vecs} \\right)` :class:`numpy.ndarray`):
+            The projection of each bond between reference particles and their
+            neigbhors onto each of the projection vectors.
+        normed_projections ((:math:`\\left(N_{reference}, N_{neighbors}, N_{projection\_vecs} \\right)` :class:`numpy.ndarray`)
+            The normalized projection of each bond between reference particles
+            and their neigbhors onto each of the projection vectors.
+        num_reference_particles (int):
+            The number of reference points used in the last calculation.
+        num_particles (int):
+            The number of points used in the last calculation.
+        num_proj_vectors (int):
+            The number of projection vectors used in the last calculation.
+        box (:class:`freud.box.Box`):
+            The box used in the last calculation.
+    """  # noqa: E501
 
     cdef freud._environment.LocalBondProjection * thisptr
     cdef num_neigh
     cdef rmax
     cdef nlist_
 
-    def __cinit__(self, rmax, n):
+    def __cinit__(self, rmax, num_neigh):
         self.thisptr = new freud._environment.LocalBondProjection()
         self.rmax = rmax
-        self.num_neigh = int(n)
+        self.num_neigh = int(num_neigh)
         self.nlist_ = None
 
     def __dealloc__(self):
@@ -1441,40 +1462,34 @@ cdef class LocalBondProjection:
 
     def compute(self, box, ref_points, ref_ors, points, equiv_quats, proj_vecs,
                 nlist=None):
-        """Calculates the maximal projections of nearest neighbor bonds (btw ref_points and points)
-        onto the set of reference vectors proj_vecs, defined in ref_points' local reference frame.
-        Takes into account the underlying symmetry of the reference frame as encoded in equiv_quats.
+        """Calculates the maximal projections of nearest neighbor bonds
+        (between :code:`ref_points` and :code:`points`) onto the set of
+        reference vectors :code:`proj_vecs`, defined in the local reference
+        frame of the :code:`ref_points`. Takes into account the underlying
+        symmetry of the reference frame as encoded in :code:`equiv_quats`.
 
-        :param box: simulation box
-        :param ref_points: points to calculate the order parameter
-        :param ref_ors: orientations to calculate the order parameter
-        :param points: points (neighbors of ref_points) to calculate the order parameter
-        :param equiv_quats: the set of all equivalent quaternions that takes
-                            the particle as it is defined to some global
-                            reference orientation. IMPT: does not need to
-                            include both q and -q, for all included quaternions,
-                            since q and -q effect the same rotation on vectors.
-        :param proj_vecs: the set of reference vectors, define in the reference particles'
-                            reference frame, to calculate maximal local bond projections onto.
-        :param nlist: :py:class:`freud.locality.NeighborList` object to use to find bonds
-        :type box: :py:class:`freud.box.Box`
-        :type ref_points: :class:`numpy.ndarray`,
-                          shape= :math:`\\left(N_{reference}, 3 \\right)`,
-                          dtype= :class:`numpy.float32`
-        :type ref_ors: :class:`numpy.ndarray`,
-                        shape= :math:`\\left(N_{reference}, 4 \\right)`,
-                        dtype= :class:`numpy.float32`
-        :type points: :class:`numpy.ndarray`,
-                      shape= :math:`\\left(N_{particles}, 3 \\right)`,
-                      dtype= :class:`numpy.float32`
-        :type equiv_quats: :class:`numpy.ndarray`,
-                            shape= :math:`\\left(N_{equiv}, 4 \\right)`,
-                            dtype= :class:`numpy.float32`
-        :type proj_vecs: :class:`numpy.ndarray`,
-                            shape= :math:`\\left(N_{projection_vecs}, 3 \\right)`,
-                            dtype= :class:`numpy.float32`
-        :type nlist: :py:class:`freud.locality.NeighborList`
-        """  # noqa: E501
+        Args:
+            box (:class:`freud.box.Box`):
+                Simulation box.
+            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Reference points used in the calculation.
+            ref_ors ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
+                Reference orientations used in the calculation.
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Points (neighbors of ref_points) used in the calculation.
+            equiv_quats ((:math:`N_{quats}`, 4) :class:`numpy.ndarray`):
+                The set of all equivalent quaternions that takes the particle
+                as it is defined to some global reference orientation. Note
+                that this does not need to include both q and -q, since q and
+                -q effect the same rotation on vectors.
+            proj_vecs ((:math:`N_{vectors}`, 3) :class:`numpy.ndarray`):
+                The set of reference vectors, defined in the reference
+                particles' reference frame, to calculate maximal local bond
+                projections onto.
+            nlist (:class:`freud.locality.NeighborList`, optional):
+                NeighborList to use to find bonds (Default value =
+                :code:`None`).
+        """
         cdef freud.box.Box b = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
@@ -1534,14 +1549,8 @@ cdef class LocalBondProjection:
                 nP, nRef, nEquiv, nProj)
         return self
 
-    def getProjections(self):
-        """
-        :return: projections (units of squared length)
-        :rtype: :class:`numpy.ndarray`,
-                shape= :math:`\\left(N_{reference}, N_{neighbors}, N_{projection_vecs} \\right)`,
-                dtype= :class:`numpy.float32`
-        """  # noqa: E501
-
+    @property
+    def projections(self):
         cdef float * proj = self.thisptr.getProjections().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp > len(self.nlist)*self.thisptr.getNproj()
@@ -1550,14 +1559,8 @@ cdef class LocalBondProjection:
                             1, nbins, np.NPY_FLOAT32, < void*>proj)
         return result
 
-    def getNormedProjections(self):
-        """
-        :return: normalized projections (units of length)
-        :rtype: :class:`numpy.ndarray`,
-                shape= :math:`\\left(N_{reference}, N_{neighbors}, N_{projection_vecs} \\right)`,
-                dtype= :class:`numpy.float32`
-        """  # noqa:E501
-
+    @property
+    def normed_projections(self):
         cdef float * proj = self.thisptr.getNormedProjections().get()
         cdef np.npy_intp nbins[1]
         nbins[0] = <np.npy_intp > len(self.nlist)*self.thisptr.getNproj()
@@ -1566,41 +1569,21 @@ cdef class LocalBondProjection:
                             1, nbins, np.NPY_FLOAT32, < void*>proj)
         return result
 
-    def getNP(self):
-        """Get the number of particles used in computing the maximal
-        projections.
-
-        :return: :math:`N_{particles}`
-        :rtype: unsigned int
-
-        """
+    @property
+    def num_particles(self):
         cdef unsigned int np = self.thisptr.getNP()
         return np
 
-    def getNReference(self):
-        """Get the number of reference particles used in computing the maximal
-        projections.
-
-        :return: :math:`N_{reference}`
-        :rtype: unsigned int
-        """
+    @property
+    def num_reference_particles(self):
         cdef unsigned int nref = self.thisptr.getNref()
         return nref
 
-    def getNProj(self):
-        """Get the number of projection vectors used in computing the maximal
-        projections.
-
-        :return: :math:`N_{projection_vecs}`
-        :rtype: unsigned int
-        """
+    @property
+    def num_proj_vectors(self):
         cdef unsigned int nproj = self.thisptr.getNproj()
         return nproj
 
-    def getBox(self):
-        """Get the box used in the calculation.
-
-        :return: freud Box
-        :rtype: :py:class:`freud.box.Box`
-        """
+    @property
+    def box(self):
         return freud.box.BoxFromCPP(< freud._box.Box > self.thisptr.getBox())

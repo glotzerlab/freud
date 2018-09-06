@@ -39,7 +39,7 @@ def quatRandom():
 
 
 class TestLocalBondProjection(unittest.TestCase):
-    def test_getNP(self):
+    def test_num_particles(self):
         boxlen = 10
         N = 500
         num_neigh = 8
@@ -60,9 +60,9 @@ class TestLocalBondProjection(unittest.TestCase):
 
         ang = freud.environment.LocalBondProjection(rmax, num_neigh)
         ang.compute(box, points, ors, points, equiv_quats, proj_vecs)
-        npt.assert_equal(ang.getNP(), N)
+        npt.assert_equal(ang.num_particles, N)
 
-    def test_getNProj(self):
+    def test_num_proj_vectors(self):
         boxlen = 10
         N = 500
         num_neigh = 8
@@ -83,9 +83,9 @@ class TestLocalBondProjection(unittest.TestCase):
 
         ang = freud.environment.LocalBondProjection(rmax, num_neigh)
         ang.compute(box, points, ors, points, equiv_quats, proj_vecs)
-        npt.assert_equal(ang.getNProj(), 1)
+        npt.assert_equal(ang.num_proj_vectors, 1)
 
-    def test_getNReference(self):
+    def test_num_reference_particles(self):
         boxlen = 10
         N = 500
         num_neigh = 8
@@ -106,9 +106,9 @@ class TestLocalBondProjection(unittest.TestCase):
 
         ang = freud.environment.LocalBondProjection(rmax, num_neigh)
         ang.compute(box, points, ors, points, equiv_quats, proj_vecs)
-        npt.assert_equal(ang.getNReference(), N)
+        npt.assert_equal(ang.num_reference_particles, N)
 
-    def test_getBox(self):
+    def test_box(self):
         boxlen = 10
         N = 500
         num_neigh = 8
@@ -130,12 +130,12 @@ class TestLocalBondProjection(unittest.TestCase):
         ang = freud.environment.LocalBondProjection(rmax, num_neigh)
         ang.compute(box, points, ors, points, equiv_quats, proj_vecs)
 
-        npt.assert_equal(ang.getBox().getLx(), boxlen)
-        npt.assert_equal(ang.getBox().getLy(), boxlen)
-        npt.assert_equal(ang.getBox().getLz(), boxlen)
-        npt.assert_equal(ang.getBox().xy, 0)
-        npt.assert_equal(ang.getBox().xz, 0)
-        npt.assert_equal(ang.getBox().yz, 0)
+        npt.assert_equal(ang.box.Lx, boxlen)
+        npt.assert_equal(ang.box.Ly, boxlen)
+        npt.assert_equal(ang.box.Lz, boxlen)
+        npt.assert_equal(ang.box.xy, 0)
+        npt.assert_equal(ang.box.xz, 0)
+        npt.assert_equal(ang.box.yz, 0)
 
     def test_compute(self):
         boxlen = 4
@@ -170,18 +170,18 @@ class TestLocalBondProjection(unittest.TestCase):
         # For the first particle, the bond is [1,0,0] and the orientation is
         # [1,0,0,0]. So the local bond is [1,0,0]. The projection onto
         # [0,0,1] is cos(pi/2)=0.
-        npt.assert_almost_equal(ang.getProjections()[0], 0, 6)
-        npt.assert_almost_equal(ang.getNormedProjections()[0], 0, 6)
+        npt.assert_almost_equal(ang.projections[0], 0, 6)
+        npt.assert_almost_equal(ang.normed_projections[0], 0, 6)
         # For the second particle, the bond is [-1,0,0] and the orientation is
         # rotated about the y-axis by pi/2. So the local bond is [0,0,-1]. The
         # projection onto [0,0,1] is cos(pi)=-1.
-        npt.assert_almost_equal(ang.getProjections()[1], -1, 6)
-        npt.assert_almost_equal(ang.getNormedProjections()[1], -1, 6)
+        npt.assert_almost_equal(ang.projections[1], -1, 6)
+        npt.assert_almost_equal(ang.normed_projections[1], -1, 6)
         # For the third particle, the bond is [0,0,-1.5] and the orientation is
         # rotated about the z-axis by pi/2. So the local bond is [0,0,-1.5].
         # The projection onto [0,0,1] is 1.5*cos(pi)=-1.5
-        npt.assert_almost_equal(ang.getProjections()[2], -1.5, 6)
-        npt.assert_almost_equal(ang.getNormedProjections()[2], -1, 6)
+        npt.assert_almost_equal(ang.projections[2], -1.5, 6)
+        npt.assert_almost_equal(ang.normed_projections[2], -1, 6)
 
         # Specify that rotations about y by +/-pi/2 and rotations about x by pi
         # result in equivalent particle shapes
@@ -199,12 +199,12 @@ class TestLocalBondProjection(unittest.TestCase):
         ang.compute(box, points, ors, points, equiv_quats, proj_vecs)
 
         # Now all projections should be cos(0)=1
-        npt.assert_almost_equal(ang.getProjections()[0], 1, 6)
-        npt.assert_almost_equal(ang.getNormedProjections()[0], 1, 6)
-        npt.assert_almost_equal(ang.getProjections()[1], 1, 6)
-        npt.assert_almost_equal(ang.getNormedProjections()[1], 1, 6)
-        npt.assert_almost_equal(ang.getProjections()[2], 1.5, 6)
-        npt.assert_almost_equal(ang.getNormedProjections()[2], 1, 6)
+        npt.assert_almost_equal(ang.projections[0], 1, 6)
+        npt.assert_almost_equal(ang.normed_projections[0], 1, 6)
+        npt.assert_almost_equal(ang.projections[1], 1, 6)
+        npt.assert_almost_equal(ang.normed_projections[1], 1, 6)
+        npt.assert_almost_equal(ang.projections[2], 1.5, 6)
+        npt.assert_almost_equal(ang.normed_projections[2], 1, 6)
 
 
 if __name__ == '__main__':
