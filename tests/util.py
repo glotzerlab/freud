@@ -1,6 +1,7 @@
 import numpy as np
 import freud
 
+
 def make_fcc(nx=1, ny=1, nz=1, scale=1.0, noise=0.0):
     """Make an FCC crystal for testing
 
@@ -9,7 +10,7 @@ def make_fcc(nx=1, ny=1, nz=1, scale=1.0, noise=0.0):
     :param nz: Number of repeats in the z direction, default is 1
     :param scale: Amount to scale the unit cell by (in distance units),
         default is 1.0
-    :param noise: Apply Gaussian noise with this width to the particle positions
+    :param noise: Apply Gaussian noise with this width to particle positions
     :type nx: int
     :type ny: int
     :type nz: int
@@ -23,7 +24,8 @@ def make_fcc(nx=1, ny=1, nz=1, scale=1.0, noise=0.0):
                           [0, .5, .5],
                           [0, 0, 0]], dtype=np.float32)
 
-    fractions = np.tile(fractions[np.newaxis, np.newaxis, np.newaxis], (nx, ny, nz, 1, 1))
+    fractions = np.tile(fractions[np.newaxis, np.newaxis, np.newaxis],
+                        (nx, ny, nz, 1, 1))
     fractions[..., 0] += np.arange(nx)[:, np.newaxis, np.newaxis, np.newaxis]
     fractions[..., 1] += np.arange(ny)[np.newaxis, :, np.newaxis, np.newaxis]
     fractions[..., 2] += np.arange(nz)[np.newaxis, np.newaxis, :, np.newaxis]
@@ -36,3 +38,15 @@ def make_fcc(nx=1, ny=1, nz=1, scale=1.0, noise=0.0):
         positions += np.random.normal(scale=noise, size=positions.shape)
 
     return freud.box.Box(*box), positions
+
+
+def skipIfMissing(library):
+    try:
+        import importlib
+        import unittest
+        importlib.import_module(library)
+        return lambda func: func
+    except ImportError:
+        return unittest.skip(
+            "You must have {library} installed to run this test".format(
+                library=library))

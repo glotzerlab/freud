@@ -1,18 +1,18 @@
 # Copyright (c) 2010-2018 The Regents of the University of Michigan
-# This file is part of the freud project, released under the BSD 3-Clause License.
+# This file is from the freud project, released under the BSD 3-Clause License.
 
 from freud.util._VectorMath cimport vec3
 from freud.util._VectorMath cimport quat
 from libcpp.memory cimport shared_ptr
-cimport freud._box as box
+cimport freud._box
 cimport freud._locality
 
 cdef extern from "PMFT.h" namespace "freud::pmft":
     cdef cppclass PMFT:
         PMFT()
 
-        const box.Box & getBox() const
-        void resetPCF()
+        const freud._box.Box & getBox() const
+        void reset()
         void reducePCF()
         shared_ptr[unsigned int] getBinCounts()
         shared_ptr[float] getPCF()
@@ -22,7 +22,7 @@ cdef extern from "PMFTR12.h" namespace "freud::pmft":
     cdef cppclass PMFTR12(PMFT):
         PMFTR12(float, unsigned int, unsigned int, unsigned int)
 
-        void accumulate(box.Box &,
+        void accumulate(freud._box.Box &,
                         const freud._locality.NeighborList*,
                         vec3[float]*,
                         float*,
@@ -42,7 +42,7 @@ cdef extern from "PMFTXYT.h" namespace "freud::pmft":
     cdef cppclass PMFTXYT(PMFT):
         PMFTXYT(float, float, unsigned int, unsigned int, unsigned int)
 
-        void accumulate(box.Box &,
+        void accumulate(freud._box.Box &,
                         const freud._locality.NeighborList*,
                         vec3[float]*,
                         float*,
@@ -62,7 +62,7 @@ cdef extern from "PMFTXY2D.h" namespace "freud::pmft":
     cdef cppclass PMFTXY2D(PMFT):
         PMFTXY2D(float, unsigned int, unsigned int, unsigned int)
 
-        void accumulate(box.Box &,
+        void accumulate(freud._box.Box &,
                         const freud._locality.NeighborList*,
                         vec3[float]*,
                         float*,
@@ -81,7 +81,7 @@ cdef extern from "PMFTXYZ.h" namespace "freud::pmft":
         PMFTXYZ(float, float, float, unsigned int, unsigned int,
                 unsigned int, vec3[float])
 
-        void accumulate(box.Box &,
+        void accumulate(freud._box.Box &,
                         const freud._locality.NeighborList*,
                         vec3[float]*,
                         quat[float]*,

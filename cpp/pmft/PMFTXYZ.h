@@ -1,5 +1,8 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
-// This file is part of the freud project, released under the BSD 3-Clause License.
+// This file is from the freud project, released under the BSD 3-Clause License.
+
+#ifndef PMFTXYZ_H
+#define PMFTXYZ_H
 
 #include <memory>
 #include <ostream>
@@ -10,9 +13,6 @@
 #include "LinkCell.h"
 #include "Index1D.h"
 #include "PMFT.h"
-
-#ifndef _PMFTXYZ_H__
-#define _PMFTXYZ_H__
 
 /*! \internal
     \file PMFTXYZ.h
@@ -38,7 +38,7 @@ class PMFTXYZ : public PMFT
         PMFTXYZ(float max_x, float max_y, float max_z, unsigned int n_bins_x, unsigned int n_bins_y, unsigned int n_bins_z, vec3<float> shiftvec);
 
         //! Reset the PCF array to all zeros
-        virtual void resetPCF();
+        virtual void reset();
 
         /*! Compute the PCF for the passed in set of points. The function will be added to previous values
             of the pcf
@@ -108,7 +108,6 @@ class PMFTXYZ : public PMFT
         unsigned int m_n_bins_z;           //!< Number of z bins to compute pcf over
         unsigned int m_n_faces;
         float m_jacobian;
-        bool m_reduce;
         vec3<float> m_shiftvec;            //!< vector that points from [0,0,0] to the origin of the pmft
 
         std::shared_ptr<float> m_x_array;              //!< array of x values that the pcf is computed at
@@ -118,4 +117,4 @@ class PMFTXYZ : public PMFT
 
 }; }; // end namespace freud::pmft
 
-#endif // _PMFTXYZ_H__
+#endif // PMFTXYZ_H

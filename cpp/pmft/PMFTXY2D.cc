@@ -1,5 +1,5 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
-// This file is part of the freud project, released under the BSD 3-Clause License.
+// This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <stdexcept>
 #ifdef __SSE2__
@@ -106,7 +106,7 @@ void PMFTXY2D::reducePCF()
 /*! \brief Function to reset the pcf array if needed e.g. calculating between new particle types
 */
 
-void PMFTXY2D::resetPCF()
+void PMFTXY2D::reset()
     {
     for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_bin_counts.begin(); i != m_local_bin_counts.end(); ++i)
         {

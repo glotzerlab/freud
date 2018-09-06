@@ -1,12 +1,12 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
-// This file is part of the freud project, released under the BSD 3-Clause License.
+// This file is from the freud project, released under the BSD 3-Clause License.
+
+#ifndef CLUSTER_PROPERTIES_H
+#define CLUSTER_PROPERTIES_H
 
 #include <memory>
 
 #include "box.h"
-
-#ifndef _CLUSTER_PROPERTIES_H__
-#define _CLUSTER_PROPERTIES_H__
 
 /*! \file ClusterProperties.h
     \brief Routines for computing properties of point clusters.
@@ -77,4 +77,4 @@ class ClusterProperties
 
 }; }; // end namespace freud::cluster
 
-#endif // _CLUSTER_PROPERTIES_H__
+#endif // CLUSTER_PROPERTIES_H

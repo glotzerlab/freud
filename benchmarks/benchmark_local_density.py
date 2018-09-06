@@ -3,8 +3,9 @@ from __future__ import division
 
 from freud import density, box
 from benchmark import benchmark
-import numpy
+import numpy as np
 import math
+
 
 class benchmark_local_density(benchmark):
     def __init__(self, nu, r_cut):
@@ -14,8 +15,9 @@ class benchmark_local_density(benchmark):
     def setup(self, N):
         # setup a 2D system of random points
         box_size = math.sqrt(N*self.nu)
-        self.pos = numpy.random.random_sample((N,3)).astype(numpy.float32)*box_size - box_size/2
-        self.pos[:,2] = 0
+        self.pos = np.random.random_sample((N, 3)).astype(
+            np.float32) * box_size - box_size/2
+        self.pos[:, 2] = 0
         self.ld = density.LocalDensity(self.r_cut, 1, 1)
 
     def run(self, N):
@@ -29,14 +31,15 @@ if __name__ == '__main__':
     b.run_size_scaling_benchmark([1000, 10000, 100000, 1000000], number=100)
     b.run_thread_scaling_benchmark([1000, 10000, 100000, 1000000], number=100)
 
-    #print('\n profiling')
-    #b.run_profile(100000)
+    # print('\n profiling')
+    # b.run_profile(100000)
 
     print('\n ----------------')
 
     # print('grayscale')
     # b = benchmark_grayscale()
-    # b.run_size_scaling_benchmark([100, 1000, 10000, 100000, 1000000], number=10000)
+    # b.run_size_scaling_benchmark(
+    #     [100, 1000, 10000, 100000, 1000000], number=10000)
 
     # #print('\n profiling')
     # #b.run_profile(100000)

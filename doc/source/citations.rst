@@ -2,16 +2,23 @@
 References and Citations
 ========================
 
-.. [Cit0] Bokeh Development Team (2014). Bokeh: Python library for interactive visualization
+.. [Bokeh] Bokeh Development Team (2014). Bokeh: Python library for interactive visualization
           URL http://www.bokeh.pydata.org.
 
-.. [Cit1] Haji-Akbari, A. ; Glotzer, S. C. Strong Orientational Coordinates and Orientational
-          Order Parameters for Symmetric Objects. Journal of Physics A: Mathematical and Theoretical 2015, 48, 485201.
+.. [HajiAkbari2015] Haji-Akbari, A., & Glotzer, S. C. (2015). Strong orientational coordinates and orientational
+          order parameters for symmetric objects. Journal of Physics A: Mathematical and Theoretical, 48.
+          https://doi.org/10.1088/1751-8113/48/48/485201
 
-.. [Cit2] van Anders, G. ; Ahmed, N. K. ; Klotsa, D. ; Engel, M. ; Glotzer, S. C. Unified Theoretical Framework for
-          Shape Entropy in Colloids", arXiv:1309.1187.
+.. [vanAndersKlotsa2014] van Anders, G., Klotsa, D., Ahmed, N. K., Engel, M., & Glotzer, S. C. (2014). Understanding
+          shape entropy through local dense packing. Proceedings of the National Academy of Sciences, 111(45),
+          E4812–E4821. https://doi.org/10.1073/pnas.1418159111
 
-.. [Cit3] van Anders, G. ; Ahmed, N. K. ; Smith, R. ; Engel, M. ; Glotzer, S. C. Entropically Patchy Particles,
-          arXiv:1304.7545.
+.. [vanAndersAhmed2014] van Anders, G., Ahmed, N. K., Smith, R., Engel, M., & Glotzer, S. C. (2014). Entropically
+          patchy particles: Engineering valence through shape entropy. ACS Nano, 8(1), 931–940.
+          https://doi.org/10.1021/nn4057353
 
-.. [Cit4] Wolfgan Lechner (2008) (DOI: 10.1063/Journal of Chemical Physics 129.114707)
+.. [Lechner2008] Lechner, W., & Dellago, C. (2008). Accurate determination of crystal structures based on averaged
+          local bond order parameters. Journal of Chemical Physics, 129(11). https://doi.org/10.1063/1.2977970
+
+.. [Steinhardt1983] P.J. Steinhardt, D.R. Nelson, and M. Ronchetti (1983). Bond-orientational order in liquids and
+          glasses. Phys. Rev. B 28(784). https://doi.org/10.1103/PhysRevB.28.784

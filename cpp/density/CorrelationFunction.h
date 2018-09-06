@@ -1,5 +1,8 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
-// This file is part of the freud project, released under the BSD 3-Clause License.
+// This file is from the freud project, released under the BSD 3-Clause License.
+
+#ifndef CORRELATION_FUNCTION_H
+#define CORRELATION_FUNCTION_H
 
 #include <memory>
 #include <tbb/tbb.h>
@@ -7,9 +10,6 @@
 #include "box.h"
 #include "VectorMath.h"
 #include "LinkCell.h"
-
-#ifndef _CORRELATIONFUNCTION_H__
-#define _CORRELATIONFUNCTION_H__
 
 /*! \file CorrelationFunction.h
     \brief Generic pairwise correlation functions.
@@ -58,7 +58,7 @@ class CorrelationFunction
             }
 
         //! Reset the PCF array to all zeros
-        void resetCorrelationFunction();
+        void reset();
 
         //! accumulate the correlation function
         void accumulate(const box::Box &box,
@@ -80,6 +80,7 @@ class CorrelationFunction
         //! Get a reference to the bin counts array
         std::shared_ptr<unsigned int> getCounts()
             {
+            reduceCorrelationFunction();
             return m_bin_counts;
             }
 
@@ -110,69 +111,6 @@ class CorrelationFunction
         tbb::enumerable_thread_specific<T *> m_local_rdf_array;
     };
 
-template<typename T>
-class CombineOCF
-    {
-    private:
-        unsigned int m_nbins;
-        unsigned int *m_bin_counts;
-        tbb::enumerable_thread_specific<unsigned int *>& m_local_bin_counts;
-        T *m_rdf_array;
-        tbb::enumerable_thread_specific<T *>& m_local_rdf_array;
-        float m_n_ref;
-    public:
-        CombineOCF(unsigned int nbins,
-                   unsigned int *bin_counts,
-                   tbb::enumerable_thread_specific<unsigned int *>& local_bin_counts,
-                   T *rdf_array,
-                   tbb::enumerable_thread_specific<T *>& local_rdf_array,
-                   float n_ref)
-            : m_nbins(nbins), m_bin_counts(bin_counts), m_local_bin_counts(local_bin_counts), m_rdf_array(rdf_array),
-              m_local_rdf_array(local_rdf_array), m_n_ref(n_ref)
-        {
-        }
-        void operator()( const tbb::blocked_range<size_t> &myBin ) const;
-    };
-
-template<typename T>
-class ComputeOCF
-    {
-    private:
-        const unsigned int m_nbins;
-        tbb::enumerable_thread_specific<unsigned int *>& m_bin_counts;
-        tbb::enumerable_thread_specific<T *>& m_rdf_array;
-        const box::Box m_box;
-        const freud::locality::NeighborList *m_nlist;
-        const float m_rmax;
-        const float m_dr;
-        const vec3<float> *m_ref_points;
-        const T *m_ref_values;
-        const unsigned int m_n_ref;
-        const vec3<float> *m_points;
-        const T *m_point_values;
-        unsigned int m_Np;
-    public:
-        ComputeOCF(const unsigned int nbins,
-                   tbb::enumerable_thread_specific<unsigned int *>& bin_counts,
-                   tbb::enumerable_thread_specific<T *>& rdf_array,
-                   const box::Box &box,
-                   const freud::locality::NeighborList *nlist,
-                   const float rmax,
-                   const float dr,
-                   const vec3<float> *ref_points,
-                   const T *ref_values,
-                   unsigned int n_ref,
-                   const vec3<float> *points,
-                   const T *point_values,
-                   unsigned int Np)
-        : m_nbins(nbins), m_bin_counts(bin_counts), m_rdf_array(rdf_array), m_box(box), m_nlist(nlist), m_rmax(rmax), m_dr(dr),
-              m_ref_points(ref_points), m_ref_values(ref_values), m_n_ref(n_ref), m_points(points),
-              m_point_values(point_values), m_Np(Np)
-        {
-        }
-        void operator()( const tbb::blocked_range<size_t> &myR ) const;
-    };
-
 }; }; // end namespace freud::density
 
-#endif // _CORRELATIONFUNCTION_H__
+#endif // CORRELATION_FUNCTION_H

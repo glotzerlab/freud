@@ -3,7 +3,7 @@ version: 2
 references:
   container_ubuntu: &test_container_config_ubuntu
     docker:
-      - image: vramasub/freud_py35_ubuntu:20180124
+      - image: vramasub/freud_py35_ubuntu:20180723
     working_directory: ~/ci/freud
 
   container_arch: &test_container_config_arch
@@ -14,74 +14,64 @@ references:
   load_code: &load_code
     checkout
 
-  get_requirements_ubuntu: &get_requirements_ubuntu
+  get_requirements: &get_requirements
     run:
       name: Install dependencies
       command: |
-        pip install --user -r requirements.txt
-        pip3 install --user -r requirements.txt
+        git submodule update --init
+        pip${PYVER} install --user -r requirements.txt
+        pip${PYVER} install --user flake8
+        pip${PYVER} install --user coverage
 
-  get_requirements_arch: &get_requirements_arch
+  check_source: &check_source
     run:
-      name: Install dependencies
+      name: flake8
       command: |
-        pip install --user -r requirements.txt
+        python${PYVER} -m flake8 --show-source .
 
-  configure: &configure
+  build: &build
     run:
-      name: Configure
+      name: Build
       command: |
-        if [ -d build ]; then
-            rmdir build
-        fi
-        rm freud/_freud.cpp
-        mkdir build
-        cd build
-        echo pyver=${PYVER}
-        cmake ../ -DPYTHON_EXECUTABLE=/usr/bin/python${PYVER} -DENABLE_CYTHON=ON
+        echo "PYVER=${PYVER}"
+        rm freud/*.cpp
+        python${PYVER} setup.py build_ext --inplace --COVERAGE --ENABLE-CYTHON
 
-  compile: &compile
-    run:
-      name: Compile
-      working_directory: build
-      command: |
-        make -j4
-        make install
-
-  test_ubuntu: &test_ubuntu
+  test: &test
     run:
       name: Run unit tests
       command: |
-          ${NOSE} ~/ci/freud/tests/
+          python${PYVER} -m unittest discover tests -v
 
-  test_arch: &test_arch
+  test_cov: &test_cov
     run:
-      name: Run unit tests
+      name: Run unit tests with coverage
       command: |
-          cd /
-          ${NOSE} -v ~/ci/freud/tests/
+          export PATH=~/.local/bin:${PATH}
+          coverage run -m unittest discover tests -v
+          bash <(curl -s https://codecov.io/bash)
 
   store: &store
     store_artifacts:
       path: test-reports
       destination: test-reports
 
-  build_and_test_ubuntu: &build_and_test_ubuntu
+  build_and_test: &build_and_test
     steps:
       - *load_code
-      - *get_requirements_ubuntu
-      - *configure
-      - *compile
-      - *test_ubuntu
+      - *get_requirements
+      - *check_source
+      - *build
+      - *test
       - *store
 
-  build_and_test_arch: &build_and_test_arch
+  build_and_test_with_cov: &build_and_test_with_cov
     steps:
       - *load_code
-      - *get_requirements_arch
-      - *configure
-      - *compile
-      - *test_arch
+      - *get_requirements
+      - *check_source
+      - *build
+      - *test_cov
       - *store
 
 jobs:
@@ -89,22 +79,19 @@ jobs:
     <<: *test_container_config_ubuntu
     environment:
       PYVER: "2.7"
-      NOSE: "nosetests"
-    <<: *build_and_test_ubuntu
+    <<: *build_and_test
 
   test-py35:
     <<: *test_container_config_ubuntu
     environment:
       PYVER: "3.5"
-      NOSE: "python3.5 -m nose"
-    <<: *build_and_test_ubuntu
+    <<: *build_and_test
 
   test-py36:
     <<: *test_container_config_arch
     environment:
       PYVER: "3.6"
-      NOSE: "nosetests"
-    <<: *build_and_test_arch
+    <<: *build_and_test_with_cov
 
 workflows:
   version: 2
