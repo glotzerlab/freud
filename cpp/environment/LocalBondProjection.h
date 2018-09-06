@@ -19,7 +19,7 @@
     set of reference vectors, defined in the particles' local reference frame.
 */
 
-namespace freud { namespace order {
+namespace freud { namespace environment {
 
 //! Project the local bond onto all symmetrically equivalent vectors to proj_vec.
 //! Return the maximal projection value.

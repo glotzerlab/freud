@@ -130,25 +130,3 @@ cdef extern from "SolLiq.h" namespace "freud::order":
         vector[float complex] getQldot_ij()
         unsigned int getNP()
         unsigned int getNumClusters()
-
-cdef extern from "LocalBondProjection.h" namespace "freud::order":
-    cdef cppclass LocalBondProjection:
-        LocalBondProjection()
-        void compute(freud._box.Box &,
-                     const freud._locality.NeighborList*,
-                     vec3[float]*,
-                     vec3[float]*,
-                     quat[float]*,
-                     quat[float]*,
-                     vec3[float]*,
-                     unsigned int,
-                     unsigned int,
-                     unsigned int,
-                     unsigned int) nogil except +
-
-        shared_ptr[float] getProjections()
-        shared_ptr[float] getNormedProjections()
-        unsigned int getNP()
-        unsigned int getNref()
-        unsigned int getNproj()
-        const freud._box.Box & getBox() const
