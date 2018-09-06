@@ -27,6 +27,7 @@ cdef class InterfaceMeasure:
     """Measures the interface between two sets of points.
 
     .. moduleauthor:: Matthew Spellings <mspells@umich.edu>
+    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
 
     Args:
         box (:class:`freud.box.Box`): Simulation box.

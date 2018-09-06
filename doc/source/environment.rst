@@ -29,7 +29,7 @@ Bond Order
 Local Descriptors
 =================
 
-.. autoclass:: freud.environment.LocalDescriptors(box, nNeigh, lmax, rmax)
+.. autoclass:: freud.environment.LocalDescriptors(num_neighbors, lmax, rmax, negative_m=True)
     :members: compute, computeNList
 
 Match Environments

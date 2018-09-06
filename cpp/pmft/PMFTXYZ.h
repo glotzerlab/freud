@@ -108,7 +108,6 @@ class PMFTXYZ : public PMFT
         unsigned int m_n_bins_z;           //!< Number of z bins to compute pcf over
         unsigned int m_n_faces;
         float m_jacobian;
-        bool m_reduce;
         vec3<float> m_shiftvec;            //!< vector that points from [0,0,0] to the origin of the pmft
 
         std::shared_ptr<float> m_x_array;              //!< array of x values that the pcf is computed at

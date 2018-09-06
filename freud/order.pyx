@@ -73,21 +73,17 @@ cdef class CubaticOrderParameter:
             The quaternion of global orientation.
         particle_order_parameter (:class:`numpy.ndarray`):
              Cubatic order parameter.
-        particle_tensor (:math:`\\left(N_{particles}, 3, 3, 3, 3 \\right)`\
-        :class:`numpy.ndarray`):
+        particle_tensor (:math:`\\left(N_{particles}, 3, 3, 3, 3 \\right)` :class:`numpy.ndarray`):
             Rank 5 tensor corresponding to each individual particle
             orientation.
-        global_tensor (:math:`\\left(3, 3, 3, 3 \\right)`\
-        :class:`numpy.ndarray`):
+        global_tensor (:math:`\\left(3, 3, 3, 3 \\right)` :class:`numpy.ndarray`):
             Rank 4 tensor corresponding to global orientation.
-        cubatic_tensor (:math:`\\left(3, 3, 3, 3 \\right)`\
-        :class:`numpy.ndarray`):
+        cubatic_tensor (:math:`\\left(3, 3, 3, 3 \\right)` :class:`numpy.ndarray`):
             Rank 4 cubatic tensor.
-        gen_r4_tensor (:math:`\\left(3, 3, 3, 3 \\right)`\
-        :class:`numpy.ndarray`):
+        gen_r4_tensor (:math:`\\left(3, 3, 3, 3 \\right)` :class:`numpy.ndarray`):
             Rank 4 tensor corresponding to each individual particle
             orientation.
-    """
+    """  # noqa: E501
     cdef freud._order.CubaticOrderParameter * thisptr
 
     def __cinit__(self, t_initial, t_final, scale, n_replicates=1, seed=None):
@@ -316,14 +312,12 @@ cdef class NematicOrderParameter:
             Nematic order parameter.
         director (:math:`\\left(3 \\right)` :class:`numpy.ndarray`):
             The average nematic director.
-        particle_tensor (:math:`\\left(N_{particles}, 3, 3 \\right)`\
-        :class:`numpy.ndarray`):
+        particle_tensor (:math:`\\left(N_{particles}, 3, 3 \\right)` :class:`numpy.ndarray`):
             One 3x3 matrix per-particle corresponding to each individual
             particle orientation.
         nematic_tensor (:math:`\\left(3, 3 \\right)` :class:`numpy.ndarray`):
             3x3 matrix corresponding to the average particle orientation.
-
-    """
+    """  # noqa: E501
     cdef freud._order.NematicOrderParameter *thisptr
 
     def __cinit__(self, u):
@@ -340,10 +334,9 @@ cdef class NematicOrderParameter:
         """Calculates the per-particle and global order parameter.
 
         Args:
-            orientations (:math:`\\left(N_{particles}, 4 \\right)` \
-            :class:`numpy.ndarray`):
+            orientations (:math:`\\left(N_{particles}, 4 \\right)` :class:`numpy.ndarray`):
                 Orientations to calculate the order parameter.
-        """
+        """  # noqa: E501
         orientations = freud.common.convert_array(
             orientations, 2, dtype=np.float32, contiguous=True,
             array_name="orientations")
@@ -418,7 +411,7 @@ cdef class NematicOrderParameter:
                       "of the nematic_tensor class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        return self.get_nematic_tensor()
+        return self.nematic_tensor
 
 cdef class HexOrderParameter:
     """Calculates the :math:`k`-atic order parameter for each particle in the
@@ -716,14 +709,13 @@ cdef class LocalQl:
             The last computed :math:`Q_l` for each particle normalized by the
             value over all particles (filled with NaN for particles with no
             neighbors).
-        ave_norm_Ql (:math:`\\left(N_{particles}\\right)` \
-        :class:`numpy.ndarray`):
+        ave_norm_Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
             The last computed :math:`\\bar{Q_l}` for each particle normalized
             by the value over all particles (filled with NaN for particles with
             no neighbors).
 
     .. todo:: move box to compute, this is old API
-    """
+    """  # noqa: E501
     cdef freud._order.LocalQl * qlptr
     cdef freud.box.Box m_box
     cdef rmax
@@ -982,14 +974,13 @@ cdef class LocalQlNear(LocalQl):
             The last computed :math:`Q_l` for each particle normalized by the
             value over all particles (filled with NaN for particles with no
             neighbors).
-        ave_norm_Ql (:math:`\\left(N_{particles}\\right)` \
-        :class:`numpy.ndarray`):
+        ave_norm_Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
             The last computed :math:`\\bar{Q_l}` for each particle normalized
             by the value over all particles (filled with NaN for particles with
             no neighbors).
 
     .. todo:: move box to compute, this is old API
-    """
+    """  # noqa: E501
     cdef num_neigh
 
     def __cinit__(self, box, rmax, l, kn=12):
@@ -1118,14 +1109,13 @@ cdef class LocalWl(LocalQl):
             The last computed :math:`W_l` for each particle normalized by the
             value over all particles (filled with NaN for particles with no
             neighbors).
-        ave_norm_Wl (:math:`\\left(N_{particles}\\right)` \
-        :class:`numpy.ndarray`):
+        ave_norm_Wl (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
             The last computed :math:`\\bar{W}_l` for each particle normalized
             by the value over all particles (filled with NaN for particles with
             no neighbors).
 
     .. todo:: move box to compute, this is old API
-    """
+    """  # noqa: E501
     cdef freud._order.LocalWl * thisptr
 
     # List of Ql attributes to remove
@@ -1264,14 +1254,13 @@ cdef class LocalWlNear(LocalWl):
             The last computed :math:`W_l` for each particle normalized by the
             value over all particles (filled with NaN for particles with no
             neighbors).
-        ave_norm_Wl (:math:`\\left(N_{particles}\\right)` \
-        :class:`numpy.ndarray`):
+        ave_norm_Wl (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
             The last computed :math:`\\bar{W}_l` for each particle normalized
             by the value over all particles (filled with NaN for particles with
             no neighbors).
 
     .. todo:: move box to compute, this is old API
-    """
+    """  # noqa: E501
     cdef num_neigh
 
     def __cinit__(self, box, rmax, l, kn=12):
@@ -1333,8 +1322,7 @@ cdef class LocalWlNear(LocalWl):
         return super(LocalWlNear, self).computeAveNorm(points, nlist_)
 
 cdef class SolLiq:
-    """Computes dot products of :math:`Q_{lm}` between particles and uses these
-    for clustering.
+    """Uses dot products of :math:`Q_{lm}` between particles for clustering.
 
     .. moduleauthor:: Richmond Newman <newmanrs@umich.edu>
 
@@ -1370,17 +1358,15 @@ cdef class SolLiq:
         clusters (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
             The last computed set of solid-like cluster indices for each
             particle.
-        num_connections (:math:`\\left(N_{particles}\\right)` \
-        :class:`numpy.ndarray`):
+        num_connections (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
             The number of connections per particle.
-        Ql_dot_ij (:math:`\\left(N_{particles}\\right)` \
-        :class:`numpy.ndarray`):
+        Ql_dot_ij (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
             Reference to the qldot_ij values.
         num_particles (unsigned int):
             Number of particles.
 
     .. todo:: move box to compute, this is old API
-    """
+    """  # noqa: E501
     cdef freud._order.SolLiq * thisptr
     cdef freud.box.Box m_box
     cdef rmax
@@ -1664,17 +1650,15 @@ cdef class SolLiqNear(SolLiq):
         clusters (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
             The last computed set of solid-like cluster indices for each
             particle.
-        num_connections (:math:`\\left(N_{particles}\\right)` \
-        :class:`numpy.ndarray`):
+        num_connections (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
             The number of connections per particle.
-        Ql_dot_ij (:math:`\\left(N_{particles}\\right)` \
-        :class:`numpy.ndarray`):
+        Ql_dot_ij (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
             Reference to the qldot_ij values.
         num_particles (unsigned int):
             Number of particles.
 
     .. todo:: move box to compute, this is old API
-    """
+    """  # noqa: E501
     cdef num_neigh
 
     def __init__(self, box, rmax, Qthreshold, Sthreshold, l, kn=12):
@@ -1790,6 +1774,7 @@ class MatchEnv(_EME):
 
 class Pairing2D(_EP):
     """**Deprecated** Compute pairs for the system of particles.
+
     .. note::
         This class is only retained for backwards compatibility.
         Please use :mod:`freud.bond` instead.

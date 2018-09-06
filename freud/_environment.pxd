@@ -47,7 +47,6 @@ cdef extern from "LocalDescriptors.h" namespace "freud::environment":
         unsigned int getNSphs() const
         unsigned int getLMax() const
         unsigned int getSphWidth() const
-        float getRMax() const
         unsigned int getNP()
         void computeNList(const freud._box.Box &,
                           const vec3[float]*, unsigned int,

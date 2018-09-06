@@ -20,7 +20,7 @@ class TestR(unittest.TestCase):
             r2 = r1 + dr
             r_list[i] = 2.0/3.0 * (r2**3.0 - r1**3.0) / (r2**2.0 - r1**2.0)
 
-        ocf = density.ComplexCF(rmax, dr)
+        ocf = density.FloatCF(rmax, dr)
 
         npt.assert_almost_equal(ocf.R, r_list, decimal=3)
 
@@ -37,18 +37,19 @@ class TestOCF(unittest.TestCase):
         np.random.seed(0)
         points = np.random.random_sample((num_points, 3)).astype(np.float32) \
             * box_size - box_size/2
-        ang = np.random.random_sample((num_points)).astype(np.float64) \
-            * 2.0 * np.pi
-        comp = np.exp(1j*ang)
-        ocf = density.ComplexCF(rmax, dr)
-        correct = np.zeros(int(rmax/dr), dtype=np.complex64)
+        ang = np.random.random_sample((num_points)).astype(np.float64) - 0.5
+        ocf = density.FloatCF(rmax, dr)
+        correct = np.zeros(int(rmax/dr), dtype=np.float64)
         absolute_tolerance = 0.1
         # first bin is bad
-        ocf.accumulate(box.Box.square(box_size), points, comp,
-                       points, np.conj(comp))
+        ocf.accumulate(box.Box.square(box_size), points, ang)
         npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
-        ocf.compute(box.Box.square(box_size), points, comp,
-                    points, np.conj(comp))
+        ocf.compute(box.Box.square(box_size), points, ang, points, ang)
+        npt.assert_allclose(ocf.getRDF(), correct, atol=absolute_tolerance)
+        ocf.reset()
+        ocf.accumulate(box.Box.square(box_size), points, ang, points, ang)
+        npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
+        ocf.compute(box.Box.square(box_size), points, ang)
         npt.assert_allclose(ocf.getRDF(), correct, atol=absolute_tolerance)
         self.assertEqual(box.Box.square(box_size), ocf.box)
         self.assertEqual(box.Box.square(box_size), ocf.getBox())
@@ -62,13 +63,10 @@ class TestOCF(unittest.TestCase):
         points = np.random.random_sample((num_points, 3)).astype(np.float32) \
             * box_size - box_size/2
         ang = np.zeros(int(num_points), dtype=np.float64)
-        comp = np.exp(1j*ang)
-        ocf = density.ComplexCF(rmax, dr)
-        ocf.accumulate(box.Box.square(box_size), points, comp,
-                       points, np.conj(comp))
+        ocf = density.FloatCF(rmax, dr)
+        ocf.accumulate(box.Box.square(box_size), points, ang)
 
-        correct = np.ones(int(rmax/dr), dtype=np.float32) + \
-            1j * np.zeros(int(rmax/dr), dtype=np.float32)
+        correct = np.zeros(int(rmax/dr), dtype=np.float32)
         absolute_tolerance = 0.1
         npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
 
@@ -81,48 +79,14 @@ class TestOCF(unittest.TestCase):
         points = np.random.random_sample((num_points, 3)).astype(np.float32) \
             * box_size - box_size/2
         ang = np.zeros(int(num_points), dtype=np.float64)
-        comp = np.exp(1j*ang)
 
         vectors = points[np.newaxis, :, :] - points[:, np.newaxis, :]
         correct = np.sum(np.linalg.norm(vectors, axis=-1) < np.sqrt(2*rmax**2))
 
         ocf = density.FloatCF(rmax, dr)
-        ocf.compute(box.Box.square(box_size), points, comp,
-                    points, np.conj(comp))
+        ocf.compute(box.Box.square(box_size), points, ang)
         self.assertEqual(np.sum(ocf.getCounts()), correct)
         self.assertEqual(np.sum(ocf.counts), correct)
-
-
-class TestSummation(unittest.TestCase):
-    @unittest.skipIf('CI' in os.environ, 'Skipping test on CI')
-    def test_summation(self):
-        # Causes the correlation function to add lots of small numbers together
-        # This leads to vastly different results with different numbers of
-        # threads if the summation is not done robustly
-        N = 20000
-        np.random.seed(0)
-        phi = np.random.rand(N)
-        pos2d = np.random.uniform(-500, 500, size=(N, 3))
-        pos2d[:, 2] = 0
-        fbox = box.Box.square(1000)
-
-        # With a small number of particles, we won't get the average exactly
-        # right, so we check for different behavior with different numbers of
-        # threads
-        parallel.setNumThreads(1)
-        # A very large bin size exacerbates the problem
-        cf = density.ComplexCF(500, 40)
-        cf.compute(fbox, pos2d, phi)
-        c1 = cf.counts
-        f1 = np.real(cf.RDF)
-
-        parallel.setNumThreads(20)
-        cf.compute(fbox, pos2d, phi)
-        c2 = cf.counts
-        f2 = np.real(cf.RDF)
-
-        npt.assert_allclose(f1, f2)
-        npt.assert_array_equal(c1, c2)
 
 
 if __name__ == '__main__':
