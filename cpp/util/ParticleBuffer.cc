@@ -38,26 +38,23 @@ void ParticleBuffer::compute(const vec3<float> *points,
     float yz = m_box.getTiltFactorYZ();
     bool is2D = m_box.is2D();
 
-    float lx_2_buff, ly_2_buff, lz_2_buff;
     int ix, iy, iz;
+    box::Box buff_box;
 
     if (images)
         {
         ix = ceil(buff);
         iy = ceil(buff);
         iz = ceil(buff);
-        lx_2_buff = (ix + 0.5) * lx;
-        ly_2_buff = (iy + 0.5) * ly;
-        lz_2_buff = (iz + 0.5) * lz;
+        int n_images = 1 + ceil(buff);
+        buff_box = box::Box(n_images*lx, n_images*ly, n_images*lz, xy, xz, yz, is2D);
         }
     else
         {
         ix = ceil(buff / lx);
         iy = ceil(buff / ly);
         iz = ceil(buff / lz);
-        lx_2_buff = 0.5*lx + buff;
-        ly_2_buff = 0.5*ly + buff;
-        lz_2_buff = 0.5*lz + buff;
+        buff_box = box::Box(lx+2*buff, ly+2*buff, lz+2*buff, xy, xz, yz, is2D);
         }
 
     if (is2D)
@@ -83,15 +80,15 @@ void ParticleBuffer::compute(const vec3<float> *points,
                     {
                     if (i != 0 || j != 0 || k != 0)
                         {
-                        img.x = points[particle].x + i*lx + j*ly*xy + k*lz*xz;
-                        img.y = points[particle].y + j*ly + k*lz*yz;
-                        img.z = points[particle].z + k*lz;
-                        // Check to see if this image is within the buffer
-                        float xadj = img.y*xy + img.z*xz;
-                        float yadj = img.z*yz;
-                        if (img.x < (lx_2_buff + xadj) && img.x > (-lx_2_buff + xadj) &&
-                            img.y < (ly_2_buff + yadj) && img.y > (-ly_2_buff + yadj) &&
-                            (is2D || (img.z < lz_2_buff && img.z > -lz_2_buff)))
+                        vec3<float> frac = m_box.makeFraction(points[particle]);
+                        frac.x += i;
+                        frac.y += j;
+                        frac.z += k;
+                        vec3<float> img = m_box.makeCoordinates(frac);
+                        vec3<float> buff_frac = buff_box.makeFraction(img);
+                        if (0 <= buff_frac.x && buff_frac.x < 1 &&
+                            0 <= buff_frac.y && buff_frac.y < 1 &&
+                            (is2D || (0 <= buff_frac.z && buff_frac.z < 1)))
                             {
                             buffer_parts.push_back(img);
                             buffer_ids.push_back(particle);

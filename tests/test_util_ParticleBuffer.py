@@ -12,8 +12,10 @@ class TestParticleBuffer(unittest.TestCase):
 
         fbox = freud.box.Box.square(L)  # Initialize box
         pbuff = freud.util.ParticleBuffer.ParticleBuffer(fbox)
+
         # Generate random points in the box
         positions = np.random.uniform(-L/2, L/2, size=(N, 2))
+
         # Add a z-component of 0
         positions = np.insert(positions, 2, 0, axis=1).astype(np.float32)
 
@@ -32,6 +34,7 @@ class TestParticleBuffer(unittest.TestCase):
 
         fbox = freud.box.Box.cube(L)  # Initialize box
         pbuff = freud.util.ParticleBuffer.ParticleBuffer(fbox)
+
         # Generate random points in the box
         positions = np.random.uniform(-L/2, L/2, size=(N, 3))
 
@@ -47,16 +50,18 @@ class TestParticleBuffer(unittest.TestCase):
         N = 50  # Number of particles
         np.random.seed(0)
 
-        fbox = freud.box.Box(Lx=1, Ly=1, Lz=1, xy=1, xz=0, yz=1)
+        fbox = freud.box.Box(Lx=2, Ly=2, Lz=2, xy=1, xz=0, yz=1)
         pbuff = freud.util.ParticleBuffer.ParticleBuffer(fbox)
+
         # Generate random points in the box, in fractional coordinates
         positions = np.random.uniform(0, 1, size=(N, 3))
+
         # Convert fractional coordinates to real coordinates
         positions = np.asarray(list(map(fbox.makeCoordinates, positions)))
         positions = fbox.wrap(positions)
 
         # Compute with images
-        pbuff.compute(positions, buffer=1, images=True)
+        pbuff.compute(positions, buffer=2, images=True)
         self.assertEqual(len(pbuff.buffer_particles), 26 * N)
 
 
