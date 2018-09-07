@@ -9,8 +9,6 @@ import sys
 import platform
 import glob
 import multiprocessing.pool
-
-
 import logging
 
 logger = logging.getLogger(__name__)
@@ -203,6 +201,16 @@ if thread_str in sys.argv:
         list(multiprocessing.pool.ThreadPool(N).imap(_single_compile, objects))
         return objects
     setuptools.distutils.ccompiler.CCompiler.compile=parallelCCompile
+
+
+#######################
+# Configure ReadTheDocs
+#######################
+
+on_rtd = os.environ.get('READTHEDOCS') == 'True'
+if on_rtd:
+    use_cython = True
+    ext = '.pyx'
 
 
 #########################
