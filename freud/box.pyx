@@ -18,18 +18,22 @@ from freud.errors import FreudDeprecationWarning
 import logging
 
 from freud.util._VectorMath cimport vec3
-from libcpp.string cimport string
+from libcpp.memory cimport shared_ptr
+from cython.operator cimport dereference
 from libc.string cimport memcpy
+from libcpp.string cimport string
+from libcpp.vector cimport vector
+from libcpp cimport bool as bool_t
 from cpython.object cimport Py_EQ, Py_NE
 
 cimport freud._box
 cimport numpy as np
 
+logger = logging.getLogger(__name__)
+
 # numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults
 np.import_array()
-
-logger = logging.getLogger(__name__)
 
 cdef class Box:
     """The freud Box class for simulation boxes.
@@ -778,7 +782,107 @@ cdef class Box:
                 self.getTiltFactorYZ(),
                 self.is2D())
 
+
 cdef BoxFromCPP(const freud._box.Box & cppbox):
     return Box(cppbox.getLx(), cppbox.getLy(), cppbox.getLz(),
                cppbox.getTiltFactorXY(), cppbox.getTiltFactorXZ(),
                cppbox.getTiltFactorYZ(), cppbox.is2D())
+
+
+cdef class ParticleBuffer:
+    """Replicates particles up to a buffer distance outside the box from
+    periodic images.
+
+    .. moduleauthor:: Ben Schultz <baschult@umich.edu>
+    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
+
+    Args:
+        box (:py:class:`freud.box.Box`): Simulation box.
+
+    Attributes:
+        buffer_particles (:class:`numpy.ndarray`):
+            The buffer particles.
+        buffer_ids (:class:`numpy.ndarray`):
+            The buffer ids.
+    """
+    def __cinit__(self, box):
+        cdef Box b = freud.common.convert_box(box)
+        self.thisptr = new freud._box.ParticleBuffer(dereference(b.thisptr))
+
+    def compute(self, points, float buffer, bool_t images=False):
+        """Compute the particle buffer.
+
+        Args:
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Points used to calculate particle buffer.
+            buffer (float):
+                Buffer distance for replication outside the box.
+            images (bool):
+                If ``False`` (default), ``buffer`` is a distance. If ``True``,
+                ``buffer`` is a number of images to replicate in each
+                dimension.
+        """
+        points = freud.common.convert_array(
+            points, 2, dtype=np.float32, contiguous=True, array_name='points')
+
+        if points.shape[1] != 3:
+            raise RuntimeError(
+                'Need a list of 3D points for ParticleBuffer.compute()')
+        cdef np.ndarray cPoints = points
+        cdef unsigned int Np = points.shape[0]
+        self.thisptr.compute(<vec3[float]*> cPoints.data, Np, buffer, images)
+        return self
+
+    @property
+    def buffer_particles(self):
+        cdef unsigned int buffer_size = \
+            dereference(self.thisptr.getBufferParticles().get()).size()
+        cdef vec3[float] * buffer_points = \
+            &dereference(self.thisptr.getBufferParticles().get())[0]
+        if not buffer_size:
+            return np.array([[]], dtype=np.float32)
+
+        cdef vector[vec3[float]]*bufferPar = \
+            self.thisptr.getBufferParticles().get()
+        cdef np.npy_intp nbins[2]
+        nbins[0] = buffer_size
+        nbins[1] = 3
+
+        cdef np.ndarray[float, ndim=2] result = \
+            np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32,
+                                         <void*> dereference(bufferPar).data())
+
+        return result
+
+    def getBufferParticles(self):
+        warnings.warn("The getBufferParticles function is deprecated in favor "
+                      "of the buffer_particles class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.buffer_particles
+
+    @property
+    def buffer_ids(self):
+        cdef unsigned int buffer_size = \
+            dereference(self.thisptr.getBufferParticles().get()).size()
+        cdef unsigned int * buffer_ids = \
+            &dereference(self.thisptr.getBufferIds().get())[0]
+        if not buffer_size:
+            return np.array([[]], dtype=np.uint32)
+
+        cdef vector[unsigned int]*bufferIds = self.thisptr.getBufferIds().get()
+        cdef np.npy_intp nbins[1]
+        nbins[0] = buffer_size
+
+        cdef np.ndarray[unsigned int, ndim=1] result = \
+            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32,
+                                         <void*> dereference(bufferIds).data())
+
+        return result
+
+    def getBufferIds(self):
+        warnings.warn("The getBufferIds function is deprecated in favor "
+                      "of the buffer_ids class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.buffer_ids

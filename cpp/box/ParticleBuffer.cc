@@ -10,10 +10,10 @@
 using namespace std;
 
 /*! \file ParticleBuffer.cc
-    \brief Computes a buffer of particles to support wrapped positions in qhull
+    \brief Replicates particles across periodic boundaries.
 */
 
-namespace freud { namespace util {
+namespace freud { namespace box {
 
 void ParticleBuffer::compute(const vec3<float> *points,
                             const unsigned int Np,
@@ -100,4 +100,4 @@ void ParticleBuffer::compute(const vec3<float> *points,
         }
     }
 
-}; }; // end namespace freud::util
+}; }; // end namespace freud::box

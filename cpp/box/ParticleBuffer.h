@@ -7,17 +7,16 @@
 #include <memory>
 #include <vector>
 
-#include "box.h"
+#include "Box.h"
 #include "VectorMath.h"
 #include "Index1D.h"
 
 /*! \file ParticleBuffer.h
-    \brief Computes a buffer of particles to support wrapped positions in qhull
+    \brief Replicates particles across periodic boundaries.
 */
 
-namespace freud { namespace util {
+namespace freud { namespace box {
 
-//! Locates the particles near the border of the box and computes their nearest images to pass to qhull
 class ParticleBuffer
     {
     public:
@@ -52,6 +51,6 @@ class ParticleBuffer
         std::shared_ptr< std::vector< unsigned int > > m_buffer_ids;
     };
 
-}; }; // end namespace freud::util
+}; }; // end namespace freud::box
 
 #endif // PARTICLE_BUFFER_H

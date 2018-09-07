@@ -8,7 +8,7 @@
 #include <ostream>
 #include <tbb/tbb.h>
 
-#include "box.h"
+#include "Box.h"
 #include "VectorMath.h"
 #include "TensorMath.h"
 #include "saruprng.h"

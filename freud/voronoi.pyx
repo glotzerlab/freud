@@ -14,7 +14,6 @@ from freud.errors import FreudDeprecationWarning
 
 from libcpp.vector cimport vector
 from freud.util._VectorMath cimport vec3
-from freud.util.ParticleBuffer cimport ParticleBuffer
 from cython.operator cimport dereference
 
 cimport freud.box
@@ -129,7 +128,7 @@ class Voronoi:
                 (Default value = None).
         """
         # Compute the buffer particles in C++
-        vbuff = ParticleBuffer(box)
+        vbuff = freud.box.ParticleBuffer(box)
         vbuff.compute(positions, buff)
         buff_ptls = vbuff.buffer_particles
         buff_ids = vbuff.buffer_ids

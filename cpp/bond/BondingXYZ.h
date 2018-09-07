@@ -10,7 +10,7 @@
 #include <ostream>
 #include <tbb/tbb.h>
 
-#include "box.h"
+#include "Box.h"
 #include "VectorMath.h"
 #include "NearestNeighbors.h"
 #include "Index1D.h"

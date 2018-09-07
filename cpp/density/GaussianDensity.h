@@ -7,7 +7,7 @@
 #include <memory>
 #include <tbb/tbb.h>
 
-#include "box.h"
+#include "Box.h"
 #include "VectorMath.h"
 #include "Index1D.h"
 
