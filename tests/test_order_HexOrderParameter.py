@@ -9,6 +9,7 @@ class TestHexOrderParameter(unittest.TestCase):
         rmax = 3
         hop = freud.order.HexOrderParameter(rmax)
         npt.assert_equal(hop.K, 6)
+        npt.assert_equal(hop.getK(), 6)
 
     def test_getK_pass(self):
         rmax = 3
@@ -30,6 +31,7 @@ class TestHexOrderParameter(unittest.TestCase):
         hop = freud.order.HexOrderParameter(rmax)
         hop.compute(box, points)
         npt.assert_equal(hop.num_particles, N)
+        npt.assert_equal(hop.getNP(), N)
 
     def test_compute_random(self):
         boxlen = 10
@@ -45,6 +47,10 @@ class TestHexOrderParameter(unittest.TestCase):
         hop = freud.order.HexOrderParameter(rmax)
         hop.compute(box, points)
         npt.assert_almost_equal(np.mean(hop.psi), 0. + 0.j, decimal=1)
+        npt.assert_almost_equal(np.mean(hop.getPsi()), 0. + 0.j, decimal=1)
+
+        self.assertTrue(hop.box == box)
+        self.assertTrue(hop.getBox() == box)
 
     def test_compute(self):
         boxlen = 10
