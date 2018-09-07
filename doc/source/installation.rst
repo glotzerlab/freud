@@ -53,7 +53,7 @@ By default, freud installs to the `USER_SITE <https://docs.python.org/3/install/
 Unit Tests
 ==========
 
-The unit tests for freud are included in the repository and are configured to be run using the Python :py:mod:`unittest` library:
+The unit tests for freud are included in the repository and are configured to be run using the Python :mod:`unittest` library:
 
 .. code-block:: bash
 
