@@ -29,20 +29,26 @@ CubaticOrderParameter::CubaticOrderParameter(float t_initial, float t_final, flo
         throw invalid_argument("t_final must be > 1e-6");
     if ((scale > 1) || (scale < 0))
         throw invalid_argument("scale must be between 0 and 1");
-    // create tensor arrays
+
+    // required to not have memory overwritten
+    memset((void*)&m_global_tensor.data, 0, sizeof(float)*81);
+    memset((void*)&m_cubatic_tensor.data, 0, sizeof(float)*81);
+    memcpy((void*)&m_gen_r4_tensor.data, r4_tensor, sizeof(float)*81);
+
+    // Create shared pointer tensor arrays, which are used for returning to Python.
     m_particle_tensor = std::shared_ptr<float>(new float[m_n*81], std::default_delete<float[]>());
     m_particle_order_parameter = std::shared_ptr<float>(new float[m_n], std::default_delete<float[]>());
     m_sp_global_tensor = std::shared_ptr<float>(new float[81], std::default_delete<float[]>());
     m_sp_cubatic_tensor = std::shared_ptr<float>(new float[81], std::default_delete<float[]>());
-    // required to not have memory overwritten
-    memset((void*)&m_global_tensor.data, 0, sizeof(float)*81);
-    memset((void*)&m_cubatic_tensor.data, 0, sizeof(float)*81);
+    m_sp_gen_r4_tensor = std::shared_ptr<float>(new float[81], std::default_delete<float[]>());
+
+    // Initialize the shared pointers
     memset((void*)m_particle_tensor.get(), 0, sizeof(float)*m_n*81);
     memset((void*)m_particle_order_parameter.get(), 0, sizeof(float)*m_n);
     memset((void*)m_sp_global_tensor.get(), 0, sizeof(float)*m_n*81);
     memset((void*)m_sp_cubatic_tensor.get(), 0, sizeof(float)*m_n*81);
-    memcpy((void*)&m_gen_r4_tensor.data, r4_tensor, sizeof(float)*81);
     memset((void*)m_sp_gen_r4_tensor.get(), 0, sizeof(float)*m_n*81);
+
     // create random number generator.
     Saru m_saru(m_seed, 0, 0xffaabb);
     }

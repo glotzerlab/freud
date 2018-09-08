@@ -411,7 +411,7 @@ cdef class NematicOrderParameter:
                       "of the nematic_tensor class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        return self.get_nematic_tensor()
+        return self.nematic_tensor
 
 
 cdef class HexOrderParameter:
