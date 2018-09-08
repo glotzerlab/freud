@@ -19,4 +19,4 @@ Box Module
     :members: cube, from_box, from_matrix, getCoordinates, getImage, getLatticeVector, is2D, makeFraction, square, to_dict, to_matrix, to_tuple, unwrap, wrap
 
 .. autoclass:: freud.box.ParticleBuffer(box)
-    :members:
+    :members: compute

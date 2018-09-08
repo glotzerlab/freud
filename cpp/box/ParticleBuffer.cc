@@ -37,9 +37,7 @@ void ParticleBuffer::compute(const vec3<float> *points,
     float xz = m_box.getTiltFactorXZ();
     float yz = m_box.getTiltFactorYZ();
     bool is2D = m_box.is2D();
-
     int ix, iy, iz;
-    Box buff_box;
 
     if (images)
         {
@@ -47,14 +45,14 @@ void ParticleBuffer::compute(const vec3<float> *points,
         iy = ceil(buff);
         iz = ceil(buff);
         int n_images = 1 + ceil(buff);
-        buff_box = Box(n_images*lx, n_images*ly, n_images*lz, xy, xz, yz, is2D);
+        m_buffer_box = Box(n_images*lx, n_images*ly, n_images*lz, xy, xz, yz, is2D);
         }
     else
         {
         ix = ceil(buff / lx);
         iy = ceil(buff / ly);
         iz = ceil(buff / lz);
-        buff_box = Box(lx+2*buff, ly+2*buff, lz+2*buff, xy, xz, yz, is2D);
+        m_buffer_box = Box(lx+2*buff, ly+2*buff, lz+2*buff, xy, xz, yz, is2D);
         }
 
     if (is2D)
@@ -85,7 +83,7 @@ void ParticleBuffer::compute(const vec3<float> *points,
                         frac.y += j;
                         frac.z += k;
                         vec3<float> img = m_box.makeCoordinates(frac);
-                        vec3<float> buff_frac = buff_box.makeFraction(img);
+                        vec3<float> buff_frac = m_buffer_box.makeFraction(img);
                         if (0 <= buff_frac.x && buff_frac.x < 1 &&
                             0 <= buff_frac.y && buff_frac.y < 1 &&
                             (is2D || (0 <= buff_frac.z && buff_frac.z < 1)))

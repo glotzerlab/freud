@@ -2,9 +2,12 @@
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 R"""
-The box module provides the Box class, which defines the geometry of the
-simulation box. The module natively supports periodicity by providing the
-fundamental features for wrapping vectors outside the box back into it.
+The :class:`~.Box` class defines the geometry of a simulation box. The module
+natively supports periodicity by providing the fundamental features for
+wrapping vectors outside the box back into it. The :class:`~.ParticleBuffer`
+class is used to replicate particles across the periodic boundary to assist
+analysis methods that do not recognize periodic boundary conditions or extend
+beyond the limits of one periodicity of the box.
 """
 
 from __future__ import print_function
@@ -790,8 +793,7 @@ cdef BoxFromCPP(const freud._box.Box & cppbox):
 
 
 cdef class ParticleBuffer:
-    """Replicates particles up to a buffer distance outside the box from
-    periodic images.
+    """Replicates particles outside the box via periodic images.
 
     .. moduleauthor:: Ben Schultz <baschult@umich.edu>
     .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
@@ -804,6 +806,8 @@ cdef class ParticleBuffer:
             The buffer particles.
         buffer_ids (:class:`numpy.ndarray`):
             The buffer ids.
+        buffer_box (:class:`freud.box.Box`):
+            The buffer box, expanded to hold the replicated particles.
     """
     def __cinit__(self, box):
         cdef Box b = freud.common.convert_box(box)
@@ -856,13 +860,6 @@ cdef class ParticleBuffer:
 
         return result
 
-    def getBufferParticles(self):
-        warnings.warn("The getBufferParticles function is deprecated in favor "
-                      "of the buffer_particles class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.buffer_particles
-
     @property
     def buffer_ids(self):
         cdef unsigned int buffer_size = \
@@ -882,9 +879,6 @@ cdef class ParticleBuffer:
 
         return result
 
-    def getBufferIds(self):
-        warnings.warn("The getBufferIds function is deprecated in favor "
-                      "of the buffer_ids class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.buffer_ids
+    @property
+    def buffer_box(self):
+        return BoxFromCPP(<freud._box.Box> self.thisptr.getBufferBox())

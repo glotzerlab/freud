@@ -55,6 +55,7 @@ cdef extern from "ParticleBuffer.h" namespace "freud::box":
     cdef cppclass ParticleBuffer:
         ParticleBuffer(const Box &)
         const Box & getBox() const
+        const Box & getBufferBox() const
         void compute(
             const vec3[float]*,
             const unsigned int,

@@ -22,10 +22,12 @@ class TestParticleBuffer(unittest.TestCase):
         # Compute with buffer distances
         pbuff.compute(positions, buffer=0.5*L, images=False)
         self.assertEqual(len(pbuff.buffer_particles), 3 * N)
+        npt.assert_array_equal(pbuff.buffer_box.L, 2 * np.asarray(fbox.L))
 
         # Compute with images
         pbuff.compute(positions, buffer=1, images=True)
         self.assertEqual(len(pbuff.buffer_particles), 3 * N)
+        npt.assert_array_equal(pbuff.buffer_box.L, 2 * np.asarray(fbox.L))
 
     def test_cube(self):
         L = 10  # Box length
@@ -41,10 +43,12 @@ class TestParticleBuffer(unittest.TestCase):
         # Compute with buffer distances
         pbuff.compute(positions, buffer=0.5*L, images=False)
         self.assertEqual(len(pbuff.buffer_particles), 7 * N)
+        npt.assert_array_equal(pbuff.buffer_box.L, 2 * np.asarray(fbox.L))
 
         # Compute with images
         pbuff.compute(positions, buffer=1, images=True)
         self.assertEqual(len(pbuff.buffer_particles), 7 * N)
+        npt.assert_array_equal(pbuff.buffer_box.L, 2 * np.asarray(fbox.L))
 
     def test_triclinic(self):
         N = 50  # Number of particles
@@ -63,6 +67,7 @@ class TestParticleBuffer(unittest.TestCase):
         # Compute with images
         pbuff.compute(positions, buffer=2, images=True)
         self.assertEqual(len(pbuff.buffer_particles), 26 * N)
+        npt.assert_array_equal(pbuff.buffer_box.L, 3 * np.asarray(fbox.L))
 
 
 if __name__ == '__main__':

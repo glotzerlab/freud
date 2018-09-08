@@ -21,13 +21,21 @@ class ParticleBuffer
     {
     public:
         //! Constructor
-        ParticleBuffer(const Box& box):m_box(box){}
+        ParticleBuffer(const Box& box) : m_box(box), m_buffer_box(box)
+            {
+            }
 
         //! Get the simulation box
         const Box& getBox() const
-                {
-                return m_box;
-                }
+            {
+            return m_box;
+            }
+
+        //! Get the buffer box
+        const Box& getBufferBox() const
+            {
+            return m_buffer_box;
+            }
 
         //! Compute the particle images
         void compute(const vec3<float> *points,
@@ -46,7 +54,8 @@ class ParticleBuffer
             }
 
     private:
-        const Box m_box;    //!< Simulation box where the particles belong
+        const Box m_box;    //!< Simulation box of the original particles
+        Box m_buffer_box;   //!< Simulation box of the replicated particles
         std::shared_ptr< std::vector< vec3<float> > > m_buffer_particles;
         std::shared_ptr< std::vector< unsigned int > > m_buffer_ids;
     };
