@@ -16,9 +16,9 @@ using namespace std;
 namespace freud { namespace box {
 
 void ParticleBuffer::compute(const vec3<float> *points,
-                            const unsigned int Np,
-                            const float buff,
-                            const bool images)
+                             const unsigned int Np,
+                             const float buff,
+                             const bool images)
     {
     assert(points);
 
@@ -39,7 +39,7 @@ void ParticleBuffer::compute(const vec3<float> *points,
     bool is2D = m_box.is2D();
 
     int ix, iy, iz;
-    box::Box buff_box;
+    Box buff_box;
 
     if (images)
         {
@@ -47,14 +47,14 @@ void ParticleBuffer::compute(const vec3<float> *points,
         iy = ceil(buff);
         iz = ceil(buff);
         int n_images = 1 + ceil(buff);
-        buff_box = box::Box(n_images*lx, n_images*ly, n_images*lz, xy, xz, yz, is2D);
+        buff_box = Box(n_images*lx, n_images*ly, n_images*lz, xy, xz, yz, is2D);
         }
     else
         {
         ix = ceil(buff / lx);
         iy = ceil(buff / ly);
         iz = ceil(buff / lz);
-        buff_box = box::Box(lx+2*buff, ly+2*buff, lz+2*buff, xy, xz, yz, is2D);
+        buff_box = Box(lx+2*buff, ly+2*buff, lz+2*buff, xy, xz, yz, is2D);
         }
 
     if (is2D)

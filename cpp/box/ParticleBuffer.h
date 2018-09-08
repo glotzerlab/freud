@@ -21,10 +21,10 @@ class ParticleBuffer
     {
     public:
         //! Constructor
-        ParticleBuffer(const box::Box& box):m_box(box){}
+        ParticleBuffer(const Box& box):m_box(box){}
 
         //! Get the simulation box
-        const box::Box& getBox() const
+        const Box& getBox() const
                 {
                 return m_box;
                 }
@@ -46,7 +46,7 @@ class ParticleBuffer
             }
 
     private:
-        const box::Box m_box;    //!< Simulation box where the particles belong
+        const Box m_box;    //!< Simulation box where the particles belong
         std::shared_ptr< std::vector< vec3<float> > > m_buffer_particles;
         std::shared_ptr< std::vector< unsigned int > > m_buffer_ids;
     };

@@ -51,9 +51,6 @@ cdef extern from "Box.h" namespace "freud::box":
         void setPeriodicZ(bool_t)
 
 
-cdef extern from "ParticleBuffer.cc" namespace "freud::box":
-    pass
-
 cdef extern from "ParticleBuffer.h" namespace "freud::box":
     cdef cppclass ParticleBuffer:
         ParticleBuffer(const Box &)
