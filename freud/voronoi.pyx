@@ -313,8 +313,8 @@ class Voronoi:
                 List of :class:`numpy.ndarray` containing Voronoi polytope
                 vertices.
         """
-        warnings.warn("The getBuffer function is deprecated in favor "
-                      "of the buffer class attribute and will be "
+        warnings.warn("The getVoronoiPolytopes function is deprecated in "
+                      "favor of the polytopes class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
         return self.polytopes
@@ -549,7 +549,7 @@ class Voronoi:
         method. Retrieve the results with
         :py:meth:`freud.voronoi.Voronoi.getVolumes()`.
         """
-        polytope_verts = self.getVoronoiPolytopes()
+        polytope_verts = self.polytopes
         self._poly_volumes = np.zeros(shape=len(polytope_verts))
 
         for i, verts in enumerate(polytope_verts):
