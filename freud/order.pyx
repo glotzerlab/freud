@@ -413,6 +413,7 @@ cdef class NematicOrderParameter:
                       FreudDeprecationWarning)
         return self.nematic_tensor
 
+
 cdef class HexOrderParameter:
     """Calculates the :math:`k`-atic order parameter for each particle in the
     system.
@@ -547,6 +548,7 @@ cdef class HexOrderParameter:
                       FreudDeprecationWarning)
         return self.K
 
+
 cdef class TransOrderParameter:
     """Compute the translational order parameter for each particle.
 
@@ -648,6 +650,7 @@ cdef class TransOrderParameter:
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
         return self.num_particles
+
 
 cdef class LocalQl:
     """Compute the local Steinhardt [Steinhardt1983]_ rotationally invariant
@@ -939,6 +942,7 @@ cdef class LocalQl:
         self.qlptr.computeAveNorm(<vec3[float]*> l_points.data, nP)
         return self
 
+
 cdef class LocalQlNear(LocalQl):
     """A variant of the :py:class:`~LocalQl` class that performs its average
     over nearest neighbor particles as determined by an instance of
@@ -1045,6 +1049,7 @@ cdef class LocalQlNear(LocalQl):
             self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         return super(LocalQlNear, self).computeAveNorm(points, nlist_)
+
 
 cdef class LocalWl(LocalQl):
     """Compute the local Steinhardt [Steinhardt1983]_ rotationally invariant
@@ -1218,6 +1223,7 @@ cdef class LocalWl(LocalQl):
                       FreudDeprecationWarning)
         return self.ave_norm_Wl
 
+
 cdef class LocalWlNear(LocalWl):
     """A variant of the :py:class:`~LocalWl` class that performs its average
     over nearest neighbor particles as determined by an instance of
@@ -1320,6 +1326,7 @@ cdef class LocalWlNear(LocalWl):
             self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         return super(LocalWlNear, self).computeAveNorm(points, nlist_)
+
 
 cdef class SolLiq:
     """Uses dot products of :math:`Q_{lm}` between particles for clustering.
@@ -1607,6 +1614,7 @@ cdef class SolLiq:
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
         return self.num_particles
+
 
 cdef class SolLiqNear(SolLiq):
     """A variant of the :py:class:`~SolLiq` class that performs its average
