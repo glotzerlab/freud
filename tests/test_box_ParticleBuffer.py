@@ -11,7 +11,7 @@ class TestParticleBuffer(unittest.TestCase):
         np.random.seed(0)
 
         fbox = freud.box.Box.square(L)  # Initialize box
-        pbuff = freud.util.ParticleBuffer.ParticleBuffer(fbox)
+        pbuff = freud.box.ParticleBuffer(fbox)
 
         # Generate random points in the box
         positions = np.random.uniform(-L/2, L/2, size=(N, 2))
@@ -25,7 +25,7 @@ class TestParticleBuffer(unittest.TestCase):
 
         # Compute with images
         pbuff.compute(positions, buffer=1, images=True)
-        self.assertEqual(len(pbuff.buffer_particles), 8 * N)
+        self.assertEqual(len(pbuff.buffer_particles), 3 * N)
 
     def test_cube(self):
         L = 10  # Box length
@@ -33,7 +33,7 @@ class TestParticleBuffer(unittest.TestCase):
         np.random.seed(0)
 
         fbox = freud.box.Box.cube(L)  # Initialize box
-        pbuff = freud.util.ParticleBuffer.ParticleBuffer(fbox)
+        pbuff = freud.box.ParticleBuffer(fbox)
 
         # Generate random points in the box
         positions = np.random.uniform(-L/2, L/2, size=(N, 3))
@@ -44,14 +44,14 @@ class TestParticleBuffer(unittest.TestCase):
 
         # Compute with images
         pbuff.compute(positions, buffer=1, images=True)
-        self.assertEqual(len(pbuff.buffer_particles), 26 * N)
+        self.assertEqual(len(pbuff.buffer_particles), 7 * N)
 
     def test_triclinic(self):
         N = 50  # Number of particles
         np.random.seed(0)
 
         fbox = freud.box.Box(Lx=2, Ly=2, Lz=2, xy=1, xz=0, yz=1)
-        pbuff = freud.util.ParticleBuffer.ParticleBuffer(fbox)
+        pbuff = freud.box.ParticleBuffer(fbox)
 
         # Generate random points in the box, in fractional coordinates
         positions = np.random.uniform(0, 1, size=(N, 3))

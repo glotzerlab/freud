@@ -820,7 +820,9 @@ cdef class ParticleBuffer:
             images (bool):
                 If ``False`` (default), ``buffer`` is a distance. If ``True``,
                 ``buffer`` is a number of images to replicate in each
-                dimension.
+                dimension. Note that one image adds half of a box length to
+                each side, meaning that one image doubles the box side lengths,
+                two images triples the box side lengths, and so on.
         """
         points = freud.common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name='points')
