@@ -1,6 +1,9 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
+#ifndef LOCAL_BOND_PROJECTION_H
+#define LOCAL_BOND_PROJECTION_H
+
 #include <complex>
 #include <memory>
 #include <ostream>
@@ -10,9 +13,6 @@
 #include "VectorMath.h"
 #include "NearestNeighbors.h"
 #include "Index1D.h"
-
-#ifndef _LOCAL_BOND_PROJECTION_H__
-#define _LOCAL_BOND_PROJECTION_H__
 
 /*! \file LocalBondProjection.h
     \brief Compute the projection of nearest neighbor bonds for each particle onto some
@@ -88,11 +88,11 @@ class LocalBondProjection
         unsigned int m_Nequiv;          //!< Last number of equivalent reference orientations used for computation
         unsigned int m_tot_num_neigh;   //!< Last number of total bonds used for computation
 
-        std::shared_ptr<float> m_local_bond_proj;       //!< local bond projection array computed
-        std::shared_ptr<float> m_local_bond_proj_norm;  //!< normalized local bond projection array computed
+        std::shared_ptr<float> m_local_bond_proj;       //!< Local bond projection array computed
+        std::shared_ptr<float> m_local_bond_proj_norm;  //!< Normalized local bond projection array computed
 
     };
 
-}; }; // end namespace freud::order
+}; }; // end namespace freud::environment
 
-#endif // _LOCAL_BOND_PROJECTION_H__
+#endif // LOCAL_BOND_PROJECTION_H

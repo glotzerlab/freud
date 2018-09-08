@@ -146,4 +146,4 @@ void LocalBondProjection::compute(
     m_tot_num_neigh = tot_num_neigh;
     }
 
-}; }; // end namespace freud::order
+}; }; // end namespace freud::environment
