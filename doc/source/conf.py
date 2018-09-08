@@ -44,7 +44,6 @@ extensions = [
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
-exclude_patterns = ['_build', '_templates', '**.ipynb_checkpoints']
 
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
@@ -85,7 +84,8 @@ language = None
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = []
+exclude_patterns = ['_build', '_templates', '**.ipynb_checkpoints',
+                    'examples/demos/*.ipynb', 'examples/index.ipynb']
 
 # The reST default role (used for this markup: `text`) to use for all
 # documents.
