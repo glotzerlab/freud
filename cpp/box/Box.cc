@@ -3,12 +3,12 @@
 
 #include <iostream>
 
-#include "box.h"
+#include "Box.h"
 #include "Index1D.h"
 
 using namespace std;
 
-/*! \file box.cc
+/*! \file Box.cc
     \brief Represents simulation boxes and contains helpful wrapping functions.
 */
 

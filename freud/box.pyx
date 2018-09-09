@@ -2,9 +2,12 @@
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 R"""
-The box module provides the Box class, which defines the geometry of the
-simulation box. The module natively supports periodicity by providing the
-fundamental features for wrapping vectors outside the box back into it.
+The :class:`~.Box` class defines the geometry of a simulation box. The module
+natively supports periodicity by providing the fundamental features for
+wrapping vectors outside the box back into it. The :class:`~.ParticleBuffer`
+class is used to replicate particles across the periodic boundary to assist
+analysis methods that do not recognize periodic boundary conditions or extend
+beyond the limits of one periodicity of the box.
 """
 
 from __future__ import print_function
@@ -18,18 +21,22 @@ from freud.errors import FreudDeprecationWarning
 import logging
 
 from freud.util._VectorMath cimport vec3
-from libcpp.string cimport string
+from libcpp.memory cimport shared_ptr
+from cython.operator cimport dereference
 from libc.string cimport memcpy
+from libcpp.string cimport string
+from libcpp.vector cimport vector
+from libcpp cimport bool as bool_t
 from cpython.object cimport Py_EQ, Py_NE
 
 cimport freud._box
 cimport numpy as np
 
+logger = logging.getLogger(__name__)
+
 # numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults
 np.import_array()
-
-logger = logging.getLogger(__name__)
 
 cdef class Box:
     """The freud Box class for simulation boxes.
@@ -596,6 +603,24 @@ cdef class Box:
         else:
             raise NotImplementedError("This comparison is not implemented")
 
+    def __mul__(arg1, arg2):
+        # Note Cython treats __mul__ and __rmul__ as one operation, so
+        # type checks are necessary.
+        if isinstance(arg1, freud.box.Box):
+            self = arg1
+            scale = arg2
+        else:
+            scale = arg1
+            self = arg2
+        if scale > 0:
+            return self.__class__(Lx=self.Lx*scale,
+                                  Ly=self.Ly*scale,
+                                  Lz=self.Lz*scale,
+                                  xy=self.xy, xz=self.xz, yz=self.yz,
+                                  is2D=self.is2D())
+        else:
+            raise ValueError("Box can only be multiplied by positive values.")
+
     @classmethod
     def from_box(cls, box, dimensions=None):
         """Initialize a box instance from a box-like object.
@@ -760,7 +785,100 @@ cdef class Box:
                 self.getTiltFactorYZ(),
                 self.is2D())
 
+
 cdef BoxFromCPP(const freud._box.Box & cppbox):
     return Box(cppbox.getLx(), cppbox.getLy(), cppbox.getLz(),
                cppbox.getTiltFactorXY(), cppbox.getTiltFactorXZ(),
                cppbox.getTiltFactorYZ(), cppbox.is2D())
+
+
+cdef class ParticleBuffer:
+    """Replicates particles outside the box via periodic images.
+
+    .. moduleauthor:: Ben Schultz <baschult@umich.edu>
+    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
+
+    Args:
+        box (:py:class:`freud.box.Box`): Simulation box.
+
+    Attributes:
+        buffer_particles (:class:`numpy.ndarray`):
+            The buffer particles.
+        buffer_ids (:class:`numpy.ndarray`):
+            The buffer ids.
+        buffer_box (:class:`freud.box.Box`):
+            The buffer box, expanded to hold the replicated particles.
+    """
+    def __cinit__(self, box):
+        cdef Box b = freud.common.convert_box(box)
+        self.thisptr = new freud._box.ParticleBuffer(dereference(b.thisptr))
+
+    def compute(self, points, float buffer, bool_t images=False):
+        """Compute the particle buffer.
+
+        Args:
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Points used to calculate particle buffer.
+            buffer (float):
+                Buffer distance for replication outside the box.
+            images (bool):
+                If ``False`` (default), ``buffer`` is a distance. If ``True``,
+                ``buffer`` is a number of images to replicate in each
+                dimension. Note that one image adds half of a box length to
+                each side, meaning that one image doubles the box side lengths,
+                two images triples the box side lengths, and so on.
+        """
+        points = freud.common.convert_array(
+            points, 2, dtype=np.float32, contiguous=True, array_name='points')
+
+        if points.shape[1] != 3:
+            raise RuntimeError(
+                'Need a list of 3D points for ParticleBuffer.compute()')
+        cdef np.ndarray cPoints = points
+        cdef unsigned int Np = points.shape[0]
+        self.thisptr.compute(<vec3[float]*> cPoints.data, Np, buffer, images)
+        return self
+
+    @property
+    def buffer_particles(self):
+        cdef unsigned int buffer_size = \
+            dereference(self.thisptr.getBufferParticles().get()).size()
+        cdef vec3[float] * buffer_points = \
+            &dereference(self.thisptr.getBufferParticles().get())[0]
+        if not buffer_size:
+            return np.array([[]], dtype=np.float32)
+
+        cdef vector[vec3[float]]*bufferPar = \
+            self.thisptr.getBufferParticles().get()
+        cdef np.npy_intp nbins[2]
+        nbins[0] = buffer_size
+        nbins[1] = 3
+
+        cdef np.ndarray[float, ndim=2] result = \
+            np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32,
+                                         <void*> dereference(bufferPar).data())
+
+        return result
+
+    @property
+    def buffer_ids(self):
+        cdef unsigned int buffer_size = \
+            dereference(self.thisptr.getBufferParticles().get()).size()
+        cdef unsigned int * buffer_ids = \
+            &dereference(self.thisptr.getBufferIds().get())[0]
+        if not buffer_size:
+            return np.array([[]], dtype=np.uint32)
+
+        cdef vector[unsigned int]*bufferIds = self.thisptr.getBufferIds().get()
+        cdef np.npy_intp nbins[1]
+        nbins[0] = buffer_size
+
+        cdef np.ndarray[unsigned int, ndim=1] result = \
+            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32,
+                                         <void*> dereference(bufferIds).data())
+
+        return result
+
+    @property
+    def buffer_box(self):
+        return BoxFromCPP(<freud._box.Box> self.thisptr.getBufferBox())

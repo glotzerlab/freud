@@ -9,7 +9,7 @@
 #include <stdint.h>
 #include <vector>
 
-#include "box.h"
+#include "Box.h"
 #include "VectorMath.h"
 #include "LinkCell.h"
 
