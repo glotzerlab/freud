@@ -14,15 +14,12 @@ Visualization of data is done via `Matplotlib <https://matplotlib.org/>`_ [Matpl
     :caption: Examples
     :glob:
 
-    examples/module_intros/Bond*
     examples/module_intros/Box*
     examples/module_intros/Cluster*
     examples/module_intros/Density*
     examples/module_intros/Environment*
-    examples/module_intros/Index*
     examples/module_intros/Interface*
     examples/module_intros/Locality*
     examples/module_intros/Order*
-    examples/module_intros/Parallel*
     examples/module_intros/PMFT*
     examples/module_intros/Voronoi*
