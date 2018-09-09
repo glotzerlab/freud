@@ -624,7 +624,7 @@ cdef class LinkCell:
             result[i] = neighbors[i]
         return result
 
-    def computeCellList(self, box, ref_points, points=None, exclude_ii=None):
+    def compute(self, box, ref_points, points=None, exclude_ii=None):
         """Update the data structure for the given set of points and compute a
         NeighborList.
 
@@ -679,7 +679,7 @@ cdef class LinkCell:
         self._nlist.base = self
         return self
 
-    def compute(self, box, ref_points, points=None, exclude_ii=None):
+    def computeCellList(self, box, ref_points, points=None, exclude_ii=None):
         """Update the data structure for the given set of points and compute a
         NeighborList.
 
@@ -695,7 +695,11 @@ cdef class LinkCell:
                 excluded; if None, is set to True if points is None or the same
                 object as ref_points (Default value = :code:`None`).
         """  # noqa: E501
-        return self.computeCellList(box, ref_points, points, exclude_ii)
+        warnings.warn("The computeCellList function is deprecated in favor "
+                      "of the compute method and will be removed in a future "
+                      "version of freud.",
+                      FreudDeprecationWarning)
+        return self.compute(box, ref_points, points, exclude_ii)
 
     @property
     def nlist(self):
