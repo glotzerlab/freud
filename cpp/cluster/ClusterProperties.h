@@ -6,7 +6,7 @@
 
 #include <memory>
 
-#include "box.h"
+#include "Box.h"
 
 /*! \file ClusterProperties.h
     \brief Routines for computing properties of point clusters.

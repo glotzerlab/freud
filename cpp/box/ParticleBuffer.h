@@ -1,39 +1,47 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
-#ifndef VORONOIBUFFER_H
-#define VORONOIBUFFER_H
+#ifndef PARTICLE_BUFFER_H
+#define PARTICLE_BUFFER_H
 
 #include <memory>
 #include <vector>
 
-#include "box.h"
+#include "Box.h"
 #include "VectorMath.h"
 #include "Index1D.h"
 
-/*! \file VoronoiBuffer.h
-    \brief Computes a buffer of particles to support wrapped positions in qhull
+/*! \file ParticleBuffer.h
+    \brief Replicates particles across periodic boundaries.
 */
 
-namespace freud { namespace voronoi {
+namespace freud { namespace box {
 
-//! Locates the particles near the border of the box and computes their nearest images to pass to qhull
-class VoronoiBuffer
+class ParticleBuffer
     {
     public:
         //! Constructor
-        VoronoiBuffer(const box::Box& box):m_box(box){}
+        ParticleBuffer(const Box& box) : m_box(box), m_buffer_box(box)
+            {
+            }
 
         //! Get the simulation box
-        const box::Box& getBox() const
-                {
-                return m_box;
-                }
+        const Box& getBox() const
+            {
+            return m_box;
+            }
+
+        //! Get the buffer box
+        const Box& getBufferBox() const
+            {
+            return m_buffer_box;
+            }
 
         //! Compute the particle images
         void compute(const vec3<float> *points,
                      const unsigned int Np,
-                     const float buff);
+                     const float buff,
+                     const bool images);
 
         std::shared_ptr< std::vector< vec3<float> > > getBufferParticles()
             {
@@ -46,11 +54,12 @@ class VoronoiBuffer
             }
 
     private:
-        const box::Box m_box;    //!< Simulation box where the particles belong
+        const Box m_box;    //!< Simulation box of the original particles
+        Box m_buffer_box;   //!< Simulation box of the replicated particles
         std::shared_ptr< std::vector< vec3<float> > > m_buffer_particles;
         std::shared_ptr< std::vector< unsigned int > > m_buffer_ids;
     };
 
-}; }; // end namespace freud::voronoi
+}; }; // end namespace freud::box
 
-#endif // VORONOI_BUFFER_H
+#endif // PARTICLE_BUFFER_H

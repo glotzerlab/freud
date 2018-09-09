@@ -6,7 +6,7 @@
 
 #include <memory>
 
-#include "box.h"
+#include "Box.h"
 #include "VectorMath.h"
 #include "NearestNeighbors.h"
 #include "fsph/src/spherical_harmonics.hpp"

@@ -11,7 +11,7 @@
 #include <tbb/tbb.h>
 #include <vector>
 
-#include "box.h"
+#include "Box.h"
 #include "VectorMath.h"
 #include "NearestNeighbors.h"
 #include "Index1D.h"

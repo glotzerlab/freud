@@ -12,7 +12,7 @@
 #include <stdexcept>
 #include <vector>
 
-#include "box.h"
+#include "Box.h"
 #include "VectorMath.h"
 #include "Cluster.h"
 #include "LinkCell.h"
