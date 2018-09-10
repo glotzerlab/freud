@@ -7,6 +7,7 @@ import platform
 import glob
 import multiprocessing.pool
 import logging
+import argparse
 try:
     from setuptools import Extension, setup, distutils
     from setuptools.command.build_ext import build_ext as _build_ext
@@ -22,82 +23,6 @@ logger = logging.getLogger(__name__)
 ######################################
 # Define helper functions for setup.py
 ######################################
-
-def find_tbb():
-    """Function to find paths to TBB.
-
-    For finding TBB, the order of precedence is the
-    following:
-        1. The --TBB-INCLUDE/--TBB-LINK passed to setup.py (must specify both).
-        2. The --TBB-ROOT passed to setup.py.
-        3. The TBB_INCLUDE/TBB_LINK environment variables (must specify both).
-        4. The TBB_ROOT environment variable.
-
-    Returns:
-        tuple:
-            The tbb include and lib directories passed as args. Returns None
-            if nothing was provided.
-    """
-    valid_tbb_opts = set(['--TBB-ROOT', '--TBB-INCLUDE', '--TBB-LINK'])
-    provided_opts = valid_tbb_opts.intersection(sys.argv)
-    err_str = ("You must provide either '--TBB-ROOT' or BOTH '--TBB-INCLUDE' "
-               "and '--TBB-LINK' as command line arguments. These may also be "
-               "specified as environment variables "
-               " (e.g. TBB_ROOT=/usr/local python setup.py install).")
-
-    tbb_include = tbb_link = None
-    if len(provided_opts) == 3:
-        logger.warning("--TBB-ROOT is ignored if both --TBB-INCLUDE and "
-                       "--TBB-LINK are specified.")
-        tbb_include = sys.argv[sys.argv.index('--TBB-INCLUDE') + 1]
-        tbb_link = sys.argv[sys.argv.index('--TBB-LINK') + 1]
-    elif len(provided_opts) == 2:
-        if '--TBB-ROOT' in provided_opts:
-            logger.warning("Using --TBB-ROOT and ignoring {}".format(
-                           provided_opts.difference(set(["--TBB-ROOT"]))))
-            root = sys.argv[sys.argv.index('--TBB-ROOT') + 1]
-            tbb_include = os.path.join(root, 'include')
-            tbb_link = os.path.join(root, 'lib')
-        else:
-            tbb_include = sys.argv[sys.argv.index('--TBB-INCLUDE') + 1]
-            tbb_link = sys.argv[sys.argv.index('--TBB-LINK') + 1]
-    elif '--TBB-ROOT' in provided_opts:
-        root = sys.argv[sys.argv.index('--TBB-ROOT') + 1]
-        tbb_include = os.path.join(root, 'include')
-        tbb_link = os.path.join(root, 'lib')
-    elif '--TBB-LINK' in provided_opts:
-        tbb_link = sys.argv[sys.argv.index('--TBB-LINK') + 1]
-    elif '--TBB-INCLUDE' in provided_opts:
-        tbb_include = sys.argv[sys.argv.index('--TBB-INCLUDE') + 1]
-    elif provided_opts:
-            raise RuntimeError(err_str)
-    else:
-        include = os.getenv("TBB_INCLUDE")
-        link = os.getenv("TBB_LINK")
-        root = os.getenv("TBB_ROOT")
-        if link and include:
-            if root:
-                logger.warning("TBB_ROOT is ignored if both TBB_INCLUDE and "
-                               "TBB_LINK are defined.")
-            tbb_include = include
-            tbb_link = link
-        elif root:
-            if link or include:
-                logger.warning("Using environment variable TBB_ROOT and "
-                               "ignoring {}".format("TBB_LINK" if link
-                                                    else "TBB_INCLUDE"))
-        else:
-            tbb_include = include
-            tbb_link = link
-
-    # Delete the options and their values.
-    for arg in provided_opts:
-        i = sys.argv.index(arg)
-        sys.argv.remove(arg)
-        del sys.argv[i]
-
-    return tbb_include, tbb_link
-
 
 @contextlib.contextmanager
 def stderr_manager(f):
@@ -143,84 +68,138 @@ coverage_str = "--COVERAGE"
 cython_str = "--ENABLE-CYTHON"
 parallel_str = "-j"
 thread_str = "--NTHREAD"
+tbb_root_str = "--TBB-ROOT"
+tbb_include_str = "--TBB-INCLUDE"
+tbb_link_str = "--TBB-LINK"
 
-if warnings_str in sys.argv:
-    sys.argv.remove(warnings_str)
-    print_warnings = True
-else:
-    print_warnings = False
+parser = argparse.ArgumentParser(
+    description="These are the additional arguments provided by freud "
+                "specific build steps. Any arguments not listed in this "
+                "usage will be passed on to setuptools.setup.",
+    add_help=False)
+parser.add_argument(
+    '-h',
+    '--help',
+    action='store_true',
+    help='show this help message'
+)
+parser.add_argument(
+    warnings_str,
+    action="store_true",
+    dest="print_warnings",
+    help="Print out all warnings issued during compilation."
+)
+parser.add_argument(
+    coverage_str,
+    action="store_true",
+    dest="use_coverage",
+    help="Compile Cython with coverage"
+)
+parser.add_argument(
+    cython_str,
+    action="store_true",
+    dest="use_cython",
+    help="Compile with Cython instead of using precompiled C++ files"
+)
+parser.add_argument(
+    parallel_str,
+    type=int,
+    dest="nthreads",
+    default=1,
+    help="The number of modules to simultaneously compile. Affects both "
+         "cythonization and actual compilation of C++ source."
+)
+parser.add_argument(
+    thread_str,
+    type=int,
+    dest="nthreads_ext",
+    help="The number of threads to use to simultaneously compile a single "
+         "module. Helpful when constantly recompiling a single module with "
+         "many source files, for example during development."
+)
+parser.add_argument(
+    tbb_root_str,
+    dest="tbb_root",
+    help="The root directory where TBB is installed."
+)
+parser.add_argument(
+    tbb_include_str,
+    dest="tbb_include",
+    help="The includes directory where the TBB headers are found."
+)
+parser.add_argument(
+    tbb_link_str,
+    dest="tbb_link",
+    help="The lib directory where TBB shared libraries are found."
+)
+args, extras = parser.parse_known_args()
+if args.nthreads > 1:
+    # Make sure number of threads to use gets passed through to setup.
+    extras.extend(["-j", str(args.nthreads)])
+sys.argv = ['setup.py'] + extras
 
-if coverage_str in sys.argv:
-    sys.argv.remove(coverage_str)
+
+# Override argparse default helping so that setup can proceed.
+if args.help:
+    parser.print_help()
+    print("\n\nThe subsequent help is for standard setup.py usage.\n\n")
+
+if args.use_coverage:
     directives = {'embedsignature': True, 'binding': True, 'linetrace': True}
     macros = [('CYTHON_TRACE', '1'), ('CYTHON_TRACE_NOGIL', '1')]
 else:
     directives = {'embedsignature': True, 'binding': True}
     macros = []
 
-if cython_str in sys.argv:
+if args.use_cython:
     try:
         from Cython.Build import cythonize
     except (ImportError, ModuleNotFoundError):
         raise RuntimeError("Could not find cython so cannot build with "
                            "cython. Try again without the --ENABLE-CYTHON "
                            "option.")
-    sys.argv.remove(cython_str)
-    use_cython = True
     ext = '.pyx'
 else:
-    use_cython = False
     ext = '.cpp'
 
-if parallel_str in sys.argv:
-    # Delete both the option and the associated value from argv
-    i = sys.argv.index(parallel_str)
-    nthreads = int(sys.argv[i+1])
-else:
-    nthreads = 1
 
 ################################
 # Modifications to setup process
 ################################
 
 # Enable build parallel compile within modules.
-if thread_str in sys.argv:
-    i = sys.argv.index(thread_str)
-    sys.argv.remove(thread_str)
-    nthreads_ext = int(sys.argv[i])
-    del sys.argv[i]
+def parallelCCompile(self, sources, output_dir=None, macros=None,
+                     include_dirs=None, debug=0, extra_preargs=None,
+                     extra_postargs=None, depends=None):
+    # source: https://stackoverflow.com/questions/11013851/speeding-up-build-process-with-distutils  # noqa
+    # monkey-patch for parallel compilation
+    macros, objects, extra_postargs, pp_opts, build = self._setup_compile(
+        output_dir, macros, include_dirs, sources, depends, extra_postargs)
+    cc_args = self._get_cc_args(pp_opts, debug, extra_preargs)
 
-    # Hack for increasing parallelism during builds.
-    def parallelCCompile(self, sources, output_dir=None, macros=None,
-                         include_dirs=None, debug=0, extra_preargs=None,
-                         extra_postargs=None, depends=None):
-        # source: https://stackoverflow.com/questions/11013851/speeding-up-build-process-with-distutils  # noqa
-        # monkey-patch for parallel compilation
-        macros, objects, extra_postargs, pp_opts, build = self._setup_compile(
-            output_dir, macros, include_dirs, sources, depends, extra_postargs)
-        cc_args = self._get_cc_args(pp_opts, debug, extra_preargs)
+    # The number of parallel threads to attempt
+    N = args.nthreads_ext
 
-        # The number of parallel threads to attempt
-        N = nthreads_ext
+    def _single_compile(obj):
+        try:
+            src, ext = build[obj]
+        except KeyError:
+            return
+        self._compile(obj, src, ext, cc_args, extra_postargs, pp_opts)
 
-        def _single_compile(obj):
-            try:
-                src, ext = build[obj]
-            except KeyError:
-                return
-            self._compile(obj, src, ext, cc_args, extra_postargs, pp_opts)
+    # convert to list, imap is evaluated on-demand
+    list(multiprocessing.pool.ThreadPool(N).imap(_single_compile, objects))
+    return objects
 
-        # convert to list, imap is evaluated on-demand
-        list(multiprocessing.pool.ThreadPool(N).imap(_single_compile, objects))
-        return objects
-    distutils.ccompiler.CCompiler.compile=parallelCCompile
 
+distutils.ccompiler.CCompiler.compile=parallelCCompile
+
+# Allow pip install without NumPy preinstalled.
 #  Only modify build_ext if we're doing some form of installation.
 build_strings = ['build', 'install', 'dist']
 if any(b in arg for arg in sys.argv for b in build_strings):
     setup_requires = ['numpy>=1.10']
 
-    # Allow pip install without NumPy preinstalled.
     class build_ext(_build_ext):
         def finalize_options(self):
             _build_ext.finalize_options(self)
@@ -239,7 +218,7 @@ else:
 
 on_rtd = os.environ.get('READTHEDOCS') == 'True'
 if on_rtd:
-    use_cython = True
+    args.use_cython = True
     ext = '.pyx'
 
 
@@ -247,12 +226,69 @@ if on_rtd:
 # Set extension arguments
 #########################
 
-tbb_include, tbb_link = find_tbb()
+def find_tbb(tbb_root=None, tbb_include=None, tbb_link=None):
+    """Function to find paths to TBB.
 
-include_dirs = [
-    "extern",
-]
-include_dirs.extend(glob.glob(os.path.join('cpp', '*')))
+    For finding TBB, the order of precedence is:
+        1. The --TBB-INCLUDE/--TBB-LINK passed to setup.py (must specify both).
+        2. The --TBB-ROOT passed to setup.py.
+        3. The TBB_INCLUDE/TBB_LINK environment variables (must specify both).
+        4. The TBB_ROOT environment variable.
+
+    Args:
+        tbb_root (str): The location where TBB is installed.
+        tbb_include (str): The directory where the TBB headers are found.
+        tbb_root (str): The directory where TBB shared libraries are found.
+
+    Returns:
+        tuple:
+            The tbb include and lib directories passed as args. Returns None
+            if nothing was provided.
+    """
+    err_str = ("You must provide either {} or BOTH {} and {} as command line "
+               "arguments. These may also be specified as environment "
+               "variables (e.g. {}=/usr/local python setup.py install).")
+    err_str = err_str.format(
+        tbb_root_str, tbb_include_str, tbb_link_str, tbb_root_str)
+
+    if tbb_root and tbb_include and tbb_link:
+        logger.warning("{} is ignored if both {} and {} are specified.".format(
+                       tbb_root_str, tbb_include_str, tbb_link_str))
+    elif tbb_include and tbb_link:
+        pass
+    elif tbb_root:
+        if tbb_include or tbb_link:
+            logger.warning("Using {} and ignoring {}".format(tbb_root_str,
+                           tbb_include_str if tbb_include else tbb_link_str))
+        tbb_include = os.path.join(tbb_root, 'include')
+        tbb_link = os.path.join(tbb_root, 'lib')
+    elif tbb_include or tbb_link:
+            raise RuntimeError(err_str)
+    else:
+        include = os.getenv("TBB_INCLUDE")
+        link = os.getenv("TBB_LINK")
+        root = os.getenv("TBB_ROOT")
+        if link and include:
+            if root:
+                logger.warning("TBB_ROOT is ignored if both TBB_INCLUDE and "
+                               "TBB_LINK are defined.")
+            tbb_include = include
+            tbb_link = link
+        elif root:
+            if link or include:
+                logger.warning("Using environment variable TBB_ROOT and "
+                               "ignoring {}".format("TBB_LINK" if link
+                                                    else "TBB_INCLUDE"))
+        elif include or link:
+            raise RuntimeError(err_str)
+
+    return tbb_include, tbb_link
+
+
+tbb_include, tbb_link = find_tbb(args.tbb_root, args.tbb_include,
+                                 args.tbb_link)
+
+include_dirs = ["extern"] + glob.glob(os.path.join('cpp', '*'))
 
 if tbb_include:
     include_dirs.append(tbb_include)
@@ -313,10 +349,10 @@ for f, m in zip(files, modules):
 
     extensions.append(Extension(m, sources=list(sources), **ext_args))
 
-if use_cython:
+if args.use_cython:
     extensions = cythonize(extensions,
                            compiler_directives=directives,
-                           nthreads=nthreads)
+                           nthreads=args.nthreads)
 
 
 ####################################
@@ -371,7 +407,7 @@ except SystemExit:
                          "your system, try specifying the location using the "
                          "--TBB-ROOT or the --TBB-INCLUDE/--TBB-LINK "
                          "arguments to setup.py.\033[0m\n")
-    elif parallel_err in err_out and nthreads > 1:
+    elif parallel_err in err_out and args.nthreads > 1:
         sys.stderr.write("\n\033[1mYou attempted parallel compilation on a "
                          "Python version where this leads to a race "
                          "in distutils. Please recompile without the -j "
@@ -382,7 +418,7 @@ except: # noqa
     sys.stderr.write(tfile.read().decode())
     raise
 else:
-    if print_warnings:
+    if args.print_warnings:
         sys.stdout.write("Printing warnings: ")
         sys.stderr.write(tfile.read().decode())
     else:
