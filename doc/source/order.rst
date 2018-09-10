@@ -76,5 +76,5 @@ Solid-Liquid Order Parameter
 .. autoclass:: freud.order.SolLiq(box, rmax, Qthreshold, Sthreshold, l)
     :members: compute, computeSolLiqNoNorm, computeSolLiqVariant
 
-.. autoclass:: freud.order.SolLiqNear(box, rmax, Qthreshold, Sthreshold, l)
+.. autoclass:: freud.order.SolLiqNear(box, rmax, Qthreshold, Sthreshold, l, kn)
     :members: compute, computeSolLiqNoNorm, computeSolLiqVariant
