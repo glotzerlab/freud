@@ -51,7 +51,7 @@ cdef class BondOrder:
 
     This class provides access to the classical BOOD as well as a few useful
     variants. These variants can be accessed *via* the :code:`mode` arguments
-    to the :py:meth:`~BondOrder.compute` or :py:meth:`~BondOrder.accumulate`
+    to the :meth:`~BondOrder.compute` or :meth:`~BondOrder.accumulate`
     methods. Available modes of calculation are:
 
     * :code:`'bod'` (Bond Order Diagram, *default*):
@@ -108,7 +108,7 @@ cdef class BondOrder:
     Attributes:
         bond_order (:math:`\\left(N_{\\phi}, N_{\\theta} \\right)` :class:`numpy.ndarray`):
             Bond order.
-        box (:py:class:`freud.box.Box`):
+        box (:class:`freud.box.Box`):
             Box used in the calculation.
         theta (:math:`\\left(N_{\\theta} \\right)` :class:`numpy.ndarray`):
             The values of bin centers for :math:`\\theta`.
@@ -491,7 +491,8 @@ cdef class LocalDescriptors:
                 environments (Default value = :code:`'neighborhood'`).
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds or :code:`'precomputed'` if
-                using :py:meth:`~.computeNList` (Default value = :code:`None`).
+                using :meth:`~.computeNList` (Default value = :code:`None`).
+                using :meth:`~.computeNList` (Default value = :code:`None`).
         """  # noqa: E501
         cdef freud.box.Box b = freud.common.convert_box(box)
 
@@ -1042,7 +1043,7 @@ cdef class Pairing2D:
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
     .. deprecated:: 0.8.2
-       Use :py:mod:`freud.bond` instead.
+       Use :mod:`freud.bond` instead.
 
     Args:
         rmax (float):
@@ -1057,7 +1058,7 @@ cdef class Pairing2D:
             The match.
         pair (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
             The pair.
-        box (:py:class:`freud.box.Box`):
+        box (:class:`freud.box.Box`):
             Box used in the calculation.
     """
     def __cinit__(self, rmax, k, compDotTol):
@@ -1188,11 +1189,11 @@ cdef class AngularSeparation:
             The number of global orientations to check against.
         neighbor_angles ((:math:`\\left(N_{particles}\\timesN_{neighbors}, \\right)` :class:`numpy.ndarray`):
             The neighbor angles in radians. **This field is only populated
-            after :py:meth`~.computeNeighbor` is called.** The angles
+            after :meth`~.computeNeighbor` is called.** The angles
             are stored in the order of the neighborlist object.
         global_angles (:math:`\\left(N_{global}, N_{particles} \\right)` :class:`numpy.ndarray`):
             The global angles in radians. **This field is only populated after
-            :py:meth:`.computeGlobal` is called.** The angles
+            :meth:`.computeGlobal` is called.** The angles
             are stored in the order of the neighborlist object.
 
     .. todo Need to figure out what happens if you use a neighborlist with

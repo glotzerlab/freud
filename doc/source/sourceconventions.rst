@@ -170,7 +170,7 @@ Documentation Comments
 
    - The shapes of NumPy arrays should be documented as part of the type in the
      following manner:
-     :code:`points ((N, 4) (:py:class:np.ndarray)): The points...`.
+     :code:`points ((N, 4) (:class:np.ndarray)): The points...`.
    - Constructors should be documented at the class level.
    - Class attributes (*including properties*) should be documented as class
      attributes within the class-level docstring.
