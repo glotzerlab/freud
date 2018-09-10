@@ -159,6 +159,12 @@ else:
     macros = []
 
 if cython_str in sys.argv:
+    try:
+        from Cython.Build import cythonize
+    except (ImportError, ModuleNotFoundError):
+        raise RuntimeError("Could not find cython so cannot build with "
+                           "cython. Try again without the --ENABLE-CYTHON "
+                           "option.")
     sys.argv.remove(cython_str)
     use_cython = True
     ext = '.pyx'
@@ -308,7 +314,6 @@ for f, m in zip(files, modules):
     extensions.append(Extension(m, sources=list(sources), **ext_args))
 
 if use_cython:
-    from Cython.Build import cythonize
     extensions = cythonize(extensions,
                            compiler_directives=directives,
                            nthreads=nthreads)
