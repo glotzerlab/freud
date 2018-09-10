@@ -378,7 +378,7 @@ def make_default_nlist(box, ref_points, points, rmax, nlist=None,
         return nlist, nlist
     cdef freud.box.Box b = freud.common.convert_box(box)
 
-    cdef LinkCell lc = LinkCell(box, rmax).computeCellList(
+    cdef LinkCell lc = LinkCell(box, rmax).compute(
         box, ref_points, points, exclude_ii)
 
     # Python does not appear to garbage collect appropriately in this case.
