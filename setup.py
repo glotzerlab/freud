@@ -381,7 +381,7 @@ except ImportError:
 tfile = tempfile.TemporaryFile(mode='w+b')
 try:
     with stderr_manager(tfile):
-        setup(name='freud',
+        setup(name='freud-analysis',
               version=version,
               description=desc,
               long_description=readme,
