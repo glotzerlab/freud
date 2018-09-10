@@ -11,7 +11,7 @@ import argparse
 try:
     from setuptools import Extension, setup, distutils
     from setuptools.command.build_ext import build_ext as _build_ext
-except (ImportError, ModuleNotFoundError):
+except ImportError:
     # Compatibility with distutils
     import distutils
     from distutils import Extension, setup
@@ -154,7 +154,7 @@ else:
 if args.use_cython:
     try:
         from Cython.Build import cythonize
-    except (ImportError, ModuleNotFoundError):
+    except ImportError:
         raise RuntimeError("Could not find cython so cannot build with "
                            "cython. Try again without the --ENABLE-CYTHON "
                            "option.")
