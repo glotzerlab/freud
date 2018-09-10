@@ -1,6 +1,3 @@
-import setuptools
-from distutils.extension import Extension
-import numpy as np
 import io
 import contextlib
 import tempfile
@@ -10,6 +7,14 @@ import platform
 import glob
 import multiprocessing.pool
 import logging
+try:
+    from setuptools import Extension, setup, distutils
+    from setuptools.command.build_ext import build_ext as _build_ext
+except (ImportError, ModuleNotFoundError):
+    # Compatibility with distutils
+    import distutils
+    from distutils import Extension, setup
+    from distutils.command.build_ext import build_ext as _build_ext
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +23,7 @@ logger = logging.getLogger(__name__)
 # Define helper functions for setup.py
 ######################################
 
-def find_tbb(argv):
+def find_tbb():
     """Function to find paths to TBB.
 
     For finding TBB, the order of precedence is the
@@ -27,9 +32,6 @@ def find_tbb(argv):
         2. The --TBB-ROOT passed to setup.py.
         3. The TBB_INCLUDE/TBB_LINK environment variables (must specify both).
         4. The TBB_ROOT environment variable.
-
-    Args:
-        argv (str): The value of sys.argv (arguments to the file).
 
     Returns:
         tuple:
@@ -171,6 +173,11 @@ if parallel_str in sys.argv:
 else:
     nthreads = 1
 
+################################
+# Modifications to setup process
+################################
+
+# Enable build parallel compile within modules.
 if thread_str in sys.argv:
     i = sys.argv.index(thread_str)
     sys.argv.remove(thread_str)
@@ -200,7 +207,24 @@ if thread_str in sys.argv:
         # convert to list, imap is evaluated on-demand
         list(multiprocessing.pool.ThreadPool(N).imap(_single_compile, objects))
         return objects
-    setuptools.distutils.ccompiler.CCompiler.compile=parallelCCompile
+    distutils.ccompiler.CCompiler.compile=parallelCCompile
+
+#  Only modify build_ext if we're doing some form of installation.
+build_strings = ['build', 'install', 'dist']
+if any(b in arg for arg in sys.argv for b in build_strings):
+    setup_requires = ['numpy>=1.10']
+
+    # Allow pip install without NumPy preinstalled.
+    class build_ext(_build_ext):
+        def finalize_options(self):
+            _build_ext.finalize_options(self)
+            # Prevent numpy from thinking it is still in its setup process:
+            __builtins__.__NUMPY_SETUP__ = False
+            import numpy
+            self.include_dirs.append(numpy.get_include())
+else:
+    setup_requires = []
+    build_ext = _build_ext
 
 
 #######################
@@ -217,10 +241,9 @@ if on_rtd:
 # Set extension arguments
 #########################
 
-tbb_include, tbb_link = find_tbb(sys.argv)
+tbb_include, tbb_link = find_tbb()
 
 include_dirs = [
-    np.get_include(),
     "extern",
 ]
 include_dirs.extend(glob.glob(os.path.join('cpp', '*')))
@@ -317,15 +340,18 @@ except ImportError:
 tfile = tempfile.TemporaryFile(mode='w+b')
 try:
     with stderr_manager(tfile):
-        setuptools.setup(name='freud',
-                         version=version,
-                         description=desc,
-                         long_description=readme,
-                         long_description_content_type='text/markdown',
-                         url='http://bitbucket.org/glotzer/freud',
-                         packages=['freud'],
-                         python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*',
-                         ext_modules=extensions)
+        setup(name='freud',
+              version=version,
+              description=desc,
+              long_description=readme,
+              long_description_content_type='text/markdown',
+              url='http://bitbucket.org/glotzer/freud',
+              packages=['freud'],
+              python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*',
+              install_requires=['numpy>=1.10'],
+              cmdclass={"build_ext": build_ext},
+              setup_requires=setup_requires,
+              ext_modules=extensions)
 except SystemExit:
     # The errors we're explicitly checking for are whether or not
     # TBB is missing, and whether a parallel compile resulted in a
