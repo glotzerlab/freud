@@ -10,11 +10,10 @@ from . import density
 from . import environment
 from . import index
 from . import interface
-from . import kspace
 from . import locality
 from . import order
 from . import symmetry
 from . import pmft
 from . import voronoi
 
-__version__ = '0.9.0'
+__version__ = '0.10.0'

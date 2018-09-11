@@ -15,7 +15,6 @@ Below is a list of modules in freud. To add your own module, read the
    environment
    indexer
    interface
-   kspace
    locality
    order
    symmetry

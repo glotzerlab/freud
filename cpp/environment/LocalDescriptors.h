@@ -6,7 +6,7 @@
 
 #include <memory>
 
-#include "box.h"
+#include "Box.h"
 #include "VectorMath.h"
 #include "NearestNeighbors.h"
 #include "fsph/src/spherical_harmonics.hpp"
@@ -55,13 +55,6 @@ public:
     unsigned int getLMax() const
         {
         return m_lmax;
-        }
-
-    // TODO remove getRMax, it is essentially a speed hack that doesn't fit in once we have NeighborLists
-    //! Get the maximum neighbor distance
-    unsigned int getRMax() const
-        {
-        return m_nn.getRMax();
         }
 
     //! Get the number of particles

@@ -7,7 +7,7 @@
 #include <memory>
 #include <vector>
 
-#include "box.h"
+#include "Box.h"
 #include "NeighborList.h"
 #include "Index1D.h"
 

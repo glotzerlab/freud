@@ -2,23 +2,37 @@
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 R"""
-The box module provides the Box class, which defines the geometry of the
-simulation box. The module natively supports periodicity by providing the
-fundamental features for wrapping vectors outside the box back into it.
+The :class:`~.Box` class defines the geometry of a simulation box. The module
+natively supports periodicity by providing the fundamental features for
+wrapping vectors outside the box back into it. The :class:`~.ParticleBuffer`
+class is used to replicate particles across the periodic boundary to assist
+analysis methods that do not recognize periodic boundary conditions or extend
+beyond the limits of one periodicity of the box.
 """
+
+from __future__ import print_function
 
 import warnings
 import numpy as np
 from collections import namedtuple
 import freud.common
+from freud.errors import FreudDeprecationWarning
+
+import logging
 
 from freud.util._VectorMath cimport vec3
-from libcpp.string cimport string
+from libcpp.memory cimport shared_ptr
+from cython.operator cimport dereference
 from libc.string cimport memcpy
+from libcpp.string cimport string
+from libcpp.vector cimport vector
+from libcpp cimport bool as bool_t
 from cpython.object cimport Py_EQ, Py_NE
 
 cimport freud._box
 cimport numpy as np
+
+logger = logging.getLogger(__name__)
 
 # numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults
@@ -79,6 +93,12 @@ cdef class Box:
             The number of dimensions (2 or 3).
         periodic (list, settable):
             Whether or not the box is periodic.
+        periodic_x (bool, settable):
+            Whether or not the box is periodic in x.
+        periodic_y (bool, settable):
+            Whether or not the box is periodic in y.
+        periodic_z (bool, settable):
+            Whether or not the box is periodic in z.
     """
     def __cinit__(self, Lx=None, Ly=None, Lz=None, xy=None, xz=None, yz=None,
                   is2D=None):
@@ -95,104 +115,144 @@ cdef class Box:
         if yz is None:
             yz = 0
         if is2D is None:
-            is2D = False
-        if is2D and (Lz != 0 or xz != 0 or yz != 0):
-            warnings.warn(
-                "Specifying z-dimensions in a 2-dimensional box "
-                "has no effect!")
+            is2D = (Lz == 0)
+        if is2D:
+            if not (Lx and Ly):
+                raise ValueError("Lx and Ly must be nonzero for 2D boxes.")
+            elif Lz != 0 or xz != 0 or yz != 0:
+                warnings.warn(
+                    "Specifying z-dimensions in a 2-dimensional box "
+                    "has no effect!")
+        else:
+            if not (Lx and Ly and Lz):
+                raise ValueError(
+                    "Lx, Ly, and Lz must be nonzero for 3D boxes.")
         self.thisptr = new freud._box.Box(Lx, Ly, Lz, xy, xz, yz, is2D)
 
     def __dealloc__(self):
         del self.thisptr
 
-    def getL(self):
-        """Return the lengths of the box as a tuple (x, y, z).
-
-        Returns:
-            (float, float, float): Dimensions of the box as (x, y, z).
-        """
+    @property
+    def L(self):
         cdef vec3[float] result = self.thisptr.getL()
         return (result.x, result.y, result.z)
 
-    def setL(self, L):
-        """Set all side lengths of box to L.
-
-        Args:
-            L (float): Side length of box.
-        """
+    @L.setter
+    def L(self, value):
         try:
-            len(L)
+            if len(value) != 3:
+                raise ValueError('setL must be called with a scalar or a list '
+                                 'of length 3.')
         except TypeError:
-            L = (L, L, L)
+            # Will fail if object has no length
+            value = (value, value, value)
 
-        if len(L) != 3:
-            raise TypeError('Could not setL({})'.format(L))
-
-        if self.is2D() and L[2] != 0:
+        if self.is2D() and value[2] != 0:
             warnings.warn(
                 "Specifying z-dimensions in a 2-dimensional box "
                 "has no effect!")
-        self.thisptr.setL(L[0], L[1], L[2])
+        self.thisptr.setL(value[0], value[1], value[2])
 
-    def getLx(self):
-        """Length of the x-dimension of the box.
+    def getL(self):
+        warnings.warn("The getL function is deprecated in favor "
+                      "of the L class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.L
 
-        Returns:
-            float: This box's x-dimension length.
-        """
+    def setL(self, L):
+        warnings.warn("The setL function is deprecated in favor "
+                      "of setting the L class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        self.L = L
+
+    @property
+    def Lx(self):
         return self.thisptr.getLx()
 
-    def getLy(self):
-        """Length of the y-dimension of the box.
+    @Lx.setter
+    def Lx(self, value):
+        self.L = [value, self.Ly, self.Lz]
 
-        Returns:
-            float: This box's y-dimension length.
-        """
+    def getLx(self):
+        warnings.warn("The getLx function is deprecated in favor "
+                      "of the Lx class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.Lx
+
+    @property
+    def Ly(self):
         return self.thisptr.getLy()
 
-    def getLz(self):
-        """Length of the z-dimension of the box.
+    @Ly.setter
+    def Ly(self, value):
+        self.L = [self.Lx, value, self.Lz]
 
-        Returns:
-            float: This box's z-dimension length.
-        """
+    def getLy(self):
+        warnings.warn("The getLy function is deprecated in favor "
+                      "of the Ly class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.Ly
+
+    @property
+    def Lz(self):
         return self.thisptr.getLz()
 
-    def getTiltFactorXY(self):
-        """Return the tilt factor xy.
+    @Lz.setter
+    def Lz(self, value):
+        self.L = [self.Lx, self.Ly, value]
 
-        Returns:
-            float: This box's xy tilt factor.
-        """
-        return self.thisptr.getTiltFactorXY()
+    def getLz(self):
+        warnings.warn("The getLz function is deprecated in favor "
+                      "of the Lz class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.Lz
 
     @property
     def xy(self):
-        return self.getTiltFactorXY()
+        return self.thisptr.getTiltFactorXY()
 
-    def getTiltFactorXZ(self):
-        """Return the tilt factor xz.
-
-        Returns:
-            float: This box's xz tilt factor.
-        """
-        return self.thisptr.getTiltFactorXZ()
+    def getTiltFactorXY(self):
+        warnings.warn("The getTiltFactorXY function is deprecated in favor "
+                      "of the xy class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.xy
 
     @property
     def xz(self):
-        return self.getTiltFactorXZ()
+        return self.thisptr.getTiltFactorXZ()
 
-    def getTiltFactorYZ(self):
-        """Return the tilt factor yz.
-
-        Returns:
-            float: This box's yz tilt factor.
-        """
-        return self.thisptr.getTiltFactorYZ()
+    def getTiltFactorXZ(self):
+        warnings.warn("The getTiltFactorXZ function is deprecated in favor "
+                      "of the xz class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.xz
 
     @property
     def yz(self):
-        return self.getTiltFactorYZ()
+        return self.thisptr.getTiltFactorYZ()
+
+    def getTiltFactorYZ(self):
+        warnings.warn("The getTiltFactorYZ function is deprecated in favor "
+                      "of the yz class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.yz
+
+    @property
+    def dimensions(self):
+        return 2 if self.is2D() else 3
+
+    @dimensions.setter
+    def dimensions(self, value):
+        assert value == 2 or value == 3
+        self.thisptr.set2D(bool(value == 2))
 
     def is2D(self):
         """Return if box is 2D (True) or 3D (False).
@@ -203,49 +263,40 @@ cdef class Box:
         return self.thisptr.is2D()
 
     def set2D(self, val):
-        """Set the dimensionality to 2D (True) or 3D (False).
-
-        Args:
-            val (bool): 2D=True, 3D=False.
-        """
-        self.thisptr.set2D(bool(val))
-
-    def getLinv(self):
-        """Return the inverse lengths of the box (1/Lx, 1/Ly, 1/Lz).
-
-        Returns:
-            (float, float, float): dimensions of the box as (1/Lx, 1/Ly, 1/Lz).
-        """
-        cdef vec3[float] result = self.thisptr.getLinv()
-        return (result.x, result.y, result.z)
+        warnings.warn("The set2D function is deprecated in favor "
+                      "of setting the dimensions class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        self.dimensions = 2 if val else 3
 
     @property
     def Linv(self):
-        return self.getLinv()
+        cdef vec3[float] result = self.thisptr.getLinv()
+        return (result.x, result.y, result.z)
 
-    def getVolume(self):
-        """Return the box volume (area in 2D).
-
-        Returns:
-            float: Box volume.
-        """
-        return self.thisptr.getVolume()
+    def getLinv(self):
+        warnings.warn("The getLinv function is deprecated in favor "
+                      "of the Linv class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.Linv
 
     @property
     def volume(self):
-        return self.getVolume()
+        return self.thisptr.getVolume()
+
+    def getVolume(self):
+        warnings.warn("The getVolume function is deprecated in favor "
+                      "of the volume class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.volume
 
     def getCoordinates(self, f):
-        """Alias for :py:meth:`~.makeCoordinates()`
-
-        .. deprecated:: 0.8
-           Use :py:meth:`~.makeCoordinates()` instead.
-
-        Args:
-            f (:math:`\\left(3\\right)` :class:`numpy.ndarray`):
-                Fractional coordinates :math:`\\left(x, y, z\\right)` between
-                0 and 1 within parallelepipedal box.
-        """
+        warnings.warn("The getCoordinates function is deprecated in favor "
+                      "of the makeCoordinates function and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         return self.makeCoordinates(f)
 
     def makeCoordinates(self, f):
@@ -307,12 +358,11 @@ cdef class Box:
 
         Args:
             i (unsigned int):
-                Index (:math:`0 \\leq i < d`) of the lattice vector, where \
-                :math:`d` is the box dimension (2 or 3).
+                Index (:math:`0 \\leq i < d`) of the lattice vector, where :math:`d` is the box dimension (2 or 3).
 
         Returns:
             list[float, float, float]: Lattice vector with index :math:`i`.
-        """
+        """  # noqa: E501
         cdef unsigned int index = i
         cdef vec3[float] result = self.thisptr.getLatticeVector(i)
         if self.thisptr.is2D():
@@ -328,16 +378,15 @@ cdef class Box:
                   input vectors.
 
         Args:
-            vecs (:math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` \
-            :class:`numpy.ndarray`):
+            vecs (:math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` :class:`numpy.ndarray`):
                 Single vector or array of :math:`N` vectors. The vectors are
                 altered in place and returned.
 
         Returns:
-            :math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` \
-            :class:`numpy.ndarray`:
+            :math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` :class:`numpy.ndarray`:
                 Vectors wrapped into the box.
-        """
+        """  # noqa: E501
+        vecs = np.asarray(vecs)
         if vecs.ndim > 2 or vecs.shape[-1] != 3:
             raise ValueError(
                 "Invalid dimensions for vecs given to box.wrap. "
@@ -366,19 +415,18 @@ cdef class Box:
         unwrap in each dimension.
 
         Args:
-            vecs (:math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` \
-            :class:`numpy.ndarray`):
+            vecs (:math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` :class:`numpy.ndarray`):
                 Single vector or array of :math:`N` vectors. The vectors are
                 modified in place.
-            imgs (:math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` \
-            :class:`numpy.ndarray`):
+            imgs (:math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` :class:`numpy.ndarray`):
                 Single image index or array of :math:`N` image indices.
 
         Returns:
-            :math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` \
-            :class:`numpy.ndarray`:
+            :math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` :class:`numpy.ndarray`:
                 Vectors unwrapped by the image indices provided.
-        """
+        """  # noqa: E501
+        vecs = np.asarray(vecs)
+        imgs = np.asarray(imgs)
         if vecs.shape != imgs.shape:
             raise ValueError("imgs dimensions do not match vecs dimensions.")
 
@@ -409,74 +457,98 @@ cdef class Box:
         return [result.x, result.y, result.z]
 
     def getPeriodic(self):
-        """Get the box's periodicity in each dimension.
-
-        Returns:
-            list[bool, bool, bool]: Periodic attributes in x, y, z.
-        """
+        warnings.warn("The getPeriodic function is deprecated in favor "
+                      "of the periodic class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         periodic = self.thisptr.getPeriodic()
         return [periodic.x, periodic.y, periodic.z]
 
     def setPeriodic(self, x, y, z):
-        """Set the box's periodicity in each dimension.
-
-        Args:
-            x (bool):
-                True if periodic in x, False if not.
-            y (bool):
-                True if periodic in y, False if not.
-            z (bool):
-                True if periodic in z, False if not.
-        """
+        warnings.warn("The setPeriodic function is deprecated in favor "
+                      "of setting the periodic class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
         self.thisptr.setPeriodic(x, y, z)
 
-    def getPeriodicX(self):
-        """Get the box periodicity in the x direction.
+    @property
+    def periodic(self):
+        return self.getPeriodic()
 
-        Returns:
-            bool: True if periodic, False if not.
-        """
+    @periodic.setter
+    def periodic(self, periodic):
+        # Allow passing a single value
+        try:
+            self.setPeriodic(periodic[0], periodic[1], periodic[2])
+        except TypeError:
+            # Allow single value to be passed for all directions
+            self.setPeriodic(periodic, periodic, periodic)
+
+    @property
+    def periodic_x(self):
         return self.thisptr.getPeriodicX()
 
-    def setPeriodicX(self, val):
-        """Set the box periodicity in the x direction.
+    @periodic_x.setter
+    def periodic_x(self, periodic):
+        self.thisptr.setPeriodicX(periodic)
 
-        Args:
-            val (bool): True if periodic, False if not.
-        """
-        return self.thisptr.setPeriodicX(val)
-
-    def getPeriodicY(self):
-        """Get the box periodicity in the y direction..
-
-        Returns:
-            bool: True if periodic, False if not.
-        """
+    @property
+    def periodic_y(self):
         return self.thisptr.getPeriodicY()
 
-    def setPeriodicY(self, val):
-        """Set the box periodicity in the y direction.
+    @periodic_y.setter
+    def periodic_y(self, periodic):
+        self.thisptr.setPeriodicY(periodic)
 
-        Args:
-            val (bool): True if periodic, False if not.
-        """
-        return self.thisptr.setPeriodicY(val)
-
-    def getPeriodicZ(self):
-        """Get the box periodicity in the z direction.
-
-        Returns:
-            bool: True if periodic, False if not.
-        """
+    @property
+    def periodic_z(self):
         return self.thisptr.getPeriodicZ()
 
-    def setPeriodicZ(self, val):
-        """Set the box periodicity in the z direction.
+    @periodic_z.setter
+    def periodic_z(self, periodic):
+        self.thisptr.setPeriodicZ(periodic)
 
-        Args:
-            val (bool): True if periodic, False if not.
-        """
-        return self.thisptr.setPeriodicZ(val)
+    def getPeriodicX(self):
+        warnings.warn("The getPeriodicX function is deprecated in favor "
+                      "of setting the periodic_x class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.periodic_x
+
+    def setPeriodicX(self, val):
+        warnings.warn("The setPeriodicX function is deprecated in favor "
+                      "of setting the periodic_x class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        self.periodic_x = val
+
+    def getPeriodicY(self):
+        warnings.warn("The getPeriodicY function is deprecated in favor "
+                      "of setting the periodic_y class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.periodic_y
+
+    def setPeriodicY(self, val):
+        warnings.warn("The setPeriodicY function is deprecated in favor "
+                      "of setting the periodic_y class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        self.periodic_y = val
+
+    def getPeriodicZ(self):
+        warnings.warn("The getPeriodicZ function is deprecated in favor "
+                      "of setting the periodic_z class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.periodic_z
+
+    def setPeriodicZ(self, val):
+        warnings.warn("The setPeriodicZ function is deprecated in favor "
+                      "of setting the periodic_z class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        self.periodic_z = val
 
     def to_dict(self):
         """Return box as dictionary.
@@ -531,6 +603,24 @@ cdef class Box:
         else:
             raise NotImplementedError("This comparison is not implemented")
 
+    def __mul__(arg1, arg2):
+        # Note Cython treats __mul__ and __rmul__ as one operation, so
+        # type checks are necessary.
+        if isinstance(arg1, freud.box.Box):
+            self = arg1
+            scale = arg2
+        else:
+            scale = arg1
+            self = arg2
+        if scale > 0:
+            return self.__class__(Lx=self.Lx*scale,
+                                  Ly=self.Ly*scale,
+                                  Lz=self.Lz*scale,
+                                  xy=self.xy, xz=self.xz, yz=self.yz,
+                                  is2D=self.is2D())
+        else:
+            raise ValueError("Box can only be multiplied by positive values.")
+
     @classmethod
     def from_box(cls, box, dimensions=None):
         """Initialize a box instance from a box-like object.
@@ -547,8 +637,8 @@ cdef class Box:
                   :code:`'Lx', 'Ly', 'Lz', 'xy', 'xz', 'yz', 'dimensions'`,
                   namedtuples with properties
                   :code:`Lx, Ly, Lz, xy, xz, yz, dimensions`,
-                  3x3 matrices (see :py:meth:`~.from_matrix()`),
-                  or existing :py:class:`freud.box.Box` objects.
+                  3x3 matrices (see :meth:`~.from_matrix()`),
+                  or existing :class:`freud.box.Box` objects.
 
                   If any of :code:`Lz, xy, xz, yz` are not provided, they will
                   be set to 0.
@@ -567,7 +657,7 @@ cdef class Box:
         Returns:
             :class:`freud.box:Box`: The resulting box object.
         """
-        if isinstance(box, np.ndarray) and box.shape == (3, 3):
+        if np.asarray(box).shape == (3, 3):
             # Handles 3x3 matrices
             return cls.from_matrix(box)
         try:
@@ -580,6 +670,11 @@ cdef class Box:
             yz = getattr(box, 'yz', 0)
             if dimensions is None:
                 dimensions = getattr(box, 'dimensions', None)
+            else:
+                if dimensions != getattr(box, 'dimensions', dimensions):
+                    raise ValueError(
+                        "The provided dimensions argument conflicts with the "
+                        "dimensions attribute of the provided box object.")
         except AttributeError:
             try:
                 # Handle dictionary-like
@@ -591,17 +686,28 @@ cdef class Box:
                 yz = box.get('yz', 0)
                 if dimensions is None:
                     dimensions = box.get('dimensions', None)
-            except (KeyError, TypeError):
+                else:
+                    if dimensions != box.get('dimensions', dimensions):
+                        raise ValueError(
+                            "The provided dimensions argument conflicts with "
+                            "the dimensions attribute of the provided box "
+                            "object.")
+            except (IndexError, KeyError, TypeError):
+                if not len(box) in [2, 3, 6]:
+                    raise ValueError(
+                        "List-like objects must have length 2, 3, or 6 to be "
+                        "converted to a box")
                 # Handle list-like
                 Lx = box[0]
                 Ly = box[1]
                 Lz = box[2] if len(box) > 2 else 0
                 xy, xz, yz = box[3:6] if len(box) >= 6 else (0, 0, 0)
-        except Exception:
-            raise ValueError(
-                'Supplied box cannot be converted to type freud.box.Box')
+        except:  # noqa
+            logger.debug('Supplied box cannot be converted to type '
+                         'freud.box.Box')
+            raise
 
-        # The dimensions argument should override the box settings
+        # Infer dimensions if not provided.
         if dimensions is None:
             dimensions = 2 if Lz == 0 else 3
         is2D = (dimensions == 2)
@@ -631,9 +737,12 @@ cdef class Box:
         v0xv1 = np.cross(v0, v1)
         v0xv1mag = np.sqrt(np.dot(v0xv1, v0xv1))
         Lz = np.dot(v2, v0xv1) / v0xv1mag
-        a3x = np.dot(v0, v2) / Lx
-        xz = a3x / Lz
-        yz = (np.dot(v1, v2) - a2x * a3x) / (Ly * Lz)
+        if Lz != 0:
+            a3x = np.dot(v0, v2) / Lx
+            xz = a3x / Lz
+            yz = (np.dot(v1, v2) - a2x * a3x) / (Ly * Lz)
+        else:
+            xz = yz = 0
         if dimensions is None:
             dimensions = 2 if Lz == 0 else 3
         return cls(Lx=Lx, Ly=Ly, Lz=Lz,
@@ -668,55 +777,6 @@ cdef class Box:
                             "positional argument: L")
         return cls(Lx=L, Ly=L, Lz=0, xy=0, xz=0, yz=0, is2D=True)
 
-    @property
-    def L(self):
-        return self.getL()
-
-    @L.setter
-    def L(self, value):
-        self.setL(value)
-
-    @property
-    def Lx(self):
-        return self.getLx()
-
-    @Lx.setter
-    def Lx(self, value):
-        self.setL([value, self.Ly, self.Lz])
-
-    @property
-    def Ly(self):
-        return self.getLy()
-
-    @Ly.setter
-    def Ly(self, value):
-        self.setL([self.Lx, value, self.Lz])
-
-    @property
-    def Lz(self):
-        return self.getLz()
-
-    @Lz.setter
-    def Lz(self, value):
-        self.setL([self.Lx, self.Ly, value])
-
-    @property
-    def dimensions(self):
-        return 2 if self.is2D() else 3
-
-    @dimensions.setter
-    def dimensions(self, value):
-        assert value == 2 or value == 3
-        self.set2D(value == 2)
-
-    @property
-    def periodic(self):
-        return self.getPeriodic()
-
-    @periodic.setter
-    def periodic(self, periodic):
-        self.setPeriodic(periodic[0], periodic[1], periodic[2])
-
     # Enable box to be pickled
     def __getinitargs__(self):
         return (self.getLx(), self.getLy(), self.getLz(),
@@ -725,7 +785,100 @@ cdef class Box:
                 self.getTiltFactorYZ(),
                 self.is2D())
 
+
 cdef BoxFromCPP(const freud._box.Box & cppbox):
     return Box(cppbox.getLx(), cppbox.getLy(), cppbox.getLz(),
                cppbox.getTiltFactorXY(), cppbox.getTiltFactorXZ(),
                cppbox.getTiltFactorYZ(), cppbox.is2D())
+
+
+cdef class ParticleBuffer:
+    """Replicates particles outside the box via periodic images.
+
+    .. moduleauthor:: Ben Schultz <baschult@umich.edu>
+    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
+
+    Args:
+        box (:py:class:`freud.box.Box`): Simulation box.
+
+    Attributes:
+        buffer_particles (:class:`numpy.ndarray`):
+            The buffer particles.
+        buffer_ids (:class:`numpy.ndarray`):
+            The buffer ids.
+        buffer_box (:class:`freud.box.Box`):
+            The buffer box, expanded to hold the replicated particles.
+    """
+    def __cinit__(self, box):
+        cdef Box b = freud.common.convert_box(box)
+        self.thisptr = new freud._box.ParticleBuffer(dereference(b.thisptr))
+
+    def compute(self, points, float buffer, bool_t images=False):
+        """Compute the particle buffer.
+
+        Args:
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Points used to calculate particle buffer.
+            buffer (float):
+                Buffer distance for replication outside the box.
+            images (bool):
+                If ``False`` (default), ``buffer`` is a distance. If ``True``,
+                ``buffer`` is a number of images to replicate in each
+                dimension. Note that one image adds half of a box length to
+                each side, meaning that one image doubles the box side lengths,
+                two images triples the box side lengths, and so on.
+        """
+        points = freud.common.convert_array(
+            points, 2, dtype=np.float32, contiguous=True, array_name='points')
+
+        if points.shape[1] != 3:
+            raise RuntimeError(
+                'Need a list of 3D points for ParticleBuffer.compute()')
+        cdef np.ndarray cPoints = points
+        cdef unsigned int Np = points.shape[0]
+        self.thisptr.compute(<vec3[float]*> cPoints.data, Np, buffer, images)
+        return self
+
+    @property
+    def buffer_particles(self):
+        cdef unsigned int buffer_size = \
+            dereference(self.thisptr.getBufferParticles().get()).size()
+        cdef vec3[float] * buffer_points = \
+            &dereference(self.thisptr.getBufferParticles().get())[0]
+        if not buffer_size:
+            return np.array([[]], dtype=np.float32)
+
+        cdef vector[vec3[float]]*bufferPar = \
+            self.thisptr.getBufferParticles().get()
+        cdef np.npy_intp nbins[2]
+        nbins[0] = buffer_size
+        nbins[1] = 3
+
+        cdef np.ndarray[float, ndim=2] result = \
+            np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32,
+                                         <void*> dereference(bufferPar).data())
+
+        return result
+
+    @property
+    def buffer_ids(self):
+        cdef unsigned int buffer_size = \
+            dereference(self.thisptr.getBufferParticles().get()).size()
+        cdef unsigned int * buffer_ids = \
+            &dereference(self.thisptr.getBufferIds().get())[0]
+        if not buffer_size:
+            return np.array([[]], dtype=np.uint32)
+
+        cdef vector[unsigned int]*bufferIds = self.thisptr.getBufferIds().get()
+        cdef np.npy_intp nbins[1]
+        nbins[0] = buffer_size
+
+        cdef np.ndarray[unsigned int, ndim=1] result = \
+            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32,
+                                         <void*> dereference(bufferIds).data())
+
+        return result
+
+    @property
+    def buffer_box(self):
+        return BoxFromCPP(<freud._box.Box> self.thisptr.getBufferBox())

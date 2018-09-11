@@ -18,22 +18,32 @@ Bond Module
 .. automodule:: freud.bond
     :synopsis: Calculate bonds
 
+Bonding Analysis
+================
+
 .. autoclass:: freud.bond.BondingAnalysis(num_particles, num_bonds)
-    :members:
-    :inherited-members:
+    :members: compute, initialize
+
+Bonding :math:`\left(r, \theta_1, \theta_2\right)`
+==================================================
 
 .. autoclass:: freud.bond.BondingR12(r_max, bond_map, bond_list)
-    :members:
-    :inherited-members:
+    :members: compute
+
+Bonding :math:`\left(x, y\right)`
+=================================
 
 .. autoclass:: freud.bond.BondingXY2D(x_max, y_max, bond_map, bond_list)
-    :members:
-    :inherited-members:
+    :members: compute
+
+Bonding :math:`\left(x, y, \theta\right)`
+=========================================
 
 .. autoclass:: freud.bond.BondingXYT(x_max, y_max, bond_map, bond_list)
-    :members:
-    :inherited-members:
+    :members: compute
+
+Bonding :math:`\left(x, y, z\right)`
+====================================
 
 .. autoclass:: freud.bond.BondingXYZ(x_max, y_max, z_max, bond_map, bond_list)
-    :members:
-    :inherited-members:
+    :members: compute

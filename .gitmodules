@@ -4,3 +4,6 @@
 [submodule "extern/Eigen"]
 	path = extern/Eigen
 	url = https://github.com/glotzerlab/eigen-git-mirror.git
+[submodule "doc/source/examples"]
+	path = doc/source/examples
+	url = https://bitbucket.org/glotzer/freud-examples.git

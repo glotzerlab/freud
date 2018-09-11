@@ -31,8 +31,10 @@ as the :doc:`pmft` in freud.
 """
 
 import numpy as np
+import warnings
 import freud.common
 import freud.locality
+from freud.errors import FreudDeprecationWarning
 
 from cython.operator cimport dereference
 from freud.util._VectorMath cimport vec3, quat
@@ -60,11 +62,9 @@ cdef class BondingAnalysis:
             Number of bonds to track.
 
     Attributes:
-        bond_lifetimes ((:math:`N_{particles}`, varying) \
-        :class:`numpy.ndarray`):
+        bond_lifetimes ((:math:`N_{particles}`, varying) :class:`numpy.ndarray`):
             Bond lifetimes.
-        overall_lifetimes ((:math:`N_{particles}`, varying) \
-        :class:`numpy.ndarray`):
+        overall_lifetimes ((:math:`N_{particles}`, varying) :class:`numpy.ndarray`):
             Overall bond lifetimes.
         transition_matrix (:class:`numpy.ndarray`):
             Transition matrix.
@@ -74,7 +74,7 @@ cdef class BondingAnalysis:
             Number of tracked particles.
         num_bonds (unsigned int):
             Number of tracked bonds.
-    """
+    """  # noqa: E501
     cdef freud._bond.BondingAnalysis * thisptr
     cdef unsigned int num_particles
     cdef unsigned int num_bonds
@@ -92,11 +92,10 @@ cdef class BondingAnalysis:
         """Calculates the changes in bonding states from one frame to the next.
 
         Args:
-            frame_0 ((:math:`N_{particles}`, :math:`N_{bonds}`) \
-            :class:`numpy.ndarray`):
-                First bonding frame (as output from :py:class:`~.BondingR12`
-                modules).
-        """
+            frame_0 ((:math:`N_{particles}`, :math:`N_{bonds}`) :class:`numpy.ndarray`):
+                First bonding frame (as output from :class:`~.BondingR12`
+                and similar modules).
+        """  # noqa: E501
         frame_0 = freud.common.convert_array(
             frame_0, 2, dtype=np.uint32, contiguous=True, array_name="frame_0")
         if (frame_0.shape[0] != self.num_particles):
@@ -115,15 +114,13 @@ cdef class BondingAnalysis:
         """Calculates the changes in bonding states from one frame to the next.
 
         Args:
-            frame_0 ((:math:`N_{particles}`, :math:`N_{bonds}`) \
-            :class:`numpy.ndarray`):
+            frame_0 ((:math:`N_{particles}`, :math:`N_{bonds}`) :class:`numpy.ndarray`):
                 Current/previous bonding frame (as output from
-                :py:class:`.BondingR12` modules).
-            frame_1 ((:math:`N_{particles}`, :math:`N_{bonds}`) \
-            :class:`numpy.ndarray`):
-                Next/current bonding frame (as output from
-                :py:class:`.BondingR12` modules).
-        """
+                :class:`.BondingR12` and similar modules).
+            frame_1 ((:math:`N_{particles}`, :math:`N_{bonds}`) :class:`numpy.ndarray`):
+                Next/current bonding frame (as output from :class:`.BondingR12`
+                and similar modules).
+        """  # noqa: E501
         frame_0 = freud.common.convert_array(
             frame_0, 2, dtype=np.uint32, contiguous=True, array_name="frame_0")
         frame_1 = freud.common.convert_array(
@@ -139,43 +136,31 @@ cdef class BondingAnalysis:
 
     @property
     def bond_lifetimes(self):
-        return self.getBondLifetimes()
-
-    def getBondLifetimes(self):
-        """Return the bond lifetimes.
-
-        Returns:
-            (:math:`N_{particles}`, varying) :class:`numpy.ndarray`:
-                Lifetime of bonds.
-        """
         bonds = self.thisptr.getBondLifetimes()
         return bonds
 
+    def getBondLifetimes(self):
+        warnings.warn("The getBondLifetimes function is deprecated in favor "
+                      "of the bond_lifetimes class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.bond_lifetimes
+
     @property
     def overall_lifetimes(self):
-        return self.getOverallLifetimes()
-
-    def getOverallLifetimes(self):
-        """Return the overall lifetimes.
-
-        Returns:
-            (:math:`N_{particles}`, varying) :class:`numpy.ndarray`:
-                Lifetime of bonds.
-        """
         bonds = self.thisptr.getOverallLifetimes()
         ret_bonds = np.copy(np.asarray(bonds, dtype=np.uint32))
         return ret_bonds
 
+    def getOverallLifetimes(self):
+        warnings.warn("The getOverallLifetimes function is deprecated in "
+                      "favor of the overall_lifetimes class attribute and "
+                      "will be removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.overall_lifetimes
+
     @property
     def transition_matrix(self):
-        return self.getTransitionMatrix()
-
-    def getTransitionMatrix(self):
-        """Return the transition matrix.
-
-        Returns:
-            :class:`numpy.ndarray`: Transition matrix.
-        """
         cdef unsigned int * trans_matrix = \
             self.thisptr.getTransitionMatrix().get()
         cdef np.npy_intp nbins[2]
@@ -186,41 +171,45 @@ cdef class BondingAnalysis:
                 2, nbins, np.NPY_UINT32, <void*> trans_matrix)
         return result
 
+    def getTransitionMatrix(self):
+        warnings.warn("The getTransitionMatrix function is deprecated in "
+                      "favor of the transition_matrix class attribute and "
+                      "will be removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.transition_matrix
+
     @property
     def num_frames(self):
-        return self.getNumFrames()
+        return self.thisptr.getNumFrames()
 
     def getNumFrames(self):
-        """Get number of frames calculated.
-
-        Returns:
-            unsigned int: Number of frames.
-        """
-        return self.thisptr.getNumFrames()
+        warnings.warn("The getNumFrames function is deprecated in favor "
+                      "of the num_frames class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.num_frames
 
     @property
     def num_particles(self):
-        return self.getNumParticles()
+        return self.thisptr.getNumParticles()
 
     def getNumParticles(self):
-        """Get number of particles being tracked.
-
-        Returns:
-            unsigned int: Number of particles.
-        """
-        return self.thisptr.getNumParticles()
+        warnings.warn("The getNumParticles function is deprecated in favor "
+                      "of the num_particles class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.num_particles
 
     @property
     def num_bonds(self):
-        return self.getNumBonds()
+        return self.thisptr.getNumBonds()
 
     def getNumBonds(self):
-        """Get number of bonds tracked.
-
-        Returns:
-            unsigned int: Number of bonds.
-        """
-        return self.thisptr.getNumBonds()
+        warnings.warn("The getNumBonds function is deprecated in favor "
+                      "of the num_bonds class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.num_bonds
 
 cdef class BondingR12:
     """Compute bonds in a 2D system using a (:math:`r`, :math:`\\theta_1`,
@@ -241,7 +230,7 @@ cdef class BondingR12:
     Attributes:
         bonds (:class:`numpy.ndarray`):
             Particle bonds.
-        box (:py:class:`freud.box.Box`):
+        box (:class:`freud.box.Box`):
             Box used in the calculation.
         list_map (dict):
             The dict used to map bond index to list index.
@@ -268,26 +257,34 @@ cdef class BondingR12:
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, box, ref_points, ref_orientations, points, orientations,
-                nlist=None):
-        """Calculates the correlation function and adds to the current histogram.
+    def compute(self, box, ref_points, ref_orientations, points=None,
+                orientations=None, nlist=None):
+        """Calculates the bonds.
 
         Args:
             box (:class:`freud.box.Box`):
                 Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Reference points to calculate the bonding.
-            ref_orientations ((:math:`N_{particles}`, 4) \
-            :class:`numpy.ndarray`:
-                Orientations as angles to use in computation.
+                Reference points used to calculate the bonding.
+            ref_orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`):
+                Reference orientations as angles to use in computation.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Points to calculate the bonding.
-            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
-                Orientations as angles to use in computation.
+                Points used to calculate the bonding. Uses :code:`ref_points`
+                if not provided or :code:`None`.
+            orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):
+                Orientations as angles to use in computation. Uses
+                :code:`ref_orientations` if not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find bonds (Default value = None).
-        """
+                NeighborList to use to find bonds (Default value =
+                :code:`None`).
+        """  # noqa: E501
         cdef freud.box.Box b = freud.common.convert_box(box)
+
+        if points is None:
+            points = ref_points
+        if orientations is None:
+            orientations = ref_orientations
+
         ref_points = freud.common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")
@@ -295,7 +292,7 @@ cdef class BondingR12:
             raise TypeError('ref_points should be an Nx3 array')
 
         ref_orientations = freud.common.convert_array(
-            ref_orientations, 1, dtype=np.float32, contiguous=True,
+            ref_orientations.squeeze(), 1, dtype=np.float32, contiguous=True,
             array_name="ref_orientations")
 
         points = freud.common.convert_array(
@@ -304,7 +301,7 @@ cdef class BondingR12:
             raise TypeError('points should be an Nx3 array')
 
         orientations = freud.common.convert_array(
-            orientations, 1, dtype=np.float32, contiguous=True,
+            orientations.squeeze(), 1, dtype=np.float32, contiguous=True,
             array_name="orientations")
 
         defaulted_nlist = freud.locality.make_default_nlist(
@@ -328,14 +325,6 @@ cdef class BondingR12:
 
     @property
     def bonds(self):
-        return self.getBonds()
-
-    def getBonds(self):
-        """Return the particle bonds.
-
-        Returns:
-            :class:`numpy.ndarray`: Particle bonds.
-        """
         cdef unsigned int * bonds = self.thisptr.getBonds().get()
         cdef np.npy_intp nbins[2]
         nbins[0] = <np.npy_intp> self.thisptr.getNumParticles()
@@ -345,41 +334,45 @@ cdef class BondingR12:
                 2, nbins, np.NPY_UINT32, <void*> bonds)
         return result
 
+    def getBonds(self):
+        warnings.warn("The getBonds function is deprecated in favor "
+                      "of the bonds class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.bonds
+
     @property
     def box(self):
-        return self.getBox()
+        return freud.box.BoxFromCPP(self.thisptr.getBox())
 
     def getBox(self):
-        """Get the box used in the calculation.
-
-        Returns:
-            :py:class:`freud.box.Box`: freud Box.
-        """
-        return freud.box.BoxFromCPP(self.thisptr.getBox())
+        warnings.warn("The getBox function is deprecated in favor "
+                      "of the box class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.box
 
     @property
     def list_map(self):
-        return self.getListMap()
+        return self.thisptr.getListMap()
 
     def getListMap(self):
-        """Get the dict used to map bond idx to list idx.
-
-        Returns:
-            dict: The mapping from bond to particle index.
-        """
-        return self.thisptr.getListMap()
+        warnings.warn("The getListMap function is deprecated in favor "
+                      "of the list_map class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.list_map
 
     @property
     def rev_list_map(self):
-        return self.getRevListMap()
+        return self.thisptr.getRevListMap()
 
     def getRevListMap(self):
-        """Get the dict used to map list idx to bond idx.
-
-        Returns:
-            dict: The mapping from particle to bond index.
-        """
-        return self.thisptr.getRevListMap()
+        warnings.warn("The getRevListMap function is deprecated in favor "
+                      "of the rev_list_map class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.rev_list_map
 
 cdef class BondingXY2D:
     """Compute bonds in a 2D system using a (:math:`x`, :math:`y`) coordinate
@@ -402,7 +395,7 @@ cdef class BondingXY2D:
     Attributes:
         bonds (:class:`numpy.ndarray`):
             Particle bonds.
-        box (:py:class:`freud.box.Box`):
+        box (:class:`freud.box.Box`):
             Box used in the calculation.
         list_map (dict):
             The dict used to map bond index to list index.
@@ -430,27 +423,34 @@ cdef class BondingXY2D:
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, box, ref_points, ref_orientations, points, orientations,
-                nlist=None):
-        """Calculates the correlation function and adds to the current
-        histogram.
+    def compute(self, box, ref_points, ref_orientations, points=None,
+                orientations=None, nlist=None):
+        """Calculates the bonds.
 
         Args:
             box (:class:`freud.box.Box`):
                 Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Reference points to calculate the bonding.
-            ref_orientations ((:math:`N_{particles}`, 4) \
-            :class:`numpy.ndarray`):
-                Orientations as angles to use in computation.
+                Reference points used to calculate the bonding.
+            ref_orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`):
+                Reference orientations as angles to use in computation.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Points to calculate the bonding.
-            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
-                Orientations as angles to use in computation.
+                Points used to calculate the bonding. Uses :code:`ref_points`
+                if not provided or :code:`None`.
+            orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):
+                Orientations as angles to use in computation. Uses
+                :code:`ref_orientations` if not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find bonds (Default value = None).
-        """
+                NeighborList to use to find bonds (Default value =
+                :code:`None`).
+        """  # noqa: E501
         cdef freud.box.Box b = freud.common.convert_box(box)
+
+        if points is None:
+            points = ref_points
+        if orientations is None:
+            orientations = ref_orientations
+
         ref_points = freud.common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")
@@ -458,7 +458,7 @@ cdef class BondingXY2D:
             raise TypeError('ref_points should be an Nx3 array')
 
         ref_orientations = freud.common.convert_array(
-            ref_orientations, 1, dtype=np.float32, contiguous=True,
+            ref_orientations.squeeze(), 1, dtype=np.float32, contiguous=True,
             array_name="ref_orientations")
 
         points = freud.common.convert_array(
@@ -467,7 +467,7 @@ cdef class BondingXY2D:
             raise TypeError('points should be an Nx3 array')
 
         orientations = freud.common.convert_array(
-            orientations, 1, dtype=np.float32, contiguous=True,
+            orientations.squeeze(), 1, dtype=np.float32, contiguous=True,
             array_name="orientations")
 
         defaulted_nlist = freud.locality.make_default_nlist(
@@ -492,14 +492,6 @@ cdef class BondingXY2D:
 
     @property
     def bonds(self):
-        return self.getBonds()
-
-    def getBonds(self):
-        """Return the particle bonds.
-
-        Returns:
-            :class:`numpy.ndarray`: Particle bonds.
-        """
         cdef unsigned int * bonds = self.thisptr.getBonds().get()
         cdef np.npy_intp nbins[2]
         nbins[0] = <np.npy_intp> self.thisptr.getNumParticles()
@@ -509,41 +501,45 @@ cdef class BondingXY2D:
                 2, nbins, np.NPY_UINT32, <void*> bonds)
         return result
 
+    def getBonds(self):
+        warnings.warn("The getBonds function is deprecated in favor "
+                      "of the bonds class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.bonds
+
     @property
     def box(self):
-        return self.getBox()
+        return freud.box.BoxFromCPP(self.thisptr.getBox())
 
     def getBox(self):
-        """Get the box used in the calculation.
-
-        Returns:
-            :class:`freud.box.Box`: freud Box.
-        """
-        return freud.box.BoxFromCPP(self.thisptr.getBox())
+        warnings.warn("The getBox function is deprecated in favor "
+                      "of the box class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.box
 
     @property
     def list_map(self):
-        return self.getListMap()
+        return self.thisptr.getListMap()
 
     def getListMap(self):
-        """Get the dict used to map list idx to bond idx.
-
-        Returns:
-            dict: The mapping from bond to particle index.
-        """
-        return self.thisptr.getListMap()
+        warnings.warn("The getListMap function is deprecated in favor "
+                      "of the list_map class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.list_map
 
     @property
     def rev_list_map(self):
-        return self.getRevListMap()
+        return self.thisptr.getRevListMap()
 
     def getRevListMap(self):
-        """Get the dict used to map list idx to bond idx.
-
-        Returns:
-            dict: The mapping from particle to bond index.
-        """
-        return self.thisptr.getRevListMap()
+        warnings.warn("The getRevListMap function is deprecated in favor "
+                      "of the rev_list_map class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.rev_list_map
 
 cdef class BondingXYT:
     """Compute bonds in a 2D system using a
@@ -569,7 +565,7 @@ cdef class BondingXYT:
     Attributes:
         bonds (:class:`numpy.ndarray`):
             Particle bonds.
-        box (:py:class:`freud.box.Box`):
+        box (:class:`freud.box.Box`):
             Box used in the calculation.
         list_map (dict):
             The dict used to map bond index to list index.
@@ -598,26 +594,34 @@ cdef class BondingXYT:
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, box, ref_points, ref_orientations, points, orientations,
-                nlist=None):
-        """Calculates the correlation function and adds to the current histogram.
+    def compute(self, box, ref_points, ref_orientations, points=None,
+                orientations=None, nlist=None):
+        """Calculates the bonds.
 
         Args:
             box (:class:`freud.box.Box`):
-                Simulation box
+                Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Reference points to calculate the bonding.
-            ref_orientations ((:math:`N_{particles}`, 4) \
-            :class:`numpy.ndarray`):
-                Orientations as angles to use in computation.
+                Reference points used to calculate the bonding.
+            ref_orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`):
+                Reference orientations as angles to use in computation.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Points to calculate the bonding.
-            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
-                Orientations as angles to use in computation.
+                Points used to calculate the bonding. Uses :code:`ref_points`
+                if not provided or :code:`None`.
+            orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):
+                Orientations as angles to use in computation. Uses
+                :code:`ref_orientations` if not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find bonds (Default value = None).
-        """
+                NeighborList to use to find bonds (Default value =
+                :code:`None`).
+        """  # noqa: E501
         cdef freud.box.Box b = freud.common.convert_box(box)
+
+        if points is None:
+            points = ref_points
+        if orientations is None:
+            orientations = ref_orientations
+
         ref_points = freud.common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")
@@ -625,7 +629,7 @@ cdef class BondingXYT:
             raise TypeError('ref_points should be an Nx3 array')
 
         ref_orientations = freud.common.convert_array(
-            ref_orientations, 1, dtype=np.float32, contiguous=True,
+            ref_orientations.squeeze(), 1, dtype=np.float32, contiguous=True,
             array_name="ref_orientations")
 
         points = freud.common.convert_array(
@@ -634,7 +638,7 @@ cdef class BondingXYT:
             raise TypeError('points should be an Nx3 array')
 
         orientations = freud.common.convert_array(
-            orientations, 1, dtype=np.float32, contiguous=True,
+            orientations.squeeze(), 1, dtype=np.float32, contiguous=True,
             array_name="orientations")
 
         defaulted_nlist = freud.locality.make_default_nlist(
@@ -658,14 +662,6 @@ cdef class BondingXYT:
 
     @property
     def bonds(self):
-        return self.getBonds()
-
-    def getBonds(self):
-        """Return the particle bonds.
-
-        Returns:
-            :class:`numpy.ndarray`: Particle bonds.
-        """
         cdef unsigned int * bonds = self.thisptr.getBonds().get()
         cdef np.npy_intp nbins[2]
         nbins[0] = <np.npy_intp> self.thisptr.getNumParticles()
@@ -675,41 +671,45 @@ cdef class BondingXYT:
                 2, nbins, np.NPY_UINT32, <void*> bonds)
         return result
 
+    def getBonds(self):
+        warnings.warn("The getBonds function is deprecated in favor "
+                      "of the bonds class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.bonds
+
     @property
     def box(self):
-        return self.getBox()
+        return freud.box.BoxFromCPP(self.thisptr.getBox())
 
     def getBox(self):
-        """Get the box used in the calculation.
-
-        Returns:
-            :class:`freud.box.Box`: freud Box.
-        """
-        return freud.box.BoxFromCPP(self.thisptr.getBox())
+        warnings.warn("The getBox function is deprecated in favor "
+                      "of the box class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.box
 
     @property
     def list_map(self):
-        return self.getListMap()
+        return self.thisptr.getListMap()
 
     def getListMap(self):
-        """Get the dict used to map list idx to bond idx.
-
-        Returns:
-            dict: The mapping from bond to particle index.
-        """
-        return self.thisptr.getListMap()
+        warnings.warn("The getListMap function is deprecated in favor "
+                      "of the list_map class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.list_map
 
     @property
     def rev_list_map(self):
-        return self.getRevListMap()
+        return self.thisptr.getRevListMap()
 
     def getRevListMap(self):
-        """Get the dict used to map list idx to bond idx.
-
-        Returns:
-            dict: The mapping from particle to bond index.
-        """
-        return self.thisptr.getRevListMap()
+        warnings.warn("The getRevListMap function is deprecated in favor "
+                      "of the rev_list_map class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.rev_list_map
 
 cdef class BondingXYZ:
     """Compute bonds in a 3D system using a
@@ -737,7 +737,7 @@ cdef class BondingXYZ:
     Attributes:
         bonds (:class:`numpy.ndarray`):
             Particle bonds.
-        box (:py:class:`freud.box.Box`):
+        box (:class:`freud.box.Box`):
             Box used in the calculation.
         list_map (dict):
             The dict used to map bond index to list index.
@@ -767,26 +767,34 @@ cdef class BondingXYZ:
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, box, ref_points, ref_orientations, points, orientations,
-                nlist=None):
-        """Calculates the correlation function and adds to the current histogram.
+    def compute(self, box, ref_points, ref_orientations, points=None,
+                orientations=None, nlist=None):
+        """Calculates the bonds.
 
         Args:
             box (:class:`freud.box.Box`):
                 Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Reference points to calculate the bonding.
-            ref_orientations ((:math:`N_{particles}`, 4) \
-            :class:`numpy.ndarray`):
-                Orientations as angles to use in computation.
+                Reference points used to calculate the bonding.
+            ref_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
+                Reference orientations as quaternions to use in computation.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Points to calculate the bonding.
+                Points used to calculate the bonding. Uses :code:`ref_points`
+                if not provided or :code:`None`.
             orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
-                Orientations as angles to use in computation.
+                Orientations as quaternions to use in computation. Uses
+                :code:`ref_orientations` if not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find bonds (Default value = None).
-        """
+                NeighborList to use to find bonds (Default value =
+                :code:`None`).
+        """  # noqa: E501
         cdef freud.box.Box b = freud.common.convert_box(box)
+
+        if points is None:
+            points = ref_points
+        if orientations is None:
+            orientations = ref_orientations
+
         ref_points = freud.common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")
@@ -835,14 +843,6 @@ cdef class BondingXYZ:
 
     @property
     def bonds(self):
-        return self.getBonds()
-
-    def getBonds(self):
-        """Return the particle bonds.
-
-        Returns:
-            :class:`numpy.ndarray`: Particle bonds.
-        """
         cdef unsigned int * bonds = self.thisptr.getBonds().get()
         cdef np.npy_intp nbins[2]
         nbins[0] = <np.npy_intp> self.thisptr.getNumParticles()
@@ -852,38 +852,42 @@ cdef class BondingXYZ:
                 2, nbins, np.NPY_UINT32, <void*> bonds)
         return result
 
+    def getBonds(self):
+        warnings.warn("The getBonds function is deprecated in favor "
+                      "of the bonds class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.bonds
+
     @property
     def box(self):
-        return self.getBox()
+        return freud.box.BoxFromCPP(self.thisptr.getBox())
 
     def getBox(self):
-        """Get the box used in the calculation.
-
-        Returns:
-            :class:`freud.box.Box`: freud Box.
-        """
-        return freud.box.BoxFromCPP(self.thisptr.getBox())
+        warnings.warn("The getBox function is deprecated in favor "
+                      "of the box class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.box
 
     @property
     def list_map(self):
-        return self.getListMap()
+        return self.thisptr.getListMap()
 
     def getListMap(self):
-        """Get the dict used to map list idx to bond idx.
-
-        Returns:
-            dict: The mapping from bond to particle index.
-        """
-        return self.thisptr.getListMap()
+        warnings.warn("The getListMap function is deprecated in favor "
+                      "of the list_map class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.list_map
 
     @property
     def rev_list_map(self):
-        return self.getRevListMap()
+        return self.thisptr.getRevListMap()
 
     def getRevListMap(self):
-        """Get the dict used to map list idx to bond idx.
-
-        Returns:
-            dict: The mapping from particle to bond index.
-        """
-        return self.thisptr.getRevListMap()
+        warnings.warn("The getRevListMap function is deprecated in favor "
+                      "of the rev_list_map class attribute and will be "
+                      "removed in a future version of freud.",
+                      FreudDeprecationWarning)
+        return self.rev_list_map

@@ -1,4 +1,4 @@
-from setuptools import setup
+import setuptools
 from distutils.extension import Extension
 import numpy as np
 import io
@@ -8,15 +8,15 @@ import os
 import sys
 import platform
 import glob
-
+import multiprocessing.pool
 import logging
 
 logger = logging.getLogger(__name__)
 
+
 ######################################
 # Define helper functions for setup.py
 ######################################
-
 
 def find_tbb(argv):
     """Function to find paths to TBB.
@@ -139,6 +139,8 @@ def stderr_manager(f):
 warnings_str = "--PRINT-WARNINGS"
 coverage_str = "--COVERAGE"
 cython_str = "--ENABLE-CYTHON"
+parallel_str = "-j"
+thread_str = "--NTHREAD"
 
 if warnings_str in sys.argv:
     sys.argv.remove(warnings_str)
@@ -148,10 +150,10 @@ else:
 
 if coverage_str in sys.argv:
     sys.argv.remove(coverage_str)
-    directives = {'linetrace': True}
+    directives = {'embedsignature': True, 'binding': True, 'linetrace': True}
     macros = [('CYTHON_TRACE', '1'), ('CYTHON_TRACE_NOGIL', '1')]
 else:
-    directives = {}
+    directives = {'embedsignature': True, 'binding': True}
     macros = []
 
 if cython_str in sys.argv:
@@ -161,6 +163,55 @@ if cython_str in sys.argv:
 else:
     use_cython = False
     ext = '.cpp'
+
+if parallel_str in sys.argv:
+    # Delete both the option and the associated value from argv
+    i = sys.argv.index(parallel_str)
+    nthreads = int(sys.argv[i+1])
+else:
+    nthreads = 1
+
+if thread_str in sys.argv:
+    i = sys.argv.index(thread_str)
+    sys.argv.remove(thread_str)
+    nthreads_ext = int(sys.argv[i])
+    del sys.argv[i]
+
+    # Hack for increasing parallelism during builds.
+    def parallelCCompile(self, sources, output_dir=None, macros=None,
+                         include_dirs=None, debug=0, extra_preargs=None,
+                         extra_postargs=None, depends=None):
+        # source: https://stackoverflow.com/questions/11013851/speeding-up-build-process-with-distutils  # noqa
+        # monkey-patch for parallel compilation
+        macros, objects, extra_postargs, pp_opts, build = self._setup_compile(
+            output_dir, macros, include_dirs, sources, depends, extra_postargs)
+        cc_args = self._get_cc_args(pp_opts, debug, extra_preargs)
+
+        # The number of parallel threads to attempt
+        N = nthreads_ext
+
+        def _single_compile(obj):
+            try:
+                src, ext = build[obj]
+            except KeyError:
+                return
+            self._compile(obj, src, ext, cc_args, extra_postargs, pp_opts)
+
+        # convert to list, imap is evaluated on-demand
+        list(multiprocessing.pool.ThreadPool(N).imap(_single_compile, objects))
+        return objects
+    setuptools.distutils.ccompiler.CCompiler.compile=parallelCCompile
+
+
+#######################
+# Configure ReadTheDocs
+#######################
+
+on_rtd = os.environ.get('READTHEDOCS') == 'True'
+if on_rtd:
+    use_cython = True
+    ext = '.pyx'
+
 
 #########################
 # Set extension arguments
@@ -195,50 +246,60 @@ ext_args = dict(
     define_macros=macros
 )
 
+
 ###################
 # Set up extensions
 ###################
 
-
 # Need to find files manually; cythonize accepts glob syntax, but basic
 # extension modules with C++ do not
 files = glob.glob(os.path.join('freud', '*') + ext)
-files.remove(os.path.join('freud', 'order' + ext))  # Is compiled separately
+files.extend(glob.glob(os.path.join('freud', 'util', '*') + ext))
 modules = [f.replace(ext, '') for f in files]
 modules = [m.replace(os.path.sep, '.') for m in modules]
 
-extensions = [
-    # Compile order separately since it requires that Cluster.cc and a few
-    # other things be compiled in addition to the main source.
-    Extension("freud.order",
-              sources=[os.path.join("freud", "order" + ext),
-                       os.path.join("cpp", "util", "HOOMDMatrix.cc"),
-                       os.path.join("cpp", "order", "wigner3j.cc"),
-                       os.path.join("cpp", "cluster", "Cluster.cc")],
-              **ext_args
-              ),
+# Source files required for all modules.
+sources_in_all = [
+    os.path.join("cpp", "util", "HOOMDMatrix.cc"),
+    os.path.join("cpp", "locality", "LinkCell.cc"),
+    os.path.join("cpp", "locality", "NearestNeighbors.cc"),
+    os.path.join("cpp", "locality", "NeighborList.cc"),
+    os.path.join("cpp", "box", "Box.cc")
 ]
 
+# Any source files required only for specific modules.
+# Dict keys should be specified as the module name without
+# "freud.", i.e. not the fully qualified name.
+extra_module_sources = dict(
+    order=[os.path.join("cpp", "cluster", "Cluster.cc")]
+)
+
+extensions = []
 for f, m in zip(files, modules):
-    extensions.append(
-        Extension(m,
-                  sources=[f, os.path.join("cpp", "util", "HOOMDMatrix.cc")],
-                  **ext_args)
-    )
+    m_name = m.replace('freud.', '')
+    # Use set to avoid doubling up on things in sources_in_all
+    sources = set(sources_in_all + [f])
+    sources.update(extra_module_sources.get(m_name, []))
+    sources.update(glob.glob(os.path.join('cpp', m_name, '*.cc')))
+
+    extensions.append(Extension(m, sources=list(sources), **ext_args))
 
 if use_cython:
     from Cython.Build import cythonize
-    extensions = cythonize(extensions, compiler_directives=directives)
+    extensions = cythonize(extensions,
+                           compiler_directives=directives,
+                           nthreads=nthreads)
+
 
 ####################################
-# Perform set up with error handling
+# Perform setup with error handling
 ####################################
 
 # Ensure that builds on Mac use correct stdlib.
 if platform.system() == 'Darwin':
     os.environ["MACOSX_DEPLOYMENT_TARGET"]= "10.9"
 
-version = '0.9.0'
+version = '0.10.0'
 
 # Read README for PyPI, fallback to short description if it fails.
 desc = 'Perform various analyses of particle simulations.'
@@ -250,30 +311,41 @@ try:
 except ImportError:
     readme = desc
 
+# Using a temporary file as a buffer to hold stderr output allows us
+# to parse error messages from the underlying compiler and parse them
+# for known errors.
 tfile = tempfile.TemporaryFile(mode='w+b')
 try:
     with stderr_manager(tfile):
-        setup(name='freud',
-              version=version,
-              description=desc,
-              long_description=readme,
-              long_description_content_type='text/markdown',
-              url='http://bitbucket.org/glotzer/freud',
-              packages=['freud'],
-              python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*',
-              ext_modules=extensions)
+        setuptools.setup(name='freud',
+                         version=version,
+                         description=desc,
+                         long_description=readme,
+                         long_description_content_type='text/markdown',
+                         url='http://bitbucket.org/glotzer/freud',
+                         packages=['freud'],
+                         python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*',
+                         ext_modules=extensions)
 except SystemExit:
-    # For now, the only error we're explicitly checking for is whether or not
-    # TBB is missing
-    err_str = "tbb/tbb.h"
+    # The errors we're explicitly checking for are whether or not
+    # TBB is missing, and whether a parallel compile resulted in a
+    # distutils-caused race condition.
+    parallel_err = "file not recognized: file truncated"
+    tbb_err = "'tbb/tbb.h' file not found"
+
     err_out = tfile.read().decode()
-    if err_str in err_out:
-        sys.stderr.write("Unable to find tbb. If you have TBB on your "
-                         "system, try specifying the location using the "
+    sys.stderr.write(err_out)
+    if tbb_err in err_out:
+        sys.stderr.write("\n\033[1mUnable to find tbb. If you have TBB on "
+                         "your system, try specifying the location using the "
                          "--TBB-ROOT or the --TBB-INCLUDE/--TBB-LINK "
-                         "arguments to setup.py.\n")
+                         "arguments to setup.py.\033[0m\n")
+    elif parallel_err in err_out and nthreads > 1:
+        sys.stderr.write("\n\033[1mYou attempted parallel compilation on a "
+                         "Python version where this leads to a race "
+                         "in distutils. Please recompile without the -j "
+                         "option and try again.\033[0m\n")
     else:
-        sys.stderr.write(err_out)
         raise
 except: # noqa
     sys.stderr.write(tfile.read().decode())

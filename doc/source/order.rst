@@ -28,70 +28,53 @@ Order Module
 .. automodule:: freud.order
     :synopsis: Compute order parameters
 
+Cubatic Order Parameter
+=======================
+
 .. autoclass:: freud.order.CubaticOrderParameter(t_initial, t_final, scale, n_replicates, seed)
-    :members:
+    :members: compute
+
+Nematic Order Parameter
+=======================
 
 .. autoclass:: freud.order.NematicOrderParameter(u)
-    :members:
+    :members: compute
+
+Hexatic Order Parameter
+=======================
 
 .. autoclass:: freud.order.HexOrderParameter(rmax, k, n)
-    :members:
+    :members: compute
+
+Translational Order Parameter
+=============================
 
 .. autoclass:: freud.order.TransOrderParameter(rmax, k, n)
-    :members:
+    :members: compute
+
+Steinhardt :math:`Q_l` Order Parameter
+======================================
 
 .. autoclass:: freud.order.LocalQl(box, rmax, l, rmin)
-    :members:
+    :members: compute, computeAve, computeAveNorm, computeNorm, setBox
 
 .. autoclass:: freud.order.LocalQlNear(box, rmax, l, kn)
-    :members:
+    :members: compute, computeAve, computeAveNorm, computeNorm, setBox
+
+Steinhardt :math:`W_l` Order Parameter
+======================================
 
 .. autoclass:: freud.order.LocalWl(box, rmax, l)
-    :members:
+    :members: compute, computeAve, computeAveNorm, computeNorm, setBox
 
 .. autoclass:: freud.order.LocalWlNear(box, rmax, l, kn)
-    :members:
+    :members: compute, computeAve, computeAveNorm, computeNorm, setBox
+
+Solid-Liquid Order Parameter
+============================
 
 .. autoclass:: freud.order.SolLiq(box, rmax, Qthreshold, Sthreshold, l)
-    :members:
+    :members: compute, computeSolLiqNoNorm, computeSolLiqVariant
 
-.. autoclass:: freud.order.SolLiqNear(box, rmax, Qthreshold, Sthreshold, l)
-    :members:
-
-Deprecated Classes
-==================
-
-The below functions have all either been deprecated or moved to the :doc:`environment` module
-
-Bond Order
-----------
-
-.. autoclass:: freud.order.BondOrder(rmax, k, n, nBinsT, nBinsP)
-    :members:
-
-Local Descriptors
------------------
-
-.. autoclass:: freud.order.LocalDescriptors(box, nNeigh, lmax, rmax)
-    :members:
-
-Environment Matching
---------------------
-
-.. autoclass:: freud.order.MatchEnv(box, rmax, k)
-    :members:
-
-Pairing
--------
-
-.. note::
-    Pairing2D is deprecated and is replaced with :doc:`bond`.
-
-.. autoclass:: freud.order.Pairing2D(rmax, k, compDotTol)
-    :members:
-
-Angular Separation
-------------------
-
-.. autoclass:: freud.order.AngularSeparation(box, rmax, n)
-    :members:
+.. autoclass:: freud.order.SolLiqNear(box, rmax, Qthreshold, Sthreshold, l, kn)
+    :members: compute, computeSolLiqNoNorm, computeSolLiqVariant

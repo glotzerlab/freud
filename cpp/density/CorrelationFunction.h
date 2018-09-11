@@ -7,7 +7,7 @@
 #include <memory>
 #include <tbb/tbb.h>
 
-#include "box.h"
+#include "Box.h"
 #include "VectorMath.h"
 #include "LinkCell.h"
 
@@ -80,6 +80,7 @@ class CorrelationFunction
         //! Get a reference to the bin counts array
         std::shared_ptr<unsigned int> getCounts()
             {
+            reduceCorrelationFunction();
             return m_bin_counts;
             }
 
