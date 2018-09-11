@@ -49,8 +49,8 @@ Alternatively, freud can be installed directly from source.
    :maxdepth: 2
    :caption: Contents
 
-   examples
    installation
+   examples
    modules
    development
    citations

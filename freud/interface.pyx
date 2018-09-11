@@ -27,9 +27,10 @@ cdef class InterfaceMeasure:
     """Measures the interface between two sets of points.
 
     .. moduleauthor:: Matthew Spellings <mspells@umich.edu>
+    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
 
     Args:
-        box (:py:class:`freud.box.Box`): Simulation box.
+        box (:class:`freud.box.Box`): Simulation box.
         r_cut (float): Distance to search for particle neighbors.
 
     Attributes:

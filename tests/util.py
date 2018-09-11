@@ -17,7 +17,7 @@ def make_fcc(nx=1, ny=1, nz=1, scale=1.0, noise=0.0):
     :type scale: float
     :type noise: float
     :return: freud Box, particle positions, shape=(nx*ny*nz, 3)
-    :rtype: (:py:class:`freud.box.Box`, :class:`np.ndarray`)
+    :rtype: (:class:`freud.box.Box`, :class:`np.ndarray`)
     """
     fractions = np.array([[.5, .5, 0],
                           [.5, 0, .5],

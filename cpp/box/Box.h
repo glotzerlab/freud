@@ -12,7 +12,7 @@
 
 #include "VectorMath.h"
 
-/*! \file box.h
+/*! \file Box.h
     \brief Represents simulation boxes and contains helpful wrapping functions.
 */
 

@@ -47,7 +47,6 @@ cdef extern from "LocalDescriptors.h" namespace "freud::environment":
         unsigned int getNSphs() const
         unsigned int getLMax() const
         unsigned int getSphWidth() const
-        float getRMax() const
         unsigned int getNP()
         void computeNList(const freud._box.Box &,
                           const vec3[float]*, unsigned int,
@@ -141,3 +140,25 @@ cdef extern from "AngularSeparation.h" namespace "freud::environment":
         unsigned int getNP()
         unsigned int getNref()
         unsigned int getNglobal()
+
+cdef extern from "LocalBondProjection.h" namespace "freud::environment":
+    cdef cppclass LocalBondProjection:
+        LocalBondProjection()
+        void compute(freud._box.Box &,
+                     const freud._locality.NeighborList*,
+                     vec3[float]*,
+                     vec3[float]*,
+                     quat[float]*,
+                     quat[float]*,
+                     vec3[float]*,
+                     unsigned int,
+                     unsigned int,
+                     unsigned int,
+                     unsigned int) nogil except +
+
+        shared_ptr[float] getProjections()
+        shared_ptr[float] getNormedProjections()
+        unsigned int getNP()
+        unsigned int getNref()
+        unsigned int getNproj()
+        const freud._box.Box & getBox() const

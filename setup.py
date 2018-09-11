@@ -9,8 +9,6 @@ import sys
 import platform
 import glob
 import multiprocessing.pool
-
-
 import logging
 
 logger = logging.getLogger(__name__)
@@ -205,6 +203,16 @@ if thread_str in sys.argv:
     setuptools.distutils.ccompiler.CCompiler.compile=parallelCCompile
 
 
+#######################
+# Configure ReadTheDocs
+#######################
+
+on_rtd = os.environ.get('READTHEDOCS') == 'True'
+if on_rtd:
+    use_cython = True
+    ext = '.pyx'
+
+
 #########################
 # Set extension arguments
 #########################
@@ -246,6 +254,7 @@ ext_args = dict(
 # Need to find files manually; cythonize accepts glob syntax, but basic
 # extension modules with C++ do not
 files = glob.glob(os.path.join('freud', '*') + ext)
+files.extend(glob.glob(os.path.join('freud', 'util', '*') + ext))
 modules = [f.replace(ext, '') for f in files]
 modules = [m.replace(os.path.sep, '.') for m in modules]
 
@@ -255,7 +264,7 @@ sources_in_all = [
     os.path.join("cpp", "locality", "LinkCell.cc"),
     os.path.join("cpp", "locality", "NearestNeighbors.cc"),
     os.path.join("cpp", "locality", "NeighborList.cc"),
-    os.path.join("cpp", "box", "box.cc")
+    os.path.join("cpp", "box", "Box.cc")
 ]
 
 # Any source files required only for specific modules.

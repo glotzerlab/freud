@@ -73,21 +73,17 @@ cdef class CubaticOrderParameter:
             The quaternion of global orientation.
         particle_order_parameter (:class:`numpy.ndarray`):
              Cubatic order parameter.
-        particle_tensor (:math:`\\left(N_{particles}, 3, 3, 3, 3 \\right)`\
-        :class:`numpy.ndarray`):
+        particle_tensor (:math:`\\left(N_{particles}, 3, 3, 3, 3 \\right)` :class:`numpy.ndarray`):
             Rank 5 tensor corresponding to each individual particle
             orientation.
-        global_tensor (:math:`\\left(3, 3, 3, 3 \\right)`\
-        :class:`numpy.ndarray`):
+        global_tensor (:math:`\\left(3, 3, 3, 3 \\right)` :class:`numpy.ndarray`):
             Rank 4 tensor corresponding to global orientation.
-        cubatic_tensor (:math:`\\left(3, 3, 3, 3 \\right)`\
-        :class:`numpy.ndarray`):
+        cubatic_tensor (:math:`\\left(3, 3, 3, 3 \\right)` :class:`numpy.ndarray`):
             Rank 4 cubatic tensor.
-        gen_r4_tensor (:math:`\\left(3, 3, 3, 3 \\right)`\
-        :class:`numpy.ndarray`):
+        gen_r4_tensor (:math:`\\left(3, 3, 3, 3 \\right)` :class:`numpy.ndarray`):
             Rank 4 tensor corresponding to each individual particle
             orientation.
-    """
+    """  # noqa: E501
     cdef freud._order.CubaticOrderParameter * thisptr
 
     def __cinit__(self, t_initial, t_final, scale, n_replicates=1, seed=None):
@@ -316,14 +312,12 @@ cdef class NematicOrderParameter:
             Nematic order parameter.
         director (:math:`\\left(3 \\right)` :class:`numpy.ndarray`):
             The average nematic director.
-        particle_tensor (:math:`\\left(N_{particles}, 3, 3 \\right)`\
-        :class:`numpy.ndarray`):
+        particle_tensor (:math:`\\left(N_{particles}, 3, 3 \\right)` :class:`numpy.ndarray`):
             One 3x3 matrix per-particle corresponding to each individual
             particle orientation.
         nematic_tensor (:math:`\\left(3, 3 \\right)` :class:`numpy.ndarray`):
             3x3 matrix corresponding to the average particle orientation.
-
-    """
+    """  # noqa: E501
     cdef freud._order.NematicOrderParameter *thisptr
 
     def __cinit__(self, u):
@@ -340,10 +334,9 @@ cdef class NematicOrderParameter:
         """Calculates the per-particle and global order parameter.
 
         Args:
-            orientations (:math:`\\left(N_{particles}, 4 \\right)` \
-            :class:`numpy.ndarray`):
+            orientations (:math:`\\left(N_{particles}, 4 \\right)` :class:`numpy.ndarray`):
                 Orientations to calculate the order parameter.
-        """
+        """  # noqa: E501
         orientations = freud.common.convert_array(
             orientations, 2, dtype=np.float32, contiguous=True,
             array_name="orientations")
@@ -418,7 +411,8 @@ cdef class NematicOrderParameter:
                       "of the nematic_tensor class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        return self.get_nematic_tensor()
+        return self.nematic_tensor
+
 
 cdef class HexOrderParameter:
     """Calculates the :math:`k`-atic order parameter for each particle in the
@@ -436,7 +430,7 @@ cdef class HexOrderParameter:
     vector :math:`r_{ij}` and :math:`\\left( 1,0 \\right)`.
 
     .. note::
-        **2D:** :py:class:`freud.order.HexOrderParameter` properly handles 2D
+        **2D:** :class:`freud.order.HexOrderParameter` properly handles 2D
         boxes. The points must be passed in as :code:`[x, y, 0]`. Failing to
         set z=0 will lead to undefined behavior.
 
@@ -453,7 +447,7 @@ cdef class HexOrderParameter:
     Attributes:
         psi (:math:`\\left(N_{particles} \\right)` :class:`numpy.ndarray`):
             Order parameter.
-        box (:py:class:`freud.box.Box`):
+        box (:class:`freud.box.Box`):
             Box used in the calculation.
         num_particles (unsigned int):
             Number of particles.
@@ -554,6 +548,7 @@ cdef class HexOrderParameter:
                       FreudDeprecationWarning)
         return self.K
 
+
 cdef class TransOrderParameter:
     """Compute the translational order parameter for each particle.
 
@@ -570,7 +565,7 @@ cdef class TransOrderParameter:
     Attributes:
         d_r (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
             Reference to the last computed translational order array.
-        box (:py:class:`freud.box.Box`):
+        box (:class:`freud.box.Box`):
             Box used in the calculation.
         num_particles (unsigned int):
             Number of particles.
@@ -656,6 +651,7 @@ cdef class TransOrderParameter:
                       FreudDeprecationWarning)
         return self.num_particles
 
+
 cdef class LocalQl:
     """Compute the local Steinhardt [Steinhardt1983]_ rotationally invariant
     :math:`Q_l` order parameter for a set of points.
@@ -673,7 +669,7 @@ cdef class LocalQl:
     orientational order as follows: :math:`Q_l(i)=\\sqrt{\\frac{4\pi}{2l+1}
     \\displaystyle\\sum_{m=-l}^{l} |\\overline{Q}_{lm}|^2 }`.
 
-    The :py:meth:`~computeAve` method provides access to a variant of this
+    The :meth:`~computeAve` method provides access to a variant of this
     parameter that performs a average over the first and second shell combined
     [Lechner2008]_. To compute this parameter, we perform a second averaging
     over the first neighbor shell of the particle to implicitly include
@@ -682,8 +678,8 @@ cdef class LocalQl:
     definition by the average value of :math:`\\overline{Q}_{lm}(k)` over all
     the :math:`k` neighbors of particle :math:`i` as well as itself.
 
-    The :py:meth:`~computeNorm` and :py:meth:`~computeAveNorm` methods provide
-    normalized versions of :py:meth:`~compute` and :py:meth:`~computeAve`,
+    The :meth:`~computeNorm` and :meth:`~computeAveNorm` methods provide
+    normalized versions of :meth:`~compute` and :meth:`~computeAve`,
     where the normalization is performed by dividing by the average
     :math:`Q_{lm}` values over all particles.
 
@@ -691,7 +687,7 @@ cdef class LocalQl:
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
 
     Args:
-        box (:py:class:`freud.box.Box`):
+        box (:class:`freud.box.Box`):
             Simulation box.
         rmax (float):
             Cutoff radius for the local order parameter. Values near the first
@@ -702,7 +698,7 @@ cdef class LocalQl:
             Can look at only the second shell or some arbitrary RDF region.
 
     Attributes:
-        box (:py:class:`freud.box.Box`):
+        box (:class:`freud.box.Box`):
             Box used in the calculation.
         num_particles (unsigned int):
             Number of particles.
@@ -716,14 +712,13 @@ cdef class LocalQl:
             The last computed :math:`Q_l` for each particle normalized by the
             value over all particles (filled with NaN for particles with no
             neighbors).
-        ave_norm_Ql (:math:`\\left(N_{particles}\\right)` \
-        :class:`numpy.ndarray`):
+        ave_norm_Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
             The last computed :math:`\\bar{Q_l}` for each particle normalized
             by the value over all particles (filled with NaN for particles with
             no neighbors).
 
     .. todo:: move box to compute, this is old API
-    """
+    """  # noqa: E501
     cdef freud._order.LocalQl * qlptr
     cdef freud.box.Box m_box
     cdef rmax
@@ -947,17 +942,18 @@ cdef class LocalQl:
         self.qlptr.computeAveNorm(<vec3[float]*> l_points.data, nP)
         return self
 
+
 cdef class LocalQlNear(LocalQl):
-    """A variant of the :py:class:`~LocalQl` class that performs its average
+    """A variant of the :class:`~LocalQl` class that performs its average
     over nearest neighbor particles as determined by an instance of
-    :py:class:`freud.locality.NeighborList`. The number of included neighbors
+    :class:`freud.locality.NeighborList`. The number of included neighbors
     is determined by the kn parameter to the constructor.
 
     .. moduleauthor:: Xiyu Du <xiyudu@umich.edu>
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
 
     Args:
-        box (:py:class:`freud.box.Box`):
+        box (:class:`freud.box.Box`):
             Simulation box.
         rmax (float):
             Cutoff radius for the local order parameter. Values near the first
@@ -968,7 +964,7 @@ cdef class LocalQlNear(LocalQl):
             Number of nearest neighbors. must be a positive integer.
 
     Attributes:
-        box (:py:class:`freud.box.Box`):
+        box (:class:`freud.box.Box`):
             Box used in the calculation.
         num_particles (unsigned int):
             Number of particles.
@@ -982,14 +978,13 @@ cdef class LocalQlNear(LocalQl):
             The last computed :math:`Q_l` for each particle normalized by the
             value over all particles (filled with NaN for particles with no
             neighbors).
-        ave_norm_Ql (:math:`\\left(N_{particles}\\right)` \
-        :class:`numpy.ndarray`):
+        ave_norm_Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
             The last computed :math:`\\bar{Q_l}` for each particle normalized
             by the value over all particles (filled with NaN for particles with
             no neighbors).
 
     .. todo:: move box to compute, this is old API
-    """
+    """  # noqa: E501
     cdef num_neigh
 
     def __cinit__(self, box, rmax, l, kn=12):
@@ -1055,6 +1050,7 @@ cdef class LocalQlNear(LocalQl):
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         return super(LocalQlNear, self).computeAveNorm(points, nlist_)
 
+
 cdef class LocalWl(LocalQl):
     """Compute the local Steinhardt [Steinhardt1983]_ rotationally invariant
     :math:`W_l` order parameter for a set of points.
@@ -1070,10 +1066,10 @@ cdef class LocalWl(LocalQl):
 
     The :math:`W_l` is then defined as a weighted average over the
     :math:`\\overline{Q}_{lm}(i)` values using Wigner 3j symbols
-    (CG coefficients). The resulting combination is rotationally (i.e. frame)
-    invariant.
+    (Clebsch-Gordan coefficients). The resulting combination is rotationally
+    (i.e. frame) invariant.
 
-    The :py:meth:`~computeAve` method provides access to a variant of this
+    The :meth:`~computeAve` method provides access to a variant of this
     parameter that performs a average over the first and second shell combined
     [Lechner2008]_. To compute this parameter, we perform a second averaging
     over the first neighbor shell of the particle to implicitly include
@@ -1082,8 +1078,8 @@ cdef class LocalWl(LocalQl):
     definition by the average value of :math:`\\overline{Q}_{lm}(k)` over all
     the :math:`k` neighbors of particle :math:`i` as well as itself.
 
-    The :py:meth:`~computeNorm` and :py:meth:`~computeAveNorm` methods provide
-    normalized versions of :py:meth:`~compute` and :py:meth:`~computeAve`,
+    The :meth:`~computeNorm` and :meth:`~computeAveNorm` methods provide
+    normalized versions of :meth:`~compute` and :meth:`~computeAve`,
     where the normalization is performed by dividing by the average
     :math:`Q_{lm}` values over all particles.
 
@@ -1091,7 +1087,7 @@ cdef class LocalWl(LocalQl):
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
 
     Args:
-        box (:py:class:`freud.box.Box`):
+        box (:class:`freud.box.Box`):
             Simulation box.
         rmax (float):
             Cutoff radius for the local order parameter. Values near the first
@@ -1104,7 +1100,7 @@ cdef class LocalWl(LocalQl):
             RDF region.
 
     Attributes:
-        box (:py:class:`freud.box.Box`):
+        box (:class:`freud.box.Box`):
             Box used in the calculation.
         num_particles (unsigned int):
             Number of particles.
@@ -1118,14 +1114,13 @@ cdef class LocalWl(LocalQl):
             The last computed :math:`W_l` for each particle normalized by the
             value over all particles (filled with NaN for particles with no
             neighbors).
-        ave_norm_Wl (:math:`\\left(N_{particles}\\right)` \
-        :class:`numpy.ndarray`):
+        ave_norm_Wl (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
             The last computed :math:`\\bar{W}_l` for each particle normalized
             by the value over all particles (filled with NaN for particles with
             no neighbors).
 
     .. todo:: move box to compute, this is old API
-    """
+    """  # noqa: E501
     cdef freud._order.LocalWl * thisptr
 
     # List of Ql attributes to remove
@@ -1228,17 +1223,18 @@ cdef class LocalWl(LocalQl):
                       FreudDeprecationWarning)
         return self.ave_norm_Wl
 
+
 cdef class LocalWlNear(LocalWl):
-    """A variant of the :py:class:`~LocalWl` class that performs its average
+    """A variant of the :class:`~LocalWl` class that performs its average
     over nearest neighbor particles as determined by an instance of
-    :py:class:`freud.locality.NeighborList`. The number of included neighbors
+    :class:`freud.locality.NeighborList`. The number of included neighbors
     is determined by the kn parameter to the constructor.
 
     .. moduleauthor:: Xiyu Du <xiyudu@umich.edu>
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
 
     Args:
-        box (:py:class:`freud.box.Box`):
+        box (:class:`freud.box.Box`):
             Simulation box.
         rmax (float):
             Cutoff radius for the local order parameter. Values near the first
@@ -1250,7 +1246,7 @@ cdef class LocalWlNear(LocalWl):
 
 
     Attributes:
-        box (:py:class:`freud.box.Box`):
+        box (:class:`freud.box.Box`):
             Box used in the calculation.
         num_particles (unsigned int):
             Number of particles.
@@ -1264,14 +1260,13 @@ cdef class LocalWlNear(LocalWl):
             The last computed :math:`W_l` for each particle normalized by the
             value over all particles (filled with NaN for particles with no
             neighbors).
-        ave_norm_Wl (:math:`\\left(N_{particles}\\right)` \
-        :class:`numpy.ndarray`):
+        ave_norm_Wl (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
             The last computed :math:`\\bar{W}_l` for each particle normalized
             by the value over all particles (filled with NaN for particles with
             no neighbors).
 
     .. todo:: move box to compute, this is old API
-    """
+    """  # noqa: E501
     cdef num_neigh
 
     def __cinit__(self, box, rmax, l, kn=12):
@@ -1332,14 +1327,14 @@ cdef class LocalWlNear(LocalWl):
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         return super(LocalWlNear, self).computeAveNorm(points, nlist_)
 
+
 cdef class SolLiq:
-    """Computes dot products of :math:`Q_{lm}` between particles and uses these
-    for clustering.
+    """Uses dot products of :math:`Q_{lm}` between particles for clustering.
 
     .. moduleauthor:: Richmond Newman <newmanrs@umich.edu>
 
     Args:
-        box (:py:class:`freud.box.Box`):
+        box (:class:`freud.box.Box`):
             Simulation box.
         rmax (float):
             Cutoff radius for the local order parameter. Values near first
@@ -1357,7 +1352,7 @@ cdef class SolLiq:
             Choose spherical harmonic :math:`Q_l`. Must be positive and even.
 
     Attributes:
-        box (:py:class:`freud.box.Box`):
+        box (:class:`freud.box.Box`):
             Box used in the calculation.
         largest_cluster_size (unsigned int):
             The largest cluster size. Must call a compute method first.
@@ -1370,17 +1365,15 @@ cdef class SolLiq:
         clusters (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
             The last computed set of solid-like cluster indices for each
             particle.
-        num_connections (:math:`\\left(N_{particles}\\right)` \
-        :class:`numpy.ndarray`):
+        num_connections (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
             The number of connections per particle.
-        Ql_dot_ij (:math:`\\left(N_{particles}\\right)` \
-        :class:`numpy.ndarray`):
+        Ql_dot_ij (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
             Reference to the qldot_ij values.
         num_particles (unsigned int):
             Number of particles.
 
     .. todo:: move box to compute, this is old API
-    """
+    """  # noqa: E501
     cdef freud._order.SolLiq * thisptr
     cdef freud.box.Box m_box
     cdef rmax
@@ -1622,16 +1615,14 @@ cdef class SolLiq:
                       FreudDeprecationWarning)
         return self.num_particles
 
+
 cdef class SolLiqNear(SolLiq):
-    """A variant of the :py:class:`~SolLiq` class that performs its average
-    over nearest neighbor particles as determined by an instance of
-    :py:class:`freud.locality.NeighborList`. The number of included neighbors
-    is determined by the kn parameter to the constructor.
+    """A variant of the :class:`~SolLiq` class that performs its average over nearest neighbor particles as determined by an instance of :class:`freud.locality.NeighborList`. The number of included neighbors is determined by the kn parameter to the constructor.
 
     .. moduleauthor:: Richmond Newman <newmanrs@umich.edu>
 
     Args:
-        box (:py:class:`freud.box.Box`):
+        box (:class:`freud.box.Box`):
             Simulation box.
         rmax (float):
             Cutoff radius for the local order parameter. Values near the first
@@ -1651,7 +1642,7 @@ cdef class SolLiqNear(SolLiq):
             Number of nearest neighbors. Must be a positive number.
 
     Attributes:
-        box (:py:class:`freud.box.Box`):
+        box (:class:`freud.box.Box`):
             Box used in the calculation.
         largest_cluster_size (unsigned int):
             The largest cluster size. Must call a compute method first.
@@ -1664,17 +1655,15 @@ cdef class SolLiqNear(SolLiq):
         clusters (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
             The last computed set of solid-like cluster indices for each
             particle.
-        num_connections (:math:`\\left(N_{particles}\\right)` \
-        :class:`numpy.ndarray`):
+        num_connections (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
             The number of connections per particle.
-        Ql_dot_ij (:math:`\\left(N_{particles}\\right)` \
-        :class:`numpy.ndarray`):
+        Ql_dot_ij (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
             Reference to the qldot_ij values.
         num_particles (unsigned int):
             Number of particles.
 
     .. todo:: move box to compute, this is old API
-    """
+    """  # noqa: E501
     cdef num_neigh
 
     def __init__(self, box, rmax, Qthreshold, Sthreshold, l, kn=12):
@@ -1740,10 +1729,10 @@ class BondOrder(_EBO):
 
     .. note::
         This class is only retained for backwards compatibility.
-        Please use :py:class:`freud.environment.BondOrder` instead.
+        Please use :class:`freud.environment.BondOrder` instead.
 
     .. deprecated:: 0.8.2
-       Use :py:class:`freud.environment.BondOrder` instead.
+       Use :class:`freud.environment.BondOrder` instead.
 
     """
     def __init__(self, rmax, k, n, n_bins_t, n_bins_p):
@@ -1758,10 +1747,10 @@ class LocalDescriptors(_ELD):
 
     .. note::
         This class is only retained for backwards compatibility.
-        Please use :py:class:`freud.environment.LocalDescriptors` instead.
+        Please use :class:`freud.environment.LocalDescriptors` instead.
 
     .. deprecated:: 0.8.2
-       Use :py:class:`freud.environment.LocalDescriptors` instead.
+       Use :class:`freud.environment.LocalDescriptors` instead.
 
     """
     def __init__(self, num_neighbors, lmax, rmax, negative_m=True):
@@ -1776,10 +1765,10 @@ class MatchEnv(_EME):
 
     .. note::
         This class is only retained for backwards compatibility.
-        Please use :py:class:`freud.environment.MatchEnv` instead.
+        Please use :class:`freud.environment.MatchEnv` instead.
 
     .. deprecated:: 0.8.2
-       Use :py:class:`freud.environment.MatchEnv` instead.
+       Use :class:`freud.environment.MatchEnv` instead.
 
     """
     def __init__(self, box, rmax, k):
@@ -1790,12 +1779,13 @@ class MatchEnv(_EME):
 
 class Pairing2D(_EP):
     """**Deprecated** Compute pairs for the system of particles.
+
     .. note::
         This class is only retained for backwards compatibility.
-        Please use :py:mod:`freud.bond` instead.
+        Please use :mod:`freud.bond` instead.
 
     .. deprecated:: 0.8.2
-       Use :py:mod:`freud.bond` instead.
+       Use :mod:`freud.bond` instead.
 
     """
     def __init__(self, rmax, k, compDotTol):
@@ -1809,10 +1799,10 @@ class AngularSeparation(_EAS):
 
     .. note::
         This class is only retained for backwards compatibility.
-        Please use :py:class:`freud.environment.AngularSeparation` instead.
+        Please use :class:`freud.environment.AngularSeparation` instead.
 
     .. deprecated:: 0.8.2
-       Use :py:class:`freud.environment.AngularSeparation` instead.
+       Use :class:`freud.environment.AngularSeparation` instead.
 
     """
     def __init__(self, rmax, n):

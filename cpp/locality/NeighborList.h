@@ -6,7 +6,7 @@
 
 #include <memory>
 
-#include "box.h"
+#include "Box.h"
 #include "VectorMath.h"
 
 namespace freud { namespace locality {
