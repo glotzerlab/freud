@@ -10,12 +10,10 @@ import logging
 import argparse
 try:
     from setuptools import Extension, setup, distutils
-    from setuptools.command.build_ext import build_ext as _build_ext
 except ImportError:
     # Compatibility with distutils
     import distutils
     from distutils import Extension, setup
-    from distutils.command.build_ext import build_ext as _build_ext
 
 logger = logging.getLogger(__name__)
 
@@ -208,23 +206,6 @@ def parallelCCompile(self, sources, output_dir=None, macros=None,
 
 distutils.ccompiler.CCompiler.compile=parallelCCompile
 
-# Allow pip install without NumPy preinstalled.
-#  Only modify build_ext if we're doing some form of installation.
-build_strings = ['build', 'install', 'dist']
-if any(b in arg for arg in sys.argv for b in build_strings):
-    setup_requires = ['numpy>=1.10']
-
-    class build_ext(_build_ext):
-        def finalize_options(self):
-            _build_ext.finalize_options(self)
-            # Prevent numpy from thinking it is still in its setup process:
-            __builtins__.__NUMPY_SETUP__ = False
-            import numpy
-            self.include_dirs.append(numpy.get_include())
-else:
-    setup_requires = []
-    build_ext = _build_ext
-
 
 #########################
 # Set extension arguments
@@ -394,8 +375,6 @@ try:
               packages=['freud'],
               python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*',
               install_requires=['numpy>=1.10'],
-              cmdclass={"build_ext": build_ext},
-              setup_requires=setup_requires,
               ext_modules=extensions)
 except SystemExit:
     # The errors we're explicitly checking for are whether or not
