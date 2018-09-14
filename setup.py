@@ -132,6 +132,8 @@ parser.add_argument(
     dest="tbb_link",
     help="The lib directory where TBB shared libraries are found."
 )
+
+# Parse known args then rewrite sys.argv for setuptools.setup to use
 args, extras = parser.parse_known_args()
 if args.nthreads > 1:
     # Make sure number of threads to use gets passed through to setup.
@@ -144,13 +146,21 @@ if args.help:
     parser.print_help()
     print("\n\nThe subsequent help is for standard setup.py usage.\n\n")
 
-if args.use_coverage:
-    directives = {'embedsignature': True, 'binding': True, 'linetrace': True}
-    macros = [('CYTHON_TRACE', '1'), ('CYTHON_TRACE_NOGIL', '1')]
-else:
-    directives = {'embedsignature': True, 'binding': True}
-    macros = []
 
+#######################
+# Configure ReadTheDocs
+#######################
+
+on_rtd = os.environ.get('READTHEDOCS') == 'True'
+if on_rtd:
+    args.use_cython = True
+
+
+################################
+# Modifications to setup process
+################################
+
+# Decide whether or not to use Cython
 if args.use_cython:
     try:
         from Cython.Build import cythonize
@@ -162,10 +172,14 @@ if args.use_cython:
 else:
     ext = '.cpp'
 
+# Decide whether or not to compile with coverage support
+if args.use_coverage:
+    directives = {'embedsignature': True, 'binding': True, 'linetrace': True}
+    macros = [('CYTHON_TRACE', '1'), ('CYTHON_TRACE_NOGIL', '1')]
+else:
+    directives = {'embedsignature': True, 'binding': True}
+    macros = []
 
-################################
-# Modifications to setup process
-################################
 
 # Enable build parallel compile within modules.
 def parallelCCompile(self, sources, output_dir=None, macros=None,
@@ -210,16 +224,6 @@ if any(b in arg for arg in sys.argv for b in build_strings):
 else:
     setup_requires = []
     build_ext = _build_ext
-
-
-#######################
-# Configure ReadTheDocs
-#######################
-
-on_rtd = os.environ.get('READTHEDOCS') == 'True'
-if on_rtd:
-    args.use_cython = True
-    ext = '.pyx'
 
 
 #########################
