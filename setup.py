@@ -111,6 +111,7 @@ parser.add_argument(
     thread_str,
     type=int,
     dest="nthreads_ext",
+    default=1,
     help="The number of threads to use to simultaneously compile a single "
          "module. Helpful when constantly recompiling a single module with "
          "many source files, for example during development."
