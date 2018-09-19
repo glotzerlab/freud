@@ -8,6 +8,7 @@ import glob
 import multiprocessing.pool
 import logging
 import argparse
+import numpy as np
 try:
     from setuptools import Extension, setup, distutils
 except ImportError:
@@ -274,7 +275,9 @@ def find_tbb(tbb_root=None, tbb_include=None, tbb_link=None):
 tbb_include, tbb_link = find_tbb(args.tbb_root, args.tbb_include,
                                  args.tbb_link)
 
-include_dirs = ["extern"] + glob.glob(os.path.join('cpp', '*'))
+include_dirs = [
+    "extern",
+    np.get_include()] + glob.glob(os.path.join('cpp', '*'))
 
 if tbb_include:
     include_dirs.append(tbb_include)

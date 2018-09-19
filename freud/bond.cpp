@@ -4,14 +4,13 @@
 {
     "distutils": {
         "depends": [
-            "/usr/lib/python3.7/site-packages/numpy/core/include/numpy/arrayobject.h",
-            "/usr/lib/python3.7/site-packages/numpy/core/include/numpy/ufuncobject.h",
             "cpp/bond/BondingAnalysis.h",
             "cpp/bond/BondingR12.h",
             "cpp/bond/BondingXY2D.h",
             "cpp/bond/BondingXYT.h",
             "cpp/bond/BondingXYZ.h",
-            "cpp/box/box.h",
+            "cpp/box/Box.h",
+            "cpp/box/ParticleBuffer.h",
             "cpp/locality/LinkCell.h",
             "cpp/locality/NearestNeighbors.h",
             "cpp/locality/NeighborList.h",
@@ -25,22 +24,19 @@
             "-std=c++11"
         ],
         "include_dirs": [
-            "/usr/lib/python3.7/site-packages/numpy/core/include",
             "extern",
+            "cpp/order",
+            "cpp/cluster",
+            "cpp/registration",
+            "cpp/parallel",
             "cpp/box",
             "cpp/util",
-            "cpp/order",
-            "cpp/parallel",
-            "cpp/cluster",
-            "cpp/environment",
-            "cpp/locality",
-            "cpp/density",
             "cpp/bond",
-            "cpp/voronoi",
-            "cpp/registration",
+            "cpp/density",
+            "cpp/environment",
             "cpp/pmft",
-            "cpp/kspace",
-            "/usr/include"
+            "cpp/locality",
+            "/Users/vramasub/miniconda3/envs/test36/include"
         ],
         "language": "c++",
         "libraries": [
@@ -49,16 +45,16 @@
         "name": "freud.bond",
         "sources": [
             "freud/bond.pyx",
-            "cpp/bond/BondingR12.cc",
-            "cpp/locality/NeighborList.cc",
-            "cpp/locality/NearestNeighbors.cc",
             "cpp/bond/BondingXYT.cc",
-            "cpp/bond/BondingAnalysis.cc",
+            "cpp/bond/BondingR12.cc",
+            "cpp/box/Box.cc",
             "cpp/bond/BondingXY2D.cc",
+            "cpp/locality/NeighborList.cc",
+            "cpp/locality/LinkCell.cc",
             "cpp/util/HOOMDMatrix.cc",
-            "cpp/bond/BondingXYZ.cc",
-            "cpp/box/box.cc",
-            "cpp/locality/LinkCell.cc"
+            "cpp/locality/NearestNeighbors.cc",
+            "cpp/bond/BondingAnalysis.cc",
+            "cpp/bond/BondingXYZ.cc"
         ]
     },
     "module_name": "freud.bond"
@@ -653,7 +649,8 @@ static CYTHON_INLINE float __PYX_NAN() {
 #include <vector>
 #include <string.h>
 #include <string>
-#include "box.h"
+#include "Box.h"
+#include "ParticleBuffer.h"
 #include "NeighborList.h"
 #include "LinkCell.h"
 #include "NearestNeighbors.h"
@@ -947,7 +944,16 @@ typedef struct {
 #endif
 
 
-/* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":730
+/* "freud/_box.pxd":10
+ * from libcpp.string cimport string
+ * 
+ * ctypedef unsigned int uint             # <<<<<<<<<<<<<<
+ * 
+ * cdef extern from "Box.h" namespace "freud::box":
+ */
+typedef unsigned int __pyx_t_5freud_4_box_uint;
+
+/* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":730
  * # in Cython to enable them only on the right systems.
  * 
  * ctypedef npy_int8       int8_t             # <<<<<<<<<<<<<<
@@ -956,7 +962,7 @@ typedef struct {
  */
 typedef npy_int8 __pyx_t_5numpy_int8_t;
 
-/* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":731
+/* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":731
  * 
  * ctypedef npy_int8       int8_t
  * ctypedef npy_int16      int16_t             # <<<<<<<<<<<<<<
@@ -965,7 +971,7 @@ typedef npy_int8 __pyx_t_5numpy_int8_t;
  */
 typedef npy_int16 __pyx_t_5numpy_int16_t;
 
-/* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":732
+/* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":732
  * ctypedef npy_int8       int8_t
  * ctypedef npy_int16      int16_t
  * ctypedef npy_int32      int32_t             # <<<<<<<<<<<<<<
@@ -974,7 +980,7 @@ typedef npy_int16 __pyx_t_5numpy_int16_t;
  */
 typedef npy_int32 __pyx_t_5numpy_int32_t;
 
-/* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":733
+/* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":733
  * ctypedef npy_int16      int16_t
  * ctypedef npy_int32      int32_t
  * ctypedef npy_int64      int64_t             # <<<<<<<<<<<<<<
@@ -983,7 +989,7 @@ typedef npy_int32 __pyx_t_5numpy_int32_t;
  */
 typedef npy_int64 __pyx_t_5numpy_int64_t;
 
-/* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":737
+/* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":737
  * #ctypedef npy_int128     int128_t
  * 
  * ctypedef npy_uint8      uint8_t             # <<<<<<<<<<<<<<
@@ -992,7 +998,7 @@ typedef npy_int64 __pyx_t_5numpy_int64_t;
  */
 typedef npy_uint8 __pyx_t_5numpy_uint8_t;
 
-/* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":738
+/* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":738
  * 
  * ctypedef npy_uint8      uint8_t
  * ctypedef npy_uint16     uint16_t             # <<<<<<<<<<<<<<
@@ -1001,7 +1007,7 @@ typedef npy_uint8 __pyx_t_5numpy_uint8_t;
  */
 typedef npy_uint16 __pyx_t_5numpy_uint16_t;
 
-/* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":739
+/* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":739
  * ctypedef npy_uint8      uint8_t
  * ctypedef npy_uint16     uint16_t
  * ctypedef npy_uint32     uint32_t             # <<<<<<<<<<<<<<
@@ -1010,7 +1016,7 @@ typedef npy_uint16 __pyx_t_5numpy_uint16_t;
  */
 typedef npy_uint32 __pyx_t_5numpy_uint32_t;
 
-/* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":740
+/* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":740
  * ctypedef npy_uint16     uint16_t
  * ctypedef npy_uint32     uint32_t
  * ctypedef npy_uint64     uint64_t             # <<<<<<<<<<<<<<
@@ -1019,7 +1025,7 @@ typedef npy_uint32 __pyx_t_5numpy_uint32_t;
  */
 typedef npy_uint64 __pyx_t_5numpy_uint64_t;
 
-/* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":744
+/* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":744
  * #ctypedef npy_uint128    uint128_t
  * 
  * ctypedef npy_float32    float32_t             # <<<<<<<<<<<<<<
@@ -1028,7 +1034,7 @@ typedef npy_uint64 __pyx_t_5numpy_uint64_t;
  */
 typedef npy_float32 __pyx_t_5numpy_float32_t;
 
-/* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":745
+/* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":745
  * 
  * ctypedef npy_float32    float32_t
  * ctypedef npy_float64    float64_t             # <<<<<<<<<<<<<<
@@ -1037,7 +1043,7 @@ typedef npy_float32 __pyx_t_5numpy_float32_t;
  */
 typedef npy_float64 __pyx_t_5numpy_float64_t;
 
-/* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":754
+/* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":754
  * # The int types are mapped a bit surprising --
  * # numpy.int corresponds to 'l' and numpy.long to 'q'
  * ctypedef npy_long       int_t             # <<<<<<<<<<<<<<
@@ -1046,7 +1052,7 @@ typedef npy_float64 __pyx_t_5numpy_float64_t;
  */
 typedef npy_long __pyx_t_5numpy_int_t;
 
-/* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":755
+/* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":755
  * # numpy.int corresponds to 'l' and numpy.long to 'q'
  * ctypedef npy_long       int_t
  * ctypedef npy_longlong   long_t             # <<<<<<<<<<<<<<
@@ -1055,7 +1061,7 @@ typedef npy_long __pyx_t_5numpy_int_t;
  */
 typedef npy_longlong __pyx_t_5numpy_long_t;
 
-/* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":756
+/* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":756
  * ctypedef npy_long       int_t
  * ctypedef npy_longlong   long_t
  * ctypedef npy_longlong   longlong_t             # <<<<<<<<<<<<<<
@@ -1064,7 +1070,7 @@ typedef npy_longlong __pyx_t_5numpy_long_t;
  */
 typedef npy_longlong __pyx_t_5numpy_longlong_t;
 
-/* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":758
+/* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":758
  * ctypedef npy_longlong   longlong_t
  * 
  * ctypedef npy_ulong      uint_t             # <<<<<<<<<<<<<<
@@ -1073,7 +1079,7 @@ typedef npy_longlong __pyx_t_5numpy_longlong_t;
  */
 typedef npy_ulong __pyx_t_5numpy_uint_t;
 
-/* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":759
+/* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":759
  * 
  * ctypedef npy_ulong      uint_t
  * ctypedef npy_ulonglong  ulong_t             # <<<<<<<<<<<<<<
@@ -1082,7 +1088,7 @@ typedef npy_ulong __pyx_t_5numpy_uint_t;
  */
 typedef npy_ulonglong __pyx_t_5numpy_ulong_t;
 
-/* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":760
+/* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":760
  * ctypedef npy_ulong      uint_t
  * ctypedef npy_ulonglong  ulong_t
  * ctypedef npy_ulonglong  ulonglong_t             # <<<<<<<<<<<<<<
@@ -1091,7 +1097,7 @@ typedef npy_ulonglong __pyx_t_5numpy_ulong_t;
  */
 typedef npy_ulonglong __pyx_t_5numpy_ulonglong_t;
 
-/* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":762
+/* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":762
  * ctypedef npy_ulonglong  ulonglong_t
  * 
  * ctypedef npy_intp       intp_t             # <<<<<<<<<<<<<<
@@ -1100,7 +1106,7 @@ typedef npy_ulonglong __pyx_t_5numpy_ulonglong_t;
  */
 typedef npy_intp __pyx_t_5numpy_intp_t;
 
-/* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":763
+/* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":763
  * 
  * ctypedef npy_intp       intp_t
  * ctypedef npy_uintp      uintp_t             # <<<<<<<<<<<<<<
@@ -1109,7 +1115,7 @@ typedef npy_intp __pyx_t_5numpy_intp_t;
  */
 typedef npy_uintp __pyx_t_5numpy_uintp_t;
 
-/* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":765
+/* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":765
  * ctypedef npy_uintp      uintp_t
  * 
  * ctypedef npy_double     float_t             # <<<<<<<<<<<<<<
@@ -1118,7 +1124,7 @@ typedef npy_uintp __pyx_t_5numpy_uintp_t;
  */
 typedef npy_double __pyx_t_5numpy_float_t;
 
-/* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":766
+/* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":766
  * 
  * ctypedef npy_double     float_t
  * ctypedef npy_double     double_t             # <<<<<<<<<<<<<<
@@ -1127,7 +1133,7 @@ typedef npy_double __pyx_t_5numpy_float_t;
  */
 typedef npy_double __pyx_t_5numpy_double_t;
 
-/* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":767
+/* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":767
  * ctypedef npy_double     float_t
  * ctypedef npy_double     double_t
  * ctypedef npy_longdouble longdouble_t             # <<<<<<<<<<<<<<
@@ -1162,6 +1168,7 @@ static CYTHON_INLINE __pyx_t_double_complex __pyx_t_double_complex_from_parts(do
 
 /*--- Type declarations ---*/
 struct __pyx_obj_5freud_3box_Box;
+struct __pyx_obj_5freud_3box_ParticleBuffer;
 struct __pyx_obj_5freud_8locality_NeighborList;
 struct __pyx_obj_5freud_8locality_IteratorLinkCell;
 struct __pyx_obj_5freud_8locality_LinkCell;
@@ -1172,7 +1179,7 @@ struct __pyx_obj_5freud_4bond_BondingXY2D;
 struct __pyx_obj_5freud_4bond_BondingXYT;
 struct __pyx_obj_5freud_4bond_BondingXYZ;
 
-/* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":769
+/* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":769
  * ctypedef npy_longdouble longdouble_t
  * 
  * ctypedef npy_cfloat      cfloat_t             # <<<<<<<<<<<<<<
@@ -1181,7 +1188,7 @@ struct __pyx_obj_5freud_4bond_BondingXYZ;
  */
 typedef npy_cfloat __pyx_t_5numpy_cfloat_t;
 
-/* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":770
+/* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":770
  * 
  * ctypedef npy_cfloat      cfloat_t
  * ctypedef npy_cdouble     cdouble_t             # <<<<<<<<<<<<<<
@@ -1190,7 +1197,7 @@ typedef npy_cfloat __pyx_t_5numpy_cfloat_t;
  */
 typedef npy_cdouble __pyx_t_5numpy_cdouble_t;
 
-/* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":771
+/* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":771
  * ctypedef npy_cfloat      cfloat_t
  * ctypedef npy_cdouble     cdouble_t
  * ctypedef npy_clongdouble clongdouble_t             # <<<<<<<<<<<<<<
@@ -1199,7 +1206,7 @@ typedef npy_cdouble __pyx_t_5numpy_cdouble_t;
  */
 typedef npy_clongdouble __pyx_t_5numpy_clongdouble_t;
 
-/* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":773
+/* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":773
  * ctypedef npy_clongdouble clongdouble_t
  * 
  * ctypedef npy_cdouble     complex_t             # <<<<<<<<<<<<<<
@@ -1218,6 +1225,18 @@ typedef npy_cdouble __pyx_t_5numpy_complex_t;
 struct __pyx_obj_5freud_3box_Box {
   PyObject_HEAD
   freud::box::Box *thisptr;
+};
+
+
+/* "freud/box.pxd":11
+ * cdef BoxFromCPP(const freud._box.Box & cppbox)
+ * 
+ * cdef class ParticleBuffer:             # <<<<<<<<<<<<<<
+ *     cdef freud._box.ParticleBuffer * thisptr
+ */
+struct __pyx_obj_5freud_3box_ParticleBuffer {
+  PyObject_HEAD
+  freud::box::ParticleBuffer *thisptr;
 };
 
 
@@ -1297,7 +1316,7 @@ struct __pyx_obj_5freud_4bond_BondingAnalysis {
 };
 
 
-/* "freud/bond.pyx":219
+/* "freud/bond.pyx":214
  *         return self.num_bonds
  * 
  * cdef class BondingR12:             # <<<<<<<<<<<<<<
@@ -1311,7 +1330,7 @@ struct __pyx_obj_5freud_4bond_BondingR12 {
 };
 
 
-/* "freud/bond.pyx":384
+/* "freud/bond.pyx":377
  *         return self.rev_list_map
  * 
  * cdef class BondingXY2D:             # <<<<<<<<<<<<<<
@@ -1325,7 +1344,7 @@ struct __pyx_obj_5freud_4bond_BondingXY2D {
 };
 
 
-/* "freud/bond.pyx":553
+/* "freud/bond.pyx":544
  *         return self.rev_list_map
  * 
  * cdef class BondingXYT:             # <<<<<<<<<<<<<<
@@ -1339,7 +1358,7 @@ struct __pyx_obj_5freud_4bond_BondingXYT {
 };
 
 
-/* "freud/bond.pyx":725
+/* "freud/bond.pyx":714
  *         return self.rev_list_map
  * 
  * cdef class BondingXYZ:             # <<<<<<<<<<<<<<
@@ -2020,6 +2039,7 @@ static int __Pyx_InitStrings(__Pyx_StringTabEntry *t);
 
 /* Module declarations from 'freud.box' */
 static PyTypeObject *__pyx_ptype_5freud_3box_Box = 0;
+static PyTypeObject *__pyx_ptype_5freud_3box_ParticleBuffer = 0;
 static PyObject *(*__pyx_f_5freud_3box_BoxFromCPP)(freud::box::Box const &); /*proto*/
 
 /* Module declarations from 'freud' */
@@ -2587,7 +2607,7 @@ static PyObject *__pyx_codeobj__103;
 static PyObject *__pyx_codeobj__105;
 /* Late includes */
 
-/* "freud/bond.pyx":84
+/* "freud/bond.pyx":82
  *     cdef unsigned int num_bonds
  * 
  *     def __cinit__(self, int num_particles, int num_bonds):             # <<<<<<<<<<<<<<
@@ -2626,11 +2646,11 @@ static int __pyx_pw_5freud_4bond_15BondingAnalysis_1__cinit__(PyObject *__pyx_v_
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_num_bonds)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 2, 2, 1); __PYX_ERR(0, 84, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 2, 2, 1); __PYX_ERR(0, 82, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__cinit__") < 0)) __PYX_ERR(0, 84, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__cinit__") < 0)) __PYX_ERR(0, 82, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -2638,12 +2658,12 @@ static int __pyx_pw_5freud_4bond_15BondingAnalysis_1__cinit__(PyObject *__pyx_v_
       values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
       values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
     }
-    __pyx_v_num_particles = __Pyx_PyInt_As_int(values[0]); if (unlikely((__pyx_v_num_particles == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 84, __pyx_L3_error)
-    __pyx_v_num_bonds = __Pyx_PyInt_As_int(values[1]); if (unlikely((__pyx_v_num_bonds == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 84, __pyx_L3_error)
+    __pyx_v_num_particles = __Pyx_PyInt_As_int(values[0]); if (unlikely((__pyx_v_num_particles == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 82, __pyx_L3_error)
+    __pyx_v_num_bonds = __Pyx_PyInt_As_int(values[1]); if (unlikely((__pyx_v_num_bonds == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 82, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 84, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 82, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("freud.bond.BondingAnalysis.__cinit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -2661,7 +2681,7 @@ static int __pyx_pf_5freud_4bond_15BondingAnalysis___cinit__(struct __pyx_obj_5f
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__cinit__", 0);
 
-  /* "freud/bond.pyx":85
+  /* "freud/bond.pyx":83
  * 
  *     def __cinit__(self, int num_particles, int num_bonds):
  *         self.num_particles = num_particles             # <<<<<<<<<<<<<<
@@ -2670,7 +2690,7 @@ static int __pyx_pf_5freud_4bond_15BondingAnalysis___cinit__(struct __pyx_obj_5f
  */
   __pyx_v_self->num_particles = __pyx_v_num_particles;
 
-  /* "freud/bond.pyx":86
+  /* "freud/bond.pyx":84
  *     def __cinit__(self, int num_particles, int num_bonds):
  *         self.num_particles = num_particles
  *         self.num_bonds = num_bonds             # <<<<<<<<<<<<<<
@@ -2679,7 +2699,7 @@ static int __pyx_pf_5freud_4bond_15BondingAnalysis___cinit__(struct __pyx_obj_5f
  */
   __pyx_v_self->num_bonds = __pyx_v_num_bonds;
 
-  /* "freud/bond.pyx":87
+  /* "freud/bond.pyx":85
  *         self.num_particles = num_particles
  *         self.num_bonds = num_bonds
  *         self.thisptr = new freud._bond.BondingAnalysis(num_particles,             # <<<<<<<<<<<<<<
@@ -2688,7 +2708,7 @@ static int __pyx_pf_5freud_4bond_15BondingAnalysis___cinit__(struct __pyx_obj_5f
  */
   __pyx_v_self->thisptr = new freud::bond::BondingAnalysis(__pyx_v_num_particles, __pyx_v_num_bonds);
 
-  /* "freud/bond.pyx":84
+  /* "freud/bond.pyx":82
  *     cdef unsigned int num_bonds
  * 
  *     def __cinit__(self, int num_particles, int num_bonds):             # <<<<<<<<<<<<<<
@@ -2702,7 +2722,7 @@ static int __pyx_pf_5freud_4bond_15BondingAnalysis___cinit__(struct __pyx_obj_5f
   return __pyx_r;
 }
 
-/* "freud/bond.pyx":90
+/* "freud/bond.pyx":88
  *                                                        num_bonds)
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -2725,7 +2745,7 @@ static void __pyx_pf_5freud_4bond_15BondingAnalysis_2__dealloc__(struct __pyx_ob
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__dealloc__", 0);
 
-  /* "freud/bond.pyx":91
+  /* "freud/bond.pyx":89
  * 
  *     def __dealloc__(self):
  *         del self.thisptr             # <<<<<<<<<<<<<<
@@ -2734,7 +2754,7 @@ static void __pyx_pf_5freud_4bond_15BondingAnalysis_2__dealloc__(struct __pyx_ob
  */
   delete __pyx_v_self->thisptr;
 
-  /* "freud/bond.pyx":90
+  /* "freud/bond.pyx":88
  *                                                        num_bonds)
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -2746,7 +2766,7 @@ static void __pyx_pf_5freud_4bond_15BondingAnalysis_2__dealloc__(struct __pyx_ob
   __Pyx_RefNannyFinishContext();
 }
 
-/* "freud/bond.pyx":93
+/* "freud/bond.pyx":91
  *         del self.thisptr
  * 
  *     def initialize(self, frame_0):             # <<<<<<<<<<<<<<
@@ -2756,7 +2776,7 @@ static void __pyx_pf_5freud_4bond_15BondingAnalysis_2__dealloc__(struct __pyx_ob
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_4bond_15BondingAnalysis_5initialize(PyObject *__pyx_v_self, PyObject *__pyx_v_frame_0); /*proto*/
-static char __pyx_doc_5freud_4bond_15BondingAnalysis_4initialize[] = "BondingAnalysis.initialize(self, frame_0)\nCalculates the changes in bonding states from one frame to the next.\n\n        Args:\n            frame_0 ((:math:`N_{particles}`, :math:`N_{bonds}`)             :class:`numpy.ndarray`):\n                First bonding frame (as output from :py:class:`~.BondingR12`\n                modules).\n        ";
+static char __pyx_doc_5freud_4bond_15BondingAnalysis_4initialize[] = "BondingAnalysis.initialize(self, frame_0)\nCalculates the changes in bonding states from one frame to the next.\n\n        Args:\n            frame_0 ((:math:`N_{particles}`, :math:`N_{bonds}`) :class:`numpy.ndarray`):\n                First bonding frame (as output from :class:`~.BondingR12`\n                and similar modules).\n        ";
 static PyMethodDef __pyx_mdef_5freud_4bond_15BondingAnalysis_5initialize = {"initialize", (PyCFunction)__pyx_pw_5freud_4bond_15BondingAnalysis_5initialize, METH_O, __pyx_doc_5freud_4bond_15BondingAnalysis_4initialize};
 static PyObject *__pyx_pw_5freud_4bond_15BondingAnalysis_5initialize(PyObject *__pyx_v_self, PyObject *__pyx_v_frame_0) {
   PyObject *__pyx_r = 0;
@@ -2788,30 +2808,30 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_4initialize(struct __py
   __pyx_pybuffernd_l_frame_0.data = NULL;
   __pyx_pybuffernd_l_frame_0.rcbuffer = &__pyx_pybuffer_l_frame_0;
 
-  /* "freud/bond.pyx":102
- *                 modules).
- *         """
+  /* "freud/bond.pyx":99
+ *                 and similar modules).
+ *         """  # noqa: E501
  *         frame_0 = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             frame_0, 2, dtype=np.uint32, contiguous=True, array_name="frame_0")
  *         if (frame_0.shape[0] != self.num_particles):
  */
-  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 102, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 99, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_common); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 102, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_common); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 99, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 102, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 99, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":103
- *         """
+  /* "freud/bond.pyx":100
+ *         """  # noqa: E501
  *         frame_0 = freud.common.convert_array(
  *             frame_0, 2, dtype=np.uint32, contiguous=True, array_name="frame_0")             # <<<<<<<<<<<<<<
  *         if (frame_0.shape[0] != self.num_particles):
  *             raise ValueError(
  */
-  __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 102, __pyx_L1_error)
+  __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 99, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_INCREF(__pyx_v_frame_0);
   __Pyx_GIVEREF(__pyx_v_frame_0);
@@ -2819,26 +2839,26 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_4initialize(struct __py
   __Pyx_INCREF(__pyx_int_2);
   __Pyx_GIVEREF(__pyx_int_2);
   PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_int_2);
-  __pyx_t_3 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 103, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 100, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 103, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 100, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_uint32); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 103, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_uint32); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 100, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_dtype, __pyx_t_5) < 0) __PYX_ERR(0, 103, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_dtype, __pyx_t_5) < 0) __PYX_ERR(0, 100, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_contiguous, Py_True) < 0) __PYX_ERR(0, 103, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_array_name, __pyx_n_s_frame_0) < 0) __PYX_ERR(0, 103, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_contiguous, Py_True) < 0) __PYX_ERR(0, 100, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_array_name, __pyx_n_s_frame_0) < 0) __PYX_ERR(0, 100, __pyx_L1_error)
 
-  /* "freud/bond.pyx":102
- *                 modules).
- *         """
+  /* "freud/bond.pyx":99
+ *                 and similar modules).
+ *         """  # noqa: E501
  *         frame_0 = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             frame_0, 2, dtype=np.uint32, contiguous=True, array_name="frame_0")
  *         if (frame_0.shape[0] != self.num_particles):
  */
-  __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 102, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 99, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -2846,45 +2866,45 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_4initialize(struct __py
   __Pyx_DECREF_SET(__pyx_v_frame_0, __pyx_t_5);
   __pyx_t_5 = 0;
 
-  /* "freud/bond.pyx":104
+  /* "freud/bond.pyx":101
  *         frame_0 = freud.common.convert_array(
  *             frame_0, 2, dtype=np.uint32, contiguous=True, array_name="frame_0")
  *         if (frame_0.shape[0] != self.num_particles):             # <<<<<<<<<<<<<<
  *             raise ValueError(
  *                 "The 1st dimension must match num_particles: {}".format(
  */
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_frame_0, __pyx_n_s_shape); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 104, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_frame_0, __pyx_n_s_shape); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 101, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_3 = __Pyx_GetItemInt(__pyx_t_5, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 104, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_GetItemInt(__pyx_t_5, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 101, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_5 = __Pyx_PyInt_From_unsigned_int(__pyx_v_self->num_particles); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 104, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyInt_From_unsigned_int(__pyx_v_self->num_particles); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 101, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_2 = PyObject_RichCompare(__pyx_t_3, __pyx_t_5, Py_NE); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 104, __pyx_L1_error)
+  __pyx_t_2 = PyObject_RichCompare(__pyx_t_3, __pyx_t_5, Py_NE); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 101, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_6 < 0)) __PYX_ERR(0, 104, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_6 < 0)) __PYX_ERR(0, 101, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   if (unlikely(__pyx_t_6)) {
 
-    /* "freud/bond.pyx":106
+    /* "freud/bond.pyx":103
  *         if (frame_0.shape[0] != self.num_particles):
  *             raise ValueError(
  *                 "The 1st dimension must match num_particles: {}".format(             # <<<<<<<<<<<<<<
  *                     self.num_particles))
  *         if (frame_0.shape[1] != self.num_bonds):
  */
-    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_kp_s_The_1st_dimension_must_match_num, __pyx_n_s_format); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 106, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_kp_s_The_1st_dimension_must_match_num, __pyx_n_s_format); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 103, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
 
-    /* "freud/bond.pyx":107
+    /* "freud/bond.pyx":104
  *             raise ValueError(
  *                 "The 1st dimension must match num_particles: {}".format(
  *                     self.num_particles))             # <<<<<<<<<<<<<<
  *         if (frame_0.shape[1] != self.num_bonds):
  *             raise ValueError(
  */
-    __pyx_t_3 = __Pyx_PyInt_From_unsigned_int(__pyx_v_self->num_particles); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 107, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyInt_From_unsigned_int(__pyx_v_self->num_particles); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 104, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __pyx_t_1 = NULL;
     if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_5))) {
@@ -2897,14 +2917,14 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_4initialize(struct __py
       }
     }
     if (!__pyx_t_1) {
-      __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 106, __pyx_L1_error)
+      __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 103, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_GOTREF(__pyx_t_2);
     } else {
       #if CYTHON_FAST_PYCALL
       if (PyFunction_Check(__pyx_t_5)) {
         PyObject *__pyx_temp[2] = {__pyx_t_1, __pyx_t_3};
-        __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_5, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 106, __pyx_L1_error)
+        __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_5, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 103, __pyx_L1_error)
         __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
         __Pyx_GOTREF(__pyx_t_2);
         __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -2913,41 +2933,41 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_4initialize(struct __py
       #if CYTHON_FAST_PYCCALL
       if (__Pyx_PyFastCFunction_Check(__pyx_t_5)) {
         PyObject *__pyx_temp[2] = {__pyx_t_1, __pyx_t_3};
-        __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_5, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 106, __pyx_L1_error)
+        __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_5, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 103, __pyx_L1_error)
         __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
         __Pyx_GOTREF(__pyx_t_2);
         __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       } else
       #endif
       {
-        __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 106, __pyx_L1_error)
+        __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 103, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_4);
         __Pyx_GIVEREF(__pyx_t_1); PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_1); __pyx_t_1 = NULL;
         __Pyx_GIVEREF(__pyx_t_3);
         PyTuple_SET_ITEM(__pyx_t_4, 0+1, __pyx_t_3);
         __pyx_t_3 = 0;
-        __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_4, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 106, __pyx_L1_error)
+        __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_4, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 103, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_2);
         __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       }
     }
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-    /* "freud/bond.pyx":105
+    /* "freud/bond.pyx":102
  *             frame_0, 2, dtype=np.uint32, contiguous=True, array_name="frame_0")
  *         if (frame_0.shape[0] != self.num_particles):
  *             raise ValueError(             # <<<<<<<<<<<<<<
  *                 "The 1st dimension must match num_particles: {}".format(
  *                     self.num_particles))
  */
-    __pyx_t_5 = __Pyx_PyObject_CallOneArg(__pyx_builtin_ValueError, __pyx_t_2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 105, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_CallOneArg(__pyx_builtin_ValueError, __pyx_t_2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 102, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_Raise(__pyx_t_5, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __PYX_ERR(0, 105, __pyx_L1_error)
+    __PYX_ERR(0, 102, __pyx_L1_error)
 
-    /* "freud/bond.pyx":104
+    /* "freud/bond.pyx":101
  *         frame_0 = freud.common.convert_array(
  *             frame_0, 2, dtype=np.uint32, contiguous=True, array_name="frame_0")
  *         if (frame_0.shape[0] != self.num_particles):             # <<<<<<<<<<<<<<
@@ -2956,45 +2976,45 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_4initialize(struct __py
  */
   }
 
-  /* "freud/bond.pyx":108
+  /* "freud/bond.pyx":105
  *                 "The 1st dimension must match num_particles: {}".format(
  *                     self.num_particles))
  *         if (frame_0.shape[1] != self.num_bonds):             # <<<<<<<<<<<<<<
  *             raise ValueError(
  *                 "The 2nd dimension must match num_bonds: {}".format(
  */
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_frame_0, __pyx_n_s_shape); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 108, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_frame_0, __pyx_n_s_shape); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 105, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_5, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 108, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_5, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 105, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_5 = __Pyx_PyInt_From_unsigned_int(__pyx_v_self->num_bonds); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 108, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyInt_From_unsigned_int(__pyx_v_self->num_bonds); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 105, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_4 = PyObject_RichCompare(__pyx_t_2, __pyx_t_5, Py_NE); __Pyx_XGOTREF(__pyx_t_4); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 108, __pyx_L1_error)
+  __pyx_t_4 = PyObject_RichCompare(__pyx_t_2, __pyx_t_5, Py_NE); __Pyx_XGOTREF(__pyx_t_4); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 105, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_t_4); if (unlikely(__pyx_t_6 < 0)) __PYX_ERR(0, 108, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_t_4); if (unlikely(__pyx_t_6 < 0)) __PYX_ERR(0, 105, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   if (unlikely(__pyx_t_6)) {
 
-    /* "freud/bond.pyx":110
+    /* "freud/bond.pyx":107
  *         if (frame_0.shape[1] != self.num_bonds):
  *             raise ValueError(
  *                 "The 2nd dimension must match num_bonds: {}".format(             # <<<<<<<<<<<<<<
  *                     self.num_bonds))
  *         cdef np.ndarray[uint, ndim=2] l_frame_0 = frame_0
  */
-    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_kp_s_The_2nd_dimension_must_match_num, __pyx_n_s_format); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 110, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_kp_s_The_2nd_dimension_must_match_num, __pyx_n_s_format); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 107, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
 
-    /* "freud/bond.pyx":111
+    /* "freud/bond.pyx":108
  *             raise ValueError(
  *                 "The 2nd dimension must match num_bonds: {}".format(
  *                     self.num_bonds))             # <<<<<<<<<<<<<<
  *         cdef np.ndarray[uint, ndim=2] l_frame_0 = frame_0
  *         with nogil:
  */
-    __pyx_t_2 = __Pyx_PyInt_From_unsigned_int(__pyx_v_self->num_bonds); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 111, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyInt_From_unsigned_int(__pyx_v_self->num_bonds); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 108, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __pyx_t_3 = NULL;
     if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_5))) {
@@ -3007,14 +3027,14 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_4initialize(struct __py
       }
     }
     if (!__pyx_t_3) {
-      __pyx_t_4 = __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_t_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 110, __pyx_L1_error)
+      __pyx_t_4 = __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_t_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 107, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       __Pyx_GOTREF(__pyx_t_4);
     } else {
       #if CYTHON_FAST_PYCALL
       if (PyFunction_Check(__pyx_t_5)) {
         PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_t_2};
-        __pyx_t_4 = __Pyx_PyFunction_FastCall(__pyx_t_5, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 110, __pyx_L1_error)
+        __pyx_t_4 = __Pyx_PyFunction_FastCall(__pyx_t_5, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 107, __pyx_L1_error)
         __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
         __Pyx_GOTREF(__pyx_t_4);
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -3023,41 +3043,41 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_4initialize(struct __py
       #if CYTHON_FAST_PYCCALL
       if (__Pyx_PyFastCFunction_Check(__pyx_t_5)) {
         PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_t_2};
-        __pyx_t_4 = __Pyx_PyCFunction_FastCall(__pyx_t_5, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 110, __pyx_L1_error)
+        __pyx_t_4 = __Pyx_PyCFunction_FastCall(__pyx_t_5, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 107, __pyx_L1_error)
         __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
         __Pyx_GOTREF(__pyx_t_4);
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       } else
       #endif
       {
-        __pyx_t_1 = PyTuple_New(1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 110, __pyx_L1_error)
+        __pyx_t_1 = PyTuple_New(1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 107, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_1);
         __Pyx_GIVEREF(__pyx_t_3); PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_t_3); __pyx_t_3 = NULL;
         __Pyx_GIVEREF(__pyx_t_2);
         PyTuple_SET_ITEM(__pyx_t_1, 0+1, __pyx_t_2);
         __pyx_t_2 = 0;
-        __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_1, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 110, __pyx_L1_error)
+        __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_1, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 107, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_4);
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
       }
     }
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-    /* "freud/bond.pyx":109
+    /* "freud/bond.pyx":106
  *                     self.num_particles))
  *         if (frame_0.shape[1] != self.num_bonds):
  *             raise ValueError(             # <<<<<<<<<<<<<<
  *                 "The 2nd dimension must match num_bonds: {}".format(
  *                     self.num_bonds))
  */
-    __pyx_t_5 = __Pyx_PyObject_CallOneArg(__pyx_builtin_ValueError, __pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 109, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_CallOneArg(__pyx_builtin_ValueError, __pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 106, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_Raise(__pyx_t_5, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __PYX_ERR(0, 109, __pyx_L1_error)
+    __PYX_ERR(0, 106, __pyx_L1_error)
 
-    /* "freud/bond.pyx":108
+    /* "freud/bond.pyx":105
  *                 "The 1st dimension must match num_particles: {}".format(
  *                     self.num_particles))
  *         if (frame_0.shape[1] != self.num_bonds):             # <<<<<<<<<<<<<<
@@ -3066,28 +3086,28 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_4initialize(struct __py
  */
   }
 
-  /* "freud/bond.pyx":112
+  /* "freud/bond.pyx":109
  *                 "The 2nd dimension must match num_bonds: {}".format(
  *                     self.num_bonds))
  *         cdef np.ndarray[uint, ndim=2] l_frame_0 = frame_0             # <<<<<<<<<<<<<<
  *         with nogil:
  *             self.thisptr.initialize(<unsigned int*> l_frame_0.data)
  */
-  if (!(likely(((__pyx_v_frame_0) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_frame_0, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 112, __pyx_L1_error)
+  if (!(likely(((__pyx_v_frame_0) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_frame_0, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 109, __pyx_L1_error)
   __pyx_t_5 = __pyx_v_frame_0;
   __Pyx_INCREF(__pyx_t_5);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_l_frame_0.rcbuffer->pybuffer, (PyObject*)((PyArrayObject *)__pyx_t_5), &__Pyx_TypeInfo_unsigned_int, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {
       __pyx_v_l_frame_0 = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_l_frame_0.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 112, __pyx_L1_error)
+      __PYX_ERR(0, 109, __pyx_L1_error)
     } else {__pyx_pybuffernd_l_frame_0.diminfo[0].strides = __pyx_pybuffernd_l_frame_0.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_l_frame_0.diminfo[0].shape = __pyx_pybuffernd_l_frame_0.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_l_frame_0.diminfo[1].strides = __pyx_pybuffernd_l_frame_0.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_l_frame_0.diminfo[1].shape = __pyx_pybuffernd_l_frame_0.rcbuffer->pybuffer.shape[1];
     }
   }
   __pyx_v_l_frame_0 = ((PyArrayObject *)__pyx_t_5);
   __pyx_t_5 = 0;
 
-  /* "freud/bond.pyx":113
+  /* "freud/bond.pyx":110
  *                     self.num_bonds))
  *         cdef np.ndarray[uint, ndim=2] l_frame_0 = frame_0
  *         with nogil:             # <<<<<<<<<<<<<<
@@ -3102,7 +3122,7 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_4initialize(struct __py
       #endif
       /*try:*/ {
 
-        /* "freud/bond.pyx":114
+        /* "freud/bond.pyx":111
  *         cdef np.ndarray[uint, ndim=2] l_frame_0 = frame_0
  *         with nogil:
  *             self.thisptr.initialize(<unsigned int*> l_frame_0.data)             # <<<<<<<<<<<<<<
@@ -3112,7 +3132,7 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_4initialize(struct __py
         __pyx_v_self->thisptr->initialize(((unsigned int *)__pyx_v_l_frame_0->data));
       }
 
-      /* "freud/bond.pyx":113
+      /* "freud/bond.pyx":110
  *                     self.num_bonds))
  *         cdef np.ndarray[uint, ndim=2] l_frame_0 = frame_0
  *         with nogil:             # <<<<<<<<<<<<<<
@@ -3131,7 +3151,7 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_4initialize(struct __py
       }
   }
 
-  /* "freud/bond.pyx":93
+  /* "freud/bond.pyx":91
  *         del self.thisptr
  * 
  *     def initialize(self, frame_0):             # <<<<<<<<<<<<<<
@@ -3167,7 +3187,7 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_4initialize(struct __py
   return __pyx_r;
 }
 
-/* "freud/bond.pyx":116
+/* "freud/bond.pyx":113
  *             self.thisptr.initialize(<unsigned int*> l_frame_0.data)
  * 
  *     def compute(self, frame_0, frame_1):             # <<<<<<<<<<<<<<
@@ -3177,7 +3197,7 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_4initialize(struct __py
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_4bond_15BondingAnalysis_7compute(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_4bond_15BondingAnalysis_6compute[] = "BondingAnalysis.compute(self, frame_0, frame_1)\nCalculates the changes in bonding states from one frame to the next.\n\n        Args:\n            frame_0 ((:math:`N_{particles}`, :math:`N_{bonds}`)             :class:`numpy.ndarray`):\n                Current/previous bonding frame (as output from\n                :py:class:`.BondingR12` modules).\n            frame_1 ((:math:`N_{particles}`, :math:`N_{bonds}`)             :class:`numpy.ndarray`):\n                Next/current bonding frame (as output from\n                :py:class:`.BondingR12` modules).\n        ";
+static char __pyx_doc_5freud_4bond_15BondingAnalysis_6compute[] = "BondingAnalysis.compute(self, frame_0, frame_1)\nCalculates the changes in bonding states from one frame to the next.\n\n        Args:\n            frame_0 ((:math:`N_{particles}`, :math:`N_{bonds}`) :class:`numpy.ndarray`):\n                Current/previous bonding frame (as output from\n                :class:`.BondingR12` and similar modules).\n            frame_1 ((:math:`N_{particles}`, :math:`N_{bonds}`) :class:`numpy.ndarray`):\n                Next/current bonding frame (as output from :class:`.BondingR12`\n                and similar modules).\n        ";
 static PyMethodDef __pyx_mdef_5freud_4bond_15BondingAnalysis_7compute = {"compute", (PyCFunction)__pyx_pw_5freud_4bond_15BondingAnalysis_7compute, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_4bond_15BondingAnalysis_6compute};
 static PyObject *__pyx_pw_5freud_4bond_15BondingAnalysis_7compute(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_frame_0 = 0;
@@ -3208,11 +3228,11 @@ static PyObject *__pyx_pw_5freud_4bond_15BondingAnalysis_7compute(PyObject *__py
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_frame_1)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("compute", 1, 2, 2, 1); __PYX_ERR(0, 116, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("compute", 1, 2, 2, 1); __PYX_ERR(0, 113, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "compute") < 0)) __PYX_ERR(0, 116, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "compute") < 0)) __PYX_ERR(0, 113, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -3225,7 +3245,7 @@ static PyObject *__pyx_pw_5freud_4bond_15BondingAnalysis_7compute(PyObject *__py
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("compute", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 116, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("compute", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 113, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("freud.bond.BondingAnalysis.compute", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -3264,30 +3284,30 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_6compute(struct __pyx_o
   __pyx_pybuffernd_l_frame_1.data = NULL;
   __pyx_pybuffernd_l_frame_1.rcbuffer = &__pyx_pybuffer_l_frame_1;
 
-  /* "freud/bond.pyx":129
- *                 :py:class:`.BondingR12` modules).
- *         """
+  /* "freud/bond.pyx":124
+ *                 and similar modules).
+ *         """  # noqa: E501
  *         frame_0 = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             frame_0, 2, dtype=np.uint32, contiguous=True, array_name="frame_0")
  *         frame_1 = freud.common.convert_array(
  */
-  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 129, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 124, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_common); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 129, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_common); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 124, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 129, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 124, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":130
- *         """
+  /* "freud/bond.pyx":125
+ *         """  # noqa: E501
  *         frame_0 = freud.common.convert_array(
  *             frame_0, 2, dtype=np.uint32, contiguous=True, array_name="frame_0")             # <<<<<<<<<<<<<<
  *         frame_1 = freud.common.convert_array(
  *             frame_1, 2, dtype=np.uint32, contiguous=True, array_name="frame_1")
  */
-  __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 129, __pyx_L1_error)
+  __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 124, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_INCREF(__pyx_v_frame_0);
   __Pyx_GIVEREF(__pyx_v_frame_0);
@@ -3295,26 +3315,26 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_6compute(struct __pyx_o
   __Pyx_INCREF(__pyx_int_2);
   __Pyx_GIVEREF(__pyx_int_2);
   PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_int_2);
-  __pyx_t_3 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 130, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 125, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 130, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 125, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_uint32); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 130, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_uint32); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 125, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_dtype, __pyx_t_5) < 0) __PYX_ERR(0, 130, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_dtype, __pyx_t_5) < 0) __PYX_ERR(0, 125, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_contiguous, Py_True) < 0) __PYX_ERR(0, 130, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_array_name, __pyx_n_s_frame_0) < 0) __PYX_ERR(0, 130, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_contiguous, Py_True) < 0) __PYX_ERR(0, 125, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_array_name, __pyx_n_s_frame_0) < 0) __PYX_ERR(0, 125, __pyx_L1_error)
 
-  /* "freud/bond.pyx":129
- *                 :py:class:`.BondingR12` modules).
- *         """
+  /* "freud/bond.pyx":124
+ *                 and similar modules).
+ *         """  # noqa: E501
  *         frame_0 = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             frame_0, 2, dtype=np.uint32, contiguous=True, array_name="frame_0")
  *         frame_1 = freud.common.convert_array(
  */
-  __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 129, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 124, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -3322,30 +3342,30 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_6compute(struct __pyx_o
   __Pyx_DECREF_SET(__pyx_v_frame_0, __pyx_t_5);
   __pyx_t_5 = 0;
 
-  /* "freud/bond.pyx":131
+  /* "freud/bond.pyx":126
  *         frame_0 = freud.common.convert_array(
  *             frame_0, 2, dtype=np.uint32, contiguous=True, array_name="frame_0")
  *         frame_1 = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             frame_1, 2, dtype=np.uint32, contiguous=True, array_name="frame_1")
  * 
  */
-  __pyx_t_5 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 131, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 126, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_common); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 131, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_common); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 126, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 131, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 126, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "freud/bond.pyx":132
+  /* "freud/bond.pyx":127
  *             frame_0, 2, dtype=np.uint32, contiguous=True, array_name="frame_0")
  *         frame_1 = freud.common.convert_array(
  *             frame_1, 2, dtype=np.uint32, contiguous=True, array_name="frame_1")             # <<<<<<<<<<<<<<
  * 
  *         cdef np.ndarray[uint, ndim=2] l_frame_0 = frame_0
  */
-  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 131, __pyx_L1_error)
+  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 126, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_INCREF(__pyx_v_frame_1);
   __Pyx_GIVEREF(__pyx_v_frame_1);
@@ -3353,26 +3373,26 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_6compute(struct __pyx_o
   __Pyx_INCREF(__pyx_int_2);
   __Pyx_GIVEREF(__pyx_int_2);
   PyTuple_SET_ITEM(__pyx_t_3, 1, __pyx_int_2);
-  __pyx_t_2 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 132, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 127, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 132, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 127, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_uint32); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 132, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_uint32); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 127, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_dtype, __pyx_t_4) < 0) __PYX_ERR(0, 132, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_dtype, __pyx_t_4) < 0) __PYX_ERR(0, 127, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_contiguous, Py_True) < 0) __PYX_ERR(0, 132, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_array_name, __pyx_n_s_frame_1) < 0) __PYX_ERR(0, 132, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_contiguous, Py_True) < 0) __PYX_ERR(0, 127, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_array_name, __pyx_n_s_frame_1) < 0) __PYX_ERR(0, 127, __pyx_L1_error)
 
-  /* "freud/bond.pyx":131
+  /* "freud/bond.pyx":126
  *         frame_0 = freud.common.convert_array(
  *             frame_0, 2, dtype=np.uint32, contiguous=True, array_name="frame_0")
  *         frame_1 = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             frame_1, 2, dtype=np.uint32, contiguous=True, array_name="frame_1")
  * 
  */
-  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_3, __pyx_t_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 131, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_3, __pyx_t_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 126, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -3380,49 +3400,49 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_6compute(struct __pyx_o
   __Pyx_DECREF_SET(__pyx_v_frame_1, __pyx_t_4);
   __pyx_t_4 = 0;
 
-  /* "freud/bond.pyx":134
+  /* "freud/bond.pyx":129
  *             frame_1, 2, dtype=np.uint32, contiguous=True, array_name="frame_1")
  * 
  *         cdef np.ndarray[uint, ndim=2] l_frame_0 = frame_0             # <<<<<<<<<<<<<<
  *         cdef np.ndarray[uint, ndim=2] l_frame_1 = frame_1
  *         with nogil:
  */
-  if (!(likely(((__pyx_v_frame_0) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_frame_0, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 134, __pyx_L1_error)
+  if (!(likely(((__pyx_v_frame_0) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_frame_0, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 129, __pyx_L1_error)
   __pyx_t_4 = __pyx_v_frame_0;
   __Pyx_INCREF(__pyx_t_4);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_l_frame_0.rcbuffer->pybuffer, (PyObject*)((PyArrayObject *)__pyx_t_4), &__Pyx_TypeInfo_unsigned_int, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {
       __pyx_v_l_frame_0 = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_l_frame_0.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 134, __pyx_L1_error)
+      __PYX_ERR(0, 129, __pyx_L1_error)
     } else {__pyx_pybuffernd_l_frame_0.diminfo[0].strides = __pyx_pybuffernd_l_frame_0.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_l_frame_0.diminfo[0].shape = __pyx_pybuffernd_l_frame_0.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_l_frame_0.diminfo[1].strides = __pyx_pybuffernd_l_frame_0.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_l_frame_0.diminfo[1].shape = __pyx_pybuffernd_l_frame_0.rcbuffer->pybuffer.shape[1];
     }
   }
   __pyx_v_l_frame_0 = ((PyArrayObject *)__pyx_t_4);
   __pyx_t_4 = 0;
 
-  /* "freud/bond.pyx":135
+  /* "freud/bond.pyx":130
  * 
  *         cdef np.ndarray[uint, ndim=2] l_frame_0 = frame_0
  *         cdef np.ndarray[uint, ndim=2] l_frame_1 = frame_1             # <<<<<<<<<<<<<<
  *         with nogil:
  *             self.thisptr.compute(
  */
-  if (!(likely(((__pyx_v_frame_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_frame_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 135, __pyx_L1_error)
+  if (!(likely(((__pyx_v_frame_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_frame_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 130, __pyx_L1_error)
   __pyx_t_4 = __pyx_v_frame_1;
   __Pyx_INCREF(__pyx_t_4);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_l_frame_1.rcbuffer->pybuffer, (PyObject*)((PyArrayObject *)__pyx_t_4), &__Pyx_TypeInfo_unsigned_int, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {
       __pyx_v_l_frame_1 = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_l_frame_1.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 135, __pyx_L1_error)
+      __PYX_ERR(0, 130, __pyx_L1_error)
     } else {__pyx_pybuffernd_l_frame_1.diminfo[0].strides = __pyx_pybuffernd_l_frame_1.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_l_frame_1.diminfo[0].shape = __pyx_pybuffernd_l_frame_1.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_l_frame_1.diminfo[1].strides = __pyx_pybuffernd_l_frame_1.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_l_frame_1.diminfo[1].shape = __pyx_pybuffernd_l_frame_1.rcbuffer->pybuffer.shape[1];
     }
   }
   __pyx_v_l_frame_1 = ((PyArrayObject *)__pyx_t_4);
   __pyx_t_4 = 0;
 
-  /* "freud/bond.pyx":136
+  /* "freud/bond.pyx":131
  *         cdef np.ndarray[uint, ndim=2] l_frame_0 = frame_0
  *         cdef np.ndarray[uint, ndim=2] l_frame_1 = frame_1
  *         with nogil:             # <<<<<<<<<<<<<<
@@ -3437,7 +3457,7 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_6compute(struct __pyx_o
       #endif
       /*try:*/ {
 
-        /* "freud/bond.pyx":137
+        /* "freud/bond.pyx":132
  *         cdef np.ndarray[uint, ndim=2] l_frame_1 = frame_1
  *         with nogil:
  *             self.thisptr.compute(             # <<<<<<<<<<<<<<
@@ -3447,7 +3467,7 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_6compute(struct __pyx_o
         __pyx_v_self->thisptr->compute(((unsigned int *)__pyx_v_l_frame_0->data), ((unsigned int *)__pyx_v_l_frame_1->data));
       }
 
-      /* "freud/bond.pyx":136
+      /* "freud/bond.pyx":131
  *         cdef np.ndarray[uint, ndim=2] l_frame_0 = frame_0
  *         cdef np.ndarray[uint, ndim=2] l_frame_1 = frame_1
  *         with nogil:             # <<<<<<<<<<<<<<
@@ -3466,7 +3486,7 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_6compute(struct __pyx_o
       }
   }
 
-  /* "freud/bond.pyx":140
+  /* "freud/bond.pyx":135
  *                 <unsigned int*> l_frame_0.data,
  *                 <unsigned int*> l_frame_1.data)
  *         return self             # <<<<<<<<<<<<<<
@@ -3478,7 +3498,7 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_6compute(struct __pyx_o
   __pyx_r = ((PyObject *)__pyx_v_self);
   goto __pyx_L0;
 
-  /* "freud/bond.pyx":116
+  /* "freud/bond.pyx":113
  *             self.thisptr.initialize(<unsigned int*> l_frame_0.data)
  * 
  *     def compute(self, frame_0, frame_1):             # <<<<<<<<<<<<<<
@@ -3516,7 +3536,7 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_6compute(struct __pyx_o
   return __pyx_r;
 }
 
-/* "freud/bond.pyx":143
+/* "freud/bond.pyx":138
  * 
  *     @property
  *     def bond_lifetimes(self):             # <<<<<<<<<<<<<<
@@ -3544,7 +3564,7 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_14bond_lifetimes___get_
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "freud/bond.pyx":144
+  /* "freud/bond.pyx":139
  *     @property
  *     def bond_lifetimes(self):
  *         bonds = self.thisptr.getBondLifetimes()             # <<<<<<<<<<<<<<
@@ -3553,7 +3573,7 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_14bond_lifetimes___get_
  */
   __pyx_v_bonds = __pyx_v_self->thisptr->getBondLifetimes();
 
-  /* "freud/bond.pyx":145
+  /* "freud/bond.pyx":140
  *     def bond_lifetimes(self):
  *         bonds = self.thisptr.getBondLifetimes()
  *         return bonds             # <<<<<<<<<<<<<<
@@ -3561,13 +3581,13 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_14bond_lifetimes___get_
  *     def getBondLifetimes(self):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_convert_vector_to_py_std_3a__3a_vector_3c_unsigned_int_3e___(__pyx_v_bonds); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 145, __pyx_L1_error)
+  __pyx_t_1 = __pyx_convert_vector_to_py_std_3a__3a_vector_3c_unsigned_int_3e___(__pyx_v_bonds); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 140, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/bond.pyx":143
+  /* "freud/bond.pyx":138
  * 
  *     @property
  *     def bond_lifetimes(self):             # <<<<<<<<<<<<<<
@@ -3586,7 +3606,7 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_14bond_lifetimes___get_
   return __pyx_r;
 }
 
-/* "freud/bond.pyx":147
+/* "freud/bond.pyx":142
  *         return bonds
  * 
  *     def getBondLifetimes(self):             # <<<<<<<<<<<<<<
@@ -3620,27 +3640,27 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_8getBondLifetimes(struc
   PyObject *__pyx_t_6 = NULL;
   __Pyx_RefNannySetupContext("getBondLifetimes", 0);
 
-  /* "freud/bond.pyx":148
+  /* "freud/bond.pyx":143
  * 
  *     def getBondLifetimes(self):
  *         warnings.warn("The getBondLifetimes function is deprecated in favor "             # <<<<<<<<<<<<<<
  *                       "of the bond_lifetimes class attribute and will be "
  *                       "removed in a future version of freud.",
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 148, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 143, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 148, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 143, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":151
+  /* "freud/bond.pyx":146
  *                       "of the bond_lifetimes class attribute and will be "
  *                       "removed in a future version of freud.",
  *                       FreudDeprecationWarning)             # <<<<<<<<<<<<<<
  *         return self.bond_lifetimes
  * 
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 151, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 146, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   __pyx_t_5 = 0;
@@ -3657,7 +3677,7 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_8getBondLifetimes(struc
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getBondLifetimes_function_is, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 148, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 143, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -3666,14 +3686,14 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_8getBondLifetimes(struc
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getBondLifetimes_function_is, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 148, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 143, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   } else
   #endif
   {
-    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 148, __pyx_L1_error)
+    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 143, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     if (__pyx_t_4) {
       __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -3684,14 +3704,14 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_8getBondLifetimes(struc
     __Pyx_GIVEREF(__pyx_t_2);
     PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_5, __pyx_t_2);
     __pyx_t_2 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 148, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 143, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "freud/bond.pyx":152
+  /* "freud/bond.pyx":147
  *                       "removed in a future version of freud.",
  *                       FreudDeprecationWarning)
  *         return self.bond_lifetimes             # <<<<<<<<<<<<<<
@@ -3699,13 +3719,13 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_8getBondLifetimes(struc
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_bond_lifetimes); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 152, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_bond_lifetimes); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 147, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/bond.pyx":147
+  /* "freud/bond.pyx":142
  *         return bonds
  * 
  *     def getBondLifetimes(self):             # <<<<<<<<<<<<<<
@@ -3728,7 +3748,7 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_8getBondLifetimes(struc
   return __pyx_r;
 }
 
-/* "freud/bond.pyx":155
+/* "freud/bond.pyx":150
  * 
  *     @property
  *     def overall_lifetimes(self):             # <<<<<<<<<<<<<<
@@ -3763,7 +3783,7 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_17overall_lifetimes___g
   PyObject *__pyx_t_7 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "freud/bond.pyx":156
+  /* "freud/bond.pyx":151
  *     @property
  *     def overall_lifetimes(self):
  *         bonds = self.thisptr.getOverallLifetimes()             # <<<<<<<<<<<<<<
@@ -3772,40 +3792,40 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_17overall_lifetimes___g
  */
   __pyx_v_bonds = __pyx_v_self->thisptr->getOverallLifetimes();
 
-  /* "freud/bond.pyx":157
+  /* "freud/bond.pyx":152
  *     def overall_lifetimes(self):
  *         bonds = self.thisptr.getOverallLifetimes()
  *         ret_bonds = np.copy(np.asarray(bonds, dtype=np.uint32))             # <<<<<<<<<<<<<<
  *         return ret_bonds
  * 
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 157, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 152, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_copy); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 157, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_copy); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 152, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 157, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 152, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 157, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 152, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __pyx_convert_vector_to_py_unsigned_int(__pyx_v_bonds); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 157, __pyx_L1_error)
+  __pyx_t_2 = __pyx_convert_vector_to_py_unsigned_int(__pyx_v_bonds); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 152, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_5 = PyTuple_New(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 157, __pyx_L1_error)
+  __pyx_t_5 = PyTuple_New(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 152, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_GIVEREF(__pyx_t_2);
   PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_2);
   __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 157, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 152, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_6 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 157, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 152, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_uint32); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 157, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_uint32); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 152, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_dtype, __pyx_t_7) < 0) __PYX_ERR(0, 157, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_dtype, __pyx_t_7) < 0) __PYX_ERR(0, 152, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_5, __pyx_t_2); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 157, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_5, __pyx_t_2); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 152, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
@@ -3821,14 +3841,14 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_17overall_lifetimes___g
     }
   }
   if (!__pyx_t_2) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_7); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 157, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_7); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 152, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
     __Pyx_GOTREF(__pyx_t_1);
   } else {
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_3)) {
       PyObject *__pyx_temp[2] = {__pyx_t_2, __pyx_t_7};
-      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 157, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 152, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
@@ -3837,20 +3857,20 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_17overall_lifetimes___g
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
       PyObject *__pyx_temp[2] = {__pyx_t_2, __pyx_t_7};
-      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 157, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 152, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
     } else
     #endif
     {
-      __pyx_t_5 = PyTuple_New(1+1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 157, __pyx_L1_error)
+      __pyx_t_5 = PyTuple_New(1+1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 152, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
       __Pyx_GIVEREF(__pyx_t_2); PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_2); __pyx_t_2 = NULL;
       __Pyx_GIVEREF(__pyx_t_7);
       PyTuple_SET_ITEM(__pyx_t_5, 0+1, __pyx_t_7);
       __pyx_t_7 = 0;
-      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_5, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 157, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_5, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 152, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     }
@@ -3859,7 +3879,7 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_17overall_lifetimes___g
   __pyx_v_ret_bonds = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "freud/bond.pyx":158
+  /* "freud/bond.pyx":153
  *         bonds = self.thisptr.getOverallLifetimes()
  *         ret_bonds = np.copy(np.asarray(bonds, dtype=np.uint32))
  *         return ret_bonds             # <<<<<<<<<<<<<<
@@ -3871,7 +3891,7 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_17overall_lifetimes___g
   __pyx_r = __pyx_v_ret_bonds;
   goto __pyx_L0;
 
-  /* "freud/bond.pyx":155
+  /* "freud/bond.pyx":150
  * 
  *     @property
  *     def overall_lifetimes(self):             # <<<<<<<<<<<<<<
@@ -3897,7 +3917,7 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_17overall_lifetimes___g
   return __pyx_r;
 }
 
-/* "freud/bond.pyx":160
+/* "freud/bond.pyx":155
  *         return ret_bonds
  * 
  *     def getOverallLifetimes(self):             # <<<<<<<<<<<<<<
@@ -3931,27 +3951,27 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_10getOverallLifetimes(s
   PyObject *__pyx_t_6 = NULL;
   __Pyx_RefNannySetupContext("getOverallLifetimes", 0);
 
-  /* "freud/bond.pyx":161
+  /* "freud/bond.pyx":156
  * 
  *     def getOverallLifetimes(self):
  *         warnings.warn("The getOverallLifetimes function is deprecated in "             # <<<<<<<<<<<<<<
  *                       "favor of the overall_lifetimes class attribute and "
  *                       "will be removed in a future version of freud.",
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 161, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 156, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 161, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 156, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":164
+  /* "freud/bond.pyx":159
  *                       "favor of the overall_lifetimes class attribute and "
  *                       "will be removed in a future version of freud.",
  *                       FreudDeprecationWarning)             # <<<<<<<<<<<<<<
  *         return self.overall_lifetimes
  * 
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 164, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 159, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   __pyx_t_5 = 0;
@@ -3968,7 +3988,7 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_10getOverallLifetimes(s
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getOverallLifetimes_function, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 161, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 156, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -3977,14 +3997,14 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_10getOverallLifetimes(s
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getOverallLifetimes_function, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 161, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 156, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   } else
   #endif
   {
-    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 161, __pyx_L1_error)
+    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 156, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     if (__pyx_t_4) {
       __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -3995,14 +4015,14 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_10getOverallLifetimes(s
     __Pyx_GIVEREF(__pyx_t_2);
     PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_5, __pyx_t_2);
     __pyx_t_2 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 161, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 156, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "freud/bond.pyx":165
+  /* "freud/bond.pyx":160
  *                       "will be removed in a future version of freud.",
  *                       FreudDeprecationWarning)
  *         return self.overall_lifetimes             # <<<<<<<<<<<<<<
@@ -4010,13 +4030,13 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_10getOverallLifetimes(s
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_overall_lifetimes); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 165, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_overall_lifetimes); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 160, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/bond.pyx":160
+  /* "freud/bond.pyx":155
  *         return ret_bonds
  * 
  *     def getOverallLifetimes(self):             # <<<<<<<<<<<<<<
@@ -4039,7 +4059,7 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_10getOverallLifetimes(s
   return __pyx_r;
 }
 
-/* "freud/bond.pyx":168
+/* "freud/bond.pyx":163
  * 
  *     @property
  *     def transition_matrix(self):             # <<<<<<<<<<<<<<
@@ -4076,7 +4096,7 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_17transition_matrix___g
   __pyx_pybuffernd_result.data = NULL;
   __pyx_pybuffernd_result.rcbuffer = &__pyx_pybuffer_result;
 
-  /* "freud/bond.pyx":170
+  /* "freud/bond.pyx":165
  *     def transition_matrix(self):
  *         cdef unsigned int * trans_matrix = \
  *             self.thisptr.getTransitionMatrix().get()             # <<<<<<<<<<<<<<
@@ -4085,7 +4105,7 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_17transition_matrix___g
  */
   __pyx_v_trans_matrix = __pyx_v_self->thisptr->getTransitionMatrix().get();
 
-  /* "freud/bond.pyx":172
+  /* "freud/bond.pyx":167
  *             self.thisptr.getTransitionMatrix().get()
  *         cdef np.npy_intp nbins[2]
  *         nbins[0] = <np.npy_intp> self.num_bonds             # <<<<<<<<<<<<<<
@@ -4094,7 +4114,7 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_17transition_matrix___g
  */
   (__pyx_v_nbins[0]) = ((npy_intp)__pyx_v_self->num_bonds);
 
-  /* "freud/bond.pyx":173
+  /* "freud/bond.pyx":168
  *         cdef np.npy_intp nbins[2]
  *         nbins[0] = <np.npy_intp> self.num_bonds
  *         nbins[1] = <np.npy_intp> self.num_bonds             # <<<<<<<<<<<<<<
@@ -4103,22 +4123,22 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_17transition_matrix___g
  */
   (__pyx_v_nbins[1]) = ((npy_intp)__pyx_v_self->num_bonds);
 
-  /* "freud/bond.pyx":175
+  /* "freud/bond.pyx":170
  *         nbins[1] = <np.npy_intp> self.num_bonds
  *         cdef np.ndarray[np.uint32_t, ndim=2] result = \
  *             np.PyArray_SimpleNewFromData(             # <<<<<<<<<<<<<<
  *                 2, nbins, np.NPY_UINT32, <void*> trans_matrix)
  *         return result
  */
-  __pyx_t_1 = PyArray_SimpleNewFromData(2, __pyx_v_nbins, NPY_UINT32, ((void *)__pyx_v_trans_matrix)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 175, __pyx_L1_error)
+  __pyx_t_1 = PyArray_SimpleNewFromData(2, __pyx_v_nbins, NPY_UINT32, ((void *)__pyx_v_trans_matrix)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 170, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 175, __pyx_L1_error)
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 170, __pyx_L1_error)
   __pyx_t_2 = ((PyArrayObject *)__pyx_t_1);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_result.rcbuffer->pybuffer, (PyObject*)__pyx_t_2, &__Pyx_TypeInfo_nn___pyx_t_5numpy_uint32_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {
       __pyx_v_result = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_result.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 174, __pyx_L1_error)
+      __PYX_ERR(0, 169, __pyx_L1_error)
     } else {__pyx_pybuffernd_result.diminfo[0].strides = __pyx_pybuffernd_result.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_result.diminfo[0].shape = __pyx_pybuffernd_result.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_result.diminfo[1].strides = __pyx_pybuffernd_result.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_result.diminfo[1].shape = __pyx_pybuffernd_result.rcbuffer->pybuffer.shape[1];
     }
   }
@@ -4126,7 +4146,7 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_17transition_matrix___g
   __pyx_v_result = ((PyArrayObject *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "freud/bond.pyx":177
+  /* "freud/bond.pyx":172
  *             np.PyArray_SimpleNewFromData(
  *                 2, nbins, np.NPY_UINT32, <void*> trans_matrix)
  *         return result             # <<<<<<<<<<<<<<
@@ -4138,7 +4158,7 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_17transition_matrix___g
   __pyx_r = ((PyObject *)__pyx_v_result);
   goto __pyx_L0;
 
-  /* "freud/bond.pyx":168
+  /* "freud/bond.pyx":163
  * 
  *     @property
  *     def transition_matrix(self):             # <<<<<<<<<<<<<<
@@ -4167,7 +4187,7 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_17transition_matrix___g
   return __pyx_r;
 }
 
-/* "freud/bond.pyx":179
+/* "freud/bond.pyx":174
  *         return result
  * 
  *     def getTransitionMatrix(self):             # <<<<<<<<<<<<<<
@@ -4201,27 +4221,27 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_12getTransitionMatrix(s
   PyObject *__pyx_t_6 = NULL;
   __Pyx_RefNannySetupContext("getTransitionMatrix", 0);
 
-  /* "freud/bond.pyx":180
+  /* "freud/bond.pyx":175
  * 
  *     def getTransitionMatrix(self):
  *         warnings.warn("The getTransitionMatrix function is deprecated in "             # <<<<<<<<<<<<<<
  *                       "favor of the transition_matrix class attribute and "
  *                       "will be removed in a future version of freud.",
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 180, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 175, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 180, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 175, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":183
+  /* "freud/bond.pyx":178
  *                       "favor of the transition_matrix class attribute and "
  *                       "will be removed in a future version of freud.",
  *                       FreudDeprecationWarning)             # <<<<<<<<<<<<<<
  *         return self.transition_matrix
  * 
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 183, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 178, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   __pyx_t_5 = 0;
@@ -4238,7 +4258,7 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_12getTransitionMatrix(s
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getTransitionMatrix_function, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 180, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 175, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -4247,14 +4267,14 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_12getTransitionMatrix(s
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getTransitionMatrix_function, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 180, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 175, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   } else
   #endif
   {
-    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 180, __pyx_L1_error)
+    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 175, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     if (__pyx_t_4) {
       __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -4265,14 +4285,14 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_12getTransitionMatrix(s
     __Pyx_GIVEREF(__pyx_t_2);
     PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_5, __pyx_t_2);
     __pyx_t_2 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 180, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 175, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "freud/bond.pyx":184
+  /* "freud/bond.pyx":179
  *                       "will be removed in a future version of freud.",
  *                       FreudDeprecationWarning)
  *         return self.transition_matrix             # <<<<<<<<<<<<<<
@@ -4280,13 +4300,13 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_12getTransitionMatrix(s
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_transition_matrix); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 184, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_transition_matrix); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 179, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/bond.pyx":179
+  /* "freud/bond.pyx":174
  *         return result
  * 
  *     def getTransitionMatrix(self):             # <<<<<<<<<<<<<<
@@ -4309,7 +4329,7 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_12getTransitionMatrix(s
   return __pyx_r;
 }
 
-/* "freud/bond.pyx":187
+/* "freud/bond.pyx":182
  * 
  *     @property
  *     def num_frames(self):             # <<<<<<<<<<<<<<
@@ -4336,7 +4356,7 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_10num_frames___get__(st
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "freud/bond.pyx":188
+  /* "freud/bond.pyx":183
  *     @property
  *     def num_frames(self):
  *         return self.thisptr.getNumFrames()             # <<<<<<<<<<<<<<
@@ -4344,13 +4364,13 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_10num_frames___get__(st
  *     def getNumFrames(self):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_unsigned_int(__pyx_v_self->thisptr->getNumFrames()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 188, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_unsigned_int(__pyx_v_self->thisptr->getNumFrames()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 183, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/bond.pyx":187
+  /* "freud/bond.pyx":182
  * 
  *     @property
  *     def num_frames(self):             # <<<<<<<<<<<<<<
@@ -4369,7 +4389,7 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_10num_frames___get__(st
   return __pyx_r;
 }
 
-/* "freud/bond.pyx":190
+/* "freud/bond.pyx":185
  *         return self.thisptr.getNumFrames()
  * 
  *     def getNumFrames(self):             # <<<<<<<<<<<<<<
@@ -4403,27 +4423,27 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_14getNumFrames(struct _
   PyObject *__pyx_t_6 = NULL;
   __Pyx_RefNannySetupContext("getNumFrames", 0);
 
-  /* "freud/bond.pyx":191
+  /* "freud/bond.pyx":186
  * 
  *     def getNumFrames(self):
  *         warnings.warn("The getNumFrames function is deprecated in favor "             # <<<<<<<<<<<<<<
  *                       "of the num_frames class attribute and will be "
  *                       "removed in a future version of freud.",
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 191, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 186, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 191, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 186, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":194
+  /* "freud/bond.pyx":189
  *                       "of the num_frames class attribute and will be "
  *                       "removed in a future version of freud.",
  *                       FreudDeprecationWarning)             # <<<<<<<<<<<<<<
  *         return self.num_frames
  * 
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 194, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 189, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   __pyx_t_5 = 0;
@@ -4440,7 +4460,7 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_14getNumFrames(struct _
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getNumFrames_function_is_dep, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 191, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 186, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -4449,14 +4469,14 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_14getNumFrames(struct _
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getNumFrames_function_is_dep, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 191, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 186, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   } else
   #endif
   {
-    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 191, __pyx_L1_error)
+    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 186, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     if (__pyx_t_4) {
       __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -4467,14 +4487,14 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_14getNumFrames(struct _
     __Pyx_GIVEREF(__pyx_t_2);
     PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_5, __pyx_t_2);
     __pyx_t_2 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 191, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 186, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "freud/bond.pyx":195
+  /* "freud/bond.pyx":190
  *                       "removed in a future version of freud.",
  *                       FreudDeprecationWarning)
  *         return self.num_frames             # <<<<<<<<<<<<<<
@@ -4482,13 +4502,13 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_14getNumFrames(struct _
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_num_frames); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 195, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_num_frames); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 190, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/bond.pyx":190
+  /* "freud/bond.pyx":185
  *         return self.thisptr.getNumFrames()
  * 
  *     def getNumFrames(self):             # <<<<<<<<<<<<<<
@@ -4511,7 +4531,7 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_14getNumFrames(struct _
   return __pyx_r;
 }
 
-/* "freud/bond.pyx":198
+/* "freud/bond.pyx":193
  * 
  *     @property
  *     def num_particles(self):             # <<<<<<<<<<<<<<
@@ -4538,7 +4558,7 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_13num_particles___get__
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "freud/bond.pyx":199
+  /* "freud/bond.pyx":194
  *     @property
  *     def num_particles(self):
  *         return self.thisptr.getNumParticles()             # <<<<<<<<<<<<<<
@@ -4546,13 +4566,13 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_13num_particles___get__
  *     def getNumParticles(self):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_unsigned_int(__pyx_v_self->thisptr->getNumParticles()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 199, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_unsigned_int(__pyx_v_self->thisptr->getNumParticles()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 194, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/bond.pyx":198
+  /* "freud/bond.pyx":193
  * 
  *     @property
  *     def num_particles(self):             # <<<<<<<<<<<<<<
@@ -4571,7 +4591,7 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_13num_particles___get__
   return __pyx_r;
 }
 
-/* "freud/bond.pyx":201
+/* "freud/bond.pyx":196
  *         return self.thisptr.getNumParticles()
  * 
  *     def getNumParticles(self):             # <<<<<<<<<<<<<<
@@ -4605,27 +4625,27 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_16getNumParticles(struc
   PyObject *__pyx_t_6 = NULL;
   __Pyx_RefNannySetupContext("getNumParticles", 0);
 
-  /* "freud/bond.pyx":202
+  /* "freud/bond.pyx":197
  * 
  *     def getNumParticles(self):
  *         warnings.warn("The getNumParticles function is deprecated in favor "             # <<<<<<<<<<<<<<
  *                       "of the num_particles class attribute and will be "
  *                       "removed in a future version of freud.",
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 202, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 197, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 202, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 197, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":205
+  /* "freud/bond.pyx":200
  *                       "of the num_particles class attribute and will be "
  *                       "removed in a future version of freud.",
  *                       FreudDeprecationWarning)             # <<<<<<<<<<<<<<
  *         return self.num_particles
  * 
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 205, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 200, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   __pyx_t_5 = 0;
@@ -4642,7 +4662,7 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_16getNumParticles(struc
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getNumParticles_function_is, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 202, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 197, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -4651,14 +4671,14 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_16getNumParticles(struc
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getNumParticles_function_is, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 202, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 197, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   } else
   #endif
   {
-    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 202, __pyx_L1_error)
+    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 197, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     if (__pyx_t_4) {
       __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -4669,14 +4689,14 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_16getNumParticles(struc
     __Pyx_GIVEREF(__pyx_t_2);
     PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_5, __pyx_t_2);
     __pyx_t_2 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 202, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 197, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "freud/bond.pyx":206
+  /* "freud/bond.pyx":201
  *                       "removed in a future version of freud.",
  *                       FreudDeprecationWarning)
  *         return self.num_particles             # <<<<<<<<<<<<<<
@@ -4684,13 +4704,13 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_16getNumParticles(struc
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_unsigned_int(__pyx_v_self->num_particles); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 206, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_unsigned_int(__pyx_v_self->num_particles); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 201, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/bond.pyx":201
+  /* "freud/bond.pyx":196
  *         return self.thisptr.getNumParticles()
  * 
  *     def getNumParticles(self):             # <<<<<<<<<<<<<<
@@ -4713,7 +4733,7 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_16getNumParticles(struc
   return __pyx_r;
 }
 
-/* "freud/bond.pyx":209
+/* "freud/bond.pyx":204
  * 
  *     @property
  *     def num_bonds(self):             # <<<<<<<<<<<<<<
@@ -4740,7 +4760,7 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_9num_bonds___get__(stru
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "freud/bond.pyx":210
+  /* "freud/bond.pyx":205
  *     @property
  *     def num_bonds(self):
  *         return self.thisptr.getNumBonds()             # <<<<<<<<<<<<<<
@@ -4748,13 +4768,13 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_9num_bonds___get__(stru
  *     def getNumBonds(self):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_unsigned_int(__pyx_v_self->thisptr->getNumBonds()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 210, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_unsigned_int(__pyx_v_self->thisptr->getNumBonds()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 205, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/bond.pyx":209
+  /* "freud/bond.pyx":204
  * 
  *     @property
  *     def num_bonds(self):             # <<<<<<<<<<<<<<
@@ -4773,7 +4793,7 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_9num_bonds___get__(stru
   return __pyx_r;
 }
 
-/* "freud/bond.pyx":212
+/* "freud/bond.pyx":207
  *         return self.thisptr.getNumBonds()
  * 
  *     def getNumBonds(self):             # <<<<<<<<<<<<<<
@@ -4807,27 +4827,27 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_18getNumBonds(struct __
   PyObject *__pyx_t_6 = NULL;
   __Pyx_RefNannySetupContext("getNumBonds", 0);
 
-  /* "freud/bond.pyx":213
+  /* "freud/bond.pyx":208
  * 
  *     def getNumBonds(self):
  *         warnings.warn("The getNumBonds function is deprecated in favor "             # <<<<<<<<<<<<<<
  *                       "of the num_bonds class attribute and will be "
  *                       "removed in a future version of freud.",
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 213, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 208, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 213, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 208, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":216
+  /* "freud/bond.pyx":211
  *                       "of the num_bonds class attribute and will be "
  *                       "removed in a future version of freud.",
  *                       FreudDeprecationWarning)             # <<<<<<<<<<<<<<
  *         return self.num_bonds
  * 
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 216, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 211, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   __pyx_t_5 = 0;
@@ -4844,7 +4864,7 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_18getNumBonds(struct __
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getNumBonds_function_is_depr, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 213, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 208, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -4853,14 +4873,14 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_18getNumBonds(struct __
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getNumBonds_function_is_depr, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 213, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 208, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   } else
   #endif
   {
-    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 213, __pyx_L1_error)
+    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 208, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     if (__pyx_t_4) {
       __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -4871,14 +4891,14 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_18getNumBonds(struct __
     __Pyx_GIVEREF(__pyx_t_2);
     PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_5, __pyx_t_2);
     __pyx_t_2 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 213, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 208, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "freud/bond.pyx":217
+  /* "freud/bond.pyx":212
  *                       "removed in a future version of freud.",
  *                       FreudDeprecationWarning)
  *         return self.num_bonds             # <<<<<<<<<<<<<<
@@ -4886,13 +4906,13 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_18getNumBonds(struct __
  * cdef class BondingR12:
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_unsigned_int(__pyx_v_self->num_bonds); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 217, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_unsigned_int(__pyx_v_self->num_bonds); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 212, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/bond.pyx":212
+  /* "freud/bond.pyx":207
  *         return self.thisptr.getNumBonds()
  * 
  *     def getNumBonds(self):             # <<<<<<<<<<<<<<
@@ -5026,7 +5046,7 @@ static PyObject *__pyx_pf_5freud_4bond_15BondingAnalysis_22__setstate_cython__(C
   return __pyx_r;
 }
 
-/* "freud/bond.pyx":248
+/* "freud/bond.pyx":243
  *     cdef rmax
  * 
  *     def __cinit__(self, float r_max, bond_map, bond_list):             # <<<<<<<<<<<<<<
@@ -5068,17 +5088,17 @@ static int __pyx_pw_5freud_4bond_10BondingR12_1__cinit__(PyObject *__pyx_v_self,
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_bond_map)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 3, 3, 1); __PYX_ERR(0, 248, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 3, 3, 1); __PYX_ERR(0, 243, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_bond_list)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 3, 3, 2); __PYX_ERR(0, 248, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 3, 3, 2); __PYX_ERR(0, 243, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__cinit__") < 0)) __PYX_ERR(0, 248, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__cinit__") < 0)) __PYX_ERR(0, 243, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 3) {
       goto __pyx_L5_argtuple_error;
@@ -5087,13 +5107,13 @@ static int __pyx_pw_5freud_4bond_10BondingR12_1__cinit__(PyObject *__pyx_v_self,
       values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
       values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
     }
-    __pyx_v_r_max = __pyx_PyFloat_AsFloat(values[0]); if (unlikely((__pyx_v_r_max == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 248, __pyx_L3_error)
+    __pyx_v_r_max = __pyx_PyFloat_AsFloat(values[0]); if (unlikely((__pyx_v_r_max == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 243, __pyx_L3_error)
     __pyx_v_bond_map = values[1];
     __pyx_v_bond_list = values[2];
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 248, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 243, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("freud.bond.BondingR12.__cinit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -5135,121 +5155,121 @@ static int __pyx_pf_5freud_4bond_10BondingR12___cinit__(struct __pyx_obj_5freud_
   __pyx_pybuffernd_l_bond_list.data = NULL;
   __pyx_pybuffernd_l_bond_list.rcbuffer = &__pyx_pybuffer_l_bond_list;
 
-  /* "freud/bond.pyx":250
+  /* "freud/bond.pyx":245
  *     def __cinit__(self, float r_max, bond_map, bond_list):
  *         # extract nr, nt from the bond_map
  *         n_r = bond_map.shape[0]             # <<<<<<<<<<<<<<
  *         n_t2 = bond_map.shape[1]
  *         n_t1 = bond_map.shape[2]
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_bond_map, __pyx_n_s_shape); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 250, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_bond_map, __pyx_n_s_shape); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 245, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_1, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 250, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_1, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 245, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_n_r = __pyx_t_2;
   __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":251
+  /* "freud/bond.pyx":246
  *         # extract nr, nt from the bond_map
  *         n_r = bond_map.shape[0]
  *         n_t2 = bond_map.shape[1]             # <<<<<<<<<<<<<<
  *         n_t1 = bond_map.shape[2]
  *         n_bonds = bond_list.shape[0]
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_bond_map, __pyx_n_s_shape); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 251, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_bond_map, __pyx_n_s_shape); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 246, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_1 = __Pyx_GetItemInt(__pyx_t_2, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 251, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_t_2, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 246, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_v_n_t2 = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "freud/bond.pyx":252
+  /* "freud/bond.pyx":247
  *         n_r = bond_map.shape[0]
  *         n_t2 = bond_map.shape[1]
  *         n_t1 = bond_map.shape[2]             # <<<<<<<<<<<<<<
  *         n_bonds = bond_list.shape[0]
  *         cdef np.ndarray[uint, ndim=3] l_bond_map = bond_map
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_bond_map, __pyx_n_s_shape); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 252, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_bond_map, __pyx_n_s_shape); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 247, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_1, 2, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 252, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_1, 2, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 247, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_n_t1 = __pyx_t_2;
   __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":253
+  /* "freud/bond.pyx":248
  *         n_t2 = bond_map.shape[1]
  *         n_t1 = bond_map.shape[2]
  *         n_bonds = bond_list.shape[0]             # <<<<<<<<<<<<<<
  *         cdef np.ndarray[uint, ndim=3] l_bond_map = bond_map
  *         cdef np.ndarray[uint, ndim=1] l_bond_list = bond_list
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_bond_list, __pyx_n_s_shape); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 253, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_bond_list, __pyx_n_s_shape); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 248, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_1 = __Pyx_GetItemInt(__pyx_t_2, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 253, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_t_2, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 248, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_v_n_bonds = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "freud/bond.pyx":254
+  /* "freud/bond.pyx":249
  *         n_t1 = bond_map.shape[2]
  *         n_bonds = bond_list.shape[0]
  *         cdef np.ndarray[uint, ndim=3] l_bond_map = bond_map             # <<<<<<<<<<<<<<
  *         cdef np.ndarray[uint, ndim=1] l_bond_list = bond_list
  *         self.thisptr = new freud._bond.BondingR12(
  */
-  if (!(likely(((__pyx_v_bond_map) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_bond_map, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 254, __pyx_L1_error)
+  if (!(likely(((__pyx_v_bond_map) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_bond_map, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 249, __pyx_L1_error)
   __pyx_t_1 = __pyx_v_bond_map;
   __Pyx_INCREF(__pyx_t_1);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_l_bond_map.rcbuffer->pybuffer, (PyObject*)((PyArrayObject *)__pyx_t_1), &__Pyx_TypeInfo_unsigned_int, PyBUF_FORMAT| PyBUF_STRIDES, 3, 0, __pyx_stack) == -1)) {
       __pyx_v_l_bond_map = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_l_bond_map.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 254, __pyx_L1_error)
+      __PYX_ERR(0, 249, __pyx_L1_error)
     } else {__pyx_pybuffernd_l_bond_map.diminfo[0].strides = __pyx_pybuffernd_l_bond_map.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_l_bond_map.diminfo[0].shape = __pyx_pybuffernd_l_bond_map.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_l_bond_map.diminfo[1].strides = __pyx_pybuffernd_l_bond_map.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_l_bond_map.diminfo[1].shape = __pyx_pybuffernd_l_bond_map.rcbuffer->pybuffer.shape[1]; __pyx_pybuffernd_l_bond_map.diminfo[2].strides = __pyx_pybuffernd_l_bond_map.rcbuffer->pybuffer.strides[2]; __pyx_pybuffernd_l_bond_map.diminfo[2].shape = __pyx_pybuffernd_l_bond_map.rcbuffer->pybuffer.shape[2];
     }
   }
   __pyx_v_l_bond_map = ((PyArrayObject *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "freud/bond.pyx":255
+  /* "freud/bond.pyx":250
  *         n_bonds = bond_list.shape[0]
  *         cdef np.ndarray[uint, ndim=3] l_bond_map = bond_map
  *         cdef np.ndarray[uint, ndim=1] l_bond_list = bond_list             # <<<<<<<<<<<<<<
  *         self.thisptr = new freud._bond.BondingR12(
  *             r_max, n_r, n_t2, n_t1, n_bonds,
  */
-  if (!(likely(((__pyx_v_bond_list) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_bond_list, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 255, __pyx_L1_error)
+  if (!(likely(((__pyx_v_bond_list) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_bond_list, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 250, __pyx_L1_error)
   __pyx_t_1 = __pyx_v_bond_list;
   __Pyx_INCREF(__pyx_t_1);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_l_bond_list.rcbuffer->pybuffer, (PyObject*)((PyArrayObject *)__pyx_t_1), &__Pyx_TypeInfo_unsigned_int, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack) == -1)) {
       __pyx_v_l_bond_list = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_l_bond_list.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 255, __pyx_L1_error)
+      __PYX_ERR(0, 250, __pyx_L1_error)
     } else {__pyx_pybuffernd_l_bond_list.diminfo[0].strides = __pyx_pybuffernd_l_bond_list.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_l_bond_list.diminfo[0].shape = __pyx_pybuffernd_l_bond_list.rcbuffer->pybuffer.shape[0];
     }
   }
   __pyx_v_l_bond_list = ((PyArrayObject *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "freud/bond.pyx":257
+  /* "freud/bond.pyx":252
  *         cdef np.ndarray[uint, ndim=1] l_bond_list = bond_list
  *         self.thisptr = new freud._bond.BondingR12(
  *             r_max, n_r, n_t2, n_t1, n_bonds,             # <<<<<<<<<<<<<<
  *             <unsigned int*> l_bond_map.data,
  *             <unsigned int*> l_bond_list.data)
  */
-  __pyx_t_3 = __Pyx_PyInt_As_unsigned_int(__pyx_v_n_r); if (unlikely((__pyx_t_3 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 257, __pyx_L1_error)
-  __pyx_t_4 = __Pyx_PyInt_As_unsigned_int(__pyx_v_n_t2); if (unlikely((__pyx_t_4 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 257, __pyx_L1_error)
-  __pyx_t_5 = __Pyx_PyInt_As_unsigned_int(__pyx_v_n_t1); if (unlikely((__pyx_t_5 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 257, __pyx_L1_error)
-  __pyx_t_6 = __Pyx_PyInt_As_unsigned_int(__pyx_v_n_bonds); if (unlikely((__pyx_t_6 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 257, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyInt_As_unsigned_int(__pyx_v_n_r); if (unlikely((__pyx_t_3 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 252, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyInt_As_unsigned_int(__pyx_v_n_t2); if (unlikely((__pyx_t_4 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 252, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyInt_As_unsigned_int(__pyx_v_n_t1); if (unlikely((__pyx_t_5 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 252, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyInt_As_unsigned_int(__pyx_v_n_bonds); if (unlikely((__pyx_t_6 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 252, __pyx_L1_error)
 
-  /* "freud/bond.pyx":256
+  /* "freud/bond.pyx":251
  *         cdef np.ndarray[uint, ndim=3] l_bond_map = bond_map
  *         cdef np.ndarray[uint, ndim=1] l_bond_list = bond_list
  *         self.thisptr = new freud._bond.BondingR12(             # <<<<<<<<<<<<<<
@@ -5258,14 +5278,14 @@ static int __pyx_pf_5freud_4bond_10BondingR12___cinit__(struct __pyx_obj_5freud_
  */
   __pyx_v_self->thisptr = new freud::bond::BondingR12(__pyx_v_r_max, __pyx_t_3, __pyx_t_4, __pyx_t_5, __pyx_t_6, ((unsigned int *)__pyx_v_l_bond_map->data), ((unsigned int *)__pyx_v_l_bond_list->data));
 
-  /* "freud/bond.pyx":260
+  /* "freud/bond.pyx":255
  *             <unsigned int*> l_bond_map.data,
  *             <unsigned int*> l_bond_list.data)
  *         self.rmax = r_max             # <<<<<<<<<<<<<<
  * 
  *     def __dealloc__(self):
  */
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_r_max); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 260, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_r_max); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 255, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_GIVEREF(__pyx_t_1);
   __Pyx_GOTREF(__pyx_v_self->rmax);
@@ -5273,7 +5293,7 @@ static int __pyx_pf_5freud_4bond_10BondingR12___cinit__(struct __pyx_obj_5freud_
   __pyx_v_self->rmax = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "freud/bond.pyx":248
+  /* "freud/bond.pyx":243
  *     cdef rmax
  * 
  *     def __cinit__(self, float r_max, bond_map, bond_list):             # <<<<<<<<<<<<<<
@@ -5311,7 +5331,7 @@ static int __pyx_pf_5freud_4bond_10BondingR12___cinit__(struct __pyx_obj_5freud_
   return __pyx_r;
 }
 
-/* "freud/bond.pyx":262
+/* "freud/bond.pyx":257
  *         self.rmax = r_max
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -5334,7 +5354,7 @@ static void __pyx_pf_5freud_4bond_10BondingR12_2__dealloc__(struct __pyx_obj_5fr
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__dealloc__", 0);
 
-  /* "freud/bond.pyx":263
+  /* "freud/bond.pyx":258
  * 
  *     def __dealloc__(self):
  *         del self.thisptr             # <<<<<<<<<<<<<<
@@ -5343,7 +5363,7 @@ static void __pyx_pf_5freud_4bond_10BondingR12_2__dealloc__(struct __pyx_obj_5fr
  */
   delete __pyx_v_self->thisptr;
 
-  /* "freud/bond.pyx":262
+  /* "freud/bond.pyx":257
  *         self.rmax = r_max
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -5355,7 +5375,7 @@ static void __pyx_pf_5freud_4bond_10BondingR12_2__dealloc__(struct __pyx_obj_5fr
   __Pyx_RefNannyFinishContext();
 }
 
-/* "freud/bond.pyx":265
+/* "freud/bond.pyx":260
  *         del self.thisptr
  * 
  *     def compute(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
@@ -5365,7 +5385,7 @@ static void __pyx_pf_5freud_4bond_10BondingR12_2__dealloc__(struct __pyx_obj_5fr
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_4bond_10BondingR12_5compute(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_4bond_10BondingR12_4compute[] = "BondingR12.compute(self, box, ref_points, ref_orientations, points=None, orientations=None, nlist=None)\nCalculates the bonds.\n\n        Args:\n            box (:class:`freud.box.Box`):\n                Simulation box.\n            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Reference points used to calculate the bonding.\n            ref_orientations ((:math:`N_{particles}`, 1) or\n            (:math:`N_{particles}`,) :class:`numpy.ndarray`):\n                Reference orientations as angles to use in computation.\n            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Points used to calculate the bonding. Uses :code:`ref_points`\n                if not provided or :code:`None`.\n            orientations ((:math:`N_{particles}`, 1) or\n            (:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):\n                Orientations as angles to use in computation. Uses\n                :code:`ref_orientations` if not provided or :code:`None`.\n            nlist (:class:`freud.locality.NeighborList`, optional):\n                NeighborList to use to find bonds (Default value =\n                :code:`None`).\n        ";
+static char __pyx_doc_5freud_4bond_10BondingR12_4compute[] = "BondingR12.compute(self, box, ref_points, ref_orientations, points=None, orientations=None, nlist=None)\nCalculates the bonds.\n\n        Args:\n            box (:class:`freud.box.Box`):\n                Simulation box.\n            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Reference points used to calculate the bonding.\n            ref_orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`):\n                Reference orientations as angles to use in computation.\n            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Points used to calculate the bonding. Uses :code:`ref_points`\n                if not provided or :code:`None`.\n            orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):\n                Orientations as angles to use in computation. Uses\n                :code:`ref_orientations` if not provided or :code:`None`.\n            nlist (:class:`freud.locality.NeighborList`, optional):\n                NeighborList to use to find bonds (Default value =\n                :code:`None`).\n        ";
 static PyMethodDef __pyx_mdef_5freud_4bond_10BondingR12_5compute = {"compute", (PyCFunction)__pyx_pw_5freud_4bond_10BondingR12_5compute, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_4bond_10BondingR12_4compute};
 static PyObject *__pyx_pw_5freud_4bond_10BondingR12_5compute(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_box = 0;
@@ -5382,7 +5402,7 @@ static PyObject *__pyx_pw_5freud_4bond_10BondingR12_5compute(PyObject *__pyx_v_s
     PyObject* values[6] = {0,0,0,0,0,0};
     values[3] = ((PyObject *)Py_None);
 
-    /* "freud/bond.pyx":266
+    /* "freud/bond.pyx":261
  * 
  *     def compute(self, box, ref_points, ref_orientations, points=None,
  *                 orientations=None, nlist=None):             # <<<<<<<<<<<<<<
@@ -5419,13 +5439,13 @@ static PyObject *__pyx_pw_5freud_4bond_10BondingR12_5compute(PyObject *__pyx_v_s
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_ref_points)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("compute", 0, 3, 6, 1); __PYX_ERR(0, 265, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("compute", 0, 3, 6, 1); __PYX_ERR(0, 260, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_ref_orientations)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("compute", 0, 3, 6, 2); __PYX_ERR(0, 265, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("compute", 0, 3, 6, 2); __PYX_ERR(0, 260, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  3:
@@ -5447,7 +5467,7 @@ static PyObject *__pyx_pw_5freud_4bond_10BondingR12_5compute(PyObject *__pyx_v_s
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "compute") < 0)) __PYX_ERR(0, 265, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "compute") < 0)) __PYX_ERR(0, 260, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -5473,7 +5493,7 @@ static PyObject *__pyx_pw_5freud_4bond_10BondingR12_5compute(PyObject *__pyx_v_s
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("compute", 0, 3, 6, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 265, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("compute", 0, 3, 6, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 260, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("freud.bond.BondingR12.compute", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -5481,7 +5501,7 @@ static PyObject *__pyx_pw_5freud_4bond_10BondingR12_5compute(PyObject *__pyx_v_s
   __pyx_L4_argument_unpacking_done:;
   __pyx_r = __pyx_pf_5freud_4bond_10BondingR12_4compute(((struct __pyx_obj_5freud_4bond_BondingR12 *)__pyx_v_self), __pyx_v_box, __pyx_v_ref_points, __pyx_v_ref_orientations, __pyx_v_points, __pyx_v_orientations, __pyx_v_nlist);
 
-  /* "freud/bond.pyx":265
+  /* "freud/bond.pyx":260
  *         del self.thisptr
  * 
  *     def compute(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
@@ -5545,19 +5565,19 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_4compute(struct __pyx_obj_5f
   __pyx_pybuffernd_l_orientations.data = NULL;
   __pyx_pybuffernd_l_orientations.rcbuffer = &__pyx_pybuffer_l_orientations;
 
-  /* "freud/bond.pyx":288
+  /* "freud/bond.pyx":281
  *                 :code:`None`).
- *         """
+ *         """  # noqa: E501
  *         cdef freud.box.Box b = freud.common.convert_box(box)             # <<<<<<<<<<<<<<
  * 
  *         if points is None:
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 288, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 281, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_common); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 288, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_common); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 281, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_convert_box); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 288, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_convert_box); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 281, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_t_3 = NULL;
@@ -5571,13 +5591,13 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_4compute(struct __pyx_obj_5f
     }
   }
   if (!__pyx_t_3) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_box); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 288, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_box); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 281, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   } else {
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_v_box};
-      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 288, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 281, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
@@ -5585,29 +5605,29 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_4compute(struct __pyx_obj_5f
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_v_box};
-      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 288, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 281, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
     #endif
     {
-      __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 288, __pyx_L1_error)
+      __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 281, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_GIVEREF(__pyx_t_3); PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_3); __pyx_t_3 = NULL;
       __Pyx_INCREF(__pyx_v_box);
       __Pyx_GIVEREF(__pyx_v_box);
       PyTuple_SET_ITEM(__pyx_t_4, 0+1, __pyx_v_box);
-      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 288, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 281, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     }
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5freud_3box_Box))))) __PYX_ERR(0, 288, __pyx_L1_error)
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5freud_3box_Box))))) __PYX_ERR(0, 281, __pyx_L1_error)
   __pyx_v_b = ((struct __pyx_obj_5freud_3box_Box *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "freud/bond.pyx":290
+  /* "freud/bond.pyx":283
  *         cdef freud.box.Box b = freud.common.convert_box(box)
  * 
  *         if points is None:             # <<<<<<<<<<<<<<
@@ -5618,7 +5638,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_4compute(struct __pyx_obj_5f
   __pyx_t_6 = (__pyx_t_5 != 0);
   if (__pyx_t_6) {
 
-    /* "freud/bond.pyx":291
+    /* "freud/bond.pyx":284
  * 
  *         if points is None:
  *             points = ref_points             # <<<<<<<<<<<<<<
@@ -5628,7 +5648,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_4compute(struct __pyx_obj_5f
     __Pyx_INCREF(__pyx_v_ref_points);
     __Pyx_DECREF_SET(__pyx_v_points, __pyx_v_ref_points);
 
-    /* "freud/bond.pyx":290
+    /* "freud/bond.pyx":283
  *         cdef freud.box.Box b = freud.common.convert_box(box)
  * 
  *         if points is None:             # <<<<<<<<<<<<<<
@@ -5637,7 +5657,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_4compute(struct __pyx_obj_5f
  */
   }
 
-  /* "freud/bond.pyx":292
+  /* "freud/bond.pyx":285
  *         if points is None:
  *             points = ref_points
  *         if orientations is None:             # <<<<<<<<<<<<<<
@@ -5648,7 +5668,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_4compute(struct __pyx_obj_5f
   __pyx_t_5 = (__pyx_t_6 != 0);
   if (__pyx_t_5) {
 
-    /* "freud/bond.pyx":293
+    /* "freud/bond.pyx":286
  *             points = ref_points
  *         if orientations is None:
  *             orientations = ref_orientations             # <<<<<<<<<<<<<<
@@ -5658,7 +5678,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_4compute(struct __pyx_obj_5f
     __Pyx_INCREF(__pyx_v_ref_orientations);
     __Pyx_DECREF_SET(__pyx_v_orientations, __pyx_v_ref_orientations);
 
-    /* "freud/bond.pyx":292
+    /* "freud/bond.pyx":285
  *         if points is None:
  *             points = ref_points
  *         if orientations is None:             # <<<<<<<<<<<<<<
@@ -5667,30 +5687,30 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_4compute(struct __pyx_obj_5f
  */
   }
 
-  /* "freud/bond.pyx":295
+  /* "freud/bond.pyx":288
  *             orientations = ref_orientations
  * 
  *         ref_points = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             ref_points, 2, dtype=np.float32, contiguous=True,
  *             array_name="ref_points")
  */
-  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 295, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 288, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_common); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 295, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_common); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 288, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 295, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 288, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":296
+  /* "freud/bond.pyx":289
  * 
  *         ref_points = freud.common.convert_array(
  *             ref_points, 2, dtype=np.float32, contiguous=True,             # <<<<<<<<<<<<<<
  *             array_name="ref_points")
  *         if ref_points.shape[1] != 3:
  */
-  __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 295, __pyx_L1_error)
+  __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 288, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_INCREF(__pyx_v_ref_points);
   __Pyx_GIVEREF(__pyx_v_ref_points);
@@ -5698,26 +5718,26 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_4compute(struct __pyx_obj_5f
   __Pyx_INCREF(__pyx_int_2);
   __Pyx_GIVEREF(__pyx_int_2);
   PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_int_2);
-  __pyx_t_4 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 296, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 289, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 296, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 289, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_float32); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 296, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_float32); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 289, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_dtype, __pyx_t_7) < 0) __PYX_ERR(0, 296, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_dtype, __pyx_t_7) < 0) __PYX_ERR(0, 289, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_contiguous, Py_True) < 0) __PYX_ERR(0, 296, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_array_name, __pyx_n_s_ref_points) < 0) __PYX_ERR(0, 296, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_contiguous, Py_True) < 0) __PYX_ERR(0, 289, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_array_name, __pyx_n_s_ref_points) < 0) __PYX_ERR(0, 289, __pyx_L1_error)
 
-  /* "freud/bond.pyx":295
+  /* "freud/bond.pyx":288
  *             orientations = ref_orientations
  * 
  *         ref_points = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             ref_points, 2, dtype=np.float32, contiguous=True,
  *             array_name="ref_points")
  */
-  __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_2, __pyx_t_4); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 295, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_2, __pyx_t_4); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 288, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -5725,38 +5745,38 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_4compute(struct __pyx_obj_5f
   __Pyx_DECREF_SET(__pyx_v_ref_points, __pyx_t_7);
   __pyx_t_7 = 0;
 
-  /* "freud/bond.pyx":298
+  /* "freud/bond.pyx":291
  *             ref_points, 2, dtype=np.float32, contiguous=True,
  *             array_name="ref_points")
  *         if ref_points.shape[1] != 3:             # <<<<<<<<<<<<<<
  *             raise TypeError('ref_points should be an Nx3 array')
  * 
  */
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_v_ref_points, __pyx_n_s_shape); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 298, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_v_ref_points, __pyx_n_s_shape); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 291, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  __pyx_t_4 = __Pyx_GetItemInt(__pyx_t_7, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 298, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_GetItemInt(__pyx_t_7, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 291, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_7 = PyObject_RichCompare(__pyx_t_4, __pyx_int_3, Py_NE); __Pyx_XGOTREF(__pyx_t_7); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 298, __pyx_L1_error)
+  __pyx_t_7 = PyObject_RichCompare(__pyx_t_4, __pyx_int_3, Py_NE); __Pyx_XGOTREF(__pyx_t_7); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 291, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_t_7); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 298, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_t_7); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 291, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   if (unlikely(__pyx_t_5)) {
 
-    /* "freud/bond.pyx":299
+    /* "freud/bond.pyx":292
  *             array_name="ref_points")
  *         if ref_points.shape[1] != 3:
  *             raise TypeError('ref_points should be an Nx3 array')             # <<<<<<<<<<<<<<
  * 
  *         ref_orientations = freud.common.convert_array(
  */
-    __pyx_t_7 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__3, NULL); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 299, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__3, NULL); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 292, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     __Pyx_Raise(__pyx_t_7, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-    __PYX_ERR(0, 299, __pyx_L1_error)
+    __PYX_ERR(0, 292, __pyx_L1_error)
 
-    /* "freud/bond.pyx":298
+    /* "freud/bond.pyx":291
  *             ref_points, 2, dtype=np.float32, contiguous=True,
  *             array_name="ref_points")
  *         if ref_points.shape[1] != 3:             # <<<<<<<<<<<<<<
@@ -5765,30 +5785,30 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_4compute(struct __pyx_obj_5f
  */
   }
 
-  /* "freud/bond.pyx":301
+  /* "freud/bond.pyx":294
  *             raise TypeError('ref_points should be an Nx3 array')
  * 
  *         ref_orientations = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             ref_orientations.squeeze(), 1, dtype=np.float32, contiguous=True,
  *             array_name="ref_orientations")
  */
-  __pyx_t_7 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 301, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 294, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_common); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 301, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_common); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 294, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 301, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 294, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "freud/bond.pyx":302
+  /* "freud/bond.pyx":295
  * 
  *         ref_orientations = freud.common.convert_array(
  *             ref_orientations.squeeze(), 1, dtype=np.float32, contiguous=True,             # <<<<<<<<<<<<<<
  *             array_name="ref_orientations")
  * 
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_ref_orientations, __pyx_n_s_squeeze); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 302, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_ref_orientations, __pyx_n_s_squeeze); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 295, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_1 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -5801,22 +5821,22 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_4compute(struct __pyx_obj_5f
     }
   }
   if (__pyx_t_1) {
-    __pyx_t_4 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 302, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 295, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   } else {
-    __pyx_t_4 = __Pyx_PyObject_CallNoArg(__pyx_t_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 302, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_CallNoArg(__pyx_t_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 295, __pyx_L1_error)
   }
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":301
+  /* "freud/bond.pyx":294
  *             raise TypeError('ref_points should be an Nx3 array')
  * 
  *         ref_orientations = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             ref_orientations.squeeze(), 1, dtype=np.float32, contiguous=True,
  *             array_name="ref_orientations")
  */
-  __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 301, __pyx_L1_error)
+  __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 294, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_GIVEREF(__pyx_t_4);
   PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_t_4);
@@ -5825,33 +5845,33 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_4compute(struct __pyx_obj_5f
   PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_int_1);
   __pyx_t_4 = 0;
 
-  /* "freud/bond.pyx":302
+  /* "freud/bond.pyx":295
  * 
  *         ref_orientations = freud.common.convert_array(
  *             ref_orientations.squeeze(), 1, dtype=np.float32, contiguous=True,             # <<<<<<<<<<<<<<
  *             array_name="ref_orientations")
  * 
  */
-  __pyx_t_4 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 302, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 295, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 302, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 295, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_float32); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 302, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_float32); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 295, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_dtype, __pyx_t_3) < 0) __PYX_ERR(0, 302, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_dtype, __pyx_t_3) < 0) __PYX_ERR(0, 295, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_contiguous, Py_True) < 0) __PYX_ERR(0, 302, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_array_name, __pyx_n_s_ref_orientations) < 0) __PYX_ERR(0, 302, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_contiguous, Py_True) < 0) __PYX_ERR(0, 295, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_array_name, __pyx_n_s_ref_orientations) < 0) __PYX_ERR(0, 295, __pyx_L1_error)
 
-  /* "freud/bond.pyx":301
+  /* "freud/bond.pyx":294
  *             raise TypeError('ref_points should be an Nx3 array')
  * 
  *         ref_orientations = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             ref_orientations.squeeze(), 1, dtype=np.float32, contiguous=True,
  *             array_name="ref_orientations")
  */
-  __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_7, __pyx_t_2, __pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 301, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_7, __pyx_t_2, __pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 294, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -5859,30 +5879,30 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_4compute(struct __pyx_obj_5f
   __Pyx_DECREF_SET(__pyx_v_ref_orientations, __pyx_t_3);
   __pyx_t_3 = 0;
 
-  /* "freud/bond.pyx":305
+  /* "freud/bond.pyx":298
  *             array_name="ref_orientations")
  * 
  *         points = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             points, 2, dtype=np.float32, contiguous=True, array_name="points")
  *         if points.shape[1] != 3:
  */
-  __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 305, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 298, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_common); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 305, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_common); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 298, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 305, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 298, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "freud/bond.pyx":306
+  /* "freud/bond.pyx":299
  * 
  *         points = freud.common.convert_array(
  *             points, 2, dtype=np.float32, contiguous=True, array_name="points")             # <<<<<<<<<<<<<<
  *         if points.shape[1] != 3:
  *             raise TypeError('points should be an Nx3 array')
  */
-  __pyx_t_4 = PyTuple_New(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 305, __pyx_L1_error)
+  __pyx_t_4 = PyTuple_New(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 298, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_INCREF(__pyx_v_points);
   __Pyx_GIVEREF(__pyx_v_points);
@@ -5890,26 +5910,26 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_4compute(struct __pyx_obj_5f
   __Pyx_INCREF(__pyx_int_2);
   __Pyx_GIVEREF(__pyx_int_2);
   PyTuple_SET_ITEM(__pyx_t_4, 1, __pyx_int_2);
-  __pyx_t_2 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 306, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 299, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_7 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 306, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 299, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_float32); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 306, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_float32); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 299, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_dtype, __pyx_t_1) < 0) __PYX_ERR(0, 306, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_dtype, __pyx_t_1) < 0) __PYX_ERR(0, 299, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_contiguous, Py_True) < 0) __PYX_ERR(0, 306, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_array_name, __pyx_n_s_points) < 0) __PYX_ERR(0, 306, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_contiguous, Py_True) < 0) __PYX_ERR(0, 299, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_array_name, __pyx_n_s_points) < 0) __PYX_ERR(0, 299, __pyx_L1_error)
 
-  /* "freud/bond.pyx":305
+  /* "freud/bond.pyx":298
  *             array_name="ref_orientations")
  * 
  *         points = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             points, 2, dtype=np.float32, contiguous=True, array_name="points")
  *         if points.shape[1] != 3:
  */
-  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_4, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 305, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_4, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 298, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
@@ -5917,38 +5937,38 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_4compute(struct __pyx_obj_5f
   __Pyx_DECREF_SET(__pyx_v_points, __pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "freud/bond.pyx":307
+  /* "freud/bond.pyx":300
  *         points = freud.common.convert_array(
  *             points, 2, dtype=np.float32, contiguous=True, array_name="points")
  *         if points.shape[1] != 3:             # <<<<<<<<<<<<<<
  *             raise TypeError('points should be an Nx3 array')
  * 
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_points, __pyx_n_s_shape); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 307, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_points, __pyx_n_s_shape); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 300, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_1, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 307, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_1, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 300, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyObject_RichCompare(__pyx_t_2, __pyx_int_3, Py_NE); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 307, __pyx_L1_error)
+  __pyx_t_1 = PyObject_RichCompare(__pyx_t_2, __pyx_int_3, Py_NE); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 300, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 307, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 300, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   if (unlikely(__pyx_t_5)) {
 
-    /* "freud/bond.pyx":308
+    /* "freud/bond.pyx":301
  *             points, 2, dtype=np.float32, contiguous=True, array_name="points")
  *         if points.shape[1] != 3:
  *             raise TypeError('points should be an Nx3 array')             # <<<<<<<<<<<<<<
  * 
  *         orientations = freud.common.convert_array(
  */
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__4, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 308, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__4, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 301, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_Raise(__pyx_t_1, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __PYX_ERR(0, 308, __pyx_L1_error)
+    __PYX_ERR(0, 301, __pyx_L1_error)
 
-    /* "freud/bond.pyx":307
+    /* "freud/bond.pyx":300
  *         points = freud.common.convert_array(
  *             points, 2, dtype=np.float32, contiguous=True, array_name="points")
  *         if points.shape[1] != 3:             # <<<<<<<<<<<<<<
@@ -5957,30 +5977,30 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_4compute(struct __pyx_obj_5f
  */
   }
 
-  /* "freud/bond.pyx":310
+  /* "freud/bond.pyx":303
  *             raise TypeError('points should be an Nx3 array')
  * 
  *         orientations = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             orientations.squeeze(), 1, dtype=np.float32, contiguous=True,
  *             array_name="orientations")
  */
-  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 310, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 303, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_common); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 310, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_common); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 303, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 310, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 303, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":311
+  /* "freud/bond.pyx":304
  * 
  *         orientations = freud.common.convert_array(
  *             orientations.squeeze(), 1, dtype=np.float32, contiguous=True,             # <<<<<<<<<<<<<<
  *             array_name="orientations")
  * 
  */
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_orientations, __pyx_n_s_squeeze); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 311, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_orientations, __pyx_n_s_squeeze); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 304, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_4))) {
@@ -5993,22 +6013,22 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_4compute(struct __pyx_obj_5f
     }
   }
   if (__pyx_t_3) {
-    __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 311, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 304, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   } else {
-    __pyx_t_2 = __Pyx_PyObject_CallNoArg(__pyx_t_4); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 311, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_CallNoArg(__pyx_t_4); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 304, __pyx_L1_error)
   }
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "freud/bond.pyx":310
+  /* "freud/bond.pyx":303
  *             raise TypeError('points should be an Nx3 array')
  * 
  *         orientations = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             orientations.squeeze(), 1, dtype=np.float32, contiguous=True,
  *             array_name="orientations")
  */
-  __pyx_t_4 = PyTuple_New(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 310, __pyx_L1_error)
+  __pyx_t_4 = PyTuple_New(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 303, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_GIVEREF(__pyx_t_2);
   PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_2);
@@ -6017,33 +6037,33 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_4compute(struct __pyx_obj_5f
   PyTuple_SET_ITEM(__pyx_t_4, 1, __pyx_int_1);
   __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":311
+  /* "freud/bond.pyx":304
  * 
  *         orientations = freud.common.convert_array(
  *             orientations.squeeze(), 1, dtype=np.float32, contiguous=True,             # <<<<<<<<<<<<<<
  *             array_name="orientations")
  * 
  */
-  __pyx_t_2 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 311, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 304, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 311, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 304, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_float32); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 311, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_float32); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 304, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_dtype, __pyx_t_7) < 0) __PYX_ERR(0, 311, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_dtype, __pyx_t_7) < 0) __PYX_ERR(0, 304, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_contiguous, Py_True) < 0) __PYX_ERR(0, 311, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_array_name, __pyx_n_s_orientations) < 0) __PYX_ERR(0, 311, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_contiguous, Py_True) < 0) __PYX_ERR(0, 304, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_array_name, __pyx_n_s_orientations) < 0) __PYX_ERR(0, 304, __pyx_L1_error)
 
-  /* "freud/bond.pyx":310
+  /* "freud/bond.pyx":303
  *             raise TypeError('points should be an Nx3 array')
  * 
  *         orientations = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             orientations.squeeze(), 1, dtype=np.float32, contiguous=True,
  *             array_name="orientations")
  */
-  __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_4, __pyx_t_2); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 310, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_4, __pyx_t_2); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 303, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
@@ -6051,23 +6071,23 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_4compute(struct __pyx_obj_5f
   __Pyx_DECREF_SET(__pyx_v_orientations, __pyx_t_7);
   __pyx_t_7 = 0;
 
-  /* "freud/bond.pyx":314
+  /* "freud/bond.pyx":307
  *             array_name="orientations")
  * 
  *         defaulted_nlist = freud.locality.make_default_nlist(             # <<<<<<<<<<<<<<
  *             b, ref_points, points, self.rmax, nlist, None)
  *         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 314, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 307, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_locality); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 314, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_locality); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 307, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_make_default_nlist); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 314, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_make_default_nlist); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 307, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "freud/bond.pyx":315
+  /* "freud/bond.pyx":308
  * 
  *         defaulted_nlist = freud.locality.make_default_nlist(
  *             b, ref_points, points, self.rmax, nlist, None)             # <<<<<<<<<<<<<<
@@ -6089,7 +6109,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_4compute(struct __pyx_obj_5f
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_2)) {
     PyObject *__pyx_temp[7] = {__pyx_t_4, ((PyObject *)__pyx_v_b), __pyx_v_ref_points, __pyx_v_points, __pyx_v_self->rmax, __pyx_v_nlist, Py_None};
-    __pyx_t_7 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_8, 6+__pyx_t_8); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 314, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_8, 6+__pyx_t_8); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 307, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_7);
   } else
@@ -6097,13 +6117,13 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_4compute(struct __pyx_obj_5f
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
     PyObject *__pyx_temp[7] = {__pyx_t_4, ((PyObject *)__pyx_v_b), __pyx_v_ref_points, __pyx_v_points, __pyx_v_self->rmax, __pyx_v_nlist, Py_None};
-    __pyx_t_7 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_8, 6+__pyx_t_8); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 314, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_8, 6+__pyx_t_8); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 307, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_7);
   } else
   #endif
   {
-    __pyx_t_1 = PyTuple_New(6+__pyx_t_8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 314, __pyx_L1_error)
+    __pyx_t_1 = PyTuple_New(6+__pyx_t_8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 307, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     if (__pyx_t_4) {
       __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -6126,7 +6146,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_4compute(struct __pyx_obj_5f
     __Pyx_INCREF(Py_None);
     __Pyx_GIVEREF(Py_None);
     PyTuple_SET_ITEM(__pyx_t_1, 5+__pyx_t_8, Py_None);
-    __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_1, NULL); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 314, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_1, NULL); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 307, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   }
@@ -6134,136 +6154,136 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_4compute(struct __pyx_obj_5f
   __pyx_v_defaulted_nlist = __pyx_t_7;
   __pyx_t_7 = 0;
 
-  /* "freud/bond.pyx":316
+  /* "freud/bond.pyx":309
  *         defaulted_nlist = freud.locality.make_default_nlist(
  *             b, ref_points, points, self.rmax, nlist, None)
  *         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]             # <<<<<<<<<<<<<<
  * 
  *         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
  */
-  __pyx_t_7 = __Pyx_GetItemInt(__pyx_v_defaulted_nlist, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 316, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_GetItemInt(__pyx_v_defaulted_nlist, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 309, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  if (!(likely(((__pyx_t_7) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_7, __pyx_ptype_5freud_8locality_NeighborList))))) __PYX_ERR(0, 316, __pyx_L1_error)
+  if (!(likely(((__pyx_t_7) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_7, __pyx_ptype_5freud_8locality_NeighborList))))) __PYX_ERR(0, 309, __pyx_L1_error)
   __pyx_v_nlist_ = ((struct __pyx_obj_5freud_8locality_NeighborList *)__pyx_t_7);
   __pyx_t_7 = 0;
 
-  /* "freud/bond.pyx":318
+  /* "freud/bond.pyx":311
  *         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
  * 
  *         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points             # <<<<<<<<<<<<<<
  *         cdef np.ndarray[float, ndim=1] l_ref_orientations = ref_orientations
  *         cdef np.ndarray[float, ndim=2] l_points = points
  */
-  if (!(likely(((__pyx_v_ref_points) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_ref_points, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 318, __pyx_L1_error)
+  if (!(likely(((__pyx_v_ref_points) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_ref_points, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 311, __pyx_L1_error)
   __pyx_t_7 = __pyx_v_ref_points;
   __Pyx_INCREF(__pyx_t_7);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_l_ref_points.rcbuffer->pybuffer, (PyObject*)((PyArrayObject *)__pyx_t_7), &__Pyx_TypeInfo_float, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {
       __pyx_v_l_ref_points = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_l_ref_points.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 318, __pyx_L1_error)
+      __PYX_ERR(0, 311, __pyx_L1_error)
     } else {__pyx_pybuffernd_l_ref_points.diminfo[0].strides = __pyx_pybuffernd_l_ref_points.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_l_ref_points.diminfo[0].shape = __pyx_pybuffernd_l_ref_points.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_l_ref_points.diminfo[1].strides = __pyx_pybuffernd_l_ref_points.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_l_ref_points.diminfo[1].shape = __pyx_pybuffernd_l_ref_points.rcbuffer->pybuffer.shape[1];
     }
   }
   __pyx_v_l_ref_points = ((PyArrayObject *)__pyx_t_7);
   __pyx_t_7 = 0;
 
-  /* "freud/bond.pyx":319
+  /* "freud/bond.pyx":312
  * 
  *         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
  *         cdef np.ndarray[float, ndim=1] l_ref_orientations = ref_orientations             # <<<<<<<<<<<<<<
  *         cdef np.ndarray[float, ndim=2] l_points = points
  *         cdef np.ndarray[float, ndim=1] l_orientations = orientations
  */
-  if (!(likely(((__pyx_v_ref_orientations) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_ref_orientations, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 319, __pyx_L1_error)
+  if (!(likely(((__pyx_v_ref_orientations) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_ref_orientations, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 312, __pyx_L1_error)
   __pyx_t_7 = __pyx_v_ref_orientations;
   __Pyx_INCREF(__pyx_t_7);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_l_ref_orientations.rcbuffer->pybuffer, (PyObject*)((PyArrayObject *)__pyx_t_7), &__Pyx_TypeInfo_float, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack) == -1)) {
       __pyx_v_l_ref_orientations = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_l_ref_orientations.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 319, __pyx_L1_error)
+      __PYX_ERR(0, 312, __pyx_L1_error)
     } else {__pyx_pybuffernd_l_ref_orientations.diminfo[0].strides = __pyx_pybuffernd_l_ref_orientations.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_l_ref_orientations.diminfo[0].shape = __pyx_pybuffernd_l_ref_orientations.rcbuffer->pybuffer.shape[0];
     }
   }
   __pyx_v_l_ref_orientations = ((PyArrayObject *)__pyx_t_7);
   __pyx_t_7 = 0;
 
-  /* "freud/bond.pyx":320
+  /* "freud/bond.pyx":313
  *         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
  *         cdef np.ndarray[float, ndim=1] l_ref_orientations = ref_orientations
  *         cdef np.ndarray[float, ndim=2] l_points = points             # <<<<<<<<<<<<<<
  *         cdef np.ndarray[float, ndim=1] l_orientations = orientations
  *         cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
  */
-  if (!(likely(((__pyx_v_points) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_points, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 320, __pyx_L1_error)
+  if (!(likely(((__pyx_v_points) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_points, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 313, __pyx_L1_error)
   __pyx_t_7 = __pyx_v_points;
   __Pyx_INCREF(__pyx_t_7);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_l_points.rcbuffer->pybuffer, (PyObject*)((PyArrayObject *)__pyx_t_7), &__Pyx_TypeInfo_float, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {
       __pyx_v_l_points = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_l_points.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 320, __pyx_L1_error)
+      __PYX_ERR(0, 313, __pyx_L1_error)
     } else {__pyx_pybuffernd_l_points.diminfo[0].strides = __pyx_pybuffernd_l_points.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_l_points.diminfo[0].shape = __pyx_pybuffernd_l_points.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_l_points.diminfo[1].strides = __pyx_pybuffernd_l_points.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_l_points.diminfo[1].shape = __pyx_pybuffernd_l_points.rcbuffer->pybuffer.shape[1];
     }
   }
   __pyx_v_l_points = ((PyArrayObject *)__pyx_t_7);
   __pyx_t_7 = 0;
 
-  /* "freud/bond.pyx":321
+  /* "freud/bond.pyx":314
  *         cdef np.ndarray[float, ndim=1] l_ref_orientations = ref_orientations
  *         cdef np.ndarray[float, ndim=2] l_points = points
  *         cdef np.ndarray[float, ndim=1] l_orientations = orientations             # <<<<<<<<<<<<<<
  *         cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
  *         cdef unsigned int n_p = <unsigned int> points.shape[0]
  */
-  if (!(likely(((__pyx_v_orientations) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_orientations, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 321, __pyx_L1_error)
+  if (!(likely(((__pyx_v_orientations) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_orientations, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 314, __pyx_L1_error)
   __pyx_t_7 = __pyx_v_orientations;
   __Pyx_INCREF(__pyx_t_7);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_l_orientations.rcbuffer->pybuffer, (PyObject*)((PyArrayObject *)__pyx_t_7), &__Pyx_TypeInfo_float, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack) == -1)) {
       __pyx_v_l_orientations = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_l_orientations.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 321, __pyx_L1_error)
+      __PYX_ERR(0, 314, __pyx_L1_error)
     } else {__pyx_pybuffernd_l_orientations.diminfo[0].strides = __pyx_pybuffernd_l_orientations.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_l_orientations.diminfo[0].shape = __pyx_pybuffernd_l_orientations.rcbuffer->pybuffer.shape[0];
     }
   }
   __pyx_v_l_orientations = ((PyArrayObject *)__pyx_t_7);
   __pyx_t_7 = 0;
 
-  /* "freud/bond.pyx":322
+  /* "freud/bond.pyx":315
  *         cdef np.ndarray[float, ndim=2] l_points = points
  *         cdef np.ndarray[float, ndim=1] l_orientations = orientations
  *         cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]             # <<<<<<<<<<<<<<
  *         cdef unsigned int n_p = <unsigned int> points.shape[0]
  *         with nogil:
  */
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_v_ref_points, __pyx_n_s_shape); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 322, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_v_ref_points, __pyx_n_s_shape); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 315, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_7, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 322, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_7, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 315, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_9 = __Pyx_PyInt_As_unsigned_int(__pyx_t_2); if (unlikely((__pyx_t_9 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 322, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyInt_As_unsigned_int(__pyx_t_2); if (unlikely((__pyx_t_9 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 315, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_v_n_ref = ((unsigned int)__pyx_t_9);
 
-  /* "freud/bond.pyx":323
+  /* "freud/bond.pyx":316
  *         cdef np.ndarray[float, ndim=1] l_orientations = orientations
  *         cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
  *         cdef unsigned int n_p = <unsigned int> points.shape[0]             # <<<<<<<<<<<<<<
  *         with nogil:
  *             self.thisptr.compute(
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_points, __pyx_n_s_shape); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 323, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_points, __pyx_n_s_shape); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 316, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_7 = __Pyx_GetItemInt(__pyx_t_2, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 323, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_GetItemInt(__pyx_t_2, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 316, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_9 = __Pyx_PyInt_As_unsigned_int(__pyx_t_7); if (unlikely((__pyx_t_9 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 323, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyInt_As_unsigned_int(__pyx_t_7); if (unlikely((__pyx_t_9 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 316, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   __pyx_v_n_p = ((unsigned int)__pyx_t_9);
 
-  /* "freud/bond.pyx":324
+  /* "freud/bond.pyx":317
  *         cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
  *         cdef unsigned int n_p = <unsigned int> points.shape[0]
  *         with nogil:             # <<<<<<<<<<<<<<
@@ -6278,7 +6298,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_4compute(struct __pyx_obj_5f
       #endif
       /*try:*/ {
 
-        /* "freud/bond.pyx":325
+        /* "freud/bond.pyx":318
  *         cdef unsigned int n_p = <unsigned int> points.shape[0]
  *         with nogil:
  *             self.thisptr.compute(             # <<<<<<<<<<<<<<
@@ -6295,11 +6315,11 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_4compute(struct __pyx_obj_5f
           #ifdef WITH_THREAD
           __Pyx_PyGILState_Release(__pyx_gilstate_save);
           #endif
-          __PYX_ERR(0, 325, __pyx_L8_error)
+          __PYX_ERR(0, 318, __pyx_L8_error)
         }
       }
 
-      /* "freud/bond.pyx":324
+      /* "freud/bond.pyx":317
  *         cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
  *         cdef unsigned int n_p = <unsigned int> points.shape[0]
  *         with nogil:             # <<<<<<<<<<<<<<
@@ -6325,7 +6345,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_4compute(struct __pyx_obj_5f
       }
   }
 
-  /* "freud/bond.pyx":331
+  /* "freud/bond.pyx":324
  *                 <vec3[float]*> l_points.data,
  *                 <float*> l_orientations.data, n_p)
  *         return self             # <<<<<<<<<<<<<<
@@ -6337,7 +6357,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_4compute(struct __pyx_obj_5f
   __pyx_r = ((PyObject *)__pyx_v_self);
   goto __pyx_L0;
 
-  /* "freud/bond.pyx":265
+  /* "freud/bond.pyx":260
  *         del self.thisptr
  * 
  *     def compute(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
@@ -6386,7 +6406,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_4compute(struct __pyx_obj_5f
   return __pyx_r;
 }
 
-/* "freud/bond.pyx":334
+/* "freud/bond.pyx":327
  * 
  *     @property
  *     def bonds(self):             # <<<<<<<<<<<<<<
@@ -6423,7 +6443,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_5bonds___get__(struct __pyx_
   __pyx_pybuffernd_result.data = NULL;
   __pyx_pybuffernd_result.rcbuffer = &__pyx_pybuffer_result;
 
-  /* "freud/bond.pyx":335
+  /* "freud/bond.pyx":328
  *     @property
  *     def bonds(self):
  *         cdef unsigned int * bonds = self.thisptr.getBonds().get()             # <<<<<<<<<<<<<<
@@ -6432,7 +6452,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_5bonds___get__(struct __pyx_
  */
   __pyx_v_bonds = __pyx_v_self->thisptr->getBonds().get();
 
-  /* "freud/bond.pyx":337
+  /* "freud/bond.pyx":330
  *         cdef unsigned int * bonds = self.thisptr.getBonds().get()
  *         cdef np.npy_intp nbins[2]
  *         nbins[0] = <np.npy_intp> self.thisptr.getNumParticles()             # <<<<<<<<<<<<<<
@@ -6441,7 +6461,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_5bonds___get__(struct __pyx_
  */
   (__pyx_v_nbins[0]) = ((npy_intp)__pyx_v_self->thisptr->getNumParticles());
 
-  /* "freud/bond.pyx":338
+  /* "freud/bond.pyx":331
  *         cdef np.npy_intp nbins[2]
  *         nbins[0] = <np.npy_intp> self.thisptr.getNumParticles()
  *         nbins[1] = <np.npy_intp> self.thisptr.getNumBonds()             # <<<<<<<<<<<<<<
@@ -6450,22 +6470,22 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_5bonds___get__(struct __pyx_
  */
   (__pyx_v_nbins[1]) = ((npy_intp)__pyx_v_self->thisptr->getNumBonds());
 
-  /* "freud/bond.pyx":340
+  /* "freud/bond.pyx":333
  *         nbins[1] = <np.npy_intp> self.thisptr.getNumBonds()
  *         cdef np.ndarray[np.uint32_t, ndim=2] result = \
  *             np.PyArray_SimpleNewFromData(             # <<<<<<<<<<<<<<
  *                 2, nbins, np.NPY_UINT32, <void*> bonds)
  *         return result
  */
-  __pyx_t_1 = PyArray_SimpleNewFromData(2, __pyx_v_nbins, NPY_UINT32, ((void *)__pyx_v_bonds)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 340, __pyx_L1_error)
+  __pyx_t_1 = PyArray_SimpleNewFromData(2, __pyx_v_nbins, NPY_UINT32, ((void *)__pyx_v_bonds)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 333, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 340, __pyx_L1_error)
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 333, __pyx_L1_error)
   __pyx_t_2 = ((PyArrayObject *)__pyx_t_1);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_result.rcbuffer->pybuffer, (PyObject*)__pyx_t_2, &__Pyx_TypeInfo_nn___pyx_t_5numpy_uint32_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {
       __pyx_v_result = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_result.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 339, __pyx_L1_error)
+      __PYX_ERR(0, 332, __pyx_L1_error)
     } else {__pyx_pybuffernd_result.diminfo[0].strides = __pyx_pybuffernd_result.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_result.diminfo[0].shape = __pyx_pybuffernd_result.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_result.diminfo[1].strides = __pyx_pybuffernd_result.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_result.diminfo[1].shape = __pyx_pybuffernd_result.rcbuffer->pybuffer.shape[1];
     }
   }
@@ -6473,7 +6493,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_5bonds___get__(struct __pyx_
   __pyx_v_result = ((PyArrayObject *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "freud/bond.pyx":342
+  /* "freud/bond.pyx":335
  *             np.PyArray_SimpleNewFromData(
  *                 2, nbins, np.NPY_UINT32, <void*> bonds)
  *         return result             # <<<<<<<<<<<<<<
@@ -6485,7 +6505,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_5bonds___get__(struct __pyx_
   __pyx_r = ((PyObject *)__pyx_v_result);
   goto __pyx_L0;
 
-  /* "freud/bond.pyx":334
+  /* "freud/bond.pyx":327
  * 
  *     @property
  *     def bonds(self):             # <<<<<<<<<<<<<<
@@ -6514,7 +6534,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_5bonds___get__(struct __pyx_
   return __pyx_r;
 }
 
-/* "freud/bond.pyx":344
+/* "freud/bond.pyx":337
  *         return result
  * 
  *     def getBonds(self):             # <<<<<<<<<<<<<<
@@ -6548,27 +6568,27 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_6getBonds(struct __pyx_obj_5
   PyObject *__pyx_t_6 = NULL;
   __Pyx_RefNannySetupContext("getBonds", 0);
 
-  /* "freud/bond.pyx":345
+  /* "freud/bond.pyx":338
  * 
  *     def getBonds(self):
  *         warnings.warn("The getBonds function is deprecated in favor "             # <<<<<<<<<<<<<<
  *                       "of the bonds class attribute and will be "
  *                       "removed in a future version of freud.",
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 345, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 338, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 345, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 338, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":348
+  /* "freud/bond.pyx":341
  *                       "of the bonds class attribute and will be "
  *                       "removed in a future version of freud.",
  *                       FreudDeprecationWarning)             # <<<<<<<<<<<<<<
  *         return self.bonds
  * 
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 348, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 341, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   __pyx_t_5 = 0;
@@ -6585,7 +6605,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_6getBonds(struct __pyx_obj_5
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getBonds_function_is_depreca, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 345, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 338, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -6594,14 +6614,14 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_6getBonds(struct __pyx_obj_5
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getBonds_function_is_depreca, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 345, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 338, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   } else
   #endif
   {
-    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 345, __pyx_L1_error)
+    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 338, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     if (__pyx_t_4) {
       __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -6612,14 +6632,14 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_6getBonds(struct __pyx_obj_5
     __Pyx_GIVEREF(__pyx_t_2);
     PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_5, __pyx_t_2);
     __pyx_t_2 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 345, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 338, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "freud/bond.pyx":349
+  /* "freud/bond.pyx":342
  *                       "removed in a future version of freud.",
  *                       FreudDeprecationWarning)
  *         return self.bonds             # <<<<<<<<<<<<<<
@@ -6627,13 +6647,13 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_6getBonds(struct __pyx_obj_5
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_bonds); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 349, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_bonds); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 342, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/bond.pyx":344
+  /* "freud/bond.pyx":337
  *         return result
  * 
  *     def getBonds(self):             # <<<<<<<<<<<<<<
@@ -6656,7 +6676,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_6getBonds(struct __pyx_obj_5
   return __pyx_r;
 }
 
-/* "freud/bond.pyx":352
+/* "freud/bond.pyx":345
  * 
  *     @property
  *     def box(self):             # <<<<<<<<<<<<<<
@@ -6683,7 +6703,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_3box___get__(struct __pyx_ob
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "freud/bond.pyx":353
+  /* "freud/bond.pyx":346
  *     @property
  *     def box(self):
  *         return freud.box.BoxFromCPP(self.thisptr.getBox())             # <<<<<<<<<<<<<<
@@ -6691,13 +6711,13 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_3box___get__(struct __pyx_ob
  *     def getBox(self):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_5freud_3box_BoxFromCPP(__pyx_v_self->thisptr->getBox()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 353, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_5freud_3box_BoxFromCPP(__pyx_v_self->thisptr->getBox()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 346, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/bond.pyx":352
+  /* "freud/bond.pyx":345
  * 
  *     @property
  *     def box(self):             # <<<<<<<<<<<<<<
@@ -6716,7 +6736,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_3box___get__(struct __pyx_ob
   return __pyx_r;
 }
 
-/* "freud/bond.pyx":355
+/* "freud/bond.pyx":348
  *         return freud.box.BoxFromCPP(self.thisptr.getBox())
  * 
  *     def getBox(self):             # <<<<<<<<<<<<<<
@@ -6750,27 +6770,27 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_8getBox(struct __pyx_obj_5fr
   PyObject *__pyx_t_6 = NULL;
   __Pyx_RefNannySetupContext("getBox", 0);
 
-  /* "freud/bond.pyx":356
+  /* "freud/bond.pyx":349
  * 
  *     def getBox(self):
  *         warnings.warn("The getBox function is deprecated in favor "             # <<<<<<<<<<<<<<
  *                       "of the box class attribute and will be "
  *                       "removed in a future version of freud.",
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 356, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 349, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 356, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 349, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":359
+  /* "freud/bond.pyx":352
  *                       "of the box class attribute and will be "
  *                       "removed in a future version of freud.",
  *                       FreudDeprecationWarning)             # <<<<<<<<<<<<<<
  *         return self.box
  * 
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 359, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 352, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   __pyx_t_5 = 0;
@@ -6787,7 +6807,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_8getBox(struct __pyx_obj_5fr
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getBox_function_is_deprecate, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 356, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 349, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -6796,14 +6816,14 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_8getBox(struct __pyx_obj_5fr
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getBox_function_is_deprecate, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 356, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 349, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   } else
   #endif
   {
-    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 356, __pyx_L1_error)
+    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 349, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     if (__pyx_t_4) {
       __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -6814,14 +6834,14 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_8getBox(struct __pyx_obj_5fr
     __Pyx_GIVEREF(__pyx_t_2);
     PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_5, __pyx_t_2);
     __pyx_t_2 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 356, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 349, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "freud/bond.pyx":360
+  /* "freud/bond.pyx":353
  *                       "removed in a future version of freud.",
  *                       FreudDeprecationWarning)
  *         return self.box             # <<<<<<<<<<<<<<
@@ -6829,13 +6849,13 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_8getBox(struct __pyx_obj_5fr
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_box); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 360, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_box); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 353, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/bond.pyx":355
+  /* "freud/bond.pyx":348
  *         return freud.box.BoxFromCPP(self.thisptr.getBox())
  * 
  *     def getBox(self):             # <<<<<<<<<<<<<<
@@ -6858,7 +6878,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_8getBox(struct __pyx_obj_5fr
   return __pyx_r;
 }
 
-/* "freud/bond.pyx":363
+/* "freud/bond.pyx":356
  * 
  *     @property
  *     def list_map(self):             # <<<<<<<<<<<<<<
@@ -6885,7 +6905,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_8list_map___get__(struct __p
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "freud/bond.pyx":364
+  /* "freud/bond.pyx":357
  *     @property
  *     def list_map(self):
  *         return self.thisptr.getListMap()             # <<<<<<<<<<<<<<
@@ -6893,13 +6913,13 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_8list_map___get__(struct __p
  *     def getListMap(self):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_convert_map_to_py_unsigned_int____unsigned_int(__pyx_v_self->thisptr->getListMap()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 364, __pyx_L1_error)
+  __pyx_t_1 = __pyx_convert_map_to_py_unsigned_int____unsigned_int(__pyx_v_self->thisptr->getListMap()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 357, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/bond.pyx":363
+  /* "freud/bond.pyx":356
  * 
  *     @property
  *     def list_map(self):             # <<<<<<<<<<<<<<
@@ -6918,7 +6938,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_8list_map___get__(struct __p
   return __pyx_r;
 }
 
-/* "freud/bond.pyx":366
+/* "freud/bond.pyx":359
  *         return self.thisptr.getListMap()
  * 
  *     def getListMap(self):             # <<<<<<<<<<<<<<
@@ -6952,27 +6972,27 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_10getListMap(struct __pyx_ob
   PyObject *__pyx_t_6 = NULL;
   __Pyx_RefNannySetupContext("getListMap", 0);
 
-  /* "freud/bond.pyx":367
+  /* "freud/bond.pyx":360
  * 
  *     def getListMap(self):
  *         warnings.warn("The getListMap function is deprecated in favor "             # <<<<<<<<<<<<<<
  *                       "of the list_map class attribute and will be "
  *                       "removed in a future version of freud.",
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 367, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 360, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 367, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 360, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":370
+  /* "freud/bond.pyx":363
  *                       "of the list_map class attribute and will be "
  *                       "removed in a future version of freud.",
  *                       FreudDeprecationWarning)             # <<<<<<<<<<<<<<
  *         return self.list_map
  * 
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 370, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 363, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   __pyx_t_5 = 0;
@@ -6989,7 +7009,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_10getListMap(struct __pyx_ob
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getListMap_function_is_depre, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 367, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 360, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -6998,14 +7018,14 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_10getListMap(struct __pyx_ob
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getListMap_function_is_depre, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 367, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 360, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   } else
   #endif
   {
-    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 367, __pyx_L1_error)
+    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 360, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     if (__pyx_t_4) {
       __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -7016,14 +7036,14 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_10getListMap(struct __pyx_ob
     __Pyx_GIVEREF(__pyx_t_2);
     PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_5, __pyx_t_2);
     __pyx_t_2 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 367, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 360, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "freud/bond.pyx":371
+  /* "freud/bond.pyx":364
  *                       "removed in a future version of freud.",
  *                       FreudDeprecationWarning)
  *         return self.list_map             # <<<<<<<<<<<<<<
@@ -7031,13 +7051,13 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_10getListMap(struct __pyx_ob
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_list_map); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 371, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_list_map); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 364, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/bond.pyx":366
+  /* "freud/bond.pyx":359
  *         return self.thisptr.getListMap()
  * 
  *     def getListMap(self):             # <<<<<<<<<<<<<<
@@ -7060,7 +7080,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_10getListMap(struct __pyx_ob
   return __pyx_r;
 }
 
-/* "freud/bond.pyx":374
+/* "freud/bond.pyx":367
  * 
  *     @property
  *     def rev_list_map(self):             # <<<<<<<<<<<<<<
@@ -7087,7 +7107,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_12rev_list_map___get__(struc
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "freud/bond.pyx":375
+  /* "freud/bond.pyx":368
  *     @property
  *     def rev_list_map(self):
  *         return self.thisptr.getRevListMap()             # <<<<<<<<<<<<<<
@@ -7095,13 +7115,13 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_12rev_list_map___get__(struc
  *     def getRevListMap(self):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_convert_map_to_py_unsigned_int____unsigned_int(__pyx_v_self->thisptr->getRevListMap()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 375, __pyx_L1_error)
+  __pyx_t_1 = __pyx_convert_map_to_py_unsigned_int____unsigned_int(__pyx_v_self->thisptr->getRevListMap()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 368, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/bond.pyx":374
+  /* "freud/bond.pyx":367
  * 
  *     @property
  *     def rev_list_map(self):             # <<<<<<<<<<<<<<
@@ -7120,7 +7140,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_12rev_list_map___get__(struc
   return __pyx_r;
 }
 
-/* "freud/bond.pyx":377
+/* "freud/bond.pyx":370
  *         return self.thisptr.getRevListMap()
  * 
  *     def getRevListMap(self):             # <<<<<<<<<<<<<<
@@ -7154,27 +7174,27 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_12getRevListMap(struct __pyx
   PyObject *__pyx_t_6 = NULL;
   __Pyx_RefNannySetupContext("getRevListMap", 0);
 
-  /* "freud/bond.pyx":378
+  /* "freud/bond.pyx":371
  * 
  *     def getRevListMap(self):
  *         warnings.warn("The getRevListMap function is deprecated in favor "             # <<<<<<<<<<<<<<
  *                       "of the rev_list_map class attribute and will be "
  *                       "removed in a future version of freud.",
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 378, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 371, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 378, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 371, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":381
+  /* "freud/bond.pyx":374
  *                       "of the rev_list_map class attribute and will be "
  *                       "removed in a future version of freud.",
  *                       FreudDeprecationWarning)             # <<<<<<<<<<<<<<
  *         return self.rev_list_map
  * 
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 381, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 374, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   __pyx_t_5 = 0;
@@ -7191,7 +7211,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_12getRevListMap(struct __pyx
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getRevListMap_function_is_de, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 378, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 371, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -7200,14 +7220,14 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_12getRevListMap(struct __pyx
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getRevListMap_function_is_de, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 378, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 371, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   } else
   #endif
   {
-    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 378, __pyx_L1_error)
+    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 371, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     if (__pyx_t_4) {
       __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -7218,14 +7238,14 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_12getRevListMap(struct __pyx
     __Pyx_GIVEREF(__pyx_t_2);
     PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_5, __pyx_t_2);
     __pyx_t_2 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 378, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 371, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "freud/bond.pyx":382
+  /* "freud/bond.pyx":375
  *                       "removed in a future version of freud.",
  *                       FreudDeprecationWarning)
  *         return self.rev_list_map             # <<<<<<<<<<<<<<
@@ -7233,13 +7253,13 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_12getRevListMap(struct __pyx
  * cdef class BondingXY2D:
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_rev_list_map); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 382, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_rev_list_map); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 375, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/bond.pyx":377
+  /* "freud/bond.pyx":370
  *         return self.thisptr.getRevListMap()
  * 
  *     def getRevListMap(self):             # <<<<<<<<<<<<<<
@@ -7373,7 +7393,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingR12_16__setstate_cython__(CYTHON
   return __pyx_r;
 }
 
-/* "freud/bond.pyx":415
+/* "freud/bond.pyx":408
  *     cdef rmax
  * 
  *     def __cinit__(self, float x_max, float y_max, bond_map, bond_list):             # <<<<<<<<<<<<<<
@@ -7418,23 +7438,23 @@ static int __pyx_pw_5freud_4bond_11BondingXY2D_1__cinit__(PyObject *__pyx_v_self
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_y_max)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 4, 4, 1); __PYX_ERR(0, 415, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 4, 4, 1); __PYX_ERR(0, 408, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_bond_map)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 4, 4, 2); __PYX_ERR(0, 415, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 4, 4, 2); __PYX_ERR(0, 408, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  3:
         if (likely((values[3] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_bond_list)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 4, 4, 3); __PYX_ERR(0, 415, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 4, 4, 3); __PYX_ERR(0, 408, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__cinit__") < 0)) __PYX_ERR(0, 415, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__cinit__") < 0)) __PYX_ERR(0, 408, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 4) {
       goto __pyx_L5_argtuple_error;
@@ -7444,14 +7464,14 @@ static int __pyx_pw_5freud_4bond_11BondingXY2D_1__cinit__(PyObject *__pyx_v_self
       values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
       values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
     }
-    __pyx_v_x_max = __pyx_PyFloat_AsFloat(values[0]); if (unlikely((__pyx_v_x_max == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 415, __pyx_L3_error)
-    __pyx_v_y_max = __pyx_PyFloat_AsFloat(values[1]); if (unlikely((__pyx_v_y_max == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 415, __pyx_L3_error)
+    __pyx_v_x_max = __pyx_PyFloat_AsFloat(values[0]); if (unlikely((__pyx_v_x_max == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 408, __pyx_L3_error)
+    __pyx_v_y_max = __pyx_PyFloat_AsFloat(values[1]); if (unlikely((__pyx_v_y_max == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 408, __pyx_L3_error)
     __pyx_v_bond_map = values[2];
     __pyx_v_bond_list = values[3];
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 4, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 415, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 4, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 408, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("freud.bond.BondingXY2D.__cinit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -7496,78 +7516,78 @@ static int __pyx_pf_5freud_4bond_11BondingXY2D___cinit__(struct __pyx_obj_5freud
   __pyx_pybuffernd_l_bond_list.data = NULL;
   __pyx_pybuffernd_l_bond_list.rcbuffer = &__pyx_pybuffer_l_bond_list;
 
-  /* "freud/bond.pyx":417
+  /* "freud/bond.pyx":410
  *     def __cinit__(self, float x_max, float y_max, bond_map, bond_list):
  *         # extract nr, nt from the bond_map
  *         n_y = bond_map.shape[0]             # <<<<<<<<<<<<<<
  *         n_x = bond_map.shape[1]
  *         n_bonds = bond_list.shape[0]
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_bond_map, __pyx_n_s_shape); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 417, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_bond_map, __pyx_n_s_shape); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 410, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_1, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 417, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_1, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 410, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_n_y = __pyx_t_2;
   __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":418
+  /* "freud/bond.pyx":411
  *         # extract nr, nt from the bond_map
  *         n_y = bond_map.shape[0]
  *         n_x = bond_map.shape[1]             # <<<<<<<<<<<<<<
  *         n_bonds = bond_list.shape[0]
  *         bond_map = np.require(bond_map, requirements=["C"])
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_bond_map, __pyx_n_s_shape); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 418, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_bond_map, __pyx_n_s_shape); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 411, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_1 = __Pyx_GetItemInt(__pyx_t_2, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 418, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_t_2, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 411, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_v_n_x = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "freud/bond.pyx":419
+  /* "freud/bond.pyx":412
  *         n_y = bond_map.shape[0]
  *         n_x = bond_map.shape[1]
  *         n_bonds = bond_list.shape[0]             # <<<<<<<<<<<<<<
  *         bond_map = np.require(bond_map, requirements=["C"])
  *         bond_list = np.require(bond_list, requirements=["C"])
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_bond_list, __pyx_n_s_shape); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 419, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_bond_list, __pyx_n_s_shape); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 412, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_1, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 419, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_1, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 412, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_n_bonds = __pyx_t_2;
   __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":420
+  /* "freud/bond.pyx":413
  *         n_x = bond_map.shape[1]
  *         n_bonds = bond_list.shape[0]
  *         bond_map = np.require(bond_map, requirements=["C"])             # <<<<<<<<<<<<<<
  *         bond_list = np.require(bond_list, requirements=["C"])
  *         cdef np.ndarray[uint, ndim=2] l_bond_map = bond_map
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 420, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 413, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_require); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 420, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_require); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 413, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 420, __pyx_L1_error)
+  __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 413, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_INCREF(__pyx_v_bond_map);
   __Pyx_GIVEREF(__pyx_v_bond_map);
   PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_v_bond_map);
-  __pyx_t_3 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 420, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 413, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = PyList_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 420, __pyx_L1_error)
+  __pyx_t_4 = PyList_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 413, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_INCREF(__pyx_n_s_C);
   __Pyx_GIVEREF(__pyx_n_s_C);
   PyList_SET_ITEM(__pyx_t_4, 0, __pyx_n_s_C);
-  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_requirements, __pyx_t_4) < 0) __PYX_ERR(0, 420, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_requirements, __pyx_t_4) < 0) __PYX_ERR(0, 413, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 420, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 413, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -7575,33 +7595,33 @@ static int __pyx_pf_5freud_4bond_11BondingXY2D___cinit__(struct __pyx_obj_5freud
   __Pyx_DECREF_SET(__pyx_v_bond_map, __pyx_t_4);
   __pyx_t_4 = 0;
 
-  /* "freud/bond.pyx":421
+  /* "freud/bond.pyx":414
  *         n_bonds = bond_list.shape[0]
  *         bond_map = np.require(bond_map, requirements=["C"])
  *         bond_list = np.require(bond_list, requirements=["C"])             # <<<<<<<<<<<<<<
  *         cdef np.ndarray[uint, ndim=2] l_bond_map = bond_map
  *         cdef np.ndarray[uint, ndim=1] l_bond_list = bond_list
  */
-  __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 421, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 414, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_require); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 421, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_require); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 414, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = PyTuple_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 421, __pyx_L1_error)
+  __pyx_t_4 = PyTuple_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 414, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_INCREF(__pyx_v_bond_list);
   __Pyx_GIVEREF(__pyx_v_bond_list);
   PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_v_bond_list);
-  __pyx_t_2 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 421, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 414, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_1 = PyList_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 421, __pyx_L1_error)
+  __pyx_t_1 = PyList_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 414, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_INCREF(__pyx_n_s_C);
   __Pyx_GIVEREF(__pyx_n_s_C);
   PyList_SET_ITEM(__pyx_t_1, 0, __pyx_n_s_C);
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_requirements, __pyx_t_1) < 0) __PYX_ERR(0, 421, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_requirements, __pyx_t_1) < 0) __PYX_ERR(0, 414, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_4, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 421, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_4, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 414, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
@@ -7609,60 +7629,60 @@ static int __pyx_pf_5freud_4bond_11BondingXY2D___cinit__(struct __pyx_obj_5freud
   __Pyx_DECREF_SET(__pyx_v_bond_list, __pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "freud/bond.pyx":422
+  /* "freud/bond.pyx":415
  *         bond_map = np.require(bond_map, requirements=["C"])
  *         bond_list = np.require(bond_list, requirements=["C"])
  *         cdef np.ndarray[uint, ndim=2] l_bond_map = bond_map             # <<<<<<<<<<<<<<
  *         cdef np.ndarray[uint, ndim=1] l_bond_list = bond_list
  *         self.thisptr = new freud._bond.BondingXY2D(
  */
-  if (!(likely(((__pyx_v_bond_map) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_bond_map, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 422, __pyx_L1_error)
+  if (!(likely(((__pyx_v_bond_map) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_bond_map, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 415, __pyx_L1_error)
   __pyx_t_1 = __pyx_v_bond_map;
   __Pyx_INCREF(__pyx_t_1);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_l_bond_map.rcbuffer->pybuffer, (PyObject*)((PyArrayObject *)__pyx_t_1), &__Pyx_TypeInfo_unsigned_int, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {
       __pyx_v_l_bond_map = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_l_bond_map.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 422, __pyx_L1_error)
+      __PYX_ERR(0, 415, __pyx_L1_error)
     } else {__pyx_pybuffernd_l_bond_map.diminfo[0].strides = __pyx_pybuffernd_l_bond_map.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_l_bond_map.diminfo[0].shape = __pyx_pybuffernd_l_bond_map.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_l_bond_map.diminfo[1].strides = __pyx_pybuffernd_l_bond_map.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_l_bond_map.diminfo[1].shape = __pyx_pybuffernd_l_bond_map.rcbuffer->pybuffer.shape[1];
     }
   }
   __pyx_v_l_bond_map = ((PyArrayObject *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "freud/bond.pyx":423
+  /* "freud/bond.pyx":416
  *         bond_list = np.require(bond_list, requirements=["C"])
  *         cdef np.ndarray[uint, ndim=2] l_bond_map = bond_map
  *         cdef np.ndarray[uint, ndim=1] l_bond_list = bond_list             # <<<<<<<<<<<<<<
  *         self.thisptr = new freud._bond.BondingXY2D(
  *             x_max, y_max, n_x, n_y, n_bonds,
  */
-  if (!(likely(((__pyx_v_bond_list) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_bond_list, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 423, __pyx_L1_error)
+  if (!(likely(((__pyx_v_bond_list) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_bond_list, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 416, __pyx_L1_error)
   __pyx_t_1 = __pyx_v_bond_list;
   __Pyx_INCREF(__pyx_t_1);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_l_bond_list.rcbuffer->pybuffer, (PyObject*)((PyArrayObject *)__pyx_t_1), &__Pyx_TypeInfo_unsigned_int, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack) == -1)) {
       __pyx_v_l_bond_list = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_l_bond_list.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 423, __pyx_L1_error)
+      __PYX_ERR(0, 416, __pyx_L1_error)
     } else {__pyx_pybuffernd_l_bond_list.diminfo[0].strides = __pyx_pybuffernd_l_bond_list.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_l_bond_list.diminfo[0].shape = __pyx_pybuffernd_l_bond_list.rcbuffer->pybuffer.shape[0];
     }
   }
   __pyx_v_l_bond_list = ((PyArrayObject *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "freud/bond.pyx":425
+  /* "freud/bond.pyx":418
  *         cdef np.ndarray[uint, ndim=1] l_bond_list = bond_list
  *         self.thisptr = new freud._bond.BondingXY2D(
  *             x_max, y_max, n_x, n_y, n_bonds,             # <<<<<<<<<<<<<<
  *             <unsigned int*> l_bond_map.data,
  *             <unsigned int*> l_bond_list.data)
  */
-  __pyx_t_5 = __Pyx_PyInt_As_unsigned_int(__pyx_v_n_x); if (unlikely((__pyx_t_5 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 425, __pyx_L1_error)
-  __pyx_t_6 = __Pyx_PyInt_As_unsigned_int(__pyx_v_n_y); if (unlikely((__pyx_t_6 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 425, __pyx_L1_error)
-  __pyx_t_7 = __Pyx_PyInt_As_unsigned_int(__pyx_v_n_bonds); if (unlikely((__pyx_t_7 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 425, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyInt_As_unsigned_int(__pyx_v_n_x); if (unlikely((__pyx_t_5 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 418, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyInt_As_unsigned_int(__pyx_v_n_y); if (unlikely((__pyx_t_6 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 418, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyInt_As_unsigned_int(__pyx_v_n_bonds); if (unlikely((__pyx_t_7 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 418, __pyx_L1_error)
 
-  /* "freud/bond.pyx":424
+  /* "freud/bond.pyx":417
  *         cdef np.ndarray[uint, ndim=2] l_bond_map = bond_map
  *         cdef np.ndarray[uint, ndim=1] l_bond_list = bond_list
  *         self.thisptr = new freud._bond.BondingXY2D(             # <<<<<<<<<<<<<<
@@ -7671,19 +7691,19 @@ static int __pyx_pf_5freud_4bond_11BondingXY2D___cinit__(struct __pyx_obj_5freud
  */
   __pyx_v_self->thisptr = new freud::bond::BondingXY2D(__pyx_v_x_max, __pyx_v_y_max, __pyx_t_5, __pyx_t_6, __pyx_t_7, ((unsigned int *)__pyx_v_l_bond_map->data), ((unsigned int *)__pyx_v_l_bond_list->data));
 
-  /* "freud/bond.pyx":428
+  /* "freud/bond.pyx":421
  *             <unsigned int*> l_bond_map.data,
  *             <unsigned int*> l_bond_list.data)
  *         self.rmax = np.sqrt(x_max**2 + y_max**2)             # <<<<<<<<<<<<<<
  * 
  *     def __dealloc__(self):
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 428, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 421, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_sqrt); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 428, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_sqrt); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 421, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = PyFloat_FromDouble((powf(__pyx_v_x_max, 2.0) + powf(__pyx_v_y_max, 2.0))); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 428, __pyx_L1_error)
+  __pyx_t_2 = PyFloat_FromDouble((powf(__pyx_v_x_max, 2.0) + powf(__pyx_v_y_max, 2.0))); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 421, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_4))) {
@@ -7696,14 +7716,14 @@ static int __pyx_pf_5freud_4bond_11BondingXY2D___cinit__(struct __pyx_obj_5freud
     }
   }
   if (!__pyx_t_3) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 428, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 421, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_GOTREF(__pyx_t_1);
   } else {
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_4)) {
       PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_t_2};
-      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_4, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 428, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_4, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 421, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -7712,20 +7732,20 @@ static int __pyx_pf_5freud_4bond_11BondingXY2D___cinit__(struct __pyx_obj_5freud
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_4)) {
       PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_t_2};
-      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_4, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 428, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_4, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 421, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     } else
     #endif
     {
-      __pyx_t_8 = PyTuple_New(1+1); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 428, __pyx_L1_error)
+      __pyx_t_8 = PyTuple_New(1+1); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 421, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_8);
       __Pyx_GIVEREF(__pyx_t_3); PyTuple_SET_ITEM(__pyx_t_8, 0, __pyx_t_3); __pyx_t_3 = NULL;
       __Pyx_GIVEREF(__pyx_t_2);
       PyTuple_SET_ITEM(__pyx_t_8, 0+1, __pyx_t_2);
       __pyx_t_2 = 0;
-      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_8, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 428, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_8, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 421, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
     }
@@ -7737,7 +7757,7 @@ static int __pyx_pf_5freud_4bond_11BondingXY2D___cinit__(struct __pyx_obj_5freud
   __pyx_v_self->rmax = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "freud/bond.pyx":415
+  /* "freud/bond.pyx":408
  *     cdef rmax
  * 
  *     def __cinit__(self, float x_max, float y_max, bond_map, bond_list):             # <<<<<<<<<<<<<<
@@ -7779,7 +7799,7 @@ static int __pyx_pf_5freud_4bond_11BondingXY2D___cinit__(struct __pyx_obj_5freud
   return __pyx_r;
 }
 
-/* "freud/bond.pyx":430
+/* "freud/bond.pyx":423
  *         self.rmax = np.sqrt(x_max**2 + y_max**2)
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -7802,7 +7822,7 @@ static void __pyx_pf_5freud_4bond_11BondingXY2D_2__dealloc__(struct __pyx_obj_5f
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__dealloc__", 0);
 
-  /* "freud/bond.pyx":431
+  /* "freud/bond.pyx":424
  * 
  *     def __dealloc__(self):
  *         del self.thisptr             # <<<<<<<<<<<<<<
@@ -7811,7 +7831,7 @@ static void __pyx_pf_5freud_4bond_11BondingXY2D_2__dealloc__(struct __pyx_obj_5f
  */
   delete __pyx_v_self->thisptr;
 
-  /* "freud/bond.pyx":430
+  /* "freud/bond.pyx":423
  *         self.rmax = np.sqrt(x_max**2 + y_max**2)
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -7823,7 +7843,7 @@ static void __pyx_pf_5freud_4bond_11BondingXY2D_2__dealloc__(struct __pyx_obj_5f
   __Pyx_RefNannyFinishContext();
 }
 
-/* "freud/bond.pyx":433
+/* "freud/bond.pyx":426
  *         del self.thisptr
  * 
  *     def compute(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
@@ -7833,7 +7853,7 @@ static void __pyx_pf_5freud_4bond_11BondingXY2D_2__dealloc__(struct __pyx_obj_5f
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_4bond_11BondingXY2D_5compute(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_4bond_11BondingXY2D_4compute[] = "BondingXY2D.compute(self, box, ref_points, ref_orientations, points=None, orientations=None, nlist=None)\nCalculates the bonds.\n\n        Args:\n            box (:class:`freud.box.Box`):\n                Simulation box.\n            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Reference points used to calculate the bonding.\n            ref_orientations ((:math:`N_{particles}`, 1) or\n            (:math:`N_{particles}`,) :class:`numpy.ndarray`):\n                Reference orientations as angles to use in computation.\n            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Points used to calculate the bonding. Uses :code:`ref_points`\n                if not provided or :code:`None`.\n            orientations ((:math:`N_{particles}`, 1) or\n            (:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):\n                Orientations as angles to use in computation. Uses\n                :code:`ref_orientations` if not provided or :code:`None`.\n            nlist (:class:`freud.locality.NeighborList`, optional):\n                NeighborList to use to find bonds (Default value =\n                :code:`None`).\n        ";
+static char __pyx_doc_5freud_4bond_11BondingXY2D_4compute[] = "BondingXY2D.compute(self, box, ref_points, ref_orientations, points=None, orientations=None, nlist=None)\nCalculates the bonds.\n\n        Args:\n            box (:class:`freud.box.Box`):\n                Simulation box.\n            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Reference points used to calculate the bonding.\n            ref_orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`):\n                Reference orientations as angles to use in computation.\n            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Points used to calculate the bonding. Uses :code:`ref_points`\n                if not provided or :code:`None`.\n            orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):\n                Orientations as angles to use in computation. Uses\n                :code:`ref_orientations` if not provided or :code:`None`.\n            nlist (:class:`freud.locality.NeighborList`, optional):\n                NeighborList to use to find bonds (Default value =\n                :code:`None`).\n        ";
 static PyMethodDef __pyx_mdef_5freud_4bond_11BondingXY2D_5compute = {"compute", (PyCFunction)__pyx_pw_5freud_4bond_11BondingXY2D_5compute, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_4bond_11BondingXY2D_4compute};
 static PyObject *__pyx_pw_5freud_4bond_11BondingXY2D_5compute(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_box = 0;
@@ -7850,7 +7870,7 @@ static PyObject *__pyx_pw_5freud_4bond_11BondingXY2D_5compute(PyObject *__pyx_v_
     PyObject* values[6] = {0,0,0,0,0,0};
     values[3] = ((PyObject *)Py_None);
 
-    /* "freud/bond.pyx":434
+    /* "freud/bond.pyx":427
  * 
  *     def compute(self, box, ref_points, ref_orientations, points=None,
  *                 orientations=None, nlist=None):             # <<<<<<<<<<<<<<
@@ -7887,13 +7907,13 @@ static PyObject *__pyx_pw_5freud_4bond_11BondingXY2D_5compute(PyObject *__pyx_v_
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_ref_points)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("compute", 0, 3, 6, 1); __PYX_ERR(0, 433, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("compute", 0, 3, 6, 1); __PYX_ERR(0, 426, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_ref_orientations)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("compute", 0, 3, 6, 2); __PYX_ERR(0, 433, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("compute", 0, 3, 6, 2); __PYX_ERR(0, 426, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  3:
@@ -7915,7 +7935,7 @@ static PyObject *__pyx_pw_5freud_4bond_11BondingXY2D_5compute(PyObject *__pyx_v_
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "compute") < 0)) __PYX_ERR(0, 433, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "compute") < 0)) __PYX_ERR(0, 426, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -7941,7 +7961,7 @@ static PyObject *__pyx_pw_5freud_4bond_11BondingXY2D_5compute(PyObject *__pyx_v_
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("compute", 0, 3, 6, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 433, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("compute", 0, 3, 6, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 426, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("freud.bond.BondingXY2D.compute", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -7949,7 +7969,7 @@ static PyObject *__pyx_pw_5freud_4bond_11BondingXY2D_5compute(PyObject *__pyx_v_
   __pyx_L4_argument_unpacking_done:;
   __pyx_r = __pyx_pf_5freud_4bond_11BondingXY2D_4compute(((struct __pyx_obj_5freud_4bond_BondingXY2D *)__pyx_v_self), __pyx_v_box, __pyx_v_ref_points, __pyx_v_ref_orientations, __pyx_v_points, __pyx_v_orientations, __pyx_v_nlist);
 
-  /* "freud/bond.pyx":433
+  /* "freud/bond.pyx":426
  *         del self.thisptr
  * 
  *     def compute(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
@@ -8013,19 +8033,19 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_4compute(struct __pyx_obj_5
   __pyx_pybuffernd_l_orientations.data = NULL;
   __pyx_pybuffernd_l_orientations.rcbuffer = &__pyx_pybuffer_l_orientations;
 
-  /* "freud/bond.pyx":456
+  /* "freud/bond.pyx":447
  *                 :code:`None`).
- *         """
+ *         """  # noqa: E501
  *         cdef freud.box.Box b = freud.common.convert_box(box)             # <<<<<<<<<<<<<<
  * 
  *         if points is None:
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 456, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 447, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_common); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 456, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_common); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 447, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_convert_box); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 456, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_convert_box); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 447, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_t_3 = NULL;
@@ -8039,13 +8059,13 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_4compute(struct __pyx_obj_5
     }
   }
   if (!__pyx_t_3) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_box); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 456, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_box); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 447, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   } else {
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_v_box};
-      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 456, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 447, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
@@ -8053,29 +8073,29 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_4compute(struct __pyx_obj_5
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_v_box};
-      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 456, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 447, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
     #endif
     {
-      __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 456, __pyx_L1_error)
+      __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 447, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_GIVEREF(__pyx_t_3); PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_3); __pyx_t_3 = NULL;
       __Pyx_INCREF(__pyx_v_box);
       __Pyx_GIVEREF(__pyx_v_box);
       PyTuple_SET_ITEM(__pyx_t_4, 0+1, __pyx_v_box);
-      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 456, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 447, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     }
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5freud_3box_Box))))) __PYX_ERR(0, 456, __pyx_L1_error)
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5freud_3box_Box))))) __PYX_ERR(0, 447, __pyx_L1_error)
   __pyx_v_b = ((struct __pyx_obj_5freud_3box_Box *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "freud/bond.pyx":458
+  /* "freud/bond.pyx":449
  *         cdef freud.box.Box b = freud.common.convert_box(box)
  * 
  *         if points is None:             # <<<<<<<<<<<<<<
@@ -8086,7 +8106,7 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_4compute(struct __pyx_obj_5
   __pyx_t_6 = (__pyx_t_5 != 0);
   if (__pyx_t_6) {
 
-    /* "freud/bond.pyx":459
+    /* "freud/bond.pyx":450
  * 
  *         if points is None:
  *             points = ref_points             # <<<<<<<<<<<<<<
@@ -8096,7 +8116,7 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_4compute(struct __pyx_obj_5
     __Pyx_INCREF(__pyx_v_ref_points);
     __Pyx_DECREF_SET(__pyx_v_points, __pyx_v_ref_points);
 
-    /* "freud/bond.pyx":458
+    /* "freud/bond.pyx":449
  *         cdef freud.box.Box b = freud.common.convert_box(box)
  * 
  *         if points is None:             # <<<<<<<<<<<<<<
@@ -8105,7 +8125,7 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_4compute(struct __pyx_obj_5
  */
   }
 
-  /* "freud/bond.pyx":460
+  /* "freud/bond.pyx":451
  *         if points is None:
  *             points = ref_points
  *         if orientations is None:             # <<<<<<<<<<<<<<
@@ -8116,7 +8136,7 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_4compute(struct __pyx_obj_5
   __pyx_t_5 = (__pyx_t_6 != 0);
   if (__pyx_t_5) {
 
-    /* "freud/bond.pyx":461
+    /* "freud/bond.pyx":452
  *             points = ref_points
  *         if orientations is None:
  *             orientations = ref_orientations             # <<<<<<<<<<<<<<
@@ -8126,7 +8146,7 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_4compute(struct __pyx_obj_5
     __Pyx_INCREF(__pyx_v_ref_orientations);
     __Pyx_DECREF_SET(__pyx_v_orientations, __pyx_v_ref_orientations);
 
-    /* "freud/bond.pyx":460
+    /* "freud/bond.pyx":451
  *         if points is None:
  *             points = ref_points
  *         if orientations is None:             # <<<<<<<<<<<<<<
@@ -8135,30 +8155,30 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_4compute(struct __pyx_obj_5
  */
   }
 
-  /* "freud/bond.pyx":463
+  /* "freud/bond.pyx":454
  *             orientations = ref_orientations
  * 
  *         ref_points = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             ref_points, 2, dtype=np.float32, contiguous=True,
  *             array_name="ref_points")
  */
-  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 463, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 454, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_common); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 463, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_common); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 454, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 463, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 454, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":464
+  /* "freud/bond.pyx":455
  * 
  *         ref_points = freud.common.convert_array(
  *             ref_points, 2, dtype=np.float32, contiguous=True,             # <<<<<<<<<<<<<<
  *             array_name="ref_points")
  *         if ref_points.shape[1] != 3:
  */
-  __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 463, __pyx_L1_error)
+  __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 454, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_INCREF(__pyx_v_ref_points);
   __Pyx_GIVEREF(__pyx_v_ref_points);
@@ -8166,26 +8186,26 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_4compute(struct __pyx_obj_5
   __Pyx_INCREF(__pyx_int_2);
   __Pyx_GIVEREF(__pyx_int_2);
   PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_int_2);
-  __pyx_t_4 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 464, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 455, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 464, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 455, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_float32); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 464, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_float32); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 455, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_dtype, __pyx_t_7) < 0) __PYX_ERR(0, 464, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_dtype, __pyx_t_7) < 0) __PYX_ERR(0, 455, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_contiguous, Py_True) < 0) __PYX_ERR(0, 464, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_array_name, __pyx_n_s_ref_points) < 0) __PYX_ERR(0, 464, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_contiguous, Py_True) < 0) __PYX_ERR(0, 455, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_array_name, __pyx_n_s_ref_points) < 0) __PYX_ERR(0, 455, __pyx_L1_error)
 
-  /* "freud/bond.pyx":463
+  /* "freud/bond.pyx":454
  *             orientations = ref_orientations
  * 
  *         ref_points = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             ref_points, 2, dtype=np.float32, contiguous=True,
  *             array_name="ref_points")
  */
-  __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_2, __pyx_t_4); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 463, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_2, __pyx_t_4); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 454, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -8193,38 +8213,38 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_4compute(struct __pyx_obj_5
   __Pyx_DECREF_SET(__pyx_v_ref_points, __pyx_t_7);
   __pyx_t_7 = 0;
 
-  /* "freud/bond.pyx":466
+  /* "freud/bond.pyx":457
  *             ref_points, 2, dtype=np.float32, contiguous=True,
  *             array_name="ref_points")
  *         if ref_points.shape[1] != 3:             # <<<<<<<<<<<<<<
  *             raise TypeError('ref_points should be an Nx3 array')
  * 
  */
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_v_ref_points, __pyx_n_s_shape); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 466, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_v_ref_points, __pyx_n_s_shape); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 457, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  __pyx_t_4 = __Pyx_GetItemInt(__pyx_t_7, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 466, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_GetItemInt(__pyx_t_7, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 457, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_7 = PyObject_RichCompare(__pyx_t_4, __pyx_int_3, Py_NE); __Pyx_XGOTREF(__pyx_t_7); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 466, __pyx_L1_error)
+  __pyx_t_7 = PyObject_RichCompare(__pyx_t_4, __pyx_int_3, Py_NE); __Pyx_XGOTREF(__pyx_t_7); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 457, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_t_7); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 466, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_t_7); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 457, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   if (unlikely(__pyx_t_5)) {
 
-    /* "freud/bond.pyx":467
+    /* "freud/bond.pyx":458
  *             array_name="ref_points")
  *         if ref_points.shape[1] != 3:
  *             raise TypeError('ref_points should be an Nx3 array')             # <<<<<<<<<<<<<<
  * 
  *         ref_orientations = freud.common.convert_array(
  */
-    __pyx_t_7 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__7, NULL); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 467, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__7, NULL); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 458, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     __Pyx_Raise(__pyx_t_7, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-    __PYX_ERR(0, 467, __pyx_L1_error)
+    __PYX_ERR(0, 458, __pyx_L1_error)
 
-    /* "freud/bond.pyx":466
+    /* "freud/bond.pyx":457
  *             ref_points, 2, dtype=np.float32, contiguous=True,
  *             array_name="ref_points")
  *         if ref_points.shape[1] != 3:             # <<<<<<<<<<<<<<
@@ -8233,30 +8253,30 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_4compute(struct __pyx_obj_5
  */
   }
 
-  /* "freud/bond.pyx":469
+  /* "freud/bond.pyx":460
  *             raise TypeError('ref_points should be an Nx3 array')
  * 
  *         ref_orientations = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             ref_orientations.squeeze(), 1, dtype=np.float32, contiguous=True,
  *             array_name="ref_orientations")
  */
-  __pyx_t_7 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 469, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 460, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_common); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 469, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_common); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 460, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 469, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 460, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "freud/bond.pyx":470
+  /* "freud/bond.pyx":461
  * 
  *         ref_orientations = freud.common.convert_array(
  *             ref_orientations.squeeze(), 1, dtype=np.float32, contiguous=True,             # <<<<<<<<<<<<<<
  *             array_name="ref_orientations")
  * 
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_ref_orientations, __pyx_n_s_squeeze); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 470, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_ref_orientations, __pyx_n_s_squeeze); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 461, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_1 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -8269,22 +8289,22 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_4compute(struct __pyx_obj_5
     }
   }
   if (__pyx_t_1) {
-    __pyx_t_4 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 470, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 461, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   } else {
-    __pyx_t_4 = __Pyx_PyObject_CallNoArg(__pyx_t_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 470, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_CallNoArg(__pyx_t_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 461, __pyx_L1_error)
   }
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":469
+  /* "freud/bond.pyx":460
  *             raise TypeError('ref_points should be an Nx3 array')
  * 
  *         ref_orientations = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             ref_orientations.squeeze(), 1, dtype=np.float32, contiguous=True,
  *             array_name="ref_orientations")
  */
-  __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 469, __pyx_L1_error)
+  __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 460, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_GIVEREF(__pyx_t_4);
   PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_t_4);
@@ -8293,33 +8313,33 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_4compute(struct __pyx_obj_5
   PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_int_1);
   __pyx_t_4 = 0;
 
-  /* "freud/bond.pyx":470
+  /* "freud/bond.pyx":461
  * 
  *         ref_orientations = freud.common.convert_array(
  *             ref_orientations.squeeze(), 1, dtype=np.float32, contiguous=True,             # <<<<<<<<<<<<<<
  *             array_name="ref_orientations")
  * 
  */
-  __pyx_t_4 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 470, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 461, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 470, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 461, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_float32); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 470, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_float32); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 461, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_dtype, __pyx_t_3) < 0) __PYX_ERR(0, 470, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_dtype, __pyx_t_3) < 0) __PYX_ERR(0, 461, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_contiguous, Py_True) < 0) __PYX_ERR(0, 470, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_array_name, __pyx_n_s_ref_orientations) < 0) __PYX_ERR(0, 470, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_contiguous, Py_True) < 0) __PYX_ERR(0, 461, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_array_name, __pyx_n_s_ref_orientations) < 0) __PYX_ERR(0, 461, __pyx_L1_error)
 
-  /* "freud/bond.pyx":469
+  /* "freud/bond.pyx":460
  *             raise TypeError('ref_points should be an Nx3 array')
  * 
  *         ref_orientations = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             ref_orientations.squeeze(), 1, dtype=np.float32, contiguous=True,
  *             array_name="ref_orientations")
  */
-  __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_7, __pyx_t_2, __pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 469, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_7, __pyx_t_2, __pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 460, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -8327,30 +8347,30 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_4compute(struct __pyx_obj_5
   __Pyx_DECREF_SET(__pyx_v_ref_orientations, __pyx_t_3);
   __pyx_t_3 = 0;
 
-  /* "freud/bond.pyx":473
+  /* "freud/bond.pyx":464
  *             array_name="ref_orientations")
  * 
  *         points = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             points, 2, dtype=np.float32, contiguous=True, array_name="points")
  *         if points.shape[1] != 3:
  */
-  __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 473, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 464, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_common); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 473, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_common); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 464, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 473, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 464, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "freud/bond.pyx":474
+  /* "freud/bond.pyx":465
  * 
  *         points = freud.common.convert_array(
  *             points, 2, dtype=np.float32, contiguous=True, array_name="points")             # <<<<<<<<<<<<<<
  *         if points.shape[1] != 3:
  *             raise TypeError('points should be an Nx3 array')
  */
-  __pyx_t_4 = PyTuple_New(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 473, __pyx_L1_error)
+  __pyx_t_4 = PyTuple_New(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 464, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_INCREF(__pyx_v_points);
   __Pyx_GIVEREF(__pyx_v_points);
@@ -8358,26 +8378,26 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_4compute(struct __pyx_obj_5
   __Pyx_INCREF(__pyx_int_2);
   __Pyx_GIVEREF(__pyx_int_2);
   PyTuple_SET_ITEM(__pyx_t_4, 1, __pyx_int_2);
-  __pyx_t_2 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 474, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 465, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_7 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 474, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 465, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_float32); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 474, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_float32); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 465, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_dtype, __pyx_t_1) < 0) __PYX_ERR(0, 474, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_dtype, __pyx_t_1) < 0) __PYX_ERR(0, 465, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_contiguous, Py_True) < 0) __PYX_ERR(0, 474, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_array_name, __pyx_n_s_points) < 0) __PYX_ERR(0, 474, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_contiguous, Py_True) < 0) __PYX_ERR(0, 465, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_array_name, __pyx_n_s_points) < 0) __PYX_ERR(0, 465, __pyx_L1_error)
 
-  /* "freud/bond.pyx":473
+  /* "freud/bond.pyx":464
  *             array_name="ref_orientations")
  * 
  *         points = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             points, 2, dtype=np.float32, contiguous=True, array_name="points")
  *         if points.shape[1] != 3:
  */
-  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_4, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 473, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_4, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 464, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
@@ -8385,38 +8405,38 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_4compute(struct __pyx_obj_5
   __Pyx_DECREF_SET(__pyx_v_points, __pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "freud/bond.pyx":475
+  /* "freud/bond.pyx":466
  *         points = freud.common.convert_array(
  *             points, 2, dtype=np.float32, contiguous=True, array_name="points")
  *         if points.shape[1] != 3:             # <<<<<<<<<<<<<<
  *             raise TypeError('points should be an Nx3 array')
  * 
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_points, __pyx_n_s_shape); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 475, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_points, __pyx_n_s_shape); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 466, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_1, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 475, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_1, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 466, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyObject_RichCompare(__pyx_t_2, __pyx_int_3, Py_NE); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 475, __pyx_L1_error)
+  __pyx_t_1 = PyObject_RichCompare(__pyx_t_2, __pyx_int_3, Py_NE); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 466, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 475, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 466, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   if (unlikely(__pyx_t_5)) {
 
-    /* "freud/bond.pyx":476
+    /* "freud/bond.pyx":467
  *             points, 2, dtype=np.float32, contiguous=True, array_name="points")
  *         if points.shape[1] != 3:
  *             raise TypeError('points should be an Nx3 array')             # <<<<<<<<<<<<<<
  * 
  *         orientations = freud.common.convert_array(
  */
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__8, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 476, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__8, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 467, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_Raise(__pyx_t_1, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __PYX_ERR(0, 476, __pyx_L1_error)
+    __PYX_ERR(0, 467, __pyx_L1_error)
 
-    /* "freud/bond.pyx":475
+    /* "freud/bond.pyx":466
  *         points = freud.common.convert_array(
  *             points, 2, dtype=np.float32, contiguous=True, array_name="points")
  *         if points.shape[1] != 3:             # <<<<<<<<<<<<<<
@@ -8425,30 +8445,30 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_4compute(struct __pyx_obj_5
  */
   }
 
-  /* "freud/bond.pyx":478
+  /* "freud/bond.pyx":469
  *             raise TypeError('points should be an Nx3 array')
  * 
  *         orientations = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             orientations.squeeze(), 1, dtype=np.float32, contiguous=True,
  *             array_name="orientations")
  */
-  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 478, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 469, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_common); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 478, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_common); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 469, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 478, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 469, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":479
+  /* "freud/bond.pyx":470
  * 
  *         orientations = freud.common.convert_array(
  *             orientations.squeeze(), 1, dtype=np.float32, contiguous=True,             # <<<<<<<<<<<<<<
  *             array_name="orientations")
  * 
  */
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_orientations, __pyx_n_s_squeeze); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 479, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_orientations, __pyx_n_s_squeeze); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 470, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_4))) {
@@ -8461,22 +8481,22 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_4compute(struct __pyx_obj_5
     }
   }
   if (__pyx_t_3) {
-    __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 479, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 470, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   } else {
-    __pyx_t_2 = __Pyx_PyObject_CallNoArg(__pyx_t_4); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 479, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_CallNoArg(__pyx_t_4); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 470, __pyx_L1_error)
   }
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "freud/bond.pyx":478
+  /* "freud/bond.pyx":469
  *             raise TypeError('points should be an Nx3 array')
  * 
  *         orientations = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             orientations.squeeze(), 1, dtype=np.float32, contiguous=True,
  *             array_name="orientations")
  */
-  __pyx_t_4 = PyTuple_New(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 478, __pyx_L1_error)
+  __pyx_t_4 = PyTuple_New(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 469, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_GIVEREF(__pyx_t_2);
   PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_2);
@@ -8485,33 +8505,33 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_4compute(struct __pyx_obj_5
   PyTuple_SET_ITEM(__pyx_t_4, 1, __pyx_int_1);
   __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":479
+  /* "freud/bond.pyx":470
  * 
  *         orientations = freud.common.convert_array(
  *             orientations.squeeze(), 1, dtype=np.float32, contiguous=True,             # <<<<<<<<<<<<<<
  *             array_name="orientations")
  * 
  */
-  __pyx_t_2 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 479, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 470, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 479, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 470, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_float32); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 479, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_float32); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 470, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_dtype, __pyx_t_7) < 0) __PYX_ERR(0, 479, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_dtype, __pyx_t_7) < 0) __PYX_ERR(0, 470, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_contiguous, Py_True) < 0) __PYX_ERR(0, 479, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_array_name, __pyx_n_s_orientations) < 0) __PYX_ERR(0, 479, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_contiguous, Py_True) < 0) __PYX_ERR(0, 470, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_array_name, __pyx_n_s_orientations) < 0) __PYX_ERR(0, 470, __pyx_L1_error)
 
-  /* "freud/bond.pyx":478
+  /* "freud/bond.pyx":469
  *             raise TypeError('points should be an Nx3 array')
  * 
  *         orientations = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             orientations.squeeze(), 1, dtype=np.float32, contiguous=True,
  *             array_name="orientations")
  */
-  __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_4, __pyx_t_2); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 478, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_4, __pyx_t_2); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 469, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
@@ -8519,23 +8539,23 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_4compute(struct __pyx_obj_5
   __Pyx_DECREF_SET(__pyx_v_orientations, __pyx_t_7);
   __pyx_t_7 = 0;
 
-  /* "freud/bond.pyx":482
+  /* "freud/bond.pyx":473
  *             array_name="orientations")
  * 
  *         defaulted_nlist = freud.locality.make_default_nlist(             # <<<<<<<<<<<<<<
  *             b, ref_points, points, self.rmax, nlist, None)
  *         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 482, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 473, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_locality); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 482, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_locality); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 473, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_make_default_nlist); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 482, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_make_default_nlist); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 473, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "freud/bond.pyx":483
+  /* "freud/bond.pyx":474
  * 
  *         defaulted_nlist = freud.locality.make_default_nlist(
  *             b, ref_points, points, self.rmax, nlist, None)             # <<<<<<<<<<<<<<
@@ -8557,7 +8577,7 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_4compute(struct __pyx_obj_5
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_2)) {
     PyObject *__pyx_temp[7] = {__pyx_t_4, ((PyObject *)__pyx_v_b), __pyx_v_ref_points, __pyx_v_points, __pyx_v_self->rmax, __pyx_v_nlist, Py_None};
-    __pyx_t_7 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_8, 6+__pyx_t_8); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 482, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_8, 6+__pyx_t_8); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 473, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_7);
   } else
@@ -8565,13 +8585,13 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_4compute(struct __pyx_obj_5
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
     PyObject *__pyx_temp[7] = {__pyx_t_4, ((PyObject *)__pyx_v_b), __pyx_v_ref_points, __pyx_v_points, __pyx_v_self->rmax, __pyx_v_nlist, Py_None};
-    __pyx_t_7 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_8, 6+__pyx_t_8); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 482, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_8, 6+__pyx_t_8); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 473, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_7);
   } else
   #endif
   {
-    __pyx_t_1 = PyTuple_New(6+__pyx_t_8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 482, __pyx_L1_error)
+    __pyx_t_1 = PyTuple_New(6+__pyx_t_8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 473, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     if (__pyx_t_4) {
       __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -8594,7 +8614,7 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_4compute(struct __pyx_obj_5
     __Pyx_INCREF(Py_None);
     __Pyx_GIVEREF(Py_None);
     PyTuple_SET_ITEM(__pyx_t_1, 5+__pyx_t_8, Py_None);
-    __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_1, NULL); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 482, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_1, NULL); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 473, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   }
@@ -8602,136 +8622,136 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_4compute(struct __pyx_obj_5
   __pyx_v_defaulted_nlist = __pyx_t_7;
   __pyx_t_7 = 0;
 
-  /* "freud/bond.pyx":484
+  /* "freud/bond.pyx":475
  *         defaulted_nlist = freud.locality.make_default_nlist(
  *             b, ref_points, points, self.rmax, nlist, None)
  *         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]             # <<<<<<<<<<<<<<
  * 
  *         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
  */
-  __pyx_t_7 = __Pyx_GetItemInt(__pyx_v_defaulted_nlist, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 484, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_GetItemInt(__pyx_v_defaulted_nlist, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 475, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  if (!(likely(((__pyx_t_7) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_7, __pyx_ptype_5freud_8locality_NeighborList))))) __PYX_ERR(0, 484, __pyx_L1_error)
+  if (!(likely(((__pyx_t_7) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_7, __pyx_ptype_5freud_8locality_NeighborList))))) __PYX_ERR(0, 475, __pyx_L1_error)
   __pyx_v_nlist_ = ((struct __pyx_obj_5freud_8locality_NeighborList *)__pyx_t_7);
   __pyx_t_7 = 0;
 
-  /* "freud/bond.pyx":486
+  /* "freud/bond.pyx":477
  *         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
  * 
  *         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points             # <<<<<<<<<<<<<<
  *         cdef np.ndarray[float, ndim=1] l_ref_orientations = ref_orientations
  *         cdef np.ndarray[float, ndim=2] l_points = points
  */
-  if (!(likely(((__pyx_v_ref_points) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_ref_points, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 486, __pyx_L1_error)
+  if (!(likely(((__pyx_v_ref_points) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_ref_points, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 477, __pyx_L1_error)
   __pyx_t_7 = __pyx_v_ref_points;
   __Pyx_INCREF(__pyx_t_7);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_l_ref_points.rcbuffer->pybuffer, (PyObject*)((PyArrayObject *)__pyx_t_7), &__Pyx_TypeInfo_float, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {
       __pyx_v_l_ref_points = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_l_ref_points.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 486, __pyx_L1_error)
+      __PYX_ERR(0, 477, __pyx_L1_error)
     } else {__pyx_pybuffernd_l_ref_points.diminfo[0].strides = __pyx_pybuffernd_l_ref_points.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_l_ref_points.diminfo[0].shape = __pyx_pybuffernd_l_ref_points.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_l_ref_points.diminfo[1].strides = __pyx_pybuffernd_l_ref_points.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_l_ref_points.diminfo[1].shape = __pyx_pybuffernd_l_ref_points.rcbuffer->pybuffer.shape[1];
     }
   }
   __pyx_v_l_ref_points = ((PyArrayObject *)__pyx_t_7);
   __pyx_t_7 = 0;
 
-  /* "freud/bond.pyx":487
+  /* "freud/bond.pyx":478
  * 
  *         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
  *         cdef np.ndarray[float, ndim=1] l_ref_orientations = ref_orientations             # <<<<<<<<<<<<<<
  *         cdef np.ndarray[float, ndim=2] l_points = points
  *         cdef np.ndarray[float, ndim=1] l_orientations = orientations
  */
-  if (!(likely(((__pyx_v_ref_orientations) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_ref_orientations, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 487, __pyx_L1_error)
+  if (!(likely(((__pyx_v_ref_orientations) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_ref_orientations, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 478, __pyx_L1_error)
   __pyx_t_7 = __pyx_v_ref_orientations;
   __Pyx_INCREF(__pyx_t_7);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_l_ref_orientations.rcbuffer->pybuffer, (PyObject*)((PyArrayObject *)__pyx_t_7), &__Pyx_TypeInfo_float, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack) == -1)) {
       __pyx_v_l_ref_orientations = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_l_ref_orientations.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 487, __pyx_L1_error)
+      __PYX_ERR(0, 478, __pyx_L1_error)
     } else {__pyx_pybuffernd_l_ref_orientations.diminfo[0].strides = __pyx_pybuffernd_l_ref_orientations.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_l_ref_orientations.diminfo[0].shape = __pyx_pybuffernd_l_ref_orientations.rcbuffer->pybuffer.shape[0];
     }
   }
   __pyx_v_l_ref_orientations = ((PyArrayObject *)__pyx_t_7);
   __pyx_t_7 = 0;
 
-  /* "freud/bond.pyx":488
+  /* "freud/bond.pyx":479
  *         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
  *         cdef np.ndarray[float, ndim=1] l_ref_orientations = ref_orientations
  *         cdef np.ndarray[float, ndim=2] l_points = points             # <<<<<<<<<<<<<<
  *         cdef np.ndarray[float, ndim=1] l_orientations = orientations
  *         cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
  */
-  if (!(likely(((__pyx_v_points) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_points, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 488, __pyx_L1_error)
+  if (!(likely(((__pyx_v_points) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_points, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 479, __pyx_L1_error)
   __pyx_t_7 = __pyx_v_points;
   __Pyx_INCREF(__pyx_t_7);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_l_points.rcbuffer->pybuffer, (PyObject*)((PyArrayObject *)__pyx_t_7), &__Pyx_TypeInfo_float, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {
       __pyx_v_l_points = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_l_points.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 488, __pyx_L1_error)
+      __PYX_ERR(0, 479, __pyx_L1_error)
     } else {__pyx_pybuffernd_l_points.diminfo[0].strides = __pyx_pybuffernd_l_points.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_l_points.diminfo[0].shape = __pyx_pybuffernd_l_points.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_l_points.diminfo[1].strides = __pyx_pybuffernd_l_points.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_l_points.diminfo[1].shape = __pyx_pybuffernd_l_points.rcbuffer->pybuffer.shape[1];
     }
   }
   __pyx_v_l_points = ((PyArrayObject *)__pyx_t_7);
   __pyx_t_7 = 0;
 
-  /* "freud/bond.pyx":489
+  /* "freud/bond.pyx":480
  *         cdef np.ndarray[float, ndim=1] l_ref_orientations = ref_orientations
  *         cdef np.ndarray[float, ndim=2] l_points = points
  *         cdef np.ndarray[float, ndim=1] l_orientations = orientations             # <<<<<<<<<<<<<<
  *         cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
  *         cdef unsigned int n_p = <unsigned int> points.shape[0]
  */
-  if (!(likely(((__pyx_v_orientations) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_orientations, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 489, __pyx_L1_error)
+  if (!(likely(((__pyx_v_orientations) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_orientations, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 480, __pyx_L1_error)
   __pyx_t_7 = __pyx_v_orientations;
   __Pyx_INCREF(__pyx_t_7);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_l_orientations.rcbuffer->pybuffer, (PyObject*)((PyArrayObject *)__pyx_t_7), &__Pyx_TypeInfo_float, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack) == -1)) {
       __pyx_v_l_orientations = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_l_orientations.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 489, __pyx_L1_error)
+      __PYX_ERR(0, 480, __pyx_L1_error)
     } else {__pyx_pybuffernd_l_orientations.diminfo[0].strides = __pyx_pybuffernd_l_orientations.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_l_orientations.diminfo[0].shape = __pyx_pybuffernd_l_orientations.rcbuffer->pybuffer.shape[0];
     }
   }
   __pyx_v_l_orientations = ((PyArrayObject *)__pyx_t_7);
   __pyx_t_7 = 0;
 
-  /* "freud/bond.pyx":490
+  /* "freud/bond.pyx":481
  *         cdef np.ndarray[float, ndim=2] l_points = points
  *         cdef np.ndarray[float, ndim=1] l_orientations = orientations
  *         cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]             # <<<<<<<<<<<<<<
  *         cdef unsigned int n_p = <unsigned int> points.shape[0]
  *         with nogil:
  */
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_v_ref_points, __pyx_n_s_shape); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 490, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_v_ref_points, __pyx_n_s_shape); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 481, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_7, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 490, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_7, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 481, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_9 = __Pyx_PyInt_As_unsigned_int(__pyx_t_2); if (unlikely((__pyx_t_9 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 490, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyInt_As_unsigned_int(__pyx_t_2); if (unlikely((__pyx_t_9 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 481, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_v_n_ref = ((unsigned int)__pyx_t_9);
 
-  /* "freud/bond.pyx":491
+  /* "freud/bond.pyx":482
  *         cdef np.ndarray[float, ndim=1] l_orientations = orientations
  *         cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
  *         cdef unsigned int n_p = <unsigned int> points.shape[0]             # <<<<<<<<<<<<<<
  *         with nogil:
  *             self.thisptr.compute(
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_points, __pyx_n_s_shape); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 491, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_points, __pyx_n_s_shape); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 482, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_7 = __Pyx_GetItemInt(__pyx_t_2, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 491, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_GetItemInt(__pyx_t_2, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 482, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_9 = __Pyx_PyInt_As_unsigned_int(__pyx_t_7); if (unlikely((__pyx_t_9 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 491, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyInt_As_unsigned_int(__pyx_t_7); if (unlikely((__pyx_t_9 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 482, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   __pyx_v_n_p = ((unsigned int)__pyx_t_9);
 
-  /* "freud/bond.pyx":492
+  /* "freud/bond.pyx":483
  *         cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
  *         cdef unsigned int n_p = <unsigned int> points.shape[0]
  *         with nogil:             # <<<<<<<<<<<<<<
@@ -8746,7 +8766,7 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_4compute(struct __pyx_obj_5
       #endif
       /*try:*/ {
 
-        /* "freud/bond.pyx":493
+        /* "freud/bond.pyx":484
  *         cdef unsigned int n_p = <unsigned int> points.shape[0]
  *         with nogil:
  *             self.thisptr.compute(             # <<<<<<<<<<<<<<
@@ -8763,11 +8783,11 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_4compute(struct __pyx_obj_5
           #ifdef WITH_THREAD
           __Pyx_PyGILState_Release(__pyx_gilstate_save);
           #endif
-          __PYX_ERR(0, 493, __pyx_L8_error)
+          __PYX_ERR(0, 484, __pyx_L8_error)
         }
       }
 
-      /* "freud/bond.pyx":492
+      /* "freud/bond.pyx":483
  *         cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
  *         cdef unsigned int n_p = <unsigned int> points.shape[0]
  *         with nogil:             # <<<<<<<<<<<<<<
@@ -8793,7 +8813,7 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_4compute(struct __pyx_obj_5
       }
   }
 
-  /* "freud/bond.pyx":500
+  /* "freud/bond.pyx":491
  *                 <vec3[float]*> l_points.data,
  *                 <float*> l_orientations.data, n_p)
  *         return self             # <<<<<<<<<<<<<<
@@ -8805,7 +8825,7 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_4compute(struct __pyx_obj_5
   __pyx_r = ((PyObject *)__pyx_v_self);
   goto __pyx_L0;
 
-  /* "freud/bond.pyx":433
+  /* "freud/bond.pyx":426
  *         del self.thisptr
  * 
  *     def compute(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
@@ -8854,7 +8874,7 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_4compute(struct __pyx_obj_5
   return __pyx_r;
 }
 
-/* "freud/bond.pyx":503
+/* "freud/bond.pyx":494
  * 
  *     @property
  *     def bonds(self):             # <<<<<<<<<<<<<<
@@ -8891,7 +8911,7 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_5bonds___get__(struct __pyx
   __pyx_pybuffernd_result.data = NULL;
   __pyx_pybuffernd_result.rcbuffer = &__pyx_pybuffer_result;
 
-  /* "freud/bond.pyx":504
+  /* "freud/bond.pyx":495
  *     @property
  *     def bonds(self):
  *         cdef unsigned int * bonds = self.thisptr.getBonds().get()             # <<<<<<<<<<<<<<
@@ -8900,7 +8920,7 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_5bonds___get__(struct __pyx
  */
   __pyx_v_bonds = __pyx_v_self->thisptr->getBonds().get();
 
-  /* "freud/bond.pyx":506
+  /* "freud/bond.pyx":497
  *         cdef unsigned int * bonds = self.thisptr.getBonds().get()
  *         cdef np.npy_intp nbins[2]
  *         nbins[0] = <np.npy_intp> self.thisptr.getNumParticles()             # <<<<<<<<<<<<<<
@@ -8909,7 +8929,7 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_5bonds___get__(struct __pyx
  */
   (__pyx_v_nbins[0]) = ((npy_intp)__pyx_v_self->thisptr->getNumParticles());
 
-  /* "freud/bond.pyx":507
+  /* "freud/bond.pyx":498
  *         cdef np.npy_intp nbins[2]
  *         nbins[0] = <np.npy_intp> self.thisptr.getNumParticles()
  *         nbins[1] = <np.npy_intp> self.thisptr.getNumBonds()             # <<<<<<<<<<<<<<
@@ -8918,22 +8938,22 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_5bonds___get__(struct __pyx
  */
   (__pyx_v_nbins[1]) = ((npy_intp)__pyx_v_self->thisptr->getNumBonds());
 
-  /* "freud/bond.pyx":509
+  /* "freud/bond.pyx":500
  *         nbins[1] = <np.npy_intp> self.thisptr.getNumBonds()
  *         cdef np.ndarray[np.uint32_t, ndim=2] result = \
  *             np.PyArray_SimpleNewFromData(             # <<<<<<<<<<<<<<
  *                 2, nbins, np.NPY_UINT32, <void*> bonds)
  *         return result
  */
-  __pyx_t_1 = PyArray_SimpleNewFromData(2, __pyx_v_nbins, NPY_UINT32, ((void *)__pyx_v_bonds)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 509, __pyx_L1_error)
+  __pyx_t_1 = PyArray_SimpleNewFromData(2, __pyx_v_nbins, NPY_UINT32, ((void *)__pyx_v_bonds)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 500, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 509, __pyx_L1_error)
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 500, __pyx_L1_error)
   __pyx_t_2 = ((PyArrayObject *)__pyx_t_1);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_result.rcbuffer->pybuffer, (PyObject*)__pyx_t_2, &__Pyx_TypeInfo_nn___pyx_t_5numpy_uint32_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {
       __pyx_v_result = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_result.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 508, __pyx_L1_error)
+      __PYX_ERR(0, 499, __pyx_L1_error)
     } else {__pyx_pybuffernd_result.diminfo[0].strides = __pyx_pybuffernd_result.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_result.diminfo[0].shape = __pyx_pybuffernd_result.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_result.diminfo[1].strides = __pyx_pybuffernd_result.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_result.diminfo[1].shape = __pyx_pybuffernd_result.rcbuffer->pybuffer.shape[1];
     }
   }
@@ -8941,7 +8961,7 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_5bonds___get__(struct __pyx
   __pyx_v_result = ((PyArrayObject *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "freud/bond.pyx":511
+  /* "freud/bond.pyx":502
  *             np.PyArray_SimpleNewFromData(
  *                 2, nbins, np.NPY_UINT32, <void*> bonds)
  *         return result             # <<<<<<<<<<<<<<
@@ -8953,7 +8973,7 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_5bonds___get__(struct __pyx
   __pyx_r = ((PyObject *)__pyx_v_result);
   goto __pyx_L0;
 
-  /* "freud/bond.pyx":503
+  /* "freud/bond.pyx":494
  * 
  *     @property
  *     def bonds(self):             # <<<<<<<<<<<<<<
@@ -8982,7 +9002,7 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_5bonds___get__(struct __pyx
   return __pyx_r;
 }
 
-/* "freud/bond.pyx":513
+/* "freud/bond.pyx":504
  *         return result
  * 
  *     def getBonds(self):             # <<<<<<<<<<<<<<
@@ -9016,27 +9036,27 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_6getBonds(struct __pyx_obj_
   PyObject *__pyx_t_6 = NULL;
   __Pyx_RefNannySetupContext("getBonds", 0);
 
-  /* "freud/bond.pyx":514
+  /* "freud/bond.pyx":505
  * 
  *     def getBonds(self):
  *         warnings.warn("The getBonds function is deprecated in favor "             # <<<<<<<<<<<<<<
  *                       "of the bonds class attribute and will be "
  *                       "removed in a future version of freud.",
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 514, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 505, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 514, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 505, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":517
+  /* "freud/bond.pyx":508
  *                       "of the bonds class attribute and will be "
  *                       "removed in a future version of freud.",
  *                       FreudDeprecationWarning)             # <<<<<<<<<<<<<<
  *         return self.bonds
  * 
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 517, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 508, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   __pyx_t_5 = 0;
@@ -9053,7 +9073,7 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_6getBonds(struct __pyx_obj_
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getBonds_function_is_depreca, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 514, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 505, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -9062,14 +9082,14 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_6getBonds(struct __pyx_obj_
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getBonds_function_is_depreca, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 514, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 505, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   } else
   #endif
   {
-    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 514, __pyx_L1_error)
+    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 505, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     if (__pyx_t_4) {
       __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -9080,14 +9100,14 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_6getBonds(struct __pyx_obj_
     __Pyx_GIVEREF(__pyx_t_2);
     PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_5, __pyx_t_2);
     __pyx_t_2 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 514, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 505, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "freud/bond.pyx":518
+  /* "freud/bond.pyx":509
  *                       "removed in a future version of freud.",
  *                       FreudDeprecationWarning)
  *         return self.bonds             # <<<<<<<<<<<<<<
@@ -9095,13 +9115,13 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_6getBonds(struct __pyx_obj_
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_bonds); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 518, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_bonds); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 509, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/bond.pyx":513
+  /* "freud/bond.pyx":504
  *         return result
  * 
  *     def getBonds(self):             # <<<<<<<<<<<<<<
@@ -9124,7 +9144,7 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_6getBonds(struct __pyx_obj_
   return __pyx_r;
 }
 
-/* "freud/bond.pyx":521
+/* "freud/bond.pyx":512
  * 
  *     @property
  *     def box(self):             # <<<<<<<<<<<<<<
@@ -9151,7 +9171,7 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_3box___get__(struct __pyx_o
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "freud/bond.pyx":522
+  /* "freud/bond.pyx":513
  *     @property
  *     def box(self):
  *         return freud.box.BoxFromCPP(self.thisptr.getBox())             # <<<<<<<<<<<<<<
@@ -9159,13 +9179,13 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_3box___get__(struct __pyx_o
  *     def getBox(self):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_5freud_3box_BoxFromCPP(__pyx_v_self->thisptr->getBox()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 522, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_5freud_3box_BoxFromCPP(__pyx_v_self->thisptr->getBox()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 513, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/bond.pyx":521
+  /* "freud/bond.pyx":512
  * 
  *     @property
  *     def box(self):             # <<<<<<<<<<<<<<
@@ -9184,7 +9204,7 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_3box___get__(struct __pyx_o
   return __pyx_r;
 }
 
-/* "freud/bond.pyx":524
+/* "freud/bond.pyx":515
  *         return freud.box.BoxFromCPP(self.thisptr.getBox())
  * 
  *     def getBox(self):             # <<<<<<<<<<<<<<
@@ -9218,27 +9238,27 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_8getBox(struct __pyx_obj_5f
   PyObject *__pyx_t_6 = NULL;
   __Pyx_RefNannySetupContext("getBox", 0);
 
-  /* "freud/bond.pyx":525
+  /* "freud/bond.pyx":516
  * 
  *     def getBox(self):
  *         warnings.warn("The getBox function is deprecated in favor "             # <<<<<<<<<<<<<<
  *                       "of the box class attribute and will be "
  *                       "removed in a future version of freud.",
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 525, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 516, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 525, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 516, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":528
+  /* "freud/bond.pyx":519
  *                       "of the box class attribute and will be "
  *                       "removed in a future version of freud.",
  *                       FreudDeprecationWarning)             # <<<<<<<<<<<<<<
  *         return self.box
  * 
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 528, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 519, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   __pyx_t_5 = 0;
@@ -9255,7 +9275,7 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_8getBox(struct __pyx_obj_5f
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getBox_function_is_deprecate, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 525, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 516, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -9264,14 +9284,14 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_8getBox(struct __pyx_obj_5f
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getBox_function_is_deprecate, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 525, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 516, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   } else
   #endif
   {
-    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 525, __pyx_L1_error)
+    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 516, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     if (__pyx_t_4) {
       __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -9282,14 +9302,14 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_8getBox(struct __pyx_obj_5f
     __Pyx_GIVEREF(__pyx_t_2);
     PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_5, __pyx_t_2);
     __pyx_t_2 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 525, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 516, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "freud/bond.pyx":529
+  /* "freud/bond.pyx":520
  *                       "removed in a future version of freud.",
  *                       FreudDeprecationWarning)
  *         return self.box             # <<<<<<<<<<<<<<
@@ -9297,13 +9317,13 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_8getBox(struct __pyx_obj_5f
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_box); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 529, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_box); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 520, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/bond.pyx":524
+  /* "freud/bond.pyx":515
  *         return freud.box.BoxFromCPP(self.thisptr.getBox())
  * 
  *     def getBox(self):             # <<<<<<<<<<<<<<
@@ -9326,7 +9346,7 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_8getBox(struct __pyx_obj_5f
   return __pyx_r;
 }
 
-/* "freud/bond.pyx":532
+/* "freud/bond.pyx":523
  * 
  *     @property
  *     def list_map(self):             # <<<<<<<<<<<<<<
@@ -9353,7 +9373,7 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_8list_map___get__(struct __
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "freud/bond.pyx":533
+  /* "freud/bond.pyx":524
  *     @property
  *     def list_map(self):
  *         return self.thisptr.getListMap()             # <<<<<<<<<<<<<<
@@ -9361,13 +9381,13 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_8list_map___get__(struct __
  *     def getListMap(self):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_convert_map_to_py_unsigned_int____unsigned_int(__pyx_v_self->thisptr->getListMap()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 533, __pyx_L1_error)
+  __pyx_t_1 = __pyx_convert_map_to_py_unsigned_int____unsigned_int(__pyx_v_self->thisptr->getListMap()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 524, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/bond.pyx":532
+  /* "freud/bond.pyx":523
  * 
  *     @property
  *     def list_map(self):             # <<<<<<<<<<<<<<
@@ -9386,7 +9406,7 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_8list_map___get__(struct __
   return __pyx_r;
 }
 
-/* "freud/bond.pyx":535
+/* "freud/bond.pyx":526
  *         return self.thisptr.getListMap()
  * 
  *     def getListMap(self):             # <<<<<<<<<<<<<<
@@ -9420,27 +9440,27 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_10getListMap(struct __pyx_o
   PyObject *__pyx_t_6 = NULL;
   __Pyx_RefNannySetupContext("getListMap", 0);
 
-  /* "freud/bond.pyx":536
+  /* "freud/bond.pyx":527
  * 
  *     def getListMap(self):
  *         warnings.warn("The getListMap function is deprecated in favor "             # <<<<<<<<<<<<<<
  *                       "of the list_map class attribute and will be "
  *                       "removed in a future version of freud.",
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 536, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 527, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 536, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 527, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":539
+  /* "freud/bond.pyx":530
  *                       "of the list_map class attribute and will be "
  *                       "removed in a future version of freud.",
  *                       FreudDeprecationWarning)             # <<<<<<<<<<<<<<
  *         return self.list_map
  * 
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 539, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 530, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   __pyx_t_5 = 0;
@@ -9457,7 +9477,7 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_10getListMap(struct __pyx_o
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getListMap_function_is_depre, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 536, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 527, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -9466,14 +9486,14 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_10getListMap(struct __pyx_o
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getListMap_function_is_depre, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 536, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 527, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   } else
   #endif
   {
-    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 536, __pyx_L1_error)
+    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 527, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     if (__pyx_t_4) {
       __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -9484,14 +9504,14 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_10getListMap(struct __pyx_o
     __Pyx_GIVEREF(__pyx_t_2);
     PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_5, __pyx_t_2);
     __pyx_t_2 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 536, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 527, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "freud/bond.pyx":540
+  /* "freud/bond.pyx":531
  *                       "removed in a future version of freud.",
  *                       FreudDeprecationWarning)
  *         return self.list_map             # <<<<<<<<<<<<<<
@@ -9499,13 +9519,13 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_10getListMap(struct __pyx_o
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_list_map); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 540, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_list_map); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 531, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/bond.pyx":535
+  /* "freud/bond.pyx":526
  *         return self.thisptr.getListMap()
  * 
  *     def getListMap(self):             # <<<<<<<<<<<<<<
@@ -9528,7 +9548,7 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_10getListMap(struct __pyx_o
   return __pyx_r;
 }
 
-/* "freud/bond.pyx":543
+/* "freud/bond.pyx":534
  * 
  *     @property
  *     def rev_list_map(self):             # <<<<<<<<<<<<<<
@@ -9555,7 +9575,7 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_12rev_list_map___get__(stru
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "freud/bond.pyx":544
+  /* "freud/bond.pyx":535
  *     @property
  *     def rev_list_map(self):
  *         return self.thisptr.getRevListMap()             # <<<<<<<<<<<<<<
@@ -9563,13 +9583,13 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_12rev_list_map___get__(stru
  *     def getRevListMap(self):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_convert_map_to_py_unsigned_int____unsigned_int(__pyx_v_self->thisptr->getRevListMap()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 544, __pyx_L1_error)
+  __pyx_t_1 = __pyx_convert_map_to_py_unsigned_int____unsigned_int(__pyx_v_self->thisptr->getRevListMap()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 535, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/bond.pyx":543
+  /* "freud/bond.pyx":534
  * 
  *     @property
  *     def rev_list_map(self):             # <<<<<<<<<<<<<<
@@ -9588,7 +9608,7 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_12rev_list_map___get__(stru
   return __pyx_r;
 }
 
-/* "freud/bond.pyx":546
+/* "freud/bond.pyx":537
  *         return self.thisptr.getRevListMap()
  * 
  *     def getRevListMap(self):             # <<<<<<<<<<<<<<
@@ -9622,27 +9642,27 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_12getRevListMap(struct __py
   PyObject *__pyx_t_6 = NULL;
   __Pyx_RefNannySetupContext("getRevListMap", 0);
 
-  /* "freud/bond.pyx":547
+  /* "freud/bond.pyx":538
  * 
  *     def getRevListMap(self):
  *         warnings.warn("The getRevListMap function is deprecated in favor "             # <<<<<<<<<<<<<<
  *                       "of the rev_list_map class attribute and will be "
  *                       "removed in a future version of freud.",
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 547, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 538, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 547, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 538, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":550
+  /* "freud/bond.pyx":541
  *                       "of the rev_list_map class attribute and will be "
  *                       "removed in a future version of freud.",
  *                       FreudDeprecationWarning)             # <<<<<<<<<<<<<<
  *         return self.rev_list_map
  * 
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 550, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 541, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   __pyx_t_5 = 0;
@@ -9659,7 +9679,7 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_12getRevListMap(struct __py
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getRevListMap_function_is_de, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 547, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 538, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -9668,14 +9688,14 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_12getRevListMap(struct __py
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getRevListMap_function_is_de, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 547, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 538, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   } else
   #endif
   {
-    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 547, __pyx_L1_error)
+    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 538, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     if (__pyx_t_4) {
       __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -9686,14 +9706,14 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_12getRevListMap(struct __py
     __Pyx_GIVEREF(__pyx_t_2);
     PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_5, __pyx_t_2);
     __pyx_t_2 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 547, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 538, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "freud/bond.pyx":551
+  /* "freud/bond.pyx":542
  *                       "removed in a future version of freud.",
  *                       FreudDeprecationWarning)
  *         return self.rev_list_map             # <<<<<<<<<<<<<<
@@ -9701,13 +9721,13 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_12getRevListMap(struct __py
  * cdef class BondingXYT:
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_rev_list_map); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 551, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_rev_list_map); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 542, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/bond.pyx":546
+  /* "freud/bond.pyx":537
  *         return self.thisptr.getRevListMap()
  * 
  *     def getRevListMap(self):             # <<<<<<<<<<<<<<
@@ -9841,7 +9861,7 @@ static PyObject *__pyx_pf_5freud_4bond_11BondingXY2D_16__setstate_cython__(CYTHO
   return __pyx_r;
 }
 
-/* "freud/bond.pyx":587
+/* "freud/bond.pyx":578
  *     cdef rmax
  * 
  *     def __cinit__(self, float x_max, float y_max, bond_map, bond_list):             # <<<<<<<<<<<<<<
@@ -9886,23 +9906,23 @@ static int __pyx_pw_5freud_4bond_10BondingXYT_1__cinit__(PyObject *__pyx_v_self,
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_y_max)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 4, 4, 1); __PYX_ERR(0, 587, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 4, 4, 1); __PYX_ERR(0, 578, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_bond_map)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 4, 4, 2); __PYX_ERR(0, 587, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 4, 4, 2); __PYX_ERR(0, 578, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  3:
         if (likely((values[3] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_bond_list)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 4, 4, 3); __PYX_ERR(0, 587, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 4, 4, 3); __PYX_ERR(0, 578, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__cinit__") < 0)) __PYX_ERR(0, 587, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__cinit__") < 0)) __PYX_ERR(0, 578, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 4) {
       goto __pyx_L5_argtuple_error;
@@ -9912,14 +9932,14 @@ static int __pyx_pw_5freud_4bond_10BondingXYT_1__cinit__(PyObject *__pyx_v_self,
       values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
       values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
     }
-    __pyx_v_x_max = __pyx_PyFloat_AsFloat(values[0]); if (unlikely((__pyx_v_x_max == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 587, __pyx_L3_error)
-    __pyx_v_y_max = __pyx_PyFloat_AsFloat(values[1]); if (unlikely((__pyx_v_y_max == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 587, __pyx_L3_error)
+    __pyx_v_x_max = __pyx_PyFloat_AsFloat(values[0]); if (unlikely((__pyx_v_x_max == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 578, __pyx_L3_error)
+    __pyx_v_y_max = __pyx_PyFloat_AsFloat(values[1]); if (unlikely((__pyx_v_y_max == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 578, __pyx_L3_error)
     __pyx_v_bond_map = values[2];
     __pyx_v_bond_list = values[3];
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 4, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 587, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 4, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 578, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("freud.bond.BondingXYT.__cinit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -9966,93 +9986,93 @@ static int __pyx_pf_5freud_4bond_10BondingXYT___cinit__(struct __pyx_obj_5freud_
   __pyx_pybuffernd_l_bond_list.data = NULL;
   __pyx_pybuffernd_l_bond_list.rcbuffer = &__pyx_pybuffer_l_bond_list;
 
-  /* "freud/bond.pyx":589
+  /* "freud/bond.pyx":580
  *     def __cinit__(self, float x_max, float y_max, bond_map, bond_list):
  *         # extract nr, nt from the bond_map
  *         n_t = bond_map.shape[0]             # <<<<<<<<<<<<<<
  *         n_y = bond_map.shape[1]
  *         n_x = bond_map.shape[2]
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_bond_map, __pyx_n_s_shape); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 589, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_bond_map, __pyx_n_s_shape); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 580, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_1, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 589, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_1, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 580, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_n_t = __pyx_t_2;
   __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":590
+  /* "freud/bond.pyx":581
  *         # extract nr, nt from the bond_map
  *         n_t = bond_map.shape[0]
  *         n_y = bond_map.shape[1]             # <<<<<<<<<<<<<<
  *         n_x = bond_map.shape[2]
  *         n_bonds = bond_list.shape[0]
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_bond_map, __pyx_n_s_shape); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 590, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_bond_map, __pyx_n_s_shape); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 581, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_1 = __Pyx_GetItemInt(__pyx_t_2, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 590, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_t_2, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 581, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_v_n_y = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "freud/bond.pyx":591
+  /* "freud/bond.pyx":582
  *         n_t = bond_map.shape[0]
  *         n_y = bond_map.shape[1]
  *         n_x = bond_map.shape[2]             # <<<<<<<<<<<<<<
  *         n_bonds = bond_list.shape[0]
  *         bond_map = np.require(bond_map, requirements=["C"])
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_bond_map, __pyx_n_s_shape); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 591, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_bond_map, __pyx_n_s_shape); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 582, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_1, 2, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 591, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_1, 2, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 582, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_n_x = __pyx_t_2;
   __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":592
+  /* "freud/bond.pyx":583
  *         n_y = bond_map.shape[1]
  *         n_x = bond_map.shape[2]
  *         n_bonds = bond_list.shape[0]             # <<<<<<<<<<<<<<
  *         bond_map = np.require(bond_map, requirements=["C"])
  *         bond_list = np.require(bond_list, requirements=["C"])
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_bond_list, __pyx_n_s_shape); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 592, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_bond_list, __pyx_n_s_shape); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 583, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_1 = __Pyx_GetItemInt(__pyx_t_2, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 592, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_t_2, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 583, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_v_n_bonds = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "freud/bond.pyx":593
+  /* "freud/bond.pyx":584
  *         n_x = bond_map.shape[2]
  *         n_bonds = bond_list.shape[0]
  *         bond_map = np.require(bond_map, requirements=["C"])             # <<<<<<<<<<<<<<
  *         bond_list = np.require(bond_list, requirements=["C"])
  *         cdef np.ndarray[uint, ndim=3] l_bond_map = bond_map
  */
-  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 593, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 584, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_require); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 593, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_require); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 584, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 593, __pyx_L1_error)
+  __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 584, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_INCREF(__pyx_v_bond_map);
   __Pyx_GIVEREF(__pyx_v_bond_map);
   PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_v_bond_map);
-  __pyx_t_3 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 593, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 584, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = PyList_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 593, __pyx_L1_error)
+  __pyx_t_4 = PyList_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 584, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_INCREF(__pyx_n_s_C);
   __Pyx_GIVEREF(__pyx_n_s_C);
   PyList_SET_ITEM(__pyx_t_4, 0, __pyx_n_s_C);
-  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_requirements, __pyx_t_4) < 0) __PYX_ERR(0, 593, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_requirements, __pyx_t_4) < 0) __PYX_ERR(0, 584, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_1, __pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 593, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_1, __pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 584, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -10060,33 +10080,33 @@ static int __pyx_pf_5freud_4bond_10BondingXYT___cinit__(struct __pyx_obj_5freud_
   __Pyx_DECREF_SET(__pyx_v_bond_map, __pyx_t_4);
   __pyx_t_4 = 0;
 
-  /* "freud/bond.pyx":594
+  /* "freud/bond.pyx":585
  *         n_bonds = bond_list.shape[0]
  *         bond_map = np.require(bond_map, requirements=["C"])
  *         bond_list = np.require(bond_list, requirements=["C"])             # <<<<<<<<<<<<<<
  *         cdef np.ndarray[uint, ndim=3] l_bond_map = bond_map
  *         cdef np.ndarray[uint, ndim=1] l_bond_list = bond_list
  */
-  __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 594, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 585, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_require); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 594, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_require); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 585, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = PyTuple_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 594, __pyx_L1_error)
+  __pyx_t_4 = PyTuple_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 585, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_INCREF(__pyx_v_bond_list);
   __Pyx_GIVEREF(__pyx_v_bond_list);
   PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_v_bond_list);
-  __pyx_t_1 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 594, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 585, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = PyList_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 594, __pyx_L1_error)
+  __pyx_t_2 = PyList_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 585, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_INCREF(__pyx_n_s_C);
   __Pyx_GIVEREF(__pyx_n_s_C);
   PyList_SET_ITEM(__pyx_t_2, 0, __pyx_n_s_C);
-  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_requirements, __pyx_t_2) < 0) __PYX_ERR(0, 594, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_requirements, __pyx_t_2) < 0) __PYX_ERR(0, 585, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_4, __pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 594, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_4, __pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 585, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
@@ -10094,61 +10114,61 @@ static int __pyx_pf_5freud_4bond_10BondingXYT___cinit__(struct __pyx_obj_5freud_
   __Pyx_DECREF_SET(__pyx_v_bond_list, __pyx_t_2);
   __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":595
+  /* "freud/bond.pyx":586
  *         bond_map = np.require(bond_map, requirements=["C"])
  *         bond_list = np.require(bond_list, requirements=["C"])
  *         cdef np.ndarray[uint, ndim=3] l_bond_map = bond_map             # <<<<<<<<<<<<<<
  *         cdef np.ndarray[uint, ndim=1] l_bond_list = bond_list
  *         self.thisptr = new freud._bond.BondingXYT(
  */
-  if (!(likely(((__pyx_v_bond_map) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_bond_map, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 595, __pyx_L1_error)
+  if (!(likely(((__pyx_v_bond_map) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_bond_map, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 586, __pyx_L1_error)
   __pyx_t_2 = __pyx_v_bond_map;
   __Pyx_INCREF(__pyx_t_2);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_l_bond_map.rcbuffer->pybuffer, (PyObject*)((PyArrayObject *)__pyx_t_2), &__Pyx_TypeInfo_unsigned_int, PyBUF_FORMAT| PyBUF_STRIDES, 3, 0, __pyx_stack) == -1)) {
       __pyx_v_l_bond_map = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_l_bond_map.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 595, __pyx_L1_error)
+      __PYX_ERR(0, 586, __pyx_L1_error)
     } else {__pyx_pybuffernd_l_bond_map.diminfo[0].strides = __pyx_pybuffernd_l_bond_map.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_l_bond_map.diminfo[0].shape = __pyx_pybuffernd_l_bond_map.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_l_bond_map.diminfo[1].strides = __pyx_pybuffernd_l_bond_map.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_l_bond_map.diminfo[1].shape = __pyx_pybuffernd_l_bond_map.rcbuffer->pybuffer.shape[1]; __pyx_pybuffernd_l_bond_map.diminfo[2].strides = __pyx_pybuffernd_l_bond_map.rcbuffer->pybuffer.strides[2]; __pyx_pybuffernd_l_bond_map.diminfo[2].shape = __pyx_pybuffernd_l_bond_map.rcbuffer->pybuffer.shape[2];
     }
   }
   __pyx_v_l_bond_map = ((PyArrayObject *)__pyx_t_2);
   __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":596
+  /* "freud/bond.pyx":587
  *         bond_list = np.require(bond_list, requirements=["C"])
  *         cdef np.ndarray[uint, ndim=3] l_bond_map = bond_map
  *         cdef np.ndarray[uint, ndim=1] l_bond_list = bond_list             # <<<<<<<<<<<<<<
  *         self.thisptr = new freud._bond.BondingXYT(
  *             x_max, y_max, n_x, n_y, n_t, n_bonds,
  */
-  if (!(likely(((__pyx_v_bond_list) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_bond_list, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 596, __pyx_L1_error)
+  if (!(likely(((__pyx_v_bond_list) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_bond_list, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 587, __pyx_L1_error)
   __pyx_t_2 = __pyx_v_bond_list;
   __Pyx_INCREF(__pyx_t_2);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_l_bond_list.rcbuffer->pybuffer, (PyObject*)((PyArrayObject *)__pyx_t_2), &__Pyx_TypeInfo_unsigned_int, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack) == -1)) {
       __pyx_v_l_bond_list = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_l_bond_list.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 596, __pyx_L1_error)
+      __PYX_ERR(0, 587, __pyx_L1_error)
     } else {__pyx_pybuffernd_l_bond_list.diminfo[0].strides = __pyx_pybuffernd_l_bond_list.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_l_bond_list.diminfo[0].shape = __pyx_pybuffernd_l_bond_list.rcbuffer->pybuffer.shape[0];
     }
   }
   __pyx_v_l_bond_list = ((PyArrayObject *)__pyx_t_2);
   __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":598
+  /* "freud/bond.pyx":589
  *         cdef np.ndarray[uint, ndim=1] l_bond_list = bond_list
  *         self.thisptr = new freud._bond.BondingXYT(
  *             x_max, y_max, n_x, n_y, n_t, n_bonds,             # <<<<<<<<<<<<<<
  *             <unsigned int*> l_bond_map.data,
  *             <unsigned int*> l_bond_list.data)
  */
-  __pyx_t_5 = __Pyx_PyInt_As_unsigned_int(__pyx_v_n_x); if (unlikely((__pyx_t_5 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 598, __pyx_L1_error)
-  __pyx_t_6 = __Pyx_PyInt_As_unsigned_int(__pyx_v_n_y); if (unlikely((__pyx_t_6 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 598, __pyx_L1_error)
-  __pyx_t_7 = __Pyx_PyInt_As_unsigned_int(__pyx_v_n_t); if (unlikely((__pyx_t_7 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 598, __pyx_L1_error)
-  __pyx_t_8 = __Pyx_PyInt_As_unsigned_int(__pyx_v_n_bonds); if (unlikely((__pyx_t_8 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 598, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyInt_As_unsigned_int(__pyx_v_n_x); if (unlikely((__pyx_t_5 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 589, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyInt_As_unsigned_int(__pyx_v_n_y); if (unlikely((__pyx_t_6 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 589, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyInt_As_unsigned_int(__pyx_v_n_t); if (unlikely((__pyx_t_7 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 589, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyInt_As_unsigned_int(__pyx_v_n_bonds); if (unlikely((__pyx_t_8 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 589, __pyx_L1_error)
 
-  /* "freud/bond.pyx":597
+  /* "freud/bond.pyx":588
  *         cdef np.ndarray[uint, ndim=3] l_bond_map = bond_map
  *         cdef np.ndarray[uint, ndim=1] l_bond_list = bond_list
  *         self.thisptr = new freud._bond.BondingXYT(             # <<<<<<<<<<<<<<
@@ -10157,19 +10177,19 @@ static int __pyx_pf_5freud_4bond_10BondingXYT___cinit__(struct __pyx_obj_5freud_
  */
   __pyx_v_self->thisptr = new freud::bond::BondingXYT(__pyx_v_x_max, __pyx_v_y_max, __pyx_t_5, __pyx_t_6, __pyx_t_7, __pyx_t_8, ((unsigned int *)__pyx_v_l_bond_map->data), ((unsigned int *)__pyx_v_l_bond_list->data));
 
-  /* "freud/bond.pyx":601
+  /* "freud/bond.pyx":592
  *             <unsigned int*> l_bond_map.data,
  *             <unsigned int*> l_bond_list.data)
  *         self.rmax = np.sqrt(x_max**2 + y_max**2)             # <<<<<<<<<<<<<<
  * 
  *     def __dealloc__(self):
  */
-  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 601, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 592, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_sqrt); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 601, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_sqrt); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 592, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyFloat_FromDouble((powf(__pyx_v_x_max, 2.0) + powf(__pyx_v_y_max, 2.0))); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 601, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble((powf(__pyx_v_x_max, 2.0) + powf(__pyx_v_y_max, 2.0))); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 592, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_4))) {
@@ -10182,14 +10202,14 @@ static int __pyx_pf_5freud_4bond_10BondingXYT___cinit__(struct __pyx_obj_5freud_
     }
   }
   if (!__pyx_t_3) {
-    __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 601, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 592, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __Pyx_GOTREF(__pyx_t_2);
   } else {
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_4)) {
       PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_t_1};
-      __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_4, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 601, __pyx_L1_error)
+      __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_4, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 592, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -10198,20 +10218,20 @@ static int __pyx_pf_5freud_4bond_10BondingXYT___cinit__(struct __pyx_obj_5freud_
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_4)) {
       PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_t_1};
-      __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_4, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 601, __pyx_L1_error)
+      __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_4, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 592, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     } else
     #endif
     {
-      __pyx_t_9 = PyTuple_New(1+1); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 601, __pyx_L1_error)
+      __pyx_t_9 = PyTuple_New(1+1); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 592, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_9);
       __Pyx_GIVEREF(__pyx_t_3); PyTuple_SET_ITEM(__pyx_t_9, 0, __pyx_t_3); __pyx_t_3 = NULL;
       __Pyx_GIVEREF(__pyx_t_1);
       PyTuple_SET_ITEM(__pyx_t_9, 0+1, __pyx_t_1);
       __pyx_t_1 = 0;
-      __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_9, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 601, __pyx_L1_error)
+      __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_9, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 592, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
     }
@@ -10223,7 +10243,7 @@ static int __pyx_pf_5freud_4bond_10BondingXYT___cinit__(struct __pyx_obj_5freud_
   __pyx_v_self->rmax = __pyx_t_2;
   __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":587
+  /* "freud/bond.pyx":578
  *     cdef rmax
  * 
  *     def __cinit__(self, float x_max, float y_max, bond_map, bond_list):             # <<<<<<<<<<<<<<
@@ -10266,7 +10286,7 @@ static int __pyx_pf_5freud_4bond_10BondingXYT___cinit__(struct __pyx_obj_5freud_
   return __pyx_r;
 }
 
-/* "freud/bond.pyx":603
+/* "freud/bond.pyx":594
  *         self.rmax = np.sqrt(x_max**2 + y_max**2)
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -10289,7 +10309,7 @@ static void __pyx_pf_5freud_4bond_10BondingXYT_2__dealloc__(struct __pyx_obj_5fr
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__dealloc__", 0);
 
-  /* "freud/bond.pyx":604
+  /* "freud/bond.pyx":595
  * 
  *     def __dealloc__(self):
  *         del self.thisptr             # <<<<<<<<<<<<<<
@@ -10298,7 +10318,7 @@ static void __pyx_pf_5freud_4bond_10BondingXYT_2__dealloc__(struct __pyx_obj_5fr
  */
   delete __pyx_v_self->thisptr;
 
-  /* "freud/bond.pyx":603
+  /* "freud/bond.pyx":594
  *         self.rmax = np.sqrt(x_max**2 + y_max**2)
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -10310,7 +10330,7 @@ static void __pyx_pf_5freud_4bond_10BondingXYT_2__dealloc__(struct __pyx_obj_5fr
   __Pyx_RefNannyFinishContext();
 }
 
-/* "freud/bond.pyx":606
+/* "freud/bond.pyx":597
  *         del self.thisptr
  * 
  *     def compute(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
@@ -10320,7 +10340,7 @@ static void __pyx_pf_5freud_4bond_10BondingXYT_2__dealloc__(struct __pyx_obj_5fr
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_4bond_10BondingXYT_5compute(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_4bond_10BondingXYT_4compute[] = "BondingXYT.compute(self, box, ref_points, ref_orientations, points=None, orientations=None, nlist=None)\nCalculates the bonds.\n\n        Args:\n            box (:class:`freud.box.Box`):\n                Simulation box.\n            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Reference points used to calculate the bonding.\n            ref_orientations ((:math:`N_{particles}`, 1) or\n            (:math:`N_{particles}`,) :class:`numpy.ndarray`):\n                Reference orientations as angles to use in computation.\n            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Points used to calculate the bonding. Uses :code:`ref_points`\n                if not provided or :code:`None`.\n            orientations ((:math:`N_{particles}`, 1) or\n            (:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):\n                Orientations as angles to use in computation. Uses\n                :code:`ref_orientations` if not provided or :code:`None`.\n            nlist (:class:`freud.locality.NeighborList`, optional):\n                NeighborList to use to find bonds (Default value =\n                :code:`None`).\n        ";
+static char __pyx_doc_5freud_4bond_10BondingXYT_4compute[] = "BondingXYT.compute(self, box, ref_points, ref_orientations, points=None, orientations=None, nlist=None)\nCalculates the bonds.\n\n        Args:\n            box (:class:`freud.box.Box`):\n                Simulation box.\n            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Reference points used to calculate the bonding.\n            ref_orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`):\n                Reference orientations as angles to use in computation.\n            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Points used to calculate the bonding. Uses :code:`ref_points`\n                if not provided or :code:`None`.\n            orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):\n                Orientations as angles to use in computation. Uses\n                :code:`ref_orientations` if not provided or :code:`None`.\n            nlist (:class:`freud.locality.NeighborList`, optional):\n                NeighborList to use to find bonds (Default value =\n                :code:`None`).\n        ";
 static PyMethodDef __pyx_mdef_5freud_4bond_10BondingXYT_5compute = {"compute", (PyCFunction)__pyx_pw_5freud_4bond_10BondingXYT_5compute, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_4bond_10BondingXYT_4compute};
 static PyObject *__pyx_pw_5freud_4bond_10BondingXYT_5compute(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_box = 0;
@@ -10337,7 +10357,7 @@ static PyObject *__pyx_pw_5freud_4bond_10BondingXYT_5compute(PyObject *__pyx_v_s
     PyObject* values[6] = {0,0,0,0,0,0};
     values[3] = ((PyObject *)Py_None);
 
-    /* "freud/bond.pyx":607
+    /* "freud/bond.pyx":598
  * 
  *     def compute(self, box, ref_points, ref_orientations, points=None,
  *                 orientations=None, nlist=None):             # <<<<<<<<<<<<<<
@@ -10374,13 +10394,13 @@ static PyObject *__pyx_pw_5freud_4bond_10BondingXYT_5compute(PyObject *__pyx_v_s
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_ref_points)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("compute", 0, 3, 6, 1); __PYX_ERR(0, 606, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("compute", 0, 3, 6, 1); __PYX_ERR(0, 597, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_ref_orientations)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("compute", 0, 3, 6, 2); __PYX_ERR(0, 606, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("compute", 0, 3, 6, 2); __PYX_ERR(0, 597, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  3:
@@ -10402,7 +10422,7 @@ static PyObject *__pyx_pw_5freud_4bond_10BondingXYT_5compute(PyObject *__pyx_v_s
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "compute") < 0)) __PYX_ERR(0, 606, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "compute") < 0)) __PYX_ERR(0, 597, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -10428,7 +10448,7 @@ static PyObject *__pyx_pw_5freud_4bond_10BondingXYT_5compute(PyObject *__pyx_v_s
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("compute", 0, 3, 6, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 606, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("compute", 0, 3, 6, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 597, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("freud.bond.BondingXYT.compute", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -10436,7 +10456,7 @@ static PyObject *__pyx_pw_5freud_4bond_10BondingXYT_5compute(PyObject *__pyx_v_s
   __pyx_L4_argument_unpacking_done:;
   __pyx_r = __pyx_pf_5freud_4bond_10BondingXYT_4compute(((struct __pyx_obj_5freud_4bond_BondingXYT *)__pyx_v_self), __pyx_v_box, __pyx_v_ref_points, __pyx_v_ref_orientations, __pyx_v_points, __pyx_v_orientations, __pyx_v_nlist);
 
-  /* "freud/bond.pyx":606
+  /* "freud/bond.pyx":597
  *         del self.thisptr
  * 
  *     def compute(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
@@ -10500,19 +10520,19 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_4compute(struct __pyx_obj_5f
   __pyx_pybuffernd_l_orientations.data = NULL;
   __pyx_pybuffernd_l_orientations.rcbuffer = &__pyx_pybuffer_l_orientations;
 
-  /* "freud/bond.pyx":629
+  /* "freud/bond.pyx":618
  *                 :code:`None`).
- *         """
+ *         """  # noqa: E501
  *         cdef freud.box.Box b = freud.common.convert_box(box)             # <<<<<<<<<<<<<<
  * 
  *         if points is None:
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 629, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 618, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_common); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 629, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_common); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 618, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_convert_box); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 629, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_convert_box); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 618, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_t_3 = NULL;
@@ -10526,13 +10546,13 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_4compute(struct __pyx_obj_5f
     }
   }
   if (!__pyx_t_3) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_box); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 629, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_box); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 618, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   } else {
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_v_box};
-      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 629, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 618, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
@@ -10540,29 +10560,29 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_4compute(struct __pyx_obj_5f
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_v_box};
-      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 629, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 618, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
     #endif
     {
-      __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 629, __pyx_L1_error)
+      __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 618, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_GIVEREF(__pyx_t_3); PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_3); __pyx_t_3 = NULL;
       __Pyx_INCREF(__pyx_v_box);
       __Pyx_GIVEREF(__pyx_v_box);
       PyTuple_SET_ITEM(__pyx_t_4, 0+1, __pyx_v_box);
-      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 629, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 618, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     }
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5freud_3box_Box))))) __PYX_ERR(0, 629, __pyx_L1_error)
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5freud_3box_Box))))) __PYX_ERR(0, 618, __pyx_L1_error)
   __pyx_v_b = ((struct __pyx_obj_5freud_3box_Box *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "freud/bond.pyx":631
+  /* "freud/bond.pyx":620
  *         cdef freud.box.Box b = freud.common.convert_box(box)
  * 
  *         if points is None:             # <<<<<<<<<<<<<<
@@ -10573,7 +10593,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_4compute(struct __pyx_obj_5f
   __pyx_t_6 = (__pyx_t_5 != 0);
   if (__pyx_t_6) {
 
-    /* "freud/bond.pyx":632
+    /* "freud/bond.pyx":621
  * 
  *         if points is None:
  *             points = ref_points             # <<<<<<<<<<<<<<
@@ -10583,7 +10603,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_4compute(struct __pyx_obj_5f
     __Pyx_INCREF(__pyx_v_ref_points);
     __Pyx_DECREF_SET(__pyx_v_points, __pyx_v_ref_points);
 
-    /* "freud/bond.pyx":631
+    /* "freud/bond.pyx":620
  *         cdef freud.box.Box b = freud.common.convert_box(box)
  * 
  *         if points is None:             # <<<<<<<<<<<<<<
@@ -10592,7 +10612,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_4compute(struct __pyx_obj_5f
  */
   }
 
-  /* "freud/bond.pyx":633
+  /* "freud/bond.pyx":622
  *         if points is None:
  *             points = ref_points
  *         if orientations is None:             # <<<<<<<<<<<<<<
@@ -10603,7 +10623,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_4compute(struct __pyx_obj_5f
   __pyx_t_5 = (__pyx_t_6 != 0);
   if (__pyx_t_5) {
 
-    /* "freud/bond.pyx":634
+    /* "freud/bond.pyx":623
  *             points = ref_points
  *         if orientations is None:
  *             orientations = ref_orientations             # <<<<<<<<<<<<<<
@@ -10613,7 +10633,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_4compute(struct __pyx_obj_5f
     __Pyx_INCREF(__pyx_v_ref_orientations);
     __Pyx_DECREF_SET(__pyx_v_orientations, __pyx_v_ref_orientations);
 
-    /* "freud/bond.pyx":633
+    /* "freud/bond.pyx":622
  *         if points is None:
  *             points = ref_points
  *         if orientations is None:             # <<<<<<<<<<<<<<
@@ -10622,30 +10642,30 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_4compute(struct __pyx_obj_5f
  */
   }
 
-  /* "freud/bond.pyx":636
+  /* "freud/bond.pyx":625
  *             orientations = ref_orientations
  * 
  *         ref_points = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             ref_points, 2, dtype=np.float32, contiguous=True,
  *             array_name="ref_points")
  */
-  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 636, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 625, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_common); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 636, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_common); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 625, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 636, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 625, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":637
+  /* "freud/bond.pyx":626
  * 
  *         ref_points = freud.common.convert_array(
  *             ref_points, 2, dtype=np.float32, contiguous=True,             # <<<<<<<<<<<<<<
  *             array_name="ref_points")
  *         if ref_points.shape[1] != 3:
  */
-  __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 636, __pyx_L1_error)
+  __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 625, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_INCREF(__pyx_v_ref_points);
   __Pyx_GIVEREF(__pyx_v_ref_points);
@@ -10653,26 +10673,26 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_4compute(struct __pyx_obj_5f
   __Pyx_INCREF(__pyx_int_2);
   __Pyx_GIVEREF(__pyx_int_2);
   PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_int_2);
-  __pyx_t_4 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 637, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 626, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 637, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 626, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_float32); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 637, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_float32); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 626, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_dtype, __pyx_t_7) < 0) __PYX_ERR(0, 637, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_dtype, __pyx_t_7) < 0) __PYX_ERR(0, 626, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_contiguous, Py_True) < 0) __PYX_ERR(0, 637, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_array_name, __pyx_n_s_ref_points) < 0) __PYX_ERR(0, 637, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_contiguous, Py_True) < 0) __PYX_ERR(0, 626, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_array_name, __pyx_n_s_ref_points) < 0) __PYX_ERR(0, 626, __pyx_L1_error)
 
-  /* "freud/bond.pyx":636
+  /* "freud/bond.pyx":625
  *             orientations = ref_orientations
  * 
  *         ref_points = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             ref_points, 2, dtype=np.float32, contiguous=True,
  *             array_name="ref_points")
  */
-  __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_2, __pyx_t_4); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 636, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_2, __pyx_t_4); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 625, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -10680,38 +10700,38 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_4compute(struct __pyx_obj_5f
   __Pyx_DECREF_SET(__pyx_v_ref_points, __pyx_t_7);
   __pyx_t_7 = 0;
 
-  /* "freud/bond.pyx":639
+  /* "freud/bond.pyx":628
  *             ref_points, 2, dtype=np.float32, contiguous=True,
  *             array_name="ref_points")
  *         if ref_points.shape[1] != 3:             # <<<<<<<<<<<<<<
  *             raise TypeError('ref_points should be an Nx3 array')
  * 
  */
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_v_ref_points, __pyx_n_s_shape); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 639, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_v_ref_points, __pyx_n_s_shape); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 628, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  __pyx_t_4 = __Pyx_GetItemInt(__pyx_t_7, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 639, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_GetItemInt(__pyx_t_7, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 628, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_7 = PyObject_RichCompare(__pyx_t_4, __pyx_int_3, Py_NE); __Pyx_XGOTREF(__pyx_t_7); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 639, __pyx_L1_error)
+  __pyx_t_7 = PyObject_RichCompare(__pyx_t_4, __pyx_int_3, Py_NE); __Pyx_XGOTREF(__pyx_t_7); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 628, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_t_7); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 639, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_t_7); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 628, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   if (unlikely(__pyx_t_5)) {
 
-    /* "freud/bond.pyx":640
+    /* "freud/bond.pyx":629
  *             array_name="ref_points")
  *         if ref_points.shape[1] != 3:
  *             raise TypeError('ref_points should be an Nx3 array')             # <<<<<<<<<<<<<<
  * 
  *         ref_orientations = freud.common.convert_array(
  */
-    __pyx_t_7 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__11, NULL); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 640, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__11, NULL); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 629, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     __Pyx_Raise(__pyx_t_7, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-    __PYX_ERR(0, 640, __pyx_L1_error)
+    __PYX_ERR(0, 629, __pyx_L1_error)
 
-    /* "freud/bond.pyx":639
+    /* "freud/bond.pyx":628
  *             ref_points, 2, dtype=np.float32, contiguous=True,
  *             array_name="ref_points")
  *         if ref_points.shape[1] != 3:             # <<<<<<<<<<<<<<
@@ -10720,30 +10740,30 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_4compute(struct __pyx_obj_5f
  */
   }
 
-  /* "freud/bond.pyx":642
+  /* "freud/bond.pyx":631
  *             raise TypeError('ref_points should be an Nx3 array')
  * 
  *         ref_orientations = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             ref_orientations.squeeze(), 1, dtype=np.float32, contiguous=True,
  *             array_name="ref_orientations")
  */
-  __pyx_t_7 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 642, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 631, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_common); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 642, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_common); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 631, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 642, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 631, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "freud/bond.pyx":643
+  /* "freud/bond.pyx":632
  * 
  *         ref_orientations = freud.common.convert_array(
  *             ref_orientations.squeeze(), 1, dtype=np.float32, contiguous=True,             # <<<<<<<<<<<<<<
  *             array_name="ref_orientations")
  * 
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_ref_orientations, __pyx_n_s_squeeze); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 643, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_ref_orientations, __pyx_n_s_squeeze); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 632, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_1 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -10756,22 +10776,22 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_4compute(struct __pyx_obj_5f
     }
   }
   if (__pyx_t_1) {
-    __pyx_t_4 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 643, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 632, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   } else {
-    __pyx_t_4 = __Pyx_PyObject_CallNoArg(__pyx_t_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 643, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_CallNoArg(__pyx_t_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 632, __pyx_L1_error)
   }
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":642
+  /* "freud/bond.pyx":631
  *             raise TypeError('ref_points should be an Nx3 array')
  * 
  *         ref_orientations = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             ref_orientations.squeeze(), 1, dtype=np.float32, contiguous=True,
  *             array_name="ref_orientations")
  */
-  __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 642, __pyx_L1_error)
+  __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 631, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_GIVEREF(__pyx_t_4);
   PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_t_4);
@@ -10780,33 +10800,33 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_4compute(struct __pyx_obj_5f
   PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_int_1);
   __pyx_t_4 = 0;
 
-  /* "freud/bond.pyx":643
+  /* "freud/bond.pyx":632
  * 
  *         ref_orientations = freud.common.convert_array(
  *             ref_orientations.squeeze(), 1, dtype=np.float32, contiguous=True,             # <<<<<<<<<<<<<<
  *             array_name="ref_orientations")
  * 
  */
-  __pyx_t_4 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 643, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 632, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 643, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 632, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_float32); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 643, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_float32); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 632, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_dtype, __pyx_t_3) < 0) __PYX_ERR(0, 643, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_dtype, __pyx_t_3) < 0) __PYX_ERR(0, 632, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_contiguous, Py_True) < 0) __PYX_ERR(0, 643, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_array_name, __pyx_n_s_ref_orientations) < 0) __PYX_ERR(0, 643, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_contiguous, Py_True) < 0) __PYX_ERR(0, 632, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_array_name, __pyx_n_s_ref_orientations) < 0) __PYX_ERR(0, 632, __pyx_L1_error)
 
-  /* "freud/bond.pyx":642
+  /* "freud/bond.pyx":631
  *             raise TypeError('ref_points should be an Nx3 array')
  * 
  *         ref_orientations = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             ref_orientations.squeeze(), 1, dtype=np.float32, contiguous=True,
  *             array_name="ref_orientations")
  */
-  __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_7, __pyx_t_2, __pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 642, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_7, __pyx_t_2, __pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 631, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -10814,30 +10834,30 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_4compute(struct __pyx_obj_5f
   __Pyx_DECREF_SET(__pyx_v_ref_orientations, __pyx_t_3);
   __pyx_t_3 = 0;
 
-  /* "freud/bond.pyx":646
+  /* "freud/bond.pyx":635
  *             array_name="ref_orientations")
  * 
  *         points = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             points, 2, dtype=np.float32, contiguous=True, array_name="points")
  *         if points.shape[1] != 3:
  */
-  __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 646, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 635, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_common); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 646, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_common); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 635, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 646, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 635, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "freud/bond.pyx":647
+  /* "freud/bond.pyx":636
  * 
  *         points = freud.common.convert_array(
  *             points, 2, dtype=np.float32, contiguous=True, array_name="points")             # <<<<<<<<<<<<<<
  *         if points.shape[1] != 3:
  *             raise TypeError('points should be an Nx3 array')
  */
-  __pyx_t_4 = PyTuple_New(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 646, __pyx_L1_error)
+  __pyx_t_4 = PyTuple_New(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 635, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_INCREF(__pyx_v_points);
   __Pyx_GIVEREF(__pyx_v_points);
@@ -10845,26 +10865,26 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_4compute(struct __pyx_obj_5f
   __Pyx_INCREF(__pyx_int_2);
   __Pyx_GIVEREF(__pyx_int_2);
   PyTuple_SET_ITEM(__pyx_t_4, 1, __pyx_int_2);
-  __pyx_t_2 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 647, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 636, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_7 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 647, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 636, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_float32); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 647, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_float32); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 636, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_dtype, __pyx_t_1) < 0) __PYX_ERR(0, 647, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_dtype, __pyx_t_1) < 0) __PYX_ERR(0, 636, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_contiguous, Py_True) < 0) __PYX_ERR(0, 647, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_array_name, __pyx_n_s_points) < 0) __PYX_ERR(0, 647, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_contiguous, Py_True) < 0) __PYX_ERR(0, 636, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_array_name, __pyx_n_s_points) < 0) __PYX_ERR(0, 636, __pyx_L1_error)
 
-  /* "freud/bond.pyx":646
+  /* "freud/bond.pyx":635
  *             array_name="ref_orientations")
  * 
  *         points = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             points, 2, dtype=np.float32, contiguous=True, array_name="points")
  *         if points.shape[1] != 3:
  */
-  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_4, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 646, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_4, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 635, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
@@ -10872,38 +10892,38 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_4compute(struct __pyx_obj_5f
   __Pyx_DECREF_SET(__pyx_v_points, __pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "freud/bond.pyx":648
+  /* "freud/bond.pyx":637
  *         points = freud.common.convert_array(
  *             points, 2, dtype=np.float32, contiguous=True, array_name="points")
  *         if points.shape[1] != 3:             # <<<<<<<<<<<<<<
  *             raise TypeError('points should be an Nx3 array')
  * 
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_points, __pyx_n_s_shape); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 648, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_points, __pyx_n_s_shape); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 637, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_1, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 648, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_1, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 637, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyObject_RichCompare(__pyx_t_2, __pyx_int_3, Py_NE); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 648, __pyx_L1_error)
+  __pyx_t_1 = PyObject_RichCompare(__pyx_t_2, __pyx_int_3, Py_NE); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 637, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 648, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 637, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   if (unlikely(__pyx_t_5)) {
 
-    /* "freud/bond.pyx":649
+    /* "freud/bond.pyx":638
  *             points, 2, dtype=np.float32, contiguous=True, array_name="points")
  *         if points.shape[1] != 3:
  *             raise TypeError('points should be an Nx3 array')             # <<<<<<<<<<<<<<
  * 
  *         orientations = freud.common.convert_array(
  */
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__12, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 649, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__12, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 638, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_Raise(__pyx_t_1, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __PYX_ERR(0, 649, __pyx_L1_error)
+    __PYX_ERR(0, 638, __pyx_L1_error)
 
-    /* "freud/bond.pyx":648
+    /* "freud/bond.pyx":637
  *         points = freud.common.convert_array(
  *             points, 2, dtype=np.float32, contiguous=True, array_name="points")
  *         if points.shape[1] != 3:             # <<<<<<<<<<<<<<
@@ -10912,30 +10932,30 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_4compute(struct __pyx_obj_5f
  */
   }
 
-  /* "freud/bond.pyx":651
+  /* "freud/bond.pyx":640
  *             raise TypeError('points should be an Nx3 array')
  * 
  *         orientations = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             orientations.squeeze(), 1, dtype=np.float32, contiguous=True,
  *             array_name="orientations")
  */
-  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 651, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 640, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_common); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 651, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_common); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 640, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 651, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 640, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":652
+  /* "freud/bond.pyx":641
  * 
  *         orientations = freud.common.convert_array(
  *             orientations.squeeze(), 1, dtype=np.float32, contiguous=True,             # <<<<<<<<<<<<<<
  *             array_name="orientations")
  * 
  */
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_orientations, __pyx_n_s_squeeze); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 652, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_orientations, __pyx_n_s_squeeze); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 641, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_4))) {
@@ -10948,22 +10968,22 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_4compute(struct __pyx_obj_5f
     }
   }
   if (__pyx_t_3) {
-    __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 652, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 641, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   } else {
-    __pyx_t_2 = __Pyx_PyObject_CallNoArg(__pyx_t_4); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 652, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_CallNoArg(__pyx_t_4); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 641, __pyx_L1_error)
   }
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "freud/bond.pyx":651
+  /* "freud/bond.pyx":640
  *             raise TypeError('points should be an Nx3 array')
  * 
  *         orientations = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             orientations.squeeze(), 1, dtype=np.float32, contiguous=True,
  *             array_name="orientations")
  */
-  __pyx_t_4 = PyTuple_New(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 651, __pyx_L1_error)
+  __pyx_t_4 = PyTuple_New(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 640, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_GIVEREF(__pyx_t_2);
   PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_2);
@@ -10972,33 +10992,33 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_4compute(struct __pyx_obj_5f
   PyTuple_SET_ITEM(__pyx_t_4, 1, __pyx_int_1);
   __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":652
+  /* "freud/bond.pyx":641
  * 
  *         orientations = freud.common.convert_array(
  *             orientations.squeeze(), 1, dtype=np.float32, contiguous=True,             # <<<<<<<<<<<<<<
  *             array_name="orientations")
  * 
  */
-  __pyx_t_2 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 652, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 641, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 652, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 641, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_float32); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 652, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_float32); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 641, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_dtype, __pyx_t_7) < 0) __PYX_ERR(0, 652, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_dtype, __pyx_t_7) < 0) __PYX_ERR(0, 641, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_contiguous, Py_True) < 0) __PYX_ERR(0, 652, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_array_name, __pyx_n_s_orientations) < 0) __PYX_ERR(0, 652, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_contiguous, Py_True) < 0) __PYX_ERR(0, 641, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_array_name, __pyx_n_s_orientations) < 0) __PYX_ERR(0, 641, __pyx_L1_error)
 
-  /* "freud/bond.pyx":651
+  /* "freud/bond.pyx":640
  *             raise TypeError('points should be an Nx3 array')
  * 
  *         orientations = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             orientations.squeeze(), 1, dtype=np.float32, contiguous=True,
  *             array_name="orientations")
  */
-  __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_4, __pyx_t_2); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 651, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_4, __pyx_t_2); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 640, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
@@ -11006,23 +11026,23 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_4compute(struct __pyx_obj_5f
   __Pyx_DECREF_SET(__pyx_v_orientations, __pyx_t_7);
   __pyx_t_7 = 0;
 
-  /* "freud/bond.pyx":655
+  /* "freud/bond.pyx":644
  *             array_name="orientations")
  * 
  *         defaulted_nlist = freud.locality.make_default_nlist(             # <<<<<<<<<<<<<<
  *             b, ref_points, points, self.rmax, nlist, None)
  *         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 655, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 644, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_locality); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 655, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_locality); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 644, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_make_default_nlist); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 655, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_make_default_nlist); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 644, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "freud/bond.pyx":656
+  /* "freud/bond.pyx":645
  * 
  *         defaulted_nlist = freud.locality.make_default_nlist(
  *             b, ref_points, points, self.rmax, nlist, None)             # <<<<<<<<<<<<<<
@@ -11044,7 +11064,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_4compute(struct __pyx_obj_5f
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_2)) {
     PyObject *__pyx_temp[7] = {__pyx_t_4, ((PyObject *)__pyx_v_b), __pyx_v_ref_points, __pyx_v_points, __pyx_v_self->rmax, __pyx_v_nlist, Py_None};
-    __pyx_t_7 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_8, 6+__pyx_t_8); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 655, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_8, 6+__pyx_t_8); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 644, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_7);
   } else
@@ -11052,13 +11072,13 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_4compute(struct __pyx_obj_5f
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
     PyObject *__pyx_temp[7] = {__pyx_t_4, ((PyObject *)__pyx_v_b), __pyx_v_ref_points, __pyx_v_points, __pyx_v_self->rmax, __pyx_v_nlist, Py_None};
-    __pyx_t_7 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_8, 6+__pyx_t_8); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 655, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_8, 6+__pyx_t_8); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 644, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_7);
   } else
   #endif
   {
-    __pyx_t_1 = PyTuple_New(6+__pyx_t_8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 655, __pyx_L1_error)
+    __pyx_t_1 = PyTuple_New(6+__pyx_t_8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 644, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     if (__pyx_t_4) {
       __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -11081,7 +11101,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_4compute(struct __pyx_obj_5f
     __Pyx_INCREF(Py_None);
     __Pyx_GIVEREF(Py_None);
     PyTuple_SET_ITEM(__pyx_t_1, 5+__pyx_t_8, Py_None);
-    __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_1, NULL); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 655, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_1, NULL); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 644, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   }
@@ -11089,136 +11109,136 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_4compute(struct __pyx_obj_5f
   __pyx_v_defaulted_nlist = __pyx_t_7;
   __pyx_t_7 = 0;
 
-  /* "freud/bond.pyx":657
+  /* "freud/bond.pyx":646
  *         defaulted_nlist = freud.locality.make_default_nlist(
  *             b, ref_points, points, self.rmax, nlist, None)
  *         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]             # <<<<<<<<<<<<<<
  * 
  *         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
  */
-  __pyx_t_7 = __Pyx_GetItemInt(__pyx_v_defaulted_nlist, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 657, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_GetItemInt(__pyx_v_defaulted_nlist, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 646, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  if (!(likely(((__pyx_t_7) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_7, __pyx_ptype_5freud_8locality_NeighborList))))) __PYX_ERR(0, 657, __pyx_L1_error)
+  if (!(likely(((__pyx_t_7) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_7, __pyx_ptype_5freud_8locality_NeighborList))))) __PYX_ERR(0, 646, __pyx_L1_error)
   __pyx_v_nlist_ = ((struct __pyx_obj_5freud_8locality_NeighborList *)__pyx_t_7);
   __pyx_t_7 = 0;
 
-  /* "freud/bond.pyx":659
+  /* "freud/bond.pyx":648
  *         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
  * 
  *         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points             # <<<<<<<<<<<<<<
  *         cdef np.ndarray[float, ndim=1] l_ref_orientations = ref_orientations
  *         cdef np.ndarray[float, ndim=2] l_points = points
  */
-  if (!(likely(((__pyx_v_ref_points) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_ref_points, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 659, __pyx_L1_error)
+  if (!(likely(((__pyx_v_ref_points) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_ref_points, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 648, __pyx_L1_error)
   __pyx_t_7 = __pyx_v_ref_points;
   __Pyx_INCREF(__pyx_t_7);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_l_ref_points.rcbuffer->pybuffer, (PyObject*)((PyArrayObject *)__pyx_t_7), &__Pyx_TypeInfo_float, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {
       __pyx_v_l_ref_points = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_l_ref_points.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 659, __pyx_L1_error)
+      __PYX_ERR(0, 648, __pyx_L1_error)
     } else {__pyx_pybuffernd_l_ref_points.diminfo[0].strides = __pyx_pybuffernd_l_ref_points.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_l_ref_points.diminfo[0].shape = __pyx_pybuffernd_l_ref_points.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_l_ref_points.diminfo[1].strides = __pyx_pybuffernd_l_ref_points.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_l_ref_points.diminfo[1].shape = __pyx_pybuffernd_l_ref_points.rcbuffer->pybuffer.shape[1];
     }
   }
   __pyx_v_l_ref_points = ((PyArrayObject *)__pyx_t_7);
   __pyx_t_7 = 0;
 
-  /* "freud/bond.pyx":660
+  /* "freud/bond.pyx":649
  * 
  *         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
  *         cdef np.ndarray[float, ndim=1] l_ref_orientations = ref_orientations             # <<<<<<<<<<<<<<
  *         cdef np.ndarray[float, ndim=2] l_points = points
  *         cdef np.ndarray[float, ndim=1] l_orientations = orientations
  */
-  if (!(likely(((__pyx_v_ref_orientations) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_ref_orientations, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 660, __pyx_L1_error)
+  if (!(likely(((__pyx_v_ref_orientations) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_ref_orientations, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 649, __pyx_L1_error)
   __pyx_t_7 = __pyx_v_ref_orientations;
   __Pyx_INCREF(__pyx_t_7);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_l_ref_orientations.rcbuffer->pybuffer, (PyObject*)((PyArrayObject *)__pyx_t_7), &__Pyx_TypeInfo_float, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack) == -1)) {
       __pyx_v_l_ref_orientations = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_l_ref_orientations.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 660, __pyx_L1_error)
+      __PYX_ERR(0, 649, __pyx_L1_error)
     } else {__pyx_pybuffernd_l_ref_orientations.diminfo[0].strides = __pyx_pybuffernd_l_ref_orientations.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_l_ref_orientations.diminfo[0].shape = __pyx_pybuffernd_l_ref_orientations.rcbuffer->pybuffer.shape[0];
     }
   }
   __pyx_v_l_ref_orientations = ((PyArrayObject *)__pyx_t_7);
   __pyx_t_7 = 0;
 
-  /* "freud/bond.pyx":661
+  /* "freud/bond.pyx":650
  *         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
  *         cdef np.ndarray[float, ndim=1] l_ref_orientations = ref_orientations
  *         cdef np.ndarray[float, ndim=2] l_points = points             # <<<<<<<<<<<<<<
  *         cdef np.ndarray[float, ndim=1] l_orientations = orientations
  *         cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
  */
-  if (!(likely(((__pyx_v_points) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_points, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 661, __pyx_L1_error)
+  if (!(likely(((__pyx_v_points) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_points, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 650, __pyx_L1_error)
   __pyx_t_7 = __pyx_v_points;
   __Pyx_INCREF(__pyx_t_7);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_l_points.rcbuffer->pybuffer, (PyObject*)((PyArrayObject *)__pyx_t_7), &__Pyx_TypeInfo_float, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {
       __pyx_v_l_points = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_l_points.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 661, __pyx_L1_error)
+      __PYX_ERR(0, 650, __pyx_L1_error)
     } else {__pyx_pybuffernd_l_points.diminfo[0].strides = __pyx_pybuffernd_l_points.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_l_points.diminfo[0].shape = __pyx_pybuffernd_l_points.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_l_points.diminfo[1].strides = __pyx_pybuffernd_l_points.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_l_points.diminfo[1].shape = __pyx_pybuffernd_l_points.rcbuffer->pybuffer.shape[1];
     }
   }
   __pyx_v_l_points = ((PyArrayObject *)__pyx_t_7);
   __pyx_t_7 = 0;
 
-  /* "freud/bond.pyx":662
+  /* "freud/bond.pyx":651
  *         cdef np.ndarray[float, ndim=1] l_ref_orientations = ref_orientations
  *         cdef np.ndarray[float, ndim=2] l_points = points
  *         cdef np.ndarray[float, ndim=1] l_orientations = orientations             # <<<<<<<<<<<<<<
  *         cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
  *         cdef unsigned int n_p = <unsigned int> points.shape[0]
  */
-  if (!(likely(((__pyx_v_orientations) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_orientations, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 662, __pyx_L1_error)
+  if (!(likely(((__pyx_v_orientations) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_orientations, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 651, __pyx_L1_error)
   __pyx_t_7 = __pyx_v_orientations;
   __Pyx_INCREF(__pyx_t_7);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_l_orientations.rcbuffer->pybuffer, (PyObject*)((PyArrayObject *)__pyx_t_7), &__Pyx_TypeInfo_float, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack) == -1)) {
       __pyx_v_l_orientations = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_l_orientations.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 662, __pyx_L1_error)
+      __PYX_ERR(0, 651, __pyx_L1_error)
     } else {__pyx_pybuffernd_l_orientations.diminfo[0].strides = __pyx_pybuffernd_l_orientations.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_l_orientations.diminfo[0].shape = __pyx_pybuffernd_l_orientations.rcbuffer->pybuffer.shape[0];
     }
   }
   __pyx_v_l_orientations = ((PyArrayObject *)__pyx_t_7);
   __pyx_t_7 = 0;
 
-  /* "freud/bond.pyx":663
+  /* "freud/bond.pyx":652
  *         cdef np.ndarray[float, ndim=2] l_points = points
  *         cdef np.ndarray[float, ndim=1] l_orientations = orientations
  *         cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]             # <<<<<<<<<<<<<<
  *         cdef unsigned int n_p = <unsigned int> points.shape[0]
  *         with nogil:
  */
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_v_ref_points, __pyx_n_s_shape); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 663, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_v_ref_points, __pyx_n_s_shape); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 652, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_7, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 663, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_7, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 652, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_9 = __Pyx_PyInt_As_unsigned_int(__pyx_t_2); if (unlikely((__pyx_t_9 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 663, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyInt_As_unsigned_int(__pyx_t_2); if (unlikely((__pyx_t_9 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 652, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_v_n_ref = ((unsigned int)__pyx_t_9);
 
-  /* "freud/bond.pyx":664
+  /* "freud/bond.pyx":653
  *         cdef np.ndarray[float, ndim=1] l_orientations = orientations
  *         cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
  *         cdef unsigned int n_p = <unsigned int> points.shape[0]             # <<<<<<<<<<<<<<
  *         with nogil:
  *             self.thisptr.compute(
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_points, __pyx_n_s_shape); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 664, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_points, __pyx_n_s_shape); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 653, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_7 = __Pyx_GetItemInt(__pyx_t_2, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 664, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_GetItemInt(__pyx_t_2, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 653, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_9 = __Pyx_PyInt_As_unsigned_int(__pyx_t_7); if (unlikely((__pyx_t_9 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 664, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyInt_As_unsigned_int(__pyx_t_7); if (unlikely((__pyx_t_9 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 653, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   __pyx_v_n_p = ((unsigned int)__pyx_t_9);
 
-  /* "freud/bond.pyx":665
+  /* "freud/bond.pyx":654
  *         cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
  *         cdef unsigned int n_p = <unsigned int> points.shape[0]
  *         with nogil:             # <<<<<<<<<<<<<<
@@ -11233,7 +11253,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_4compute(struct __pyx_obj_5f
       #endif
       /*try:*/ {
 
-        /* "freud/bond.pyx":666
+        /* "freud/bond.pyx":655
  *         cdef unsigned int n_p = <unsigned int> points.shape[0]
  *         with nogil:
  *             self.thisptr.compute(             # <<<<<<<<<<<<<<
@@ -11250,11 +11270,11 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_4compute(struct __pyx_obj_5f
           #ifdef WITH_THREAD
           __Pyx_PyGILState_Release(__pyx_gilstate_save);
           #endif
-          __PYX_ERR(0, 666, __pyx_L8_error)
+          __PYX_ERR(0, 655, __pyx_L8_error)
         }
       }
 
-      /* "freud/bond.pyx":665
+      /* "freud/bond.pyx":654
  *         cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
  *         cdef unsigned int n_p = <unsigned int> points.shape[0]
  *         with nogil:             # <<<<<<<<<<<<<<
@@ -11280,7 +11300,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_4compute(struct __pyx_obj_5f
       }
   }
 
-  /* "freud/bond.pyx":672
+  /* "freud/bond.pyx":661
  *                 <vec3[float]*> l_points.data,
  *                 <float*> l_orientations.data, n_p)
  *         return self             # <<<<<<<<<<<<<<
@@ -11292,7 +11312,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_4compute(struct __pyx_obj_5f
   __pyx_r = ((PyObject *)__pyx_v_self);
   goto __pyx_L0;
 
-  /* "freud/bond.pyx":606
+  /* "freud/bond.pyx":597
  *         del self.thisptr
  * 
  *     def compute(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
@@ -11341,7 +11361,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_4compute(struct __pyx_obj_5f
   return __pyx_r;
 }
 
-/* "freud/bond.pyx":675
+/* "freud/bond.pyx":664
  * 
  *     @property
  *     def bonds(self):             # <<<<<<<<<<<<<<
@@ -11378,7 +11398,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_5bonds___get__(struct __pyx_
   __pyx_pybuffernd_result.data = NULL;
   __pyx_pybuffernd_result.rcbuffer = &__pyx_pybuffer_result;
 
-  /* "freud/bond.pyx":676
+  /* "freud/bond.pyx":665
  *     @property
  *     def bonds(self):
  *         cdef unsigned int * bonds = self.thisptr.getBonds().get()             # <<<<<<<<<<<<<<
@@ -11387,7 +11407,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_5bonds___get__(struct __pyx_
  */
   __pyx_v_bonds = __pyx_v_self->thisptr->getBonds().get();
 
-  /* "freud/bond.pyx":678
+  /* "freud/bond.pyx":667
  *         cdef unsigned int * bonds = self.thisptr.getBonds().get()
  *         cdef np.npy_intp nbins[2]
  *         nbins[0] = <np.npy_intp> self.thisptr.getNumParticles()             # <<<<<<<<<<<<<<
@@ -11396,7 +11416,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_5bonds___get__(struct __pyx_
  */
   (__pyx_v_nbins[0]) = ((npy_intp)__pyx_v_self->thisptr->getNumParticles());
 
-  /* "freud/bond.pyx":679
+  /* "freud/bond.pyx":668
  *         cdef np.npy_intp nbins[2]
  *         nbins[0] = <np.npy_intp> self.thisptr.getNumParticles()
  *         nbins[1] = <np.npy_intp> self.thisptr.getNumBonds()             # <<<<<<<<<<<<<<
@@ -11405,22 +11425,22 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_5bonds___get__(struct __pyx_
  */
   (__pyx_v_nbins[1]) = ((npy_intp)__pyx_v_self->thisptr->getNumBonds());
 
-  /* "freud/bond.pyx":681
+  /* "freud/bond.pyx":670
  *         nbins[1] = <np.npy_intp> self.thisptr.getNumBonds()
  *         cdef np.ndarray[np.uint32_t, ndim=2] result = \
  *             np.PyArray_SimpleNewFromData(             # <<<<<<<<<<<<<<
  *                 2, nbins, np.NPY_UINT32, <void*> bonds)
  *         return result
  */
-  __pyx_t_1 = PyArray_SimpleNewFromData(2, __pyx_v_nbins, NPY_UINT32, ((void *)__pyx_v_bonds)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 681, __pyx_L1_error)
+  __pyx_t_1 = PyArray_SimpleNewFromData(2, __pyx_v_nbins, NPY_UINT32, ((void *)__pyx_v_bonds)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 670, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 681, __pyx_L1_error)
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 670, __pyx_L1_error)
   __pyx_t_2 = ((PyArrayObject *)__pyx_t_1);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_result.rcbuffer->pybuffer, (PyObject*)__pyx_t_2, &__Pyx_TypeInfo_nn___pyx_t_5numpy_uint32_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {
       __pyx_v_result = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_result.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 680, __pyx_L1_error)
+      __PYX_ERR(0, 669, __pyx_L1_error)
     } else {__pyx_pybuffernd_result.diminfo[0].strides = __pyx_pybuffernd_result.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_result.diminfo[0].shape = __pyx_pybuffernd_result.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_result.diminfo[1].strides = __pyx_pybuffernd_result.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_result.diminfo[1].shape = __pyx_pybuffernd_result.rcbuffer->pybuffer.shape[1];
     }
   }
@@ -11428,7 +11448,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_5bonds___get__(struct __pyx_
   __pyx_v_result = ((PyArrayObject *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "freud/bond.pyx":683
+  /* "freud/bond.pyx":672
  *             np.PyArray_SimpleNewFromData(
  *                 2, nbins, np.NPY_UINT32, <void*> bonds)
  *         return result             # <<<<<<<<<<<<<<
@@ -11440,7 +11460,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_5bonds___get__(struct __pyx_
   __pyx_r = ((PyObject *)__pyx_v_result);
   goto __pyx_L0;
 
-  /* "freud/bond.pyx":675
+  /* "freud/bond.pyx":664
  * 
  *     @property
  *     def bonds(self):             # <<<<<<<<<<<<<<
@@ -11469,7 +11489,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_5bonds___get__(struct __pyx_
   return __pyx_r;
 }
 
-/* "freud/bond.pyx":685
+/* "freud/bond.pyx":674
  *         return result
  * 
  *     def getBonds(self):             # <<<<<<<<<<<<<<
@@ -11503,27 +11523,27 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_6getBonds(struct __pyx_obj_5
   PyObject *__pyx_t_6 = NULL;
   __Pyx_RefNannySetupContext("getBonds", 0);
 
-  /* "freud/bond.pyx":686
+  /* "freud/bond.pyx":675
  * 
  *     def getBonds(self):
  *         warnings.warn("The getBonds function is deprecated in favor "             # <<<<<<<<<<<<<<
  *                       "of the bonds class attribute and will be "
  *                       "removed in a future version of freud.",
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 686, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 675, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 686, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 675, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":689
+  /* "freud/bond.pyx":678
  *                       "of the bonds class attribute and will be "
  *                       "removed in a future version of freud.",
  *                       FreudDeprecationWarning)             # <<<<<<<<<<<<<<
  *         return self.bonds
  * 
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 689, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 678, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   __pyx_t_5 = 0;
@@ -11540,7 +11560,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_6getBonds(struct __pyx_obj_5
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getBonds_function_is_depreca, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 686, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 675, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -11549,14 +11569,14 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_6getBonds(struct __pyx_obj_5
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getBonds_function_is_depreca, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 686, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 675, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   } else
   #endif
   {
-    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 686, __pyx_L1_error)
+    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 675, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     if (__pyx_t_4) {
       __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -11567,14 +11587,14 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_6getBonds(struct __pyx_obj_5
     __Pyx_GIVEREF(__pyx_t_2);
     PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_5, __pyx_t_2);
     __pyx_t_2 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 686, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 675, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "freud/bond.pyx":690
+  /* "freud/bond.pyx":679
  *                       "removed in a future version of freud.",
  *                       FreudDeprecationWarning)
  *         return self.bonds             # <<<<<<<<<<<<<<
@@ -11582,13 +11602,13 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_6getBonds(struct __pyx_obj_5
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_bonds); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 690, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_bonds); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 679, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/bond.pyx":685
+  /* "freud/bond.pyx":674
  *         return result
  * 
  *     def getBonds(self):             # <<<<<<<<<<<<<<
@@ -11611,7 +11631,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_6getBonds(struct __pyx_obj_5
   return __pyx_r;
 }
 
-/* "freud/bond.pyx":693
+/* "freud/bond.pyx":682
  * 
  *     @property
  *     def box(self):             # <<<<<<<<<<<<<<
@@ -11638,7 +11658,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_3box___get__(struct __pyx_ob
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "freud/bond.pyx":694
+  /* "freud/bond.pyx":683
  *     @property
  *     def box(self):
  *         return freud.box.BoxFromCPP(self.thisptr.getBox())             # <<<<<<<<<<<<<<
@@ -11646,13 +11666,13 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_3box___get__(struct __pyx_ob
  *     def getBox(self):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_5freud_3box_BoxFromCPP(__pyx_v_self->thisptr->getBox()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 694, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_5freud_3box_BoxFromCPP(__pyx_v_self->thisptr->getBox()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 683, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/bond.pyx":693
+  /* "freud/bond.pyx":682
  * 
  *     @property
  *     def box(self):             # <<<<<<<<<<<<<<
@@ -11671,7 +11691,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_3box___get__(struct __pyx_ob
   return __pyx_r;
 }
 
-/* "freud/bond.pyx":696
+/* "freud/bond.pyx":685
  *         return freud.box.BoxFromCPP(self.thisptr.getBox())
  * 
  *     def getBox(self):             # <<<<<<<<<<<<<<
@@ -11705,27 +11725,27 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_8getBox(struct __pyx_obj_5fr
   PyObject *__pyx_t_6 = NULL;
   __Pyx_RefNannySetupContext("getBox", 0);
 
-  /* "freud/bond.pyx":697
+  /* "freud/bond.pyx":686
  * 
  *     def getBox(self):
  *         warnings.warn("The getBox function is deprecated in favor "             # <<<<<<<<<<<<<<
  *                       "of the box class attribute and will be "
  *                       "removed in a future version of freud.",
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 697, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 686, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 697, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 686, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":700
+  /* "freud/bond.pyx":689
  *                       "of the box class attribute and will be "
  *                       "removed in a future version of freud.",
  *                       FreudDeprecationWarning)             # <<<<<<<<<<<<<<
  *         return self.box
  * 
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 700, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 689, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   __pyx_t_5 = 0;
@@ -11742,7 +11762,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_8getBox(struct __pyx_obj_5fr
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getBox_function_is_deprecate, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 697, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 686, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -11751,14 +11771,14 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_8getBox(struct __pyx_obj_5fr
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getBox_function_is_deprecate, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 697, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 686, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   } else
   #endif
   {
-    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 697, __pyx_L1_error)
+    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 686, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     if (__pyx_t_4) {
       __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -11769,14 +11789,14 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_8getBox(struct __pyx_obj_5fr
     __Pyx_GIVEREF(__pyx_t_2);
     PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_5, __pyx_t_2);
     __pyx_t_2 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 697, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 686, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "freud/bond.pyx":701
+  /* "freud/bond.pyx":690
  *                       "removed in a future version of freud.",
  *                       FreudDeprecationWarning)
  *         return self.box             # <<<<<<<<<<<<<<
@@ -11784,13 +11804,13 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_8getBox(struct __pyx_obj_5fr
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_box); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 701, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_box); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 690, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/bond.pyx":696
+  /* "freud/bond.pyx":685
  *         return freud.box.BoxFromCPP(self.thisptr.getBox())
  * 
  *     def getBox(self):             # <<<<<<<<<<<<<<
@@ -11813,7 +11833,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_8getBox(struct __pyx_obj_5fr
   return __pyx_r;
 }
 
-/* "freud/bond.pyx":704
+/* "freud/bond.pyx":693
  * 
  *     @property
  *     def list_map(self):             # <<<<<<<<<<<<<<
@@ -11840,7 +11860,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_8list_map___get__(struct __p
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "freud/bond.pyx":705
+  /* "freud/bond.pyx":694
  *     @property
  *     def list_map(self):
  *         return self.thisptr.getListMap()             # <<<<<<<<<<<<<<
@@ -11848,13 +11868,13 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_8list_map___get__(struct __p
  *     def getListMap(self):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_convert_map_to_py_unsigned_int____unsigned_int(__pyx_v_self->thisptr->getListMap()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 705, __pyx_L1_error)
+  __pyx_t_1 = __pyx_convert_map_to_py_unsigned_int____unsigned_int(__pyx_v_self->thisptr->getListMap()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 694, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/bond.pyx":704
+  /* "freud/bond.pyx":693
  * 
  *     @property
  *     def list_map(self):             # <<<<<<<<<<<<<<
@@ -11873,7 +11893,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_8list_map___get__(struct __p
   return __pyx_r;
 }
 
-/* "freud/bond.pyx":707
+/* "freud/bond.pyx":696
  *         return self.thisptr.getListMap()
  * 
  *     def getListMap(self):             # <<<<<<<<<<<<<<
@@ -11907,27 +11927,27 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_10getListMap(struct __pyx_ob
   PyObject *__pyx_t_6 = NULL;
   __Pyx_RefNannySetupContext("getListMap", 0);
 
-  /* "freud/bond.pyx":708
+  /* "freud/bond.pyx":697
  * 
  *     def getListMap(self):
  *         warnings.warn("The getListMap function is deprecated in favor "             # <<<<<<<<<<<<<<
  *                       "of the list_map class attribute and will be "
  *                       "removed in a future version of freud.",
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 708, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 697, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 708, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 697, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":711
+  /* "freud/bond.pyx":700
  *                       "of the list_map class attribute and will be "
  *                       "removed in a future version of freud.",
  *                       FreudDeprecationWarning)             # <<<<<<<<<<<<<<
  *         return self.list_map
  * 
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 711, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 700, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   __pyx_t_5 = 0;
@@ -11944,7 +11964,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_10getListMap(struct __pyx_ob
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getListMap_function_is_depre, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 708, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 697, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -11953,14 +11973,14 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_10getListMap(struct __pyx_ob
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getListMap_function_is_depre, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 708, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 697, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   } else
   #endif
   {
-    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 708, __pyx_L1_error)
+    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 697, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     if (__pyx_t_4) {
       __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -11971,14 +11991,14 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_10getListMap(struct __pyx_ob
     __Pyx_GIVEREF(__pyx_t_2);
     PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_5, __pyx_t_2);
     __pyx_t_2 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 708, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 697, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "freud/bond.pyx":712
+  /* "freud/bond.pyx":701
  *                       "removed in a future version of freud.",
  *                       FreudDeprecationWarning)
  *         return self.list_map             # <<<<<<<<<<<<<<
@@ -11986,13 +12006,13 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_10getListMap(struct __pyx_ob
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_list_map); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 712, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_list_map); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 701, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/bond.pyx":707
+  /* "freud/bond.pyx":696
  *         return self.thisptr.getListMap()
  * 
  *     def getListMap(self):             # <<<<<<<<<<<<<<
@@ -12015,7 +12035,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_10getListMap(struct __pyx_ob
   return __pyx_r;
 }
 
-/* "freud/bond.pyx":715
+/* "freud/bond.pyx":704
  * 
  *     @property
  *     def rev_list_map(self):             # <<<<<<<<<<<<<<
@@ -12042,7 +12062,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_12rev_list_map___get__(struc
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "freud/bond.pyx":716
+  /* "freud/bond.pyx":705
  *     @property
  *     def rev_list_map(self):
  *         return self.thisptr.getRevListMap()             # <<<<<<<<<<<<<<
@@ -12050,13 +12070,13 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_12rev_list_map___get__(struc
  *     def getRevListMap(self):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_convert_map_to_py_unsigned_int____unsigned_int(__pyx_v_self->thisptr->getRevListMap()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 716, __pyx_L1_error)
+  __pyx_t_1 = __pyx_convert_map_to_py_unsigned_int____unsigned_int(__pyx_v_self->thisptr->getRevListMap()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 705, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/bond.pyx":715
+  /* "freud/bond.pyx":704
  * 
  *     @property
  *     def rev_list_map(self):             # <<<<<<<<<<<<<<
@@ -12075,7 +12095,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_12rev_list_map___get__(struc
   return __pyx_r;
 }
 
-/* "freud/bond.pyx":718
+/* "freud/bond.pyx":707
  *         return self.thisptr.getRevListMap()
  * 
  *     def getRevListMap(self):             # <<<<<<<<<<<<<<
@@ -12109,27 +12129,27 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_12getRevListMap(struct __pyx
   PyObject *__pyx_t_6 = NULL;
   __Pyx_RefNannySetupContext("getRevListMap", 0);
 
-  /* "freud/bond.pyx":719
+  /* "freud/bond.pyx":708
  * 
  *     def getRevListMap(self):
  *         warnings.warn("The getRevListMap function is deprecated in favor "             # <<<<<<<<<<<<<<
  *                       "of the rev_list_map class attribute and will be "
  *                       "removed in a future version of freud.",
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 719, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 708, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 719, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 708, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":722
+  /* "freud/bond.pyx":711
  *                       "of the rev_list_map class attribute and will be "
  *                       "removed in a future version of freud.",
  *                       FreudDeprecationWarning)             # <<<<<<<<<<<<<<
  *         return self.rev_list_map
  * 
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 722, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 711, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   __pyx_t_5 = 0;
@@ -12146,7 +12166,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_12getRevListMap(struct __pyx
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getRevListMap_function_is_de, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 719, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 708, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -12155,14 +12175,14 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_12getRevListMap(struct __pyx
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getRevListMap_function_is_de, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 719, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 708, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   } else
   #endif
   {
-    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 719, __pyx_L1_error)
+    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 708, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     if (__pyx_t_4) {
       __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -12173,14 +12193,14 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_12getRevListMap(struct __pyx
     __Pyx_GIVEREF(__pyx_t_2);
     PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_5, __pyx_t_2);
     __pyx_t_2 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 719, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 708, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "freud/bond.pyx":723
+  /* "freud/bond.pyx":712
  *                       "removed in a future version of freud.",
  *                       FreudDeprecationWarning)
  *         return self.rev_list_map             # <<<<<<<<<<<<<<
@@ -12188,13 +12208,13 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_12getRevListMap(struct __pyx
  * cdef class BondingXYZ:
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_rev_list_map); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 723, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_rev_list_map); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 712, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/bond.pyx":718
+  /* "freud/bond.pyx":707
  *         return self.thisptr.getRevListMap()
  * 
  *     def getRevListMap(self):             # <<<<<<<<<<<<<<
@@ -12328,7 +12348,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYT_16__setstate_cython__(CYTHON
   return __pyx_r;
 }
 
-/* "freud/bond.pyx":761
+/* "freud/bond.pyx":750
  *     cdef rmax
  * 
  *     def __cinit__(self, float x_max, float y_max, float z_max, bond_map,             # <<<<<<<<<<<<<<
@@ -12376,29 +12396,29 @@ static int __pyx_pw_5freud_4bond_10BondingXYZ_1__cinit__(PyObject *__pyx_v_self,
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_y_max)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 5, 5, 1); __PYX_ERR(0, 761, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 5, 5, 1); __PYX_ERR(0, 750, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_z_max)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 5, 5, 2); __PYX_ERR(0, 761, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 5, 5, 2); __PYX_ERR(0, 750, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  3:
         if (likely((values[3] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_bond_map)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 5, 5, 3); __PYX_ERR(0, 761, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 5, 5, 3); __PYX_ERR(0, 750, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  4:
         if (likely((values[4] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_bond_list)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 5, 5, 4); __PYX_ERR(0, 761, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 5, 5, 4); __PYX_ERR(0, 750, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__cinit__") < 0)) __PYX_ERR(0, 761, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__cinit__") < 0)) __PYX_ERR(0, 750, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 5) {
       goto __pyx_L5_argtuple_error;
@@ -12409,15 +12429,15 @@ static int __pyx_pw_5freud_4bond_10BondingXYZ_1__cinit__(PyObject *__pyx_v_self,
       values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
       values[4] = PyTuple_GET_ITEM(__pyx_args, 4);
     }
-    __pyx_v_x_max = __pyx_PyFloat_AsFloat(values[0]); if (unlikely((__pyx_v_x_max == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 761, __pyx_L3_error)
-    __pyx_v_y_max = __pyx_PyFloat_AsFloat(values[1]); if (unlikely((__pyx_v_y_max == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 761, __pyx_L3_error)
-    __pyx_v_z_max = __pyx_PyFloat_AsFloat(values[2]); if (unlikely((__pyx_v_z_max == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 761, __pyx_L3_error)
+    __pyx_v_x_max = __pyx_PyFloat_AsFloat(values[0]); if (unlikely((__pyx_v_x_max == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 750, __pyx_L3_error)
+    __pyx_v_y_max = __pyx_PyFloat_AsFloat(values[1]); if (unlikely((__pyx_v_y_max == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 750, __pyx_L3_error)
+    __pyx_v_z_max = __pyx_PyFloat_AsFloat(values[2]); if (unlikely((__pyx_v_z_max == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 750, __pyx_L3_error)
     __pyx_v_bond_map = values[3];
     __pyx_v_bond_list = values[4];
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 5, 5, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 761, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 5, 5, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 750, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("freud.bond.BondingXYZ.__cinit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -12464,93 +12484,93 @@ static int __pyx_pf_5freud_4bond_10BondingXYZ___cinit__(struct __pyx_obj_5freud_
   __pyx_pybuffernd_l_bond_list.data = NULL;
   __pyx_pybuffernd_l_bond_list.rcbuffer = &__pyx_pybuffer_l_bond_list;
 
-  /* "freud/bond.pyx":764
+  /* "freud/bond.pyx":753
  *                   bond_list):
  *         # extract nr, nt from the bond_map
  *         n_z = bond_map.shape[0]             # <<<<<<<<<<<<<<
  *         n_y = bond_map.shape[1]
  *         n_x = bond_map.shape[2]
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_bond_map, __pyx_n_s_shape); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 764, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_bond_map, __pyx_n_s_shape); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 753, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_1, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 764, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_1, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 753, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_n_z = __pyx_t_2;
   __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":765
+  /* "freud/bond.pyx":754
  *         # extract nr, nt from the bond_map
  *         n_z = bond_map.shape[0]
  *         n_y = bond_map.shape[1]             # <<<<<<<<<<<<<<
  *         n_x = bond_map.shape[2]
  *         n_bonds = bond_list.shape[0]
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_bond_map, __pyx_n_s_shape); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 765, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_bond_map, __pyx_n_s_shape); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 754, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_1 = __Pyx_GetItemInt(__pyx_t_2, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 765, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_t_2, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 754, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_v_n_y = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "freud/bond.pyx":766
+  /* "freud/bond.pyx":755
  *         n_z = bond_map.shape[0]
  *         n_y = bond_map.shape[1]
  *         n_x = bond_map.shape[2]             # <<<<<<<<<<<<<<
  *         n_bonds = bond_list.shape[0]
  *         bond_map = np.require(bond_map, requirements=["C"])
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_bond_map, __pyx_n_s_shape); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 766, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_bond_map, __pyx_n_s_shape); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 755, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_1, 2, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 766, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_1, 2, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 755, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_n_x = __pyx_t_2;
   __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":767
+  /* "freud/bond.pyx":756
  *         n_y = bond_map.shape[1]
  *         n_x = bond_map.shape[2]
  *         n_bonds = bond_list.shape[0]             # <<<<<<<<<<<<<<
  *         bond_map = np.require(bond_map, requirements=["C"])
  *         bond_list = np.require(bond_list, requirements=["C"])
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_bond_list, __pyx_n_s_shape); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 767, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_bond_list, __pyx_n_s_shape); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 756, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_1 = __Pyx_GetItemInt(__pyx_t_2, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 767, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_t_2, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 756, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_v_n_bonds = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "freud/bond.pyx":768
+  /* "freud/bond.pyx":757
  *         n_x = bond_map.shape[2]
  *         n_bonds = bond_list.shape[0]
  *         bond_map = np.require(bond_map, requirements=["C"])             # <<<<<<<<<<<<<<
  *         bond_list = np.require(bond_list, requirements=["C"])
  *         cdef np.ndarray[uint, ndim=3] l_bond_map = bond_map
  */
-  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 768, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 757, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_require); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 768, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_require); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 757, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 768, __pyx_L1_error)
+  __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 757, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_INCREF(__pyx_v_bond_map);
   __Pyx_GIVEREF(__pyx_v_bond_map);
   PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_v_bond_map);
-  __pyx_t_3 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 768, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 757, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = PyList_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 768, __pyx_L1_error)
+  __pyx_t_4 = PyList_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 757, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_INCREF(__pyx_n_s_C);
   __Pyx_GIVEREF(__pyx_n_s_C);
   PyList_SET_ITEM(__pyx_t_4, 0, __pyx_n_s_C);
-  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_requirements, __pyx_t_4) < 0) __PYX_ERR(0, 768, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_requirements, __pyx_t_4) < 0) __PYX_ERR(0, 757, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_1, __pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 768, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_1, __pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 757, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -12558,33 +12578,33 @@ static int __pyx_pf_5freud_4bond_10BondingXYZ___cinit__(struct __pyx_obj_5freud_
   __Pyx_DECREF_SET(__pyx_v_bond_map, __pyx_t_4);
   __pyx_t_4 = 0;
 
-  /* "freud/bond.pyx":769
+  /* "freud/bond.pyx":758
  *         n_bonds = bond_list.shape[0]
  *         bond_map = np.require(bond_map, requirements=["C"])
  *         bond_list = np.require(bond_list, requirements=["C"])             # <<<<<<<<<<<<<<
  *         cdef np.ndarray[uint, ndim=3] l_bond_map = bond_map
  *         cdef np.ndarray[uint, ndim=1] l_bond_list = bond_list
  */
-  __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 769, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 758, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_require); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 769, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_require); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 758, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = PyTuple_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 769, __pyx_L1_error)
+  __pyx_t_4 = PyTuple_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 758, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_INCREF(__pyx_v_bond_list);
   __Pyx_GIVEREF(__pyx_v_bond_list);
   PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_v_bond_list);
-  __pyx_t_1 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 769, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 758, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = PyList_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 769, __pyx_L1_error)
+  __pyx_t_2 = PyList_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 758, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_INCREF(__pyx_n_s_C);
   __Pyx_GIVEREF(__pyx_n_s_C);
   PyList_SET_ITEM(__pyx_t_2, 0, __pyx_n_s_C);
-  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_requirements, __pyx_t_2) < 0) __PYX_ERR(0, 769, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_requirements, __pyx_t_2) < 0) __PYX_ERR(0, 758, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_4, __pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 769, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_4, __pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 758, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
@@ -12592,61 +12612,61 @@ static int __pyx_pf_5freud_4bond_10BondingXYZ___cinit__(struct __pyx_obj_5freud_
   __Pyx_DECREF_SET(__pyx_v_bond_list, __pyx_t_2);
   __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":770
+  /* "freud/bond.pyx":759
  *         bond_map = np.require(bond_map, requirements=["C"])
  *         bond_list = np.require(bond_list, requirements=["C"])
  *         cdef np.ndarray[uint, ndim=3] l_bond_map = bond_map             # <<<<<<<<<<<<<<
  *         cdef np.ndarray[uint, ndim=1] l_bond_list = bond_list
  *         self.thisptr = new freud._bond.BondingXYZ(
  */
-  if (!(likely(((__pyx_v_bond_map) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_bond_map, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 770, __pyx_L1_error)
+  if (!(likely(((__pyx_v_bond_map) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_bond_map, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 759, __pyx_L1_error)
   __pyx_t_2 = __pyx_v_bond_map;
   __Pyx_INCREF(__pyx_t_2);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_l_bond_map.rcbuffer->pybuffer, (PyObject*)((PyArrayObject *)__pyx_t_2), &__Pyx_TypeInfo_unsigned_int, PyBUF_FORMAT| PyBUF_STRIDES, 3, 0, __pyx_stack) == -1)) {
       __pyx_v_l_bond_map = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_l_bond_map.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 770, __pyx_L1_error)
+      __PYX_ERR(0, 759, __pyx_L1_error)
     } else {__pyx_pybuffernd_l_bond_map.diminfo[0].strides = __pyx_pybuffernd_l_bond_map.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_l_bond_map.diminfo[0].shape = __pyx_pybuffernd_l_bond_map.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_l_bond_map.diminfo[1].strides = __pyx_pybuffernd_l_bond_map.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_l_bond_map.diminfo[1].shape = __pyx_pybuffernd_l_bond_map.rcbuffer->pybuffer.shape[1]; __pyx_pybuffernd_l_bond_map.diminfo[2].strides = __pyx_pybuffernd_l_bond_map.rcbuffer->pybuffer.strides[2]; __pyx_pybuffernd_l_bond_map.diminfo[2].shape = __pyx_pybuffernd_l_bond_map.rcbuffer->pybuffer.shape[2];
     }
   }
   __pyx_v_l_bond_map = ((PyArrayObject *)__pyx_t_2);
   __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":771
+  /* "freud/bond.pyx":760
  *         bond_list = np.require(bond_list, requirements=["C"])
  *         cdef np.ndarray[uint, ndim=3] l_bond_map = bond_map
  *         cdef np.ndarray[uint, ndim=1] l_bond_list = bond_list             # <<<<<<<<<<<<<<
  *         self.thisptr = new freud._bond.BondingXYZ(
  *             x_max, y_max, z_max, n_x, n_y, n_z, n_bonds,
  */
-  if (!(likely(((__pyx_v_bond_list) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_bond_list, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 771, __pyx_L1_error)
+  if (!(likely(((__pyx_v_bond_list) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_bond_list, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 760, __pyx_L1_error)
   __pyx_t_2 = __pyx_v_bond_list;
   __Pyx_INCREF(__pyx_t_2);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_l_bond_list.rcbuffer->pybuffer, (PyObject*)((PyArrayObject *)__pyx_t_2), &__Pyx_TypeInfo_unsigned_int, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack) == -1)) {
       __pyx_v_l_bond_list = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_l_bond_list.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 771, __pyx_L1_error)
+      __PYX_ERR(0, 760, __pyx_L1_error)
     } else {__pyx_pybuffernd_l_bond_list.diminfo[0].strides = __pyx_pybuffernd_l_bond_list.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_l_bond_list.diminfo[0].shape = __pyx_pybuffernd_l_bond_list.rcbuffer->pybuffer.shape[0];
     }
   }
   __pyx_v_l_bond_list = ((PyArrayObject *)__pyx_t_2);
   __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":773
+  /* "freud/bond.pyx":762
  *         cdef np.ndarray[uint, ndim=1] l_bond_list = bond_list
  *         self.thisptr = new freud._bond.BondingXYZ(
  *             x_max, y_max, z_max, n_x, n_y, n_z, n_bonds,             # <<<<<<<<<<<<<<
  *             <unsigned int*> l_bond_map.data,
  *             <unsigned int*> l_bond_list.data)
  */
-  __pyx_t_5 = __Pyx_PyInt_As_unsigned_int(__pyx_v_n_x); if (unlikely((__pyx_t_5 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 773, __pyx_L1_error)
-  __pyx_t_6 = __Pyx_PyInt_As_unsigned_int(__pyx_v_n_y); if (unlikely((__pyx_t_6 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 773, __pyx_L1_error)
-  __pyx_t_7 = __Pyx_PyInt_As_unsigned_int(__pyx_v_n_z); if (unlikely((__pyx_t_7 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 773, __pyx_L1_error)
-  __pyx_t_8 = __Pyx_PyInt_As_unsigned_int(__pyx_v_n_bonds); if (unlikely((__pyx_t_8 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 773, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyInt_As_unsigned_int(__pyx_v_n_x); if (unlikely((__pyx_t_5 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 762, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyInt_As_unsigned_int(__pyx_v_n_y); if (unlikely((__pyx_t_6 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 762, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyInt_As_unsigned_int(__pyx_v_n_z); if (unlikely((__pyx_t_7 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 762, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyInt_As_unsigned_int(__pyx_v_n_bonds); if (unlikely((__pyx_t_8 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 762, __pyx_L1_error)
 
-  /* "freud/bond.pyx":772
+  /* "freud/bond.pyx":761
  *         cdef np.ndarray[uint, ndim=3] l_bond_map = bond_map
  *         cdef np.ndarray[uint, ndim=1] l_bond_list = bond_list
  *         self.thisptr = new freud._bond.BondingXYZ(             # <<<<<<<<<<<<<<
@@ -12655,19 +12675,19 @@ static int __pyx_pf_5freud_4bond_10BondingXYZ___cinit__(struct __pyx_obj_5freud_
  */
   __pyx_v_self->thisptr = new freud::bond::BondingXYZ(__pyx_v_x_max, __pyx_v_y_max, __pyx_v_z_max, __pyx_t_5, __pyx_t_6, __pyx_t_7, __pyx_t_8, ((unsigned int *)__pyx_v_l_bond_map->data), ((unsigned int *)__pyx_v_l_bond_list->data));
 
-  /* "freud/bond.pyx":776
+  /* "freud/bond.pyx":765
  *             <unsigned int*> l_bond_map.data,
  *             <unsigned int*> l_bond_list.data)
  *         self.rmax = np.sqrt(x_max**2 + y_max**2 + z_max**2)             # <<<<<<<<<<<<<<
  * 
  *     def __dealloc__(self):
  */
-  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 776, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 765, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_sqrt); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 776, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_sqrt); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 765, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyFloat_FromDouble(((powf(__pyx_v_x_max, 2.0) + powf(__pyx_v_y_max, 2.0)) + powf(__pyx_v_z_max, 2.0))); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 776, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(((powf(__pyx_v_x_max, 2.0) + powf(__pyx_v_y_max, 2.0)) + powf(__pyx_v_z_max, 2.0))); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 765, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_4))) {
@@ -12680,14 +12700,14 @@ static int __pyx_pf_5freud_4bond_10BondingXYZ___cinit__(struct __pyx_obj_5freud_
     }
   }
   if (!__pyx_t_3) {
-    __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 776, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 765, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __Pyx_GOTREF(__pyx_t_2);
   } else {
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_4)) {
       PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_t_1};
-      __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_4, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 776, __pyx_L1_error)
+      __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_4, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 765, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -12696,20 +12716,20 @@ static int __pyx_pf_5freud_4bond_10BondingXYZ___cinit__(struct __pyx_obj_5freud_
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_4)) {
       PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_t_1};
-      __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_4, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 776, __pyx_L1_error)
+      __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_4, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 765, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     } else
     #endif
     {
-      __pyx_t_9 = PyTuple_New(1+1); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 776, __pyx_L1_error)
+      __pyx_t_9 = PyTuple_New(1+1); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 765, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_9);
       __Pyx_GIVEREF(__pyx_t_3); PyTuple_SET_ITEM(__pyx_t_9, 0, __pyx_t_3); __pyx_t_3 = NULL;
       __Pyx_GIVEREF(__pyx_t_1);
       PyTuple_SET_ITEM(__pyx_t_9, 0+1, __pyx_t_1);
       __pyx_t_1 = 0;
-      __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_9, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 776, __pyx_L1_error)
+      __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_9, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 765, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
     }
@@ -12721,7 +12741,7 @@ static int __pyx_pf_5freud_4bond_10BondingXYZ___cinit__(struct __pyx_obj_5freud_
   __pyx_v_self->rmax = __pyx_t_2;
   __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":761
+  /* "freud/bond.pyx":750
  *     cdef rmax
  * 
  *     def __cinit__(self, float x_max, float y_max, float z_max, bond_map,             # <<<<<<<<<<<<<<
@@ -12764,7 +12784,7 @@ static int __pyx_pf_5freud_4bond_10BondingXYZ___cinit__(struct __pyx_obj_5freud_
   return __pyx_r;
 }
 
-/* "freud/bond.pyx":778
+/* "freud/bond.pyx":767
  *         self.rmax = np.sqrt(x_max**2 + y_max**2 + z_max**2)
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -12787,7 +12807,7 @@ static void __pyx_pf_5freud_4bond_10BondingXYZ_2__dealloc__(struct __pyx_obj_5fr
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__dealloc__", 0);
 
-  /* "freud/bond.pyx":779
+  /* "freud/bond.pyx":768
  * 
  *     def __dealloc__(self):
  *         del self.thisptr             # <<<<<<<<<<<<<<
@@ -12796,7 +12816,7 @@ static void __pyx_pf_5freud_4bond_10BondingXYZ_2__dealloc__(struct __pyx_obj_5fr
  */
   delete __pyx_v_self->thisptr;
 
-  /* "freud/bond.pyx":778
+  /* "freud/bond.pyx":767
  *         self.rmax = np.sqrt(x_max**2 + y_max**2 + z_max**2)
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -12808,7 +12828,7 @@ static void __pyx_pf_5freud_4bond_10BondingXYZ_2__dealloc__(struct __pyx_obj_5fr
   __Pyx_RefNannyFinishContext();
 }
 
-/* "freud/bond.pyx":781
+/* "freud/bond.pyx":770
  *         del self.thisptr
  * 
  *     def compute(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
@@ -12818,7 +12838,7 @@ static void __pyx_pf_5freud_4bond_10BondingXYZ_2__dealloc__(struct __pyx_obj_5fr
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_4bond_10BondingXYZ_5compute(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_4bond_10BondingXYZ_4compute[] = "BondingXYZ.compute(self, box, ref_points, ref_orientations, points=None, orientations=None, nlist=None)\nCalculates the bonds.\n\n        Args:\n            box (:class:`freud.box.Box`):\n                Simulation box.\n            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Reference points used to calculate the bonding.\n            ref_orientations ((:math:`N_{particles}`, 4)             :class:`numpy.ndarray`):\n                Reference orientations as quaternions to use in computation.\n            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Points used to calculate the bonding. Uses :code:`ref_points`\n                if not provided or :code:`None`.\n            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):\n                Orientations as quaternions to use in computation. Uses\n                :code:`ref_orientations` if not provided or :code:`None`.\n            nlist (:class:`freud.locality.NeighborList`, optional):\n                NeighborList to use to find bonds (Default value =\n                :code:`None`).\n        ";
+static char __pyx_doc_5freud_4bond_10BondingXYZ_4compute[] = "BondingXYZ.compute(self, box, ref_points, ref_orientations, points=None, orientations=None, nlist=None)\nCalculates the bonds.\n\n        Args:\n            box (:class:`freud.box.Box`):\n                Simulation box.\n            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Reference points used to calculate the bonding.\n            ref_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):\n                Reference orientations as quaternions to use in computation.\n            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):\n                Points used to calculate the bonding. Uses :code:`ref_points`\n                if not provided or :code:`None`.\n            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):\n                Orientations as quaternions to use in computation. Uses\n                :code:`ref_orientations` if not provided or :code:`None`.\n            nlist (:class:`freud.locality.NeighborList`, optional):\n                NeighborList to use to find bonds (Default value =\n                :code:`None`).\n        ";
 static PyMethodDef __pyx_mdef_5freud_4bond_10BondingXYZ_5compute = {"compute", (PyCFunction)__pyx_pw_5freud_4bond_10BondingXYZ_5compute, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_4bond_10BondingXYZ_4compute};
 static PyObject *__pyx_pw_5freud_4bond_10BondingXYZ_5compute(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_box = 0;
@@ -12835,7 +12855,7 @@ static PyObject *__pyx_pw_5freud_4bond_10BondingXYZ_5compute(PyObject *__pyx_v_s
     PyObject* values[6] = {0,0,0,0,0,0};
     values[3] = ((PyObject *)Py_None);
 
-    /* "freud/bond.pyx":782
+    /* "freud/bond.pyx":771
  * 
  *     def compute(self, box, ref_points, ref_orientations, points=None,
  *                 orientations=None, nlist=None):             # <<<<<<<<<<<<<<
@@ -12872,13 +12892,13 @@ static PyObject *__pyx_pw_5freud_4bond_10BondingXYZ_5compute(PyObject *__pyx_v_s
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_ref_points)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("compute", 0, 3, 6, 1); __PYX_ERR(0, 781, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("compute", 0, 3, 6, 1); __PYX_ERR(0, 770, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_ref_orientations)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("compute", 0, 3, 6, 2); __PYX_ERR(0, 781, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("compute", 0, 3, 6, 2); __PYX_ERR(0, 770, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  3:
@@ -12900,7 +12920,7 @@ static PyObject *__pyx_pw_5freud_4bond_10BondingXYZ_5compute(PyObject *__pyx_v_s
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "compute") < 0)) __PYX_ERR(0, 781, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "compute") < 0)) __PYX_ERR(0, 770, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -12926,7 +12946,7 @@ static PyObject *__pyx_pw_5freud_4bond_10BondingXYZ_5compute(PyObject *__pyx_v_s
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("compute", 0, 3, 6, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 781, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("compute", 0, 3, 6, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 770, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("freud.bond.BondingXYZ.compute", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -12934,7 +12954,7 @@ static PyObject *__pyx_pw_5freud_4bond_10BondingXYZ_5compute(PyObject *__pyx_v_s
   __pyx_L4_argument_unpacking_done:;
   __pyx_r = __pyx_pf_5freud_4bond_10BondingXYZ_4compute(((struct __pyx_obj_5freud_4bond_BondingXYZ *)__pyx_v_self), __pyx_v_box, __pyx_v_ref_points, __pyx_v_ref_orientations, __pyx_v_points, __pyx_v_orientations, __pyx_v_nlist);
 
-  /* "freud/bond.pyx":781
+  /* "freud/bond.pyx":770
  *         del self.thisptr
  * 
  *     def compute(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
@@ -12998,19 +13018,19 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_4compute(struct __pyx_obj_5f
   __pyx_pybuffernd_l_orientations.data = NULL;
   __pyx_pybuffernd_l_orientations.rcbuffer = &__pyx_pybuffer_l_orientations;
 
-  /* "freud/bond.pyx":803
+  /* "freud/bond.pyx":791
  *                 :code:`None`).
- *         """
+ *         """  # noqa: E501
  *         cdef freud.box.Box b = freud.common.convert_box(box)             # <<<<<<<<<<<<<<
  * 
  *         if points is None:
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 803, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 791, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_common); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 803, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_common); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 791, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_convert_box); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 803, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_convert_box); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 791, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_t_3 = NULL;
@@ -13024,13 +13044,13 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_4compute(struct __pyx_obj_5f
     }
   }
   if (!__pyx_t_3) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_box); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 803, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_box); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 791, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   } else {
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_v_box};
-      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 803, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 791, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
@@ -13038,29 +13058,29 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_4compute(struct __pyx_obj_5f
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_v_box};
-      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 803, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 791, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
     #endif
     {
-      __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 803, __pyx_L1_error)
+      __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 791, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_GIVEREF(__pyx_t_3); PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_3); __pyx_t_3 = NULL;
       __Pyx_INCREF(__pyx_v_box);
       __Pyx_GIVEREF(__pyx_v_box);
       PyTuple_SET_ITEM(__pyx_t_4, 0+1, __pyx_v_box);
-      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 803, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 791, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     }
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5freud_3box_Box))))) __PYX_ERR(0, 803, __pyx_L1_error)
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5freud_3box_Box))))) __PYX_ERR(0, 791, __pyx_L1_error)
   __pyx_v_b = ((struct __pyx_obj_5freud_3box_Box *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "freud/bond.pyx":805
+  /* "freud/bond.pyx":793
  *         cdef freud.box.Box b = freud.common.convert_box(box)
  * 
  *         if points is None:             # <<<<<<<<<<<<<<
@@ -13071,7 +13091,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_4compute(struct __pyx_obj_5f
   __pyx_t_6 = (__pyx_t_5 != 0);
   if (__pyx_t_6) {
 
-    /* "freud/bond.pyx":806
+    /* "freud/bond.pyx":794
  * 
  *         if points is None:
  *             points = ref_points             # <<<<<<<<<<<<<<
@@ -13081,7 +13101,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_4compute(struct __pyx_obj_5f
     __Pyx_INCREF(__pyx_v_ref_points);
     __Pyx_DECREF_SET(__pyx_v_points, __pyx_v_ref_points);
 
-    /* "freud/bond.pyx":805
+    /* "freud/bond.pyx":793
  *         cdef freud.box.Box b = freud.common.convert_box(box)
  * 
  *         if points is None:             # <<<<<<<<<<<<<<
@@ -13090,7 +13110,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_4compute(struct __pyx_obj_5f
  */
   }
 
-  /* "freud/bond.pyx":807
+  /* "freud/bond.pyx":795
  *         if points is None:
  *             points = ref_points
  *         if orientations is None:             # <<<<<<<<<<<<<<
@@ -13101,7 +13121,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_4compute(struct __pyx_obj_5f
   __pyx_t_5 = (__pyx_t_6 != 0);
   if (__pyx_t_5) {
 
-    /* "freud/bond.pyx":808
+    /* "freud/bond.pyx":796
  *             points = ref_points
  *         if orientations is None:
  *             orientations = ref_orientations             # <<<<<<<<<<<<<<
@@ -13111,7 +13131,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_4compute(struct __pyx_obj_5f
     __Pyx_INCREF(__pyx_v_ref_orientations);
     __Pyx_DECREF_SET(__pyx_v_orientations, __pyx_v_ref_orientations);
 
-    /* "freud/bond.pyx":807
+    /* "freud/bond.pyx":795
  *         if points is None:
  *             points = ref_points
  *         if orientations is None:             # <<<<<<<<<<<<<<
@@ -13120,30 +13140,30 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_4compute(struct __pyx_obj_5f
  */
   }
 
-  /* "freud/bond.pyx":810
+  /* "freud/bond.pyx":798
  *             orientations = ref_orientations
  * 
  *         ref_points = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             ref_points, 2, dtype=np.float32, contiguous=True,
  *             array_name="ref_points")
  */
-  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 810, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 798, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_common); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 810, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_common); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 798, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 810, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 798, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":811
+  /* "freud/bond.pyx":799
  * 
  *         ref_points = freud.common.convert_array(
  *             ref_points, 2, dtype=np.float32, contiguous=True,             # <<<<<<<<<<<<<<
  *             array_name="ref_points")
  *         if ref_points.shape[1] != 3:
  */
-  __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 810, __pyx_L1_error)
+  __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 798, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_INCREF(__pyx_v_ref_points);
   __Pyx_GIVEREF(__pyx_v_ref_points);
@@ -13151,26 +13171,26 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_4compute(struct __pyx_obj_5f
   __Pyx_INCREF(__pyx_int_2);
   __Pyx_GIVEREF(__pyx_int_2);
   PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_int_2);
-  __pyx_t_4 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 811, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 799, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 811, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 799, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_float32); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 811, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_float32); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 799, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_dtype, __pyx_t_7) < 0) __PYX_ERR(0, 811, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_dtype, __pyx_t_7) < 0) __PYX_ERR(0, 799, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_contiguous, Py_True) < 0) __PYX_ERR(0, 811, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_array_name, __pyx_n_s_ref_points) < 0) __PYX_ERR(0, 811, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_contiguous, Py_True) < 0) __PYX_ERR(0, 799, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_array_name, __pyx_n_s_ref_points) < 0) __PYX_ERR(0, 799, __pyx_L1_error)
 
-  /* "freud/bond.pyx":810
+  /* "freud/bond.pyx":798
  *             orientations = ref_orientations
  * 
  *         ref_points = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             ref_points, 2, dtype=np.float32, contiguous=True,
  *             array_name="ref_points")
  */
-  __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_2, __pyx_t_4); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 810, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_2, __pyx_t_4); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 798, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -13178,38 +13198,38 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_4compute(struct __pyx_obj_5f
   __Pyx_DECREF_SET(__pyx_v_ref_points, __pyx_t_7);
   __pyx_t_7 = 0;
 
-  /* "freud/bond.pyx":813
+  /* "freud/bond.pyx":801
  *             ref_points, 2, dtype=np.float32, contiguous=True,
  *             array_name="ref_points")
  *         if ref_points.shape[1] != 3:             # <<<<<<<<<<<<<<
  *             raise TypeError('ref_points should be an Nx3 array')
  * 
  */
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_v_ref_points, __pyx_n_s_shape); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 813, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_v_ref_points, __pyx_n_s_shape); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 801, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  __pyx_t_4 = __Pyx_GetItemInt(__pyx_t_7, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 813, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_GetItemInt(__pyx_t_7, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 801, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_7 = PyObject_RichCompare(__pyx_t_4, __pyx_int_3, Py_NE); __Pyx_XGOTREF(__pyx_t_7); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 813, __pyx_L1_error)
+  __pyx_t_7 = PyObject_RichCompare(__pyx_t_4, __pyx_int_3, Py_NE); __Pyx_XGOTREF(__pyx_t_7); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 801, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_t_7); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 813, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_t_7); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 801, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   if (unlikely(__pyx_t_5)) {
 
-    /* "freud/bond.pyx":814
+    /* "freud/bond.pyx":802
  *             array_name="ref_points")
  *         if ref_points.shape[1] != 3:
  *             raise TypeError('ref_points should be an Nx3 array')             # <<<<<<<<<<<<<<
  * 
  *         ref_orientations = freud.common.convert_array(
  */
-    __pyx_t_7 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__15, NULL); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 814, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__15, NULL); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 802, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     __Pyx_Raise(__pyx_t_7, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-    __PYX_ERR(0, 814, __pyx_L1_error)
+    __PYX_ERR(0, 802, __pyx_L1_error)
 
-    /* "freud/bond.pyx":813
+    /* "freud/bond.pyx":801
  *             ref_points, 2, dtype=np.float32, contiguous=True,
  *             array_name="ref_points")
  *         if ref_points.shape[1] != 3:             # <<<<<<<<<<<<<<
@@ -13218,30 +13238,30 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_4compute(struct __pyx_obj_5f
  */
   }
 
-  /* "freud/bond.pyx":816
+  /* "freud/bond.pyx":804
  *             raise TypeError('ref_points should be an Nx3 array')
  * 
  *         ref_orientations = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             ref_orientations, 2, dtype=np.float32, contiguous=True,
  *             array_name="ref_orientations")
  */
-  __pyx_t_7 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 816, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 804, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_common); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 816, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_common); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 804, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 816, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 804, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "freud/bond.pyx":817
+  /* "freud/bond.pyx":805
  * 
  *         ref_orientations = freud.common.convert_array(
  *             ref_orientations, 2, dtype=np.float32, contiguous=True,             # <<<<<<<<<<<<<<
  *             array_name="ref_orientations")
  *         if ref_orientations.shape[1] != 4:
  */
-  __pyx_t_4 = PyTuple_New(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 816, __pyx_L1_error)
+  __pyx_t_4 = PyTuple_New(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 804, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_INCREF(__pyx_v_ref_orientations);
   __Pyx_GIVEREF(__pyx_v_ref_orientations);
@@ -13249,26 +13269,26 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_4compute(struct __pyx_obj_5f
   __Pyx_INCREF(__pyx_int_2);
   __Pyx_GIVEREF(__pyx_int_2);
   PyTuple_SET_ITEM(__pyx_t_4, 1, __pyx_int_2);
-  __pyx_t_2 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 817, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 805, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 817, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 805, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_float32); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 817, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_float32); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 805, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_dtype, __pyx_t_3) < 0) __PYX_ERR(0, 817, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_dtype, __pyx_t_3) < 0) __PYX_ERR(0, 805, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_contiguous, Py_True) < 0) __PYX_ERR(0, 817, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_array_name, __pyx_n_s_ref_orientations) < 0) __PYX_ERR(0, 817, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_contiguous, Py_True) < 0) __PYX_ERR(0, 805, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_array_name, __pyx_n_s_ref_orientations) < 0) __PYX_ERR(0, 805, __pyx_L1_error)
 
-  /* "freud/bond.pyx":816
+  /* "freud/bond.pyx":804
  *             raise TypeError('ref_points should be an Nx3 array')
  * 
  *         ref_orientations = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             ref_orientations, 2, dtype=np.float32, contiguous=True,
  *             array_name="ref_orientations")
  */
-  __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_7, __pyx_t_4, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 816, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_7, __pyx_t_4, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 804, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
@@ -13276,38 +13296,38 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_4compute(struct __pyx_obj_5f
   __Pyx_DECREF_SET(__pyx_v_ref_orientations, __pyx_t_3);
   __pyx_t_3 = 0;
 
-  /* "freud/bond.pyx":819
+  /* "freud/bond.pyx":807
  *             ref_orientations, 2, dtype=np.float32, contiguous=True,
  *             array_name="ref_orientations")
  *         if ref_orientations.shape[1] != 4:             # <<<<<<<<<<<<<<
  *             raise ValueError(
  *                 "The 2nd dimension must have 4 values: q0, q1, q2, q3")
  */
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_ref_orientations, __pyx_n_s_shape); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 819, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_ref_orientations, __pyx_n_s_shape); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 807, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_3, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 819, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_3, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 807, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = PyObject_RichCompare(__pyx_t_2, __pyx_int_4, Py_NE); __Pyx_XGOTREF(__pyx_t_3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 819, __pyx_L1_error)
+  __pyx_t_3 = PyObject_RichCompare(__pyx_t_2, __pyx_int_4, Py_NE); __Pyx_XGOTREF(__pyx_t_3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 807, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_t_3); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 819, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_t_3); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 807, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   if (unlikely(__pyx_t_5)) {
 
-    /* "freud/bond.pyx":820
+    /* "freud/bond.pyx":808
  *             array_name="ref_orientations")
  *         if ref_orientations.shape[1] != 4:
  *             raise ValueError(             # <<<<<<<<<<<<<<
  *                 "The 2nd dimension must have 4 values: q0, q1, q2, q3")
  * 
  */
-    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__16, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 820, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__16, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 808, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_Raise(__pyx_t_3, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __PYX_ERR(0, 820, __pyx_L1_error)
+    __PYX_ERR(0, 808, __pyx_L1_error)
 
-    /* "freud/bond.pyx":819
+    /* "freud/bond.pyx":807
  *             ref_orientations, 2, dtype=np.float32, contiguous=True,
  *             array_name="ref_orientations")
  *         if ref_orientations.shape[1] != 4:             # <<<<<<<<<<<<<<
@@ -13316,30 +13336,30 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_4compute(struct __pyx_obj_5f
  */
   }
 
-  /* "freud/bond.pyx":823
+  /* "freud/bond.pyx":811
  *                 "The 2nd dimension must have 4 values: q0, q1, q2, q3")
  * 
  *         points = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             points, 2, dtype=np.float32, contiguous=True, array_name="points")
  *         if points.shape[1] != 3:
  */
-  __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 823, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 811, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_common); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 823, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_common); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 811, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 823, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 811, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":824
+  /* "freud/bond.pyx":812
  * 
  *         points = freud.common.convert_array(
  *             points, 2, dtype=np.float32, contiguous=True, array_name="points")             # <<<<<<<<<<<<<<
  *         if points.shape[1] != 3:
  *             raise TypeError('points should be an Nx3 array')
  */
-  __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 823, __pyx_L1_error)
+  __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 811, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_INCREF(__pyx_v_points);
   __Pyx_GIVEREF(__pyx_v_points);
@@ -13347,26 +13367,26 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_4compute(struct __pyx_obj_5f
   __Pyx_INCREF(__pyx_int_2);
   __Pyx_GIVEREF(__pyx_int_2);
   PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_int_2);
-  __pyx_t_4 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 824, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 812, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_7 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 824, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 812, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_float32); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 824, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_float32); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 812, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_dtype, __pyx_t_1) < 0) __PYX_ERR(0, 824, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_dtype, __pyx_t_1) < 0) __PYX_ERR(0, 812, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_contiguous, Py_True) < 0) __PYX_ERR(0, 824, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_array_name, __pyx_n_s_points) < 0) __PYX_ERR(0, 824, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_contiguous, Py_True) < 0) __PYX_ERR(0, 812, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_array_name, __pyx_n_s_points) < 0) __PYX_ERR(0, 812, __pyx_L1_error)
 
-  /* "freud/bond.pyx":823
+  /* "freud/bond.pyx":811
  *                 "The 2nd dimension must have 4 values: q0, q1, q2, q3")
  * 
  *         points = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             points, 2, dtype=np.float32, contiguous=True, array_name="points")
  *         if points.shape[1] != 3:
  */
-  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_2, __pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 823, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_2, __pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 811, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -13374,38 +13394,38 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_4compute(struct __pyx_obj_5f
   __Pyx_DECREF_SET(__pyx_v_points, __pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "freud/bond.pyx":825
+  /* "freud/bond.pyx":813
  *         points = freud.common.convert_array(
  *             points, 2, dtype=np.float32, contiguous=True, array_name="points")
  *         if points.shape[1] != 3:             # <<<<<<<<<<<<<<
  *             raise TypeError('points should be an Nx3 array')
  * 
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_points, __pyx_n_s_shape); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 825, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_points, __pyx_n_s_shape); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 813, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_4 = __Pyx_GetItemInt(__pyx_t_1, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 825, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_GetItemInt(__pyx_t_1, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 813, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyObject_RichCompare(__pyx_t_4, __pyx_int_3, Py_NE); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 825, __pyx_L1_error)
+  __pyx_t_1 = PyObject_RichCompare(__pyx_t_4, __pyx_int_3, Py_NE); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 813, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 825, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 813, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   if (unlikely(__pyx_t_5)) {
 
-    /* "freud/bond.pyx":826
+    /* "freud/bond.pyx":814
  *             points, 2, dtype=np.float32, contiguous=True, array_name="points")
  *         if points.shape[1] != 3:
  *             raise TypeError('points should be an Nx3 array')             # <<<<<<<<<<<<<<
  * 
  *         orientations = freud.common.convert_array(
  */
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__17, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 826, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__17, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 814, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_Raise(__pyx_t_1, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __PYX_ERR(0, 826, __pyx_L1_error)
+    __PYX_ERR(0, 814, __pyx_L1_error)
 
-    /* "freud/bond.pyx":825
+    /* "freud/bond.pyx":813
  *         points = freud.common.convert_array(
  *             points, 2, dtype=np.float32, contiguous=True, array_name="points")
  *         if points.shape[1] != 3:             # <<<<<<<<<<<<<<
@@ -13414,30 +13434,30 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_4compute(struct __pyx_obj_5f
  */
   }
 
-  /* "freud/bond.pyx":828
+  /* "freud/bond.pyx":816
  *             raise TypeError('points should be an Nx3 array')
  * 
  *         orientations = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             orientations, 2, dtype=np.float32, contiguous=True,
  *             array_name="orientations")
  */
-  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 828, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 816, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_common); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 828, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_common); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 816, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 828, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 816, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "freud/bond.pyx":829
+  /* "freud/bond.pyx":817
  * 
  *         orientations = freud.common.convert_array(
  *             orientations, 2, dtype=np.float32, contiguous=True,             # <<<<<<<<<<<<<<
  *             array_name="orientations")
  *         if orientations.shape[1] != 4:
  */
-  __pyx_t_4 = PyTuple_New(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 828, __pyx_L1_error)
+  __pyx_t_4 = PyTuple_New(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 816, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_INCREF(__pyx_v_orientations);
   __Pyx_GIVEREF(__pyx_v_orientations);
@@ -13445,26 +13465,26 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_4compute(struct __pyx_obj_5f
   __Pyx_INCREF(__pyx_int_2);
   __Pyx_GIVEREF(__pyx_int_2);
   PyTuple_SET_ITEM(__pyx_t_4, 1, __pyx_int_2);
-  __pyx_t_2 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 829, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 817, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 829, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 817, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_float32); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 829, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_float32); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 817, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_dtype, __pyx_t_7) < 0) __PYX_ERR(0, 829, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_dtype, __pyx_t_7) < 0) __PYX_ERR(0, 817, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_contiguous, Py_True) < 0) __PYX_ERR(0, 829, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_array_name, __pyx_n_s_orientations) < 0) __PYX_ERR(0, 829, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_contiguous, Py_True) < 0) __PYX_ERR(0, 817, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_array_name, __pyx_n_s_orientations) < 0) __PYX_ERR(0, 817, __pyx_L1_error)
 
-  /* "freud/bond.pyx":828
+  /* "freud/bond.pyx":816
  *             raise TypeError('points should be an Nx3 array')
  * 
  *         orientations = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             orientations, 2, dtype=np.float32, contiguous=True,
  *             array_name="orientations")
  */
-  __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_4, __pyx_t_2); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 828, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_4, __pyx_t_2); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 816, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
@@ -13472,38 +13492,38 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_4compute(struct __pyx_obj_5f
   __Pyx_DECREF_SET(__pyx_v_orientations, __pyx_t_7);
   __pyx_t_7 = 0;
 
-  /* "freud/bond.pyx":831
+  /* "freud/bond.pyx":819
  *             orientations, 2, dtype=np.float32, contiguous=True,
  *             array_name="orientations")
  *         if orientations.shape[1] != 4:             # <<<<<<<<<<<<<<
  *             raise ValueError(
  *                 "The 2nd dimension must have 4 values: q0, q1, q2, q3")
  */
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_v_orientations, __pyx_n_s_shape); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 831, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_v_orientations, __pyx_n_s_shape); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 819, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_7, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 831, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_7, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 819, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_7 = PyObject_RichCompare(__pyx_t_2, __pyx_int_4, Py_NE); __Pyx_XGOTREF(__pyx_t_7); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 831, __pyx_L1_error)
+  __pyx_t_7 = PyObject_RichCompare(__pyx_t_2, __pyx_int_4, Py_NE); __Pyx_XGOTREF(__pyx_t_7); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 819, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_t_7); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 831, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_t_7); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 819, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   if (unlikely(__pyx_t_5)) {
 
-    /* "freud/bond.pyx":832
+    /* "freud/bond.pyx":820
  *             array_name="orientations")
  *         if orientations.shape[1] != 4:
  *             raise ValueError(             # <<<<<<<<<<<<<<
  *                 "The 2nd dimension must have 4 values: q0, q1, q2, q3")
  * 
  */
-    __pyx_t_7 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__18, NULL); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 832, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__18, NULL); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 820, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     __Pyx_Raise(__pyx_t_7, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-    __PYX_ERR(0, 832, __pyx_L1_error)
+    __PYX_ERR(0, 820, __pyx_L1_error)
 
-    /* "freud/bond.pyx":831
+    /* "freud/bond.pyx":819
  *             orientations, 2, dtype=np.float32, contiguous=True,
  *             array_name="orientations")
  *         if orientations.shape[1] != 4:             # <<<<<<<<<<<<<<
@@ -13512,23 +13532,23 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_4compute(struct __pyx_obj_5f
  */
   }
 
-  /* "freud/bond.pyx":835
+  /* "freud/bond.pyx":823
  *                 "The 2nd dimension must have 4 values: q0, q1, q2, q3")
  * 
  *         defaulted_nlist = freud.locality.make_default_nlist(             # <<<<<<<<<<<<<<
  *             b, ref_points, points, self.rmax, nlist, None)
  *         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 835, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 823, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_locality); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 835, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_locality); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 823, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_make_default_nlist); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 835, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_make_default_nlist); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 823, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "freud/bond.pyx":836
+  /* "freud/bond.pyx":824
  * 
  *         defaulted_nlist = freud.locality.make_default_nlist(
  *             b, ref_points, points, self.rmax, nlist, None)             # <<<<<<<<<<<<<<
@@ -13550,7 +13570,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_4compute(struct __pyx_obj_5f
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_2)) {
     PyObject *__pyx_temp[7] = {__pyx_t_4, ((PyObject *)__pyx_v_b), __pyx_v_ref_points, __pyx_v_points, __pyx_v_self->rmax, __pyx_v_nlist, Py_None};
-    __pyx_t_7 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_8, 6+__pyx_t_8); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 835, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_8, 6+__pyx_t_8); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 823, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_7);
   } else
@@ -13558,13 +13578,13 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_4compute(struct __pyx_obj_5f
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
     PyObject *__pyx_temp[7] = {__pyx_t_4, ((PyObject *)__pyx_v_b), __pyx_v_ref_points, __pyx_v_points, __pyx_v_self->rmax, __pyx_v_nlist, Py_None};
-    __pyx_t_7 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_8, 6+__pyx_t_8); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 835, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_8, 6+__pyx_t_8); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 823, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_7);
   } else
   #endif
   {
-    __pyx_t_1 = PyTuple_New(6+__pyx_t_8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 835, __pyx_L1_error)
+    __pyx_t_1 = PyTuple_New(6+__pyx_t_8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 823, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     if (__pyx_t_4) {
       __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -13587,7 +13607,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_4compute(struct __pyx_obj_5f
     __Pyx_INCREF(Py_None);
     __Pyx_GIVEREF(Py_None);
     PyTuple_SET_ITEM(__pyx_t_1, 5+__pyx_t_8, Py_None);
-    __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_1, NULL); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 835, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_1, NULL); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 823, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   }
@@ -13595,136 +13615,136 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_4compute(struct __pyx_obj_5f
   __pyx_v_defaulted_nlist = __pyx_t_7;
   __pyx_t_7 = 0;
 
-  /* "freud/bond.pyx":837
+  /* "freud/bond.pyx":825
  *         defaulted_nlist = freud.locality.make_default_nlist(
  *             b, ref_points, points, self.rmax, nlist, None)
  *         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]             # <<<<<<<<<<<<<<
  * 
  *         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
  */
-  __pyx_t_7 = __Pyx_GetItemInt(__pyx_v_defaulted_nlist, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 837, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_GetItemInt(__pyx_v_defaulted_nlist, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 825, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  if (!(likely(((__pyx_t_7) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_7, __pyx_ptype_5freud_8locality_NeighborList))))) __PYX_ERR(0, 837, __pyx_L1_error)
+  if (!(likely(((__pyx_t_7) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_7, __pyx_ptype_5freud_8locality_NeighborList))))) __PYX_ERR(0, 825, __pyx_L1_error)
   __pyx_v_nlist_ = ((struct __pyx_obj_5freud_8locality_NeighborList *)__pyx_t_7);
   __pyx_t_7 = 0;
 
-  /* "freud/bond.pyx":839
+  /* "freud/bond.pyx":827
  *         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
  * 
  *         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points             # <<<<<<<<<<<<<<
  *         cdef np.ndarray[float, ndim=2] l_ref_orientations = ref_orientations
  *         cdef np.ndarray[float, ndim=2] l_points = points
  */
-  if (!(likely(((__pyx_v_ref_points) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_ref_points, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 839, __pyx_L1_error)
+  if (!(likely(((__pyx_v_ref_points) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_ref_points, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 827, __pyx_L1_error)
   __pyx_t_7 = __pyx_v_ref_points;
   __Pyx_INCREF(__pyx_t_7);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_l_ref_points.rcbuffer->pybuffer, (PyObject*)((PyArrayObject *)__pyx_t_7), &__Pyx_TypeInfo_float, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {
       __pyx_v_l_ref_points = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_l_ref_points.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 839, __pyx_L1_error)
+      __PYX_ERR(0, 827, __pyx_L1_error)
     } else {__pyx_pybuffernd_l_ref_points.diminfo[0].strides = __pyx_pybuffernd_l_ref_points.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_l_ref_points.diminfo[0].shape = __pyx_pybuffernd_l_ref_points.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_l_ref_points.diminfo[1].strides = __pyx_pybuffernd_l_ref_points.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_l_ref_points.diminfo[1].shape = __pyx_pybuffernd_l_ref_points.rcbuffer->pybuffer.shape[1];
     }
   }
   __pyx_v_l_ref_points = ((PyArrayObject *)__pyx_t_7);
   __pyx_t_7 = 0;
 
-  /* "freud/bond.pyx":840
+  /* "freud/bond.pyx":828
  * 
  *         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
  *         cdef np.ndarray[float, ndim=2] l_ref_orientations = ref_orientations             # <<<<<<<<<<<<<<
  *         cdef np.ndarray[float, ndim=2] l_points = points
  *         cdef np.ndarray[float, ndim=2] l_orientations = orientations
  */
-  if (!(likely(((__pyx_v_ref_orientations) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_ref_orientations, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 840, __pyx_L1_error)
+  if (!(likely(((__pyx_v_ref_orientations) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_ref_orientations, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 828, __pyx_L1_error)
   __pyx_t_7 = __pyx_v_ref_orientations;
   __Pyx_INCREF(__pyx_t_7);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_l_ref_orientations.rcbuffer->pybuffer, (PyObject*)((PyArrayObject *)__pyx_t_7), &__Pyx_TypeInfo_float, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {
       __pyx_v_l_ref_orientations = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_l_ref_orientations.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 840, __pyx_L1_error)
+      __PYX_ERR(0, 828, __pyx_L1_error)
     } else {__pyx_pybuffernd_l_ref_orientations.diminfo[0].strides = __pyx_pybuffernd_l_ref_orientations.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_l_ref_orientations.diminfo[0].shape = __pyx_pybuffernd_l_ref_orientations.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_l_ref_orientations.diminfo[1].strides = __pyx_pybuffernd_l_ref_orientations.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_l_ref_orientations.diminfo[1].shape = __pyx_pybuffernd_l_ref_orientations.rcbuffer->pybuffer.shape[1];
     }
   }
   __pyx_v_l_ref_orientations = ((PyArrayObject *)__pyx_t_7);
   __pyx_t_7 = 0;
 
-  /* "freud/bond.pyx":841
+  /* "freud/bond.pyx":829
  *         cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
  *         cdef np.ndarray[float, ndim=2] l_ref_orientations = ref_orientations
  *         cdef np.ndarray[float, ndim=2] l_points = points             # <<<<<<<<<<<<<<
  *         cdef np.ndarray[float, ndim=2] l_orientations = orientations
  *         cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
  */
-  if (!(likely(((__pyx_v_points) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_points, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 841, __pyx_L1_error)
+  if (!(likely(((__pyx_v_points) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_points, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 829, __pyx_L1_error)
   __pyx_t_7 = __pyx_v_points;
   __Pyx_INCREF(__pyx_t_7);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_l_points.rcbuffer->pybuffer, (PyObject*)((PyArrayObject *)__pyx_t_7), &__Pyx_TypeInfo_float, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {
       __pyx_v_l_points = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_l_points.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 841, __pyx_L1_error)
+      __PYX_ERR(0, 829, __pyx_L1_error)
     } else {__pyx_pybuffernd_l_points.diminfo[0].strides = __pyx_pybuffernd_l_points.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_l_points.diminfo[0].shape = __pyx_pybuffernd_l_points.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_l_points.diminfo[1].strides = __pyx_pybuffernd_l_points.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_l_points.diminfo[1].shape = __pyx_pybuffernd_l_points.rcbuffer->pybuffer.shape[1];
     }
   }
   __pyx_v_l_points = ((PyArrayObject *)__pyx_t_7);
   __pyx_t_7 = 0;
 
-  /* "freud/bond.pyx":842
+  /* "freud/bond.pyx":830
  *         cdef np.ndarray[float, ndim=2] l_ref_orientations = ref_orientations
  *         cdef np.ndarray[float, ndim=2] l_points = points
  *         cdef np.ndarray[float, ndim=2] l_orientations = orientations             # <<<<<<<<<<<<<<
  *         cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
  *         cdef unsigned int n_p = <unsigned int> points.shape[0]
  */
-  if (!(likely(((__pyx_v_orientations) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_orientations, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 842, __pyx_L1_error)
+  if (!(likely(((__pyx_v_orientations) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_orientations, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 830, __pyx_L1_error)
   __pyx_t_7 = __pyx_v_orientations;
   __Pyx_INCREF(__pyx_t_7);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_l_orientations.rcbuffer->pybuffer, (PyObject*)((PyArrayObject *)__pyx_t_7), &__Pyx_TypeInfo_float, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {
       __pyx_v_l_orientations = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_l_orientations.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 842, __pyx_L1_error)
+      __PYX_ERR(0, 830, __pyx_L1_error)
     } else {__pyx_pybuffernd_l_orientations.diminfo[0].strides = __pyx_pybuffernd_l_orientations.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_l_orientations.diminfo[0].shape = __pyx_pybuffernd_l_orientations.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_l_orientations.diminfo[1].strides = __pyx_pybuffernd_l_orientations.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_l_orientations.diminfo[1].shape = __pyx_pybuffernd_l_orientations.rcbuffer->pybuffer.shape[1];
     }
   }
   __pyx_v_l_orientations = ((PyArrayObject *)__pyx_t_7);
   __pyx_t_7 = 0;
 
-  /* "freud/bond.pyx":843
+  /* "freud/bond.pyx":831
  *         cdef np.ndarray[float, ndim=2] l_points = points
  *         cdef np.ndarray[float, ndim=2] l_orientations = orientations
  *         cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]             # <<<<<<<<<<<<<<
  *         cdef unsigned int n_p = <unsigned int> points.shape[0]
  *         with nogil:
  */
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_v_ref_points, __pyx_n_s_shape); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 843, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_v_ref_points, __pyx_n_s_shape); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 831, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_7, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 843, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_7, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 831, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_9 = __Pyx_PyInt_As_unsigned_int(__pyx_t_2); if (unlikely((__pyx_t_9 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 843, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyInt_As_unsigned_int(__pyx_t_2); if (unlikely((__pyx_t_9 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 831, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_v_n_ref = ((unsigned int)__pyx_t_9);
 
-  /* "freud/bond.pyx":844
+  /* "freud/bond.pyx":832
  *         cdef np.ndarray[float, ndim=2] l_orientations = orientations
  *         cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
  *         cdef unsigned int n_p = <unsigned int> points.shape[0]             # <<<<<<<<<<<<<<
  *         with nogil:
  *             self.thisptr.compute(
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_points, __pyx_n_s_shape); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 844, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_points, __pyx_n_s_shape); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 832, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_7 = __Pyx_GetItemInt(__pyx_t_2, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 844, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_GetItemInt(__pyx_t_2, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 832, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_9 = __Pyx_PyInt_As_unsigned_int(__pyx_t_7); if (unlikely((__pyx_t_9 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 844, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyInt_As_unsigned_int(__pyx_t_7); if (unlikely((__pyx_t_9 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 832, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   __pyx_v_n_p = ((unsigned int)__pyx_t_9);
 
-  /* "freud/bond.pyx":845
+  /* "freud/bond.pyx":833
  *         cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
  *         cdef unsigned int n_p = <unsigned int> points.shape[0]
  *         with nogil:             # <<<<<<<<<<<<<<
@@ -13739,7 +13759,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_4compute(struct __pyx_obj_5f
       #endif
       /*try:*/ {
 
-        /* "freud/bond.pyx":846
+        /* "freud/bond.pyx":834
  *         cdef unsigned int n_p = <unsigned int> points.shape[0]
  *         with nogil:
  *             self.thisptr.compute(             # <<<<<<<<<<<<<<
@@ -13756,11 +13776,11 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_4compute(struct __pyx_obj_5f
           #ifdef WITH_THREAD
           __Pyx_PyGILState_Release(__pyx_gilstate_save);
           #endif
-          __PYX_ERR(0, 846, __pyx_L10_error)
+          __PYX_ERR(0, 834, __pyx_L10_error)
         }
       }
 
-      /* "freud/bond.pyx":845
+      /* "freud/bond.pyx":833
  *         cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
  *         cdef unsigned int n_p = <unsigned int> points.shape[0]
  *         with nogil:             # <<<<<<<<<<<<<<
@@ -13786,7 +13806,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_4compute(struct __pyx_obj_5f
       }
   }
 
-  /* "freud/bond.pyx":854
+  /* "freud/bond.pyx":842
  *                 <quat[float]*> l_orientations.data,
  *                 n_p)
  *         return self             # <<<<<<<<<<<<<<
@@ -13798,7 +13818,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_4compute(struct __pyx_obj_5f
   __pyx_r = ((PyObject *)__pyx_v_self);
   goto __pyx_L0;
 
-  /* "freud/bond.pyx":781
+  /* "freud/bond.pyx":770
  *         del self.thisptr
  * 
  *     def compute(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
@@ -13847,7 +13867,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_4compute(struct __pyx_obj_5f
   return __pyx_r;
 }
 
-/* "freud/bond.pyx":857
+/* "freud/bond.pyx":845
  * 
  *     @property
  *     def bonds(self):             # <<<<<<<<<<<<<<
@@ -13884,7 +13904,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_5bonds___get__(struct __pyx_
   __pyx_pybuffernd_result.data = NULL;
   __pyx_pybuffernd_result.rcbuffer = &__pyx_pybuffer_result;
 
-  /* "freud/bond.pyx":858
+  /* "freud/bond.pyx":846
  *     @property
  *     def bonds(self):
  *         cdef unsigned int * bonds = self.thisptr.getBonds().get()             # <<<<<<<<<<<<<<
@@ -13893,7 +13913,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_5bonds___get__(struct __pyx_
  */
   __pyx_v_bonds = __pyx_v_self->thisptr->getBonds().get();
 
-  /* "freud/bond.pyx":860
+  /* "freud/bond.pyx":848
  *         cdef unsigned int * bonds = self.thisptr.getBonds().get()
  *         cdef np.npy_intp nbins[2]
  *         nbins[0] = <np.npy_intp> self.thisptr.getNumParticles()             # <<<<<<<<<<<<<<
@@ -13902,7 +13922,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_5bonds___get__(struct __pyx_
  */
   (__pyx_v_nbins[0]) = ((npy_intp)__pyx_v_self->thisptr->getNumParticles());
 
-  /* "freud/bond.pyx":861
+  /* "freud/bond.pyx":849
  *         cdef np.npy_intp nbins[2]
  *         nbins[0] = <np.npy_intp> self.thisptr.getNumParticles()
  *         nbins[1] = <np.npy_intp> self.thisptr.getNumBonds()             # <<<<<<<<<<<<<<
@@ -13911,22 +13931,22 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_5bonds___get__(struct __pyx_
  */
   (__pyx_v_nbins[1]) = ((npy_intp)__pyx_v_self->thisptr->getNumBonds());
 
-  /* "freud/bond.pyx":863
+  /* "freud/bond.pyx":851
  *         nbins[1] = <np.npy_intp> self.thisptr.getNumBonds()
  *         cdef np.ndarray[np.uint32_t, ndim=2] result = \
  *             np.PyArray_SimpleNewFromData(             # <<<<<<<<<<<<<<
  *                 2, nbins, np.NPY_UINT32, <void*> bonds)
  *         return result
  */
-  __pyx_t_1 = PyArray_SimpleNewFromData(2, __pyx_v_nbins, NPY_UINT32, ((void *)__pyx_v_bonds)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 863, __pyx_L1_error)
+  __pyx_t_1 = PyArray_SimpleNewFromData(2, __pyx_v_nbins, NPY_UINT32, ((void *)__pyx_v_bonds)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 851, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 863, __pyx_L1_error)
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 851, __pyx_L1_error)
   __pyx_t_2 = ((PyArrayObject *)__pyx_t_1);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_result.rcbuffer->pybuffer, (PyObject*)__pyx_t_2, &__Pyx_TypeInfo_nn___pyx_t_5numpy_uint32_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {
       __pyx_v_result = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_result.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 862, __pyx_L1_error)
+      __PYX_ERR(0, 850, __pyx_L1_error)
     } else {__pyx_pybuffernd_result.diminfo[0].strides = __pyx_pybuffernd_result.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_result.diminfo[0].shape = __pyx_pybuffernd_result.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_result.diminfo[1].strides = __pyx_pybuffernd_result.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_result.diminfo[1].shape = __pyx_pybuffernd_result.rcbuffer->pybuffer.shape[1];
     }
   }
@@ -13934,7 +13954,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_5bonds___get__(struct __pyx_
   __pyx_v_result = ((PyArrayObject *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "freud/bond.pyx":865
+  /* "freud/bond.pyx":853
  *             np.PyArray_SimpleNewFromData(
  *                 2, nbins, np.NPY_UINT32, <void*> bonds)
  *         return result             # <<<<<<<<<<<<<<
@@ -13946,7 +13966,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_5bonds___get__(struct __pyx_
   __pyx_r = ((PyObject *)__pyx_v_result);
   goto __pyx_L0;
 
-  /* "freud/bond.pyx":857
+  /* "freud/bond.pyx":845
  * 
  *     @property
  *     def bonds(self):             # <<<<<<<<<<<<<<
@@ -13975,7 +13995,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_5bonds___get__(struct __pyx_
   return __pyx_r;
 }
 
-/* "freud/bond.pyx":867
+/* "freud/bond.pyx":855
  *         return result
  * 
  *     def getBonds(self):             # <<<<<<<<<<<<<<
@@ -14009,27 +14029,27 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_6getBonds(struct __pyx_obj_5
   PyObject *__pyx_t_6 = NULL;
   __Pyx_RefNannySetupContext("getBonds", 0);
 
-  /* "freud/bond.pyx":868
+  /* "freud/bond.pyx":856
  * 
  *     def getBonds(self):
  *         warnings.warn("The getBonds function is deprecated in favor "             # <<<<<<<<<<<<<<
  *                       "of the bonds class attribute and will be "
  *                       "removed in a future version of freud.",
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 868, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 856, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 868, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 856, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":871
+  /* "freud/bond.pyx":859
  *                       "of the bonds class attribute and will be "
  *                       "removed in a future version of freud.",
  *                       FreudDeprecationWarning)             # <<<<<<<<<<<<<<
  *         return self.bonds
  * 
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 871, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 859, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   __pyx_t_5 = 0;
@@ -14046,7 +14066,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_6getBonds(struct __pyx_obj_5
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getBonds_function_is_depreca, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 868, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 856, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -14055,14 +14075,14 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_6getBonds(struct __pyx_obj_5
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getBonds_function_is_depreca, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 868, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 856, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   } else
   #endif
   {
-    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 868, __pyx_L1_error)
+    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 856, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     if (__pyx_t_4) {
       __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -14073,14 +14093,14 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_6getBonds(struct __pyx_obj_5
     __Pyx_GIVEREF(__pyx_t_2);
     PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_5, __pyx_t_2);
     __pyx_t_2 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 868, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 856, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "freud/bond.pyx":872
+  /* "freud/bond.pyx":860
  *                       "removed in a future version of freud.",
  *                       FreudDeprecationWarning)
  *         return self.bonds             # <<<<<<<<<<<<<<
@@ -14088,13 +14108,13 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_6getBonds(struct __pyx_obj_5
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_bonds); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 872, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_bonds); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 860, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/bond.pyx":867
+  /* "freud/bond.pyx":855
  *         return result
  * 
  *     def getBonds(self):             # <<<<<<<<<<<<<<
@@ -14117,7 +14137,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_6getBonds(struct __pyx_obj_5
   return __pyx_r;
 }
 
-/* "freud/bond.pyx":875
+/* "freud/bond.pyx":863
  * 
  *     @property
  *     def box(self):             # <<<<<<<<<<<<<<
@@ -14144,7 +14164,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_3box___get__(struct __pyx_ob
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "freud/bond.pyx":876
+  /* "freud/bond.pyx":864
  *     @property
  *     def box(self):
  *         return freud.box.BoxFromCPP(self.thisptr.getBox())             # <<<<<<<<<<<<<<
@@ -14152,13 +14172,13 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_3box___get__(struct __pyx_ob
  *     def getBox(self):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_5freud_3box_BoxFromCPP(__pyx_v_self->thisptr->getBox()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 876, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_5freud_3box_BoxFromCPP(__pyx_v_self->thisptr->getBox()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 864, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/bond.pyx":875
+  /* "freud/bond.pyx":863
  * 
  *     @property
  *     def box(self):             # <<<<<<<<<<<<<<
@@ -14177,7 +14197,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_3box___get__(struct __pyx_ob
   return __pyx_r;
 }
 
-/* "freud/bond.pyx":878
+/* "freud/bond.pyx":866
  *         return freud.box.BoxFromCPP(self.thisptr.getBox())
  * 
  *     def getBox(self):             # <<<<<<<<<<<<<<
@@ -14211,27 +14231,27 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_8getBox(struct __pyx_obj_5fr
   PyObject *__pyx_t_6 = NULL;
   __Pyx_RefNannySetupContext("getBox", 0);
 
-  /* "freud/bond.pyx":879
+  /* "freud/bond.pyx":867
  * 
  *     def getBox(self):
  *         warnings.warn("The getBox function is deprecated in favor "             # <<<<<<<<<<<<<<
  *                       "of the box class attribute and will be "
  *                       "removed in a future version of freud.",
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 879, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 867, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 879, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 867, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":882
+  /* "freud/bond.pyx":870
  *                       "of the box class attribute and will be "
  *                       "removed in a future version of freud.",
  *                       FreudDeprecationWarning)             # <<<<<<<<<<<<<<
  *         return self.box
  * 
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 882, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 870, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   __pyx_t_5 = 0;
@@ -14248,7 +14268,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_8getBox(struct __pyx_obj_5fr
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getBox_function_is_deprecate, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 879, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 867, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -14257,14 +14277,14 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_8getBox(struct __pyx_obj_5fr
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getBox_function_is_deprecate, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 879, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 867, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   } else
   #endif
   {
-    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 879, __pyx_L1_error)
+    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 867, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     if (__pyx_t_4) {
       __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -14275,14 +14295,14 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_8getBox(struct __pyx_obj_5fr
     __Pyx_GIVEREF(__pyx_t_2);
     PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_5, __pyx_t_2);
     __pyx_t_2 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 879, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 867, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "freud/bond.pyx":883
+  /* "freud/bond.pyx":871
  *                       "removed in a future version of freud.",
  *                       FreudDeprecationWarning)
  *         return self.box             # <<<<<<<<<<<<<<
@@ -14290,13 +14310,13 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_8getBox(struct __pyx_obj_5fr
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_box); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 883, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_box); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 871, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/bond.pyx":878
+  /* "freud/bond.pyx":866
  *         return freud.box.BoxFromCPP(self.thisptr.getBox())
  * 
  *     def getBox(self):             # <<<<<<<<<<<<<<
@@ -14319,7 +14339,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_8getBox(struct __pyx_obj_5fr
   return __pyx_r;
 }
 
-/* "freud/bond.pyx":886
+/* "freud/bond.pyx":874
  * 
  *     @property
  *     def list_map(self):             # <<<<<<<<<<<<<<
@@ -14346,7 +14366,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_8list_map___get__(struct __p
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "freud/bond.pyx":887
+  /* "freud/bond.pyx":875
  *     @property
  *     def list_map(self):
  *         return self.thisptr.getListMap()             # <<<<<<<<<<<<<<
@@ -14354,13 +14374,13 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_8list_map___get__(struct __p
  *     def getListMap(self):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_convert_map_to_py_unsigned_int____unsigned_int(__pyx_v_self->thisptr->getListMap()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 887, __pyx_L1_error)
+  __pyx_t_1 = __pyx_convert_map_to_py_unsigned_int____unsigned_int(__pyx_v_self->thisptr->getListMap()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 875, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/bond.pyx":886
+  /* "freud/bond.pyx":874
  * 
  *     @property
  *     def list_map(self):             # <<<<<<<<<<<<<<
@@ -14379,7 +14399,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_8list_map___get__(struct __p
   return __pyx_r;
 }
 
-/* "freud/bond.pyx":889
+/* "freud/bond.pyx":877
  *         return self.thisptr.getListMap()
  * 
  *     def getListMap(self):             # <<<<<<<<<<<<<<
@@ -14413,27 +14433,27 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_10getListMap(struct __pyx_ob
   PyObject *__pyx_t_6 = NULL;
   __Pyx_RefNannySetupContext("getListMap", 0);
 
-  /* "freud/bond.pyx":890
+  /* "freud/bond.pyx":878
  * 
  *     def getListMap(self):
  *         warnings.warn("The getListMap function is deprecated in favor "             # <<<<<<<<<<<<<<
  *                       "of the list_map class attribute and will be "
  *                       "removed in a future version of freud.",
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 890, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 878, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 890, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 878, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":893
+  /* "freud/bond.pyx":881
  *                       "of the list_map class attribute and will be "
  *                       "removed in a future version of freud.",
  *                       FreudDeprecationWarning)             # <<<<<<<<<<<<<<
  *         return self.list_map
  * 
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 893, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 881, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   __pyx_t_5 = 0;
@@ -14450,7 +14470,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_10getListMap(struct __pyx_ob
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getListMap_function_is_depre, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 890, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 878, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -14459,14 +14479,14 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_10getListMap(struct __pyx_ob
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getListMap_function_is_depre, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 890, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 878, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   } else
   #endif
   {
-    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 890, __pyx_L1_error)
+    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 878, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     if (__pyx_t_4) {
       __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -14477,14 +14497,14 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_10getListMap(struct __pyx_ob
     __Pyx_GIVEREF(__pyx_t_2);
     PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_5, __pyx_t_2);
     __pyx_t_2 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 890, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 878, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "freud/bond.pyx":894
+  /* "freud/bond.pyx":882
  *                       "removed in a future version of freud.",
  *                       FreudDeprecationWarning)
  *         return self.list_map             # <<<<<<<<<<<<<<
@@ -14492,13 +14512,13 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_10getListMap(struct __pyx_ob
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_list_map); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 894, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_list_map); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 882, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/bond.pyx":889
+  /* "freud/bond.pyx":877
  *         return self.thisptr.getListMap()
  * 
  *     def getListMap(self):             # <<<<<<<<<<<<<<
@@ -14521,7 +14541,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_10getListMap(struct __pyx_ob
   return __pyx_r;
 }
 
-/* "freud/bond.pyx":897
+/* "freud/bond.pyx":885
  * 
  *     @property
  *     def rev_list_map(self):             # <<<<<<<<<<<<<<
@@ -14548,7 +14568,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_12rev_list_map___get__(struc
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "freud/bond.pyx":898
+  /* "freud/bond.pyx":886
  *     @property
  *     def rev_list_map(self):
  *         return self.thisptr.getRevListMap()             # <<<<<<<<<<<<<<
@@ -14556,13 +14576,13 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_12rev_list_map___get__(struc
  *     def getRevListMap(self):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_convert_map_to_py_unsigned_int____unsigned_int(__pyx_v_self->thisptr->getRevListMap()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 898, __pyx_L1_error)
+  __pyx_t_1 = __pyx_convert_map_to_py_unsigned_int____unsigned_int(__pyx_v_self->thisptr->getRevListMap()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 886, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/bond.pyx":897
+  /* "freud/bond.pyx":885
  * 
  *     @property
  *     def rev_list_map(self):             # <<<<<<<<<<<<<<
@@ -14581,7 +14601,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_12rev_list_map___get__(struc
   return __pyx_r;
 }
 
-/* "freud/bond.pyx":900
+/* "freud/bond.pyx":888
  *         return self.thisptr.getRevListMap()
  * 
  *     def getRevListMap(self):             # <<<<<<<<<<<<<<
@@ -14615,26 +14635,26 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_12getRevListMap(struct __pyx
   PyObject *__pyx_t_6 = NULL;
   __Pyx_RefNannySetupContext("getRevListMap", 0);
 
-  /* "freud/bond.pyx":901
+  /* "freud/bond.pyx":889
  * 
  *     def getRevListMap(self):
  *         warnings.warn("The getRevListMap function is deprecated in favor "             # <<<<<<<<<<<<<<
  *                       "of the rev_list_map class attribute and will be "
  *                       "removed in a future version of freud.",
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 901, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 889, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 901, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 889, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":904
+  /* "freud/bond.pyx":892
  *                       "of the rev_list_map class attribute and will be "
  *                       "removed in a future version of freud.",
  *                       FreudDeprecationWarning)             # <<<<<<<<<<<<<<
  *         return self.rev_list_map
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 904, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 892, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   __pyx_t_5 = 0;
@@ -14651,7 +14671,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_12getRevListMap(struct __pyx
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getRevListMap_function_is_de, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 901, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 889, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -14660,14 +14680,14 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_12getRevListMap(struct __pyx
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getRevListMap_function_is_de, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 901, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 889, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   } else
   #endif
   {
-    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 901, __pyx_L1_error)
+    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 889, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     if (__pyx_t_4) {
       __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -14678,26 +14698,26 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_12getRevListMap(struct __pyx
     __Pyx_GIVEREF(__pyx_t_2);
     PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_5, __pyx_t_2);
     __pyx_t_2 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 901, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 889, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "freud/bond.pyx":905
+  /* "freud/bond.pyx":893
  *                       "removed in a future version of freud.",
  *                       FreudDeprecationWarning)
  *         return self.rev_list_map             # <<<<<<<<<<<<<<
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_rev_list_map); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 905, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_rev_list_map); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 893, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/bond.pyx":900
+  /* "freud/bond.pyx":888
  *         return self.thisptr.getRevListMap()
  * 
  *     def getRevListMap(self):             # <<<<<<<<<<<<<<
@@ -14831,7 +14851,7 @@ static PyObject *__pyx_pf_5freud_4bond_10BondingXYZ_16__setstate_cython__(CYTHON
   return __pyx_r;
 }
 
-/* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":215
+/* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":215
  *         # experimental exception made for __getbuffer__ and __releasebuffer__
  *         # -- the details of this may change.
  *         def __getbuffer__(ndarray self, Py_buffer* info, int flags):             # <<<<<<<<<<<<<<
@@ -14879,7 +14899,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
   __pyx_v_info->obj = Py_None; __Pyx_INCREF(Py_None);
   __Pyx_GIVEREF(__pyx_v_info->obj);
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":222
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":222
  * 
  *             cdef int i, ndim
  *             cdef int endian_detector = 1             # <<<<<<<<<<<<<<
@@ -14888,7 +14908,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
   __pyx_v_endian_detector = 1;
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":223
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":223
  *             cdef int i, ndim
  *             cdef int endian_detector = 1
  *             cdef bint little_endian = ((<char*>&endian_detector)[0] != 0)             # <<<<<<<<<<<<<<
@@ -14897,7 +14917,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
   __pyx_v_little_endian = ((((char *)(&__pyx_v_endian_detector))[0]) != 0);
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":225
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":225
  *             cdef bint little_endian = ((<char*>&endian_detector)[0] != 0)
  * 
  *             ndim = PyArray_NDIM(self)             # <<<<<<<<<<<<<<
@@ -14906,7 +14926,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
   __pyx_v_ndim = PyArray_NDIM(__pyx_v_self);
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":227
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":227
  *             ndim = PyArray_NDIM(self)
  * 
  *             if ((flags & pybuf.PyBUF_C_CONTIGUOUS == pybuf.PyBUF_C_CONTIGUOUS)             # <<<<<<<<<<<<<<
@@ -14920,7 +14940,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
     goto __pyx_L4_bool_binop_done;
   }
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":228
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":228
  * 
  *             if ((flags & pybuf.PyBUF_C_CONTIGUOUS == pybuf.PyBUF_C_CONTIGUOUS)
  *                 and not PyArray_CHKFLAGS(self, NPY_C_CONTIGUOUS)):             # <<<<<<<<<<<<<<
@@ -14931,7 +14951,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
   __pyx_t_1 = __pyx_t_2;
   __pyx_L4_bool_binop_done:;
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":227
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":227
  *             ndim = PyArray_NDIM(self)
  * 
  *             if ((flags & pybuf.PyBUF_C_CONTIGUOUS == pybuf.PyBUF_C_CONTIGUOUS)             # <<<<<<<<<<<<<<
@@ -14940,7 +14960,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
   if (unlikely(__pyx_t_1)) {
 
-    /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":229
+    /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":229
  *             if ((flags & pybuf.PyBUF_C_CONTIGUOUS == pybuf.PyBUF_C_CONTIGUOUS)
  *                 and not PyArray_CHKFLAGS(self, NPY_C_CONTIGUOUS)):
  *                 raise ValueError(u"ndarray is not C contiguous")             # <<<<<<<<<<<<<<
@@ -14953,7 +14973,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __PYX_ERR(2, 229, __pyx_L1_error)
 
-    /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":227
+    /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":227
  *             ndim = PyArray_NDIM(self)
  * 
  *             if ((flags & pybuf.PyBUF_C_CONTIGUOUS == pybuf.PyBUF_C_CONTIGUOUS)             # <<<<<<<<<<<<<<
@@ -14962,7 +14982,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
   }
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":231
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":231
  *                 raise ValueError(u"ndarray is not C contiguous")
  * 
  *             if ((flags & pybuf.PyBUF_F_CONTIGUOUS == pybuf.PyBUF_F_CONTIGUOUS)             # <<<<<<<<<<<<<<
@@ -14976,7 +14996,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
     goto __pyx_L7_bool_binop_done;
   }
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":232
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":232
  * 
  *             if ((flags & pybuf.PyBUF_F_CONTIGUOUS == pybuf.PyBUF_F_CONTIGUOUS)
  *                 and not PyArray_CHKFLAGS(self, NPY_F_CONTIGUOUS)):             # <<<<<<<<<<<<<<
@@ -14987,7 +15007,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
   __pyx_t_1 = __pyx_t_2;
   __pyx_L7_bool_binop_done:;
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":231
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":231
  *                 raise ValueError(u"ndarray is not C contiguous")
  * 
  *             if ((flags & pybuf.PyBUF_F_CONTIGUOUS == pybuf.PyBUF_F_CONTIGUOUS)             # <<<<<<<<<<<<<<
@@ -14996,7 +15016,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
   if (unlikely(__pyx_t_1)) {
 
-    /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":233
+    /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":233
  *             if ((flags & pybuf.PyBUF_F_CONTIGUOUS == pybuf.PyBUF_F_CONTIGUOUS)
  *                 and not PyArray_CHKFLAGS(self, NPY_F_CONTIGUOUS)):
  *                 raise ValueError(u"ndarray is not Fortran contiguous")             # <<<<<<<<<<<<<<
@@ -15009,7 +15029,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __PYX_ERR(2, 233, __pyx_L1_error)
 
-    /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":231
+    /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":231
  *                 raise ValueError(u"ndarray is not C contiguous")
  * 
  *             if ((flags & pybuf.PyBUF_F_CONTIGUOUS == pybuf.PyBUF_F_CONTIGUOUS)             # <<<<<<<<<<<<<<
@@ -15018,7 +15038,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
   }
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":235
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":235
  *                 raise ValueError(u"ndarray is not Fortran contiguous")
  * 
  *             info.buf = PyArray_DATA(self)             # <<<<<<<<<<<<<<
@@ -15027,7 +15047,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
   __pyx_v_info->buf = PyArray_DATA(__pyx_v_self);
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":236
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":236
  * 
  *             info.buf = PyArray_DATA(self)
  *             info.ndim = ndim             # <<<<<<<<<<<<<<
@@ -15036,7 +15056,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
   __pyx_v_info->ndim = __pyx_v_ndim;
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":237
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":237
  *             info.buf = PyArray_DATA(self)
  *             info.ndim = ndim
  *             if sizeof(npy_intp) != sizeof(Py_ssize_t):             # <<<<<<<<<<<<<<
@@ -15046,7 +15066,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
   __pyx_t_1 = (((sizeof(npy_intp)) != (sizeof(Py_ssize_t))) != 0);
   if (__pyx_t_1) {
 
-    /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":240
+    /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":240
  *                 # Allocate new buffer for strides and shape info.
  *                 # This is allocated as one block, strides first.
  *                 info.strides = <Py_ssize_t*>PyObject_Malloc(sizeof(Py_ssize_t) * 2 * <size_t>ndim)             # <<<<<<<<<<<<<<
@@ -15055,7 +15075,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
     __pyx_v_info->strides = ((Py_ssize_t *)PyObject_Malloc((((sizeof(Py_ssize_t)) * 2) * ((size_t)__pyx_v_ndim))));
 
-    /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":241
+    /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":241
  *                 # This is allocated as one block, strides first.
  *                 info.strides = <Py_ssize_t*>PyObject_Malloc(sizeof(Py_ssize_t) * 2 * <size_t>ndim)
  *                 info.shape = info.strides + ndim             # <<<<<<<<<<<<<<
@@ -15064,7 +15084,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
     __pyx_v_info->shape = (__pyx_v_info->strides + __pyx_v_ndim);
 
-    /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":242
+    /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":242
  *                 info.strides = <Py_ssize_t*>PyObject_Malloc(sizeof(Py_ssize_t) * 2 * <size_t>ndim)
  *                 info.shape = info.strides + ndim
  *                 for i in range(ndim):             # <<<<<<<<<<<<<<
@@ -15076,7 +15096,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
     for (__pyx_t_6 = 0; __pyx_t_6 < __pyx_t_5; __pyx_t_6+=1) {
       __pyx_v_i = __pyx_t_6;
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":243
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":243
  *                 info.shape = info.strides + ndim
  *                 for i in range(ndim):
  *                     info.strides[i] = PyArray_STRIDES(self)[i]             # <<<<<<<<<<<<<<
@@ -15085,7 +15105,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
       (__pyx_v_info->strides[__pyx_v_i]) = (PyArray_STRIDES(__pyx_v_self)[__pyx_v_i]);
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":244
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":244
  *                 for i in range(ndim):
  *                     info.strides[i] = PyArray_STRIDES(self)[i]
  *                     info.shape[i] = PyArray_DIMS(self)[i]             # <<<<<<<<<<<<<<
@@ -15095,7 +15115,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       (__pyx_v_info->shape[__pyx_v_i]) = (PyArray_DIMS(__pyx_v_self)[__pyx_v_i]);
     }
 
-    /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":237
+    /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":237
  *             info.buf = PyArray_DATA(self)
  *             info.ndim = ndim
  *             if sizeof(npy_intp) != sizeof(Py_ssize_t):             # <<<<<<<<<<<<<<
@@ -15105,7 +15125,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
     goto __pyx_L9;
   }
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":246
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":246
  *                     info.shape[i] = PyArray_DIMS(self)[i]
  *             else:
  *                 info.strides = <Py_ssize_t*>PyArray_STRIDES(self)             # <<<<<<<<<<<<<<
@@ -15115,7 +15135,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
   /*else*/ {
     __pyx_v_info->strides = ((Py_ssize_t *)PyArray_STRIDES(__pyx_v_self));
 
-    /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":247
+    /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":247
  *             else:
  *                 info.strides = <Py_ssize_t*>PyArray_STRIDES(self)
  *                 info.shape = <Py_ssize_t*>PyArray_DIMS(self)             # <<<<<<<<<<<<<<
@@ -15126,7 +15146,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
   }
   __pyx_L9:;
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":248
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":248
  *                 info.strides = <Py_ssize_t*>PyArray_STRIDES(self)
  *                 info.shape = <Py_ssize_t*>PyArray_DIMS(self)
  *             info.suboffsets = NULL             # <<<<<<<<<<<<<<
@@ -15135,7 +15155,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
   __pyx_v_info->suboffsets = NULL;
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":249
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":249
  *                 info.shape = <Py_ssize_t*>PyArray_DIMS(self)
  *             info.suboffsets = NULL
  *             info.itemsize = PyArray_ITEMSIZE(self)             # <<<<<<<<<<<<<<
@@ -15144,7 +15164,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
   __pyx_v_info->itemsize = PyArray_ITEMSIZE(__pyx_v_self);
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":250
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":250
  *             info.suboffsets = NULL
  *             info.itemsize = PyArray_ITEMSIZE(self)
  *             info.readonly = not PyArray_ISWRITEABLE(self)             # <<<<<<<<<<<<<<
@@ -15153,7 +15173,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
   __pyx_v_info->readonly = (!(PyArray_ISWRITEABLE(__pyx_v_self) != 0));
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":253
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":253
  * 
  *             cdef int t
  *             cdef char* f = NULL             # <<<<<<<<<<<<<<
@@ -15162,7 +15182,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
   __pyx_v_f = NULL;
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":254
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":254
  *             cdef int t
  *             cdef char* f = NULL
  *             cdef dtype descr = self.descr             # <<<<<<<<<<<<<<
@@ -15174,7 +15194,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
   __pyx_v_descr = ((PyArray_Descr *)__pyx_t_3);
   __pyx_t_3 = 0;
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":257
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":257
  *             cdef int offset
  * 
  *             info.obj = self             # <<<<<<<<<<<<<<
@@ -15187,7 +15207,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
   __Pyx_DECREF(__pyx_v_info->obj);
   __pyx_v_info->obj = ((PyObject *)__pyx_v_self);
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":259
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":259
  *             info.obj = self
  * 
  *             if not PyDataType_HASFIELDS(descr):             # <<<<<<<<<<<<<<
@@ -15197,7 +15217,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
   __pyx_t_1 = ((!(PyDataType_HASFIELDS(__pyx_v_descr) != 0)) != 0);
   if (__pyx_t_1) {
 
-    /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":260
+    /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":260
  * 
  *             if not PyDataType_HASFIELDS(descr):
  *                 t = descr.type_num             # <<<<<<<<<<<<<<
@@ -15207,7 +15227,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
     __pyx_t_4 = __pyx_v_descr->type_num;
     __pyx_v_t = __pyx_t_4;
 
-    /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":261
+    /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":261
  *             if not PyDataType_HASFIELDS(descr):
  *                 t = descr.type_num
  *                 if ((descr.byteorder == c'>' and little_endian) or             # <<<<<<<<<<<<<<
@@ -15227,7 +15247,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
     }
     __pyx_L15_next_or:;
 
-    /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":262
+    /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":262
  *                 t = descr.type_num
  *                 if ((descr.byteorder == c'>' and little_endian) or
  *                     (descr.byteorder == c'<' and not little_endian)):             # <<<<<<<<<<<<<<
@@ -15244,7 +15264,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
     __pyx_t_1 = __pyx_t_2;
     __pyx_L14_bool_binop_done:;
 
-    /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":261
+    /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":261
  *             if not PyDataType_HASFIELDS(descr):
  *                 t = descr.type_num
  *                 if ((descr.byteorder == c'>' and little_endian) or             # <<<<<<<<<<<<<<
@@ -15253,7 +15273,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
     if (unlikely(__pyx_t_1)) {
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":263
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":263
  *                 if ((descr.byteorder == c'>' and little_endian) or
  *                     (descr.byteorder == c'<' and not little_endian)):
  *                     raise ValueError(u"Non-native byte order not supported")             # <<<<<<<<<<<<<<
@@ -15266,7 +15286,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       __PYX_ERR(2, 263, __pyx_L1_error)
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":261
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":261
  *             if not PyDataType_HASFIELDS(descr):
  *                 t = descr.type_num
  *                 if ((descr.byteorder == c'>' and little_endian) or             # <<<<<<<<<<<<<<
@@ -15275,7 +15295,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
     }
 
-    /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":264
+    /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":264
  *                     (descr.byteorder == c'<' and not little_endian)):
  *                     raise ValueError(u"Non-native byte order not supported")
  *                 if   t == NPY_BYTE:        f = "b"             # <<<<<<<<<<<<<<
@@ -15287,7 +15307,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       __pyx_v_f = ((char *)"b");
       break;
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":265
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":265
  *                     raise ValueError(u"Non-native byte order not supported")
  *                 if   t == NPY_BYTE:        f = "b"
  *                 elif t == NPY_UBYTE:       f = "B"             # <<<<<<<<<<<<<<
@@ -15298,7 +15318,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       __pyx_v_f = ((char *)"B");
       break;
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":266
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":266
  *                 if   t == NPY_BYTE:        f = "b"
  *                 elif t == NPY_UBYTE:       f = "B"
  *                 elif t == NPY_SHORT:       f = "h"             # <<<<<<<<<<<<<<
@@ -15309,7 +15329,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       __pyx_v_f = ((char *)"h");
       break;
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":267
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":267
  *                 elif t == NPY_UBYTE:       f = "B"
  *                 elif t == NPY_SHORT:       f = "h"
  *                 elif t == NPY_USHORT:      f = "H"             # <<<<<<<<<<<<<<
@@ -15320,7 +15340,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       __pyx_v_f = ((char *)"H");
       break;
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":268
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":268
  *                 elif t == NPY_SHORT:       f = "h"
  *                 elif t == NPY_USHORT:      f = "H"
  *                 elif t == NPY_INT:         f = "i"             # <<<<<<<<<<<<<<
@@ -15331,7 +15351,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       __pyx_v_f = ((char *)"i");
       break;
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":269
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":269
  *                 elif t == NPY_USHORT:      f = "H"
  *                 elif t == NPY_INT:         f = "i"
  *                 elif t == NPY_UINT:        f = "I"             # <<<<<<<<<<<<<<
@@ -15342,7 +15362,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       __pyx_v_f = ((char *)"I");
       break;
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":270
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":270
  *                 elif t == NPY_INT:         f = "i"
  *                 elif t == NPY_UINT:        f = "I"
  *                 elif t == NPY_LONG:        f = "l"             # <<<<<<<<<<<<<<
@@ -15353,7 +15373,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       __pyx_v_f = ((char *)"l");
       break;
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":271
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":271
  *                 elif t == NPY_UINT:        f = "I"
  *                 elif t == NPY_LONG:        f = "l"
  *                 elif t == NPY_ULONG:       f = "L"             # <<<<<<<<<<<<<<
@@ -15364,7 +15384,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       __pyx_v_f = ((char *)"L");
       break;
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":272
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":272
  *                 elif t == NPY_LONG:        f = "l"
  *                 elif t == NPY_ULONG:       f = "L"
  *                 elif t == NPY_LONGLONG:    f = "q"             # <<<<<<<<<<<<<<
@@ -15375,7 +15395,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       __pyx_v_f = ((char *)"q");
       break;
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":273
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":273
  *                 elif t == NPY_ULONG:       f = "L"
  *                 elif t == NPY_LONGLONG:    f = "q"
  *                 elif t == NPY_ULONGLONG:   f = "Q"             # <<<<<<<<<<<<<<
@@ -15386,7 +15406,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       __pyx_v_f = ((char *)"Q");
       break;
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":274
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":274
  *                 elif t == NPY_LONGLONG:    f = "q"
  *                 elif t == NPY_ULONGLONG:   f = "Q"
  *                 elif t == NPY_FLOAT:       f = "f"             # <<<<<<<<<<<<<<
@@ -15397,7 +15417,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       __pyx_v_f = ((char *)"f");
       break;
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":275
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":275
  *                 elif t == NPY_ULONGLONG:   f = "Q"
  *                 elif t == NPY_FLOAT:       f = "f"
  *                 elif t == NPY_DOUBLE:      f = "d"             # <<<<<<<<<<<<<<
@@ -15408,7 +15428,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       __pyx_v_f = ((char *)"d");
       break;
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":276
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":276
  *                 elif t == NPY_FLOAT:       f = "f"
  *                 elif t == NPY_DOUBLE:      f = "d"
  *                 elif t == NPY_LONGDOUBLE:  f = "g"             # <<<<<<<<<<<<<<
@@ -15419,7 +15439,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       __pyx_v_f = ((char *)"g");
       break;
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":277
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":277
  *                 elif t == NPY_DOUBLE:      f = "d"
  *                 elif t == NPY_LONGDOUBLE:  f = "g"
  *                 elif t == NPY_CFLOAT:      f = "Zf"             # <<<<<<<<<<<<<<
@@ -15430,7 +15450,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       __pyx_v_f = ((char *)"Zf");
       break;
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":278
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":278
  *                 elif t == NPY_LONGDOUBLE:  f = "g"
  *                 elif t == NPY_CFLOAT:      f = "Zf"
  *                 elif t == NPY_CDOUBLE:     f = "Zd"             # <<<<<<<<<<<<<<
@@ -15441,7 +15461,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       __pyx_v_f = ((char *)"Zd");
       break;
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":279
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":279
  *                 elif t == NPY_CFLOAT:      f = "Zf"
  *                 elif t == NPY_CDOUBLE:     f = "Zd"
  *                 elif t == NPY_CLONGDOUBLE: f = "Zg"             # <<<<<<<<<<<<<<
@@ -15452,7 +15472,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       __pyx_v_f = ((char *)"Zg");
       break;
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":280
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":280
  *                 elif t == NPY_CDOUBLE:     f = "Zd"
  *                 elif t == NPY_CLONGDOUBLE: f = "Zg"
  *                 elif t == NPY_OBJECT:      f = "O"             # <<<<<<<<<<<<<<
@@ -15464,7 +15484,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       break;
       default:
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":282
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":282
  *                 elif t == NPY_OBJECT:      f = "O"
  *                 else:
  *                     raise ValueError(u"unknown dtype code in numpy.pxd (%d)" % t)             # <<<<<<<<<<<<<<
@@ -15485,7 +15505,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       break;
     }
 
-    /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":283
+    /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":283
  *                 else:
  *                     raise ValueError(u"unknown dtype code in numpy.pxd (%d)" % t)
  *                 info.format = f             # <<<<<<<<<<<<<<
@@ -15494,7 +15514,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
     __pyx_v_info->format = __pyx_v_f;
 
-    /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":284
+    /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":284
  *                     raise ValueError(u"unknown dtype code in numpy.pxd (%d)" % t)
  *                 info.format = f
  *                 return             # <<<<<<<<<<<<<<
@@ -15504,7 +15524,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
     __pyx_r = 0;
     goto __pyx_L0;
 
-    /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":259
+    /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":259
  *             info.obj = self
  * 
  *             if not PyDataType_HASFIELDS(descr):             # <<<<<<<<<<<<<<
@@ -15513,7 +15533,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
   }
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":286
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":286
  *                 return
  *             else:
  *                 info.format = <char*>PyObject_Malloc(_buffer_format_string_len)             # <<<<<<<<<<<<<<
@@ -15523,7 +15543,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
   /*else*/ {
     __pyx_v_info->format = ((char *)PyObject_Malloc(0xFF));
 
-    /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":287
+    /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":287
  *             else:
  *                 info.format = <char*>PyObject_Malloc(_buffer_format_string_len)
  *                 info.format[0] = c'^' # Native data types, manual alignment             # <<<<<<<<<<<<<<
@@ -15532,7 +15552,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
     (__pyx_v_info->format[0]) = '^';
 
-    /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":288
+    /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":288
  *                 info.format = <char*>PyObject_Malloc(_buffer_format_string_len)
  *                 info.format[0] = c'^' # Native data types, manual alignment
  *                 offset = 0             # <<<<<<<<<<<<<<
@@ -15541,7 +15561,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
     __pyx_v_offset = 0;
 
-    /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":289
+    /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":289
  *                 info.format[0] = c'^' # Native data types, manual alignment
  *                 offset = 0
  *                 f = _util_dtypestring(descr, info.format + 1,             # <<<<<<<<<<<<<<
@@ -15551,7 +15571,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
     __pyx_t_8 = __pyx_f_5numpy__util_dtypestring(__pyx_v_descr, (__pyx_v_info->format + 1), (__pyx_v_info->format + 0xFF), (&__pyx_v_offset)); if (unlikely(__pyx_t_8 == ((char *)NULL))) __PYX_ERR(2, 289, __pyx_L1_error)
     __pyx_v_f = __pyx_t_8;
 
-    /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":292
+    /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":292
  *                                       info.format + _buffer_format_string_len,
  *                                       &offset)
  *                 f[0] = c'\0' # Terminate format string             # <<<<<<<<<<<<<<
@@ -15561,7 +15581,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
     (__pyx_v_f[0]) = '\x00';
   }
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":215
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":215
  *         # experimental exception made for __getbuffer__ and __releasebuffer__
  *         # -- the details of this may change.
  *         def __getbuffer__(ndarray self, Py_buffer* info, int flags):             # <<<<<<<<<<<<<<
@@ -15593,7 +15613,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
   return __pyx_r;
 }
 
-/* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":294
+/* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":294
  *                 f[0] = c'\0' # Terminate format string
  * 
  *         def __releasebuffer__(ndarray self, Py_buffer* info):             # <<<<<<<<<<<<<<
@@ -15617,7 +15637,7 @@ static void __pyx_pf_5numpy_7ndarray_2__releasebuffer__(PyArrayObject *__pyx_v_s
   int __pyx_t_1;
   __Pyx_RefNannySetupContext("__releasebuffer__", 0);
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":295
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":295
  * 
  *         def __releasebuffer__(ndarray self, Py_buffer* info):
  *             if PyArray_HASFIELDS(self):             # <<<<<<<<<<<<<<
@@ -15627,7 +15647,7 @@ static void __pyx_pf_5numpy_7ndarray_2__releasebuffer__(PyArrayObject *__pyx_v_s
   __pyx_t_1 = (PyArray_HASFIELDS(__pyx_v_self) != 0);
   if (__pyx_t_1) {
 
-    /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":296
+    /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":296
  *         def __releasebuffer__(ndarray self, Py_buffer* info):
  *             if PyArray_HASFIELDS(self):
  *                 PyObject_Free(info.format)             # <<<<<<<<<<<<<<
@@ -15636,7 +15656,7 @@ static void __pyx_pf_5numpy_7ndarray_2__releasebuffer__(PyArrayObject *__pyx_v_s
  */
     PyObject_Free(__pyx_v_info->format);
 
-    /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":295
+    /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":295
  * 
  *         def __releasebuffer__(ndarray self, Py_buffer* info):
  *             if PyArray_HASFIELDS(self):             # <<<<<<<<<<<<<<
@@ -15645,7 +15665,7 @@ static void __pyx_pf_5numpy_7ndarray_2__releasebuffer__(PyArrayObject *__pyx_v_s
  */
   }
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":297
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":297
  *             if PyArray_HASFIELDS(self):
  *                 PyObject_Free(info.format)
  *             if sizeof(npy_intp) != sizeof(Py_ssize_t):             # <<<<<<<<<<<<<<
@@ -15655,7 +15675,7 @@ static void __pyx_pf_5numpy_7ndarray_2__releasebuffer__(PyArrayObject *__pyx_v_s
   __pyx_t_1 = (((sizeof(npy_intp)) != (sizeof(Py_ssize_t))) != 0);
   if (__pyx_t_1) {
 
-    /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":298
+    /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":298
  *                 PyObject_Free(info.format)
  *             if sizeof(npy_intp) != sizeof(Py_ssize_t):
  *                 PyObject_Free(info.strides)             # <<<<<<<<<<<<<<
@@ -15664,7 +15684,7 @@ static void __pyx_pf_5numpy_7ndarray_2__releasebuffer__(PyArrayObject *__pyx_v_s
  */
     PyObject_Free(__pyx_v_info->strides);
 
-    /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":297
+    /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":297
  *             if PyArray_HASFIELDS(self):
  *                 PyObject_Free(info.format)
  *             if sizeof(npy_intp) != sizeof(Py_ssize_t):             # <<<<<<<<<<<<<<
@@ -15673,7 +15693,7 @@ static void __pyx_pf_5numpy_7ndarray_2__releasebuffer__(PyArrayObject *__pyx_v_s
  */
   }
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":294
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":294
  *                 f[0] = c'\0' # Terminate format string
  * 
  *         def __releasebuffer__(ndarray self, Py_buffer* info):             # <<<<<<<<<<<<<<
@@ -15685,7 +15705,7 @@ static void __pyx_pf_5numpy_7ndarray_2__releasebuffer__(PyArrayObject *__pyx_v_s
   __Pyx_RefNannyFinishContext();
 }
 
-/* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":775
+/* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":775
  * ctypedef npy_cdouble     complex_t
  * 
  * cdef inline object PyArray_MultiIterNew1(a):             # <<<<<<<<<<<<<<
@@ -15699,7 +15719,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew1(PyObject *__
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("PyArray_MultiIterNew1", 0);
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":776
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":776
  * 
  * cdef inline object PyArray_MultiIterNew1(a):
  *     return PyArray_MultiIterNew(1, <void*>a)             # <<<<<<<<<<<<<<
@@ -15713,7 +15733,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew1(PyObject *__
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":775
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":775
  * ctypedef npy_cdouble     complex_t
  * 
  * cdef inline object PyArray_MultiIterNew1(a):             # <<<<<<<<<<<<<<
@@ -15732,7 +15752,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew1(PyObject *__
   return __pyx_r;
 }
 
-/* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":778
+/* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":778
  *     return PyArray_MultiIterNew(1, <void*>a)
  * 
  * cdef inline object PyArray_MultiIterNew2(a, b):             # <<<<<<<<<<<<<<
@@ -15746,7 +15766,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew2(PyObject *__
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("PyArray_MultiIterNew2", 0);
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":779
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":779
  * 
  * cdef inline object PyArray_MultiIterNew2(a, b):
  *     return PyArray_MultiIterNew(2, <void*>a, <void*>b)             # <<<<<<<<<<<<<<
@@ -15760,7 +15780,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew2(PyObject *__
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":778
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":778
  *     return PyArray_MultiIterNew(1, <void*>a)
  * 
  * cdef inline object PyArray_MultiIterNew2(a, b):             # <<<<<<<<<<<<<<
@@ -15779,7 +15799,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew2(PyObject *__
   return __pyx_r;
 }
 
-/* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":781
+/* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":781
  *     return PyArray_MultiIterNew(2, <void*>a, <void*>b)
  * 
  * cdef inline object PyArray_MultiIterNew3(a, b, c):             # <<<<<<<<<<<<<<
@@ -15793,7 +15813,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew3(PyObject *__
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("PyArray_MultiIterNew3", 0);
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":782
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":782
  * 
  * cdef inline object PyArray_MultiIterNew3(a, b, c):
  *     return PyArray_MultiIterNew(3, <void*>a, <void*>b, <void*> c)             # <<<<<<<<<<<<<<
@@ -15807,7 +15827,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew3(PyObject *__
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":781
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":781
  *     return PyArray_MultiIterNew(2, <void*>a, <void*>b)
  * 
  * cdef inline object PyArray_MultiIterNew3(a, b, c):             # <<<<<<<<<<<<<<
@@ -15826,7 +15846,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew3(PyObject *__
   return __pyx_r;
 }
 
-/* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":784
+/* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":784
  *     return PyArray_MultiIterNew(3, <void*>a, <void*>b, <void*> c)
  * 
  * cdef inline object PyArray_MultiIterNew4(a, b, c, d):             # <<<<<<<<<<<<<<
@@ -15840,7 +15860,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew4(PyObject *__
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("PyArray_MultiIterNew4", 0);
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":785
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":785
  * 
  * cdef inline object PyArray_MultiIterNew4(a, b, c, d):
  *     return PyArray_MultiIterNew(4, <void*>a, <void*>b, <void*>c, <void*> d)             # <<<<<<<<<<<<<<
@@ -15854,7 +15874,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew4(PyObject *__
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":784
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":784
  *     return PyArray_MultiIterNew(3, <void*>a, <void*>b, <void*> c)
  * 
  * cdef inline object PyArray_MultiIterNew4(a, b, c, d):             # <<<<<<<<<<<<<<
@@ -15873,7 +15893,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew4(PyObject *__
   return __pyx_r;
 }
 
-/* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":787
+/* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":787
  *     return PyArray_MultiIterNew(4, <void*>a, <void*>b, <void*>c, <void*> d)
  * 
  * cdef inline object PyArray_MultiIterNew5(a, b, c, d, e):             # <<<<<<<<<<<<<<
@@ -15887,7 +15907,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew5(PyObject *__
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("PyArray_MultiIterNew5", 0);
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":788
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":788
  * 
  * cdef inline object PyArray_MultiIterNew5(a, b, c, d, e):
  *     return PyArray_MultiIterNew(5, <void*>a, <void*>b, <void*>c, <void*> d, <void*> e)             # <<<<<<<<<<<<<<
@@ -15901,7 +15921,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew5(PyObject *__
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":787
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":787
  *     return PyArray_MultiIterNew(4, <void*>a, <void*>b, <void*>c, <void*> d)
  * 
  * cdef inline object PyArray_MultiIterNew5(a, b, c, d, e):             # <<<<<<<<<<<<<<
@@ -15920,7 +15940,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew5(PyObject *__
   return __pyx_r;
 }
 
-/* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":790
+/* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":790
  *     return PyArray_MultiIterNew(5, <void*>a, <void*>b, <void*>c, <void*> d, <void*> e)
  * 
  * cdef inline tuple PyDataType_SHAPE(dtype d):             # <<<<<<<<<<<<<<
@@ -15934,7 +15954,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyDataType_SHAPE(PyArray_Descr *__
   int __pyx_t_1;
   __Pyx_RefNannySetupContext("PyDataType_SHAPE", 0);
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":791
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":791
  * 
  * cdef inline tuple PyDataType_SHAPE(dtype d):
  *     if PyDataType_HASSUBARRAY(d):             # <<<<<<<<<<<<<<
@@ -15944,7 +15964,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyDataType_SHAPE(PyArray_Descr *__
   __pyx_t_1 = (PyDataType_HASSUBARRAY(__pyx_v_d) != 0);
   if (__pyx_t_1) {
 
-    /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":792
+    /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":792
  * cdef inline tuple PyDataType_SHAPE(dtype d):
  *     if PyDataType_HASSUBARRAY(d):
  *         return <tuple>d.subarray.shape             # <<<<<<<<<<<<<<
@@ -15956,7 +15976,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyDataType_SHAPE(PyArray_Descr *__
     __pyx_r = ((PyObject*)__pyx_v_d->subarray->shape);
     goto __pyx_L0;
 
-    /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":791
+    /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":791
  * 
  * cdef inline tuple PyDataType_SHAPE(dtype d):
  *     if PyDataType_HASSUBARRAY(d):             # <<<<<<<<<<<<<<
@@ -15965,7 +15985,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyDataType_SHAPE(PyArray_Descr *__
  */
   }
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":794
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":794
  *         return <tuple>d.subarray.shape
  *     else:
  *         return ()             # <<<<<<<<<<<<<<
@@ -15979,7 +15999,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyDataType_SHAPE(PyArray_Descr *__
     goto __pyx_L0;
   }
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":790
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":790
  *     return PyArray_MultiIterNew(5, <void*>a, <void*>b, <void*>c, <void*> d, <void*> e)
  * 
  * cdef inline tuple PyDataType_SHAPE(dtype d):             # <<<<<<<<<<<<<<
@@ -15994,7 +16014,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyDataType_SHAPE(PyArray_Descr *__
   return __pyx_r;
 }
 
-/* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":796
+/* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":796
  *         return ()
  * 
  * cdef inline char* _util_dtypestring(dtype descr, char* f, char* end, int* offset) except NULL:             # <<<<<<<<<<<<<<
@@ -16023,7 +16043,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
   char *__pyx_t_9;
   __Pyx_RefNannySetupContext("_util_dtypestring", 0);
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":801
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":801
  * 
  *     cdef dtype child
  *     cdef int endian_detector = 1             # <<<<<<<<<<<<<<
@@ -16032,7 +16052,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
  */
   __pyx_v_endian_detector = 1;
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":802
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":802
  *     cdef dtype child
  *     cdef int endian_detector = 1
  *     cdef bint little_endian = ((<char*>&endian_detector)[0] != 0)             # <<<<<<<<<<<<<<
@@ -16041,7 +16061,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
  */
   __pyx_v_little_endian = ((((char *)(&__pyx_v_endian_detector))[0]) != 0);
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":805
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":805
  *     cdef tuple fields
  * 
  *     for childname in descr.names:             # <<<<<<<<<<<<<<
@@ -16064,7 +16084,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
     __Pyx_XDECREF_SET(__pyx_v_childname, __pyx_t_3);
     __pyx_t_3 = 0;
 
-    /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":806
+    /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":806
  * 
  *     for childname in descr.names:
  *         fields = descr.fields[childname]             # <<<<<<<<<<<<<<
@@ -16081,7 +16101,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
     __Pyx_XDECREF_SET(__pyx_v_fields, ((PyObject*)__pyx_t_3));
     __pyx_t_3 = 0;
 
-    /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":807
+    /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":807
  *     for childname in descr.names:
  *         fields = descr.fields[childname]
  *         child, new_offset = fields             # <<<<<<<<<<<<<<
@@ -16116,7 +16136,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
     __Pyx_XDECREF_SET(__pyx_v_new_offset, __pyx_t_4);
     __pyx_t_4 = 0;
 
-    /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":809
+    /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":809
  *         child, new_offset = fields
  * 
  *         if (end - f) - <int>(new_offset - offset[0]) < 15:             # <<<<<<<<<<<<<<
@@ -16133,7 +16153,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
     __pyx_t_6 = ((((__pyx_v_end - __pyx_v_f) - ((int)__pyx_t_5)) < 15) != 0);
     if (unlikely(__pyx_t_6)) {
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":810
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":810
  * 
  *         if (end - f) - <int>(new_offset - offset[0]) < 15:
  *             raise RuntimeError(u"Format string allocated too short, see comment in numpy.pxd")             # <<<<<<<<<<<<<<
@@ -16146,7 +16166,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       __PYX_ERR(2, 810, __pyx_L1_error)
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":809
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":809
  *         child, new_offset = fields
  * 
  *         if (end - f) - <int>(new_offset - offset[0]) < 15:             # <<<<<<<<<<<<<<
@@ -16155,7 +16175,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
  */
     }
 
-    /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":812
+    /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":812
  *             raise RuntimeError(u"Format string allocated too short, see comment in numpy.pxd")
  * 
  *         if ((child.byteorder == c'>' and little_endian) or             # <<<<<<<<<<<<<<
@@ -16175,7 +16195,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
     }
     __pyx_L8_next_or:;
 
-    /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":813
+    /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":813
  * 
  *         if ((child.byteorder == c'>' and little_endian) or
  *             (child.byteorder == c'<' and not little_endian)):             # <<<<<<<<<<<<<<
@@ -16192,7 +16212,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
     __pyx_t_6 = __pyx_t_7;
     __pyx_L7_bool_binop_done:;
 
-    /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":812
+    /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":812
  *             raise RuntimeError(u"Format string allocated too short, see comment in numpy.pxd")
  * 
  *         if ((child.byteorder == c'>' and little_endian) or             # <<<<<<<<<<<<<<
@@ -16201,7 +16221,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
  */
     if (unlikely(__pyx_t_6)) {
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":814
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":814
  *         if ((child.byteorder == c'>' and little_endian) or
  *             (child.byteorder == c'<' and not little_endian)):
  *             raise ValueError(u"Non-native byte order not supported")             # <<<<<<<<<<<<<<
@@ -16214,7 +16234,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       __PYX_ERR(2, 814, __pyx_L1_error)
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":812
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":812
  *             raise RuntimeError(u"Format string allocated too short, see comment in numpy.pxd")
  * 
  *         if ((child.byteorder == c'>' and little_endian) or             # <<<<<<<<<<<<<<
@@ -16223,7 +16243,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
  */
     }
 
-    /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":824
+    /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":824
  * 
  *         # Output padding bytes
  *         while offset[0] < new_offset:             # <<<<<<<<<<<<<<
@@ -16239,7 +16259,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       if (!__pyx_t_6) break;
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":825
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":825
  *         # Output padding bytes
  *         while offset[0] < new_offset:
  *             f[0] = 120 # "x"; pad byte             # <<<<<<<<<<<<<<
@@ -16248,7 +16268,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
  */
       (__pyx_v_f[0]) = 0x78;
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":826
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":826
  *         while offset[0] < new_offset:
  *             f[0] = 120 # "x"; pad byte
  *             f += 1             # <<<<<<<<<<<<<<
@@ -16257,7 +16277,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
  */
       __pyx_v_f = (__pyx_v_f + 1);
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":827
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":827
  *             f[0] = 120 # "x"; pad byte
  *             f += 1
  *             offset[0] += 1             # <<<<<<<<<<<<<<
@@ -16268,7 +16288,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
       (__pyx_v_offset[__pyx_t_8]) = ((__pyx_v_offset[__pyx_t_8]) + 1);
     }
 
-    /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":829
+    /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":829
  *             offset[0] += 1
  * 
  *         offset[0] += child.itemsize             # <<<<<<<<<<<<<<
@@ -16278,7 +16298,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
     __pyx_t_8 = 0;
     (__pyx_v_offset[__pyx_t_8]) = ((__pyx_v_offset[__pyx_t_8]) + __pyx_v_child->elsize);
 
-    /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":831
+    /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":831
  *         offset[0] += child.itemsize
  * 
  *         if not PyDataType_HASFIELDS(child):             # <<<<<<<<<<<<<<
@@ -16288,7 +16308,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
     __pyx_t_6 = ((!(PyDataType_HASFIELDS(__pyx_v_child) != 0)) != 0);
     if (__pyx_t_6) {
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":832
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":832
  * 
  *         if not PyDataType_HASFIELDS(child):
  *             t = child.type_num             # <<<<<<<<<<<<<<
@@ -16300,7 +16320,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
       __Pyx_XDECREF_SET(__pyx_v_t, __pyx_t_4);
       __pyx_t_4 = 0;
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":833
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":833
  *         if not PyDataType_HASFIELDS(child):
  *             t = child.type_num
  *             if end - f < 5:             # <<<<<<<<<<<<<<
@@ -16310,7 +16330,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
       __pyx_t_6 = (((__pyx_v_end - __pyx_v_f) < 5) != 0);
       if (unlikely(__pyx_t_6)) {
 
-        /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":834
+        /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":834
  *             t = child.type_num
  *             if end - f < 5:
  *                 raise RuntimeError(u"Format string allocated too short.")             # <<<<<<<<<<<<<<
@@ -16323,7 +16343,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
         __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
         __PYX_ERR(2, 834, __pyx_L1_error)
 
-        /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":833
+        /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":833
  *         if not PyDataType_HASFIELDS(child):
  *             t = child.type_num
  *             if end - f < 5:             # <<<<<<<<<<<<<<
@@ -16332,7 +16352,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
  */
       }
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":837
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":837
  * 
  *             # Until ticket #99 is fixed, use integers to avoid warnings
  *             if   t == NPY_BYTE:        f[0] =  98 #"b"             # <<<<<<<<<<<<<<
@@ -16350,7 +16370,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
         goto __pyx_L15;
       }
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":838
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":838
  *             # Until ticket #99 is fixed, use integers to avoid warnings
  *             if   t == NPY_BYTE:        f[0] =  98 #"b"
  *             elif t == NPY_UBYTE:       f[0] =  66 #"B"             # <<<<<<<<<<<<<<
@@ -16368,7 +16388,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
         goto __pyx_L15;
       }
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":839
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":839
  *             if   t == NPY_BYTE:        f[0] =  98 #"b"
  *             elif t == NPY_UBYTE:       f[0] =  66 #"B"
  *             elif t == NPY_SHORT:       f[0] = 104 #"h"             # <<<<<<<<<<<<<<
@@ -16386,7 +16406,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
         goto __pyx_L15;
       }
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":840
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":840
  *             elif t == NPY_UBYTE:       f[0] =  66 #"B"
  *             elif t == NPY_SHORT:       f[0] = 104 #"h"
  *             elif t == NPY_USHORT:      f[0] =  72 #"H"             # <<<<<<<<<<<<<<
@@ -16404,7 +16424,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
         goto __pyx_L15;
       }
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":841
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":841
  *             elif t == NPY_SHORT:       f[0] = 104 #"h"
  *             elif t == NPY_USHORT:      f[0] =  72 #"H"
  *             elif t == NPY_INT:         f[0] = 105 #"i"             # <<<<<<<<<<<<<<
@@ -16422,7 +16442,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
         goto __pyx_L15;
       }
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":842
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":842
  *             elif t == NPY_USHORT:      f[0] =  72 #"H"
  *             elif t == NPY_INT:         f[0] = 105 #"i"
  *             elif t == NPY_UINT:        f[0] =  73 #"I"             # <<<<<<<<<<<<<<
@@ -16440,7 +16460,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
         goto __pyx_L15;
       }
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":843
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":843
  *             elif t == NPY_INT:         f[0] = 105 #"i"
  *             elif t == NPY_UINT:        f[0] =  73 #"I"
  *             elif t == NPY_LONG:        f[0] = 108 #"l"             # <<<<<<<<<<<<<<
@@ -16458,7 +16478,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
         goto __pyx_L15;
       }
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":844
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":844
  *             elif t == NPY_UINT:        f[0] =  73 #"I"
  *             elif t == NPY_LONG:        f[0] = 108 #"l"
  *             elif t == NPY_ULONG:       f[0] = 76  #"L"             # <<<<<<<<<<<<<<
@@ -16476,7 +16496,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
         goto __pyx_L15;
       }
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":845
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":845
  *             elif t == NPY_LONG:        f[0] = 108 #"l"
  *             elif t == NPY_ULONG:       f[0] = 76  #"L"
  *             elif t == NPY_LONGLONG:    f[0] = 113 #"q"             # <<<<<<<<<<<<<<
@@ -16494,7 +16514,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
         goto __pyx_L15;
       }
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":846
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":846
  *             elif t == NPY_ULONG:       f[0] = 76  #"L"
  *             elif t == NPY_LONGLONG:    f[0] = 113 #"q"
  *             elif t == NPY_ULONGLONG:   f[0] = 81  #"Q"             # <<<<<<<<<<<<<<
@@ -16512,7 +16532,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
         goto __pyx_L15;
       }
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":847
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":847
  *             elif t == NPY_LONGLONG:    f[0] = 113 #"q"
  *             elif t == NPY_ULONGLONG:   f[0] = 81  #"Q"
  *             elif t == NPY_FLOAT:       f[0] = 102 #"f"             # <<<<<<<<<<<<<<
@@ -16530,7 +16550,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
         goto __pyx_L15;
       }
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":848
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":848
  *             elif t == NPY_ULONGLONG:   f[0] = 81  #"Q"
  *             elif t == NPY_FLOAT:       f[0] = 102 #"f"
  *             elif t == NPY_DOUBLE:      f[0] = 100 #"d"             # <<<<<<<<<<<<<<
@@ -16548,7 +16568,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
         goto __pyx_L15;
       }
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":849
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":849
  *             elif t == NPY_FLOAT:       f[0] = 102 #"f"
  *             elif t == NPY_DOUBLE:      f[0] = 100 #"d"
  *             elif t == NPY_LONGDOUBLE:  f[0] = 103 #"g"             # <<<<<<<<<<<<<<
@@ -16566,7 +16586,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
         goto __pyx_L15;
       }
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":850
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":850
  *             elif t == NPY_DOUBLE:      f[0] = 100 #"d"
  *             elif t == NPY_LONGDOUBLE:  f[0] = 103 #"g"
  *             elif t == NPY_CFLOAT:      f[0] = 90; f[1] = 102; f += 1 # Zf             # <<<<<<<<<<<<<<
@@ -16586,7 +16606,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
         goto __pyx_L15;
       }
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":851
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":851
  *             elif t == NPY_LONGDOUBLE:  f[0] = 103 #"g"
  *             elif t == NPY_CFLOAT:      f[0] = 90; f[1] = 102; f += 1 # Zf
  *             elif t == NPY_CDOUBLE:     f[0] = 90; f[1] = 100; f += 1 # Zd             # <<<<<<<<<<<<<<
@@ -16606,7 +16626,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
         goto __pyx_L15;
       }
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":852
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":852
  *             elif t == NPY_CFLOAT:      f[0] = 90; f[1] = 102; f += 1 # Zf
  *             elif t == NPY_CDOUBLE:     f[0] = 90; f[1] = 100; f += 1 # Zd
  *             elif t == NPY_CLONGDOUBLE: f[0] = 90; f[1] = 103; f += 1 # Zg             # <<<<<<<<<<<<<<
@@ -16626,7 +16646,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
         goto __pyx_L15;
       }
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":853
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":853
  *             elif t == NPY_CDOUBLE:     f[0] = 90; f[1] = 100; f += 1 # Zd
  *             elif t == NPY_CLONGDOUBLE: f[0] = 90; f[1] = 103; f += 1 # Zg
  *             elif t == NPY_OBJECT:      f[0] = 79 #"O"             # <<<<<<<<<<<<<<
@@ -16644,7 +16664,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
         goto __pyx_L15;
       }
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":855
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":855
  *             elif t == NPY_OBJECT:      f[0] = 79 #"O"
  *             else:
  *                 raise ValueError(u"unknown dtype code in numpy.pxd (%d)" % t)             # <<<<<<<<<<<<<<
@@ -16663,7 +16683,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
       }
       __pyx_L15:;
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":856
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":856
  *             else:
  *                 raise ValueError(u"unknown dtype code in numpy.pxd (%d)" % t)
  *             f += 1             # <<<<<<<<<<<<<<
@@ -16672,7 +16692,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
  */
       __pyx_v_f = (__pyx_v_f + 1);
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":831
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":831
  *         offset[0] += child.itemsize
  * 
  *         if not PyDataType_HASFIELDS(child):             # <<<<<<<<<<<<<<
@@ -16682,7 +16702,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
       goto __pyx_L13;
     }
 
-    /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":860
+    /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":860
  *             # Cython ignores struct boundary information ("T{...}"),
  *             # so don't output it
  *             f = _util_dtypestring(child, f, end, offset)             # <<<<<<<<<<<<<<
@@ -16695,7 +16715,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
     }
     __pyx_L13:;
 
-    /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":805
+    /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":805
  *     cdef tuple fields
  * 
  *     for childname in descr.names:             # <<<<<<<<<<<<<<
@@ -16705,7 +16725,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":861
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":861
  *             # so don't output it
  *             f = _util_dtypestring(child, f, end, offset)
  *     return f             # <<<<<<<<<<<<<<
@@ -16715,7 +16735,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
   __pyx_r = __pyx_v_f;
   goto __pyx_L0;
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":796
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":796
  *         return ()
  * 
  * cdef inline char* _util_dtypestring(dtype descr, char* f, char* end, int* offset) except NULL:             # <<<<<<<<<<<<<<
@@ -16740,7 +16760,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
   return __pyx_r;
 }
 
-/* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":977
+/* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":977
  * 
  * 
  * cdef inline void set_array_base(ndarray arr, object base):             # <<<<<<<<<<<<<<
@@ -16755,7 +16775,7 @@ static CYTHON_INLINE void __pyx_f_5numpy_set_array_base(PyArrayObject *__pyx_v_a
   int __pyx_t_2;
   __Pyx_RefNannySetupContext("set_array_base", 0);
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":979
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":979
  * cdef inline void set_array_base(ndarray arr, object base):
  *      cdef PyObject* baseptr
  *      if base is None:             # <<<<<<<<<<<<<<
@@ -16766,7 +16786,7 @@ static CYTHON_INLINE void __pyx_f_5numpy_set_array_base(PyArrayObject *__pyx_v_a
   __pyx_t_2 = (__pyx_t_1 != 0);
   if (__pyx_t_2) {
 
-    /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":980
+    /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":980
  *      cdef PyObject* baseptr
  *      if base is None:
  *          baseptr = NULL             # <<<<<<<<<<<<<<
@@ -16775,7 +16795,7 @@ static CYTHON_INLINE void __pyx_f_5numpy_set_array_base(PyArrayObject *__pyx_v_a
  */
     __pyx_v_baseptr = NULL;
 
-    /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":979
+    /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":979
  * cdef inline void set_array_base(ndarray arr, object base):
  *      cdef PyObject* baseptr
  *      if base is None:             # <<<<<<<<<<<<<<
@@ -16785,7 +16805,7 @@ static CYTHON_INLINE void __pyx_f_5numpy_set_array_base(PyArrayObject *__pyx_v_a
     goto __pyx_L3;
   }
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":982
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":982
  *          baseptr = NULL
  *      else:
  *          Py_INCREF(base) # important to do this before decref below!             # <<<<<<<<<<<<<<
@@ -16795,7 +16815,7 @@ static CYTHON_INLINE void __pyx_f_5numpy_set_array_base(PyArrayObject *__pyx_v_a
   /*else*/ {
     Py_INCREF(__pyx_v_base);
 
-    /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":983
+    /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":983
  *      else:
  *          Py_INCREF(base) # important to do this before decref below!
  *          baseptr = <PyObject*>base             # <<<<<<<<<<<<<<
@@ -16806,7 +16826,7 @@ static CYTHON_INLINE void __pyx_f_5numpy_set_array_base(PyArrayObject *__pyx_v_a
   }
   __pyx_L3:;
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":984
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":984
  *          Py_INCREF(base) # important to do this before decref below!
  *          baseptr = <PyObject*>base
  *      Py_XDECREF(arr.base)             # <<<<<<<<<<<<<<
@@ -16815,7 +16835,7 @@ static CYTHON_INLINE void __pyx_f_5numpy_set_array_base(PyArrayObject *__pyx_v_a
  */
   Py_XDECREF(__pyx_v_arr->base);
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":985
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":985
  *          baseptr = <PyObject*>base
  *      Py_XDECREF(arr.base)
  *      arr.base = baseptr             # <<<<<<<<<<<<<<
@@ -16824,7 +16844,7 @@ static CYTHON_INLINE void __pyx_f_5numpy_set_array_base(PyArrayObject *__pyx_v_a
  */
   __pyx_v_arr->base = __pyx_v_baseptr;
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":977
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":977
  * 
  * 
  * cdef inline void set_array_base(ndarray arr, object base):             # <<<<<<<<<<<<<<
@@ -16836,7 +16856,7 @@ static CYTHON_INLINE void __pyx_f_5numpy_set_array_base(PyArrayObject *__pyx_v_a
   __Pyx_RefNannyFinishContext();
 }
 
-/* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":987
+/* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":987
  *      arr.base = baseptr
  * 
  * cdef inline object get_array_base(ndarray arr):             # <<<<<<<<<<<<<<
@@ -16850,7 +16870,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_get_array_base(PyArrayObject *__py
   int __pyx_t_1;
   __Pyx_RefNannySetupContext("get_array_base", 0);
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":988
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":988
  * 
  * cdef inline object get_array_base(ndarray arr):
  *     if arr.base is NULL:             # <<<<<<<<<<<<<<
@@ -16860,7 +16880,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_get_array_base(PyArrayObject *__py
   __pyx_t_1 = ((__pyx_v_arr->base == NULL) != 0);
   if (__pyx_t_1) {
 
-    /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":989
+    /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":989
  * cdef inline object get_array_base(ndarray arr):
  *     if arr.base is NULL:
  *         return None             # <<<<<<<<<<<<<<
@@ -16871,7 +16891,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_get_array_base(PyArrayObject *__py
     __pyx_r = Py_None; __Pyx_INCREF(Py_None);
     goto __pyx_L0;
 
-    /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":988
+    /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":988
  * 
  * cdef inline object get_array_base(ndarray arr):
  *     if arr.base is NULL:             # <<<<<<<<<<<<<<
@@ -16880,7 +16900,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_get_array_base(PyArrayObject *__py
  */
   }
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":991
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":991
  *         return None
  *     else:
  *         return <object>arr.base             # <<<<<<<<<<<<<<
@@ -16894,7 +16914,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_get_array_base(PyArrayObject *__py
     goto __pyx_L0;
   }
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":987
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":987
  *      arr.base = baseptr
  * 
  * cdef inline object get_array_base(ndarray arr):             # <<<<<<<<<<<<<<
@@ -16909,7 +16929,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_get_array_base(PyArrayObject *__py
   return __pyx_r;
 }
 
-/* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":996
+/* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":996
  * # Versions of the import_* functions which are more suitable for
  * # Cython code.
  * cdef inline int import_array() except -1:             # <<<<<<<<<<<<<<
@@ -16930,7 +16950,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_array(void) {
   PyObject *__pyx_t_8 = NULL;
   __Pyx_RefNannySetupContext("import_array", 0);
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":997
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":997
  * # Cython code.
  * cdef inline int import_array() except -1:
  *     try:             # <<<<<<<<<<<<<<
@@ -16946,7 +16966,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_array(void) {
     __Pyx_XGOTREF(__pyx_t_3);
     /*try:*/ {
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":998
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":998
  * cdef inline int import_array() except -1:
  *     try:
  *         _import_array()             # <<<<<<<<<<<<<<
@@ -16955,7 +16975,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_array(void) {
  */
       __pyx_t_4 = _import_array(); if (unlikely(__pyx_t_4 == ((int)-1))) __PYX_ERR(2, 998, __pyx_L3_error)
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":997
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":997
  * # Cython code.
  * cdef inline int import_array() except -1:
  *     try:             # <<<<<<<<<<<<<<
@@ -16969,7 +16989,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_array(void) {
     goto __pyx_L8_try_end;
     __pyx_L3_error:;
 
-    /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":999
+    /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":999
  *     try:
  *         _import_array()
  *     except Exception:             # <<<<<<<<<<<<<<
@@ -16984,7 +17004,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_array(void) {
       __Pyx_GOTREF(__pyx_t_6);
       __Pyx_GOTREF(__pyx_t_7);
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1000
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":1000
  *         _import_array()
  *     except Exception:
  *         raise ImportError("numpy.core.multiarray failed to import")             # <<<<<<<<<<<<<<
@@ -17000,7 +17020,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_array(void) {
     goto __pyx_L5_except_error;
     __pyx_L5_except_error:;
 
-    /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":997
+    /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":997
  * # Cython code.
  * cdef inline int import_array() except -1:
  *     try:             # <<<<<<<<<<<<<<
@@ -17015,7 +17035,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_array(void) {
     __pyx_L8_try_end:;
   }
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":996
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":996
  * # Versions of the import_* functions which are more suitable for
  * # Cython code.
  * cdef inline int import_array() except -1:             # <<<<<<<<<<<<<<
@@ -17038,7 +17058,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_array(void) {
   return __pyx_r;
 }
 
-/* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1002
+/* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":1002
  *         raise ImportError("numpy.core.multiarray failed to import")
  * 
  * cdef inline int import_umath() except -1:             # <<<<<<<<<<<<<<
@@ -17059,7 +17079,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_umath(void) {
   PyObject *__pyx_t_8 = NULL;
   __Pyx_RefNannySetupContext("import_umath", 0);
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1003
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":1003
  * 
  * cdef inline int import_umath() except -1:
  *     try:             # <<<<<<<<<<<<<<
@@ -17075,7 +17095,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_umath(void) {
     __Pyx_XGOTREF(__pyx_t_3);
     /*try:*/ {
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1004
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":1004
  * cdef inline int import_umath() except -1:
  *     try:
  *         _import_umath()             # <<<<<<<<<<<<<<
@@ -17084,7 +17104,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_umath(void) {
  */
       __pyx_t_4 = _import_umath(); if (unlikely(__pyx_t_4 == ((int)-1))) __PYX_ERR(2, 1004, __pyx_L3_error)
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1003
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":1003
  * 
  * cdef inline int import_umath() except -1:
  *     try:             # <<<<<<<<<<<<<<
@@ -17098,7 +17118,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_umath(void) {
     goto __pyx_L8_try_end;
     __pyx_L3_error:;
 
-    /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1005
+    /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":1005
  *     try:
  *         _import_umath()
  *     except Exception:             # <<<<<<<<<<<<<<
@@ -17113,7 +17133,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_umath(void) {
       __Pyx_GOTREF(__pyx_t_6);
       __Pyx_GOTREF(__pyx_t_7);
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1006
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":1006
  *         _import_umath()
  *     except Exception:
  *         raise ImportError("numpy.core.umath failed to import")             # <<<<<<<<<<<<<<
@@ -17129,7 +17149,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_umath(void) {
     goto __pyx_L5_except_error;
     __pyx_L5_except_error:;
 
-    /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1003
+    /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":1003
  * 
  * cdef inline int import_umath() except -1:
  *     try:             # <<<<<<<<<<<<<<
@@ -17144,7 +17164,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_umath(void) {
     __pyx_L8_try_end:;
   }
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1002
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":1002
  *         raise ImportError("numpy.core.multiarray failed to import")
  * 
  * cdef inline int import_umath() except -1:             # <<<<<<<<<<<<<<
@@ -17167,7 +17187,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_umath(void) {
   return __pyx_r;
 }
 
-/* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1008
+/* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":1008
  *         raise ImportError("numpy.core.umath failed to import")
  * 
  * cdef inline int import_ufunc() except -1:             # <<<<<<<<<<<<<<
@@ -17188,7 +17208,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_ufunc(void) {
   PyObject *__pyx_t_8 = NULL;
   __Pyx_RefNannySetupContext("import_ufunc", 0);
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1009
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":1009
  * 
  * cdef inline int import_ufunc() except -1:
  *     try:             # <<<<<<<<<<<<<<
@@ -17204,7 +17224,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_ufunc(void) {
     __Pyx_XGOTREF(__pyx_t_3);
     /*try:*/ {
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1010
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":1010
  * cdef inline int import_ufunc() except -1:
  *     try:
  *         _import_umath()             # <<<<<<<<<<<<<<
@@ -17213,7 +17233,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_ufunc(void) {
  */
       __pyx_t_4 = _import_umath(); if (unlikely(__pyx_t_4 == ((int)-1))) __PYX_ERR(2, 1010, __pyx_L3_error)
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1009
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":1009
  * 
  * cdef inline int import_ufunc() except -1:
  *     try:             # <<<<<<<<<<<<<<
@@ -17227,7 +17247,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_ufunc(void) {
     goto __pyx_L8_try_end;
     __pyx_L3_error:;
 
-    /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1011
+    /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":1011
  *     try:
  *         _import_umath()
  *     except Exception:             # <<<<<<<<<<<<<<
@@ -17241,7 +17261,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_ufunc(void) {
       __Pyx_GOTREF(__pyx_t_6);
       __Pyx_GOTREF(__pyx_t_7);
 
-      /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1012
+      /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":1012
  *         _import_umath()
  *     except Exception:
  *         raise ImportError("numpy.core.umath failed to import")             # <<<<<<<<<<<<<<
@@ -17255,7 +17275,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_ufunc(void) {
     goto __pyx_L5_except_error;
     __pyx_L5_except_error:;
 
-    /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1009
+    /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":1009
  * 
  * cdef inline int import_ufunc() except -1:
  *     try:             # <<<<<<<<<<<<<<
@@ -17270,7 +17290,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_ufunc(void) {
     __pyx_L8_try_end:;
   }
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1008
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":1008
  *         raise ImportError("numpy.core.umath failed to import")
  * 
  * cdef inline int import_ufunc() except -1:             # <<<<<<<<<<<<<<
@@ -17633,7 +17653,7 @@ static PyTypeObject __pyx_type_5freud_4bond_BondingAnalysis = {
   0, /*tp_setattro*/
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE, /*tp_flags*/
-  "Analyze the bond lifetimes and flux present in the system.\n\n    .. moduleauthor:: Eric Harper <harperic@umich.edu>\n\n    Args:\n        num_particles (unsigned int):\n            Number of particles over which to calculate bonds.\n        num_bonds (unsigned int):\n            Number of bonds to track.\n\n    Attributes:\n        bond_lifetimes ((:math:`N_{particles}`, varying)         :class:`numpy.ndarray`):\n            Bond lifetimes.\n        overall_lifetimes ((:math:`N_{particles}`, varying)         :class:`numpy.ndarray`):\n            Overall bond lifetimes.\n        transition_matrix (:class:`numpy.ndarray`):\n            Transition matrix.\n        num_frames (unsigned int):\n            Number of frames calculated.\n        num_particles (unsigned int):\n            Number of tracked particles.\n        num_bonds (unsigned int):\n            Number of tracked bonds.\n    ", /*tp_doc*/
+  "Analyze the bond lifetimes and flux present in the system.\n\n    .. moduleauthor:: Eric Harper <harperic@umich.edu>\n\n    Args:\n        num_particles (unsigned int):\n            Number of particles over which to calculate bonds.\n        num_bonds (unsigned int):\n            Number of bonds to track.\n\n    Attributes:\n        bond_lifetimes ((:math:`N_{particles}`, varying) :class:`numpy.ndarray`):\n            Bond lifetimes.\n        overall_lifetimes ((:math:`N_{particles}`, varying) :class:`numpy.ndarray`):\n            Overall bond lifetimes.\n        transition_matrix (:class:`numpy.ndarray`):\n            Transition matrix.\n        num_frames (unsigned int):\n            Number of frames calculated.\n        num_particles (unsigned int):\n            Number of tracked particles.\n        num_bonds (unsigned int):\n            Number of tracked bonds.\n    ", /*tp_doc*/
   0, /*tp_traverse*/
   0, /*tp_clear*/
   0, /*tp_richcompare*/
@@ -17782,7 +17802,7 @@ static PyTypeObject __pyx_type_5freud_4bond_BondingR12 = {
   0, /*tp_setattro*/
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-  "Compute bonds in a 2D system using a (:math:`r`, :math:`\\theta_1`,\n    :math:`\\theta_2`) coordinate system.\n\n    .. moduleauthor:: Eric Harper <harperic@umich.edu>\n\n    Args:\n        r_max (float):\n            Distance to search for bonds.\n        bond_map (:class:`numpy.ndarray`):\n            3D array containing the bond index for each r, :math:`\\theta_2`,\n            :math:`\\theta_1` coordinate.\n        bond_list (:class:`numpy.ndarray`):\n            List containing the bond indices to be tracked,\n            :code:`bond_list[i] = bond_index`.\n\n    Attributes:\n        bonds (:class:`numpy.ndarray`):\n            Particle bonds.\n        box (:py:class:`freud.box.Box`):\n            Box used in the calculation.\n        list_map (dict):\n            The dict used to map bond index to list index.\n        rev_list_map (dict):\n            The dict used to map list idx to bond idx.\n    ", /*tp_doc*/
+  "Compute bonds in a 2D system using a (:math:`r`, :math:`\\theta_1`,\n    :math:`\\theta_2`) coordinate system.\n\n    .. moduleauthor:: Eric Harper <harperic@umich.edu>\n\n    Args:\n        r_max (float):\n            Distance to search for bonds.\n        bond_map (:class:`numpy.ndarray`):\n            3D array containing the bond index for each r, :math:`\\theta_2`,\n            :math:`\\theta_1` coordinate.\n        bond_list (:class:`numpy.ndarray`):\n            List containing the bond indices to be tracked,\n            :code:`bond_list[i] = bond_index`.\n\n    Attributes:\n        bonds (:class:`numpy.ndarray`):\n            Particle bonds.\n        box (:class:`freud.box.Box`):\n            Box used in the calculation.\n        list_map (dict):\n            The dict used to map bond index to list index.\n        rev_list_map (dict):\n            The dict used to map list idx to bond idx.\n    ", /*tp_doc*/
   __pyx_tp_traverse_5freud_4bond_BondingR12, /*tp_traverse*/
   __pyx_tp_clear_5freud_4bond_BondingR12, /*tp_clear*/
   0, /*tp_richcompare*/
@@ -17931,7 +17951,7 @@ static PyTypeObject __pyx_type_5freud_4bond_BondingXY2D = {
   0, /*tp_setattro*/
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-  "Compute bonds in a 2D system using a (:math:`x`, :math:`y`) coordinate\n    system.\n\n    .. moduleauthor:: Eric Harper <harperic@umich.edu>\n\n    Args:\n        x_max (float):\n            Maximum :math:`x` distance at which to search for bonds.\n        y_max (float):\n            Maximum :math:`y` distance at which to search for bonds.\n        bond_map (:class:`numpy.ndarray`):\n            3D array containing the bond index for each :math:`x`, :math:`y`\n            coordinate.\n        bond_list (:class:`numpy.ndarray`):\n            List containing the bond indices to be tracked,\n            :code:`bond_list[i] = bond_index`.\n\n    Attributes:\n        bonds (:class:`numpy.ndarray`):\n            Particle bonds.\n        box (:py:class:`freud.box.Box`):\n            Box used in the calculation.\n        list_map (dict):\n            The dict used to map bond index to list index.\n        rev_list_map (dict):\n            The dict used to map list idx to bond idx.\n    ", /*tp_doc*/
+  "Compute bonds in a 2D system using a (:math:`x`, :math:`y`) coordinate\n    system.\n\n    .. moduleauthor:: Eric Harper <harperic@umich.edu>\n\n    Args:\n        x_max (float):\n            Maximum :math:`x` distance at which to search for bonds.\n        y_max (float):\n            Maximum :math:`y` distance at which to search for bonds.\n        bond_map (:class:`numpy.ndarray`):\n            3D array containing the bond index for each :math:`x`, :math:`y`\n            coordinate.\n        bond_list (:class:`numpy.ndarray`):\n            List containing the bond indices to be tracked,\n            :code:`bond_list[i] = bond_index`.\n\n    Attributes:\n        bonds (:class:`numpy.ndarray`):\n            Particle bonds.\n        box (:class:`freud.box.Box`):\n            Box used in the calculation.\n        list_map (dict):\n            The dict used to map bond index to list index.\n        rev_list_map (dict):\n            The dict used to map list idx to bond idx.\n    ", /*tp_doc*/
   __pyx_tp_traverse_5freud_4bond_BondingXY2D, /*tp_traverse*/
   __pyx_tp_clear_5freud_4bond_BondingXY2D, /*tp_clear*/
   0, /*tp_richcompare*/
@@ -18080,7 +18100,7 @@ static PyTypeObject __pyx_type_5freud_4bond_BondingXYT = {
   0, /*tp_setattro*/
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-  "Compute bonds in a 2D system using a\n    (:math:`x`, :math:`y`, :math:`\\theta`) coordinate system.\n\n    For each particle in the system determine which other particles are in\n    which bonding sites.\n\n    .. moduleauthor:: Eric Harper <harperic@umich.edu>\n\n    Args:\n        x_max (float):\n            Maximum :math:`x` distance at which to search for bonds.\n        y_max (float):\n            Maximum :math:`y` distance at which to search for bonds.\n        bond_map (:class:`numpy.ndarray`):\n            3D array containing the bond index for each :math:`x`, :math:`y`\n            coordinate.\n        bond_list (:class:`numpy.ndarray`):\n            List containing the bond indices to be tracked,\n            :code:`bond_list[i] = bond_index`.\n\n    Attributes:\n        bonds (:class:`numpy.ndarray`):\n            Particle bonds.\n        box (:py:class:`freud.box.Box`):\n            Box used in the calculation.\n        list_map (dict):\n            The dict used to map bond index to list index.\n        rev_list_map (dict):\n            The dict used to map list idx to bond idx.\n    ", /*tp_doc*/
+  "Compute bonds in a 2D system using a\n    (:math:`x`, :math:`y`, :math:`\\theta`) coordinate system.\n\n    For each particle in the system determine which other particles are in\n    which bonding sites.\n\n    .. moduleauthor:: Eric Harper <harperic@umich.edu>\n\n    Args:\n        x_max (float):\n            Maximum :math:`x` distance at which to search for bonds.\n        y_max (float):\n            Maximum :math:`y` distance at which to search for bonds.\n        bond_map (:class:`numpy.ndarray`):\n            3D array containing the bond index for each :math:`x`, :math:`y`\n            coordinate.\n        bond_list (:class:`numpy.ndarray`):\n            List containing the bond indices to be tracked,\n            :code:`bond_list[i] = bond_index`.\n\n    Attributes:\n        bonds (:class:`numpy.ndarray`):\n            Particle bonds.\n        box (:class:`freud.box.Box`):\n            Box used in the calculation.\n        list_map (dict):\n            The dict used to map bond index to list index.\n        rev_list_map (dict):\n            The dict used to map list idx to bond idx.\n    ", /*tp_doc*/
   __pyx_tp_traverse_5freud_4bond_BondingXYT, /*tp_traverse*/
   __pyx_tp_clear_5freud_4bond_BondingXYT, /*tp_clear*/
   0, /*tp_richcompare*/
@@ -18229,7 +18249,7 @@ static PyTypeObject __pyx_type_5freud_4bond_BondingXYZ = {
   0, /*tp_setattro*/
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-  "Compute bonds in a 3D system using a\n    (:math:`x`, :math:`y`, :math:`z`) coordinate system.\n\n    For each particle in the system determine which other particles are in\n    which bonding sites.\n\n    .. moduleauthor:: Eric Harper <harperic@umich.edu>\n\n    Args:\n        x_max (float):\n            Maximum :math:`x` distance at which to search for bonds.\n        y_max (float):\n            Maximum :math:`y` distance at which to search for bonds.\n        z_max (float):\n            Maximum :math:`z` distance at which to search for bonds.\n        bond_map (:class:`numpy.ndarray`):\n            3D array containing the bond index for each :math:`x`, :math:`y`,\n            :math:`z` coordinate.\n        bond_list (:class:`numpy.ndarray`):\n            List containing the bond indices to be tracked,\n            :code:`bond_list[i] = bond_index`.\n\n    Attributes:\n        bonds (:class:`numpy.ndarray`):\n            Particle bonds.\n        box (:py:class:`freud.box.Box`):\n            Box used in the calculation.\n        list_map (dict):\n            The dict used to map bond index to list index.\n        rev_list_map (dict):\n            The dict used to map list idx to bond idx.\n    ", /*tp_doc*/
+  "Compute bonds in a 3D system using a\n    (:math:`x`, :math:`y`, :math:`z`) coordinate system.\n\n    For each particle in the system determine which other particles are in\n    which bonding sites.\n\n    .. moduleauthor:: Eric Harper <harperic@umich.edu>\n\n    Args:\n        x_max (float):\n            Maximum :math:`x` distance at which to search for bonds.\n        y_max (float):\n            Maximum :math:`y` distance at which to search for bonds.\n        z_max (float):\n            Maximum :math:`z` distance at which to search for bonds.\n        bond_map (:class:`numpy.ndarray`):\n            3D array containing the bond index for each :math:`x`, :math:`y`,\n            :math:`z` coordinate.\n        bond_list (:class:`numpy.ndarray`):\n            List containing the bond indices to be tracked,\n            :code:`bond_list[i] = bond_index`.\n\n    Attributes:\n        bonds (:class:`numpy.ndarray`):\n            Particle bonds.\n        box (:class:`freud.box.Box`):\n            Box used in the calculation.\n        list_map (dict):\n            The dict used to map bond index to list index.\n        rev_list_map (dict):\n            The dict used to map list idx to bond idx.\n    ", /*tp_doc*/
   __pyx_tp_traverse_5freud_4bond_BondingXYZ, /*tp_traverse*/
   __pyx_tp_clear_5freud_4bond_BondingXYZ, /*tp_clear*/
   0, /*tp_richcompare*/
@@ -18459,7 +18479,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {0, 0, 0, 0, 0, 0, 0}
 };
 static int __Pyx_InitCachedBuiltins(void) {
-  __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_n_s_ValueError); if (!__pyx_builtin_ValueError) __PYX_ERR(0, 105, __pyx_L1_error)
+  __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_n_s_ValueError); if (!__pyx_builtin_ValueError) __PYX_ERR(0, 102, __pyx_L1_error)
   __pyx_builtin_TypeError = __Pyx_GetBuiltinName(__pyx_n_s_TypeError); if (!__pyx_builtin_TypeError) __PYX_ERR(1, 2, __pyx_L1_error)
   __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(2, 242, __pyx_L1_error)
   __pyx_builtin_RuntimeError = __Pyx_GetBuiltinName(__pyx_n_s_RuntimeError); if (!__pyx_builtin_RuntimeError) __PYX_ERR(2, 810, __pyx_L1_error)
@@ -18492,25 +18512,25 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__2);
   __Pyx_GIVEREF(__pyx_tuple__2);
 
-  /* "freud/bond.pyx":299
+  /* "freud/bond.pyx":292
  *             array_name="ref_points")
  *         if ref_points.shape[1] != 3:
  *             raise TypeError('ref_points should be an Nx3 array')             # <<<<<<<<<<<<<<
  * 
  *         ref_orientations = freud.common.convert_array(
  */
-  __pyx_tuple__3 = PyTuple_Pack(1, __pyx_kp_s_ref_points_should_be_an_Nx3_arra); if (unlikely(!__pyx_tuple__3)) __PYX_ERR(0, 299, __pyx_L1_error)
+  __pyx_tuple__3 = PyTuple_Pack(1, __pyx_kp_s_ref_points_should_be_an_Nx3_arra); if (unlikely(!__pyx_tuple__3)) __PYX_ERR(0, 292, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__3);
   __Pyx_GIVEREF(__pyx_tuple__3);
 
-  /* "freud/bond.pyx":308
+  /* "freud/bond.pyx":301
  *             points, 2, dtype=np.float32, contiguous=True, array_name="points")
  *         if points.shape[1] != 3:
  *             raise TypeError('points should be an Nx3 array')             # <<<<<<<<<<<<<<
  * 
  *         orientations = freud.common.convert_array(
  */
-  __pyx_tuple__4 = PyTuple_Pack(1, __pyx_kp_s_points_should_be_an_Nx3_array); if (unlikely(!__pyx_tuple__4)) __PYX_ERR(0, 308, __pyx_L1_error)
+  __pyx_tuple__4 = PyTuple_Pack(1, __pyx_kp_s_points_should_be_an_Nx3_array); if (unlikely(!__pyx_tuple__4)) __PYX_ERR(0, 301, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__4);
   __Pyx_GIVEREF(__pyx_tuple__4);
 
@@ -18533,25 +18553,25 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__6);
   __Pyx_GIVEREF(__pyx_tuple__6);
 
-  /* "freud/bond.pyx":467
+  /* "freud/bond.pyx":458
  *             array_name="ref_points")
  *         if ref_points.shape[1] != 3:
  *             raise TypeError('ref_points should be an Nx3 array')             # <<<<<<<<<<<<<<
  * 
  *         ref_orientations = freud.common.convert_array(
  */
-  __pyx_tuple__7 = PyTuple_Pack(1, __pyx_kp_s_ref_points_should_be_an_Nx3_arra); if (unlikely(!__pyx_tuple__7)) __PYX_ERR(0, 467, __pyx_L1_error)
+  __pyx_tuple__7 = PyTuple_Pack(1, __pyx_kp_s_ref_points_should_be_an_Nx3_arra); if (unlikely(!__pyx_tuple__7)) __PYX_ERR(0, 458, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__7);
   __Pyx_GIVEREF(__pyx_tuple__7);
 
-  /* "freud/bond.pyx":476
+  /* "freud/bond.pyx":467
  *             points, 2, dtype=np.float32, contiguous=True, array_name="points")
  *         if points.shape[1] != 3:
  *             raise TypeError('points should be an Nx3 array')             # <<<<<<<<<<<<<<
  * 
  *         orientations = freud.common.convert_array(
  */
-  __pyx_tuple__8 = PyTuple_Pack(1, __pyx_kp_s_points_should_be_an_Nx3_array); if (unlikely(!__pyx_tuple__8)) __PYX_ERR(0, 476, __pyx_L1_error)
+  __pyx_tuple__8 = PyTuple_Pack(1, __pyx_kp_s_points_should_be_an_Nx3_array); if (unlikely(!__pyx_tuple__8)) __PYX_ERR(0, 467, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__8);
   __Pyx_GIVEREF(__pyx_tuple__8);
 
@@ -18574,25 +18594,25 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__10);
   __Pyx_GIVEREF(__pyx_tuple__10);
 
-  /* "freud/bond.pyx":640
+  /* "freud/bond.pyx":629
  *             array_name="ref_points")
  *         if ref_points.shape[1] != 3:
  *             raise TypeError('ref_points should be an Nx3 array')             # <<<<<<<<<<<<<<
  * 
  *         ref_orientations = freud.common.convert_array(
  */
-  __pyx_tuple__11 = PyTuple_Pack(1, __pyx_kp_s_ref_points_should_be_an_Nx3_arra); if (unlikely(!__pyx_tuple__11)) __PYX_ERR(0, 640, __pyx_L1_error)
+  __pyx_tuple__11 = PyTuple_Pack(1, __pyx_kp_s_ref_points_should_be_an_Nx3_arra); if (unlikely(!__pyx_tuple__11)) __PYX_ERR(0, 629, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__11);
   __Pyx_GIVEREF(__pyx_tuple__11);
 
-  /* "freud/bond.pyx":649
+  /* "freud/bond.pyx":638
  *             points, 2, dtype=np.float32, contiguous=True, array_name="points")
  *         if points.shape[1] != 3:
  *             raise TypeError('points should be an Nx3 array')             # <<<<<<<<<<<<<<
  * 
  *         orientations = freud.common.convert_array(
  */
-  __pyx_tuple__12 = PyTuple_Pack(1, __pyx_kp_s_points_should_be_an_Nx3_array); if (unlikely(!__pyx_tuple__12)) __PYX_ERR(0, 649, __pyx_L1_error)
+  __pyx_tuple__12 = PyTuple_Pack(1, __pyx_kp_s_points_should_be_an_Nx3_array); if (unlikely(!__pyx_tuple__12)) __PYX_ERR(0, 638, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__12);
   __Pyx_GIVEREF(__pyx_tuple__12);
 
@@ -18615,47 +18635,47 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__14);
   __Pyx_GIVEREF(__pyx_tuple__14);
 
-  /* "freud/bond.pyx":814
+  /* "freud/bond.pyx":802
  *             array_name="ref_points")
  *         if ref_points.shape[1] != 3:
  *             raise TypeError('ref_points should be an Nx3 array')             # <<<<<<<<<<<<<<
  * 
  *         ref_orientations = freud.common.convert_array(
  */
-  __pyx_tuple__15 = PyTuple_Pack(1, __pyx_kp_s_ref_points_should_be_an_Nx3_arra); if (unlikely(!__pyx_tuple__15)) __PYX_ERR(0, 814, __pyx_L1_error)
+  __pyx_tuple__15 = PyTuple_Pack(1, __pyx_kp_s_ref_points_should_be_an_Nx3_arra); if (unlikely(!__pyx_tuple__15)) __PYX_ERR(0, 802, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__15);
   __Pyx_GIVEREF(__pyx_tuple__15);
 
-  /* "freud/bond.pyx":820
+  /* "freud/bond.pyx":808
  *             array_name="ref_orientations")
  *         if ref_orientations.shape[1] != 4:
  *             raise ValueError(             # <<<<<<<<<<<<<<
  *                 "The 2nd dimension must have 4 values: q0, q1, q2, q3")
  * 
  */
-  __pyx_tuple__16 = PyTuple_Pack(1, __pyx_kp_s_The_2nd_dimension_must_have_4_va); if (unlikely(!__pyx_tuple__16)) __PYX_ERR(0, 820, __pyx_L1_error)
+  __pyx_tuple__16 = PyTuple_Pack(1, __pyx_kp_s_The_2nd_dimension_must_have_4_va); if (unlikely(!__pyx_tuple__16)) __PYX_ERR(0, 808, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__16);
   __Pyx_GIVEREF(__pyx_tuple__16);
 
-  /* "freud/bond.pyx":826
+  /* "freud/bond.pyx":814
  *             points, 2, dtype=np.float32, contiguous=True, array_name="points")
  *         if points.shape[1] != 3:
  *             raise TypeError('points should be an Nx3 array')             # <<<<<<<<<<<<<<
  * 
  *         orientations = freud.common.convert_array(
  */
-  __pyx_tuple__17 = PyTuple_Pack(1, __pyx_kp_s_points_should_be_an_Nx3_array); if (unlikely(!__pyx_tuple__17)) __PYX_ERR(0, 826, __pyx_L1_error)
+  __pyx_tuple__17 = PyTuple_Pack(1, __pyx_kp_s_points_should_be_an_Nx3_array); if (unlikely(!__pyx_tuple__17)) __PYX_ERR(0, 814, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__17);
   __Pyx_GIVEREF(__pyx_tuple__17);
 
-  /* "freud/bond.pyx":832
+  /* "freud/bond.pyx":820
  *             array_name="orientations")
  *         if orientations.shape[1] != 4:
  *             raise ValueError(             # <<<<<<<<<<<<<<
  *                 "The 2nd dimension must have 4 values: q0, q1, q2, q3")
  * 
  */
-  __pyx_tuple__18 = PyTuple_Pack(1, __pyx_kp_s_The_2nd_dimension_must_have_4_va); if (unlikely(!__pyx_tuple__18)) __PYX_ERR(0, 832, __pyx_L1_error)
+  __pyx_tuple__18 = PyTuple_Pack(1, __pyx_kp_s_The_2nd_dimension_must_have_4_va); if (unlikely(!__pyx_tuple__18)) __PYX_ERR(0, 820, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__18);
   __Pyx_GIVEREF(__pyx_tuple__18);
 
@@ -18678,7 +18698,7 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__20);
   __Pyx_GIVEREF(__pyx_tuple__20);
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":229
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":229
  *             if ((flags & pybuf.PyBUF_C_CONTIGUOUS == pybuf.PyBUF_C_CONTIGUOUS)
  *                 and not PyArray_CHKFLAGS(self, NPY_C_CONTIGUOUS)):
  *                 raise ValueError(u"ndarray is not C contiguous")             # <<<<<<<<<<<<<<
@@ -18689,7 +18709,7 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__21);
   __Pyx_GIVEREF(__pyx_tuple__21);
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":233
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":233
  *             if ((flags & pybuf.PyBUF_F_CONTIGUOUS == pybuf.PyBUF_F_CONTIGUOUS)
  *                 and not PyArray_CHKFLAGS(self, NPY_F_CONTIGUOUS)):
  *                 raise ValueError(u"ndarray is not Fortran contiguous")             # <<<<<<<<<<<<<<
@@ -18700,7 +18720,7 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__22);
   __Pyx_GIVEREF(__pyx_tuple__22);
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":263
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":263
  *                 if ((descr.byteorder == c'>' and little_endian) or
  *                     (descr.byteorder == c'<' and not little_endian)):
  *                     raise ValueError(u"Non-native byte order not supported")             # <<<<<<<<<<<<<<
@@ -18711,7 +18731,7 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__23);
   __Pyx_GIVEREF(__pyx_tuple__23);
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":810
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":810
  * 
  *         if (end - f) - <int>(new_offset - offset[0]) < 15:
  *             raise RuntimeError(u"Format string allocated too short, see comment in numpy.pxd")             # <<<<<<<<<<<<<<
@@ -18722,7 +18742,7 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__24);
   __Pyx_GIVEREF(__pyx_tuple__24);
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":814
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":814
  *         if ((child.byteorder == c'>' and little_endian) or
  *             (child.byteorder == c'<' and not little_endian)):
  *             raise ValueError(u"Non-native byte order not supported")             # <<<<<<<<<<<<<<
@@ -18733,7 +18753,7 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__25);
   __Pyx_GIVEREF(__pyx_tuple__25);
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":834
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":834
  *             t = child.type_num
  *             if end - f < 5:
  *                 raise RuntimeError(u"Format string allocated too short.")             # <<<<<<<<<<<<<<
@@ -18744,7 +18764,7 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__26);
   __Pyx_GIVEREF(__pyx_tuple__26);
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1000
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":1000
  *         _import_array()
  *     except Exception:
  *         raise ImportError("numpy.core.multiarray failed to import")             # <<<<<<<<<<<<<<
@@ -18755,7 +18775,7 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__27);
   __Pyx_GIVEREF(__pyx_tuple__27);
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1006
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":1006
  *         _import_umath()
  *     except Exception:
  *         raise ImportError("numpy.core.umath failed to import")             # <<<<<<<<<<<<<<
@@ -18766,7 +18786,7 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__28);
   __Pyx_GIVEREF(__pyx_tuple__28);
 
-  /* "../../../../../../usr/lib/python3.7/site-packages/Cython/Includes/numpy/__init__.pxd":1012
+  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":1012
  *         _import_umath()
  *     except Exception:
  *         raise ImportError("numpy.core.umath failed to import")             # <<<<<<<<<<<<<<
@@ -18775,101 +18795,101 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__29);
   __Pyx_GIVEREF(__pyx_tuple__29);
 
-  /* "freud/bond.pyx":93
+  /* "freud/bond.pyx":91
  *         del self.thisptr
  * 
  *     def initialize(self, frame_0):             # <<<<<<<<<<<<<<
  *         """Calculates the changes in bonding states from one frame to the next.
  * 
  */
-  __pyx_tuple__30 = PyTuple_Pack(3, __pyx_n_s_self, __pyx_n_s_frame_0, __pyx_n_s_l_frame_0); if (unlikely(!__pyx_tuple__30)) __PYX_ERR(0, 93, __pyx_L1_error)
+  __pyx_tuple__30 = PyTuple_Pack(3, __pyx_n_s_self, __pyx_n_s_frame_0, __pyx_n_s_l_frame_0); if (unlikely(!__pyx_tuple__30)) __PYX_ERR(0, 91, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__30);
   __Pyx_GIVEREF(__pyx_tuple__30);
-  __pyx_codeobj__31 = (PyObject*)__Pyx_PyCode_New(2, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__30, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_initialize, 93, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__31)) __PYX_ERR(0, 93, __pyx_L1_error)
+  __pyx_codeobj__31 = (PyObject*)__Pyx_PyCode_New(2, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__30, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_initialize, 91, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__31)) __PYX_ERR(0, 91, __pyx_L1_error)
 
-  /* "freud/bond.pyx":116
+  /* "freud/bond.pyx":113
  *             self.thisptr.initialize(<unsigned int*> l_frame_0.data)
  * 
  *     def compute(self, frame_0, frame_1):             # <<<<<<<<<<<<<<
  *         """Calculates the changes in bonding states from one frame to the next.
  * 
  */
-  __pyx_tuple__32 = PyTuple_Pack(5, __pyx_n_s_self, __pyx_n_s_frame_0, __pyx_n_s_frame_1, __pyx_n_s_l_frame_0, __pyx_n_s_l_frame_1); if (unlikely(!__pyx_tuple__32)) __PYX_ERR(0, 116, __pyx_L1_error)
+  __pyx_tuple__32 = PyTuple_Pack(5, __pyx_n_s_self, __pyx_n_s_frame_0, __pyx_n_s_frame_1, __pyx_n_s_l_frame_0, __pyx_n_s_l_frame_1); if (unlikely(!__pyx_tuple__32)) __PYX_ERR(0, 113, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__32);
   __Pyx_GIVEREF(__pyx_tuple__32);
-  __pyx_codeobj__33 = (PyObject*)__Pyx_PyCode_New(3, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__32, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_compute, 116, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__33)) __PYX_ERR(0, 116, __pyx_L1_error)
+  __pyx_codeobj__33 = (PyObject*)__Pyx_PyCode_New(3, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__32, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_compute, 113, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__33)) __PYX_ERR(0, 113, __pyx_L1_error)
 
-  /* "freud/bond.pyx":147
+  /* "freud/bond.pyx":142
  *         return bonds
  * 
  *     def getBondLifetimes(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getBondLifetimes function is deprecated in favor "
  *                       "of the bond_lifetimes class attribute and will be "
  */
-  __pyx_tuple__34 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__34)) __PYX_ERR(0, 147, __pyx_L1_error)
+  __pyx_tuple__34 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__34)) __PYX_ERR(0, 142, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__34);
   __Pyx_GIVEREF(__pyx_tuple__34);
-  __pyx_codeobj__35 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__34, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getBondLifetimes, 147, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__35)) __PYX_ERR(0, 147, __pyx_L1_error)
+  __pyx_codeobj__35 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__34, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getBondLifetimes, 142, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__35)) __PYX_ERR(0, 142, __pyx_L1_error)
 
-  /* "freud/bond.pyx":160
+  /* "freud/bond.pyx":155
  *         return ret_bonds
  * 
  *     def getOverallLifetimes(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getOverallLifetimes function is deprecated in "
  *                       "favor of the overall_lifetimes class attribute and "
  */
-  __pyx_tuple__36 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__36)) __PYX_ERR(0, 160, __pyx_L1_error)
+  __pyx_tuple__36 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__36)) __PYX_ERR(0, 155, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__36);
   __Pyx_GIVEREF(__pyx_tuple__36);
-  __pyx_codeobj__37 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__36, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getOverallLifetimes, 160, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__37)) __PYX_ERR(0, 160, __pyx_L1_error)
+  __pyx_codeobj__37 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__36, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getOverallLifetimes, 155, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__37)) __PYX_ERR(0, 155, __pyx_L1_error)
 
-  /* "freud/bond.pyx":179
+  /* "freud/bond.pyx":174
  *         return result
  * 
  *     def getTransitionMatrix(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getTransitionMatrix function is deprecated in "
  *                       "favor of the transition_matrix class attribute and "
  */
-  __pyx_tuple__38 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__38)) __PYX_ERR(0, 179, __pyx_L1_error)
+  __pyx_tuple__38 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__38)) __PYX_ERR(0, 174, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__38);
   __Pyx_GIVEREF(__pyx_tuple__38);
-  __pyx_codeobj__39 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__38, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getTransitionMatrix, 179, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__39)) __PYX_ERR(0, 179, __pyx_L1_error)
+  __pyx_codeobj__39 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__38, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getTransitionMatrix, 174, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__39)) __PYX_ERR(0, 174, __pyx_L1_error)
 
-  /* "freud/bond.pyx":190
+  /* "freud/bond.pyx":185
  *         return self.thisptr.getNumFrames()
  * 
  *     def getNumFrames(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getNumFrames function is deprecated in favor "
  *                       "of the num_frames class attribute and will be "
  */
-  __pyx_tuple__40 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__40)) __PYX_ERR(0, 190, __pyx_L1_error)
+  __pyx_tuple__40 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__40)) __PYX_ERR(0, 185, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__40);
   __Pyx_GIVEREF(__pyx_tuple__40);
-  __pyx_codeobj__41 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__40, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getNumFrames, 190, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__41)) __PYX_ERR(0, 190, __pyx_L1_error)
+  __pyx_codeobj__41 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__40, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getNumFrames, 185, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__41)) __PYX_ERR(0, 185, __pyx_L1_error)
 
-  /* "freud/bond.pyx":201
+  /* "freud/bond.pyx":196
  *         return self.thisptr.getNumParticles()
  * 
  *     def getNumParticles(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getNumParticles function is deprecated in favor "
  *                       "of the num_particles class attribute and will be "
  */
-  __pyx_tuple__42 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__42)) __PYX_ERR(0, 201, __pyx_L1_error)
+  __pyx_tuple__42 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__42)) __PYX_ERR(0, 196, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__42);
   __Pyx_GIVEREF(__pyx_tuple__42);
-  __pyx_codeobj__43 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__42, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getNumParticles, 201, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__43)) __PYX_ERR(0, 201, __pyx_L1_error)
+  __pyx_codeobj__43 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__42, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getNumParticles, 196, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__43)) __PYX_ERR(0, 196, __pyx_L1_error)
 
-  /* "freud/bond.pyx":212
+  /* "freud/bond.pyx":207
  *         return self.thisptr.getNumBonds()
  * 
  *     def getNumBonds(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getNumBonds function is deprecated in favor "
  *                       "of the num_bonds class attribute and will be "
  */
-  __pyx_tuple__44 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__44)) __PYX_ERR(0, 212, __pyx_L1_error)
+  __pyx_tuple__44 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__44)) __PYX_ERR(0, 207, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__44);
   __Pyx_GIVEREF(__pyx_tuple__44);
-  __pyx_codeobj__45 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__44, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getNumBonds, 212, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__45)) __PYX_ERR(0, 212, __pyx_L1_error)
+  __pyx_codeobj__45 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__44, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getNumBonds, 207, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__45)) __PYX_ERR(0, 207, __pyx_L1_error)
 
   /* "(tree fragment)":1
  * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
@@ -18892,65 +18912,65 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_GIVEREF(__pyx_tuple__48);
   __pyx_codeobj__49 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__48, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_setstate_cython, 3, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__49)) __PYX_ERR(1, 3, __pyx_L1_error)
 
-  /* "freud/bond.pyx":265
+  /* "freud/bond.pyx":260
  *         del self.thisptr
  * 
  *     def compute(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
  *                 orientations=None, nlist=None):
  *         """Calculates the bonds.
  */
-  __pyx_tuple__50 = PyTuple_Pack(16, __pyx_n_s_self, __pyx_n_s_box, __pyx_n_s_ref_points, __pyx_n_s_ref_orientations, __pyx_n_s_points, __pyx_n_s_orientations, __pyx_n_s_nlist, __pyx_n_s_b, __pyx_n_s_defaulted_nlist, __pyx_n_s_nlist_2, __pyx_n_s_l_ref_points, __pyx_n_s_l_ref_orientations, __pyx_n_s_l_points, __pyx_n_s_l_orientations, __pyx_n_s_n_ref, __pyx_n_s_n_p); if (unlikely(!__pyx_tuple__50)) __PYX_ERR(0, 265, __pyx_L1_error)
+  __pyx_tuple__50 = PyTuple_Pack(16, __pyx_n_s_self, __pyx_n_s_box, __pyx_n_s_ref_points, __pyx_n_s_ref_orientations, __pyx_n_s_points, __pyx_n_s_orientations, __pyx_n_s_nlist, __pyx_n_s_b, __pyx_n_s_defaulted_nlist, __pyx_n_s_nlist_2, __pyx_n_s_l_ref_points, __pyx_n_s_l_ref_orientations, __pyx_n_s_l_points, __pyx_n_s_l_orientations, __pyx_n_s_n_ref, __pyx_n_s_n_p); if (unlikely(!__pyx_tuple__50)) __PYX_ERR(0, 260, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__50);
   __Pyx_GIVEREF(__pyx_tuple__50);
-  __pyx_codeobj__51 = (PyObject*)__Pyx_PyCode_New(7, 0, 16, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__50, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_compute, 265, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__51)) __PYX_ERR(0, 265, __pyx_L1_error)
+  __pyx_codeobj__51 = (PyObject*)__Pyx_PyCode_New(7, 0, 16, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__50, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_compute, 260, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__51)) __PYX_ERR(0, 260, __pyx_L1_error)
 
-  /* "freud/bond.pyx":344
+  /* "freud/bond.pyx":337
  *         return result
  * 
  *     def getBonds(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getBonds function is deprecated in favor "
  *                       "of the bonds class attribute and will be "
  */
-  __pyx_tuple__52 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__52)) __PYX_ERR(0, 344, __pyx_L1_error)
+  __pyx_tuple__52 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__52)) __PYX_ERR(0, 337, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__52);
   __Pyx_GIVEREF(__pyx_tuple__52);
-  __pyx_codeobj__53 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__52, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getBonds, 344, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__53)) __PYX_ERR(0, 344, __pyx_L1_error)
+  __pyx_codeobj__53 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__52, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getBonds, 337, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__53)) __PYX_ERR(0, 337, __pyx_L1_error)
 
-  /* "freud/bond.pyx":355
+  /* "freud/bond.pyx":348
  *         return freud.box.BoxFromCPP(self.thisptr.getBox())
  * 
  *     def getBox(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getBox function is deprecated in favor "
  *                       "of the box class attribute and will be "
  */
-  __pyx_tuple__54 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__54)) __PYX_ERR(0, 355, __pyx_L1_error)
+  __pyx_tuple__54 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__54)) __PYX_ERR(0, 348, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__54);
   __Pyx_GIVEREF(__pyx_tuple__54);
-  __pyx_codeobj__55 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__54, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getBox, 355, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__55)) __PYX_ERR(0, 355, __pyx_L1_error)
+  __pyx_codeobj__55 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__54, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getBox, 348, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__55)) __PYX_ERR(0, 348, __pyx_L1_error)
 
-  /* "freud/bond.pyx":366
+  /* "freud/bond.pyx":359
  *         return self.thisptr.getListMap()
  * 
  *     def getListMap(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getListMap function is deprecated in favor "
  *                       "of the list_map class attribute and will be "
  */
-  __pyx_tuple__56 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__56)) __PYX_ERR(0, 366, __pyx_L1_error)
+  __pyx_tuple__56 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__56)) __PYX_ERR(0, 359, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__56);
   __Pyx_GIVEREF(__pyx_tuple__56);
-  __pyx_codeobj__57 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__56, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getListMap, 366, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__57)) __PYX_ERR(0, 366, __pyx_L1_error)
+  __pyx_codeobj__57 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__56, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getListMap, 359, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__57)) __PYX_ERR(0, 359, __pyx_L1_error)
 
-  /* "freud/bond.pyx":377
+  /* "freud/bond.pyx":370
  *         return self.thisptr.getRevListMap()
  * 
  *     def getRevListMap(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getRevListMap function is deprecated in favor "
  *                       "of the rev_list_map class attribute and will be "
  */
-  __pyx_tuple__58 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__58)) __PYX_ERR(0, 377, __pyx_L1_error)
+  __pyx_tuple__58 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__58)) __PYX_ERR(0, 370, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__58);
   __Pyx_GIVEREF(__pyx_tuple__58);
-  __pyx_codeobj__59 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__58, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getRevListMap, 377, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__59)) __PYX_ERR(0, 377, __pyx_L1_error)
+  __pyx_codeobj__59 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__58, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getRevListMap, 370, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__59)) __PYX_ERR(0, 370, __pyx_L1_error)
 
   /* "(tree fragment)":1
  * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
@@ -18973,65 +18993,65 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_GIVEREF(__pyx_tuple__62);
   __pyx_codeobj__63 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__62, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_setstate_cython, 3, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__63)) __PYX_ERR(1, 3, __pyx_L1_error)
 
-  /* "freud/bond.pyx":433
+  /* "freud/bond.pyx":426
  *         del self.thisptr
  * 
  *     def compute(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
  *                 orientations=None, nlist=None):
  *         """Calculates the bonds.
  */
-  __pyx_tuple__64 = PyTuple_Pack(16, __pyx_n_s_self, __pyx_n_s_box, __pyx_n_s_ref_points, __pyx_n_s_ref_orientations, __pyx_n_s_points, __pyx_n_s_orientations, __pyx_n_s_nlist, __pyx_n_s_b, __pyx_n_s_defaulted_nlist, __pyx_n_s_nlist_2, __pyx_n_s_l_ref_points, __pyx_n_s_l_ref_orientations, __pyx_n_s_l_points, __pyx_n_s_l_orientations, __pyx_n_s_n_ref, __pyx_n_s_n_p); if (unlikely(!__pyx_tuple__64)) __PYX_ERR(0, 433, __pyx_L1_error)
+  __pyx_tuple__64 = PyTuple_Pack(16, __pyx_n_s_self, __pyx_n_s_box, __pyx_n_s_ref_points, __pyx_n_s_ref_orientations, __pyx_n_s_points, __pyx_n_s_orientations, __pyx_n_s_nlist, __pyx_n_s_b, __pyx_n_s_defaulted_nlist, __pyx_n_s_nlist_2, __pyx_n_s_l_ref_points, __pyx_n_s_l_ref_orientations, __pyx_n_s_l_points, __pyx_n_s_l_orientations, __pyx_n_s_n_ref, __pyx_n_s_n_p); if (unlikely(!__pyx_tuple__64)) __PYX_ERR(0, 426, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__64);
   __Pyx_GIVEREF(__pyx_tuple__64);
-  __pyx_codeobj__65 = (PyObject*)__Pyx_PyCode_New(7, 0, 16, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__64, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_compute, 433, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__65)) __PYX_ERR(0, 433, __pyx_L1_error)
+  __pyx_codeobj__65 = (PyObject*)__Pyx_PyCode_New(7, 0, 16, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__64, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_compute, 426, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__65)) __PYX_ERR(0, 426, __pyx_L1_error)
 
-  /* "freud/bond.pyx":513
+  /* "freud/bond.pyx":504
  *         return result
  * 
  *     def getBonds(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getBonds function is deprecated in favor "
  *                       "of the bonds class attribute and will be "
  */
-  __pyx_tuple__66 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__66)) __PYX_ERR(0, 513, __pyx_L1_error)
+  __pyx_tuple__66 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__66)) __PYX_ERR(0, 504, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__66);
   __Pyx_GIVEREF(__pyx_tuple__66);
-  __pyx_codeobj__67 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__66, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getBonds, 513, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__67)) __PYX_ERR(0, 513, __pyx_L1_error)
+  __pyx_codeobj__67 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__66, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getBonds, 504, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__67)) __PYX_ERR(0, 504, __pyx_L1_error)
 
-  /* "freud/bond.pyx":524
+  /* "freud/bond.pyx":515
  *         return freud.box.BoxFromCPP(self.thisptr.getBox())
  * 
  *     def getBox(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getBox function is deprecated in favor "
  *                       "of the box class attribute and will be "
  */
-  __pyx_tuple__68 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__68)) __PYX_ERR(0, 524, __pyx_L1_error)
+  __pyx_tuple__68 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__68)) __PYX_ERR(0, 515, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__68);
   __Pyx_GIVEREF(__pyx_tuple__68);
-  __pyx_codeobj__69 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__68, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getBox, 524, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__69)) __PYX_ERR(0, 524, __pyx_L1_error)
+  __pyx_codeobj__69 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__68, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getBox, 515, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__69)) __PYX_ERR(0, 515, __pyx_L1_error)
 
-  /* "freud/bond.pyx":535
+  /* "freud/bond.pyx":526
  *         return self.thisptr.getListMap()
  * 
  *     def getListMap(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getListMap function is deprecated in favor "
  *                       "of the list_map class attribute and will be "
  */
-  __pyx_tuple__70 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__70)) __PYX_ERR(0, 535, __pyx_L1_error)
+  __pyx_tuple__70 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__70)) __PYX_ERR(0, 526, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__70);
   __Pyx_GIVEREF(__pyx_tuple__70);
-  __pyx_codeobj__71 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__70, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getListMap, 535, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__71)) __PYX_ERR(0, 535, __pyx_L1_error)
+  __pyx_codeobj__71 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__70, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getListMap, 526, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__71)) __PYX_ERR(0, 526, __pyx_L1_error)
 
-  /* "freud/bond.pyx":546
+  /* "freud/bond.pyx":537
  *         return self.thisptr.getRevListMap()
  * 
  *     def getRevListMap(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getRevListMap function is deprecated in favor "
  *                       "of the rev_list_map class attribute and will be "
  */
-  __pyx_tuple__72 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__72)) __PYX_ERR(0, 546, __pyx_L1_error)
+  __pyx_tuple__72 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__72)) __PYX_ERR(0, 537, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__72);
   __Pyx_GIVEREF(__pyx_tuple__72);
-  __pyx_codeobj__73 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__72, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getRevListMap, 546, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__73)) __PYX_ERR(0, 546, __pyx_L1_error)
+  __pyx_codeobj__73 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__72, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getRevListMap, 537, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__73)) __PYX_ERR(0, 537, __pyx_L1_error)
 
   /* "(tree fragment)":1
  * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
@@ -19054,65 +19074,65 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_GIVEREF(__pyx_tuple__76);
   __pyx_codeobj__77 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__76, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_setstate_cython, 3, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__77)) __PYX_ERR(1, 3, __pyx_L1_error)
 
-  /* "freud/bond.pyx":606
+  /* "freud/bond.pyx":597
  *         del self.thisptr
  * 
  *     def compute(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
  *                 orientations=None, nlist=None):
  *         """Calculates the bonds.
  */
-  __pyx_tuple__78 = PyTuple_Pack(16, __pyx_n_s_self, __pyx_n_s_box, __pyx_n_s_ref_points, __pyx_n_s_ref_orientations, __pyx_n_s_points, __pyx_n_s_orientations, __pyx_n_s_nlist, __pyx_n_s_b, __pyx_n_s_defaulted_nlist, __pyx_n_s_nlist_2, __pyx_n_s_l_ref_points, __pyx_n_s_l_ref_orientations, __pyx_n_s_l_points, __pyx_n_s_l_orientations, __pyx_n_s_n_ref, __pyx_n_s_n_p); if (unlikely(!__pyx_tuple__78)) __PYX_ERR(0, 606, __pyx_L1_error)
+  __pyx_tuple__78 = PyTuple_Pack(16, __pyx_n_s_self, __pyx_n_s_box, __pyx_n_s_ref_points, __pyx_n_s_ref_orientations, __pyx_n_s_points, __pyx_n_s_orientations, __pyx_n_s_nlist, __pyx_n_s_b, __pyx_n_s_defaulted_nlist, __pyx_n_s_nlist_2, __pyx_n_s_l_ref_points, __pyx_n_s_l_ref_orientations, __pyx_n_s_l_points, __pyx_n_s_l_orientations, __pyx_n_s_n_ref, __pyx_n_s_n_p); if (unlikely(!__pyx_tuple__78)) __PYX_ERR(0, 597, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__78);
   __Pyx_GIVEREF(__pyx_tuple__78);
-  __pyx_codeobj__79 = (PyObject*)__Pyx_PyCode_New(7, 0, 16, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__78, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_compute, 606, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__79)) __PYX_ERR(0, 606, __pyx_L1_error)
+  __pyx_codeobj__79 = (PyObject*)__Pyx_PyCode_New(7, 0, 16, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__78, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_compute, 597, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__79)) __PYX_ERR(0, 597, __pyx_L1_error)
 
-  /* "freud/bond.pyx":685
+  /* "freud/bond.pyx":674
  *         return result
  * 
  *     def getBonds(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getBonds function is deprecated in favor "
  *                       "of the bonds class attribute and will be "
  */
-  __pyx_tuple__80 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__80)) __PYX_ERR(0, 685, __pyx_L1_error)
+  __pyx_tuple__80 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__80)) __PYX_ERR(0, 674, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__80);
   __Pyx_GIVEREF(__pyx_tuple__80);
-  __pyx_codeobj__81 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__80, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getBonds, 685, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__81)) __PYX_ERR(0, 685, __pyx_L1_error)
+  __pyx_codeobj__81 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__80, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getBonds, 674, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__81)) __PYX_ERR(0, 674, __pyx_L1_error)
 
-  /* "freud/bond.pyx":696
+  /* "freud/bond.pyx":685
  *         return freud.box.BoxFromCPP(self.thisptr.getBox())
  * 
  *     def getBox(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getBox function is deprecated in favor "
  *                       "of the box class attribute and will be "
  */
-  __pyx_tuple__82 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__82)) __PYX_ERR(0, 696, __pyx_L1_error)
+  __pyx_tuple__82 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__82)) __PYX_ERR(0, 685, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__82);
   __Pyx_GIVEREF(__pyx_tuple__82);
-  __pyx_codeobj__83 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__82, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getBox, 696, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__83)) __PYX_ERR(0, 696, __pyx_L1_error)
+  __pyx_codeobj__83 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__82, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getBox, 685, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__83)) __PYX_ERR(0, 685, __pyx_L1_error)
 
-  /* "freud/bond.pyx":707
+  /* "freud/bond.pyx":696
  *         return self.thisptr.getListMap()
  * 
  *     def getListMap(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getListMap function is deprecated in favor "
  *                       "of the list_map class attribute and will be "
  */
-  __pyx_tuple__84 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__84)) __PYX_ERR(0, 707, __pyx_L1_error)
+  __pyx_tuple__84 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__84)) __PYX_ERR(0, 696, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__84);
   __Pyx_GIVEREF(__pyx_tuple__84);
-  __pyx_codeobj__85 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__84, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getListMap, 707, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__85)) __PYX_ERR(0, 707, __pyx_L1_error)
+  __pyx_codeobj__85 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__84, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getListMap, 696, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__85)) __PYX_ERR(0, 696, __pyx_L1_error)
 
-  /* "freud/bond.pyx":718
+  /* "freud/bond.pyx":707
  *         return self.thisptr.getRevListMap()
  * 
  *     def getRevListMap(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getRevListMap function is deprecated in favor "
  *                       "of the rev_list_map class attribute and will be "
  */
-  __pyx_tuple__86 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__86)) __PYX_ERR(0, 718, __pyx_L1_error)
+  __pyx_tuple__86 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__86)) __PYX_ERR(0, 707, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__86);
   __Pyx_GIVEREF(__pyx_tuple__86);
-  __pyx_codeobj__87 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__86, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getRevListMap, 718, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__87)) __PYX_ERR(0, 718, __pyx_L1_error)
+  __pyx_codeobj__87 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__86, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getRevListMap, 707, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__87)) __PYX_ERR(0, 707, __pyx_L1_error)
 
   /* "(tree fragment)":1
  * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
@@ -19135,65 +19155,65 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_GIVEREF(__pyx_tuple__90);
   __pyx_codeobj__91 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__90, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_setstate_cython, 3, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__91)) __PYX_ERR(1, 3, __pyx_L1_error)
 
-  /* "freud/bond.pyx":781
+  /* "freud/bond.pyx":770
  *         del self.thisptr
  * 
  *     def compute(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
  *                 orientations=None, nlist=None):
  *         """Calculates the bonds.
  */
-  __pyx_tuple__92 = PyTuple_Pack(16, __pyx_n_s_self, __pyx_n_s_box, __pyx_n_s_ref_points, __pyx_n_s_ref_orientations, __pyx_n_s_points, __pyx_n_s_orientations, __pyx_n_s_nlist, __pyx_n_s_b, __pyx_n_s_defaulted_nlist, __pyx_n_s_nlist_2, __pyx_n_s_l_ref_points, __pyx_n_s_l_ref_orientations, __pyx_n_s_l_points, __pyx_n_s_l_orientations, __pyx_n_s_n_ref, __pyx_n_s_n_p); if (unlikely(!__pyx_tuple__92)) __PYX_ERR(0, 781, __pyx_L1_error)
+  __pyx_tuple__92 = PyTuple_Pack(16, __pyx_n_s_self, __pyx_n_s_box, __pyx_n_s_ref_points, __pyx_n_s_ref_orientations, __pyx_n_s_points, __pyx_n_s_orientations, __pyx_n_s_nlist, __pyx_n_s_b, __pyx_n_s_defaulted_nlist, __pyx_n_s_nlist_2, __pyx_n_s_l_ref_points, __pyx_n_s_l_ref_orientations, __pyx_n_s_l_points, __pyx_n_s_l_orientations, __pyx_n_s_n_ref, __pyx_n_s_n_p); if (unlikely(!__pyx_tuple__92)) __PYX_ERR(0, 770, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__92);
   __Pyx_GIVEREF(__pyx_tuple__92);
-  __pyx_codeobj__93 = (PyObject*)__Pyx_PyCode_New(7, 0, 16, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__92, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_compute, 781, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__93)) __PYX_ERR(0, 781, __pyx_L1_error)
+  __pyx_codeobj__93 = (PyObject*)__Pyx_PyCode_New(7, 0, 16, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__92, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_compute, 770, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__93)) __PYX_ERR(0, 770, __pyx_L1_error)
 
-  /* "freud/bond.pyx":867
+  /* "freud/bond.pyx":855
  *         return result
  * 
  *     def getBonds(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getBonds function is deprecated in favor "
  *                       "of the bonds class attribute and will be "
  */
-  __pyx_tuple__94 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__94)) __PYX_ERR(0, 867, __pyx_L1_error)
+  __pyx_tuple__94 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__94)) __PYX_ERR(0, 855, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__94);
   __Pyx_GIVEREF(__pyx_tuple__94);
-  __pyx_codeobj__95 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__94, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getBonds, 867, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__95)) __PYX_ERR(0, 867, __pyx_L1_error)
+  __pyx_codeobj__95 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__94, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getBonds, 855, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__95)) __PYX_ERR(0, 855, __pyx_L1_error)
 
-  /* "freud/bond.pyx":878
+  /* "freud/bond.pyx":866
  *         return freud.box.BoxFromCPP(self.thisptr.getBox())
  * 
  *     def getBox(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getBox function is deprecated in favor "
  *                       "of the box class attribute and will be "
  */
-  __pyx_tuple__96 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__96)) __PYX_ERR(0, 878, __pyx_L1_error)
+  __pyx_tuple__96 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__96)) __PYX_ERR(0, 866, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__96);
   __Pyx_GIVEREF(__pyx_tuple__96);
-  __pyx_codeobj__97 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__96, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getBox, 878, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__97)) __PYX_ERR(0, 878, __pyx_L1_error)
+  __pyx_codeobj__97 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__96, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getBox, 866, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__97)) __PYX_ERR(0, 866, __pyx_L1_error)
 
-  /* "freud/bond.pyx":889
+  /* "freud/bond.pyx":877
  *         return self.thisptr.getListMap()
  * 
  *     def getListMap(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getListMap function is deprecated in favor "
  *                       "of the list_map class attribute and will be "
  */
-  __pyx_tuple__98 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__98)) __PYX_ERR(0, 889, __pyx_L1_error)
+  __pyx_tuple__98 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__98)) __PYX_ERR(0, 877, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__98);
   __Pyx_GIVEREF(__pyx_tuple__98);
-  __pyx_codeobj__99 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__98, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getListMap, 889, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__99)) __PYX_ERR(0, 889, __pyx_L1_error)
+  __pyx_codeobj__99 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__98, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getListMap, 877, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__99)) __PYX_ERR(0, 877, __pyx_L1_error)
 
-  /* "freud/bond.pyx":900
+  /* "freud/bond.pyx":888
  *         return self.thisptr.getRevListMap()
  * 
  *     def getRevListMap(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getRevListMap function is deprecated in favor "
  *                       "of the rev_list_map class attribute and will be "
  */
-  __pyx_tuple__100 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__100)) __PYX_ERR(0, 900, __pyx_L1_error)
+  __pyx_tuple__100 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__100)) __PYX_ERR(0, 888, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__100);
   __Pyx_GIVEREF(__pyx_tuple__100);
-  __pyx_codeobj__101 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__100, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getRevListMap, 900, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__101)) __PYX_ERR(0, 900, __pyx_L1_error)
+  __pyx_codeobj__101 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__100, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_bond_pyx, __pyx_n_s_getRevListMap, 888, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__101)) __PYX_ERR(0, 888, __pyx_L1_error)
 
   /* "(tree fragment)":1
  * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
@@ -19277,37 +19297,37 @@ static int __Pyx_modinit_type_init_code(void) {
   if (PyObject_SetAttrString(__pyx_m, "BondingAnalysis", (PyObject *)&__pyx_type_5freud_4bond_BondingAnalysis) < 0) __PYX_ERR(0, 53, __pyx_L1_error)
   if (__Pyx_setup_reduce((PyObject*)&__pyx_type_5freud_4bond_BondingAnalysis) < 0) __PYX_ERR(0, 53, __pyx_L1_error)
   __pyx_ptype_5freud_4bond_BondingAnalysis = &__pyx_type_5freud_4bond_BondingAnalysis;
-  if (PyType_Ready(&__pyx_type_5freud_4bond_BondingR12) < 0) __PYX_ERR(0, 219, __pyx_L1_error)
+  if (PyType_Ready(&__pyx_type_5freud_4bond_BondingR12) < 0) __PYX_ERR(0, 214, __pyx_L1_error)
   __pyx_type_5freud_4bond_BondingR12.tp_print = 0;
   if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_5freud_4bond_BondingR12.tp_dictoffset && __pyx_type_5freud_4bond_BondingR12.tp_getattro == PyObject_GenericGetAttr)) {
     __pyx_type_5freud_4bond_BondingR12.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
-  if (PyObject_SetAttrString(__pyx_m, "BondingR12", (PyObject *)&__pyx_type_5freud_4bond_BondingR12) < 0) __PYX_ERR(0, 219, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_5freud_4bond_BondingR12) < 0) __PYX_ERR(0, 219, __pyx_L1_error)
+  if (PyObject_SetAttrString(__pyx_m, "BondingR12", (PyObject *)&__pyx_type_5freud_4bond_BondingR12) < 0) __PYX_ERR(0, 214, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_5freud_4bond_BondingR12) < 0) __PYX_ERR(0, 214, __pyx_L1_error)
   __pyx_ptype_5freud_4bond_BondingR12 = &__pyx_type_5freud_4bond_BondingR12;
-  if (PyType_Ready(&__pyx_type_5freud_4bond_BondingXY2D) < 0) __PYX_ERR(0, 384, __pyx_L1_error)
+  if (PyType_Ready(&__pyx_type_5freud_4bond_BondingXY2D) < 0) __PYX_ERR(0, 377, __pyx_L1_error)
   __pyx_type_5freud_4bond_BondingXY2D.tp_print = 0;
   if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_5freud_4bond_BondingXY2D.tp_dictoffset && __pyx_type_5freud_4bond_BondingXY2D.tp_getattro == PyObject_GenericGetAttr)) {
     __pyx_type_5freud_4bond_BondingXY2D.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
-  if (PyObject_SetAttrString(__pyx_m, "BondingXY2D", (PyObject *)&__pyx_type_5freud_4bond_BondingXY2D) < 0) __PYX_ERR(0, 384, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_5freud_4bond_BondingXY2D) < 0) __PYX_ERR(0, 384, __pyx_L1_error)
+  if (PyObject_SetAttrString(__pyx_m, "BondingXY2D", (PyObject *)&__pyx_type_5freud_4bond_BondingXY2D) < 0) __PYX_ERR(0, 377, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_5freud_4bond_BondingXY2D) < 0) __PYX_ERR(0, 377, __pyx_L1_error)
   __pyx_ptype_5freud_4bond_BondingXY2D = &__pyx_type_5freud_4bond_BondingXY2D;
-  if (PyType_Ready(&__pyx_type_5freud_4bond_BondingXYT) < 0) __PYX_ERR(0, 553, __pyx_L1_error)
+  if (PyType_Ready(&__pyx_type_5freud_4bond_BondingXYT) < 0) __PYX_ERR(0, 544, __pyx_L1_error)
   __pyx_type_5freud_4bond_BondingXYT.tp_print = 0;
   if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_5freud_4bond_BondingXYT.tp_dictoffset && __pyx_type_5freud_4bond_BondingXYT.tp_getattro == PyObject_GenericGetAttr)) {
     __pyx_type_5freud_4bond_BondingXYT.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
-  if (PyObject_SetAttrString(__pyx_m, "BondingXYT", (PyObject *)&__pyx_type_5freud_4bond_BondingXYT) < 0) __PYX_ERR(0, 553, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_5freud_4bond_BondingXYT) < 0) __PYX_ERR(0, 553, __pyx_L1_error)
+  if (PyObject_SetAttrString(__pyx_m, "BondingXYT", (PyObject *)&__pyx_type_5freud_4bond_BondingXYT) < 0) __PYX_ERR(0, 544, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_5freud_4bond_BondingXYT) < 0) __PYX_ERR(0, 544, __pyx_L1_error)
   __pyx_ptype_5freud_4bond_BondingXYT = &__pyx_type_5freud_4bond_BondingXYT;
-  if (PyType_Ready(&__pyx_type_5freud_4bond_BondingXYZ) < 0) __PYX_ERR(0, 725, __pyx_L1_error)
+  if (PyType_Ready(&__pyx_type_5freud_4bond_BondingXYZ) < 0) __PYX_ERR(0, 714, __pyx_L1_error)
   __pyx_type_5freud_4bond_BondingXYZ.tp_print = 0;
   if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_5freud_4bond_BondingXYZ.tp_dictoffset && __pyx_type_5freud_4bond_BondingXYZ.tp_getattro == PyObject_GenericGetAttr)) {
     __pyx_type_5freud_4bond_BondingXYZ.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
-  if (PyObject_SetAttrString(__pyx_m, "BondingXYZ", (PyObject *)&__pyx_type_5freud_4bond_BondingXYZ) < 0) __PYX_ERR(0, 725, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_5freud_4bond_BondingXYZ) < 0) __PYX_ERR(0, 725, __pyx_L1_error)
+  if (PyObject_SetAttrString(__pyx_m, "BondingXYZ", (PyObject *)&__pyx_type_5freud_4bond_BondingXYZ) < 0) __PYX_ERR(0, 714, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_5freud_4bond_BondingXYZ) < 0) __PYX_ERR(0, 714, __pyx_L1_error)
   __pyx_ptype_5freud_4bond_BondingXYZ = &__pyx_type_5freud_4bond_BondingXYZ;
   __Pyx_RefNannyFinishContext();
   return 0;
@@ -19321,6 +19341,7 @@ static int __Pyx_modinit_type_import_code(void) {
   __Pyx_RefNannySetupContext("__Pyx_modinit_type_import_code", 0);
   /*--- Type import code ---*/
   __pyx_ptype_5freud_3box_Box = __Pyx_ImportType("freud.box", "Box", sizeof(struct __pyx_obj_5freud_3box_Box), 1); if (unlikely(!__pyx_ptype_5freud_3box_Box)) __PYX_ERR(3, 6, __pyx_L1_error)
+  __pyx_ptype_5freud_3box_ParticleBuffer = __Pyx_ImportType("freud.box", "ParticleBuffer", sizeof(struct __pyx_obj_5freud_3box_ParticleBuffer), 1); if (unlikely(!__pyx_ptype_5freud_3box_ParticleBuffer)) __PYX_ERR(3, 11, __pyx_L1_error)
   __pyx_ptype_5freud_8locality_NeighborList = __Pyx_ImportType("freud.locality", "NeighborList", sizeof(struct __pyx_obj_5freud_8locality_NeighborList), 1); if (unlikely(!__pyx_ptype_5freud_8locality_NeighborList)) __PYX_ERR(4, 6, __pyx_L1_error)
   __pyx_vtabptr_5freud_8locality_NeighborList = (struct __pyx_vtabstruct_5freud_8locality_NeighborList*)__Pyx_GetVtable(__pyx_ptype_5freud_8locality_NeighborList->tp_dict); if (unlikely(!__pyx_vtabptr_5freud_8locality_NeighborList)) __PYX_ERR(4, 6, __pyx_L1_error)
   __pyx_ptype_5freud_8locality_IteratorLinkCell = __Pyx_ImportType("freud.locality", "IteratorLinkCell", sizeof(struct __pyx_obj_5freud_8locality_IteratorLinkCell), 1); if (unlikely(!__pyx_ptype_5freud_8locality_IteratorLinkCell)) __PYX_ERR(4, 15, __pyx_L1_error)
@@ -19623,107 +19644,107 @@ if (!__Pyx_RefNanny) {
  */
   __pyx_t_3 = __pyx_f_5numpy_import_array(); if (unlikely(__pyx_t_3 == ((int)-1))) __PYX_ERR(0, 51, __pyx_L1_error)
 
-  /* "freud/bond.pyx":93
+  /* "freud/bond.pyx":91
  *         del self.thisptr
  * 
  *     def initialize(self, frame_0):             # <<<<<<<<<<<<<<
  *         """Calculates the changes in bonding states from one frame to the next.
  * 
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_15BondingAnalysis_5initialize, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingAnalysis_initialize, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__31)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 93, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_15BondingAnalysis_5initialize, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingAnalysis_initialize, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__31)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 91, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingAnalysis->tp_dict, __pyx_n_s_initialize, __pyx_t_2) < 0) __PYX_ERR(0, 93, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingAnalysis->tp_dict, __pyx_n_s_initialize, __pyx_t_2) < 0) __PYX_ERR(0, 91, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_4bond_BondingAnalysis);
 
-  /* "freud/bond.pyx":116
+  /* "freud/bond.pyx":113
  *             self.thisptr.initialize(<unsigned int*> l_frame_0.data)
  * 
  *     def compute(self, frame_0, frame_1):             # <<<<<<<<<<<<<<
  *         """Calculates the changes in bonding states from one frame to the next.
  * 
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_15BondingAnalysis_7compute, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingAnalysis_compute, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__33)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 116, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_15BondingAnalysis_7compute, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingAnalysis_compute, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__33)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 113, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingAnalysis->tp_dict, __pyx_n_s_compute, __pyx_t_2) < 0) __PYX_ERR(0, 116, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingAnalysis->tp_dict, __pyx_n_s_compute, __pyx_t_2) < 0) __PYX_ERR(0, 113, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_4bond_BondingAnalysis);
 
-  /* "freud/bond.pyx":147
+  /* "freud/bond.pyx":142
  *         return bonds
  * 
  *     def getBondLifetimes(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getBondLifetimes function is deprecated in favor "
  *                       "of the bond_lifetimes class attribute and will be "
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_15BondingAnalysis_9getBondLifetimes, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingAnalysis_getBondLifetimes, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__35)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 147, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_15BondingAnalysis_9getBondLifetimes, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingAnalysis_getBondLifetimes, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__35)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 142, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingAnalysis->tp_dict, __pyx_n_s_getBondLifetimes, __pyx_t_2) < 0) __PYX_ERR(0, 147, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingAnalysis->tp_dict, __pyx_n_s_getBondLifetimes, __pyx_t_2) < 0) __PYX_ERR(0, 142, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_4bond_BondingAnalysis);
 
-  /* "freud/bond.pyx":160
+  /* "freud/bond.pyx":155
  *         return ret_bonds
  * 
  *     def getOverallLifetimes(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getOverallLifetimes function is deprecated in "
  *                       "favor of the overall_lifetimes class attribute and "
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_15BondingAnalysis_11getOverallLifetimes, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingAnalysis_getOverallLifeti, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__37)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 160, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_15BondingAnalysis_11getOverallLifetimes, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingAnalysis_getOverallLifeti, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__37)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 155, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingAnalysis->tp_dict, __pyx_n_s_getOverallLifetimes, __pyx_t_2) < 0) __PYX_ERR(0, 160, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingAnalysis->tp_dict, __pyx_n_s_getOverallLifetimes, __pyx_t_2) < 0) __PYX_ERR(0, 155, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_4bond_BondingAnalysis);
 
-  /* "freud/bond.pyx":179
+  /* "freud/bond.pyx":174
  *         return result
  * 
  *     def getTransitionMatrix(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getTransitionMatrix function is deprecated in "
  *                       "favor of the transition_matrix class attribute and "
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_15BondingAnalysis_13getTransitionMatrix, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingAnalysis_getTransitionMat, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__39)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 179, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_15BondingAnalysis_13getTransitionMatrix, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingAnalysis_getTransitionMat, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__39)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 174, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingAnalysis->tp_dict, __pyx_n_s_getTransitionMatrix, __pyx_t_2) < 0) __PYX_ERR(0, 179, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingAnalysis->tp_dict, __pyx_n_s_getTransitionMatrix, __pyx_t_2) < 0) __PYX_ERR(0, 174, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_4bond_BondingAnalysis);
 
-  /* "freud/bond.pyx":190
+  /* "freud/bond.pyx":185
  *         return self.thisptr.getNumFrames()
  * 
  *     def getNumFrames(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getNumFrames function is deprecated in favor "
  *                       "of the num_frames class attribute and will be "
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_15BondingAnalysis_15getNumFrames, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingAnalysis_getNumFrames, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__41)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 190, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_15BondingAnalysis_15getNumFrames, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingAnalysis_getNumFrames, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__41)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 185, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingAnalysis->tp_dict, __pyx_n_s_getNumFrames, __pyx_t_2) < 0) __PYX_ERR(0, 190, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingAnalysis->tp_dict, __pyx_n_s_getNumFrames, __pyx_t_2) < 0) __PYX_ERR(0, 185, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_4bond_BondingAnalysis);
 
-  /* "freud/bond.pyx":201
+  /* "freud/bond.pyx":196
  *         return self.thisptr.getNumParticles()
  * 
  *     def getNumParticles(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getNumParticles function is deprecated in favor "
  *                       "of the num_particles class attribute and will be "
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_15BondingAnalysis_17getNumParticles, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingAnalysis_getNumParticles, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__43)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 201, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_15BondingAnalysis_17getNumParticles, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingAnalysis_getNumParticles, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__43)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 196, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingAnalysis->tp_dict, __pyx_n_s_getNumParticles, __pyx_t_2) < 0) __PYX_ERR(0, 201, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingAnalysis->tp_dict, __pyx_n_s_getNumParticles, __pyx_t_2) < 0) __PYX_ERR(0, 196, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_4bond_BondingAnalysis);
 
-  /* "freud/bond.pyx":212
+  /* "freud/bond.pyx":207
  *         return self.thisptr.getNumBonds()
  * 
  *     def getNumBonds(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getNumBonds function is deprecated in favor "
  *                       "of the num_bonds class attribute and will be "
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_15BondingAnalysis_19getNumBonds, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingAnalysis_getNumBonds, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__45)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 212, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_15BondingAnalysis_19getNumBonds, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingAnalysis_getNumBonds, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__45)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 207, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingAnalysis->tp_dict, __pyx_n_s_getNumBonds, __pyx_t_2) < 0) __PYX_ERR(0, 212, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingAnalysis->tp_dict, __pyx_n_s_getNumBonds, __pyx_t_2) < 0) __PYX_ERR(0, 207, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_4bond_BondingAnalysis);
 
@@ -19748,68 +19769,68 @@ if (!__Pyx_RefNanny) {
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_setstate_cython, __pyx_t_2) < 0) __PYX_ERR(1, 3, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":265
+  /* "freud/bond.pyx":260
  *         del self.thisptr
  * 
  *     def compute(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
  *                 orientations=None, nlist=None):
  *         """Calculates the bonds.
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_10BondingR12_5compute, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingR12_compute, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__51)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 265, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_10BondingR12_5compute, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingR12_compute, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__51)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 260, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingR12->tp_dict, __pyx_n_s_compute, __pyx_t_2) < 0) __PYX_ERR(0, 265, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingR12->tp_dict, __pyx_n_s_compute, __pyx_t_2) < 0) __PYX_ERR(0, 260, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_4bond_BondingR12);
 
-  /* "freud/bond.pyx":344
+  /* "freud/bond.pyx":337
  *         return result
  * 
  *     def getBonds(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getBonds function is deprecated in favor "
  *                       "of the bonds class attribute and will be "
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_10BondingR12_7getBonds, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingR12_getBonds, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__53)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 344, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_10BondingR12_7getBonds, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingR12_getBonds, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__53)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 337, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingR12->tp_dict, __pyx_n_s_getBonds, __pyx_t_2) < 0) __PYX_ERR(0, 344, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingR12->tp_dict, __pyx_n_s_getBonds, __pyx_t_2) < 0) __PYX_ERR(0, 337, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_4bond_BondingR12);
 
-  /* "freud/bond.pyx":355
+  /* "freud/bond.pyx":348
  *         return freud.box.BoxFromCPP(self.thisptr.getBox())
  * 
  *     def getBox(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getBox function is deprecated in favor "
  *                       "of the box class attribute and will be "
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_10BondingR12_9getBox, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingR12_getBox, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__55)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 355, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_10BondingR12_9getBox, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingR12_getBox, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__55)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 348, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingR12->tp_dict, __pyx_n_s_getBox, __pyx_t_2) < 0) __PYX_ERR(0, 355, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingR12->tp_dict, __pyx_n_s_getBox, __pyx_t_2) < 0) __PYX_ERR(0, 348, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_4bond_BondingR12);
 
-  /* "freud/bond.pyx":366
+  /* "freud/bond.pyx":359
  *         return self.thisptr.getListMap()
  * 
  *     def getListMap(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getListMap function is deprecated in favor "
  *                       "of the list_map class attribute and will be "
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_10BondingR12_11getListMap, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingR12_getListMap, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__57)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 366, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_10BondingR12_11getListMap, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingR12_getListMap, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__57)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 359, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingR12->tp_dict, __pyx_n_s_getListMap, __pyx_t_2) < 0) __PYX_ERR(0, 366, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingR12->tp_dict, __pyx_n_s_getListMap, __pyx_t_2) < 0) __PYX_ERR(0, 359, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_4bond_BondingR12);
 
-  /* "freud/bond.pyx":377
+  /* "freud/bond.pyx":370
  *         return self.thisptr.getRevListMap()
  * 
  *     def getRevListMap(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getRevListMap function is deprecated in favor "
  *                       "of the rev_list_map class attribute and will be "
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_10BondingR12_13getRevListMap, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingR12_getRevListMap, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__59)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 377, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_10BondingR12_13getRevListMap, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingR12_getRevListMap, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__59)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 370, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingR12->tp_dict, __pyx_n_s_getRevListMap, __pyx_t_2) < 0) __PYX_ERR(0, 377, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingR12->tp_dict, __pyx_n_s_getRevListMap, __pyx_t_2) < 0) __PYX_ERR(0, 370, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_4bond_BondingR12);
 
@@ -19834,68 +19855,68 @@ if (!__Pyx_RefNanny) {
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_setstate_cython, __pyx_t_2) < 0) __PYX_ERR(1, 3, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":433
+  /* "freud/bond.pyx":426
  *         del self.thisptr
  * 
  *     def compute(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
  *                 orientations=None, nlist=None):
  *         """Calculates the bonds.
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_11BondingXY2D_5compute, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingXY2D_compute, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__65)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 433, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_11BondingXY2D_5compute, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingXY2D_compute, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__65)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 426, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingXY2D->tp_dict, __pyx_n_s_compute, __pyx_t_2) < 0) __PYX_ERR(0, 433, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingXY2D->tp_dict, __pyx_n_s_compute, __pyx_t_2) < 0) __PYX_ERR(0, 426, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_4bond_BondingXY2D);
 
-  /* "freud/bond.pyx":513
+  /* "freud/bond.pyx":504
  *         return result
  * 
  *     def getBonds(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getBonds function is deprecated in favor "
  *                       "of the bonds class attribute and will be "
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_11BondingXY2D_7getBonds, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingXY2D_getBonds, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__67)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 513, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_11BondingXY2D_7getBonds, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingXY2D_getBonds, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__67)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 504, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingXY2D->tp_dict, __pyx_n_s_getBonds, __pyx_t_2) < 0) __PYX_ERR(0, 513, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingXY2D->tp_dict, __pyx_n_s_getBonds, __pyx_t_2) < 0) __PYX_ERR(0, 504, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_4bond_BondingXY2D);
 
-  /* "freud/bond.pyx":524
+  /* "freud/bond.pyx":515
  *         return freud.box.BoxFromCPP(self.thisptr.getBox())
  * 
  *     def getBox(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getBox function is deprecated in favor "
  *                       "of the box class attribute and will be "
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_11BondingXY2D_9getBox, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingXY2D_getBox, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__69)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 524, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_11BondingXY2D_9getBox, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingXY2D_getBox, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__69)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 515, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingXY2D->tp_dict, __pyx_n_s_getBox, __pyx_t_2) < 0) __PYX_ERR(0, 524, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingXY2D->tp_dict, __pyx_n_s_getBox, __pyx_t_2) < 0) __PYX_ERR(0, 515, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_4bond_BondingXY2D);
 
-  /* "freud/bond.pyx":535
+  /* "freud/bond.pyx":526
  *         return self.thisptr.getListMap()
  * 
  *     def getListMap(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getListMap function is deprecated in favor "
  *                       "of the list_map class attribute and will be "
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_11BondingXY2D_11getListMap, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingXY2D_getListMap, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__71)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 535, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_11BondingXY2D_11getListMap, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingXY2D_getListMap, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__71)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 526, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingXY2D->tp_dict, __pyx_n_s_getListMap, __pyx_t_2) < 0) __PYX_ERR(0, 535, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingXY2D->tp_dict, __pyx_n_s_getListMap, __pyx_t_2) < 0) __PYX_ERR(0, 526, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_4bond_BondingXY2D);
 
-  /* "freud/bond.pyx":546
+  /* "freud/bond.pyx":537
  *         return self.thisptr.getRevListMap()
  * 
  *     def getRevListMap(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getRevListMap function is deprecated in favor "
  *                       "of the rev_list_map class attribute and will be "
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_11BondingXY2D_13getRevListMap, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingXY2D_getRevListMap, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__73)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 546, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_11BondingXY2D_13getRevListMap, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingXY2D_getRevListMap, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__73)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 537, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingXY2D->tp_dict, __pyx_n_s_getRevListMap, __pyx_t_2) < 0) __PYX_ERR(0, 546, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingXY2D->tp_dict, __pyx_n_s_getRevListMap, __pyx_t_2) < 0) __PYX_ERR(0, 537, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_4bond_BondingXY2D);
 
@@ -19920,68 +19941,68 @@ if (!__Pyx_RefNanny) {
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_setstate_cython, __pyx_t_2) < 0) __PYX_ERR(1, 3, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":606
+  /* "freud/bond.pyx":597
  *         del self.thisptr
  * 
  *     def compute(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
  *                 orientations=None, nlist=None):
  *         """Calculates the bonds.
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_10BondingXYT_5compute, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingXYT_compute, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__79)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 606, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_10BondingXYT_5compute, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingXYT_compute, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__79)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 597, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingXYT->tp_dict, __pyx_n_s_compute, __pyx_t_2) < 0) __PYX_ERR(0, 606, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingXYT->tp_dict, __pyx_n_s_compute, __pyx_t_2) < 0) __PYX_ERR(0, 597, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_4bond_BondingXYT);
 
-  /* "freud/bond.pyx":685
+  /* "freud/bond.pyx":674
  *         return result
  * 
  *     def getBonds(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getBonds function is deprecated in favor "
  *                       "of the bonds class attribute and will be "
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_10BondingXYT_7getBonds, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingXYT_getBonds, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__81)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 685, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_10BondingXYT_7getBonds, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingXYT_getBonds, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__81)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 674, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingXYT->tp_dict, __pyx_n_s_getBonds, __pyx_t_2) < 0) __PYX_ERR(0, 685, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingXYT->tp_dict, __pyx_n_s_getBonds, __pyx_t_2) < 0) __PYX_ERR(0, 674, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_4bond_BondingXYT);
 
-  /* "freud/bond.pyx":696
+  /* "freud/bond.pyx":685
  *         return freud.box.BoxFromCPP(self.thisptr.getBox())
  * 
  *     def getBox(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getBox function is deprecated in favor "
  *                       "of the box class attribute and will be "
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_10BondingXYT_9getBox, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingXYT_getBox, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__83)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 696, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_10BondingXYT_9getBox, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingXYT_getBox, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__83)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 685, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingXYT->tp_dict, __pyx_n_s_getBox, __pyx_t_2) < 0) __PYX_ERR(0, 696, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingXYT->tp_dict, __pyx_n_s_getBox, __pyx_t_2) < 0) __PYX_ERR(0, 685, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_4bond_BondingXYT);
 
-  /* "freud/bond.pyx":707
+  /* "freud/bond.pyx":696
  *         return self.thisptr.getListMap()
  * 
  *     def getListMap(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getListMap function is deprecated in favor "
  *                       "of the list_map class attribute and will be "
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_10BondingXYT_11getListMap, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingXYT_getListMap, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__85)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 707, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_10BondingXYT_11getListMap, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingXYT_getListMap, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__85)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 696, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingXYT->tp_dict, __pyx_n_s_getListMap, __pyx_t_2) < 0) __PYX_ERR(0, 707, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingXYT->tp_dict, __pyx_n_s_getListMap, __pyx_t_2) < 0) __PYX_ERR(0, 696, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_4bond_BondingXYT);
 
-  /* "freud/bond.pyx":718
+  /* "freud/bond.pyx":707
  *         return self.thisptr.getRevListMap()
  * 
  *     def getRevListMap(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getRevListMap function is deprecated in favor "
  *                       "of the rev_list_map class attribute and will be "
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_10BondingXYT_13getRevListMap, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingXYT_getRevListMap, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__87)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 718, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_10BondingXYT_13getRevListMap, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingXYT_getRevListMap, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__87)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 707, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingXYT->tp_dict, __pyx_n_s_getRevListMap, __pyx_t_2) < 0) __PYX_ERR(0, 718, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingXYT->tp_dict, __pyx_n_s_getRevListMap, __pyx_t_2) < 0) __PYX_ERR(0, 707, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_4bond_BondingXYT);
 
@@ -20006,68 +20027,68 @@ if (!__Pyx_RefNanny) {
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_setstate_cython, __pyx_t_2) < 0) __PYX_ERR(1, 3, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/bond.pyx":781
+  /* "freud/bond.pyx":770
  *         del self.thisptr
  * 
  *     def compute(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
  *                 orientations=None, nlist=None):
  *         """Calculates the bonds.
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_10BondingXYZ_5compute, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingXYZ_compute, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__93)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 781, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_10BondingXYZ_5compute, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingXYZ_compute, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__93)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 770, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingXYZ->tp_dict, __pyx_n_s_compute, __pyx_t_2) < 0) __PYX_ERR(0, 781, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingXYZ->tp_dict, __pyx_n_s_compute, __pyx_t_2) < 0) __PYX_ERR(0, 770, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_4bond_BondingXYZ);
 
-  /* "freud/bond.pyx":867
+  /* "freud/bond.pyx":855
  *         return result
  * 
  *     def getBonds(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getBonds function is deprecated in favor "
  *                       "of the bonds class attribute and will be "
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_10BondingXYZ_7getBonds, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingXYZ_getBonds, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__95)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 867, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_10BondingXYZ_7getBonds, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingXYZ_getBonds, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__95)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 855, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingXYZ->tp_dict, __pyx_n_s_getBonds, __pyx_t_2) < 0) __PYX_ERR(0, 867, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingXYZ->tp_dict, __pyx_n_s_getBonds, __pyx_t_2) < 0) __PYX_ERR(0, 855, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_4bond_BondingXYZ);
 
-  /* "freud/bond.pyx":878
+  /* "freud/bond.pyx":866
  *         return freud.box.BoxFromCPP(self.thisptr.getBox())
  * 
  *     def getBox(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getBox function is deprecated in favor "
  *                       "of the box class attribute and will be "
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_10BondingXYZ_9getBox, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingXYZ_getBox, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__97)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 878, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_10BondingXYZ_9getBox, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingXYZ_getBox, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__97)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 866, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingXYZ->tp_dict, __pyx_n_s_getBox, __pyx_t_2) < 0) __PYX_ERR(0, 878, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingXYZ->tp_dict, __pyx_n_s_getBox, __pyx_t_2) < 0) __PYX_ERR(0, 866, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_4bond_BondingXYZ);
 
-  /* "freud/bond.pyx":889
+  /* "freud/bond.pyx":877
  *         return self.thisptr.getListMap()
  * 
  *     def getListMap(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getListMap function is deprecated in favor "
  *                       "of the list_map class attribute and will be "
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_10BondingXYZ_11getListMap, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingXYZ_getListMap, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__99)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 889, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_10BondingXYZ_11getListMap, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingXYZ_getListMap, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__99)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 877, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingXYZ->tp_dict, __pyx_n_s_getListMap, __pyx_t_2) < 0) __PYX_ERR(0, 889, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingXYZ->tp_dict, __pyx_n_s_getListMap, __pyx_t_2) < 0) __PYX_ERR(0, 877, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_4bond_BondingXYZ);
 
-  /* "freud/bond.pyx":900
+  /* "freud/bond.pyx":888
  *         return self.thisptr.getRevListMap()
  * 
  *     def getRevListMap(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getRevListMap function is deprecated in favor "
  *                       "of the rev_list_map class attribute and will be "
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_10BondingXYZ_13getRevListMap, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingXYZ_getRevListMap, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__101)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 900, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4bond_10BondingXYZ_13getRevListMap, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_BondingXYZ_getRevListMap, NULL, __pyx_n_s_freud_bond, __pyx_d, ((PyObject *)__pyx_codeobj__101)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 888, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingXYZ->tp_dict, __pyx_n_s_getRevListMap, __pyx_t_2) < 0) __PYX_ERR(0, 900, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_4bond_BondingXYZ->tp_dict, __pyx_n_s_getRevListMap, __pyx_t_2) < 0) __PYX_ERR(0, 888, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_4bond_BondingXYZ);
 
