@@ -208,6 +208,10 @@ cdef class PMFTR12(_PMFT):
                 :code:`None`).
         """  # noqa: E501
         cdef freud.box.Box b = freud.common.convert_box(box)
+
+        if not b.dimensions == 2:
+            raise ValueError("Your box must be 2-dimensional!")
+
         if points is None:
             points = ref_points
         if orientations is None:
@@ -519,6 +523,10 @@ cdef class PMFTXYT(_PMFT):
                 :code:`None`).
         """  # noqa: E501
         cdef freud.box.Box b = freud.common.convert_box(box)
+
+        if not b.dimensions == 2:
+            raise ValueError("Your box must be 2-dimensional!")
+
         if points is None:
             points = ref_points
         if orientations is None:
@@ -813,6 +821,10 @@ cdef class PMFTXY2D(_PMFT):
                 :code:`None`).
         """  # noqa: E501
         cdef freud.box.Box b = freud.common.convert_box(box)
+
+        if not b.dimensions == 2:
+            raise ValueError("Your box must be 2-dimensional!")
+
         if points is None:
             points = ref_points
         if orientations is None:
@@ -1100,6 +1112,10 @@ cdef class PMFTXYZ(_PMFT):
                 :code:`None`).
         """  # noqa: E501
         cdef freud.box.Box b = freud.common.convert_box(box)
+
+        if not b.dimensions == 3:
+            raise ValueError("Your box must be 3-dimensional!")
+
         if points is None:
             points = ref_points
         if orientations is None:
