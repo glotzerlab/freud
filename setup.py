@@ -8,14 +8,13 @@ import glob
 import multiprocessing.pool
 import logging
 import argparse
+import numpy as np
 try:
     from setuptools import Extension, setup, distutils
-    from setuptools.command.build_ext import build_ext as _build_ext
 except ImportError:
     # Compatibility with distutils
     import distutils
     from distutils import Extension, setup
-    from distutils.command.build_ext import build_ext as _build_ext
 
 logger = logging.getLogger(__name__)
 
@@ -113,6 +112,7 @@ parser.add_argument(
     thread_str,
     type=int,
     dest="nthreads_ext",
+    default=1,
     help="The number of threads to use to simultaneously compile a single "
          "module. Helpful when constantly recompiling a single module with "
          "many source files, for example during development."
@@ -132,6 +132,8 @@ parser.add_argument(
     dest="tbb_link",
     help="The lib directory where TBB shared libraries are found."
 )
+
+# Parse known args then rewrite sys.argv for setuptools.setup to use
 args, extras = parser.parse_known_args()
 if args.nthreads > 1:
     # Make sure number of threads to use gets passed through to setup.
@@ -144,13 +146,21 @@ if args.help:
     parser.print_help()
     print("\n\nThe subsequent help is for standard setup.py usage.\n\n")
 
-if args.use_coverage:
-    directives = {'embedsignature': True, 'binding': True, 'linetrace': True}
-    macros = [('CYTHON_TRACE', '1'), ('CYTHON_TRACE_NOGIL', '1')]
-else:
-    directives = {'embedsignature': True, 'binding': True}
-    macros = []
 
+#######################
+# Configure ReadTheDocs
+#######################
+
+on_rtd = os.environ.get('READTHEDOCS') == 'True'
+if on_rtd:
+    args.use_cython = True
+
+
+################################
+# Modifications to setup process
+################################
+
+# Decide whether or not to use Cython
 if args.use_cython:
     try:
         from Cython.Build import cythonize
@@ -162,10 +172,14 @@ if args.use_cython:
 else:
     ext = '.cpp'
 
+# Decide whether or not to compile with coverage support
+if args.use_coverage:
+    directives = {'embedsignature': True, 'binding': True, 'linetrace': True}
+    macros = [('CYTHON_TRACE', '1'), ('CYTHON_TRACE_NOGIL', '1')]
+else:
+    directives = {'embedsignature': True, 'binding': True}
+    macros = []
 
-################################
-# Modifications to setup process
-################################
 
 # Enable build parallel compile within modules.
 def parallelCCompile(self, sources, output_dir=None, macros=None,
@@ -193,33 +207,6 @@ def parallelCCompile(self, sources, output_dir=None, macros=None,
 
 
 distutils.ccompiler.CCompiler.compile=parallelCCompile
-
-# Allow pip install without NumPy preinstalled.
-#  Only modify build_ext if we're doing some form of installation.
-build_strings = ['build', 'install', 'dist']
-if any(b in arg for arg in sys.argv for b in build_strings):
-    setup_requires = ['numpy>=1.10']
-
-    class build_ext(_build_ext):
-        def finalize_options(self):
-            _build_ext.finalize_options(self)
-            # Prevent numpy from thinking it is still in its setup process:
-            __builtins__.__NUMPY_SETUP__ = False
-            import numpy
-            self.include_dirs.append(numpy.get_include())
-else:
-    setup_requires = []
-    build_ext = _build_ext
-
-
-#######################
-# Configure ReadTheDocs
-#######################
-
-on_rtd = os.environ.get('READTHEDOCS') == 'True'
-if on_rtd:
-    args.use_cython = True
-    ext = '.pyx'
 
 
 #########################
@@ -288,7 +275,9 @@ def find_tbb(tbb_root=None, tbb_include=None, tbb_link=None):
 tbb_include, tbb_link = find_tbb(args.tbb_root, args.tbb_include,
                                  args.tbb_link)
 
-include_dirs = ["extern"] + glob.glob(os.path.join('cpp', '*'))
+include_dirs = [
+    "extern",
+    np.get_include()] + glob.glob(os.path.join('cpp', '*'))
 
 if tbb_include:
     include_dirs.append(tbb_include)
@@ -390,8 +379,6 @@ try:
               packages=['freud'],
               python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*',
               install_requires=['numpy>=1.10'],
-              cmdclass={"build_ext": build_ext},
-              setup_requires=setup_requires,
               ext_modules=extensions)
 except SystemExit:
     # The errors we're explicitly checking for are whether or not

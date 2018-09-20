@@ -13,22 +13,19 @@
             "-std=c++11"
         ],
         "include_dirs": [
-            "/usr/lib/python3.7/site-packages/numpy/core/include",
             "extern",
+            "cpp/order",
+            "cpp/cluster",
+            "cpp/registration",
+            "cpp/parallel",
             "cpp/box",
             "cpp/util",
-            "cpp/order",
-            "cpp/parallel",
-            "cpp/cluster",
-            "cpp/environment",
-            "cpp/locality",
-            "cpp/density",
             "cpp/bond",
-            "cpp/voronoi",
-            "cpp/registration",
+            "cpp/density",
+            "cpp/environment",
             "cpp/pmft",
-            "cpp/kspace",
-            "/usr/include"
+            "cpp/locality",
+            "/Users/vramasub/miniconda3/envs/test36/include"
         ],
         "language": "c++",
         "libraries": [
@@ -37,12 +34,12 @@
         "name": "freud.parallel",
         "sources": [
             "freud/parallel.pyx",
+            "cpp/box/Box.cc",
             "cpp/locality/NeighborList.cc",
-            "cpp/locality/NearestNeighbors.cc",
+            "cpp/locality/LinkCell.cc",
             "cpp/parallel/tbb_config.cc",
             "cpp/util/HOOMDMatrix.cc",
-            "cpp/box/box.cc",
-            "cpp/locality/LinkCell.cc"
+            "cpp/locality/NearestNeighbors.cc"
         ]
     },
     "module_name": "freud.parallel"
@@ -1187,7 +1184,7 @@ static const char __pyx_k_NumThreads___init[] = "NumThreads.__init__";
 static const char __pyx_k_NumThreads___enter[] = "NumThreads.__enter__";
 static const char __pyx_k_cline_in_traceback[] = "cline_in_traceback";
 static const char __pyx_k_freud_parallel_pyx[] = "freud/parallel.pyx";
-static const char __pyx_k_The_py_class_freud_parallel_mod[] = "\nThe :py:class:`freud.parallel` module controls the parallelization behavior of\nfreud, determining how many threads the TBB-enabled parts of freud will use.\nBy default, freud tries to use all available threads for parallelization unless\ndirected otherwise, with one exception.\n";
+static const char __pyx_k_The_class_freud_parallel_module[] = "\nThe :class:`freud.parallel` module controls the parallelization behavior of\nfreud, determining how many threads the TBB-enabled parts of freud will use.\nBy default, freud tries to use all available threads for parallelization unless\ndirected otherwise, with one exception.\n";
 static const char __pyx_k_Context_manager_for_managing_the[] = "Context manager for managing the number of threads to use.\n\n    .. moduleauthor:: Joshua Anderson <joaander@umich.edu>\n\n    Args:\n        N (int): Number of threads to use in this context. Defaults to\n                 None, which will use all available threads.\n    ";
 static PyObject *__pyx_kp_s_Context_manager_for_managing_the;
 static PyObject *__pyx_n_s_N;
@@ -1834,7 +1831,7 @@ static PyModuleDef_Slot __pyx_moduledef_slots[] = {
 static struct PyModuleDef __pyx_moduledef = {
     PyModuleDef_HEAD_INIT,
     "parallel",
-    __pyx_k_The_py_class_freud_parallel_mod, /* m_doc */
+    __pyx_k_The_class_freud_parallel_module, /* m_doc */
   #if CYTHON_PEP489_MULTI_PHASE_INIT
     0, /* m_size */
   #else
@@ -2170,7 +2167,7 @@ if (!__Pyx_RefNanny) {
   Py_INCREF(__pyx_m);
   #else
   #if PY_MAJOR_VERSION < 3
-  __pyx_m = Py_InitModule4("parallel", __pyx_methods, __pyx_k_The_py_class_freud_parallel_mod, 0, PYTHON_API_VERSION); Py_XINCREF(__pyx_m);
+  __pyx_m = Py_InitModule4("parallel", __pyx_methods, __pyx_k_The_class_freud_parallel_module, 0, PYTHON_API_VERSION); Py_XINCREF(__pyx_m);
   #else
   __pyx_m = PyModule_Create(&__pyx_moduledef);
   #endif
