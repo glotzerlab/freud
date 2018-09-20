@@ -11,6 +11,8 @@ from libcpp.map cimport map
 cimport freud._box
 cimport freud._locality
 
+ctypedef unsigned int uint
+
 cdef extern from "BondingAnalysis.h" namespace "freud::bond":
     cdef cppclass BondingAnalysis:
         BondingAnalysis(unsigned int, unsigned int)

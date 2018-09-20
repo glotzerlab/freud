@@ -160,7 +160,7 @@ void SolLiq::computeClustersQdot(const locality::NeighborList *nlist,
 
     memset((void*)m_number_of_connections.get(), 0, sizeof(unsigned int)*Np);
     float rmaxsq = m_rmax * m_rmax;
-    uint elements = 2*m_l+1;  // m= -l to l elements
+    unsigned int elements = 2*m_l+1;  // m= -l to l elements
 
     size_t bond(0);
 
@@ -226,7 +226,7 @@ void SolLiq::computeClustersQdotNoNorm(const locality::NeighborList *nlist,
 
     memset((void*)m_number_of_connections.get(), 0, sizeof(unsigned int)*Np);
     float rmaxsq = m_rmax * m_rmax;
-    uint elements = 2*m_l+1;
+    unsigned int elements = 2*m_l+1;
 
     size_t bond(0);
 
