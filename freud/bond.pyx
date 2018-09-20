@@ -39,6 +39,7 @@ from freud.errors import FreudDeprecationWarning
 from cython.operator cimport dereference
 from freud.util._VectorMath cimport vec3, quat
 from libcpp.map cimport map
+from freud._bond cimport uint
 
 cimport freud.locality
 cimport freud._bond
