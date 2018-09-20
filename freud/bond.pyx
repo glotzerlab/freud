@@ -281,6 +281,9 @@ cdef class BondingR12:
         """  # noqa: E501
         cdef freud.box.Box b = freud.common.convert_box(box)
 
+        if not b.dimensions == 2:
+            raise ValueError("Your box must be 2-dimensional!")
+
         if points is None:
             points = ref_points
         if orientations is None:
@@ -446,6 +449,9 @@ cdef class BondingXY2D:
                 :code:`None`).
         """  # noqa: E501
         cdef freud.box.Box b = freud.common.convert_box(box)
+
+        if not b.dimensions == 2:
+            raise ValueError("Your box must be 2-dimensional!")
 
         if points is None:
             points = ref_points
@@ -617,6 +623,9 @@ cdef class BondingXYT:
                 :code:`None`).
         """  # noqa: E501
         cdef freud.box.Box b = freud.common.convert_box(box)
+
+        if not b.dimensions == 2:
+            raise ValueError("Your box must be 2-dimensional!")
 
         if points is None:
             points = ref_points
@@ -790,6 +799,9 @@ cdef class BondingXYZ:
                 :code:`None`).
         """  # noqa: E501
         cdef freud.box.Box b = freud.common.convert_box(box)
+
+        if not b.dimensions == 3:
+            raise ValueError("Your box must be 3-dimensional!")
 
         if points is None:
             points = ref_points

@@ -91,6 +91,11 @@ class TestBond(unittest.TestCase):
         npt.assert_equal(bonds[0, 1], 1)
         npt.assert_equal(bonds[1, 1], 0)
 
+        # Ensure appropriate error is raised
+        f_box = box.Box.square(5.0*rmax)
+        with self.assertRaises(ValueError):
+            EB.compute(f_box, posList, qlist, posList, qlist)
+
     def test_mapping(self):
         # generate the bonding map
         nx = 70
