@@ -9,6 +9,8 @@ from libc.stdint cimport uint32_t
 cimport freud._box
 cimport freud._locality
 
+ctypedef unsigned int uint
+
 cdef extern from "Cluster.h" namespace "freud::cluster":
     cdef cppclass Cluster:
         Cluster(float)
