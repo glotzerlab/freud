@@ -55,7 +55,7 @@ You can also build freud in place so that you can run from within the folder:
     # Run tests from the tests directory
     python setup.py build_ext --inplace
 
-Building freud in place has certain advantages, since it does not affect your Python behavior except within the freud directory itself (where freud will become importable after building).
+Building freud in place has certain advantages, since it does not affect your Python behavior except within the freud directory itself (where freud can be imported after building).
 Additionally, due to limitations inherent to the distutils/setuptools infrastructure, building extension modules can only be parallelized using the build_ext subcommand of setup.py, not with install.
 As a result, it will be faster to manually run build_ext and then install (which normally calls build_ext under the hood anyway) the built packages.
 In general, the following options are available for setup.py in addition to the standard setuptools options (notes are included to indicate which options are only available for specific subcommands such as build_ext):
