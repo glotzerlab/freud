@@ -26,6 +26,11 @@ class TestPMFTR12(unittest.TestCase):
         # Test old methods
         npt.assert_equal(myPMFT.getBox(), freud.box.Box.square(boxSize))
 
+        # Ensure expected errors are raised
+        box = freud.box.Box.cube(boxSize)
+        with self.assertRaises(ValueError):
+            myPMFT.accumulate(box, points, angles, points, angles)
+
     def test_r_cut(self):
         maxR = 5.23
         nbinsR = 10
@@ -180,6 +185,11 @@ class TestPMFTXYT(unittest.TestCase):
         # Test old methods
         npt.assert_equal(myPMFT.getBox(), freud.box.Box.square(boxSize))
 
+        # Ensure expected errors are raised
+        box = freud.box.Box.cube(boxSize)
+        with self.assertRaises(ValueError):
+            myPMFT.accumulate(box, points, angles, points, angles)
+
     def test_r_cut(self):
         maxX = 3.0
         maxY = 4.0
@@ -332,6 +342,11 @@ class TestPMFTXY2D(unittest.TestCase):
         # Test old methods
         npt.assert_equal(myPMFT.getBox(), freud.box.Box.square(boxSize))
 
+        # Ensure expected errors are raised
+        box = freud.box.Box.cube(boxSize)
+        with self.assertRaises(ValueError):
+            myPMFT.accumulate(box, points, angles, points, angles)
+
     def test_r_cut(self):
         maxX = 3.0
         maxY = 4.0
@@ -462,6 +477,11 @@ class TestPMFTXYZ(unittest.TestCase):
         npt.assert_equal(myPMFT.box, freud.box.Box.cube(boxSize))
         # Test old methods
         npt.assert_equal(myPMFT.getBox(), freud.box.Box.cube(boxSize))
+
+        # Ensure expected errors are raised
+        box = freud.box.Box.square(boxSize)
+        with self.assertRaises(ValueError):
+            myPMFT.accumulate(box, points, orientations, points, orientations)
 
     def test_r_cut(self):
         maxX = 5.23
