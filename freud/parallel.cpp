@@ -14,6 +14,7 @@
         ],
         "include_dirs": [
             "extern",
+            "/Users/vramasub/miniconda3/envs/test36/lib/python3.6/site-packages/numpy/core/include",
             "cpp/order",
             "cpp/cluster",
             "cpp/registration",
@@ -35,10 +36,10 @@
         "sources": [
             "freud/parallel.pyx",
             "cpp/box/Box.cc",
-            "cpp/locality/NeighborList.cc",
+            "cpp/util/HOOMDMatrix.cc",
             "cpp/locality/LinkCell.cc",
             "cpp/parallel/tbb_config.cc",
-            "cpp/util/HOOMDMatrix.cc",
+            "cpp/locality/NeighborList.cc",
             "cpp/locality/NearestNeighbors.cc"
         ]
     },

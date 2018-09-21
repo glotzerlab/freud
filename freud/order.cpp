@@ -4,6 +4,8 @@
 {
     "distutils": {
         "depends": [
+            "/Users/vramasub/miniconda3/envs/test36/lib/python3.6/site-packages/numpy/core/include/numpy/arrayobject.h",
+            "/Users/vramasub/miniconda3/envs/test36/lib/python3.6/site-packages/numpy/core/include/numpy/ufuncobject.h",
             "cpp/box/Box.h",
             "cpp/box/ParticleBuffer.h",
             "cpp/environment/AngularSeparation.h",
@@ -33,6 +35,7 @@
         ],
         "include_dirs": [
             "extern",
+            "/Users/vramasub/miniconda3/envs/test36/lib/python3.6/site-packages/numpy/core/include",
             "cpp/order",
             "cpp/cluster",
             "cpp/registration",
@@ -53,20 +56,20 @@
         "name": "freud.order",
         "sources": [
             "freud/order.pyx",
-            "cpp/order/NematicOrderParameter.cc",
             "cpp/order/SolLiq.cc",
-            "cpp/cluster/Cluster.cc",
-            "cpp/box/Box.cc",
-            "cpp/order/wigner3j.cc",
-            "cpp/order/LocalQl.cc",
-            "cpp/locality/NeighborList.cc",
-            "cpp/locality/LinkCell.cc",
-            "cpp/util/HOOMDMatrix.cc",
+            "cpp/order/NematicOrderParameter.cc",
             "cpp/order/HexOrderParameter.cc",
-            "cpp/locality/NearestNeighbors.cc",
+            "cpp/box/Box.cc",
+            "cpp/order/CubaticOrderParameter.cc",
+            "cpp/order/LocalQl.cc",
+            "cpp/order/wigner3j.cc",
+            "cpp/cluster/Cluster.cc",
+            "cpp/util/HOOMDMatrix.cc",
+            "cpp/locality/LinkCell.cc",
             "cpp/order/TransOrderParameter.cc",
             "cpp/order/LocalWl.cc",
-            "cpp/order/CubaticOrderParameter.cc"
+            "cpp/locality/NeighborList.cc",
+            "cpp/locality/NearestNeighbors.cc"
         ]
     },
     "module_name": "freud.order"

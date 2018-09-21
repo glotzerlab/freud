@@ -4,6 +4,8 @@
 {
     "distutils": {
         "depends": [
+            "/Users/vramasub/miniconda3/envs/test36/lib/python3.6/site-packages/numpy/core/include/numpy/arrayobject.h",
+            "/Users/vramasub/miniconda3/envs/test36/lib/python3.6/site-packages/numpy/core/include/numpy/ufuncobject.h",
             "cpp/box/Box.h",
             "cpp/box/ParticleBuffer.h",
             "cpp/locality/LinkCell.h",
@@ -20,6 +22,7 @@
         ],
         "include_dirs": [
             "extern",
+            "/Users/vramasub/miniconda3/envs/test36/lib/python3.6/site-packages/numpy/core/include",
             "cpp/order",
             "cpp/cluster",
             "cpp/registration",
@@ -41,9 +44,9 @@
         "sources": [
             "freud/voronoi.pyx",
             "cpp/box/Box.cc",
-            "cpp/locality/NeighborList.cc",
-            "cpp/locality/LinkCell.cc",
             "cpp/util/HOOMDMatrix.cc",
+            "cpp/locality/LinkCell.cc",
+            "cpp/locality/NeighborList.cc",
             "cpp/locality/NearestNeighbors.cc"
         ]
     },
