@@ -41,16 +41,24 @@ Erin Teich
 * BondOrder (with Julia Dshemuchadse)
 * Angular separation (with Andrew Karas)
 * Contributed to LocalQl development
+* Wrote LocalBondProjection module
 
 M. Eric Irrgang
 
-* Authored kspace CPP code
+* Authored (now removed) kspace code
+* Numerous bug fixes.
+* Various contributions to freud.shape
 
 Chrisy Du
 
-* Authored all Steinhardt order parameters
+* Authored all Steinhardt order parameters.
+* Fixed support for triclinic boxes.
 
 Antonio Osorio
+
+* Developeed TrajectoryXML class.
+* Various bug fixes.
+* OpenMP support.
 
 Vyas Ramasubramani - **Lead developer**
 
@@ -62,6 +70,14 @@ Vyas Ramasubramani - **Lead developer**
 * Various minor bug fixes
 * Refactored PMFT code
 * Refactored Steinhardt order parameter code
+* Wrote numerous examples of freud usage
+* Rewrote most of freud tests
+* Replaced CMake-based installation with setup.py using Cython
+* Split non-order parameters out of order module into separate environment module.
+* Rewrote documentation for order, density, and environment modules
+* Add code coverage metrics
+* Added support for PyPI, including ensuring that NumPy is installed.
+* Converted all docstrings to Google format, fixed various incorrect docs.
 
 Bradley Dice - **Lead developer**
 
@@ -74,6 +90,14 @@ Bradley Dice - **Lead developer**
 * Added Voronoi support for neighbor lists across periodic boundaries
 * Added Voronoi weights for 3D
 * Added Voronoi cell volume computation
+* Incorporated internal BiMap class for Boost removal
+* Wrote numerous examples of freud usage
+* Added some freud tests
+* Rewrote interface module into pure Cython
+* Proper box duck-typing.
+* Removed nose from unit testing.
+* Use lambda function for parallelizing CorrelationFunction with TBB.
+* Finalized boost removal.
 
 Richmond Newman
 
@@ -87,17 +111,23 @@ Carl Simon Adorf
 Jens Glaser
 
 * Wrote kspace.pxi front-end
+* Modifications to kspace module.
 * Nematic order parameter
 
 Benjamin Schultz
 
 * Wrote Voronoi module
+* Fix normalization in GaussianDensity.
+* Bugfixes in freud.shape
 
 Bryan VanSaders
 
+* Make Cython catch C++ exceptions.
+* Add shiftvec option to PMFT
+
 Ryan Marson
 
-Tom Grubb
+* Various GaussianDensity bugfixes.
 
 Yina Geng
 
@@ -111,7 +141,13 @@ Carolyn Phillips
 
 Ben Swerdlow
 
+* Documentation and installation improvements.
+
 James Antonaglia
+
+* Added number of neighbors as an argument to HexOrderParameter.
+* Bugfixes.
+* Analysis of deprecated kspace module.
 
 Mayank Agrawal
 
@@ -119,13 +155,24 @@ Mayank Agrawal
 
 William Zygmunt
 
+* Helped with Boost removal.
+
 Greg van Anders
+
+* Bugfixes for CMake and SSE2 installation instructions.
 
 James Proctor
 
+* Cythonization of the cluster module.
+
 Rose Cersonsky
 
+* Enabled TBB-parallelism in density module.
+* Fixed how C++ arrays were pulled into Cython.
+
 Wenbo Shen
+
+* Translational order parameter
 
 Andrew Karas
 
@@ -133,17 +180,20 @@ Andrew Karas
 
 Paul Dodd
 
+* Fixed CorrelationFunction namespace, added ComputeOCF class for TBB parallelization.
+
 Tim Moore
 
 * Added optional rmin argument to density.RDF
 
-Michael Engel
-
-* Translational order parameter
-
 Alex Dutton
 
 * BiMap class for MatchEnv
+
+Matthew Palathingal
+
+* Replaced use of boost shared arrays with shared ptr in Cython
+* Helped incorporate BiMap class into MatchEnv.
 
 Source code
 -----------
