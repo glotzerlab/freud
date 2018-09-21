@@ -8,142 +8,193 @@ The following people contributed to the development of freud.
 
 Eric Harper, University of Michigan - **Former lead developer**
 
-* TBB parallelism
-* PMFT module
-* NearestNeighbors
-* RDF
-* Bonding module
-* Cubatic order parameter
-* Hexatic order parameter
-* Pairing2D
+* TBB parallelism.
+* PMFT module.
+* NearestNeighbors.
+* RDF.
+* Bonding module.
+* Cubatic order parameter.
+* Hexatic order parameter.
+* Pairing2D.
 
 Joshua A. Anderson, University of Michigan - **Creator**
 
-* Initial design and implementation
-* IteratorLinkCell
-* LinkCell
-* Various density modules
-* freud.parallel
-* Indexing modules
-* cluster.pxi
+* Initial design and implementation.
+* IteratorLinkCell.
+* LinkCell.
+* Various density modules.
+* freud.parallel.
+* Indexing modules.
+* cluster.pxi.
 
 Matthew Spellings - **Former lead developer**
 
-* Added generic neighbor list
-* Enabled neighbor list usage across freud modules
-* Correlation functions
-* LocalDescriptors class
-* interface.pxi
+* Added generic neighbor list.
+* Enabled neighbor list usage across freud modules.
+* Correlation functions.
+* LocalDescriptors class.
+* interface.pxi.
 
 Erin Teich
 
-* Wrote environment matching module
-* BondOrder (with Julia Dshemuchadse)
-* Angular separation (with Andrew Karas)
-* Contributed to LocalQl development
+* Wrote environment matching module.
+* BondOrder (with Julia Dshemuchadse).
+* Angular separation (with Andrew Karas).
+* Contributed to LocalQl development.
+* Wrote LocalBondProjection module.
 
 M. Eric Irrgang
 
-* Authored kspace CPP code
+* Authored (now removed) kspace code.
+* Numerous bug fixes.
+* Various contributions to freud.shape.
 
 Chrisy Du
 
-* Authored all Steinhardt order parameters
+* Authored all Steinhardt order parameters.
+* Fixed support for triclinic boxes.
 
 Antonio Osorio
 
+* Developed TrajectoryXML class.
+* Various bug fixes.
+* OpenMP support.
+
 Vyas Ramasubramani - **Lead developer**
 
-* Ensured pep8 compliance
-* Added CircleCI continuous integration support
-* Rewrote docs
-* Fixed nematic order parameter
-* Add properties for accessing class members
-* Various minor bug fixes
-* Refactored PMFT code
-* Refactored Steinhardt order parameter code
+* Ensured pep8 compliance.
+* Added CircleCI continuous integration support.
+* Rewrote docs.
+* Fixed nematic order parameter.
+* Add properties for accessing class members.
+* Various minor bug fixes.
+* Refactored PMFT code.
+* Refactored Steinhardt order parameter code.
+* Wrote numerous examples of freud usage.
+* Rewrote most of freud tests.
+* Replaced CMake-based installation with setup.py using Cython.
+* Split non-order parameters out of order module into separate environment module..
+* Rewrote documentation for order, density, and environment modules.
+* Add code coverage metrics.
+* Added support for PyPI, including ensuring that NumPy is installed.
+* Converted all docstrings to Google format, fixed various incorrect docs.
 
 Bradley Dice - **Lead developer**
 
-* Cleaned up various docstrings
-* HexOrderParameter bug fixes
-* Cleaned up testing code
-* Bumpversion support
-* Reduced all compile warnings
-* Added Python interface for box periodicity
-* Added Voronoi support for neighbor lists across periodic boundaries
-* Added Voronoi weights for 3D
-* Added Voronoi cell volume computation
+* Cleaned up various docstrings.
+* HexOrderParameter bug fixes.
+* Cleaned up testing code.
+* Bumpversion support.
+* Reduced all compile warnings.
+* Added Python interface for box periodicity.
+* Added Voronoi support for neighbor lists across periodic boundaries.
+* Added Voronoi weights for 3D.
+* Added Voronoi cell volume computation.
+* Incorporated internal BiMap class for Boost removal.
+* Wrote numerous examples of freud usage.
+* Added some freud tests.
+* Added ReadTheDocs support.
+* Rewrote interface module into pure Cython.
+* Proper box duck-typing.
+* Removed nose from unit testing.
+* Use lambda function for parallelizing CorrelationFunction with TBB.
+* Finalized boost removal.
 
 Richmond Newman
 
-* Developed the freud box
-* Solid liquid order parameter
+* Developed the freud box.
+* Solid liquid order parameter.
 
 Carl Simon Adorf
 
-* Developed the python box module
+* Developed the python box module.
 
 Jens Glaser
 
-* Wrote kspace.pxi front-end
-* Nematic order parameter
+* Wrote kspace.pxi front-end.
+* Modifications to kspace module.
+* Nematic order parameter.
 
 Benjamin Schultz
 
-* Wrote Voronoi module
+* Wrote Voronoi module.
+* Fix normalization in GaussianDensity.
+* Bugfixes in freud.shape.
 
 Bryan VanSaders
 
+* Make Cython catch C++ exceptions.
+* Add shiftvec option to PMFT.
+
 Ryan Marson
 
-Tom Grubb
+* Various GaussianDensity bugfixes.
 
 Yina Geng
 
-* Co-wrote Voronoi neighbor list module
-* Add properties for accessing class members
+* Co-wrote Voronoi neighbor list module.
+* Add properties for accessing class members.
 
 Carolyn Phillips
 
-* Initial design and implementation
-* Package name
+* Initial design and implementation.
+* Package name.
 
 Ben Swerdlow
 
+* Documentation and installation improvements.
+
 James Antonaglia
+
+* Added number of neighbors as an argument to HexOrderParameter.
+* Bugfixes.
+* Analysis of deprecated kspace module.
 
 Mayank Agrawal
 
-* Co-wrote Voronoi neighbor list module
+* Co-wrote Voronoi neighbor list module.
 
 William Zygmunt
 
+* Helped with Boost removal.
+
 Greg van Anders
+
+* Bugfixes for CMake and SSE2 installation instructions.
 
 James Proctor
 
+* Cythonization of the cluster module.
+
 Rose Cersonsky
+
+* Enabled TBB-parallelism in density module.
+* Fixed how C++ arrays were pulled into Cython.
 
 Wenbo Shen
 
+* Translational order parameter.
+
 Andrew Karas
 
-* Angular separation
+* Angular separation.
 
 Paul Dodd
 
+* Fixed CorrelationFunction namespace, added ComputeOCF class for TBB parallelization.
+
 Tim Moore
 
-* Added optional rmin argument to density.RDF
-
-Michael Engel
-
-* Translational order parameter
+* Added optional rmin argument to density.RDF.
 
 Alex Dutton
 
-* BiMap class for MatchEnv
+* BiMap class for MatchEnv.
+
+Matthew Palathingal
+
+* Replaced use of boost shared arrays with shared ptr in Cython.
+* Helped incorporate BiMap class into MatchEnv.
 
 Source code
 -----------

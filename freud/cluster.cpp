@@ -4,6 +4,8 @@
 {
     "distutils": {
         "depends": [
+            "/Users/vramasub/miniconda3/envs/test36/lib/python3.6/site-packages/numpy/core/include/numpy/arrayobject.h",
+            "/Users/vramasub/miniconda3/envs/test36/lib/python3.6/site-packages/numpy/core/include/numpy/ufuncobject.h",
             "cpp/box/Box.h",
             "cpp/box/ParticleBuffer.h",
             "cpp/cluster/Cluster.h",
@@ -22,6 +24,7 @@
         ],
         "include_dirs": [
             "extern",
+            "/Users/vramasub/miniconda3/envs/test36/lib/python3.6/site-packages/numpy/core/include",
             "cpp/order",
             "cpp/cluster",
             "cpp/registration",
@@ -42,13 +45,13 @@
         "name": "freud.cluster",
         "sources": [
             "freud/cluster.pyx",
-            "cpp/cluster/Cluster.cc",
+            "cpp/cluster/ClusterProperties.cc",
             "cpp/box/Box.cc",
-            "cpp/locality/NeighborList.cc",
-            "cpp/locality/LinkCell.cc",
+            "cpp/cluster/Cluster.cc",
             "cpp/util/HOOMDMatrix.cc",
-            "cpp/locality/NearestNeighbors.cc",
-            "cpp/cluster/ClusterProperties.cc"
+            "cpp/locality/LinkCell.cc",
+            "cpp/locality/NeighborList.cc",
+            "cpp/locality/NearestNeighbors.cc"
         ]
     },
     "module_name": "freud.cluster"
@@ -941,6 +944,15 @@ typedef struct {
  * cdef extern from "Box.h" namespace "freud::box":
  */
 typedef unsigned int __pyx_t_5freud_4_box_uint;
+
+/* "freud/_cluster.pxd":12
+ * cimport freud._locality
+ * 
+ * ctypedef unsigned int uint             # <<<<<<<<<<<<<<
+ * 
+ * cdef extern from "Cluster.h" namespace "freud::cluster":
+ */
+typedef unsigned int __pyx_t_5freud_8_cluster_uint;
 
 /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":730
  * # in Cython to enable them only on the right systems.

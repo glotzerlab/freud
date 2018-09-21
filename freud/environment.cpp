@@ -4,6 +4,8 @@
 {
     "distutils": {
         "depends": [
+            "/Users/vramasub/miniconda3/envs/test36/lib/python3.6/site-packages/numpy/core/include/numpy/arrayobject.h",
+            "/Users/vramasub/miniconda3/envs/test36/lib/python3.6/site-packages/numpy/core/include/numpy/ufuncobject.h",
             "cpp/box/Box.h",
             "cpp/box/ParticleBuffer.h",
             "cpp/environment/AngularSeparation.h",
@@ -26,6 +28,7 @@
         ],
         "include_dirs": [
             "extern",
+            "/Users/vramasub/miniconda3/envs/test36/lib/python3.6/site-packages/numpy/core/include",
             "cpp/order",
             "cpp/cluster",
             "cpp/registration",
@@ -46,16 +49,16 @@
         "name": "freud.environment",
         "sources": [
             "freud/environment.pyx",
-            "cpp/environment/AngularSeparation.cc",
-            "cpp/environment/Pairing2D.cc",
-            "cpp/box/Box.cc",
-            "cpp/locality/NeighborList.cc",
             "cpp/environment/LocalDescriptors.cc",
-            "cpp/environment/LocalBondProjection.cc",
-            "cpp/locality/LinkCell.cc",
-            "cpp/util/HOOMDMatrix.cc",
-            "cpp/locality/NearestNeighbors.cc",
+            "cpp/box/Box.cc",
             "cpp/environment/BondOrder.cc",
+            "cpp/environment/AngularSeparation.cc",
+            "cpp/environment/LocalBondProjection.cc",
+            "cpp/util/HOOMDMatrix.cc",
+            "cpp/locality/LinkCell.cc",
+            "cpp/environment/Pairing2D.cc",
+            "cpp/locality/NeighborList.cc",
+            "cpp/locality/NearestNeighbors.cc",
             "cpp/environment/MatchEnv.cc"
         ]
     },
