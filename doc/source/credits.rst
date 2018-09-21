@@ -56,7 +56,7 @@ Chrisy Du
 
 Antonio Osorio
 
-* Developeed TrajectoryXML class.
+* Developed TrajectoryXML class.
 * Various bug fixes.
 * OpenMP support.
 
