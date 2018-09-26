@@ -41,7 +41,7 @@ std::shared_ptr<float> NematicOrderParameter::getParticleTensor()
 
 std::shared_ptr<float> NematicOrderParameter::getNematicTensor()
     {
-    // return nematic_tensor;
+    // return nematic_tensor
     memcpy(m_sp_nematic_tensor.get(), m_nematic_tensor, sizeof(float)*9);
     return m_sp_nematic_tensor;
     }

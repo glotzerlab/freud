@@ -46,7 +46,7 @@ GaussianDensity::~GaussianDensity()
 
 void GaussianDensity::reduceDensity()
     {
-    memset((void*)m_Density_array.get(), 0, sizeof(float)*m_bi.getNumElements());
+    memset((void*)m_density_array.get(), 0, sizeof(float)*m_bi.getNumElements());
     // combine arrays
     parallel_for(blocked_range<size_t>(0,m_bi.getNumElements()),
       [=] (const blocked_range<size_t>& r)
@@ -57,7 +57,7 @@ void GaussianDensity::reduceDensity()
                local_bins = m_local_bin_counts.begin();
                local_bins != m_local_bin_counts.end(); ++local_bins)
               {
-              m_Density_array.get()[i] += (*local_bins)[i];
+              m_density_array.get()[i] += (*local_bins)[i];
               }
           }
       });
@@ -66,8 +66,12 @@ void GaussianDensity::reduceDensity()
 //!Get a reference to the last computed Density
 std::shared_ptr<float> GaussianDensity::getDensity()
     {
-    reduceDensity();
-    return m_Density_array;
+    if (m_reduce == true)
+        {
+        reduceDensity();
+        }
+    m_reduce = false;
+    return m_density_array;
     }
 
 //! Get x width
@@ -125,7 +129,7 @@ void GaussianDensity::compute(const box::Box &box, const vec3<float> *points, un
         }
 
     // this does not agree with rest of freud
-    m_Density_array = std::shared_ptr<float>(
+    m_density_array = std::shared_ptr<float>(
             new float[m_bi.getNumElements()],
             std::default_delete<float[]>());
     parallel_for(blocked_range<size_t>(0,Np),

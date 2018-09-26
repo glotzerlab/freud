@@ -90,6 +90,7 @@ class BondOrder
         unsigned int m_nbins_t;        //!< number of bins for theta
         unsigned int m_nbins_p;        //!< number of bins for phi
         unsigned int m_frame_counter;  //!< number of frames calc'd
+        bool m_reduce;                 //!< Whether arrays need to be reduced across threads
 
         std::shared_ptr<unsigned int> m_bin_counts;  //!< bin counts computed
         std::shared_ptr<float> m_bo_array;           //!< bond order array computed
