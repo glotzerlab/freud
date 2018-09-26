@@ -20,7 +20,7 @@ namespace freud { namespace environment {
 
 BondOrder::BondOrder(float rmax, float k, unsigned int n, unsigned int nbins_t, unsigned int nbins_p)
     : m_box(box::Box()), m_n_ref(0), m_n_p(0), m_nbins_t(nbins_t), m_nbins_p(nbins_p),
-      m_frame_counter(0)
+      m_frame_counter(0), m_reduce(true)
     {
     // sanity checks, but this is actually kinda dumb if these values are 1
     if (nbins_t < 1)
@@ -124,7 +124,11 @@ void BondOrder::reduceBondOrder()
 
 std::shared_ptr<float> BondOrder::getBondOrder()
     {
-    reduceBondOrder();
+    if (m_reduce == true)
+        {
+        reduceBondOrder();
+        }
+    m_reduce = false;
     return m_bo_array;
     }
 
@@ -136,6 +140,7 @@ void BondOrder::reset()
         }
     // reset the frame counter
     m_frame_counter = 0;
+    m_reduce = true;
     }
 
 void BondOrder::accumulate(box::Box& box,
@@ -256,6 +261,8 @@ void BondOrder::accumulate(box::Box& box,
     m_n_ref = n_ref;
     m_n_p = n_p;
     m_frame_counter++;
+    // flag to reduce
+    m_reduce = true;
     }
 
 }; }; // end namespace freud::environment
