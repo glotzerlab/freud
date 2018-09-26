@@ -15,6 +15,9 @@ class TestLinkCell(unittest.TestCase):
         # Initialize Box, initialize and compute cell list
         fbox = box.Box.cube(L)
         cl = locality.LinkCell(fbox, rcut)
+        cl.compute(fbox, np.zeros((1, 3), dtype=np.float32))
+
+        # Ensure deprecated method works
         cl.computeCellList(fbox, np.zeros((1, 3), dtype=np.float32))
 
         # 27 is the total number of cells
@@ -36,7 +39,7 @@ class TestLinkCell(unittest.TestCase):
         # Initialize Box, initialize and compute cell list
         fbox = box.Box.cube(L)
         cl = locality.LinkCell(fbox, rcut)
-        cl.computeCellList(fbox, testpoints)
+        cl.compute(fbox, testpoints)
 
         # Get cell index
         cell_index0 = cl.getCell(testpoints[0])
@@ -66,7 +69,7 @@ class TestLinkCell(unittest.TestCase):
             points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
             fbox = box.Box.cube(L)  # Initialize Box
             cl = locality.LinkCell(fbox, rcut)  # Initialize cell list
-            cl.computeCellList(fbox, points)  # Compute cell list
+            cl.compute(fbox, points)  # Compute cell list
 
             neighbors_ij = set()
             for i in range(N):
