@@ -26,7 +26,7 @@ cimport numpy as np
 np.import_array()
 
 cdef class Cluster:
-    """Finds clusters in a set of points.
+    R"""Finds clusters in a set of points.
 
     Given a set of coordinates and a cutoff, :class:`freud.cluster.Cluster`
     will determine all of the clusters of points that are made up of points
@@ -97,7 +97,7 @@ cdef class Cluster:
         return self.box
 
     def computeClusters(self, points, nlist=None, box=None):
-        """Compute the clusters for the given set of points.
+        R"""Compute the clusters for the given set of points.
 
         Args:
             points ((:math:`N_{particles}`, 3) :class:`np.ndarray`):
@@ -132,7 +132,7 @@ cdef class Cluster:
         return self
 
     def computeClusterMembership(self, keys):
-        """Compute the clusters with key membership.
+        R"""Compute the clusters with key membership.
         Loops over all particles and adds them to a list of sets.
         Each set contains all the keys that are part of that cluster.
         Get the computed list with :attr:`~cluster_keys`.
@@ -206,7 +206,7 @@ cdef class Cluster:
 
 
 cdef class ClusterProperties:
-    """Routines for computing properties of point clusters.
+    R"""Routines for computing properties of point clusters.
 
     Given a set of points and cluster ids (from :class:`~.Cluster`, or another
     source), ClusterProperties determines the following properties for each
@@ -217,12 +217,12 @@ cdef class ClusterProperties:
 
     The computed center of mass for each cluster (properly handling periodic
     boundary conditions) can be accessed with :meth:`~.getClusterCOM()`.
-    This returns a :math:`\\left(N_{clusters}, 3 \\right)`
+    This returns a :math:`\left(N_{clusters}, 3 \right)`
     :class:`numpy.ndarray`.
 
-    The :math:`3 \\times 3` gyration tensor :math:`G` can be accessed with
+    The :math:`3 \times 3` gyration tensor :math:`G` can be accessed with
     :meth:`~.getClusterG()`. This returns a :class:`numpy.ndarray`,
-    shape= :math:`\\left(N_{clusters} \\times 3 \\times 3\\right)`.
+    shape= :math:`\left(N_{clusters} \times 3 \times 3\right)`.
     The tensor is symmetric for each cluster.
 
     .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
@@ -267,7 +267,7 @@ cdef class ClusterProperties:
         return self.box
 
     def computeProperties(self, points, cluster_idx, box=None):
-        """Compute properties of the point clusters.
+        R"""Compute properties of the point clusters.
         Loops over all points in the given array and determines the center of
         mass of the cluster as well as the :math:`G` tensor. These can be
         accessed after the call to :meth:`~.computeProperties()` with

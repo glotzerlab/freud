@@ -26,21 +26,21 @@ np.import_array()
 
 
 cdef class NeighborList:
-    """Class representing a certain number of "bonds" between
+    R"""Class representing a certain number of "bonds" between
     particles. Computation methods will iterate over these bonds when
     searching for neighboring particles.
 
     NeighborList objects are constructed for two sets of position
     arrays A (alternatively *reference points*; of length :math:`n_A`)
     and B (alternatively *target points*; of length :math:`n_B`) and
-    hold a set of :math:`\\left(i, j\\right): i < n_A, j < n_B` index
+    hold a set of :math:`\left(i, j\right): i < n_A, j < n_B` index
     pairs corresponding to near-neighbor points in A and B,
     respectively.
 
     For efficiency, all bonds for a particular reference particle :math:`i`
     are contiguous and bonds are stored in order based on reference
     particle index :math:`i`. The first bond index corresponding to a given
-    particle can be found in :math:`\\log(n_{bonds})` time using
+    particle can be found in :math:`\log(n_{bonds})` time using
     :meth:`find_first_index`.
 
     .. moduleauthor:: Matthew Spellings <mspells@umich.edu>
@@ -68,11 +68,11 @@ cdef class NeighborList:
         weights ((:math:`N_{bonds}`) :class:`np.ndarray`):
             The per-bond weights from the last set of points this object was
             evaluated with.
-        segments ((:math:`N_{ref\\_points}`) :class:`np.ndarray`):
+        segments ((:math:`N_{ref\_points}`) :class:`np.ndarray`):
             A segment array, which is an array of length :math:`N_{ref}`
             indicating the first bond index for each reference particle from
             the last set of points this object was evaluated with.
-        neighbor_counts ((:math:`N_{ref\\_points}`) :class:`np.ndarray`):
+        neighbor_counts ((:math:`N_{ref\_points}`) :class:`np.ndarray`):
             A neighbor count array, which is an array of length
             :math:`N_{ref}` indicating the number of neighbors for each
             reference particle from the last set of points this object was
@@ -91,7 +91,7 @@ cdef class NeighborList:
 
     @classmethod
     def from_arrays(cls, Nref, Ntarget, index_i, index_j, weights=None):
-        """Create a NeighborList from a set of bond information arrays.
+        R"""Create a NeighborList from a set of bond information arrays.
 
         Args:
             Nref (int):
@@ -163,7 +163,7 @@ cdef class NeighborList:
         return result
 
     cdef refer_to(self, freud._locality.NeighborList * other):
-        """Makes this cython wrapper object point to a different C++ object,
+        R"""Makes this cython wrapper object point to a different C++ object,
         deleting the one we are already holding if necessary. We do not
         own the memory of the other C++ object."""
         if self._managed:
@@ -180,15 +180,15 @@ cdef class NeighborList:
             del self.thisptr
 
     cdef freud._locality.NeighborList * get_ptr(self) nogil:
-        """Returns a pointer to the raw C++ object we are wrapping."""
+        R"""Returns a pointer to the raw C++ object we are wrapping."""
         return self.thisptr
 
     cdef void copy_c(self, NeighborList other):
-        """Copies the contents of other into this object."""
+        R"""Copies the contents of other into this object."""
         self.thisptr.copy(dereference(other.thisptr))
 
     def copy(self, other=None):
-        """Create a copy. If other is given, copy its contents into this
+        R"""Create a copy. If other is given, copy its contents into this
         object. Otherwise, return a copy of this object.
 
         Args:
@@ -273,12 +273,12 @@ cdef class NeighborList:
         return result
 
     def __len__(self):
-        """Returns the number of bonds stored in this object."""
+        R"""Returns the number of bonds stored in this object."""
         return self.thisptr.getNumBonds()
 
     def find_first_index(self, unsigned int i):
-        """Returns the lowest bond index corresponding to a reference particle
-        with an index :math:`\\geq i`.
+        R"""Returns the lowest bond index corresponding to a reference particle
+        with an index :math:`\geq i`.
 
         Args:
             i (unsigned int ): The particle index.
@@ -286,7 +286,7 @@ cdef class NeighborList:
         return self.thisptr.find_first_index(i)
 
     def filter(self, filt):
-        """Removes bonds that satisfy a boolean criterion.
+        R"""Removes bonds that satisfy a boolean criterion.
 
         Args:
             filt (:class:`np.ndarray`):
@@ -307,7 +307,7 @@ cdef class NeighborList:
         return self
 
     def filter_r(self, box, ref_points, points, float rmax, float rmin=0):
-        """Removes bonds that are outside of a given radius range.
+        R"""Removes bonds that are outside of a given radius range.
 
         Args:
             box (:class:`freud.box.Box`):
@@ -351,7 +351,7 @@ cdef class NeighborList:
 
 def make_default_nlist(box, ref_points, points, rmax, nlist=None,
                        exclude_ii=None):
-    """Helper function to return a neighbor list object if is given, or to
+    R"""Helper function to return a neighbor list object if is given, or to
     construct one using LinkCell if it is not.
 
     Args:
@@ -398,7 +398,7 @@ def make_default_nlist(box, ref_points, points, rmax, nlist=None,
 
 def make_default_nlist_nn(box, ref_points, points, n_neigh, nlist=None,
                           exclude_ii=None, rmax_guess=2.0):
-    """Helper function to return a neighbor list object if is given, or to
+    R"""Helper function to return a neighbor list object if is given, or to
     construct one using NearestNeighbors if it is not.
 
     Args:
@@ -446,7 +446,7 @@ def make_default_nlist_nn(box, ref_points, points, n_neigh, nlist=None,
 
 
 cdef class IteratorLinkCell:
-    """Iterates over the particles in a cell.
+    R"""Iterates over the particles in a cell.
 
     .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
 
@@ -456,6 +456,7 @@ cdef class IteratorLinkCell:
        for j in linkcell.itercell(0):
            print(positions[j])
     """
+
     def __cinit__(self):
         # Must be running python 3.x
         current_version = sys.version_info
@@ -472,7 +473,7 @@ cdef class IteratorLinkCell:
         self.thisptr.copy(rhs)
 
     def next(self):
-        """Implements iterator interface"""
+        R"""Implements iterator interface"""
         cdef unsigned int result = self.thisptr.next()
         if self.thisptr.atEnd():
             raise StopIteration()
@@ -485,7 +486,7 @@ cdef class IteratorLinkCell:
         return self
 
 cdef class LinkCell:
-    """Supports efficiently finding all points in a set within a certain
+    R"""Supports efficiently finding all points in a set within a certain
     distance from a given point.
 
     .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
@@ -530,6 +531,7 @@ cdef class LinkCell:
        dens = density.LocalDensity(1.5, 1, 1)
        dens.compute(box, positions, nlist=lc.nlist)
     """
+
     def __cinit__(self, box, cell_width):
         cdef freud.box.Box b = freud.common.convert_box(box)
         self.thisptr = new freud._locality.LinkCell(
@@ -562,11 +564,11 @@ cdef class LinkCell:
         return self.num_cells
 
     def getCell(self, point):
-        """Returns the index of the cell containing the given point.
+        R"""Returns the index of the cell containing the given point.
 
         Args:
-            point(:math:`\\left(3\\right)` :class:`numpy.ndarray`):
-                Point coordinates :math:`\\left(x,y,z\\right)`.
+            point(:math:`\left(3\right)` :class:`numpy.ndarray`):
+                Point coordinates :math:`\left(x,y,z\right)`.
 
         Returns:
             unsigned int: Cell index.
@@ -579,7 +581,7 @@ cdef class LinkCell:
         return self.thisptr.getCell(dereference(<vec3[float]*> &cPoint[0]))
 
     def itercell(self, unsigned int cell):
-        """Return an iterator over all particles in the given cell.
+        R"""Return an iterator over all particles in the given cell.
 
         Args:
             cell (unsigned int): Cell index.
@@ -598,13 +600,13 @@ cdef class LinkCell:
         return iter(result)
 
     def getCellNeighbors(self, cell):
-        """Returns the neighboring cell indices of the given cell.
+        R"""Returns the neighboring cell indices of the given cell.
 
         Args:
             cell (unsigned int): Cell index.
 
         Returns:
-            :math:`\\left(N_{neighbors}\\right)` :class:`numpy.ndarray`:
+            :math:`\left(N_{neighbors}\right)` :class:`numpy.ndarray`:
                 Array of cell neighbors.
         """
         neighbors = self.thisptr.getCellNeighbors(int(cell))
@@ -614,7 +616,7 @@ cdef class LinkCell:
         return result
 
     def compute(self, box, ref_points, points=None, exclude_ii=None):
-        """Update the data structure for the given set of points and compute a
+        R"""Update the data structure for the given set of points and compute a
         NeighborList.
 
         Args:
@@ -669,7 +671,7 @@ cdef class LinkCell:
         return self
 
     def computeCellList(self, box, ref_points, points=None, exclude_ii=None):
-        """Update the data structure for the given set of points and compute a
+        R"""Update the data structure for the given set of points and compute a
         NeighborList.
 
         Args:
@@ -695,7 +697,7 @@ cdef class LinkCell:
         return self._nlist
 
 cdef class NearestNeighbors:
-    """Supports efficiently finding the :math:`N` nearest neighbors of each
+    R"""Supports efficiently finding the :math:`N` nearest neighbors of each
     point in a set for some fixed integer :math:`N`.
 
     * :code:`strict_cut == True`: :code:`rmax` will be strictly obeyed, and any
@@ -732,9 +734,9 @@ cdef class NearestNeighbors:
             The number of particles this object found neighbors of.
         r_max (float):
             Current nearest neighbors search radius guess.
-        wrapped_vectors (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
+        wrapped_vectors (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
             The wrapped vectors padded with -1 for empty neighbors.
-        r_sq_list (:math:`\\left(N_{particles}, N_{neighbors}\\right)` :class:`numpy.ndarray`):
+        r_sq_list (:math:`\left(N_{particles}, N_{neighbors}\right)` :class:`numpy.ndarray`):
             The Rsq values list.
         nlist (:class:`freud.locality.NeighborList`):
             The neighbor list stored by this object, generated by
@@ -747,6 +749,7 @@ cdef class NearestNeighbors:
        hexatic = order.HexOrderParameter(2)
        hexatic.compute(box, positions, nlist=nn.nlist)
     """  # noqa: E501
+
     def __cinit__(self, float rmax, unsigned int n_neigh, float scale=1.1,
                   strict_cut=False):
         if scale < 1:
@@ -809,7 +812,7 @@ cdef class NearestNeighbors:
         self.thisptr.setRMax(rmax)
 
     def setCutMode(self, strict_cut):
-        """Set mode to handle :code:`rmax` by Nearest Neighbors.
+        R"""Set mode to handle :code:`rmax` by Nearest Neighbors.
 
         * :code:`strict_cut == True`: :code:`rmax` will be strictly obeyed,
           and any particle which has fewer than :math:`N` neighbors will have
@@ -840,7 +843,7 @@ cdef class NearestNeighbors:
         return self.r_max
 
     def getNeighbors(self, unsigned int i):
-        """Return the :math:`N` nearest neighbors of the reference point with
+        R"""Return the :math:`N` nearest neighbors of the reference point with
         index :math:`i`.
 
         Args:
@@ -857,10 +860,10 @@ cdef class NearestNeighbors:
         return result
 
     def getNeighborList(self):
-        """Return the entire neighbor list.
+        R"""Return the entire neighbor list.
 
         Returns:
-            :math:`\\left(N_{particles}, N_{neighbors}\\right)` :class:`numpy.ndarray`:
+            :math:`\left(N_{particles}, N_{neighbors}\right)` :class:`numpy.ndarray`:
                 Neighbor List.
         """  # noqa: E501
         result = np.empty(
@@ -880,7 +883,7 @@ cdef class NearestNeighbors:
         return result
 
     def getRsq(self, unsigned int i):
-        """Return the squared distances to the :math:`N` nearest neighbors of
+        R"""Return the squared distances to the :math:`N` nearest neighbors of
         the reference point with index :math:`i`.
 
         Args:
@@ -889,7 +892,7 @@ cdef class NearestNeighbors:
                 point distances.
 
         Returns:
-            :math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:
+            :math:`\left(N_{particles}\right)` :class:`numpy.ndarray`:
                 Squared distances to the :math:`N` nearest neighbors.
         """
         cdef unsigned int start_idx = self.nlist.find_first_index(i)
@@ -951,7 +954,7 @@ cdef class NearestNeighbors:
         return self.r_sq_list
 
     def compute(self, box, ref_points, points=None, exclude_ii=None):
-        """Update the data structure for the given set of points.
+        R"""Update the data structure for the given set of points.
 
         Args:
             box (:class:`freud.box.Box`):

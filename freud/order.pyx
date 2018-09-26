@@ -43,7 +43,7 @@ cimport numpy as np
 np.import_array()
 
 cdef class CubaticOrderParameter:
-    """Compute the cubatic order parameter [HajiAkbari2015]_ for a system of
+    R"""Compute the cubatic order parameter [HajiAkbari2015]_ for a system of
     particles using simulated annealing instead of Newton-Raphson root finding.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
@@ -69,18 +69,18 @@ cdef class CubaticOrderParameter:
             The scale
         cubatic_order_parameter (float):
             The cubatic order parameter.
-        orientation (:math:`\\left(4 \\right)` :class:`numpy.ndarray`):
+        orientation (:math:`\left(4 \right)` :class:`numpy.ndarray`):
             The quaternion of global orientation.
         particle_order_parameter (:class:`numpy.ndarray`):
              Cubatic order parameter.
-        particle_tensor (:math:`\\left(N_{particles}, 3, 3, 3, 3 \\right)` :class:`numpy.ndarray`):
+        particle_tensor (:math:`\left(N_{particles}, 3, 3, 3, 3 \right)` :class:`numpy.ndarray`):
             Rank 5 tensor corresponding to each individual particle
             orientation.
-        global_tensor (:math:`\\left(3, 3, 3, 3 \\right)` :class:`numpy.ndarray`):
+        global_tensor (:math:`\left(3, 3, 3, 3 \right)` :class:`numpy.ndarray`):
             Rank 4 tensor corresponding to global orientation.
-        cubatic_tensor (:math:`\\left(3, 3, 3, 3 \\right)` :class:`numpy.ndarray`):
+        cubatic_tensor (:math:`\left(3, 3, 3, 3 \right)` :class:`numpy.ndarray`):
             Rank 4 cubatic tensor.
-        gen_r4_tensor (:math:`\\left(3, 3, 3, 3 \\right)` :class:`numpy.ndarray`):
+        gen_r4_tensor (:math:`\left(3, 3, 3, 3 \right)` :class:`numpy.ndarray`):
             Rank 4 tensor corresponding to each individual particle
             orientation.
     """  # noqa: E501
@@ -116,7 +116,7 @@ cdef class CubaticOrderParameter:
             t_initial, t_final, scale, <float*> r4.data, n_replicates, seed)
 
     def compute(self, orientations):
-        """Calculates the per-particle and global order parameter.
+        R"""Calculates the per-particle and global order parameter.
 
         Args:
             orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
@@ -296,26 +296,26 @@ cdef class CubaticOrderParameter:
 
 
 cdef class NematicOrderParameter:
-    """Compute the nematic order parameter for a system of particles.
+    R"""Compute the nematic order parameter for a system of particles.
 
     .. moduleauthor:: Jens Glaser <jsglaser@umich.edu>
 
     .. versionadded:: 0.7.0
 
     Args:
-        u (:math:`\\left(3 \\right)` :class:`numpy.ndarray`):
+        u (:math:`\left(3 \right)` :class:`numpy.ndarray`):
             The nematic director of a single particle in the reference state
             (without any rotation applied).
 
     Attributes:
         nematic_order_parameter (float):
             Nematic order parameter.
-        director (:math:`\\left(3 \\right)` :class:`numpy.ndarray`):
+        director (:math:`\left(3 \right)` :class:`numpy.ndarray`):
             The average nematic director.
-        particle_tensor (:math:`\\left(N_{particles}, 3, 3 \\right)` :class:`numpy.ndarray`):
+        particle_tensor (:math:`\left(N_{particles}, 3, 3 \right)` :class:`numpy.ndarray`):
             One 3x3 matrix per-particle corresponding to each individual
             particle orientation.
-        nematic_tensor (:math:`\\left(3, 3 \\right)` :class:`numpy.ndarray`):
+        nematic_tensor (:math:`\left(3, 3 \right)` :class:`numpy.ndarray`):
             3x3 matrix corresponding to the average particle orientation.
     """  # noqa: E501
     cdef freud._order.NematicOrderParameter *thisptr
@@ -331,10 +331,10 @@ cdef class NematicOrderParameter:
             (<vec3[float]*> l_u.data)[0])
 
     def compute(self, orientations):
-        """Calculates the per-particle and global order parameter.
+        R"""Calculates the per-particle and global order parameter.
 
         Args:
-            orientations (:math:`\\left(N_{particles}, 4 \\right)` :class:`numpy.ndarray`):
+            orientations (:math:`\left(N_{particles}, 4 \right)` :class:`numpy.ndarray`):
                 Orientations to calculate the order parameter.
         """  # noqa: E501
         orientations = freud.common.convert_array(
@@ -415,19 +415,19 @@ cdef class NematicOrderParameter:
 
 
 cdef class HexOrderParameter:
-    """Calculates the :math:`k`-atic order parameter for each particle in the
+    R"""Calculates the :math:`k`-atic order parameter for each particle in the
     system.
 
     The :math:`k`-atic order parameter for a particle :math:`i` and its
     :math:`n` neighbors :math:`j` is given by:
 
-    :math:`\\psi_k \\left( i \\right) = \\frac{1}{n}
-    \\sum_j^n e^{k i \\phi_{ij}}`
+    :math:`\psi_k \left( i \right) = \frac{1}{n}
+    \sum_j^n e^{k i \phi_{ij}}`
 
     The parameter :math:`k` governs the symmetry of the order parameter while
     the parameter :math:`n` governs the number of neighbors of particle
-    :math:`i` to average over. :math:`\\phi_{ij}` is the angle between the
-    vector :math:`r_{ij}` and :math:`\\left( 1,0 \\right)`.
+    :math:`i` to average over. :math:`\phi_{ij}` is the angle between the
+    vector :math:`r_{ij}` and :math:`\left( 1,0 \right)`.
 
     .. note::
         **2D:** :class:`freud.order.HexOrderParameter` properly handles 2D
@@ -445,7 +445,7 @@ cdef class HexOrderParameter:
             Number of neighbors (:math:`n=k` if :math:`n` not specified).
 
     Attributes:
-        psi (:math:`\\left(N_{particles} \\right)` :class:`numpy.ndarray`):
+        psi (:math:`\left(N_{particles} \right)` :class:`numpy.ndarray`):
             Order parameter.
         box (:class:`freud.box.Box`):
             Box used in the calculation.
@@ -467,7 +467,7 @@ cdef class HexOrderParameter:
         del self.thisptr
 
     def compute(self, box, points, nlist=None):
-        """Calculates the correlation function and adds to the current
+        R"""Calculates the correlation function and adds to the current
         histogram.
 
         Args:
@@ -550,9 +550,9 @@ cdef class HexOrderParameter:
 
 
 cdef class TransOrderParameter:
-    """Compute the translational order parameter for each particle.
+    R"""Compute the translational order parameter for each particle.
 
-    .. moduleauthor:: Michael Engel <engelmm@umich.edu>
+    .. moduleauthor:: Wenbo Shen <shenwb@umich.edu>
 
     Args:
         rmax (float):
@@ -563,7 +563,7 @@ cdef class TransOrderParameter:
             Number of neighbors (:math:`n=k` if :math:`n` not specified).
 
     Attributes:
-        d_r (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
+        d_r (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
             Reference to the last computed translational order array.
         box (:class:`freud.box.Box`):
             Box used in the calculation.
@@ -583,7 +583,7 @@ cdef class TransOrderParameter:
         del self.thisptr
 
     def compute(self, box, points, nlist=None):
-        """Calculates the local descriptors.
+        R"""Calculates the local descriptors.
 
         Args:
             box (:class:`freud.box.Box`):
@@ -653,29 +653,29 @@ cdef class TransOrderParameter:
 
 
 cdef class LocalQl:
-    """Compute the local Steinhardt [Steinhardt1983]_ rotationally invariant
+    R"""Compute the local Steinhardt [Steinhardt1983]_ rotationally invariant
     :math:`Q_l` order parameter for a set of points.
 
     Implements the local rotationally invariant :math:`Q_l` order parameter
     described by Steinhardt. For a particle i, we calculate the average
     :math:`Q_l` by summing the spherical harmonics between particle :math:`i`
     and its neighbors :math:`j` in a local region:
-    :math:`\\overline{Q}_{lm}(i) = \\frac{1}{N_b}
-    \\displaystyle\\sum_{j=1}^{N_b} Y_{lm}(\\theta(\\vec{r}_{ij}),
-    \\phi(\\vec{r}_{ij}))`. The particles included in the sum are determined
+    :math:`\overline{Q}_{lm}(i) = \frac{1}{N_b}
+    \displaystyle\sum_{j=1}^{N_b} Y_{lm}(\theta(\vec{r}_{ij}),
+    \phi(\vec{r}_{ij}))`. The particles included in the sum are determined
     by the rmax argument to the constructor.
 
     This is then combined in a rotationally invariant fashion to remove local
-    orientational order as follows: :math:`Q_l(i)=\\sqrt{\\frac{4\pi}{2l+1}
-    \\displaystyle\\sum_{m=-l}^{l} |\\overline{Q}_{lm}|^2 }`.
+    orientational order as follows: :math:`Q_l(i)=\sqrt{\frac{4\pi}{2l+1}
+    \displaystyle\sum_{m=-l}^{l} |\overline{Q}_{lm}|^2 }`.
 
     The :meth:`~computeAve` method provides access to a variant of this
     parameter that performs a average over the first and second shell combined
     [Lechner2008]_. To compute this parameter, we perform a second averaging
     over the first neighbor shell of the particle to implicitly include
     information about the second neighbor shell. This averaging is performed by
-    replacing the value :math:`\\overline{Q}_{lm}(i)` in the original
-    definition by the average value of :math:`\\overline{Q}_{lm}(k)` over all
+    replacing the value :math:`\overline{Q}_{lm}(i)` in the original
+    definition by the average value of :math:`\overline{Q}_{lm}(k)` over all
     the :math:`k` neighbors of particle :math:`i` as well as itself.
 
     The :meth:`~computeNorm` and :meth:`~computeAveNorm` methods provide
@@ -702,18 +702,18 @@ cdef class LocalQl:
             Box used in the calculation.
         num_particles (unsigned int):
             Number of particles.
-        Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
+        Ql (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
             The last computed :math:`Q_l` for each particle (filled with NaN
             for particles with no neighbors).
-        ave_Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
-            The last computed :math:`\\bar{Q_l}` for each particle (filled with
+        ave_Ql (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
+            The last computed :math:`\bar{Q_l}` for each particle (filled with
             NaN for particles with no neighbors).
-        norm_Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
+        norm_Ql (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
             The last computed :math:`Q_l` for each particle normalized by the
             value over all particles (filled with NaN for particles with no
             neighbors).
-        ave_norm_Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
-            The last computed :math:`\\bar{Q_l}` for each particle normalized
+        ave_norm_Ql (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
+            The last computed :math:`\bar{Q_l}` for each particle normalized
             by the value over all particles (filled with NaN for particles with
             no neighbors).
 
@@ -753,7 +753,7 @@ cdef class LocalQl:
         self.qlptr.setBox(dereference(b.thisptr))
 
     def setBox(self, box):
-        """Reset the simulation box.
+        R"""Reset the simulation box.
 
         Args:
             box (:class:`freud.box.Box`): Simulation box.
@@ -837,7 +837,7 @@ cdef class LocalQl:
         return self.ave_norm_Ql
 
     def compute(self, points, nlist=None):
-        """Compute the order parameter.
+        R"""Compute the order parameter.
 
         Args:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
@@ -860,7 +860,7 @@ cdef class LocalQl:
         return self
 
     def computeAve(self, points, nlist=None):
-        """Compute the order parameter over two nearest neighbor shells.
+        R"""Compute the order parameter over two nearest neighbor shells.
 
         Args:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
@@ -887,7 +887,7 @@ cdef class LocalQl:
         return self
 
     def computeNorm(self, points, nlist=None):
-        """Compute the order parameter normalized by the average spherical
+        R"""Compute the order parameter normalized by the average spherical
         harmonic value over all the particles.
 
         Args:
@@ -913,7 +913,7 @@ cdef class LocalQl:
         return self
 
     def computeAveNorm(self, points, nlist=None):
-        """Compute the order parameter over two nearest neighbor shells
+        R"""Compute the order parameter over two nearest neighbor shells
         normalized by the average spherical harmonic value over all the
         particles.
 
@@ -944,7 +944,7 @@ cdef class LocalQl:
 
 
 cdef class LocalQlNear(LocalQl):
-    """A variant of the :class:`~LocalQl` class that performs its average
+    R"""A variant of the :class:`~LocalQl` class that performs its average
     over nearest neighbor particles as determined by an instance of
     :class:`freud.locality.NeighborList`. The number of included neighbors
     is determined by the kn parameter to the constructor.
@@ -968,18 +968,18 @@ cdef class LocalQlNear(LocalQl):
             Box used in the calculation.
         num_particles (unsigned int):
             Number of particles.
-        Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
+        Ql (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
             The last computed :math:`Q_l` for each particle (filled with NaN
             for particles with no neighbors).
-        ave_Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
-            The last computed :math:`\\bar{Q_l}` for each particle (filled with
+        ave_Ql (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
+            The last computed :math:`\bar{Q_l}` for each particle (filled with
             NaN for particles with no neighbors).
-        norm_Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
+        norm_Ql (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
             The last computed :math:`Q_l` for each particle normalized by the
             value over all particles (filled with NaN for particles with no
             neighbors).
-        ave_norm_Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
-            The last computed :math:`\\bar{Q_l}` for each particle normalized
+        ave_norm_Ql (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
+            The last computed :math:`\bar{Q_l}` for each particle normalized
             by the value over all particles (filled with NaN for particles with
             no neighbors).
 
@@ -1006,7 +1006,7 @@ cdef class LocalQlNear(LocalQl):
             self.qlptr = NULL
 
     def computeAve(self, points, nlist=None):
-        """Compute the order parameter over two nearest neighbor shells.
+        R"""Compute the order parameter over two nearest neighbor shells.
 
         Args:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
@@ -1020,7 +1020,7 @@ cdef class LocalQlNear(LocalQl):
         return super(LocalQlNear, self).computeAve(points, nlist_)
 
     def computeNorm(self, points, nlist=None):
-        """Compute the order parameter normalized by the average spherical
+        R"""Compute the order parameter normalized by the average spherical
         harmonic value over all the particles.
 
         Args:
@@ -1035,7 +1035,7 @@ cdef class LocalQlNear(LocalQl):
         return super(LocalQlNear, self).computeNorm(points, nlist_)
 
     def computeAveNorm(self, points, nlist=None):
-        """Compute the order parameter over two nearest neighbor shells
+        R"""Compute the order parameter over two nearest neighbor shells
         normalized by the average spherical harmonic value over all the
         particles.
 
@@ -1052,20 +1052,20 @@ cdef class LocalQlNear(LocalQl):
 
 
 cdef class LocalWl(LocalQl):
-    """Compute the local Steinhardt [Steinhardt1983]_ rotationally invariant
+    R"""Compute the local Steinhardt [Steinhardt1983]_ rotationally invariant
     :math:`W_l` order parameter for a set of points.
 
     Implements the local rotationally invariant :math:`W_l` order parameter
     described by Steinhardt. For a particle i, we calculate the average
     :math:`W_l` by summing the spherical harmonics between particle :math:`i`
     and its neighbors :math:`j` in a local region:
-    :math:`\\overline{Q}_{lm}(i) = \\frac{1}{N_b}
-    \\displaystyle\\sum_{j=1}^{N_b} Y_{lm}(\\theta(\\vec{r}_{ij}),
-    \\phi(\\vec{r}_{ij}))`. The particles included in the sum are determined
+    :math:`\overline{Q}_{lm}(i) = \frac{1}{N_b}
+    \displaystyle\sum_{j=1}^{N_b} Y_{lm}(\theta(\vec{r}_{ij}),
+    \phi(\vec{r}_{ij}))`. The particles included in the sum are determined
     by the rmax argument to the constructor.
 
     The :math:`W_l` is then defined as a weighted average over the
-    :math:`\\overline{Q}_{lm}(i)` values using Wigner 3j symbols
+    :math:`\overline{Q}_{lm}(i)` values using Wigner 3j symbols
     (Clebsch-Gordan coefficients). The resulting combination is rotationally
     (i.e. frame) invariant.
 
@@ -1074,8 +1074,8 @@ cdef class LocalWl(LocalQl):
     [Lechner2008]_. To compute this parameter, we perform a second averaging
     over the first neighbor shell of the particle to implicitly include
     information about the second neighbor shell. This averaging is performed by
-    replacing the value :math:`\\overline{Q}_{lm}(i)` in the original
-    definition by the average value of :math:`\\overline{Q}_{lm}(k)` over all
+    replacing the value :math:`\overline{Q}_{lm}(i)` in the original
+    definition by the average value of :math:`\overline{Q}_{lm}(k)` over all
     the :math:`k` neighbors of particle :math:`i` as well as itself.
 
     The :meth:`~computeNorm` and :meth:`~computeAveNorm` methods provide
@@ -1104,18 +1104,18 @@ cdef class LocalWl(LocalQl):
             Box used in the calculation.
         num_particles (unsigned int):
             Number of particles.
-        Wl (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
+        Wl (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
             The last computed :math:`W_l` for each particle (filled with NaN
             for particles with no neighbors).
-        ave_Wl (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
-            The last computed :math:`\\bar{W}_l` for each particle (filled with
+        ave_Wl (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
+            The last computed :math:`\bar{W}_l` for each particle (filled with
             NaN for particles with no neighbors).
-        norm_Wl (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
+        norm_Wl (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
             The last computed :math:`W_l` for each particle normalized by the
             value over all particles (filled with NaN for particles with no
             neighbors).
-        ave_norm_Wl (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
-            The last computed :math:`\\bar{W}_l` for each particle normalized
+        ave_norm_Wl (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
+            The last computed :math:`\bar{W}_l` for each particle normalized
             by the value over all particles (filled with NaN for particles with
             no neighbors).
 
@@ -1225,7 +1225,7 @@ cdef class LocalWl(LocalQl):
 
 
 cdef class LocalWlNear(LocalWl):
-    """A variant of the :class:`~LocalWl` class that performs its average
+    R"""A variant of the :class:`~LocalWl` class that performs its average
     over nearest neighbor particles as determined by an instance of
     :class:`freud.locality.NeighborList`. The number of included neighbors
     is determined by the kn parameter to the constructor.
@@ -1250,18 +1250,18 @@ cdef class LocalWlNear(LocalWl):
             Box used in the calculation.
         num_particles (unsigned int):
             Number of particles.
-        Wl (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
+        Wl (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
             The last computed :math:`W_l` for each particle (filled with NaN
             for particles with no neighbors).
-        ave_Wl (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
-            The last computed :math:`\\bar{W}_l` for each particle (filled with
+        ave_Wl (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
+            The last computed :math:`\bar{W}_l` for each particle (filled with
             NaN for particles with no neighbors).
-        norm_Wl (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
+        norm_Wl (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
             The last computed :math:`W_l` for each particle normalized by the
             value over all particles (filled with NaN for particles with no
             neighbors).
-        ave_norm_Wl (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
-            The last computed :math:`\\bar{W}_l` for each particle normalized
+        ave_norm_Wl (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
+            The last computed :math:`\bar{W}_l` for each particle normalized
             by the value over all particles (filled with NaN for particles with
             no neighbors).
 
@@ -1283,7 +1283,7 @@ cdef class LocalWlNear(LocalWl):
         self.thisptr = NULL
 
     def computeAve(self, points, nlist=None):
-        """Compute the order parameter over two nearest neighbor shells.
+        R"""Compute the order parameter over two nearest neighbor shells.
 
         Args:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
@@ -1297,7 +1297,7 @@ cdef class LocalWlNear(LocalWl):
         return super(LocalWlNear, self).computeAve(points, nlist_)
 
     def computeNorm(self, points, nlist=None):
-        """Compute the order parameter normalized by the average spherical
+        R"""Compute the order parameter normalized by the average spherical
         harmonic value over all the particles.
 
         Args:
@@ -1312,7 +1312,7 @@ cdef class LocalWlNear(LocalWl):
         return super(LocalWlNear, self).computeNorm(points, nlist_)
 
     def computeAveNorm(self, points, nlist=None):
-        """Compute the order parameter over two nearest neighbor shells
+        R"""Compute the order parameter over two nearest neighbor shells
         normalized by the average spherical harmonic value over all the
         particles.
 
@@ -1329,7 +1329,7 @@ cdef class LocalWlNear(LocalWl):
 
 
 cdef class SolLiq:
-    """Uses dot products of :math:`Q_{lm}` between particles for clustering.
+    R"""Uses dot products of :math:`Q_{lm}` between particles for clustering.
 
     .. moduleauthor:: Richmond Newman <newmanrs@umich.edu>
 
@@ -1360,14 +1360,14 @@ cdef class SolLiq:
             The sizes of all clusters.
         largest_cluster_size (unsigned int):
             The largest cluster size. Must call a compute method first.
-        Ql_mi (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
+        Ql_mi (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
             The last computed :math:`Q_{lmi}` for each particle.
-        clusters (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
+        clusters (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
             The last computed set of solid-like cluster indices for each
             particle.
-        num_connections (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
+        num_connections (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
             The number of connections per particle.
-        Ql_dot_ij (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
+        Ql_dot_ij (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
             Reference to the qldot_ij values.
         num_particles (unsigned int):
             Number of particles.
@@ -1378,19 +1378,20 @@ cdef class SolLiq:
     cdef freud.box.Box m_box
     cdef rmax
 
-    def __init__(self, box, rmax, Qthreshold, Sthreshold, l):
+    def __cinit__(self, box, rmax, Qthreshold, Sthreshold, l, *args, **kwargs):
         cdef freud.box.Box b = freud.common.convert_box(box)
-        self.thisptr = new freud._order.SolLiq(
-            dereference(b.thisptr), rmax, Qthreshold, Sthreshold, l)
-        self.m_box = box
-        self.rmax = rmax
+        if type(self) is SolLiq:
+            self.thisptr = new freud._order.SolLiq(
+                dereference(b.thisptr), rmax, Qthreshold, Sthreshold, l)
+            self.m_box = box
+            self.rmax = rmax
 
     def __dealloc__(self):
         del self.thisptr
         self.thisptr = NULL
 
     def compute(self, points, nlist=None):
-        """Compute the solid-liquid order parameter.
+        R"""Compute the solid-liquid order parameter.
 
         Args:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
@@ -1415,7 +1416,7 @@ cdef class SolLiq:
         return self
 
     def computeSolLiqVariant(self, points, nlist=None):
-        """Compute a variant of the solid-liquid order parameter.
+        R"""Compute a variant of the solid-liquid order parameter.
 
         This variant method places a minimum threshold on the number
         of solid-like bonds a particle must have to be considered solid-like
@@ -1444,7 +1445,7 @@ cdef class SolLiq:
         return self
 
     def computeSolLiqNoNorm(self, points, nlist=None):
-        """Compute the solid-liquid order parameter without normalizing the dot
+        R"""Compute the solid-liquid order parameter without normalizing the dot
         product.
 
         Args:
@@ -1481,7 +1482,7 @@ cdef class SolLiq:
         return self.box
 
     def setClusteringRadius(self, rcutCluster):
-        """Set the clustering radius.
+        R"""Set the clustering radius.
 
         Args:
             rcutCluster (float): Radius for the cluster finding.
@@ -1617,7 +1618,7 @@ cdef class SolLiq:
 
 
 cdef class SolLiqNear(SolLiq):
-    """A variant of the :class:`~SolLiq` class that performs its average over nearest neighbor particles as determined by an instance of :class:`freud.locality.NeighborList`. The number of included neighbors is determined by the kn parameter to the constructor.
+    R"""A variant of the :class:`~SolLiq` class that performs its average over nearest neighbor particles as determined by an instance of :class:`freud.locality.NeighborList`. The number of included neighbors is determined by the kn parameter to the constructor.
 
     .. moduleauthor:: Richmond Newman <newmanrs@umich.edu>
 
@@ -1650,14 +1651,14 @@ cdef class SolLiqNear(SolLiq):
             The sizes of all clusters.
         largest_cluster_size (unsigned int):
             The largest cluster size. Must call a compute method first.
-        Ql_mi (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
+        Ql_mi (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
             The last computed :math:`Q_{lmi}` for each particle.
-        clusters (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
+        clusters (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
             The last computed set of solid-like cluster indices for each
             particle.
-        num_connections (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
+        num_connections (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
             The number of connections per particle.
-        Ql_dot_ij (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
+        Ql_dot_ij (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
             Reference to the qldot_ij values.
         num_particles (unsigned int):
             Number of particles.
@@ -1666,20 +1667,21 @@ cdef class SolLiqNear(SolLiq):
     """  # noqa: E501
     cdef num_neigh
 
-    def __init__(self, box, rmax, Qthreshold, Sthreshold, l, kn=12):
+    def __cinit__(self, box, rmax, Qthreshold, Sthreshold, l, kn=12):
         cdef freud.box.Box b = freud.common.convert_box(box)
-        self.thisptr = new freud._order.SolLiq(
-            dereference(b.thisptr), rmax, Qthreshold, Sthreshold, l)
-        self.m_box = box
-        self.rmax = rmax
-        self.num_neigh = kn
+        if type(self) is SolLiqNear:
+            self.thisptr = new freud._order.SolLiq(
+                dereference(b.thisptr), rmax, Qthreshold, Sthreshold, l)
+            self.m_box = box
+            self.rmax = rmax
+            self.num_neigh = kn
 
     def __dealloc__(self):
         del self.thisptr
         self.thisptr = NULL
 
     def compute(self, points, nlist=None):
-        """Compute the local rotationally invariant :math:`Q_l` order
+        R"""Compute the local rotationally invariant :math:`Q_l` order
         parameter.
 
         Args:
@@ -1694,7 +1696,7 @@ cdef class SolLiqNear(SolLiq):
         return SolLiq.compute(self, points, nlist_)
 
     def computeSolLiqVariant(self, points, nlist=None):
-        """Compute the local rotationally invariant :math:`Q_l` order
+        R"""Compute the local rotationally invariant :math:`Q_l` order
         parameter.
 
         Args:
@@ -1709,7 +1711,7 @@ cdef class SolLiqNear(SolLiq):
         return SolLiq.computeSolLiqVariant(self, points, nlist_)
 
     def computeSolLiqNoNorm(self, points, nlist=None):
-        """Compute the local rotationally invariant :math:`Q_l` order
+        R"""Compute the local rotationally invariant :math:`Q_l` order
         parameter.
 
         Args:
@@ -1725,7 +1727,7 @@ cdef class SolLiqNear(SolLiq):
 
 
 class BondOrder(_EBO):
-    """**Deprecated** Compute the bond order diagram for the system of particles.
+    R"""**Deprecated** Compute the bond order diagram for the system of particles.
 
     .. note::
         This class is only retained for backwards compatibility.
@@ -1735,6 +1737,7 @@ class BondOrder(_EBO):
        Use :class:`freud.environment.BondOrder` instead.
 
     """
+
     def __init__(self, rmax, k, n, n_bins_t, n_bins_p):
         warnings.warn("This class is deprecated, use "
                       "freud.environment.BondOrder instead!",
@@ -1742,7 +1745,7 @@ class BondOrder(_EBO):
 
 
 class LocalDescriptors(_ELD):
-    """**Deprecated** Compute a set of descriptors (a numerical "fingerprint")
+    R"""**Deprecated** Compute a set of descriptors (a numerical "fingerprint")
     of a particle's local environment.
 
     .. note::
@@ -1753,6 +1756,7 @@ class LocalDescriptors(_ELD):
        Use :class:`freud.environment.LocalDescriptors` instead.
 
     """
+
     def __init__(self, num_neighbors, lmax, rmax, negative_m=True):
         warnings.warn("This class is deprecated, use "
                       "freud.environment.LocalDescriptors instead!",
@@ -1760,7 +1764,7 @@ class LocalDescriptors(_ELD):
 
 
 class MatchEnv(_EME):
-    """**Deprecated** Clusters particles according to whether their local
+    R"""**Deprecated** Clusters particles according to whether their local
     environments match or not, according to various shape matching metrics.
 
     .. note::
@@ -1771,6 +1775,7 @@ class MatchEnv(_EME):
        Use :class:`freud.environment.MatchEnv` instead.
 
     """
+
     def __init__(self, box, rmax, k):
         warnings.warn("This class is deprecated, use "
                       "freud.environment.MatchEnv instead!",
@@ -1778,7 +1783,7 @@ class MatchEnv(_EME):
 
 
 class Pairing2D(_EP):
-    """**Deprecated** Compute pairs for the system of particles.
+    R"""**Deprecated** Compute pairs for the system of particles.
 
     .. note::
         This class is only retained for backwards compatibility.
@@ -1788,13 +1793,14 @@ class Pairing2D(_EP):
        Use :mod:`freud.bond` instead.
 
     """
+
     def __init__(self, rmax, k, compDotTol):
         warnings.warn("This class is deprecated, use "
                       "freud.bond instead!", FreudDeprecationWarning)
 
 
 class AngularSeparation(_EAS):
-    """**Deprecated** Calculates the minimum angles of separation between
+    R"""**Deprecated** Calculates the minimum angles of separation between
     particles and references.
 
     .. note::
@@ -1805,6 +1811,7 @@ class AngularSeparation(_EAS):
        Use :class:`freud.environment.AngularSeparation` instead.
 
     """
+
     def __init__(self, rmax, n):
         warnings.warn("This class is deprecated, use "
                       "freud.environment.AngularSeparation instead!",

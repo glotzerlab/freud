@@ -110,6 +110,7 @@ void GaussianDensity::reset()
         {
         memset((void*)(*i), 0, sizeof(float)*m_bi.getNumElements());
         }
+    this->m_reduce = true;
     }
 
 //! internal

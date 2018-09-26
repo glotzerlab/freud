@@ -28,10 +28,10 @@ cimport numpy as np
 np.import_array()
 
 cdef class FloatCF:
-    """Computes the real pairwise correlation function.
+    R"""Computes the real pairwise correlation function.
 
     The correlation function is given by
-    :math:`C(r) = \\left\\langle s_1(0) \\cdot s_2(r) \\right\\rangle` between
+    :math:`C(r) = \left\langle s_1(0) \cdot s_2(r) \right\rangle` between
     two sets of points :math:`p_1` (:code:`ref_points`) and :math:`p_2`
     (:code:`points`) with associated values :math:`s_1` (:code:`ref_values`)
     and :math:`s_2` (:code:`values`). Computing the correlation function
@@ -88,7 +88,7 @@ cdef class FloatCF:
 
     def accumulate(self, box, ref_points, ref_values, points=None, values=None,
                    nlist=None, refValues=None):
-        """Calculates the correlation function and adds to the current
+        R"""Calculates the correlation function and adds to the current
         histogram.
 
         Args:
@@ -98,12 +98,10 @@ cdef class FloatCF:
                 Reference points used to calculate the correlation function.
             ref_values ((:math:`N_{ref\_points}`) :class:`numpy.ndarray`):
                 Real values used to calculate the correlation function.
-            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`,
-            optional):
+            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`, optional):
                 Points used to calculate the correlation function.
                 Uses :code:`ref_points` if not provided or :code:`None`.
-            values ((:math:`N_{points}`) :class:`numpy.ndarray`,
-            optional):
+            values ((:math:`N_{points}`) :class:`numpy.ndarray`, optional):
                 Real values used to calculate the correlation function.
                 Uses :code:`ref_values` if not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
@@ -191,7 +189,7 @@ cdef class FloatCF:
         return self.box
 
     def reset(self):
-        """Resets the values of the correlation function histogram in
+        R"""Resets the values of the correlation function histogram in
         memory.
         """
         self.thisptr.reset()
@@ -204,7 +202,7 @@ cdef class FloatCF:
 
     def compute(self, box, ref_points, ref_values, points=None, values=None,
                 nlist=None, refValues=None):
-        """Calculates the correlation function for the given points. Will
+        R"""Calculates the correlation function for the given points. Will
         overwrite the current histogram.
 
         Args:
@@ -214,12 +212,10 @@ cdef class FloatCF:
                 Reference points used to calculate the correlation function.
             ref_values ((:math:`N_{ref\_points}`) :class:`numpy.ndarray`):
                 Real values used to calculate the correlation function.
-            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`,
-            optional):
+            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`, optional):
                 Points used to calculate the correlation function.
                 Uses :code:`ref_points` if not provided or :code:`None`.
-            values ((:math:`N_{points}`) :class:`numpy.ndarray`,
-            optional):
+            values ((:math:`N_{points}`) :class:`numpy.ndarray`, optional):
                 Real values used to calculate the correlation function.
                 Uses :code:`ref_values` if not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
@@ -277,10 +273,10 @@ cdef class FloatCF:
         return self.R
 
 cdef class ComplexCF:
-    """Computes the complex pairwise correlation function.
+    R"""Computes the complex pairwise correlation function.
 
     The correlation function is given by
-    :math:`C(r) = \\left\\langle s_1(0) \\cdot s_2(r) \\right\\rangle` between
+    :math:`C(r) = \left\langle s_1(0) \cdot s_2(r) \right\rangle` between
     two sets of points :math:`p_1` (:code:`ref_points`) and :math:`p_2`
     (:code:`points`) with associated values :math:`s_1` (:code:`ref_values`)
     and :math:`s_2` (:code:`values`). Computing the correlation function
@@ -338,7 +334,7 @@ cdef class ComplexCF:
 
     def accumulate(self, box, ref_points, ref_values, points=None, values=None,
                    nlist=None, refValues=None):
-        """Calculates the correlation function and adds to the current
+        R"""Calculates the correlation function and adds to the current
         histogram.
 
         Args:
@@ -348,12 +344,10 @@ cdef class ComplexCF:
                 Reference points used to calculate the correlation function.
             ref_values ((:math:`N_{ref\_points}`) :class:`numpy.ndarray`):
                 Complex values used to calculate the correlation function.
-            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`,
-            optional):
+            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`, optional):
                 Points used to calculate the correlation function.
                 Uses :code:`ref_points` if not provided or :code:`None`.
-            values ((:math:`N_{points}`) :class:`numpy.ndarray`,
-            optional):
+            values ((:math:`N_{points}`) :class:`numpy.ndarray`, optional):
                 Complex values used to calculate the correlation function.
                 Uses :code:`ref_values` if not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
@@ -442,7 +436,7 @@ cdef class ComplexCF:
         return self.box
 
     def reset(self):
-        """Resets the values of the correlation function histogram in
+        R"""Resets the values of the correlation function histogram in
         memory.
         """
         self.thisptr.reset()
@@ -455,7 +449,7 @@ cdef class ComplexCF:
 
     def compute(self, box, ref_points, ref_values, points=None, values=None,
                 nlist=None, refValues=None):
-        """Calculates the correlation function for the given points. Will
+        R"""Calculates the correlation function for the given points. Will
         overwrite the current histogram.
 
         Args:
@@ -465,12 +459,10 @@ cdef class ComplexCF:
                 Reference points used to calculate the correlation function.
             ref_values ((:math:`N_{ref\_points}`) :class:`numpy.ndarray`):
                 Complex values used to calculate the correlation function.
-            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`,
-            optional):
+            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`, optional):
                 Points used to calculate the correlation function.
                 Uses :code:`ref_points` if not provided or :code:`None`.
-            values ((:math:`N_{points}`) :class:`numpy.ndarray`,
-            optional):
+            values ((:math:`N_{points}`) :class:`numpy.ndarray`, optional):
                 Complex values used to calculate the correlation function.
                 Uses :code:`ref_values` if not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
@@ -528,7 +520,7 @@ cdef class ComplexCF:
         return self.R
 
 cdef class GaussianDensity:
-    """Computes the density of a system on a grid.
+    R"""Computes the density of a system on a grid.
 
     Replaces particle positions with a Gaussian blur and calculates the
     contribution from each to the proscribed grid based upon the distance of
@@ -598,7 +590,7 @@ cdef class GaussianDensity:
         return self.box
 
     def compute(self, box, points):
-        """Calculates the Gaussian blur for the specified points. Does not
+        R"""Calculates the Gaussian blur for the specified points. Does not
         accumulate (will overwrite current image).
 
         Args:
@@ -649,7 +641,7 @@ cdef class GaussianDensity:
         return self.gaussian_density
 
 cdef class LocalDensity:
-    """ Computes the local density around a particle.
+    R""" Computes the local density around a particle.
 
     The density of the local environment is computed and averaged for a given
     set of reference points in a sea of data points. Providing the same points
@@ -726,7 +718,7 @@ cdef class LocalDensity:
         return self.box
 
     def compute(self, box, ref_points, points=None, nlist=None):
-        """Calculates the local density for the specified points. Does not
+        R"""Calculates the local density for the specified points. Does not
         accumulate (will overwrite current data).
 
         Args:
@@ -734,8 +726,7 @@ cdef class LocalDensity:
                 Simulation box.
             ref_points ((:math:`N_{ref\_points}`, 3) :class:`numpy.ndarray`):
                 Reference points to calculate the local density.
-            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`,
-            optional):
+            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`, optional):
                 Points to calculate the local density. Uses :code:`ref_points`
                 if not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
@@ -808,9 +799,9 @@ cdef class LocalDensity:
         return self.num_neighbors
 
 cdef class RDF:
-    """ Computes RDF for supplied data.
+    R""" Computes RDF for supplied data.
 
-    The RDF (:math:`g \\left( r \\right)`) is computed and averaged for a given
+    The RDF (:math:`g \left( r \right)`) is computed and averaged for a given
     set of reference points in a sea of data points. Providing the same points
     calculates them against themselves. Computing the RDF results in an RDF
     array listing the value of the RDF at each given :math:`r`, listed in the
@@ -819,8 +810,8 @@ cdef class RDF:
     The values of :math:`r` to compute the RDF are set by the values of
     :code:`rmin`, :code:`rmax`, :code:`dr` in the constructor. :code:`rmax`
     sets the maximum distance at which to calculate the
-    :math:`g \\left( r \\right)`, :code:`rmin` sets the minimum distance at
-    which to calculate the :math:`g \\left( r \\right)`, and :code:`dr`
+    :math:`g \left( r \right)`, :code:`rmin` sets the minimum distance at
+    which to calculate the :math:`g \left( r \right)`, and :code:`dr`
     determines the step size for each bin.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
@@ -880,15 +871,14 @@ cdef class RDF:
         return self.box
 
     def accumulate(self, box, ref_points, points=None, nlist=None):
-        """Calculates the RDF and adds to the current RDF histogram.
+        R"""Calculates the RDF and adds to the current RDF histogram.
 
         Args:
             box (:class:`freud.box.Box`):
                 Simulation box.
             ref_points ((:math:`N_{ref\_points}`, 3) :class:`numpy.ndarray`):
                 Reference points used to calculate the RDF.
-            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`,
-            optional):
+            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`, optional):
                 Points used to calculate the RDF. Uses :code:`ref_points` if
                 not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
@@ -924,7 +914,7 @@ cdef class RDF:
         return self
 
     def compute(self, box, ref_points, points=None, nlist=None):
-        """Calculates the RDF for the specified points. Will overwrite the current
+        R"""Calculates the RDF for the specified points. Will overwrite the current
         histogram.
 
         Args:
@@ -932,8 +922,7 @@ cdef class RDF:
                 Simulation box.
             ref_points ((:math:`N_{ref\_points}`, 3) :class:`numpy.ndarray`):
                 Reference points used to calculate the RDF.
-            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`,
-            optional):
+            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`, optional):
                 Points used to calculate the RDF. Uses :code:`ref_points` if
                 not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`):
@@ -945,7 +934,7 @@ cdef class RDF:
         return self
 
     def reset(self):
-        """Resets the values of RDF in memory."""
+        R"""Resets the values of RDF in memory."""
         self.thisptr.reset()
 
     def resetRDF(self):

@@ -48,15 +48,15 @@
         "name": "freud.pmft",
         "sources": [
             "freud/pmft.pyx",
-            "cpp/pmft/PMFT.cc",
-            "cpp/util/HOOMDMatrix.cc",
             "cpp/locality/NearestNeighbors.cc",
-            "cpp/locality/LinkCell.cc",
-            "cpp/locality/NeighborList.cc",
             "cpp/pmft/PMFTXYZ.cc",
-            "cpp/pmft/PMFTXYT.cc",
-            "cpp/pmft/PMFTXY2D.cc",
             "cpp/box/Box.cc",
+            "cpp/pmft/PMFT.cc",
+            "cpp/pmft/PMFTXYT.cc",
+            "cpp/locality/NeighborList.cc",
+            "cpp/util/HOOMDMatrix.cc",
+            "cpp/pmft/PMFTXY2D.cc",
+            "cpp/locality/LinkCell.cc",
             "cpp/pmft/PMFTR12.cc"
         ]
     },
@@ -1305,7 +1305,7 @@ struct __pyx_obj_5freud_3box_ParticleBuffer {
  * np.import_array()
  * 
  * cdef class _PMFT:             # <<<<<<<<<<<<<<
- *     """Compute the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ for a
+ *     R"""Compute the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ for a
  *     given set of points.
  */
 struct __pyx_obj_5freud_4pmft__PMFT {
@@ -1319,8 +1319,8 @@ struct __pyx_obj_5freud_4pmft__PMFT {
  * 
  * 
  * cdef class PMFTR12(_PMFT):             # <<<<<<<<<<<<<<
- *     """Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ in a 2D
- *     system described by :math:`r`, :math:`\\theta_1`, :math:`\\theta_2`.
+ *     R"""Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ in a 2D
+ *     system described by :math:`r`, :math:`\theta_1`, :math:`\theta_2`.
  */
 struct __pyx_obj_5freud_4pmft_PMFTR12 {
   struct __pyx_obj_5freud_4pmft__PMFT __pyx_base;
@@ -1332,8 +1332,8 @@ struct __pyx_obj_5freud_4pmft_PMFTR12 {
  * 
  * 
  * cdef class PMFTXYT(_PMFT):             # <<<<<<<<<<<<<<
- *     """Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ for
- *     systems described by coordinates :math:`x`, :math:`y`, :math:`\\theta`
+ *     R"""Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ for
+ *     systems described by coordinates :math:`x`, :math:`y`, :math:`\theta`
  */
 struct __pyx_obj_5freud_4pmft_PMFTXYT {
   struct __pyx_obj_5freud_4pmft__PMFT __pyx_base;
@@ -1345,7 +1345,7 @@ struct __pyx_obj_5freud_4pmft_PMFTXYT {
  * 
  * 
  * cdef class PMFTXY2D(_PMFT):             # <<<<<<<<<<<<<<
- *     """Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ in
+ *     R"""Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ in
  *     coordinates :math:`x`, :math:`y` listed in the ``X`` and ``Y`` arrays.
  */
 struct __pyx_obj_5freud_4pmft_PMFTXY2D {
@@ -1358,7 +1358,7 @@ struct __pyx_obj_5freud_4pmft_PMFTXY2D {
  * 
  * 
  * cdef class PMFTXYZ(_PMFT):             # <<<<<<<<<<<<<<
- *     """Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ in
+ *     R"""Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ in
  *     coordinates :math:`x`, :math:`y`, :math:`z`, listed in the ``X``, ``Y``,
  */
 struct __pyx_obj_5freud_4pmft_PMFTXYZ {
@@ -3101,7 +3101,7 @@ static PyObject *__pyx_pf_5freud_4pmft_5_PMFT_4getBox(struct __pyx_obj_5freud_4p
  *         return self.box
  * 
  *     def reset(self):             # <<<<<<<<<<<<<<
- *         """Resets the values of the PCF histograms in memory."""
+ *         R"""Resets the values of the PCF histograms in memory."""
  *         self.pmftptr.reset()
  */
 
@@ -3127,7 +3127,7 @@ static PyObject *__pyx_pf_5freud_4pmft_5_PMFT_6reset(struct __pyx_obj_5freud_4pm
 
   /* "freud/pmft.pyx":87
  *     def reset(self):
- *         """Resets the values of the PCF histograms in memory."""
+ *         R"""Resets the values of the PCF histograms in memory."""
  *         self.pmftptr.reset()             # <<<<<<<<<<<<<<
  * 
  *     def resetPCF(self):
@@ -3138,7 +3138,7 @@ static PyObject *__pyx_pf_5freud_4pmft_5_PMFT_6reset(struct __pyx_obj_5freud_4pm
  *         return self.box
  * 
  *     def reset(self):             # <<<<<<<<<<<<<<
- *         """Resets the values of the PCF histograms in memory."""
+ *         R"""Resets the values of the PCF histograms in memory."""
  *         self.pmftptr.reset()
  */
 
@@ -4335,7 +4335,7 @@ static void __pyx_pf_5freud_4pmft_7PMFTR12_2__dealloc__(struct __pyx_obj_5freud_
  * 
  *     def accumulate(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
  *                    orientations=None, nlist=None):
- *         """Calculates the positional correlation function and adds to the
+ *         R"""Calculates the positional correlation function and adds to the
  */
 
 /* Python wrapper */
@@ -4361,7 +4361,7 @@ static PyObject *__pyx_pw_5freud_4pmft_7PMFTR12_5accumulate(PyObject *__pyx_v_se
  * 
  *     def accumulate(self, box, ref_points, ref_orientations, points=None,
  *                    orientations=None, nlist=None):             # <<<<<<<<<<<<<<
- *         """Calculates the positional correlation function and adds to the
+ *         R"""Calculates the positional correlation function and adds to the
  *         current histogram.
  */
     values[4] = ((PyObject *)Py_None);
@@ -4461,7 +4461,7 @@ static PyObject *__pyx_pw_5freud_4pmft_7PMFTR12_5accumulate(PyObject *__pyx_v_se
  * 
  *     def accumulate(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
  *                    orientations=None, nlist=None):
- *         """Calculates the positional correlation function and adds to the
+ *         R"""Calculates the positional correlation function and adds to the
  */
 
   /* function exit code */
@@ -5342,7 +5342,7 @@ static PyObject *__pyx_pf_5freud_4pmft_7PMFTR12_4accumulate(struct __pyx_obj_5fr
  * 
  *     def accumulate(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
  *                    orientations=None, nlist=None):
- *         """Calculates the positional correlation function and adds to the
+ *         R"""Calculates the positional correlation function and adds to the
  */
 
   /* function exit code */
@@ -5391,7 +5391,7 @@ static PyObject *__pyx_pf_5freud_4pmft_7PMFTR12_4accumulate(struct __pyx_obj_5fr
  * 
  *     def compute(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
  *                 orientations=None, nlist=None):
- *         """Calculates the positional correlation function for the given points.
+ *         R"""Calculates the positional correlation function for the given points.
  */
 
 /* Python wrapper */
@@ -5417,7 +5417,7 @@ static PyObject *__pyx_pw_5freud_4pmft_7PMFTR12_7compute(PyObject *__pyx_v_self,
  * 
  *     def compute(self, box, ref_points, ref_orientations, points=None,
  *                 orientations=None, nlist=None):             # <<<<<<<<<<<<<<
- *         """Calculates the positional correlation function for the given points.
+ *         R"""Calculates the positional correlation function for the given points.
  *         Will overwrite the current histogram.
  */
     values[4] = ((PyObject *)Py_None);
@@ -5517,7 +5517,7 @@ static PyObject *__pyx_pw_5freud_4pmft_7PMFTR12_7compute(PyObject *__pyx_v_self,
  * 
  *     def compute(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
  *                 orientations=None, nlist=None):
- *         """Calculates the positional correlation function for the given points.
+ *         R"""Calculates the positional correlation function for the given points.
  */
 
   /* function exit code */
@@ -5657,7 +5657,7 @@ static PyObject *__pyx_pf_5freud_4pmft_7PMFTR12_6compute(struct __pyx_obj_5freud
  * 
  *     def compute(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
  *                 orientations=None, nlist=None):
- *         """Calculates the positional correlation function for the given points.
+ *         R"""Calculates the positional correlation function for the given points.
  */
 
   /* function exit code */
@@ -8370,7 +8370,7 @@ static void __pyx_pf_5freud_4pmft_7PMFTXYT_2__dealloc__(struct __pyx_obj_5freud_
  * 
  *     def accumulate(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
  *                    orientations=None, nlist=None):
- *         """Calculates the positional correlation function and adds to the
+ *         R"""Calculates the positional correlation function and adds to the
  */
 
 /* Python wrapper */
@@ -8396,7 +8396,7 @@ static PyObject *__pyx_pw_5freud_4pmft_7PMFTXYT_5accumulate(PyObject *__pyx_v_se
  * 
  *     def accumulate(self, box, ref_points, ref_orientations, points=None,
  *                    orientations=None, nlist=None):             # <<<<<<<<<<<<<<
- *         """Calculates the positional correlation function and adds to the
+ *         R"""Calculates the positional correlation function and adds to the
  *         current histogram.
  */
     values[4] = ((PyObject *)Py_None);
@@ -8496,7 +8496,7 @@ static PyObject *__pyx_pw_5freud_4pmft_7PMFTXYT_5accumulate(PyObject *__pyx_v_se
  * 
  *     def accumulate(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
  *                    orientations=None, nlist=None):
- *         """Calculates the positional correlation function and adds to the
+ *         R"""Calculates the positional correlation function and adds to the
  */
 
   /* function exit code */
@@ -9377,7 +9377,7 @@ static PyObject *__pyx_pf_5freud_4pmft_7PMFTXYT_4accumulate(struct __pyx_obj_5fr
  * 
  *     def accumulate(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
  *                    orientations=None, nlist=None):
- *         """Calculates the positional correlation function and adds to the
+ *         R"""Calculates the positional correlation function and adds to the
  */
 
   /* function exit code */
@@ -9426,7 +9426,7 @@ static PyObject *__pyx_pf_5freud_4pmft_7PMFTXYT_4accumulate(struct __pyx_obj_5fr
  * 
  *     def compute(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
  *                 orientations=None, nlist=None):
- *         """Calculates the positional correlation function for the given points.
+ *         R"""Calculates the positional correlation function for the given points.
  */
 
 /* Python wrapper */
@@ -9452,7 +9452,7 @@ static PyObject *__pyx_pw_5freud_4pmft_7PMFTXYT_7compute(PyObject *__pyx_v_self,
  * 
  *     def compute(self, box, ref_points, ref_orientations, points=None,
  *                 orientations=None, nlist=None):             # <<<<<<<<<<<<<<
- *         """Calculates the positional correlation function for the given points.
+ *         R"""Calculates the positional correlation function for the given points.
  *         Will overwrite the current histogram.
  */
     values[4] = ((PyObject *)Py_None);
@@ -9552,7 +9552,7 @@ static PyObject *__pyx_pw_5freud_4pmft_7PMFTXYT_7compute(PyObject *__pyx_v_self,
  * 
  *     def compute(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
  *                 orientations=None, nlist=None):
- *         """Calculates the positional correlation function for the given points.
+ *         R"""Calculates the positional correlation function for the given points.
  */
 
   /* function exit code */
@@ -9692,7 +9692,7 @@ static PyObject *__pyx_pf_5freud_4pmft_7PMFTXYT_6compute(struct __pyx_obj_5freud
  * 
  *     def compute(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
  *                 orientations=None, nlist=None):
- *         """Calculates the positional correlation function for the given points.
+ *         R"""Calculates the positional correlation function for the given points.
  */
 
   /* function exit code */
@@ -12325,7 +12325,7 @@ static void __pyx_pf_5freud_4pmft_8PMFTXY2D_2__dealloc__(struct __pyx_obj_5freud
  * 
  *     def accumulate(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
  *                    orientations=None, nlist=None):
- *         """Calculates the positional correlation function and adds to the
+ *         R"""Calculates the positional correlation function and adds to the
  */
 
 /* Python wrapper */
@@ -12351,7 +12351,7 @@ static PyObject *__pyx_pw_5freud_4pmft_8PMFTXY2D_5accumulate(PyObject *__pyx_v_s
  * 
  *     def accumulate(self, box, ref_points, ref_orientations, points=None,
  *                    orientations=None, nlist=None):             # <<<<<<<<<<<<<<
- *         """Calculates the positional correlation function and adds to the
+ *         R"""Calculates the positional correlation function and adds to the
  *         current histogram.
  */
     values[4] = ((PyObject *)Py_None);
@@ -12451,7 +12451,7 @@ static PyObject *__pyx_pw_5freud_4pmft_8PMFTXY2D_5accumulate(PyObject *__pyx_v_s
  * 
  *     def accumulate(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
  *                    orientations=None, nlist=None):
- *         """Calculates the positional correlation function and adds to the
+ *         R"""Calculates the positional correlation function and adds to the
  */
 
   /* function exit code */
@@ -13332,7 +13332,7 @@ static PyObject *__pyx_pf_5freud_4pmft_8PMFTXY2D_4accumulate(struct __pyx_obj_5f
  * 
  *     def accumulate(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
  *                    orientations=None, nlist=None):
- *         """Calculates the positional correlation function and adds to the
+ *         R"""Calculates the positional correlation function and adds to the
  */
 
   /* function exit code */
@@ -13381,7 +13381,7 @@ static PyObject *__pyx_pf_5freud_4pmft_8PMFTXY2D_4accumulate(struct __pyx_obj_5f
  * 
  *     def compute(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
  *                 orientations=None, nlist=None):
- *         """Calculates the positional correlation function for the given points.
+ *         R"""Calculates the positional correlation function for the given points.
  */
 
 /* Python wrapper */
@@ -13407,7 +13407,7 @@ static PyObject *__pyx_pw_5freud_4pmft_8PMFTXY2D_7compute(PyObject *__pyx_v_self
  * 
  *     def compute(self, box, ref_points, ref_orientations, points=None,
  *                 orientations=None, nlist=None):             # <<<<<<<<<<<<<<
- *         """Calculates the positional correlation function for the given points.
+ *         R"""Calculates the positional correlation function for the given points.
  *         Will overwrite the current histogram.
  */
     values[4] = ((PyObject *)Py_None);
@@ -13507,7 +13507,7 @@ static PyObject *__pyx_pw_5freud_4pmft_8PMFTXY2D_7compute(PyObject *__pyx_v_self
  * 
  *     def compute(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
  *                 orientations=None, nlist=None):
- *         """Calculates the positional correlation function for the given points.
+ *         R"""Calculates the positional correlation function for the given points.
  */
 
   /* function exit code */
@@ -13647,7 +13647,7 @@ static PyObject *__pyx_pf_5freud_4pmft_8PMFTXY2D_6compute(struct __pyx_obj_5freu
  * 
  *     def compute(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
  *                 orientations=None, nlist=None):
- *         """Calculates the positional correlation function for the given points.
+ *         R"""Calculates the positional correlation function for the given points.
  */
 
   /* function exit code */
@@ -15903,7 +15903,7 @@ static void __pyx_pf_5freud_4pmft_7PMFTXYZ_2__dealloc__(struct __pyx_obj_5freud_
  * 
  *     def accumulate(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
  *                    orientations=None, face_orientations=None, nlist=None):
- *         """Calculates the positional correlation function and adds to the
+ *         R"""Calculates the positional correlation function and adds to the
  */
 
 /* Python wrapper */
@@ -15930,7 +15930,7 @@ static PyObject *__pyx_pw_5freud_4pmft_7PMFTXYZ_5accumulate(PyObject *__pyx_v_se
  * 
  *     def accumulate(self, box, ref_points, ref_orientations, points=None,
  *                    orientations=None, face_orientations=None, nlist=None):             # <<<<<<<<<<<<<<
- *         """Calculates the positional correlation function and adds to the
+ *         R"""Calculates the positional correlation function and adds to the
  *         current histogram.
  */
     values[4] = ((PyObject *)Py_None);
@@ -16042,7 +16042,7 @@ static PyObject *__pyx_pw_5freud_4pmft_7PMFTXYZ_5accumulate(PyObject *__pyx_v_se
  * 
  *     def accumulate(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
  *                    orientations=None, face_orientations=None, nlist=None):
- *         """Calculates the positional correlation function and adds to the
+ *         R"""Calculates the positional correlation function and adds to the
  */
 
   /* function exit code */
@@ -17680,7 +17680,7 @@ static PyObject *__pyx_pf_5freud_4pmft_7PMFTXYZ_4accumulate(struct __pyx_obj_5fr
  * 
  *     def accumulate(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
  *                    orientations=None, face_orientations=None, nlist=None):
- *         """Calculates the positional correlation function and adds to the
+ *         R"""Calculates the positional correlation function and adds to the
  */
 
   /* function exit code */
@@ -17737,7 +17737,7 @@ static PyObject *__pyx_pf_5freud_4pmft_7PMFTXYZ_4accumulate(struct __pyx_obj_5fr
  * 
  *     def compute(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
  *                 orientations=None, face_orientations=None, nlist=None):
- *         """Calculates the positional correlation function for the given points.
+ *         R"""Calculates the positional correlation function for the given points.
  */
 
 /* Python wrapper */
@@ -17764,7 +17764,7 @@ static PyObject *__pyx_pw_5freud_4pmft_7PMFTXYZ_7compute(PyObject *__pyx_v_self,
  * 
  *     def compute(self, box, ref_points, ref_orientations, points=None,
  *                 orientations=None, face_orientations=None, nlist=None):             # <<<<<<<<<<<<<<
- *         """Calculates the positional correlation function for the given points.
+ *         R"""Calculates the positional correlation function for the given points.
  *         Will overwrite the current histogram.
  */
     values[4] = ((PyObject *)Py_None);
@@ -17876,7 +17876,7 @@ static PyObject *__pyx_pw_5freud_4pmft_7PMFTXYZ_7compute(PyObject *__pyx_v_self,
  * 
  *     def compute(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
  *                 orientations=None, face_orientations=None, nlist=None):
- *         """Calculates the positional correlation function for the given points.
+ *         R"""Calculates the positional correlation function for the given points.
  */
 
   /* function exit code */
@@ -18019,7 +18019,7 @@ static PyObject *__pyx_pf_5freud_4pmft_7PMFTXYZ_6compute(struct __pyx_obj_5freud
  * 
  *     def compute(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
  *                 orientations=None, face_orientations=None, nlist=None):
- *         """Calculates the positional correlation function for the given points.
+ *         R"""Calculates the positional correlation function for the given points.
  */
 
   /* function exit code */
@@ -24289,7 +24289,7 @@ static int __Pyx_InitCachedConstants(void) {
  *         return self.box
  * 
  *     def reset(self):             # <<<<<<<<<<<<<<
- *         """Resets the values of the PCF histograms in memory."""
+ *         R"""Resets the values of the PCF histograms in memory."""
  *         self.pmftptr.reset()
  */
   __pyx_tuple__46 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__46)) __PYX_ERR(1, 85, __pyx_L1_error)
@@ -24371,7 +24371,7 @@ static int __Pyx_InitCachedConstants(void) {
  * 
  *     def accumulate(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
  *                    orientations=None, nlist=None):
- *         """Calculates the positional correlation function and adds to the
+ *         R"""Calculates the positional correlation function and adds to the
  */
   __pyx_tuple__60 = PyTuple_Pack(16, __pyx_n_s_self, __pyx_n_s_box, __pyx_n_s_ref_points, __pyx_n_s_ref_orientations, __pyx_n_s_points, __pyx_n_s_orientations, __pyx_n_s_nlist, __pyx_n_s_b, __pyx_n_s_defaulted_nlist, __pyx_n_s_nlist_2, __pyx_n_s_l_ref_points, __pyx_n_s_l_points, __pyx_n_s_l_ref_orientations, __pyx_n_s_l_orientations, __pyx_n_s_nRef, __pyx_n_s_nP); if (unlikely(!__pyx_tuple__60)) __PYX_ERR(1, 187, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__60);
@@ -24383,7 +24383,7 @@ static int __Pyx_InitCachedConstants(void) {
  * 
  *     def compute(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
  *                 orientations=None, nlist=None):
- *         """Calculates the positional correlation function for the given points.
+ *         R"""Calculates the positional correlation function for the given points.
  */
   __pyx_tuple__62 = PyTuple_Pack(7, __pyx_n_s_self, __pyx_n_s_box, __pyx_n_s_ref_points, __pyx_n_s_ref_orientations, __pyx_n_s_points, __pyx_n_s_orientations, __pyx_n_s_nlist); if (unlikely(!__pyx_tuple__62)) __PYX_ERR(1, 259, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__62);
@@ -24524,7 +24524,7 @@ static int __Pyx_InitCachedConstants(void) {
  * 
  *     def accumulate(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
  *                    orientations=None, nlist=None):
- *         """Calculates the positional correlation function and adds to the
+ *         R"""Calculates the positional correlation function and adds to the
  */
   __pyx_tuple__86 = PyTuple_Pack(16, __pyx_n_s_self, __pyx_n_s_box, __pyx_n_s_ref_points, __pyx_n_s_ref_orientations, __pyx_n_s_points, __pyx_n_s_orientations, __pyx_n_s_nlist, __pyx_n_s_b, __pyx_n_s_defaulted_nlist, __pyx_n_s_nlist_2, __pyx_n_s_l_ref_points, __pyx_n_s_l_points, __pyx_n_s_l_ref_orientations, __pyx_n_s_l_orientations, __pyx_n_s_nRef, __pyx_n_s_nP); if (unlikely(!__pyx_tuple__86)) __PYX_ERR(1, 500, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__86);
@@ -24536,7 +24536,7 @@ static int __Pyx_InitCachedConstants(void) {
  * 
  *     def compute(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
  *                 orientations=None, nlist=None):
- *         """Calculates the positional correlation function for the given points.
+ *         R"""Calculates the positional correlation function for the given points.
  */
   __pyx_tuple__88 = PyTuple_Pack(7, __pyx_n_s_self, __pyx_n_s_box, __pyx_n_s_ref_points, __pyx_n_s_ref_orientations, __pyx_n_s_points, __pyx_n_s_orientations, __pyx_n_s_nlist); if (unlikely(!__pyx_tuple__88)) __PYX_ERR(1, 572, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__88);
@@ -24677,7 +24677,7 @@ static int __Pyx_InitCachedConstants(void) {
  * 
  *     def accumulate(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
  *                    orientations=None, nlist=None):
- *         """Calculates the positional correlation function and adds to the
+ *         R"""Calculates the positional correlation function and adds to the
  */
   __pyx_tuple__112 = PyTuple_Pack(16, __pyx_n_s_self, __pyx_n_s_box, __pyx_n_s_ref_points, __pyx_n_s_ref_orientations, __pyx_n_s_points, __pyx_n_s_orientations, __pyx_n_s_nlist, __pyx_n_s_b, __pyx_n_s_defaulted_nlist, __pyx_n_s_nlist_2, __pyx_n_s_l_ref_points, __pyx_n_s_l_points, __pyx_n_s_l_ref_orientations, __pyx_n_s_l_orientations, __pyx_n_s_n_ref, __pyx_n_s_n_p); if (unlikely(!__pyx_tuple__112)) __PYX_ERR(1, 795, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__112);
@@ -24689,7 +24689,7 @@ static int __Pyx_InitCachedConstants(void) {
  * 
  *     def compute(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
  *                 orientations=None, nlist=None):
- *         """Calculates the positional correlation function for the given points.
+ *         R"""Calculates the positional correlation function for the given points.
  */
   __pyx_tuple__114 = PyTuple_Pack(7, __pyx_n_s_self, __pyx_n_s_box, __pyx_n_s_ref_points, __pyx_n_s_ref_orientations, __pyx_n_s_points, __pyx_n_s_orientations, __pyx_n_s_nlist); if (unlikely(!__pyx_tuple__114)) __PYX_ERR(1, 867, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__114);
@@ -24806,7 +24806,7 @@ static int __Pyx_InitCachedConstants(void) {
  * 
  *     def accumulate(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
  *                    orientations=None, face_orientations=None, nlist=None):
- *         """Calculates the positional correlation function and adds to the
+ *         R"""Calculates the positional correlation function and adds to the
  */
   __pyx_tuple__134 = PyTuple_Pack(20, __pyx_n_s_self, __pyx_n_s_box, __pyx_n_s_ref_points, __pyx_n_s_ref_orientations, __pyx_n_s_points, __pyx_n_s_orientations, __pyx_n_s_face_orientations, __pyx_n_s_nlist, __pyx_n_s_b, __pyx_n_s_tmp_face_orientations, __pyx_n_s_defaulted_nlist, __pyx_n_s_nlist_2, __pyx_n_s_l_ref_points, __pyx_n_s_l_points, __pyx_n_s_l_ref_orientations, __pyx_n_s_l_orientations, __pyx_n_s_l_face_orientations, __pyx_n_s_nRef, __pyx_n_s_nP, __pyx_n_s_nFaces); if (unlikely(!__pyx_tuple__134)) __PYX_ERR(1, 1076, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__134);
@@ -24818,7 +24818,7 @@ static int __Pyx_InitCachedConstants(void) {
  * 
  *     def compute(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
  *                 orientations=None, face_orientations=None, nlist=None):
- *         """Calculates the positional correlation function for the given points.
+ *         R"""Calculates the positional correlation function for the given points.
  */
   __pyx_tuple__136 = PyTuple_Pack(8, __pyx_n_s_self, __pyx_n_s_box, __pyx_n_s_ref_points, __pyx_n_s_ref_orientations, __pyx_n_s_points, __pyx_n_s_orientations, __pyx_n_s_face_orientations, __pyx_n_s_nlist); if (unlikely(!__pyx_tuple__136)) __PYX_ERR(1, 1212, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__136);
@@ -25385,7 +25385,7 @@ if (!__Pyx_RefNanny) {
  *         return self.box
  * 
  *     def reset(self):             # <<<<<<<<<<<<<<
- *         """Resets the values of the PCF histograms in memory."""
+ *         R"""Resets the values of the PCF histograms in memory."""
  *         self.pmftptr.reset()
  */
   __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4pmft_5_PMFT_7reset, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_PMFT_reset, NULL, __pyx_n_s_freud_pmft, __pyx_d, ((PyObject *)__pyx_codeobj__47)); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 85, __pyx_L1_error)
@@ -25472,7 +25472,7 @@ if (!__Pyx_RefNanny) {
  * 
  *     def accumulate(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
  *                    orientations=None, nlist=None):
- *         """Calculates the positional correlation function and adds to the
+ *         R"""Calculates the positional correlation function and adds to the
  */
   __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4pmft_7PMFTR12_5accumulate, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_PMFTR12_accumulate, NULL, __pyx_n_s_freud_pmft, __pyx_d, ((PyObject *)__pyx_codeobj__61)); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 187, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -25485,7 +25485,7 @@ if (!__Pyx_RefNanny) {
  * 
  *     def compute(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
  *                 orientations=None, nlist=None):
- *         """Calculates the positional correlation function for the given points.
+ *         R"""Calculates the positional correlation function for the given points.
  */
   __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4pmft_7PMFTR12_7compute, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_PMFTR12_compute, NULL, __pyx_n_s_freud_pmft, __pyx_d, ((PyObject *)__pyx_codeobj__63)); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 259, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -25636,7 +25636,7 @@ if (!__Pyx_RefNanny) {
  * 
  *     def accumulate(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
  *                    orientations=None, nlist=None):
- *         """Calculates the positional correlation function and adds to the
+ *         R"""Calculates the positional correlation function and adds to the
  */
   __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4pmft_7PMFTXYT_5accumulate, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_PMFTXYT_accumulate, NULL, __pyx_n_s_freud_pmft, __pyx_d, ((PyObject *)__pyx_codeobj__87)); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 500, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -25649,7 +25649,7 @@ if (!__Pyx_RefNanny) {
  * 
  *     def compute(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
  *                 orientations=None, nlist=None):
- *         """Calculates the positional correlation function for the given points.
+ *         R"""Calculates the positional correlation function for the given points.
  */
   __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4pmft_7PMFTXYT_7compute, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_PMFTXYT_compute, NULL, __pyx_n_s_freud_pmft, __pyx_d, ((PyObject *)__pyx_codeobj__89)); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 572, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -25800,7 +25800,7 @@ if (!__Pyx_RefNanny) {
  * 
  *     def accumulate(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
  *                    orientations=None, nlist=None):
- *         """Calculates the positional correlation function and adds to the
+ *         R"""Calculates the positional correlation function and adds to the
  */
   __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4pmft_8PMFTXY2D_5accumulate, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_PMFTXY2D_accumulate, NULL, __pyx_n_s_freud_pmft, __pyx_d, ((PyObject *)__pyx_codeobj__113)); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 795, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -25813,7 +25813,7 @@ if (!__Pyx_RefNanny) {
  * 
  *     def compute(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
  *                 orientations=None, nlist=None):
- *         """Calculates the positional correlation function for the given points.
+ *         R"""Calculates the positional correlation function for the given points.
  */
   __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4pmft_8PMFTXY2D_7compute, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_PMFTXY2D_compute, NULL, __pyx_n_s_freud_pmft, __pyx_d, ((PyObject *)__pyx_codeobj__115)); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 867, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -25960,7 +25960,7 @@ if (!__Pyx_RefNanny) {
  * 
  *     def accumulate(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
  *                    orientations=None, face_orientations=None, nlist=None):
- *         """Calculates the positional correlation function and adds to the
+ *         R"""Calculates the positional correlation function and adds to the
  */
   __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4pmft_7PMFTXYZ_5accumulate, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_PMFTXYZ_accumulate, NULL, __pyx_n_s_freud_pmft, __pyx_d, ((PyObject *)__pyx_codeobj__135)); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 1076, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -25973,7 +25973,7 @@ if (!__Pyx_RefNanny) {
  * 
  *     def compute(self, box, ref_points, ref_orientations, points=None,             # <<<<<<<<<<<<<<
  *                 orientations=None, face_orientations=None, nlist=None):
- *         """Calculates the positional correlation function for the given points.
+ *         R"""Calculates the positional correlation function for the given points.
  */
   __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_4pmft_7PMFTXYZ_7compute, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_PMFTXYZ_compute, NULL, __pyx_n_s_freud_pmft, __pyx_d, ((PyObject *)__pyx_codeobj__137)); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 1212, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);

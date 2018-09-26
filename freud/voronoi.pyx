@@ -41,7 +41,7 @@ np.import_array()
 
 
 class Voronoi:
-    """Compute the Voronoi tessellation of a 2D or 3D system using qhull.
+    R"""Compute the Voronoi tessellation of a 2D or 3D system using qhull.
     This uses :class:`scipy.spatial.Voronoi`, accounting for periodic
     boundary conditions.
 
@@ -81,10 +81,11 @@ class Voronoi:
             neighboring particles.
         polytopes (list[:class:`numpy.ndarray`]):
             List of arrays, each containing Voronoi polytope vertices.
-        volumes ((:math:`\\left(N_{cells} \\right)`) :class:`numpy.ndarray`):
+        volumes ((:math:`\left(N_{cells} \right)`) :class:`numpy.ndarray`):
             Returns an array of volumes (areas in 2D) corresponding to Voronoi
             cells.
     """
+
     def __init__(self, box, buff=0.1):
         if not _SCIPY_AVAILABLE:
             raise RuntimeError("You cannot use this class without SciPy")
@@ -93,7 +94,7 @@ class Voronoi:
         self._buff = buff
 
     def setBox(self, box):
-        """Reset the simulation box.
+        R"""Reset the simulation box.
 
         Args:
             box (:class:`freud.box.Box`): Simulation box.
@@ -105,7 +106,7 @@ class Voronoi:
         self._box = b
 
     def setBufferWidth(self, buff):
-        """Reset the buffer width.
+        R"""Reset the buffer width.
 
         Args:
             buff (float): Buffer width.
@@ -116,7 +117,7 @@ class Voronoi:
         self._buff = buff
 
     def _qhull_compute(self, positions, box=None, buff=None):
-        """Calls ParticleBuffer and qhull
+        R"""Calls ParticleBuffer and qhull
 
         Args:
             positions ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
@@ -149,7 +150,7 @@ class Voronoi:
         self.voronoi = qvoronoi(self.expanded_points)
 
     def compute(self, positions, box=None, buff=None):
-        """Compute Voronoi diagram.
+        R"""Compute Voronoi diagram.
 
         Args:
             positions ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
@@ -202,7 +203,7 @@ class Voronoi:
         return self._poly_verts
 
     def getVoronoiPolytopes(self):
-        """Returns a list of polytope vertices corresponding to Voronoi cells.
+        R"""Returns a list of polytope vertices corresponding to Voronoi cells.
 
         If the buffer width is too small, then some polytopes may not be
         closed (they may have a boundary at infinity), and these polytopes'
@@ -226,7 +227,7 @@ class Voronoi:
 
     def computeNeighbors(self, positions, box=None, buff=None,
                          exclude_ii=True):
-        """Compute the neighbors of each particle based on the Voronoi
+        R"""Compute the neighbors of each particle based on the Voronoi
         tessellation. One can include neighbors from multiple Voronoi shells by
         specifying :code:`numShells` in :meth:`~.getNeighbors()`.
         An example of computing neighbors from the first two Voronoi shells
@@ -368,7 +369,7 @@ class Voronoi:
         return self
 
     def getNeighbors(self, numShells):
-        """Get :code:`numShells` of neighbors for each particle
+        R"""Get :code:`numShells` of neighbors for each particle
 
         Must call :meth:`~.computeNeighbors()` before this method.
 
@@ -426,7 +427,7 @@ class Voronoi:
         return result
 
     def getNeighborList(self):
-        """Returns a neighbor list object.
+        R"""Returns a neighbor list object.
 
         In the neighbor list, each neighbor pair has a weight value.
 
@@ -446,7 +447,7 @@ class Voronoi:
         return self.nlist
 
     def computeVolumes(self):
-        """Computes volumes (areas in 2D) of Voronoi cells.
+        R"""Computes volumes (areas in 2D) of Voronoi cells.
 
         .. versionadded:: 0.8
 
@@ -469,7 +470,7 @@ class Voronoi:
         return self._poly_volumes
 
     def getVolumes(self):
-        """Returns an array of volumes (areas in 2D) corresponding to Voronoi
+        R"""Returns an array of volumes (areas in 2D) corresponding to Voronoi
         cells.
 
         .. versionadded:: 0.8
@@ -487,7 +488,7 @@ class Voronoi:
         are closed. Otherwise try using a larger buffer width.
 
         Returns:
-            (:math:`\\left(N_{cells} \\right)`) :class:`numpy.ndarray`:
+            (:math:`\left(N_{cells} \right)`) :class:`numpy.ndarray`:
                 Voronoi polytope volumes/areas.
         """
         return self.volumes

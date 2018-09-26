@@ -52,7 +52,7 @@ cimport freud.box
 np.import_array()
 
 cdef class BondingAnalysis:
-    """Analyze the bond lifetimes and flux present in the system.
+    R"""Analyze the bond lifetimes and flux present in the system.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
@@ -90,7 +90,7 @@ cdef class BondingAnalysis:
         del self.thisptr
 
     def initialize(self, frame_0):
-        """Calculates the changes in bonding states from one frame to the next.
+        R"""Calculates the changes in bonding states from one frame to the next.
 
         Args:
             frame_0 ((:math:`N_{particles}`, :math:`N_{bonds}`) :class:`numpy.ndarray`):
@@ -112,7 +112,7 @@ cdef class BondingAnalysis:
             self.thisptr.initialize(<unsigned int*> l_frame_0.data)
 
     def compute(self, frame_0, frame_1):
-        """Calculates the changes in bonding states from one frame to the next.
+        R"""Calculates the changes in bonding states from one frame to the next.
 
         Args:
             frame_0 ((:math:`N_{particles}`, :math:`N_{bonds}`) :class:`numpy.ndarray`):
@@ -213,8 +213,8 @@ cdef class BondingAnalysis:
         return self.num_bonds
 
 cdef class BondingR12:
-    """Compute bonds in a 2D system using a (:math:`r`, :math:`\\theta_1`,
-    :math:`\\theta_2`) coordinate system.
+    R"""Compute bonds in a 2D system using a (:math:`r`, :math:`\theta_1`,
+    :math:`\theta_2`) coordinate system.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
@@ -222,8 +222,8 @@ cdef class BondingR12:
         r_max (float):
             Distance to search for bonds.
         bond_map (:class:`numpy.ndarray`):
-            3D array containing the bond index for each r, :math:`\\theta_2`,
-            :math:`\\theta_1` coordinate.
+            3D array containing the bond index for each r, :math:`\theta_2`,
+            :math:`\theta_1` coordinate.
         bond_list (:class:`numpy.ndarray`):
             List containing the bond indices to be tracked,
             :code:`bond_list[i] = bond_index`.
@@ -260,7 +260,7 @@ cdef class BondingR12:
 
     def compute(self, box, ref_points, ref_orientations, points=None,
                 orientations=None, nlist=None):
-        """Calculates the bonds.
+        R"""Calculates the bonds.
 
         Args:
             box (:class:`freud.box.Box`):
@@ -379,7 +379,7 @@ cdef class BondingR12:
         return self.rev_list_map
 
 cdef class BondingXY2D:
-    """Compute bonds in a 2D system using a (:math:`x`, :math:`y`) coordinate
+    R"""Compute bonds in a 2D system using a (:math:`x`, :math:`y`) coordinate
     system.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
@@ -429,7 +429,7 @@ cdef class BondingXY2D:
 
     def compute(self, box, ref_points, ref_orientations, points=None,
                 orientations=None, nlist=None):
-        """Calculates the bonds.
+        R"""Calculates the bonds.
 
         Args:
             box (:class:`freud.box.Box`):
@@ -549,8 +549,8 @@ cdef class BondingXY2D:
         return self.rev_list_map
 
 cdef class BondingXYT:
-    """Compute bonds in a 2D system using a
-    (:math:`x`, :math:`y`, :math:`\\theta`) coordinate system.
+    R"""Compute bonds in a 2D system using a
+    (:math:`x`, :math:`y`, :math:`\theta`) coordinate system.
 
     For each particle in the system determine which other particles are in
     which bonding sites.
@@ -603,7 +603,7 @@ cdef class BondingXYT:
 
     def compute(self, box, ref_points, ref_orientations, points=None,
                 orientations=None, nlist=None):
-        """Calculates the bonds.
+        R"""Calculates the bonds.
 
         Args:
             box (:class:`freud.box.Box`):
@@ -722,7 +722,7 @@ cdef class BondingXYT:
         return self.rev_list_map
 
 cdef class BondingXYZ:
-    """Compute bonds in a 3D system using a
+    R"""Compute bonds in a 3D system using a
     (:math:`x`, :math:`y`, :math:`z`) coordinate system.
 
     For each particle in the system determine which other particles are in
@@ -779,7 +779,7 @@ cdef class BondingXYZ:
 
     def compute(self, box, ref_points, ref_orientations, points=None,
                 orientations=None, nlist=None):
-        """Calculates the bonds.
+        R"""Calculates the bonds.
 
         Args:
             box (:class:`freud.box.Box`):
