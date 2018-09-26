@@ -69,18 +69,18 @@ cdef class CubaticOrderParameter:
             The scale
         cubatic_order_parameter (float):
             The cubatic order parameter.
-        orientation (:math:`\\left(4 \\right)` :class:`numpy.ndarray`):
+        orientation (:math:`\left(4 \right)` :class:`numpy.ndarray`):
             The quaternion of global orientation.
         particle_order_parameter (:class:`numpy.ndarray`):
              Cubatic order parameter.
-        particle_tensor (:math:`\\left(N_{particles}, 3, 3, 3, 3 \\right)` :class:`numpy.ndarray`):
+        particle_tensor (:math:`\left(N_{particles}, 3, 3, 3, 3 \right)` :class:`numpy.ndarray`):
             Rank 5 tensor corresponding to each individual particle
             orientation.
-        global_tensor (:math:`\\left(3, 3, 3, 3 \\right)` :class:`numpy.ndarray`):
+        global_tensor (:math:`\left(3, 3, 3, 3 \right)` :class:`numpy.ndarray`):
             Rank 4 tensor corresponding to global orientation.
-        cubatic_tensor (:math:`\\left(3, 3, 3, 3 \\right)` :class:`numpy.ndarray`):
+        cubatic_tensor (:math:`\left(3, 3, 3, 3 \right)` :class:`numpy.ndarray`):
             Rank 4 cubatic tensor.
-        gen_r4_tensor (:math:`\\left(3, 3, 3, 3 \\right)` :class:`numpy.ndarray`):
+        gen_r4_tensor (:math:`\left(3, 3, 3, 3 \right)` :class:`numpy.ndarray`):
             Rank 4 tensor corresponding to each individual particle
             orientation.
     """  # noqa: E501
@@ -303,19 +303,19 @@ cdef class NematicOrderParameter:
     .. versionadded:: 0.7.0
 
     Args:
-        u (:math:`\\left(3 \\right)` :class:`numpy.ndarray`):
+        u (:math:`\left(3 \right)` :class:`numpy.ndarray`):
             The nematic director of a single particle in the reference state
             (without any rotation applied).
 
     Attributes:
         nematic_order_parameter (float):
             Nematic order parameter.
-        director (:math:`\\left(3 \\right)` :class:`numpy.ndarray`):
+        director (:math:`\left(3 \right)` :class:`numpy.ndarray`):
             The average nematic director.
-        particle_tensor (:math:`\\left(N_{particles}, 3, 3 \\right)` :class:`numpy.ndarray`):
+        particle_tensor (:math:`\left(N_{particles}, 3, 3 \right)` :class:`numpy.ndarray`):
             One 3x3 matrix per-particle corresponding to each individual
             particle orientation.
-        nematic_tensor (:math:`\\left(3, 3 \\right)` :class:`numpy.ndarray`):
+        nematic_tensor (:math:`\left(3, 3 \right)` :class:`numpy.ndarray`):
             3x3 matrix corresponding to the average particle orientation.
     """  # noqa: E501
     cdef freud._order.NematicOrderParameter *thisptr
@@ -334,7 +334,7 @@ cdef class NematicOrderParameter:
         R"""Calculates the per-particle and global order parameter.
 
         Args:
-            orientations (:math:`\\left(N_{particles}, 4 \\right)` :class:`numpy.ndarray`):
+            orientations (:math:`\left(N_{particles}, 4 \right)` :class:`numpy.ndarray`):
                 Orientations to calculate the order parameter.
         """  # noqa: E501
         orientations = freud.common.convert_array(
@@ -421,13 +421,13 @@ cdef class HexOrderParameter:
     The :math:`k`-atic order parameter for a particle :math:`i` and its
     :math:`n` neighbors :math:`j` is given by:
 
-    :math:`\\psi_k \\left( i \\right) = \\frac{1}{n}
-    \\sum_j^n e^{k i \\phi_{ij}}`
+    :math:`\psi_k \left( i \right) = \frac{1}{n}
+    \sum_j^n e^{k i \phi_{ij}}`
 
     The parameter :math:`k` governs the symmetry of the order parameter while
     the parameter :math:`n` governs the number of neighbors of particle
-    :math:`i` to average over. :math:`\\phi_{ij}` is the angle between the
-    vector :math:`r_{ij}` and :math:`\\left( 1,0 \\right)`.
+    :math:`i` to average over. :math:`\phi_{ij}` is the angle between the
+    vector :math:`r_{ij}` and :math:`\left( 1,0 \right)`.
 
     .. note::
         **2D:** :class:`freud.order.HexOrderParameter` properly handles 2D
@@ -445,7 +445,7 @@ cdef class HexOrderParameter:
             Number of neighbors (:math:`n=k` if :math:`n` not specified).
 
     Attributes:
-        psi (:math:`\\left(N_{particles} \\right)` :class:`numpy.ndarray`):
+        psi (:math:`\left(N_{particles} \right)` :class:`numpy.ndarray`):
             Order parameter.
         box (:class:`freud.box.Box`):
             Box used in the calculation.
@@ -552,7 +552,7 @@ cdef class HexOrderParameter:
 cdef class TransOrderParameter:
     R"""Compute the translational order parameter for each particle.
 
-    .. moduleauthor:: Michael Engel <engelmm@umich.edu>
+    .. moduleauthor:: Wenbo Shen <shenwb@umich.edu>
 
     Args:
         rmax (float):
@@ -563,7 +563,7 @@ cdef class TransOrderParameter:
             Number of neighbors (:math:`n=k` if :math:`n` not specified).
 
     Attributes:
-        d_r (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
+        d_r (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
             Reference to the last computed translational order array.
         box (:class:`freud.box.Box`):
             Box used in the calculation.
@@ -660,22 +660,22 @@ cdef class LocalQl:
     described by Steinhardt. For a particle i, we calculate the average
     :math:`Q_l` by summing the spherical harmonics between particle :math:`i`
     and its neighbors :math:`j` in a local region:
-    :math:`\\overline{Q}_{lm}(i) = \\frac{1}{N_b}
-    \\displaystyle\\sum_{j=1}^{N_b} Y_{lm}(\\theta(\\vec{r}_{ij}),
-    \\phi(\\vec{r}_{ij}))`. The particles included in the sum are determined
+    :math:`\overline{Q}_{lm}(i) = \frac{1}{N_b}
+    \displaystyle\sum_{j=1}^{N_b} Y_{lm}(\theta(\vec{r}_{ij}),
+    \phi(\vec{r}_{ij}))`. The particles included in the sum are determined
     by the rmax argument to the constructor.
 
     This is then combined in a rotationally invariant fashion to remove local
-    orientational order as follows: :math:`Q_l(i)=\\sqrt{\\frac{4\pi}{2l+1}
-    \\displaystyle\\sum_{m=-l}^{l} |\\overline{Q}_{lm}|^2 }`.
+    orientational order as follows: :math:`Q_l(i)=\sqrt{\frac{4\pi}{2l+1}
+    \displaystyle\sum_{m=-l}^{l} |\overline{Q}_{lm}|^2 }`.
 
     The :meth:`~computeAve` method provides access to a variant of this
     parameter that performs a average over the first and second shell combined
     [Lechner2008]_. To compute this parameter, we perform a second averaging
     over the first neighbor shell of the particle to implicitly include
     information about the second neighbor shell. This averaging is performed by
-    replacing the value :math:`\\overline{Q}_{lm}(i)` in the original
-    definition by the average value of :math:`\\overline{Q}_{lm}(k)` over all
+    replacing the value :math:`\overline{Q}_{lm}(i)` in the original
+    definition by the average value of :math:`\overline{Q}_{lm}(k)` over all
     the :math:`k` neighbors of particle :math:`i` as well as itself.
 
     The :meth:`~computeNorm` and :meth:`~computeAveNorm` methods provide
@@ -702,18 +702,18 @@ cdef class LocalQl:
             Box used in the calculation.
         num_particles (unsigned int):
             Number of particles.
-        Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
+        Ql (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
             The last computed :math:`Q_l` for each particle (filled with NaN
             for particles with no neighbors).
-        ave_Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
-            The last computed :math:`\\bar{Q_l}` for each particle (filled with
+        ave_Ql (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
+            The last computed :math:`\bar{Q_l}` for each particle (filled with
             NaN for particles with no neighbors).
-        norm_Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
+        norm_Ql (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
             The last computed :math:`Q_l` for each particle normalized by the
             value over all particles (filled with NaN for particles with no
             neighbors).
-        ave_norm_Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
-            The last computed :math:`\\bar{Q_l}` for each particle normalized
+        ave_norm_Ql (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
+            The last computed :math:`\bar{Q_l}` for each particle normalized
             by the value over all particles (filled with NaN for particles with
             no neighbors).
 
@@ -968,18 +968,18 @@ cdef class LocalQlNear(LocalQl):
             Box used in the calculation.
         num_particles (unsigned int):
             Number of particles.
-        Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
+        Ql (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
             The last computed :math:`Q_l` for each particle (filled with NaN
             for particles with no neighbors).
-        ave_Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
-            The last computed :math:`\\bar{Q_l}` for each particle (filled with
+        ave_Ql (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
+            The last computed :math:`\bar{Q_l}` for each particle (filled with
             NaN for particles with no neighbors).
-        norm_Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
+        norm_Ql (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
             The last computed :math:`Q_l` for each particle normalized by the
             value over all particles (filled with NaN for particles with no
             neighbors).
-        ave_norm_Ql (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
-            The last computed :math:`\\bar{Q_l}` for each particle normalized
+        ave_norm_Ql (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
+            The last computed :math:`\bar{Q_l}` for each particle normalized
             by the value over all particles (filled with NaN for particles with
             no neighbors).
 
@@ -1059,13 +1059,13 @@ cdef class LocalWl(LocalQl):
     described by Steinhardt. For a particle i, we calculate the average
     :math:`W_l` by summing the spherical harmonics between particle :math:`i`
     and its neighbors :math:`j` in a local region:
-    :math:`\\overline{Q}_{lm}(i) = \\frac{1}{N_b}
-    \\displaystyle\\sum_{j=1}^{N_b} Y_{lm}(\\theta(\\vec{r}_{ij}),
-    \\phi(\\vec{r}_{ij}))`. The particles included in the sum are determined
+    :math:`\overline{Q}_{lm}(i) = \frac{1}{N_b}
+    \displaystyle\sum_{j=1}^{N_b} Y_{lm}(\theta(\vec{r}_{ij}),
+    \phi(\vec{r}_{ij}))`. The particles included in the sum are determined
     by the rmax argument to the constructor.
 
     The :math:`W_l` is then defined as a weighted average over the
-    :math:`\\overline{Q}_{lm}(i)` values using Wigner 3j symbols
+    :math:`\overline{Q}_{lm}(i)` values using Wigner 3j symbols
     (Clebsch-Gordan coefficients). The resulting combination is rotationally
     (i.e. frame) invariant.
 
@@ -1074,8 +1074,8 @@ cdef class LocalWl(LocalQl):
     [Lechner2008]_. To compute this parameter, we perform a second averaging
     over the first neighbor shell of the particle to implicitly include
     information about the second neighbor shell. This averaging is performed by
-    replacing the value :math:`\\overline{Q}_{lm}(i)` in the original
-    definition by the average value of :math:`\\overline{Q}_{lm}(k)` over all
+    replacing the value :math:`\overline{Q}_{lm}(i)` in the original
+    definition by the average value of :math:`\overline{Q}_{lm}(k)` over all
     the :math:`k` neighbors of particle :math:`i` as well as itself.
 
     The :meth:`~computeNorm` and :meth:`~computeAveNorm` methods provide
@@ -1104,18 +1104,18 @@ cdef class LocalWl(LocalQl):
             Box used in the calculation.
         num_particles (unsigned int):
             Number of particles.
-        Wl (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
+        Wl (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
             The last computed :math:`W_l` for each particle (filled with NaN
             for particles with no neighbors).
-        ave_Wl (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
-            The last computed :math:`\\bar{W}_l` for each particle (filled with
+        ave_Wl (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
+            The last computed :math:`\bar{W}_l` for each particle (filled with
             NaN for particles with no neighbors).
-        norm_Wl (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
+        norm_Wl (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
             The last computed :math:`W_l` for each particle normalized by the
             value over all particles (filled with NaN for particles with no
             neighbors).
-        ave_norm_Wl (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
-            The last computed :math:`\\bar{W}_l` for each particle normalized
+        ave_norm_Wl (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
+            The last computed :math:`\bar{W}_l` for each particle normalized
             by the value over all particles (filled with NaN for particles with
             no neighbors).
 
@@ -1250,18 +1250,18 @@ cdef class LocalWlNear(LocalWl):
             Box used in the calculation.
         num_particles (unsigned int):
             Number of particles.
-        Wl (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
+        Wl (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
             The last computed :math:`W_l` for each particle (filled with NaN
             for particles with no neighbors).
-        ave_Wl (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
-            The last computed :math:`\\bar{W}_l` for each particle (filled with
+        ave_Wl (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
+            The last computed :math:`\bar{W}_l` for each particle (filled with
             NaN for particles with no neighbors).
-        norm_Wl (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
+        norm_Wl (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
             The last computed :math:`W_l` for each particle normalized by the
             value over all particles (filled with NaN for particles with no
             neighbors).
-        ave_norm_Wl (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
-            The last computed :math:`\\bar{W}_l` for each particle normalized
+        ave_norm_Wl (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
+            The last computed :math:`\bar{W}_l` for each particle normalized
             by the value over all particles (filled with NaN for particles with
             no neighbors).
 
@@ -1360,14 +1360,14 @@ cdef class SolLiq:
             The sizes of all clusters.
         largest_cluster_size (unsigned int):
             The largest cluster size. Must call a compute method first.
-        Ql_mi (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
+        Ql_mi (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
             The last computed :math:`Q_{lmi}` for each particle.
-        clusters (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
+        clusters (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
             The last computed set of solid-like cluster indices for each
             particle.
-        num_connections (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
+        num_connections (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
             The number of connections per particle.
-        Ql_dot_ij (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
+        Ql_dot_ij (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
             Reference to the qldot_ij values.
         num_particles (unsigned int):
             Number of particles.
@@ -1650,14 +1650,14 @@ cdef class SolLiqNear(SolLiq):
             The sizes of all clusters.
         largest_cluster_size (unsigned int):
             The largest cluster size. Must call a compute method first.
-        Ql_mi (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
+        Ql_mi (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
             The last computed :math:`Q_{lmi}` for each particle.
-        clusters (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
+        clusters (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
             The last computed set of solid-like cluster indices for each
             particle.
-        num_connections (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
+        num_connections (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
             The number of connections per particle.
-        Ql_dot_ij (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
+        Ql_dot_ij (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
             Reference to the qldot_ij values.
         num_particles (unsigned int):
             Number of particles.

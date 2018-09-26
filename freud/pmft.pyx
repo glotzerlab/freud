@@ -124,7 +124,7 @@ cdef class _PMFT:
 
 cdef class PMFTR12(_PMFT):
     R"""Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ in a 2D
-    system described by :math:`r`, :math:`\\theta_1`, :math:`\\theta_2`.
+    system described by :math:`r`, :math:`\theta_1`, :math:`\theta_2`.
 
     .. note::
         **2D:** :class:`freud.pmft.PMFTR12` is only defined for 2D systems.
@@ -140,36 +140,36 @@ cdef class PMFTR12(_PMFT):
         n_r (unsigned int):
             Number of bins in :math:`r`.
         n_t1 (unsigned int):
-            Number of bins in :math:`\\theta_1`.
+            Number of bins in :math:`\theta_1`.
         n_t2 (unsigned int):
-            Number of bins in :math:`\\theta_2`.
+            Number of bins in :math:`\theta_2`.
 
     Attributes:
         box (:class:`freud.box.Box`):
             Box used in the calculation.
-        bin_counts (:math:`\\left(N_{r}, N_{\\theta2}, N_{\\theta1}\\right)`):
+        bin_counts (:math:`\left(N_{r}, N_{\theta2}, N_{\theta1}\right)`):
             Bin counts.
-        PCF (:math:`\\left(N_{r}, N_{\\theta2}, N_{\\theta1}\\right)`):
+        PCF (:math:`\left(N_{r}, N_{\theta2}, N_{\theta1}\right)`):
             The positional correlation function.
-        PMFT (:math:`\\left(N_{r}, N_{\\theta2}, N_{\\theta1}\\right)`):
+        PMFT (:math:`\left(N_{r}, N_{\theta2}, N_{\theta1}\right)`):
             The potential of mean force and torque.
         r_cut (float):
             The cutoff used in the cell list.
-        R (:math:`\\left(N_{r}\\right)` :class:`numpy.ndarray`):
+        R (:math:`\left(N_{r}\right)` :class:`numpy.ndarray`):
             The array of :math:`r`-values for the PCF histogram.
-        T1 (:math:`\\left(N_{\\theta1}\\right)` :class:`numpy.ndarray`):
-            The array of :math:`\\theta_1`-values for the PCF histogram.
-        T2 (:math:`\\left(N_{\\theta2}\\right)` :class:`numpy.ndarray`):
-            The array of :math:`\\theta_2`-values for the PCF histogram.
-        inverse_jacobian (:math:`\\left(N_{r}, N_{\\theta2}, N_{\\theta1}\\right)`):
+        T1 (:math:`\left(N_{\theta1}\right)` :class:`numpy.ndarray`):
+            The array of :math:`\theta_1`-values for the PCF histogram.
+        T2 (:math:`\left(N_{\theta2}\right)` :class:`numpy.ndarray`):
+            The array of :math:`\theta_2`-values for the PCF histogram.
+        inverse_jacobian (:math:`\left(N_{r}, N_{\theta2}, N_{\theta1}\right)`):
             The inverse Jacobian used in the PMFT.
         n_bins_R (unsigned int):
             The number of bins in the :math:`r`-dimension of the histogram.
         n_bins_T1 (unsigned int):
-            The number of bins in the :math:`\\theta_1`-dimension of the
+            The number of bins in the :math:`\theta_1`-dimension of the
             histogram.
         n_bins_T2 (unsigned int):
-            The number of bins in the :math:`\\theta_2`-dimension of the
+            The number of bins in the :math:`\theta_2`-dimension of the
             histogram.
     """  # noqa: E501
     cdef freud._pmft.PMFTR12 * pmftr12ptr
@@ -426,17 +426,17 @@ cdef class PMFTR12(_PMFT):
 
 cdef class PMFTXYT(_PMFT):
     R"""Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ for
-    systems described by coordinates :math:`x`, :math:`y`, :math:`\\theta`
+    systems described by coordinates :math:`x`, :math:`y`, :math:`\theta`
     listed in the ``X``, ``Y``, and ``T`` arrays.
 
-    The values of :math:`x, y, \\theta` at which to compute the PCF are
+    The values of :math:`x, y, \theta` at which to compute the PCF are
     controlled by ``x_max``, ``y_max``, and ``n_x``, ``n_y``, ``n_t``
     parameters to the constructor. The ``x_max`` and ``y_max`` parameters
     determine the minimum/maximum :math:`x, y` values
-    (:math:`\\min \\left(\\theta \\right) = 0`,
-    (:math:`\\max \\left( \\theta \\right) = 2\\pi`) at which to compute the
+    (:math:`\min \left(\theta \right) = 0`,
+    (:math:`\max \left( \theta \right) = 2\pi`) at which to compute the
     PCF and ``n_x``, ``n_y``, ``n_t`` are the number of bins in
-    :math:`x, y, \\theta`.
+    :math:`x, y, \theta`.
 
     .. note::
         **2D:** :class:`freud.pmft.PMFTXYT` is only defined for 2D systems.
@@ -456,25 +456,25 @@ cdef class PMFTXYT(_PMFT):
         n_y (unsigned int):
             Number of bins in :math:`y`.
         n_t (unsigned int):
-            Number of bins in :math:`\\theta`.
+            Number of bins in :math:`\theta`.
 
     Attributes:
         box (:class:`freud.box.Box`):
             Box used in the calculation.
-        bin_counts (:math:`\\left(N_{\\theta}, N_{y}, N_{x}\\right)` :class:`numpy.ndarray`):
+        bin_counts (:math:`\left(N_{\theta}, N_{y}, N_{x}\right)` :class:`numpy.ndarray`):
             Bin counts.
-        PCF (:math:`\\left(N_{\\theta}, N_{y}, N_{x}\\right)` :class:`numpy.ndarray`):
+        PCF (:math:`\left(N_{\theta}, N_{y}, N_{x}\right)` :class:`numpy.ndarray`):
             The positional correlation function.
-        PMFT (:math:`\\left(N_{\\theta}, N_{y}, N_{x}\\right)` :class:`numpy.ndarray`):
+        PMFT (:math:`\left(N_{\theta}, N_{y}, N_{x}\right)` :class:`numpy.ndarray`):
             The potential of mean force and torque.
         r_cut (float):
             The cutoff used in the cell list.
-        X (:math:`\\left(N_{x}\\right)` :class:`numpy.ndarray`):
+        X (:math:`\left(N_{x}\right)` :class:`numpy.ndarray`):
             The array of :math:`x`-values for the PCF histogram.
-        Y (:math:`\\left(N_{y}\\right)` :class:`numpy.ndarray`):
+        Y (:math:`\left(N_{y}\right)` :class:`numpy.ndarray`):
             The array of :math:`y`-values for the PCF histogram.
-        T (:math:`\\left(N_{\\theta}\\right)` :class:`numpy.ndarray`):
-            The array of :math:`\\theta`-values for the PCF histogram.
+        T (:math:`\left(N_{\theta}\right)` :class:`numpy.ndarray`):
+            The array of :math:`\theta`-values for the PCF histogram.
         jacobian (float):
             The Jacobian used in the PMFT.
         n_bins_X (unsigned int):
@@ -482,7 +482,7 @@ cdef class PMFTXYT(_PMFT):
         n_bins_Y (unsigned int):
             The number of bins in the :math:`y`-dimension of the histogram.
         n_bins_T (unsigned int):
-            The number of bins in the :math:`\\theta`-dimension of the
+            The number of bins in the :math:`\theta`-dimension of the
             histogram.
     """  # noqa: E501
     cdef freud._pmft.PMFTXYT * pmftxytptr
@@ -761,17 +761,17 @@ cdef class PMFTXY2D(_PMFT):
     Attributes:
         box (:class:`freud.box.Box`):
             Box used in the calculation.
-        bin_counts (:math:`\\left(N_{y}, N_{x}\\right)` :class:`numpy.ndarray`):
+        bin_counts (:math:`\left(N_{y}, N_{x}\right)` :class:`numpy.ndarray`):
             Bin counts.
-        PCF (:math:`\\left(N_{y}, N_{x}\\right)` :class:`numpy.ndarray`):
+        PCF (:math:`\left(N_{y}, N_{x}\right)` :class:`numpy.ndarray`):
             The positional correlation function.
-        PMFT (:math:`\\left(N_{y}, N_{x}\\right)` :class:`numpy.ndarray`):
+        PMFT (:math:`\left(N_{y}, N_{x}\right)` :class:`numpy.ndarray`):
             The potential of mean force and torque.
         r_cut (float):
             The cutoff used in the cell list.
-        X (:math:`\\left(N_{x}\\right)` :class:`numpy.ndarray`):
+        X (:math:`\left(N_{x}\right)` :class:`numpy.ndarray`):
             The array of :math:`x`-values for the PCF histogram.
-        Y (:math:`\\left(N_{y}\\right)` :class:`numpy.ndarray`):
+        Y (:math:`\left(N_{y}\right)` :class:`numpy.ndarray`):
             The array of :math:`y`-values for the PCF histogram.
         jacobian (float):
             The Jacobian used in the PMFT.
@@ -1032,19 +1032,19 @@ cdef class PMFTXYZ(_PMFT):
     Attributes:
         box (:class:`freud.box.Box`):
             Box used in the calculation.
-        bin_counts (:math:`\\left(N_{z}, N_{y}, N_{x}\\right)` :class:`numpy.ndarray`):
+        bin_counts (:math:`\left(N_{z}, N_{y}, N_{x}\right)` :class:`numpy.ndarray`):
             Bin counts.
-        PCF (:math:`\\left(N_{z}, N_{y}, N_{x}\\right)` :class:`numpy.ndarray`):
+        PCF (:math:`\left(N_{z}, N_{y}, N_{x}\right)` :class:`numpy.ndarray`):
             The positional correlation function.
-        PMFT (:math:`\\left(N_{z}, N_{y}, N_{x}\\right)` :class:`numpy.ndarray`):
+        PMFT (:math:`\left(N_{z}, N_{y}, N_{x}\right)` :class:`numpy.ndarray`):
             The potential of mean force and torque.
         r_cut (float):
             The cutoff used in the cell list.
-        X (:math:`\\left(N_{x}\\right)` :class:`numpy.ndarray`):
+        X (:math:`\left(N_{x}\right)` :class:`numpy.ndarray`):
             The array of :math:`x`-values for the PCF histogram.
-        Y (:math:`\\left(N_{y}\\right)` :class:`numpy.ndarray`):
+        Y (:math:`\left(N_{y}\right)` :class:`numpy.ndarray`):
             The array of :math:`y`-values for the PCF histogram.
-        Z (:math:`\\left(N_{z}\\right)` :class:`numpy.ndarray`):
+        Z (:math:`\left(N_{z}\right)` :class:`numpy.ndarray`):
             The array of :math:`z`-values for the PCF histogram.
         jacobian (float):
             The Jacobian used in the PMFT.

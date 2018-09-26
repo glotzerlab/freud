@@ -81,7 +81,7 @@ class Voronoi:
             neighboring particles.
         polytopes (list[:class:`numpy.ndarray`]):
             List of arrays, each containing Voronoi polytope vertices.
-        volumes ((:math:`\\left(N_{cells} \\right)`) :class:`numpy.ndarray`):
+        volumes ((:math:`\left(N_{cells} \right)`) :class:`numpy.ndarray`):
             Returns an array of volumes (areas in 2D) corresponding to Voronoi
             cells.
     """
@@ -488,7 +488,7 @@ class Voronoi:
         are closed. Otherwise try using a larger buffer width.
 
         Returns:
-            (:math:`\\left(N_{cells} \\right)`) :class:`numpy.ndarray`:
+            (:math:`\left(N_{cells} \right)`) :class:`numpy.ndarray`:
                 Voronoi polytope volumes/areas.
         """
         return self.volumes

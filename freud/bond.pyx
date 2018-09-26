@@ -213,8 +213,8 @@ cdef class BondingAnalysis:
         return self.num_bonds
 
 cdef class BondingR12:
-    R"""Compute bonds in a 2D system using a (:math:`r`, :math:`\\theta_1`,
-    :math:`\\theta_2`) coordinate system.
+    R"""Compute bonds in a 2D system using a (:math:`r`, :math:`\theta_1`,
+    :math:`\theta_2`) coordinate system.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
@@ -222,8 +222,8 @@ cdef class BondingR12:
         r_max (float):
             Distance to search for bonds.
         bond_map (:class:`numpy.ndarray`):
-            3D array containing the bond index for each r, :math:`\\theta_2`,
-            :math:`\\theta_1` coordinate.
+            3D array containing the bond index for each r, :math:`\theta_2`,
+            :math:`\theta_1` coordinate.
         bond_list (:class:`numpy.ndarray`):
             List containing the bond indices to be tracked,
             :code:`bond_list[i] = bond_index`.
@@ -550,7 +550,7 @@ cdef class BondingXY2D:
 
 cdef class BondingXYT:
     R"""Compute bonds in a 2D system using a
-    (:math:`x`, :math:`y`, :math:`\\theta`) coordinate system.
+    (:math:`x`, :math:`y`, :math:`\theta`) coordinate system.
 
     For each particle in the system determine which other particles are in
     which bonding sites.

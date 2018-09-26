@@ -304,13 +304,13 @@ cdef class Box:
         R"""Convert fractional coordinates into real coordinates.
 
         Args:
-            f (:math:`\\left(3\\right)` :class:`numpy.ndarray`):
-                Fractional coordinates :math:`\\left(x, y, z\\right)` between
+            f (:math:`\left(3\right)` :class:`numpy.ndarray`):
+                Fractional coordinates :math:`\left(x, y, z\right)` between
                 0 and 1 within parallelepipedal box.
 
         Returns:
             list[float, float, float]:
-                Vector of real coordinates :math:`\\left(x, y, z\\right)`.
+                Vector of real coordinates :math:`\left(x, y, z\right)`.
         """
         cdef np.ndarray[float, ndim=1] l_vec = freud.common.convert_array(
             f, 1, dtype=np.float32, contiguous=True)
@@ -322,7 +322,7 @@ cdef class Box:
         R"""Convert real coordinates into fractional coordinates.
 
         Args:
-            vec (:math:`\\left(3\\right)` :class:`numpy.ndarray`):
+            vec (:math:`\left(3\right)` :class:`numpy.ndarray`):
                 Real coordinates within parallelepipedal box.
 
         Returns:
@@ -341,11 +341,11 @@ cdef class Box:
         .. versionadded:: 0.8
 
         Args:
-            vec (:math:`\\left(3\\right)` :class:`numpy.ndarray`):
+            vec (:math:`\left(3\right)` :class:`numpy.ndarray`):
                 Coordinates of unwrapped vector.
 
         Returns:
-            :math:`\\left(3\\right)` :class:`numpy.ndarray`:
+            :math:`\left(3\right)` :class:`numpy.ndarray`:
                 Image index vector.
         """
         cdef np.ndarray[float, ndim=1] l_vec = freud.common.convert_array(
@@ -359,7 +359,7 @@ cdef class Box:
 
         Args:
             i (unsigned int):
-                Index (:math:`0 \\leq i < d`) of the lattice vector, where :math:`d` is the box dimension (2 or 3).
+                Index (:math:`0 \leq i < d`) of the lattice vector, where :math:`d` is the box dimension (2 or 3).
 
         Returns:
             list[float, float, float]: Lattice vector with index :math:`i`.
@@ -379,12 +379,12 @@ cdef class Box:
                   input vectors.
 
         Args:
-            vecs (:math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` :class:`numpy.ndarray`):
+            vecs (:math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
                 Single vector or array of :math:`N` vectors. The vectors are
                 altered in place and returned.
 
         Returns:
-            :math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` :class:`numpy.ndarray`:
+            :math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
                 Vectors wrapped into the box.
         """  # noqa: E501
         vecs = np.asarray(vecs)
@@ -416,14 +416,14 @@ cdef class Box:
         unwrap in each dimension.
 
         Args:
-            vecs (:math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` :class:`numpy.ndarray`):
+            vecs (:math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
                 Single vector or array of :math:`N` vectors. The vectors are
                 modified in place.
-            imgs (:math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` :class:`numpy.ndarray`):
+            imgs (:math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
                 Single image index or array of :math:`N` image indices.
 
         Returns:
-            :math:`\\left(3\\right)` or :math:`\\left(N, 3\\right)` :class:`numpy.ndarray`:
+            :math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
                 Vectors unwrapped by the image indices provided.
         """  # noqa: E501
         vecs = np.asarray(vecs)
@@ -656,7 +656,7 @@ cdef class Box:
                   box will be 2D if :code:`Lz == 0`, and 3D otherwise.
 
         Returns:
-            :class:`freud.box:Box`: The resulting box object.
+            :class:`freud.box.Box`: The resulting box object.
         """
         if np.asarray(box).shape == (3, 3):
             # Handles 3x3 matrices

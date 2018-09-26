@@ -41,7 +41,7 @@ cdef class BondOrder:
     and its nearest neighbors (determined by either a prespecified number of
     neighbors or simply a cutoff distance) are treated as connected by a bond
     joining their centers. All of the bonds in the system are then binned by
-    their azimuthal (:math:`\\theta`) and polar (:math:`\\phi`) angles to
+    their azimuthal (:math:`\theta`) and polar (:math:`\phi`) angles to
     indicate the location of a particle's neighbors relative to itself. The
     distance between the particle and its neighbor is only important when
     determining whether it is counted as a neighbor, but is not part of the
@@ -57,7 +57,7 @@ cdef class BondOrder:
     * :code:`'bod'` (Bond Order Diagram, *default*):
       This mode constructs the default BOOD, which is the 2D histogram
       containing the number of bonds formed through each azimuthal
-      :math:`\\left( \\theta \\right)` and polar :math:`\\left( \\phi \\right)`
+      :math:`\left( \theta \right)` and polar :math:`\left( \phi \right)`
       angle.
 
     * :code:`'lbod'` (Local Bond Order Diagram):
@@ -85,7 +85,7 @@ cdef class BondOrder:
       This mode is substantially different from the other modes. Rather than
       compute the histogram of neighbor bonds, this mode instead computes a
       histogram of the directors of neighboring particles, where the director
-      is defined as the basis vector :math:`\\hat{z}` rotated by the neighbor's
+      is defined as the basis vector :math:`\hat{z}` rotated by the neighbor's
       quaternion. The directors are then rotated into the central particle's
       reference frame. This mode provides insight into the local orientational
       environment of particles, indicating, on average, how a particle's
@@ -101,23 +101,23 @@ cdef class BondOrder:
         n (unsigned int):
             Number of neighbors to find.
         n_bins_t (unsigned int):
-            Number of :math:`\\theta` bins.
+            Number of :math:`\theta` bins.
         n_bins_p (unsigned int):
-            Number of :math:`\\phi` bins.
+            Number of :math:`\phi` bins.
 
     Attributes:
-        bond_order (:math:`\\left(N_{\\phi}, N_{\\theta} \\right)` :class:`numpy.ndarray`):
+        bond_order (:math:`\left(N_{\phi}, N_{\theta} \right)` :class:`numpy.ndarray`):
             Bond order.
         box (:class:`freud.box.Box`):
             Box used in the calculation.
-        theta (:math:`\\left(N_{\\theta} \\right)` :class:`numpy.ndarray`):
-            The values of bin centers for :math:`\\theta`.
-        phi (:math:`\\left(N_{\\phi} \\right)` :class:`numpy.ndarray`):
-            The values of bin centers for :math:`\\phi`.
+        theta (:math:`\left(N_{\theta} \right)` :class:`numpy.ndarray`):
+            The values of bin centers for :math:`\theta`.
+        phi (:math:`\left(N_{\phi} \right)` :class:`numpy.ndarray`):
+            The values of bin centers for :math:`\phi`.
         n_bins_theta (unsigned int):
-            The number of bins in the :math:`\\theta` dimension.
+            The number of bins in the :math:`\theta` dimension.
         n_bins_phi (unsigned int):
-            The number of bins in the :math:`\\phi` dimension.
+            The number of bins in the :math:`\phi` dimension.
 
     .. todo:: remove k, it is not used as such.
     """  # noqa: E501
@@ -397,7 +397,7 @@ cdef class LocalDescriptors:
             :math:`m`.
 
     Attributes:
-        sph (:math:`\\left(N_{bonds}, \\text{SphWidth} \\right)` :class:`numpy.ndarray`):
+        sph (:math:`\left(N_{bonds}, \text{SphWidth} \right)` :class:`numpy.ndarray`):
             A reference to the last computed spherical harmonic array.
         num_particles (unsigned int):
             The number of points passed to the last call to :meth:`~.compute`.
@@ -633,13 +633,13 @@ cdef class MatchEnv:
             of any given particle.
 
     Attributes:
-        tot_environment (:math:`\\left(N_{particles}, N_{neighbors}, 3\\right)` :class:`numpy.ndarray`):
+        tot_environment (:math:`\left(N_{particles}, N_{neighbors}, 3\right)` :class:`numpy.ndarray`):
             All environments for all particles.
         num_particles (unsigned int):
             The number of particles.
         num_clusters (unsigned int):
             The number of clusters.
-        clusters (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
+        clusters (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
             The per-particle index indicating cluster membership.
     """  # noqa: E501
 
@@ -804,7 +804,7 @@ cdef class MatchEnv:
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
         Returns:
-            :math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`:
+            :math:`\left(N_{particles}\right)` :class:`numpy.ndarray`:
                 Vector of minimal RMSD values, one value per particle.
 
         """
@@ -858,7 +858,7 @@ cdef class MatchEnv:
                 (Default value = False).
 
         Returns:
-            tuple ((:math:`\\left(N_{particles}, 3\\right)` :class:`numpy.ndarray`), map[int, int]):
+            tuple ((:math:`\left(N_{particles}, 3\right)` :class:`numpy.ndarray`), map[int, int]):
                 A doublet that gives the rotated (or not) set of
                 :code:`refPoints2`, and the mapping between the vectors of
                 :code:`refPoints1` and :code:`refPoints2` that will make them
@@ -916,7 +916,7 @@ cdef class MatchEnv:
                 (Default value = False).
 
         Returns:
-            tuple (float, (:math:`\\left(N_{particles}, 3\\right)` :class:`numpy.ndarray`), map[int, int]):
+            tuple (float, (:math:`\left(N_{particles}, 3\right)` :class:`numpy.ndarray`), map[int, int]):
                 A triplet that gives the associated min_rmsd, rotated (or not)
                 set of refPoints2, and the mapping between the vectors of
                 refPoints1 and refPoints2 that somewhat minimizes the RMSD.
@@ -982,7 +982,7 @@ cdef class MatchEnv:
             i (unsigned int): Environment index.
 
         Returns:
-            :math:`\\left(N_{neighbors}, 3\\right)` :class:`numpy.ndarray`:
+            :math:`\left(N_{neighbors}, 3\right)` :class:`numpy.ndarray`:
             The array of vectors.
         """
         cdef vec3[float] * environment = self.thisptr.getEnvironment(i).get()
@@ -1056,9 +1056,9 @@ cdef class Pairing2D:
             Value of the dot product below which a pair is determined.
 
     Attributes:
-        match (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
+        match (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
             The match.
-        pair (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
+        pair (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
             The pair.
         box (:class:`freud.box.Box`):
             Box used in the calculation.
@@ -1190,11 +1190,11 @@ cdef class AngularSeparation:
             angles.
         n_global (unsigned int):
             The number of global orientations to check against.
-        neighbor_angles ((:math:`\\left(N_{particles}\\timesN_{neighbors}, \\right)` :class:`numpy.ndarray`):
+        neighbor_angles ((:math:`\left(N_{particles}\timesN_{neighbors}, \right)` :class:`numpy.ndarray`):
             The neighbor angles in radians. **This field is only populated
             after :meth`~.computeNeighbor` is called.** The angles
             are stored in the order of the neighborlist object.
-        global_angles (:math:`\\left(N_{global}, N_{particles} \\right)` :class:`numpy.ndarray`):
+        global_angles (:math:`\left(N_{global}, N_{particles} \right)` :class:`numpy.ndarray`):
             The global angles in radians. **This field is only populated after
             :meth:`.computeGlobal` is called.** The angles
             are stored in the order of the neighborlist object.
@@ -1431,10 +1431,10 @@ cdef class LocalBondProjection:
             The number of neighbors.
 
     Attributes:
-        projections ((:math:`\\left(N_{reference}, N_{neighbors}, N_{projection\_vecs} \\right)` :class:`numpy.ndarray`):
+        projections ((:math:`\left(N_{reference}, N_{neighbors}, N_{projection\_vecs} \right)` :class:`numpy.ndarray`):
             The projection of each bond between reference particles and their
             neighbors onto each of the projection vectors.
-        normed_projections ((:math:`\\left(N_{reference}, N_{neighbors}, N_{projection\_vecs} \\right)` :class:`numpy.ndarray`)
+        normed_projections ((:math:`\left(N_{reference}, N_{neighbors}, N_{projection\_vecs} \right)` :class:`numpy.ndarray`)
             The normalized projection of each bond between reference particles
             and their neighbors onto each of the projection vectors.
         num_reference_particles (int):

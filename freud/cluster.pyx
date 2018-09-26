@@ -217,12 +217,12 @@ cdef class ClusterProperties:
 
     The computed center of mass for each cluster (properly handling periodic
     boundary conditions) can be accessed with :meth:`~.getClusterCOM()`.
-    This returns a :math:`\\left(N_{clusters}, 3 \\right)`
+    This returns a :math:`\left(N_{clusters}, 3 \right)`
     :class:`numpy.ndarray`.
 
-    The :math:`3 \\times 3` gyration tensor :math:`G` can be accessed with
+    The :math:`3 \times 3` gyration tensor :math:`G` can be accessed with
     :meth:`~.getClusterG()`. This returns a :class:`numpy.ndarray`,
-    shape= :math:`\\left(N_{clusters} \\times 3 \\times 3\\right)`.
+    shape= :math:`\left(N_{clusters} \times 3 \times 3\right)`.
     The tensor is symmetric for each cluster.
 
     .. moduleauthor:: Joshua Anderson <joaander@umich.edu>

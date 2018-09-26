@@ -31,7 +31,7 @@ cdef class FloatCF:
     R"""Computes the real pairwise correlation function.
 
     The correlation function is given by
-    :math:`C(r) = \\left\\langle s_1(0) \\cdot s_2(r) \\right\\rangle` between
+    :math:`C(r) = \left\langle s_1(0) \cdot s_2(r) \right\rangle` between
     two sets of points :math:`p_1` (:code:`ref_points`) and :math:`p_2`
     (:code:`points`) with associated values :math:`s_1` (:code:`ref_values`)
     and :math:`s_2` (:code:`values`). Computing the correlation function
@@ -276,7 +276,7 @@ cdef class ComplexCF:
     R"""Computes the complex pairwise correlation function.
 
     The correlation function is given by
-    :math:`C(r) = \\left\\langle s_1(0) \\cdot s_2(r) \\right\\rangle` between
+    :math:`C(r) = \left\langle s_1(0) \cdot s_2(r) \right\rangle` between
     two sets of points :math:`p_1` (:code:`ref_points`) and :math:`p_2`
     (:code:`points`) with associated values :math:`s_1` (:code:`ref_values`)
     and :math:`s_2` (:code:`values`). Computing the correlation function
@@ -801,7 +801,7 @@ cdef class LocalDensity:
 cdef class RDF:
     R""" Computes RDF for supplied data.
 
-    The RDF (:math:`g \\left( r \\right)`) is computed and averaged for a given
+    The RDF (:math:`g \left( r \right)`) is computed and averaged for a given
     set of reference points in a sea of data points. Providing the same points
     calculates them against themselves. Computing the RDF results in an RDF
     array listing the value of the RDF at each given :math:`r`, listed in the
@@ -810,8 +810,8 @@ cdef class RDF:
     The values of :math:`r` to compute the RDF are set by the values of
     :code:`rmin`, :code:`rmax`, :code:`dr` in the constructor. :code:`rmax`
     sets the maximum distance at which to calculate the
-    :math:`g \\left( r \\right)`, :code:`rmin` sets the minimum distance at
-    which to calculate the :math:`g \\left( r \\right)`, and :code:`dr`
+    :math:`g \left( r \right)`, :code:`rmin` sets the minimum distance at
+    which to calculate the :math:`g \left( r \right)`, and :code:`dr`
     determines the step size for each bin.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
