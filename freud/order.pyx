@@ -1378,12 +1378,13 @@ cdef class SolLiq:
     cdef freud.box.Box m_box
     cdef rmax
 
-    def __init__(self, box, rmax, Qthreshold, Sthreshold, l):
+    def __cinit__(self, box, rmax, Qthreshold, Sthreshold, l, *args, **kwargs):
         cdef freud.box.Box b = freud.common.convert_box(box)
-        self.thisptr = new freud._order.SolLiq(
-            dereference(b.thisptr), rmax, Qthreshold, Sthreshold, l)
-        self.m_box = box
-        self.rmax = rmax
+        if type(self) is SolLiq:
+            self.thisptr = new freud._order.SolLiq(
+                dereference(b.thisptr), rmax, Qthreshold, Sthreshold, l)
+            self.m_box = box
+            self.rmax = rmax
 
     def __dealloc__(self):
         del self.thisptr
@@ -1666,13 +1667,14 @@ cdef class SolLiqNear(SolLiq):
     """  # noqa: E501
     cdef num_neigh
 
-    def __init__(self, box, rmax, Qthreshold, Sthreshold, l, kn=12):
+    def __cinit__(self, box, rmax, Qthreshold, Sthreshold, l, kn):
         cdef freud.box.Box b = freud.common.convert_box(box)
-        self.thisptr = new freud._order.SolLiq(
-            dereference(b.thisptr), rmax, Qthreshold, Sthreshold, l)
-        self.m_box = box
-        self.rmax = rmax
-        self.num_neigh = kn
+        if type(self) is SolLiqNear:
+            self.thisptr = new freud._order.SolLiq(
+                dereference(b.thisptr), rmax, Qthreshold, Sthreshold, l)
+            self.m_box = box
+            self.rmax = rmax
+            self.num_neigh = kn
 
     def __dealloc__(self):
         del self.thisptr
