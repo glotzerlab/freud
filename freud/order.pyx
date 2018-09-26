@@ -1667,7 +1667,7 @@ cdef class SolLiqNear(SolLiq):
     """  # noqa: E501
     cdef num_neigh
 
-    def __cinit__(self, box, rmax, Qthreshold, Sthreshold, l, kn):
+    def __cinit__(self, box, rmax, Qthreshold, Sthreshold, l, kn=12):
         cdef freud.box.Box b = freud.common.convert_box(box)
         if type(self) is SolLiqNear:
             self.thisptr = new freud._order.SolLiq(

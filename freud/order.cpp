@@ -56,19 +56,19 @@
         "name": "freud.order",
         "sources": [
             "freud/order.pyx",
-            "cpp/util/HOOMDMatrix.cc",
-            "cpp/order/wigner3j.cc",
-            "cpp/box/Box.cc",
-            "cpp/order/HexOrderParameter.cc",
-            "cpp/order/LocalQl.cc",
-            "cpp/order/CubaticOrderParameter.cc",
-            "cpp/order/NematicOrderParameter.cc",
             "cpp/order/TransOrderParameter.cc",
-            "cpp/locality/NeighborList.cc",
-            "cpp/cluster/Cluster.cc",
-            "cpp/locality/NearestNeighbors.cc",
+            "cpp/order/wigner3j.cc",
+            "cpp/order/HexOrderParameter.cc",
+            "cpp/util/HOOMDMatrix.cc",
             "cpp/locality/LinkCell.cc",
+            "cpp/order/NematicOrderParameter.cc",
+            "cpp/order/LocalQl.cc",
+            "cpp/box/Box.cc",
+            "cpp/order/CubaticOrderParameter.cc",
+            "cpp/cluster/Cluster.cc",
             "cpp/order/LocalWl.cc",
+            "cpp/locality/NearestNeighbors.cc",
+            "cpp/locality/NeighborList.cc",
             "cpp/order/SolLiq.cc"
         ]
     },
@@ -24187,7 +24187,7 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_32__setstate_cython__(CYTHON_UNU
 /* "freud/order.pyx":1670
  *     cdef num_neigh
  * 
- *     def __cinit__(self, box, rmax, Qthreshold, Sthreshold, l, kn):             # <<<<<<<<<<<<<<
+ *     def __cinit__(self, box, rmax, Qthreshold, Sthreshold, l, kn=12):             # <<<<<<<<<<<<<<
  *         cdef freud.box.Box b = freud.common.convert_box(box)
  *         if type(self) is SolLiqNear:
  */
@@ -24207,6 +24207,7 @@ static int __pyx_pw_5freud_5order_10SolLiqNear_1__cinit__(PyObject *__pyx_v_self
   {
     static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_box,&__pyx_n_s_rmax,&__pyx_n_s_Qthreshold,&__pyx_n_s_Sthreshold,&__pyx_n_s_l,&__pyx_n_s_kn,0};
     PyObject* values[6] = {0,0,0,0,0,0};
+    values[5] = ((PyObject *)__pyx_int_12);
     if (unlikely(__pyx_kwds)) {
       Py_ssize_t kw_args;
       const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
@@ -24235,45 +24236,48 @@ static int __pyx_pw_5freud_5order_10SolLiqNear_1__cinit__(PyObject *__pyx_v_self
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_rmax)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 6, 6, 1); __PYX_ERR(0, 1670, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__cinit__", 0, 5, 6, 1); __PYX_ERR(0, 1670, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_Qthreshold)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 6, 6, 2); __PYX_ERR(0, 1670, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__cinit__", 0, 5, 6, 2); __PYX_ERR(0, 1670, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  3:
         if (likely((values[3] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_Sthreshold)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 6, 6, 3); __PYX_ERR(0, 1670, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__cinit__", 0, 5, 6, 3); __PYX_ERR(0, 1670, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  4:
         if (likely((values[4] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_l)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 6, 6, 4); __PYX_ERR(0, 1670, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__cinit__", 0, 5, 6, 4); __PYX_ERR(0, 1670, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  5:
-        if (likely((values[5] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_kn)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 6, 6, 5); __PYX_ERR(0, 1670, __pyx_L3_error)
+        if (kw_args > 0) {
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_kn);
+          if (value) { values[5] = value; kw_args--; }
         }
       }
       if (unlikely(kw_args > 0)) {
         if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__cinit__") < 0)) __PYX_ERR(0, 1670, __pyx_L3_error)
       }
-    } else if (PyTuple_GET_SIZE(__pyx_args) != 6) {
-      goto __pyx_L5_argtuple_error;
     } else {
-      values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
-      values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
-      values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
-      values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
-      values[4] = PyTuple_GET_ITEM(__pyx_args, 4);
-      values[5] = PyTuple_GET_ITEM(__pyx_args, 5);
+      switch (PyTuple_GET_SIZE(__pyx_args)) {
+        case  6: values[5] = PyTuple_GET_ITEM(__pyx_args, 5);
+        CYTHON_FALLTHROUGH;
+        case  5: values[4] = PyTuple_GET_ITEM(__pyx_args, 4);
+        values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
+        values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
+        values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
+        values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+        break;
+        default: goto __pyx_L5_argtuple_error;
+      }
     }
     __pyx_v_box = values[0];
     __pyx_v_rmax = values[1];
@@ -24284,7 +24288,7 @@ static int __pyx_pw_5freud_5order_10SolLiqNear_1__cinit__(PyObject *__pyx_v_self
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 6, 6, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1670, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__cinit__", 0, 5, 6, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1670, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("freud.order.SolLiqNear.__cinit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -24315,7 +24319,7 @@ static int __pyx_pf_5freud_5order_10SolLiqNear___cinit__(struct __pyx_obj_5freud
 
   /* "freud/order.pyx":1671
  * 
- *     def __cinit__(self, box, rmax, Qthreshold, Sthreshold, l, kn):
+ *     def __cinit__(self, box, rmax, Qthreshold, Sthreshold, l, kn=12):
  *         cdef freud.box.Box b = freud.common.convert_box(box)             # <<<<<<<<<<<<<<
  *         if type(self) is SolLiqNear:
  *             self.thisptr = new freud._order.SolLiq(
@@ -24376,7 +24380,7 @@ static int __pyx_pf_5freud_5order_10SolLiqNear___cinit__(struct __pyx_obj_5freud
   __pyx_t_1 = 0;
 
   /* "freud/order.pyx":1672
- *     def __cinit__(self, box, rmax, Qthreshold, Sthreshold, l, kn):
+ *     def __cinit__(self, box, rmax, Qthreshold, Sthreshold, l, kn=12):
  *         cdef freud.box.Box b = freud.common.convert_box(box)
  *         if type(self) is SolLiqNear:             # <<<<<<<<<<<<<<
  *             self.thisptr = new freud._order.SolLiq(
@@ -24450,7 +24454,7 @@ static int __pyx_pf_5freud_5order_10SolLiqNear___cinit__(struct __pyx_obj_5freud
     __pyx_v_self->num_neigh = __pyx_v_kn;
 
     /* "freud/order.pyx":1672
- *     def __cinit__(self, box, rmax, Qthreshold, Sthreshold, l, kn):
+ *     def __cinit__(self, box, rmax, Qthreshold, Sthreshold, l, kn=12):
  *         cdef freud.box.Box b = freud.common.convert_box(box)
  *         if type(self) is SolLiqNear:             # <<<<<<<<<<<<<<
  *             self.thisptr = new freud._order.SolLiq(
@@ -24461,7 +24465,7 @@ static int __pyx_pf_5freud_5order_10SolLiqNear___cinit__(struct __pyx_obj_5freud
   /* "freud/order.pyx":1670
  *     cdef num_neigh
  * 
- *     def __cinit__(self, box, rmax, Qthreshold, Sthreshold, l, kn):             # <<<<<<<<<<<<<<
+ *     def __cinit__(self, box, rmax, Qthreshold, Sthreshold, l, kn=12):             # <<<<<<<<<<<<<<
  *         cdef freud.box.Box b = freud.common.convert_box(box)
  *         if type(self) is SolLiqNear:
  */
