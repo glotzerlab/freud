@@ -799,6 +799,8 @@ cdef class ParticleBuffer:
     .. moduleauthor:: Ben Schultz <baschult@umich.edu>
     .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
 
+    .. versionadded:: 0.11
+
     Args:
         box (:py:class:`freud.box.Box`): Simulation box.
 
