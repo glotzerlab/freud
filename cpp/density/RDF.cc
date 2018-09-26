@@ -18,7 +18,7 @@ using namespace tbb;
 namespace freud { namespace density {
 
 RDF::RDF(float rmax, float dr, float rmin)
-    : m_box(box::Box()), m_rmax(rmax), m_rmin(rmin), m_dr(dr), m_frame_counter(0)
+    : m_box(box::Box()), m_rmax(rmax), m_rmin(rmin), m_dr(dr), m_frame_counter(0), m_reduce(true)
     {
     if (dr <= 0.0f)
         throw invalid_argument("dr must be positive");
@@ -165,14 +165,22 @@ std::shared_ptr<float> RDF::getR()
 //! Get a reference to the RDF histogram array
 std::shared_ptr<float> RDF::getRDF()
     {
-    reduceRDF();
+    if (m_reduce == true)
+        {
+        reduceRDF();
+        }
+    m_reduce = false;
     return m_rdf_array;
     }
 
 //! Get a reference to the cumulative RDF histogram array
 std::shared_ptr<float> RDF::getNr()
     {
-    reduceRDF();
+    if (m_reduce == true)
+        {
+        reduceRDF();
+        }
+    m_reduce = false;
     return m_N_r_array;
     }
 
@@ -193,6 +201,7 @@ void RDF::reset()
         }
     // reset the frame counter
     m_frame_counter = 0;
+    m_reduce = true;
     }
 
 //! \internal
@@ -275,5 +284,6 @@ void RDF::accumulate(box::Box& box,
             } // done looping over bonds
         });
     m_frame_counter += 1;
+    m_reduce = true;
     }
 }; }; // end namespace freud::density
