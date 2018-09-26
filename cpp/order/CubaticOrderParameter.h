@@ -45,8 +45,6 @@ class CubaticOrderParameter
 
         void calcCubaticOrderParameter(float &cubatic_order_parameter, float *cubatic_tensor);
 
-        void reduceCubaticOrderParameter();
-
         //! Get a reference to the last computed cubatic order parameter
         float getCubaticOrderParameter();
 
