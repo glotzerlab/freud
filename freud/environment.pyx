@@ -144,8 +144,7 @@ cdef class BondOrder:
                 Reference points used to calculate bonds.
             ref_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
                 Reference orientations used to calculate bonds.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,
-            optional):
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
                 Points used to calculate bonds. Uses :code:`ref_points` if not
                 provided or :code:`None`.
             orientations ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
@@ -282,12 +281,10 @@ cdef class BondOrder:
                 Reference points used to calculate bonds.
             ref_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
                 Reference orientations used to calculate bonds.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,
-            optional):
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
                 Points used to calculate bonds. Uses :code:`ref_points` if not
                 provided or :code:`None`.
-            orientations ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,
-            optional):
+            orientations ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
                 Orientations used to calculate bonds. Uses
                 :code:`ref_orientations` if not provided or :code:`None`.
             mode (str, optional):
