@@ -21,7 +21,7 @@ cimport numpy as np
 np.import_array()
 
 cdef class Index2D:
-    """freud-style indexer for flat arrays.
+    R"""freud-style indexer for flat arrays.
 
     Once constructed, the object provides direct access to the flat index
     equivalent:
@@ -70,7 +70,7 @@ cdef class Index2D:
         del self.thisptr
 
     def __call__(self, i, j):
-        """
+        R"""
         Args:
             i (unsigned int): Column index.
             j (unsigned int): Row index.
@@ -92,7 +92,7 @@ cdef class Index2D:
         return self.num_elements
 
 cdef class Index3D:
-    """freud-style indexer for flat arrays.
+    R"""freud-style indexer for flat arrays.
 
     Once constructed, the object provides direct access to the flat index
     equivalent:
@@ -141,7 +141,7 @@ cdef class Index3D:
         del self.thisptr
 
     def __call__(self, i, j, k):
-        """
+        R"""
         Args:
             i (unsigned int): Column index.
             j (unsigned int): Row index.

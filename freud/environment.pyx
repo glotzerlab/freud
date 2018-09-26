@@ -33,7 +33,7 @@ np.import_array()
 
 
 cdef class BondOrder:
-    """Compute the bond orientational order diagram for the system of
+    R"""Compute the bond orientational order diagram for the system of
     particles.
 
     The bond orientational order diagram (BOOD) is a way of studying the
@@ -121,6 +121,7 @@ cdef class BondOrder:
 
     .. todo:: remove k, it is not used as such.
     """  # noqa: E501
+
     def __cinit__(self, float rmax, float k, unsigned int n,
                   unsigned int n_bins_t, unsigned int n_bins_p):
         self.thisptr = new freud._environment.BondOrder(
@@ -133,7 +134,7 @@ cdef class BondOrder:
 
     def accumulate(self, box, ref_points, ref_orientations, points=None,
                    orientations=None, str mode="bod", nlist=None):
-        """Calculates the correlation function and adds to the current
+        R"""Calculates the correlation function and adds to the current
         histogram.
 
         Args:
@@ -260,7 +261,7 @@ cdef class BondOrder:
         return self.box
 
     def reset(self):
-        """Resets the values of the bond order in memory."""
+        R"""Resets the values of the bond order in memory."""
         self.thisptr.reset()
 
     def resetBondOrder(self):
@@ -271,7 +272,7 @@ cdef class BondOrder:
 
     def compute(self, box, ref_points, ref_orientations, points=None,
                 orientations=None, mode="bod", nlist=None):
-        """Calculates the bond order histogram. Will overwrite the current
+        R"""Calculates the bond order histogram. Will overwrite the current
         histogram.
 
         Args:
@@ -367,7 +368,7 @@ cdef class BondOrder:
 
 
 cdef class LocalDescriptors:
-    """Compute a set of descriptors (a numerical "fingerprint") of a particle's
+    R"""Compute a set of descriptors (a numerical "fingerprint") of a particle's
     local environment.
 
     The resulting spherical harmonic array will be a complex-valued
@@ -424,7 +425,7 @@ cdef class LocalDescriptors:
         del self.thisptr
 
     def computeNList(self, box, points_ref, points=None):
-        """Compute the neighbor list for bonds from a set of source points to
+        R"""Compute the neighbor list for bonds from a set of source points to
         a set of destination points.
 
         Args:
@@ -464,7 +465,7 @@ cdef class LocalDescriptors:
 
     def compute(self, box, unsigned int num_neighbors, points_ref, points=None,
                 orientations=None, mode='neighborhood', nlist=None):
-        """Calculates the local descriptors of bonds from a set of source
+        R"""Calculates the local descriptors of bonds from a set of source
         points to a set of destination points.
 
         .. note: **You must always call computeNList before this method.**
@@ -616,7 +617,7 @@ cdef class LocalDescriptors:
 
 
 cdef class MatchEnv:
-    """Clusters particles according to whether their local environments match
+    R"""Clusters particles according to whether their local environments match
     or not, according to various shape matching metrics.
 
     .. moduleauthor:: Erin Teich <erteich@umich.edu>
@@ -641,6 +642,7 @@ cdef class MatchEnv:
         clusters (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):
             The per-particle index indicating cluster membership.
     """  # noqa: E501
+
     def __cinit__(self, box, rmax, k):
         cdef freud.box.Box b = freud.common.convert_box(box)
 
@@ -655,7 +657,7 @@ cdef class MatchEnv:
         del self.thisptr
 
     def setBox(self, box):
-        """Reset the simulation box.
+        R"""Reset the simulation box.
 
         Args:
             box (:class:`freud.box.Box`): Simulation box.
@@ -666,7 +668,7 @@ cdef class MatchEnv:
 
     def cluster(self, points, threshold, hard_r=False, registration=False,
                 global_search=False, env_nlist=None, nlist=None):
-        """Determine clusters of particles with matching environments.
+        R"""Determine clusters of particles with matching environments.
 
         Args:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
@@ -733,7 +735,7 @@ cdef class MatchEnv:
 
     def matchMotif(self, points, refPoints, threshold, registration=False,
                    nlist=None):
-        """Determine clusters of particles that match the motif provided by
+        R"""Determine clusters of particles that match the motif provided by
         refPoints.
 
         Args:
@@ -784,7 +786,7 @@ cdef class MatchEnv:
             registration)
 
     def minRMSDMotif(self, points, refPoints, registration=False, nlist=None):
-        """Rotate (if registration=True) and permute the environments of all
+        R"""Rotate (if registration=True) and permute the environments of all
         particles to minimize their RMSD with respect to the motif provided by
         refPoints.
 
@@ -838,7 +840,7 @@ cdef class MatchEnv:
         return min_rmsd_vec
 
     def isSimilar(self, refPoints1, refPoints2, threshold, registration=False):
-        """Test if the motif provided by refPoints1 is similar to the motif
+        R"""Test if the motif provided by refPoints1 is similar to the motif
         provided by refPoints2.
 
         Args:
@@ -899,7 +901,7 @@ cdef class MatchEnv:
         return [rot_refPoints2, vec_map]
 
     def minimizeRMSD(self, refPoints1, refPoints2, registration=False):
-        """Get the somewhat-optimal RMSD between the set of vectors refPoints1
+        R"""Get the somewhat-optimal RMSD between the set of vectors refPoints1
         and the set of vectors refPoints2.
 
         Args:
@@ -974,7 +976,7 @@ cdef class MatchEnv:
         return self.clusters
 
     def getEnvironment(self, i):
-        """Returns the set of vectors defining the environment indexed by i.
+        R"""Returns the set of vectors defining the environment indexed by i.
 
         Args:
             i (unsigned int): Environment index.
@@ -1038,7 +1040,7 @@ cdef class MatchEnv:
 
 
 cdef class Pairing2D:
-    """Compute pairs for the system of particles.
+    R"""Compute pairs for the system of particles.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
@@ -1061,6 +1063,7 @@ cdef class Pairing2D:
         box (:class:`freud.box.Box`):
             Box used in the calculation.
     """
+
     def __cinit__(self, rmax, k, compDotTol):
         warnings.warn("This class is deprecated, use freud.bond instead!",
                       FreudDeprecationWarning)
@@ -1072,7 +1075,7 @@ cdef class Pairing2D:
         del self.thisptr
 
     def compute(self, box, points, orientations, compOrientations, nlist=None):
-        """Calculates the correlation function and adds to the current
+        R"""Calculates the correlation function and adds to the current
         histogram.
 
         Args:
@@ -1164,7 +1167,7 @@ cdef class Pairing2D:
 
 
 cdef class AngularSeparation:
-    """Calculates the minimum angles of separation between particles and
+    R"""Calculates the minimum angles of separation between particles and
     references.
 
     .. moduleauthor:: Erin Teich <erteich@umich.edu>
@@ -1199,6 +1202,7 @@ cdef class AngularSeparation:
     .. todo Need to figure out what happens if you use a neighborlist with
             strict_cut=True
     """  # noqa: E501
+
     def __cinit__(self, rmax, n):
         self.thisptr = new freud._environment.AngularSeparation()
         self.rmax = rmax
@@ -1214,7 +1218,7 @@ cdef class AngularSeparation:
 
     def computeNeighbor(self, box, ref_ors, ors, ref_points, points,
                         equiv_quats, nlist=None):
-        """Calculates the minimum angles of separation between ref_ors and ors,
+        R"""Calculates the minimum angles of separation between ref_ors and ors,
         checking for underlying symmetry as encoded in equiv_quats. The result
         is stored in the :code:`neighbor_angles` class attribute.
 
@@ -1290,7 +1294,7 @@ cdef class AngularSeparation:
         return self
 
     def computeGlobal(self, global_ors, ors, equiv_quats):
-        """Calculates the minimum angles of separation between
+        R"""Calculates the minimum angles of separation between
         :code:`global_ors` and :code:`ors`, checking for underlying symmetry as
         encoded in :code`equiv_quats`. The result is stored in the
         :code:`global_angles` class attribute.
@@ -1414,7 +1418,7 @@ cdef class AngularSeparation:
 
 
 cdef class LocalBondProjection:
-    """Calculates the maximal projection of nearest neighbor bonds for each
+    R"""Calculates the maximal projection of nearest neighbor bonds for each
     particle onto some set of reference vectors, defined in the particles'
     local reference frame.
 
@@ -1463,7 +1467,7 @@ cdef class LocalBondProjection:
 
     def compute(self, box, proj_vecs, ref_points, ref_ors, points=None,
                 equiv_quats=np.array([[1, 0, 0, 0]]), nlist=None):
-        """Calculates the maximal projections of nearest neighbor bonds
+        R"""Calculates the maximal projections of nearest neighbor bonds
         (between :code:`ref_points` and :code:`points`) onto the set of
         reference vectors :code:`proj_vecs`, defined in the local reference
         frames of the :code:`ref_points` as defined by the orientations

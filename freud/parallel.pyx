@@ -23,7 +23,7 @@ _numThreads = 0
 
 
 def setNumThreads(nthreads=None):
-    """Set the number of threads for parallel computation.
+    R"""Set the number of threads for parallel computation.
 
     .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
 
@@ -47,7 +47,7 @@ if (re.match("flux.", platform.node()) is not None) or (
 
 
 class NumThreads:
-    """Context manager for managing the number of threads to use.
+    R"""Context manager for managing the number of threads to use.
 
     .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
 

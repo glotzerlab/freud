@@ -51,7 +51,7 @@ cimport numpy as np
 np.import_array()
 
 cdef class _PMFT:
-    """Compute the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ for a
+    R"""Compute the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ for a
     given set of points.
 
     This class provides an abstract interface for computing the PMFT.
@@ -83,7 +83,7 @@ cdef class _PMFT:
         return self.box
 
     def reset(self):
-        """Resets the values of the PCF histograms in memory."""
+        R"""Resets the values of the PCF histograms in memory."""
         self.pmftptr.reset()
 
     def resetPCF(self):
@@ -123,7 +123,7 @@ cdef class _PMFT:
 
 
 cdef class PMFTR12(_PMFT):
-    """Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ in a 2D
+    R"""Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ in a 2D
     system described by :math:`r`, :math:`\\theta_1`, :math:`\\theta_2`.
 
     .. note::
@@ -186,7 +186,7 @@ cdef class PMFTR12(_PMFT):
 
     def accumulate(self, box, ref_points, ref_orientations, points=None,
                    orientations=None, nlist=None):
-        """Calculates the positional correlation function and adds to the
+        R"""Calculates the positional correlation function and adds to the
         current histogram.
 
         Args:
@@ -258,7 +258,7 @@ cdef class PMFTR12(_PMFT):
 
     def compute(self, box, ref_points, ref_orientations, points=None,
                 orientations=None, nlist=None):
-        """Calculates the positional correlation function for the given points.
+        R"""Calculates the positional correlation function for the given points.
         Will overwrite the current histogram.
 
         Args:
@@ -425,7 +425,7 @@ cdef class PMFTR12(_PMFT):
 
 
 cdef class PMFTXYT(_PMFT):
-    """Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ for
+    R"""Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ for
     systems described by coordinates :math:`x`, :math:`y`, :math:`\\theta`
     listed in the ``X``, ``Y``, and ``T`` arrays.
 
@@ -499,7 +499,7 @@ cdef class PMFTXYT(_PMFT):
 
     def accumulate(self, box, ref_points, ref_orientations, points=None,
                    orientations=None, nlist=None):
-        """Calculates the positional correlation function and adds to the
+        R"""Calculates the positional correlation function and adds to the
         current histogram.
 
         Args:
@@ -571,7 +571,7 @@ cdef class PMFTXYT(_PMFT):
 
     def compute(self, box, ref_points, ref_orientations, points=None,
                 orientations=None, nlist=None):
-        """Calculates the positional correlation function for the given points.
+        R"""Calculates the positional correlation function for the given points.
         Will overwrite the current histogram.
 
         Args:
@@ -731,7 +731,7 @@ cdef class PMFTXYT(_PMFT):
 
 
 cdef class PMFTXY2D(_PMFT):
-    """Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ in
+    R"""Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ in
     coordinates :math:`x`, :math:`y` listed in the ``X`` and ``Y`` arrays.
 
     The values of :math:`x` and :math:`y` at which to compute the PCF are
@@ -794,7 +794,7 @@ cdef class PMFTXY2D(_PMFT):
 
     def accumulate(self, box, ref_points, ref_orientations, points=None,
                    orientations=None, nlist=None):
-        """Calculates the positional correlation function and adds to the
+        R"""Calculates the positional correlation function and adds to the
         current histogram.
 
         Args:
@@ -866,7 +866,7 @@ cdef class PMFTXY2D(_PMFT):
 
     def compute(self, box, ref_points, ref_orientations, points=None,
                 orientations=None, nlist=None):
-        """Calculates the positional correlation function for the given points.
+        R"""Calculates the positional correlation function for the given points.
         Will overwrite the current histogram.
 
         Args:
@@ -996,7 +996,7 @@ cdef class PMFTXY2D(_PMFT):
 
 
 cdef class PMFTXYZ(_PMFT):
-    """Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ in
+    R"""Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ in
     coordinates :math:`x`, :math:`y`, :math:`z`, listed in the ``X``, ``Y``,
     and ``Z`` arrays.
 
@@ -1075,7 +1075,7 @@ cdef class PMFTXYZ(_PMFT):
 
     def accumulate(self, box, ref_points, ref_orientations, points=None,
                    orientations=None, face_orientations=None, nlist=None):
-        """Calculates the positional correlation function and adds to the
+        R"""Calculates the positional correlation function and adds to the
         current histogram.
 
         Args:
@@ -1211,7 +1211,7 @@ cdef class PMFTXYZ(_PMFT):
 
     def compute(self, box, ref_points, ref_orientations, points=None,
                 orientations=None, face_orientations=None, nlist=None):
-        """Calculates the positional correlation function for the given points.
+        R"""Calculates the positional correlation function for the given points.
         Will overwrite the current histogram.
 
         Args:

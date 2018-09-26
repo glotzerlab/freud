@@ -39,7 +39,7 @@ logger = logging.getLogger(__name__)
 np.import_array()
 
 cdef class Box:
-    """The freud Box class for simulation boxes.
+    R"""The freud Box class for simulation boxes.
 
     .. moduleauthor:: Richmond Newman <newmanrs@umich.edu>
     .. moduleauthor:: Carl Simon Adorf <csadorf@umich.edu>
@@ -100,6 +100,7 @@ cdef class Box:
         periodic_z (bool, settable):
             Whether or not the box is periodic in z.
     """
+
     def __cinit__(self, Lx=None, Ly=None, Lz=None, xy=None, xz=None, yz=None,
                   is2D=None):
         if Lx is None:
@@ -255,7 +256,7 @@ cdef class Box:
         self.thisptr.set2D(bool(value == 2))
 
     def is2D(self):
-        """Return if box is 2D (True) or 3D (False).
+        R"""Return if box is 2D (True) or 3D (False).
 
         Returns:
             bool: True if 2D, False if 3D.
@@ -300,7 +301,7 @@ cdef class Box:
         return self.makeCoordinates(f)
 
     def makeCoordinates(self, f):
-        """Convert fractional coordinates into real coordinates.
+        R"""Convert fractional coordinates into real coordinates.
 
         Args:
             f (:math:`\\left(3\\right)` :class:`numpy.ndarray`):
@@ -318,7 +319,7 @@ cdef class Box:
         return [result.x, result.y, result.z]
 
     def makeFraction(self, vec):
-        """Convert real coordinates into fractional coordinates.
+        R"""Convert real coordinates into fractional coordinates.
 
         Args:
             vec (:math:`\\left(3\\right)` :class:`numpy.ndarray`):
@@ -335,7 +336,7 @@ cdef class Box:
         return [result.x, result.y, result.z]
 
     def getImage(self, vec):
-        """Returns the image corresponding to a wrapped vector.
+        R"""Returns the image corresponding to a wrapped vector.
 
         .. versionadded:: 0.8
 
@@ -354,7 +355,7 @@ cdef class Box:
         return [result.x, result.y, result.z]
 
     def getLatticeVector(self, i):
-        """Get the lattice vector with index :math:`i`.
+        R"""Get the lattice vector with index :math:`i`.
 
         Args:
             i (unsigned int):
@@ -370,7 +371,7 @@ cdef class Box:
         return [result.x, result.y, result.z]
 
     def wrap(self, vecs):
-        """Wrap a given array of vectors from real space into the box, using
+        R"""Wrap a given array of vectors from real space into the box, using
         the periodic boundaries.
 
         .. note:: Since the origin of the box is in the center, wrapping is
@@ -404,13 +405,13 @@ cdef class Box:
         return vecs
 
     def _wrap(self, vec):
-        """Wrap a single vector."""
+        R"""Wrap a single vector."""
         cdef np.ndarray[float, ndim=1] l_vec = vec
         cdef vec3[float] result = self.thisptr.wrap(<vec3[float]&> l_vec[0])
         return (result.x, result.y, result.z)
 
     def unwrap(self, vecs, imgs):
-        """Unwrap a given array of vectors inside the box back into real space,
+        R"""Unwrap a given array of vectors inside the box back into real space,
         using an array of image indices that determine how many times to
         unwrap in each dimension.
 
@@ -449,7 +450,7 @@ cdef class Box:
         return vecs
 
     def _unwrap(self, vec, img):
-        """Unwrap a single vector."""
+        R"""Unwrap a single vector."""
         cdef np.ndarray[float, ndim=1] l_vec = vec
         cdef np.ndarray[int, ndim=1] l_img = img
         cdef vec3[float] result = self.thisptr.unwrap(
@@ -551,7 +552,7 @@ cdef class Box:
         self.periodic_z = val
 
     def to_dict(self):
-        """Return box as dictionary.
+        R"""Return box as dictionary.
 
         Returns:
           dict: Box parameters
@@ -566,7 +567,7 @@ cdef class Box:
             'dimensions': self.dimensions}
 
     def to_tuple(self):
-        """Returns the box as named tuple.
+        R"""Returns the box as named tuple.
 
         Returns:
             namedtuple: Box parameters
@@ -577,7 +578,7 @@ cdef class Box:
                           xy=self.xy, xz=self.xz, yz=self.yz)
 
     def to_matrix(self):
-        """Returns the box matrix (3x3).
+        R"""Returns the box matrix (3x3).
 
         Returns:
             list of lists, shape 3x3: box matrix
@@ -595,7 +596,7 @@ cdef class Box:
         return self.to_dict() == other.to_dict()
 
     def __richcmp__(self, other, int op):
-        """Implement all comparisons for Cython extension classes"""
+        R"""Implement all comparisons for Cython extension classes"""
         if op == Py_EQ:
             return self._eq(other)
         if op == Py_NE:
@@ -623,7 +624,7 @@ cdef class Box:
 
     @classmethod
     def from_box(cls, box, dimensions=None):
-        """Initialize a box instance from a box-like object.
+        R"""Initialize a box instance from a box-like object.
 
         Args:
             box:
@@ -715,7 +716,7 @@ cdef class Box:
 
     @classmethod
     def from_matrix(cls, boxMatrix, dimensions=None):
-        """Initialize a box instance from a box matrix.
+        R"""Initialize a box instance from a box matrix.
 
         For more information and the source for this code,
         see: http://hoomd-blue.readthedocs.io/en/stable/box.html
@@ -750,7 +751,7 @@ cdef class Box:
 
     @classmethod
     def cube(cls, L=None):
-        """Construct a cubic box with equal lengths.
+        R"""Construct a cubic box with equal lengths.
 
         Args:
             L (float): The edge length
@@ -764,7 +765,7 @@ cdef class Box:
 
     @classmethod
     def square(cls, L=None):
-        """Construct a 2-dimensional (square) box with equal lengths.
+        R"""Construct a 2-dimensional (square) box with equal lengths.
 
         Args:
             L (float): The edge length
@@ -793,7 +794,7 @@ cdef BoxFromCPP(const freud._box.Box & cppbox):
 
 
 cdef class ParticleBuffer:
-    """Replicates particles outside the box via periodic images.
+    R"""Replicates particles outside the box via periodic images.
 
     .. moduleauthor:: Ben Schultz <baschult@umich.edu>
     .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
@@ -809,12 +810,13 @@ cdef class ParticleBuffer:
         buffer_box (:class:`freud.box.Box`):
             The buffer box, expanded to hold the replicated particles.
     """
+
     def __cinit__(self, box):
         cdef Box b = freud.common.convert_box(box)
         self.thisptr = new freud._box.ParticleBuffer(dereference(b.thisptr))
 
     def compute(self, points, float buffer, bool_t images=False):
-        """Compute the particle buffer.
+        R"""Compute the particle buffer.
 
         Args:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):

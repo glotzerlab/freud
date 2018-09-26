@@ -43,7 +43,7 @@ cimport numpy as np
 np.import_array()
 
 cdef class CubaticOrderParameter:
-    """Compute the cubatic order parameter [HajiAkbari2015]_ for a system of
+    R"""Compute the cubatic order parameter [HajiAkbari2015]_ for a system of
     particles using simulated annealing instead of Newton-Raphson root finding.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
@@ -116,7 +116,7 @@ cdef class CubaticOrderParameter:
             t_initial, t_final, scale, <float*> r4.data, n_replicates, seed)
 
     def compute(self, orientations):
-        """Calculates the per-particle and global order parameter.
+        R"""Calculates the per-particle and global order parameter.
 
         Args:
             orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
@@ -296,7 +296,7 @@ cdef class CubaticOrderParameter:
 
 
 cdef class NematicOrderParameter:
-    """Compute the nematic order parameter for a system of particles.
+    R"""Compute the nematic order parameter for a system of particles.
 
     .. moduleauthor:: Jens Glaser <jsglaser@umich.edu>
 
@@ -331,7 +331,7 @@ cdef class NematicOrderParameter:
             (<vec3[float]*> l_u.data)[0])
 
     def compute(self, orientations):
-        """Calculates the per-particle and global order parameter.
+        R"""Calculates the per-particle and global order parameter.
 
         Args:
             orientations (:math:`\\left(N_{particles}, 4 \\right)` :class:`numpy.ndarray`):
@@ -415,7 +415,7 @@ cdef class NematicOrderParameter:
 
 
 cdef class HexOrderParameter:
-    """Calculates the :math:`k`-atic order parameter for each particle in the
+    R"""Calculates the :math:`k`-atic order parameter for each particle in the
     system.
 
     The :math:`k`-atic order parameter for a particle :math:`i` and its
@@ -467,7 +467,7 @@ cdef class HexOrderParameter:
         del self.thisptr
 
     def compute(self, box, points, nlist=None):
-        """Calculates the correlation function and adds to the current
+        R"""Calculates the correlation function and adds to the current
         histogram.
 
         Args:
@@ -550,7 +550,7 @@ cdef class HexOrderParameter:
 
 
 cdef class TransOrderParameter:
-    """Compute the translational order parameter for each particle.
+    R"""Compute the translational order parameter for each particle.
 
     .. moduleauthor:: Michael Engel <engelmm@umich.edu>
 
@@ -583,7 +583,7 @@ cdef class TransOrderParameter:
         del self.thisptr
 
     def compute(self, box, points, nlist=None):
-        """Calculates the local descriptors.
+        R"""Calculates the local descriptors.
 
         Args:
             box (:class:`freud.box.Box`):
@@ -653,7 +653,7 @@ cdef class TransOrderParameter:
 
 
 cdef class LocalQl:
-    """Compute the local Steinhardt [Steinhardt1983]_ rotationally invariant
+    R"""Compute the local Steinhardt [Steinhardt1983]_ rotationally invariant
     :math:`Q_l` order parameter for a set of points.
 
     Implements the local rotationally invariant :math:`Q_l` order parameter
@@ -753,7 +753,7 @@ cdef class LocalQl:
         self.qlptr.setBox(dereference(b.thisptr))
 
     def setBox(self, box):
-        """Reset the simulation box.
+        R"""Reset the simulation box.
 
         Args:
             box (:class:`freud.box.Box`): Simulation box.
@@ -837,7 +837,7 @@ cdef class LocalQl:
         return self.ave_norm_Ql
 
     def compute(self, points, nlist=None):
-        """Compute the order parameter.
+        R"""Compute the order parameter.
 
         Args:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
@@ -860,7 +860,7 @@ cdef class LocalQl:
         return self
 
     def computeAve(self, points, nlist=None):
-        """Compute the order parameter over two nearest neighbor shells.
+        R"""Compute the order parameter over two nearest neighbor shells.
 
         Args:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
@@ -887,7 +887,7 @@ cdef class LocalQl:
         return self
 
     def computeNorm(self, points, nlist=None):
-        """Compute the order parameter normalized by the average spherical
+        R"""Compute the order parameter normalized by the average spherical
         harmonic value over all the particles.
 
         Args:
@@ -913,7 +913,7 @@ cdef class LocalQl:
         return self
 
     def computeAveNorm(self, points, nlist=None):
-        """Compute the order parameter over two nearest neighbor shells
+        R"""Compute the order parameter over two nearest neighbor shells
         normalized by the average spherical harmonic value over all the
         particles.
 
@@ -944,7 +944,7 @@ cdef class LocalQl:
 
 
 cdef class LocalQlNear(LocalQl):
-    """A variant of the :class:`~LocalQl` class that performs its average
+    R"""A variant of the :class:`~LocalQl` class that performs its average
     over nearest neighbor particles as determined by an instance of
     :class:`freud.locality.NeighborList`. The number of included neighbors
     is determined by the kn parameter to the constructor.
@@ -1006,7 +1006,7 @@ cdef class LocalQlNear(LocalQl):
             self.qlptr = NULL
 
     def computeAve(self, points, nlist=None):
-        """Compute the order parameter over two nearest neighbor shells.
+        R"""Compute the order parameter over two nearest neighbor shells.
 
         Args:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
@@ -1020,7 +1020,7 @@ cdef class LocalQlNear(LocalQl):
         return super(LocalQlNear, self).computeAve(points, nlist_)
 
     def computeNorm(self, points, nlist=None):
-        """Compute the order parameter normalized by the average spherical
+        R"""Compute the order parameter normalized by the average spherical
         harmonic value over all the particles.
 
         Args:
@@ -1035,7 +1035,7 @@ cdef class LocalQlNear(LocalQl):
         return super(LocalQlNear, self).computeNorm(points, nlist_)
 
     def computeAveNorm(self, points, nlist=None):
-        """Compute the order parameter over two nearest neighbor shells
+        R"""Compute the order parameter over two nearest neighbor shells
         normalized by the average spherical harmonic value over all the
         particles.
 
@@ -1052,7 +1052,7 @@ cdef class LocalQlNear(LocalQl):
 
 
 cdef class LocalWl(LocalQl):
-    """Compute the local Steinhardt [Steinhardt1983]_ rotationally invariant
+    R"""Compute the local Steinhardt [Steinhardt1983]_ rotationally invariant
     :math:`W_l` order parameter for a set of points.
 
     Implements the local rotationally invariant :math:`W_l` order parameter
@@ -1225,7 +1225,7 @@ cdef class LocalWl(LocalQl):
 
 
 cdef class LocalWlNear(LocalWl):
-    """A variant of the :class:`~LocalWl` class that performs its average
+    R"""A variant of the :class:`~LocalWl` class that performs its average
     over nearest neighbor particles as determined by an instance of
     :class:`freud.locality.NeighborList`. The number of included neighbors
     is determined by the kn parameter to the constructor.
@@ -1283,7 +1283,7 @@ cdef class LocalWlNear(LocalWl):
         self.thisptr = NULL
 
     def computeAve(self, points, nlist=None):
-        """Compute the order parameter over two nearest neighbor shells.
+        R"""Compute the order parameter over two nearest neighbor shells.
 
         Args:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
@@ -1297,7 +1297,7 @@ cdef class LocalWlNear(LocalWl):
         return super(LocalWlNear, self).computeAve(points, nlist_)
 
     def computeNorm(self, points, nlist=None):
-        """Compute the order parameter normalized by the average spherical
+        R"""Compute the order parameter normalized by the average spherical
         harmonic value over all the particles.
 
         Args:
@@ -1312,7 +1312,7 @@ cdef class LocalWlNear(LocalWl):
         return super(LocalWlNear, self).computeNorm(points, nlist_)
 
     def computeAveNorm(self, points, nlist=None):
-        """Compute the order parameter over two nearest neighbor shells
+        R"""Compute the order parameter over two nearest neighbor shells
         normalized by the average spherical harmonic value over all the
         particles.
 
@@ -1329,7 +1329,7 @@ cdef class LocalWlNear(LocalWl):
 
 
 cdef class SolLiq:
-    """Uses dot products of :math:`Q_{lm}` between particles for clustering.
+    R"""Uses dot products of :math:`Q_{lm}` between particles for clustering.
 
     .. moduleauthor:: Richmond Newman <newmanrs@umich.edu>
 
@@ -1390,7 +1390,7 @@ cdef class SolLiq:
         self.thisptr = NULL
 
     def compute(self, points, nlist=None):
-        """Compute the solid-liquid order parameter.
+        R"""Compute the solid-liquid order parameter.
 
         Args:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
@@ -1415,7 +1415,7 @@ cdef class SolLiq:
         return self
 
     def computeSolLiqVariant(self, points, nlist=None):
-        """Compute a variant of the solid-liquid order parameter.
+        R"""Compute a variant of the solid-liquid order parameter.
 
         This variant method places a minimum threshold on the number
         of solid-like bonds a particle must have to be considered solid-like
@@ -1444,7 +1444,7 @@ cdef class SolLiq:
         return self
 
     def computeSolLiqNoNorm(self, points, nlist=None):
-        """Compute the solid-liquid order parameter without normalizing the dot
+        R"""Compute the solid-liquid order parameter without normalizing the dot
         product.
 
         Args:
@@ -1481,7 +1481,7 @@ cdef class SolLiq:
         return self.box
 
     def setClusteringRadius(self, rcutCluster):
-        """Set the clustering radius.
+        R"""Set the clustering radius.
 
         Args:
             rcutCluster (float): Radius for the cluster finding.
@@ -1617,7 +1617,7 @@ cdef class SolLiq:
 
 
 cdef class SolLiqNear(SolLiq):
-    """A variant of the :class:`~SolLiq` class that performs its average over nearest neighbor particles as determined by an instance of :class:`freud.locality.NeighborList`. The number of included neighbors is determined by the kn parameter to the constructor.
+    R"""A variant of the :class:`~SolLiq` class that performs its average over nearest neighbor particles as determined by an instance of :class:`freud.locality.NeighborList`. The number of included neighbors is determined by the kn parameter to the constructor.
 
     .. moduleauthor:: Richmond Newman <newmanrs@umich.edu>
 
@@ -1679,7 +1679,7 @@ cdef class SolLiqNear(SolLiq):
         self.thisptr = NULL
 
     def compute(self, points, nlist=None):
-        """Compute the local rotationally invariant :math:`Q_l` order
+        R"""Compute the local rotationally invariant :math:`Q_l` order
         parameter.
 
         Args:
@@ -1694,7 +1694,7 @@ cdef class SolLiqNear(SolLiq):
         return SolLiq.compute(self, points, nlist_)
 
     def computeSolLiqVariant(self, points, nlist=None):
-        """Compute the local rotationally invariant :math:`Q_l` order
+        R"""Compute the local rotationally invariant :math:`Q_l` order
         parameter.
 
         Args:
@@ -1709,7 +1709,7 @@ cdef class SolLiqNear(SolLiq):
         return SolLiq.computeSolLiqVariant(self, points, nlist_)
 
     def computeSolLiqNoNorm(self, points, nlist=None):
-        """Compute the local rotationally invariant :math:`Q_l` order
+        R"""Compute the local rotationally invariant :math:`Q_l` order
         parameter.
 
         Args:
@@ -1725,7 +1725,7 @@ cdef class SolLiqNear(SolLiq):
 
 
 class BondOrder(_EBO):
-    """**Deprecated** Compute the bond order diagram for the system of particles.
+    R"""**Deprecated** Compute the bond order diagram for the system of particles.
 
     .. note::
         This class is only retained for backwards compatibility.
@@ -1735,6 +1735,7 @@ class BondOrder(_EBO):
        Use :class:`freud.environment.BondOrder` instead.
 
     """
+
     def __init__(self, rmax, k, n, n_bins_t, n_bins_p):
         warnings.warn("This class is deprecated, use "
                       "freud.environment.BondOrder instead!",
@@ -1742,7 +1743,7 @@ class BondOrder(_EBO):
 
 
 class LocalDescriptors(_ELD):
-    """**Deprecated** Compute a set of descriptors (a numerical "fingerprint")
+    R"""**Deprecated** Compute a set of descriptors (a numerical "fingerprint")
     of a particle's local environment.
 
     .. note::
@@ -1753,6 +1754,7 @@ class LocalDescriptors(_ELD):
        Use :class:`freud.environment.LocalDescriptors` instead.
 
     """
+
     def __init__(self, num_neighbors, lmax, rmax, negative_m=True):
         warnings.warn("This class is deprecated, use "
                       "freud.environment.LocalDescriptors instead!",
@@ -1760,7 +1762,7 @@ class LocalDescriptors(_ELD):
 
 
 class MatchEnv(_EME):
-    """**Deprecated** Clusters particles according to whether their local
+    R"""**Deprecated** Clusters particles according to whether their local
     environments match or not, according to various shape matching metrics.
 
     .. note::
@@ -1771,6 +1773,7 @@ class MatchEnv(_EME):
        Use :class:`freud.environment.MatchEnv` instead.
 
     """
+
     def __init__(self, box, rmax, k):
         warnings.warn("This class is deprecated, use "
                       "freud.environment.MatchEnv instead!",
@@ -1778,7 +1781,7 @@ class MatchEnv(_EME):
 
 
 class Pairing2D(_EP):
-    """**Deprecated** Compute pairs for the system of particles.
+    R"""**Deprecated** Compute pairs for the system of particles.
 
     .. note::
         This class is only retained for backwards compatibility.
@@ -1788,13 +1791,14 @@ class Pairing2D(_EP):
        Use :mod:`freud.bond` instead.
 
     """
+
     def __init__(self, rmax, k, compDotTol):
         warnings.warn("This class is deprecated, use "
                       "freud.bond instead!", FreudDeprecationWarning)
 
 
 class AngularSeparation(_EAS):
-    """**Deprecated** Calculates the minimum angles of separation between
+    R"""**Deprecated** Calculates the minimum angles of separation between
     particles and references.
 
     .. note::
@@ -1805,6 +1809,7 @@ class AngularSeparation(_EAS):
        Use :class:`freud.environment.AngularSeparation` instead.
 
     """
+
     def __init__(self, rmax, n):
         warnings.warn("This class is deprecated, use "
                       "freud.environment.AngularSeparation instead!",

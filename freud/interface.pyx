@@ -24,7 +24,7 @@ cimport numpy as np
 np.import_array()
 
 cdef class InterfaceMeasure:
-    """Measures the interface between two sets of points.
+    R"""Measures the interface between two sets of points.
 
     .. moduleauthor:: Matthew Spellings <mspells@umich.edu>
     .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
@@ -53,7 +53,7 @@ cdef class InterfaceMeasure:
         self._point_ids = np.empty(0, dtype=np.uint32)
 
     def compute(self, box, ref_points, points, nlist=None):
-        """Compute the particles at the interface between the two given sets of
+        R"""Compute the particles at the interface between the two given sets of
         points.
 
         Args:
