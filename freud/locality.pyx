@@ -515,7 +515,7 @@ cdef class LinkCell:
 
        # Assume positions are an Nx3 array
        lc = LinkCell(box, 1.5)
-       lc.computeCellList(box, positions)
+       lc.compute(box, positions)
        for i in range(positions.shape[0]):
            # Cell containing particle i
            cell = lc.getCell(positions[0])
@@ -671,21 +671,6 @@ cdef class LinkCell:
         return self
 
     def computeCellList(self, box, ref_points, points=None, exclude_ii=None):
-        R"""Update the data structure for the given set of points and compute a
-        NeighborList.
-
-        Args:
-            box (:class:`freud.box.Box`):
-                Simulation box.
-            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Reference point coordinates.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
-                Point coordinates (Default value = :code:`None`).
-            exclude_ii (bool, optional):
-                True if pairs of points with identical indices should be
-                excluded; if None, is set to True if points is None or the same
-                object as ref_points (Default value = :code:`None`).
-        """  # noqa: E501
         warnings.warn("The computeCellList function is deprecated in favor "
                       "of the compute method and will be removed in a future "
                       "version of freud.",
