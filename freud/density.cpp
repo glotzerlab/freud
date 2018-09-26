@@ -47,15 +47,15 @@
         "name": "freud.density",
         "sources": [
             "freud/density.pyx",
-            "cpp/locality/LinkCell.cc",
-            "cpp/density/RDF.cc",
-            "cpp/density/LocalDensity.cc",
-            "cpp/density/CorrelationFunction.cc",
-            "cpp/util/HOOMDMatrix.cc",
-            "cpp/locality/NearestNeighbors.cc",
-            "cpp/locality/NeighborList.cc",
             "cpp/density/GaussianDensity.cc",
-            "cpp/box/Box.cc"
+            "cpp/locality/NearestNeighbors.cc",
+            "cpp/density/LocalDensity.cc",
+            "cpp/box/Box.cc",
+            "cpp/locality/NeighborList.cc",
+            "cpp/util/HOOMDMatrix.cc",
+            "cpp/density/RDF.cc",
+            "cpp/density/CorrelationFunction.cc",
+            "cpp/locality/LinkCell.cc"
         ]
     },
     "module_name": "freud.density"
@@ -1302,7 +1302,7 @@ struct __pyx_obj_5freud_8locality_NearestNeighbors {
  * np.import_array()
  * 
  * cdef class FloatCF:             # <<<<<<<<<<<<<<
- *     """Computes the real pairwise correlation function.
+ *     R"""Computes the real pairwise correlation function.
  * 
  */
 struct __pyx_obj_5freud_7density_FloatCF {
@@ -1316,7 +1316,7 @@ struct __pyx_obj_5freud_7density_FloatCF {
  *         return self.R
  * 
  * cdef class ComplexCF:             # <<<<<<<<<<<<<<
- *     """Computes the complex pairwise correlation function.
+ *     R"""Computes the complex pairwise correlation function.
  * 
  */
 struct __pyx_obj_5freud_7density_ComplexCF {
@@ -1330,7 +1330,7 @@ struct __pyx_obj_5freud_7density_ComplexCF {
  *         return self.R
  * 
  * cdef class GaussianDensity:             # <<<<<<<<<<<<<<
- *     """Computes the density of a system on a grid.
+ *     R"""Computes the density of a system on a grid.
  * 
  */
 struct __pyx_obj_5freud_7density_GaussianDensity {
@@ -1343,7 +1343,7 @@ struct __pyx_obj_5freud_7density_GaussianDensity {
  *         return self.gaussian_density
  * 
  * cdef class LocalDensity:             # <<<<<<<<<<<<<<
- *     """ Computes the local density around a particle.
+ *     R""" Computes the local density around a particle.
  * 
  */
 struct __pyx_obj_5freud_7density_LocalDensity {
@@ -1358,7 +1358,7 @@ struct __pyx_obj_5freud_7density_LocalDensity {
  *         return self.num_neighbors
  * 
  * cdef class RDF:             # <<<<<<<<<<<<<<
- *     """ Computes RDF for supplied data.
+ *     R""" Computes RDF for supplied data.
  * 
  */
 struct __pyx_obj_5freud_7density_RDF {
@@ -2802,7 +2802,7 @@ static void __pyx_pf_5freud_7density_7FloatCF_2__dealloc__(struct __pyx_obj_5fre
  * 
  *     def accumulate(self, box, ref_points, ref_values, points=None, values=None,             # <<<<<<<<<<<<<<
  *                    nlist=None, refValues=None):
- *         """Calculates the correlation function and adds to the current
+ *         R"""Calculates the correlation function and adds to the current
  */
 
 /* Python wrapper */
@@ -2830,7 +2830,7 @@ static PyObject *__pyx_pw_5freud_7density_7FloatCF_5accumulate(PyObject *__pyx_v
  * 
  *     def accumulate(self, box, ref_points, ref_values, points=None, values=None,
  *                    nlist=None, refValues=None):             # <<<<<<<<<<<<<<
- *         """Calculates the correlation function and adds to the current
+ *         R"""Calculates the correlation function and adds to the current
  *         histogram.
  */
     values[5] = ((PyObject *)Py_None);
@@ -2941,7 +2941,7 @@ static PyObject *__pyx_pw_5freud_7density_7FloatCF_5accumulate(PyObject *__pyx_v
  * 
  *     def accumulate(self, box, ref_points, ref_values, points=None, values=None,             # <<<<<<<<<<<<<<
  *                    nlist=None, refValues=None):
- *         """Calculates the correlation function and adds to the current
+ *         R"""Calculates the correlation function and adds to the current
  */
 
   /* function exit code */
@@ -3923,7 +3923,7 @@ static PyObject *__pyx_pf_5freud_7density_7FloatCF_4accumulate(struct __pyx_obj_
  * 
  *     def accumulate(self, box, ref_points, ref_values, points=None, values=None,             # <<<<<<<<<<<<<<
  *                    nlist=None, refValues=None):
- *         """Calculates the correlation function and adds to the current
+ *         R"""Calculates the correlation function and adds to the current
  */
 
   /* function exit code */
@@ -4444,7 +4444,7 @@ static PyObject *__pyx_pf_5freud_7density_7FloatCF_8getBox(struct __pyx_obj_5fre
  *         return self.box
  * 
  *     def reset(self):             # <<<<<<<<<<<<<<
- *         """Resets the values of the correlation function histogram in
+ *         R"""Resets the values of the correlation function histogram in
  *         memory.
  */
 
@@ -4481,7 +4481,7 @@ static PyObject *__pyx_pf_5freud_7density_7FloatCF_10reset(struct __pyx_obj_5fre
  *         return self.box
  * 
  *     def reset(self):             # <<<<<<<<<<<<<<
- *         """Resets the values of the correlation function histogram in
+ *         R"""Resets the values of the correlation function histogram in
  *         memory.
  */
 
@@ -4656,7 +4656,7 @@ static PyObject *__pyx_pf_5freud_7density_7FloatCF_12resetCorrelationFunction(st
  * 
  *     def compute(self, box, ref_points, ref_values, points=None, values=None,             # <<<<<<<<<<<<<<
  *                 nlist=None, refValues=None):
- *         """Calculates the correlation function for the given points. Will
+ *         R"""Calculates the correlation function for the given points. Will
  */
 
 /* Python wrapper */
@@ -4684,7 +4684,7 @@ static PyObject *__pyx_pw_5freud_7density_7FloatCF_15compute(PyObject *__pyx_v_s
  * 
  *     def compute(self, box, ref_points, ref_values, points=None, values=None,
  *                 nlist=None, refValues=None):             # <<<<<<<<<<<<<<
- *         """Calculates the correlation function for the given points. Will
+ *         R"""Calculates the correlation function for the given points. Will
  *         overwrite the current histogram.
  */
     values[5] = ((PyObject *)Py_None);
@@ -4795,7 +4795,7 @@ static PyObject *__pyx_pw_5freud_7density_7FloatCF_15compute(PyObject *__pyx_v_s
  * 
  *     def compute(self, box, ref_points, ref_values, points=None, values=None,             # <<<<<<<<<<<<<<
  *                 nlist=None, refValues=None):
- *         """Calculates the correlation function for the given points. Will
+ *         R"""Calculates the correlation function for the given points. Will
  */
 
   /* function exit code */
@@ -5032,7 +5032,7 @@ static PyObject *__pyx_pf_5freud_7density_7FloatCF_14compute(struct __pyx_obj_5f
  * 
  *     def compute(self, box, ref_points, ref_values, points=None, values=None,             # <<<<<<<<<<<<<<
  *                 nlist=None, refValues=None):
- *         """Calculates the correlation function for the given points. Will
+ *         R"""Calculates the correlation function for the given points. Will
  */
 
   /* function exit code */
@@ -6024,7 +6024,7 @@ static void __pyx_pf_5freud_7density_9ComplexCF_2__dealloc__(struct __pyx_obj_5f
  * 
  *     def accumulate(self, box, ref_points, ref_values, points=None, values=None,             # <<<<<<<<<<<<<<
  *                    nlist=None, refValues=None):
- *         """Calculates the correlation function and adds to the current
+ *         R"""Calculates the correlation function and adds to the current
  */
 
 /* Python wrapper */
@@ -6052,7 +6052,7 @@ static PyObject *__pyx_pw_5freud_7density_9ComplexCF_5accumulate(PyObject *__pyx
  * 
  *     def accumulate(self, box, ref_points, ref_values, points=None, values=None,
  *                    nlist=None, refValues=None):             # <<<<<<<<<<<<<<
- *         """Calculates the correlation function and adds to the current
+ *         R"""Calculates the correlation function and adds to the current
  *         histogram.
  */
     values[5] = ((PyObject *)Py_None);
@@ -6163,7 +6163,7 @@ static PyObject *__pyx_pw_5freud_7density_9ComplexCF_5accumulate(PyObject *__pyx
  * 
  *     def accumulate(self, box, ref_points, ref_values, points=None, values=None,             # <<<<<<<<<<<<<<
  *                    nlist=None, refValues=None):
- *         """Calculates the correlation function and adds to the current
+ *         R"""Calculates the correlation function and adds to the current
  */
 
   /* function exit code */
@@ -7145,7 +7145,7 @@ static PyObject *__pyx_pf_5freud_7density_9ComplexCF_4accumulate(struct __pyx_ob
  * 
  *     def accumulate(self, box, ref_points, ref_values, points=None, values=None,             # <<<<<<<<<<<<<<
  *                    nlist=None, refValues=None):
- *         """Calculates the correlation function and adds to the current
+ *         R"""Calculates the correlation function and adds to the current
  */
 
   /* function exit code */
@@ -7666,7 +7666,7 @@ static PyObject *__pyx_pf_5freud_7density_9ComplexCF_8getBox(struct __pyx_obj_5f
  *         return self.box
  * 
  *     def reset(self):             # <<<<<<<<<<<<<<
- *         """Resets the values of the correlation function histogram in
+ *         R"""Resets the values of the correlation function histogram in
  *         memory.
  */
 
@@ -7703,7 +7703,7 @@ static PyObject *__pyx_pf_5freud_7density_9ComplexCF_10reset(struct __pyx_obj_5f
  *         return self.box
  * 
  *     def reset(self):             # <<<<<<<<<<<<<<
- *         """Resets the values of the correlation function histogram in
+ *         R"""Resets the values of the correlation function histogram in
  *         memory.
  */
 
@@ -7878,7 +7878,7 @@ static PyObject *__pyx_pf_5freud_7density_9ComplexCF_12resetCorrelationFunction(
  * 
  *     def compute(self, box, ref_points, ref_values, points=None, values=None,             # <<<<<<<<<<<<<<
  *                 nlist=None, refValues=None):
- *         """Calculates the correlation function for the given points. Will
+ *         R"""Calculates the correlation function for the given points. Will
  */
 
 /* Python wrapper */
@@ -7906,7 +7906,7 @@ static PyObject *__pyx_pw_5freud_7density_9ComplexCF_15compute(PyObject *__pyx_v
  * 
  *     def compute(self, box, ref_points, ref_values, points=None, values=None,
  *                 nlist=None, refValues=None):             # <<<<<<<<<<<<<<
- *         """Calculates the correlation function for the given points. Will
+ *         R"""Calculates the correlation function for the given points. Will
  *         overwrite the current histogram.
  */
     values[5] = ((PyObject *)Py_None);
@@ -8017,7 +8017,7 @@ static PyObject *__pyx_pw_5freud_7density_9ComplexCF_15compute(PyObject *__pyx_v
  * 
  *     def compute(self, box, ref_points, ref_values, points=None, values=None,             # <<<<<<<<<<<<<<
  *                 nlist=None, refValues=None):
- *         """Calculates the correlation function for the given points. Will
+ *         R"""Calculates the correlation function for the given points. Will
  */
 
   /* function exit code */
@@ -8254,7 +8254,7 @@ static PyObject *__pyx_pf_5freud_7density_9ComplexCF_14compute(struct __pyx_obj_
  * 
  *     def compute(self, box, ref_points, ref_values, points=None, values=None,             # <<<<<<<<<<<<<<
  *                 nlist=None, refValues=None):
- *         """Calculates the correlation function for the given points. Will
+ *         R"""Calculates the correlation function for the given points. Will
  */
 
   /* function exit code */
@@ -9434,7 +9434,7 @@ static PyObject *__pyx_pf_5freud_7density_15GaussianDensity_2getBox(struct __pyx
  *         return self.box
  * 
  *     def compute(self, box, points):             # <<<<<<<<<<<<<<
- *         """Calculates the Gaussian blur for the specified points. Does not
+ *         R"""Calculates the Gaussian blur for the specified points. Does not
  *         accumulate (will overwrite current image).
  */
 
@@ -9798,7 +9798,7 @@ static PyObject *__pyx_pf_5freud_7density_15GaussianDensity_4compute(struct __py
  *         return self.box
  * 
  *     def compute(self, box, points):             # <<<<<<<<<<<<<<
- *         """Calculates the Gaussian blur for the specified points. Does not
+ *         R"""Calculates the Gaussian blur for the specified points. Does not
  *         accumulate (will overwrite current image).
  */
 
@@ -10899,7 +10899,7 @@ static PyObject *__pyx_pf_5freud_7density_12LocalDensity_2getBox(struct __pyx_ob
  *         return self.box
  * 
  *     def compute(self, box, ref_points, points=None, nlist=None):             # <<<<<<<<<<<<<<
- *         """Calculates the local density for the specified points. Does not
+ *         R"""Calculates the local density for the specified points. Does not
  *         accumulate (will overwrite current data).
  */
 
@@ -11537,7 +11537,7 @@ static PyObject *__pyx_pf_5freud_7density_12LocalDensity_4compute(struct __pyx_o
  *         return self.box
  * 
  *     def compute(self, box, ref_points, points=None, nlist=None):             # <<<<<<<<<<<<<<
- *         """Calculates the local density for the specified points. Does not
+ *         R"""Calculates the local density for the specified points. Does not
  *         accumulate (will overwrite current data).
  */
 
@@ -12691,7 +12691,7 @@ static PyObject *__pyx_pf_5freud_7density_3RDF_4getBox(struct __pyx_obj_5freud_7
  *         return self.box
  * 
  *     def accumulate(self, box, ref_points, points=None, nlist=None):             # <<<<<<<<<<<<<<
- *         """Calculates the RDF and adds to the current RDF histogram.
+ *         R"""Calculates the RDF and adds to the current RDF histogram.
  * 
  */
 
@@ -13330,7 +13330,7 @@ static PyObject *__pyx_pf_5freud_7density_3RDF_6accumulate(struct __pyx_obj_5fre
  *         return self.box
  * 
  *     def accumulate(self, box, ref_points, points=None, nlist=None):             # <<<<<<<<<<<<<<
- *         """Calculates the RDF and adds to the current RDF histogram.
+ *         R"""Calculates the RDF and adds to the current RDF histogram.
  * 
  */
 
@@ -13371,7 +13371,7 @@ static PyObject *__pyx_pf_5freud_7density_3RDF_6accumulate(struct __pyx_obj_5fre
  *         return self
  * 
  *     def compute(self, box, ref_points, points=None, nlist=None):             # <<<<<<<<<<<<<<
- *         """Calculates the RDF for the specified points. Will overwrite the current
+ *         R"""Calculates the RDF for the specified points. Will overwrite the current
  *         histogram.
  */
 
@@ -13583,7 +13583,7 @@ static PyObject *__pyx_pf_5freud_7density_3RDF_8compute(struct __pyx_obj_5freud_
  *         return self
  * 
  *     def compute(self, box, ref_points, points=None, nlist=None):             # <<<<<<<<<<<<<<
- *         """Calculates the RDF for the specified points. Will overwrite the current
+ *         R"""Calculates the RDF for the specified points. Will overwrite the current
  *         histogram.
  */
 
@@ -13605,7 +13605,7 @@ static PyObject *__pyx_pf_5freud_7density_3RDF_8compute(struct __pyx_obj_5freud_
  *         return self
  * 
  *     def reset(self):             # <<<<<<<<<<<<<<
- *         """Resets the values of RDF in memory."""
+ *         R"""Resets the values of RDF in memory."""
  *         self.thisptr.reset()
  */
 
@@ -13631,7 +13631,7 @@ static PyObject *__pyx_pf_5freud_7density_3RDF_10reset(struct __pyx_obj_5freud_7
 
   /* "freud/density.pyx":938
  *     def reset(self):
- *         """Resets the values of RDF in memory."""
+ *         R"""Resets the values of RDF in memory."""
  *         self.thisptr.reset()             # <<<<<<<<<<<<<<
  * 
  *     def resetRDF(self):
@@ -13642,7 +13642,7 @@ static PyObject *__pyx_pf_5freud_7density_3RDF_10reset(struct __pyx_obj_5freud_7
  *         return self
  * 
  *     def reset(self):             # <<<<<<<<<<<<<<
- *         """Resets the values of RDF in memory."""
+ *         R"""Resets the values of RDF in memory."""
  *         self.thisptr.reset()
  */
 
@@ -18543,7 +18543,7 @@ static int __Pyx_InitCachedConstants(void) {
  * 
  *     def accumulate(self, box, ref_points, ref_values, points=None, values=None,             # <<<<<<<<<<<<<<
  *                    nlist=None, refValues=None):
- *         """Calculates the correlation function and adds to the current
+ *         R"""Calculates the correlation function and adds to the current
  */
   __pyx_tuple__31 = PyTuple_Pack(17, __pyx_n_s_self, __pyx_n_s_box, __pyx_n_s_ref_points, __pyx_n_s_ref_values, __pyx_n_s_points, __pyx_n_s_values, __pyx_n_s_nlist, __pyx_n_s_refValues, __pyx_n_s_b, __pyx_n_s_l_ref_points, __pyx_n_s_l_points, __pyx_n_s_l_ref_values, __pyx_n_s_l_values, __pyx_n_s_defaulted_nlist, __pyx_n_s_nlist_2, __pyx_n_s_n_ref, __pyx_n_s_n_p); if (unlikely(!__pyx_tuple__31)) __PYX_ERR(0, 89, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__31);
@@ -18578,7 +18578,7 @@ static int __Pyx_InitCachedConstants(void) {
  *         return self.box
  * 
  *     def reset(self):             # <<<<<<<<<<<<<<
- *         """Resets the values of the correlation function histogram in
+ *         R"""Resets the values of the correlation function histogram in
  *         memory.
  */
   __pyx_tuple__37 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__37)) __PYX_ERR(0, 191, __pyx_L1_error)
@@ -18603,7 +18603,7 @@ static int __Pyx_InitCachedConstants(void) {
  * 
  *     def compute(self, box, ref_points, ref_values, points=None, values=None,             # <<<<<<<<<<<<<<
  *                 nlist=None, refValues=None):
- *         """Calculates the correlation function for the given points. Will
+ *         R"""Calculates the correlation function for the given points. Will
  */
   __pyx_tuple__41 = PyTuple_Pack(8, __pyx_n_s_self, __pyx_n_s_box, __pyx_n_s_ref_points, __pyx_n_s_ref_values, __pyx_n_s_points, __pyx_n_s_values, __pyx_n_s_nlist, __pyx_n_s_refValues); if (unlikely(!__pyx_tuple__41)) __PYX_ERR(0, 203, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__41);
@@ -18672,7 +18672,7 @@ static int __Pyx_InitCachedConstants(void) {
  * 
  *     def accumulate(self, box, ref_points, ref_values, points=None, values=None,             # <<<<<<<<<<<<<<
  *                    nlist=None, refValues=None):
- *         """Calculates the correlation function and adds to the current
+ *         R"""Calculates the correlation function and adds to the current
  */
   __pyx_tuple__53 = PyTuple_Pack(17, __pyx_n_s_self, __pyx_n_s_box, __pyx_n_s_ref_points, __pyx_n_s_ref_values, __pyx_n_s_points, __pyx_n_s_values, __pyx_n_s_nlist, __pyx_n_s_refValues, __pyx_n_s_b, __pyx_n_s_l_ref_points, __pyx_n_s_l_points, __pyx_n_s_l_ref_values, __pyx_n_s_l_values, __pyx_n_s_defaulted_nlist, __pyx_n_s_nlist_2, __pyx_n_s_n_ref, __pyx_n_s_n_p); if (unlikely(!__pyx_tuple__53)) __PYX_ERR(0, 335, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__53);
@@ -18707,7 +18707,7 @@ static int __Pyx_InitCachedConstants(void) {
  *         return self.box
  * 
  *     def reset(self):             # <<<<<<<<<<<<<<
- *         """Resets the values of the correlation function histogram in
+ *         R"""Resets the values of the correlation function histogram in
  *         memory.
  */
   __pyx_tuple__59 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__59)) __PYX_ERR(0, 438, __pyx_L1_error)
@@ -18732,7 +18732,7 @@ static int __Pyx_InitCachedConstants(void) {
  * 
  *     def compute(self, box, ref_points, ref_values, points=None, values=None,             # <<<<<<<<<<<<<<
  *                 nlist=None, refValues=None):
- *         """Calculates the correlation function for the given points. Will
+ *         R"""Calculates the correlation function for the given points. Will
  */
   __pyx_tuple__63 = PyTuple_Pack(8, __pyx_n_s_self, __pyx_n_s_box, __pyx_n_s_ref_points, __pyx_n_s_ref_values, __pyx_n_s_points, __pyx_n_s_values, __pyx_n_s_nlist, __pyx_n_s_refValues); if (unlikely(!__pyx_tuple__63)) __PYX_ERR(0, 450, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__63);
@@ -18812,7 +18812,7 @@ static int __Pyx_InitCachedConstants(void) {
  *         return self.box
  * 
  *     def compute(self, box, points):             # <<<<<<<<<<<<<<
- *         """Calculates the Gaussian blur for the specified points. Does not
+ *         R"""Calculates the Gaussian blur for the specified points. Does not
  *         accumulate (will overwrite current image).
  */
   __pyx_tuple__77 = PyTuple_Pack(6, __pyx_n_s_self, __pyx_n_s_box, __pyx_n_s_points, __pyx_n_s_b, __pyx_n_s_l_points, __pyx_n_s_n_p); if (unlikely(!__pyx_tuple__77)) __PYX_ERR(0, 592, __pyx_L1_error)
@@ -18869,7 +18869,7 @@ static int __Pyx_InitCachedConstants(void) {
  *         return self.box
  * 
  *     def compute(self, box, ref_points, points=None, nlist=None):             # <<<<<<<<<<<<<<
- *         """Calculates the local density for the specified points. Does not
+ *         R"""Calculates the local density for the specified points. Does not
  *         accumulate (will overwrite current data).
  */
   __pyx_tuple__87 = PyTuple_Pack(12, __pyx_n_s_self, __pyx_n_s_box, __pyx_n_s_ref_points, __pyx_n_s_points, __pyx_n_s_nlist, __pyx_n_s_b, __pyx_n_s_l_ref_points, __pyx_n_s_l_points, __pyx_n_s_n_ref, __pyx_n_s_n_p, __pyx_n_s_defaulted_nlist, __pyx_n_s_nlist_2); if (unlikely(!__pyx_tuple__87)) __PYX_ERR(0, 720, __pyx_L1_error)
@@ -18938,7 +18938,7 @@ static int __Pyx_InitCachedConstants(void) {
  *         return self.box
  * 
  *     def accumulate(self, box, ref_points, points=None, nlist=None):             # <<<<<<<<<<<<<<
- *         """Calculates the RDF and adds to the current RDF histogram.
+ *         R"""Calculates the RDF and adds to the current RDF histogram.
  * 
  */
   __pyx_tuple__99 = PyTuple_Pack(12, __pyx_n_s_self, __pyx_n_s_box, __pyx_n_s_ref_points, __pyx_n_s_points, __pyx_n_s_nlist, __pyx_n_s_b, __pyx_n_s_l_ref_points, __pyx_n_s_l_points, __pyx_n_s_n_ref, __pyx_n_s_n_p, __pyx_n_s_defaulted_nlist, __pyx_n_s_nlist_2); if (unlikely(!__pyx_tuple__99)) __PYX_ERR(0, 873, __pyx_L1_error)
@@ -18950,7 +18950,7 @@ static int __Pyx_InitCachedConstants(void) {
  *         return self
  * 
  *     def compute(self, box, ref_points, points=None, nlist=None):             # <<<<<<<<<<<<<<
- *         """Calculates the RDF for the specified points. Will overwrite the current
+ *         R"""Calculates the RDF for the specified points. Will overwrite the current
  *         histogram.
  */
   __pyx_tuple__101 = PyTuple_Pack(5, __pyx_n_s_self, __pyx_n_s_box, __pyx_n_s_ref_points, __pyx_n_s_points, __pyx_n_s_nlist); if (unlikely(!__pyx_tuple__101)) __PYX_ERR(0, 916, __pyx_L1_error)
@@ -18962,7 +18962,7 @@ static int __Pyx_InitCachedConstants(void) {
  *         return self
  * 
  *     def reset(self):             # <<<<<<<<<<<<<<
- *         """Resets the values of RDF in memory."""
+ *         R"""Resets the values of RDF in memory."""
  *         self.thisptr.reset()
  */
   __pyx_tuple__103 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__103)) __PYX_ERR(0, 936, __pyx_L1_error)
@@ -19464,7 +19464,7 @@ if (!__Pyx_RefNanny) {
  * 
  *     def accumulate(self, box, ref_points, ref_values, points=None, values=None,             # <<<<<<<<<<<<<<
  *                    nlist=None, refValues=None):
- *         """Calculates the correlation function and adds to the current
+ *         R"""Calculates the correlation function and adds to the current
  */
   __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7density_7FloatCF_5accumulate, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_FloatCF_accumulate, NULL, __pyx_n_s_freud_density, __pyx_d, ((PyObject *)__pyx_codeobj__32)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 89, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -19502,7 +19502,7 @@ if (!__Pyx_RefNanny) {
  *         return self.box
  * 
  *     def reset(self):             # <<<<<<<<<<<<<<
- *         """Resets the values of the correlation function histogram in
+ *         R"""Resets the values of the correlation function histogram in
  *         memory.
  */
   __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7density_7FloatCF_11reset, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_FloatCF_reset, NULL, __pyx_n_s_freud_density, __pyx_d, ((PyObject *)__pyx_codeobj__38)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 191, __pyx_L1_error)
@@ -19529,7 +19529,7 @@ if (!__Pyx_RefNanny) {
  * 
  *     def compute(self, box, ref_points, ref_values, points=None, values=None,             # <<<<<<<<<<<<<<
  *                 nlist=None, refValues=None):
- *         """Calculates the correlation function for the given points. Will
+ *         R"""Calculates the correlation function for the given points. Will
  */
   __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7density_7FloatCF_15compute, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_FloatCF_compute, NULL, __pyx_n_s_freud_density, __pyx_d, ((PyObject *)__pyx_codeobj__42)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 203, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -19602,7 +19602,7 @@ if (!__Pyx_RefNanny) {
  * 
  *     def accumulate(self, box, ref_points, ref_values, points=None, values=None,             # <<<<<<<<<<<<<<
  *                    nlist=None, refValues=None):
- *         """Calculates the correlation function and adds to the current
+ *         R"""Calculates the correlation function and adds to the current
  */
   __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7density_9ComplexCF_5accumulate, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_ComplexCF_accumulate, NULL, __pyx_n_s_freud_density, __pyx_d, ((PyObject *)__pyx_codeobj__54)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 335, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -19640,7 +19640,7 @@ if (!__Pyx_RefNanny) {
  *         return self.box
  * 
  *     def reset(self):             # <<<<<<<<<<<<<<
- *         """Resets the values of the correlation function histogram in
+ *         R"""Resets the values of the correlation function histogram in
  *         memory.
  */
   __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7density_9ComplexCF_11reset, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_ComplexCF_reset, NULL, __pyx_n_s_freud_density, __pyx_d, ((PyObject *)__pyx_codeobj__60)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 438, __pyx_L1_error)
@@ -19667,7 +19667,7 @@ if (!__Pyx_RefNanny) {
  * 
  *     def compute(self, box, ref_points, ref_values, points=None, values=None,             # <<<<<<<<<<<<<<
  *                 nlist=None, refValues=None):
- *         """Calculates the correlation function for the given points. Will
+ *         R"""Calculates the correlation function for the given points. Will
  */
   __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7density_9ComplexCF_15compute, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_ComplexCF_compute, NULL, __pyx_n_s_freud_density, __pyx_d, ((PyObject *)__pyx_codeobj__64)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 450, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -19752,7 +19752,7 @@ if (!__Pyx_RefNanny) {
  *         return self.box
  * 
  *     def compute(self, box, points):             # <<<<<<<<<<<<<<
- *         """Calculates the Gaussian blur for the specified points. Does not
+ *         R"""Calculates the Gaussian blur for the specified points. Does not
  *         accumulate (will overwrite current image).
  */
   __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7density_15GaussianDensity_5compute, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_GaussianDensity_compute, NULL, __pyx_n_s_freud_density, __pyx_d, ((PyObject *)__pyx_codeobj__78)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 592, __pyx_L1_error)
@@ -19812,7 +19812,7 @@ if (!__Pyx_RefNanny) {
  *         return self.box
  * 
  *     def compute(self, box, ref_points, points=None, nlist=None):             # <<<<<<<<<<<<<<
- *         """Calculates the local density for the specified points. Does not
+ *         R"""Calculates the local density for the specified points. Does not
  *         accumulate (will overwrite current data).
  */
   __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7density_12LocalDensity_5compute, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_LocalDensity_compute, NULL, __pyx_n_s_freud_density, __pyx_d, ((PyObject *)__pyx_codeobj__88)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 720, __pyx_L1_error)
@@ -19885,7 +19885,7 @@ if (!__Pyx_RefNanny) {
  *         return self.box
  * 
  *     def accumulate(self, box, ref_points, points=None, nlist=None):             # <<<<<<<<<<<<<<
- *         """Calculates the RDF and adds to the current RDF histogram.
+ *         R"""Calculates the RDF and adds to the current RDF histogram.
  * 
  */
   __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7density_3RDF_7accumulate, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_RDF_accumulate, NULL, __pyx_n_s_freud_density, __pyx_d, ((PyObject *)__pyx_codeobj__100)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 873, __pyx_L1_error)
@@ -19898,7 +19898,7 @@ if (!__Pyx_RefNanny) {
  *         return self
  * 
  *     def compute(self, box, ref_points, points=None, nlist=None):             # <<<<<<<<<<<<<<
- *         """Calculates the RDF for the specified points. Will overwrite the current
+ *         R"""Calculates the RDF for the specified points. Will overwrite the current
  *         histogram.
  */
   __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7density_3RDF_9compute, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_RDF_compute, NULL, __pyx_n_s_freud_density, __pyx_d, ((PyObject *)__pyx_codeobj__102)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 916, __pyx_L1_error)
@@ -19911,7 +19911,7 @@ if (!__Pyx_RefNanny) {
  *         return self
  * 
  *     def reset(self):             # <<<<<<<<<<<<<<
- *         """Resets the values of RDF in memory."""
+ *         R"""Resets the values of RDF in memory."""
  *         self.thisptr.reset()
  */
   __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7density_3RDF_11reset, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_RDF_reset, NULL, __pyx_n_s_freud_density, __pyx_d, ((PyObject *)__pyx_codeobj__104)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 936, __pyx_L1_error)
