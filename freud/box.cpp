@@ -39,12 +39,12 @@
         "name": "freud.box",
         "sources": [
             "freud/box.pyx",
+            "cpp/locality/NeighborList.cc",
+            "cpp/util/HOOMDMatrix.cc",
+            "cpp/locality/NearestNeighbors.cc",
             "cpp/locality/LinkCell.cc",
             "cpp/box/Box.cc",
-            "cpp/util/HOOMDMatrix.cc",
-            "cpp/box/ParticleBuffer.cc",
-            "cpp/locality/NeighborList.cc",
-            "cpp/locality/NearestNeighbors.cc"
+            "cpp/box/ParticleBuffer.cc"
         ]
     },
     "module_name": "freud.box"
@@ -14884,7 +14884,7 @@ static PyObject *__pyx_f_5freud_3box_BoxFromCPP(freud::box::Box const &__pyx_v_c
   return __pyx_r;
 }
 
-/* "freud/box.pyx":814
+/* "freud/box.pyx":816
  *     """
  * 
  *     def __cinit__(self, box):             # <<<<<<<<<<<<<<
@@ -14918,7 +14918,7 @@ static int __pyx_pw_5freud_3box_14ParticleBuffer_1__cinit__(PyObject *__pyx_v_se
         else goto __pyx_L5_argtuple_error;
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__cinit__") < 0)) __PYX_ERR(0, 814, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__cinit__") < 0)) __PYX_ERR(0, 816, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 1) {
       goto __pyx_L5_argtuple_error;
@@ -14929,7 +14929,7 @@ static int __pyx_pw_5freud_3box_14ParticleBuffer_1__cinit__(PyObject *__pyx_v_se
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 1, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 814, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 1, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 816, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("freud.box.ParticleBuffer.__cinit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -14952,19 +14952,19 @@ static int __pyx_pf_5freud_3box_14ParticleBuffer___cinit__(struct __pyx_obj_5fre
   PyObject *__pyx_t_4 = NULL;
   __Pyx_RefNannySetupContext("__cinit__", 0);
 
-  /* "freud/box.pyx":815
+  /* "freud/box.pyx":817
  * 
  *     def __cinit__(self, box):
  *         cdef Box b = freud.common.convert_box(box)             # <<<<<<<<<<<<<<
  *         self.thisptr = new freud._box.ParticleBuffer(dereference(b.thisptr))
  * 
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 815, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 817, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_common); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 815, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_common); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 817, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_convert_box); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 815, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_convert_box); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 817, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_t_3 = NULL;
@@ -14978,13 +14978,13 @@ static int __pyx_pf_5freud_3box_14ParticleBuffer___cinit__(struct __pyx_obj_5fre
     }
   }
   if (!__pyx_t_3) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_box); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 815, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_box); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 817, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   } else {
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_v_box};
-      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 815, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 817, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
@@ -14992,29 +14992,29 @@ static int __pyx_pf_5freud_3box_14ParticleBuffer___cinit__(struct __pyx_obj_5fre
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_v_box};
-      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 815, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 817, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
     #endif
     {
-      __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 815, __pyx_L1_error)
+      __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 817, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_GIVEREF(__pyx_t_3); PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_3); __pyx_t_3 = NULL;
       __Pyx_INCREF(__pyx_v_box);
       __Pyx_GIVEREF(__pyx_v_box);
       PyTuple_SET_ITEM(__pyx_t_4, 0+1, __pyx_v_box);
-      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 815, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 817, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     }
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5freud_3box_Box))))) __PYX_ERR(0, 815, __pyx_L1_error)
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5freud_3box_Box))))) __PYX_ERR(0, 817, __pyx_L1_error)
   __pyx_v_b = ((struct __pyx_obj_5freud_3box_Box *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "freud/box.pyx":816
+  /* "freud/box.pyx":818
  *     def __cinit__(self, box):
  *         cdef Box b = freud.common.convert_box(box)
  *         self.thisptr = new freud._box.ParticleBuffer(dereference(b.thisptr))             # <<<<<<<<<<<<<<
@@ -15023,7 +15023,7 @@ static int __pyx_pf_5freud_3box_14ParticleBuffer___cinit__(struct __pyx_obj_5fre
  */
   __pyx_v_self->thisptr = new freud::box::ParticleBuffer((*__pyx_v_b->thisptr));
 
-  /* "freud/box.pyx":814
+  /* "freud/box.pyx":816
  *     """
  * 
  *     def __cinit__(self, box):             # <<<<<<<<<<<<<<
@@ -15047,7 +15047,7 @@ static int __pyx_pf_5freud_3box_14ParticleBuffer___cinit__(struct __pyx_obj_5fre
   return __pyx_r;
 }
 
-/* "freud/box.pyx":818
+/* "freud/box.pyx":820
  *         self.thisptr = new freud._box.ParticleBuffer(dereference(b.thisptr))
  * 
  *     def compute(self, points, float buffer, bool_t images=False):             # <<<<<<<<<<<<<<
@@ -15091,7 +15091,7 @@ static PyObject *__pyx_pw_5freud_3box_14ParticleBuffer_3compute(PyObject *__pyx_
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_buffer)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("compute", 0, 2, 3, 1); __PYX_ERR(0, 818, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("compute", 0, 2, 3, 1); __PYX_ERR(0, 820, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
@@ -15101,7 +15101,7 @@ static PyObject *__pyx_pw_5freud_3box_14ParticleBuffer_3compute(PyObject *__pyx_
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "compute") < 0)) __PYX_ERR(0, 818, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "compute") < 0)) __PYX_ERR(0, 820, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -15114,16 +15114,16 @@ static PyObject *__pyx_pw_5freud_3box_14ParticleBuffer_3compute(PyObject *__pyx_
       }
     }
     __pyx_v_points = values[0];
-    __pyx_v_buffer = __pyx_PyFloat_AsFloat(values[1]); if (unlikely((__pyx_v_buffer == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 818, __pyx_L3_error)
+    __pyx_v_buffer = __pyx_PyFloat_AsFloat(values[1]); if (unlikely((__pyx_v_buffer == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 820, __pyx_L3_error)
     if (values[2]) {
-      __pyx_v_images = __Pyx_PyObject_IsTrue(values[2]); if (unlikely((__pyx_v_images == ((bool)-1)) && PyErr_Occurred())) __PYX_ERR(0, 818, __pyx_L3_error)
+      __pyx_v_images = __Pyx_PyObject_IsTrue(values[2]); if (unlikely((__pyx_v_images == ((bool)-1)) && PyErr_Occurred())) __PYX_ERR(0, 820, __pyx_L3_error)
     } else {
       __pyx_v_images = ((bool)0);
     }
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("compute", 0, 2, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 818, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("compute", 0, 2, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 820, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("freud.box.ParticleBuffer.compute", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -15151,30 +15151,30 @@ static PyObject *__pyx_pf_5freud_3box_14ParticleBuffer_2compute(struct __pyx_obj
   __Pyx_RefNannySetupContext("compute", 0);
   __Pyx_INCREF(__pyx_v_points);
 
-  /* "freud/box.pyx":833
+  /* "freud/box.pyx":835
  *                 two images triples the box side lengths, and so on.
  *         """
  *         points = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             points, 2, dtype=np.float32, contiguous=True, array_name='points')
  * 
  */
-  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 833, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 835, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_common); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 833, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_common); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 835, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 833, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 835, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/box.pyx":834
+  /* "freud/box.pyx":836
  *         """
  *         points = freud.common.convert_array(
  *             points, 2, dtype=np.float32, contiguous=True, array_name='points')             # <<<<<<<<<<<<<<
  * 
  *         if points.shape[1] != 3:
  */
-  __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 833, __pyx_L1_error)
+  __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 835, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_INCREF(__pyx_v_points);
   __Pyx_GIVEREF(__pyx_v_points);
@@ -15182,26 +15182,26 @@ static PyObject *__pyx_pf_5freud_3box_14ParticleBuffer_2compute(struct __pyx_obj
   __Pyx_INCREF(__pyx_int_2);
   __Pyx_GIVEREF(__pyx_int_2);
   PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_int_2);
-  __pyx_t_3 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 834, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 836, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 834, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 836, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_float32); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 834, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_float32); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 836, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_dtype, __pyx_t_5) < 0) __PYX_ERR(0, 834, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_dtype, __pyx_t_5) < 0) __PYX_ERR(0, 836, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_contiguous, Py_True) < 0) __PYX_ERR(0, 834, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_array_name, __pyx_n_s_points) < 0) __PYX_ERR(0, 834, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_contiguous, Py_True) < 0) __PYX_ERR(0, 836, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_array_name, __pyx_n_s_points) < 0) __PYX_ERR(0, 836, __pyx_L1_error)
 
-  /* "freud/box.pyx":833
+  /* "freud/box.pyx":835
  *                 two images triples the box side lengths, and so on.
  *         """
  *         points = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             points, 2, dtype=np.float32, contiguous=True, array_name='points')
  * 
  */
-  __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 833, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 835, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -15209,38 +15209,38 @@ static PyObject *__pyx_pf_5freud_3box_14ParticleBuffer_2compute(struct __pyx_obj
   __Pyx_DECREF_SET(__pyx_v_points, __pyx_t_5);
   __pyx_t_5 = 0;
 
-  /* "freud/box.pyx":836
+  /* "freud/box.pyx":838
  *             points, 2, dtype=np.float32, contiguous=True, array_name='points')
  * 
  *         if points.shape[1] != 3:             # <<<<<<<<<<<<<<
  *             raise RuntimeError(
  *                 'Need a list of 3D points for ParticleBuffer.compute()')
  */
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_points, __pyx_n_s_shape); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 836, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_points, __pyx_n_s_shape); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 838, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_3 = __Pyx_GetItemInt(__pyx_t_5, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 836, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_GetItemInt(__pyx_t_5, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 838, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_5 = PyObject_RichCompare(__pyx_t_3, __pyx_int_3, Py_NE); __Pyx_XGOTREF(__pyx_t_5); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 836, __pyx_L1_error)
+  __pyx_t_5 = PyObject_RichCompare(__pyx_t_3, __pyx_int_3, Py_NE); __Pyx_XGOTREF(__pyx_t_5); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 838, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_t_5); if (unlikely(__pyx_t_6 < 0)) __PYX_ERR(0, 836, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_t_5); if (unlikely(__pyx_t_6 < 0)) __PYX_ERR(0, 838, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   if (unlikely(__pyx_t_6)) {
 
-    /* "freud/box.pyx":837
+    /* "freud/box.pyx":839
  * 
  *         if points.shape[1] != 3:
  *             raise RuntimeError(             # <<<<<<<<<<<<<<
  *                 'Need a list of 3D points for ParticleBuffer.compute()')
  *         cdef np.ndarray cPoints = points
  */
-    __pyx_t_5 = __Pyx_PyObject_Call(__pyx_builtin_RuntimeError, __pyx_tuple__34, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 837, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_Call(__pyx_builtin_RuntimeError, __pyx_tuple__34, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 839, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_Raise(__pyx_t_5, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __PYX_ERR(0, 837, __pyx_L1_error)
+    __PYX_ERR(0, 839, __pyx_L1_error)
 
-    /* "freud/box.pyx":836
+    /* "freud/box.pyx":838
  *             points, 2, dtype=np.float32, contiguous=True, array_name='points')
  * 
  *         if points.shape[1] != 3:             # <<<<<<<<<<<<<<
@@ -15249,36 +15249,36 @@ static PyObject *__pyx_pf_5freud_3box_14ParticleBuffer_2compute(struct __pyx_obj
  */
   }
 
-  /* "freud/box.pyx":839
+  /* "freud/box.pyx":841
  *             raise RuntimeError(
  *                 'Need a list of 3D points for ParticleBuffer.compute()')
  *         cdef np.ndarray cPoints = points             # <<<<<<<<<<<<<<
  *         cdef unsigned int Np = points.shape[0]
  *         self.thisptr.compute(<vec3[float]*> cPoints.data, Np, buffer, images)
  */
-  if (!(likely(((__pyx_v_points) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_points, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 839, __pyx_L1_error)
+  if (!(likely(((__pyx_v_points) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_points, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 841, __pyx_L1_error)
   __pyx_t_5 = __pyx_v_points;
   __Pyx_INCREF(__pyx_t_5);
   __pyx_v_cPoints = ((PyArrayObject *)__pyx_t_5);
   __pyx_t_5 = 0;
 
-  /* "freud/box.pyx":840
+  /* "freud/box.pyx":842
  *                 'Need a list of 3D points for ParticleBuffer.compute()')
  *         cdef np.ndarray cPoints = points
  *         cdef unsigned int Np = points.shape[0]             # <<<<<<<<<<<<<<
  *         self.thisptr.compute(<vec3[float]*> cPoints.data, Np, buffer, images)
  *         return self
  */
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_points, __pyx_n_s_shape); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 840, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_points, __pyx_n_s_shape); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 842, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_3 = __Pyx_GetItemInt(__pyx_t_5, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 840, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_GetItemInt(__pyx_t_5, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 842, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_7 = __Pyx_PyInt_As_unsigned_int(__pyx_t_3); if (unlikely((__pyx_t_7 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 840, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyInt_As_unsigned_int(__pyx_t_3); if (unlikely((__pyx_t_7 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 842, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_v_Np = __pyx_t_7;
 
-  /* "freud/box.pyx":841
+  /* "freud/box.pyx":843
  *         cdef np.ndarray cPoints = points
  *         cdef unsigned int Np = points.shape[0]
  *         self.thisptr.compute(<vec3[float]*> cPoints.data, Np, buffer, images)             # <<<<<<<<<<<<<<
@@ -15289,10 +15289,10 @@ static PyObject *__pyx_pf_5freud_3box_14ParticleBuffer_2compute(struct __pyx_obj
     __pyx_v_self->thisptr->compute(((vec3<float>  *)__pyx_v_cPoints->data), __pyx_v_Np, __pyx_v_buffer, __pyx_v_images);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(0, 841, __pyx_L1_error)
+    __PYX_ERR(0, 843, __pyx_L1_error)
   }
 
-  /* "freud/box.pyx":842
+  /* "freud/box.pyx":844
  *         cdef unsigned int Np = points.shape[0]
  *         self.thisptr.compute(<vec3[float]*> cPoints.data, Np, buffer, images)
  *         return self             # <<<<<<<<<<<<<<
@@ -15304,7 +15304,7 @@ static PyObject *__pyx_pf_5freud_3box_14ParticleBuffer_2compute(struct __pyx_obj
   __pyx_r = ((PyObject *)__pyx_v_self);
   goto __pyx_L0;
 
-  /* "freud/box.pyx":818
+  /* "freud/box.pyx":820
  *         self.thisptr = new freud._box.ParticleBuffer(dereference(b.thisptr))
  * 
  *     def compute(self, points, float buffer, bool_t images=False):             # <<<<<<<<<<<<<<
@@ -15329,7 +15329,7 @@ static PyObject *__pyx_pf_5freud_3box_14ParticleBuffer_2compute(struct __pyx_obj
   return __pyx_r;
 }
 
-/* "freud/box.pyx":845
+/* "freud/box.pyx":847
  * 
  *     @property
  *     def buffer_particles(self):             # <<<<<<<<<<<<<<
@@ -15373,7 +15373,7 @@ static PyObject *__pyx_pf_5freud_3box_14ParticleBuffer_16buffer_particles___get_
   __pyx_pybuffernd_result.data = NULL;
   __pyx_pybuffernd_result.rcbuffer = &__pyx_pybuffer_result;
 
-  /* "freud/box.pyx":847
+  /* "freud/box.pyx":849
  *     def buffer_particles(self):
  *         cdef unsigned int buffer_size = \
  *             dereference(self.thisptr.getBufferParticles().get()).size()             # <<<<<<<<<<<<<<
@@ -15382,7 +15382,7 @@ static PyObject *__pyx_pf_5freud_3box_14ParticleBuffer_16buffer_particles___get_
  */
   __pyx_v_buffer_size = (*__pyx_v_self->thisptr->getBufferParticles().get()).size();
 
-  /* "freud/box.pyx":849
+  /* "freud/box.pyx":851
  *             dereference(self.thisptr.getBufferParticles().get()).size()
  *         cdef vec3[float] * buffer_points = \
  *             &dereference(self.thisptr.getBufferParticles().get())[0]             # <<<<<<<<<<<<<<
@@ -15391,7 +15391,7 @@ static PyObject *__pyx_pf_5freud_3box_14ParticleBuffer_16buffer_particles___get_
  */
   __pyx_v_buffer_points = (&((*__pyx_v_self->thisptr->getBufferParticles().get())[0]));
 
-  /* "freud/box.pyx":850
+  /* "freud/box.pyx":852
  *         cdef vec3[float] * buffer_points = \
  *             &dereference(self.thisptr.getBufferParticles().get())[0]
  *         if not buffer_size:             # <<<<<<<<<<<<<<
@@ -15401,7 +15401,7 @@ static PyObject *__pyx_pf_5freud_3box_14ParticleBuffer_16buffer_particles___get_
   __pyx_t_1 = ((!(__pyx_v_buffer_size != 0)) != 0);
   if (__pyx_t_1) {
 
-    /* "freud/box.pyx":851
+    /* "freud/box.pyx":853
  *             &dereference(self.thisptr.getBufferParticles().get())[0]
  *         if not buffer_size:
  *             return np.array([[]], dtype=np.float32)             # <<<<<<<<<<<<<<
@@ -15409,33 +15409,33 @@ static PyObject *__pyx_pf_5freud_3box_14ParticleBuffer_16buffer_particles___get_
  *         cdef vector[vec3[float]]*bufferPar = \
  */
     __Pyx_XDECREF(__pyx_r);
-    __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 851, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 853, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_array); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 851, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_array); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 853, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_2 = PyList_New(0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 851, __pyx_L1_error)
+    __pyx_t_2 = PyList_New(0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 853, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_4 = PyList_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 851, __pyx_L1_error)
+    __pyx_t_4 = PyList_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 853, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_GIVEREF(__pyx_t_2);
     PyList_SET_ITEM(__pyx_t_4, 0, __pyx_t_2);
     __pyx_t_2 = 0;
-    __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 851, __pyx_L1_error)
+    __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 853, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_GIVEREF(__pyx_t_4);
     PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_t_4);
     __pyx_t_4 = 0;
-    __pyx_t_4 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 851, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 853, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_5 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 851, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 853, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_float32); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 851, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_float32); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 853, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_dtype, __pyx_t_6) < 0) __PYX_ERR(0, 851, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_dtype, __pyx_t_6) < 0) __PYX_ERR(0, 853, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_2, __pyx_t_4); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 851, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_2, __pyx_t_4); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 853, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -15444,7 +15444,7 @@ static PyObject *__pyx_pf_5freud_3box_14ParticleBuffer_16buffer_particles___get_
     __pyx_t_6 = 0;
     goto __pyx_L0;
 
-    /* "freud/box.pyx":850
+    /* "freud/box.pyx":852
  *         cdef vec3[float] * buffer_points = \
  *             &dereference(self.thisptr.getBufferParticles().get())[0]
  *         if not buffer_size:             # <<<<<<<<<<<<<<
@@ -15453,7 +15453,7 @@ static PyObject *__pyx_pf_5freud_3box_14ParticleBuffer_16buffer_particles___get_
  */
   }
 
-  /* "freud/box.pyx":854
+  /* "freud/box.pyx":856
  * 
  *         cdef vector[vec3[float]]*bufferPar = \
  *             self.thisptr.getBufferParticles().get()             # <<<<<<<<<<<<<<
@@ -15462,7 +15462,7 @@ static PyObject *__pyx_pf_5freud_3box_14ParticleBuffer_16buffer_particles___get_
  */
   __pyx_v_bufferPar = __pyx_v_self->thisptr->getBufferParticles().get();
 
-  /* "freud/box.pyx":856
+  /* "freud/box.pyx":858
  *             self.thisptr.getBufferParticles().get()
  *         cdef np.npy_intp nbins[2]
  *         nbins[0] = buffer_size             # <<<<<<<<<<<<<<
@@ -15471,7 +15471,7 @@ static PyObject *__pyx_pf_5freud_3box_14ParticleBuffer_16buffer_particles___get_
  */
   (__pyx_v_nbins[0]) = __pyx_v_buffer_size;
 
-  /* "freud/box.pyx":857
+  /* "freud/box.pyx":859
  *         cdef np.npy_intp nbins[2]
  *         nbins[0] = buffer_size
  *         nbins[1] = 3             # <<<<<<<<<<<<<<
@@ -15480,22 +15480,22 @@ static PyObject *__pyx_pf_5freud_3box_14ParticleBuffer_16buffer_particles___get_
  */
   (__pyx_v_nbins[1]) = 3;
 
-  /* "freud/box.pyx":860
+  /* "freud/box.pyx":862
  * 
  *         cdef np.ndarray[float, ndim=2] result = \
  *             np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32,             # <<<<<<<<<<<<<<
  *                                          <void*> dereference(bufferPar).data())
  * 
  */
-  __pyx_t_6 = PyArray_SimpleNewFromData(2, __pyx_v_nbins, NPY_FLOAT32, ((void *)(*__pyx_v_bufferPar).data())); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 860, __pyx_L1_error)
+  __pyx_t_6 = PyArray_SimpleNewFromData(2, __pyx_v_nbins, NPY_FLOAT32, ((void *)(*__pyx_v_bufferPar).data())); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 862, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  if (!(likely(((__pyx_t_6) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_6, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 860, __pyx_L1_error)
+  if (!(likely(((__pyx_t_6) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_6, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 862, __pyx_L1_error)
   __pyx_t_7 = ((PyArrayObject *)__pyx_t_6);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_result.rcbuffer->pybuffer, (PyObject*)__pyx_t_7, &__Pyx_TypeInfo_float, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {
       __pyx_v_result = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_result.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 859, __pyx_L1_error)
+      __PYX_ERR(0, 861, __pyx_L1_error)
     } else {__pyx_pybuffernd_result.diminfo[0].strides = __pyx_pybuffernd_result.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_result.diminfo[0].shape = __pyx_pybuffernd_result.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_result.diminfo[1].strides = __pyx_pybuffernd_result.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_result.diminfo[1].shape = __pyx_pybuffernd_result.rcbuffer->pybuffer.shape[1];
     }
   }
@@ -15503,7 +15503,7 @@ static PyObject *__pyx_pf_5freud_3box_14ParticleBuffer_16buffer_particles___get_
   __pyx_v_result = ((PyArrayObject *)__pyx_t_6);
   __pyx_t_6 = 0;
 
-  /* "freud/box.pyx":863
+  /* "freud/box.pyx":865
  *                                          <void*> dereference(bufferPar).data())
  * 
  *         return result             # <<<<<<<<<<<<<<
@@ -15515,7 +15515,7 @@ static PyObject *__pyx_pf_5freud_3box_14ParticleBuffer_16buffer_particles___get_
   __pyx_r = ((PyObject *)__pyx_v_result);
   goto __pyx_L0;
 
-  /* "freud/box.pyx":845
+  /* "freud/box.pyx":847
  * 
  *     @property
  *     def buffer_particles(self):             # <<<<<<<<<<<<<<
@@ -15548,7 +15548,7 @@ static PyObject *__pyx_pf_5freud_3box_14ParticleBuffer_16buffer_particles___get_
   return __pyx_r;
 }
 
-/* "freud/box.pyx":866
+/* "freud/box.pyx":868
  * 
  *     @property
  *     def buffer_ids(self):             # <<<<<<<<<<<<<<
@@ -15592,7 +15592,7 @@ static PyObject *__pyx_pf_5freud_3box_14ParticleBuffer_10buffer_ids___get__(stru
   __pyx_pybuffernd_result.data = NULL;
   __pyx_pybuffernd_result.rcbuffer = &__pyx_pybuffer_result;
 
-  /* "freud/box.pyx":868
+  /* "freud/box.pyx":870
  *     def buffer_ids(self):
  *         cdef unsigned int buffer_size = \
  *             dereference(self.thisptr.getBufferParticles().get()).size()             # <<<<<<<<<<<<<<
@@ -15601,7 +15601,7 @@ static PyObject *__pyx_pf_5freud_3box_14ParticleBuffer_10buffer_ids___get__(stru
  */
   __pyx_v_buffer_size = (*__pyx_v_self->thisptr->getBufferParticles().get()).size();
 
-  /* "freud/box.pyx":870
+  /* "freud/box.pyx":872
  *             dereference(self.thisptr.getBufferParticles().get()).size()
  *         cdef unsigned int * buffer_ids = \
  *             &dereference(self.thisptr.getBufferIds().get())[0]             # <<<<<<<<<<<<<<
@@ -15610,7 +15610,7 @@ static PyObject *__pyx_pf_5freud_3box_14ParticleBuffer_10buffer_ids___get__(stru
  */
   __pyx_v_buffer_ids = (&((*__pyx_v_self->thisptr->getBufferIds().get())[0]));
 
-  /* "freud/box.pyx":871
+  /* "freud/box.pyx":873
  *         cdef unsigned int * buffer_ids = \
  *             &dereference(self.thisptr.getBufferIds().get())[0]
  *         if not buffer_size:             # <<<<<<<<<<<<<<
@@ -15620,7 +15620,7 @@ static PyObject *__pyx_pf_5freud_3box_14ParticleBuffer_10buffer_ids___get__(stru
   __pyx_t_1 = ((!(__pyx_v_buffer_size != 0)) != 0);
   if (__pyx_t_1) {
 
-    /* "freud/box.pyx":872
+    /* "freud/box.pyx":874
  *             &dereference(self.thisptr.getBufferIds().get())[0]
  *         if not buffer_size:
  *             return np.array([[]], dtype=np.uint32)             # <<<<<<<<<<<<<<
@@ -15628,33 +15628,33 @@ static PyObject *__pyx_pf_5freud_3box_14ParticleBuffer_10buffer_ids___get__(stru
  *         cdef vector[unsigned int]*bufferIds = self.thisptr.getBufferIds().get()
  */
     __Pyx_XDECREF(__pyx_r);
-    __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 872, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 874, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_array); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 872, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_array); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 874, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_2 = PyList_New(0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 872, __pyx_L1_error)
+    __pyx_t_2 = PyList_New(0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 874, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_4 = PyList_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 872, __pyx_L1_error)
+    __pyx_t_4 = PyList_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 874, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_GIVEREF(__pyx_t_2);
     PyList_SET_ITEM(__pyx_t_4, 0, __pyx_t_2);
     __pyx_t_2 = 0;
-    __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 872, __pyx_L1_error)
+    __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 874, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_GIVEREF(__pyx_t_4);
     PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_t_4);
     __pyx_t_4 = 0;
-    __pyx_t_4 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 872, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 874, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_5 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 872, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 874, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_uint32); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 872, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_uint32); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 874, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_dtype, __pyx_t_6) < 0) __PYX_ERR(0, 872, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_dtype, __pyx_t_6) < 0) __PYX_ERR(0, 874, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_2, __pyx_t_4); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 872, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_2, __pyx_t_4); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 874, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -15663,7 +15663,7 @@ static PyObject *__pyx_pf_5freud_3box_14ParticleBuffer_10buffer_ids___get__(stru
     __pyx_t_6 = 0;
     goto __pyx_L0;
 
-    /* "freud/box.pyx":871
+    /* "freud/box.pyx":873
  *         cdef unsigned int * buffer_ids = \
  *             &dereference(self.thisptr.getBufferIds().get())[0]
  *         if not buffer_size:             # <<<<<<<<<<<<<<
@@ -15672,7 +15672,7 @@ static PyObject *__pyx_pf_5freud_3box_14ParticleBuffer_10buffer_ids___get__(stru
  */
   }
 
-  /* "freud/box.pyx":874
+  /* "freud/box.pyx":876
  *             return np.array([[]], dtype=np.uint32)
  * 
  *         cdef vector[unsigned int]*bufferIds = self.thisptr.getBufferIds().get()             # <<<<<<<<<<<<<<
@@ -15681,7 +15681,7 @@ static PyObject *__pyx_pf_5freud_3box_14ParticleBuffer_10buffer_ids___get__(stru
  */
   __pyx_v_bufferIds = __pyx_v_self->thisptr->getBufferIds().get();
 
-  /* "freud/box.pyx":876
+  /* "freud/box.pyx":878
  *         cdef vector[unsigned int]*bufferIds = self.thisptr.getBufferIds().get()
  *         cdef np.npy_intp nbins[1]
  *         nbins[0] = buffer_size             # <<<<<<<<<<<<<<
@@ -15690,22 +15690,22 @@ static PyObject *__pyx_pf_5freud_3box_14ParticleBuffer_10buffer_ids___get__(stru
  */
   (__pyx_v_nbins[0]) = __pyx_v_buffer_size;
 
-  /* "freud/box.pyx":879
+  /* "freud/box.pyx":881
  * 
  *         cdef np.ndarray[unsigned int, ndim=1] result = \
  *             np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32,             # <<<<<<<<<<<<<<
  *                                          <void*> dereference(bufferIds).data())
  * 
  */
-  __pyx_t_6 = PyArray_SimpleNewFromData(1, __pyx_v_nbins, NPY_UINT32, ((void *)(*__pyx_v_bufferIds).data())); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 879, __pyx_L1_error)
+  __pyx_t_6 = PyArray_SimpleNewFromData(1, __pyx_v_nbins, NPY_UINT32, ((void *)(*__pyx_v_bufferIds).data())); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 881, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  if (!(likely(((__pyx_t_6) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_6, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 879, __pyx_L1_error)
+  if (!(likely(((__pyx_t_6) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_6, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 881, __pyx_L1_error)
   __pyx_t_7 = ((PyArrayObject *)__pyx_t_6);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_result.rcbuffer->pybuffer, (PyObject*)__pyx_t_7, &__Pyx_TypeInfo_unsigned_int, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack) == -1)) {
       __pyx_v_result = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_result.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 878, __pyx_L1_error)
+      __PYX_ERR(0, 880, __pyx_L1_error)
     } else {__pyx_pybuffernd_result.diminfo[0].strides = __pyx_pybuffernd_result.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_result.diminfo[0].shape = __pyx_pybuffernd_result.rcbuffer->pybuffer.shape[0];
     }
   }
@@ -15713,7 +15713,7 @@ static PyObject *__pyx_pf_5freud_3box_14ParticleBuffer_10buffer_ids___get__(stru
   __pyx_v_result = ((PyArrayObject *)__pyx_t_6);
   __pyx_t_6 = 0;
 
-  /* "freud/box.pyx":882
+  /* "freud/box.pyx":884
  *                                          <void*> dereference(bufferIds).data())
  * 
  *         return result             # <<<<<<<<<<<<<<
@@ -15725,7 +15725,7 @@ static PyObject *__pyx_pf_5freud_3box_14ParticleBuffer_10buffer_ids___get__(stru
   __pyx_r = ((PyObject *)__pyx_v_result);
   goto __pyx_L0;
 
-  /* "freud/box.pyx":866
+  /* "freud/box.pyx":868
  * 
  *     @property
  *     def buffer_ids(self):             # <<<<<<<<<<<<<<
@@ -15758,7 +15758,7 @@ static PyObject *__pyx_pf_5freud_3box_14ParticleBuffer_10buffer_ids___get__(stru
   return __pyx_r;
 }
 
-/* "freud/box.pyx":885
+/* "freud/box.pyx":887
  * 
  *     @property
  *     def buffer_box(self):             # <<<<<<<<<<<<<<
@@ -15784,19 +15784,19 @@ static PyObject *__pyx_pf_5freud_3box_14ParticleBuffer_10buffer_box___get__(stru
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "freud/box.pyx":886
+  /* "freud/box.pyx":888
  *     @property
  *     def buffer_box(self):
  *         return BoxFromCPP(<freud._box.Box> self.thisptr.getBufferBox())             # <<<<<<<<<<<<<<
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_5freud_3box_BoxFromCPP(((freud::box::Box)__pyx_v_self->thisptr->getBufferBox())); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 886, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_5freud_3box_BoxFromCPP(((freud::box::Box)__pyx_v_self->thisptr->getBufferBox())); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 888, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/box.pyx":885
+  /* "freud/box.pyx":887
  * 
  *     @property
  *     def buffer_box(self):             # <<<<<<<<<<<<<<
@@ -18823,7 +18823,7 @@ static PyTypeObject __pyx_type_5freud_3box_ParticleBuffer = {
   0, /*tp_setattro*/
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE, /*tp_flags*/
-  "Replicates particles outside the box via periodic images.\n\n    .. moduleauthor:: Ben Schultz <baschult@umich.edu>\n    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>\n\n    Args:\n        box (:py:class:`freud.box.Box`): Simulation box.\n\n    Attributes:\n        buffer_particles (:class:`numpy.ndarray`):\n            The buffer particles.\n        buffer_ids (:class:`numpy.ndarray`):\n            The buffer ids.\n        buffer_box (:class:`freud.box.Box`):\n            The buffer box, expanded to hold the replicated particles.\n    ", /*tp_doc*/
+  "Replicates particles outside the box via periodic images.\n\n    .. moduleauthor:: Ben Schultz <baschult@umich.edu>\n    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>\n\n    .. versionadded:: 0.11\n\n    Args:\n        box (:py:class:`freud.box.Box`): Simulation box.\n\n    Attributes:\n        buffer_particles (:class:`numpy.ndarray`):\n            The buffer particles.\n        buffer_ids (:class:`numpy.ndarray`):\n            The buffer ids.\n        buffer_box (:class:`freud.box.Box`):\n            The buffer box, expanded to hold the replicated particles.\n    ", /*tp_doc*/
   0, /*tp_traverse*/
   0, /*tp_clear*/
   0, /*tp_richcompare*/
@@ -19138,7 +19138,7 @@ static int __Pyx_InitCachedBuiltins(void) {
   __pyx_builtin_AttributeError = __Pyx_GetBuiltinName(__pyx_n_s_AttributeError); if (!__pyx_builtin_AttributeError) __PYX_ERR(0, 679, __pyx_L1_error)
   __pyx_builtin_IndexError = __Pyx_GetBuiltinName(__pyx_n_s_IndexError); if (!__pyx_builtin_IndexError) __PYX_ERR(0, 696, __pyx_L1_error)
   __pyx_builtin_KeyError = __Pyx_GetBuiltinName(__pyx_n_s_KeyError); if (!__pyx_builtin_KeyError) __PYX_ERR(0, 696, __pyx_L1_error)
-  __pyx_builtin_RuntimeError = __Pyx_GetBuiltinName(__pyx_n_s_RuntimeError); if (!__pyx_builtin_RuntimeError) __PYX_ERR(0, 837, __pyx_L1_error)
+  __pyx_builtin_RuntimeError = __Pyx_GetBuiltinName(__pyx_n_s_RuntimeError); if (!__pyx_builtin_RuntimeError) __PYX_ERR(0, 839, __pyx_L1_error)
   __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(2, 242, __pyx_L1_error)
   __pyx_builtin_ImportError = __Pyx_GetBuiltinName(__pyx_n_s_ImportError); if (!__pyx_builtin_ImportError) __PYX_ERR(2, 1000, __pyx_L1_error)
   return 0;
@@ -19478,14 +19478,14 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__33);
   __Pyx_GIVEREF(__pyx_tuple__33);
 
-  /* "freud/box.pyx":837
+  /* "freud/box.pyx":839
  * 
  *         if points.shape[1] != 3:
  *             raise RuntimeError(             # <<<<<<<<<<<<<<
  *                 'Need a list of 3D points for ParticleBuffer.compute()')
  *         cdef np.ndarray cPoints = points
  */
-  __pyx_tuple__34 = PyTuple_Pack(1, __pyx_kp_s_Need_a_list_of_3D_points_for_Par); if (unlikely(!__pyx_tuple__34)) __PYX_ERR(0, 837, __pyx_L1_error)
+  __pyx_tuple__34 = PyTuple_Pack(1, __pyx_kp_s_Need_a_list_of_3D_points_for_Par); if (unlikely(!__pyx_tuple__34)) __PYX_ERR(0, 839, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__34);
   __Pyx_GIVEREF(__pyx_tuple__34);
 
@@ -20082,17 +20082,17 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_GIVEREF(__pyx_tuple__124);
   __pyx_codeobj__125 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__124, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_setstate_cython, 3, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__125)) __PYX_ERR(1, 3, __pyx_L1_error)
 
-  /* "freud/box.pyx":818
+  /* "freud/box.pyx":820
  *         self.thisptr = new freud._box.ParticleBuffer(dereference(b.thisptr))
  * 
  *     def compute(self, points, float buffer, bool_t images=False):             # <<<<<<<<<<<<<<
  *         R"""Compute the particle buffer.
  * 
  */
-  __pyx_tuple__126 = PyTuple_Pack(6, __pyx_n_s_self, __pyx_n_s_points, __pyx_n_s_buffer, __pyx_n_s_images, __pyx_n_s_cPoints, __pyx_n_s_Np); if (unlikely(!__pyx_tuple__126)) __PYX_ERR(0, 818, __pyx_L1_error)
+  __pyx_tuple__126 = PyTuple_Pack(6, __pyx_n_s_self, __pyx_n_s_points, __pyx_n_s_buffer, __pyx_n_s_images, __pyx_n_s_cPoints, __pyx_n_s_Np); if (unlikely(!__pyx_tuple__126)) __PYX_ERR(0, 820, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__126);
   __Pyx_GIVEREF(__pyx_tuple__126);
-  __pyx_codeobj__127 = (PyObject*)__Pyx_PyCode_New(4, 0, 6, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__126, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_box_pyx, __pyx_n_s_compute, 818, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__127)) __PYX_ERR(0, 818, __pyx_L1_error)
+  __pyx_codeobj__127 = (PyObject*)__Pyx_PyCode_New(4, 0, 6, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__126, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_box_pyx, __pyx_n_s_compute, 820, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__127)) __PYX_ERR(0, 820, __pyx_L1_error)
 
   /* "(tree fragment)":1
  * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
@@ -21110,16 +21110,16 @@ if (!__Pyx_RefNanny) {
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_setstate_cython, __pyx_t_3) < 0) __PYX_ERR(1, 3, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "freud/box.pyx":818
+  /* "freud/box.pyx":820
  *         self.thisptr = new freud._box.ParticleBuffer(dereference(b.thisptr))
  * 
  *     def compute(self, points, float buffer, bool_t images=False):             # <<<<<<<<<<<<<<
  *         R"""Compute the particle buffer.
  * 
  */
-  __pyx_t_3 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_3box_14ParticleBuffer_3compute, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_ParticleBuffer_compute, NULL, __pyx_n_s_freud_box, __pyx_d, ((PyObject *)__pyx_codeobj__127)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 818, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_3box_14ParticleBuffer_3compute, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_ParticleBuffer_compute, NULL, __pyx_n_s_freud_box, __pyx_d, ((PyObject *)__pyx_codeobj__127)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 820, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_3box_ParticleBuffer->tp_dict, __pyx_n_s_compute, __pyx_t_3) < 0) __PYX_ERR(0, 818, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_3box_ParticleBuffer->tp_dict, __pyx_n_s_compute, __pyx_t_3) < 0) __PYX_ERR(0, 820, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   PyType_Modified(__pyx_ptype_5freud_3box_ParticleBuffer);
 

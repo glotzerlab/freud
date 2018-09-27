@@ -48,16 +48,16 @@
         "name": "freud.bond",
         "sources": [
             "freud/bond.pyx",
-            "cpp/locality/NearestNeighbors.cc",
-            "cpp/bond/BondingXYZ.cc",
-            "cpp/bond/BondingXYT.cc",
-            "cpp/bond/BondingXY2D.cc",
-            "cpp/box/Box.cc",
-            "cpp/bond/BondingR12.cc",
             "cpp/locality/NeighborList.cc",
             "cpp/util/HOOMDMatrix.cc",
+            "cpp/bond/BondingXYZ.cc",
+            "cpp/locality/NearestNeighbors.cc",
             "cpp/bond/BondingAnalysis.cc",
-            "cpp/locality/LinkCell.cc"
+            "cpp/bond/BondingR12.cc",
+            "cpp/locality/LinkCell.cc",
+            "cpp/bond/BondingXYT.cc",
+            "cpp/box/Box.cc",
+            "cpp/bond/BondingXY2D.cc"
         ]
     },
     "module_name": "freud.bond"

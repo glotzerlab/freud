@@ -56,20 +56,20 @@
         "name": "freud.order",
         "sources": [
             "freud/order.pyx",
-            "cpp/order/TransOrderParameter.cc",
-            "cpp/order/wigner3j.cc",
-            "cpp/order/HexOrderParameter.cc",
-            "cpp/util/HOOMDMatrix.cc",
-            "cpp/locality/LinkCell.cc",
-            "cpp/order/NematicOrderParameter.cc",
-            "cpp/order/LocalQl.cc",
-            "cpp/box/Box.cc",
-            "cpp/order/CubaticOrderParameter.cc",
-            "cpp/cluster/Cluster.cc",
-            "cpp/order/LocalWl.cc",
-            "cpp/locality/NearestNeighbors.cc",
+            "cpp/order/SolLiq.cc",
             "cpp/locality/NeighborList.cc",
-            "cpp/order/SolLiq.cc"
+            "cpp/util/HOOMDMatrix.cc",
+            "cpp/order/TransOrderParameter.cc",
+            "cpp/order/CubaticOrderParameter.cc",
+            "cpp/locality/NearestNeighbors.cc",
+            "cpp/order/LocalWl.cc",
+            "cpp/order/HexOrderParameter.cc",
+            "cpp/cluster/Cluster.cc",
+            "cpp/order/wigner3j.cc",
+            "cpp/order/NematicOrderParameter.cc",
+            "cpp/locality/LinkCell.cc",
+            "cpp/order/LocalQl.cc",
+            "cpp/box/Box.cc"
         ]
     },
     "module_name": "freud.order"
@@ -1537,7 +1537,7 @@ struct __pyx_obj_5freud_5order_SolLiq {
 };
 
 
-/* "freud/order.pyx":1620
+/* "freud/order.pyx":1615
  * 
  * 
  * cdef class SolLiqNear(SolLiq):             # <<<<<<<<<<<<<<
@@ -2576,11 +2576,6 @@ static const char __pyx_k_SolLiq_getNumberOfConnections[] = "SolLiq.getNumberOfC
 static const char __pyx_k_points_should_be_an_Nx3_array[] = "points should be an Nx3 array";
 static const char __pyx_k_SolLiqNear_computeSolLiqNoNorm[] = "SolLiqNear.computeSolLiqNoNorm";
 static const char __pyx_k_CubaticOrderParameter_get_scale[] = "CubaticOrderParameter.get_scale";
-static const char __pyx_k_Deprecated_Calculates_the_minim[] = "**Deprecated** Calculates the minimum angles of separation between\n    particles and references.\n\n    .. note::\n        This class is only retained for backwards compatibility.\n        Please use :class:`freud.environment.AngularSeparation` instead.\n\n    .. deprecated:: 0.8.2\n       Use :class:`freud.environment.AngularSeparation` instead.\n\n    ";
-static const char __pyx_k_Deprecated_Clusters_particles_a[] = "**Deprecated** Clusters particles according to whether their local\n    environments match or not, according to various shape matching metrics.\n\n    .. note::\n        This class is only retained for backwards compatibility.\n        Please use :class:`freud.environment.MatchEnv` instead.\n\n    .. deprecated:: 0.8.2\n       Use :class:`freud.environment.MatchEnv` instead.\n\n    ";
-static const char __pyx_k_Deprecated_Compute_a_set_of_des[] = "**Deprecated** Compute a set of descriptors (a numerical \"fingerprint\")\n    of a particle's local environment.\n\n    .. note::\n        This class is only retained for backwards compatibility.\n        Please use :class:`freud.environment.LocalDescriptors` instead.\n\n    .. deprecated:: 0.8.2\n       Use :class:`freud.environment.LocalDescriptors` instead.\n\n    ";
-static const char __pyx_k_Deprecated_Compute_pairs_for_th[] = "**Deprecated** Compute pairs for the system of particles.\n\n    .. note::\n        This class is only retained for backwards compatibility.\n        Please use :mod:`freud.bond` instead.\n\n    .. deprecated:: 0.8.2\n       Use :mod:`freud.bond` instead.\n\n    ";
-static const char __pyx_k_Deprecated_Compute_the_bond_ord[] = "**Deprecated** Compute the bond order diagram for the system of particles.\n\n    .. note::\n        This class is only retained for backwards compatibility.\n        Please use :class:`freud.environment.BondOrder` instead.\n\n    .. deprecated:: 0.8.2\n       Use :class:`freud.environment.BondOrder` instead.\n\n    ";
 static const char __pyx_k_SolLiqNear_computeSolLiqVariant[] = "SolLiqNear.computeSolLiqVariant";
 static const char __pyx_k_The_getClusterSizes_function_is[] = "The getClusterSizes function is deprecated in favor of the cluster_sizes class attribute and will be removed in a future version of freud.";
 static const char __pyx_k_The_getK_function_is_deprecated[] = "The getK function is deprecated in favor of the K class attribute and will be removed in a future version of freud.";
@@ -2675,11 +2670,6 @@ static PyObject *__pyx_n_s_CubaticOrderParameter_get_partic_2;
 static PyObject *__pyx_n_s_CubaticOrderParameter_get_scale;
 static PyObject *__pyx_n_s_CubaticOrderParameter_get_t_fina;
 static PyObject *__pyx_n_s_CubaticOrderParameter_get_t_init;
-static PyObject *__pyx_kp_s_Deprecated_Calculates_the_minim;
-static PyObject *__pyx_kp_s_Deprecated_Clusters_particles_a;
-static PyObject *__pyx_kp_s_Deprecated_Compute_a_set_of_des;
-static PyObject *__pyx_kp_s_Deprecated_Compute_pairs_for_th;
-static PyObject *__pyx_kp_s_Deprecated_Compute_the_bond_ord;
 static PyObject *__pyx_kp_u_Format_string_allocated_too_shor;
 static PyObject *__pyx_kp_u_Format_string_allocated_too_shor_2;
 static PyObject *__pyx_n_s_FreudDeprecationWarning;
@@ -21796,7 +21786,7 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_3box___get__(struct __pyx_obj_5f
   return __pyx_r;
 }
 
-/* "freud/order.pyx":1496
+/* "freud/order.pyx":1491
  * 
  *     @box.setter
  *     def box(self, value):             # <<<<<<<<<<<<<<
@@ -21827,19 +21817,19 @@ static int __pyx_pf_5freud_5order_6SolLiq_3box_2__set__(struct __pyx_obj_5freud_
   PyObject *__pyx_t_4 = NULL;
   __Pyx_RefNannySetupContext("__set__", 0);
 
-  /* "freud/order.pyx":1497
+  /* "freud/order.pyx":1492
  *     @box.setter
  *     def box(self, value):
  *         cdef freud.box.Box b = freud.common.convert_box(value)             # <<<<<<<<<<<<<<
  *         self.thisptr.setBox(dereference(b.thisptr))
  * 
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1497, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1492, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_common); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1497, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_common); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1492, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_convert_box); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1497, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_convert_box); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1492, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_t_3 = NULL;
@@ -21853,13 +21843,13 @@ static int __pyx_pf_5freud_5order_6SolLiq_3box_2__set__(struct __pyx_obj_5freud_
     }
   }
   if (!__pyx_t_3) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_value); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1497, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_value); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1492, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   } else {
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_v_value};
-      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1497, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1492, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
@@ -21867,29 +21857,29 @@ static int __pyx_pf_5freud_5order_6SolLiq_3box_2__set__(struct __pyx_obj_5freud_
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_v_value};
-      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1497, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1492, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
     #endif
     {
-      __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1497, __pyx_L1_error)
+      __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1492, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_GIVEREF(__pyx_t_3); PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_3); __pyx_t_3 = NULL;
       __Pyx_INCREF(__pyx_v_value);
       __Pyx_GIVEREF(__pyx_v_value);
       PyTuple_SET_ITEM(__pyx_t_4, 0+1, __pyx_v_value);
-      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1497, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1492, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     }
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5freud_3box_Box))))) __PYX_ERR(0, 1497, __pyx_L1_error)
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5freud_3box_Box))))) __PYX_ERR(0, 1492, __pyx_L1_error)
   __pyx_v_b = ((struct __pyx_obj_5freud_3box_Box *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "freud/order.pyx":1498
+  /* "freud/order.pyx":1493
  *     def box(self, value):
  *         cdef freud.box.Box b = freud.common.convert_box(value)
  *         self.thisptr.setBox(dereference(b.thisptr))             # <<<<<<<<<<<<<<
@@ -21898,7 +21888,7 @@ static int __pyx_pf_5freud_5order_6SolLiq_3box_2__set__(struct __pyx_obj_5freud_
  */
   __pyx_v_self->thisptr->setBox((*__pyx_v_b->thisptr));
 
-  /* "freud/order.pyx":1496
+  /* "freud/order.pyx":1491
  * 
  *     @box.setter
  *     def box(self, value):             # <<<<<<<<<<<<<<
@@ -22068,13 +22058,13 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_10getBox(struct __pyx_obj_5freud
  *         return self.box
  * 
  *     def setClusteringRadius(self, rcutCluster):             # <<<<<<<<<<<<<<
- *         R"""Set the clustering radius.
- * 
+ *         warnings.warn("Use constructor arguments instead of this setter. "
+ *                       "This setter will be removed in the future.",
  */
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_5order_6SolLiq_13setClusteringRadius(PyObject *__pyx_v_self, PyObject *__pyx_v_rcutCluster); /*proto*/
-static char __pyx_doc_5freud_5order_6SolLiq_12setClusteringRadius[] = "SolLiq.setClusteringRadius(self, rcutCluster)\nSet the clustering radius.\n\n        Args:\n            rcutCluster (float): Radius for the cluster finding.\n        ";
+static char __pyx_doc_5freud_5order_6SolLiq_12setClusteringRadius[] = "SolLiq.setClusteringRadius(self, rcutCluster)";
 static PyMethodDef __pyx_mdef_5freud_5order_6SolLiq_13setClusteringRadius = {"setClusteringRadius", (PyCFunction)__pyx_pw_5freud_5order_6SolLiq_13setClusteringRadius, METH_O, __pyx_doc_5freud_5order_6SolLiq_12setClusteringRadius};
 static PyObject *__pyx_pw_5freud_5order_6SolLiq_13setClusteringRadius(PyObject *__pyx_v_self, PyObject *__pyx_v_rcutCluster) {
   PyObject *__pyx_r = 0;
@@ -22099,27 +22089,27 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_12setClusteringRadius(struct __p
   float __pyx_t_7;
   __Pyx_RefNannySetupContext("setClusteringRadius", 0);
 
-  /* "freud/order.pyx":1490
- *             rcutCluster (float): Radius for the cluster finding.
- *         """
+  /* "freud/order.pyx":1485
+ * 
+ *     def setClusteringRadius(self, rcutCluster):
  *         warnings.warn("Use constructor arguments instead of this setter. "             # <<<<<<<<<<<<<<
  *                       "This setter will be removed in the future.",
  *                       FreudDeprecationWarning)
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1490, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1485, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1490, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1485, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/order.pyx":1492
+  /* "freud/order.pyx":1487
  *         warnings.warn("Use constructor arguments instead of this setter. "
  *                       "This setter will be removed in the future.",
  *                       FreudDeprecationWarning)             # <<<<<<<<<<<<<<
  *         self.thisptr.setClusteringRadius(rcutCluster)
  * 
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1492, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1487, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   __pyx_t_5 = 0;
@@ -22136,7 +22126,7 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_12setClusteringRadius(struct __p
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_Use_constructor_arguments_instea, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1490, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1485, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -22145,14 +22135,14 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_12setClusteringRadius(struct __p
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_Use_constructor_arguments_instea, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1490, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1485, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   } else
   #endif
   {
-    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1490, __pyx_L1_error)
+    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1485, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     if (__pyx_t_4) {
       __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -22163,29 +22153,29 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_12setClusteringRadius(struct __p
     __Pyx_GIVEREF(__pyx_t_2);
     PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_5, __pyx_t_2);
     __pyx_t_2 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1490, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1485, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "freud/order.pyx":1493
+  /* "freud/order.pyx":1488
  *                       "This setter will be removed in the future.",
  *                       FreudDeprecationWarning)
  *         self.thisptr.setClusteringRadius(rcutCluster)             # <<<<<<<<<<<<<<
  * 
  *     @box.setter
  */
-  __pyx_t_7 = __pyx_PyFloat_AsFloat(__pyx_v_rcutCluster); if (unlikely((__pyx_t_7 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 1493, __pyx_L1_error)
+  __pyx_t_7 = __pyx_PyFloat_AsFloat(__pyx_v_rcutCluster); if (unlikely((__pyx_t_7 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 1488, __pyx_L1_error)
   __pyx_v_self->thisptr->setClusteringRadius(__pyx_t_7);
 
   /* "freud/order.pyx":1484
  *         return self.box
  * 
  *     def setClusteringRadius(self, rcutCluster):             # <<<<<<<<<<<<<<
- *         R"""Set the clustering radius.
- * 
+ *         warnings.warn("Use constructor arguments instead of this setter. "
+ *                       "This setter will be removed in the future.",
  */
 
   /* function exit code */
@@ -22205,7 +22195,7 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_12setClusteringRadius(struct __p
   return __pyx_r;
 }
 
-/* "freud/order.pyx":1500
+/* "freud/order.pyx":1495
  *         self.thisptr.setBox(dereference(b.thisptr))
  * 
  *     def setBox(self, box):             # <<<<<<<<<<<<<<
@@ -22239,27 +22229,27 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_14setBox(struct __pyx_obj_5freud
   PyObject *__pyx_t_6 = NULL;
   __Pyx_RefNannySetupContext("setBox", 0);
 
-  /* "freud/order.pyx":1501
+  /* "freud/order.pyx":1496
  * 
  *     def setBox(self, box):
  *         warnings.warn("The setBox function is deprecated in favor "             # <<<<<<<<<<<<<<
  *                       "of setting the box class attribute and will be "
  *                       "removed in a future version of freud.",
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1501, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1496, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1501, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1496, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/order.pyx":1504
+  /* "freud/order.pyx":1499
  *                       "of setting the box class attribute and will be "
  *                       "removed in a future version of freud.",
  *                       FreudDeprecationWarning)             # <<<<<<<<<<<<<<
  *         self.box = box
  * 
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1504, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1499, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   __pyx_t_5 = 0;
@@ -22276,7 +22266,7 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_14setBox(struct __pyx_obj_5freud
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_setBox_function_is_deprecate, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1501, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1496, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -22285,14 +22275,14 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_14setBox(struct __pyx_obj_5freud
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_setBox_function_is_deprecate, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1501, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1496, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   } else
   #endif
   {
-    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1501, __pyx_L1_error)
+    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1496, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     if (__pyx_t_4) {
       __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -22303,23 +22293,23 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_14setBox(struct __pyx_obj_5freud
     __Pyx_GIVEREF(__pyx_t_2);
     PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_5, __pyx_t_2);
     __pyx_t_2 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1501, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1496, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "freud/order.pyx":1505
+  /* "freud/order.pyx":1500
  *                       "removed in a future version of freud.",
  *                       FreudDeprecationWarning)
  *         self.box = box             # <<<<<<<<<<<<<<
  * 
  *     @property
  */
-  if (__Pyx_PyObject_SetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_box, __pyx_v_box) < 0) __PYX_ERR(0, 1505, __pyx_L1_error)
+  if (__Pyx_PyObject_SetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_box, __pyx_v_box) < 0) __PYX_ERR(0, 1500, __pyx_L1_error)
 
-  /* "freud/order.pyx":1500
+  /* "freud/order.pyx":1495
  *         self.thisptr.setBox(dereference(b.thisptr))
  * 
  *     def setBox(self, box):             # <<<<<<<<<<<<<<
@@ -22344,7 +22334,7 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_14setBox(struct __pyx_obj_5freud
   return __pyx_r;
 }
 
-/* "freud/order.pyx":1508
+/* "freud/order.pyx":1503
  * 
  *     @property
  *     def largest_cluster_size(self):             # <<<<<<<<<<<<<<
@@ -22372,7 +22362,7 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_20largest_cluster_size___get__(s
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "freud/order.pyx":1509
+  /* "freud/order.pyx":1504
  *     @property
  *     def largest_cluster_size(self):
  *         cdef unsigned int clusterSize = self.thisptr.getLargestClusterSize()             # <<<<<<<<<<<<<<
@@ -22381,7 +22371,7 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_20largest_cluster_size___get__(s
  */
   __pyx_v_clusterSize = __pyx_v_self->thisptr->getLargestClusterSize();
 
-  /* "freud/order.pyx":1510
+  /* "freud/order.pyx":1505
  *     def largest_cluster_size(self):
  *         cdef unsigned int clusterSize = self.thisptr.getLargestClusterSize()
  *         return clusterSize             # <<<<<<<<<<<<<<
@@ -22389,13 +22379,13 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_20largest_cluster_size___get__(s
  *     def getLargestClusterSize(self):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_unsigned_int(__pyx_v_clusterSize); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1510, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_unsigned_int(__pyx_v_clusterSize); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1505, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/order.pyx":1508
+  /* "freud/order.pyx":1503
  * 
  *     @property
  *     def largest_cluster_size(self):             # <<<<<<<<<<<<<<
@@ -22414,7 +22404,7 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_20largest_cluster_size___get__(s
   return __pyx_r;
 }
 
-/* "freud/order.pyx":1512
+/* "freud/order.pyx":1507
  *         return clusterSize
  * 
  *     def getLargestClusterSize(self):             # <<<<<<<<<<<<<<
@@ -22448,27 +22438,27 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_16getLargestClusterSize(struct _
   PyObject *__pyx_t_6 = NULL;
   __Pyx_RefNannySetupContext("getLargestClusterSize", 0);
 
-  /* "freud/order.pyx":1513
+  /* "freud/order.pyx":1508
  * 
  *     def getLargestClusterSize(self):
  *         warnings.warn("The getLargestClusterSize function is deprecated in "             # <<<<<<<<<<<<<<
  *                       "favor of the largest_cluster_size class attribute and "
  *                       "will be removed in a future version of freud.",
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1513, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1508, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1513, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1508, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/order.pyx":1516
+  /* "freud/order.pyx":1511
  *                       "favor of the largest_cluster_size class attribute and "
  *                       "will be removed in a future version of freud.",
  *                       FreudDeprecationWarning)             # <<<<<<<<<<<<<<
  *         return self.largest_cluster_size
  * 
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1516, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1511, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   __pyx_t_5 = 0;
@@ -22485,7 +22475,7 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_16getLargestClusterSize(struct _
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getLargestClusterSize_functi, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1513, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1508, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -22494,14 +22484,14 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_16getLargestClusterSize(struct _
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getLargestClusterSize_functi, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1513, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1508, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   } else
   #endif
   {
-    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1513, __pyx_L1_error)
+    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1508, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     if (__pyx_t_4) {
       __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -22512,14 +22502,14 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_16getLargestClusterSize(struct _
     __Pyx_GIVEREF(__pyx_t_2);
     PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_5, __pyx_t_2);
     __pyx_t_2 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1513, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1508, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "freud/order.pyx":1517
+  /* "freud/order.pyx":1512
  *                       "will be removed in a future version of freud.",
  *                       FreudDeprecationWarning)
  *         return self.largest_cluster_size             # <<<<<<<<<<<<<<
@@ -22527,13 +22517,13 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_16getLargestClusterSize(struct _
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_largest_cluster_size); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1517, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_largest_cluster_size); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1512, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/order.pyx":1512
+  /* "freud/order.pyx":1507
  *         return clusterSize
  * 
  *     def getLargestClusterSize(self):             # <<<<<<<<<<<<<<
@@ -22556,7 +22546,7 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_16getLargestClusterSize(struct _
   return __pyx_r;
 }
 
-/* "freud/order.pyx":1520
+/* "freud/order.pyx":1515
  * 
  *     @property
  *     def cluster_sizes(self):             # <<<<<<<<<<<<<<
@@ -22593,7 +22583,7 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_13cluster_sizes___get__(struct _
   __pyx_pybuffernd_result.data = NULL;
   __pyx_pybuffernd_result.rcbuffer = &__pyx_pybuffer_result;
 
-  /* "freud/order.pyx":1521
+  /* "freud/order.pyx":1516
  *     @property
  *     def cluster_sizes(self):
  *         cdef vector[unsigned int] clusterSizes = self.thisptr.getClusterSizes()             # <<<<<<<<<<<<<<
@@ -22602,7 +22592,7 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_13cluster_sizes___get__(struct _
  */
   __pyx_v_clusterSizes = __pyx_v_self->thisptr->getClusterSizes();
 
-  /* "freud/order.pyx":1523
+  /* "freud/order.pyx":1518
  *         cdef vector[unsigned int] clusterSizes = self.thisptr.getClusterSizes()
  *         cdef np.npy_intp nbins[1]
  *         nbins[0] = <np.npy_intp> self.thisptr.getNumClusters()             # <<<<<<<<<<<<<<
@@ -22611,22 +22601,22 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_13cluster_sizes___get__(struct _
  */
   (__pyx_v_nbins[0]) = ((npy_intp)__pyx_v_self->thisptr->getNumClusters());
 
-  /* "freud/order.pyx":1525
+  /* "freud/order.pyx":1520
  *         nbins[0] = <np.npy_intp> self.thisptr.getNumClusters()
  *         cdef np.ndarray[np.uint32_t, ndim=1] result = \
  *             np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32,             # <<<<<<<<<<<<<<
  *                                          <void*> &clusterSizes)
  *         return result
  */
-  __pyx_t_1 = PyArray_SimpleNewFromData(1, __pyx_v_nbins, NPY_UINT32, ((void *)(&__pyx_v_clusterSizes))); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1525, __pyx_L1_error)
+  __pyx_t_1 = PyArray_SimpleNewFromData(1, __pyx_v_nbins, NPY_UINT32, ((void *)(&__pyx_v_clusterSizes))); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1520, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 1525, __pyx_L1_error)
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 1520, __pyx_L1_error)
   __pyx_t_2 = ((PyArrayObject *)__pyx_t_1);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_result.rcbuffer->pybuffer, (PyObject*)__pyx_t_2, &__Pyx_TypeInfo_nn___pyx_t_5numpy_uint32_t, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack) == -1)) {
       __pyx_v_result = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_result.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 1524, __pyx_L1_error)
+      __PYX_ERR(0, 1519, __pyx_L1_error)
     } else {__pyx_pybuffernd_result.diminfo[0].strides = __pyx_pybuffernd_result.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_result.diminfo[0].shape = __pyx_pybuffernd_result.rcbuffer->pybuffer.shape[0];
     }
   }
@@ -22634,7 +22624,7 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_13cluster_sizes___get__(struct _
   __pyx_v_result = ((PyArrayObject *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "freud/order.pyx":1527
+  /* "freud/order.pyx":1522
  *             np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32,
  *                                          <void*> &clusterSizes)
  *         return result             # <<<<<<<<<<<<<<
@@ -22646,7 +22636,7 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_13cluster_sizes___get__(struct _
   __pyx_r = ((PyObject *)__pyx_v_result);
   goto __pyx_L0;
 
-  /* "freud/order.pyx":1520
+  /* "freud/order.pyx":1515
  * 
  *     @property
  *     def cluster_sizes(self):             # <<<<<<<<<<<<<<
@@ -22675,7 +22665,7 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_13cluster_sizes___get__(struct _
   return __pyx_r;
 }
 
-/* "freud/order.pyx":1529
+/* "freud/order.pyx":1524
  *         return result
  * 
  *     def getClusterSizes(self):             # <<<<<<<<<<<<<<
@@ -22709,27 +22699,27 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_18getClusterSizes(struct __pyx_o
   PyObject *__pyx_t_6 = NULL;
   __Pyx_RefNannySetupContext("getClusterSizes", 0);
 
-  /* "freud/order.pyx":1530
+  /* "freud/order.pyx":1525
  * 
  *     def getClusterSizes(self):
  *         warnings.warn("The getClusterSizes function is deprecated in favor "             # <<<<<<<<<<<<<<
  *                       "of the cluster_sizes class attribute and will be "
  *                       "removed in a future version of freud.",
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1530, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1525, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1530, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1525, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/order.pyx":1533
+  /* "freud/order.pyx":1528
  *                       "of the cluster_sizes class attribute and will be "
  *                       "removed in a future version of freud.",
  *                       FreudDeprecationWarning)             # <<<<<<<<<<<<<<
  *         return self.cluster_sizes
  * 
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1533, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1528, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   __pyx_t_5 = 0;
@@ -22746,7 +22736,7 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_18getClusterSizes(struct __pyx_o
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getClusterSizes_function_is, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1530, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1525, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -22755,14 +22745,14 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_18getClusterSizes(struct __pyx_o
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getClusterSizes_function_is, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1530, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1525, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   } else
   #endif
   {
-    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1530, __pyx_L1_error)
+    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1525, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     if (__pyx_t_4) {
       __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -22773,14 +22763,14 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_18getClusterSizes(struct __pyx_o
     __Pyx_GIVEREF(__pyx_t_2);
     PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_5, __pyx_t_2);
     __pyx_t_2 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1530, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1525, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "freud/order.pyx":1534
+  /* "freud/order.pyx":1529
  *                       "removed in a future version of freud.",
  *                       FreudDeprecationWarning)
  *         return self.cluster_sizes             # <<<<<<<<<<<<<<
@@ -22788,13 +22778,13 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_18getClusterSizes(struct __pyx_o
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_cluster_sizes); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1534, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_cluster_sizes); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1529, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/order.pyx":1529
+  /* "freud/order.pyx":1524
  *         return result
  * 
  *     def getClusterSizes(self):             # <<<<<<<<<<<<<<
@@ -22817,7 +22807,7 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_18getClusterSizes(struct __pyx_o
   return __pyx_r;
 }
 
-/* "freud/order.pyx":1537
+/* "freud/order.pyx":1532
  * 
  *     @property
  *     def Ql_mi(self):             # <<<<<<<<<<<<<<
@@ -22854,7 +22844,7 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_5Ql_mi___get__(struct __pyx_obj_
   __pyx_pybuffernd_result.data = NULL;
   __pyx_pybuffernd_result.rcbuffer = &__pyx_pybuffer_result;
 
-  /* "freud/order.pyx":1538
+  /* "freud/order.pyx":1533
  *     @property
  *     def Ql_mi(self):
  *         cdef float complex * Qlmi = self.thisptr.getQlmi().get()             # <<<<<<<<<<<<<<
@@ -22863,7 +22853,7 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_5Ql_mi___get__(struct __pyx_obj_
  */
   __pyx_v_Qlmi = __pyx_v_self->thisptr->getQlmi().get();
 
-  /* "freud/order.pyx":1540
+  /* "freud/order.pyx":1535
  *         cdef float complex * Qlmi = self.thisptr.getQlmi().get()
  *         cdef np.npy_intp nbins[1]
  *         nbins[0] = <np.npy_intp> self.thisptr.getNP()             # <<<<<<<<<<<<<<
@@ -22872,22 +22862,22 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_5Ql_mi___get__(struct __pyx_obj_
  */
   (__pyx_v_nbins[0]) = ((npy_intp)__pyx_v_self->thisptr->getNP());
 
-  /* "freud/order.pyx":1542
+  /* "freud/order.pyx":1537
  *         nbins[0] = <np.npy_intp> self.thisptr.getNP()
  *         cdef np.ndarray[np.complex64_t, ndim=1] result = \
  *             np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX64,             # <<<<<<<<<<<<<<
  *                                          <void*> Qlmi)
  *         return result
  */
-  __pyx_t_1 = PyArray_SimpleNewFromData(1, __pyx_v_nbins, NPY_COMPLEX64, ((void *)__pyx_v_Qlmi)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1542, __pyx_L1_error)
+  __pyx_t_1 = PyArray_SimpleNewFromData(1, __pyx_v_nbins, NPY_COMPLEX64, ((void *)__pyx_v_Qlmi)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1537, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 1542, __pyx_L1_error)
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 1537, __pyx_L1_error)
   __pyx_t_2 = ((PyArrayObject *)__pyx_t_1);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_result.rcbuffer->pybuffer, (PyObject*)__pyx_t_2, &__Pyx_TypeInfo___pyx_t_float_complex, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack) == -1)) {
       __pyx_v_result = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_result.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 1541, __pyx_L1_error)
+      __PYX_ERR(0, 1536, __pyx_L1_error)
     } else {__pyx_pybuffernd_result.diminfo[0].strides = __pyx_pybuffernd_result.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_result.diminfo[0].shape = __pyx_pybuffernd_result.rcbuffer->pybuffer.shape[0];
     }
   }
@@ -22895,7 +22885,7 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_5Ql_mi___get__(struct __pyx_obj_
   __pyx_v_result = ((PyArrayObject *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "freud/order.pyx":1544
+  /* "freud/order.pyx":1539
  *             np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX64,
  *                                          <void*> Qlmi)
  *         return result             # <<<<<<<<<<<<<<
@@ -22907,7 +22897,7 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_5Ql_mi___get__(struct __pyx_obj_
   __pyx_r = ((PyObject *)__pyx_v_result);
   goto __pyx_L0;
 
-  /* "freud/order.pyx":1537
+  /* "freud/order.pyx":1532
  * 
  *     @property
  *     def Ql_mi(self):             # <<<<<<<<<<<<<<
@@ -22936,7 +22926,7 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_5Ql_mi___get__(struct __pyx_obj_
   return __pyx_r;
 }
 
-/* "freud/order.pyx":1546
+/* "freud/order.pyx":1541
  *         return result
  * 
  *     def getQlmi(self):             # <<<<<<<<<<<<<<
@@ -22970,27 +22960,27 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_20getQlmi(struct __pyx_obj_5freu
   PyObject *__pyx_t_6 = NULL;
   __Pyx_RefNannySetupContext("getQlmi", 0);
 
-  /* "freud/order.pyx":1547
+  /* "freud/order.pyx":1542
  * 
  *     def getQlmi(self):
  *         warnings.warn("The getQlmi function is deprecated in favor "             # <<<<<<<<<<<<<<
  *                       "of the Ql_mi class attribute and will be "
  *                       "removed in a future version of freud.",
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1547, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1542, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1547, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1542, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/order.pyx":1550
+  /* "freud/order.pyx":1545
  *                       "of the Ql_mi class attribute and will be "
  *                       "removed in a future version of freud.",
  *                       FreudDeprecationWarning)             # <<<<<<<<<<<<<<
  *         return self.Ql_mi
  * 
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1550, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1545, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   __pyx_t_5 = 0;
@@ -23007,7 +22997,7 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_20getQlmi(struct __pyx_obj_5freu
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getQlmi_function_is_deprecat, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1547, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1542, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -23016,14 +23006,14 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_20getQlmi(struct __pyx_obj_5freu
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getQlmi_function_is_deprecat, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1547, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1542, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   } else
   #endif
   {
-    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1547, __pyx_L1_error)
+    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1542, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     if (__pyx_t_4) {
       __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -23034,14 +23024,14 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_20getQlmi(struct __pyx_obj_5freu
     __Pyx_GIVEREF(__pyx_t_2);
     PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_5, __pyx_t_2);
     __pyx_t_2 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1547, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1542, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "freud/order.pyx":1551
+  /* "freud/order.pyx":1546
  *                       "removed in a future version of freud.",
  *                       FreudDeprecationWarning)
  *         return self.Ql_mi             # <<<<<<<<<<<<<<
@@ -23049,13 +23039,13 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_20getQlmi(struct __pyx_obj_5freu
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_Ql_mi); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1551, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_Ql_mi); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1546, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/order.pyx":1546
+  /* "freud/order.pyx":1541
  *         return result
  * 
  *     def getQlmi(self):             # <<<<<<<<<<<<<<
@@ -23078,7 +23068,7 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_20getQlmi(struct __pyx_obj_5freu
   return __pyx_r;
 }
 
-/* "freud/order.pyx":1554
+/* "freud/order.pyx":1549
  * 
  *     @property
  *     def clusters(self):             # <<<<<<<<<<<<<<
@@ -23115,7 +23105,7 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_8clusters___get__(struct __pyx_o
   __pyx_pybuffernd_result.data = NULL;
   __pyx_pybuffernd_result.rcbuffer = &__pyx_pybuffer_result;
 
-  /* "freud/order.pyx":1555
+  /* "freud/order.pyx":1550
  *     @property
  *     def clusters(self):
  *         cdef unsigned int * clusters = self.thisptr.getClusters().get()             # <<<<<<<<<<<<<<
@@ -23124,7 +23114,7 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_8clusters___get__(struct __pyx_o
  */
   __pyx_v_clusters = __pyx_v_self->thisptr->getClusters().get();
 
-  /* "freud/order.pyx":1558
+  /* "freud/order.pyx":1553
  *         cdef np.npy_intp nbins[1]
  *         # this is the correct number
  *         nbins[0] = <np.npy_intp> self.thisptr.getNP()             # <<<<<<<<<<<<<<
@@ -23133,22 +23123,22 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_8clusters___get__(struct __pyx_o
  */
   (__pyx_v_nbins[0]) = ((npy_intp)__pyx_v_self->thisptr->getNP());
 
-  /* "freud/order.pyx":1560
+  /* "freud/order.pyx":1555
  *         nbins[0] = <np.npy_intp> self.thisptr.getNP()
  *         cdef np.ndarray[np.uint32_t, ndim=1] result = \
  *             np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32,             # <<<<<<<<<<<<<<
  *                                          <void*> clusters)
  *         return result
  */
-  __pyx_t_1 = PyArray_SimpleNewFromData(1, __pyx_v_nbins, NPY_UINT32, ((void *)__pyx_v_clusters)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1560, __pyx_L1_error)
+  __pyx_t_1 = PyArray_SimpleNewFromData(1, __pyx_v_nbins, NPY_UINT32, ((void *)__pyx_v_clusters)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1555, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 1560, __pyx_L1_error)
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 1555, __pyx_L1_error)
   __pyx_t_2 = ((PyArrayObject *)__pyx_t_1);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_result.rcbuffer->pybuffer, (PyObject*)__pyx_t_2, &__Pyx_TypeInfo_nn___pyx_t_5numpy_uint32_t, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack) == -1)) {
       __pyx_v_result = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_result.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 1559, __pyx_L1_error)
+      __PYX_ERR(0, 1554, __pyx_L1_error)
     } else {__pyx_pybuffernd_result.diminfo[0].strides = __pyx_pybuffernd_result.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_result.diminfo[0].shape = __pyx_pybuffernd_result.rcbuffer->pybuffer.shape[0];
     }
   }
@@ -23156,7 +23146,7 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_8clusters___get__(struct __pyx_o
   __pyx_v_result = ((PyArrayObject *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "freud/order.pyx":1562
+  /* "freud/order.pyx":1557
  *             np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32,
  *                                          <void*> clusters)
  *         return result             # <<<<<<<<<<<<<<
@@ -23168,7 +23158,7 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_8clusters___get__(struct __pyx_o
   __pyx_r = ((PyObject *)__pyx_v_result);
   goto __pyx_L0;
 
-  /* "freud/order.pyx":1554
+  /* "freud/order.pyx":1549
  * 
  *     @property
  *     def clusters(self):             # <<<<<<<<<<<<<<
@@ -23197,7 +23187,7 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_8clusters___get__(struct __pyx_o
   return __pyx_r;
 }
 
-/* "freud/order.pyx":1564
+/* "freud/order.pyx":1559
  *         return result
  * 
  *     def getClusters(self):             # <<<<<<<<<<<<<<
@@ -23231,27 +23221,27 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_22getClusters(struct __pyx_obj_5
   PyObject *__pyx_t_6 = NULL;
   __Pyx_RefNannySetupContext("getClusters", 0);
 
-  /* "freud/order.pyx":1565
+  /* "freud/order.pyx":1560
  * 
  *     def getClusters(self):
  *         warnings.warn("The getClusters function is deprecated in favor "             # <<<<<<<<<<<<<<
  *                       "of the clusters class attribute and will be "
  *                       "removed in a future version of freud.",
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1565, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1560, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1565, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1560, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/order.pyx":1568
+  /* "freud/order.pyx":1563
  *                       "of the clusters class attribute and will be "
  *                       "removed in a future version of freud.",
  *                       FreudDeprecationWarning)             # <<<<<<<<<<<<<<
  *         return self.clusters
  * 
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1568, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1563, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   __pyx_t_5 = 0;
@@ -23268,7 +23258,7 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_22getClusters(struct __pyx_obj_5
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getClusters_function_is_depr, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1565, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1560, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -23277,14 +23267,14 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_22getClusters(struct __pyx_obj_5
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getClusters_function_is_depr, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1565, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1560, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   } else
   #endif
   {
-    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1565, __pyx_L1_error)
+    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1560, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     if (__pyx_t_4) {
       __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -23295,14 +23285,14 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_22getClusters(struct __pyx_obj_5
     __Pyx_GIVEREF(__pyx_t_2);
     PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_5, __pyx_t_2);
     __pyx_t_2 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1565, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1560, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "freud/order.pyx":1569
+  /* "freud/order.pyx":1564
  *                       "removed in a future version of freud.",
  *                       FreudDeprecationWarning)
  *         return self.clusters             # <<<<<<<<<<<<<<
@@ -23310,13 +23300,13 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_22getClusters(struct __pyx_obj_5
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_clusters); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1569, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_clusters); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1564, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/order.pyx":1564
+  /* "freud/order.pyx":1559
  *         return result
  * 
  *     def getClusters(self):             # <<<<<<<<<<<<<<
@@ -23339,7 +23329,7 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_22getClusters(struct __pyx_obj_5
   return __pyx_r;
 }
 
-/* "freud/order.pyx":1572
+/* "freud/order.pyx":1567
  * 
  *     @property
  *     def num_connections(self):             # <<<<<<<<<<<<<<
@@ -23376,7 +23366,7 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_15num_connections___get__(struct
   __pyx_pybuffernd_result.data = NULL;
   __pyx_pybuffernd_result.rcbuffer = &__pyx_pybuffer_result;
 
-  /* "freud/order.pyx":1574
+  /* "freud/order.pyx":1569
  *     def num_connections(self):
  *         cdef unsigned int * connections = \
  *             self.thisptr.getNumberOfConnections().get()             # <<<<<<<<<<<<<<
@@ -23385,7 +23375,7 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_15num_connections___get__(struct
  */
   __pyx_v_connections = __pyx_v_self->thisptr->getNumberOfConnections().get();
 
-  /* "freud/order.pyx":1577
+  /* "freud/order.pyx":1572
  *         cdef np.npy_intp nbins[1]
  *         # this is the correct number
  *         nbins[0] = <np.npy_intp> self.thisptr.getNP()             # <<<<<<<<<<<<<<
@@ -23394,22 +23384,22 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_15num_connections___get__(struct
  */
   (__pyx_v_nbins[0]) = ((npy_intp)__pyx_v_self->thisptr->getNP());
 
-  /* "freud/order.pyx":1579
+  /* "freud/order.pyx":1574
  *         nbins[0] = <np.npy_intp> self.thisptr.getNP()
  *         cdef np.ndarray[np.uint32_t, ndim=1] result = \
  *             np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32,             # <<<<<<<<<<<<<<
  *                                          <void*> connections)
  *         return result
  */
-  __pyx_t_1 = PyArray_SimpleNewFromData(1, __pyx_v_nbins, NPY_UINT32, ((void *)__pyx_v_connections)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1579, __pyx_L1_error)
+  __pyx_t_1 = PyArray_SimpleNewFromData(1, __pyx_v_nbins, NPY_UINT32, ((void *)__pyx_v_connections)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1574, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 1579, __pyx_L1_error)
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 1574, __pyx_L1_error)
   __pyx_t_2 = ((PyArrayObject *)__pyx_t_1);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_result.rcbuffer->pybuffer, (PyObject*)__pyx_t_2, &__Pyx_TypeInfo_nn___pyx_t_5numpy_uint32_t, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack) == -1)) {
       __pyx_v_result = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_result.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 1578, __pyx_L1_error)
+      __PYX_ERR(0, 1573, __pyx_L1_error)
     } else {__pyx_pybuffernd_result.diminfo[0].strides = __pyx_pybuffernd_result.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_result.diminfo[0].shape = __pyx_pybuffernd_result.rcbuffer->pybuffer.shape[0];
     }
   }
@@ -23417,7 +23407,7 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_15num_connections___get__(struct
   __pyx_v_result = ((PyArrayObject *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "freud/order.pyx":1581
+  /* "freud/order.pyx":1576
  *             np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32,
  *                                          <void*> connections)
  *         return result             # <<<<<<<<<<<<<<
@@ -23429,7 +23419,7 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_15num_connections___get__(struct
   __pyx_r = ((PyObject *)__pyx_v_result);
   goto __pyx_L0;
 
-  /* "freud/order.pyx":1572
+  /* "freud/order.pyx":1567
  * 
  *     @property
  *     def num_connections(self):             # <<<<<<<<<<<<<<
@@ -23458,7 +23448,7 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_15num_connections___get__(struct
   return __pyx_r;
 }
 
-/* "freud/order.pyx":1583
+/* "freud/order.pyx":1578
  *         return result
  * 
  *     def getNumberOfConnections(self):             # <<<<<<<<<<<<<<
@@ -23492,27 +23482,27 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_24getNumberOfConnections(struct 
   PyObject *__pyx_t_6 = NULL;
   __Pyx_RefNannySetupContext("getNumberOfConnections", 0);
 
-  /* "freud/order.pyx":1584
+  /* "freud/order.pyx":1579
  * 
  *     def getNumberOfConnections(self):
  *         warnings.warn("The getNumberOfConnections function is deprecated in "             # <<<<<<<<<<<<<<
  *                       "favor of the num_connections class attribute and will "
  *                       "be removed in a future version of freud.",
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1584, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1579, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1584, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1579, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/order.pyx":1587
+  /* "freud/order.pyx":1582
  *                       "favor of the num_connections class attribute and will "
  *                       "be removed in a future version of freud.",
  *                       FreudDeprecationWarning)             # <<<<<<<<<<<<<<
  *         return self.num_connections
  * 
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1587, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1582, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   __pyx_t_5 = 0;
@@ -23529,7 +23519,7 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_24getNumberOfConnections(struct 
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getNumberOfConnections_funct, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1584, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1579, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -23538,14 +23528,14 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_24getNumberOfConnections(struct 
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getNumberOfConnections_funct, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1584, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1579, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   } else
   #endif
   {
-    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1584, __pyx_L1_error)
+    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1579, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     if (__pyx_t_4) {
       __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -23556,14 +23546,14 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_24getNumberOfConnections(struct 
     __Pyx_GIVEREF(__pyx_t_2);
     PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_5, __pyx_t_2);
     __pyx_t_2 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1584, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1579, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "freud/order.pyx":1588
+  /* "freud/order.pyx":1583
  *                       "be removed in a future version of freud.",
  *                       FreudDeprecationWarning)
  *         return self.num_connections             # <<<<<<<<<<<<<<
@@ -23571,13 +23561,13 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_24getNumberOfConnections(struct 
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_num_connections); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1588, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_num_connections); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1583, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/order.pyx":1583
+  /* "freud/order.pyx":1578
  *         return result
  * 
  *     def getNumberOfConnections(self):             # <<<<<<<<<<<<<<
@@ -23600,7 +23590,7 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_24getNumberOfConnections(struct 
   return __pyx_r;
 }
 
-/* "freud/order.pyx":1591
+/* "freud/order.pyx":1586
  * 
  *     @property
  *     def Ql_dot_ij(self):             # <<<<<<<<<<<<<<
@@ -23637,7 +23627,7 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_9Ql_dot_ij___get__(struct __pyx_
   __pyx_pybuffernd_result.data = NULL;
   __pyx_pybuffernd_result.rcbuffer = &__pyx_pybuffer_result;
 
-  /* "freud/order.pyx":1592
+  /* "freud/order.pyx":1587
  *     @property
  *     def Ql_dot_ij(self):
  *         cdef vector[float complex] Qldot = self.thisptr.getQldot_ij()             # <<<<<<<<<<<<<<
@@ -23646,7 +23636,7 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_9Ql_dot_ij___get__(struct __pyx_
  */
   __pyx_v_Qldot = __pyx_v_self->thisptr->getQldot_ij();
 
-  /* "freud/order.pyx":1594
+  /* "freud/order.pyx":1589
  *         cdef vector[float complex] Qldot = self.thisptr.getQldot_ij()
  *         cdef np.npy_intp nbins[1]
  *         nbins[0] = <np.npy_intp> self.thisptr.getNumClusters()             # <<<<<<<<<<<<<<
@@ -23655,22 +23645,22 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_9Ql_dot_ij___get__(struct __pyx_
  */
   (__pyx_v_nbins[0]) = ((npy_intp)__pyx_v_self->thisptr->getNumClusters());
 
-  /* "freud/order.pyx":1596
+  /* "freud/order.pyx":1591
  *         nbins[0] = <np.npy_intp> self.thisptr.getNumClusters()
  *         cdef np.ndarray[np.complex64_t, ndim=1] result = \
  *             np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX64,             # <<<<<<<<<<<<<<
  *                                          <void*> &Qldot)
  *         return result
  */
-  __pyx_t_1 = PyArray_SimpleNewFromData(1, __pyx_v_nbins, NPY_COMPLEX64, ((void *)(&__pyx_v_Qldot))); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1596, __pyx_L1_error)
+  __pyx_t_1 = PyArray_SimpleNewFromData(1, __pyx_v_nbins, NPY_COMPLEX64, ((void *)(&__pyx_v_Qldot))); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1591, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 1596, __pyx_L1_error)
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 1591, __pyx_L1_error)
   __pyx_t_2 = ((PyArrayObject *)__pyx_t_1);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_result.rcbuffer->pybuffer, (PyObject*)__pyx_t_2, &__Pyx_TypeInfo___pyx_t_float_complex, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack) == -1)) {
       __pyx_v_result = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_result.rcbuffer->pybuffer.buf = NULL;
-      __PYX_ERR(0, 1595, __pyx_L1_error)
+      __PYX_ERR(0, 1590, __pyx_L1_error)
     } else {__pyx_pybuffernd_result.diminfo[0].strides = __pyx_pybuffernd_result.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_result.diminfo[0].shape = __pyx_pybuffernd_result.rcbuffer->pybuffer.shape[0];
     }
   }
@@ -23678,7 +23668,7 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_9Ql_dot_ij___get__(struct __pyx_
   __pyx_v_result = ((PyArrayObject *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "freud/order.pyx":1598
+  /* "freud/order.pyx":1593
  *             np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX64,
  *                                          <void*> &Qldot)
  *         return result             # <<<<<<<<<<<<<<
@@ -23690,7 +23680,7 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_9Ql_dot_ij___get__(struct __pyx_
   __pyx_r = ((PyObject *)__pyx_v_result);
   goto __pyx_L0;
 
-  /* "freud/order.pyx":1591
+  /* "freud/order.pyx":1586
  * 
  *     @property
  *     def Ql_dot_ij(self):             # <<<<<<<<<<<<<<
@@ -23719,7 +23709,7 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_9Ql_dot_ij___get__(struct __pyx_
   return __pyx_r;
 }
 
-/* "freud/order.pyx":1600
+/* "freud/order.pyx":1595
  *         return result
  * 
  *     def getQldot_ij(self):             # <<<<<<<<<<<<<<
@@ -23753,27 +23743,27 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_26getQldot_ij(struct __pyx_obj_5
   PyObject *__pyx_t_6 = NULL;
   __Pyx_RefNannySetupContext("getQldot_ij", 0);
 
-  /* "freud/order.pyx":1601
+  /* "freud/order.pyx":1596
  * 
  *     def getQldot_ij(self):
  *         warnings.warn("The getQldot_ij function is deprecated in favor "             # <<<<<<<<<<<<<<
  *                       "of the Ql_dot_ij class attribute and will be "
  *                       "removed in a future version of freud.",
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1601, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1596, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1601, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1596, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/order.pyx":1604
+  /* "freud/order.pyx":1599
  *                       "of the Ql_dot_ij class attribute and will be "
  *                       "removed in a future version of freud.",
  *                       FreudDeprecationWarning)             # <<<<<<<<<<<<<<
  *         return self.Ql_dot_ij
  * 
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1604, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1599, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   __pyx_t_5 = 0;
@@ -23790,7 +23780,7 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_26getQldot_ij(struct __pyx_obj_5
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getQldot_ij_function_is_depr, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1601, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1596, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -23799,14 +23789,14 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_26getQldot_ij(struct __pyx_obj_5
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getQldot_ij_function_is_depr, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1601, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1596, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   } else
   #endif
   {
-    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1601, __pyx_L1_error)
+    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1596, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     if (__pyx_t_4) {
       __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -23817,14 +23807,14 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_26getQldot_ij(struct __pyx_obj_5
     __Pyx_GIVEREF(__pyx_t_2);
     PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_5, __pyx_t_2);
     __pyx_t_2 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1601, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1596, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "freud/order.pyx":1605
+  /* "freud/order.pyx":1600
  *                       "removed in a future version of freud.",
  *                       FreudDeprecationWarning)
  *         return self.Ql_dot_ij             # <<<<<<<<<<<<<<
@@ -23832,13 +23822,13 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_26getQldot_ij(struct __pyx_obj_5
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_Ql_dot_ij); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1605, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_Ql_dot_ij); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1600, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/order.pyx":1600
+  /* "freud/order.pyx":1595
  *         return result
  * 
  *     def getQldot_ij(self):             # <<<<<<<<<<<<<<
@@ -23861,7 +23851,7 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_26getQldot_ij(struct __pyx_obj_5
   return __pyx_r;
 }
 
-/* "freud/order.pyx":1608
+/* "freud/order.pyx":1603
  * 
  *     @property
  *     def num_particles(self):             # <<<<<<<<<<<<<<
@@ -23889,7 +23879,7 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_13num_particles___get__(struct _
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "freud/order.pyx":1609
+  /* "freud/order.pyx":1604
  *     @property
  *     def num_particles(self):
  *         cdef unsigned int np = self.thisptr.getNP()             # <<<<<<<<<<<<<<
@@ -23898,7 +23888,7 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_13num_particles___get__(struct _
  */
   __pyx_v_np = __pyx_v_self->thisptr->getNP();
 
-  /* "freud/order.pyx":1610
+  /* "freud/order.pyx":1605
  *     def num_particles(self):
  *         cdef unsigned int np = self.thisptr.getNP()
  *         return np             # <<<<<<<<<<<<<<
@@ -23906,13 +23896,13 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_13num_particles___get__(struct _
  *     def getNP(self):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_unsigned_int(__pyx_v_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1610, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_unsigned_int(__pyx_v_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1605, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/order.pyx":1608
+  /* "freud/order.pyx":1603
  * 
  *     @property
  *     def num_particles(self):             # <<<<<<<<<<<<<<
@@ -23931,7 +23921,7 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_13num_particles___get__(struct _
   return __pyx_r;
 }
 
-/* "freud/order.pyx":1612
+/* "freud/order.pyx":1607
  *         return np
  * 
  *     def getNP(self):             # <<<<<<<<<<<<<<
@@ -23965,27 +23955,27 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_28getNP(struct __pyx_obj_5freud_
   PyObject *__pyx_t_6 = NULL;
   __Pyx_RefNannySetupContext("getNP", 0);
 
-  /* "freud/order.pyx":1613
+  /* "freud/order.pyx":1608
  * 
  *     def getNP(self):
  *         warnings.warn("The getNumParticles function is deprecated in favor "             # <<<<<<<<<<<<<<
  *                       "of the num_particles class attribute and will be "
  *                       "removed in a future version of freud.",
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1613, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1608, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1613, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1608, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/order.pyx":1616
+  /* "freud/order.pyx":1611
  *                       "of the num_particles class attribute and will be "
  *                       "removed in a future version of freud.",
  *                       FreudDeprecationWarning)             # <<<<<<<<<<<<<<
  *         return self.num_particles
  * 
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1616, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1611, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   __pyx_t_5 = 0;
@@ -24002,7 +23992,7 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_28getNP(struct __pyx_obj_5freud_
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getNumParticles_function_is, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1613, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1608, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -24011,14 +24001,14 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_28getNP(struct __pyx_obj_5freud_
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_The_getNumParticles_function_is, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1613, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1608, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   } else
   #endif
   {
-    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1613, __pyx_L1_error)
+    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1608, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     if (__pyx_t_4) {
       __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -24029,14 +24019,14 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_28getNP(struct __pyx_obj_5freud_
     __Pyx_GIVEREF(__pyx_t_2);
     PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_5, __pyx_t_2);
     __pyx_t_2 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1613, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1608, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "freud/order.pyx":1617
+  /* "freud/order.pyx":1612
  *                       "removed in a future version of freud.",
  *                       FreudDeprecationWarning)
  *         return self.num_particles             # <<<<<<<<<<<<<<
@@ -24044,13 +24034,13 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_28getNP(struct __pyx_obj_5freud_
  * 
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_num_particles); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1617, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_num_particles); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1612, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/order.pyx":1612
+  /* "freud/order.pyx":1607
  *         return np
  * 
  *     def getNP(self):             # <<<<<<<<<<<<<<
@@ -24184,7 +24174,7 @@ static PyObject *__pyx_pf_5freud_5order_6SolLiq_32__setstate_cython__(CYTHON_UNU
   return __pyx_r;
 }
 
-/* "freud/order.pyx":1670
+/* "freud/order.pyx":1665
  *     cdef num_neigh
  * 
  *     def __cinit__(self, box, rmax, Qthreshold, Sthreshold, l, kn=12):             # <<<<<<<<<<<<<<
@@ -24236,25 +24226,25 @@ static int __pyx_pw_5freud_5order_10SolLiqNear_1__cinit__(PyObject *__pyx_v_self
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_rmax)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__cinit__", 0, 5, 6, 1); __PYX_ERR(0, 1670, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__cinit__", 0, 5, 6, 1); __PYX_ERR(0, 1665, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_Qthreshold)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__cinit__", 0, 5, 6, 2); __PYX_ERR(0, 1670, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__cinit__", 0, 5, 6, 2); __PYX_ERR(0, 1665, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  3:
         if (likely((values[3] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_Sthreshold)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__cinit__", 0, 5, 6, 3); __PYX_ERR(0, 1670, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__cinit__", 0, 5, 6, 3); __PYX_ERR(0, 1665, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  4:
         if (likely((values[4] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_l)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__cinit__", 0, 5, 6, 4); __PYX_ERR(0, 1670, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__cinit__", 0, 5, 6, 4); __PYX_ERR(0, 1665, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  5:
@@ -24264,7 +24254,7 @@ static int __pyx_pw_5freud_5order_10SolLiqNear_1__cinit__(PyObject *__pyx_v_self
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__cinit__") < 0)) __PYX_ERR(0, 1670, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__cinit__") < 0)) __PYX_ERR(0, 1665, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -24288,7 +24278,7 @@ static int __pyx_pw_5freud_5order_10SolLiqNear_1__cinit__(PyObject *__pyx_v_self
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__cinit__", 0, 5, 6, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1670, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__cinit__", 0, 5, 6, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1665, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("freud.order.SolLiqNear.__cinit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -24317,19 +24307,19 @@ static int __pyx_pf_5freud_5order_10SolLiqNear___cinit__(struct __pyx_obj_5freud
   unsigned int __pyx_t_10;
   __Pyx_RefNannySetupContext("__cinit__", 0);
 
-  /* "freud/order.pyx":1671
+  /* "freud/order.pyx":1666
  * 
  *     def __cinit__(self, box, rmax, Qthreshold, Sthreshold, l, kn=12):
  *         cdef freud.box.Box b = freud.common.convert_box(box)             # <<<<<<<<<<<<<<
  *         if type(self) is SolLiqNear:
  *             self.thisptr = new freud._order.SolLiq(
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1671, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1666, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_common); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1671, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_common); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1666, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_convert_box); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1671, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_convert_box); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1666, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_t_3 = NULL;
@@ -24343,13 +24333,13 @@ static int __pyx_pf_5freud_5order_10SolLiqNear___cinit__(struct __pyx_obj_5freud
     }
   }
   if (!__pyx_t_3) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_box); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1671, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_box); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1666, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   } else {
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_v_box};
-      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1671, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1666, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
@@ -24357,29 +24347,29 @@ static int __pyx_pf_5freud_5order_10SolLiqNear___cinit__(struct __pyx_obj_5freud
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_v_box};
-      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1671, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1666, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
     #endif
     {
-      __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1671, __pyx_L1_error)
+      __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1666, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_GIVEREF(__pyx_t_3); PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_3); __pyx_t_3 = NULL;
       __Pyx_INCREF(__pyx_v_box);
       __Pyx_GIVEREF(__pyx_v_box);
       PyTuple_SET_ITEM(__pyx_t_4, 0+1, __pyx_v_box);
-      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1671, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1666, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     }
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5freud_3box_Box))))) __PYX_ERR(0, 1671, __pyx_L1_error)
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5freud_3box_Box))))) __PYX_ERR(0, 1666, __pyx_L1_error)
   __pyx_v_b = ((struct __pyx_obj_5freud_3box_Box *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "freud/order.pyx":1672
+  /* "freud/order.pyx":1667
  *     def __cinit__(self, box, rmax, Qthreshold, Sthreshold, l, kn=12):
  *         cdef freud.box.Box b = freud.common.convert_box(box)
  *         if type(self) is SolLiqNear:             # <<<<<<<<<<<<<<
@@ -24390,19 +24380,19 @@ static int __pyx_pf_5freud_5order_10SolLiqNear___cinit__(struct __pyx_obj_5freud
   __pyx_t_6 = (__pyx_t_5 != 0);
   if (__pyx_t_6) {
 
-    /* "freud/order.pyx":1674
+    /* "freud/order.pyx":1669
  *         if type(self) is SolLiqNear:
  *             self.thisptr = new freud._order.SolLiq(
  *                 dereference(b.thisptr), rmax, Qthreshold, Sthreshold, l)             # <<<<<<<<<<<<<<
  *             self.m_box = box
  *             self.rmax = rmax
  */
-    __pyx_t_7 = __pyx_PyFloat_AsFloat(__pyx_v_rmax); if (unlikely((__pyx_t_7 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 1674, __pyx_L1_error)
-    __pyx_t_8 = __pyx_PyFloat_AsFloat(__pyx_v_Qthreshold); if (unlikely((__pyx_t_8 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 1674, __pyx_L1_error)
-    __pyx_t_9 = __Pyx_PyInt_As_unsigned_int(__pyx_v_Sthreshold); if (unlikely((__pyx_t_9 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 1674, __pyx_L1_error)
-    __pyx_t_10 = __Pyx_PyInt_As_unsigned_int(__pyx_v_l); if (unlikely((__pyx_t_10 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 1674, __pyx_L1_error)
+    __pyx_t_7 = __pyx_PyFloat_AsFloat(__pyx_v_rmax); if (unlikely((__pyx_t_7 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 1669, __pyx_L1_error)
+    __pyx_t_8 = __pyx_PyFloat_AsFloat(__pyx_v_Qthreshold); if (unlikely((__pyx_t_8 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 1669, __pyx_L1_error)
+    __pyx_t_9 = __Pyx_PyInt_As_unsigned_int(__pyx_v_Sthreshold); if (unlikely((__pyx_t_9 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 1669, __pyx_L1_error)
+    __pyx_t_10 = __Pyx_PyInt_As_unsigned_int(__pyx_v_l); if (unlikely((__pyx_t_10 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 1669, __pyx_L1_error)
 
-    /* "freud/order.pyx":1673
+    /* "freud/order.pyx":1668
  *         cdef freud.box.Box b = freud.common.convert_box(box)
  *         if type(self) is SolLiqNear:
  *             self.thisptr = new freud._order.SolLiq(             # <<<<<<<<<<<<<<
@@ -24411,14 +24401,14 @@ static int __pyx_pf_5freud_5order_10SolLiqNear___cinit__(struct __pyx_obj_5freud
  */
     __pyx_v_self->__pyx_base.thisptr = new freud::order::SolLiq((*__pyx_v_b->thisptr), __pyx_t_7, __pyx_t_8, __pyx_t_9, __pyx_t_10);
 
-    /* "freud/order.pyx":1675
+    /* "freud/order.pyx":1670
  *             self.thisptr = new freud._order.SolLiq(
  *                 dereference(b.thisptr), rmax, Qthreshold, Sthreshold, l)
  *             self.m_box = box             # <<<<<<<<<<<<<<
  *             self.rmax = rmax
  *             self.num_neigh = kn
  */
-    if (!(likely(((__pyx_v_box) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_box, __pyx_ptype_5freud_3box_Box))))) __PYX_ERR(0, 1675, __pyx_L1_error)
+    if (!(likely(((__pyx_v_box) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_box, __pyx_ptype_5freud_3box_Box))))) __PYX_ERR(0, 1670, __pyx_L1_error)
     __pyx_t_1 = __pyx_v_box;
     __Pyx_INCREF(__pyx_t_1);
     __Pyx_GIVEREF(__pyx_t_1);
@@ -24427,7 +24417,7 @@ static int __pyx_pf_5freud_5order_10SolLiqNear___cinit__(struct __pyx_obj_5freud
     __pyx_v_self->__pyx_base.m_box = ((struct __pyx_obj_5freud_3box_Box *)__pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "freud/order.pyx":1676
+    /* "freud/order.pyx":1671
  *                 dereference(b.thisptr), rmax, Qthreshold, Sthreshold, l)
  *             self.m_box = box
  *             self.rmax = rmax             # <<<<<<<<<<<<<<
@@ -24440,7 +24430,7 @@ static int __pyx_pf_5freud_5order_10SolLiqNear___cinit__(struct __pyx_obj_5freud
     __Pyx_DECREF(__pyx_v_self->__pyx_base.rmax);
     __pyx_v_self->__pyx_base.rmax = __pyx_v_rmax;
 
-    /* "freud/order.pyx":1677
+    /* "freud/order.pyx":1672
  *             self.m_box = box
  *             self.rmax = rmax
  *             self.num_neigh = kn             # <<<<<<<<<<<<<<
@@ -24453,7 +24443,7 @@ static int __pyx_pf_5freud_5order_10SolLiqNear___cinit__(struct __pyx_obj_5freud
     __Pyx_DECREF(__pyx_v_self->num_neigh);
     __pyx_v_self->num_neigh = __pyx_v_kn;
 
-    /* "freud/order.pyx":1672
+    /* "freud/order.pyx":1667
  *     def __cinit__(self, box, rmax, Qthreshold, Sthreshold, l, kn=12):
  *         cdef freud.box.Box b = freud.common.convert_box(box)
  *         if type(self) is SolLiqNear:             # <<<<<<<<<<<<<<
@@ -24462,7 +24452,7 @@ static int __pyx_pf_5freud_5order_10SolLiqNear___cinit__(struct __pyx_obj_5freud
  */
   }
 
-  /* "freud/order.pyx":1670
+  /* "freud/order.pyx":1665
  *     cdef num_neigh
  * 
  *     def __cinit__(self, box, rmax, Qthreshold, Sthreshold, l, kn=12):             # <<<<<<<<<<<<<<
@@ -24486,7 +24476,7 @@ static int __pyx_pf_5freud_5order_10SolLiqNear___cinit__(struct __pyx_obj_5freud
   return __pyx_r;
 }
 
-/* "freud/order.pyx":1679
+/* "freud/order.pyx":1674
  *             self.num_neigh = kn
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -24509,7 +24499,7 @@ static void __pyx_pf_5freud_5order_10SolLiqNear_2__dealloc__(struct __pyx_obj_5f
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__dealloc__", 0);
 
-  /* "freud/order.pyx":1680
+  /* "freud/order.pyx":1675
  * 
  *     def __dealloc__(self):
  *         del self.thisptr             # <<<<<<<<<<<<<<
@@ -24518,7 +24508,7 @@ static void __pyx_pf_5freud_5order_10SolLiqNear_2__dealloc__(struct __pyx_obj_5f
  */
   delete __pyx_v_self->__pyx_base.thisptr;
 
-  /* "freud/order.pyx":1681
+  /* "freud/order.pyx":1676
  *     def __dealloc__(self):
  *         del self.thisptr
  *         self.thisptr = NULL             # <<<<<<<<<<<<<<
@@ -24527,7 +24517,7 @@ static void __pyx_pf_5freud_5order_10SolLiqNear_2__dealloc__(struct __pyx_obj_5f
  */
   __pyx_v_self->__pyx_base.thisptr = NULL;
 
-  /* "freud/order.pyx":1679
+  /* "freud/order.pyx":1674
  *             self.num_neigh = kn
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -24539,7 +24529,7 @@ static void __pyx_pf_5freud_5order_10SolLiqNear_2__dealloc__(struct __pyx_obj_5f
   __Pyx_RefNannyFinishContext();
 }
 
-/* "freud/order.pyx":1683
+/* "freud/order.pyx":1678
  *         self.thisptr = NULL
  * 
  *     def compute(self, points, nlist=None):             # <<<<<<<<<<<<<<
@@ -24585,7 +24575,7 @@ static PyObject *__pyx_pw_5freud_5order_10SolLiqNear_5compute(PyObject *__pyx_v_
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "compute") < 0)) __PYX_ERR(0, 1683, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "compute") < 0)) __PYX_ERR(0, 1678, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -24601,7 +24591,7 @@ static PyObject *__pyx_pw_5freud_5order_10SolLiqNear_5compute(PyObject *__pyx_v_
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("compute", 0, 1, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1683, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("compute", 0, 1, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1678, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("freud.order.SolLiqNear.compute", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -24626,23 +24616,23 @@ static PyObject *__pyx_pf_5freud_5order_10SolLiqNear_4compute(struct __pyx_obj_5
   PyObject *__pyx_t_5 = NULL;
   __Pyx_RefNannySetupContext("compute", 0);
 
-  /* "freud/order.pyx":1693
+  /* "freud/order.pyx":1688
  *                 Neighborlist to use to find bonds.
  *         """
  *         defaulted_nlist = freud.locality.make_default_nlist_nn(             # <<<<<<<<<<<<<<
  *             self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
  *         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1693, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1688, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_locality); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1693, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_locality); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1688, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_make_default_nlist_nn); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1693, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_make_default_nlist_nn); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1688, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "freud/order.pyx":1694
+  /* "freud/order.pyx":1689
  *         """
  *         defaulted_nlist = freud.locality.make_default_nlist_nn(
  *             self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)             # <<<<<<<<<<<<<<
@@ -24664,7 +24654,7 @@ static PyObject *__pyx_pf_5freud_5order_10SolLiqNear_4compute(struct __pyx_obj_5
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_2)) {
     PyObject *__pyx_temp[8] = {__pyx_t_3, ((PyObject *)__pyx_v_self->__pyx_base.m_box), __pyx_v_points, __pyx_v_points, __pyx_v_self->num_neigh, __pyx_v_nlist, Py_True, __pyx_v_self->__pyx_base.rmax};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_4, 7+__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1693, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_4, 7+__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1688, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_GOTREF(__pyx_t_1);
   } else
@@ -24672,13 +24662,13 @@ static PyObject *__pyx_pf_5freud_5order_10SolLiqNear_4compute(struct __pyx_obj_5
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
     PyObject *__pyx_temp[8] = {__pyx_t_3, ((PyObject *)__pyx_v_self->__pyx_base.m_box), __pyx_v_points, __pyx_v_points, __pyx_v_self->num_neigh, __pyx_v_nlist, Py_True, __pyx_v_self->__pyx_base.rmax};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_4, 7+__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1693, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_4, 7+__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1688, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_GOTREF(__pyx_t_1);
   } else
   #endif
   {
-    __pyx_t_5 = PyTuple_New(7+__pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1693, __pyx_L1_error)
+    __pyx_t_5 = PyTuple_New(7+__pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1688, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     if (__pyx_t_3) {
       __Pyx_GIVEREF(__pyx_t_3); PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_3); __pyx_t_3 = NULL;
@@ -24704,7 +24694,7 @@ static PyObject *__pyx_pf_5freud_5order_10SolLiqNear_4compute(struct __pyx_obj_5
     __Pyx_INCREF(__pyx_v_self->__pyx_base.rmax);
     __Pyx_GIVEREF(__pyx_v_self->__pyx_base.rmax);
     PyTuple_SET_ITEM(__pyx_t_5, 6+__pyx_t_4, __pyx_v_self->__pyx_base.rmax);
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_5, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1693, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_5, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1688, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   }
@@ -24712,20 +24702,20 @@ static PyObject *__pyx_pf_5freud_5order_10SolLiqNear_4compute(struct __pyx_obj_5
   __pyx_v_defaulted_nlist = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "freud/order.pyx":1695
+  /* "freud/order.pyx":1690
  *         defaulted_nlist = freud.locality.make_default_nlist_nn(
  *             self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
  *         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]             # <<<<<<<<<<<<<<
  *         return SolLiq.compute(self, points, nlist_)
  * 
  */
-  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_defaulted_nlist, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1695, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_defaulted_nlist, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1690, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5freud_8locality_NeighborList))))) __PYX_ERR(0, 1695, __pyx_L1_error)
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5freud_8locality_NeighborList))))) __PYX_ERR(0, 1690, __pyx_L1_error)
   __pyx_v_nlist_ = ((struct __pyx_obj_5freud_8locality_NeighborList *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "freud/order.pyx":1696
+  /* "freud/order.pyx":1691
  *             self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
  *         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
  *         return SolLiq.compute(self, points, nlist_)             # <<<<<<<<<<<<<<
@@ -24733,7 +24723,7 @@ static PyObject *__pyx_pf_5freud_5order_10SolLiqNear_4compute(struct __pyx_obj_5
  *     def computeSolLiqVariant(self, points, nlist=None):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_5order_SolLiq), __pyx_n_s_compute); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1696, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_5order_SolLiq), __pyx_n_s_compute); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1691, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_5 = NULL;
   __pyx_t_4 = 0;
@@ -24750,7 +24740,7 @@ static PyObject *__pyx_pf_5freud_5order_10SolLiqNear_4compute(struct __pyx_obj_5
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_2)) {
     PyObject *__pyx_temp[4] = {__pyx_t_5, ((PyObject *)__pyx_v_self), __pyx_v_points, ((PyObject *)__pyx_v_nlist_)};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_4, 3+__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1696, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_4, 3+__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1691, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_GOTREF(__pyx_t_1);
   } else
@@ -24758,13 +24748,13 @@ static PyObject *__pyx_pf_5freud_5order_10SolLiqNear_4compute(struct __pyx_obj_5
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
     PyObject *__pyx_temp[4] = {__pyx_t_5, ((PyObject *)__pyx_v_self), __pyx_v_points, ((PyObject *)__pyx_v_nlist_)};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_4, 3+__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1696, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_4, 3+__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1691, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_GOTREF(__pyx_t_1);
   } else
   #endif
   {
-    __pyx_t_3 = PyTuple_New(3+__pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1696, __pyx_L1_error)
+    __pyx_t_3 = PyTuple_New(3+__pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1691, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     if (__pyx_t_5) {
       __Pyx_GIVEREF(__pyx_t_5); PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_5); __pyx_t_5 = NULL;
@@ -24778,7 +24768,7 @@ static PyObject *__pyx_pf_5freud_5order_10SolLiqNear_4compute(struct __pyx_obj_5
     __Pyx_INCREF(((PyObject *)__pyx_v_nlist_));
     __Pyx_GIVEREF(((PyObject *)__pyx_v_nlist_));
     PyTuple_SET_ITEM(__pyx_t_3, 2+__pyx_t_4, ((PyObject *)__pyx_v_nlist_));
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_3, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1696, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_3, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1691, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   }
@@ -24787,7 +24777,7 @@ static PyObject *__pyx_pf_5freud_5order_10SolLiqNear_4compute(struct __pyx_obj_5
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/order.pyx":1683
+  /* "freud/order.pyx":1678
  *         self.thisptr = NULL
  * 
  *     def compute(self, points, nlist=None):             # <<<<<<<<<<<<<<
@@ -24811,7 +24801,7 @@ static PyObject *__pyx_pf_5freud_5order_10SolLiqNear_4compute(struct __pyx_obj_5
   return __pyx_r;
 }
 
-/* "freud/order.pyx":1698
+/* "freud/order.pyx":1693
  *         return SolLiq.compute(self, points, nlist_)
  * 
  *     def computeSolLiqVariant(self, points, nlist=None):             # <<<<<<<<<<<<<<
@@ -24857,7 +24847,7 @@ static PyObject *__pyx_pw_5freud_5order_10SolLiqNear_7computeSolLiqVariant(PyObj
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "computeSolLiqVariant") < 0)) __PYX_ERR(0, 1698, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "computeSolLiqVariant") < 0)) __PYX_ERR(0, 1693, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -24873,7 +24863,7 @@ static PyObject *__pyx_pw_5freud_5order_10SolLiqNear_7computeSolLiqVariant(PyObj
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("computeSolLiqVariant", 0, 1, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1698, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("computeSolLiqVariant", 0, 1, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1693, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("freud.order.SolLiqNear.computeSolLiqVariant", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -24898,23 +24888,23 @@ static PyObject *__pyx_pf_5freud_5order_10SolLiqNear_6computeSolLiqVariant(struc
   PyObject *__pyx_t_5 = NULL;
   __Pyx_RefNannySetupContext("computeSolLiqVariant", 0);
 
-  /* "freud/order.pyx":1708
+  /* "freud/order.pyx":1703
  *                 Neighborlist to use to find bonds.
  *         """
  *         defaulted_nlist = freud.locality.make_default_nlist_nn(             # <<<<<<<<<<<<<<
  *             self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
  *         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1708, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1703, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_locality); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1708, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_locality); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1703, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_make_default_nlist_nn); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1708, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_make_default_nlist_nn); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1703, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "freud/order.pyx":1709
+  /* "freud/order.pyx":1704
  *         """
  *         defaulted_nlist = freud.locality.make_default_nlist_nn(
  *             self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)             # <<<<<<<<<<<<<<
@@ -24936,7 +24926,7 @@ static PyObject *__pyx_pf_5freud_5order_10SolLiqNear_6computeSolLiqVariant(struc
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_2)) {
     PyObject *__pyx_temp[8] = {__pyx_t_3, ((PyObject *)__pyx_v_self->__pyx_base.m_box), __pyx_v_points, __pyx_v_points, __pyx_v_self->num_neigh, __pyx_v_nlist, Py_True, __pyx_v_self->__pyx_base.rmax};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_4, 7+__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1708, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_4, 7+__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1703, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_GOTREF(__pyx_t_1);
   } else
@@ -24944,13 +24934,13 @@ static PyObject *__pyx_pf_5freud_5order_10SolLiqNear_6computeSolLiqVariant(struc
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
     PyObject *__pyx_temp[8] = {__pyx_t_3, ((PyObject *)__pyx_v_self->__pyx_base.m_box), __pyx_v_points, __pyx_v_points, __pyx_v_self->num_neigh, __pyx_v_nlist, Py_True, __pyx_v_self->__pyx_base.rmax};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_4, 7+__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1708, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_4, 7+__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1703, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_GOTREF(__pyx_t_1);
   } else
   #endif
   {
-    __pyx_t_5 = PyTuple_New(7+__pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1708, __pyx_L1_error)
+    __pyx_t_5 = PyTuple_New(7+__pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1703, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     if (__pyx_t_3) {
       __Pyx_GIVEREF(__pyx_t_3); PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_3); __pyx_t_3 = NULL;
@@ -24976,7 +24966,7 @@ static PyObject *__pyx_pf_5freud_5order_10SolLiqNear_6computeSolLiqVariant(struc
     __Pyx_INCREF(__pyx_v_self->__pyx_base.rmax);
     __Pyx_GIVEREF(__pyx_v_self->__pyx_base.rmax);
     PyTuple_SET_ITEM(__pyx_t_5, 6+__pyx_t_4, __pyx_v_self->__pyx_base.rmax);
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_5, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1708, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_5, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1703, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   }
@@ -24984,20 +24974,20 @@ static PyObject *__pyx_pf_5freud_5order_10SolLiqNear_6computeSolLiqVariant(struc
   __pyx_v_defaulted_nlist = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "freud/order.pyx":1710
+  /* "freud/order.pyx":1705
  *         defaulted_nlist = freud.locality.make_default_nlist_nn(
  *             self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
  *         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]             # <<<<<<<<<<<<<<
  *         return SolLiq.computeSolLiqVariant(self, points, nlist_)
  * 
  */
-  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_defaulted_nlist, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1710, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_defaulted_nlist, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1705, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5freud_8locality_NeighborList))))) __PYX_ERR(0, 1710, __pyx_L1_error)
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5freud_8locality_NeighborList))))) __PYX_ERR(0, 1705, __pyx_L1_error)
   __pyx_v_nlist_ = ((struct __pyx_obj_5freud_8locality_NeighborList *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "freud/order.pyx":1711
+  /* "freud/order.pyx":1706
  *             self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
  *         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
  *         return SolLiq.computeSolLiqVariant(self, points, nlist_)             # <<<<<<<<<<<<<<
@@ -25005,7 +24995,7 @@ static PyObject *__pyx_pf_5freud_5order_10SolLiqNear_6computeSolLiqVariant(struc
  *     def computeSolLiqNoNorm(self, points, nlist=None):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_5order_SolLiq), __pyx_n_s_computeSolLiqVariant); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1711, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_5order_SolLiq), __pyx_n_s_computeSolLiqVariant); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1706, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_5 = NULL;
   __pyx_t_4 = 0;
@@ -25022,7 +25012,7 @@ static PyObject *__pyx_pf_5freud_5order_10SolLiqNear_6computeSolLiqVariant(struc
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_2)) {
     PyObject *__pyx_temp[4] = {__pyx_t_5, ((PyObject *)__pyx_v_self), __pyx_v_points, ((PyObject *)__pyx_v_nlist_)};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_4, 3+__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1711, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_4, 3+__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1706, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_GOTREF(__pyx_t_1);
   } else
@@ -25030,13 +25020,13 @@ static PyObject *__pyx_pf_5freud_5order_10SolLiqNear_6computeSolLiqVariant(struc
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
     PyObject *__pyx_temp[4] = {__pyx_t_5, ((PyObject *)__pyx_v_self), __pyx_v_points, ((PyObject *)__pyx_v_nlist_)};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_4, 3+__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1711, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_4, 3+__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1706, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_GOTREF(__pyx_t_1);
   } else
   #endif
   {
-    __pyx_t_3 = PyTuple_New(3+__pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1711, __pyx_L1_error)
+    __pyx_t_3 = PyTuple_New(3+__pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1706, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     if (__pyx_t_5) {
       __Pyx_GIVEREF(__pyx_t_5); PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_5); __pyx_t_5 = NULL;
@@ -25050,7 +25040,7 @@ static PyObject *__pyx_pf_5freud_5order_10SolLiqNear_6computeSolLiqVariant(struc
     __Pyx_INCREF(((PyObject *)__pyx_v_nlist_));
     __Pyx_GIVEREF(((PyObject *)__pyx_v_nlist_));
     PyTuple_SET_ITEM(__pyx_t_3, 2+__pyx_t_4, ((PyObject *)__pyx_v_nlist_));
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_3, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1711, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_3, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1706, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   }
@@ -25059,7 +25049,7 @@ static PyObject *__pyx_pf_5freud_5order_10SolLiqNear_6computeSolLiqVariant(struc
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/order.pyx":1698
+  /* "freud/order.pyx":1693
  *         return SolLiq.compute(self, points, nlist_)
  * 
  *     def computeSolLiqVariant(self, points, nlist=None):             # <<<<<<<<<<<<<<
@@ -25083,7 +25073,7 @@ static PyObject *__pyx_pf_5freud_5order_10SolLiqNear_6computeSolLiqVariant(struc
   return __pyx_r;
 }
 
-/* "freud/order.pyx":1713
+/* "freud/order.pyx":1708
  *         return SolLiq.computeSolLiqVariant(self, points, nlist_)
  * 
  *     def computeSolLiqNoNorm(self, points, nlist=None):             # <<<<<<<<<<<<<<
@@ -25129,7 +25119,7 @@ static PyObject *__pyx_pw_5freud_5order_10SolLiqNear_9computeSolLiqNoNorm(PyObje
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "computeSolLiqNoNorm") < 0)) __PYX_ERR(0, 1713, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "computeSolLiqNoNorm") < 0)) __PYX_ERR(0, 1708, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -25145,7 +25135,7 @@ static PyObject *__pyx_pw_5freud_5order_10SolLiqNear_9computeSolLiqNoNorm(PyObje
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("computeSolLiqNoNorm", 0, 1, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1713, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("computeSolLiqNoNorm", 0, 1, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1708, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("freud.order.SolLiqNear.computeSolLiqNoNorm", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -25170,23 +25160,23 @@ static PyObject *__pyx_pf_5freud_5order_10SolLiqNear_8computeSolLiqNoNorm(struct
   PyObject *__pyx_t_5 = NULL;
   __Pyx_RefNannySetupContext("computeSolLiqNoNorm", 0);
 
-  /* "freud/order.pyx":1723
+  /* "freud/order.pyx":1718
  *                 Neighborlist to use to find bonds.
  *         """
  *         defaulted_nlist = freud.locality.make_default_nlist_nn(             # <<<<<<<<<<<<<<
  *             self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
  *         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1723, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1718, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_locality); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1723, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_locality); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1718, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_make_default_nlist_nn); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1723, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_make_default_nlist_nn); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1718, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "freud/order.pyx":1724
+  /* "freud/order.pyx":1719
  *         """
  *         defaulted_nlist = freud.locality.make_default_nlist_nn(
  *             self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)             # <<<<<<<<<<<<<<
@@ -25208,7 +25198,7 @@ static PyObject *__pyx_pf_5freud_5order_10SolLiqNear_8computeSolLiqNoNorm(struct
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_2)) {
     PyObject *__pyx_temp[8] = {__pyx_t_3, ((PyObject *)__pyx_v_self->__pyx_base.m_box), __pyx_v_points, __pyx_v_points, __pyx_v_self->num_neigh, __pyx_v_nlist, Py_True, __pyx_v_self->__pyx_base.rmax};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_4, 7+__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1723, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_4, 7+__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1718, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_GOTREF(__pyx_t_1);
   } else
@@ -25216,13 +25206,13 @@ static PyObject *__pyx_pf_5freud_5order_10SolLiqNear_8computeSolLiqNoNorm(struct
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
     PyObject *__pyx_temp[8] = {__pyx_t_3, ((PyObject *)__pyx_v_self->__pyx_base.m_box), __pyx_v_points, __pyx_v_points, __pyx_v_self->num_neigh, __pyx_v_nlist, Py_True, __pyx_v_self->__pyx_base.rmax};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_4, 7+__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1723, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_4, 7+__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1718, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_GOTREF(__pyx_t_1);
   } else
   #endif
   {
-    __pyx_t_5 = PyTuple_New(7+__pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1723, __pyx_L1_error)
+    __pyx_t_5 = PyTuple_New(7+__pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1718, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     if (__pyx_t_3) {
       __Pyx_GIVEREF(__pyx_t_3); PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_3); __pyx_t_3 = NULL;
@@ -25248,7 +25238,7 @@ static PyObject *__pyx_pf_5freud_5order_10SolLiqNear_8computeSolLiqNoNorm(struct
     __Pyx_INCREF(__pyx_v_self->__pyx_base.rmax);
     __Pyx_GIVEREF(__pyx_v_self->__pyx_base.rmax);
     PyTuple_SET_ITEM(__pyx_t_5, 6+__pyx_t_4, __pyx_v_self->__pyx_base.rmax);
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_5, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1723, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_5, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1718, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   }
@@ -25256,20 +25246,20 @@ static PyObject *__pyx_pf_5freud_5order_10SolLiqNear_8computeSolLiqNoNorm(struct
   __pyx_v_defaulted_nlist = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "freud/order.pyx":1725
+  /* "freud/order.pyx":1720
  *         defaulted_nlist = freud.locality.make_default_nlist_nn(
  *             self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
  *         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]             # <<<<<<<<<<<<<<
  *         return SolLiq.computeSolLiqNoNorm(self, points, nlist_)
  * 
  */
-  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_defaulted_nlist, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1725, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_defaulted_nlist, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1720, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5freud_8locality_NeighborList))))) __PYX_ERR(0, 1725, __pyx_L1_error)
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5freud_8locality_NeighborList))))) __PYX_ERR(0, 1720, __pyx_L1_error)
   __pyx_v_nlist_ = ((struct __pyx_obj_5freud_8locality_NeighborList *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "freud/order.pyx":1726
+  /* "freud/order.pyx":1721
  *             self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
  *         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
  *         return SolLiq.computeSolLiqNoNorm(self, points, nlist_)             # <<<<<<<<<<<<<<
@@ -25277,7 +25267,7 @@ static PyObject *__pyx_pf_5freud_5order_10SolLiqNear_8computeSolLiqNoNorm(struct
  * 
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_5order_SolLiq), __pyx_n_s_computeSolLiqNoNorm); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1726, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_5order_SolLiq), __pyx_n_s_computeSolLiqNoNorm); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1721, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_5 = NULL;
   __pyx_t_4 = 0;
@@ -25294,7 +25284,7 @@ static PyObject *__pyx_pf_5freud_5order_10SolLiqNear_8computeSolLiqNoNorm(struct
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_2)) {
     PyObject *__pyx_temp[4] = {__pyx_t_5, ((PyObject *)__pyx_v_self), __pyx_v_points, ((PyObject *)__pyx_v_nlist_)};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_4, 3+__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1726, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_4, 3+__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1721, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_GOTREF(__pyx_t_1);
   } else
@@ -25302,13 +25292,13 @@ static PyObject *__pyx_pf_5freud_5order_10SolLiqNear_8computeSolLiqNoNorm(struct
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
     PyObject *__pyx_temp[4] = {__pyx_t_5, ((PyObject *)__pyx_v_self), __pyx_v_points, ((PyObject *)__pyx_v_nlist_)};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_4, 3+__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1726, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_4, 3+__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1721, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_GOTREF(__pyx_t_1);
   } else
   #endif
   {
-    __pyx_t_3 = PyTuple_New(3+__pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1726, __pyx_L1_error)
+    __pyx_t_3 = PyTuple_New(3+__pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1721, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     if (__pyx_t_5) {
       __Pyx_GIVEREF(__pyx_t_5); PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_5); __pyx_t_5 = NULL;
@@ -25322,7 +25312,7 @@ static PyObject *__pyx_pf_5freud_5order_10SolLiqNear_8computeSolLiqNoNorm(struct
     __Pyx_INCREF(((PyObject *)__pyx_v_nlist_));
     __Pyx_GIVEREF(((PyObject *)__pyx_v_nlist_));
     PyTuple_SET_ITEM(__pyx_t_3, 2+__pyx_t_4, ((PyObject *)__pyx_v_nlist_));
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_3, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1726, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_3, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1721, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   }
@@ -25331,7 +25321,7 @@ static PyObject *__pyx_pf_5freud_5order_10SolLiqNear_8computeSolLiqNoNorm(struct
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/order.pyx":1713
+  /* "freud/order.pyx":1708
  *         return SolLiq.computeSolLiqVariant(self, points, nlist_)
  * 
  *     def computeSolLiqNoNorm(self, points, nlist=None):             # <<<<<<<<<<<<<<
@@ -25466,9 +25456,9 @@ static PyObject *__pyx_pf_5freud_5order_10SolLiqNear_12__setstate_cython__(CYTHO
   return __pyx_r;
 }
 
-/* "freud/order.pyx":1741
- *     """
+/* "freud/order.pyx":1725
  * 
+ * class BondOrder(_EBO):
  *     def __init__(self, rmax, k, n, n_bins_t, n_bins_p):             # <<<<<<<<<<<<<<
  *         warnings.warn("This class is deprecated, use "
  *                       "freud.environment.BondOrder instead!",
@@ -25519,35 +25509,35 @@ static PyObject *__pyx_pw_5freud_5order_9BondOrder_1__init__(PyObject *__pyx_sel
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_rmax)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 1, 6, 6, 1); __PYX_ERR(0, 1741, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 1, 6, 6, 1); __PYX_ERR(0, 1725, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_k)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 1, 6, 6, 2); __PYX_ERR(0, 1741, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 1, 6, 6, 2); __PYX_ERR(0, 1725, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  3:
         if (likely((values[3] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_n)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 1, 6, 6, 3); __PYX_ERR(0, 1741, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 1, 6, 6, 3); __PYX_ERR(0, 1725, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  4:
         if (likely((values[4] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_n_bins_t)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 1, 6, 6, 4); __PYX_ERR(0, 1741, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 1, 6, 6, 4); __PYX_ERR(0, 1725, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  5:
         if (likely((values[5] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_n_bins_p)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 1, 6, 6, 5); __PYX_ERR(0, 1741, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 1, 6, 6, 5); __PYX_ERR(0, 1725, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 1741, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 1725, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 6) {
       goto __pyx_L5_argtuple_error;
@@ -25568,7 +25558,7 @@ static PyObject *__pyx_pw_5freud_5order_9BondOrder_1__init__(PyObject *__pyx_sel
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__init__", 1, 6, 6, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1741, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__init__", 1, 6, 6, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1725, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("freud.order.BondOrder.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -25592,27 +25582,27 @@ static PyObject *__pyx_pf_5freud_5order_9BondOrder___init__(CYTHON_UNUSED PyObje
   PyObject *__pyx_t_6 = NULL;
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "freud/order.pyx":1742
- * 
+  /* "freud/order.pyx":1726
+ * class BondOrder(_EBO):
  *     def __init__(self, rmax, k, n, n_bins_t, n_bins_p):
  *         warnings.warn("This class is deprecated, use "             # <<<<<<<<<<<<<<
  *                       "freud.environment.BondOrder instead!",
  *                       FreudDeprecationWarning)
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1742, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1726, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1742, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1726, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/order.pyx":1744
+  /* "freud/order.pyx":1728
  *         warnings.warn("This class is deprecated, use "
  *                       "freud.environment.BondOrder instead!",
  *                       FreudDeprecationWarning)             # <<<<<<<<<<<<<<
  * 
  * 
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1744, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1728, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   __pyx_t_5 = 0;
@@ -25629,7 +25619,7 @@ static PyObject *__pyx_pf_5freud_5order_9BondOrder___init__(CYTHON_UNUSED PyObje
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_This_class_is_deprecated_use_fre, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1742, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1726, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -25638,14 +25628,14 @@ static PyObject *__pyx_pf_5freud_5order_9BondOrder___init__(CYTHON_UNUSED PyObje
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_This_class_is_deprecated_use_fre, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1742, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1726, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   } else
   #endif
   {
-    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1742, __pyx_L1_error)
+    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1726, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     if (__pyx_t_4) {
       __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -25656,16 +25646,16 @@ static PyObject *__pyx_pf_5freud_5order_9BondOrder___init__(CYTHON_UNUSED PyObje
     __Pyx_GIVEREF(__pyx_t_2);
     PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_5, __pyx_t_2);
     __pyx_t_2 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1742, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1726, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "freud/order.pyx":1741
- *     """
+  /* "freud/order.pyx":1725
  * 
+ * class BondOrder(_EBO):
  *     def __init__(self, rmax, k, n, n_bins_t, n_bins_p):             # <<<<<<<<<<<<<<
  *         warnings.warn("This class is deprecated, use "
  *                       "freud.environment.BondOrder instead!",
@@ -25688,9 +25678,9 @@ static PyObject *__pyx_pf_5freud_5order_9BondOrder___init__(CYTHON_UNUSED PyObje
   return __pyx_r;
 }
 
-/* "freud/order.pyx":1760
- *     """
+/* "freud/order.pyx":1732
  * 
+ * class LocalDescriptors(_ELD):
  *     def __init__(self, num_neighbors, lmax, rmax, negative_m=True):             # <<<<<<<<<<<<<<
  *         warnings.warn("This class is deprecated, use "
  *                       "freud.environment.LocalDescriptors instead!",
@@ -25739,19 +25729,19 @@ static PyObject *__pyx_pw_5freud_5order_16LocalDescriptors_1__init__(PyObject *_
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_num_neighbors)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 0, 4, 5, 1); __PYX_ERR(0, 1760, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 0, 4, 5, 1); __PYX_ERR(0, 1732, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_lmax)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 0, 4, 5, 2); __PYX_ERR(0, 1760, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 0, 4, 5, 2); __PYX_ERR(0, 1732, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  3:
         if (likely((values[3] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_rmax)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 0, 4, 5, 3); __PYX_ERR(0, 1760, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 0, 4, 5, 3); __PYX_ERR(0, 1732, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  4:
@@ -25761,7 +25751,7 @@ static PyObject *__pyx_pw_5freud_5order_16LocalDescriptors_1__init__(PyObject *_
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 1760, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 1732, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -25783,7 +25773,7 @@ static PyObject *__pyx_pw_5freud_5order_16LocalDescriptors_1__init__(PyObject *_
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__init__", 0, 4, 5, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1760, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__init__", 0, 4, 5, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1732, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("freud.order.LocalDescriptors.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -25807,27 +25797,27 @@ static PyObject *__pyx_pf_5freud_5order_16LocalDescriptors___init__(CYTHON_UNUSE
   PyObject *__pyx_t_6 = NULL;
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "freud/order.pyx":1761
- * 
+  /* "freud/order.pyx":1733
+ * class LocalDescriptors(_ELD):
  *     def __init__(self, num_neighbors, lmax, rmax, negative_m=True):
  *         warnings.warn("This class is deprecated, use "             # <<<<<<<<<<<<<<
  *                       "freud.environment.LocalDescriptors instead!",
  *                       FreudDeprecationWarning)
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1761, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1733, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1761, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1733, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/order.pyx":1763
+  /* "freud/order.pyx":1735
  *         warnings.warn("This class is deprecated, use "
  *                       "freud.environment.LocalDescriptors instead!",
  *                       FreudDeprecationWarning)             # <<<<<<<<<<<<<<
  * 
  * 
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1763, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1735, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   __pyx_t_5 = 0;
@@ -25844,7 +25834,7 @@ static PyObject *__pyx_pf_5freud_5order_16LocalDescriptors___init__(CYTHON_UNUSE
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_This_class_is_deprecated_use_fre_2, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1761, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1733, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -25853,14 +25843,14 @@ static PyObject *__pyx_pf_5freud_5order_16LocalDescriptors___init__(CYTHON_UNUSE
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_This_class_is_deprecated_use_fre_2, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1761, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1733, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   } else
   #endif
   {
-    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1761, __pyx_L1_error)
+    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1733, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     if (__pyx_t_4) {
       __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -25871,16 +25861,16 @@ static PyObject *__pyx_pf_5freud_5order_16LocalDescriptors___init__(CYTHON_UNUSE
     __Pyx_GIVEREF(__pyx_t_2);
     PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_5, __pyx_t_2);
     __pyx_t_2 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1761, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1733, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "freud/order.pyx":1760
- *     """
+  /* "freud/order.pyx":1732
  * 
+ * class LocalDescriptors(_ELD):
  *     def __init__(self, num_neighbors, lmax, rmax, negative_m=True):             # <<<<<<<<<<<<<<
  *         warnings.warn("This class is deprecated, use "
  *                       "freud.environment.LocalDescriptors instead!",
@@ -25903,9 +25893,9 @@ static PyObject *__pyx_pf_5freud_5order_16LocalDescriptors___init__(CYTHON_UNUSE
   return __pyx_r;
 }
 
-/* "freud/order.pyx":1779
- *     """
+/* "freud/order.pyx":1739
  * 
+ * class MatchEnv(_EME):
  *     def __init__(self, box, rmax, k):             # <<<<<<<<<<<<<<
  *         warnings.warn("This class is deprecated, use "
  *                       "freud.environment.MatchEnv instead!",
@@ -25950,23 +25940,23 @@ static PyObject *__pyx_pw_5freud_5order_8MatchEnv_1__init__(PyObject *__pyx_self
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_box)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 1, 4, 4, 1); __PYX_ERR(0, 1779, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 1, 4, 4, 1); __PYX_ERR(0, 1739, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_rmax)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 1, 4, 4, 2); __PYX_ERR(0, 1779, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 1, 4, 4, 2); __PYX_ERR(0, 1739, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  3:
         if (likely((values[3] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_k)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 1, 4, 4, 3); __PYX_ERR(0, 1779, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 1, 4, 4, 3); __PYX_ERR(0, 1739, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 1779, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 1739, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 4) {
       goto __pyx_L5_argtuple_error;
@@ -25983,7 +25973,7 @@ static PyObject *__pyx_pw_5freud_5order_8MatchEnv_1__init__(PyObject *__pyx_self
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__init__", 1, 4, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1779, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__init__", 1, 4, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1739, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("freud.order.MatchEnv.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -26007,27 +25997,27 @@ static PyObject *__pyx_pf_5freud_5order_8MatchEnv___init__(CYTHON_UNUSED PyObjec
   PyObject *__pyx_t_6 = NULL;
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "freud/order.pyx":1780
- * 
+  /* "freud/order.pyx":1740
+ * class MatchEnv(_EME):
  *     def __init__(self, box, rmax, k):
  *         warnings.warn("This class is deprecated, use "             # <<<<<<<<<<<<<<
  *                       "freud.environment.MatchEnv instead!",
  *                       FreudDeprecationWarning)
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1780, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1740, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1780, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1740, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/order.pyx":1782
+  /* "freud/order.pyx":1742
  *         warnings.warn("This class is deprecated, use "
  *                       "freud.environment.MatchEnv instead!",
  *                       FreudDeprecationWarning)             # <<<<<<<<<<<<<<
  * 
  * 
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1782, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1742, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   __pyx_t_5 = 0;
@@ -26044,7 +26034,7 @@ static PyObject *__pyx_pf_5freud_5order_8MatchEnv___init__(CYTHON_UNUSED PyObjec
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_This_class_is_deprecated_use_fre_3, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1780, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1740, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -26053,14 +26043,14 @@ static PyObject *__pyx_pf_5freud_5order_8MatchEnv___init__(CYTHON_UNUSED PyObjec
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_This_class_is_deprecated_use_fre_3, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1780, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1740, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   } else
   #endif
   {
-    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1780, __pyx_L1_error)
+    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1740, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     if (__pyx_t_4) {
       __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -26071,16 +26061,16 @@ static PyObject *__pyx_pf_5freud_5order_8MatchEnv___init__(CYTHON_UNUSED PyObjec
     __Pyx_GIVEREF(__pyx_t_2);
     PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_5, __pyx_t_2);
     __pyx_t_2 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1780, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1740, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "freud/order.pyx":1779
- *     """
+  /* "freud/order.pyx":1739
  * 
+ * class MatchEnv(_EME):
  *     def __init__(self, box, rmax, k):             # <<<<<<<<<<<<<<
  *         warnings.warn("This class is deprecated, use "
  *                       "freud.environment.MatchEnv instead!",
@@ -26103,9 +26093,9 @@ static PyObject *__pyx_pf_5freud_5order_8MatchEnv___init__(CYTHON_UNUSED PyObjec
   return __pyx_r;
 }
 
-/* "freud/order.pyx":1797
- *     """
+/* "freud/order.pyx":1746
  * 
+ * class Pairing2D(_EP):
  *     def __init__(self, rmax, k, compDotTol):             # <<<<<<<<<<<<<<
  *         warnings.warn("This class is deprecated, use "
  *                       "freud.bond instead!", FreudDeprecationWarning)
@@ -26150,23 +26140,23 @@ static PyObject *__pyx_pw_5freud_5order_9Pairing2D_1__init__(PyObject *__pyx_sel
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_rmax)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 1, 4, 4, 1); __PYX_ERR(0, 1797, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 1, 4, 4, 1); __PYX_ERR(0, 1746, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_k)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 1, 4, 4, 2); __PYX_ERR(0, 1797, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 1, 4, 4, 2); __PYX_ERR(0, 1746, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  3:
         if (likely((values[3] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_compDotTol)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 1, 4, 4, 3); __PYX_ERR(0, 1797, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 1, 4, 4, 3); __PYX_ERR(0, 1746, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 1797, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 1746, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 4) {
       goto __pyx_L5_argtuple_error;
@@ -26183,7 +26173,7 @@ static PyObject *__pyx_pw_5freud_5order_9Pairing2D_1__init__(PyObject *__pyx_sel
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__init__", 1, 4, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1797, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__init__", 1, 4, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1746, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("freud.order.Pairing2D.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -26207,27 +26197,27 @@ static PyObject *__pyx_pf_5freud_5order_9Pairing2D___init__(CYTHON_UNUSED PyObje
   PyObject *__pyx_t_6 = NULL;
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "freud/order.pyx":1798
- * 
+  /* "freud/order.pyx":1747
+ * class Pairing2D(_EP):
  *     def __init__(self, rmax, k, compDotTol):
  *         warnings.warn("This class is deprecated, use "             # <<<<<<<<<<<<<<
  *                       "freud.bond instead!", FreudDeprecationWarning)
  * 
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1798, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1747, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1798, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1747, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/order.pyx":1799
+  /* "freud/order.pyx":1748
  *     def __init__(self, rmax, k, compDotTol):
  *         warnings.warn("This class is deprecated, use "
  *                       "freud.bond instead!", FreudDeprecationWarning)             # <<<<<<<<<<<<<<
  * 
  * 
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1799, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1748, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   __pyx_t_5 = 0;
@@ -26244,7 +26234,7 @@ static PyObject *__pyx_pf_5freud_5order_9Pairing2D___init__(CYTHON_UNUSED PyObje
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_This_class_is_deprecated_use_fre_4, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1798, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1747, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -26253,14 +26243,14 @@ static PyObject *__pyx_pf_5freud_5order_9Pairing2D___init__(CYTHON_UNUSED PyObje
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_This_class_is_deprecated_use_fre_4, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1798, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1747, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   } else
   #endif
   {
-    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1798, __pyx_L1_error)
+    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1747, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     if (__pyx_t_4) {
       __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -26271,16 +26261,16 @@ static PyObject *__pyx_pf_5freud_5order_9Pairing2D___init__(CYTHON_UNUSED PyObje
     __Pyx_GIVEREF(__pyx_t_2);
     PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_5, __pyx_t_2);
     __pyx_t_2 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1798, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1747, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "freud/order.pyx":1797
- *     """
+  /* "freud/order.pyx":1746
  * 
+ * class Pairing2D(_EP):
  *     def __init__(self, rmax, k, compDotTol):             # <<<<<<<<<<<<<<
  *         warnings.warn("This class is deprecated, use "
  *                       "freud.bond instead!", FreudDeprecationWarning)
@@ -26303,9 +26293,9 @@ static PyObject *__pyx_pf_5freud_5order_9Pairing2D___init__(CYTHON_UNUSED PyObje
   return __pyx_r;
 }
 
-/* "freud/order.pyx":1815
- *     """
+/* "freud/order.pyx":1752
  * 
+ * class AngularSeparation(_EAS):
  *     def __init__(self, rmax, n):             # <<<<<<<<<<<<<<
  *         warnings.warn("This class is deprecated, use "
  *                       "freud.environment.AngularSeparation instead!",
@@ -26347,17 +26337,17 @@ static PyObject *__pyx_pw_5freud_5order_17AngularSeparation_1__init__(PyObject *
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_rmax)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 1, 3, 3, 1); __PYX_ERR(0, 1815, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 1, 3, 3, 1); __PYX_ERR(0, 1752, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_n)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 1, 3, 3, 2); __PYX_ERR(0, 1815, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 1, 3, 3, 2); __PYX_ERR(0, 1752, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 1815, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 1752, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 3) {
       goto __pyx_L5_argtuple_error;
@@ -26372,7 +26362,7 @@ static PyObject *__pyx_pw_5freud_5order_17AngularSeparation_1__init__(PyObject *
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__init__", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1815, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__init__", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1752, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("freud.order.AngularSeparation.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -26396,25 +26386,25 @@ static PyObject *__pyx_pf_5freud_5order_17AngularSeparation___init__(CYTHON_UNUS
   PyObject *__pyx_t_6 = NULL;
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "freud/order.pyx":1816
- * 
+  /* "freud/order.pyx":1753
+ * class AngularSeparation(_EAS):
  *     def __init__(self, rmax, n):
  *         warnings.warn("This class is deprecated, use "             # <<<<<<<<<<<<<<
  *                       "freud.environment.AngularSeparation instead!",
  *                       FreudDeprecationWarning)
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1816, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_warnings); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1753, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1816, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_warn); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1753, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/order.pyx":1818
+  /* "freud/order.pyx":1755
  *         warnings.warn("This class is deprecated, use "
  *                       "freud.environment.AngularSeparation instead!",
  *                       FreudDeprecationWarning)             # <<<<<<<<<<<<<<
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1818, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_FreudDeprecationWarning); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1755, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   __pyx_t_5 = 0;
@@ -26431,7 +26421,7 @@ static PyObject *__pyx_pf_5freud_5order_17AngularSeparation___init__(CYTHON_UNUS
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_This_class_is_deprecated_use_fre_5, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1816, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1753, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -26440,14 +26430,14 @@ static PyObject *__pyx_pf_5freud_5order_17AngularSeparation___init__(CYTHON_UNUS
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_kp_s_This_class_is_deprecated_use_fre_5, __pyx_t_2};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1816, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1753, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   } else
   #endif
   {
-    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1816, __pyx_L1_error)
+    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1753, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     if (__pyx_t_4) {
       __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -26458,16 +26448,16 @@ static PyObject *__pyx_pf_5freud_5order_17AngularSeparation___init__(CYTHON_UNUS
     __Pyx_GIVEREF(__pyx_t_2);
     PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_5, __pyx_t_2);
     __pyx_t_2 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1816, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1753, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "freud/order.pyx":1815
- *     """
+  /* "freud/order.pyx":1752
  * 
+ * class AngularSeparation(_EAS):
  *     def __init__(self, rmax, n):             # <<<<<<<<<<<<<<
  *         warnings.warn("This class is deprecated, use "
  *                       "freud.environment.AngularSeparation instead!",
@@ -30453,11 +30443,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_CubaticOrderParameter_get_scale, __pyx_k_CubaticOrderParameter_get_scale, sizeof(__pyx_k_CubaticOrderParameter_get_scale), 0, 0, 1, 1},
   {&__pyx_n_s_CubaticOrderParameter_get_t_fina, __pyx_k_CubaticOrderParameter_get_t_fina, sizeof(__pyx_k_CubaticOrderParameter_get_t_fina), 0, 0, 1, 1},
   {&__pyx_n_s_CubaticOrderParameter_get_t_init, __pyx_k_CubaticOrderParameter_get_t_init, sizeof(__pyx_k_CubaticOrderParameter_get_t_init), 0, 0, 1, 1},
-  {&__pyx_kp_s_Deprecated_Calculates_the_minim, __pyx_k_Deprecated_Calculates_the_minim, sizeof(__pyx_k_Deprecated_Calculates_the_minim), 0, 0, 1, 0},
-  {&__pyx_kp_s_Deprecated_Clusters_particles_a, __pyx_k_Deprecated_Clusters_particles_a, sizeof(__pyx_k_Deprecated_Clusters_particles_a), 0, 0, 1, 0},
-  {&__pyx_kp_s_Deprecated_Compute_a_set_of_des, __pyx_k_Deprecated_Compute_a_set_of_des, sizeof(__pyx_k_Deprecated_Compute_a_set_of_des), 0, 0, 1, 0},
-  {&__pyx_kp_s_Deprecated_Compute_pairs_for_th, __pyx_k_Deprecated_Compute_pairs_for_th, sizeof(__pyx_k_Deprecated_Compute_pairs_for_th), 0, 0, 1, 0},
-  {&__pyx_kp_s_Deprecated_Compute_the_bond_ord, __pyx_k_Deprecated_Compute_the_bond_ord, sizeof(__pyx_k_Deprecated_Compute_the_bond_ord), 0, 0, 1, 0},
   {&__pyx_kp_u_Format_string_allocated_too_shor, __pyx_k_Format_string_allocated_too_shor, sizeof(__pyx_k_Format_string_allocated_too_shor), 0, 1, 0, 0},
   {&__pyx_kp_u_Format_string_allocated_too_shor_2, __pyx_k_Format_string_allocated_too_shor_2, sizeof(__pyx_k_Format_string_allocated_too_shor_2), 0, 1, 0, 0},
   {&__pyx_n_s_FreudDeprecationWarning, __pyx_k_FreudDeprecationWarning, sizeof(__pyx_k_FreudDeprecationWarning), 0, 0, 1, 1},
@@ -32009,109 +31994,109 @@ static int __Pyx_InitCachedConstants(void) {
  *         return self.box
  * 
  *     def setClusteringRadius(self, rcutCluster):             # <<<<<<<<<<<<<<
- *         R"""Set the clustering radius.
- * 
+ *         warnings.warn("Use constructor arguments instead of this setter. "
+ *                       "This setter will be removed in the future.",
  */
   __pyx_tuple__181 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_rcutCluster); if (unlikely(!__pyx_tuple__181)) __PYX_ERR(0, 1484, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__181);
   __Pyx_GIVEREF(__pyx_tuple__181);
   __pyx_codeobj__182 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__181, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_order_pyx, __pyx_n_s_setClusteringRadius, 1484, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__182)) __PYX_ERR(0, 1484, __pyx_L1_error)
 
-  /* "freud/order.pyx":1500
+  /* "freud/order.pyx":1495
  *         self.thisptr.setBox(dereference(b.thisptr))
  * 
  *     def setBox(self, box):             # <<<<<<<<<<<<<<
  *         warnings.warn("The setBox function is deprecated in favor "
  *                       "of setting the box class attribute and will be "
  */
-  __pyx_tuple__183 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_box); if (unlikely(!__pyx_tuple__183)) __PYX_ERR(0, 1500, __pyx_L1_error)
+  __pyx_tuple__183 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_box); if (unlikely(!__pyx_tuple__183)) __PYX_ERR(0, 1495, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__183);
   __Pyx_GIVEREF(__pyx_tuple__183);
-  __pyx_codeobj__184 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__183, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_order_pyx, __pyx_n_s_setBox, 1500, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__184)) __PYX_ERR(0, 1500, __pyx_L1_error)
+  __pyx_codeobj__184 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__183, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_order_pyx, __pyx_n_s_setBox, 1495, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__184)) __PYX_ERR(0, 1495, __pyx_L1_error)
 
-  /* "freud/order.pyx":1512
+  /* "freud/order.pyx":1507
  *         return clusterSize
  * 
  *     def getLargestClusterSize(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getLargestClusterSize function is deprecated in "
  *                       "favor of the largest_cluster_size class attribute and "
  */
-  __pyx_tuple__185 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__185)) __PYX_ERR(0, 1512, __pyx_L1_error)
+  __pyx_tuple__185 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__185)) __PYX_ERR(0, 1507, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__185);
   __Pyx_GIVEREF(__pyx_tuple__185);
-  __pyx_codeobj__186 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__185, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_order_pyx, __pyx_n_s_getLargestClusterSize, 1512, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__186)) __PYX_ERR(0, 1512, __pyx_L1_error)
+  __pyx_codeobj__186 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__185, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_order_pyx, __pyx_n_s_getLargestClusterSize, 1507, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__186)) __PYX_ERR(0, 1507, __pyx_L1_error)
 
-  /* "freud/order.pyx":1529
+  /* "freud/order.pyx":1524
  *         return result
  * 
  *     def getClusterSizes(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getClusterSizes function is deprecated in favor "
  *                       "of the cluster_sizes class attribute and will be "
  */
-  __pyx_tuple__187 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__187)) __PYX_ERR(0, 1529, __pyx_L1_error)
+  __pyx_tuple__187 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__187)) __PYX_ERR(0, 1524, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__187);
   __Pyx_GIVEREF(__pyx_tuple__187);
-  __pyx_codeobj__188 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__187, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_order_pyx, __pyx_n_s_getClusterSizes, 1529, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__188)) __PYX_ERR(0, 1529, __pyx_L1_error)
+  __pyx_codeobj__188 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__187, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_order_pyx, __pyx_n_s_getClusterSizes, 1524, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__188)) __PYX_ERR(0, 1524, __pyx_L1_error)
 
-  /* "freud/order.pyx":1546
+  /* "freud/order.pyx":1541
  *         return result
  * 
  *     def getQlmi(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getQlmi function is deprecated in favor "
  *                       "of the Ql_mi class attribute and will be "
  */
-  __pyx_tuple__189 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__189)) __PYX_ERR(0, 1546, __pyx_L1_error)
+  __pyx_tuple__189 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__189)) __PYX_ERR(0, 1541, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__189);
   __Pyx_GIVEREF(__pyx_tuple__189);
-  __pyx_codeobj__190 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__189, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_order_pyx, __pyx_n_s_getQlmi, 1546, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__190)) __PYX_ERR(0, 1546, __pyx_L1_error)
+  __pyx_codeobj__190 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__189, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_order_pyx, __pyx_n_s_getQlmi, 1541, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__190)) __PYX_ERR(0, 1541, __pyx_L1_error)
 
-  /* "freud/order.pyx":1564
+  /* "freud/order.pyx":1559
  *         return result
  * 
  *     def getClusters(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getClusters function is deprecated in favor "
  *                       "of the clusters class attribute and will be "
  */
-  __pyx_tuple__191 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__191)) __PYX_ERR(0, 1564, __pyx_L1_error)
+  __pyx_tuple__191 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__191)) __PYX_ERR(0, 1559, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__191);
   __Pyx_GIVEREF(__pyx_tuple__191);
-  __pyx_codeobj__192 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__191, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_order_pyx, __pyx_n_s_getClusters, 1564, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__192)) __PYX_ERR(0, 1564, __pyx_L1_error)
+  __pyx_codeobj__192 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__191, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_order_pyx, __pyx_n_s_getClusters, 1559, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__192)) __PYX_ERR(0, 1559, __pyx_L1_error)
 
-  /* "freud/order.pyx":1583
+  /* "freud/order.pyx":1578
  *         return result
  * 
  *     def getNumberOfConnections(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getNumberOfConnections function is deprecated in "
  *                       "favor of the num_connections class attribute and will "
  */
-  __pyx_tuple__193 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__193)) __PYX_ERR(0, 1583, __pyx_L1_error)
+  __pyx_tuple__193 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__193)) __PYX_ERR(0, 1578, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__193);
   __Pyx_GIVEREF(__pyx_tuple__193);
-  __pyx_codeobj__194 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__193, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_order_pyx, __pyx_n_s_getNumberOfConnections, 1583, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__194)) __PYX_ERR(0, 1583, __pyx_L1_error)
+  __pyx_codeobj__194 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__193, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_order_pyx, __pyx_n_s_getNumberOfConnections, 1578, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__194)) __PYX_ERR(0, 1578, __pyx_L1_error)
 
-  /* "freud/order.pyx":1600
+  /* "freud/order.pyx":1595
  *         return result
  * 
  *     def getQldot_ij(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getQldot_ij function is deprecated in favor "
  *                       "of the Ql_dot_ij class attribute and will be "
  */
-  __pyx_tuple__195 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__195)) __PYX_ERR(0, 1600, __pyx_L1_error)
+  __pyx_tuple__195 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__195)) __PYX_ERR(0, 1595, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__195);
   __Pyx_GIVEREF(__pyx_tuple__195);
-  __pyx_codeobj__196 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__195, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_order_pyx, __pyx_n_s_getQldot_ij, 1600, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__196)) __PYX_ERR(0, 1600, __pyx_L1_error)
+  __pyx_codeobj__196 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__195, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_order_pyx, __pyx_n_s_getQldot_ij, 1595, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__196)) __PYX_ERR(0, 1595, __pyx_L1_error)
 
-  /* "freud/order.pyx":1612
+  /* "freud/order.pyx":1607
  *         return np
  * 
  *     def getNP(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getNumParticles function is deprecated in favor "
  *                       "of the num_particles class attribute and will be "
  */
-  __pyx_tuple__197 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__197)) __PYX_ERR(0, 1612, __pyx_L1_error)
+  __pyx_tuple__197 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__197)) __PYX_ERR(0, 1607, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__197);
   __Pyx_GIVEREF(__pyx_tuple__197);
-  __pyx_codeobj__198 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__197, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_order_pyx, __pyx_n_s_getNP, 1612, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__198)) __PYX_ERR(0, 1612, __pyx_L1_error)
+  __pyx_codeobj__198 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__197, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_order_pyx, __pyx_n_s_getNP, 1607, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__198)) __PYX_ERR(0, 1607, __pyx_L1_error)
 
   /* "(tree fragment)":1
  * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
@@ -32134,41 +32119,41 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_GIVEREF(__pyx_tuple__201);
   __pyx_codeobj__202 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__201, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_setstate_cython, 3, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__202)) __PYX_ERR(1, 3, __pyx_L1_error)
 
-  /* "freud/order.pyx":1683
+  /* "freud/order.pyx":1678
  *         self.thisptr = NULL
  * 
  *     def compute(self, points, nlist=None):             # <<<<<<<<<<<<<<
  *         R"""Compute the local rotationally invariant :math:`Q_l` order
  *         parameter.
  */
-  __pyx_tuple__203 = PyTuple_Pack(5, __pyx_n_s_self, __pyx_n_s_points, __pyx_n_s_nlist, __pyx_n_s_defaulted_nlist, __pyx_n_s_nlist_2); if (unlikely(!__pyx_tuple__203)) __PYX_ERR(0, 1683, __pyx_L1_error)
+  __pyx_tuple__203 = PyTuple_Pack(5, __pyx_n_s_self, __pyx_n_s_points, __pyx_n_s_nlist, __pyx_n_s_defaulted_nlist, __pyx_n_s_nlist_2); if (unlikely(!__pyx_tuple__203)) __PYX_ERR(0, 1678, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__203);
   __Pyx_GIVEREF(__pyx_tuple__203);
-  __pyx_codeobj__204 = (PyObject*)__Pyx_PyCode_New(3, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__203, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_order_pyx, __pyx_n_s_compute, 1683, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__204)) __PYX_ERR(0, 1683, __pyx_L1_error)
+  __pyx_codeobj__204 = (PyObject*)__Pyx_PyCode_New(3, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__203, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_order_pyx, __pyx_n_s_compute, 1678, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__204)) __PYX_ERR(0, 1678, __pyx_L1_error)
 
-  /* "freud/order.pyx":1698
+  /* "freud/order.pyx":1693
  *         return SolLiq.compute(self, points, nlist_)
  * 
  *     def computeSolLiqVariant(self, points, nlist=None):             # <<<<<<<<<<<<<<
  *         R"""Compute the local rotationally invariant :math:`Q_l` order
  *         parameter.
  */
-  __pyx_tuple__205 = PyTuple_Pack(5, __pyx_n_s_self, __pyx_n_s_points, __pyx_n_s_nlist, __pyx_n_s_defaulted_nlist, __pyx_n_s_nlist_2); if (unlikely(!__pyx_tuple__205)) __PYX_ERR(0, 1698, __pyx_L1_error)
+  __pyx_tuple__205 = PyTuple_Pack(5, __pyx_n_s_self, __pyx_n_s_points, __pyx_n_s_nlist, __pyx_n_s_defaulted_nlist, __pyx_n_s_nlist_2); if (unlikely(!__pyx_tuple__205)) __PYX_ERR(0, 1693, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__205);
   __Pyx_GIVEREF(__pyx_tuple__205);
-  __pyx_codeobj__206 = (PyObject*)__Pyx_PyCode_New(3, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__205, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_order_pyx, __pyx_n_s_computeSolLiqVariant, 1698, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__206)) __PYX_ERR(0, 1698, __pyx_L1_error)
+  __pyx_codeobj__206 = (PyObject*)__Pyx_PyCode_New(3, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__205, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_order_pyx, __pyx_n_s_computeSolLiqVariant, 1693, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__206)) __PYX_ERR(0, 1693, __pyx_L1_error)
 
-  /* "freud/order.pyx":1713
+  /* "freud/order.pyx":1708
  *         return SolLiq.computeSolLiqVariant(self, points, nlist_)
  * 
  *     def computeSolLiqNoNorm(self, points, nlist=None):             # <<<<<<<<<<<<<<
  *         R"""Compute the local rotationally invariant :math:`Q_l` order
  *         parameter.
  */
-  __pyx_tuple__207 = PyTuple_Pack(5, __pyx_n_s_self, __pyx_n_s_points, __pyx_n_s_nlist, __pyx_n_s_defaulted_nlist, __pyx_n_s_nlist_2); if (unlikely(!__pyx_tuple__207)) __PYX_ERR(0, 1713, __pyx_L1_error)
+  __pyx_tuple__207 = PyTuple_Pack(5, __pyx_n_s_self, __pyx_n_s_points, __pyx_n_s_nlist, __pyx_n_s_defaulted_nlist, __pyx_n_s_nlist_2); if (unlikely(!__pyx_tuple__207)) __PYX_ERR(0, 1708, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__207);
   __Pyx_GIVEREF(__pyx_tuple__207);
-  __pyx_codeobj__208 = (PyObject*)__Pyx_PyCode_New(3, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__207, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_order_pyx, __pyx_n_s_computeSolLiqNoNorm, 1713, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__208)) __PYX_ERR(0, 1713, __pyx_L1_error)
+  __pyx_codeobj__208 = (PyObject*)__Pyx_PyCode_New(3, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__207, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_order_pyx, __pyx_n_s_computeSolLiqNoNorm, 1708, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__208)) __PYX_ERR(0, 1708, __pyx_L1_error)
 
   /* "(tree fragment)":1
  * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
@@ -32191,68 +32176,68 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_GIVEREF(__pyx_tuple__211);
   __pyx_codeobj__212 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__211, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_setstate_cython, 3, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__212)) __PYX_ERR(1, 3, __pyx_L1_error)
 
-  /* "freud/order.pyx":1741
- *     """
+  /* "freud/order.pyx":1725
  * 
+ * class BondOrder(_EBO):
  *     def __init__(self, rmax, k, n, n_bins_t, n_bins_p):             # <<<<<<<<<<<<<<
  *         warnings.warn("This class is deprecated, use "
  *                       "freud.environment.BondOrder instead!",
  */
-  __pyx_tuple__213 = PyTuple_Pack(6, __pyx_n_s_self, __pyx_n_s_rmax, __pyx_n_s_k, __pyx_n_s_n, __pyx_n_s_n_bins_t, __pyx_n_s_n_bins_p); if (unlikely(!__pyx_tuple__213)) __PYX_ERR(0, 1741, __pyx_L1_error)
+  __pyx_tuple__213 = PyTuple_Pack(6, __pyx_n_s_self, __pyx_n_s_rmax, __pyx_n_s_k, __pyx_n_s_n, __pyx_n_s_n_bins_t, __pyx_n_s_n_bins_p); if (unlikely(!__pyx_tuple__213)) __PYX_ERR(0, 1725, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__213);
   __Pyx_GIVEREF(__pyx_tuple__213);
-  __pyx_codeobj__214 = (PyObject*)__Pyx_PyCode_New(6, 0, 6, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__213, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_order_pyx, __pyx_n_s_init, 1741, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__214)) __PYX_ERR(0, 1741, __pyx_L1_error)
+  __pyx_codeobj__214 = (PyObject*)__Pyx_PyCode_New(6, 0, 6, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__213, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_order_pyx, __pyx_n_s_init, 1725, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__214)) __PYX_ERR(0, 1725, __pyx_L1_error)
 
-  /* "freud/order.pyx":1760
- *     """
+  /* "freud/order.pyx":1732
  * 
+ * class LocalDescriptors(_ELD):
  *     def __init__(self, num_neighbors, lmax, rmax, negative_m=True):             # <<<<<<<<<<<<<<
  *         warnings.warn("This class is deprecated, use "
  *                       "freud.environment.LocalDescriptors instead!",
  */
-  __pyx_tuple__215 = PyTuple_Pack(5, __pyx_n_s_self, __pyx_n_s_num_neighbors, __pyx_n_s_lmax, __pyx_n_s_rmax, __pyx_n_s_negative_m); if (unlikely(!__pyx_tuple__215)) __PYX_ERR(0, 1760, __pyx_L1_error)
+  __pyx_tuple__215 = PyTuple_Pack(5, __pyx_n_s_self, __pyx_n_s_num_neighbors, __pyx_n_s_lmax, __pyx_n_s_rmax, __pyx_n_s_negative_m); if (unlikely(!__pyx_tuple__215)) __PYX_ERR(0, 1732, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__215);
   __Pyx_GIVEREF(__pyx_tuple__215);
-  __pyx_codeobj__216 = (PyObject*)__Pyx_PyCode_New(5, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__215, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_order_pyx, __pyx_n_s_init, 1760, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__216)) __PYX_ERR(0, 1760, __pyx_L1_error)
-  __pyx_tuple__217 = PyTuple_Pack(1, ((PyObject *)Py_True)); if (unlikely(!__pyx_tuple__217)) __PYX_ERR(0, 1760, __pyx_L1_error)
+  __pyx_codeobj__216 = (PyObject*)__Pyx_PyCode_New(5, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__215, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_order_pyx, __pyx_n_s_init, 1732, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__216)) __PYX_ERR(0, 1732, __pyx_L1_error)
+  __pyx_tuple__217 = PyTuple_Pack(1, ((PyObject *)Py_True)); if (unlikely(!__pyx_tuple__217)) __PYX_ERR(0, 1732, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__217);
   __Pyx_GIVEREF(__pyx_tuple__217);
 
-  /* "freud/order.pyx":1779
- *     """
+  /* "freud/order.pyx":1739
  * 
+ * class MatchEnv(_EME):
  *     def __init__(self, box, rmax, k):             # <<<<<<<<<<<<<<
  *         warnings.warn("This class is deprecated, use "
  *                       "freud.environment.MatchEnv instead!",
  */
-  __pyx_tuple__218 = PyTuple_Pack(4, __pyx_n_s_self, __pyx_n_s_box, __pyx_n_s_rmax, __pyx_n_s_k); if (unlikely(!__pyx_tuple__218)) __PYX_ERR(0, 1779, __pyx_L1_error)
+  __pyx_tuple__218 = PyTuple_Pack(4, __pyx_n_s_self, __pyx_n_s_box, __pyx_n_s_rmax, __pyx_n_s_k); if (unlikely(!__pyx_tuple__218)) __PYX_ERR(0, 1739, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__218);
   __Pyx_GIVEREF(__pyx_tuple__218);
-  __pyx_codeobj__219 = (PyObject*)__Pyx_PyCode_New(4, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__218, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_order_pyx, __pyx_n_s_init, 1779, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__219)) __PYX_ERR(0, 1779, __pyx_L1_error)
+  __pyx_codeobj__219 = (PyObject*)__Pyx_PyCode_New(4, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__218, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_order_pyx, __pyx_n_s_init, 1739, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__219)) __PYX_ERR(0, 1739, __pyx_L1_error)
 
-  /* "freud/order.pyx":1797
- *     """
+  /* "freud/order.pyx":1746
  * 
+ * class Pairing2D(_EP):
  *     def __init__(self, rmax, k, compDotTol):             # <<<<<<<<<<<<<<
  *         warnings.warn("This class is deprecated, use "
  *                       "freud.bond instead!", FreudDeprecationWarning)
  */
-  __pyx_tuple__220 = PyTuple_Pack(4, __pyx_n_s_self, __pyx_n_s_rmax, __pyx_n_s_k, __pyx_n_s_compDotTol); if (unlikely(!__pyx_tuple__220)) __PYX_ERR(0, 1797, __pyx_L1_error)
+  __pyx_tuple__220 = PyTuple_Pack(4, __pyx_n_s_self, __pyx_n_s_rmax, __pyx_n_s_k, __pyx_n_s_compDotTol); if (unlikely(!__pyx_tuple__220)) __PYX_ERR(0, 1746, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__220);
   __Pyx_GIVEREF(__pyx_tuple__220);
-  __pyx_codeobj__221 = (PyObject*)__Pyx_PyCode_New(4, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__220, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_order_pyx, __pyx_n_s_init, 1797, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__221)) __PYX_ERR(0, 1797, __pyx_L1_error)
+  __pyx_codeobj__221 = (PyObject*)__Pyx_PyCode_New(4, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__220, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_order_pyx, __pyx_n_s_init, 1746, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__221)) __PYX_ERR(0, 1746, __pyx_L1_error)
 
-  /* "freud/order.pyx":1815
- *     """
+  /* "freud/order.pyx":1752
  * 
+ * class AngularSeparation(_EAS):
  *     def __init__(self, rmax, n):             # <<<<<<<<<<<<<<
  *         warnings.warn("This class is deprecated, use "
  *                       "freud.environment.AngularSeparation instead!",
  */
-  __pyx_tuple__222 = PyTuple_Pack(3, __pyx_n_s_self, __pyx_n_s_rmax, __pyx_n_s_n); if (unlikely(!__pyx_tuple__222)) __PYX_ERR(0, 1815, __pyx_L1_error)
+  __pyx_tuple__222 = PyTuple_Pack(3, __pyx_n_s_self, __pyx_n_s_rmax, __pyx_n_s_n); if (unlikely(!__pyx_tuple__222)) __PYX_ERR(0, 1752, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__222);
   __Pyx_GIVEREF(__pyx_tuple__222);
-  __pyx_codeobj__223 = (PyObject*)__Pyx_PyCode_New(3, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__222, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_order_pyx, __pyx_n_s_init, 1815, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__223)) __PYX_ERR(0, 1815, __pyx_L1_error)
+  __pyx_codeobj__223 = (PyObject*)__Pyx_PyCode_New(3, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__222, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_order_pyx, __pyx_n_s_init, 1752, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__223)) __PYX_ERR(0, 1752, __pyx_L1_error)
   __Pyx_RefNannyFinishContext();
   return 0;
   __pyx_L1_error:;
@@ -32385,13 +32370,13 @@ static int __Pyx_modinit_type_init_code(void) {
   if (__Pyx_setup_reduce((PyObject*)&__pyx_type_5freud_5order_SolLiq) < 0) __PYX_ERR(0, 1331, __pyx_L1_error)
   __pyx_ptype_5freud_5order_SolLiq = &__pyx_type_5freud_5order_SolLiq;
   __pyx_type_5freud_5order_SolLiqNear.tp_base = __pyx_ptype_5freud_5order_SolLiq;
-  if (PyType_Ready(&__pyx_type_5freud_5order_SolLiqNear) < 0) __PYX_ERR(0, 1620, __pyx_L1_error)
+  if (PyType_Ready(&__pyx_type_5freud_5order_SolLiqNear) < 0) __PYX_ERR(0, 1615, __pyx_L1_error)
   __pyx_type_5freud_5order_SolLiqNear.tp_print = 0;
   if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_5freud_5order_SolLiqNear.tp_dictoffset && __pyx_type_5freud_5order_SolLiqNear.tp_getattro == PyObject_GenericGetAttr)) {
     __pyx_type_5freud_5order_SolLiqNear.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
-  if (PyObject_SetAttrString(__pyx_m, "SolLiqNear", (PyObject *)&__pyx_type_5freud_5order_SolLiqNear) < 0) __PYX_ERR(0, 1620, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_5freud_5order_SolLiqNear) < 0) __PYX_ERR(0, 1620, __pyx_L1_error)
+  if (PyObject_SetAttrString(__pyx_m, "SolLiqNear", (PyObject *)&__pyx_type_5freud_5order_SolLiqNear) < 0) __PYX_ERR(0, 1615, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_5freud_5order_SolLiqNear) < 0) __PYX_ERR(0, 1615, __pyx_L1_error)
   __pyx_ptype_5freud_5order_SolLiqNear = &__pyx_type_5freud_5order_SolLiqNear;
   __Pyx_RefNannyFinishContext();
   return 0;
@@ -33617,8 +33602,8 @@ if (!__Pyx_RefNanny) {
  *         return self.box
  * 
  *     def setClusteringRadius(self, rcutCluster):             # <<<<<<<<<<<<<<
- *         R"""Set the clustering radius.
- * 
+ *         warnings.warn("Use constructor arguments instead of this setter. "
+ *                       "This setter will be removed in the future.",
  */
   __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_5order_6SolLiq_13setClusteringRadius, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_SolLiq_setClusteringRadius, NULL, __pyx_n_s_freud_order, __pyx_d, ((PyObject *)__pyx_codeobj__182)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1484, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -33626,107 +33611,107 @@ if (!__Pyx_RefNanny) {
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_5order_SolLiq);
 
-  /* "freud/order.pyx":1500
+  /* "freud/order.pyx":1495
  *         self.thisptr.setBox(dereference(b.thisptr))
  * 
  *     def setBox(self, box):             # <<<<<<<<<<<<<<
  *         warnings.warn("The setBox function is deprecated in favor "
  *                       "of setting the box class attribute and will be "
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_5order_6SolLiq_15setBox, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_SolLiq_setBox, NULL, __pyx_n_s_freud_order, __pyx_d, ((PyObject *)__pyx_codeobj__184)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1500, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_5order_6SolLiq_15setBox, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_SolLiq_setBox, NULL, __pyx_n_s_freud_order, __pyx_d, ((PyObject *)__pyx_codeobj__184)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1495, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_5order_SolLiq->tp_dict, __pyx_n_s_setBox, __pyx_t_2) < 0) __PYX_ERR(0, 1500, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_5order_SolLiq->tp_dict, __pyx_n_s_setBox, __pyx_t_2) < 0) __PYX_ERR(0, 1495, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_5order_SolLiq);
 
-  /* "freud/order.pyx":1512
+  /* "freud/order.pyx":1507
  *         return clusterSize
  * 
  *     def getLargestClusterSize(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getLargestClusterSize function is deprecated in "
  *                       "favor of the largest_cluster_size class attribute and "
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_5order_6SolLiq_17getLargestClusterSize, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_SolLiq_getLargestClusterSize, NULL, __pyx_n_s_freud_order, __pyx_d, ((PyObject *)__pyx_codeobj__186)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1512, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_5order_6SolLiq_17getLargestClusterSize, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_SolLiq_getLargestClusterSize, NULL, __pyx_n_s_freud_order, __pyx_d, ((PyObject *)__pyx_codeobj__186)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1507, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_5order_SolLiq->tp_dict, __pyx_n_s_getLargestClusterSize, __pyx_t_2) < 0) __PYX_ERR(0, 1512, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_5order_SolLiq->tp_dict, __pyx_n_s_getLargestClusterSize, __pyx_t_2) < 0) __PYX_ERR(0, 1507, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_5order_SolLiq);
 
-  /* "freud/order.pyx":1529
+  /* "freud/order.pyx":1524
  *         return result
  * 
  *     def getClusterSizes(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getClusterSizes function is deprecated in favor "
  *                       "of the cluster_sizes class attribute and will be "
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_5order_6SolLiq_19getClusterSizes, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_SolLiq_getClusterSizes, NULL, __pyx_n_s_freud_order, __pyx_d, ((PyObject *)__pyx_codeobj__188)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1529, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_5order_6SolLiq_19getClusterSizes, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_SolLiq_getClusterSizes, NULL, __pyx_n_s_freud_order, __pyx_d, ((PyObject *)__pyx_codeobj__188)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1524, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_5order_SolLiq->tp_dict, __pyx_n_s_getClusterSizes, __pyx_t_2) < 0) __PYX_ERR(0, 1529, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_5order_SolLiq->tp_dict, __pyx_n_s_getClusterSizes, __pyx_t_2) < 0) __PYX_ERR(0, 1524, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_5order_SolLiq);
 
-  /* "freud/order.pyx":1546
+  /* "freud/order.pyx":1541
  *         return result
  * 
  *     def getQlmi(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getQlmi function is deprecated in favor "
  *                       "of the Ql_mi class attribute and will be "
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_5order_6SolLiq_21getQlmi, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_SolLiq_getQlmi, NULL, __pyx_n_s_freud_order, __pyx_d, ((PyObject *)__pyx_codeobj__190)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1546, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_5order_6SolLiq_21getQlmi, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_SolLiq_getQlmi, NULL, __pyx_n_s_freud_order, __pyx_d, ((PyObject *)__pyx_codeobj__190)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1541, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_5order_SolLiq->tp_dict, __pyx_n_s_getQlmi, __pyx_t_2) < 0) __PYX_ERR(0, 1546, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_5order_SolLiq->tp_dict, __pyx_n_s_getQlmi, __pyx_t_2) < 0) __PYX_ERR(0, 1541, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_5order_SolLiq);
 
-  /* "freud/order.pyx":1564
+  /* "freud/order.pyx":1559
  *         return result
  * 
  *     def getClusters(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getClusters function is deprecated in favor "
  *                       "of the clusters class attribute and will be "
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_5order_6SolLiq_23getClusters, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_SolLiq_getClusters, NULL, __pyx_n_s_freud_order, __pyx_d, ((PyObject *)__pyx_codeobj__192)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1564, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_5order_6SolLiq_23getClusters, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_SolLiq_getClusters, NULL, __pyx_n_s_freud_order, __pyx_d, ((PyObject *)__pyx_codeobj__192)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1559, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_5order_SolLiq->tp_dict, __pyx_n_s_getClusters, __pyx_t_2) < 0) __PYX_ERR(0, 1564, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_5order_SolLiq->tp_dict, __pyx_n_s_getClusters, __pyx_t_2) < 0) __PYX_ERR(0, 1559, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_5order_SolLiq);
 
-  /* "freud/order.pyx":1583
+  /* "freud/order.pyx":1578
  *         return result
  * 
  *     def getNumberOfConnections(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getNumberOfConnections function is deprecated in "
  *                       "favor of the num_connections class attribute and will "
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_5order_6SolLiq_25getNumberOfConnections, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_SolLiq_getNumberOfConnections, NULL, __pyx_n_s_freud_order, __pyx_d, ((PyObject *)__pyx_codeobj__194)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1583, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_5order_6SolLiq_25getNumberOfConnections, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_SolLiq_getNumberOfConnections, NULL, __pyx_n_s_freud_order, __pyx_d, ((PyObject *)__pyx_codeobj__194)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1578, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_5order_SolLiq->tp_dict, __pyx_n_s_getNumberOfConnections, __pyx_t_2) < 0) __PYX_ERR(0, 1583, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_5order_SolLiq->tp_dict, __pyx_n_s_getNumberOfConnections, __pyx_t_2) < 0) __PYX_ERR(0, 1578, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_5order_SolLiq);
 
-  /* "freud/order.pyx":1600
+  /* "freud/order.pyx":1595
  *         return result
  * 
  *     def getQldot_ij(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getQldot_ij function is deprecated in favor "
  *                       "of the Ql_dot_ij class attribute and will be "
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_5order_6SolLiq_27getQldot_ij, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_SolLiq_getQldot_ij, NULL, __pyx_n_s_freud_order, __pyx_d, ((PyObject *)__pyx_codeobj__196)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1600, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_5order_6SolLiq_27getQldot_ij, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_SolLiq_getQldot_ij, NULL, __pyx_n_s_freud_order, __pyx_d, ((PyObject *)__pyx_codeobj__196)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1595, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_5order_SolLiq->tp_dict, __pyx_n_s_getQldot_ij, __pyx_t_2) < 0) __PYX_ERR(0, 1600, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_5order_SolLiq->tp_dict, __pyx_n_s_getQldot_ij, __pyx_t_2) < 0) __PYX_ERR(0, 1595, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_5order_SolLiq);
 
-  /* "freud/order.pyx":1612
+  /* "freud/order.pyx":1607
  *         return np
  * 
  *     def getNP(self):             # <<<<<<<<<<<<<<
  *         warnings.warn("The getNumParticles function is deprecated in favor "
  *                       "of the num_particles class attribute and will be "
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_5order_6SolLiq_29getNP, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_SolLiq_getNP, NULL, __pyx_n_s_freud_order, __pyx_d, ((PyObject *)__pyx_codeobj__198)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1612, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_5order_6SolLiq_29getNP, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_SolLiq_getNP, NULL, __pyx_n_s_freud_order, __pyx_d, ((PyObject *)__pyx_codeobj__198)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1607, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_5order_SolLiq->tp_dict, __pyx_n_s_getNP, __pyx_t_2) < 0) __PYX_ERR(0, 1612, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_5order_SolLiq->tp_dict, __pyx_n_s_getNP, __pyx_t_2) < 0) __PYX_ERR(0, 1607, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_5order_SolLiq);
 
@@ -33751,42 +33736,42 @@ if (!__Pyx_RefNanny) {
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_setstate_cython, __pyx_t_2) < 0) __PYX_ERR(1, 3, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/order.pyx":1683
+  /* "freud/order.pyx":1678
  *         self.thisptr = NULL
  * 
  *     def compute(self, points, nlist=None):             # <<<<<<<<<<<<<<
  *         R"""Compute the local rotationally invariant :math:`Q_l` order
  *         parameter.
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_5order_10SolLiqNear_5compute, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_SolLiqNear_compute, NULL, __pyx_n_s_freud_order, __pyx_d, ((PyObject *)__pyx_codeobj__204)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1683, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_5order_10SolLiqNear_5compute, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_SolLiqNear_compute, NULL, __pyx_n_s_freud_order, __pyx_d, ((PyObject *)__pyx_codeobj__204)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1678, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_5order_SolLiqNear->tp_dict, __pyx_n_s_compute, __pyx_t_2) < 0) __PYX_ERR(0, 1683, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_5order_SolLiqNear->tp_dict, __pyx_n_s_compute, __pyx_t_2) < 0) __PYX_ERR(0, 1678, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_5order_SolLiqNear);
 
-  /* "freud/order.pyx":1698
+  /* "freud/order.pyx":1693
  *         return SolLiq.compute(self, points, nlist_)
  * 
  *     def computeSolLiqVariant(self, points, nlist=None):             # <<<<<<<<<<<<<<
  *         R"""Compute the local rotationally invariant :math:`Q_l` order
  *         parameter.
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_5order_10SolLiqNear_7computeSolLiqVariant, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_SolLiqNear_computeSolLiqVariant, NULL, __pyx_n_s_freud_order, __pyx_d, ((PyObject *)__pyx_codeobj__206)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1698, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_5order_10SolLiqNear_7computeSolLiqVariant, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_SolLiqNear_computeSolLiqVariant, NULL, __pyx_n_s_freud_order, __pyx_d, ((PyObject *)__pyx_codeobj__206)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1693, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_5order_SolLiqNear->tp_dict, __pyx_n_s_computeSolLiqVariant, __pyx_t_2) < 0) __PYX_ERR(0, 1698, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_5order_SolLiqNear->tp_dict, __pyx_n_s_computeSolLiqVariant, __pyx_t_2) < 0) __PYX_ERR(0, 1693, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_5order_SolLiqNear);
 
-  /* "freud/order.pyx":1713
+  /* "freud/order.pyx":1708
  *         return SolLiq.computeSolLiqVariant(self, points, nlist_)
  * 
  *     def computeSolLiqNoNorm(self, points, nlist=None):             # <<<<<<<<<<<<<<
  *         R"""Compute the local rotationally invariant :math:`Q_l` order
  *         parameter.
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_5order_10SolLiqNear_9computeSolLiqNoNorm, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_SolLiqNear_computeSolLiqNoNorm, NULL, __pyx_n_s_freud_order, __pyx_d, ((PyObject *)__pyx_codeobj__208)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1713, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_5order_10SolLiqNear_9computeSolLiqNoNorm, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_SolLiqNear_computeSolLiqNoNorm, NULL, __pyx_n_s_freud_order, __pyx_d, ((PyObject *)__pyx_codeobj__208)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1708, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_5order_SolLiqNear->tp_dict, __pyx_n_s_computeSolLiqNoNorm, __pyx_t_2) < 0) __PYX_ERR(0, 1713, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_5order_SolLiqNear->tp_dict, __pyx_n_s_computeSolLiqNoNorm, __pyx_t_2) < 0) __PYX_ERR(0, 1708, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   PyType_Modified(__pyx_ptype_5freud_5order_SolLiqNear);
 
@@ -33811,222 +33796,222 @@ if (!__Pyx_RefNanny) {
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_setstate_cython, __pyx_t_2) < 0) __PYX_ERR(1, 3, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/order.pyx":1729
+  /* "freud/order.pyx":1724
  * 
  * 
  * class BondOrder(_EBO):             # <<<<<<<<<<<<<<
- *     R"""**Deprecated** Compute the bond order diagram for the system of particles.
- * 
+ *     def __init__(self, rmax, k, n, n_bins_t, n_bins_p):
+ *         warnings.warn("This class is deprecated, use "
  */
-  __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1729, __pyx_L1_error)
+  __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1724, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_INCREF(((PyObject *)__pyx_ptype_5freud_11environment_BondOrder));
   __Pyx_GIVEREF(((PyObject *)__pyx_ptype_5freud_11environment_BondOrder));
   PyTuple_SET_ITEM(__pyx_t_2, 0, ((PyObject *)__pyx_ptype_5freud_11environment_BondOrder));
-  __pyx_t_1 = __Pyx_CalculateMetaclass(NULL, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1729, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CalculateMetaclass(NULL, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1724, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_4 = __Pyx_Py3MetaclassPrepare(__pyx_t_1, __pyx_t_2, __pyx_n_s_BondOrder, __pyx_n_s_BondOrder, (PyObject *) NULL, __pyx_n_s_freud_order, __pyx_kp_s_Deprecated_Compute_the_bond_ord); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1729, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_Py3MetaclassPrepare(__pyx_t_1, __pyx_t_2, __pyx_n_s_BondOrder, __pyx_n_s_BondOrder, (PyObject *) NULL, __pyx_n_s_freud_order, (PyObject *) NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1724, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
 
-  /* "freud/order.pyx":1741
- *     """
+  /* "freud/order.pyx":1725
  * 
+ * class BondOrder(_EBO):
  *     def __init__(self, rmax, k, n, n_bins_t, n_bins_p):             # <<<<<<<<<<<<<<
  *         warnings.warn("This class is deprecated, use "
  *                       "freud.environment.BondOrder instead!",
  */
-  __pyx_t_5 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_5order_9BondOrder_1__init__, 0, __pyx_n_s_BondOrder___init, NULL, __pyx_n_s_freud_order, __pyx_d, ((PyObject *)__pyx_codeobj__214)); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1741, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_5order_9BondOrder_1__init__, 0, __pyx_n_s_BondOrder___init, NULL, __pyx_n_s_freud_order, __pyx_d, ((PyObject *)__pyx_codeobj__214)); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1725, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  if (__Pyx_SetNameInClass(__pyx_t_4, __pyx_n_s_init, __pyx_t_5) < 0) __PYX_ERR(0, 1741, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_4, __pyx_n_s_init, __pyx_t_5) < 0) __PYX_ERR(0, 1725, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "freud/order.pyx":1729
+  /* "freud/order.pyx":1724
  * 
  * 
  * class BondOrder(_EBO):             # <<<<<<<<<<<<<<
- *     R"""**Deprecated** Compute the bond order diagram for the system of particles.
- * 
+ *     def __init__(self, rmax, k, n, n_bins_t, n_bins_p):
+ *         warnings.warn("This class is deprecated, use "
  */
-  __pyx_t_5 = __Pyx_Py3ClassCreate(__pyx_t_1, __pyx_n_s_BondOrder, __pyx_t_2, __pyx_t_4, NULL, 0, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1729, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_Py3ClassCreate(__pyx_t_1, __pyx_n_s_BondOrder, __pyx_t_2, __pyx_t_4, NULL, 0, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1724, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_BondOrder, __pyx_t_5) < 0) __PYX_ERR(0, 1729, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_BondOrder, __pyx_t_5) < 0) __PYX_ERR(0, 1724, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/order.pyx":1747
+  /* "freud/order.pyx":1731
  * 
  * 
  * class LocalDescriptors(_ELD):             # <<<<<<<<<<<<<<
- *     R"""**Deprecated** Compute a set of descriptors (a numerical "fingerprint")
- *     of a particle's local environment.
+ *     def __init__(self, num_neighbors, lmax, rmax, negative_m=True):
+ *         warnings.warn("This class is deprecated, use "
  */
-  __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1747, __pyx_L1_error)
+  __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1731, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_INCREF(((PyObject *)__pyx_ptype_5freud_11environment_LocalDescriptors));
   __Pyx_GIVEREF(((PyObject *)__pyx_ptype_5freud_11environment_LocalDescriptors));
   PyTuple_SET_ITEM(__pyx_t_2, 0, ((PyObject *)__pyx_ptype_5freud_11environment_LocalDescriptors));
-  __pyx_t_1 = __Pyx_CalculateMetaclass(NULL, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1747, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CalculateMetaclass(NULL, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1731, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_4 = __Pyx_Py3MetaclassPrepare(__pyx_t_1, __pyx_t_2, __pyx_n_s_LocalDescriptors, __pyx_n_s_LocalDescriptors, (PyObject *) NULL, __pyx_n_s_freud_order, __pyx_kp_s_Deprecated_Compute_a_set_of_des); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1747, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_Py3MetaclassPrepare(__pyx_t_1, __pyx_t_2, __pyx_n_s_LocalDescriptors, __pyx_n_s_LocalDescriptors, (PyObject *) NULL, __pyx_n_s_freud_order, (PyObject *) NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1731, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
 
-  /* "freud/order.pyx":1760
- *     """
+  /* "freud/order.pyx":1732
  * 
+ * class LocalDescriptors(_ELD):
  *     def __init__(self, num_neighbors, lmax, rmax, negative_m=True):             # <<<<<<<<<<<<<<
  *         warnings.warn("This class is deprecated, use "
  *                       "freud.environment.LocalDescriptors instead!",
  */
-  __pyx_t_5 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_5order_16LocalDescriptors_1__init__, 0, __pyx_n_s_LocalDescriptors___init, NULL, __pyx_n_s_freud_order, __pyx_d, ((PyObject *)__pyx_codeobj__216)); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1760, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_5order_16LocalDescriptors_1__init__, 0, __pyx_n_s_LocalDescriptors___init, NULL, __pyx_n_s_freud_order, __pyx_d, ((PyObject *)__pyx_codeobj__216)); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1732, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_CyFunction_SetDefaultsTuple(__pyx_t_5, __pyx_tuple__217);
-  if (__Pyx_SetNameInClass(__pyx_t_4, __pyx_n_s_init, __pyx_t_5) < 0) __PYX_ERR(0, 1760, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_4, __pyx_n_s_init, __pyx_t_5) < 0) __PYX_ERR(0, 1732, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "freud/order.pyx":1747
+  /* "freud/order.pyx":1731
  * 
  * 
  * class LocalDescriptors(_ELD):             # <<<<<<<<<<<<<<
- *     R"""**Deprecated** Compute a set of descriptors (a numerical "fingerprint")
- *     of a particle's local environment.
+ *     def __init__(self, num_neighbors, lmax, rmax, negative_m=True):
+ *         warnings.warn("This class is deprecated, use "
  */
-  __pyx_t_5 = __Pyx_Py3ClassCreate(__pyx_t_1, __pyx_n_s_LocalDescriptors, __pyx_t_2, __pyx_t_4, NULL, 0, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1747, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_Py3ClassCreate(__pyx_t_1, __pyx_n_s_LocalDescriptors, __pyx_t_2, __pyx_t_4, NULL, 0, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1731, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_LocalDescriptors, __pyx_t_5) < 0) __PYX_ERR(0, 1747, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_LocalDescriptors, __pyx_t_5) < 0) __PYX_ERR(0, 1731, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/order.pyx":1766
+  /* "freud/order.pyx":1738
  * 
  * 
  * class MatchEnv(_EME):             # <<<<<<<<<<<<<<
- *     R"""**Deprecated** Clusters particles according to whether their local
- *     environments match or not, according to various shape matching metrics.
+ *     def __init__(self, box, rmax, k):
+ *         warnings.warn("This class is deprecated, use "
  */
-  __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1766, __pyx_L1_error)
+  __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1738, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_INCREF(((PyObject *)__pyx_ptype_5freud_11environment_MatchEnv));
   __Pyx_GIVEREF(((PyObject *)__pyx_ptype_5freud_11environment_MatchEnv));
   PyTuple_SET_ITEM(__pyx_t_2, 0, ((PyObject *)__pyx_ptype_5freud_11environment_MatchEnv));
-  __pyx_t_1 = __Pyx_CalculateMetaclass(NULL, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1766, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CalculateMetaclass(NULL, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1738, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_4 = __Pyx_Py3MetaclassPrepare(__pyx_t_1, __pyx_t_2, __pyx_n_s_MatchEnv, __pyx_n_s_MatchEnv, (PyObject *) NULL, __pyx_n_s_freud_order, __pyx_kp_s_Deprecated_Clusters_particles_a); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1766, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_Py3MetaclassPrepare(__pyx_t_1, __pyx_t_2, __pyx_n_s_MatchEnv, __pyx_n_s_MatchEnv, (PyObject *) NULL, __pyx_n_s_freud_order, (PyObject *) NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1738, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
 
-  /* "freud/order.pyx":1779
- *     """
+  /* "freud/order.pyx":1739
  * 
+ * class MatchEnv(_EME):
  *     def __init__(self, box, rmax, k):             # <<<<<<<<<<<<<<
  *         warnings.warn("This class is deprecated, use "
  *                       "freud.environment.MatchEnv instead!",
  */
-  __pyx_t_5 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_5order_8MatchEnv_1__init__, 0, __pyx_n_s_MatchEnv___init, NULL, __pyx_n_s_freud_order, __pyx_d, ((PyObject *)__pyx_codeobj__219)); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1779, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_5order_8MatchEnv_1__init__, 0, __pyx_n_s_MatchEnv___init, NULL, __pyx_n_s_freud_order, __pyx_d, ((PyObject *)__pyx_codeobj__219)); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1739, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  if (__Pyx_SetNameInClass(__pyx_t_4, __pyx_n_s_init, __pyx_t_5) < 0) __PYX_ERR(0, 1779, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_4, __pyx_n_s_init, __pyx_t_5) < 0) __PYX_ERR(0, 1739, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "freud/order.pyx":1766
+  /* "freud/order.pyx":1738
  * 
  * 
  * class MatchEnv(_EME):             # <<<<<<<<<<<<<<
- *     R"""**Deprecated** Clusters particles according to whether their local
- *     environments match or not, according to various shape matching metrics.
+ *     def __init__(self, box, rmax, k):
+ *         warnings.warn("This class is deprecated, use "
  */
-  __pyx_t_5 = __Pyx_Py3ClassCreate(__pyx_t_1, __pyx_n_s_MatchEnv, __pyx_t_2, __pyx_t_4, NULL, 0, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1766, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_Py3ClassCreate(__pyx_t_1, __pyx_n_s_MatchEnv, __pyx_t_2, __pyx_t_4, NULL, 0, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1738, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_MatchEnv, __pyx_t_5) < 0) __PYX_ERR(0, 1766, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_MatchEnv, __pyx_t_5) < 0) __PYX_ERR(0, 1738, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/order.pyx":1785
+  /* "freud/order.pyx":1745
  * 
  * 
  * class Pairing2D(_EP):             # <<<<<<<<<<<<<<
- *     R"""**Deprecated** Compute pairs for the system of particles.
- * 
+ *     def __init__(self, rmax, k, compDotTol):
+ *         warnings.warn("This class is deprecated, use "
  */
-  __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1785, __pyx_L1_error)
+  __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1745, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_INCREF(((PyObject *)__pyx_ptype_5freud_11environment_Pairing2D));
   __Pyx_GIVEREF(((PyObject *)__pyx_ptype_5freud_11environment_Pairing2D));
   PyTuple_SET_ITEM(__pyx_t_2, 0, ((PyObject *)__pyx_ptype_5freud_11environment_Pairing2D));
-  __pyx_t_1 = __Pyx_CalculateMetaclass(NULL, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1785, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CalculateMetaclass(NULL, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1745, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_4 = __Pyx_Py3MetaclassPrepare(__pyx_t_1, __pyx_t_2, __pyx_n_s_Pairing2D, __pyx_n_s_Pairing2D, (PyObject *) NULL, __pyx_n_s_freud_order, __pyx_kp_s_Deprecated_Compute_pairs_for_th); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1785, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_Py3MetaclassPrepare(__pyx_t_1, __pyx_t_2, __pyx_n_s_Pairing2D, __pyx_n_s_Pairing2D, (PyObject *) NULL, __pyx_n_s_freud_order, (PyObject *) NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1745, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
 
-  /* "freud/order.pyx":1797
- *     """
+  /* "freud/order.pyx":1746
  * 
+ * class Pairing2D(_EP):
  *     def __init__(self, rmax, k, compDotTol):             # <<<<<<<<<<<<<<
  *         warnings.warn("This class is deprecated, use "
  *                       "freud.bond instead!", FreudDeprecationWarning)
  */
-  __pyx_t_5 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_5order_9Pairing2D_1__init__, 0, __pyx_n_s_Pairing2D___init, NULL, __pyx_n_s_freud_order, __pyx_d, ((PyObject *)__pyx_codeobj__221)); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1797, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_5order_9Pairing2D_1__init__, 0, __pyx_n_s_Pairing2D___init, NULL, __pyx_n_s_freud_order, __pyx_d, ((PyObject *)__pyx_codeobj__221)); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1746, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  if (__Pyx_SetNameInClass(__pyx_t_4, __pyx_n_s_init, __pyx_t_5) < 0) __PYX_ERR(0, 1797, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_4, __pyx_n_s_init, __pyx_t_5) < 0) __PYX_ERR(0, 1746, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "freud/order.pyx":1785
+  /* "freud/order.pyx":1745
  * 
  * 
  * class Pairing2D(_EP):             # <<<<<<<<<<<<<<
- *     R"""**Deprecated** Compute pairs for the system of particles.
- * 
+ *     def __init__(self, rmax, k, compDotTol):
+ *         warnings.warn("This class is deprecated, use "
  */
-  __pyx_t_5 = __Pyx_Py3ClassCreate(__pyx_t_1, __pyx_n_s_Pairing2D, __pyx_t_2, __pyx_t_4, NULL, 0, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1785, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_Py3ClassCreate(__pyx_t_1, __pyx_n_s_Pairing2D, __pyx_t_2, __pyx_t_4, NULL, 0, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1745, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_Pairing2D, __pyx_t_5) < 0) __PYX_ERR(0, 1785, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_Pairing2D, __pyx_t_5) < 0) __PYX_ERR(0, 1745, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/order.pyx":1802
+  /* "freud/order.pyx":1751
  * 
  * 
  * class AngularSeparation(_EAS):             # <<<<<<<<<<<<<<
- *     R"""**Deprecated** Calculates the minimum angles of separation between
- *     particles and references.
+ *     def __init__(self, rmax, n):
+ *         warnings.warn("This class is deprecated, use "
  */
-  __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1802, __pyx_L1_error)
+  __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1751, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_INCREF(((PyObject *)__pyx_ptype_5freud_11environment_AngularSeparation));
   __Pyx_GIVEREF(((PyObject *)__pyx_ptype_5freud_11environment_AngularSeparation));
   PyTuple_SET_ITEM(__pyx_t_2, 0, ((PyObject *)__pyx_ptype_5freud_11environment_AngularSeparation));
-  __pyx_t_1 = __Pyx_CalculateMetaclass(NULL, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1802, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CalculateMetaclass(NULL, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1751, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_4 = __Pyx_Py3MetaclassPrepare(__pyx_t_1, __pyx_t_2, __pyx_n_s_AngularSeparation, __pyx_n_s_AngularSeparation, (PyObject *) NULL, __pyx_n_s_freud_order, __pyx_kp_s_Deprecated_Calculates_the_minim); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1802, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_Py3MetaclassPrepare(__pyx_t_1, __pyx_t_2, __pyx_n_s_AngularSeparation, __pyx_n_s_AngularSeparation, (PyObject *) NULL, __pyx_n_s_freud_order, (PyObject *) NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1751, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
 
-  /* "freud/order.pyx":1815
- *     """
+  /* "freud/order.pyx":1752
  * 
+ * class AngularSeparation(_EAS):
  *     def __init__(self, rmax, n):             # <<<<<<<<<<<<<<
  *         warnings.warn("This class is deprecated, use "
  *                       "freud.environment.AngularSeparation instead!",
  */
-  __pyx_t_5 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_5order_17AngularSeparation_1__init__, 0, __pyx_n_s_AngularSeparation___init, NULL, __pyx_n_s_freud_order, __pyx_d, ((PyObject *)__pyx_codeobj__223)); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1815, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_5order_17AngularSeparation_1__init__, 0, __pyx_n_s_AngularSeparation___init, NULL, __pyx_n_s_freud_order, __pyx_d, ((PyObject *)__pyx_codeobj__223)); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1752, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  if (__Pyx_SetNameInClass(__pyx_t_4, __pyx_n_s_init, __pyx_t_5) < 0) __PYX_ERR(0, 1815, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_4, __pyx_n_s_init, __pyx_t_5) < 0) __PYX_ERR(0, 1752, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "freud/order.pyx":1802
+  /* "freud/order.pyx":1751
  * 
  * 
  * class AngularSeparation(_EAS):             # <<<<<<<<<<<<<<
- *     R"""**Deprecated** Calculates the minimum angles of separation between
- *     particles and references.
+ *     def __init__(self, rmax, n):
+ *         warnings.warn("This class is deprecated, use "
  */
-  __pyx_t_5 = __Pyx_Py3ClassCreate(__pyx_t_1, __pyx_n_s_AngularSeparation, __pyx_t_2, __pyx_t_4, NULL, 0, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1802, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_Py3ClassCreate(__pyx_t_1, __pyx_n_s_AngularSeparation, __pyx_t_2, __pyx_t_4, NULL, 0, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1751, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_AngularSeparation, __pyx_t_5) < 0) __PYX_ERR(0, 1802, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_AngularSeparation, __pyx_t_5) < 0) __PYX_ERR(0, 1751, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;

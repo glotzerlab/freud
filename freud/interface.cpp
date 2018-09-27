@@ -43,11 +43,11 @@
         "name": "freud.interface",
         "sources": [
             "freud/interface.pyx",
-            "cpp/locality/LinkCell.cc",
             "cpp/locality/NeighborList.cc",
+            "cpp/util/HOOMDMatrix.cc",
             "cpp/locality/NearestNeighbors.cc",
-            "cpp/box/Box.cc",
-            "cpp/util/HOOMDMatrix.cc"
+            "cpp/locality/LinkCell.cc",
+            "cpp/box/Box.cc"
         ]
     },
     "module_name": "freud.interface"
