@@ -266,6 +266,8 @@ def find_tbb(tbb_root=None, tbb_include=None, tbb_link=None):
                 logger.warning("Using environment variable TBB_ROOT and "
                                "ignoring {}".format("TBB_LINK" if link
                                                     else "TBB_INCLUDE"))
+            tbb_include = os.path.join(root, 'include')
+            tbb_link = os.path.join(root, 'lib')
         elif include or link:
             raise RuntimeError(err_str)
 
