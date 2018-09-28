@@ -2,19 +2,44 @@
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## v0.11.0 - 2018-09-27
+
+### Added
+* Example notebooks are now shown in the documentation.
+* Many unit tests were added.
+* New class: `freud.environment.LocalBondProjection`.
+* `freud` is now available on the Python Package Index (PyPI) as `freud-analysis`.
+
+### Changed
+* Documentation was revised for several modules.
+* New class `freud.box.ParticleBuffer` was adapted from the previous `VoronoiBuffer` to include support for triclinic boxes.
+* The `bond` and `pmft` modules verify system dimensionality matches the coordinate system used.
+* Minor optimization: arrays are reduced across threads only when necessary.
+
+### Fixed
+* NumPy arrays of lengths 2, 3, 6 are now correctly ducktyped into boxes.
+* Removed internal use of deprecated code.
+* C++ code using `uint` has been changed to `unsigned int`, to improve compiler compatibility.
+
+### Deprecated
+* In `freud.locality.LinkCell`, `computeCellList()` has been replaced by `compute()`.
+
+### Removed
+* The `kspace` module has been removed.
+
 ## v0.10.0 - 2018-08-27
 
 ### Added
-* codecov to track test coverage
+* Codecov to track test coverage.
 * Properties were added to MatchEnv, AngularSeparation, Cubatic/Nematic order parameters, Voronoi.
 
 ### Changed
 * freud uses Cython and setup.py instead of CMake for installation.
 * Properties (not get functions) are the official way to access computed results.
 * Interface module has been improved significantly.
-* density.FloatCF, density.ComplexCF, order parameter documentation is improved
-* Many compute methods now use points, orientations from ref\_points, ref\_orientations if not provided
-* Reset methods have been renamed to `reset`
+* density.FloatCF, density.ComplexCF, order parameter documentation is improved.
+* Many compute methods now use points, orientations from ref\_points, ref\_orientations if not provided.
+* Reset methods have been renamed to `reset`.
 
 ### Fixed
 * `kspace` module had a missing factor of pi in the volume calculation of `FTsphere`.

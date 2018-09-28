@@ -1,9 +1,9 @@
   1030	Eric Harper <harperic@umich.edu>
-   454	Vyas Ramasubramani <vramasub@umich.edu>
-   390	Bradley Dice <bdice@bradleydice.com>
+   565	Vyas Ramasubramani <vramasub@umich.edu>
+   469	Bradley Dice <bdice@bradleydice.com>
    278	Joshua A. Anderson <joaander@umich.edu>
    232	Matthew Spellings <mspells@umich.edu>
-   103	Erin Teich <erteich@umich.edu>
+   108	Erin Teich <erteich@umich.edu>
     66	M. Eric Irrgang <eirrgang@umich.edu>
     53	Chrisy Du <xiyudu@umich.edu>
     40	Antonio Osorio <aosorio@umich.edu>
@@ -16,6 +16,7 @@
     10	Matt Palathingal <mattjose@umich.edu>
      8	Ryan Marson <rmarson@umich.edu>
      6	Yina Geng <yinageng@umich.edu>
+     6	Allen LaCour <alacour@umich.edu>
      6	Tom Grubb <tgrubb@umich.edu>
      5	Alex Dutton <alxdttn@umich.edu>
      5	Carolyn Phillips <phillicl@umich.edu>

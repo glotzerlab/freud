@@ -17,11 +17,6 @@ Order Module
     freud.order.LocalWlNear
     freud.order.SolLiq
     freud.order.SolLiqNear
-    freud.order.BondOrder
-    freud.order.LocalDescriptors
-    freud.order.MatchEnv
-    freud.order.Pairing2D
-    freud.order.AngularSeparation
 
 .. rubric:: Details
 

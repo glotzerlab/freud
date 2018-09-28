@@ -1482,11 +1482,6 @@ cdef class SolLiq:
         return self.box
 
     def setClusteringRadius(self, rcutCluster):
-        R"""Set the clustering radius.
-
-        Args:
-            rcutCluster (float): Radius for the cluster finding.
-        """
         warnings.warn("Use constructor arguments instead of this setter. "
                       "This setter will be removed in the future.",
                       FreudDeprecationWarning)
@@ -1727,17 +1722,6 @@ cdef class SolLiqNear(SolLiq):
 
 
 class BondOrder(_EBO):
-    R"""**Deprecated** Compute the bond order diagram for the system of particles.
-
-    .. note::
-        This class is only retained for backwards compatibility.
-        Please use :class:`freud.environment.BondOrder` instead.
-
-    .. deprecated:: 0.8.2
-       Use :class:`freud.environment.BondOrder` instead.
-
-    """
-
     def __init__(self, rmax, k, n, n_bins_t, n_bins_p):
         warnings.warn("This class is deprecated, use "
                       "freud.environment.BondOrder instead!",
@@ -1745,18 +1729,6 @@ class BondOrder(_EBO):
 
 
 class LocalDescriptors(_ELD):
-    R"""**Deprecated** Compute a set of descriptors (a numerical "fingerprint")
-    of a particle's local environment.
-
-    .. note::
-        This class is only retained for backwards compatibility.
-        Please use :class:`freud.environment.LocalDescriptors` instead.
-
-    .. deprecated:: 0.8.2
-       Use :class:`freud.environment.LocalDescriptors` instead.
-
-    """
-
     def __init__(self, num_neighbors, lmax, rmax, negative_m=True):
         warnings.warn("This class is deprecated, use "
                       "freud.environment.LocalDescriptors instead!",
@@ -1764,18 +1736,6 @@ class LocalDescriptors(_ELD):
 
 
 class MatchEnv(_EME):
-    R"""**Deprecated** Clusters particles according to whether their local
-    environments match or not, according to various shape matching metrics.
-
-    .. note::
-        This class is only retained for backwards compatibility.
-        Please use :class:`freud.environment.MatchEnv` instead.
-
-    .. deprecated:: 0.8.2
-       Use :class:`freud.environment.MatchEnv` instead.
-
-    """
-
     def __init__(self, box, rmax, k):
         warnings.warn("This class is deprecated, use "
                       "freud.environment.MatchEnv instead!",
@@ -1783,35 +1743,12 @@ class MatchEnv(_EME):
 
 
 class Pairing2D(_EP):
-    R"""**Deprecated** Compute pairs for the system of particles.
-
-    .. note::
-        This class is only retained for backwards compatibility.
-        Please use :mod:`freud.bond` instead.
-
-    .. deprecated:: 0.8.2
-       Use :mod:`freud.bond` instead.
-
-    """
-
     def __init__(self, rmax, k, compDotTol):
         warnings.warn("This class is deprecated, use "
                       "freud.bond instead!", FreudDeprecationWarning)
 
 
 class AngularSeparation(_EAS):
-    R"""**Deprecated** Calculates the minimum angles of separation between
-    particles and references.
-
-    .. note::
-        This class is only retained for backwards compatibility.
-        Please use :class:`freud.environment.AngularSeparation` instead.
-
-    .. deprecated:: 0.8.2
-       Use :class:`freud.environment.AngularSeparation` instead.
-
-    """
-
     def __init__(self, rmax, n):
         warnings.warn("This class is deprecated, use "
                       "freud.environment.AngularSeparation instead!",

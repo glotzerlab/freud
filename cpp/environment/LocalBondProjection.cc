@@ -16,7 +16,7 @@ using namespace tbb;
 namespace freud { namespace environment {
 
 LocalBondProjection::LocalBondProjection()
-    : m_Np(0), m_Nref(0), m_Nequiv(0), m_Nproj(0), m_tot_num_neigh(0)
+    : m_Np(0), m_Nref(0), m_Nproj(0), m_Nequiv(0), m_tot_num_neigh(0)
     {
     }
 

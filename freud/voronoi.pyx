@@ -94,11 +94,6 @@ class Voronoi:
         self._buff = buff
 
     def setBox(self, box):
-        R"""Reset the simulation box.
-
-        Args:
-            box (:class:`freud.box.Box`): Simulation box.
-        """
         warnings.warn("Use the box with .compute() instead of this setter. "
                       "This setter will be removed in the future.",
                       FreudDeprecationWarning)
@@ -106,11 +101,6 @@ class Voronoi:
         self._box = b
 
     def setBufferWidth(self, buff):
-        R"""Reset the buffer width.
-
-        Args:
-            buff (float): Buffer width.
-        """
         warnings.warn("Use constructor arguments instead of this setter. "
                       "This setter will be removed in the future.",
                       FreudDeprecationWarning)

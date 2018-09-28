@@ -1421,6 +1421,8 @@ cdef class LocalBondProjection:
 
     .. moduleauthor:: Erin Teich <erteich@umich.edu>
 
+    .. versionadded:: 0.11
+
     Args:
         rmax (float):
             Cutoff radius.
