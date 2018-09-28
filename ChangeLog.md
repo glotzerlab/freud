@@ -30,7 +30,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## v0.10.0 - 2018-08-27
 
 ### Added
-* codecov to track test coverage.
+* Codecov to track test coverage.
 * Properties were added to MatchEnv, AngularSeparation, Cubatic/Nematic order parameters, Voronoi.
 
 ### Changed
