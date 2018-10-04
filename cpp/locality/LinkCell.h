@@ -165,9 +165,9 @@ class IteratorCellShell
                         m_current_x = m_range;
                         }
                     break;
-                    // +x wedge: iterate over y and (possibly) z
-                    // for r in itertools.product([N], range(N, -N, -1), zs):
-                    //     yield r
+                // +x wedge: iterate over y and (possibly) z
+                // for r in itertools.product([N], range(N, -N, -1), zs):
+                //     yield r
                 case 1:
                     --m_current_y;
                     wrapped = m_current_y <= -m_range;
@@ -184,9 +184,9 @@ class IteratorCellShell
                         m_current_y = -m_range;
                         }
                     break;
-                    // -y wedge: iterate over x and (possibly) z
-                    // for r in itertools.product(range(N, -N, -1), [-N], zs):
-                    //     yield r
+                // -y wedge: iterate over x and (possibly) z
+                // for r in itertools.product(range(N, -N, -1), [-N], zs):
+                //     yield r
                 case 2:
                     --m_current_x;
                     wrapped = m_current_x <= -m_range;
@@ -203,9 +203,9 @@ class IteratorCellShell
                         m_current_x = -m_range;
                         }
                     break;
-                    // -x wedge: iterate over y and (possibly) z
-                    // for r in itertools.product([-N], range(-N, N), zs):
-                    //     yield r
+                // -x wedge: iterate over y and (possibly) z
+                // for r in itertools.product([-N], range(-N, N), zs):
+                //     yield r
                 case 3:
                     ++m_current_y;
                     wrapped = m_current_y >= m_range;
@@ -229,16 +229,16 @@ class IteratorCellShell
                             }
                         }
                     break;
-                    // -z face and +z face: iterate over x and y
-                    // grid = list(range(-N, N + 1))
-                    // if threeD:
-                    //     # make front and back in z
-                    //     for (x, y) in itertools.product(grid, grid):
-                    //         yield (x, y, N)
-                    //         if N > 0:
-                    //             yield (x, y, -N)
-                    // elif N == 0:
-                    //     yield (0, 0, 0)
+                // -z face and +z face: iterate over x and y
+                // grid = list(range(-N, N + 1))
+                // if threeD:
+                //     # make front and back in z
+                //     for (x, y) in itertools.product(grid, grid):
+                //         yield (x, y, N)
+                //         if N > 0:
+                //             yield (x, y, -N)
+                // elif N == 0:
+                //     yield (0, 0, 0)
                 case 4:
                 case 5:
                 default:
