@@ -20,12 +20,12 @@ namespace freud { namespace locality {
 // This is only used to initialize a pointer for the new triclinic setup
 // this shouldn't be needed any longer, but will be left for now
 // but until then, enjoy this mediocre hack
-LinkCell::LinkCell() : m_box(box::Box()), m_Np(0), m_cell_width(0), m_neighbor_list()
+LinkCell::LinkCell() : m_box(box::Box()), m_Np(0), m_cell_width(0), m_compute_cell_neighbors(true), m_neighbor_list()
     {
     m_celldim = vec3<unsigned int>(0,0,0);
     }
 
-LinkCell::LinkCell(const box::Box& box, float cell_width) : m_box(box), m_Np(0), m_cell_width(cell_width), m_neighbor_list()
+LinkCell::LinkCell(const box::Box& box, float cell_width) : m_box(box), m_Np(0), m_cell_width(cell_width), m_compute_cell_neighbors(true), m_neighbor_list()
     {
     // Check if the cell width is too wide for the box
     m_celldim = computeDimensions(m_box, m_cell_width);
@@ -50,7 +50,6 @@ LinkCell::LinkCell(const box::Box& box, float cell_width) : m_box(box), m_Np(0),
             }
         }
     m_cell_index = Index3D(m_celldim.x, m_celldim.y, m_celldim.z);
-    computeCellNeighbors();
     }
 
 void LinkCell::setCellWidth(float cell_width)
@@ -84,8 +83,8 @@ void LinkCell::setCellWidth(float cell_width)
                 {
                 throw runtime_error("At least one cell must be present");
                 }
-            m_celldim  = celldim;
-            computeCellNeighbors();
+            m_celldim = celldim;
+            m_compute_cell_neighbors = true;
             }
         m_cell_width = cell_width;
         }
@@ -120,8 +119,8 @@ void LinkCell::updateBox(const box::Box& box)
             {
             throw runtime_error("At least one cell must be present");
             }
-        m_celldim  = celldim;
-        computeCellNeighbors();
+        m_celldim = celldim;
+        m_compute_cell_neighbors = true;
         }
     }
 
@@ -383,6 +382,17 @@ void LinkCell::computeCellNeighbors()
                 // sort the list
                 sort(m_cell_neighbors[cur_cell].begin(), m_cell_neighbors[cur_cell].end());
                 }
+    m_compute_cell_neighbors = false;
+    }
+
+//! Get a list of neighbors to a cell
+const std::vector<unsigned int>& LinkCell::getCellNeighbors(unsigned int cell)
+    {
+    if (m_compute_cell_neighbors == true)
+        {
+        computeCellNeighbors();
+        }
+    return m_cell_neighbors[cell];
     }
 
 }; }; // end namespace freud::locality
