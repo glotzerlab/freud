@@ -414,7 +414,7 @@ class LinkCell
             }
 
         //! Get a list of neighbors to a cell
-        const std::vector<unsigned int>& getCellNeighbors(unsigned int cell);
+        std::vector<unsigned int> getCellNeighbors(unsigned int cell);
 
         //! Compute the cell list
         void computeCellList(box::Box& box, const vec3<float> *points, unsigned int Np);
@@ -443,13 +443,7 @@ class LinkCell
 
         std::shared_ptr<unsigned int> m_cell_list;  //!< The cell list last computed
 
-        bool m_compute_cell_neighbors; //!< Whether the cell neighbors need to be computed
-        std::vector< std::vector<unsigned int> > m_cell_neighbors;  //!< List of cell neighbors to each cell
-
         NeighborList m_neighbor_list;  //!< Stored neighbor list
-
-        //! Helper function to compute cell neighbors
-        void computeCellNeighbors();
     };
 
 }; }; // end namespace freud::locality

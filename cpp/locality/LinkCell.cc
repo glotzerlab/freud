@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include <tbb/tbb.h>
 #include <tuple>
+#include <unordered_set>
 
 #include "LinkCell.h"
 
@@ -20,12 +21,12 @@ namespace freud { namespace locality {
 // This is only used to initialize a pointer for the new triclinic setup
 // this shouldn't be needed any longer, but will be left for now
 // but until then, enjoy this mediocre hack
-LinkCell::LinkCell() : m_box(box::Box()), m_Np(0), m_cell_width(0), m_compute_cell_neighbors(true), m_neighbor_list()
+LinkCell::LinkCell() : m_box(box::Box()), m_Np(0), m_cell_width(0), m_neighbor_list()
     {
     m_celldim = vec3<unsigned int>(0,0,0);
     }
 
-LinkCell::LinkCell(const box::Box& box, float cell_width) : m_box(box), m_Np(0), m_cell_width(cell_width), m_compute_cell_neighbors(true), m_neighbor_list()
+LinkCell::LinkCell(const box::Box& box, float cell_width) : m_box(box), m_Np(0), m_cell_width(cell_width), m_neighbor_list()
     {
     // Check if the cell width is too wide for the box
     m_celldim = computeDimensions(m_box, m_cell_width);
@@ -84,7 +85,6 @@ void LinkCell::setCellWidth(float cell_width)
                 throw runtime_error("At least one cell must be present");
                 }
             m_celldim = celldim;
-            m_compute_cell_neighbors = true;
             }
         m_cell_width = cell_width;
         }
@@ -120,7 +120,6 @@ void LinkCell::updateBox(const box::Box& box)
             throw runtime_error("At least one cell must be present");
             }
         m_celldim = celldim;
-        m_compute_cell_neighbors = true;
         }
     }
 
@@ -295,104 +294,25 @@ void LinkCell::compute(box::Box& box,
             });
     }
 
-void LinkCell::computeCellNeighbors()
-    {
-    // clear the list
-    m_cell_neighbors.clear();
-    m_cell_neighbors.resize(getNumCells());
-
-    // for each cell
-    for (unsigned int k = 0; k < m_cell_index.getD(); k++)
-        for (unsigned int j = 0; j < m_cell_index.getH(); j++)
-            for (unsigned int i = 0; i < m_cell_index.getW(); i++)
-                {
-                // clear the list
-                unsigned int cur_cell = m_cell_index(i,j,k);
-                m_cell_neighbors[cur_cell].clear();
-
-                // loop over the neighbor cells
-                int starti, startj, startk;
-                int endi, endj, endk;
-                if (m_celldim.x < 3)
-                    {
-                    starti = (int)i;
-                    }
-                else
-                    {
-                    starti = (int)i - 1;
-                    }
-                if (m_celldim.y < 3)
-                    {
-                    startj = (int)j;
-                    }
-                else
-                    {
-                    startj = (int)j - 1;
-                    }
-                if (m_celldim.z < 3)
-                    {
-                    startk = (int)k;
-                    }
-                else
-                    {
-                    startk = (int)k - 1;
-                    }
-
-                if (m_celldim.x < 2)
-                    {
-                    endi = (int)i;
-                    }
-                else
-                    {
-                    endi = (int)i + 1;
-                    }
-                if (m_celldim.y < 2)
-                    {
-                    endj = (int)j;
-                    }
-                else
-                    {
-                    endj = (int)j + 1;
-                    }
-                if (m_celldim.z < 2)
-                    {
-                    endk = (int)k;
-                    }
-                else
-                    {
-                    endk = (int)k + 1;
-                    }
-                if (m_box.is2D())
-                    startk = endk = k;
-
-                for (int neighk = startk; neighk <= endk; neighk++)
-                    for (int neighj = startj; neighj <= endj; neighj++)
-                        for (int neighi = starti; neighi <= endi; neighi++)
-                            {
-                            // wrap back into the box
-                            int wrapi = (m_cell_index.getW()+neighi) % m_cell_index.getW();
-                            int wrapj = (m_cell_index.getH()+neighj) % m_cell_index.getH();
-                            int wrapk = (m_cell_index.getD()+neighk) % m_cell_index.getD();
-
-                            unsigned int neigh_cell = m_cell_index(wrapi, wrapj, wrapk);
-                            // add to the list
-                            m_cell_neighbors[cur_cell].push_back(neigh_cell);
-                            }
-
-                // sort the list
-                sort(m_cell_neighbors[cur_cell].begin(), m_cell_neighbors[cur_cell].end());
-                }
-    m_compute_cell_neighbors = false;
-    }
-
 //! Get a list of neighbors to a cell
-const std::vector<unsigned int>& LinkCell::getCellNeighbors(unsigned int cell)
+std::vector<unsigned int> LinkCell::getCellNeighbors(unsigned int cell)
     {
-    if (m_compute_cell_neighbors == true)
+    std::unordered_set<unsigned int> neighbor_set;
+    const vec3<unsigned int> center_cell = m_cell_index(cell);
+    for (IteratorCellShell neigh_cell_iter(0, m_box.is2D());
+            neigh_cell_iter != IteratorCellShell(2, m_box.is2D());
+            ++neigh_cell_iter)
         {
-        computeCellNeighbors();
+            const vec3<int> neighbor_cell_delta(*neigh_cell_iter);
+            const unsigned int neighbor_cell(m_cell_index(
+                    (m_cell_index.getW() + center_cell.x + neighbor_cell_delta.x) % m_cell_index.getW(),
+                    (m_cell_index.getH() + center_cell.y + neighbor_cell_delta.y) % m_cell_index.getH(),
+                    (m_cell_index.getD() + center_cell.z + neighbor_cell_delta.z) % m_cell_index.getD()));
+            neighbor_set.insert(neighbor_cell);
         }
-    return m_cell_neighbors[cell];
+    std::vector<unsigned int> neighbor_cells(neighbor_set.begin(), neighbor_set.end());
+    sort(neighbor_cells.begin(), neighbor_cells.end());
+    return neighbor_cells;
     }
 
 }; }; // end namespace freud::locality
