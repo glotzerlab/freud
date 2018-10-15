@@ -138,13 +138,14 @@ args, extras = parser.parse_known_args()
 if args.nthreads > 1:
     # Make sure number of threads to use gets passed through to setup.
     extras.extend(["-j", str(args.nthreads)])
-sys.argv = ['setup.py'] + extras
-
 
 # Override argparse default helping so that setup can proceed.
 if args.help:
     parser.print_help()
     print("\n\nThe subsequent help is for standard setup.py usage.\n\n")
+    extras.append('-h')
+
+sys.argv = ['setup.py'] + extras
 
 
 #######################
