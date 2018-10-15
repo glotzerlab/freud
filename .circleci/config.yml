@@ -11,6 +11,11 @@ references:
       - image: vramasub/freud_py36_arch:20180124
     working_directory: ~/ci/freud
 
+  container_manylinux: &container_manylinux
+    docker:
+      - image: quay.io/pypa/manylinux1_x86_64
+    working_directory: ~/ci/freud
+
   load_code: &load_code
     checkout
 
@@ -74,6 +79,51 @@ references:
       - *test_cov
       - *store
 
+  build_wheels: &build_wheels
+    steps:
+      - *load_code
+      - run:
+          name: Install TBB and compile wheels
+          working_directory: ~/ci/
+          command: |
+            # Build TBB
+            git clone https://github.com/01org/tbb.git
+            cd tbb
+            make
+            BUILD_DIR=$(find build -name linux*release)
+            cd ${BUILD_DIR}
+            source tbbvars.sh
+            cd ~/
+
+            # Build wheels
+            for PYBIN in /opt/python/*/bin; do
+                echo Building for `${PYBIN}/python --version`
+                "${PYBIN}/pip" install -r ~/ci/freud/requirements.txt
+                "${PYBIN}/pip" wheel ~/ci/freud/ -w ~/wheelhouse/ --no-deps --progress-bar=off
+                break
+            done
+
+            # Update RPath for wheels
+            for whl in ~/wheelhouse/freud*.whl; do
+                auditwheel repair "$whl" -w ~/ci/freud/wheelhouse/
+            done
+
+            # Install from and test all wheels
+            for PYBIN in /opt/python/*/bin/; do
+                "${PYBIN}/pip" install freud_analysis --no-index -f ~/ci/freud/wheelhouse
+                cd ~/ci/freud/tests
+                "${PYBIN}/python" -m unittest discover . -v
+                break
+            done
+
+            # Build source distribution using whichever Python appears last
+            cd ..
+            "${PYBIN}/python" setup.py sdist --dist-dir ~/ci/freud/wheelhouse/
+
+            "${PYBIN}/pip" install --user twine
+            "${PYBIN}/python" -m twine upload --repository-url https://test.pypi.org/legacy/ --username vramasub --password ${PYPI_PASSWORD} ~/ci/freud/wheelhouse/*
+
+
 jobs:
   test-py27:
     <<: *test_container_config_ubuntu
@@ -92,6 +142,10 @@ jobs:
     environment:
       PYVER: "3.6"
     <<: *build_and_test_with_cov
+
+  pypi-linux-wheels:
+    <<: *container_manylinux
+    <<: *build_wheels
 
 workflows:
   version: 2
