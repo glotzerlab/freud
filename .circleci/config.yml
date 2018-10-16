@@ -16,6 +16,10 @@ references:
       - image: quay.io/pypa/manylinux1_x86_64
     working_directory: ~/ci/freud
 
+  container_osx: &container_osx
+    macos:
+      xcode: "9.0"
+
   load_code: &load_code
     checkout
 
@@ -79,11 +83,11 @@ references:
       - *test_cov
       - *store
 
-  build_wheels: &build_wheels
+  build_linux_wheels: &build_linux_wheels
     steps:
       - *load_code
       - run:
-          name: Install TBB and compile wheels
+          name: Install TBB and compile Mac wheels
           working_directory: ~/ci/
           command: |
             # Build TBB
@@ -91,6 +95,61 @@ references:
             cd tbb
             make
             BUILD_DIR=$(find build -name linux*release)
+            cd ${BUILD_DIR}
+            source tbbvars.sh
+            cd ~/
+
+            # Build wheels
+            for PYBIN in /opt/python/*/bin; do
+                echo Building for `${PYBIN}/python --version`
+                "${PYBIN}/pip" install -r ~/ci/freud/requirements.txt
+                "${PYBIN}/pip" wheel ~/ci/freud/ -w ~/wheelhouse/ --no-deps --progress-bar=off
+            done
+
+            # Update RPath for wheels
+            for whl in ~/wheelhouse/freud*.whl; do
+                auditwheel repair "$whl" -w ~/ci/freud/wheelhouse/
+            done
+
+            # Install from and test all wheels
+            for PYBIN in /opt/python/*/bin/; do
+                "${PYBIN}/pip" install freud_analysis --no-index -f ~/ci/freud/wheelhouse
+                cd ~/ci/freud/tests
+                "${PYBIN}/python" -m unittest discover . -v
+            done
+
+            # Build source distribution using whichever Python appears last
+            cd ..
+            "${PYBIN}/python" setup.py sdist --dist-dir ~/ci/freud/wheelhouse/
+
+            "${PYBIN}/pip" install --user twine
+            "${PYBIN}/python" -m twine upload --repository-url https://test.pypi.org/legacy/ --username vramasub --password ${PYPI_PASSWORD} ~/ci/freud/wheelhouse/*
+
+  build_osx_wheels: &build_osx_wheels
+    steps:
+        #      - *load_code
+      - run:
+          name: Install TBB and compile Mac wheels
+          working_directory: ~/ci/
+          command: |
+            # Build TBB
+            brew list
+            brew install pyenv
+            pyenv init
+            PY_VERSIONS=(2.7 3.5)
+            # Build wheels
+            for VERSION in PY_VERSION
+                echo Building for `Python VERSION`
+                pyenv install ${VERSION}
+                pyenv global ${VERSION}
+                pip install -r ~/ci/freud/requirements.txt
+                pip wheel ~/ci/freud/ -w ~/wheelhouse/ --no-deps --progress-bar=off
+            done
+
+            git clone https://github.com/01org/tbb.git
+            cd tbb
+            make
+            BUILD_DIR=$(find build -name mac*release)
             cd ${BUILD_DIR}
             source tbbvars.sh
             cd ~/
@@ -145,12 +204,22 @@ jobs:
 
   pypi-linux-wheels:
     <<: *container_manylinux
-    <<: *build_wheels
+    <<: *build_linux_wheels
+
+  pypi-osx-wheels:
+    macos:
+      xcode: "10.0.0"
+
+    steps:
+      # Commands will execute in macOS container
+      # with Xcode 9.0 installed
+      - run: xcodebuild -version
 
 workflows:
   version: 2
   all:
     jobs:
-      - test-py27
-      - test-py35
-      - test-py36
+        #      - test-py27
+        #      - test-py35
+        #      - test-py36
+      - pypi-osx-wheels
