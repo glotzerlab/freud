@@ -349,6 +349,10 @@ if args.use_cython:
 # Perform setup with error handling
 ####################################
 
+# Ensure that builds on Mac use correct stdlib.
+if platform.system() == 'Darwin':
+    os.environ["MACOSX_DEPLOYMENT_TARGET"]= "10.9"
+
 version = '0.11.0'
 
 # Read README for PyPI, fallback to short description if it fails.

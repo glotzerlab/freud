@@ -157,6 +157,7 @@ references:
             source tbbvars.sh
             cd ~/
 
+            export MACOSX_DEPLOYMENT_TARGET=10.9
             # Build wheels
             for VERSION in ${PY_VERSIONS}; do
                 echo "Building for Python ${VERSION}"
