@@ -351,7 +351,7 @@ if args.use_cython:
 
 # Ensure that builds on Mac use correct stdlib.
 if platform.system() == 'Darwin':
-    os.environ["MACOSX_DEPLOYMENT_TARGET"]= "10.11"
+    os.environ["MACOSX_DEPLOYMENT_TARGET"]= "10.12"
 
 version = '0.11.0'
 

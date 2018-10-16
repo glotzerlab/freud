@@ -143,21 +143,20 @@ references:
           name: Install TBB and compile Mac wheels
           working_directory: ~/ci/
           command: |
-            export MACOSX_DEPLOYMENT_TARGET=10.11
+            export MACOSX_DEPLOYMENT_TARGET=10.12
             # Get pyenv
             brew install pyenv
             eval "$(pyenv init -)"
             PY_VERSIONS=(2.7 3.5)
 
             # Build TBB
-            brew install --ignore-dependencies tbb
-            #git clone https://github.com/01org/tbb.git
-            #cd tbb
-            #make
-            #BUILD_DIR=$(find build -name mac*release)
-            #cd ${BUILD_DIR}
-            #source tbbvars.sh
-            #cd ~/
+            git clone https://github.com/01org/tbb.git
+            cd tbb
+            make
+            BUILD_DIR=$(find build -name mac*release)
+            cd ${BUILD_DIR}
+            source tbbvars.sh
+            cd ~/
 
             # Build wheels
             for VERSION in ${PY_VERSIONS}; do
