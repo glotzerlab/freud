@@ -159,7 +159,7 @@ references:
             cd ~/
 
             # Build wheels
-            for VERSION in ${PY_VERSIONS}; do
+            for VERSION in ${PY_VERSIONS[@]}; do
                 echo "Building for Python ${VERSION}"
                 pyenv install ${VERSION}
                 pyenv global ${VERSION}
@@ -170,9 +170,7 @@ references:
             done
 
             # Install from and test all wheels
-            for VERSION in ${PY_VERSIONS}; do
-                pyenv install ${VERSION}
-                pyenv global ${VERSION}
+            for VERSION in ${PY_VERSIONS[@]}; do
                 pip install freud_analysis --no-index -f ~/ci/freud/wheelhouse
                 cd ~/ci/freud/tests
                 python -m unittest discover . -v
