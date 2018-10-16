@@ -150,6 +150,7 @@ references:
             PY_VERSIONS=(2.7 3.5)
 
             # Build TBB
+            brew install --ignore-dependencies tbb
             #git clone https://github.com/01org/tbb.git
             #cd tbb
             #make
@@ -164,10 +165,8 @@ references:
                 pyenv install ${VERSION}
                 pyenv global ${VERSION}
                 # Use homebrew, need to properly link it for each Python version
-                brew install tbb
                 pip install -r ~/ci/freud/requirements.txt
                 pip wheel ~/ci/freud/ -w ~/ci/freud/wheelhouse/ --no-deps
-                brew uninstall tbb
             done
 
             # Install from and test all wheels
