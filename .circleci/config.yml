@@ -19,6 +19,7 @@ references:
   container_osx: &container_osx
     macos:
       xcode: "9.0"
+    working_directory: ~/ci/freud
 
   load_code: &load_code
     checkout
@@ -86,12 +87,11 @@ references:
   build_linux_wheels: &build_linux_wheels
     steps:
       - *load_code
-      #- run:
-          #name: Update freud submodules
-          #working_directory: ~/ci/freud
-          #command: |
-            ## Update submodules
-            #git submodule update --init
+      - run:
+          name: Update freud submodules
+          command: |
+            # Update submodules
+            git submodule update --init
       - run:
           name: Install TBB and compile Mac wheels
           working_directory: ~/ci/
@@ -134,12 +134,11 @@ references:
   build_osx_wheels: &build_osx_wheels
     steps:
       - *load_code
-      #- run:
-          #name: Update freud submodules
-          #working_directory: ~/ci/freud
-          #command: |
-            ## Update submodules
-            #git submodule update --init
+      - run:
+          name: Update freud submodules
+          command: |
+            # Update submodules
+            git submodule update --init
       - run:
           name: Install TBB and compile Mac wheels
           working_directory: ~/ci/
@@ -160,7 +159,7 @@ references:
 
             # Build wheels
             for VERSION in PY_VERSION
-                echo Building for `Python VERSION`
+                echo "Building for Python ${VERSION}"
                 pyenv install ${VERSION}
                 pyenv global ${VERSION}
                 pip install -r ~/ci/freud/requirements.txt
