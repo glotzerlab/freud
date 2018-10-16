@@ -143,6 +143,7 @@ references:
           name: Install TBB and compile Mac wheels
           working_directory: ~/ci/
           command: |
+            export MACOSX_DEPLOYMENT_TARGET=10.9
             # Get pyenv
             brew install pyenv
             eval "$(pyenv init -)"
@@ -157,7 +158,6 @@ references:
             source tbbvars.sh
             cd ~/
 
-            export MACOSX_DEPLOYMENT_TARGET=10.9
             # Build wheels
             for VERSION in ${PY_VERSIONS}; do
                 echo "Building for Python ${VERSION}"
