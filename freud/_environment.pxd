@@ -102,22 +102,6 @@ cdef extern from "MatchEnv.h" namespace "freud::environment":
         unsigned int getNumNeighbors()
         unsigned int getMaxNumNeighbors()
 
-cdef extern from "Pairing2D.h" namespace "freud::environment":
-    cdef cppclass Pairing2D:
-        Pairing2D(const float, const unsigned int, float)
-        const freud._box.Box & getBox() const
-        void reset()
-        void compute(freud._box.Box &,
-                     const freud._locality.NeighborList*,
-                     vec3[float]*,
-                     float*,
-                     float*,
-                     unsigned int,
-                     unsigned int) nogil except +
-        shared_ptr[unsigned int] getMatch()
-        shared_ptr[unsigned int] getPair()
-        unsigned int getNumParticles()
-
 cdef extern from "AngularSeparation.h" namespace "freud::environment":
     cdef cppclass AngularSeparation:
         AngularSeparation()
