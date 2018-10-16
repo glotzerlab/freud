@@ -158,21 +158,16 @@ references:
             cd ~/
 
             # Build wheels
-            for VERSION in PY_VERSION
+            for VERSION in ${PY_VERSIONS}; do
                 echo "Building for Python ${VERSION}"
                 pyenv install ${VERSION}
                 pyenv global ${VERSION}
                 pip install -r ~/ci/freud/requirements.txt
-                pip wheel ~/ci/freud/ -w ~/wheelhouse/ --no-deps --progress-bar=off
-            done
-
-            # Update RPath for wheels
-            for whl in ~/wheelhouse/freud*.whl; do
-                auditwheel repair "$whl" -w ~/ci/freud/wheelhouse/
+                pip wheel ~/ci/freud/ -w ~/ci/freud/wheelhouse/ --no-deps
             done
 
             # Install from and test all wheels
-            for VERSION in PY_VERSION
+            for VERSION in ${PY_VERSIONS}; do
                 pyenv install ${VERSION}
                 pyenv global ${VERSION}
                 pip install freud_analysis --no-index -f ~/ci/freud/wheelhouse
