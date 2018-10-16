@@ -133,19 +133,10 @@ references:
           working_directory: ~/ci/
           command: |
             # Build TBB
-            brew list
             brew install pyenv
             pyenv init
             PY_VERSIONS=(2.7 3.5)
-            # Build wheels
-            for VERSION in PY_VERSION
-                echo Building for `Python VERSION`
-                pyenv install ${VERSION}
-                pyenv global ${VERSION}
-                pip install -r ~/ci/freud/requirements.txt
-                pip wheel ~/ci/freud/ -w ~/wheelhouse/ --no-deps --progress-bar=off
-            done
-
+            #
             git clone https://github.com/01org/tbb.git
             cd tbb
             make
@@ -155,11 +146,12 @@ references:
             cd ~/
 
             # Build wheels
-            for PYBIN in /opt/python/*/bin; do
-                echo Building for `${PYBIN}/python --version`
-                "${PYBIN}/pip" install -r ~/ci/freud/requirements.txt
-                "${PYBIN}/pip" wheel ~/ci/freud/ -w ~/wheelhouse/ --no-deps --progress-bar=off
-                break
+            for VERSION in PY_VERSION
+                echo Building for `Python VERSION`
+                pyenv install ${VERSION}
+                pyenv global ${VERSION}
+                pip install -r ~/ci/freud/requirements.txt
+                pip wheel ~/ci/freud/ -w ~/wheelhouse/ --no-deps --progress-bar=off
             done
 
             # Update RPath for wheels
@@ -168,19 +160,16 @@ references:
             done
 
             # Install from and test all wheels
-            for PYBIN in /opt/python/*/bin/; do
-                "${PYBIN}/pip" install freud_analysis --no-index -f ~/ci/freud/wheelhouse
+            for VERSION in PY_VERSION
+                pyenv install ${VERSION}
+                pyenv global ${VERSION}
+                pip install freud_analysis --no-index -f ~/ci/freud/wheelhouse
                 cd ~/ci/freud/tests
-                "${PYBIN}/python" -m unittest discover . -v
-                break
+                python -m unittest discover . -v
             done
 
-            # Build source distribution using whichever Python appears last
-            cd ..
-            "${PYBIN}/python" setup.py sdist --dist-dir ~/ci/freud/wheelhouse/
-
-            "${PYBIN}/pip" install --user twine
-            "${PYBIN}/python" -m twine upload --repository-url https://test.pypi.org/legacy/ --username vramasub --password ${PYPI_PASSWORD} ~/ci/freud/wheelhouse/*
+            pip install --user twine
+            python -m twine upload --repository-url https://test.pypi.org/legacy/ --username vramasub --password ${PYPI_PASSWORD} ~/ci/freud/wheelhouse/*
 
 
 jobs:
@@ -207,19 +196,14 @@ jobs:
     <<: *build_linux_wheels
 
   pypi-osx-wheels:
-    macos:
-      xcode: "10.0.0"
-
-    steps:
-      # Commands will execute in macOS container
-      # with Xcode 9.0 installed
-      - run: xcodebuild -version
+    <<: *container_osx
+    <<: *build_osx_wheels
 
 workflows:
   version: 2
   all:
     jobs:
-        #      - test-py27
-        #      - test-py35
-        #      - test-py36
+      #- test-py27
+      #- test-py35
+      #- test-py36
       - pypi-osx-wheels
