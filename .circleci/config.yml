@@ -132,11 +132,12 @@ references:
           name: Install TBB and compile Mac wheels
           working_directory: ~/ci/
           command: |
-            # Build TBB
+            # Get pyenv
             brew install pyenv
-            pyenv init
+            $(pyenv init -)
             PY_VERSIONS=(2.7 3.5)
-            #
+
+            # Build TBB
             git clone https://github.com/01org/tbb.git
             cd tbb
             make
