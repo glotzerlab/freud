@@ -12,7 +12,7 @@ Eric Harper, University of Michigan - **Former lead developer**
 * PMFT module.
 * NearestNeighbors.
 * RDF.
-* Bonding module.
+* Bonding module (since removed).
 * Cubatic order parameter.
 * Hexatic order parameter.
 * Pairing2D.

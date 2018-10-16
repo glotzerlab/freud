@@ -3,7 +3,6 @@
 
 from . import parallel
 from . import box
-from . import bond
 from . import cluster
 from . import common
 from . import density
