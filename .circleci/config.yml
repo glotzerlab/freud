@@ -91,9 +91,7 @@ references:
           working_directory: ~/ci/freud
           command: |
             # Update submodules
-            cd freud
             git submodule update --init
-            cd ..
       - run:
           name: Install TBB and compile Mac wheels
           working_directory: ~/ci/
@@ -141,9 +139,7 @@ references:
           working_directory: ~/ci/freud
           command: |
             # Update submodules
-            cd freud
             git submodule update --init
-            cd ..
       - run:
           name: Install TBB and compile Mac wheels
           working_directory: ~/ci/
