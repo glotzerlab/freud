@@ -134,7 +134,7 @@ references:
           command: |
             # Get pyenv
             brew install pyenv
-            $(pyenv init -)
+            eval $(pyenv init -)
             PY_VERSIONS=(2.7 3.5)
 
             # Build TBB
