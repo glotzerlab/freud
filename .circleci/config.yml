@@ -165,6 +165,7 @@ references:
                 pyenv global ${VERSION}
                 # Use homebrew, need to properly link it for each Python version
                 pip install -r ~/ci/freud/requirements.txt
+                pip install wheel
                 pip wheel ~/ci/freud/ -w ~/ci/freud/wheelhouse/ --no-deps
             done
 
