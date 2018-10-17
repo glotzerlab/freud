@@ -163,12 +163,14 @@ references:
                 echo "Building for Python ${VERSION}"
                 pyenv install ${VERSION}
                 pyenv global ${VERSION}
-                # Use homebrew, need to properly link it for each Python version
                 pip install -r ~/ci/freud/requirements.txt
-                pip install wheel
-                export TBB_INCLUDE="~/ci/tbb/include"
-                export TBB_LINK=${BUILD_DIR}
-                pip wheel ~/ci/freud/ -w ~/ci/freud/wheelhouse/ --no-deps
+                pip install wheel delocate
+                pip wheel ~/ci/freud/ -w ~/wheelhouse/ --no-deps --progress-bar=off
+            done
+
+            # Update RPath for wheels
+            for whl in ~/wheelhouse/freud*.whl; do
+                delocate-wheel "$whl" -w ~/ci/freud/wheelhouse/
             done
 
             # Install from and test all wheels
