@@ -16,6 +16,7 @@ Below is a list of modules in freud. To add your own module, read the
    indexer
    interface
    locality
+   msd
    order
    parallel
    pmft
