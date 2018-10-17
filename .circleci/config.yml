@@ -163,8 +163,8 @@ references:
                 echo "Building for Python ${VERSION}"
                 pyenv install ${VERSION}
                 pyenv global ${VERSION}
-                pip install -r ~/ci/freud/requirements.txt --progress-bar=off
-                pip install wheel delocate --progress-bar=off
+                pip install -r ~/ci/freud/requirements.txt
+                pip install wheel delocate
                 pip wheel ~/ci/freud/ -w ~/wheelhouse/ --no-deps
             done
 
