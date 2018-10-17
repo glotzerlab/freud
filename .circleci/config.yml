@@ -108,8 +108,8 @@ references:
             # Build wheels
             for PYBIN in /opt/python/*/bin; do
                 echo Building for `${PYBIN}/python --version`
-                "${PYBIN}/pip" install -r ~/ci/freud/requirements.txt
-                "${PYBIN}/pip" wheel ~/ci/freud/ -w ~/wheelhouse/ --no-deps --progress-bar=off
+                "${PYBIN}/pip" install -r ~/ci/freud/requirements.txt --progress-bar=off
+                "${PYBIN}/pip" wheel ~/ci/freud/ -w ~/wheelhouse/ --no-deps
             done
 
             # Update RPath for wheels
@@ -163,9 +163,9 @@ references:
                 echo "Building for Python ${VERSION}"
                 pyenv install ${VERSION}
                 pyenv global ${VERSION}
-                pip install -r ~/ci/freud/requirements.txt
-                pip install wheel delocate
-                pip wheel ~/ci/freud/ -w ~/wheelhouse/ --no-deps --progress-bar=off
+                pip install -r ~/ci/freud/requirements.txt --progress-bar=off
+                pip install wheel delocate --progress-bar=off
+                pip wheel ~/ci/freud/ -w ~/wheelhouse/ --no-deps
             done
 
             # Update RPath for wheels
