@@ -166,6 +166,8 @@ references:
                 # Use homebrew, need to properly link it for each Python version
                 pip install -r ~/ci/freud/requirements.txt
                 pip install wheel
+                export TBB_INCLUDE="~/ci/tbb/include"
+                export TBB_LINK=${BUILD_DIR}
                 pip wheel ~/ci/freud/ -w ~/ci/freud/wheelhouse/ --no-deps
             done
 
