@@ -110,6 +110,7 @@ references:
                 echo Building for `${PYBIN}/python --version`
                 "${PYBIN}/pip" install -r ~/ci/freud/requirements.txt --progress-bar=off
                 "${PYBIN}/pip" wheel ~/ci/freud/ -w ~/wheelhouse/ --no-deps
+                break
             done
 
             # Update RPath for wheels
@@ -122,6 +123,7 @@ references:
                 "${PYBIN}/pip" install freud_analysis --no-index -f ~/ci/freud/wheelhouse
                 cd ~/ci/freud/tests
                 "${PYBIN}/python" -m unittest discover . -v
+                break
             done
 
             # Build source distribution using whichever Python appears last
@@ -220,4 +222,5 @@ workflows:
       #- test-py27
       #- test-py35
       #- test-py36
-      - pypi-osx-wheels
+      #- pypi-osx-wheels
+      - pypi-linux-wheels
