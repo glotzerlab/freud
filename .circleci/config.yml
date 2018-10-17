@@ -156,6 +156,8 @@ references:
             BUILD_DIR=$(find build -name mac*release)
             cd ${BUILD_DIR}
             source tbbvars.sh
+            # Force the TBB path to use an absolute path to itself for others to find.
+            install_name_tool -id "${PWD}/libtbb.dylib" libtbb.dylib
             cd ~/
 
             # Build wheels
