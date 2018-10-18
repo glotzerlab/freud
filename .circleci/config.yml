@@ -133,7 +133,7 @@ references:
             "${PYBIN}/python" setup.py sdist --dist-dir ~/ci/freud/wheelhouse/
 
             "${PYBIN}/pip" install --user twine
-            "${PYBIN}/python" -m twine upload --repository-url https://test.pypi.org/legacy/ --username vramasub --password ${PYPI_PASSWORD} ~/ci/freud/wheelhouse/*
+            "${PYBIN}/python" -m twine upload --username vramasub --password ${PYPI_PASSWORD} ~/ci/freud/wheelhouse/*
 
   build_osx_wheels: &build_osx_wheels
     steps:

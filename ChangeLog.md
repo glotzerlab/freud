@@ -2,23 +2,28 @@
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## v0.11.3 - 2018-10-18
+
+### Fixed
+* Linux wheels are now pushed to the real PyPI server instead of the test server.
+
 ## v0.11.2 - 2018-10-18
 
 ### Fixed
-* Error in Python versions in macOS automatic deployment
+* Error in Python versions in macOS automatic deployment.
 
 ## v0.11.1 - 2018-10-18
 
 ### Added
-* PyPI builds automatically deploy for Mac and Linux
+* PyPI builds automatically deploy for Mac and Linux.
 
 ### Changed
-* macOS deployment target is now 10.12 instead of 10.9 to ensure TBB compatibility
-* Unwrapping positions with images is now vectorized
-* Minor documentation fixes
+* macOS deployment target is now 10.12 instead of 10.9 to ensure TBB compatibility.
+* Unwrapping positions with images is now vectorized.
+* Minor documentation fixes.
 
 ### Fixed
-* TBB includes were not always detected correctly by setup.py
+* TBB includes were not always detected correctly by setup.py.
 
 ## v0.11.0 - 2018-09-27
 
