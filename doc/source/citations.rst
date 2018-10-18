@@ -36,3 +36,4 @@ References and Citations
     & Kneller, G. R. (2011). nMoldyn-Interfacing spectroscopic experiments,
     molecular dynamics simulations and models for time correlation functions. École
     thématique de la Société Française de la Neutronique, 12, 201-232.
+    https://doi.org/10.1051/sfn/201112010
