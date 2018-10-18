@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Fixed
 * Linux wheels are now pushed to the real PyPI server instead of the test server.
+* macOS deployment pyenv requires patch versions to be specified.
 
 ## v0.11.2 - 2018-10-18
 
