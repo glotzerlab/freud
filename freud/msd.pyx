@@ -14,7 +14,7 @@ import numpy as np
 # SciPy's FFT appears faster, so use it if available.
 try:
     from scipy.fftpack import fft, ifft
-except ModuleNotFoundError:
+except ImportError:
     from numpy.fft import fft, ifft
 
 
