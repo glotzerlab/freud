@@ -29,9 +29,9 @@ references:
       name: Install dependencies
       command: |
         git submodule update --init
-        pip${PYVER} install --user -r requirements.txt
-        pip${PYVER} install --user flake8
-        pip${PYVER} install --user coverage
+        pip${PYVER} install --user -r requirements.txt --progress-bar=off
+        pip${PYVER} install --user flake8 --progress-bar=off
+        pip${PYVER} install --user coverage --progress-bar=off
 
   check_source: &check_source
     run:
@@ -97,7 +97,7 @@ references:
             # Update submodules
             git submodule update --init
       - run:
-          name: Install TBB and compile Mac wheels
+          name: Install TBB and compile Linux wheels
           working_directory: ~/ci/
           command: |
             # Build TBB
@@ -111,7 +111,7 @@ references:
 
             # Build wheels
             for PYBIN in /opt/python/*/bin; do
-                echo Building for `${PYBIN}/python --version`
+                echo "Building for `${PYBIN}/python --version`"
                 "${PYBIN}/pip" install -r ~/ci/freud/requirements.txt --progress-bar=off
                 "${PYBIN}/pip" wheel ~/ci/freud/ -w ~/wheelhouse/ --no-deps
             done
