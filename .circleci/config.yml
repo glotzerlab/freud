@@ -218,20 +218,19 @@ jobs:
     <<: *build_osx_wheels
 
 workflows:
-  version: 2
-  all:
+  test:
     jobs:
       - test-py27
       - test-py35
       - test-py36
-      - pypi-osx-wheels
+  deploy:
+      - pypi-osx-wheels:
           filters:
               tags:
                 only: /^v.*/
               branches:
                 ignore: /.*/
-
-      - pypi-linux-wheels
+      - pypi-linux-wheels:
           filters:
               tags:
                 only: /^v.*/
