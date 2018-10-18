@@ -1,6 +1,6 @@
   1030	Eric Harper <harperic@umich.edu>
-   565	Vyas Ramasubramani <vramasub@umich.edu>
-   469	Bradley Dice <bdice@bradleydice.com>
+   609	Vyas Ramasubramani <vramasub@umich.edu>
+   477	Bradley Dice <bdice@bradleydice.com>
    278	Joshua A. Anderson <joaander@umich.edu>
    232	Matthew Spellings <mspells@umich.edu>
    108	Erin Teich <erteich@umich.edu>
@@ -10,7 +10,7 @@
     31	Richmond Newman <newmanrs@umich.edu>
     22	Jens Glaser <jsglaser@umich.edu>
     13	Carl Simon Adorf <csadorf@umich.edu>
-    11	Tim Moore <mootimot@umich.edu>
+    12	Tim Moore <mootimot@umich.edu>
     10	Bryan VanSaders <bvansade@umich.edu>
     10	Benjamin Schultz <baschult@umich.edu>
     10	Matt Palathingal <mattjose@umich.edu>
