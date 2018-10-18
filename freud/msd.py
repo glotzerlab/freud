@@ -41,12 +41,11 @@ def MSD(positions, box=None, images=None, mode='window'):
     argument.
 
     * :code:`'window'` (*default*):
-      This mode calculates the most common form of the MSD, which is defined as:
+      This mode calculates the most common form of the MSD, which is defined as
 
       .. math::
-          :nowrap:
 
-          MSD(m) = \langle\dfrac{1}{N-m} \sum_{k=0}^{N-m-1} (\boldsymbol{r}(k+m) - \boldsymbol{r}(k))^2\rangle_{particles}
+          MSD(m) = \left\langle\frac{1}{N-m} \sum_{k=0}^{N-m-1} (\vec{r}(k+m) - \vec{r}(k))^2\right\rangle_{particles}
 
       According to this definition, the mean squared displacement is the
       average displacement over all windows of length :math:`m` over the course
@@ -57,7 +56,7 @@ def MSD(positions, box=None, images=None, mode='window'):
 
       The windowed calculation can be quite computationally intensive. To
       perform this calculation efficiently, we use the algorithm described in
-      [Calandrini2011] as described in `this StackOverflow thread
+      [Calandrini2011]_ as described in `this StackOverflow thread
       <https://stackoverflow.com/questions/34222272/computing-mean-square-displacement-using-python-and-fft>`_.
 
     * :code:`'direct'`:
@@ -68,7 +67,7 @@ def MSD(positions, box=None, images=None, mode='window'):
           :nowrap:
 
           \begin{eqnarray*}
-              MSD(t) = &\langle (x-x_0)^2 \rangle_{particles} \\
+              MSD(t) = &\langle (\vec{r}-\vec{r}_0)^2 \rangle_{particles} \\
                      = & \dfrac{1}{N} \sum_{n=1}^N (x_n(t) - x_n(0))^2 \\
           \end{eqnarray*}
 
@@ -78,14 +77,14 @@ def MSD(positions, box=None, images=None, mode='window'):
       <https://en.wikipedia.org/wiki/Mean_squared_displacement>`_.
 
     Args:
-        positions ((:math:`N_{frames}`, :math:`N_{particles}`, 3) np.array):
+        positions ((:math:`N_{frames}`, :math:`N_{particles}`, 3) :class:`numpy.ndarray`):
             The particle positions over a trajectory. If neither box nor images
             are provided, the positions are assumed to be unwrapped already.
         box (:class:`freud.box.Box`, optional):
             The simulation box. Must be provided along with image flags if
             particle positions need to be unwrapped. If neither are provided,
             positions are assumed to be unwrapped already.
-        images ((:math:`N_{frames}`, :math:`N_{particles}`, 3) np.array, optional):
+        images ((:math:`N_{frames}`, :math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
             The particle images to unwrap with if provided. Must be provided
             along with a simulation box if particle positions need to be
             unwrapped. If neither are provided, positions are assumed to be
@@ -95,7 +94,7 @@ def MSD(positions, box=None, images=None, mode='window'):
             :code:`'direct'`.  (Default value = :code:`'window'`).
 
     Returns:
-        np.array: The MSD.
+        :class:`numpy.ndarray`: The mean squared displacement.
     """   # noqa: E501
 
     if box is not None and images is not None:
