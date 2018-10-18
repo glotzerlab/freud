@@ -187,7 +187,7 @@ references:
             done
 
             pip install --user twine
-            python -m twine upload --repository-url https://test.pypi.org/legacy/ --username vramasub --password ${PYPI_PASSWORD} ~/ci/freud/wheelhouse/*
+            python -m twine upload --username vramasub --password ${PYPI_PASSWORD} ~/ci/freud/wheelhouse/*
 
 
 jobs:
