@@ -138,13 +138,14 @@ args, extras = parser.parse_known_args()
 if args.nthreads > 1:
     # Make sure number of threads to use gets passed through to setup.
     extras.extend(["-j", str(args.nthreads)])
-sys.argv = ['setup.py'] + extras
-
 
 # Override argparse default helping so that setup can proceed.
 if args.help:
     parser.print_help()
     print("\n\nThe subsequent help is for standard setup.py usage.\n\n")
+    extras.append('-h')
+
+sys.argv = ['setup.py'] + extras
 
 
 #######################
@@ -352,7 +353,7 @@ if args.use_cython:
 
 # Ensure that builds on Mac use correct stdlib.
 if platform.system() == 'Darwin':
-    os.environ["MACOSX_DEPLOYMENT_TARGET"]= "10.9"
+    os.environ["MACOSX_DEPLOYMENT_TARGET"]= "10.12"
 
 version = '0.11.0'
 
@@ -389,8 +390,8 @@ except SystemExit:
     parallel_err = "file not recognized: file truncated"
     tbb_err = "'tbb/tbb.h' file not found"
 
-    err_out = tfile.read().decode()
-    sys.stderr.write(err_out)
+    err_out = tfile.read().decode('utf-8')
+    sys.stderr.write(err_out.encode('utf-8'))
     if tbb_err in err_out:
         sys.stderr.write("\n\033[1mUnable to find tbb. If you have TBB on "
                          "your system, try specifying the location using the "

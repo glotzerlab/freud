@@ -163,6 +163,14 @@ class TestBox(unittest.TestCase):
         with self.assertRaises(ValueError):
             box.unwrap(testpoints[:, :2], imgs)
 
+        # Now test 2D
+        box = bx.Box.square(1)
+
+        testpoints = [10, 0, 0]
+        imgs = [10, 1, 2]
+        npt.assert_almost_equal(box.unwrap(testpoints, imgs), [20, 1, 0],
+                                decimal=2, err_msg="WrapFail")
+
     def test_images(self):
         box = bx.Box(2, 2, 2, 0, 0, 0)
         testpoints = np.array([[50, 40, 30],
