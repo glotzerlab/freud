@@ -10,6 +10,7 @@ from __future__ import print_function, division, absolute_import
 
 from freud.box import Box
 import numpy as np
+import freud.common
 
 # SciPy's FFT appears faster, so use it if available.
 try:
@@ -25,7 +26,7 @@ def _autocorrelation(x):
     PSD = F * F.conjugate()
     res = ifft(PSD, axis=0)
     res = (res[:N]).real
-    n = N*np.ones(N) - np.arange(0, N)
+    n = np.arange(1, N+1)[::-1]  # N to 1
     return res/n[:, np.newaxis]
 
 
@@ -76,6 +77,13 @@ def MSD(positions, box=None, images=None, mode='window'):
       this calculation, see `the Wikipedia page
       <https://en.wikipedia.org/wiki/Mean_squared_displacement>`_.
 
+    .. note::
+        The MSD is only well-defined when the box is constant over the
+        course of the simulation. Additionally, the number of particles must be
+        constant over the course of the simulation.
+
+    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
+
     Args:
         positions ((:math:`N_{frames}`, :math:`N_{particles}`, 3) :class:`numpy.ndarray`):
             The particle positions over a trajectory. If neither box nor images
@@ -97,9 +105,33 @@ def MSD(positions, box=None, images=None, mode='window'):
         :class:`numpy.ndarray`: The mean squared displacement.
     """   # noqa: E501
 
+    if box is not None:
+        box = freud.common.convert_box(box)
+
+    positions = freud.common.convert_array(
+        positions, 3, dtype=np.float32, contiguous=True,
+        array_name="positions")
+    if positions.shape[2] != 3:
+        raise TypeError('positions should be an MxNx3 array')
+
+    if images is not None:
+        images = freud.common.convert_array(
+            images, 3, dtype=np.float32, contiguous=True,
+            array_name="images")
+        if images.shape[2] != 3:
+            raise TypeError('images should be an MxNx3 array')
+
+        if not positions.shape == images.shape:
+            raise TypeError(
+                'The positions and images must have the same shape')
+
+    # Make sure we aren't modifying the provided array
+    unwrapped_positions = positions.copy()
     if box is not None and images is not None:
         for i in range(positions.shape[0]):
-            positions[i, ...] = box.unwrap(positions[i, ...], images[i, ...])
+            unwrapped_positions[i, :, :] = box.unwrap(
+                unwrapped_positions[i, :, :], images[i, :, :])
+    positions = unwrapped_positions
 
     if mode == 'window':
         # First compute the first term r^2(k+m) - r^2(k)
@@ -122,7 +154,7 @@ def MSD(positions, box=None, images=None, mode='window'):
     elif mode == 'direct':
         return np.mean(
             np.linalg.norm(
-                positions - positions[[0], :, :], axis=-1),
+                positions - positions[[0], :, :], axis=-1)**2,
             axis=-1)
     else:
         raise RuntimeError("Invalid mode")
