@@ -29,7 +29,7 @@ def _autocorrelation(x):
     return res/n[:, np.newaxis]
 
 
-def msd(positions, box=None, images=None, mode='window'):
+def MSD(positions, box=None, images=None, mode='window'):
     R"""Compute the mean squared displacement.
 
     The mean squared displacement (MSD) measures how much particles move over
@@ -109,8 +109,8 @@ def msd(positions, box=None, images=None, mode='window'):
         D = np.append(D, np.zeros(positions.shape[:2]), axis=0)
         Q = 2*D.sum(axis=0)
         S1 = np.zeros(positions.shape[:2])
-        for m in range(positions.shape[0]):
-            Q -= D[m-1, :] - D[N-m, :]
+        for m in range(N):
+            Q -= (D[m-1, :] + D[N-m, :])
             S1[m, :] = Q/(N-m)
 
         # The second term can be computed via autocorrelation
@@ -118,9 +118,12 @@ def msd(positions, box=None, images=None, mode='window'):
         for i in range(positions.shape[2]):
             corrs.append(_autocorrelation(positions[:, :, i]))
         S2 = np.sum(corrs, axis=0)
+
         return np.mean(S1 - 2*S2, axis=1)
     elif mode == 'direct':
         return np.mean(
             np.linalg.norm(
-                positions - positions[[0], :, :], axis=-1)
+                positions - positions[[0], :, :], axis=-1),
             axis=-1)
+    else:
+        raise RuntimeError("Invalid mode")
