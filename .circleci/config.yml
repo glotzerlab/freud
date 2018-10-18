@@ -29,10 +29,9 @@ references:
       name: Install dependencies
       command: |
         git submodule update --init
-        python -m pip install --upgrade pip  # Update so that progress bar disabling works
-        pip${PYVER} install --user -r requirements.txt --progress-bar=off
-        pip${PYVER} install --user flake8 --progress-bar=off
-        pip${PYVER} install --user coverage --progress-bar=off
+        pip${PYVER} install --user -r requirements.txt
+        pip${PYVER} install --user flake8
+        pip${PYVER} install --user coverage
 
   check_source: &check_source
     run:
