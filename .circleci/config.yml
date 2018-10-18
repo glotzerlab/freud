@@ -218,12 +218,14 @@ jobs:
     <<: *build_osx_wheels
 
 workflows:
+  version: 2
   test:
     jobs:
       - test-py27
       - test-py35
       - test-py36
   deploy:
+    jobs:
       - pypi-osx-wheels:
           filters:
               tags:
