@@ -26,33 +26,30 @@ Please report issues and suggest feature enhancements via the [Bitbucket issues 
 The documentation is available online at [https://freud.readthedocs.io](https://freud.readthedocs.io).
 These pages include an installation guide, examples demonstrating many of freud's core modules, API reference, and development guides for adding new features.
 
-## Examples
+# Examples
 Many core features are [demonstrated in the freud documentation](https://freud.readthedocs.io/en/stable/examples.html).
 Additional example Jupyter notebooks can be found in the [freud-examples repository](https://bitbucket.org/glotzer/freud-examples).
 These notebooks may be launched [interactively on Binder](https://mybinder.org/v2/gh/glotzerlab/freud-examples/master?filepath=index.ipynb)
 or downloaded and run on your own system.
 
-## Installing freud
+# Installing freud
 
-### Install via conda
-
-The code below will install freud from conda-forge.
+## Install via conda
 
 ```bash
 conda install -c conda-forge freud
 ```
 
-### Install via pip
-The code below will install freud from PyPI.
+## Install via pip
 
 ```bash
 pip install freud-analysis
 ```
 
-### Compiling freud
+## Compiling freud
 Please refer to the [installation documentation](https://freud.readthedocs.io/en/stable/installation.html) for help compiling freud from source.
 
-## Simple example script
+# Simple example script
 
 The freud library is called using Python scripts.
 
