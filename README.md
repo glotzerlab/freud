@@ -1,6 +1,7 @@
 # freud
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.166564.svg)](https://doi.org/10.5281/zenodo.166564)
+[![PyPI](https://img.shields.io/pypi/v/freud-analysis.svg)](https://pypi.org/project/freud-analysis/)
 [![Anaconda-Server Badge](https://anaconda.org/conda-forge/freud/badges/version.svg)](https://anaconda.org/conda-forge/freud)
 [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/glotzerlab/freud-examples/master?filepath=index.ipynb)
 [![ReadTheDocs](https://readthedocs.org/projects/freud/badge/?version=latest)](https://freud.readthedocs.io/en/latest/?badge=latest)
@@ -14,69 +15,44 @@ potentials of mean force and torque (PMFTs), Voronoi tessellations, and more.
 
 When using freud to process data for publication, please [use this citation](https://doi.org/10.5281/zenodo.166564).
 
-## Mailing List
+# freud Community
 
-If you have a question, please consider posting to the
+If you have a question, please post to the
 [freud-users mailing list](https://groups.google.com/forum/#!forum/freud-users).
+Please report issues and suggest feature enhancements via the [Bitbucket issues page](https://bitbucket.org/glotzer/freud/issues?status=new&status=open).
+
+# Documentation
+
+The documentation is available online at [https://freud.readthedocs.io](https://freud.readthedocs.io).
+These pages include an installation guide, examples demonstrating many of freud's core modules, API reference, and development guides for adding new features.
 
 ## Examples
-
-Example Jupyter notebooks can be found in a [separate repository](https://bitbucket.org/glotzer/freud-examples).
+Many core features are [demonstrated in the freud documentation](https://freud.readthedocs.io/en/stable/examples.html).
+Additional example Jupyter notebooks can be found in the [freud-examples repository](https://bitbucket.org/glotzer/freud-examples).
 These notebooks may be launched [interactively on Binder](https://mybinder.org/v2/gh/glotzerlab/freud-examples/master?filepath=index.ipynb)
 or downloaded and run on your own system.
 
 ## Installing freud
 
-Official binaries of freud are available via [conda](https://conda.io/docs/) through [conda-forge](https://conda-forge.org/).
-To install freud, first download and install [miniconda](https://conda.io/miniconda.html) following
-[conda's instructions](https://conda.io/docs/user-guide/install/index.html).
-Then install freud:
+### Install via conda
+
+The code below will install freud from conda-forge.
 
 ```bash
-$ conda install -c conda-forge freud
+conda install -c conda-forge freud
 ```
 
-## Compiling freud
-
-Building freud from source follows the typical setuptools pattern for Python packages:
+### Install via pip
+The code below will install freud from PyPI.
 
 ```bash
-git clone --recurse-submodules https://bitbucket.org/glotzer/freud.git
-cd freud
-python setup.py install
+pip install freud-analysis
 ```
 
-By default, freud installs to the [USER_SITE](https://docs.python.org/3/install/index.html) directory, which is in `~/.local` on Linux and in `~/Library` on macOS.
-`USER_SITE` is on the Python search path by default, so there is no need to modify `PYTHONPATH`.
+### Compiling freud
+Please refer to the [installation documentation](https://freud.readthedocs.io/en/stable/installation.html) for help compiling freud from source.
 
-If you want to test freud without installing it for your system, you can instead build it in place.
-
-```bash
-python setup.py build_ext --inplace
-```
-
-For more detailed instructions, see [the documentation](https://freud.readthedocs.io).
-
-#### Note
-
-The freud library makes use of submodules.
-If you would like to update submodules yourself, please execute the following command after cloning:
-
-```bash
-git submodule update --init
-```
-
-### Requirements
-
-* Required:
-    * Python >= 2.7 (3.5+ recommended)
-    * NumPy >= 1.7
-    * C++11 capable compiler (tested with gcc >= 4.8.5, clang 3.5)
-    * Intel Threading Building Blocks
-* Optional:
-    * Cython >= 0.23 (to compile your own `_freud.cpp`)
-
-## Job scripts
+## Simple example script
 
 The freud library is called using Python scripts.
 
@@ -96,56 +72,6 @@ box = freud.box.Box(Lx=box_data[0]["Lx"], Ly=box_data[0]["Ly"], is2D=True)
 # compute RDF
 rdf.compute(box, pos_data[0], pos_data[0])
 # get bin centers, rdf data
-r = rdf.getR()
-y = rdf.getRDF()
-```
-
-## Documentation
-
-The documentation is available online at [https://freud.readthedocs.io](https://freud.readthedocs.io).
-
-To build the documentation yourself, please install sphinx:
-
-    conda install sphinx
-
-OR
-
-    pip install sphinx
-
-To view the full documentation run the following commands in the source directory:
-
-```bash
-# Linux
-cd doc
-make html
-xdg-open build/html/index.html
-
-# Mac
-cd doc
-make html
-open build/html/index.html
-```
-
-If you have latex and/or pdflatex, you may also build a pdf of the documentation:
-
-```bash
-# Linux
-cd doc
-make latexpdf
-xdg-open build/latex/freud.pdf
-
-# Mac
-cd doc
-make latexpdf
-open build/latex/freud.pdf
-```
-
-## Unit Tests
-
-The unit tests for freud use the Python `unittest` framework:
-
-```bash
-# Run tests from the tests directory
-cd tests
-python -m unittest discover .
+r = rdf.R
+y = rdf.RDF
 ```
