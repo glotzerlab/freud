@@ -835,7 +835,7 @@ cdef class RDF:
             Box used in the calculation.
         RDF ((:math:`N_{bins}`,) :class:`numpy.ndarray`):
             Histogram of RDF values.
-        R ((:math:`N_{bins}`, 3) :class:`numpy.ndarray`):
+        R ((:math:`N_{bins}`) :class:`numpy.ndarray`):
             The centers of each bin.
         n_r ((:math:`N_{bins}`,) :class:`numpy.ndarray`):
             Histogram of cumulative RDF values (*i.e.* the integrated RDF).
