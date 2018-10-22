@@ -3,7 +3,6 @@
 
 from . import parallel
 from . import box
-from . import bond
 from . import cluster
 from . import common
 from . import density
@@ -16,4 +15,4 @@ from . import order
 from . import pmft
 from . import voronoi
 
-__version__ = '0.11.0'
+__version__ = '0.11.3'

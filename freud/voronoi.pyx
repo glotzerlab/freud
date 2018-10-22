@@ -29,7 +29,7 @@ try:
     _SCIPY_AVAILABLE = True
 except ImportError:
     qvoronoi = None
-    msg = ('scipy.spatial.Voronoi is not available (requires scipy 0.12+),'
+    msg = ('scipy.spatial.Voronoi is not available (requires scipy 0.12+), '
            'so freud.voronoi is not available.')
     logger.warning(msg)
     _SCIPY_AVAILABLE = False

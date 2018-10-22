@@ -29,7 +29,6 @@ from cython.operator cimport dereference
 from freud.environment cimport BondOrder as _EBO
 from freud.environment cimport LocalDescriptors as _ELD
 from freud.environment cimport MatchEnv as _EME
-from freud.environment cimport Pairing2D as _EP
 from freud.environment cimport AngularSeparation as _EAS
 
 cimport freud._order
@@ -1740,12 +1739,6 @@ class MatchEnv(_EME):
         warnings.warn("This class is deprecated, use "
                       "freud.environment.MatchEnv instead!",
                       FreudDeprecationWarning)
-
-
-class Pairing2D(_EP):
-    def __init__(self, rmax, k, compDotTol):
-        warnings.warn("This class is deprecated, use "
-                      "freud.bond instead!", FreudDeprecationWarning)
 
 
 class AngularSeparation(_EAS):

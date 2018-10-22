@@ -23,11 +23,6 @@ cdef class MatchEnv:
     cdef num_neigh
     cdef m_box
 
-cdef class Pairing2D:
-    cdef freud._environment.Pairing2D * thisptr
-    cdef rmax
-    cdef num_neigh
-
 cdef class AngularSeparation:
     cdef freud._environment.AngularSeparation * thisptr
     cdef num_neigh
