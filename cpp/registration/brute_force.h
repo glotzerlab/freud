@@ -8,7 +8,14 @@
 #include <iostream>
 #include <random>
 #include <vector>
+
+#ifdef _WIN32
+#include <io.h>
+#include <process.h>
+#define getpid _getpid
+#else
 #include <unistd.h>
+#endif
 
 #include "Eigen/Eigen/Dense"
 #include "Eigen/Eigen/Sparse"
