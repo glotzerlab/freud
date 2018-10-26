@@ -9,7 +9,7 @@ cimport freud._locality
 
 cdef extern from "PMFT.h" namespace "freud::pmft":
     cdef cppclass PMFT:
-        PMFT()
+        PMFT() except +
 
         const freud._box.Box & getBox() const
         void reset()
@@ -20,7 +20,7 @@ cdef extern from "PMFT.h" namespace "freud::pmft":
 
 cdef extern from "PMFTR12.h" namespace "freud::pmft":
     cdef cppclass PMFTR12(PMFT):
-        PMFTR12(float, unsigned int, unsigned int, unsigned int)
+        PMFTR12(float, unsigned int, unsigned int, unsigned int) except +
 
         void accumulate(freud._box.Box &,
                         const freud._locality.NeighborList*,
@@ -40,7 +40,8 @@ cdef extern from "PMFTR12.h" namespace "freud::pmft":
 
 cdef extern from "PMFTXYT.h" namespace "freud::pmft":
     cdef cppclass PMFTXYT(PMFT):
-        PMFTXYT(float, float, unsigned int, unsigned int, unsigned int)
+        PMFTXYT(float, float,
+                unsigned int, unsigned int, unsigned int) except +
 
         void accumulate(freud._box.Box &,
                         const freud._locality.NeighborList*,
@@ -60,7 +61,7 @@ cdef extern from "PMFTXYT.h" namespace "freud::pmft":
 
 cdef extern from "PMFTXY2D.h" namespace "freud::pmft":
     cdef cppclass PMFTXY2D(PMFT):
-        PMFTXY2D(float, unsigned int, unsigned int, unsigned int)
+        PMFTXY2D(float, unsigned int, unsigned int, unsigned int) except +
 
         void accumulate(freud._box.Box &,
                         const freud._locality.NeighborList*,
@@ -79,7 +80,7 @@ cdef extern from "PMFTXY2D.h" namespace "freud::pmft":
 cdef extern from "PMFTXYZ.h" namespace "freud::pmft":
     cdef cppclass PMFTXYZ(PMFT):
         PMFTXYZ(float, float, float, unsigned int, unsigned int,
-                unsigned int, vec3[float])
+                unsigned int, vec3[float]) except +
 
         void accumulate(freud._box.Box &,
                         const freud._locality.NeighborList*,

@@ -73,7 +73,7 @@ Cluster::Cluster(float rcut)
     : m_rcut(rcut), m_num_particles(0), m_num_clusters(0)
     {
     if (m_rcut < 0.0f)
-        throw invalid_argument("rcut must be positive");
+        throw invalid_argument("Cluster requires that rcut must be non-negative.");
     }
 
 void Cluster::computeClusters(const box::Box& box,

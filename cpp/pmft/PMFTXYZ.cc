@@ -24,17 +24,17 @@ PMFTXYZ::PMFTXYZ(float max_x, float max_y, float max_z, unsigned int n_bins_x, u
       m_n_faces(0), m_shiftvec(shiftvec)
     {
     if (n_bins_x < 1)
-        throw invalid_argument("must be at least 1 bin in x");
+        throw invalid_argument("PMFTXYZ requires at least 1 bin in X.");
     if (n_bins_y < 1)
-        throw invalid_argument("must be at least 1 bin in y");
+        throw invalid_argument("PMFTXYZ requires at least 1 bin in Y.");
     if (n_bins_z < 1)
-        throw invalid_argument("must be at least 1 bin in z");
+        throw invalid_argument("PMFTXYZ requires at least 1 bin in Z.");
     if (max_x < 0.0f)
-        throw invalid_argument("max_x must be positive");
+        throw invalid_argument("PMFTXYZ requires that max_x must be positive.");
     if (max_y < 0.0f)
-        throw invalid_argument("max_y must be positive");
+        throw invalid_argument("PMFTXYZ requires that max_y must be positive.");
     if (max_z < 0.0f)
-        throw invalid_argument("max_z must be positive");
+        throw invalid_argument("PMFTXYZ requires that max_z must be positive.");
 
     // calculate dx, dy, dz
     m_dx = 2.0 * m_max_x / float(m_n_bins_x);
@@ -42,11 +42,11 @@ PMFTXYZ::PMFTXYZ(float max_x, float max_y, float max_z, unsigned int n_bins_x, u
     m_dz = 2.0 * m_max_z / float(m_n_bins_z);
 
     if (m_dx > max_x)
-        throw invalid_argument("max_x must be greater than dx");
+        throw invalid_argument("PMFTXYZ requires that dx is less than or equal to max_x.");
     if (m_dy > max_y)
-        throw invalid_argument("max_y must be greater than dy");
+        throw invalid_argument("PMFTXYZ requires that dy is less than or equal to max_y.");
     if (m_dz > max_z)
-        throw invalid_argument("max_z must be greater than dz");
+        throw invalid_argument("PMFTXYZ requires that dz is less than or equal to max_z.");
 
     m_jacobian = m_dx * m_dy * m_dz;
 
