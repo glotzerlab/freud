@@ -197,7 +197,7 @@ void NematicOrderParameter::compute(quat<float> *orientations,
 
     // the order parameter is the eigenvector belonging to the largest eigenvalue
     unsigned int max_idx = 0;
-    float max_val = -std::numeric_limits<float>::max();
+    float max_val = std::numeric_limits<float>::lowest();
 
     for (unsigned int i = 0; i < 3; ++i)
         if (eval[i] > max_val)

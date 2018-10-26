@@ -32,7 +32,7 @@ Compile from source
 
 The following are **required** for installing freud:
 
-- `Python <https://www.python.org/>`_ (2.7, 3.5, 3.6)
+- `Python <https://www.python.org/>`_ (2.7+ required, 3.5+ recommended)
 - `NumPy <http://www.numpy.org/>`_
 - `Intel Threading Building Blocks <https://www.threadingbuildingblocks.org/>`_ (TBB)
 

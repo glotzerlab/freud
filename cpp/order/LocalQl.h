@@ -59,7 +59,7 @@ class LocalQl
          */
         LocalQl(const box::Box& box, float rmax, unsigned int l, float rmin=0):m_box(box), m_rmax(rmax), m_l(l) , m_rmin(rmin)
             {
-            if (m_rmax < 0.0f or m_rmin < 0.0f)
+            if (m_rmax < 0.0f || m_rmin < 0.0f)
                 throw std::invalid_argument("rmin and rmax must be positive!");
             if (m_rmin >= m_rmax)
                 throw std::invalid_argument("rmin should be smaller than rmax!");

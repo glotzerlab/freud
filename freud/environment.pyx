@@ -124,6 +124,10 @@ cdef class BondOrder:
 
     def __cinit__(self, float rmax, float k, unsigned int n,
                   unsigned int n_bins_t, unsigned int n_bins_p):
+        if n_bins_t < 2:
+            raise ValueError("Must have at least 2 bins in theta.")
+        if n_bins_p < 2:
+            raise ValueError("Must have at least 2 bins in phi.")
         self.thisptr = new freud._environment.BondOrder(
             rmax, k, n, n_bins_t, n_bins_p)
         self.rmax = rmax
