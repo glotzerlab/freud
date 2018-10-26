@@ -17,4 +17,5 @@ MSD Module
 MSD
 ===
 
-.. autofunction:: freud.msd.MSD(positions, box=None, images=None, mode=None)
+.. autoclass:: freud.msd.MSD(box=None, mode=None)
+    :members: accumulate, compute, reset

@@ -98,7 +98,7 @@ cdef class MSD:
     Attributes:
         box (:class:`freud.box.Box`):
             Box used in the calculation.
-        msd (:math:`\left(N_{frames}, )` :class:`numpy.ndarray`):
+        msd (:math:`\left(N_{frames}, \right)` :class:`numpy.ndarray`):
             The mean squared displacement.
     """   # noqa: E501
     cdef freud.box.Box box
@@ -199,6 +199,8 @@ cdef class MSD:
         return np.concatenate(self.particle_msd, axis=1).mean(axis=-1)
 
     def reset(self):
+        R"""Clears the stored MSD values from previous calls to accumulate (or
+        the last call to compute)."""
         self.particle_msd = []
 
     def compute(self, positions, images=None):

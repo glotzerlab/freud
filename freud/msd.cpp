@@ -38,11 +38,11 @@
         "name": "freud.msd",
         "sources": [
             "freud/msd.pyx",
-            "cpp/locality/NeighborList.cc",
-            "cpp/locality/LinkCell.cc",
+            "cpp/locality/NearestNeighbors.cc",
             "cpp/box/Box.cc",
+            "cpp/locality/NeighborList.cc",
             "cpp/util/HOOMDMatrix.cc",
-            "cpp/locality/NearestNeighbors.cc"
+            "cpp/locality/LinkCell.cc"
         ]
     },
     "module_name": "freud.msd"
@@ -2723,7 +2723,7 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_2accumulate(struct __pyx_obj_5freud_3
   __Pyx_INCREF(__pyx_v_images);
 
   /* "freud/msd.pyx":143
- *         """
+ *         """  # noqa: E501
  * 
  *         positions = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             positions, 3, dtype=np.float32, contiguous=True,
@@ -2766,7 +2766,7 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_2accumulate(struct __pyx_obj_5freud_3
   if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_array_name, __pyx_n_s_positions) < 0) __PYX_ERR(0, 144, __pyx_L1_error)
 
   /* "freud/msd.pyx":143
- *         """
+ *         """  # noqa: E501
  * 
  *         positions = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             positions, 3, dtype=np.float32, contiguous=True,
@@ -4158,13 +4158,13 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_3msd___get__(struct __pyx_obj_5freud_
  *         return np.concatenate(self.particle_msd, axis=1).mean(axis=-1)
  * 
  *     def reset(self):             # <<<<<<<<<<<<<<
- *         self.particle_msd = []
- * 
+ *         R"""Clears the stored MSD values from previous calls to accumulate (or
+ *         the last call to compute)."""
  */
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_3msd_3MSD_5reset(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_3msd_3MSD_4reset[] = "MSD.reset(self)";
+static char __pyx_doc_5freud_3msd_3MSD_4reset[] = "MSD.reset(self)\nClears the stored MSD values from previous calls to accumulate (or\n        the last call to compute).";
 static PyMethodDef __pyx_mdef_5freud_3msd_3MSD_5reset = {"reset", (PyCFunction)__pyx_pw_5freud_3msd_3MSD_5reset, METH_NOARGS, __pyx_doc_5freud_3msd_3MSD_4reset};
 static PyObject *__pyx_pw_5freud_3msd_3MSD_5reset(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
@@ -4183,14 +4183,14 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_4reset(struct __pyx_obj_5freud_3msd_M
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("reset", 0);
 
-  /* "freud/msd.pyx":202
- * 
- *     def reset(self):
+  /* "freud/msd.pyx":204
+ *         R"""Clears the stored MSD values from previous calls to accumulate (or
+ *         the last call to compute)."""
  *         self.particle_msd = []             # <<<<<<<<<<<<<<
  * 
  *     def compute(self, positions, images=None):
  */
-  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 202, __pyx_L1_error)
+  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 204, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_GIVEREF(__pyx_t_1);
   __Pyx_GOTREF(__pyx_v_self->particle_msd);
@@ -4202,8 +4202,8 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_4reset(struct __pyx_obj_5freud_3msd_M
  *         return np.concatenate(self.particle_msd, axis=1).mean(axis=-1)
  * 
  *     def reset(self):             # <<<<<<<<<<<<<<
- *         self.particle_msd = []
- * 
+ *         R"""Clears the stored MSD values from previous calls to accumulate (or
+ *         the last call to compute)."""
  */
 
   /* function exit code */
@@ -4219,7 +4219,7 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_4reset(struct __pyx_obj_5freud_3msd_M
   return __pyx_r;
 }
 
-/* "freud/msd.pyx":204
+/* "freud/msd.pyx":206
  *         self.particle_msd = []
  * 
  *     def compute(self, positions, images=None):             # <<<<<<<<<<<<<<
@@ -4265,7 +4265,7 @@ static PyObject *__pyx_pw_5freud_3msd_3MSD_7compute(PyObject *__pyx_v_self, PyOb
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "compute") < 0)) __PYX_ERR(0, 204, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "compute") < 0)) __PYX_ERR(0, 206, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -4281,7 +4281,7 @@ static PyObject *__pyx_pw_5freud_3msd_3MSD_7compute(PyObject *__pyx_v_self, PyOb
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("compute", 0, 1, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 204, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("compute", 0, 1, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 206, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("freud.msd.MSD.compute", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -4304,14 +4304,14 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_6compute(struct __pyx_obj_5freud_3msd
   PyObject *__pyx_t_5 = NULL;
   __Pyx_RefNannySetupContext("compute", 0);
 
-  /* "freud/msd.pyx":217
+  /* "freud/msd.pyx":219
  *                 positions are assumed to be unwrapped already.
- *         """
+ *         """  # noqa: E501
  *         self.reset()             # <<<<<<<<<<<<<<
  *         self.accumulate(positions, images)
  *         return self
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_reset); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 217, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_reset); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 219, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -4324,22 +4324,22 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_6compute(struct __pyx_obj_5freud_3msd
     }
   }
   if (__pyx_t_3) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 217, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 219, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   } else {
-    __pyx_t_1 = __Pyx_PyObject_CallNoArg(__pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 217, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_CallNoArg(__pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 219, __pyx_L1_error)
   }
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "freud/msd.pyx":218
- *         """
+  /* "freud/msd.pyx":220
+ *         """  # noqa: E501
  *         self.reset()
  *         self.accumulate(positions, images)             # <<<<<<<<<<<<<<
  *         return self
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_accumulate); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 218, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_accumulate); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 220, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   __pyx_t_4 = 0;
@@ -4356,7 +4356,7 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_6compute(struct __pyx_obj_5freud_3msd
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_2)) {
     PyObject *__pyx_temp[3] = {__pyx_t_3, __pyx_v_positions, __pyx_v_images};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_4, 2+__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 218, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_4, 2+__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 220, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_GOTREF(__pyx_t_1);
   } else
@@ -4364,13 +4364,13 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_6compute(struct __pyx_obj_5freud_3msd
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
     PyObject *__pyx_temp[3] = {__pyx_t_3, __pyx_v_positions, __pyx_v_images};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_4, 2+__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 218, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_4, 2+__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 220, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_GOTREF(__pyx_t_1);
   } else
   #endif
   {
-    __pyx_t_5 = PyTuple_New(2+__pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 218, __pyx_L1_error)
+    __pyx_t_5 = PyTuple_New(2+__pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 220, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     if (__pyx_t_3) {
       __Pyx_GIVEREF(__pyx_t_3); PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_3); __pyx_t_3 = NULL;
@@ -4381,14 +4381,14 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_6compute(struct __pyx_obj_5freud_3msd
     __Pyx_INCREF(__pyx_v_images);
     __Pyx_GIVEREF(__pyx_v_images);
     PyTuple_SET_ITEM(__pyx_t_5, 1+__pyx_t_4, __pyx_v_images);
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_5, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 218, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_5, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 220, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "freud/msd.pyx":219
+  /* "freud/msd.pyx":221
  *         self.reset()
  *         self.accumulate(positions, images)
  *         return self             # <<<<<<<<<<<<<<
@@ -4398,7 +4398,7 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_6compute(struct __pyx_obj_5freud_3msd
   __pyx_r = ((PyObject *)__pyx_v_self);
   goto __pyx_L0;
 
-  /* "freud/msd.pyx":204
+  /* "freud/msd.pyx":206
  *         self.particle_msd = []
  * 
  *     def compute(self, positions, images=None):             # <<<<<<<<<<<<<<
@@ -7100,7 +7100,7 @@ static PyTypeObject __pyx_type_5freud_3msd_MSD = {
   0, /*tp_setattro*/
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-  "Compute the mean squared displacement.\n\n    The mean squared displacement (MSD) measures how much particles move over\n    time. The MSD plays an important role in characterizing Brownian motion,\n    since it provides a measure of whether particles are moving according to\n    diffusion alone or if there are other forces contributing. There are a\n    number of definitions for the mean squared displacement. This function\n    provides access to the two most common definitions through the mode\n    argument.\n\n    * :code:`'window'` (*default*):\n      This mode calculates the most common form of the MSD, which is defined as\n\n      .. math::\n\n          MSD(m) = \\left\\langle\\frac{1}{N-m} \\sum_{k=0}^{N-m-1} (\\vec{r}(k+m) - \\vec{r}(k))^2\\right\\rangle_{particles}\n\n      According to this definition, the mean squared displacement is the\n      average displacement over all windows of length :math:`m` over the course\n      of the simulation. Therefore, for any :math:`m`, :math:`MSD(m)` is\n      averaged over all windows of length :math:`m` and over all particles.\n      This calculation can be accessed using the 'window' mode of this\n      function.\n\n      The windowed calculation can be quite computationally intensive. To\n      perform this calculation efficiently, we use the algorithm described in\n      [Calandrini2011]_ as described in `this StackOverflow thread\n      <https://stackoverflow.com/questions/34222272/computing-mean-square-displacement-using-python-and-fft>`_.\n\n    * :code:`'direct'`:\n      Under some circumstances, however, we may be more interested in\n      calculating a different quantity described by\n\n      .. math::\n          :nowrap:\n\n          \\begin{eqnarray*}\n              MSD(t) = &\\langle (\\vec{r}-\\vec{r}_0)^2 \\rangle_{particles} \\\\\n                     = & \\dfrac{1}{N} \\sum_{n=1}^N (x_n(t) - x_n(0))^2 \\\\\n          \\end{eqnarray*}\n\n      In this case, we simply compute how much particles have mov""ed from their\n      initial position, averaged over all particles. For more information on\n      this calculation, see `the Wikipedia page\n      <https://en.wikipedia.org/wiki/Mean_squared_displacement>`_.\n\n    .. note::\n        The MSD is only well-defined when the box is constant over the\n        course of the simulation. Additionally, the number of particles must be\n        constant over the course of the simulation.\n\n    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>\n\n    Args:\n        box (:class:`freud.box.Box`, optional):\n            If not provided, the class will assume that all positions provided\n            in calls to :meth:`~compute` or :meth:`~accumulate` are already\n            unwrapped.\n        mode (str, optional):\n            Mode of calculation. Options are :code:`'window'` and\n            :code:`'direct'`.  (Default value = :code:`'window'`).\n\n    Attributes:\n        box (:class:`freud.box.Box`):\n            Box used in the calculation.\n        msd (:math:`\\left(N_{frames}, )` :class:`numpy.ndarray`):\n            The mean squared displacement.\n    ", /*tp_doc*/
+  "Compute the mean squared displacement.\n\n    The mean squared displacement (MSD) measures how much particles move over\n    time. The MSD plays an important role in characterizing Brownian motion,\n    since it provides a measure of whether particles are moving according to\n    diffusion alone or if there are other forces contributing. There are a\n    number of definitions for the mean squared displacement. This function\n    provides access to the two most common definitions through the mode\n    argument.\n\n    * :code:`'window'` (*default*):\n      This mode calculates the most common form of the MSD, which is defined as\n\n      .. math::\n\n          MSD(m) = \\left\\langle\\frac{1}{N-m} \\sum_{k=0}^{N-m-1} (\\vec{r}(k+m) - \\vec{r}(k))^2\\right\\rangle_{particles}\n\n      According to this definition, the mean squared displacement is the\n      average displacement over all windows of length :math:`m` over the course\n      of the simulation. Therefore, for any :math:`m`, :math:`MSD(m)` is\n      averaged over all windows of length :math:`m` and over all particles.\n      This calculation can be accessed using the 'window' mode of this\n      function.\n\n      The windowed calculation can be quite computationally intensive. To\n      perform this calculation efficiently, we use the algorithm described in\n      [Calandrini2011]_ as described in `this StackOverflow thread\n      <https://stackoverflow.com/questions/34222272/computing-mean-square-displacement-using-python-and-fft>`_.\n\n    * :code:`'direct'`:\n      Under some circumstances, however, we may be more interested in\n      calculating a different quantity described by\n\n      .. math::\n          :nowrap:\n\n          \\begin{eqnarray*}\n              MSD(t) = &\\langle (\\vec{r}-\\vec{r}_0)^2 \\rangle_{particles} \\\\\n                     = & \\dfrac{1}{N} \\sum_{n=1}^N (x_n(t) - x_n(0))^2 \\\\\n          \\end{eqnarray*}\n\n      In this case, we simply compute how much particles have mov""ed from their\n      initial position, averaged over all particles. For more information on\n      this calculation, see `the Wikipedia page\n      <https://en.wikipedia.org/wiki/Mean_squared_displacement>`_.\n\n    .. note::\n        The MSD is only well-defined when the box is constant over the\n        course of the simulation. Additionally, the number of particles must be\n        constant over the course of the simulation.\n\n    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>\n\n    Args:\n        box (:class:`freud.box.Box`, optional):\n            If not provided, the class will assume that all positions provided\n            in calls to :meth:`~compute` or :meth:`~accumulate` are already\n            unwrapped.\n        mode (str, optional):\n            Mode of calculation. Options are :code:`'window'` and\n            :code:`'direct'`.  (Default value = :code:`'window'`).\n\n    Attributes:\n        box (:class:`freud.box.Box`):\n            Box used in the calculation.\n        msd (:math:`\\left(N_{frames}, \\right)` :class:`numpy.ndarray`):\n            The mean squared displacement.\n    ", /*tp_doc*/
   __pyx_tp_traverse_5freud_3msd_MSD, /*tp_traverse*/
   __pyx_tp_clear_5freud_3msd_MSD, /*tp_clear*/
   0, /*tp_richcompare*/
@@ -7599,25 +7599,25 @@ static int __Pyx_InitCachedConstants(void) {
  *         return np.concatenate(self.particle_msd, axis=1).mean(axis=-1)
  * 
  *     def reset(self):             # <<<<<<<<<<<<<<
- *         self.particle_msd = []
- * 
+ *         R"""Clears the stored MSD values from previous calls to accumulate (or
+ *         the last call to compute)."""
  */
   __pyx_tuple__37 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__37)) __PYX_ERR(0, 201, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__37);
   __Pyx_GIVEREF(__pyx_tuple__37);
   __pyx_codeobj__38 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__37, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_msd_pyx, __pyx_n_s_reset, 201, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__38)) __PYX_ERR(0, 201, __pyx_L1_error)
 
-  /* "freud/msd.pyx":204
+  /* "freud/msd.pyx":206
  *         self.particle_msd = []
  * 
  *     def compute(self, positions, images=None):             # <<<<<<<<<<<<<<
  *         """Calculate the MSD for the positions provided.
  * 
  */
-  __pyx_tuple__39 = PyTuple_Pack(3, __pyx_n_s_self, __pyx_n_s_positions, __pyx_n_s_images); if (unlikely(!__pyx_tuple__39)) __PYX_ERR(0, 204, __pyx_L1_error)
+  __pyx_tuple__39 = PyTuple_Pack(3, __pyx_n_s_self, __pyx_n_s_positions, __pyx_n_s_images); if (unlikely(!__pyx_tuple__39)) __PYX_ERR(0, 206, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__39);
   __Pyx_GIVEREF(__pyx_tuple__39);
-  __pyx_codeobj__40 = (PyObject*)__Pyx_PyCode_New(3, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__39, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_msd_pyx, __pyx_n_s_compute, 204, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__40)) __PYX_ERR(0, 204, __pyx_L1_error)
+  __pyx_codeobj__40 = (PyObject*)__Pyx_PyCode_New(3, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__39, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_msd_pyx, __pyx_n_s_compute, 206, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__40)) __PYX_ERR(0, 206, __pyx_L1_error)
 
   /* "(tree fragment)":1
  * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
@@ -8114,8 +8114,8 @@ if (!__Pyx_RefNanny) {
  *         return np.concatenate(self.particle_msd, axis=1).mean(axis=-1)
  * 
  *     def reset(self):             # <<<<<<<<<<<<<<
- *         self.particle_msd = []
- * 
+ *         R"""Clears the stored MSD values from previous calls to accumulate (or
+ *         the last call to compute)."""
  */
   __pyx_t_7 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_3msd_3MSD_5reset, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_MSD_reset, NULL, __pyx_n_s_freud_msd, __pyx_d, ((PyObject *)__pyx_codeobj__38)); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 201, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
@@ -8123,16 +8123,16 @@ if (!__Pyx_RefNanny) {
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   PyType_Modified(__pyx_ptype_5freud_3msd_MSD);
 
-  /* "freud/msd.pyx":204
+  /* "freud/msd.pyx":206
  *         self.particle_msd = []
  * 
  *     def compute(self, positions, images=None):             # <<<<<<<<<<<<<<
  *         """Calculate the MSD for the positions provided.
  * 
  */
-  __pyx_t_7 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_3msd_3MSD_7compute, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_MSD_compute, NULL, __pyx_n_s_freud_msd, __pyx_d, ((PyObject *)__pyx_codeobj__40)); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 204, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_3msd_3MSD_7compute, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_MSD_compute, NULL, __pyx_n_s_freud_msd, __pyx_d, ((PyObject *)__pyx_codeobj__40)); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 206, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_3msd_MSD->tp_dict, __pyx_n_s_compute, __pyx_t_7) < 0) __PYX_ERR(0, 204, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_3msd_MSD->tp_dict, __pyx_n_s_compute, __pyx_t_7) < 0) __PYX_ERR(0, 206, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   PyType_Modified(__pyx_ptype_5freud_3msd_MSD);
 
