@@ -995,7 +995,7 @@ cdef class LocalQlNear(LocalQl):
         if type(self) == LocalQlNear:
             self.qlptr = new freud._order.LocalQl(
                 dereference(b.thisptr), rmax, l, 0)
-            self.m_box = box
+            self.m_box = b
             self.rmax = rmax
             self.num_neigh = kn
 
@@ -1133,7 +1133,7 @@ cdef class LocalWl(LocalQl):
         if type(self) is LocalWl:
             self.thisptr = self.qlptr = new freud._order.LocalWl(
                 dereference(b.thisptr), rmax, l, rmin)
-            self.m_box = box
+            self.m_box = b
             self.rmax = rmax
 
     def __dealloc__(self):
@@ -1273,7 +1273,7 @@ cdef class LocalWlNear(LocalWl):
         if type(self) is LocalWlNear:
             self.thisptr = self.qlptr = new freud._order.LocalWl(
                 dereference(b.thisptr), rmax, l, 0)
-            self.m_box = box
+            self.m_box = b
             self.rmax = rmax
             self.num_neigh = kn
 
@@ -1382,7 +1382,7 @@ cdef class SolLiq:
         if type(self) is SolLiq:
             self.thisptr = new freud._order.SolLiq(
                 dereference(b.thisptr), rmax, Qthreshold, Sthreshold, l)
-            self.m_box = box
+            self.m_box = b
             self.rmax = rmax
 
     def __dealloc__(self):
@@ -1666,7 +1666,7 @@ cdef class SolLiqNear(SolLiq):
         if type(self) is SolLiqNear:
             self.thisptr = new freud._order.SolLiq(
                 dereference(b.thisptr), rmax, Qthreshold, Sthreshold, l)
-            self.m_box = box
+            self.m_box = b
             self.rmax = rmax
             self.num_neigh = kn
 
