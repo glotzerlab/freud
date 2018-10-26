@@ -24,11 +24,11 @@ CorrelationFunction<T>::CorrelationFunction(float rmax, float dr)
     : m_box(box::Box()), m_rmax(rmax), m_dr(dr), m_frame_counter(0), m_reduce(true)
     {
     if (dr <= 0.0f)
-        throw invalid_argument("dr must be positive");
+        throw invalid_argument("CorrelationFunction requires dr to be positive.");
     if (rmax <= 0.0f)
-        throw invalid_argument("rmax must be positive");
+        throw invalid_argument("CorrelationFunction requires rmax to be positive.");
     if (dr > rmax)
-        throw invalid_argument("rmax must be greater than dr");
+        throw invalid_argument("CorrelationFunction requires dr must be less than or equal to rmax.");
 
     m_nbins = int(floorf(m_rmax / m_dr));
     assert(m_nbins > 0);

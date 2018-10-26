@@ -22,21 +22,21 @@ PMFTXY2D::PMFTXY2D(float max_x, float max_y, unsigned int n_bins_x, unsigned int
     : PMFT(), m_max_x(max_x), m_max_y(max_y), m_n_bins_x(n_bins_x), m_n_bins_y(n_bins_y)
     {
     if (n_bins_x < 1)
-        throw invalid_argument("must be at least 1 bin in x");
+        throw invalid_argument("PMFTXY2D requires at least 1 bin in X.");
     if (n_bins_y < 1)
-        throw invalid_argument("must be at least 1 bin in y");
+        throw invalid_argument("PMFTXY2D requires at least 1 bin in Y.");
     if (max_x < 0.0f)
-        throw invalid_argument("max_x must be positive");
+        throw invalid_argument("PMFTXY2D requires that max_x must be positive.");
     if (max_y < 0.0f)
-        throw invalid_argument("max_y must be positive");
+        throw invalid_argument("PMFTXY2D requires that max_y must be positive.");
     // calculate dx, dy
     m_dx = 2.0 * m_max_x / float(m_n_bins_x);
     m_dy = 2.0 * m_max_y / float(m_n_bins_y);
 
     if (m_dx > max_x)
-        throw invalid_argument("max_x must be greater than dx");
+        throw invalid_argument("PMFTXY2D requires that dx is less than or equal to max_x.");
     if (m_dy > max_y)
-        throw invalid_argument("max_y must be greater than dy");
+        throw invalid_argument("PMFTXY2D requires that dy is less than or equal to max_y.");
 
     m_jacobian = m_dx * m_dy;
 

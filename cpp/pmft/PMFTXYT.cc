@@ -23,26 +23,26 @@ PMFTXYT::PMFTXYT(float max_x, float max_y, unsigned int n_bins_x, unsigned int n
       m_n_bins_x(n_bins_x), m_n_bins_y(n_bins_y), m_n_bins_t(n_bins_t)
     {
     if (n_bins_x < 1)
-        throw invalid_argument("must be at least 1 bin in x");
+        throw invalid_argument("PMFTXYT requires at least 1 bin in X.");
     if (n_bins_y < 1)
-        throw invalid_argument("must be at least 1 bin in y");
+        throw invalid_argument("PMFTXYT requires at least 1 bin in Y.");
     if (n_bins_t < 1)
-        throw invalid_argument("must be at least 1 bin in t");
+        throw invalid_argument("PMFTXYT requires at least 1 bin in T.");
     if (max_x < 0.0f)
-        throw invalid_argument("max_x must be positive");
+        throw invalid_argument("PMFTXYT requires that max_x must be positive.");
     if (max_y < 0.0f)
-        throw invalid_argument("max_y must be positive");
+        throw invalid_argument("PMFTXYT requires that max_y must be positive.");
     // calculate dx, dy, dt
     m_dx = 2.0 * m_max_x / float(m_n_bins_x);
     m_dy = 2.0 * m_max_y / float(m_n_bins_y);
     m_dt = m_max_t / float(m_n_bins_t);
 
     if (m_dx > max_x)
-        throw invalid_argument("max_x must be greater than dx");
+        throw invalid_argument("PMFTXYT requires that dx is less than or equal to max_x.");
     if (m_dy > max_y)
-        throw invalid_argument("max_y must be greater than dy");
+        throw invalid_argument("PMFTXYT requires that dy is less than or equal to max_y.");
     if (m_dt > m_max_t)
-        throw invalid_argument("max_t must be greater than dt");
+        throw invalid_argument("PMFTXYT requires that dt is less than or equal to max_t.");
 
     m_jacobian = m_dx * m_dy * m_dt;
 

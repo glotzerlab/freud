@@ -8,7 +8,7 @@ cimport freud._locality
 
 cdef extern from "CorrelationFunction.h" namespace "freud::density":
     cdef cppclass CorrelationFunction[T]:
-        CorrelationFunction(float, float)
+        CorrelationFunction(float, float) except +
         const freud._box.Box & getBox() const
         void reset()
         void accumulate(const freud._box.Box &,
@@ -26,12 +26,12 @@ cdef extern from "CorrelationFunction.h" namespace "freud::density":
 
 cdef extern from "GaussianDensity.h" namespace "freud::density":
     cdef cppclass GaussianDensity:
-        GaussianDensity(unsigned int, float, float)
+        GaussianDensity(unsigned int, float, float) except +
         GaussianDensity(unsigned int,
                         unsigned int,
                         unsigned int,
                         float,
-                        float)
+                        float) except +
         const freud._box.Box & getBox() const
         void reset()
         void reduceDensity()
@@ -61,7 +61,7 @@ cdef extern from "LocalDensity.h" namespace "freud::density":
 
 cdef extern from "RDF.h" namespace "freud::density":
     cdef cppclass RDF:
-        RDF(float, float, float)
+        RDF(float, float, float) except +
         const freud._box.Box & getBox() const
         void reset()
         void accumulate(freud._box.Box &,
