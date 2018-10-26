@@ -141,30 +141,6 @@ HOSTDEVICE inline Scalar4 make_scalar4(Scalar x, Scalar y, Scalar z, Scalar w)
 //! Export relevant hoomd math functions to python
 void export_hoomd_math_functions();
 
-#ifndef NVCC
-
-// fixups for windows math compilation
-#ifdef WIN32
-// windoze calls isnan by a different name....
-#include <float.h>
-#define isnan _isnan
-
-// windows feels that rintf should not exist.....
-//! replacement for rint in windows
-inline double rint(double x)
-    {
-    return floor(x+.5);
-    }
-
-//! replacement for rint in windows
-inline double rintf(float x)
-    {
-    return floorf(x+.5f);
-    }
-#endif
-
-#endif
-
 //! Fastmath routines
 /*! Routines in the fast namespace map to fast math routines on the CPU and GPU. Where possible, these use the
     less accurate intrinsics on the GPU (i.e. __sinf). The routines are provide overloads for both single and double

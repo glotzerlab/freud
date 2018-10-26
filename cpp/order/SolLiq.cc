@@ -38,7 +38,7 @@ void SolLiq::Ylm(const float theta, const float phi, std::vector<std::complex<fl
     // in fsph, the definition is flipped
     sph_eval.compute(theta, phi);
 
-    for(typename fsph::PointSPHEvaluator<float>::iterator iter(sph_eval.begin_l(m_l, 0, true));
+    for (typename fsph::PointSPHEvaluator<float>::iterator iter(sph_eval.begin_l(m_l, 0, true));
         iter != sph_eval.end(); ++iter)
         {
         Y[j] = *iter;
@@ -108,7 +108,7 @@ void SolLiq::computeClustersQ(const locality::NeighborList *nlist, const vec3<fl
         // Get cell point is in
         vec3<float> ref = points[i];
 
-        for(; bond < nlist->getNumBonds() && neighbor_list[2*bond] == i; ++bond)
+        for (; bond < nlist->getNumBonds() && neighbor_list[2*bond] == i; ++bond)
             {
             const size_t j(neighbor_list[2*bond + 1]);
                 {
@@ -122,7 +122,7 @@ void SolLiq::computeClustersQ(const locality::NeighborList *nlist, const vec3<fl
 
                     SolLiq::Ylm(theta,phi,Y);
 
-                    for(unsigned int k = 0; k < (2*m_l+1); ++k)
+                    for (unsigned int k = 0; k < (2*m_l+1); ++k)
                         {
                         m_Qlmi_array.get()[(2*m_l+1)*i+k]+=Y[k];
                         }
@@ -132,7 +132,7 @@ void SolLiq::computeClustersQ(const locality::NeighborList *nlist, const vec3<fl
             }  // End loops of neighboring cells
         //if (m_number_of_neighbors[i] != 0)
         //    {
-        //    for(unsigned int k = 0; k < (2*m_l+1); ++k)
+        //    for (unsigned int k = 0; k < (2*m_l+1); ++k)
         //        {
         //        m_Qlmi_array[(2*m_l+1)*i+k]/=m_number_of_neighbors[i];
         //        }
@@ -169,7 +169,7 @@ void SolLiq::computeClustersQdot(const locality::NeighborList *nlist,
         {
         vec3<float> p = points[i];
 
-        for(; bond < nlist->getNumBonds() && neighbor_list[2*bond] == i; ++bond)
+        for (; bond < nlist->getNumBonds() && neighbor_list[2*bond] == i; ++bond)
         {
             const size_t j(neighbor_list[2*bond + 1]);
                 {
@@ -195,7 +195,7 @@ void SolLiq::computeClustersQdot(const locality::NeighborList *nlist,
                         Qdot = Qdot/real((Qlminorm*Qlmjnorm));
                         m_qldot_ij.push_back(Qdot);  // Only i < j, other pairs not added.
                         // Check if we're bonded via the threshold criterion
-                        if( real(Qdot) > m_Qthreshold)
+                        if ( real(Qdot) > m_Qthreshold)
                             {
                             // Tick up counts of number of connections these particles have
                             m_number_of_connections.get()[i]++;
@@ -235,7 +235,7 @@ void SolLiq::computeClustersQdotNoNorm(const locality::NeighborList *nlist,
         {
         vec3<float> p = points[i];
 
-        for(; bond < nlist->getNumBonds() && neighbor_list[2*bond] == i; ++bond)
+        for (; bond < nlist->getNumBonds() && neighbor_list[2*bond] == i; ++bond)
         {
             const size_t j(neighbor_list[2*bond + 1]);
                 {
@@ -256,7 +256,7 @@ void SolLiq::computeClustersQdotNoNorm(const locality::NeighborList *nlist,
                             }
                         m_qldot_ij.push_back(Qdot);  // Only i < j, other pairs not added.
                         // Check if we're bonded via the threshold criterion
-                        if( real(Qdot) > m_Qthreshold)
+                        if ( real(Qdot) > m_Qthreshold)
                             {
                             // Tick up counts of number of connections these particles have
                             m_number_of_connections.get()[i]++;
@@ -292,7 +292,7 @@ void SolLiq::computeClustersQS(const locality::NeighborList *nlist,
         {
         vec3<float> p = points[i];
 
-        for(; bond < nlist->getNumBonds() && neighbor_list[2*bond] == i; ++bond)
+        for (; bond < nlist->getNumBonds() && neighbor_list[2*bond] == i; ++bond)
         {
             const size_t j(neighbor_list[2*bond + 1]);
                 {
@@ -348,18 +348,18 @@ unsigned int SolLiq::getLargestClusterSize()
     // m_cluster_idx stores the cluster ID for each particle.
     // Count by adding to map.
     // Only add if solid like!
-    for(unsigned int i = 0; i < m_Np; i++)
+    for (unsigned int i = 0; i < m_Np; i++)
         {
-        if(m_number_of_connections.get()[i] >= m_Sthreshold)
+        if (m_number_of_connections.get()[i] >= m_Sthreshold)
             {
             freqcount[m_cluster_idx.get()[i]]++;
             }
         }
     // Traverse map looking for largest cluster size
     unsigned int largestcluster = 0;
-    for (std::map<uint,uint>::iterator it=freqcount.begin(); it!=freqcount.end(); ++it)
+    for (std::map<unsigned int, unsigned int>::iterator it=freqcount.begin(); it!=freqcount.end(); ++it)
         {
-        if(it->second > largestcluster)  // Candidate for largest cluster
+        if (it->second > largestcluster)  // Candidate for largest cluster
             {
             largestcluster = it->second;
             }
@@ -371,9 +371,9 @@ std::vector<unsigned int> SolLiq::getClusterSizes()
     {
     std::map<unsigned int, unsigned int> freqcount;
     // m_cluster_idx stores the cluster ID for each particle.  Count by adding to map.
-    for(unsigned int i = 0; i < m_Np; i++)
+    for (unsigned int i = 0; i < m_Np; i++)
         {
-        if(m_number_of_connections.get()[i] >= m_Sthreshold)
+        if (m_number_of_connections.get()[i] >= m_Sthreshold)
             {
             freqcount[m_cluster_idx.get()[i]]++;
             }
@@ -384,7 +384,7 @@ std::vector<unsigned int> SolLiq::getClusterSizes()
         }
     // Loop over counting map and shove all cluster sizes into an array
     std::vector<unsigned int> clustersizes;
-    for (std::map<uint,uint>::iterator it=freqcount.begin(); it!=freqcount.end(); ++it)
+    for (std::map<unsigned int, unsigned int>::iterator it=freqcount.begin(); it!=freqcount.end(); ++it)
         {
         clustersizes.push_back(it->second);
         }
@@ -424,7 +424,7 @@ void SolLiq::computeListOfSolidLikeNeighbors(const locality::NeighborList *nlist
         //Empty list
         SolidlikeNeighborlist[i].resize(0);
 
-        for(; bond < nlist->getNumBonds() && neighbor_list[2*bond] == i; ++bond)
+        for (; bond < nlist->getNumBonds() && neighbor_list[2*bond] == i; ++bond)
         {
             const size_t j(neighbor_list[2*bond + 1]);
                 {
@@ -493,7 +493,7 @@ void SolLiq::computeClustersSharedNeighbors(
         {
         vec3<float> p = points[i];
 
-        for(; bond < nlist->getNumBonds() && neighbor_list[2*bond] == i; ++bond)
+        for (; bond < nlist->getNumBonds() && neighbor_list[2*bond] == i; ++bond)
         {
             const size_t j(neighbor_list[2*bond + 1]);
                 {
@@ -506,25 +506,25 @@ void SolLiq::computeClustersSharedNeighbors(
                         {
                         unsigned int num_shared = 0;
                         map<unsigned int, unsigned int> sharedneighbors;
-                        for(unsigned int k = 0; k < SolidlikeNeighborlist[i].size(); k++)
+                        for (unsigned int k = 0; k < SolidlikeNeighborlist[i].size(); k++)
                             {
                             sharedneighbors[SolidlikeNeighborlist[i][k]]++;
                             }
-                        for(unsigned int k = 0; k < SolidlikeNeighborlist[j].size(); k++)
+                        for (unsigned int k = 0; k < SolidlikeNeighborlist[j].size(); k++)
                             {
                             sharedneighbors[SolidlikeNeighborlist[j][k]]++;
                             }
                         // Scan through counting number of shared neighbors in the map
                         std::map<unsigned int, unsigned int>::const_iterator it;
-                        for(it = sharedneighbors.begin(); it != sharedneighbors.end(); ++it)
+                        for (it = sharedneighbors.begin(); it != sharedneighbors.end(); ++it)
                             {
-                            if((*it).second>=2)
+                            if ((*it).second>=2)
                                 {
                                 num_shared++;
                                 }
                             }
                         m_number_of_shared_connections.push_back(num_shared);
-                        if(num_shared > m_Sthreshold)
+                        if (num_shared > m_Sthreshold)
                             {
                             // merge the two sets using the disjoint set
                             uint32_t a = dj.find(i);

@@ -74,7 +74,7 @@ void LocalQl::compute(const locality::NeighborList *nlist, const vec3<float> *po
             vec3<float> delta = m_box.wrap(points[j] - ref);
             float rsq = dot(delta, delta);
 
-            if (rsq < rmaxsq and rsq > rminsq)
+            if (rsq < rmaxsq && rsq > rminsq)
                 {
                 // phi is usually in range 0..2Pi, but
                 // it only appears in Ylm as exp(im\phi),
@@ -125,7 +125,7 @@ void LocalQl::computeAve(const locality::NeighborList *nlist, const vec3<float> 
     float rmaxsq = m_rmax * m_rmax;
     float normalizationfactor = 4*M_PI/(2*m_l+1);
 
-    // newmanrs:  For efficiency, if Np != m_Np, we could not reallocate these! Maybe.
+    // newmanrs: For efficiency, if Np != m_Np, we could not reallocate these! Maybe.
     // for safety and debugging laziness, reallocate each time
     m_AveQlmi = std::shared_ptr<complex<float> >(new complex<float> [(2*m_l+1)*m_Np], std::default_delete<complex<float>[]>());
     m_AveQli = std::shared_ptr<float>(new float[m_Np], std::default_delete<float[]>());
@@ -144,33 +144,33 @@ void LocalQl::computeAve(const locality::NeighborList *nlist, const vec3<float> 
 
         for(; bond < nlist->getNumBonds() && neighbor_list[2*bond] == i; ++bond)
             {
-                const unsigned int n1(neighbor_list[2*bond + 1]);
+            const unsigned int n1(neighbor_list[2*bond + 1]);
                 {
                 vec3<float> ref1 = points[n1];
                 if (n1 == i)
                     {
-                        continue;
+                    continue;
                     }
                 // rij = rj - ri, from i pointing to j.
                 vec3<float> delta = m_box.wrap(ref1 - ref);
                 float rsq = dot(delta, delta);
 
-                if (rsq < rmaxsq and rsq > rminsq)
+                if (rsq < rmaxsq && rsq > rminsq)
                     {
                     size_t neighborhood_bond(nlist->find_first_index(n1));
                     for(; neighborhood_bond < nlist->getNumBonds() && neighbor_list[2*neighborhood_bond] == n1; ++neighborhood_bond)
-                    {
-                    const unsigned int j(neighbor_list[2*neighborhood_bond + 1]);
+                        {
+                        const unsigned int j(neighbor_list[2*neighborhood_bond + 1]);
                             {
                             if (n1 == j)
                                 {
-                                    continue;
+                                continue;
                                 }
                             // rij = rj - ri, from i pointing to j.
                             vec3<float> delta1 = m_box.wrap(points[j] - ref1);
                             float rsq1 = dot(delta1, delta1);
 
-                            if (rsq1 < rmaxsq and rsq1 > rminsq)
+                            if (rsq1 < rmaxsq && rsq1 > rminsq)
                                 {
                                 for(unsigned int k = 0; k < (2*m_l+1); ++k)
                                     {
@@ -188,13 +188,13 @@ void LocalQl::computeAve(const locality::NeighborList *nlist, const vec3<float> 
         // Normalize!
         for (unsigned int k = 0; k < (2*m_l+1); ++k)
             {
-                // Adding the Qlm of the particle i itself
-                m_AveQlmi.get()[(2*m_l+1)*i+k] += m_Qlmi.get()[(2*m_l+1)*i+k];
-                m_AveQlmi.get()[(2*m_l+1)*i+k]/= neighborcount;
-                m_AveQlm.get()[k]+= m_AveQlmi.get()[(2*m_l+1)*i+k];
-                // Square by multiplying self w/ complex conj, then take real comp
-                m_AveQli.get()[i]+= abs( m_AveQlmi.get()[(2*m_l+1)*i+k] *
-                                         conj(m_AveQlmi.get()[(2*m_l+1)*i+k]) );
+            // Adding the Qlm of the particle i itself
+            m_AveQlmi.get()[(2*m_l+1)*i+k] += m_Qlmi.get()[(2*m_l+1)*i+k];
+            m_AveQlmi.get()[(2*m_l+1)*i+k]/= neighborcount;
+            m_AveQlm.get()[k]+= m_AveQlmi.get()[(2*m_l+1)*i+k];
+            // Square by multiplying self w/ complex conj, then take real comp
+            m_AveQli.get()[i]+= abs( m_AveQlmi.get()[(2*m_l+1)*i+k] *
+                                     conj(m_AveQlmi.get()[(2*m_l+1)*i+k]) );
             }
         m_AveQli.get()[i]*=normalizationfactor;
         m_AveQli.get()[i]=sqrt(m_AveQli.get()[i]);
@@ -204,7 +204,7 @@ void LocalQl::computeAve(const locality::NeighborList *nlist, const vec3<float> 
 void LocalQl::computeNorm(const vec3<float> *points, unsigned int Np)
     {
 
-    //Set local data size
+    // Set local data size
     m_Np = Np;
     float normalizationfactor = 4*M_PI/(2*m_l+1);
 
@@ -225,8 +225,8 @@ void LocalQl::computeNorm(const vec3<float> *points, unsigned int Np)
             m_QliNorm.get()[i]+= abs( m_Qlm.get()[k] *
                                       conj(m_Qlm.get()[k]) );
             }
-            m_QliNorm.get()[i]*=normalizationfactor;
-            m_QliNorm.get()[i]=sqrt(m_QliNorm.get()[i]);
+            m_QliNorm.get()[i] *= normalizationfactor;
+            m_QliNorm.get()[i] = sqrt(m_QliNorm.get()[i]);
         }
     }
 
