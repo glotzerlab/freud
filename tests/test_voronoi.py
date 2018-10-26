@@ -36,10 +36,12 @@ class TestVoronoi(unittest.TestCase):
              [1, 0, 0], [1, 1, 0], [1, 2, 0],
              [2, 0, 0], [2, 1, 0], [2, 2, 0]]).astype(np.float32)
         vor.compute(positions)
-        npt.assert_equal(
-            vor.polytopes,
-            [np.array([[1.5, 1.5, 0], [0.5, 1.5, 0],
-                       [0.5, 0.5, 0], [1.5, 0.5, 0]])])
+        polytope_centers = set(tuple(point)
+                               for point in vor.polytopes[0].tolist())
+        check_centers = set([(1.5, 1.5, 0), (0.5, 1.5, 0),
+                             (0.5, 0.5, 0), (1.5, 0.5, 0)])
+        self.assertEqual(polytope_centers, check_centers)
+
         # Verify the cell areas
         vor.computeVolumes()
         npt.assert_equal(vor.volumes, [1])
@@ -61,11 +63,13 @@ class TestVoronoi(unittest.TestCase):
              [1, 0, 2], [1, 1, 2], [1, 2, 2],
              [2, 0, 2], [2, 1, 2], [2, 2, 2]]).astype(np.float32)
         vor.compute(positions)
-        npt.assert_equal(
-            vor.polytopes,
-            [np.array([[1.5, 1.5, 1.5], [1.5, 0.5, 1.5], [1.5, 0.5, 0.5],
-                       [1.5, 1.5, 0.5], [0.5, 0.5, 0.5], [0.5, 0.5, 1.5],
-                       [0.5, 1.5, 0.5], [0.5, 1.5, 1.5]])])
+        polytope_centers = set(tuple(point)
+                               for point in vor.polytopes[0].tolist())
+        check_centers = set([(1.5, 1.5, 1.5), (1.5, 0.5, 1.5), (1.5, 0.5, 0.5),
+                             (1.5, 1.5, 0.5), (0.5, 0.5, 0.5), (0.5, 0.5, 1.5),
+                             (0.5, 1.5, 0.5), (0.5, 1.5, 1.5)])
+        self.assertEqual(polytope_centers, check_centers)
+
         # Verify the cell volumes
         vor.computeVolumes()
         npt.assert_equal(vor.volumes, [1])
