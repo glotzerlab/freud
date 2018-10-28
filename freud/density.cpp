@@ -35,7 +35,6 @@
             "cpp/environment",
             "cpp/locality",
             "cpp/density",
-            "cpp/bond",
             "cpp/registration",
             "cpp/pmft",
             "/usr/include"
@@ -47,15 +46,15 @@
         "name": "freud.density",
         "sources": [
             "freud/density.pyx",
-            "cpp/box/Box.cc",
-            "cpp/locality/NearestNeighbors.cc",
-            "cpp/density/GaussianDensity.cc",
-            "cpp/density/RDF.cc",
-            "cpp/util/HOOMDMatrix.cc",
-            "cpp/density/LocalDensity.cc",
-            "cpp/density/CorrelationFunction.cc",
             "cpp/locality/LinkCell.cc",
-            "cpp/locality/NeighborList.cc"
+            "cpp/locality/NeighborList.cc",
+            "cpp/locality/NearestNeighbors.cc",
+            "cpp/density/CorrelationFunction.cc",
+            "cpp/util/HOOMDMatrix.cc",
+            "cpp/density/GaussianDensity.cc",
+            "cpp/density/LocalDensity.cc",
+            "cpp/box/Box.cc",
+            "cpp/density/RDF.cc"
         ]
     },
     "module_name": "freud.density"
