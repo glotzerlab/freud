@@ -161,12 +161,12 @@ cdef class MSD:
                     'The positions and images must have the same shape')
 
         # Make sure we aren't modifying the provided array
-        unwrapped_positions = positions.copy()
         if self.box is not None and images is not None:
+            unwrapped_positions = positions.copy()
             for i in range(positions.shape[0]):
                 unwrapped_positions[i, :, :] = self.box.unwrap(
                     unwrapped_positions[i, :, :], images[i, :, :])
-        positions = unwrapped_positions
+            positions = unwrapped_positions
 
         if self.mode == 'window':
             # First compute the first term r^2(k+m) - r^2(k)

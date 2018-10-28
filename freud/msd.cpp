@@ -38,10 +38,10 @@
         "name": "freud.msd",
         "sources": [
             "freud/msd.pyx",
+            "cpp/util/HOOMDMatrix.cc",
+            "cpp/locality/NearestNeighbors.cc",
             "cpp/locality/LinkCell.cc",
             "cpp/locality/NeighborList.cc",
-            "cpp/locality/NearestNeighbors.cc",
-            "cpp/util/HOOMDMatrix.cc",
             "cpp/box/Box.cc"
         ]
     },
@@ -2982,39 +2982,9 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_2accumulate(struct __pyx_obj_5freud_3
   /* "freud/msd.pyx":164
  * 
  *         # Make sure we aren't modifying the provided array
- *         unwrapped_positions = positions.copy()             # <<<<<<<<<<<<<<
- *         if self.box is not None and images is not None:
- *             for i in range(positions.shape[0]):
- */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_positions, __pyx_n_s_copy); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 164, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_4 = NULL;
-  if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
-    __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_2);
-    if (likely(__pyx_t_4)) {
-      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_2);
-      __Pyx_INCREF(__pyx_t_4);
-      __Pyx_INCREF(function);
-      __Pyx_DECREF_SET(__pyx_t_2, function);
-    }
-  }
-  if (__pyx_t_4) {
-    __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 164, __pyx_L1_error)
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  } else {
-    __pyx_t_3 = __Pyx_PyObject_CallNoArg(__pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 164, __pyx_L1_error)
-  }
-  __Pyx_GOTREF(__pyx_t_3);
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_v_unwrapped_positions = __pyx_t_3;
-  __pyx_t_3 = 0;
-
-  /* "freud/msd.pyx":165
- *         # Make sure we aren't modifying the provided array
- *         unwrapped_positions = positions.copy()
  *         if self.box is not None and images is not None:             # <<<<<<<<<<<<<<
+ *             unwrapped_positions = positions.copy()
  *             for i in range(positions.shape[0]):
- *                 unwrapped_positions[i, :, :] = self.box.unwrap(
  */
   __pyx_t_7 = (((PyObject *)__pyx_v_self->box) != Py_None);
   __pyx_t_8 = (__pyx_t_7 != 0);
@@ -3029,9 +2999,39 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_2accumulate(struct __pyx_obj_5freud_3
   __pyx_L8_bool_binop_done:;
   if (__pyx_t_6) {
 
-    /* "freud/msd.pyx":166
- *         unwrapped_positions = positions.copy()
+    /* "freud/msd.pyx":165
+ *         # Make sure we aren't modifying the provided array
  *         if self.box is not None and images is not None:
+ *             unwrapped_positions = positions.copy()             # <<<<<<<<<<<<<<
+ *             for i in range(positions.shape[0]):
+ *                 unwrapped_positions[i, :, :] = self.box.unwrap(
+ */
+    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_positions, __pyx_n_s_copy); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 165, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
+    __pyx_t_4 = NULL;
+    if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
+      __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_2);
+      if (likely(__pyx_t_4)) {
+        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_2);
+        __Pyx_INCREF(__pyx_t_4);
+        __Pyx_INCREF(function);
+        __Pyx_DECREF_SET(__pyx_t_2, function);
+      }
+    }
+    if (__pyx_t_4) {
+      __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 165, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    } else {
+      __pyx_t_3 = __Pyx_PyObject_CallNoArg(__pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 165, __pyx_L1_error)
+    }
+    __Pyx_GOTREF(__pyx_t_3);
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+    __pyx_v_unwrapped_positions = __pyx_t_3;
+    __pyx_t_3 = 0;
+
+    /* "freud/msd.pyx":166
+ *         if self.box is not None and images is not None:
+ *             unwrapped_positions = positions.copy()
  *             for i in range(positions.shape[0]):             # <<<<<<<<<<<<<<
  *                 unwrapped_positions[i, :, :] = self.box.unwrap(
  *                     unwrapped_positions[i, :, :], images[i, :, :])
@@ -3088,11 +3088,11 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_2accumulate(struct __pyx_obj_5freud_3
       __pyx_t_3 = 0;
 
       /* "freud/msd.pyx":167
- *         if self.box is not None and images is not None:
+ *             unwrapped_positions = positions.copy()
  *             for i in range(positions.shape[0]):
  *                 unwrapped_positions[i, :, :] = self.box.unwrap(             # <<<<<<<<<<<<<<
  *                     unwrapped_positions[i, :, :], images[i, :, :])
- *         positions = unwrapped_positions
+ *             positions = unwrapped_positions
  */
       __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self->box), __pyx_n_s_unwrap); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 167, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
@@ -3101,7 +3101,7 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_2accumulate(struct __pyx_obj_5freud_3
  *             for i in range(positions.shape[0]):
  *                 unwrapped_positions[i, :, :] = self.box.unwrap(
  *                     unwrapped_positions[i, :, :], images[i, :, :])             # <<<<<<<<<<<<<<
- *         positions = unwrapped_positions
+ *             positions = unwrapped_positions
  * 
  */
       __pyx_t_5 = PyTuple_New(3); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 168, __pyx_L1_error)
@@ -3183,11 +3183,11 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_2accumulate(struct __pyx_obj_5freud_3
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
       /* "freud/msd.pyx":167
- *         if self.box is not None and images is not None:
+ *             unwrapped_positions = positions.copy()
  *             for i in range(positions.shape[0]):
  *                 unwrapped_positions[i, :, :] = self.box.unwrap(             # <<<<<<<<<<<<<<
  *                     unwrapped_positions[i, :, :], images[i, :, :])
- *         positions = unwrapped_positions
+ *             positions = unwrapped_positions
  */
       __pyx_t_4 = PyTuple_New(3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 167, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
@@ -3205,8 +3205,8 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_2accumulate(struct __pyx_obj_5freud_3
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
       /* "freud/msd.pyx":166
- *         unwrapped_positions = positions.copy()
  *         if self.box is not None and images is not None:
+ *             unwrapped_positions = positions.copy()
  *             for i in range(positions.shape[0]):             # <<<<<<<<<<<<<<
  *                 unwrapped_positions[i, :, :] = self.box.unwrap(
  *                     unwrapped_positions[i, :, :], images[i, :, :])
@@ -3214,27 +3214,27 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_2accumulate(struct __pyx_obj_5freud_3
     }
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-    /* "freud/msd.pyx":165
- *         # Make sure we aren't modifying the provided array
- *         unwrapped_positions = positions.copy()
- *         if self.box is not None and images is not None:             # <<<<<<<<<<<<<<
- *             for i in range(positions.shape[0]):
- *                 unwrapped_positions[i, :, :] = self.box.unwrap(
- */
-  }
-
-  /* "freud/msd.pyx":169
+    /* "freud/msd.pyx":169
  *                 unwrapped_positions[i, :, :] = self.box.unwrap(
  *                     unwrapped_positions[i, :, :], images[i, :, :])
- *         positions = unwrapped_positions             # <<<<<<<<<<<<<<
+ *             positions = unwrapped_positions             # <<<<<<<<<<<<<<
  * 
  *         if self.mode == 'window':
  */
-  __Pyx_INCREF(__pyx_v_unwrapped_positions);
-  __Pyx_DECREF_SET(__pyx_v_positions, __pyx_v_unwrapped_positions);
+    __Pyx_INCREF(__pyx_v_unwrapped_positions);
+    __Pyx_DECREF_SET(__pyx_v_positions, __pyx_v_unwrapped_positions);
+
+    /* "freud/msd.pyx":164
+ * 
+ *         # Make sure we aren't modifying the provided array
+ *         if self.box is not None and images is not None:             # <<<<<<<<<<<<<<
+ *             unwrapped_positions = positions.copy()
+ *             for i in range(positions.shape[0]):
+ */
+  }
 
   /* "freud/msd.pyx":171
- *         positions = unwrapped_positions
+ *             positions = unwrapped_positions
  * 
  *         if self.mode == 'window':             # <<<<<<<<<<<<<<
  *             # First compute the first term r^2(k+m) - r^2(k)
@@ -3827,7 +3827,7 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_2accumulate(struct __pyx_obj_5freud_3
     __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
 
     /* "freud/msd.pyx":171
- *         positions = unwrapped_positions
+ *             positions = unwrapped_positions
  * 
  *         if self.mode == 'window':             # <<<<<<<<<<<<<<
  *             # First compute the first term r^2(k+m) - r^2(k)
@@ -7350,7 +7350,7 @@ static int __Pyx_InitCachedConstants(void) {
  *             for i in range(positions.shape[0]):
  *                 unwrapped_positions[i, :, :] = self.box.unwrap(
  *                     unwrapped_positions[i, :, :], images[i, :, :])             # <<<<<<<<<<<<<<
- *         positions = unwrapped_positions
+ *             positions = unwrapped_positions
  * 
  */
   __pyx_slice__7 = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice__7)) __PYX_ERR(0, 168, __pyx_L1_error)
@@ -7367,11 +7367,11 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_GIVEREF(__pyx_slice__10);
 
   /* "freud/msd.pyx":167
- *         if self.box is not None and images is not None:
+ *             unwrapped_positions = positions.copy()
  *             for i in range(positions.shape[0]):
  *                 unwrapped_positions[i, :, :] = self.box.unwrap(             # <<<<<<<<<<<<<<
  *                     unwrapped_positions[i, :, :], images[i, :, :])
- *         positions = unwrapped_positions
+ *             positions = unwrapped_positions
  */
   __pyx_slice__11 = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice__11)) __PYX_ERR(0, 167, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_slice__11);
