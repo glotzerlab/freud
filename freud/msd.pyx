@@ -144,7 +144,10 @@ cdef class MSD:
             positions, 3, dtype=np.float32, contiguous=True,
             array_name="positions")
         if positions.shape[2] != 3:
-            raise TypeError('positions should be an MxNx3 array')
+            raise TypeError(
+                'positions should be a 3-dimensional array of shape'
+                '(N_frames, N_particles, 3)'
+            )
 
         if images is not None:
             images = freud.common.convert_array(
