@@ -151,7 +151,10 @@ cdef class MSD:
                 images, 3, dtype=np.float32, contiguous=True,
                 array_name="images")
             if images.shape[2] != 3:
-                raise TypeError('images should be an MxNx3 array')
+                raise TypeError(
+                    'images should be a 3-dimensional array of shape'
+                    '(N_frames, N_particles, 3)'
+                )
 
             if not positions.shape == images.shape:
                 raise TypeError(
