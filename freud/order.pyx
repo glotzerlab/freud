@@ -29,7 +29,6 @@ from cython.operator cimport dereference
 from freud.environment cimport BondOrder as _EBO
 from freud.environment cimport LocalDescriptors as _ELD
 from freud.environment cimport MatchEnv as _EME
-from freud.environment cimport Pairing2D as _EP
 from freud.environment cimport AngularSeparation as _EAS
 
 cimport freud._order
@@ -996,7 +995,7 @@ cdef class LocalQlNear(LocalQl):
         if type(self) == LocalQlNear:
             self.qlptr = new freud._order.LocalQl(
                 dereference(b.thisptr), rmax, l, 0)
-            self.m_box = box
+            self.m_box = b
             self.rmax = rmax
             self.num_neigh = kn
 
@@ -1134,7 +1133,7 @@ cdef class LocalWl(LocalQl):
         if type(self) is LocalWl:
             self.thisptr = self.qlptr = new freud._order.LocalWl(
                 dereference(b.thisptr), rmax, l, rmin)
-            self.m_box = box
+            self.m_box = b
             self.rmax = rmax
 
     def __dealloc__(self):
@@ -1274,7 +1273,7 @@ cdef class LocalWlNear(LocalWl):
         if type(self) is LocalWlNear:
             self.thisptr = self.qlptr = new freud._order.LocalWl(
                 dereference(b.thisptr), rmax, l, 0)
-            self.m_box = box
+            self.m_box = b
             self.rmax = rmax
             self.num_neigh = kn
 
@@ -1383,7 +1382,7 @@ cdef class SolLiq:
         if type(self) is SolLiq:
             self.thisptr = new freud._order.SolLiq(
                 dereference(b.thisptr), rmax, Qthreshold, Sthreshold, l)
-            self.m_box = box
+            self.m_box = b
             self.rmax = rmax
 
     def __dealloc__(self):
@@ -1667,7 +1666,7 @@ cdef class SolLiqNear(SolLiq):
         if type(self) is SolLiqNear:
             self.thisptr = new freud._order.SolLiq(
                 dereference(b.thisptr), rmax, Qthreshold, Sthreshold, l)
-            self.m_box = box
+            self.m_box = b
             self.rmax = rmax
             self.num_neigh = kn
 
@@ -1740,12 +1739,6 @@ class MatchEnv(_EME):
         warnings.warn("This class is deprecated, use "
                       "freud.environment.MatchEnv instead!",
                       FreudDeprecationWarning)
-
-
-class Pairing2D(_EP):
-    def __init__(self, rmax, k, compDotTol):
-        warnings.warn("This class is deprecated, use "
-                      "freud.bond instead!", FreudDeprecationWarning)
 
 
 class AngularSeparation(_EAS):

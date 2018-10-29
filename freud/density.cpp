@@ -35,7 +35,6 @@
             "cpp/environment",
             "cpp/locality",
             "cpp/density",
-            "cpp/bond",
             "cpp/registration",
             "cpp/pmft",
             "/usr/include"
@@ -47,15 +46,15 @@
         "name": "freud.density",
         "sources": [
             "freud/density.pyx",
-            "cpp/locality/NeighborList.cc",
-            "cpp/util/HOOMDMatrix.cc",
-            "cpp/density/RDF.cc",
-            "cpp/locality/NearestNeighbors.cc",
-            "cpp/density/GaussianDensity.cc",
-            "cpp/density/CorrelationFunction.cc",
-            "cpp/density/LocalDensity.cc",
             "cpp/locality/LinkCell.cc",
-            "cpp/box/Box.cc"
+            "cpp/locality/NeighborList.cc",
+            "cpp/locality/NearestNeighbors.cc",
+            "cpp/density/CorrelationFunction.cc",
+            "cpp/util/HOOMDMatrix.cc",
+            "cpp/density/GaussianDensity.cc",
+            "cpp/density/LocalDensity.cc",
+            "cpp/box/Box.cc",
+            "cpp/density/RDF.cc"
         ]
     },
     "module_name": "freud.density"
@@ -17979,7 +17978,7 @@ static PyTypeObject __pyx_type_5freud_7density_RDF = {
   0, /*tp_setattro*/
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-  " Computes RDF for supplied data.\n\n    The RDF (:math:`g \\left( r \\right)`) is computed and averaged for a given\n    set of reference points in a sea of data points. Providing the same points\n    calculates them against themselves. Computing the RDF results in an RDF\n    array listing the value of the RDF at each given :math:`r`, listed in the\n    :code:`R` array.\n\n    The values of :math:`r` to compute the RDF are set by the values of\n    :code:`rmin`, :code:`rmax`, :code:`dr` in the constructor. :code:`rmax`\n    sets the maximum distance at which to calculate the\n    :math:`g \\left( r \\right)`, :code:`rmin` sets the minimum distance at\n    which to calculate the :math:`g \\left( r \\right)`, and :code:`dr`\n    determines the step size for each bin.\n\n    .. moduleauthor:: Eric Harper <harperic@umich.edu>\n\n    .. note::\n        **2D:** :class:`freud.density.RDF` properly handles 2D boxes.\n        The points must be passed in as :code:`[x, y, 0]`.\n        Failing to set z=0 will lead to undefined behavior.\n\n    Args:\n        rmax (float):\n            Maximum interparticle distance to include in the calculation.\n        dr (float):\n            Distance between histogram bins.\n        rmin (float, optional):\n            Minimum interparticle distance to include in the calculation.\n            Defaults to 0.\n\n    Attributes:\n        box (:class:`freud.box.Box`):\n            Box used in the calculation.\n        RDF ((:math:`N_{bins}`,) :class:`numpy.ndarray`):\n            Histogram of RDF values.\n        R ((:math:`N_{bins}`, 3) :class:`numpy.ndarray`):\n            The centers of each bin.\n        n_r ((:math:`N_{bins}`,) :class:`numpy.ndarray`):\n            Histogram of cumulative RDF values (*i.e.* the integrated RDF).\n\n    .. versionchanged:: 0.7.0\n       Added optional `rmin` argument.\n    ", /*tp_doc*/
+  " Computes RDF for supplied data.\n\n    The RDF (:math:`g \\left( r \\right)`) is computed and averaged for a given\n    set of reference points in a sea of data points. Providing the same points\n    calculates them against themselves. Computing the RDF results in an RDF\n    array listing the value of the RDF at each given :math:`r`, listed in the\n    :code:`R` array.\n\n    The values of :math:`r` to compute the RDF are set by the values of\n    :code:`rmin`, :code:`rmax`, :code:`dr` in the constructor. :code:`rmax`\n    sets the maximum distance at which to calculate the\n    :math:`g \\left( r \\right)`, :code:`rmin` sets the minimum distance at\n    which to calculate the :math:`g \\left( r \\right)`, and :code:`dr`\n    determines the step size for each bin.\n\n    .. moduleauthor:: Eric Harper <harperic@umich.edu>\n\n    .. note::\n        **2D:** :class:`freud.density.RDF` properly handles 2D boxes.\n        The points must be passed in as :code:`[x, y, 0]`.\n        Failing to set z=0 will lead to undefined behavior.\n\n    Args:\n        rmax (float):\n            Maximum interparticle distance to include in the calculation.\n        dr (float):\n            Distance between histogram bins.\n        rmin (float, optional):\n            Minimum interparticle distance to include in the calculation.\n            Defaults to 0.\n\n    Attributes:\n        box (:class:`freud.box.Box`):\n            Box used in the calculation.\n        RDF ((:math:`N_{bins}`,) :class:`numpy.ndarray`):\n            Histogram of RDF values.\n        R ((:math:`N_{bins}`) :class:`numpy.ndarray`):\n            The centers of each bin.\n        n_r ((:math:`N_{bins}`,) :class:`numpy.ndarray`):\n            Histogram of cumulative RDF values (*i.e.* the integrated RDF).\n\n    .. versionchanged:: 0.7.0\n       Added optional `rmin` argument.\n    ", /*tp_doc*/
   __pyx_tp_traverse_5freud_7density_RDF, /*tp_traverse*/
   __pyx_tp_clear_5freud_7density_RDF, /*tp_clear*/
   0, /*tp_richcompare*/

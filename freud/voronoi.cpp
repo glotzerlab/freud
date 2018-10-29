@@ -31,7 +31,6 @@
             "cpp/environment",
             "cpp/locality",
             "cpp/density",
-            "cpp/bond",
             "cpp/registration",
             "cpp/pmft",
             "/usr/include"
@@ -43,10 +42,10 @@
         "name": "freud.voronoi",
         "sources": [
             "freud/voronoi.pyx",
-            "cpp/locality/NeighborList.cc",
-            "cpp/util/HOOMDMatrix.cc",
-            "cpp/locality/NearestNeighbors.cc",
             "cpp/locality/LinkCell.cc",
+            "cpp/locality/NeighborList.cc",
+            "cpp/locality/NearestNeighbors.cc",
+            "cpp/util/HOOMDMatrix.cc",
             "cpp/box/Box.cc"
         ]
     },
@@ -2114,7 +2113,7 @@ static const char __pyx_k_Use_the_box_with_compute_instead[] = "Use the box with
 static const char __pyx_k_You_cannot_use_this_class_withou[] = "You cannot use this class without SciPy";
 static const char __pyx_k_ndarray_is_not_Fortran_contiguou[] = "ndarray is not Fortran contiguous";
 static const char __pyx_k_numpy_core_umath_failed_to_impor[] = "numpy.core.umath failed to import";
-static const char __pyx_k_scipy_spatial_Voronoi_is_not_ava[] = "scipy.spatial.Voronoi is not available (requires scipy 0.12+),so freud.voronoi is not available.";
+static const char __pyx_k_scipy_spatial_Voronoi_is_not_ava[] = "scipy.spatial.Voronoi is not available (requires scipy 0.12+), so freud.voronoi is not available.";
 static const char __pyx_k_Format_string_allocated_too_shor_2[] = "Format string allocated too short.";
 static PyObject *__pyx_kp_s_Compute_the_Voronoi_tessellation;
 static PyObject *__pyx_n_s_ConvexHull;
@@ -12256,7 +12255,7 @@ if (!__Pyx_RefNanny) {
  *     _SCIPY_AVAILABLE = True
  * except ImportError:             # <<<<<<<<<<<<<<
  *     qvoronoi = None
- *     msg = ('scipy.spatial.Voronoi is not available (requires scipy 0.12+),'
+ *     msg = ('scipy.spatial.Voronoi is not available (requires scipy 0.12+), '
  */
     __pyx_t_7 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_ImportError);
     if (__pyx_t_7) {
@@ -12270,7 +12269,7 @@ if (!__Pyx_RefNanny) {
  *     _SCIPY_AVAILABLE = True
  * except ImportError:
  *     qvoronoi = None             # <<<<<<<<<<<<<<
- *     msg = ('scipy.spatial.Voronoi is not available (requires scipy 0.12+),'
+ *     msg = ('scipy.spatial.Voronoi is not available (requires scipy 0.12+), '
  *            'so freud.voronoi is not available.')
  */
       if (PyDict_SetItem(__pyx_d, __pyx_n_s_qvoronoi, Py_None) < 0) __PYX_ERR(0, 31, __pyx_L4_except_error)
@@ -12278,14 +12277,14 @@ if (!__Pyx_RefNanny) {
       /* "freud/voronoi.pyx":32
  * except ImportError:
  *     qvoronoi = None
- *     msg = ('scipy.spatial.Voronoi is not available (requires scipy 0.12+),'             # <<<<<<<<<<<<<<
+ *     msg = ('scipy.spatial.Voronoi is not available (requires scipy 0.12+), '             # <<<<<<<<<<<<<<
  *            'so freud.voronoi is not available.')
  *     logger.warning(msg)
  */
       if (PyDict_SetItem(__pyx_d, __pyx_n_s_msg, __pyx_kp_s_scipy_spatial_Voronoi_is_not_ava) < 0) __PYX_ERR(0, 32, __pyx_L4_except_error)
 
       /* "freud/voronoi.pyx":34
- *     msg = ('scipy.spatial.Voronoi is not available (requires scipy 0.12+),'
+ *     msg = ('scipy.spatial.Voronoi is not available (requires scipy 0.12+), '
  *            'so freud.voronoi is not available.')
  *     logger.warning(msg)             # <<<<<<<<<<<<<<
  *     _SCIPY_AVAILABLE = False

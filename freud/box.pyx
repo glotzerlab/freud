@@ -445,8 +445,10 @@ cdef class Box:
             # only one vector to unwrap
             vecs = self._unwrap(vecs, imgs)
         elif vecs.ndim == 2:
-            for i, (vec, img) in enumerate(zip(vecs, imgs)):
-                vecs[i] = self._unwrap(vec, img)
+            vecs += imgs[:, [0]]*self.getLatticeVector(0)
+            vecs += imgs[:, [1]]*self.getLatticeVector(1)
+            if self.dimensions == 3:
+                vecs += imgs[:, [2]]*self.getLatticeVector(2)
         return vecs
 
     def _unwrap(self, vec, img):

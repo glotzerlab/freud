@@ -1,13 +1,18 @@
 import numpy as np
 import numpy.testing as npt
 from freud import locality, box
+from freud.errors import FreudDeprecationWarning
 from collections import Counter
 import itertools
 import sys
 import unittest
+import warnings
 
 
 class TestLinkCell(unittest.TestCase):
+    def setUp(self):
+        warnings.simplefilter("ignore", category=FreudDeprecationWarning)
+
     def test_unique_neighbors(self):
         L = 10  # Box Dimensions
         rcut = 3  # Cutoff radius
