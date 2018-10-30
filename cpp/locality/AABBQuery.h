@@ -47,7 +47,7 @@ class AABBQuery
 
     private:
         //! Driver for tree configuration
-        void setupTree();
+        void setupTree(unsigned int Np);
 
         //! Maps particles by local id to their id within their type trees
         void mapParticlesByType();
@@ -56,19 +56,15 @@ class AABBQuery
         void updateImageVectors();
 
         //! Driver to build AABB trees
-        void buildTree(const vec3<float> *ref_points, unsigned int Nref,
-            const vec3<float> *points, unsigned int Np);
+        void buildTree(const vec3<float> *points, unsigned int Np);
 
         //! Traverses AABB trees to compute neighbors
         void traverseTree(const vec3<float> *ref_points, unsigned int Nref,
             const vec3<float> *points, unsigned int Np, bool exclude_ii);
 
         unsigned int m_Ntotal;
-        std::vector<AABBTree> m_aabb_trees; //!< Flat array of AABB trees
+        AABBTree m_aabb_tree; //!< AABB tree of points
         std::vector<AABB> m_aabbs; //!< Flat array of AABBs of all types
-        std::vector<unsigned int>  m_num_per_type; //!< Total number of particles per type
-        std::vector<unsigned int>  m_type_head; //!< Index of first particle of each type, after sorting
-        std::vector<unsigned int> m_map_pid_tree; //!< Maps the particle id to its tag in tree for sorting
         std::vector< vec3<float> > m_image_list; //!< List of translation vectors
         unsigned int m_n_images; //!< The number of image vectors to check
 

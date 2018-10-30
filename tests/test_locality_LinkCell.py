@@ -101,7 +101,7 @@ class TestLinkCell(unittest.TestCase):
         points[3] = [2.0, 0.0, 0.0]
 
         lc.compute(fbox, points)
-        # particle 0 has 2 bonds`
+        # particle 0 has 2 bonds
         npt.assert_equal(lc.nlist.find_first_index(0), 0)
         # particle 1 has 3 bonds
         npt.assert_equal(lc.nlist.find_first_index(1), 2)

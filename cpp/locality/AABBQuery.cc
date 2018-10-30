@@ -25,51 +25,23 @@ void AABBQuery::compute(box::Box& box, float rcut,
     m_box = box;
     m_rcut = rcut;
     m_Ntotal = Nref + Np;
-    m_num_per_type.clear();
-    m_num_per_type.push_back(Nref);
-    m_num_per_type.push_back(Np);
 
     // TODO: Do particles need to be wrapped?
 
-    // allocate the memory as needed and sort particles
-    setupTree();
+    // allocate memory and create image vectors
+    setupTree(Np);
 
-    // build the trees
-    buildTree(ref_points, Nref, points, Np);
+    // build the tree
+    buildTree(points, Np);
 
-    // now walk the trees
+    // now walk the tree
     traverseTree(ref_points, Nref, points, Np, exclude_ii);
     }
 
-void AABBQuery::setupTree()
+void AABBQuery::setupTree(unsigned int Np)
     {
-    m_aabbs.resize(m_Ntotal);
-    m_map_pid_tree.resize(m_Ntotal);
-    m_aabb_trees.resize(2);
-    m_type_head.resize(2, 0);
-    mapParticlesByType();
+    m_aabbs.resize(Np);
     updateImageVectors();
-    }
-
-void AABBQuery::mapParticlesByType()
-    {
-    unsigned int ref_point_counter = 0;
-    unsigned int point_counter = 0;
-    for (unsigned int i=0; i < m_Ntotal; ++i)
-        {
-        if (i < m_num_per_type[0])
-            {
-            m_map_pid_tree[i] = ref_point_counter;
-            ref_point_counter++;
-            }
-        else
-            {
-            m_map_pid_tree[i] = point_counter;
-            point_counter++;
-            }
-        }
-    m_type_head[0] = 0;
-    m_type_head[1] = m_num_per_type[0];
     }
 
 void AABBQuery::updateImageVectors()
@@ -129,38 +101,18 @@ void AABBQuery::updateImageVectors()
         }
     }
 
-void AABBQuery::buildTree(const vec3<float> *ref_points, unsigned int Nref,
-        const vec3<float> *points, unsigned int Np)
+void AABBQuery::buildTree(const vec3<float> *points, unsigned int Np)
     {
-    // construct a point AABB for each particle owned by this rank, and push it
-    // into the right spot in the AABB list
-    for (unsigned int i=0; i < Nref; ++i)
-        {
-        // make a ref_point AABB
-        const vec3<float> my_pos(ref_points[i]);
-
-        unsigned int my_aabb_idx = m_map_pid_tree[i];
-        m_aabbs[my_aabb_idx] = AABB(my_pos, i);
-        }
-    for (unsigned int i=0; i < Np; ++i)
+    // construct a point AABB for each point
+    for (unsigned int i = 0; i < Np; ++i)
         {
         // make a point AABB
         const vec3<float> my_pos(points[i]);
-
-        unsigned int my_aabb_idx = m_map_pid_tree[Nref + i];
-        m_aabbs[my_aabb_idx] = AABB(my_pos, Nref + i);
+        m_aabbs[i] = AABB(my_pos, i);
         }
-
 
     // call the tree build routine, one tree per type
-    for (unsigned int i=0; i < m_num_per_type.size(); ++i)
-        {
-        if (m_num_per_type[i] > 0)
-            {
-            m_aabb_trees[i].buildTree(m_aabbs.data() + m_type_head[i], m_num_per_type[i]);
-            }
-        }
-
+    m_aabb_tree.buildTree(m_aabbs.data(), Np);
     }
 
 void AABBQuery::traverseTree(const vec3<float> *ref_points, unsigned int Nref,
@@ -169,9 +121,11 @@ void AABBQuery::traverseTree(const vec3<float> *ref_points, unsigned int Nref,
     if (!Np)
         return;
 
+    float r_cutsq = m_rcut * m_rcut;
+
     typedef std::vector<std::tuple<size_t, size_t, float> > BondVector;
     typedef std::vector<BondVector> BondVectorVector;
-    typedef tbb::enumerable_thread_specific<BondVectorVector> ThreadBondVector;
+    //typedef tbb::enumerable_thread_specific<BondVectorVector> ThreadBondVector;
     BondVector bond_vector;
 
     // Loop over all particles
@@ -179,10 +133,6 @@ void AABBQuery::traverseTree(const vec3<float> *ref_points, unsigned int Nref,
         {
         // Read in the current position
         const vec3<float> pos_i = ref_points[i];
-
-        float r_cutsq = m_rcut * m_rcut;
-
-        AABBTree *cur_aabb_tree = &m_aabb_trees[1];
 
         // Loop over image vectors
         for (unsigned int cur_image = 0; cur_image < m_n_images; ++cur_image)
@@ -193,20 +143,19 @@ void AABBQuery::traverseTree(const vec3<float> *ref_points, unsigned int Nref,
 
             // Stackless traversal of the tree
             for (unsigned int cur_node_idx = 0;
-                 cur_node_idx < cur_aabb_tree->getNumNodes();
+                 cur_node_idx < m_aabb_tree.getNumNodes();
                  ++cur_node_idx)
                 {
-                if (overlap(cur_aabb_tree->getNodeAABB(cur_node_idx), aabb))
+                if (overlap(m_aabb_tree.getNodeAABB(cur_node_idx), aabb))
                     {
-                    if (cur_aabb_tree->isNodeLeaf(cur_node_idx))
+                    if (m_aabb_tree.isNodeLeaf(cur_node_idx))
                         {
                         for (unsigned int cur_p = 0;
-                             cur_p < cur_aabb_tree->getNodeNumParticles(cur_node_idx);
+                             cur_p < m_aabb_tree.getNodeNumParticles(cur_node_idx);
                              ++cur_p)
                             {
                             // neighbor j
-                            unsigned int j = cur_aabb_tree->getNodeParticleTag(cur_node_idx, cur_p);
-                            printf("i = %i, j = %i\n", i, j);
+                            unsigned int j = m_aabb_tree.getNodeParticleTag(cur_node_idx, cur_p);
 
                             // determine whether to skip self-interaction
                             bool excluded = (i == j) && exclude_ii;
@@ -229,14 +178,13 @@ void AABBQuery::traverseTree(const vec3<float> *ref_points, unsigned int Nref,
                 else
                     {
                     // skip ahead
-                    cur_node_idx += cur_aabb_tree->getNodeSkip(cur_node_idx);
+                    cur_node_idx += m_aabb_tree.getNodeSkip(cur_node_idx);
                     }
                 } // end stackless search
             } // end loop over images
         } // end loop over particles
 
     unsigned int num_bonds(bond_vector.size());
-    printf("num_bonds: %i\n", num_bonds);
 
     m_neighbor_list.resize(num_bonds);
     m_neighbor_list.setNumBonds(num_bonds, Nref, Np);
