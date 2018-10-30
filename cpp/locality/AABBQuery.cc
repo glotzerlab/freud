@@ -74,7 +74,11 @@ void AABBQuery::updateImageVectors()
 
     vec3<float> latt_a = vec3<float>(m_box.getLatticeVector(0));
     vec3<float> latt_b = vec3<float>(m_box.getLatticeVector(1));
-    vec3<float> latt_c = vec3<float>(m_box.getLatticeVector(2));
+    vec3<float> latt_c = vec3<float>(0.0, 0.0, 0.0);
+    if (!m_box.is2D())
+        {
+        latt_c = vec3<float>(m_box.getLatticeVector(2));
+        }
 
     // there is always at least 1 image, which we put as our first thing to look at
     m_image_list[0] = vec3<float>(0.0, 0.0, 0.0);
