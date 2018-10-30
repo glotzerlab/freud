@@ -6,6 +6,7 @@
 
 #include "HOOMDMath.h"
 #include "VectorMath.h"
+#include <cstring>
 #include <vector>
 #include <stack>
 
@@ -596,7 +597,7 @@ inline unsigned int AABBTree::allocateNode()
         // if we have old memory, copy it over
         if (m_nodes != NULL)
             {
-            memcpy((void *)m_new_nodes, (void *)m_nodes, sizeof(AABBNode)*m_num_nodes);
+            std::memcpy((void *)m_new_nodes, (void *)m_nodes, sizeof(AABBNode)*m_num_nodes);
             free(m_nodes);
             }
         m_nodes = m_new_nodes;
