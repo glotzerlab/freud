@@ -97,3 +97,15 @@ cdef extern from "NearestNeighbors.h" namespace "freud::locality":
             unsigned int,
             bool) nogil except +
         NeighborList * getNeighborList()
+
+cdef extern from "AABBQuery.h" namespace "freud::locality":
+    cdef cppclass AABBQuery:
+        AABBQuery()
+        void compute(
+            const freud._box.Box &,
+            const vec3[float]*,
+            unsigned int,
+            const vec3[float]*,
+            unsigned int,
+            bool) nogil except +
+        NeighborList * getNeighborList()
