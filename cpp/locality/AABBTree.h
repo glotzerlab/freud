@@ -19,28 +19,10 @@
     \brief AABBTree build and query methods
 */
 
-// need to declare these class methods with __device__ qualifiers when building in nvcc
-// DEVICE is __host__ __device__ when included in nvcc and blank when included into the host compiler
-#ifdef NVCC
-#define DEVICE __device__
-#else
-#define DEVICE
-#endif
-
-namespace freud
-{
-
-namespace locality
-{
-
-/*! \addtogroup overlap
-    @{
-*/
+namespace freud { namespace locality {
 
 const unsigned int NODE_CAPACITY = 16;          //!< Maximum number of particles in a node
 const unsigned int INVALID_NODE = 0xffffffff;   //!< Invalid node index sentinel
-
-#ifndef NVCC
 
 //! Node in an AABBTree
 /*! Stores data for a node in the AABB tree
@@ -422,7 +404,7 @@ inline unsigned int AABBTree::buildNode(AABB *aabbs,
         {
         my_aabb = merge(my_aabb, aabbs[start+i]);
         }
-    vec3<Scalar> my_radius = my_aabb.getUpper() - my_aabb.getLower();
+    vec3<float> my_radius = my_aabb.getUpper() - my_aabb.getLower();
 
     // handle the case of a leaf node creation
     if (len <= NODE_CAPACITY)
@@ -608,11 +590,6 @@ inline unsigned int AABBTree::allocateNode()
     m_num_nodes++;
     return m_num_nodes-1;
     }
-
-// end group overlap
-/*! @}*/
-
-#endif // NVCC
 
 }; // end namespace locality
 
