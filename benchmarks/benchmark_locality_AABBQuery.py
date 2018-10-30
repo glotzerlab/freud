@@ -21,10 +21,11 @@ class benchmark_locality_AABBQuery(benchmark):
 
 
 if __name__ == '__main__':
-    print('freud.locality.AABBQuery')
+    print('freud.locality.AABBQuery, L=10, rcut=0.5')
     b = benchmark_locality_AABBQuery(L=10, rcut=0.5)
     b.run_size_scaling_benchmark([1000, 10000, 100000], number=100)
     b.run_thread_scaling_benchmark([1000, 10000, 100000], number=100)
+    print('freud.locality.AABBQuery, L=10, rcut=1.0')
     b = benchmark_locality_AABBQuery(L=10, rcut=1.0)
     b.run_size_scaling_benchmark([1000, 10000, 100000], number=100)
     b.run_thread_scaling_benchmark([1000, 10000, 100000], number=100)

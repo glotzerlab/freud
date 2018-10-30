@@ -6,6 +6,7 @@
 #include <tuple>
 
 #include "AABBQuery.h"
+#include "LinkCell.h"
 
 namespace freud { namespace locality {
 
@@ -26,7 +27,7 @@ void AABBQuery::compute(box::Box& box, float rcut,
     m_rcut = rcut;
     m_Ntotal = Nref + Np;
 
-    // TODO: Do particles need to be wrapped?
+    // TODO: Do points need to be wrapped?
 
     // allocate memory and create image vectors
     setupTree(Np);
@@ -78,7 +79,7 @@ void AABBQuery::updateImageVectors()
     // there is always at least 1 image, which we put as our first thing to look at
     m_image_list[0] = vec3<float>(0.0, 0.0, 0.0);
 
-    // iterate over all other combinations of images, skipping those that are
+    // iterate over all other combinations of images
     unsigned int n_images = 1;
     for (int i=-1; i <= 1 && n_images < m_n_images; ++i)
         {
@@ -125,47 +126,54 @@ void AABBQuery::traverseTree(const vec3<float> *ref_points, unsigned int Nref,
 
     typedef std::vector<std::tuple<size_t, size_t, float> > BondVector;
     typedef std::vector<BondVector> BondVectorVector;
-    //typedef tbb::enumerable_thread_specific<BondVectorVector> ThreadBondVector;
-    BondVector bond_vector;
+    typedef tbb::enumerable_thread_specific<BondVectorVector> ThreadBondVector;
+    ThreadBondVector bond_vectors;
 
-    // Loop over all particles
-    for (unsigned int i = 0; i < Nref; ++i)
+    // Loop over all reference points in parallel
+    parallel_for(tbb::blocked_range<size_t>(0, Nref),
+        [=, &bond_vectors] (const tbb::blocked_range<size_t> &r)
         {
-        // Read in the current position
-        const vec3<float> pos_i = ref_points[i];
+        ThreadBondVector::reference bond_vector_vectors(bond_vectors.local());
+        bond_vector_vectors.emplace_back();
+        BondVector &bond_vector(bond_vector_vectors.back());
 
-        // Loop over image vectors
-        for (unsigned int cur_image = 0; cur_image < m_n_images; ++cur_image)
+        // Loop over this thread's reference points
+        for (size_t i(r.begin()); i != r.end(); ++i)
             {
-            // Make an AABB for the image of this particle
-            vec3<float> pos_i_image = pos_i + m_image_list[cur_image];
-            AABB aabb = AABB(pos_i_image, m_rcut);
+            // Read in the current position
+            const vec3<float> pos_i = ref_points[i];
 
-            // Stackless traversal of the tree
-            for (unsigned int cur_node_idx = 0;
-                 cur_node_idx < m_aabb_tree.getNumNodes();
-                 ++cur_node_idx)
+            // Loop over image vectors
+            for (unsigned int cur_image = 0; cur_image < m_n_images; ++cur_image)
                 {
-                if (overlap(m_aabb_tree.getNodeAABB(cur_node_idx), aabb))
+                // Make an AABB for the image of this point
+                vec3<float> pos_i_image = pos_i + m_image_list[cur_image];
+                AABB aabb = AABB(pos_i_image, m_rcut);
+
+                // Stackless traversal of the tree
+                for (unsigned int cur_node_idx = 0;
+                     cur_node_idx < m_aabb_tree.getNumNodes();
+                     ++cur_node_idx)
                     {
-                    if (m_aabb_tree.isNodeLeaf(cur_node_idx))
+                    if (overlap(m_aabb_tree.getNodeAABB(cur_node_idx), aabb))
                         {
-                        for (unsigned int cur_p = 0;
-                             cur_p < m_aabb_tree.getNodeNumParticles(cur_node_idx);
-                             ++cur_p)
+                        if (m_aabb_tree.isNodeLeaf(cur_node_idx))
                             {
-                            // neighbor j
-                            unsigned int j = m_aabb_tree.getNodeParticleTag(cur_node_idx, cur_p);
-
-                            // determine whether to skip self-interaction
-                            bool excluded = (i == j) && exclude_ii;
-
-                            if (!excluded)
+                            for (unsigned int cur_p = 0;
+                                 cur_p < m_aabb_tree.getNodeNumParticles(cur_node_idx);
+                                 ++cur_p)
                                 {
+                                // neighbor j
+                                const unsigned int j = m_aabb_tree.getNodeParticleTag(cur_node_idx, cur_p);
+
+                                // determine whether to skip self-interaction
+                                if (exclude_ii && i == j)
+                                    continue;
+
                                 // compute distance
                                 const vec3<float> pos_j = points[j];
                                 const vec3<float> drij = pos_j - pos_i_image;
-                                float dr_sq = dot(drij, drij);
+                                const float dr_sq = dot(drij, drij);
 
                                 if (dr_sq <= r_cutsq)
                                     {
@@ -174,17 +182,25 @@ void AABBQuery::traverseTree(const vec3<float> *ref_points, unsigned int Nref,
                                 }
                             }
                         }
-                    }
-                else
-                    {
-                    // skip ahead
-                    cur_node_idx += m_aabb_tree.getNodeSkip(cur_node_idx);
-                    }
-                } // end stackless search
-            } // end loop over images
-        } // end loop over particles
+                    else
+                        {
+                        // skip ahead
+                        cur_node_idx += m_aabb_tree.getNodeSkip(cur_node_idx);
+                        }
+                    } // end stackless search
+                } // end loop over images
+            } // end loop over reference points
+        });
 
-    unsigned int num_bonds(bond_vector.size());
+    // Sort neighbors by particle i index
+    tbb::flattened2d<ThreadBondVector> flat_bond_vector_groups = tbb::flatten2d(bond_vectors);
+    BondVectorVector bond_vector_groups(flat_bond_vector_groups.begin(), flat_bond_vector_groups.end());
+    tbb::parallel_sort(bond_vector_groups.begin(), bond_vector_groups.end(), compareFirstNeighborPairs);
+
+    unsigned int num_bonds(0);
+    for(BondVectorVector::const_iterator iter(bond_vector_groups.begin());
+        iter != bond_vector_groups.end(); ++iter)
+        num_bonds += iter->size();
 
     m_neighbor_list.resize(num_bonds);
     m_neighbor_list.setNumBonds(num_bonds, Nref, Np);
@@ -192,13 +208,25 @@ void AABBQuery::traverseTree(const vec3<float> *ref_points, unsigned int Nref,
     size_t *neighbor_array(m_neighbor_list.getNeighbors());
     float *neighbor_weights(m_neighbor_list.getWeights());
 
-    size_t bond(0);
-    for(BondVector::const_iterator iter(bond_vector.begin());
-        iter != bond_vector.end(); ++iter, ++bond)
+    // build nlist structure
+    parallel_for(tbb::blocked_range<size_t>(0, bond_vector_groups.size()),
+        [=, &bond_vector_groups] (const tbb::blocked_range<size_t> &r)
         {
-        std::tie(neighbor_array[2*bond], neighbor_array[2*bond + 1],
-            neighbor_weights[bond]) = *iter;
-        }
+        size_t bond(0);
+        for (size_t group(0); group < r.begin(); ++group)
+            bond += bond_vector_groups[group].size();
+
+        for (size_t group(r.begin()); group < r.end(); ++group)
+            {
+            const BondVector &vec(bond_vector_groups[group]);
+            for (BondVector::const_iterator iter(vec.begin());
+                iter != vec.end(); ++iter, ++bond)
+                {
+                std::tie(neighbor_array[2*bond], neighbor_array[2*bond + 1],
+                    neighbor_weights[bond]) = *iter;
+                }
+            }
+        });
     }
 
 }; }; // end namespace freud::locality
