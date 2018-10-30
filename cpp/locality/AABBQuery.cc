@@ -2,6 +2,9 @@
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <stdexcept>
+#include <tbb/tbb.h>
+#include <tuple>
+
 #include "AABBQuery.h"
 
 namespace freud { namespace locality {
@@ -165,6 +168,11 @@ void AABBQuery::traverseTree(const vec3<float> *ref_points, unsigned int Nref,
     if (!Np)
         return;
 
+    typedef std::vector<std::tuple<size_t, size_t, float> > BondVector;
+    typedef std::vector<BondVector> BondVectorVector;
+    typedef tbb::enumerable_thread_specific<BondVectorVector> ThreadBondVector;
+    BondVector bond_vector;
+
     // Loop over all particles
     for (unsigned int i=0; i < Nref; ++i)
         {
@@ -175,13 +183,14 @@ void AABBQuery::traverseTree(const vec3<float> *ref_points, unsigned int Nref,
 
         AABBTree *cur_aabb_tree = &m_aabb_trees[1];
 
-        for (unsigned int cur_image = 0; cur_image < m_n_images; ++cur_image) // for each image vector
+        // Loop over image vectors
+        for (unsigned int cur_image = 0; cur_image < m_n_images; ++cur_image)
             {
-            // make an AABB for the image of this particle
+            // Make an AABB for the image of this particle
             vec3<float> pos_i_image = pos_i + m_image_list[cur_image];
             AABB aabb = AABB(pos_i_image, m_rcut);
 
-            // stackless traversal of the tree
+            // Stackless traversal of the tree
             for (unsigned int cur_node_idx = 0;
                  cur_node_idx < cur_aabb_tree->getNumNodes();
                  ++cur_node_idx)
@@ -190,12 +199,15 @@ void AABBQuery::traverseTree(const vec3<float> *ref_points, unsigned int Nref,
                     {
                     if (cur_aabb_tree->isNodeLeaf(cur_node_idx))
                         {
-                        for (unsigned int cur_p = 0; cur_p < cur_aabb_tree->getNodeNumParticles(cur_node_idx); ++cur_p)
+                        for (unsigned int cur_p = 0;
+                             cur_p < cur_aabb_tree->getNodeNumParticles(cur_node_idx);
+                             ++cur_p)
                             {
                             // neighbor j
                             unsigned int j = cur_aabb_tree->getNodeParticleTag(cur_node_idx, cur_p);
+                            printf("i = %i, j = %i\n", i, j);
 
-                            // skip self-interaction
+                            // determine whether to skip self-interaction
                             bool excluded = (i == j) && exclude_ii;
 
                             if (!excluded)
@@ -207,7 +219,7 @@ void AABBQuery::traverseTree(const vec3<float> *ref_points, unsigned int Nref,
 
                                 if (dr_sq <= r_cutsq)
                                     {
-                                    // TODO: Add neighborlist entry
+                                    bond_vector.emplace_back(i, j, 1);
                                     }
                                 }
                             }
@@ -221,6 +233,23 @@ void AABBQuery::traverseTree(const vec3<float> *ref_points, unsigned int Nref,
                 } // end stackless search
             } // end loop over images
         } // end loop over particles
+
+    unsigned int num_bonds(bond_vector.size());
+    printf("num_bonds: %i\n", num_bonds);
+
+    m_neighbor_list.resize(num_bonds);
+    m_neighbor_list.setNumBonds(num_bonds, Nref, Np);
+
+    size_t *neighbor_array(m_neighbor_list.getNeighbors());
+    float *neighbor_weights(m_neighbor_list.getWeights());
+
+    size_t bond(0);
+    for(BondVector::const_iterator iter(bond_vector.begin());
+        iter != bond_vector.end(); ++iter, ++bond)
+        {
+        std::tie(neighbor_array[2*bond], neighbor_array[2*bond + 1],
+            neighbor_weights[bond]) = *iter;
+        }
     }
 
 }; }; // end namespace freud::locality
