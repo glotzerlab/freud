@@ -35,7 +35,7 @@ class AABBQuery
         //! Destructor
         ~AABBQuery();
 
-        void compute(box::Box& box,
+        void compute(box::Box& box, float rcut,
             const vec3<float> *ref_points, unsigned int Nref,
             const vec3<float> *points, unsigned int Np,
             bool exclude_ii);

@@ -1019,7 +1019,7 @@ cdef class AABBQuery:
     def __dealloc__(self):
         del self.thisptr
 
-    def compute(self, box, ref_points, points=None, exclude_ii=None):
+    def compute(self, box, rcut, ref_points, points=None, exclude_ii=None):
         R"""Update the data structure for the given set of points.
 
         Args:
@@ -1055,6 +1055,7 @@ cdef class AABBQuery:
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
+        cdef float c_rcut = rcut
         cdef np.ndarray cRef_points = ref_points
         cdef unsigned int n_ref = ref_points.shape[0]
         cdef np.ndarray cPoints = points
@@ -1063,6 +1064,7 @@ cdef class AABBQuery:
         with nogil:
             self.thisptr.compute(
                 dereference(b.thisptr),
+                c_rcut,
                 <vec3[float]*> cRef_points.data,
                 n_ref,
                 <vec3[float]*> cPoints.data,

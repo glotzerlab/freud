@@ -9,7 +9,7 @@
 
 namespace freud { namespace locality {
 
-AABBQuery::AABBQuery(): m_rcut(1.0)
+AABBQuery::AABBQuery(): m_rcut(0)
     {
     }
 
@@ -17,12 +17,13 @@ AABBQuery::~AABBQuery()
     {
     }
 
-void AABBQuery::compute(box::Box& box,
+void AABBQuery::compute(box::Box& box, float rcut,
         const vec3<float> *ref_points, unsigned int Nref,
         const vec3<float> *points, unsigned int Np,
         bool exclude_ii)
     {
     m_box = box;
+    m_rcut = rcut;
     m_Ntotal = Nref + Np;
     m_num_per_type.clear();
     m_num_per_type.push_back(Nref);
@@ -174,7 +175,7 @@ void AABBQuery::traverseTree(const vec3<float> *ref_points, unsigned int Nref,
     BondVector bond_vector;
 
     // Loop over all particles
-    for (unsigned int i=0; i < Nref; ++i)
+    for (unsigned int i = 0; i < Nref; ++i)
         {
         // Read in the current position
         const vec3<float> pos_i = ref_points[i];

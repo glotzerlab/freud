@@ -103,6 +103,7 @@ cdef extern from "AABBQuery.h" namespace "freud::locality":
         AABBQuery()
         void compute(
             const freud._box.Box &,
+            float,
             const vec3[float]*,
             unsigned int,
             const vec3[float]*,
