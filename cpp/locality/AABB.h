@@ -197,6 +197,87 @@ struct __attribute__((visibility("default"))) AABB
         }
     } __attribute__((aligned(32)));
 
+struct __attribute__((visibility("default"))) AABBSphere
+    {
+    #if defined(__SSE__)
+    __m128 position_v;    //!< Sphere position (SSE data type)
+
+    #else
+    vec3<float> position; //!< Sphere position
+
+    #endif
+
+    unsigned int tag;  //!< Optional tag id, useful for particle ids
+    float radius;      //!< Radius of sphere
+
+    //! Default construct a 0 AABBSphere
+    AABBSphere() : radius(0), tag(0)
+        {
+        #if defined(__SSE__)
+        float in = 0.0f;
+        position_v = _mm_load_ps1(&in);
+
+        #endif
+        // vec3 constructors zero themselves
+        }
+
+    //! Construct an AABBSphere from the given position and radius
+    /*! \param _position Position of the sphere
+        \param _radius Radius of the sphere
+    */
+    AABBSphere(const vec3<float>& _position, float _radius) : radius(_radius), tag(0)
+        {
+        #if defined(__SSE__)
+        position_v = sse_load_vec3_float(_position);
+
+        #else
+        position = _position;
+
+        #endif
+        }
+
+    //! Construct an AABBSphere from the given position and radius with a tag
+    /*! \param _position Position of the sphere
+        \param _radius Radius of the sphere
+        \param _tag Global particle tag id
+    */
+    AABBSphere(const vec3<float>& _position, float _radius, unsigned int _tag) : radius(_radius), tag(_tag)
+        {
+        #if defined(__SSE__)
+        position_v = sse_load_vec3_float(_position);
+
+        #else
+        position = _position;
+
+        #endif
+        }
+
+    //! Get the AABBSphere's position
+    vec3<float> getPosition() const
+        {
+        #if defined(__SSE__)
+        return sse_unload_vec3_float(position_v);
+
+        #else
+        return position;
+
+        #endif
+        }
+
+    //! Translate the AABBSphere by the given vector
+    void translate(const vec3<float>& v)
+        {
+        #if defined(__SSE__)
+        __m128 v_v = sse_load_vec3_float(v);
+        position_v = _mm_add_ps(position_v, v_v);
+
+        #else
+        position += v;
+
+        #endif
+        }
+    } __attribute__((aligned(32)));
+
 //! Check if two AABBs overlap
 /*! \param a First AABB
     \param b Second AABB
@@ -217,6 +298,34 @@ inline bool overlap(const AABB& a, const AABB& b)
              || b.upper.z < a.lower.z
              || b.lower.z > a.upper.z
             );
+
+    #endif
+    }
+
+//! Check if an AABB and AABBSphere overlap
+/*! \param a AABB
+    \param b AABBSphere
+    \returns true when the AABB and AABBSphere overlap, false otherwise
+*/
+inline bool overlap(const AABB& a, const AABBSphere& b)
+    {
+    #if defined(__SSE__)
+    __m128 dr_v = _mm_sub_ps(_mm_min_ps(_mm_max_ps(b.position_v, a.lower_v), a.upper_v), b.position_v);
+    __m128 dr2_v = _mm_mul_ps(dr_v, dr_v);
+    // See https://stackoverflow.com/questions/6996764/fastest-way-to-do-horizontal-float-vector-sum-on-x86
+    __m128 shuf = _mm_shuffle_ps(dr2_v, dr2_v, _MM_SHUFFLE(2, 3, 0, 1));
+    __m128 sums = _mm_add_ps(dr2_v, shuf);
+    shuf = _mm_movehl_ps(shuf, sums);
+    sums = _mm_add_ss(sums, shuf);
+    return _mm_cvtss_f32(sums) < b.radius*b.radius;
+
+    #else
+    vec3<float> dr = vec3<float>(
+            std::min(std::max(b.position.x, a.lower.x), a.upper.x) - b.position.x,
+            std::min(std::max(b.position.y, a.lower.y), a.upper.y) - b.position.y,
+            std::min(std::max(b.position.z, a.lower.z), a.upper.z) - b.position.z);
+    float dr2 = dot(dr, dr);
+    return dr2 < b.radius*b.radius;
 
     #endif
     }

@@ -156,14 +156,14 @@ void AABBQuery::traverseTree(const vec3<float> *ref_points, unsigned int Nref,
                 {
                 // Make an AABB for the image of this point
                 vec3<float> pos_i_image = pos_i + m_image_list[cur_image];
-                AABB aabb = AABB(pos_i_image, m_rcut);
+                AABBSphere asphere = AABBSphere(pos_i_image, m_rcut);
 
                 // Stackless traversal of the tree
                 for (unsigned int cur_node_idx = 0;
                      cur_node_idx < m_aabb_tree.getNumNodes();
                      ++cur_node_idx)
                     {
-                    if (overlap(m_aabb_tree.getNodeAABB(cur_node_idx), aabb))
+                    if (overlap(m_aabb_tree.getNodeAABB(cur_node_idx), asphere))
                         {
                         if (m_aabb_tree.isNodeLeaf(cur_node_idx))
                             {
