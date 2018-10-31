@@ -143,8 +143,8 @@ class TestAABBQuery(unittest.TestCase):
     def test_throws(self):
         L = 10
 
+        fbox = box.Box.cube(L)
         with self.assertRaises(RuntimeError):
-            fbox = box.Box.cube(L)
             locality.AABBQuery().compute(fbox, L/1.9999, np.zeros((1, 3)))
 
         fbox = box.Box(L, 2*L, 2*L)

@@ -76,15 +76,23 @@ class TestOCF(unittest.TestCase):
         rmax = 10.0
         dr = 1.0
         num_points = 10
-        box_size = rmax*2
+        box_size = rmax*2.1
+        fbox = box.Box.square(box_size)
         np.random.seed(0)
-        points = np.random.random_sample((num_points, 3)).astype(np.float32) \
-            * box_size - box_size/2
+        points = np.random.random_sample((num_points, 3)).astype(
+            np.float32) * box_size - box_size/2
+        points[:, 2] = 0
         ang = np.zeros(int(num_points), dtype=np.float64)
         comp = np.exp(1j*ang)
 
         vectors = points[np.newaxis, :, :] - points[:, np.newaxis, :]
-        correct = np.sum(np.linalg.norm(vectors, axis=-1) < np.sqrt(2*rmax**2))
+        vector_lengths = np.array(
+            [[np.linalg.norm(fbox.wrap(vectors[i][j]))
+              for i in range(num_points)]
+             for j in range(num_points)])
+
+        # Subtract len(points) to exclude the zero i-i distances
+        correct = np.sum(vector_lengths < rmax) - len(points)
 
         ocf = density.FloatCF(rmax, dr)
         ocf.compute(box.Box.square(box_size), points, comp,
