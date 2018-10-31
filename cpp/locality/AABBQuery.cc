@@ -27,15 +27,13 @@ void AABBQuery::compute(box::Box& box, float rcut,
     m_rcut = rcut;
     m_Ntotal = Nref + Np;
 
-    // TODO: Do points need to be wrapped?
-
-    // allocate memory and create image vectors
+    // Allocate memory and create image vectors
     setupTree(Np);
 
-    // build the tree
+    // Build the tree
     buildTree(points, Np);
 
-    // now walk the tree
+    // Now walk the tree
     traverseTree(ref_points, Nref, points, Np, exclude_ii);
     }
 
@@ -57,8 +55,8 @@ void AABBQuery::updateImageVectors()
         throw std::runtime_error("The AABBQuery rcut is too large for this box.");
         }
 
-    // now compute the image vectors
-    // each dimension increases by one power of 3
+    // Now compute the image vectors
+    // Each dimension increases by one power of 3
     unsigned int n_dim_periodic = (unsigned int)(periodic.x + periodic.y + (!m_box.is2D())*periodic.z);
     m_n_images = 1;
     for (unsigned int dim = 0; dim < n_dim_periodic; ++dim)
@@ -66,7 +64,7 @@ void AABBQuery::updateImageVectors()
         m_n_images *= 3;
         }
 
-    // reallocate memory if necessary
+    // Reallocate memory if necessary
     if (m_n_images > m_image_list.size())
         {
         m_image_list.resize(m_n_images);
@@ -80,10 +78,10 @@ void AABBQuery::updateImageVectors()
         latt_c = vec3<float>(m_box.getLatticeVector(2));
         }
 
-    // there is always at least 1 image, which we put as our first thing to look at
+    // There is always at least 1 image, which we put as our first thing to look at
     m_image_list[0] = vec3<float>(0.0, 0.0, 0.0);
 
-    // iterate over all other combinations of images
+    // Iterate over all other combinations of images
     unsigned int n_images = 1;
     for (int i=-1; i <= 1 && n_images < m_n_images; ++i)
         {
@@ -93,7 +91,7 @@ void AABBQuery::updateImageVectors()
                 {
                 if (!(i == 0 && j == 0 && k == 0))
                     {
-                    // skip any periodic images if we don't have periodicity
+                    // Skip any periodic images if we don't have periodicity
                     if (i != 0 && !periodic.x) continue;
                     if (j != 0 && !periodic.y) continue;
                     if (k != 0 && (m_box.is2D() || !periodic.z)) continue;
@@ -108,15 +106,17 @@ void AABBQuery::updateImageVectors()
 
 void AABBQuery::buildTree(const vec3<float> *points, unsigned int Np)
     {
-    // construct a point AABB for each point
+    // Construct a point AABB for each point
     for (unsigned int i = 0; i < Np; ++i)
         {
-        // make a point AABB
-        const vec3<float> my_pos(points[i]);
+        // Make a point AABB
+        vec3<float> my_pos(points[i]);
+        if (m_box.is2D())
+            my_pos.z = 0;
         m_aabbs[i] = AABB(my_pos, i);
         }
 
-    // call the tree build routine, one tree per type
+    // Call the tree build routine, one tree per type
     m_aabb_tree.buildTree(m_aabbs.data(), Np);
     }
 
@@ -144,8 +144,12 @@ void AABBQuery::traverseTree(const vec3<float> *ref_points, unsigned int Nref,
         // Loop over this thread's reference points
         for (size_t i(r.begin()); i != r.end(); ++i)
             {
-            // Read in the current position
-            const vec3<float> pos_i = ref_points[i];
+            // Read in the position of i
+            vec3<float> pos_i(ref_points[i]);
+            if (m_box.is2D())
+                {
+                pos_i.z = 0;
+                }
 
             // Loop over image vectors
             for (unsigned int cur_image = 0; cur_image < m_n_images; ++cur_image)
@@ -167,19 +171,25 @@ void AABBQuery::traverseTree(const vec3<float> *ref_points, unsigned int Nref,
                                  cur_p < m_aabb_tree.getNodeNumParticles(cur_node_idx);
                                  ++cur_p)
                                 {
-                                // neighbor j
+                                // Neighbor j
                                 const unsigned int j = m_aabb_tree.getNodeParticleTag(cur_node_idx, cur_p);
 
-                                // determine whether to skip self-interaction
+                                // Determine whether to skip self-interaction
                                 if (exclude_ii && i == j)
                                     continue;
 
-                                // compute distance
-                                const vec3<float> pos_j = points[j];
+                                // Read in the position of j
+                                vec3<float> pos_j(points[j]);
+                                if (m_box.is2D())
+                                    {
+                                    pos_j.z = 0;
+                                    }
+
+                                // Compute distance
                                 const vec3<float> drij = pos_j - pos_i_image;
                                 const float dr_sq = dot(drij, drij);
 
-                                if (dr_sq <= r_cutsq)
+                                if (dr_sq < r_cutsq)
                                     {
                                     bond_vector.emplace_back(i, j, 1);
                                     }
@@ -188,7 +198,7 @@ void AABBQuery::traverseTree(const vec3<float> *ref_points, unsigned int Nref,
                         }
                     else
                         {
-                        // skip ahead
+                        // Skip ahead
                         cur_node_idx += m_aabb_tree.getNodeSkip(cur_node_idx);
                         }
                     } // end stackless search
@@ -212,7 +222,7 @@ void AABBQuery::traverseTree(const vec3<float> *ref_points, unsigned int Nref,
     size_t *neighbor_array(m_neighbor_list.getNeighbors());
     float *neighbor_weights(m_neighbor_list.getWeights());
 
-    // build nlist structure
+    // Build nlist structure
     parallel_for(tbb::blocked_range<size_t>(0, bond_vector_groups.size()),
         [=, &bond_vector_groups] (const tbb::blocked_range<size_t> &r)
         {
