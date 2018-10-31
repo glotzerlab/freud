@@ -207,8 +207,8 @@ struct __attribute__((visibility("default"))) AABBSphere
 
     #endif
 
-    unsigned int tag;  //!< Optional tag id, useful for particle ids
     float radius;      //!< Radius of sphere
+    unsigned int tag;  //!< Optional tag id, useful for particle ids
 
     //! Default construct a 0 AABBSphere
     AABBSphere() : radius(0), tag(0)
