@@ -2,5 +2,19 @@ image:
 - Visual Studio 2015
 platform:
 - x64
+environment:
+  matrix:
+    - MINICONDA: C:\Miniconda3-x64
+init:
+  - "set PATH=%MINICONDA%;%MINICONDA%\\Scripts;%MINICONDA%\\Library\\bin;%PATH%"
+install:
+  - git submodule update --init
+  - conda config --set always_yes yes --set changeps1 no
+  - conda config --add channels conda-forge
+  - conda update -q conda
+  - conda install pip numpy scipy cython tbb tbb-devel
+  - python --version
+  - python setup.py build_ext --inplace --COVERAGE --ENABLE-CYTHON
+  - "echo Done building."
 on_finish:
   - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
