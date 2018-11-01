@@ -1,8 +1,8 @@
-// Copyright (c) 2009-2018 The Regents of the University of Michigan
-// This file is part of the HOOMD-blue project, released under the BSD 3-Clause License.
+// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// This file is from the freud project, released under the BSD 3-Clause License.
 
-
-// Maintainer: joaander
+#ifndef AABB_TREE_H
+#define AABB_TREE_H
 
 #include "HOOMDMath.h"
 #include "VectorMath.h"
@@ -12,12 +12,18 @@
 
 #include "AABB.h"
 
-#ifndef __AABB_TREE_H__
-#define __AABB_TREE_H__
-
 /*! \file AABBTree.h
     \brief AABBTree build and query methods
 */
+
+#if defined _WIN32 || defined __CYGWIN__
+  #define posix_memalign(p, a, s) (((*(p)) = _aligned_malloc((s), (a))), *(p) ?0 :errno)
+  #define posix_memalign_free _aligned_free
+  #define CACHE_ALIGN __declspec(align(32))
+#else
+  #define posix_memalign_free free
+  #define CACHE_ALIGN __attribute__((aligned(32)))
+#endif
 
 namespace freud { namespace locality {
 
@@ -27,7 +33,7 @@ const unsigned int INVALID_NODE = 0xffffffff;   //!< Invalid node index sentinel
 //! Node in an AABBTree
 /*! Stores data for a node in the AABB tree
 */
-struct AABBNode
+struct CACHE_ALIGN AABBNode
     {
     //! Default constructor
     AABBNode()
@@ -46,7 +52,7 @@ struct AABBNode
     unsigned int particles[NODE_CAPACITY];      //!< Indices of the particles contained in the node
     unsigned int particle_tags[NODE_CAPACITY];  //!< Corresponding particle tags for particles in node
     unsigned int num_particles;                 //!< Number of particles contained in the node
-    } __attribute__((aligned(32)));
+    };
 
 //! AABB Tree
 /*! An AABBTree stores a binary tree of AABBs. A leaf node stores up to NODE_CAPACITY particles by index. The bounding
@@ -86,7 +92,7 @@ class AABBTree
         ~AABBTree()
             {
             if (m_nodes)
-                free(m_nodes);
+                posix_memalign_free(m_nodes);
             }
 
         //! Copy constructor
@@ -122,7 +128,7 @@ class AABBTree
             m_mapping = from.m_mapping;
 
             if (m_nodes)
-                free(m_nodes);
+                posix_memalign_free(m_nodes);
 
             m_nodes = NULL;
 
@@ -580,7 +586,7 @@ inline unsigned int AABBTree::allocateNode()
         if (m_nodes != NULL)
             {
             std::memcpy((void *)m_new_nodes, (void *)m_nodes, sizeof(AABBNode)*m_num_nodes);
-            free(m_nodes);
+            posix_memalign_free(m_nodes);
             }
         m_nodes = m_new_nodes;
         m_node_capacity = m_new_node_capacity;
@@ -591,8 +597,6 @@ inline unsigned int AABBTree::allocateNode()
     return m_num_nodes-1;
     }
 
-}; // end namespace locality
+}; }; // end namespace freud::locality
 
-}; // end namespace freud
-
-#endif //__AABB_TREE_H__
+#endif // AABB_TREE_H

@@ -1,22 +1,27 @@
-// Copyright (c) 2009-2018 The Regents of the University of Michigan
-// This file is part of the HOOMD-blue project, released under the BSD 3-Clause License.
+// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// This file is from the freud project, released under the BSD 3-Clause License.
 
-
-// Maintainer: joaander
+#ifndef AABB_H
+#define AABB_H
 
 #include "HOOMDMath.h"
 #include "VectorMath.h"
 #include <algorithm>
 
-#ifndef __AABB_H__
-#define __AABB_H__
-
 /*! \file AABB.h
     \brief Basic AABB routines
 */
 
+#if defined _WIN32
+  #define CACHE_ALIGN __declspec(align(32))
+  #undef min  // std::min clashes with a Windows header
+  #undef max  // std::max clashes with a Windows header
+#else
+  #define CACHE_ALIGN __attribute__((aligned(32)))
+#endif
+
 #if defined(__SSE__)
-#include <immintrin.h>
+  #include <immintrin.h>
 #endif
 
 #if defined(__SSE__)
@@ -38,11 +43,7 @@ inline vec3<float> sse_unload_vec3_float(const __m128& v)
     }
 #endif
 
-namespace freud
-{
-
-namespace locality
-{
+namespace freud { namespace locality {
 
 //! Axis aligned bounding box
 /*! An AABB represents a bounding volume defined by an axis-aligned bounding box. It is stored as plain old data
@@ -57,7 +58,7 @@ namespace locality
     - overlap()
     - contains()
 */
-struct __attribute__((visibility("default"))) AABB
+struct CACHE_ALIGN AABB
     {
     #if defined(__SSE__)
     __m128 lower_v;     //!< Lower left corner (SSE data type)
@@ -195,9 +196,9 @@ struct __attribute__((visibility("default"))) AABB
 
         #endif
         }
-    } __attribute__((aligned(32)));
+    };
 
-struct __attribute__((visibility("default"))) AABBSphere
+struct CACHE_ALIGN AABBSphere
     {
     #if defined(__SSE__)
     __m128 position_v;    //!< Sphere position (SSE data type)
@@ -276,7 +277,7 @@ struct __attribute__((visibility("default"))) AABBSphere
 
         #endif
         }
-    } __attribute__((aligned(32)));
+    };
 
 //! Check if two AABBs overlap
 /*! \param a First AABB
@@ -321,9 +322,9 @@ inline bool overlap(const AABB& a, const AABBSphere& b)
 
     #else
     vec3<float> dr = vec3<float>(
-            std::min(std::max(b.position.x, a.lower.x), a.upper.x) - b.position.x,
-            std::min(std::max(b.position.y, a.lower.y), a.upper.y) - b.position.y,
-            std::min(std::max(b.position.z, a.lower.z), a.upper.z) - b.position.z);
+        std::min(std::max(b.position.x, a.lower.x), a.upper.x) - b.position.x,
+        std::min(std::max(b.position.y, a.lower.y), a.upper.y) - b.position.y,
+        std::min(std::max(b.position.z, a.lower.z), a.upper.z) - b.position.z);
     float dr2 = dot(dr, dr);
     return dr2 < b.radius*b.radius;
 
@@ -376,8 +377,6 @@ inline AABB merge(const AABB& a, const AABB& b)
     return new_aabb;
     }
 
-}; // end namespace locality
+}; }; // end namespace freud::locality
 
-}; // end namespace freud
-
-#endif //__AABB_H__
+#endif // AABB_H
