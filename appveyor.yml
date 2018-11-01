@@ -13,8 +13,10 @@ install:
   - conda config --add channels conda-forge
   - conda update -q conda
   - conda install pip numpy scipy cython tbb tbb-devel
+  - "set TBB_INCLUDE=%MINICONDA%\\Library\\include"
+  - "set TBB_LINK=%MINICONDA%\\Library\\lib"
   - python --version
-  - python setup.py build_ext --inplace --COVERAGE --ENABLE-CYTHON
+  - python setup.py build_ext --inplace --ENABLE-CYTHON
   - "echo Done building."
 on_finish:
   - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
