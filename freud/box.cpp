@@ -27,7 +27,6 @@
             "cpp/environment",
             "cpp/locality",
             "cpp/density",
-            "cpp/bond",
             "cpp/registration",
             "cpp/pmft",
             "/usr/include"
@@ -39,12 +38,12 @@
         "name": "freud.box",
         "sources": [
             "freud/box.pyx",
-            "cpp/box/Box.cc",
-            "cpp/locality/NearestNeighbors.cc",
             "cpp/box/ParticleBuffer.cc",
-            "cpp/util/HOOMDMatrix.cc",
             "cpp/locality/LinkCell.cc",
-            "cpp/locality/NeighborList.cc"
+            "cpp/locality/NeighborList.cc",
+            "cpp/locality/NearestNeighbors.cc",
+            "cpp/util/HOOMDMatrix.cc",
+            "cpp/box/Box.cc"
         ]
     },
     "module_name": "freud.box"

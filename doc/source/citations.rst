@@ -31,3 +31,9 @@ References and Citations
 .. [Steinhardt1983] Steinhardt, P.J., Nelson, D.R., & Ronchetti, M. (1983).
     Bond-orientational order in liquids and glasses. Phys. Rev. B 28 (784).
     https://doi.org/10.1103/PhysRevB.28.784
+
+.. [Calandrini2011] Calandrini, V., Pellegrini, E., Calligari, P., Hinsen, K.,
+    & Kneller, G. R. (2011). nMoldyn-Interfacing spectroscopic experiments,
+    molecular dynamics simulations and models for time correlation functions. École
+    thématique de la Société Française de la Neutronique, 12, 201-232.
+    https://doi.org/10.1051/sfn/201112010

@@ -10,6 +10,7 @@ from . import environment
 from . import index
 from . import interface
 from . import locality
+from . import msd
 from . import order
 from . import pmft
 from . import voronoi
