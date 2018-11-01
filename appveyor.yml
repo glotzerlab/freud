@@ -17,6 +17,5 @@ install:
   - "set TBB_LINK=%MINICONDA%\\Library\\lib"
   - python --version
   - python setup.py build_ext --inplace --ENABLE-CYTHON
-  - "echo Done building."
-test_script:
+  - "echo Done building. Running tests."
   - python -m unittest discover tests -v
