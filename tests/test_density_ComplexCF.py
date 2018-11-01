@@ -108,18 +108,19 @@ class TestSummation(unittest.TestCase):
         # This leads to vastly different results with different numbers of
         # threads if the summation is not done robustly
         N = 20000
+        L = 1000
         np.random.seed(0)
         phi = np.random.rand(N)
-        pos2d = np.random.uniform(-500, 500, size=(N, 3))
+        pos2d = np.random.uniform(-L/2, L/2, size=(N, 3))
         pos2d[:, 2] = 0
-        fbox = box.Box.square(1000)
+        fbox = box.Box.square(L)
 
         # With a small number of particles, we won't get the average exactly
         # right, so we check for different behavior with different numbers of
         # threads
         parallel.setNumThreads(1)
         # A very large bin size exacerbates the problem
-        cf = density.ComplexCF(500, 40)
+        cf = density.ComplexCF(L/2.1, 40)
         cf.compute(fbox, pos2d, phi)
         c1 = cf.counts
         f1 = np.real(cf.RDF)
