@@ -98,13 +98,13 @@ cdef class NeighborList:
                 Number of reference points (corresponding to :code:`index_i`).
             Ntarget (int):
                 Number of target points (corresponding to :code:`index_j`).
-            index_i (np.array):
+            index_i (:class:`np.ndarray`):
                 Array of integers corresponding to indices in the set of
                 reference points.
-            index_j (np.array):
+            index_j (:class:`np.ndarray`):
                 Array of integers corresponding to indices in the set of
                 target points.
-            weights (np.array, optional):
+            weights (:class:`np.ndarray`, optional):
                 Array of per-bond weights (if :code:`None` is given, use a
                 value of 1 for each weight) (Default value = :code:`None`).
         """
