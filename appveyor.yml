@@ -7,7 +7,7 @@ environment:
     - MINICONDA: C:\Miniconda3-x64
 init:
   - "set PATH=%MINICONDA%;%MINICONDA%\\Scripts;%MINICONDA%\\Library\\bin;%PATH%"
-install:
+build_script:
   - git submodule update --init
   - conda config --set always_yes yes --set changeps1 no
   - conda config --add channels conda-forge
@@ -17,5 +17,5 @@ install:
   - "set TBB_LINK=%MINICONDA%\\Library\\lib"
   - python --version
   - python setup.py build_ext --inplace --ENABLE-CYTHON
-  - "echo Done building. Running tests."
+test_script:
   - python -m unittest discover tests -v
