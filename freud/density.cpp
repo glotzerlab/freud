@@ -12,6 +12,7 @@
             "cpp/density/GaussianDensity.h",
             "cpp/density/LocalDensity.h",
             "cpp/density/RDF.h",
+            "cpp/locality/AABBQuery.h",
             "cpp/locality/LinkCell.h",
             "cpp/locality/NearestNeighbors.h",
             "cpp/locality/NeighborList.h",
@@ -46,14 +47,15 @@
         "name": "freud.density",
         "sources": [
             "freud/density.pyx",
-            "cpp/density/GaussianDensity.cc",
-            "cpp/density/RDF.cc",
-            "cpp/util/HOOMDMatrix.cc",
             "cpp/density/CorrelationFunction.cc",
-            "cpp/box/Box.cc",
+            "cpp/locality/NeighborList.cc",
+            "cpp/util/HOOMDMatrix.cc",
             "cpp/locality/NearestNeighbors.cc",
             "cpp/density/LocalDensity.cc",
-            "cpp/locality/NeighborList.cc",
+            "cpp/density/RDF.cc",
+            "cpp/density/GaussianDensity.cc",
+            "cpp/box/Box.cc",
+            "cpp/locality/AABBQuery.cc",
             "cpp/locality/LinkCell.cc"
         ]
     },
@@ -652,6 +654,7 @@ static CYTHON_INLINE float __PYX_NAN() {
 #include "NeighborList.h"
 #include "LinkCell.h"
 #include "NearestNeighbors.h"
+#include "AABBQuery.h"
 #include "CorrelationFunction.h"
 #include "GaussianDensity.h"
 #include "LocalDensity.h"
@@ -1169,6 +1172,7 @@ struct __pyx_obj_5freud_8locality_NeighborList;
 struct __pyx_obj_5freud_8locality_IteratorLinkCell;
 struct __pyx_obj_5freud_8locality_LinkCell;
 struct __pyx_obj_5freud_8locality_NearestNeighbors;
+struct __pyx_obj_5freud_8locality_AABBQuery;
 struct __pyx_obj_5freud_7density_FloatCF;
 struct __pyx_obj_5freud_7density_ComplexCF;
 struct __pyx_obj_5freud_7density_GaussianDensity;
@@ -1294,6 +1298,20 @@ struct __pyx_obj_5freud_8locality_NearestNeighbors {
   PyObject *_cached_points;
   PyObject *_cached_ref_points;
   PyObject *_cached_box;
+};
+
+
+/* "freud/locality.pxd":31
+ *     cdef _cached_box
+ * 
+ * cdef class AABBQuery:             # <<<<<<<<<<<<<<
+ *     cdef freud._locality.AABBQuery * thisptr
+ *     cdef NeighborList _nlist
+ */
+struct __pyx_obj_5freud_8locality_AABBQuery {
+  PyObject_HEAD
+  freud::locality::AABBQuery *thisptr;
+  struct __pyx_obj_5freud_8locality_NeighborList *_nlist;
 };
 
 
@@ -2029,6 +2047,7 @@ static PyTypeObject *__pyx_ptype_5freud_8locality_NeighborList = 0;
 static PyTypeObject *__pyx_ptype_5freud_8locality_IteratorLinkCell = 0;
 static PyTypeObject *__pyx_ptype_5freud_8locality_LinkCell = 0;
 static PyTypeObject *__pyx_ptype_5freud_8locality_NearestNeighbors = 0;
+static PyTypeObject *__pyx_ptype_5freud_8locality_AABBQuery = 0;
 
 /* Module declarations from 'cpython.buffer' */
 
@@ -19196,6 +19215,7 @@ static int __Pyx_modinit_type_import_code(void) {
   __pyx_vtabptr_5freud_8locality_IteratorLinkCell = (struct __pyx_vtabstruct_5freud_8locality_IteratorLinkCell*)__Pyx_GetVtable(__pyx_ptype_5freud_8locality_IteratorLinkCell->tp_dict); if (unlikely(!__pyx_vtabptr_5freud_8locality_IteratorLinkCell)) __PYX_ERR(4, 15, __pyx_L1_error)
   __pyx_ptype_5freud_8locality_LinkCell = __Pyx_ImportType("freud.locality", "LinkCell", sizeof(struct __pyx_obj_5freud_8locality_LinkCell), 1); if (unlikely(!__pyx_ptype_5freud_8locality_LinkCell)) __PYX_ERR(4, 20, __pyx_L1_error)
   __pyx_ptype_5freud_8locality_NearestNeighbors = __Pyx_ImportType("freud.locality", "NearestNeighbors", sizeof(struct __pyx_obj_5freud_8locality_NearestNeighbors), 1); if (unlikely(!__pyx_ptype_5freud_8locality_NearestNeighbors)) __PYX_ERR(4, 24, __pyx_L1_error)
+  __pyx_ptype_5freud_8locality_AABBQuery = __Pyx_ImportType("freud.locality", "AABBQuery", sizeof(struct __pyx_obj_5freud_8locality_AABBQuery), 1); if (unlikely(!__pyx_ptype_5freud_8locality_AABBQuery)) __PYX_ERR(4, 31, __pyx_L1_error)
   __pyx_ptype_7cpython_4type_type = __Pyx_ImportType(__Pyx_BUILTIN_MODULE_NAME, "type", 
   #if defined(PYPY_VERSION_NUM) && PYPY_VERSION_NUM < 0x050B0000
   sizeof(PyTypeObject),

@@ -76,15 +76,23 @@ class TestOCF(unittest.TestCase):
         rmax = 10.0
         dr = 1.0
         num_points = 10
-        box_size = rmax*2
+        box_size = rmax*2.1
+        fbox = box.Box.square(box_size)
         np.random.seed(0)
-        points = np.random.random_sample((num_points, 3)).astype(np.float32) \
-            * box_size - box_size/2
+        points = np.random.random_sample((num_points, 3)).astype(
+            np.float32) * box_size - box_size/2
+        points[:, 2] = 0
         ang = np.zeros(int(num_points), dtype=np.float64)
         comp = np.exp(1j*ang)
 
         vectors = points[np.newaxis, :, :] - points[:, np.newaxis, :]
-        correct = np.sum(np.linalg.norm(vectors, axis=-1) < np.sqrt(2*rmax**2))
+        vector_lengths = np.array(
+            [[np.linalg.norm(fbox.wrap(vectors[i][j]))
+              for i in range(num_points)]
+             for j in range(num_points)])
+
+        # Subtract len(points) to exclude the zero i-i distances
+        correct = np.sum(vector_lengths < rmax) - len(points)
 
         ocf = density.FloatCF(rmax, dr)
         ocf.compute(box.Box.square(box_size), points, comp,
@@ -100,18 +108,19 @@ class TestSummation(unittest.TestCase):
         # This leads to vastly different results with different numbers of
         # threads if the summation is not done robustly
         N = 20000
+        L = 1000
         np.random.seed(0)
         phi = np.random.rand(N)
-        pos2d = np.random.uniform(-500, 500, size=(N, 3))
+        pos2d = np.random.uniform(-L/2, L/2, size=(N, 3))
         pos2d[:, 2] = 0
-        fbox = box.Box.square(1000)
+        fbox = box.Box.square(L)
 
         # With a small number of particles, we won't get the average exactly
         # right, so we check for different behavior with different numbers of
         # threads
         parallel.setNumThreads(1)
         # A very large bin size exacerbates the problem
-        cf = density.ComplexCF(500, 40)
+        cf = density.ComplexCF(L/2.1, 40)
         cf.compute(fbox, pos2d, phi)
         c1 = cf.counts
         f1 = np.real(cf.RDF)
