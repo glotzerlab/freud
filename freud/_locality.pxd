@@ -52,8 +52,8 @@ cdef extern from "LinkCell.h" namespace "freud::locality":
         LinkCell(const freud._box.Box &, float) except +
         LinkCell()
 
-        setCellWidth(float)
-        updateBox(const freud._box.Box &)
+        setCellWidth(float) except +
+        updateBox(const freud._box.Box &) except +
         const vec3[unsigned int] computeDimensions(
             const freud._box.Box &,
             float) const

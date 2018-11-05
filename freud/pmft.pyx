@@ -100,7 +100,10 @@ cdef class _PMFT:
 
     @property
     def PMFT(self):
-        return -np.log(np.copy(self.PCF))
+        with np.warnings.catch_warnings():
+            np.warnings.filterwarnings('ignore')
+            result = -np.log(np.copy(self.PCF))
+        return result
 
     def getPMFT(self):
         warnings.warn("The getPMFT function is deprecated in favor "

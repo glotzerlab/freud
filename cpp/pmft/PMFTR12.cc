@@ -23,24 +23,24 @@ PMFTR12::PMFTR12(float max_r, unsigned int nbins_r, unsigned int nbins_t1, unsig
       m_nbins_r(nbins_r), m_nbins_t1(nbins_t1), m_nbins_t2(nbins_t2)
     {
     if (nbins_r < 1)
-        throw invalid_argument("must be at least 1 bin in r");
+        throw invalid_argument("PMFTR12 requires at least 1 bin in R.");
     if (nbins_t1 < 1)
-        throw invalid_argument("must be at least 1 bin in T1");
+        throw invalid_argument("PMFTR12 requires at least 1 bin in T1.");
     if (nbins_t2 < 1)
-        throw invalid_argument("must be at least 1 bin in T2");
+        throw invalid_argument("PMFTR12 requires at least 1 bin in T2.");
     if (max_r < 0.0f)
-        throw invalid_argument("max_r must be positive");
+        throw invalid_argument("PMFTR12 requires that max_r must be positive.");
     // calculate dr, dt1, dt2
     m_dr = m_max_r / float(m_nbins_r);
     m_dt1 = m_max_t1 / float(m_nbins_t1);
     m_dt2 = m_max_t2 / float(m_nbins_t2);
 
     if (m_dr > max_r)
-        throw invalid_argument("max_r must be greater than dr");
+        throw invalid_argument("PMFTR12 requires that dr is less than or equal to max_r.");
     if (m_dt1 > m_max_t1)
-        throw invalid_argument("max_t1 must be greater than dt1");
+        throw invalid_argument("PMFTR12 requires that dt1 is less than or equal to max_t1.");
     if (m_dt2 > m_max_t2)
-        throw invalid_argument("max_t2 must be greater than dt2");
+        throw invalid_argument("PMFTR12 requires that dt2 is less than or equal to max_t2.");
 
     // precompute the bin center positions for r
     m_r_array = std::shared_ptr<float>(new float[m_nbins_r], std::default_delete<float[]>());

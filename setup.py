@@ -413,7 +413,7 @@ else:
         sys.stdout.write("Printing warnings: ")
         sys.stderr.write(tfile.read().decode())
     else:
-        out = tfile.read()
+        out = tfile.read().decode('utf-8')
         if out:
             sys.stdout.write("Some warnings were emitted during compilations."
                              "Call setup.py with the {} argument "

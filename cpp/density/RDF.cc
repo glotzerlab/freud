@@ -21,15 +21,15 @@ RDF::RDF(float rmax, float dr, float rmin)
     : m_box(box::Box()), m_rmax(rmax), m_rmin(rmin), m_dr(dr), m_frame_counter(0), m_reduce(true)
     {
     if (dr <= 0.0f)
-        throw invalid_argument("dr must be positive");
+        throw invalid_argument("RDF requires dr to be positive.");
     if (rmax <= 0.0f)
-        throw invalid_argument("rmax must be positive");
+        throw invalid_argument("RDF requires rmax to be positive.");
     if (dr > rmax)
-        throw invalid_argument("rmax must be greater than dr");
+        throw invalid_argument("RDF requires dr must be less than or equal to rmax.");
     if (rmax <= rmin)
-        throw invalid_argument("rmax must be greater than rmin");
+        throw invalid_argument("RDF requires that rmax must be greater than rmin.");
     if (rmax-rmin < dr)
-        throw invalid_argument("rdf range must be greater than dr");
+        throw invalid_argument("RDF requires that the range (rmax-rmin) must be greater than dr.");
 
     m_nbins = int(floorf((m_rmax-m_rmin) / m_dr));
     assert(m_nbins > 0);

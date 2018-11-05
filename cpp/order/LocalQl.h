@@ -60,11 +60,11 @@ class LocalQl
         LocalQl(const box::Box& box, float rmax, unsigned int l, float rmin=0):m_box(box), m_rmax(rmax), m_l(l) , m_rmin(rmin)
             {
             if (m_rmax < 0.0f || m_rmin < 0.0f)
-                throw std::invalid_argument("rmin and rmax must be positive!");
+                throw std::invalid_argument("LocalQl requires rmin and rmax must be positive.");
             if (m_rmin >= m_rmax)
-                throw std::invalid_argument("rmin should be smaller than rmax!");
+                throw std::invalid_argument("LocalQl requires rmin must be less than rmax.");
             if (m_l < 2)
-                throw std::invalid_argument("l must be two or greater!");
+                throw std::invalid_argument("LocalQl requires l must be two or greater.");
             }
 
         //! Empty destructor; all memory management is handled by shared pointers as member variables.

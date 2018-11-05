@@ -13,7 +13,7 @@ ctypedef unsigned int uint
 
 cdef extern from "Cluster.h" namespace "freud::cluster":
     cdef cppclass Cluster:
-        Cluster(float)
+        Cluster(float) except +
         void computeClusters(
             const freud._box.Box &,
             const freud._locality.NeighborList*,

@@ -24,9 +24,9 @@ BondOrder::BondOrder(float rmax, float k, unsigned int n, unsigned int nbins_t, 
     {
     // sanity checks, but this is actually kinda dumb if these values are 1
     if (nbins_t < 2)
-        throw invalid_argument("Must have at least 2 bins in theta.");
+        throw invalid_argument("BondOrder requires at least 2 bins in theta.");
     if (nbins_p < 2)
-        throw invalid_argument("Must have at least 2 bins in phi.");
+        throw invalid_argument("BondOrder requires at least 2 bins in phi.");
     // calculate dt, dp
     /*
     0 < \theta < 2PI; 0 < \phi < PI

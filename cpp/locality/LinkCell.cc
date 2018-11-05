@@ -82,7 +82,7 @@ void LinkCell::setCellWidth(float cell_width)
             m_cell_index = Index3D(celldim.x, celldim.y, celldim.z);
             if (m_cell_index.getNumElements() < 1)
                 {
-                throw runtime_error("At least one cell must be present");
+                throw runtime_error("At least one cell must be present.");
                 }
             m_celldim  = celldim;
             computeCellNeighbors();
@@ -118,7 +118,7 @@ void LinkCell::updateBox(const box::Box& box)
         m_cell_index = Index3D(celldim.x, celldim.y, celldim.z);
         if (m_cell_index.getNumElements() < 1)
             {
-            throw runtime_error("At least one cell must be present");
+            throw runtime_error("At least one cell must be present.");
             }
         m_celldim  = celldim;
         computeCellNeighbors();
@@ -174,7 +174,7 @@ void LinkCell::computeCellList(box::Box& box,
 
     if (Np == 0)
         {
-        throw runtime_error("Cannot generate a cell list of 0 particles");
+        throw runtime_error("Cannot generate a cell list of 0 particles.");
         }
 
     // determine the number of cells and allocate memory

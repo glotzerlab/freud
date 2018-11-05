@@ -37,7 +37,7 @@ cdef extern from "Box.h" namespace "freud::box":
         vec3[float] makeCoordinates(const vec3[float] &) const
         vec3[float] makeFraction(const vec3[float] &) const
         vec3[int] getImage(const vec3[float] &) const
-        vec3[float] getLatticeVector(unsigned int i) const
+        vec3[float] getLatticeVector(unsigned int i) except +
         vec3[float] wrap(vec3[float] & v) const
         vec3[float] unwrap(vec3[float] &, vec3[int]&)
 
