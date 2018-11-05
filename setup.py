@@ -391,7 +391,7 @@ except SystemExit:
     tbb_err = "'tbb/tbb.h' file not found"
 
     err_out = tfile.read().decode('utf-8')
-    sys.stderr.write(err_out.encode('utf-8'))
+    sys.stderr.write(err_out)
     if tbb_err in err_out:
         sys.stderr.write("\n\033[1mUnable to find tbb. If you have TBB on "
                          "your system, try specifying the location using the "
@@ -412,7 +412,7 @@ else:
         sys.stdout.write("Printing warnings: ")
         sys.stderr.write(tfile.read().decode())
     else:
-        out = tfile.read()
+        out = tfile.read().decode('utf-8')
         if out:
             sys.stdout.write("Some warnings were emitted during compilations."
                              "Call setup.py with the {} argument "
