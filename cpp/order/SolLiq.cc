@@ -16,13 +16,13 @@ SolLiq::SolLiq(const box::Box& box, float rmax, float Qthreshold,
     {
     m_Np = 0;
     if (m_rmax < 0.0f)
-        throw invalid_argument("rmax must be positive");
+        throw invalid_argument("SolLiq requires that rmax must be positive.");
     if (m_Qthreshold < 0.0)
-        throw invalid_argument("Dot product cutoff must be nonnegative");
+        throw invalid_argument("SolLiq requires that the dot product cutoff Qthreshold must be non-negative.");
     if (m_l % 2 == 1)
-        throw invalid_argument("l should be even!");
-    if (m_l == 0)
-        throw invalid_argument("l shouldbe greater than zero!");
+        throw invalid_argument("SolLiq requires that l must be even.");
+    if (m_l <= 0)
+        throw invalid_argument("SolLiq requires that l must be greater than zero.");
     }
 
 // Calculating Ylm using fsph module

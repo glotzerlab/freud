@@ -18,7 +18,7 @@ cdef extern from "CubaticOrderParameter.h" namespace "freud::order":
                               float,
                               float*,
                               unsigned int,
-                              unsigned int)
+                              unsigned int) except +
         void reset()
         void compute(quat[float]*,
                      unsigned int,
@@ -75,7 +75,7 @@ cdef extern from "TransOrderParameter.h" namespace "freud::order":
 
 cdef extern from "LocalQl.h" namespace "freud::order":
     cdef cppclass LocalQl:
-        LocalQl(const freud._box.Box &, float, unsigned int, float)
+        LocalQl(const freud._box.Box &, float, unsigned int, float) except +
         const freud._box.Box & getBox() const
         unsigned int getNP()
         void setBox(const freud._box.Box)
@@ -108,10 +108,10 @@ cdef extern from "LocalWl.h" namespace "freud::order":
 cdef extern from "SolLiq.h" namespace "freud::order":
     cdef cppclass SolLiq:
         SolLiq(const freud._box.Box &, float,
-               float, unsigned int, unsigned int)
+               float, unsigned int, unsigned int) except +
         const freud._box.Box & getBox() const
         void setBox(const freud._box.Box)
-        void setClusteringRadius(float)
+        void setClusteringRadius(float) except +
         void compute(const freud._locality.NeighborList *,
                      const vec3[float]*,
                      unsigned int) nogil except +

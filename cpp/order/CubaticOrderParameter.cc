@@ -24,11 +24,11 @@ CubaticOrderParameter::CubaticOrderParameter(float t_initial, float t_final, flo
     {
     // sanity checks, should be caught in python
     if (m_t_initial < m_t_final)
-        throw invalid_argument("t_initial must be greater than t_final");
+        throw invalid_argument("CubaticOrderParameter requires that t_initial must be greater than t_final.");
     if (t_final < 1e-6)
-        throw invalid_argument("t_final must be > 1e-6");
+        throw invalid_argument("CubaticOrderParameter requires that t_final must be >= 1e-6.");
     if ((scale > 1) || (scale < 0))
-        throw invalid_argument("scale must be between 0 and 1");
+        throw invalid_argument("CubaticOrderParameter requires that scale must be between 0 and 1.");
 
     // required to not have memory overwritten
     memset((void*)&m_global_tensor.data, 0, sizeof(float)*81);
