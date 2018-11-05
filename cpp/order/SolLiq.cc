@@ -2,6 +2,7 @@
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <cstring>
+#include <functional>
 #include <map>
 
 #include "SolLiq.h"
@@ -389,7 +390,7 @@ std::vector<unsigned int> SolLiq::getClusterSizes()
         clustersizes.push_back(it->second);
         }
     // Sort descending
-    std::sort(clustersizes.begin(), clustersizes.end(),std::greater<unsigned int>());
+    std::sort(clustersizes.begin(), clustersizes.end(), std::greater<unsigned int>());
     return clustersizes;
     }
 
