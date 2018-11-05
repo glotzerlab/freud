@@ -44,13 +44,13 @@
         "name": "freud.cluster",
         "sources": [
             "freud/cluster.pyx",
-            "cpp/locality/NeighborList.cc",
-            "cpp/locality/LinkCell.cc",
             "cpp/cluster/Cluster.cc",
+            "cpp/util/HOOMDMatrix.cc",
             "cpp/box/Box.cc",
             "cpp/locality/NearestNeighbors.cc",
             "cpp/cluster/ClusterProperties.cc",
-            "cpp/util/HOOMDMatrix.cc"
+            "cpp/locality/NeighborList.cc",
+            "cpp/locality/LinkCell.cc"
         ]
     },
     "module_name": "freud.cluster"

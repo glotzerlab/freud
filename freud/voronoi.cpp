@@ -42,11 +42,11 @@
         "name": "freud.voronoi",
         "sources": [
             "freud/voronoi.pyx",
-            "cpp/locality/NeighborList.cc",
-            "cpp/locality/LinkCell.cc",
+            "cpp/util/HOOMDMatrix.cc",
             "cpp/box/Box.cc",
             "cpp/locality/NearestNeighbors.cc",
-            "cpp/util/HOOMDMatrix.cc"
+            "cpp/locality/NeighborList.cc",
+            "cpp/locality/LinkCell.cc"
         ]
     },
     "module_name": "freud.voronoi"

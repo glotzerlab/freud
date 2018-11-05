@@ -47,16 +47,16 @@
         "name": "freud.pmft",
         "sources": [
             "freud/pmft.pyx",
-            "cpp/locality/NeighborList.cc",
-            "cpp/pmft/PMFTXYT.cc",
-            "cpp/locality/LinkCell.cc",
-            "cpp/pmft/PMFTXY2D.cc",
+            "cpp/util/HOOMDMatrix.cc",
+            "cpp/pmft/PMFTXYZ.cc",
             "cpp/box/Box.cc",
-            "cpp/pmft/PMFTR12.cc",
             "cpp/locality/NearestNeighbors.cc",
             "cpp/pmft/PMFT.cc",
-            "cpp/pmft/PMFTXYZ.cc",
-            "cpp/util/HOOMDMatrix.cc"
+            "cpp/locality/NeighborList.cc",
+            "cpp/pmft/PMFTXY2D.cc",
+            "cpp/pmft/PMFTR12.cc",
+            "cpp/pmft/PMFTXYT.cc",
+            "cpp/locality/LinkCell.cc"
         ]
     },
     "module_name": "freud.pmft"
