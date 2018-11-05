@@ -13,6 +13,7 @@
             "cpp/environment/LocalBondProjection.h",
             "cpp/environment/LocalDescriptors.h",
             "cpp/environment/MatchEnv.h",
+            "cpp/locality/AABBQuery.h",
             "cpp/locality/LinkCell.h",
             "cpp/locality/NearestNeighbors.h",
             "cpp/locality/NeighborList.h",
@@ -54,20 +55,21 @@
         "name": "freud.order",
         "sources": [
             "freud/order.pyx",
-            "cpp/cluster/Cluster.cc",
-            "cpp/order/wigner3j.cc",
-            "cpp/order/NematicOrderParameter.cc",
-            "cpp/util/HOOMDMatrix.cc",
-            "cpp/order/LocalQl.cc",
-            "cpp/box/Box.cc",
-            "cpp/locality/NearestNeighbors.cc",
             "cpp/order/HexOrderParameter.cc",
             "cpp/locality/NeighborList.cc",
-            "cpp/order/SolLiq.cc",
+            "cpp/util/HOOMDMatrix.cc",
+            "cpp/locality/NearestNeighbors.cc",
+            "cpp/order/NematicOrderParameter.cc",
             "cpp/order/LocalWl.cc",
+            "cpp/order/LocalQl.cc",
+            "cpp/cluster/Cluster.cc",
             "cpp/order/TransOrderParameter.cc",
+            "cpp/order/CubaticOrderParameter.cc",
+            "cpp/order/SolLiq.cc",
+            "cpp/box/Box.cc",
+            "cpp/locality/AABBQuery.cc",
             "cpp/locality/LinkCell.cc",
-            "cpp/order/CubaticOrderParameter.cc"
+            "cpp/order/wigner3j.cc"
         ]
     },
     "module_name": "freud.order"
@@ -668,6 +670,7 @@ static CYTHON_INLINE float __PYX_NAN() {
 #include "NeighborList.h"
 #include "LinkCell.h"
 #include "NearestNeighbors.h"
+#include "AABBQuery.h"
 #include "BondOrder.h"
 #include "LocalDescriptors.h"
 #include "MatchEnv.h"
@@ -1192,6 +1195,7 @@ struct __pyx_obj_5freud_8locality_NeighborList;
 struct __pyx_obj_5freud_8locality_IteratorLinkCell;
 struct __pyx_obj_5freud_8locality_LinkCell;
 struct __pyx_obj_5freud_8locality_NearestNeighbors;
+struct __pyx_obj_5freud_8locality_AABBQuery;
 struct __pyx_obj_5freud_3box_Box;
 struct __pyx_obj_5freud_3box_ParticleBuffer;
 struct __pyx_obj_5freud_11environment_BondOrder;
@@ -1303,6 +1307,20 @@ struct __pyx_obj_5freud_8locality_NearestNeighbors {
   PyObject *_cached_points;
   PyObject *_cached_ref_points;
   PyObject *_cached_box;
+};
+
+
+/* "freud/locality.pxd":31
+ *     cdef _cached_box
+ * 
+ * cdef class AABBQuery:             # <<<<<<<<<<<<<<
+ *     cdef freud._locality.AABBQuery * thisptr
+ *     cdef NeighborList _nlist
+ */
+struct __pyx_obj_5freud_8locality_AABBQuery {
+  PyObject_HEAD
+  freud::locality::AABBQuery *thisptr;
+  struct __pyx_obj_5freud_8locality_NeighborList *_nlist;
 };
 
 
@@ -2246,6 +2264,7 @@ static PyTypeObject *__pyx_ptype_5freud_8locality_NeighborList = 0;
 static PyTypeObject *__pyx_ptype_5freud_8locality_IteratorLinkCell = 0;
 static PyTypeObject *__pyx_ptype_5freud_8locality_LinkCell = 0;
 static PyTypeObject *__pyx_ptype_5freud_8locality_NearestNeighbors = 0;
+static PyTypeObject *__pyx_ptype_5freud_8locality_AABBQuery = 0;
 
 /* Module declarations from 'freud.box' */
 static PyTypeObject *__pyx_ptype_5freud_3box_Box = 0;
@@ -32173,6 +32192,7 @@ static int __Pyx_modinit_type_import_code(void) {
   __pyx_vtabptr_5freud_8locality_IteratorLinkCell = (struct __pyx_vtabstruct_5freud_8locality_IteratorLinkCell*)__Pyx_GetVtable(__pyx_ptype_5freud_8locality_IteratorLinkCell->tp_dict); if (unlikely(!__pyx_vtabptr_5freud_8locality_IteratorLinkCell)) __PYX_ERR(3, 15, __pyx_L1_error)
   __pyx_ptype_5freud_8locality_LinkCell = __Pyx_ImportType("freud.locality", "LinkCell", sizeof(struct __pyx_obj_5freud_8locality_LinkCell), 1); if (unlikely(!__pyx_ptype_5freud_8locality_LinkCell)) __PYX_ERR(3, 20, __pyx_L1_error)
   __pyx_ptype_5freud_8locality_NearestNeighbors = __Pyx_ImportType("freud.locality", "NearestNeighbors", sizeof(struct __pyx_obj_5freud_8locality_NearestNeighbors), 1); if (unlikely(!__pyx_ptype_5freud_8locality_NearestNeighbors)) __PYX_ERR(3, 24, __pyx_L1_error)
+  __pyx_ptype_5freud_8locality_AABBQuery = __Pyx_ImportType("freud.locality", "AABBQuery", sizeof(struct __pyx_obj_5freud_8locality_AABBQuery), 1); if (unlikely(!__pyx_ptype_5freud_8locality_AABBQuery)) __PYX_ERR(3, 31, __pyx_L1_error)
   __pyx_ptype_5freud_3box_Box = __Pyx_ImportType("freud.box", "Box", sizeof(struct __pyx_obj_5freud_3box_Box), 1); if (unlikely(!__pyx_ptype_5freud_3box_Box)) __PYX_ERR(4, 6, __pyx_L1_error)
   __pyx_ptype_5freud_3box_ParticleBuffer = __Pyx_ImportType("freud.box", "ParticleBuffer", sizeof(struct __pyx_obj_5freud_3box_ParticleBuffer), 1); if (unlikely(!__pyx_ptype_5freud_3box_ParticleBuffer)) __PYX_ERR(4, 11, __pyx_L1_error)
   __pyx_ptype_7cpython_4type_type = __Pyx_ImportType(__Pyx_BUILTIN_MODULE_NAME, "type", 
