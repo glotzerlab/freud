@@ -203,7 +203,14 @@ def parallelCCompile(self, sources, output_dir=None, macros=None,
             return
         self._compile(obj, src, ext, cc_args, extra_postargs, pp_opts)
 
-    with multiprocessing.pool.ThreadPool(N) as pool:
+    @contextlib.contextmanager
+    def terminating(pool):
+        try:
+            yield pool
+        finally:
+            pool.terminate()
+
+    with terminating(multiprocessing.pool.ThreadPool(N)) as pool:
         pool.map(_single_compile, objects)
 
     return objects
