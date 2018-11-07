@@ -15,6 +15,7 @@ except ImportError:
     # Compatibility with distutils
     import distutils
     from distutils import Extension, setup
+import distutils.ccompiler  # Handles old versions of Python 2.7
 
 logger = logging.getLogger(__name__)
 
