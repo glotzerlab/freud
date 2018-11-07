@@ -406,12 +406,12 @@ except SystemExit:
     else:
         raise
 except: # noqa
-    sys.stderr.write(tfile.read().decode())
+    sys.stderr.write(tfile.read().decode('utf-8'))
     raise
 else:
     if args.print_warnings:
         sys.stdout.write("Printing warnings: ")
-        sys.stderr.write(tfile.read().decode())
+        sys.stderr.write(tfile.read().decode('utf-8'))
     else:
         out = tfile.read().decode('utf-8')
         if out:
