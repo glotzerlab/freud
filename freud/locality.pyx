@@ -112,7 +112,7 @@ cdef class NeighborList:
         index_j = np.asarray(index_j, dtype=np.uint64)
 
         if index_i.ndim != 1 or index_j.ndim != 1:
-            raise TypeError('index_i and index_j should be a 1D arrays')
+            raise TypeError('index_i and index_j should be 1D arrays')
         if index_i.shape != index_j.shape:
             raise TypeError('index_i and index_j should be the same size')
 
@@ -281,7 +281,7 @@ cdef class NeighborList:
         with an index :math:`\geq i`.
 
         Args:
-            i (unsigned int ): The particle index.
+            i (unsigned int): The particle index.
         """
         return self.thisptr.find_first_index(i)
 
