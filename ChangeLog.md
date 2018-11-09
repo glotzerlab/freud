@@ -2,6 +2,18 @@
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## v0.11.4 - 2018-11-09
+
+### Added
+* Builds are now tested on Windows via Appveyor, though officially unsupported.
+
+### Fixed
+* Multiple user-reported issues in setup.py were resolved.
+* C++ errors are handled more cleanly as Python exceptions.
+* Fixed bug in SolLiq box parameters.
+* Documentation corrected for NeighborList.
+* Various minor compiler errors on Windows were resolved.
+
 ## v0.11.3 - 2018-10-18
 
 ### Fixed
