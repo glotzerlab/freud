@@ -210,21 +210,21 @@ cdef class BondOrder:
             b, ref_points, points, self.num_neigh, nlist, None, self.rmax)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
-        cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
-        cdef np.ndarray[float, ndim=2] l_points = points
-        cdef np.ndarray[float, ndim=2] l_ref_orientations = ref_orientations
-        cdef np.ndarray[float, ndim=2] l_orientations = orientations
-        cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
-        cdef unsigned int n_p = <unsigned int> points.shape[0]
+        cdef float[:, :] l_ref_points = ref_points
+        cdef float[:, :] l_points = points
+        cdef float[:, :] l_ref_orientations = ref_orientations
+        cdef float[:, :] l_orientations = orientations
+        cdef unsigned int n_ref = l_ref_points.shape[0]
+        cdef unsigned int n_p = l_points.shape[0]
 
         with nogil:
             self.thisptr.accumulate(
                 dereference(b.thisptr), nlist_.get_ptr(),
-                <vec3[float]*> l_ref_points.data,
-                <quat[float]*> l_ref_orientations.data,
+                <vec3[float]*> &l_ref_points[0, 0],
+                <quat[float]*> &l_ref_orientations[0, 0],
                 n_ref,
-                <vec3[float]*> l_points.data,
-                <quat[float]*> l_orientations.data,
+                <vec3[float]*> &l_points[0, 0],
+                <quat[float]*> &l_orientations[0, 0],
                 n_p,
                 index)
         return self
@@ -454,14 +454,14 @@ cdef class LocalDescriptors:
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        cdef np.ndarray[float, ndim=2] l_points_ref = points_ref
-        cdef unsigned int nRef = <unsigned int> points_ref.shape[0]
-        cdef np.ndarray[float, ndim=2] l_points = points
-        cdef unsigned int nP = <unsigned int> points.shape[0]
+        cdef float[:, :] l_points_ref = points_ref
+        cdef unsigned int nRef = l_points_ref.shape[0]
+        cdef float[:, :] l_points = points
+        cdef unsigned int nP = l_points.shape[0]
         with nogil:
             self.thisptr.computeNList(
-                dereference(b.thisptr), <vec3[float]*> l_points_ref.data,
-                nRef, <vec3[float]*> l_points.data, nP)
+                dereference(b.thisptr), <vec3[float]*> &l_points_ref[0, 0],
+                nRef, <vec3[float]*> &l_points[0, 0], nP)
         return self
 
     def compute(self, box, unsigned int num_neighbors, points_ref, points=None,
@@ -516,7 +516,9 @@ cdef class LocalDescriptors:
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        cdef np.ndarray[float, ndim=2] l_orientations = orientations
+        # The l_orientations_ptr is only used for 'particle_local' mode.
+        cdef float[:, :] l_orientations
+        cdef quat[float]* l_orientations_ptr = NULL
         if mode == 'particle_local':
             if orientations is None:
                 raise RuntimeError(
@@ -534,11 +536,12 @@ cdef class LocalDescriptors:
                     "orientations must have the same size as points_ref")
 
             l_orientations = orientations
+            l_orientations_ptr = <quat[float]*> &l_orientations[0, 0]
 
-        cdef np.ndarray[float, ndim=2] l_points_ref = points_ref
-        cdef unsigned int nRef = <unsigned int> points_ref.shape[0]
-        cdef np.ndarray[float, ndim=2] l_points = points
-        cdef unsigned int nP = <unsigned int> points.shape[0]
+        cdef float[:, :] l_points_ref = points_ref
+        cdef unsigned int nRef = l_points_ref.shape[0]
+        cdef float[:, :] l_points = points
+        cdef unsigned int nP = l_points.shape[0]
         cdef freud._environment.LocalDescriptorOrientation l_mode
 
         l_mode = self.known_modes[mode]
@@ -557,9 +560,9 @@ cdef class LocalDescriptors:
                 dereference(b.thisptr),
                 nlist_.get_ptr() if nlist_ is not None else NULL,
                 num_neighbors,
-                <vec3[float]*> l_points_ref.data,
-                nRef, <vec3[float]*> l_points.data, nP,
-                <quat[float]*> l_orientations.data, l_mode)
+                <vec3[float]*> &l_points_ref[0, 0],
+                nRef, <vec3[float]*> &l_points[0, 0], nP,
+                l_orientations_ptr, l_mode)
         return self
 
     @property
@@ -702,10 +705,8 @@ cdef class MatchEnv:
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        # keeping the below syntax seems to be crucial for passing unit tests
-        cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(
-            points.flatten())
-        cdef unsigned int nP = <unsigned int> points.shape[0]
+        cdef float[:, :] l_points = points
+        cdef unsigned int nP = l_points.shape[0]
 
         cdef freud.locality.NeighborList nlist_
         cdef freud.locality.NeighborList env_nlist_
@@ -728,11 +729,10 @@ cdef class MatchEnv:
                 None, self.rmax)
             env_nlist_ = defaulted_env_nlist[0]
 
-        # keeping the below syntax seems to be crucial for passing unit tests
         self.thisptr.cluster(
             env_nlist_.get_ptr(), nlist_.get_ptr(),
-            <vec3[float]*> &l_points[0], nP, threshold, hard_r, registration,
-            global_search)
+            <vec3[float]*> &l_points[0, 0], nP, threshold, hard_r,
+            registration, global_search)
 
     def matchMotif(self, points, refPoints, threshold, registration=False,
                    nlist=None):
@@ -768,19 +768,17 @@ cdef class MatchEnv:
         if refPoints.shape[1] != 3:
             raise TypeError('refPoints should be an Nx3 array')
 
-        # keeping the below syntax seems to be crucial for passing unit tests
         cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(
             points.flatten())
         cdef np.ndarray[float, ndim=1] l_refPoints = np.ascontiguousarray(
             refPoints.flatten())
-        cdef unsigned int nP = <unsigned int> points.shape[0]
-        cdef unsigned int nRef = <unsigned int> refPoints.shape[0]
+        cdef unsigned int nP = l_points.shape[0]
+        cdef unsigned int nRef = l_refPoints.shape[0]
 
         defaulted_nlist = freud.locality.make_default_nlist_nn(
             self.m_box, points, points, self.num_neigh, nlist, None, self.rmax)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
-        # keeping the below syntax seems to be crucial for passing unit tests
         self.thisptr.matchMotif(
             nlist_.get_ptr(), <vec3[float]*> &l_points[0], nP,
             <vec3[float]*> &l_refPoints[0], nRef, threshold,
@@ -821,19 +819,17 @@ cdef class MatchEnv:
         if refPoints.shape[1] != 3:
             raise TypeError('refPoints should be an Nx3 array')
 
-        # keeping the below syntax seems to be crucial for passing unit tests
         cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(
             points.flatten())
         cdef np.ndarray[float, ndim=1] l_refPoints = np.ascontiguousarray(
             refPoints.flatten())
-        cdef unsigned int nP = <unsigned int> points.shape[0]
-        cdef unsigned int nRef = <unsigned int> refPoints.shape[0]
+        cdef unsigned int nP = l_points.shape[0]
+        cdef unsigned int nRef = l_refPoints.shape[0]
 
         defaulted_nlist = freud.locality.make_default_nlist_nn(
             self.m_box, points, points, self.num_neigh, nlist, None, self.rmax)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
-        # keeping the below syntax seems to be crucial for passing unit tests
         cdef vector[float] min_rmsd_vec = self.thisptr.minRMSDMotif(
             nlist_.get_ptr(), <vec3[float]*> &l_points[0], nP,
             <vec3[float]*> &l_refPoints[0], nRef, registration)
@@ -878,13 +874,10 @@ cdef class MatchEnv:
         if refPoints2.shape[1] != 3:
             raise TypeError('refPoints2 should be an Nx3 array')
 
-        # keeping the below syntax seems to be crucial for passing unit tests
-        cdef np.ndarray[float, ndim=1] l_refPoints1 = np.copy(
-            np.ascontiguousarray(refPoints1.flatten()))
-        cdef np.ndarray[float, ndim=1] l_refPoints2 = np.copy(
-            np.ascontiguousarray(refPoints2.flatten()))
-        cdef unsigned int nRef1 = <unsigned int> refPoints1.shape[0]
-        cdef unsigned int nRef2 = <unsigned int> refPoints2.shape[0]
+        cdef float[:, :] l_refPoints1 = refPoints1
+        cdef float[:, :] l_refPoints2 = refPoints2
+        cdef unsigned int nRef1 = l_refPoints1.shape[0]
+        cdef unsigned int nRef2 = l_refPoints2.shape[0]
         cdef float threshold_sq = threshold*threshold
 
         if nRef1 != nRef2:
@@ -892,14 +885,11 @@ cdef class MatchEnv:
                 ("The number of vectors in refPoints1 must MATCH the number of"
                     "vectors in refPoints2"))
 
-        # keeping the below syntax seems to be crucial for passing unit tests
         cdef map[unsigned int, unsigned int] vec_map = self.thisptr.isSimilar(
-            <vec3[float]*> &l_refPoints1[0],
-            <vec3[float]*> &l_refPoints2[0],
+            <vec3[float]*> &l_refPoints1[0, 0],
+            <vec3[float]*> &l_refPoints2[0, 0],
             nRef1, threshold_sq, registration)
-        cdef np.ndarray[float, ndim=2] rot_refPoints2 = np.reshape(
-            l_refPoints2, (nRef2, 3))
-        return [rot_refPoints2, vec_map]
+        return [np.asarray(l_refPoints2), vec_map]
 
     def minimizeRMSD(self, refPoints1, refPoints2, registration=False):
         R"""Get the somewhat-optimal RMSD between the set of vectors refPoints1
@@ -934,13 +924,10 @@ cdef class MatchEnv:
         if refPoints2.shape[1] != 3:
             raise TypeError('refPoints2 should be an Nx3 array')
 
-        # keeping the below syntax seems to be crucial for passing unit tests
-        cdef np.ndarray[float, ndim=1] l_refPoints1 = np.copy(
-            np.ascontiguousarray(refPoints1.flatten()))
-        cdef np.ndarray[float, ndim=1] l_refPoints2 = np.copy(
-            np.ascontiguousarray(refPoints2.flatten()))
-        cdef unsigned int nRef1 = <unsigned int> refPoints1.shape[0]
-        cdef unsigned int nRef2 = <unsigned int> refPoints2.shape[0]
+        cdef float[:, :] l_refPoints1 = refPoints1
+        cdef float[:, :] l_refPoints2 = refPoints2
+        cdef unsigned int nRef1 = l_refPoints1.shape[0]
+        cdef unsigned int nRef2 = l_refPoints2.shape[0]
 
         if nRef1 != nRef2:
             raise ValueError(
@@ -948,15 +935,12 @@ cdef class MatchEnv:
                     "vectors in refPoints2"))
 
         cdef float min_rmsd = -1
-        # keeping the below syntax seems to be crucial for passing unit tests
         cdef map[unsigned int, unsigned int] results_map = \
             self.thisptr.minimizeRMSD(
-                <vec3[float]*> &l_refPoints1[0],
-                <vec3[float]*> &l_refPoints2[0],
+                <vec3[float]*> &l_refPoints1[0, 0],
+                <vec3[float]*> &l_refPoints2[0, 0],
                 nRef1, min_rmsd, registration)
-        cdef np.ndarray[float, ndim=2] rot_refPoints2 = np.reshape(
-            l_refPoints2, (nRef2, 3))
-        return [min_rmsd, rot_refPoints2, results_map]
+        return [min_rmsd, np.asarray(l_refPoints2), results_map]
 
     @property
     def clusters(self):
@@ -1150,20 +1134,20 @@ cdef class AngularSeparation:
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         self.nlist_ = nlist_
 
-        cdef np.ndarray[float, ndim=2] l_ref_ors = ref_ors
-        cdef np.ndarray[float, ndim=2] l_ors = ors
-        cdef np.ndarray[float, ndim=2] l_equiv_quats = equiv_quats
+        cdef float[:, :] l_ref_ors = ref_ors
+        cdef float[:, :] l_ors = ors
+        cdef float[:, :] l_equiv_quats = equiv_quats
 
-        cdef unsigned int nRef = <unsigned int> ref_ors.shape[0]
-        cdef unsigned int nP = <unsigned int> ors.shape[0]
-        cdef unsigned int nEquiv = <unsigned int> equiv_quats.shape[0]
+        cdef unsigned int nRef = l_ref_ors.shape[0]
+        cdef unsigned int nP = l_ors.shape[0]
+        cdef unsigned int nEquiv = l_equiv_quats.shape[0]
 
         with nogil:
             self.thisptr.computeNeighbor(
                 nlist_.get_ptr(),
-                <quat[float]*> l_ref_ors.data,
-                <quat[float]*> l_ors.data,
-                <quat[float]*> l_equiv_quats.data,
+                <quat[float]*> &l_ref_ors[0, 0],
+                <quat[float]*> &l_ors[0, 0],
+                <quat[float]*> &l_equiv_quats[0, 0],
                 nRef, nP, nEquiv)
         return self
 
@@ -1203,19 +1187,19 @@ cdef class AngularSeparation:
         if equiv_quats.shape[1] != 4:
             raise TypeError('equiv_quats should be an N_equiv x 4 array')
 
-        cdef np.ndarray[float, ndim=2] l_global_ors = global_ors
-        cdef np.ndarray[float, ndim=2] l_ors = ors
-        cdef np.ndarray[float, ndim=2] l_equiv_quats = equiv_quats
+        cdef float[:, :] l_global_ors = global_ors
+        cdef float[:, :] l_ors = ors
+        cdef float[:, :] l_equiv_quats = equiv_quats
 
-        cdef unsigned int nGlobal = <unsigned int> global_ors.shape[0]
-        cdef unsigned int nP = <unsigned int> ors.shape[0]
-        cdef unsigned int nEquiv = <unsigned int> equiv_quats.shape[0]
+        cdef unsigned int nGlobal = l_global_ors.shape[0]
+        cdef unsigned int nP = l_ors.shape[0]
+        cdef unsigned int nEquiv = l_equiv_quats.shape[0]
 
         with nogil:
             self.thisptr.computeGlobal(
-                <quat[float]*> l_global_ors.data,
-                <quat[float]*> l_ors.data,
-                <quat[float]*> l_equiv_quats.data,
+                <quat[float]*> &l_global_ors[0, 0],
+                <quat[float]*> &l_ors[0, 0],
+                <quat[float]*> &l_equiv_quats[0, 0],
                 nGlobal, nP, nEquiv)
         return self
 
@@ -1413,26 +1397,26 @@ cdef class LocalBondProjection:
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         self.nlist_ = nlist_
 
-        cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
-        cdef np.ndarray[float, ndim=2] l_ref_ors = ref_ors
-        cdef np.ndarray[float, ndim=2] l_points = points
-        cdef np.ndarray[float, ndim=2] l_equiv_quats = equiv_quats
-        cdef np.ndarray[float, ndim=2] l_proj_vecs = proj_vecs
+        cdef float[:, :] l_ref_points = ref_points
+        cdef float[:, :] l_ref_ors = ref_ors
+        cdef float[:, :] l_points = points
+        cdef float[:, :] l_equiv_quats = equiv_quats
+        cdef float[:, :] l_proj_vecs = proj_vecs
 
-        cdef unsigned int nRef = <unsigned int> ref_points.shape[0]
-        cdef unsigned int nP = <unsigned int> points.shape[0]
-        cdef unsigned int nEquiv = <unsigned int> equiv_quats.shape[0]
-        cdef unsigned int nProj = <unsigned int> proj_vecs.shape[0]
+        cdef unsigned int nRef = l_ref_points.shape[0]
+        cdef unsigned int nP = l_points.shape[0]
+        cdef unsigned int nEquiv = l_equiv_quats.shape[0]
+        cdef unsigned int nProj = l_proj_vecs.shape[0]
 
         with nogil:
             self.thisptr.compute(
                 dereference(b.thisptr),
                 nlist_.get_ptr(),
-                <vec3[float]*> l_points.data,
-                <vec3[float]*> l_ref_points.data,
-                <quat[float]*> l_ref_ors.data,
-                <quat[float]*> l_equiv_quats.data,
-                <vec3[float]*> l_proj_vecs.data,
+                <vec3[float]*> &l_points[0, 0],
+                <vec3[float]*> &l_ref_points[0, 0],
+                <quat[float]*> &l_ref_ors[0, 0],
+                <quat[float]*> &l_equiv_quats[0, 0],
+                <vec3[float]*> &l_proj_vecs[0, 0],
                 nP, nRef, nEquiv, nProj)
         return self
 

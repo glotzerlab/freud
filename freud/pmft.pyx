@@ -242,20 +242,20 @@ cdef class PMFTR12(_PMFT):
             b, ref_points, points, self.rmax, nlist, None)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
-        cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
-        cdef np.ndarray[float, ndim=2] l_points = points
-        cdef np.ndarray[float, ndim=1] l_ref_orientations = ref_orientations
-        cdef np.ndarray[float, ndim=1] l_orientations = orientations
+        cdef float[:, :] l_ref_points = ref_points
+        cdef float[:, :] l_points = points
+        cdef float[:] l_ref_orientations = ref_orientations
+        cdef float[:] l_orientations = orientations
         cdef unsigned int nRef = <unsigned int> ref_points.shape[0]
         cdef unsigned int nP = <unsigned int> points.shape[0]
         with nogil:
             self.pmftr12ptr.accumulate(dereference(b.thisptr),
                                        nlist_.get_ptr(),
-                                       <vec3[float]*> l_ref_points.data,
-                                       <float*> l_ref_orientations.data,
+                                       <vec3[float]*> &l_ref_points[0, 0],
+                                       <float*> &l_ref_orientations[0],
                                        nRef,
-                                       <vec3[float]*> l_points.data,
-                                       <float*> l_orientations.data,
+                                       <vec3[float]*> &l_points[0, 0],
+                                       <float*> &l_orientations[0],
                                        nP)
         return self
 
@@ -555,20 +555,20 @@ cdef class PMFTXYT(_PMFT):
             b, ref_points, points, self.rmax, nlist, None)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
-        cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
-        cdef np.ndarray[float, ndim=2] l_points = points
-        cdef np.ndarray[float, ndim=1] l_ref_orientations = ref_orientations
-        cdef np.ndarray[float, ndim=1] l_orientations = orientations
+        cdef float[:, :] l_ref_points = ref_points
+        cdef float[:, :] l_points = points
+        cdef float[:] l_ref_orientations = ref_orientations
+        cdef float[:] l_orientations = orientations
         cdef unsigned int nRef = <unsigned int> ref_points.shape[0]
         cdef unsigned int nP = <unsigned int> points.shape[0]
         with nogil:
             self.pmftxytptr.accumulate(dereference(b.thisptr),
                                        nlist_.get_ptr(),
-                                       <vec3[float]*> l_ref_points.data,
-                                       <float*> l_ref_orientations.data,
+                                       <vec3[float]*> &l_ref_points[0, 0],
+                                       <float*> &l_ref_orientations[0],
                                        nRef,
-                                       <vec3[float]*> l_points.data,
-                                       <float*> l_orientations.data,
+                                       <vec3[float]*> &l_points[0, 0],
+                                       <float*> &l_orientations[0],
                                        nP)
         return self
 
@@ -850,21 +850,21 @@ cdef class PMFTXY2D(_PMFT):
             b, ref_points, points, self.rmax, nlist, None)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
-        cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
-        cdef np.ndarray[float, ndim=2] l_points = points
-        cdef np.ndarray[float, ndim=1] l_ref_orientations = ref_orientations
-        cdef np.ndarray[float, ndim=1] l_orientations = orientations
-        cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
-        cdef unsigned int n_p = <unsigned int> points.shape[0]
+        cdef float[:, :] l_ref_points = ref_points
+        cdef float[:, :] l_points = points
+        cdef float[:] l_ref_orientations = ref_orientations
+        cdef float[:] l_orientations = orientations
+        cdef unsigned int nRef = <unsigned int> ref_points.shape[0]
+        cdef unsigned int nP = <unsigned int> points.shape[0]
         with nogil:
             self.pmftxy2dptr.accumulate(dereference(b.thisptr),
                                         nlist_.get_ptr(),
-                                        <vec3[float]*> l_ref_points.data,
-                                        <float*> l_ref_orientations.data,
-                                        n_ref,
-                                        <vec3[float]*> l_points.data,
-                                        <float*> l_orientations.data,
-                                        n_p)
+                                        <vec3[float]*> &l_ref_points[0, 0],
+                                        <float*> &l_ref_orientations[0],
+                                        nRef,
+                                        <vec3[float]*> &l_points[0, 0],
+                                        <float*> &l_orientations[0],
+                                        nP)
         return self
 
     def compute(self, box, ref_points, ref_orientations, points=None,
@@ -1190,11 +1190,11 @@ cdef class PMFTXYZ(_PMFT):
             b, ref_points, points, self.rmax, nlist, None)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
-        cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
-        cdef np.ndarray[float, ndim=2] l_points = points
-        cdef np.ndarray[float, ndim=2] l_ref_orientations = ref_orientations
-        cdef np.ndarray[float, ndim=2] l_orientations = orientations
-        cdef np.ndarray[float, ndim=3] l_face_orientations = face_orientations
+        cdef float[:, :] l_ref_points = ref_points
+        cdef float[:, :] l_points = points
+        cdef float[:, :] l_ref_orientations = ref_orientations
+        cdef float[:, :] l_orientations = orientations
+        cdef float[:, :, :] l_face_orientations = face_orientations
         cdef unsigned int nRef = <unsigned int> ref_points.shape[0]
         cdef unsigned int nP = <unsigned int> points.shape[0]
         cdef unsigned int nFaces = <unsigned int> face_orientations.shape[1]
@@ -1202,13 +1202,13 @@ cdef class PMFTXYZ(_PMFT):
             self.pmftxyzptr.accumulate(
                 dereference(b.thisptr),
                 nlist_.get_ptr(),
-                <vec3[float]*> l_ref_points.data,
-                <quat[float]*> l_ref_orientations.data,
+                <vec3[float]*> &l_ref_points[0, 0],
+                <quat[float]*> &l_ref_orientations[0, 0],
                 nRef,
-                <vec3[float]*> l_points.data,
-                <quat[float]*> l_orientations.data,
+                <vec3[float]*> &l_points[0, 0],
+                <quat[float]*> &l_orientations[0, 0],
                 nP,
-                <quat[float]*> l_face_orientations.data,
+                <quat[float]*> &l_face_orientations[0, 0, 0],
                 nFaces)
         return self
 

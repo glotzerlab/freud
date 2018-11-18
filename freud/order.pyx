@@ -102,17 +102,17 @@ cdef class CubaticOrderParameter:
 
         # for c++ code
         # create generalized rank four tensor, pass into c++
-        cdef np.ndarray[float, ndim=2] kd = np.eye(3, dtype=np.float32)
+        cdef float[:, :] kd = np.eye(3, dtype=np.float32)
         cdef np.ndarray[float, ndim=4] dijkl = np.einsum(
             "ij,kl->ijkl", kd, kd, dtype=np.float32)
         cdef np.ndarray[float, ndim=4] dikjl = np.einsum(
             "ik,jl->ijkl", kd, kd, dtype=np.float32)
         cdef np.ndarray[float, ndim=4] diljk = np.einsum(
             "il,jk->ijkl", kd, kd, dtype=np.float32)
-        cdef np.ndarray[float, ndim=4] r4 = dijkl+dikjl+diljk
-        r4 *= (2.0/5.0)
+        cdef float[:, :, :, :] r4 = (dijkl + dikjl + diljk) * (2.0/5.0)
         self.thisptr = new freud._order.CubaticOrderParameter(
-            t_initial, t_final, scale, <float*> r4.data, n_replicates, seed)
+            t_initial, t_final, scale, <float*> &r4[0, 0, 0, 0], n_replicates,
+            seed)
 
     def compute(self, orientations):
         R"""Calculates the per-particle and global order parameter.
@@ -127,12 +127,12 @@ cdef class CubaticOrderParameter:
         if orientations.shape[1] != 4:
             raise TypeError('orientations should be an Nx4 array')
 
-        cdef np.ndarray[float, ndim=2] l_orientations = orientations
-        cdef unsigned int num_particles = <unsigned int> orientations.shape[0]
+        cdef float[:, :] l_orientations = orientations
+        cdef unsigned int num_particles = l_orientations.shape[0]
 
         with nogil:
             self.thisptr.compute(
-                <quat[float]*> l_orientations.data, num_particles, 1)
+                <quat[float]*> &l_orientations[0, 0], num_particles, 1)
         return self
 
     @property
@@ -324,10 +324,8 @@ cdef class NematicOrderParameter:
         if len(u) != 3:
             raise ValueError('u needs to be a three-dimensional vector')
 
-        cdef np.ndarray[np.float32_t, ndim=1] l_u = \
-            np.array(u, dtype=np.float32)
-        self.thisptr = new freud._order.NematicOrderParameter(
-            (<vec3[float]*> l_u.data)[0])
+        cdef vec3[float] l_u = vec3[float](u[0], u[1], u[2])
+        self.thisptr = new freud._order.NematicOrderParameter(l_u)
 
     def compute(self, orientations):
         R"""Calculates the per-particle and global order parameter.
@@ -342,11 +340,11 @@ cdef class NematicOrderParameter:
         if orientations.shape[1] != 4:
             raise TypeError('orientations should be an Nx4 array')
 
-        cdef np.ndarray[float, ndim=2] l_orientations = orientations
-        cdef unsigned int num_particles = <unsigned int> orientations.shape[0]
+        cdef float[:, :] l_orientations = orientations
+        cdef unsigned int num_particles = l_orientations.shape[0]
 
         with nogil:
-            self.thisptr.compute(<quat[float]*> l_orientations.data,
+            self.thisptr.compute(<quat[float]*> &l_orientations[0, 0],
                                  num_particles)
 
     @property
@@ -454,8 +452,8 @@ cdef class HexOrderParameter:
             Symmetry of the order parameter.
     """
     cdef freud._order.HexOrderParameter * thisptr
-    cdef num_neigh
-    cdef rmax
+    cdef int num_neigh
+    cdef float rmax
 
     def __cinit__(self, rmax, k=int(6), n=int(0)):
         self.thisptr = new freud._order.HexOrderParameter(rmax, k, n)
@@ -483,8 +481,8 @@ cdef class HexOrderParameter:
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        cdef np.ndarray[float, ndim=2] l_points = points
-        cdef unsigned int nP = <unsigned int> points.shape[0]
+        cdef float[:, :] l_points = points
+        cdef unsigned int nP = l_points.shape[0]
 
         defaulted_nlist = freud.locality.make_default_nlist_nn(
             b, points, points, self.num_neigh, nlist, True, self.rmax)
@@ -492,7 +490,7 @@ cdef class HexOrderParameter:
 
         with nogil:
             self.thisptr.compute(dereference(b.thisptr), nlist_.get_ptr(),
-                                 <vec3[float]*> l_points.data, nP)
+                                 <vec3[float]*> &l_points[0, 0], nP)
         return self
 
     @property
@@ -598,8 +596,8 @@ cdef class TransOrderParameter:
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        cdef np.ndarray[float, ndim=2] l_points = points
-        cdef unsigned int nP = <unsigned int> points.shape[0]
+        cdef float[:, :] l_points = points
+        cdef unsigned int nP = l_points.shape[0]
 
         defaulted_nlist = freud.locality.make_default_nlist_nn(
             b, points, points, self.num_neigh, nlist, True, self.rmax)
@@ -607,7 +605,7 @@ cdef class TransOrderParameter:
 
         with nogil:
             self.thisptr.compute(dereference(b.thisptr), nlist_.get_ptr(),
-                                 <vec3[float]*> l_points.data, nP)
+                                 <vec3[float]*> &l_points[0, 0], nP)
         return self
 
     @property
@@ -848,14 +846,16 @@ cdef class LocalQl:
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
-        cdef np.ndarray[float, ndim=2] l_points = points
-        cdef unsigned int nP = <unsigned int> points.shape[0]
+
+        cdef float[:, :] l_points = points
+        cdef unsigned int nP = l_points.shape[0]
 
         defaulted_nlist = freud.locality.make_default_nlist(
             self.m_box, points, points, self.rmax, nlist, True)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
-        self.qlptr.compute(nlist_.get_ptr(), <vec3[float]*> l_points.data, nP)
+        self.qlptr.compute(nlist_.get_ptr(), <vec3[float]*> &l_points[0, 0],
+                           nP)
         return self
 
     def computeAve(self, points, nlist=None):
@@ -872,17 +872,17 @@ cdef class LocalQl:
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        cdef np.ndarray[float, ndim=2] l_points = points
-        cdef unsigned int nP = <unsigned int> points.shape[0]
+        cdef float[:, :] l_points = points
+        cdef unsigned int nP = l_points.shape[0]
 
         defaulted_nlist = freud.locality.make_default_nlist(
             self.m_box, points, points, self.rmax, nlist, True)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         self.qlptr.compute(nlist_.get_ptr(),
-                           <vec3[float]*> l_points.data, nP)
+                           <vec3[float]*> &l_points[0, 0], nP)
         self.qlptr.computeAve(nlist_.get_ptr(),
-                              <vec3[float]*> l_points.data, nP)
+                              <vec3[float]*> &l_points[0, 0], nP)
         return self
 
     def computeNorm(self, points, nlist=None):
@@ -900,15 +900,16 @@ cdef class LocalQl:
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        cdef np.ndarray[float, ndim=2] l_points = points
-        cdef unsigned int nP = <unsigned int> points.shape[0]
+        cdef float[:, :] l_points = points
+        cdef unsigned int nP = l_points.shape[0]
 
         defaulted_nlist = freud.locality.make_default_nlist(
             self.m_box, points, points, self.rmax, nlist, True)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
-        self.qlptr.compute(nlist_.get_ptr(), <vec3[float]*> l_points.data, nP)
-        self.qlptr.computeNorm(<vec3[float]*> l_points.data, nP)
+        self.qlptr.compute(nlist_.get_ptr(),
+                           <vec3[float]*> &l_points[0, 0], nP)
+        self.qlptr.computeNorm(<vec3[float]*> &l_points[0, 0], nP)
         return self
 
     def computeAveNorm(self, points, nlist=None):
@@ -927,18 +928,18 @@ cdef class LocalQl:
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        cdef np.ndarray[float, ndim=2] l_points = points
-        cdef unsigned int nP = <unsigned int> points.shape[0]
+        cdef float[:, :] l_points = points
+        cdef unsigned int nP = l_points.shape[0]
 
         defaulted_nlist = freud.locality.make_default_nlist(
             self.m_box, points, points, self.rmax, nlist, True)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         self.qlptr.compute(nlist_.get_ptr(),
-                           <vec3[float]*> l_points.data, nP)
+                           <vec3[float]*> &l_points[0, 0], nP)
         self.qlptr.computeAve(nlist_.get_ptr(),
-                              <vec3[float]*> l_points.data, nP)
-        self.qlptr.computeAveNorm(<vec3[float]*> l_points.data, nP)
+                              <vec3[float]*> &l_points[0, 0], nP)
+        self.qlptr.computeAveNorm(<vec3[float]*> &l_points[0, 0], nP)
         return self
 
 
@@ -1403,15 +1404,15 @@ cdef class SolLiq:
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        cdef np.ndarray[float, ndim=2] l_points = points
-        cdef unsigned int nP = <unsigned int> points.shape[0]
+        cdef float[:, :] l_points = points
+        cdef unsigned int nP = l_points.shape[0]
 
         defaulted_nlist = freud.locality.make_default_nlist(
             self.m_box, points, points, self.rmax, nlist, True)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         self.thisptr.compute(nlist_.get_ptr(),
-                             <vec3[float]*> l_points.data, nP)
+                             <vec3[float]*> &l_points[0, 0], nP)
         return self
 
     def computeSolLiqVariant(self, points, nlist=None):
@@ -1432,15 +1433,15 @@ cdef class SolLiq:
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        cdef np.ndarray[float, ndim=2] l_points = points
-        cdef unsigned int nP = <unsigned int> points.shape[0]
+        cdef float[:, :] l_points = points
+        cdef unsigned int nP = l_points.shape[0]
 
         defaulted_nlist = freud.locality.make_default_nlist(
             self.m_box, points, points, self.rmax, nlist, True)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         self.thisptr.computeSolLiqVariant(
-            nlist_.get_ptr(), <vec3[float]*> l_points.data, nP)
+            nlist_.get_ptr(), <vec3[float]*> &l_points[0, 0], nP)
         return self
 
     def computeSolLiqNoNorm(self, points, nlist=None):
@@ -1458,15 +1459,15 @@ cdef class SolLiq:
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        cdef np.ndarray[float, ndim=2] l_points = points
-        cdef unsigned int nP = <unsigned int> points.shape[0]
+        cdef float[:, :] l_points = points
+        cdef unsigned int nP = l_points.shape[0]
 
         defaulted_nlist = freud.locality.make_default_nlist(
             self.m_box, points, points, self.rmax, nlist, True)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         self.thisptr.computeSolLiqNoNorm(
-            nlist_.get_ptr(), <vec3[float]*> l_points.data, nP)
+            nlist_.get_ptr(), <vec3[float]*> &l_points[0, 0], nP)
         return self
 
     @property

@@ -130,14 +130,14 @@ cdef class FloatCF:
             values, 1, dtype=np.float64, contiguous=True)
         if ref_points.shape[1] != 3 or points.shape[1] != 3:
             raise ValueError("The 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
-        cdef np.ndarray[float, ndim=2] l_points
+        cdef float[:, :] l_ref_points = ref_points
+        cdef float[:, :] l_points
         if ref_points is points:
             l_points = l_ref_points
         else:
             l_points = points
-        cdef np.ndarray[np.float64_t, ndim=1] l_ref_values = ref_values
-        cdef np.ndarray[np.float64_t, ndim=1] l_values
+        cdef double[:] l_ref_values = ref_values
+        cdef double[:] l_values
         if values is ref_values:
             l_values = l_ref_values
         else:
@@ -147,15 +147,15 @@ cdef class FloatCF:
             b, ref_points, points, self.rmax, nlist, None)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
-        cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
-        cdef unsigned int n_p = <unsigned int> points.shape[0]
+        cdef unsigned int n_ref = l_ref_points.shape[0]
+        cdef unsigned int n_p = l_points.shape[0]
         with nogil:
             self.thisptr.accumulate(
                 dereference(b.thisptr), nlist_.get_ptr(),
-                <vec3[float]*> l_ref_points.data,
-                <double*> l_ref_values.data, n_ref,
-                <vec3[float]*> l_points.data,
-                <double*> l_values.data,
+                <vec3[float]*> &l_ref_points[0, 0],
+                <double*> &l_ref_values[0], n_ref,
+                <vec3[float]*> &l_points[0, 0],
+                <double*> &l_values[0],
                 n_p)
         return self
 
@@ -376,8 +376,8 @@ cdef class ComplexCF:
             values, 1, dtype=np.complex128, contiguous=True)
         if ref_points.shape[1] != 3 or points.shape[1] != 3:
             raise ValueError("The 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
-        cdef np.ndarray[float, ndim=2] l_points
+        cdef float[:, :] l_ref_points = ref_points
+        cdef float[:, :] l_points
         if ref_points is points:
             l_points = l_ref_points
         else:
@@ -393,15 +393,15 @@ cdef class ComplexCF:
             b, ref_points, points, self.rmax, nlist, None)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
-        cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
-        cdef unsigned int n_p = <unsigned int> points.shape[0]
+        cdef unsigned int n_ref = l_ref_points.shape[0]
+        cdef unsigned int n_p = l_points.shape[0]
         with nogil:
             self.thisptr.accumulate(
                 dereference(b.thisptr), nlist_.get_ptr(),
-                <vec3[float]*> l_ref_points.data,
+                <vec3[float]*> &l_ref_points[0, 0],
                 <np.complex128_t*> l_ref_values.data,
                 n_ref,
-                <vec3[float]*> l_points.data,
+                <vec3[float]*> &l_points[0, 0],
                 <np.complex128_t*> l_values.data,
                 n_p)
         return self
@@ -604,11 +604,11 @@ cdef class GaussianDensity:
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise ValueError("The 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=2] l_points = points
+        cdef float[:, :] l_points = points
         cdef unsigned int n_p = points.shape[0]
         with nogil:
             self.thisptr.compute(dereference(b.thisptr),
-                                 <vec3[float]*> l_points.data, n_p)
+                                 <vec3[float]*> &l_points[0, 0], n_p)
         return self
 
     @property
@@ -743,10 +743,10 @@ cdef class LocalDensity:
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if ref_points.shape[1] != 3 or points.shape[1] != 3:
             raise ValueError("The 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
-        cdef np.ndarray[float, ndim=2] l_points = points
-        cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
-        cdef unsigned int n_p = <unsigned int> points.shape[0]
+        cdef float[:, :] l_ref_points = ref_points
+        cdef float[:, :] l_points = points
+        cdef unsigned int n_ref = l_ref_points.shape[0]
+        cdef unsigned int n_p = l_points.shape[0]
 
         # local density of each particle includes itself (cutoff
         # distance is r_cut + diam/2 because of smoothing)
@@ -758,9 +758,9 @@ cdef class LocalDensity:
         with nogil:
             self.thisptr.compute(
                 dereference(b.thisptr), nlist_.get_ptr(),
-                <vec3[float]*> l_ref_points.data,
+                <vec3[float]*> &l_ref_points[0, 0],
                 n_ref,
-                <vec3[float]*> l_points.data,
+                <vec3[float]*> &l_points[0, 0],
                 n_p)
         return self
 
@@ -895,10 +895,10 @@ cdef class RDF:
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if ref_points.shape[1] != 3 or points.shape[1] != 3:
             raise ValueError("The 2nd dimension must have 3 values: x, y, z")
-        cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
-        cdef np.ndarray[float, ndim=2] l_points = points
-        cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
-        cdef unsigned int n_p = <unsigned int> points.shape[0]
+        cdef float[:, :] l_ref_points = ref_points
+        cdef float[:, :] l_points = points
+        cdef unsigned int n_ref = l_ref_points.shape[0]
+        cdef unsigned int n_p = l_points.shape[0]
 
         defaulted_nlist = freud.locality.make_default_nlist(
             b, ref_points, points, self.rmax, nlist)
@@ -907,9 +907,9 @@ cdef class RDF:
         with nogil:
             self.thisptr.accumulate(
                 dereference(b.thisptr), nlist_.get_ptr(),
-                <vec3[float]*> l_ref_points.data,
+                <vec3[float]*> &l_ref_points[0, 0],
                 n_ref,
-                <vec3[float]*> l_points.data,
+                <vec3[float]*> &l_points[0, 0],
                 n_p)
         return self
 

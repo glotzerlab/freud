@@ -44,8 +44,8 @@ cdef class InterfaceMeasure:
             The particle IDs from :code:`points`.
     """
     cdef float rmax
-    cdef np.ndarray _ref_point_ids
-    cdef np.ndarray _point_ids
+    cdef unsigned int[:] _ref_point_ids
+    cdef unsigned int[:] _point_ids
 
     def __cinit__(self, float r_cut):
         self.rmax = r_cut
@@ -79,8 +79,8 @@ cdef class InterfaceMeasure:
         else:
             nlist = nlist.copy().filter_r(b, ref_points, points, self.rmax)
 
-        self._ref_point_ids = np.unique(nlist.index_i)
-        self._point_ids = np.unique(nlist.index_j)
+        self._ref_point_ids = np.unique(nlist.index_i).astype(np.uint32)
+        self._point_ids = np.unique(nlist.index_j).astype(np.uint32)
         return self
 
     @property
