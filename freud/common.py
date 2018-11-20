@@ -56,7 +56,7 @@ def convert_box(box):
     :class:`freud.box.Box`. Existing :class:`freud.box.Box` objects are
     used directly.
 
-    .. moduleauthor:: Bradley Dice <bdice@umich.edu>
+    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
 
     Args:
       box (box-like object (see :meth:`freud.box.Box.from_box`)): Box to

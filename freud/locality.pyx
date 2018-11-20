@@ -452,7 +452,7 @@ def make_default_nlist_nn(box, ref_points, points, n_neigh, nlist=None,
 cdef class AABBQuery:
     R"""Use an AABB tree to find neighbors.
 
-    .. moduleauthor:: Bradley Dice <bdice@umich.edu>
+    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
 
     Attributes:
         nlist (:class:`freud.locality.NeighborList`):
