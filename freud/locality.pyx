@@ -108,18 +108,23 @@ cdef class NeighborList:
                 Array of per-bond weights (if :code:`None` is given, use a
                 value of 1 for each weight) (Default value = :code:`None`).
         """
-        index_i = np.asarray(index_i, dtype=np.uint64)
-        index_j = np.asarray(index_j, dtype=np.uint64)
+        index_i = freud.common.convert_array(index_i, dimensions=1,
+                                             dtype=np.uint64, contiguous=True,
+                                             array_name='index_i')
+        index_j = freud.common.convert_array(index_j, dimensions=1,
+                                             dtype=np.uint64, contiguous=True,
+                                             array_name='index_j')
 
-        if index_i.ndim != 1 or index_j.ndim != 1:
-            raise TypeError('index_i and index_j should be a 1D arrays')
         if index_i.shape != index_j.shape:
             raise TypeError('index_i and index_j should be the same size')
 
         if weights is None:
             weights = np.ones(index_i.shape, dtype=np.float32)
         else:
-            weights = np.asarray(weights, dtype=np.float32)
+            weights = freud.common.convert_array(
+                weights, dimensions=1, dtype=np.float32, contiguous=True,
+                array_name='weights')
+
         if weights.shape != index_i.shape:
             raise TypeError('weights and index_i should be the same size')
 
@@ -133,7 +138,7 @@ cdef class NeighborList:
         cdef size_t bond
         cdef size_t last_i
         cdef size_t i
-        if n_bonds:
+        if n_bonds > 0:
             last_i = c_index_i[0]
             i = last_i
             for bond in range(n_bonds):
@@ -208,35 +213,34 @@ cdef class NeighborList:
 
     @property
     def index_i(self):
-        cdef np.npy_intp size[2]
-        size[0] = self.thisptr.getNumBonds()
-        size[1] = 2
-        self.thisptr.getNeighbors()
-        cdef np.ndarray[np.uint64_t, ndim=2] result = \
-            np.PyArray_SimpleNewFromData(2, size, np.NPY_UINT64,
-                                         <void*> self.thisptr.getNeighbors())
+        cdef size_t n_bonds = self.thisptr.getNumBonds()
+        cdef const size_t[:, ::1] neighbors
+        if n_bonds > 0:
+            neighbors = <size_t[:n_bonds, :2]> self.thisptr.getNeighbors()
+            result = np.asarray(neighbors[:, 0], dtype=np.uint64)
+        else:
+            result = np.asarray([], dtype=np.uint64)
         result.flags.writeable = False
-        return result[:, 0]
+        return result
 
     @property
     def index_j(self):
-        cdef np.npy_intp size[2]
-        size[0] = self.thisptr.getNumBonds()
-        size[1] = 2
-        cdef np.ndarray[np.uint64_t, ndim=2] result = \
-            np.PyArray_SimpleNewFromData(2, size, np.NPY_UINT64,
-                                         <void*> self.thisptr.getNeighbors())
+        cdef size_t n_bonds = self.thisptr.getNumBonds()
+        cdef const size_t[:, ::1] neighbors
+        if n_bonds > 0:
+            neighbors = <size_t[:n_bonds, :2]> self.thisptr.getNeighbors()
+            result = np.asarray(neighbors[:, 1], dtype=np.uint64)
+        else:
+            result = np.asarray([], dtype=np.uint64)
         result.flags.writeable = False
-        return result[:, 1]
+        return result
 
     @property
     def weights(self):
-        cdef np.npy_intp size[1]
-        size[0] = self.thisptr.getNumBonds()
-        cdef np.ndarray[np.float32_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, size, np.NPY_FLOAT32,
-                                         <void*> self.thisptr.getWeights())
-        return result
+        cdef size_t n_bonds = self.thisptr.getNumBonds()
+        cdef const float[::1] weights = \
+            <float[:n_bonds]> self.thisptr.getWeights()
+        return np.asarray(weights)
 
     @property
     def segments(self):

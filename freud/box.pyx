@@ -850,41 +850,29 @@ cdef class ParticleBuffer:
     def buffer_particles(self):
         cdef unsigned int buffer_size = \
             dereference(self.thisptr.getBufferParticles().get()).size()
-        cdef vec3[float] * buffer_points = \
-            &dereference(self.thisptr.getBufferParticles().get())[0]
+
         if not buffer_size:
             return np.array([[]], dtype=np.float32)
 
-        cdef vector[vec3[float]]*bufferPar = \
-            self.thisptr.getBufferParticles().get()
-        cdef np.npy_intp nbins[2]
-        nbins[0] = buffer_size
-        nbins[1] = 3
+        cdef const float[:, ::1] buffer_particles = \
+            <float[:buffer_size, :3]> (<float*> dereference(
+                self.thisptr.getBufferParticles().get()).data())
 
-        cdef np.ndarray[float, ndim=2] result = \
-            np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32,
-                                         <void*> dereference(bufferPar).data())
-
-        return result
+        return np.asarray(buffer_particles)
 
     @property
     def buffer_ids(self):
         cdef unsigned int buffer_size = \
             dereference(self.thisptr.getBufferParticles().get()).size()
-        cdef unsigned int * buffer_ids = \
-            &dereference(self.thisptr.getBufferIds().get())[0]
+
         if not buffer_size:
             return np.array([[]], dtype=np.uint32)
 
-        cdef vector[unsigned int]*bufferIds = self.thisptr.getBufferIds().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = buffer_size
+        cdef const unsigned int[::1] buffer_ids = \
+            <unsigned int[:buffer_size]> dereference(
+                self.thisptr.getBufferIds().get()).data()
 
-        cdef np.ndarray[unsigned int, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32,
-                                         <void*> dereference(bufferIds).data())
-
-        return result
+        return np.asarray(buffer_ids)
 
     @property
     def buffer_box(self):
