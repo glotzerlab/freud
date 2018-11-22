@@ -231,18 +231,17 @@ cdef class BondOrder:
 
     @property
     def bond_order(self):
-        cdef float * bod = self.thisptr.getBondOrder().get()
-        cdef np.npy_intp nbins[2]
-        nbins[0] = <np.npy_intp> self.thisptr.getNBinsPhi()
-        nbins[1] = <np.npy_intp> self.thisptr.getNBinsTheta()
-        cdef np.ndarray[float, ndim=2] result = np.PyArray_SimpleNewFromData(
-            2, nbins, np.NPY_FLOAT32, <void*> bod)
+        cdef unsigned int n_bins_phi = self.thisptr.getNBinsPhi()
+        cdef unsigned int n_bins_theta = self.thisptr.getNBinsTheta()
+        cdef float[:, ::1] bod = <float[:n_bins_phi, :n_bins_theta]> \
+            self.thisptr.getBondOrder().get()
+        result = np.asarray(bod)
 
         # Because we divide by the surface areas, the bond order will actually
         # be nans if we try to get the bond_order after resetting. This fixes
         # that.
         if np.all(np.isnan(result)):
-            result = np.zeros((nbins[0], nbins[1]), dtype=np.float32)
+            result = np.zeros((n_bins_phi, n_bins_theta), dtype=np.float32)
         return result
 
     def getBondOrder(self):
@@ -312,13 +311,12 @@ cdef class BondOrder:
 
     @property
     def theta(self):
-        cdef float * theta = self.thisptr.getTheta().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.thisptr.getNBinsTheta()
-        cdef np.ndarray[np.float32_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32,
-                                         <void*> theta)
-        return result
+        cdef unsigned int n_bins_theta = self.thisptr.getNBinsTheta()
+        if not n_bins_theta:
+            return np.asarray([], dtype=np.float32)
+        cdef float[::1] theta = \
+            <float[:n_bins_theta]> self.thisptr.getTheta().get()
+        return np.asarray(theta)
 
     def getTheta(self):
         warnings.warn("The getTheta function is deprecated in favor "
@@ -329,12 +327,12 @@ cdef class BondOrder:
 
     @property
     def phi(self):
-        cdef float * phi = self.thisptr.getPhi().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.thisptr.getNBinsPhi()
-        cdef np.ndarray[np.float32_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> phi)
-        return result
+        cdef unsigned int n_bins_phi = self.thisptr.getNBinsPhi()
+        if not n_bins_phi:
+            return np.asarray([], dtype=np.float32)
+        cdef float[::1] phi = \
+            <float[:n_bins_phi]> self.thisptr.getPhi().get()
+        return np.asarray(phi)
 
     def getPhi(self):
         warnings.warn("The getPhi function is deprecated in favor "
@@ -567,14 +565,14 @@ cdef class LocalDescriptors:
 
     @property
     def sph(self):
-        cdef float complex * sph = self.thisptr.getSph().get()
-        cdef np.npy_intp nbins[2]
-        nbins[0] = <np.npy_intp> self.thisptr.getNSphs()
-        nbins[1] = <np.npy_intp> self.thisptr.getSphWidth()
-        cdef np.ndarray[np.complex64_t, ndim=2] result = \
-            np.PyArray_SimpleNewFromData(2, nbins, np.NPY_COMPLEX64,
-                                         <void*> sph)
-        return result
+        cdef unsigned int n_sphs = self.thisptr.getNSphs()
+        cdef unsigned int sph_width = self.thisptr.getSphWidth()
+        if not n_sphs or not sph_width:
+            return np.asarray([[]], dtype=np.float32)
+        cdef float complex[:, ::1] sph = \
+            <float complex[:n_sphs, :sph_width]> \
+            self.thisptr.getSph().get()
+        return np.asarray(sph, dtype=np.complex64)
 
     def getSph(self):
         warnings.warn("The getSph function is deprecated in favor "
@@ -944,14 +942,12 @@ cdef class MatchEnv:
 
     @property
     def clusters(self):
-        cdef unsigned int * clusters = self.thisptr.getClusters().get()
-        cdef np.npy_intp nbins[1]
-        # this is the correct number
-        nbins[0] = <np.npy_intp> self.thisptr.getNP()
-        cdef np.ndarray[np.uint32_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32,
-                                         <void*> clusters)
-        return result
+        cdef unsigned int n_particles = self.thisptr.getNP()
+        if not n_particles:
+            return np.asarray([], dtype=np.uint32)
+        cdef unsigned int[::1] clusters = \
+            <unsigned int[:n_particles]> self.thisptr.getClusters().get()
+        return np.asarray(clusters)
 
     def getClusters(self):
         warnings.warn("The getClusters function is deprecated in favor "
@@ -970,27 +966,24 @@ cdef class MatchEnv:
             :math:`\left(N_{neighbors}, 3\right)` :class:`numpy.ndarray`:
             The array of vectors.
         """
-        cdef vec3[float] * environment = self.thisptr.getEnvironment(i).get()
-        cdef np.npy_intp nbins[2]
-        nbins[0] = <np.npy_intp> self.thisptr.getMaxNumNeighbors()
-        nbins[1] = 3
-        cdef np.ndarray[float, ndim=2] result = \
-            np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32,
-                                         <void*> environment)
-        return result
+        cdef unsigned int max_neighbors = self.thisptr.getMaxNumNeighbors()
+        if not max_neighbors:
+            return np.asarray([[]], dtype=np.float32)
+        cdef float[:, ::1] environment = \
+            <float[:max_neighbors, :3]> (
+                <float*> self.thisptr.getEnvironment(i).get())
+        return np.asarray(environment)
 
     @property
     def tot_environment(self):
-        cdef vec3[float] * tot_environment = \
-            self.thisptr.getTotEnvironment().get()
-        cdef np.npy_intp nbins[3]
-        nbins[0] = <np.npy_intp> self.thisptr.getNP()
-        nbins[1] = <np.npy_intp> self.thisptr.getMaxNumNeighbors()
-        nbins[2] = 3
-        cdef np.ndarray[float, ndim=3] result = \
-            np.PyArray_SimpleNewFromData(3, nbins, np.NPY_FLOAT32,
-                                         <void*> tot_environment)
-        return result
+        cdef unsigned int n_particles = self.thisptr.getNP()
+        cdef unsigned int max_neighbors = self.thisptr.getMaxNumNeighbors()
+        if not n_particles or not max_neighbors:
+            return np.asarray([[[]]], dtype=np.float32)
+        cdef float[:, :, ::1] tot_environment = \
+            <float[:n_particles, :max_neighbors, :3]> (
+                <float*> self.thisptr.getTotEnvironment().get())
+        return np.asarray(tot_environment)
 
     def getTotEnvironment(self):
         warnings.warn("The getTotEnvironment function is deprecated in favor "
@@ -1061,11 +1054,10 @@ cdef class AngularSeparation:
             strict_cut=True
     """  # noqa: E501
 
-    def __cinit__(self, rmax, n):
+    def __cinit__(self, float rmax, unsigned int n):
         self.thisptr = new freud._environment.AngularSeparation()
         self.rmax = rmax
-        self.num_neigh = int(n)
-        self.nlist_ = None
+        self.num_neigh = n
 
     def __dealloc__(self):
         del self.thisptr
@@ -1131,8 +1123,7 @@ cdef class AngularSeparation:
 
         defaulted_nlist = freud.locality.make_default_nlist_nn(
             b, ref_points, points, self.num_neigh, nlist, None, self.rmax)
-        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
-        self.nlist_ = nlist_
+        self.nlist_ = defaulted_nlist[0].copy()
 
         cdef float[:, ::1] l_ref_ors = ref_ors
         cdef float[:, ::1] l_ors = ors
@@ -1144,7 +1135,7 @@ cdef class AngularSeparation:
 
         with nogil:
             self.thisptr.computeNeighbor(
-                nlist_.get_ptr(),
+                self.nlist_.get_ptr(),
                 <quat[float]*> &l_ref_ors[0, 0],
                 <quat[float]*> &l_ors[0, 0],
                 <quat[float]*> &l_equiv_quats[0, 0],
@@ -1205,13 +1196,12 @@ cdef class AngularSeparation:
 
     @property
     def neighbor_angles(self):
-        cdef float * neigh_ang = self.thisptr.getNeighborAngles().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> len(self.nlist)
-        cdef np.ndarray[float, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32,
-                                         <void*> neigh_ang)
-        return result
+        cdef unsigned int n_bonds = len(self.nlist)
+        if not n_bonds:
+            return np.asarray([], dtype=np.float32)
+        cdef float[::1] neighbor_angles = \
+            <float[:n_bonds]> self.thisptr.getNeighborAngles().get()
+        return np.asarray(neighbor_angles)
 
     def getNeighborAngles(self):
         warnings.warn("The getNeighborAngles function is deprecated in favor "
@@ -1222,14 +1212,14 @@ cdef class AngularSeparation:
 
     @property
     def global_angles(self):
-        cdef float * global_ang = self.thisptr.getGlobalAngles().get()
-        cdef np.npy_intp nbins[2]
-        nbins[0] = <np.npy_intp> self.thisptr.getNP()
-        nbins[1] = <np.npy_intp> self.thisptr.getNglobal()
-        cdef np.ndarray[float, ndim=2] result = \
-            np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32,
-                                         <void*> global_ang)
-        return result
+        cdef unsigned int n_particles = self.thisptr.getNP()
+        cdef unsigned int n_global = self.thisptr.getNglobal()
+        if not n_particles or not n_global:
+            return np.empty((n_particles, n_global), dtype=np.float32)
+        cdef float[:, ::1] global_angles = \
+            <float[:n_particles, :n_global]> \
+            self.thisptr.getGlobalAngles().get()
+        return np.asarray(global_angles)
 
     def getGlobalAngles(self):
         warnings.warn("The getGlobalAngles function is deprecated in favor "
@@ -1307,16 +1297,10 @@ cdef class LocalBondProjection:
             The box used in the last calculation.
     """  # noqa: E501
 
-    cdef freud._environment.LocalBondProjection * thisptr
-    cdef rmax
-    cdef num_neigh
-    cdef nlist_
-
     def __cinit__(self, rmax, num_neigh):
         self.thisptr = new freud._environment.LocalBondProjection()
         self.rmax = rmax
         self.num_neigh = int(num_neigh)
-        self.nlist_ = None
 
     def __dealloc__(self):
         del self.thisptr
@@ -1394,8 +1378,7 @@ cdef class LocalBondProjection:
 
         defaulted_nlist = freud.locality.make_default_nlist_nn(
             box, ref_points, points, self.num_neigh, nlist, None, self.rmax)
-        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
-        self.nlist_ = nlist_
+        self.nlist_ = defaulted_nlist[0].copy()
 
         cdef float[:, ::1] l_ref_points = ref_points
         cdef float[:, ::1] l_ref_ors = ref_ors
@@ -1411,7 +1394,7 @@ cdef class LocalBondProjection:
         with nogil:
             self.thisptr.compute(
                 dereference(b.thisptr),
-                nlist_.get_ptr(),
+                self.nlist_.get_ptr(),
                 <vec3[float]*> &l_points[0, 0],
                 <vec3[float]*> &l_ref_points[0, 0],
                 <quat[float]*> &l_ref_ors[0, 0],
@@ -1422,23 +1405,24 @@ cdef class LocalBondProjection:
 
     @property
     def projections(self):
-        cdef float * proj = self.thisptr.getProjections().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> len(self.nlist) * self.thisptr.getNproj()
-        cdef np.ndarray[float, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(
-                1, nbins, np.NPY_FLOAT32, <void*> proj)
-        return result
+        cdef unsigned int n_bond_projections = \
+            len(self.nlist) * self.thisptr.getNproj()
+        if not n_bond_projections:
+            return np.asarray([], dtype=np.float32)
+        cdef float[::1] projections = \
+            <float[:n_bond_projections]> self.thisptr.getProjections().get()
+        return np.asarray(projections)
 
     @property
     def normed_projections(self):
-        cdef float * proj = self.thisptr.getNormedProjections().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> len(self.nlist) * self.thisptr.getNproj()
-        cdef np.ndarray[float, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(
-                1, nbins, np.NPY_FLOAT32, <void*> proj)
-        return result
+        cdef unsigned int n_bond_projections = \
+            len(self.nlist) * self.thisptr.getNproj()
+        if not n_bond_projections:
+            return np.asarray([], dtype=np.float32)
+        cdef float[::1] normed_projections = \
+            <float[:n_bond_projections]> \
+            self.thisptr.getNormedProjections().get()
+        return np.asarray(normed_projections)
 
     @property
     def num_particles(self):

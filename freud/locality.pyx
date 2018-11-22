@@ -238,6 +238,8 @@ cdef class NeighborList:
     @property
     def weights(self):
         cdef size_t n_bonds = self.thisptr.getNumBonds()
+        if not n_bonds:
+            return np.asarray([], dtype=np.float32)
         cdef const float[::1] weights = \
             <float[:n_bonds]> self.thisptr.getWeights()
         return np.asarray(weights)

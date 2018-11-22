@@ -850,10 +850,8 @@ cdef class ParticleBuffer:
     def buffer_particles(self):
         cdef unsigned int buffer_size = \
             dereference(self.thisptr.getBufferParticles().get()).size()
-
         if not buffer_size:
             return np.array([[]], dtype=np.float32)
-
         cdef const float[:, ::1] buffer_particles = \
             <float[:buffer_size, :3]> (<float*> dereference(
                 self.thisptr.getBufferParticles().get()).data())
