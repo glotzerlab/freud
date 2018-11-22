@@ -176,14 +176,10 @@ cdef class Cluster:
 
     @property
     def cluster_idx(self):
-        cdef unsigned int * cluster_idx_raw = \
-            self.thisptr.getClusterIdx().get()
-        cdef np.npy_intp nP[1]
-        nP[0] = <np.npy_intp> self.thisptr.getNumParticles()
-        cdef np.ndarray[np.uint32_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(
-                1, nP, np.NPY_UINT32, <void*> cluster_idx_raw)
-        return result
+        cdef unsigned int n_particles = self.thisptr.getNumParticles()
+        cdef unsigned int[::1] cluster_idx = \
+            <unsigned int[:n_particles]> self.thisptr.getClusterIdx().get()
+        return np.asarray(cluster_idx)
 
     def getClusterIdx(self):
         warnings.warn("The getClusterIdx function is deprecated in favor "
@@ -322,14 +318,16 @@ cdef class ClusterProperties:
 
     @property
     def cluster_COM(self):
-        cdef vec3[float] * cluster_com_raw = self.thisptr.getClusterCOM().get()
-        cdef np.npy_intp nClusters[2]
-        nClusters[0] = <np.npy_intp> self.thisptr.getNumClusters()
-        nClusters[1] = 3
-        cdef np.ndarray[np.float32_t, ndim=2] result = \
-            np.PyArray_SimpleNewFromData(
-                2, nClusters, np.NPY_FLOAT32, <void*> cluster_com_raw)
-        return result
+        cdef unsigned int n_clusters = self.thisptr.getNumClusters()
+
+        if not n_clusters:
+            return np.asarray([[]], dtype=np.float32)
+
+        cdef const float[:, ::1] cluster_COM = \
+            <float[:n_clusters, :3]> (
+                <float*> self.thisptr.getClusterCOM().get())
+
+        return np.asarray(cluster_COM)
 
     def getClusterCOM(self):
         warnings.warn("The getClusterCOM function is deprecated in favor "
@@ -340,15 +338,16 @@ cdef class ClusterProperties:
 
     @property
     def cluster_G(self):
-        cdef float * cluster_G_raw = self.thisptr.getClusterG().get()
-        cdef np.npy_intp nClusters[3]
-        nClusters[0] = <np.npy_intp> self.thisptr.getNumClusters()
-        nClusters[1] = 3
-        nClusters[2] = 3
-        cdef np.ndarray[np.float32_t, ndim=3] result = \
-            np.PyArray_SimpleNewFromData(
-                3, nClusters, np.NPY_FLOAT32, <void*> cluster_G_raw)
-        return result
+        cdef unsigned int n_clusters = self.thisptr.getNumClusters()
+
+        if not n_clusters:
+            return np.asarray([[[]]], dtype=np.float32)
+
+        cdef const float[:, :, ::1] cluster_G = \
+            <float[:n_clusters, :3, :3]> (
+                <float*> self.thisptr.getClusterG().get())
+
+        return np.asarray(cluster_G)
 
     def getClusterG(self):
         warnings.warn("The getClusterG function is deprecated in favor "
@@ -359,14 +358,15 @@ cdef class ClusterProperties:
 
     @property
     def cluster_sizes(self):
-        cdef unsigned int * cluster_sizes_raw = \
-            self.thisptr.getClusterSize().get()
-        cdef np.npy_intp nClusters[1]
-        nClusters[0] = <np.npy_intp> self.thisptr.getNumClusters()
-        cdef np.ndarray[np.uint32_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(
-                1, nClusters, np.NPY_UINT32, <void*> cluster_sizes_raw)
-        return result
+        cdef unsigned int n_clusters = self.thisptr.getNumClusters()
+
+        if not n_clusters:
+            return np.asarray([], dtype=np.uint32)
+
+        cdef const unsigned int[::1] cluster_sizes = \
+            <unsigned int[:n_clusters]> self.thisptr.getClusterSize().get()
+
+        return np.asarray(cluster_sizes, dtype=np.uint32)
 
     def getClusterSizes(self):
         warnings.warn("The getClusterSizes function is deprecated in favor "
