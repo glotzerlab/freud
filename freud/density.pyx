@@ -130,14 +130,14 @@ cdef class FloatCF:
             values, 1, dtype=np.float64, contiguous=True)
         if ref_points.shape[1] != 3 or points.shape[1] != 3:
             raise ValueError("The 2nd dimension must have 3 values: x, y, z")
-        cdef float[:, :] l_ref_points = ref_points
-        cdef float[:, :] l_points
+        cdef float[:, ::1] l_ref_points = ref_points
+        cdef float[:, ::1] l_points
         if ref_points is points:
             l_points = l_ref_points
         else:
             l_points = points
-        cdef double[:] l_ref_values = ref_values
-        cdef double[:] l_values
+        cdef double[::1] l_ref_values = ref_values
+        cdef double[::1] l_values
         if values is ref_values:
             l_values = l_ref_values
         else:
@@ -376,8 +376,8 @@ cdef class ComplexCF:
             values, 1, dtype=np.complex128, contiguous=True)
         if ref_points.shape[1] != 3 or points.shape[1] != 3:
             raise ValueError("The 2nd dimension must have 3 values: x, y, z")
-        cdef float[:, :] l_ref_points = ref_points
-        cdef float[:, :] l_points
+        cdef float[:, ::1] l_ref_points = ref_points
+        cdef float[:, ::1] l_points
         if ref_points is points:
             l_points = l_ref_points
         else:
@@ -604,7 +604,7 @@ cdef class GaussianDensity:
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise ValueError("The 2nd dimension must have 3 values: x, y, z")
-        cdef float[:, :] l_points = points
+        cdef float[:, ::1] l_points = points
         cdef unsigned int n_p = points.shape[0]
         with nogil:
             self.thisptr.compute(dereference(b.thisptr),
@@ -743,8 +743,8 @@ cdef class LocalDensity:
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if ref_points.shape[1] != 3 or points.shape[1] != 3:
             raise ValueError("The 2nd dimension must have 3 values: x, y, z")
-        cdef float[:, :] l_ref_points = ref_points
-        cdef float[:, :] l_points = points
+        cdef float[:, ::1] l_ref_points = ref_points
+        cdef float[:, ::1] l_points = points
         cdef unsigned int n_ref = l_ref_points.shape[0]
         cdef unsigned int n_p = l_points.shape[0]
 
@@ -895,8 +895,8 @@ cdef class RDF:
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if ref_points.shape[1] != 3 or points.shape[1] != 3:
             raise ValueError("The 2nd dimension must have 3 values: x, y, z")
-        cdef float[:, :] l_ref_points = ref_points
-        cdef float[:, :] l_points = points
+        cdef float[:, ::1] l_ref_points = ref_points
+        cdef float[:, ::1] l_points = points
         cdef unsigned int n_ref = l_ref_points.shape[0]
         cdef unsigned int n_p = l_points.shape[0]
 

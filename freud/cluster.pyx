@@ -123,7 +123,7 @@ cdef class Cluster:
         else:
             b = freud.common.convert_box(box)
 
-        cdef float[:, :] l_points = points
+        cdef float[:, ::1] l_points = points
         cdef unsigned int Np = l_points.shape[0]
         with nogil:
             self.thisptr.computeClusters(
@@ -147,7 +147,7 @@ cdef class Cluster:
         if keys.shape[0] != N:
             raise RuntimeError(
                 'keys must be a 1D array of length NumParticles')
-        cdef unsigned int[:] l_keys = keys
+        cdef unsigned int[::1] l_keys = keys
         with nogil:
             self.thisptr.computeClusterMembership(<unsigned int*> &l_keys[0])
         return self
@@ -298,8 +298,8 @@ cdef class ClusterProperties:
             raise RuntimeError(
                 ('cluster_idx must be a 1D array of matching length/number'
                     'of particles to points'))
-        cdef float[:, :] l_points = points
-        cdef unsigned int[:] l_cluster_idx = cluster_idx
+        cdef float[:, ::1] l_points = points
+        cdef unsigned int[::1] l_cluster_idx = cluster_idx
         cdef unsigned int Np = l_points.shape[0]
         with nogil:
             self.thisptr.computeProperties(

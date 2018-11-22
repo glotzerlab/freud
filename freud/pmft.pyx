@@ -242,12 +242,12 @@ cdef class PMFTR12(_PMFT):
             b, ref_points, points, self.rmax, nlist, None)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
-        cdef float[:, :] l_ref_points = ref_points
-        cdef float[:, :] l_points = points
-        cdef float[:] l_ref_orientations = ref_orientations
-        cdef float[:] l_orientations = orientations
-        cdef unsigned int nRef = <unsigned int> ref_points.shape[0]
-        cdef unsigned int nP = <unsigned int> points.shape[0]
+        cdef float[:, ::1] l_ref_points = ref_points
+        cdef float[:, ::1] l_points = points
+        cdef float[::1] l_ref_orientations = ref_orientations
+        cdef float[::1] l_orientations = orientations
+        cdef unsigned int nRef = l_ref_points.shape[0]
+        cdef unsigned int nP = l_points.shape[0]
         with nogil:
             self.pmftr12ptr.accumulate(dereference(b.thisptr),
                                        nlist_.get_ptr(),
@@ -555,12 +555,12 @@ cdef class PMFTXYT(_PMFT):
             b, ref_points, points, self.rmax, nlist, None)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
-        cdef float[:, :] l_ref_points = ref_points
-        cdef float[:, :] l_points = points
-        cdef float[:] l_ref_orientations = ref_orientations
-        cdef float[:] l_orientations = orientations
-        cdef unsigned int nRef = <unsigned int> ref_points.shape[0]
-        cdef unsigned int nP = <unsigned int> points.shape[0]
+        cdef float[:, ::1] l_ref_points = ref_points
+        cdef float[:, ::1] l_points = points
+        cdef float[::1] l_ref_orientations = ref_orientations
+        cdef float[::1] l_orientations = orientations
+        cdef unsigned int nRef = l_ref_points.shape[0]
+        cdef unsigned int nP = l_points.shape[0]
         with nogil:
             self.pmftxytptr.accumulate(dereference(b.thisptr),
                                        nlist_.get_ptr(),
@@ -850,12 +850,12 @@ cdef class PMFTXY2D(_PMFT):
             b, ref_points, points, self.rmax, nlist, None)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
-        cdef float[:, :] l_ref_points = ref_points
-        cdef float[:, :] l_points = points
-        cdef float[:] l_ref_orientations = ref_orientations
-        cdef float[:] l_orientations = orientations
-        cdef unsigned int nRef = <unsigned int> ref_points.shape[0]
-        cdef unsigned int nP = <unsigned int> points.shape[0]
+        cdef float[:, ::1] l_ref_points = ref_points
+        cdef float[:, ::1] l_points = points
+        cdef float[::1] l_ref_orientations = ref_orientations
+        cdef float[::1] l_orientations = orientations
+        cdef unsigned int nRef = l_ref_points.shape[0]
+        cdef unsigned int nP = l_points.shape[0]
         with nogil:
             self.pmftxy2dptr.accumulate(dereference(b.thisptr),
                                         nlist_.get_ptr(),
@@ -1190,14 +1190,14 @@ cdef class PMFTXYZ(_PMFT):
             b, ref_points, points, self.rmax, nlist, None)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
-        cdef float[:, :] l_ref_points = ref_points
-        cdef float[:, :] l_points = points
-        cdef float[:, :] l_ref_orientations = ref_orientations
-        cdef float[:, :] l_orientations = orientations
-        cdef float[:, :, :] l_face_orientations = face_orientations
-        cdef unsigned int nRef = <unsigned int> ref_points.shape[0]
-        cdef unsigned int nP = <unsigned int> points.shape[0]
-        cdef unsigned int nFaces = <unsigned int> face_orientations.shape[1]
+        cdef float[:, ::1] l_ref_points = ref_points
+        cdef float[:, ::1] l_points = points
+        cdef float[:, ::1] l_ref_orientations = ref_orientations
+        cdef float[:, ::1] l_orientations = orientations
+        cdef float[:, :, ::1] l_face_orientations = face_orientations
+        cdef unsigned int nRef = l_ref_points.shape[0]
+        cdef unsigned int nP = l_points.shape[0]
+        cdef unsigned int nFaces = l_face_orientations.shape[1]
         with nogil:
             self.pmftxyzptr.accumulate(
                 dereference(b.thisptr),

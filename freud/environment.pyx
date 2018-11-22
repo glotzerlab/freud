@@ -210,10 +210,10 @@ cdef class BondOrder:
             b, ref_points, points, self.num_neigh, nlist, None, self.rmax)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
-        cdef float[:, :] l_ref_points = ref_points
-        cdef float[:, :] l_points = points
-        cdef float[:, :] l_ref_orientations = ref_orientations
-        cdef float[:, :] l_orientations = orientations
+        cdef float[:, ::1] l_ref_points = ref_points
+        cdef float[:, ::1] l_points = points
+        cdef float[:, ::1] l_ref_orientations = ref_orientations
+        cdef float[:, ::1] l_orientations = orientations
         cdef unsigned int n_ref = l_ref_points.shape[0]
         cdef unsigned int n_p = l_points.shape[0]
 
@@ -454,9 +454,9 @@ cdef class LocalDescriptors:
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        cdef float[:, :] l_points_ref = points_ref
+        cdef float[:, ::1] l_points_ref = points_ref
         cdef unsigned int nRef = l_points_ref.shape[0]
-        cdef float[:, :] l_points = points
+        cdef float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
         with nogil:
             self.thisptr.computeNList(
@@ -517,7 +517,7 @@ cdef class LocalDescriptors:
             raise TypeError('points should be an Nx3 array')
 
         # The l_orientations_ptr is only used for 'particle_local' mode.
-        cdef float[:, :] l_orientations
+        cdef float[:, ::1] l_orientations
         cdef quat[float]* l_orientations_ptr = NULL
         if mode == 'particle_local':
             if orientations is None:
@@ -538,9 +538,9 @@ cdef class LocalDescriptors:
             l_orientations = orientations
             l_orientations_ptr = <quat[float]*> &l_orientations[0, 0]
 
-        cdef float[:, :] l_points_ref = points_ref
+        cdef float[:, ::1] l_points_ref = points_ref
         cdef unsigned int nRef = l_points_ref.shape[0]
-        cdef float[:, :] l_points = points
+        cdef float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
         cdef freud._environment.LocalDescriptorOrientation l_mode
 
@@ -705,7 +705,7 @@ cdef class MatchEnv:
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        cdef float[:, :] l_points = points
+        cdef float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
 
         cdef freud.locality.NeighborList nlist_
@@ -874,8 +874,8 @@ cdef class MatchEnv:
         if refPoints2.shape[1] != 3:
             raise TypeError('refPoints2 should be an Nx3 array')
 
-        cdef float[:, :] l_refPoints1 = refPoints1
-        cdef float[:, :] l_refPoints2 = refPoints2
+        cdef float[:, ::1] l_refPoints1 = refPoints1
+        cdef float[:, ::1] l_refPoints2 = refPoints2
         cdef unsigned int nRef1 = l_refPoints1.shape[0]
         cdef unsigned int nRef2 = l_refPoints2.shape[0]
         cdef float threshold_sq = threshold*threshold
@@ -924,8 +924,8 @@ cdef class MatchEnv:
         if refPoints2.shape[1] != 3:
             raise TypeError('refPoints2 should be an Nx3 array')
 
-        cdef float[:, :] l_refPoints1 = refPoints1
-        cdef float[:, :] l_refPoints2 = refPoints2
+        cdef float[:, ::1] l_refPoints1 = refPoints1
+        cdef float[:, ::1] l_refPoints2 = refPoints2
         cdef unsigned int nRef1 = l_refPoints1.shape[0]
         cdef unsigned int nRef2 = l_refPoints2.shape[0]
 
@@ -1134,9 +1134,9 @@ cdef class AngularSeparation:
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         self.nlist_ = nlist_
 
-        cdef float[:, :] l_ref_ors = ref_ors
-        cdef float[:, :] l_ors = ors
-        cdef float[:, :] l_equiv_quats = equiv_quats
+        cdef float[:, ::1] l_ref_ors = ref_ors
+        cdef float[:, ::1] l_ors = ors
+        cdef float[:, ::1] l_equiv_quats = equiv_quats
 
         cdef unsigned int nRef = l_ref_ors.shape[0]
         cdef unsigned int nP = l_ors.shape[0]
@@ -1187,9 +1187,9 @@ cdef class AngularSeparation:
         if equiv_quats.shape[1] != 4:
             raise TypeError('equiv_quats should be an N_equiv x 4 array')
 
-        cdef float[:, :] l_global_ors = global_ors
-        cdef float[:, :] l_ors = ors
-        cdef float[:, :] l_equiv_quats = equiv_quats
+        cdef float[:, ::1] l_global_ors = global_ors
+        cdef float[:, ::1] l_ors = ors
+        cdef float[:, ::1] l_equiv_quats = equiv_quats
 
         cdef unsigned int nGlobal = l_global_ors.shape[0]
         cdef unsigned int nP = l_ors.shape[0]
@@ -1397,11 +1397,11 @@ cdef class LocalBondProjection:
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         self.nlist_ = nlist_
 
-        cdef float[:, :] l_ref_points = ref_points
-        cdef float[:, :] l_ref_ors = ref_ors
-        cdef float[:, :] l_points = points
-        cdef float[:, :] l_equiv_quats = equiv_quats
-        cdef float[:, :] l_proj_vecs = proj_vecs
+        cdef float[:, ::1] l_ref_points = ref_points
+        cdef float[:, ::1] l_ref_ors = ref_ors
+        cdef float[:, ::1] l_points = points
+        cdef float[:, ::1] l_equiv_quats = equiv_quats
+        cdef float[:, ::1] l_proj_vecs = proj_vecs
 
         cdef unsigned int nRef = l_ref_points.shape[0]
         cdef unsigned int nP = l_points.shape[0]

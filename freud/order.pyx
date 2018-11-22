@@ -102,14 +102,14 @@ cdef class CubaticOrderParameter:
 
         # for c++ code
         # create generalized rank four tensor, pass into c++
-        cdef float[:, :] kd = np.eye(3, dtype=np.float32)
+        cdef float[:, ::1] kd = np.eye(3, dtype=np.float32)
         cdef np.ndarray[float, ndim=4] dijkl = np.einsum(
             "ij,kl->ijkl", kd, kd, dtype=np.float32)
         cdef np.ndarray[float, ndim=4] dikjl = np.einsum(
             "ik,jl->ijkl", kd, kd, dtype=np.float32)
         cdef np.ndarray[float, ndim=4] diljk = np.einsum(
             "il,jk->ijkl", kd, kd, dtype=np.float32)
-        cdef float[:, :, :, :] r4 = (dijkl + dikjl + diljk) * (2.0/5.0)
+        cdef float[:, :, :, ::1] r4 = (dijkl + dikjl + diljk) * (2.0/5.0)
         self.thisptr = new freud._order.CubaticOrderParameter(
             t_initial, t_final, scale, <float*> &r4[0, 0, 0, 0], n_replicates,
             seed)
@@ -127,7 +127,7 @@ cdef class CubaticOrderParameter:
         if orientations.shape[1] != 4:
             raise TypeError('orientations should be an Nx4 array')
 
-        cdef float[:, :] l_orientations = orientations
+        cdef float[:, ::1] l_orientations = orientations
         cdef unsigned int num_particles = l_orientations.shape[0]
 
         with nogil:
@@ -340,7 +340,7 @@ cdef class NematicOrderParameter:
         if orientations.shape[1] != 4:
             raise TypeError('orientations should be an Nx4 array')
 
-        cdef float[:, :] l_orientations = orientations
+        cdef float[:, ::1] l_orientations = orientations
         cdef unsigned int num_particles = l_orientations.shape[0]
 
         with nogil:
@@ -481,7 +481,7 @@ cdef class HexOrderParameter:
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        cdef float[:, :] l_points = points
+        cdef float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
 
         defaulted_nlist = freud.locality.make_default_nlist_nn(
@@ -596,7 +596,7 @@ cdef class TransOrderParameter:
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        cdef float[:, :] l_points = points
+        cdef float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
 
         defaulted_nlist = freud.locality.make_default_nlist_nn(
@@ -847,7 +847,7 @@ cdef class LocalQl:
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        cdef float[:, :] l_points = points
+        cdef float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
 
         defaulted_nlist = freud.locality.make_default_nlist(
@@ -872,7 +872,7 @@ cdef class LocalQl:
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        cdef float[:, :] l_points = points
+        cdef float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
 
         defaulted_nlist = freud.locality.make_default_nlist(
@@ -900,7 +900,7 @@ cdef class LocalQl:
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        cdef float[:, :] l_points = points
+        cdef float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
 
         defaulted_nlist = freud.locality.make_default_nlist(
@@ -928,7 +928,7 @@ cdef class LocalQl:
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        cdef float[:, :] l_points = points
+        cdef float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
 
         defaulted_nlist = freud.locality.make_default_nlist(
@@ -1404,7 +1404,7 @@ cdef class SolLiq:
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        cdef float[:, :] l_points = points
+        cdef float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
 
         defaulted_nlist = freud.locality.make_default_nlist(
@@ -1433,7 +1433,7 @@ cdef class SolLiq:
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        cdef float[:, :] l_points = points
+        cdef float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
 
         defaulted_nlist = freud.locality.make_default_nlist(
@@ -1459,7 +1459,7 @@ cdef class SolLiq:
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        cdef float[:, :] l_points = points
+        cdef float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
 
         defaulted_nlist = freud.locality.make_default_nlist(

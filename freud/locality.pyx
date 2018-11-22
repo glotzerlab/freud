@@ -123,13 +123,14 @@ cdef class NeighborList:
         if weights.shape != index_i.shape:
             raise TypeError('weights and index_i should be the same size')
 
-        cdef size_t n_bonds = index_i.shape[0]
+        cdef const size_t[::1] c_index_i = index_i
+        cdef const size_t[::1] c_index_j = index_j
+        cdef const float[::1] c_weights = weights
+        cdef size_t n_bonds = c_index_i.shape[0]
         cdef size_t c_Nref = Nref
         cdef size_t c_Ntarget = Ntarget
-        cdef np.ndarray[size_t, ndim=1] c_index_i = index_i
-        cdef np.ndarray[size_t, ndim=1] c_index_j = index_j
-        cdef np.ndarray[float, ndim=1] c_weights = weights
 
+        cdef size_t bond
         cdef size_t last_i
         cdef size_t i
         if n_bonds:
@@ -665,7 +666,7 @@ cdef class LinkCell:
         point = freud.common.convert_array(
             point, 1, dtype=np.float32, contiguous=True, array_name="point")
 
-        cdef float[:] cPoint = point
+        cdef float[::1] cPoint = point
 
         return self.thisptr.getCell(dereference(<vec3[float]*> &cPoint[0]))
 
@@ -948,6 +949,7 @@ cdef class NearestNeighbors:
         result[:] = self.UINTMAX
         idx_i, idx_j = self.nlist.index_i, self.nlist.index_j
         cdef size_t num_bonds = len(self.nlist.index_i)
+        cdef size_t bond
         cdef size_t last_i = 0
         cdef size_t current_j = 0
         for bond in range(num_bonds):
