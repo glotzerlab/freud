@@ -174,13 +174,19 @@ if args.use_cython:
 else:
     ext = '.cpp'
 
+# Set directives and macros
+directives = {
+    'embedsignature': True,
+    'binding': True,
+    'language_level': '3str',
+}
+macros = []
+
 # Decide whether or not to compile with coverage support
 if args.use_coverage:
-    directives = {'embedsignature': True, 'binding': True, 'linetrace': True}
-    macros = [('CYTHON_TRACE', '1'), ('CYTHON_TRACE_NOGIL', '1')]
-else:
-    directives = {'embedsignature': True, 'binding': True}
-    macros = []
+    directives['linetrace'] = True
+    macros.append(('CYTHON_TRACE', '1'))
+    macros.append(('CYTHON_TRACE_NOGIL', '1'))
 
 
 # Enable build parallel compile within modules.
