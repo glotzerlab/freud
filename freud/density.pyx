@@ -161,14 +161,10 @@ cdef class FloatCF:
 
     @property
     def RDF(self):
-        cdef shared_ptr[double] rdf_ptr = self.thisptr.getRDF()
-        cdef double * rdf = rdf_ptr.get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.thisptr.getNBins()
-        cdef np.ndarray[np.float64_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(
-                1, nbins, np.NPY_FLOAT64, <void*> rdf)
-        return result
+        cdef unsigned int n_bins = self.thisptr.getNBins()
+        cdef double[::1] RDF = \
+            <double[:n_bins]> self.thisptr.getRDF().get()
+        return np.asarray(RDF)
 
     def getRDF(self):
         warnings.warn("The getRDF function is deprecated in favor "
@@ -240,13 +236,10 @@ cdef class FloatCF:
 
     @property
     def counts(self):
-        cdef unsigned int * counts = self.thisptr.getCounts().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.thisptr.getNBins()
-        cdef np.ndarray[np.uint32_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(
-                1, nbins, np.NPY_UINT32, <void*> counts)
-        return result
+        cdef unsigned int n_bins = self.thisptr.getNBins()
+        cdef unsigned int[::1] counts = \
+            <unsigned int[:n_bins]> self.thisptr.getCounts().get()
+        return np.asarray(counts, dtype=np.uint32)
 
     def getCounts(self):
         warnings.warn("The getCounts function is deprecated in favor "
@@ -257,13 +250,10 @@ cdef class FloatCF:
 
     @property
     def R(self):
-        cdef float * r = self.thisptr.getR().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.thisptr.getNBins()
-        cdef np.ndarray[np.float32_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(
-                1, nbins, np.NPY_FLOAT32, <void*> r)
-        return result
+        cdef unsigned int n_bins = self.thisptr.getNBins()
+        cdef float[::1] R = \
+            <float[:n_bins]> self.thisptr.getR().get()
+        return np.asarray(R)
 
     def getR(self):
         warnings.warn("The getR function is deprecated in favor "
@@ -382,8 +372,8 @@ cdef class ComplexCF:
             l_points = l_ref_points
         else:
             l_points = points
-        cdef np.ndarray[np.complex128_t, ndim=1] l_ref_values = ref_values
-        cdef np.ndarray[np.complex128_t, ndim=1] l_values
+        cdef np.complex128_t[::1] l_ref_values = ref_values
+        cdef np.complex128_t[::1] l_values
         if values is ref_values:
             l_values = l_ref_values
         else:
@@ -399,23 +389,19 @@ cdef class ComplexCF:
             self.thisptr.accumulate(
                 dereference(b.thisptr), nlist_.get_ptr(),
                 <vec3[float]*> &l_ref_points[0, 0],
-                <np.complex128_t*> l_ref_values.data,
+                <np.complex128_t*> &l_ref_values[0],
                 n_ref,
                 <vec3[float]*> &l_points[0, 0],
-                <np.complex128_t*> l_values.data,
+                <np.complex128_t*> &l_values[0],
                 n_p)
         return self
 
     @property
     def RDF(self):
-        cdef shared_ptr[np.complex128_t] rdf_ptr = self.thisptr.getRDF()
-        cdef np.complex128_t * rdf = rdf_ptr.get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.thisptr.getNBins()
-        cdef np.ndarray[np.complex128_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(
-                1, nbins, np.NPY_COMPLEX128, <void*> rdf)
-        return result
+        cdef unsigned int n_bins = self.thisptr.getNBins()
+        cdef np.complex128_t[::1] RDF = \
+            <np.complex128_t[:n_bins]> self.thisptr.getRDF().get()
+        return np.asarray(RDF)
 
     def getRDF(self):
         warnings.warn("The getRDF function is deprecated in favor "
@@ -487,13 +473,10 @@ cdef class ComplexCF:
 
     @property
     def counts(self):
-        cdef unsigned int * counts = self.thisptr.getCounts().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.thisptr.getNBins()
-        cdef np.ndarray[np.uint32_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(
-                1, nbins, np.NPY_UINT32, <void*> counts)
-        return result
+        cdef unsigned int n_bins = self.thisptr.getNBins()
+        cdef unsigned int[::1] counts = \
+            <unsigned int[:n_bins]> self.thisptr.getCounts().get()
+        return np.asarray(counts, dtype=np.uint32)
 
     def getCounts(self):
         warnings.warn("The getCounts function is deprecated in favor "
@@ -504,13 +487,10 @@ cdef class ComplexCF:
 
     @property
     def R(self):
-        cdef float * r = self.thisptr.getR().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.thisptr.getNBins()
-        cdef np.ndarray[np.float32_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(
-                1, nbins, np.NPY_FLOAT32, <void*> r)
-        return result
+        cdef unsigned int n_bins = self.thisptr.getNBins()
+        cdef float[::1] R = \
+            <float[:n_bins]> self.thisptr.getR().get()
+        return np.asarray(R)
 
     def getR(self):
         warnings.warn("The getR function is deprecated in favor "
@@ -613,25 +593,20 @@ cdef class GaussianDensity:
 
     @property
     def gaussian_density(self):
-        cdef float * density = self.thisptr.getDensity().get()
-        cdef np.npy_intp nbins[1]
-        arraySize = self.thisptr.getWidthY() * self.thisptr.getWidthX()
+        cdef unsigned int width_x = self.thisptr.getWidthX()
+        cdef unsigned int width_y = self.thisptr.getWidthY()
+        cdef unsigned int width_z = self.thisptr.getWidthZ()
+        cdef unsigned int array_size = width_x * width_y
         cdef freud.box.Box box = self.box
         if not box.is2D():
-            arraySize *= self.thisptr.getWidthZ()
-        nbins[0] = <np.npy_intp> arraySize
-        cdef np.ndarray[np.float32_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(
-                1, nbins, np.NPY_FLOAT32, <void*> density)
+            array_size *= width_z
+        cdef float[::1] density = \
+            <float[:array_size]> self.thisptr.getDensity().get()
         if box.is2D():
-            arrayShape = (self.thisptr.getWidthY(),
-                          self.thisptr.getWidthX())
+            array_shape = (width_y, width_x)
         else:
-            arrayShape = (self.thisptr.getWidthZ(),
-                          self.thisptr.getWidthY(),
-                          self.thisptr.getWidthX())
-        pyResult = np.reshape(np.ascontiguousarray(result), arrayShape)
-        return pyResult
+            array_shape = (width_z, width_y, width_x)
+        return np.reshape(np.asarray(density), array_shape)
 
     def getGaussianDensity(self):
         warnings.warn("The getGaussianDensity function is deprecated in favor "
@@ -641,7 +616,7 @@ cdef class GaussianDensity:
         return self.gaussian_density
 
 cdef class LocalDensity:
-    R""" Computes the local density around a particle.
+    R"""Computes the local density around a particle.
 
     The density of the local environment is computed and averaged for a given
     set of reference points in a sea of data points. Providing the same points
@@ -766,13 +741,10 @@ cdef class LocalDensity:
 
     @property
     def density(self):
-        cdef float * density = self.thisptr.getDensity().get()
-        cdef np.npy_intp nref[1]
-        nref[0] = <np.npy_intp> self.thisptr.getNRef()
-        cdef np.ndarray[np.float32_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(
-                1, nref, np.NPY_FLOAT32, <void*> density)
-        return result
+        cdef unsigned int n_ref = self.thisptr.getNRef()
+        cdef float[::1] density = \
+            <float[:n_ref]> self.thisptr.getDensity().get()
+        return np.asarray(density)
 
     def getDensity(self):
         warnings.warn("The getDensity function is deprecated in favor "
@@ -783,13 +755,10 @@ cdef class LocalDensity:
 
     @property
     def num_neighbors(self):
-        cdef float * neighbors = self.thisptr.getNumNeighbors().get()
-        cdef np.npy_intp nref[1]
-        nref[0] = <np.npy_intp> self.thisptr.getNRef()
-        cdef np.ndarray[np.float32_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(
-                1, nref, np.NPY_FLOAT32, <void*> neighbors)
-        return result
+        cdef unsigned int n_ref = self.thisptr.getNRef()
+        cdef float[::1] num_neighbors = \
+            <float[:n_ref]> self.thisptr.getNumNeighbors().get()
+        return np.asarray(num_neighbors)
 
     def getNumNeighbors(self):
         warnings.warn("The getNumNeighbors function is deprecated in favor "
@@ -799,7 +768,7 @@ cdef class LocalDensity:
         return self.num_neighbors
 
 cdef class RDF:
-    R""" Computes RDF for supplied data.
+    R"""Computes RDF for supplied data.
 
     The RDF (:math:`g \left( r \right)`) is computed and averaged for a given
     set of reference points in a sea of data points. Providing the same points
@@ -951,13 +920,10 @@ cdef class RDF:
 
     @property
     def RDF(self):
-        cdef float * rdf = self.thisptr.getRDF().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.thisptr.getNBins()
-        cdef np.ndarray[np.float32_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(
-                1, nbins, np.NPY_FLOAT32, <void*> rdf)
-        return result
+        cdef unsigned int n_bins = self.thisptr.getNBins()
+        cdef float[::1] RDF = \
+            <float[:n_bins]> self.thisptr.getRDF().get()
+        return np.asarray(RDF)
 
     def getRDF(self):
         warnings.warn("The getRDF function is deprecated in favor "
@@ -968,13 +934,10 @@ cdef class RDF:
 
     @property
     def R(self):
-        cdef float * r = self.thisptr.getR().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.thisptr.getNBins()
-        cdef np.ndarray[np.float32_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(
-                1, nbins, np.NPY_FLOAT32, <void*> r)
-        return result
+        cdef unsigned int n_bins = self.thisptr.getNBins()
+        cdef float[::1] R = \
+            <float[:n_bins]> self.thisptr.getR().get()
+        return np.asarray(R)
 
     def getR(self):
         warnings.warn("The getR function is deprecated in favor "
@@ -985,13 +948,9 @@ cdef class RDF:
 
     @property
     def n_r(self):
-        cdef float * Nr = self.thisptr.getNr().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.thisptr.getNBins()
-        cdef np.ndarray[np.float32_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(
-                1, nbins, np.NPY_FLOAT32, <void*> Nr)
-        return result
+        cdef unsigned int n_bins = self.thisptr.getNBins()
+        cdef float[::1] n_r = <float[:n_bins]> self.thisptr.getNr().get()
+        return np.asarray(n_r)
 
     def getNr(self):
         warnings.warn("The getNr function is deprecated in favor "
