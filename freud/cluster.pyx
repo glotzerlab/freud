@@ -14,7 +14,6 @@ from freud.errors import FreudDeprecationWarning
 
 from cython.operator cimport dereference
 from freud.util._VectorMath cimport vec3
-from libcpp.vector cimport vector
 
 cimport freud._cluster
 cimport freud.box, freud.locality
@@ -323,7 +322,7 @@ cdef class ClusterProperties:
         if not n_clusters:
             return np.asarray([[]], dtype=np.float32)
 
-        cdef const float[:, ::1] cluster_COM = \
+        cdef float[:, ::1] cluster_COM = \
             <float[:n_clusters, :3]> (
                 <float*> self.thisptr.getClusterCOM().get())
 
@@ -343,7 +342,7 @@ cdef class ClusterProperties:
         if not n_clusters:
             return np.asarray([[[]]], dtype=np.float32)
 
-        cdef const float[:, :, ::1] cluster_G = \
+        cdef float[:, :, ::1] cluster_G = \
             <float[:n_clusters, :3, :3]> (
                 <float*> self.thisptr.getClusterG().get())
 
@@ -363,7 +362,7 @@ cdef class ClusterProperties:
         if not n_clusters:
             return np.asarray([], dtype=np.uint32)
 
-        cdef const unsigned int[::1] cluster_sizes = \
+        cdef unsigned int[::1] cluster_sizes = \
             <unsigned int[:n_clusters]> self.thisptr.getClusterSize().get()
 
         return np.asarray(cluster_sizes, dtype=np.uint32)

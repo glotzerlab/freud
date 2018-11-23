@@ -15,11 +15,8 @@ from freud.errors import FreudDeprecationWarning
 import freud.locality
 
 from freud.util._VectorMath cimport vec3, quat
-from libcpp.complex cimport complex
 from libcpp.vector cimport vector
 from libcpp.map cimport map
-from libcpp.pair cimport pair
-from libcpp.memory cimport shared_ptr
 from cython.operator cimport dereference
 cimport freud.box
 cimport freud._environment
@@ -568,9 +565,9 @@ cdef class LocalDescriptors:
         cdef unsigned int n_sphs = self.thisptr.getNSphs()
         cdef unsigned int sph_width = self.thisptr.getSphWidth()
         if not n_sphs or not sph_width:
-            return np.asarray([[]], dtype=np.float32)
-        cdef float complex[:, ::1] sph = \
-            <float complex[:n_sphs, :sph_width]> \
+            return np.asarray([[]], dtype=np.complex64)
+        cdef np.complex64_t[:, ::1] sph = \
+            <np.complex64_t[:n_sphs, :sph_width]> \
             self.thisptr.getSph().get()
         return np.asarray(sph, dtype=np.complex64)
 

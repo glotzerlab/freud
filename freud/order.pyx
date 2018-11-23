@@ -17,11 +17,6 @@ import time
 import freud.locality
 
 from freud.util._VectorMath cimport vec3, quat
-from libcpp.memory cimport shared_ptr
-from libcpp.complex cimport complex
-from libcpp.vector cimport vector
-from libcpp.map cimport map
-from libcpp.pair cimport pair
 from cython.operator cimport dereference
 
 # The below are maintained for backwards compatibility
@@ -96,7 +91,7 @@ cdef class CubaticOrderParameter:
         elif not isinstance(seed, int):
             try:
                 seed = int(seed)
-            finally:
+            except Exception:
                 print("supplied seed could not be used. using time as seed")
                 seed = time.time()
 

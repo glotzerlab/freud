@@ -9,7 +9,6 @@ of points.
 import freud.common
 import numpy as np
 
-from libcpp.vector cimport vector
 from freud.util._VectorMath cimport vec3
 from cython.operator cimport dereference
 import freud.locality

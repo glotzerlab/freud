@@ -21,11 +21,7 @@ from freud.errors import FreudDeprecationWarning
 import logging
 
 from freud.util._VectorMath cimport vec3
-from libcpp.memory cimport shared_ptr
 from cython.operator cimport dereference
-from libc.string cimport memcpy
-from libcpp.string cimport string
-from libcpp.vector cimport vector
 from libcpp cimport bool as bool_t
 from cpython.object cimport Py_EQ, Py_NE
 
@@ -364,7 +360,6 @@ cdef class Box:
         Returns:
             list[float, float, float]: Lattice vector with index :math:`i`.
         """  # noqa: E501
-        cdef unsigned int index = i
         cdef vec3[float] result = self.thisptr.getLatticeVector(i)
         if self.thisptr.is2D():
             result.z = 0.0
@@ -852,7 +847,7 @@ cdef class ParticleBuffer:
             dereference(self.thisptr.getBufferParticles().get()).size()
         if not buffer_size:
             return np.array([[]], dtype=np.float32)
-        cdef const float[:, ::1] buffer_particles = \
+        cdef float[:, ::1] buffer_particles = \
             <float[:buffer_size, :3]> (<float*> dereference(
                 self.thisptr.getBufferParticles().get()).data())
 
@@ -866,7 +861,7 @@ cdef class ParticleBuffer:
         if not buffer_size:
             return np.array([[]], dtype=np.uint32)
 
-        cdef const unsigned int[::1] buffer_ids = \
+        cdef unsigned int[::1] buffer_ids = \
             <unsigned int[:buffer_size]> dereference(
                 self.thisptr.getBufferIds().get()).data()
 

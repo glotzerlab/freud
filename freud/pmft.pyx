@@ -36,7 +36,6 @@ import warnings
 from freud.errors import FreudDeprecationWarning
 
 from freud.util._VectorMath cimport vec3, quat
-from libc.string cimport memcpy
 from cython.operator cimport dereference
 
 cimport freud._pmft

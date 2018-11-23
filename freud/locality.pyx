@@ -128,9 +128,9 @@ cdef class NeighborList:
         if weights.shape != index_i.shape:
             raise TypeError('weights and index_i should be the same size')
 
-        cdef const size_t[::1] c_index_i = index_i
-        cdef const size_t[::1] c_index_j = index_j
-        cdef const float[::1] c_weights = weights
+        cdef size_t[::1] c_index_i = index_i
+        cdef size_t[::1] c_index_j = index_j
+        cdef float[::1] c_weights = weights
         cdef size_t n_bonds = c_index_i.shape[0]
         cdef size_t c_Nref = Nref
         cdef size_t c_Ntarget = Ntarget
@@ -140,7 +140,6 @@ cdef class NeighborList:
         cdef size_t i
         if n_bonds > 0:
             last_i = c_index_i[0]
-            i = last_i
             for bond in range(n_bonds):
                 i = c_index_i[bond]
                 if i < last_i:
@@ -214,7 +213,7 @@ cdef class NeighborList:
     @property
     def index_i(self):
         cdef size_t n_bonds = self.thisptr.getNumBonds()
-        cdef const size_t[:, ::1] neighbors
+        cdef size_t[:, ::1] neighbors
         if n_bonds > 0:
             neighbors = <size_t[:n_bonds, :2]> self.thisptr.getNeighbors()
             result = np.asarray(neighbors[:, 0], dtype=np.uint64)
@@ -226,7 +225,7 @@ cdef class NeighborList:
     @property
     def index_j(self):
         cdef size_t n_bonds = self.thisptr.getNumBonds()
-        cdef const size_t[:, ::1] neighbors
+        cdef size_t[:, ::1] neighbors
         if n_bonds > 0:
             neighbors = <size_t[:n_bonds, :2]> self.thisptr.getNeighbors()
             result = np.asarray(neighbors[:, 1], dtype=np.uint64)
@@ -240,7 +239,7 @@ cdef class NeighborList:
         cdef size_t n_bonds = self.thisptr.getNumBonds()
         if not n_bonds:
             return np.asarray([], dtype=np.float32)
-        cdef const float[::1] weights = \
+        cdef float[::1] weights = \
             <float[:n_bonds]> self.thisptr.getWeights()
         return np.asarray(weights)
 
@@ -248,8 +247,8 @@ cdef class NeighborList:
     def segments(self):
         result = np.zeros((self.thisptr.getNumI(),), dtype=np.int64)
         cdef size_t * neighbors = self.thisptr.getNeighbors()
-        cdef size_t last_i = -1
-        cdef size_t i = -1
+        cdef int last_i = -1
+        cdef int i = -1
         for bond in range(self.thisptr.getNumBonds()):
             i = neighbors[2*bond]
             if i != last_i:
@@ -385,7 +384,6 @@ def make_default_nlist(box, ref_points, points, rmax, nlist=None,
     """  # noqa: E501
     if nlist is not None:
         return nlist, nlist
-    cdef freud.box.Box b = freud.common.convert_box(box)
 
     cdef AABBQuery aq = AABBQuery().compute(
         box, rmax, ref_points, points, exclude_ii)
@@ -436,7 +434,6 @@ def make_default_nlist_nn(box, ref_points, points, n_neigh, nlist=None,
     """  # noqa: E501
     if nlist is not None:
         return nlist, nlist
-    cdef freud.box.Box b = freud.common.convert_box(box)
 
     cdef NearestNeighbors nn = NearestNeighbors(rmax_guess, n_neigh).compute(
         box, ref_points, points)

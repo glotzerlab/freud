@@ -14,10 +14,7 @@ from freud.errors import FreudDeprecationWarning
 import numpy as np
 
 from freud.util._VectorMath cimport vec3
-from libcpp.memory cimport shared_ptr
 from cython.operator cimport dereference
-from libc.string cimport memcpy
-from freud.locality cimport NeighborList
 
 cimport freud._density
 cimport freud.box, freud.locality
