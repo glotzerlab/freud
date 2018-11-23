@@ -178,7 +178,6 @@ else:
 directives = {
     'embedsignature': True,
     'binding': True,
-    'language_level': '3str',
 }
 macros = []
 
