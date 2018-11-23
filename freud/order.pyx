@@ -196,14 +196,11 @@ cdef class CubaticOrderParameter:
 
     @property
     def particle_order_parameter(self):
-        cdef float * particle_op = \
+        cdef unsigned int n_particles = self.thisptr.getNumParticles()
+        cdef float[::1] particle_order_parameter = \
+            <float[:n_particles]> \
             self.thisptr.getParticleCubaticOrderParameter().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.thisptr.getNumParticles()
-        cdef np.ndarray[np.float32_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32,
-                                         <void*> particle_op)
-        return result
+        return np.asarray(particle_order_parameter)
 
     def get_particle_op(self):
         warnings.warn("The get_particle_op function is deprecated in favor "
@@ -214,17 +211,11 @@ cdef class CubaticOrderParameter:
 
     @property
     def particle_tensor(self):
-        cdef float * particle_tensor = self.thisptr.getParticleTensor().get()
-        cdef np.npy_intp nbins[5]
-        nbins[0] = <np.npy_intp> self.thisptr.getNumParticles()
-        nbins[1] = <np.npy_intp> 3
-        nbins[2] = <np.npy_intp> 3
-        nbins[3] = <np.npy_intp> 3
-        nbins[4] = <np.npy_intp> 3
-        cdef np.ndarray[np.float32_t, ndim=5] result = \
-            np.PyArray_SimpleNewFromData(5, nbins, np.NPY_FLOAT32,
-                                         <void*> particle_tensor)
-        return result
+        cdef unsigned int n_particles = self.thisptr.getNumParticles()
+        cdef float[:, :, :, :, ::1] particle_tensor = \
+            <float[:n_particles, :3, :3, :3, :3]> \
+            self.thisptr.getParticleTensor().get()
+        return np.asarray(particle_tensor)
 
     def get_particle_tensor(self):
         warnings.warn("The get_particle_tensor function is deprecated in "
@@ -235,16 +226,10 @@ cdef class CubaticOrderParameter:
 
     @property
     def global_tensor(self):
-        cdef float * global_tensor = self.thisptr.getGlobalTensor().get()
-        cdef np.npy_intp nbins[4]
-        nbins[0] = <np.npy_intp> 3
-        nbins[1] = <np.npy_intp> 3
-        nbins[2] = <np.npy_intp> 3
-        nbins[3] = <np.npy_intp> 3
-        cdef np.ndarray[np.float32_t, ndim=4] result = \
-            np.PyArray_SimpleNewFromData(4, nbins, np.NPY_FLOAT32,
-                                         <void*> global_tensor)
-        return result
+        cdef float[:, :, :, ::1] global_tensor = \
+            <float[:3, :3, :3, :3]> \
+            self.thisptr.getGlobalTensor().get()
+        return np.asarray(global_tensor)
 
     def get_global_tensor(self):
         warnings.warn("The get_global_tensor function is deprecated in favor "
@@ -255,16 +240,10 @@ cdef class CubaticOrderParameter:
 
     @property
     def cubatic_tensor(self):
-        cdef float * cubatic_tensor = self.thisptr.getCubaticTensor().get()
-        cdef np.npy_intp nbins[4]
-        nbins[0] = <np.npy_intp> 3
-        nbins[1] = <np.npy_intp> 3
-        nbins[2] = <np.npy_intp> 3
-        nbins[3] = <np.npy_intp> 3
-        cdef np.ndarray[np.float32_t, ndim=4] result = \
-            np.PyArray_SimpleNewFromData(4, nbins, np.NPY_FLOAT32,
-                                         <void*> cubatic_tensor)
-        return result
+        cdef float[:, :, :, ::1] cubatic_tensor = \
+            <float[:3, :3, :3, :3]> \
+            self.thisptr.getCubaticTensor().get()
+        return np.asarray(cubatic_tensor)
 
     def get_cubatic_tensor(self):
         warnings.warn("The get_cubatic_tensor function is deprecated in favor "
@@ -275,16 +254,10 @@ cdef class CubaticOrderParameter:
 
     @property
     def gen_r4_tensor(self):
-        cdef float * gen_r4_tensor = self.thisptr.getGenR4Tensor().get()
-        cdef np.npy_intp nbins[4]
-        nbins[0] = <np.npy_intp> 3
-        nbins[1] = <np.npy_intp> 3
-        nbins[2] = <np.npy_intp> 3
-        nbins[3] = <np.npy_intp> 3
-        cdef np.ndarray[np.float32_t, ndim=4] result = \
-            np.PyArray_SimpleNewFromData(4, nbins, np.NPY_FLOAT32,
-                                         <void*> gen_r4_tensor)
-        return result
+        cdef float[:, :, :, ::1] gen_r4_tensor = \
+            <float[:3, :3, :3, :3]> \
+            self.thisptr.getGenR4Tensor().get()
+        return np.asarray(gen_r4_tensor)
 
     def get_gen_r4_tensor(self):
         warnings.warn("The get_gen_r4_tensor function is deprecated in favor "
@@ -375,15 +348,11 @@ cdef class NematicOrderParameter:
 
     @property
     def particle_tensor(self):
-        cdef float *particle_tensor = self.thisptr.getParticleTensor().get()
-        cdef np.npy_intp nbins[3]
-        nbins[0] = <np.npy_intp> self.thisptr.getNumParticles()
-        nbins[1] = <np.npy_intp> 3
-        nbins[2] = <np.npy_intp> 3
-        cdef np.ndarray[np.float32_t, ndim=3] result = \
-            np.PyArray_SimpleNewFromData(3, nbins, np.NPY_FLOAT32,
-                                         <void*> particle_tensor)
-        return result
+        cdef unsigned int n_particles = self.thisptr.getNumParticles()
+        cdef float[:, :, ::1] particle_tensor = \
+            <float[:n_particles, :3, :3]> \
+            self.thisptr.getParticleTensor().get()
+        return np.asarray(particle_tensor)
 
     def get_particle_tensor(self):
         warnings.warn("The get_particle_tensor function is deprecated in "
@@ -394,14 +363,9 @@ cdef class NematicOrderParameter:
 
     @property
     def nematic_tensor(self):
-        cdef float *nematic_tensor = self.thisptr.getNematicTensor().get()
-        cdef np.npy_intp nbins[2]
-        nbins[0] = <np.npy_intp> 3
-        nbins[1] = <np.npy_intp> 3
-        cdef np.ndarray[np.float32_t, ndim=2] result = \
-            np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32,
-                                         <void*> nematic_tensor)
-        return result
+        cdef float[:, ::1] nematic_tensor = \
+            <float[:3, :3]> self.thisptr.getNematicTensor().get()
+        return np.asarray(nematic_tensor)
 
     def get_nematic_tensor(self):
         warnings.warn("The get_nematic_tensor function is deprecated in favor "
@@ -495,13 +459,10 @@ cdef class HexOrderParameter:
 
     @property
     def psi(self):
-        cdef float complex * psi = self.thisptr.getPsi().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.thisptr.getNP()
-        cdef np.ndarray[np.complex64_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX64,
-                                         <void*> psi)
-        return result
+        cdef unsigned int n_particles = self.thisptr.getNP()
+        cdef np.complex64_t[::1] psi = \
+            <np.complex64_t[:n_particles]> self.thisptr.getPsi().get()
+        return np.asarray(psi, dtype=np.complex64)
 
     def getPsi(self):
         warnings.warn("The getPsi function is deprecated in favor "
@@ -610,13 +571,10 @@ cdef class TransOrderParameter:
 
     @property
     def d_r(self):
-        cdef float complex * dr = self.thisptr.getDr().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.thisptr.getNP()
-        cdef np.ndarray[np.complex64_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX64,
-                                         <void*> dr)
-        return result
+        cdef unsigned int n_particles = self.thisptr.getNP()
+        cdef np.complex64_t[::1] d_r = \
+            <np.complex64_t[:n_particles]> self.thisptr.getDr().get()
+        return np.asarray(d_r, dtype=np.complex64)
 
     def getDr(self):
         warnings.warn("The getDr function is deprecated in favor "
@@ -771,12 +729,10 @@ cdef class LocalQl:
 
     @property
     def Ql(self):
-        cdef float * Ql = self.qlptr.getQl().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.qlptr.getNP()
-        cdef np.ndarray[float, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> Ql)
-        return result
+        cdef unsigned int n_particles = self.qlptr.getNP()
+        cdef float[::1] Ql = \
+            <float[:n_particles]> self.qlptr.getQl().get()
+        return np.asarray(Ql)
 
     def getQl(self):
         warnings.warn("The getQl function is deprecated in favor "
@@ -787,12 +743,10 @@ cdef class LocalQl:
 
     @property
     def ave_Ql(self):
-        cdef float * Ql = self.qlptr.getAveQl().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.qlptr.getNP()
-        cdef np.ndarray[float, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> Ql)
-        return result
+        cdef unsigned int n_particles = self.qlptr.getNP()
+        cdef float[::1] ave_Ql = \
+            <float[:n_particles]> self.qlptr.getAveQl().get()
+        return np.asarray(ave_Ql)
 
     def getAveQl(self):
         warnings.warn("The getAveQl function is deprecated in favor "
@@ -803,12 +757,10 @@ cdef class LocalQl:
 
     @property
     def norm_Ql(self):
-        cdef float * Ql = self.qlptr.getQlNorm().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.qlptr.getNP()
-        cdef np.ndarray[float, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> Ql)
-        return result
+        cdef unsigned int n_particles = self.qlptr.getNP()
+        cdef float[::1] norm_Ql = \
+            <float[:n_particles]> self.qlptr.getQlNorm().get()
+        return np.asarray(norm_Ql)
 
     def getQlNorm(self):
         warnings.warn("The getQlNorm function is deprecated in favor "
@@ -819,12 +771,10 @@ cdef class LocalQl:
 
     @property
     def ave_norm_Ql(self):
-        cdef float * Ql = self.qlptr.getQlAveNorm().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.qlptr.getNP()
-        cdef np.ndarray[float, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> Ql)
-        return result
+        cdef unsigned int n_particles = self.qlptr.getNP()
+        cdef float[::1] ave_norm_Ql = \
+            <float[:n_particles]> self.qlptr.getQlAveNorm().get()
+        return np.asarray(ave_norm_Ql)
 
     def getQlAveNorm(self):
         warnings.warn("The getQlAveNorm function is deprecated in favor "
@@ -1157,30 +1107,24 @@ cdef class LocalWl(LocalQl):
 
     @property
     def Wl(self):
-        return self.getWl()
+        cdef unsigned int n_particles = self.qlptr.getNP()
+        cdef np.complex64_t[::1] Wl = \
+            <np.complex64_t[:n_particles]> self.thisptr.getWl().get()
+        return np.asarray(Wl, dtype=np.complex64)
 
     def getWl(self):
         warnings.warn("The getWl function is deprecated in favor "
                       "of the Wl class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        cdef float complex * Wl = self.thisptr.getWl().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.qlptr.getNP()
-        cdef np.ndarray[np.complex64_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX64,
-                                         <void*> Wl)
-        return result
+        return self.Wl
 
     @property
     def ave_Wl(self):
-        cdef float complex * Wl = self.thisptr.getAveWl().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.qlptr.getNP()
-        cdef np.ndarray[np.complex64_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX64,
-                                         <void*> Wl)
-        return result
+        cdef unsigned int n_particles = self.qlptr.getNP()
+        cdef np.complex64_t[::1] ave_Wl = \
+            <np.complex64_t[:n_particles]> self.thisptr.getAveWl().get()
+        return np.asarray(ave_Wl, dtype=np.complex64)
 
     def getAveWl(self):
         warnings.warn("The getAveWl function is deprecated in favor "
@@ -1191,13 +1135,10 @@ cdef class LocalWl(LocalQl):
 
     @property
     def norm_Wl(self):
-        cdef float complex * Wl = self.thisptr.getWlNorm().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.qlptr.getNP()
-        cdef np.ndarray[np.complex64_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX64,
-                                         <void*> Wl)
-        return result
+        cdef unsigned int n_particles = self.qlptr.getNP()
+        cdef np.complex64_t[::1] norm_Wl = \
+            <np.complex64_t[:n_particles]> self.thisptr.getWlNorm().get()
+        return np.asarray(norm_Wl, dtype=np.complex64)
 
     def getWlNorm(self):
         warnings.warn("The getWlNorm function is deprecated in favor "
@@ -1208,13 +1149,10 @@ cdef class LocalWl(LocalQl):
 
     @property
     def ave_norm_Wl(self):
-        cdef float complex * Wl = self.thisptr.getAveNormWl().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.qlptr.getNP()
-        cdef np.ndarray[np.complex64_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX64,
-                                         <void*> Wl)
-        return result
+        cdef unsigned int n_particles = self.qlptr.getNP()
+        cdef np.complex64_t[::1] ave_norm_Wl = \
+            <np.complex64_t[:n_particles]> self.thisptr.getAveNormWl().get()
+        return np.asarray(ave_norm_Wl, dtype=np.complex64)
 
     def getWlAveNorm(self):
         warnings.warn("The getWlAveNorm function is deprecated in favor "
@@ -1513,13 +1451,10 @@ cdef class SolLiq:
 
     @property
     def cluster_sizes(self):
-        cdef vector[unsigned int] clusterSizes = self.thisptr.getClusterSizes()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.thisptr.getNumClusters()
-        cdef np.ndarray[np.uint32_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32,
-                                         <void*> &clusterSizes)
-        return result
+        cdef unsigned int n_clusters = self.thisptr.getNumClusters()
+        cdef unsigned int[::1] cluster_sizes = \
+            <unsigned int[:n_clusters]> self.thisptr.getClusterSizes().data()
+        return np.asarray(cluster_sizes, dtype=np.uint32)
 
     def getClusterSizes(self):
         warnings.warn("The getClusterSizes function is deprecated in favor "
@@ -1530,13 +1465,10 @@ cdef class SolLiq:
 
     @property
     def Ql_mi(self):
-        cdef float complex * Qlmi = self.thisptr.getQlmi().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.thisptr.getNP()
-        cdef np.ndarray[np.complex64_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX64,
-                                         <void*> Qlmi)
-        return result
+        cdef unsigned int n_particles = self.thisptr.getNP()
+        cdef np.complex64_t[::1] Ql_mi = \
+            <np.complex64_t[:n_particles]> self.thisptr.getQlmi().get()
+        return np.asarray(Ql_mi, dtype=np.complex64)
 
     def getQlmi(self):
         warnings.warn("The getQlmi function is deprecated in favor "
@@ -1547,14 +1479,10 @@ cdef class SolLiq:
 
     @property
     def clusters(self):
-        cdef unsigned int * clusters = self.thisptr.getClusters().get()
-        cdef np.npy_intp nbins[1]
-        # this is the correct number
-        nbins[0] = <np.npy_intp> self.thisptr.getNP()
-        cdef np.ndarray[np.uint32_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32,
-                                         <void*> clusters)
-        return result
+        cdef unsigned int n_particles = self.thisptr.getNP()
+        cdef unsigned int[::1] clusters = \
+            <unsigned int[:n_particles]> self.thisptr.getClusters().get()
+        return np.asarray(clusters, dtype=np.uint32)
 
     def getClusters(self):
         warnings.warn("The getClusters function is deprecated in favor "
@@ -1565,15 +1493,11 @@ cdef class SolLiq:
 
     @property
     def num_connections(self):
-        cdef unsigned int * connections = \
+        cdef unsigned int n_particles = self.thisptr.getNP()
+        cdef unsigned int[::1] num_connections = \
+            <unsigned int[:n_particles]> \
             self.thisptr.getNumberOfConnections().get()
-        cdef np.npy_intp nbins[1]
-        # this is the correct number
-        nbins[0] = <np.npy_intp> self.thisptr.getNP()
-        cdef np.ndarray[np.uint32_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32,
-                                         <void*> connections)
-        return result
+        return np.asarray(num_connections, dtype=np.uint32)
 
     def getNumberOfConnections(self):
         warnings.warn("The getNumberOfConnections function is deprecated in "
@@ -1584,13 +1508,10 @@ cdef class SolLiq:
 
     @property
     def Ql_dot_ij(self):
-        cdef vector[float complex] Qldot = self.thisptr.getQldot_ij()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.thisptr.getNumClusters()
-        cdef np.ndarray[np.complex64_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX64,
-                                         <void*> &Qldot)
-        return result
+        cdef unsigned int n_clusters = self.thisptr.getNumClusters()
+        cdef np.complex64_t[::1] Ql_dot_ij = \
+            <np.complex64_t[:n_clusters]> self.thisptr.getQldot_ij().data()
+        return np.asarray(Ql_dot_ij, dtype=np.complex64)
 
     def getQldot_ij(self):
         warnings.warn("The getQldot_ij function is deprecated in favor "
