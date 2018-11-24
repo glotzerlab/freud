@@ -464,7 +464,7 @@ cdef class HexOrderParameter:
 
     @property
     def box(self):
-        return freud.box.BoxFromCPP(< freud._box.Box > self.thisptr.getBox())
+        return freud.box.BoxFromCPP(<freud._box.Box> self.thisptr.getBox())
 
     def getBox(self):
         warnings.warn("The getBox function is deprecated in favor "
@@ -576,7 +576,7 @@ cdef class TransOrderParameter:
 
     @property
     def box(self):
-        return freud.box.BoxFromCPP(< freud._box.Box > self.thisptr.getBox())
+        return freud.box.BoxFromCPP(<freud._box.Box> self.thisptr.getBox())
 
     def getBox(self):
         warnings.warn("The getBox function is deprecated in favor "
@@ -684,7 +684,7 @@ cdef class LocalQl:
 
     @property
     def box(self):
-        return freud.box.BoxFromCPP(< freud._box.Box > self.qlptr.getBox())
+        return freud.box.BoxFromCPP(<freud._box.Box> self.qlptr.getBox())
 
     def getBox(self):
         warnings.warn("The getBox function is deprecated in favor "
@@ -1401,7 +1401,7 @@ cdef class SolLiq:
 
     @property
     def box(self):
-        return freud.box.BoxFromCPP(< freud._box.Box > self.thisptr.getBox())
+        return freud.box.BoxFromCPP(<freud._box.Box> self.thisptr.getBox())
 
     def getBox(self):
         warnings.warn("The getBox function is deprecated in favor "
