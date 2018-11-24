@@ -88,7 +88,7 @@ cdef class InterfaceMeasure:
 
     @property
     def ref_point_ids(self):
-        return self._ref_point_ids
+        return np.asarray(self._ref_point_ids)
 
     @property
     def point_count(self):
@@ -96,4 +96,4 @@ cdef class InterfaceMeasure:
 
     @property
     def point_ids(self):
-        return self._point_ids
+        return np.asarray(self._point_ids)
