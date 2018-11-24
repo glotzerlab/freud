@@ -340,8 +340,7 @@ cdef class BondOrder:
 
     @property
     def n_bins_theta(self):
-        cdef unsigned int nt = self.thisptr.getNBinsTheta()
-        return nt
+        return self.thisptr.getNBinsTheta()
 
     def getNBinsTheta(self):
         warnings.warn("The getNBinsTheta function is deprecated in favor "
@@ -352,8 +351,7 @@ cdef class BondOrder:
 
     @property
     def n_bins_phi(self):
-        cdef unsigned int np = self.thisptr.getNBinsPhi()
-        return np
+        return self.thisptr.getNBinsPhi()
 
     def getNBinsPhi(self):
         warnings.warn("The getNBinsPhi function is deprecated in favor "
@@ -580,8 +578,7 @@ cdef class LocalDescriptors:
 
     @property
     def num_particles(self):
-        cdef unsigned int np = self.thisptr.getNP()
-        return np
+        return self.thisptr.getNP()
 
     def getNP(self):
         warnings.warn("The getNP function is deprecated in favor "
@@ -592,8 +589,7 @@ cdef class LocalDescriptors:
 
     @property
     def num_neighbors(self):
-        cdef unsigned int n = self.thisptr.getNSphs()
-        return n
+        return self.thisptr.getNSphs()
 
     def getNSphs(self):
         warnings.warn("The getNSphs function is deprecated in favor "
@@ -604,8 +600,7 @@ cdef class LocalDescriptors:
 
     @property
     def l_max(self):
-        cdef unsigned int l_max = self.thisptr.getLMax()
-        return l_max
+        return self.thisptr.getLMax()
 
     def getLMax(self):
         warnings.warn("The getLMax function is deprecated in favor "
@@ -991,8 +986,7 @@ cdef class MatchEnv:
 
     @property
     def num_particles(self):
-        cdef unsigned int np = self.thisptr.getNP()
-        return np
+        return self.thisptr.getNP()
 
     def getNP(self):
         warnings.warn("The getNP function is deprecated in favor "
@@ -1003,8 +997,7 @@ cdef class MatchEnv:
 
     @property
     def num_clusters(self):
-        cdef unsigned int num_clust = self.thisptr.getNumClusters()
-        return num_clust
+        return self.thisptr.getNumClusters()
 
     def getNumClusters(self):
         warnings.warn("The getNumClusters function is deprecated in favor "
@@ -1227,8 +1220,7 @@ cdef class AngularSeparation:
 
     @property
     def n_p(self):
-        cdef unsigned int np = self.thisptr.getNP()
-        return np
+        return self.thisptr.getNP()
 
     def getNP(self):
         warnings.warn("The getNP function is deprecated in favor "
@@ -1239,8 +1231,7 @@ cdef class AngularSeparation:
 
     @property
     def n_ref(self):
-        cdef unsigned int nref = self.thisptr.getNref()
-        return nref
+        return self.thisptr.getNref()
 
     def getNReference(self):
         warnings.warn("The getNReference function is deprecated in favor "
@@ -1251,8 +1242,7 @@ cdef class AngularSeparation:
 
     @property
     def n_global(self):
-        cdef unsigned int nglobal = self.thisptr.getNglobal()
-        return nglobal
+        return self.thisptr.getNglobal()
 
     def getNGlobal(self):
         warnings.warn("The getNGlobal function is deprecated in favor "
@@ -1423,18 +1413,15 @@ cdef class LocalBondProjection:
 
     @property
     def num_particles(self):
-        cdef unsigned int np = self.thisptr.getNP()
-        return np
+        return self.thisptr.getNP()
 
     @property
     def num_reference_particles(self):
-        cdef unsigned int nref = self.thisptr.getNref()
-        return nref
+        return self.thisptr.getNref()
 
     @property
     def num_proj_vectors(self):
-        cdef unsigned int nproj = self.thisptr.getNproj()
-        return nproj
+        return self.thisptr.getNproj()
 
     @property
     def box(self):

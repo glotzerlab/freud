@@ -850,21 +850,17 @@ cdef class ParticleBuffer:
         cdef float[:, ::1] buffer_particles = \
             <float[:buffer_size, :3]> (<float*> dereference(
                 self.thisptr.getBufferParticles().get()).data())
-
         return np.asarray(buffer_particles)
 
     @property
     def buffer_ids(self):
         cdef unsigned int buffer_size = \
             dereference(self.thisptr.getBufferParticles().get()).size()
-
         if not buffer_size:
             return np.array([[]], dtype=np.uint32)
-
         cdef unsigned int[::1] buffer_ids = \
             <unsigned int[:buffer_size]> dereference(
                 self.thisptr.getBufferIds().get()).data()
-
         return np.asarray(buffer_ids)
 
     @property

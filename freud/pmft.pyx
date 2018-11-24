@@ -113,8 +113,7 @@ cdef class _PMFT:
 
     @property
     def r_cut(self):
-        cdef float r_cut = self.pmftptr.getRCut()
-        return r_cut
+        return self.pmftptr.getRCut()
 
     def getRCut(self):
         warnings.warn("The getRCut function is deprecated in favor "
@@ -380,8 +379,7 @@ cdef class PMFTR12(_PMFT):
 
     @property
     def n_bins_R(self):
-        cdef unsigned int r = self.pmftr12ptr.getNBinsR()
-        return r
+        return self.pmftr12ptr.getNBinsR()
 
     def getNBinsR(self):
         warnings.warn("The getNBinsR function is deprecated in favor "
@@ -392,8 +390,7 @@ cdef class PMFTR12(_PMFT):
 
     @property
     def n_bins_T1(self):
-        cdef unsigned int T1 = self.pmftr12ptr.getNBinsT1()
-        return T1
+        return self.pmftr12ptr.getNBinsT1()
 
     def getNBinsT1(self):
         warnings.warn("The getNBinsT1 function is deprecated in favor "
@@ -404,8 +401,7 @@ cdef class PMFTR12(_PMFT):
 
     @property
     def n_bins_T2(self):
-        cdef unsigned int T2 = self.pmftr12ptr.getNBinsT2()
-        return T2
+        return self.pmftr12ptr.getNBinsT2()
 
     def getNBinsT2(self):
         warnings.warn("The getNBinsT2 function is deprecated in favor "
@@ -665,8 +661,7 @@ cdef class PMFTXYT(_PMFT):
 
     @property
     def jacobian(self):
-        cdef float j = self.pmftxytptr.getJacobian()
-        return j
+        return self.pmftxytptr.getJacobian()
 
     def getJacobian(self):
         warnings.warn("The getJacobian function is deprecated in favor "
@@ -677,8 +672,7 @@ cdef class PMFTXYT(_PMFT):
 
     @property
     def n_bins_X(self):
-        cdef unsigned int x = self.pmftxytptr.getNBinsX()
-        return x
+        return self.pmftxytptr.getNBinsX()
 
     def getNBinsX(self):
         warnings.warn("The getNBinsX function is deprecated in favor "
@@ -689,8 +683,7 @@ cdef class PMFTXYT(_PMFT):
 
     @property
     def n_bins_Y(self):
-        cdef unsigned int y = self.pmftxytptr.getNBinsY()
-        return y
+        return self.pmftxytptr.getNBinsY()
 
     def getNBinsY(self):
         warnings.warn("The getNBinsY function is deprecated in favor "
@@ -701,8 +694,7 @@ cdef class PMFTXYT(_PMFT):
 
     @property
     def n_bins_T(self):
-        cdef unsigned int t = self.pmftxytptr.getNBinsT()
-        return t
+        return self.pmftxytptr.getNBinsT()
 
     def getNBinsT(self):
         warnings.warn("The getNBinsT function is deprecated in favor "
@@ -935,8 +927,7 @@ cdef class PMFTXY2D(_PMFT):
 
     @property
     def n_bins_X(self):
-        cdef unsigned int x = self.pmftxy2dptr.getNBinsX()
-        return x
+        return self.pmftxy2dptr.getNBinsX()
 
     def getNBinsX(self):
         warnings.warn("The getNBinsX function is deprecated in favor "
@@ -947,8 +938,7 @@ cdef class PMFTXY2D(_PMFT):
 
     @property
     def n_bins_Y(self):
-        cdef unsigned int y = self.pmftxy2dptr.getNBinsY()
-        return y
+        return self.pmftxy2dptr.getNBinsY()
 
     def getNBinsY(self):
         warnings.warn("The getNBinsY function is deprecated in favor "
@@ -959,8 +949,7 @@ cdef class PMFTXY2D(_PMFT):
 
     @property
     def jacobian(self):
-        cdef float j = self.pmftxy2dptr.getJacobian()
-        return j
+        return self.pmftxy2dptr.getJacobian()
 
     def getJacobian(self):
         warnings.warn("The getJacobian function is deprecated in favor "
@@ -1296,8 +1285,7 @@ cdef class PMFTXYZ(_PMFT):
 
     @property
     def n_bins_X(self):
-        cdef unsigned int x = self.pmftxyzptr.getNBinsX()
-        return x
+        return self.pmftxyzptr.getNBinsX()
 
     def getNBinsX(self):
         warnings.warn("The getNBinsX function is deprecated in favor "
@@ -1308,8 +1296,7 @@ cdef class PMFTXYZ(_PMFT):
 
     @property
     def n_bins_Y(self):
-        cdef unsigned int y = self.pmftxyzptr.getNBinsY()
-        return y
+        return self.pmftxyzptr.getNBinsY()
 
     def getNBinsY(self):
         warnings.warn("The getNBinsY function is deprecated in favor "
@@ -1320,8 +1307,7 @@ cdef class PMFTXYZ(_PMFT):
 
     @property
     def n_bins_Z(self):
-        cdef unsigned int z = self.pmftxyzptr.getNBinsZ()
-        return z
+        return self.pmftxyzptr.getNBinsZ()
 
     def getNBinsZ(self):
         warnings.warn("The getNBinsZ function is deprecated in favor "
@@ -1332,8 +1318,7 @@ cdef class PMFTXYZ(_PMFT):
 
     @property
     def jacobian(self):
-        cdef float j = self.pmftxyzptr.getJacobian()
-        return j
+        return self.pmftxyzptr.getJacobian()
 
     def getJacobian(self):
         warnings.warn("The getJacobian function is deprecated in favor "

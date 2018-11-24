@@ -178,9 +178,7 @@ cdef class CubaticOrderParameter:
     @property
     def orientation(self):
         cdef quat[float] q = self.thisptr.getCubaticOrientation()
-        cdef np.ndarray[float, ndim=1] result = np.array(
-            [q.s, q.v.x, q.v.y, q.v.z], dtype=np.float32)
-        return result
+        return np.asarray([q.s, q.v.x, q.v.y, q.v.z], dtype=np.float32)
 
     def get_orientation(self):
         warnings.warn("The get_orientation function is deprecated in favor "
@@ -330,9 +328,7 @@ cdef class NematicOrderParameter:
     @property
     def director(self):
         cdef vec3[float] n = self.thisptr.getNematicDirector()
-        cdef np.ndarray[np.float32_t, ndim=1] result = np.array(
-            [n.x, n.y, n.z], dtype=np.float32)
-        return result
+        return np.asarray([n.x, n.y, n.z], dtype=np.float32)
 
     def get_director(self):
         warnings.warn("The get_director function is deprecated in favor "

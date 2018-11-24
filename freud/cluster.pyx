@@ -318,14 +318,11 @@ cdef class ClusterProperties:
     @property
     def cluster_COM(self):
         cdef unsigned int n_clusters = self.thisptr.getNumClusters()
-
         if not n_clusters:
             return np.asarray([[]], dtype=np.float32)
-
         cdef float[:, ::1] cluster_COM = \
             <float[:n_clusters, :3]> (
                 <float*> self.thisptr.getClusterCOM().get())
-
         return np.asarray(cluster_COM)
 
     def getClusterCOM(self):
@@ -338,14 +335,11 @@ cdef class ClusterProperties:
     @property
     def cluster_G(self):
         cdef unsigned int n_clusters = self.thisptr.getNumClusters()
-
         if not n_clusters:
             return np.asarray([[[]]], dtype=np.float32)
-
         cdef float[:, :, ::1] cluster_G = \
             <float[:n_clusters, :3, :3]> (
                 <float*> self.thisptr.getClusterG().get())
-
         return np.asarray(cluster_G)
 
     def getClusterG(self):
@@ -358,13 +352,10 @@ cdef class ClusterProperties:
     @property
     def cluster_sizes(self):
         cdef unsigned int n_clusters = self.thisptr.getNumClusters()
-
         if not n_clusters:
             return np.asarray([], dtype=np.uint32)
-
         cdef unsigned int[::1] cluster_sizes = \
             <unsigned int[:n_clusters]> self.thisptr.getClusterSize().get()
-
         return np.asarray(cluster_sizes, dtype=np.uint32)
 
     def getClusterSizes(self):
