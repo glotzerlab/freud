@@ -214,11 +214,11 @@ cdef class NeighborList:
     def index_i(self):
         cdef size_t n_bonds = self.thisptr.getNumBonds()
         cdef size_t[:, ::1] neighbors
-        if n_bonds > 0:
+        if not n_bonds:
+            result = np.asarray([], dtype=np.uint64)
+        else:
             neighbors = <size_t[:n_bonds, :2]> self.thisptr.getNeighbors()
             result = np.asarray(neighbors[:, 0], dtype=np.uint64)
-        else:
-            result = np.asarray([], dtype=np.uint64)
         result.flags.writeable = False
         return result
 
@@ -226,11 +226,11 @@ cdef class NeighborList:
     def index_j(self):
         cdef size_t n_bonds = self.thisptr.getNumBonds()
         cdef size_t[:, ::1] neighbors
-        if n_bonds > 0:
+        if not n_bonds:
+            result = np.asarray([], dtype=np.uint64)
+        else:
             neighbors = <size_t[:n_bonds, :2]> self.thisptr.getNeighbors()
             result = np.asarray(neighbors[:, 1], dtype=np.uint64)
-        else:
-            result = np.asarray([], dtype=np.uint64)
         result.flags.writeable = False
         return result
 
@@ -245,28 +245,38 @@ cdef class NeighborList:
 
     @property
     def segments(self):
-        result = np.zeros((self.thisptr.getNumI(),), dtype=np.int64)
-        cdef size_t * neighbors = self.thisptr.getNeighbors()
+        cdef np.ndarray[np.int64_t, ndim=1] result = np.zeros(
+            (self.thisptr.getNumI(),), dtype=np.int64)
+        cdef size_t n_bonds = self.thisptr.getNumBonds()
+        if not n_bonds:
+            return result
+        cdef size_t[:, ::1] neighbors = \
+            <size_t[:n_bonds, :2]> self.thisptr.getNeighbors()
         cdef int last_i = -1
         cdef int i = -1
-        for bond in range(self.thisptr.getNumBonds()):
-            i = neighbors[2*bond]
+        cdef size_t bond
+        for bond in range(n_bonds):
+            i = neighbors[bond, 0]
             if i != last_i:
                 result[i] = bond
             last_i = i
-
         return result
 
     @property
     def neighbor_counts(self):
         cdef np.ndarray[np.int64_t, ndim=1] result = np.zeros(
             (self.thisptr.getNumI(),), dtype=np.int64)
-        cdef size_t * neighbors = self.thisptr.getNeighbors()
+        cdef size_t n_bonds = self.thisptr.getNumBonds()
+        if not n_bonds:
+            return result
+        cdef size_t[:, ::1] neighbors = \
+            <size_t[:n_bonds, :2]> self.thisptr.getNeighbors()
         cdef int last_i = -1
         cdef int i = -1
         cdef size_t n = 0
-        for bond in range(self.thisptr.getNumBonds()):
-            i = neighbors[2*bond]
+        cdef size_t bond
+        for bond in range(n_bonds):
+            i = neighbors[bond, 0]
             if i != last_i and i > 0:
                 result[last_i] = n
                 n = 0
