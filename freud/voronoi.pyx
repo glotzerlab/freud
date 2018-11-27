@@ -2,7 +2,8 @@
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 R"""
-The voronoi module contains tools to characterize Voronoi cells of a system.
+The :class:`freud.voronoi` module contains tools to characterize Voronoi cells
+of a system.
 """
 
 import numpy as np

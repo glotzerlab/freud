@@ -2,8 +2,8 @@
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 R"""
-The interface module contains functions to measure the interface between sets
-of points.
+The :class:`freud.interface` module contains functions to measure the interface
+between sets of points.
 """
 
 import freud.common

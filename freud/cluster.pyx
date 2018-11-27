@@ -2,8 +2,8 @@
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 R"""
-The cluster module aids in finding and computing the properties of clusters of
-points in a system.
+The :class:`freud.cluster` module aids in finding and computing the properties
+of clusters of points in a system.
 """
 
 import numpy as np

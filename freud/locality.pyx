@@ -2,8 +2,8 @@
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 R"""
-The locality module contains data structures to efficiently locate points based
-on their proximity to other points.
+The :class:`freud.locality` module contains data structures to efficiently
+locate points based on their proximity to other points.
 """
 
 import sys
