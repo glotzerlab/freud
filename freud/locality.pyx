@@ -108,33 +108,38 @@ cdef class NeighborList:
                 Array of per-bond weights (if :code:`None` is given, use a
                 value of 1 for each weight) (Default value = :code:`None`).
         """
-        index_i = np.asarray(index_i, dtype=np.uint64)
-        index_j = np.asarray(index_j, dtype=np.uint64)
+        index_i = freud.common.convert_array(index_i, dimensions=1,
+                                             dtype=np.uint64, contiguous=True,
+                                             array_name='index_i')
+        index_j = freud.common.convert_array(index_j, dimensions=1,
+                                             dtype=np.uint64, contiguous=True,
+                                             array_name='index_j')
 
-        if index_i.ndim != 1 or index_j.ndim != 1:
-            raise TypeError('index_i and index_j should be a 1D arrays')
         if index_i.shape != index_j.shape:
             raise TypeError('index_i and index_j should be the same size')
 
         if weights is None:
             weights = np.ones(index_i.shape, dtype=np.float32)
         else:
-            weights = np.asarray(weights, dtype=np.float32)
+            weights = freud.common.convert_array(
+                weights, dimensions=1, dtype=np.float32, contiguous=True,
+                array_name='weights')
+
         if weights.shape != index_i.shape:
             raise TypeError('weights and index_i should be the same size')
 
-        cdef size_t n_bonds = index_i.shape[0]
+        cdef size_t[::1] c_index_i = index_i
+        cdef size_t[::1] c_index_j = index_j
+        cdef float[::1] c_weights = weights
+        cdef size_t n_bonds = c_index_i.shape[0]
         cdef size_t c_Nref = Nref
         cdef size_t c_Ntarget = Ntarget
-        cdef np.ndarray[size_t, ndim=1] c_index_i = index_i
-        cdef np.ndarray[size_t, ndim=1] c_index_j = index_j
-        cdef np.ndarray[float, ndim=1] c_weights = weights
 
+        cdef size_t bond
         cdef size_t last_i
         cdef size_t i
-        if n_bonds:
+        if n_bonds > 0:
             last_i = c_index_i[0]
-            i = last_i
             for bond in range(n_bonds):
                 i = c_index_i[bond]
                 if i < last_i:
@@ -207,60 +212,71 @@ cdef class NeighborList:
 
     @property
     def index_i(self):
-        cdef np.npy_intp size[2]
-        size[0] = self.thisptr.getNumBonds()
-        size[1] = 2
-        self.thisptr.getNeighbors()
-        cdef np.ndarray[np.uint64_t, ndim=2] result = \
-            np.PyArray_SimpleNewFromData(2, size, np.NPY_UINT64,
-                                         <void*> self.thisptr.getNeighbors())
+        cdef size_t n_bonds = self.thisptr.getNumBonds()
+        cdef size_t[:, ::1] neighbors
+        if not n_bonds:
+            result = np.asarray([], dtype=np.uint64)
+        else:
+            neighbors = <size_t[:n_bonds, :2]> self.thisptr.getNeighbors()
+            result = np.asarray(neighbors[:, 0], dtype=np.uint64)
         result.flags.writeable = False
-        return result[:, 0]
-
-    @property
-    def index_j(self):
-        cdef np.npy_intp size[2]
-        size[0] = self.thisptr.getNumBonds()
-        size[1] = 2
-        cdef np.ndarray[np.uint64_t, ndim=2] result = \
-            np.PyArray_SimpleNewFromData(2, size, np.NPY_UINT64,
-                                         <void*> self.thisptr.getNeighbors())
-        result.flags.writeable = False
-        return result[:, 1]
-
-    @property
-    def weights(self):
-        cdef np.npy_intp size[1]
-        size[0] = self.thisptr.getNumBonds()
-        cdef np.ndarray[np.float32_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, size, np.NPY_FLOAT32,
-                                         <void*> self.thisptr.getWeights())
         return result
 
     @property
+    def index_j(self):
+        cdef size_t n_bonds = self.thisptr.getNumBonds()
+        cdef size_t[:, ::1] neighbors
+        if not n_bonds:
+            result = np.asarray([], dtype=np.uint64)
+        else:
+            neighbors = <size_t[:n_bonds, :2]> self.thisptr.getNeighbors()
+            result = np.asarray(neighbors[:, 1], dtype=np.uint64)
+        result.flags.writeable = False
+        return result
+
+    @property
+    def weights(self):
+        cdef size_t n_bonds = self.thisptr.getNumBonds()
+        if not n_bonds:
+            return np.asarray([], dtype=np.float32)
+        cdef float[::1] weights = \
+            <float[:n_bonds]> self.thisptr.getWeights()
+        return np.asarray(weights)
+
+    @property
     def segments(self):
-        result = np.zeros((self.thisptr.getNumI(),), dtype=np.int64)
-        cdef size_t * neighbors = self.thisptr.getNeighbors()
-        cdef size_t last_i = -1
-        cdef size_t i = -1
-        for bond in range(self.thisptr.getNumBonds()):
-            i = neighbors[2*bond]
+        cdef np.ndarray[np.int64_t, ndim=1] result = np.zeros(
+            (self.thisptr.getNumI(),), dtype=np.int64)
+        cdef size_t n_bonds = self.thisptr.getNumBonds()
+        if not n_bonds:
+            return result
+        cdef size_t[:, ::1] neighbors = \
+            <size_t[:n_bonds, :2]> self.thisptr.getNeighbors()
+        cdef int last_i = -1
+        cdef int i = -1
+        cdef size_t bond
+        for bond in range(n_bonds):
+            i = neighbors[bond, 0]
             if i != last_i:
                 result[i] = bond
             last_i = i
-
         return result
 
     @property
     def neighbor_counts(self):
         cdef np.ndarray[np.int64_t, ndim=1] result = np.zeros(
             (self.thisptr.getNumI(),), dtype=np.int64)
-        cdef size_t * neighbors = self.thisptr.getNeighbors()
+        cdef size_t n_bonds = self.thisptr.getNumBonds()
+        if not n_bonds:
+            return result
+        cdef size_t[:, ::1] neighbors = \
+            <size_t[:n_bonds, :2]> self.thisptr.getNeighbors()
         cdef int last_i = -1
         cdef int i = -1
         cdef size_t n = 0
-        for bond in range(self.thisptr.getNumBonds()):
-            i = neighbors[2*bond]
+        cdef size_t bond
+        for bond in range(n_bonds):
+            i = neighbors[bond, 0]
             if i != last_i and i > 0:
                 result[last_i] = n
                 n = 0
@@ -378,7 +394,6 @@ def make_default_nlist(box, ref_points, points, rmax, nlist=None,
     """  # noqa: E501
     if nlist is not None:
         return nlist, nlist
-    cdef freud.box.Box b = freud.common.convert_box(box)
 
     cdef AABBQuery aq = AABBQuery().compute(
         box, rmax, ref_points, points, exclude_ii)
@@ -429,7 +444,6 @@ def make_default_nlist_nn(box, ref_points, points, n_neigh, nlist=None,
     """  # noqa: E501
     if nlist is not None:
         return nlist, nlist
-    cdef freud.box.Box b = freud.common.convert_box(box)
 
     cdef NearestNeighbors nn = NearestNeighbors(rmax_guess, n_neigh).compute(
         box, ref_points, points)
@@ -452,7 +466,7 @@ def make_default_nlist_nn(box, ref_points, points, n_neigh, nlist=None,
 cdef class AABBQuery:
     R"""Use an AABB tree to find neighbors.
 
-    .. moduleauthor:: Bradley Dice <bdice@umich.edu>
+    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
 
     Attributes:
         nlist (:class:`freud.locality.NeighborList`):
@@ -665,7 +679,7 @@ cdef class LinkCell:
         point = freud.common.convert_array(
             point, 1, dtype=np.float32, contiguous=True, array_name="point")
 
-        cdef float[:] cPoint = point
+        cdef float[::1] cPoint = point
 
         return self.thisptr.getCell(dereference(<vec3[float]*> &cPoint[0]))
 
@@ -948,6 +962,7 @@ cdef class NearestNeighbors:
         result[:] = self.UINTMAX
         idx_i, idx_j = self.nlist.index_i, self.nlist.index_j
         cdef size_t num_bonds = len(self.nlist.index_i)
+        cdef size_t bond
         cdef size_t last_i = 0
         cdef size_t current_j = 0
         for bond in range(num_bonds):

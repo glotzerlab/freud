@@ -12,14 +12,12 @@ import freud.common
 import warnings
 from freud.errors import FreudDeprecationWarning
 
-from libcpp.vector cimport vector
 from freud.util._VectorMath cimport vec3
 from cython.operator cimport dereference
 
 cimport freud.box
 cimport freud.locality
 cimport numpy as np
-
 
 logger = logging.getLogger(__name__)
 

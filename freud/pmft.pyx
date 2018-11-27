@@ -36,7 +36,6 @@ import warnings
 from freud.errors import FreudDeprecationWarning
 
 from freud.util._VectorMath cimport vec3, quat
-from libc.string cimport memcpy
 from cython.operator cimport dereference
 
 cimport freud._pmft
@@ -114,8 +113,7 @@ cdef class _PMFT:
 
     @property
     def r_cut(self):
-        cdef float r_cut = self.pmftptr.getRCut()
-        return r_cut
+        return self.pmftptr.getRCut()
 
     def getRCut(self):
         warnings.warn("The getRCut function is deprecated in favor "
@@ -242,20 +240,20 @@ cdef class PMFTR12(_PMFT):
             b, ref_points, points, self.rmax, nlist, None)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
-        cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
-        cdef np.ndarray[float, ndim=2] l_points = points
-        cdef np.ndarray[float, ndim=1] l_ref_orientations = ref_orientations
-        cdef np.ndarray[float, ndim=1] l_orientations = orientations
-        cdef unsigned int nRef = <unsigned int> ref_points.shape[0]
-        cdef unsigned int nP = <unsigned int> points.shape[0]
+        cdef float[:, ::1] l_ref_points = ref_points
+        cdef float[:, ::1] l_points = points
+        cdef float[::1] l_ref_orientations = ref_orientations
+        cdef float[::1] l_orientations = orientations
+        cdef unsigned int nRef = l_ref_points.shape[0]
+        cdef unsigned int nP = l_points.shape[0]
         with nogil:
             self.pmftr12ptr.accumulate(dereference(b.thisptr),
                                        nlist_.get_ptr(),
-                                       <vec3[float]*> l_ref_points.data,
-                                       <float*> l_ref_orientations.data,
+                                       <vec3[float]*> &l_ref_points[0, 0],
+                                       <float*> &l_ref_orientations[0],
                                        nRef,
-                                       <vec3[float]*> l_points.data,
-                                       <float*> l_orientations.data,
+                                       <vec3[float]*> &l_points[0, 0],
+                                       <float*> &l_orientations[0],
                                        nP)
         return self
 
@@ -288,15 +286,13 @@ cdef class PMFTR12(_PMFT):
 
     @property
     def bin_counts(self):
-        cdef unsigned int * bin_counts = self.pmftr12ptr.getBinCounts().get()
-        cdef np.npy_intp nbins[3]
-        nbins[0] = <np.npy_intp> self.pmftr12ptr.getNBinsR()
-        nbins[1] = <np.npy_intp> self.pmftr12ptr.getNBinsT2()
-        nbins[2] = <np.npy_intp> self.pmftr12ptr.getNBinsT1()
-        cdef np.ndarray[np.uint32_t, ndim=3] result = \
-            np.PyArray_SimpleNewFromData(3, nbins, np.NPY_UINT32,
-                                         <void*> bin_counts)
-        return result
+        cdef unsigned int n_bins_R = self.pmftr12ptr.getNBinsR()
+        cdef unsigned int n_bins_T2 = self.pmftr12ptr.getNBinsT2()
+        cdef unsigned int n_bins_T1 = self.pmftr12ptr.getNBinsT1()
+        cdef unsigned int[:, :, ::1] bin_counts = \
+            <unsigned int[:n_bins_R, :n_bins_T2, :n_bins_T1]> \
+            self.pmftr12ptr.getBinCounts().get()
+        return np.asarray(bin_counts, dtype=np.uint32)
 
     def getBinCounts(self):
         warnings.warn("The getBinCounts function is deprecated in favor "
@@ -307,14 +303,13 @@ cdef class PMFTR12(_PMFT):
 
     @property
     def PCF(self):
-        cdef float * pcf = self.pmftr12ptr.getPCF().get()
-        cdef np.npy_intp nbins[3]
-        nbins[0] = <np.npy_intp> self.pmftr12ptr.getNBinsR()
-        nbins[1] = <np.npy_intp> self.pmftr12ptr.getNBinsT2()
-        nbins[2] = <np.npy_intp> self.pmftr12ptr.getNBinsT1()
-        cdef np.ndarray[np.float32_t, ndim=3] result = \
-            np.PyArray_SimpleNewFromData(3, nbins, np.NPY_FLOAT32, <void*> pcf)
-        return result
+        cdef unsigned int n_bins_R = self.pmftr12ptr.getNBinsR()
+        cdef unsigned int n_bins_T2 = self.pmftr12ptr.getNBinsT2()
+        cdef unsigned int n_bins_T1 = self.pmftr12ptr.getNBinsT1()
+        cdef float[:, :, ::1] PCF = \
+            <float[:n_bins_R, :n_bins_T2, :n_bins_T1]> \
+            self.pmftr12ptr.getPCF().get()
+        return np.asarray(PCF)
 
     def getPCF(self):
         warnings.warn("The getPCF function is deprecated in favor "
@@ -325,12 +320,10 @@ cdef class PMFTR12(_PMFT):
 
     @property
     def R(self):
-        cdef float * r = self.pmftr12ptr.getR().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.pmftr12ptr.getNBinsR()
-        cdef np.ndarray[np.float32_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> r)
-        return result
+        cdef unsigned int n_bins_R = self.pmftr12ptr.getNBinsR()
+        cdef float[::1] R = \
+            <float[:n_bins_R]> self.pmftr12ptr.getR().get()
+        return np.asarray(R)
 
     def getR(self):
         warnings.warn("The getR function is deprecated in favor "
@@ -341,12 +334,10 @@ cdef class PMFTR12(_PMFT):
 
     @property
     def T1(self):
-        cdef float * T1 = self.pmftr12ptr.getT1().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.pmftr12ptr.getNBinsT1()
-        cdef np.ndarray[np.float32_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> T1)
-        return result
+        cdef unsigned int n_bins_T1 = self.pmftr12ptr.getNBinsT1()
+        cdef float[::1] T1 = \
+            <float[:n_bins_T1]> self.pmftr12ptr.getT1().get()
+        return np.asarray(T1)
 
     def getT1(self):
         warnings.warn("The getT1 function is deprecated in favor "
@@ -357,12 +348,10 @@ cdef class PMFTR12(_PMFT):
 
     @property
     def T2(self):
-        cdef float * T2 = self.pmftr12ptr.getT2().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.pmftr12ptr.getNBinsT2()
-        cdef np.ndarray[np.float32_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> T2)
-        return result
+        cdef unsigned int n_bins_T2 = self.pmftr12ptr.getNBinsT2()
+        cdef float[::1] T2 = \
+            <float[:n_bins_T2]> self.pmftr12ptr.getT2().get()
+        return np.asarray(T2)
 
     def getT2(self):
         warnings.warn("The getT2 function is deprecated in favor "
@@ -373,15 +362,13 @@ cdef class PMFTR12(_PMFT):
 
     @property
     def inverse_jacobian(self):
-        cdef float * inv_jac = self.pmftr12ptr.getInverseJacobian().get()
-        cdef np.npy_intp nbins[3]
-        nbins[0] = <np.npy_intp> self.pmftr12ptr.getNBinsR()
-        nbins[1] = <np.npy_intp> self.pmftr12ptr.getNBinsT2()
-        nbins[2] = <np.npy_intp> self.pmftr12ptr.getNBinsT1()
-        cdef np.ndarray[np.float32_t, ndim=3] result = \
-            np.PyArray_SimpleNewFromData(3, nbins, np.NPY_FLOAT32,
-                                         <void*> inv_jac)
-        return result
+        cdef unsigned int n_bins_R = self.pmftr12ptr.getNBinsR()
+        cdef unsigned int n_bins_T2 = self.pmftr12ptr.getNBinsT2()
+        cdef unsigned int n_bins_T1 = self.pmftr12ptr.getNBinsT1()
+        cdef float[:, :, ::1] inverse_jacobian = \
+            <float[:n_bins_R, :n_bins_T2, :n_bins_T1]> \
+            self.pmftr12ptr.getInverseJacobian().get()
+        return np.asarray(inverse_jacobian)
 
     def getInverseJacobian(self):
         warnings.warn("The getInverseJacobian function is deprecated in favor "
@@ -392,8 +379,7 @@ cdef class PMFTR12(_PMFT):
 
     @property
     def n_bins_R(self):
-        cdef unsigned int r = self.pmftr12ptr.getNBinsR()
-        return r
+        return self.pmftr12ptr.getNBinsR()
 
     def getNBinsR(self):
         warnings.warn("The getNBinsR function is deprecated in favor "
@@ -404,8 +390,7 @@ cdef class PMFTR12(_PMFT):
 
     @property
     def n_bins_T1(self):
-        cdef unsigned int T1 = self.pmftr12ptr.getNBinsT1()
-        return T1
+        return self.pmftr12ptr.getNBinsT1()
 
     def getNBinsT1(self):
         warnings.warn("The getNBinsT1 function is deprecated in favor "
@@ -416,8 +401,7 @@ cdef class PMFTR12(_PMFT):
 
     @property
     def n_bins_T2(self):
-        cdef unsigned int T2 = self.pmftr12ptr.getNBinsT2()
-        return T2
+        return self.pmftr12ptr.getNBinsT2()
 
     def getNBinsT2(self):
         warnings.warn("The getNBinsT2 function is deprecated in favor "
@@ -555,20 +539,20 @@ cdef class PMFTXYT(_PMFT):
             b, ref_points, points, self.rmax, nlist, None)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
-        cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
-        cdef np.ndarray[float, ndim=2] l_points = points
-        cdef np.ndarray[float, ndim=1] l_ref_orientations = ref_orientations
-        cdef np.ndarray[float, ndim=1] l_orientations = orientations
-        cdef unsigned int nRef = <unsigned int> ref_points.shape[0]
-        cdef unsigned int nP = <unsigned int> points.shape[0]
+        cdef float[:, ::1] l_ref_points = ref_points
+        cdef float[:, ::1] l_points = points
+        cdef float[::1] l_ref_orientations = ref_orientations
+        cdef float[::1] l_orientations = orientations
+        cdef unsigned int nRef = l_ref_points.shape[0]
+        cdef unsigned int nP = l_points.shape[0]
         with nogil:
             self.pmftxytptr.accumulate(dereference(b.thisptr),
                                        nlist_.get_ptr(),
-                                       <vec3[float]*> l_ref_points.data,
-                                       <float*> l_ref_orientations.data,
+                                       <vec3[float]*> &l_ref_points[0, 0],
+                                       <float*> &l_ref_orientations[0],
                                        nRef,
-                                       <vec3[float]*> l_points.data,
-                                       <float*> l_orientations.data,
+                                       <vec3[float]*> &l_points[0, 0],
+                                       <float*> &l_orientations[0],
                                        nP)
         return self
 
@@ -601,15 +585,13 @@ cdef class PMFTXYT(_PMFT):
 
     @property
     def bin_counts(self):
-        cdef unsigned int * bin_counts = self.pmftxytptr.getBinCounts().get()
-        cdef np.npy_intp nbins[3]
-        nbins[0] = <np.npy_intp> self.pmftxytptr.getNBinsT()
-        nbins[1] = <np.npy_intp> self.pmftxytptr.getNBinsY()
-        nbins[2] = <np.npy_intp> self.pmftxytptr.getNBinsX()
-        cdef np.ndarray[np.uint32_t, ndim=3] result = \
-            np.PyArray_SimpleNewFromData(3, nbins, np.NPY_UINT32,
-                                         <void*> bin_counts)
-        return result
+        cdef unsigned int n_bins_T = self.pmftxytptr.getNBinsT()
+        cdef unsigned int n_bins_Y = self.pmftxytptr.getNBinsY()
+        cdef unsigned int n_bins_X = self.pmftxytptr.getNBinsX()
+        cdef unsigned int[:, :, ::1] bin_counts = \
+            <unsigned int[:n_bins_T, :n_bins_Y, :n_bins_X]> \
+            self.pmftxytptr.getBinCounts().get()
+        return np.asarray(bin_counts, dtype=np.uint32)
 
     def getBinCounts(self):
         warnings.warn("The getBinCounts function is deprecated in favor "
@@ -620,14 +602,13 @@ cdef class PMFTXYT(_PMFT):
 
     @property
     def PCF(self):
-        cdef float * pcf = self.pmftxytptr.getPCF().get()
-        cdef np.npy_intp nbins[3]
-        nbins[0] = <np.npy_intp> self.pmftxytptr.getNBinsT()
-        nbins[1] = <np.npy_intp> self.pmftxytptr.getNBinsY()
-        nbins[2] = <np.npy_intp> self.pmftxytptr.getNBinsX()
-        cdef np.ndarray[np.float32_t, ndim=3] result = \
-            np.PyArray_SimpleNewFromData(3, nbins, np.NPY_FLOAT32, <void*> pcf)
-        return result
+        cdef unsigned int n_bins_T = self.pmftxytptr.getNBinsT()
+        cdef unsigned int n_bins_Y = self.pmftxytptr.getNBinsY()
+        cdef unsigned int n_bins_X = self.pmftxytptr.getNBinsX()
+        cdef float[:, :, ::1] PCF = \
+            <float[:n_bins_T, :n_bins_Y, :n_bins_X]> \
+            self.pmftxytptr.getPCF().get()
+        return np.asarray(PCF)
 
     def getPCF(self):
         warnings.warn("The getPCF function is deprecated in favor "
@@ -638,12 +619,10 @@ cdef class PMFTXYT(_PMFT):
 
     @property
     def X(self):
-        cdef float * x = self.pmftxytptr.getX().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.pmftxytptr.getNBinsX()
-        cdef np.ndarray[np.float32_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> x)
-        return result
+        cdef unsigned int n_bins_X = self.pmftxytptr.getNBinsX()
+        cdef float[::1] X = \
+            <float[:n_bins_X]> self.pmftxytptr.getX().get()
+        return np.asarray(X)
 
     def getX(self):
         warnings.warn("The getX function is deprecated in favor "
@@ -654,12 +633,10 @@ cdef class PMFTXYT(_PMFT):
 
     @property
     def Y(self):
-        cdef float * y = self.pmftxytptr.getY().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.pmftxytptr.getNBinsY()
-        cdef np.ndarray[np.float32_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> y)
-        return result
+        cdef unsigned int n_bins_Y = self.pmftxytptr.getNBinsY()
+        cdef float[::1] Y = \
+            <float[:n_bins_Y]> self.pmftxytptr.getY().get()
+        return np.asarray(Y)
 
     def getY(self):
         warnings.warn("The getY function is deprecated in favor "
@@ -670,12 +647,10 @@ cdef class PMFTXYT(_PMFT):
 
     @property
     def T(self):
-        cdef float * t = self.pmftxytptr.getT().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.pmftxytptr.getNBinsT()
-        cdef np.ndarray[np.float32_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> t)
-        return result
+        cdef unsigned int n_bins_T = self.pmftxytptr.getNBinsT()
+        cdef float[::1] T = \
+            <float[:n_bins_T]> self.pmftxytptr.getT().get()
+        return np.asarray(T)
 
     def getT(self):
         warnings.warn("The getT function is deprecated in favor "
@@ -686,8 +661,7 @@ cdef class PMFTXYT(_PMFT):
 
     @property
     def jacobian(self):
-        cdef float j = self.pmftxytptr.getJacobian()
-        return j
+        return self.pmftxytptr.getJacobian()
 
     def getJacobian(self):
         warnings.warn("The getJacobian function is deprecated in favor "
@@ -698,8 +672,7 @@ cdef class PMFTXYT(_PMFT):
 
     @property
     def n_bins_X(self):
-        cdef unsigned int x = self.pmftxytptr.getNBinsX()
-        return x
+        return self.pmftxytptr.getNBinsX()
 
     def getNBinsX(self):
         warnings.warn("The getNBinsX function is deprecated in favor "
@@ -710,8 +683,7 @@ cdef class PMFTXYT(_PMFT):
 
     @property
     def n_bins_Y(self):
-        cdef unsigned int y = self.pmftxytptr.getNBinsY()
-        return y
+        return self.pmftxytptr.getNBinsY()
 
     def getNBinsY(self):
         warnings.warn("The getNBinsY function is deprecated in favor "
@@ -722,8 +694,7 @@ cdef class PMFTXYT(_PMFT):
 
     @property
     def n_bins_T(self):
-        cdef unsigned int t = self.pmftxytptr.getNBinsT()
-        return t
+        return self.pmftxytptr.getNBinsT()
 
     def getNBinsT(self):
         warnings.warn("The getNBinsT function is deprecated in favor "
@@ -850,21 +821,21 @@ cdef class PMFTXY2D(_PMFT):
             b, ref_points, points, self.rmax, nlist, None)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
-        cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
-        cdef np.ndarray[float, ndim=2] l_points = points
-        cdef np.ndarray[float, ndim=1] l_ref_orientations = ref_orientations
-        cdef np.ndarray[float, ndim=1] l_orientations = orientations
-        cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
-        cdef unsigned int n_p = <unsigned int> points.shape[0]
+        cdef float[:, ::1] l_ref_points = ref_points
+        cdef float[:, ::1] l_points = points
+        cdef float[::1] l_ref_orientations = ref_orientations
+        cdef float[::1] l_orientations = orientations
+        cdef unsigned int nRef = l_ref_points.shape[0]
+        cdef unsigned int nP = l_points.shape[0]
         with nogil:
             self.pmftxy2dptr.accumulate(dereference(b.thisptr),
                                         nlist_.get_ptr(),
-                                        <vec3[float]*> l_ref_points.data,
-                                        <float*> l_ref_orientations.data,
-                                        n_ref,
-                                        <vec3[float]*> l_points.data,
-                                        <float*> l_orientations.data,
-                                        n_p)
+                                        <vec3[float]*> &l_ref_points[0, 0],
+                                        <float*> &l_ref_orientations[0],
+                                        nRef,
+                                        <vec3[float]*> &l_points[0, 0],
+                                        <float*> &l_orientations[0],
+                                        nP)
         return self
 
     def compute(self, box, ref_points, ref_orientations, points=None,
@@ -896,14 +867,12 @@ cdef class PMFTXY2D(_PMFT):
 
     @property
     def bin_counts(self):
-        cdef unsigned int * bin_counts = self.pmftxy2dptr.getBinCounts().get()
-        cdef np.npy_intp nbins[2]
-        nbins[0] = <np.npy_intp> self.pmftxy2dptr.getNBinsY()
-        nbins[1] = <np.npy_intp> self.pmftxy2dptr.getNBinsX()
-        cdef np.ndarray[np.uint32_t, ndim=2] result = \
-            np.PyArray_SimpleNewFromData(2, nbins, np.NPY_UINT32,
-                                         <void*> bin_counts)
-        return result
+        cdef unsigned int n_bins_Y = self.pmftxy2dptr.getNBinsY()
+        cdef unsigned int n_bins_X = self.pmftxy2dptr.getNBinsX()
+        cdef unsigned int[:, ::1] bin_counts = \
+            <unsigned int[:n_bins_Y, :n_bins_X]> \
+            self.pmftxy2dptr.getBinCounts().get()
+        return np.asarray(bin_counts, dtype=np.uint32)
 
     def getBinCounts(self):
         warnings.warn("The getBinCounts function is deprecated in favor "
@@ -914,13 +883,12 @@ cdef class PMFTXY2D(_PMFT):
 
     @property
     def PCF(self):
-        cdef float * pcf = self.pmftxy2dptr.getPCF().get()
-        cdef np.npy_intp nbins[2]
-        nbins[0] = <np.npy_intp> self.pmftxy2dptr.getNBinsY()
-        nbins[1] = <np.npy_intp> self.pmftxy2dptr.getNBinsX()
-        cdef np.ndarray[np.float32_t, ndim=2] result = \
-            np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, <void*> pcf)
-        return result
+        cdef unsigned int n_bins_Y = self.pmftxy2dptr.getNBinsY()
+        cdef unsigned int n_bins_X = self.pmftxy2dptr.getNBinsX()
+        cdef float[:, ::1] PCF = \
+            <float[:n_bins_Y, :n_bins_X]> \
+            self.pmftxy2dptr.getPCF().get()
+        return np.asarray(PCF)
 
     def getPCF(self):
         warnings.warn("The getPCF function is deprecated in favor "
@@ -931,12 +899,10 @@ cdef class PMFTXY2D(_PMFT):
 
     @property
     def X(self):
-        cdef float * x = self.pmftxy2dptr.getX().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.pmftxy2dptr.getNBinsX()
-        cdef np.ndarray[np.float32_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> x)
-        return result
+        cdef unsigned int n_bins_X = self.pmftxy2dptr.getNBinsX()
+        cdef float[::1] X = \
+            <float[:n_bins_X]> self.pmftxy2dptr.getX().get()
+        return np.asarray(X)
 
     def getX(self):
         warnings.warn("The getX function is deprecated in favor "
@@ -947,12 +913,10 @@ cdef class PMFTXY2D(_PMFT):
 
     @property
     def Y(self):
-        cdef float * y = self.pmftxy2dptr.getY().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.pmftxy2dptr.getNBinsY()
-        cdef np.ndarray[np.float32_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> y)
-        return result
+        cdef unsigned int n_bins_Y = self.pmftxy2dptr.getNBinsY()
+        cdef float[::1] Y = \
+            <float[:n_bins_Y]> self.pmftxy2dptr.getY().get()
+        return np.asarray(Y)
 
     def getY(self):
         warnings.warn("The getY function is deprecated in favor "
@@ -963,8 +927,7 @@ cdef class PMFTXY2D(_PMFT):
 
     @property
     def n_bins_X(self):
-        cdef unsigned int x = self.pmftxy2dptr.getNBinsX()
-        return x
+        return self.pmftxy2dptr.getNBinsX()
 
     def getNBinsX(self):
         warnings.warn("The getNBinsX function is deprecated in favor "
@@ -975,8 +938,7 @@ cdef class PMFTXY2D(_PMFT):
 
     @property
     def n_bins_Y(self):
-        cdef unsigned int y = self.pmftxy2dptr.getNBinsY()
-        return y
+        return self.pmftxy2dptr.getNBinsY()
 
     def getNBinsY(self):
         warnings.warn("The getNBinsY function is deprecated in favor "
@@ -987,8 +949,7 @@ cdef class PMFTXY2D(_PMFT):
 
     @property
     def jacobian(self):
-        cdef float j = self.pmftxy2dptr.getJacobian()
-        return j
+        return self.pmftxy2dptr.getJacobian()
 
     def getJacobian(self):
         warnings.warn("The getJacobian function is deprecated in favor "
@@ -1190,25 +1151,25 @@ cdef class PMFTXYZ(_PMFT):
             b, ref_points, points, self.rmax, nlist, None)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
-        cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
-        cdef np.ndarray[float, ndim=2] l_points = points
-        cdef np.ndarray[float, ndim=2] l_ref_orientations = ref_orientations
-        cdef np.ndarray[float, ndim=2] l_orientations = orientations
-        cdef np.ndarray[float, ndim=3] l_face_orientations = face_orientations
-        cdef unsigned int nRef = <unsigned int> ref_points.shape[0]
-        cdef unsigned int nP = <unsigned int> points.shape[0]
-        cdef unsigned int nFaces = <unsigned int> face_orientations.shape[1]
+        cdef float[:, ::1] l_ref_points = ref_points
+        cdef float[:, ::1] l_points = points
+        cdef float[:, ::1] l_ref_orientations = ref_orientations
+        cdef float[:, ::1] l_orientations = orientations
+        cdef float[:, :, ::1] l_face_orientations = face_orientations
+        cdef unsigned int nRef = l_ref_points.shape[0]
+        cdef unsigned int nP = l_points.shape[0]
+        cdef unsigned int nFaces = l_face_orientations.shape[1]
         with nogil:
             self.pmftxyzptr.accumulate(
                 dereference(b.thisptr),
                 nlist_.get_ptr(),
-                <vec3[float]*> l_ref_points.data,
-                <quat[float]*> l_ref_orientations.data,
+                <vec3[float]*> &l_ref_points[0, 0],
+                <quat[float]*> &l_ref_orientations[0, 0],
                 nRef,
-                <vec3[float]*> l_points.data,
-                <quat[float]*> l_orientations.data,
+                <vec3[float]*> &l_points[0, 0],
+                <quat[float]*> &l_orientations[0, 0],
                 nP,
-                <quat[float]*> l_face_orientations.data,
+                <quat[float]*> &l_face_orientations[0, 0, 0],
                 nFaces)
         return self
 
@@ -1248,15 +1209,13 @@ cdef class PMFTXYZ(_PMFT):
 
     @property
     def bin_counts(self):
-        cdef unsigned int * bin_counts = self.pmftxyzptr.getBinCounts().get()
-        cdef np.npy_intp nbins[3]
-        nbins[0] = <np.npy_intp> self.pmftxyzptr.getNBinsZ()
-        nbins[1] = <np.npy_intp> self.pmftxyzptr.getNBinsY()
-        nbins[2] = <np.npy_intp> self.pmftxyzptr.getNBinsX()
-        cdef np.ndarray[np.uint32_t, ndim=3] result = \
-            np.PyArray_SimpleNewFromData(3, nbins, np.NPY_UINT32,
-                                         <void*> bin_counts)
-        return result
+        cdef unsigned int n_bins_Z = self.pmftxyzptr.getNBinsZ()
+        cdef unsigned int n_bins_Y = self.pmftxyzptr.getNBinsY()
+        cdef unsigned int n_bins_X = self.pmftxyzptr.getNBinsX()
+        cdef unsigned int[:, :, ::1] bin_counts = \
+            <unsigned int[:n_bins_Z, :n_bins_Y, :n_bins_X]> \
+            self.pmftxyzptr.getBinCounts().get()
+        return np.asarray(bin_counts, dtype=np.uint32)
 
     def getBinCounts(self):
         warnings.warn("The getBinCounts function is deprecated in favor "
@@ -1267,14 +1226,13 @@ cdef class PMFTXYZ(_PMFT):
 
     @property
     def PCF(self):
-        cdef float * pcf = self.pmftxyzptr.getPCF().get()
-        cdef np.npy_intp nbins[3]
-        nbins[0] = <np.npy_intp> self.pmftxyzptr.getNBinsZ()
-        nbins[1] = <np.npy_intp> self.pmftxyzptr.getNBinsY()
-        nbins[2] = <np.npy_intp> self.pmftxyzptr.getNBinsX()
-        cdef np.ndarray[np.float32_t, ndim=3] result = \
-            np.PyArray_SimpleNewFromData(3, nbins, np.NPY_FLOAT32, <void*> pcf)
-        return result
+        cdef unsigned int n_bins_Z = self.pmftxyzptr.getNBinsZ()
+        cdef unsigned int n_bins_Y = self.pmftxyzptr.getNBinsY()
+        cdef unsigned int n_bins_X = self.pmftxyzptr.getNBinsX()
+        cdef float[:, :, ::1] PCF = \
+            <float[:n_bins_Z, :n_bins_Y, :n_bins_X]> \
+            self.pmftxyzptr.getPCF().get()
+        return np.asarray(PCF)
 
     def getPCF(self):
         warnings.warn("The getPCF function is deprecated in favor "
@@ -1285,12 +1243,10 @@ cdef class PMFTXYZ(_PMFT):
 
     @property
     def X(self):
-        cdef float * x = self.pmftxyzptr.getX().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.pmftxyzptr.getNBinsX()
-        cdef np.ndarray[np.float32_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> x)
-        return result + self.shiftvec[0]
+        cdef unsigned int n_bins_X = self.pmftxyzptr.getNBinsX()
+        cdef float[::1] X = \
+            <float[:n_bins_X]> self.pmftxyzptr.getX().get()
+        return np.asarray(X) + self.shiftvec[0]
 
     def getX(self):
         warnings.warn("The getX function is deprecated in favor "
@@ -1301,12 +1257,10 @@ cdef class PMFTXYZ(_PMFT):
 
     @property
     def Y(self):
-        cdef float * y = self.pmftxyzptr.getY().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.pmftxyzptr.getNBinsY()
-        cdef np.ndarray[np.float32_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> y)
-        return result + self.shiftvec[1]
+        cdef unsigned int n_bins_Y = self.pmftxyzptr.getNBinsY()
+        cdef float[::1] Y = \
+            <float[:n_bins_Y]> self.pmftxyzptr.getY().get()
+        return np.asarray(Y) + self.shiftvec[1]
 
     def getY(self):
         warnings.warn("The getY function is deprecated in favor "
@@ -1317,12 +1271,10 @@ cdef class PMFTXYZ(_PMFT):
 
     @property
     def Z(self):
-        cdef float * z = self.pmftxyzptr.getZ().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.pmftxyzptr.getNBinsZ()
-        cdef np.ndarray[np.float32_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> z)
-        return result + self.shiftvec[2]
+        cdef unsigned int n_bins_Z = self.pmftxyzptr.getNBinsZ()
+        cdef float[::1] Z = \
+            <float[:n_bins_Z]> self.pmftxyzptr.getZ().get()
+        return np.asarray(Z) + self.shiftvec[2]
 
     def getZ(self):
         warnings.warn("The getZ function is deprecated in favor "
@@ -1333,8 +1285,7 @@ cdef class PMFTXYZ(_PMFT):
 
     @property
     def n_bins_X(self):
-        cdef unsigned int x = self.pmftxyzptr.getNBinsX()
-        return x
+        return self.pmftxyzptr.getNBinsX()
 
     def getNBinsX(self):
         warnings.warn("The getNBinsX function is deprecated in favor "
@@ -1345,8 +1296,7 @@ cdef class PMFTXYZ(_PMFT):
 
     @property
     def n_bins_Y(self):
-        cdef unsigned int y = self.pmftxyzptr.getNBinsY()
-        return y
+        return self.pmftxyzptr.getNBinsY()
 
     def getNBinsY(self):
         warnings.warn("The getNBinsY function is deprecated in favor "
@@ -1357,8 +1307,7 @@ cdef class PMFTXYZ(_PMFT):
 
     @property
     def n_bins_Z(self):
-        cdef unsigned int z = self.pmftxyzptr.getNBinsZ()
-        return z
+        return self.pmftxyzptr.getNBinsZ()
 
     def getNBinsZ(self):
         warnings.warn("The getNBinsZ function is deprecated in favor "
@@ -1369,8 +1318,7 @@ cdef class PMFTXYZ(_PMFT):
 
     @property
     def jacobian(self):
-        cdef float j = self.pmftxyzptr.getJacobian()
-        return j
+        return self.pmftxyzptr.getJacobian()
 
     def getJacobian(self):
         warnings.warn("The getJacobian function is deprecated in favor "

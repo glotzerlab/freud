@@ -15,13 +15,9 @@ from freud.errors import FreudDeprecationWarning
 import numpy as np
 import time
 import freud.locality
+import logging
 
 from freud.util._VectorMath cimport vec3, quat
-from libcpp.memory cimport shared_ptr
-from libcpp.complex cimport complex
-from libcpp.vector cimport vector
-from libcpp.map cimport map
-from libcpp.pair cimport pair
 from cython.operator cimport dereference
 
 # The below are maintained for backwards compatibility
@@ -36,6 +32,8 @@ cimport freud.locality
 cimport freud.box
 
 cimport numpy as np
+
+logger = logging.getLogger(__name__)
 
 # numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults
@@ -96,23 +94,24 @@ cdef class CubaticOrderParameter:
         elif not isinstance(seed, int):
             try:
                 seed = int(seed)
-            finally:
-                print("supplied seed could not be used. using time as seed")
-                seed = time.time()
+            except (OverflowError, TypeError, ValueError):
+                logger.warning("The supplied seed could not be used. "
+                               "Using current time as seed.")
+                seed = int(time.time())
 
         # for c++ code
         # create generalized rank four tensor, pass into c++
-        cdef np.ndarray[float, ndim=2] kd = np.eye(3, dtype=np.float32)
+        cdef float[:, ::1] kd = np.eye(3, dtype=np.float32)
         cdef np.ndarray[float, ndim=4] dijkl = np.einsum(
             "ij,kl->ijkl", kd, kd, dtype=np.float32)
         cdef np.ndarray[float, ndim=4] dikjl = np.einsum(
             "ik,jl->ijkl", kd, kd, dtype=np.float32)
         cdef np.ndarray[float, ndim=4] diljk = np.einsum(
             "il,jk->ijkl", kd, kd, dtype=np.float32)
-        cdef np.ndarray[float, ndim=4] r4 = dijkl+dikjl+diljk
-        r4 *= (2.0/5.0)
+        cdef float[:, :, :, ::1] r4 = (dijkl + dikjl + diljk) * (2.0/5.0)
         self.thisptr = new freud._order.CubaticOrderParameter(
-            t_initial, t_final, scale, <float*> r4.data, n_replicates, seed)
+            t_initial, t_final, scale, <float*> &r4[0, 0, 0, 0], n_replicates,
+            seed)
 
     def compute(self, orientations):
         R"""Calculates the per-particle and global order parameter.
@@ -127,12 +126,12 @@ cdef class CubaticOrderParameter:
         if orientations.shape[1] != 4:
             raise TypeError('orientations should be an Nx4 array')
 
-        cdef np.ndarray[float, ndim=2] l_orientations = orientations
-        cdef unsigned int num_particles = <unsigned int> orientations.shape[0]
+        cdef float[:, ::1] l_orientations = orientations
+        cdef unsigned int num_particles = l_orientations.shape[0]
 
         with nogil:
             self.thisptr.compute(
-                <quat[float]*> l_orientations.data, num_particles, 1)
+                <quat[float]*> &l_orientations[0, 0], num_particles, 1)
         return self
 
     @property
@@ -183,9 +182,7 @@ cdef class CubaticOrderParameter:
     @property
     def orientation(self):
         cdef quat[float] q = self.thisptr.getCubaticOrientation()
-        cdef np.ndarray[float, ndim=1] result = np.array(
-            [q.s, q.v.x, q.v.y, q.v.z], dtype=np.float32)
-        return result
+        return np.asarray([q.s, q.v.x, q.v.y, q.v.z], dtype=np.float32)
 
     def get_orientation(self):
         warnings.warn("The get_orientation function is deprecated in favor "
@@ -196,14 +193,11 @@ cdef class CubaticOrderParameter:
 
     @property
     def particle_order_parameter(self):
-        cdef float * particle_op = \
+        cdef unsigned int n_particles = self.thisptr.getNumParticles()
+        cdef float[::1] particle_order_parameter = \
+            <float[:n_particles]> \
             self.thisptr.getParticleCubaticOrderParameter().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.thisptr.getNumParticles()
-        cdef np.ndarray[np.float32_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32,
-                                         <void*> particle_op)
-        return result
+        return np.asarray(particle_order_parameter)
 
     def get_particle_op(self):
         warnings.warn("The get_particle_op function is deprecated in favor "
@@ -214,17 +208,11 @@ cdef class CubaticOrderParameter:
 
     @property
     def particle_tensor(self):
-        cdef float * particle_tensor = self.thisptr.getParticleTensor().get()
-        cdef np.npy_intp nbins[5]
-        nbins[0] = <np.npy_intp> self.thisptr.getNumParticles()
-        nbins[1] = <np.npy_intp> 3
-        nbins[2] = <np.npy_intp> 3
-        nbins[3] = <np.npy_intp> 3
-        nbins[4] = <np.npy_intp> 3
-        cdef np.ndarray[np.float32_t, ndim=5] result = \
-            np.PyArray_SimpleNewFromData(5, nbins, np.NPY_FLOAT32,
-                                         <void*> particle_tensor)
-        return result
+        cdef unsigned int n_particles = self.thisptr.getNumParticles()
+        cdef float[:, :, :, :, ::1] particle_tensor = \
+            <float[:n_particles, :3, :3, :3, :3]> \
+            self.thisptr.getParticleTensor().get()
+        return np.asarray(particle_tensor)
 
     def get_particle_tensor(self):
         warnings.warn("The get_particle_tensor function is deprecated in "
@@ -235,16 +223,10 @@ cdef class CubaticOrderParameter:
 
     @property
     def global_tensor(self):
-        cdef float * global_tensor = self.thisptr.getGlobalTensor().get()
-        cdef np.npy_intp nbins[4]
-        nbins[0] = <np.npy_intp> 3
-        nbins[1] = <np.npy_intp> 3
-        nbins[2] = <np.npy_intp> 3
-        nbins[3] = <np.npy_intp> 3
-        cdef np.ndarray[np.float32_t, ndim=4] result = \
-            np.PyArray_SimpleNewFromData(4, nbins, np.NPY_FLOAT32,
-                                         <void*> global_tensor)
-        return result
+        cdef float[:, :, :, ::1] global_tensor = \
+            <float[:3, :3, :3, :3]> \
+            self.thisptr.getGlobalTensor().get()
+        return np.asarray(global_tensor)
 
     def get_global_tensor(self):
         warnings.warn("The get_global_tensor function is deprecated in favor "
@@ -255,16 +237,10 @@ cdef class CubaticOrderParameter:
 
     @property
     def cubatic_tensor(self):
-        cdef float * cubatic_tensor = self.thisptr.getCubaticTensor().get()
-        cdef np.npy_intp nbins[4]
-        nbins[0] = <np.npy_intp> 3
-        nbins[1] = <np.npy_intp> 3
-        nbins[2] = <np.npy_intp> 3
-        nbins[3] = <np.npy_intp> 3
-        cdef np.ndarray[np.float32_t, ndim=4] result = \
-            np.PyArray_SimpleNewFromData(4, nbins, np.NPY_FLOAT32,
-                                         <void*> cubatic_tensor)
-        return result
+        cdef float[:, :, :, ::1] cubatic_tensor = \
+            <float[:3, :3, :3, :3]> \
+            self.thisptr.getCubaticTensor().get()
+        return np.asarray(cubatic_tensor)
 
     def get_cubatic_tensor(self):
         warnings.warn("The get_cubatic_tensor function is deprecated in favor "
@@ -275,16 +251,10 @@ cdef class CubaticOrderParameter:
 
     @property
     def gen_r4_tensor(self):
-        cdef float * gen_r4_tensor = self.thisptr.getGenR4Tensor().get()
-        cdef np.npy_intp nbins[4]
-        nbins[0] = <np.npy_intp> 3
-        nbins[1] = <np.npy_intp> 3
-        nbins[2] = <np.npy_intp> 3
-        nbins[3] = <np.npy_intp> 3
-        cdef np.ndarray[np.float32_t, ndim=4] result = \
-            np.PyArray_SimpleNewFromData(4, nbins, np.NPY_FLOAT32,
-                                         <void*> gen_r4_tensor)
-        return result
+        cdef float[:, :, :, ::1] gen_r4_tensor = \
+            <float[:3, :3, :3, :3]> \
+            self.thisptr.getGenR4Tensor().get()
+        return np.asarray(gen_r4_tensor)
 
     def get_gen_r4_tensor(self):
         warnings.warn("The get_gen_r4_tensor function is deprecated in favor "
@@ -324,10 +294,8 @@ cdef class NematicOrderParameter:
         if len(u) != 3:
             raise ValueError('u needs to be a three-dimensional vector')
 
-        cdef np.ndarray[np.float32_t, ndim=1] l_u = \
-            np.array(u, dtype=np.float32)
-        self.thisptr = new freud._order.NematicOrderParameter(
-            (<vec3[float]*> l_u.data)[0])
+        cdef vec3[float] l_u = vec3[float](u[0], u[1], u[2])
+        self.thisptr = new freud._order.NematicOrderParameter(l_u)
 
     def compute(self, orientations):
         R"""Calculates the per-particle and global order parameter.
@@ -342,11 +310,11 @@ cdef class NematicOrderParameter:
         if orientations.shape[1] != 4:
             raise TypeError('orientations should be an Nx4 array')
 
-        cdef np.ndarray[float, ndim=2] l_orientations = orientations
-        cdef unsigned int num_particles = <unsigned int> orientations.shape[0]
+        cdef float[:, ::1] l_orientations = orientations
+        cdef unsigned int num_particles = l_orientations.shape[0]
 
         with nogil:
-            self.thisptr.compute(<quat[float]*> l_orientations.data,
+            self.thisptr.compute(<quat[float]*> &l_orientations[0, 0],
                                  num_particles)
 
     @property
@@ -364,9 +332,7 @@ cdef class NematicOrderParameter:
     @property
     def director(self):
         cdef vec3[float] n = self.thisptr.getNematicDirector()
-        cdef np.ndarray[np.float32_t, ndim=1] result = np.array(
-            [n.x, n.y, n.z], dtype=np.float32)
-        return result
+        return np.asarray([n.x, n.y, n.z], dtype=np.float32)
 
     def get_director(self):
         warnings.warn("The get_director function is deprecated in favor "
@@ -377,15 +343,11 @@ cdef class NematicOrderParameter:
 
     @property
     def particle_tensor(self):
-        cdef float *particle_tensor = self.thisptr.getParticleTensor().get()
-        cdef np.npy_intp nbins[3]
-        nbins[0] = <np.npy_intp> self.thisptr.getNumParticles()
-        nbins[1] = <np.npy_intp> 3
-        nbins[2] = <np.npy_intp> 3
-        cdef np.ndarray[np.float32_t, ndim=3] result = \
-            np.PyArray_SimpleNewFromData(3, nbins, np.NPY_FLOAT32,
-                                         <void*> particle_tensor)
-        return result
+        cdef unsigned int n_particles = self.thisptr.getNumParticles()
+        cdef float[:, :, ::1] particle_tensor = \
+            <float[:n_particles, :3, :3]> \
+            self.thisptr.getParticleTensor().get()
+        return np.asarray(particle_tensor)
 
     def get_particle_tensor(self):
         warnings.warn("The get_particle_tensor function is deprecated in "
@@ -396,14 +358,9 @@ cdef class NematicOrderParameter:
 
     @property
     def nematic_tensor(self):
-        cdef float *nematic_tensor = self.thisptr.getNematicTensor().get()
-        cdef np.npy_intp nbins[2]
-        nbins[0] = <np.npy_intp> 3
-        nbins[1] = <np.npy_intp> 3
-        cdef np.ndarray[np.float32_t, ndim=2] result = \
-            np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32,
-                                         <void*> nematic_tensor)
-        return result
+        cdef float[:, ::1] nematic_tensor = \
+            <float[:3, :3]> self.thisptr.getNematicTensor().get()
+        return np.asarray(nematic_tensor)
 
     def get_nematic_tensor(self):
         warnings.warn("The get_nematic_tensor function is deprecated in favor "
@@ -454,8 +411,8 @@ cdef class HexOrderParameter:
             Symmetry of the order parameter.
     """
     cdef freud._order.HexOrderParameter * thisptr
-    cdef num_neigh
-    cdef rmax
+    cdef int num_neigh
+    cdef float rmax
 
     def __cinit__(self, rmax, k=int(6), n=int(0)):
         self.thisptr = new freud._order.HexOrderParameter(rmax, k, n)
@@ -483,8 +440,8 @@ cdef class HexOrderParameter:
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        cdef np.ndarray[float, ndim=2] l_points = points
-        cdef unsigned int nP = <unsigned int> points.shape[0]
+        cdef float[:, ::1] l_points = points
+        cdef unsigned int nP = l_points.shape[0]
 
         defaulted_nlist = freud.locality.make_default_nlist_nn(
             b, points, points, self.num_neigh, nlist, True, self.rmax)
@@ -492,18 +449,15 @@ cdef class HexOrderParameter:
 
         with nogil:
             self.thisptr.compute(dereference(b.thisptr), nlist_.get_ptr(),
-                                 <vec3[float]*> l_points.data, nP)
+                                 <vec3[float]*> &l_points[0, 0], nP)
         return self
 
     @property
     def psi(self):
-        cdef float complex * psi = self.thisptr.getPsi().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.thisptr.getNP()
-        cdef np.ndarray[np.complex64_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX64,
-                                         <void*> psi)
-        return result
+        cdef unsigned int n_particles = self.thisptr.getNP()
+        cdef np.complex64_t[::1] psi = \
+            <np.complex64_t[:n_particles]> self.thisptr.getPsi().get()
+        return np.asarray(psi, dtype=np.complex64)
 
     def getPsi(self):
         warnings.warn("The getPsi function is deprecated in favor "
@@ -514,7 +468,7 @@ cdef class HexOrderParameter:
 
     @property
     def box(self):
-        return freud.box.BoxFromCPP(< freud._box.Box > self.thisptr.getBox())
+        return freud.box.BoxFromCPP(<freud._box.Box> self.thisptr.getBox())
 
     def getBox(self):
         warnings.warn("The getBox function is deprecated in favor "
@@ -598,8 +552,8 @@ cdef class TransOrderParameter:
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        cdef np.ndarray[float, ndim=2] l_points = points
-        cdef unsigned int nP = <unsigned int> points.shape[0]
+        cdef float[:, ::1] l_points = points
+        cdef unsigned int nP = l_points.shape[0]
 
         defaulted_nlist = freud.locality.make_default_nlist_nn(
             b, points, points, self.num_neigh, nlist, True, self.rmax)
@@ -607,18 +561,15 @@ cdef class TransOrderParameter:
 
         with nogil:
             self.thisptr.compute(dereference(b.thisptr), nlist_.get_ptr(),
-                                 <vec3[float]*> l_points.data, nP)
+                                 <vec3[float]*> &l_points[0, 0], nP)
         return self
 
     @property
     def d_r(self):
-        cdef float complex * dr = self.thisptr.getDr().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.thisptr.getNP()
-        cdef np.ndarray[np.complex64_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX64,
-                                         <void*> dr)
-        return result
+        cdef unsigned int n_particles = self.thisptr.getNP()
+        cdef np.complex64_t[::1] d_r = \
+            <np.complex64_t[:n_particles]> self.thisptr.getDr().get()
+        return np.asarray(d_r, dtype=np.complex64)
 
     def getDr(self):
         warnings.warn("The getDr function is deprecated in favor "
@@ -629,7 +580,7 @@ cdef class TransOrderParameter:
 
     @property
     def box(self):
-        return freud.box.BoxFromCPP(< freud._box.Box > self.thisptr.getBox())
+        return freud.box.BoxFromCPP(<freud._box.Box> self.thisptr.getBox())
 
     def getBox(self):
         warnings.warn("The getBox function is deprecated in favor "
@@ -737,7 +688,7 @@ cdef class LocalQl:
 
     @property
     def box(self):
-        return freud.box.BoxFromCPP(< freud._box.Box > self.qlptr.getBox())
+        return freud.box.BoxFromCPP(<freud._box.Box> self.qlptr.getBox())
 
     def getBox(self):
         warnings.warn("The getBox function is deprecated in favor "
@@ -773,12 +724,10 @@ cdef class LocalQl:
 
     @property
     def Ql(self):
-        cdef float * Ql = self.qlptr.getQl().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.qlptr.getNP()
-        cdef np.ndarray[float, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> Ql)
-        return result
+        cdef unsigned int n_particles = self.qlptr.getNP()
+        cdef float[::1] Ql = \
+            <float[:n_particles]> self.qlptr.getQl().get()
+        return np.asarray(Ql)
 
     def getQl(self):
         warnings.warn("The getQl function is deprecated in favor "
@@ -789,12 +738,10 @@ cdef class LocalQl:
 
     @property
     def ave_Ql(self):
-        cdef float * Ql = self.qlptr.getAveQl().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.qlptr.getNP()
-        cdef np.ndarray[float, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> Ql)
-        return result
+        cdef unsigned int n_particles = self.qlptr.getNP()
+        cdef float[::1] ave_Ql = \
+            <float[:n_particles]> self.qlptr.getAveQl().get()
+        return np.asarray(ave_Ql)
 
     def getAveQl(self):
         warnings.warn("The getAveQl function is deprecated in favor "
@@ -805,12 +752,10 @@ cdef class LocalQl:
 
     @property
     def norm_Ql(self):
-        cdef float * Ql = self.qlptr.getQlNorm().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.qlptr.getNP()
-        cdef np.ndarray[float, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> Ql)
-        return result
+        cdef unsigned int n_particles = self.qlptr.getNP()
+        cdef float[::1] norm_Ql = \
+            <float[:n_particles]> self.qlptr.getQlNorm().get()
+        return np.asarray(norm_Ql)
 
     def getQlNorm(self):
         warnings.warn("The getQlNorm function is deprecated in favor "
@@ -821,12 +766,10 @@ cdef class LocalQl:
 
     @property
     def ave_norm_Ql(self):
-        cdef float * Ql = self.qlptr.getQlAveNorm().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.qlptr.getNP()
-        cdef np.ndarray[float, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> Ql)
-        return result
+        cdef unsigned int n_particles = self.qlptr.getNP()
+        cdef float[::1] ave_norm_Ql = \
+            <float[:n_particles]> self.qlptr.getQlAveNorm().get()
+        return np.asarray(ave_norm_Ql)
 
     def getQlAveNorm(self):
         warnings.warn("The getQlAveNorm function is deprecated in favor "
@@ -848,14 +791,16 @@ cdef class LocalQl:
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
-        cdef np.ndarray[float, ndim=2] l_points = points
-        cdef unsigned int nP = <unsigned int> points.shape[0]
+
+        cdef float[:, ::1] l_points = points
+        cdef unsigned int nP = l_points.shape[0]
 
         defaulted_nlist = freud.locality.make_default_nlist(
             self.m_box, points, points, self.rmax, nlist, True)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
-        self.qlptr.compute(nlist_.get_ptr(), <vec3[float]*> l_points.data, nP)
+        self.qlptr.compute(nlist_.get_ptr(), <vec3[float]*> &l_points[0, 0],
+                           nP)
         return self
 
     def computeAve(self, points, nlist=None):
@@ -872,17 +817,17 @@ cdef class LocalQl:
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        cdef np.ndarray[float, ndim=2] l_points = points
-        cdef unsigned int nP = <unsigned int> points.shape[0]
+        cdef float[:, ::1] l_points = points
+        cdef unsigned int nP = l_points.shape[0]
 
         defaulted_nlist = freud.locality.make_default_nlist(
             self.m_box, points, points, self.rmax, nlist, True)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         self.qlptr.compute(nlist_.get_ptr(),
-                           <vec3[float]*> l_points.data, nP)
+                           <vec3[float]*> &l_points[0, 0], nP)
         self.qlptr.computeAve(nlist_.get_ptr(),
-                              <vec3[float]*> l_points.data, nP)
+                              <vec3[float]*> &l_points[0, 0], nP)
         return self
 
     def computeNorm(self, points, nlist=None):
@@ -900,15 +845,16 @@ cdef class LocalQl:
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        cdef np.ndarray[float, ndim=2] l_points = points
-        cdef unsigned int nP = <unsigned int> points.shape[0]
+        cdef float[:, ::1] l_points = points
+        cdef unsigned int nP = l_points.shape[0]
 
         defaulted_nlist = freud.locality.make_default_nlist(
             self.m_box, points, points, self.rmax, nlist, True)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
-        self.qlptr.compute(nlist_.get_ptr(), <vec3[float]*> l_points.data, nP)
-        self.qlptr.computeNorm(<vec3[float]*> l_points.data, nP)
+        self.qlptr.compute(nlist_.get_ptr(),
+                           <vec3[float]*> &l_points[0, 0], nP)
+        self.qlptr.computeNorm(<vec3[float]*> &l_points[0, 0], nP)
         return self
 
     def computeAveNorm(self, points, nlist=None):
@@ -927,18 +873,18 @@ cdef class LocalQl:
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        cdef np.ndarray[float, ndim=2] l_points = points
-        cdef unsigned int nP = <unsigned int> points.shape[0]
+        cdef float[:, ::1] l_points = points
+        cdef unsigned int nP = l_points.shape[0]
 
         defaulted_nlist = freud.locality.make_default_nlist(
             self.m_box, points, points, self.rmax, nlist, True)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         self.qlptr.compute(nlist_.get_ptr(),
-                           <vec3[float]*> l_points.data, nP)
+                           <vec3[float]*> &l_points[0, 0], nP)
         self.qlptr.computeAve(nlist_.get_ptr(),
-                              <vec3[float]*> l_points.data, nP)
-        self.qlptr.computeAveNorm(<vec3[float]*> l_points.data, nP)
+                              <vec3[float]*> &l_points[0, 0], nP)
+        self.qlptr.computeAveNorm(<vec3[float]*> &l_points[0, 0], nP)
         return self
 
 
@@ -1156,30 +1102,24 @@ cdef class LocalWl(LocalQl):
 
     @property
     def Wl(self):
-        return self.getWl()
+        cdef unsigned int n_particles = self.qlptr.getNP()
+        cdef np.complex64_t[::1] Wl = \
+            <np.complex64_t[:n_particles]> self.thisptr.getWl().get()
+        return np.asarray(Wl, dtype=np.complex64)
 
     def getWl(self):
         warnings.warn("The getWl function is deprecated in favor "
                       "of the Wl class attribute and will be "
                       "removed in a future version of freud.",
                       FreudDeprecationWarning)
-        cdef float complex * Wl = self.thisptr.getWl().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.qlptr.getNP()
-        cdef np.ndarray[np.complex64_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX64,
-                                         <void*> Wl)
-        return result
+        return self.Wl
 
     @property
     def ave_Wl(self):
-        cdef float complex * Wl = self.thisptr.getAveWl().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.qlptr.getNP()
-        cdef np.ndarray[np.complex64_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX64,
-                                         <void*> Wl)
-        return result
+        cdef unsigned int n_particles = self.qlptr.getNP()
+        cdef np.complex64_t[::1] ave_Wl = \
+            <np.complex64_t[:n_particles]> self.thisptr.getAveWl().get()
+        return np.asarray(ave_Wl, dtype=np.complex64)
 
     def getAveWl(self):
         warnings.warn("The getAveWl function is deprecated in favor "
@@ -1190,13 +1130,10 @@ cdef class LocalWl(LocalQl):
 
     @property
     def norm_Wl(self):
-        cdef float complex * Wl = self.thisptr.getWlNorm().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.qlptr.getNP()
-        cdef np.ndarray[np.complex64_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX64,
-                                         <void*> Wl)
-        return result
+        cdef unsigned int n_particles = self.qlptr.getNP()
+        cdef np.complex64_t[::1] norm_Wl = \
+            <np.complex64_t[:n_particles]> self.thisptr.getWlNorm().get()
+        return np.asarray(norm_Wl, dtype=np.complex64)
 
     def getWlNorm(self):
         warnings.warn("The getWlNorm function is deprecated in favor "
@@ -1207,13 +1144,10 @@ cdef class LocalWl(LocalQl):
 
     @property
     def ave_norm_Wl(self):
-        cdef float complex * Wl = self.thisptr.getAveNormWl().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.qlptr.getNP()
-        cdef np.ndarray[np.complex64_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX64,
-                                         <void*> Wl)
-        return result
+        cdef unsigned int n_particles = self.qlptr.getNP()
+        cdef np.complex64_t[::1] ave_norm_Wl = \
+            <np.complex64_t[:n_particles]> self.thisptr.getAveNormWl().get()
+        return np.asarray(ave_norm_Wl, dtype=np.complex64)
 
     def getWlAveNorm(self):
         warnings.warn("The getWlAveNorm function is deprecated in favor "
@@ -1403,15 +1337,15 @@ cdef class SolLiq:
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        cdef np.ndarray[float, ndim=2] l_points = points
-        cdef unsigned int nP = <unsigned int> points.shape[0]
+        cdef float[:, ::1] l_points = points
+        cdef unsigned int nP = l_points.shape[0]
 
         defaulted_nlist = freud.locality.make_default_nlist(
             self.m_box, points, points, self.rmax, nlist, True)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         self.thisptr.compute(nlist_.get_ptr(),
-                             <vec3[float]*> l_points.data, nP)
+                             <vec3[float]*> &l_points[0, 0], nP)
         return self
 
     def computeSolLiqVariant(self, points, nlist=None):
@@ -1432,15 +1366,15 @@ cdef class SolLiq:
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        cdef np.ndarray[float, ndim=2] l_points = points
-        cdef unsigned int nP = <unsigned int> points.shape[0]
+        cdef float[:, ::1] l_points = points
+        cdef unsigned int nP = l_points.shape[0]
 
         defaulted_nlist = freud.locality.make_default_nlist(
             self.m_box, points, points, self.rmax, nlist, True)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         self.thisptr.computeSolLiqVariant(
-            nlist_.get_ptr(), <vec3[float]*> l_points.data, nP)
+            nlist_.get_ptr(), <vec3[float]*> &l_points[0, 0], nP)
         return self
 
     def computeSolLiqNoNorm(self, points, nlist=None):
@@ -1458,20 +1392,20 @@ cdef class SolLiq:
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        cdef np.ndarray[float, ndim=2] l_points = points
-        cdef unsigned int nP = <unsigned int> points.shape[0]
+        cdef float[:, ::1] l_points = points
+        cdef unsigned int nP = l_points.shape[0]
 
         defaulted_nlist = freud.locality.make_default_nlist(
             self.m_box, points, points, self.rmax, nlist, True)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         self.thisptr.computeSolLiqNoNorm(
-            nlist_.get_ptr(), <vec3[float]*> l_points.data, nP)
+            nlist_.get_ptr(), <vec3[float]*> &l_points[0, 0], nP)
         return self
 
     @property
     def box(self):
-        return freud.box.BoxFromCPP(< freud._box.Box > self.thisptr.getBox())
+        return freud.box.BoxFromCPP(<freud._box.Box> self.thisptr.getBox())
 
     def getBox(self):
         warnings.warn("The getBox function is deprecated in favor "
@@ -1512,13 +1446,10 @@ cdef class SolLiq:
 
     @property
     def cluster_sizes(self):
-        cdef vector[unsigned int] clusterSizes = self.thisptr.getClusterSizes()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.thisptr.getNumClusters()
-        cdef np.ndarray[np.uint32_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32,
-                                         <void*> &clusterSizes)
-        return result
+        cdef unsigned int n_clusters = self.thisptr.getNumClusters()
+        cdef unsigned int[::1] cluster_sizes = \
+            <unsigned int[:n_clusters]> self.thisptr.getClusterSizes().data()
+        return np.asarray(cluster_sizes, dtype=np.uint32)
 
     def getClusterSizes(self):
         warnings.warn("The getClusterSizes function is deprecated in favor "
@@ -1529,13 +1460,10 @@ cdef class SolLiq:
 
     @property
     def Ql_mi(self):
-        cdef float complex * Qlmi = self.thisptr.getQlmi().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.thisptr.getNP()
-        cdef np.ndarray[np.complex64_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX64,
-                                         <void*> Qlmi)
-        return result
+        cdef unsigned int n_particles = self.thisptr.getNP()
+        cdef np.complex64_t[::1] Ql_mi = \
+            <np.complex64_t[:n_particles]> self.thisptr.getQlmi().get()
+        return np.asarray(Ql_mi, dtype=np.complex64)
 
     def getQlmi(self):
         warnings.warn("The getQlmi function is deprecated in favor "
@@ -1546,14 +1474,10 @@ cdef class SolLiq:
 
     @property
     def clusters(self):
-        cdef unsigned int * clusters = self.thisptr.getClusters().get()
-        cdef np.npy_intp nbins[1]
-        # this is the correct number
-        nbins[0] = <np.npy_intp> self.thisptr.getNP()
-        cdef np.ndarray[np.uint32_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32,
-                                         <void*> clusters)
-        return result
+        cdef unsigned int n_particles = self.thisptr.getNP()
+        cdef unsigned int[::1] clusters = \
+            <unsigned int[:n_particles]> self.thisptr.getClusters().get()
+        return np.asarray(clusters, dtype=np.uint32)
 
     def getClusters(self):
         warnings.warn("The getClusters function is deprecated in favor "
@@ -1564,15 +1488,11 @@ cdef class SolLiq:
 
     @property
     def num_connections(self):
-        cdef unsigned int * connections = \
+        cdef unsigned int n_particles = self.thisptr.getNP()
+        cdef unsigned int[::1] num_connections = \
+            <unsigned int[:n_particles]> \
             self.thisptr.getNumberOfConnections().get()
-        cdef np.npy_intp nbins[1]
-        # this is the correct number
-        nbins[0] = <np.npy_intp> self.thisptr.getNP()
-        cdef np.ndarray[np.uint32_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32,
-                                         <void*> connections)
-        return result
+        return np.asarray(num_connections, dtype=np.uint32)
 
     def getNumberOfConnections(self):
         warnings.warn("The getNumberOfConnections function is deprecated in "
@@ -1583,13 +1503,10 @@ cdef class SolLiq:
 
     @property
     def Ql_dot_ij(self):
-        cdef vector[float complex] Qldot = self.thisptr.getQldot_ij()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.thisptr.getNumClusters()
-        cdef np.ndarray[np.complex64_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX64,
-                                         <void*> &Qldot)
-        return result
+        cdef unsigned int n_clusters = self.thisptr.getNumClusters()
+        cdef np.complex64_t[::1] Ql_dot_ij = \
+            <np.complex64_t[:n_clusters]> self.thisptr.getQldot_ij().data()
+        return np.asarray(Ql_dot_ij, dtype=np.complex64)
 
     def getQldot_ij(self):
         warnings.warn("The getQldot_ij function is deprecated in favor "

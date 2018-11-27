@@ -21,11 +21,7 @@ from freud.errors import FreudDeprecationWarning
 import logging
 
 from freud.util._VectorMath cimport vec3
-from libcpp.memory cimport shared_ptr
 from cython.operator cimport dereference
-from libc.string cimport memcpy
-from libcpp.string cimport string
-from libcpp.vector cimport vector
 from libcpp cimport bool as bool_t
 from cpython.object cimport Py_EQ, Py_NE
 
@@ -312,7 +308,7 @@ cdef class Box:
             list[float, float, float]:
                 Vector of real coordinates :math:`\left(x, y, z\right)`.
         """
-        cdef np.ndarray[float, ndim=1] l_vec = freud.common.convert_array(
+        cdef float[::1] l_vec = freud.common.convert_array(
             f, 1, dtype=np.float32, contiguous=True)
         cdef vec3[float] result = self.thisptr.makeCoordinates(
             <const vec3[float]&> l_vec[0])
@@ -329,7 +325,7 @@ cdef class Box:
             list[float, float, float]:
                 A fractional coordinate vector.
         """
-        cdef np.ndarray[float, ndim=1] l_vec = freud.common.convert_array(
+        cdef float[::1] l_vec = freud.common.convert_array(
             vec, 1, dtype=np.float32, contiguous=True)
         cdef vec3[float] result = self.thisptr.makeFraction(
             <const vec3[float]&> l_vec[0])
@@ -348,7 +344,7 @@ cdef class Box:
             :math:`\left(3\right)` :class:`numpy.ndarray`:
                 Image index vector.
         """
-        cdef np.ndarray[float, ndim=1] l_vec = freud.common.convert_array(
+        cdef float[::1] l_vec = freud.common.convert_array(
             vec, 1, dtype=np.float32, contiguous=True)
         cdef vec3[int] result = self.thisptr.getImage(
             <const vec3[float]&> l_vec[0])
@@ -364,7 +360,6 @@ cdef class Box:
         Returns:
             list[float, float, float]: Lattice vector with index :math:`i`.
         """  # noqa: E501
-        cdef unsigned int index = i
         cdef vec3[float] result = self.thisptr.getLatticeVector(i)
         if self.thisptr.is2D():
             result.z = 0.0
@@ -406,7 +401,7 @@ cdef class Box:
 
     def _wrap(self, vec):
         R"""Wrap a single vector."""
-        cdef np.ndarray[float, ndim=1] l_vec = vec
+        cdef float[::1] l_vec = vec
         cdef vec3[float] result = self.thisptr.wrap(<vec3[float]&> l_vec[0])
         return (result.x, result.y, result.z)
 
@@ -453,8 +448,8 @@ cdef class Box:
 
     def _unwrap(self, vec, img):
         R"""Unwrap a single vector."""
-        cdef np.ndarray[float, ndim=1] l_vec = vec
-        cdef np.ndarray[int, ndim=1] l_img = img
+        cdef float[::1] l_vec = vec
+        cdef int[::1] l_img = img
         cdef vec3[float] result = self.thisptr.unwrap(
             <vec3[float]&> l_vec[0], <vec3[int]&> l_img[0])
         return [result.x, result.y, result.z]
@@ -840,50 +835,33 @@ cdef class ParticleBuffer:
         if points.shape[1] != 3:
             raise RuntimeError(
                 'Need a list of 3D points for ParticleBuffer.compute()')
-        cdef np.ndarray cPoints = points
-        cdef unsigned int Np = points.shape[0]
-        self.thisptr.compute(<vec3[float]*> cPoints.data, Np, buffer, images)
+        cdef float[:, ::1] l_points = points
+        cdef unsigned int Np = l_points.shape[0]
+        self.thisptr.compute(<vec3[float]*> &l_points[0, 0], Np, buffer,
+                             images)
         return self
 
     @property
     def buffer_particles(self):
         cdef unsigned int buffer_size = \
             dereference(self.thisptr.getBufferParticles().get()).size()
-        cdef vec3[float] * buffer_points = \
-            &dereference(self.thisptr.getBufferParticles().get())[0]
         if not buffer_size:
             return np.array([[]], dtype=np.float32)
-
-        cdef vector[vec3[float]]*bufferPar = \
-            self.thisptr.getBufferParticles().get()
-        cdef np.npy_intp nbins[2]
-        nbins[0] = buffer_size
-        nbins[1] = 3
-
-        cdef np.ndarray[float, ndim=2] result = \
-            np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32,
-                                         <void*> dereference(bufferPar).data())
-
-        return result
+        cdef float[:, ::1] buffer_particles = \
+            <float[:buffer_size, :3]> (<float*> dereference(
+                self.thisptr.getBufferParticles().get()).data())
+        return np.asarray(buffer_particles)
 
     @property
     def buffer_ids(self):
         cdef unsigned int buffer_size = \
             dereference(self.thisptr.getBufferParticles().get()).size()
-        cdef unsigned int * buffer_ids = \
-            &dereference(self.thisptr.getBufferIds().get())[0]
         if not buffer_size:
             return np.array([[]], dtype=np.uint32)
-
-        cdef vector[unsigned int]*bufferIds = self.thisptr.getBufferIds().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = buffer_size
-
-        cdef np.ndarray[unsigned int, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_UINT32,
-                                         <void*> dereference(bufferIds).data())
-
-        return result
+        cdef unsigned int[::1] buffer_ids = \
+            <unsigned int[:buffer_size]> dereference(
+                self.thisptr.getBufferIds().get()).data()
+        return np.asarray(buffer_ids)
 
     @property
     def buffer_box(self):
