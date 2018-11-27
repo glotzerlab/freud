@@ -15,6 +15,7 @@ from freud.errors import FreudDeprecationWarning
 import numpy as np
 import time
 import freud.locality
+import logging
 
 from freud.util._VectorMath cimport vec3, quat
 from cython.operator cimport dereference
@@ -31,6 +32,8 @@ cimport freud.locality
 cimport freud.box
 
 cimport numpy as np
+
+logger = logging.getLogger(__name__)
 
 # numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults
@@ -91,9 +94,10 @@ cdef class CubaticOrderParameter:
         elif not isinstance(seed, int):
             try:
                 seed = int(seed)
-            except Exception:
-                print("supplied seed could not be used. using time as seed")
-                seed = time.time()
+            except (OverflowError, TypeError, ValueError):
+                logger.warning("The supplied seed could not be used. "
+                               "Using current time as seed.")
+                seed = int(time.time())
 
         # for c++ code
         # create generalized rank four tensor, pass into c++

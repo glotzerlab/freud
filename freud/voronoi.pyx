@@ -19,7 +19,6 @@ cimport freud.box
 cimport freud.locality
 cimport numpy as np
 
-
 logger = logging.getLogger(__name__)
 
 try:
