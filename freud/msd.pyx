@@ -2,8 +2,8 @@
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 R"""
-The MSD module provides functions for computing the mean-squared-displacement
-of particles in periodic systems.
+The :class:`freud.msd` module provides functions for computing the
+mean-squared-displacement (MSD) of particles in periodic systems.
 """
 
 from __future__ import print_function, division, absolute_import

@@ -2,14 +2,18 @@
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 R"""
-The PMFT Module allows for the calculation of the Potential of Mean Force and
-Torque (PMFT) [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ in a number of
-different coordinate systems. The PMFT is defined as the negative algorithm of
-positional correlation function (PCF). A given set of reference points is given
-around which the PCF is computed and averaged in a sea of data points. The
-resulting values are accumulated in a PCF array listing the value of the PCF at
-a discrete set of points. The specific points are determined by the particular
-coordinate system used to represent the system.
+The :class:`freud.pmft` module allows for the calculation of the Potential of
+Mean Force and Torque (PMFT) [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ in a
+number of different coordinate systems. The shape of the arrays computed by
+this module depend on the coordinate system used, with space discretized into a
+set of bins created by the PMFT object's constructor. Each reference point's
+neighboring points are assigned to bins, determined by the relative positions
+and/or orientations of the particles. Next, the positional correlation function
+(PCF) is computed by normalizing the binned histogram, by dividing out the
+number of accumulated frames, bin sizes (the Jacobian), and reference point
+number density. The PMFT is then defined as the negative logarithm of the PCF.
+For further descriptions of the numerical methods used to compute the PMFT,
+refer to the supplementary information of [vanAndersKlotsa2014]_.
 
 .. note::
     The coordinate system in which the calculation is performed is not the same
@@ -27,6 +31,11 @@ coordinate system used to represent the system.
     * 3D particle coordinates:
 
         * :math:`x`, :math:`y`, :math:`z`.
+
+.. note::
+    For any bins where the histogram is zero (i.e. no observations were made
+    with that relative position/orientation of particles), the PCF will be zero
+    and the PMFT will return :code:`nan`.
 """
 
 import numpy as np

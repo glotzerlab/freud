@@ -2,9 +2,9 @@
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 R"""
-The density module contains various classes relating to the density of the
-system. These functions allow evaluation of particle distributions with respect
-to other particles.
+The :class:`freud.density` module contains various classes relating to the
+density of the system. These functions allow evaluation of particle
+distributions with respect to other particles.
 """
 
 import freud.common
