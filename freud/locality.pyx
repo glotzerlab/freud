@@ -278,7 +278,8 @@ cdef class NeighborList:
         for bond in range(n_bonds):
             i = neighbors[bond, 0]
             if i != last_i and i > 0:
-                result[last_i] = n
+                if last_i >= 0:
+                    result[last_i] = n
                 n = 0
             last_i = i
             n += 1
