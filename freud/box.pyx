@@ -383,7 +383,7 @@ cdef class Box:
                 Vectors wrapped into the box.
         """  # noqa: E501
         vecs = np.asarray(vecs)
-        if vecs.ndim > 2 or vecs.shape[-1] != 3:
+        if vecs.ndim > 2 or vecs.shape[vecs.ndim-1] != 3:
             raise ValueError(
                 "Invalid dimensions for vecs given to box.wrap. "
                 "Valid input is an array of shape (3,) or (N,3).")
@@ -426,7 +426,7 @@ cdef class Box:
         if vecs.shape != imgs.shape:
             raise ValueError("imgs dimensions do not match vecs dimensions.")
 
-        if vecs.ndim > 2 or vecs.shape[-1] != 3:
+        if vecs.ndim > 2 or vecs.shape[vecs.ndim-1] != 3:
             raise ValueError(
                 "Invalid dimensions for vecs given to box.unwrap. "
                 "Valid input is an array of shape (3,) or (N,3).")

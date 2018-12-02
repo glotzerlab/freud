@@ -178,6 +178,8 @@ else:
 directives = {
     'embedsignature': True,
     'binding': True,
+    'boundscheck': False,
+    'wraparound': False,
 }
 macros = []
 
