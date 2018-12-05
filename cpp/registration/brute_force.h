@@ -102,14 +102,6 @@ inline matrix Rotate(const matrix& R, const matrix& P)
     return rotated;
     }
 
-inline double RMSD(const matrix& P, const matrix& Q)
-    {
-    matrix pmq = P-Q;
-    // matrix.norm() squares EVERY entry of the matrix, and sums them all.
-    // For our RMSD purposes, this is exactly what we want.
-    return pmq.norm()/double(P.rows());
-    }
-
 // some helpful references:
 // http://cnx.org/contents/HV-RsdwL@23/Molecular-Distance-Measures
 // http://btk.sourceforge.net/html_docs/0.8.1/rmsd_theory.html
