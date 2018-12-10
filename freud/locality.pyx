@@ -1084,7 +1084,7 @@ cdef class NearestNeighbors:
 
         self._cached_ref_points = ref_points
         self._cached_points = points
-        self._cached_box = box
+        self._cached_box = b
 
         cdef np.ndarray cRef_points = ref_points
         cdef unsigned int n_ref = ref_points.shape[0]
