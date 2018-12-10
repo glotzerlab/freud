@@ -35,11 +35,12 @@
         "name": "freud.index",
         "sources": [
             "freud/index.pyx",
-            "cpp/util/HOOMDMatrix.cc",
-            "cpp/box/Box.cc",
-            "cpp/locality/NearestNeighbors.cc",
+            "cpp/locality/LinkCell.cc",
             "cpp/locality/NeighborList.cc",
-            "cpp/locality/LinkCell.cc"
+            "cpp/box/Box.cc",
+            "cpp/locality/AABBQuery.cc",
+            "cpp/util/HOOMDMatrix.cc",
+            "cpp/locality/NearestNeighbors.cc"
         ]
     },
     "module_name": "freud.index"
@@ -1696,7 +1697,7 @@ static const char __pyx_k_Index3D___reduce_cython[] = "Index3D.__reduce_cython__
 static const char __pyx_k_Index2D___setstate_cython[] = "Index2D.__setstate_cython__";
 static const char __pyx_k_Index3D___setstate_cython[] = "Index3D.__setstate_cython__";
 static const char __pyx_k_ndarray_is_not_C_contiguous[] = "ndarray is not C contiguous";
-static const char __pyx_k_The_index_module_exposes_the_ma[] = "\nThe index module exposes the :math:`1`-dimensional indexer utilized in freud at\nthe C++ level.  At the C++ level, freud utilizes flat arrays to represent\nmultidimensional arrays. :math:`N`-dimensional arrays with :math:`n_i` elements\nin each dimension :math:`i` are represented as :math:`1`-dimensional arrays\nwith :math:`\\prod_{i=1}^N n_i` elements.\n";
+static const char __pyx_k_The_class_freud_index_module_ex[] = "\nThe :class:`freud.index` module exposes the :math:`1`-dimensional indexer\nutilized in freud at the C++ level. At the C++ level, freud utilizes flat\narrays to represent multidimensional arrays. :math:`N`-dimensional arrays with\n:math:`n_i` elements in each dimension :math:`i` are represented as\n:math:`1`-dimensional arrays with :math:`\\prod_{i=1}^N n_i` elements.\n";
 static const char __pyx_k_numpy_core_multiarray_failed_to[] = "numpy.core.multiarray failed to import";
 static const char __pyx_k_unknown_dtype_code_in_numpy_pxd[] = "unknown dtype code in numpy.pxd (%d)";
 static const char __pyx_k_Format_string_allocated_too_shor[] = "Format string allocated too short, see comment in numpy.pxd";
@@ -5757,7 +5758,7 @@ static PyModuleDef_Slot __pyx_moduledef_slots[] = {
 static struct PyModuleDef __pyx_moduledef = {
     PyModuleDef_HEAD_INIT,
     "index",
-    __pyx_k_The_index_module_exposes_the_ma, /* m_doc */
+    __pyx_k_The_class_freud_index_module_ex, /* m_doc */
   #if CYTHON_PEP489_MULTI_PHASE_INIT
     0, /* m_size */
   #else
@@ -6304,7 +6305,7 @@ if (!__Pyx_RefNanny) {
   Py_INCREF(__pyx_m);
   #else
   #if PY_MAJOR_VERSION < 3
-  __pyx_m = Py_InitModule4("index", __pyx_methods, __pyx_k_The_index_module_exposes_the_ma, 0, PYTHON_API_VERSION); Py_XINCREF(__pyx_m);
+  __pyx_m = Py_InitModule4("index", __pyx_methods, __pyx_k_The_class_freud_index_module_ex, 0, PYTHON_API_VERSION); Py_XINCREF(__pyx_m);
   #else
   __pyx_m = PyModule_Create(&__pyx_moduledef);
   #endif
