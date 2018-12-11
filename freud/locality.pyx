@@ -940,6 +940,11 @@ cdef class NearestNeighbors:
         Args:
             i (unsigned int):
                 Index of the reference point whose neighbors will be returned.
+        Returns:
+            :math:`\left(N_{neighbors}\right)` :class:`numpy.ndarray`:
+                Indices of points that are neighbors of reference point
+                :math:`i`, padded with UINTMAX if fewer neighbors than
+                requested were found.
         """
         cdef unsigned int nNeigh = self.thisptr.getNumNeighbors()
         result = np.empty(nNeigh, dtype=np.uint32)
@@ -955,7 +960,9 @@ cdef class NearestNeighbors:
 
         Returns:
             :math:`\left(N_{particles}, N_{neighbors}\right)` :class:`numpy.ndarray`:
-                Neighbor List.
+                Indices of up to :math:`N_{neighbors}` points that are
+                neighbors of the :math:`N_{particles}` reference points, padded
+                with UINTMAX if fewer neighbors than requested were found.
         """  # noqa: E501
         result = np.empty(
             (self.thisptr.getNref(), self.thisptr.getNumNeighbors()),
