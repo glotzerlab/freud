@@ -25,6 +25,114 @@ cimport numpy as np
 np.import_array()
 
 
+cdef class SpatialData:
+    R"""Class representing a set of points along with the ability to query for
+    neighbors of these points.
+
+    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
+    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
+
+    .. versionadded:: 0.12.0
+
+    Args:
+        box (:class:`freud.box.Box`):
+            Simulation box.
+        points ((:math:`N`, 3) :class:`numpy.ndarray`):
+            Point coordinates to build the structure.
+
+    Attributes:
+        box (:class:`freud.box.Box`):
+            The box object used by this data structure.
+        points (:class:`np.ndarray`):
+            The array of points in this data structure.
+
+    Example::
+
+        WRITE AN EXAMPLE
+    """
+
+    def __cinit__(self):
+        raise RuntimeError(
+            "The SpatialData class is abstract, and should not be directly"
+            "instantiated"
+        )
+
+    def __dealloc__(self):
+        pass
+
+    def compute(self):
+        R"""Compute the neighbor finding structure given the set of points.
+        """
+        raise NotImplementedError(
+            "This function must be implemented by the child class")
+
+    def query(self, points, unsigned int k=1):
+        R"""Query the tree for nearest neighbors of the provided point.
+
+        Args:
+            box (:class:`freud.box.Box`):
+                Simulation box.
+            points ((:math:`N`, 3) :class:`numpy.ndarray`):
+                Points to query for.
+            k (int):
+                The number of nearest neighbors to find.
+
+        Returns:
+            (:math:`N`, :math:`k`) :class:`numpy.ndarray`:
+                Array of indices of the :math:`k` nearest neighbors for each
+                input point.
+        """
+        points = freud.common.convert_array(
+            points, 2, dtype=np.float32, contiguous=True, array_name="points")
+        if points.shape[1] != 3:
+            raise TypeError('points should be an Nx3 array')
+
+        cdef np.ndarray[float, ndim=2] l_points = points
+        cdef unsigned int Np = points.shape[0]
+        cdef freud._locality.SpatialDataIterator iterator
+        with nogil:
+            iterator = self.spdptr.query(<vec3[float]*> l_points.data, Np, k)
+
+        ret = []
+        while not iterator.end():
+            ret.append(iterator.next())
+        return ret
+
+    def query_ball(self, points, float r):
+        R"""Query the tree for all points within a distance r of the provided point(s).
+
+        Args:
+            box (:class:`freud.box.Box`):
+                Simulation box.
+            points ((:math:`N`, 3) :class:`numpy.ndarray`):
+                Points to query for.
+            r (float):
+                The distance within which to find neighbors
+
+        Returns:
+            list or list[list]:
+                If the input was a single point, returns a list of
+                its neighbors. Otherwise, returns a list of lists
+                of the neighbors.
+        """
+        points = freud.common.convert_array(
+            points, 2, dtype=np.float32, contiguous=True, array_name="points")
+        if points.shape[1] != 3:
+            raise TypeError('points should be an Nx3 array')
+
+        cdef np.ndarray[float, ndim=2] l_points = points
+        cdef unsigned int Np = points.shape[0]
+        cdef freud._locality.SpatialDataIterator iterator
+        with nogil:
+            iterator = self.spdptr.query_ball(
+                <vec3[float]*> l_points.data, Np, r)
+
+        ret = []
+        while not iterator.end():
+            ret.append(iterator.next())
+        return ret
+
+
 cdef class NeighborList:
     R"""Class representing a certain number of "bonds" between
     particles. Computation methods will iterate over these bonds when

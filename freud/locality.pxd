@@ -3,6 +3,9 @@
 
 cimport freud._locality
 
+cdef class SpatialData:
+    cdef freud._locality.SpatialData * spdptr
+
 cdef class NeighborList:
     cdef freud._locality.NeighborList * thisptr
     cdef char _managed
