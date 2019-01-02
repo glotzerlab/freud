@@ -47,7 +47,7 @@ class AABBQuery
 
     private:
         //! Driver for tree configuration
-        void setupTree(unsigned int Np);
+        void setupTree(unsigned int N);
 
         //! Maps particles by local id to their id within their type trees
         void mapParticlesByType();
@@ -56,7 +56,7 @@ class AABBQuery
         void updateImageVectors();
 
         //! Driver to build AABB trees
-        void buildTree(const vec3<float> *points, unsigned int Np);
+        void buildTree(const vec3<float> *ref_points, unsigned int N);
 
         //! Traverses AABB trees to compute neighbors
         void traverseTree(const vec3<float> *ref_points, unsigned int Nref,
