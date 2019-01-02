@@ -6,7 +6,27 @@ from freud.util._VectorMath cimport vec3
 from freud.util._Index1D cimport Index3D
 from libcpp.memory cimport shared_ptr
 from libcpp.vector cimport vector
+from libcpp.pair cimport pair
 cimport freud._box
+
+cdef extern from "SpatialData.h" namespace "freud::locality":
+    cdef cppclass SpatialData:
+        SpatialData()
+        SpatialData(const freud._box.Box &, const vec3[float]*, unsigned int)
+        SpatialDataIterator query(
+            const vec3[float]*, unsigned int, unsigned int) nogil except +
+        SpatialDataIterator query_ball(
+            const vec3[float]*, unsigned int, float) nogil except +
+        const freud._box.Box & getBox() const
+        const vector[float]* getRefPoints const
+        const unsigned int getNRef const
+        const vec3[float] operator[](unsigned int) const
+
+    cdef cppclass SpatialDataIterator:
+        SpatialDataIterator()
+        SpatialDataIterator(SpatialData*, vec3[float]*, unsigned int)
+        bool end()
+        pair[unsigned int, float] next()
 
 cdef extern from "NeighborList.h" namespace "freud::locality":
     cdef cppclass NeighborList:
