@@ -6,6 +6,7 @@
 
 #include <vector>
 
+#include "SpatialData.h"
 #include "Box.h"
 #include "NeighborList.h"
 #include "Index1D.h"
@@ -26,11 +27,14 @@
 
 namespace freud { namespace locality {
 
-class AABBQuery
+class AABBQuery : public SpatialData
     {
     public:
         //! Constructs the compute
         AABBQuery();
+
+        //! New-style constructor.
+        AABBQuery(const box::Box &box, const vec3<float> *ref_points, unsigned int Nref);
 
         //! Destructor
         ~AABBQuery();
@@ -44,6 +48,16 @@ class AABBQuery
             {
             return &m_neighbor_list;
             }
+
+        //! Given a set of points, find the k elements of this data structure
+        //  that are the nearest neighbors for each point.
+        virtual SpatialDataIterator query(const vec3<float> *points, unsigned int Np, unsigned int k);
+
+        //! Given a set of points, find all elements of this data structure
+        //  that are within a certain distance r.
+        virtual SpatialDataIterator query_ball(const vec3<float> *points, unsigned int Np, float r);
+
+        AABBTree m_aabb_tree; //!< AABB tree of points
 
     private:
         //! Driver for tree configuration
@@ -63,7 +77,6 @@ class AABBQuery
             const vec3<float> *points, unsigned int Np, bool exclude_ii);
 
         unsigned int m_Ntotal;
-        AABBTree m_aabb_tree; //!< AABB tree of points
         std::vector<AABB> m_aabbs; //!< Flat array of AABBs of all types
         std::vector< vec3<float> > m_image_list; //!< List of translation vectors
         unsigned int m_n_images; //!< The number of image vectors to check
@@ -71,8 +84,93 @@ class AABBQuery
         box::Box m_box; //!< Simulation box where the particles belong
         float m_rcut; //!< Maximum distance between neighbors
         NeighborList m_neighbor_list; //!< Stored neighbor list
+
+        bool m_prebuilt; //! Flag for when constructed using the new style.
     };
 
+//! Parent class of AABB iterators that knows how to traverse general AABB tree structures
+/*! placeholder
+
+*/
+class AABBIterator : public SpatialDataIterator
+    {
+    public:
+        //! Constructor
+        AABBIterator(AABBQuery* spatial_data, const vec3<float> *points, unsigned int Np) : SpatialDataIterator(spatial_data, points, Np), m_aabb_data(spatial_data)
+        { }
+
+        //! Empty Destructor
+        virtual ~AABBIterator() {}
+
+        //! Computes the image vectors to query for
+        void updateImageVectors(float rmax);
+
+    protected:
+        const AABBQuery *m_aabb_data; //!< Link to the AABBQuery object
+        std::vector< vec3<float> > m_image_list; //!< List of translation vectors
+        unsigned int m_n_images;                 //!< The number of image vectors to check
+    };
+
+//! Iterator that gets nearest neighbors from AABB tree structures
+/*! placeholder
+
+*/
+class AABBQueryIterator : public AABBIterator
+    {
+    public:
+        //! Constructor
+        AABBQueryIterator(AABBQuery* spatial_data,
+                const vec3<float> *points, unsigned int Np, unsigned int k) :
+            AABBIterator(spatial_data, points, Np), m_k(k)
+        {
+        updateImageVectors(0);
+        }
+
+        //! Empty Destructor
+        virtual ~AABBQueryIterator() {}
+
+        //! Get the next element.
+        //virtual std::pair<unsigned int, float> next();
+
+    protected:
+        unsigned int m_k;  //!< Number of nearest neighbors to find
+    };
+
+//! Iterator that gets neighbors in a ball of size r using AABB tree structures
+/*! placeholder
+
+*/
+class AABBQueryBallIterator : public AABBIterator
+    {
+    public:
+        //! Constructor
+        AABBQueryBallIterator(AABBQuery* spatial_data,
+                const vec3<float> *points, unsigned int Np, float r) :
+            AABBIterator(spatial_data, points, Np), m_r(r), i(0), cur_image(0), cur_node_idx(0), cur_p(0)
+        {
+        updateImageVectors(m_r);
+        }
+
+        //! Empty Destructor
+        virtual ~AABBQueryBallIterator() {}
+
+        virtual bool end() { return m_done; }
+
+        //! Get the next element.
+        virtual std::pair<unsigned int, float> next();
+
+    protected:
+        float m_r;  //!< Search ball cutoff distance
+
+    private:
+        bool m_done;  //!< Done iterating.
+        size_t i;   //!< The iterator over points
+        unsigned int cur_image; 
+        unsigned int cur_node_idx; 
+        unsigned int cur_p; 
+
+
+    };
 }; }; // end namespace freud::locality
 
 #endif // AABBQUERY_H
