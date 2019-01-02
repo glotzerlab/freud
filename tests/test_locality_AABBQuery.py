@@ -112,7 +112,7 @@ class TestAABBQuery(unittest.TestCase):
         for i in range(10):
             np.random.seed(seed + i)
             points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
-            all_vectors = points[np.newaxis, :, :] - points[:, np.newaxis, :]
+            all_vectors = points[:, np.newaxis, :] - points[np.newaxis, :, :]
             fbox.wrap(all_vectors.reshape((-1, 3)))
             all_rsqs = np.sum(all_vectors**2, axis=-1)
             (exhaustive_i, exhaustive_j) = np.where(np.logical_and(
@@ -123,6 +123,45 @@ class TestAABBQuery(unittest.TestCase):
             exhaustive_counts_list = [exhaustive_counts[j] for j in range(N)]
 
             aq.compute(fbox, rcut, points, points, exclude_ii=True)
+            ijs = set(zip(aq.nlist.index_i, aq.nlist.index_j))
+            counts_list = aq.nlist.neighbor_counts.tolist()
+
+            try:
+                self.assertEqual(exhaustive_ijs, ijs)
+            except AssertionError:
+                print('Failed neighbors, random seed: {} (i={})'.format(
+                    seed, i))
+                raise
+
+            try:
+                self.assertEqual(exhaustive_counts_list, counts_list)
+            except AssertionError:
+                print('Failed neighbor counts, random seed: {} (i={})'.format(
+                    seed, i))
+                raise
+
+    def test_exhaustive_search_assymmetric(self):
+        L, rcut, N = (10, 1.999, 32)
+
+        fbox = box.Box.cube(L)
+        seed = 0
+        aq = locality.AABBQuery()
+
+        for i in range(10):
+            np.random.seed(seed + i)
+            points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
+            points2 = np.random.uniform(-L/2, L/2, (N//2, 3)).astype(np.float32)
+            all_vectors = points[:, np.newaxis, :] - points2[np.newaxis, :, :]
+            fbox.wrap(all_vectors.reshape((-1, 3)))
+            all_rsqs = np.sum(all_vectors**2, axis=-1)
+            (exhaustive_i, exhaustive_j) = np.where(np.logical_and(
+                all_rsqs < rcut**2, all_rsqs > 0))
+
+            exhaustive_ijs = set(zip(exhaustive_i, exhaustive_j))
+            exhaustive_counts = Counter(exhaustive_i)
+            exhaustive_counts_list = [exhaustive_counts[j] for j in range(N)]
+
+            aq.compute(fbox, rcut, points, points2, exclude_ii=False)
             ijs = set(zip(aq.nlist.index_i, aq.nlist.index_j))
             counts_list = aq.nlist.neighbor_counts.tolist()
 
