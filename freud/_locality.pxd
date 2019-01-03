@@ -119,8 +119,9 @@ cdef extern from "NearestNeighbors.h" namespace "freud::locality":
         NeighborList * getNeighborList()
 
 cdef extern from "AABBQuery.h" namespace "freud::locality":
-    cdef cppclass AABBQuery:
+    cdef cppclass AABBQuery(SpatialData):
         AABBQuery()
+        AABBQuery(const freud._box.Box, const vec3[float]*, unsigned int)
         void compute(
             const freud._box.Box &,
             float,
@@ -130,3 +131,16 @@ cdef extern from "AABBQuery.h" namespace "freud::locality":
             unsigned int,
             bool) nogil except +
         NeighborList * getNeighborList()
+
+
+    cdef cppclass AABBIterator(SpatialDataIterator):
+        AABBIterator()
+        AABBIterator(AABBQuery*, vec3[float]*, unsigned int)
+
+    cdef cppclass AABBQueryIterator(AABBIterator):
+        AABBQueryIterator()
+        AABBQueryIterator(AABBQuery*, vec3[float]*, unsigned int, unsigned int)
+
+    cdef cppclass AABBQueryBallIterator(AABBIterator):
+        AABBQueryBallIterator()
+        AABBQueryBallIterator(AABBQuery*, vec3[float]*, unsigned int, float)

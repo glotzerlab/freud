@@ -19,6 +19,7 @@ cimport freud._locality
 cimport freud.box
 
 cimport numpy as np
+from cython.operator cimport dereference
 
 # numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults
@@ -52,10 +53,11 @@ cdef class SpatialData:
     """
 
     def __cinit__(self):
-        raise RuntimeError(
-            "The SpatialData class is abstract, and should not be directly"
-            "instantiated"
-        )
+        if type(self) is SpatialData:
+            raise RuntimeError(
+                "The SpatialData class is abstract, and should not be directly"
+                "instantiated"
+            )
 
     def __dealloc__(self):
         pass
@@ -572,7 +574,7 @@ def make_default_nlist_nn(box, ref_points, points, n_neigh, nlist=None,
     return nn.nlist, nn
 
 
-cdef class AABBQuery:
+cdef class AABBQuery(SpatialData):
     R"""Use an AABB tree to find neighbors.
 
     .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
@@ -583,9 +585,26 @@ cdef class AABBQuery:
             :meth:`~.compute()`.
     """  # noqa: E501
 
-    def __cinit__(self):
-        self.thisptr = new freud._locality.AABBQuery()
-        self._nlist = NeighborList()
+    def __cinit__(self, box=None, ref_points=None):
+        cdef freud.box.Box b = freud.common.convert_box(box)
+        cdef float[:, ::1] l_ref_points = ref_points
+        if type(self) is AABBQuery:
+            if box is None:
+                # The old style constructor
+                self.thisptr = self.spdptr = new freud._locality.AABBQuery()
+                self._nlist = NeighborList()
+            else:
+                # Assume valid set of arguments is passed
+                b = freud.common.convert_box(box)
+                ref_points = freud.common.convert_array(
+                    ref_points, 2, dtype=np.float32, contiguous=True,
+                    array_name="ref_points")
+                l_ref_points = ref_points
+                self.thisptr = self.spdptr = new freud._locality.AABBQuery(
+                    dereference(b.thisptr),
+                    <vec3[float]*> &l_ref_points[0, 0],
+                    ref_points.shape[0])
+                self._nlist = NeighborList()
 
     def __dealloc__(self):
         del self.thisptr

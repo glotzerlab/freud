@@ -18,7 +18,7 @@ AABBQuery::AABBQuery(const box::Box &box, const vec3<float> *ref_points, unsigne
     SpatialData(box, ref_points, Nref), m_rcut(0), m_prebuilt(true)
     {
     // Allocate memory and create image vectors
-    setupTree(m_Nref);
+    setupTree(m_Nref, false);
 
     // Build the tree
     buildTree(m_ref_points, m_Nref);
@@ -52,7 +52,7 @@ void AABBQuery::compute(box::Box& box, float rcut,
     m_Ntotal = Nref + Np;
 
     // Allocate memory and create image vectors
-    setupTree(Np);
+    setupTree(Np, true);
 
     // Build the tree
     buildTree(points, Np);
@@ -64,15 +64,19 @@ void AABBQuery::compute(box::Box& box, float rcut,
     // Inefficient extra work, but that's fine since this is just a temporary compatibilitylayer.
     if (m_prebuilt)
         {
-        setupTree(m_Nref);
+        setupTree(m_Nref, false);
         buildTree(m_ref_points, m_Nref);
         }
     }
 
-void AABBQuery::setupTree(unsigned int Np)
+void AABBQuery::setupTree(unsigned int Np, bool build_images)
     {
     m_aabbs.resize(Np);
-    updateImageVectors();
+    if (build_images)
+        {
+        // If we're using the new API, the image building has to occur on a per-query basis, so we don't bother to build the image list for the AABBQuery itself.
+        updateImageVectors();
+        }
     }
 
 void AABBQuery::updateImageVectors()

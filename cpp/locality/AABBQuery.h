@@ -61,7 +61,7 @@ class AABBQuery : public SpatialData
 
     private:
         //! Driver for tree configuration
-        void setupTree(unsigned int N);
+        void setupTree(unsigned int N, bool build_images);
 
         //! Maps particles by local id to their id within their type trees
         void mapParticlesByType();
