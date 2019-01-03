@@ -20,6 +20,7 @@ cimport freud.box
 
 cimport numpy as np
 from cython.operator cimport dereference
+from libcpp.memory cimport shared_ptr
 
 # numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults
@@ -91,13 +92,13 @@ cdef class SpatialData:
 
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int Np = points.shape[0]
-        cdef freud._locality.SpatialDataIterator iterator
+        cdef shared_ptr[freud._locality.SpatialDataIterator] iterator
         with nogil:
             iterator = self.spdptr.query(<vec3[float]*> l_points.data, Np, k)
 
         ret = []
-        while not iterator.end():
-            ret.append(iterator.next())
+        while not dereference(iterator).end():
+            ret.append(dereference(iterator).next())
         return ret
 
     def query_ball(self, points, float r):
@@ -124,14 +125,14 @@ cdef class SpatialData:
 
         cdef np.ndarray[float, ndim=2] l_points = points
         cdef unsigned int Np = points.shape[0]
-        cdef freud._locality.SpatialDataIterator iterator
+        cdef shared_ptr[freud._locality.SpatialDataIterator] iterator
         with nogil:
             iterator = self.spdptr.query_ball(
                 <vec3[float]*> l_points.data, Np, r)
 
         ret = []
-        while not iterator.end():
-            ret.append(iterator.next())
+        while not dereference(iterator).end():
+            ret.append(dereference(iterator).next())
         return ret
 
 

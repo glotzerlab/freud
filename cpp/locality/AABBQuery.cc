@@ -29,16 +29,16 @@ AABBQuery::~AABBQuery()
     }
 
 
-SpatialDataIterator AABBQuery::query(const vec3<float> *points, unsigned int Np, unsigned int k)
+std::shared_ptr<SpatialDataIterator> AABBQuery::query(const vec3<float> *points, unsigned int Np, unsigned int k)
     {
-    return AABBQueryIterator(this, points, Np, k);
+    return std::make_shared<AABBQueryIterator>(this, points, Np, k);
     }
 
 //! Given a set of points, find all elements of this data structure
 //  that are within a certain distance r.
-SpatialDataIterator AABBQuery::query_ball(const vec3<float> *points, unsigned int Np, float r)
+std::shared_ptr<SpatialDataIterator> AABBQuery::query_ball(const vec3<float> *points, unsigned int Np, float r)
     {
-    return AABBQueryBallIterator(this, points, Np, r);
+    return std::make_shared<AABBQueryBallIterator>(this, points, Np, r);
     }
 
 

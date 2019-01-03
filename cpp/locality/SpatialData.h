@@ -6,6 +6,7 @@
 
 #include "Box.h"
 #include <stdexcept>
+#include <memory>
 
 /*! \file SpatialData.h
     \brief Defines the abstract API for collections of points that can be
@@ -41,11 +42,11 @@ class SpatialData
 
         //! Given a set of points, find the k elements of this data structure
         //  that are the nearest neighbors for each point.
-        virtual SpatialDataIterator query(const vec3<float> *points, unsigned int Np, unsigned int k) = 0;
+        virtual std::shared_ptr<SpatialDataIterator> query(const vec3<float> *points, unsigned int Np, unsigned int k) = 0;
 
         //! Given a set of points, find all elements of this data structure
         //  that are within a certain distance r.
-        virtual SpatialDataIterator query_ball(const vec3<float> *points, unsigned int Np, float r) = 0;
+        virtual std::shared_ptr<SpatialDataIterator> query_ball(const vec3<float> *points, unsigned int Np, float r) = 0;
 
         //! Get the simulation box
         const box::Box& getBox() const

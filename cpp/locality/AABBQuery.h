@@ -51,11 +51,11 @@ class AABBQuery : public SpatialData
 
         //! Given a set of points, find the k elements of this data structure
         //  that are the nearest neighbors for each point.
-        virtual SpatialDataIterator query(const vec3<float> *points, unsigned int Np, unsigned int k);
+        virtual std::shared_ptr<SpatialDataIterator> query(const vec3<float> *points, unsigned int Np, unsigned int k);
 
         //! Given a set of points, find all elements of this data structure
         //  that are within a certain distance r.
-        virtual SpatialDataIterator query_ball(const vec3<float> *points, unsigned int Np, float r);
+        virtual std::shared_ptr<SpatialDataIterator> query_ball(const vec3<float> *points, unsigned int Np, float r);
 
         AABBTree m_aabb_tree; //!< AABB tree of points
 
@@ -146,7 +146,7 @@ class AABBQueryBallIterator : public AABBIterator
         //! Constructor
         AABBQueryBallIterator(AABBQuery* spatial_data,
                 const vec3<float> *points, unsigned int Np, float r) :
-            AABBIterator(spatial_data, points, Np), m_r(r), i(0), cur_image(0), cur_node_idx(0), cur_p(0)
+            AABBIterator(spatial_data, points, Np), m_r(r), m_done(false), i(0), cur_image(0), cur_node_idx(0), cur_p(0)
         {
         updateImageVectors(m_r);
         }
