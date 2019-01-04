@@ -44,12 +44,12 @@
         "name": "freud.locality",
         "sources": [
             "freud/locality.pyx",
-            "cpp/util/HOOMDMatrix.cc",
-            "cpp/locality/NearestNeighbors.cc",
             "cpp/locality/AABBQuery.cc",
-            "cpp/locality/LinkCell.cc",
+            "cpp/locality/NearestNeighbors.cc",
             "cpp/locality/NeighborList.cc",
-            "cpp/box/Box.cc"
+            "cpp/box/Box.cc",
+            "cpp/util/HOOMDMatrix.cc",
+            "cpp/locality/LinkCell.cc"
         ]
     },
     "module_name": "freud.locality"
@@ -1231,6 +1231,15 @@ struct __pyx_array_obj;
 struct __pyx_MemviewEnum_obj;
 struct __pyx_memoryview_obj;
 struct __pyx_memoryviewslice_obj;
+
+/* "freud/_locality.pxd":12
+ * cimport freud._box
+ * 
+ * ctypedef pair[unsigned int, unsigned int] pair_uint             # <<<<<<<<<<<<<<
+ * 
+ * cdef extern from "SpatialData.h" namespace "freud::locality":
+ */
+typedef std::pair<unsigned int,unsigned int>  __pyx_t_5freud_9_locality_pair_uint;
 
 /* "../../miniconda3/envs/main/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":769
  * ctypedef npy_longdouble longdouble_t
@@ -2544,7 +2553,8 @@ static PyObject *contiguous = 0;
 static PyObject *indirect_contiguous = 0;
 static int __pyx_memoryview_thread_locks_used;
 static PyThread_type_lock __pyx_memoryview_thread_locks[8];
-static PyObject *__pyx_convert_pair_to_py_unsigned_int____float(std::pair<unsigned int,float>  const &); /*proto*/
+static PyObject *__pyx_convert_pair_to_py_unsigned_int____unsigned_int(std::pair<unsigned int,unsigned int>  const &); /*proto*/
+static PyObject *__pyx_convert_pair_to_py___pyx_t_5freud_9_locality_pair_uint____float(std::pair<__pyx_t_5freud_9_locality_pair_uint,float>  const &); /*proto*/
 static struct __pyx_array_obj *__pyx_array_new(PyObject *, Py_ssize_t, char *, char *, char *); /*proto*/
 static void *__pyx_align_pointer(void *, size_t); /*proto*/
 static PyObject *__pyx_memoryview_new(PyObject *, int, int, __Pyx_TypeInfo *); /*proto*/
@@ -4029,7 +4039,7 @@ static PyObject *__pyx_pf_5freud_8locality_11SpatialData_6query(struct __pyx_obj
  *         return ret
  * 
  */
-    __pyx_t_3 = __pyx_convert_pair_to_py_unsigned_int____float((*__pyx_v_iterator).next()); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 101, __pyx_L1_error)
+    __pyx_t_3 = __pyx_convert_pair_to_py___pyx_t_5freud_9_locality_pair_uint____float((*__pyx_v_iterator).next()); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 101, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __pyx_t_9 = __Pyx_PyList_Append(__pyx_v_ret, __pyx_t_3); if (unlikely(__pyx_t_9 == ((int)-1))) __PYX_ERR(0, 101, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -4406,7 +4416,7 @@ static PyObject *__pyx_pf_5freud_8locality_11SpatialData_8query_ball(struct __py
  *         return ret
  * 
  */
-    __pyx_t_3 = __pyx_convert_pair_to_py_unsigned_int____float((*__pyx_v_iterator).next()); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 135, __pyx_L1_error)
+    __pyx_t_3 = __pyx_convert_pair_to_py___pyx_t_5freud_9_locality_pair_uint____float((*__pyx_v_iterator).next()); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 135, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __pyx_t_9 = __Pyx_PyList_Append(__pyx_v_ret, __pyx_t_3); if (unlikely(__pyx_t_9 == ((int)-1))) __PYX_ERR(0, 135, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -20091,29 +20101,82 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_ufunc(void) {
 
 /* "pair.to_py":158
  * 
- * @cname("__pyx_convert_pair_to_py_unsigned_int____float")
- * cdef object __pyx_convert_pair_to_py_unsigned_int____float(const pair[X,Y]& p):             # <<<<<<<<<<<<<<
+ * @cname("__pyx_convert_pair_to_py_unsigned_int____unsigned_int")
+ * cdef object __pyx_convert_pair_to_py_unsigned_int____unsigned_int(const pair[X,Y]& p):             # <<<<<<<<<<<<<<
  *     return p.first, p.second
  * 
  */
 
-static PyObject *__pyx_convert_pair_to_py_unsigned_int____float(std::pair<unsigned int,float>  const &__pyx_v_p) {
+static PyObject *__pyx_convert_pair_to_py_unsigned_int____unsigned_int(std::pair<unsigned int,unsigned int>  const &__pyx_v_p) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
   PyObject *__pyx_t_3 = NULL;
-  __Pyx_RefNannySetupContext("__pyx_convert_pair_to_py_unsigned_int____float", 0);
+  __Pyx_RefNannySetupContext("__pyx_convert_pair_to_py_unsigned_int____unsigned_int", 0);
 
   /* "pair.to_py":159
- * @cname("__pyx_convert_pair_to_py_unsigned_int____float")
- * cdef object __pyx_convert_pair_to_py_unsigned_int____float(const pair[X,Y]& p):
+ * @cname("__pyx_convert_pair_to_py_unsigned_int____unsigned_int")
+ * cdef object __pyx_convert_pair_to_py_unsigned_int____unsigned_int(const pair[X,Y]& p):
  *     return p.first, p.second             # <<<<<<<<<<<<<<
  * 
  * 
  */
   __Pyx_XDECREF(__pyx_r);
   __pyx_t_1 = __Pyx_PyInt_From_unsigned_int(__pyx_v_p.first); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 159, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_2 = __Pyx_PyInt_From_unsigned_int(__pyx_v_p.second); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 159, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 159, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __Pyx_GIVEREF(__pyx_t_1);
+  PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_1);
+  __Pyx_GIVEREF(__pyx_t_2);
+  PyTuple_SET_ITEM(__pyx_t_3, 1, __pyx_t_2);
+  __pyx_t_1 = 0;
+  __pyx_t_2 = 0;
+  __pyx_r = __pyx_t_3;
+  __pyx_t_3 = 0;
+  goto __pyx_L0;
+
+  /* "pair.to_py":158
+ * 
+ * @cname("__pyx_convert_pair_to_py_unsigned_int____unsigned_int")
+ * cdef object __pyx_convert_pair_to_py_unsigned_int____unsigned_int(const pair[X,Y]& p):             # <<<<<<<<<<<<<<
+ *     return p.first, p.second
+ * 
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_3);
+  __Pyx_AddTraceback("pair.to_py.__pyx_convert_pair_to_py_unsigned_int____unsigned_int", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = 0;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_convert_pair_to_py___pyx_t_5freud_9_locality_pair_uint____float(std::pair<__pyx_t_5freud_9_locality_pair_uint,float>  const &__pyx_v_p) {
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  PyObject *__pyx_t_2 = NULL;
+  PyObject *__pyx_t_3 = NULL;
+  __Pyx_RefNannySetupContext("__pyx_convert_pair_to_py___pyx_t_5freud_9_locality_pair_uint____float", 0);
+
+  /* "pair.to_py":159
+ * @cname("__pyx_convert_pair_to_py___pyx_t_5freud_9_locality_pair_uint____float")
+ * cdef object __pyx_convert_pair_to_py___pyx_t_5freud_9_locality_pair_uint____float(const pair[X,Y]& p):
+ *     return p.first, p.second             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_1 = __pyx_convert_pair_to_py_unsigned_int____unsigned_int(__pyx_v_p.first); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 159, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_t_2 = PyFloat_FromDouble(__pyx_v_p.second); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 159, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -20131,8 +20194,8 @@ static PyObject *__pyx_convert_pair_to_py_unsigned_int____float(std::pair<unsign
 
   /* "pair.to_py":158
  * 
- * @cname("__pyx_convert_pair_to_py_unsigned_int____float")
- * cdef object __pyx_convert_pair_to_py_unsigned_int____float(const pair[X,Y]& p):             # <<<<<<<<<<<<<<
+ * @cname("__pyx_convert_pair_to_py___pyx_t_5freud_9_locality_pair_uint____float")
+ * cdef object __pyx_convert_pair_to_py___pyx_t_5freud_9_locality_pair_uint____float(const pair[X,Y]& p):             # <<<<<<<<<<<<<<
  *     return p.first, p.second
  * 
  */
@@ -20142,7 +20205,7 @@ static PyObject *__pyx_convert_pair_to_py_unsigned_int____float(std::pair<unsign
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_AddTraceback("pair.to_py.__pyx_convert_pair_to_py_unsigned_int____float", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("pair.to_py.__pyx_convert_pair_to_py___pyx_t_5freud_9_locality_pair_uint____float", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);

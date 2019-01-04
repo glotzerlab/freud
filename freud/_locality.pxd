@@ -9,6 +9,10 @@ from libcpp.vector cimport vector
 from libcpp.pair cimport pair
 cimport freud._box
 
+# The Cython compiler can't handle nested templates natively, so we need this
+# typedef to specify a pair of pairs.
+ctypedef pair[unsigned int, unsigned int] pair_uint
+
 cdef extern from "SpatialData.h" namespace "freud::locality":
     cdef cppclass SpatialData:
         SpatialData()
@@ -26,7 +30,7 @@ cdef extern from "SpatialData.h" namespace "freud::locality":
         SpatialDataIterator()
         SpatialDataIterator(SpatialData*, vec3[float]*, unsigned int)
         bool end()
-        pair[unsigned int, float] next()
+        pair[pair_uint, float] next()
 
 cdef extern from "NeighborList.h" namespace "freud::locality":
     cdef cppclass NeighborList:

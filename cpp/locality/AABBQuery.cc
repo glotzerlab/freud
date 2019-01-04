@@ -340,10 +340,9 @@ void AABBIterator::updateImageVectors(float rmax)
         }
     }
 
-std::pair<unsigned int, float> AABBQueryBallIterator::next()
+std::pair<std::pair<unsigned int, unsigned int>, float> AABBQueryBallIterator::next()
     {
-    std::pair<int, float> ret_obj(-1, 0);
-    std::pair<int, float> comp(-1, 0);
+    std::pair<std::pair<unsigned int, unsigned int>, float> ret_obj(std::pair<unsigned int, unsigned int>(-1, -1), 0);
     float r_cutsq = m_r * m_r;
 
     // Loop over all points serially
@@ -390,7 +389,7 @@ std::pair<unsigned int, float> AABBQueryBallIterator::next()
                                 {
                                 // Return this one. Need to increment for the next call to the function, though.
                                 cur_p++;
-                                return std::pair<unsigned int, float>(j, sqrt(dr_sq));
+                                return std::pair<std::pair<unsigned int, unsigned int>, float>(std::pair<unsigned int, unsigned int>(j, i), sqrt(dr_sq));
                                 }
                             cur_p++;
                             }
@@ -402,10 +401,13 @@ std::pair<unsigned int, float> AABBQueryBallIterator::next()
                     cur_node_idx += m_aabb_data->m_aabb_tree.getNodeSkip(cur_node_idx);
                     }
                 cur_node_idx++;
+                cur_p = 0;
                 } // end stackless search
             cur_image++;
+            cur_node_idx = 0;
             } // end loop over images
         i++;
+        cur_image = 0;
         } // end loop over reference points
     m_done = true;
     return ret_obj;

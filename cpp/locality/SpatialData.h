@@ -110,7 +110,7 @@ class SpatialDataIterator {
             }
 
         //! Get the next element.
-        virtual std::pair<unsigned int, float> next()
+        virtual std::pair<std::pair<unsigned int, unsigned int>, float> next()
             {
             throw std::runtime_error("The next method must be implemented by child classes.");
             }

@@ -130,7 +130,7 @@ class AABBQueryIterator : public AABBIterator
         virtual ~AABBQueryIterator() {}
 
         //! Get the next element.
-        //virtual std::pair<unsigned int, float> next();
+        //virtual std::pair<std::pair<unsigned int, unsigned int>, float> next();
 
     protected:
         unsigned int m_k;  //!< Number of nearest neighbors to find
@@ -157,7 +157,7 @@ class AABBQueryBallIterator : public AABBIterator
         virtual bool end() { return m_done; }
 
         //! Get the next element.
-        virtual std::pair<unsigned int, float> next();
+        virtual std::pair<std::pair<unsigned int, unsigned int>, float> next();
 
     protected:
         float m_r;  //!< Search ball cutoff distance

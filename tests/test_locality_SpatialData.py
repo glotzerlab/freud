@@ -23,7 +23,8 @@ class TestSpatialDataAABB(unittest.TestCase):
         points[3] = [2.0, 0.0, 0.0]
         aq = locality.AABBQuery(fbox, points)
         # print(aq.query(points))
-        print(aq.query_ball(points, 2))
+        print(aq.query_ball(points[[2]], 1.01))
+        print(aq.query_ball(points, 1.01))
 
 #        aq.compute(fbox, rcut, points)
 #        # particle 0 has 2 bonds
