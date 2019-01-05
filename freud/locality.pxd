@@ -20,7 +20,7 @@ cdef class IteratorLinkCell:
 
     cdef void copy(self, const freud._locality.IteratorLinkCell & rhs)
 
-cdef class LinkCell:
+cdef class LinkCell(SpatialData):
     cdef freud._locality.LinkCell * thisptr
     cdef NeighborList _nlist
 

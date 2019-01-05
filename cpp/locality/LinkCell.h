@@ -10,6 +10,7 @@
 #include "Box.h"
 #include "NeighborList.h"
 #include "Index1D.h"
+#include "SpatialData.h"
 
 /*! \file LinkCell.h
     \brief Build a cell list from a set of points.
@@ -278,6 +279,11 @@ class IteratorCellShell
             return !(*this == other);
             }
 
+        int getRange() const
+            {
+            return m_range;
+            }
+
     private:
         void reset(unsigned int range)
             {
@@ -340,17 +346,20 @@ bool compareFirstNeighborPairs(const std::vector<std::tuple<size_t, size_t, floa
     as 3 component vectors x,y,0. Failing to set 0 in the third component will
     lead to undefined behavior.
 */
-class LinkCell
+class LinkCell : public SpatialData
     {
     public:
         //! iterator to iterate over particles in the cell
         typedef IteratorLinkCell iteratorcell;
 
-        //! Constructor
+        //! Null Constructor
+        LinkCell();
+
+        //! Old constructor
         LinkCell(const box::Box& box, float cell_width);
 
-        //! Null Constructor for triclinic behavior
-        LinkCell();
+        //! New constructor
+        LinkCell(const box::Box& box, float cell_width, const vec3<float> *ref_points, unsigned int Nref);
 
         //! Update cell_width
         void setCellWidth(float cell_width);
@@ -420,10 +429,10 @@ class LinkCell
             }
 
         //! Compute the cell list
-        void computeCellList(box::Box& box, const vec3<float> *points, unsigned int Np);
+        void computeCellList(const box::Box& box, const vec3<float> *points, unsigned int Np);
 
         //! Compute the neighbor list using the cell list
-        void compute(box::Box& box, const vec3<float> *ref_points,
+        void compute(const box::Box& box, const vec3<float> *ref_points,
                      unsigned int Nref, const vec3<float> *points=0, unsigned int Np=0,
                      bool exclude_ii=true);
 
@@ -431,6 +440,14 @@ class LinkCell
         {
             return &m_neighbor_list;
         }
+
+        //! Given a set of points, find the k elements of this data structure
+        //  that are the nearest neighbors for each point.
+        virtual std::shared_ptr<SpatialDataIterator> query(const vec3<float> *points, unsigned int Np, unsigned int k);
+
+        //! Given a set of points, find all elements of this data structure
+        //  that are within a certain distance r.
+        virtual std::shared_ptr<SpatialDataIterator> query_ball(const vec3<float> *points, unsigned int Np, float r);
 
     private:
 
@@ -457,6 +474,79 @@ class LinkCell
         void computeCellNeighbors();
     };
 
+
+//! Parent class of LinkCell iterators that knows how to traverse general cell-linked list structures
+/*! placeholder
+
+*/
+class LinkCellIterator : public SpatialDataIterator
+    {
+    public:
+        //! Constructor
+        /*! The initial state is to search shell 0, the current cell. We then
+         *  iterate outwards from there.
+        */
+        LinkCellIterator(LinkCell* spatial_data, const vec3<float> *points, unsigned int Np) : SpatialDataIterator(spatial_data, points, Np), m_linkcell(spatial_data), m_neigh_cell_iter(0, spatial_data->getBox().is2D()), m_cell_iter(m_linkcell->itercell(m_linkcell->getCell(m_points[0]))), m_i(0)
+        {}
+
+        //! Empty Destructor
+        virtual ~LinkCellIterator() {}
+
+    protected:
+        const LinkCell *m_linkcell; //!< Link to the LinkCell object
+        IteratorCellShell m_neigh_cell_iter; //!< The shell iterator indicating how far out we're currently searching.
+        LinkCell::iteratorcell m_cell_iter; //!< The cell iterator indicating which cell we're currently searching.
+
+        unsigned int m_i; //! The current point under consideration.
+    };
+
+//! Iterator that gets nearest neighbors from LinkCell tree structures
+/*! placeholder
+
+*/
+class LinkCellQueryIterator : public LinkCellIterator
+    {
+    public:
+        //! Constructor
+        LinkCellQueryIterator(LinkCell* spatial_data,
+                const vec3<float> *points, unsigned int Np, unsigned int k) :
+            LinkCellIterator(spatial_data, points, Np), m_k(k)
+        {
+        }
+
+        //! Empty Destructor
+        virtual ~LinkCellQueryIterator() {}
+
+        //! Get the next element.
+        //virtual std::pair<std::pair<unsigned int, unsigned int>, float> next();
+
+    protected:
+        unsigned int m_k;  //!< Number of nearest neighbors to find
+    };
+
+//! Iterator that gets neighbors in a ball of size r using LinkCell tree structures
+/*! placeholder
+
+*/
+class LinkCellQueryBallIterator : public LinkCellIterator
+    {
+    public:
+        //! Constructor
+        LinkCellQueryBallIterator(LinkCell* spatial_data,
+                const vec3<float> *points, unsigned int Np, float r) :
+            LinkCellIterator(spatial_data, points, Np), m_r(r)
+        { }
+
+        //! Empty Destructor
+        virtual ~LinkCellQueryBallIterator() {}
+
+        //! Get the next element.
+        virtual std::pair<std::pair<unsigned int, unsigned int>, float> next();
+
+    protected:
+        float m_r;  //!< Search ball cutoff distance
+
+    };
 }; }; // end namespace freud::locality
 
 #endif // LINKCELL_H

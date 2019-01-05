@@ -146,15 +146,13 @@ class AABBQueryBallIterator : public AABBIterator
         //! Constructor
         AABBQueryBallIterator(AABBQuery* spatial_data,
                 const vec3<float> *points, unsigned int Np, float r) :
-            AABBIterator(spatial_data, points, Np), m_r(r), m_done(false), i(0), cur_image(0), cur_node_idx(0), cur_p(0)
+            AABBIterator(spatial_data, points, Np), m_r(r), i(0), cur_image(0), cur_node_idx(0), cur_p(0)
         {
         updateImageVectors(m_r);
         }
 
         //! Empty Destructor
         virtual ~AABBQueryBallIterator() {}
-
-        virtual bool end() { return m_done; }
 
         //! Get the next element.
         virtual std::pair<std::pair<unsigned int, unsigned int>, float> next();
@@ -163,7 +161,6 @@ class AABBQueryBallIterator : public AABBIterator
         float m_r;  //!< Search ball cutoff distance
 
     private:
-        bool m_done;  //!< Done iterating.
         size_t i;   //!< The iterator over points
         unsigned int cur_image; 
         unsigned int cur_node_idx; 

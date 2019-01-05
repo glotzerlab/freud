@@ -717,7 +717,8 @@ cdef class IteratorLinkCell:
     def __iter__(self):
         return self
 
-cdef class LinkCell:
+
+cdef class LinkCell(SpatialData):
     R"""Supports efficiently finding all points in a set within a certain
     distance from a given point.
 
@@ -764,10 +765,21 @@ cdef class LinkCell:
        dens.compute(box, positions, nlist=lc.nlist)
     """
 
-    def __cinit__(self, box, cell_width):
+    def __cinit__(self, box, cell_width, ref_points=None):
         cdef freud.box.Box b = freud.common.convert_box(box)
-        self.thisptr = new freud._locality.LinkCell(
-            dereference(b.thisptr), float(cell_width))
+        cdef float[:, ::1] l_ref_points
+        if ref_points is not None:
+            ref_points = freud.common.convert_array(
+                ref_points, 2, dtype=np.float32, contiguous=True,
+                array_name="ref_points")
+            l_ref_points = ref_points
+            self.thisptr = self.spdptr = new freud._locality.LinkCell(
+                dereference(b.thisptr), float(cell_width),
+                <vec3[float]*> &l_ref_points[0, 0],
+                ref_points.shape[0])
+        else:
+            self.thisptr = self.spdptr = new freud._locality.LinkCell(
+                dereference(b.thisptr), float(cell_width))
         self._nlist = NeighborList()
 
     def __dealloc__(self):
@@ -914,6 +926,7 @@ cdef class LinkCell:
     @property
     def nlist(self):
         return self._nlist
+
 
 cdef class NearestNeighbors:
     R"""Supports efficiently finding the :math:`N` nearest neighbors of each

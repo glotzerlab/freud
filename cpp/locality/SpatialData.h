@@ -99,15 +99,12 @@ class SpatialDataIterator {
         //! Constructor
         SpatialDataIterator(SpatialData* spatial_data,
                 const vec3<float> *points, unsigned int Np) :
-            m_spatial_data(spatial_data), m_points(points), m_Np(Np)
+            m_spatial_data(spatial_data), m_points(points), m_Np(Np), m_finished(false)
             {
             }
 
         //! Indicate when done.
-        virtual bool end()
-            {
-            throw std::runtime_error("The end method must be implemented by child classes.");
-            }
+        virtual bool end() { return m_finished; }
 
         //! Get the next element.
         virtual std::pair<std::pair<unsigned int, unsigned int>, float> next()
@@ -119,6 +116,8 @@ class SpatialDataIterator {
         const SpatialData *m_spatial_data; //!< Link to the SpatialData object
         const vec3<float> *m_points;       //!< Point coordinates
         unsigned int m_Np;                 //!< Number of points
+
+        unsigned int m_finished;           //!< Flag to indicate that iteration is complete (must be set by next on termination).
 };
 
 }; }; // end namespace freud::locality

@@ -61,7 +61,7 @@ void AABBQuery::compute(box::Box& box, float rcut,
     traverseTree(ref_points, Nref, points, Np, exclude_ii);
 
     // Rebuild the tree using the built-in point-set for future queries.
-    // Inefficient extra work, but that's fine since this is just a temporary compatibilitylayer.
+    // Inefficient extra work, but that's fine since this is just a temporary compatibility layer.
     if (m_prebuilt)
         {
         setupTree(m_Nref, false);
@@ -409,7 +409,7 @@ std::pair<std::pair<unsigned int, unsigned int>, float> AABBQueryBallIterator::n
         i++;
         cur_image = 0;
         } // end loop over reference points
-    m_done = true;
+    m_finished = true;
     return ret_obj;
     }
 

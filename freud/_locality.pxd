@@ -72,16 +72,16 @@ cdef extern from "LinkCell.h" namespace "freud::locality":
         unsigned int next()
         unsigned int begin()
 
-    cdef cppclass LinkCell:
-        LinkCell(const freud._box.Box &, float) except +
+    cdef cppclass LinkCell(SpatialData):
         LinkCell()
+        LinkCell(const freud._box.Box &, float) except +
+        LinkCell(const freud._box.Box &, float, const vec3[float]*, unsigned int) except +
 
         setCellWidth(float) except +
         updateBox(const freud._box.Box &) except +
         const vec3[unsigned int] computeDimensions(
             const freud._box.Box &,
             float) const
-        const freud._box.Box & getBox() const
         const Index3D & getCellIndexer() const
         unsigned int getNumCells() const
         float getCellWidth() const
@@ -135,16 +135,3 @@ cdef extern from "AABBQuery.h" namespace "freud::locality":
             unsigned int,
             bool) nogil except +
         NeighborList * getNeighborList()
-
-
-    cdef cppclass AABBIterator(SpatialDataIterator):
-        AABBIterator()
-        AABBIterator(AABBQuery*, vec3[float]*, unsigned int)
-
-    cdef cppclass AABBQueryIterator(AABBIterator):
-        AABBQueryIterator()
-        AABBQueryIterator(AABBQuery*, vec3[float]*, unsigned int, unsigned int)
-
-    cdef cppclass AABBQueryBallIterator(AABBIterator):
-        AABBQueryBallIterator()
-        AABBQueryBallIterator(AABBQuery*, vec3[float]*, unsigned int, float)

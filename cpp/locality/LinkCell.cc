@@ -19,14 +19,25 @@ using namespace tbb;
 namespace freud { namespace locality {
 
 // Default constructor
-LinkCell::LinkCell() : m_box(box::Box()), m_Np(0), m_cell_width(0), m_neighbor_list(), m_celldim(0,0,0) {}
+LinkCell::LinkCell() : SpatialData(), m_box(box::Box()), m_Np(0), m_cell_width(0), m_celldim(0,0,0), m_neighbor_list()
+{}
 
-LinkCell::LinkCell(const box::Box& box, float cell_width) : m_box(box), m_Np(0), m_cell_width(0), m_celldim(0, 0, 0), m_neighbor_list()
+LinkCell::LinkCell(const box::Box& box, float cell_width) : SpatialData(), m_box(box), m_Np(0), m_cell_width(0), m_celldim(0, 0, 0), m_neighbor_list()
     {
     // The initializer list above sets the cell width and cell dimensions to 0
     // so that we can farm out the work to the setCellWidth function.
     updateInternal(box, cell_width);
     }
+
+LinkCell::LinkCell(const box::Box& box, float cell_width, const vec3<float> *ref_points, unsigned int Nref): SpatialData(box, ref_points, Nref), m_box(box), m_Np(0), m_cell_width(0), m_celldim(0, 0, 0), m_neighbor_list()
+    {
+    // The initializer list above sets the cell width and cell dimensions to 0
+    // so that we can farm out the work to the setCellWidth function.
+    updateInternal(box, cell_width);
+
+    computeCellList(box, ref_points, Nref);
+    }
+
 
 void LinkCell::updateInternal(const box::Box& box, float cell_width)
     {
@@ -124,7 +135,7 @@ bool compareFirstNeighborPairs(const std::vector<std::tuple<size_t, size_t, floa
         return left.size() < right.size();
     }
 
-void LinkCell::computeCellList(box::Box& box,
+void LinkCell::computeCellList(const box::Box& box,
     const vec3<float> *points,
     unsigned int Np)
     {
@@ -162,7 +173,7 @@ void LinkCell::computeCellList(box::Box& box,
         }
     }
 
-void LinkCell::compute(box::Box& box,
+void LinkCell::compute(const box::Box& box,
     const vec3<float> *ref_points,
     unsigned int Nref,
     const vec3<float> *points,
@@ -341,6 +352,77 @@ void LinkCell::computeCellNeighbors()
                 // sort the list
                 sort(m_cell_neighbors[cur_cell].begin(), m_cell_neighbors[cur_cell].end());
                 }
+    }
+
+//! Given a set of points, find the k elements of this data structure
+//  that are the nearest neighbors for each point.
+std::shared_ptr<SpatialDataIterator> LinkCell::query(const vec3<float> *points, unsigned int Np, unsigned int k)
+    {
+    return std::make_shared<LinkCellQueryIterator>(this, points, Np, k);
+    }
+
+//! Given a set of points, find all elements of this data structure
+//  that are within a certain distance r.
+std::shared_ptr<SpatialDataIterator> LinkCell::query_ball(const vec3<float> *points, unsigned int Np, float r)
+    {
+    return std::make_shared<LinkCellQueryBallIterator>(this, points, Np, r);
+    }
+
+
+std::pair<std::pair<unsigned int, unsigned int>, float> LinkCellQueryBallIterator::next()
+    {
+    std::pair<std::pair<unsigned int, unsigned int>, float> ret_obj(std::pair<unsigned int, unsigned int>(-1, -1), 0);
+    float r_cutsq = m_r * m_r;
+
+    // Loop over all points serially
+    while (m_i < this->m_Np)
+        {
+        const vec3<float> point(m_points[m_i]);
+        vec3<unsigned int> point_cell(m_linkcell->getCellCoord(point));
+
+        // Loop over cell list neighbor shells relative to this point's cell.
+        while (true)
+            {
+            // Iterate over the particles in that cell. Using a local counter
+            // variable is safe, because the IteratorLinkCell object is keeping
+            // track between calls to next.
+            for (unsigned int j = m_cell_iter.next(); !m_cell_iter.atEnd(); j = m_cell_iter.next())
+                {
+                const vec3<float> rij(m_spatial_data->getBox().wrap((*m_linkcell)[j] - point));
+                const float rsq(dot(rij, rij));
+
+                if (rsq < r_cutsq)
+                    {
+                    return std::pair<std::pair<unsigned int, unsigned int>, float>(std::pair<unsigned int, unsigned int>(j, m_i), sqrt(rsq));
+                    }
+                }
+
+            // Determine the next neighbor cell to consider. We're done if we
+            // reach a new shell and the closest point of approach to the new
+            // shell is greater than our rcut. We could be a little more
+            // efficient by also accounting for the position of the point in
+            // the current cell if this is too slow.
+            ++m_neigh_cell_iter;
+            if (m_r < (m_neigh_cell_iter.getRange()-1)*m_linkcell->getCellWidth())
+                {
+                break;
+                }
+            else
+                {
+                const unsigned int neighbor_cell = m_linkcell->getCellIndexer()(
+                        (point_cell.x + (*m_neigh_cell_iter).x) % m_linkcell->getCellIndexer().getW(),
+                        (point_cell.y + (*m_neigh_cell_iter).y) % m_linkcell->getCellIndexer().getH(),
+                        (point_cell.z + (*m_neigh_cell_iter).z) % m_linkcell->getCellIndexer().getD());
+                m_cell_iter = m_linkcell->itercell(neighbor_cell);
+                }
+            }
+        // Move on to next point, and reset the iterators.
+        m_i++;
+        m_neigh_cell_iter = 0, m_spatial_data->getBox().is2D();
+        m_cell_iter = m_linkcell->itercell(m_linkcell->getCell(m_points[m_i]));
+        }
+    m_finished = true;
+    return ret_obj;
     }
 
 }; }; // end namespace freud::locality
