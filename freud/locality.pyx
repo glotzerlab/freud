@@ -587,8 +587,8 @@ cdef class AABBQuery(SpatialData):
     """  # noqa: E501
 
     def __cinit__(self, box=None, ref_points=None):
-        cdef freud.box.Box b = freud.common.convert_box(box)
-        cdef float[:, ::1] l_ref_points = ref_points
+        cdef freud.box.Box b
+        cdef float[:, ::1] l_ref_points
         if type(self) is AABBQuery:
             if box is None:
                 # The old style constructor
