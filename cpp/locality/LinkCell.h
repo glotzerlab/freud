@@ -497,7 +497,7 @@ class LinkCellIterator : public SpatialDataIterator
         IteratorCellShell m_neigh_cell_iter; //!< The shell iterator indicating how far out we're currently searching.
         LinkCell::iteratorcell m_cell_iter; //!< The cell iterator indicating which cell we're currently searching.
 
-        unsigned int m_i; //! The current point under consideration.
+        unsigned int m_i; //!< The current point under consideration.
     };
 
 //! Iterator that gets nearest neighbors from LinkCell tree structures
@@ -510,7 +510,7 @@ class LinkCellQueryIterator : public LinkCellIterator
         //! Constructor
         LinkCellQueryIterator(LinkCell* spatial_data,
                 const vec3<float> *points, unsigned int Np, unsigned int k) :
-            LinkCellIterator(spatial_data, points, Np), m_k(k)
+            LinkCellIterator(spatial_data, points, Np), m_k(k), m_current_neighbors(), m_count(0)
         {
         }
 
@@ -518,10 +518,12 @@ class LinkCellQueryIterator : public LinkCellIterator
         virtual ~LinkCellQueryIterator() {}
 
         //! Get the next element.
-        //virtual std::pair<std::pair<unsigned int, unsigned int>, float> next();
+        virtual std::pair<std::pair<unsigned int, unsigned int>, float> next();
 
     protected:
         unsigned int m_k;  //!< Number of nearest neighbors to find
+        std::vector<std::pair<float, unsigned int> > m_current_neighbors; //!< Current list of neighbors for the current point.
+        unsigned int m_count;  //!< Number of neighbors returned for the current point.
     };
 
 //! Iterator that gets neighbors in a ball of size r using LinkCell tree structures
