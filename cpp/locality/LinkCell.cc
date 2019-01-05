@@ -1,6 +1,7 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
+#include <iostream>
 #include <algorithm>
 #include <stdexcept>
 #include <tbb/tbb.h>
@@ -17,64 +18,45 @@ using namespace tbb;
 
 namespace freud { namespace locality {
 
-// This is only used to initialize a pointer for the new triclinic setup
-// this shouldn't be needed any longer, but will be left for now
-// but until then, enjoy this mediocre hack
-LinkCell::LinkCell() : m_box(box::Box()), m_Np(0), m_cell_width(0), m_neighbor_list()
+// Default constructor
+LinkCell::LinkCell() : m_box(box::Box()), m_Np(0), m_cell_width(0), m_neighbor_list(), m_celldim(0,0,0) {}
+
+LinkCell::LinkCell(const box::Box& box, float cell_width) : m_box(box), m_Np(0), m_cell_width(0), m_celldim(0, 0, 0), m_neighbor_list()
     {
-    m_celldim = vec3<unsigned int>(0,0,0);
+    // The initializer list above sets the cell width and cell dimensions to 0
+    // so that we can farm out the work to the setCellWidth function.
+    updateInternal(box, cell_width);
     }
 
-LinkCell::LinkCell(const box::Box& box, float cell_width) : m_box(box), m_Np(0), m_cell_width(cell_width), m_neighbor_list()
+void LinkCell::updateInternal(const box::Box& box, float cell_width)
     {
-    // Check if the cell width is too wide for the box
-    m_celldim = computeDimensions(m_box, m_cell_width);
-    // Check if box is too small!
-    // will only check if the box is not null
-    if (box != box::Box())
+    if (cell_width != m_cell_width || box != m_box)
         {
-        vec3<float> L = m_box.getNearestPlaneDistance();
-        bool too_wide =  m_cell_width > L.x/2.0 || m_cell_width > L.y/2.0;
-        if (!m_box.is2D())
-            {
-            too_wide |=  m_cell_width > L.z/2.0;
-            }
-        if (too_wide)
-            {
-            throw runtime_error("Cannot generate a cell list where cell_width is larger than half the box.");
-            }
-        // Only 1 cell deep in 2D
-        if (m_box.is2D())
-            {
-            m_celldim.z = 1;
-            }
-        }
-    m_cell_index = Index3D(m_celldim.x, m_celldim.y, m_celldim.z);
-    computeCellNeighbors();
-    }
-
-void LinkCell::setCellWidth(float cell_width)
-    {
-    if (cell_width != m_cell_width)
-        {
-        vec3<float> L = m_box.getNearestPlaneDistance();
-        vec3<unsigned int> celldim  = computeDimensions(m_box, cell_width);
+        vec3<unsigned int> celldim  = computeDimensions(box, cell_width);
         // Check if box is too small!
-        bool too_wide =  cell_width > L.x/2.0 || cell_width > L.y/2.0;
-        if (!m_box.is2D())
+        // will only check if the box is not null
+        if (box != box::Box())
             {
-            too_wide |=  cell_width > L.z/2.0;
+            vec3<float> L = box.getNearestPlaneDistance();
+            bool too_wide =  cell_width > L.x/2.0 || cell_width > L.y/2.0;
+
+            if (!box.is2D())
+                {
+                too_wide |=  cell_width > L.z/2.0;
+                }
+            if (too_wide)
+                {
+                throw runtime_error("Cannot generate a cell list where cell_width is larger than half the box.");
+                }
+            // Only 1 cell deep in 2D
+            if (box.is2D())
+                {
+                celldim.z = 1;
+                }
             }
-        if (too_wide)
-            {
-            throw runtime_error("Cannot generate a cell list where cell_width is larger than half the box.");
-            }
-        // Only 1 cell deep in 2D
-        if (m_box.is2D())
-            {
-            celldim.z = 1;
-            }
+
         // Check if the dims changed
+        m_box = box;
         if (!((celldim.x == m_celldim.x) &&
               (celldim.y == m_celldim.y) &&
               (celldim.z == m_celldim.z)))
@@ -91,38 +73,14 @@ void LinkCell::setCellWidth(float cell_width)
         }
     }
 
+void LinkCell::setCellWidth(float cell_width)
+    {
+    updateInternal(m_box, cell_width);
+    }
+
 void LinkCell::updateBox(const box::Box& box)
     {
-    // Check if the cell width is too wide for the box
-    vec3<float> L = box.getNearestPlaneDistance();
-    vec3<unsigned int> celldim  = computeDimensions(box, m_cell_width);
-    // Check if box is too small!
-    bool too_wide =  m_cell_width > L.x/2.0 || m_cell_width > L.y/2.0;
-    if (!box.is2D())
-        {
-        too_wide |=  m_cell_width > L.z/2.0;
-        }
-    if (too_wide)
-        {
-        throw runtime_error("Cannot generate a cell list where cell_width is larger than half the box.");
-        }
-    // Only 1 cell deep in 2D
-    if (box.is2D())
-        {
-        celldim.z = 1;
-        }
-    // Check if the box is changed
-    m_box = box;
-    if (!((celldim.x == m_celldim.x) && (celldim.y == m_celldim.y) && (celldim.z == m_celldim.z)))
-        {
-        m_cell_index = Index3D(celldim.x, celldim.y, celldim.z);
-        if (m_cell_index.getNumElements() < 1)
-            {
-            throw runtime_error("At least one cell must be present.");
-            }
-        m_celldim  = celldim;
-        computeCellNeighbors();
-        }
+    updateInternal(box, m_cell_width);
     }
 
 const vec3<unsigned int> LinkCell::computeDimensions(const box::Box& box, float cell_width) const

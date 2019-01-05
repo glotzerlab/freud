@@ -437,6 +437,9 @@ class LinkCell
         //! Rounding helper function.
         static unsigned int roundDown(unsigned int v, unsigned int m);
 
+        //! Helper function for updating when the box or cell width change.
+        void updateInternal(const box::Box& box, float cell_width);
+
         box::Box m_box;                //!< Simulation box where the particles belong
         Index3D m_cell_index;          //!< Indexer to compute cell indices
         unsigned int m_Np;             //!< Number of particles last placed into the cell list
