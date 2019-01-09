@@ -711,7 +711,7 @@ cdef class AABBQuery(SpatialData):
         cdef unsigned int Np = points.shape[0]
         cdef shared_ptr[freud._locality.SpatialDataIterator] iterator
         with nogil:
-            iterator = self.spdptr.query(<vec3[float]*> l_points.data, Np, k, r, scale)
+            iterator = self.thisptr.query(<vec3[float]*> l_points.data, Np, k, r, scale)
 
         ret = []
         while not dereference(iterator).end():

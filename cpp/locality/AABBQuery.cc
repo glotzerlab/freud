@@ -441,6 +441,8 @@ std::pair<std::pair<unsigned int, unsigned int>, float> AABBQueryIterator::next(
                     // point so that we can reconstruct the current points bonds.
                     m_current_neighbors.emplace_back(val.second, val.first.first);
                     }
+                // Remove the last item, which is just the blank object
+                m_current_neighbors.pop_back();
 
                 // Break if there are enough neighbors
                 if (m_current_neighbors.size() >= m_k)
@@ -467,7 +469,7 @@ std::pair<std::pair<unsigned int, unsigned int>, float> AABBQueryIterator::next(
             // numbers of nearest neighbors.
             std::sort(m_current_neighbors.rbegin(), m_current_neighbors.rend());
 
-            ret_obj = std::pair<std::pair<unsigned int, unsigned int>, float>(std::pair<unsigned int, unsigned int>(m_current_neighbors.back().first, m_i), m_current_neighbors.back().second);
+            ret_obj = std::pair<std::pair<unsigned int, unsigned int>, float>(std::pair<unsigned int, unsigned int>(m_current_neighbors.back().second, m_i), m_current_neighbors.back().first);
             m_current_neighbors.pop_back();
 
             // Move on to the next particle if we've looped over all the current ones.

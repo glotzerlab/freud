@@ -22,6 +22,7 @@ class TestSpatialDataAABB(unittest.TestCase):
         points[2] = [3.0, 0.0, 0.0]
         points[3] = [2.0, 0.0, 0.0]
         aq = locality.AABBQuery(fbox, points)
+        print("AABB outputs")
         print(aq.query_ball(points[[2]], 1.01))
         print(aq.query_ball(points, 1.01))
         print(aq.query(points[[1]], 3, 0.5, 1.1))
@@ -41,6 +42,7 @@ class TestSpatialDataLinkCell(unittest.TestCase):
         points[2] = [3.0, 0.0, 0.0]
         points[3] = [2.0, 0.0, 0.0]
         lc = locality.LinkCell(fbox, rcut, points)
+        print("LinkCell outputs")
         print(lc.query_ball(points[[2]], 1.01))
         print(lc.query_ball(points, 1.01))
         print(lc.query(points[[1]], 3))
