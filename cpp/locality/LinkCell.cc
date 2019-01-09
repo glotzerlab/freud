@@ -356,14 +356,14 @@ void LinkCell::computeCellNeighbors()
 
 //! Given a set of points, find the k elements of this data structure
 //  that are the nearest neighbors for each point.
-std::shared_ptr<SpatialDataIterator> LinkCell::query(const vec3<float> *points, unsigned int Np, unsigned int k)
+std::shared_ptr<SpatialDataIterator> LinkCell::query(const vec3<float> *points, unsigned int Np, unsigned int k) const
     {
     return std::make_shared<LinkCellQueryIterator>(this, points, Np, k);
     }
 
 //! Given a set of points, find all elements of this data structure
 //  that are within a certain distance r.
-std::shared_ptr<SpatialDataIterator> LinkCell::query_ball(const vec3<float> *points, unsigned int Np, float r)
+std::shared_ptr<SpatialDataIterator> LinkCell::query_ball(const vec3<float> *points, unsigned int Np, float r) const
     {
     return std::make_shared<LinkCellQueryBallIterator>(this, points, Np, r);
     }

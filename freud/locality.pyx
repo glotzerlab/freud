@@ -676,6 +676,49 @@ cdef class AABBQuery(SpatialData):
     def nlist(self):
         return self._nlist
 
+    def query(self, points, unsigned int k=1, float r=0, float scale=1.1):
+        R"""Query the tree for nearest neighbors of the provided point.
+
+        The AABBQuery object overrides the parent method to support querying
+        based on a specified guessed rcut and scaling.
+        Args:
+            box (:class:`freud.box.Box`):
+                Simulation box.
+            points ((:math:`N`, 3) :class:`numpy.ndarray`):
+                Points to query for.
+            k (int):
+                The number of nearest neighbors to find.
+            r (float):
+                The initial guess of a distance to search to find N neighbors.
+            scale (float):
+                Multiplier by which to increase :code:`r` if not enough
+                neighbors are found.
+
+        Returns:
+            (:math:`N`, :math:`k`) :class:`numpy.ndarray`:
+                Array of indices of the :math:`k` nearest neighbors for each
+                input point.
+        """
+        points = freud.common.convert_array(
+            points, 2, dtype=np.float32, contiguous=True, array_name="points")
+        if points.shape[1] != 3:
+            raise TypeError('points should be an Nx3 array')
+
+        if r == 0:
+            r = 0.1*min(self.box.L)
+
+        cdef np.ndarray[float, ndim=2] l_points = points
+        cdef unsigned int Np = points.shape[0]
+        cdef shared_ptr[freud._locality.SpatialDataIterator] iterator
+        with nogil:
+            iterator = self.spdptr.query(<vec3[float]*> l_points.data, Np, k, r, scale)
+
+        ret = []
+        while not dereference(iterator).end():
+            ret.append(dereference(iterator).next())
+        return ret
+
+
 
 cdef class IteratorLinkCell:
     R"""Iterates over the particles in a cell.

@@ -42,11 +42,11 @@ class SpatialData
 
         //! Given a set of points, find the k elements of this data structure
         //  that are the nearest neighbors for each point.
-        virtual std::shared_ptr<SpatialDataIterator> query(const vec3<float> *points, unsigned int Np, unsigned int k) = 0;
+        virtual std::shared_ptr<SpatialDataIterator> query(const vec3<float> *points, unsigned int Np, unsigned int k) const = 0;
 
         //! Given a set of points, find all elements of this data structure
         //  that are within a certain distance r.
-        virtual std::shared_ptr<SpatialDataIterator> query_ball(const vec3<float> *points, unsigned int Np, float r) = 0;
+        virtual std::shared_ptr<SpatialDataIterator> query_ball(const vec3<float> *points, unsigned int Np, float r) const = 0;
 
         //! Get the simulation box
         const box::Box& getBox() const
@@ -93,15 +93,15 @@ class SpatialDataIterator {
             {
             }
 
-        //! Empty Destructor
-        virtual ~SpatialDataIterator() {}
-
         //! Constructor
-        SpatialDataIterator(SpatialData* spatial_data,
+        SpatialDataIterator(const SpatialData* spatial_data,
                 const vec3<float> *points, unsigned int Np) :
             m_spatial_data(spatial_data), m_points(points), m_Np(Np), m_finished(false)
             {
             }
+
+        //! Empty Destructor
+        virtual ~SpatialDataIterator() {}
 
         //! Indicate when done.
         virtual bool end() { return m_finished; }

@@ -443,11 +443,11 @@ class LinkCell : public SpatialData
 
         //! Given a set of points, find the k elements of this data structure
         //  that are the nearest neighbors for each point.
-        virtual std::shared_ptr<SpatialDataIterator> query(const vec3<float> *points, unsigned int Np, unsigned int k);
+        virtual std::shared_ptr<SpatialDataIterator> query(const vec3<float> *points, unsigned int Np, unsigned int k) const;
 
         //! Given a set of points, find all elements of this data structure
         //  that are within a certain distance r.
-        virtual std::shared_ptr<SpatialDataIterator> query_ball(const vec3<float> *points, unsigned int Np, float r);
+        virtual std::shared_ptr<SpatialDataIterator> query_ball(const vec3<float> *points, unsigned int Np, float r) const;
 
     private:
 
@@ -486,7 +486,7 @@ class LinkCellIterator : public SpatialDataIterator
         /*! The initial state is to search shell 0, the current cell. We then
          *  iterate outwards from there.
         */
-        LinkCellIterator(LinkCell* spatial_data, const vec3<float> *points, unsigned int Np) : SpatialDataIterator(spatial_data, points, Np), m_linkcell(spatial_data), m_neigh_cell_iter(0, spatial_data->getBox().is2D()), m_cell_iter(m_linkcell->itercell(m_linkcell->getCell(m_points[0]))), m_i(0)
+        LinkCellIterator(const LinkCell* spatial_data, const vec3<float> *points, unsigned int Np) : SpatialDataIterator(spatial_data, points, Np), m_linkcell(spatial_data), m_neigh_cell_iter(0, spatial_data->getBox().is2D()), m_cell_iter(m_linkcell->itercell(m_linkcell->getCell(m_points[0]))), m_i(0)
         {}
 
         //! Empty Destructor
@@ -508,7 +508,7 @@ class LinkCellQueryIterator : public LinkCellIterator
     {
     public:
         //! Constructor
-        LinkCellQueryIterator(LinkCell* spatial_data,
+        LinkCellQueryIterator(const LinkCell* spatial_data,
                 const vec3<float> *points, unsigned int Np, unsigned int k) :
             LinkCellIterator(spatial_data, points, Np), m_k(k), m_current_neighbors(), m_count(0)
         {
@@ -534,7 +534,7 @@ class LinkCellQueryBallIterator : public LinkCellIterator
     {
     public:
         //! Constructor
-        LinkCellQueryBallIterator(LinkCell* spatial_data,
+        LinkCellQueryBallIterator(const LinkCell* spatial_data,
                 const vec3<float> *points, unsigned int Np, float r) :
             LinkCellIterator(spatial_data, points, Np), m_r(r)
         { }

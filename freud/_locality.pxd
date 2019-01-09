@@ -135,3 +135,6 @@ cdef extern from "AABBQuery.h" namespace "freud::locality":
             unsigned int,
             bool) nogil except +
         NeighborList * getNeighborList()
+        shared_ptr[SpatialDataIterator] query(
+            const vec3[float]*, unsigned int, unsigned int,
+            float, float) nogil except +

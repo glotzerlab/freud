@@ -1,6 +1,7 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
+#include <algorithm>
 #include <stdexcept>
 #include <tbb/tbb.h>
 #include <tuple>
@@ -29,14 +30,14 @@ AABBQuery::~AABBQuery()
     }
 
 
-std::shared_ptr<SpatialDataIterator> AABBQuery::query(const vec3<float> *points, unsigned int Np, unsigned int k)
+std::shared_ptr<SpatialDataIterator> AABBQuery::query(const vec3<float> *points, unsigned int Np, unsigned int k, float r, float scale) const
     {
-    return std::make_shared<AABBQueryIterator>(this, points, Np, k);
+    return std::make_shared<AABBQueryIterator>(this, points, Np, k, r, scale);
     }
 
 //! Given a set of points, find all elements of this data structure
 //  that are within a certain distance r.
-std::shared_ptr<SpatialDataIterator> AABBQuery::query_ball(const vec3<float> *points, unsigned int Np, float r)
+std::shared_ptr<SpatialDataIterator> AABBQuery::query_ball(const vec3<float> *points, unsigned int Np, float r) const
     {
     return std::make_shared<AABBQueryBallIterator>(this, points, Np, r);
     }
@@ -413,4 +414,71 @@ std::pair<std::pair<unsigned int, unsigned int>, float> AABBQueryBallIterator::n
     return ret_obj;
     }
 
+std::pair<std::pair<unsigned int, unsigned int>, float> AABBQueryIterator::next()
+    {
+    std::pair<std::pair<unsigned int, unsigned int>, float> ret_obj(std::pair<unsigned int, unsigned int>(-1, -1), 0);
+    vec3<float> plane_distance = m_spatial_data->getBox().getNearestPlaneDistance();
+    float min_plane_distance = std::min(std::min(plane_distance.x, plane_distance.y), plane_distance.z);
+
+    // Loop over all points serially
+    while (m_i < this->m_Np)
+        {
+        //TODO: Make sure to address case where there are NO NEIGHBORS (e.g. empty system). Currently I think that case will result in an infinite loop.
+
+        // Make sure we're not calling next with neighbors left to return
+        if (!m_current_neighbors.size())
+            {
+            // Continually perform ball queries until the termination conditions are met.
+            while (true)
+                {
+                // Perform a ball query to get neighbors.
+                m_current_neighbors.clear();
+                std::shared_ptr<SpatialDataIterator> ball_it = m_spatial_data->query_ball(&m_points[m_i], m_Np, m_r);
+                while(!ball_it->end())
+                    {
+                    std::pair<std::pair<unsigned int, unsigned int>, float> val = ball_it->next();
+                    // What we want to store is the distance and the reference
+                    // point so that we can reconstruct the current points bonds.
+                    m_current_neighbors.emplace_back(val.second, val.first.first);
+                    }
+
+                // Break if there are enough neighbors
+                if (m_current_neighbors.size() >= m_k)
+                    {
+                    break;
+                    }
+                else
+                    {
+                    // Rescale, then check if we should break based on querying too
+                    // much space.
+                    m_r *= m_scale;
+                    if (m_r > min_plane_distance/2)
+                        {
+                        break;
+                        }
+                    }
+                }
+            }
+        // Now we return all the points found for the current point
+        if (m_current_neighbors.size())
+            {
+            // Slightly inefficient because we're sorting every time, but
+            // should be negligible unless we're querying for very large
+            // numbers of nearest neighbors.
+            std::sort(m_current_neighbors.rbegin(), m_current_neighbors.rend());
+
+            ret_obj = std::pair<std::pair<unsigned int, unsigned int>, float>(std::pair<unsigned int, unsigned int>(m_current_neighbors.back().first, m_i), m_current_neighbors.back().second);
+            m_current_neighbors.pop_back();
+
+            // Move on to the next particle if we've looped over all the current ones.
+            if (!m_current_neighbors.size())
+                {
+                m_i++;
+                }
+            return ret_obj;
+            }
+        }
+    m_finished = true;
+    return ret_obj;
+    }
 }; }; // end namespace freud::locality
