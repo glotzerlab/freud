@@ -54,15 +54,15 @@ class AABBQuery : public SpatialData
         //  different signature, this is not directly overriding the original
         //  method in SpatialData, so we have to explicitly invalidate calling
         //  with that signature.
-        virtual std::shared_ptr<SpatialDataIterator> query(const vec3<float> *points, unsigned int Np, unsigned int k) const
+        virtual std::shared_ptr<SpatialDataIterator> query(const vec3<float> point, unsigned int k) const
             {
             throw std::runtime_error("AABBQuery k-nearest-neighbor queries must use the function signature that provides rmax and scale guesses.");
             }
-        std::shared_ptr<SpatialDataIterator> query(const vec3<float> *points, unsigned int Np, unsigned int k, float r, float scale) const;
+        std::shared_ptr<SpatialDataIterator> query(const vec3<float> point, unsigned int k, float r, float scale) const;
 
         //! Given a set of points, find all elements of this data structure
         //  that are within a certain distance r.
-        virtual std::shared_ptr<SpatialDataIterator> query_ball(const vec3<float> *points, unsigned int Np, float r) const;
+        virtual std::shared_ptr<SpatialDataIterator> query_ball(const vec3<float> point, float r) const;
 
         AABBTree m_aabb_tree; //!< AABB tree of points
 
@@ -103,7 +103,7 @@ class AABBIterator : public SpatialDataIterator
     {
     public:
         //! Constructor
-        AABBIterator(const AABBQuery* spatial_data, const vec3<float> *points, unsigned int Np) : SpatialDataIterator(spatial_data, points, Np), m_aabb_data(spatial_data)
+        AABBIterator(const AABBQuery* spatial_data, const vec3<float> point) : SpatialDataIterator(spatial_data, point), m_aabb_data(spatial_data)
         { }
 
         //! Empty Destructor
@@ -127,20 +127,18 @@ class AABBQueryIterator : public AABBIterator
     public:
         //! Constructor
         AABBQueryIterator(const AABBQuery* spatial_data,
-                const vec3<float> *points, unsigned int Np, unsigned int k, float r, float scale) :
-            AABBIterator(spatial_data, points, Np), m_i(0), m_k(k), m_r(r), m_scale(scale), m_current_neighbors()
+                const vec3<float> point, unsigned int k, float r, float scale) :
+            AABBIterator(spatial_data, point), m_k(k), m_r(r), m_scale(scale), m_current_neighbors()
         {
-        updateImageVectors(0);
-        }
+        updateImageVectors(0); }
 
         //! Empty Destructor
         virtual ~AABBQueryIterator() {}
 
         //! Get the next element.
-        virtual std::pair<std::pair<unsigned int, unsigned int>, float> next();
+        virtual std::pair<unsigned int, float> next();
 
     protected:
-        unsigned int m_i;  //!< Current point being searched.
         unsigned int m_k;  //!< Number of nearest neighbors to find.
         float m_r;  //!< Current ball cutoff distance. Used as a guess.
         float m_scale;  //!< The amount to scale m_r by when the current ball is too small.
@@ -157,8 +155,8 @@ class AABBQueryBallIterator : public AABBIterator
     public:
         //! Constructor
         AABBQueryBallIterator(const AABBQuery* spatial_data,
-                const vec3<float> *points, unsigned int Np, float r) :
-            AABBIterator(spatial_data, points, Np), m_r(r), i(0), cur_image(0), cur_node_idx(0), cur_p(0)
+                const vec3<float> point, float r) :
+            AABBIterator(spatial_data, point), m_r(r), cur_image(0), cur_node_idx(0), cur_p(0)
         {
         updateImageVectors(m_r);
         }
@@ -167,13 +165,12 @@ class AABBQueryBallIterator : public AABBIterator
         virtual ~AABBQueryBallIterator() {}
 
         //! Get the next element.
-        virtual std::pair<std::pair<unsigned int, unsigned int>, float> next();
+        virtual std::pair<unsigned int, float> next();
 
     protected:
         float m_r;  //!< Search ball cutoff distance
 
     private:
-        size_t i;   //!< The iterator over points
         unsigned int cur_image; 
         unsigned int cur_node_idx; 
         unsigned int cur_p; 

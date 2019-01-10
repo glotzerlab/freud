@@ -443,11 +443,11 @@ class LinkCell : public SpatialData
 
         //! Given a set of points, find the k elements of this data structure
         //  that are the nearest neighbors for each point.
-        virtual std::shared_ptr<SpatialDataIterator> query(const vec3<float> *points, unsigned int Np, unsigned int k) const;
+        virtual std::shared_ptr<SpatialDataIterator> query(const vec3<float> points, unsigned int k) const;
 
         //! Given a set of points, find all elements of this data structure
         //  that are within a certain distance r.
-        virtual std::shared_ptr<SpatialDataIterator> query_ball(const vec3<float> *points, unsigned int Np, float r) const;
+        virtual std::shared_ptr<SpatialDataIterator> query_ball(const vec3<float> points, float r) const;
 
     private:
 
@@ -486,7 +486,7 @@ class LinkCellIterator : public SpatialDataIterator
         /*! The initial state is to search shell 0, the current cell. We then
          *  iterate outwards from there.
         */
-        LinkCellIterator(const LinkCell* spatial_data, const vec3<float> *points, unsigned int Np) : SpatialDataIterator(spatial_data, points, Np), m_linkcell(spatial_data), m_neigh_cell_iter(0, spatial_data->getBox().is2D()), m_cell_iter(m_linkcell->itercell(m_linkcell->getCell(m_points[0]))), m_i(0)
+        LinkCellIterator(const LinkCell* spatial_data, const vec3<float> point) : SpatialDataIterator(spatial_data, point), m_linkcell(spatial_data), m_neigh_cell_iter(0, spatial_data->getBox().is2D()), m_cell_iter(m_linkcell->itercell(m_linkcell->getCell(point)))
         {}
 
         //! Empty Destructor
@@ -496,8 +496,6 @@ class LinkCellIterator : public SpatialDataIterator
         const LinkCell *m_linkcell; //!< Link to the LinkCell object
         IteratorCellShell m_neigh_cell_iter; //!< The shell iterator indicating how far out we're currently searching.
         LinkCell::iteratorcell m_cell_iter; //!< The cell iterator indicating which cell we're currently searching.
-
-        unsigned int m_i; //!< The current point under consideration.
     };
 
 //! Iterator that gets nearest neighbors from LinkCell tree structures
@@ -509,8 +507,8 @@ class LinkCellQueryIterator : public LinkCellIterator
     public:
         //! Constructor
         LinkCellQueryIterator(const LinkCell* spatial_data,
-                const vec3<float> *points, unsigned int Np, unsigned int k) :
-            LinkCellIterator(spatial_data, points, Np), m_k(k), m_current_neighbors(), m_count(0)
+                const vec3<float> point, unsigned int k) :
+            LinkCellIterator(spatial_data, point), m_k(k), m_current_neighbors(), m_count(0)
         {
         }
 
@@ -518,7 +516,7 @@ class LinkCellQueryIterator : public LinkCellIterator
         virtual ~LinkCellQueryIterator() {}
 
         //! Get the next element.
-        virtual std::pair<std::pair<unsigned int, unsigned int>, float> next();
+        virtual std::pair<unsigned int, float> next();
 
     protected:
         unsigned int m_k;  //!< Number of nearest neighbors to find
@@ -535,15 +533,14 @@ class LinkCellQueryBallIterator : public LinkCellIterator
     public:
         //! Constructor
         LinkCellQueryBallIterator(const LinkCell* spatial_data,
-                const vec3<float> *points, unsigned int Np, float r) :
-            LinkCellIterator(spatial_data, points, Np), m_r(r)
+                const vec3<float> point, float r) :
+            LinkCellIterator(spatial_data, point), m_r(r)
         { }
 
         //! Empty Destructor
         virtual ~LinkCellQueryBallIterator() {}
-
-        //! Get the next element.
-        virtual std::pair<std::pair<unsigned int, unsigned int>, float> next();
+//! Get the next element.
+        virtual std::pair<unsigned int, float> next();
 
     protected:
         float m_r;  //!< Search ball cutoff distance

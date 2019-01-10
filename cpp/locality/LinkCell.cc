@@ -356,132 +356,116 @@ void LinkCell::computeCellNeighbors()
 
 //! Given a set of points, find the k elements of this data structure
 //  that are the nearest neighbors for each point.
-std::shared_ptr<SpatialDataIterator> LinkCell::query(const vec3<float> *points, unsigned int Np, unsigned int k) const
+std::shared_ptr<SpatialDataIterator> LinkCell::query(const vec3<float> point, unsigned int k) const
     {
-    return std::make_shared<LinkCellQueryIterator>(this, points, Np, k);
+    return std::make_shared<LinkCellQueryIterator>(this, point, k);
     }
 
 //! Given a set of points, find all elements of this data structure
 //  that are within a certain distance r.
-std::shared_ptr<SpatialDataIterator> LinkCell::query_ball(const vec3<float> *points, unsigned int Np, float r) const
+std::shared_ptr<SpatialDataIterator> LinkCell::query_ball(const vec3<float> point, float r) const
     {
-    return std::make_shared<LinkCellQueryBallIterator>(this, points, Np, r);
+    return std::make_shared<LinkCellQueryBallIterator>(this, point, r);
     }
 
 
-std::pair<std::pair<unsigned int, unsigned int>, float> LinkCellQueryBallIterator::next()
+std::pair<unsigned int, float> LinkCellQueryBallIterator::next()
     {
-    std::pair<std::pair<unsigned int, unsigned int>, float> ret_obj(std::pair<unsigned int, unsigned int>(-1, -1), 0);
+    std::pair<unsigned int, float> ret_obj(-1, 0);
     float r_cutsq = m_r * m_r;
 
-    // Loop over all points serially
-    while (m_i < this->m_Np)
+    vec3<unsigned int> point_cell(m_linkcell->getCellCoord(m_point));
+
+    // Loop over cell list neighbor shells relative to this point's cell.
+    while (true)
         {
-        const vec3<float> point(m_points[m_i]);
-        vec3<unsigned int> point_cell(m_linkcell->getCellCoord(point));
-
-        // Loop over cell list neighbor shells relative to this point's cell.
-        while (true)
+        // Iterate over the particles in that cell. Using a local counter
+        // variable is safe, because the IteratorLinkCell object is keeping
+        // track between calls to next.
+        for (unsigned int j = m_cell_iter.next(); !m_cell_iter.atEnd(); j = m_cell_iter.next())
             {
-            // Iterate over the particles in that cell. Using a local counter
-            // variable is safe, because the IteratorLinkCell object is keeping
-            // track between calls to next.
-            for (unsigned int j = m_cell_iter.next(); !m_cell_iter.atEnd(); j = m_cell_iter.next())
-                {
-                const vec3<float> rij(m_spatial_data->getBox().wrap((*m_linkcell)[j] - point));
-                const float rsq(dot(rij, rij));
+            const vec3<float> rij(m_spatial_data->getBox().wrap((*m_linkcell)[j] - m_point));
+            const float rsq(dot(rij, rij));
 
-                if (rsq < r_cutsq)
-                    {
-                    return std::pair<std::pair<unsigned int, unsigned int>, float>(std::pair<unsigned int, unsigned int>(j, m_i), sqrt(rsq));
-                    }
-                }
-
-            // Determine the next neighbor cell to consider. We're done if we
-            // reach a new shell and the closest point of approach to the new
-            // shell is greater than our rcut. We could be a little more
-            // efficient by also accounting for the position of the point in
-            // the current cell if this is too slow.
-            ++m_neigh_cell_iter;
-            if ((m_neigh_cell_iter.getRange()-1)*m_linkcell->getCellWidth() > m_r)
+            if (rsq < r_cutsq)
                 {
-                break;
-                }
-            else
-                {
-                const unsigned int neighbor_cell = m_linkcell->getCellIndexer()(
-                        (point_cell.x + (*m_neigh_cell_iter).x) % m_linkcell->getCellIndexer().getW(),
-                        (point_cell.y + (*m_neigh_cell_iter).y) % m_linkcell->getCellIndexer().getH(),
-                        (point_cell.z + (*m_neigh_cell_iter).z) % m_linkcell->getCellIndexer().getD());
-                m_cell_iter = m_linkcell->itercell(neighbor_cell);
+                return std::pair<unsigned int, float>(j, sqrt(rsq));
                 }
             }
-        // Move on to next point, and reset the iterators.
-        m_i++;
-        m_neigh_cell_iter = IteratorCellShell(0, m_spatial_data->getBox().is2D());
-        m_cell_iter = m_linkcell->itercell(m_linkcell->getCell(m_points[m_i]));
-        }
-    m_finished = true;
-    return ret_obj;
-    }
 
-std::pair<std::pair<unsigned int, unsigned int>, float> LinkCellQueryIterator::next()
-    {
-    std::pair<std::pair<unsigned int, unsigned int>, float> ret_obj(std::pair<unsigned int, unsigned int>(-1, -1), 0);
-
-    // Loop over all points serially
-    while (m_i < this->m_Np)
-        {
-        const vec3<float> point(m_points[m_i]);
-        vec3<unsigned int> point_cell(m_linkcell->getCellCoord(point));
-
-        // Loop over cell list neighbor shells relative to this point's cell.
-        while (true)
+        // Determine the next neighbor cell to consider. We're done if we
+        // reach a new shell and the closest point of approach to the new
+        // shell is greater than our rcut. We could be a little more
+        // efficient by also accounting for the position of the point in
+        // the current cell if this is too slow.
+        ++m_neigh_cell_iter;
+        if ((m_neigh_cell_iter.getRange()-1)*m_linkcell->getCellWidth() > m_r)
             {
-            // Iterate over the particles in that cell. Using a local counter
-            // variable is safe, because the IteratorLinkCell object is keeping
-            // track between calls to next. However, we have to add an extra
-            // check outside to proof ourselves against returning after
-            // previous calls to next that have not yet reset the iterator.
-            if (!m_cell_iter.atEnd())
-                {
-                for (unsigned int j = m_cell_iter.next(); !m_cell_iter.atEnd(); j = m_cell_iter.next())
-                    {
-                    const vec3<float> rij(m_spatial_data->getBox().wrap((*m_linkcell)[j] - point));
-                    const float rsq(dot(rij, rij));
-                    m_current_neighbors.emplace_back(std::pair<float, unsigned int>(sqrt(rsq), j));
-                    }
-                }
-
-            // Termination is determined when we reach a shell such that we
-            // already have k neighbors closer than the closest possible
-            // neighbor in the new shell.
-            ++m_neigh_cell_iter;
-            if (m_current_neighbors.size() >= m_k)
-                {
-                std::sort(m_current_neighbors.begin(), m_current_neighbors.end());
-                if (m_current_neighbors[m_k-1].first < (m_neigh_cell_iter.getRange()-1)*m_linkcell->getCellWidth())
-                    {
-                    break;
-                    }
-                }
+            break;
+            }
+        else
+            {
             const unsigned int neighbor_cell = m_linkcell->getCellIndexer()(
                     (point_cell.x + (*m_neigh_cell_iter).x) % m_linkcell->getCellIndexer().getW(),
                     (point_cell.y + (*m_neigh_cell_iter).y) % m_linkcell->getCellIndexer().getH(),
                     (point_cell.z + (*m_neigh_cell_iter).z) % m_linkcell->getCellIndexer().getD());
             m_cell_iter = m_linkcell->itercell(neighbor_cell);
             }
-        while(m_count < m_k)
-            {
-            m_count++;
-            return std::pair<std::pair<unsigned int, unsigned int>, float>(std::pair<unsigned int, unsigned int>(m_current_neighbors[m_count-1].second, m_i), m_current_neighbors[m_count-1].first);
-            }
-        // Move on to next point, and reset the iterators.
-        m_i++;
-        m_current_neighbors.clear();
-        m_neigh_cell_iter = IteratorCellShell(0, m_spatial_data->getBox().is2D());
-        m_cell_iter = m_linkcell->itercell(m_linkcell->getCell(m_points[m_i]));
         }
+
+    m_finished = true;
+    return ret_obj;
+    }
+
+std::pair<unsigned int, float> LinkCellQueryIterator::next()
+    {
+    std::pair<unsigned int, float> ret_obj(-1, 0);
+
+    vec3<unsigned int> point_cell(m_linkcell->getCellCoord(m_point));
+
+    // Loop over cell list neighbor shells relative to this point's cell.
+    while (true)
+        {
+        // Iterate over the particles in that cell. Using a local counter
+        // variable is safe, because the IteratorLinkCell object is keeping
+        // track between calls to next. However, we have to add an extra
+        // check outside to proof ourselves against returning after
+        // previous calls to next that have not yet reset the iterator.
+        if (!m_cell_iter.atEnd())
+            {
+            for (unsigned int j = m_cell_iter.next(); !m_cell_iter.atEnd(); j = m_cell_iter.next())
+                {
+                const vec3<float> rij(m_spatial_data->getBox().wrap((*m_linkcell)[j] - m_point));
+                const float rsq(dot(rij, rij));
+                m_current_neighbors.emplace_back(std::pair<float, unsigned int>(sqrt(rsq), j));
+                }
+            }
+
+        // Termination is determined when we reach a shell such that we
+        // already have k neighbors closer than the closest possible
+        // neighbor in the new shell.
+        ++m_neigh_cell_iter;
+        if (m_current_neighbors.size() >= m_k)
+            {
+            std::sort(m_current_neighbors.begin(), m_current_neighbors.end());
+            if (m_current_neighbors[m_k-1].first < (m_neigh_cell_iter.getRange()-1)*m_linkcell->getCellWidth())
+                {
+                break;
+                }
+            }
+        const unsigned int neighbor_cell = m_linkcell->getCellIndexer()(
+                (point_cell.x + (*m_neigh_cell_iter).x) % m_linkcell->getCellIndexer().getW(),
+                (point_cell.y + (*m_neigh_cell_iter).y) % m_linkcell->getCellIndexer().getH(),
+                (point_cell.z + (*m_neigh_cell_iter).z) % m_linkcell->getCellIndexer().getD());
+        m_cell_iter = m_linkcell->itercell(neighbor_cell);
+        }
+
+    while(m_count < m_k)
+        {
+        m_count++;
+        return std::pair<unsigned int, float>(m_current_neighbors[m_count-1].second, m_current_neighbors[m_count-1].first);
+        }
+
     m_finished = true;
     return ret_obj;
     }

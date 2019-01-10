@@ -40,13 +40,13 @@ class SpatialData
         //! Empty Destructor
         virtual ~SpatialData() {}
 
-        //! Given a set of points, find the k elements of this data structure
+        //! Given a point, find the k elements of this data structure
         //  that are the nearest neighbors for each point.
-        virtual std::shared_ptr<SpatialDataIterator> query(const vec3<float> *points, unsigned int Np, unsigned int k) const = 0;
+        virtual std::shared_ptr<SpatialDataIterator> query(const vec3<float> point, unsigned int k) const = 0;
 
-        //! Given a set of points, find all elements of this data structure
+        //! Given a point, find all elements of this data structure
         //  that are within a certain distance r.
-        virtual std::shared_ptr<SpatialDataIterator> query_ball(const vec3<float> *points, unsigned int Np, float r) const = 0;
+        virtual std::shared_ptr<SpatialDataIterator> query_ball(const vec3<float> point, float r) const = 0;
 
         //! Get the simulation box
         const box::Box& getBox() const
@@ -95,8 +95,8 @@ class SpatialDataIterator {
 
         //! Constructor
         SpatialDataIterator(const SpatialData* spatial_data,
-                const vec3<float> *points, unsigned int Np) :
-            m_spatial_data(spatial_data), m_points(points), m_Np(Np), m_finished(false)
+                const vec3<float> point) :
+            m_spatial_data(spatial_data), m_point(point), m_finished(false)
             {
             }
 
@@ -107,15 +107,14 @@ class SpatialDataIterator {
         virtual bool end() { return m_finished; }
 
         //! Get the next element.
-        virtual std::pair<std::pair<unsigned int, unsigned int>, float> next()
+        virtual std::pair<unsigned int, float> next()
             {
             throw std::runtime_error("The next method must be implemented by child classes.");
             }
 
     protected:
         const SpatialData *m_spatial_data; //!< Link to the SpatialData object
-        const vec3<float> *m_points;       //!< Point coordinates
-        unsigned int m_Np;                 //!< Number of points
+        const vec3<float> m_point;        //!< Query point coordinates
 
         unsigned int m_finished;           //!< Flag to indicate that iteration is complete (must be set by next on termination).
 };

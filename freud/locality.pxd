@@ -2,6 +2,7 @@
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 cimport freud._locality
+cimport freud.box
 
 cdef class SpatialData:
     cdef freud._locality.SpatialData * spdptr
@@ -34,3 +35,4 @@ cdef class NearestNeighbors:
 cdef class AABBQuery(SpatialData):
     cdef freud._locality.AABBQuery * thisptr
     cdef NeighborList _nlist
+    cdef freud.box.Box box

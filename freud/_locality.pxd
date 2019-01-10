@@ -9,18 +9,14 @@ from libcpp.vector cimport vector
 from libcpp.pair cimport pair
 cimport freud._box
 
-# The Cython compiler can't handle nested templates natively, so we need this
-# typedef to specify a pair of pairs.
-ctypedef pair[unsigned int, unsigned int] pair_uint
-
 cdef extern from "SpatialData.h" namespace "freud::locality":
     cdef cppclass SpatialData:
         SpatialData()
         SpatialData(const freud._box.Box &, const vec3[float]*, unsigned int)
         shared_ptr[SpatialDataIterator] query(
-            const vec3[float]*, unsigned int, unsigned int) nogil except +
+            const vec3[float], unsigned int) nogil except +
         shared_ptr[SpatialDataIterator] query_ball(
-            const vec3[float]*, unsigned int, float) nogil except +
+            const vec3[float], float) nogil except +
         const freud._box.Box & getBox() const
         const vector[float]* getRefPoints const
         const unsigned int getNRef const
@@ -28,9 +24,9 @@ cdef extern from "SpatialData.h" namespace "freud::locality":
 
     cdef cppclass SpatialDataIterator:
         SpatialDataIterator()
-        SpatialDataIterator(SpatialData*, vec3[float]*, unsigned int)
+        SpatialDataIterator(SpatialData*, vec3[float]&, unsigned int)
         bool end()
-        pair[pair_uint, float] next()
+        pair[unsigned int, float] next()
 
 cdef extern from "NeighborList.h" namespace "freud::locality":
     cdef cppclass NeighborList:
@@ -136,5 +132,5 @@ cdef extern from "AABBQuery.h" namespace "freud::locality":
             bool) nogil except +
         NeighborList * getNeighborList()
         shared_ptr[SpatialDataIterator] query(
-            const vec3[float]*, unsigned int, unsigned int,
+            const vec3[float], unsigned int,
             float, float) nogil except +

@@ -90,15 +90,18 @@ cdef class SpatialData:
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        cdef np.ndarray[float, ndim=2] l_points = points
+        cdef vec3[float] l_cur_point
         cdef unsigned int Np = points.shape[0]
         cdef shared_ptr[freud._locality.SpatialDataIterator] iterator
-        with nogil:
-            iterator = self.spdptr.query(<vec3[float]*> l_points.data, Np, k)
 
         ret = []
-        while not dereference(iterator).end():
-            ret.append(dereference(iterator).next())
+
+        cdef unsigned int i
+        for i in range(Np):
+            l_cur_point = vec3[float](points[i, 0], points[i, 1], points[i, 2])
+            iterator = self.spdptr.query(l_cur_point, k)
+            while not dereference(iterator).end():
+                ret.append(dereference(iterator).next())
         return ret
 
     def query_ball(self, points, float r):
@@ -123,16 +126,17 @@ cdef class SpatialData:
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        cdef np.ndarray[float, ndim=2] l_points = points
+        cdef vec3[float] l_cur_point
         cdef unsigned int Np = points.shape[0]
         cdef shared_ptr[freud._locality.SpatialDataIterator] iterator
-        with nogil:
-            iterator = self.spdptr.query_ball(
-                <vec3[float]*> l_points.data, Np, r)
 
         ret = []
-        while not dereference(iterator).end():
-            ret.append(dereference(iterator).next())
+        cdef unsigned int i
+        for i in range(Np):
+            l_cur_point = vec3[float](points[i, 0], points[i, 1], points[i, 2])
+            iterator = self.spdptr.query_ball(l_cur_point, r)
+            while not dereference(iterator).end():
+                ret.append(dereference(iterator).next())
         return ret
 
 
@@ -587,7 +591,6 @@ cdef class AABBQuery(SpatialData):
     """  # noqa: E501
 
     def __cinit__(self, box=None, ref_points=None):
-        cdef freud.box.Box b
         cdef float[:, ::1] l_ref_points
         if type(self) is AABBQuery:
             if box is None:
@@ -596,13 +599,13 @@ cdef class AABBQuery(SpatialData):
                 self._nlist = NeighborList()
             else:
                 # Assume valid set of arguments is passed
-                b = freud.common.convert_box(box)
+                self.box = freud.common.convert_box(box)
                 ref_points = freud.common.convert_array(
                     ref_points, 2, dtype=np.float32, contiguous=True,
                     array_name="ref_points")
                 l_ref_points = ref_points
                 self.thisptr = self.spdptr = new freud._locality.AABBQuery(
-                    dereference(b.thisptr),
+                    dereference(self.box.thisptr),
                     <vec3[float]*> &l_ref_points[0, 0],
                     ref_points.shape[0])
                 self._nlist = NeighborList()
@@ -708,16 +711,18 @@ cdef class AABBQuery(SpatialData):
             r = 0.1*min(self.box.L)
 
         cdef np.ndarray[float, ndim=2] l_points = points
+        cdef vec3[float] l_cur_point
         cdef unsigned int Np = points.shape[0]
         cdef shared_ptr[freud._locality.SpatialDataIterator] iterator
-        with nogil:
-            iterator = self.thisptr.query(<vec3[float]*> l_points.data, Np, k, r, scale)
 
         ret = []
-        while not dereference(iterator).end():
-            ret.append(dereference(iterator).next())
+        cdef unsigned int i
+        for i in range(Np):
+            l_cur_point = vec3[float](l_points[i, 0], l_points[i, 1], l_points[i, 2])
+            iterator = self.thisptr.query(l_cur_point, k, r, scale)
+            while not dereference(iterator).end():
+                ret.append(dereference(iterator).next())
         return ret
-
 
 
 cdef class IteratorLinkCell:

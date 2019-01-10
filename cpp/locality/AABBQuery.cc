@@ -30,16 +30,16 @@ AABBQuery::~AABBQuery()
     }
 
 
-std::shared_ptr<SpatialDataIterator> AABBQuery::query(const vec3<float> *points, unsigned int Np, unsigned int k, float r, float scale) const
+std::shared_ptr<SpatialDataIterator> AABBQuery::query(const vec3<float> point, unsigned int k, float r, float scale) const
     {
-    return std::make_shared<AABBQueryIterator>(this, points, Np, k, r, scale);
+    return std::make_shared<AABBQueryIterator>(this, point, k, r, scale);
     }
 
 //! Given a set of points, find all elements of this data structure
 //  that are within a certain distance r.
-std::shared_ptr<SpatialDataIterator> AABBQuery::query_ball(const vec3<float> *points, unsigned int Np, float r) const
+std::shared_ptr<SpatialDataIterator> AABBQuery::query_ball(const vec3<float> point, float r) const
     {
-    return std::make_shared<AABBQueryBallIterator>(this, points, Np, r);
+    return std::make_shared<AABBQueryBallIterator>(this, point, r);
     }
 
 
@@ -341,146 +341,140 @@ void AABBIterator::updateImageVectors(float rmax)
         }
     }
 
-std::pair<std::pair<unsigned int, unsigned int>, float> AABBQueryBallIterator::next()
+std::pair<unsigned int, float> AABBQueryBallIterator::next()
     {
-    std::pair<std::pair<unsigned int, unsigned int>, float> ret_obj(std::pair<unsigned int, unsigned int>(-1, -1), 0);
+    std::pair<unsigned int, float> ret_obj(-1, 0);
     float r_cutsq = m_r * m_r;
 
-    // Loop over all points serially
-    while (i < this->m_Np)
+    // Read in the position of i
+    vec3<float> pos_i(m_point);
+    if (m_spatial_data->getBox().is2D())
         {
-        // Read in the position of i
-        vec3<float> pos_i(m_points[i]);
-        if (m_spatial_data->getBox().is2D())
-            {
-            pos_i.z = 0;
-            }
+        pos_i.z = 0;
+        }
 
-        // Loop over image vectors
-        while (cur_image < m_n_images)
-            {
-            // Make an AABB for the image of this point
-            vec3<float> pos_i_image = pos_i + m_image_list[cur_image];
-            AABBSphere asphere = AABBSphere(pos_i_image, m_r);
+    // Loop over image vectors
+    while (cur_image < m_n_images)
+        {
+        // Make an AABB for the image of this point
+        vec3<float> pos_i_image = pos_i + m_image_list[cur_image];
+        AABBSphere asphere = AABBSphere(pos_i_image, m_r);
 
-            // Stackless traversal of the tree
-            while (cur_node_idx < m_aabb_data->m_aabb_tree.getNumNodes())
+        // Stackless traversal of the tree
+        while (cur_node_idx < m_aabb_data->m_aabb_tree.getNumNodes())
+            {
+            if (overlap(m_aabb_data->m_aabb_tree.getNodeAABB(cur_node_idx), asphere))
                 {
-                if (overlap(m_aabb_data->m_aabb_tree.getNodeAABB(cur_node_idx), asphere))
+                if (m_aabb_data->m_aabb_tree.isNodeLeaf(cur_node_idx))
                     {
-                    if (m_aabb_data->m_aabb_tree.isNodeLeaf(cur_node_idx))
+                    while (cur_p < m_aabb_data->m_aabb_tree.getNodeNumParticles(cur_node_idx))
                         {
-                        while (cur_p < m_aabb_data->m_aabb_tree.getNodeNumParticles(cur_node_idx))
+                        // Neighbor j
+                        const unsigned int j = m_aabb_data->m_aabb_tree.getNodeParticleTag(cur_node_idx, cur_p);
+
+                        // Read in the position of j
+                        vec3<float> pos_j((*m_spatial_data)[j]);
+                        if (m_spatial_data->getBox().is2D())
                             {
-                            // Neighbor j
-                            const unsigned int j = m_aabb_data->m_aabb_tree.getNodeParticleTag(cur_node_idx, cur_p);
-
-                            // Read in the position of j
-                            vec3<float> pos_j((*m_spatial_data)[j]);
-                            if (m_spatial_data->getBox().is2D())
-                                {
-                                pos_j.z = 0;
-                                }
-
-                            // Compute distance
-                            const vec3<float> drij = pos_j - pos_i_image;
-                            const float dr_sq = dot(drij, drij);
-
-                            if (dr_sq < r_cutsq)
-                                {
-                                // Return this one. Need to increment for the next call to the function, though.
-                                cur_p++;
-                                return std::pair<std::pair<unsigned int, unsigned int>, float>(std::pair<unsigned int, unsigned int>(j, i), sqrt(dr_sq));
-                                }
-                            cur_p++;
+                            pos_j.z = 0;
                             }
+
+                        // Compute distance
+                        const vec3<float> drij = pos_j - pos_i_image;
+                        const float dr_sq = dot(drij, drij);
+
+                        if (dr_sq < r_cutsq)
+                            {
+                            // Return this one. Need to increment for the next call to the function, though.
+                            cur_p++;
+                            return std::pair<unsigned int, float>(j, sqrt(dr_sq));
+                            }
+                        cur_p++;
                         }
                     }
-                else
-                    {
-                    // Skip ahead
-                    cur_node_idx += m_aabb_data->m_aabb_tree.getNodeSkip(cur_node_idx);
-                    }
-                cur_node_idx++;
-                cur_p = 0;
-                } // end stackless search
-            cur_image++;
-            cur_node_idx = 0;
-            } // end loop over images
-        i++;
-        cur_image = 0;
-        } // end loop over reference points
+                }
+            else
+                {
+                // Skip ahead
+                cur_node_idx += m_aabb_data->m_aabb_tree.getNodeSkip(cur_node_idx);
+                }
+            cur_node_idx++;
+            cur_p = 0;
+            } // end stackless search
+        cur_image++;
+        cur_node_idx = 0;
+        } // end loop over images
+
     m_finished = true;
     return ret_obj;
     }
 
-std::pair<std::pair<unsigned int, unsigned int>, float> AABBQueryIterator::next()
+std::pair<unsigned int, float> AABBQueryIterator::next()
     {
-    std::pair<std::pair<unsigned int, unsigned int>, float> ret_obj(std::pair<unsigned int, unsigned int>(-1, -1), 0);
+    std::pair<unsigned int, float> ret_obj(-1, 0);
     vec3<float> plane_distance = m_spatial_data->getBox().getNearestPlaneDistance();
     float min_plane_distance = std::min(std::min(plane_distance.x, plane_distance.y), plane_distance.z);
 
-    // Loop over all points serially
-    while (m_i < this->m_Np)
+    if (m_finished)
         {
-        //TODO: Make sure to address case where there are NO NEIGHBORS (e.g. empty system). Currently I think that case will result in an infinite loop.
+        return ret_obj;
+        }
 
-        // Make sure we're not calling next with neighbors left to return
-        if (!m_current_neighbors.size())
+    //TODO: Make sure to address case where there are NO NEIGHBORS (e.g. empty system). Currently I think that case will result in an infinite loop.
+
+    // Make sure we're not calling next with neighbors left to return
+    if (!m_current_neighbors.size())
+        {
+        // Continually perform ball queries until the termination conditions are met.
+        while (true)
             {
-            // Continually perform ball queries until the termination conditions are met.
-            while (true)
+            // Perform a ball query to get neighbors.
+            m_current_neighbors.clear();
+            std::shared_ptr<SpatialDataIterator> ball_it = m_spatial_data->query_ball(m_point, m_r);
+            while(!ball_it->end())
                 {
-                // Perform a ball query to get neighbors.
-                m_current_neighbors.clear();
-                std::shared_ptr<SpatialDataIterator> ball_it = m_spatial_data->query_ball(&m_points[m_i], m_Np, m_r);
-                while(!ball_it->end())
-                    {
-                    std::pair<std::pair<unsigned int, unsigned int>, float> val = ball_it->next();
-                    // What we want to store is the distance and the reference
-                    // point so that we can reconstruct the current points bonds.
-                    m_current_neighbors.emplace_back(val.second, val.first.first);
-                    }
-                // Remove the last item, which is just the blank object
-                m_current_neighbors.pop_back();
+                std::pair<unsigned int, float> val = ball_it->next();
+                // What we want to store is the distance and the reference
+                // point so that we can reconstruct the current points bonds.
+                m_current_neighbors.emplace_back(val.second, val.first);
+                }
+            // Remove the last item, which is just the blank object
+            m_current_neighbors.pop_back();
 
-                // Break if there are enough neighbors
-                if (m_current_neighbors.size() >= m_k)
+            // Break if there are enough neighbors
+            if (m_current_neighbors.size() >= m_k)
+                {
+                break;
+                }
+            else
+                {
+                // Rescale, then check if we should break based on querying too
+                // much space.
+                m_r *= m_scale;
+                if (m_r > min_plane_distance/2)
                     {
                     break;
                     }
-                else
-                    {
-                    // Rescale, then check if we should break based on querying too
-                    // much space.
-                    m_r *= m_scale;
-                    if (m_r > min_plane_distance/2)
-                        {
-                        break;
-                        }
-                    }
                 }
-            }
-        // Now we return all the points found for the current point
-        if (m_current_neighbors.size())
-            {
-            // Slightly inefficient because we're sorting every time, but
-            // should be negligible unless we're querying for very large
-            // numbers of nearest neighbors.
-            std::sort(m_current_neighbors.rbegin(), m_current_neighbors.rend());
-
-            ret_obj = std::pair<std::pair<unsigned int, unsigned int>, float>(std::pair<unsigned int, unsigned int>(m_current_neighbors.back().second, m_i), m_current_neighbors.back().first);
-            m_current_neighbors.pop_back();
-
-            // Move on to the next particle if we've looped over all the current ones.
-            if (!m_current_neighbors.size())
-                {
-                m_i++;
-                }
-            return ret_obj;
             }
         }
-    m_finished = true;
-    return ret_obj;
+
+    // Now we return all the points found for the current point
+    if (m_current_neighbors.size())
+        {
+        // Slightly inefficient because we're sorting every time, but
+        // should be negligible unless we're querying for very large
+        // numbers of nearest neighbors.
+        std::sort(m_current_neighbors.rbegin(), m_current_neighbors.rend());
+
+        ret_obj = std::pair<unsigned int, float>(m_current_neighbors.back().second, m_current_neighbors.back().first);
+        m_current_neighbors.pop_back();
+
+        if (!m_current_neighbors.size())
+            {
+            m_finished = true;
+            }
+        return ret_obj;
+        }
     }
 }; }; // end namespace freud::locality
