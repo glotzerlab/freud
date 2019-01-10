@@ -10,17 +10,17 @@ import sys
 import numpy as np
 import freud.common
 import warnings
-from freud.errors import FreudDeprecationWarning
 
+from freud.errors import FreudDeprecationWarning
 from libcpp cimport bool as cbool
 from freud.util._VectorMath cimport vec3
 from cython.operator cimport dereference
-cimport freud._locality
-cimport freud.box
-
-cimport numpy as np
 from cython.operator cimport dereference
 from libcpp.memory cimport shared_ptr
+
+cimport freud._locality
+cimport freud.box
+cimport numpy as np
 
 # numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults
@@ -718,7 +718,8 @@ cdef class AABBQuery(SpatialData):
         ret = []
         cdef unsigned int i
         for i in range(Np):
-            l_cur_point = vec3[float](l_points[i, 0], l_points[i, 1], l_points[i, 2])
+            l_cur_point = vec3[float](
+                l_points[i, 0], l_points[i, 1], l_points[i, 2])
             iterator = self.thisptr.query(l_cur_point, k, r, scale)
             while not dereference(iterator).end():
                 ret.append(dereference(iterator).next())

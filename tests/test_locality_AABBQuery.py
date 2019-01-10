@@ -150,7 +150,8 @@ class TestAABBQuery(unittest.TestCase):
         for i in range(10):
             np.random.seed(seed + i)
             points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
-            points2 = np.random.uniform(-L/2, L/2, (N//2, 3)).astype(np.float32)
+            points2 = np.random.uniform(
+                -L/2, L/2, (N//2, 3)).astype(np.float32)
             all_vectors = points[:, np.newaxis, :] - points2[np.newaxis, :, :]
             fbox.wrap(all_vectors.reshape((-1, 3)))
             all_rsqs = np.sum(all_vectors**2, axis=-1)
