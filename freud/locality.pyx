@@ -18,6 +18,7 @@ from freud.util._VectorMath cimport vec3
 from cython.operator cimport dereference
 from cython.operator cimport dereference
 from libcpp.memory cimport shared_ptr
+from freud._locality cimport ITERATOR_TERMINATOR
 
 cimport freud._locality
 cimport freud.box
@@ -57,8 +58,8 @@ cdef class SpatialData:
     def __cinit__(self):
         if type(self) is SpatialData:
             raise RuntimeError(
-                "The SpatialData class is abstract, and should not be directly"
-                "instantiated"
+                "The SpatialData class is abstract, and should not be "
+                "directly instantiated"
             )
 
     def __dealloc__(self):
@@ -106,8 +107,11 @@ cdef class SpatialData:
         for i in range(Np):
             l_cur_point = vec3[float](points[i, 0], points[i, 1], points[i, 2])
             iterator = self.spdptr.query(l_cur_point, k)
-            while not dereference(iterator).end():
-                ret.append(dereference(iterator).next())
+            while True:
+                pair = tuple(dereference(iterator).next())
+                if pair == ITERATOR_TERMINATOR:
+                    break
+                ret.append((i,) + pair)
         return ret
 
     def query_ball(self, points, float r):
@@ -145,8 +149,11 @@ cdef class SpatialData:
         for i in range(Np):
             l_cur_point = vec3[float](points[i, 0], points[i, 1], points[i, 2])
             iterator = self.spdptr.query_ball(l_cur_point, r)
-            while not dereference(iterator).end():
-                ret.append(dereference(iterator).next())
+            while True:
+                pair = tuple(dereference(iterator).next())
+                if pair == ITERATOR_TERMINATOR:
+                    break
+                ret.append((i,) + pair)
         return ret
 
 
@@ -741,8 +748,11 @@ cdef class AABBQuery(SpatialData):
             l_cur_point = vec3[float](
                 l_points[i, 0], l_points[i, 1], l_points[i, 2])
             iterator = self.thisptr.query(l_cur_point, k, r, scale)
-            while not dereference(iterator).end():
-                ret.append(dereference(iterator).next())
+            while True:
+                pair = tuple(dereference(iterator).next())
+                if pair == ITERATOR_TERMINATOR:
+                    break
+                ret.append((i,) + pair)
         return ret
 
 

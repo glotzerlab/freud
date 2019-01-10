@@ -22,6 +22,8 @@ cdef extern from "SpatialData.h" namespace "freud::locality":
         const unsigned int getNRef const
         const vec3[float] operator[](unsigned int) const
 
+    pair[unsigned int, float] ITERATOR_TERMINATOR "freud::locality::SpatialData::ITERATOR_TERMINATOR"
+
     cdef cppclass SpatialDataIterator:
         SpatialDataIterator()
         SpatialDataIterator(SpatialData*, vec3[float]&, unsigned int)

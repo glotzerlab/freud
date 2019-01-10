@@ -371,7 +371,6 @@ std::shared_ptr<SpatialDataIterator> LinkCell::query_ball(const vec3<float> poin
 
 std::pair<unsigned int, float> LinkCellQueryBallIterator::next()
     {
-    std::pair<unsigned int, float> ret_obj(-1, 0);
     float r_cutsq = m_r * m_r;
 
     vec3<unsigned int> point_cell(m_linkcell->getCellCoord(m_point));
@@ -414,13 +413,11 @@ std::pair<unsigned int, float> LinkCellQueryBallIterator::next()
         }
 
     m_finished = true;
-    return ret_obj;
+    return SpatialData::ITERATOR_TERMINATOR;
     }
 
 std::pair<unsigned int, float> LinkCellQueryIterator::next()
     {
-    std::pair<unsigned int, float> ret_obj(-1, 0);
-
     vec3<unsigned int> point_cell(m_linkcell->getCellCoord(m_point));
 
     // Loop over cell list neighbor shells relative to this point's cell.
@@ -467,6 +464,6 @@ std::pair<unsigned int, float> LinkCellQueryIterator::next()
         }
 
     m_finished = true;
-    return ret_obj;
+    return SpatialData::ITERATOR_TERMINATOR;
     }
 }; }; // end namespace freud::locality

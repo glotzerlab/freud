@@ -335,7 +335,6 @@ void AABBIterator::updateImageVectors(float rmax)
 
 std::pair<unsigned int, float> AABBQueryBallIterator::next()
     {
-    std::pair<unsigned int, float> ret_obj(-1, 0);
     float r_cutsq = m_r * m_r;
 
     // Read in the position of i
@@ -398,18 +397,17 @@ std::pair<unsigned int, float> AABBQueryBallIterator::next()
         } // end loop over images
 
     m_finished = true;
-    return ret_obj;
+    return SpatialData::ITERATOR_TERMINATOR;
     }
 
 std::pair<unsigned int, float> AABBQueryIterator::next()
     {
-    std::pair<unsigned int, float> ret_obj(-1, 0);
     vec3<float> plane_distance = m_spatial_data->getBox().getNearestPlaneDistance();
     float min_plane_distance = std::min(std::min(plane_distance.x, plane_distance.y), plane_distance.z);
 
     if (m_finished)
         {
-        return ret_obj;
+        return SpatialData::ITERATOR_TERMINATOR;
         }
 
     //TODO: Make sure to address case where there are NO NEIGHBORS (e.g. empty system). Currently I think that case will result in an infinite loop.
@@ -459,7 +457,7 @@ std::pair<unsigned int, float> AABBQueryIterator::next()
         // numbers of nearest neighbors.
         std::sort(m_current_neighbors.rbegin(), m_current_neighbors.rend());
 
-        ret_obj = std::pair<unsigned int, float>(m_current_neighbors.back().second, m_current_neighbors.back().first);
+        std::pair<unsigned int, float> ret_obj = std::pair<unsigned int, float>(m_current_neighbors.back().second, m_current_neighbors.back().first);
         m_current_neighbors.pop_back();
 
         if (!m_current_neighbors.size())

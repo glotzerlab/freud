@@ -76,10 +76,14 @@ class SpatialData
             return m_ref_points[index];
             }
 
+        static const std::pair<unsigned int, float> ITERATOR_TERMINATOR; //!< The object returned when iteration is complete.
+
     protected:
         const box::Box m_box;             //!< Simulation box where the particles belong
         const vec3<float> *m_ref_points;  //!< Reference point coordinates
         unsigned int m_Nref;              //!< Number of reference points
+
+        
     };
 
 //! The iterator class over the Spatial Data
