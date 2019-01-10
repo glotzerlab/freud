@@ -11,6 +11,7 @@ import warnings
 class TestSpatialDataAABB(unittest.TestCase):
     def test_query_ball(self):
         L = 10  # Box Dimensions
+        rcut = 2.01  # Cutoff radius
         N = 4  # number of particles
 
         fbox = box.Box.cube(L)  # Initialize Box
@@ -25,6 +26,8 @@ class TestSpatialDataAABB(unittest.TestCase):
         print(aq.query_ball(points[[2]], 1.01))
         print(aq.query_ball(points, 1.01))
         print(aq.query(points[[1]], 3, 0.5, 1.1))
+
+        aq.compute(fbox, rcut, points)
 
 
 class TestSpatialDataLinkCell(unittest.TestCase):

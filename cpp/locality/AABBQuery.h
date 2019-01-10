@@ -91,8 +91,6 @@ class AABBQuery : public SpatialData
         box::Box m_box; //!< Simulation box where the particles belong
         float m_rcut; //!< Maximum distance between neighbors
         NeighborList m_neighbor_list; //!< Stored neighbor list
-
-        bool m_prebuilt; //! Flag for when constructed using the new style.
     };
 
 //! Parent class of AABB iterators that knows how to traverse general AABB tree structures

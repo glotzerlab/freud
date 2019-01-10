@@ -4,8 +4,11 @@
 cimport freud._locality
 cimport freud.box
 
+from libcpp cimport bool as cbool
+
 cdef class SpatialData:
     cdef freud._locality.SpatialData * spdptr
+    cdef cbool queryable
 
 cdef class NeighborList:
     cdef freud._locality.NeighborList * thisptr

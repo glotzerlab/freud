@@ -11,12 +11,12 @@
 
 namespace freud { namespace locality {
 
-AABBQuery::AABBQuery(): SpatialData(), m_rcut(0), m_prebuilt(false)
+AABBQuery::AABBQuery(): SpatialData(), m_rcut(0)
     {
     }
 
 AABBQuery::AABBQuery(const box::Box &box, const vec3<float> *ref_points, unsigned int Nref):
-    SpatialData(box, ref_points, Nref), m_rcut(0), m_prebuilt(true)
+    SpatialData(box, ref_points, Nref), m_rcut(0)
     {
     // Allocate memory and create image vectors
     setupTree(m_Nref, false);
@@ -60,14 +60,6 @@ void AABBQuery::compute(box::Box& box, float rcut,
 
     // Now walk the tree
     traverseTree(ref_points, Nref, points, Np, exclude_ii);
-
-    // Rebuild the tree using the built-in point-set for future queries.
-    // Inefficient extra work, but that's fine since this is just a temporary compatibility layer.
-    if (m_prebuilt)
-        {
-        setupTree(m_Nref, false);
-        buildTree(m_ref_points, m_Nref);
-        }
     }
 
 void AABBQuery::setupTree(unsigned int Np, bool build_images)

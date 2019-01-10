@@ -12,6 +12,7 @@ import freud.common
 import warnings
 
 from freud.errors import FreudDeprecationWarning
+
 from libcpp cimport bool as cbool
 from freud.util._VectorMath cimport vec3
 from cython.operator cimport dereference
@@ -85,6 +86,11 @@ cdef class SpatialData:
                 Array of indices of the :math:`k` nearest neighbors for each
                 input point.
         """
+        # Can't use this function with old-style SpatialData objects
+        if not self.queryable:
+            raise RuntimeError("You cannot use the query method unless this "
+                               "object was originally constructed with "
+                               "reference points")
         points = freud.common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
@@ -121,6 +127,10 @@ cdef class SpatialData:
                 its neighbors. Otherwise, returns a list of lists
                 of the neighbors.
         """
+        if not self.queryable:
+            raise RuntimeError("You cannot use the query method unless this "
+                               "object was originally constructed with "
+                               "reference points")
         points = freud.common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
@@ -595,10 +605,12 @@ cdef class AABBQuery(SpatialData):
         if type(self) is AABBQuery:
             if box is None:
                 # The old style constructor
+                self.queryable = False
                 self.thisptr = self.spdptr = new freud._locality.AABBQuery()
                 self._nlist = NeighborList()
             else:
                 # Assume valid set of arguments is passed
+                self.queryable = True
                 self.box = freud.common.convert_box(box)
                 ref_points = freud.common.convert_array(
                     ref_points, 2, dtype=np.float32, contiguous=True,
@@ -633,6 +645,10 @@ cdef class AABBQuery(SpatialData):
                 the same object as :code:`ref_points` (Defaults to
                 :code:`None`).
         """  # noqa: E501
+        if self.queryable:
+            raise RuntimeError("You cannot use the compute method because "
+                               "this object was originally constructed with "
+                               "reference points")
         cdef freud.box.Box b = freud.common.convert_box(box)
         exclude_ii = (
             points is ref_points or points is None) \
@@ -702,6 +718,10 @@ cdef class AABBQuery(SpatialData):
                 Array of indices of the :math:`k` nearest neighbors for each
                 input point.
         """
+        if not self.queryable:
+            raise RuntimeError("You cannot use the query method unless this "
+                               "object was originally constructed with "
+                               "reference points")
         points = freud.common.convert_array(
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
@@ -818,6 +838,8 @@ cdef class LinkCell(SpatialData):
         cdef freud.box.Box b = freud.common.convert_box(box)
         cdef float[:, ::1] l_ref_points
         if ref_points is not None:
+            # The new API
+            self.queryable = True
             ref_points = freud.common.convert_array(
                 ref_points, 2, dtype=np.float32, contiguous=True,
                 array_name="ref_points")
@@ -827,6 +849,8 @@ cdef class LinkCell(SpatialData):
                 <vec3[float]*> &l_ref_points[0, 0],
                 ref_points.shape[0])
         else:
+            # The old API
+            self.queryable = False
             self.thisptr = self.spdptr = new freud._locality.LinkCell(
                 dereference(b.thisptr), float(cell_width))
         self._nlist = NeighborList()
@@ -926,6 +950,10 @@ cdef class LinkCell(SpatialData):
                 the same object as :code:`ref_points` (Defaults to
                 :code:`None`).
         """  # noqa: E501
+        if self.queryable:
+            raise RuntimeError("You cannot use the compute method because "
+                               "this object was originally constructed with "
+                               "reference points")
         cdef freud.box.Box b = freud.common.convert_box(box)
         exclude_ii = (
             points is ref_points or points is None) \
