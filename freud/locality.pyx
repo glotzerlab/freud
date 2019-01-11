@@ -110,7 +110,7 @@ cdef class SpatialData:
             iterator = self.spdptr.query(l_cur_point, k)
             while True:
                 pair = tuple(dereference(iterator).next())
-                if pair == ITERATOR_TERMINATOR:
+                if pair == tuple(ITERATOR_TERMINATOR):
                     break
                 elif exclude_ii and pair[0] == i:
                     continue
@@ -155,7 +155,7 @@ cdef class SpatialData:
             iterator = self.spdptr.query_ball(l_cur_point, r)
             while True:
                 pair = tuple(dereference(iterator).next())
-                if pair == ITERATOR_TERMINATOR:
+                if pair == tuple(ITERATOR_TERMINATOR):
                     break
                 elif exclude_ii and pair[0] == i:
                     continue
@@ -758,7 +758,7 @@ cdef class AABBQuery(SpatialData):
             iterator = self.thisptr.query(l_cur_point, k, r, scale)
             while True:
                 pair = tuple(dereference(iterator).next())
-                if pair == ITERATOR_TERMINATOR:
+                if pair == tuple(ITERATOR_TERMINATOR):
                     break
                 elif exclude_ii and pair[0] == i:
                     continue

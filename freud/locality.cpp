@@ -44,13 +44,13 @@
         "name": "freud.locality",
         "sources": [
             "freud/locality.pyx",
-            "cpp/locality/AABBQuery.cc",
-            "cpp/util/HOOMDMatrix.cc",
-            "cpp/locality/LinkCell.cc",
             "cpp/locality/NeighborList.cc",
+            "cpp/util/HOOMDMatrix.cc",
+            "cpp/locality/AABBQuery.cc",
             "cpp/box/Box.cc",
-            "cpp/locality/SpatialData.cc",
-            "cpp/locality/NearestNeighbors.cc"
+            "cpp/locality/LinkCell.cc",
+            "cpp/locality/NearestNeighbors.cc",
+            "cpp/locality/SpatialData.cc"
         ]
     },
     "module_name": "freud.locality"
@@ -2543,7 +2543,6 @@ static PyObject *indirect_contiguous = 0;
 static int __pyx_memoryview_thread_locks_used;
 static PyThread_type_lock __pyx_memoryview_thread_locks[8];
 static PyObject *__pyx_convert_pair_to_py_unsigned_int____float(std::pair<unsigned int,float>  const &); /*proto*/
-static std::pair<unsigned int,float>  __pyx_convert_pair_from_py_unsigned_int__and_float(PyObject *); /*proto*/
 static struct __pyx_array_obj *__pyx_array_new(PyObject *, Py_ssize_t, char *, char *, char *); /*proto*/
 static void *__pyx_align_pointer(void *, size_t); /*proto*/
 static PyObject *__pyx_memoryview_new(PyObject *, int, int, __Pyx_TypeInfo *); /*proto*/
@@ -3837,9 +3836,8 @@ static PyObject *__pyx_pf_5freud_8locality_11SpatialData_6query(struct __pyx_obj
   float __pyx_t_11;
   float __pyx_t_12;
   std::shared_ptr<freud::locality::SpatialDataIterator>  __pyx_t_13;
-  std::pair<unsigned int,float>  __pyx_t_14;
+  int __pyx_t_14;
   int __pyx_t_15;
-  int __pyx_t_16;
   __Pyx_RefNannySetupContext("query", 0);
   __Pyx_INCREF(__pyx_v_points);
 
@@ -4151,7 +4149,7 @@ static PyObject *__pyx_pf_5freud_8locality_11SpatialData_6query(struct __pyx_obj
  *             iterator = self.spdptr.query(l_cur_point, k)
  *             while True:             # <<<<<<<<<<<<<<
  *                 pair = tuple(dereference(iterator).next())
- *                 if pair == ITERATOR_TERMINATOR:
+ *                 if pair == tuple(ITERATOR_TERMINATOR):
  */
     while (1) {
 
@@ -4159,7 +4157,7 @@ static PyObject *__pyx_pf_5freud_8locality_11SpatialData_6query(struct __pyx_obj
  *             iterator = self.spdptr.query(l_cur_point, k)
  *             while True:
  *                 pair = tuple(dereference(iterator).next())             # <<<<<<<<<<<<<<
- *                 if pair == ITERATOR_TERMINATOR:
+ *                 if pair == tuple(ITERATOR_TERMINATOR):
  *                     break
  */
       __pyx_t_3 = __pyx_convert_pair_to_py_unsigned_int____float((*__pyx_v_iterator).next()); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 112, __pyx_L1_error)
@@ -4173,17 +4171,24 @@ static PyObject *__pyx_pf_5freud_8locality_11SpatialData_6query(struct __pyx_obj
       /* "freud/locality.pyx":113
  *             while True:
  *                 pair = tuple(dereference(iterator).next())
- *                 if pair == ITERATOR_TERMINATOR:             # <<<<<<<<<<<<<<
+ *                 if pair == tuple(ITERATOR_TERMINATOR):             # <<<<<<<<<<<<<<
  *                     break
  *                 elif exclude_ii and pair[0] == i:
  */
-      __pyx_t_14 = __pyx_convert_pair_from_py_unsigned_int__and_float(__pyx_v_pair); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 113, __pyx_L1_error)
-      __pyx_t_1 = ((__pyx_t_14 == freud::locality::SpatialData::ITERATOR_TERMINATOR) != 0);
+      __pyx_t_4 = __pyx_convert_pair_to_py_unsigned_int____float(freud::locality::SpatialData::ITERATOR_TERMINATOR); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 113, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_4);
+      __pyx_t_3 = __Pyx_PySequence_Tuple(__pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 113, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_3);
+      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+      __pyx_t_4 = PyObject_RichCompare(__pyx_v_pair, __pyx_t_3, Py_EQ); __Pyx_XGOTREF(__pyx_t_4); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 113, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+      __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_t_4); if (unlikely(__pyx_t_1 < 0)) __PYX_ERR(0, 113, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       if (__pyx_t_1) {
 
         /* "freud/locality.pyx":114
  *                 pair = tuple(dereference(iterator).next())
- *                 if pair == ITERATOR_TERMINATOR:
+ *                 if pair == tuple(ITERATOR_TERMINATOR):
  *                     break             # <<<<<<<<<<<<<<
  *                 elif exclude_ii and pair[0] == i:
  *                     continue
@@ -4193,32 +4198,32 @@ static PyObject *__pyx_pf_5freud_8locality_11SpatialData_6query(struct __pyx_obj
         /* "freud/locality.pyx":113
  *             while True:
  *                 pair = tuple(dereference(iterator).next())
- *                 if pair == ITERATOR_TERMINATOR:             # <<<<<<<<<<<<<<
+ *                 if pair == tuple(ITERATOR_TERMINATOR):             # <<<<<<<<<<<<<<
  *                     break
  *                 elif exclude_ii and pair[0] == i:
  */
       }
 
       /* "freud/locality.pyx":115
- *                 if pair == ITERATOR_TERMINATOR:
+ *                 if pair == tuple(ITERATOR_TERMINATOR):
  *                     break
  *                 elif exclude_ii and pair[0] == i:             # <<<<<<<<<<<<<<
  *                     continue
  *                 ret.append((i,) + pair)
  */
-      __pyx_t_15 = __Pyx_PyObject_IsTrue(__pyx_v_exclude_ii); if (unlikely(__pyx_t_15 < 0)) __PYX_ERR(0, 115, __pyx_L1_error)
-      if (__pyx_t_15) {
+      __pyx_t_14 = __Pyx_PyObject_IsTrue(__pyx_v_exclude_ii); if (unlikely(__pyx_t_14 < 0)) __PYX_ERR(0, 115, __pyx_L1_error)
+      if (__pyx_t_14) {
       } else {
-        __pyx_t_1 = __pyx_t_15;
+        __pyx_t_1 = __pyx_t_14;
         goto __pyx_L10_bool_binop_done;
       }
       __pyx_t_4 = __Pyx_PyInt_From_unsigned_int(__pyx_v_i); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 115, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       __pyx_t_3 = PyObject_RichCompare(PyTuple_GET_ITEM(__pyx_v_pair, 0), __pyx_t_4, Py_EQ); __Pyx_XGOTREF(__pyx_t_3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 115, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      __pyx_t_15 = __Pyx_PyObject_IsTrue(__pyx_t_3); if (unlikely(__pyx_t_15 < 0)) __PYX_ERR(0, 115, __pyx_L1_error)
+      __pyx_t_14 = __Pyx_PyObject_IsTrue(__pyx_t_3); if (unlikely(__pyx_t_14 < 0)) __PYX_ERR(0, 115, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      __pyx_t_1 = __pyx_t_15;
+      __pyx_t_1 = __pyx_t_14;
       __pyx_L10_bool_binop_done:;
       if (__pyx_t_1) {
 
@@ -4232,7 +4237,7 @@ static PyObject *__pyx_pf_5freud_8locality_11SpatialData_6query(struct __pyx_obj
         goto __pyx_L7_continue;
 
         /* "freud/locality.pyx":115
- *                 if pair == ITERATOR_TERMINATOR:
+ *                 if pair == tuple(ITERATOR_TERMINATOR):
  *                     break
  *                 elif exclude_ii and pair[0] == i:             # <<<<<<<<<<<<<<
  *                     continue
@@ -4257,7 +4262,7 @@ static PyObject *__pyx_pf_5freud_8locality_11SpatialData_6query(struct __pyx_obj
       __pyx_t_3 = PyNumber_Add(__pyx_t_4, __pyx_v_pair); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 117, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      __pyx_t_16 = __Pyx_PyList_Append(__pyx_v_ret, __pyx_t_3); if (unlikely(__pyx_t_16 == ((int)-1))) __PYX_ERR(0, 117, __pyx_L1_error)
+      __pyx_t_15 = __Pyx_PyList_Append(__pyx_v_ret, __pyx_t_3); if (unlikely(__pyx_t_15 == ((int)-1))) __PYX_ERR(0, 117, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       __pyx_L7_continue:;
     }
@@ -4410,9 +4415,8 @@ static PyObject *__pyx_pf_5freud_8locality_11SpatialData_8query_ball(struct __py
   float __pyx_t_11;
   float __pyx_t_12;
   std::shared_ptr<freud::locality::SpatialDataIterator>  __pyx_t_13;
-  std::pair<unsigned int,float>  __pyx_t_14;
+  int __pyx_t_14;
   int __pyx_t_15;
-  int __pyx_t_16;
   __Pyx_RefNannySetupContext("query_ball", 0);
   __Pyx_INCREF(__pyx_v_points);
 
@@ -4724,7 +4728,7 @@ static PyObject *__pyx_pf_5freud_8locality_11SpatialData_8query_ball(struct __py
  *             iterator = self.spdptr.query_ball(l_cur_point, r)
  *             while True:             # <<<<<<<<<<<<<<
  *                 pair = tuple(dereference(iterator).next())
- *                 if pair == ITERATOR_TERMINATOR:
+ *                 if pair == tuple(ITERATOR_TERMINATOR):
  */
     while (1) {
 
@@ -4732,7 +4736,7 @@ static PyObject *__pyx_pf_5freud_8locality_11SpatialData_8query_ball(struct __py
  *             iterator = self.spdptr.query_ball(l_cur_point, r)
  *             while True:
  *                 pair = tuple(dereference(iterator).next())             # <<<<<<<<<<<<<<
- *                 if pair == ITERATOR_TERMINATOR:
+ *                 if pair == tuple(ITERATOR_TERMINATOR):
  *                     break
  */
       __pyx_t_3 = __pyx_convert_pair_to_py_unsigned_int____float((*__pyx_v_iterator).next()); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 157, __pyx_L1_error)
@@ -4746,17 +4750,24 @@ static PyObject *__pyx_pf_5freud_8locality_11SpatialData_8query_ball(struct __py
       /* "freud/locality.pyx":158
  *             while True:
  *                 pair = tuple(dereference(iterator).next())
- *                 if pair == ITERATOR_TERMINATOR:             # <<<<<<<<<<<<<<
+ *                 if pair == tuple(ITERATOR_TERMINATOR):             # <<<<<<<<<<<<<<
  *                     break
  *                 elif exclude_ii and pair[0] == i:
  */
-      __pyx_t_14 = __pyx_convert_pair_from_py_unsigned_int__and_float(__pyx_v_pair); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 158, __pyx_L1_error)
-      __pyx_t_1 = ((__pyx_t_14 == freud::locality::SpatialData::ITERATOR_TERMINATOR) != 0);
+      __pyx_t_4 = __pyx_convert_pair_to_py_unsigned_int____float(freud::locality::SpatialData::ITERATOR_TERMINATOR); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 158, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_4);
+      __pyx_t_3 = __Pyx_PySequence_Tuple(__pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 158, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_3);
+      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+      __pyx_t_4 = PyObject_RichCompare(__pyx_v_pair, __pyx_t_3, Py_EQ); __Pyx_XGOTREF(__pyx_t_4); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 158, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+      __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_t_4); if (unlikely(__pyx_t_1 < 0)) __PYX_ERR(0, 158, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       if (__pyx_t_1) {
 
         /* "freud/locality.pyx":159
  *                 pair = tuple(dereference(iterator).next())
- *                 if pair == ITERATOR_TERMINATOR:
+ *                 if pair == tuple(ITERATOR_TERMINATOR):
  *                     break             # <<<<<<<<<<<<<<
  *                 elif exclude_ii and pair[0] == i:
  *                     continue
@@ -4766,32 +4777,32 @@ static PyObject *__pyx_pf_5freud_8locality_11SpatialData_8query_ball(struct __py
         /* "freud/locality.pyx":158
  *             while True:
  *                 pair = tuple(dereference(iterator).next())
- *                 if pair == ITERATOR_TERMINATOR:             # <<<<<<<<<<<<<<
+ *                 if pair == tuple(ITERATOR_TERMINATOR):             # <<<<<<<<<<<<<<
  *                     break
  *                 elif exclude_ii and pair[0] == i:
  */
       }
 
       /* "freud/locality.pyx":160
- *                 if pair == ITERATOR_TERMINATOR:
+ *                 if pair == tuple(ITERATOR_TERMINATOR):
  *                     break
  *                 elif exclude_ii and pair[0] == i:             # <<<<<<<<<<<<<<
  *                     continue
  *                 ret.append((i,) + pair)
  */
-      __pyx_t_15 = __Pyx_PyObject_IsTrue(__pyx_v_exclude_ii); if (unlikely(__pyx_t_15 < 0)) __PYX_ERR(0, 160, __pyx_L1_error)
-      if (__pyx_t_15) {
+      __pyx_t_14 = __Pyx_PyObject_IsTrue(__pyx_v_exclude_ii); if (unlikely(__pyx_t_14 < 0)) __PYX_ERR(0, 160, __pyx_L1_error)
+      if (__pyx_t_14) {
       } else {
-        __pyx_t_1 = __pyx_t_15;
+        __pyx_t_1 = __pyx_t_14;
         goto __pyx_L10_bool_binop_done;
       }
       __pyx_t_4 = __Pyx_PyInt_From_unsigned_int(__pyx_v_i); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 160, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       __pyx_t_3 = PyObject_RichCompare(PyTuple_GET_ITEM(__pyx_v_pair, 0), __pyx_t_4, Py_EQ); __Pyx_XGOTREF(__pyx_t_3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 160, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      __pyx_t_15 = __Pyx_PyObject_IsTrue(__pyx_t_3); if (unlikely(__pyx_t_15 < 0)) __PYX_ERR(0, 160, __pyx_L1_error)
+      __pyx_t_14 = __Pyx_PyObject_IsTrue(__pyx_t_3); if (unlikely(__pyx_t_14 < 0)) __PYX_ERR(0, 160, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      __pyx_t_1 = __pyx_t_15;
+      __pyx_t_1 = __pyx_t_14;
       __pyx_L10_bool_binop_done:;
       if (__pyx_t_1) {
 
@@ -4805,7 +4816,7 @@ static PyObject *__pyx_pf_5freud_8locality_11SpatialData_8query_ball(struct __py
         goto __pyx_L7_continue;
 
         /* "freud/locality.pyx":160
- *                 if pair == ITERATOR_TERMINATOR:
+ *                 if pair == tuple(ITERATOR_TERMINATOR):
  *                     break
  *                 elif exclude_ii and pair[0] == i:             # <<<<<<<<<<<<<<
  *                     continue
@@ -4830,7 +4841,7 @@ static PyObject *__pyx_pf_5freud_8locality_11SpatialData_8query_ball(struct __py
       __pyx_t_3 = PyNumber_Add(__pyx_t_4, __pyx_v_pair); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 162, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      __pyx_t_16 = __Pyx_PyList_Append(__pyx_v_ret, __pyx_t_3); if (unlikely(__pyx_t_16 == ((int)-1))) __PYX_ERR(0, 162, __pyx_L1_error)
+      __pyx_t_15 = __Pyx_PyList_Append(__pyx_v_ret, __pyx_t_3); if (unlikely(__pyx_t_15 == ((int)-1))) __PYX_ERR(0, 162, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       __pyx_L7_continue:;
     }
@@ -10914,9 +10925,8 @@ static PyObject *__pyx_pf_5freud_8locality_9AABBQuery_6query(struct __pyx_obj_5f
   size_t __pyx_t_16;
   Py_ssize_t __pyx_t_17;
   std::shared_ptr<freud::locality::SpatialDataIterator>  __pyx_t_18;
-  std::pair<unsigned int,float>  __pyx_t_19;
+  int __pyx_t_19;
   int __pyx_t_20;
-  int __pyx_t_21;
   __Pyx_RefNannySetupContext("query", 0);
   __Pyx_INCREF(__pyx_v_points);
 
@@ -11247,7 +11257,7 @@ static PyObject *__pyx_pf_5freud_8locality_9AABBQuery_6query(struct __pyx_obj_5f
  *             iterator = self.thisptr.query(l_cur_point, k, r, scale)
  *             while True:             # <<<<<<<<<<<<<<
  *                 pair = tuple(dereference(iterator).next())
- *                 if pair == ITERATOR_TERMINATOR:
+ *                 if pair == tuple(ITERATOR_TERMINATOR):
  */
     while (1) {
 
@@ -11255,7 +11265,7 @@ static PyObject *__pyx_pf_5freud_8locality_9AABBQuery_6query(struct __pyx_obj_5f
  *             iterator = self.thisptr.query(l_cur_point, k, r, scale)
  *             while True:
  *                 pair = tuple(dereference(iterator).next())             # <<<<<<<<<<<<<<
- *                 if pair == ITERATOR_TERMINATOR:
+ *                 if pair == tuple(ITERATOR_TERMINATOR):
  *                     break
  */
       __pyx_t_3 = __pyx_convert_pair_to_py_unsigned_int____float((*__pyx_v_iterator).next()); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 760, __pyx_L1_error)
@@ -11269,17 +11279,24 @@ static PyObject *__pyx_pf_5freud_8locality_9AABBQuery_6query(struct __pyx_obj_5f
       /* "freud/locality.pyx":761
  *             while True:
  *                 pair = tuple(dereference(iterator).next())
- *                 if pair == ITERATOR_TERMINATOR:             # <<<<<<<<<<<<<<
+ *                 if pair == tuple(ITERATOR_TERMINATOR):             # <<<<<<<<<<<<<<
  *                     break
  *                 elif exclude_ii and pair[0] == i:
  */
-      __pyx_t_19 = __pyx_convert_pair_from_py_unsigned_int__and_float(__pyx_v_pair); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 761, __pyx_L1_error)
-      __pyx_t_1 = ((__pyx_t_19 == freud::locality::SpatialData::ITERATOR_TERMINATOR) != 0);
+      __pyx_t_4 = __pyx_convert_pair_to_py_unsigned_int____float(freud::locality::SpatialData::ITERATOR_TERMINATOR); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 761, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_4);
+      __pyx_t_3 = __Pyx_PySequence_Tuple(__pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 761, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_3);
+      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+      __pyx_t_4 = PyObject_RichCompare(__pyx_v_pair, __pyx_t_3, Py_EQ); __Pyx_XGOTREF(__pyx_t_4); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 761, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+      __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_t_4); if (unlikely(__pyx_t_1 < 0)) __PYX_ERR(0, 761, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       if (__pyx_t_1) {
 
         /* "freud/locality.pyx":762
  *                 pair = tuple(dereference(iterator).next())
- *                 if pair == ITERATOR_TERMINATOR:
+ *                 if pair == tuple(ITERATOR_TERMINATOR):
  *                     break             # <<<<<<<<<<<<<<
  *                 elif exclude_ii and pair[0] == i:
  *                     continue
@@ -11289,32 +11306,32 @@ static PyObject *__pyx_pf_5freud_8locality_9AABBQuery_6query(struct __pyx_obj_5f
         /* "freud/locality.pyx":761
  *             while True:
  *                 pair = tuple(dereference(iterator).next())
- *                 if pair == ITERATOR_TERMINATOR:             # <<<<<<<<<<<<<<
+ *                 if pair == tuple(ITERATOR_TERMINATOR):             # <<<<<<<<<<<<<<
  *                     break
  *                 elif exclude_ii and pair[0] == i:
  */
       }
 
       /* "freud/locality.pyx":763
- *                 if pair == ITERATOR_TERMINATOR:
+ *                 if pair == tuple(ITERATOR_TERMINATOR):
  *                     break
  *                 elif exclude_ii and pair[0] == i:             # <<<<<<<<<<<<<<
  *                     continue
  *                 ret.append((i,) + pair)
  */
-      __pyx_t_20 = __Pyx_PyObject_IsTrue(__pyx_v_exclude_ii); if (unlikely(__pyx_t_20 < 0)) __PYX_ERR(0, 763, __pyx_L1_error)
-      if (__pyx_t_20) {
+      __pyx_t_19 = __Pyx_PyObject_IsTrue(__pyx_v_exclude_ii); if (unlikely(__pyx_t_19 < 0)) __PYX_ERR(0, 763, __pyx_L1_error)
+      if (__pyx_t_19) {
       } else {
-        __pyx_t_1 = __pyx_t_20;
+        __pyx_t_1 = __pyx_t_19;
         goto __pyx_L11_bool_binop_done;
       }
       __pyx_t_4 = __Pyx_PyInt_From_unsigned_int(__pyx_v_i); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 763, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       __pyx_t_3 = PyObject_RichCompare(PyTuple_GET_ITEM(__pyx_v_pair, 0), __pyx_t_4, Py_EQ); __Pyx_XGOTREF(__pyx_t_3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 763, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      __pyx_t_20 = __Pyx_PyObject_IsTrue(__pyx_t_3); if (unlikely(__pyx_t_20 < 0)) __PYX_ERR(0, 763, __pyx_L1_error)
+      __pyx_t_19 = __Pyx_PyObject_IsTrue(__pyx_t_3); if (unlikely(__pyx_t_19 < 0)) __PYX_ERR(0, 763, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      __pyx_t_1 = __pyx_t_20;
+      __pyx_t_1 = __pyx_t_19;
       __pyx_L11_bool_binop_done:;
       if (__pyx_t_1) {
 
@@ -11328,7 +11345,7 @@ static PyObject *__pyx_pf_5freud_8locality_9AABBQuery_6query(struct __pyx_obj_5f
         goto __pyx_L8_continue;
 
         /* "freud/locality.pyx":763
- *                 if pair == ITERATOR_TERMINATOR:
+ *                 if pair == tuple(ITERATOR_TERMINATOR):
  *                     break
  *                 elif exclude_ii and pair[0] == i:             # <<<<<<<<<<<<<<
  *                     continue
@@ -11353,7 +11370,7 @@ static PyObject *__pyx_pf_5freud_8locality_9AABBQuery_6query(struct __pyx_obj_5f
       __pyx_t_3 = PyNumber_Add(__pyx_t_4, __pyx_v_pair); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 765, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      __pyx_t_21 = __Pyx_PyList_Append(__pyx_v_ret, __pyx_t_3); if (unlikely(__pyx_t_21 == ((int)-1))) __PYX_ERR(0, 765, __pyx_L1_error)
+      __pyx_t_20 = __Pyx_PyList_Append(__pyx_v_ret, __pyx_t_3); if (unlikely(__pyx_t_20 == ((int)-1))) __PYX_ERR(0, 765, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       __pyx_L8_continue:;
     }
@@ -21575,117 +21592,6 @@ static PyObject *__pyx_convert_pair_to_py_unsigned_int____float(std::pair<unsign
   __pyx_r = 0;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-/* "pair.from_py":145
- * 
- * @cname("__pyx_convert_pair_from_py_unsigned_int__and_float")
- * cdef pair[X,Y] __pyx_convert_pair_from_py_unsigned_int__and_float(object o) except *:             # <<<<<<<<<<<<<<
- *     x, y = o
- *     return pair[X,Y](<X>x, <Y>y)
- */
-
-static std::pair<unsigned int,float>  __pyx_convert_pair_from_py_unsigned_int__and_float(PyObject *__pyx_v_o) {
-  PyObject *__pyx_v_x = NULL;
-  PyObject *__pyx_v_y = NULL;
-  std::pair<unsigned int,float>  __pyx_r;
-  __Pyx_RefNannyDeclarations
-  PyObject *__pyx_t_1 = NULL;
-  PyObject *__pyx_t_2 = NULL;
-  PyObject *__pyx_t_3 = NULL;
-  PyObject *(*__pyx_t_4)(PyObject *);
-  unsigned int __pyx_t_5;
-  float __pyx_t_6;
-  __Pyx_RefNannySetupContext("__pyx_convert_pair_from_py_unsigned_int__and_float", 0);
-
-  /* "pair.from_py":146
- * @cname("__pyx_convert_pair_from_py_unsigned_int__and_float")
- * cdef pair[X,Y] __pyx_convert_pair_from_py_unsigned_int__and_float(object o) except *:
- *     x, y = o             # <<<<<<<<<<<<<<
- *     return pair[X,Y](<X>x, <Y>y)
- * 
- */
-  if ((likely(PyTuple_CheckExact(__pyx_v_o))) || (PyList_CheckExact(__pyx_v_o))) {
-    PyObject* sequence = __pyx_v_o;
-    Py_ssize_t size = __Pyx_PySequence_SIZE(sequence);
-    if (unlikely(size != 2)) {
-      if (size > 2) __Pyx_RaiseTooManyValuesError(2);
-      else if (size >= 0) __Pyx_RaiseNeedMoreValuesError(size);
-      __PYX_ERR(1, 146, __pyx_L1_error)
-    }
-    #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-    if (likely(PyTuple_CheckExact(sequence))) {
-      __pyx_t_1 = PyTuple_GET_ITEM(sequence, 0); 
-      __pyx_t_2 = PyTuple_GET_ITEM(sequence, 1); 
-    } else {
-      __pyx_t_1 = PyList_GET_ITEM(sequence, 0); 
-      __pyx_t_2 = PyList_GET_ITEM(sequence, 1); 
-    }
-    __Pyx_INCREF(__pyx_t_1);
-    __Pyx_INCREF(__pyx_t_2);
-    #else
-    __pyx_t_1 = PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 146, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_2 = PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 146, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_2);
-    #endif
-  } else {
-    Py_ssize_t index = -1;
-    __pyx_t_3 = PyObject_GetIter(__pyx_v_o); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 146, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_4 = Py_TYPE(__pyx_t_3)->tp_iternext;
-    index = 0; __pyx_t_1 = __pyx_t_4(__pyx_t_3); if (unlikely(!__pyx_t_1)) goto __pyx_L3_unpacking_failed;
-    __Pyx_GOTREF(__pyx_t_1);
-    index = 1; __pyx_t_2 = __pyx_t_4(__pyx_t_3); if (unlikely(!__pyx_t_2)) goto __pyx_L3_unpacking_failed;
-    __Pyx_GOTREF(__pyx_t_2);
-    if (__Pyx_IternextUnpackEndCheck(__pyx_t_4(__pyx_t_3), 2) < 0) __PYX_ERR(1, 146, __pyx_L1_error)
-    __pyx_t_4 = NULL;
-    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    goto __pyx_L4_unpacking_done;
-    __pyx_L3_unpacking_failed:;
-    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_4 = NULL;
-    if (__Pyx_IterFinish() == 0) __Pyx_RaiseNeedMoreValuesError(index);
-    __PYX_ERR(1, 146, __pyx_L1_error)
-    __pyx_L4_unpacking_done:;
-  }
-  __pyx_v_x = __pyx_t_1;
-  __pyx_t_1 = 0;
-  __pyx_v_y = __pyx_t_2;
-  __pyx_t_2 = 0;
-
-  /* "pair.from_py":147
- * cdef pair[X,Y] __pyx_convert_pair_from_py_unsigned_int__and_float(object o) except *:
- *     x, y = o
- *     return pair[X,Y](<X>x, <Y>y)             # <<<<<<<<<<<<<<
- * 
- * 
- */
-  __pyx_t_5 = __Pyx_PyInt_As_unsigned_int(__pyx_v_x); if (unlikely((__pyx_t_5 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(1, 147, __pyx_L1_error)
-  __pyx_t_6 = __pyx_PyFloat_AsFloat(__pyx_v_y); if (unlikely((__pyx_t_6 == (float)-1) && PyErr_Occurred())) __PYX_ERR(1, 147, __pyx_L1_error)
-  __pyx_r = std::pair<unsigned int,float> (((unsigned int)__pyx_t_5), ((float)__pyx_t_6));
-  goto __pyx_L0;
-
-  /* "pair.from_py":145
- * 
- * @cname("__pyx_convert_pair_from_py_unsigned_int__and_float")
- * cdef pair[X,Y] __pyx_convert_pair_from_py_unsigned_int__and_float(object o) except *:             # <<<<<<<<<<<<<<
- *     x, y = o
- *     return pair[X,Y](<X>x, <Y>y)
- */
-
-  /* function exit code */
-  __pyx_L1_error:;
-  __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_XDECREF(__pyx_t_2);
-  __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_AddTraceback("pair.from_py.__pyx_convert_pair_from_py_unsigned_int__and_float", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  __Pyx_pretend_to_initialize(&__pyx_r);
-  __pyx_L0:;
-  __Pyx_XDECREF(__pyx_v_x);
-  __Pyx_XDECREF(__pyx_v_y);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
