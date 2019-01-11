@@ -104,6 +104,10 @@ cdef class SpatialData:
 
         ret = []
 
+        # Ensure that enough neighbors are found when excluding
+        if exclude_ii:
+            k += 1
+
         cdef unsigned int i
         for i in range(Np):
             l_cur_point = vec3[float](points[i, 0], points[i, 1], points[i, 2])
@@ -751,6 +755,11 @@ cdef class AABBQuery(SpatialData):
         cdef shared_ptr[freud._locality.SpatialDataIterator] iterator
 
         ret = []
+
+        # Ensure that enough neighbors are found when excluding
+        if exclude_ii:
+            k += 1
+
         cdef unsigned int i
         for i in range(Np):
             l_cur_point = vec3[float](
