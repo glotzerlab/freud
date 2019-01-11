@@ -369,7 +369,7 @@ std::shared_ptr<SpatialDataIterator> LinkCell::query_ball(const vec3<float> poin
     }
 
 
-std::pair<unsigned int, float> LinkCellQueryBallIterator::next()
+NeighborPoint LinkCellQueryBallIterator::next()
     {
     ;
     float r_cutsq = m_r * m_r;
@@ -389,7 +389,7 @@ std::pair<unsigned int, float> LinkCellQueryBallIterator::next()
 
             if (rsq < r_cutsq)
                 {
-                return std::pair<unsigned int, float>(j, sqrt(rsq));
+                return NeighborPoint(j, sqrt(rsq));
                 }
             }
 
@@ -418,7 +418,7 @@ std::pair<unsigned int, float> LinkCellQueryBallIterator::next()
     return SpatialData::ITERATOR_TERMINATOR;
     }
 
-std::pair<unsigned int, float> LinkCellQueryIterator::next()
+NeighborPoint LinkCellQueryIterator::next()
     {
     vec3<unsigned int> point_cell(m_linkcell->getCellCoord(m_point));
 
@@ -436,7 +436,7 @@ std::pair<unsigned int, float> LinkCellQueryIterator::next()
                 {
                 const vec3<float> rij(m_spatial_data->getBox().wrap((*m_linkcell)[j] - m_point));
                 const float rsq(dot(rij, rij));
-                m_current_neighbors.emplace_back(std::pair<float, unsigned int>(sqrt(rsq), j));
+                m_current_neighbors.emplace_back(j, sqrt(rsq));
                 }
             }
 
@@ -447,7 +447,7 @@ std::pair<unsigned int, float> LinkCellQueryIterator::next()
         if (m_current_neighbors.size() >= m_k)
             {
             std::sort(m_current_neighbors.begin(), m_current_neighbors.end());
-            if (m_current_neighbors[m_k-1].first < (m_neigh_cell_iter.getRange()-1)*m_linkcell->getCellWidth())
+            if (m_current_neighbors[m_k-1].distance < (m_neigh_cell_iter.getRange()-1)*m_linkcell->getCellWidth())
                 {
                 break;
                 }
@@ -462,7 +462,7 @@ std::pair<unsigned int, float> LinkCellQueryIterator::next()
     while(m_count < m_k)
         {
         m_count++;
-        return std::pair<unsigned int, float>(m_current_neighbors[m_count-1].second, m_current_neighbors[m_count-1].first);
+        return m_current_neighbors[m_count-1];
         }
 
     m_finished = true;

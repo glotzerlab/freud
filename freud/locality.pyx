@@ -113,12 +113,12 @@ cdef class SpatialData:
             l_cur_point = vec3[float](points[i, 0], points[i, 1], points[i, 2])
             iterator = self.spdptr.query(l_cur_point, k)
             while True:
-                pair = tuple(dereference(iterator).next())
-                if pair == tuple(ITERATOR_TERMINATOR):
+                npoint = dereference(iterator).next()
+                if npoint == ITERATOR_TERMINATOR:
                     break
-                elif exclude_ii and pair[0] == i:
+                elif exclude_ii and npoint.id == i:
                     continue
-                ret.append((i,) + pair)
+                ret.append((i,) + (npoint.id, npoint.distance))
         return ret
 
     def query_ball(self, points, float r, exclude_ii=False):
@@ -158,12 +158,12 @@ cdef class SpatialData:
             l_cur_point = vec3[float](points[i, 0], points[i, 1], points[i, 2])
             iterator = self.spdptr.query_ball(l_cur_point, r)
             while True:
-                pair = tuple(dereference(iterator).next())
-                if pair == tuple(ITERATOR_TERMINATOR):
+                npoint = dereference(iterator).next()
+                if npoint == ITERATOR_TERMINATOR:
                     break
-                elif exclude_ii and pair[0] == i:
+                elif exclude_ii and npoint.id == i:
                     continue
-                ret.append((i,) + pair)
+                ret.append((i,) + (npoint.id, npoint.distance))
         return ret
 
 
@@ -766,12 +766,12 @@ cdef class AABBQuery(SpatialData):
                 l_points[i, 0], l_points[i, 1], l_points[i, 2])
             iterator = self.thisptr.query(l_cur_point, k, r, scale)
             while True:
-                pair = tuple(dereference(iterator).next())
-                if pair == tuple(ITERATOR_TERMINATOR):
+                npoint = dereference(iterator).next()
+                if npoint == ITERATOR_TERMINATOR:
                     break
-                elif exclude_ii and pair[0] == i:
+                elif exclude_ii and npoint.id == i:
                     continue
-                ret.append((i,) + pair)
+                ret.append((i,) + (npoint.id, npoint.distance))
         return ret
 
 

@@ -111,22 +111,22 @@ class IteratorLinkCell
 
 //! Iterates over sets of shells in a cell list
 /*! This class provides a convenient way to iterate over distinct
-    shells in a cell list structure. For a range of N, these are the
-    faces, edges, and corners of a cube of edge length 2*N + 1 cells
-    large. While IteratorLinkCell provides a way to iterate over
-    neighbors given a cell, IteratorCellShell provides a way to find
-    which cell offsets should be applied to find all the neighbors of
-    a particular reference shell within a distance some number of
-    cells away.
+ *  shells in a cell list structure. For a range of N, these are the
+ *  faces, edges, and corners of a cube of edge length 2*N + 1 cells
+ *  large. While IteratorLinkCell provides a way to iterate over
+ *  neighbors given a cell, IteratorCellShell provides a way to find
+ *  which cell offsets should be applied to find all the neighbors of
+ *  a particular reference shell within a distance some number of
+ *  cells away.
 
-\code
-// Grab neighbor cell offsets within the 3x3x3 typical search distance
-for(IteratorCellShell iter(0); iter != IteratorCellShell(2); ++iter)
-{
-    // still need to apply modulo operation for dimensions of the cell list
-    const vec3<int> offset(*iter);
-}
-\endcode
+ *  \code
+ *  // Grab neighbor cell offsets within the 3x3x3 typical search distance
+ *  for(IteratorCellShell iter(0); iter != IteratorCellShell(2); ++iter)
+ *  {
+ *      // still need to apply modulo operation for dimensions of the cell list
+ *      const vec3<int> offset(*iter);
+ *  }
+ *  \endcode
  */
 class IteratorCellShell
     {
@@ -320,32 +320,32 @@ bool compareFirstNeighborPairs(const std::vector<std::tuple<size_t, size_t, floa
 
 //! Computes a cell id for each particle and a link cell data structure for iterating through it
 /*! For simplicity in only needing a small number of arrays, the link cell
-    algorithm is used to generate and store the cell list data for particles.
+ *  algorithm is used to generate and store the cell list data for particles.
 
-    Cells are given a nominal minimum width \a cell_width. Each dimension of
-    the box is split into an integer number of cells no smaller than
-    \a cell_width wide in that dimension. The actual number of cells along
-    each dimension is stored in an Index3D which is also used to compute the
-    cell index from (i,j,k).
+ *  Cells are given a nominal minimum width \a cell_width. Each dimension of
+ *  the box is split into an integer number of cells no smaller than
+ *  \a cell_width wide in that dimension. The actual number of cells along
+ *  each dimension is stored in an Index3D which is also used to compute the
+ *  cell index from (i,j,k).
 
-    The cell coordinate (i,j,k) itself is computed like so:
-    \code
-    i = floorf((x + Lx/2) / w) % Nw
-    \endcode
-    and so on for j, k (y, z). Call getCellCoord() to do this computation for
-    an arbitrary point.
+ *  The cell coordinate (i,j,k) itself is computed like so:
+ *  \code
+ *  i = floorf((x + Lx/2) / w) % Nw
+ *  \endcode
+ *  and so on for j, k (y, z). Call getCellCoord() to do this computation for
+ *  an arbitrary point.
 
-    <b>Data structures:</b><br>
-    The internal data structure used in LinkCell is a linked list of particle
-    indices. See IteratorLinkCell for information on how to iterate through these.
+ *  <b>Data structures:</b><br>
+ *  The internal data structure used in LinkCell is a linked list of particle
+ *  indices. See IteratorLinkCell for information on how to iterate through these.
 
-    <b>2D:</b><br>
-    LinkCell properly handles 2D boxes. When a 2D box is handed to LinkCell,
-    it creates an m x n x 1 cell list and neighbor cells are only listed in
-    the plane. As with everything else in freud, 2D points must be passed in
-    as 3 component vectors x,y,0. Failing to set 0 in the third component will
-    lead to undefined behavior.
-*/
+ *  <b>2D:</b><br>
+ *  LinkCell properly handles 2D boxes. When a 2D box is handed to LinkCell,
+ *  it creates an m x n x 1 cell list and neighbor cells are only listed in
+ *  the plane. As with everything else in freud, 2D points must be passed in
+ *  as 3 component vectors x,y,0. Failing to set 0 in the third component will
+ *  lead to undefined behavior.
+ */
 class LinkCell : public SpatialData
     {
     public:
@@ -516,11 +516,11 @@ class LinkCellQueryIterator : public LinkCellIterator
         virtual ~LinkCellQueryIterator() {}
 
         //! Get the next element.
-        virtual std::pair<unsigned int, float> next();
+        virtual NeighborPoint next();
 
     protected:
         unsigned int m_k;  //!< Number of nearest neighbors to find
-        std::vector<std::pair<float, unsigned int> > m_current_neighbors; //!< Current list of neighbors for the current point.
+        std::vector<NeighborPoint> m_current_neighbors; //!< Current list of neighbors for the current point.
         unsigned int m_count;  //!< Number of neighbors returned for the current point.
     };
 
@@ -540,7 +540,7 @@ class LinkCellQueryBallIterator : public LinkCellIterator
         //! Empty Destructor
         virtual ~LinkCellQueryBallIterator() {}
 //! Get the next element.
-        virtual std::pair<unsigned int, float> next();
+        virtual NeighborPoint next();
 
     protected:
         float m_r;  //!< Search ball cutoff distance

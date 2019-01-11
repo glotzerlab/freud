@@ -134,14 +134,14 @@ class AABBQueryIterator : public AABBIterator
         virtual ~AABBQueryIterator() {}
 
         //! Get the next element.
-        virtual std::pair<unsigned int, float> next();
+        virtual NeighborPoint next();
 
     protected:
         unsigned int m_k;  //!< Number of nearest neighbors to find.
         float m_r;  //!< Current ball cutoff distance. Used as a guess.
         float m_scale;  //!< The amount to scale m_r by when the current ball is too small.
 
-        std::vector<std::pair<float, unsigned int> > m_current_neighbors; //!< The current set of found neighbors
+        std::vector<NeighborPoint> m_current_neighbors; //!< The current set of found neighbors.
     };
 
 //! Iterator that gets neighbors in a ball of size r using AABB tree structures
@@ -163,7 +163,7 @@ class AABBQueryBallIterator : public AABBIterator
         virtual ~AABBQueryBallIterator() {}
 
         //! Get the next element.
-        virtual std::pair<unsigned int, float> next();
+        virtual NeighborPoint next();
 
     protected:
         float m_r;  //!< Search ball cutoff distance

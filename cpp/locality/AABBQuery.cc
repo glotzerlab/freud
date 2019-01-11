@@ -333,7 +333,7 @@ void AABBIterator::updateImageVectors(float rmax)
         }
     }
 
-std::pair<unsigned int, float> AABBQueryBallIterator::next()
+NeighborPoint AABBQueryBallIterator::next()
     {
     float r_cutsq = m_r * m_r;
 
@@ -378,7 +378,7 @@ std::pair<unsigned int, float> AABBQueryBallIterator::next()
                             {
                             // Return this one. Need to increment for the next call to the function, though.
                             cur_p++;
-                            return std::pair<unsigned int, float>(j, sqrt(dr_sq));
+                            return NeighborPoint(j, sqrt(dr_sq));
                             }
                         cur_p++;
                         }
@@ -400,7 +400,7 @@ std::pair<unsigned int, float> AABBQueryBallIterator::next()
     return SpatialData::ITERATOR_TERMINATOR;
     }
 
-std::pair<unsigned int, float> AABBQueryIterator::next()
+NeighborPoint AABBQueryIterator::next()
     {
     vec3<float> plane_distance = m_spatial_data->getBox().getNearestPlaneDistance();
     float min_plane_distance = std::min(std::min(plane_distance.x, plane_distance.y), plane_distance.z);
@@ -423,10 +423,7 @@ std::pair<unsigned int, float> AABBQueryIterator::next()
             std::shared_ptr<SpatialDataIterator> ball_it = m_spatial_data->query_ball(m_point, m_r);
             while(!ball_it->end())
                 {
-                std::pair<unsigned int, float> val = ball_it->next();
-                // What we want to store is the distance and the reference
-                // point so that we can reconstruct the current points bonds.
-                m_current_neighbors.emplace_back(val.second, val.first);
+                m_current_neighbors.emplace_back(ball_it->next());
                 }
             // Remove the last item, which is just the blank object
             m_current_neighbors.pop_back();
@@ -454,10 +451,12 @@ std::pair<unsigned int, float> AABBQueryIterator::next()
         {
         // Slightly inefficient because we're sorting every time, but
         // should be negligible unless we're querying for very large
-        // numbers of nearest neighbors.
+        // numbers of nearest neighbors. Note that we use reverse iterators to
+        // sort in descending order so that we can use pop_back to remove the
+        // item from the vector before returning it.
         std::sort(m_current_neighbors.rbegin(), m_current_neighbors.rend());
 
-        std::pair<unsigned int, float> ret_obj = std::pair<unsigned int, float>(m_current_neighbors.back().second, m_current_neighbors.back().first);
+        NeighborPoint ret_obj = m_current_neighbors.back();
         m_current_neighbors.pop_back();
 
         if (!m_current_neighbors.size())

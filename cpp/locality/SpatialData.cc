@@ -5,6 +5,6 @@
 
 namespace freud { namespace locality {
 
-const std::pair<unsigned int, float> SpatialData::ITERATOR_TERMINATOR = {-1, 0};
+const NeighborPoint SpatialData::ITERATOR_TERMINATOR(-1, 0);
 
 }; }; // end namespace freud::locality

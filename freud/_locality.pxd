@@ -6,10 +6,14 @@ from freud.util._VectorMath cimport vec3
 from freud.util._Index1D cimport Index3D
 from libcpp.memory cimport shared_ptr
 from libcpp.vector cimport vector
-from libcpp.pair cimport pair
 cimport freud._box
 
 cdef extern from "SpatialData.h" namespace "freud::locality":
+    cdef cppclass NeighborPoint:
+        unsigned int id
+        float distance
+        bool operator==(NeighborPoint)
+
     cdef cppclass SpatialData:
         SpatialData()
         SpatialData(const freud._box.Box &, const vec3[float]*, unsigned int)
@@ -22,14 +26,14 @@ cdef extern from "SpatialData.h" namespace "freud::locality":
         const unsigned int getNRef const
         const vec3[float] operator[](unsigned int) const
 
-    pair[unsigned int, float] ITERATOR_TERMINATOR \
+    NeighborPoint ITERATOR_TERMINATOR \
         "freud::locality::SpatialData::ITERATOR_TERMINATOR"
 
     cdef cppclass SpatialDataIterator:
         SpatialDataIterator()
         SpatialDataIterator(SpatialData*, vec3[float]&, unsigned int)
         bool end()
-        pair[unsigned int, float] next()
+        NeighborPoint next()
 
 cdef extern from "NeighborList.h" namespace "freud::locality":
     cdef cppclass NeighborList:

@@ -15,14 +15,52 @@
 
 namespace freud { namespace locality {
 
+
+//! Simple data structure encoding neighboring points.
+/*! The primary purpose of this class is to provide a more meaningful struct
+ *  than a simple std::pair, which is hard to interpret. Additionally, this
+ *  class defines the less than operator according to distance, making it
+ *  possible to sort.
+ */
+struct NeighborPoint {
+    NeighborPoint() : id(0), distance(0) { }
+
+    NeighborPoint(unsigned int id, float d) : id(id), distance(d) { }
+
+    //! Equality checks both id and distance.
+    bool operator== (const NeighborPoint &n)
+        {
+        return (id == n.id) && (distance == n.distance);
+        }
+
+    //! Default comparator of points is by distance.
+    /*! This form of comparison allows easy sorting of nearest neighbors by
+     *  distance
+     */
+    bool operator< (const NeighborPoint &n) const
+        {
+        return distance < n.distance;
+        }
+
+    unsigned int id;
+    float distance;
+};
+
+
 // Forward declare the iterator
 class SpatialDataIterator;
 
 
 //! Parent data structure for all neighbor finding algorithms.
-/*! placeholder
-
-*/
+/*! This class defines the API for all data structures for accelerating
+ *  neighbor finding. The object encapsulates a set of points and a system box
+ *  that define the set of points to search and the periodic system within these
+ *  points can be found.
+ *
+ *  The primary interface to this class is through the query and query_ball
+ *  methods, which support k-nearest neighbor queries and distance-based
+ *  queries, respectively.
+ */
 class SpatialData
     {
     public:
@@ -76,19 +114,28 @@ class SpatialData
             return m_ref_points[index];
             }
 
-        static const std::pair<unsigned int, float> ITERATOR_TERMINATOR; //!< The object returned when iteration is complete.
+        static const NeighborPoint ITERATOR_TERMINATOR; //!< The object returned when iteration is complete.
 
     protected:
         const box::Box m_box;             //!< Simulation box where the particles belong
         const vec3<float> *m_ref_points;  //!< Reference point coordinates
         unsigned int m_Nref;              //!< Number of reference points
-
-        
     };
 
-//! The iterator class over the Spatial Data
-/*! placeholder
-
+//! The iterator class for neighbor queries on SpatialData objects.
+/*! This is an abstract class that defines the abstract API for neighbor
+ *  iteration. All subclasses of SpatialData should also subclass
+ *  SpatialDataIterator and define the next() method appropriately. The next()
+ *  method is the primary mode of interaction with the iterator, and allows
+ *  looping through the iterator.
+ *
+ *  Note that due to the fact that there is no way to know when iteration is
+ *  complete until all relevant points are actually checked (irrespective of the
+ *  underlying data structure), the end() method will not return true until the
+ *  next method reaches the end of control flow at least once without finding a
+ *  next neighbor. As a result, the next() method is required to return
+ *  SpatialData::ITERATOR_TERMINATOR on all calls after the last neighbor is
+ *  found in order to guarantee that the correct set of neighbors is considered.
 */
 class SpatialDataIterator {
     public:
@@ -111,7 +158,7 @@ class SpatialDataIterator {
         virtual bool end() { return m_finished; }
 
         //! Get the next element.
-        virtual std::pair<unsigned int, float> next()
+        virtual NeighborPoint next()
             {
             throw std::runtime_error("The next method must be implemented by child classes.");
             }
