@@ -371,6 +371,7 @@ std::shared_ptr<SpatialDataIterator> LinkCell::query_ball(const vec3<float> poin
 
 std::pair<unsigned int, float> LinkCellQueryBallIterator::next()
     {
+    ;
     float r_cutsq = m_r * m_r;
 
     vec3<unsigned int> point_cell(m_linkcell->getCellCoord(m_point));
@@ -398,6 +399,7 @@ std::pair<unsigned int, float> LinkCellQueryBallIterator::next()
         // efficient by also accounting for the position of the point in
         // the current cell if this is too slow.
         ++m_neigh_cell_iter;
+
         if ((m_neigh_cell_iter.getRange()-1)*m_linkcell->getCellWidth() > m_r)
             {
             break;
@@ -405,9 +407,9 @@ std::pair<unsigned int, float> LinkCellQueryBallIterator::next()
         else
             {
             const unsigned int neighbor_cell = m_linkcell->getCellIndexer()(
-                    (point_cell.x + (*m_neigh_cell_iter).x) % m_linkcell->getCellIndexer().getW(),
-                    (point_cell.y + (*m_neigh_cell_iter).y) % m_linkcell->getCellIndexer().getH(),
-                    (point_cell.z + (*m_neigh_cell_iter).z) % m_linkcell->getCellIndexer().getD());
+                    (m_linkcell->getCellIndexer().getW() + point_cell.x + (*m_neigh_cell_iter).x) % m_linkcell->getCellIndexer().getW(),
+                    (m_linkcell->getCellIndexer().getH() + point_cell.y + (*m_neigh_cell_iter).y) % m_linkcell->getCellIndexer().getH(),
+                    (m_linkcell->getCellIndexer().getD() + point_cell.z + (*m_neigh_cell_iter).z) % m_linkcell->getCellIndexer().getD());
             m_cell_iter = m_linkcell->itercell(neighbor_cell);
             }
         }

@@ -9,6 +9,8 @@ from libcpp cimport bool as cbool
 cdef class SpatialData:
     cdef freud._locality.SpatialData * spdptr
     cdef cbool queryable
+    cdef freud.box.Box box
+    cdef float[:, ::1] ref_points
 
 cdef class NeighborList:
     cdef freud._locality.NeighborList * thisptr
@@ -38,4 +40,3 @@ cdef class NearestNeighbors:
 cdef class AABBQuery(SpatialData):
     cdef freud._locality.AABBQuery * thisptr
     cdef NeighborList _nlist
-    cdef freud.box.Box box

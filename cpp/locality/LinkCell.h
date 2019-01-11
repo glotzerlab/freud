@@ -284,6 +284,8 @@ class IteratorCellShell
             return m_range;
             }
 
+        int m_range;      //!< Find cells this many cells away
+        char m_stage;     //!< stage of the computation (which face is being iterated over)
     private:
         void reset(unsigned int range)
             {
@@ -307,11 +309,9 @@ class IteratorCellShell
                 m_stage = 5;
                 }
             }
-        int m_range;      //!< Find cells this many cells away
         int m_current_x;  //!< Current position in x
         int m_current_y;  //!< Current position in y
         int m_current_z;  //!< Current position in z
-        char m_stage;     //!< stage of the computation (which face is being iterated over)
         bool m_is2D;      //!< true if the cell list is 2D
 };
 

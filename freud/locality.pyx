@@ -71,7 +71,7 @@ cdef class SpatialData:
         raise NotImplementedError(
             "This function must be implemented by the child class")
 
-    def query(self, points, unsigned int k=1):
+    def query(self, points, unsigned int k=1, exclude_ii=False):
         R"""Query the tree for nearest neighbors of the provided point.
 
         Args:
@@ -93,7 +93,8 @@ cdef class SpatialData:
                                "object was originally constructed with "
                                "reference points")
         points = freud.common.convert_array(
-            points, 2, dtype=np.float32, contiguous=True, array_name="points")
+            np.atleast_2d(points), 2, dtype=np.float32, contiguous=True,
+            array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
@@ -111,10 +112,12 @@ cdef class SpatialData:
                 pair = tuple(dereference(iterator).next())
                 if pair == ITERATOR_TERMINATOR:
                     break
+                elif exclude_ii and pair[0] == i:
+                    continue
                 ret.append((i,) + pair)
         return ret
 
-    def query_ball(self, points, float r):
+    def query_ball(self, points, float r, exclude_ii=False):
         R"""Query the tree for all points within a distance r of the provided point(s).
 
         Args:
@@ -136,7 +139,8 @@ cdef class SpatialData:
                                "object was originally constructed with "
                                "reference points")
         points = freud.common.convert_array(
-            points, 2, dtype=np.float32, contiguous=True, array_name="points")
+            np.atleast_2d(points), 2, dtype=np.float32, contiguous=True,
+            array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
@@ -153,6 +157,8 @@ cdef class SpatialData:
                 pair = tuple(dereference(iterator).next())
                 if pair == ITERATOR_TERMINATOR:
                     break
+                elif exclude_ii and pair[0] == i:
+                    continue
                 ret.append((i,) + pair)
         return ret
 
@@ -483,16 +489,16 @@ cdef class NeighborList:
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        cdef np.ndarray cRef_points = ref_points
-        cdef np.ndarray cPoints = points
+        cdef float[:, ::1] cRef_points = ref_points
+        cdef float[:, ::1] cPoints = points
         cdef size_t nRef = ref_points.shape[0]
         cdef size_t nP = points.shape[0]
 
         self.thisptr.validate(nRef, nP)
         self.thisptr.filter_r(
             dereference(b.thisptr),
-            <vec3[float]*> cRef_points.data,
-            <vec3[float]*> cPoints.data,
+            <vec3[float]*> &cRef_points[0, 0],
+            <vec3[float]*> &cPoints[0, 0],
             rmax,
             rmin)
         return self
@@ -619,14 +625,14 @@ cdef class AABBQuery(SpatialData):
                 # Assume valid set of arguments is passed
                 self.queryable = True
                 self.box = freud.common.convert_box(box)
-                ref_points = freud.common.convert_array(
-                    ref_points, 2, dtype=np.float32, contiguous=True,
+                self.ref_points = freud.common.convert_array(
+                    ref_points.copy(), 2, dtype=np.float32, contiguous=True,
                     array_name="ref_points")
-                l_ref_points = ref_points
+                l_ref_points = self.ref_points
                 self.thisptr = self.spdptr = new freud._locality.AABBQuery(
                     dereference(self.box.thisptr),
                     <vec3[float]*> &l_ref_points[0, 0],
-                    ref_points.shape[0])
+                    self.ref_points.shape[0])
                 self._nlist = NeighborList()
 
     def __dealloc__(self):
@@ -677,18 +683,18 @@ cdef class AABBQuery(SpatialData):
             raise TypeError('points should be an Nx3 array')
 
         cdef float c_rcut = rcut
-        cdef np.ndarray cRef_points = ref_points
+        cdef float[:, ::1] cRef_points = ref_points
         cdef unsigned int n_ref = ref_points.shape[0]
-        cdef np.ndarray cPoints = points
+        cdef float[:, ::1] cPoints = points
         cdef unsigned int Np = points.shape[0]
         cdef cbool c_exclude_ii = exclude_ii
         with nogil:
             self.thisptr.compute(
                 dereference(b.thisptr),
                 c_rcut,
-                <vec3[float]*> cRef_points.data,
+                <vec3[float]*> &cRef_points[0, 0],
                 n_ref,
-                <vec3[float]*> cPoints.data,
+                <vec3[float]*> &cPoints[0, 0],
                 Np,
                 c_exclude_ii)
 
@@ -702,7 +708,7 @@ cdef class AABBQuery(SpatialData):
     def nlist(self):
         return self._nlist
 
-    def query(self, points, unsigned int k=1, float r=0, float scale=1.1):
+    def query(self, points, unsigned int k=1, float r=0, float scale=1.1, exclude_ii=False):
         R"""Query the tree for nearest neighbors of the provided point.
 
         The AABBQuery object overrides the parent method to support querying
@@ -730,14 +736,15 @@ cdef class AABBQuery(SpatialData):
                                "object was originally constructed with "
                                "reference points")
         points = freud.common.convert_array(
-            points, 2, dtype=np.float32, contiguous=True, array_name="points")
+            np.atleast_2d(points), 2, dtype=np.float32, contiguous=True,
+            array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
         if r == 0:
             r = 0.1*min(self.box.L)
 
-        cdef np.ndarray[float, ndim=2] l_points = points
+        cdef float[:, ::1] l_points = points
         cdef vec3[float] l_cur_point
         cdef unsigned int Np = points.shape[0]
         cdef shared_ptr[freud._locality.SpatialDataIterator] iterator
@@ -752,6 +759,8 @@ cdef class AABBQuery(SpatialData):
                 pair = tuple(dereference(iterator).next())
                 if pair == ITERATOR_TERMINATOR:
                     break
+                elif exclude_ii and pair[0] == i:
+                    continue
                 ret.append((i,) + pair)
         return ret
 
@@ -845,24 +854,24 @@ cdef class LinkCell(SpatialData):
     """
 
     def __cinit__(self, box, cell_width, ref_points=None):
-        cdef freud.box.Box b = freud.common.convert_box(box)
+        self.box = freud.common.convert_box(box)
         cdef float[:, ::1] l_ref_points
         if ref_points is not None:
             # The new API
             self.queryable = True
-            ref_points = freud.common.convert_array(
-                ref_points, 2, dtype=np.float32, contiguous=True,
+            self.ref_points = freud.common.convert_array(
+                ref_points.copy(), 2, dtype=np.float32, contiguous=True,
                 array_name="ref_points")
-            l_ref_points = ref_points
+            l_ref_points = self.ref_points
             self.thisptr = self.spdptr = new freud._locality.LinkCell(
-                dereference(b.thisptr), float(cell_width),
+                dereference(self.box.thisptr), float(cell_width),
                 <vec3[float]*> &l_ref_points[0, 0],
-                ref_points.shape[0])
+                self.ref_points.shape[0])
         else:
             # The old API
             self.queryable = False
             self.thisptr = self.spdptr = new freud._locality.LinkCell(
-                dereference(b.thisptr), float(cell_width))
+                dereference(self.box.thisptr), float(cell_width))
         self._nlist = NeighborList()
 
     def __dealloc__(self):
@@ -983,17 +992,17 @@ cdef class LinkCell(SpatialData):
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        cdef np.ndarray cRef_points = ref_points
+        cdef float[:, ::1] cRef_points = ref_points
         cdef unsigned int n_ref = ref_points.shape[0]
-        cdef np.ndarray cPoints = points
+        cdef float[:, ::1] cPoints = points
         cdef unsigned int Np = points.shape[0]
         cdef cbool c_exclude_ii = exclude_ii
         with nogil:
             self.thisptr.compute(
                 dereference(b.thisptr),
-                <vec3[float]*> cRef_points.data,
+                <vec3[float]*> &cRef_points[0, 0],
                 n_ref,
-                <vec3[float]*> cPoints.data,
+                <vec3[float]*> &cPoints[0, 0],
                 Np,
                 c_exclude_ii)
 
@@ -1321,17 +1330,17 @@ cdef class NearestNeighbors:
         self._cached_points = points
         self._cached_box = box
 
-        cdef np.ndarray cRef_points = ref_points
+        cdef float[:, ::1] cRef_points = ref_points
         cdef unsigned int n_ref = ref_points.shape[0]
-        cdef np.ndarray cPoints = points
+        cdef float[:, ::1] cPoints = points
         cdef unsigned int Np = points.shape[0]
         cdef cbool c_exclude_ii = exclude_ii
         with nogil:
             self.thisptr.compute(
                 dereference(b.thisptr),
-                <vec3[float]*> cRef_points.data,
+                <vec3[float]*> &cRef_points[0, 0],
                 n_ref,
-                <vec3[float]*> cPoints.data,
+                <vec3[float]*> &cPoints[0, 0],
                 Np,
                 c_exclude_ii)
 
