@@ -49,31 +49,17 @@
         "name": "freud.environment",
         "sources": [
             "freud/environment.pyx",
-<<<<<<< HEAD
-            "cpp/locality/AABBQuery.cc",
-            "cpp/environment/BondOrder.cc",
             "cpp/locality/NearestNeighbors.cc",
-            "cpp/environment/MatchEnv.cc",
-            "cpp/locality/LinkCell.cc",
-            "cpp/box/Box.cc",
-            "cpp/environment/LocalBondProjection.cc",
-            "cpp/locality/NeighborList.cc",
-            "cpp/environment/LocalDescriptors.cc",
-            "cpp/environment/AngularSeparation.cc",
-            "cpp/util/HOOMDMatrix.cc"
-=======
-            "cpp/environment/LocalBondProjection.cc",
-            "cpp/locality/LinkCell.cc",
-            "cpp/environment/AngularSeparation.cc",
-            "cpp/locality/NeighborList.cc",
-            "cpp/box/Box.cc",
-            "cpp/locality/AABBQuery.cc",
-            "cpp/environment/LocalDescriptors.cc",
-            "cpp/environment/MatchEnv.cc",
-            "cpp/util/HOOMDMatrix.cc",
             "cpp/environment/BondOrder.cc",
-            "cpp/locality/NearestNeighbors.cc"
->>>>>>> origin/master
+            "cpp/environment/LocalDescriptors.cc",
+            "cpp/environment/LocalBondProjection.cc",
+            "cpp/box/Box.cc",
+            "cpp/locality/NeighborList.cc",
+            "cpp/environment/MatchEnv.cc",
+            "cpp/locality/AABBQuery.cc",
+            "cpp/locality/LinkCell.cc",
+            "cpp/util/HOOMDMatrix.cc",
+            "cpp/environment/AngularSeparation.cc"
         ]
     },
     "module_name": "freud.environment"
@@ -915,8 +901,8 @@ static const char *__pyx_f[] = {
   "freud/environment.pyx",
   "stringsource",
   "__init__.pxd",
-  "freud/locality.pxd",
   "freud/box.pxd",
+  "freud/locality.pxd",
   "type.pxd",
 };
 /* NoFastGil.proto */
@@ -1251,17 +1237,14 @@ static CYTHON_INLINE __pyx_t_double_complex __pyx_t_double_complex_from_parts(do
 
 
 /*--- Type declarations ---*/
-<<<<<<< HEAD
+struct __pyx_obj_5freud_3box_Box;
+struct __pyx_obj_5freud_3box_ParticleBuffer;
 struct __pyx_obj_5freud_8locality_SpatialData;
-=======
->>>>>>> origin/master
 struct __pyx_obj_5freud_8locality_NeighborList;
 struct __pyx_obj_5freud_8locality_IteratorLinkCell;
 struct __pyx_obj_5freud_8locality_LinkCell;
 struct __pyx_obj_5freud_8locality_NearestNeighbors;
 struct __pyx_obj_5freud_8locality_AABBQuery;
-struct __pyx_obj_5freud_3box_Box;
-struct __pyx_obj_5freud_3box_ParticleBuffer;
 struct __pyx_obj_5freud_11environment_BondOrder;
 struct __pyx_obj_5freud_11environment_LocalDescriptors;
 struct __pyx_obj_5freud_11environment_MatchEnv;
@@ -1271,18 +1254,6 @@ struct __pyx_array_obj;
 struct __pyx_MemviewEnum_obj;
 struct __pyx_memoryview_obj;
 struct __pyx_memoryviewslice_obj;
-<<<<<<< HEAD
-
-/* "freud/_locality.pxd":14
- * # The Cython compiler can't handle nested templates natively, so we need this
- * # typedef to specify a pair of pairs.
- * ctypedef pair[unsigned int, unsigned int] pair_uint             # <<<<<<<<<<<<<<
- * 
- * cdef extern from "SpatialData.h" namespace "freud::locality":
- */
-typedef std::pair<unsigned int,unsigned int>  __pyx_t_5freud_9_locality_pair_uint;
-=======
->>>>>>> origin/master
 
 /* "../../miniconda3/envs/main/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":769
  * ctypedef npy_longdouble longdouble_t
@@ -1320,97 +1291,6 @@ typedef npy_clongdouble __pyx_t_5numpy_clongdouble_t;
  */
 typedef npy_cdouble __pyx_t_5numpy_complex_t;
 
-/* "freud/locality.pxd":6
- * cimport freud._locality
-<<<<<<< HEAD
- * 
- * cdef class SpatialData:             # <<<<<<<<<<<<<<
- *     cdef freud._locality.SpatialData * spdptr
- * 
- */
-struct __pyx_obj_5freud_8locality_SpatialData {
-  PyObject_HEAD
-  freud::locality::SpatialData *spdptr;
-};
-
-
-/* "freud/locality.pxd":9
- *     cdef freud._locality.SpatialData * spdptr
-=======
->>>>>>> origin/master
- * 
- * cdef class NeighborList:             # <<<<<<<<<<<<<<
- *     cdef freud._locality.NeighborList * thisptr
- *     cdef char _managed
- */
-struct __pyx_obj_5freud_8locality_NeighborList {
-  PyObject_HEAD
-  struct __pyx_vtabstruct_5freud_8locality_NeighborList *__pyx_vtab;
-  freud::locality::NeighborList *thisptr;
-  char _managed;
-  PyObject *base;
-};
-
-
-/* "freud/locality.pxd":18
- *     cdef void copy_c(self, NeighborList other)
- * 
- * cdef class IteratorLinkCell:             # <<<<<<<<<<<<<<
- *     cdef freud._locality.IteratorLinkCell * thisptr
- * 
- */
-struct __pyx_obj_5freud_8locality_IteratorLinkCell {
-  PyObject_HEAD
-  struct __pyx_vtabstruct_5freud_8locality_IteratorLinkCell *__pyx_vtab;
-  freud::locality::IteratorLinkCell *thisptr;
-};
-
-
-/* "freud/locality.pxd":23
- *     cdef void copy(self, const freud._locality.IteratorLinkCell & rhs)
- * 
- * cdef class LinkCell(SpatialData):             # <<<<<<<<<<<<<<
- *     cdef freud._locality.LinkCell * thisptr
- *     cdef NeighborList _nlist
- */
-struct __pyx_obj_5freud_8locality_LinkCell {
-  struct __pyx_obj_5freud_8locality_SpatialData __pyx_base;
-  freud::locality::LinkCell *thisptr;
-  struct __pyx_obj_5freud_8locality_NeighborList *_nlist;
-};
-
-
-/* "freud/locality.pxd":27
- *     cdef NeighborList _nlist
- * 
- * cdef class NearestNeighbors:             # <<<<<<<<<<<<<<
- *     cdef freud._locality.NearestNeighbors * thisptr
- *     cdef NeighborList _nlist
- */
-struct __pyx_obj_5freud_8locality_NearestNeighbors {
-  PyObject_HEAD
-  freud::locality::NearestNeighbors *thisptr;
-  struct __pyx_obj_5freud_8locality_NeighborList *_nlist;
-  PyObject *_cached_points;
-  PyObject *_cached_ref_points;
-  PyObject *_cached_box;
-};
-
-
-/* "freud/locality.pxd":34
- *     cdef _cached_box
- * 
- * cdef class AABBQuery(SpatialData):             # <<<<<<<<<<<<<<
- *     cdef freud._locality.AABBQuery * thisptr
- *     cdef NeighborList _nlist
- */
-struct __pyx_obj_5freud_8locality_AABBQuery {
-  struct __pyx_obj_5freud_8locality_SpatialData __pyx_base;
-  freud::locality::AABBQuery *thisptr;
-  struct __pyx_obj_5freud_8locality_NeighborList *_nlist;
-};
-
-
 /* "freud/box.pxd":6
  * cimport freud._box
  * 
@@ -1433,6 +1313,97 @@ struct __pyx_obj_5freud_3box_Box {
 struct __pyx_obj_5freud_3box_ParticleBuffer {
   PyObject_HEAD
   freud::box::ParticleBuffer *thisptr;
+};
+
+
+/* "freud/locality.pxd":9
+ * cimport freud.box
+ * 
+ * cdef class SpatialData:             # <<<<<<<<<<<<<<
+ *     cdef freud._locality.SpatialData * spdptr
+ *     cdef cbool queryable
+ */
+struct __pyx_obj_5freud_8locality_SpatialData {
+  PyObject_HEAD
+  freud::locality::SpatialData *spdptr;
+  bool queryable;
+  struct __pyx_obj_5freud_3box_Box *box;
+  __Pyx_memviewslice ref_points;
+};
+
+
+/* "freud/locality.pxd":15
+ *     cdef float[:, ::1] ref_points
+ * 
+ * cdef class NeighborList:             # <<<<<<<<<<<<<<
+ *     cdef freud._locality.NeighborList * thisptr
+ *     cdef char _managed
+ */
+struct __pyx_obj_5freud_8locality_NeighborList {
+  PyObject_HEAD
+  struct __pyx_vtabstruct_5freud_8locality_NeighborList *__pyx_vtab;
+  freud::locality::NeighborList *thisptr;
+  char _managed;
+  PyObject *base;
+};
+
+
+/* "freud/locality.pxd":24
+ *     cdef void copy_c(self, NeighborList other)
+ * 
+ * cdef class IteratorLinkCell:             # <<<<<<<<<<<<<<
+ *     cdef freud._locality.IteratorLinkCell * thisptr
+ * 
+ */
+struct __pyx_obj_5freud_8locality_IteratorLinkCell {
+  PyObject_HEAD
+  struct __pyx_vtabstruct_5freud_8locality_IteratorLinkCell *__pyx_vtab;
+  freud::locality::IteratorLinkCell *thisptr;
+};
+
+
+/* "freud/locality.pxd":29
+ *     cdef void copy(self, const freud._locality.IteratorLinkCell & rhs)
+ * 
+ * cdef class LinkCell(SpatialData):             # <<<<<<<<<<<<<<
+ *     cdef freud._locality.LinkCell * thisptr
+ *     cdef NeighborList _nlist
+ */
+struct __pyx_obj_5freud_8locality_LinkCell {
+  struct __pyx_obj_5freud_8locality_SpatialData __pyx_base;
+  freud::locality::LinkCell *thisptr;
+  struct __pyx_obj_5freud_8locality_NeighborList *_nlist;
+};
+
+
+/* "freud/locality.pxd":33
+ *     cdef NeighborList _nlist
+ * 
+ * cdef class NearestNeighbors:             # <<<<<<<<<<<<<<
+ *     cdef freud._locality.NearestNeighbors * thisptr
+ *     cdef NeighborList _nlist
+ */
+struct __pyx_obj_5freud_8locality_NearestNeighbors {
+  PyObject_HEAD
+  freud::locality::NearestNeighbors *thisptr;
+  struct __pyx_obj_5freud_8locality_NeighborList *_nlist;
+  PyObject *_cached_points;
+  PyObject *_cached_ref_points;
+  PyObject *_cached_box;
+};
+
+
+/* "freud/locality.pxd":40
+ *     cdef _cached_box
+ * 
+ * cdef class AABBQuery(SpatialData):             # <<<<<<<<<<<<<<
+ *     cdef freud._locality.AABBQuery * thisptr
+ *     cdef NeighborList _nlist
+ */
+struct __pyx_obj_5freud_8locality_AABBQuery {
+  struct __pyx_obj_5freud_8locality_SpatialData __pyx_base;
+  freud::locality::AABBQuery *thisptr;
+  struct __pyx_obj_5freud_8locality_NeighborList *_nlist;
 };
 
 
@@ -1536,61 +1507,6 @@ struct __pyx_array_obj {
   void (*callback_free_data)(void *);
   int free_data;
   int dtype_is_object;
-<<<<<<< HEAD
-=======
-};
-
-
-/* "View.MemoryView":278
- * 
- * @cname('__pyx_MemviewEnum')
- * cdef class Enum(object):             # <<<<<<<<<<<<<<
- *     cdef object name
- *     def __init__(self, name):
- */
-struct __pyx_MemviewEnum_obj {
-  PyObject_HEAD
-  PyObject *name;
-};
-
-
-/* "View.MemoryView":329
- * 
- * @cname('__pyx_memoryview')
- * cdef class memoryview(object):             # <<<<<<<<<<<<<<
- * 
- *     cdef object obj
- */
-struct __pyx_memoryview_obj {
-  PyObject_HEAD
-  struct __pyx_vtabstruct_memoryview *__pyx_vtab;
-  PyObject *obj;
-  PyObject *_size;
-  PyObject *_array_interface;
-  PyThread_type_lock lock;
-  __pyx_atomic_int acquisition_count[2];
-  __pyx_atomic_int *acquisition_count_aligned_p;
-  Py_buffer view;
-  int flags;
-  int dtype_is_object;
-  __Pyx_TypeInfo *typeinfo;
-};
-
-
-/* "View.MemoryView":960
- * 
- * @cname('__pyx_memoryviewslice')
- * cdef class _memoryviewslice(memoryview):             # <<<<<<<<<<<<<<
- *     "Internal class for passing memoryview slices to Python"
- * 
- */
-struct __pyx_memoryviewslice_obj {
-  struct __pyx_memoryview_obj __pyx_base;
-  __Pyx_memviewslice from_slice;
-  PyObject *from_object;
-  PyObject *(*to_object_func)(char *);
-  int (*to_dtype_func)(char *, PyObject *);
->>>>>>> origin/master
 };
 
 
@@ -1647,8 +1563,8 @@ struct __pyx_memoryviewslice_obj {
 
 
 
-/* "freud/locality.pxd":9
- *     cdef freud._locality.SpatialData * spdptr
+/* "freud/locality.pxd":15
+ *     cdef float[:, ::1] ref_points
  * 
  * cdef class NeighborList:             # <<<<<<<<<<<<<<
  *     cdef freud._locality.NeighborList * thisptr
@@ -1663,7 +1579,7 @@ struct __pyx_vtabstruct_5freud_8locality_NeighborList {
 static struct __pyx_vtabstruct_5freud_8locality_NeighborList *__pyx_vtabptr_5freud_8locality_NeighborList;
 
 
-/* "freud/locality.pxd":18
+/* "freud/locality.pxd":24
  *     cdef void copy_c(self, NeighborList other)
  * 
  * cdef class IteratorLinkCell:             # <<<<<<<<<<<<<<
@@ -2639,11 +2555,13 @@ static PyObject *__pyx_memoryviewslice_assign_item_from_object(struct __pyx_memo
 
 /* Module declarations from 'libcpp.pair' */
 
-<<<<<<< HEAD
 /* Module declarations from 'freud._locality' */
 
-=======
->>>>>>> origin/master
+/* Module declarations from 'freud.box' */
+static PyTypeObject *__pyx_ptype_5freud_3box_Box = 0;
+static PyTypeObject *__pyx_ptype_5freud_3box_ParticleBuffer = 0;
+static PyObject *(*__pyx_f_5freud_3box_BoxFromCPP)(freud::box::Box const &); /*proto*/
+
 /* Module declarations from 'freud.locality' */
 static PyTypeObject *__pyx_ptype_5freud_8locality_SpatialData = 0;
 static PyTypeObject *__pyx_ptype_5freud_8locality_NeighborList = 0;
@@ -2651,11 +2569,6 @@ static PyTypeObject *__pyx_ptype_5freud_8locality_IteratorLinkCell = 0;
 static PyTypeObject *__pyx_ptype_5freud_8locality_LinkCell = 0;
 static PyTypeObject *__pyx_ptype_5freud_8locality_NearestNeighbors = 0;
 static PyTypeObject *__pyx_ptype_5freud_8locality_AABBQuery = 0;
-
-/* Module declarations from 'freud.box' */
-static PyTypeObject *__pyx_ptype_5freud_3box_Box = 0;
-static PyTypeObject *__pyx_ptype_5freud_3box_ParticleBuffer = 0;
-static PyObject *(*__pyx_f_5freud_3box_BoxFromCPP)(freud::box::Box const &); /*proto*/
 
 /* Module declarations from 'freud' */
 
@@ -5478,7 +5391,6 @@ static PyObject *__pyx_pf_5freud_11environment_9BondOrder_10bond_order___get__(s
       __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_7, __pyx_t_9, NULL); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 240, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_6);
       __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
-<<<<<<< HEAD
     }
   }
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
@@ -5527,56 +5439,6 @@ static PyObject *__pyx_pf_5freud_11environment_9BondOrder_10bond_order___get__(s
       __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
     }
   }
-=======
-    }
-  }
-  __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_7 = NULL;
-  if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_8))) {
-    __pyx_t_7 = PyMethod_GET_SELF(__pyx_t_8);
-    if (likely(__pyx_t_7)) {
-      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_8);
-      __Pyx_INCREF(__pyx_t_7);
-      __Pyx_INCREF(function);
-      __Pyx_DECREF_SET(__pyx_t_8, function);
-    }
-  }
-  if (!__pyx_t_7) {
-    __pyx_t_4 = __Pyx_PyObject_CallOneArg(__pyx_t_8, __pyx_t_6); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 240, __pyx_L1_error)
-    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    __Pyx_GOTREF(__pyx_t_4);
-  } else {
-    #if CYTHON_FAST_PYCALL
-    if (PyFunction_Check(__pyx_t_8)) {
-      PyObject *__pyx_temp[2] = {__pyx_t_7, __pyx_t_6};
-      __pyx_t_4 = __Pyx_PyFunction_FastCall(__pyx_t_8, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 240, __pyx_L1_error)
-      __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
-      __Pyx_GOTREF(__pyx_t_4);
-      __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    } else
-    #endif
-    #if CYTHON_FAST_PYCCALL
-    if (__Pyx_PyFastCFunction_Check(__pyx_t_8)) {
-      PyObject *__pyx_temp[2] = {__pyx_t_7, __pyx_t_6};
-      __pyx_t_4 = __Pyx_PyCFunction_FastCall(__pyx_t_8, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 240, __pyx_L1_error)
-      __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
-      __Pyx_GOTREF(__pyx_t_4);
-      __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    } else
-    #endif
-    {
-      __pyx_t_9 = PyTuple_New(1+1); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 240, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_9);
-      __Pyx_GIVEREF(__pyx_t_7); PyTuple_SET_ITEM(__pyx_t_9, 0, __pyx_t_7); __pyx_t_7 = NULL;
-      __Pyx_GIVEREF(__pyx_t_6);
-      PyTuple_SET_ITEM(__pyx_t_9, 0+1, __pyx_t_6);
-      __pyx_t_6 = 0;
-      __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_8, __pyx_t_9, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 240, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_4);
-      __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
-    }
-  }
->>>>>>> origin/master
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
   __pyx_t_10 = __Pyx_PyObject_IsTrue(__pyx_t_4); if (unlikely(__pyx_t_10 < 0)) __PYX_ERR(0, 240, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
@@ -11637,17 +11499,10 @@ static PyObject *__pyx_pf_5freud_11environment_8MatchEnv_6cluster(struct __pyx_o
   __pyx_t_7.data = NULL;
 
   /* "freud/environment.pyx":699
-<<<<<<< HEAD
  * 
  *         cdef float[:, ::1] l_points = points
  *         cdef unsigned int nP = l_points.shape[0]             # <<<<<<<<<<<<<<
  * 
-=======
- * 
- *         cdef float[:, ::1] l_points = points
- *         cdef unsigned int nP = l_points.shape[0]             # <<<<<<<<<<<<<<
- * 
->>>>>>> origin/master
  *         cdef freud.locality.NeighborList nlist_
  */
   __pyx_v_nP = (__pyx_v_l_points.shape[0]);
@@ -15174,7 +15029,6 @@ static PyObject *__pyx_pf_5freud_11environment_8MatchEnv_18getEnvironment(struct
  *         cdef unsigned int max_neighbors = self.thisptr.getMaxNumNeighbors()             # <<<<<<<<<<<<<<
  *         if not max_neighbors:
  *             return np.asarray([[]], dtype=np.float32)
-<<<<<<< HEAD
  */
   __pyx_v_max_neighbors = __pyx_v_self->thisptr->getMaxNumNeighbors();
 
@@ -15195,28 +15049,6 @@ static PyObject *__pyx_pf_5freud_11environment_8MatchEnv_18getEnvironment(struct
  *         cdef float[:, ::1] environment = \
  *             <float[:max_neighbors, :3]> (
  */
-=======
- */
-  __pyx_v_max_neighbors = __pyx_v_self->thisptr->getMaxNumNeighbors();
-
-  /* "freud/environment.pyx":962
- *         """
- *         cdef unsigned int max_neighbors = self.thisptr.getMaxNumNeighbors()
- *         if not max_neighbors:             # <<<<<<<<<<<<<<
- *             return np.asarray([[]], dtype=np.float32)
- *         cdef float[:, ::1] environment = \
- */
-  __pyx_t_1 = ((!(__pyx_v_max_neighbors != 0)) != 0);
-  if (__pyx_t_1) {
-
-    /* "freud/environment.pyx":963
- *         cdef unsigned int max_neighbors = self.thisptr.getMaxNumNeighbors()
- *         if not max_neighbors:
- *             return np.asarray([[]], dtype=np.float32)             # <<<<<<<<<<<<<<
- *         cdef float[:, ::1] environment = \
- *             <float[:max_neighbors, :3]> (
- */
->>>>>>> origin/master
     __Pyx_XDECREF(__pyx_r);
     __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 963, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
@@ -38194,7 +38026,6 @@ static PyObject *__pyx_getprop_5freud_11environment_8MatchEnv_tot_environment(Py
 
 static PyObject *__pyx_getprop_5freud_11environment_8MatchEnv_num_particles(PyObject *o, CYTHON_UNUSED void *x) {
   return __pyx_pw_5freud_11environment_8MatchEnv_13num_particles_1__get__(o);
-<<<<<<< HEAD
 }
 
 static PyObject *__pyx_getprop_5freud_11environment_8MatchEnv_num_clusters(PyObject *o, CYTHON_UNUSED void *x) {
@@ -38364,177 +38195,6 @@ static PyObject *__pyx_getprop_5freud_11environment_17AngularSeparation_n_global
   return __pyx_pw_5freud_11environment_17AngularSeparation_8n_global_1__get__(o);
 }
 
-=======
-}
-
-static PyObject *__pyx_getprop_5freud_11environment_8MatchEnv_num_clusters(PyObject *o, CYTHON_UNUSED void *x) {
-  return __pyx_pw_5freud_11environment_8MatchEnv_12num_clusters_1__get__(o);
-}
-
-static PyMethodDef __pyx_methods_5freud_11environment_MatchEnv[] = {
-  {"setBox", (PyCFunction)__pyx_pw_5freud_11environment_8MatchEnv_5setBox, METH_O, __pyx_doc_5freud_11environment_8MatchEnv_4setBox},
-  {"cluster", (PyCFunction)__pyx_pw_5freud_11environment_8MatchEnv_7cluster, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_11environment_8MatchEnv_6cluster},
-  {"matchMotif", (PyCFunction)__pyx_pw_5freud_11environment_8MatchEnv_9matchMotif, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_11environment_8MatchEnv_8matchMotif},
-  {"minRMSDMotif", (PyCFunction)__pyx_pw_5freud_11environment_8MatchEnv_11minRMSDMotif, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_11environment_8MatchEnv_10minRMSDMotif},
-  {"isSimilar", (PyCFunction)__pyx_pw_5freud_11environment_8MatchEnv_13isSimilar, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_11environment_8MatchEnv_12isSimilar},
-  {"minimizeRMSD", (PyCFunction)__pyx_pw_5freud_11environment_8MatchEnv_15minimizeRMSD, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_11environment_8MatchEnv_14minimizeRMSD},
-  {"getClusters", (PyCFunction)__pyx_pw_5freud_11environment_8MatchEnv_17getClusters, METH_NOARGS, __pyx_doc_5freud_11environment_8MatchEnv_16getClusters},
-  {"getEnvironment", (PyCFunction)__pyx_pw_5freud_11environment_8MatchEnv_19getEnvironment, METH_O, __pyx_doc_5freud_11environment_8MatchEnv_18getEnvironment},
-  {"getTotEnvironment", (PyCFunction)__pyx_pw_5freud_11environment_8MatchEnv_21getTotEnvironment, METH_NOARGS, __pyx_doc_5freud_11environment_8MatchEnv_20getTotEnvironment},
-  {"getNP", (PyCFunction)__pyx_pw_5freud_11environment_8MatchEnv_23getNP, METH_NOARGS, __pyx_doc_5freud_11environment_8MatchEnv_22getNP},
-  {"getNumClusters", (PyCFunction)__pyx_pw_5freud_11environment_8MatchEnv_25getNumClusters, METH_NOARGS, __pyx_doc_5freud_11environment_8MatchEnv_24getNumClusters},
-  {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_11environment_8MatchEnv_27__reduce_cython__, METH_NOARGS, __pyx_doc_5freud_11environment_8MatchEnv_26__reduce_cython__},
-  {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_11environment_8MatchEnv_29__setstate_cython__, METH_O, __pyx_doc_5freud_11environment_8MatchEnv_28__setstate_cython__},
-  {0, 0, 0, 0}
-};
-
-static struct PyGetSetDef __pyx_getsets_5freud_11environment_MatchEnv[] = {
-  {(char *)"clusters", __pyx_getprop_5freud_11environment_8MatchEnv_clusters, 0, (char *)0, 0},
-  {(char *)"tot_environment", __pyx_getprop_5freud_11environment_8MatchEnv_tot_environment, 0, (char *)0, 0},
-  {(char *)"num_particles", __pyx_getprop_5freud_11environment_8MatchEnv_num_particles, 0, (char *)0, 0},
-  {(char *)"num_clusters", __pyx_getprop_5freud_11environment_8MatchEnv_num_clusters, 0, (char *)0, 0},
-  {0, 0, 0, 0, 0}
-};
-
-static PyTypeObject __pyx_type_5freud_11environment_MatchEnv = {
-  PyVarObject_HEAD_INIT(0, 0)
-  "freud.environment.MatchEnv", /*tp_name*/
-  sizeof(struct __pyx_obj_5freud_11environment_MatchEnv), /*tp_basicsize*/
-  0, /*tp_itemsize*/
-  __pyx_tp_dealloc_5freud_11environment_MatchEnv, /*tp_dealloc*/
-  0, /*tp_print*/
-  0, /*tp_getattr*/
-  0, /*tp_setattr*/
-  #if PY_MAJOR_VERSION < 3
-  0, /*tp_compare*/
-  #endif
-  #if PY_MAJOR_VERSION >= 3
-  0, /*tp_as_async*/
-  #endif
-  0, /*tp_repr*/
-  0, /*tp_as_number*/
-  0, /*tp_as_sequence*/
-  0, /*tp_as_mapping*/
-  0, /*tp_hash*/
-  0, /*tp_call*/
-  0, /*tp_str*/
-  0, /*tp_getattro*/
-  0, /*tp_setattro*/
-  0, /*tp_as_buffer*/
-  Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-  "Clusters particles according to whether their local environments match\n    or not, according to various shape matching metrics.\n\n    .. moduleauthor:: Erin Teich <erteich@umich.edu>\n\n    Args:\n        box (:class:`freud.box.Box`):\n            Simulation box.\n        rmax (float):\n            Cutoff radius for cell list and clustering algorithm. Values near\n            the first minimum of the RDF are recommended.\n        k (unsigned int):\n            Number of nearest neighbors taken to define the local environment\n            of any given particle.\n\n    Attributes:\n        tot_environment (:math:`\\left(N_{particles}, N_{neighbors}, 3\\right)` :class:`numpy.ndarray`):\n            All environments for all particles.\n        num_particles (unsigned int):\n            The number of particles.\n        num_clusters (unsigned int):\n            The number of clusters.\n        clusters (:math:`\\left(N_{particles}\\right)` :class:`numpy.ndarray`):\n            The per-particle index indicating cluster membership.\n    ", /*tp_doc*/
-  __pyx_tp_traverse_5freud_11environment_MatchEnv, /*tp_traverse*/
-  __pyx_tp_clear_5freud_11environment_MatchEnv, /*tp_clear*/
-  0, /*tp_richcompare*/
-  0, /*tp_weaklistoffset*/
-  0, /*tp_iter*/
-  0, /*tp_iternext*/
-  __pyx_methods_5freud_11environment_MatchEnv, /*tp_methods*/
-  0, /*tp_members*/
-  __pyx_getsets_5freud_11environment_MatchEnv, /*tp_getset*/
-  0, /*tp_base*/
-  0, /*tp_dict*/
-  0, /*tp_descr_get*/
-  0, /*tp_descr_set*/
-  0, /*tp_dictoffset*/
-  0, /*tp_init*/
-  0, /*tp_alloc*/
-  __pyx_tp_new_5freud_11environment_MatchEnv, /*tp_new*/
-  0, /*tp_free*/
-  0, /*tp_is_gc*/
-  0, /*tp_bases*/
-  0, /*tp_mro*/
-  0, /*tp_cache*/
-  0, /*tp_subclasses*/
-  0, /*tp_weaklist*/
-  0, /*tp_del*/
-  0, /*tp_version_tag*/
-  #if PY_VERSION_HEX >= 0x030400a1
-  0, /*tp_finalize*/
-  #endif
-};
-
-static PyObject *__pyx_tp_new_5freud_11environment_AngularSeparation(PyTypeObject *t, PyObject *a, PyObject *k) {
-  struct __pyx_obj_5freud_11environment_AngularSeparation *p;
-  PyObject *o;
-  if (likely((t->tp_flags & Py_TPFLAGS_IS_ABSTRACT) == 0)) {
-    o = (*t->tp_alloc)(t, 0);
-  } else {
-    o = (PyObject *) PyBaseObject_Type.tp_new(t, __pyx_empty_tuple, 0);
-  }
-  if (unlikely(!o)) return 0;
-  p = ((struct __pyx_obj_5freud_11environment_AngularSeparation *)o);
-  p->nlist_ = ((struct __pyx_obj_5freud_8locality_NeighborList *)Py_None); Py_INCREF(Py_None);
-  if (unlikely(__pyx_pw_5freud_11environment_17AngularSeparation_1__cinit__(o, a, k) < 0)) goto bad;
-  return o;
-  bad:
-  Py_DECREF(o); o = 0;
-  return NULL;
-}
-
-static void __pyx_tp_dealloc_5freud_11environment_AngularSeparation(PyObject *o) {
-  struct __pyx_obj_5freud_11environment_AngularSeparation *p = (struct __pyx_obj_5freud_11environment_AngularSeparation *)o;
-  #if CYTHON_USE_TP_FINALIZE
-  if (unlikely(PyType_HasFeature(Py_TYPE(o), Py_TPFLAGS_HAVE_FINALIZE) && Py_TYPE(o)->tp_finalize) && !_PyGC_FINALIZED(o)) {
-    if (PyObject_CallFinalizerFromDealloc(o)) return;
-  }
-  #endif
-  PyObject_GC_UnTrack(o);
-  {
-    PyObject *etype, *eval, *etb;
-    PyErr_Fetch(&etype, &eval, &etb);
-    ++Py_REFCNT(o);
-    __pyx_pw_5freud_11environment_17AngularSeparation_3__dealloc__(o);
-    --Py_REFCNT(o);
-    PyErr_Restore(etype, eval, etb);
-  }
-  Py_CLEAR(p->nlist_);
-  (*Py_TYPE(o)->tp_free)(o);
-}
-
-static int __pyx_tp_traverse_5freud_11environment_AngularSeparation(PyObject *o, visitproc v, void *a) {
-  int e;
-  struct __pyx_obj_5freud_11environment_AngularSeparation *p = (struct __pyx_obj_5freud_11environment_AngularSeparation *)o;
-  if (p->nlist_) {
-    e = (*v)(((PyObject *)p->nlist_), a); if (e) return e;
-  }
-  return 0;
-}
-
-static int __pyx_tp_clear_5freud_11environment_AngularSeparation(PyObject *o) {
-  PyObject* tmp;
-  struct __pyx_obj_5freud_11environment_AngularSeparation *p = (struct __pyx_obj_5freud_11environment_AngularSeparation *)o;
-  tmp = ((PyObject*)p->nlist_);
-  p->nlist_ = ((struct __pyx_obj_5freud_8locality_NeighborList *)Py_None); Py_INCREF(Py_None);
-  Py_XDECREF(tmp);
-  return 0;
-}
-
-static PyObject *__pyx_getprop_5freud_11environment_17AngularSeparation_nlist(PyObject *o, CYTHON_UNUSED void *x) {
-  return __pyx_pw_5freud_11environment_17AngularSeparation_5nlist_1__get__(o);
-}
-
-static PyObject *__pyx_getprop_5freud_11environment_17AngularSeparation_neighbor_angles(PyObject *o, CYTHON_UNUSED void *x) {
-  return __pyx_pw_5freud_11environment_17AngularSeparation_15neighbor_angles_1__get__(o);
-}
-
-static PyObject *__pyx_getprop_5freud_11environment_17AngularSeparation_global_angles(PyObject *o, CYTHON_UNUSED void *x) {
-  return __pyx_pw_5freud_11environment_17AngularSeparation_13global_angles_1__get__(o);
-}
-
-static PyObject *__pyx_getprop_5freud_11environment_17AngularSeparation_n_p(PyObject *o, CYTHON_UNUSED void *x) {
-  return __pyx_pw_5freud_11environment_17AngularSeparation_3n_p_1__get__(o);
-}
-
-static PyObject *__pyx_getprop_5freud_11environment_17AngularSeparation_n_ref(PyObject *o, CYTHON_UNUSED void *x) {
-  return __pyx_pw_5freud_11environment_17AngularSeparation_5n_ref_1__get__(o);
-}
-
-static PyObject *__pyx_getprop_5freud_11environment_17AngularSeparation_n_global(PyObject *o, CYTHON_UNUSED void *x) {
-  return __pyx_pw_5freud_11environment_17AngularSeparation_8n_global_1__get__(o);
-}
-
->>>>>>> origin/master
 static PyMethodDef __pyx_methods_5freud_11environment_AngularSeparation[] = {
   {"computeNeighbor", (PyCFunction)__pyx_pw_5freud_11environment_17AngularSeparation_5computeNeighbor, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_11environment_17AngularSeparation_4computeNeighbor},
   {"computeGlobal", (PyCFunction)__pyx_pw_5freud_11environment_17AngularSeparation_7computeGlobal, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_11environment_17AngularSeparation_6computeGlobal},
@@ -38704,28 +38364,6 @@ static PyMethodDef __pyx_methods_5freud_11environment_LocalBondProjection[] = {
   {"compute", (PyCFunction)__pyx_pw_5freud_11environment_19LocalBondProjection_5compute, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_11environment_19LocalBondProjection_4compute},
   {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_11environment_19LocalBondProjection_7__reduce_cython__, METH_NOARGS, __pyx_doc_5freud_11environment_19LocalBondProjection_6__reduce_cython__},
   {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_11environment_19LocalBondProjection_9__setstate_cython__, METH_O, __pyx_doc_5freud_11environment_19LocalBondProjection_8__setstate_cython__},
-<<<<<<< HEAD
-  {0, 0, 0, 0}
-};
-
-static struct PyGetSetDef __pyx_getsets_5freud_11environment_LocalBondProjection[] = {
-  {(char *)"nlist", __pyx_getprop_5freud_11environment_19LocalBondProjection_nlist, 0, (char *)0, 0},
-  {(char *)"projections", __pyx_getprop_5freud_11environment_19LocalBondProjection_projections, 0, (char *)0, 0},
-  {(char *)"normed_projections", __pyx_getprop_5freud_11environment_19LocalBondProjection_normed_projections, 0, (char *)0, 0},
-  {(char *)"num_particles", __pyx_getprop_5freud_11environment_19LocalBondProjection_num_particles, 0, (char *)0, 0},
-  {(char *)"num_reference_particles", __pyx_getprop_5freud_11environment_19LocalBondProjection_num_reference_particles, 0, (char *)0, 0},
-  {(char *)"num_proj_vectors", __pyx_getprop_5freud_11environment_19LocalBondProjection_num_proj_vectors, 0, (char *)0, 0},
-  {(char *)"box", __pyx_getprop_5freud_11environment_19LocalBondProjection_box, 0, (char *)0, 0},
-  {0, 0, 0, 0, 0}
-};
-
-static PyTypeObject __pyx_type_5freud_11environment_LocalBondProjection = {
-  PyVarObject_HEAD_INIT(0, 0)
-  "freud.environment.LocalBondProjection", /*tp_name*/
-  sizeof(struct __pyx_obj_5freud_11environment_LocalBondProjection), /*tp_basicsize*/
-  0, /*tp_itemsize*/
-  __pyx_tp_dealloc_5freud_11environment_LocalBondProjection, /*tp_dealloc*/
-=======
   {0, 0, 0, 0}
 };
 
@@ -38924,211 +38562,6 @@ static PyTypeObject __pyx_type___pyx_array = {
   sizeof(struct __pyx_array_obj), /*tp_basicsize*/
   0, /*tp_itemsize*/
   __pyx_tp_dealloc_array, /*tp_dealloc*/
->>>>>>> origin/master
-  0, /*tp_print*/
-  0, /*tp_getattr*/
-  0, /*tp_setattr*/
-  #if PY_MAJOR_VERSION < 3
-  0, /*tp_compare*/
-  #endif
-  #if PY_MAJOR_VERSION >= 3
-  0, /*tp_as_async*/
-  #endif
-  0, /*tp_repr*/
-  0, /*tp_as_number*/
-  &__pyx_tp_as_sequence_array, /*tp_as_sequence*/
-  &__pyx_tp_as_mapping_array, /*tp_as_mapping*/
-  0, /*tp_hash*/
-  0, /*tp_call*/
-  0, /*tp_str*/
-  __pyx_tp_getattro_array, /*tp_getattro*/
-  0, /*tp_setattro*/
-<<<<<<< HEAD
-  0, /*tp_as_buffer*/
-  Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-  "Calculates the maximal projection of nearest neighbor bonds for each\n    particle onto some set of reference vectors, defined in the particles'\n    local reference frame.\n\n    .. moduleauthor:: Erin Teich <erteich@umich.edu>\n\n    .. versionadded:: 0.11\n\n    Args:\n        rmax (float):\n            Cutoff radius.\n        num_neighbors (unsigned int):\n            The number of neighbors.\n\n    Attributes:\n        projections ((:math:`\\left(N_{reference}, N_{neighbors}, N_{projection\\_vecs} \\right)` :class:`numpy.ndarray`):\n            The projection of each bond between reference particles and their\n            neighbors onto each of the projection vectors.\n        normed_projections ((:math:`\\left(N_{reference}, N_{neighbors}, N_{projection\\_vecs} \\right)` :class:`numpy.ndarray`)\n            The normalized projection of each bond between reference particles\n            and their neighbors onto each of the projection vectors.\n        num_reference_particles (int):\n            The number of reference points used in the last calculation.\n        num_particles (int):\n            The number of points used in the last calculation.\n        num_proj_vectors (int):\n            The number of projection vectors used in the last calculation.\n        box (:class:`freud.box.Box`):\n            The box used in the last calculation.\n    ", /*tp_doc*/
-  __pyx_tp_traverse_5freud_11environment_LocalBondProjection, /*tp_traverse*/
-  __pyx_tp_clear_5freud_11environment_LocalBondProjection, /*tp_clear*/
-=======
-  &__pyx_tp_as_buffer_array, /*tp_as_buffer*/
-  Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE, /*tp_flags*/
-  0, /*tp_doc*/
-  0, /*tp_traverse*/
-  0, /*tp_clear*/
->>>>>>> origin/master
-  0, /*tp_richcompare*/
-  0, /*tp_weaklistoffset*/
-  0, /*tp_iter*/
-  0, /*tp_iternext*/
-<<<<<<< HEAD
-  __pyx_methods_5freud_11environment_LocalBondProjection, /*tp_methods*/
-  0, /*tp_members*/
-  __pyx_getsets_5freud_11environment_LocalBondProjection, /*tp_getset*/
-=======
-  __pyx_methods_array, /*tp_methods*/
-  0, /*tp_members*/
-  __pyx_getsets_array, /*tp_getset*/
->>>>>>> origin/master
-  0, /*tp_base*/
-  0, /*tp_dict*/
-  0, /*tp_descr_get*/
-  0, /*tp_descr_set*/
-  0, /*tp_dictoffset*/
-  0, /*tp_init*/
-  0, /*tp_alloc*/
-<<<<<<< HEAD
-  __pyx_tp_new_5freud_11environment_LocalBondProjection, /*tp_new*/
-=======
-  __pyx_tp_new_array, /*tp_new*/
->>>>>>> origin/master
-  0, /*tp_free*/
-  0, /*tp_is_gc*/
-  0, /*tp_bases*/
-  0, /*tp_mro*/
-  0, /*tp_cache*/
-  0, /*tp_subclasses*/
-  0, /*tp_weaklist*/
-  0, /*tp_del*/
-  0, /*tp_version_tag*/
-  #if PY_VERSION_HEX >= 0x030400a1
-  0, /*tp_finalize*/
-  #endif
-};
-static struct __pyx_vtabstruct_array __pyx_vtable_array;
-
-<<<<<<< HEAD
-static PyObject *__pyx_tp_new_array(PyTypeObject *t, PyObject *a, PyObject *k) {
-  struct __pyx_array_obj *p;
-=======
-static PyObject *__pyx_tp_new_Enum(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
-  struct __pyx_MemviewEnum_obj *p;
->>>>>>> origin/master
-  PyObject *o;
-  if (likely((t->tp_flags & Py_TPFLAGS_IS_ABSTRACT) == 0)) {
-    o = (*t->tp_alloc)(t, 0);
-  } else {
-    o = (PyObject *) PyBaseObject_Type.tp_new(t, __pyx_empty_tuple, 0);
-  }
-  if (unlikely(!o)) return 0;
-<<<<<<< HEAD
-  p = ((struct __pyx_array_obj *)o);
-  p->__pyx_vtab = __pyx_vtabptr_array;
-  p->mode = ((PyObject*)Py_None); Py_INCREF(Py_None);
-  p->_format = ((PyObject*)Py_None); Py_INCREF(Py_None);
-  if (unlikely(__pyx_array___cinit__(o, a, k) < 0)) goto bad;
-=======
-  p = ((struct __pyx_MemviewEnum_obj *)o);
-  p->name = Py_None; Py_INCREF(Py_None);
->>>>>>> origin/master
-  return o;
-}
-
-<<<<<<< HEAD
-static void __pyx_tp_dealloc_array(PyObject *o) {
-  struct __pyx_array_obj *p = (struct __pyx_array_obj *)o;
-  #if CYTHON_USE_TP_FINALIZE
-  if (unlikely(PyType_HasFeature(Py_TYPE(o), Py_TPFLAGS_HAVE_FINALIZE) && Py_TYPE(o)->tp_finalize) && (!PyType_IS_GC(Py_TYPE(o)) || !_PyGC_FINALIZED(o))) {
-    if (PyObject_CallFinalizerFromDealloc(o)) return;
-  }
-  #endif
-  {
-    PyObject *etype, *eval, *etb;
-    PyErr_Fetch(&etype, &eval, &etb);
-    ++Py_REFCNT(o);
-    __pyx_array___dealloc__(o);
-    --Py_REFCNT(o);
-    PyErr_Restore(etype, eval, etb);
-  }
-  Py_CLEAR(p->mode);
-  Py_CLEAR(p->_format);
-  (*Py_TYPE(o)->tp_free)(o);
-}
-static PyObject *__pyx_sq_item_array(PyObject *o, Py_ssize_t i) {
-  PyObject *r;
-  PyObject *x = PyInt_FromSsize_t(i); if(!x) return 0;
-  r = Py_TYPE(o)->tp_as_mapping->mp_subscript(o, x);
-  Py_DECREF(x);
-  return r;
-}
-
-static int __pyx_mp_ass_subscript_array(PyObject *o, PyObject *i, PyObject *v) {
-  if (v) {
-    return __pyx_array___setitem__(o, i, v);
-  }
-  else {
-    PyErr_Format(PyExc_NotImplementedError,
-      "Subscript deletion not supported by %.200s", Py_TYPE(o)->tp_name);
-    return -1;
-  }
-}
-
-static PyObject *__pyx_tp_getattro_array(PyObject *o, PyObject *n) {
-  PyObject *v = __Pyx_PyObject_GenericGetAttr(o, n);
-  if (!v && PyErr_ExceptionMatches(PyExc_AttributeError)) {
-    PyErr_Clear();
-    v = __pyx_array___getattr__(o, n);
-  }
-  return v;
-}
-
-static PyObject *__pyx_getprop___pyx_array_memview(PyObject *o, CYTHON_UNUSED void *x) {
-  return __pyx_pw_15View_dot_MemoryView_5array_7memview_1__get__(o);
-}
-
-static PyMethodDef __pyx_methods_array[] = {
-  {"__getattr__", (PyCFunction)__pyx_array___getattr__, METH_O|METH_COEXIST, 0},
-  {"__reduce_cython__", (PyCFunction)__pyx_pw___pyx_array_1__reduce_cython__, METH_NOARGS, 0},
-  {"__setstate_cython__", (PyCFunction)__pyx_pw___pyx_array_3__setstate_cython__, METH_O, 0},
-  {0, 0, 0, 0}
-};
-
-static struct PyGetSetDef __pyx_getsets_array[] = {
-  {(char *)"memview", __pyx_getprop___pyx_array_memview, 0, (char *)0, 0},
-  {0, 0, 0, 0, 0}
-};
-
-static PySequenceMethods __pyx_tp_as_sequence_array = {
-  __pyx_array___len__, /*sq_length*/
-  0, /*sq_concat*/
-  0, /*sq_repeat*/
-  __pyx_sq_item_array, /*sq_item*/
-  0, /*sq_slice*/
-  0, /*sq_ass_item*/
-  0, /*sq_ass_slice*/
-  0, /*sq_contains*/
-  0, /*sq_inplace_concat*/
-  0, /*sq_inplace_repeat*/
-};
-
-static PyMappingMethods __pyx_tp_as_mapping_array = {
-  __pyx_array___len__, /*mp_length*/
-  __pyx_array___getitem__, /*mp_subscript*/
-  __pyx_mp_ass_subscript_array, /*mp_ass_subscript*/
-};
-
-static PyBufferProcs __pyx_tp_as_buffer_array = {
-  #if PY_MAJOR_VERSION < 3
-  0, /*bf_getreadbuffer*/
-  #endif
-  #if PY_MAJOR_VERSION < 3
-  0, /*bf_getwritebuffer*/
-  #endif
-  #if PY_MAJOR_VERSION < 3
-  0, /*bf_getsegcount*/
-  #endif
-  #if PY_MAJOR_VERSION < 3
-  0, /*bf_getcharbuffer*/
-  #endif
-  __pyx_array_getbuffer, /*bf_getbuffer*/
-  0, /*bf_releasebuffer*/
-};
-
-static PyTypeObject __pyx_type___pyx_array = {
-  PyVarObject_HEAD_INIT(0, 0)
-  "freud.environment.array", /*tp_name*/
-  sizeof(struct __pyx_array_obj), /*tp_basicsize*/
-  0, /*tp_itemsize*/
-  __pyx_tp_dealloc_array, /*tp_dealloc*/
   0, /*tp_print*/
   0, /*tp_getattr*/
   0, /*tp_setattr*/
@@ -39195,8 +38628,6 @@ static PyObject *__pyx_tp_new_Enum(PyTypeObject *t, CYTHON_UNUSED PyObject *a, C
   return o;
 }
 
-=======
->>>>>>> origin/master
 static void __pyx_tp_dealloc_Enum(PyObject *o) {
   struct __pyx_MemviewEnum_obj *p = (struct __pyx_MemviewEnum_obj *)o;
   #if CYTHON_USE_TP_FINALIZE
@@ -40562,7 +39993,6 @@ static int __Pyx_InitCachedConstants(void) {
   __pyx_tuple__46 = PyTuple_Pack(1, __pyx_kp_s_proj_vecs_should_be_an_Nx3_array); if (unlikely(!__pyx_tuple__46)) __PYX_ERR(0, 1364, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__46);
   __Pyx_GIVEREF(__pyx_tuple__46);
-<<<<<<< HEAD
 
   /* "(tree fragment)":2
  * def __reduce_cython__(self):
@@ -40822,332 +40252,6 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_GIVEREF(__pyx_int_neg_1);
   PyTuple_SET_ITEM(__pyx_tuple__70, 0, __pyx_int_neg_1);
   __Pyx_GIVEREF(__pyx_tuple__70);
-=======
->>>>>>> origin/master
-
-  /* "(tree fragment)":2
- * def __reduce_cython__(self):
- *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")             # <<<<<<<<<<<<<<
- * def __setstate_cython__(self, __pyx_state):
- *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
- */
-  __pyx_tuple__71 = PyTuple_Pack(1, __pyx_kp_s_no_default___reduce___due_to_non); if (unlikely(!__pyx_tuple__71)) __PYX_ERR(1, 2, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__71);
-  __Pyx_GIVEREF(__pyx_tuple__71);
-
-  /* "(tree fragment)":4
- *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
- * def __setstate_cython__(self, __pyx_state):
- *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")             # <<<<<<<<<<<<<<
- */
-<<<<<<< HEAD
-  __pyx_tuple__72 = PyTuple_Pack(1, __pyx_kp_s_no_default___reduce___due_to_non); if (unlikely(!__pyx_tuple__72)) __PYX_ERR(1, 4, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__72);
-  __Pyx_GIVEREF(__pyx_tuple__72);
-
-  /* "View.MemoryView":677
- *         if item is Ellipsis:
- *             if not seen_ellipsis:
- *                 result.extend([slice(None)] * (ndim - len(tup) + 1))             # <<<<<<<<<<<<<<
- *                 seen_ellipsis = True
- *             else:
- */
-  __pyx_slice__73 = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice__73)) __PYX_ERR(1, 677, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_slice__73);
-  __Pyx_GIVEREF(__pyx_slice__73);
-
-  /* "View.MemoryView":680
- *                 seen_ellipsis = True
- *             else:
- *                 result.append(slice(None))             # <<<<<<<<<<<<<<
- *             have_slices = True
- *         else:
- */
-  __pyx_slice__74 = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice__74)) __PYX_ERR(1, 680, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_slice__74);
-  __Pyx_GIVEREF(__pyx_slice__74);
-
-  /* "View.MemoryView":691
- *     nslices = ndim - len(result)
- *     if nslices:
- *         result.extend([slice(None)] * nslices)             # <<<<<<<<<<<<<<
- * 
- *     return have_slices or nslices, tuple(result)
- */
-  __pyx_slice__75 = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice__75)) __PYX_ERR(1, 691, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_slice__75);
-  __Pyx_GIVEREF(__pyx_slice__75);
-
-  /* "View.MemoryView":698
- *     for suboffset in suboffsets[:ndim]:
- *         if suboffset >= 0:
- *             raise ValueError("Indirect dimensions not supported")             # <<<<<<<<<<<<<<
- * 
- * 
- */
-  __pyx_tuple__76 = PyTuple_Pack(1, __pyx_kp_s_Indirect_dimensions_not_supporte); if (unlikely(!__pyx_tuple__76)) __PYX_ERR(1, 698, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__76);
-  __Pyx_GIVEREF(__pyx_tuple__76);
-
-  /* "(tree fragment)":2
- * def __reduce_cython__(self):
- *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")             # <<<<<<<<<<<<<<
- * def __setstate_cython__(self, __pyx_state):
- *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
- */
-  __pyx_tuple__77 = PyTuple_Pack(1, __pyx_kp_s_no_default___reduce___due_to_non); if (unlikely(!__pyx_tuple__77)) __PYX_ERR(1, 2, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__77);
-  __Pyx_GIVEREF(__pyx_tuple__77);
-
-  /* "(tree fragment)":4
- *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
- * def __setstate_cython__(self, __pyx_state):
- *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")             # <<<<<<<<<<<<<<
- */
-=======
-  __pyx_tuple__48 = PyTuple_Pack(1, __pyx_kp_s_no_default___reduce___due_to_non); if (unlikely(!__pyx_tuple__48)) __PYX_ERR(1, 4, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__48);
-  __Pyx_GIVEREF(__pyx_tuple__48);
-
-  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":229
- *             if ((flags & pybuf.PyBUF_C_CONTIGUOUS == pybuf.PyBUF_C_CONTIGUOUS)
- *                 and not PyArray_CHKFLAGS(self, NPY_C_CONTIGUOUS)):
- *                 raise ValueError(u"ndarray is not C contiguous")             # <<<<<<<<<<<<<<
- * 
- *             if ((flags & pybuf.PyBUF_F_CONTIGUOUS == pybuf.PyBUF_F_CONTIGUOUS)
- */
-  __pyx_tuple__49 = PyTuple_Pack(1, __pyx_kp_u_ndarray_is_not_C_contiguous); if (unlikely(!__pyx_tuple__49)) __PYX_ERR(2, 229, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__49);
-  __Pyx_GIVEREF(__pyx_tuple__49);
-
-  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":233
- *             if ((flags & pybuf.PyBUF_F_CONTIGUOUS == pybuf.PyBUF_F_CONTIGUOUS)
- *                 and not PyArray_CHKFLAGS(self, NPY_F_CONTIGUOUS)):
- *                 raise ValueError(u"ndarray is not Fortran contiguous")             # <<<<<<<<<<<<<<
- * 
- *             info.buf = PyArray_DATA(self)
- */
-  __pyx_tuple__50 = PyTuple_Pack(1, __pyx_kp_u_ndarray_is_not_Fortran_contiguou); if (unlikely(!__pyx_tuple__50)) __PYX_ERR(2, 233, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__50);
-  __Pyx_GIVEREF(__pyx_tuple__50);
-
-  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":263
- *                 if ((descr.byteorder == c'>' and little_endian) or
- *                     (descr.byteorder == c'<' and not little_endian)):
- *                     raise ValueError(u"Non-native byte order not supported")             # <<<<<<<<<<<<<<
- *                 if   t == NPY_BYTE:        f = "b"
- *                 elif t == NPY_UBYTE:       f = "B"
- */
-  __pyx_tuple__51 = PyTuple_Pack(1, __pyx_kp_u_Non_native_byte_order_not_suppor); if (unlikely(!__pyx_tuple__51)) __PYX_ERR(2, 263, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__51);
-  __Pyx_GIVEREF(__pyx_tuple__51);
-
-  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":810
- * 
- *         if (end - f) - <int>(new_offset - offset[0]) < 15:
- *             raise RuntimeError(u"Format string allocated too short, see comment in numpy.pxd")             # <<<<<<<<<<<<<<
- * 
- *         if ((child.byteorder == c'>' and little_endian) or
- */
-  __pyx_tuple__52 = PyTuple_Pack(1, __pyx_kp_u_Format_string_allocated_too_shor); if (unlikely(!__pyx_tuple__52)) __PYX_ERR(2, 810, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__52);
-  __Pyx_GIVEREF(__pyx_tuple__52);
-
-  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":814
- *         if ((child.byteorder == c'>' and little_endian) or
- *             (child.byteorder == c'<' and not little_endian)):
- *             raise ValueError(u"Non-native byte order not supported")             # <<<<<<<<<<<<<<
- *             # One could encode it in the format string and have Cython
- *             # complain instead, BUT: < and > in format strings also imply
- */
-  __pyx_tuple__53 = PyTuple_Pack(1, __pyx_kp_u_Non_native_byte_order_not_suppor); if (unlikely(!__pyx_tuple__53)) __PYX_ERR(2, 814, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__53);
-  __Pyx_GIVEREF(__pyx_tuple__53);
-
-  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":834
- *             t = child.type_num
- *             if end - f < 5:
- *                 raise RuntimeError(u"Format string allocated too short.")             # <<<<<<<<<<<<<<
- * 
- *             # Until ticket #99 is fixed, use integers to avoid warnings
- */
-  __pyx_tuple__54 = PyTuple_Pack(1, __pyx_kp_u_Format_string_allocated_too_shor_2); if (unlikely(!__pyx_tuple__54)) __PYX_ERR(2, 834, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__54);
-  __Pyx_GIVEREF(__pyx_tuple__54);
-
-  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":1000
- *         _import_array()
- *     except Exception:
- *         raise ImportError("numpy.core.multiarray failed to import")             # <<<<<<<<<<<<<<
- * 
- * cdef inline int import_umath() except -1:
- */
-  __pyx_tuple__55 = PyTuple_Pack(1, __pyx_kp_s_numpy_core_multiarray_failed_to); if (unlikely(!__pyx_tuple__55)) __PYX_ERR(2, 1000, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__55);
-  __Pyx_GIVEREF(__pyx_tuple__55);
-
-  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":1006
- *         _import_umath()
- *     except Exception:
- *         raise ImportError("numpy.core.umath failed to import")             # <<<<<<<<<<<<<<
- * 
- * cdef inline int import_ufunc() except -1:
- */
-  __pyx_tuple__56 = PyTuple_Pack(1, __pyx_kp_s_numpy_core_umath_failed_to_impor); if (unlikely(!__pyx_tuple__56)) __PYX_ERR(2, 1006, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__56);
-  __Pyx_GIVEREF(__pyx_tuple__56);
-
-  /* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":1012
- *         _import_umath()
- *     except Exception:
- *         raise ImportError("numpy.core.umath failed to import")             # <<<<<<<<<<<<<<
- */
-  __pyx_tuple__57 = PyTuple_Pack(1, __pyx_kp_s_numpy_core_umath_failed_to_impor); if (unlikely(!__pyx_tuple__57)) __PYX_ERR(2, 1012, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__57);
-  __Pyx_GIVEREF(__pyx_tuple__57);
-
-  /* "View.MemoryView":132
- * 
- *         if not self.ndim:
- *             raise ValueError("Empty shape tuple for cython.array")             # <<<<<<<<<<<<<<
- * 
- *         if itemsize <= 0:
- */
-  __pyx_tuple__58 = PyTuple_Pack(1, __pyx_kp_s_Empty_shape_tuple_for_cython_arr); if (unlikely(!__pyx_tuple__58)) __PYX_ERR(1, 132, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__58);
-  __Pyx_GIVEREF(__pyx_tuple__58);
-
-  /* "View.MemoryView":135
- * 
- *         if itemsize <= 0:
- *             raise ValueError("itemsize <= 0 for cython.array")             # <<<<<<<<<<<<<<
- * 
- *         if not isinstance(format, bytes):
- */
-  __pyx_tuple__59 = PyTuple_Pack(1, __pyx_kp_s_itemsize_0_for_cython_array); if (unlikely(!__pyx_tuple__59)) __PYX_ERR(1, 135, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__59);
-  __Pyx_GIVEREF(__pyx_tuple__59);
-
-  /* "View.MemoryView":138
- * 
- *         if not isinstance(format, bytes):
- *             format = format.encode('ASCII')             # <<<<<<<<<<<<<<
- *         self._format = format  # keep a reference to the byte string
- *         self.format = self._format
- */
-  __pyx_tuple__60 = PyTuple_Pack(1, __pyx_n_s_ASCII); if (unlikely(!__pyx_tuple__60)) __PYX_ERR(1, 138, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__60);
-  __Pyx_GIVEREF(__pyx_tuple__60);
-
-  /* "View.MemoryView":147
- * 
- *         if not self._shape:
- *             raise MemoryError("unable to allocate shape and strides.")             # <<<<<<<<<<<<<<
- * 
- * 
- */
-  __pyx_tuple__61 = PyTuple_Pack(1, __pyx_kp_s_unable_to_allocate_shape_and_str); if (unlikely(!__pyx_tuple__61)) __PYX_ERR(1, 147, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__61);
-  __Pyx_GIVEREF(__pyx_tuple__61);
-
-  /* "View.MemoryView":175
- *             self.data = <char *>malloc(self.len)
- *             if not self.data:
- *                 raise MemoryError("unable to allocate array data.")             # <<<<<<<<<<<<<<
- * 
- *             if self.dtype_is_object:
- */
-  __pyx_tuple__62 = PyTuple_Pack(1, __pyx_kp_s_unable_to_allocate_array_data); if (unlikely(!__pyx_tuple__62)) __PYX_ERR(1, 175, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__62);
-  __Pyx_GIVEREF(__pyx_tuple__62);
-
-  /* "View.MemoryView":191
- *             bufmode = PyBUF_F_CONTIGUOUS | PyBUF_ANY_CONTIGUOUS
- *         if not (flags & bufmode):
- *             raise ValueError("Can only create a buffer that is contiguous in memory.")             # <<<<<<<<<<<<<<
- *         info.buf = self.data
- *         info.len = self.len
- */
-  __pyx_tuple__63 = PyTuple_Pack(1, __pyx_kp_s_Can_only_create_a_buffer_that_is); if (unlikely(!__pyx_tuple__63)) __PYX_ERR(1, 191, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__63);
-  __Pyx_GIVEREF(__pyx_tuple__63);
-
-  /* "(tree fragment)":2
- * def __reduce_cython__(self):
- *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")             # <<<<<<<<<<<<<<
- * def __setstate_cython__(self, __pyx_state):
- *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
- */
-  __pyx_tuple__64 = PyTuple_Pack(1, __pyx_kp_s_no_default___reduce___due_to_non); if (unlikely(!__pyx_tuple__64)) __PYX_ERR(1, 2, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__64);
-  __Pyx_GIVEREF(__pyx_tuple__64);
-
-  /* "(tree fragment)":4
- *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
- * def __setstate_cython__(self, __pyx_state):
- *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")             # <<<<<<<<<<<<<<
- */
-  __pyx_tuple__65 = PyTuple_Pack(1, __pyx_kp_s_no_default___reduce___due_to_non); if (unlikely(!__pyx_tuple__65)) __PYX_ERR(1, 4, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__65);
-  __Pyx_GIVEREF(__pyx_tuple__65);
-
-  /* "View.MemoryView":413
- *     def __setitem__(memoryview self, object index, object value):
- *         if self.view.readonly:
- *             raise TypeError("Cannot assign to read-only memoryview")             # <<<<<<<<<<<<<<
- * 
- *         have_slices, index = _unellipsify(index, self.view.ndim)
- */
-  __pyx_tuple__66 = PyTuple_Pack(1, __pyx_kp_s_Cannot_assign_to_read_only_memor); if (unlikely(!__pyx_tuple__66)) __PYX_ERR(1, 413, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__66);
-  __Pyx_GIVEREF(__pyx_tuple__66);
-
-  /* "View.MemoryView":490
- *             result = struct.unpack(self.view.format, bytesitem)
- *         except struct.error:
- *             raise ValueError("Unable to convert item to object")             # <<<<<<<<<<<<<<
- *         else:
- *             if len(self.view.format) == 1:
- */
-  __pyx_tuple__67 = PyTuple_Pack(1, __pyx_kp_s_Unable_to_convert_item_to_object); if (unlikely(!__pyx_tuple__67)) __PYX_ERR(1, 490, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__67);
-  __Pyx_GIVEREF(__pyx_tuple__67);
-
-  /* "View.MemoryView":515
- *     def __getbuffer__(self, Py_buffer *info, int flags):
- *         if flags & PyBUF_WRITABLE and self.view.readonly:
- *             raise ValueError("Cannot create writable memory view from read-only memoryview")             # <<<<<<<<<<<<<<
- * 
- *         if flags & PyBUF_STRIDES:
- */
-  __pyx_tuple__68 = PyTuple_Pack(1, __pyx_kp_s_Cannot_create_writable_memory_vi); if (unlikely(!__pyx_tuple__68)) __PYX_ERR(1, 515, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__68);
-  __Pyx_GIVEREF(__pyx_tuple__68);
-
-  /* "View.MemoryView":565
- *         if self.view.strides == NULL:
- * 
- *             raise ValueError("Buffer view does not expose strides")             # <<<<<<<<<<<<<<
- * 
- *         return tuple([stride for stride in self.view.strides[:self.view.ndim]])
- */
-  __pyx_tuple__69 = PyTuple_Pack(1, __pyx_kp_s_Buffer_view_does_not_expose_stri); if (unlikely(!__pyx_tuple__69)) __PYX_ERR(1, 565, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__69);
-  __Pyx_GIVEREF(__pyx_tuple__69);
-
-  /* "View.MemoryView":572
- *     def suboffsets(self):
- *         if self.view.suboffsets == NULL:
- *             return (-1,) * self.view.ndim             # <<<<<<<<<<<<<<
- * 
- *         return tuple([suboffset for suboffset in self.view.suboffsets[:self.view.ndim]])
- */
-  __pyx_tuple__70 = PyTuple_New(1); if (unlikely(!__pyx_tuple__70)) __PYX_ERR(1, 572, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__70);
-  __Pyx_INCREF(__pyx_int_neg_1);
-  __Pyx_GIVEREF(__pyx_int_neg_1);
-  PyTuple_SET_ITEM(__pyx_tuple__70, 0, __pyx_int_neg_1);
-  __Pyx_GIVEREF(__pyx_tuple__70);
 
   /* "(tree fragment)":2
  * def __reduce_cython__(self):
@@ -41227,7 +40331,6 @@ static int __Pyx_InitCachedConstants(void) {
  * def __setstate_cython__(self, __pyx_state):
  *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")             # <<<<<<<<<<<<<<
  */
->>>>>>> origin/master
   __pyx_tuple__78 = PyTuple_Pack(1, __pyx_kp_s_no_default___reduce___due_to_non); if (unlikely(!__pyx_tuple__78)) __PYX_ERR(1, 4, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__78);
   __Pyx_GIVEREF(__pyx_tuple__78);
@@ -41989,26 +41092,16 @@ static int __Pyx_modinit_type_import_code(void) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__Pyx_modinit_type_import_code", 0);
   /*--- Type import code ---*/
-<<<<<<< HEAD
-  __pyx_ptype_5freud_8locality_SpatialData = __Pyx_ImportType("freud.locality", "SpatialData", sizeof(struct __pyx_obj_5freud_8locality_SpatialData), 1); if (unlikely(!__pyx_ptype_5freud_8locality_SpatialData)) __PYX_ERR(3, 6, __pyx_L1_error)
-  __pyx_ptype_5freud_8locality_NeighborList = __Pyx_ImportType("freud.locality", "NeighborList", sizeof(struct __pyx_obj_5freud_8locality_NeighborList), 1); if (unlikely(!__pyx_ptype_5freud_8locality_NeighborList)) __PYX_ERR(3, 9, __pyx_L1_error)
-  __pyx_vtabptr_5freud_8locality_NeighborList = (struct __pyx_vtabstruct_5freud_8locality_NeighborList*)__Pyx_GetVtable(__pyx_ptype_5freud_8locality_NeighborList->tp_dict); if (unlikely(!__pyx_vtabptr_5freud_8locality_NeighborList)) __PYX_ERR(3, 9, __pyx_L1_error)
-  __pyx_ptype_5freud_8locality_IteratorLinkCell = __Pyx_ImportType("freud.locality", "IteratorLinkCell", sizeof(struct __pyx_obj_5freud_8locality_IteratorLinkCell), 1); if (unlikely(!__pyx_ptype_5freud_8locality_IteratorLinkCell)) __PYX_ERR(3, 18, __pyx_L1_error)
-  __pyx_vtabptr_5freud_8locality_IteratorLinkCell = (struct __pyx_vtabstruct_5freud_8locality_IteratorLinkCell*)__Pyx_GetVtable(__pyx_ptype_5freud_8locality_IteratorLinkCell->tp_dict); if (unlikely(!__pyx_vtabptr_5freud_8locality_IteratorLinkCell)) __PYX_ERR(3, 18, __pyx_L1_error)
-  __pyx_ptype_5freud_8locality_LinkCell = __Pyx_ImportType("freud.locality", "LinkCell", sizeof(struct __pyx_obj_5freud_8locality_LinkCell), 1); if (unlikely(!__pyx_ptype_5freud_8locality_LinkCell)) __PYX_ERR(3, 23, __pyx_L1_error)
-  __pyx_ptype_5freud_8locality_NearestNeighbors = __Pyx_ImportType("freud.locality", "NearestNeighbors", sizeof(struct __pyx_obj_5freud_8locality_NearestNeighbors), 1); if (unlikely(!__pyx_ptype_5freud_8locality_NearestNeighbors)) __PYX_ERR(3, 27, __pyx_L1_error)
-  __pyx_ptype_5freud_8locality_AABBQuery = __Pyx_ImportType("freud.locality", "AABBQuery", sizeof(struct __pyx_obj_5freud_8locality_AABBQuery), 1); if (unlikely(!__pyx_ptype_5freud_8locality_AABBQuery)) __PYX_ERR(3, 34, __pyx_L1_error)
-=======
-  __pyx_ptype_5freud_8locality_NeighborList = __Pyx_ImportType("freud.locality", "NeighborList", sizeof(struct __pyx_obj_5freud_8locality_NeighborList), 1); if (unlikely(!__pyx_ptype_5freud_8locality_NeighborList)) __PYX_ERR(3, 6, __pyx_L1_error)
-  __pyx_vtabptr_5freud_8locality_NeighborList = (struct __pyx_vtabstruct_5freud_8locality_NeighborList*)__Pyx_GetVtable(__pyx_ptype_5freud_8locality_NeighborList->tp_dict); if (unlikely(!__pyx_vtabptr_5freud_8locality_NeighborList)) __PYX_ERR(3, 6, __pyx_L1_error)
-  __pyx_ptype_5freud_8locality_IteratorLinkCell = __Pyx_ImportType("freud.locality", "IteratorLinkCell", sizeof(struct __pyx_obj_5freud_8locality_IteratorLinkCell), 1); if (unlikely(!__pyx_ptype_5freud_8locality_IteratorLinkCell)) __PYX_ERR(3, 15, __pyx_L1_error)
-  __pyx_vtabptr_5freud_8locality_IteratorLinkCell = (struct __pyx_vtabstruct_5freud_8locality_IteratorLinkCell*)__Pyx_GetVtable(__pyx_ptype_5freud_8locality_IteratorLinkCell->tp_dict); if (unlikely(!__pyx_vtabptr_5freud_8locality_IteratorLinkCell)) __PYX_ERR(3, 15, __pyx_L1_error)
-  __pyx_ptype_5freud_8locality_LinkCell = __Pyx_ImportType("freud.locality", "LinkCell", sizeof(struct __pyx_obj_5freud_8locality_LinkCell), 1); if (unlikely(!__pyx_ptype_5freud_8locality_LinkCell)) __PYX_ERR(3, 20, __pyx_L1_error)
-  __pyx_ptype_5freud_8locality_NearestNeighbors = __Pyx_ImportType("freud.locality", "NearestNeighbors", sizeof(struct __pyx_obj_5freud_8locality_NearestNeighbors), 1); if (unlikely(!__pyx_ptype_5freud_8locality_NearestNeighbors)) __PYX_ERR(3, 24, __pyx_L1_error)
-  __pyx_ptype_5freud_8locality_AABBQuery = __Pyx_ImportType("freud.locality", "AABBQuery", sizeof(struct __pyx_obj_5freud_8locality_AABBQuery), 1); if (unlikely(!__pyx_ptype_5freud_8locality_AABBQuery)) __PYX_ERR(3, 31, __pyx_L1_error)
->>>>>>> origin/master
-  __pyx_ptype_5freud_3box_Box = __Pyx_ImportType("freud.box", "Box", sizeof(struct __pyx_obj_5freud_3box_Box), 1); if (unlikely(!__pyx_ptype_5freud_3box_Box)) __PYX_ERR(4, 6, __pyx_L1_error)
-  __pyx_ptype_5freud_3box_ParticleBuffer = __Pyx_ImportType("freud.box", "ParticleBuffer", sizeof(struct __pyx_obj_5freud_3box_ParticleBuffer), 1); if (unlikely(!__pyx_ptype_5freud_3box_ParticleBuffer)) __PYX_ERR(4, 11, __pyx_L1_error)
+  __pyx_ptype_5freud_3box_Box = __Pyx_ImportType("freud.box", "Box", sizeof(struct __pyx_obj_5freud_3box_Box), 1); if (unlikely(!__pyx_ptype_5freud_3box_Box)) __PYX_ERR(3, 6, __pyx_L1_error)
+  __pyx_ptype_5freud_3box_ParticleBuffer = __Pyx_ImportType("freud.box", "ParticleBuffer", sizeof(struct __pyx_obj_5freud_3box_ParticleBuffer), 1); if (unlikely(!__pyx_ptype_5freud_3box_ParticleBuffer)) __PYX_ERR(3, 11, __pyx_L1_error)
+  __pyx_ptype_5freud_8locality_SpatialData = __Pyx_ImportType("freud.locality", "SpatialData", sizeof(struct __pyx_obj_5freud_8locality_SpatialData), 1); if (unlikely(!__pyx_ptype_5freud_8locality_SpatialData)) __PYX_ERR(4, 9, __pyx_L1_error)
+  __pyx_ptype_5freud_8locality_NeighborList = __Pyx_ImportType("freud.locality", "NeighborList", sizeof(struct __pyx_obj_5freud_8locality_NeighborList), 1); if (unlikely(!__pyx_ptype_5freud_8locality_NeighborList)) __PYX_ERR(4, 15, __pyx_L1_error)
+  __pyx_vtabptr_5freud_8locality_NeighborList = (struct __pyx_vtabstruct_5freud_8locality_NeighborList*)__Pyx_GetVtable(__pyx_ptype_5freud_8locality_NeighborList->tp_dict); if (unlikely(!__pyx_vtabptr_5freud_8locality_NeighborList)) __PYX_ERR(4, 15, __pyx_L1_error)
+  __pyx_ptype_5freud_8locality_IteratorLinkCell = __Pyx_ImportType("freud.locality", "IteratorLinkCell", sizeof(struct __pyx_obj_5freud_8locality_IteratorLinkCell), 1); if (unlikely(!__pyx_ptype_5freud_8locality_IteratorLinkCell)) __PYX_ERR(4, 24, __pyx_L1_error)
+  __pyx_vtabptr_5freud_8locality_IteratorLinkCell = (struct __pyx_vtabstruct_5freud_8locality_IteratorLinkCell*)__Pyx_GetVtable(__pyx_ptype_5freud_8locality_IteratorLinkCell->tp_dict); if (unlikely(!__pyx_vtabptr_5freud_8locality_IteratorLinkCell)) __PYX_ERR(4, 24, __pyx_L1_error)
+  __pyx_ptype_5freud_8locality_LinkCell = __Pyx_ImportType("freud.locality", "LinkCell", sizeof(struct __pyx_obj_5freud_8locality_LinkCell), 1); if (unlikely(!__pyx_ptype_5freud_8locality_LinkCell)) __PYX_ERR(4, 29, __pyx_L1_error)
+  __pyx_ptype_5freud_8locality_NearestNeighbors = __Pyx_ImportType("freud.locality", "NearestNeighbors", sizeof(struct __pyx_obj_5freud_8locality_NearestNeighbors), 1); if (unlikely(!__pyx_ptype_5freud_8locality_NearestNeighbors)) __PYX_ERR(4, 33, __pyx_L1_error)
+  __pyx_ptype_5freud_8locality_AABBQuery = __Pyx_ImportType("freud.locality", "AABBQuery", sizeof(struct __pyx_obj_5freud_8locality_AABBQuery), 1); if (unlikely(!__pyx_ptype_5freud_8locality_AABBQuery)) __PYX_ERR(4, 40, __pyx_L1_error)
   __pyx_ptype_7cpython_4type_type = __Pyx_ImportType(__Pyx_BUILTIN_MODULE_NAME, "type", 
   #if defined(PYPY_VERSION_NUM) && PYPY_VERSION_NUM < 0x050B0000
   sizeof(PyTypeObject),
@@ -42972,7 +42065,6 @@ if (!__Pyx_RefNanny) {
 
   /* "View.MemoryView":208
  *         info.obj = self
-<<<<<<< HEAD
  * 
  *     __pyx_getbuffer = capsule(<void *> &__pyx_array_getbuffer, "getbuffer(obj, view, flags)")             # <<<<<<<<<<<<<<
  * 
@@ -43086,121 +42178,6 @@ if (!__Pyx_RefNanny) {
  *     __pyx_getbuffer = capsule(<void *> &__pyx_memoryview_getbuffer, "getbuffer(obj, view, flags)")             # <<<<<<<<<<<<<<
  * 
  * 
-=======
- * 
- *     __pyx_getbuffer = capsule(<void *> &__pyx_array_getbuffer, "getbuffer(obj, view, flags)")             # <<<<<<<<<<<<<<
- * 
- *     def __dealloc__(array self):
- */
-  __pyx_t_2 = __pyx_capsule_create(((void *)(&__pyx_array_getbuffer)), ((char *)"getbuffer(obj, view, flags)")); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 208, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_array_type->tp_dict, __pyx_n_s_pyx_getbuffer, __pyx_t_2) < 0) __PYX_ERR(1, 208, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  PyType_Modified(__pyx_array_type);
-
-  /* "View.MemoryView":285
- *         return self.name
- * 
- * cdef generic = Enum("<strided and direct or indirect>")             # <<<<<<<<<<<<<<
- * cdef strided = Enum("<strided and direct>") # default
- * cdef indirect = Enum("<strided and indirect>")
- */
-  __pyx_t_2 = __Pyx_PyObject_Call(((PyObject *)__pyx_MemviewEnum_type), __pyx_tuple__176, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 285, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_XGOTREF(generic);
-  __Pyx_DECREF_SET(generic, __pyx_t_2);
-  __Pyx_GIVEREF(__pyx_t_2);
-  __pyx_t_2 = 0;
-
-  /* "View.MemoryView":286
- * 
- * cdef generic = Enum("<strided and direct or indirect>")
- * cdef strided = Enum("<strided and direct>") # default             # <<<<<<<<<<<<<<
- * cdef indirect = Enum("<strided and indirect>")
- * 
- */
-  __pyx_t_2 = __Pyx_PyObject_Call(((PyObject *)__pyx_MemviewEnum_type), __pyx_tuple__177, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 286, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_XGOTREF(strided);
-  __Pyx_DECREF_SET(strided, __pyx_t_2);
-  __Pyx_GIVEREF(__pyx_t_2);
-  __pyx_t_2 = 0;
-
-  /* "View.MemoryView":287
- * cdef generic = Enum("<strided and direct or indirect>")
- * cdef strided = Enum("<strided and direct>") # default
- * cdef indirect = Enum("<strided and indirect>")             # <<<<<<<<<<<<<<
- * 
- * 
- */
-  __pyx_t_2 = __Pyx_PyObject_Call(((PyObject *)__pyx_MemviewEnum_type), __pyx_tuple__178, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 287, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_XGOTREF(indirect);
-  __Pyx_DECREF_SET(indirect, __pyx_t_2);
-  __Pyx_GIVEREF(__pyx_t_2);
-  __pyx_t_2 = 0;
-
-  /* "View.MemoryView":290
- * 
- * 
- * cdef contiguous = Enum("<contiguous and direct>")             # <<<<<<<<<<<<<<
- * cdef indirect_contiguous = Enum("<contiguous and indirect>")
- * 
- */
-  __pyx_t_2 = __Pyx_PyObject_Call(((PyObject *)__pyx_MemviewEnum_type), __pyx_tuple__179, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 290, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_XGOTREF(contiguous);
-  __Pyx_DECREF_SET(contiguous, __pyx_t_2);
-  __Pyx_GIVEREF(__pyx_t_2);
-  __pyx_t_2 = 0;
-
-  /* "View.MemoryView":291
- * 
- * cdef contiguous = Enum("<contiguous and direct>")
- * cdef indirect_contiguous = Enum("<contiguous and indirect>")             # <<<<<<<<<<<<<<
- * 
- * 
- */
-  __pyx_t_2 = __Pyx_PyObject_Call(((PyObject *)__pyx_MemviewEnum_type), __pyx_tuple__180, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 291, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_XGOTREF(indirect_contiguous);
-  __Pyx_DECREF_SET(indirect_contiguous, __pyx_t_2);
-  __Pyx_GIVEREF(__pyx_t_2);
-  __pyx_t_2 = 0;
-
-  /* "View.MemoryView":315
- * 
- * DEF THREAD_LOCKS_PREALLOCATED = 8
- * cdef int __pyx_memoryview_thread_locks_used = 0             # <<<<<<<<<<<<<<
- * cdef PyThread_type_lock[THREAD_LOCKS_PREALLOCATED] __pyx_memoryview_thread_locks = [
- *     PyThread_allocate_lock(),
- */
-  __pyx_memoryview_thread_locks_used = 0;
-
-  /* "View.MemoryView":316
- * DEF THREAD_LOCKS_PREALLOCATED = 8
- * cdef int __pyx_memoryview_thread_locks_used = 0
- * cdef PyThread_type_lock[THREAD_LOCKS_PREALLOCATED] __pyx_memoryview_thread_locks = [             # <<<<<<<<<<<<<<
- *     PyThread_allocate_lock(),
- *     PyThread_allocate_lock(),
- */
-  __pyx_t_5[0] = PyThread_allocate_lock();
-  __pyx_t_5[1] = PyThread_allocate_lock();
-  __pyx_t_5[2] = PyThread_allocate_lock();
-  __pyx_t_5[3] = PyThread_allocate_lock();
-  __pyx_t_5[4] = PyThread_allocate_lock();
-  __pyx_t_5[5] = PyThread_allocate_lock();
-  __pyx_t_5[6] = PyThread_allocate_lock();
-  __pyx_t_5[7] = PyThread_allocate_lock();
-  memcpy(&(__pyx_memoryview_thread_locks[0]), __pyx_t_5, sizeof(__pyx_memoryview_thread_locks[0]) * (8));
-
-  /* "View.MemoryView":544
- *         info.obj = self
- * 
- *     __pyx_getbuffer = capsule(<void *> &__pyx_memoryview_getbuffer, "getbuffer(obj, view, flags)")             # <<<<<<<<<<<<<<
- * 
- * 
->>>>>>> origin/master
  */
   __pyx_t_2 = __pyx_capsule_create(((void *)(&__pyx_memoryview_getbuffer)), ((char *)"getbuffer(obj, view, flags)")); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 544, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -44134,12 +43111,9 @@ static CYTHON_INLINE PyObject *__Pyx_GetItemInt_Fast(PyObject *o, Py_ssize_t i, 
     } else {
         int result;
         PyObject* py_result = PyObject_RichCompare(s1, s2, equals);
-<<<<<<< HEAD
         #if PY_MAJOR_VERSION < 3
         Py_XDECREF(owned_ref);
         #endif
-=======
->>>>>>> origin/master
         if (!py_result)
             return -1;
         result = __Pyx_PyObject_IsTrue(py_result);

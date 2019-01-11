@@ -708,7 +708,8 @@ cdef class AABBQuery(SpatialData):
     def nlist(self):
         return self._nlist
 
-    def query(self, points, unsigned int k=1, float r=0, float scale=1.1, exclude_ii=False):
+    def query(self, points, unsigned int k=1, float r=0, float scale=1.1,
+              exclude_ii=False):
         R"""Query the tree for nearest neighbors of the provided point.
 
         The AABBQuery object overrides the parent method to support querying
