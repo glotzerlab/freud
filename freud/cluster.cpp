@@ -46,12 +46,13 @@
         "name": "freud.cluster",
         "sources": [
             "freud/cluster.pyx",
-            "cpp/locality/NearestNeighbors.cc",
-            "cpp/box/Box.cc",
-            "cpp/locality/NeighborList.cc",
             "cpp/locality/AABBQuery.cc",
-            "cpp/locality/LinkCell.cc",
             "cpp/util/HOOMDMatrix.cc",
+            "cpp/locality/LinkCell.cc",
+            "cpp/locality/NeighborList.cc",
+            "cpp/box/Box.cc",
+            "cpp/locality/SpatialData.cc",
+            "cpp/locality/NearestNeighbors.cc",
             "cpp/cluster/ClusterProperties.cc",
             "cpp/cluster/Cluster.cc"
         ]
