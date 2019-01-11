@@ -8,48 +8,6 @@ import unittest
 import warnings
 
 
-# class TestSpatialDataAABB(unittest.TestCase):
-    # def test_query_ball(self):
-        # L = 10  # Box Dimensions
-        # rcut = 2.01  # Cutoff radius
-        # N = 4  # number of particles
-
-        # fbox = box.Box.cube(L)  # Initialize Box
-
-        # points = np.zeros(shape=(N, 3), dtype=np.float32)
-        # points[0] = [0.0, 0.0, 0.0]
-        # points[1] = [1.0, 0.0, 0.0]
-        # points[2] = [3.0, 0.0, 0.0]
-        # points[3] = [2.0, 0.0, 0.0]
-        # aq = locality.AABBQuery(fbox, points)
-        # print("AABB outputs")
-        # print(aq.query_ball(points[[2]], 1.01))
-        # print(aq.query_ball(points, 1.01))
-        # print(aq.query(points[[1]], 3, 0.5, 1.1))
-
-        # aq.compute(fbox, rcut, points)
-
-
-# class TestSpatialDataLinkCell(unittest.TestCase):
-    # def test_query_ball(self):
-        # L = 10  # Box Dimensions
-        # rcut = 2.01  # Cutoff radius
-        # N = 4  # number of particles
-
-        # fbox = box.Box.cube(L)  # Initialize Box
-
-        # points = np.zeros(shape=(N, 3), dtype=np.float32)
-        # points[0] = [0.0, 0.0, 0.0]
-        # points[1] = [1.0, 0.0, 0.0]
-        # points[2] = [3.0, 0.0, 0.0]
-        # points[3] = [2.0, 0.0, 0.0]
-        # lc = locality.LinkCell(fbox, rcut, points)
-        # print("LinkCell outputs")
-        # print(lc.query_ball(points[[2]], 1.01))
-        # print(lc.query_ball(points, 1.01))
-        # print(lc.query(points[[1]], 3))
-
-
 class TestSpatialDataAABB(unittest.TestCase):
     def test_first_index(self):
         L = 10  # Box Dimensions
@@ -237,7 +195,6 @@ class TestSpatialDataAABB(unittest.TestCase):
             points = np.zeros(shape=(2, 3), dtype=np.float32)
             locality.AABBQuery().query(points, rcut)
 
-
     def test_no_bonds(self):
         N = 10
         fbox = box.Box.cube(N)
@@ -252,7 +209,6 @@ class TestSpatialDataAABB(unittest.TestCase):
         result = aq.query_ball(positions, 0.99, exclude_ii=True)
 
         self.assertEqual(len(result), 0)
-
 
 
 class TestSpatialDataLinkCell(unittest.TestCase):
@@ -447,7 +403,6 @@ class TestSpatialDataLinkCell(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             points = np.zeros(shape=(2, 3), dtype=np.float32)
             locality.LinkCell(fbox, rcut).query(points, rcut)
-
 
     def test_no_bonds(self):
         N = 10
