@@ -210,19 +210,22 @@ class TestSpatialDataAABB(unittest.TestCase):
                     seed, i))
                 raise
 
-    def test_throws(self):
+    def test_attributes(self):
         """Ensure that mixing old and new APIs throws an error"""
         L = 10
         rcut = 1.0
 
         fbox = box.Box.cube(L)
-        with self.assertRaises(RuntimeError):
-            points = np.zeros(shape=(2, 3), dtype=np.float32)
-            locality.AABBQuery(fbox, points).compute(fbox, rcut, points)
 
-        with self.assertRaises(RuntimeError):
-            points = np.zeros(shape=(2, 3), dtype=np.float32)
-            locality.AABBQuery().query(points, rcut)
+        points = np.zeros(shape=(4, 3), dtype=np.float32)
+        points[0] = [0.0, 0.0, 0.0]
+        points[1] = [1.0, 0.0, 0.0]
+        points[2] = [3.0, 0.0, 0.0]
+        points[3] = [2.0, 0.0, 0.0]
+
+        aq = locality.AABBQuery(fbox, points)
+        npt.assert_array_equal(aq.ref_points, points)
+        self.assertEqual(aq.box, fbox)
 
     def test_no_bonds(self):
         N = 10

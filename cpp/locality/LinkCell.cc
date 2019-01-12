@@ -407,6 +407,7 @@ NeighborPoint LinkCellQueryBallIterator::next()
         else
             {
             const unsigned int neighbor_cell = m_linkcell->getCellIndexer()(
+                    // Need to increment each dimension by the width to avoid taking the modulus of a negative number.
                     (m_linkcell->getCellIndexer().getW() + point_cell.x + (*m_neigh_cell_iter).x) % m_linkcell->getCellIndexer().getW(),
                     (m_linkcell->getCellIndexer().getH() + point_cell.y + (*m_neigh_cell_iter).y) % m_linkcell->getCellIndexer().getH(),
                     (m_linkcell->getCellIndexer().getD() + point_cell.z + (*m_neigh_cell_iter).z) % m_linkcell->getCellIndexer().getD());
@@ -453,9 +454,10 @@ NeighborPoint LinkCellQueryIterator::next()
                 }
             }
         const unsigned int neighbor_cell = m_linkcell->getCellIndexer()(
-                (point_cell.x + (*m_neigh_cell_iter).x) % m_linkcell->getCellIndexer().getW(),
-                (point_cell.y + (*m_neigh_cell_iter).y) % m_linkcell->getCellIndexer().getH(),
-                (point_cell.z + (*m_neigh_cell_iter).z) % m_linkcell->getCellIndexer().getD());
+                // Need to increment each dimension by the width to avoid taking the modulus of a negative number.
+                (m_linkcell->getCellIndexer().getW() + point_cell.x + (*m_neigh_cell_iter).x) % m_linkcell->getCellIndexer().getW(),
+                (m_linkcell->getCellIndexer().getH() + point_cell.y + (*m_neigh_cell_iter).y) % m_linkcell->getCellIndexer().getH(),
+                (m_linkcell->getCellIndexer().getD() + point_cell.z + (*m_neigh_cell_iter).z) % m_linkcell->getCellIndexer().getD());
         m_cell_iter = m_linkcell->itercell(neighbor_cell);
         }
 

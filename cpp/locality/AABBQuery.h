@@ -39,11 +39,6 @@ class AABBQuery : public SpatialData
         //! Destructor
         ~AABBQuery();
 
-        void compute(box::Box& box, float rcut,
-            const vec3<float> *ref_points, unsigned int Nref,
-            const vec3<float> *points, unsigned int Np,
-            bool exclude_ii);
-
         freud::locality::NeighborList *getNeighborList()
             {
             return &m_neighbor_list;
@@ -68,20 +63,13 @@ class AABBQuery : public SpatialData
 
     private:
         //! Driver for tree configuration
-        void setupTree(unsigned int N, bool build_images);
+        void setupTree(unsigned int N);
 
         //! Maps particles by local id to their id within their type trees
         void mapParticlesByType();
 
-        //! Computes the image vectors to query for
-        void updateImageVectors();
-
         //! Driver to build AABB trees
         void buildTree(const vec3<float> *ref_points, unsigned int N);
-
-        //! Traverses AABB trees to compute neighbors
-        void traverseTree(const vec3<float> *ref_points, unsigned int Nref,
-            const vec3<float> *points, unsigned int Np, bool exclude_ii);
 
         unsigned int m_Ntotal;
         std::vector<AABB> m_aabbs; //!< Flat array of AABBs of all types
@@ -89,7 +77,6 @@ class AABBQuery : public SpatialData
         unsigned int m_n_images; //!< The number of image vectors to check
 
         box::Box m_box; //!< Simulation box where the particles belong
-        float m_rcut; //!< Maximum distance between neighbors
         NeighborList m_neighbor_list; //!< Stored neighbor list
     };
 
