@@ -47,9 +47,23 @@ cdef class AABBQueryResult(NeighborQueryResult):
 
     @staticmethod
     cdef inline AABBQueryResult init2(freud._locality.AABBQuery * aabbptr, float[:, ::1] points, cbool exclude_ii, unsigned int k, float r_guess, float scale):
-        cdef AABBQueryResult obj = NeighborQueryResult.init(aabbptr, points, exclude_ii, r=0, k=k)
+        # Internal API only
+        assert k != 0
 
-        obj.aabbptr = aabbptr
+        obj = AABBQueryResult()
+
+        obj.aabbptr = obj.spdptr = aabbptr
+        obj.points = points
+        obj.exclude_ii = exclude_ii
+        obj.Np = points.shape[0]
+
+        obj.r = 0  # Only for kN queries
+        obj.k = k
+
+        if obj.r != 0:
+            obj.query_type = 'ball'
+        else:
+            obj.query_type = 'nn'
 
         obj.r_guess = r_guess
         obj.scale = scale
