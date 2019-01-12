@@ -607,8 +607,8 @@ def make_default_nlist(box, ref_points, points, rmax, nlist=None,
     if nlist is not None:
         return nlist, nlist
 
-    cdef AABBQuery aq = AABBQuery().compute(
-        box, rmax, ref_points, points, exclude_ii)
+    cdef LinkCell lc = LinkCell(box, rmax).compute(
+        box, ref_points, points, exclude_ii)
 
     # Python does not appear to garbage collect appropriately in this case.
     # If a new neighbor list is created, the associated owner keeps the
@@ -617,12 +617,12 @@ def make_default_nlist(box, ref_points, points, rmax, nlist=None,
     # resulting cycle causes a memory leak. The below block explicitly breaks
     # this cycle. Alternatively, we could force garbage collection using the
     # gc module, but this is simpler.
-    cdef NeighborList cnlist = aq.nlist
+    cdef NeighborList cnlist = lc.nlist
     if nlist is None:
         cnlist.base = None
 
     # Return the owner of the neighbor list as well to prevent gc problems
-    return aq.nlist, aq
+    return lc.nlist, lc
 
 
 def make_default_nlist_nn(box, ref_points, points, n_neigh, nlist=None,

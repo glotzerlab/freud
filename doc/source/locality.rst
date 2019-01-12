@@ -24,6 +24,12 @@ Neighbor List
 .. autoclass:: freud.locality.NeighborList
    :members:
 
+Neighbor Querying
+=============
+
+.. autoclass:: freud.locality.NeighborQuery
+   :members:
+
 AABB Trees
 ==========
 

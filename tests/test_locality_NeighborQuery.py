@@ -213,7 +213,6 @@ class TestNeighborQueryAABB(unittest.TestCase):
     def test_attributes(self):
         """Ensure that mixing old and new APIs throws an error"""
         L = 10
-        rcut = 1.0
 
         fbox = box.Box.cube(L)
 

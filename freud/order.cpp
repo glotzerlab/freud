@@ -56,22 +56,22 @@
         "name": "freud.order",
         "sources": [
             "freud/order.pyx",
-            "cpp/order/LocalWl.cc",
-            "cpp/cluster/Cluster.cc",
-            "cpp/order/HexOrderParameter.cc",
-            "cpp/order/CubaticOrderParameter.cc",
-            "cpp/order/TransOrderParameter.cc",
-            "cpp/locality/NearestNeighbors.cc",
-            "cpp/locality/LinkCell.cc",
-            "cpp/order/SolLiq.cc",
-            "cpp/order/wigner3j.cc",
             "cpp/order/LocalQl.cc",
-            "cpp/order/NematicOrderParameter.cc",
-            "cpp/locality/AABBQuery.cc",
+            "cpp/locality/NeighborList.cc",
             "cpp/locality/NeighborQuery.cc",
-            "cpp/box/Box.cc",
             "cpp/util/HOOMDMatrix.cc",
-            "cpp/locality/NeighborList.cc"
+            "cpp/cluster/Cluster.cc",
+            "cpp/order/NematicOrderParameter.cc",
+            "cpp/order/LocalWl.cc",
+            "cpp/order/SolLiq.cc",
+            "cpp/locality/AABBQuery.cc",
+            "cpp/box/Box.cc",
+            "cpp/locality/LinkCell.cc",
+            "cpp/order/CubaticOrderParameter.cc",
+            "cpp/locality/NearestNeighbors.cc",
+            "cpp/order/TransOrderParameter.cc",
+            "cpp/order/HexOrderParameter.cc",
+            "cpp/order/wigner3j.cc"
         ]
     },
     "module_name": "freud.order"
@@ -1288,7 +1288,7 @@ struct __pyx_memoryview_obj;
 struct __pyx_memoryviewslice_obj;
 struct __pyx_opt_args_5freud_8locality_19NeighborQueryResult_init;
 
-/* "freud/locality.pxd":20
+/* "freud/locality.pxd":21
  * 
  *     @staticmethod
  *     cdef inline NeighborQueryResult init(freud._locality.NeighborQuery * spdptr, float[:, ::1] points, cbool exclude_ii, float r=0, unsigned int k=0):             # <<<<<<<<<<<<<<
@@ -1379,10 +1379,11 @@ struct __pyx_obj_5freud_8locality_NeighborQueryResult {
   unsigned int k;
   unsigned int Np;
   bool exclude_ii;
+  PyObject *query_type;
 };
 
 
-/* "freud/locality.pxd":40
+/* "freud/locality.pxd":43
  * 
  * 
  * cdef class AABBQueryResult(NeighborQueryResult):             # <<<<<<<<<<<<<<
@@ -1397,7 +1398,7 @@ struct __pyx_obj_5freud_8locality_AABBQueryResult {
 };
 
 
-/* "freud/locality.pxd":55
+/* "freud/locality.pxd":74
  * 
  * 
  * cdef class NeighborQuery:             # <<<<<<<<<<<<<<
@@ -1413,7 +1414,7 @@ struct __pyx_obj_5freud_8locality_NeighborQuery {
 };
 
 
-/* "freud/locality.pxd":61
+/* "freud/locality.pxd":80
  *     cdef float[:, ::1] ref_points
  * 
  * cdef class NeighborList:             # <<<<<<<<<<<<<<
@@ -1429,7 +1430,7 @@ struct __pyx_obj_5freud_8locality_NeighborList {
 };
 
 
-/* "freud/locality.pxd":70
+/* "freud/locality.pxd":89
  *     cdef void copy_c(self, NeighborList other)
  * 
  * cdef class IteratorLinkCell:             # <<<<<<<<<<<<<<
@@ -1443,7 +1444,7 @@ struct __pyx_obj_5freud_8locality_IteratorLinkCell {
 };
 
 
-/* "freud/locality.pxd":75
+/* "freud/locality.pxd":94
  *     cdef void copy(self, const freud._locality.IteratorLinkCell & rhs)
  * 
  * cdef class LinkCell(NeighborQuery):             # <<<<<<<<<<<<<<
@@ -1457,7 +1458,7 @@ struct __pyx_obj_5freud_8locality_LinkCell {
 };
 
 
-/* "freud/locality.pxd":79
+/* "freud/locality.pxd":98
  *     cdef NeighborList _nlist
  * 
  * cdef class NearestNeighbors:             # <<<<<<<<<<<<<<
@@ -1474,7 +1475,7 @@ struct __pyx_obj_5freud_8locality_NearestNeighbors {
 };
 
 
-/* "freud/locality.pxd":86
+/* "freud/locality.pxd":105
  *     cdef _cached_box
  * 
  * cdef class AABBQuery(NeighborQuery):             # <<<<<<<<<<<<<<
@@ -1797,7 +1798,7 @@ static struct __pyx_vtabstruct_5freud_8locality_NeighborQueryResult *__pyx_vtabp
 static CYTHON_INLINE struct __pyx_obj_5freud_8locality_NeighborQueryResult *__pyx_f_5freud_8locality_19NeighborQueryResult_init(freud::locality::NeighborQuery *, __Pyx_memviewslice, bool, struct __pyx_opt_args_5freud_8locality_19NeighborQueryResult_init *__pyx_optional_args);
 
 
-/* "freud/locality.pxd":40
+/* "freud/locality.pxd":43
  * 
  * 
  * cdef class AABBQueryResult(NeighborQueryResult):             # <<<<<<<<<<<<<<
@@ -1813,7 +1814,7 @@ static struct __pyx_vtabstruct_5freud_8locality_AABBQueryResult *__pyx_vtabptr_5
 static CYTHON_INLINE struct __pyx_obj_5freud_8locality_AABBQueryResult *__pyx_f_5freud_8locality_15AABBQueryResult_init2(freud::locality::AABBQuery *, __Pyx_memviewslice, bool, unsigned int, float, float);
 
 
-/* "freud/locality.pxd":61
+/* "freud/locality.pxd":80
  *     cdef float[:, ::1] ref_points
  * 
  * cdef class NeighborList:             # <<<<<<<<<<<<<<
@@ -1829,7 +1830,7 @@ struct __pyx_vtabstruct_5freud_8locality_NeighborList {
 static struct __pyx_vtabstruct_5freud_8locality_NeighborList *__pyx_vtabptr_5freud_8locality_NeighborList;
 
 
-/* "freud/locality.pxd":70
+/* "freud/locality.pxd":89
  *     cdef void copy_c(self, NeighborList other)
  * 
  * cdef class IteratorLinkCell:             # <<<<<<<<<<<<<<
@@ -3114,7 +3115,6 @@ static const char __pyx_k_il_jk_ijkl[] = "il,jk->ijkl";
 static const char __pyx_k_negative_m[] = "negative_m";
 static const char __pyx_k_pyx_result[] = "__pyx_result";
 static const char __pyx_k_pyx_vtable[] = "__pyx_vtable__";
-static const char __pyx_k_query_type[] = "query_type";
 static const char __pyx_k_ImportError[] = "ImportError";
 static const char __pyx_k_MemoryError[] = "MemoryError";
 static const char __pyx_k_PickleError[] = "PickleError";
@@ -3701,7 +3701,6 @@ static PyObject *__pyx_n_s_pyx_type;
 static PyObject *__pyx_n_s_pyx_unpickle_Enum;
 static PyObject *__pyx_n_s_pyx_vtable;
 static PyObject *__pyx_n_s_qualname;
-static PyObject *__pyx_n_s_query_type;
 static PyObject *__pyx_n_s_range;
 static PyObject *__pyx_n_s_rcutCluster;
 static PyObject *__pyx_n_s_reduce;
@@ -27348,7 +27347,7 @@ static PyObject *__pyx_pf_5freud_5order_17AngularSeparation___init__(CYTHON_UNUS
   return __pyx_r;
 }
 
-/* "freud/locality.pxd":20
+/* "freud/locality.pxd":21
  * 
  *     @staticmethod
  *     cdef inline NeighborQueryResult init(freud._locality.NeighborQuery * spdptr, float[:, ::1] points, cbool exclude_ii, float r=0, unsigned int k=0):             # <<<<<<<<<<<<<<
@@ -27375,7 +27374,7 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_NeighborQueryResult *__py
     }
   }
 
-  /* "freud/locality.pxd":22
+  /* "freud/locality.pxd":23
  *     cdef inline NeighborQueryResult init(freud._locality.NeighborQuery * spdptr, float[:, ::1] points, cbool exclude_ii, float r=0, unsigned int k=0):
  *         # Internal API only
  *         assert r != 0 or k != 0             # <<<<<<<<<<<<<<
@@ -27395,24 +27394,24 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_NeighborQueryResult *__py
     __pyx_L3_bool_binop_done:;
     if (unlikely(!__pyx_t_1)) {
       PyErr_SetNone(PyExc_AssertionError);
-      __PYX_ERR(2, 22, __pyx_L1_error)
+      __PYX_ERR(2, 23, __pyx_L1_error)
     }
   }
   #endif
 
-  /* "freud/locality.pxd":24
+  /* "freud/locality.pxd":25
  *         assert r != 0 or k != 0
  * 
  *         obj = NeighborQueryResult()             # <<<<<<<<<<<<<<
  * 
  *         obj.spdptr = spdptr
  */
-  __pyx_t_3 = __Pyx_PyObject_CallNoArg(((PyObject *)__pyx_ptype_5freud_8locality_NeighborQueryResult)); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 24, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_CallNoArg(((PyObject *)__pyx_ptype_5freud_8locality_NeighborQueryResult)); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 25, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_v_obj = ((struct __pyx_obj_5freud_8locality_NeighborQueryResult *)__pyx_t_3);
   __pyx_t_3 = 0;
 
-  /* "freud/locality.pxd":26
+  /* "freud/locality.pxd":27
  *         obj = NeighborQueryResult()
  * 
  *         obj.spdptr = spdptr             # <<<<<<<<<<<<<<
@@ -27421,7 +27420,7 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_NeighborQueryResult *__py
  */
   __pyx_v_obj->spdptr = __pyx_v_spdptr;
 
-  /* "freud/locality.pxd":27
+  /* "freud/locality.pxd":28
  * 
  *         obj.spdptr = spdptr
  *         obj.points = points             # <<<<<<<<<<<<<<
@@ -27432,7 +27431,7 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_NeighborQueryResult *__py
   __PYX_INC_MEMVIEW(&__pyx_v_points, 0);
   __pyx_v_obj->points = __pyx_v_points;
 
-  /* "freud/locality.pxd":28
+  /* "freud/locality.pxd":29
  *         obj.spdptr = spdptr
  *         obj.points = points
  *         obj.exclude_ii = exclude_ii             # <<<<<<<<<<<<<<
@@ -27441,7 +27440,7 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_NeighborQueryResult *__py
  */
   __pyx_v_obj->exclude_ii = __pyx_v_exclude_ii;
 
-  /* "freud/locality.pxd":29
+  /* "freud/locality.pxd":30
  *         obj.points = points
  *         obj.exclude_ii = exclude_ii
  *         obj.Np = points.shape[0]             # <<<<<<<<<<<<<<
@@ -27450,7 +27449,7 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_NeighborQueryResult *__py
  */
   __pyx_v_obj->Np = (__pyx_v_points.shape[0]);
 
-  /* "freud/locality.pxd":31
+  /* "freud/locality.pxd":32
  *         obj.Np = points.shape[0]
  * 
  *         obj.r = r             # <<<<<<<<<<<<<<
@@ -27459,7 +27458,7 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_NeighborQueryResult *__py
  */
   __pyx_v_obj->r = __pyx_v_r;
 
-  /* "freud/locality.pxd":32
+  /* "freud/locality.pxd":33
  * 
  *         obj.r = r
  *         obj.k = k             # <<<<<<<<<<<<<<
@@ -27468,48 +27467,68 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_NeighborQueryResult *__py
  */
   __pyx_v_obj->k = __pyx_v_k;
 
-  /* "freud/locality.pxd":34
+  /* "freud/locality.pxd":35
  *         obj.k = k
  * 
  *         if obj.r != 0:             # <<<<<<<<<<<<<<
- *             obj.query_type = 'nn'
+ *             obj.query_type = 'ball'
  *         else:
  */
   __pyx_t_1 = ((__pyx_v_obj->r != 0.0) != 0);
   if (__pyx_t_1) {
 
-    /* "freud/locality.pxd":35
+    /* "freud/locality.pxd":36
  * 
  *         if obj.r != 0:
- *             obj.query_type = 'nn'             # <<<<<<<<<<<<<<
+ *             obj.query_type = 'ball'             # <<<<<<<<<<<<<<
  *         else:
- *             obj.query_type = 'ball'
+ *             obj.query_type = 'nn'
  */
-    if (__Pyx_PyObject_SetAttrStr(((PyObject *)__pyx_v_obj), __pyx_n_s_query_type, __pyx_n_s_nn) < 0) __PYX_ERR(2, 35, __pyx_L1_error)
+    __Pyx_INCREF(__pyx_n_s_ball);
+    __Pyx_GIVEREF(__pyx_n_s_ball);
+    __Pyx_GOTREF(__pyx_v_obj->query_type);
+    __Pyx_DECREF(__pyx_v_obj->query_type);
+    __pyx_v_obj->query_type = __pyx_n_s_ball;
 
-    /* "freud/locality.pxd":34
+    /* "freud/locality.pxd":35
  *         obj.k = k
  * 
  *         if obj.r != 0:             # <<<<<<<<<<<<<<
- *             obj.query_type = 'nn'
+ *             obj.query_type = 'ball'
  *         else:
  */
     goto __pyx_L5;
   }
 
-  /* "freud/locality.pxd":37
- *             obj.query_type = 'nn'
+  /* "freud/locality.pxd":38
+ *             obj.query_type = 'ball'
  *         else:
- *             obj.query_type = 'ball'             # <<<<<<<<<<<<<<
+ *             obj.query_type = 'nn'             # <<<<<<<<<<<<<<
  * 
- * 
+ *         return obj
  */
   /*else*/ {
-    if (__Pyx_PyObject_SetAttrStr(((PyObject *)__pyx_v_obj), __pyx_n_s_query_type, __pyx_n_s_ball) < 0) __PYX_ERR(2, 37, __pyx_L1_error)
+    __Pyx_INCREF(__pyx_n_s_nn);
+    __Pyx_GIVEREF(__pyx_n_s_nn);
+    __Pyx_GOTREF(__pyx_v_obj->query_type);
+    __Pyx_DECREF(__pyx_v_obj->query_type);
+    __pyx_v_obj->query_type = __pyx_n_s_nn;
   }
   __pyx_L5:;
 
-  /* "freud/locality.pxd":20
+  /* "freud/locality.pxd":40
+ *             obj.query_type = 'nn'
+ * 
+ *         return obj             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __Pyx_XDECREF(((PyObject *)__pyx_r));
+  __Pyx_INCREF(((PyObject *)__pyx_v_obj));
+  __pyx_r = __pyx_v_obj;
+  goto __pyx_L0;
+
+  /* "freud/locality.pxd":21
  * 
  *     @staticmethod
  *     cdef inline NeighborQueryResult init(freud._locality.NeighborQuery * spdptr, float[:, ::1] points, cbool exclude_ii, float r=0, unsigned int k=0):             # <<<<<<<<<<<<<<
@@ -27518,8 +27537,6 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_NeighborQueryResult *__py
  */
 
   /* function exit code */
-  __pyx_r = ((struct __pyx_obj_5freud_8locality_NeighborQueryResult *)Py_None); __Pyx_INCREF(Py_None);
-  goto __pyx_L0;
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_AddTraceback("freud.locality.NeighborQueryResult.init", __pyx_clineno, __pyx_lineno, __pyx_filename);
@@ -27531,49 +27548,158 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_NeighborQueryResult *__py
   return __pyx_r;
 }
 
-/* "freud/locality.pxd":46
+/* "freud/locality.pxd":49
  * 
  *     @staticmethod
  *     cdef inline AABBQueryResult init2(freud._locality.AABBQuery * aabbptr, float[:, ::1] points, cbool exclude_ii, unsigned int k, float r_guess, float scale):             # <<<<<<<<<<<<<<
- *         cdef AABBQueryResult obj = NeighborQueryResult.init(aabbptr, points, exclude_ii, r=0, k=k)
- * 
+ *         # Internal API only
+ *         assert k != 0
  */
 
 static CYTHON_INLINE struct __pyx_obj_5freud_8locality_AABBQueryResult *__pyx_f_5freud_8locality_15AABBQueryResult_init2(freud::locality::AABBQuery *__pyx_v_aabbptr, __Pyx_memviewslice __pyx_v_points, bool __pyx_v_exclude_ii, unsigned int __pyx_v_k, float __pyx_v_r_guess, float __pyx_v_scale) {
-  struct __pyx_obj_5freud_8locality_AABBQueryResult *__pyx_v_obj = 0;
+  struct __pyx_obj_5freud_8locality_AABBQueryResult *__pyx_v_obj = NULL;
   struct __pyx_obj_5freud_8locality_AABBQueryResult *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
-  struct __pyx_opt_args_5freud_8locality_19NeighborQueryResult_init __pyx_t_2;
+  int __pyx_t_2;
   __Pyx_RefNannySetupContext("init2", 0);
 
-  /* "freud/locality.pxd":47
- *     @staticmethod
+  /* "freud/locality.pxd":51
  *     cdef inline AABBQueryResult init2(freud._locality.AABBQuery * aabbptr, float[:, ::1] points, cbool exclude_ii, unsigned int k, float r_guess, float scale):
- *         cdef AABBQueryResult obj = NeighborQueryResult.init(aabbptr, points, exclude_ii, r=0, k=k)             # <<<<<<<<<<<<<<
+ *         # Internal API only
+ *         assert k != 0             # <<<<<<<<<<<<<<
  * 
- *         obj.aabbptr = aabbptr
+ *         obj = AABBQueryResult()
  */
-  __pyx_t_2.__pyx_n = 2;
-  __pyx_t_2.r = 0.0;
-  __pyx_t_2.k = __pyx_v_k;
-  __pyx_t_1 = ((PyObject *)__pyx_vtabptr_5freud_8locality_NeighborQueryResult->init(__pyx_v_aabbptr, __pyx_v_points, __pyx_v_exclude_ii, &__pyx_t_2)); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 47, __pyx_L1_error)
+  #ifndef CYTHON_WITHOUT_ASSERTIONS
+  if (unlikely(!Py_OptimizeFlag)) {
+    if (unlikely(!((__pyx_v_k != 0) != 0))) {
+      PyErr_SetNone(PyExc_AssertionError);
+      __PYX_ERR(2, 51, __pyx_L1_error)
+    }
+  }
+  #endif
+
+  /* "freud/locality.pxd":53
+ *         assert k != 0
+ * 
+ *         obj = AABBQueryResult()             # <<<<<<<<<<<<<<
+ * 
+ *         obj.aabbptr = obj.spdptr = aabbptr
+ */
+  __pyx_t_1 = __Pyx_PyObject_CallNoArg(((PyObject *)__pyx_ptype_5freud_8locality_AABBQueryResult)); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 53, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5freud_8locality_AABBQueryResult))))) __PYX_ERR(2, 47, __pyx_L1_error)
   __pyx_v_obj = ((struct __pyx_obj_5freud_8locality_AABBQueryResult *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "freud/locality.pxd":49
- *         cdef AABBQueryResult obj = NeighborQueryResult.init(aabbptr, points, exclude_ii, r=0, k=k)
+  /* "freud/locality.pxd":55
+ *         obj = AABBQueryResult()
  * 
- *         obj.aabbptr = aabbptr             # <<<<<<<<<<<<<<
+ *         obj.aabbptr = obj.spdptr = aabbptr             # <<<<<<<<<<<<<<
+ *         obj.points = points
+ *         obj.exclude_ii = exclude_ii
+ */
+  __pyx_v_obj->aabbptr = __pyx_v_aabbptr;
+  __pyx_v_obj->__pyx_base.spdptr = __pyx_v_aabbptr;
+
+  /* "freud/locality.pxd":56
+ * 
+ *         obj.aabbptr = obj.spdptr = aabbptr
+ *         obj.points = points             # <<<<<<<<<<<<<<
+ *         obj.exclude_ii = exclude_ii
+ *         obj.Np = points.shape[0]
+ */
+  __PYX_XDEC_MEMVIEW(&__pyx_v_obj->__pyx_base.points, 0);
+  __PYX_INC_MEMVIEW(&__pyx_v_points, 0);
+  __pyx_v_obj->__pyx_base.points = __pyx_v_points;
+
+  /* "freud/locality.pxd":57
+ *         obj.aabbptr = obj.spdptr = aabbptr
+ *         obj.points = points
+ *         obj.exclude_ii = exclude_ii             # <<<<<<<<<<<<<<
+ *         obj.Np = points.shape[0]
+ * 
+ */
+  __pyx_v_obj->__pyx_base.exclude_ii = __pyx_v_exclude_ii;
+
+  /* "freud/locality.pxd":58
+ *         obj.points = points
+ *         obj.exclude_ii = exclude_ii
+ *         obj.Np = points.shape[0]             # <<<<<<<<<<<<<<
+ * 
+ *         obj.r = 0  # Only for kN queries
+ */
+  __pyx_v_obj->__pyx_base.Np = (__pyx_v_points.shape[0]);
+
+  /* "freud/locality.pxd":60
+ *         obj.Np = points.shape[0]
+ * 
+ *         obj.r = 0  # Only for kN queries             # <<<<<<<<<<<<<<
+ *         obj.k = k
+ * 
+ */
+  __pyx_v_obj->__pyx_base.r = 0.0;
+
+  /* "freud/locality.pxd":61
+ * 
+ *         obj.r = 0  # Only for kN queries
+ *         obj.k = k             # <<<<<<<<<<<<<<
+ * 
+ *         if obj.r != 0:
+ */
+  __pyx_v_obj->__pyx_base.k = __pyx_v_k;
+
+  /* "freud/locality.pxd":63
+ *         obj.k = k
+ * 
+ *         if obj.r != 0:             # <<<<<<<<<<<<<<
+ *             obj.query_type = 'ball'
+ *         else:
+ */
+  __pyx_t_2 = ((__pyx_v_obj->__pyx_base.r != 0.0) != 0);
+  if (__pyx_t_2) {
+
+    /* "freud/locality.pxd":64
+ * 
+ *         if obj.r != 0:
+ *             obj.query_type = 'ball'             # <<<<<<<<<<<<<<
+ *         else:
+ *             obj.query_type = 'nn'
+ */
+    __Pyx_INCREF(__pyx_n_s_ball);
+    __Pyx_GIVEREF(__pyx_n_s_ball);
+    __Pyx_GOTREF(__pyx_v_obj->__pyx_base.query_type);
+    __Pyx_DECREF(__pyx_v_obj->__pyx_base.query_type);
+    __pyx_v_obj->__pyx_base.query_type = __pyx_n_s_ball;
+
+    /* "freud/locality.pxd":63
+ *         obj.k = k
+ * 
+ *         if obj.r != 0:             # <<<<<<<<<<<<<<
+ *             obj.query_type = 'ball'
+ *         else:
+ */
+    goto __pyx_L3;
+  }
+
+  /* "freud/locality.pxd":66
+ *             obj.query_type = 'ball'
+ *         else:
+ *             obj.query_type = 'nn'             # <<<<<<<<<<<<<<
  * 
  *         obj.r_guess = r_guess
  */
-  __pyx_v_obj->aabbptr = __pyx_v_aabbptr;
+  /*else*/ {
+    __Pyx_INCREF(__pyx_n_s_nn);
+    __Pyx_GIVEREF(__pyx_n_s_nn);
+    __Pyx_GOTREF(__pyx_v_obj->__pyx_base.query_type);
+    __Pyx_DECREF(__pyx_v_obj->__pyx_base.query_type);
+    __pyx_v_obj->__pyx_base.query_type = __pyx_n_s_nn;
+  }
+  __pyx_L3:;
 
-  /* "freud/locality.pxd":51
- *         obj.aabbptr = aabbptr
+  /* "freud/locality.pxd":68
+ *             obj.query_type = 'nn'
  * 
  *         obj.r_guess = r_guess             # <<<<<<<<<<<<<<
  *         obj.scale = scale
@@ -27581,26 +27707,36 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_AABBQueryResult *__pyx_f_
  */
   __pyx_v_obj->r_guess = __pyx_v_r_guess;
 
-  /* "freud/locality.pxd":52
+  /* "freud/locality.pxd":69
  * 
  *         obj.r_guess = r_guess
  *         obj.scale = scale             # <<<<<<<<<<<<<<
  * 
- * 
+ *         return obj
  */
   __pyx_v_obj->scale = __pyx_v_scale;
 
-  /* "freud/locality.pxd":46
+  /* "freud/locality.pxd":71
+ *         obj.scale = scale
+ * 
+ *         return obj             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __Pyx_XDECREF(((PyObject *)__pyx_r));
+  __Pyx_INCREF(((PyObject *)__pyx_v_obj));
+  __pyx_r = __pyx_v_obj;
+  goto __pyx_L0;
+
+  /* "freud/locality.pxd":49
  * 
  *     @staticmethod
  *     cdef inline AABBQueryResult init2(freud._locality.AABBQuery * aabbptr, float[:, ::1] points, cbool exclude_ii, unsigned int k, float r_guess, float scale):             # <<<<<<<<<<<<<<
- *         cdef AABBQueryResult obj = NeighborQueryResult.init(aabbptr, points, exclude_ii, r=0, k=k)
- * 
+ *         # Internal API only
+ *         assert k != 0
  */
 
   /* function exit code */
-  __pyx_r = ((struct __pyx_obj_5freud_8locality_AABBQueryResult *)Py_None); __Pyx_INCREF(Py_None);
-  goto __pyx_L0;
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_AddTraceback("freud.locality.AABBQueryResult.init2", __pyx_clineno, __pyx_lineno, __pyx_filename);
@@ -45815,7 +45951,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_pyx_unpickle_Enum, __pyx_k_pyx_unpickle_Enum, sizeof(__pyx_k_pyx_unpickle_Enum), 0, 0, 1, 1},
   {&__pyx_n_s_pyx_vtable, __pyx_k_pyx_vtable, sizeof(__pyx_k_pyx_vtable), 0, 0, 1, 1},
   {&__pyx_n_s_qualname, __pyx_k_qualname, sizeof(__pyx_k_qualname), 0, 0, 1, 1},
-  {&__pyx_n_s_query_type, __pyx_k_query_type, sizeof(__pyx_k_query_type), 0, 0, 1, 1},
   {&__pyx_n_s_range, __pyx_k_range, sizeof(__pyx_k_range), 0, 0, 1, 1},
   {&__pyx_n_s_rcutCluster, __pyx_k_rcutCluster, sizeof(__pyx_k_rcutCluster), 0, 0, 1, 1},
   {&__pyx_n_s_reduce, __pyx_k_reduce, sizeof(__pyx_k_reduce), 0, 0, 1, 1},
@@ -47858,16 +47993,16 @@ static int __Pyx_modinit_type_import_code(void) {
   __pyx_ptype_5freud_3box_ParticleBuffer = __Pyx_ImportType("freud.box", "ParticleBuffer", sizeof(struct __pyx_obj_5freud_3box_ParticleBuffer), 1); if (unlikely(!__pyx_ptype_5freud_3box_ParticleBuffer)) __PYX_ERR(4, 11, __pyx_L1_error)
   __pyx_ptype_5freud_8locality_NeighborQueryResult = __Pyx_ImportType("freud.locality", "NeighborQueryResult", sizeof(struct __pyx_obj_5freud_8locality_NeighborQueryResult), 1); if (unlikely(!__pyx_ptype_5freud_8locality_NeighborQueryResult)) __PYX_ERR(2, 10, __pyx_L1_error)
   __pyx_vtabptr_5freud_8locality_NeighborQueryResult = (struct __pyx_vtabstruct_5freud_8locality_NeighborQueryResult*)__Pyx_GetVtable(__pyx_ptype_5freud_8locality_NeighborQueryResult->tp_dict); if (unlikely(!__pyx_vtabptr_5freud_8locality_NeighborQueryResult)) __PYX_ERR(2, 10, __pyx_L1_error)
-  __pyx_ptype_5freud_8locality_AABBQueryResult = __Pyx_ImportType("freud.locality", "AABBQueryResult", sizeof(struct __pyx_obj_5freud_8locality_AABBQueryResult), 1); if (unlikely(!__pyx_ptype_5freud_8locality_AABBQueryResult)) __PYX_ERR(2, 40, __pyx_L1_error)
-  __pyx_vtabptr_5freud_8locality_AABBQueryResult = (struct __pyx_vtabstruct_5freud_8locality_AABBQueryResult*)__Pyx_GetVtable(__pyx_ptype_5freud_8locality_AABBQueryResult->tp_dict); if (unlikely(!__pyx_vtabptr_5freud_8locality_AABBQueryResult)) __PYX_ERR(2, 40, __pyx_L1_error)
-  __pyx_ptype_5freud_8locality_NeighborQuery = __Pyx_ImportType("freud.locality", "NeighborQuery", sizeof(struct __pyx_obj_5freud_8locality_NeighborQuery), 1); if (unlikely(!__pyx_ptype_5freud_8locality_NeighborQuery)) __PYX_ERR(2, 55, __pyx_L1_error)
-  __pyx_ptype_5freud_8locality_NeighborList = __Pyx_ImportType("freud.locality", "NeighborList", sizeof(struct __pyx_obj_5freud_8locality_NeighborList), 1); if (unlikely(!__pyx_ptype_5freud_8locality_NeighborList)) __PYX_ERR(2, 61, __pyx_L1_error)
-  __pyx_vtabptr_5freud_8locality_NeighborList = (struct __pyx_vtabstruct_5freud_8locality_NeighborList*)__Pyx_GetVtable(__pyx_ptype_5freud_8locality_NeighborList->tp_dict); if (unlikely(!__pyx_vtabptr_5freud_8locality_NeighborList)) __PYX_ERR(2, 61, __pyx_L1_error)
-  __pyx_ptype_5freud_8locality_IteratorLinkCell = __Pyx_ImportType("freud.locality", "IteratorLinkCell", sizeof(struct __pyx_obj_5freud_8locality_IteratorLinkCell), 1); if (unlikely(!__pyx_ptype_5freud_8locality_IteratorLinkCell)) __PYX_ERR(2, 70, __pyx_L1_error)
-  __pyx_vtabptr_5freud_8locality_IteratorLinkCell = (struct __pyx_vtabstruct_5freud_8locality_IteratorLinkCell*)__Pyx_GetVtable(__pyx_ptype_5freud_8locality_IteratorLinkCell->tp_dict); if (unlikely(!__pyx_vtabptr_5freud_8locality_IteratorLinkCell)) __PYX_ERR(2, 70, __pyx_L1_error)
-  __pyx_ptype_5freud_8locality_LinkCell = __Pyx_ImportType("freud.locality", "LinkCell", sizeof(struct __pyx_obj_5freud_8locality_LinkCell), 1); if (unlikely(!__pyx_ptype_5freud_8locality_LinkCell)) __PYX_ERR(2, 75, __pyx_L1_error)
-  __pyx_ptype_5freud_8locality_NearestNeighbors = __Pyx_ImportType("freud.locality", "NearestNeighbors", sizeof(struct __pyx_obj_5freud_8locality_NearestNeighbors), 1); if (unlikely(!__pyx_ptype_5freud_8locality_NearestNeighbors)) __PYX_ERR(2, 79, __pyx_L1_error)
-  __pyx_ptype_5freud_8locality_AABBQuery = __Pyx_ImportType("freud.locality", "AABBQuery", sizeof(struct __pyx_obj_5freud_8locality_AABBQuery), 1); if (unlikely(!__pyx_ptype_5freud_8locality_AABBQuery)) __PYX_ERR(2, 86, __pyx_L1_error)
+  __pyx_ptype_5freud_8locality_AABBQueryResult = __Pyx_ImportType("freud.locality", "AABBQueryResult", sizeof(struct __pyx_obj_5freud_8locality_AABBQueryResult), 1); if (unlikely(!__pyx_ptype_5freud_8locality_AABBQueryResult)) __PYX_ERR(2, 43, __pyx_L1_error)
+  __pyx_vtabptr_5freud_8locality_AABBQueryResult = (struct __pyx_vtabstruct_5freud_8locality_AABBQueryResult*)__Pyx_GetVtable(__pyx_ptype_5freud_8locality_AABBQueryResult->tp_dict); if (unlikely(!__pyx_vtabptr_5freud_8locality_AABBQueryResult)) __PYX_ERR(2, 43, __pyx_L1_error)
+  __pyx_ptype_5freud_8locality_NeighborQuery = __Pyx_ImportType("freud.locality", "NeighborQuery", sizeof(struct __pyx_obj_5freud_8locality_NeighborQuery), 1); if (unlikely(!__pyx_ptype_5freud_8locality_NeighborQuery)) __PYX_ERR(2, 74, __pyx_L1_error)
+  __pyx_ptype_5freud_8locality_NeighborList = __Pyx_ImportType("freud.locality", "NeighborList", sizeof(struct __pyx_obj_5freud_8locality_NeighborList), 1); if (unlikely(!__pyx_ptype_5freud_8locality_NeighborList)) __PYX_ERR(2, 80, __pyx_L1_error)
+  __pyx_vtabptr_5freud_8locality_NeighborList = (struct __pyx_vtabstruct_5freud_8locality_NeighborList*)__Pyx_GetVtable(__pyx_ptype_5freud_8locality_NeighborList->tp_dict); if (unlikely(!__pyx_vtabptr_5freud_8locality_NeighborList)) __PYX_ERR(2, 80, __pyx_L1_error)
+  __pyx_ptype_5freud_8locality_IteratorLinkCell = __Pyx_ImportType("freud.locality", "IteratorLinkCell", sizeof(struct __pyx_obj_5freud_8locality_IteratorLinkCell), 1); if (unlikely(!__pyx_ptype_5freud_8locality_IteratorLinkCell)) __PYX_ERR(2, 89, __pyx_L1_error)
+  __pyx_vtabptr_5freud_8locality_IteratorLinkCell = (struct __pyx_vtabstruct_5freud_8locality_IteratorLinkCell*)__Pyx_GetVtable(__pyx_ptype_5freud_8locality_IteratorLinkCell->tp_dict); if (unlikely(!__pyx_vtabptr_5freud_8locality_IteratorLinkCell)) __PYX_ERR(2, 89, __pyx_L1_error)
+  __pyx_ptype_5freud_8locality_LinkCell = __Pyx_ImportType("freud.locality", "LinkCell", sizeof(struct __pyx_obj_5freud_8locality_LinkCell), 1); if (unlikely(!__pyx_ptype_5freud_8locality_LinkCell)) __PYX_ERR(2, 94, __pyx_L1_error)
+  __pyx_ptype_5freud_8locality_NearestNeighbors = __Pyx_ImportType("freud.locality", "NearestNeighbors", sizeof(struct __pyx_obj_5freud_8locality_NearestNeighbors), 1); if (unlikely(!__pyx_ptype_5freud_8locality_NearestNeighbors)) __PYX_ERR(2, 98, __pyx_L1_error)
+  __pyx_ptype_5freud_8locality_AABBQuery = __Pyx_ImportType("freud.locality", "AABBQuery", sizeof(struct __pyx_obj_5freud_8locality_AABBQuery), 1); if (unlikely(!__pyx_ptype_5freud_8locality_AABBQuery)) __PYX_ERR(2, 105, __pyx_L1_error)
   __pyx_ptype_7cpython_4type_type = __Pyx_ImportType(__Pyx_BUILTIN_MODULE_NAME, "type", 
   #if defined(PYPY_VERSION_NUM) && PYPY_VERSION_NUM < 0x050B0000
   sizeof(PyTypeObject),
