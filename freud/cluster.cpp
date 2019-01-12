@@ -46,15 +46,15 @@
         "name": "freud.cluster",
         "sources": [
             "freud/cluster.pyx",
-            "cpp/util/HOOMDMatrix.cc",
-            "cpp/locality/NeighborList.cc",
-            "cpp/locality/AABBQuery.cc",
-            "cpp/cluster/Cluster.cc",
             "cpp/box/Box.cc",
             "cpp/cluster/ClusterProperties.cc",
+            "cpp/locality/NearestNeighbors.cc",
+            "cpp/locality/NeighborQuery.cc",
+            "cpp/util/HOOMDMatrix.cc",
             "cpp/locality/LinkCell.cc",
-            "cpp/locality/SpatialData.cc",
-            "cpp/locality/NearestNeighbors.cc"
+            "cpp/locality/NeighborList.cc",
+            "cpp/cluster/Cluster.cc",
+            "cpp/locality/AABBQuery.cc"
         ]
     },
     "module_name": "freud.cluster"

@@ -56,14 +56,14 @@ class TestNeighborQueryAABB(unittest.TestCase):
 
         result = aq.query(points, 3)
         npt.assert_equal({x[1] for x in result if x[0] == 0}, {0, 1, 3})
-        npt.assert_equal(set({x[1] for x in result if x[0] == 1}), {0, 1, 3})
+        npt.assert_equal({x[1] for x in result if x[0] == 1}, {0, 1, 3})
         npt.assert_equal({x[1] for x in result if x[0] == 2}, {1, 2, 3})
         npt.assert_equal({x[1] for x in result if x[0] == 3}, {1, 2, 3})
 
         # All points are neighbors in this case
         result = aq.query(points, 3, exclude_ii=True)
         npt.assert_equal({x[1] for x in result if x[0] == 0}, {1, 2, 3})
-        npt.assert_equal(set({x[1] for x in result if x[0] == 1}), {0, 2, 3})
+        npt.assert_equal({x[1] for x in result if x[0] == 1}, {0, 2, 3})
         npt.assert_equal({x[1] for x in result if x[0] == 2}, {0, 1, 3})
         npt.assert_equal({x[1] for x in result if x[0] == 3}, {0, 1, 2})
 
