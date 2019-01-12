@@ -6,8 +6,8 @@ from libcpp cimport bool as cbool
 cimport freud._locality
 cimport freud.box
 
-cdef class SpatialData:
-    cdef freud._locality.SpatialData * spdptr
+cdef class NeighborQuery:
+    cdef freud._locality.NeighborQuery * spdptr
     cdef cbool queryable
     cdef freud.box.Box box
     cdef float[:, ::1] ref_points
@@ -26,7 +26,7 @@ cdef class IteratorLinkCell:
 
     cdef void copy(self, const freud._locality.IteratorLinkCell & rhs)
 
-cdef class LinkCell(SpatialData):
+cdef class LinkCell(NeighborQuery):
     cdef freud._locality.LinkCell * thisptr
     cdef NeighborList _nlist
 
@@ -37,6 +37,6 @@ cdef class NearestNeighbors:
     cdef _cached_ref_points
     cdef _cached_box
 
-cdef class AABBQuery(SpatialData):
+cdef class AABBQuery(NeighborQuery):
     cdef freud._locality.AABBQuery * thisptr
     cdef NeighborList _nlist

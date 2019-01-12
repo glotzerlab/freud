@@ -10,7 +10,7 @@
 #include "Box.h"
 #include "NeighborList.h"
 #include "Index1D.h"
-#include "SpatialData.h"
+#include "NeighborQuery.h"
 
 /*! \file LinkCell.h
     \brief Build a cell list from a set of points.
@@ -346,7 +346,7 @@ bool compareFirstNeighborPairs(const std::vector<std::tuple<size_t, size_t, floa
  *  as 3 component vectors x,y,0. Failing to set 0 in the third component will
  *  lead to undefined behavior.
  */
-class LinkCell : public SpatialData
+class LinkCell : public NeighborQuery
     {
     public:
         //! iterator to iterate over particles in the cell
@@ -443,11 +443,11 @@ class LinkCell : public SpatialData
 
         //! Given a set of points, find the k elements of this data structure
         //  that are the nearest neighbors for each point.
-        virtual std::shared_ptr<SpatialDataIterator> query(const vec3<float> points, unsigned int k) const;
+        virtual std::shared_ptr<NeighborQueryIterator> query(const vec3<float> points, unsigned int k) const;
 
         //! Given a set of points, find all elements of this data structure
         //  that are within a certain distance r.
-        virtual std::shared_ptr<SpatialDataIterator> queryBall(const vec3<float> points, float r) const;
+        virtual std::shared_ptr<NeighborQueryIterator> queryBall(const vec3<float> points, float r) const;
 
     private:
 
@@ -479,14 +479,14 @@ class LinkCell : public SpatialData
 /*! placeholder
 
 */
-class LinkCellIterator : public SpatialDataIterator
+class LinkCellIterator : public NeighborQueryIterator
     {
     public:
         //! Constructor
         /*! The initial state is to search shell 0, the current cell. We then
          *  iterate outwards from there.
         */
-        LinkCellIterator(const LinkCell* spatial_data, const vec3<float> point) : SpatialDataIterator(spatial_data, point), m_linkcell(spatial_data), m_neigh_cell_iter(0, spatial_data->getBox().is2D()), m_cell_iter(m_linkcell->itercell(m_linkcell->getCell(point)))
+        LinkCellIterator(const LinkCell* spatial_data, const vec3<float> point) : NeighborQueryIterator(spatial_data, point), m_linkcell(spatial_data), m_neigh_cell_iter(0, spatial_data->getBox().is2D()), m_cell_iter(m_linkcell->itercell(m_linkcell->getCell(point)))
         {}
 
         //! Empty Destructor

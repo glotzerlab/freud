@@ -29,18 +29,18 @@ cimport numpy as np
 np.import_array()
 
 
-cdef class SpatialData:
+cdef class NeighborQuery:
     R"""Class representing a set of points along with the ability to query for
     neighbors of these points.
 
-    The SpatialData class represents the abstract interface for neighbor
+    The NeighborQuery class represents the abstract interface for neighbor
     finding. The class contains a set of points and a simulation box, the
     latter of which is used to define the system and the periodic boundary
     conditions required for finding neighbors of these points. The primary mode
-    of interacting with the SpatialData is through the query and queryBall
+    of interacting with the NeighborQuery is through the query and queryBall
     functions, which enable finding either the nearest neighbors of a point or
     all points within a distance cutoff, respectively. Subclasses of
-    SpatialData implement these methods based on the nature of the underlying
+    NeighborQuery implement these methods based on the nature of the underlying
     data structure.
 
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
@@ -61,9 +61,9 @@ cdef class SpatialData:
     """
 
     def __cinit__(self):
-        if type(self) is SpatialData:
+        if type(self) is NeighborQuery:
             raise RuntimeError(
-                "The SpatialData class is abstract, and should not be "
+                "The NeighborQuery class is abstract, and should not be "
                 "directly instantiated"
             )
 
@@ -94,7 +94,7 @@ cdef class SpatialData:
                 Array of indices of the :math:`k` nearest neighbors for each
                 input point.
         """
-        # Can't use this function with old-style SpatialData objects
+        # Can't use this function with old-style NeighborQuery objects
         if not self.queryable:
             raise RuntimeError("You cannot use the query method unless this "
                                "object was originally constructed with "
@@ -107,7 +107,7 @@ cdef class SpatialData:
 
         cdef vec3[float] l_cur_point
         cdef unsigned int Np = points.shape[0]
-        cdef shared_ptr[freud._locality.SpatialDataIterator] iterator
+        cdef shared_ptr[freud._locality.NeighborQueryIterator] iterator
 
         ret = []
 
@@ -157,7 +157,7 @@ cdef class SpatialData:
 
         cdef vec3[float] l_cur_point
         cdef unsigned int Np = points.shape[0]
-        cdef shared_ptr[freud._locality.SpatialDataIterator] iterator
+        cdef shared_ptr[freud._locality.NeighborQueryIterator] iterator
 
         ret = []
         cdef unsigned int i
@@ -613,7 +613,7 @@ def make_default_nlist_nn(box, ref_points, points, n_neigh, nlist=None,
     return nn.nlist, nn
 
 
-cdef class AABBQuery(SpatialData):
+cdef class AABBQuery(NeighborQuery):
     R"""Use an AABB tree to find neighbors.
 
     .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
@@ -681,7 +681,7 @@ cdef class AABBQuery(SpatialData):
         cdef float[:, ::1] l_points = points
         cdef vec3[float] l_cur_point
         cdef unsigned int Np = points.shape[0]
-        cdef shared_ptr[freud._locality.SpatialDataIterator] iterator
+        cdef shared_ptr[freud._locality.NeighborQueryIterator] iterator
 
         ret = []
 
@@ -745,7 +745,7 @@ cdef class IteratorLinkCell:
         return self
 
 
-cdef class LinkCell(SpatialData):
+cdef class LinkCell(NeighborQuery):
     R"""Supports efficiently finding all points in a set within a certain
     distance from a given point.
 

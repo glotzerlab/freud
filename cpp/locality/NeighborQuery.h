@@ -1,14 +1,14 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
-#ifndef SPATIAL_DATA_H
-#define SPATIAL_DATA_H
+#ifndef NEIGHBOR_QUERY_H
+#define NEIGHBOR_QUERY_H
 
 #include "Box.h"
 #include <stdexcept>
 #include <memory>
 
-/*! \file SpatialData.h
+/*! \file NeighborQuery.h
     \brief Defines the abstract API for collections of points that can be
            queried against for neighbors.
 */
@@ -48,7 +48,7 @@ struct NeighborPoint {
 
 
 // Forward declare the iterator
-class SpatialDataIterator;
+class NeighborQueryIterator;
 
 
 //! Parent data structure for all neighbor finding algorithms.
@@ -61,30 +61,30 @@ class SpatialDataIterator;
  *  methods, which support k-nearest neighbor queries and distance-based
  *  queries, respectively.
  */
-class SpatialData
+class NeighborQuery
     {
     public:
         //! Nullary constructor for Cython
-        SpatialData()
+        NeighborQuery()
             {
             }
 
         //! Constructor
-        SpatialData(const box::Box &box, const vec3<float> *ref_points, unsigned int Nref) :
+        NeighborQuery(const box::Box &box, const vec3<float> *ref_points, unsigned int Nref) :
             m_box(box), m_ref_points(ref_points), m_Nref(Nref)
             {
             }
 
         //! Empty Destructor
-        virtual ~SpatialData() {}
+        virtual ~NeighborQuery() {}
 
         //! Given a point, find the k elements of this data structure
         //  that are the nearest neighbors for each point.
-        virtual std::shared_ptr<SpatialDataIterator> query(const vec3<float> point, unsigned int k) const = 0;
+        virtual std::shared_ptr<NeighborQueryIterator> query(const vec3<float> point, unsigned int k) const = 0;
 
         //! Given a point, find all elements of this data structure
         //  that are within a certain distance r.
-        virtual std::shared_ptr<SpatialDataIterator> queryBall(const vec3<float> point, float r) const = 0;
+        virtual std::shared_ptr<NeighborQueryIterator> queryBall(const vec3<float> point, float r) const = 0;
 
         //! Get the simulation box
         const box::Box& getBox() const
@@ -109,7 +109,7 @@ class SpatialData
             {
             if (index >= m_Nref)
                 {
-                throw std::runtime_error("SpatialData attempted to access a point with index >= Nref.");
+                throw std::runtime_error("NeighborQuery attempted to access a point with index >= Nref.");
                 }
             return m_ref_points[index];
             }
@@ -122,10 +122,10 @@ class SpatialData
         unsigned int m_Nref;              //!< Number of reference points
     };
 
-//! The iterator class for neighbor queries on SpatialData objects.
+//! The iterator class for neighbor queries on NeighborQuery objects.
 /*! This is an abstract class that defines the abstract API for neighbor
- *  iteration. All subclasses of SpatialData should also subclass
- *  SpatialDataIterator and define the next() method appropriately. The next()
+ *  iteration. All subclasses of NeighborQuery should also subclass
+ *  NeighborQueryIterator and define the next() method appropriately. The next()
  *  method is the primary mode of interaction with the iterator, and allows
  *  looping through the iterator.
  *
@@ -134,25 +134,25 @@ class SpatialData
  *  underlying data structure), the end() method will not return true until the
  *  next method reaches the end of control flow at least once without finding a
  *  next neighbor. As a result, the next() method is required to return
- *  SpatialData::ITERATOR_TERMINATOR on all calls after the last neighbor is
+ *  NeighborQuery::ITERATOR_TERMINATOR on all calls after the last neighbor is
  *  found in order to guarantee that the correct set of neighbors is considered.
 */
-class SpatialDataIterator {
+class NeighborQueryIterator {
     public:
         //! Nullary constructor for Cython
-        SpatialDataIterator()
+        NeighborQueryIterator()
             {
             }
 
         //! Constructor
-        SpatialDataIterator(const SpatialData* spatial_data,
+        NeighborQueryIterator(const NeighborQuery* spatial_data,
                 const vec3<float> point) :
             m_spatial_data(spatial_data), m_point(point), m_finished(false)
             {
             }
 
         //! Empty Destructor
-        virtual ~SpatialDataIterator() {}
+        virtual ~NeighborQueryIterator() {}
 
         //! Indicate when done.
         virtual bool end() { return m_finished; }
@@ -164,7 +164,7 @@ class SpatialDataIterator {
             }
 
     protected:
-        const SpatialData *m_spatial_data; //!< Link to the SpatialData object
+        const NeighborQuery *m_spatial_data; //!< Link to the NeighborQuery object
         const vec3<float> m_point;        //!< Query point coordinates
 
         unsigned int m_finished;           //!< Flag to indicate that iteration is complete (must be set by next on termination).
@@ -172,4 +172,4 @@ class SpatialDataIterator {
 
 }; }; // end namespace freud::locality
 
-#endif // SPATIAL_DATA_H
+#endif // NEIGHBOR_QUERY_H

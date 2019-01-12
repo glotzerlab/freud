@@ -19,17 +19,17 @@ using namespace tbb;
 namespace freud { namespace locality {
 
 // Default constructor
-LinkCell::LinkCell() : SpatialData(), m_box(box::Box()), m_Np(0), m_cell_width(0), m_celldim(0,0,0), m_neighbor_list()
+LinkCell::LinkCell() : NeighborQuery(), m_box(box::Box()), m_Np(0), m_cell_width(0), m_celldim(0,0,0), m_neighbor_list()
 {}
 
-LinkCell::LinkCell(const box::Box& box, float cell_width) : SpatialData(), m_box(box), m_Np(0), m_cell_width(0), m_celldim(0, 0, 0), m_neighbor_list()
+LinkCell::LinkCell(const box::Box& box, float cell_width) : NeighborQuery(), m_box(box), m_Np(0), m_cell_width(0), m_celldim(0, 0, 0), m_neighbor_list()
     {
     // The initializer list above sets the cell width and cell dimensions to 0
     // so that we can farm out the work to the setCellWidth function.
     updateInternal(box, cell_width);
     }
 
-LinkCell::LinkCell(const box::Box& box, float cell_width, const vec3<float> *ref_points, unsigned int Nref): SpatialData(box, ref_points, Nref), m_box(box), m_Np(0), m_cell_width(0), m_celldim(0, 0, 0), m_neighbor_list()
+LinkCell::LinkCell(const box::Box& box, float cell_width, const vec3<float> *ref_points, unsigned int Nref): NeighborQuery(box, ref_points, Nref), m_box(box), m_Np(0), m_cell_width(0), m_celldim(0, 0, 0), m_neighbor_list()
     {
     // The initializer list above sets the cell width and cell dimensions to 0
     // so that we can farm out the work to the setCellWidth function.
@@ -356,14 +356,14 @@ void LinkCell::computeCellNeighbors()
 
 //! Given a set of points, find the k elements of this data structure
 //  that are the nearest neighbors for each point.
-std::shared_ptr<SpatialDataIterator> LinkCell::query(const vec3<float> point, unsigned int k) const
+std::shared_ptr<NeighborQueryIterator> LinkCell::query(const vec3<float> point, unsigned int k) const
     {
     return std::make_shared<LinkCellQueryIterator>(this, point, k);
     }
 
 //! Given a set of points, find all elements of this data structure
 //  that are within a certain distance r.
-std::shared_ptr<SpatialDataIterator> LinkCell::queryBall(const vec3<float> point, float r) const
+std::shared_ptr<NeighborQueryIterator> LinkCell::queryBall(const vec3<float> point, float r) const
     {
     return std::make_shared<LinkCellQueryBallIterator>(this, point, r);
     }
@@ -416,7 +416,7 @@ NeighborPoint LinkCellQueryBallIterator::next()
         }
 
     m_finished = true;
-    return SpatialData::ITERATOR_TERMINATOR;
+    return NeighborQuery::ITERATOR_TERMINATOR;
     }
 
 NeighborPoint LinkCellQueryIterator::next()
@@ -468,6 +468,6 @@ NeighborPoint LinkCellQueryIterator::next()
         }
 
     m_finished = true;
-    return SpatialData::ITERATOR_TERMINATOR;
+    return NeighborQuery::ITERATOR_TERMINATOR;
     }
 }; }; // end namespace freud::locality

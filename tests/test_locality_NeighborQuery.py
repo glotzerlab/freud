@@ -8,7 +8,7 @@ import unittest
 import warnings
 
 
-class TestSpatialDataAABB(unittest.TestCase):
+class TestNeighborQueryAABB(unittest.TestCase):
     def test_query_ball(self):
         L = 10  # Box Dimensions
         rcut = 2.01  # Cutoff radius
@@ -243,7 +243,7 @@ class TestSpatialDataAABB(unittest.TestCase):
         self.assertEqual(len(result), 0)
 
 
-class TestSpatialDataLinkCell(unittest.TestCase):
+class TestNeighborQueryLinkCell(unittest.TestCase):
     def test_first_index(self):
         L = 10  # Box Dimensions
         rcut = 2.01  # Cutoff radius

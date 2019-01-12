@@ -14,7 +14,7 @@
             "cpp/locality/LinkCell.h",
             "cpp/locality/NearestNeighbors.h",
             "cpp/locality/NeighborList.h",
-            "cpp/locality/SpatialData.h",
+            "cpp/locality/NeighborQuery.h",
             "cpp/util/Index1D.h",
             "cpp/util/VectorMath.h"
         ],
@@ -46,15 +46,15 @@
         "name": "freud.cluster",
         "sources": [
             "freud/cluster.pyx",
-            "cpp/locality/SpatialData.cc",
-            "cpp/locality/LinkCell.cc",
-            "cpp/locality/NearestNeighbors.cc",
             "cpp/util/HOOMDMatrix.cc",
-            "cpp/box/Box.cc",
-            "cpp/locality/AABBQuery.cc",
             "cpp/locality/NeighborList.cc",
+            "cpp/locality/AABBQuery.cc",
+            "cpp/cluster/Cluster.cc",
+            "cpp/box/Box.cc",
             "cpp/cluster/ClusterProperties.cc",
-            "cpp/cluster/Cluster.cc"
+            "cpp/locality/LinkCell.cc",
+            "cpp/locality/SpatialData.cc",
+            "cpp/locality/NearestNeighbors.cc"
         ]
     },
     "module_name": "freud.cluster"
@@ -650,7 +650,7 @@ static CYTHON_INLINE float __PYX_NAN() {
 #include "Box.h"
 #include "ParticleBuffer.h"
 #include "Index1D.h"
-#include "SpatialData.h"
+#include "NeighborQuery.h"
 #include "NeighborList.h"
 #include "LinkCell.h"
 #include "NearestNeighbors.h"
@@ -1238,7 +1238,7 @@ static CYTHON_INLINE __pyx_t_double_complex __pyx_t_double_complex_from_parts(do
 /*--- Type declarations ---*/
 struct __pyx_obj_5freud_3box_Box;
 struct __pyx_obj_5freud_3box_ParticleBuffer;
-struct __pyx_obj_5freud_8locality_SpatialData;
+struct __pyx_obj_5freud_8locality_NeighborQuery;
 struct __pyx_obj_5freud_8locality_NeighborList;
 struct __pyx_obj_5freud_8locality_IteratorLinkCell;
 struct __pyx_obj_5freud_8locality_LinkCell;
@@ -1315,13 +1315,13 @@ struct __pyx_obj_5freud_3box_ParticleBuffer {
 /* "freud/locality.pxd":9
  * cimport freud.box
  * 
- * cdef class SpatialData:             # <<<<<<<<<<<<<<
- *     cdef freud._locality.SpatialData * spdptr
+ * cdef class NeighborQuery:             # <<<<<<<<<<<<<<
+ *     cdef freud._locality.NeighborQuery * spdptr
  *     cdef cbool queryable
  */
-struct __pyx_obj_5freud_8locality_SpatialData {
+struct __pyx_obj_5freud_8locality_NeighborQuery {
   PyObject_HEAD
-  freud::locality::SpatialData *spdptr;
+  freud::locality::NeighborQuery *spdptr;
   bool queryable;
   struct __pyx_obj_5freud_3box_Box *box;
   __Pyx_memviewslice ref_points;
@@ -1361,12 +1361,12 @@ struct __pyx_obj_5freud_8locality_IteratorLinkCell {
 /* "freud/locality.pxd":29
  *     cdef void copy(self, const freud._locality.IteratorLinkCell & rhs)
  * 
- * cdef class LinkCell(SpatialData):             # <<<<<<<<<<<<<<
+ * cdef class LinkCell(NeighborQuery):             # <<<<<<<<<<<<<<
  *     cdef freud._locality.LinkCell * thisptr
  *     cdef NeighborList _nlist
  */
 struct __pyx_obj_5freud_8locality_LinkCell {
-  struct __pyx_obj_5freud_8locality_SpatialData __pyx_base;
+  struct __pyx_obj_5freud_8locality_NeighborQuery __pyx_base;
   freud::locality::LinkCell *thisptr;
   struct __pyx_obj_5freud_8locality_NeighborList *_nlist;
 };
@@ -1392,12 +1392,12 @@ struct __pyx_obj_5freud_8locality_NearestNeighbors {
 /* "freud/locality.pxd":40
  *     cdef _cached_box
  * 
- * cdef class AABBQuery(SpatialData):             # <<<<<<<<<<<<<<
+ * cdef class AABBQuery(NeighborQuery):             # <<<<<<<<<<<<<<
  *     cdef freud._locality.AABBQuery * thisptr
  *     cdef NeighborList _nlist
  */
 struct __pyx_obj_5freud_8locality_AABBQuery {
-  struct __pyx_obj_5freud_8locality_SpatialData __pyx_base;
+  struct __pyx_obj_5freud_8locality_NeighborQuery __pyx_base;
   freud::locality::AABBQuery *thisptr;
   struct __pyx_obj_5freud_8locality_NeighborList *_nlist;
 };
@@ -2457,7 +2457,7 @@ static PyTypeObject *__pyx_ptype_5freud_3box_Box = 0;
 static PyTypeObject *__pyx_ptype_5freud_3box_ParticleBuffer = 0;
 
 /* Module declarations from 'freud.locality' */
-static PyTypeObject *__pyx_ptype_5freud_8locality_SpatialData = 0;
+static PyTypeObject *__pyx_ptype_5freud_8locality_NeighborQuery = 0;
 static PyTypeObject *__pyx_ptype_5freud_8locality_NeighborList = 0;
 static PyTypeObject *__pyx_ptype_5freud_8locality_IteratorLinkCell = 0;
 static PyTypeObject *__pyx_ptype_5freud_8locality_LinkCell = 0;
@@ -25668,7 +25668,7 @@ static int __Pyx_modinit_type_import_code(void) {
   /*--- Type import code ---*/
   __pyx_ptype_5freud_3box_Box = __Pyx_ImportType("freud.box", "Box", sizeof(struct __pyx_obj_5freud_3box_Box), 1); if (unlikely(!__pyx_ptype_5freud_3box_Box)) __PYX_ERR(3, 6, __pyx_L1_error)
   __pyx_ptype_5freud_3box_ParticleBuffer = __Pyx_ImportType("freud.box", "ParticleBuffer", sizeof(struct __pyx_obj_5freud_3box_ParticleBuffer), 1); if (unlikely(!__pyx_ptype_5freud_3box_ParticleBuffer)) __PYX_ERR(3, 11, __pyx_L1_error)
-  __pyx_ptype_5freud_8locality_SpatialData = __Pyx_ImportType("freud.locality", "SpatialData", sizeof(struct __pyx_obj_5freud_8locality_SpatialData), 1); if (unlikely(!__pyx_ptype_5freud_8locality_SpatialData)) __PYX_ERR(4, 9, __pyx_L1_error)
+  __pyx_ptype_5freud_8locality_NeighborQuery = __Pyx_ImportType("freud.locality", "NeighborQuery", sizeof(struct __pyx_obj_5freud_8locality_NeighborQuery), 1); if (unlikely(!__pyx_ptype_5freud_8locality_NeighborQuery)) __PYX_ERR(4, 9, __pyx_L1_error)
   __pyx_ptype_5freud_8locality_NeighborList = __Pyx_ImportType("freud.locality", "NeighborList", sizeof(struct __pyx_obj_5freud_8locality_NeighborList), 1); if (unlikely(!__pyx_ptype_5freud_8locality_NeighborList)) __PYX_ERR(4, 15, __pyx_L1_error)
   __pyx_vtabptr_5freud_8locality_NeighborList = (struct __pyx_vtabstruct_5freud_8locality_NeighborList*)__Pyx_GetVtable(__pyx_ptype_5freud_8locality_NeighborList->tp_dict); if (unlikely(!__pyx_vtabptr_5freud_8locality_NeighborList)) __PYX_ERR(4, 15, __pyx_L1_error)
   __pyx_ptype_5freud_8locality_IteratorLinkCell = __Pyx_ImportType("freud.locality", "IteratorLinkCell", sizeof(struct __pyx_obj_5freud_8locality_IteratorLinkCell), 1); if (unlikely(!__pyx_ptype_5freud_8locality_IteratorLinkCell)) __PYX_ERR(4, 24, __pyx_L1_error)

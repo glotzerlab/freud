@@ -12,7 +12,7 @@
             "cpp/locality/LinkCell.h",
             "cpp/locality/NearestNeighbors.h",
             "cpp/locality/NeighborList.h",
-            "cpp/locality/SpatialData.h",
+            "cpp/locality/NeighborQuery.h",
             "cpp/util/Index1D.h",
             "cpp/util/VectorMath.h"
         ],
@@ -44,13 +44,14 @@
         "name": "freud.locality",
         "sources": [
             "freud/locality.pyx",
+            "cpp/util/HOOMDMatrix.cc",
             "cpp/locality/NeighborList.cc",
-            "cpp/locality/NearestNeighbors.cc",
-            "cpp/locality/LinkCell.cc",
             "cpp/locality/AABBQuery.cc",
-            "cpp/locality/SpatialData.cc",
             "cpp/box/Box.cc",
-            "cpp/util/HOOMDMatrix.cc"
+            "cpp/locality/LinkCell.cc",
+            "cpp/locality/SpatialData.cc",
+            "cpp/locality/NeighborQuery.cc",
+            "cpp/locality/NearestNeighbors.cc"
         ]
     },
     "module_name": "freud.locality"
@@ -645,7 +646,7 @@ static CYTHON_INLINE float __PYX_NAN() {
 #include <string>
 #include "Box.h"
 #include "ParticleBuffer.h"
-#include "SpatialData.h"
+#include "NeighborQuery.h"
 #include "NeighborList.h"
 #include "LinkCell.h"
 #include "NearestNeighbors.h"
@@ -1221,7 +1222,7 @@ static CYTHON_INLINE __pyx_t_double_complex __pyx_t_double_complex_from_parts(do
 /*--- Type declarations ---*/
 struct __pyx_obj_5freud_3box_Box;
 struct __pyx_obj_5freud_3box_ParticleBuffer;
-struct __pyx_obj_5freud_8locality_SpatialData;
+struct __pyx_obj_5freud_8locality_NeighborQuery;
 struct __pyx_obj_5freud_8locality_NeighborList;
 struct __pyx_obj_5freud_8locality_IteratorLinkCell;
 struct __pyx_obj_5freud_8locality_LinkCell;
@@ -1296,13 +1297,13 @@ struct __pyx_obj_5freud_3box_ParticleBuffer {
 /* "freud/locality.pxd":9
  * cimport freud.box
  * 
- * cdef class SpatialData:             # <<<<<<<<<<<<<<
- *     cdef freud._locality.SpatialData * spdptr
+ * cdef class NeighborQuery:             # <<<<<<<<<<<<<<
+ *     cdef freud._locality.NeighborQuery * spdptr
  *     cdef cbool queryable
  */
-struct __pyx_obj_5freud_8locality_SpatialData {
+struct __pyx_obj_5freud_8locality_NeighborQuery {
   PyObject_HEAD
-  freud::locality::SpatialData *spdptr;
+  freud::locality::NeighborQuery *spdptr;
   bool queryable;
   struct __pyx_obj_5freud_3box_Box *box;
   __Pyx_memviewslice ref_points;
@@ -1342,12 +1343,12 @@ struct __pyx_obj_5freud_8locality_IteratorLinkCell {
 /* "freud/locality.pxd":29
  *     cdef void copy(self, const freud._locality.IteratorLinkCell & rhs)
  * 
- * cdef class LinkCell(SpatialData):             # <<<<<<<<<<<<<<
+ * cdef class LinkCell(NeighborQuery):             # <<<<<<<<<<<<<<
  *     cdef freud._locality.LinkCell * thisptr
  *     cdef NeighborList _nlist
  */
 struct __pyx_obj_5freud_8locality_LinkCell {
-  struct __pyx_obj_5freud_8locality_SpatialData __pyx_base;
+  struct __pyx_obj_5freud_8locality_NeighborQuery __pyx_base;
   freud::locality::LinkCell *thisptr;
   struct __pyx_obj_5freud_8locality_NeighborList *_nlist;
 };
@@ -1373,12 +1374,12 @@ struct __pyx_obj_5freud_8locality_NearestNeighbors {
 /* "freud/locality.pxd":40
  *     cdef _cached_box
  * 
- * cdef class AABBQuery(SpatialData):             # <<<<<<<<<<<<<<
+ * cdef class AABBQuery(NeighborQuery):             # <<<<<<<<<<<<<<
  *     cdef freud._locality.AABBQuery * thisptr
  *     cdef NeighborList _nlist
  */
 struct __pyx_obj_5freud_8locality_AABBQuery {
-  struct __pyx_obj_5freud_8locality_SpatialData __pyx_base;
+  struct __pyx_obj_5freud_8locality_NeighborQuery __pyx_base;
   freud::locality::AABBQuery *thisptr;
   struct __pyx_obj_5freud_8locality_NeighborList *_nlist;
 };
@@ -2520,7 +2521,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *, cha
 static CYTHON_INLINE int __pyx_f_5numpy_import_array(void); /*proto*/
 
 /* Module declarations from 'freud.locality' */
-static PyTypeObject *__pyx_ptype_5freud_8locality_SpatialData = 0;
+static PyTypeObject *__pyx_ptype_5freud_8locality_NeighborQuery = 0;
 static PyTypeObject *__pyx_ptype_5freud_8locality_NeighborList = 0;
 static PyTypeObject *__pyx_ptype_5freud_8locality_IteratorLinkCell = 0;
 static PyTypeObject *__pyx_ptype_5freud_8locality_LinkCell = 0;
@@ -2803,7 +2804,6 @@ static const char __pyx_k_find_first_index[] = "find_first_index";
 static const char __pyx_k_getCellNeighbors[] = "getCellNeighbors";
 static const char __pyx_k_LinkCell_itercell[] = "LinkCell.itercell";
 static const char __pyx_k_NeighborList_copy[] = "NeighborList.copy";
-static const char __pyx_k_SpatialData_query[] = "SpatialData.query";
 static const char __pyx_k_ascontiguousarray[] = "ascontiguousarray";
 static const char __pyx_k_getWrappedVectors[] = "_getWrappedVectors";
 static const char __pyx_k_pyx_unpickle_Enum[] = "__pyx_unpickle_Enum";
@@ -2812,12 +2812,12 @@ static const char __pyx_k_freud_locality_pyx[] = "freud/locality.pyx";
 static const char __pyx_k_make_default_nlist[] = "make_default_nlist";
 static const char __pyx_k_strided_and_direct[] = "<strided and direct>";
 static const char __pyx_k_NeighborList_filter[] = "NeighborList.filter";
+static const char __pyx_k_NeighborQuery_query[] = "NeighborQuery.query";
 static const char __pyx_k_getWrappedVectors_2[] = "getWrappedVectors";
 static const char __pyx_k_LinkCell_getNumCells[] = "LinkCell.getNumCells";
 static const char __pyx_k_strided_and_indirect[] = "<strided and indirect>";
 static const char __pyx_k_IteratorLinkCell_next[] = "IteratorLinkCell.next";
 static const char __pyx_k_NeighborList_filter_r[] = "NeighborList.filter_r";
-static const char __pyx_k_SpatialData_queryBall[] = "SpatialData.queryBall";
 static const char __pyx_k_contiguous_and_direct[] = "<contiguous and direct>";
 static const char __pyx_k_index_i_is_not_sorted[] = "index_i is not sorted";
 static const char __pyx_k_make_default_nlist_nn[] = "make_default_nlist_nn";
@@ -2826,6 +2826,7 @@ static const char __pyx_k_FreudDeprecationWarning[] = "FreudDeprecationWarning";
 static const char __pyx_k_MemoryView_of_r_at_0x_x[] = "<MemoryView of %r at 0x%x>";
 static const char __pyx_k_NearestNeighbors_getBox[] = "NearestNeighbors.getBox";
 static const char __pyx_k_NearestNeighbors_getRsq[] = "NearestNeighbors.getRsq";
+static const char __pyx_k_NeighborQuery_queryBall[] = "NeighborQuery.queryBall";
 static const char __pyx_k_contiguous_and_indirect[] = "<contiguous and indirect>";
 static const char __pyx_k_Cannot_index_with_type_s[] = "Cannot index with type '%s'";
 static const char __pyx_k_LinkCell___reduce_cython[] = "LinkCell.__reduce_cython__";
@@ -2843,18 +2844,18 @@ static const char __pyx_k_AABBQuery___setstate_cython[] = "AABBQuery.__setstate_
 static const char __pyx_k_NearestNeighbors_getRsqList[] = "NearestNeighbors.getRsqList";
 static const char __pyx_k_NearestNeighbors_getUINTMAX[] = "NearestNeighbors.getUINTMAX";
 static const char __pyx_k_NearestNeighbors_setCutMode[] = "NearestNeighbors.setCutMode";
-static const char __pyx_k_SpatialData___reduce_cython[] = "SpatialData.__reduce_cython__";
 static const char __pyx_k_itemsize_0_for_cython_array[] = "itemsize <= 0 for cython.array";
 static const char __pyx_k_ndarray_is_not_C_contiguous[] = "ndarray is not C contiguous";
 static const char __pyx_k_NeighborList___reduce_cython[] = "NeighborList.__reduce_cython__";
 static const char __pyx_k_scale_must_be_greater_than_1[] = "scale must be greater than 1";
 static const char __pyx_k_NearestNeighbors_getNeighbors[] = "NearestNeighbors.getNeighbors";
 static const char __pyx_k_NeighborList_find_first_index[] = "NeighborList.find_first_index";
-static const char __pyx_k_SpatialData___setstate_cython[] = "SpatialData.__setstate_cython__";
+static const char __pyx_k_NeighborQuery___reduce_cython[] = "NeighborQuery.__reduce_cython__";
 static const char __pyx_k_points_should_be_an_Nx3_array[] = "points should be an Nx3 array";
 static const char __pyx_k_unable_to_allocate_array_data[] = "unable to allocate array data.";
 static const char __pyx_k_NeighborList___setstate_cython[] = "NeighborList.__setstate_cython__";
 static const char __pyx_k_strided_and_direct_or_indirect[] = "<strided and direct or indirect>";
+static const char __pyx_k_NeighborQuery___setstate_cython[] = "NeighborQuery.__setstate_cython__";
 static const char __pyx_k_The_class_freud_locality_module[] = "\nThe :class:`freud.locality` module contains data structures to efficiently\nlocate points based on their proximity to other points.\n";
 static const char __pyx_k_The_computeCellList_function_is[] = "The computeCellList function is deprecated in favor of the compute method and will be removed in a future version of freud.";
 static const char __pyx_k_The_getNumNeighbors_function_is[] = "The getNumNeighbors function is deprecated in favor of the num_neighbors class attribute and will be removed in a future version of freud.";
@@ -2883,7 +2884,7 @@ static const char __pyx_k_Non_native_byte_order_not_suppor[] = "Non-native byte 
 static const char __pyx_k_Nref_is_too_small_for_a_value_fo[] = "Nref is too small for a value found in index_i";
 static const char __pyx_k_Ntarget_is_too_small_for_a_value[] = "Ntarget is too small for a value found in index_j";
 static const char __pyx_k_Out_of_bounds_on_buffer_access_a[] = "Out of bounds on buffer access (axis %d)";
-static const char __pyx_k_The_SpatialData_class_is_abstrac[] = "The SpatialData class is abstract, and should not be directly instantiated";
+static const char __pyx_k_The_NeighborQuery_class_is_abstr[] = "The NeighborQuery class is abstract, and should not be directly instantiated";
 static const char __pyx_k_The_getBox_function_is_deprecate[] = "The getBox function is deprecated in favor of the box class attribute and will be removed in a future version of freud.";
 static const char __pyx_k_The_getNref_function_is_deprecat[] = "The getNref function is deprecated in favor of the n_ref class attribute and will be removed in a future version of freud.";
 static const char __pyx_k_The_getNumCells_function_is_depr[] = "The getNumCells function is deprecated in favor of the num_cells class attribute and will be removed in a future version of freud.";
@@ -2965,6 +2966,10 @@ static PyObject *__pyx_n_s_NeighborList_filter;
 static PyObject *__pyx_n_s_NeighborList_filter_r;
 static PyObject *__pyx_n_s_NeighborList_find_first_index;
 static PyObject *__pyx_n_s_NeighborList_from_arrays;
+static PyObject *__pyx_n_s_NeighborQuery___reduce_cython;
+static PyObject *__pyx_n_s_NeighborQuery___setstate_cython;
+static PyObject *__pyx_n_s_NeighborQuery_query;
+static PyObject *__pyx_n_s_NeighborQuery_queryBall;
 static PyObject *__pyx_kp_u_Non_native_byte_order_not_suppor;
 static PyObject *__pyx_n_s_Np;
 static PyObject *__pyx_n_s_Nref;
@@ -2975,13 +2980,9 @@ static PyObject *__pyx_n_b_O;
 static PyObject *__pyx_kp_s_Out_of_bounds_on_buffer_access_a;
 static PyObject *__pyx_n_s_PickleError;
 static PyObject *__pyx_n_s_RuntimeError;
-static PyObject *__pyx_n_s_SpatialData___reduce_cython;
-static PyObject *__pyx_n_s_SpatialData___setstate_cython;
-static PyObject *__pyx_n_s_SpatialData_query;
-static PyObject *__pyx_n_s_SpatialData_queryBall;
 static PyObject *__pyx_n_s_StopIteration;
 static PyObject *__pyx_kp_b_T;
-static PyObject *__pyx_kp_s_The_SpatialData_class_is_abstrac;
+static PyObject *__pyx_kp_s_The_NeighborQuery_class_is_abstr;
 static PyObject *__pyx_kp_s_The_computeCellList_function_is;
 static PyObject *__pyx_kp_s_The_getBox_function_is_deprecate;
 static PyObject *__pyx_kp_s_The_getNref_function_is_deprecat;
@@ -3217,14 +3218,14 @@ static PyObject *__pyx_n_s_wrap;
 static PyObject *__pyx_n_s_wrapped_vectors;
 static PyObject *__pyx_n_s_writeable;
 static PyObject *__pyx_n_s_zeros;
-static int __pyx_pf_5freud_8locality_11SpatialData___cinit__(struct __pyx_obj_5freud_8locality_SpatialData *__pyx_v_self); /* proto */
-static void __pyx_pf_5freud_8locality_11SpatialData_2__dealloc__(CYTHON_UNUSED struct __pyx_obj_5freud_8locality_SpatialData *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_5freud_8locality_11SpatialData_3box___get__(struct __pyx_obj_5freud_8locality_SpatialData *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_5freud_8locality_11SpatialData_10ref_points___get__(struct __pyx_obj_5freud_8locality_SpatialData *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_5freud_8locality_11SpatialData_4query(struct __pyx_obj_5freud_8locality_SpatialData *__pyx_v_self, PyObject *__pyx_v_points, unsigned int __pyx_v_k, PyObject *__pyx_v_exclude_ii); /* proto */
-static PyObject *__pyx_pf_5freud_8locality_11SpatialData_6queryBall(struct __pyx_obj_5freud_8locality_SpatialData *__pyx_v_self, PyObject *__pyx_v_points, float __pyx_v_r, PyObject *__pyx_v_exclude_ii); /* proto */
-static PyObject *__pyx_pf_5freud_8locality_11SpatialData_8__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_5freud_8locality_SpatialData *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_5freud_8locality_11SpatialData_10__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_5freud_8locality_SpatialData *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
+static int __pyx_pf_5freud_8locality_13NeighborQuery___cinit__(struct __pyx_obj_5freud_8locality_NeighborQuery *__pyx_v_self); /* proto */
+static void __pyx_pf_5freud_8locality_13NeighborQuery_2__dealloc__(CYTHON_UNUSED struct __pyx_obj_5freud_8locality_NeighborQuery *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_5freud_8locality_13NeighborQuery_3box___get__(struct __pyx_obj_5freud_8locality_NeighborQuery *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_5freud_8locality_13NeighborQuery_10ref_points___get__(struct __pyx_obj_5freud_8locality_NeighborQuery *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_5freud_8locality_13NeighborQuery_4query(struct __pyx_obj_5freud_8locality_NeighborQuery *__pyx_v_self, PyObject *__pyx_v_points, unsigned int __pyx_v_k, PyObject *__pyx_v_exclude_ii); /* proto */
+static PyObject *__pyx_pf_5freud_8locality_13NeighborQuery_6queryBall(struct __pyx_obj_5freud_8locality_NeighborQuery *__pyx_v_self, PyObject *__pyx_v_points, float __pyx_v_r, PyObject *__pyx_v_exclude_ii); /* proto */
+static PyObject *__pyx_pf_5freud_8locality_13NeighborQuery_8__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_5freud_8locality_NeighborQuery *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_5freud_8locality_13NeighborQuery_10__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_5freud_8locality_NeighborQuery *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
 static PyObject *__pyx_pf_5freud_8locality_12NeighborList_from_arrays(PyTypeObject *__pyx_v_cls, PyObject *__pyx_v_Nref, PyObject *__pyx_v_Ntarget, PyObject *__pyx_v_index_i, PyObject *__pyx_v_index_j, PyObject *__pyx_v_weights); /* proto */
 static int __pyx_pf_5freud_8locality_12NeighborList_2__cinit__(struct __pyx_obj_5freud_8locality_NeighborList *__pyx_v_self); /* proto */
 static void __pyx_pf_5freud_8locality_12NeighborList_4__dealloc__(struct __pyx_obj_5freud_8locality_NeighborList *__pyx_v_self); /* proto */
@@ -3337,7 +3338,7 @@ static PyObject *__pyx_pf_15View_dot_MemoryView_16_memoryviewslice_4base___get__
 static PyObject *__pyx_pf___pyx_memoryviewslice___reduce_cython__(CYTHON_UNUSED struct __pyx_memoryviewslice_obj *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf___pyx_memoryviewslice_2__setstate_cython__(CYTHON_UNUSED struct __pyx_memoryviewslice_obj *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
 static PyObject *__pyx_pf_15View_dot_MemoryView___pyx_unpickle_Enum(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state); /* proto */
-static PyObject *__pyx_tp_new_5freud_8locality_SpatialData(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
+static PyObject *__pyx_tp_new_5freud_8locality_NeighborQuery(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_tp_new_5freud_8locality_NeighborList(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_tp_new_5freud_8locality_IteratorLinkCell(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_tp_new_5freud_8locality_LinkCell(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
@@ -3525,27 +3526,27 @@ static PyObject *__pyx_codeobj__169;
  *     """
  * 
  *     def __cinit__(self):             # <<<<<<<<<<<<<<
- *         if type(self) is SpatialData:
+ *         if type(self) is NeighborQuery:
  *             raise RuntimeError(
  */
 
 /* Python wrapper */
-static int __pyx_pw_5freud_8locality_11SpatialData_1__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static int __pyx_pw_5freud_8locality_11SpatialData_1__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static int __pyx_pw_5freud_8locality_13NeighborQuery_1__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static int __pyx_pw_5freud_8locality_13NeighborQuery_1__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__cinit__ (wrapper)", 0);
   if (unlikely(PyTuple_GET_SIZE(__pyx_args) > 0)) {
     __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 0, 0, PyTuple_GET_SIZE(__pyx_args)); return -1;}
   if (unlikely(__pyx_kwds) && unlikely(PyDict_Size(__pyx_kwds) > 0) && unlikely(!__Pyx_CheckKeywordStrings(__pyx_kwds, "__cinit__", 0))) return -1;
-  __pyx_r = __pyx_pf_5freud_8locality_11SpatialData___cinit__(((struct __pyx_obj_5freud_8locality_SpatialData *)__pyx_v_self));
+  __pyx_r = __pyx_pf_5freud_8locality_13NeighborQuery___cinit__(((struct __pyx_obj_5freud_8locality_NeighborQuery *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_5freud_8locality_11SpatialData___cinit__(struct __pyx_obj_5freud_8locality_SpatialData *__pyx_v_self) {
+static int __pyx_pf_5freud_8locality_13NeighborQuery___cinit__(struct __pyx_obj_5freud_8locality_NeighborQuery *__pyx_v_self) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   int __pyx_t_1;
@@ -3556,19 +3557,19 @@ static int __pyx_pf_5freud_8locality_11SpatialData___cinit__(struct __pyx_obj_5f
   /* "freud/locality.pyx":64
  * 
  *     def __cinit__(self):
- *         if type(self) is SpatialData:             # <<<<<<<<<<<<<<
+ *         if type(self) is NeighborQuery:             # <<<<<<<<<<<<<<
  *             raise RuntimeError(
- *                 "The SpatialData class is abstract, and should not be "
+ *                 "The NeighborQuery class is abstract, and should not be "
  */
-  __pyx_t_1 = (((PyObject *)Py_TYPE(((PyObject *)__pyx_v_self))) == ((PyObject *)__pyx_ptype_5freud_8locality_SpatialData));
+  __pyx_t_1 = (((PyObject *)Py_TYPE(((PyObject *)__pyx_v_self))) == ((PyObject *)__pyx_ptype_5freud_8locality_NeighborQuery));
   __pyx_t_2 = (__pyx_t_1 != 0);
   if (unlikely(__pyx_t_2)) {
 
     /* "freud/locality.pyx":65
  *     def __cinit__(self):
- *         if type(self) is SpatialData:
+ *         if type(self) is NeighborQuery:
  *             raise RuntimeError(             # <<<<<<<<<<<<<<
- *                 "The SpatialData class is abstract, and should not be "
+ *                 "The NeighborQuery class is abstract, and should not be "
  *                 "directly instantiated"
  */
     __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_RuntimeError, __pyx_tuple_, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 65, __pyx_L1_error)
@@ -3580,9 +3581,9 @@ static int __pyx_pf_5freud_8locality_11SpatialData___cinit__(struct __pyx_obj_5f
     /* "freud/locality.pyx":64
  * 
  *     def __cinit__(self):
- *         if type(self) is SpatialData:             # <<<<<<<<<<<<<<
+ *         if type(self) is NeighborQuery:             # <<<<<<<<<<<<<<
  *             raise RuntimeError(
- *                 "The SpatialData class is abstract, and should not be "
+ *                 "The NeighborQuery class is abstract, and should not be "
  */
   }
 
@@ -3590,7 +3591,7 @@ static int __pyx_pf_5freud_8locality_11SpatialData___cinit__(struct __pyx_obj_5f
  *     """
  * 
  *     def __cinit__(self):             # <<<<<<<<<<<<<<
- *         if type(self) is SpatialData:
+ *         if type(self) is NeighborQuery:
  *             raise RuntimeError(
  */
 
@@ -3599,7 +3600,7 @@ static int __pyx_pf_5freud_8locality_11SpatialData___cinit__(struct __pyx_obj_5f
   goto __pyx_L0;
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_AddTraceback("freud.locality.SpatialData.__cinit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("freud.locality.NeighborQuery.__cinit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
@@ -3615,17 +3616,17 @@ static int __pyx_pf_5freud_8locality_11SpatialData___cinit__(struct __pyx_obj_5f
  */
 
 /* Python wrapper */
-static void __pyx_pw_5freud_8locality_11SpatialData_3__dealloc__(PyObject *__pyx_v_self); /*proto*/
-static void __pyx_pw_5freud_8locality_11SpatialData_3__dealloc__(PyObject *__pyx_v_self) {
+static void __pyx_pw_5freud_8locality_13NeighborQuery_3__dealloc__(PyObject *__pyx_v_self); /*proto*/
+static void __pyx_pw_5freud_8locality_13NeighborQuery_3__dealloc__(PyObject *__pyx_v_self) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__dealloc__ (wrapper)", 0);
-  __pyx_pf_5freud_8locality_11SpatialData_2__dealloc__(((struct __pyx_obj_5freud_8locality_SpatialData *)__pyx_v_self));
+  __pyx_pf_5freud_8locality_13NeighborQuery_2__dealloc__(((struct __pyx_obj_5freud_8locality_NeighborQuery *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
 }
 
-static void __pyx_pf_5freud_8locality_11SpatialData_2__dealloc__(CYTHON_UNUSED struct __pyx_obj_5freud_8locality_SpatialData *__pyx_v_self) {
+static void __pyx_pf_5freud_8locality_13NeighborQuery_2__dealloc__(CYTHON_UNUSED struct __pyx_obj_5freud_8locality_NeighborQuery *__pyx_v_self) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__dealloc__", 0);
 
@@ -3642,19 +3643,19 @@ static void __pyx_pf_5freud_8locality_11SpatialData_2__dealloc__(CYTHON_UNUSED s
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_8locality_11SpatialData_3box_1__get__(PyObject *__pyx_v_self); /*proto*/
-static PyObject *__pyx_pw_5freud_8locality_11SpatialData_3box_1__get__(PyObject *__pyx_v_self) {
+static PyObject *__pyx_pw_5freud_8locality_13NeighborQuery_3box_1__get__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_5freud_8locality_13NeighborQuery_3box_1__get__(PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_5freud_8locality_11SpatialData_3box___get__(((struct __pyx_obj_5freud_8locality_SpatialData *)__pyx_v_self));
+  __pyx_r = __pyx_pf_5freud_8locality_13NeighborQuery_3box___get__(((struct __pyx_obj_5freud_8locality_NeighborQuery *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_5freud_8locality_11SpatialData_3box___get__(struct __pyx_obj_5freud_8locality_SpatialData *__pyx_v_self) {
+static PyObject *__pyx_pf_5freud_8locality_13NeighborQuery_3box___get__(struct __pyx_obj_5freud_8locality_NeighborQuery *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__", 0);
@@ -3695,19 +3696,19 @@ static PyObject *__pyx_pf_5freud_8locality_11SpatialData_3box___get__(struct __p
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_8locality_11SpatialData_10ref_points_1__get__(PyObject *__pyx_v_self); /*proto*/
-static PyObject *__pyx_pw_5freud_8locality_11SpatialData_10ref_points_1__get__(PyObject *__pyx_v_self) {
+static PyObject *__pyx_pw_5freud_8locality_13NeighborQuery_10ref_points_1__get__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_5freud_8locality_13NeighborQuery_10ref_points_1__get__(PyObject *__pyx_v_self) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_5freud_8locality_11SpatialData_10ref_points___get__(((struct __pyx_obj_5freud_8locality_SpatialData *)__pyx_v_self));
+  __pyx_r = __pyx_pf_5freud_8locality_13NeighborQuery_10ref_points___get__(((struct __pyx_obj_5freud_8locality_NeighborQuery *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_5freud_8locality_11SpatialData_10ref_points___get__(struct __pyx_obj_5freud_8locality_SpatialData *__pyx_v_self) {
+static PyObject *__pyx_pf_5freud_8locality_13NeighborQuery_10ref_points___get__(struct __pyx_obj_5freud_8locality_NeighborQuery *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -3798,7 +3799,7 @@ static PyObject *__pyx_pf_5freud_8locality_11SpatialData_10ref_points___get__(st
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
-  __Pyx_AddTraceback("freud.locality.SpatialData.ref_points.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("freud.locality.NeighborQuery.ref_points.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -3815,10 +3816,10 @@ static PyObject *__pyx_pf_5freud_8locality_11SpatialData_10ref_points___get__(st
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_8locality_11SpatialData_5query(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_8locality_11SpatialData_4query[] = "SpatialData.query(self, points, unsigned int k=1, exclude_ii=False)\nQuery the tree for nearest neighbors of the provided point.\n\n        Args:\n            box (:class:`freud.box.Box`):\n                Simulation box.\n            points ((:math:`N`, 3) :class:`numpy.ndarray`):\n                Points to query for.\n            k (int):\n                The number of nearest neighbors to find.\n\n        Returns:\n            (:math:`N`, :math:`k`) :class:`numpy.ndarray`:\n                Array of indices of the :math:`k` nearest neighbors for each\n                input point.\n        ";
-static PyMethodDef __pyx_mdef_5freud_8locality_11SpatialData_5query = {"query", (PyCFunction)__pyx_pw_5freud_8locality_11SpatialData_5query, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_8locality_11SpatialData_4query};
-static PyObject *__pyx_pw_5freud_8locality_11SpatialData_5query(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_5freud_8locality_13NeighborQuery_5query(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_5freud_8locality_13NeighborQuery_4query[] = "NeighborQuery.query(self, points, unsigned int k=1, exclude_ii=False)\nQuery the tree for nearest neighbors of the provided point.\n\n        Args:\n            box (:class:`freud.box.Box`):\n                Simulation box.\n            points ((:math:`N`, 3) :class:`numpy.ndarray`):\n                Points to query for.\n            k (int):\n                The number of nearest neighbors to find.\n\n        Returns:\n            (:math:`N`, :math:`k`) :class:`numpy.ndarray`:\n                Array of indices of the :math:`k` nearest neighbors for each\n                input point.\n        ";
+static PyMethodDef __pyx_mdef_5freud_8locality_13NeighborQuery_5query = {"query", (PyCFunction)__pyx_pw_5freud_8locality_13NeighborQuery_5query, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_8locality_13NeighborQuery_4query};
+static PyObject *__pyx_pw_5freud_8locality_13NeighborQuery_5query(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_points = 0;
   unsigned int __pyx_v_k;
   PyObject *__pyx_v_exclude_ii = 0;
@@ -3886,21 +3887,21 @@ static PyObject *__pyx_pw_5freud_8locality_11SpatialData_5query(PyObject *__pyx_
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("query", 0, 1, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 81, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("freud.locality.SpatialData.query", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("freud.locality.NeighborQuery.query", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_5freud_8locality_11SpatialData_4query(((struct __pyx_obj_5freud_8locality_SpatialData *)__pyx_v_self), __pyx_v_points, __pyx_v_k, __pyx_v_exclude_ii);
+  __pyx_r = __pyx_pf_5freud_8locality_13NeighborQuery_4query(((struct __pyx_obj_5freud_8locality_NeighborQuery *)__pyx_v_self), __pyx_v_points, __pyx_v_k, __pyx_v_exclude_ii);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_5freud_8locality_11SpatialData_4query(struct __pyx_obj_5freud_8locality_SpatialData *__pyx_v_self, PyObject *__pyx_v_points, unsigned int __pyx_v_k, PyObject *__pyx_v_exclude_ii) {
+static PyObject *__pyx_pf_5freud_8locality_13NeighborQuery_4query(struct __pyx_obj_5freud_8locality_NeighborQuery *__pyx_v_self, PyObject *__pyx_v_points, unsigned int __pyx_v_k, PyObject *__pyx_v_exclude_ii) {
   vec3<float>  __pyx_v_l_cur_point;
   unsigned int __pyx_v_Np;
-  std::shared_ptr<freud::locality::SpatialDataIterator>  __pyx_v_iterator;
+  std::shared_ptr<freud::locality::NeighborQueryIterator>  __pyx_v_iterator;
   PyObject *__pyx_v_ret = NULL;
   unsigned int __pyx_v_i;
   freud::locality::NeighborPoint __pyx_v_npoint;
@@ -3918,7 +3919,7 @@ static PyObject *__pyx_pf_5freud_8locality_11SpatialData_4query(struct __pyx_obj
   float __pyx_t_10;
   float __pyx_t_11;
   float __pyx_t_12;
-  std::shared_ptr<freud::locality::SpatialDataIterator>  __pyx_t_13;
+  std::shared_ptr<freud::locality::NeighborQueryIterator>  __pyx_t_13;
   int __pyx_t_14;
   int __pyx_t_15;
   __Pyx_RefNannySetupContext("query", 0);
@@ -3926,7 +3927,7 @@ static PyObject *__pyx_pf_5freud_8locality_11SpatialData_4query(struct __pyx_obj
 
   /* "freud/locality.pyx":98
  *         """
- *         # Can't use this function with old-style SpatialData objects
+ *         # Can't use this function with old-style NeighborQuery objects
  *         if not self.queryable:             # <<<<<<<<<<<<<<
  *             raise RuntimeError("You cannot use the query method unless this "
  *                                "object was originally constructed with "
@@ -3935,7 +3936,7 @@ static PyObject *__pyx_pf_5freud_8locality_11SpatialData_4query(struct __pyx_obj
   if (unlikely(__pyx_t_1)) {
 
     /* "freud/locality.pyx":99
- *         # Can't use this function with old-style SpatialData objects
+ *         # Can't use this function with old-style NeighborQuery objects
  *         if not self.queryable:
  *             raise RuntimeError("You cannot use the query method unless this "             # <<<<<<<<<<<<<<
  *                                "object was originally constructed with "
@@ -3949,7 +3950,7 @@ static PyObject *__pyx_pf_5freud_8locality_11SpatialData_4query(struct __pyx_obj
 
     /* "freud/locality.pyx":98
  *         """
- *         # Can't use this function with old-style SpatialData objects
+ *         # Can't use this function with old-style NeighborQuery objects
  *         if not self.queryable:             # <<<<<<<<<<<<<<
  *             raise RuntimeError("You cannot use the query method unless this "
  *                                "object was originally constructed with "
@@ -4122,7 +4123,7 @@ static PyObject *__pyx_pf_5freud_8locality_11SpatialData_4query(struct __pyx_obj
  * 
  *         cdef vec3[float] l_cur_point
  *         cdef unsigned int Np = points.shape[0]             # <<<<<<<<<<<<<<
- *         cdef shared_ptr[freud._locality.SpatialDataIterator] iterator
+ *         cdef shared_ptr[freud._locality.NeighborQueryIterator] iterator
  * 
  */
   __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_points, __pyx_n_s_shape); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 109, __pyx_L1_error)
@@ -4135,7 +4136,7 @@ static PyObject *__pyx_pf_5freud_8locality_11SpatialData_4query(struct __pyx_obj
   __pyx_v_Np = __pyx_t_7;
 
   /* "freud/locality.pyx":112
- *         cdef shared_ptr[freud._locality.SpatialDataIterator] iterator
+ *         cdef shared_ptr[freud._locality.NeighborQueryIterator] iterator
  * 
  *         ret = []             # <<<<<<<<<<<<<<
  * 
@@ -4280,7 +4281,7 @@ static PyObject *__pyx_pf_5freud_8locality_11SpatialData_4query(struct __pyx_obj
  *                     break
  *                 elif exclude_ii and npoint.id == i:
  */
-      __pyx_t_1 = ((__pyx_v_npoint == freud::locality::SpatialData::ITERATOR_TERMINATOR) != 0);
+      __pyx_t_1 = ((__pyx_v_npoint == freud::locality::NeighborQuery::ITERATOR_TERMINATOR) != 0);
       if (__pyx_t_1) {
 
         /* "freud/locality.pyx":125
@@ -4401,7 +4402,7 @@ static PyObject *__pyx_pf_5freud_8locality_11SpatialData_4query(struct __pyx_obj
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
   __Pyx_XDECREF(__pyx_t_6);
-  __Pyx_AddTraceback("freud.locality.SpatialData.query", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("freud.locality.NeighborQuery.query", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_ret);
@@ -4420,10 +4421,10 @@ static PyObject *__pyx_pf_5freud_8locality_11SpatialData_4query(struct __pyx_obj
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_8locality_11SpatialData_7queryBall(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_8locality_11SpatialData_6queryBall[] = "SpatialData.queryBall(self, points, float r, exclude_ii=False)\nQuery the tree for all points within a distance r of the provided point(s).\n\n        Args:\n            box (:class:`freud.box.Box`):\n                Simulation box.\n            points ((:math:`N`, 3) :class:`numpy.ndarray`):\n                Points to query for.\n            r (float):\n                The distance within which to find neighbors\n\n        Returns:\n            list or list[list]:\n                If the input was a single point, returns a list of\n                its neighbors. Otherwise, returns a list of lists\n                of the neighbors.\n        ";
-static PyMethodDef __pyx_mdef_5freud_8locality_11SpatialData_7queryBall = {"queryBall", (PyCFunction)__pyx_pw_5freud_8locality_11SpatialData_7queryBall, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_8locality_11SpatialData_6queryBall};
-static PyObject *__pyx_pw_5freud_8locality_11SpatialData_7queryBall(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_5freud_8locality_13NeighborQuery_7queryBall(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_5freud_8locality_13NeighborQuery_6queryBall[] = "NeighborQuery.queryBall(self, points, float r, exclude_ii=False)\nQuery the tree for all points within a distance r of the provided point(s).\n\n        Args:\n            box (:class:`freud.box.Box`):\n                Simulation box.\n            points ((:math:`N`, 3) :class:`numpy.ndarray`):\n                Points to query for.\n            r (float):\n                The distance within which to find neighbors\n\n        Returns:\n            list or list[list]:\n                If the input was a single point, returns a list of\n                its neighbors. Otherwise, returns a list of lists\n                of the neighbors.\n        ";
+static PyMethodDef __pyx_mdef_5freud_8locality_13NeighborQuery_7queryBall = {"queryBall", (PyCFunction)__pyx_pw_5freud_8locality_13NeighborQuery_7queryBall, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_8locality_13NeighborQuery_6queryBall};
+static PyObject *__pyx_pw_5freud_8locality_13NeighborQuery_7queryBall(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_points = 0;
   float __pyx_v_r;
   PyObject *__pyx_v_exclude_ii = 0;
@@ -4486,21 +4487,21 @@ static PyObject *__pyx_pw_5freud_8locality_11SpatialData_7queryBall(PyObject *__
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("queryBall", 0, 2, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 131, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("freud.locality.SpatialData.queryBall", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("freud.locality.NeighborQuery.queryBall", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_5freud_8locality_11SpatialData_6queryBall(((struct __pyx_obj_5freud_8locality_SpatialData *)__pyx_v_self), __pyx_v_points, __pyx_v_r, __pyx_v_exclude_ii);
+  __pyx_r = __pyx_pf_5freud_8locality_13NeighborQuery_6queryBall(((struct __pyx_obj_5freud_8locality_NeighborQuery *)__pyx_v_self), __pyx_v_points, __pyx_v_r, __pyx_v_exclude_ii);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_5freud_8locality_11SpatialData_6queryBall(struct __pyx_obj_5freud_8locality_SpatialData *__pyx_v_self, PyObject *__pyx_v_points, float __pyx_v_r, PyObject *__pyx_v_exclude_ii) {
+static PyObject *__pyx_pf_5freud_8locality_13NeighborQuery_6queryBall(struct __pyx_obj_5freud_8locality_NeighborQuery *__pyx_v_self, PyObject *__pyx_v_points, float __pyx_v_r, PyObject *__pyx_v_exclude_ii) {
   vec3<float>  __pyx_v_l_cur_point;
   unsigned int __pyx_v_Np;
-  std::shared_ptr<freud::locality::SpatialDataIterator>  __pyx_v_iterator;
+  std::shared_ptr<freud::locality::NeighborQueryIterator>  __pyx_v_iterator;
   PyObject *__pyx_v_ret = NULL;
   unsigned int __pyx_v_i;
   freud::locality::NeighborPoint __pyx_v_npoint;
@@ -4518,7 +4519,7 @@ static PyObject *__pyx_pf_5freud_8locality_11SpatialData_6queryBall(struct __pyx
   float __pyx_t_10;
   float __pyx_t_11;
   float __pyx_t_12;
-  std::shared_ptr<freud::locality::SpatialDataIterator>  __pyx_t_13;
+  std::shared_ptr<freud::locality::NeighborQueryIterator>  __pyx_t_13;
   int __pyx_t_14;
   int __pyx_t_15;
   __Pyx_RefNannySetupContext("queryBall", 0);
@@ -4722,7 +4723,7 @@ static PyObject *__pyx_pf_5freud_8locality_11SpatialData_6queryBall(struct __pyx
  * 
  *         cdef vec3[float] l_cur_point
  *         cdef unsigned int Np = points.shape[0]             # <<<<<<<<<<<<<<
- *         cdef shared_ptr[freud._locality.SpatialDataIterator] iterator
+ *         cdef shared_ptr[freud._locality.NeighborQueryIterator] iterator
  * 
  */
   __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_points, __pyx_n_s_shape); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 159, __pyx_L1_error)
@@ -4735,7 +4736,7 @@ static PyObject *__pyx_pf_5freud_8locality_11SpatialData_6queryBall(struct __pyx
   __pyx_v_Np = __pyx_t_7;
 
   /* "freud/locality.pyx":162
- *         cdef shared_ptr[freud._locality.SpatialDataIterator] iterator
+ *         cdef shared_ptr[freud._locality.NeighborQueryIterator] iterator
  * 
  *         ret = []             # <<<<<<<<<<<<<<
  *         cdef unsigned int i
@@ -4852,7 +4853,7 @@ static PyObject *__pyx_pf_5freud_8locality_11SpatialData_6queryBall(struct __pyx
  *                     break
  *                 elif exclude_ii and npoint.id == i:
  */
-      __pyx_t_1 = ((__pyx_v_npoint == freud::locality::SpatialData::ITERATOR_TERMINATOR) != 0);
+      __pyx_t_1 = ((__pyx_v_npoint == freud::locality::NeighborQuery::ITERATOR_TERMINATOR) != 0);
       if (__pyx_t_1) {
 
         /* "freud/locality.pyx":170
@@ -4973,7 +4974,7 @@ static PyObject *__pyx_pf_5freud_8locality_11SpatialData_6queryBall(struct __pyx
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
   __Pyx_XDECREF(__pyx_t_6);
-  __Pyx_AddTraceback("freud.locality.SpatialData.queryBall", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("freud.locality.NeighborQuery.queryBall", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_ret);
@@ -4990,21 +4991,21 @@ static PyObject *__pyx_pf_5freud_8locality_11SpatialData_6queryBall(struct __pyx
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_8locality_11SpatialData_9__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_8locality_11SpatialData_8__reduce_cython__[] = "SpatialData.__reduce_cython__(self)";
-static PyMethodDef __pyx_mdef_5freud_8locality_11SpatialData_9__reduce_cython__ = {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_8locality_11SpatialData_9__reduce_cython__, METH_NOARGS, __pyx_doc_5freud_8locality_11SpatialData_8__reduce_cython__};
-static PyObject *__pyx_pw_5freud_8locality_11SpatialData_9__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_5freud_8locality_13NeighborQuery_9__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static char __pyx_doc_5freud_8locality_13NeighborQuery_8__reduce_cython__[] = "NeighborQuery.__reduce_cython__(self)";
+static PyMethodDef __pyx_mdef_5freud_8locality_13NeighborQuery_9__reduce_cython__ = {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_8locality_13NeighborQuery_9__reduce_cython__, METH_NOARGS, __pyx_doc_5freud_8locality_13NeighborQuery_8__reduce_cython__};
+static PyObject *__pyx_pw_5freud_8locality_13NeighborQuery_9__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__reduce_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_5freud_8locality_11SpatialData_8__reduce_cython__(((struct __pyx_obj_5freud_8locality_SpatialData *)__pyx_v_self));
+  __pyx_r = __pyx_pf_5freud_8locality_13NeighborQuery_8__reduce_cython__(((struct __pyx_obj_5freud_8locality_NeighborQuery *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_5freud_8locality_11SpatialData_8__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_5freud_8locality_SpatialData *__pyx_v_self) {
+static PyObject *__pyx_pf_5freud_8locality_13NeighborQuery_8__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_5freud_8locality_NeighborQuery *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -5031,7 +5032,7 @@ static PyObject *__pyx_pf_5freud_8locality_11SpatialData_8__reduce_cython__(CYTH
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("freud.locality.SpatialData.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("freud.locality.NeighborQuery.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
@@ -5046,21 +5047,21 @@ static PyObject *__pyx_pf_5freud_8locality_11SpatialData_8__reduce_cython__(CYTH
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_8locality_11SpatialData_11__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
-static char __pyx_doc_5freud_8locality_11SpatialData_10__setstate_cython__[] = "SpatialData.__setstate_cython__(self, __pyx_state)";
-static PyMethodDef __pyx_mdef_5freud_8locality_11SpatialData_11__setstate_cython__ = {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_8locality_11SpatialData_11__setstate_cython__, METH_O, __pyx_doc_5freud_8locality_11SpatialData_10__setstate_cython__};
-static PyObject *__pyx_pw_5freud_8locality_11SpatialData_11__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pw_5freud_8locality_13NeighborQuery_11__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
+static char __pyx_doc_5freud_8locality_13NeighborQuery_10__setstate_cython__[] = "NeighborQuery.__setstate_cython__(self, __pyx_state)";
+static PyMethodDef __pyx_mdef_5freud_8locality_13NeighborQuery_11__setstate_cython__ = {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_8locality_13NeighborQuery_11__setstate_cython__, METH_O, __pyx_doc_5freud_8locality_13NeighborQuery_10__setstate_cython__};
+static PyObject *__pyx_pw_5freud_8locality_13NeighborQuery_11__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__setstate_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_5freud_8locality_11SpatialData_10__setstate_cython__(((struct __pyx_obj_5freud_8locality_SpatialData *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
+  __pyx_r = __pyx_pf_5freud_8locality_13NeighborQuery_10__setstate_cython__(((struct __pyx_obj_5freud_8locality_NeighborQuery *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_5freud_8locality_11SpatialData_10__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_5freud_8locality_SpatialData *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pf_5freud_8locality_13NeighborQuery_10__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_5freud_8locality_NeighborQuery *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -5087,7 +5088,7 @@ static PyObject *__pyx_pf_5freud_8locality_11SpatialData_10__setstate_cython__(C
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("freud.locality.SpatialData.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("freud.locality.NeighborQuery.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
@@ -10138,7 +10139,7 @@ static PyObject *__pyx_pf_5freud_8locality_9AABBQuery_4query(struct __pyx_obj_5f
   __Pyx_memviewslice __pyx_v_l_points = { 0, 0, { 0 }, { 0 }, { 0 } };
   vec3<float>  __pyx_v_l_cur_point;
   unsigned int __pyx_v_Np;
-  std::shared_ptr<freud::locality::SpatialDataIterator>  __pyx_v_iterator;
+  std::shared_ptr<freud::locality::NeighborQueryIterator>  __pyx_v_iterator;
   PyObject *__pyx_v_ret = NULL;
   unsigned int __pyx_v_i;
   freud::locality::NeighborPoint __pyx_v_npoint;
@@ -10161,7 +10162,7 @@ static PyObject *__pyx_pf_5freud_8locality_9AABBQuery_4query(struct __pyx_obj_5f
   Py_ssize_t __pyx_t_15;
   size_t __pyx_t_16;
   Py_ssize_t __pyx_t_17;
-  std::shared_ptr<freud::locality::SpatialDataIterator>  __pyx_t_18;
+  std::shared_ptr<freud::locality::NeighborQueryIterator>  __pyx_t_18;
   int __pyx_t_19;
   int __pyx_t_20;
   __Pyx_RefNannySetupContext("query", 0);
@@ -10383,7 +10384,7 @@ static PyObject *__pyx_pf_5freud_8locality_9AABBQuery_4query(struct __pyx_obj_5f
  *         cdef float[:, ::1] l_points = points
  *         cdef vec3[float] l_cur_point
  *         cdef unsigned int Np = points.shape[0]             # <<<<<<<<<<<<<<
- *         cdef shared_ptr[freud._locality.SpatialDataIterator] iterator
+ *         cdef shared_ptr[freud._locality.NeighborQueryIterator] iterator
  * 
  */
   __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_points, __pyx_n_s_shape); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 683, __pyx_L1_error)
@@ -10396,7 +10397,7 @@ static PyObject *__pyx_pf_5freud_8locality_9AABBQuery_4query(struct __pyx_obj_5f
   __pyx_v_Np = __pyx_t_9;
 
   /* "freud/locality.pyx":686
- *         cdef shared_ptr[freud._locality.SpatialDataIterator] iterator
+ *         cdef shared_ptr[freud._locality.NeighborQueryIterator] iterator
  * 
  *         ret = []             # <<<<<<<<<<<<<<
  * 
@@ -10510,7 +10511,7 @@ static PyObject *__pyx_pf_5freud_8locality_9AABBQuery_4query(struct __pyx_obj_5f
  *                     break
  *                 elif exclude_ii and npoint.id == i:
  */
-      __pyx_t_6 = ((__pyx_v_npoint == freud::locality::SpatialData::ITERATOR_TERMINATOR) != 0);
+      __pyx_t_6 = ((__pyx_v_npoint == freud::locality::NeighborQuery::ITERATOR_TERMINATOR) != 0);
       if (__pyx_t_6) {
 
         /* "freud/locality.pyx":700
@@ -33975,8 +33976,8 @@ static PyObject *__pyx_format_from_typeinfo(__Pyx_TypeInfo *__pyx_v_type) {
   return __pyx_r;
 }
 
-static PyObject *__pyx_tp_new_5freud_8locality_SpatialData(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
-  struct __pyx_obj_5freud_8locality_SpatialData *p;
+static PyObject *__pyx_tp_new_5freud_8locality_NeighborQuery(PyTypeObject *t, CYTHON_UNUSED PyObject *a, CYTHON_UNUSED PyObject *k) {
+  struct __pyx_obj_5freud_8locality_NeighborQuery *p;
   PyObject *o;
   if (likely((t->tp_flags & Py_TPFLAGS_IS_ABSTRACT) == 0)) {
     o = (*t->tp_alloc)(t, 0);
@@ -33984,19 +33985,19 @@ static PyObject *__pyx_tp_new_5freud_8locality_SpatialData(PyTypeObject *t, CYTH
     o = (PyObject *) PyBaseObject_Type.tp_new(t, __pyx_empty_tuple, 0);
   }
   if (unlikely(!o)) return 0;
-  p = ((struct __pyx_obj_5freud_8locality_SpatialData *)o);
+  p = ((struct __pyx_obj_5freud_8locality_NeighborQuery *)o);
   p->box = ((struct __pyx_obj_5freud_3box_Box *)Py_None); Py_INCREF(Py_None);
   p->ref_points.data = NULL;
   p->ref_points.memview = NULL;
-  if (unlikely(__pyx_pw_5freud_8locality_11SpatialData_1__cinit__(o, __pyx_empty_tuple, NULL) < 0)) goto bad;
+  if (unlikely(__pyx_pw_5freud_8locality_13NeighborQuery_1__cinit__(o, __pyx_empty_tuple, NULL) < 0)) goto bad;
   return o;
   bad:
   Py_DECREF(o); o = 0;
   return NULL;
 }
 
-static void __pyx_tp_dealloc_5freud_8locality_SpatialData(PyObject *o) {
-  struct __pyx_obj_5freud_8locality_SpatialData *p = (struct __pyx_obj_5freud_8locality_SpatialData *)o;
+static void __pyx_tp_dealloc_5freud_8locality_NeighborQuery(PyObject *o) {
+  struct __pyx_obj_5freud_8locality_NeighborQuery *p = (struct __pyx_obj_5freud_8locality_NeighborQuery *)o;
   #if CYTHON_USE_TP_FINALIZE
   if (unlikely(PyType_HasFeature(Py_TYPE(o), Py_TPFLAGS_HAVE_FINALIZE) && Py_TYPE(o)->tp_finalize) && !_PyGC_FINALIZED(o)) {
     if (PyObject_CallFinalizerFromDealloc(o)) return;
@@ -34007,7 +34008,7 @@ static void __pyx_tp_dealloc_5freud_8locality_SpatialData(PyObject *o) {
     PyObject *etype, *eval, *etb;
     PyErr_Fetch(&etype, &eval, &etb);
     ++Py_REFCNT(o);
-    __pyx_pw_5freud_8locality_11SpatialData_3__dealloc__(o);
+    __pyx_pw_5freud_8locality_13NeighborQuery_3__dealloc__(o);
     --Py_REFCNT(o);
     PyErr_Restore(etype, eval, etb);
   }
@@ -34016,52 +34017,52 @@ static void __pyx_tp_dealloc_5freud_8locality_SpatialData(PyObject *o) {
   (*Py_TYPE(o)->tp_free)(o);
 }
 
-static int __pyx_tp_traverse_5freud_8locality_SpatialData(PyObject *o, visitproc v, void *a) {
+static int __pyx_tp_traverse_5freud_8locality_NeighborQuery(PyObject *o, visitproc v, void *a) {
   int e;
-  struct __pyx_obj_5freud_8locality_SpatialData *p = (struct __pyx_obj_5freud_8locality_SpatialData *)o;
+  struct __pyx_obj_5freud_8locality_NeighborQuery *p = (struct __pyx_obj_5freud_8locality_NeighborQuery *)o;
   if (p->box) {
     e = (*v)(((PyObject *)p->box), a); if (e) return e;
   }
   return 0;
 }
 
-static int __pyx_tp_clear_5freud_8locality_SpatialData(PyObject *o) {
+static int __pyx_tp_clear_5freud_8locality_NeighborQuery(PyObject *o) {
   PyObject* tmp;
-  struct __pyx_obj_5freud_8locality_SpatialData *p = (struct __pyx_obj_5freud_8locality_SpatialData *)o;
+  struct __pyx_obj_5freud_8locality_NeighborQuery *p = (struct __pyx_obj_5freud_8locality_NeighborQuery *)o;
   tmp = ((PyObject*)p->box);
   p->box = ((struct __pyx_obj_5freud_3box_Box *)Py_None); Py_INCREF(Py_None);
   Py_XDECREF(tmp);
   return 0;
 }
 
-static PyObject *__pyx_getprop_5freud_8locality_11SpatialData_box(PyObject *o, CYTHON_UNUSED void *x) {
-  return __pyx_pw_5freud_8locality_11SpatialData_3box_1__get__(o);
+static PyObject *__pyx_getprop_5freud_8locality_13NeighborQuery_box(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_5freud_8locality_13NeighborQuery_3box_1__get__(o);
 }
 
-static PyObject *__pyx_getprop_5freud_8locality_11SpatialData_ref_points(PyObject *o, CYTHON_UNUSED void *x) {
-  return __pyx_pw_5freud_8locality_11SpatialData_10ref_points_1__get__(o);
+static PyObject *__pyx_getprop_5freud_8locality_13NeighborQuery_ref_points(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_5freud_8locality_13NeighborQuery_10ref_points_1__get__(o);
 }
 
-static PyMethodDef __pyx_methods_5freud_8locality_SpatialData[] = {
-  {"query", (PyCFunction)__pyx_pw_5freud_8locality_11SpatialData_5query, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_8locality_11SpatialData_4query},
-  {"queryBall", (PyCFunction)__pyx_pw_5freud_8locality_11SpatialData_7queryBall, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_8locality_11SpatialData_6queryBall},
-  {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_8locality_11SpatialData_9__reduce_cython__, METH_NOARGS, __pyx_doc_5freud_8locality_11SpatialData_8__reduce_cython__},
-  {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_8locality_11SpatialData_11__setstate_cython__, METH_O, __pyx_doc_5freud_8locality_11SpatialData_10__setstate_cython__},
+static PyMethodDef __pyx_methods_5freud_8locality_NeighborQuery[] = {
+  {"query", (PyCFunction)__pyx_pw_5freud_8locality_13NeighborQuery_5query, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_8locality_13NeighborQuery_4query},
+  {"queryBall", (PyCFunction)__pyx_pw_5freud_8locality_13NeighborQuery_7queryBall, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_8locality_13NeighborQuery_6queryBall},
+  {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_8locality_13NeighborQuery_9__reduce_cython__, METH_NOARGS, __pyx_doc_5freud_8locality_13NeighborQuery_8__reduce_cython__},
+  {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_8locality_13NeighborQuery_11__setstate_cython__, METH_O, __pyx_doc_5freud_8locality_13NeighborQuery_10__setstate_cython__},
   {0, 0, 0, 0}
 };
 
-static struct PyGetSetDef __pyx_getsets_5freud_8locality_SpatialData[] = {
-  {(char *)"box", __pyx_getprop_5freud_8locality_11SpatialData_box, 0, (char *)0, 0},
-  {(char *)"ref_points", __pyx_getprop_5freud_8locality_11SpatialData_ref_points, 0, (char *)0, 0},
+static struct PyGetSetDef __pyx_getsets_5freud_8locality_NeighborQuery[] = {
+  {(char *)"box", __pyx_getprop_5freud_8locality_13NeighborQuery_box, 0, (char *)0, 0},
+  {(char *)"ref_points", __pyx_getprop_5freud_8locality_13NeighborQuery_ref_points, 0, (char *)0, 0},
   {0, 0, 0, 0, 0}
 };
 
-static PyTypeObject __pyx_type_5freud_8locality_SpatialData = {
+static PyTypeObject __pyx_type_5freud_8locality_NeighborQuery = {
   PyVarObject_HEAD_INIT(0, 0)
-  "freud.locality.SpatialData", /*tp_name*/
-  sizeof(struct __pyx_obj_5freud_8locality_SpatialData), /*tp_basicsize*/
+  "freud.locality.NeighborQuery", /*tp_name*/
+  sizeof(struct __pyx_obj_5freud_8locality_NeighborQuery), /*tp_basicsize*/
   0, /*tp_itemsize*/
-  __pyx_tp_dealloc_5freud_8locality_SpatialData, /*tp_dealloc*/
+  __pyx_tp_dealloc_5freud_8locality_NeighborQuery, /*tp_dealloc*/
   0, /*tp_print*/
   0, /*tp_getattr*/
   0, /*tp_setattr*/
@@ -34082,16 +34083,16 @@ static PyTypeObject __pyx_type_5freud_8locality_SpatialData = {
   0, /*tp_setattro*/
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-  "Class representing a set of points along with the ability to query for\n    neighbors of these points.\n\n    The SpatialData class represents the abstract interface for neighbor\n    finding. The class contains a set of points and a simulation box, the\n    latter of which is used to define the system and the periodic boundary\n    conditions required for finding neighbors of these points. The primary mode\n    of interacting with the SpatialData is through the query and queryBall\n    functions, which enable finding either the nearest neighbors of a point or\n    all points within a distance cutoff, respectively. Subclasses of\n    SpatialData implement these methods based on the nature of the underlying\n    data structure.\n\n    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>\n\n    .. versionadded:: 0.12.0\n\n    Args:\n        box (:class:`freud.box.Box`):\n            Simulation box.\n        points ((:math:`N`, 3) :class:`numpy.ndarray`):\n            Point coordinates to build the structure.\n\n    Attributes:\n        box (:class:`freud.box.Box`):\n            The box object used by this data structure.\n        ref_points (:class:`np.ndarray`):\n            The array of points in this data structure.\n    ", /*tp_doc*/
-  __pyx_tp_traverse_5freud_8locality_SpatialData, /*tp_traverse*/
-  __pyx_tp_clear_5freud_8locality_SpatialData, /*tp_clear*/
+  "Class representing a set of points along with the ability to query for\n    neighbors of these points.\n\n    The NeighborQuery class represents the abstract interface for neighbor\n    finding. The class contains a set of points and a simulation box, the\n    latter of which is used to define the system and the periodic boundary\n    conditions required for finding neighbors of these points. The primary mode\n    of interacting with the NeighborQuery is through the query and queryBall\n    functions, which enable finding either the nearest neighbors of a point or\n    all points within a distance cutoff, respectively. Subclasses of\n    NeighborQuery implement these methods based on the nature of the underlying\n    data structure.\n\n    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>\n\n    .. versionadded:: 0.12.0\n\n    Args:\n        box (:class:`freud.box.Box`):\n            Simulation box.\n        points ((:math:`N`, 3) :class:`numpy.ndarray`):\n            Point coordinates to build the structure.\n\n    Attributes:\n        box (:class:`freud.box.Box`):\n            The box object used by this data structure.\n        ref_points (:class:`np.ndarray`):\n            The array of points in this data structure.\n    ", /*tp_doc*/
+  __pyx_tp_traverse_5freud_8locality_NeighborQuery, /*tp_traverse*/
+  __pyx_tp_clear_5freud_8locality_NeighborQuery, /*tp_clear*/
   0, /*tp_richcompare*/
   0, /*tp_weaklistoffset*/
   0, /*tp_iter*/
   0, /*tp_iternext*/
-  __pyx_methods_5freud_8locality_SpatialData, /*tp_methods*/
+  __pyx_methods_5freud_8locality_NeighborQuery, /*tp_methods*/
   0, /*tp_members*/
-  __pyx_getsets_5freud_8locality_SpatialData, /*tp_getset*/
+  __pyx_getsets_5freud_8locality_NeighborQuery, /*tp_getset*/
   0, /*tp_base*/
   0, /*tp_dict*/
   0, /*tp_descr_get*/
@@ -34099,7 +34100,7 @@ static PyTypeObject __pyx_type_5freud_8locality_SpatialData = {
   0, /*tp_dictoffset*/
   0, /*tp_init*/
   0, /*tp_alloc*/
-  __pyx_tp_new_5freud_8locality_SpatialData, /*tp_new*/
+  __pyx_tp_new_5freud_8locality_NeighborQuery, /*tp_new*/
   0, /*tp_free*/
   0, /*tp_is_gc*/
   0, /*tp_bases*/
@@ -34393,7 +34394,7 @@ static PyTypeObject __pyx_type_5freud_8locality_IteratorLinkCell = {
 
 static PyObject *__pyx_tp_new_5freud_8locality_LinkCell(PyTypeObject *t, PyObject *a, PyObject *k) {
   struct __pyx_obj_5freud_8locality_LinkCell *p;
-  PyObject *o = __pyx_tp_new_5freud_8locality_SpatialData(t, a, k);
+  PyObject *o = __pyx_tp_new_5freud_8locality_NeighborQuery(t, a, k);
   if (unlikely(!o)) return 0;
   p = ((struct __pyx_obj_5freud_8locality_LinkCell *)o);
   p->_nlist = ((struct __pyx_obj_5freud_8locality_NeighborList *)Py_None); Py_INCREF(Py_None);
@@ -34422,13 +34423,13 @@ static void __pyx_tp_dealloc_5freud_8locality_LinkCell(PyObject *o) {
   }
   Py_CLEAR(p->_nlist);
   PyObject_GC_Track(o);
-  __pyx_tp_dealloc_5freud_8locality_SpatialData(o);
+  __pyx_tp_dealloc_5freud_8locality_NeighborQuery(o);
 }
 
 static int __pyx_tp_traverse_5freud_8locality_LinkCell(PyObject *o, visitproc v, void *a) {
   int e;
   struct __pyx_obj_5freud_8locality_LinkCell *p = (struct __pyx_obj_5freud_8locality_LinkCell *)o;
-  e = __pyx_tp_traverse_5freud_8locality_SpatialData(o, v, a); if (e) return e;
+  e = __pyx_tp_traverse_5freud_8locality_NeighborQuery(o, v, a); if (e) return e;
   if (p->_nlist) {
     e = (*v)(((PyObject *)p->_nlist), a); if (e) return e;
   }
@@ -34438,7 +34439,7 @@ static int __pyx_tp_traverse_5freud_8locality_LinkCell(PyObject *o, visitproc v,
 static int __pyx_tp_clear_5freud_8locality_LinkCell(PyObject *o) {
   PyObject* tmp;
   struct __pyx_obj_5freud_8locality_LinkCell *p = (struct __pyx_obj_5freud_8locality_LinkCell *)o;
-  __pyx_tp_clear_5freud_8locality_SpatialData(o);
+  __pyx_tp_clear_5freud_8locality_NeighborQuery(o);
   tmp = ((PyObject*)p->_nlist);
   p->_nlist = ((struct __pyx_obj_5freud_8locality_NeighborList *)Py_None); Py_INCREF(Py_None);
   Py_XDECREF(tmp);
@@ -34734,7 +34735,7 @@ static PyTypeObject __pyx_type_5freud_8locality_NearestNeighbors = {
 
 static PyObject *__pyx_tp_new_5freud_8locality_AABBQuery(PyTypeObject *t, PyObject *a, PyObject *k) {
   struct __pyx_obj_5freud_8locality_AABBQuery *p;
-  PyObject *o = __pyx_tp_new_5freud_8locality_SpatialData(t, a, k);
+  PyObject *o = __pyx_tp_new_5freud_8locality_NeighborQuery(t, a, k);
   if (unlikely(!o)) return 0;
   p = ((struct __pyx_obj_5freud_8locality_AABBQuery *)o);
   p->_nlist = ((struct __pyx_obj_5freud_8locality_NeighborList *)Py_None); Py_INCREF(Py_None);
@@ -34763,13 +34764,13 @@ static void __pyx_tp_dealloc_5freud_8locality_AABBQuery(PyObject *o) {
   }
   Py_CLEAR(p->_nlist);
   PyObject_GC_Track(o);
-  __pyx_tp_dealloc_5freud_8locality_SpatialData(o);
+  __pyx_tp_dealloc_5freud_8locality_NeighborQuery(o);
 }
 
 static int __pyx_tp_traverse_5freud_8locality_AABBQuery(PyObject *o, visitproc v, void *a) {
   int e;
   struct __pyx_obj_5freud_8locality_AABBQuery *p = (struct __pyx_obj_5freud_8locality_AABBQuery *)o;
-  e = __pyx_tp_traverse_5freud_8locality_SpatialData(o, v, a); if (e) return e;
+  e = __pyx_tp_traverse_5freud_8locality_NeighborQuery(o, v, a); if (e) return e;
   if (p->_nlist) {
     e = (*v)(((PyObject *)p->_nlist), a); if (e) return e;
   }
@@ -34779,7 +34780,7 @@ static int __pyx_tp_traverse_5freud_8locality_AABBQuery(PyObject *o, visitproc v
 static int __pyx_tp_clear_5freud_8locality_AABBQuery(PyObject *o) {
   PyObject* tmp;
   struct __pyx_obj_5freud_8locality_AABBQuery *p = (struct __pyx_obj_5freud_8locality_AABBQuery *)o;
-  __pyx_tp_clear_5freud_8locality_SpatialData(o);
+  __pyx_tp_clear_5freud_8locality_NeighborQuery(o);
   tmp = ((PyObject*)p->_nlist);
   p->_nlist = ((struct __pyx_obj_5freud_8locality_NeighborList *)Py_None); Py_INCREF(Py_None);
   Py_XDECREF(tmp);
@@ -35620,6 +35621,10 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_NeighborList_filter_r, __pyx_k_NeighborList_filter_r, sizeof(__pyx_k_NeighborList_filter_r), 0, 0, 1, 1},
   {&__pyx_n_s_NeighborList_find_first_index, __pyx_k_NeighborList_find_first_index, sizeof(__pyx_k_NeighborList_find_first_index), 0, 0, 1, 1},
   {&__pyx_n_s_NeighborList_from_arrays, __pyx_k_NeighborList_from_arrays, sizeof(__pyx_k_NeighborList_from_arrays), 0, 0, 1, 1},
+  {&__pyx_n_s_NeighborQuery___reduce_cython, __pyx_k_NeighborQuery___reduce_cython, sizeof(__pyx_k_NeighborQuery___reduce_cython), 0, 0, 1, 1},
+  {&__pyx_n_s_NeighborQuery___setstate_cython, __pyx_k_NeighborQuery___setstate_cython, sizeof(__pyx_k_NeighborQuery___setstate_cython), 0, 0, 1, 1},
+  {&__pyx_n_s_NeighborQuery_query, __pyx_k_NeighborQuery_query, sizeof(__pyx_k_NeighborQuery_query), 0, 0, 1, 1},
+  {&__pyx_n_s_NeighborQuery_queryBall, __pyx_k_NeighborQuery_queryBall, sizeof(__pyx_k_NeighborQuery_queryBall), 0, 0, 1, 1},
   {&__pyx_kp_u_Non_native_byte_order_not_suppor, __pyx_k_Non_native_byte_order_not_suppor, sizeof(__pyx_k_Non_native_byte_order_not_suppor), 0, 1, 0, 0},
   {&__pyx_n_s_Np, __pyx_k_Np, sizeof(__pyx_k_Np), 0, 0, 1, 1},
   {&__pyx_n_s_Nref, __pyx_k_Nref, sizeof(__pyx_k_Nref), 0, 0, 1, 1},
@@ -35630,13 +35635,9 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_kp_s_Out_of_bounds_on_buffer_access_a, __pyx_k_Out_of_bounds_on_buffer_access_a, sizeof(__pyx_k_Out_of_bounds_on_buffer_access_a), 0, 0, 1, 0},
   {&__pyx_n_s_PickleError, __pyx_k_PickleError, sizeof(__pyx_k_PickleError), 0, 0, 1, 1},
   {&__pyx_n_s_RuntimeError, __pyx_k_RuntimeError, sizeof(__pyx_k_RuntimeError), 0, 0, 1, 1},
-  {&__pyx_n_s_SpatialData___reduce_cython, __pyx_k_SpatialData___reduce_cython, sizeof(__pyx_k_SpatialData___reduce_cython), 0, 0, 1, 1},
-  {&__pyx_n_s_SpatialData___setstate_cython, __pyx_k_SpatialData___setstate_cython, sizeof(__pyx_k_SpatialData___setstate_cython), 0, 0, 1, 1},
-  {&__pyx_n_s_SpatialData_query, __pyx_k_SpatialData_query, sizeof(__pyx_k_SpatialData_query), 0, 0, 1, 1},
-  {&__pyx_n_s_SpatialData_queryBall, __pyx_k_SpatialData_queryBall, sizeof(__pyx_k_SpatialData_queryBall), 0, 0, 1, 1},
   {&__pyx_n_s_StopIteration, __pyx_k_StopIteration, sizeof(__pyx_k_StopIteration), 0, 0, 1, 1},
   {&__pyx_kp_b_T, __pyx_k_T, sizeof(__pyx_k_T), 0, 0, 0, 0},
-  {&__pyx_kp_s_The_SpatialData_class_is_abstrac, __pyx_k_The_SpatialData_class_is_abstrac, sizeof(__pyx_k_The_SpatialData_class_is_abstrac), 0, 0, 1, 0},
+  {&__pyx_kp_s_The_NeighborQuery_class_is_abstr, __pyx_k_The_NeighborQuery_class_is_abstr, sizeof(__pyx_k_The_NeighborQuery_class_is_abstr), 0, 0, 1, 0},
   {&__pyx_kp_s_The_computeCellList_function_is, __pyx_k_The_computeCellList_function_is, sizeof(__pyx_k_The_computeCellList_function_is), 0, 0, 1, 0},
   {&__pyx_kp_s_The_getBox_function_is_deprecate, __pyx_k_The_getBox_function_is_deprecate, sizeof(__pyx_k_The_getBox_function_is_deprecate), 0, 0, 1, 0},
   {&__pyx_kp_s_The_getNref_function_is_deprecat, __pyx_k_The_getNref_function_is_deprecat, sizeof(__pyx_k_The_getNref_function_is_deprecat), 0, 0, 1, 0},
@@ -35898,17 +35899,17 @@ static int __Pyx_InitCachedConstants(void) {
 
   /* "freud/locality.pyx":65
  *     def __cinit__(self):
- *         if type(self) is SpatialData:
+ *         if type(self) is NeighborQuery:
  *             raise RuntimeError(             # <<<<<<<<<<<<<<
- *                 "The SpatialData class is abstract, and should not be "
+ *                 "The NeighborQuery class is abstract, and should not be "
  *                 "directly instantiated"
  */
-  __pyx_tuple_ = PyTuple_Pack(1, __pyx_kp_s_The_SpatialData_class_is_abstrac); if (unlikely(!__pyx_tuple_)) __PYX_ERR(0, 65, __pyx_L1_error)
+  __pyx_tuple_ = PyTuple_Pack(1, __pyx_kp_s_The_NeighborQuery_class_is_abstr); if (unlikely(!__pyx_tuple_)) __PYX_ERR(0, 65, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple_);
   __Pyx_GIVEREF(__pyx_tuple_);
 
   /* "freud/locality.pyx":99
- *         # Can't use this function with old-style SpatialData objects
+ *         # Can't use this function with old-style NeighborQuery objects
  *         if not self.queryable:
  *             raise RuntimeError("You cannot use the query method unless this "             # <<<<<<<<<<<<<<
  *                                "object was originally constructed with "
@@ -37242,14 +37243,14 @@ static int __Pyx_modinit_type_init_code(void) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__Pyx_modinit_type_init_code", 0);
   /*--- Type init code ---*/
-  if (PyType_Ready(&__pyx_type_5freud_8locality_SpatialData) < 0) __PYX_ERR(0, 32, __pyx_L1_error)
-  __pyx_type_5freud_8locality_SpatialData.tp_print = 0;
-  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_5freud_8locality_SpatialData.tp_dictoffset && __pyx_type_5freud_8locality_SpatialData.tp_getattro == PyObject_GenericGetAttr)) {
-    __pyx_type_5freud_8locality_SpatialData.tp_getattro = __Pyx_PyObject_GenericGetAttr;
+  if (PyType_Ready(&__pyx_type_5freud_8locality_NeighborQuery) < 0) __PYX_ERR(0, 32, __pyx_L1_error)
+  __pyx_type_5freud_8locality_NeighborQuery.tp_print = 0;
+  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_5freud_8locality_NeighborQuery.tp_dictoffset && __pyx_type_5freud_8locality_NeighborQuery.tp_getattro == PyObject_GenericGetAttr)) {
+    __pyx_type_5freud_8locality_NeighborQuery.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
-  if (PyObject_SetAttrString(__pyx_m, "SpatialData", (PyObject *)&__pyx_type_5freud_8locality_SpatialData) < 0) __PYX_ERR(0, 32, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_5freud_8locality_SpatialData) < 0) __PYX_ERR(0, 32, __pyx_L1_error)
-  __pyx_ptype_5freud_8locality_SpatialData = &__pyx_type_5freud_8locality_SpatialData;
+  if (PyObject_SetAttrString(__pyx_m, "NeighborQuery", (PyObject *)&__pyx_type_5freud_8locality_NeighborQuery) < 0) __PYX_ERR(0, 32, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_5freud_8locality_NeighborQuery) < 0) __PYX_ERR(0, 32, __pyx_L1_error)
+  __pyx_ptype_5freud_8locality_NeighborQuery = &__pyx_type_5freud_8locality_NeighborQuery;
   __pyx_vtabptr_5freud_8locality_NeighborList = &__pyx_vtable_5freud_8locality_NeighborList;
   __pyx_vtable_5freud_8locality_NeighborList.refer_to = (PyObject *(*)(struct __pyx_obj_5freud_8locality_NeighborList *, freud::locality::NeighborList *))__pyx_f_5freud_8locality_12NeighborList_refer_to;
   __pyx_vtable_5freud_8locality_NeighborList.get_ptr = (freud::locality::NeighborList *(*)(struct __pyx_obj_5freud_8locality_NeighborList *))__pyx_f_5freud_8locality_12NeighborList_get_ptr;
@@ -37284,7 +37285,7 @@ static int __Pyx_modinit_type_init_code(void) {
   if (PyObject_SetAttrString(__pyx_m, "IteratorLinkCell", (PyObject *)&__pyx_type_5freud_8locality_IteratorLinkCell) < 0) __PYX_ERR(0, 707, __pyx_L1_error)
   if (__Pyx_setup_reduce((PyObject*)&__pyx_type_5freud_8locality_IteratorLinkCell) < 0) __PYX_ERR(0, 707, __pyx_L1_error)
   __pyx_ptype_5freud_8locality_IteratorLinkCell = &__pyx_type_5freud_8locality_IteratorLinkCell;
-  __pyx_type_5freud_8locality_LinkCell.tp_base = __pyx_ptype_5freud_8locality_SpatialData;
+  __pyx_type_5freud_8locality_LinkCell.tp_base = __pyx_ptype_5freud_8locality_NeighborQuery;
   if (PyType_Ready(&__pyx_type_5freud_8locality_LinkCell) < 0) __PYX_ERR(0, 748, __pyx_L1_error)
   __pyx_type_5freud_8locality_LinkCell.tp_print = 0;
   if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_5freud_8locality_LinkCell.tp_dictoffset && __pyx_type_5freud_8locality_LinkCell.tp_getattro == PyObject_GenericGetAttr)) {
@@ -37301,7 +37302,7 @@ static int __Pyx_modinit_type_init_code(void) {
   if (PyObject_SetAttrString(__pyx_m, "NearestNeighbors", (PyObject *)&__pyx_type_5freud_8locality_NearestNeighbors) < 0) __PYX_ERR(0, 963, __pyx_L1_error)
   if (__Pyx_setup_reduce((PyObject*)&__pyx_type_5freud_8locality_NearestNeighbors) < 0) __PYX_ERR(0, 963, __pyx_L1_error)
   __pyx_ptype_5freud_8locality_NearestNeighbors = &__pyx_type_5freud_8locality_NearestNeighbors;
-  __pyx_type_5freud_8locality_AABBQuery.tp_base = __pyx_ptype_5freud_8locality_SpatialData;
+  __pyx_type_5freud_8locality_AABBQuery.tp_base = __pyx_ptype_5freud_8locality_NeighborQuery;
   if (PyType_Ready(&__pyx_type_5freud_8locality_AABBQuery) < 0) __PYX_ERR(0, 616, __pyx_L1_error)
   __pyx_type_5freud_8locality_AABBQuery.tp_print = 0;
   if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_5freud_8locality_AABBQuery.tp_dictoffset && __pyx_type_5freud_8locality_AABBQuery.tp_getattro == PyObject_GenericGetAttr)) {
@@ -37670,11 +37671,11 @@ if (!__Pyx_RefNanny) {
  *         R"""Query the tree for nearest neighbors of the provided point.
  * 
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_8locality_11SpatialData_5query, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_SpatialData_query, NULL, __pyx_n_s_freud_locality, __pyx_d, ((PyObject *)__pyx_codeobj__74)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 81, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_8locality_13NeighborQuery_5query, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_NeighborQuery_query, NULL, __pyx_n_s_freud_locality, __pyx_d, ((PyObject *)__pyx_codeobj__74)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 81, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_8locality_SpatialData->tp_dict, __pyx_n_s_query, __pyx_t_2) < 0) __PYX_ERR(0, 81, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_8locality_NeighborQuery->tp_dict, __pyx_n_s_query, __pyx_t_2) < 0) __PYX_ERR(0, 81, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  PyType_Modified(__pyx_ptype_5freud_8locality_SpatialData);
+  PyType_Modified(__pyx_ptype_5freud_8locality_NeighborQuery);
 
   /* "freud/locality.pyx":131
  *         return ret
@@ -37683,18 +37684,18 @@ if (!__Pyx_RefNanny) {
  *         R"""Query the tree for all points within a distance r of the provided point(s).
  * 
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_8locality_11SpatialData_7queryBall, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_SpatialData_queryBall, NULL, __pyx_n_s_freud_locality, __pyx_d, ((PyObject *)__pyx_codeobj__76)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 131, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_8locality_13NeighborQuery_7queryBall, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_NeighborQuery_queryBall, NULL, __pyx_n_s_freud_locality, __pyx_d, ((PyObject *)__pyx_codeobj__76)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 131, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_8locality_SpatialData->tp_dict, __pyx_n_s_queryBall, __pyx_t_2) < 0) __PYX_ERR(0, 131, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_8locality_NeighborQuery->tp_dict, __pyx_n_s_queryBall, __pyx_t_2) < 0) __PYX_ERR(0, 131, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  PyType_Modified(__pyx_ptype_5freud_8locality_SpatialData);
+  PyType_Modified(__pyx_ptype_5freud_8locality_NeighborQuery);
 
   /* "(tree fragment)":1
  * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
  *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
  * def __setstate_cython__(self, __pyx_state):
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_8locality_11SpatialData_9__reduce_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_SpatialData___reduce_cython, NULL, __pyx_n_s_freud_locality, __pyx_d, ((PyObject *)__pyx_codeobj__78)); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_8locality_13NeighborQuery_9__reduce_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_NeighborQuery___reduce_cython, NULL, __pyx_n_s_freud_locality, __pyx_d, ((PyObject *)__pyx_codeobj__78)); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_reduce_cython, __pyx_t_2) < 0) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -37705,7 +37706,7 @@ if (!__Pyx_RefNanny) {
  * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
  *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
  */
-  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_8locality_11SpatialData_11__setstate_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_SpatialData___setstate_cython, NULL, __pyx_n_s_freud_locality, __pyx_d, ((PyObject *)__pyx_codeobj__80)); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 3, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_8locality_13NeighborQuery_11__setstate_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_NeighborQuery___setstate_cython, NULL, __pyx_n_s_freud_locality, __pyx_d, ((PyObject *)__pyx_codeobj__80)); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 3, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_setstate_cython, __pyx_t_2) < 0) __PYX_ERR(1, 3, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;

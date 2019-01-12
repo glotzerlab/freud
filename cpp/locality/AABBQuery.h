@@ -6,7 +6,7 @@
 
 #include <vector>
 
-#include "SpatialData.h"
+#include "NeighborQuery.h"
 #include "Box.h"
 #include "NeighborList.h"
 #include "Index1D.h"
@@ -27,7 +27,7 @@
 
 namespace freud { namespace locality {
 
-class AABBQuery : public SpatialData
+class AABBQuery : public NeighborQuery
     {
     public:
         //! Constructs the compute
@@ -47,17 +47,17 @@ class AABBQuery : public SpatialData
         //! Given a set of points, find the k elements of this data structure
         //  that are the nearest neighbors for each point. Note that due to the
         //  different signature, this is not directly overriding the original
-        //  method in SpatialData, so we have to explicitly invalidate calling
+        //  method in NeighborQuery, so we have to explicitly invalidate calling
         //  with that signature.
-        virtual std::shared_ptr<SpatialDataIterator> query(const vec3<float> point, unsigned int k) const
+        virtual std::shared_ptr<NeighborQueryIterator> query(const vec3<float> point, unsigned int k) const
             {
             throw std::runtime_error("AABBQuery k-nearest-neighbor queries must use the function signature that provides rmax and scale guesses.");
             }
-        std::shared_ptr<SpatialDataIterator> query(const vec3<float> point, unsigned int k, float r, float scale) const;
+        std::shared_ptr<NeighborQueryIterator> query(const vec3<float> point, unsigned int k, float r, float scale) const;
 
         //! Given a set of points, find all elements of this data structure
         //  that are within a certain distance r.
-        virtual std::shared_ptr<SpatialDataIterator> queryBall(const vec3<float> point, float r) const;
+        virtual std::shared_ptr<NeighborQueryIterator> queryBall(const vec3<float> point, float r) const;
 
         AABBTree m_aabb_tree; //!< AABB tree of points
 
@@ -84,11 +84,11 @@ class AABBQuery : public SpatialData
 /*! placeholder
 
 */
-class AABBIterator : public SpatialDataIterator
+class AABBIterator : public NeighborQueryIterator
     {
     public:
         //! Constructor
-        AABBIterator(const AABBQuery* spatial_data, const vec3<float> point) : SpatialDataIterator(spatial_data, point), m_aabb_data(spatial_data)
+        AABBIterator(const AABBQuery* spatial_data, const vec3<float> point) : NeighborQueryIterator(spatial_data, point), m_aabb_data(spatial_data)
         { }
 
         //! Empty Destructor

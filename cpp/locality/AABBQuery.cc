@@ -12,7 +12,7 @@
 namespace freud { namespace locality {
 
 AABBQuery::AABBQuery(const box::Box &box, const vec3<float> *ref_points, unsigned int Nref):
-    SpatialData(box, ref_points, Nref)
+    NeighborQuery(box, ref_points, Nref)
     {
     // Allocate memory and create image vectors
     setupTree(m_Nref);
@@ -25,14 +25,14 @@ AABBQuery::~AABBQuery()
     {
     }
 
-std::shared_ptr<SpatialDataIterator> AABBQuery::query(const vec3<float> point, unsigned int k, float r, float scale) const
+std::shared_ptr<NeighborQueryIterator> AABBQuery::query(const vec3<float> point, unsigned int k, float r, float scale) const
     {
     return std::make_shared<AABBQueryIterator>(this, point, k, r, scale);
     }
 
 //! Given a set of points, find all elements of this data structure
 //  that are within a certain distance r.
-std::shared_ptr<SpatialDataIterator> AABBQuery::queryBall(const vec3<float> point, float r) const
+std::shared_ptr<NeighborQueryIterator> AABBQuery::queryBall(const vec3<float> point, float r) const
     {
     return std::make_shared<AABBQueryBallIterator>(this, point, r);
     }
@@ -184,7 +184,7 @@ NeighborPoint AABBQueryBallIterator::next()
         } // end loop over images
 
     m_finished = true;
-    return SpatialData::ITERATOR_TERMINATOR;
+    return NeighborQuery::ITERATOR_TERMINATOR;
     }
 
 NeighborPoint AABBQueryIterator::next()
@@ -194,7 +194,7 @@ NeighborPoint AABBQueryIterator::next()
 
     if (m_finished)
         {
-        return SpatialData::ITERATOR_TERMINATOR;
+        return NeighborQuery::ITERATOR_TERMINATOR;
         }
 
     //TODO: Make sure to address case where there are NO NEIGHBORS (e.g. empty system). Currently I think that case will result in an infinite loop.
@@ -207,7 +207,7 @@ NeighborPoint AABBQueryIterator::next()
             {
             // Perform a ball query to get neighbors.
             m_current_neighbors.clear();
-            std::shared_ptr<SpatialDataIterator> ball_it = m_spatial_data->queryBall(m_point, m_r);
+            std::shared_ptr<NeighborQueryIterator> ball_it = m_spatial_data->queryBall(m_point, m_r);
             while(!ball_it->end())
                 {
                 m_current_neighbors.emplace_back(ball_it->next());
