@@ -53,7 +53,7 @@ cdef class NeighborQueryResult:
                 while True:
                     npoint = dereference(self.iterator).next()
                     if npoint == ITERATOR_TERMINATOR:
-                        raise StopIteration
+                        break
                     elif self.exclude_ii and npoint.id == i:
                         continue
                     yield (i, npoint.id, npoint.distance)
@@ -69,6 +69,8 @@ cdef class NeighborQueryResult:
                     elif self.exclude_ii and npoint.id == i:
                         continue
                     yield (i, npoint.id, npoint.distance)
+
+        raise StopIteration
 
     def toList(self):
         """Convert query result to a list."""
@@ -112,10 +114,12 @@ cdef class AABBQueryResult(NeighborQueryResult):
             while True:
                 npoint = dereference(self.iterator).next()
                 if npoint == ITERATOR_TERMINATOR:
-                    raise StopIteration
+                    break
                 elif self.exclude_ii and npoint.id == i:
                     continue
                 yield (i, npoint.id, npoint.distance)
+
+        raise StopIteration
 
 
 cdef class NeighborQuery:
