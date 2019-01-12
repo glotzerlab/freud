@@ -363,7 +363,7 @@ std::shared_ptr<SpatialDataIterator> LinkCell::query(const vec3<float> point, un
 
 //! Given a set of points, find all elements of this data structure
 //  that are within a certain distance r.
-std::shared_ptr<SpatialDataIterator> LinkCell::query_ball(const vec3<float> point, float r) const
+std::shared_ptr<SpatialDataIterator> LinkCell::queryBall(const vec3<float> point, float r) const
     {
     return std::make_shared<LinkCellQueryBallIterator>(this, point, r);
     }

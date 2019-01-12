@@ -44,13 +44,13 @@
         "name": "freud.voronoi",
         "sources": [
             "freud/voronoi.pyx",
-            "cpp/locality/AABBQuery.cc",
-            "cpp/util/HOOMDMatrix.cc",
-            "cpp/locality/LinkCell.cc",
-            "cpp/locality/NeighborList.cc",
-            "cpp/box/Box.cc",
             "cpp/locality/SpatialData.cc",
-            "cpp/locality/NearestNeighbors.cc"
+            "cpp/locality/LinkCell.cc",
+            "cpp/locality/NearestNeighbors.cc",
+            "cpp/util/HOOMDMatrix.cc",
+            "cpp/box/Box.cc",
+            "cpp/locality/AABBQuery.cc",
+            "cpp/locality/NeighborList.cc"
         ]
     },
     "module_name": "freud.voronoi"
@@ -645,7 +645,6 @@ static CYTHON_INLINE float __PYX_NAN() {
 #include "Box.h"
 #include "ParticleBuffer.h"
 #include "Index1D.h"
-#include <utility>
 #include "SpatialData.h"
 #include "NeighborList.h"
 #include "LinkCell.h"
@@ -2365,10 +2364,6 @@ static PyObject *__pyx_memoryviewslice_assign_item_from_object(struct __pyx_memo
 /* Module declarations from 'freud._box' */
 
 /* Module declarations from 'freud.util._Index1D' */
-
-/* Module declarations from 'libcpp.utility' */
-
-/* Module declarations from 'libcpp.pair' */
 
 /* Module declarations from 'freud._locality' */
 

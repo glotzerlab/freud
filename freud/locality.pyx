@@ -121,7 +121,7 @@ cdef class SpatialData:
                 ret.append((i,) + (npoint.id, npoint.distance))
         return ret
 
-    def query_ball(self, points, float r, exclude_ii=False):
+    def queryBall(self, points, float r, exclude_ii=False):
         R"""Query the tree for all points within a distance r of the provided point(s).
 
         Args:
@@ -156,7 +156,7 @@ cdef class SpatialData:
         cdef unsigned int i
         for i in range(Np):
             l_cur_point = vec3[float](points[i, 0], points[i, 1], points[i, 2])
-            iterator = self.spdptr.query_ball(l_cur_point, r)
+            iterator = self.spdptr.queryBall(l_cur_point, r)
             while True:
                 npoint = dereference(iterator).next()
                 if npoint == ITERATOR_TERMINATOR:

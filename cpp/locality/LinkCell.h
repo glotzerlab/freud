@@ -447,7 +447,7 @@ class LinkCell : public SpatialData
 
         //! Given a set of points, find all elements of this data structure
         //  that are within a certain distance r.
-        virtual std::shared_ptr<SpatialDataIterator> query_ball(const vec3<float> points, float r) const;
+        virtual std::shared_ptr<SpatialDataIterator> queryBall(const vec3<float> points, float r) const;
 
     private:
 

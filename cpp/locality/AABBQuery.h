@@ -62,7 +62,7 @@ class AABBQuery : public SpatialData
 
         //! Given a set of points, find all elements of this data structure
         //  that are within a certain distance r.
-        virtual std::shared_ptr<SpatialDataIterator> query_ball(const vec3<float> point, float r) const;
+        virtual std::shared_ptr<SpatialDataIterator> queryBall(const vec3<float> point, float r) const;
 
         AABBTree m_aabb_tree; //!< AABB tree of points
 

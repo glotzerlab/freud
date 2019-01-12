@@ -57,7 +57,7 @@ class SpatialDataIterator;
  *  that define the set of points to search and the periodic system within these
  *  points can be found.
  *
- *  The primary interface to this class is through the query and query_ball
+ *  The primary interface to this class is through the query and queryBall
  *  methods, which support k-nearest neighbor queries and distance-based
  *  queries, respectively.
  */
@@ -84,7 +84,7 @@ class SpatialData
 
         //! Given a point, find all elements of this data structure
         //  that are within a certain distance r.
-        virtual std::shared_ptr<SpatialDataIterator> query_ball(const vec3<float> point, float r) const = 0;
+        virtual std::shared_ptr<SpatialDataIterator> queryBall(const vec3<float> point, float r) const = 0;
 
         //! Get the simulation box
         const box::Box& getBox() const

@@ -24,22 +24,22 @@ class TestSpatialDataAABB(unittest.TestCase):
         aq = locality.AABBQuery(fbox, points)
 
         # particle 0 has 3 bonds
-        npt.assert_equal(len(aq.query_ball(points[[0]], rcut)), 3)
+        npt.assert_equal(len(aq.queryBall(points[[0]], rcut)), 3)
         # particle 1 has 4 bonds
-        npt.assert_equal(len(aq.query_ball(points[[1]], rcut)), 4)
+        npt.assert_equal(len(aq.queryBall(points[[1]], rcut)), 4)
         # particle 2 has 3 bonds
-        npt.assert_equal(len(aq.query_ball(points[[2]], rcut)), 3)
+        npt.assert_equal(len(aq.queryBall(points[[2]], rcut)), 3)
         # particle 3 has 4 bonds
-        npt.assert_equal(len(aq.query_ball(points[[3]], rcut)), 4)
+        npt.assert_equal(len(aq.queryBall(points[[3]], rcut)), 4)
 
         # When excluding, everything has one less neighbor.
-        npt.assert_equal(len(aq.query_ball(points, rcut, exclude_ii=True)), 10)
+        npt.assert_equal(len(aq.queryBall(points, rcut, exclude_ii=True)), 10)
 
         # now move particle 0 out of range...
         points[0] = 5
 
         # particle 0 has no bonds now
-        npt.assert_equal(len(aq.query_ball(points[[0]], rcut)), 0)
+        npt.assert_equal(len(aq.queryBall(points[[0]], rcut)), 0)
 
     def test_query(self):
         L = 10  # Box Dimensions
@@ -79,7 +79,7 @@ class TestSpatialDataAABB(unittest.TestCase):
         np.random.seed(0)
         points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
         aq = locality.AABBQuery(fbox, points)
-        result = aq.query_ball(points, rcut)
+        result = aq.queryBall(points, rcut)
 
         ij = {(x[0], x[1]) for x in result}
         ji = set((j, i) for (i, j) in ij)
@@ -100,8 +100,8 @@ class TestSpatialDataAABB(unittest.TestCase):
         aq = locality.AABBQuery(fbox, points)
         aq2 = locality.AABBQuery(fbox, points2)
 
-        result = aq.query_ball(points2, rcut)
-        result2 = aq2.query_ball(points, rcut)
+        result = aq.queryBall(points2, rcut)
+        result2 = aq2.queryBall(points, rcut)
 
         ij = {(x[0], x[1]) for x in result}
         ij2 = {(x[1], x[0]) for x in result2}
@@ -116,11 +116,11 @@ class TestSpatialDataAABB(unittest.TestCase):
         points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
         points2 = points[:N//6]
         aq = locality.AABBQuery(fbox, points)
-        result = aq.query_ball(points2, rcut)
+        result = aq.queryBall(points2, rcut)
 
         ij1 = {(x[0], x[1]) for x in result}
 
-        result2 = aq.query_ball(points2, rcut, exclude_ii=True)
+        result2 = aq.queryBall(points2, rcut, exclude_ii=True)
 
         ij2 = {(x[0], x[1]) for x in result2}
 
@@ -150,7 +150,7 @@ class TestSpatialDataAABB(unittest.TestCase):
             exhaustive_counts_list = [exhaustive_counts[j] for j in range(N)]
 
             aq = locality.AABBQuery(fbox, points)
-            result = aq.query_ball(points, rcut, exclude_ii=True)
+            result = aq.queryBall(points, rcut, exclude_ii=True)
             ijs = {(x[1], x[0]) for x in result}
             counts = Counter([x[1] for x in result])
             counts_list = [counts[j] for j in range(N)]
@@ -191,7 +191,7 @@ class TestSpatialDataAABB(unittest.TestCase):
             exhaustive_counts_list = [exhaustive_counts[j] for j in range(N)]
 
             aq = locality.AABBQuery(fbox, points)
-            result = aq.query_ball(points2, rcut)
+            result = aq.queryBall(points2, rcut)
             ijs = {(x[1], x[0]) for x in result}
             counts = Counter([x[1] for x in result])
             counts_list = [counts[j] for j in range(N)]
@@ -235,7 +235,7 @@ class TestSpatialDataAABB(unittest.TestCase):
 
         # rcut is slightly smaller than the distance for any particle
         aq = locality.AABBQuery(fbox, positions)
-        result = aq.query_ball(positions, 0.99, exclude_ii=True)
+        result = aq.queryBall(positions, 0.99, exclude_ii=True)
 
         self.assertEqual(len(result), 0)
 
@@ -256,28 +256,28 @@ class TestSpatialDataLinkCell(unittest.TestCase):
         lc = locality.LinkCell(fbox, rcut, points)
 
         # particle 0 has 2 bonds
-        npt.assert_equal(len(lc.query_ball(points[[0]], rcut)), 3)
+        npt.assert_equal(len(lc.queryBall(points[[0]], rcut)), 3)
         # particle 1 has 3 bonds
-        npt.assert_equal(len(lc.query_ball(points[[1]], rcut)), 4)
+        npt.assert_equal(len(lc.queryBall(points[[1]], rcut)), 4)
         # particle 2 has 2 bonds
-        npt.assert_equal(len(lc.query_ball(points[[2]], rcut)), 3)
+        npt.assert_equal(len(lc.queryBall(points[[2]], rcut)), 3)
         # particle 3 has 3 bonds
-        npt.assert_equal(len(lc.query_ball(points[[3]], rcut)), 4)
+        npt.assert_equal(len(lc.queryBall(points[[3]], rcut)), 4)
 
         # When excluding, everything has one less neighbor.
-        npt.assert_equal(len(lc.query_ball(points, rcut, exclude_ii=True)), 10)
+        npt.assert_equal(len(lc.queryBall(points, rcut, exclude_ii=True)), 10)
 
         # now move particle 0 out of range...
         points[0] = 5
 
         # particle 0 has 0 bonds
-        npt.assert_equal(len(lc.query_ball(points[[0]], rcut)), 0)
+        npt.assert_equal(len(lc.queryBall(points[[0]], rcut)), 0)
         # particle 1 has 2 bonds
-        npt.assert_equal(len(lc.query_ball(points[[1]], rcut)), 4)
+        npt.assert_equal(len(lc.queryBall(points[[1]], rcut)), 4)
         # particle 2 has 2 bonds
-        npt.assert_equal(len(lc.query_ball(points[[2]], rcut)), 3)
+        npt.assert_equal(len(lc.queryBall(points[[2]], rcut)), 3)
         # particle 3 has 2 bonds
-        npt.assert_equal(len(lc.query_ball(points[[3]], rcut)), 4)
+        npt.assert_equal(len(lc.queryBall(points[[3]], rcut)), 4)
 
     def test_reciprocal(self):
         """Test that, for a random set of points, for each (i, j) neighbor
@@ -288,7 +288,7 @@ class TestSpatialDataLinkCell(unittest.TestCase):
         np.random.seed(0)
         points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
         lc = locality.LinkCell(fbox, rcut, points)
-        result = lc.query_ball(points, rcut)
+        result = lc.queryBall(points, rcut)
 
         ij = {(x[0], x[1]) for x in result}
         ji = set((j, i) for (i, j) in ij)
@@ -309,8 +309,8 @@ class TestSpatialDataLinkCell(unittest.TestCase):
         lc = locality.LinkCell(fbox, rcut, points)
         lc2 = locality.LinkCell(fbox, rcut, points2)
 
-        result = lc.query_ball(points2, rcut)
-        result2 = lc2.query_ball(points, rcut)
+        result = lc.queryBall(points2, rcut)
+        result2 = lc2.queryBall(points, rcut)
 
         ij = {(x[0], x[1]) for x in result}
         ij2 = {(x[1], x[0]) for x in result2}
@@ -325,11 +325,11 @@ class TestSpatialDataLinkCell(unittest.TestCase):
         points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
         points2 = points[:N//6]
         lc = locality.LinkCell(fbox, rcut, points)
-        result = lc.query_ball(points2, rcut)
+        result = lc.queryBall(points2, rcut)
 
         ij1 = {(x[0], x[1]) for x in result}
 
-        result2 = lc.query_ball(points2, rcut, exclude_ii=True)
+        result2 = lc.queryBall(points2, rcut, exclude_ii=True)
 
         ij2 = {(x[0], x[1]) for x in result2}
 
@@ -359,7 +359,7 @@ class TestSpatialDataLinkCell(unittest.TestCase):
             exhaustive_counts_list = [exhaustive_counts[j] for j in range(N)]
 
             lc = locality.LinkCell(fbox, rcut, points)
-            result = lc.query_ball(points, rcut, exclude_ii=True)
+            result = lc.queryBall(points, rcut, exclude_ii=True)
             ijs = {(x[1], x[0]) for x in result}
             counts = Counter([x[1] for x in result])
             counts_list = [counts[j] for j in range(N)]
@@ -400,7 +400,7 @@ class TestSpatialDataLinkCell(unittest.TestCase):
             exhaustive_counts_list = [exhaustive_counts[j] for j in range(N)]
 
             lc = locality.LinkCell(fbox, rcut, points)
-            result = lc.query_ball(points2, rcut)
+            result = lc.queryBall(points2, rcut)
             ijs = {(x[1], x[0]) for x in result}
             counts = Counter([x[1] for x in result])
             counts_list = [counts[j] for j in range(N)]
@@ -445,6 +445,6 @@ class TestSpatialDataLinkCell(unittest.TestCase):
 
         # rcut is slightly smaller than the distance for any particle
         lc = locality.LinkCell(fbox, rcut, positions)
-        result = lc.query_ball(positions, rcut, exclude_ii=True)
+        result = lc.queryBall(positions, rcut, exclude_ii=True)
 
         self.assertEqual(len(result), 0)

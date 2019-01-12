@@ -19,7 +19,7 @@ cdef extern from "SpatialData.h" namespace "freud::locality":
         SpatialData(const freud._box.Box &, const vec3[float]*, unsigned int)
         shared_ptr[SpatialDataIterator] query(
             const vec3[float], unsigned int) nogil except +
-        shared_ptr[SpatialDataIterator] query_ball(
+        shared_ptr[SpatialDataIterator] queryBall(
             const vec3[float], float) nogil except +
         const freud._box.Box & getBox() const
         const vector[float]* getRefPoints const

@@ -49,18 +49,18 @@
         "name": "freud.pmft",
         "sources": [
             "freud/pmft.pyx",
-            "cpp/pmft/PMFTXYZ.cc",
-            "cpp/locality/AABBQuery.cc",
-            "cpp/util/HOOMDMatrix.cc",
             "cpp/pmft/PMFT.cc",
             "cpp/pmft/PMFTXY2D.cc",
-            "cpp/pmft/PMFTXYT.cc",
-            "cpp/locality/LinkCell.cc",
-            "cpp/locality/NeighborList.cc",
-            "cpp/box/Box.cc",
             "cpp/locality/SpatialData.cc",
+            "cpp/locality/LinkCell.cc",
             "cpp/locality/NearestNeighbors.cc",
-            "cpp/pmft/PMFTR12.cc"
+            "cpp/util/HOOMDMatrix.cc",
+            "cpp/box/Box.cc",
+            "cpp/locality/AABBQuery.cc",
+            "cpp/locality/NeighborList.cc",
+            "cpp/pmft/PMFTXYT.cc",
+            "cpp/pmft/PMFTR12.cc",
+            "cpp/pmft/PMFTXYZ.cc"
         ]
     },
     "module_name": "freud.pmft"
@@ -655,7 +655,6 @@ static CYTHON_INLINE float __PYX_NAN() {
 #include "Box.h"
 #include "ParticleBuffer.h"
 #include "Index1D.h"
-#include <utility>
 #include "SpatialData.h"
 #include "NeighborList.h"
 #include "LinkCell.h"
@@ -2545,10 +2544,6 @@ static PyObject *__pyx_memoryviewslice_assign_item_from_object(struct __pyx_memo
 /* Module declarations from 'freud._box' */
 
 /* Module declarations from 'freud.util._Index1D' */
-
-/* Module declarations from 'libcpp.utility' */
-
-/* Module declarations from 'libcpp.pair' */
 
 /* Module declarations from 'freud._locality' */
 

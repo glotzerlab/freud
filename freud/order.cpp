@@ -56,22 +56,22 @@
         "name": "freud.order",
         "sources": [
             "freud/order.pyx",
-            "cpp/order/CubaticOrderParameter.cc",
-            "cpp/order/LocalWl.cc",
-            "cpp/locality/AABBQuery.cc",
-            "cpp/util/HOOMDMatrix.cc",
-            "cpp/order/SolLiq.cc",
-            "cpp/order/wigner3j.cc",
+            "cpp/locality/SpatialData.cc",
             "cpp/order/LocalQl.cc",
             "cpp/locality/LinkCell.cc",
-            "cpp/locality/NeighborList.cc",
-            "cpp/box/Box.cc",
-            "cpp/order/TransOrderParameter.cc",
-            "cpp/locality/SpatialData.cc",
             "cpp/locality/NearestNeighbors.cc",
-            "cpp/order/HexOrderParameter.cc",
+            "cpp/util/HOOMDMatrix.cc",
+            "cpp/box/Box.cc",
+            "cpp/locality/AABBQuery.cc",
+            "cpp/locality/NeighborList.cc",
+            "cpp/order/SolLiq.cc",
             "cpp/order/NematicOrderParameter.cc",
-            "cpp/cluster/Cluster.cc"
+            "cpp/order/wigner3j.cc",
+            "cpp/order/TransOrderParameter.cc",
+            "cpp/order/LocalWl.cc",
+            "cpp/order/HexOrderParameter.cc",
+            "cpp/cluster/Cluster.cc",
+            "cpp/order/CubaticOrderParameter.cc"
         ]
     },
     "module_name": "freud.order"
@@ -2745,8 +2745,6 @@ static PyObject *__pyx_memoryviewslice_assign_item_from_object(struct __pyx_memo
 /* Module declarations from 'freud._box' */
 
 /* Module declarations from 'freud.util._Index1D' */
-
-/* Module declarations from 'libcpp.pair' */
 
 /* Module declarations from 'freud._locality' */
 

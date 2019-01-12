@@ -37,7 +37,7 @@ std::shared_ptr<SpatialDataIterator> AABBQuery::query(const vec3<float> point, u
 
 //! Given a set of points, find all elements of this data structure
 //  that are within a certain distance r.
-std::shared_ptr<SpatialDataIterator> AABBQuery::query_ball(const vec3<float> point, float r) const
+std::shared_ptr<SpatialDataIterator> AABBQuery::queryBall(const vec3<float> point, float r) const
     {
     return std::make_shared<AABBQueryBallIterator>(this, point, r);
     }
@@ -420,7 +420,7 @@ NeighborPoint AABBQueryIterator::next()
             {
             // Perform a ball query to get neighbors.
             m_current_neighbors.clear();
-            std::shared_ptr<SpatialDataIterator> ball_it = m_spatial_data->query_ball(m_point, m_r);
+            std::shared_ptr<SpatialDataIterator> ball_it = m_spatial_data->queryBall(m_point, m_r);
             while(!ball_it->end())
                 {
                 m_current_neighbors.emplace_back(ball_it->next());
