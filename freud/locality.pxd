@@ -18,7 +18,9 @@ cdef class NeighborQueryResult:
     cdef str query_type
 
     @staticmethod
-    cdef inline NeighborQueryResult init(freud._locality.NeighborQuery * spdptr, float[:, ::1] points, cbool exclude_ii, float r=0, unsigned int k=0):
+    cdef inline NeighborQueryResult init(
+            freud._locality.NeighborQuery * spdptr, float[:, ::1] points,
+            cbool exclude_ii, float r=0, unsigned int k=0):
         # Internal API only
         assert r != 0 or k != 0
 
@@ -46,7 +48,9 @@ cdef class AABBQueryResult(NeighborQueryResult):
     cdef float scale
 
     @staticmethod
-    cdef inline AABBQueryResult init2(freud._locality.AABBQuery * aabbptr, float[:, ::1] points, cbool exclude_ii, unsigned int k, float r_guess, float scale):
+    cdef inline AABBQueryResult init2(
+            freud._locality.AABBQuery * aabbptr, float[:, ::1] points,
+            cbool exclude_ii, unsigned int k, float r_guess, float scale):
         # Internal API only
         assert k != 0
 

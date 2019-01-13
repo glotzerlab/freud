@@ -33,7 +33,8 @@ class TestNeighborQueryAABB(unittest.TestCase):
         npt.assert_equal(len(aq.queryBall(points[[3]], rcut).toList()), 4)
 
         # When excluding, everything has one less neighbor.
-        npt.assert_equal(len(aq.queryBall(points, rcut, exclude_ii=True).toList()), 10)
+        npt.assert_equal(
+            len(aq.queryBall(points, rcut, exclude_ii=True).toList()), 10)
 
         # now move particle 0 out of range...
         points[0] = 5
@@ -267,7 +268,8 @@ class TestNeighborQueryLinkCell(unittest.TestCase):
         npt.assert_equal(len(lc.queryBall(points[[3]], rcut).toList()), 4)
 
         # When excluding, everything has one less neighbor.
-        npt.assert_equal(len(lc.queryBall(points, rcut, exclude_ii=True).toList()), 10)
+        npt.assert_equal(
+            len(lc.queryBall(points, rcut, exclude_ii=True).toList()), 10)
 
         # now move particle 0 out of range...
         points[0] = 5

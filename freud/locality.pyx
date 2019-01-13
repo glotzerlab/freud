@@ -42,6 +42,7 @@ cdef class NeighborQueryResult:
 
     .. versionadded:: 0.12.0
     """
+
     def __iter__(self):
         cdef freud._locality.NeighborPoint npoint
         cdef vec3[float] l_cur_point
@@ -49,7 +50,8 @@ cdef class NeighborQueryResult:
 
         if self.query_type == 'nn':
             for i in range(self.Np):
-                l_cur_point = vec3[float](self.points[i, 0], self.points[i, 1], self.points[i, 2])
+                l_cur_point = vec3[float](
+                    self.points[i, 0], self.points[i, 1], self.points[i, 2])
                 self.iterator = self.spdptr.query(l_cur_point, self.k)
 
                 while True:
@@ -61,7 +63,8 @@ cdef class NeighborQueryResult:
                     yield (i, npoint.id, npoint.distance)
         else:
             for i in range(self.Np):
-                l_cur_point = vec3[float](self.points[i, 0], self.points[i, 1], self.points[i, 2])
+                l_cur_point = vec3[float](
+                    self.points[i, 0], self.points[i, 1], self.points[i, 2])
                 self.iterator = self.spdptr.queryBall(l_cur_point, self.r)
 
                 while True:
@@ -103,13 +106,15 @@ cdef class AABBQueryResult(NeighborQueryResult):
 
     .. versionadded:: 0.12.0
     """
+
     def __iter__(self):
         cdef freud._locality.NeighborPoint npoint
         cdef vec3[float] l_cur_point
         cdef unsigned int i
 
         for i in range(self.Np):
-            l_cur_point = vec3[float](self.points[i, 0], self.points[i, 1], self.points[i, 2])
+            l_cur_point = vec3[float](
+                self.points[i, 0], self.points[i, 1], self.points[i, 2])
             self.iterator = self.aabbptr.query(
                 l_cur_point, self.k, self.r_guess, self.scale)
 
@@ -204,7 +209,8 @@ cdef class NeighborQuery:
         if exclude_ii:
             k += 1
 
-        return NeighborQueryResult.init(self.spdptr, points, exclude_ii, r=0, k=k)
+        return NeighborQueryResult.init(
+            self.spdptr, points, exclude_ii, r=0, k=k)
 
     def queryBall(self, points, float r, cbool exclude_ii=False):
         R"""Query the tree for all points within a distance r of the provided point(s).
@@ -233,7 +239,8 @@ cdef class NeighborQuery:
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        return NeighborQueryResult.init(self.spdptr, points, exclude_ii, r=r, k=0)
+        return NeighborQueryResult.init(
+            self.spdptr, points, exclude_ii, r=r, k=0)
 
 
 cdef class NeighborList:
@@ -745,7 +752,8 @@ cdef class AABBQuery(NeighborQuery):
         if r == 0:
             r = 0.1*min(self.box.L)
 
-        return AABBQueryResult.init2(self.thisptr, points, exclude_ii, k, r, scale)
+        return AABBQueryResult.init2(
+            self.thisptr, points, exclude_ii, k, r, scale)
 
 
 cdef class IteratorLinkCell:
