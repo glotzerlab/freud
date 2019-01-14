@@ -52,14 +52,10 @@ void LinkCell::updateInternal(const box::Box& box, float cell_width)
         // will only check if the box is not null
         if (box != box::Box())
             {
-            vec3<float> L = box.getNearestPlaneDistance();
-            bool too_wide =  cell_width > L.x/2.0 || cell_width > L.y/2.0;
-
-            if (!box.is2D())
-                {
-                too_wide |=  cell_width > L.z/2.0;
-                }
-            if (too_wide)
+            vec3<float> nearest_plane_distance = box.getNearestPlaneDistance();
+            if ((cell_width * 2.0 > nearest_plane_distance.x) ||
+                (cell_width * 2.0 > nearest_plane_distance.y) ||
+                (!box.is2D() && cell_width * 2.0 > nearest_plane_distance.z))
                 {
                 throw runtime_error("Cannot generate a cell list where cell_width is larger than half the box.");
                 }
