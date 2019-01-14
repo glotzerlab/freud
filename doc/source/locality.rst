@@ -25,7 +25,7 @@ Neighbor List
    :members:
 
 Neighbor Querying
-=============
+=================
 
 .. autoclass:: freud.locality.NeighborQuery
    :members:
@@ -34,7 +34,7 @@ AABB Trees
 ==========
 
 .. autoclass:: freud.locality.AABBQuery()
-   :members: compute
+   :members:
 
 Cell Lists
 ==========

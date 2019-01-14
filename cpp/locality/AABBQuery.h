@@ -72,12 +72,11 @@ class AABBQuery : public NeighborQuery
         void buildTree(const vec3<float> *ref_points, unsigned int N);
 
         unsigned int m_Ntotal;
-        std::vector<AABB> m_aabbs; //!< Flat array of AABBs of all types
+        std::vector<AABB> m_aabbs;               //!< Flat array of AABBs of all types
         std::vector< vec3<float> > m_image_list; //!< List of translation vectors
-        unsigned int m_n_images; //!< The number of image vectors to check
-
-        box::Box m_box; //!< Simulation box where the particles belong
-        NeighborList m_neighbor_list; //!< Stored neighbor list
+        unsigned int m_n_images;                 //!< The number of image vectors to check
+        box::Box m_box;                          //!< Simulation box where the particles belong
+        NeighborList m_neighbor_list;            //!< Stored neighbor list
     };
 
 //! Parent class of AABB iterators that knows how to traverse general AABB tree structures
@@ -88,8 +87,9 @@ class AABBIterator : public NeighborQueryIterator
     {
     public:
         //! Constructor
-        AABBIterator(const AABBQuery* spatial_data, const vec3<float> point) : NeighborQueryIterator(spatial_data, point), m_aabb_data(spatial_data)
-        { }
+        AABBIterator(const AABBQuery* spatial_data, const vec3<float> point) :
+            NeighborQueryIterator(spatial_data, point), m_aabb_data(spatial_data)
+            {}
 
         //! Empty Destructor
         virtual ~AABBIterator() {}
@@ -98,7 +98,7 @@ class AABBIterator : public NeighborQueryIterator
         void updateImageVectors(float rmax);
 
     protected:
-        const AABBQuery *m_aabb_data; //!< Link to the AABBQuery object
+        const AABBQuery *m_aabb_data;            //!< Link to the AABBQuery object
         std::vector< vec3<float> > m_image_list; //!< List of translation vectors
         unsigned int m_n_images;                 //!< The number of image vectors to check
     };
@@ -114,8 +114,9 @@ class AABBQueryIterator : public AABBIterator
         AABBQueryIterator(const AABBQuery* spatial_data,
                 const vec3<float> point, unsigned int k, float r, float scale) :
             AABBIterator(spatial_data, point), m_k(k), m_r(r), m_scale(scale), m_current_neighbors()
-        {
-        updateImageVectors(0); }
+            {
+            updateImageVectors(0);
+            }
 
         //! Empty Destructor
         virtual ~AABBQueryIterator() {}
@@ -124,10 +125,9 @@ class AABBQueryIterator : public AABBIterator
         virtual NeighborPoint next();
 
     protected:
-        unsigned int m_k;  //!< Number of nearest neighbors to find.
-        float m_r;  //!< Current ball cutoff distance. Used as a guess.
-        float m_scale;  //!< The amount to scale m_r by when the current ball is too small.
-
+        unsigned int m_k; //!< Number of nearest neighbors to find.
+        float m_r;        //!< Current ball cutoff distance. Used as a guess.
+        float m_scale;    //!< The amount to scale m_r by when the current ball is too small.
         std::vector<NeighborPoint> m_current_neighbors; //!< The current set of found neighbors.
     };
 
@@ -139,12 +139,11 @@ class AABBQueryBallIterator : public AABBIterator
     {
     public:
         //! Constructor
-        AABBQueryBallIterator(const AABBQuery* spatial_data,
-                const vec3<float> point, float r) :
+        AABBQueryBallIterator(const AABBQuery* spatial_data, const vec3<float> point, float r) :
             AABBIterator(spatial_data, point), m_r(r), cur_image(0), cur_node_idx(0), cur_p(0)
-        {
-        updateImageVectors(m_r);
-        }
+            {
+            updateImageVectors(m_r);
+            }
 
         //! Empty Destructor
         virtual ~AABBQueryBallIterator() {}
@@ -156,11 +155,9 @@ class AABBQueryBallIterator : public AABBIterator
         float m_r;  //!< Search ball cutoff distance
 
     private:
-        unsigned int cur_image; 
-        unsigned int cur_node_idx; 
-        unsigned int cur_p; 
-
-
+        unsigned int cur_image;
+        unsigned int cur_node_idx;
+        unsigned int cur_p;
     };
 }; }; // end namespace freud::locality
 

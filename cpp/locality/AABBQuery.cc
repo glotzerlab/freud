@@ -11,7 +11,7 @@
 
 namespace freud { namespace locality {
 
-AABBQuery::AABBQuery(const box::Box &box, const vec3<float> *ref_points, unsigned int Nref):
+AABBQuery::AABBQuery(const box::Box &box, const vec3<float> *ref_points, unsigned int Nref) :
     NeighborQuery(box, ref_points, Nref)
     {
     // Allocate memory and create image vectors
@@ -25,7 +25,8 @@ AABBQuery::~AABBQuery()
     {
     }
 
-std::shared_ptr<NeighborQueryIterator> AABBQuery::query(const vec3<float> point, unsigned int k, float r, float scale) const
+std::shared_ptr<NeighborQueryIterator> AABBQuery::query(const vec3<float> point,
+        unsigned int k, float r, float scale) const
     {
     return std::make_shared<AABBQueryIterator>(this, point, k, r, scale);
     }

@@ -19,17 +19,21 @@ using namespace tbb;
 namespace freud { namespace locality {
 
 // Default constructor
-LinkCell::LinkCell() : NeighborQuery(), m_box(box::Box()), m_Np(0), m_cell_width(0), m_celldim(0,0,0), m_neighbor_list()
-{}
+LinkCell::LinkCell() : NeighborQuery(), m_box(box::Box()), m_Np(0),
+    m_cell_width(0), m_celldim(0,0,0), m_neighbor_list()
+    {}
 
-LinkCell::LinkCell(const box::Box& box, float cell_width) : NeighborQuery(), m_box(box), m_Np(0), m_cell_width(0), m_celldim(0, 0, 0), m_neighbor_list()
+LinkCell::LinkCell(const box::Box& box, float cell_width) : NeighborQuery(),
+    m_box(box), m_Np(0), m_cell_width(0), m_celldim(0, 0, 0), m_neighbor_list()
     {
     // The initializer list above sets the cell width and cell dimensions to 0
     // so that we can farm out the work to the setCellWidth function.
     updateInternal(box, cell_width);
     }
 
-LinkCell::LinkCell(const box::Box& box, float cell_width, const vec3<float> *ref_points, unsigned int Nref): NeighborQuery(box, ref_points, Nref), m_box(box), m_Np(0), m_cell_width(0), m_celldim(0, 0, 0), m_neighbor_list()
+LinkCell::LinkCell(const box::Box& box, float cell_width, const vec3<float> *ref_points, unsigned int Nref) :
+    NeighborQuery(box, ref_points, Nref), m_box(box), m_Np(0), m_cell_width(0),
+    m_celldim(0, 0, 0), m_neighbor_list()
     {
     // The initializer list above sets the cell width and cell dimensions to 0
     // so that we can farm out the work to the setCellWidth function.
@@ -43,7 +47,7 @@ void LinkCell::updateInternal(const box::Box& box, float cell_width)
     {
     if (cell_width != m_cell_width || box != m_box)
         {
-        vec3<unsigned int> celldim  = computeDimensions(box, cell_width);
+        vec3<unsigned int> celldim = computeDimensions(box, cell_width);
         // Check if box is too small!
         // will only check if the box is not null
         if (box != box::Box())
@@ -77,7 +81,7 @@ void LinkCell::updateInternal(const box::Box& box, float cell_width)
                 {
                 throw runtime_error("At least one cell must be present.");
                 }
-            m_celldim  = celldim;
+            m_celldim = celldim;
             computeCellNeighbors();
             }
         m_cell_width = cell_width;
@@ -135,9 +139,7 @@ bool compareFirstNeighborPairs(const std::vector<std::tuple<size_t, size_t, floa
         return left.size() < right.size();
     }
 
-void LinkCell::computeCellList(const box::Box& box,
-    const vec3<float> *points,
-    unsigned int Np)
+void LinkCell::computeCellList(const box::Box& box, const vec3<float> *points, unsigned int Np)
     {
     updateBox(box);
 
@@ -151,7 +153,8 @@ void LinkCell::computeCellList(const box::Box& box,
     assert(Nc > 0);
     if ((m_Np != Np) || (m_Nc != Nc))
         {
-        m_cell_list = std::shared_ptr<unsigned int>(new unsigned int[Np + Nc], std::default_delete<unsigned int[]>());
+        m_cell_list = std::shared_ptr<unsigned int>(new unsigned int[Np + Nc],
+                std::default_delete<unsigned int[]>());
         }
     m_Np = Np;
     m_Nc = Nc;
@@ -162,9 +165,9 @@ void LinkCell::computeCellList(const box::Box& box,
         m_cell_list.get()[Np + cell] = LINK_CELL_TERMINATOR;
         }
 
-    // generate the cell list
     assert(points);
 
+    // generate the cell list
     for (int i = Np-1; i >= 0; i--)
         {
         unsigned int cell = getCell(points[i]);
@@ -371,7 +374,6 @@ std::shared_ptr<NeighborQueryIterator> LinkCell::queryBall(const vec3<float> poi
 
 NeighborPoint LinkCellQueryBallIterator::next()
     {
-    ;
     float r_cutsq = m_r * m_r;
 
     vec3<unsigned int> point_cell(m_linkcell->getCellCoord(m_point));

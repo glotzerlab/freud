@@ -105,7 +105,7 @@ class NeighborQuery
             }
 
         //! Get a point's coordinates using index operator notation
-        const vec3<float> operator [](unsigned int index) const
+        const vec3<float> operator[] (unsigned int index) const
             {
             if (index >= m_Nref)
                 {
