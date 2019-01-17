@@ -56,22 +56,22 @@
         "name": "freud.order",
         "sources": [
             "freud/order.pyx",
-            "cpp/order/NematicOrderParameter.cc",
-            "cpp/util/HOOMDMatrix.cc",
-            "cpp/order/wigner3j.cc",
-            "cpp/locality/NeighborList.cc",
-            "cpp/order/LocalWl.cc",
-            "cpp/order/HexOrderParameter.cc",
-            "cpp/order/TransOrderParameter.cc",
-            "cpp/order/SolLiq.cc",
-            "cpp/cluster/Cluster.cc",
-            "cpp/locality/AABBQuery.cc",
             "cpp/order/LocalQl.cc",
+            "cpp/locality/NeighborList.cc",
+            "cpp/order/NematicOrderParameter.cc",
+            "cpp/order/wigner3j.cc",
+            "cpp/order/TransOrderParameter.cc",
+            "cpp/locality/NeighborQuery.cc",
+            "cpp/order/HexOrderParameter.cc",
             "cpp/box/Box.cc",
-            "cpp/locality/LinkCell.cc",
-            "cpp/locality/SpatialData.cc",
+            "cpp/cluster/Cluster.cc",
+            "cpp/order/LocalWl.cc",
+            "cpp/locality/AABBQuery.cc",
+            "cpp/util/HOOMDMatrix.cc",
             "cpp/order/CubaticOrderParameter.cc",
-            "cpp/locality/NearestNeighbors.cc"
+            "cpp/locality/LinkCell.cc",
+            "cpp/locality/NearestNeighbors.cc",
+            "cpp/order/SolLiq.cc"
         ]
     },
     "module_name": "freud.order"
@@ -1358,12 +1358,12 @@ struct __pyx_obj_5freud_8locality_NeighborQuery {
   freud::locality::NeighborQuery *spdptr;
   bool queryable;
   struct __pyx_obj_5freud_3box_Box *box;
-  __Pyx_memviewslice ref_points;
+  __Pyx_memviewslice points;
 };
 
 
 /* "freud/locality.pxd":15
- *     cdef float[:, ::1] ref_points
+ *     cdef float[:, ::1] points
  * 
  * cdef class NeighborList:             # <<<<<<<<<<<<<<
  *     cdef freud._locality.NeighborList * thisptr
@@ -1732,7 +1732,7 @@ struct __pyx_memoryviewslice_obj {
 
 
 /* "freud/locality.pxd":15
- *     cdef float[:, ::1] ref_points
+ *     cdef float[:, ::1] points
  * 
  * cdef class NeighborList:             # <<<<<<<<<<<<<<
  *     cdef freud._locality.NeighborList * thisptr

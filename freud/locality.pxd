@@ -10,7 +10,7 @@ cdef class NeighborQuery:
     cdef freud._locality.NeighborQuery * spdptr
     cdef cbool queryable
     cdef freud.box.Box box
-    cdef float[:, ::1] ref_points
+    cdef float[:, ::1] points
 
 cdef class NeighborList:
     cdef freud._locality.NeighborList * thisptr

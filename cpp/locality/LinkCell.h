@@ -473,9 +473,6 @@ class LinkCell : public NeighborQuery
 
 
 //! Parent class of LinkCell iterators that knows how to traverse general cell-linked list structures
-/*! placeholder
-
-*/
 class LinkCellIterator : public NeighborQueryIterator
     {
     public:
@@ -499,9 +496,6 @@ class LinkCellIterator : public NeighborQueryIterator
     };
 
 //! Iterator that gets nearest neighbors from LinkCell tree structures
-/*! placeholder
-
-*/
 class LinkCellQueryIterator : public LinkCellIterator
     {
     public:
@@ -523,9 +517,6 @@ class LinkCellQueryIterator : public LinkCellIterator
     };
 
 //! Iterator that gets neighbors in a ball of size r using LinkCell tree structures
-/*! placeholder
-
-*/
 class LinkCellQueryBallIterator : public LinkCellIterator
     {
     public:
