@@ -766,7 +766,8 @@ cdef class LinkCell(NeighborQuery):
         cell_width (float):
             Maximum distance to find particles within.
         points (:class:`np.ndarray`):
-            The points associated with this class, if used in the new mode (Defaults to None).
+            The points associated with this class, if used in the new mode
+            (Defaults to None).
 
     Attributes:
         box (:class:`freud.box.Box`):
