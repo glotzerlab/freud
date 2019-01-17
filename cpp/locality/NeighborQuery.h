@@ -114,8 +114,6 @@ class NeighborQuery
             return m_ref_points[index];
             }
 
-        static const NeighborPoint ITERATOR_TERMINATOR; //!< The object returned when iteration is complete.
-
     protected:
         const box::Box m_box;             //!< Simulation box where the particles belong
         const vec3<float> *m_ref_points;  //!< Reference point coordinates
@@ -134,7 +132,7 @@ class NeighborQuery
  *  underlying data structure), the end() method will not return true until the
  *  next method reaches the end of control flow at least once without finding a
  *  next neighbor. As a result, the next() method is required to return
- *  NeighborQuery::ITERATOR_TERMINATOR on all calls after the last neighbor is
+ *  NeighborQueryIterator::ITERATOR_TERMINATOR on all calls after the last neighbor is
  *  found in order to guarantee that the correct set of neighbors is considered.
 */
 class NeighborQueryIterator {
@@ -162,6 +160,8 @@ class NeighborQueryIterator {
             {
             throw std::runtime_error("The next method must be implemented by child classes.");
             }
+
+        static const NeighborPoint ITERATOR_TERMINATOR; //!< The object returned when iteration is complete.
 
     protected:
         const NeighborQuery *m_spatial_data; //!< Link to the NeighborQuery object

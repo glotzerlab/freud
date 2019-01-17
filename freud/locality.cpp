@@ -44,13 +44,13 @@
         "name": "freud.locality",
         "sources": [
             "freud/locality.pyx",
+            "cpp/locality/AABBQuery.cc",
+            "cpp/locality/NearestNeighbors.cc",
+            "cpp/locality/NeighborQuery.cc",
+            "cpp/util/HOOMDMatrix.cc",
             "cpp/box/Box.cc",
             "cpp/locality/NeighborList.cc",
-            "cpp/locality/NearestNeighbors.cc",
-            "cpp/locality/LinkCell.cc",
-            "cpp/locality/AABBQuery.cc",
-            "cpp/util/HOOMDMatrix.cc",
-            "cpp/locality/NeighborQuery.cc"
+            "cpp/locality/LinkCell.cc"
         ]
     },
     "module_name": "freud.locality"
@@ -4280,7 +4280,7 @@ static PyObject *__pyx_pf_5freud_8locality_13NeighborQuery_4query(struct __pyx_o
  *                     break
  *                 elif exclude_ii and npoint.id == i:
  */
-      __pyx_t_1 = ((__pyx_v_npoint == freud::locality::NeighborQuery::ITERATOR_TERMINATOR) != 0);
+      __pyx_t_1 = ((__pyx_v_npoint == freud::locality::NeighborQueryIterator::ITERATOR_TERMINATOR) != 0);
       if (__pyx_t_1) {
 
         /* "freud/locality.pyx":129
@@ -4852,7 +4852,7 @@ static PyObject *__pyx_pf_5freud_8locality_13NeighborQuery_6queryBall(struct __p
  *                     break
  *                 elif exclude_ii and npoint.id == i:
  */
-      __pyx_t_1 = ((__pyx_v_npoint == freud::locality::NeighborQuery::ITERATOR_TERMINATOR) != 0);
+      __pyx_t_1 = ((__pyx_v_npoint == freud::locality::NeighborQueryIterator::ITERATOR_TERMINATOR) != 0);
       if (__pyx_t_1) {
 
         /* "freud/locality.pyx":178
@@ -10516,7 +10516,7 @@ static PyObject *__pyx_pf_5freud_8locality_9AABBQuery_4query(struct __pyx_obj_5f
  *                     break
  *                 elif exclude_ii and npoint.id == i:
  */
-      __pyx_t_6 = ((__pyx_v_npoint == freud::locality::NeighborQuery::ITERATOR_TERMINATOR) != 0);
+      __pyx_t_6 = ((__pyx_v_npoint == freud::locality::NeighborQueryIterator::ITERATOR_TERMINATOR) != 0);
       if (__pyx_t_6) {
 
         /* "freud/locality.pyx":708

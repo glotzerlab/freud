@@ -185,7 +185,7 @@ NeighborPoint AABBQueryBallIterator::next()
         } // end loop over images
 
     m_finished = true;
-    return NeighborQuery::ITERATOR_TERMINATOR;
+    return NeighborQueryIterator::ITERATOR_TERMINATOR;
     }
 
 NeighborPoint AABBQueryIterator::next()
@@ -195,10 +195,8 @@ NeighborPoint AABBQueryIterator::next()
 
     if (m_finished)
         {
-        return NeighborQuery::ITERATOR_TERMINATOR;
+        return NeighborQueryIterator::ITERATOR_TERMINATOR;
         }
-
-    //TODO: Make sure to address case where there are NO NEIGHBORS (e.g. empty system). Currently I think that case will result in an infinite loop.
 
     // Make sure we're not calling next with neighbors left to return
     if (!m_current_neighbors.size())

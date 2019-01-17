@@ -5,6 +5,6 @@
 
 namespace freud { namespace locality {
 
-const NeighborPoint NeighborQuery::ITERATOR_TERMINATOR(-1, 0);
+const NeighborPoint NeighborQueryIterator::ITERATOR_TERMINATOR(-1, 0);
 
 }; }; // end namespace freud::locality

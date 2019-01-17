@@ -27,7 +27,7 @@ cdef extern from "NeighborQuery.h" namespace "freud::locality":
         const vec3[float] operator[](unsigned int) const
 
     NeighborPoint ITERATOR_TERMINATOR \
-        "freud::locality::NeighborQuery::ITERATOR_TERMINATOR"
+        "freud::locality::NeighborQueryIterator::ITERATOR_TERMINATOR"
 
     cdef cppclass NeighborQueryIterator:
         NeighborQueryIterator()
