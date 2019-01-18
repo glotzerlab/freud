@@ -10,7 +10,6 @@ import sys
 import numpy as np
 import freud.common
 import warnings
-from freud.errors import FreudDeprecationWarning
 
 from libcpp cimport bool as cbool
 from freud.util._VectorMath cimport vec3
@@ -298,7 +297,7 @@ cdef class NeighborList:
         with an index :math:`\geq i`.
 
         Args:
-            i (unsigned int ): The particle index.
+            i (unsigned int): The particle index.
         """
         return self.thisptr.find_first_index(i)
 
@@ -649,23 +648,9 @@ cdef class LinkCell:
     def box(self):
         return freud.box.BoxFromCPP(self.thisptr.getBox())
 
-    def getBox(self):
-        warnings.warn("The getBox function is deprecated in favor "
-                      "of the box class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.box
-
     @property
     def num_cells(self):
         return self.thisptr.getNumCells()
-
-    def getNumCells(self):
-        warnings.warn("The getNumCells function is deprecated in favor "
-                      "of the num_cells class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.num_cells
 
     def getCell(self, point):
         R"""Returns the index of the cell containing the given point.
@@ -776,13 +761,6 @@ cdef class LinkCell:
         self._nlist.base = self
         return self
 
-    def computeCellList(self, box, ref_points, points=None, exclude_ii=None):
-        warnings.warn("The computeCellList function is deprecated in favor "
-                      "of the compute method and will be removed in a future "
-                      "version of freud.",
-                      FreudDeprecationWarning)
-        return self.compute(box, ref_points, points, exclude_ii)
-
     @property
     def nlist(self):
         return self._nlist
@@ -856,82 +834,20 @@ cdef class NearestNeighbors:
     def UINTMAX(self):
         return self.thisptr.getUINTMAX()
 
-    def getUINTMAX(self):
-        warnings.warn("The getUINTMAX function is deprecated in favor "
-                      "of the UINTMAX class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.UINTMAX
-
     @property
     def box(self):
         return freud.box.BoxFromCPP(self.thisptr.getBox())
-
-    def getBox(self):
-        warnings.warn("The getBox function is deprecated in favor "
-                      "of the box class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.box
 
     @property
     def num_neighbors(self):
         return self.thisptr.getNumNeighbors()
 
-    def getNumNeighbors(self):
-        warnings.warn("The getNumNeighbors function is deprecated in favor "
-                      "of the num_neighbors class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.num_neighbors
-
     @property
     def n_ref(self):
         return self.thisptr.getNref()
 
-    def getNRef(self):
-        warnings.warn("The getNref function is deprecated in favor "
-                      "of the n_ref class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.n_ref
-
-    def setRMax(self, float rmax):
-        warnings.warn("Use constructor arguments instead of this setter. "
-                      "This setter will be removed in the future.",
-                      FreudDeprecationWarning)
-        self.thisptr.setRMax(rmax)
-
-    def setCutMode(self, strict_cut):
-        R"""Set mode to handle :code:`rmax` by Nearest Neighbors.
-
-        * :code:`strict_cut == True`: :code:`rmax` will be strictly obeyed,
-          and any particle which has fewer than :math:`N` neighbors will have
-          values of :code:`UINT_MAX` assigned.
-        * :code:`strict_cut == False`: :code:`rmax` will be expanded to find
-          the requested number of neighbors. If :code:`rmax` increases to the
-          point that a cell list cannot be constructed, a warning will be
-          raised and the neighbors already found will be returned.
-
-        Args:
-            strict_cut (bool): Whether to use a strict :code:`rmax` or allow
-                for automatic expansion.
-        """
-        warnings.warn("Use constructor arguments instead of this setter. "
-                      "This setter will be removed in the future.",
-                      FreudDeprecationWarning)
-        self.thisptr.setCutMode(strict_cut)
-
-    @property
     def r_max(self):
         return self.thisptr.getRMax()
-
-    def getRMax(self):
-        warnings.warn("The getRMax function is deprecated in favor "
-                      "of the r_max class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.r_max
 
     def getNeighbors(self, unsigned int i):
         R"""Return the :math:`N` nearest neighbors of the reference point with
@@ -1007,13 +923,6 @@ cdef class NearestNeighbors:
     def wrapped_vectors(self):
         return self._getWrappedVectors()[0]
 
-    def getWrappedVectors(self):
-        warnings.warn("The getWrappedVectors function is deprecated in favor "
-                      "of the wrapped_vectors class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.wrapped_vectors
-
     def _getWrappedVectors(self):
         result = np.empty(
             (self.thisptr.getNref(), self.thisptr.getNumNeighbors(), 3),
@@ -1044,13 +953,6 @@ cdef class NearestNeighbors:
         result = np.sum(vecs**2, axis=-1)
         result[blank_mask] = -1
         return result
-
-    def getRsqList(self):
-        warnings.warn("The getRsqList function is deprecated in favor "
-                      "of the r_sq_list class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.r_sq_list
 
     def compute(self, box, ref_points, points=None, exclude_ii=None):
         R"""Update the data structure for the given set of points.
