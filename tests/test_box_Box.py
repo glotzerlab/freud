@@ -41,12 +41,6 @@ class TestBox(unittest.TestCase):
         npt.assert_almost_equal(box.Linv, [0.5, 0.25, 0.2], decimal=2,
                                 err_msg="LinvFail")
 
-        npt.assert_equal(box.Lx, box.getLx())
-        npt.assert_equal(box.Ly, box.getLy())
-        npt.assert_equal(box.Lz, box.getLz())
-        npt.assert_equal(box.L, box.getL())
-        npt.assert_equal(box.Linv, box.getLinv())
-
     def test_set_length(self):
         # Make sure we can change the lengths of the box after its creation
         box = bx.Box(1, 2, 3, 1, 0, 0)
@@ -63,19 +57,11 @@ class TestBox(unittest.TestCase):
         npt.assert_almost_equal(box.L, [7, 8, 9], decimal=2,
                                 err_msg="SetLFail")
 
-        box.setL(10)
-        npt.assert_almost_equal(box.L, [10, 10, 10], decimal=2,
-                                err_msg="SetLFail")
-
-        box.setL([1, 2, 3])
-        npt.assert_almost_equal(box.L, [1, 2, 3], decimal=2,
-                                err_msg="SetLFail")
+        with self.assertRaises(ValueError):
+            box.L = [1, 2, 3, 4]
 
         with self.assertRaises(ValueError):
-            box.setL([1, 2, 3, 4])
-
-        with self.assertRaises(ValueError):
-            box.setL([1, 2])
+            box.L = [1, 2]
 
     def test_get_tilt_factor(self):
         box = bx.Box(2, 2, 2, 1, 2, 3)
@@ -83,12 +69,6 @@ class TestBox(unittest.TestCase):
         npt.assert_almost_equal(box.xy, 1, decimal=2, err_msg="TiltXYFail")
         npt.assert_almost_equal(box.xz, 2, decimal=2, err_msg="TiltXZFail")
         npt.assert_almost_equal(box.yz, 3, decimal=2, err_msg="TiltYZFail")
-        npt.assert_almost_equal(box.getTiltFactorXY(), 1, decimal=2,
-                                err_msg="TiltXYFail")
-        npt.assert_almost_equal(box.getTiltFactorXZ(), 2, decimal=2,
-                                err_msg="TiltXZFail")
-        npt.assert_almost_equal(box.getTiltFactorYZ(), 3, decimal=2,
-                                err_msg="TiltYZFail")
 
     def test_box_volume(self):
         box3d = bx.Box(2, 2, 2, 1, 0, 0)
@@ -96,11 +76,7 @@ class TestBox(unittest.TestCase):
 
         npt.assert_almost_equal(box3d.volume, 8, decimal=2,
                                 err_msg="Volume3DFail")
-        npt.assert_almost_equal(box3d.getVolume(), 8, decimal=2,
-                                err_msg="Volume3DFail")
         npt.assert_almost_equal(box2d.volume, 4, decimal=2,
-                                err_msg="Volume2DFail")
-        npt.assert_almost_equal(box2d.getVolume(), 4, decimal=2,
                                 err_msg="Volume2DFail")
 
     def test_wrap_single_particle(self):
@@ -186,8 +162,6 @@ class TestBox(unittest.TestCase):
         f_point = np.array([0.5, 0.25, 0.75])
         point = np.array([0, -0.5, 0.5])
 
-        self.assertTrue(box.getCoordinates(f_point),
-                        box.makeCoordinates(f_point))
         npt.assert_equal(box.makeCoordinates(f_point),
                          point)
         npt.assert_equal(box.makeFraction(point),
@@ -220,25 +194,17 @@ class TestBox(unittest.TestCase):
         false = [False, False, False]
         true = [True, True, True]
         self.assertEqual(box.periodic, true)
-        self.assertEqual(box.getPeriodic(), true)
         self.assertTrue(box.periodic_x)
         self.assertTrue(box.periodic_y)
         self.assertTrue(box.periodic_z)
-        self.assertTrue(box.getPeriodicX())
-        self.assertTrue(box.getPeriodicY())
-        self.assertTrue(box.getPeriodicZ())
 
         box.periodic = false
         self.assertEqual(box.periodic, false)
-        self.assertEqual(box.getPeriodic(), false)
         self.assertFalse(box.periodic_x)
         self.assertFalse(box.periodic_y)
         self.assertFalse(box.periodic_z)
-        self.assertFalse(box.getPeriodicX())
-        self.assertFalse(box.getPeriodicY())
-        self.assertFalse(box.getPeriodicZ())
 
-        box.setPeriodic(*true)
+        box.periodic = true
         self.assertEqual(box.periodic, true)
 
         box.periodic_x = False
@@ -250,13 +216,6 @@ class TestBox(unittest.TestCase):
 
         box.periodic = True
         self.assertEqual(box.periodic, true)
-
-        box.setPeriodicX(False)
-        box.setPeriodicY(False)
-        box.setPeriodicZ(False)
-        self.assertEqual(box.periodic_x, False)
-        self.assertEqual(box.periodic_y, False)
-        self.assertEqual(box.periodic_z, False)
 
     def test_equal(self):
         box = bx.Box(2, 2, 2, 1, 0.5, 0.1)

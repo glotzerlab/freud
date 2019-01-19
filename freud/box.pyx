@@ -371,16 +371,17 @@ cdef class Box:
 
     @property
     def periodic(self):
-        return self.getPeriodic()
+        periodic = self.thisptr.getPeriodic()
+        return [periodic.x, periodic.y, periodic.z]
 
     @periodic.setter
     def periodic(self, periodic):
         # Allow passing a single value
         try:
-            self.setPeriodic(periodic[0], periodic[1], periodic[2])
+            self.thisptr.setPeriodic(periodic[0], periodic[1], periodic[2])
         except TypeError:
             # Allow single value to be passed for all directions
-            self.setPeriodic(periodic, periodic, periodic)
+            self.thisptr.setPeriodic(periodic, periodic, periodic)
 
     @property
     def periodic_x(self):

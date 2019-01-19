@@ -1,7 +1,6 @@
 import numpy as np
 import numpy.testing as npt
 from freud import locality, box
-from freud.errors import FreudDeprecationWarning
 from collections import Counter
 import itertools
 import sys
@@ -10,9 +9,6 @@ import warnings
 
 
 class TestLinkCell(unittest.TestCase):
-    def setUp(self):
-        warnings.simplefilter("ignore", category=FreudDeprecationWarning)
-
     def test_unique_neighbors(self):
         L = 10  # Box Dimensions
         rcut = 3  # Cutoff radius
@@ -21,9 +17,6 @@ class TestLinkCell(unittest.TestCase):
         fbox = box.Box.cube(L)
         cl = locality.LinkCell(fbox, rcut)
         cl.compute(fbox, np.zeros((1, 3), dtype=np.float32))
-
-        # Ensure deprecated method works
-        cl.computeCellList(fbox, np.zeros((1, 3), dtype=np.float32))
 
         # 27 is the total number of cells
         for i in range(27):

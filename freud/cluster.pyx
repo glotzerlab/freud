@@ -134,10 +134,9 @@ cdef class Cluster:
         """
         keys = freud.common.convert_array(
             keys, 1, dtype=np.uint32, contiguous=True)
-        N = self.getNumParticles()
-        if keys.shape[0] != N:
+        if keys.shape[0] != self.num_particles:
             raise RuntimeError(
-                'keys must be a 1D array of length NumParticles')
+                'keys must be a 1D array of length num_particles')
         cdef unsigned int[::1] l_keys = keys
         with nogil:
             self.thisptr.computeClusterMembership(<unsigned int*> &l_keys[0])

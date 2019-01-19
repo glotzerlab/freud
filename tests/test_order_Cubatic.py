@@ -1,7 +1,6 @@
 import numpy as np
 import numpy.testing as npt
 import freud
-from freud.errors import FreudDeprecationWarning
 import warnings
 import unittest
 
@@ -18,9 +17,6 @@ def gen_quaternions(n, axes, angles):
 
 
 class TestCluster(unittest.TestCase):
-    def setUp(self):
-        warnings.simplefilter("ignore", category=FreudDeprecationWarning)
-
     def test_ordered(self):
         # do not need positions, just orientations
         N = 1000
@@ -47,34 +43,21 @@ class TestCluster(unittest.TestCase):
         # Test values of the OP
         self.assertAlmostEqual(cop.cubatic_order_parameter, 1, places=2,
                                msg="Cubatic Order is not approx. 1")
-        self.assertAlmostEqual(cop.get_cubatic_order_parameter(), 1, places=2,
-                               msg="Cubatic Order is not approx. 1")
         self.assertGreater(np.nanmin(cop.particle_order_parameter), 0.9,
-                           msg="Per particle order parameter value is too low")
-        self.assertGreater(np.nanmin(cop.get_particle_op()), 0.9,
                            msg="Per particle order parameter value is too low")
 
         # Test attributes
         self.assertAlmostEqual(cop.t_initial, t_initial)
-        self.assertAlmostEqual(cop.get_t_initial(), t_initial)
         self.assertAlmostEqual(cop.t_final, t_final)
-        self.assertAlmostEqual(cop.get_t_final(), t_final)
         self.assertAlmostEqual(cop.scale, scale)
-        self.assertAlmostEqual(cop.get_scale(), scale)
 
         # Test shapes for the tensor since we can't ensure values.
         self.assertEqual(cop.orientation.shape, (4,))
-        self.assertEqual(cop.get_orientation().shape, (4,))
         self.assertEqual(
             cop.particle_tensor.shape, (len(orientations), 3, 3, 3, 3))
-        self.assertEqual(
-            cop.get_particle_tensor().shape, (len(orientations), 3, 3, 3, 3))
         self.assertEqual(cop.cubatic_tensor.shape, (3, 3, 3, 3))
-        self.assertEqual(cop.get_cubatic_tensor().shape, (3, 3, 3, 3))
         self.assertEqual(cop.global_tensor.shape, (3, 3, 3, 3))
-        self.assertEqual(cop.get_global_tensor().shape, (3, 3, 3, 3))
         self.assertEqual(cop.gen_r4_tensor.shape, (3, 3, 3, 3))
-        self.assertEqual(cop.get_gen_r4_tensor().shape, (3, 3, 3, 3))
 
     @unittest.skip("This test appears to be flawed, "
                    "for some random angles it can fail")
