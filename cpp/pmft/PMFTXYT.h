@@ -14,7 +14,7 @@
 #include "PMFT.h"
 
 /*! \file PMFTXYT.h
-    \brief Routines for computing PMFT in the XYT coordinate system
+    \brief Routines for computing potential of mean force and torque in XYT coordinates
 */
 
 namespace freud { namespace pmft {
@@ -23,13 +23,13 @@ class PMFTXYT : public PMFT
     {
     public:
         //! Constructor
-        PMFTXYT(float max_x, float max_y, unsigned int n_bins_x, unsigned int n_bins_y, unsigned int n_bins_t);
+        PMFTXYT(float x_max, float y_max, unsigned int n_x, unsigned int n_y, unsigned int n_t);
 
         //! Reset the PCF array to all zeros
         virtual void reset();
 
         /*! Compute the PCF for the passed in set of points. The function will be added to previous values
-            of the pcf
+            of the PCF
         */
         void accumulate(box::Box& box,
                         const locality::NeighborList *nlist,
@@ -69,34 +69,34 @@ class PMFTXYT : public PMFT
 
         unsigned int getNBinsX()
             {
-            return m_n_bins_x;
+            return m_n_x;
             }
 
         unsigned int getNBinsY()
             {
-            return m_n_bins_y;
+            return m_n_y;
             }
 
         unsigned int getNBinsT()
             {
-            return m_n_bins_t;
+            return m_n_t;
             }
 
     private:
-        float m_max_x;                     //!< Maximum x at which to compute pcf
-        float m_max_y;                     //!< Maximum y at which to compute pcf
-        float m_max_t;                     //!< Maximum T at which to compute pcf
-        float m_dx;                        //!< Step size for x in the computation
-        float m_dy;                        //!< Step size for y in the computation
-        float m_dt;                        //!< Step size for T in the computation
-        unsigned int m_n_bins_x;           //!< Number of x bins to compute pcf over
-        unsigned int m_n_bins_y;           //!< Number of y bins to compute pcf over
-        unsigned int m_n_bins_t;           //!< Number of T bins to compute pcf over
+        float m_x_max;                     //!< Maximum x at which to compute PCF
+        float m_y_max;                     //!< Maximum y at which to compute PCF
+        float m_t_max;                     //!< Maximum t at which to compute PCF
+        float m_dx;                        //!< Bin size for x in the computation
+        float m_dy;                        //!< Bin size for y in the computation
+        float m_dt;                        //!< Bin size for t in the computation
+        unsigned int m_n_x;                //!< Number of x bins to compute PCF over
+        unsigned int m_n_y;                //!< Number of y bins to compute PCF over
+        unsigned int m_n_t;                //!< Number of t bins to compute PCF over
         float m_jacobian;
 
-        std::shared_ptr<float> m_x_array;              //!< array of x values that the pcf is computed at
-        std::shared_ptr<float> m_y_array;              //!< array of y values that the pcf is computed at
-        std::shared_ptr<float> m_t_array;              //!< array of T values that the pcf is computed at
+        std::shared_ptr<float> m_x_array;  //!< Array of x values where the PCF is computed
+        std::shared_ptr<float> m_y_array;  //!< Array of y values where the PCF is computed
+        std::shared_ptr<float> m_t_array;  //!< Array of t values where the PCF is computed
     };
 
 }; }; // end namespace freud::pmft
