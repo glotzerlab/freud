@@ -369,7 +369,7 @@ cdef class NeighborList:
 def make_default_nlist(box, ref_points, points, rmax, nlist=None,
                        exclude_ii=None):
     R"""Helper function to return a neighbor list object if is given, or to
-    construct one using AABBQuery if it is not.
+    construct one using _AABBQuery if it is not.
 
     Args:
         box (:class:`freud.box.Box`):
@@ -390,13 +390,13 @@ def make_default_nlist(box, ref_points, points, rmax, nlist=None,
             :code:`None`).
 
     Returns:
-        tuple (:class:`freud.locality.NeighborList`, :class:`freud.locality.AABBQuery`):
-            The neighborlist and the owning AABBQuery object.
+        tuple (:class:`freud.locality.NeighborList`, :class:`freud.locality._AABBQuery`):
+            The neighborlist and the owning _AABBQuery object.
     """  # noqa: E501
     if nlist is not None:
         return nlist, nlist
 
-    cdef AABBQuery aq = AABBQuery().compute(
+    cdef _AABBQuery aq = _AABBQuery().compute(
         box, rmax, ref_points, points, exclude_ii)
 
     # Python does not appear to garbage collect appropriately in this case.
@@ -464,8 +464,9 @@ def make_default_nlist_nn(box, ref_points, points, n_neigh, nlist=None,
     return nn.nlist, nn
 
 
-cdef class AABBQuery:
-    R"""Use an AABB tree to find neighbors.
+cdef class _AABBQuery:
+    R"""Use an AABB tree to find neighbors. *This API is experimental and
+    subject to change without warning.*
 
     .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
 
