@@ -11,7 +11,6 @@ arrays to represent multidimensional arrays. :math:`N`-dimensional arrays with
 
 import numpy as np
 import warnings
-from freud.errors import FreudDeprecationWarning
 
 from freud.util cimport _Index1D
 cimport numpy as np
@@ -84,12 +83,6 @@ cdef class Index2D:
     def num_elements(self):
         return self.thisptr.getNumElements()
 
-    def getNumElements(self):
-        warnings.warn("The getNumElements function is deprecated in favor "
-                      "of the num_elements class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.num_elements
 
 cdef class Index3D:
     R"""freud-style indexer for flat arrays.
@@ -155,10 +148,3 @@ cdef class Index3D:
     @property
     def num_elements(self):
         return self.thisptr.getNumElements()
-
-    def getNumElements(self):
-        warnings.warn("The getNumElements function is deprecated in favor "
-                      "of the num_elements class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.num_elements

@@ -43,4 +43,4 @@ Nearest Neighbors
 =================
 
 .. autoclass:: freud.locality.NearestNeighbors(rmax, n_neigh, scale=1.1, strict_cut=False)
-   :members: compute, getNeighborList, getNeighbors, getRsq, setCutMode
+   :members: compute, getNeighborList, getNeighbors, getRsq
