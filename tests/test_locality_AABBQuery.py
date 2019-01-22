@@ -15,7 +15,7 @@ class TestAABBQuery(unittest.TestCase):
         N = 4  # number of particles
 
         fbox = box.Box.cube(L)  # Initialize Box
-        aq = locality.AABBQuery()
+        aq = locality._AABBQuery()
 
         points = np.zeros(shape=(N, 3), dtype=np.float32)
         points[0] = [0.0, 0.0, 0.0]
@@ -54,7 +54,7 @@ class TestAABBQuery(unittest.TestCase):
         fbox = box.Box.cube(L)
         np.random.seed(0)
         points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
-        aq = locality.AABBQuery().compute(fbox, rcut, points)
+        aq = locality._AABBQuery().compute(fbox, rcut, points)
 
         ij = set(zip(aq.nlist.index_i, aq.nlist.index_j))
         ji = set((j, i) for (i, j) in ij)
@@ -72,8 +72,8 @@ class TestAABBQuery(unittest.TestCase):
         np.random.seed(0)
         points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
         points2 = np.random.uniform(-L/2, L/2, (N//6, 3)).astype(np.float32)
-        aq = locality.AABBQuery().compute(fbox, rcut, points, points2)
-        aq2 = locality.AABBQuery().compute(fbox, rcut, points2, points)
+        aq = locality._AABBQuery().compute(fbox, rcut, points, points2)
+        aq2 = locality._AABBQuery().compute(fbox, rcut, points2, points)
 
         ij = set(zip(aq.nlist.index_i, aq.nlist.index_j))
         ij2 = set(zip(aq2.nlist.index_j, aq2.nlist.index_i))
@@ -87,7 +87,7 @@ class TestAABBQuery(unittest.TestCase):
         np.random.seed(0)
         points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
         points2 = points[:N//6]
-        aq = locality.AABBQuery().compute(
+        aq = locality._AABBQuery().compute(
             fbox, rcut, points, points2, exclude_ii=False)
 
         ij1 = set(zip(aq.nlist.index_i, aq.nlist.index_j))
@@ -107,7 +107,7 @@ class TestAABBQuery(unittest.TestCase):
 
         fbox = box.Box.cube(L)
         seed = 0
-        aq = locality.AABBQuery()
+        aq = locality._AABBQuery()
 
         for i in range(10):
             np.random.seed(seed + i)
@@ -145,11 +145,11 @@ class TestAABBQuery(unittest.TestCase):
 
         fbox = box.Box.cube(L)
         with self.assertRaises(RuntimeError):
-            locality.AABBQuery().compute(fbox, L/1.9999, np.zeros((1, 3)))
+            locality._AABBQuery().compute(fbox, L/1.9999, np.zeros((1, 3)))
 
         fbox = box.Box(L, 2*L, 2*L)
         with self.assertRaises(RuntimeError):
-            locality.AABBQuery().compute(fbox, L/1.9999, np.zeros((1, 3)))
+            locality._AABBQuery().compute(fbox, L/1.9999, np.zeros((1, 3)))
 
     def test_no_bonds(self):
         N = 10
@@ -161,7 +161,7 @@ class TestAABBQuery(unittest.TestCase):
         positions = np.array(positions, dtype=np.float32)
 
         # rcut is slightly smaller than the distance for any particle
-        aq = locality.AABBQuery()
+        aq = locality._AABBQuery()
         nlist = aq.compute(fbox, 0.99, positions, positions).nlist
 
         self.assertEqual(nlist.neighbor_counts.tolist(),
