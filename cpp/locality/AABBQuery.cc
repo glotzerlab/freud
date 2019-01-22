@@ -48,9 +48,9 @@ void AABBQuery::updateImageVectors()
     vec3<float> nearest_plane_distance = m_box.getNearestPlaneDistance();
     vec3<bool> periodic = m_box.getPeriodic();
     float rmax = m_rcut;
-    if ((periodic.x && nearest_plane_distance.x <= rmax * 2.0) ||
-        (periodic.y && nearest_plane_distance.y <= rmax * 2.0) ||
-        (!m_box.is2D() && periodic.z && nearest_plane_distance.z <= rmax * 2.0))
+    if ((periodic.x && nearest_plane_distance.x < rmax * 2.0) ||
+        (periodic.y && nearest_plane_distance.y < rmax * 2.0) ||
+        (!m_box.is2D() && periodic.z && nearest_plane_distance.z < rmax * 2.0))
         {
         throw std::runtime_error("The AABBQuery rcut is too large for this box.");
         }
