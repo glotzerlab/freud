@@ -8,6 +8,7 @@ freud documentation
 |Binder|
 |ReadTheDocs|
 |Codecov|
+|GitHub-Stars|
 
 .. |DOI| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.166564.svg
     :target: https://doi.org/10.5281/zenodo.166564
@@ -15,19 +16,19 @@ freud documentation
     :target: https://pypi.org/project/freud-analysis/
 .. |Anaconda-Server| image:: https://anaconda.org/conda-forge/freud/badges/version.svg
     :target: https://anaconda.org/conda-forge/freud
-.. |Binder| image:: https://mybinder.org/badge.svg
-    :target: https://mybinder.org:/repo/harperic/freud-examples
+.. |Binder| image:: https://mybinder.org/badge_logo.svg
+    :target: https://mybinder.org/v2/gh/glotzerlab/freud-examples/master?filepath=index.ipynb
 .. |ReadTheDocs| image:: https://readthedocs.org/projects/freud/badge/?version=latest
     :target: https://freud.readthedocs.io/en/latest/?badge=latest
 .. |Codecov| image:: https://codecov.io/bb/glotzer/freud/branch/master/graph/badge.svg
     :target: https://codecov.io/bb/glotzer/freud
+.. |GitHub-Stars| image:: https://img.shields.io/github/stars/glotzerlab/freud.svg?style=social
+    :target: https://github.com/glotzerlab/freud
 
-*"Neurosis is the inability to tolerate ambiguity" - Sigmund Freud*
+Overview
+========
 
-Welcome to the documentation for freud, a Python package for analyzing particle simulation trajectories of periodic systems.
-The library contains a diverse array of analysis routines designed for molecular dynamics and Monte Carlo simulation trajectories.
-Since any scientific investigation is likely to benefit from a range of analyses, freud is designed to work as part of a larger analysis pipeline.
-In order to maximize its interoperability with other systems, freud works with and returns `NumPy <http://www.numpy.org/>`_ arrays.
+The freud Python library provides a simple, flexible, powerful set of tools for analyzing trajectories obtained from molecular dynamics or Monte Carlo simulations. High performance, parallelized C++ is used to compute standard tools such as radial distribution functions, correlation functions, and clusters, as well as original analysis methods including potentials of mean force and torque (PMFTs) and local environment matching. The freud library uses `NumPy arrays <http://www.numpy.org/>`_ for input and output, enabling integration with the scientific Python ecosystem for many typical materials science workflows.
 
 .. toctree::
    :maxdepth: 2
