@@ -21,7 +21,7 @@ Order Module
 .. rubric:: Details
 
 .. automodule:: freud.order
-    :synopsis: Compute order parameters
+    :synopsis: Compute order parameters.
 
 Cubatic Order Parameter
 =======================

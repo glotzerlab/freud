@@ -13,7 +13,7 @@ Parallel Module
 .. rubric:: Details
 
 .. automodule:: freud.parallel
-    :synopsis: Manage TBB thread usage
+    :synopsis: Manage TBB thread usage.
     :members:
 
     .. automethod:: freud.parallel.setNumThreads
