@@ -6,4 +6,4 @@
 	url = https://github.com/glotzerlab/eigen-git-mirror.git
 [submodule "doc/source/examples"]
 	path = doc/source/examples
-	url = https://bitbucket.org/glotzer/freud-examples.git
+	url = https://github.com/glotzerlab/freud-examples.git
