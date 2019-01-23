@@ -44,7 +44,7 @@ The code that follows builds freud and installs it for all users (append `--user
 
 .. code-block:: bash
 
-    git clone --recurse-submodules https://bitbucket.org/glotzer/freud.git
+    git clone --recurse-submodules https://github.com/glotzerlab/freud.git
     cd freud
     python setup.py install
 

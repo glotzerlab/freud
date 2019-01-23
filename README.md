@@ -18,7 +18,7 @@ When using freud to process data for publication, please [use this citation](htt
 
 If you have a question, please post to the
 [freud-users mailing list](https://groups.google.com/forum/#!forum/freud-users).
-Please report issues and suggest feature enhancements via the [Bitbucket issues page](https://bitbucket.org/glotzer/freud/issues?status=new&status=open).
+Please report issues and suggest feature enhancements via the [issue tracker](https://github.com/glotzerlab/freud/issues).
 
 # Documentation
 
@@ -27,7 +27,7 @@ These pages include an installation guide, examples demonstrating many of freud'
 
 # Examples
 Many core features are [demonstrated in the freud documentation](https://freud.readthedocs.io/en/stable/examples.html).
-Additional example Jupyter notebooks can be found in the [freud-examples repository](https://bitbucket.org/glotzer/freud-examples).
+Additional example Jupyter notebooks can be found in the [freud-examples repository](https://github.com/glotzerlab/freud-examples).
 These notebooks may be launched [interactively on Binder](https://mybinder.org/v2/gh/glotzerlab/freud-examples/master?filepath=index.ipynb)
 or downloaded and run on your own system.
 

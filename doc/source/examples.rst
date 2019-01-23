@@ -3,7 +3,7 @@ Examples
 ========
 
 Examples are provided as `Jupyter <https://jupyter.org/>`_ notebooks in a separate
-`freud-examples <https://bitbucket.org/glotzer/freud-examples>`_ repository.
+`freud-examples <https://github.com/glotzerlab/freud-examples>`_ repository.
 These notebooks may be launched `interactively on Binder <https://mybinder.org/v2/gh/glotzerlab/freud-examples/master?filepath=index.ipynb>`_
 or downloaded and run on your own system.
 Visualization of data is done via `Matplotlib <https://matplotlib.org/>`_ [Matplotlib]_ and `Bokeh <https://bokeh.pydata.org/>`_ [Bokeh]_.

@@ -395,7 +395,7 @@ try:
               description=desc,
               long_description=readme,
               long_description_content_type='text/markdown',
-              url='http://bitbucket.org/glotzer/freud',
+              url='https://github.com/glotzerlab/freud',
               packages=['freud'],
               python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*',
               install_requires=['numpy>=1.10'],
