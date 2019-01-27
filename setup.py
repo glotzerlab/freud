@@ -156,7 +156,8 @@ sys.argv = ['setup.py'] + extras
 
 on_rtd = os.environ.get('READTHEDOCS') == 'True'
 if on_rtd:
-    install_requires.append('cython', 'tbb')
+    install_requires.append('cython')
+    install_requires.append('tbb')
     args.use_cython = True
 
 
