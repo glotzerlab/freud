@@ -6,6 +6,7 @@
 
 #include <complex>
 #include <memory>
+#include <iostream>
 #include <ostream>
 #include <tbb/tbb.h>
 
@@ -63,7 +64,7 @@ class RotationalAutocorrelationFunction
 
       float getRotationalAutocorrelationFunction()
           {
-          cout << "In the get function, have" << m_Ft << endl;
+              std::cout << "In the get function, have" << m_Ft << std::endl;
           return m_Ft;
           };
 

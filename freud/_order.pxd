@@ -130,9 +130,6 @@ cdef extern from "SolLiq.h" namespace "freud::order":
         unsigned int getNP()
         unsigned int getNumClusters()
 
-cdef extern from "RotationalAutocorrelation.cc" namespace "freud::order":
-    pass
-
 cdef extern from "RotationalAutocorrelation.h" namespace "freud::order":
     cdef cppclass RotationalAutocorrelationFunction:
         RotationalAutocorrelationFunction(int)
