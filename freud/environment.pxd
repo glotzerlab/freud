@@ -5,6 +5,7 @@ import numpy as np
 from freud.errors import FreudDeprecationWarning
 
 cimport freud._environment
+cimport freud.locality
 cimport numpy as np
 
 cdef class BondOrder:
@@ -23,13 +24,14 @@ cdef class MatchEnv:
     cdef num_neigh
     cdef m_box
 
-cdef class Pairing2D:
-    cdef freud._environment.Pairing2D * thisptr
-    cdef rmax
-    cdef num_neigh
-
 cdef class AngularSeparation:
     cdef freud._environment.AngularSeparation * thisptr
-    cdef num_neigh
-    cdef rmax
-    cdef nlist_
+    cdef unsigned int num_neigh
+    cdef float rmax
+    cdef freud.locality.NeighborList nlist_
+
+cdef class LocalBondProjection:
+    cdef freud._environment.LocalBondProjection * thisptr
+    cdef float rmax
+    cdef unsigned int num_neigh
+    cdef freud.locality.NeighborList nlist_

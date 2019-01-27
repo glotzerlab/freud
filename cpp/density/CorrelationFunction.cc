@@ -21,14 +21,14 @@ namespace freud { namespace density {
 
 template<typename T>
 CorrelationFunction<T>::CorrelationFunction(float rmax, float dr)
-    : m_box(box::Box()), m_rmax(rmax), m_dr(dr), m_frame_counter(0)
+    : m_box(box::Box()), m_rmax(rmax), m_dr(dr), m_frame_counter(0), m_reduce(true)
     {
     if (dr <= 0.0f)
-        throw invalid_argument("dr must be positive");
+        throw invalid_argument("CorrelationFunction requires dr to be positive.");
     if (rmax <= 0.0f)
-        throw invalid_argument("rmax must be positive");
+        throw invalid_argument("CorrelationFunction requires rmax to be positive.");
     if (dr > rmax)
-        throw invalid_argument("rmax must be greater than dr");
+        throw invalid_argument("CorrelationFunction requires dr must be less than or equal to rmax.");
 
     m_nbins = int(floorf(m_rmax / m_dr));
     assert(m_nbins > 0);
@@ -98,7 +98,11 @@ void CorrelationFunction<T>::reduceCorrelationFunction()
 template<typename T>
 std::shared_ptr<T> CorrelationFunction<T>::getRDF()
     {
-    reduceCorrelationFunction();
+    if (m_reduce == true)
+        {
+        reduceCorrelationFunction();
+        }
+    m_reduce = false;
     return m_rdf_array;
     }
 
@@ -119,6 +123,7 @@ void CorrelationFunction<T>::reset()
         }
     // reset the frame counter
     m_frame_counter = 0;
+    m_reduce = true;
     }
 
 template<typename T>
@@ -205,6 +210,7 @@ void CorrelationFunction<T>::accumulate(const box::Box &box,
 
         });
     m_frame_counter += 1;
+    m_reduce = true;
     }
 
 template class CorrelationFunction< complex<double> >;

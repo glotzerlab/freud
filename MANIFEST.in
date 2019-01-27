@@ -1,0 +1,3 @@
+recursive-include cpp *.cpp *.h
+recursive-include extern *
+include LICENSE pyproject.toml

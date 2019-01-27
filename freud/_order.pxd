@@ -11,9 +11,6 @@ from libcpp.map cimport map
 cimport freud._box
 cimport freud._locality
 
-cdef extern from "CubaticOrderParameter.cc" namespace "freud::order":
-    pass
-
 cdef extern from "CubaticOrderParameter.h" namespace "freud::order":
     cdef cppclass CubaticOrderParameter:
         CubaticOrderParameter(float,
@@ -21,12 +18,11 @@ cdef extern from "CubaticOrderParameter.h" namespace "freud::order":
                               float,
                               float*,
                               unsigned int,
-                              unsigned int)
+                              unsigned int) except +
         void reset()
         void compute(quat[float]*,
                      unsigned int,
                      unsigned int) nogil except +
-        void reduceCubaticOrderParameter()
         unsigned int getNumParticles()
         float getCubaticOrderParameter()
         shared_ptr[float] getParticleCubaticOrderParameter()
@@ -38,9 +34,6 @@ cdef extern from "CubaticOrderParameter.h" namespace "freud::order":
         float getTFinal()
         float getScale()
         quat[float] getCubaticOrientation()
-
-cdef extern from "NematicOrderParameter.cc" namespace "freud::order":
-    pass
 
 cdef extern from "NematicOrderParameter.h" namespace "freud::order":
     cdef cppclass NematicOrderParameter:
@@ -54,9 +47,6 @@ cdef extern from "NematicOrderParameter.h" namespace "freud::order":
         shared_ptr[float] getNematicTensor()
         vec3[float] getNematicDirector()
 
-
-cdef extern from "HexOrderParameter.cc" namespace "freud::order":
-    pass
 
 cdef extern from "HexOrderParameter.h" namespace "freud::order":
     cdef cppclass HexOrderParameter:
@@ -72,9 +62,6 @@ cdef extern from "HexOrderParameter.h" namespace "freud::order":
         unsigned int getNP()
         unsigned int getK()
 
-cdef extern from "TransOrderParameter.cc" namespace "freud::order":
-    pass
-
 cdef extern from "TransOrderParameter.h" namespace "freud::order":
     cdef cppclass TransOrderParameter:
         TransOrderParameter(float, float)
@@ -86,12 +73,9 @@ cdef extern from "TransOrderParameter.h" namespace "freud::order":
         shared_ptr[float complex] getDr()
         unsigned int getNP()
 
-cdef extern from "LocalQl.cc" namespace "freud::order":
-    pass
-
 cdef extern from "LocalQl.h" namespace "freud::order":
     cdef cppclass LocalQl:
-        LocalQl(const freud._box.Box &, float, unsigned int, float)
+        LocalQl(const freud._box.Box &, float, unsigned int, float) except +
         const freud._box.Box & getBox() const
         unsigned int getNP()
         void setBox(const freud._box.Box)
@@ -111,9 +95,6 @@ cdef extern from "LocalQl.h" namespace "freud::order":
         shared_ptr[float] getQlNorm()
         shared_ptr[float] getQlAveNorm()
 
-cdef extern from "LocalWl.cc" namespace "freud::order":
-    pass
-
 cdef extern from "LocalWl.h" namespace "freud::order":
     cdef cppclass LocalWl(LocalQl):
         LocalWl(const freud._box.Box &, float, unsigned int, float)
@@ -124,16 +105,13 @@ cdef extern from "LocalWl.h" namespace "freud::order":
         void enableNormalization()
         void disableNormalization()
 
-cdef extern from "SolLiq.cc" namespace "freud::order":
-    pass
-
 cdef extern from "SolLiq.h" namespace "freud::order":
     cdef cppclass SolLiq:
         SolLiq(const freud._box.Box &, float,
-               float, unsigned int, unsigned int)
+               float, unsigned int, unsigned int) except +
         const freud._box.Box & getBox() const
         void setBox(const freud._box.Box)
-        void setClusteringRadius(float)
+        void setClusteringRadius(float) except +
         void compute(const freud._locality.NeighborList *,
                      const vec3[float]*,
                      unsigned int) nogil except +

@@ -7,3 +7,6 @@ cdef class Box:
     cdef freud._box.Box * thisptr
 
 cdef BoxFromCPP(const freud._box.Box & cppbox)
+
+cdef class ParticleBuffer:
+    cdef freud._box.ParticleBuffer * thisptr

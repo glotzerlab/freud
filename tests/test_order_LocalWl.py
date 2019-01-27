@@ -11,7 +11,7 @@ class TestLocalWl(unittest.TestCase):
 
         box = freud.box.Box.cube(10)
         np.random.seed(0)
-        positions = np.random.uniform(-box.getLx()/2, box.getLx()/2,
+        positions = np.random.uniform(-box.Lx/2, box.Lx/2,
                                       size=(N, 3)).astype(np.float32)
 
         comp = freud.order.LocalWl(box, 1.5, 6)
@@ -25,20 +25,28 @@ class TestLocalWl(unittest.TestCase):
         comp = freud.order.LocalWl(box, 1.5, 6)
 
         comp.compute(positions)
-        assert np.allclose(comp.Wl, comp.Wl[0])
-        assert np.isclose(np.real(np.average(comp.Wl)), -0.0026260, atol=1e-5)
+        self.assertTrue(np.isclose(
+            np.real(np.average(comp.Wl)), -0.0026260, atol=1e-5))
+        self.assertTrue(np.allclose(comp.Wl, comp.Wl[0]))
 
         comp.computeAve(positions)
-        assert np.allclose(comp.ave_Wl, comp.ave_Wl[0])
-        assert np.isclose(np.real(np.average(comp.Wl)), -0.0026260, atol=1e-5)
+        self.assertTrue(np.isclose(
+            np.real(np.average(comp.Wl)), -0.0026260, atol=1e-5))
+        self.assertTrue(np.allclose(comp.ave_Wl, comp.ave_Wl[0]))
 
         comp.computeNorm(positions)
-        assert np.allclose(comp.norm_Wl, comp.norm_Wl[0])
-        assert np.isclose(np.real(np.average(comp.Wl)), -0.0026260, atol=1e-5)
+        self.assertTrue(np.isclose(
+            np.real(np.average(comp.Wl)), -0.0026260, atol=1e-5))
+        self.assertTrue(np.allclose(comp.norm_Wl, comp.norm_Wl[0]))
 
         comp.computeAveNorm(positions)
-        assert np.allclose(comp.ave_norm_Wl, comp.ave_norm_Wl[0])
-        assert np.isclose(np.real(np.average(comp.Wl)), -0.0026260, atol=1e-5)
+        self.assertTrue(np.isclose(
+            np.real(np.average(comp.Wl)), -0.0026260, atol=1e-5))
+        self.assertTrue(np.allclose(comp.ave_norm_Wl, comp.ave_norm_Wl[0]))
+
+        self.assertEqual(box, comp.box)
+
+        self.assertEqual(len(positions), comp.num_particles)
 
 
 class TestLocalWlNear(unittest.TestCase):
@@ -47,7 +55,7 @@ class TestLocalWlNear(unittest.TestCase):
 
         box = freud.box.Box.cube(10)
         np.random.seed(0)
-        positions = np.random.uniform(-box.getLx()/2, box.getLx()/2,
+        positions = np.random.uniform(-box.Lx/2, box.Lx/2,
                                       size=(N, 3)).astype(np.float32)
 
         comp = freud.order.LocalWlNear(box, 1.5, 6, 12)
@@ -61,20 +69,28 @@ class TestLocalWlNear(unittest.TestCase):
         comp = freud.order.LocalWlNear(box, 1.5, 6, 12)
 
         comp.compute(positions)
-        assert np.allclose(comp.Wl, comp.Wl[0])
-        assert np.isclose(np.real(np.average(comp.Wl)), -0.0026260, atol=1e-5)
+        self.assertTrue(np.isclose(
+            np.real(np.average(comp.Wl)), -0.0026260, atol=1e-5))
+        self.assertTrue(np.allclose(comp.Wl, comp.Wl[0]))
 
         comp.computeAve(positions)
-        assert np.allclose(comp.ave_Wl, comp.ave_Wl[0])
-        assert np.isclose(np.real(np.average(comp.Wl)), -0.0026260, atol=1e-5)
+        self.assertTrue(np.isclose(
+            np.real(np.average(comp.Wl)), -0.0026260, atol=1e-5))
+        self.assertTrue(np.allclose(comp.ave_Wl, comp.ave_Wl[0]))
 
         comp.computeNorm(positions)
-        assert np.allclose(comp.norm_Wl, comp.norm_Wl[0])
-        assert np.isclose(np.real(np.average(comp.Wl)), -0.0026260, atol=1e-5)
+        self.assertTrue(np.isclose(
+            np.real(np.average(comp.Wl)), -0.0026260, atol=1e-5))
+        self.assertTrue(np.allclose(comp.norm_Wl, comp.norm_Wl[0]))
 
         comp.computeAveNorm(positions)
-        assert np.allclose(comp.ave_norm_Wl, comp.ave_norm_Wl[0])
-        assert np.isclose(np.real(np.average(comp.Wl)), -0.0026260, atol=1e-5)
+        self.assertTrue(np.isclose(
+            np.real(np.average(comp.Wl)), -0.0026260, atol=1e-5))
+        self.assertTrue(np.allclose(comp.ave_norm_Wl, comp.ave_norm_Wl[0]))
+
+        self.assertEqual(box, comp.box)
+
+        self.assertEqual(len(positions), comp.num_particles)
 
 
 if __name__ == '__main__':

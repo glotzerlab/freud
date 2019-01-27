@@ -11,12 +11,10 @@ from libcpp.map cimport map
 cimport freud._box
 cimport freud._locality
 
-cdef extern from "BondOrder.cc" namespace "freud::environment":
-    pass
-
 cdef extern from "BondOrder.h" namespace "freud::environment":
     cdef cppclass BondOrder:
-        BondOrder(float, float, unsigned int, unsigned int, unsigned int)
+        BondOrder(float, float, unsigned int,
+                  unsigned int, unsigned int) except +
         const freud._box.Box & getBox() const
         void reset()
         void accumulate(
@@ -29,15 +27,11 @@ cdef extern from "BondOrder.h" namespace "freud::environment":
             quat[float]*,
             unsigned int,
             unsigned int) nogil
-        void reduceBondOrder()
         shared_ptr[float] getBondOrder()
         shared_ptr[float] getTheta()
         shared_ptr[float] getPhi()
         unsigned int getNBinsTheta()
         unsigned int getNBinsPhi()
-
-cdef extern from "LocalDescriptors.cc" namespace "freud::environment":
-    pass
 
 cdef extern from "LocalDescriptors.h" namespace "freud::environment":
     ctypedef enum LocalDescriptorOrientation:
@@ -53,7 +47,6 @@ cdef extern from "LocalDescriptors.h" namespace "freud::environment":
         unsigned int getNSphs() const
         unsigned int getLMax() const
         unsigned int getSphWidth() const
-        float getRMax() const
         unsigned int getNP()
         void computeNList(const freud._box.Box &,
                           const vec3[float]*, unsigned int,
@@ -64,9 +57,6 @@ cdef extern from "LocalDescriptors.h" namespace "freud::environment":
             unsigned int, const vec3[float]*, unsigned int,
             const quat[float]*, LocalDescriptorOrientation) nogil except +
         shared_ptr[float complex] getSph()
-
-cdef extern from "MatchEnv.cc" namespace "freud::environment":
-    pass
 
 cdef extern from "MatchEnv.h" namespace "freud::environment":
     cdef cppclass MatchEnv:
@@ -112,28 +102,6 @@ cdef extern from "MatchEnv.h" namespace "freud::environment":
         unsigned int getNumNeighbors()
         unsigned int getMaxNumNeighbors()
 
-cdef extern from "Pairing2D.cc" namespace "freud::environment":
-    pass
-
-cdef extern from "Pairing2D.h" namespace "freud::environment":
-    cdef cppclass Pairing2D:
-        Pairing2D(const float, const unsigned int, float)
-        const freud._box.Box & getBox() const
-        void reset()
-        void compute(freud._box.Box &,
-                     const freud._locality.NeighborList*,
-                     vec3[float]*,
-                     float*,
-                     float*,
-                     unsigned int,
-                     unsigned int) nogil except +
-        shared_ptr[unsigned int] getMatch()
-        shared_ptr[unsigned int] getPair()
-        unsigned int getNumParticles()
-
-cdef extern from "AngularSeparation.cc" namespace "freud::environment":
-    pass
-
 cdef extern from "AngularSeparation.h" namespace "freud::environment":
     cdef cppclass AngularSeparation:
         AngularSeparation()
@@ -156,3 +124,25 @@ cdef extern from "AngularSeparation.h" namespace "freud::environment":
         unsigned int getNP()
         unsigned int getNref()
         unsigned int getNglobal()
+
+cdef extern from "LocalBondProjection.h" namespace "freud::environment":
+    cdef cppclass LocalBondProjection:
+        LocalBondProjection()
+        void compute(freud._box.Box &,
+                     const freud._locality.NeighborList*,
+                     vec3[float]*,
+                     vec3[float]*,
+                     quat[float]*,
+                     quat[float]*,
+                     vec3[float]*,
+                     unsigned int,
+                     unsigned int,
+                     unsigned int,
+                     unsigned int) nogil except +
+
+        shared_ptr[float] getProjections()
+        shared_ptr[float] getNormedProjections()
+        unsigned int getNP()
+        unsigned int getNref()
+        unsigned int getNproj()
+        const freud._box.Box & getBox() const

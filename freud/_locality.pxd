@@ -8,9 +8,6 @@ from libcpp.memory cimport shared_ptr
 from libcpp.vector cimport vector
 cimport freud._box
 
-cdef extern from "NeighborList.cc" namespace "freud::locality":
-    pass
-
 cdef extern from "NeighborList.h" namespace "freud::locality":
     cdef cppclass NeighborList:
         NeighborList()
@@ -38,9 +35,6 @@ cdef extern from "NeighborList.h" namespace "freud::locality":
         void copy(const NeighborList &)
         void validate(size_t, size_t) except +
 
-cdef extern from "LinkCell.cc" namespace "freud::locality":
-    pass
-
 cdef extern from "LinkCell.h" namespace "freud::locality":
     cdef cppclass IteratorLinkCell:
         IteratorLinkCell()
@@ -58,8 +52,8 @@ cdef extern from "LinkCell.h" namespace "freud::locality":
         LinkCell(const freud._box.Box &, float) except +
         LinkCell()
 
-        setCellWidth(float)
-        updateBox(const freud._box.Box &)
+        setCellWidth(float) except +
+        updateBox(const freud._box.Box &) except +
         const vec3[unsigned int] computeDimensions(
             const freud._box.Box &,
             float) const
@@ -83,9 +77,6 @@ cdef extern from "LinkCell.h" namespace "freud::locality":
             bool) nogil except +
         NeighborList * getNeighborList()
 
-cdef extern from "NearestNeighbors.cc" namespace "freud::locality":
-    pass
-
 cdef extern from "NearestNeighbors.h" namespace "freud::locality":
     cdef cppclass NearestNeighbors:
         NearestNeighbors()
@@ -100,6 +91,19 @@ cdef extern from "NearestNeighbors.h" namespace "freud::locality":
         void setCutMode(const bool)
         void compute(
             const freud._box.Box &,
+            const vec3[float]*,
+            unsigned int,
+            const vec3[float]*,
+            unsigned int,
+            bool) nogil except +
+        NeighborList * getNeighborList()
+
+cdef extern from "AABBQuery.h" namespace "freud::locality":
+    cdef cppclass AABBQuery:
+        AABBQuery()
+        void compute(
+            const freud._box.Box &,
+            float,
             const vec3[float]*,
             unsigned int,
             const vec3[float]*,

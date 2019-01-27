@@ -2,7 +2,7 @@
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 R"""
-The :py:class:`freud.parallel` module controls the parallelization behavior of
+The :class:`freud.parallel` module controls the parallelization behavior of
 freud, determining how many threads the TBB-enabled parts of freud will use.
 By default, freud tries to use all available threads for parallelization unless
 directed otherwise, with one exception.
@@ -23,7 +23,7 @@ _numThreads = 0
 
 
 def setNumThreads(nthreads=None):
-    """Set the number of threads for parallel computation.
+    R"""Set the number of threads for parallel computation.
 
     .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
 
@@ -47,7 +47,7 @@ if (re.match("flux.", platform.node()) is not None) or (
 
 
 class NumThreads:
-    """Context manager for managing the number of threads to use.
+    R"""Context manager for managing the number of threads to use.
 
     .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
 

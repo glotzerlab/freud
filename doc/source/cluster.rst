@@ -15,8 +15,14 @@ Cluster Module
 .. automodule:: freud.cluster
     :synopsis: Find clusters
 
+Cluster
+=======
+
 .. autoclass:: freud.cluster.Cluster(box, rcut)
-    :members:
+    :members: computeClusterMembership, computeClusters
+
+Cluster Properties
+==================
 
 .. autoclass:: freud.cluster.ClusterProperties(box)
-    :members:
+    :members: computeProperties

@@ -6,12 +6,9 @@ from libcpp.memory cimport shared_ptr
 cimport freud._box
 cimport freud._locality
 
-cdef extern from "CorrelationFunction.cc" namespace "freud::density":
-    pass
-
 cdef extern from "CorrelationFunction.h" namespace "freud::density":
     cdef cppclass CorrelationFunction[T]:
-        CorrelationFunction(float, float)
+        CorrelationFunction(float, float) except +
         const freud._box.Box & getBox() const
         void reset()
         void accumulate(const freud._box.Box &,
@@ -21,26 +18,21 @@ cdef extern from "CorrelationFunction.h" namespace "freud::density":
                         const vec3[float]*,
                         const T*,
                         unsigned int) nogil except +
-        void reduceCorrelationFunction()
         shared_ptr[T] getRDF()
         shared_ptr[unsigned int] getCounts()
         shared_ptr[float] getR()
         unsigned int getNBins() const
 
-cdef extern from "GaussianDensity.cc" namespace "freud::density":
-    pass
-
 cdef extern from "GaussianDensity.h" namespace "freud::density":
     cdef cppclass GaussianDensity:
-        GaussianDensity(unsigned int, float, float)
+        GaussianDensity(unsigned int, float, float) except +
         GaussianDensity(unsigned int,
                         unsigned int,
                         unsigned int,
                         float,
-                        float)
+                        float) except +
         const freud._box.Box & getBox() const
         void reset()
-        void reduceDensity()
         void compute(
             const freud._box.Box &,
             const vec3[float]*,
@@ -49,9 +41,6 @@ cdef extern from "GaussianDensity.h" namespace "freud::density":
         unsigned int getWidthX()
         unsigned int getWidthY()
         unsigned int getWidthZ()
-
-cdef extern from "LocalDensity.cc" namespace "freud::density":
-    pass
 
 cdef extern from "LocalDensity.h" namespace "freud::density":
     cdef cppclass LocalDensity:
@@ -68,12 +57,9 @@ cdef extern from "LocalDensity.h" namespace "freud::density":
         shared_ptr[float] getDensity()
         shared_ptr[float] getNumNeighbors()
 
-cdef extern from "RDF.cc" namespace "freud::density":
-    pass
-
 cdef extern from "RDF.h" namespace "freud::density":
     cdef cppclass RDF:
-        RDF(float, float, float)
+        RDF(float, float, float) except +
         const freud._box.Box & getBox() const
         void reset()
         void accumulate(freud._box.Box &,
@@ -82,7 +68,6 @@ cdef extern from "RDF.h" namespace "freud::density":
                         unsigned int,
                         const vec3[float]*,
                         unsigned int) nogil except +
-        void reduceRDF()
         shared_ptr[float] getRDF()
         shared_ptr[float] getR()
         shared_ptr[float] getNr()

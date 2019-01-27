@@ -7,7 +7,7 @@
 #include <memory>
 #include <tbb/tbb.h>
 
-#include "box.h"
+#include "Box.h"
 #include "VectorMath.h"
 #include "LinkCell.h"
 
@@ -80,6 +80,7 @@ class CorrelationFunction
         //! Get a reference to the bin counts array
         std::shared_ptr<unsigned int> getCounts()
             {
+            reduceCorrelationFunction();
             return m_bin_counts;
             }
 
@@ -102,6 +103,7 @@ class CorrelationFunction
         unsigned int m_n_ref;          //!< number of reference particles
         unsigned int m_Np;             //!< number of check particles
         unsigned int m_frame_counter;  //!< number of frames calc'd
+        bool m_reduce;                 //!< Whether arrays need to be reduced across threads
 
         std::shared_ptr<T> m_rdf_array;             //!< rdf array computed
         std::shared_ptr<unsigned int> m_bin_counts; //!< bin counts that go into computing the rdf array

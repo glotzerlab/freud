@@ -7,7 +7,7 @@
 #include <memory>
 #include <tbb/tbb.h>
 
-#include "box.h"
+#include "Box.h"
 #include "VectorMath.h"
 #include "Index1D.h"
 
@@ -65,12 +65,13 @@ class GaussianDensity
 
     private:
         box::Box m_box;    //!< Simulation box where the particles belong
-        unsigned int m_width_x,m_width_y,m_width_z;           //!< Num of bins on one side of the cube
-        float m_rcut;                  //!< Max r at which to compute density
-        float m_sigma;                  //!< Variance
-        Index3D m_bi;                   //!< Bin indexer
+        unsigned int m_width_x, m_width_y, m_width_z;  //!< Num of bins on one side of the cube
+        float m_rcut;      //!< Max r at which to compute density
+        float m_sigma;     //!< Variance
+        Index3D m_bi;      //!< Bin indexer
+        bool m_reduce;     //!< Whether arrays need to be reduced across threads
 
-        std::shared_ptr<float> m_Density_array;            //! computed density array
+        std::shared_ptr<float> m_density_array;            //! computed density array
         tbb::enumerable_thread_specific<float *> m_local_bin_counts;
     };
 

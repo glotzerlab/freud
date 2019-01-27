@@ -2,14 +2,16 @@
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 R"""
-The index module exposes the :math:`1`-dimensional indexer utilized in freud at
-the C++ level.  At the C++ level, freud utilizes flat arrays to represent
-multidimensional arrays. :math:`N`-dimensional arrays with :math:`n_i` elements
-in each dimension :math:`i` are represented as :math:`1`-dimensional arrays
-with :math:`\prod_{i=1}^N n_i` elements.
+The :class:`freud.index` module exposes the :math:`1`-dimensional indexer
+utilized in freud at the C++ level. At the C++ level, freud utilizes flat
+arrays to represent multidimensional arrays. :math:`N`-dimensional arrays with
+:math:`n_i` elements in each dimension :math:`i` are represented as
+:math:`1`-dimensional arrays with :math:`\prod_{i=1}^N n_i` elements.
 """
 
 import numpy as np
+import warnings
+
 from freud.util cimport _Index1D
 cimport numpy as np
 
@@ -18,7 +20,7 @@ cimport numpy as np
 np.import_array()
 
 cdef class Index2D:
-    """freud-style indexer for flat arrays.
+    R"""freud-style indexer for flat arrays.
 
     Once constructed, the object provides direct access to the flat index
     equivalent:
@@ -35,10 +37,10 @@ cdef class Index2D:
 
     .. note::
 
-        freud indexes column-first i.e. ``Index2D(i, j)`` will return the
+        freud indexes column-first i.e. :code:`Index2D(i, j)` will return the
         :math:`1`-dimensional index of the :math:`i^{th}` column and the
         :math:`j^{th}` row. This is the opposite of what occurs in a
-        numpy array, in which ``array[i, j]`` returns the element in the
+        numpy array, in which :code:`array[i, j]` returns the element in the
         :math:`i^{th}` row and the :math:`j^{th}` column.
 
     .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
@@ -67,7 +69,7 @@ cdef class Index2D:
         del self.thisptr
 
     def __call__(self, i, j):
-        """
+        R"""
         Args:
             i (unsigned int): Column index.
             j (unsigned int): Row index.
@@ -79,18 +81,11 @@ cdef class Index2D:
 
     @property
     def num_elements(self):
-        return self.getNumElements()
-
-    def getNumElements(self):
-        """Get the number of elements in the array.
-
-        Returns:
-            unsigned int: Number of elements in the array.
-        """
         return self.thisptr.getNumElements()
 
+
 cdef class Index3D:
-    """freud-style indexer for flat arrays.
+    R"""freud-style indexer for flat arrays.
 
     Once constructed, the object provides direct access to the flat index
     equivalent:
@@ -139,7 +134,7 @@ cdef class Index3D:
         del self.thisptr
 
     def __call__(self, i, j, k):
-        """
+        R"""
         Args:
             i (unsigned int): Column index.
             j (unsigned int): Row index.
@@ -152,12 +147,4 @@ cdef class Index3D:
 
     @property
     def num_elements(self):
-        return self.getNumElements()
-
-    def getNumElements(self):
-        """Get the number of elements in the array.
-
-        Returns:
-          unsigned int: Number of elements in the array.
-        """
         return self.thisptr.getNumElements()

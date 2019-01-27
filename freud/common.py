@@ -53,13 +53,13 @@ def convert_array(array, dimensions, dtype=None,
 
 def convert_box(box):
     """Function which takes a box-like object and attempts to convert it to
-    :py:class:`freud.box.Box`. Existing :py:class:`freud.box.Box` objects are
+    :class:`freud.box.Box`. Existing :class:`freud.box.Box` objects are
     used directly.
 
-    .. moduleauthor:: Bradley Dice <bdice@umich.edu>
+    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
 
     Args:
-      box (box-like object (see :py:meth:`freud.box.Box.from_box`)): Box to
+      box (box-like object (see :meth:`freud.box.Box.from_box`)): Box to
           check and convert if needed.
 
     Returns:

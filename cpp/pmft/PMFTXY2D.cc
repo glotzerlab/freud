@@ -11,74 +11,75 @@
 using namespace std;
 using namespace tbb;
 
-/*! \internal
-    \file PMFTXY2D.cc
-    \brief Routines for computing 2D anisotropic potential of mean force
+/*! \file PMFTXY2D.cc
+    \brief Routines for computing 2D potential of mean force in XY coordinates
 */
 
 namespace freud { namespace pmft {
 
-PMFTXY2D::PMFTXY2D(float max_x, float max_y, unsigned int n_bins_x, unsigned int n_bins_y)
-    : PMFT(), m_max_x(max_x), m_max_y(max_y), m_n_bins_x(n_bins_x), m_n_bins_y(n_bins_y)
+PMFTXY2D::PMFTXY2D(float x_max, float y_max, unsigned int n_x, unsigned int n_y)
+    : PMFT(), m_x_max(x_max), m_y_max(y_max), m_n_x(n_x), m_n_y(n_y)
     {
-    if (n_bins_x < 1)
-        throw invalid_argument("must be at least 1 bin in x");
-    if (n_bins_y < 1)
-        throw invalid_argument("must be at least 1 bin in y");
-    if (max_x < 0.0f)
-        throw invalid_argument("max_x must be positive");
-    if (max_y < 0.0f)
-        throw invalid_argument("max_y must be positive");
+    if (n_x < 1)
+        throw invalid_argument("PMFTXY2D requires at least 1 bin in X.");
+    if (n_y < 1)
+        throw invalid_argument("PMFTXY2D requires at least 1 bin in Y.");
+    if (x_max < 0.0f)
+        throw invalid_argument("PMFTXY2D requires that x_max must be positive.");
+    if (y_max < 0.0f)
+        throw invalid_argument("PMFTXY2D requires that y_max must be positive.");
     // calculate dx, dy
-    m_dx = 2.0 * m_max_x / float(m_n_bins_x);
-    m_dy = 2.0 * m_max_y / float(m_n_bins_y);
+    m_dx = 2.0 * m_x_max / float(m_n_x);
+    m_dy = 2.0 * m_y_max / float(m_n_y);
 
-    if (m_dx > max_x)
-        throw invalid_argument("max_x must be greater than dx");
-    if (m_dy > max_y)
-        throw invalid_argument("max_y must be greater than dy");
+    if (m_dx > x_max)
+        throw invalid_argument("PMFTXY2D requires that dx is less than or equal to x_max.");
+    if (m_dy > y_max)
+        throw invalid_argument("PMFTXY2D requires that dy is less than or equal to y_max.");
 
     m_jacobian = m_dx * m_dy;
 
     // precompute the bin center positions for x
-    m_x_array = std::shared_ptr<float>(new float[m_n_bins_x], std::default_delete<float[]>());
-    for (unsigned int i = 0; i < m_n_bins_x; i++)
+    m_x_array = std::shared_ptr<float>(new float[m_n_x], std::default_delete<float[]>());
+    for (unsigned int i = 0; i < m_n_x; i++)
         {
         float x = float(i) * m_dx;
         float nextx = float(i+1) * m_dx;
-        m_x_array.get()[i] = -m_max_x + ((x + nextx) / 2.0);
+        m_x_array.get()[i] = -m_x_max + ((x + nextx) / 2.0);
         }
 
     // precompute the bin center positions for y
-    m_y_array = std::shared_ptr<float>(new float[m_n_bins_y], std::default_delete<float[]>());
-    for (unsigned int i = 0; i < m_n_bins_y; i++)
+    m_y_array = std::shared_ptr<float>(new float[m_n_y], std::default_delete<float[]>());
+    for (unsigned int i = 0; i < m_n_y; i++)
         {
         float y = float(i) * m_dy;
         float nexty = float(i+1) * m_dy;
-        m_y_array.get()[i] = -m_max_y + ((y + nexty) / 2.0);
+        m_y_array.get()[i] = -m_y_max + ((y + nexty) / 2.0);
         }
 
+    // create and populate the pcf_array
+    m_pcf_array = std::shared_ptr<float>(new float[m_n_x * m_n_y], std::default_delete<float[]>());
+    memset((void*) m_pcf_array.get(), 0, sizeof(float)*m_n_x*m_n_y);
+    m_bin_counts = std::shared_ptr<unsigned int>(new unsigned int[m_n_x * m_n_y], std::default_delete<unsigned int[]>());
+    memset((void*) m_bin_counts.get(), 0, sizeof(unsigned int)*m_n_x*m_n_y);
+
     // Set r_cut
-    m_r_cut = sqrtf(m_max_x*m_max_x + m_max_y*m_max_y);
-    m_pcf_array = std::shared_ptr<float>(new float[m_n_bins_x * m_n_bins_y], std::default_delete<float[]>());
-    memset((void*)m_pcf_array.get(), 0, sizeof(float)*m_n_bins_x*m_n_bins_y);
-    m_bin_counts = std::shared_ptr<unsigned int>(new unsigned int[m_n_bins_x * m_n_bins_y], std::default_delete<unsigned int[]>());
-    memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_n_bins_x*m_n_bins_y);
+    m_r_cut = sqrtf(m_x_max*m_x_max + m_y_max*m_y_max);
     }
 
 //! \internal
 //! helper function to reduce the thread specific arrays into one array
 void PMFTXY2D::reducePCF()
     {
-    memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_n_bins_x*m_n_bins_y);
-    memset((void*)m_pcf_array.get(), 0, sizeof(float)*m_n_bins_x*m_n_bins_y);
-    parallel_for(blocked_range<size_t>(0,m_n_bins_x),
+    memset((void*) m_bin_counts.get(), 0, sizeof(unsigned int)*m_n_x*m_n_y);
+    memset((void*) m_pcf_array.get(), 0, sizeof(float)*m_n_x*m_n_y);
+    parallel_for(blocked_range<size_t>(0,m_n_x),
         [=] (const blocked_range<size_t>& r)
             {
-            Index2D b_i = Index2D(m_n_bins_x, m_n_bins_y);
+            Index2D b_i = Index2D(m_n_x, m_n_y);
             for (size_t i = r.begin(); i != r.end(); i++)
                 {
-                for (size_t j = 0; j < m_n_bins_y; j++)
+                for (size_t j = 0; j < m_n_y; j++)
                     {
                     for (tbb::enumerable_thread_specific<unsigned int *>::const_iterator local_bins = m_local_bin_counts.begin();
                          local_bins != m_local_bin_counts.end(); ++local_bins)
@@ -92,7 +93,7 @@ void PMFTXY2D::reducePCF()
     float inv_jacobian = (float) 1.0 / m_jacobian;
     float norm_factor = (float) 1.0 / ((float) this->m_frame_counter * (float) this->m_n_ref);
     // normalize pcf_array
-    parallel_for(blocked_range<size_t>(0,m_n_bins_x*m_n_bins_y),
+    parallel_for(blocked_range<size_t>(0,m_n_x*m_n_y),
         [=] (const blocked_range<size_t>& r)
             {
             for (size_t i = r.begin(); i != r.end(); i++)
@@ -110,7 +111,7 @@ void PMFTXY2D::reset()
     {
     for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_bin_counts.begin(); i != m_local_bin_counts.end(); ++i)
         {
-        memset((void*)(*i), 0, sizeof(unsigned int)*m_n_bins_x*m_n_bins_y);
+        memset((void*) (*i), 0, sizeof(unsigned int)*m_n_x*m_n_y);
         }
     this->m_frame_counter = 0;
     this->m_reduce = true;
@@ -146,14 +147,14 @@ void PMFTXY2D::accumulate(box::Box& box,
             float dx_inv = 1.0f / m_dx;
             float dy_inv = 1.0f / m_dy;
 
-            Index2D b_i = Index2D(m_n_bins_x, m_n_bins_y);
+            Index2D b_i = Index2D(m_n_x, m_n_y);
 
             bool exists;
             m_local_bin_counts.local(exists);
             if (! exists)
                 {
-                m_local_bin_counts.local() = new unsigned int [m_n_bins_x*m_n_bins_y];
-                memset((void*)m_local_bin_counts.local(), 0, sizeof(unsigned int)*m_n_bins_x*m_n_bins_y);
+                m_local_bin_counts.local() = new unsigned int [m_n_x*m_n_y];
+                memset((void*) m_local_bin_counts.local(), 0, sizeof(unsigned int)*m_n_x*m_n_y);
                 }
 
             size_t bond(nlist->find_first_index(r.begin()));
@@ -181,8 +182,8 @@ void PMFTXY2D::accumulate(box::Box& box,
                         vec2<float> myVec(delta.x, delta.y);
                         rotmat2<float> myMat = rotmat2<float>::fromAngle(-ref_orientations[i]);
                         vec2<float> rotVec = myMat * myVec;
-                        float x = rotVec.x + m_max_x;
-                        float y = rotVec.y + m_max_y;
+                        float x = rotVec.x + m_x_max;
+                        float y = rotVec.y + m_y_max;
 
                         // find the bin to increment
                         float binx = floorf(x * dx_inv);
@@ -197,7 +198,7 @@ void PMFTXY2D::accumulate(box::Box& box,
                         #endif
 
                         // increment the bin
-                        if ((ibinx < m_n_bins_x) && (ibiny < m_n_bins_y))
+                        if ((ibinx < m_n_x) && (ibiny < m_n_y))
                             {
                             ++m_local_bin_counts.local()[b_i(ibinx, ibiny)];
                             }

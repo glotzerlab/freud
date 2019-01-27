@@ -3,6 +3,7 @@ freud documentation
 ===================
 
 |DOI|
+|PyPI|
 |Anaconda-Server|
 |Binder|
 |ReadTheDocs|
@@ -10,6 +11,8 @@ freud documentation
 
 .. |DOI| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.166564.svg
     :target: https://doi.org/10.5281/zenodo.166564
+.. |PyPI| image:: https://img.shields.io/pypi/v/freud-analysis.svg
+    :target: https://pypi.org/project/freud-analysis/
 .. |Anaconda-Server| image:: https://anaconda.org/conda-forge/freud/badges/version.svg
     :target: https://anaconda.org/conda-forge/freud
 .. |Binder| image:: https://mybinder.org/badge.svg
@@ -26,31 +29,12 @@ The library contains a diverse array of analysis routines designed for molecular
 Since any scientific investigation is likely to benefit from a range of analyses, freud is designed to work as part of a larger analysis pipeline.
 In order to maximize its interoperability with other systems, freud works with and returns `NumPy <http://www.numpy.org/>`_ arrays.
 
-Installing freud
-================
-
-The recommended method of installing freud is using `conda <https://conda.io/docs/>`_ through the `conda-forge channel <https://conda-forge.org/>`_.
-First download and install `miniconda <https://conda.io/miniconda.html>`_ following `conda's instructions <https://conda.io/docs/user-guide/install/index.html>`_.
-Then, install freud from conda-forge:
-  
-.. code-block:: bash
-
-    $ conda install -c conda-forge freud
-
-Alternatively, freud can be installed directly from source.
-
-.. code-block:: bash
-
-    $ git clone https://bitbucket.org/glotzer/freud.git
-    $ cd freud
-    $ python setup.py install
-
 .. toctree::
    :maxdepth: 2
    :caption: Contents
 
-   examples
    installation
+   examples
    modules
    development
    citations

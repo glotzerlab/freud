@@ -2,8 +2,8 @@
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 R"""
-The interface module contains functions to measure the interface between sets
-of points.
+The :class:`freud.interface` module contains functions to measure the interface
+between sets of points.
 """
 
 import freud.common
@@ -13,39 +13,47 @@ from freud.util._VectorMath cimport vec3
 from cython.operator cimport dereference
 import freud.locality
 
-cimport freud._interface
 cimport freud.locality
 cimport freud.box
 
 cimport numpy as np
 
+# numpy must be initialized. When using numpy from C or Cython you must
+# _always_ do that, or you will have segfaults
+np.import_array()
+
 cdef class InterfaceMeasure:
-    """Measures the interface between two sets of points.
+    R"""Measures the interface between two sets of points.
 
     .. moduleauthor:: Matthew Spellings <mspells@umich.edu>
+    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
 
     Args:
-        box (:py:class:`freud.box.Box`): Simulation box.
+        box (:class:`freud.box.Box`): Simulation box.
         r_cut (float): Distance to search for particle neighbors.
+
+    Attributes:
+        ref_point_count (int):
+            Number of particles from :code:`ref_points` on the interface.
+        ref_point_ids (:class:`np.ndarray`):
+            The particle IDs from :code:`ref_points`.
+        point_count (int):
+            Number of particles from :code:`points` on the interface.
+        point_ids (:class:`np.ndarray`):
+            The particle IDs from :code:`points`.
     """
-    cdef freud._interface.InterfaceMeasure * thisptr
-    cdef freud.box.Box box
-    cdef rmax
+    cdef float rmax
+    cdef unsigned int[::1] _ref_point_ids
+    cdef unsigned int[::1] _point_ids
 
-    def __cinit__(self, box, float r_cut):
-        cdef freud.box.Box b = freud.common.convert_box(box)
-
-        self.thisptr = new freud._interface.InterfaceMeasure(
-            dereference(b.thisptr), r_cut)
-        self.box = b
+    def __cinit__(self, float r_cut):
         self.rmax = r_cut
+        self._ref_point_ids = np.empty(0, dtype=np.uint32)
+        self._point_ids = np.empty(0, dtype=np.uint32)
 
-    def __dealloc__(self):
-        del self.thisptr
-
-    def compute(self, ref_points, points, nlist=None):
-        """Compute and return the number of particles at the interface between
-        the two given sets of points.
+    def compute(self, box, ref_points, points, nlist=None):
+        R"""Compute the particles at the interface between the two given sets of
+        points.
 
         Args:
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
@@ -55,6 +63,7 @@ cdef class InterfaceMeasure:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """
+        b = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(
             ref_points, 2, dtype=np.float32, contiguous=True,
             array_name="ref_points")
@@ -63,17 +72,28 @@ cdef class InterfaceMeasure:
         if ref_points.shape[1] != 3 or points.shape[1] != 3:
             raise RuntimeError('Need to provide array with x, y, z positions')
 
-        defaulted_nlist = freud.locality.make_default_nlist(
-            self.box, ref_points, points, self.rmax, nlist, None)
-        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
+        if nlist is None:
+            lc = freud.locality.LinkCell(b, self.rmax)
+            nlist = lc.compute(b, ref_points, points).nlist
+        else:
+            nlist = nlist.copy().filter_r(b, ref_points, points, self.rmax)
 
-        cdef np.ndarray cRef_points = ref_points
-        cdef unsigned int n_ref = ref_points.shape[0]
-        cdef np.ndarray cPoints = points
-        cdef unsigned int Np = points.shape[0]
-        return self.thisptr.compute(
-            nlist_.get_ptr(),
-            <vec3[float]*> cRef_points.data,
-            n_ref,
-            <vec3[float]*> cPoints.data,
-            Np)
+        self._ref_point_ids = np.unique(nlist.index_i).astype(np.uint32)
+        self._point_ids = np.unique(nlist.index_j).astype(np.uint32)
+        return self
+
+    @property
+    def ref_point_count(self):
+        return len(self._ref_point_ids)
+
+    @property
+    def ref_point_ids(self):
+        return np.asarray(self._ref_point_ids)
+
+    @property
+    def point_count(self):
+        return len(self._point_ids)
+
+    @property
+    def point_ids(self):
+        return np.asarray(self._point_ids)

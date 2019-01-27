@@ -9,12 +9,11 @@ from libc.stdint cimport uint32_t
 cimport freud._box
 cimport freud._locality
 
-cdef extern from "Cluster.cc" namespace "freud::cluster":
-    pass
+ctypedef unsigned int uint
 
 cdef extern from "Cluster.h" namespace "freud::cluster":
     cdef cppclass Cluster:
-        Cluster(float)
+        Cluster(float) except +
         void computeClusters(
             const freud._box.Box &,
             const freud._locality.NeighborList*,
@@ -25,9 +24,6 @@ cdef extern from "Cluster.h" namespace "freud::cluster":
         unsigned int getNumParticles()
         shared_ptr[unsigned int] getClusterIdx()
         const vector[vector[uint]] getClusterKeys()
-
-cdef extern from "ClusterProperties.cc" namespace "freud::cluster":
-    pass
 
 cdef extern from "ClusterProperties.h" namespace "freud::cluster":
     cdef cppclass ClusterProperties:

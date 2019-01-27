@@ -2,17 +2,17 @@
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 R"""
-The cluster module aids in finding and computing the properties of clusters of
-points in a system.
+The :class:`freud.cluster` module aids in finding and computing the properties
+of clusters of points in a system.
 """
 
 import numpy as np
+import warnings
 import freud.common
 import freud.locality
 
 from cython.operator cimport dereference
 from freud.util._VectorMath cimport vec3
-from libcpp.vector cimport vector
 
 cimport freud._cluster
 cimport freud.box, freud.locality
@@ -24,12 +24,12 @@ cimport numpy as np
 np.import_array()
 
 cdef class Cluster:
-    """Finds clusters in a set of points.
+    R"""Finds clusters in a set of points.
 
-    Given a set of coordinates and a cutoff, :py:class:`freud.cluster.Cluster`
+    Given a set of coordinates and a cutoff, :class:`freud.cluster.Cluster`
     will determine all of the clusters of points that are made up of points
     that are closer than the cutoff. Clusters are 0-indexed. The class contains
-    an index array, the ``cluster_idx`` attribute, which can be used to
+    an index array, the :code:`cluster_idx` attribute, which can be used to
     identify which cluster a particle is associated with:
     :code:`cluster_obj.cluster_idx[i]` is the cluster index in which particle
     :code:`i` is found. By the definition of a cluster, points that are not
@@ -48,18 +48,18 @@ cdef class Cluster:
     .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
 
     Args:
-        box (:py:class:`freud.box.Box`):
+        box (:class:`freud.box.Box`):
             The simulation box.
         rcut (float):
             Particle distance cutoff.
 
     .. note::
-        2D: :py:class:`freud.cluster.Cluster` properly handles 2D boxes.
+        **2D:** :class:`freud.cluster.Cluster` properly handles 2D boxes.
         The points must be passed in as :code:`[x, y, 0]`.
         Failing to set z=0 will lead to undefined behavior.
 
     Attributes:
-        box (:py:class:`freud.box.Box`):
+        box (:class:`freud.box.Box`):
             Box used in the calculation.
         num_clusters (int):
             The number of clusters.
@@ -85,18 +85,10 @@ cdef class Cluster:
 
     @property
     def box(self):
-        return self.getBox()
-
-    def getBox(self):
-        """Return the stored freud Box.
-
-        Returns:
-            :class:`freud.box.Box`: freud Box.
-        """
         return self.m_box
 
     def computeClusters(self, points, nlist=None, box=None):
-        """Compute the clusters for the given set of points.
+        R"""Compute the clusters for the given set of points.
 
         Args:
             points ((:math:`N_{particles}`, 3) :class:`np.ndarray`):
@@ -122,19 +114,19 @@ cdef class Cluster:
         else:
             b = freud.common.convert_box(box)
 
-        cdef np.ndarray cPoints = points
-        cdef unsigned int Np = points.shape[0]
+        cdef float[:, ::1] l_points = points
+        cdef unsigned int Np = l_points.shape[0]
         with nogil:
             self.thisptr.computeClusters(
                 dereference(b.thisptr), nlist_.get_ptr(),
-                <vec3[float]*> cPoints.data, Np)
+                <vec3[float]*> &l_points[0, 0], Np)
         return self
 
     def computeClusterMembership(self, keys):
-        """Compute the clusters with key membership.
+        R"""Compute the clusters with key membership.
         Loops over all particles and adds them to a list of sets.
         Each set contains all the keys that are part of that cluster.
-        Get the computed list with :py:meth:`~.getClusterKeys()`.
+        Get the computed list with :attr:`~cluster_keys`.
 
         Args:
             keys((:math:`N_{particles}`) :class:`numpy.ndarray`):
@@ -142,75 +134,37 @@ cdef class Cluster:
         """
         keys = freud.common.convert_array(
             keys, 1, dtype=np.uint32, contiguous=True)
-        N = self.getNumParticles()
-        if keys.shape[0] != N:
+        if keys.shape[0] != self.num_particles:
             raise RuntimeError(
-                'keys must be a 1D array of length NumParticles')
-        cdef np.ndarray cKeys = keys
+                'keys must be a 1D array of length num_particles')
+        cdef unsigned int[::1] l_keys = keys
         with nogil:
-            self.thisptr.computeClusterMembership(<unsigned int*> cKeys.data)
+            self.thisptr.computeClusterMembership(<unsigned int*> &l_keys[0])
         return self
 
     @property
     def num_clusters(self):
-        return self.getNumClusters()
-
-    def getNumClusters(self):
-        """Returns the number of clusters.
-
-        Returns:
-            int: Number of clusters.
-        """
         return self.thisptr.getNumClusters()
 
     @property
     def num_particles(self):
-        return self.getNumParticles()
-
-    def getNumParticles(self):
-        """Returns the number of particles.
-
-        Returns:
-            int: Number of particles.
-        """
         return self.thisptr.getNumParticles()
 
     @property
     def cluster_idx(self):
-        return self.getClusterIdx()
-
-    def getClusterIdx(self):
-        """Returns 1D array of Cluster idx for each particle
-
-        Returns:
-            (:math:`N_{particles}`) :class:`numpy.ndarray`:
-                1D array of cluster idx.
-        """
-        cdef unsigned int * cluster_idx_raw = \
-            self.thisptr.getClusterIdx().get()
-        cdef np.npy_intp nP[1]
-        nP[0] = <np.npy_intp> self.thisptr.getNumParticles()
-        cdef np.ndarray[np.uint32_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(
-                1, nP, np.NPY_UINT32, <void*> cluster_idx_raw)
-        return result
+        cdef unsigned int n_particles = self.thisptr.getNumParticles()
+        cdef unsigned int[::1] cluster_idx = \
+            <unsigned int[:n_particles]> self.thisptr.getClusterIdx().get()
+        return np.asarray(cluster_idx)
 
     @property
     def cluster_keys(self):
-        return self.getClusterKeys()
-
-    def getClusterKeys(self):
-        """Returns the keys contained in each cluster.
-
-        Returns:
-            list: List of lists of each key contained in clusters.
-        """
         cluster_keys = self.thisptr.getClusterKeys()
         return cluster_keys
 
 
 cdef class ClusterProperties:
-    """Routines for computing properties of point clusters.
+    R"""Routines for computing properties of point clusters.
 
     Given a set of points and cluster ids (from :class:`~.Cluster`, or another
     source), ClusterProperties determines the following properties for each
@@ -220,22 +174,22 @@ cdef class ClusterProperties:
      - Gyration tensor
 
     The computed center of mass for each cluster (properly handling periodic
-    boundary conditions) can be accessed with :py:meth:`~.getClusterCOM()`.
-    This returns a :math:`\\left(N_{clusters}, 3 \\right)`
+    boundary conditions) can be accessed with :meth:`~.getClusterCOM()`.
+    This returns a :math:`\left(N_{clusters}, 3 \right)`
     :class:`numpy.ndarray`.
 
-    The :math:`3 \\times 3` gyration tensor :math:`G` can be accessed with
-    :py:meth:`~.getClusterG()`. This returns a :class:`numpy.ndarray`,
-    shape= :math:`\\left(N_{clusters} \\times 3 \\times 3\\right)`.
+    The :math:`3 \times 3` gyration tensor :math:`G` can be accessed with
+    :meth:`~.getClusterG()`. This returns a :class:`numpy.ndarray`,
+    shape= :math:`\left(N_{clusters} \times 3 \times 3\right)`.
     The tensor is symmetric for each cluster.
 
     .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
 
     Args:
-        box (:py:class:`freud.box.Box`): Simulation box.
+        box (:class:`freud.box.Box`): Simulation box.
 
     Attributes:
-        box (:py:class:`freud.box.Box`):
+        box (:class:`freud.box.Box`):
             Box used in the calculation.
         num_clusters (int):
             The number of clusters.
@@ -243,10 +197,10 @@ cdef class ClusterProperties:
             The center of mass of the last computed cluster.
         cluster_G ((:math:`N_{clusters}`, 3, 3) :class:`numpy.ndarray`):
             The cluster :math:`G` tensors computed by the last call to
-            :py:meth:`~.computeProperties()`.
+            :meth:`~.computeProperties()`.
         cluster_sizes ((:math:`N_{clusters}`) :class:`numpy.ndarray`):
             The cluster sizes computed by the last call to
-            :py:meth:`~.computeProperties()`.
+            :meth:`~.computeProperties()`.
     """
     cdef freud._cluster.ClusterProperties * thisptr
     cdef freud.box.Box m_box
@@ -261,29 +215,21 @@ cdef class ClusterProperties:
 
     @property
     def box(self):
-        return self.getBox()
-
-    def getBox(self):
-        """Return the stored :py:class:`freud.box.Box` object.
-
-        Returns:
-            :class:`freud.box.Box`: freud Box
-        """
         return self.m_box
 
     def computeProperties(self, points, cluster_idx, box=None):
-        """Compute properties of the point clusters.
+        R"""Compute properties of the point clusters.
         Loops over all points in the given array and determines the center of
         mass of the cluster as well as the :math:`G` tensor. These can be
-        accessed after the call to :py:meth:`~.computeProperties()` with
-        :py:meth:`~.getClusterCOM()` and :py:meth:`~.getClusterG()`.
+        accessed after the call to :meth:`~.computeProperties()` with
+        :meth:`~.getClusterCOM()` and :meth:`~.getClusterG()`.
 
         Args:
             points ((:math:`N_{particles}`, 3) :class:`np.ndarray`):
                 Positions of the particles making up the clusters.
             cluster_idx (:class:`np.ndarray`):
                 List of cluster indexes for each particle.
-            box (:py:class:`freud.box.Box`, optional):
+            box (:class:`freud.box.Box`, optional):
                 Simulation box (Default value = None).
         """
         cdef freud.box.Box b
@@ -303,90 +249,46 @@ cdef class ClusterProperties:
             raise RuntimeError(
                 ('cluster_idx must be a 1D array of matching length/number'
                     'of particles to points'))
-        cdef np.ndarray cPoints = points
-        cdef np.ndarray cCluster_idx = cluster_idx
-        cdef unsigned int Np = points.shape[0]
+        cdef float[:, ::1] l_points = points
+        cdef unsigned int[::1] l_cluster_idx = cluster_idx
+        cdef unsigned int Np = l_points.shape[0]
         with nogil:
             self.thisptr.computeProperties(
                 dereference(b.thisptr),
-                <vec3[float]*> cPoints.data,
-                <unsigned int*> cCluster_idx.data,
+                <vec3[float]*> &l_points[0, 0],
+                <unsigned int*> &l_cluster_idx[0],
                 Np)
         return self
 
     @property
     def num_clusters(self):
-        return self.getNumClusters()
-
-    def getNumClusters(self):
-        """Count the number of clusters found in the last call to
-        :py:meth:`~.computeProperties()`.
-
-        Returns:
-            int: Number of clusters.
-        """
         return self.thisptr.getNumClusters()
 
     @property
     def cluster_COM(self):
-        return self.getClusterCOM()
-
-    def getClusterCOM(self):
-        """Returns the center of mass of the last computed cluster.
-
-        Returns:
-            (:math:`N_{clusters}`, 3) :class:`numpy.ndarray`:
-                Cluster center of mass coordinates
-                :math:`\\left(x, y, z\\right)`.
-        """
-        cdef vec3[float] * cluster_com_raw = self.thisptr.getClusterCOM().get()
-        cdef np.npy_intp nClusters[2]
-        nClusters[0] = <np.npy_intp> self.thisptr.getNumClusters()
-        nClusters[1] = 3
-        cdef np.ndarray[np.float32_t, ndim=2] result = \
-            np.PyArray_SimpleNewFromData(
-                2, nClusters, np.NPY_FLOAT32, <void*> cluster_com_raw)
-        return result
+        cdef unsigned int n_clusters = self.thisptr.getNumClusters()
+        if not n_clusters:
+            return np.asarray([[]], dtype=np.float32)
+        cdef float[:, ::1] cluster_COM = \
+            <float[:n_clusters, :3]> (
+                <float*> self.thisptr.getClusterCOM().get())
+        return np.asarray(cluster_COM)
 
     @property
     def cluster_G(self):
-        return self.getClusterG()
-
-    def getClusterG(self):
-        """Returns the cluster :math:`G` tensors computed by the last call to
-        :py:meth:`~.computeProperties()`.
-
-        Returns:
-            (:math:`N_{clusters}`, 3, 3) :class:`numpy.ndarray`:
-                List of gyration tensors for each cluster.
-        """
-        cdef float * cluster_G_raw = self.thisptr.getClusterG().get()
-        cdef np.npy_intp nClusters[3]
-        nClusters[0] = <np.npy_intp> self.thisptr.getNumClusters()
-        nClusters[1] = 3
-        nClusters[2] = 3
-        cdef np.ndarray[np.float32_t, ndim=3] result = \
-            np.PyArray_SimpleNewFromData(
-                3, nClusters, np.NPY_FLOAT32, <void*> cluster_G_raw)
-        return result
+        cdef unsigned int n_clusters = self.thisptr.getNumClusters()
+        if not n_clusters:
+            return np.asarray([[[]]], dtype=np.float32)
+        cdef float[:, :, ::1] cluster_G = \
+            <float[:n_clusters, :3, :3]> (
+                <float*> self.thisptr.getClusterG().get())
+        return np.asarray(cluster_G)
 
     @property
     def cluster_sizes(self):
-        return self.getClusterSizes()
-
-    def getClusterSizes(self):
-        """Returns the cluster sizes computed by the last call to
-        :py:meth:`~.computeProperties()`.
-
-        Returns:
-            (:math:`N_{clusters}`) :class:`numpy.ndarray`:
-                Sizes of each cluster.
-        """
-        cdef unsigned int * cluster_sizes_raw = \
-            self.thisptr.getClusterSize().get()
-        cdef np.npy_intp nClusters[1]
-        nClusters[0] = <np.npy_intp> self.thisptr.getNumClusters()
-        cdef np.ndarray[np.uint32_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(
-                1, nClusters, np.NPY_UINT32, <void*> cluster_sizes_raw)
-        return result
+        cdef unsigned int n_clusters = self.thisptr.getNumClusters()
+        if not n_clusters:
+            return np.asarray([], dtype=np.uint32)
+        cdef unsigned int[::1] cluster_sizes = \
+            <unsigned int[:n_clusters]> self.thisptr.getClusterSize().get()
+        return np.asarray(cluster_sizes, dtype=np.uint32)

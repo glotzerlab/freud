@@ -10,9 +10,10 @@
 #include <memory>
 #include <set>
 #include <stdexcept>
+#include <stdint.h>
 #include <vector>
 
-#include "box.h"
+#include "Box.h"
 #include "VectorMath.h"
 #include "Cluster.h"
 #include "LinkCell.h"
@@ -60,7 +61,7 @@ class SolLiq
         void setClusteringRadius(float rcut_cluster)
             {
             if (rcut_cluster < m_rmax)
-                throw std::invalid_argument("rcut_cluster must be greater than rcut (for local env)");
+                throw std::invalid_argument("SolLiq requires that rcut_cluster must be greater than rcut (for local env).");
                 //May not be necessary if std::max(m_rmax, m_rmax_cluster) is used to rebuild cell list here, and in setBox.
 
             m_rmax_cluster = rcut_cluster;

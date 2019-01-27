@@ -21,7 +21,7 @@ class TestVoronoi(unittest.TestCase):
         positions = np.insert(positions, 2, 0, axis=1).astype(np.float32)
         vor.compute(positions, box=fbox, buff=L/2)
 
-        result = vor.getVoronoiPolytopes()
+        result = vor.polytopes
 
         npt.assert_equal(len(result), len(positions))
 
@@ -36,13 +36,15 @@ class TestVoronoi(unittest.TestCase):
              [1, 0, 0], [1, 1, 0], [1, 2, 0],
              [2, 0, 0], [2, 1, 0], [2, 2, 0]]).astype(np.float32)
         vor.compute(positions)
-        npt.assert_equal(
-            vor.getVoronoiPolytopes(),
-            [np.array([[1.5, 1.5, 0], [0.5, 1.5, 0],
-                       [0.5, 0.5, 0], [1.5, 0.5, 0]])])
+        polytope_centers = set(tuple(point)
+                               for point in vor.polytopes[0].tolist())
+        check_centers = set([(1.5, 1.5, 0), (0.5, 1.5, 0),
+                             (0.5, 0.5, 0), (1.5, 0.5, 0)])
+        self.assertEqual(polytope_centers, check_centers)
+
         # Verify the cell areas
         vor.computeVolumes()
-        npt.assert_equal(vor.getVolumes(), [1])
+        npt.assert_equal(vor.volumes, [1])
 
     def test_voronoi_tess_3d(self):
         # Test that the voronoi polytope works for a 3D system
@@ -61,14 +63,16 @@ class TestVoronoi(unittest.TestCase):
              [1, 0, 2], [1, 1, 2], [1, 2, 2],
              [2, 0, 2], [2, 1, 2], [2, 2, 2]]).astype(np.float32)
         vor.compute(positions)
-        npt.assert_equal(
-            vor.getVoronoiPolytopes(),
-            [np.array([[1.5, 1.5, 1.5], [1.5, 0.5, 1.5], [1.5, 0.5, 0.5],
-                       [1.5, 1.5, 0.5], [0.5, 0.5, 0.5], [0.5, 0.5, 1.5],
-                       [0.5, 1.5, 0.5], [0.5, 1.5, 1.5]])])
+        polytope_centers = set(tuple(point)
+                               for point in vor.polytopes[0].tolist())
+        check_centers = set([(1.5, 1.5, 1.5), (1.5, 0.5, 1.5), (1.5, 0.5, 0.5),
+                             (1.5, 1.5, 0.5), (0.5, 0.5, 0.5), (0.5, 0.5, 1.5),
+                             (0.5, 1.5, 0.5), (0.5, 1.5, 1.5)])
+        self.assertEqual(polytope_centers, check_centers)
+
         # Verify the cell volumes
         vor.computeVolumes()
-        npt.assert_equal(vor.getVolumes(), [1])
+        npt.assert_equal(vor.volumes, [1])
 
     def test_voronoi_neighbors(self):
         # Test that voronoi neighbors in the first and second shells are
@@ -110,7 +114,7 @@ class TestVoronoi(unittest.TestCase):
                               for k in range(int(L))]).astype(np.float32)
         vor = voronoi.Voronoi(fbox)
         vor.computeNeighbors(positions, fbox, rbuf)
-        nlist = vor.getNeighborList()
+        nlist = vor.nlist
 
         unique_indices, counts = np.unique(nlist.index_i, return_counts=True)
 
@@ -126,7 +130,7 @@ class TestVoronoi(unittest.TestCase):
 
         vor = voronoi.Voronoi(fbox)
         vor.computeNeighbors(positions, fbox, rbuf)
-        nlist = vor.getNeighborList()
+        nlist = vor.nlist
 
         # Drop the tiny facets that come from numerical imprecision
         nlist = nlist.filter(nlist.weights > 1e-12)
@@ -142,8 +146,8 @@ class TestVoronoi(unittest.TestCase):
                             atol=1e-5)
         # Every cell should have volume 2
         vor.compute(positions)
-        npt.assert_allclose(vor.computeVolumes().getVolumes(),
-                            np.full(len(vor.getVoronoiPolytopes()), 2.),
+        npt.assert_allclose(vor.computeVolumes().volumes,
+                            np.full(len(vor.polytopes), 2.),
                             atol=1e-5)
 
     def test_nlist_symmetric(self):
@@ -157,7 +161,7 @@ class TestVoronoi(unittest.TestCase):
         points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
         vor = voronoi.Voronoi(fbox)
         vor.computeNeighbors(points, fbox, rbuf)
-        nlist = vor.getNeighborList()
+        nlist = vor.nlist
 
         ijs = set(zip(nlist.index_i, nlist.index_j))
         jis = set(zip(nlist.index_j, nlist.index_i))
