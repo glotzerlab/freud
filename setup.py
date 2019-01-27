@@ -19,8 +19,6 @@ import distutils.ccompiler  # Handles old versions of Python 2.7
 
 logger = logging.getLogger(__name__)
 
-install_requires = ['numpy>=1.10']
-
 ######################################
 # Define helper functions for setup.py
 ######################################
@@ -156,8 +154,6 @@ sys.argv = ['setup.py'] + extras
 
 on_rtd = os.environ.get('READTHEDOCS') == 'True'
 if on_rtd:
-    install_requires.append('cython')
-    install_requires.append('tbb')
     args.use_cython = True
 
 
@@ -401,7 +397,14 @@ try:
               url='https://github.com/glotzerlab/freud',
               packages=['freud'],
               python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*',
-              install_requires=install_requires,
+              install_requires=['numpy>=1.10'],
+              extras_require={
+                  'cython': [
+                      'cython'
+                  ],
+                  'tbb': [
+                      'tbb'
+                  ]},
               ext_modules=extensions)
 except SystemExit:
     # The errors we're explicitly checking for are whether or not

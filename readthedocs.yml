@@ -1,3 +1,6 @@
 python:
    version: 3
    pip_install: true
+   extra_requirements:
+      - cython
+      - tbb
