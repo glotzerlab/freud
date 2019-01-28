@@ -11,15 +11,12 @@
 using namespace std;
 using namespace tbb;
 
-/*! \file RotationalAutocorrelationFunction.h
-    \brief Compute the rotational autocorrelation function for a system
-    against a reference set of orientations
+/*! \file RotationalAutocorrelationFunction.cc
+    \brief Implements the RotationalAutocorrelationFunction class.
 */
 
 namespace freud { namespace order {
 
-
-//Going to define some functions that are used in multiple spots
 
 std::pair<std::complex<float>, std::complex<float> > quat_to_greek(const quat<float> &q)
     {
@@ -81,14 +78,17 @@ void RotationalAutocorrelationFunction::compute(
                 const quat<float> *ors,
                 unsigned int Np)
     {
-    m_RA_array = std::shared_ptr< std::complex<float> >(
-              new std::complex<float>[Np],
-              std::default_delete<std::complex<float>[]>());
-    memset((void*) m_RA_array.get(), 0, sizeof(std::complex<float>)*Np);
-    m_Np = Np;
+    if (Np != m_Np)
+        {
+        m_RA_array = std::shared_ptr< std::complex<float> >(
+                  new std::complex<float>[Np],
+                  std::default_delete<std::complex<float>[]>());
+        memset((void*) m_RA_array.get(), 0, sizeof(std::complex<float>)*Np);
+        m_Np = Np;
+        }
 
     // Compute relevant values for all orientations in the system
-    parallel_for(blocked_range<size_t>(0,Np),
+    parallel_for(blocked_range<size_t>(0, Np),
             [=] (const blocked_range<size_t>& r)
         {
         assert(ref_ors);
@@ -129,7 +129,7 @@ void RotationalAutocorrelationFunction::compute(
         });
 
     std::complex<float> RA_sum(0,0);
-    for (unsigned int i=0; i <= Np; i++)
+    for (unsigned int i=0; i < Np; i++)
         {
         RA_sum += m_RA_array.get()[i];
         }
