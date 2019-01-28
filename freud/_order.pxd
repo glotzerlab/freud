@@ -132,10 +132,10 @@ cdef extern from "SolLiq.h" namespace "freud::order":
 
 cdef extern from "RotationalAutocorrelation.h" namespace "freud::order":
     cdef cppclass RotationalAutocorrelationFunction:
+        RotationalAutocorrelationFunction()
         RotationalAutocorrelationFunction(int)
         unsigned int getL()
         unsigned int getNP()
-        # Following the procedure for passing complex array from getPsi()
         shared_ptr[float complex] getRAArray()
         float getRotationalAutocorrelationFunction()
         void compute(quat[float]*, quat[float]*, unsigned int) nogil except +

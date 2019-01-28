@@ -1353,9 +1353,8 @@ cdef class RotationalAutocorrelationFunction:
     """Calculates a rotational autocorrelation function based on hyperspherical
     harmonics as laid out in A. Karas's plastic crystals manuscript.
     This is meant to return a scalar value that describes how all orientations
-    have changed relative to relative to an initial orientation. For analysis
-    of a trajectory, the compute call needs to be done at each trajectory
-    frame.
+    have changed relative to an initial orientation. For analysis of a
+    trajectory, the compute call needs to be done at each trajectory frame.
 
     .. moduleauthor:: Andrew Karas
 
@@ -1373,8 +1372,9 @@ cdef class RotationalAutocorrelationFunction:
     cdef int l
 
     def __cinit__(self, l):
-        self.thisptr = new freud._order.RotationalAutocorrelationFunction(l)
         self.l = l  # noqa
+        self.thisptr = new freud._order.RotationalAutocorrelationFunction(
+            self.l)
 
     def __dealloc__(self):
         del self.thisptr
@@ -1402,14 +1402,14 @@ cdef class RotationalAutocorrelationFunction:
         if ors.shape[1] != 4:
             raise TypeError('ors should be an Nx4 array')
 
-        cdef np.ndarray[float, ndim=2] l_ref_ors = ref_ors
-        cdef np.ndarray[float, ndim=2] l_ors = ors
-        cdef unsigned int nP = <unsigned int> ors.shape[0]
+        cdef float[:, ::1] l_ref_ors = ref_ors
+        cdef float[:, ::1] l_ors = ors
+        cdef unsigned int nP = ors.shape[0]
 
         with nogil:
             self.thisptr.compute(
-                <quat[float]*> l_ref_ors.data,
-                <quat[float]*> l_ors.data,
+                <quat[float]*> &l_ref_ors[0, 0],
+                <quat[float]*> &l_ors[0, 0],
                 nP)
         return self
 
@@ -1448,14 +1448,10 @@ cdef class RotationalAutocorrelationFunction:
             array of complex numbers.
         """
 
-        cdef float complex * RA = self.thisptr.getRAArray().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.thisptr.getNP()
-        cdef np.ndarray[np.complex64_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX64,
-                                         <void*> RA)
-
-        return result
+        cdef unsigned int n_points = self.thisptr.getNP()
+        cdef np.complex64_t[::1] result = \
+            <np.complex64_t[:n_points]> self.thisptr.getRAArray().get()
+        return np.asarray(result, dtype=np.complex64)
 
     @property
     def n_p(self):
@@ -1475,5 +1471,5 @@ cdef class RotationalAutocorrelationFunction:
         Returns:
             unsigned int: l.
         """
-        cdef unsigned int l = self.thisptr.getL()
+        cdef unsigned int l = self.thisptr.getL()  # noqa: E741
         return l
