@@ -6,8 +6,7 @@
 
 #include <complex>
 #include <memory>
-#include <iostream>
-#include <ostream>
+#include <cassert>
 #include <tbb/tbb.h>
 
 #include "VectorMath.h"
