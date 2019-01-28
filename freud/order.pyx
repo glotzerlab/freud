@@ -1369,8 +1369,8 @@ cdef class RotationalAutocorrelation:
             integer.
 
     Attributes:
-        n_p (unsigned int):
-            The number of particles used in computing the last set.
+        num_orientations (unsigned int):
+            The number of orientations used in computing the last set.
         azimuthal (int):
             The azimuthal quantum number, which defines the order of the
             hyperspherical harmonic. Must be a positive, even integer.
@@ -1432,15 +1432,15 @@ cdef class RotationalAutocorrelation:
 
     @property
     def ra_array(self):
-        cdef unsigned int n_points = self.thisptr.getNP()
+        cdef unsigned int num_orientations = self.thisptr.getN()
         cdef np.complex64_t[::1] result = \
-            <np.complex64_t[:n_points]> self.thisptr.getRAArray().get()
+            <np.complex64_t[:num_orientations]> self.thisptr.getRAArray().get()
         return np.asarray(result, dtype=np.complex64)
 
     @property
-    def n_p(self):
-        cdef unsigned int np = self.thisptr.getNP()
-        return np
+    def num_orientations(self):
+        cdef unsigned int num = self.thisptr.getN()
+        return num
 
     @property
     def azimuthal(self):

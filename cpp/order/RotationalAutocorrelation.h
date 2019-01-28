@@ -70,7 +70,7 @@ class RotationalAutocorrelation
         //! Constructor
         /*! \param l The order of the spherical harmonic.
          */
-        RotationalAutocorrelation(int l) : m_l(l), m_Np(0), m_Ft(0) {}
+        RotationalAutocorrelation(int l) : m_l(l), m_N(0), m_Ft(0) {}
 
         //! Destructor
         ~RotationalAutocorrelation() {}
@@ -82,9 +82,9 @@ class RotationalAutocorrelation
             }
 
         //! Get the number of orientations used in the last call to compute.
-        unsigned int getNP()
+        unsigned int getN()
             {
-              return m_Np;
+              return m_N;
             }
 
         //! Get a reference to the last computed global angle array.
@@ -115,9 +115,9 @@ class RotationalAutocorrelation
         void compute(const quat<float> *ref_ors, const quat<float> *ors, unsigned int Np);
 
     private:
-        int m_l;                   //!< Order of the hyperspherical harmonic
-        unsigned int m_Np;         //!< Last number of points computed
-        float m_Ft;                //!< Real value of calculated R.A. function
+        int m_l;                   //!< Order of the hyperspherical harmonic.
+        unsigned int m_N;          //!< Last number of orientations used in compute.
+        float m_Ft;                //!< Real value of calculated RA function.
 
         std::shared_ptr< std::complex<float> > m_RA_array; //!< Array of RA values per particle
     };

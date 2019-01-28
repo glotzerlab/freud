@@ -62,24 +62,24 @@ std::complex<float> hypersphere_harmonic(const std::complex<float> xi, std::comp
     return sum_tracker;
     }
 
-void RotationalAutocorrelation::compute(const quat<float> *ref_ors, const quat<float> *ors, unsigned int Np)
+void RotationalAutocorrelation::compute(const quat<float> *ref_ors, const quat<float> *ors, unsigned int N)
     {
     assert(ref_ors);
     assert(ors);
-    assert(Np > 0);
+    assert(N > 0);
     assert(ref_ors.size == ors.size);
 
     // Resize array if needed. No need to reset memory, we can do that in the loop (in parallel).
-    if (Np != m_Np)
+    if (N != m_N)
         {
         m_RA_array = std::shared_ptr< std::complex<float> >(
-                  new std::complex<float>[Np],
+                  new std::complex<float>[N],
                   std::default_delete<std::complex<float>[]>());
-        m_Np = Np;
+        m_N = N;
         }
 
     // Parallel loop is over orientations (technically (ref_or, or) pairs).
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, Np),
+    tbb::parallel_for(tbb::blocked_range<size_t>(0, N),
             [=] (const tbb::blocked_range<size_t>& r)
         {
         for (size_t i = r.begin(); i != r.end(); ++i)
@@ -108,11 +108,11 @@ void RotationalAutocorrelation::compute(const quat<float> *ref_ors, const quat<f
         });
 
     float RA_sum(0);
-    for (unsigned int i = 0; i < Np; i++)
+    for (unsigned int i = 0; i < N; i++)
         {
         RA_sum += std::real(m_RA_array.get()[i]);
         }
-    m_Ft = RA_sum / Np;
+    m_Ft = RA_sum / N;
     };
 
 }; }; // end namespace freud::order
