@@ -5,9 +5,6 @@
 
 #include <math.h>
 
-using namespace std;
-using namespace tbb;
-
 /*! \file RotationalAutocorrelationFunction.cc
     \brief Implements the RotationalAutocorrelationFunction class.
 */
@@ -24,7 +21,7 @@ std::complex<float> cpow(std::complex<float> base, float p)
         }
     else
         {
-        return pow(base, p);
+        return std::pow(base, p);
         }
     }
 
@@ -32,7 +29,7 @@ std::complex<float> cpow(std::complex<float> base, float p)
 // the appropriate shift by 1.
 float factorial(int n)
     {
-    return tgamma(n+1);
+    return std::tgamma(n+1);
     }
 
 std::pair<std::complex<float>, std::complex<float> > quat_to_greek(const quat<float> &q)
@@ -51,7 +48,7 @@ std::complex<float> hypersphere_harmonic(const std::complex<float> xi, std::comp
 
     // Doing a summation over non-negative exponents, which requires the additional inner conditional.
     std::complex<float> sum_tracker(0,0);
-    for (int k = 0; k <= min(a, b); k++)
+    for (int k = 0; k <= std::min(a, b); k++)
         {
         if (l + k - a - b >= 0)
             {
@@ -61,7 +58,7 @@ std::complex<float> hypersphere_harmonic(const std::complex<float> xi, std::comp
                               factorial(a-k) / factorial(b-k);
             }
         }
-    sum_tracker *= sqrt(factorial(a) * factorial(l-a) * factorial(b) * factorial(l-b) / (float(l)+1));
+    sum_tracker *= std::sqrt(factorial(a) * factorial(l-a) * factorial(b) * factorial(l-b) / (float(l)+1));
     return sum_tracker;
     }
 
@@ -81,9 +78,9 @@ void RotationalAutocorrelationFunction::compute(const quat<float> *ref_ors, cons
         m_Np = Np;
         }
 
-    // Compute relevant values for all orientations in the system
-    parallel_for(blocked_range<size_t>(0, Np),
-            [=] (const blocked_range<size_t>& r)
+    // Parallel loop is over orientations (technically (ref_or, or) pairs).
+    tbb::parallel_for(tbb::blocked_range<size_t>(0, Np),
+            [=] (const tbb::blocked_range<size_t>& r)
         {
         for (size_t i = r.begin(); i != r.end(); ++i)
             {
@@ -113,7 +110,7 @@ void RotationalAutocorrelationFunction::compute(const quat<float> *ref_ors, cons
     float RA_sum(0);
     for (unsigned int i = 0; i < Np; i++)
         {
-        RA_sum += real(m_RA_array.get()[i]);
+        RA_sum += std::real(m_RA_array.get()[i]);
         }
     m_Ft = RA_sum / Np;
     };

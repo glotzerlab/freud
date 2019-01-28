@@ -22,7 +22,10 @@
 namespace freud { namespace order {
 
 //! Convert a quaternion to complex coordinates.
-/*! The set of quaternions are isomorphic to the special unitary group of
+/*! \param q The quaternion to generate complex coordinates for.
+ *  \return A pair containing the coordinates (xi, zeta).
+ *
+ *  The set of quaternions are isomorphic to the special unitary group of
  *  degree 2 SU(2), which forms a double cover of the 3D rotation group SO(3).
  *  SU(2) is also diffeomorphic to the 3-sphere S3 (see
  *  https://en.wikipedia.org/wiki/Special_unitary_group#Diffeomorphism_with_S3,
@@ -33,7 +36,14 @@ namespace freud { namespace order {
 std::pair<std::complex<float>, std::complex<float> > quat_to_greek(const quat<float> &q);
 
 //! Compute a hyperspherical harmonic.
-/*! The hyperspherical harmonic function is a generalization of spherical
+/*! \param xi The first complex number coordinate.
+ *  \param zeta The second complex number coordinate.
+ *  \param l The azimuthal quantum number.
+ *  \param m1 The first magnetic quantum number.
+ *  \param m2 The second magnetic quantum number.
+ *  \return The value of the hyperspherical harmonic (l, m1, m2) at (xi, zeta).
+ *
+ *  The hyperspherical harmonic function is a generalization of spherical
  *  harmonics from the 2-sphere to the 3-sphere. For details, see Harmonic
  *  functions and matrix elements for hyperspherical quantum field models
  *  (https://doi.org/10.1063/1.526210).
@@ -58,6 +68,8 @@ class RotationalAutocorrelationFunction
         RotationalAutocorrelationFunction() {}
 
         //! Constructor
+        /*! \param l The order of the spherical harmonic.
+         */
         RotationalAutocorrelationFunction(int l) : m_l(l), m_Np(0), m_Ft(0) {}
 
         //! Destructor
@@ -88,7 +100,11 @@ class RotationalAutocorrelationFunction
             }
 
         //! Compute the rotational autocorrelation function.
-        /*! This function loops over all provided orientations and reference
+        /*! \param ref_ors Quaternions in initial frame.
+         *  \param ors Quaternions in current frame.
+         *  \param Np The number of orientations.
+         *
+         *  This function loops over all provided orientations and reference
          *  orientations and computes their hyperspherical harmonics for the
          *  desired range of quantum numbers. For each orientation/reference
          *  pair, the autocorrelation value is computed as the inner product of
