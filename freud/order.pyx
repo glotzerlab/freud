@@ -1357,21 +1357,32 @@ cdef class RotationalAutocorrelationFunction:
     trajectory, the compute call needs to be done at each trajectory frame.
 
     .. moduleauthor:: Andrew Karas
+    .. moduleauthor:: Vyas Ramasubramani
 
     Args:
-      l (int):
-          Order of the hyperspherical harmonic. Must be a positive, even
-          integer. I've found values of l=2 or l=6 to be effective.
+        l (int):
+            Order of the hyperspherical harmonic. Must be a positive, even
+            integer.
 
     Attributes:
-      n_p (unsigned int):
-          The number of particles used in computing the last set.
-
+        n_p (unsigned int):
+            The number of particles used in computing the last set.
+        azimuthal (int):
+            The azimuthal quantum number, which defines the order of the
+            hyperspherical harmonic. Must be a positive, even integer.
+        ra_array (:class:`numpy.ndarray`):
+            The per-orientation array of rotational autocorrelation values
+            calculated by the last call to compute.
+        autocorrelation (float):
+            The autocorrelation computed in the last call to compute.
     """
     cdef freud._order.RotationalAutocorrelationFunction * thisptr
     cdef int l
 
     def __cinit__(self, l):
+        if l % 2 or l < 0:
+            raise ValueError(
+                "The quantum number must be a positive, even integer.")
         self.l = l  # noqa
         self.thisptr = new freud._order.RotationalAutocorrelationFunction(
             self.l)
@@ -1383,13 +1394,10 @@ cdef class RotationalAutocorrelationFunction:
         """Calculates the rotational autocorrelation function for a single frame.
 
         Args:
-            ref_ors ((:math:`N_{particles}`, 4) \
-            :class:`numpy.ndarray`):
+            ref_ors ((:math:`N_{orientations}`, 4) :class:`numpy.ndarray`):
                 Reference orientations for time t=0.
-            ors ((:math:`N_{particles}`, 4) \
-                :class:`numpy.ndarray`):
-                Orientations for the current frame of interest.
-
+            ors ((:math:`N_{orientations}`, 4) :class:`numpy.ndarray`):
+                Orientations for the frame of interest.
         """
         ref_ors = freud.common.convert_array(
             ref_ors, 2, dtype=np.float32, contiguous=True,
@@ -1413,41 +1421,13 @@ cdef class RotationalAutocorrelationFunction:
                 nP)
         return self
 
-    def getRotationalAutocorrelationFunction(self):
-        """Get the last computed value of the rotational
-        autocorrelation function.
-
-        Returns:
-            float
-        """
+    @property
+    def autocorrelation(self):
         cdef float Ft = self.thisptr.getRotationalAutocorrelationFunction()
         return Ft
 
-#    def getRAArray(self):
-#        """Get the array full of computed values for the rotational auto-
-#        correlation function calculations.
-#
-#        Returns:
-#            array of complex numbers.
-#        """
-#
-#        cdef float complex * RA = self.thisptr.getRAArray().get()
-#        cdef np.npy_intp nbins[1]
-#        nbins[0] = <np.npy_intp> self.thisptr.getNP()
-#        cdef np.ndarray[np.complex64_t, ndim=1] result = \
-#            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_COMPLEX64,
-#                                         <void*> RA)
-#
-#        return result
-
-    def getRAArray(self):
-        """Get the array full of computed values for the rotational auto-
-        correlation function calculations.
-
-        Returns:
-            array of complex numbers.
-        """
-
+    @property
+    def ra_array(self):
         cdef unsigned int n_points = self.thisptr.getNP()
         cdef np.complex64_t[::1] result = \
             <np.complex64_t[:n_points]> self.thisptr.getRAArray().get()
@@ -1455,21 +1435,10 @@ cdef class RotationalAutocorrelationFunction:
 
     @property
     def n_p(self):
-        return self.getNP()
-
-    def getNP(self):
-        """Get the number of particles used in computing the last set.
-
-        Returns:
-            unsigned int: :math:`N_{particles}`.
-        """
         cdef unsigned int np = self.thisptr.getNP()
         return np
 
-    def getL(self):
-        """Get the quantum number l used in the calculation.
-        Returns:
-            unsigned int: l.
-        """
-        cdef unsigned int l = self.thisptr.getL()  # noqa: E741
-        return l
+    @property
+    def azimuthal(self):
+        cdef unsigned int azimuthal = self.thisptr.getL()
+        return azimuthal
