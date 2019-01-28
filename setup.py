@@ -19,6 +19,7 @@ import distutils.ccompiler  # Handles old versions of Python 2.7
 
 logger = logging.getLogger(__name__)
 
+
 ######################################
 # Define helper functions for setup.py
 ######################################
@@ -398,13 +399,6 @@ try:
               packages=['freud'],
               python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*',
               install_requires=['numpy>=1.10'],
-              extras_require={
-                  'cython': [
-                      'cython'
-                  ],
-                  'tbb': [
-                      'tbb'
-                  ]},
               ext_modules=extensions)
 except SystemExit:
     # The errors we're explicitly checking for are whether or not
