@@ -35,11 +35,11 @@
         "name": "freud.index",
         "sources": [
             "freud/index.pyx",
-            "cpp/util/HOOMDMatrix.cc",
-            "cpp/box/Box.cc",
-            "cpp/locality/NearestNeighbors.cc",
             "cpp/locality/AABBQuery.cc",
             "cpp/locality/NeighborList.cc",
+            "cpp/util/HOOMDMatrix.cc",
+            "cpp/locality/NearestNeighbors.cc",
+            "cpp/box/Box.cc",
             "cpp/locality/LinkCell.cc"
         ]
     },

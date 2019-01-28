@@ -48,11 +48,11 @@
             "cpp/util/HOOMDMatrix.cc",
             "cpp/box/Box.cc",
             "cpp/cluster/ClusterProperties.cc",
-            "cpp/locality/NearestNeighbors.cc",
             "cpp/locality/AABBQuery.cc",
+            "cpp/locality/NearestNeighbors.cc",
             "cpp/cluster/Cluster.cc",
-            "cpp/locality/NeighborList.cc",
-            "cpp/locality/LinkCell.cc"
+            "cpp/locality/LinkCell.cc",
+            "cpp/locality/NeighborList.cc"
         ]
     },
     "module_name": "freud.cluster"

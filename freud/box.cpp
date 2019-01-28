@@ -38,13 +38,13 @@
         "name": "freud.box",
         "sources": [
             "freud/box.pyx",
+            "cpp/box/ParticleBuffer.cc",
             "cpp/util/HOOMDMatrix.cc",
             "cpp/box/Box.cc",
-            "cpp/locality/NearestNeighbors.cc",
             "cpp/locality/AABBQuery.cc",
-            "cpp/box/ParticleBuffer.cc",
-            "cpp/locality/NeighborList.cc",
-            "cpp/locality/LinkCell.cc"
+            "cpp/locality/NearestNeighbors.cc",
+            "cpp/locality/LinkCell.cc",
+            "cpp/locality/NeighborList.cc"
         ]
     },
     "module_name": "freud.box"
