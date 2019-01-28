@@ -5,8 +5,8 @@
 
 #include <math.h>
 
-/*! \file RotationalAutocorrelationFunction.cc
-    \brief Implements the RotationalAutocorrelationFunction class.
+/*! \file RotationalAutocorrelation.cc
+    \brief Implements the RotationalAutocorrelation class.
 */
 
 namespace freud { namespace order {
@@ -62,7 +62,7 @@ std::complex<float> hypersphere_harmonic(const std::complex<float> xi, std::comp
     return sum_tracker;
     }
 
-void RotationalAutocorrelationFunction::compute(const quat<float> *ref_ors, const quat<float> *ors, unsigned int Np)
+void RotationalAutocorrelation::compute(const quat<float> *ref_ors, const quat<float> *ors, unsigned int Np)
     {
     assert(ref_ors);
     assert(ors);

@@ -1,8 +1,8 @@
 // Copyright (c) 2010-2018 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
-#ifndef ROTATIONAL_AUTOCORRELATION_FUNCTION_H
-#define ROTATIONAL_AUTOCORRELATION_FUNCTION_H
+#ifndef ROTATIONAL_AUTOCORRELATION_H
+#define ROTATIONAL_AUTOCORRELATION_H
 
 #include <complex>
 #include <memory>
@@ -13,10 +13,10 @@
 #include "HOOMDMath.h"
 #include "Index1D.h"
 
-/*! \file RotationalAutocorrelationFunction.h
-    \brief Defines the RotationalAutocorrelationFunction class, which computes
-    the rotational autocorrelation function for a system against a reference
-    set of orientations.
+/*! \file RotationalAutocorrelation.h
+    \brief Defines the RotationalAutocorrelation class, which computes the total
+    rotational autocorrelation for a system's orientations against its initial
+    orientations.
 */
 
 namespace freud { namespace order {
@@ -51,7 +51,7 @@ std::pair<std::complex<float>, std::complex<float> > quat_to_greek(const quat<fl
 std::complex<float> hypersphere_harmonic(const std::complex<float> xi, std::complex<float> zeta,
                                           const int l, const int m1, const int m2);
 
-//! Compute the rotational autocorrelation function for a set of orientations.
+//! Compute the total rotational autocorrelation for a set of orientations.
 /*! The desired autocorrelation function is the rotational analog of the
  *  dynamic structure factor, which provides information on the dynamcs of
  *  systems of points. Calculating this quantity requires a generalization of
@@ -59,21 +59,21 @@ std::complex<float> hypersphere_harmonic(const std::complex<float> xi, std::comp
  *  SO(3). This computation can be performed using a hyperspherical coordinate
  *  representation of the rotations. For details, see "Design rules for
  *  engineering colloidal plastic crystals of hard polyhedra – phase behavior
- *  and directional entropic forces" (in preparation).
+ *  and directional entropic forces" by Karas et al. (currently in preparation).
  */
-class RotationalAutocorrelationFunction
+class RotationalAutocorrelation
     {
     public:
         //! Explicit default constructor for Cython.
-        RotationalAutocorrelationFunction() {}
+        RotationalAutocorrelation() {}
 
         //! Constructor
         /*! \param l The order of the spherical harmonic.
          */
-        RotationalAutocorrelationFunction(int l) : m_l(l), m_Np(0), m_Ft(0) {}
+        RotationalAutocorrelation(int l) : m_l(l), m_Np(0), m_Ft(0) {}
 
         //! Destructor
-        ~RotationalAutocorrelationFunction() {}
+        ~RotationalAutocorrelation() {}
 
         //! Get the quantum number l used in calculations.
         unsigned int getL()
@@ -93,13 +93,13 @@ class RotationalAutocorrelationFunction
             return m_RA_array;
             }
 
-        //! Get a reference to the last computed value of the rotational autocorrelation function.
-        float getRotationalAutocorrelationFunction()
+        //! Get a reference to the last computed value of the rotational autocorrelation.
+        float getRotationalAutocorrelation()
             {
             return m_Ft;
             }
 
-        //! Compute the rotational autocorrelation function.
+        //! Compute the rotational autocorrelation.
         /*! \param ref_ors Quaternions in initial frame.
          *  \param ors Quaternions in current frame.
          *  \param Np The number of orientations.
@@ -124,4 +124,4 @@ class RotationalAutocorrelationFunction
 
 }; }; // end namespace freud::order
 
-#endif // ROTATIONAL_AUTOCORRELATION_FUNCTION_H
+#endif // ROTATIONAL_AUTOCORRELATION_H

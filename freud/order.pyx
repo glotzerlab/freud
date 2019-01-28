@@ -1349,12 +1349,16 @@ cdef class SolLiqNear(SolLiq):
         return SolLiq.computeSolLiqNoNorm(self, points, nlist_)
 
 
-cdef class RotationalAutocorrelationFunction:
-    """Calculates a rotational autocorrelation function based on hyperspherical
-    harmonics as laid out in A. Karas's plastic crystals manuscript.
-    This is meant to return a scalar value that describes how all orientations
-    have changed relative to an initial orientation. For analysis of a
-    trajectory, the compute call needs to be done at each trajectory frame.
+cdef class RotationalAutocorrelation:
+    """Calculates a measure of total rotational autocorrelation based on
+    hyperspherical harmonics as laid out in "Design rules for engineering
+    colloidal plastic crystals of hard polyhedra – phase behavior and
+    directional entropic forces" by Karas et al. (currently in preparation).
+    The output is not a correlation function, but rather a scalar value that
+    measures total system orientational correlation with an initial state. As
+    such, the output can be treated as an order parameter measuring degrees of
+    rotational (de)correlation. For analysis of a trajectory, the compute call
+    needs to be done at each trajectory frame.
 
     .. moduleauthor:: Andrew Karas
     .. moduleauthor:: Vyas Ramasubramani
@@ -1376,7 +1380,7 @@ cdef class RotationalAutocorrelationFunction:
         autocorrelation (float):
             The autocorrelation computed in the last call to compute.
     """
-    cdef freud._order.RotationalAutocorrelationFunction * thisptr
+    cdef freud._order.RotationalAutocorrelation * thisptr
     cdef int l
 
     def __cinit__(self, l):
@@ -1384,7 +1388,7 @@ cdef class RotationalAutocorrelationFunction:
             raise ValueError(
                 "The quantum number must be a positive, even integer.")
         self.l = l  # noqa
-        self.thisptr = new freud._order.RotationalAutocorrelationFunction(
+        self.thisptr = new freud._order.RotationalAutocorrelation(
             self.l)
 
     def __dealloc__(self):
@@ -1423,7 +1427,7 @@ cdef class RotationalAutocorrelationFunction:
 
     @property
     def autocorrelation(self):
-        cdef float Ft = self.thisptr.getRotationalAutocorrelationFunction()
+        cdef float Ft = self.thisptr.getRotationalAutocorrelation()
         return Ft
 
     @property
