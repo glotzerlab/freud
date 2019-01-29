@@ -9,7 +9,6 @@ Locality Module
 
     freud.locality.NeighborList
     freud.locality.IteratorLinkCell
-    freud.locality.AABBQuery
     freud.locality.LinkCell
     freud.locality.NearestNeighbors
 
@@ -24,12 +23,6 @@ Neighbor List
 .. autoclass:: freud.locality.NeighborList
    :members:
 
-AABB Trees
-==========
-
-.. autoclass:: freud.locality.AABBQuery()
-   :members: compute
-
 Cell Lists
 ==========
 
@@ -43,4 +36,4 @@ Nearest Neighbors
 =================
 
 .. autoclass:: freud.locality.NearestNeighbors(rmax, n_neigh, scale=1.1, strict_cut=False)
-   :members: compute, getNeighborList, getNeighbors, getRsq, setCutMode
+   :members: compute, getNeighborList, getNeighbors, getRsq

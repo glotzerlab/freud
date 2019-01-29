@@ -1,7 +1,6 @@
 import numpy as np
 import numpy.testing as npt
 from freud import box, density
-from freud.errors import FreudDeprecationWarning
 import warnings
 import unittest
 import os
@@ -12,8 +11,6 @@ class TestLD(unittest.TestCase):
 
     def setUp(self):
         """Initialize a box with randomly placed particles"""
-
-        warnings.simplefilter("ignore", category=FreudDeprecationWarning)
 
         self.box = box.Box.cube(10)
         np.random.seed(0)
@@ -37,15 +34,11 @@ class TestLD(unittest.TestCase):
 
         self.ld.compute(self.box, self.pos, self.pos)
         self.assertTrue(self.ld.box == box.Box.cube(10))
-        self.assertTrue(self.ld.getBox() == box.Box.cube(10))
 
         npt.assert_array_less(np.fabs(self.ld.density - 10.0), 1.5)
-        npt.assert_array_less(np.fabs(self.ld.getDensity() - 10.0), 1.5)
 
         npt.assert_array_less(
             np.fabs(self.ld.num_neighbors - 1130.973355292), 200)
-        npt.assert_array_less(
-            np.fabs(self.ld.getNumNeighbors() - 1130.973355292), 200)
 
     @unittest.skipIf('CI' in os.environ, 'Skipping test on CI')
     def test_refpoints(self):

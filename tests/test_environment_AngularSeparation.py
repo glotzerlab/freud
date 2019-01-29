@@ -1,7 +1,6 @@
 import numpy.testing as npt
 import numpy as np
 import freud
-from freud.errors import FreudDeprecationWarning
 import warnings
 import unittest
 
@@ -40,9 +39,6 @@ def quatRandom():
 
 
 class TestAngularSeparation(unittest.TestCase):
-    def setUp(self):
-        warnings.simplefilter("ignore", category=FreudDeprecationWarning)
-
     def test_getNP(self):
         boxlen = 10
         N = 500
@@ -64,7 +60,6 @@ class TestAngularSeparation(unittest.TestCase):
         ang = freud.environment.AngularSeparation(rmax, num_neigh)
         ang.computeNeighbor(box, ors, ors, points, points, equiv_quats)
         npt.assert_equal(ang.n_p, N)
-        npt.assert_equal(ang.getNP(), N)
 
     def test_getNGlobal(self):
         N = 500
@@ -82,7 +77,6 @@ class TestAngularSeparation(unittest.TestCase):
         ang = freud.environment.AngularSeparation(rmax, num_neigh)
         ang.computeGlobal(global_ors, ors, equiv_quats)
         npt.assert_equal(ang.n_global, 1)
-        npt.assert_equal(ang.getNGlobal(), 1)
 
     def test_getNReference(self):
         boxlen = 10
@@ -105,7 +99,6 @@ class TestAngularSeparation(unittest.TestCase):
         ang = freud.environment.AngularSeparation(rmax, num_neigh)
         ang.computeNeighbor(box, ors, ors, points, points, equiv_quats)
         npt.assert_equal(ang.n_ref, N)
-        npt.assert_equal(ang.getNReference(), N)
 
     def test_compute_neighbors(self):
         boxlen = 4
@@ -134,7 +127,7 @@ class TestAngularSeparation(unittest.TestCase):
         # and its neighbor is pi/3. The second particle's nearest neighbor will
         # have the same orientation.
         npt.assert_almost_equal(ang.neighbor_angles[0], np.pi/3, 6)
-        npt.assert_almost_equal(ang.getNeighborAngles()[1], 0, 6)
+        npt.assert_almost_equal(ang.neighbor_angles[1], 0, 6)
 
     def test_compute_global(self):
         num_neigh = 1
@@ -166,8 +159,7 @@ class TestAngularSeparation(unittest.TestCase):
                 npt.assert_almost_equal(ang.global_angles[i][j], 0, 6)
         for i in [2, 3]:
             for j in [0, 1]:
-                npt.assert_almost_equal(
-                    ang.getGlobalAngles()[i][j], np.pi/16, 6)
+                npt.assert_almost_equal(ang.global_angles[i][j], np.pi/16, 6)
 
 
 if __name__ == '__main__':

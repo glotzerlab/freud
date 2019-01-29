@@ -129,3 +129,13 @@ cdef extern from "SolLiq.h" namespace "freud::order":
         vector[float complex] getQldot_ij()
         unsigned int getNP()
         unsigned int getNumClusters()
+
+cdef extern from "RotationalAutocorrelation.h" namespace "freud::order":
+    cdef cppclass RotationalAutocorrelation:
+        RotationalAutocorrelation()
+        RotationalAutocorrelation(int)
+        unsigned int getL()
+        unsigned int getN()
+        shared_ptr[float complex] getRAArray()
+        float getRotationalAutocorrelation()
+        void compute(quat[float]*, quat[float]*, unsigned int) nogil except +

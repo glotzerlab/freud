@@ -1,7 +1,6 @@
 import numpy as np
 import numpy.testing as npt
 from freud.order import NematicOrderParameter as nop
-from freud.errors import FreudDeprecationWarning
 import warnings
 import unittest
 
@@ -18,9 +17,6 @@ def gen_quaternions(n, axes, angles):
 
 
 class TestNematicOrder(unittest.TestCase):
-    def setUp(self):
-        warnings.simplefilter("ignore", category=FreudDeprecationWarning)
-
     def test_perfect(self):
         """Test perfectly aligned systems with different molecular axes"""
         N = 1000
@@ -36,17 +32,11 @@ class TestNematicOrder(unittest.TestCase):
 
         self.assertTrue(op_parallel.nematic_order_parameter == 1)
         npt.assert_equal(op_parallel.director, u)
-        npt.assert_equal(op_parallel.get_director(), u)
         npt.assert_equal(
             op_parallel.nematic_tensor, np.diag([1, -0.5, -0.5]))
         npt.assert_equal(
-            op_parallel.get_nematic_tensor(), np.diag([1, -0.5, -0.5]))
-        npt.assert_equal(
             op_parallel.nematic_tensor, np.mean(
                 op_parallel.particle_tensor, axis=0))
-        npt.assert_equal(
-            op_parallel.get_nematic_tensor(), np.mean(
-                op_parallel.get_particle_tensor(), axis=0))
 
         # Test for perpendicular to molecular axis
         u = np.array([0, 1, 0])

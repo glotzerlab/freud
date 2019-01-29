@@ -28,6 +28,6 @@ cdef class NearestNeighbors:
     cdef _cached_ref_points
     cdef _cached_box
 
-cdef class AABBQuery:
+cdef class _AABBQuery:
     cdef freud._locality.AABBQuery * thisptr
     cdef NeighborList _nlist
