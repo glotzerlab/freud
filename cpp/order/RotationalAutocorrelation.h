@@ -1,4 +1,4 @@
-// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// Copyright (c) 2010-2019 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #ifndef ROTATIONAL_AUTOCORRELATION_H
@@ -53,7 +53,7 @@ std::complex<float> hypersphere_harmonic(const std::complex<float> xi, std::comp
 
 //! Compute the total rotational autocorrelation for a set of orientations.
 /*! The desired autocorrelation function is the rotational analog of the
- *  dynamic structure factor, which provides information on the dynamcs of
+ *  dynamic structure factor, which provides information on the dynamics of
  *  systems of points. Calculating this quantity requires a generalization of
  *  the Fourier transform to a different domain, namely the rotation group
  *  SO(3). This computation can be performed using a hyperspherical coordinate
@@ -87,7 +87,7 @@ class RotationalAutocorrelation
               return m_N;
             }
 
-        //! Get a reference to the last computed global angle array.
+        //! Get a reference to the last computed rotational autocorrelation array.
         std::shared_ptr<std::complex <float> > getRAArray()
             {
             return m_RA_array;
@@ -102,7 +102,7 @@ class RotationalAutocorrelation
         //! Compute the rotational autocorrelation.
         /*! \param ref_ors Quaternions in initial frame.
          *  \param ors Quaternions in current frame.
-         *  \param Np The number of orientations.
+         *  \param N The number of orientations.
          *
          *  This function loops over all provided orientations and reference
          *  orientations and computes their hyperspherical harmonics for the
@@ -112,7 +112,7 @@ class RotationalAutocorrelation
          *  for the whole system is then the average of the real parts of the
          *  autocorrelation for the whole system.
          */
-        void compute(const quat<float> *ref_ors, const quat<float> *ors, unsigned int Np);
+        void compute(const quat<float> *ref_ors, const quat<float> *ors, unsigned int N);
 
     private:
         int m_l;                   //!< Order of the hyperspherical harmonic.

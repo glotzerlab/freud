@@ -49,12 +49,12 @@ class TestRotationalAutocorrelation(unittest.TestCase):
                 l2.append(ra2.autocorrelation)
             npt.assert_array_almost_equal(l2, data['l2auto'])
 
-            ra6 = freud.order.RotationalAutocorrelation(2)
+            ra6 = freud.order.RotationalAutocorrelation(6)
             l6 = []
             for i in range(orientations.shape[0]):
                 ra6.compute(orientations[0, :, :], orientations[i, :, :])
                 l6.append(ra6.autocorrelation)
-            npt.assert_array_almost_equal(l6, data['l2auto'])
+            npt.assert_array_almost_equal(l6, data['l6auto'])
 
         # As a sanity check, make sure computing with the same object works on
         # new data.

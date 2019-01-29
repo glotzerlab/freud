@@ -56,22 +56,22 @@
         "name": "freud.order",
         "sources": [
             "freud/order.pyx",
-            "cpp/order/HexOrderParameter.cc",
-            "cpp/order/CubaticOrderParameter.cc",
             "cpp/order/TransOrderParameter.cc",
-            "cpp/box/Box.cc",
-            "cpp/cluster/Cluster.cc",
-            "cpp/order/wigner3j.cc",
-            "cpp/order/LocalWl.cc",
-            "cpp/order/SolLiq.cc",
-            "cpp/locality/LinkCell.cc",
             "cpp/order/LocalQl.cc",
-            "cpp/locality/NeighborList.cc",
-            "cpp/order/NematicOrderParameter.cc",
-            "cpp/locality/NearestNeighbors.cc",
-            "cpp/order/RotationalAutocorrelation.cc",
+            "cpp/order/LocalWl.cc",
+            "cpp/util/HOOMDMatrix.cc",
+            "cpp/locality/LinkCell.cc",
             "cpp/locality/AABBQuery.cc",
-            "cpp/util/HOOMDMatrix.cc"
+            "cpp/locality/NearestNeighbors.cc",
+            "cpp/order/SolLiq.cc",
+            "cpp/order/NematicOrderParameter.cc",
+            "cpp/box/Box.cc",
+            "cpp/order/wigner3j.cc",
+            "cpp/order/RotationalAutocorrelation.cc",
+            "cpp/order/CubaticOrderParameter.cc",
+            "cpp/order/HexOrderParameter.cc",
+            "cpp/cluster/Cluster.cc",
+            "cpp/locality/NeighborList.cc"
         ]
     },
     "module_name": "freud.order"
@@ -19824,7 +19824,7 @@ static void __pyx_pf_5freud_5order_25RotationalAutocorrelation_2__dealloc__(stru
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_5order_25RotationalAutocorrelation_5compute(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_5order_25RotationalAutocorrelation_4compute[] = "RotationalAutocorrelation.compute(self, ref_ors, ors)\nCalculates the rotational autocorrelation function for a single frame.\n\n        Args:\n            ref_ors ((:math:`N_{orientations}`, 4) :class:`numpy.ndarray`):\n                Reference orientations for time t=0.\n            ors ((:math:`N_{orientations}`, 4) :class:`numpy.ndarray`):\n                Orientations for the frame of interest.\n        ";
+static char __pyx_doc_5freud_5order_25RotationalAutocorrelation_4compute[] = "RotationalAutocorrelation.compute(self, ref_ors, ors)\nCalculates the rotational autocorrelation function for a single frame.\n\n        Args:\n            ref_ors ((:math:`N_{orientations}`, 4) :class:`numpy.ndarray`):\n                Reference orientations for the initial frame.\n            ors ((:math:`N_{orientations}`, 4) :class:`numpy.ndarray`):\n                Orientations for the frame of interest.\n        ";
 static PyMethodDef __pyx_mdef_5freud_5order_25RotationalAutocorrelation_5compute = {"compute", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_5order_25RotationalAutocorrelation_5compute, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_5order_25RotationalAutocorrelation_4compute};
 static PyObject *__pyx_pw_5freud_5order_25RotationalAutocorrelation_5compute(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_ref_ors = 0;
@@ -37734,7 +37734,7 @@ static PyTypeObject __pyx_type_5freud_5order_RotationalAutocorrelation = {
   0, /*tp_setattro*/
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE, /*tp_flags*/
-  "Calculates a measure of total rotational autocorrelation based on\n    hyperspherical harmonics as laid out in \"Design rules for engineering\n    colloidal plastic crystals of hard polyhedra \342\200\223 phase behavior and\n    directional entropic forces\" by Karas et al. (currently in preparation).\n    The output is not a correlation function, but rather a scalar value that\n    measures total system orientational correlation with an initial state. As\n    such, the output can be treated as an order parameter measuring degrees of\n    rotational (de)correlation. For analysis of a trajectory, the compute call\n    needs to be done at each trajectory frame.\n\n    .. moduleauthor:: Andrew Karas\n    .. moduleauthor:: Vyas Ramasubramani\n\n    Args:\n        l (int):\n            Order of the hyperspherical harmonic. Must be a positive, even\n            integer.\n\n    Attributes:\n        num_orientations (unsigned int):\n            The number of orientations used in computing the last set.\n        azimuthal (int):\n            The azimuthal quantum number, which defines the order of the\n            hyperspherical harmonic. Must be a positive, even integer.\n        ra_array (:class:`numpy.ndarray`):\n            The per-orientation array of rotational autocorrelation values\n            calculated by the last call to compute.\n        autocorrelation (float):\n            The autocorrelation computed in the last call to compute.\n    ", /*tp_doc*/
+  "Calculates a measure of total rotational autocorrelation based on\n    hyperspherical harmonics as laid out in \"Design rules for engineering\n    colloidal plastic crystals of hard polyhedra \342\200\223 phase behavior and\n    directional entropic forces\" by Karas et al. (currently in preparation).\n    The output is not a correlation function, but rather a scalar value that\n    measures total system orientational correlation with an initial state. As\n    such, the output can be treated as an order parameter measuring degrees of\n    rotational (de)correlation. For analysis of a trajectory, the compute call\n    needs to be done at each trajectory frame.\n\n    .. moduleauthor:: Andrew Karas <askaras@umich.edu>\n    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>\n\n    Args:\n        l (int):\n            Order of the hyperspherical harmonic. Must be a positive, even\n            integer.\n\n    Attributes:\n        num_orientations (unsigned int):\n            The number of orientations used in computing the last set.\n        azimuthal (int):\n            The azimuthal quantum number, which defines the order of the\n            hyperspherical harmonic. Must be a positive, even integer.\n        ra_array ((:math:`N_{orientations}`, ) :class:`numpy.ndarray`):\n            The per-orientation array of rotational autocorrelation values\n            calculated by the last call to compute.\n        autocorrelation (float):\n            The autocorrelation computed in the last call to compute.\n    ", /*tp_doc*/
   0, /*tp_traverse*/
   0, /*tp_clear*/
   0, /*tp_richcompare*/

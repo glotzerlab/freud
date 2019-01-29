@@ -1360,8 +1360,8 @@ cdef class RotationalAutocorrelation:
     rotational (de)correlation. For analysis of a trajectory, the compute call
     needs to be done at each trajectory frame.
 
-    .. moduleauthor:: Andrew Karas
-    .. moduleauthor:: Vyas Ramasubramani
+    .. moduleauthor:: Andrew Karas <askaras@umich.edu>
+    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
 
     Args:
         l (int):
@@ -1374,7 +1374,7 @@ cdef class RotationalAutocorrelation:
         azimuthal (int):
             The azimuthal quantum number, which defines the order of the
             hyperspherical harmonic. Must be a positive, even integer.
-        ra_array (:class:`numpy.ndarray`):
+        ra_array ((:math:`N_{orientations}`, ) :class:`numpy.ndarray`):
             The per-orientation array of rotational autocorrelation values
             calculated by the last call to compute.
         autocorrelation (float):
@@ -1399,7 +1399,7 @@ cdef class RotationalAutocorrelation:
 
         Args:
             ref_ors ((:math:`N_{orientations}`, 4) :class:`numpy.ndarray`):
-                Reference orientations for time t=0.
+                Reference orientations for the initial frame.
             ors ((:math:`N_{orientations}`, 4) :class:`numpy.ndarray`):
                 Orientations for the frame of interest.
         """
