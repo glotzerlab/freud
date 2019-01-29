@@ -1347,3 +1347,102 @@ cdef class SolLiqNear(SolLiq):
             self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         return SolLiq.computeSolLiqNoNorm(self, points, nlist_)
+
+
+cdef class RotationalAutocorrelation:
+    """Calculates a measure of total rotational autocorrelation based on
+    hyperspherical harmonics as laid out in "Design rules for engineering
+    colloidal plastic crystals of hard polyhedra – phase behavior and
+    directional entropic forces" by Karas et al. (currently in preparation).
+    The output is not a correlation function, but rather a scalar value that
+    measures total system orientational correlation with an initial state. As
+    such, the output can be treated as an order parameter measuring degrees of
+    rotational (de)correlation. For analysis of a trajectory, the compute call
+    needs to be done at each trajectory frame.
+
+    .. moduleauthor:: Andrew Karas <askaras@umich.edu>
+    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
+
+    Args:
+        l (int):
+            Order of the hyperspherical harmonic. Must be a positive, even
+            integer.
+
+    Attributes:
+        num_orientations (unsigned int):
+            The number of orientations used in computing the last set.
+        azimuthal (int):
+            The azimuthal quantum number, which defines the order of the
+            hyperspherical harmonic. Must be a positive, even integer.
+        ra_array ((:math:`N_{orientations}`, ) :class:`numpy.ndarray`):
+            The per-orientation array of rotational autocorrelation values
+            calculated by the last call to compute.
+        autocorrelation (float):
+            The autocorrelation computed in the last call to compute.
+    """
+    cdef freud._order.RotationalAutocorrelation * thisptr
+    cdef int l
+
+    def __cinit__(self, l):
+        if l % 2 or l < 0:
+            raise ValueError(
+                "The quantum number must be a positive, even integer.")
+        self.l = l  # noqa
+        self.thisptr = new freud._order.RotationalAutocorrelation(
+            self.l)
+
+    def __dealloc__(self):
+        del self.thisptr
+
+    def compute(self, ref_ors, ors):
+        """Calculates the rotational autocorrelation function for a single frame.
+
+        Args:
+            ref_ors ((:math:`N_{orientations}`, 4) :class:`numpy.ndarray`):
+                Reference orientations for the initial frame.
+            ors ((:math:`N_{orientations}`, 4) :class:`numpy.ndarray`):
+                Orientations for the frame of interest.
+        """
+        ref_ors = freud.common.convert_array(
+            ref_ors, 2, dtype=np.float32, contiguous=True,
+            array_name="ref_ors")
+        if ref_ors.shape[1] != 4:
+            raise TypeError('ref_ors should be an Nx4 array')
+
+        ors = freud.common.convert_array(
+            ors, 2, dtype=np.float32, contiguous=True, array_name="ors")
+        if ors.shape[1] != 4:
+            raise TypeError('ors should be an Nx4 array')
+
+        cdef float[:, ::1] l_ref_ors = ref_ors
+        cdef float[:, ::1] l_ors = ors
+        cdef unsigned int nP = ors.shape[0]
+
+        with nogil:
+            self.thisptr.compute(
+                <quat[float]*> &l_ref_ors[0, 0],
+                <quat[float]*> &l_ors[0, 0],
+                nP)
+        return self
+
+    @property
+    def autocorrelation(self):
+        cdef float Ft = self.thisptr.getRotationalAutocorrelation()
+        return Ft
+
+    @property
+    def ra_array(self):
+        cdef unsigned int num_orientations = self.thisptr.getN()
+        cdef np.complex64_t[::1] result = \
+            <np.complex64_t[:num_orientations]> self.thisptr.getRAArray().get()
+        return np.asarray(result, dtype=np.complex64)
+
+    @property
+    def num_orientations(self):
+        cdef unsigned int num = self.thisptr.getN()
+        return num
+
+    @property
+    def azimuthal(self):
+        cdef unsigned int azimuthal = self.thisptr.getL()
+        return azimuthal
