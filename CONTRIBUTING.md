@@ -1,8 +1,8 @@
-Contributions are welcomed via pull requests on Bitbucket. First contact the freud developers prior to beginning
+Contributions are welcomed via pull requests. First contact the freud developers prior to beginning
 your work to ensure that your plans mesh well with the planned development direction and standards set for the project.
 Then implement your code.
 
-Submit a pull request on Bitbucket. Multiple developers and/or users will review requested changes and make comments.
+Submit a pull request. Multiple developers and/or users will review requested changes and make comments.
 This The rest of this file will be used as a checklist to review the pull request. The lead developer(s) will merge into
 the master branch after the review is complete and approved.
 

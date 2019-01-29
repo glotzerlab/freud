@@ -23,7 +23,7 @@ In order to achieve this goal, freud takes the following viewpoints:
   Instead, freud works directly with `NumPy <http://www.numpy.org/>_`
   arrays to retain maximum flexibility.
 * For ease of maintenance, freud uses Git for version control;
-  Bitbucket for code hosting and issue tracking; and the PEP 8
+  GitHub for code hosting and issue tracking; and the PEP 8
   standard for code, stressing explicitly written code which is easy
   to read.
 * To ensure correctness, freud employs unit testing using the

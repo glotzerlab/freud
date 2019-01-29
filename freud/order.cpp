@@ -56,22 +56,22 @@
         "name": "freud.order",
         "sources": [
             "freud/order.pyx",
-            "cpp/order/TransOrderParameter.cc",
-            "cpp/order/LocalQl.cc",
-            "cpp/order/LocalWl.cc",
-            "cpp/util/HOOMDMatrix.cc",
-            "cpp/locality/LinkCell.cc",
-            "cpp/locality/AABBQuery.cc",
-            "cpp/locality/NearestNeighbors.cc",
-            "cpp/order/SolLiq.cc",
-            "cpp/order/NematicOrderParameter.cc",
-            "cpp/box/Box.cc",
-            "cpp/order/wigner3j.cc",
-            "cpp/order/RotationalAutocorrelation.cc",
-            "cpp/order/CubaticOrderParameter.cc",
-            "cpp/order/HexOrderParameter.cc",
             "cpp/cluster/Cluster.cc",
-            "cpp/locality/NeighborList.cc"
+            "cpp/locality/LinkCell.cc",
+            "cpp/order/LocalWl.cc",
+            "cpp/locality/AABBQuery.cc",
+            "cpp/box/Box.cc",
+            "cpp/order/NematicOrderParameter.cc",
+            "cpp/order/RotationalAutocorrelation.cc",
+            "cpp/order/SolLiq.cc",
+            "cpp/order/HexOrderParameter.cc",
+            "cpp/order/LocalQl.cc",
+            "cpp/util/HOOMDMatrix.cc",
+            "cpp/order/CubaticOrderParameter.cc",
+            "cpp/locality/NeighborList.cc",
+            "cpp/order/TransOrderParameter.cc",
+            "cpp/locality/NearestNeighbors.cc",
+            "cpp/order/wigner3j.cc"
         ]
     },
     "module_name": "freud.order"
@@ -41098,7 +41098,7 @@ if (!__Pyx_RefNanny) {
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
   /* "freud/order.pyx":1
- * # Copyright (c) 2010-2018 The Regents of the University of Michigan             # <<<<<<<<<<<<<<
+ * # Copyright (c) 2010-2019 The Regents of the University of Michigan             # <<<<<<<<<<<<<<
  * # This file is from the freud project, released under the BSD 3-Clause License.
  * 
  */

@@ -17,7 +17,7 @@ Environment Module
 .. rubric:: Details
 
 .. automodule:: freud.environment
-    :synopsis: Analyze local particle environments
+    :synopsis: Analyze local particle environments.
 
 Bond Order
 ==========

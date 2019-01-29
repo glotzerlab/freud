@@ -48,17 +48,17 @@
         "name": "freud.environment",
         "sources": [
             "freud/environment.pyx",
-            "cpp/locality/AABBQuery.cc",
-            "cpp/locality/NeighborList.cc",
-            "cpp/util/HOOMDMatrix.cc",
-            "cpp/environment/AngularSeparation.cc",
-            "cpp/environment/MatchEnv.cc",
-            "cpp/environment/LocalBondProjection.cc",
             "cpp/environment/LocalDescriptors.cc",
+            "cpp/locality/LinkCell.cc",
+            "cpp/locality/AABBQuery.cc",
+            "cpp/box/Box.cc",
+            "cpp/environment/LocalBondProjection.cc",
+            "cpp/environment/AngularSeparation.cc",
+            "cpp/util/HOOMDMatrix.cc",
+            "cpp/locality/NeighborList.cc",
             "cpp/environment/BondOrder.cc",
             "cpp/locality/NearestNeighbors.cc",
-            "cpp/box/Box.cc",
-            "cpp/locality/LinkCell.cc"
+            "cpp/environment/MatchEnv.cc"
         ]
     },
     "module_name": "freud.environment"
@@ -37078,7 +37078,7 @@ if (!__Pyx_RefNanny) {
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "freud/environment.pyx":1
- * # Copyright (c) 2010-2018 The Regents of the University of Michigan             # <<<<<<<<<<<<<<
+ * # Copyright (c) 2010-2019 The Regents of the University of Michigan             # <<<<<<<<<<<<<<
  * # This file is from the freud project, released under the BSD 3-Clause License.
  * 
  */

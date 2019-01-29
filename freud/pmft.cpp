@@ -48,17 +48,17 @@
         "name": "freud.pmft",
         "sources": [
             "freud/pmft.pyx",
+            "cpp/locality/LinkCell.cc",
             "cpp/locality/AABBQuery.cc",
-            "cpp/pmft/PMFT.cc",
-            "cpp/locality/NeighborList.cc",
-            "cpp/util/HOOMDMatrix.cc",
+            "cpp/box/Box.cc",
+            "cpp/pmft/PMFTR12.cc",
             "cpp/pmft/PMFTXYT.cc",
             "cpp/pmft/PMFTXY2D.cc",
             "cpp/pmft/PMFTXYZ.cc",
-            "cpp/pmft/PMFTR12.cc",
+            "cpp/util/HOOMDMatrix.cc",
+            "cpp/locality/NeighborList.cc",
             "cpp/locality/NearestNeighbors.cc",
-            "cpp/box/Box.cc",
-            "cpp/locality/LinkCell.cc"
+            "cpp/pmft/PMFT.cc"
         ]
     },
     "module_name": "freud.pmft"
@@ -34004,7 +34004,7 @@ if (!__Pyx_RefNanny) {
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "freud/pmft.pyx":1
- * # Copyright (c) 2010-2018 The Regents of the University of Michigan             # <<<<<<<<<<<<<<
+ * # Copyright (c) 2010-2019 The Regents of the University of Michigan             # <<<<<<<<<<<<<<
  * # This file is from the freud project, released under the BSD 3-Clause License.
  * 
  */

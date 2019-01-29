@@ -15,7 +15,7 @@ PMFT Module
 .. rubric:: Details
 
 .. automodule:: freud.pmft
-    :synopsis: Compute potentials of mean force and torque
+    :synopsis: Compute potentials of mean force and torque.
 
 PMFT :math:`\left(r, \theta_1, \theta_2\right)`
 ===============================================

@@ -47,16 +47,16 @@
         "name": "freud.density",
         "sources": [
             "freud/density.pyx",
-            "cpp/locality/AABBQuery.cc",
-            "cpp/density/CorrelationFunction.cc",
-            "cpp/locality/NeighborList.cc",
-            "cpp/util/HOOMDMatrix.cc",
-            "cpp/density/GaussianDensity.cc",
-            "cpp/density/RDF.cc",
             "cpp/density/LocalDensity.cc",
-            "cpp/locality/NearestNeighbors.cc",
+            "cpp/locality/LinkCell.cc",
+            "cpp/locality/AABBQuery.cc",
             "cpp/box/Box.cc",
-            "cpp/locality/LinkCell.cc"
+            "cpp/density/RDF.cc",
+            "cpp/density/GaussianDensity.cc",
+            "cpp/util/HOOMDMatrix.cc",
+            "cpp/locality/NeighborList.cc",
+            "cpp/density/CorrelationFunction.cc",
+            "cpp/locality/NearestNeighbors.cc"
         ]
     },
     "module_name": "freud.density"
@@ -29992,7 +29992,7 @@ if (!__Pyx_RefNanny) {
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "freud/density.pyx":1
- * # Copyright (c) 2010-2018 The Regents of the University of Michigan             # <<<<<<<<<<<<<<
+ * # Copyright (c) 2010-2019 The Regents of the University of Michigan             # <<<<<<<<<<<<<<
  * # This file is from the freud project, released under the BSD 3-Clause License.
  * 
  */

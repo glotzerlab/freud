@@ -3,15 +3,14 @@
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.166564.svg)](https://doi.org/10.5281/zenodo.166564)
 [![PyPI](https://img.shields.io/pypi/v/freud-analysis.svg)](https://pypi.org/project/freud-analysis/)
 [![Anaconda-Server Badge](https://anaconda.org/conda-forge/freud/badges/version.svg)](https://anaconda.org/conda-forge/freud)
-[![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/glotzerlab/freud-examples/master?filepath=index.ipynb)
 [![ReadTheDocs](https://readthedocs.org/projects/freud/badge/?version=latest)](https://freud.readthedocs.io/en/latest/?badge=latest)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/glotzerlab/freud-examples/master?filepath=index.ipynb)
 [![Codecov](https://codecov.io/bb/glotzer/freud/branch/master/graph/badge.svg)](https://codecov.io/bb/glotzer/freud)
+[![GitHub Stars](https://img.shields.io/github/stars/glotzerlab/freud.svg?style=social)](https://github.com/glotzerlab/freud)
 
-The freud library provides users the ability to analyze molecular dynamics and Monte Carlo simulation trajectories
-for advanced metrics such as the radial distribution function and various order parameters. Its modules work with
-and return NumPy arrays, and are able to process both 2D and 3D data. Features in freud include computing the radial
-distribution function, local density, hexagonal order parameter and local bond order parameters,
-potentials of mean force and torque (PMFTs), Voronoi tessellations, and more.
+The freud Python library provides a simple, flexible, powerful set of tools for analyzing trajectories obtained from molecular dynamics or Monte Carlo simulations.
+High performance, parallelized C++ is used to compute standard tools such as radial distribution functions, correlation functions, and clusters, as well as original analysis methods including potentials of mean force and torque (PMFTs) and local environment matching.
+The freud library uses [NumPy arrays](https://www.numpy.org/) for input and output, enabling integration with the scientific Python ecosystem for many typical materials science workflows.
 
 When using freud to process data for publication, please [use this citation](https://doi.org/10.5281/zenodo.166564).
 
@@ -19,16 +18,16 @@ When using freud to process data for publication, please [use this citation](htt
 
 If you have a question, please post to the
 [freud-users mailing list](https://groups.google.com/forum/#!forum/freud-users).
-Please report issues and suggest feature enhancements via the [Bitbucket issues page](https://bitbucket.org/glotzer/freud/issues?status=new&status=open).
+Please report issues and suggest feature enhancements via the [issue tracker](https://github.com/glotzerlab/freud/issues).
 
 # Documentation
 
 The documentation is available online at [https://freud.readthedocs.io](https://freud.readthedocs.io).
-These pages include an installation guide, examples demonstrating many of freud's core modules, API reference, and development guides for adding new features.
+These pages include an installation guide, examples demonstrating many of freud's modules, an API reference, and development guides for adding new features.
 
 # Examples
 Many core features are [demonstrated in the freud documentation](https://freud.readthedocs.io/en/stable/examples.html).
-Additional example Jupyter notebooks can be found in the [freud-examples repository](https://bitbucket.org/glotzer/freud-examples).
+Additional example Jupyter notebooks can be found in the [freud-examples repository](https://github.com/glotzerlab/freud-examples).
 These notebooks may be launched [interactively on Binder](https://mybinder.org/v2/gh/glotzerlab/freud-examples/master?filepath=index.ipynb)
 or downloaded and run on your own system.
 

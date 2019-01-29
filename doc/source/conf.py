@@ -58,7 +58,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'freud'
-copyright = '2010-2018, The Regents of the University of Michigan'
+copyright = '2010-2019, The Regents of the University of Michigan'
 author = 'The Regents of the University of Michigan'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -296,8 +296,8 @@ texinfo_documents = [
 # If true, do not generate a @detailmenu in the "Top" node's menu.
 # texinfo_no_detailmenu = False
 
-intersphinx_mapping = {'python': ('https://docs.python.org/3.6/', None),
-                       'numpy': ('https://docs.scipy.org/doc/numpy/', None)}
+intersphinx_mapping = {'python': ('https://docs.python.org/3', None),
+                       'numpy': ('https://docs.scipy.org/doc/numpy', None)}
 
 autodoc_mock_import = ["numpy"]
 
