@@ -94,7 +94,7 @@ Include examples on using new functionality.
 ## Document version status
 
 Each user-facing python class, method, etc... with a docstring should have [versionadded, versionchanged, and
-deprecated sphinx paragraphs](http://www.sphinx-doc.org/en/stable/markup/para.html) so that users will be aware of
+deprecated sphinx paragraphs](https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html#directive-versionadded) so that users will be aware of
 how functionality changes from version to version.
 
 ## Add developer to the credits
