@@ -153,9 +153,11 @@ sys.argv = ['setup.py'] + extras
 # Configure ReadTheDocs
 #######################
 
+install_requires = ['numpy>=1.10']
 on_rtd = os.environ.get('READTHEDOCS') == 'True'
 if on_rtd:
     args.use_cython = True
+    install_requires = ['numpy==1.15.4']
 
 
 ################################
@@ -398,7 +400,7 @@ try:
               url='https://github.com/glotzerlab/freud',
               packages=['freud'],
               python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*',
-              install_requires=['numpy>=1.10'],
+              install_requires=install_requires,
               ext_modules=extensions)
 except SystemExit:
     # The errors we're explicitly checking for are whether or not
