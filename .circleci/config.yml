@@ -30,7 +30,7 @@ references:
       command: |
         git submodule update --init
         pip${PYVER} install --user -r requirements.txt
-        pip${PYVER} install --user flake8
+        pip${PYVER} install --user flake8==3.7.1
         pip${PYVER} install --user coverage
 
   check_source: &check_source
