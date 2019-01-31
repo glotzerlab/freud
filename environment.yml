@@ -44,7 +44,7 @@ dependencies:
   - cffi=1.11.5=py36he75722e_1
   - chardet=3.0.4=py36_1
   - cryptography=2.4.2=py36h1ba5d50_0
-  - cython=0.29.2=py36he6710b0_0
+  - cython=0.28.5=py36hf484d3e_0
   - freetype=2.9.1=h8a8886c_1
   - idna=2.8=py36_0
   - imagesize=1.1.0=py36_0
