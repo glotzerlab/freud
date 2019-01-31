@@ -267,7 +267,7 @@ def find_tbb(tbb_root=None, tbb_include=None, tbb_link=None):
         tbb_include = os.path.join(tbb_root, 'include')
         tbb_link = os.path.join(tbb_root, 'lib')
     elif tbb_include or tbb_link:
-            raise RuntimeError(err_str)
+        raise RuntimeError(err_str)
     else:
         include = os.getenv("TBB_INCLUDE")
         link = os.getenv("TBB_LINK")
