@@ -157,7 +157,7 @@ install_requires = ['numpy>=1.10']
 on_rtd = os.environ.get('READTHEDOCS') == 'True'
 if on_rtd:
     args.use_cython = True
-    install_requires = ['numpy==1.15.4']
+    install_requires = []
 
 
 ################################
