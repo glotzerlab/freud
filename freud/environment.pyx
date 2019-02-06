@@ -432,7 +432,6 @@ cdef class LocalDescriptors:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds or :code:`'precomputed'` if
                 using :meth:`~.computeNList` (Default value = :code:`None`).
-                using :meth:`~.computeNList` (Default value = :code:`None`).
         """  # noqa: E501
         cdef freud.box.Box b = freud.common.convert_box(box)
 
