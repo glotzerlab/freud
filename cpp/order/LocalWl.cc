@@ -51,9 +51,9 @@ void LocalWl::compute(const locality::NeighborList *nlist, const vec3<float> *po
     if (m_Np != Np)
         {
         // Don't actually change the size, let the parent do that.
-        m_Wli = std::shared_ptr<complex<float> >(new complex<float>[m_Np], std::default_delete<complex<float>[]>());
+        m_Wli = std::shared_ptr<complex<float> >(new complex<float>[Np], std::default_delete<complex<float>[]>());
         }
-    memset((void*) m_Wli.get(), 0, sizeof(complex<float>)*m_Np);
+    memset((void*) m_Wli.get(), 0, sizeof(complex<float>)*Np);
 
     // Call parent to compute Ql values used for calculating Wl.
     LocalQl::compute(nlist, points, Np);
