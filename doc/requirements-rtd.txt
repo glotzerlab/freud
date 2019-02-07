@@ -1,4 +1,0 @@
-cython
-numpy
-scipy
-six
