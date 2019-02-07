@@ -2,3 +2,7 @@ version: 2
 formats: all
 conda:
     environment: environment.yml
+python:
+    install:
+        - method: pip
+          path: .
