@@ -524,7 +524,7 @@ cdef class LocalQl:
     cdef freud.box.Box m_box
     cdef rmax
 
-    def __cinit__(self, box, rmax, l, rmin=0):
+    def __cinit__(self, box, rmax, l, rmin=0, *args, **kwargs):
         cdef freud.box.Box b = freud.common.convert_box(box)
         if type(self) is LocalQl:
             self.m_box = b
@@ -758,6 +758,20 @@ cdef class LocalQlNear(LocalQl):
         if type(self) == LocalQlNear:
             del self.qlptr
             self.qlptr = NULL
+
+    def compute(self, points, nlist=None):
+        R"""Compute the order parameter.
+
+        Args:
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Points to calculate the order parameter.
+            nlist (:class:`freud.locality.NeighborList`, optional):
+                Neighborlist to use to find bonds (Default value = None).
+        """
+        defaulted_nlist = freud.locality.make_default_nlist_nn(
+            self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
+        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
+        return super(LocalQlNear, self).compute(points, nlist_)
 
     def computeAve(self, points, nlist=None):
         R"""Compute the order parameter over two nearest neighbor shells.
@@ -995,6 +1009,20 @@ cdef class LocalWlNear(LocalWl):
     def __dealloc__(self):
         del self.thisptr
         self.thisptr = NULL
+
+    def compute(self, points, nlist=None):
+        R"""Compute the order parameter.
+
+        Args:
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Points to calculate the order parameter.
+            nlist (:class:`freud.locality.NeighborList`, optional):
+                Neighborlist to use to find bonds (Default value = None).
+        """
+        defaulted_nlist = freud.locality.make_default_nlist_nn(
+            self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
+        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
+        return super(LocalWlNear, self).compute(points, nlist_)
 
     def computeAve(self, points, nlist=None):
         R"""Compute the order parameter over two nearest neighbor shells.

@@ -48,6 +48,13 @@ void LocalWl::computeYlm(const float theta, const float phi, std::vector<std::co
 
 void LocalWl::compute(const locality::NeighborList *nlist, const vec3<float> *points, unsigned int Np)
     {
+    if (m_Np != Np)
+        {
+        // Don't actually change the size, let the parent do that.
+        m_Wli = std::shared_ptr<complex<float> >(new complex<float>[m_Np], std::default_delete<complex<float>[]>());
+        }
+    memset((void*) m_Wli.get(), 0, sizeof(complex<float>)*m_Np);
+
     // Call parent to compute Ql values used for calculating Wl.
     LocalQl::compute(nlist, points, Np);
 
@@ -59,12 +66,7 @@ void LocalWl::compute(const locality::NeighborList *nlist, const vec3<float> *po
     float normalizationfactor = sqrt(4*M_PI/(2*m_l+1));
 
     // Get wigner3j coefficients from wigner3j.cc
-    int m_wignersize[10] = {19, 61, 127, 217, 331, 469, 631, 817, 1027, 1261};
-    std::vector<float> m_wigner3jvalues(m_wignersize[m_l/2-1]);
     m_wigner3jvalues = getWigner3j(m_l);
-
-    m_Wli = std::shared_ptr<complex<float> >(new complex<float>[m_Np], std::default_delete<complex<float>[]>());
-    memset((void*) m_Wli.get(), 0, sizeof(complex<float>)*m_Np);
 
     for (unsigned int i = 0; i < m_Np; i++)
         {
@@ -100,8 +102,6 @@ void LocalWl::computeAve(const locality::NeighborList *nlist, const vec3<float> 
     LocalQl::computeAve(nlist, points, Np);
 
     // Get wigner3j coefficients from wigner3j.cc
-    int m_wignersize[10] = {19, 61, 127, 217, 331, 469, 631, 817, 1027, 1261};
-    std::vector<float> m_wigner3jvalues(m_wignersize[m_l/2-1]);
     m_wigner3jvalues = getWigner3j(m_l);
 
     m_AveWli = std::shared_ptr<complex<float> >(new complex<float>[m_Np], std::default_delete<complex<float>[]>());
@@ -131,8 +131,6 @@ void LocalWl::computeAve(const locality::NeighborList *nlist, const vec3<float> 
 void LocalWl::computeNorm(const vec3<float> *points, unsigned int Np)
     {
     // Get wigner3j coefficients from wigner3j.cc
-    int m_wignersize[10] = {19, 61, 127, 217, 331, 469, 631, 817, 1027, 1261};
-    std::vector<float> m_wigner3jvalues(m_wignersize[m_l/2-1]);
     m_wigner3jvalues = getWigner3j(m_l);
 
     // Set local data size
@@ -171,8 +169,6 @@ void LocalWl::computeAveNorm(const vec3<float> *points, unsigned int Np)
     {
 
     // Get wigner3j coefficients from wigner3j.cc
-    int m_wignersize[10] = {19, 61, 127, 217, 331, 469, 631, 817, 1027, 1261};
-    std::vector<float> m_wigner3jvalues(m_wignersize[m_l/2-1]);
     m_wigner3jvalues = getWigner3j(m_l);
 
     // Set local data size
