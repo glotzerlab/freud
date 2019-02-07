@@ -4,5 +4,5 @@ conda:
     environment: environment.yml
 python:
     install:
-        - method: pip
+        - method: setuptools
           path: .
