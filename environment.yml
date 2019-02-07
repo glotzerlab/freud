@@ -1,4 +1,4 @@
-name: freud-readthedocs
+name: freud-rtd
 channels:
   - conda-forge
   - defaults
@@ -7,6 +7,7 @@ dependencies:
   - asn1crypto=0.24.0=py37_1003
   - attrs=18.2.0=py_0
   - babel=2.6.0=py_1
+  - backcall=0.1.0=py_0
   - blas=1.1=openblas
   - bzip2=1.0.6=h14c3975_1002
   - ca-certificates=2018.11.29=ha4d7672_0
@@ -21,7 +22,9 @@ dependencies:
   - gmp=6.1.2=hf484d3e_1000
   - idna=2.8=py37_1000
   - imagesize=1.1.0=py_0
+  - ipython=7.2.0=py37h24bf2e0_1000
   - ipython_genutils=0.2.0=py_1
+  - jedi=0.13.2=py37_1000
   - jinja2=2.10=py_1
   - jsonschema=3.0.0a3=py37_1000
   - jupyter_client=5.2.4=py_1
@@ -43,7 +46,12 @@ dependencies:
   - packaging=19.0=py_0
   - pandoc=2.6=0
   - pandocfilters=1.4.2=py_1
+  - parso=0.3.3=py_0
+  - pexpect=4.6.0=py37_1000
+  - pickleshare=0.7.5=py37_1000
   - pip=19.0.1=py37_0
+  - prompt_toolkit=2.0.8=py_0
+  - ptyprocess=0.6.0=py37_1000
   - pycparser=2.19=py_0
   - pygments=2.3.1=py_0
   - pyopenssl=19.0.0=py37_0
@@ -71,6 +79,7 @@ dependencies:
   - tornado=5.1.1=py37h14c3975_1000
   - traitlets=4.3.2=py37_1000
   - urllib3=1.24.1=py37_1000
+  - wcwidth=0.1.7=py_1
   - webencodings=0.5.1=py_1
   - wheel=0.32.3=py37_0
   - xz=5.2.4=h14c3975_1001
