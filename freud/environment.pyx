@@ -432,7 +432,6 @@ cdef class LocalDescriptors:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds or :code:`'precomputed'` if
                 using :meth:`~.computeNList` (Default value = :code:`None`).
-                using :meth:`~.computeNList` (Default value = :code:`None`).
         """  # noqa: E501
         cdef freud.box.Box b = freud.common.convert_box(box)
 
@@ -920,13 +919,13 @@ cdef class AngularSeparation:
             angles.
         n_global (unsigned int):
             The number of global orientations to check against.
-        neighbor_angles ((:math:`\left(N_{particles}\timesN_{neighbors}, \right)` :class:`numpy.ndarray`):
+        neighbor_angles (:math:`\left(N_{bonds}\right)` :class:`numpy.ndarray`):
             The neighbor angles in radians. **This field is only populated
-            after :meth`~.computeNeighbor` is called.** The angles
+            after :meth:`~.computeNeighbor` is called.** The angles
             are stored in the order of the neighborlist object.
         global_angles (:math:`\left(N_{global}, N_{particles} \right)` :class:`numpy.ndarray`):
             The global angles in radians. **This field is only populated after
-            :meth:`.computeGlobal` is called.** The angles
+            :meth:`~.computeGlobal` is called.** The angles
             are stored in the order of the neighborlist object.
 
     .. todo Need to figure out what happens if you use a neighborlist with
@@ -1024,7 +1023,7 @@ cdef class AngularSeparation:
     def computeGlobal(self, global_ors, ors, equiv_quats):
         R"""Calculates the minimum angles of separation between
         :code:`global_ors` and :code:`ors`, checking for underlying symmetry as
-        encoded in :code`equiv_quats`. The result is stored in the
+        encoded in :code:`equiv_quats`. The result is stored in the
         :code:`global_angles` class attribute.
 
 
