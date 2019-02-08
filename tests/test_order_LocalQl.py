@@ -47,6 +47,11 @@ class TestLocalQl(unittest.TestCase):
 
 
 class TestLocalQlNear(unittest.TestCase):
+    def test_init_kwargs(self):
+        """Ensure that keyword arguments are correctly accepted"""
+        box = freud.box.Box.cube(10)
+        comp = freud.order.LocalQlNear(box, 1.5, 6, kn=12)  # noqa: F841
+
     def test_shape(self):
         N = 1000
 
