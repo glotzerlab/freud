@@ -921,11 +921,11 @@ cdef class AngularSeparation:
             The number of global orientations to check against.
         neighbor_angles (:math:`\left(N_{bonds}\right)` :class:`numpy.ndarray`):
             The neighbor angles in radians. **This field is only populated
-            after :meth:`~.computeNeighbor` is called.** The angles
+            after** :meth:`~.computeNeighbor` **is called.** The angles
             are stored in the order of the neighborlist object.
         global_angles (:math:`\left(N_{global}, N_{particles} \right)` :class:`numpy.ndarray`):
-            The global angles in radians. **This field is only populated after
-            :meth:`~.computeGlobal` is called.** The angles
+            The global angles in radians. **This field is only populated
+            after** :meth:`~.computeGlobal` **is called.** The angles
             are stored in the order of the neighborlist object.
 
     .. todo Need to figure out what happens if you use a neighborlist with

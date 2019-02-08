@@ -1380,7 +1380,7 @@ cdef class SolLiqNear(SolLiq):
 cdef class RotationalAutocorrelation:
     """Calculates a measure of total rotational autocorrelation based on
     hyperspherical harmonics as laid out in "Design rules for engineering
-    colloidal plastic crystals of hard polyhedra – phase behavior and
+    colloidal plastic crystals of hard polyhedra - phase behavior and
     directional entropic forces" by Karas et al. (currently in preparation).
     The output is not a correlation function, but rather a scalar value that
     measures total system orientational correlation with an initial state. As
@@ -1402,7 +1402,7 @@ cdef class RotationalAutocorrelation:
         azimuthal (int):
             The azimuthal quantum number, which defines the order of the
             hyperspherical harmonic. Must be a positive, even integer.
-        ra_array ((:math:`N_{orientations}`, ) :class:`numpy.ndarray`):
+        ra_array ((:math:`N_{orientations}`) :class:`numpy.ndarray`):
             The per-orientation array of rotational autocorrelation values
             calculated by the last call to compute.
         autocorrelation (float):
