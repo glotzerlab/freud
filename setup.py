@@ -375,7 +375,7 @@ if platform.system() == 'Darwin':
 version = '1.0.0'
 
 # Read README for PyPI, fallback to short description if it fails.
-desc = 'Perform various analyses of particle simulations.'
+desc = 'Powerful, efficient trajectory analysis in scientific Python.'
 try:
     readme_file = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                'README.md')
