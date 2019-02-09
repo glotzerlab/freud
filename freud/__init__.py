@@ -15,4 +15,4 @@ from . import order
 from . import pmft
 from . import voronoi
 
-__version__ = '0.11.4'
+__version__ = '1.0.0'

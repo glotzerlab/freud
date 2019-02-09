@@ -372,7 +372,7 @@ if args.use_cython:
 if platform.system() == 'Darwin':
     os.environ["MACOSX_DEPLOYMENT_TARGET"]= "10.12"
 
-version = '0.11.4'
+version = '1.0.0'
 
 # Read README for PyPI, fallback to short description if it fails.
 desc = 'Perform various analyses of particle simulations.'
