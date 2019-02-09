@@ -57,21 +57,21 @@
         "sources": [
             "freud/order.pyx",
             "cpp/cluster/Cluster.cc",
-            "cpp/order/LocalWl.cc",
-            "cpp/order/CubaticOrderParameter.cc",
-            "cpp/locality/NeighborList.cc",
-            "cpp/order/RotationalAutocorrelation.cc",
-            "cpp/order/SolLiq.cc",
+            "cpp/order/TransOrderParameter.cc",
             "cpp/order/wigner3j.cc",
+            "cpp/order/SolLiq.cc",
+            "cpp/box/Box.cc",
+            "cpp/locality/LinkCell.cc",
+            "cpp/order/RotationalAutocorrelation.cc",
+            "cpp/util/HOOMDMatrix.cc",
+            "cpp/locality/NearestNeighbors.cc",
+            "cpp/order/CubaticOrderParameter.cc",
+            "cpp/order/LocalWl.cc",
+            "cpp/order/LocalQl.cc",
             "cpp/order/HexOrderParameter.cc",
             "cpp/locality/AABBQuery.cc",
-            "cpp/box/Box.cc",
-            "cpp/util/HOOMDMatrix.cc",
-            "cpp/locality/LinkCell.cc",
-            "cpp/order/LocalQl.cc",
             "cpp/order/NematicOrderParameter.cc",
-            "cpp/locality/NearestNeighbors.cc",
-            "cpp/order/TransOrderParameter.cc"
+            "cpp/locality/NeighborList.cc"
         ]
     },
     "module_name": "freud.order"
@@ -20215,7 +20215,7 @@ static PyObject *__pyx_pf_5freud_5order_10SolLiqNear_12__setstate_cython__(CYTHO
   return __pyx_r;
 }
 
-/* "freud/order.pyx":1414
+/* "freud/order.pyx":1416
  *     cdef int l
  * 
  *     def __cinit__(self, l):             # <<<<<<<<<<<<<<
@@ -20249,7 +20249,7 @@ static int __pyx_pw_5freud_5order_25RotationalAutocorrelation_1__cinit__(PyObjec
         else goto __pyx_L5_argtuple_error;
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__cinit__") < 0)) __PYX_ERR(0, 1414, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__cinit__") < 0)) __PYX_ERR(0, 1416, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 1) {
       goto __pyx_L5_argtuple_error;
@@ -20260,7 +20260,7 @@ static int __pyx_pw_5freud_5order_25RotationalAutocorrelation_1__cinit__(PyObjec
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 1, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1414, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 1, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1416, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("freud.order.RotationalAutocorrelation.__cinit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -20282,43 +20282,43 @@ static int __pyx_pf_5freud_5order_25RotationalAutocorrelation___cinit__(struct _
   int __pyx_t_4;
   __Pyx_RefNannySetupContext("__cinit__", 0);
 
-  /* "freud/order.pyx":1415
+  /* "freud/order.pyx":1417
  * 
  *     def __cinit__(self, l):
  *         if l % 2 or l < 0:             # <<<<<<<<<<<<<<
  *             raise ValueError(
  *                 "The quantum number must be a positive, even integer.")
  */
-  __pyx_t_2 = __Pyx_PyInt_RemainderObjC(__pyx_v_l, __pyx_int_2, 2, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1415, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_RemainderObjC(__pyx_v_l, __pyx_int_2, 2, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1417, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 1415, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 1417, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   if (!__pyx_t_3) {
   } else {
     __pyx_t_1 = __pyx_t_3;
     goto __pyx_L4_bool_binop_done;
   }
-  __pyx_t_2 = PyObject_RichCompare(__pyx_v_l, __pyx_int_0, Py_LT); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1415, __pyx_L1_error)
-  __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 1415, __pyx_L1_error)
+  __pyx_t_2 = PyObject_RichCompare(__pyx_v_l, __pyx_int_0, Py_LT); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1417, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 1417, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_t_1 = __pyx_t_3;
   __pyx_L4_bool_binop_done:;
   if (unlikely(__pyx_t_1)) {
 
-    /* "freud/order.pyx":1416
+    /* "freud/order.pyx":1418
  *     def __cinit__(self, l):
  *         if l % 2 or l < 0:
  *             raise ValueError(             # <<<<<<<<<<<<<<
  *                 "The quantum number must be a positive, even integer.")
  *         self.l = l  # noqa
  */
-    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__29, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1416, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__29, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1418, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_Raise(__pyx_t_2, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __PYX_ERR(0, 1416, __pyx_L1_error)
+    __PYX_ERR(0, 1418, __pyx_L1_error)
 
-    /* "freud/order.pyx":1415
+    /* "freud/order.pyx":1417
  * 
  *     def __cinit__(self, l):
  *         if l % 2 or l < 0:             # <<<<<<<<<<<<<<
@@ -20327,17 +20327,17 @@ static int __pyx_pf_5freud_5order_25RotationalAutocorrelation___cinit__(struct _
  */
   }
 
-  /* "freud/order.pyx":1418
+  /* "freud/order.pyx":1420
  *             raise ValueError(
  *                 "The quantum number must be a positive, even integer.")
  *         self.l = l  # noqa             # <<<<<<<<<<<<<<
  *         self.thisptr = new freud._order.RotationalAutocorrelation(
  *             self.l)
  */
-  __pyx_t_4 = __Pyx_PyInt_As_int(__pyx_v_l); if (unlikely((__pyx_t_4 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 1418, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyInt_As_int(__pyx_v_l); if (unlikely((__pyx_t_4 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 1420, __pyx_L1_error)
   __pyx_v_self->l = __pyx_t_4;
 
-  /* "freud/order.pyx":1419
+  /* "freud/order.pyx":1421
  *                 "The quantum number must be a positive, even integer.")
  *         self.l = l  # noqa
  *         self.thisptr = new freud._order.RotationalAutocorrelation(             # <<<<<<<<<<<<<<
@@ -20346,7 +20346,7 @@ static int __pyx_pf_5freud_5order_25RotationalAutocorrelation___cinit__(struct _
  */
   __pyx_v_self->thisptr = new freud::order::RotationalAutocorrelation(__pyx_v_self->l);
 
-  /* "freud/order.pyx":1414
+  /* "freud/order.pyx":1416
  *     cdef int l
  * 
  *     def __cinit__(self, l):             # <<<<<<<<<<<<<<
@@ -20366,7 +20366,7 @@ static int __pyx_pf_5freud_5order_25RotationalAutocorrelation___cinit__(struct _
   return __pyx_r;
 }
 
-/* "freud/order.pyx":1422
+/* "freud/order.pyx":1424
  *             self.l)
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -20389,7 +20389,7 @@ static void __pyx_pf_5freud_5order_25RotationalAutocorrelation_2__dealloc__(stru
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__dealloc__", 0);
 
-  /* "freud/order.pyx":1423
+  /* "freud/order.pyx":1425
  * 
  *     def __dealloc__(self):
  *         del self.thisptr             # <<<<<<<<<<<<<<
@@ -20398,7 +20398,7 @@ static void __pyx_pf_5freud_5order_25RotationalAutocorrelation_2__dealloc__(stru
  */
   delete __pyx_v_self->thisptr;
 
-  /* "freud/order.pyx":1422
+  /* "freud/order.pyx":1424
  *             self.l)
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -20410,7 +20410,7 @@ static void __pyx_pf_5freud_5order_25RotationalAutocorrelation_2__dealloc__(stru
   __Pyx_RefNannyFinishContext();
 }
 
-/* "freud/order.pyx":1425
+/* "freud/order.pyx":1427
  *         del self.thisptr
  * 
  *     def compute(self, ref_ors, ors):             # <<<<<<<<<<<<<<
@@ -20451,11 +20451,11 @@ static PyObject *__pyx_pw_5freud_5order_25RotationalAutocorrelation_5compute(PyO
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_ors)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("compute", 1, 2, 2, 1); __PYX_ERR(0, 1425, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("compute", 1, 2, 2, 1); __PYX_ERR(0, 1427, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "compute") < 0)) __PYX_ERR(0, 1425, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "compute") < 0)) __PYX_ERR(0, 1427, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -20468,7 +20468,7 @@ static PyObject *__pyx_pw_5freud_5order_25RotationalAutocorrelation_5compute(PyO
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("compute", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1425, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("compute", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 1427, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("freud.order.RotationalAutocorrelation.compute", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -20503,30 +20503,30 @@ static PyObject *__pyx_pf_5freud_5order_25RotationalAutocorrelation_4compute(str
   __Pyx_INCREF(__pyx_v_ref_ors);
   __Pyx_INCREF(__pyx_v_ors);
 
-  /* "freud/order.pyx":1434
+  /* "freud/order.pyx":1436
  *                 Orientations for the frame of interest.
  *         """
  *         ref_ors = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             ref_ors, 2, dtype=np.float32, contiguous=True,
  *             array_name="ref_ors")
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_freud); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1434, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_freud); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1436, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_common); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1434, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_common); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1436, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1434, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1436, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/order.pyx":1435
+  /* "freud/order.pyx":1437
  *         """
  *         ref_ors = freud.common.convert_array(
  *             ref_ors, 2, dtype=np.float32, contiguous=True,             # <<<<<<<<<<<<<<
  *             array_name="ref_ors")
  *         if ref_ors.shape[1] != 4:
  */
-  __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1434, __pyx_L1_error)
+  __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1436, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_INCREF(__pyx_v_ref_ors);
   __Pyx_GIVEREF(__pyx_v_ref_ors);
@@ -20534,26 +20534,26 @@ static PyObject *__pyx_pf_5freud_5order_25RotationalAutocorrelation_4compute(str
   __Pyx_INCREF(__pyx_int_2);
   __Pyx_GIVEREF(__pyx_int_2);
   PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_int_2);
-  __pyx_t_3 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1435, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1437, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1435, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1437, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_float32); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1435, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_float32); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1437, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_dtype, __pyx_t_5) < 0) __PYX_ERR(0, 1435, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_dtype, __pyx_t_5) < 0) __PYX_ERR(0, 1437, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_contiguous, Py_True) < 0) __PYX_ERR(0, 1435, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_array_name, __pyx_n_s_ref_ors) < 0) __PYX_ERR(0, 1435, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_contiguous, Py_True) < 0) __PYX_ERR(0, 1437, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_array_name, __pyx_n_s_ref_ors) < 0) __PYX_ERR(0, 1437, __pyx_L1_error)
 
-  /* "freud/order.pyx":1434
+  /* "freud/order.pyx":1436
  *                 Orientations for the frame of interest.
  *         """
  *         ref_ors = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             ref_ors, 2, dtype=np.float32, contiguous=True,
  *             array_name="ref_ors")
  */
-  __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1434, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1436, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -20561,39 +20561,39 @@ static PyObject *__pyx_pf_5freud_5order_25RotationalAutocorrelation_4compute(str
   __Pyx_DECREF_SET(__pyx_v_ref_ors, __pyx_t_5);
   __pyx_t_5 = 0;
 
-  /* "freud/order.pyx":1437
+  /* "freud/order.pyx":1439
  *             ref_ors, 2, dtype=np.float32, contiguous=True,
  *             array_name="ref_ors")
  *         if ref_ors.shape[1] != 4:             # <<<<<<<<<<<<<<
  *             raise TypeError('ref_ors should be an Nx4 array')
  * 
  */
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_ref_ors, __pyx_n_s_shape); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1437, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_ref_ors, __pyx_n_s_shape); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1439, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_3 = __Pyx_GetItemInt(__pyx_t_5, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1437, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_GetItemInt(__pyx_t_5, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1439, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_5 = __Pyx_PyInt_NeObjC(__pyx_t_3, __pyx_int_4, 4, 0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1437, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyInt_NeObjC(__pyx_t_3, __pyx_int_4, 4, 0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1439, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_t_5); if (unlikely(__pyx_t_6 < 0)) __PYX_ERR(0, 1437, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_t_5); if (unlikely(__pyx_t_6 < 0)) __PYX_ERR(0, 1439, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   if (unlikely(__pyx_t_6)) {
 
-    /* "freud/order.pyx":1438
+    /* "freud/order.pyx":1440
  *             array_name="ref_ors")
  *         if ref_ors.shape[1] != 4:
  *             raise TypeError('ref_ors should be an Nx4 array')             # <<<<<<<<<<<<<<
  * 
  *         ors = freud.common.convert_array(
  */
-    __pyx_t_5 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__30, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1438, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__30, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1440, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_Raise(__pyx_t_5, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __PYX_ERR(0, 1438, __pyx_L1_error)
+    __PYX_ERR(0, 1440, __pyx_L1_error)
 
-    /* "freud/order.pyx":1437
+    /* "freud/order.pyx":1439
  *             ref_ors, 2, dtype=np.float32, contiguous=True,
  *             array_name="ref_ors")
  *         if ref_ors.shape[1] != 4:             # <<<<<<<<<<<<<<
@@ -20602,30 +20602,30 @@ static PyObject *__pyx_pf_5freud_5order_25RotationalAutocorrelation_4compute(str
  */
   }
 
-  /* "freud/order.pyx":1440
+  /* "freud/order.pyx":1442
  *             raise TypeError('ref_ors should be an Nx4 array')
  * 
  *         ors = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             ors, 2, dtype=np.float32, contiguous=True, array_name="ors")
  *         if ors.shape[1] != 4:
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_freud); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1440, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_freud); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1442, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_common); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1440, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_common); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1442, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1440, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1442, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "freud/order.pyx":1441
+  /* "freud/order.pyx":1443
  * 
  *         ors = freud.common.convert_array(
  *             ors, 2, dtype=np.float32, contiguous=True, array_name="ors")             # <<<<<<<<<<<<<<
  *         if ors.shape[1] != 4:
  *             raise TypeError('ors should be an Nx4 array')
  */
-  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1440, __pyx_L1_error)
+  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1442, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_INCREF(__pyx_v_ors);
   __Pyx_GIVEREF(__pyx_v_ors);
@@ -20633,26 +20633,26 @@ static PyObject *__pyx_pf_5freud_5order_25RotationalAutocorrelation_4compute(str
   __Pyx_INCREF(__pyx_int_2);
   __Pyx_GIVEREF(__pyx_int_2);
   PyTuple_SET_ITEM(__pyx_t_3, 1, __pyx_int_2);
-  __pyx_t_2 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1441, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1443, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1441, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1443, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_float32); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1441, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_float32); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1443, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_dtype, __pyx_t_4) < 0) __PYX_ERR(0, 1441, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_dtype, __pyx_t_4) < 0) __PYX_ERR(0, 1443, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_contiguous, Py_True) < 0) __PYX_ERR(0, 1441, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_array_name, __pyx_n_s_ors) < 0) __PYX_ERR(0, 1441, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_contiguous, Py_True) < 0) __PYX_ERR(0, 1443, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_array_name, __pyx_n_s_ors) < 0) __PYX_ERR(0, 1443, __pyx_L1_error)
 
-  /* "freud/order.pyx":1440
+  /* "freud/order.pyx":1442
  *             raise TypeError('ref_ors should be an Nx4 array')
  * 
  *         ors = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             ors, 2, dtype=np.float32, contiguous=True, array_name="ors")
  *         if ors.shape[1] != 4:
  */
-  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_3, __pyx_t_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1440, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_3, __pyx_t_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1442, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -20660,39 +20660,39 @@ static PyObject *__pyx_pf_5freud_5order_25RotationalAutocorrelation_4compute(str
   __Pyx_DECREF_SET(__pyx_v_ors, __pyx_t_4);
   __pyx_t_4 = 0;
 
-  /* "freud/order.pyx":1442
+  /* "freud/order.pyx":1444
  *         ors = freud.common.convert_array(
  *             ors, 2, dtype=np.float32, contiguous=True, array_name="ors")
  *         if ors.shape[1] != 4:             # <<<<<<<<<<<<<<
  *             raise TypeError('ors should be an Nx4 array')
  * 
  */
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_ors, __pyx_n_s_shape); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1442, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_ors, __pyx_n_s_shape); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1444, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_4, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1442, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_4, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1444, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = __Pyx_PyInt_NeObjC(__pyx_t_2, __pyx_int_4, 4, 0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1442, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyInt_NeObjC(__pyx_t_2, __pyx_int_4, 4, 0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1444, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_t_4); if (unlikely(__pyx_t_6 < 0)) __PYX_ERR(0, 1442, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_t_4); if (unlikely(__pyx_t_6 < 0)) __PYX_ERR(0, 1444, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   if (unlikely(__pyx_t_6)) {
 
-    /* "freud/order.pyx":1443
+    /* "freud/order.pyx":1445
  *             ors, 2, dtype=np.float32, contiguous=True, array_name="ors")
  *         if ors.shape[1] != 4:
  *             raise TypeError('ors should be an Nx4 array')             # <<<<<<<<<<<<<<
  * 
  *         cdef float[:, ::1] l_ref_ors = ref_ors
  */
-    __pyx_t_4 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__31, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1443, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__31, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1445, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_Raise(__pyx_t_4, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __PYX_ERR(0, 1443, __pyx_L1_error)
+    __PYX_ERR(0, 1445, __pyx_L1_error)
 
-    /* "freud/order.pyx":1442
+    /* "freud/order.pyx":1444
  *         ors = freud.common.convert_array(
  *             ors, 2, dtype=np.float32, contiguous=True, array_name="ors")
  *         if ors.shape[1] != 4:             # <<<<<<<<<<<<<<
@@ -20701,47 +20701,47 @@ static PyObject *__pyx_pf_5freud_5order_25RotationalAutocorrelation_4compute(str
  */
   }
 
-  /* "freud/order.pyx":1445
+  /* "freud/order.pyx":1447
  *             raise TypeError('ors should be an Nx4 array')
  * 
  *         cdef float[:, ::1] l_ref_ors = ref_ors             # <<<<<<<<<<<<<<
  *         cdef float[:, ::1] l_ors = ors
  *         cdef unsigned int nP = ors.shape[0]
  */
-  __pyx_t_7 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_float(__pyx_v_ref_ors, PyBUF_WRITABLE); if (unlikely(!__pyx_t_7.memview)) __PYX_ERR(0, 1445, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_float(__pyx_v_ref_ors, PyBUF_WRITABLE); if (unlikely(!__pyx_t_7.memview)) __PYX_ERR(0, 1447, __pyx_L1_error)
   __pyx_v_l_ref_ors = __pyx_t_7;
   __pyx_t_7.memview = NULL;
   __pyx_t_7.data = NULL;
 
-  /* "freud/order.pyx":1446
+  /* "freud/order.pyx":1448
  * 
  *         cdef float[:, ::1] l_ref_ors = ref_ors
  *         cdef float[:, ::1] l_ors = ors             # <<<<<<<<<<<<<<
  *         cdef unsigned int nP = ors.shape[0]
  * 
  */
-  __pyx_t_7 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_float(__pyx_v_ors, PyBUF_WRITABLE); if (unlikely(!__pyx_t_7.memview)) __PYX_ERR(0, 1446, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_float(__pyx_v_ors, PyBUF_WRITABLE); if (unlikely(!__pyx_t_7.memview)) __PYX_ERR(0, 1448, __pyx_L1_error)
   __pyx_v_l_ors = __pyx_t_7;
   __pyx_t_7.memview = NULL;
   __pyx_t_7.data = NULL;
 
-  /* "freud/order.pyx":1447
+  /* "freud/order.pyx":1449
  *         cdef float[:, ::1] l_ref_ors = ref_ors
  *         cdef float[:, ::1] l_ors = ors
  *         cdef unsigned int nP = ors.shape[0]             # <<<<<<<<<<<<<<
  * 
  *         with nogil:
  */
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_ors, __pyx_n_s_shape); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1447, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_ors, __pyx_n_s_shape); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1449, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_4, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1447, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_4, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1449, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_8 = __Pyx_PyInt_As_unsigned_int(__pyx_t_2); if (unlikely((__pyx_t_8 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 1447, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyInt_As_unsigned_int(__pyx_t_2); if (unlikely((__pyx_t_8 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 1449, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_v_nP = __pyx_t_8;
 
-  /* "freud/order.pyx":1449
+  /* "freud/order.pyx":1451
  *         cdef unsigned int nP = ors.shape[0]
  * 
  *         with nogil:             # <<<<<<<<<<<<<<
@@ -20756,7 +20756,7 @@ static PyObject *__pyx_pf_5freud_5order_25RotationalAutocorrelation_4compute(str
       #endif
       /*try:*/ {
 
-        /* "freud/order.pyx":1451
+        /* "freud/order.pyx":1453
  *         with nogil:
  *             self.thisptr.compute(
  *                 <quat[float]*> &l_ref_ors[0, 0],             # <<<<<<<<<<<<<<
@@ -20766,7 +20766,7 @@ static PyObject *__pyx_pf_5freud_5order_25RotationalAutocorrelation_4compute(str
         __pyx_t_9 = 0;
         __pyx_t_10 = 0;
 
-        /* "freud/order.pyx":1452
+        /* "freud/order.pyx":1454
  *             self.thisptr.compute(
  *                 <quat[float]*> &l_ref_ors[0, 0],
  *                 <quat[float]*> &l_ors[0, 0],             # <<<<<<<<<<<<<<
@@ -20776,7 +20776,7 @@ static PyObject *__pyx_pf_5freud_5order_25RotationalAutocorrelation_4compute(str
         __pyx_t_11 = 0;
         __pyx_t_12 = 0;
 
-        /* "freud/order.pyx":1450
+        /* "freud/order.pyx":1452
  * 
  *         with nogil:
  *             self.thisptr.compute(             # <<<<<<<<<<<<<<
@@ -20793,11 +20793,11 @@ static PyObject *__pyx_pf_5freud_5order_25RotationalAutocorrelation_4compute(str
           #ifdef WITH_THREAD
           __Pyx_PyGILState_Release(__pyx_gilstate_save);
           #endif
-          __PYX_ERR(0, 1450, __pyx_L6_error)
+          __PYX_ERR(0, 1452, __pyx_L6_error)
         }
       }
 
-      /* "freud/order.pyx":1449
+      /* "freud/order.pyx":1451
  *         cdef unsigned int nP = ors.shape[0]
  * 
  *         with nogil:             # <<<<<<<<<<<<<<
@@ -20823,7 +20823,7 @@ static PyObject *__pyx_pf_5freud_5order_25RotationalAutocorrelation_4compute(str
       }
   }
 
-  /* "freud/order.pyx":1454
+  /* "freud/order.pyx":1456
  *                 <quat[float]*> &l_ors[0, 0],
  *                 nP)
  *         return self             # <<<<<<<<<<<<<<
@@ -20835,7 +20835,7 @@ static PyObject *__pyx_pf_5freud_5order_25RotationalAutocorrelation_4compute(str
   __pyx_r = ((PyObject *)__pyx_v_self);
   goto __pyx_L0;
 
-  /* "freud/order.pyx":1425
+  /* "freud/order.pyx":1427
  *         del self.thisptr
  * 
  *     def compute(self, ref_ors, ors):             # <<<<<<<<<<<<<<
@@ -20863,7 +20863,7 @@ static PyObject *__pyx_pf_5freud_5order_25RotationalAutocorrelation_4compute(str
   return __pyx_r;
 }
 
-/* "freud/order.pyx":1457
+/* "freud/order.pyx":1459
  * 
  *     @property
  *     def autocorrelation(self):             # <<<<<<<<<<<<<<
@@ -20891,7 +20891,7 @@ static PyObject *__pyx_pf_5freud_5order_25RotationalAutocorrelation_15autocorrel
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "freud/order.pyx":1458
+  /* "freud/order.pyx":1460
  *     @property
  *     def autocorrelation(self):
  *         cdef float Ft = self.thisptr.getRotationalAutocorrelation()             # <<<<<<<<<<<<<<
@@ -20900,7 +20900,7 @@ static PyObject *__pyx_pf_5freud_5order_25RotationalAutocorrelation_15autocorrel
  */
   __pyx_v_Ft = __pyx_v_self->thisptr->getRotationalAutocorrelation();
 
-  /* "freud/order.pyx":1459
+  /* "freud/order.pyx":1461
  *     def autocorrelation(self):
  *         cdef float Ft = self.thisptr.getRotationalAutocorrelation()
  *         return Ft             # <<<<<<<<<<<<<<
@@ -20908,13 +20908,13 @@ static PyObject *__pyx_pf_5freud_5order_25RotationalAutocorrelation_15autocorrel
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_Ft); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1459, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_Ft); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1461, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/order.pyx":1457
+  /* "freud/order.pyx":1459
  * 
  *     @property
  *     def autocorrelation(self):             # <<<<<<<<<<<<<<
@@ -20933,7 +20933,7 @@ static PyObject *__pyx_pf_5freud_5order_25RotationalAutocorrelation_15autocorrel
   return __pyx_r;
 }
 
-/* "freud/order.pyx":1462
+/* "freud/order.pyx":1464
  * 
  *     @property
  *     def ra_array(self):             # <<<<<<<<<<<<<<
@@ -20969,7 +20969,7 @@ static PyObject *__pyx_pf_5freud_5order_25RotationalAutocorrelation_8ra_array___
   PyObject *__pyx_t_8 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "freud/order.pyx":1463
+  /* "freud/order.pyx":1465
  *     @property
  *     def ra_array(self):
  *         cdef unsigned int num_orientations = self.thisptr.getN()             # <<<<<<<<<<<<<<
@@ -20978,7 +20978,7 @@ static PyObject *__pyx_pf_5freud_5order_25RotationalAutocorrelation_8ra_array___
  */
   __pyx_v_num_orientations = __pyx_v_self->thisptr->getN();
 
-  /* "freud/order.pyx":1465
+  /* "freud/order.pyx":1467
  *         cdef unsigned int num_orientations = self.thisptr.getN()
  *         cdef np.complex64_t[::1] result = \
  *             <np.complex64_t[:num_orientations]> self.thisptr.getRAArray().get()             # <<<<<<<<<<<<<<
@@ -20988,25 +20988,25 @@ static PyObject *__pyx_pf_5freud_5order_25RotationalAutocorrelation_8ra_array___
   __pyx_t_1 = __pyx_v_self->thisptr->getRAArray().get();
   if (!__pyx_t_1) {
     PyErr_SetString(PyExc_ValueError,"Cannot create cython.array from NULL pointer");
-    __PYX_ERR(0, 1465, __pyx_L1_error)
+    __PYX_ERR(0, 1467, __pyx_L1_error)
   }
   __pyx_t_4 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo___pyx_t_float_complex);
   __pyx_t_3 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)__pyx_v_num_orientations));
-  if (unlikely(!__pyx_t_4 || !__pyx_t_3 || !PyBytes_AsString(__pyx_t_4))) __PYX_ERR(0, 1465, __pyx_L1_error)
+  if (unlikely(!__pyx_t_4 || !__pyx_t_3 || !PyBytes_AsString(__pyx_t_4))) __PYX_ERR(0, 1467, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_2 = __pyx_array_new(__pyx_t_3, sizeof(__pyx_t_float_complex), PyBytes_AS_STRING(__pyx_t_4), (char *) "c", (char *) __pyx_t_1);
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1465, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1467, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_5 = __Pyx_PyObject_to_MemoryviewSlice_dc___pyx_t_float_complex(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_5.memview)) __PYX_ERR(0, 1465, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_to_MemoryviewSlice_dc___pyx_t_float_complex(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_5.memview)) __PYX_ERR(0, 1467, __pyx_L1_error)
   __Pyx_DECREF(((PyObject *)__pyx_t_2)); __pyx_t_2 = 0;
   __pyx_v_result = __pyx_t_5;
   __pyx_t_5.memview = NULL;
   __pyx_t_5.data = NULL;
 
-  /* "freud/order.pyx":1466
+  /* "freud/order.pyx":1468
  *         cdef np.complex64_t[::1] result = \
  *             <np.complex64_t[:num_orientations]> self.thisptr.getRAArray().get()
  *         return np.asarray(result, dtype=np.complex64)             # <<<<<<<<<<<<<<
@@ -21014,28 +21014,28 @@ static PyObject *__pyx_pf_5freud_5order_25RotationalAutocorrelation_8ra_array___
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1466, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1468, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1466, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1468, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = __pyx_memoryview_fromslice(__pyx_v_result, 1, (PyObject *(*)(char *)) __pyx_memview_get___pyx_t_float_complex, (int (*)(char *, PyObject *)) __pyx_memview_set___pyx_t_float_complex, 0);; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1466, __pyx_L1_error)
+  __pyx_t_4 = __pyx_memoryview_fromslice(__pyx_v_result, 1, (PyObject *(*)(char *)) __pyx_memview_get___pyx_t_float_complex, (int (*)(char *, PyObject *)) __pyx_memview_set___pyx_t_float_complex, 0);; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1468, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_6 = PyTuple_New(1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1466, __pyx_L1_error)
+  __pyx_t_6 = PyTuple_New(1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1468, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_GIVEREF(__pyx_t_4);
   PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4);
   __pyx_t_4 = 0;
-  __pyx_t_4 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1466, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1468, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_n_s_np); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 1466, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_n_s_np); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 1468, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_complex64); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 1466, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_complex64); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 1468, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_dtype, __pyx_t_8) < 0) __PYX_ERR(0, 1466, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_dtype, __pyx_t_8) < 0) __PYX_ERR(0, 1468, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-  __pyx_t_8 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, __pyx_t_4); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 1466, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, __pyx_t_4); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 1468, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
@@ -21044,7 +21044,7 @@ static PyObject *__pyx_pf_5freud_5order_25RotationalAutocorrelation_8ra_array___
   __pyx_t_8 = 0;
   goto __pyx_L0;
 
-  /* "freud/order.pyx":1462
+  /* "freud/order.pyx":1464
  * 
  *     @property
  *     def ra_array(self):             # <<<<<<<<<<<<<<
@@ -21070,7 +21070,7 @@ static PyObject *__pyx_pf_5freud_5order_25RotationalAutocorrelation_8ra_array___
   return __pyx_r;
 }
 
-/* "freud/order.pyx":1469
+/* "freud/order.pyx":1471
  * 
  *     @property
  *     def num_orientations(self):             # <<<<<<<<<<<<<<
@@ -21098,7 +21098,7 @@ static PyObject *__pyx_pf_5freud_5order_25RotationalAutocorrelation_16num_orient
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "freud/order.pyx":1470
+  /* "freud/order.pyx":1472
  *     @property
  *     def num_orientations(self):
  *         cdef unsigned int num = self.thisptr.getN()             # <<<<<<<<<<<<<<
@@ -21107,7 +21107,7 @@ static PyObject *__pyx_pf_5freud_5order_25RotationalAutocorrelation_16num_orient
  */
   __pyx_v_num = __pyx_v_self->thisptr->getN();
 
-  /* "freud/order.pyx":1471
+  /* "freud/order.pyx":1473
  *     def num_orientations(self):
  *         cdef unsigned int num = self.thisptr.getN()
  *         return num             # <<<<<<<<<<<<<<
@@ -21115,13 +21115,13 @@ static PyObject *__pyx_pf_5freud_5order_25RotationalAutocorrelation_16num_orient
  *     @property
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_unsigned_int(__pyx_v_num); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1471, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_unsigned_int(__pyx_v_num); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1473, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/order.pyx":1469
+  /* "freud/order.pyx":1471
  * 
  *     @property
  *     def num_orientations(self):             # <<<<<<<<<<<<<<
@@ -21140,7 +21140,7 @@ static PyObject *__pyx_pf_5freud_5order_25RotationalAutocorrelation_16num_orient
   return __pyx_r;
 }
 
-/* "freud/order.pyx":1474
+/* "freud/order.pyx":1476
  * 
  *     @property
  *     def azimuthal(self):             # <<<<<<<<<<<<<<
@@ -21168,7 +21168,7 @@ static PyObject *__pyx_pf_5freud_5order_25RotationalAutocorrelation_9azimuthal__
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "freud/order.pyx":1475
+  /* "freud/order.pyx":1477
  *     @property
  *     def azimuthal(self):
  *         cdef unsigned int azimuthal = self.thisptr.getL()             # <<<<<<<<<<<<<<
@@ -21176,19 +21176,19 @@ static PyObject *__pyx_pf_5freud_5order_25RotationalAutocorrelation_9azimuthal__
  */
   __pyx_v_azimuthal = __pyx_v_self->thisptr->getL();
 
-  /* "freud/order.pyx":1476
+  /* "freud/order.pyx":1478
  *     def azimuthal(self):
  *         cdef unsigned int azimuthal = self.thisptr.getL()
  *         return azimuthal             # <<<<<<<<<<<<<<
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_unsigned_int(__pyx_v_azimuthal); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1476, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_unsigned_int(__pyx_v_azimuthal); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1478, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/order.pyx":1474
+  /* "freud/order.pyx":1476
  * 
  *     @property
  *     def azimuthal(self):             # <<<<<<<<<<<<<<
@@ -38332,7 +38332,7 @@ static PyTypeObject __pyx_type_5freud_5order_RotationalAutocorrelation = {
   0, /*tp_setattro*/
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE, /*tp_flags*/
-  "Calculates a measure of total rotational autocorrelation based on\n    hyperspherical harmonics as laid out in \"Design rules for engineering\n    colloidal plastic crystals of hard polyhedra \342\200\223 phase behavior and\n    directional entropic forces\" by Karas et al. (currently in preparation).\n    The output is not a correlation function, but rather a scalar value that\n    measures total system orientational correlation with an initial state. As\n    such, the output can be treated as an order parameter measuring degrees of\n    rotational (de)correlation. For analysis of a trajectory, the compute call\n    needs to be done at each trajectory frame.\n\n    .. moduleauthor:: Andrew Karas <askaras@umich.edu>\n    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>\n\n    Args:\n        l (int):\n            Order of the hyperspherical harmonic. Must be a positive, even\n            integer.\n\n    Attributes:\n        num_orientations (unsigned int):\n            The number of orientations used in computing the last set.\n        azimuthal (int):\n            The azimuthal quantum number, which defines the order of the\n            hyperspherical harmonic. Must be a positive, even integer.\n        ra_array ((:math:`N_{orientations}`, ) :class:`numpy.ndarray`):\n            The per-orientation array of rotational autocorrelation values\n            calculated by the last call to compute.\n        autocorrelation (float):\n            The autocorrelation computed in the last call to compute.\n    ", /*tp_doc*/
+  "Calculates a measure of total rotational autocorrelation based on\n    hyperspherical harmonics as laid out in \"Design rules for engineering\n    colloidal plastic crystals of hard polyhedra - phase behavior and\n    directional entropic forces\" by Karas et al. (currently in preparation).\n    The output is not a correlation function, but rather a scalar value that\n    measures total system orientational correlation with an initial state. As\n    such, the output can be treated as an order parameter measuring degrees of\n    rotational (de)correlation. For analysis of a trajectory, the compute call\n    needs to be done at each trajectory frame.\n\n    .. moduleauthor:: Andrew Karas <askaras@umich.edu>\n    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>\n\n    .. versionadded:: 1.0\n\n    Args:\n        l (int):\n            Order of the hyperspherical harmonic. Must be a positive, even\n            integer.\n\n    Attributes:\n        num_orientations (unsigned int):\n            The number of orientations used in computing the last set.\n        azimuthal (int):\n            The azimuthal quantum number, which defines the order of the\n            hyperspherical harmonic. Must be a positive, even integer.\n        ra_array ((:math:`N_{orientations}`) :class:`numpy.ndarray`):\n            The per-orientation array of rotational autocorrelation values\n            calculated by the last call to compute.\n        autocorrelation (float):\n            The autocorrelation computed in the last call to compute.\n    ", /*tp_doc*/
   0, /*tp_traverse*/
   0, /*tp_clear*/
   0, /*tp_richcompare*/
@@ -39615,36 +39615,36 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__28);
   __Pyx_GIVEREF(__pyx_tuple__28);
 
-  /* "freud/order.pyx":1416
+  /* "freud/order.pyx":1418
  *     def __cinit__(self, l):
  *         if l % 2 or l < 0:
  *             raise ValueError(             # <<<<<<<<<<<<<<
  *                 "The quantum number must be a positive, even integer.")
  *         self.l = l  # noqa
  */
-  __pyx_tuple__29 = PyTuple_Pack(1, __pyx_kp_s_The_quantum_number_must_be_a_pos); if (unlikely(!__pyx_tuple__29)) __PYX_ERR(0, 1416, __pyx_L1_error)
+  __pyx_tuple__29 = PyTuple_Pack(1, __pyx_kp_s_The_quantum_number_must_be_a_pos); if (unlikely(!__pyx_tuple__29)) __PYX_ERR(0, 1418, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__29);
   __Pyx_GIVEREF(__pyx_tuple__29);
 
-  /* "freud/order.pyx":1438
+  /* "freud/order.pyx":1440
  *             array_name="ref_ors")
  *         if ref_ors.shape[1] != 4:
  *             raise TypeError('ref_ors should be an Nx4 array')             # <<<<<<<<<<<<<<
  * 
  *         ors = freud.common.convert_array(
  */
-  __pyx_tuple__30 = PyTuple_Pack(1, __pyx_kp_s_ref_ors_should_be_an_Nx4_array); if (unlikely(!__pyx_tuple__30)) __PYX_ERR(0, 1438, __pyx_L1_error)
+  __pyx_tuple__30 = PyTuple_Pack(1, __pyx_kp_s_ref_ors_should_be_an_Nx4_array); if (unlikely(!__pyx_tuple__30)) __PYX_ERR(0, 1440, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__30);
   __Pyx_GIVEREF(__pyx_tuple__30);
 
-  /* "freud/order.pyx":1443
+  /* "freud/order.pyx":1445
  *             ors, 2, dtype=np.float32, contiguous=True, array_name="ors")
  *         if ors.shape[1] != 4:
  *             raise TypeError('ors should be an Nx4 array')             # <<<<<<<<<<<<<<
  * 
  *         cdef float[:, ::1] l_ref_ors = ref_ors
  */
-  __pyx_tuple__31 = PyTuple_Pack(1, __pyx_kp_s_ors_should_be_an_Nx4_array); if (unlikely(!__pyx_tuple__31)) __PYX_ERR(0, 1443, __pyx_L1_error)
+  __pyx_tuple__31 = PyTuple_Pack(1, __pyx_kp_s_ors_should_be_an_Nx4_array); if (unlikely(!__pyx_tuple__31)) __PYX_ERR(0, 1445, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__31);
   __Pyx_GIVEREF(__pyx_tuple__31);
 
@@ -40434,17 +40434,17 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GIVEREF(__pyx_tuple__150);
   __pyx_codeobj__151 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__150, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_setstate_cython, 3, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__151)) __PYX_ERR(1, 3, __pyx_L1_error)
 
-  /* "freud/order.pyx":1425
+  /* "freud/order.pyx":1427
  *         del self.thisptr
  * 
  *     def compute(self, ref_ors, ors):             # <<<<<<<<<<<<<<
  *         """Calculates the rotational autocorrelation function for a single frame.
  * 
  */
-  __pyx_tuple__152 = PyTuple_Pack(6, __pyx_n_s_self, __pyx_n_s_ref_ors, __pyx_n_s_ors, __pyx_n_s_l_ref_ors, __pyx_n_s_l_ors, __pyx_n_s_nP); if (unlikely(!__pyx_tuple__152)) __PYX_ERR(0, 1425, __pyx_L1_error)
+  __pyx_tuple__152 = PyTuple_Pack(6, __pyx_n_s_self, __pyx_n_s_ref_ors, __pyx_n_s_ors, __pyx_n_s_l_ref_ors, __pyx_n_s_l_ors, __pyx_n_s_nP); if (unlikely(!__pyx_tuple__152)) __PYX_ERR(0, 1427, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__152);
   __Pyx_GIVEREF(__pyx_tuple__152);
-  __pyx_codeobj__153 = (PyObject*)__Pyx_PyCode_New(3, 0, 6, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__152, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_order_pyx, __pyx_n_s_compute, 1425, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__153)) __PYX_ERR(0, 1425, __pyx_L1_error)
+  __pyx_codeobj__153 = (PyObject*)__Pyx_PyCode_New(3, 0, 6, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__152, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_order_pyx, __pyx_n_s_compute, 1427, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__153)) __PYX_ERR(0, 1427, __pyx_L1_error)
 
   /* "(tree fragment)":1
  * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
@@ -41713,16 +41713,16 @@ if (!__Pyx_RefNanny) {
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_setstate_cython, __pyx_t_3) < 0) __PYX_ERR(1, 3, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "freud/order.pyx":1425
+  /* "freud/order.pyx":1427
  *         del self.thisptr
  * 
  *     def compute(self, ref_ors, ors):             # <<<<<<<<<<<<<<
  *         """Calculates the rotational autocorrelation function for a single frame.
  * 
  */
-  __pyx_t_3 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_5order_25RotationalAutocorrelation_5compute, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_RotationalAutocorrelation_comput, NULL, __pyx_n_s_freud_order, __pyx_d, ((PyObject *)__pyx_codeobj__153)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1425, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_5order_25RotationalAutocorrelation_5compute, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_RotationalAutocorrelation_comput, NULL, __pyx_n_s_freud_order, __pyx_d, ((PyObject *)__pyx_codeobj__153)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1427, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_5order_RotationalAutocorrelation->tp_dict, __pyx_n_s_compute, __pyx_t_3) < 0) __PYX_ERR(0, 1425, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_5order_RotationalAutocorrelation->tp_dict, __pyx_n_s_compute, __pyx_t_3) < 0) __PYX_ERR(0, 1427, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   PyType_Modified(__pyx_ptype_5freud_5order_RotationalAutocorrelation);
 

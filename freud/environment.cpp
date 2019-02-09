@@ -48,17 +48,17 @@
         "name": "freud.environment",
         "sources": [
             "freud/environment.pyx",
-            "cpp/environment/LocalDescriptors.cc",
-            "cpp/locality/LinkCell.cc",
-            "cpp/locality/AABBQuery.cc",
             "cpp/box/Box.cc",
-            "cpp/environment/LocalBondProjection.cc",
+            "cpp/locality/LinkCell.cc",
             "cpp/environment/AngularSeparation.cc",
+            "cpp/environment/LocalDescriptors.cc",
             "cpp/util/HOOMDMatrix.cc",
-            "cpp/locality/NeighborList.cc",
-            "cpp/environment/BondOrder.cc",
             "cpp/locality/NearestNeighbors.cc",
-            "cpp/environment/MatchEnv.cc"
+            "cpp/environment/BondOrder.cc",
+            "cpp/environment/LocalBondProjection.cc",
+            "cpp/locality/AABBQuery.cc",
+            "cpp/environment/MatchEnv.cc",
+            "cpp/locality/NeighborList.cc"
         ]
     },
     "module_name": "freud.environment"
@@ -34088,7 +34088,7 @@ static PyTypeObject __pyx_type_5freud_11environment_AngularSeparation = {
   0, /*tp_setattro*/
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-  "Calculates the minimum angles of separation between particles and\n    references.\n\n    .. moduleauthor:: Erin Teich <erteich@umich.edu>\n    .. moduleauthor:: Andrew Karas <askaras@umich.edu>\n\n    Args:\n        rmax (float):\n            Cutoff radius for cell list and clustering algorithm. Values near\n            the first minimum of the RDF are recommended.\n        n (int):\n            The number of neighbors.\n\n    Attributes:\n        nlist (:class:`freud.locality.NeighborList`):\n            The neighbor list.\n        n_p (unsigned int):\n            The number of particles used in computing the last set.\n        n_ref (unsigned int):\n            The number of reference particles used in computing the neighbor\n            angles.\n        n_global (unsigned int):\n            The number of global orientations to check against.\n        neighbor_angles (:math:`\\left(N_{bonds}\\right)` :class:`numpy.ndarray`):\n            The neighbor angles in radians. **This field is only populated\n            after :meth:`~.computeNeighbor` is called.** The angles\n            are stored in the order of the neighborlist object.\n        global_angles (:math:`\\left(N_{global}, N_{particles} \\right)` :class:`numpy.ndarray`):\n            The global angles in radians. **This field is only populated after\n            :meth:`~.computeGlobal` is called.** The angles\n            are stored in the order of the neighborlist object.\n\n    .. todo Need to figure out what happens if you use a neighborlist with\n            strict_cut=True\n    ", /*tp_doc*/
+  "Calculates the minimum angles of separation between particles and\n    references.\n\n    .. moduleauthor:: Erin Teich <erteich@umich.edu>\n    .. moduleauthor:: Andrew Karas <askaras@umich.edu>\n\n    Args:\n        rmax (float):\n            Cutoff radius for cell list and clustering algorithm. Values near\n            the first minimum of the RDF are recommended.\n        n (int):\n            The number of neighbors.\n\n    Attributes:\n        nlist (:class:`freud.locality.NeighborList`):\n            The neighbor list.\n        n_p (unsigned int):\n            The number of particles used in computing the last set.\n        n_ref (unsigned int):\n            The number of reference particles used in computing the neighbor\n            angles.\n        n_global (unsigned int):\n            The number of global orientations to check against.\n        neighbor_angles (:math:`\\left(N_{bonds}\\right)` :class:`numpy.ndarray`):\n            The neighbor angles in radians. **This field is only populated\n            after** :meth:`~.computeNeighbor` **is called.** The angles\n            are stored in the order of the neighborlist object.\n        global_angles (:math:`\\left(N_{global}, N_{particles} \\right)` :class:`numpy.ndarray`):\n            The global angles in radians. **This field is only populated\n            after** :meth:`~.computeGlobal` **is called.** The angles\n            are stored in the order of the neighborlist object.\n\n    .. todo Need to figure out what happens if you use a neighborlist with\n            strict_cut=True\n    ", /*tp_doc*/
   __pyx_tp_traverse_5freud_11environment_AngularSeparation, /*tp_traverse*/
   __pyx_tp_clear_5freud_11environment_AngularSeparation, /*tp_clear*/
   0, /*tp_richcompare*/

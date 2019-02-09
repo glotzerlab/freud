@@ -86,6 +86,8 @@ cdef class MSD:
 
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
 
+    .. versionadded:: 1.0
+
     Args:
         box (:class:`freud.box.Box`, optional):
             If not provided, the class will assume that all positions provided

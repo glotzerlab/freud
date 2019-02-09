@@ -1391,6 +1391,8 @@ cdef class RotationalAutocorrelation:
     .. moduleauthor:: Andrew Karas <askaras@umich.edu>
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
 
+    .. versionadded:: 1.0
+
     Args:
         l (int):
             Order of the hyperspherical harmonic. Must be a positive, even
