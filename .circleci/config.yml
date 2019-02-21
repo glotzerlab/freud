@@ -192,6 +192,7 @@ references:
 
             # Install from and test all wheels
             for VERSION in ${PY_VERSIONS[@]}; do
+                pyenv global ${VERSION}
                 pip install freud_analysis --no-index -f ~/ci/freud/wheelhouse
                 cd ~/ci/freud/tests
                 python -m unittest discover . -v
