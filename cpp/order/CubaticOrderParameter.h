@@ -1,4 +1,4 @@
-// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// Copyright (c) 2010-2019 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #ifndef CUBATIC_ORDER_PARAMETER_H
@@ -44,8 +44,6 @@ class CubaticOrderParameter
         void calcCubaticTensor(float *cubatic_tensor, quat<float> orientation);
 
         void calcCubaticOrderParameter(float &cubatic_order_parameter, float *cubatic_tensor);
-
-        void reduceCubaticOrderParameter();
 
         //! Get a reference to the last computed cubatic order parameter
         float getCubaticOrderParameter();

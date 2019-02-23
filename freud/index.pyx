@@ -1,17 +1,16 @@
-# Copyright (c) 2010-2018 The Regents of the University of Michigan
+# Copyright (c) 2010-2019 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 R"""
-The index module exposes the :math:`1`-dimensional indexer utilized in freud at
-the C++ level.  At the C++ level, freud utilizes flat arrays to represent
-multidimensional arrays. :math:`N`-dimensional arrays with :math:`n_i` elements
-in each dimension :math:`i` are represented as :math:`1`-dimensional arrays
-with :math:`\prod_{i=1}^N n_i` elements.
+The :class:`freud.index` module exposes the :math:`1`-dimensional indexer
+utilized in freud at the C++ level. At the C++ level, freud utilizes flat
+arrays to represent multidimensional arrays. :math:`N`-dimensional arrays with
+:math:`n_i` elements in each dimension :math:`i` are represented as
+:math:`1`-dimensional arrays with :math:`\prod_{i=1}^N n_i` elements.
 """
 
 import numpy as np
 import warnings
-from freud.errors import FreudDeprecationWarning
 
 from freud.util cimport _Index1D
 cimport numpy as np
@@ -21,7 +20,7 @@ cimport numpy as np
 np.import_array()
 
 cdef class Index2D:
-    """freud-style indexer for flat arrays.
+    R"""freud-style indexer for flat arrays.
 
     Once constructed, the object provides direct access to the flat index
     equivalent:
@@ -70,7 +69,7 @@ cdef class Index2D:
         del self.thisptr
 
     def __call__(self, i, j):
-        """
+        R"""
         Args:
             i (unsigned int): Column index.
             j (unsigned int): Row index.
@@ -84,15 +83,9 @@ cdef class Index2D:
     def num_elements(self):
         return self.thisptr.getNumElements()
 
-    def getNumElements(self):
-        warnings.warn("The getNumElements function is deprecated in favor "
-                      "of the num_elements class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.num_elements
 
 cdef class Index3D:
-    """freud-style indexer for flat arrays.
+    R"""freud-style indexer for flat arrays.
 
     Once constructed, the object provides direct access to the flat index
     equivalent:
@@ -141,7 +134,7 @@ cdef class Index3D:
         del self.thisptr
 
     def __call__(self, i, j, k):
-        """
+        R"""
         Args:
             i (unsigned int): Column index.
             j (unsigned int): Row index.
@@ -155,10 +148,3 @@ cdef class Index3D:
     @property
     def num_elements(self):
         return self.thisptr.getNumElements()
-
-    def getNumElements(self):
-        warnings.warn("The getNumElements function is deprecated in favor "
-                      "of the num_elements class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.num_elements

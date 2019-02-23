@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2018 The Regents of the University of Michigan
+# Copyright (c) 2010-2019 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 from libcpp.memory cimport shared_ptr
@@ -37,7 +37,7 @@ cdef extern from "Box.h" namespace "freud::box":
         vec3[float] makeCoordinates(const vec3[float] &) const
         vec3[float] makeFraction(const vec3[float] &) const
         vec3[int] getImage(const vec3[float] &) const
-        vec3[float] getLatticeVector(unsigned int i) const
+        vec3[float] getLatticeVector(unsigned int i) except +
         vec3[float] wrap(vec3[float] & v) const
         vec3[float] unwrap(vec3[float] &, vec3[int]&)
 

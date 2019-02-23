@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2018 The Regents of the University of Michigan
+# Copyright (c) 2010-2019 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 R"""
@@ -23,7 +23,7 @@ _numThreads = 0
 
 
 def setNumThreads(nthreads=None):
-    """Set the number of threads for parallel computation.
+    R"""Set the number of threads for parallel computation.
 
     .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
 
@@ -47,7 +47,7 @@ if (re.match("flux.", platform.node()) is not None) or (
 
 
 class NumThreads:
-    """Context manager for managing the number of threads to use.
+    R"""Context manager for managing the number of threads to use.
 
     .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
 

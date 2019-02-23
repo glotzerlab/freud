@@ -1,4 +1,4 @@
-// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// Copyright (c) 2010-2019 The Regents of the University of Michigan
 // This file is part of the freud project, released under the BSD 3-Clause License.
 
 #include <stdexcept>
@@ -16,7 +16,7 @@ using namespace tbb;
 namespace freud { namespace environment {
 
 LocalBondProjection::LocalBondProjection()
-    : m_Np(0), m_Nref(0), m_Nequiv(0), m_Nproj(0), m_tot_num_neigh(0)
+    : m_Np(0), m_Nref(0), m_Nproj(0), m_Nequiv(0), m_tot_num_neigh(0)
     {
     }
 

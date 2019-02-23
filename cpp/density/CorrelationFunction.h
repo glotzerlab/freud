@@ -1,4 +1,4 @@
-// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// Copyright (c) 2010-2019 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #ifndef CORRELATION_FUNCTION_H
@@ -103,6 +103,7 @@ class CorrelationFunction
         unsigned int m_n_ref;          //!< number of reference particles
         unsigned int m_Np;             //!< number of check particles
         unsigned int m_frame_counter;  //!< number of frames calc'd
+        bool m_reduce;                 //!< Whether arrays need to be reduced across threads
 
         std::shared_ptr<T> m_rdf_array;             //!< rdf array computed
         std::shared_ptr<unsigned int> m_bin_counts; //!< bin counts that go into computing the rdf array

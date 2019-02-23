@@ -1,4 +1,5 @@
 import numpy as np
+import numpy.testing as npt
 import freud
 import unittest
 import util
@@ -11,6 +12,8 @@ class TestInterface(unittest.TestCase):
         inter = freud.interface.InterfaceMeasure(1.5)
         self.assertEqual(inter.ref_point_count, 0)
         self.assertEqual(inter.point_count, 0)
+        npt.assert_equal(inter.ref_point_ids, np.array([], dtype=np.uint32))
+        npt.assert_equal(inter.point_ids, np.array([], dtype=np.uint32))
 
     def test_take_one(self):
         """Test that there is exactly 1 or 12 particles at the interface when

@@ -1,4 +1,4 @@
-// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// Copyright (c) 2010-2019 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <complex>
@@ -41,7 +41,7 @@ std::shared_ptr<float> NematicOrderParameter::getParticleTensor()
 
 std::shared_ptr<float> NematicOrderParameter::getNematicTensor()
     {
-    // return nematic_tensor;
+    // return nematic_tensor
     memcpy(m_sp_nematic_tensor.get(), m_nematic_tensor, sizeof(float)*9);
     return m_sp_nematic_tensor;
     }
@@ -197,7 +197,7 @@ void NematicOrderParameter::compute(quat<float> *orientations,
 
     // the order parameter is the eigenvector belonging to the largest eigenvalue
     unsigned int max_idx = 0;
-    float max_val = -std::numeric_limits<float>::max();
+    float max_val = std::numeric_limits<float>::lowest();
 
     for (unsigned int i = 0; i < 3; ++i)
         if (eval[i] > max_val)

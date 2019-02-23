@@ -2,7 +2,6 @@ import numpy as np
 import numpy.testing as npt
 from freud import box, density, parallel
 import unittest
-from freud.errors import FreudDeprecationWarning
 import warnings
 import os
 
@@ -26,9 +25,6 @@ class TestR(unittest.TestCase):
 
 
 class TestOCF(unittest.TestCase):
-    def setUp(self):
-        warnings.simplefilter("ignore", category=FreudDeprecationWarning)
-
     def test_random_points(self):
         rmax = 10.0
         dr = 1.0
@@ -45,14 +41,13 @@ class TestOCF(unittest.TestCase):
         ocf.accumulate(box.Box.square(box_size), points, ang)
         npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
         ocf.compute(box.Box.square(box_size), points, ang, points, ang)
-        npt.assert_allclose(ocf.getRDF(), correct, atol=absolute_tolerance)
+        npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
         ocf.reset()
         ocf.accumulate(box.Box.square(box_size), points, ang, points, ang)
         npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
         ocf.compute(box.Box.square(box_size), points, ang)
-        npt.assert_allclose(ocf.getRDF(), correct, atol=absolute_tolerance)
+        npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
         self.assertEqual(box.Box.square(box_size), ocf.box)
-        self.assertEqual(box.Box.square(box_size), ocf.getBox())
 
     def test_zero_points(self):
         rmax = 10.0
@@ -74,18 +69,25 @@ class TestOCF(unittest.TestCase):
         rmax = 10.0
         dr = 1.0
         num_points = 10
-        box_size = rmax*2
+        box_size = rmax*2.1
+        fbox = box.Box.square(box_size)
         np.random.seed(0)
-        points = np.random.random_sample((num_points, 3)).astype(np.float32) \
-            * box_size - box_size/2
+        points = np.random.random_sample((num_points, 3)).astype(
+            np.float32) * box_size - box_size/2
+        points[:, 2] = 0
         ang = np.zeros(int(num_points), dtype=np.float64)
 
         vectors = points[np.newaxis, :, :] - points[:, np.newaxis, :]
-        correct = np.sum(np.linalg.norm(vectors, axis=-1) < np.sqrt(2*rmax**2))
+        vector_lengths = np.array(
+            [[np.linalg.norm(fbox.wrap(vectors[i][j]))
+              for i in range(num_points)]
+             for j in range(num_points)])
+
+        # Subtract len(points) to exclude the zero i-i distances
+        correct = np.sum(vector_lengths < rmax) - len(points)
 
         ocf = density.FloatCF(rmax, dr)
         ocf.compute(box.Box.square(box_size), points, ang)
-        self.assertEqual(np.sum(ocf.getCounts()), correct)
         self.assertEqual(np.sum(ocf.counts), correct)
 
 

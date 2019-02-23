@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2018 The Regents of the University of Michigan
+# Copyright (c) 2010-2019 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 from libcpp cimport bool
@@ -18,12 +18,11 @@ cdef extern from "CubaticOrderParameter.h" namespace "freud::order":
                               float,
                               float*,
                               unsigned int,
-                              unsigned int)
+                              unsigned int) except +
         void reset()
         void compute(quat[float]*,
                      unsigned int,
                      unsigned int) nogil except +
-        void reduceCubaticOrderParameter()
         unsigned int getNumParticles()
         float getCubaticOrderParameter()
         shared_ptr[float] getParticleCubaticOrderParameter()
@@ -76,7 +75,7 @@ cdef extern from "TransOrderParameter.h" namespace "freud::order":
 
 cdef extern from "LocalQl.h" namespace "freud::order":
     cdef cppclass LocalQl:
-        LocalQl(const freud._box.Box &, float, unsigned int, float)
+        LocalQl(const freud._box.Box &, float, unsigned int, float) except +
         const freud._box.Box & getBox() const
         unsigned int getNP()
         void setBox(const freud._box.Box)
@@ -109,10 +108,10 @@ cdef extern from "LocalWl.h" namespace "freud::order":
 cdef extern from "SolLiq.h" namespace "freud::order":
     cdef cppclass SolLiq:
         SolLiq(const freud._box.Box &, float,
-               float, unsigned int, unsigned int)
+               float, unsigned int, unsigned int) except +
         const freud._box.Box & getBox() const
         void setBox(const freud._box.Box)
-        void setClusteringRadius(float)
+        void setClusteringRadius(float) except +
         void compute(const freud._locality.NeighborList *,
                      const vec3[float]*,
                      unsigned int) nogil except +
@@ -130,3 +129,13 @@ cdef extern from "SolLiq.h" namespace "freud::order":
         vector[float complex] getQldot_ij()
         unsigned int getNP()
         unsigned int getNumClusters()
+
+cdef extern from "RotationalAutocorrelation.h" namespace "freud::order":
+    cdef cppclass RotationalAutocorrelation:
+        RotationalAutocorrelation()
+        RotationalAutocorrelation(int)
+        unsigned int getL()
+        unsigned int getN()
+        shared_ptr[float complex] getRAArray()
+        float getRotationalAutocorrelation()
+        void compute(quat[float]*, quat[float]*, unsigned int) nogil except +

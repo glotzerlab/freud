@@ -1,20 +1,18 @@
-# Copyright (c) 2010-2018 The Regents of the University of Michigan
+# Copyright (c) 2010-2019 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 R"""
-The cluster module aids in finding and computing the properties of clusters of
-points in a system.
+The :class:`freud.cluster` module aids in finding and computing the properties
+of clusters of points in a system.
 """
 
 import numpy as np
 import warnings
 import freud.common
 import freud.locality
-from freud.errors import FreudDeprecationWarning
 
 from cython.operator cimport dereference
 from freud.util._VectorMath cimport vec3
-from libcpp.vector cimport vector
 
 cimport freud._cluster
 cimport freud.box, freud.locality
@@ -26,7 +24,7 @@ cimport numpy as np
 np.import_array()
 
 cdef class Cluster:
-    """Finds clusters in a set of points.
+    R"""Finds clusters in a set of points.
 
     Given a set of coordinates and a cutoff, :class:`freud.cluster.Cluster`
     will determine all of the clusters of points that are made up of points
@@ -89,15 +87,8 @@ cdef class Cluster:
     def box(self):
         return self.m_box
 
-    def getBox(self):
-        warnings.warn("The getBox function is deprecated in favor "
-                      "of the box class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.box
-
     def computeClusters(self, points, nlist=None, box=None):
-        """Compute the clusters for the given set of points.
+        R"""Compute the clusters for the given set of points.
 
         Args:
             points ((:math:`N_{particles}`, 3) :class:`np.ndarray`):
@@ -123,16 +114,16 @@ cdef class Cluster:
         else:
             b = freud.common.convert_box(box)
 
-        cdef np.ndarray cPoints = points
-        cdef unsigned int Np = points.shape[0]
+        cdef float[:, ::1] l_points = points
+        cdef unsigned int Np = l_points.shape[0]
         with nogil:
             self.thisptr.computeClusters(
                 dereference(b.thisptr), nlist_.get_ptr(),
-                <vec3[float]*> cPoints.data, Np)
+                <vec3[float]*> &l_points[0, 0], Np)
         return self
 
     def computeClusterMembership(self, keys):
-        """Compute the clusters with key membership.
+        R"""Compute the clusters with key membership.
         Loops over all particles and adds them to a list of sets.
         Each set contains all the keys that are part of that cluster.
         Get the computed list with :attr:`~cluster_keys`.
@@ -143,70 +134,37 @@ cdef class Cluster:
         """
         keys = freud.common.convert_array(
             keys, 1, dtype=np.uint32, contiguous=True)
-        N = self.getNumParticles()
-        if keys.shape[0] != N:
+        if keys.shape[0] != self.num_particles:
             raise RuntimeError(
-                'keys must be a 1D array of length NumParticles')
-        cdef np.ndarray cKeys = keys
+                'keys must be a 1D array of length num_particles')
+        cdef unsigned int[::1] l_keys = keys
         with nogil:
-            self.thisptr.computeClusterMembership(<unsigned int*> cKeys.data)
+            self.thisptr.computeClusterMembership(<unsigned int*> &l_keys[0])
         return self
 
     @property
     def num_clusters(self):
         return self.thisptr.getNumClusters()
 
-    def getNumClusters(self):
-        warnings.warn("The getNumClusters function is deprecated in favor "
-                      "of the num_clusters class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.num_clusters
-
     @property
     def num_particles(self):
         return self.thisptr.getNumParticles()
 
-    def getNumParticles(self):
-        warnings.warn("The getNumParticles function is deprecated in favor "
-                      "of the num_particles class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.num_particles
-
     @property
     def cluster_idx(self):
-        cdef unsigned int * cluster_idx_raw = \
-            self.thisptr.getClusterIdx().get()
-        cdef np.npy_intp nP[1]
-        nP[0] = <np.npy_intp> self.thisptr.getNumParticles()
-        cdef np.ndarray[np.uint32_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(
-                1, nP, np.NPY_UINT32, <void*> cluster_idx_raw)
-        return result
-
-    def getClusterIdx(self):
-        warnings.warn("The getClusterIdx function is deprecated in favor "
-                      "of the cluster_idx class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.cluster_idx
+        cdef unsigned int n_particles = self.thisptr.getNumParticles()
+        cdef unsigned int[::1] cluster_idx = \
+            <unsigned int[:n_particles]> self.thisptr.getClusterIdx().get()
+        return np.asarray(cluster_idx)
 
     @property
     def cluster_keys(self):
         cluster_keys = self.thisptr.getClusterKeys()
         return cluster_keys
 
-    def getClusterKeys(self):
-        warnings.warn("The getClusterKeys function is deprecated in favor "
-                      "of the cluster_keys class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.cluster_keys
-
 
 cdef class ClusterProperties:
-    """Routines for computing properties of point clusters.
+    R"""Routines for computing properties of point clusters.
 
     Given a set of points and cluster ids (from :class:`~.Cluster`, or another
     source), ClusterProperties determines the following properties for each
@@ -217,12 +175,12 @@ cdef class ClusterProperties:
 
     The computed center of mass for each cluster (properly handling periodic
     boundary conditions) can be accessed with :meth:`~.getClusterCOM()`.
-    This returns a :math:`\\left(N_{clusters}, 3 \\right)`
+    This returns a :math:`\left(N_{clusters}, 3 \right)`
     :class:`numpy.ndarray`.
 
-    The :math:`3 \\times 3` gyration tensor :math:`G` can be accessed with
+    The :math:`3 \times 3` gyration tensor :math:`G` can be accessed with
     :meth:`~.getClusterG()`. This returns a :class:`numpy.ndarray`,
-    shape= :math:`\\left(N_{clusters} \\times 3 \\times 3\\right)`.
+    shape= :math:`\left(N_{clusters} \times 3 \times 3\right)`.
     The tensor is symmetric for each cluster.
 
     .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
@@ -259,15 +217,8 @@ cdef class ClusterProperties:
     def box(self):
         return self.m_box
 
-    def getBox(self):
-        warnings.warn("The getBox function is deprecated in favor "
-                      "of the box class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.box
-
     def computeProperties(self, points, cluster_idx, box=None):
-        """Compute properties of the point clusters.
+        R"""Compute properties of the point clusters.
         Loops over all points in the given array and determines the center of
         mass of the cluster as well as the :math:`G` tensor. These can be
         accessed after the call to :meth:`~.computeProperties()` with
@@ -298,14 +249,14 @@ cdef class ClusterProperties:
             raise RuntimeError(
                 ('cluster_idx must be a 1D array of matching length/number'
                     'of particles to points'))
-        cdef np.ndarray cPoints = points
-        cdef np.ndarray cCluster_idx = cluster_idx
-        cdef unsigned int Np = points.shape[0]
+        cdef float[:, ::1] l_points = points
+        cdef unsigned int[::1] l_cluster_idx = cluster_idx
+        cdef unsigned int Np = l_points.shape[0]
         with nogil:
             self.thisptr.computeProperties(
                 dereference(b.thisptr),
-                <vec3[float]*> cPoints.data,
-                <unsigned int*> cCluster_idx.data,
+                <vec3[float]*> &l_points[0, 0],
+                <unsigned int*> &l_cluster_idx[0],
                 Np)
         return self
 
@@ -313,64 +264,31 @@ cdef class ClusterProperties:
     def num_clusters(self):
         return self.thisptr.getNumClusters()
 
-    def getNumClusters(self):
-        warnings.warn("The getNumClusters function is deprecated in favor "
-                      "of the num_clusters class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.num_clusters
-
     @property
     def cluster_COM(self):
-        cdef vec3[float] * cluster_com_raw = self.thisptr.getClusterCOM().get()
-        cdef np.npy_intp nClusters[2]
-        nClusters[0] = <np.npy_intp> self.thisptr.getNumClusters()
-        nClusters[1] = 3
-        cdef np.ndarray[np.float32_t, ndim=2] result = \
-            np.PyArray_SimpleNewFromData(
-                2, nClusters, np.NPY_FLOAT32, <void*> cluster_com_raw)
-        return result
-
-    def getClusterCOM(self):
-        warnings.warn("The getClusterCOM function is deprecated in favor "
-                      "of the cluster_COM class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.cluster_COM
+        cdef unsigned int n_clusters = self.thisptr.getNumClusters()
+        if not n_clusters:
+            return np.asarray([[]], dtype=np.float32)
+        cdef float[:, ::1] cluster_COM = \
+            <float[:n_clusters, :3]> (
+                <float*> self.thisptr.getClusterCOM().get())
+        return np.asarray(cluster_COM)
 
     @property
     def cluster_G(self):
-        cdef float * cluster_G_raw = self.thisptr.getClusterG().get()
-        cdef np.npy_intp nClusters[3]
-        nClusters[0] = <np.npy_intp> self.thisptr.getNumClusters()
-        nClusters[1] = 3
-        nClusters[2] = 3
-        cdef np.ndarray[np.float32_t, ndim=3] result = \
-            np.PyArray_SimpleNewFromData(
-                3, nClusters, np.NPY_FLOAT32, <void*> cluster_G_raw)
-        return result
-
-    def getClusterG(self):
-        warnings.warn("The getClusterG function is deprecated in favor "
-                      "of the cluster_G class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.cluster_G
+        cdef unsigned int n_clusters = self.thisptr.getNumClusters()
+        if not n_clusters:
+            return np.asarray([[[]]], dtype=np.float32)
+        cdef float[:, :, ::1] cluster_G = \
+            <float[:n_clusters, :3, :3]> (
+                <float*> self.thisptr.getClusterG().get())
+        return np.asarray(cluster_G)
 
     @property
     def cluster_sizes(self):
-        cdef unsigned int * cluster_sizes_raw = \
-            self.thisptr.getClusterSize().get()
-        cdef np.npy_intp nClusters[1]
-        nClusters[0] = <np.npy_intp> self.thisptr.getNumClusters()
-        cdef np.ndarray[np.uint32_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(
-                1, nClusters, np.NPY_UINT32, <void*> cluster_sizes_raw)
-        return result
-
-    def getClusterSizes(self):
-        warnings.warn("The getClusterSizes function is deprecated in favor "
-                      "of the cluster_sizes class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.cluster_sizes
+        cdef unsigned int n_clusters = self.thisptr.getNumClusters()
+        if not n_clusters:
+            return np.asarray([], dtype=np.uint32)
+        cdef unsigned int[::1] cluster_sizes = \
+            <unsigned int[:n_clusters]> self.thisptr.getClusterSize().get()
+        return np.asarray(cluster_sizes, dtype=np.uint32)

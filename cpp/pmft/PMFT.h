@@ -1,4 +1,4 @@
-// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// Copyright (c) 2010-2019 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #ifndef PMFT_H
@@ -65,12 +65,12 @@ class PMFT
     protected:
         box::Box m_box;                    //!< Simulation box where the particles belong
         float m_r_cut;                     //!< r_cut used in cell list construction
-        unsigned int m_frame_counter;      //!< number of frames calc'd
+        unsigned int m_frame_counter;      //!< Number of frames calculated
         unsigned int m_n_ref;              //!< The number of reference points
         unsigned int m_n_p;                //!< The number of points
         bool m_reduce;                     //!< Whether or not the PCF needs to be reduced
 
-        std::shared_ptr<float> m_pcf_array;            //!< array of pcf computed
+        std::shared_ptr<float> m_pcf_array;            //!< Array of PCF computed
         std::shared_ptr<unsigned int> m_bin_counts;    //!< Counts for each bin
         tbb::enumerable_thread_specific<unsigned int *> m_local_bin_counts; //!< Thread local bin counts for TBB parallelism
 

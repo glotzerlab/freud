@@ -1,4 +1,4 @@
-// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// Copyright (c) 2010-2019 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include "NeighborList.h"
@@ -162,9 +162,9 @@ void NeighborList::copy(const NeighborList &other)
 void NeighborList::validate(size_t num_i, size_t num_j) const
     {
     if(num_i != m_num_i)
-        throw std::runtime_error("NeighborList found inconsistent array sizes");
+        throw std::runtime_error("NeighborList found inconsistent array sizes.");
     if(num_j != m_num_j)
-        throw std::runtime_error("NeighborList found inconsistent array sizes");
+        throw std::runtime_error("NeighborList found inconsistent array sizes.");
     }
 
 size_t NeighborList::bisection_search(size_t val, size_t left, size_t right) const

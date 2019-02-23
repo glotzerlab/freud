@@ -1,4 +1,4 @@
-// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// Copyright (c) 2010-2019 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #ifndef RDF_H
@@ -65,18 +65,19 @@ class RDF
         float m_rmin;                     //!< Minimum r at which to compute g(r)
         float m_dr;                       //!< Step size for r in the computation
         unsigned int m_nbins;             //!< Number of r bins to compute g(r) over
-        unsigned int m_n_ref;             //!< number of reference particles
-        unsigned int m_Np;                //!< number of check particles
-        unsigned int m_frame_counter;     //!< number of frames calc'd
+        unsigned int m_n_ref;             //!< Number of reference particles
+        unsigned int m_Np;                //!< Number of check particles
+        unsigned int m_frame_counter;     //!< Number of frames calc'd
+        bool m_reduce;                    //!< Whether arrays need to be reduced across threads
 
-        std::shared_ptr<float> m_rdf_array;         //!< rdf array computed
-        std::shared_ptr<unsigned int> m_bin_counts; //!< bin counts that go into computing the rdf array
-        std::shared_ptr<float> m_avg_counts;        //!< bin counts that go into computing the rdf array
+        std::shared_ptr<float> m_rdf_array;         //!< RDF array computed
+        std::shared_ptr<unsigned int> m_bin_counts; //!< Bin counts that go into computing the RDF array
+        std::shared_ptr<float> m_avg_counts;        //!< Bin counts that go into computing the RDF array
         std::shared_ptr<float> m_N_r_array;         //!< Cumulative bin sum N(r)
-        std::shared_ptr<float> m_r_array;           //!< array of r values that the rdf is computed at
-        std::shared_ptr<float> m_vol_array;         //!< array of volumes for each slice of r
-        std::shared_ptr<float> m_vol_array2D;       //!< array of volumes for each slice of r
-        std::shared_ptr<float> m_vol_array3D;       //!< array of volumes for each slice of r
+        std::shared_ptr<float> m_r_array;           //!< Array of r values that the RDF is computed at
+        std::shared_ptr<float> m_vol_array;         //!< Array of volumes for each slice of r
+        std::shared_ptr<float> m_vol_array2D;       //!< Array of volumes for each slice of r
+        std::shared_ptr<float> m_vol_array3D;       //!< Array of volumes for each slice of r
         tbb::enumerable_thread_specific<unsigned int *> m_local_bin_counts;
     };
 

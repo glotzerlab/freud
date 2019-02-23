@@ -1,4 +1,4 @@
-// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// Copyright (c) 2010-2019 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #ifndef SOL_LIQ_H
@@ -10,6 +10,7 @@
 #include <memory>
 #include <set>
 #include <stdexcept>
+#include <stdint.h>
 #include <vector>
 
 #include "Box.h"
@@ -60,7 +61,7 @@ class SolLiq
         void setClusteringRadius(float rcut_cluster)
             {
             if (rcut_cluster < m_rmax)
-                throw std::invalid_argument("rcut_cluster must be greater than rcut (for local env)");
+                throw std::invalid_argument("SolLiq requires that rcut_cluster must be greater than rcut (for local env).");
                 //May not be necessary if std::max(m_rmax, m_rmax_cluster) is used to rebuild cell list here, and in setBox.
 
             m_rmax_cluster = rcut_cluster;

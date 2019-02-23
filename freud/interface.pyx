@@ -1,15 +1,14 @@
-# Copyright (c) 2010-2018 The Regents of the University of Michigan
+# Copyright (c) 2010-2019 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 R"""
-The interface module contains functions to measure the interface between sets
-of points.
+The :class:`freud.interface` module contains functions to measure the interface
+between sets of points.
 """
 
 import freud.common
 import numpy as np
 
-from libcpp.vector cimport vector
 from freud.util._VectorMath cimport vec3
 from cython.operator cimport dereference
 import freud.locality
@@ -24,7 +23,7 @@ cimport numpy as np
 np.import_array()
 
 cdef class InterfaceMeasure:
-    """Measures the interface between two sets of points.
+    R"""Measures the interface between two sets of points.
 
     .. moduleauthor:: Matthew Spellings <mspells@umich.edu>
     .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
@@ -44,8 +43,8 @@ cdef class InterfaceMeasure:
             The particle IDs from :code:`points`.
     """
     cdef float rmax
-    cdef np.ndarray _ref_point_ids
-    cdef np.ndarray _point_ids
+    cdef unsigned int[::1] _ref_point_ids
+    cdef unsigned int[::1] _point_ids
 
     def __cinit__(self, float r_cut):
         self.rmax = r_cut
@@ -53,7 +52,7 @@ cdef class InterfaceMeasure:
         self._point_ids = np.empty(0, dtype=np.uint32)
 
     def compute(self, box, ref_points, points, nlist=None):
-        """Compute the particles at the interface between the two given sets of
+        R"""Compute the particles at the interface between the two given sets of
         points.
 
         Args:
@@ -79,8 +78,8 @@ cdef class InterfaceMeasure:
         else:
             nlist = nlist.copy().filter_r(b, ref_points, points, self.rmax)
 
-        self._ref_point_ids = np.unique(nlist.index_i)
-        self._point_ids = np.unique(nlist.index_j)
+        self._ref_point_ids = np.unique(nlist.index_i).astype(np.uint32)
+        self._point_ids = np.unique(nlist.index_j).astype(np.uint32)
         return self
 
     @property
@@ -89,7 +88,7 @@ cdef class InterfaceMeasure:
 
     @property
     def ref_point_ids(self):
-        return self._ref_point_ids
+        return np.asarray(self._ref_point_ids)
 
     @property
     def point_count(self):
@@ -97,4 +96,4 @@ cdef class InterfaceMeasure:
 
     @property
     def point_ids(self):
-        return self._point_ids
+        return np.asarray(self._point_ids)

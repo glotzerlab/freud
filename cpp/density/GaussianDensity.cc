@@ -1,4 +1,4 @@
-// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// Copyright (c) 2010-2019 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <stdexcept>
@@ -19,19 +19,19 @@ GaussianDensity::GaussianDensity(unsigned int width, float r_cut, float sigma)
     : m_box(box::Box()), m_width_x(width), m_width_y(width), m_width_z(width), m_rcut(r_cut), m_sigma(sigma)
     {
     if (width <= 0)
-        throw invalid_argument("width must be a positive integer");
+        throw invalid_argument("GaussianDensity requires width to be a positive integer.");
     if (r_cut <= 0.0f)
-        throw invalid_argument("r_cut must be positive");
+        throw invalid_argument("GaussianDensity requires r_cut to be positive.");
     }
 
 GaussianDensity::GaussianDensity(unsigned int width_x, unsigned int width_y,
                                  unsigned int width_z, float r_cut, float sigma)
     : m_box(box::Box()), m_width_x(width_x), m_width_y(width_y), m_width_z(width_z), m_rcut(r_cut), m_sigma(sigma)
     {
-    if (width_x <= 0 || width_y <=0 || width_z <=0)
-        throw invalid_argument("width must be a positive integer");
+    if (width_x <= 0 || width_y <= 0 || width_z <= 0)
+        throw invalid_argument("GaussianDensity requires width to be a positive integer.");
     if (r_cut <= 0.0f)
-        throw invalid_argument("r_cut must be positive");
+        throw invalid_argument("GaussianDensity requires r_cut to be positive.");
     }
 
 GaussianDensity::~GaussianDensity()
@@ -46,7 +46,7 @@ GaussianDensity::~GaussianDensity()
 
 void GaussianDensity::reduceDensity()
     {
-    memset((void*)m_Density_array.get(), 0, sizeof(float)*m_bi.getNumElements());
+    memset((void*)m_density_array.get(), 0, sizeof(float)*m_bi.getNumElements());
     // combine arrays
     parallel_for(blocked_range<size_t>(0,m_bi.getNumElements()),
       [=] (const blocked_range<size_t>& r)
@@ -57,7 +57,7 @@ void GaussianDensity::reduceDensity()
                local_bins = m_local_bin_counts.begin();
                local_bins != m_local_bin_counts.end(); ++local_bins)
               {
-              m_Density_array.get()[i] += (*local_bins)[i];
+              m_density_array.get()[i] += (*local_bins)[i];
               }
           }
       });
@@ -66,8 +66,12 @@ void GaussianDensity::reduceDensity()
 //!Get a reference to the last computed Density
 std::shared_ptr<float> GaussianDensity::getDensity()
     {
-    reduceDensity();
-    return m_Density_array;
+    if (m_reduce == true)
+        {
+        reduceDensity();
+        }
+    m_reduce = false;
+    return m_density_array;
     }
 
 //! Get x width
@@ -106,6 +110,7 @@ void GaussianDensity::reset()
         {
         memset((void*)(*i), 0, sizeof(float)*m_bi.getNumElements());
         }
+    this->m_reduce = true;
     }
 
 //! internal
@@ -125,7 +130,7 @@ void GaussianDensity::compute(const box::Box &box, const vec3<float> *points, un
         }
 
     // this does not agree with rest of freud
-    m_Density_array = std::shared_ptr<float>(
+    m_density_array = std::shared_ptr<float>(
             new float[m_bi.getNumElements()],
             std::default_delete<float[]>());
     parallel_for(blocked_range<size_t>(0,Np),

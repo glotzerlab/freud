@@ -5,6 +5,7 @@ from collections import Counter
 import itertools
 import sys
 import unittest
+import warnings
 
 
 class TestLinkCell(unittest.TestCase):
@@ -15,7 +16,7 @@ class TestLinkCell(unittest.TestCase):
         # Initialize Box, initialize and compute cell list
         fbox = box.Box.cube(L)
         cl = locality.LinkCell(fbox, rcut)
-        cl.computeCellList(fbox, np.zeros((1, 3), dtype=np.float32))
+        cl.compute(fbox, np.zeros((1, 3), dtype=np.float32))
 
         # 27 is the total number of cells
         for i in range(27):
@@ -36,7 +37,7 @@ class TestLinkCell(unittest.TestCase):
         # Initialize Box, initialize and compute cell list
         fbox = box.Box.cube(L)
         cl = locality.LinkCell(fbox, rcut)
-        cl.computeCellList(fbox, testpoints)
+        cl.compute(fbox, testpoints)
 
         # Get cell index
         cell_index0 = cl.getCell(testpoints[0])
@@ -66,7 +67,7 @@ class TestLinkCell(unittest.TestCase):
             points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
             fbox = box.Box.cube(L)  # Initialize Box
             cl = locality.LinkCell(fbox, rcut)  # Initialize cell list
-            cl.computeCellList(fbox, points)  # Compute cell list
+            cl.compute(fbox, points)  # Compute cell list
 
             neighbors_ij = set()
             for i in range(N):
@@ -93,7 +94,7 @@ class TestLinkCell(unittest.TestCase):
         points[3] = [2.0, 0.0, 0.0]
 
         lc.compute(fbox, points)
-        # particle 0 has 2 bonds`
+        # particle 0 has 2 bonds
         npt.assert_equal(lc.nlist.find_first_index(0), 0)
         # particle 1 has 3 bonds
         npt.assert_equal(lc.nlist.find_first_index(1), 2)

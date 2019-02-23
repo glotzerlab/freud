@@ -30,10 +30,10 @@ Cell Lists
    :members:
 
 .. autoclass:: freud.locality.LinkCell(box, cell_width)
-   :members: compute, computeCellList, getCell, getCellNeighbors, itercell
+   :members: compute, getCell, getCellNeighbors, itercell
 
 Nearest Neighbors
 =================
 
 .. autoclass:: freud.locality.NearestNeighbors(rmax, n_neigh, scale=1.1, strict_cut=False)
-   :members: compute, getNeighborList, getNeighbors, getRsq, setCutMode
+   :members: compute, getNeighborList, getNeighbors, getRsq

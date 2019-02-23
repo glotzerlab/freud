@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2018 The Regents of the University of Michigan
+# Copyright (c) 2010-2019 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 cimport freud._locality
@@ -27,3 +27,7 @@ cdef class NearestNeighbors:
     cdef _cached_points
     cdef _cached_ref_points
     cdef _cached_box
+
+cdef class _AABBQuery:
+    cdef freud._locality.AABBQuery * thisptr
+    cdef NeighborList _nlist

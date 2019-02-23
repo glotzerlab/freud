@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2018 The Regents of the University of Michigan
+# Copyright (c) 2010-2019 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 from libcpp cimport bool
@@ -52,8 +52,8 @@ cdef extern from "LinkCell.h" namespace "freud::locality":
         LinkCell(const freud._box.Box &, float) except +
         LinkCell()
 
-        setCellWidth(float)
-        updateBox(const freud._box.Box &)
+        setCellWidth(float) except +
+        updateBox(const freud._box.Box &) except +
         const vec3[unsigned int] computeDimensions(
             const freud._box.Box &,
             float) const
@@ -91,6 +91,19 @@ cdef extern from "NearestNeighbors.h" namespace "freud::locality":
         void setCutMode(const bool)
         void compute(
             const freud._box.Box &,
+            const vec3[float]*,
+            unsigned int,
+            const vec3[float]*,
+            unsigned int,
+            bool) nogil except +
+        NeighborList * getNeighborList()
+
+cdef extern from "AABBQuery.h" namespace "freud::locality":
+    cdef cppclass AABBQuery:
+        AABBQuery()
+        void compute(
+            const freud._box.Box &,
+            float,
             const vec3[float]*,
             unsigned int,
             const vec3[float]*,

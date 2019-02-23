@@ -12,7 +12,7 @@ Interface Module
 .. rubric:: Details
 
 .. automodule:: freud.interface
-    :synopsis: Measure interfaces
+    :synopsis: Measure interfaces.
 
 Interface Measure
 =================

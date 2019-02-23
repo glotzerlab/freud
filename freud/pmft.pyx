@@ -1,15 +1,19 @@
-# Copyright (c) 2010-2018 The Regents of the University of Michigan
+# Copyright (c) 2010-2019 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 R"""
-The PMFT Module allows for the calculation of the Potential of Mean Force and
-Torque (PMFT) [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ in a number of
-different coordinate systems. The PMFT is defined as the negative algorithm of
-positional correlation function (PCF). A given set of reference points is given
-around which the PCF is computed and averaged in a sea of data points. The
-resulting values are accumulated in a PCF array listing the value of the PCF at
-a discrete set of points. The specific points are determined by the particular
-coordinate system used to represent the system.
+The :class:`freud.pmft` module allows for the calculation of the Potential of
+Mean Force and Torque (PMFT) [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ in a
+number of different coordinate systems. The shape of the arrays computed by
+this module depend on the coordinate system used, with space discretized into a
+set of bins created by the PMFT object's constructor. Each reference point's
+neighboring points are assigned to bins, determined by the relative positions
+and/or orientations of the particles. Next, the positional correlation function
+(PCF) is computed by normalizing the binned histogram, by dividing out the
+number of accumulated frames, bin sizes (the Jacobian), and reference point
+number density. The PMFT is then defined as the negative logarithm of the PCF.
+For further descriptions of the numerical methods used to compute the PMFT,
+refer to the supplementary information of [vanAndersKlotsa2014]_.
 
 .. note::
     The coordinate system in which the calculation is performed is not the same
@@ -27,16 +31,19 @@ coordinate system used to represent the system.
     * 3D particle coordinates:
 
         * :math:`x`, :math:`y`, :math:`z`.
+
+.. note::
+    For any bins where the histogram is zero (i.e. no observations were made
+    with that relative position/orientation of particles), the PCF will be zero
+    and the PMFT will return :code:`nan`.
 """
 
 import numpy as np
 import freud.common
 import freud.locality
 import warnings
-from freud.errors import FreudDeprecationWarning
 
 from freud.util._VectorMath cimport vec3, quat
-from libc.string cimport memcpy
 from cython.operator cimport dereference
 
 cimport freud._pmft
@@ -51,7 +58,7 @@ cimport numpy as np
 np.import_array()
 
 cdef class _PMFT:
-    """Compute the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ for a
+    R"""Compute the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ for a
     given set of points.
 
     This class provides an abstract interface for computing the PMFT.
@@ -75,56 +82,25 @@ cdef class _PMFT:
     def box(self):
         return freud.box.BoxFromCPP(self.pmftptr.getBox())
 
-    def getBox(self):
-        warnings.warn("The getBox function is deprecated in favor "
-                      "of the box class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.box
-
     def reset(self):
-        """Resets the values of the PCF histograms in memory."""
+        R"""Resets the values of the PCF histograms in memory."""
         self.pmftptr.reset()
-
-    def resetPCF(self):
-        warnings.warn("Use .reset() instead of this method. "
-                      "This method will be removed in the future.",
-                      FreudDeprecationWarning)
-        self.reset()
-
-    def reducePCF(self):
-        warnings.warn("This method is automatically called internally. It "
-                      "will be removed in the future.",
-                      FreudDeprecationWarning)
-        self.pmftptr.reducePCF()
 
     @property
     def PMFT(self):
-        return -np.log(np.copy(self.PCF))
-
-    def getPMFT(self):
-        warnings.warn("The getPMFT function is deprecated in favor "
-                      "of the PMFT class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.PMFT
+        with np.warnings.catch_warnings():
+            np.warnings.filterwarnings('ignore')
+            result = -np.log(np.copy(self.PCF))
+        return result
 
     @property
     def r_cut(self):
-        cdef float r_cut = self.pmftptr.getRCut()
-        return r_cut
-
-    def getRCut(self):
-        warnings.warn("The getRCut function is deprecated in favor "
-                      "of the r_cut class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.r_cut
+        return self.pmftptr.getRCut()
 
 
 cdef class PMFTR12(_PMFT):
-    """Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ in a 2D
-    system described by :math:`r`, :math:`\\theta_1`, :math:`\\theta_2`.
+    R"""Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ in a 2D
+    system described by :math:`r`, :math:`\theta_1`, :math:`\theta_2`.
 
     .. note::
         **2D:** :class:`freud.pmft.PMFTR12` is only defined for 2D systems.
@@ -140,36 +116,36 @@ cdef class PMFTR12(_PMFT):
         n_r (unsigned int):
             Number of bins in :math:`r`.
         n_t1 (unsigned int):
-            Number of bins in :math:`\\theta_1`.
+            Number of bins in :math:`\theta_1`.
         n_t2 (unsigned int):
-            Number of bins in :math:`\\theta_2`.
+            Number of bins in :math:`\theta_2`.
 
     Attributes:
         box (:class:`freud.box.Box`):
             Box used in the calculation.
-        bin_counts (:math:`\\left(N_{r}, N_{\\theta2}, N_{\\theta1}\\right)`):
+        bin_counts (:math:`\left(N_{r}, N_{\theta2}, N_{\theta1}\right)`):
             Bin counts.
-        PCF (:math:`\\left(N_{r}, N_{\\theta2}, N_{\\theta1}\\right)`):
+        PCF (:math:`\left(N_{r}, N_{\theta2}, N_{\theta1}\right)`):
             The positional correlation function.
-        PMFT (:math:`\\left(N_{r}, N_{\\theta2}, N_{\\theta1}\\right)`):
+        PMFT (:math:`\left(N_{r}, N_{\theta2}, N_{\theta1}\right)`):
             The potential of mean force and torque.
         r_cut (float):
             The cutoff used in the cell list.
-        R (:math:`\\left(N_{r}\\right)` :class:`numpy.ndarray`):
+        R (:math:`\left(N_{r}\right)` :class:`numpy.ndarray`):
             The array of :math:`r`-values for the PCF histogram.
-        T1 (:math:`\\left(N_{\\theta1}\\right)` :class:`numpy.ndarray`):
-            The array of :math:`\\theta_1`-values for the PCF histogram.
-        T2 (:math:`\\left(N_{\\theta2}\\right)` :class:`numpy.ndarray`):
-            The array of :math:`\\theta_2`-values for the PCF histogram.
-        inverse_jacobian (:math:`\\left(N_{r}, N_{\\theta2}, N_{\\theta1}\\right)`):
+        T1 (:math:`\left(N_{\theta1}\right)` :class:`numpy.ndarray`):
+            The array of :math:`\theta_1`-values for the PCF histogram.
+        T2 (:math:`\left(N_{\theta2}\right)` :class:`numpy.ndarray`):
+            The array of :math:`\theta_2`-values for the PCF histogram.
+        inverse_jacobian (:math:`\left(N_{r}, N_{\theta2}, N_{\theta1}\right)`):
             The inverse Jacobian used in the PMFT.
         n_bins_R (unsigned int):
             The number of bins in the :math:`r`-dimension of the histogram.
         n_bins_T1 (unsigned int):
-            The number of bins in the :math:`\\theta_1`-dimension of the
+            The number of bins in the :math:`\theta_1`-dimension of the
             histogram.
         n_bins_T2 (unsigned int):
-            The number of bins in the :math:`\\theta_2`-dimension of the
+            The number of bins in the :math:`\theta_2`-dimension of the
             histogram.
     """  # noqa: E501
     cdef freud._pmft.PMFTR12 * pmftr12ptr
@@ -186,7 +162,7 @@ cdef class PMFTR12(_PMFT):
 
     def accumulate(self, box, ref_points, ref_orientations, points=None,
                    orientations=None, nlist=None):
-        """Calculates the positional correlation function and adds to the
+        R"""Calculates the positional correlation function and adds to the
         current histogram.
 
         Args:
@@ -196,8 +172,7 @@ cdef class PMFTR12(_PMFT):
                 Reference points used in computation.
             ref_orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`):
                 Reference orientations as angles used in computation.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,
-            optional):
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
                 Points used in computation. Uses :code:`ref_points` if not
                 provided or :code:`None`.
             orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):
@@ -208,6 +183,10 @@ cdef class PMFTR12(_PMFT):
                 :code:`None`).
         """  # noqa: E501
         cdef freud.box.Box b = freud.common.convert_box(box)
+
+        if not b.dimensions == 2:
+            raise ValueError("Your box must be 2-dimensional!")
+
         if points is None:
             points = ref_points
         if orientations is None:
@@ -236,26 +215,26 @@ cdef class PMFTR12(_PMFT):
             b, ref_points, points, self.rmax, nlist, None)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
-        cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
-        cdef np.ndarray[float, ndim=2] l_points = points
-        cdef np.ndarray[float, ndim=1] l_ref_orientations = ref_orientations
-        cdef np.ndarray[float, ndim=1] l_orientations = orientations
-        cdef unsigned int nRef = <unsigned int> ref_points.shape[0]
-        cdef unsigned int nP = <unsigned int> points.shape[0]
+        cdef float[:, ::1] l_ref_points = ref_points
+        cdef float[:, ::1] l_points = points
+        cdef float[::1] l_ref_orientations = ref_orientations
+        cdef float[::1] l_orientations = orientations
+        cdef unsigned int nRef = l_ref_points.shape[0]
+        cdef unsigned int nP = l_points.shape[0]
         with nogil:
             self.pmftr12ptr.accumulate(dereference(b.thisptr),
                                        nlist_.get_ptr(),
-                                       <vec3[float]*> l_ref_points.data,
-                                       <float*> l_ref_orientations.data,
+                                       <vec3[float]*> &l_ref_points[0, 0],
+                                       <float*> &l_ref_orientations[0],
                                        nRef,
-                                       <vec3[float]*> l_points.data,
-                                       <float*> l_orientations.data,
+                                       <vec3[float]*> &l_points[0, 0],
+                                       <float*> &l_orientations[0],
                                        nP)
         return self
 
     def compute(self, box, ref_points, ref_orientations, points=None,
                 orientations=None, nlist=None):
-        """Calculates the positional correlation function for the given points.
+        R"""Calculates the positional correlation function for the given points.
         Will overwrite the current histogram.
 
         Args:
@@ -265,12 +244,10 @@ cdef class PMFTR12(_PMFT):
                 Reference points used in computation.
             ref_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
                 Reference orientations as angles used in computation.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,
-            optional):
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
                 Points used in computation. Uses :code:`ref_points` if not
                 provided or :code:`None`.
-            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`,
-            optional):
+            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`, optional):
                 Orientations as angles used in computation. Uses
                 :code:`ref_orientations` if not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
@@ -284,157 +261,81 @@ cdef class PMFTR12(_PMFT):
 
     @property
     def bin_counts(self):
-        cdef unsigned int * bin_counts = self.pmftr12ptr.getBinCounts().get()
-        cdef np.npy_intp nbins[3]
-        nbins[0] = <np.npy_intp> self.pmftr12ptr.getNBinsR()
-        nbins[1] = <np.npy_intp> self.pmftr12ptr.getNBinsT2()
-        nbins[2] = <np.npy_intp> self.pmftr12ptr.getNBinsT1()
-        cdef np.ndarray[np.uint32_t, ndim=3] result = \
-            np.PyArray_SimpleNewFromData(3, nbins, np.NPY_UINT32,
-                                         <void*> bin_counts)
-        return result
-
-    def getBinCounts(self):
-        warnings.warn("The getBinCounts function is deprecated in favor "
-                      "of the bin_counts class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.bin_counts
+        cdef unsigned int n_bins_R = self.pmftr12ptr.getNBinsR()
+        cdef unsigned int n_bins_T2 = self.pmftr12ptr.getNBinsT2()
+        cdef unsigned int n_bins_T1 = self.pmftr12ptr.getNBinsT1()
+        cdef unsigned int[:, :, ::1] bin_counts = \
+            <unsigned int[:n_bins_R, :n_bins_T2, :n_bins_T1]> \
+            self.pmftr12ptr.getBinCounts().get()
+        return np.asarray(bin_counts, dtype=np.uint32)
 
     @property
     def PCF(self):
-        cdef float * pcf = self.pmftr12ptr.getPCF().get()
-        cdef np.npy_intp nbins[3]
-        nbins[0] = <np.npy_intp> self.pmftr12ptr.getNBinsR()
-        nbins[1] = <np.npy_intp> self.pmftr12ptr.getNBinsT2()
-        nbins[2] = <np.npy_intp> self.pmftr12ptr.getNBinsT1()
-        cdef np.ndarray[np.float32_t, ndim=3] result = \
-            np.PyArray_SimpleNewFromData(3, nbins, np.NPY_FLOAT32, <void*> pcf)
-        return result
-
-    def getPCF(self):
-        warnings.warn("The getPCF function is deprecated in favor "
-                      "of the PCF class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.PCF
+        cdef unsigned int n_bins_R = self.pmftr12ptr.getNBinsR()
+        cdef unsigned int n_bins_T2 = self.pmftr12ptr.getNBinsT2()
+        cdef unsigned int n_bins_T1 = self.pmftr12ptr.getNBinsT1()
+        cdef float[:, :, ::1] PCF = \
+            <float[:n_bins_R, :n_bins_T2, :n_bins_T1]> \
+            self.pmftr12ptr.getPCF().get()
+        return np.asarray(PCF)
 
     @property
     def R(self):
-        cdef float * r = self.pmftr12ptr.getR().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.pmftr12ptr.getNBinsR()
-        cdef np.ndarray[np.float32_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> r)
-        return result
-
-    def getR(self):
-        warnings.warn("The getR function is deprecated in favor "
-                      "of the R class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.R
+        cdef unsigned int n_bins_R = self.pmftr12ptr.getNBinsR()
+        cdef float[::1] R = \
+            <float[:n_bins_R]> self.pmftr12ptr.getR().get()
+        return np.asarray(R)
 
     @property
     def T1(self):
-        cdef float * T1 = self.pmftr12ptr.getT1().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.pmftr12ptr.getNBinsT1()
-        cdef np.ndarray[np.float32_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> T1)
-        return result
-
-    def getT1(self):
-        warnings.warn("The getT1 function is deprecated in favor "
-                      "of the T1 class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.T1
+        cdef unsigned int n_bins_T1 = self.pmftr12ptr.getNBinsT1()
+        cdef float[::1] T1 = \
+            <float[:n_bins_T1]> self.pmftr12ptr.getT1().get()
+        return np.asarray(T1)
 
     @property
     def T2(self):
-        cdef float * T2 = self.pmftr12ptr.getT2().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.pmftr12ptr.getNBinsT2()
-        cdef np.ndarray[np.float32_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> T2)
-        return result
-
-    def getT2(self):
-        warnings.warn("The getT2 function is deprecated in favor "
-                      "of the T2 class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.T2
+        cdef unsigned int n_bins_T2 = self.pmftr12ptr.getNBinsT2()
+        cdef float[::1] T2 = \
+            <float[:n_bins_T2]> self.pmftr12ptr.getT2().get()
+        return np.asarray(T2)
 
     @property
     def inverse_jacobian(self):
-        cdef float * inv_jac = self.pmftr12ptr.getInverseJacobian().get()
-        cdef np.npy_intp nbins[3]
-        nbins[0] = <np.npy_intp> self.pmftr12ptr.getNBinsR()
-        nbins[1] = <np.npy_intp> self.pmftr12ptr.getNBinsT2()
-        nbins[2] = <np.npy_intp> self.pmftr12ptr.getNBinsT1()
-        cdef np.ndarray[np.float32_t, ndim=3] result = \
-            np.PyArray_SimpleNewFromData(3, nbins, np.NPY_FLOAT32,
-                                         <void*> inv_jac)
-        return result
-
-    def getInverseJacobian(self):
-        warnings.warn("The getInverseJacobian function is deprecated in favor "
-                      "of the inverse_jacobian class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.inverse_jacobian
+        cdef unsigned int n_bins_R = self.pmftr12ptr.getNBinsR()
+        cdef unsigned int n_bins_T2 = self.pmftr12ptr.getNBinsT2()
+        cdef unsigned int n_bins_T1 = self.pmftr12ptr.getNBinsT1()
+        cdef float[:, :, ::1] inverse_jacobian = \
+            <float[:n_bins_R, :n_bins_T2, :n_bins_T1]> \
+            self.pmftr12ptr.getInverseJacobian().get()
+        return np.asarray(inverse_jacobian)
 
     @property
     def n_bins_R(self):
-        cdef unsigned int r = self.pmftr12ptr.getNBinsR()
-        return r
-
-    def getNBinsR(self):
-        warnings.warn("The getNBinsR function is deprecated in favor "
-                      "of the n_bins_R class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.n_bins_R
+        return self.pmftr12ptr.getNBinsR()
 
     @property
     def n_bins_T1(self):
-        cdef unsigned int T1 = self.pmftr12ptr.getNBinsT1()
-        return T1
-
-    def getNBinsT1(self):
-        warnings.warn("The getNBinsT1 function is deprecated in favor "
-                      "of the n_bins_T1 class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.n_bins_T1
+        return self.pmftr12ptr.getNBinsT1()
 
     @property
     def n_bins_T2(self):
-        cdef unsigned int T2 = self.pmftr12ptr.getNBinsT2()
-        return T2
+        return self.pmftr12ptr.getNBinsT2()
 
-    def getNBinsT2(self):
-        warnings.warn("The getNBinsT2 function is deprecated in favor "
-                      "of the n_bins_T2 class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.n_bins_T2
 
 cdef class PMFTXYT(_PMFT):
-    """Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ for
-    systems described by coordinates :math:`x`, :math:`y`, :math:`\\theta`
+    R"""Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ for
+    systems described by coordinates :math:`x`, :math:`y`, :math:`\theta`
     listed in the ``X``, ``Y``, and ``T`` arrays.
 
-    The values of :math:`x, y, \\theta` at which to compute the PCF are
+    The values of :math:`x, y, \theta` at which to compute the PCF are
     controlled by ``x_max``, ``y_max``, and ``n_x``, ``n_y``, ``n_t``
     parameters to the constructor. The ``x_max`` and ``y_max`` parameters
     determine the minimum/maximum :math:`x, y` values
-    (:math:`\\min \\left(\\theta \\right) = 0`,
-    (:math:`\\max \\left( \\theta \\right) = 2\\pi`) at which to compute the
+    (:math:`\min \left(\theta \right) = 0`,
+    (:math:`\max \left( \theta \right) = 2\pi`) at which to compute the
     PCF and ``n_x``, ``n_y``, ``n_t`` are the number of bins in
-    :math:`x, y, \\theta`.
+    :math:`x, y, \theta`.
 
     .. note::
         **2D:** :class:`freud.pmft.PMFTXYT` is only defined for 2D systems.
@@ -454,25 +355,25 @@ cdef class PMFTXYT(_PMFT):
         n_y (unsigned int):
             Number of bins in :math:`y`.
         n_t (unsigned int):
-            Number of bins in :math:`\\theta`.
+            Number of bins in :math:`\theta`.
 
     Attributes:
         box (:class:`freud.box.Box`):
             Box used in the calculation.
-        bin_counts (:math:`\\left(N_{\\theta}, N_{y}, N_{x}\\right)` :class:`numpy.ndarray`):
+        bin_counts (:math:`\left(N_{\theta}, N_{y}, N_{x}\right)` :class:`numpy.ndarray`):
             Bin counts.
-        PCF (:math:`\\left(N_{\\theta}, N_{y}, N_{x}\\right)` :class:`numpy.ndarray`):
+        PCF (:math:`\left(N_{\theta}, N_{y}, N_{x}\right)` :class:`numpy.ndarray`):
             The positional correlation function.
-        PMFT (:math:`\\left(N_{\\theta}, N_{y}, N_{x}\\right)` :class:`numpy.ndarray`):
+        PMFT (:math:`\left(N_{\theta}, N_{y}, N_{x}\right)` :class:`numpy.ndarray`):
             The potential of mean force and torque.
         r_cut (float):
             The cutoff used in the cell list.
-        X (:math:`\\left(N_{x}\\right)` :class:`numpy.ndarray`):
+        X (:math:`\left(N_{x}\right)` :class:`numpy.ndarray`):
             The array of :math:`x`-values for the PCF histogram.
-        Y (:math:`\\left(N_{y}\\right)` :class:`numpy.ndarray`):
+        Y (:math:`\left(N_{y}\right)` :class:`numpy.ndarray`):
             The array of :math:`y`-values for the PCF histogram.
-        T (:math:`\\left(N_{\\theta}\\right)` :class:`numpy.ndarray`):
-            The array of :math:`\\theta`-values for the PCF histogram.
+        T (:math:`\left(N_{\theta}\right)` :class:`numpy.ndarray`):
+            The array of :math:`\theta`-values for the PCF histogram.
         jacobian (float):
             The Jacobian used in the PMFT.
         n_bins_X (unsigned int):
@@ -480,7 +381,7 @@ cdef class PMFTXYT(_PMFT):
         n_bins_Y (unsigned int):
             The number of bins in the :math:`y`-dimension of the histogram.
         n_bins_T (unsigned int):
-            The number of bins in the :math:`\\theta`-dimension of the
+            The number of bins in the :math:`\theta`-dimension of the
             histogram.
     """  # noqa: E501
     cdef freud._pmft.PMFTXYT * pmftxytptr
@@ -497,7 +398,7 @@ cdef class PMFTXYT(_PMFT):
 
     def accumulate(self, box, ref_points, ref_orientations, points=None,
                    orientations=None, nlist=None):
-        """Calculates the positional correlation function and adds to the
+        R"""Calculates the positional correlation function and adds to the
         current histogram.
 
         Args:
@@ -507,11 +408,10 @@ cdef class PMFTXYT(_PMFT):
                 Reference points used in computation.
             ref_orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`):
                 Reference orientations as angles used in computation.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,
-            optional):
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
                 Points used in computation. Uses :code:`ref_points` if not
                 provided or :code:`None`.
-            orientations ((:math:`N_{particles}`, 1) or \ (:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):
+            orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):
                 Orientations as angles used in computation. Uses
                 :code:`ref_orientations` if not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
@@ -519,6 +419,10 @@ cdef class PMFTXYT(_PMFT):
                 :code:`None`).
         """  # noqa: E501
         cdef freud.box.Box b = freud.common.convert_box(box)
+
+        if not b.dimensions == 2:
+            raise ValueError("Your box must be 2-dimensional!")
+
         if points is None:
             points = ref_points
         if orientations is None:
@@ -547,26 +451,26 @@ cdef class PMFTXYT(_PMFT):
             b, ref_points, points, self.rmax, nlist, None)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
-        cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
-        cdef np.ndarray[float, ndim=2] l_points = points
-        cdef np.ndarray[float, ndim=1] l_ref_orientations = ref_orientations
-        cdef np.ndarray[float, ndim=1] l_orientations = orientations
-        cdef unsigned int nRef = <unsigned int> ref_points.shape[0]
-        cdef unsigned int nP = <unsigned int> points.shape[0]
+        cdef float[:, ::1] l_ref_points = ref_points
+        cdef float[:, ::1] l_points = points
+        cdef float[::1] l_ref_orientations = ref_orientations
+        cdef float[::1] l_orientations = orientations
+        cdef unsigned int nRef = l_ref_points.shape[0]
+        cdef unsigned int nP = l_points.shape[0]
         with nogil:
             self.pmftxytptr.accumulate(dereference(b.thisptr),
                                        nlist_.get_ptr(),
-                                       <vec3[float]*> l_ref_points.data,
-                                       <float*> l_ref_orientations.data,
+                                       <vec3[float]*> &l_ref_points[0, 0],
+                                       <float*> &l_ref_orientations[0],
                                        nRef,
-                                       <vec3[float]*> l_points.data,
-                                       <float*> l_orientations.data,
+                                       <vec3[float]*> &l_points[0, 0],
+                                       <float*> &l_orientations[0],
                                        nP)
         return self
 
     def compute(self, box, ref_points, ref_orientations, points=None,
                 orientations=None, nlist=None):
-        """Calculates the positional correlation function for the given points.
+        R"""Calculates the positional correlation function for the given points.
         Will overwrite the current histogram.
 
         Args:
@@ -576,12 +480,10 @@ cdef class PMFTXYT(_PMFT):
                 Reference points used in computation.
             ref_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
                 Reference orientations as angles used in computation.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,
-            optional):
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
                 Points used in computation. Uses :code:`ref_points` if not
                 provided or :code:`None`.
-            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`,
-            optional):
+            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`, optional):
                 Orientations as angles used in computation. Uses
                 :code:`ref_orientations` if not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
@@ -595,140 +497,64 @@ cdef class PMFTXYT(_PMFT):
 
     @property
     def bin_counts(self):
-        cdef unsigned int * bin_counts = self.pmftxytptr.getBinCounts().get()
-        cdef np.npy_intp nbins[3]
-        nbins[0] = <np.npy_intp> self.pmftxytptr.getNBinsT()
-        nbins[1] = <np.npy_intp> self.pmftxytptr.getNBinsY()
-        nbins[2] = <np.npy_intp> self.pmftxytptr.getNBinsX()
-        cdef np.ndarray[np.uint32_t, ndim=3] result = \
-            np.PyArray_SimpleNewFromData(3, nbins, np.NPY_UINT32,
-                                         <void*> bin_counts)
-        return result
-
-    def getBinCounts(self):
-        warnings.warn("The getBinCounts function is deprecated in favor "
-                      "of the bin_counts class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.bin_counts
+        cdef unsigned int n_bins_T = self.pmftxytptr.getNBinsT()
+        cdef unsigned int n_bins_Y = self.pmftxytptr.getNBinsY()
+        cdef unsigned int n_bins_X = self.pmftxytptr.getNBinsX()
+        cdef unsigned int[:, :, ::1] bin_counts = \
+            <unsigned int[:n_bins_T, :n_bins_Y, :n_bins_X]> \
+            self.pmftxytptr.getBinCounts().get()
+        return np.asarray(bin_counts, dtype=np.uint32)
 
     @property
     def PCF(self):
-        cdef float * pcf = self.pmftxytptr.getPCF().get()
-        cdef np.npy_intp nbins[3]
-        nbins[0] = <np.npy_intp> self.pmftxytptr.getNBinsT()
-        nbins[1] = <np.npy_intp> self.pmftxytptr.getNBinsY()
-        nbins[2] = <np.npy_intp> self.pmftxytptr.getNBinsX()
-        cdef np.ndarray[np.float32_t, ndim=3] result = \
-            np.PyArray_SimpleNewFromData(3, nbins, np.NPY_FLOAT32, <void*> pcf)
-        return result
-
-    def getPCF(self):
-        warnings.warn("The getPCF function is deprecated in favor "
-                      "of the PCF class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.PCF
+        cdef unsigned int n_bins_T = self.pmftxytptr.getNBinsT()
+        cdef unsigned int n_bins_Y = self.pmftxytptr.getNBinsY()
+        cdef unsigned int n_bins_X = self.pmftxytptr.getNBinsX()
+        cdef float[:, :, ::1] PCF = \
+            <float[:n_bins_T, :n_bins_Y, :n_bins_X]> \
+            self.pmftxytptr.getPCF().get()
+        return np.asarray(PCF)
 
     @property
     def X(self):
-        cdef float * x = self.pmftxytptr.getX().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.pmftxytptr.getNBinsX()
-        cdef np.ndarray[np.float32_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> x)
-        return result
-
-    def getX(self):
-        warnings.warn("The getX function is deprecated in favor "
-                      "of the X class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.X
+        cdef unsigned int n_bins_X = self.pmftxytptr.getNBinsX()
+        cdef float[::1] X = \
+            <float[:n_bins_X]> self.pmftxytptr.getX().get()
+        return np.asarray(X)
 
     @property
     def Y(self):
-        cdef float * y = self.pmftxytptr.getY().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.pmftxytptr.getNBinsY()
-        cdef np.ndarray[np.float32_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> y)
-        return result
-
-    def getY(self):
-        warnings.warn("The getY function is deprecated in favor "
-                      "of the Y class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.Y
+        cdef unsigned int n_bins_Y = self.pmftxytptr.getNBinsY()
+        cdef float[::1] Y = \
+            <float[:n_bins_Y]> self.pmftxytptr.getY().get()
+        return np.asarray(Y)
 
     @property
     def T(self):
-        cdef float * t = self.pmftxytptr.getT().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.pmftxytptr.getNBinsT()
-        cdef np.ndarray[np.float32_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> t)
-        return result
-
-    def getT(self):
-        warnings.warn("The getT function is deprecated in favor "
-                      "of the T class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.T
+        cdef unsigned int n_bins_T = self.pmftxytptr.getNBinsT()
+        cdef float[::1] T = \
+            <float[:n_bins_T]> self.pmftxytptr.getT().get()
+        return np.asarray(T)
 
     @property
     def jacobian(self):
-        cdef float j = self.pmftxytptr.getJacobian()
-        return j
-
-    def getJacobian(self):
-        warnings.warn("The getJacobian function is deprecated in favor "
-                      "of the jacobian class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.jacobian
+        return self.pmftxytptr.getJacobian()
 
     @property
     def n_bins_X(self):
-        cdef unsigned int x = self.pmftxytptr.getNBinsX()
-        return x
-
-    def getNBinsX(self):
-        warnings.warn("The getNBinsX function is deprecated in favor "
-                      "of the n_bins_X class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.n_bins_X
+        return self.pmftxytptr.getNBinsX()
 
     @property
     def n_bins_Y(self):
-        cdef unsigned int y = self.pmftxytptr.getNBinsY()
-        return y
-
-    def getNBinsY(self):
-        warnings.warn("The getNBinsY function is deprecated in favor "
-                      "of the n_bins_Y class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.n_bins_Y
+        return self.pmftxytptr.getNBinsY()
 
     @property
     def n_bins_T(self):
-        cdef unsigned int t = self.pmftxytptr.getNBinsT()
-        return t
-
-    def getNBinsT(self):
-        warnings.warn("The getNBinsT function is deprecated in favor "
-                      "of the n_bins_T class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.n_bins_T
+        return self.pmftxytptr.getNBinsT()
 
 
 cdef class PMFTXY2D(_PMFT):
-    """Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ in
+    R"""Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ in
     coordinates :math:`x`, :math:`y` listed in the ``X`` and ``Y`` arrays.
 
     The values of :math:`x` and :math:`y` at which to compute the PCF are
@@ -758,17 +584,17 @@ cdef class PMFTXY2D(_PMFT):
     Attributes:
         box (:class:`freud.box.Box`):
             Box used in the calculation.
-        bin_counts (:math:`\\left(N_{y}, N_{x}\\right)` :class:`numpy.ndarray`):
+        bin_counts (:math:`\left(N_{y}, N_{x}\right)` :class:`numpy.ndarray`):
             Bin counts.
-        PCF (:math:`\\left(N_{y}, N_{x}\\right)` :class:`numpy.ndarray`):
+        PCF (:math:`\left(N_{y}, N_{x}\right)` :class:`numpy.ndarray`):
             The positional correlation function.
-        PMFT (:math:`\\left(N_{y}, N_{x}\\right)` :class:`numpy.ndarray`):
+        PMFT (:math:`\left(N_{y}, N_{x}\right)` :class:`numpy.ndarray`):
             The potential of mean force and torque.
         r_cut (float):
             The cutoff used in the cell list.
-        X (:math:`\\left(N_{x}\\right)` :class:`numpy.ndarray`):
+        X (:math:`\left(N_{x}\right)` :class:`numpy.ndarray`):
             The array of :math:`x`-values for the PCF histogram.
-        Y (:math:`\\left(N_{y}\\right)` :class:`numpy.ndarray`):
+        Y (:math:`\left(N_{y}\right)` :class:`numpy.ndarray`):
             The array of :math:`y`-values for the PCF histogram.
         jacobian (float):
             The Jacobian used in the PMFT.
@@ -791,7 +617,7 @@ cdef class PMFTXY2D(_PMFT):
 
     def accumulate(self, box, ref_points, ref_orientations, points=None,
                    orientations=None, nlist=None):
-        """Calculates the positional correlation function and adds to the
+        R"""Calculates the positional correlation function and adds to the
         current histogram.
 
         Args:
@@ -801,8 +627,7 @@ cdef class PMFTXY2D(_PMFT):
                 Reference points used in computation.
             ref_orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`):
                 Reference orientations as angles used in computation.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,
-            optional):
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
                 Points used in computation. Uses :code:`ref_points` if not
                 provided or :code:`None`.
             orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):
@@ -813,6 +638,10 @@ cdef class PMFTXY2D(_PMFT):
                 :code:`None`).
         """  # noqa: E501
         cdef freud.box.Box b = freud.common.convert_box(box)
+
+        if not b.dimensions == 2:
+            raise ValueError("Your box must be 2-dimensional!")
+
         if points is None:
             points = ref_points
         if orientations is None:
@@ -841,26 +670,26 @@ cdef class PMFTXY2D(_PMFT):
             b, ref_points, points, self.rmax, nlist, None)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
-        cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
-        cdef np.ndarray[float, ndim=2] l_points = points
-        cdef np.ndarray[float, ndim=1] l_ref_orientations = ref_orientations
-        cdef np.ndarray[float, ndim=1] l_orientations = orientations
-        cdef unsigned int n_ref = <unsigned int> ref_points.shape[0]
-        cdef unsigned int n_p = <unsigned int> points.shape[0]
+        cdef float[:, ::1] l_ref_points = ref_points
+        cdef float[:, ::1] l_points = points
+        cdef float[::1] l_ref_orientations = ref_orientations
+        cdef float[::1] l_orientations = orientations
+        cdef unsigned int nRef = l_ref_points.shape[0]
+        cdef unsigned int nP = l_points.shape[0]
         with nogil:
             self.pmftxy2dptr.accumulate(dereference(b.thisptr),
                                         nlist_.get_ptr(),
-                                        <vec3[float]*> l_ref_points.data,
-                                        <float*> l_ref_orientations.data,
-                                        n_ref,
-                                        <vec3[float]*> l_points.data,
-                                        <float*> l_orientations.data,
-                                        n_p)
+                                        <vec3[float]*> &l_ref_points[0, 0],
+                                        <float*> &l_ref_orientations[0],
+                                        nRef,
+                                        <vec3[float]*> &l_points[0, 0],
+                                        <float*> &l_orientations[0],
+                                        nP)
         return self
 
     def compute(self, box, ref_points, ref_orientations, points=None,
                 orientations=None, nlist=None):
-        """Calculates the positional correlation function for the given points.
+        R"""Calculates the positional correlation function for the given points.
         Will overwrite the current histogram.
 
         Args:
@@ -870,12 +699,10 @@ cdef class PMFTXY2D(_PMFT):
                 Reference points used in computation.
             ref_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
                 Reference orientations as angles used in computation.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,
-            optional):
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
                 Points used in computation. Uses :code:`ref_points` if not
                 provided or :code:`None`.
-            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`,
-            optional):
+            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`, optional):
                 Orientations as angles used in computation. Uses
                 :code:`ref_orientations` if not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
@@ -889,110 +716,51 @@ cdef class PMFTXY2D(_PMFT):
 
     @property
     def bin_counts(self):
-        cdef unsigned int * bin_counts = self.pmftxy2dptr.getBinCounts().get()
-        cdef np.npy_intp nbins[2]
-        nbins[0] = <np.npy_intp> self.pmftxy2dptr.getNBinsY()
-        nbins[1] = <np.npy_intp> self.pmftxy2dptr.getNBinsX()
-        cdef np.ndarray[np.uint32_t, ndim=2] result = \
-            np.PyArray_SimpleNewFromData(2, nbins, np.NPY_UINT32,
-                                         <void*> bin_counts)
-        return result
-
-    def getBinCounts(self):
-        warnings.warn("The getBinCounts function is deprecated in favor "
-                      "of the bin_counts class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.bin_counts
+        cdef unsigned int n_bins_Y = self.pmftxy2dptr.getNBinsY()
+        cdef unsigned int n_bins_X = self.pmftxy2dptr.getNBinsX()
+        cdef unsigned int[:, ::1] bin_counts = \
+            <unsigned int[:n_bins_Y, :n_bins_X]> \
+            self.pmftxy2dptr.getBinCounts().get()
+        return np.asarray(bin_counts, dtype=np.uint32)
 
     @property
     def PCF(self):
-        cdef float * pcf = self.pmftxy2dptr.getPCF().get()
-        cdef np.npy_intp nbins[2]
-        nbins[0] = <np.npy_intp> self.pmftxy2dptr.getNBinsY()
-        nbins[1] = <np.npy_intp> self.pmftxy2dptr.getNBinsX()
-        cdef np.ndarray[np.float32_t, ndim=2] result = \
-            np.PyArray_SimpleNewFromData(2, nbins, np.NPY_FLOAT32, <void*> pcf)
-        return result
-
-    def getPCF(self):
-        warnings.warn("The getPCF function is deprecated in favor "
-                      "of the PCF class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.PCF
+        cdef unsigned int n_bins_Y = self.pmftxy2dptr.getNBinsY()
+        cdef unsigned int n_bins_X = self.pmftxy2dptr.getNBinsX()
+        cdef float[:, ::1] PCF = \
+            <float[:n_bins_Y, :n_bins_X]> \
+            self.pmftxy2dptr.getPCF().get()
+        return np.asarray(PCF)
 
     @property
     def X(self):
-        cdef float * x = self.pmftxy2dptr.getX().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.pmftxy2dptr.getNBinsX()
-        cdef np.ndarray[np.float32_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> x)
-        return result
-
-    def getX(self):
-        warnings.warn("The getX function is deprecated in favor "
-                      "of the X class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.X
+        cdef unsigned int n_bins_X = self.pmftxy2dptr.getNBinsX()
+        cdef float[::1] X = \
+            <float[:n_bins_X]> self.pmftxy2dptr.getX().get()
+        return np.asarray(X)
 
     @property
     def Y(self):
-        cdef float * y = self.pmftxy2dptr.getY().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.pmftxy2dptr.getNBinsY()
-        cdef np.ndarray[np.float32_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> y)
-        return result
-
-    def getY(self):
-        warnings.warn("The getY function is deprecated in favor "
-                      "of the Y class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.Y
+        cdef unsigned int n_bins_Y = self.pmftxy2dptr.getNBinsY()
+        cdef float[::1] Y = \
+            <float[:n_bins_Y]> self.pmftxy2dptr.getY().get()
+        return np.asarray(Y)
 
     @property
     def n_bins_X(self):
-        cdef unsigned int x = self.pmftxy2dptr.getNBinsX()
-        return x
-
-    def getNBinsX(self):
-        warnings.warn("The getNBinsX function is deprecated in favor "
-                      "of the n_bins_X class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.n_bins_X
+        return self.pmftxy2dptr.getNBinsX()
 
     @property
     def n_bins_Y(self):
-        cdef unsigned int y = self.pmftxy2dptr.getNBinsY()
-        return y
-
-    def getNBinsY(self):
-        warnings.warn("The getNBinsY function is deprecated in favor "
-                      "of the n_bins_Y class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.n_bins_Y
+        return self.pmftxy2dptr.getNBinsY()
 
     @property
     def jacobian(self):
-        cdef float j = self.pmftxy2dptr.getJacobian()
-        return j
-
-    def getJacobian(self):
-        warnings.warn("The getJacobian function is deprecated in favor "
-                      "of the jacobian class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.jacobian
+        return self.pmftxy2dptr.getJacobian()
 
 
 cdef class PMFTXYZ(_PMFT):
-    """Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ in
+    R"""Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ in
     coordinates :math:`x`, :math:`y`, :math:`z`, listed in the ``X``, ``Y``,
     and ``Z`` arrays.
 
@@ -1028,19 +796,19 @@ cdef class PMFTXYZ(_PMFT):
     Attributes:
         box (:class:`freud.box.Box`):
             Box used in the calculation.
-        bin_counts (:math:`\\left(N_{z}, N_{y}, N_{x}\\right)` :class:`numpy.ndarray`):
+        bin_counts (:math:`\left(N_{z}, N_{y}, N_{x}\right)` :class:`numpy.ndarray`):
             Bin counts.
-        PCF (:math:`\\left(N_{z}, N_{y}, N_{x}\\right)` :class:`numpy.ndarray`):
+        PCF (:math:`\left(N_{z}, N_{y}, N_{x}\right)` :class:`numpy.ndarray`):
             The positional correlation function.
-        PMFT (:math:`\\left(N_{z}, N_{y}, N_{x}\\right)` :class:`numpy.ndarray`):
+        PMFT (:math:`\left(N_{z}, N_{y}, N_{x}\right)` :class:`numpy.ndarray`):
             The potential of mean force and torque.
         r_cut (float):
             The cutoff used in the cell list.
-        X (:math:`\\left(N_{x}\\right)` :class:`numpy.ndarray`):
+        X (:math:`\left(N_{x}\right)` :class:`numpy.ndarray`):
             The array of :math:`x`-values for the PCF histogram.
-        Y (:math:`\\left(N_{y}\\right)` :class:`numpy.ndarray`):
+        Y (:math:`\left(N_{y}\right)` :class:`numpy.ndarray`):
             The array of :math:`y`-values for the PCF histogram.
-        Z (:math:`\\left(N_{z}\\right)` :class:`numpy.ndarray`):
+        Z (:math:`\left(N_{z}\right)` :class:`numpy.ndarray`):
             The array of :math:`z`-values for the PCF histogram.
         jacobian (float):
             The Jacobian used in the PMFT.
@@ -1071,7 +839,7 @@ cdef class PMFTXYZ(_PMFT):
 
     def accumulate(self, box, ref_points, ref_orientations, points=None,
                    orientations=None, face_orientations=None, nlist=None):
-        """Calculates the positional correlation function and adds to the
+        R"""Calculates the positional correlation function and adds to the
         current histogram.
 
         Args:
@@ -1081,8 +849,7 @@ cdef class PMFTXYZ(_PMFT):
                 Reference points used in computation.
             ref_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
                 Reference orientations as angles used in computation.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,
-            optional):
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
                 Points used in computation. Uses :code:`ref_points` if not
                 provided or :code:`None`.
             orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`, optional):
@@ -1100,6 +867,10 @@ cdef class PMFTXYZ(_PMFT):
                 :code:`None`).
         """  # noqa: E501
         cdef freud.box.Box b = freud.common.convert_box(box)
+
+        if not b.dimensions == 3:
+            raise ValueError("Your box must be 3-dimensional!")
+
         if points is None:
             points = ref_points
         if orientations is None:
@@ -1180,31 +951,31 @@ cdef class PMFTXYZ(_PMFT):
             b, ref_points, points, self.rmax, nlist, None)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
-        cdef np.ndarray[float, ndim=2] l_ref_points = ref_points
-        cdef np.ndarray[float, ndim=2] l_points = points
-        cdef np.ndarray[float, ndim=2] l_ref_orientations = ref_orientations
-        cdef np.ndarray[float, ndim=2] l_orientations = orientations
-        cdef np.ndarray[float, ndim=3] l_face_orientations = face_orientations
-        cdef unsigned int nRef = <unsigned int> ref_points.shape[0]
-        cdef unsigned int nP = <unsigned int> points.shape[0]
-        cdef unsigned int nFaces = <unsigned int> face_orientations.shape[1]
+        cdef float[:, ::1] l_ref_points = ref_points
+        cdef float[:, ::1] l_points = points
+        cdef float[:, ::1] l_ref_orientations = ref_orientations
+        cdef float[:, ::1] l_orientations = orientations
+        cdef float[:, :, ::1] l_face_orientations = face_orientations
+        cdef unsigned int nRef = l_ref_points.shape[0]
+        cdef unsigned int nP = l_points.shape[0]
+        cdef unsigned int nFaces = l_face_orientations.shape[1]
         with nogil:
             self.pmftxyzptr.accumulate(
                 dereference(b.thisptr),
                 nlist_.get_ptr(),
-                <vec3[float]*> l_ref_points.data,
-                <quat[float]*> l_ref_orientations.data,
+                <vec3[float]*> &l_ref_points[0, 0],
+                <quat[float]*> &l_ref_orientations[0, 0],
                 nRef,
-                <vec3[float]*> l_points.data,
-                <quat[float]*> l_orientations.data,
+                <vec3[float]*> &l_points[0, 0],
+                <quat[float]*> &l_orientations[0, 0],
                 nP,
-                <quat[float]*> l_face_orientations.data,
+                <quat[float]*> &l_face_orientations[0, 0, 0],
                 nFaces)
         return self
 
     def compute(self, box, ref_points, ref_orientations, points=None,
                 orientations=None, face_orientations=None, nlist=None):
-        """Calculates the positional correlation function for the given points.
+        R"""Calculates the positional correlation function for the given points.
         Will overwrite the current histogram.
 
         Args:
@@ -1214,12 +985,10 @@ cdef class PMFTXYZ(_PMFT):
                 Reference points used in computation.
             ref_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
                 Reference orientations as angles used in computation.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`,
-            optional):
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
                 Points used in computation. Uses :code:`ref_points` if not
                 provided or :code:`None`.
-            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`,
-            optional):
+            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`, optional):
                 Orientations as angles used in computation. Uses
                 :code:`ref_orientations` if not provided or :code:`None`.
             face_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`, optional):
@@ -1240,133 +1009,57 @@ cdef class PMFTXYZ(_PMFT):
 
     @property
     def bin_counts(self):
-        cdef unsigned int * bin_counts = self.pmftxyzptr.getBinCounts().get()
-        cdef np.npy_intp nbins[3]
-        nbins[0] = <np.npy_intp> self.pmftxyzptr.getNBinsZ()
-        nbins[1] = <np.npy_intp> self.pmftxyzptr.getNBinsY()
-        nbins[2] = <np.npy_intp> self.pmftxyzptr.getNBinsX()
-        cdef np.ndarray[np.uint32_t, ndim=3] result = \
-            np.PyArray_SimpleNewFromData(3, nbins, np.NPY_UINT32,
-                                         <void*> bin_counts)
-        return result
-
-    def getBinCounts(self):
-        warnings.warn("The getBinCounts function is deprecated in favor "
-                      "of the bin_counts class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.bin_counts
+        cdef unsigned int n_bins_Z = self.pmftxyzptr.getNBinsZ()
+        cdef unsigned int n_bins_Y = self.pmftxyzptr.getNBinsY()
+        cdef unsigned int n_bins_X = self.pmftxyzptr.getNBinsX()
+        cdef unsigned int[:, :, ::1] bin_counts = \
+            <unsigned int[:n_bins_Z, :n_bins_Y, :n_bins_X]> \
+            self.pmftxyzptr.getBinCounts().get()
+        return np.asarray(bin_counts, dtype=np.uint32)
 
     @property
     def PCF(self):
-        cdef float * pcf = self.pmftxyzptr.getPCF().get()
-        cdef np.npy_intp nbins[3]
-        nbins[0] = <np.npy_intp> self.pmftxyzptr.getNBinsZ()
-        nbins[1] = <np.npy_intp> self.pmftxyzptr.getNBinsY()
-        nbins[2] = <np.npy_intp> self.pmftxyzptr.getNBinsX()
-        cdef np.ndarray[np.float32_t, ndim=3] result = \
-            np.PyArray_SimpleNewFromData(3, nbins, np.NPY_FLOAT32, <void*> pcf)
-        return result
-
-    def getPCF(self):
-        warnings.warn("The getPCF function is deprecated in favor "
-                      "of the PCF class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.PCF
+        cdef unsigned int n_bins_Z = self.pmftxyzptr.getNBinsZ()
+        cdef unsigned int n_bins_Y = self.pmftxyzptr.getNBinsY()
+        cdef unsigned int n_bins_X = self.pmftxyzptr.getNBinsX()
+        cdef float[:, :, ::1] PCF = \
+            <float[:n_bins_Z, :n_bins_Y, :n_bins_X]> \
+            self.pmftxyzptr.getPCF().get()
+        return np.asarray(PCF)
 
     @property
     def X(self):
-        cdef float * x = self.pmftxyzptr.getX().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.pmftxyzptr.getNBinsX()
-        cdef np.ndarray[np.float32_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> x)
-        return result + self.shiftvec[0]
-
-    def getX(self):
-        warnings.warn("The getX function is deprecated in favor "
-                      "of the X class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.X
+        cdef unsigned int n_bins_X = self.pmftxyzptr.getNBinsX()
+        cdef float[::1] X = \
+            <float[:n_bins_X]> self.pmftxyzptr.getX().get()
+        return np.asarray(X) + self.shiftvec[0]
 
     @property
     def Y(self):
-        cdef float * y = self.pmftxyzptr.getY().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.pmftxyzptr.getNBinsY()
-        cdef np.ndarray[np.float32_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> y)
-        return result + self.shiftvec[1]
-
-    def getY(self):
-        warnings.warn("The getY function is deprecated in favor "
-                      "of the Y class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.Y
+        cdef unsigned int n_bins_Y = self.pmftxyzptr.getNBinsY()
+        cdef float[::1] Y = \
+            <float[:n_bins_Y]> self.pmftxyzptr.getY().get()
+        return np.asarray(Y) + self.shiftvec[1]
 
     @property
     def Z(self):
-        cdef float * z = self.pmftxyzptr.getZ().get()
-        cdef np.npy_intp nbins[1]
-        nbins[0] = <np.npy_intp> self.pmftxyzptr.getNBinsZ()
-        cdef np.ndarray[np.float32_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(1, nbins, np.NPY_FLOAT32, <void*> z)
-        return result + self.shiftvec[2]
-
-    def getZ(self):
-        warnings.warn("The getZ function is deprecated in favor "
-                      "of the Z class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.Z
+        cdef unsigned int n_bins_Z = self.pmftxyzptr.getNBinsZ()
+        cdef float[::1] Z = \
+            <float[:n_bins_Z]> self.pmftxyzptr.getZ().get()
+        return np.asarray(Z) + self.shiftvec[2]
 
     @property
     def n_bins_X(self):
-        cdef unsigned int x = self.pmftxyzptr.getNBinsX()
-        return x
-
-    def getNBinsX(self):
-        warnings.warn("The getNBinsX function is deprecated in favor "
-                      "of the n_bins_X class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.n_bins_X
+        return self.pmftxyzptr.getNBinsX()
 
     @property
     def n_bins_Y(self):
-        cdef unsigned int y = self.pmftxyzptr.getNBinsY()
-        return y
-
-    def getNBinsY(self):
-        warnings.warn("The getNBinsY function is deprecated in favor "
-                      "of the n_bins_Y class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.n_bins_Y
+        return self.pmftxyzptr.getNBinsY()
 
     @property
     def n_bins_Z(self):
-        cdef unsigned int z = self.pmftxyzptr.getNBinsZ()
-        return z
-
-    def getNBinsZ(self):
-        warnings.warn("The getNBinsZ function is deprecated in favor "
-                      "of the n_bins_Z class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.n_bins_Z
+        return self.pmftxyzptr.getNBinsZ()
 
     @property
     def jacobian(self):
-        cdef float j = self.pmftxyzptr.getJacobian()
-        return j
-
-    def getJacobian(self):
-        warnings.warn("The getJacobian function is deprecated in favor "
-                      "of the jacobian class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.jacobian
+        return self.pmftxyzptr.getJacobian()

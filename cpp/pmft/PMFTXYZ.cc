@@ -1,4 +1,4 @@
-// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// Copyright (c) 2010-2019 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <stdexcept>
@@ -11,95 +11,97 @@
 using namespace std;
 using namespace tbb;
 
-/*! \internal
-    \file PMFTXYZ.cc
-    \brief Routines for computing 3D anisotropic potential of mean force
+/*! \file PMFTXYZ.cc
+    \brief Routines for computing 3D potential of mean force in XYZ coordinates
 */
 
 namespace freud { namespace pmft {
 
-PMFTXYZ::PMFTXYZ(float max_x, float max_y, float max_z, unsigned int n_bins_x, unsigned int n_bins_y, unsigned int n_bins_z, vec3<float> shiftvec)
-    : PMFT(), m_max_x(max_x), m_max_y(max_y), m_max_z(max_z),
-      m_n_bins_x(n_bins_x), m_n_bins_y(n_bins_y), m_n_bins_z(n_bins_z),
-      m_n_faces(0), m_shiftvec(shiftvec)
+PMFTXYZ::PMFTXYZ(float x_max, float y_max, float z_max,
+        unsigned int n_x, unsigned int n_y, unsigned int n_z,
+        vec3<float> shiftvec) :
+    PMFT(), m_x_max(x_max), m_y_max(y_max), m_z_max(z_max),
+    m_n_x(n_x), m_n_y(n_y), m_n_z(n_z),
+    m_n_faces(0), m_shiftvec(shiftvec)
     {
-    if (n_bins_x < 1)
-        throw invalid_argument("must be at least 1 bin in x");
-    if (n_bins_y < 1)
-        throw invalid_argument("must be at least 1 bin in y");
-    if (n_bins_z < 1)
-        throw invalid_argument("must be at least 1 bin in z");
-    if (max_x < 0.0f)
-        throw invalid_argument("max_x must be positive");
-    if (max_y < 0.0f)
-        throw invalid_argument("max_y must be positive");
-    if (max_z < 0.0f)
-        throw invalid_argument("max_z must be positive");
+    if (n_x < 1)
+        throw invalid_argument("PMFTXYZ requires at least 1 bin in X.");
+    if (n_y < 1)
+        throw invalid_argument("PMFTXYZ requires at least 1 bin in Y.");
+    if (n_z < 1)
+        throw invalid_argument("PMFTXYZ requires at least 1 bin in Z.");
+    if (x_max < 0.0f)
+        throw invalid_argument("PMFTXYZ requires that x_max must be positive.");
+    if (y_max < 0.0f)
+        throw invalid_argument("PMFTXYZ requires that y_max must be positive.");
+    if (z_max < 0.0f)
+        throw invalid_argument("PMFTXYZ requires that z_max must be positive.");
 
     // calculate dx, dy, dz
-    m_dx = 2.0 * m_max_x / float(m_n_bins_x);
-    m_dy = 2.0 * m_max_y / float(m_n_bins_y);
-    m_dz = 2.0 * m_max_z / float(m_n_bins_z);
+    m_dx = 2.0 * m_x_max / float(m_n_x);
+    m_dy = 2.0 * m_y_max / float(m_n_y);
+    m_dz = 2.0 * m_z_max / float(m_n_z);
 
-    if (m_dx > max_x)
-        throw invalid_argument("max_x must be greater than dx");
-    if (m_dy > max_y)
-        throw invalid_argument("max_y must be greater than dy");
-    if (m_dz > max_z)
-        throw invalid_argument("max_z must be greater than dz");
+    if (m_dx > x_max)
+        throw invalid_argument("PMFTXYZ requires that dx is less than or equal to x_max.");
+    if (m_dy > y_max)
+        throw invalid_argument("PMFTXYZ requires that dy is less than or equal to y_max.");
+    if (m_dz > z_max)
+        throw invalid_argument("PMFTXYZ requires that dz is less than or equal to z_max.");
 
     m_jacobian = m_dx * m_dy * m_dz;
 
     // precompute the bin center positions for x
-    m_x_array = std::shared_ptr<float>(new float[m_n_bins_x], std::default_delete<float[]>());
-    for (unsigned int i = 0; i < m_n_bins_x; i++)
+    m_x_array = std::shared_ptr<float>(new float[m_n_x], std::default_delete<float[]>());
+    for (unsigned int i = 0; i < m_n_x; i++)
         {
         float x = float(i) * m_dx;
         float nextx = float(i+1) * m_dx;
-        m_x_array.get()[i] = -m_max_x + ((x + nextx) / 2.0);
+        m_x_array.get()[i] = -m_x_max + ((x + nextx) / 2.0);
         }
 
     // precompute the bin center positions for y
-    m_y_array = std::shared_ptr<float>(new float[m_n_bins_y], std::default_delete<float[]>());
-    for (unsigned int i = 0; i < m_n_bins_y; i++)
+    m_y_array = std::shared_ptr<float>(new float[m_n_y], std::default_delete<float[]>());
+    for (unsigned int i = 0; i < m_n_y; i++)
         {
         float y = float(i) * m_dy;
         float nexty = float(i+1) * m_dy;
-        m_y_array.get()[i] = -m_max_y + ((y + nexty) / 2.0);
+        m_y_array.get()[i] = -m_y_max + ((y + nexty) / 2.0);
         }
 
     // precompute the bin center positions for z
-    m_z_array = std::shared_ptr<float>(new float[m_n_bins_z], std::default_delete<float[]>());
-    for (unsigned int i = 0; i < m_n_bins_z; i++)
+    m_z_array = std::shared_ptr<float>(new float[m_n_z], std::default_delete<float[]>());
+    for (unsigned int i = 0; i < m_n_z; i++)
         {
         float z = float(i) * m_dz;
         float nextz = float(i+1) * m_dz;
-        m_z_array.get()[i] = -m_max_z + ((z + nextz) / 2.0);
+        m_z_array.get()[i] = -m_z_max + ((z + nextz) / 2.0);
         }
     // create and populate the pcf_array
-    m_pcf_array = std::shared_ptr<float>(new float[m_n_bins_x*m_n_bins_y*m_n_bins_z], std::default_delete<float[]>());
-    memset((void*)m_pcf_array.get(), 0, sizeof(float)*m_n_bins_x*m_n_bins_y*m_n_bins_z);
-    m_bin_counts = std::shared_ptr<unsigned int>(new unsigned int[m_n_bins_x*m_n_bins_y*m_n_bins_z], std::default_delete<unsigned int[]>());
-    memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_n_bins_x*m_n_bins_y*m_n_bins_z);
+    m_pcf_array = std::shared_ptr<float>(new float[m_n_x*m_n_y*m_n_z], std::default_delete<float[]>());
+    memset((void*) m_pcf_array.get(), 0, sizeof(float)*m_n_x*m_n_y*m_n_z);
+    m_bin_counts = std::shared_ptr<unsigned int>(new unsigned int[m_n_x*m_n_y*m_n_z], std::default_delete<unsigned int[]>());
+    memset((void*) m_bin_counts.get(), 0, sizeof(unsigned int)*m_n_x*m_n_y*m_n_z);
 
-    m_r_cut = sqrtf(m_max_x*m_max_x + m_max_y*m_max_y + m_max_z*m_max_z);
+    // Set r_cut
+    m_r_cut = sqrtf(m_x_max*m_x_max + m_y_max*m_y_max + m_z_max*m_z_max);
     }
 
 //! \internal
 //! helper function to reduce the thread specific arrays into one array
 void PMFTXYZ::reducePCF()
     {
-    memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_n_bins_x*m_n_bins_y*m_n_bins_z);
-    memset((void*)m_pcf_array.get(), 0, sizeof(float)*m_n_bins_x*m_n_bins_y*m_n_bins_z);
-    parallel_for(blocked_range<size_t>(0,m_n_bins_x),
+    memset((void*) m_bin_counts.get(), 0, sizeof(unsigned int)*m_n_x*m_n_y*m_n_z);
+    memset((void*) m_pcf_array.get(), 0, sizeof(float)*m_n_x*m_n_y*m_n_z);
+    parallel_for(blocked_range<size_t>(0,m_n_x),
         [=] (const blocked_range<size_t>& r)
             {
-            Index3D b_i = Index3D(m_n_bins_x, m_n_bins_y, m_n_bins_z);
+            Index3D b_i = Index3D(m_n_x, m_n_y, m_n_z);
             for (size_t i = r.begin(); i != r.end(); i++)
                 {
-                for (size_t j = 0; j < m_n_bins_y; j++)
+                for (size_t j = 0; j < m_n_y; j++)
                     {
-                    for (size_t k = 0; k < m_n_bins_z; k++)
+                    for (size_t k = 0; k < m_n_z; k++)
                         {
                         for (tbb::enumerable_thread_specific<unsigned int *>::const_iterator local_bins = m_local_bin_counts.begin();
                              local_bins != m_local_bin_counts.end(); ++local_bins)
@@ -114,7 +116,7 @@ void PMFTXYZ::reducePCF()
     float inv_jacobian = (float) 1.0 / (float) m_jacobian;
     float norm_factor = (float) 1.0 / ((float) this->m_frame_counter * (float) this->m_n_ref * (float) m_n_faces);
     // normalize pcf_array
-    parallel_for(blocked_range<size_t>(0,m_n_bins_x*m_n_bins_y*m_n_bins_z),
+    parallel_for(blocked_range<size_t>(0,m_n_x*m_n_y*m_n_z),
         [=] (const blocked_range<size_t>& r)
             {
             for (size_t i = r.begin(); i != r.end(); i++)
@@ -131,7 +133,7 @@ void PMFTXYZ::reset()
     {
     for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_bin_counts.begin(); i != m_local_bin_counts.end(); ++i)
         {
-        memset((void*)(*i), 0, sizeof(unsigned int)*m_n_bins_x*m_n_bins_y*m_n_bins_z);
+        memset((void*) (*i), 0, sizeof(unsigned int)*m_n_x*m_n_y*m_n_z);
         }
     this->m_frame_counter = 0;
     this->m_reduce = true;
@@ -170,15 +172,15 @@ void PMFTXYZ::accumulate(box::Box& box,
             float dy_inv = 1.0f / m_dy;
             float dz_inv = 1.0f / m_dz;
 
-            Index3D b_i = Index3D(m_n_bins_x, m_n_bins_y, m_n_bins_z);
+            Index3D b_i = Index3D(m_n_x, m_n_y, m_n_z);
             Index2D q_i = Index2D(n_faces, n_p);
 
             bool exists;
             m_local_bin_counts.local(exists);
             if (! exists)
                 {
-                m_local_bin_counts.local() = new unsigned int [m_n_bins_x*m_n_bins_y*m_n_bins_z];
-                memset((void*)m_local_bin_counts.local(), 0, sizeof(unsigned int)*m_n_bins_x*m_n_bins_y*m_n_bins_z);
+                m_local_bin_counts.local() = new unsigned int [m_n_x*m_n_y*m_n_z];
+                memset((void*) m_local_bin_counts.local(), 0, sizeof(unsigned int)*m_n_x*m_n_y*m_n_z);
                 }
 
             size_t bond(nlist->find_first_index(r.begin()));
@@ -214,9 +216,9 @@ void PMFTXYZ::accumulate(box::Box& box,
                             v = rotate(conj(ref_q), v);
                             v = rotate(qe, v);
 
-                            float x = v.x + m_max_x;
-                            float y = v.y + m_max_y;
-                            float z = v.z + m_max_z;
+                            float x = v.x + m_x_max;
+                            float y = v.y + m_y_max;
+                            float z = v.z + m_z_max;
 
                             // bin that point
                             float binx = floorf(x * dx_inv);
@@ -234,7 +236,7 @@ void PMFTXYZ::accumulate(box::Box& box,
                             #endif
 
                             // increment the bin
-                            if ((ibinx < m_n_bins_x) && (ibiny < m_n_bins_y) && (ibinz < m_n_bins_z))
+                            if ((ibinx < m_n_x) && (ibiny < m_n_y) && (ibinz < m_n_z))
                                 {
                                 ++m_local_bin_counts.local()[b_i(ibinx, ibiny, ibinz)];
                                 }

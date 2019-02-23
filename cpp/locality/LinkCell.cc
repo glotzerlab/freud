@@ -1,4 +1,4 @@
-// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// Copyright (c) 2010-2019 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <algorithm>
@@ -82,7 +82,7 @@ void LinkCell::setCellWidth(float cell_width)
             m_cell_index = Index3D(celldim.x, celldim.y, celldim.z);
             if (m_cell_index.getNumElements() < 1)
                 {
-                throw runtime_error("At least one cell must be present");
+                throw runtime_error("At least one cell must be present.");
                 }
             m_celldim  = celldim;
             computeCellNeighbors();
@@ -118,7 +118,7 @@ void LinkCell::updateBox(const box::Box& box)
         m_cell_index = Index3D(celldim.x, celldim.y, celldim.z);
         if (m_cell_index.getNumElements() < 1)
             {
-            throw runtime_error("At least one cell must be present");
+            throw runtime_error("At least one cell must be present.");
             }
         m_celldim  = celldim;
         computeCellNeighbors();
@@ -174,7 +174,7 @@ void LinkCell::computeCellList(box::Box& box,
 
     if (Np == 0)
         {
-        throw runtime_error("Cannot generate a cell list of 0 particles");
+        throw runtime_error("Cannot generate a cell list of 0 particles.");
         }
 
     // determine the number of cells and allocate memory
@@ -223,41 +223,41 @@ void LinkCell::compute(box::Box& box,
     // Find (i, j) neighbor pairs
     parallel_for(blocked_range<size_t>(0, Nref),
         [=, &bond_vectors] (const blocked_range<size_t> &r)
+        {
+        ThreadBondVector::reference bond_vector_vectors(bond_vectors.local());
+        bond_vector_vectors.emplace_back();
+        BondVector &bond_vector(bond_vector_vectors.back());
+
+        for (size_t i(r.begin()); i != r.end(); ++i)
             {
-            ThreadBondVector::reference bond_vector_vectors(bond_vectors.local());
-            bond_vector_vectors.emplace_back();
-            BondVector &bond_vector(bond_vector_vectors.back());
+            // get the cell the point is in
+            const vec3<float> ref_point(ref_points[i]);
+            const unsigned int ref_cell(getCell(ref_point));
 
-            for(size_t i(r.begin()); i != r.end(); ++i)
+            // loop over all neighboring cells
+            const std::vector<unsigned int>& neigh_cells = getCellNeighbors(ref_cell);
+            for (unsigned int neigh_idx = 0; neigh_idx < neigh_cells.size(); neigh_idx++)
                 {
-                // get the cell the point is in
-                const vec3<float> ref_point(ref_points[i]);
-                const unsigned int ref_cell(getCell(ref_point));
+                const unsigned int neigh_cell = neigh_cells[neigh_idx];
 
-                // loop over all neighboring cells
-                const std::vector<unsigned int>& neigh_cells = getCellNeighbors(ref_cell);
-                for (unsigned int neigh_idx = 0; neigh_idx < neigh_cells.size(); neigh_idx++)
+                // iterate over the particles in that cell
+                locality::LinkCell::iteratorcell it = itercell(neigh_cell);
+                for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
                     {
-                    const unsigned int neigh_cell = neigh_cells[neigh_idx];
+                    if (exclude_ii && i == j)
+                        continue;
 
-                    // iterate over the particles in that cell
-                    locality::LinkCell::iteratorcell it = itercell(neigh_cell);
-                    for (unsigned int j = it.next(); !it.atEnd(); j=it.next())
+                    const vec3<float> rij(m_box.wrap(points[j] - ref_point));
+                    const float rsq(dot(rij, rij));
+
+                    if (rsq < m_cell_width*m_cell_width)
                         {
-                        if(exclude_ii && i == j)
-                            continue;
-
-                        const vec3<float> rij(m_box.wrap(points[j] - ref_point));
-                        const float rsq(dot(rij, rij));
-
-                        if(rsq < m_cell_width*m_cell_width)
-                            {
-                            bond_vector.emplace_back(i, j, 1);
-                            }
+                        bond_vector.emplace_back(i, j, 1);
                         }
                     }
                 }
-            });
+            }
+        });
 
     // Sort neighbors by particle i index
     tbb::flattened2d<ThreadBondVector> flat_bond_vector_groups = tbb::flatten2d(bond_vectors);
@@ -278,22 +278,22 @@ void LinkCell::compute(box::Box& box,
     // build nlist structure
     parallel_for(blocked_range<size_t>(0, bond_vector_groups.size()),
         [=, &bond_vector_groups] (const blocked_range<size_t> &r)
-            {
-            size_t bond(0);
-            for(size_t group(0); group < r.begin(); ++group)
-                bond += bond_vector_groups[group].size();
+        {
+        size_t bond(0);
+        for (size_t group(0); group < r.begin(); ++group)
+            bond += bond_vector_groups[group].size();
 
-            for(size_t group(r.begin()); group < r.end(); ++group)
+        for (size_t group(r.begin()); group < r.end(); ++group)
+            {
+            const BondVector &vec(bond_vector_groups[group]);
+            for (BondVector::const_iterator iter(vec.begin());
+                iter != vec.end(); ++iter, ++bond)
                 {
-                const BondVector &vec(bond_vector_groups[group]);
-                for(BondVector::const_iterator iter(vec.begin());
-                    iter != vec.end(); ++iter, ++bond)
-                    {
-                    std::tie(neighbor_array[2*bond], neighbor_array[2*bond + 1],
-                        neighbor_weights[bond]) = *iter;
-                    }
+                std::tie(neighbor_array[2*bond], neighbor_array[2*bond + 1],
+                    neighbor_weights[bond]) = *iter;
                 }
-            });
+            }
+        });
     }
 
 void LinkCell::computeCellNeighbors()

@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2018 The Regents of the University of Michigan
+# Copyright (c) 2010-2019 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 from libcpp cimport bool
@@ -9,9 +9,11 @@ from libc.stdint cimport uint32_t
 cimport freud._box
 cimport freud._locality
 
+ctypedef unsigned int uint
+
 cdef extern from "Cluster.h" namespace "freud::cluster":
     cdef cppclass Cluster:
-        Cluster(float)
+        Cluster(float) except +
         void computeClusters(
             const freud._box.Box &,
             const freud._locality.NeighborList*,

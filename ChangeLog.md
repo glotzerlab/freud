@@ -2,19 +2,104 @@
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## v1.0.0 - 2019-02-08
+
+### Added
+* Freshly updated README and documentation homepage.
+* Moved to [GitHub](https://github.com/glotzerlab/freud).
+* New msd.MSD class for computing mean-squared displacements.
+* New order.RotationalAutocorrelation class.
+* Cython memoryviews are now used to convert between C++ and Cython.
+* New and improved freud logo.
+* Internal-only AABB tree (faster for many large systems, but API is unstable).
+
+### Changed
+* Improved module documentation, especially for PMFT.
+* Refactored internals of LocalQl and related classes.
+* Upgraded ReadTheDocs configuration.
+
+### Fixed
+* Improved CubaticOrderParameter handling of unusable seeds.
+* Fixed box error in NearestNeighbors.
+
+### Removed
+* All long-deprecated methods and classes were removed.
+* Bond module removed.
+
+## v0.11.4 - 2018-11-09
+
+### Added
+* Builds are now tested on Windows via Appveyor, though officially unsupported.
+
+### Fixed
+* Multiple user-reported issues in setup.py were resolved.
+* C++ errors are handled more cleanly as Python exceptions.
+* Fixed bug in SolLiq box parameters.
+* Documentation corrected for NeighborList.
+* Various minor compiler errors on Windows were resolved.
+
+## v0.11.3 - 2018-10-18
+
+### Fixed
+* Linux wheels are now pushed to the real PyPI server instead of the test server.
+* macOS deployment pyenv requires patch versions to be specified.
+
+## v0.11.2 - 2018-10-18
+
+### Fixed
+* Error in Python versions in macOS automatic deployment.
+
+## v0.11.1 - 2018-10-18
+
+### Added
+* PyPI builds automatically deploy for Mac and Linux.
+
+### Changed
+* macOS deployment target is now 10.12 instead of 10.9 to ensure TBB compatibility.
+* Unwrapping positions with images is now vectorized.
+* Minor documentation fixes.
+
+### Fixed
+* TBB includes were not always detected correctly by setup.py.
+
+## v0.11.0 - 2018-09-27
+
+### Added
+* Example notebooks are now shown in the documentation.
+* Many unit tests were added.
+* New class: `freud.environment.LocalBondProjection`.
+* `freud` is now available on the Python Package Index (PyPI) as `freud-analysis`.
+
+### Changed
+* Documentation was revised for several modules.
+* New class `freud.box.ParticleBuffer` was adapted from the previous `VoronoiBuffer` to include support for triclinic boxes.
+* The `bond` and `pmft` modules verify system dimensionality matches the coordinate system used.
+* Minor optimization: arrays are reduced across threads only when necessary.
+
+### Fixed
+* NumPy arrays of lengths 2, 3, 6 are now correctly ducktyped into boxes.
+* Removed internal use of deprecated code.
+* C++ code using `uint` has been changed to `unsigned int`, to improve compiler compatibility.
+
+### Deprecated
+* In `freud.locality.LinkCell`, `computeCellList()` has been replaced by `compute()`.
+
+### Removed
+* The `kspace` module has been removed.
+
 ## v0.10.0 - 2018-08-27
 
 ### Added
-* codecov to track test coverage
+* Codecov to track test coverage.
 * Properties were added to MatchEnv, AngularSeparation, Cubatic/Nematic order parameters, Voronoi.
 
 ### Changed
 * freud uses Cython and setup.py instead of CMake for installation.
 * Properties (not get functions) are the official way to access computed results.
 * Interface module has been improved significantly.
-* density.FloatCF, density.ComplexCF, order parameter documentation is improved
-* Many compute methods now use points, orientations from ref\_points, ref\_orientations if not provided
-* Reset methods have been renamed to `reset`
+* density.FloatCF, density.ComplexCF, order parameter documentation is improved.
+* Many compute methods now use points, orientations from ref\_points, ref\_orientations if not provided.
+* Reset methods have been renamed to `reset`.
 
 ### Fixed
 * `kspace` module had a missing factor of pi in the volume calculation of `FTsphere`.
