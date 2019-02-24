@@ -37,13 +37,11 @@ cdef class SymmetryCollection:
 
     """
     cdef freud._symmetry.SymmetryCollection *thisptr
-    cdef num_neigh
 
     def __cinit__(self, maxL=int(30)):
         if maxL < 0:
             raise ValueError("maxL must be 0 or greater")
         self.thisptr = new freud._symmetry.SymmetryCollection(maxL)
-        self.num_neigh = maxL
 
     def __dealloc__(self):
         del self.thisptr
@@ -91,8 +89,9 @@ cdef class SymmetryCollection:
         """
         return self.thisptr.measure(n)
 
-    def getMlm(self):
-        """Get a reference to ``Mlm``.
+    @property
+    def Mlm(self):
+        """Get the system average spherical harmonics.
 
         Returns:
             (:math:`\\left(l_{max} + 1\\right)^2 - 1`) :class:`numpy.ndarray`:
@@ -102,8 +101,9 @@ cdef class SymmetryCollection:
         cdef float[::1] Mlm = <float[:Mlm_size]> self.thisptr.getMlm().get()
         return np.asarray(Mlm)
 
-    def getMlm_rotated(self):
-        """Get a reference to ``Mlm_rotated``.
+    @property
+    def Mlm_rotated(self):
+        """Get the system average spherical harmonics, rotated by a quaternion.
 
         Returns:
             (:math:`(l_{max} + 1)^2 - 1`) :class:`numpy.ndarray`:
@@ -116,9 +116,6 @@ cdef class SymmetryCollection:
 
     @property
     def l_max(self):
-        return self.getMaxL()
-
-    def getMaxL(self):
         """Returns :math:`l_{max}`.
 
         Returns:
@@ -127,7 +124,7 @@ cdef class SymmetryCollection:
         return self.thisptr.getMaxL()
 
     def rotate(self, q):
-        """Rotate Mlm by q.
+        """Rotate ``Mlm`` by ``q``, accessed via the ``Mlm_rotated`` property.
 
         Args:
             q (:math:`\\left(4 \\right)` :class:`numpy.ndarray`):
@@ -144,11 +141,6 @@ cdef class SymmetryCollection:
 
     @property
     def symmetries(self):
-        """Return the found symmetries.
-        """
-        return self.getSymmetries()
-
-    def getSymmetries(self):
         """Return the found symmetries. Each symmetry is a ``dict`` with keys
         ``n`` (for an :math:`n`-fold axis), ``vertex`` (a unit vector in the
         direction of the symmetry axis), ``quaternion`` (a unit quaternion that
@@ -178,8 +170,9 @@ cdef class SymmetryCollection:
                 'measured_order': symm.measured_order})
         return symmetries
 
-    def getLaueGroup(self):
-        """Identify Laue Group.
+    @property
+    def laue_group(self):
+        """Identify Laue group.
 
         Returns:
             string: Laue group name.
@@ -188,8 +181,9 @@ cdef class SymmetryCollection:
             self.thisptr.getLaueGroup().decode('UTF-8')
         return laue_group
 
-    def getCrystalSystem(self):
-        """Identify Crystal System.
+    @property
+    def crystal_system(self):
+        """Identify crystal system.
 
         Returns:
             string: Crystal system name.
@@ -216,19 +210,17 @@ cdef class Geodesation:
     def __dealloc__(self):
         del self.thisptr
 
-    def getNVertices(self):
+    @property
+    def n_vertices(self):
         """Returns the number of vertices.
 
         Returns:
-            int: Length of the vertex list.
+            int: Number of vertices
         """
         return self.thisptr.getNVertices()
 
     @property
-    def n_vertices(self):
-        return self.getNVertices()
-
-    def getVertexList(self):
+    def vertices(self):
         """Return the vertex positions.
 
         Returns:
@@ -242,8 +234,9 @@ cdef class Geodesation:
             <float*> dereference(vertex_list).data())
         return np.asarray(vertices)
 
-    def getNeighborList(self):
-        """Return the neighbor list.
+    @property
+    def neighbor_pairs(self):
+        """Return the neighbor pairs.
 
         Returns:
             list:

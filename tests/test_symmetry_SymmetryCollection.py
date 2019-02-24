@@ -35,8 +35,8 @@ class TestSymmetryCollection(unittest.TestCase):
             print(t, sc.measure(t), sc_rotate.measure(t))
         """
 
-        # Test getMlm and getMlm_rotated functions
-        assert np.allclose(sc_rotate.getMlm(), sc_rotate.getMlm_rotated())
+        # Test Mlm and Mlm_rotated
+        assert np.allclose(sc_rotate.Mlm, sc_rotate.Mlm_rotated)
 
     def test_symmetries(self):
         # Make an FCC lattice
@@ -46,7 +46,7 @@ class TestSymmetryCollection(unittest.TestCase):
         sc = freud.symmetry.SymmetryCollection(30)
         sc.compute(box, positions, nlist)
 
-    def test_laueGroup(self):
+    def test_laue_group(self):
         # Make an FCC lattice
         (box, positions) = util.make_fcc(4, 4, 4)
         nn = freud.locality.NearestNeighbors(2.0, 12)
@@ -55,7 +55,18 @@ class TestSymmetryCollection(unittest.TestCase):
         sc.compute(box, positions, nlist)
 
         # Ensure the Laue Group of an FCC crystal is m-3m
-        assert sc.getLaueGroup() == 'm-3m'
+        assert sc.laue_group == 'm-3m'
+
+    def test_crystal_system(self):
+        # Make an FCC lattice
+        (box, positions) = util.make_fcc(4, 4, 4)
+        nn = freud.locality.NearestNeighbors(2.0, 12)
+        nlist = nn.compute(box, positions, positions).nlist
+        sc = freud.symmetry.SymmetryCollection(30)
+        sc.compute(box, positions, nlist)
+
+        # Ensure the crystal system of an FCC crystal is cubic
+        assert sc.crystal_system == 'Cubic'
 
 
 if __name__ == '__main__':
