@@ -1,9 +1,8 @@
-// Copyright (c) 2010-2018 The Regents of the University of Michigan
-// This file is part of the Freud project, released under the BSD 3-Clause License.
+// Copyright (c) 2010-2019 The Regents of the University of Michigan
+// This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <memory>
 #include <ostream>
-#include <tbb/tbb.h>
 #include <cmath>
 
 #include "VectorMath.h"
@@ -12,8 +11,8 @@
 
 using namespace std;
 
-#ifndef _SYMMETRY_COLLECTION_H__
-#define _SYMMETRY_COLLECTION_H__
+#ifndef SYMMETRY_COLLECTION_H
+#define SYMMETRY_COLLECTION_H
 
 /*! \file SymmetricOrientation.h
     \brief Compute the symmetric orientation
@@ -22,7 +21,7 @@ using namespace std;
 namespace freud { namespace symmetry {
 
 struct FoundSymmetry {
-    int n; //type
+    int n; // type
     vec3<float> v;
     quat<float> q;
     float measured_order;
@@ -39,10 +38,10 @@ struct Symmetry {
 class SymmetryCollection {
     public:
         //! Constructor, set default value maxL to 30
-        SymmetryCollection(unsigned int maxL = 30);
+        SymmetryCollection(int maxL = 30);
 
         //! Destructor
-        ~SymmetryCollection();
+        ~SymmetryCollection(){};
 
         //! Compute symmetry axes
         void compute(const box::Box& box,
@@ -56,15 +55,11 @@ class SymmetryCollection {
         //! rotate the axis and search for higher order
         void optimize(bool perpendicular, FoundSymmetry *symm);
 
-
-
         //! rotate Mlm array by a certain quat
         void rotate(const quat<float> &q);
 
-
         //! Returns quaternions for all detected symmetry axes
         quat<float>* getOrderQuats();
-
 
         //! a getter to Mlm
         std::shared_ptr<float> getMlm() {
@@ -82,7 +77,7 @@ class SymmetryCollection {
         }
 
         //! return angular quantum number
-        unsigned int getMaxL() {
+        int getMaxL() {
             return m_maxL;
         }
 
@@ -90,13 +85,11 @@ class SymmetryCollection {
             return m_found_symmetries;
         }
 
-        //identify Laue group
+        //! identify Laue group
         string getLaueGroup();
 
-        //determine the crystal system
+        //! determine the crystal system
         string getCrystalSystem();
-
-
 
     private:
         //! Compute spherical harmonics from bond array. private function
@@ -109,11 +102,11 @@ class SymmetryCollection {
         //! search for the best symmetry
         void searchSymmetry(FoundSymmetry *foundsym = nullptr);
 
-        // take in a vector and do a mirror reflection around z-direction
+        //! take in a vector and do a mirror reflection around z-direction
         quat<float> initMirrorZ(const vec3<float> &p);
 
-        //a helper indexing function
-        //http://web.cmb.usc.edu/people/alber/Software/tomominer/docs/cpp/group__wigner.html
+        //! a helper indexing function
+        //! http://web.cmb.usc.edu/people/alber/Software/tomominer/docs/cpp/group__wigner.html
         int WDindex(int j, int mprime, int m);
 
         //! convert a quaternion(r, v.x, v.y, v.z) to eulerAngle (phi, theta, psi)
@@ -122,7 +115,7 @@ class SymmetryCollection {
         vector<float> toEulerAngles323(const quat<float> &q);
 
         //! modifies q
-        //! nomalizes a quaternion.
+        //! normalizes a quaternion.
         //! https://www.mathworks.com/help/aeroblks/quaternionnormalize.html
         quat<float> normalize(quat<float> &q) {
             float norm = 1.0f / sqrt(norm2(q));
@@ -133,14 +126,11 @@ class SymmetryCollection {
             return q;
         }
 
-
-
-    private:
         box::Box m_box;
-        unsigned int m_maxL;
+        int m_maxL;
         quat<float> m_symmetric_orientation;
-        shared_ptr<float> m_Mlm; // a 1D matrix of float
-        shared_ptr<float> m_Mlm_rotated;//hold the rotated Mlm
+        shared_ptr<float> m_Mlm; // a 1D array of floats
+        shared_ptr<float> m_Mlm_rotated; // hold the rotated Mlm
         unsigned int m_Np;
         const int TOTAL = -1;
         const int AXIAL = 0;
@@ -158,7 +148,7 @@ class SymmetryCollection {
 
         const float PI = atan(1.0) * 4.0;
          //<type, vertex, quat, measured_order>
-        vector<FoundSymmetry> m_found_symmetries; //saves the axis of symmetry that was found,
+        vector<FoundSymmetry> m_found_symmetries; // saves the axis of symmetry that was found
 
         const int LENGTH = 11; // numbers of types of symmetry
         Symmetry SYMMETRIES[11];
@@ -166,19 +156,8 @@ class SymmetryCollection {
         const float OPTIMIZESTART = 0.5;
         const float OPTIMIZEEND   = 1e-6;
         const float OPTIMIZESCALE = 0.9;
-
-
-
-
 };
-
-
-
-
-
-
-
 
 }; }; // end namespace freud::symmetry
 
-#endif // _SYMMETRY_COLLECTION_H__
+#endif // SYMMETRY_COLLECTION_H

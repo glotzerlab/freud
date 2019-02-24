@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2018 The Regents of the University of Michigan
+# Copyright (c) 2010-2019 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 from libcpp.memory cimport shared_ptr
@@ -10,9 +10,6 @@ from libcpp.string cimport string
 cimport freud._box
 cimport freud._locality
 
-cdef extern from "SymmetryCollection.cc" namespace "freud::symmetry":
-    pass
-
 cdef extern from "SymmetryCollection.h" namespace "freud::symmetry":
     struct FoundSymmetry:
         int n
@@ -21,7 +18,7 @@ cdef extern from "SymmetryCollection.h" namespace "freud::symmetry":
         float measured_order
 
     cdef cppclass SymmetryCollection:
-        SymmetryCollection(unsigned int)
+        SymmetryCollection(int)
         void compute(freud._box.Box &,
                      vec3[float]*,
                      const freud._locality.NeighborList*,
@@ -37,12 +34,9 @@ cdef extern from "SymmetryCollection.h" namespace "freud::symmetry":
         string getLaueGroup()
         string getCrystalSystem()
 
-cdef extern from "Geodesation.cc" namespace "freud::symmetry":
-    pass
-
 cdef extern from "Geodesation.h" namespace "freud::symmetry":
     cdef cppclass Geodesation:
-        Geodesation(unsigned int)
-        unsigned int getNVertices()
+        Geodesation(int)
+        int getNVertices()
         shared_ptr[vector[vec3[float]]] getVertexList()
         shared_ptr[vector[unordered_set[int]]] getNeighborList()

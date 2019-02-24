@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2018 The Regents of the University of Michigan
+# Copyright (c) 2010-2019 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 R"""
@@ -40,6 +40,8 @@ cdef class SymmetryCollection:
     cdef num_neigh
 
     def __cinit__(self, maxL=int(30)):
+        if maxL < 0:
+            raise ValueError("maxL must be 0 or greater")
         self.thisptr = new freud._symmetry.SymmetryCollection(maxL)
         self.num_neigh = maxL
 
@@ -65,14 +67,14 @@ cdef class SymmetryCollection:
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        cdef np.ndarray[float, ndim=2] l_points = points
+        cdef float[:, ::1] l_points = points
         cdef freud.locality.NeighborList nlist_ = nlist
 
-        cdef unsigned int n_p = <unsigned int> points.shape[0]
+        cdef unsigned int n_p = l_points.shape[0]
 
         self.thisptr.compute(
             dereference(b.thisptr),
-            <vec3[float]*> l_points.data,
+            <vec3[float]*> &l_points[0, 0],
             nlist_.get_ptr(),
             n_p)
         return self
@@ -96,13 +98,9 @@ cdef class SymmetryCollection:
             (:math:`\\left(l_{max} + 1\\right)^2 - 1`) :class:`numpy.ndarray`:
                 Spherical harmonic values computed over all bonds.
         """
-        cdef float * Mlm = self.thisptr.getMlm().get()
-        cdef np.npy_intp Mlm_shape[1]
-        Mlm_shape[0] = <np.npy_intp> (self.thisptr.getMaxL() + 1)**2 - 1
-        cdef np.ndarray[np.float32_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(
-                1, Mlm_shape, np.NPY_FLOAT32, <void*> Mlm)
-        return result
+        cdef unsigned int Mlm_size = (self.thisptr.getMaxL() + 1)**2 - 1
+        cdef float[::1] Mlm = <float[:Mlm_size]> self.thisptr.getMlm().get()
+        return np.asarray(Mlm)
 
     def getMlm_rotated(self):
         """Get a reference to ``Mlm_rotated``.
@@ -111,13 +109,10 @@ cdef class SymmetryCollection:
             (:math:`(l_{max} + 1)^2 - 1`) :class:`numpy.ndarray`:
                 Spherical harmonic values computed over all bonds.
         """
-        cdef float * Mlm_rotated = self.thisptr.getMlm_rotated().get()
-        cdef np.npy_intp Mlm_shape[1]
-        Mlm_shape[0] = <np.npy_intp> (self.thisptr.getMaxL() + 1)**2 - 1
-        cdef np.ndarray[np.float32_t, ndim=1] result = \
-            np.PyArray_SimpleNewFromData(
-                1, Mlm_shape, np.NPY_FLOAT32, <void*> Mlm_rotated)
-        return result
+        cdef unsigned int Mlm_size = (self.thisptr.getMaxL() + 1)**2 - 1
+        cdef float[::1] Mlm_rotated = \
+            <float[:Mlm_size]> self.thisptr.getMlm_rotated().get()
+        return np.asarray(Mlm_rotated)
 
     @property
     def l_max(self):
@@ -143,8 +138,7 @@ cdef class SymmetryCollection:
             q, 1, dtype=np.float32, contiguous=True, array_name="q")
         if q.shape[0] != 4:
             raise TypeError('q should be an 1x4 array')
-        cdef np.ndarray[float, ndim=1] l_q = q
-
+        cdef float[::1] l_q = q
         self.thisptr.rotate(<const quat[float] &> l_q[0])
         return self
 
@@ -241,15 +235,12 @@ cdef class Geodesation:
             :math:`\\left(N_{vertices}, 3\\right)` :class:`numpy.ndarray`:
                 Array of vertex positions.
         """
-        cdef vector[vec3[float]] *vertices = self.thisptr.getVertexList().get()
-        cdef np.npy_intp nVerts[2]
-        nVerts[0] = <np.npy_intp> vertices.size()
-        nVerts[1] = 3
-        cdef np.ndarray[float, ndim=2] result = \
-            np.PyArray_SimpleNewFromData(
-                2, nVerts, np.NPY_FLOAT32,
-                <void*> dereference(vertices).data())
-        return result
+        cdef vector[vec3[float]] *vertex_list = \
+            self.thisptr.getVertexList().get()
+        cdef unsigned int vertices_size = vertex_list.size()
+        cdef float[:, ::1] vertices = <float[:vertices_size, :3]> (
+            <float*> dereference(vertex_list).data())
+        return np.asarray(vertices)
 
     def getNeighborList(self):
         """Return the neighbor list.
