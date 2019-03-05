@@ -27,7 +27,7 @@ dependencies:
   - jedi=0.13.2=py37_1000
   - jinja2=2.10=py_1
   - jsonschema=3.0.0a3=py37_1000
-  - jupyter_client=5.2.4=py_1
+  - jupyter_client=5.2.4=py_3
   - jupyter_core=4.4.0=py_0
   - libffi=3.2.1=hf484d3e_1005
   - libgcc-ng=7.3.0=hdf63c60_0
