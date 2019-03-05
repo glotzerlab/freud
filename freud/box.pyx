@@ -705,7 +705,7 @@ cdef class ParticleBuffer:
         cdef unsigned int buffer_size = \
             dereference(self.thisptr.getBufferParticles().get()).size()
         if not buffer_size:
-            return np.array([[]], dtype=np.float32)
+            return np.empty(shape=(0, 0), dtype=np.float32)
         cdef float[:, ::1] buffer_particles = \
             <float[:buffer_size, :3]> (<float*> dereference(
                 self.thisptr.getBufferParticles().get()).data())
