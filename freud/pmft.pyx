@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2018 The Regents of the University of Michigan
+# Copyright (c) 2010-2019 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 R"""
@@ -42,7 +42,6 @@ import numpy as np
 import freud.common
 import freud.locality
 import warnings
-from freud.errors import FreudDeprecationWarning
 
 from freud.util._VectorMath cimport vec3, quat
 from cython.operator cimport dereference
@@ -83,28 +82,9 @@ cdef class _PMFT:
     def box(self):
         return freud.box.BoxFromCPP(self.pmftptr.getBox())
 
-    def getBox(self):
-        warnings.warn("The getBox function is deprecated in favor "
-                      "of the box class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.box
-
     def reset(self):
         R"""Resets the values of the PCF histograms in memory."""
         self.pmftptr.reset()
-
-    def resetPCF(self):
-        warnings.warn("Use .reset() instead of this method. "
-                      "This method will be removed in the future.",
-                      FreudDeprecationWarning)
-        self.reset()
-
-    def reducePCF(self):
-        warnings.warn("This method is automatically called internally. It "
-                      "will be removed in the future.",
-                      FreudDeprecationWarning)
-        self.pmftptr.reducePCF()
 
     @property
     def PMFT(self):
@@ -113,23 +93,9 @@ cdef class _PMFT:
             result = -np.log(np.copy(self.PCF))
         return result
 
-    def getPMFT(self):
-        warnings.warn("The getPMFT function is deprecated in favor "
-                      "of the PMFT class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.PMFT
-
     @property
     def r_cut(self):
         return self.pmftptr.getRCut()
-
-    def getRCut(self):
-        warnings.warn("The getRCut function is deprecated in favor "
-                      "of the r_cut class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.r_cut
 
 
 cdef class PMFTR12(_PMFT):
@@ -303,13 +269,6 @@ cdef class PMFTR12(_PMFT):
             self.pmftr12ptr.getBinCounts().get()
         return np.asarray(bin_counts, dtype=np.uint32)
 
-    def getBinCounts(self):
-        warnings.warn("The getBinCounts function is deprecated in favor "
-                      "of the bin_counts class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.bin_counts
-
     @property
     def PCF(self):
         cdef unsigned int n_bins_R = self.pmftr12ptr.getNBinsR()
@@ -320,26 +279,12 @@ cdef class PMFTR12(_PMFT):
             self.pmftr12ptr.getPCF().get()
         return np.asarray(PCF)
 
-    def getPCF(self):
-        warnings.warn("The getPCF function is deprecated in favor "
-                      "of the PCF class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.PCF
-
     @property
     def R(self):
         cdef unsigned int n_bins_R = self.pmftr12ptr.getNBinsR()
         cdef float[::1] R = \
             <float[:n_bins_R]> self.pmftr12ptr.getR().get()
         return np.asarray(R)
-
-    def getR(self):
-        warnings.warn("The getR function is deprecated in favor "
-                      "of the R class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.R
 
     @property
     def T1(self):
@@ -348,26 +293,12 @@ cdef class PMFTR12(_PMFT):
             <float[:n_bins_T1]> self.pmftr12ptr.getT1().get()
         return np.asarray(T1)
 
-    def getT1(self):
-        warnings.warn("The getT1 function is deprecated in favor "
-                      "of the T1 class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.T1
-
     @property
     def T2(self):
         cdef unsigned int n_bins_T2 = self.pmftr12ptr.getNBinsT2()
         cdef float[::1] T2 = \
             <float[:n_bins_T2]> self.pmftr12ptr.getT2().get()
         return np.asarray(T2)
-
-    def getT2(self):
-        warnings.warn("The getT2 function is deprecated in favor "
-                      "of the T2 class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.T2
 
     @property
     def inverse_jacobian(self):
@@ -379,45 +310,17 @@ cdef class PMFTR12(_PMFT):
             self.pmftr12ptr.getInverseJacobian().get()
         return np.asarray(inverse_jacobian)
 
-    def getInverseJacobian(self):
-        warnings.warn("The getInverseJacobian function is deprecated in favor "
-                      "of the inverse_jacobian class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.inverse_jacobian
-
     @property
     def n_bins_R(self):
         return self.pmftr12ptr.getNBinsR()
-
-    def getNBinsR(self):
-        warnings.warn("The getNBinsR function is deprecated in favor "
-                      "of the n_bins_R class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.n_bins_R
 
     @property
     def n_bins_T1(self):
         return self.pmftr12ptr.getNBinsT1()
 
-    def getNBinsT1(self):
-        warnings.warn("The getNBinsT1 function is deprecated in favor "
-                      "of the n_bins_T1 class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.n_bins_T1
-
     @property
     def n_bins_T2(self):
         return self.pmftr12ptr.getNBinsT2()
-
-    def getNBinsT2(self):
-        warnings.warn("The getNBinsT2 function is deprecated in favor "
-                      "of the n_bins_T2 class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.n_bins_T2
 
 
 cdef class PMFTXYT(_PMFT):
@@ -602,13 +505,6 @@ cdef class PMFTXYT(_PMFT):
             self.pmftxytptr.getBinCounts().get()
         return np.asarray(bin_counts, dtype=np.uint32)
 
-    def getBinCounts(self):
-        warnings.warn("The getBinCounts function is deprecated in favor "
-                      "of the bin_counts class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.bin_counts
-
     @property
     def PCF(self):
         cdef unsigned int n_bins_T = self.pmftxytptr.getNBinsT()
@@ -619,26 +515,12 @@ cdef class PMFTXYT(_PMFT):
             self.pmftxytptr.getPCF().get()
         return np.asarray(PCF)
 
-    def getPCF(self):
-        warnings.warn("The getPCF function is deprecated in favor "
-                      "of the PCF class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.PCF
-
     @property
     def X(self):
         cdef unsigned int n_bins_X = self.pmftxytptr.getNBinsX()
         cdef float[::1] X = \
             <float[:n_bins_X]> self.pmftxytptr.getX().get()
         return np.asarray(X)
-
-    def getX(self):
-        warnings.warn("The getX function is deprecated in favor "
-                      "of the X class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.X
 
     @property
     def Y(self):
@@ -647,13 +529,6 @@ cdef class PMFTXYT(_PMFT):
             <float[:n_bins_Y]> self.pmftxytptr.getY().get()
         return np.asarray(Y)
 
-    def getY(self):
-        warnings.warn("The getY function is deprecated in favor "
-                      "of the Y class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.Y
-
     @property
     def T(self):
         cdef unsigned int n_bins_T = self.pmftxytptr.getNBinsT()
@@ -661,56 +536,21 @@ cdef class PMFTXYT(_PMFT):
             <float[:n_bins_T]> self.pmftxytptr.getT().get()
         return np.asarray(T)
 
-    def getT(self):
-        warnings.warn("The getT function is deprecated in favor "
-                      "of the T class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.T
-
     @property
     def jacobian(self):
         return self.pmftxytptr.getJacobian()
-
-    def getJacobian(self):
-        warnings.warn("The getJacobian function is deprecated in favor "
-                      "of the jacobian class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.jacobian
 
     @property
     def n_bins_X(self):
         return self.pmftxytptr.getNBinsX()
 
-    def getNBinsX(self):
-        warnings.warn("The getNBinsX function is deprecated in favor "
-                      "of the n_bins_X class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.n_bins_X
-
     @property
     def n_bins_Y(self):
         return self.pmftxytptr.getNBinsY()
 
-    def getNBinsY(self):
-        warnings.warn("The getNBinsY function is deprecated in favor "
-                      "of the n_bins_Y class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.n_bins_Y
-
     @property
     def n_bins_T(self):
         return self.pmftxytptr.getNBinsT()
-
-    def getNBinsT(self):
-        warnings.warn("The getNBinsT function is deprecated in favor "
-                      "of the n_bins_T class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.n_bins_T
 
 
 cdef class PMFTXY2D(_PMFT):
@@ -883,13 +723,6 @@ cdef class PMFTXY2D(_PMFT):
             self.pmftxy2dptr.getBinCounts().get()
         return np.asarray(bin_counts, dtype=np.uint32)
 
-    def getBinCounts(self):
-        warnings.warn("The getBinCounts function is deprecated in favor "
-                      "of the bin_counts class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.bin_counts
-
     @property
     def PCF(self):
         cdef unsigned int n_bins_Y = self.pmftxy2dptr.getNBinsY()
@@ -899,26 +732,12 @@ cdef class PMFTXY2D(_PMFT):
             self.pmftxy2dptr.getPCF().get()
         return np.asarray(PCF)
 
-    def getPCF(self):
-        warnings.warn("The getPCF function is deprecated in favor "
-                      "of the PCF class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.PCF
-
     @property
     def X(self):
         cdef unsigned int n_bins_X = self.pmftxy2dptr.getNBinsX()
         cdef float[::1] X = \
             <float[:n_bins_X]> self.pmftxy2dptr.getX().get()
         return np.asarray(X)
-
-    def getX(self):
-        warnings.warn("The getX function is deprecated in favor "
-                      "of the X class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.X
 
     @property
     def Y(self):
@@ -927,45 +746,17 @@ cdef class PMFTXY2D(_PMFT):
             <float[:n_bins_Y]> self.pmftxy2dptr.getY().get()
         return np.asarray(Y)
 
-    def getY(self):
-        warnings.warn("The getY function is deprecated in favor "
-                      "of the Y class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.Y
-
     @property
     def n_bins_X(self):
         return self.pmftxy2dptr.getNBinsX()
-
-    def getNBinsX(self):
-        warnings.warn("The getNBinsX function is deprecated in favor "
-                      "of the n_bins_X class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.n_bins_X
 
     @property
     def n_bins_Y(self):
         return self.pmftxy2dptr.getNBinsY()
 
-    def getNBinsY(self):
-        warnings.warn("The getNBinsY function is deprecated in favor "
-                      "of the n_bins_Y class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.n_bins_Y
-
     @property
     def jacobian(self):
         return self.pmftxy2dptr.getJacobian()
-
-    def getJacobian(self):
-        warnings.warn("The getJacobian function is deprecated in favor "
-                      "of the jacobian class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.jacobian
 
 
 cdef class PMFTXYZ(_PMFT):
@@ -1226,13 +1017,6 @@ cdef class PMFTXYZ(_PMFT):
             self.pmftxyzptr.getBinCounts().get()
         return np.asarray(bin_counts, dtype=np.uint32)
 
-    def getBinCounts(self):
-        warnings.warn("The getBinCounts function is deprecated in favor "
-                      "of the bin_counts class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.bin_counts
-
     @property
     def PCF(self):
         cdef unsigned int n_bins_Z = self.pmftxyzptr.getNBinsZ()
@@ -1243,26 +1027,12 @@ cdef class PMFTXYZ(_PMFT):
             self.pmftxyzptr.getPCF().get()
         return np.asarray(PCF)
 
-    def getPCF(self):
-        warnings.warn("The getPCF function is deprecated in favor "
-                      "of the PCF class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.PCF
-
     @property
     def X(self):
         cdef unsigned int n_bins_X = self.pmftxyzptr.getNBinsX()
         cdef float[::1] X = \
             <float[:n_bins_X]> self.pmftxyzptr.getX().get()
         return np.asarray(X) + self.shiftvec[0]
-
-    def getX(self):
-        warnings.warn("The getX function is deprecated in favor "
-                      "of the X class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.X
 
     @property
     def Y(self):
@@ -1271,13 +1041,6 @@ cdef class PMFTXYZ(_PMFT):
             <float[:n_bins_Y]> self.pmftxyzptr.getY().get()
         return np.asarray(Y) + self.shiftvec[1]
 
-    def getY(self):
-        warnings.warn("The getY function is deprecated in favor "
-                      "of the Y class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.Y
-
     @property
     def Z(self):
         cdef unsigned int n_bins_Z = self.pmftxyzptr.getNBinsZ()
@@ -1285,53 +1048,18 @@ cdef class PMFTXYZ(_PMFT):
             <float[:n_bins_Z]> self.pmftxyzptr.getZ().get()
         return np.asarray(Z) + self.shiftvec[2]
 
-    def getZ(self):
-        warnings.warn("The getZ function is deprecated in favor "
-                      "of the Z class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.Z
-
     @property
     def n_bins_X(self):
         return self.pmftxyzptr.getNBinsX()
-
-    def getNBinsX(self):
-        warnings.warn("The getNBinsX function is deprecated in favor "
-                      "of the n_bins_X class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.n_bins_X
 
     @property
     def n_bins_Y(self):
         return self.pmftxyzptr.getNBinsY()
 
-    def getNBinsY(self):
-        warnings.warn("The getNBinsY function is deprecated in favor "
-                      "of the n_bins_Y class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.n_bins_Y
-
     @property
     def n_bins_Z(self):
         return self.pmftxyzptr.getNBinsZ()
 
-    def getNBinsZ(self):
-        warnings.warn("The getNBinsZ function is deprecated in favor "
-                      "of the n_bins_Z class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.n_bins_Z
-
     @property
     def jacobian(self):
         return self.pmftxyzptr.getJacobian()
-
-    def getJacobian(self):
-        warnings.warn("The getJacobian function is deprecated in favor "
-                      "of the jacobian class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.jacobian

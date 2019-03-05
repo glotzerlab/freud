@@ -2,7 +2,6 @@ import numpy as np
 import numpy.testing as npt
 from freud import box, density, parallel
 import unittest
-from freud.errors import FreudDeprecationWarning
 import warnings
 import os
 
@@ -26,9 +25,6 @@ class TestR(unittest.TestCase):
 
 
 class TestOCF(unittest.TestCase):
-    def setUp(self):
-        warnings.simplefilter("ignore", category=FreudDeprecationWarning)
-
     def test_random_points(self):
         rmax = 10.0
         dr = 1.0
@@ -49,9 +45,8 @@ class TestOCF(unittest.TestCase):
         npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
         ocf.compute(box.Box.square(box_size), points, comp,
                     points, np.conj(comp))
-        npt.assert_allclose(ocf.getRDF(), correct, atol=absolute_tolerance)
+        npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
         self.assertEqual(box.Box.square(box_size), ocf.box)
-        self.assertEqual(box.Box.square(box_size), ocf.getBox())
 
     def test_zero_points(self):
         rmax = 10.0
@@ -97,7 +92,6 @@ class TestOCF(unittest.TestCase):
         ocf = density.FloatCF(rmax, dr)
         ocf.compute(box.Box.square(box_size), points, comp,
                     points, np.conj(comp))
-        self.assertEqual(np.sum(ocf.getCounts()), correct)
         self.assertEqual(np.sum(ocf.counts), correct)
 
 

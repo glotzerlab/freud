@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2018 The Regents of the University of Michigan
+# Copyright (c) 2010-2019 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 R"""
@@ -10,7 +10,6 @@ distributions with respect to other particles.
 import freud.common
 import freud.locality
 import warnings
-from freud.errors import FreudDeprecationWarning
 import numpy as np
 
 from freud.util._VectorMath cimport vec3
@@ -84,7 +83,7 @@ cdef class FloatCF:
         del self.thisptr
 
     def accumulate(self, box, ref_points, ref_values, points=None, values=None,
-                   nlist=None, refValues=None):
+                   nlist=None):
         R"""Calculates the correlation function and adds to the current
         histogram.
 
@@ -105,12 +104,6 @@ cdef class FloatCF:
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
         """
-        if refValues is not None:
-            warnings.warn("Use ref_values instead of refValues. The refValues "
-                          "keyword argument will be removed in the future.",
-                          FreudDeprecationWarning)
-            ref_values = refValues
-
         cdef freud.box.Box b = freud.common.convert_box(box)
         if points is None:
             points = ref_points
@@ -163,23 +156,9 @@ cdef class FloatCF:
             <double[:n_bins]> self.thisptr.getRDF().get()
         return np.asarray(RDF)
 
-    def getRDF(self):
-        warnings.warn("The getRDF function is deprecated in favor "
-                      "of the RDF class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.RDF
-
     @property
     def box(self):
         return freud.box.BoxFromCPP(self.thisptr.getBox())
-
-    def getBox(self):
-        warnings.warn("The getBox function is deprecated in favor "
-                      "of the box class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.box
 
     def reset(self):
         R"""Resets the values of the correlation function histogram in
@@ -187,14 +166,8 @@ cdef class FloatCF:
         """
         self.thisptr.reset()
 
-    def resetCorrelationFunction(self):
-        warnings.warn("Use .reset() instead of this method. "
-                      "This method will be removed in the future.",
-                      FreudDeprecationWarning)
-        self.reset()
-
     def compute(self, box, ref_points, ref_values, points=None, values=None,
-                nlist=None, refValues=None):
+                nlist=None):
         R"""Calculates the correlation function for the given points. Will
         overwrite the current histogram.
 
@@ -215,21 +188,9 @@ cdef class FloatCF:
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
         """
-        if refValues is not None:
-            warnings.warn("Use ref_values instead of refValues. The refValues "
-                          "keyword argument will be removed in the future.",
-                          FreudDeprecationWarning)
-            ref_values = refValues
-
         self.reset()
         self.accumulate(box, ref_points, ref_values, points, values, nlist)
         return self
-
-    def reduceCorrelationFunction(self):
-        warnings.warn("This method is automatically called internally. It "
-                      "will be removed in the future.",
-                      FreudDeprecationWarning)
-        self.thisptr.reduceCorrelationFunction()
 
     @property
     def counts(self):
@@ -238,13 +199,6 @@ cdef class FloatCF:
             <unsigned int[:n_bins]> self.thisptr.getCounts().get()
         return np.asarray(counts, dtype=np.uint32)
 
-    def getCounts(self):
-        warnings.warn("The getCounts function is deprecated in favor "
-                      "of the counts class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.counts
-
     @property
     def R(self):
         cdef unsigned int n_bins = self.thisptr.getNBins()
@@ -252,12 +206,6 @@ cdef class FloatCF:
             <float[:n_bins]> self.thisptr.getR().get()
         return np.asarray(R)
 
-    def getR(self):
-        warnings.warn("The getR function is deprecated in favor "
-                      "of the R class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.R
 
 cdef class ComplexCF:
     R"""Computes the complex pairwise correlation function.
@@ -320,7 +268,7 @@ cdef class ComplexCF:
         del self.thisptr
 
     def accumulate(self, box, ref_points, ref_values, points=None, values=None,
-                   nlist=None, refValues=None):
+                   nlist=None):
         R"""Calculates the correlation function and adds to the current
         histogram.
 
@@ -341,12 +289,6 @@ cdef class ComplexCF:
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
         """
-        if refValues is not None:
-            warnings.warn("Use ref_values instead of refValues. The refValues "
-                          "keyword argument will be removed in the future.",
-                          FreudDeprecationWarning)
-            ref_values = refValues
-
         cdef freud.box.Box b = freud.common.convert_box(box)
         if points is None:
             points = ref_points
@@ -400,23 +342,9 @@ cdef class ComplexCF:
             <np.complex128_t[:n_bins]> self.thisptr.getRDF().get()
         return np.asarray(RDF)
 
-    def getRDF(self):
-        warnings.warn("The getRDF function is deprecated in favor "
-                      "of the RDF class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.RDF
-
     @property
     def box(self):
         return freud.box.BoxFromCPP(self.thisptr.getBox())
-
-    def getBox(self):
-        warnings.warn("The getBox function is deprecated in favor "
-                      "of the box class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.box
 
     def reset(self):
         R"""Resets the values of the correlation function histogram in
@@ -424,14 +352,8 @@ cdef class ComplexCF:
         """
         self.thisptr.reset()
 
-    def resetCorrelationFunction(self):
-        warnings.warn("Use .reset() instead of this method. "
-                      "This method will be removed in the future.",
-                      FreudDeprecationWarning)
-        self.reset()
-
     def compute(self, box, ref_points, ref_values, points=None, values=None,
-                nlist=None, refValues=None):
+                nlist=None):
         R"""Calculates the correlation function for the given points. Will
         overwrite the current histogram.
 
@@ -452,21 +374,9 @@ cdef class ComplexCF:
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
         """
-        if refValues is not None:
-            warnings.warn("Use ref_values instead of refValues. The refValues "
-                          "keyword argument will be removed in the future.",
-                          FreudDeprecationWarning)
-            ref_values = refValues
-
         self.reset()
         self.accumulate(box, ref_points, ref_values, points, values, nlist)
         return self
-
-    def reduceCorrelationFunction(self):
-        warnings.warn("This method is automatically called internally. It "
-                      "will be removed in the future.",
-                      FreudDeprecationWarning)
-        self.thisptr.reduceCorrelationFunction()
 
     @property
     def counts(self):
@@ -475,13 +385,6 @@ cdef class ComplexCF:
             <unsigned int[:n_bins]> self.thisptr.getCounts().get()
         return np.asarray(counts, dtype=np.uint32)
 
-    def getCounts(self):
-        warnings.warn("The getCounts function is deprecated in favor "
-                      "of the counts class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.counts
-
     @property
     def R(self):
         cdef unsigned int n_bins = self.thisptr.getNBins()
@@ -489,12 +392,6 @@ cdef class ComplexCF:
             <float[:n_bins]> self.thisptr.getR().get()
         return np.asarray(R)
 
-    def getR(self):
-        warnings.warn("The getR function is deprecated in favor "
-                      "of the R class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.R
 
 cdef class GaussianDensity:
     R"""Computes the density of a system on a grid.
@@ -559,13 +456,6 @@ cdef class GaussianDensity:
     def box(self):
         return freud.box.BoxFromCPP(self.thisptr.getBox())
 
-    def getBox(self):
-        warnings.warn("The getBox function is deprecated in favor "
-                      "of the box class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.box
-
     def compute(self, box, points):
         R"""Calculates the Gaussian blur for the specified points. Does not
         accumulate (will overwrite current image).
@@ -605,12 +495,6 @@ cdef class GaussianDensity:
             array_shape = (width_z, width_y, width_x)
         return np.reshape(np.asarray(density), array_shape)
 
-    def getGaussianDensity(self):
-        warnings.warn("The getGaussianDensity function is deprecated in favor "
-                      "of the gaussian_density class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.gaussian_density
 
 cdef class LocalDensity:
     R"""Computes the local density around a particle.
@@ -682,13 +566,6 @@ cdef class LocalDensity:
     def box(self):
         return freud.box.BoxFromCPP(self.thisptr.getBox())
 
-    def getBox(self):
-        warnings.warn("The getBox function is deprecated in favor "
-                      "of the box class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.box
-
     def compute(self, box, ref_points, points=None, nlist=None):
         R"""Calculates the local density for the specified points. Does not
         accumulate (will overwrite current data).
@@ -743,13 +620,6 @@ cdef class LocalDensity:
             <float[:n_ref]> self.thisptr.getDensity().get()
         return np.asarray(density)
 
-    def getDensity(self):
-        warnings.warn("The getDensity function is deprecated in favor "
-                      "of the density class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.density
-
     @property
     def num_neighbors(self):
         cdef unsigned int n_ref = self.thisptr.getNRef()
@@ -757,12 +627,6 @@ cdef class LocalDensity:
             <float[:n_ref]> self.thisptr.getNumNeighbors().get()
         return np.asarray(num_neighbors)
 
-    def getNumNeighbors(self):
-        warnings.warn("The getNumNeighbors function is deprecated in favor "
-                      "of the num_neighbors class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.num_neighbors
 
 cdef class RDF:
     R"""Computes RDF for supplied data.
@@ -828,13 +692,6 @@ cdef class RDF:
     @property
     def box(self):
         return freud.box.BoxFromCPP(self.thisptr.getBox())
-
-    def getBox(self):
-        warnings.warn("The getBox function is deprecated in favor "
-                      "of the box class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.box
 
     def accumulate(self, box, ref_points, points=None, nlist=None):
         R"""Calculates the RDF and adds to the current RDF histogram.
@@ -903,31 +760,12 @@ cdef class RDF:
         R"""Resets the values of RDF in memory."""
         self.thisptr.reset()
 
-    def resetRDF(self):
-        warnings.warn("Use .reset() instead of this method. "
-                      "This method will be removed in the future.",
-                      FreudDeprecationWarning)
-        self.reset()
-
-    def reduceRDF(self):
-        warnings.warn("This method is automatically called internally. It "
-                      "will be removed in the future.",
-                      FreudDeprecationWarning)
-        self.thisptr.reduceRDF()
-
     @property
     def RDF(self):
         cdef unsigned int n_bins = self.thisptr.getNBins()
         cdef float[::1] RDF = \
             <float[:n_bins]> self.thisptr.getRDF().get()
         return np.asarray(RDF)
-
-    def getRDF(self):
-        warnings.warn("The getRDF function is deprecated in favor "
-                      "of the RDF class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.RDF
 
     @property
     def R(self):
@@ -936,22 +774,8 @@ cdef class RDF:
             <float[:n_bins]> self.thisptr.getR().get()
         return np.asarray(R)
 
-    def getR(self):
-        warnings.warn("The getR function is deprecated in favor "
-                      "of the R class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.R
-
     @property
     def n_r(self):
         cdef unsigned int n_bins = self.thisptr.getNBins()
         cdef float[::1] n_r = <float[:n_bins]> self.thisptr.getNr().get()
         return np.asarray(n_r)
-
-    def getNr(self):
-        warnings.warn("The getNr function is deprecated in favor "
-                      "of the n_r class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.n_r

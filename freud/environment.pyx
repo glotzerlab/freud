@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2018 The Regents of the University of Michigan
+# Copyright (c) 2010-2019 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 R"""
@@ -11,7 +11,6 @@ characterize the particle environment.
 import freud.common
 import numpy as np
 import warnings
-from freud.errors import FreudDeprecationWarning
 import freud.locality
 
 from freud.util._VectorMath cimport vec3, quat
@@ -241,33 +240,13 @@ cdef class BondOrder:
             result = np.zeros((n_bins_phi, n_bins_theta), dtype=np.float32)
         return result
 
-    def getBondOrder(self):
-        warnings.warn("The getBondOrder function is deprecated in favor "
-                      "of the bond_order class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.bond_order
-
     @property
     def box(self):
         return freud.box.BoxFromCPP(self.thisptr.getBox())
 
-    def getBox(self):
-        warnings.warn("The getBox function is deprecated in favor "
-                      "of the box class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.box
-
     def reset(self):
         R"""Resets the values of the bond order in memory."""
         self.thisptr.reset()
-
-    def resetBondOrder(self):
-        warnings.warn("Use .reset() instead of this method. "
-                      "This method will be removed in the future.",
-                      FreudDeprecationWarning)
-        self.reset()
 
     def compute(self, box, ref_points, ref_orientations, points=None,
                 orientations=None, mode="bod", nlist=None):
@@ -300,12 +279,6 @@ cdef class BondOrder:
                         points, orientations, mode, nlist)
         return self
 
-    def reduceBondOrder(self):
-        warnings.warn("This method is automatically called internally. It "
-                      "will be removed in the future.",
-                      FreudDeprecationWarning)
-        self.thisptr.reduceBondOrder()
-
     @property
     def theta(self):
         cdef unsigned int n_bins_theta = self.thisptr.getNBinsTheta()
@@ -314,13 +287,6 @@ cdef class BondOrder:
         cdef float[::1] theta = \
             <float[:n_bins_theta]> self.thisptr.getTheta().get()
         return np.asarray(theta)
-
-    def getTheta(self):
-        warnings.warn("The getTheta function is deprecated in favor "
-                      "of the theta class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.theta
 
     @property
     def phi(self):
@@ -331,34 +297,13 @@ cdef class BondOrder:
             <float[:n_bins_phi]> self.thisptr.getPhi().get()
         return np.asarray(phi)
 
-    def getPhi(self):
-        warnings.warn("The getPhi function is deprecated in favor "
-                      "of the phi class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.phi
-
     @property
     def n_bins_theta(self):
         return self.thisptr.getNBinsTheta()
 
-    def getNBinsTheta(self):
-        warnings.warn("The getNBinsTheta function is deprecated in favor "
-                      "of the n_bins_theta class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.n_bins_theta
-
     @property
     def n_bins_phi(self):
         return self.thisptr.getNBinsPhi()
-
-    def getNBinsPhi(self):
-        warnings.warn("The getNBinsPhi function is deprecated in favor "
-                      "of the n_bins_phi class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.n_bins_phi
 
 
 cdef class LocalDescriptors:
@@ -487,7 +432,6 @@ cdef class LocalDescriptors:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds or :code:`'precomputed'` if
                 using :meth:`~.computeNList` (Default value = :code:`None`).
-                using :meth:`~.computeNList` (Default value = :code:`None`).
         """  # noqa: E501
         cdef freud.box.Box b = freud.common.convert_box(box)
 
@@ -569,45 +513,17 @@ cdef class LocalDescriptors:
             self.thisptr.getSph().get()
         return np.asarray(sph, dtype=np.complex64)
 
-    def getSph(self):
-        warnings.warn("The getSph function is deprecated in favor "
-                      "of the sph class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.sph
-
     @property
     def num_particles(self):
         return self.thisptr.getNP()
-
-    def getNP(self):
-        warnings.warn("The getNP function is deprecated in favor "
-                      "of the num_particles class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.num_particles
 
     @property
     def num_neighbors(self):
         return self.thisptr.getNSphs()
 
-    def getNSphs(self):
-        warnings.warn("The getNSphs function is deprecated in favor "
-                      "of the num_neighbors class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.num_neighbors
-
     @property
     def l_max(self):
         return self.thisptr.getLMax()
-
-    def getLMax(self):
-        warnings.warn("The getLMax function is deprecated in favor "
-                      "of the l_max class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.l_max
 
 
 cdef class MatchEnv:
@@ -941,13 +857,6 @@ cdef class MatchEnv:
             <unsigned int[:n_particles]> self.thisptr.getClusters().get()
         return np.asarray(clusters)
 
-    def getClusters(self):
-        warnings.warn("The getClusters function is deprecated in favor "
-                      "of the clusters class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.clusters
-
     def getEnvironment(self, i):
         R"""Returns the set of vectors defining the environment indexed by i.
 
@@ -977,34 +886,13 @@ cdef class MatchEnv:
                 <float*> self.thisptr.getTotEnvironment().get())
         return np.asarray(tot_environment)
 
-    def getTotEnvironment(self):
-        warnings.warn("The getTotEnvironment function is deprecated in favor "
-                      "of the tot_environment class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.tot_environment
-
     @property
     def num_particles(self):
         return self.thisptr.getNP()
 
-    def getNP(self):
-        warnings.warn("The getNP function is deprecated in favor "
-                      "of the num_particles class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.num_particles
-
     @property
     def num_clusters(self):
         return self.thisptr.getNumClusters()
-
-    def getNumClusters(self):
-        warnings.warn("The getNumClusters function is deprecated in favor "
-                      "of the num_clusters class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.num_clusters
 
 
 cdef class AngularSeparation:
@@ -1031,13 +919,13 @@ cdef class AngularSeparation:
             angles.
         n_global (unsigned int):
             The number of global orientations to check against.
-        neighbor_angles ((:math:`\left(N_{particles}\timesN_{neighbors}, \right)` :class:`numpy.ndarray`):
+        neighbor_angles (:math:`\left(N_{bonds}\right)` :class:`numpy.ndarray`):
             The neighbor angles in radians. **This field is only populated
-            after :meth`~.computeNeighbor` is called.** The angles
+            after** :meth:`~.computeNeighbor` **is called.** The angles
             are stored in the order of the neighborlist object.
         global_angles (:math:`\left(N_{global}, N_{particles} \right)` :class:`numpy.ndarray`):
-            The global angles in radians. **This field is only populated after
-            :meth:`.computeGlobal` is called.** The angles
+            The global angles in radians. **This field is only populated
+            after** :meth:`~.computeGlobal` **is called.** The angles
             are stored in the order of the neighborlist object.
 
     .. todo Need to figure out what happens if you use a neighborlist with
@@ -1135,7 +1023,7 @@ cdef class AngularSeparation:
     def computeGlobal(self, global_ors, ors, equiv_quats):
         R"""Calculates the minimum angles of separation between
         :code:`global_ors` and :code:`ors`, checking for underlying symmetry as
-        encoded in :code`equiv_quats`. The result is stored in the
+        encoded in :code:`equiv_quats`. The result is stored in the
         :code:`global_angles` class attribute.
 
 
@@ -1193,13 +1081,6 @@ cdef class AngularSeparation:
             <float[:n_bonds]> self.thisptr.getNeighborAngles().get()
         return np.asarray(neighbor_angles)
 
-    def getNeighborAngles(self):
-        warnings.warn("The getNeighborAngles function is deprecated in favor "
-                      "of the neighbor_angles class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.neighbor_angles
-
     @property
     def global_angles(self):
         cdef unsigned int n_particles = self.thisptr.getNP()
@@ -1211,45 +1092,17 @@ cdef class AngularSeparation:
             self.thisptr.getGlobalAngles().get()
         return np.asarray(global_angles)
 
-    def getGlobalAngles(self):
-        warnings.warn("The getGlobalAngles function is deprecated in favor "
-                      "of the global_angles class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.global_angles
-
     @property
     def n_p(self):
         return self.thisptr.getNP()
-
-    def getNP(self):
-        warnings.warn("The getNP function is deprecated in favor "
-                      "of the n_p class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.n_p
 
     @property
     def n_ref(self):
         return self.thisptr.getNref()
 
-    def getNReference(self):
-        warnings.warn("The getNReference function is deprecated in favor "
-                      "of the n_ref class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.n_ref
-
     @property
     def n_global(self):
         return self.thisptr.getNglobal()
-
-    def getNGlobal(self):
-        warnings.warn("The getNGlobal function is deprecated in favor "
-                      "of the n_global class attribute and will be "
-                      "removed in a future version of freud.",
-                      FreudDeprecationWarning)
-        return self.n_global
 
 
 cdef class LocalBondProjection:

@@ -20,19 +20,13 @@ class TestLocalDescriptors(unittest.TestCase):
         comp.computeNList(box, positions)
         comp.compute(box, Nneigh, positions)
 
-        self.assertTrue(np.allclose(comp.sph, comp.getSph()))
-        sphs = comp.sph
-
-        self.assertEqual(sphs.shape[0], N*Nneigh)
+        self.assertEqual(comp.sph.shape[0], N*Nneigh)
 
         self.assertEqual(comp.num_particles, positions.shape[0])
-        self.assertEqual(comp.getNP(), positions.shape[0])
 
         self.assertEqual(comp.num_neighbors/comp.num_particles, Nneigh)
-        self.assertEqual(comp.getNSphs()/comp.num_particles, Nneigh)
 
         self.assertEqual(comp.l_max, lmax)
-        self.assertEqual(comp.getLMax(), lmax)
 
     def test_global(self):
         N = 1000

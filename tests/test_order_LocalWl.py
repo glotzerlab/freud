@@ -28,34 +28,33 @@ class TestLocalWl(unittest.TestCase):
         self.assertTrue(np.isclose(
             np.real(np.average(comp.Wl)), -0.0026260, atol=1e-5))
         self.assertTrue(np.allclose(comp.Wl, comp.Wl[0]))
-        self.assertTrue(np.allclose(comp.getWl(), comp.Wl[0]))
 
         comp.computeAve(positions)
         self.assertTrue(np.isclose(
             np.real(np.average(comp.Wl)), -0.0026260, atol=1e-5))
         self.assertTrue(np.allclose(comp.ave_Wl, comp.ave_Wl[0]))
-        self.assertTrue(np.allclose(comp.getAveWl(), comp.Wl[0]))
 
         comp.computeNorm(positions)
         self.assertTrue(np.isclose(
             np.real(np.average(comp.Wl)), -0.0026260, atol=1e-5))
         self.assertTrue(np.allclose(comp.norm_Wl, comp.norm_Wl[0]))
-        self.assertTrue(np.allclose(comp.getWlNorm(), comp.norm_Wl[0]))
 
         comp.computeAveNorm(positions)
         self.assertTrue(np.isclose(
             np.real(np.average(comp.Wl)), -0.0026260, atol=1e-5))
         self.assertTrue(np.allclose(comp.ave_norm_Wl, comp.ave_norm_Wl[0]))
-        self.assertTrue(np.allclose(comp.getWlAveNorm(), comp.ave_norm_Wl[0]))
 
         self.assertEqual(box, comp.box)
-        self.assertEqual(box, comp.getBox())
 
         self.assertEqual(len(positions), comp.num_particles)
-        self.assertEqual(len(positions), comp.getNP())
 
 
 class TestLocalWlNear(unittest.TestCase):
+    def test_init_kwargs(self):
+        """Ensure that keyword arguments are correctly accepted"""
+        box = freud.box.Box.cube(10)
+        comp = freud.order.LocalWlNear(box, 1.5, 6, kn=12)  # noqa: F841
+
     def test_shape(self):
         N = 1000
 
@@ -78,31 +77,25 @@ class TestLocalWlNear(unittest.TestCase):
         self.assertTrue(np.isclose(
             np.real(np.average(comp.Wl)), -0.0026260, atol=1e-5))
         self.assertTrue(np.allclose(comp.Wl, comp.Wl[0]))
-        self.assertTrue(np.allclose(comp.getWl(), comp.Wl[0]))
 
         comp.computeAve(positions)
         self.assertTrue(np.isclose(
             np.real(np.average(comp.Wl)), -0.0026260, atol=1e-5))
         self.assertTrue(np.allclose(comp.ave_Wl, comp.ave_Wl[0]))
-        self.assertTrue(np.allclose(comp.getAveWl(), comp.Wl[0]))
 
         comp.computeNorm(positions)
         self.assertTrue(np.isclose(
             np.real(np.average(comp.Wl)), -0.0026260, atol=1e-5))
         self.assertTrue(np.allclose(comp.norm_Wl, comp.norm_Wl[0]))
-        self.assertTrue(np.allclose(comp.getWlNorm(), comp.norm_Wl[0]))
 
         comp.computeAveNorm(positions)
         self.assertTrue(np.isclose(
             np.real(np.average(comp.Wl)), -0.0026260, atol=1e-5))
         self.assertTrue(np.allclose(comp.ave_norm_Wl, comp.ave_norm_Wl[0]))
-        self.assertTrue(np.allclose(comp.getWlAveNorm(), comp.ave_norm_Wl[0]))
 
         self.assertEqual(box, comp.box)
-        self.assertEqual(box, comp.getBox())
 
         self.assertEqual(len(positions), comp.num_particles)
-        self.assertEqual(len(positions), comp.getNP())
 
 
 if __name__ == '__main__':
