@@ -24,6 +24,16 @@ references:
   load_code: &load_code
     checkout
 
+  load_code_centos: &load_code_centos
+    # For use with old OS that doesn't support clone over ssh
+    run:
+      name: Checkout repository without ssh
+      command: |
+        cd ~/ci/freud
+        git clone ${CIRCLE_REPOSITORY_URL} .
+        git fetch --force origin "refs/tags/${CIRCLE_TAG}"
+        git checkout -q "$CIRCLE_TAG"
+
   get_requirements: &get_requirements
     run:
       name: Install dependencies
@@ -90,7 +100,7 @@ references:
           name: Install software
           working_directory: /root/code
           command: yum install -y openssh-clients
-      - *load_code
+      - *load_code_centos
       - run:
           name: Update freud submodules
           command: |
@@ -181,6 +191,7 @@ references:
 
             # Install from and test all wheels
             for VERSION in ${PY_VERSIONS[@]}; do
+                pyenv global ${VERSION}
                 pip install freud_analysis --no-index -f ~/ci/freud/wheelhouse
                 cd ~/ci/freud/tests
                 python -m unittest discover . -v
