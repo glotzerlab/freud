@@ -31,7 +31,6 @@ references:
       command: |
         cd ~/ci/freud
         git clone ${CIRCLE_REPOSITORY_URL} .
-        export CIRCLE_TAG=v1.0.0  # Hard code for testing
         git fetch --force origin "refs/tags/${CIRCLE_TAG}"
         git checkout -q "$CIRCLE_TAG"
 
