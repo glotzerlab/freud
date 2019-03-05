@@ -49,18 +49,18 @@
         "name": "freud.pmft",
         "sources": [
             "freud/pmft.pyx",
-            "cpp/pmft/PMFTXY2D.cc",
-            "cpp/pmft/PMFT.cc",
-            "cpp/locality/LinkCell.cc",
-            "cpp/pmft/PMFTXYZ.cc",
-            "cpp/box/Box.cc",
             "cpp/pmft/PMFTXYT.cc",
-            "cpp/locality/AABBQuery.cc",
-            "cpp/locality/NearestNeighbors.cc",
             "cpp/locality/NeighborList.cc",
+            "cpp/locality/NearestNeighbors.cc",
+            "cpp/box/Box.cc",
+            "cpp/pmft/PMFT.cc",
+            "cpp/pmft/PMFTR12.cc",
+            "cpp/pmft/PMFTXYZ.cc",
+            "cpp/locality/AABBQuery.cc",
             "cpp/util/HOOMDMatrix.cc",
-            "cpp/locality/NeighborQuery.cc",
-            "cpp/pmft/PMFTR12.cc"
+            "cpp/pmft/PMFTXY2D.cc",
+            "cpp/locality/LinkCell.cc",
+            "cpp/locality/NeighborQuery.cc"
         ]
     },
     "module_name": "freud.pmft"
@@ -1326,12 +1326,12 @@ struct __pyx_obj_5freud_8locality_NeighborQuery {
   freud::locality::NeighborQuery *spdptr;
   bool queryable;
   struct __pyx_obj_5freud_3box_Box *box;
-  __Pyx_memviewslice ref_points;
+  __Pyx_memviewslice points;
 };
 
 
 /* "freud/locality.pxd":15
- *     cdef float[:, ::1] ref_points
+ *     cdef float[:, ::1] points
  * 
  * cdef class NeighborList:             # <<<<<<<<<<<<<<
  *     cdef freud._locality.NeighborList * thisptr
@@ -1551,7 +1551,7 @@ struct __pyx_memoryviewslice_obj {
 
 
 /* "freud/locality.pxd":15
- *     cdef float[:, ::1] ref_points
+ *     cdef float[:, ::1] points
  * 
  * cdef class NeighborList:             # <<<<<<<<<<<<<<
  *     cdef freud._locality.NeighborList * thisptr

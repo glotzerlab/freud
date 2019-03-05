@@ -223,7 +223,7 @@ class TestNeighborQueryAABB(unittest.TestCase):
         points[3] = [2.0, 0.0, 0.0]
 
         aq = locality.AABBQuery(fbox, points)
-        npt.assert_array_equal(aq.ref_points, points)
+        npt.assert_array_equal(aq.points, points)
         self.assertEqual(aq.box, fbox)
 
     def test_no_bonds(self):

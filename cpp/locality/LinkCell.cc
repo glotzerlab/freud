@@ -414,12 +414,17 @@ NeighborPoint LinkCellQueryBallIterator::next()
         }
 
     m_finished = true;
-    return NeighborQuery::ITERATOR_TERMINATOR;
+    return NeighborQueryIterator::ITERATOR_TERMINATOR;
     }
 
 NeighborPoint LinkCellQueryIterator::next()
     {
     vec3<unsigned int> point_cell(m_linkcell->getCellCoord(m_point));
+
+    if (m_finished)
+        {
+        return NeighborQueryIterator::ITERATOR_TERMINATOR;
+        }
 
     // Loop over cell list neighbor shells relative to this point's cell.
     while (true)
@@ -466,6 +471,6 @@ NeighborPoint LinkCellQueryIterator::next()
         }
 
     m_finished = true;
-    return NeighborQuery::ITERATOR_TERMINATOR;
+    return NeighborQueryIterator::ITERATOR_TERMINATOR;
     }
 }; }; // end namespace freud::locality

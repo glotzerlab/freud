@@ -69,7 +69,7 @@ void AABBIterator::updateImageVectors(float rmax)
         (periodic.y && nearest_plane_distance.y <= rmax * 2.0) ||
         (!box.is2D() && periodic.z && nearest_plane_distance.z <= rmax * 2.0))
         {
-        throw std::runtime_error("The AABBData rcut is too large for this box.");
+        throw std::runtime_error("The AABBQuery rcut is too large for this box.");
         }
 
     // Now compute the image vectors
@@ -162,13 +162,13 @@ NeighborPoint AABBQueryBallIterator::next()
                         const vec3<float> drij = pos_j - pos_i_image;
                         const float dr_sq = dot(drij, drij);
 
+                        // Increment before possible return.
+                        cur_p++;
                         if (dr_sq < r_cutsq)
                             {
                             // Return this one. Need to increment for the next call to the function, though.
-                            cur_p++;
                             return NeighborPoint(j, sqrt(dr_sq));
                             }
-                        cur_p++;
                         }
                     }
                 }
@@ -185,7 +185,7 @@ NeighborPoint AABBQueryBallIterator::next()
         } // end loop over images
 
     m_finished = true;
-    return NeighborQuery::ITERATOR_TERMINATOR;
+    return NeighborQueryIterator::ITERATOR_TERMINATOR;
     }
 
 NeighborPoint AABBQueryIterator::next()
@@ -195,10 +195,8 @@ NeighborPoint AABBQueryIterator::next()
 
     if (m_finished)
         {
-        return NeighborQuery::ITERATOR_TERMINATOR;
+        return NeighborQueryIterator::ITERATOR_TERMINATOR;
         }
-
-    //TODO: Make sure to address case where there are NO NEIGHBORS (e.g. empty system). Currently I think that case will result in an infinite loop.
 
     // Make sure we're not calling next with neighbors left to return
     if (!m_current_neighbors.size())
@@ -213,37 +211,24 @@ NeighborPoint AABBQueryIterator::next()
                 {
                 m_current_neighbors.emplace_back(ball_it->next());
                 }
-            // Remove the last item, which is just the blank object
+            // Remove the last item, which is just the terminal sentinel value.
             m_current_neighbors.pop_back();
 
-            // Break if there are enough neighbors
-            if (m_current_neighbors.size() >= m_k)
+            // Break if there are enough neighbors, or if we are querying beyond the limits of the periodic box.
+            m_r *= m_scale;
+            if ((m_current_neighbors.size() >= m_k) || (m_r > min_plane_distance/2))
                 {
+                // Note that we use reverse iterators to sort in descending
+                // order so that we can use pop_back to remove the item from
+                // the vector before returning it.
+                std::sort(m_current_neighbors.rbegin(), m_current_neighbors.rend());
                 break;
-                }
-            else
-                {
-                // Rescale, then check if we should break based on querying too
-                // much space.
-                m_r *= m_scale;
-                if (m_r > min_plane_distance/2)
-                    {
-                    break;
-                    }
                 }
             }
         }
 
     // Now we return all the points found for the current point
-    if (m_current_neighbors.size())
-        {
-        // Slightly inefficient because we're sorting every time, but
-        // should be negligible unless we're querying for very large
-        // numbers of nearest neighbors. Note that we use reverse iterators to
-        // sort in descending order so that we can use pop_back to remove the
-        // item from the vector before returning it.
-        std::sort(m_current_neighbors.rbegin(), m_current_neighbors.rend());
-
+    if (m_current_neighbors.size()) {
         NeighborPoint ret_obj = m_current_neighbors.back();
         m_current_neighbors.pop_back();
 

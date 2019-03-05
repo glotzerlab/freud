@@ -38,12 +38,12 @@
         "name": "freud.msd",
         "sources": [
             "freud/msd.pyx",
-            "cpp/locality/LinkCell.cc",
+            "cpp/locality/NeighborList.cc",
+            "cpp/locality/NearestNeighbors.cc",
             "cpp/box/Box.cc",
             "cpp/locality/AABBQuery.cc",
-            "cpp/locality/NearestNeighbors.cc",
-            "cpp/locality/NeighborList.cc",
             "cpp/util/HOOMDMatrix.cc",
+            "cpp/locality/LinkCell.cc",
             "cpp/locality/NeighborQuery.cc"
         ]
     },

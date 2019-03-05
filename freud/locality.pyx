@@ -54,7 +54,7 @@ cdef class NeighborQuery:
     Attributes:
         box (:class:`freud.box.Box`):
             The box object used by this data structure.
-        ref_points (:class:`np.ndarray`):
+        points (:class:`np.ndarray`):
             The array of points in this data structure.
     """
 
@@ -73,19 +73,23 @@ cdef class NeighborQuery:
         return self.box
 
     @property
-    def ref_points(self):
-        return np.asarray(self.ref_points)
+    def points(self):
+        return np.asarray(self.points)
 
     def query(self, points, unsigned int k=1, exclude_ii=False):
         R"""Query the tree for nearest neighbors of the provided point.
 
         Args:
-            box (:class:`freud.box.Box`):
-                Simulation box.
             points ((:math:`N`, 3) :class:`numpy.ndarray`):
                 Points to query for.
             k (int):
                 The number of nearest neighbors to find.
+            exclude_ii (bool, optional):
+                Set this to :code:`True` if pairs of points with identical
+                indices to those in self.points should be excluded. If this is
+                :code:`None`, it will be treated as :code:`True` if
+                :code:`points` is :code:`None` or the same object as
+                :code:`ref_points` (Defaults to :code:`None`).
 
         Returns:
             (:math:`N`, :math:`k`) :class:`numpy.ndarray`:
@@ -130,12 +134,16 @@ cdef class NeighborQuery:
         R"""Query the tree for all points within a distance r of the provided point(s).
 
         Args:
-            box (:class:`freud.box.Box`):
-                Simulation box.
             points ((:math:`N`, 3) :class:`numpy.ndarray`):
                 Points to query for.
             r (float):
                 The distance within which to find neighbors
+            exclude_ii (bool, optional):
+                Set this to :code:`True` if pairs of points with identical
+                indices to those in self.points should be excluded. If this is
+                :code:`None`, it will be treated as :code:`True` if
+                :code:`points` is :code:`None` or the same object as
+                :code:`ref_points` (Defaults to :code:`None`).
 
         Returns:
             list or list[list]:
@@ -620,24 +628,24 @@ cdef class AABBQuery(NeighborQuery):
     Attributes:
         box (:class:`freud.locality.Box`):
             The simulation box.
-        ref_points (:class:`np.ndarray`):
+        points (:class:`np.ndarray`):
             The points associated with this class.
     """  # noqa: E501
 
-    def __cinit__(self, box, ref_points):
-        cdef float[:, ::1] l_ref_points
+    def __cinit__(self, box, points):
+        cdef float[:, ::1] l_points
         if type(self) is AABBQuery:
             # Assume valid set of arguments is passed
             self.queryable = True
             self.box = freud.common.convert_box(box)
-            self.ref_points = freud.common.convert_array(
-                ref_points.copy(), 2, dtype=np.float32, contiguous=True,
-                array_name="ref_points")
-            l_ref_points = self.ref_points
+            self.points = freud.common.convert_array(
+                points.copy(), 2, dtype=np.float32, contiguous=True,
+                array_name="points")
+            l_points = self.points
             self.thisptr = self.spdptr = new freud._locality.AABBQuery(
                 dereference(self.box.thisptr),
-                <vec3[float]*> &l_ref_points[0, 0],
-                self.ref_points.shape[0])
+                <vec3[float]*> &l_points[0, 0],
+                self.points.shape[0])
 
     def __dealloc__(self):
         if type(self) is AABBQuery:
@@ -755,6 +763,9 @@ cdef class LinkCell(NeighborQuery):
             Simulation box.
         cell_width (float):
             Maximum distance to find particles within.
+        points (:class:`np.ndarray`):
+            The points associated with this class, if used in the new mode
+            (Defaults to None).
 
     Attributes:
         box (:class:`freud.box.Box`):
@@ -791,20 +802,20 @@ cdef class LinkCell(NeighborQuery):
        dens.compute(box, positions, nlist=lc.nlist)
     """
 
-    def __cinit__(self, box, cell_width, ref_points=None):
+    def __cinit__(self, box, cell_width, points=None):
         self.box = freud.common.convert_box(box)
-        cdef float[:, ::1] l_ref_points
-        if ref_points is not None:
+        cdef float[:, ::1] l_points
+        if points is not None:
             # The new API
             self.queryable = True
-            self.ref_points = freud.common.convert_array(
-                ref_points.copy(), 2, dtype=np.float32, contiguous=True,
-                array_name="ref_points")
-            l_ref_points = self.ref_points
+            self.points = freud.common.convert_array(
+                points.copy(), 2, dtype=np.float32, contiguous=True,
+                array_name="points")
+            l_points = self.points
             self.thisptr = self.spdptr = new freud._locality.LinkCell(
                 dereference(self.box.thisptr), float(cell_width),
-                <vec3[float]*> &l_ref_points[0, 0],
-                self.ref_points.shape[0])
+                <vec3[float]*> &l_points[0, 0],
+                self.points.shape[0])
         else:
             # The old API
             self.queryable = False

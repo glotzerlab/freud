@@ -39,11 +39,6 @@ class AABBQuery : public NeighborQuery
         //! Destructor
         ~AABBQuery();
 
-        freud::locality::NeighborList *getNeighborList()
-            {
-            return &m_neighbor_list;
-            }
-
         //! Given a set of points, find the k elements of this data structure
         //  that are the nearest neighbors for each point. Note that due to the
         //  different signature, this is not directly overriding the original
@@ -71,18 +66,11 @@ class AABBQuery : public NeighborQuery
         //! Driver to build AABB trees
         void buildTree(const vec3<float> *ref_points, unsigned int N);
 
-        unsigned int m_Ntotal;
         std::vector<AABB> m_aabbs;               //!< Flat array of AABBs of all types
-        std::vector< vec3<float> > m_image_list; //!< List of translation vectors
-        unsigned int m_n_images;                 //!< The number of image vectors to check
         box::Box m_box;                          //!< Simulation box where the particles belong
-        NeighborList m_neighbor_list;            //!< Stored neighbor list
     };
 
 //! Parent class of AABB iterators that knows how to traverse general AABB tree structures
-/*! placeholder
-
-*/
 class AABBIterator : public NeighborQueryIterator
     {
     public:
@@ -104,9 +92,6 @@ class AABBIterator : public NeighborQueryIterator
     };
 
 //! Iterator that gets nearest neighbors from AABB tree structures
-/*! placeholder
-
-*/
 class AABBQueryIterator : public AABBIterator
     {
     public:
@@ -132,9 +117,6 @@ class AABBQueryIterator : public AABBIterator
     };
 
 //! Iterator that gets neighbors in a ball of size r using AABB tree structures
-/*! placeholder
-
-*/
 class AABBQueryBallIterator : public AABBIterator
     {
     public:

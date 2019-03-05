@@ -22,12 +22,12 @@ cdef extern from "NeighborQuery.h" namespace "freud::locality":
         shared_ptr[NeighborQueryIterator] queryBall(
             const vec3[float], float) nogil except +
         const freud._box.Box & getBox() const
-        const vector[float]* getRefPoints const
+        const vec3[float]* getRefPoints const
         const unsigned int getNRef const
         const vec3[float] operator[](unsigned int) const
 
     NeighborPoint ITERATOR_TERMINATOR \
-        "freud::locality::NeighborQuery::ITERATOR_TERMINATOR"
+        "freud::locality::NeighborQueryIterator::ITERATOR_TERMINATOR"
 
     cdef cppclass NeighborQueryIterator:
         NeighborQueryIterator()
@@ -138,7 +138,6 @@ cdef extern from "AABBQuery.h" namespace "freud::locality":
             const vec3[float]*,
             unsigned int,
             bool) nogil except +
-        NeighborList * getNeighborList()
         shared_ptr[NeighborQueryIterator] query(
             const vec3[float], unsigned int,
             float, float) nogil except +
