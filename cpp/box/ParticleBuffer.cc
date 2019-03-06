@@ -17,10 +17,17 @@ namespace freud { namespace box {
 
 void ParticleBuffer::compute(const vec3<float> *points,
                              const unsigned int Np,
-                             const float buff,
-                             const bool images)
+                             const vec3<float> buff,
+                             const bool use_images)
     {
     assert(points);
+
+    if (buff.x < 0)
+        throw invalid_argument("Buffer x distance must be non-negative.");
+    if (buff.y < 0)
+        throw invalid_argument("Buffer y distance must be non-negative.");
+    if (buff.z < 0)
+        throw invalid_argument("Buffer z distance must be non-negative.");
 
     m_buffer_particles = std::shared_ptr<std::vector< vec3<float> > >(
             new std::vector< vec3<float> >());
@@ -30,51 +37,43 @@ void ParticleBuffer::compute(const vec3<float> *points,
     std::vector< unsigned int >& buffer_ids = *m_buffer_ids;
 
     // Get the box dimensions
-    float lx = m_box.getLx();
-    float ly = m_box.getLy();
-    float lz = m_box.getLz();
+    vec3<float> L(m_box.getL());
     float xy = m_box.getTiltFactorXY();
     float xz = m_box.getTiltFactorXZ();
     float yz = m_box.getTiltFactorYZ();
     bool is2D = m_box.is2D();
-    int ix, iy, iz;
+    vec3<int> images;
 
-    if (images)
+    if (use_images)
         {
-        ix = ceil(buff);
-        iy = ceil(buff);
-        iz = ceil(buff);
-        int n_images = 1 + ceil(buff);
-        m_buffer_box = Box(n_images*lx, n_images*ly, n_images*lz, xy, xz, yz, is2D);
+        images = vec3<int>(1 + ceil(buff.x), 1 + ceil(buff.y), 1 + ceil(buff.z));
+        m_buffer_box = Box(images.x * L.x, images.y * L.y, images.z * L.z, xy, xz, yz, is2D);
         }
     else
         {
-        ix = ceil(buff / lx);
-        iy = ceil(buff / ly);
-        iz = ceil(buff / lz);
-        m_buffer_box = Box(lx+2*buff, ly+2*buff, lz+2*buff, xy, xz, yz, is2D);
+        images = vec3<int>(ceil(buff.x / L.x), ceil(buff.y / L.y), ceil(buff.z / L.z));
+        m_buffer_box = Box(L.x + 2 * buff.x, L.y + 2 * buff.y, L.z + 2 * buff.z, xy, xz, yz, is2D);
         }
 
     if (is2D)
         {
-        iz = 0;
+        L.z = 0;
         xz = 0;
         yz = 0;
-        lz = 0;
+        images.z = 0;
         }
 
-    vec3<float> img;
     buffer_parts.clear();
     buffer_ids.clear();
 
     // for each particle
     for (unsigned int particle = 0; particle < Np; particle++)
         {
-        for (int i=-ix; i<=ix; i++)
+        for (int i=-images.x; i<=images.x; i++)
             {
-            for (int j=-iy; j<=iy; j++)
+            for (int j=-images.y; j<=images.y; j++)
                 {
-                for (int k=-iz; k<=iz; k++)
+                for (int k=-images.z; k<=images.z; k++)
                     {
                     if (i != 0 || j != 0 || k != 0)
                         {
@@ -82,13 +81,13 @@ void ParticleBuffer::compute(const vec3<float> *points,
                         frac.x += i;
                         frac.y += j;
                         frac.z += k;
-                        vec3<float> img = m_box.makeCoordinates(frac);
-                        vec3<float> buff_frac = m_buffer_box.makeFraction(img);
+                        vec3<float> particle_image = m_box.makeCoordinates(frac);
+                        vec3<float> buff_frac = m_buffer_box.makeFraction(particle_image);
                         if (0 <= buff_frac.x && buff_frac.x < 1 &&
                             0 <= buff_frac.y && buff_frac.y < 1 &&
                             (is2D || (0 <= buff_frac.z && buff_frac.z < 1)))
                             {
-                            buffer_parts.push_back(img);
+                            buffer_parts.push_back(particle_image);
                             buffer_ids.push_back(particle);
                             }
                         }

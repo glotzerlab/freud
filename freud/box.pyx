@@ -696,7 +696,8 @@ cdef class ParticleBuffer:
                 'Need a list of 3D points for ParticleBuffer.compute()')
         cdef float[:, ::1] l_points = points
         cdef unsigned int Np = l_points.shape[0]
-        self.thisptr.compute(<vec3[float]*> &l_points[0, 0], Np, buffer,
+        cdef vec3[float] buffer_vec = vec3[float](buffer, buffer, buffer)
+        self.thisptr.compute(<vec3[float]*> &l_points[0, 0], Np, buffer_vec,
                              images)
         return self
 
