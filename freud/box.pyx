@@ -661,13 +661,13 @@ cdef class ParticleBuffer:
         box (:py:class:`freud.box.Box`): Simulation box.
 
     Attributes:
-        buffer_particles (:class:`numpy.ndarray`):
-            The buffer particles.
-        buffer_ids (:class:`numpy.ndarray`):
-            The buffer ids.
+        buffer_particles (:math:`\left(N_{buffer}, 3\right)` :class:`numpy.ndarray`):
+            The buffer particle positions.
+        buffer_ids (:math:`\left(N_{buffer}\right)` :class:`numpy.ndarray`):
+            The buffer particle ids.
         buffer_box (:class:`freud.box.Box`):
             The buffer box, expanded to hold the replicated particles.
-    """
+    """ # noqa: E501
 
     def __cinit__(self, box):
         cdef Box b = freud.common.convert_box(box)
