@@ -673,13 +673,13 @@ cdef class ParticleBuffer:
         cdef Box b = freud.common.convert_box(box)
         self.thisptr = new freud._box.ParticleBuffer(dereference(b.thisptr))
 
-    def compute(self, points, float buffer, bool_t images=False):
+    def compute(self, points, buffer, bool_t images=False):
         R"""Compute the particle buffer.
 
         Args:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Points used to calculate particle buffer.
-            buffer (float):
+            buffer (float or list of 3 floats):
                 Buffer distance for replication outside the box.
             images (bool):
                 If ``False`` (default), ``buffer`` is a distance. If ``True``,
@@ -696,7 +696,11 @@ cdef class ParticleBuffer:
                 'Need a list of 3D points for ParticleBuffer.compute()')
         cdef float[:, ::1] l_points = points
         cdef unsigned int Np = l_points.shape[0]
-        cdef vec3[float] buffer_vec = vec3[float](buffer, buffer, buffer)
+        cdef vec3[float] buffer_vec
+        try:
+            buffer_vec = vec3[float](buffer[0], buffer[1], buffer[2])
+        except TypeError:
+            buffer_vec = vec3[float](buffer, buffer, buffer)
         self.thisptr.compute(<vec3[float]*> &l_points[0, 0], Np, buffer_vec,
                              images)
         return self
