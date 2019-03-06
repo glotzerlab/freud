@@ -19,10 +19,20 @@ class TestParticleBuffer(unittest.TestCase):
         # Add a z-component of 0
         positions = np.insert(positions, 2, 0, axis=1).astype(np.float32)
 
+        # Compute with zero buffer distance
+        pbuff.compute(positions, buffer=0, images=False)
+        self.assertEqual(len(pbuff.buffer_particles), 0)
+        npt.assert_array_equal(pbuff.buffer_box.L, np.asarray(fbox.L))
+
         # Compute with buffer distances
         pbuff.compute(positions, buffer=0.5*L, images=False)
         self.assertEqual(len(pbuff.buffer_particles), 3 * N)
         npt.assert_array_equal(pbuff.buffer_box.L, 2 * np.asarray(fbox.L))
+
+        # Compute with zero images
+        pbuff.compute(positions, buffer=0, images=True)
+        self.assertEqual(len(pbuff.buffer_particles), 0)
+        npt.assert_array_equal(pbuff.buffer_box.L, np.asarray(fbox.L))
 
         # Compute with images
         pbuff.compute(positions, buffer=1, images=True)
@@ -40,10 +50,20 @@ class TestParticleBuffer(unittest.TestCase):
         # Generate random points in the box
         positions = np.random.uniform(-L/2, L/2, size=(N, 3))
 
+        # Compute with zero buffer distance
+        pbuff.compute(positions, buffer=0, images=False)
+        self.assertEqual(len(pbuff.buffer_particles), 0)
+        npt.assert_array_equal(pbuff.buffer_box.L, np.asarray(fbox.L))
+
         # Compute with buffer distances
         pbuff.compute(positions, buffer=0.5*L, images=False)
         self.assertEqual(len(pbuff.buffer_particles), 7 * N)
         npt.assert_array_equal(pbuff.buffer_box.L, 2 * np.asarray(fbox.L))
+
+        # Compute with zero images
+        pbuff.compute(positions, buffer=0, images=True)
+        self.assertEqual(len(pbuff.buffer_particles), 0)
+        npt.assert_array_equal(pbuff.buffer_box.L, np.asarray(fbox.L))
 
         # Compute with images
         pbuff.compute(positions, buffer=1, images=True)
@@ -63,6 +83,11 @@ class TestParticleBuffer(unittest.TestCase):
         # Convert fractional coordinates to real coordinates
         positions = np.asarray(list(map(fbox.makeCoordinates, positions)))
         positions = fbox.wrap(positions)
+
+        # Compute with zero images
+        pbuff.compute(positions, buffer=0, images=True)
+        self.assertEqual(len(pbuff.buffer_particles), 0)
+        npt.assert_array_equal(pbuff.buffer_box.L, np.asarray(fbox.L))
 
         # Compute with images
         pbuff.compute(positions, buffer=2, images=True)
