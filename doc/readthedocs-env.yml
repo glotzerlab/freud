@@ -36,7 +36,7 @@ dependencies:
   - libstdcxx-ng=7.3.0=hdf63c60_0
   - markupsafe=1.1.0=py37h14c3975_1000
   - mistune=0.8.4=py37h14c3975_1000
-  - nbconvert=5.3.1=py_1
+  - nbconvert=5.4.1=py_1
   - nbformat=4.4.0=py_1
   - nbsphinx=0.4.2=py_0
   - ncurses=6.1=hf484d3e_1002
