@@ -667,7 +667,7 @@ cdef class ParticleBuffer:
             The buffer particle ids.
         buffer_box (:class:`freud.box.Box`):
             The buffer box, expanded to hold the replicated particles.
-    """ # noqa: E501
+    """  # noqa: E501
 
     def __cinit__(self, box):
         cdef Box b = freud.common.convert_box(box)
