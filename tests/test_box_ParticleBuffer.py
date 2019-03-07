@@ -32,7 +32,8 @@ class TestParticleBuffer(unittest.TestCase):
         # Compute with different buffer distances
         pbuff.compute(positions, buffer=[L, 0, 0], images=False)
         self.assertEqual(len(pbuff.buffer_particles), 2 * N)
-        npt.assert_array_equal(pbuff.buffer_box.L, fbox.L * np.array([3, 1, 1]))
+        npt.assert_array_equal(pbuff.buffer_box.L,
+                               fbox.L * np.array([3, 1, 1]))
 
         # Compute with zero images
         pbuff.compute(positions, buffer=0, images=True)
@@ -47,7 +48,8 @@ class TestParticleBuffer(unittest.TestCase):
         # Compute with different images
         pbuff.compute(positions, buffer=[1, 0, 0], images=True)
         self.assertEqual(len(pbuff.buffer_particles), N)
-        npt.assert_array_equal(pbuff.buffer_box.L, fbox.L * np.array([2, 1, 1]))
+        npt.assert_array_equal(pbuff.buffer_box.L,
+                               fbox.L * np.array([2, 1, 1]))
 
     def test_cube(self):
         L = 10  # Box length
@@ -73,7 +75,8 @@ class TestParticleBuffer(unittest.TestCase):
         # Compute with different buffer distances
         pbuff.compute(positions, buffer=[L, 0, L], images=False)
         self.assertEqual(len(pbuff.buffer_particles), 8 * N)
-        npt.assert_array_equal(pbuff.buffer_box.L, fbox.L * np.array([3, 1, 3]))
+        npt.assert_array_equal(pbuff.buffer_box.L,
+                               fbox.L * np.array([3, 1, 3]))
 
         # Compute with zero images
         pbuff.compute(positions, buffer=0, images=True)
@@ -88,7 +91,8 @@ class TestParticleBuffer(unittest.TestCase):
         # Compute with different images
         pbuff.compute(positions, buffer=[1, 0, 1], images=True)
         self.assertEqual(len(pbuff.buffer_particles), 3 * N)
-        npt.assert_array_equal(pbuff.buffer_box.L, fbox.L * np.array([2, 1, 2]))
+        npt.assert_array_equal(pbuff.buffer_box.L,
+                               fbox.L * np.array([2, 1, 2]))
 
     def test_triclinic(self):
         N = 50  # Number of particles
@@ -117,7 +121,8 @@ class TestParticleBuffer(unittest.TestCase):
         # Compute with different images
         pbuff.compute(positions, buffer=[1, 0, 1], images=True)
         self.assertEqual(len(pbuff.buffer_particles), 3 * N)
-        npt.assert_array_equal(pbuff.buffer_box.L, fbox.L * np.array([2, 1, 2]))
+        npt.assert_array_equal(pbuff.buffer_box.L,
+                               fbox.L * np.array([2, 1, 2]))
 
 
 if __name__ == '__main__':
