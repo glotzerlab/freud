@@ -696,11 +696,16 @@ cdef class ParticleBuffer:
                 'Need a list of 3D points for ParticleBuffer.compute()')
         cdef float[:, ::1] l_points = points
         cdef unsigned int Np = l_points.shape[0]
+
         cdef vec3[float] buffer_vec
-        try:
-            buffer_vec = vec3[float](buffer[0], buffer[1], buffer[2])
-        except IndexError:
+        if np.ndim(buffer) == 0:
+            # catches more cases than np.isscalar
             buffer_vec = vec3[float](buffer, buffer, buffer)
+        elif len(buffer) == 3:
+            buffer_vec = vec3[float](buffer[0], buffer[1], buffer[2])
+        else:
+            raise ValueError('buffer must be a scalar or have length 3.')
+
         self.thisptr.compute(<vec3[float]*> &l_points[0, 0], Np, buffer_vec,
                              images)
         return self
