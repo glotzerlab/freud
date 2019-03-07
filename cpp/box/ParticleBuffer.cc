@@ -46,13 +46,17 @@ void ParticleBuffer::compute(const vec3<float> *points,
 
     if (use_images)
         {
-        images = vec3<int>(1 + ceil(buff.x), 1 + ceil(buff.y), 1 + ceil(buff.z));
-        m_buffer_box = Box(images.x * L.x, images.y * L.y, images.z * L.z, xy, xz, yz, is2D);
+        images = vec3<int>(ceil(buff.x), ceil(buff.y), ceil(buff.z));
+        m_buffer_box = Box((1 + images.x) * L.x,
+                           (1 + images.y) * L.y,
+                           (1 + images.z) * L.z, xy, xz, yz, is2D);
         }
     else
         {
         images = vec3<int>(ceil(buff.x / L.x), ceil(buff.y / L.y), ceil(buff.z / L.z));
-        m_buffer_box = Box(L.x + 2 * buff.x, L.y + 2 * buff.y, L.z + 2 * buff.z, xy, xz, yz, is2D);
+        m_buffer_box = Box(L.x + 2 * buff.x,
+                           L.y + 2 * buff.y,
+                           L.z + 2 * buff.z, xy, xz, yz, is2D);
         }
 
     if (is2D)
