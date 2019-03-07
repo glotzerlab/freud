@@ -699,7 +699,7 @@ cdef class ParticleBuffer:
         cdef vec3[float] buffer_vec
         try:
             buffer_vec = vec3[float](buffer[0], buffer[1], buffer[2])
-        except TypeError:
+        except IndexError:
             buffer_vec = vec3[float](buffer, buffer, buffer)
         self.thisptr.compute(<vec3[float]*> &l_points[0, 0], Np, buffer_vec,
                              images)
