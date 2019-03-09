@@ -46,27 +46,15 @@
         "name": "freud.cluster",
         "sources": [
             "freud/cluster.pyx",
-<<<<<<< HEAD
+            "cpp/locality/NearestNeighbors.cc",
+            "cpp/locality/LinkCell.cc",
             "cpp/locality/NeighborList.cc",
-            "cpp/locality/NearestNeighbors.cc",
-            "cpp/box/Box.cc",
-            "cpp/cluster/ClusterProperties.cc",
-            "cpp/locality/AABBQuery.cc",
-            "cpp/util/HOOMDMatrix.cc",
             "cpp/cluster/Cluster.cc",
-            "cpp/locality/LinkCell.cc",
-            "cpp/locality/NeighborQuery.cc"
-=======
-            "cpp/cluster/Cluster.cc",
-            "cpp/locality/NearestNeighbors.cc",
-            "cpp/locality/LinkCell.cc",
-            "cpp/locality/AABBQuery.cc",
             "cpp/locality/NeighborQuery.cc",
-            "cpp/box/Box.cc",
             "cpp/cluster/ClusterProperties.cc",
-            "cpp/util/HOOMDMatrix.cc",
-            "cpp/locality/NeighborList.cc"
->>>>>>> Working generator
+            "cpp/box/Box.cc",
+            "cpp/locality/AABBQuery.cc",
+            "cpp/util/HOOMDMatrix.cc"
         ]
     },
     "module_name": "freud.cluster"
@@ -1266,12 +1254,12 @@ struct __pyx_memoryview_obj;
 struct __pyx_memoryviewslice_obj;
 struct __pyx_opt_args_5freud_8locality_19NeighborQueryResult_init;
 
-/* "freud/locality.pxd":20
+/* "freud/locality.pxd":21
  * 
  *     @staticmethod
- *     cdef inline NeighborQueryResult init(freud._locality.NeighborQuery * spdptr, float[:, ::1] points, cbool exclude_ii, float r=0, unsigned int k=0):             # <<<<<<<<<<<<<<
- *         # Internal API only
- *         assert r != 0 or k != 0
+ *     cdef inline NeighborQueryResult init(             # <<<<<<<<<<<<<<
+ *             freud._locality.NeighborQuery * spdptr, float[:, ::1] points,
+ *             cbool exclude_ii, float r=0, unsigned int k=0):
  */
 struct __pyx_opt_args_5freud_8locality_19NeighborQueryResult_init {
   int __pyx_n;
@@ -1357,10 +1345,11 @@ struct __pyx_obj_5freud_8locality_NeighborQueryResult {
   unsigned int k;
   unsigned int Np;
   bool exclude_ii;
+  PyObject *query_type;
 };
 
 
-/* "freud/locality.pxd":40
+/* "freud/locality.pxd":45
  * 
  * 
  * cdef class AABBQueryResult(NeighborQueryResult):             # <<<<<<<<<<<<<<
@@ -1375,7 +1364,7 @@ struct __pyx_obj_5freud_8locality_AABBQueryResult {
 };
 
 
-/* "freud/locality.pxd":55
+/* "freud/locality.pxd":78
  * 
  * 
  * cdef class NeighborQuery:             # <<<<<<<<<<<<<<
@@ -1391,13 +1380,8 @@ struct __pyx_obj_5freud_8locality_NeighborQuery {
 };
 
 
-<<<<<<< HEAD
-/* "freud/locality.pxd":15
+/* "freud/locality.pxd":84
  *     cdef float[:, ::1] points
-=======
-/* "freud/locality.pxd":61
- *     cdef float[:, ::1] ref_points
->>>>>>> Working generator
  * 
  * cdef class NeighborList:             # <<<<<<<<<<<<<<
  *     cdef freud._locality.NeighborList * thisptr
@@ -1412,7 +1396,7 @@ struct __pyx_obj_5freud_8locality_NeighborList {
 };
 
 
-/* "freud/locality.pxd":70
+/* "freud/locality.pxd":93
  *     cdef void copy_c(self, NeighborList other)
  * 
  * cdef class IteratorLinkCell:             # <<<<<<<<<<<<<<
@@ -1426,7 +1410,7 @@ struct __pyx_obj_5freud_8locality_IteratorLinkCell {
 };
 
 
-/* "freud/locality.pxd":75
+/* "freud/locality.pxd":98
  *     cdef void copy(self, const freud._locality.IteratorLinkCell & rhs)
  * 
  * cdef class LinkCell(NeighborQuery):             # <<<<<<<<<<<<<<
@@ -1440,7 +1424,7 @@ struct __pyx_obj_5freud_8locality_LinkCell {
 };
 
 
-/* "freud/locality.pxd":79
+/* "freud/locality.pxd":102
  *     cdef NeighborList _nlist
  * 
  * cdef class NearestNeighbors:             # <<<<<<<<<<<<<<
@@ -1457,7 +1441,7 @@ struct __pyx_obj_5freud_8locality_NearestNeighbors {
 };
 
 
-/* "freud/locality.pxd":86
+/* "freud/locality.pxd":109
  *     cdef _cached_box
  * 
  * cdef class AABBQuery(NeighborQuery):             # <<<<<<<<<<<<<<
@@ -1578,10 +1562,6 @@ struct __pyx_memoryviewslice_obj {
 
 
 
-<<<<<<< HEAD
-/* "freud/locality.pxd":15
- *     cdef float[:, ::1] points
-=======
 /* "freud/locality.pxd":10
  * cimport freud.box
  * 
@@ -1597,7 +1577,7 @@ static struct __pyx_vtabstruct_5freud_8locality_NeighborQueryResult *__pyx_vtabp
 static CYTHON_INLINE struct __pyx_obj_5freud_8locality_NeighborQueryResult *__pyx_f_5freud_8locality_19NeighborQueryResult_init(freud::locality::NeighborQuery *, __Pyx_memviewslice, bool, struct __pyx_opt_args_5freud_8locality_19NeighborQueryResult_init *__pyx_optional_args);
 
 
-/* "freud/locality.pxd":40
+/* "freud/locality.pxd":45
  * 
  * 
  * cdef class AABBQueryResult(NeighborQueryResult):             # <<<<<<<<<<<<<<
@@ -1613,9 +1593,8 @@ static struct __pyx_vtabstruct_5freud_8locality_AABBQueryResult *__pyx_vtabptr_5
 static CYTHON_INLINE struct __pyx_obj_5freud_8locality_AABBQueryResult *__pyx_f_5freud_8locality_15AABBQueryResult_init2(freud::locality::AABBQuery *, __Pyx_memviewslice, bool, unsigned int, float, float);
 
 
-/* "freud/locality.pxd":61
- *     cdef float[:, ::1] ref_points
->>>>>>> Working generator
+/* "freud/locality.pxd":84
+ *     cdef float[:, ::1] points
  * 
  * cdef class NeighborList:             # <<<<<<<<<<<<<<
  *     cdef freud._locality.NeighborList * thisptr
@@ -1630,7 +1609,7 @@ struct __pyx_vtabstruct_5freud_8locality_NeighborList {
 static struct __pyx_vtabstruct_5freud_8locality_NeighborList *__pyx_vtabptr_5freud_8locality_NeighborList;
 
 
-/* "freud/locality.pxd":70
+/* "freud/locality.pxd":93
  *     cdef void copy_c(self, NeighborList other)
  * 
  * cdef class IteratorLinkCell:             # <<<<<<<<<<<<<<
@@ -1903,8 +1882,6 @@ static CYTHON_INLINE int __pyx_sub_acquisition_count_locked(
 static CYTHON_INLINE void __Pyx_INC_MEMVIEW(__Pyx_memviewslice *, int, int);
 static CYTHON_INLINE void __Pyx_XDEC_MEMVIEW(__Pyx_memviewslice *, int, int);
 
-<<<<<<< HEAD
-=======
 /* PyObjectCallNoArg.proto */
 #if CYTHON_COMPILING_IN_CPYTHON
 static CYTHON_INLINE PyObject* __Pyx_PyObject_CallNoArg(PyObject *func);
@@ -1912,16 +1889,6 @@ static CYTHON_INLINE PyObject* __Pyx_PyObject_CallNoArg(PyObject *func);
 #define __Pyx_PyObject_CallNoArg(func) __Pyx_PyObject_Call(func, __pyx_empty_tuple, NULL)
 #endif
 
-/* PyObjectSetAttrStr.proto */
-#if CYTHON_USE_TYPE_SLOTS
-#define __Pyx_PyObject_DelAttrStr(o,n) __Pyx_PyObject_SetAttrStr(o, n, NULL)
-static CYTHON_INLINE int __Pyx_PyObject_SetAttrStr(PyObject* obj, PyObject* attr_name, PyObject* value);
-#else
-#define __Pyx_PyObject_DelAttrStr(o,n)   PyObject_DelAttr(o,n)
-#define __Pyx_PyObject_SetAttrStr(o,n,v) PyObject_SetAttr(o,n,v)
-#endif
-
->>>>>>> Working generator
 /* DictGetItem.proto */
 #if PY_MAJOR_VERSION >= 3 && !CYTHON_COMPILING_IN_PYPY
 static PyObject *__Pyx_PyDict_GetItem(PyObject *d, PyObject* key);
@@ -2765,7 +2732,6 @@ static const char __pyx_k_ValueError[] = "ValueError";
 static const char __pyx_k_contiguous[] = "contiguous";
 static const char __pyx_k_pyx_result[] = "__pyx_result";
 static const char __pyx_k_pyx_vtable[] = "__pyx_vtable__";
-static const char __pyx_k_query_type[] = "query_type";
 static const char __pyx_k_ImportError[] = "ImportError";
 static const char __pyx_k_MemoryError[] = "MemoryError";
 static const char __pyx_k_PickleError[] = "PickleError";
@@ -2965,7 +2931,6 @@ static PyObject *__pyx_n_s_pyx_state;
 static PyObject *__pyx_n_s_pyx_type;
 static PyObject *__pyx_n_s_pyx_unpickle_Enum;
 static PyObject *__pyx_n_s_pyx_vtable;
-static PyObject *__pyx_n_s_query_type;
 static PyObject *__pyx_n_s_range;
 static PyObject *__pyx_n_s_rcut;
 static PyObject *__pyx_n_s_reduce;
@@ -6362,15 +6327,12 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_8__setstate_cython
   return __pyx_r;
 }
 
-<<<<<<< HEAD
-/* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":215
-=======
-/* "freud/locality.pxd":20
+/* "freud/locality.pxd":21
  * 
  *     @staticmethod
- *     cdef inline NeighborQueryResult init(freud._locality.NeighborQuery * spdptr, float[:, ::1] points, cbool exclude_ii, float r=0, unsigned int k=0):             # <<<<<<<<<<<<<<
- *         # Internal API only
- *         assert r != 0 or k != 0
+ *     cdef inline NeighborQueryResult init(             # <<<<<<<<<<<<<<
+ *             freud._locality.NeighborQuery * spdptr, float[:, ::1] points,
+ *             cbool exclude_ii, float r=0, unsigned int k=0):
  */
 
 static CYTHON_INLINE struct __pyx_obj_5freud_8locality_NeighborQueryResult *__pyx_f_5freud_8locality_19NeighborQueryResult_init(freud::locality::NeighborQuery *__pyx_v_spdptr, __Pyx_memviewslice __pyx_v_points, bool __pyx_v_exclude_ii, struct __pyx_opt_args_5freud_8locality_19NeighborQueryResult_init *__pyx_optional_args) {
@@ -6392,8 +6354,8 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_NeighborQueryResult *__py
     }
   }
 
-  /* "freud/locality.pxd":22
- *     cdef inline NeighborQueryResult init(freud._locality.NeighborQuery * spdptr, float[:, ::1] points, cbool exclude_ii, float r=0, unsigned int k=0):
+  /* "freud/locality.pxd":25
+ *             cbool exclude_ii, float r=0, unsigned int k=0):
  *         # Internal API only
  *         assert r != 0 or k != 0             # <<<<<<<<<<<<<<
  * 
@@ -6412,24 +6374,24 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_NeighborQueryResult *__py
     __pyx_L3_bool_binop_done:;
     if (unlikely(!__pyx_t_1)) {
       PyErr_SetNone(PyExc_AssertionError);
-      __PYX_ERR(2, 22, __pyx_L1_error)
+      __PYX_ERR(2, 25, __pyx_L1_error)
     }
   }
   #endif
 
-  /* "freud/locality.pxd":24
+  /* "freud/locality.pxd":27
  *         assert r != 0 or k != 0
  * 
  *         obj = NeighborQueryResult()             # <<<<<<<<<<<<<<
  * 
  *         obj.spdptr = spdptr
  */
-  __pyx_t_3 = __Pyx_PyObject_CallNoArg(((PyObject *)__pyx_ptype_5freud_8locality_NeighborQueryResult)); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 24, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_CallNoArg(((PyObject *)__pyx_ptype_5freud_8locality_NeighborQueryResult)); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 27, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_v_obj = ((struct __pyx_obj_5freud_8locality_NeighborQueryResult *)__pyx_t_3);
   __pyx_t_3 = 0;
 
-  /* "freud/locality.pxd":26
+  /* "freud/locality.pxd":29
  *         obj = NeighborQueryResult()
  * 
  *         obj.spdptr = spdptr             # <<<<<<<<<<<<<<
@@ -6438,7 +6400,7 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_NeighborQueryResult *__py
  */
   __pyx_v_obj->spdptr = __pyx_v_spdptr;
 
-  /* "freud/locality.pxd":27
+  /* "freud/locality.pxd":30
  * 
  *         obj.spdptr = spdptr
  *         obj.points = points             # <<<<<<<<<<<<<<
@@ -6449,7 +6411,7 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_NeighborQueryResult *__py
   __PYX_INC_MEMVIEW(&__pyx_v_points, 0);
   __pyx_v_obj->points = __pyx_v_points;
 
-  /* "freud/locality.pxd":28
+  /* "freud/locality.pxd":31
  *         obj.spdptr = spdptr
  *         obj.points = points
  *         obj.exclude_ii = exclude_ii             # <<<<<<<<<<<<<<
@@ -6458,7 +6420,7 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_NeighborQueryResult *__py
  */
   __pyx_v_obj->exclude_ii = __pyx_v_exclude_ii;
 
-  /* "freud/locality.pxd":29
+  /* "freud/locality.pxd":32
  *         obj.points = points
  *         obj.exclude_ii = exclude_ii
  *         obj.Np = points.shape[0]             # <<<<<<<<<<<<<<
@@ -6467,7 +6429,7 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_NeighborQueryResult *__py
  */
   __pyx_v_obj->Np = (__pyx_v_points.shape[0]);
 
-  /* "freud/locality.pxd":31
+  /* "freud/locality.pxd":34
  *         obj.Np = points.shape[0]
  * 
  *         obj.r = r             # <<<<<<<<<<<<<<
@@ -6476,7 +6438,7 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_NeighborQueryResult *__py
  */
   __pyx_v_obj->r = __pyx_v_r;
 
-  /* "freud/locality.pxd":32
+  /* "freud/locality.pxd":35
  * 
  *         obj.r = r
  *         obj.k = k             # <<<<<<<<<<<<<<
@@ -6485,58 +6447,76 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_NeighborQueryResult *__py
  */
   __pyx_v_obj->k = __pyx_v_k;
 
-  /* "freud/locality.pxd":34
+  /* "freud/locality.pxd":37
  *         obj.k = k
  * 
  *         if obj.r != 0:             # <<<<<<<<<<<<<<
- *             obj.query_type = 'nn'
+ *             obj.query_type = 'ball'
  *         else:
  */
   __pyx_t_1 = ((__pyx_v_obj->r != 0.0) != 0);
   if (__pyx_t_1) {
 
-    /* "freud/locality.pxd":35
+    /* "freud/locality.pxd":38
  * 
  *         if obj.r != 0:
- *             obj.query_type = 'nn'             # <<<<<<<<<<<<<<
+ *             obj.query_type = 'ball'             # <<<<<<<<<<<<<<
  *         else:
- *             obj.query_type = 'ball'
+ *             obj.query_type = 'nn'
  */
-    if (__Pyx_PyObject_SetAttrStr(((PyObject *)__pyx_v_obj), __pyx_n_s_query_type, __pyx_n_s_nn) < 0) __PYX_ERR(2, 35, __pyx_L1_error)
+    __Pyx_INCREF(__pyx_n_s_ball);
+    __Pyx_GIVEREF(__pyx_n_s_ball);
+    __Pyx_GOTREF(__pyx_v_obj->query_type);
+    __Pyx_DECREF(__pyx_v_obj->query_type);
+    __pyx_v_obj->query_type = __pyx_n_s_ball;
 
-    /* "freud/locality.pxd":34
+    /* "freud/locality.pxd":37
  *         obj.k = k
  * 
  *         if obj.r != 0:             # <<<<<<<<<<<<<<
- *             obj.query_type = 'nn'
+ *             obj.query_type = 'ball'
  *         else:
  */
     goto __pyx_L5;
   }
 
-  /* "freud/locality.pxd":37
- *             obj.query_type = 'nn'
+  /* "freud/locality.pxd":40
+ *             obj.query_type = 'ball'
  *         else:
- *             obj.query_type = 'ball'             # <<<<<<<<<<<<<<
+ *             obj.query_type = 'nn'             # <<<<<<<<<<<<<<
  * 
- * 
+ *         return obj
  */
   /*else*/ {
-    if (__Pyx_PyObject_SetAttrStr(((PyObject *)__pyx_v_obj), __pyx_n_s_query_type, __pyx_n_s_ball) < 0) __PYX_ERR(2, 37, __pyx_L1_error)
+    __Pyx_INCREF(__pyx_n_s_nn);
+    __Pyx_GIVEREF(__pyx_n_s_nn);
+    __Pyx_GOTREF(__pyx_v_obj->query_type);
+    __Pyx_DECREF(__pyx_v_obj->query_type);
+    __pyx_v_obj->query_type = __pyx_n_s_nn;
   }
   __pyx_L5:;
 
-  /* "freud/locality.pxd":20
+  /* "freud/locality.pxd":42
+ *             obj.query_type = 'nn'
+ * 
+ *         return obj             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __Pyx_XDECREF(((PyObject *)__pyx_r));
+  __Pyx_INCREF(((PyObject *)__pyx_v_obj));
+  __pyx_r = __pyx_v_obj;
+  goto __pyx_L0;
+
+  /* "freud/locality.pxd":21
  * 
  *     @staticmethod
- *     cdef inline NeighborQueryResult init(freud._locality.NeighborQuery * spdptr, float[:, ::1] points, cbool exclude_ii, float r=0, unsigned int k=0):             # <<<<<<<<<<<<<<
- *         # Internal API only
- *         assert r != 0 or k != 0
+ *     cdef inline NeighborQueryResult init(             # <<<<<<<<<<<<<<
+ *             freud._locality.NeighborQuery * spdptr, float[:, ::1] points,
+ *             cbool exclude_ii, float r=0, unsigned int k=0):
  */
 
   /* function exit code */
-  __pyx_r = ((struct __pyx_obj_5freud_8locality_NeighborQueryResult *)Py_None); __Pyx_INCREF(Py_None);
-  goto __pyx_L0;
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_AddTraceback("freud.locality.NeighborQueryResult.init", __pyx_clineno, __pyx_lineno, __pyx_filename);
@@ -6548,49 +6528,158 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_NeighborQueryResult *__py
   return __pyx_r;
 }
 
-/* "freud/locality.pxd":46
+/* "freud/locality.pxd":51
  * 
  *     @staticmethod
- *     cdef inline AABBQueryResult init2(freud._locality.AABBQuery * aabbptr, float[:, ::1] points, cbool exclude_ii, unsigned int k, float r_guess, float scale):             # <<<<<<<<<<<<<<
- *         cdef AABBQueryResult obj = NeighborQueryResult.init(aabbptr, points, exclude_ii, r=0, k=k)
- * 
+ *     cdef inline AABBQueryResult init2(             # <<<<<<<<<<<<<<
+ *             freud._locality.AABBQuery * aabbptr, float[:, ::1] points,
+ *             cbool exclude_ii, unsigned int k, float r_guess, float scale):
  */
 
 static CYTHON_INLINE struct __pyx_obj_5freud_8locality_AABBQueryResult *__pyx_f_5freud_8locality_15AABBQueryResult_init2(freud::locality::AABBQuery *__pyx_v_aabbptr, __Pyx_memviewslice __pyx_v_points, bool __pyx_v_exclude_ii, unsigned int __pyx_v_k, float __pyx_v_r_guess, float __pyx_v_scale) {
-  struct __pyx_obj_5freud_8locality_AABBQueryResult *__pyx_v_obj = 0;
+  struct __pyx_obj_5freud_8locality_AABBQueryResult *__pyx_v_obj = NULL;
   struct __pyx_obj_5freud_8locality_AABBQueryResult *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
-  struct __pyx_opt_args_5freud_8locality_19NeighborQueryResult_init __pyx_t_2;
+  int __pyx_t_2;
   __Pyx_RefNannySetupContext("init2", 0);
 
-  /* "freud/locality.pxd":47
- *     @staticmethod
- *     cdef inline AABBQueryResult init2(freud._locality.AABBQuery * aabbptr, float[:, ::1] points, cbool exclude_ii, unsigned int k, float r_guess, float scale):
- *         cdef AABBQueryResult obj = NeighborQueryResult.init(aabbptr, points, exclude_ii, r=0, k=k)             # <<<<<<<<<<<<<<
+  /* "freud/locality.pxd":55
+ *             cbool exclude_ii, unsigned int k, float r_guess, float scale):
+ *         # Internal API only
+ *         assert k != 0             # <<<<<<<<<<<<<<
  * 
- *         obj.aabbptr = aabbptr
+ *         obj = AABBQueryResult()
  */
-  __pyx_t_2.__pyx_n = 2;
-  __pyx_t_2.r = 0.0;
-  __pyx_t_2.k = __pyx_v_k;
-  __pyx_t_1 = ((PyObject *)__pyx_vtabptr_5freud_8locality_NeighborQueryResult->init(__pyx_v_aabbptr, __pyx_v_points, __pyx_v_exclude_ii, &__pyx_t_2)); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 47, __pyx_L1_error)
+  #ifndef CYTHON_WITHOUT_ASSERTIONS
+  if (unlikely(!Py_OptimizeFlag)) {
+    if (unlikely(!((__pyx_v_k != 0) != 0))) {
+      PyErr_SetNone(PyExc_AssertionError);
+      __PYX_ERR(2, 55, __pyx_L1_error)
+    }
+  }
+  #endif
+
+  /* "freud/locality.pxd":57
+ *         assert k != 0
+ * 
+ *         obj = AABBQueryResult()             # <<<<<<<<<<<<<<
+ * 
+ *         obj.aabbptr = obj.spdptr = aabbptr
+ */
+  __pyx_t_1 = __Pyx_PyObject_CallNoArg(((PyObject *)__pyx_ptype_5freud_8locality_AABBQueryResult)); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 57, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5freud_8locality_AABBQueryResult))))) __PYX_ERR(2, 47, __pyx_L1_error)
   __pyx_v_obj = ((struct __pyx_obj_5freud_8locality_AABBQueryResult *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "freud/locality.pxd":49
- *         cdef AABBQueryResult obj = NeighborQueryResult.init(aabbptr, points, exclude_ii, r=0, k=k)
+  /* "freud/locality.pxd":59
+ *         obj = AABBQueryResult()
  * 
- *         obj.aabbptr = aabbptr             # <<<<<<<<<<<<<<
+ *         obj.aabbptr = obj.spdptr = aabbptr             # <<<<<<<<<<<<<<
+ *         obj.points = points
+ *         obj.exclude_ii = exclude_ii
+ */
+  __pyx_v_obj->aabbptr = __pyx_v_aabbptr;
+  __pyx_v_obj->__pyx_base.spdptr = __pyx_v_aabbptr;
+
+  /* "freud/locality.pxd":60
+ * 
+ *         obj.aabbptr = obj.spdptr = aabbptr
+ *         obj.points = points             # <<<<<<<<<<<<<<
+ *         obj.exclude_ii = exclude_ii
+ *         obj.Np = points.shape[0]
+ */
+  __PYX_XDEC_MEMVIEW(&__pyx_v_obj->__pyx_base.points, 0);
+  __PYX_INC_MEMVIEW(&__pyx_v_points, 0);
+  __pyx_v_obj->__pyx_base.points = __pyx_v_points;
+
+  /* "freud/locality.pxd":61
+ *         obj.aabbptr = obj.spdptr = aabbptr
+ *         obj.points = points
+ *         obj.exclude_ii = exclude_ii             # <<<<<<<<<<<<<<
+ *         obj.Np = points.shape[0]
+ * 
+ */
+  __pyx_v_obj->__pyx_base.exclude_ii = __pyx_v_exclude_ii;
+
+  /* "freud/locality.pxd":62
+ *         obj.points = points
+ *         obj.exclude_ii = exclude_ii
+ *         obj.Np = points.shape[0]             # <<<<<<<<<<<<<<
+ * 
+ *         obj.r = 0  # Only for kN queries
+ */
+  __pyx_v_obj->__pyx_base.Np = (__pyx_v_points.shape[0]);
+
+  /* "freud/locality.pxd":64
+ *         obj.Np = points.shape[0]
+ * 
+ *         obj.r = 0  # Only for kN queries             # <<<<<<<<<<<<<<
+ *         obj.k = k
+ * 
+ */
+  __pyx_v_obj->__pyx_base.r = 0.0;
+
+  /* "freud/locality.pxd":65
+ * 
+ *         obj.r = 0  # Only for kN queries
+ *         obj.k = k             # <<<<<<<<<<<<<<
+ * 
+ *         if obj.r != 0:
+ */
+  __pyx_v_obj->__pyx_base.k = __pyx_v_k;
+
+  /* "freud/locality.pxd":67
+ *         obj.k = k
+ * 
+ *         if obj.r != 0:             # <<<<<<<<<<<<<<
+ *             obj.query_type = 'ball'
+ *         else:
+ */
+  __pyx_t_2 = ((__pyx_v_obj->__pyx_base.r != 0.0) != 0);
+  if (__pyx_t_2) {
+
+    /* "freud/locality.pxd":68
+ * 
+ *         if obj.r != 0:
+ *             obj.query_type = 'ball'             # <<<<<<<<<<<<<<
+ *         else:
+ *             obj.query_type = 'nn'
+ */
+    __Pyx_INCREF(__pyx_n_s_ball);
+    __Pyx_GIVEREF(__pyx_n_s_ball);
+    __Pyx_GOTREF(__pyx_v_obj->__pyx_base.query_type);
+    __Pyx_DECREF(__pyx_v_obj->__pyx_base.query_type);
+    __pyx_v_obj->__pyx_base.query_type = __pyx_n_s_ball;
+
+    /* "freud/locality.pxd":67
+ *         obj.k = k
+ * 
+ *         if obj.r != 0:             # <<<<<<<<<<<<<<
+ *             obj.query_type = 'ball'
+ *         else:
+ */
+    goto __pyx_L3;
+  }
+
+  /* "freud/locality.pxd":70
+ *             obj.query_type = 'ball'
+ *         else:
+ *             obj.query_type = 'nn'             # <<<<<<<<<<<<<<
  * 
  *         obj.r_guess = r_guess
  */
-  __pyx_v_obj->aabbptr = __pyx_v_aabbptr;
+  /*else*/ {
+    __Pyx_INCREF(__pyx_n_s_nn);
+    __Pyx_GIVEREF(__pyx_n_s_nn);
+    __Pyx_GOTREF(__pyx_v_obj->__pyx_base.query_type);
+    __Pyx_DECREF(__pyx_v_obj->__pyx_base.query_type);
+    __pyx_v_obj->__pyx_base.query_type = __pyx_n_s_nn;
+  }
+  __pyx_L3:;
 
-  /* "freud/locality.pxd":51
- *         obj.aabbptr = aabbptr
+  /* "freud/locality.pxd":72
+ *             obj.query_type = 'nn'
  * 
  *         obj.r_guess = r_guess             # <<<<<<<<<<<<<<
  *         obj.scale = scale
@@ -6598,26 +6687,36 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_AABBQueryResult *__pyx_f_
  */
   __pyx_v_obj->r_guess = __pyx_v_r_guess;
 
-  /* "freud/locality.pxd":52
+  /* "freud/locality.pxd":73
  * 
  *         obj.r_guess = r_guess
  *         obj.scale = scale             # <<<<<<<<<<<<<<
  * 
- * 
+ *         return obj
  */
   __pyx_v_obj->scale = __pyx_v_scale;
 
-  /* "freud/locality.pxd":46
+  /* "freud/locality.pxd":75
+ *         obj.scale = scale
+ * 
+ *         return obj             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __Pyx_XDECREF(((PyObject *)__pyx_r));
+  __Pyx_INCREF(((PyObject *)__pyx_v_obj));
+  __pyx_r = __pyx_v_obj;
+  goto __pyx_L0;
+
+  /* "freud/locality.pxd":51
  * 
  *     @staticmethod
- *     cdef inline AABBQueryResult init2(freud._locality.AABBQuery * aabbptr, float[:, ::1] points, cbool exclude_ii, unsigned int k, float r_guess, float scale):             # <<<<<<<<<<<<<<
- *         cdef AABBQueryResult obj = NeighborQueryResult.init(aabbptr, points, exclude_ii, r=0, k=k)
- * 
+ *     cdef inline AABBQueryResult init2(             # <<<<<<<<<<<<<<
+ *             freud._locality.AABBQuery * aabbptr, float[:, ::1] points,
+ *             cbool exclude_ii, unsigned int k, float r_guess, float scale):
  */
 
   /* function exit code */
-  __pyx_r = ((struct __pyx_obj_5freud_8locality_AABBQueryResult *)Py_None); __Pyx_INCREF(Py_None);
-  goto __pyx_L0;
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_AddTraceback("freud.locality.AABBQueryResult.init2", __pyx_clineno, __pyx_lineno, __pyx_filename);
@@ -6629,8 +6728,7 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_AABBQueryResult *__pyx_f_
   return __pyx_r;
 }
 
-/* "../../miniconda3/envs/main/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":215
->>>>>>> Working generator
+/* "../../miniconda3/envs/test36/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":215
  *         # experimental exception made for __getbuffer__ and __releasebuffer__
  *         # -- the details of this may change.
  *         def __getbuffer__(ndarray self, Py_buffer* info, int flags):             # <<<<<<<<<<<<<<
@@ -23625,7 +23723,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_pyx_type, __pyx_k_pyx_type, sizeof(__pyx_k_pyx_type), 0, 0, 1, 1},
   {&__pyx_n_s_pyx_unpickle_Enum, __pyx_k_pyx_unpickle_Enum, sizeof(__pyx_k_pyx_unpickle_Enum), 0, 0, 1, 1},
   {&__pyx_n_s_pyx_vtable, __pyx_k_pyx_vtable, sizeof(__pyx_k_pyx_vtable), 0, 0, 1, 1},
-  {&__pyx_n_s_query_type, __pyx_k_query_type, sizeof(__pyx_k_query_type), 0, 0, 1, 1},
   {&__pyx_n_s_range, __pyx_k_range, sizeof(__pyx_k_range), 0, 0, 1, 1},
   {&__pyx_n_s_rcut, __pyx_k_rcut, sizeof(__pyx_k_rcut), 0, 0, 1, 1},
   {&__pyx_n_s_reduce, __pyx_k_reduce, sizeof(__pyx_k_reduce), 0, 0, 1, 1},
@@ -24356,16 +24453,16 @@ static int __Pyx_modinit_type_import_code(void) {
   __pyx_ptype_5freud_3box_ParticleBuffer = __Pyx_ImportType("freud.box", "ParticleBuffer", sizeof(struct __pyx_obj_5freud_3box_ParticleBuffer), 1); if (unlikely(!__pyx_ptype_5freud_3box_ParticleBuffer)) __PYX_ERR(4, 11, __pyx_L1_error)
   __pyx_ptype_5freud_8locality_NeighborQueryResult = __Pyx_ImportType("freud.locality", "NeighborQueryResult", sizeof(struct __pyx_obj_5freud_8locality_NeighborQueryResult), 1); if (unlikely(!__pyx_ptype_5freud_8locality_NeighborQueryResult)) __PYX_ERR(2, 10, __pyx_L1_error)
   __pyx_vtabptr_5freud_8locality_NeighborQueryResult = (struct __pyx_vtabstruct_5freud_8locality_NeighborQueryResult*)__Pyx_GetVtable(__pyx_ptype_5freud_8locality_NeighborQueryResult->tp_dict); if (unlikely(!__pyx_vtabptr_5freud_8locality_NeighborQueryResult)) __PYX_ERR(2, 10, __pyx_L1_error)
-  __pyx_ptype_5freud_8locality_AABBQueryResult = __Pyx_ImportType("freud.locality", "AABBQueryResult", sizeof(struct __pyx_obj_5freud_8locality_AABBQueryResult), 1); if (unlikely(!__pyx_ptype_5freud_8locality_AABBQueryResult)) __PYX_ERR(2, 40, __pyx_L1_error)
-  __pyx_vtabptr_5freud_8locality_AABBQueryResult = (struct __pyx_vtabstruct_5freud_8locality_AABBQueryResult*)__Pyx_GetVtable(__pyx_ptype_5freud_8locality_AABBQueryResult->tp_dict); if (unlikely(!__pyx_vtabptr_5freud_8locality_AABBQueryResult)) __PYX_ERR(2, 40, __pyx_L1_error)
-  __pyx_ptype_5freud_8locality_NeighborQuery = __Pyx_ImportType("freud.locality", "NeighborQuery", sizeof(struct __pyx_obj_5freud_8locality_NeighborQuery), 1); if (unlikely(!__pyx_ptype_5freud_8locality_NeighborQuery)) __PYX_ERR(2, 55, __pyx_L1_error)
-  __pyx_ptype_5freud_8locality_NeighborList = __Pyx_ImportType("freud.locality", "NeighborList", sizeof(struct __pyx_obj_5freud_8locality_NeighborList), 1); if (unlikely(!__pyx_ptype_5freud_8locality_NeighborList)) __PYX_ERR(2, 61, __pyx_L1_error)
-  __pyx_vtabptr_5freud_8locality_NeighborList = (struct __pyx_vtabstruct_5freud_8locality_NeighborList*)__Pyx_GetVtable(__pyx_ptype_5freud_8locality_NeighborList->tp_dict); if (unlikely(!__pyx_vtabptr_5freud_8locality_NeighborList)) __PYX_ERR(2, 61, __pyx_L1_error)
-  __pyx_ptype_5freud_8locality_IteratorLinkCell = __Pyx_ImportType("freud.locality", "IteratorLinkCell", sizeof(struct __pyx_obj_5freud_8locality_IteratorLinkCell), 1); if (unlikely(!__pyx_ptype_5freud_8locality_IteratorLinkCell)) __PYX_ERR(2, 70, __pyx_L1_error)
-  __pyx_vtabptr_5freud_8locality_IteratorLinkCell = (struct __pyx_vtabstruct_5freud_8locality_IteratorLinkCell*)__Pyx_GetVtable(__pyx_ptype_5freud_8locality_IteratorLinkCell->tp_dict); if (unlikely(!__pyx_vtabptr_5freud_8locality_IteratorLinkCell)) __PYX_ERR(2, 70, __pyx_L1_error)
-  __pyx_ptype_5freud_8locality_LinkCell = __Pyx_ImportType("freud.locality", "LinkCell", sizeof(struct __pyx_obj_5freud_8locality_LinkCell), 1); if (unlikely(!__pyx_ptype_5freud_8locality_LinkCell)) __PYX_ERR(2, 75, __pyx_L1_error)
-  __pyx_ptype_5freud_8locality_NearestNeighbors = __Pyx_ImportType("freud.locality", "NearestNeighbors", sizeof(struct __pyx_obj_5freud_8locality_NearestNeighbors), 1); if (unlikely(!__pyx_ptype_5freud_8locality_NearestNeighbors)) __PYX_ERR(2, 79, __pyx_L1_error)
-  __pyx_ptype_5freud_8locality_AABBQuery = __Pyx_ImportType("freud.locality", "AABBQuery", sizeof(struct __pyx_obj_5freud_8locality_AABBQuery), 1); if (unlikely(!__pyx_ptype_5freud_8locality_AABBQuery)) __PYX_ERR(2, 86, __pyx_L1_error)
+  __pyx_ptype_5freud_8locality_AABBQueryResult = __Pyx_ImportType("freud.locality", "AABBQueryResult", sizeof(struct __pyx_obj_5freud_8locality_AABBQueryResult), 1); if (unlikely(!__pyx_ptype_5freud_8locality_AABBQueryResult)) __PYX_ERR(2, 45, __pyx_L1_error)
+  __pyx_vtabptr_5freud_8locality_AABBQueryResult = (struct __pyx_vtabstruct_5freud_8locality_AABBQueryResult*)__Pyx_GetVtable(__pyx_ptype_5freud_8locality_AABBQueryResult->tp_dict); if (unlikely(!__pyx_vtabptr_5freud_8locality_AABBQueryResult)) __PYX_ERR(2, 45, __pyx_L1_error)
+  __pyx_ptype_5freud_8locality_NeighborQuery = __Pyx_ImportType("freud.locality", "NeighborQuery", sizeof(struct __pyx_obj_5freud_8locality_NeighborQuery), 1); if (unlikely(!__pyx_ptype_5freud_8locality_NeighborQuery)) __PYX_ERR(2, 78, __pyx_L1_error)
+  __pyx_ptype_5freud_8locality_NeighborList = __Pyx_ImportType("freud.locality", "NeighborList", sizeof(struct __pyx_obj_5freud_8locality_NeighborList), 1); if (unlikely(!__pyx_ptype_5freud_8locality_NeighborList)) __PYX_ERR(2, 84, __pyx_L1_error)
+  __pyx_vtabptr_5freud_8locality_NeighborList = (struct __pyx_vtabstruct_5freud_8locality_NeighborList*)__Pyx_GetVtable(__pyx_ptype_5freud_8locality_NeighborList->tp_dict); if (unlikely(!__pyx_vtabptr_5freud_8locality_NeighborList)) __PYX_ERR(2, 84, __pyx_L1_error)
+  __pyx_ptype_5freud_8locality_IteratorLinkCell = __Pyx_ImportType("freud.locality", "IteratorLinkCell", sizeof(struct __pyx_obj_5freud_8locality_IteratorLinkCell), 1); if (unlikely(!__pyx_ptype_5freud_8locality_IteratorLinkCell)) __PYX_ERR(2, 93, __pyx_L1_error)
+  __pyx_vtabptr_5freud_8locality_IteratorLinkCell = (struct __pyx_vtabstruct_5freud_8locality_IteratorLinkCell*)__Pyx_GetVtable(__pyx_ptype_5freud_8locality_IteratorLinkCell->tp_dict); if (unlikely(!__pyx_vtabptr_5freud_8locality_IteratorLinkCell)) __PYX_ERR(2, 93, __pyx_L1_error)
+  __pyx_ptype_5freud_8locality_LinkCell = __Pyx_ImportType("freud.locality", "LinkCell", sizeof(struct __pyx_obj_5freud_8locality_LinkCell), 1); if (unlikely(!__pyx_ptype_5freud_8locality_LinkCell)) __PYX_ERR(2, 98, __pyx_L1_error)
+  __pyx_ptype_5freud_8locality_NearestNeighbors = __Pyx_ImportType("freud.locality", "NearestNeighbors", sizeof(struct __pyx_obj_5freud_8locality_NearestNeighbors), 1); if (unlikely(!__pyx_ptype_5freud_8locality_NearestNeighbors)) __PYX_ERR(2, 102, __pyx_L1_error)
+  __pyx_ptype_5freud_8locality_AABBQuery = __Pyx_ImportType("freud.locality", "AABBQuery", sizeof(struct __pyx_obj_5freud_8locality_AABBQuery), 1); if (unlikely(!__pyx_ptype_5freud_8locality_AABBQuery)) __PYX_ERR(2, 109, __pyx_L1_error)
   __pyx_ptype_7cpython_4type_type = __Pyx_ImportType(__Pyx_BUILTIN_MODULE_NAME, "type", 
   #if defined(PYPY_VERSION_NUM) && PYPY_VERSION_NUM < 0x050B0000
   sizeof(PyTypeObject),
@@ -25760,8 +25857,6 @@ static CYTHON_INLINE void __Pyx_XDEC_MEMVIEW(__Pyx_memviewslice *memslice,
     }
 }
 
-<<<<<<< HEAD
-=======
 /* PyObjectCallNoArg */
     #if CYTHON_COMPILING_IN_CPYTHON
 static CYTHON_INLINE PyObject* __Pyx_PyObject_CallNoArg(PyObject *func) {
@@ -25783,23 +25878,8 @@ static CYTHON_INLINE PyObject* __Pyx_PyObject_CallNoArg(PyObject *func) {
 }
 #endif
 
-/* PyObjectSetAttrStr */
-      #if CYTHON_USE_TYPE_SLOTS
-static CYTHON_INLINE int __Pyx_PyObject_SetAttrStr(PyObject* obj, PyObject* attr_name, PyObject* value) {
-    PyTypeObject* tp = Py_TYPE(obj);
-    if (likely(tp->tp_setattro))
-        return tp->tp_setattro(obj, attr_name, value);
-#if PY_MAJOR_VERSION < 3
-    if (likely(tp->tp_setattr))
-        return tp->tp_setattr(obj, PyString_AS_STRING(attr_name), value);
-#endif
-    return PyObject_SetAttr(obj, attr_name, value);
-}
-#endif
-
->>>>>>> Working generator
 /* DictGetItem */
-    #if PY_MAJOR_VERSION >= 3 && !CYTHON_COMPILING_IN_PYPY
+      #if PY_MAJOR_VERSION >= 3 && !CYTHON_COMPILING_IN_PYPY
 static PyObject *__Pyx_PyDict_GetItem(PyObject *d, PyObject* key) {
     PyObject *value;
     value = PyDict_GetItemWithError(d, key);
@@ -25818,25 +25898,25 @@ static PyObject *__Pyx_PyDict_GetItem(PyObject *d, PyObject* key) {
 #endif
 
 /* RaiseTooManyValuesToUnpack */
-    static CYTHON_INLINE void __Pyx_RaiseTooManyValuesError(Py_ssize_t expected) {
+      static CYTHON_INLINE void __Pyx_RaiseTooManyValuesError(Py_ssize_t expected) {
     PyErr_Format(PyExc_ValueError,
                  "too many values to unpack (expected %" CYTHON_FORMAT_SSIZE_T "d)", expected);
 }
 
 /* RaiseNeedMoreValuesToUnpack */
-    static CYTHON_INLINE void __Pyx_RaiseNeedMoreValuesError(Py_ssize_t index) {
+      static CYTHON_INLINE void __Pyx_RaiseNeedMoreValuesError(Py_ssize_t index) {
     PyErr_Format(PyExc_ValueError,
                  "need more than %" CYTHON_FORMAT_SSIZE_T "d value%.1s to unpack",
                  index, (index == 1) ? "" : "s");
 }
 
 /* RaiseNoneIterError */
-    static CYTHON_INLINE void __Pyx_RaiseNoneNotIterableError(void) {
+      static CYTHON_INLINE void __Pyx_RaiseNoneNotIterableError(void) {
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not iterable");
 }
 
 /* SaveResetException */
-    #if CYTHON_FAST_THREAD_STATE
+      #if CYTHON_FAST_THREAD_STATE
 static CYTHON_INLINE void __Pyx__ExceptionSave(PyThreadState *tstate, PyObject **type, PyObject **value, PyObject **tb) {
     #if PY_VERSION_HEX >= 0x030700A3
     *type = tstate->exc_state.exc_type;
@@ -25875,7 +25955,7 @@ static CYTHON_INLINE void __Pyx__ExceptionReset(PyThreadState *tstate, PyObject 
 #endif
 
 /* PyErrExceptionMatches */
-    #if CYTHON_FAST_THREAD_STATE
+      #if CYTHON_FAST_THREAD_STATE
 static int __Pyx_PyErr_ExceptionMatchesTuple(PyObject *exc_type, PyObject *tuple) {
     Py_ssize_t i, n;
     n = PyTuple_GET_SIZE(tuple);
@@ -25900,7 +25980,7 @@ static CYTHON_INLINE int __Pyx_PyErr_ExceptionMatchesInState(PyThreadState* tsta
 #endif
 
 /* GetException */
-    #if CYTHON_FAST_THREAD_STATE
+      #if CYTHON_FAST_THREAD_STATE
 static int __Pyx__GetException(PyThreadState *tstate, PyObject **type, PyObject **value, PyObject **tb) {
 #else
 static int __Pyx_GetException(PyObject **type, PyObject **value, PyObject **tb) {
@@ -25970,7 +26050,7 @@ bad:
 }
 
 /* ArgTypeTest */
-      static int __Pyx__ArgTypeTest(PyObject *obj, PyTypeObject *type, const char *name, int exact)
+        static int __Pyx__ArgTypeTest(PyObject *obj, PyTypeObject *type, const char *name, int exact)
 {
     if (unlikely(!type)) {
         PyErr_SetString(PyExc_SystemError, "Missing type object");
@@ -25991,7 +26071,7 @@ bad:
 }
 
 /* BytesEquals */
-      static CYTHON_INLINE int __Pyx_PyBytes_Equals(PyObject* s1, PyObject* s2, int equals) {
+        static CYTHON_INLINE int __Pyx_PyBytes_Equals(PyObject* s1, PyObject* s2, int equals) {
 #if CYTHON_COMPILING_IN_PYPY
     return PyObject_RichCompareBool(s1, s2, equals);
 #else
@@ -26038,7 +26118,7 @@ bad:
 }
 
 /* UnicodeEquals */
-      static CYTHON_INLINE int __Pyx_PyUnicode_Equals(PyObject* s1, PyObject* s2, int equals) {
+        static CYTHON_INLINE int __Pyx_PyUnicode_Equals(PyObject* s1, PyObject* s2, int equals) {
 #if CYTHON_COMPILING_IN_PYPY
     return PyObject_RichCompareBool(s1, s2, equals);
 #else
@@ -26137,7 +26217,7 @@ return_ne:
 }
 
 /* None */
-      static CYTHON_INLINE Py_ssize_t __Pyx_div_Py_ssize_t(Py_ssize_t a, Py_ssize_t b) {
+        static CYTHON_INLINE Py_ssize_t __Pyx_div_Py_ssize_t(Py_ssize_t a, Py_ssize_t b) {
     Py_ssize_t q = a / b;
     Py_ssize_t r = a - q*b;
     q -= ((r != 0) & ((r ^ b) < 0));
@@ -26145,7 +26225,7 @@ return_ne:
 }
 
 /* GetAttr */
-      static CYTHON_INLINE PyObject *__Pyx_GetAttr(PyObject *o, PyObject *n) {
+        static CYTHON_INLINE PyObject *__Pyx_GetAttr(PyObject *o, PyObject *n) {
 #if CYTHON_USE_TYPE_SLOTS
 #if PY_MAJOR_VERSION >= 3
     if (likely(PyUnicode_Check(n)))
@@ -26158,7 +26238,7 @@ return_ne:
 }
 
 /* ObjectGetItem */
-      #if CYTHON_USE_TYPE_SLOTS
+        #if CYTHON_USE_TYPE_SLOTS
 static PyObject *__Pyx_PyObject_GetIndex(PyObject *obj, PyObject* index) {
     PyObject *runerr;
     Py_ssize_t key_value;
@@ -26187,7 +26267,7 @@ static PyObject *__Pyx_PyObject_GetItem(PyObject *obj, PyObject* key) {
 #endif
 
 /* decode_c_string */
-      static CYTHON_INLINE PyObject* __Pyx_decode_c_string(
+        static CYTHON_INLINE PyObject* __Pyx_decode_c_string(
          const char* cstring, Py_ssize_t start, Py_ssize_t stop,
          const char* encoding, const char* errors,
          PyObject* (*decode_func)(const char *s, Py_ssize_t size, const char *errors)) {
@@ -26220,7 +26300,7 @@ static PyObject *__Pyx_PyObject_GetItem(PyObject *obj, PyObject* key) {
 }
 
 /* GetAttr3 */
-      static PyObject *__Pyx_GetAttr3Default(PyObject *d) {
+        static PyObject *__Pyx_GetAttr3Default(PyObject *d) {
     __Pyx_PyThreadState_declare
     __Pyx_PyThreadState_assign
     if (unlikely(!__Pyx_PyErr_ExceptionMatches(PyExc_AttributeError)))
@@ -26235,7 +26315,7 @@ static CYTHON_INLINE PyObject *__Pyx_GetAttr3(PyObject *o, PyObject *n, PyObject
 }
 
 /* SwapException */
-      #if CYTHON_FAST_THREAD_STATE
+        #if CYTHON_FAST_THREAD_STATE
 static CYTHON_INLINE void __Pyx__ExceptionSwap(PyThreadState *tstate, PyObject **type, PyObject **value, PyObject **tb) {
     PyObject *tmp_type, *tmp_value, *tmp_tb;
     #if PY_VERSION_HEX >= 0x030700A3
@@ -26269,7 +26349,7 @@ static CYTHON_INLINE void __Pyx_ExceptionSwap(PyObject **type, PyObject **value,
 #endif
 
 /* Import */
-      static PyObject *__Pyx_Import(PyObject *name, PyObject *from_list, int level) {
+        static PyObject *__Pyx_Import(PyObject *name, PyObject *from_list, int level) {
     PyObject *empty_list = 0;
     PyObject *module = 0;
     PyObject *global_dict = 0;
@@ -26334,7 +26414,7 @@ bad:
 }
 
 /* FastTypeChecks */
-      #if CYTHON_COMPILING_IN_CPYTHON
+        #if CYTHON_COMPILING_IN_CPYTHON
 static int __Pyx_InBases(PyTypeObject *a, PyTypeObject *b) {
     while (a) {
         a = a->tp_base;
@@ -26434,7 +26514,7 @@ static CYTHON_INLINE int __Pyx_PyErr_GivenExceptionMatches2(PyObject *err, PyObj
 #endif
 
 /* PyIntBinop */
-      #if !CYTHON_COMPILING_IN_PYPY
+        #if !CYTHON_COMPILING_IN_PYPY
 static PyObject* __Pyx_PyInt_AddObjC(PyObject *op1, PyObject *op2, CYTHON_UNUSED long intval, CYTHON_UNUSED int inplace) {
     #if PY_MAJOR_VERSION < 3
     if (likely(PyInt_CheckExact(op1))) {
@@ -26556,12 +26636,12 @@ static PyObject* __Pyx_PyInt_AddObjC(PyObject *op1, PyObject *op2, CYTHON_UNUSED
 #endif
 
 /* None */
-      static CYTHON_INLINE void __Pyx_RaiseUnboundLocalError(const char *varname) {
+        static CYTHON_INLINE void __Pyx_RaiseUnboundLocalError(const char *varname) {
     PyErr_Format(PyExc_UnboundLocalError, "local variable '%s' referenced before assignment", varname);
 }
 
 /* None */
-      static CYTHON_INLINE long __Pyx_div_long(long a, long b) {
+        static CYTHON_INLINE long __Pyx_div_long(long a, long b) {
     long q = a / b;
     long r = a - q*b;
     q -= ((r != 0) & ((r ^ b) < 0));
@@ -26569,7 +26649,7 @@ static PyObject* __Pyx_PyInt_AddObjC(PyObject *op1, PyObject *op2, CYTHON_UNUSED
 }
 
 /* WriteUnraisableException */
-      static void __Pyx_WriteUnraisable(const char *name, CYTHON_UNUSED int clineno,
+        static void __Pyx_WriteUnraisable(const char *name, CYTHON_UNUSED int clineno,
                                   CYTHON_UNUSED int lineno, CYTHON_UNUSED const char *filename,
                                   int full_traceback, CYTHON_UNUSED int nogil) {
     PyObject *old_exc, *old_val, *old_tb;
@@ -26611,7 +26691,7 @@ static PyObject* __Pyx_PyInt_AddObjC(PyObject *op1, PyObject *op2, CYTHON_UNUSED
 }
 
 /* ImportFrom */
-      static PyObject* __Pyx_ImportFrom(PyObject* module, PyObject* name) {
+        static PyObject* __Pyx_ImportFrom(PyObject* module, PyObject* name) {
     PyObject* value = __Pyx_PyObject_GetAttrStr(module, name);
     if (unlikely(!value) && PyErr_ExceptionMatches(PyExc_AttributeError)) {
         PyErr_Format(PyExc_ImportError,
@@ -26625,7 +26705,7 @@ static PyObject* __Pyx_PyInt_AddObjC(PyObject *op1, PyObject *op2, CYTHON_UNUSED
 }
 
 /* HasAttr */
-      static CYTHON_INLINE int __Pyx_HasAttr(PyObject *o, PyObject *n) {
+        static CYTHON_INLINE int __Pyx_HasAttr(PyObject *o, PyObject *n) {
     PyObject *r;
     if (unlikely(!__Pyx_PyBaseString_Check(n))) {
         PyErr_SetString(PyExc_TypeError,
@@ -26643,14 +26723,14 @@ static PyObject* __Pyx_PyInt_AddObjC(PyObject *op1, PyObject *op2, CYTHON_UNUSED
 }
 
 /* StringJoin */
-      #if !CYTHON_COMPILING_IN_CPYTHON
+        #if !CYTHON_COMPILING_IN_CPYTHON
 static CYTHON_INLINE PyObject* __Pyx_PyBytes_Join(PyObject* sep, PyObject* values) {
     return PyObject_CallMethodObjArgs(sep, __pyx_n_s_join, values, NULL);
 }
 #endif
 
 /* PyObject_GenericGetAttrNoDict */
-      #if CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP && PY_VERSION_HEX < 0x03070000
+        #if CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP && PY_VERSION_HEX < 0x03070000
 static PyObject *__Pyx_RaiseGenericGetAttributeError(PyTypeObject *tp, PyObject *attr_name) {
     PyErr_Format(PyExc_AttributeError,
 #if PY_MAJOR_VERSION >= 3
@@ -26690,7 +26770,7 @@ static CYTHON_INLINE PyObject* __Pyx_PyObject_GenericGetAttrNoDict(PyObject* obj
 #endif
 
 /* PyObject_GenericGetAttr */
-      #if CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP && PY_VERSION_HEX < 0x03070000
+        #if CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP && PY_VERSION_HEX < 0x03070000
 static PyObject* __Pyx_PyObject_GenericGetAttr(PyObject* obj, PyObject* attr_name) {
     if (unlikely(Py_TYPE(obj)->tp_dictoffset)) {
         return PyObject_GenericGetAttr(obj, attr_name);
@@ -26700,7 +26780,7 @@ static PyObject* __Pyx_PyObject_GenericGetAttr(PyObject* obj, PyObject* attr_nam
 #endif
 
 /* SetupReduce */
-      static int __Pyx_setup_reduce_is_named(PyObject* meth, PyObject* name) {
+        static int __Pyx_setup_reduce_is_named(PyObject* meth, PyObject* name) {
   int ret;
   PyObject *name_attr;
   name_attr = __Pyx_PyObject_GetAttrStr(meth, __pyx_n_s_name_2);
@@ -26776,7 +26856,7 @@ GOOD:
 }
 
 /* SetVTable */
-      static int __Pyx_SetVtable(PyObject *dict, void *vtable) {
+        static int __Pyx_SetVtable(PyObject *dict, void *vtable) {
 #if PY_VERSION_HEX >= 0x02070000
     PyObject *ob = PyCapsule_New(vtable, 0, 0);
 #else
@@ -26794,7 +26874,7 @@ bad:
 }
 
 /* GetVTable */
-      static void* __Pyx_GetVtable(PyObject *dict) {
+        static void* __Pyx_GetVtable(PyObject *dict) {
     void* ptr;
     PyObject *ob = PyObject_GetItem(dict, __pyx_n_s_pyx_vtable);
     if (!ob)
@@ -26814,7 +26894,7 @@ bad:
 }
 
 /* FetchCommonType */
-      static PyTypeObject* __Pyx_FetchCommonType(PyTypeObject* type) {
+        static PyTypeObject* __Pyx_FetchCommonType(PyTypeObject* type) {
     PyObject* fake_module;
     PyTypeObject* cached_type = NULL;
     fake_module = PyImport_AddModule((char*) "_cython_" CYTHON_ABI);
@@ -26853,7 +26933,7 @@ bad:
 }
 
 /* CythonFunction */
-      #include <structmember.h>
+        #include <structmember.h>
 static PyObject *
 __Pyx_CyFunction_get_doc(__pyx_CyFunctionObject *op, CYTHON_UNUSED void *closure)
 {
@@ -27447,7 +27527,7 @@ static CYTHON_INLINE void __Pyx_CyFunction_SetAnnotationsDict(PyObject *func, Py
 }
 
 /* CLineInTraceback */
-          #ifndef CYTHON_CLINE_IN_TRACEBACK
+            #ifndef CYTHON_CLINE_IN_TRACEBACK
 static int __Pyx_CLineForTraceback(CYTHON_UNUSED PyThreadState *tstate, int c_line) {
     PyObject *use_cline;
     PyObject *ptype, *pvalue, *ptraceback;
@@ -27487,7 +27567,7 @@ static int __Pyx_CLineForTraceback(CYTHON_UNUSED PyThreadState *tstate, int c_li
 #endif
 
 /* CodeObjectCache */
-          static int __pyx_bisect_code_objects(__Pyx_CodeObjectCacheEntry* entries, int count, int code_line) {
+            static int __pyx_bisect_code_objects(__Pyx_CodeObjectCacheEntry* entries, int count, int code_line) {
     int start = 0, mid = 0, end = count - 1;
     if (end >= 0 && code_line > entries[end].code_line) {
         return count;
@@ -27567,7 +27647,7 @@ static void __pyx_insert_code_object(int code_line, PyCodeObject* code_object) {
 }
 
 /* AddTraceback */
-          #include "compile.h"
+            #include "compile.h"
 #include "frameobject.h"
 #include "traceback.h"
 static PyCodeObject* __Pyx_CreateCodeObjectForTraceback(
@@ -27675,8 +27755,8 @@ static void __Pyx_ReleaseBuffer(Py_buffer *view) {
 #endif
 
 
-          /* MemviewSliceIsContig */
-          static int
+            /* MemviewSliceIsContig */
+            static int
 __pyx_memviewslice_is_contig(const __Pyx_memviewslice mvs, char order, int ndim)
 {
     int i, index, step, start;
@@ -27698,7 +27778,7 @@ __pyx_memviewslice_is_contig(const __Pyx_memviewslice mvs, char order, int ndim)
 }
 
 /* OverlappingSlices */
-          static void
+            static void
 __pyx_get_array_memory_extents(__Pyx_memviewslice *slice,
                                void **out_start, void **out_end,
                                int ndim, size_t itemsize)
@@ -27734,7 +27814,7 @@ __pyx_slices_overlap(__Pyx_memviewslice *slice1,
 }
 
 /* Capsule */
-          static CYTHON_INLINE PyObject *
+            static CYTHON_INLINE PyObject *
 __pyx_capsule_create(void *p, CYTHON_UNUSED const char *sig)
 {
     PyObject *cobj;
@@ -27747,7 +27827,7 @@ __pyx_capsule_create(void *p, CYTHON_UNUSED const char *sig)
 }
 
 /* CIntToPy */
-          static CYTHON_INLINE PyObject* __Pyx_PyInt_From_long(long value) {
+            static CYTHON_INLINE PyObject* __Pyx_PyInt_From_long(long value) {
     const long neg_one = (long) -1, const_zero = (long) 0;
     const int is_unsigned = neg_one > const_zero;
     if (is_unsigned) {
@@ -27778,7 +27858,7 @@ __pyx_capsule_create(void *p, CYTHON_UNUSED const char *sig)
 }
 
 /* CIntToPy */
-          static CYTHON_INLINE PyObject* __Pyx_PyInt_From_unsigned_int(unsigned int value) {
+            static CYTHON_INLINE PyObject* __Pyx_PyInt_From_unsigned_int(unsigned int value) {
     const unsigned int neg_one = (unsigned int) -1, const_zero = (unsigned int) 0;
     const int is_unsigned = neg_one > const_zero;
     if (is_unsigned) {
@@ -27809,7 +27889,7 @@ __pyx_capsule_create(void *p, CYTHON_UNUSED const char *sig)
 }
 
 /* CIntFromPyVerify */
-          #define __PYX_VERIFY_RETURN_INT(target_type, func_type, func_value)\
+            #define __PYX_VERIFY_RETURN_INT(target_type, func_type, func_value)\
     __PYX__VERIFY_RETURN_INT(target_type, func_type, func_value, 0)
 #define __PYX_VERIFY_RETURN_INT_EXC(target_type, func_type, func_value)\
     __PYX__VERIFY_RETURN_INT(target_type, func_type, func_value, 1)
@@ -27831,7 +27911,7 @@ __pyx_capsule_create(void *p, CYTHON_UNUSED const char *sig)
     }
 
 /* MemviewDtypeToObject */
-          static CYTHON_INLINE PyObject *__pyx_memview_get_unsigned_int(const char *itemp) {
+            static CYTHON_INLINE PyObject *__pyx_memview_get_unsigned_int(const char *itemp) {
     return (PyObject *) __Pyx_PyInt_From_unsigned_int(*(unsigned int *) itemp);
 }
 static CYTHON_INLINE int __pyx_memview_set_unsigned_int(const char *itemp, PyObject *obj) {
@@ -27843,7 +27923,7 @@ static CYTHON_INLINE int __pyx_memview_set_unsigned_int(const char *itemp, PyObj
 }
 
 /* MemviewDtypeToObject */
-          static CYTHON_INLINE PyObject *__pyx_memview_get_float(const char *itemp) {
+            static CYTHON_INLINE PyObject *__pyx_memview_get_float(const char *itemp) {
     return (PyObject *) PyFloat_FromDouble(*(float *) itemp);
 }
 static CYTHON_INLINE int __pyx_memview_set_float(const char *itemp, PyObject *obj) {
@@ -27855,7 +27935,7 @@ static CYTHON_INLINE int __pyx_memview_set_float(const char *itemp, PyObject *ob
 }
 
 /* Declarations */
-          #if CYTHON_CCOMPLEX
+            #if CYTHON_CCOMPLEX
   #ifdef __cplusplus
     static CYTHON_INLINE __pyx_t_float_complex __pyx_t_float_complex_from_parts(float x, float y) {
       return ::std::complex< float >(x, y);
@@ -27875,7 +27955,7 @@ static CYTHON_INLINE int __pyx_memview_set_float(const char *itemp, PyObject *ob
 #endif
 
 /* Arithmetic */
-          #if CYTHON_CCOMPLEX
+            #if CYTHON_CCOMPLEX
 #else
     static CYTHON_INLINE int __Pyx_c_eq_float(__pyx_t_float_complex a, __pyx_t_float_complex b) {
        return (a.real == b.real) && (a.imag == b.imag);
@@ -28010,7 +28090,7 @@ static CYTHON_INLINE int __pyx_memview_set_float(const char *itemp, PyObject *ob
 #endif
 
 /* Declarations */
-          #if CYTHON_CCOMPLEX
+            #if CYTHON_CCOMPLEX
   #ifdef __cplusplus
     static CYTHON_INLINE __pyx_t_double_complex __pyx_t_double_complex_from_parts(double x, double y) {
       return ::std::complex< double >(x, y);
@@ -28030,7 +28110,7 @@ static CYTHON_INLINE int __pyx_memview_set_float(const char *itemp, PyObject *ob
 #endif
 
 /* Arithmetic */
-          #if CYTHON_CCOMPLEX
+            #if CYTHON_CCOMPLEX
 #else
     static CYTHON_INLINE int __Pyx_c_eq_double(__pyx_t_double_complex a, __pyx_t_double_complex b) {
        return (a.real == b.real) && (a.imag == b.imag);
@@ -28165,7 +28245,7 @@ static CYTHON_INLINE int __pyx_memview_set_float(const char *itemp, PyObject *ob
 #endif
 
 /* CIntToPy */
-          static CYTHON_INLINE PyObject* __Pyx_PyInt_From_int(int value) {
+            static CYTHON_INLINE PyObject* __Pyx_PyInt_From_int(int value) {
     const int neg_one = (int) -1, const_zero = (int) 0;
     const int is_unsigned = neg_one > const_zero;
     if (is_unsigned) {
@@ -28196,7 +28276,7 @@ static CYTHON_INLINE int __pyx_memview_set_float(const char *itemp, PyObject *ob
 }
 
 /* CIntToPy */
-          static CYTHON_INLINE PyObject* __Pyx_PyInt_From_enum__NPY_TYPES(enum NPY_TYPES value) {
+            static CYTHON_INLINE PyObject* __Pyx_PyInt_From_enum__NPY_TYPES(enum NPY_TYPES value) {
     const enum NPY_TYPES neg_one = (enum NPY_TYPES) -1, const_zero = (enum NPY_TYPES) 0;
     const int is_unsigned = neg_one > const_zero;
     if (is_unsigned) {
@@ -28227,7 +28307,7 @@ static CYTHON_INLINE int __pyx_memview_set_float(const char *itemp, PyObject *ob
 }
 
 /* MemviewSliceCopyTemplate */
-          static __Pyx_memviewslice
+            static __Pyx_memviewslice
 __pyx_memoryview_copy_new_contig(const __Pyx_memviewslice *from_mvs,
                                  const char *mode, int ndim,
                                  size_t sizeof_dtype, int contig_flag,
@@ -28294,7 +28374,7 @@ no_fail:
 }
 
 /* TypeInfoToFormat */
-          static struct __pyx_typeinfo_string __Pyx_TypeInfoToFormat(__Pyx_TypeInfo *type) {
+            static struct __pyx_typeinfo_string __Pyx_TypeInfoToFormat(__Pyx_TypeInfo *type) {
     struct __pyx_typeinfo_string result = { {0} };
     char *buf = (char *) result.string;
     size_t size = type->size;
@@ -28338,7 +28418,7 @@ no_fail:
 }
 
 /* CIntFromPy */
-          static CYTHON_INLINE unsigned int __Pyx_PyInt_As_unsigned_int(PyObject *x) {
+            static CYTHON_INLINE unsigned int __Pyx_PyInt_As_unsigned_int(PyObject *x) {
     const unsigned int neg_one = (unsigned int) -1, const_zero = (unsigned int) 0;
     const int is_unsigned = neg_one > const_zero;
 #if PY_MAJOR_VERSION < 3
@@ -28527,7 +28607,7 @@ raise_neg_overflow:
 }
 
 /* CIntFromPy */
-          static CYTHON_INLINE int __Pyx_PyInt_As_int(PyObject *x) {
+            static CYTHON_INLINE int __Pyx_PyInt_As_int(PyObject *x) {
     const int neg_one = (int) -1, const_zero = (int) 0;
     const int is_unsigned = neg_one > const_zero;
 #if PY_MAJOR_VERSION < 3
@@ -28716,7 +28796,7 @@ raise_neg_overflow:
 }
 
 /* CIntFromPy */
-          static CYTHON_INLINE size_t __Pyx_PyInt_As_size_t(PyObject *x) {
+            static CYTHON_INLINE size_t __Pyx_PyInt_As_size_t(PyObject *x) {
     const size_t neg_one = (size_t) -1, const_zero = (size_t) 0;
     const int is_unsigned = neg_one > const_zero;
 #if PY_MAJOR_VERSION < 3
@@ -28905,7 +28985,7 @@ raise_neg_overflow:
 }
 
 /* CIntFromPy */
-          static CYTHON_INLINE long __Pyx_PyInt_As_long(PyObject *x) {
+            static CYTHON_INLINE long __Pyx_PyInt_As_long(PyObject *x) {
     const long neg_one = (long) -1, const_zero = (long) 0;
     const int is_unsigned = neg_one > const_zero;
 #if PY_MAJOR_VERSION < 3
@@ -29094,7 +29174,7 @@ raise_neg_overflow:
 }
 
 /* CIntFromPy */
-          static CYTHON_INLINE char __Pyx_PyInt_As_char(PyObject *x) {
+            static CYTHON_INLINE char __Pyx_PyInt_As_char(PyObject *x) {
     const char neg_one = (char) -1, const_zero = (char) 0;
     const int is_unsigned = neg_one > const_zero;
 #if PY_MAJOR_VERSION < 3
@@ -29283,7 +29363,7 @@ raise_neg_overflow:
 }
 
 /* IsLittleEndian */
-          static CYTHON_INLINE int __Pyx_Is_Little_Endian(void)
+            static CYTHON_INLINE int __Pyx_Is_Little_Endian(void)
 {
   union {
     uint32_t u32;
@@ -29294,7 +29374,7 @@ raise_neg_overflow:
 }
 
 /* BufferFormatCheck */
-          static void __Pyx_BufFmt_Init(__Pyx_BufFmt_Context* ctx,
+            static void __Pyx_BufFmt_Init(__Pyx_BufFmt_Context* ctx,
                               __Pyx_BufFmt_StackElem* stack,
                               __Pyx_TypeInfo* type) {
   stack[0].field = &ctx->root;
@@ -29796,7 +29876,7 @@ static const char* __Pyx_BufFmt_CheckString(__Pyx_BufFmt_Context* ctx, const cha
 }
 
 /* TypeInfoCompare */
-            static int
+              static int
 __pyx_typeinfo_cmp(__Pyx_TypeInfo *a, __Pyx_TypeInfo *b)
 {
     int i;
@@ -29837,7 +29917,7 @@ __pyx_typeinfo_cmp(__Pyx_TypeInfo *a, __Pyx_TypeInfo *b)
 }
 
 /* MemviewSliceValidateAndInit */
-            static int
+              static int
 __pyx_check_strides(Py_buffer *buf, int dim, int ndim, int spec)
 {
     if (buf->shape[dim] <= 1)
@@ -30019,7 +30099,7 @@ no_fail:
 }
 
 /* ObjectToMemviewSlice */
-            static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_d_dc_float(PyObject *obj, int writable_flag) {
+              static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_d_dc_float(PyObject *obj, int writable_flag) {
     __Pyx_memviewslice result = { 0, 0, { 0 }, { 0 }, { 0 } };
     __Pyx_BufFmt_StackElem stack[1];
     int axes_specs[] = { (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_FOLLOW), (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_CONTIG) };
@@ -30042,7 +30122,7 @@ __pyx_fail:
 }
 
 /* ObjectToMemviewSlice */
-            static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_dc_unsigned_int(PyObject *obj, int writable_flag) {
+              static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_dc_unsigned_int(PyObject *obj, int writable_flag) {
     __Pyx_memviewslice result = { 0, 0, { 0 }, { 0 }, { 0 } };
     __Pyx_BufFmt_StackElem stack[1];
     int axes_specs[] = { (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_CONTIG) };
@@ -30065,7 +30145,7 @@ __pyx_fail:
 }
 
 /* ObjectToMemviewSlice */
-            static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_d_d_dc_float(PyObject *obj, int writable_flag) {
+              static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_d_d_dc_float(PyObject *obj, int writable_flag) {
     __Pyx_memviewslice result = { 0, 0, { 0 }, { 0 }, { 0 } };
     __Pyx_BufFmt_StackElem stack[1];
     int axes_specs[] = { (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_FOLLOW), (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_FOLLOW), (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_CONTIG) };
@@ -30088,7 +30168,7 @@ __pyx_fail:
 }
 
 /* CheckBinaryVersion */
-            static int __Pyx_check_binary_version(void) {
+              static int __Pyx_check_binary_version(void) {
     char ctversion[4], rtversion[4];
     PyOS_snprintf(ctversion, 4, "%d.%d", PY_MAJOR_VERSION, PY_MINOR_VERSION);
     PyOS_snprintf(rtversion, 4, "%s", Py_GetVersion());
@@ -30104,7 +30184,7 @@ __pyx_fail:
 }
 
 /* ModuleImport */
-            #ifndef __PYX_HAVE_RT_ImportModule
+              #ifndef __PYX_HAVE_RT_ImportModule
 #define __PYX_HAVE_RT_ImportModule
 static PyObject *__Pyx_ImportModule(const char *name) {
     PyObject *py_name = 0;
@@ -30122,7 +30202,7 @@ bad:
 #endif
 
 /* TypeImport */
-            #ifndef __PYX_HAVE_RT_ImportType
+              #ifndef __PYX_HAVE_RT_ImportType
 #define __PYX_HAVE_RT_ImportType
 static PyTypeObject *__Pyx_ImportType(const char *module_name, const char *class_name,
     size_t size, int strict)
@@ -30187,7 +30267,7 @@ bad:
 #endif
 
 /* InitStrings */
-            static int __Pyx_InitStrings(__Pyx_StringTabEntry *t) {
+              static int __Pyx_InitStrings(__Pyx_StringTabEntry *t) {
     while (t->p) {
         #if PY_MAJOR_VERSION < 3
         if (t->is_unicode) {
