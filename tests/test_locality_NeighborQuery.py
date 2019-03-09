@@ -24,22 +24,23 @@ class TestNeighborQueryAABB(unittest.TestCase):
         aq = locality.AABBQuery(fbox, points)
 
         # particle 0 has 3 bonds
-        npt.assert_equal(len(aq.queryBall(points[[0]], rcut)), 3)
+        npt.assert_equal(len(aq.queryBall(points[[0]], rcut).toList()), 3)
         # particle 1 has 4 bonds
-        npt.assert_equal(len(aq.queryBall(points[[1]], rcut)), 4)
+        npt.assert_equal(len(aq.queryBall(points[[1]], rcut).toList()), 4)
         # particle 2 has 3 bonds
-        npt.assert_equal(len(aq.queryBall(points[[2]], rcut)), 3)
+        npt.assert_equal(len(aq.queryBall(points[[2]], rcut).toList()), 3)
         # particle 3 has 4 bonds
-        npt.assert_equal(len(aq.queryBall(points[[3]], rcut)), 4)
+        npt.assert_equal(len(aq.queryBall(points[[3]], rcut).toList()), 4)
 
         # When excluding, everything has one less neighbor.
-        npt.assert_equal(len(aq.queryBall(points, rcut, exclude_ii=True)), 10)
+        npt.assert_equal(
+            len(aq.queryBall(points, rcut, exclude_ii=True).toList()), 10)
 
         # now move particle 0 out of range...
         points[0] = 5
 
         # particle 0 has no bonds now
-        npt.assert_equal(len(aq.queryBall(points[[0]], rcut)), 0)
+        npt.assert_equal(len(aq.queryBall(points[[0]], rcut).toList()), 0)
 
     def test_query(self):
         L = 10  # Box Dimensions
@@ -54,21 +55,21 @@ class TestNeighborQueryAABB(unittest.TestCase):
         points[3] = [2.0, 0.0, 0.0]
         aq = locality.AABBQuery(fbox, points)
 
-        result = aq.query(points, 3)
+        result = aq.query(points, 3).toList()
         npt.assert_equal({x[1] for x in result if x[0] == 0}, {0, 1, 3})
         npt.assert_equal({x[1] for x in result if x[0] == 1}, {0, 1, 3})
         npt.assert_equal({x[1] for x in result if x[0] == 2}, {1, 2, 3})
         npt.assert_equal({x[1] for x in result if x[0] == 3}, {1, 2, 3})
 
         # All points are neighbors in this case
-        result = aq.query(points, 3, exclude_ii=True)
+        result = aq.query(points, 3, exclude_ii=True).toList()
         npt.assert_equal({x[1] for x in result if x[0] == 0}, {1, 2, 3})
         npt.assert_equal({x[1] for x in result if x[0] == 1}, {0, 2, 3})
         npt.assert_equal({x[1] for x in result if x[0] == 2}, {0, 1, 3})
         npt.assert_equal({x[1] for x in result if x[0] == 3}, {0, 1, 2})
 
         # Test overflow case
-        npt.assert_equal(aq.query(points, 5, exclude_ii=True), result)
+        npt.assert_equal(aq.query(points, 5, exclude_ii=True).toList(), result)
 
     def test_reciprocal(self):
         """Test that, for a random set of points, for each (i, j) neighbor
@@ -79,7 +80,7 @@ class TestNeighborQueryAABB(unittest.TestCase):
         np.random.seed(0)
         points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
         aq = locality.AABBQuery(fbox, points)
-        result = aq.queryBall(points, rcut)
+        result = aq.queryBall(points, rcut).toList()
 
         ij = {(x[0], x[1]) for x in result}
         ji = set((j, i) for (i, j) in ij)
@@ -100,8 +101,8 @@ class TestNeighborQueryAABB(unittest.TestCase):
         aq = locality.AABBQuery(fbox, points)
         aq2 = locality.AABBQuery(fbox, points2)
 
-        result = aq.queryBall(points2, rcut)
-        result2 = aq2.queryBall(points, rcut)
+        result = aq.queryBall(points2, rcut).toList()
+        result2 = aq2.queryBall(points, rcut).toList()
 
         ij = {(x[0], x[1]) for x in result}
         ij2 = {(x[1], x[0]) for x in result2}
@@ -116,11 +117,11 @@ class TestNeighborQueryAABB(unittest.TestCase):
         points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
         points2 = points[:N//6]
         aq = locality.AABBQuery(fbox, points)
-        result = aq.queryBall(points2, rcut)
+        result = aq.queryBall(points2, rcut).toList()
 
         ij1 = {(x[0], x[1]) for x in result}
 
-        result2 = aq.queryBall(points2, rcut, exclude_ii=True)
+        result2 = aq.queryBall(points2, rcut, exclude_ii=True).toList()
 
         ij2 = {(x[0], x[1]) for x in result2}
 
@@ -150,7 +151,7 @@ class TestNeighborQueryAABB(unittest.TestCase):
             exhaustive_counts_list = [exhaustive_counts[j] for j in range(N)]
 
             aq = locality.AABBQuery(fbox, points)
-            result = aq.queryBall(points, rcut, exclude_ii=True)
+            result = aq.queryBall(points, rcut, exclude_ii=True).toList()
             ijs = {(x[1], x[0]) for x in result}
             counts = Counter([x[1] for x in result])
             counts_list = [counts[j] for j in range(N)]
@@ -191,7 +192,7 @@ class TestNeighborQueryAABB(unittest.TestCase):
             exhaustive_counts_list = [exhaustive_counts[j] for j in range(N)]
 
             aq = locality.AABBQuery(fbox, points)
-            result = aq.queryBall(points2, rcut)
+            result = aq.queryBall(points2, rcut).toList()
             ijs = {(x[1], x[0]) for x in result}
             counts = Counter([x[1] for x in result])
             counts_list = [counts[j] for j in range(N)]
@@ -237,7 +238,7 @@ class TestNeighborQueryAABB(unittest.TestCase):
 
         # rcut is slightly smaller than the distance for any particle
         aq = locality.AABBQuery(fbox, positions)
-        result = aq.queryBall(positions, 0.99, exclude_ii=True)
+        result = aq.queryBall(positions, 0.99, exclude_ii=True).toList()
 
         self.assertEqual(len(result), 0)
 
@@ -258,28 +259,29 @@ class TestNeighborQueryLinkCell(unittest.TestCase):
         lc = locality.LinkCell(fbox, rcut, points)
 
         # particle 0 has 2 bonds
-        npt.assert_equal(len(lc.queryBall(points[[0]], rcut)), 3)
+        npt.assert_equal(len(lc.queryBall(points[[0]], rcut).toList()), 3)
         # particle 1 has 3 bonds
-        npt.assert_equal(len(lc.queryBall(points[[1]], rcut)), 4)
+        npt.assert_equal(len(lc.queryBall(points[[1]], rcut).toList()), 4)
         # particle 2 has 2 bonds
-        npt.assert_equal(len(lc.queryBall(points[[2]], rcut)), 3)
+        npt.assert_equal(len(lc.queryBall(points[[2]], rcut).toList()), 3)
         # particle 3 has 3 bonds
-        npt.assert_equal(len(lc.queryBall(points[[3]], rcut)), 4)
+        npt.assert_equal(len(lc.queryBall(points[[3]], rcut).toList()), 4)
 
         # When excluding, everything has one less neighbor.
-        npt.assert_equal(len(lc.queryBall(points, rcut, exclude_ii=True)), 10)
+        npt.assert_equal(
+            len(lc.queryBall(points, rcut, exclude_ii=True).toList()), 10)
 
         # now move particle 0 out of range...
         points[0] = 5
 
         # particle 0 has 0 bonds
-        npt.assert_equal(len(lc.queryBall(points[[0]], rcut)), 0)
+        npt.assert_equal(len(lc.queryBall(points[[0]], rcut).toList()), 0)
         # particle 1 has 2 bonds
-        npt.assert_equal(len(lc.queryBall(points[[1]], rcut)), 4)
+        npt.assert_equal(len(lc.queryBall(points[[1]], rcut).toList()), 4)
         # particle 2 has 2 bonds
-        npt.assert_equal(len(lc.queryBall(points[[2]], rcut)), 3)
+        npt.assert_equal(len(lc.queryBall(points[[2]], rcut).toList()), 3)
         # particle 3 has 2 bonds
-        npt.assert_equal(len(lc.queryBall(points[[3]], rcut)), 4)
+        npt.assert_equal(len(lc.queryBall(points[[3]], rcut).toList()), 4)
 
     def test_reciprocal(self):
         """Test that, for a random set of points, for each (i, j) neighbor
@@ -290,7 +292,7 @@ class TestNeighborQueryLinkCell(unittest.TestCase):
         np.random.seed(0)
         points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
         lc = locality.LinkCell(fbox, rcut, points)
-        result = lc.queryBall(points, rcut)
+        result = lc.queryBall(points, rcut).toList()
 
         ij = {(x[0], x[1]) for x in result}
         ji = set((j, i) for (i, j) in ij)
@@ -311,8 +313,8 @@ class TestNeighborQueryLinkCell(unittest.TestCase):
         lc = locality.LinkCell(fbox, rcut, points)
         lc2 = locality.LinkCell(fbox, rcut, points2)
 
-        result = lc.queryBall(points2, rcut)
-        result2 = lc2.queryBall(points, rcut)
+        result = lc.queryBall(points2, rcut).toList()
+        result2 = lc2.queryBall(points, rcut).toList()
 
         ij = {(x[0], x[1]) for x in result}
         ij2 = {(x[1], x[0]) for x in result2}
@@ -327,11 +329,11 @@ class TestNeighborQueryLinkCell(unittest.TestCase):
         points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
         points2 = points[:N//6]
         lc = locality.LinkCell(fbox, rcut, points)
-        result = lc.queryBall(points2, rcut)
+        result = lc.queryBall(points2, rcut).toList()
 
         ij1 = {(x[0], x[1]) for x in result}
 
-        result2 = lc.queryBall(points2, rcut, exclude_ii=True)
+        result2 = lc.queryBall(points2, rcut, exclude_ii=True).toList()
 
         ij2 = {(x[0], x[1]) for x in result2}
 
@@ -361,7 +363,7 @@ class TestNeighborQueryLinkCell(unittest.TestCase):
             exhaustive_counts_list = [exhaustive_counts[j] for j in range(N)]
 
             lc = locality.LinkCell(fbox, rcut, points)
-            result = lc.queryBall(points, rcut, exclude_ii=True)
+            result = lc.queryBall(points, rcut, exclude_ii=True).toList()
             ijs = {(x[1], x[0]) for x in result}
             counts = Counter([x[1] for x in result])
             counts_list = [counts[j] for j in range(N)]
@@ -402,7 +404,7 @@ class TestNeighborQueryLinkCell(unittest.TestCase):
             exhaustive_counts_list = [exhaustive_counts[j] for j in range(N)]
 
             lc = locality.LinkCell(fbox, rcut, points)
-            result = lc.queryBall(points2, rcut)
+            result = lc.queryBall(points2, rcut).toList()
             ijs = {(x[1], x[0]) for x in result}
             counts = Counter([x[1] for x in result])
             counts_list = [counts[j] for j in range(N)]
@@ -447,6 +449,6 @@ class TestNeighborQueryLinkCell(unittest.TestCase):
 
         # rcut is slightly smaller than the distance for any particle
         lc = locality.LinkCell(fbox, rcut, positions)
-        result = lc.queryBall(positions, rcut, exclude_ii=True)
+        result = lc.queryBall(positions, rcut, exclude_ii=True).toList()
 
         self.assertEqual(len(result), 0)
