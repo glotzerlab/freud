@@ -38,7 +38,7 @@ cdef class NeighborQueryResult:
 
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
 
-    .. versionadded:: 0.12.0
+    .. versionadded:: 1.1.0
     """
 
     def __iter__(self):
@@ -46,32 +46,21 @@ cdef class NeighborQueryResult:
         cdef vec3[float] l_cur_point
         cdef unsigned int i
 
-        if self.query_type == 'nn':
-            for i in range(self.Np):
-                l_cur_point = vec3[float](
-                    self.points[i, 0], self.points[i, 1], self.points[i, 2])
+        for i in range(self.Np):
+            l_cur_point = vec3[float](
+                self.points[i, 0], self.points[i, 1], self.points[i, 2])
+            if self.query_type == 'nn':
                 self.iterator = self.spdptr.query(l_cur_point, self.k)
-
-                while True:
-                    npoint = dereference(self.iterator).next()
-                    if npoint == ITERATOR_TERMINATOR:
-                        break
-                    elif self.exclude_ii and npoint.id == i:
-                        continue
-                    yield (i, npoint.id, npoint.distance)
-        else:
-            for i in range(self.Np):
-                l_cur_point = vec3[float](
-                    self.points[i, 0], self.points[i, 1], self.points[i, 2])
+            else:
                 self.iterator = self.spdptr.queryBall(l_cur_point, self.r)
 
-                while True:
-                    npoint = dereference(self.iterator).next()
-                    if npoint == ITERATOR_TERMINATOR:
-                        break
-                    elif self.exclude_ii and npoint.id == i:
-                        continue
-                    yield (i, npoint.id, npoint.distance)
+            while True:
+                npoint = dereference(self.iterator).next()
+                if npoint == ITERATOR_TERMINATOR:
+                    break
+                elif self.exclude_ii and npoint.id == i:
+                    continue
+                yield (i, npoint.id, npoint.distance)
 
         raise StopIteration
 
@@ -98,11 +87,12 @@ cdef class NeighborQueryResult:
 
 
 cdef class AABBQueryResult(NeighborQueryResult):
-    R"""Extend NeighborQuery class to call the correct iterator query function.
+    R"""Extend NeighborQuery class for the AABB k-nearest neighbors query case
+    to call the C++ query function with the correct set of arguments.
 
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
 
-    .. versionadded:: 0.12.0
+    .. versionadded:: 1.1.0
     """
 
     def __iter__(self):
@@ -114,7 +104,7 @@ cdef class AABBQueryResult(NeighborQueryResult):
             l_cur_point = vec3[float](
                 self.points[i, 0], self.points[i, 1], self.points[i, 2])
             self.iterator = self.aabbptr.query(
-                l_cur_point, self.k, self.r_guess, self.scale)
+                l_cur_point, self.k, self.r, self.scale)
 
             while True:
                 npoint = dereference(self.iterator).next()
@@ -143,7 +133,7 @@ cdef class NeighborQuery:
 
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
 
-    .. versionadded:: 0.12.0
+    .. versionadded:: 1.1.0
 
     Args:
         box (:class:`freud.box.Box`):

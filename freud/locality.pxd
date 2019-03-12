@@ -17,6 +17,10 @@ cdef class NeighborQueryResult:
     cdef cbool exclude_ii
     cdef str query_type
 
+    # This had to be implemented as a factory because the constructors will
+    # always get called with Python objects as arguments, and we need typed
+    # objects. See the link below for more information.
+    # https://cython.readthedocs.io/en/latest/src/userguide/special_methods.html#initialisation-methods-cinit-and-init
     @staticmethod
     cdef inline NeighborQueryResult init(
             freud._locality.NeighborQuery * spdptr, float[:, ::1] points,
@@ -44,13 +48,12 @@ cdef class NeighborQueryResult:
 
 cdef class AABBQueryResult(NeighborQueryResult):
     cdef freud._locality.AABBQuery * aabbptr
-    cdef float r_guess
     cdef float scale
 
     @staticmethod
     cdef inline AABBQueryResult init2(
             freud._locality.AABBQuery * aabbptr, float[:, ::1] points,
-            cbool exclude_ii, unsigned int k, float r_guess, float scale):
+            cbool exclude_ii, unsigned int k, float r, float scale):
         # Internal API only
         assert k != 0
 
@@ -61,15 +64,11 @@ cdef class AABBQueryResult(NeighborQueryResult):
         obj.exclude_ii = exclude_ii
         obj.Np = points.shape[0]
 
-        obj.r = 0  # Only for kN queries
+        obj.r = r  # Only for kN queries
         obj.k = k
 
-        if obj.r != 0:
-            obj.query_type = 'ball'
-        else:
-            obj.query_type = 'nn'
+        obj.query_type = 'nn'
 
-        obj.r_guess = r_guess
         obj.scale = scale
 
         return obj
