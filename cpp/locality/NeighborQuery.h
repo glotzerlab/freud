@@ -146,7 +146,7 @@ class NeighborQueryIterator {
         //! Constructor
         NeighborQueryIterator(const NeighborQuery* spatial_data,
                 const vec3<float> *points, unsigned int N) :
-            m_spatial_data(spatial_data), m_points(points), m_N(N), cur_p(0), m_finished(false)
+            m_neighbor_query(spatial_data), m_points(points), m_N(N), cur_p(0), m_finished(false)
             {
             }
 
@@ -165,7 +165,7 @@ class NeighborQueryIterator {
         static const NeighborPoint ITERATOR_TERMINATOR; //!< The object returned when iteration is complete.
 
     protected:
-        const NeighborQuery *m_spatial_data; //!< Link to the NeighborQuery object.
+        const NeighborQuery *m_neighbor_query; //!< Link to the NeighborQuery object.
         const vec3<float> *m_points;         //!< Coordinates of query points.
         unsigned int m_N;                    //!< Number of points.
         unsigned int cur_p;                  //!< The current index into the points (bounded by m_N).

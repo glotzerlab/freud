@@ -384,7 +384,7 @@ NeighborPoint LinkCellQueryBallIterator::next()
             // track between calls to next.
             for (unsigned int j = m_cell_iter.next(); !m_cell_iter.atEnd(); j = m_cell_iter.next())
                 {
-                const vec3<float> rij(m_spatial_data->getBox().wrap((*m_linkcell)[j] - m_points[cur_p]));
+                const vec3<float> rij(m_neighbor_query->getBox().wrap((*m_linkcell)[j] - m_points[cur_p]));
                 const float rsq(dot(rij, rij));
 
                 if (rsq < r_cutsq)
@@ -415,7 +415,7 @@ NeighborPoint LinkCellQueryBallIterator::next()
                 }
             }
         cur_p++;
-        m_neigh_cell_iter = IteratorCellShell(0, m_spatial_data->getBox().is2D());
+        m_neigh_cell_iter = IteratorCellShell(0, m_neighbor_query->getBox().is2D());
         m_cell_iter = m_linkcell->itercell(m_linkcell->getCell(m_points[cur_p]));
         }
 
@@ -441,7 +441,7 @@ NeighborPoint LinkCellQueryIterator::next()
                 {
                 for (unsigned int j = m_cell_iter.next(); !m_cell_iter.atEnd(); j = m_cell_iter.next())
                     {
-                    const vec3<float> rij(m_spatial_data->getBox().wrap((*m_linkcell)[j] - m_points[cur_p]));
+                    const vec3<float> rij(m_neighbor_query->getBox().wrap((*m_linkcell)[j] - m_points[cur_p]));
                     const float rsq(dot(rij, rij));
                     m_current_neighbors.emplace_back(cur_p, j, sqrt(rsq));
                     }
@@ -476,7 +476,7 @@ NeighborPoint LinkCellQueryIterator::next()
         cur_p++;
         m_count = 0;
         m_current_neighbors.clear();
-        m_neigh_cell_iter = IteratorCellShell(0, m_spatial_data->getBox().is2D());
+        m_neigh_cell_iter = IteratorCellShell(0, m_neighbor_query->getBox().is2D());
         m_cell_iter = m_linkcell->itercell(m_linkcell->getCell(m_points[cur_p]));
         }
 

@@ -61,7 +61,7 @@ void AABBQuery::buildTree(const vec3<float> *points, unsigned int Np)
 
 void AABBIterator::updateImageVectors(float rmax)
     {
-    box::Box box = m_spatial_data->getBox();
+    box::Box box = m_neighbor_query->getBox();
     vec3<float> nearest_plane_distance = box.getNearestPlaneDistance();
     vec3<bool> periodic = box.getPeriodic();
     if ((periodic.x && nearest_plane_distance.x <= rmax * 2.0) ||
@@ -128,7 +128,7 @@ NeighborPoint AABBQueryBallIterator::next()
         {
         // Read in the position of current point
         vec3<float> pos_i(m_points[cur_p]);
-        if (m_spatial_data->getBox().is2D())
+        if (m_neighbor_query->getBox().is2D())
             {
             pos_i.z = 0;
             }
@@ -153,8 +153,8 @@ NeighborPoint AABBQueryBallIterator::next()
                             const unsigned int j = m_aabb_data->m_aabb_tree.getNodeParticleTag(cur_node_idx, cur_ref_p);
 
                             // Read in the position of j
-                            vec3<float> pos_j((*m_spatial_data)[j]);
-                            if (m_spatial_data->getBox().is2D())
+                            vec3<float> pos_j((*m_neighbor_query)[j]);
+                            if (m_neighbor_query->getBox().is2D())
                                 {
                                 pos_j.z = 0;
                                 }
@@ -193,7 +193,7 @@ NeighborPoint AABBQueryBallIterator::next()
 
 NeighborPoint AABBQueryIterator::next()
     {
-    vec3<float> plane_distance = m_spatial_data->getBox().getNearestPlaneDistance();
+    vec3<float> plane_distance = m_neighbor_query->getBox().getNearestPlaneDistance();
     float min_plane_distance = std::min(std::min(plane_distance.x, plane_distance.y), plane_distance.z);
 
     while (cur_p < m_N)
@@ -206,7 +206,7 @@ NeighborPoint AABBQueryIterator::next()
                 {
                 // Perform a ball query to get neighbors.
                 m_current_neighbors.clear();
-                std::shared_ptr<NeighborQueryIterator> ball_it = m_spatial_data->queryBall(&(m_points[cur_p]), 1, m_r_cur);
+                std::shared_ptr<NeighborQueryIterator> ball_it = m_neighbor_query->queryBall(&(m_points[cur_p]), 1, m_r_cur);
                 while(!ball_it->end())
                     {
                     NeighborPoint np = ball_it->next();

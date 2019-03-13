@@ -46,12 +46,12 @@ cdef class NeighborQueryResult:
         cdef float[:, ::1] l_points = self.points
 
         if self.query_type == 'nn':
-            self.iterator = self.spdptr.query(
+            self.iterator = self.nqptr.query(
                 <vec3[float]*> &l_points[0, 0],
                 self.points.shape[0],
                 self.k)
         else:
-            self.iterator = self.spdptr.queryBall(
+            self.iterator = self.nqptr.queryBall(
                 <vec3[float]*> &l_points[0, 0],
                 self.points.shape[0],
                 self.r)
@@ -202,7 +202,7 @@ cdef class NeighborQuery:
             k += 1
 
         return NeighborQueryResult.init(
-            self.spdptr, points, exclude_ii, r=0, k=k)
+            self.nqptr, points, exclude_ii, r=0, k=k)
 
     def queryBall(self, points, float r, cbool exclude_ii=False):
         R"""Query the tree for all points within a distance r of the provided point(s).
@@ -236,7 +236,7 @@ cdef class NeighborQuery:
             raise TypeError('points should be an Nx3 array')
 
         return NeighborQueryResult.init(
-            self.spdptr, points, exclude_ii, r=r, k=0)
+            self.nqptr, points, exclude_ii, r=r, k=0)
 
 
 cdef class NeighborList:
@@ -701,7 +701,7 @@ cdef class AABBQuery(NeighborQuery):
                 points.copy(), 2, dtype=np.float32, contiguous=True,
                 array_name="points")
             l_points = self.points
-            self.thisptr = self.spdptr = new freud._locality.AABBQuery(
+            self.thisptr = self.nqptr = new freud._locality.AABBQuery(
                 dereference(self.box.thisptr),
                 <vec3[float]*> &l_points[0, 0],
                 self.points.shape[0])
@@ -854,14 +854,14 @@ cdef class LinkCell(NeighborQuery):
                 points.copy(), 2, dtype=np.float32, contiguous=True,
                 array_name="points")
             l_points = self.points
-            self.thisptr = self.spdptr = new freud._locality.LinkCell(
+            self.thisptr = self.nqptr = new freud._locality.LinkCell(
                 dereference(self.box.thisptr), float(cell_width),
                 <vec3[float]*> &l_points[0, 0],
                 self.points.shape[0])
         else:
             # The old API
             self.queryable = False
-            self.thisptr = self.spdptr = new freud._locality.LinkCell(
+            self.thisptr = self.nqptr = new freud._locality.LinkCell(
                 dereference(self.box.thisptr), float(cell_width))
         self._nlist = NeighborList()
 
