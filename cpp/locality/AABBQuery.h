@@ -5,6 +5,7 @@
 #define AABBQUERY_H
 
 #include <vector>
+#include <memory>
 
 #include "NeighborQuery.h"
 #include "Box.h"
@@ -109,6 +110,9 @@ class AABBQueryIterator : public AABBIterator
         //! Get the next element.
         virtual NeighborPoint next();
 
+        //! Create an equivalent new query iterator on a per-particle basis.
+        virtual std::shared_ptr<NeighborQueryIterator> query(unsigned int idx);
+
     protected:
         unsigned int m_k; //!< Number of nearest neighbors to find.
         float m_r;        //!< Current ball cutoff distance. Used as a guess.
@@ -133,6 +137,9 @@ class AABBQueryBallIterator : public AABBIterator
 
         //! Get the next element.
         virtual NeighborPoint next();
+
+        //! Create an equivalent new query iterator on a per-particle basis.
+        virtual std::shared_ptr<NeighborQueryIterator> query(unsigned int idx);
 
     protected:
         float m_r;  //!< Search ball cutoff distance.

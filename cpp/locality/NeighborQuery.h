@@ -8,6 +8,7 @@
 #include "NeighborList.h"
 #include <stdexcept>
 #include <memory>
+#include <tbb/tbb.h>
 
 /*! \file NeighborQuery.h
     \brief Defines the abstract API for collections of points that can be
@@ -157,6 +158,12 @@ class NeighborQueryIterator {
         //! Indicate when done.
         virtual bool end() { return m_finished; }
 
+        //! Replicate this class's query on a per-particle basis.
+        virtual std::shared_ptr<NeighborQueryIterator> query(unsigned int idx)
+            {
+            throw std::runtime_error("The query method must be implemented by child classes.");
+            }
+
         //! Get the next element.
         virtual NeighborPoint next()
             {
@@ -165,25 +172,72 @@ class NeighborQueryIterator {
 
         NeighborList *toNeighborList()
             {
-                std::cout << "In function";
+            /*
+             * When we switch the nlist order to be point,
+             * ref_point, we can parallelize this over points by
+             * doing a tbb parallel_for where we call query for
+             * each point internally and insert it. However, for
+             * now we cannot parallelize this since we need to
+             * reverse the order.
+             */
+
+            //tbb::concurrent_vector<std::pair<size_t, size_t>> bonds;
+            typedef tbb::enumerable_thread_specific<std::vector<std::pair<size_t, size_t>>> BondVector;
+            BondVector bonds;
+            tbb::parallel_for(tbb::blocked_range<size_t>(0, m_N),
+                [&] (const tbb::blocked_range<size_t> &r)
+                {
+                BondVector::reference local_bonds(bonds.local());
+                NeighborPoint np;
+                for (size_t i(r.begin()); i != r.end(); ++i)
+                    {
+                    std::shared_ptr<NeighborQueryIterator> it = query(i);
+                    while (!it->end())
+                        {
+                        np = it->next();
+                        // Swap ref_id and id order for backwards compatibility.
+                        // I NEED TO MAKE THE QUERY METHOD RETURN THINGS MORE APPROPRIATELY, right now I'm forced to manually replace the id with i.
+                        local_bonds.emplace_back(np.ref_id, i);
+                        }
+                    }
+                });
+                
+            // Collect bonds into a linear vector for sorting.
+            std::vector<std::pair<size_t, size_t>> linear_bonds;
+
+            for (BondVector::const_iterator iter(bonds.begin()); iter != bonds.end(); ++iter)
+                {
+                linear_bonds.resize(linear_bonds.size() + iter->size());
+                unsigned int i = 0;
+                for (std::vector<std::pair<size_t, size_t>>::const_iterator bond(iter->begin()); bond != iter->end(); bond++)
+                    {
+                    linear_bonds[i] = *bond;
+                    std::cout << "Bond: " << bond->first << ", " << bond->second << std::endl;
+                    i++;
+                    }
+                }
+
+            unsigned int num_bonds = linear_bonds.size();
+            tbb::parallel_sort(linear_bonds.begin(), linear_bonds.end());
+
             NeighborList *nl = new NeighborList();
-            // FOR NOW THIS IS A HUGE UPPER BOUND, BUT I CAN IMPROVE IT LATER (EASY TO AT LEAST ESTIMATE THE NUMBER OF BONDS KN QUERIES)
-            nl->resize(m_N*m_neighbor_query->getNRef());
-            nl->setNumBonds(m_N*m_neighbor_query->getNRef(), m_neighbor_query->getNRef(), m_N);
+            nl->resize(num_bonds);
+            nl->setNumBonds(num_bonds, m_neighbor_query->getNRef(), m_N);
             size_t *neighbor_array(nl->getNeighbors());
             float *neighbor_weights(nl->getWeights());
 
-            // CURRENTLY THIS IMPLEMENTATION IS WRONG BECAUSE IT WON'T CORRECTLY SORT THINGS (FOR BACKWARDS COMPATIBILITY WE NEED TO SORT BY REF POINT INSTEAD OF POINT).
-            NeighborPoint np;
-            unsigned int i = 0;
-            while (!this->end())
+            parallel_for(tbb::blocked_range<size_t>(0, linear_bonds.size()),
+                [&] (const tbb::blocked_range<size_t> &r)
+                //[=] (const blocked_range<size_t> &r)
                 {
-                np = this->next();
-                neighbor_array[2*i] = np.ref_id;
-                neighbor_array[2*i + 1] = np.id;
-                neighbor_weights[i] = 1;
-                i++;
-                }
+                for (size_t bond(r.begin()); bond < r.end(); ++bond)
+                    {
+                    neighbor_array[2*bond] = linear_bonds[bond].first;
+                    neighbor_array[2*bond+1] = linear_bonds[bond].second;
+                    }
+                });
+            memset((void*) neighbor_weights, 1, sizeof(float)*linear_bonds.size());
+
             return nl;
             }
 

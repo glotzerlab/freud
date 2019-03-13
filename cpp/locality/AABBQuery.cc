@@ -191,6 +191,11 @@ NeighborPoint AABBQueryBallIterator::next()
     return NeighborQueryIterator::ITERATOR_TERMINATOR;
     }
 
+std::shared_ptr<NeighborQueryIterator> AABBQueryBallIterator::query(unsigned int idx)
+    {
+    return this->m_neighbor_query->queryBall(&m_points[idx], 1, m_r);
+    }
+
 NeighborPoint AABBQueryIterator::next()
     {
     vec3<float> plane_distance = m_neighbor_query->getBox().getNearestPlaneDistance();
@@ -246,5 +251,10 @@ NeighborPoint AABBQueryIterator::next()
     // NOTE THAT WHEN I NEED TO MAKE A NEIGHBORLIST, I NEED TO FILL IN THE SPOTS FOR THE PARTICLES THAT DON'T HAVE ENOUGH NEIGHBORS.
     m_finished = true;
     return NeighborQueryIterator::ITERATOR_TERMINATOR;
+    }
+
+std::shared_ptr<NeighborQueryIterator> AABBQueryIterator::query(unsigned int idx)
+    {
+    return ((AABBQuery *) this->m_neighbor_query)->query(&m_points[idx], 1, m_k, m_r, m_scale);
     }
 }; }; // end namespace freud::locality

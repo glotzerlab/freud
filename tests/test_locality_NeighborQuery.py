@@ -72,9 +72,13 @@ class TestNeighborQueryAABB(unittest.TestCase):
         npt.assert_equal(aq.query(points, 5, exclude_ii=True).toList(), result)
 
         # Try this
+        result = aq.query(points, 3).toList()
+        # [print(i, j) for i, j in sorted([[a[1], a[0]] for a in result])]
+        print(result)
+        print()
         result = aq.query(points, 3).toNList()
-        print(result.index_i)
-        print(result.index_j)
+        for i, j in zip(result.index_i, result.index_j):
+            print(i, j)
         # npt.assert_equal({x[1] for x in result if x[0] == 0}, {0, 1, 3})
         # npt.assert_equal({x[1] for x in result if x[0] == 1}, {0, 1, 3})
         # npt.assert_equal({x[1] for x in result if x[0] == 2}, {1, 2, 3})

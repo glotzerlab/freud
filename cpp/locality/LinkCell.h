@@ -510,6 +510,9 @@ class LinkCellQueryIterator : public LinkCellIterator
         //! Get the next element.
         virtual NeighborPoint next();
 
+        //! Create an equivalent new query iterator on a per-particle basis.
+        virtual std::shared_ptr<NeighborQueryIterator> query(unsigned int idx);
+
     protected:
         unsigned int m_k;                               //!< Number of nearest neighbors to find
         std::vector<NeighborPoint> m_current_neighbors; //!< Current list of neighbors for the current point.
@@ -530,6 +533,9 @@ class LinkCellQueryBallIterator : public LinkCellIterator
 
         //! Get the next element.
         virtual NeighborPoint next();
+
+        //! Create an equivalent new query iterator on a per-particle basis.
+        virtual std::shared_ptr<NeighborQueryIterator> query(unsigned int idx);
 
     protected:
         float m_r;  //!< Search ball cutoff distance
