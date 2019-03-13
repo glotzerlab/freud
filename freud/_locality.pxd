@@ -35,6 +35,7 @@ cdef extern from "NeighborQuery.h" namespace "freud::locality":
         NeighborQueryIterator(NeighborQuery*, vec3[float]*, unsigned int)
         bool end()
         NeighborPoint next()
+        NeighborList *toNeighborList()
 
 cdef extern from "NeighborList.h" namespace "freud::locality":
     cdef cppclass NeighborList:

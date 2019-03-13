@@ -71,6 +71,15 @@ class TestNeighborQueryAABB(unittest.TestCase):
         # Test overflow case
         npt.assert_equal(aq.query(points, 5, exclude_ii=True).toList(), result)
 
+        # Try this
+        result = aq.query(points, 3).toNList()
+        print(result.index_i)
+        print(result.index_j)
+        # npt.assert_equal({x[1] for x in result if x[0] == 0}, {0, 1, 3})
+        # npt.assert_equal({x[1] for x in result if x[0] == 1}, {0, 1, 3})
+        # npt.assert_equal({x[1] for x in result if x[0] == 2}, {1, 2, 3})
+        # npt.assert_equal({x[1] for x in result if x[0] == 3}, {1, 2, 3})
+
     def test_reciprocal(self):
         """Test that, for a random set of points, for each (i, j) neighbor
         pair there also exists a (j, i) neighbor pair for one set of points"""

@@ -5,6 +5,7 @@
 #define NEIGHBOR_QUERY_H
 
 #include "Box.h"
+#include "NeighborList.h"
 #include <stdexcept>
 #include <memory>
 
@@ -160,6 +161,30 @@ class NeighborQueryIterator {
         virtual NeighborPoint next()
             {
             throw std::runtime_error("The next method must be implemented by child classes.");
+            }
+
+        NeighborList *toNeighborList()
+            {
+                std::cout << "In function";
+            NeighborList *nl = new NeighborList();
+            // FOR NOW THIS IS A HUGE UPPER BOUND, BUT I CAN IMPROVE IT LATER (EASY TO AT LEAST ESTIMATE THE NUMBER OF BONDS KN QUERIES)
+            nl->resize(m_N*m_neighbor_query->getNRef());
+            nl->setNumBonds(m_N*m_neighbor_query->getNRef(), m_neighbor_query->getNRef(), m_N);
+            size_t *neighbor_array(nl->getNeighbors());
+            float *neighbor_weights(nl->getWeights());
+
+            // CURRENTLY THIS IMPLEMENTATION IS WRONG BECAUSE IT WON'T CORRECTLY SORT THINGS (FOR BACKWARDS COMPATIBILITY WE NEED TO SORT BY REF POINT INSTEAD OF POINT).
+            NeighborPoint np;
+            unsigned int i = 0;
+            while (!this->end())
+                {
+                np = this->next();
+                neighbor_array[2*i] = np.ref_id;
+                neighbor_array[2*i + 1] = np.id;
+                neighbor_weights[i] = 1;
+                i++;
+                }
+            return nl;
             }
 
         static const NeighborPoint ITERATOR_TERMINATOR; //!< The object returned when iteration is complete.

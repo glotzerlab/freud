@@ -76,16 +76,25 @@ cdef class NeighborQueryResult:
 
     def toNList(self):
         """Convert query result to a freud NeighborList."""
-        index_i = []
-        index_j = []
-        for neigh in self:
-            index_i.append(neigh[0])
-            index_j.append(neigh[1])
+        cdef float[:, ::1] l_points = self.points
 
-        index_j = np.array(index_j)
-        Ntarget = np.unique(index_j).shape[0]
-        return NeighborList.from_arrays(
-            self.Np, Ntarget, np.asarray(index_i), index_j)
+        if self.query_type == 'nn':
+            self.iterator = self.nqptr.query(
+                <vec3[float]*> &l_points[0, 0],
+                self.points.shape[0],
+                self.k)
+        else:
+            self.iterator = self.nqptr.queryBall(
+                <vec3[float]*> &l_points[0, 0],
+                self.points.shape[0],
+                self.r)
+
+        # Explicitly manage a manually created nlist.
+        cdef freud._locality.NeighborList *cnlist = dereference(
+            self.iterator).toNeighborList()
+        cdef NeighborList nl = NeighborList()
+        nl.refer_to(cnlist)
+        nl._managed = True
 
 
 cdef class AABBQueryResult(NeighborQueryResult):
@@ -118,6 +127,26 @@ cdef class AABBQueryResult(NeighborQueryResult):
             yield (npoint.id, npoint.ref_id, npoint.distance)
 
         raise StopIteration
+
+    def toNList(self):
+        """Convert query result to a freud NeighborList."""
+        cdef float[:, ::1] l_points = self.points
+
+        # Always a knn query in this class
+        self.iterator = self.aabbptr.query(
+            <vec3[float]*> &l_points[0, 0],
+            self.points.shape[0],
+            self.k,
+            self.r,
+            self.scale)
+
+        # Explicitly manage a manually created nlist.
+        cdef freud._locality.NeighborList *cnlist = dereference(
+            self.iterator).toNeighborList()
+        cdef NeighborList nl = NeighborList()
+        nl.refer_to(cnlist)
+        nl._managed = True
+        return nl
 
 
 cdef class NeighborQuery:
