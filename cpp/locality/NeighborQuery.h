@@ -23,14 +23,14 @@ namespace freud { namespace locality {
  *  possible to sort.
  */
 struct NeighborPoint {
-    NeighborPoint() : id(0), distance(0) { }
+    NeighborPoint() : id(0), ref_id(0), distance(0) { }
 
-    NeighborPoint(unsigned int id, float d) : id(id), distance(d) { }
+    NeighborPoint(unsigned int id, unsigned int ref_id, float d) : id(id), ref_id(ref_id), distance(d) { }
 
     //! Equality checks both id and distance.
     bool operator== (const NeighborPoint &n)
         {
-        return (id == n.id) && (distance == n.distance);
+        return (id == n.id) && (ref_id == n.ref_id) && (distance == n.distance);
         }
 
     //! Default comparator of points is by distance.
@@ -43,6 +43,7 @@ struct NeighborPoint {
         }
 
     unsigned int id;
+    unsigned int ref_id;
     float distance;
 };
 
@@ -80,11 +81,11 @@ class NeighborQuery
 
         //! Given a point, find the k elements of this data structure
         //  that are the nearest neighbors for each point.
-        virtual std::shared_ptr<NeighborQueryIterator> query(const vec3<float> point, unsigned int k) const = 0;
+        virtual std::shared_ptr<NeighborQueryIterator> query(const vec3<float> *points, unsigned int N, unsigned int k) const = 0;
 
         //! Given a point, find all elements of this data structure
         //  that are within a certain distance r.
-        virtual std::shared_ptr<NeighborQueryIterator> queryBall(const vec3<float> point, float r) const = 0;
+        virtual std::shared_ptr<NeighborQueryIterator> queryBall(const vec3<float> *points, unsigned int N, float r) const = 0;
 
         //! Get the simulation box
         const box::Box& getBox() const
@@ -144,8 +145,8 @@ class NeighborQueryIterator {
 
         //! Constructor
         NeighborQueryIterator(const NeighborQuery* spatial_data,
-                const vec3<float> point) :
-            m_spatial_data(spatial_data), m_point(point), m_finished(false)
+                const vec3<float> *points, unsigned int N) :
+            m_spatial_data(spatial_data), m_points(points), m_N(N), cur_p(0), m_finished(false)
             {
             }
 
@@ -164,10 +165,12 @@ class NeighborQueryIterator {
         static const NeighborPoint ITERATOR_TERMINATOR; //!< The object returned when iteration is complete.
 
     protected:
-        const NeighborQuery *m_spatial_data; //!< Link to the NeighborQuery object
-        const vec3<float> m_point;        //!< Query point coordinates
+        const NeighborQuery *m_spatial_data; //!< Link to the NeighborQuery object.
+        const vec3<float> *m_points;         //!< Coordinates of query points.
+        unsigned int m_N;                    //!< Number of points.
+        unsigned int cur_p;                  //!< The current index into the points (bounded by m_N).
 
-        unsigned int m_finished;           //!< Flag to indicate that iteration is complete (must be set by next on termination).
+        unsigned int m_finished;             //!< Flag to indicate that iteration is complete (must be set by next on termination).
 };
 
 }; }; // end namespace freud::locality

@@ -44,15 +44,15 @@ class AABBQuery : public NeighborQuery
         //  different signature, this is not directly overriding the original
         //  method in NeighborQuery, so we have to explicitly invalidate calling
         //  with that signature.
-        virtual std::shared_ptr<NeighborQueryIterator> query(const vec3<float> point, unsigned int k) const
+        virtual std::shared_ptr<NeighborQueryIterator> query(const vec3<float> *points, unsigned int N, unsigned int k) const
             {
             throw std::runtime_error("AABBQuery k-nearest-neighbor queries must use the function signature that provides rmax and scale guesses.");
             }
-        std::shared_ptr<NeighborQueryIterator> query(const vec3<float> point, unsigned int k, float r, float scale) const;
+        std::shared_ptr<NeighborQueryIterator> query(const vec3<float> *points, unsigned int N, unsigned int k, float r, float scale) const;
 
         //! Given a set of points, find all elements of this data structure
         //  that are within a certain distance r.
-        virtual std::shared_ptr<NeighborQueryIterator> queryBall(const vec3<float> point, float r) const;
+        virtual std::shared_ptr<NeighborQueryIterator> queryBall(const vec3<float> *points, unsigned int N, float r) const;
 
         AABBTree m_aabb_tree; //!< AABB tree of points
 
@@ -75,8 +75,8 @@ class AABBIterator : public NeighborQueryIterator
     {
     public:
         //! Constructor
-        AABBIterator(const AABBQuery* spatial_data, const vec3<float> point) :
-            NeighborQueryIterator(spatial_data, point), m_aabb_data(spatial_data)
+        AABBIterator(const AABBQuery* spatial_data, const vec3<float> *points, unsigned int N) :
+            NeighborQueryIterator(spatial_data, points, N), m_aabb_data(spatial_data)
             {}
 
         //! Empty Destructor
@@ -97,8 +97,8 @@ class AABBQueryIterator : public AABBIterator
     public:
         //! Constructor
         AABBQueryIterator(const AABBQuery* spatial_data,
-                const vec3<float> point, unsigned int k, float r, float scale) :
-            AABBIterator(spatial_data, point), m_k(k), m_r(r), m_scale(scale), m_current_neighbors()
+                const vec3<float> *points, unsigned int N, unsigned int k, float r, float scale) :
+            AABBIterator(spatial_data, points, N), m_k(k), m_r(r), m_r_cur(r), m_scale(scale), m_current_neighbors()
             {
             updateImageVectors(0);
             }
@@ -112,6 +112,7 @@ class AABBQueryIterator : public AABBIterator
     protected:
         unsigned int m_k; //!< Number of nearest neighbors to find.
         float m_r;        //!< Current ball cutoff distance. Used as a guess.
+        float m_r_cur;  //!< Search ball cutoff distance for the current particle.
         float m_scale;    //!< The amount to scale m_r by when the current ball is too small.
         std::vector<NeighborPoint> m_current_neighbors; //!< The current set of found neighbors.
     };
@@ -121,8 +122,8 @@ class AABBQueryBallIterator : public AABBIterator
     {
     public:
         //! Constructor
-        AABBQueryBallIterator(const AABBQuery* spatial_data, const vec3<float> point, float r) :
-            AABBIterator(spatial_data, point), m_r(r), cur_image(0), cur_node_idx(0), cur_p(0)
+        AABBQueryBallIterator(const AABBQuery* spatial_data, const vec3<float> *points, unsigned int N, float r) :
+            AABBIterator(spatial_data, points, N), m_r(r), cur_image(0), cur_node_idx(0), cur_ref_p(0)
             {
             updateImageVectors(m_r);
             }
@@ -134,12 +135,12 @@ class AABBQueryBallIterator : public AABBIterator
         virtual NeighborPoint next();
 
     protected:
-        float m_r;  //!< Search ball cutoff distance
+        float m_r;  //!< Search ball cutoff distance.
 
     private:
-        unsigned int cur_image;
-        unsigned int cur_node_idx;
-        unsigned int cur_p;
+        unsigned int cur_image; //!< The current node in the tree.
+        unsigned int cur_node_idx; //!< The current node in the tree.
+        unsigned int cur_ref_p;  //!< The current index into the reference particles in the current node of the tree.
     };
 }; }; // end namespace freud::locality
 

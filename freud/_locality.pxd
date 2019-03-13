@@ -11,6 +11,7 @@ cimport freud._box
 cdef extern from "NeighborQuery.h" namespace "freud::locality":
     cdef cppclass NeighborPoint:
         unsigned int id
+        unsigned int ref_id
         float distance
         bool operator==(NeighborPoint)
 
@@ -18,9 +19,9 @@ cdef extern from "NeighborQuery.h" namespace "freud::locality":
         NeighborQuery()
         NeighborQuery(const freud._box.Box &, const vec3[float]*, unsigned int)
         shared_ptr[NeighborQueryIterator] query(
-            const vec3[float], unsigned int) nogil except +
+            const vec3[float]*, unsigned int, unsigned int) nogil except +
         shared_ptr[NeighborQueryIterator] queryBall(
-            const vec3[float], float) nogil except +
+            const vec3[float]*, unsigned int, float) nogil except +
         const freud._box.Box & getBox() const
         const vec3[float]* getRefPoints const
         const unsigned int getNRef const
@@ -31,7 +32,7 @@ cdef extern from "NeighborQuery.h" namespace "freud::locality":
 
     cdef cppclass NeighborQueryIterator:
         NeighborQueryIterator()
-        NeighborQueryIterator(NeighborQuery*, vec3[float]&, unsigned int)
+        NeighborQueryIterator(NeighborQuery*, vec3[float]*, unsigned int)
         bool end()
         NeighborPoint next()
 
@@ -139,5 +140,5 @@ cdef extern from "AABBQuery.h" namespace "freud::locality":
             unsigned int,
             bool) nogil except +
         shared_ptr[NeighborQueryIterator] query(
-            const vec3[float], unsigned int,
+            const vec3[float]*, unsigned int, unsigned int,
             float, float) nogil except +

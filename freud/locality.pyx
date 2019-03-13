@@ -43,24 +43,26 @@ cdef class NeighborQueryResult:
 
     def __iter__(self):
         cdef freud._locality.NeighborPoint npoint
-        cdef vec3[float] l_cur_point
-        cdef unsigned int i
+        cdef float[:, ::1] l_points = self.points
 
-        for i in range(self.Np):
-            l_cur_point = vec3[float](
-                self.points[i, 0], self.points[i, 1], self.points[i, 2])
-            if self.query_type == 'nn':
-                self.iterator = self.spdptr.query(l_cur_point, self.k)
-            else:
-                self.iterator = self.spdptr.queryBall(l_cur_point, self.r)
+        if self.query_type == 'nn':
+            self.iterator = self.spdptr.query(
+                <vec3[float]*> &l_points[0, 0],
+                self.points.shape[0],
+                self.k)
+        else:
+            self.iterator = self.spdptr.queryBall(
+                <vec3[float]*> &l_points[0, 0],
+                self.points.shape[0],
+                self.r)
 
-            while True:
-                npoint = dereference(self.iterator).next()
-                if npoint == ITERATOR_TERMINATOR:
-                    break
-                elif self.exclude_ii and npoint.id == i:
-                    continue
-                yield (i, npoint.id, npoint.distance)
+        while True:
+            npoint = dereference(self.iterator).next()
+            if npoint == ITERATOR_TERMINATOR:
+                break
+            elif self.exclude_ii and npoint.ref_id == npoint.id:
+                continue
+            yield (npoint.id, npoint.ref_id, npoint.distance)
 
         raise StopIteration
 
@@ -97,22 +99,23 @@ cdef class AABBQueryResult(NeighborQueryResult):
 
     def __iter__(self):
         cdef freud._locality.NeighborPoint npoint
-        cdef vec3[float] l_cur_point
-        cdef unsigned int i
+        cdef float[:, ::1] l_points = self.points
 
-        for i in range(self.Np):
-            l_cur_point = vec3[float](
-                self.points[i, 0], self.points[i, 1], self.points[i, 2])
-            self.iterator = self.aabbptr.query(
-                l_cur_point, self.k, self.r, self.scale)
+        # Always a knn query in this class
+        self.iterator = self.aabbptr.query(
+            <vec3[float]*> &l_points[0, 0],
+            self.points.shape[0],
+            self.k,
+            self.r,
+            self.scale)
 
-            while True:
-                npoint = dereference(self.iterator).next()
-                if npoint == ITERATOR_TERMINATOR:
-                    break
-                elif self.exclude_ii and npoint.id == i:
-                    continue
-                yield (i, npoint.id, npoint.distance)
+        while True:
+            npoint = dereference(self.iterator).next()
+            if npoint == ITERATOR_TERMINATOR:
+                break
+            elif self.exclude_ii and npoint.ref_id == npoint.id:
+                continue
+            yield (npoint.id, npoint.ref_id, npoint.distance)
 
         raise StopIteration
 
@@ -154,9 +157,6 @@ cdef class NeighborQuery:
                 "The NeighborQuery class is abstract, and should not be "
                 "directly instantiated"
             )
-
-    def __dealloc__(self):
-        pass
 
     @property
     def box(self):

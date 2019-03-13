@@ -36,7 +36,7 @@ LinkCell::LinkCell(const box::Box& box, float cell_width, const vec3<float> *ref
     m_celldim(0, 0, 0), m_neighbor_list()
     {
     // The initializer list above sets the cell width and cell dimensions to 0
-    // so that we can farm out the work to the setCellWidth function.
+    // so that we can farm out the work to the updateInternal function.
     updateInternal(box, cell_width);
 
     computeCellList(box, ref_points, Nref);
@@ -355,16 +355,16 @@ void LinkCell::computeCellNeighbors()
 
 //! Given a set of points, find the k elements of this data structure
 //  that are the nearest neighbors for each point.
-std::shared_ptr<NeighborQueryIterator> LinkCell::query(const vec3<float> point, unsigned int k) const
+std::shared_ptr<NeighborQueryIterator> LinkCell::query(const vec3<float> *points, unsigned int N, unsigned int k) const
     {
-    return std::make_shared<LinkCellQueryIterator>(this, point, k);
+    return std::make_shared<LinkCellQueryIterator>(this, points, N, k);
     }
 
 //! Given a set of points, find all elements of this data structure
 //  that are within a certain distance r.
-std::shared_ptr<NeighborQueryIterator> LinkCell::queryBall(const vec3<float> point, float r) const
+std::shared_ptr<NeighborQueryIterator> LinkCell::queryBall(const vec3<float> *points, unsigned int N, float r) const
     {
-    return std::make_shared<LinkCellQueryBallIterator>(this, point, r);
+    return std::make_shared<LinkCellQueryBallIterator>(this, points, N, r);
     }
 
 
@@ -372,45 +372,51 @@ NeighborPoint LinkCellQueryBallIterator::next()
     {
     float r_cutsq = m_r * m_r;
 
-    vec3<unsigned int> point_cell(m_linkcell->getCellCoord(m_point));
-
-    // Loop over cell list neighbor shells relative to this point's cell.
-    while (true)
+    while (cur_p < m_N)
         {
-        // Iterate over the particles in that cell. Using a local counter
-        // variable is safe, because the IteratorLinkCell object is keeping
-        // track between calls to next.
-        for (unsigned int j = m_cell_iter.next(); !m_cell_iter.atEnd(); j = m_cell_iter.next())
-            {
-            const vec3<float> rij(m_spatial_data->getBox().wrap((*m_linkcell)[j] - m_point));
-            const float rsq(dot(rij, rij));
+        vec3<unsigned int> point_cell(m_linkcell->getCellCoord(m_points[cur_p]));
 
-            if (rsq < r_cutsq)
+        // Loop over cell list neighbor shells relative to this point's cell.
+        while (true)
+            {
+            // Iterate over the particles in that cell. Using a local counter
+            // variable is safe, because the IteratorLinkCell object is keeping
+            // track between calls to next.
+            for (unsigned int j = m_cell_iter.next(); !m_cell_iter.atEnd(); j = m_cell_iter.next())
                 {
-                return NeighborPoint(j, sqrt(rsq));
+                const vec3<float> rij(m_spatial_data->getBox().wrap((*m_linkcell)[j] - m_points[cur_p]));
+                const float rsq(dot(rij, rij));
+
+                if (rsq < r_cutsq)
+                    {
+                    return NeighborPoint(cur_p, j, sqrt(rsq));
+                    }
+                }
+
+            // Determine the next neighbor cell to consider. We're done if we
+            // reach a new shell and the closest point of approach to the new
+            // shell is greater than our rcut. We could be a little more
+            // efficient by also accounting for the position of the point in
+            // the current cell if this is too slow.
+            ++m_neigh_cell_iter;
+
+            if ((m_neigh_cell_iter.getRange()-1)*m_linkcell->getCellWidth() > m_r)
+                {
+                break;
+                }
+            else
+                {
+                const unsigned int neighbor_cell = m_linkcell->getCellIndexer()(
+                        // Need to increment each dimension by the width to avoid taking the modulus of a negative number.
+                        (m_linkcell->getCellIndexer().getW() + point_cell.x + (*m_neigh_cell_iter).x) % m_linkcell->getCellIndexer().getW(),
+                        (m_linkcell->getCellIndexer().getH() + point_cell.y + (*m_neigh_cell_iter).y) % m_linkcell->getCellIndexer().getH(),
+                        (m_linkcell->getCellIndexer().getD() + point_cell.z + (*m_neigh_cell_iter).z) % m_linkcell->getCellIndexer().getD());
+                m_cell_iter = m_linkcell->itercell(neighbor_cell);
                 }
             }
-
-        // Determine the next neighbor cell to consider. We're done if we
-        // reach a new shell and the closest point of approach to the new
-        // shell is greater than our rcut. We could be a little more
-        // efficient by also accounting for the position of the point in
-        // the current cell if this is too slow.
-        ++m_neigh_cell_iter;
-
-        if ((m_neigh_cell_iter.getRange()-1)*m_linkcell->getCellWidth() > m_r)
-            {
-            break;
-            }
-        else
-            {
-            const unsigned int neighbor_cell = m_linkcell->getCellIndexer()(
-                    // Need to increment each dimension by the width to avoid taking the modulus of a negative number.
-                    (m_linkcell->getCellIndexer().getW() + point_cell.x + (*m_neigh_cell_iter).x) % m_linkcell->getCellIndexer().getW(),
-                    (m_linkcell->getCellIndexer().getH() + point_cell.y + (*m_neigh_cell_iter).y) % m_linkcell->getCellIndexer().getH(),
-                    (m_linkcell->getCellIndexer().getD() + point_cell.z + (*m_neigh_cell_iter).z) % m_linkcell->getCellIndexer().getD());
-            m_cell_iter = m_linkcell->itercell(neighbor_cell);
-            }
+        cur_p++;
+        m_neigh_cell_iter = IteratorCellShell(0, m_spatial_data->getBox().is2D());
+        m_cell_iter = m_linkcell->itercell(m_linkcell->getCell(m_points[cur_p]));
         }
 
     m_finished = true;
@@ -419,55 +425,59 @@ NeighborPoint LinkCellQueryBallIterator::next()
 
 NeighborPoint LinkCellQueryIterator::next()
     {
-    vec3<unsigned int> point_cell(m_linkcell->getCellCoord(m_point));
-
-    if (m_finished)
+    while (cur_p < m_N)
         {
-        return NeighborQueryIterator::ITERATOR_TERMINATOR;
-        }
+        vec3<unsigned int> point_cell(m_linkcell->getCellCoord(m_points[cur_p]));
 
-    // Loop over cell list neighbor shells relative to this point's cell.
-    while (true)
-        {
-        // Iterate over the particles in that cell. Using a local counter
-        // variable is safe, because the IteratorLinkCell object is keeping
-        // track between calls to next. However, we have to add an extra
-        // check outside to proof ourselves against returning after
-        // previous calls to next that have not yet reset the iterator.
-        if (!m_cell_iter.atEnd())
+        // Loop over cell list neighbor shells relative to this point's cell.
+        while (true)
             {
-            for (unsigned int j = m_cell_iter.next(); !m_cell_iter.atEnd(); j = m_cell_iter.next())
+            // Iterate over the particles in that cell. Using a local counter
+            // variable is safe, because the IteratorLinkCell object is keeping
+            // track between calls to next. However, we have to add an extra
+            // check outside to proof ourselves against returning after
+            // previous calls to next that have not yet reset the iterator.
+            if (!m_cell_iter.atEnd())
                 {
-                const vec3<float> rij(m_spatial_data->getBox().wrap((*m_linkcell)[j] - m_point));
-                const float rsq(dot(rij, rij));
-                m_current_neighbors.emplace_back(j, sqrt(rsq));
+                for (unsigned int j = m_cell_iter.next(); !m_cell_iter.atEnd(); j = m_cell_iter.next())
+                    {
+                    const vec3<float> rij(m_spatial_data->getBox().wrap((*m_linkcell)[j] - m_points[cur_p]));
+                    const float rsq(dot(rij, rij));
+                    m_current_neighbors.emplace_back(cur_p, j, sqrt(rsq));
+                    }
                 }
+
+            // Termination is determined when we reach a shell such that we
+            // already have k neighbors closer than the closest possible
+            // neighbor in the new shell.
+            ++m_neigh_cell_iter;
+            // I PROBABLY WANT TO PUT A VERSION OF THIS CHECK BEFORE THE WHILE TRUE IN ORDER TO REDUCE THE WORK DONE EVERY TIME.
+            if (m_current_neighbors.size() >= m_k)
+                {
+                std::sort(m_current_neighbors.begin(), m_current_neighbors.end());
+                if (m_current_neighbors[m_k-1].distance < (m_neigh_cell_iter.getRange()-1)*m_linkcell->getCellWidth())
+                    {
+                    break;
+                    }
+                }
+            const unsigned int neighbor_cell = m_linkcell->getCellIndexer()(
+                    // Need to increment each dimension by the width to avoid taking the modulus of a negative number.
+                    (m_linkcell->getCellIndexer().getW() + point_cell.x + (*m_neigh_cell_iter).x) % m_linkcell->getCellIndexer().getW(),
+                    (m_linkcell->getCellIndexer().getH() + point_cell.y + (*m_neigh_cell_iter).y) % m_linkcell->getCellIndexer().getH(),
+                    (m_linkcell->getCellIndexer().getD() + point_cell.z + (*m_neigh_cell_iter).z) % m_linkcell->getCellIndexer().getD());
+            m_cell_iter = m_linkcell->itercell(neighbor_cell);
             }
 
-        // Termination is determined when we reach a shell such that we
-        // already have k neighbors closer than the closest possible
-        // neighbor in the new shell.
-        ++m_neigh_cell_iter;
-        if (m_current_neighbors.size() >= m_k)
+        while(m_count < m_k)
             {
-            std::sort(m_current_neighbors.begin(), m_current_neighbors.end());
-            if (m_current_neighbors[m_k-1].distance < (m_neigh_cell_iter.getRange()-1)*m_linkcell->getCellWidth())
-                {
-                break;
-                }
+            m_count++;
+            return m_current_neighbors[m_count-1];
             }
-        const unsigned int neighbor_cell = m_linkcell->getCellIndexer()(
-                // Need to increment each dimension by the width to avoid taking the modulus of a negative number.
-                (m_linkcell->getCellIndexer().getW() + point_cell.x + (*m_neigh_cell_iter).x) % m_linkcell->getCellIndexer().getW(),
-                (m_linkcell->getCellIndexer().getH() + point_cell.y + (*m_neigh_cell_iter).y) % m_linkcell->getCellIndexer().getH(),
-                (m_linkcell->getCellIndexer().getD() + point_cell.z + (*m_neigh_cell_iter).z) % m_linkcell->getCellIndexer().getD());
-        m_cell_iter = m_linkcell->itercell(neighbor_cell);
-        }
-
-    while(m_count < m_k)
-        {
-        m_count++;
-        return m_current_neighbors[m_count-1];
+        cur_p++;
+        m_count = 0;
+        m_current_neighbors.clear();
+        m_neigh_cell_iter = IteratorCellShell(0, m_spatial_data->getBox().is2D());
+        m_cell_iter = m_linkcell->itercell(m_linkcell->getCell(m_points[cur_p]));
         }
 
     m_finished = true;
