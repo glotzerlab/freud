@@ -73,12 +73,20 @@ class TestNeighborQueryAABB(unittest.TestCase):
 
         # Try this
         result = aq.query(points, 3).toList()
-        # [print(i, j) for i, j in sorted([[a[1], a[0]] for a in result])]
-        print(result)
+        [print(i, j) for i, j in sorted([[a[1], a[0]] for a in result])]
+        # print(result)
         print()
         result = aq.query(points, 3).toNList()
         for i, j in zip(result.index_i, result.index_j):
             print(i, j)
+        actual = list(zip(result.index_i, result.index_j))
+        print(actual)
+        expected = [(0, 0), (0, 1), (1, 0), (1, 1), (1, 2), (1, 3), (2, 2),
+                    (2, 3), (3, 0), (3, 1), (3, 2), (3, 3)]
+        actual = list(zip(result.index_i, result.index_j))
+        print(actual)
+        print(expected)
+        print(actual == expected)
         # npt.assert_equal({x[1] for x in result if x[0] == 0}, {0, 1, 3})
         # npt.assert_equal({x[1] for x in result if x[0] == 1}, {0, 1, 3})
         # npt.assert_equal({x[1] for x in result if x[0] == 2}, {1, 2, 3})

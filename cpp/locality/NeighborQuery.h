@@ -170,6 +170,12 @@ class NeighborQueryIterator {
             throw std::runtime_error("The next method must be implemented by child classes.");
             }
 
+        //! Generate a NeighborList from query.
+        /*! This function exploits parallelism by finding the neighbors for
+         *  each query point in parallel and adding them to a list, which is
+         *  then sorted in parallel as well before being added to the
+         *  NeighborList object.
+         */
         NeighborList *toNeighborList()
             {
             /*
@@ -179,11 +185,18 @@ class NeighborQueryIterator {
              * each point internally and insert it. However, for
              * now we cannot parallelize this since we need to
              * reverse the order.
+             *
+             * Additionally, right now this won't be backwards compatible
+             * because the kn query is not symmetric, so even if we reverse the
+             * output order here the actual neighbors found will be different.
              */
 
             //tbb::concurrent_vector<std::pair<size_t, size_t>> bonds;
             typedef tbb::enumerable_thread_specific<std::vector<std::pair<size_t, size_t>>> BondVector;
             BondVector bonds;
+            // THE LOOP BELOW IS CURRENTLY ENCOUNTERING SOME THREAD SAFETY
+            // ISSUES WHERE IT PROVIDES THE WRONG ANSWER WHEN USING MORE THAN
+            // ONE TBB THREAD. NOT YET SURE WHAT WOULD CAUSE THAT.
             tbb::parallel_for(tbb::blocked_range<size_t>(0, m_N),
                 [&] (const tbb::blocked_range<size_t> &r)
                 {
@@ -198,7 +211,10 @@ class NeighborQueryIterator {
                         // Swap ref_id and id order for backwards compatibility.
                         // I NEED TO MAKE THE QUERY METHOD RETURN THINGS MORE APPROPRIATELY, right now I'm forced to manually replace the id with i.
                         local_bonds.emplace_back(np.ref_id, i);
+                        //std::cout << "Found bond (" << i << ", " << np.ref_id << std::endl;
                         }
+                    // Remove the last item, which is just the terminal sentinel value.
+                    local_bonds.pop_back();
                     }
                 });
                 
@@ -212,10 +228,14 @@ class NeighborQueryIterator {
                 for (std::vector<std::pair<size_t, size_t>>::const_iterator bond(iter->begin()); bond != iter->end(); bond++)
                     {
                     linear_bonds[i] = *bond;
-                    std::cout << "Bond: " << bond->first << ", " << bond->second << std::endl;
+                    //std::cout << "Bond: " << bond->first << ", " << bond->second << std::endl;
                     i++;
                     }
                 }
+            for (std::vector<std::pair<size_t, size_t>>::const_iterator tmp(linear_bonds.begin()); tmp != linear_bonds.end(); tmp++)
+            {
+                std::cout << "Bond: " << tmp->first << ", " << tmp->second << std::endl;
+            }
 
             unsigned int num_bonds = linear_bonds.size();
             tbb::parallel_sort(linear_bonds.begin(), linear_bonds.end());
@@ -228,7 +248,7 @@ class NeighborQueryIterator {
 
             parallel_for(tbb::blocked_range<size_t>(0, linear_bonds.size()),
                 [&] (const tbb::blocked_range<size_t> &r)
-                //[=] (const blocked_range<size_t> &r)
+                //[=] (const tbb::blocked_range<size_t> &r)
                 {
                 for (size_t bond(r.begin()); bond < r.end(); ++bond)
                     {
