@@ -146,9 +146,9 @@ class NeighborQueryIterator {
             }
 
         //! Constructor
-        NeighborQueryIterator(const NeighborQuery* spatial_data,
+        NeighborQueryIterator(const NeighborQuery* neighbor_query,
                 const vec3<float> *points, unsigned int N) :
-            m_neighbor_query(spatial_data), m_points(points), m_N(N), cur_p(0), m_finished(false)
+            m_neighbor_query(neighbor_query), m_points(points), m_N(N), cur_p(0), m_finished(false)
             {
             }
 

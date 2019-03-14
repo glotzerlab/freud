@@ -76,8 +76,8 @@ class AABBIterator : public NeighborQueryIterator
     {
     public:
         //! Constructor
-        AABBIterator(const AABBQuery* spatial_data, const vec3<float> *points, unsigned int N) :
-            NeighborQueryIterator(spatial_data, points, N), m_aabb_data(spatial_data)
+        AABBIterator(const AABBQuery* neighbor_query, const vec3<float> *points, unsigned int N) :
+            NeighborQueryIterator(neighbor_query, points, N), m_aabb_data(neighbor_query)
             {}
 
         //! Empty Destructor
@@ -97,9 +97,9 @@ class AABBQueryIterator : public AABBIterator
     {
     public:
         //! Constructor
-        AABBQueryIterator(const AABBQuery* spatial_data,
+        AABBQueryIterator(const AABBQuery* neighbor_query,
                 const vec3<float> *points, unsigned int N, unsigned int k, float r, float scale) :
-            AABBIterator(spatial_data, points, N), m_k(k), m_r(r), m_r_cur(r), m_scale(scale), m_current_neighbors()
+            AABBIterator(neighbor_query, points, N), m_k(k), m_r(r), m_r_cur(r), m_scale(scale), m_current_neighbors()
             {
             updateImageVectors(0);
             }
@@ -126,8 +126,8 @@ class AABBQueryBallIterator : public AABBIterator
     {
     public:
         //! Constructor
-        AABBQueryBallIterator(const AABBQuery* spatial_data, const vec3<float> *points, unsigned int N, float r) :
-            AABBIterator(spatial_data, points, N), m_r(r), cur_image(0), cur_node_idx(0), cur_ref_p(0)
+        AABBQueryBallIterator(const AABBQuery* neighbor_query, const vec3<float> *points, unsigned int N, float r) :
+            AABBIterator(neighbor_query, points, N), m_r(r), cur_image(0), cur_node_idx(0), cur_ref_p(0)
             {
             updateImageVectors(m_r);
             }
