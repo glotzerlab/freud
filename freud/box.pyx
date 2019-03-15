@@ -211,33 +211,32 @@ cdef class Box:
     def volume(self):
         return self.thisptr.getVolume()
 
-
-    def makeCoordinates(self, fs):
+    def makeCoordinates(self, fractions):
         R"""Convert fractional coordinates into real coordinates.
 
         Args:
-            f (:math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
+            fractions (:math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
                 Fractional coordinates between 0 and 1 within parallelepipedal box.
 
         Returns:
             :math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
                 Vectors of real coordinates: :math:`\left(3\right)` or :math:`\left(N, 3\right)`.
         """
-        fs = np.asarray(fs)
-        if fs.ndim > 2 or fs.shape[fs.ndim - 1] != 3:
+        fractions = np.asarray(fractions)
+        if fractions.ndim > 2 or fractions.shape[fractions.ndim-1] != 3:
             raise ValueError(
-                "Invalid dimensions for vecs given to box.makeCoordinates. "
+                "Invalid dimensions for fractions given to makeCoordinates. "
                 "Valid input is an array of shape (3,) or (N,3).")
 
-        fs = freud.common.convert_array(
-            fs, fs.ndim, dtype=np.float32, contiguous=True)
+        fractions = freud.common.convert_array(
+            fractions, fractions.ndim, dtype=np.float32, contiguous=True)
 
-        if fs.ndim == 1:
-            fs[:] = self._makeCoordinates(fs)
-        elif fs.ndim == 2:
-            for i, f in enumerate(fs):
-                fs[i] = self._makeCoordinates(f)
-        return fs
+        if fractions.ndim == 1:
+            fractions[:] = self._makeCoordinates(fractions)
+        elif fractions.ndim == 2:
+            for i, f in enumerate(fractions):
+                fractions[i] = self._makeCoordinates(f)
+        return fractions
 
     def _makeCoordinates(self, f):
         cdef float[::1] l_vec = f
@@ -257,9 +256,9 @@ cdef class Box:
                 Fractional coordinate vectors: :math:`\left(3\right)` or :math:`\left(N, 3\right)`.
         """
         vecs = np.asarray(vecs)
-        if vecs.ndim > 2 or vecs.shape[vecs.ndim - 1] != 3:
+        if vecs.ndim > 2 or vecs.shape[vecs.ndim-1] != 3:
             raise ValueError(
-                "Invalid dimensions for vecs given to box.makeFraction. "
+                "Invalid dimensions for vecs given to makeFraction. "
                 "Valid input is an array of shape (3,) or (N,3).")
 
         vecs = freud.common.convert_array(
@@ -294,7 +293,7 @@ cdef class Box:
         vecs = np.asarray(vecs)
         if vecs.ndim > 2 or vecs.shape[vecs.ndim-1] != 3:
             raise ValueError(
-                "Invalid dimensions for vecs given to box.getImage. "
+                "Invalid dimensions for vecs given to getImage. "
                 "Valid input is an array of shape (3,) or (N,3).")
 
         vecs = freud.common.convert_array(
@@ -348,7 +347,7 @@ cdef class Box:
         vecs = np.asarray(vecs)
         if vecs.ndim > 2 or vecs.shape[vecs.ndim-1] != 3:
             raise ValueError(
-                "Invalid dimensions for vecs given to box.wrap. "
+                "Invalid dimensions for vecs given to wrap. "
                 "Valid input is an array of shape (3,) or (N,3).")
 
         vecs = freud.common.convert_array(
@@ -391,7 +390,7 @@ cdef class Box:
 
         if vecs.ndim > 2 or vecs.shape[vecs.ndim-1] != 3:
             raise ValueError(
-                "Invalid dimensions for vecs given to box.unwrap. "
+                "Invalid dimensions for vecs given to unwrap. "
                 "Valid input is an array of shape (3,) or (N,3).")
 
         vecs = freud.common.convert_array(
@@ -528,7 +527,7 @@ cdef class Box:
 
     @classmethod
     def from_box(cls, box, dimensions=None):
-        R"""Initialize a box instance from a box-like object.
+        R"""Initialize a Box instance from a box-like object.
 
         Args:
             box:
@@ -601,7 +600,7 @@ cdef class Box:
                 if not len(box) in [2, 3, 6]:
                     raise ValueError(
                         "List-like objects must have length 2, 3, or 6 to be "
-                        "converted to a box")
+                        "converted to freud.box.Box.")
                 # Handle list-like
                 Lx = box[0]
                 Ly = box[1]
@@ -609,7 +608,7 @@ cdef class Box:
                 xy, xz, yz = box[3:6] if len(box) >= 6 else (0, 0, 0)
         except:  # noqa
             logger.debug('Supplied box cannot be converted to type '
-                         'freud.box.Box')
+                         'freud.box.Box.')
             raise
 
         # Infer dimensions if not provided.
@@ -620,7 +619,7 @@ cdef class Box:
 
     @classmethod
     def from_matrix(cls, boxMatrix, dimensions=None):
-        R"""Initialize a box instance from a box matrix.
+        R"""Initialize a Box instance from a box matrix.
 
         For more information and the source for this code,
         see: http://hoomd-blue.readthedocs.io/en/stable/box.html
