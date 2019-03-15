@@ -162,6 +162,7 @@ void LocalQl::computeAve(const locality::NeighborList *nlist, const vec3<float> 
 
     size_t bond(0);
 
+    // Can be parallelized
     for (unsigned int i = 0; i < m_Np; i++)
         {
         const vec3<float> ri = points[i];
