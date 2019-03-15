@@ -138,19 +138,17 @@ void LocalQl::computeAve(const locality::NeighborList *nlist, const vec3<float> 
     nlist->validate(Np, Np);
     const size_t *neighbor_list(nlist->getNeighbors());
 
-    // Compute non-averaged Ql
-    LocalQl::compute(nlist, points, Np)
-
     // Conditional reinitialize arrays if size differs from previous call.
     if (m_Np != Np)
 	{
-	// Set local data size
-	m_Np = Np;
 
-	m_AveQlmi = std::shared_ptr<complex<float> >(new complex<float> [(2*m_l+1)*m_Np], std::default_delete<complex<float>[]>());
-	m_AveQli = std::shared_ptr<float>(new float[m_Np], std::default_delete<float[]>());
+	m_AveQlmi = std::shared_ptr<complex<float> >(new complex<float> [(2*m_l+1)*Np], std::default_delete<complex<float>[]>());
+	m_AveQli = std::shared_ptr<float>(new float[Np], std::default_delete<float[]>());
 	m_AveQlm = std::shared_ptr<complex<float> >(new complex<float> [(2*m_l+1)], std::default_delete<complex<float>[]>());
 	}
+
+    // Compute non-averaged Ql
+    LocalQl::compute(nlist, points, Np)
 
     memset((void*)m_AveQlmi.get(), 0, sizeof(complex<float>)*(2*m_l+1)*m_Np);
     memset((void*)m_AveQli.get(), 0, sizeof(float)*m_Np);
@@ -229,11 +227,15 @@ void LocalQl::computeAve(const locality::NeighborList *nlist, const vec3<float> 
 
 void LocalQl::computeNorm(const vec3<float> *points, unsigned int Np)
     {
-    // Set local data size
-    m_Np = Np;
-
-    m_QliNorm = std::shared_ptr<float>(new float[m_Np], std::default_delete<float[]>());
-
+    if (m_Np != Np)
+	{
+	// Set local data size
+	m_QliNorm = std::shared_ptr<float>(new float[Np], std::default_delete<float[]>());
+	}
+    
+    // Compute non-averaged Ql
+    LocalQl::compute(nlist, points, Np)
+  
     memset((void*) m_QliNorm.get(), 0, sizeof(float)*m_Np);
 
     const float normalizationfactor = 4*M_PI/(2*m_l+1);
@@ -259,9 +261,13 @@ void LocalQl::computeNorm(const vec3<float> *points, unsigned int Np)
 void LocalQl::computeAveNorm(const vec3<float> *points, unsigned int Np)
     {
     // Set local data size
-    m_Np = Np;
+    if (m_Np != Np)
+	{
+	m_QliAveNorm = std::shared_ptr<float>(new float[Np], std::default_delete<float[]>());
+	}
 
-    m_QliAveNorm = std::shared_ptr<float>(new float[m_Np], std::default_delete<float[]>());
+    // Compute non-averaged Ql
+    LocalQl::computeAve(nlist, points, Np)
 
     memset((void*) m_QliAveNorm.get(), 0, sizeof(float)*m_Np);
 
