@@ -186,6 +186,7 @@ Paul Dodd
 Tim Moore
 
 * Added optional rmin argument to density.RDF.
+* Enabled Neigborlist indexing.
 
 Alex Dutton
 
@@ -195,6 +196,10 @@ Matthew Palathingal
 
 * Replaced use of boost shared arrays with shared ptr in Cython.
 * Helped incorporate BiMap class into MatchEnv.
+
+Kelly Wang
+
+* Enabled Neigborlist indexing.
 
 Source code
 -----------
@@ -212,7 +217,7 @@ various order parameters, under the following license::
     Copyright (c) 2016 The Regents of the University of Michigan
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to deal
+    of this software and associated documentation files (the "Software"), to dealhbor
     in the Software without restriction, including without limitation the rights
     to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
     copies of the Software, and to permit persons to whom the Software is
