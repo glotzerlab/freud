@@ -39,6 +39,7 @@ void LocalQl::compute(const locality::NeighborList *nlist, const vec3<float> *po
     {
     nlist->validate(Np, Np);
 
+    // Conditional reinitialize arrays if size differs from previous call.
     if (m_Np != Np)
         {
         // Set local data size
@@ -54,10 +55,12 @@ void LocalQl::compute(const locality::NeighborList *nlist, const vec3<float> *po
     parallel_for(tbb::blocked_range<size_t>(0, m_Np),
         [=] (const blocked_range<size_t>& r)
         {
+	// May not be necessary check
         const float rminsq = m_rmin * m_rmin;
         const float rmaxsq = m_rmax * m_rmax;
         const float normalizationfactor = 4*M_PI/(2*m_l+1);
         const size_t *neighbor_list(nlist->getNeighbors());
+	// --------------------------
 
         bool Qlm_exists;
         m_Qlm_local.local(Qlm_exists);
@@ -83,9 +86,12 @@ void LocalQl::compute(const locality::NeighborList *nlist, const vec3<float> *po
                     }
 
                 // rij = rj - ri, vector from i pointing to j.
+		// Create function to do distance check
                 const vec3<float> delta = m_box.wrap(points[j] - ref);
                 const float rsq = dot(delta, delta);
+		// -----------------------------------
 
+		// Replace conditional with function call above.
                 if (rsq < rmaxsq && rsq > rminsq)
                     {
                     // phi is usually in range 0..2Pi, but
@@ -132,12 +138,15 @@ void LocalQl::computeAve(const locality::NeighborList *nlist, const vec3<float> 
     nlist->validate(Np, Np);
     const size_t *neighbor_list(nlist->getNeighbors());
 
-    // Set local data size
-    m_Np = Np;
+    if (m_Np != Np)
+	{
+	// Set local data size
+	m_Np = Np;
 
-    m_AveQlmi = std::shared_ptr<complex<float> >(new complex<float> [(2*m_l+1)*m_Np], std::default_delete<complex<float>[]>());
-    m_AveQli = std::shared_ptr<float>(new float[m_Np], std::default_delete<float[]>());
-    m_AveQlm = std::shared_ptr<complex<float> >(new complex<float> [(2*m_l+1)], std::default_delete<complex<float>[]>());
+	m_AveQlmi = std::shared_ptr<complex<float> >(new complex<float> [(2*m_l+1)*m_Np], std::default_delete<complex<float>[]>());
+	m_AveQli = std::shared_ptr<float>(new float[m_Np], std::default_delete<float[]>());
+	m_AveQlm = std::shared_ptr<complex<float> >(new complex<float> [(2*m_l+1)], std::default_delete<complex<float>[]>());
+	}
 
     memset((void*)m_AveQlmi.get(), 0, sizeof(complex<float>)*(2*m_l+1)*m_Np);
     memset((void*)m_AveQli.get(), 0, sizeof(float)*m_Np);
