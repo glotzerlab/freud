@@ -233,6 +233,17 @@ cdef class NeighborList:
         result.flags.writeable = False
         return result
 
+    def __getitem__(self, size_t key):
+        cdef size_t n_bonds = self.thisptr.getNumBonds()
+        cdef size_t[:, ::1] neighbors
+        if not n_bonds:
+            result = np.asarray([], dtype=np.uint64)
+        else:
+            neighbors = <size_t[:n_bonds, :2]> self.thisptr.getNeighbors()
+            result = np.asarray(neighbors[:, :], dtype=np.uint64)
+        result.flags.writeable = False
+        return result[key]
+
     @property
     def weights(self):
         cdef size_t n_bonds = self.thisptr.getNumBonds()
