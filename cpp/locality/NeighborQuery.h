@@ -174,29 +174,14 @@ class NeighborQueryIterator {
         /*! This function exploits parallelism by finding the neighbors for
          *  each query point in parallel and adding them to a list, which is
          *  then sorted in parallel as well before being added to the
-         *  NeighborList object.
+         *  NeighborList object. Right now this won't be backwards compatible
+         *  because the kn query is not symmetric, so even if we reverse the
+         *  output order here the actual neighbors found will be different.
          */
         NeighborList *toNeighborList()
             {
-            /*
-             * When we switch the nlist order to be point,
-             * ref_point, we can parallelize this over points by
-             * doing a tbb parallel_for where we call query for
-             * each point internally and insert it. However, for
-             * now we cannot parallelize this since we need to
-             * reverse the order.
-             *
-             * Additionally, right now this won't be backwards compatible
-             * because the kn query is not symmetric, so even if we reverse the
-             * output order here the actual neighbors found will be different.
-             */
-
-            //tbb::concurrent_vector<std::pair<size_t, size_t>> bonds;
             typedef tbb::enumerable_thread_specific<std::vector<std::pair<size_t, size_t>>> BondVector;
             BondVector bonds;
-            // THE LOOP BELOW IS CURRENTLY ENCOUNTERING SOME THREAD SAFETY
-            // ISSUES WHERE IT PROVIDES THE WRONG ANSWER WHEN USING MORE THAN
-            // ONE TBB THREAD. NOT YET SURE WHAT WOULD CAUSE THAT.
             tbb::parallel_for(tbb::blocked_range<size_t>(0, m_N),
                 [&] (const tbb::blocked_range<size_t> &r)
                 {
@@ -211,34 +196,17 @@ class NeighborQueryIterator {
                         // Swap ref_id and id order for backwards compatibility.
                         // I NEED TO MAKE THE QUERY METHOD RETURN THINGS MORE APPROPRIATELY, right now I'm forced to manually replace the id with i.
                         local_bonds.emplace_back(np.ref_id, i);
-                        //std::cout << "Found bond (" << i << ", " << np.ref_id << std::endl;
                         }
                     // Remove the last item, which is just the terminal sentinel value.
                     local_bonds.pop_back();
                     }
                 });
                 
-            // Collect bonds into a linear vector for sorting.
-            std::vector<std::pair<size_t, size_t>> linear_bonds;
-
-            for (BondVector::const_iterator iter(bonds.begin()); iter != bonds.end(); ++iter)
-                {
-                linear_bonds.resize(linear_bonds.size() + iter->size());
-                unsigned int i = 0;
-                for (std::vector<std::pair<size_t, size_t>>::const_iterator bond(iter->begin()); bond != iter->end(); bond++)
-                    {
-                    linear_bonds[i] = *bond;
-                    //std::cout << "Bond: " << bond->first << ", " << bond->second << std::endl;
-                    i++;
-                    }
-                }
-            for (std::vector<std::pair<size_t, size_t>>::const_iterator tmp(linear_bonds.begin()); tmp != linear_bonds.end(); tmp++)
-            {
-                std::cout << "Bond: " << tmp->first << ", " << tmp->second << std::endl;
-            }
+            tbb::flattened2d<BondVector> flat_bonds = tbb::flatten2d(bonds);
+            std::vector<std::pair<size_t, size_t>> linear_bonds(flat_bonds.begin(), flat_bonds.end());
+            tbb::parallel_sort(linear_bonds.begin(), linear_bonds.end());
 
             unsigned int num_bonds = linear_bonds.size();
-            tbb::parallel_sort(linear_bonds.begin(), linear_bonds.end());
 
             NeighborList *nl = new NeighborList();
             nl->resize(num_bonds);
@@ -246,9 +214,8 @@ class NeighborQueryIterator {
             size_t *neighbor_array(nl->getNeighbors());
             float *neighbor_weights(nl->getWeights());
 
-            parallel_for(tbb::blocked_range<size_t>(0, linear_bonds.size()),
+            parallel_for(tbb::blocked_range<size_t>(0, num_bonds),
                 [&] (const tbb::blocked_range<size_t> &r)
-                //[=] (const tbb::blocked_range<size_t> &r)
                 {
                 for (size_t bond(r.begin()); bond < r.end(); ++bond)
                     {
