@@ -444,12 +444,12 @@ cdef class Box:
                 [0, 0, self.Lz]]
 
     def __repr__(self):
-        return ("{cls}(Lx={Lx}, Ly={Ly}, Lz={Lz}, xy={xy}, "
+        return ("freud.box.{cls}(Lx={Lx}, Ly={Ly}, Lz={Lz}, xy={xy}, "
                 "xz={xz}, yz={yz}, is2D={is2D})").format(
-                    cls=type(self).__name__, **self.to_dict())
+                    cls=type(self).__name__, **self.to_dict(), is2D=self.is2D())
 
     def __str__(self):
-        return __repr__(self)
+        return repr(self)
 
     def _eq(self, other):
         return self.to_dict() == other.to_dict()
@@ -728,3 +728,9 @@ cdef class ParticleBuffer:
     @property
     def buffer_box(self):
         return BoxFromCPP(<freud._box.Box> self.thisptr.getBufferBox())
+
+    def __repr__(self):
+        return ("freud.box.{cls}(box={box})").format(cls=type(self).__name__, box=self.buffer_box.__repr__())
+
+    def __str__(self):
+        return repr(self)
