@@ -221,7 +221,7 @@ cdef class Box:
 
         Returns:
             :math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
-                Vectors of real coordinates ::math:`\left(3\right)` or :math:`\left(N, 3\right)`.
+                Vectors of real coordinates: :math:`\left(3\right)` or :math:`\left(N, 3\right)`.
         """
         fs = np.asarray(fs)
         if fs.ndim > 2 or fs.shape[fs.ndim - 1] != 3:
@@ -254,7 +254,7 @@ cdef class Box:
 
         Returns:
             :math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
-                Fractional coordinate vectors.
+                Fractional coordinate vectors: :math:`\left(3\right)` or :math:`\left(N, 3\right)`.
         """
         vecs = np.asarray(vecs)
         if vecs.ndim > 2 or vecs.shape[vecs.ndim - 1] != 3:
