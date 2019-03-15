@@ -659,7 +659,8 @@ cdef class LocalQl:
             self.m_box, points, points, self.rmax, nlist, True)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
-        self.qlptr.computeNorm(<vec3[float]*> &l_points[0, 0], nP)
+        self.qlptr.computeNorm(nlist_.get_ptr(),
+                <vec3[float]*> &l_points[0, 0], nP)
         return self
 
     def computeAveNorm(self, points, nlist=None):
@@ -685,7 +686,8 @@ cdef class LocalQl:
             self.m_box, points, points, self.rmax, nlist, True)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
-        self.qlptr.computeAveNorm(<vec3[float]*> &l_points[0, 0], nP)
+        self.qlptr.computeAveNorm(nlist_.get_ptr(),
+                <vec3[float]*> &l_points[0, 0], nP)
         return self
 
 

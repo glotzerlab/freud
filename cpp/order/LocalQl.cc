@@ -225,7 +225,7 @@ void LocalQl::computeAve(const locality::NeighborList *nlist, const vec3<float> 
         } // Ends loop over particles i for Qlmi calcs
     }
 
-void LocalQl::computeNorm(const vec3<float> *points, unsigned int Np)
+void LocalQl::computeNorm(const locality::NeighborList *nlist, const vec3<float> *points, unsigned int Np)
     {
     if (m_Np != Np)
 	{
@@ -258,7 +258,7 @@ void LocalQl::computeNorm(const vec3<float> *points, unsigned int Np)
         }
     }
 
-void LocalQl::computeAveNorm(const vec3<float> *points, unsigned int Np)
+void LocalQl::computeAveNorm(const locality::NeighborList *nlist, const vec3<float> *points, unsigned int Np)
     {
     // Set local data size
     if (m_Np != Np)
