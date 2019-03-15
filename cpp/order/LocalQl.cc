@@ -138,6 +138,10 @@ void LocalQl::computeAve(const locality::NeighborList *nlist, const vec3<float> 
     nlist->validate(Np, Np);
     const size_t *neighbor_list(nlist->getNeighbors());
 
+    // Compute non-averaged Ql
+    LocalQl::compute(nlist, points, Np)
+
+    // Conditional reinitialize arrays if size differs from previous call.
     if (m_Np != Np)
 	{
 	// Set local data size

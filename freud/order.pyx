@@ -633,8 +633,6 @@ cdef class LocalQl:
             self.m_box, points, points, self.rmax, nlist, True)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
-        self.qlptr.compute(nlist_.get_ptr(),
-                           <vec3[float]*> &l_points[0, 0], nP)
         self.qlptr.computeAve(nlist_.get_ptr(),
                               <vec3[float]*> &l_points[0, 0], nP)
         return self
