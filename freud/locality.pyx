@@ -233,7 +233,7 @@ cdef class NeighborList:
         result.flags.writeable = False
         return result
 
-    def __getitem__(self, size_t key):
+    def __getitem__(self, key):
         cdef size_t n_bonds = self.thisptr.getNumBonds()
         cdef size_t[:, ::1] neighbors
         if not n_bonds:

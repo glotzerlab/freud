@@ -183,6 +183,24 @@ class TestNeighborList(unittest.TestCase):
             assert idx_j == cl.nlist.index_j[i]
 
 
+    def test_nl_size(self):
+        L = 10  # Box Dimensions
+        rcut = 3  # Cutoff radius
+        N = 40  # number of particles
+        num_neighbors = 6
+
+        # Initialize Box and cell list
+        fbox = box.Box.cube(L)
+        cl = locality.NearestNeighbors(rcut, num_neighbors)
+
+        np.random.seed(0)
+        points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
+
+        cl.compute(fbox, points, points)
+        assert len([x for x in cl.nlist]) == len(cl.nlist.index_i)
+        assert len([x for x in cl.nlist]) == len(cl.nlist.index_j)
+
+
 
 if __name__ == '__main__':
     unittest.main()
