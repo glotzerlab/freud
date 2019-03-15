@@ -443,10 +443,13 @@ cdef class Box:
                 [0, self.Ly, self.yz * self.Lz],
                 [0, 0, self.Lz]]
 
-    def __str__(self):
+    def __repr__(self):
         return ("{cls}(Lx={Lx}, Ly={Ly}, Lz={Lz}, xy={xy}, "
-                "xz={xz}, yz={yz}, dimensions={dimensions})").format(
+                "xz={xz}, yz={yz}, is2D={is2D})").format(
                     cls=type(self).__name__, **self.to_dict())
+
+    def __str__(self):
+        return __repr__(self)
 
     def _eq(self, other):
         return self.to_dict() == other.to_dict()
