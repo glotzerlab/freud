@@ -128,6 +128,9 @@ cdef class BondOrder:
             rmax, k, n, n_bins_t, n_bins_p)
         self.rmax = rmax
         self.num_neigh = n
+        self.k = k
+        self.n_bins_t = n_bins_t
+        self.n_bins_p = n_bins_p
 
     def __dealloc__(self):
         del self.thisptr
@@ -305,6 +308,13 @@ cdef class BondOrder:
     def n_bins_phi(self):
         return self.thisptr.getNBinsPhi()
 
+    def __repr__(self):
+        return ("freud.environment.{cls}(rmax={rmax},k={k},num_neigh={num_neigh},n_bins_t={n_bins_t},n_bins_p={n_bins_p})".format(
+        cls=type(self).__name__,rmax=self.rmax,k=self.k,num_neigh=self.num_neigh,n_bins_t=self.n_bins_t,n_bins_p=self.n_bins_p))
+
+    def __str__(self):
+        return repr(self)
+
 
 cdef class LocalDescriptors:
     R"""Compute a set of descriptors (a numerical "fingerprint") of a particle's
@@ -359,6 +369,8 @@ cdef class LocalDescriptors:
             num_neighbors, lmax, rmax, negative_m)
         self.num_neigh = num_neighbors
         self.rmax = rmax
+        self.lmax = lmax
+        self.negative_m = negative_m
 
     def __dealloc__(self):
         del self.thisptr
@@ -524,6 +536,13 @@ cdef class LocalDescriptors:
     @property
     def l_max(self):
         return self.thisptr.getLMax()
+
+    def __repr__(self):
+        return ("freud.environment.{cls}(num_neigh={num_neigh},lmax={lmax},rmax={rmax},negative_m={negative_m})".format(
+        cls=type(self).__name__,num_neigh=self.num_neigh,lmax=self.lmax,rmax=self.rmax,negative_m=self.negative_m))
+
+    def __str__(self):
+        return repr(self)
 
 
 cdef class MatchEnv:
@@ -894,6 +913,13 @@ cdef class MatchEnv:
     def num_clusters(self):
         return self.thisptr.getNumClusters()
 
+    def __repr__(self):
+        return "freud.environment.{cls}(box={box},rmax={rmax},k={k})".format(cls=type(self).__name__,box=self.m_box.__repr__(),rmax=self.rmax,k=self.num_neigh)
+
+    def __str__(self):
+        return repr(self)
+
+
 
 cdef class AngularSeparation:
     R"""Calculates the minimum angles of separation between particles and
@@ -1104,6 +1130,12 @@ cdef class AngularSeparation:
     def n_global(self):
         return self.thisptr.getNglobal()
 
+    def __repr__(self):
+        return "freud.environment.{cls}(rmax={rmax},n={n})".format(cls=type(self).__name__,rmax=self.rmax,n=self.num_neigh)
+
+    def __str__(self):
+        return repr(self)
+
 
 cdef class LocalBondProjection:
     R"""Calculates the maximal projection of nearest neighbor bonds for each
@@ -1279,3 +1311,9 @@ cdef class LocalBondProjection:
     @property
     def box(self):
         return freud.box.BoxFromCPP(<freud._box.Box> self.thisptr.getBox())
+
+    def __repr__(self):
+        return "freud.environment.{cls}(rmax={rmax},num_neigh={num_neigh})".format(cls=type(self).__name__,rmax=self.rmax,num_neigh=self.num_neigh)
+
+    def __str__(self):
+        return repr(self)
