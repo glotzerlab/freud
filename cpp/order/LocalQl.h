@@ -100,11 +100,13 @@ class LocalQl
                                 unsigned int Np);
 
         //! Compute the order parameter globally (averaging over the system Qlm)
-        virtual void computeNorm(const vec3<float> *points, unsigned int Np);
+        virtual void computeNorm(const locality::NeighborList *nlist,
+			const vec3<float> *points, unsigned int Np);
 
         //! Compute the order parameter averaged over the second neighbor shell,
         //  then take a global average over the entire system
-        virtual void computeAveNorm(const vec3<float> *points, unsigned int Np);
+        virtual void computeAveNorm(const locality::NeighborList *nlist,
+			const vec3<float> *points, unsigned int Np);
 
         //! \internal
         //! helper function to reduce the thread specific arrays into one array
