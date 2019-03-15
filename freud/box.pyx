@@ -211,56 +211,104 @@ cdef class Box:
     def volume(self):
         return self.thisptr.getVolume()
 
-    def makeCoordinates(self, f):
+
+    def makeCoordinates(self, fs):
         R"""Convert fractional coordinates into real coordinates.
 
         Args:
-            f (:math:`\left(3\right)` :class:`numpy.ndarray`):
-                Fractional coordinates :math:`\left(x, y, z\right)` between
-                0 and 1 within parallelepipedal box.
+            f (:math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
+                Fractional coordinates between 0 and 1 within parallelepipedal box.
 
         Returns:
-            list[float, float, float]:
-                Vector of real coordinates :math:`\left(x, y, z\right)`.
+            :math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
+                Vectors of real coordinates ::math:`\left(3\right)` or :math:`\left(N, 3\right)`.
         """
-        cdef float[::1] l_vec = freud.common.convert_array(
-            f, 1, dtype=np.float32, contiguous=True)
+        fs = np.asarray(fs)
+        if fs.ndim > 2 or fs.shape[fs.ndim - 1] != 3:
+            raise ValueError(
+                "Invalid dimensions for vecs given to box.makeCoordinates. "
+                "Valid input is an array of shape (3,) or (N,3).")
+
+        fs = freud.common.convert_array(
+            fs, fs.ndim, dtype=np.float32, contiguous=True)
+
+        if fs.ndim == 1:
+            fs[:] = self._makeCoordinates(fs)
+        elif fs.ndim == 2:
+            for i, f in enumerate(fs):
+                fs[i] = self._makeCoordinates(f)
+        return fs
+
+    def _makeCoordinates(self, f):
+        cdef float[::1] l_vec = f
         cdef vec3[float] result = self.thisptr.makeCoordinates(
             <const vec3[float]&> l_vec[0])
         return [result.x, result.y, result.z]
 
-    def makeFraction(self, vec):
+    def makeFraction(self, vecs):
         R"""Convert real coordinates into fractional coordinates.
 
         Args:
-            vec (:math:`\left(3\right)` :class:`numpy.ndarray`):
+            vecs (:math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
                 Real coordinates within parallelepipedal box.
 
         Returns:
-            list[float, float, float]:
-                A fractional coordinate vector.
+            :math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
+                Fractional coordinate vectors.
         """
-        cdef float[::1] l_vec = freud.common.convert_array(
-            vec, 1, dtype=np.float32, contiguous=True)
+        vecs = np.asarray(vecs)
+        if vecs.ndim > 2 or vecs.shape[vecs.ndim - 1] != 3:
+            raise ValueError(
+                "Invalid dimensions for vecs given to box.makeFraction. "
+                "Valid input is an array of shape (3,) or (N,3).")
+
+        vecs = freud.common.convert_array(
+            vecs, vecs.ndim, dtype=np.float32, contiguous=True)
+
+        if vecs.ndim == 1:
+            vecs[:] = self._makeFraction(vecs)
+        elif vecs.ndim == 2:
+            for i, vec in enumerate(vecs):
+                vecs[i] = self._makeFraction(vec)
+        return vecs
+
+    def _makeFraction(self, vec):
+        cdef float[::1] l_vec = vec
         cdef vec3[float] result = self.thisptr.makeFraction(
             <const vec3[float]&> l_vec[0])
         return [result.x, result.y, result.z]
 
-    def getImage(self, vec):
+    def getImage(self, vecs):
         R"""Returns the image corresponding to a wrapped vector.
 
         .. versionadded:: 0.8
 
         Args:
-            vec (:math:`\left(3\right)` :class:`numpy.ndarray`):
-                Coordinates of unwrapped vector.
+            vecs (:math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
+                Coordinates of a single vector or array of :math:`N` unwrapped vectors.
 
         Returns:
-            :math:`\left(3\right)` :class:`numpy.ndarray`:
+            :math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
                 Image index vector.
         """
-        cdef float[::1] l_vec = freud.common.convert_array(
-            vec, 1, dtype=np.float32, contiguous=True)
+        vecs = np.asarray(vecs)
+        if vecs.ndim > 2 or vecs.shape[vecs.ndim-1] != 3:
+            raise ValueError(
+                "Invalid dimensions for vecs given to box.getImage. "
+                "Valid input is an array of shape (3,) or (N,3).")
+
+        vecs = freud.common.convert_array(
+            vecs, vecs.ndim, dtype=np.float32, contiguous=True)
+
+        if vecs.ndim == 1:
+            vecs[:] = self._getImage(vecs)
+        elif vecs.ndim == 2:
+            for i, vec in enumerate(vecs):
+                vecs[i] = self._getImage(vec)
+        return vecs
+
+    def _getImage(self, vec):
+        cdef float[::1] l_vec = vec
         cdef vec3[int] result = self.thisptr.getImage(
             <const vec3[float]&> l_vec[0])
         return [result.x, result.y, result.z]
