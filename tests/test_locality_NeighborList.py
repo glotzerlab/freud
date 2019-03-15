@@ -162,5 +162,27 @@ class TestNeighborList(unittest.TestCase):
                 4, 4, index_i, index_j, weights)
 
 
+    def test_indexing(self):
+        L = 10  # Box Dimensions
+        rcut = 3  # Cutoff radius
+        N = 40  # number of particles
+        num_neighbors = 6
+
+        # Initialize Box and cell list
+        fbox = box.Box.cube(L)
+        cl = locality.NearestNeighbors(rcut, num_neighbors)
+
+        np.random.seed(0)
+        points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
+
+        cl.compute(fbox, points, points)
+        print(dir(cl.nlist))
+        print(locality.__file__)
+        for i, (idx_i, idx_j) in enumerate(cl.nlist):
+            assert idx_i == cl.nlist.index_i[i]
+            assert idx_j == cl.nlist.index_j[i]
+
+
+
 if __name__ == '__main__':
     unittest.main()
