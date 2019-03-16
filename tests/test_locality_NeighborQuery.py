@@ -71,26 +71,45 @@ class TestNeighborQueryAABB(unittest.TestCase):
         # Test overflow case
         npt.assert_equal(aq.query(points, 5, exclude_ii=True).toList(), result)
 
-        # Try this
-        result = aq.query(points, 3).toList()
-        [print(i, j) for i, j in sorted([[a[1], a[0]] for a in result])]
-        # print(result)
-        print()
-        result = aq.query(points, 3).toNList()
-        for i, j in zip(result.index_i, result.index_j):
-            print(i, j)
-        actual = list(zip(result.index_i, result.index_j))
-        print(actual)
-        expected = [(0, 0), (0, 1), (1, 0), (1, 1), (1, 2), (1, 3), (2, 2),
-                    (2, 3), (3, 0), (3, 1), (3, 2), (3, 3)]
-        actual = list(zip(result.index_i, result.index_j))
-        print(actual)
-        print(expected)
-        print(actual == expected)
-        # npt.assert_equal({x[1] for x in result if x[0] == 0}, {0, 1, 3})
-        # npt.assert_equal({x[1] for x in result if x[0] == 1}, {0, 1, 3})
-        # npt.assert_equal({x[1] for x in result if x[0] == 2}, {1, 2, 3})
-        # npt.assert_equal({x[1] for x in result if x[0] == 3}, {1, 2, 3})
+    def test_query_ball_to_nlist(self):
+        """Test that generated NeighborLists are identical to the results of
+        querying"""
+        L = 10  # Box Dimensions
+        N = 400  # number of particles
+
+        fbox = box.Box.cube(L)
+        np.random.seed(0)
+        ref_points = np.random.rand(N, 3)*L
+        points = np.random.rand(N, 3)*L
+
+        aq = locality.AABBQuery(fbox, ref_points)
+
+        result_list = aq.queryBall(points, 2).toList()
+        result_list = [(b[0], b[1]) for b in result_list]
+        nlist = aq.queryBall(points, 2).toNList()
+        list_nlist = list(zip(nlist.index_j, nlist.index_i))
+
+        npt.assert_equal(set(result_list), set(list_nlist))
+
+    def test_query_to_nlist(self):
+        """Test that generated NeighborLists are identical to the results of
+        querying"""
+        L = 10  # Box Dimensions
+        N = 400  # number of particles
+
+        fbox = box.Box.cube(L)
+        np.random.seed(0)
+        ref_points = np.random.rand(N, 3)*L
+        points = np.random.rand(N, 3)*L
+
+        aq = locality.AABBQuery(fbox, ref_points)
+
+        result_list = aq.query(points, 2).toList()
+        result_list = [(b[0], b[1]) for b in result_list]
+        nlist = aq.query(points, 2).toNList()
+        list_nlist = list(zip(nlist.index_j, nlist.index_i))
+
+        npt.assert_equal(set(result_list), set(list_nlist))
 
     def test_reciprocal(self):
         """Test that, for a random set of points, for each (i, j) neighbor
@@ -265,7 +284,7 @@ class TestNeighborQueryAABB(unittest.TestCase):
 
 
 class TestNeighborQueryLinkCell(unittest.TestCase):
-    def test_first_index(self):
+    def test_query_ball(self):
         L = 10  # Box Dimensions
         rcut = 2.01  # Cutoff radius
         N = 4  # number of particles
@@ -303,6 +322,74 @@ class TestNeighborQueryLinkCell(unittest.TestCase):
         npt.assert_equal(len(lc.queryBall(points[[2]], rcut).toList()), 3)
         # particle 3 has 2 bonds
         npt.assert_equal(len(lc.queryBall(points[[3]], rcut).toList()), 4)
+
+    def test_query(self):
+        L = 10  # Box Dimensions
+        N = 4  # number of particles
+
+        fbox = box.Box.cube(L)  # Initialize Box
+
+        points = np.zeros(shape=(N, 3), dtype=np.float32)
+        points[0] = [0.0, 0.0, 0.0]
+        points[1] = [1.0, 0.0, 0.0]
+        points[2] = [3.0, 0.0, 0.0]
+        points[3] = [2.0, 0.0, 0.0]
+        lc = locality.LinkCell(fbox, L/10, points)
+
+        result = lc.query(points, 3).toList()
+        npt.assert_equal({x[1] for x in result if x[0] == 0}, {0, 1, 3})
+        npt.assert_equal({x[1] for x in result if x[0] == 1}, {0, 1, 3})
+        npt.assert_equal({x[1] for x in result if x[0] == 2}, {1, 2, 3})
+        npt.assert_equal({x[1] for x in result if x[0] == 3}, {1, 2, 3})
+
+        # All points are neighbors in this case
+        result = lc.query(points, 3, exclude_ii=True).toList()
+        npt.assert_equal({x[1] for x in result if x[0] == 0}, {1, 2, 3})
+        npt.assert_equal({x[1] for x in result if x[0] == 1}, {0, 2, 3})
+        npt.assert_equal({x[1] for x in result if x[0] == 2}, {0, 1, 3})
+        npt.assert_equal({x[1] for x in result if x[0] == 3}, {0, 1, 2})
+
+        npt.assert_equal(lc.query(points, 5, exclude_ii=True).toList(), result)
+
+    def test_query_ball_to_nlist(self):
+        """Test that generated NeighborLists are identical to the results of
+        querying"""
+        L = 10  # Box Dimensions
+        N = 400  # number of particles
+
+        fbox = box.Box.cube(L)
+        np.random.seed(0)
+        ref_points = np.random.rand(N, 3)*L
+        points = np.random.rand(N, 3)*L
+
+        lc = locality.LinkCell(fbox, L/10, ref_points)
+
+        result_list = lc.queryBall(points, 2).toList()
+        result_list = [(b[0], b[1]) for b in result_list]
+        nlist = lc.queryBall(points, 2).toNList()
+        list_nlist = list(zip(nlist.index_j, nlist.index_i))
+
+        npt.assert_equal(set(result_list), set(list_nlist))
+
+    def test_query_to_nlist(self):
+        """Test that generated NeighborLists are identical to the results of
+        querying"""
+        L = 10  # Box Dimensions
+        N = 400  # number of particles
+
+        fbox = box.Box.cube(L)
+        np.random.seed(0)
+        ref_points = np.random.rand(N, 3)*L
+        points = np.random.rand(N, 3)*L
+
+        lc = locality.LinkCell(fbox, L/10, ref_points)
+
+        result_list = lc.query(points, 2).toList()
+        result_list = [(b[0], b[1]) for b in result_list]
+        nlist = lc.query(points, 2).toNList()
+        list_nlist = list(zip(nlist.index_j, nlist.index_i))
+
+        npt.assert_equal(set(result_list), set(list_nlist))
 
     def test_reciprocal(self):
         """Test that, for a random set of points, for each (i, j) neighbor

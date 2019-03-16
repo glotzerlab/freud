@@ -89,12 +89,15 @@ cdef class NeighborQueryResult:
                 self.points.shape[0],
                 self.r)
 
-        # Explicitly manage a manually created nlist.
         cdef freud._locality.NeighborList *cnlist = dereference(
             self.iterator).toNeighborList()
         cdef NeighborList nl = NeighborList()
         nl.refer_to(cnlist)
+        # Explicitly manage a manually created nlist so that it will be
+        # deleted when the Python object is.
         nl._managed = True
+
+        return nl
 
 
 cdef class AABBQueryResult(NeighborQueryResult):

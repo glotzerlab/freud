@@ -177,6 +177,11 @@ class NeighborQueryIterator {
          *  NeighborList object. Right now this won't be backwards compatible
          *  because the kn query is not symmetric, so even if we reverse the
          *  output order here the actual neighbors found will be different.
+         *
+         *  This function returns a pointer, not a shared pointer, so the
+         *  caller is responsible for deleting it. The reason for this is that
+         *  the primary use-case is to have this object be managed by instances
+         *  of the Cython NeighborList class.
          */
         NeighborList *toNeighborList()
             {
