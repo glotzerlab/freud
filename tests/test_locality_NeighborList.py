@@ -19,7 +19,8 @@ class TestNeighborList(unittest.TestCase):
         # Initialize Box and cell list
         self.fbox = box.Box.cube(self.L)
         self.cl = locality.NearestNeighbors(self.rcut, self.num_neighbors)
-        self.points = np.random.uniform(-self.L/2, self.L/2, (self.N, 3)).astype(np.float32)
+        self.points = np.random.uniform(
+            -self.L/2, self.L/2, (self.N, 3)).astype(np.float32)
 
     def test_writable(self):
 
@@ -98,8 +99,8 @@ class TestNeighborList(unittest.TestCase):
         self.cl.compute(self.fbox, self.points, self.points)
 
         ones = np.ones(len(self.cl.nlist), dtype=np.float32)
-        self.assertTrue(np.allclose(np.add.reduceat(ones, self.cl.nlist.segments),
-                                    6))
+        self.assertTrue(
+            np.allclose(np.add.reduceat(ones, self.cl.nlist.segments), 6))
         self.assertTrue(np.allclose(self.cl.nlist.neighbor_counts, 6))
 
     def test_from_arrays(self):
@@ -143,9 +144,7 @@ class TestNeighborList(unittest.TestCase):
             nlist = locality.NeighborList.from_arrays(
                 4, 4, index_i, index_j, weights)
 
-
     def test_indexing(self):
-
         self.setup_nl()
         np.random.seed(0)
 
@@ -192,8 +191,7 @@ class TestNeighborList(unittest.TestCase):
             self.cl.nlist[:] = 0
 
         with self.assertRaises(TypeError):
-            self.cl.nlist[0,0] = 0
-
+            self.cl.nlist[0, 0] = 0
 
 
 if __name__ == '__main__':
