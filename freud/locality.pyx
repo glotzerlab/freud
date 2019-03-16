@@ -30,11 +30,19 @@ np.import_array()
 cdef class NeighborQueryResult:
     R"""Class encapsulating the output of queries of NeighborQuery objects.
 
-    The NeighborQueryResult makes it easy to work with the results of queries
-    and convert them to various natural objects. Additionally, the result is a
-    generator, making it easy for users to lazily iterate over the object. This
-    class should never be instantiated directly, but rather used as the output
-    of the query or queryBall functions of a NeighborQuery instance.
+    .. warning::
+
+        This class should not be instantiated directly, it is the
+        return value of all `query*` functions of
+        :class:`~NeighborQuery`. The class provides a convenient
+        interface for iterating over query results, and can be
+        transparently converted into a list or a
+        :class:`~NeighborList` object.
+
+    The :class:`~NeighborQueryResult` makes it easy to work with the results of
+    queries and convert them to various natural objects. Additionally, the
+    result is a generator, making it easy for users to lazily iterate over the
+    object.
 
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
 
@@ -66,16 +74,14 @@ cdef class NeighborQueryResult:
 
         raise StopIteration
 
-    def toList(self):
-        """Convert query result to a list."""
-        neighbors = []
-        for neigh in self:
-            neighbors.append(neigh)
-
-        return neighbors
-
     def toNList(self):
-        """Convert query result to a freud NeighborList."""
+        """Convert query result to a freud NeighborList.
+
+        Returns:
+            :class:`~NeighborList`: A :mod:`freud` :class:`~NeighborList`
+            containing all neighbor pairs found by the query generating this
+            result object.
+        """
         cdef float[:, ::1] l_points = self.points
 
         if self.query_type == 'nn':
@@ -156,13 +162,20 @@ cdef class NeighborQuery:
     R"""Class representing a set of points along with the ability to query for
     neighbors of these points.
 
-    The NeighborQuery class represents the abstract interface for neighbor
-    finding. The class contains a set of points and a simulation box, the
-    latter of which is used to define the system and the periodic boundary
+    .. warning::
+
+        This class should not be instantiated directly. The subclasses
+        :class:`~AABBQuery` and :class:`~LinkCell` provide the
+        intended interfaces.
+
+    The :class:`~.NeighborQuery` class represents the abstract interface for
+    neighbor finding. The class contains a set of points and a simulation box,
+    the latter of which is used to define the system and the periodic boundary
     conditions required for finding neighbors of these points. The primary mode
-    of interacting with the NeighborQuery is through the query and queryBall
+    of interacting with the :class:`~.NeighborQuery` is through the
+    :meth:`~NeighborQuery.query` and :meth:`~NeighborQuery.queryBall`
     functions, which enable finding either the nearest neighbors of a point or
-    all points within a distance cutoff, respectively. Subclasses of
+    all points within a distance cutoff, respectively.  Subclasses of
     NeighborQuery implement these methods based on the nature of the underlying
     data structure.
 
@@ -199,7 +212,7 @@ cdef class NeighborQuery:
         return np.asarray(self.points)
 
     def query(self, points, unsigned int k=1, cbool exclude_ii=False):
-        R"""Query the tree for nearest neighbors of the provided point.
+        R"""Query for nearest neighbors of the provided point.
 
         Args:
             points ((:math:`N`, 3) :class:`numpy.ndarray`):
@@ -214,9 +227,8 @@ cdef class NeighborQuery:
                 :code:`ref_points` (Defaults to :code:`None`).
 
         Returns:
-            (:math:`N`, :math:`k`) :class:`numpy.ndarray`:
-                Array of indices of the :math:`k` nearest neighbors for each
-                input point.
+            :class:`~.NeighborQueryResult`: Results object containing the
+            output of this query.
         """
         # Can't use this function with old-style NeighborQuery objects
         if not self.queryable:
@@ -237,7 +249,7 @@ cdef class NeighborQuery:
             self.nqptr, points, exclude_ii, r=0, k=k)
 
     def queryBall(self, points, float r, cbool exclude_ii=False):
-        R"""Query the tree for all points within a distance r of the provided point(s).
+        R"""Query for all points within a distance r of the provided point(s).
 
         Args:
             points ((:math:`N`, 3) :class:`numpy.ndarray`):
@@ -252,10 +264,8 @@ cdef class NeighborQuery:
                 :code:`ref_points` (Defaults to :code:`None`).
 
         Returns:
-            list or list[list]:
-                If the input was a single point, returns a list of
-                its neighbors. Otherwise, returns a list of lists
-                of the neighbors.
+            :class:`~.NeighborQueryResult`: Results object containing the
+            output of this query.
         """
         if not self.queryable:
             raise RuntimeError("You cannot use the query method unless this "
@@ -710,6 +720,9 @@ cdef class AABBQuery(NeighborQuery):
             The simulation box.
         points (:class:`np.ndarray`):
             The points associated with this class.
+
+    .. versionadded:: 1.1.0
+
     """  # noqa: E501
 
     def __cinit__(self, box, points):
@@ -733,10 +746,11 @@ cdef class AABBQuery(NeighborQuery):
 
     def query(self, points, unsigned int k=1, float r=0, float scale=1.1,
               cbool exclude_ii=False):
-        R"""Query the tree for nearest neighbors of the provided point.
+        R"""Query for nearest neighbors of the provided point.
 
-        The AABBQuery object overrides the parent method to support querying
-        based on a specified guessed rcut and scaling.
+        This method has a slightly different signature from the parent method
+        to support querying based on a specified guessed rcut and scaling.
+
         Args:
             box (:class:`freud.box.Box`):
                 Simulation box.
@@ -751,9 +765,8 @@ cdef class AABBQuery(NeighborQuery):
                 neighbors are found.
 
         Returns:
-            (:math:`N`, :math:`k`) :class:`numpy.ndarray`:
-                Array of indices of the :math:`k` nearest neighbors for each
-                input point.
+            :class:`~.NeighborQueryResult`: Results object containing the
+            output of this query.
         """
         points = freud.common.convert_array(
             np.atleast_2d(points), 2, dtype=np.float32, contiguous=True,
