@@ -23,9 +23,7 @@ class TestNeighborList(unittest.TestCase):
             -self.L/2, self.L/2, (self.N, 3)).astype(np.float32)
 
     def test_writable(self):
-
         self.setup_nl()
-
         np.random.seed(0)
         self.cl.compute(self.fbox, self.points, self.points)
 
@@ -43,12 +41,9 @@ class TestNeighborList(unittest.TestCase):
         self.assertEqual(self.cl.nlist.weights[18], 3)
 
     def test_validation(self):
-
         self.setup_nl()
-
         np.random.seed(0)
         points2 = self.points[:self.N//2]
-
         self.cl.compute(self.fbox, self.points, self.points)
 
         # should fail in validation when we give inconsistent sized arrays
@@ -60,44 +55,30 @@ class TestNeighborList(unittest.TestCase):
         self.cl.nlist.filter_r(self.fbox, self.points, points2, 2.5)
 
     def test_filter(self):
-
         self.setup_nl()
-
         np.random.seed(0)
-
         self.cl.compute(self.fbox, self.points, self.points)
-
         old_size = len(self.cl.nlist)
-
         filt = (self.cl.nlist.index_j.astype(np.int32) -
                 self.cl.nlist.index_i.astype(np.int32)) % 2 == 0
         self.cl.nlist.filter(filt)
-
         self.assertLessEqual(len(self.cl.nlist), old_size)
 
         # should be able to further filter
         self.cl.nlist.filter_r(self.fbox, self.points, self.points, 2.5)
 
     def test_find_first_index(self):
-
         self.setup_nl()
-
         np.random.seed(0)
-
         self.cl.compute(self.fbox, self.points, self.points)
         nlist = self.cl.nlist
-
         for (idx, i) in enumerate(nlist.index_i):
             self.assertLessEqual(nlist.find_first_index(i), idx)
 
     def test_segments(self):
-
         self.setup_nl()
-
         np.random.seed(0)
-
         self.cl.compute(self.fbox, self.points, self.points)
-
         ones = np.ones(len(self.cl.nlist), dtype=np.float32)
         self.assertTrue(
             np.allclose(np.add.reduceat(ones, self.cl.nlist.segments), 6))
@@ -157,27 +138,20 @@ class TestNeighborList(unittest.TestCase):
             self.assertNotEqual(i, j)
 
     def test_nl_size(self):
-
         self.setup_nl()
-
         np.random.seed(0)
-
         self.cl.compute(self.fbox, self.points, self.points)
-        assert len([x for x in self.cl.nlist]) == len(self.cl.nlist.index_i)
-        assert len([x for x in self.cl.nlist]) == len(self.cl.nlist.index_j)
+        self.assertEqual(len(self.cl.nlist), len(self.cl.nlist.index_i))
+        self.assertEqual(len(self.cl.nlist), len(self.cl.nlist.index_j))
 
     def test_index_error(self):
-
         self.setup_nl()
-
         with self.assertRaises(IndexError):
             nbonds = len(self.cl.nlist)
             self.cl.nlist[nbonds+1]
 
     def test_index_writable(self):
-
         self.setup_nl()
-
         np.random.seed(0)
         self.cl.compute(self.fbox, self.points, self.points)
 
