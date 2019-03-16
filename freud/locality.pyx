@@ -615,7 +615,7 @@ cdef class NeighborList:
 def make_default_nlist(box, ref_points, points, rmax, nlist=None,
                        exclude_ii=None):
     R"""Helper function to return a neighbor list object if is given, or to
-    construct one using _AABBQuery if it is not.
+    construct one using AABBQuery if it is not.
 
     Args:
         box (:class:`freud.box.Box`):
@@ -636,28 +636,17 @@ def make_default_nlist(box, ref_points, points, rmax, nlist=None,
             :code:`None`).
 
     Returns:
-        tuple (:class:`freud.locality.NeighborList`, :class:`freud.locality._AABBQuery`):
-            The neighborlist and the owning _AABBQuery object.
+        tuple (:class:`freud.locality.NeighborList`, :class:`freud.locality.AABBQuery`):
+            The NeighborList and the owning AABBQuery object.
     """  # noqa: E501
     if nlist is not None:
         return nlist, nlist
 
-    cdef LinkCell lc = LinkCell(box, rmax).compute(
-        box, ref_points, points, exclude_ii)
+    cdef AABBQuery aq = AABBQuery(box, ref_points)
+    cdef NeighborList aq_nlist = aq.queryBall(
+        points, rmax, exclude_ii).toNList()
 
-    # Python does not appear to garbage collect appropriately in this case.
-    # If a new neighbor list is created, the associated owner keeps the
-    # reference to it alive even if it goes out of scope in the calling
-    # program, and since the neighbor list also references the link cell the
-    # resulting cycle causes a memory leak. The below block explicitly breaks
-    # this cycle. Alternatively, we could force garbage collection using the
-    # gc module, but this is simpler.
-    cdef NeighborList cnlist = lc.nlist
-    if nlist is None:
-        cnlist.base = None
-
-    # Return the owner of the neighbor list as well to prevent gc problems
-    return lc.nlist, lc
+    return aq_nlist, aq
 
 
 def make_default_nlist_nn(box, ref_points, points, n_neigh, nlist=None,
