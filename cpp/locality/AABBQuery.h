@@ -77,7 +77,7 @@ class AABBIterator : public NeighborQueryIterator
     public:
         //! Constructor
         AABBIterator(const AABBQuery* neighbor_query, const vec3<float> *points, unsigned int N) :
-            NeighborQueryIterator(neighbor_query, points, N), m_aabb_data(neighbor_query)
+            NeighborQueryIterator(neighbor_query, points, N), m_aabb_query(neighbor_query)
             {}
 
         //! Empty Destructor
@@ -87,7 +87,7 @@ class AABBIterator : public NeighborQueryIterator
         void updateImageVectors(float rmax);
 
     protected:
-        const AABBQuery *m_aabb_data;            //!< Link to the AABBQuery object
+        const AABBQuery *m_aabb_query;            //!< Link to the AABBQuery object
         std::vector< vec3<float> > m_image_list; //!< List of translation vectors
         unsigned int m_n_images;                 //!< The number of image vectors to check
     };
@@ -115,8 +115,8 @@ class AABBQueryIterator : public AABBIterator
 
     protected:
         unsigned int m_k; //!< Number of nearest neighbors to find.
-        float m_r;        //!< Current ball cutoff distance. Used as a guess.
-        float m_r_cur;  //!< Search ball cutoff distance for the current particle.
+        float m_r;        //!< Ball cutoff distance. Used as a guess.
+        float m_r_cur;  //!< Current search ball cutoff distance in use for the current particle (expands as needed).
         float m_scale;    //!< The amount to scale m_r by when the current ball is too small.
         std::vector<NeighborPoint> m_current_neighbors; //!< The current set of found neighbors.
     };

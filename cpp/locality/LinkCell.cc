@@ -424,7 +424,7 @@ NeighborPoint LinkCellQueryBallIterator::next()
 
 std::shared_ptr<NeighborQueryIterator> LinkCellQueryBallIterator::query(unsigned int idx)
     {
-    return this->m_neighbor_query->queryBall(&m_points[idx], 1, m_r);
+    return this->m_linkcell->queryBall(&m_points[idx], 1, m_r);
     }
 
 NeighborPoint LinkCellQueryIterator::next()
@@ -497,7 +497,7 @@ NeighborPoint LinkCellQueryIterator::next()
 
 std::shared_ptr<NeighborQueryIterator> LinkCellQueryIterator::query(unsigned int idx)
     {
-    return this->m_neighbor_query->query(&m_points[idx], 1, m_k);
+    return this->m_linkcell->query(&m_points[idx], 1, m_k);
     }
 
 }; }; // end namespace freud::locality

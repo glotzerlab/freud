@@ -141,16 +141,16 @@ NeighborPoint AABBQueryBallIterator::next()
             AABBSphere asphere = AABBSphere(pos_i_image, m_r);
 
             // Stackless traversal of the tree
-            while (cur_node_idx < m_aabb_data->m_aabb_tree.getNumNodes())
+            while (cur_node_idx < m_aabb_query->m_aabb_tree.getNumNodes())
                 {
-                if (overlap(m_aabb_data->m_aabb_tree.getNodeAABB(cur_node_idx), asphere))
+                if (overlap(m_aabb_query->m_aabb_tree.getNodeAABB(cur_node_idx), asphere))
                     {
-                    if (m_aabb_data->m_aabb_tree.isNodeLeaf(cur_node_idx))
+                    if (m_aabb_query->m_aabb_tree.isNodeLeaf(cur_node_idx))
                         {
-                        while (cur_ref_p < m_aabb_data->m_aabb_tree.getNodeNumParticles(cur_node_idx))
+                        while (cur_ref_p < m_aabb_query->m_aabb_tree.getNodeNumParticles(cur_node_idx))
                             {
                             // Neighbor j
-                            const unsigned int j = m_aabb_data->m_aabb_tree.getNodeParticleTag(cur_node_idx, cur_ref_p);
+                            const unsigned int j = m_aabb_query->m_aabb_tree.getNodeParticleTag(cur_node_idx, cur_ref_p);
 
                             // Read in the position of j
                             vec3<float> pos_j((*m_neighbor_query)[j]);
@@ -175,7 +175,7 @@ NeighborPoint AABBQueryBallIterator::next()
                 else
                     {
                     // Skip ahead
-                    cur_node_idx += m_aabb_data->m_aabb_tree.getNodeSkip(cur_node_idx);
+                    cur_node_idx += m_aabb_query->m_aabb_tree.getNodeSkip(cur_node_idx);
                     }
                 cur_node_idx++;
                 cur_ref_p = 0;
@@ -193,7 +193,7 @@ NeighborPoint AABBQueryBallIterator::next()
 
 std::shared_ptr<NeighborQueryIterator> AABBQueryBallIterator::query(unsigned int idx)
     {
-    return this->m_neighbor_query->queryBall(&m_points[idx], 1, m_r);
+    return this->m_aabb_query->queryBall(&m_points[idx], 1, m_r);
     }
 
 NeighborPoint AABBQueryIterator::next()
@@ -248,13 +248,12 @@ NeighborPoint AABBQueryIterator::next()
             return ret_obj;
             }
         }
-    // NOTE THAT WHEN I NEED TO MAKE A NEIGHBORLIST, I NEED TO FILL IN THE SPOTS FOR THE PARTICLES THAT DON'T HAVE ENOUGH NEIGHBORS.
     m_finished = true;
     return NeighborQueryIterator::ITERATOR_TERMINATOR;
     }
 
 std::shared_ptr<NeighborQueryIterator> AABBQueryIterator::query(unsigned int idx)
     {
-    return ((AABBQuery *) this->m_neighbor_query)->query(&m_points[idx], 1, m_k, m_r, m_scale);
+    return this->m_aabb_query->query(&m_points[idx], 1, m_k, m_r, m_scale);
     }
 }; }; // end namespace freud::locality
