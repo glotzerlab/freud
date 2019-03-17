@@ -56,22 +56,22 @@
         "name": "freud.order",
         "sources": [
             "freud/order.pyx",
-            "cpp/box/Box.cc",
+            "cpp/order/HexOrderParameter.cc",
+            "cpp/util/HOOMDMatrix.cc",
+            "cpp/locality/NearestNeighbors.cc",
+            "cpp/order/wigner3j.cc",
+            "cpp/order/SolLiq.cc",
             "cpp/cluster/Cluster.cc",
+            "cpp/order/RotationalAutocorrelation.cc",
             "cpp/order/TransOrderParameter.cc",
             "cpp/locality/NeighborList.cc",
-            "cpp/order/CubaticOrderParameter.cc",
-            "cpp/order/SolLiq.cc",
-            "cpp/order/NematicOrderParameter.cc",
-            "cpp/locality/NearestNeighbors.cc",
-            "cpp/locality/LinkCell.cc",
-            "cpp/order/wigner3j.cc",
-            "cpp/order/LocalQl.cc",
             "cpp/locality/AABBQuery.cc",
-            "cpp/util/HOOMDMatrix.cc",
-            "cpp/order/HexOrderParameter.cc",
             "cpp/order/LocalWl.cc",
-            "cpp/order/RotationalAutocorrelation.cc"
+            "cpp/order/LocalQl.cc",
+            "cpp/order/CubaticOrderParameter.cc",
+            "cpp/order/NematicOrderParameter.cc",
+            "cpp/box/Box.cc",
+            "cpp/locality/LinkCell.cc"
         ]
     },
     "module_name": "freud.order"
@@ -11452,7 +11452,7 @@ static PyObject *__pyx_pf_5freud_5order_7LocalQl_10computeNorm(struct __pyx_obj_
   /* "freud/order.pyx":663
  * 
  *         self.qlptr.computeNorm(nlist_.get_ptr(),
- *                 <vec3[float]*> &l_points[0, 0], nP)             # <<<<<<<<<<<<<<
+ *                                <vec3[float]*> &l_points[0, 0], nP)             # <<<<<<<<<<<<<<
  *         return self
  * 
  */
@@ -11463,7 +11463,7 @@ static PyObject *__pyx_pf_5freud_5order_7LocalQl_10computeNorm(struct __pyx_obj_
  *         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
  * 
  *         self.qlptr.computeNorm(nlist_.get_ptr(),             # <<<<<<<<<<<<<<
- *                 <vec3[float]*> &l_points[0, 0], nP)
+ *                                <vec3[float]*> &l_points[0, 0], nP)
  *         return self
  */
   try {
@@ -11475,7 +11475,7 @@ static PyObject *__pyx_pf_5freud_5order_7LocalQl_10computeNorm(struct __pyx_obj_
 
   /* "freud/order.pyx":664
  *         self.qlptr.computeNorm(nlist_.get_ptr(),
- *                 <vec3[float]*> &l_points[0, 0], nP)
+ *                                <vec3[float]*> &l_points[0, 0], nP)
  *         return self             # <<<<<<<<<<<<<<
  * 
  *     def computeAveNorm(self, points, nlist=None):
@@ -11827,7 +11827,7 @@ static PyObject *__pyx_pf_5freud_5order_7LocalQl_12computeAveNorm(struct __pyx_o
   /* "freud/order.pyx":690
  * 
  *         self.qlptr.computeAveNorm(nlist_.get_ptr(),
- *                 <vec3[float]*> &l_points[0, 0], nP)             # <<<<<<<<<<<<<<
+ *                                   <vec3[float]*> &l_points[0, 0], nP)             # <<<<<<<<<<<<<<
  *         return self
  * 
  */
@@ -11838,7 +11838,7 @@ static PyObject *__pyx_pf_5freud_5order_7LocalQl_12computeAveNorm(struct __pyx_o
  *         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
  * 
  *         self.qlptr.computeAveNorm(nlist_.get_ptr(),             # <<<<<<<<<<<<<<
- *                 <vec3[float]*> &l_points[0, 0], nP)
+ *                                   <vec3[float]*> &l_points[0, 0], nP)
  *         return self
  */
   try {
@@ -11850,7 +11850,7 @@ static PyObject *__pyx_pf_5freud_5order_7LocalQl_12computeAveNorm(struct __pyx_o
 
   /* "freud/order.pyx":691
  *         self.qlptr.computeAveNorm(nlist_.get_ptr(),
- *                 <vec3[float]*> &l_points[0, 0], nP)
+ *                                   <vec3[float]*> &l_points[0, 0], nP)
  *         return self             # <<<<<<<<<<<<<<
  * 
  * 
