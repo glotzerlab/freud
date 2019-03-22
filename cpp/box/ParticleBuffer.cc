@@ -81,11 +81,13 @@ void ParticleBuffer::compute(const vec3<float> *points,
                     {
                     if (i != 0 || j != 0 || k != 0)
                         {
-                        vec3<float> frac = m_box.makeFraction(points[particle]);
-                        frac.x += i;
-                        frac.y += j;
-                        frac.z += k;
-                        vec3<float> particle_image = m_box.makeCoordinates(frac);
+                        vec3<float> particle_image = points[particle];
+                        particle_image += float(i) * m_box.getLatticeVector(0);
+                        particle_image += float(j) * m_box.getLatticeVector(1);
+                        if (!is2D)
+                            {
+                            particle_image += float(k) * m_box.getLatticeVector(2);
+                            }
                         vec3<float> buff_frac = m_buffer_box.makeFraction(particle_image);
                         if (0 <= buff_frac.x && buff_frac.x < 1 &&
                             0 <= buff_frac.y && buff_frac.y < 1 &&
