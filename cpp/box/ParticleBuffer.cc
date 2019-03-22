@@ -73,21 +73,45 @@ void ParticleBuffer::compute(const vec3<float> *points,
     // for each particle
     for (unsigned int particle = 0; particle < Np; particle++)
         {
-        for (int i=-images.x; i<=images.x; i++)
+        for (int i = use_images ? 0 : -images.x; i <= images.x; i++)
             {
-            for (int j=-images.y; j<=images.y; j++)
+            for (int j = use_images ? 0 : -images.y; j <= images.y; j++)
                 {
-                for (int k=-images.z; k<=images.z; k++)
+                for (int k = use_images ? 0 : -images.z; k <= images.z; k++)
                     {
-                    if (i != 0 || j != 0 || k != 0)
+                    // Skip the origin image
+                    if (i == 0 && j == 0 && k == 0)
                         {
-                        vec3<float> particle_image = points[particle];
-                        particle_image += float(i) * m_box.getLatticeVector(0);
-                        particle_image += float(j) * m_box.getLatticeVector(1);
-                        if (!is2D)
-                            {
-                            particle_image += float(k) * m_box.getLatticeVector(2);
-                            }
+                        continue;
+                        }
+
+                    // Compute the new position for the buffer particle,
+                    // shifted by images.
+                    vec3<float> particle_image = points[particle];
+                    particle_image += float(i) * m_box.getLatticeVector(0);
+                    particle_image += float(j) * m_box.getLatticeVector(1);
+                    if (!is2D)
+                        {
+                        particle_image += float(k) * m_box.getLatticeVector(2);
+                        }
+
+                    if (use_images)
+                        {
+                        // Wrap the positions back into the buffer box and
+                        // always append them if a number of images was
+                        // specified. Performing the check this way ensures we
+                        // have the correct number of particles instead of
+                        // relying on the floating point precision of the
+                        // fractional check below.
+                        buffer_parts.push_back(m_buffer_box.wrap(particle_image));
+                        buffer_ids.push_back(particle);
+                        }
+                    else
+                        {
+                        // When using a buffer "skin distance," we check the
+                        // fractional coordinates to see if the particles are
+                        // inside the buffer box. Unexpected results may occur
+                        // due to numerical imprecision in this check!
                         vec3<float> buff_frac = m_buffer_box.makeFraction(particle_image);
                         if (0 <= buff_frac.x && buff_frac.x < 1 &&
                             0 <= buff_frac.y && buff_frac.y < 1 &&
