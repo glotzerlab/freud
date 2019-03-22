@@ -88,9 +88,69 @@ class TestParticleBuffer(unittest.TestCase):
         self.assertEqual(len(pbuff.buffer_particles), 7 * N)
         npt.assert_array_equal(pbuff.buffer_box.L, 2 * np.asarray(fbox.L))
 
+        # Compute with images-success
+        pbuff.compute(positions, buffer=2, images=True)
+        self.assertEqual(len(pbuff.buffer_particles), 26 * N)
+        npt.assert_array_equal(pbuff.buffer_box.L, 3 * np.asarray(fbox.L))
+
+        # Compute with two images in x axis
+        pbuff.compute(positions, buffer=np.array([1,0,0]), images=True)
+        self.assertEqual(len(pbuff.buffer_particles), 50)
+        npt.assert_array_equal(pbuff.buffer_box.Lx, 2 * np.asarray(fbox.Lx))
+
         # Compute with different images
         pbuff.compute(positions, buffer=[1, 0, 1], images=True)
         self.assertEqual(len(pbuff.buffer_particles), 3 * N)
+        npt.assert_array_equal(pbuff.buffer_box.L,
+                               fbox.L * np.array([2, 1, 2]))
+
+    def test_fcc(self):
+        s = np.sqrt(0.5)
+        L = 2*s  # Box length
+
+        fbox = freud.box.Box.cube(L)  # Initialize box
+        pbuff = freud.box.ParticleBuffer(fbox)
+        positions = np.array([(s, s, 0), (s, 0, s), (0, s, s), (0, 0, 0)])
+
+        # Compute with zero buffer distance
+        pbuff.compute(positions, buffer=0, images=False)
+        self.assertEqual(len(pbuff.buffer_particles), 0)
+        npt.assert_array_equal(pbuff.buffer_box.L, np.asarray(fbox.L))
+
+        # Compute with buffer distances
+        pbuff.compute(positions, buffer=0.5*L, images=False)
+        self.assertEqual(len(pbuff.buffer_particles), 7 * len(positions))
+        npt.assert_array_equal(pbuff.buffer_box.L, 2 * np.asarray(fbox.L))
+
+        # Compute with different buffer distances
+        pbuff.compute(positions, buffer=[L, 0, L], images=False)
+        self.assertEqual(len(pbuff.buffer_particles), 8 * len(positions))
+        npt.assert_array_equal(pbuff.buffer_box.L,
+                               fbox.L * np.array([3, 1, 3]))
+
+        # Compute with zero images
+        pbuff.compute(positions, buffer=0, images=True)
+        self.assertEqual(len(pbuff.buffer_particles), 0)
+        npt.assert_array_equal(pbuff.buffer_box.L, np.asarray(fbox.L))
+
+        # Compute with images
+        pbuff.compute(positions, buffer=1, images=True)
+        self.assertEqual(len(pbuff.buffer_particles), 7 * len(positions))
+        npt.assert_array_equal(pbuff.buffer_box.L, 2 * np.asarray(fbox.L))
+
+        # Compute with images-success
+        pbuff.compute(positions, buffer=2, images=True)
+        self.assertEqual(len(pbuff.buffer_particles), 26 * len(positions))
+        npt.assert_array_equal(pbuff.buffer_box.L, 3 * np.asarray(fbox.L))
+
+        # Compute with two images in x axis
+        pbuff.compute(positions, buffer=np.array([1,0,0]), images=True)
+        self.assertEqual(len(pbuff.buffer_particles), 50)
+        npt.assert_array_equal(pbuff.buffer_box.Lx, 2 * np.asarray(fbox.Lx))
+
+        # Compute with different images
+        pbuff.compute(positions, buffer=[1, 0, 1], images=True)
+        self.assertEqual(len(pbuff.buffer_particles), 3 * len(positions))
         npt.assert_array_equal(pbuff.buffer_box.L,
                                fbox.L * np.array([2, 1, 2]))
 
