@@ -221,7 +221,7 @@ cdef class Box:
         Returns:
             :math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
                 Vectors of real coordinates: :math:`\left(3\right)` or :math:`\left(N, 3\right)`.
-        """
+        """  # noqa: E501
         fractions = np.asarray(fractions)
         if fractions.ndim > 2 or fractions.shape[fractions.ndim-1] != 3:
             raise ValueError(
@@ -254,7 +254,7 @@ cdef class Box:
         Returns:
             :math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
                 Fractional coordinate vectors: :math:`\left(3\right)` or :math:`\left(N, 3\right)`.
-        """
+        """  # noqa: E501
         vecs = np.asarray(vecs)
         if vecs.ndim > 2 or vecs.shape[vecs.ndim-1] != 3:
             raise ValueError(
@@ -289,7 +289,7 @@ cdef class Box:
         Returns:
             :math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
                 Image index vector.
-        """
+        """  # noqa: E501
         vecs = np.asarray(vecs)
         if vecs.ndim > 2 or vecs.shape[vecs.ndim-1] != 3:
             raise ValueError(
