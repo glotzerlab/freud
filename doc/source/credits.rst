@@ -186,7 +186,7 @@ Paul Dodd
 Tim Moore
 
 * Added optional rmin argument to density.RDF.
-* Enabled Neigborlist indexing.
+* Enabled NeighborList indexing.
 
 Alex Dutton
 
@@ -199,7 +199,7 @@ Matthew Palathingal
 
 Kelly Wang
 
-* Enabled Neigborlist indexing.
+* Enabled NeighborList indexing.
 
 Source code
 -----------
