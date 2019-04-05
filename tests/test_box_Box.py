@@ -156,20 +156,39 @@ class TestBox(unittest.TestCase):
                          np.array([[25, 20, 15],
                                    [-5, 0, 0]]),
                          err_msg="ImageFail")
+        testimages = box.getImage(testpoints)
+        npt.assert_equal(testimages,
+                         np.array([[25, 20, 15],
+                                   [-5, 0, 0]]),
+                         err_msg="ImageFail")
 
     def test_coordinates(self):
         box = bx.Box(2, 2, 2)
-        f_point = np.array([0.5, 0.25, 0.75])
-        point = np.array([0, -0.5, 0.5])
+        f_point = np.array([[0.5, 0.25, 0.75],
+                            [0, 0, 0],
+                            [0.5, 0.5, 0.5]])
+        point = np.array([[0, -0.5, 0.5], [-1, -1, -1], [0, 0, 0]])
 
-        npt.assert_equal(box.makeCoordinates(f_point),
-                         point)
-        npt.assert_equal(box.makeFraction(point),
-                         f_point)
+        testcoordinates = np.array([box.makeCoordinates(f) for f in f_point])
+        npt.assert_equal(testcoordinates, point, err_msg="CoordinatesFail")
 
-        dims = np.array([2, 2, 2])
-        for i in range(10):
-            npt.assert_array_equal(box.getImage(dims*i), [i, i, i])
+        testcoordinates = box.makeCoordinates(f_point)
+
+        npt.assert_equal(testcoordinates, point, err_msg="CoordinatesFail")
+
+    def test_fraction(self):
+        box = bx.Box(2, 2, 2)
+        f_point = np.array([[0.5, 0.25, 0.75],
+                            [0, 0, 0],
+                            [0.5, 0.5, 0.5]])
+        point = np.array([[0, -0.5, 0.5], [-1, -1, -1], [0, 0, 0]])
+
+        testfraction = np.array([box.makeFraction(vec) for vec in point])
+        npt.assert_equal(testfraction, f_point, err_msg="FractionFail")
+
+        testfraction = box.makeFraction(point)
+
+        npt.assert_equal(testfraction, f_point, err_msg="FractionFail")
 
     def test_vectors(self):
         """Test getting lattice vectors"""
