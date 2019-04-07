@@ -163,7 +163,8 @@ cdef class Cluster:
         return cluster_keys
 
     def __repr__(self):
-        return ("freud.cluster.{cls}(box={box},rcut={rcut})").format(cls=type(self).__name__, box=self.m_box.__repr__(),rcut=self.rmax)
+        return ("freud.cluster.{cls}(box={box}, rcut={rcut})").format(
+            cls=type(self).__name__, box=self.m_box.__repr__(), rcut=self.rmax)
 
     def __str__(self):
         return repr(self)
@@ -300,7 +301,8 @@ cdef class ClusterProperties:
         return np.asarray(cluster_sizes, dtype=np.uint32)
 
     def __repr__(self):
-        return ("freud.cluster.{cls}(box={box})").format(cls=type(self).__name__, box=self.m_box.__repr__())
+        return ("freud.cluster.{cls}(box={box})").format(
+            cls=type(self).__name__, box=self.m_box.__repr__())
 
     def __str__(self):
         return repr(self)
