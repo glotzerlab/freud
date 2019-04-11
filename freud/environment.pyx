@@ -309,11 +309,14 @@ cdef class BondOrder:
         return self.thisptr.getNBinsPhi()
 
     def __repr__(self):
-        return ("freud.environment.{cls}(rmax={rmax}, k={k}, num_neigh= \
-            {num_neigh},n_bins_t={n_bins_t},n_bins_p={n_bins_p})".format(
-                cls=type(self).__name__, rmax=self.rmax,
-                k=self.k, num_neigh=self.num_neigh, n_bins_t=self.n_bins_t,
-                n_bins_p=self.n_bins_p))
+        return ("freud.environment.{cls}(rmax={rmax}, k={k}, " +
+                "num_neigh={num_neigh}, n_bins_t={n_bins_t}, " +
+                "n_bins_p={n_bins_p})".format(cls=type(self).__name__,
+                                              rmax=self.rmax,
+                                              k=self.k,
+                                              num_neigh=self.num_neigh,
+                                              n_bins_t=self.n_bins_t,
+                                              n_bins_p=self.n_bins_p))
 
     def __str__(self):
         return repr(self)
@@ -541,10 +544,13 @@ cdef class LocalDescriptors:
         return self.thisptr.getLMax()
 
     def __repr__(self):
-        return ("freud.environment.{cls}(num_neigh={num_neigh}, \
-            lmax={lmax}, rmax={rmax}, negative_m={negative_m})".format(
-            cls=type(self).__name__, num_neigh=self.num_neigh, lmax=self.lmax,
-            rmax=self.rmax, negative_m=self.negative_m))
+        return ("freud.environment.{cls}(num_neigh={num_neigh}, " +
+                "lmax={lmax}, rmax={rmax}, " +
+                "negative_m={negative_m})".format(cls=type(self).__name__,
+                                                  num_neigh=self.num_neigh,
+                                                  lmax=self.lmax,
+                                                  rmax=self.rmax,
+                                                  negative_m=self.negative_m))
 
     def __str__(self):
         return repr(self)
@@ -1318,9 +1324,10 @@ cdef class LocalBondProjection:
         return freud.box.BoxFromCPP(<freud._box.Box> self.thisptr.getBox())
 
     def __repr__(self):
-        return "freud.environment.{cls}(rmax={rmax}, num_neigh={num_neigh})".
-        format(cls=type(self).__name__, rmax=self.rmax,
-               num_neigh=self.num_neigh)
+        return ("freud.environment.{cls}(rmax={rmax}, " +
+                "num_neigh={num_neigh})").format(cls=type(self).__name__,
+                                                 rmax=self.rmax,
+                                                 num_neigh=self.num_neigh)
 
     def __str__(self):
         return repr(self)
