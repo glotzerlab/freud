@@ -67,7 +67,7 @@ class TestNematicOrder(unittest.TestCase):
         op = nop(u)
         op.compute(orientations)
 
-        self.assertTrue(np.allclose(op.nematic_order_parameter, 0.25))
+        npt.assert_allclose(op.nematic_order_parameter, 0.25)
         self.assertTrue(np.all(op.director == u))
         npt.assert_allclose(
             op.nematic_tensor, np.diag([0.25, -0.5, 0.25]), rtol=1e-5)

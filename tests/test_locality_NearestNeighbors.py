@@ -108,8 +108,8 @@ class TestNearestNeighbors(unittest.TestCase):
         rsq_list = cl.r_sq_list
         npt.assert_equal(neighbor_list[0, 0], cl.UINTMAX)
         npt.assert_equal(neighbor_list[1, 0], cl.UINTMAX)
-        npt.assert_equal(rsq_list[0, 0], -1.0)
-        npt.assert_equal(rsq_list[1, 0], -1.0)
+        npt.assert_almost_equal(rsq_list[0, 0], -1.0, decimal=6)
+        npt.assert_almost_equal(rsq_list[1, 0], -1.0, decimal=6)
 
     def test_strict_cutoff(self):
         L = 10  # Box Dimensions
@@ -131,8 +131,8 @@ class TestNearestNeighbors(unittest.TestCase):
         rsq_list = cl.r_sq_list
         npt.assert_equal(neighbor_list[0, 0], 1)
         npt.assert_equal(neighbor_list[0, 1], cl.UINTMAX)
-        npt.assert_equal(rsq_list[0, 0], 1.0)
-        npt.assert_equal(rsq_list[0, 1], -1.0)
+        npt.assert_almost_equal(rsq_list[0, 0], 1.0, decimal=6)
+        npt.assert_almost_equal(rsq_list[0, 1], -1.0, decimal=6)
 
     def test_cheap_hexatic(self):
         """Construct a poor man's hexatic order parameter using

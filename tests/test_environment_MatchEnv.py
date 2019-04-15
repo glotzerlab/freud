@@ -276,7 +276,8 @@ class TestCluster(unittest.TestCase):
         [refPoints2, isSim_vec_map] = match.isSimilar(
             e0, e1, threshold, registration=False)
         npt.assert_allclose(
-            e0, refPoints2[np.asarray(list(isSim_vec_map.values()))])
+            e0, refPoints2[np.asarray(list(isSim_vec_map.values()))],
+            atol=1e-6)
         # 4. Calculate the minimal RMSD.
         [min_rmsd, refPoints2, minRMSD_vec_map] = match.minimizeRMSD(
             e0, e1, registration=False)
@@ -287,7 +288,8 @@ class TestCluster(unittest.TestCase):
         npt.assert_equal(np.asarray(list(isSim_vec_map.values())),
                          np.asarray(list(minRMSD_vec_map.values())))
         npt.assert_allclose(
-            e0, refPoints2[np.asarray(list(minRMSD_vec_map.values()))])
+            e0, refPoints2[np.asarray(list(minRMSD_vec_map.values()))],
+            atol=1e-6)
         # 7. Rotate the motif by a known rotation matrix. this matrix MUST be
         #    s.t. the minimal rmsd is the rmsd of the 1-1 mapping between the
         #    vectors of the pre-rotated environment and the post-rotated
