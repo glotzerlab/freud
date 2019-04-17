@@ -1,4 +1,4 @@
-// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// Copyright (c) 2010-2019 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #ifndef NEIGHBOR_QUERY_H
@@ -206,7 +206,7 @@ class NeighborQueryIterator {
                     local_bonds.pop_back();
                     }
                 });
-                
+
             tbb::flattened2d<BondVector> flat_bonds = tbb::flatten2d(bonds);
             std::vector<std::pair<size_t, size_t>> linear_bonds(flat_bonds.begin(), flat_bonds.end());
             tbb::parallel_sort(linear_bonds.begin(), linear_bonds.end());
