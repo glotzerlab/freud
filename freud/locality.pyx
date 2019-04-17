@@ -87,7 +87,7 @@ cdef class NeighborList:
        rijs = positions[nlist.index_j] - positions[nlist.index_i]
        box.wrap(rijs)
 
-    The NeighborList can be indexed to access bond pairs. Example::
+    The NeighborList can be indexed to access bond particle indices. Example::
 
        for i, j in lc.nlist[:]:
            print(i, j)
