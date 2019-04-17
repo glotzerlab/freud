@@ -211,56 +211,103 @@ cdef class Box:
     def volume(self):
         return self.thisptr.getVolume()
 
-    def makeCoordinates(self, f):
+    def makeCoordinates(self, fractions):
         R"""Convert fractional coordinates into real coordinates.
 
         Args:
-            f (:math:`\left(3\right)` :class:`numpy.ndarray`):
-                Fractional coordinates :math:`\left(x, y, z\right)` between
-                0 and 1 within parallelepipedal box.
+            fractions (:math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
+                Fractional coordinates between 0 and 1 within parallelepipedal box.
 
         Returns:
-            list[float, float, float]:
-                Vector of real coordinates :math:`\left(x, y, z\right)`.
-        """
-        cdef float[::1] l_vec = freud.common.convert_array(
-            f, 1, dtype=np.float32, contiguous=True)
+            :math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
+                Vectors of real coordinates: :math:`\left(3\right)` or :math:`\left(N, 3\right)`.
+        """  # noqa: E501
+        fractions = np.asarray(fractions)
+        if fractions.ndim > 2 or fractions.shape[fractions.ndim-1] != 3:
+            raise ValueError(
+                "Invalid dimensions for fractions given to makeCoordinates. "
+                "Valid input is an array of shape (3,) or (N,3).")
+
+        fractions = freud.common.convert_array(
+            fractions, fractions.ndim, dtype=np.float32, contiguous=True)
+
+        if fractions.ndim == 1:
+            fractions[:] = self._makeCoordinates(fractions)
+        elif fractions.ndim == 2:
+            for i, f in enumerate(fractions):
+                fractions[i] = self._makeCoordinates(f)
+        return fractions
+
+    def _makeCoordinates(self, f):
+        cdef float[::1] l_vec = f
         cdef vec3[float] result = self.thisptr.makeCoordinates(
             <const vec3[float]&> l_vec[0])
         return [result.x, result.y, result.z]
 
-    def makeFraction(self, vec):
+    def makeFraction(self, vecs):
         R"""Convert real coordinates into fractional coordinates.
 
         Args:
-            vec (:math:`\left(3\right)` :class:`numpy.ndarray`):
+            vecs (:math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
                 Real coordinates within parallelepipedal box.
 
         Returns:
-            list[float, float, float]:
-                A fractional coordinate vector.
-        """
-        cdef float[::1] l_vec = freud.common.convert_array(
-            vec, 1, dtype=np.float32, contiguous=True)
+            :math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
+                Fractional coordinate vectors: :math:`\left(3\right)` or :math:`\left(N, 3\right)`.
+        """  # noqa: E501
+        vecs = np.asarray(vecs)
+        if vecs.ndim > 2 or vecs.shape[vecs.ndim-1] != 3:
+            raise ValueError(
+                "Invalid dimensions for vecs given to makeFraction. "
+                "Valid input is an array of shape (3,) or (N,3).")
+
+        vecs = freud.common.convert_array(
+            vecs, vecs.ndim, dtype=np.float32, contiguous=True)
+
+        if vecs.ndim == 1:
+            vecs[:] = self._makeFraction(vecs)
+        elif vecs.ndim == 2:
+            for i, vec in enumerate(vecs):
+                vecs[i] = self._makeFraction(vec)
+        return vecs
+
+    def _makeFraction(self, vec):
+        cdef float[::1] l_vec = vec
         cdef vec3[float] result = self.thisptr.makeFraction(
             <const vec3[float]&> l_vec[0])
         return [result.x, result.y, result.z]
 
-    def getImage(self, vec):
+    def getImage(self, vecs):
         R"""Returns the image corresponding to a wrapped vector.
 
         .. versionadded:: 0.8
 
         Args:
-            vec (:math:`\left(3\right)` :class:`numpy.ndarray`):
-                Coordinates of unwrapped vector.
+            vecs (:math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
+                Coordinates of a single vector or array of :math:`N` unwrapped vectors.
 
         Returns:
-            :math:`\left(3\right)` :class:`numpy.ndarray`:
+            :math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
                 Image index vector.
-        """
-        cdef float[::1] l_vec = freud.common.convert_array(
-            vec, 1, dtype=np.float32, contiguous=True)
+        """  # noqa: E501
+        vecs = np.asarray(vecs)
+        if vecs.ndim > 2 or vecs.shape[vecs.ndim-1] != 3:
+            raise ValueError(
+                "Invalid dimensions for vecs given to getImage. "
+                "Valid input is an array of shape (3,) or (N,3).")
+
+        vecs = freud.common.convert_array(
+            vecs, vecs.ndim, dtype=np.float32, contiguous=True)
+
+        if vecs.ndim == 1:
+            vecs[:] = self._getImage(vecs)
+        elif vecs.ndim == 2:
+            for i, vec in enumerate(vecs):
+                vecs[i] = self._getImage(vec)
+        return vecs
+
+    def _getImage(self, vec):
+        cdef float[::1] l_vec = vec
         cdef vec3[int] result = self.thisptr.getImage(
             <const vec3[float]&> l_vec[0])
         return [result.x, result.y, result.z]
@@ -300,7 +347,7 @@ cdef class Box:
         vecs = np.asarray(vecs)
         if vecs.ndim > 2 or vecs.shape[vecs.ndim-1] != 3:
             raise ValueError(
-                "Invalid dimensions for vecs given to box.wrap. "
+                "Invalid dimensions for vecs given to wrap. "
                 "Valid input is an array of shape (3,) or (N,3).")
 
         vecs = freud.common.convert_array(
@@ -343,7 +390,7 @@ cdef class Box:
 
         if vecs.ndim > 2 or vecs.shape[vecs.ndim-1] != 3:
             raise ValueError(
-                "Invalid dimensions for vecs given to box.unwrap. "
+                "Invalid dimensions for vecs given to unwrap. "
                 "Valid input is an array of shape (3,) or (N,3).")
 
         vecs = freud.common.convert_array(
@@ -443,10 +490,15 @@ cdef class Box:
                 [0, self.Ly, self.yz * self.Lz],
                 [0, 0, self.Lz]]
 
+    def __repr__(self):
+        return ("freud.box.{cls}(Lx={Lx}, Ly={Ly}, Lz={Lz}, " +
+                "xy={xy}, xz={xz}, yz={yz}, " +
+                "is2D={is2D})").format(cls=type(self).__name__,
+                                       **self.to_dict(),
+                                       is2D=self.is2D())
+
     def __str__(self):
-        return ("{cls}(Lx={Lx}, Ly={Ly}, Lz={Lz}, xy={xy}, "
-                "xz={xz}, yz={yz}, dimensions={dimensions})").format(
-                    cls=type(self).__name__, **self.to_dict())
+        return repr(self)
 
     def _eq(self, other):
         return self.to_dict() == other.to_dict()
@@ -480,7 +532,7 @@ cdef class Box:
 
     @classmethod
     def from_box(cls, box, dimensions=None):
-        R"""Initialize a box instance from a box-like object.
+        R"""Initialize a Box instance from a box-like object.
 
         Args:
             box:
@@ -553,7 +605,7 @@ cdef class Box:
                 if not len(box) in [2, 3, 6]:
                     raise ValueError(
                         "List-like objects must have length 2, 3, or 6 to be "
-                        "converted to a box")
+                        "converted to freud.box.Box.")
                 # Handle list-like
                 Lx = box[0]
                 Ly = box[1]
@@ -561,7 +613,7 @@ cdef class Box:
                 xy, xz, yz = box[3:6] if len(box) >= 6 else (0, 0, 0)
         except:  # noqa
             logger.debug('Supplied box cannot be converted to type '
-                         'freud.box.Box')
+                         'freud.box.Box.')
             raise
 
         # Infer dimensions if not provided.
@@ -572,7 +624,7 @@ cdef class Box:
 
     @classmethod
     def from_matrix(cls, boxMatrix, dimensions=None):
-        R"""Initialize a box instance from a box matrix.
+        R"""Initialize a Box instance from a box matrix.
 
         For more information and the source for this code,
         see: http://hoomd-blue.readthedocs.io/en/stable/box.html
@@ -673,13 +725,13 @@ cdef class ParticleBuffer:
         cdef Box b = freud.common.convert_box(box)
         self.thisptr = new freud._box.ParticleBuffer(dereference(b.thisptr))
 
-    def compute(self, points, float buffer, bool_t images=False):
+    def compute(self, points, buffer, bool_t images=False):
         R"""Compute the particle buffer.
 
         Args:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Points used to calculate particle buffer.
-            buffer (float):
+            buffer (float or list of 3 floats):
                 Buffer distance for replication outside the box.
             images (bool):
                 If ``False`` (default), ``buffer`` is a distance. If ``True``,
@@ -696,7 +748,17 @@ cdef class ParticleBuffer:
                 'Need a list of 3D points for ParticleBuffer.compute()')
         cdef float[:, ::1] l_points = points
         cdef unsigned int Np = l_points.shape[0]
-        self.thisptr.compute(<vec3[float]*> &l_points[0, 0], Np, buffer,
+
+        cdef vec3[float] buffer_vec
+        if np.ndim(buffer) == 0:
+            # catches more cases than np.isscalar
+            buffer_vec = vec3[float](buffer, buffer, buffer)
+        elif len(buffer) == 3:
+            buffer_vec = vec3[float](buffer[0], buffer[1], buffer[2])
+        else:
+            raise ValueError('buffer must be a scalar or have length 3.')
+
+        self.thisptr.compute(<vec3[float]*> &l_points[0, 0], Np, buffer_vec,
                              images)
         return self
 
@@ -725,3 +787,10 @@ cdef class ParticleBuffer:
     @property
     def buffer_box(self):
         return BoxFromCPP(<freud._box.Box> self.thisptr.getBufferBox())
+
+    def __repr__(self):
+        return ("freud.box.{cls}(box={box})").format(
+            cls=type(self).__name__, box=self.buffer_box.__repr__())
+
+    def __str__(self):
+        return repr(self)
