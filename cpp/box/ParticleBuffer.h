@@ -40,8 +40,8 @@ class ParticleBuffer
         //! Compute the particle images
         void compute(const vec3<float> *points,
                      const unsigned int Np,
-                     const float buff,
-                     const bool images);
+                     const vec3<float> buff,
+                     const bool use_images);
 
         std::shared_ptr< std::vector< vec3<float> > > getBufferParticles()
             {
