@@ -12,11 +12,16 @@ cdef class BondOrder:
     cdef freud._environment.BondOrder * thisptr
     cdef num_neigh
     cdef rmax
+    cdef k
+    cdef n_bins_t
+    cdef n_bins_p
 
 cdef class LocalDescriptors:
     cdef freud._environment.LocalDescriptors * thisptr
     cdef num_neigh
     cdef rmax
+    cdef lmax
+    cdef negative_m
 
 cdef class MatchEnv:
     cdef freud._environment.MatchEnv * thisptr

@@ -186,6 +186,7 @@ Paul Dodd
 Tim Moore
 
 * Added optional rmin argument to density.RDF.
+* Enabled NeighborList indexing.
 
 Alex Dutton
 
@@ -195,6 +196,14 @@ Matthew Palathingal
 
 * Replaced use of boost shared arrays with shared ptr in Cython.
 * Helped incorporate BiMap class into MatchEnv.
+
+Kelly Wang
+
+* Enabled NeighborList indexing.
+
+Yezhi Jin
+
+* Added support for 2D arrays in the Python interface to Box functions.
 
 Source code
 -----------
