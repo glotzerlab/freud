@@ -86,6 +86,11 @@ cdef class NeighborList:
        # Get all vectors from central particles to their neighbors
        rijs = positions[nlist.index_j] - positions[nlist.index_i]
        box.wrap(rijs)
+
+    The NeighborList can be indexed to access bond pairs. Example::
+
+       for i, j in lc.nlist[:]:
+           print(i, j)
     """
 
     @classmethod
@@ -209,40 +214,25 @@ cdef class NeighborList:
             new_copy.copy(self)
             return new_copy
 
-    @property
-    def index_i(self):
-        cdef size_t n_bonds = self.thisptr.getNumBonds()
-        cdef size_t[:, ::1] neighbors
-        if not n_bonds:
-            result = np.asarray([], dtype=np.uint64)
-        else:
-            neighbors = <size_t[:n_bonds, :2]> self.thisptr.getNeighbors()
-            result = np.asarray(neighbors[:, 0], dtype=np.uint64)
-        result.flags.writeable = False
-        return result
-
-    @property
-    def index_j(self):
-        cdef size_t n_bonds = self.thisptr.getNumBonds()
-        cdef size_t[:, ::1] neighbors
-        if not n_bonds:
-            result = np.asarray([], dtype=np.uint64)
-        else:
-            neighbors = <size_t[:n_bonds, :2]> self.thisptr.getNeighbors()
-            result = np.asarray(neighbors[:, 1], dtype=np.uint64)
-        result.flags.writeable = False
-        return result
-
     def __getitem__(self, key):
+        R"""Access the bond array by index or slice."""
         cdef size_t n_bonds = self.thisptr.getNumBonds()
         cdef size_t[:, ::1] neighbors
         if not n_bonds:
-            result = np.asarray([], dtype=np.uint64)
+            result = np.empty(shape=(0, 2), dtype=np.uint64)
         else:
             neighbors = <size_t[:n_bonds, :2]> self.thisptr.getNeighbors()
             result = np.asarray(neighbors[:, :], dtype=np.uint64)
         result.flags.writeable = False
         return result[key]
+
+    @property
+    def index_i(self):
+        return self[:, 0]
+
+    @property
+    def index_j(self):
+        return self[:, 1]
 
     @property
     def weights(self):

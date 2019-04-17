@@ -129,6 +129,10 @@ class TestNeighborList(unittest.TestCase):
         self.setup_nl()
         np.random.seed(0)
 
+        # Ensure that empty NeighborLists have the right shape
+        self.assertEqual(self.cl.nlist[:].shape, (0, 2))
+
+        # Make sure indexing the NeighborList is the same as indexing arrays
         self.cl.compute(self.fbox, self.points, self.points)
         for i, (idx_i, idx_j) in enumerate(self.cl.nlist):
             self.assertEqual(idx_i, self.cl.nlist.index_i[i])
