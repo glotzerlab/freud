@@ -72,12 +72,14 @@ cdef class FloatCF:
     """
     cdef freud._density.CorrelationFunction[double] * thisptr
     cdef rmax
+    cdef dr
 
     def __cinit__(self, float rmax, float dr):
         if dr <= 0.0:
             raise ValueError("dr must be > 0")
         self.thisptr = new freud._density.CorrelationFunction[double](rmax, dr)
         self.rmax = rmax
+        self.dr = dr
 
     def __dealloc__(self):
         del self.thisptr
@@ -206,6 +208,13 @@ cdef class FloatCF:
             <float[:n_bins]> self.thisptr.getR().get()
         return np.asarray(R)
 
+    def __repr__(self):
+        return ("freud.density.{cls}(rmax={rmax}, dr={dr})").format(
+            cls=type(self).__name__, rmax=self.rmax, dr=self.dr)
+
+    def __str__(self):
+        return repr(self)
+
 
 cdef class ComplexCF:
     R"""Computes the complex pairwise correlation function.
@@ -256,6 +265,7 @@ cdef class ComplexCF:
     """
     cdef freud._density.CorrelationFunction[np.complex128_t] * thisptr
     cdef rmax
+    cdef dr
 
     def __cinit__(self, float rmax, float dr):
         if dr <= 0.0:
@@ -263,6 +273,7 @@ cdef class ComplexCF:
         self.thisptr = new freud._density.CorrelationFunction[np.complex128_t](
             rmax, dr)
         self.rmax = rmax
+        self.dr = dr
 
     def __dealloc__(self):
         del self.thisptr
@@ -392,6 +403,13 @@ cdef class ComplexCF:
             <float[:n_bins]> self.thisptr.getR().get()
         return np.asarray(R)
 
+    def __repr__(self):
+        return ("freud.density.{cls}(rmax={rmax}, dr={dr})").format(
+            cls=type(self).__name__, rmax=self.rmax, dr=self.dr)
+
+    def __str__(self):
+        return repr(self)
+
 
 cdef class GaussianDensity:
     R"""Computes the density of a system on a grid.
@@ -408,11 +426,11 @@ cdef class GaussianDensity:
 
         Initialize with all dimensions identical::
 
-            freud.density.GaussianDensity(width, r_cut, dr)
+            freud.density.GaussianDensity(width, r_cut, sigma)
 
         Initialize with each dimension specified::
 
-            freud.density.GaussianDensity(width_x, width_y, width_z, r_cut, dr)
+            freud.density.GaussianDensity(width_x, width_y, width_z, r_cut, sigma)
 
     .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
 
@@ -441,14 +459,17 @@ cdef class GaussianDensity:
             The centers of each bin.
     """  # noqa: E501
     cdef freud._density.GaussianDensity * thisptr
+    cdef arglist
 
     def __cinit__(self, *args):
         if len(args) == 3:
             self.thisptr = new freud._density.GaussianDensity(
                 args[0], args[1], args[2])
+            self.arglist = [args[0], args[1], args[2]]
         elif len(args) == 5:
             self.thisptr = new freud._density.GaussianDensity(
                 args[0], args[1], args[2], args[3], args[4])
+            self.arglist = [args[0], args[1], args[2], args[3], args[4]]
         else:
             raise TypeError('GaussianDensity takes exactly 3 or 5 arguments')
 
@@ -494,6 +515,27 @@ cdef class GaussianDensity:
         else:
             array_shape = (width_z, width_y, width_x)
         return np.reshape(np.asarray(density), array_shape)
+
+    def __repr__(self):
+        if len(self.arglist) == 3:
+            return ("freud.density.{cls}({width}, " +
+                    "{r_cut}, {sigma})").format(cls=type(self).__name__,
+                                                width=self.arglist[0],
+                                                r_cut=self.arglist[1],
+                                                sigma=self.arglist[2])
+        elif len(self.arglist) == 5:
+            return ("freud.density.{cls}({width_x}, {width_y}, {width_z}, " +
+                    "{r_cut}, {sigma})").format(cls=type(self).__name__,
+                                                width_x=self.arglist[0],
+                                                width_y=self.arglist[1],
+                                                width_z=self.arglist[2],
+                                                r_cut=self.arglist[3],
+                                                sigma=self.arglist[4])
+        else:
+            raise TypeError('GaussianDensity takes exactly 3 or 5 arguments')
+
+    def __str__(self):
+        return repr(self)
 
 
 cdef class LocalDensity:
@@ -556,11 +598,13 @@ cdef class LocalDensity:
     cdef freud._density.LocalDensity * thisptr
     cdef r_cut
     cdef diameter
+    cdef volume
 
     def __cinit__(self, float r_cut, float volume, float diameter):
         self.thisptr = new freud._density.LocalDensity(r_cut, volume, diameter)
         self.r_cut = r_cut
         self.diameter = diameter
+        self.volume = volume
 
     @property
     def box(self):
@@ -627,6 +671,16 @@ cdef class LocalDensity:
             <float[:n_ref]> self.thisptr.getNumNeighbors().get()
         return np.asarray(num_neighbors)
 
+    def __repr__(self):
+        return ("freud.density.{cls}(r_cut={r_cut}, volume={volume}, " +
+                "diameter={diameter})").format(cls=type(self).__name__,
+                                               r_cut=self.r_cut,
+                                               volume=self.volume,
+                                               diameter=self.diameter)
+
+    def __str__(self):
+        return repr(self)
+
 
 cdef class RDF:
     R"""Computes RDF for supplied data.
@@ -675,6 +729,8 @@ cdef class RDF:
     """
     cdef freud._density.RDF * thisptr
     cdef rmax
+    cdef dr
+    cdef rmin
 
     def __cinit__(self, float rmax, float dr, float rmin=0):
         if rmax <= 0:
@@ -685,6 +741,8 @@ cdef class RDF:
             raise ValueError("dr must be > 0")
         self.thisptr = new freud._density.RDF(rmax, dr, rmin)
         self.rmax = rmax
+        self.dr = dr
+        self.rmin = rmin
 
     def __dealloc__(self):
         del self.thisptr
@@ -779,3 +837,13 @@ cdef class RDF:
         cdef unsigned int n_bins = self.thisptr.getNBins()
         cdef float[::1] n_r = <float[:n_bins]> self.thisptr.getNr().get()
         return np.asarray(n_r)
+
+    def __repr__(self):
+        return ("freud.density.{cls}(rmax={rmax}, dr={dr}, " +
+                "rmin={rmin})").format(cls=type(self).__name__,
+                                       rmax=self.rmax,
+                                       dr=self.dr,
+                                       rmin=self.rmin)
+
+    def __str__(self):
+        return repr(self)

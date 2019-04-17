@@ -201,6 +201,10 @@ Kelly Wang
 
 * Enabled NeighborList indexing.
 
+Yezhi Jin
+
+* Added support for 2D arrays in the Python interface to Box functions.
+
 Source code
 -----------
 
