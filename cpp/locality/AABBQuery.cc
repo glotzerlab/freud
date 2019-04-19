@@ -7,7 +7,6 @@
 #include <tuple>
 
 #include "AABBQuery.h"
-#include "LinkCell.h"
 
 namespace freud { namespace locality {
 
