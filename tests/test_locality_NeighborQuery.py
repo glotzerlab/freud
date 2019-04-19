@@ -32,9 +32,17 @@ class TestNeighborQueryAABB(unittest.TestCase):
         # particle 3 has 4 bonds
         npt.assert_equal(len(list(aq.queryBall(points[[3]], rcut))), 4)
 
+        # Check NeighborList length without self-exclusions.
+        npt.assert_equal(
+            len(aq.queryBall(points, rcut, exclude_ii=False).toNList()), 14)
+
         # When excluding, everything has one less neighbor.
         npt.assert_equal(
             len(list(aq.queryBall(points, rcut, exclude_ii=True))), 10)
+
+        # Check NeighborList length with self-exclusions.
+        npt.assert_equal(
+            len(aq.queryBall(points, rcut, exclude_ii=True).toNList()), 10)
 
         # now move particle 0 out of range...
         points[0] = 5
@@ -307,9 +315,17 @@ class TestNeighborQueryLinkCell(unittest.TestCase):
         # particle 3 has 3 bonds
         npt.assert_equal(len(list(lc.queryBall(points[[3]], rcut))), 4)
 
+        # Check NeighborList length without self-exclusions.
+        npt.assert_equal(
+            len(lc.queryBall(points, rcut, exclude_ii=False).toNList()), 14)
+
         # When excluding, everything has one less neighbor.
         npt.assert_equal(
             len(list(lc.queryBall(points, rcut, exclude_ii=True))), 10)
+
+        # Check NeighborList length with self-exclusions.
+        npt.assert_equal(
+            len(lc.queryBall(points, rcut, exclude_ii=True).toNList()), 10)
 
         # now move particle 0 out of range...
         points[0] = 5
@@ -560,3 +576,7 @@ class TestNeighborQueryLinkCell(unittest.TestCase):
         result = list(lc.queryBall(positions, rcut, exclude_ii=True))
 
         self.assertEqual(len(result), 0)
+
+
+if __name__ == '__main__':
+    unittest.main()
