@@ -9,13 +9,14 @@ cimport freud.box
 
 cdef class NeighborQueryResult:
     cdef freud._locality.NeighborQuery * nqptr
-    cdef shared_ptr[freud._locality.NeighborQueryIterator] iterator
     cdef float[:, ::1] points
     cdef float r
     cdef unsigned int k
     cdef unsigned int Np
     cdef cbool exclude_ii
     cdef str query_type
+
+    cdef shared_ptr[freud._locality.NeighborQueryIterator] _getIterator(self)
 
     # This had to be implemented as a factory because the constructors will
     # always get called with Python objects as arguments, and we need typed
@@ -80,7 +81,7 @@ cdef class AABBQueryResult(NeighborQueryResult):
 cdef class NeighborQuery:
     cdef freud._locality.NeighborQuery * nqptr
     cdef cbool queryable
-    cdef freud.box.Box box
+    cdef freud.box.Box _box
     cdef float[:, ::1] points
 
 cdef class NeighborList:

@@ -48,10 +48,10 @@ void LinkCell::updateInternal(const box::Box& box, float cell_width)
     if (cell_width != m_cell_width || box != m_box)
         {
         vec3<unsigned int> celldim = computeDimensions(box, cell_width);
-        // Check if box is too small!
-        // will only check if the box is not null
+        // Check if the box is non-null
         if (box != box::Box())
             {
+            // Check if box is too small!
             vec3<float> nearest_plane_distance = box.getNearestPlaneDistance();
             if ((cell_width * 2.0 > nearest_plane_distance.x) ||
                 (cell_width * 2.0 > nearest_plane_distance.y) ||

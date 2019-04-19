@@ -14,6 +14,7 @@ cdef extern from "NeighborQuery.h" namespace "freud::locality":
         unsigned int ref_id
         float distance
         bool operator==(NeighborPoint)
+        bool operator<(NeighborPoint)
 
     cdef cppclass NeighborQuery:
         NeighborQuery()
