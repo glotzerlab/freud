@@ -56,22 +56,22 @@
         "name": "freud.order",
         "sources": [
             "freud/order.pyx",
-            "cpp/order/TransOrderParameter.cc",
+            "cpp/order/LocalWl.cc",
+            "cpp/order/RotationalAutocorrelation.cc",
+            "cpp/util/HOOMDMatrix.cc",
             "cpp/order/SolLiq.cc",
-            "cpp/order/wigner3j.cc",
-            "cpp/order/CubaticOrderParameter.cc",
             "cpp/locality/NearestNeighbors.cc",
             "cpp/locality/AABBQuery.cc",
-            "cpp/box/Box.cc",
-            "cpp/order/RotationalAutocorrelation.cc",
+            "cpp/order/TransOrderParameter.cc",
+            "cpp/order/NematicOrderParameter.cc",
             "cpp/order/LocalQl.cc",
-            "cpp/locality/LinkCell.cc",
-            "cpp/order/LocalWl.cc",
-            "cpp/util/HOOMDMatrix.cc",
+            "cpp/order/wigner3j.cc",
             "cpp/cluster/Cluster.cc",
             "cpp/order/HexOrderParameter.cc",
-            "cpp/order/NematicOrderParameter.cc",
-            "cpp/locality/NeighborList.cc"
+            "cpp/box/Box.cc",
+            "cpp/order/CubaticOrderParameter.cc",
+            "cpp/locality/NeighborList.cc",
+            "cpp/locality/LinkCell.cc"
         ]
     },
     "module_name": "freud.order"
@@ -2790,6 +2790,9 @@ static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_dc___p
 /* ObjectToMemviewSlice.proto */
 static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_dc_unsigned_int(PyObject *, int writable_flag);
 
+/* ObjectToMemviewSlice.proto */
+static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_d_dc_float__const__(PyObject *, int writable_flag);
+
 /* CheckBinaryVersion.proto */
 static int __Pyx_check_binary_version(void);
 
@@ -2947,6 +2950,7 @@ static PyObject *__pyx_format_from_typeinfo(__Pyx_TypeInfo *); /*proto*/
 static __Pyx_TypeInfo __Pyx_TypeInfo_float = { "float", NULL, sizeof(float), { 0 }, 0, 'R', 0, 0 };
 static __Pyx_TypeInfo __Pyx_TypeInfo___pyx_t_float_complex = { "float complex", NULL, sizeof(__pyx_t_float_complex), { 0 }, 0, 'C', 0, 0 };
 static __Pyx_TypeInfo __Pyx_TypeInfo_unsigned_int = { "unsigned int", NULL, sizeof(unsigned int), { 0 }, 0, IS_UNSIGNED(unsigned int) ? 'U' : 'I', IS_UNSIGNED(unsigned int), 0 };
+static __Pyx_TypeInfo __Pyx_TypeInfo_float__const__ = { "const float", NULL, sizeof(float const ), { 0 }, 0, 'R', 0, 0 };
 #define __Pyx_MODULE_NAME "freud.order"
 extern int __pyx_module_is_main_freud__order;
 int __pyx_module_is_main_freud__order = 0;
@@ -20506,11 +20510,12 @@ static PyObject *__pyx_pf_5freud_5order_25RotationalAutocorrelation_4compute(str
   PyObject *__pyx_t_5 = NULL;
   int __pyx_t_6;
   __Pyx_memviewslice __pyx_t_7 = { 0, 0, { 0 }, { 0 }, { 0 } };
-  unsigned int __pyx_t_8;
-  Py_ssize_t __pyx_t_9;
+  __Pyx_memviewslice __pyx_t_8 = { 0, 0, { 0 }, { 0 }, { 0 } };
+  unsigned int __pyx_t_9;
   Py_ssize_t __pyx_t_10;
   Py_ssize_t __pyx_t_11;
   Py_ssize_t __pyx_t_12;
+  Py_ssize_t __pyx_t_13;
   __Pyx_RefNannySetupContext("compute", 0);
   __Pyx_INCREF(__pyx_v_ref_ors);
   __Pyx_INCREF(__pyx_v_ors);
@@ -20696,7 +20701,7 @@ static PyObject *__pyx_pf_5freud_5order_25RotationalAutocorrelation_4compute(str
  *         if ors.shape[1] != 4:
  *             raise TypeError('ors should be an Nx4 array')             # <<<<<<<<<<<<<<
  * 
- *         cdef float[:, ::1] l_ref_ors = ref_ors
+ *         cdef const float[:, ::1] l_ref_ors = ref_ors
  */
     __pyx_t_4 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__31, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1445, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
@@ -20716,30 +20721,30 @@ static PyObject *__pyx_pf_5freud_5order_25RotationalAutocorrelation_4compute(str
   /* "freud/order.pyx":1447
  *             raise TypeError('ors should be an Nx4 array')
  * 
- *         cdef float[:, ::1] l_ref_ors = ref_ors             # <<<<<<<<<<<<<<
- *         cdef float[:, ::1] l_ors = ors
+ *         cdef const float[:, ::1] l_ref_ors = ref_ors             # <<<<<<<<<<<<<<
+ *         cdef const float[:, ::1] l_ors = ors
  *         cdef unsigned int nP = ors.shape[0]
  */
-  __pyx_t_7 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_float(__pyx_v_ref_ors, PyBUF_WRITABLE); if (unlikely(!__pyx_t_7.memview)) __PYX_ERR(0, 1447, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_float__const__(__pyx_v_ref_ors, 0); if (unlikely(!__pyx_t_7.memview)) __PYX_ERR(0, 1447, __pyx_L1_error)
   __pyx_v_l_ref_ors = __pyx_t_7;
   __pyx_t_7.memview = NULL;
   __pyx_t_7.data = NULL;
 
   /* "freud/order.pyx":1448
  * 
- *         cdef float[:, ::1] l_ref_ors = ref_ors
- *         cdef float[:, ::1] l_ors = ors             # <<<<<<<<<<<<<<
+ *         cdef const float[:, ::1] l_ref_ors = ref_ors
+ *         cdef const float[:, ::1] l_ors = ors             # <<<<<<<<<<<<<<
  *         cdef unsigned int nP = ors.shape[0]
  * 
  */
-  __pyx_t_7 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_float(__pyx_v_ors, PyBUF_WRITABLE); if (unlikely(!__pyx_t_7.memview)) __PYX_ERR(0, 1448, __pyx_L1_error)
-  __pyx_v_l_ors = __pyx_t_7;
-  __pyx_t_7.memview = NULL;
-  __pyx_t_7.data = NULL;
+  __pyx_t_8 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_float__const__(__pyx_v_ors, 0); if (unlikely(!__pyx_t_8.memview)) __PYX_ERR(0, 1448, __pyx_L1_error)
+  __pyx_v_l_ors = __pyx_t_8;
+  __pyx_t_8.memview = NULL;
+  __pyx_t_8.data = NULL;
 
   /* "freud/order.pyx":1449
- *         cdef float[:, ::1] l_ref_ors = ref_ors
- *         cdef float[:, ::1] l_ors = ors
+ *         cdef const float[:, ::1] l_ref_ors = ref_ors
+ *         cdef const float[:, ::1] l_ors = ors
  *         cdef unsigned int nP = ors.shape[0]             # <<<<<<<<<<<<<<
  * 
  *         with nogil:
@@ -20749,9 +20754,9 @@ static PyObject *__pyx_pf_5freud_5order_25RotationalAutocorrelation_4compute(str
   __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_4, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 1449, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_8 = __Pyx_PyInt_As_unsigned_int(__pyx_t_2); if (unlikely((__pyx_t_8 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 1449, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyInt_As_unsigned_int(__pyx_t_2); if (unlikely((__pyx_t_9 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 1449, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_v_nP = __pyx_t_8;
+  __pyx_v_nP = __pyx_t_9;
 
   /* "freud/order.pyx":1451
  *         cdef unsigned int nP = ors.shape[0]
@@ -20775,8 +20780,8 @@ static PyObject *__pyx_pf_5freud_5order_25RotationalAutocorrelation_4compute(str
  *                 <quat[float]*> &l_ors[0, 0],
  *                 nP)
  */
-        __pyx_t_9 = 0;
         __pyx_t_10 = 0;
+        __pyx_t_11 = 0;
 
         /* "freud/order.pyx":1454
  *             self.thisptr.compute(
@@ -20785,8 +20790,8 @@ static PyObject *__pyx_pf_5freud_5order_25RotationalAutocorrelation_4compute(str
  *                 nP)
  *         return self
  */
-        __pyx_t_11 = 0;
         __pyx_t_12 = 0;
+        __pyx_t_13 = 0;
 
         /* "freud/order.pyx":1452
  * 
@@ -20796,7 +20801,7 @@ static PyObject *__pyx_pf_5freud_5order_25RotationalAutocorrelation_4compute(str
  *                 <quat[float]*> &l_ors[0, 0],
  */
         try {
-          __pyx_v_self->thisptr->compute(((quat<float>  *)(&(*((float *) ( /* dim=1 */ ((char *) (((float *) ( /* dim=0 */ (__pyx_v_l_ref_ors.data + __pyx_t_9 * __pyx_v_l_ref_ors.strides[0]) )) + __pyx_t_10)) ))))), ((quat<float>  *)(&(*((float *) ( /* dim=1 */ ((char *) (((float *) ( /* dim=0 */ (__pyx_v_l_ors.data + __pyx_t_11 * __pyx_v_l_ors.strides[0]) )) + __pyx_t_12)) ))))), __pyx_v_nP);
+          __pyx_v_self->thisptr->compute(((quat<float>  *)(&(*((float const  *) ( /* dim=1 */ ((char *) (((float const  *) ( /* dim=0 */ (__pyx_v_l_ref_ors.data + __pyx_t_10 * __pyx_v_l_ref_ors.strides[0]) )) + __pyx_t_11)) ))))), ((quat<float>  *)(&(*((float const  *) ( /* dim=1 */ ((char *) (((float const  *) ( /* dim=0 */ (__pyx_v_l_ors.data + __pyx_t_12 * __pyx_v_l_ors.strides[0]) )) + __pyx_t_13)) ))))), __pyx_v_nP);
         } catch(...) {
           #ifdef WITH_THREAD
           PyGILState_STATE __pyx_gilstate_save = __Pyx_PyGILState_Ensure();
@@ -20863,6 +20868,7 @@ static PyObject *__pyx_pf_5freud_5order_25RotationalAutocorrelation_4compute(str
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
   __PYX_XDEC_MEMVIEW(&__pyx_t_7, 1);
+  __PYX_XDEC_MEMVIEW(&__pyx_t_8, 1);
   __Pyx_AddTraceback("freud.order.RotationalAutocorrelation.compute", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
@@ -39654,7 +39660,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  *         if ors.shape[1] != 4:
  *             raise TypeError('ors should be an Nx4 array')             # <<<<<<<<<<<<<<
  * 
- *         cdef float[:, ::1] l_ref_ors = ref_ors
+ *         cdef const float[:, ::1] l_ref_ors = ref_ors
  */
   __pyx_tuple__31 = PyTuple_Pack(1, __pyx_kp_s_ors_should_be_an_Nx4_array); if (unlikely(!__pyx_tuple__31)) __PYX_ERR(0, 1445, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__31);
@@ -47445,6 +47451,29 @@ __pyx_fail:
     retcode = __Pyx_ValidateAndInit_memviewslice(axes_specs, __Pyx_IS_C_CONTIG,
                                                  (PyBUF_C_CONTIGUOUS | PyBUF_FORMAT) | writable_flag, 1,
                                                  &__Pyx_TypeInfo_unsigned_int, stack,
+                                                 &result, obj);
+    if (unlikely(retcode == -1))
+        goto __pyx_fail;
+    return result;
+__pyx_fail:
+    result.memview = NULL;
+    result.data = NULL;
+    return result;
+}
+
+/* ObjectToMemviewSlice */
+  static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_d_dc_float__const__(PyObject *obj, int writable_flag) {
+    __Pyx_memviewslice result = { 0, 0, { 0 }, { 0 }, { 0 } };
+    __Pyx_BufFmt_StackElem stack[1];
+    int axes_specs[] = { (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_FOLLOW), (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_CONTIG) };
+    int retcode;
+    if (obj == Py_None) {
+        result.memview = (struct __pyx_memoryview_obj *) Py_None;
+        return result;
+    }
+    retcode = __Pyx_ValidateAndInit_memviewslice(axes_specs, __Pyx_IS_C_CONTIG,
+                                                 (PyBUF_C_CONTIGUOUS | PyBUF_FORMAT) | writable_flag, 2,
+                                                 &__Pyx_TypeInfo_float__const__, stack,
                                                  &result, obj);
     if (unlikely(retcode == -1))
         goto __pyx_fail;

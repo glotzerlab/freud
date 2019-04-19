@@ -1444,8 +1444,8 @@ cdef class RotationalAutocorrelation:
         if ors.shape[1] != 4:
             raise TypeError('ors should be an Nx4 array')
 
-        cdef float[:, ::1] l_ref_ors = ref_ors
-        cdef float[:, ::1] l_ors = ors
+        cdef const float[:, ::1] l_ref_ors = ref_ors
+        cdef const float[:, ::1] l_ors = ors
         cdef unsigned int nP = ors.shape[0]
 
         with nogil:
