@@ -47,10 +47,15 @@ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "HOOMDMath.h"
-
 #ifndef VECTOR_MATH_H
 #define VECTOR_MATH_H
+
+#include "HOOMDMath.h"
+
+// Prevents std::min and std::max from clashing with Windows headers
+#if defined _WIN32
+  #define NOMINMAX
+#endif
 
 /*! \file VectorMath.h
     \brief Vector and quaternion math operations
