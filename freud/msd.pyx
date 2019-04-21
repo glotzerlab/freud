@@ -10,20 +10,76 @@ from __future__ import print_function, division, absolute_import
 
 import numpy as np
 import freud.common
+import freud.parallel
+import logging
 
 cimport freud.box
 cimport numpy as np
 
-# SciPy's FFT appears faster, so use it if available.
+
+logger = logging.getLogger(__name__)
+
+# Use fastest available fft library
 try:
-    from scipy.fftpack import fft, ifft
+    import pyfftw
+    logger.info("Using PyFFTW for FFTs")
+
+    pyfftw.config.NUM_THREADS = min(1, freud.parallel._numThreads)
+    logger.info("Setting number of threads to {}".format(
+        freud.parallel._numThreads))
+
+    # Note that currently these functions are defined to match only the parts
+    # of the numpy/scipy API that are actually used below. There is no promise
+    # that other aspects of the API will be preserved.
+    def fft(x, n, axis):
+        a = pyfftw.empty_aligned(x.shape, 'float32')
+        a[:] = x
+        fft_object = pyfftw.builders.fft(a, n=n, axis=axis)
+        return fft_object()
+
+    def ifft(x, axis):
+        a = pyfftw.empty_aligned(x.shape, 'complex64')
+        a[:] = x
+        fft_object = pyfftw.builders.ifft(a, axis=axis)
+        return fft_object()
 except ImportError:
-    from numpy.fft import fft, ifft
+    try:
+        from scipy.fftpack import fft, ifft
+        logger.info("Using SciPy's fftpack for FFTs")
+    except ImportError:
+        from numpy.fft import fft, ifft
+        logger.info("Using NumPy for FFTs")
+
+# Checks if a number is prime
+cdef isPrime(int n):
+    """Convenience function to check whether a number is prime."""
+    if(n < 2):
+        return False
+    if(n % 2 == 0 or n % 3 == 0):
+        return False
+    if(n < 9):
+        return True
+
+    cdef int lim = int(np.sqrt(n)) + 1
+    cdef div = 5
+    while(div <= lim):
+        if(n % div == 0):
+            return False
+        if(n % (div+2) == 0):
+            return False
+        div += 6
+
+    return True
 
 
 def _autocorrelation(x):
     R"""Compute the autocorrelation of a sequence"""
     N = x.shape[0]
+    if isPrime(N) and fft.__module__.split('.')[0] in ['numpy', 'scipy']:
+        logger.warning("You are attempting to calculate the FFT of a sequence "
+                       "of prime length using a slow FFT algorithm. You may "
+                       "benefit from installing PyFFTW or another library "
+                       "supporting efficient FFTs for prime length sequences.")
     F = fft(x, n=2*N, axis=0)
     PSD = F * F.conjugate()
     res = ifft(PSD, axis=0)
