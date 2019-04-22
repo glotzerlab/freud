@@ -95,7 +95,7 @@ cdef class NeighborQueryResult:
         iterator = self._getIterator()
 
         cdef freud._locality.NeighborList *cnlist = dereference(
-            iterator).toNeighborList()
+            iterator).toNeighborList(self.exclude_ii)
         cdef NeighborList nl = NeighborList()
         nl.refer_to(cnlist)
         # Explicitly manage a manually created nlist so that it will be

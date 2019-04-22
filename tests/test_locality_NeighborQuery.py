@@ -36,13 +36,21 @@ class TestNeighborQueryAABB(unittest.TestCase):
         npt.assert_equal(
             len(aq.queryBall(points, rcut, exclude_ii=False).toNList()), 14)
 
-        # When excluding, everything has one less neighbor.
-        npt.assert_equal(
-            len(list(aq.queryBall(points, rcut, exclude_ii=True))), 10)
+        # When excluding, check that everything has one less neighbor and that
+        # the toNList method correctly excludes neighbors.
+        list_of_neighbors = sorted(list(
+            aq.queryBall(points, rcut, exclude_ii=True)))
+        # Remove distances, which are not used here.
+        list_of_neighbors = [[p[0], p[1]] for p in list_of_neighbors]
+        nlist = aq.queryBall(points, rcut, exclude_ii=True).toNList()
+        nlist_neighbors = sorted(list(zip(nlist.index_i, nlist.index_j)))
 
-        # Check NeighborList length with self-exclusions.
-        npt.assert_equal(
-            len(aq.queryBall(points, rcut, exclude_ii=True).toNList()), 10)
+        # Number of neighbors is one less per-particle than before.
+        npt.assert_equal(len(list_of_neighbors), 10)
+        npt.assert_equal(len(nlist_neighbors), 10)
+
+        # Actual set of neighbors should be identical from both methods.
+        npt.assert_array_equal(list_of_neighbors, nlist_neighbors)
 
         # now move particle 0 out of range...
         points[0] = 5

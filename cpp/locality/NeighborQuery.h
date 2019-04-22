@@ -183,7 +183,7 @@ class NeighborQueryIterator {
          *  the primary use-case is to have this object be managed by instances
          *  of the Cython NeighborList class.
          */
-        NeighborList *toNeighborList()
+        NeighborList *toNeighborList(bool exclude_ii)
             {
             typedef tbb::enumerable_thread_specific<std::vector<std::pair<size_t, size_t>>> BondVector;
             BondVector bonds;
@@ -198,9 +198,12 @@ class NeighborQueryIterator {
                     while (!it->end())
                         {
                         np = it->next();
-                        // Swap ref_id and id order for backwards compatibility.
-                        // I NEED TO MAKE THE QUERY METHOD RETURN THINGS MORE APPROPRIATELY, right now I'm forced to manually replace the id with i.
-                        local_bonds.emplace_back(np.ref_id, i);
+                        // If we're excluding ii bonds, we have to check before adding.
+                        if (!exclude_ii || i != np.ref_id)
+                            {
+                            // Swap ref_id and id order for backwards compatibility.
+                            local_bonds.emplace_back(np.ref_id, i);
+                            }
                         }
                     // Remove the last item, which is just the terminal sentinel value.
                     local_bonds.pop_back();

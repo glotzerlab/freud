@@ -45,12 +45,12 @@
         "sources": [
             "freud/locality.pyx",
             "cpp/locality/NeighborQuery.cc",
+            "cpp/box/Box.cc",
             "cpp/locality/NearestNeighbors.cc",
             "cpp/util/HOOMDMatrix.cc",
-            "cpp/locality/LinkCell.cc",
-            "cpp/locality/NeighborList.cc",
             "cpp/locality/AABBQuery.cc",
-            "cpp/box/Box.cc"
+            "cpp/locality/NeighborList.cc",
+            "cpp/locality/LinkCell.cc"
         ]
     },
     "module_name": "freud.locality"
@@ -4089,15 +4089,15 @@ static PyObject *__pyx_pf_5freud_8locality_19NeighborQueryResult_3toNList(struct
   /* "freud/locality.pyx":98
  * 
  *         cdef freud._locality.NeighborList *cnlist = dereference(
- *             iterator).toNeighborList()             # <<<<<<<<<<<<<<
+ *             iterator).toNeighborList(self.exclude_ii)             # <<<<<<<<<<<<<<
  *         cdef NeighborList nl = NeighborList()
  *         nl.refer_to(cnlist)
  */
-  __pyx_v_cnlist = (*__pyx_v_iterator).toNeighborList();
+  __pyx_v_cnlist = (*__pyx_v_iterator).toNeighborList(__pyx_v_self->exclude_ii);
 
   /* "freud/locality.pyx":99
  *         cdef freud._locality.NeighborList *cnlist = dereference(
- *             iterator).toNeighborList()
+ *             iterator).toNeighborList(self.exclude_ii)
  *         cdef NeighborList nl = NeighborList()             # <<<<<<<<<<<<<<
  *         nl.refer_to(cnlist)
  *         # Explicitly manage a manually created nlist so that it will be
@@ -4108,7 +4108,7 @@ static PyObject *__pyx_pf_5freud_8locality_19NeighborQueryResult_3toNList(struct
   __pyx_t_1 = 0;
 
   /* "freud/locality.pyx":100
- *             iterator).toNeighborList()
+ *             iterator).toNeighborList(self.exclude_ii)
  *         cdef NeighborList nl = NeighborList()
  *         nl.refer_to(cnlist)             # <<<<<<<<<<<<<<
  *         # Explicitly manage a manually created nlist so that it will be
