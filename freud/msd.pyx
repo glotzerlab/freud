@@ -50,36 +50,10 @@ except ImportError:
         from numpy.fft import fft, ifft
         logger.info("Using NumPy for FFTs")
 
-# Checks if a number is prime
-cdef isPrime(int n):
-    """Convenience function to check whether a number is prime."""
-    if(n < 2):
-        return False
-    if(n % 2 == 0 or n % 3 == 0):
-        return False
-    if(n < 9):
-        return True
-
-    cdef int lim = int(np.sqrt(n)) + 1
-    cdef div = 5
-    while(div <= lim):
-        if(n % div == 0):
-            return False
-        if(n % (div+2) == 0):
-            return False
-        div += 6
-
-    return True
-
 
 def _autocorrelation(x):
     R"""Compute the autocorrelation of a sequence"""
     N = x.shape[0]
-    if isPrime(N) and fft.__module__.split('.')[0] in ['numpy', 'scipy']:
-        logger.warning("You are attempting to calculate the FFT of a sequence "
-                       "of prime length using a slow FFT algorithm. You may "
-                       "benefit from installing PyFFTW or another library "
-                       "supporting efficient FFTs for prime length sequences.")
     F = fft(x, n=2*N, axis=0)
     PSD = F * F.conjugate()
     res = ifft(PSD, axis=0)
@@ -117,6 +91,19 @@ cdef class MSD:
       perform this calculation efficiently, we use the algorithm described in
       [Calandrini2011]_ as described in `this StackOverflow thread
       <https://stackoverflow.com/questions/34222272/computing-mean-square-displacement-using-python-and-fft>`_.
+
+        .. note::
+            The most intensive part of this calculation is computing an FFT. To
+            maximize performance, freud attempts to use the fastest FFT library
+            available. By default, the order of preference is `pyFFTW
+            <https://github.com/pyFFTW/pyFFTW>`_, SciPy, and then NumPy. If you
+            are experiencing significant slowdowns in calculating the MSD, you
+            may benefit from installing a faster FFT library, which freud will
+            automatically detect. The performance change will be especially
+            noticeable if the length of your trajectory is a number whose prime
+            factorization consists of extremely large prime factors. The
+            standard Cooley-Tukey FFT algorithm performs very poorly in this
+            case, so installing pyFFTW will significantly improve performance.
 
     * :code:`'direct'`:
       Under some circumstances, however, we may be more interested in
