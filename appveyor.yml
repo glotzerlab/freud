@@ -17,6 +17,7 @@ build_script:
   - "set TBB_INCLUDE=%MINICONDA%\\Library\\include"
   - "set TBB_LINK=%MINICONDA%\\Library\\lib"
   - python --version
+  - rm freud\*.cpp
   - python setup.py build_ext --inplace --ENABLE-CYTHON
 test_script:
   - python -m unittest discover tests -v
