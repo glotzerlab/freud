@@ -29,3 +29,4 @@
 - [ ] I have read the [**CONTRIBUTING**](https://github.com/glotzerlab/freud/blob/master/CONTRIBUTING.md) document.
 - [ ] I have added tests to cover my changes.
 - [ ] All new and existing tests passed.
+- [ ] I have updated the [Changelog](https://github.com/glotzerlab/freud/blob/master/ChangeLog.md).
