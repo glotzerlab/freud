@@ -67,10 +67,10 @@ class TestNematicOrder(unittest.TestCase):
         op = nop(u)
         op.compute(orientations)
 
-        npt.assert_allclose(op.nematic_order_parameter, 0.25)
+        npt.assert_allclose(op.nematic_order_parameter, 0.25, atol=1e-6)
         self.assertTrue(np.all(op.director == u))
         npt.assert_allclose(
-            op.nematic_tensor, np.diag([0.25, -0.5, 0.25]), rtol=1e-5)
+            op.nematic_tensor, np.diag([0.25, -0.5, 0.25]), atol=1e-6)
 
         # Rotating 90 about z gives some tensor components in y
         axes = np.zeros(shape=(N, 3), dtype=np.float32)
@@ -84,7 +84,7 @@ class TestNematicOrder(unittest.TestCase):
         op = nop(u)
         op.compute(orientations)
 
-        npt.assert_allclose(op.nematic_order_parameter, 0.25, rtol=1e-5)
+        npt.assert_allclose(op.nematic_order_parameter, 0.25, atol=1e-6)
         npt.assert_equal(op.director, np.array([0, 1, 0]))
         npt.assert_almost_equal(
             op.nematic_tensor, np.diag([0.25, 0.25, -0.5]))
