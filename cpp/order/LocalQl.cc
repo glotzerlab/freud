@@ -94,8 +94,9 @@ void LocalQl::compute(const locality::NeighborList *nlist, const vec3<float> *po
                     float theta = acos(delta.z / sqrt(rsq)); // 0..Pi
 
                     // If the points are directly on top of each other for whatever reason,
-                    // theta should be zero instead of nan.
-                    if (rsq == 0)
+                    // theta should be zero instead of nan. The cast float(0) is required
+                    // for precision reasons.
+                    if (rsq == float(0))
                         {
                         theta = 0;
                         }
