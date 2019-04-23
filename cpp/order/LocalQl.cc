@@ -67,12 +67,13 @@ void LocalQl::compute(const locality::NeighborList *nlist, const vec3<float> *po
             memset((void*) m_Qlm_local.local(), 0, sizeof(complex<float>) * (2*m_l+1));
             }
 
+        size_t bond(nlist->find_first_index(r.begin()));
         // for each reference point
         for (size_t i = r.begin(); i != r.end(); i++)
             {
             unsigned int neighborcount(0);
             const vec3<float> ref(points[i]);
-            for (size_t bond(nlist->find_first_index(r.begin())); bond < nlist->getNumBonds() && neighbor_list[2*bond] == i; ++bond)
+            for (; bond < nlist->getNumBonds() && neighbor_list[2*bond] == i; ++bond)
                 {
                 const unsigned int j(neighbor_list[2*bond + 1]);
 
@@ -94,9 +95,8 @@ void LocalQl::compute(const locality::NeighborList *nlist, const vec3<float> *po
                     float theta = acos(delta.z / sqrt(rsq)); // 0..Pi
 
                     // If the points are directly on top of each other for whatever reason,
-                    // theta should be zero instead of nan. The cast float(0) is required
-                    // for precision reasons.
-                    if (rsq == float(0))
+                    // theta should be zero instead of nan.
+                    if (rsq == 0)
                         {
                         theta = 0;
                         }
