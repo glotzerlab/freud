@@ -96,7 +96,7 @@ class TestOCF(unittest.TestCase):
 
 
 class TestSummation(unittest.TestCase):
-    @unittest.skipIf('CI' in os.environ, 'Skipping test on CI')
+    @unittest.skip('Skipping slow summation test.')
     def test_summation(self):
         # Causes the correlation function to add lots of small numbers together
         # This leads to vastly different results with different numbers of
