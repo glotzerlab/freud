@@ -135,10 +135,10 @@ references:
               ${PYBIN}/python --version
 
               "${PYBIN}/python" -m pip install cython --no-deps --ignore-installed -q --progress-bar=off
-              rm -rf numpy-1.10.0rc2
-              curl -sSLO https://github.com/numpy/numpy/archive/v1.10.0rc2.tar.gz
-              tar -xzf v1.10.0rc2.tar.gz
-              cd numpy-1.10.0rc2
+              rm -rf numpy-1.10.4
+              curl -sSLO https://github.com/numpy/numpy/archive/v1.10.4.tar.gz
+              tar -xzf v1.10.4.tar.gz
+              cd numpy-1.10.4
               rm -f numpy/random/mtrand/mtrand.c
               rm -f PKG-INFO
               "${PYBIN}/python" -m pip install . --no-deps --ignore-installed -v --progress-bar=off -q
@@ -202,10 +202,10 @@ references:
                 pyenv global ${VERSION}
 
                 pip install cython --no-deps --ignore-installed -q --progress-bar=off
-                rm -rf numpy-1.10.0rc2
-                curl -sSLO https://github.com/numpy/numpy/archive/v1.10.0rc2.tar.gz
-                tar -xzf v1.10.0rc2.tar.gz
-                cd numpy-1.10.0rc2
+                rm -rf numpy-1.10.4
+                curl -sSLO https://github.com/numpy/numpy/archive/v1.10.4.tar.gz
+                tar -xzf v1.10.4.tar.gz
+                cd numpy-1.10.4
                 rm -f numpy/random/mtrand/mtrand.c
                 rm -f PKG-INFO
                 "${PYBIN}/python" -m pip install . --no-deps --ignore-installed -v --progress-bar=off -q
