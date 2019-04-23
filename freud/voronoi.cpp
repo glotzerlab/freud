@@ -45,12 +45,12 @@
         "sources": [
             "freud/voronoi.pyx",
             "cpp/locality/NeighborQuery.cc",
-            "cpp/box/Box.cc",
-            "cpp/locality/NearestNeighbors.cc",
-            "cpp/util/HOOMDMatrix.cc",
-            "cpp/locality/AABBQuery.cc",
             "cpp/locality/NeighborList.cc",
-            "cpp/locality/LinkCell.cc"
+            "cpp/box/Box.cc",
+            "cpp/locality/LinkCell.cc",
+            "cpp/locality/AABBQuery.cc",
+            "cpp/locality/NearestNeighbors.cc",
+            "cpp/util/HOOMDMatrix.cc"
         ]
     },
     "module_name": "freud.voronoi"

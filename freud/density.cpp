@@ -48,17 +48,17 @@
         "name": "freud.density",
         "sources": [
             "freud/density.pyx",
-            "cpp/density/GaussianDensity.cc",
+            "cpp/density/RDF.cc",
             "cpp/locality/NeighborQuery.cc",
+            "cpp/locality/NeighborList.cc",
             "cpp/box/Box.cc",
+            "cpp/density/CorrelationFunction.cc",
+            "cpp/locality/LinkCell.cc",
+            "cpp/density/LocalDensity.cc",
+            "cpp/locality/AABBQuery.cc",
             "cpp/locality/NearestNeighbors.cc",
             "cpp/util/HOOMDMatrix.cc",
-            "cpp/density/RDF.cc",
-            "cpp/locality/AABBQuery.cc",
-            "cpp/density/LocalDensity.cc",
-            "cpp/locality/NeighborList.cc",
-            "cpp/density/CorrelationFunction.cc",
-            "cpp/locality/LinkCell.cc"
+            "cpp/density/GaussianDensity.cc"
         ]
     },
     "module_name": "freud.density"
