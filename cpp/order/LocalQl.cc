@@ -4,6 +4,7 @@
 #include "LocalQl.h"
 
 using namespace std;
+using namespace tbb;
 
 /*! \file LocalQl.cc
     \brief Compute the rotationally invariant Ql parameter.
@@ -37,7 +38,6 @@ void LocalQl::computeYlm(const float theta, const float phi, std::vector<std::co
 void LocalQl::compute(const locality::NeighborList *nlist, const vec3<float> *points, unsigned int Np)
     {
     nlist->validate(Np, Np);
-    const size_t *neighbor_list(nlist->getNeighbors());
 
     if (m_Np != Np)
         {
@@ -50,69 +50,81 @@ void LocalQl::compute(const locality::NeighborList *nlist, const vec3<float> *po
 
     memset((void*) m_Qlmi.get(), 0, sizeof(complex<float>)*(2*m_l+1)*m_Np);
     memset((void*) m_Qli.get(), 0, sizeof(float)*m_Np);
-    memset((void*) m_Qlm.get(), 0, sizeof(complex<float>)*(2*m_l+1));
 
     const float rminsq = m_rmin * m_rmin;
     const float rmaxsq = m_rmax * m_rmax;
     const float normalizationfactor = 4*M_PI/(2*m_l+1);
+    const size_t *neighbor_list(nlist->getNeighbors());
 
-    size_t bond(0);
-
-    for (unsigned int i = 0; i < m_Np; i++)
+    parallel_for(tbb::blocked_range<size_t>(0, m_Np),
+        [=] (const blocked_range<size_t>& r)
         {
-        const vec3<float> ref(points[i]);
-        unsigned int neighborcount(0);
-
-        for (; bond < nlist->getNumBonds() && neighbor_list[2*bond] == i; ++bond)
+        bool Qlm_exists;
+        m_Qlm_local.local(Qlm_exists);
+        if (!Qlm_exists)
             {
-            const unsigned int j(neighbor_list[2*bond + 1]);
+            m_Qlm_local.local() = new complex<float> [2*m_l+1];
+            memset((void*) m_Qlm_local.local(), 0, sizeof(complex<float>) * (2*m_l+1));
+            }
 
-            if (i == j)
+        size_t bond(nlist->find_first_index(r.begin()));
+        // for each reference point
+        for (size_t i = r.begin(); i != r.end(); i++)
+            {
+            unsigned int neighborcount(0);
+            const vec3<float> ref(points[i]);
+            for (; bond < nlist->getNumBonds() && neighbor_list[2*bond] == i; ++bond)
                 {
-                continue;
-                }
+                const unsigned int j(neighbor_list[2*bond + 1]);
 
-            // rij = rj - ri, vector from i pointing to j.
-            const vec3<float> delta = m_box.wrap(points[j] - ref);
-            const float rsq = dot(delta, delta);
-
-            if (rsq < rmaxsq && rsq > rminsq)
-                {
-                // phi is usually in range 0..2Pi, but
-                // it only appears in Ylm as exp(im\phi),
-                // so range -Pi..Pi will give same results.
-                float phi = atan2(delta.y, delta.x);     // -Pi..Pi
-                float theta = acos(delta.z / sqrt(rsq)); // 0..Pi
-
-                // If the points are directly on top of each other for whatever reason,
-                // theta should be zero instead of nan.
-                if (rsq == float(0))
+                if (i == j)
                     {
-                    theta = 0;
+                    continue;
                     }
 
-                std::vector<std::complex<float> > Ylm(2*m_l+1);
-                this->computeYlm(theta, phi, Ylm);  // Fill up Ylm
+                // rij = rj - ri, vector from i pointing to j.
+                const vec3<float> delta = m_box.wrap(points[j] - ref);
+                const float rsq = dot(delta, delta);
 
-                for (unsigned int k = 0; k < Ylm.size(); ++k)
+                if (rsq < rmaxsq && rsq > rminsq)
                     {
-                    m_Qlmi.get()[(2*m_l+1)*i+k] += Ylm[k];
+                    // phi is usually in range 0..2Pi, but
+                    // it only appears in Ylm as exp(im\phi),
+                    // so range -Pi..Pi will give same results.
+                    float phi = atan2(delta.y, delta.x);     // -Pi..Pi
+                    float theta = acos(delta.z / sqrt(rsq)); // 0..Pi
+
+                    // If the points are directly on top of each other for whatever reason,
+                    // theta should be zero instead of nan.
+                    if (rsq == 0)
+                        {
+                        theta = 0;
+                        }
+
+                    std::vector<std::complex<float> > Ylm(2*m_l+1);
+                    this->computeYlm(theta, phi, Ylm);  // Fill up Ylm
+
+                    for (unsigned int k = 0; k < Ylm.size(); ++k)
+                        {
+                        m_Qlmi.get()[(2*m_l+1)*i+k] += Ylm[k];
+                        }
+                    neighborcount++;
                     }
-                neighborcount++;
-                }
-            } // End loop going over neighbor bonds
-            // Normalize!
-            for (unsigned int k = 0; k < (2*m_l+1); ++k)
-                {
-                const unsigned int index = (2*m_l+1) * i + k;
-                m_Qlmi.get()[index] /= neighborcount;
-                // Add the norm, which is the (complex) squared magnitude
-                m_Qli.get()[i] += norm(m_Qlmi.get()[index]);
-                m_Qlm.get()[k] += m_Qlmi.get()[index];
-                }
-        m_Qli.get()[i] *= normalizationfactor;
-        m_Qli.get()[i] = sqrt(m_Qli.get()[i]);
-        } // Ends loop over particles i for Qlmi calcs
+                } // End loop going over neighbor bonds
+                // Normalize!
+                for (unsigned int k = 0; k < (2*m_l+1); ++k)
+                    {
+                    const unsigned int index = (2*m_l+1) * i + k;
+                    m_Qlmi.get()[index] /= neighborcount;
+                    // Add the norm, which is the (complex) squared magnitude
+                    m_Qli.get()[i] += norm(m_Qlmi.get()[index]);
+                    m_Qlm_local.local()[k] += m_Qlmi.get()[index];
+                    }
+            m_Qli.get()[i] *= normalizationfactor;
+            m_Qli.get()[i] = sqrt(m_Qli.get()[i]);
+            } // Ends loop over particles i for Qlmi calcs
+        });
+    reduce();
     }
 
 void LocalQl::computeAve(const locality::NeighborList *nlist, const vec3<float> *points, unsigned int Np)
@@ -257,6 +269,23 @@ void LocalQl::computeAveNorm(const vec3<float> *points, unsigned int Np)
         m_QliAveNorm.get()[i] *= normalizationfactor;
         m_QliAveNorm.get()[i] = sqrt(m_QliAveNorm.get()[i]);
         }
+    }
+
+void LocalQl::reduce()
+    {
+    memset((void*) m_Qlm.get(), 0, sizeof(complex<float>)*(2*m_l+1));
+    parallel_for(tbb::blocked_range<size_t>(0, 2*m_l+1),
+        [=] (const blocked_range<size_t>& r)
+        {
+        for (size_t i = r.begin(); i != r.end(); i++)
+            {
+            for (tbb::enumerable_thread_specific<complex<float> *>::const_iterator Qlm_local = m_Qlm_local.begin();
+                 Qlm_local != m_Qlm_local.end(); Qlm_local++)
+                {
+                m_Qlm.get()[i] += (*Qlm_local)[i];
+                }
+            }
+        });
     }
 
 }; }; // end namespace freud::order
