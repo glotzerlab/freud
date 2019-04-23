@@ -25,9 +25,9 @@ namespace freud { namespace locality {
  *  possible to sort.
  */
 struct NeighborPoint {
-    NeighborPoint() : id(0), ref_id(0), distance(0) { }
+    NeighborPoint() : id(0), ref_id(0), distance(0) {}
 
-    NeighborPoint(unsigned int id, unsigned int ref_id, float d) : id(id), ref_id(ref_id), distance(d) { }
+    NeighborPoint(unsigned int id, unsigned int ref_id, float d) : id(id), ref_id(ref_id), distance(d) {}
 
     //! Equality checks both id and distance.
     bool operator== (const NeighborPoint &n)
@@ -185,7 +185,7 @@ class NeighborQueryIterator {
          */
         NeighborList *toNeighborList(bool exclude_ii)
             {
-            typedef tbb::enumerable_thread_specific<std::vector<std::pair<size_t, size_t>>> BondVector;
+            typedef tbb::enumerable_thread_specific< std::vector< std::pair<size_t, size_t> > > BondVector;
             BondVector bonds;
             tbb::parallel_for(tbb::blocked_range<size_t>(0, m_N),
                 [&] (const tbb::blocked_range<size_t> &r)
@@ -211,7 +211,7 @@ class NeighborQueryIterator {
                 });
 
             tbb::flattened2d<BondVector> flat_bonds = tbb::flatten2d(bonds);
-            std::vector<std::pair<size_t, size_t>> linear_bonds(flat_bonds.begin(), flat_bonds.end());
+            std::vector< std::pair<size_t, size_t> > linear_bonds(flat_bonds.begin(), flat_bonds.end());
             tbb::parallel_sort(linear_bonds.begin(), linear_bonds.end());
 
             unsigned int num_bonds = linear_bonds.size();
@@ -240,11 +240,11 @@ class NeighborQueryIterator {
 
     protected:
         const NeighborQuery *m_neighbor_query; //!< Link to the NeighborQuery object.
-        const vec3<float> *m_points;         //!< Coordinates of query points.
-        unsigned int m_N;                    //!< Number of points.
-        unsigned int cur_p;                  //!< The current index into the points (bounded by m_N).
+        const vec3<float> *m_points;           //!< Coordinates of query points.
+        unsigned int m_N;                      //!< Number of points.
+        unsigned int cur_p;                    //!< The current index into the points (bounded by m_N).
 
-        unsigned int m_finished;             //!< Flag to indicate that iteration is complete (must be set by next on termination).
+        unsigned int m_finished;               //!< Flag to indicate that iteration is complete (must be set by next on termination).
 };
 
 }; }; // end namespace freud::locality
