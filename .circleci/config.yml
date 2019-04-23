@@ -42,6 +42,7 @@ references:
         pip${PYVER} install --user -r requirements.txt
         pip${PYVER} install --user flake8==3.7.1
         pip${PYVER} install --user coverage
+        pip${PYVER} install --user -U cython
 
   check_source: &check_source
     run:
