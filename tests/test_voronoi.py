@@ -116,6 +116,9 @@ class TestVoronoi(unittest.TestCase):
         vor.computeNeighbors(positions, fbox, rbuf)
         nlist = vor.nlist
 
+        # Drop the tiny facets that come from numerical imprecision
+        nlist = nlist.filter(nlist.weights > 1e-7)
+
         unique_indices, counts = np.unique(nlist.index_i, return_counts=True)
 
         # Every particle should have six neighbors
@@ -133,7 +136,7 @@ class TestVoronoi(unittest.TestCase):
         nlist = vor.nlist
 
         # Drop the tiny facets that come from numerical imprecision
-        nlist = nlist.filter(nlist.weights > 1e-12)
+        nlist = nlist.filter(nlist.weights > 1e-7)
 
         unique_indices, counts = np.unique(nlist.index_i, return_counts=True)
 
