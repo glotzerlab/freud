@@ -334,6 +334,7 @@ modules = [m.replace(os.path.sep, '.') for m in modules]
 # Source files required for all modules.
 sources_in_all = [
     os.path.join("cpp", "util", "HOOMDMatrix.cc"),
+    os.path.join("cpp", "locality", "NeighborQuery.cc"),
     os.path.join("cpp", "locality", "AABBQuery.cc"),
     os.path.join("cpp", "locality", "LinkCell.cc"),
     os.path.join("cpp", "locality", "NearestNeighbors.cc"),
