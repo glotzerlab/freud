@@ -239,7 +239,7 @@ cdef class Box:
         return fractions
 
     def _makeCoordinates(self, f):
-        cdef float[::1] l_vec = f
+        cdef const float[::1] l_vec = f
         cdef vec3[float] result = self.thisptr.makeCoordinates(
             <const vec3[float]&> l_vec[0])
         return [result.x, result.y, result.z]
@@ -272,7 +272,7 @@ cdef class Box:
         return vecs
 
     def _makeFraction(self, vec):
-        cdef float[::1] l_vec = vec
+        cdef const float[::1] l_vec = vec
         cdef vec3[float] result = self.thisptr.makeFraction(
             <const vec3[float]&> l_vec[0])
         return [result.x, result.y, result.z]
@@ -307,7 +307,7 @@ cdef class Box:
         return vecs
 
     def _getImage(self, vec):
-        cdef float[::1] l_vec = vec
+        cdef const float[::1] l_vec = vec
         cdef vec3[int] result = self.thisptr.getImage(
             <const vec3[float]&> l_vec[0])
         return [result.x, result.y, result.z]
@@ -363,7 +363,7 @@ cdef class Box:
 
     def _wrap(self, vec):
         R"""Wrap a single vector."""
-        cdef float[::1] l_vec = vec
+        cdef const float[::1] l_vec = vec
         cdef vec3[float] result = self.thisptr.wrap(<vec3[float]&> l_vec[0])
         return (result.x, result.y, result.z)
 
@@ -410,8 +410,8 @@ cdef class Box:
 
     def _unwrap(self, vec, img):
         R"""Unwrap a single vector."""
-        cdef float[::1] l_vec = vec
-        cdef int[::1] l_img = img
+        cdef const float[::1] l_vec = vec
+        cdef const int[::1] l_img = img
         cdef vec3[float] result = self.thisptr.unwrap(
             <vec3[float]&> l_vec[0], <vec3[int]&> l_img[0])
         return [result.x, result.y, result.z]
@@ -746,7 +746,7 @@ cdef class ParticleBuffer:
         if points.shape[1] != 3:
             raise RuntimeError(
                 'Need a list of 3D points for ParticleBuffer.compute()')
-        cdef float[:, ::1] l_points = points
+        cdef const float[:, ::1] l_points = points
         cdef unsigned int Np = l_points.shape[0]
 
         cdef vec3[float] buffer_vec
@@ -768,7 +768,7 @@ cdef class ParticleBuffer:
             dereference(self.thisptr.getBufferParticles().get()).size()
         if not buffer_size:
             return np.empty(shape=(0, 3), dtype=np.float32)
-        cdef float[:, ::1] buffer_particles = \
+        cdef const float[:, ::1] buffer_particles = \
             <float[:buffer_size, :3]> (<float*> dereference(
                 self.thisptr.getBufferParticles().get()).data())
         return np.asarray(buffer_particles)
@@ -779,7 +779,7 @@ cdef class ParticleBuffer:
             dereference(self.thisptr.getBufferParticles().get()).size()
         if not buffer_size:
             return np.array([[]], dtype=np.uint32)
-        cdef unsigned int[::1] buffer_ids = \
+        cdef const unsigned int[::1] buffer_ids = \
             <unsigned int[:buffer_size]> dereference(
                 self.thisptr.getBufferIds().get()).data()
         return np.asarray(buffer_ids)

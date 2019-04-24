@@ -70,7 +70,7 @@ cdef class NeighborQueryResult:
         queried for k-nearest neighbors or for all neighbors within a distance
         cutoff."""
         cdef shared_ptr[freud._locality.NeighborQueryIterator] iterator
-        cdef float[:, ::1] l_points = self.points
+        cdef const float[:, ::1] l_points = self.points
         if self.query_type == 'nn':
             iterator = self.nqptr.query(
                 <vec3[float]*> &l_points[0, 0],
@@ -117,7 +117,7 @@ cdef class AABBQueryResult(NeighborQueryResult):
     cdef shared_ptr[freud._locality.NeighborQueryIterator] _getIterator(self):
         """Override parent behavior since this class is only returned for knn
         queries."""
-        cdef float[:, ::1] l_points = self.points
+        cdef const float[:, ::1] l_points = self.points
         cdef shared_ptr[freud._locality.NeighborQueryIterator] iterator
         iterator = self.aabbptr.query(
             <vec3[float]*> &l_points[0, 0],
@@ -359,9 +359,9 @@ cdef class NeighborList:
         if weights.shape != index_i.shape:
             raise TypeError('weights and index_i should be the same size')
 
-        cdef size_t[::1] c_index_i = index_i
-        cdef size_t[::1] c_index_j = index_j
-        cdef float[::1] c_weights = weights
+        cdef const size_t[::1] c_index_i = index_i
+        cdef const size_t[::1] c_index_j = index_j
+        cdef const float[::1] c_weights = weights
         cdef size_t n_bonds = c_index_i.shape[0]
         cdef size_t c_Nref = Nref
         cdef size_t c_Ntarget = Ntarget
@@ -466,7 +466,7 @@ cdef class NeighborList:
         cdef size_t n_bonds = self.thisptr.getNumBonds()
         if not n_bonds:
             return np.asarray([], dtype=np.float32)
-        cdef float[::1] weights = \
+        cdef const float[::1] weights = \
             <float[:n_bonds]> self.thisptr.getWeights()
         return np.asarray(weights)
 
@@ -477,7 +477,7 @@ cdef class NeighborList:
         cdef size_t n_bonds = self.thisptr.getNumBonds()
         if not n_bonds:
             return result
-        cdef size_t[:, ::1] neighbors = \
+        cdef const size_t[:, ::1] neighbors = \
             <size_t[:n_bonds, :2]> self.thisptr.getNeighbors()
         cdef int last_i = -1
         cdef int i = -1
@@ -496,7 +496,7 @@ cdef class NeighborList:
         cdef size_t n_bonds = self.thisptr.getNumBonds()
         if not n_bonds:
             return result
-        cdef size_t[:, ::1] neighbors = \
+        cdef const size_t[:, ::1] neighbors = \
             <size_t[:n_bonds, :2]> self.thisptr.getNeighbors()
         cdef int last_i = -1
         cdef int i = -1
@@ -578,8 +578,8 @@ cdef class NeighborList:
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        cdef float[:, ::1] cRef_points = ref_points
-        cdef float[:, ::1] cPoints = points
+        cdef const float[:, ::1] cRef_points = ref_points
+        cdef const float[:, ::1] cPoints = points
         cdef size_t nRef = ref_points.shape[0]
         cdef size_t nP = points.shape[0]
 
@@ -697,7 +697,7 @@ cdef class AABBQuery(NeighborQuery):
     """  # noqa: E501
 
     def __cinit__(self, box, points):
-        cdef float[:, ::1] l_points
+        cdef const float[:, ::1] l_points
         if type(self) is AABBQuery:
             # Assume valid set of arguments is passed
             self.queryable = True
@@ -852,7 +852,7 @@ cdef class LinkCell(NeighborQuery):
 
     def __cinit__(self, box, cell_width, points=None):
         self._box = freud.common.convert_box(box)
-        cdef float[:, ::1] l_points
+        cdef const float[:, ::1] l_points
         if points is not None:
             # The new API
             self.queryable = True
@@ -895,7 +895,7 @@ cdef class LinkCell(NeighborQuery):
         point = freud.common.convert_array(
             point, 1, dtype=np.float32, contiguous=True, array_name="point")
 
-        cdef float[::1] cPoint = point
+        cdef const float[::1] cPoint = point
 
         return self.thisptr.getCell(dereference(<vec3[float]*> &cPoint[0]))
 
@@ -975,9 +975,9 @@ cdef class LinkCell(NeighborQuery):
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        cdef float[:, ::1] cRef_points = ref_points
+        cdef const float[:, ::1] cRef_points = ref_points
         cdef unsigned int n_ref = ref_points.shape[0]
-        cdef float[:, ::1] cPoints = points
+        cdef const float[:, ::1] cPoints = points
         cdef unsigned int Np = points.shape[0]
         cdef cbool c_exclude_ii = exclude_ii
         with nogil:
@@ -1230,9 +1230,9 @@ cdef class NearestNeighbors:
         self._cached_points = points
         self._cached_box = b
 
-        cdef float[:, ::1] cRef_points = ref_points
+        cdef const float[:, ::1] cRef_points = ref_points
         cdef unsigned int n_ref = ref_points.shape[0]
-        cdef float[:, ::1] cPoints = points
+        cdef const float[:, ::1] cPoints = points
         cdef unsigned int Np = points.shape[0]
         cdef cbool c_exclude_ii = exclude_ii
         with nogil:
