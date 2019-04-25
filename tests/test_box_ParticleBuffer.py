@@ -192,6 +192,11 @@ class TestParticleBuffer(unittest.TestCase):
         npt.assert_array_equal(pbuff.buffer_box.L,
                                fbox.L * np.array([2, 1, 2]))
 
+    def test_repr(self):
+        fbox = freud.box.Box(Lx=2, Ly=2, Lz=2, xy=1, xz=0, yz=1)
+        pbuff = freud.box.ParticleBuffer(fbox)
+        self.assertEqual(str(pbuff), str(eval(repr(pbuff))))
+
 
 if __name__ == '__main__':
     unittest.main()
