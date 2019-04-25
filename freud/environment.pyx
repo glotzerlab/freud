@@ -544,13 +544,13 @@ cdef class LocalDescriptors:
         return self.thisptr.getLMax()
 
     def __repr__(self):
-        return ("freud.environment.{cls}(num_neigh={num_neigh}, " +
+        return ("freud.environment.{cls}(num_neighbors={num_neigh}, " +
                 "lmax={lmax}, rmax={rmax}, " +
-                "negative_m={negative_m})".format(cls=type(self).__name__,
-                                                  num_neigh=self.num_neigh,
-                                                  lmax=self.lmax,
-                                                  rmax=self.rmax,
-                                                  negative_m=self.negative_m))
+                "negative_m={negative_m})").format(cls=type(self).__name__,
+                                                   num_neigh=self.num_neigh,
+                                                   lmax=self.lmax,
+                                                   rmax=self.rmax,
+                                                   negative_m=self.negative_m)
 
     def __str__(self):
         return repr(self)
