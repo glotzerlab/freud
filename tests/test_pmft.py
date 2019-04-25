@@ -131,6 +131,14 @@ class TestPMFTR12(unittest.TestCase):
         npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
                             atol=absoluteTolerance)
 
+    def test_repr(self):
+        maxR = 5.23
+        nbinsR = 10
+        nbinsT1 = 20
+        nbinsT2 = 30
+        myPMFT = freud.pmft.PMFTR12(maxR, nbinsR, nbinsT1, nbinsT2)
+        self.assertEqual(str(myPMFT), str(eval(repr(myPMFT))))
+
 
 class TestPMFTXYT(unittest.TestCase):
     def test_box(self):
@@ -260,6 +268,15 @@ class TestPMFTXYT(unittest.TestCase):
         npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
                             atol=absoluteTolerance)
 
+    def test_repr(self):
+        maxX = 3.0
+        maxY = 4.0
+        nbinsX = 20
+        nbinsY = 30
+        nbinsT = 40
+        myPMFT = freud.pmft.PMFTXYT(maxX, maxY, nbinsX, nbinsY, nbinsT)
+        self.assertEqual(str(myPMFT), str(eval(repr(myPMFT))))
+
 
 class TestPMFTXY2D(unittest.TestCase):
     def test_box(self):
@@ -366,6 +383,14 @@ class TestPMFTXY2D(unittest.TestCase):
         myPMFT.compute(box, points, angles)
         npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
                             atol=absoluteTolerance)
+
+    def test_repr(self):
+        maxX = 3.0
+        maxY = 4.0
+        nbinsX = 100
+        nbinsY = 110
+        myPMFT = freud.pmft.PMFTXY2D(maxX, maxY, nbinsX, nbinsY)
+        self.assertEqual(str(myPMFT), str(eval(repr(myPMFT))))
 
 
 class TestPMFTXYZ(unittest.TestCase):
@@ -535,6 +560,16 @@ class TestPMFTXYZ(unittest.TestCase):
 
         npt.assert_equal(infcheck_noshift, 0)
         npt.assert_equal(infcheck_shift, 1)
+
+    def test_repr(self):
+        maxX = 5.23
+        maxY = 6.23
+        maxZ = 7.23
+        nbinsX = 100
+        nbinsY = 110
+        nbinsZ = 120
+        myPMFT = freud.pmft.PMFTXYZ(maxX, maxY, maxZ, nbinsX, nbinsY, nbinsZ)
+        self.assertEqual(str(myPMFT), str(eval(repr(myPMFT))))
 
 
 if __name__ == '__main__':
