@@ -239,6 +239,7 @@ cdef class NematicOrderParameter:
             3x3 matrix corresponding to the average particle orientation.
     """  # noqa: E501
     cdef freud._order.NematicOrderParameter *thisptr
+    cdef u
 
     def __cinit__(self, u):
         # run checks
@@ -247,6 +248,8 @@ cdef class NematicOrderParameter:
 
         cdef vec3[float] l_u = vec3[float](u[0], u[1], u[2])
         self.thisptr = new freud._order.NematicOrderParameter(l_u)
+        self.u = freud.common.convert_array(
+            u, 1, dtype=np.float32, contiguous=True, array_name="u")
 
     def compute(self, orientations):
         R"""Calculates the per-particle and global order parameter.
@@ -290,6 +293,13 @@ cdef class NematicOrderParameter:
         cdef float[:, ::1] nematic_tensor = \
             <float[:3, :3]> self.thisptr.getNematicTensor().get()
         return np.asarray(nematic_tensor)
+
+    def __repr__(self):
+        return "freud.order.{cls}(u={u})".format(cls=type(self).__name__,
+                                                 u=self.u.tolist())
+
+    def __str__(self):
+        return repr(self)
 
 
 cdef class HexOrderParameter:
