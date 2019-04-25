@@ -434,6 +434,8 @@ cdef class TransOrderParameter:
             Box used in the calculation.
         num_particles (unsigned int):
             Number of particles.
+        K (float):
+            Normalization value (d_r is divided by K).
     """
     cdef freud._order.TransOrderParameter * thisptr
     cdef num_neigh
@@ -491,6 +493,19 @@ cdef class TransOrderParameter:
     def num_particles(self):
         cdef unsigned int np = self.thisptr.getNP()
         return np
+
+    @property
+    def K(self):
+        cdef float k = self.thisptr.getK()
+        return k
+
+    def __repr__(self):
+        return "freud.order.{cls}(rmax={rmax}, k={k}, n={n})".format(
+            cls=type(self).__name__, rmax=self.rmax, k=self.K,
+            n=self.num_neigh)
+
+    def __str__(self):
+        return repr(self)
 
 
 cdef class LocalQl:

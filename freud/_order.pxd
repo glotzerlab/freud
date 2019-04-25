@@ -72,6 +72,7 @@ cdef extern from "TransOrderParameter.h" namespace "freud::order":
                      unsigned int) nogil except +
         shared_ptr[float complex] getDr()
         unsigned int getNP()
+        float getK()
 
 cdef extern from "LocalQl.h" namespace "freud::order":
     cdef cppclass LocalQl:
