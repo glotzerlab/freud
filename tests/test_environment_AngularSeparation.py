@@ -161,6 +161,10 @@ class TestAngularSeparation(unittest.TestCase):
             for j in [0, 1]:
                 npt.assert_almost_equal(ang.global_angles[i][j], np.pi/16, 6)
 
+    def test_repr(self):
+        ang = freud.environment.AngularSeparation(3, 12)
+        self.assertEqual(str(ang), str(eval(repr(ang))))
+
 
 if __name__ == '__main__':
     unittest.main()
