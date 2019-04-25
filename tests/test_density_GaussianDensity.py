@@ -32,6 +32,10 @@ class TestDensity(unittest.TestCase):
         diff = freud.density.GaussianDensity(100, 10.0, 0.1)
         self.assertEqual(str(diff), str(eval(repr(diff))))
 
+        # Use both signatures
+        diff3 = freud.density.GaussianDensity(98, 99, 100, 10.0, 0.1)
+        self.assertEqual(str(diff3), str(eval(repr(diff3))))
+
 
 if __name__ == '__main__':
     unittest.main()
