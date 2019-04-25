@@ -58,12 +58,16 @@ cdef class Index2D:
         i = index(3, 5)
     """
     cdef _Index1D.Index2D * thisptr
+    cdef w
+    cdef h
 
     def __cinit__(self, w, h=None):
         if h is not None:
             self.thisptr = new _Index1D.Index2D(w, h)
         else:
             self.thisptr = new _Index1D.Index2D(w)
+        self.w = w
+        self.h = h
 
     def __dealloc__(self):
         del self.thisptr
@@ -82,6 +86,13 @@ cdef class Index2D:
     @property
     def num_elements(self):
         return self.thisptr.getNumElements()
+
+    def __repr__(self):
+        return "freud.index.{cls}(w={w}, h={h})".format(
+            cls=type(self).__name__, w=self.w, h=self.h)
+
+    def __str__(self):
+        return repr(self)
 
 
 cdef class Index3D:
@@ -123,12 +134,18 @@ cdef class Index3D:
         i = index(3, 5, 4)
     """
     cdef _Index1D.Index3D * thisptr
+    cdef w
+    cdef h
+    cdef d
 
     def __cinit__(self, w, h=None, d=None):
         if h is not None:
             self.thisptr = new _Index1D.Index3D(w, h, d)
         else:
             self.thisptr = new _Index1D.Index3D(w)
+        self.w = w
+        self.h = h
+        self.d = d
 
     def __dealloc__(self):
         del self.thisptr
@@ -148,3 +165,10 @@ cdef class Index3D:
     @property
     def num_elements(self):
         return self.thisptr.getNumElements()
+
+    def __repr__(self):
+        return "freud.index.{cls}(w={w}, h={h}, d={d})".format(
+            cls=type(self).__name__, w=self.w, h=self.h, d=self.d)
+
+    def __str__(self):
+        return repr(self)
