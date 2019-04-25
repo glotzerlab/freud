@@ -16,7 +16,7 @@ def gen_quaternions(n, axes, angles):
     return q
 
 
-class TestCluster(unittest.TestCase):
+class TestCubatic(unittest.TestCase):
     def test_ordered(self):
         # do not need positions, just orientations
         N = 1000
@@ -95,6 +95,10 @@ class TestCluster(unittest.TestCase):
         npt.assert_array_less(
             op_max, 0.2,
             err_msg="per particle order parameter value is too high")
+
+    def test_repr(self):
+        cubaticOP = freud.order.CubaticOrderParameter(5.0, 0.001, 0.95, 10)
+        self.assertEqual(str(cubaticOP), str(eval(repr(cubaticOP))))
 
 
 if __name__ == '__main__':

@@ -82,6 +82,11 @@ cdef class CubaticOrderParameter:
             orientation.
     """  # noqa: E501
     cdef freud._order.CubaticOrderParameter * thisptr
+    cdef t_initial
+    cdef t_final
+    cdef scale
+    cdef n_replicates
+    cdef seed
 
     def __cinit__(self, t_initial, t_final, scale, n_replicates=1, seed=None):
         # run checks
@@ -112,6 +117,11 @@ cdef class CubaticOrderParameter:
         self.thisptr = new freud._order.CubaticOrderParameter(
             t_initial, t_final, scale, <float*> &r4[0, 0, 0, 0], n_replicates,
             seed)
+        self.t_initial = t_initial
+        self.t_final = t_final
+        self.scale = scale
+        self.n_replicates = n_replicates
+        self.seed = seed
 
     def compute(self, orientations):
         R"""Calculates the per-particle and global order parameter.
@@ -192,6 +202,18 @@ cdef class CubaticOrderParameter:
             self.thisptr.getGenR4Tensor().get()
         return np.asarray(gen_r4_tensor)
 
+    def __repr__(self):
+        return ("freud.order.{cls}(t_initial={t_initial}, t_final={t_final}, "
+                "scale={scale}, n_replicates={n_replicates}, "
+                "seed={seed})").format(cls=type(self).__name__,
+                                       t_initial=self.t_initial,
+                                       t_final=self.t_final,
+                                       scale=self.scale,
+                                       n_replicates=self.n_replicates,
+                                       seed=self.seed)
+
+    def __str__(self):
+        return repr(self)
 
 cdef class NematicOrderParameter:
     R"""Compute the nematic order parameter for a system of particles.
