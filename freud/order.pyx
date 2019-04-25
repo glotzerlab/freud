@@ -1226,6 +1226,9 @@ cdef class SolLiq:
     cdef freud._order.SolLiq * thisptr
     cdef freud.box.Box m_box
     cdef rmax
+    cdef Qthreshold
+    cdef Sthreshold
+    cdef sph_l
 
     def __cinit__(self, box, rmax, Qthreshold, Sthreshold, l, *args, **kwargs):
         cdef freud.box.Box b = freud.common.convert_box(box)
@@ -1234,6 +1237,9 @@ cdef class SolLiq:
                 dereference(b.thisptr), rmax, Qthreshold, Sthreshold, l)
             self.m_box = b
             self.rmax = rmax
+            self.Qthreshold = Qthreshold
+            self.Sthreshold = Sthreshold
+            self.sph_l = l
 
     def __dealloc__(self):
         del self.thisptr
@@ -1374,6 +1380,19 @@ cdef class SolLiq:
         cdef unsigned int np = self.thisptr.getNP()
         return np
 
+    def __repr__(self):
+        return ("freud.order.{cls}(box={box}, rmax={rmax}, "
+                "Qthreshold={Qthreshold}, Sthreshold={Sthreshold}, "
+                "l={sph_l})").format(cls=type(self).__name__,
+                                     box=self.m_box,
+                                     rmax=self.rmax,
+                                     Qthreshold=self.Qthreshold,
+                                     Sthreshold=self.Sthreshold,
+                                     sph_l=self.sph_l)
+
+    def __str__(self):
+        return repr(self)
+
 
 cdef class SolLiqNear(SolLiq):
     R"""A variant of the :class:`~SolLiq` class that performs its average over nearest neighbor particles as determined by an instance of :class:`freud.locality.NeighborList`. The number of included neighbors is determined by the kn parameter to the constructor.
@@ -1432,6 +1451,9 @@ cdef class SolLiqNear(SolLiq):
                 dereference(b.thisptr), rmax, Qthreshold, Sthreshold, l)
             self.m_box = b
             self.rmax = rmax
+            self.Qthreshold = Qthreshold
+            self.Sthreshold = Sthreshold
+            self.sph_l = l
             self.num_neigh = kn
 
     def __dealloc__(self):
@@ -1482,6 +1504,20 @@ cdef class SolLiqNear(SolLiq):
             self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         return SolLiq.computeSolLiqNoNorm(self, points, nlist_)
+
+    def __repr__(self):
+        return ("freud.order.{cls}(box={box}, rmax={rmax}, "
+                "Qthreshold={Qthreshold}, Sthreshold={Sthreshold}, "
+                "l={sph_l}, kn={kn})").format(cls=type(self).__name__,
+                                              box=self.m_box,
+                                              rmax=self.rmax,
+                                              Qthreshold=self.Qthreshold,
+                                              Sthreshold=self.Sthreshold,
+                                              sph_l=self.sph_l,
+                                              kn=self.num_neigh)
+
+    def __str__(self):
+        return repr(self)
 
 
 cdef class RotationalAutocorrelation:
