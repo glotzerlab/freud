@@ -578,12 +578,16 @@ cdef class LocalQl:
     cdef freud._order.LocalQl * qlptr
     cdef freud.box.Box m_box
     cdef rmax
+    cdef sph_l
+    cdef rmin
 
     def __cinit__(self, box, rmax, l, rmin=0, *args, **kwargs):
         cdef freud.box.Box b = freud.common.convert_box(box)
         if type(self) is LocalQl:
             self.m_box = b
             self.rmax = rmax
+            self.sph_l = l
+            self.rmin = rmin
             self.qlptr = new freud._order.LocalQl(
                 dereference(b.thisptr), rmax, l, rmin)
 
@@ -751,6 +755,17 @@ cdef class LocalQl:
         self.qlptr.computeAveNorm(<vec3[float]*> &l_points[0, 0], nP)
         return self
 
+    def __repr__(self):
+        return ("freud.order.{cls}(box={box}, rmax={rmax}, l={sph_l}, "
+                "rmin={rmin})").format(cls=type(self).__name__,
+                                       box=self.m_box,
+                                       rmax=self.rmax,
+                                       sph_l=self.sph_l,
+                                       rmin=self.rmin)
+
+    def __str__(self):
+        return repr(self)
+
 
 cdef class LocalQlNear(LocalQl):
     R"""A variant of the :class:`~LocalQl` class that performs its average
@@ -807,6 +822,7 @@ cdef class LocalQlNear(LocalQl):
                 dereference(b.thisptr), rmax, l, 0)
             self.m_box = b
             self.rmax = rmax
+            self.sph_l = l
             self.num_neigh = kn
 
     def __dealloc__(self):
@@ -872,6 +888,17 @@ cdef class LocalQlNear(LocalQl):
             self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         return super(LocalQlNear, self).computeAveNorm(points, nlist_)
+
+    def __repr__(self):
+        return ("freud.order.{cls}(box={box}, rmax={rmax}, l={sph_l}, "
+                "kn={kn})").format(cls=type(self).__name__,
+                                   box=self.m_box,
+                                   rmax=self.rmax,
+                                   sph_l=self.sph_l,
+                                   kn=self.num_neigh)
+
+    def __str__(self):
+        return repr(self)
 
 
 cdef class LocalWl(LocalQl):
