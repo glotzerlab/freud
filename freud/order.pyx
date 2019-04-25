@@ -1583,3 +1583,10 @@ cdef class RotationalAutocorrelation:
     def azimuthal(self):
         cdef unsigned int azimuthal = self.thisptr.getL()
         return azimuthal
+
+    def __repr__(self):
+        return "freud.order.{cls}(l={sph_l})".format(cls=type(self).__name__,
+                                                     sph_l=self.l)
+
+    def __str__(self):
+        return repr(self)
