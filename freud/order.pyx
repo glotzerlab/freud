@@ -405,6 +405,14 @@ cdef class HexOrderParameter:
         cdef unsigned int k = self.thisptr.getK()
         return k
 
+    def __repr__(self):
+        return "freud.order.{cls}(rmax={rmax}, k={k}, n={n})".format(
+            cls=type(self).__name__, rmax=self.rmax, k=self.K,
+            n=self.num_neigh)
+
+    def __str__(self):
+        return repr(self)
+
 
 cdef class TransOrderParameter:
     R"""Compute the translational order parameter for each particle.
