@@ -97,3 +97,7 @@ cdef class InterfaceMeasure:
     @property
     def point_ids(self):
         return np.asarray(self._point_ids)
+
+    def __repr__(self):
+        return "freud.interface.{cls}(r_cut={r_cut})".format(
+            cls=type(self).__name__, r_cut=self.rmax)
