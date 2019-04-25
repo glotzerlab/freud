@@ -442,3 +442,10 @@ class Voronoi:
                 Voronoi polytope volumes/areas.
         """
         return self._poly_volumes
+
+    def __repr__(self):
+        return "freud.voronoi.{cls}(box={box}, buff={buff})".format(
+            cls=type(self).__name__, box=self._box, buff=self._buff)
+
+    def __str__(self):
+        return repr(self)
