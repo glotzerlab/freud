@@ -90,7 +90,7 @@ cdef class BondOrder:
     .. moduleauthor:: Erin Teich <erteich@umich.edu>
 
     Args:
-        r_max (float):
+        rmax (float):
             Distance over which to calculate.
         k (unsigned int):
             Order parameter i. To be removed.
@@ -309,14 +309,14 @@ cdef class BondOrder:
         return self.thisptr.getNBinsPhi()
 
     def __repr__(self):
-        return ("freud.environment.{cls}(rmax={rmax}, k={k}, " +
-                "num_neigh={num_neigh}, n_bins_t={n_bins_t}, " +
-                "n_bins_p={n_bins_p})".format(cls=type(self).__name__,
-                                              rmax=self.rmax,
-                                              k=self.k,
-                                              num_neigh=self.num_neigh,
-                                              n_bins_t=self.n_bins_t,
-                                              n_bins_p=self.n_bins_p))
+        return ("freud.environment.{cls}(rmax={rmax}, k={k}, "
+                "n={num_neigh}, n_bins_t={n_bins_t}, "
+                "n_bins_p={n_bins_p})").format(cls=type(self).__name__,
+                                               rmax=self.rmax,
+                                               k=self.k,
+                                               num_neigh=self.num_neigh,
+                                               n_bins_t=self.n_bins_t,
+                                               n_bins_p=self.n_bins_p)
 
     def __str__(self):
         return repr(self)
