@@ -101,3 +101,6 @@ cdef class InterfaceMeasure:
     def __repr__(self):
         return "freud.interface.{cls}(r_cut={r_cut})".format(
             cls=type(self).__name__, r_cut=self.rmax)
+
+    def __str__(self):
+        return repr(self)
