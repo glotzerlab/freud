@@ -38,7 +38,7 @@ except ImportError:
 np.import_array()
 
 
-class Voronoi:
+class Voronoi(object):
     R"""Compute the Voronoi tessellation of a 2D or 3D system using qhull.
     This uses :class:`scipy.spatial.Voronoi`, accounting for periodic
     boundary conditions.
