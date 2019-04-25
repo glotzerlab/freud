@@ -986,6 +986,8 @@ cdef class LocalWl(LocalQl):
                 dereference(b.thisptr), rmax, l, rmin)
             self.m_box = b
             self.rmax = rmax
+            self.sph_l = l
+            self.rmin = rmin
 
     def __dealloc__(self):
         if type(self) is LocalWl:
@@ -1032,6 +1034,17 @@ cdef class LocalWl(LocalQl):
         cdef np.complex64_t[::1] ave_norm_Wl = \
             <np.complex64_t[:n_particles]> self.thisptr.getAveNormWl().get()
         return np.asarray(ave_norm_Wl, dtype=np.complex64)
+
+    def __repr__(self):
+        return ("freud.order.{cls}(box={box}, rmax={rmax}, l={sph_l}, "
+                "rmin={rmin})").format(cls=type(self).__name__,
+                                       box=self.m_box,
+                                       rmax=self.rmax,
+                                       sph_l=self.sph_l,
+                                       rmin=self.rmin)
+
+    def __str__(self):
+        return repr(self)
 
 
 cdef class LocalWlNear(LocalWl):
@@ -1086,6 +1099,7 @@ cdef class LocalWlNear(LocalWl):
                 dereference(b.thisptr), rmax, l, 0)
             self.m_box = b
             self.rmax = rmax
+            self.sph_l = l
             self.num_neigh = kn
 
     def __dealloc__(self):
@@ -1150,6 +1164,17 @@ cdef class LocalWlNear(LocalWl):
             self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         return super(LocalWlNear, self).computeAveNorm(points, nlist_)
+
+    def __repr__(self):
+        return ("freud.order.{cls}(box={box}, rmax={rmax}, l={sph_l}, "
+                "kn={kn})").format(cls=type(self).__name__,
+                                   box=self.m_box,
+                                   rmax=self.rmax,
+                                   sph_l=self.sph_l,
+                                   kn=self.num_neigh)
+
+    def __str__(self):
+        return repr(self)
 
 
 cdef class SolLiq:
