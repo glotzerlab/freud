@@ -20,6 +20,7 @@ class TestInterface(unittest.TestCase):
         one particle is removed from an FCC structure"""
         np.random.seed(0)
         (box, positions) = util.make_fcc(4, 4, 4, noise=1e-2)
+        positions.flags['WRITEABLE'] = False
 
         index = np.random.randint(0, len(positions))
 

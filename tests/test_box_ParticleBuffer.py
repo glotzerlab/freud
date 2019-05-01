@@ -18,6 +18,7 @@ class TestParticleBuffer(unittest.TestCase):
 
         # Add a z-component of 0
         positions = np.insert(positions, 2, 0, axis=1).astype(np.float32)
+        positions.flags['WRITEABLE'] = False
 
         # Compute with zero buffer distance
         pbuff.compute(positions, buffer=0, images=False)
@@ -61,6 +62,7 @@ class TestParticleBuffer(unittest.TestCase):
 
         # Generate random points in the box
         positions = np.random.uniform(-L/2, L/2, size=(N, 3))
+        positions.flags['WRITEABLE'] = False
 
         # Compute with zero buffer distance
         pbuff.compute(positions, buffer=0, images=False)
@@ -111,6 +113,7 @@ class TestParticleBuffer(unittest.TestCase):
         fbox = freud.box.Box.cube(L)  # Initialize box
         pbuff = freud.box.ParticleBuffer(fbox)
         positions = np.array([(s, s, 0), (s, 0, s), (0, s, s), (0, 0, 0)])
+        positions.flags['WRITEABLE'] = False
 
         # Compute with zero buffer distance
         pbuff.compute(positions, buffer=0, images=False)
