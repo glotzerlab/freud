@@ -8,6 +8,36 @@ from libcpp.memory cimport shared_ptr
 from libcpp.vector cimport vector
 cimport freud._box
 
+cdef extern from "NeighborQuery.h" namespace "freud::locality":
+    cdef cppclass NeighborPoint:
+        unsigned int id
+        unsigned int ref_id
+        float distance
+        bool operator==(NeighborPoint)
+        bool operator<(NeighborPoint)
+
+    cdef cppclass NeighborQuery:
+        NeighborQuery()
+        NeighborQuery(const freud._box.Box &, const vec3[float]*, unsigned int)
+        shared_ptr[NeighborQueryIterator] query(
+            const vec3[float]*, unsigned int, unsigned int) nogil except +
+        shared_ptr[NeighborQueryIterator] queryBall(
+            const vec3[float]*, unsigned int, float) nogil except +
+        const freud._box.Box & getBox() const
+        const vec3[float]* getRefPoints const
+        const unsigned int getNRef const
+        const vec3[float] operator[](unsigned int) const
+
+    NeighborPoint ITERATOR_TERMINATOR \
+        "freud::locality::NeighborQueryIterator::ITERATOR_TERMINATOR"
+
+    cdef cppclass NeighborQueryIterator:
+        NeighborQueryIterator()
+        NeighborQueryIterator(NeighborQuery*, vec3[float]*, unsigned int)
+        bool end()
+        NeighborPoint next()
+        NeighborList *toNeighborList(bool exclude_ii)
+
 cdef extern from "NeighborList.h" namespace "freud::locality":
     cdef cppclass NeighborList:
         NeighborList()
@@ -48,16 +78,17 @@ cdef extern from "LinkCell.h" namespace "freud::locality":
         unsigned int next()
         unsigned int begin()
 
-    cdef cppclass LinkCell:
-        LinkCell(const freud._box.Box &, float) except +
+    cdef cppclass LinkCell(NeighborQuery):
         LinkCell()
+        LinkCell(const freud._box.Box &, float) except +
+        LinkCell(const freud._box.Box &, float,
+                 const vec3[float]*, unsigned int) except +
 
         setCellWidth(float) except +
         updateBox(const freud._box.Box &) except +
         const vec3[unsigned int] computeDimensions(
             const freud._box.Box &,
             float) const
-        const freud._box.Box & getBox() const
         const Index3D & getCellIndexer() const
         unsigned int getNumCells() const
         float getCellWidth() const
@@ -99,8 +130,9 @@ cdef extern from "NearestNeighbors.h" namespace "freud::locality":
         NeighborList * getNeighborList()
 
 cdef extern from "AABBQuery.h" namespace "freud::locality":
-    cdef cppclass AABBQuery:
+    cdef cppclass AABBQuery(NeighborQuery):
         AABBQuery()
+        AABBQuery(const freud._box.Box, const vec3[float]*, unsigned int)
         void compute(
             const freud._box.Box &,
             float,
@@ -109,4 +141,6 @@ cdef extern from "AABBQuery.h" namespace "freud::locality":
             const vec3[float]*,
             unsigned int,
             bool) nogil except +
-        NeighborList * getNeighborList()
+        shared_ptr[NeighborQueryIterator] query(
+            const vec3[float]*, unsigned int, unsigned int,
+            float, float) nogil except +

@@ -64,7 +64,8 @@ Vyas Ramasubramani - **Lead developer**
 
 * Ensured pep8 compliance.
 * Added CircleCI continuous integration support.
-* Rewrote docs.
+* Create environment module and refactored order module.
+* Rewrote most of freud docs, including order, density, and environment modules.
 * Fixed nematic order parameter.
 * Add properties for accessing class members.
 * Various minor bug fixes.
@@ -73,11 +74,11 @@ Vyas Ramasubramani - **Lead developer**
 * Wrote numerous examples of freud usage.
 * Rewrote most of freud tests.
 * Replaced CMake-based installation with setup.py using Cython.
-* Split non-order parameters out of order module into separate environment module..
-* Rewrote documentation for order, density, and environment modules.
 * Add code coverage metrics.
-* Added support for PyPI, including ensuring that NumPy is installed.
+* Added support for installing from PyPI, including ensuring that NumPy is installed.
 * Converted all docstrings to Google format, fixed various incorrect docs.
+* Debugged and added rotational autocorrelation code.
+* Added MSD module.
 
 Bradley Dice - **Lead developer**
 
@@ -178,6 +179,7 @@ Wenbo Shen
 Andrew Karas
 
 * Angular separation.
+* Wrote reference implementation for rotational autocorrelation.
 
 Paul Dodd
 
@@ -186,6 +188,7 @@ Paul Dodd
 Tim Moore
 
 * Added optional rmin argument to density.RDF.
+* Enabled NeighborList indexing.
 
 Alex Dutton
 
@@ -195,6 +198,10 @@ Matthew Palathingal
 
 * Replaced use of boost shared arrays with shared ptr in Cython.
 * Helped incorporate BiMap class into MatchEnv.
+
+Kelly Wang
+
+* Enabled NeighborList indexing.
 
 Yezhi Jin
 
