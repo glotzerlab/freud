@@ -778,7 +778,7 @@ cdef class ParticleBuffer:
         cdef unsigned int buffer_size = \
             dereference(self.thisptr.getBufferParticles().get()).size()
         if not buffer_size:
-            return np.array([[]], dtype=np.uint32)
+            return np.empty(shape=(0,), dtype=np.uint32)
         cdef const unsigned int[::1] buffer_ids = \
             <unsigned int[:buffer_size]> dereference(
                 self.thisptr.getBufferIds().get()).data()
