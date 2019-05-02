@@ -31,9 +31,7 @@ When using *freud* to process data for publication, please [use this citation](h
 - [Issue Tracker](https://github.com/glotzerlab/freud/issues):
   Report issues and suggest feature enhancements.
 
-## Quickstart
-
-### Installation
+## Installation
 
 Install via conda:
 
@@ -50,7 +48,7 @@ pip install freud-analysis
 
 Please refer to the [Installation Guide](https://freud.readthedocs.io/en/stable/installation.html) to compile freud from source.
 
-### Examples
+## Examples
 
 The *freud* library is called using Python scripts.
 Many core features are [demonstrated in the *freud* documentation](https://freud.readthedocs.io/en/stable/examples.html).
@@ -63,7 +61,7 @@ Below is a script that computes the radial distribution function.
 import freud
 
 # Create a freud compute object (rdf is the canonical example)
-rdf = freud.density.rdf(rmax=5, dr=0.1)
+rdf = freud.density.RDF(rmax=5, dr=0.1)
 
 # Load in your data (freud does not provide a data reader)
 box_data = np.load("path/to/box_data.npy")
