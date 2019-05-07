@@ -20,13 +20,6 @@ import logging
 from freud.util._VectorMath cimport vec3, quat
 from cython.operator cimport dereference
 
-# The below are maintained for backwards compatibility
-# but have been moved to the environment module
-from freud.environment cimport BondOrder as _EBO
-from freud.environment cimport LocalDescriptors as _ELD
-from freud.environment cimport MatchEnv as _EME
-from freud.environment cimport AngularSeparation as _EAS
-
 cimport freud._order
 cimport freud.locality
 cimport freud.box

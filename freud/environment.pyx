@@ -117,6 +117,12 @@ cdef class BondOrder:
 
     .. todo:: remove k, it is not used as such.
     """  # noqa: E501
+    cdef freud._environment.BondOrder * thisptr
+    cdef num_neigh
+    cdef rmax
+    cdef k
+    cdef n_bins_t
+    cdef n_bins_p
 
     def __cinit__(self, float rmax, float k, unsigned int n,
                   unsigned int n_bins_t, unsigned int n_bins_p):
@@ -366,6 +372,12 @@ cdef class LocalDescriptors:
         r_max (float):
             The cutoff radius.
     """  # noqa: E501
+    cdef freud._environment.LocalDescriptors * thisptr
+    cdef num_neigh
+    cdef rmax
+    cdef lmax
+    cdef negative_m
+
     known_modes = {'neighborhood': freud._environment.LocalNeighborhood,
                    'global': freud._environment.Global,
                    'particle_local': freud._environment.ParticleLocal}
@@ -582,6 +594,10 @@ cdef class MatchEnv:
         clusters (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
             The per-particle index indicating cluster membership.
     """  # noqa: E501
+    cdef freud._environment.MatchEnv * thisptr
+    cdef rmax
+    cdef num_neigh
+    cdef m_box
 
     def __cinit__(self, box, rmax, k):
         cdef freud.box.Box b = freud.common.convert_box(box)
@@ -968,6 +984,10 @@ cdef class AngularSeparation:
     .. todo Need to figure out what happens if you use a neighborlist with
             strict_cut=True
     """  # noqa: E501
+    cdef freud._environment.AngularSeparation * thisptr
+    cdef unsigned int num_neigh
+    cdef float rmax
+    cdef freud.locality.NeighborList nlist_
 
     def __cinit__(self, float rmax, unsigned int n):
         self.thisptr = new freud._environment.AngularSeparation()
@@ -1179,6 +1199,10 @@ cdef class LocalBondProjection:
         box (:class:`freud.box.Box`):
             The box used in the last calculation.
     """  # noqa: E501
+    cdef freud._environment.LocalBondProjection * thisptr
+    cdef float rmax
+    cdef unsigned int num_neigh
+    cdef freud.locality.NeighborList nlist_
 
     def __cinit__(self, rmax, num_neigh):
         self.thisptr = new freud._environment.LocalBondProjection()
