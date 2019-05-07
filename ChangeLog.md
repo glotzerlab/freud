@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 * New neighbor querying API to enable reuse of query data structures.
 * Exposed AABB tree to user.
 
+### Fixed
+* Corrected type of `y_max` argument to PMFTXY2D from int to float.
+
 ## v1.0.0 - 2019-02-08
 
 ### Added
