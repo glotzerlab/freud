@@ -32,7 +32,7 @@ try:
     # of the numpy/scipy API that are actually used below. There is no promise
     # that other aspects of the API will be preserved.
     def fft(x, n, axis):
-        a = pyfftw.empty_aligned(x.shape, 'float32')
+        a = pyfftw.empty_aligned(x.shape, 'complex64')
         a[:] = x
         fft_object = pyfftw.builders.fft(a, n=n, axis=axis)
         return fft_object()
