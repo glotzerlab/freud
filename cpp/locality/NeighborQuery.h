@@ -103,8 +103,12 @@ class NeighborQuery
         /*! Given a QueryArgs object and a set of points to perform a query
          *  with, this function will dispatch the query to the appropriate
          *  querying function.
+         *
+         *  This function should just be called query, but Cython's function
+         *  overloading abilities seem buggy at best, so it's easiest to just
+         *  rename the function.
          */
-        virtual std::shared_ptr<NeighborQueryIterator> query(const vec3<float> *points, unsigned int N, QueryArgs args)
+        virtual std::shared_ptr<NeighborQueryIterator> query_with_args(const vec3<float> *points, unsigned int N, QueryArgs args)
             {
             if (args.mode == QueryArgs::ball)
                 {

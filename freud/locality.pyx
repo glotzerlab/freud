@@ -14,7 +14,6 @@ import warnings
 from libcpp cimport bool as cbool
 from freud.util._VectorMath cimport vec3
 from cython.operator cimport dereference
-from cython.operator cimport dereference
 from libcpp.memory cimport shared_ptr
 from freud._locality cimport ITERATOR_TERMINATOR
 
@@ -26,6 +25,78 @@ cimport numpy as np
 # _always_ do that, or you will have segfaults
 np.import_array()
 
+cdef class _QueryArgs(object):
+    ### This class is temporarily included for testing and may be
+    ### removed in future releases.
+    cdef freud._locality.QueryArgs * thisptr
+
+    def __cinit__(self, mode=None, rmax=None, nn=None):
+        self.thisptr = new freud._locality.QueryArgs()
+        if mode is not None:
+            self.mode = mode
+        if rmax is not None:
+            self.rmax = rmax
+        if nn is not None:
+            self.nn = nn
+
+    @property
+    def mode(self):
+        return self.thisptr.mode
+
+    @mode.setter
+    def mode(self, value):
+        if value == 'ball':
+            self.thisptr.mode = freud._locality.QueryType.ball
+        elif value == 'nearest':
+            self.thisptr.mode = freud._locality.QueryType.nearest
+        else:
+            raise ValueError("You have passed an invalid mode.")
+
+    @property
+    def rmax(self):
+        return self.thisptr.rmax
+
+    @rmax.setter
+    def rmax(self, value):
+        self.thisptr.rmax = value
+
+    @property
+    def nn(self):
+        return self.thisptr.nn
+
+    @nn.setter
+    def nn(self, value):
+        self.thisptr.nn = value
+
+cdef _QueryArgs parse_query_args(dict query_args):
+    """Convert a dictionary into a query args object.
+
+    The following keys are supported:
+
+        * mode: The query mode, either 'ball' or 'nearest'.
+        * rmax: The cutoff distance for a ball query.
+        * nn: The number of nearest neighbors to find.
+
+    Args:
+        query_args (dict):
+            A dictionary of query arguments.
+
+    Returns
+        _QueryArgs: An object encapsulating query arguments.
+    """
+    cdef _QueryArgs qa = _QueryArgs()
+    cdef dict invalid_args = {}
+    for key, val in query_args.items():
+        if hasattr(qa, key):
+            setattr(qa, key, val)
+        else:
+            invalid_args[key] = val
+    if invalid_args:
+        raise ValueError(
+            "The following invalid query arguments were provided: "
+            ", ".format("{} = {}".format(key, val)))
+    else:
+        return qa
 
 cdef class NeighborQueryResult:
     R"""Class encapsulating the output of queries of NeighborQuery objects.
@@ -180,6 +251,29 @@ cdef class NeighborQuery:
     @property
     def points(self):
         return np.asarray(self.points)
+
+    def _queryGeneric(self, points, query_args):
+        ### This function is temporarily included for testing and WILL be
+        ### removed in future releases.
+        # Can't use this function with old-style NeighborQuery objects
+        cdef shared_ptr[freud._locality.NeighborQueryIterator] iterator
+        cdef const float[:, ::1] l_points = points
+        cdef _QueryArgs args = parse_query_args(query_args)
+        cdef unsigned int x = 5
+        iterator = self.nqptr.query_with_args(
+            <vec3[float]*> &l_points[0, 0],
+            points.shape[0],
+            dereference(args.thisptr))
+
+        cdef freud._locality.NeighborList *cnlist = dereference(
+            iterator).toNeighborList(False)
+        cdef NeighborList nl = NeighborList()
+        nl.refer_to(cnlist)
+        # Explicitly manage a manually created nlist so that it will be
+        # deleted when the Python object is.
+        nl._managed = True
+
+        return nl
 
     def query(self, points, unsigned int k=1, cbool exclude_ii=False):
         R"""Query for nearest neighbors of the provided point.

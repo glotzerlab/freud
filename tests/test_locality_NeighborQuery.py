@@ -300,6 +300,55 @@ class TestNeighborQueryAABB(unittest.TestCase):
 
 
 class TestNeighborQueryLinkCell(unittest.TestCase):
+    def test_query_generic(self):
+        L = 10  # Box Dimensions
+        rcut = 2.01  # Cutoff radius
+        N = 4  # number of particles
+
+        fbox = box.Box.cube(L)  # Initialize Box
+
+        points = np.zeros(shape=(N, 3), dtype=np.float32)
+        points[0] = [0.0, 0.0, 0.0]
+        points[1] = [1.0, 0.0, 0.0]
+        points[2] = [3.0, 0.0, 0.0]
+        points[3] = [2.0, 0.0, 0.0]
+        lc = locality.LinkCell(fbox, rcut, points)
+
+        nlist = lc._queryGeneric(points, dict(mode='ball', rmax=rcut))
+        nlist_neighbors = sorted(list(zip(nlist.index_i, nlist.index_j)))
+        # particle 0 has 2 bonds
+        npt.assert_equal(sum(nlist.index_i == 0), 3)
+        # particle 1 has 3 bonds
+        npt.assert_equal(sum(nlist.index_i == 1), 4)
+        # particle 2 has 2 bonds
+        npt.assert_equal(sum(nlist.index_i == 2), 3)
+        # particle 3 has 3 bonds
+        npt.assert_equal(sum(nlist.index_i == 3), 4)
+
+        # Check NeighborList length without self-exclusions.
+        npt.assert_equal(
+            len(lc.queryGeneric(points, rcut, exclude_ii=False).toNList()), 14)
+
+        # When excluding, everything has one less neighbor.
+        npt.assert_equal(
+            len(list(lc.queryGeneric(points, rcut, exclude_ii=True))), 10)
+
+        # Check NeighborList length with self-exclusions.
+        npt.assert_equal(
+            len(lc.queryGeneric(points, rcut, exclude_ii=True).toNList()), 10)
+
+        # now move particle 0 out of range...
+        points[0] = 5
+
+        # particle 0 has 0 bonds
+        npt.assert_equal(len(list(lc.queryGeneric(points[[0]], rcut))), 0)
+        # particle 1 has 2 bonds
+        npt.assert_equal(len(list(lc.queryGeneric(points[[1]], rcut))), 4)
+        # particle 2 has 2 bonds
+        npt.assert_equal(len(list(lc.queryGeneric(points[[2]], rcut))), 3)
+        # particle 3 has 2 bonds
+        npt.assert_equal(len(list(lc.queryGeneric(points[[3]], rcut))), 4)
+
     def test_query_ball(self):
         L = 10  # Box Dimensions
         rcut = 2.01  # Cutoff radius
