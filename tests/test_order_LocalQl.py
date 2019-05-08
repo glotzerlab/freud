@@ -27,19 +27,19 @@ class TestLocalQl(unittest.TestCase):
 
         comp.compute(positions)
         npt.assert_allclose(np.average(comp.Ql), 0.57452422, rtol=1e-6)
-        npt.assert_allclose(comp.Ql, comp.Ql[0])
+        npt.assert_allclose(comp.Ql, comp.Ql[0], rtol=1e-6)
 
         comp.computeAve(positions)
         npt.assert_allclose(np.average(comp.Ql), 0.57452422, rtol=1e-6)
-        npt.assert_allclose(comp.ave_Ql, comp.ave_Ql[0])
+        npt.assert_allclose(comp.ave_Ql, comp.ave_Ql[0], rtol=1e-6)
 
         comp.computeNorm(positions)
         npt.assert_allclose(np.average(comp.Ql), 0.57452422, rtol=1e-6)
-        npt.assert_allclose(comp.norm_Ql, comp.norm_Ql[0])
+        npt.assert_allclose(comp.norm_Ql, comp.norm_Ql[0], rtol=1e-6)
 
         comp.computeAveNorm(positions)
         npt.assert_allclose(np.average(comp.Ql), 0.57452422, rtol=1e-6)
-        npt.assert_allclose(comp.ave_norm_Ql, comp.ave_norm_Ql[0])
+        npt.assert_allclose(comp.ave_norm_Ql, comp.ave_norm_Ql[0], rtol=1e-6)
 
         self.assertEqual(box, comp.box)
 
@@ -72,19 +72,19 @@ class TestLocalQlNear(unittest.TestCase):
 
         comp.compute(positions)
         npt.assert_allclose(np.average(comp.Ql), 0.57452416, rtol=1e-6)
-        npt.assert_allclose(comp.Ql, comp.Ql[0])
+        npt.assert_allclose(comp.Ql, comp.Ql[0], rtol=1e-6)
 
         comp.computeAve(positions)
         npt.assert_allclose(np.average(comp.Ql), 0.57452416, rtol=1e-6)
-        npt.assert_allclose(comp.ave_Ql, comp.ave_Ql[0])
+        npt.assert_allclose(comp.ave_Ql, comp.ave_Ql[0], rtol=1e-6)
 
         comp.computeNorm(positions)
         npt.assert_allclose(np.average(comp.Ql), 0.57452416, rtol=1e-6)
-        npt.assert_allclose(comp.norm_Ql, comp.norm_Ql[0])
+        npt.assert_allclose(comp.norm_Ql, comp.norm_Ql[0], rtol=1e-6)
 
         comp.computeAveNorm(positions)
         npt.assert_allclose(np.average(comp.Ql), 0.57452416, rtol=1e-6)
-        npt.assert_allclose(comp.ave_norm_Ql, comp.ave_norm_Ql[0])
+        npt.assert_allclose(comp.ave_norm_Ql, comp.ave_norm_Ql[0], rtol=1e-6)
 
         self.assertEqual(box, comp.box)
 
