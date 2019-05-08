@@ -753,7 +753,7 @@ cdef class AABBQuery(NeighborQuery):
         if r == 0:
             r = 0.1*min(self._box.L)
 
-        return AABBQueryResult.init2(
+        return AABBQueryResult.init_aabb_nn(
             self.thisptr, points, exclude_ii, k, r, scale)
 
 
