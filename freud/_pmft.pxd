@@ -60,7 +60,7 @@ cdef extern from "PMFTXYT.h" namespace "freud::pmft":
 
 cdef extern from "PMFTXY2D.h" namespace "freud::pmft":
     cdef cppclass PMFTXY2D(PMFT):
-        PMFTXY2D(float, unsigned int, unsigned int, unsigned int) except +
+        PMFTXY2D(float, float, unsigned int, unsigned int) except +
 
         void accumulate(freud._box.Box &,
                         const freud._locality.NeighborList*,
