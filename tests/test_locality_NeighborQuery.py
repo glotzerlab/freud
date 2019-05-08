@@ -326,28 +326,25 @@ class TestNeighborQueryLinkCell(unittest.TestCase):
         npt.assert_equal(sum(nlist.index_i == 3), 4)
 
         # Check NeighborList length without self-exclusions.
-        npt.assert_equal(
-            len(lc.queryGeneric(points, rcut, exclude_ii=False).toNList()), 14)
-
+        nlist = lc._queryGeneric(points, dict(mode='ball', rmax=rcut, exclude_ii=True))
+        nlist_neighbors = sorted(list(zip(nlist.index_i, nlist.index_j)))
         # When excluding, everything has one less neighbor.
-        npt.assert_equal(
-            len(list(lc.queryGeneric(points, rcut, exclude_ii=True))), 10)
-
-        # Check NeighborList length with self-exclusions.
-        npt.assert_equal(
-            len(lc.queryGeneric(points, rcut, exclude_ii=True).toNList()), 10)
+        npt.assert_equal(len(nlist_neighbors), 10)
 
         # now move particle 0 out of range...
         points[0] = 5
 
+        lc = locality.LinkCell(fbox, rcut, points)
+        nlist = lc._queryGeneric(points, dict(mode='ball', rmax=rcut))
+        nlist_neighbors = sorted(list(zip(nlist.index_i, nlist.index_j)))
         # particle 0 has 0 bonds
-        npt.assert_equal(len(list(lc.queryGeneric(points[[0]], rcut))), 0)
+        npt.assert_equal(sum(nlist.index_i == 0), 0)
         # particle 1 has 2 bonds
-        npt.assert_equal(len(list(lc.queryGeneric(points[[1]], rcut))), 4)
+        npt.assert_equal(sum(nlist.index_i == 1), 3)
         # particle 2 has 2 bonds
-        npt.assert_equal(len(list(lc.queryGeneric(points[[2]], rcut))), 3)
+        npt.assert_equal(sum(nlist.index_i == 2), 3)
         # particle 3 has 2 bonds
-        npt.assert_equal(len(list(lc.queryGeneric(points[[3]], rcut))), 4)
+        npt.assert_equal(sum(nlist.index_i == 3), 3)
 
     def test_query_ball(self):
         L = 10  # Box Dimensions
@@ -384,17 +381,19 @@ class TestNeighborQueryLinkCell(unittest.TestCase):
         npt.assert_equal(
             len(lc.queryBall(points, rcut, exclude_ii=True).toNList()), 10)
 
-        # now move particle 0 out of range...
+        # Now move particle 0 out of range. It now only has one neighbor
+        # (itself), while the other three are all neighbors with each other.
         points[0] = 5
+        lc = locality.LinkCell(fbox, rcut, points)
 
-        # particle 0 has 0 bonds
-        npt.assert_equal(len(list(lc.queryBall(points[[0]], rcut))), 0)
+        # particle 0 has 1 bond
+        npt.assert_equal(len(list(lc.queryBall(points[[0]], rcut))), 1)
         # particle 1 has 2 bonds
-        npt.assert_equal(len(list(lc.queryBall(points[[1]], rcut))), 4)
+        npt.assert_equal(len(list(lc.queryBall(points[[1]], rcut))), 3)
         # particle 2 has 2 bonds
         npt.assert_equal(len(list(lc.queryBall(points[[2]], rcut))), 3)
         # particle 3 has 2 bonds
-        npt.assert_equal(len(list(lc.queryBall(points[[3]], rcut))), 4)
+        npt.assert_equal(len(list(lc.queryBall(points[[3]], rcut))), 3)
 
     def test_query(self):
         L = 10  # Box Dimensions
