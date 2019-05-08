@@ -24,16 +24,16 @@ AABBQuery::~AABBQuery()
     {
     }
 
-std::shared_ptr<NeighborQueryIterator> AABBQuery::query(const vec3<float> *points, unsigned int N, unsigned int k, float r, float scale) const
+std::shared_ptr<NeighborQueryIterator> AABBQuery::query(const vec3<float> *points, unsigned int N, unsigned int k, float r, float scale, bool exclude_ii) const
     {
-    return std::make_shared<AABBQueryIterator>(this, points, N, k, r, scale);
+    return std::make_shared<AABBQueryIterator>(this, points, N, k, r, scale, exclude_ii);
     }
 
 //! Given a set of points, find all elements of this data structure
 //  that are within a certain distance r.
-std::shared_ptr<NeighborQueryIterator> AABBQuery::queryBall(const vec3<float> *points, unsigned int N, float r) const
+std::shared_ptr<NeighborQueryIterator> AABBQuery::queryBall(const vec3<float> *points, unsigned int N, float r, bool exclude_ii) const
     {
-    return std::make_shared<AABBQueryBallIterator>(this, points, N, r);
+    return std::make_shared<AABBQueryBallIterator>(this, points, N, r, exclude_ii);
     }
 
 
@@ -164,7 +164,8 @@ NeighborPoint AABBQueryBallIterator::next()
 
                             // Increment before possible return.
                             cur_ref_p++;
-                            if (dr_sq < r_cutsq)
+                            // Check ii exclusion before including the pair.
+                            if (dr_sq < r_cutsq && (!m_exclude_ii || cur_p != j))
                                 {
                                 return NeighborPoint(cur_p, j, sqrt(dr_sq));
                                 }
@@ -208,14 +209,20 @@ NeighborPoint AABBQueryIterator::next()
             // Continually perform ball queries until the termination conditions are met.
             while (true)
                 {
-                // Perform a ball query to get neighbors.
+                // Perform a ball query to get neighbors. Since we are doing
+                // this on a per-point basis, we don't pass the exclude_ii
+                // parameter through because the indexes won't match. Instead,
+                // we have to filter the ii matches after the fact.
                 m_current_neighbors.clear();
                 std::shared_ptr<NeighborQueryIterator> ball_it = m_neighbor_query->queryBall(&(m_points[cur_p]), 1, m_r_cur);
                 while(!ball_it->end())
                     {
                     NeighborPoint np = ball_it->next();
-                    np.id = cur_p;
-                    m_current_neighbors.emplace_back(np);
+                    if (!m_exclude_ii || cur_p != np.ref_id)
+                        {
+                        np.id = cur_p;
+                        m_current_neighbors.emplace_back(np);
+                        }
                     }
                 // Remove the last item, which is just the terminal sentinel value.
                 m_current_neighbors.pop_back();

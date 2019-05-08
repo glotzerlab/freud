@@ -126,11 +126,11 @@ class NeighborQuery
 
         //! Given a point, find the k elements of this data structure
         //  that are the nearest neighbors for each point.
-        virtual std::shared_ptr<NeighborQueryIterator> query(const vec3<float> *points, unsigned int N, unsigned int k) const = 0;
+        virtual std::shared_ptr<NeighborQueryIterator> query(const vec3<float> *points, unsigned int N, unsigned int k, bool exclude_ii=false) const = 0;
 
         //! Given a point, find all elements of this data structure
         //  that are within a certain distance r.
-        virtual std::shared_ptr<NeighborQueryIterator> queryBall(const vec3<float> *points, unsigned int N, float r) const = 0;
+        virtual std::shared_ptr<NeighborQueryIterator> queryBall(const vec3<float> *points, unsigned int N, float r, bool exclude_ii=false) const = 0;
 
         //! Get the simulation box
         const box::Box& getBox() const
@@ -190,8 +190,8 @@ class NeighborQueryIterator {
 
         //! Constructor
         NeighborQueryIterator(const NeighborQuery* neighbor_query,
-                const vec3<float> *points, unsigned int N) :
-            m_neighbor_query(neighbor_query), m_points(points), m_N(N), cur_p(0), m_finished(false)
+                const vec3<float> *points, unsigned int N, bool exclude_ii) :
+            m_neighbor_query(neighbor_query), m_points(points), m_N(N), cur_p(0), m_finished(false), m_exclude_ii(exclude_ii)
             {
             }
 
@@ -202,6 +202,9 @@ class NeighborQueryIterator {
         virtual bool end() { return m_finished; }
 
         //! Replicate this class's query on a per-particle basis.
+        /*! Note that because this query is on a per-particle basis, there is
+         *  no reason to support ii exclusion, so we neglect that here.
+         */
         virtual std::shared_ptr<NeighborQueryIterator> query(unsigned int idx)
             {
             throw std::runtime_error("The query method must be implemented by child classes.");
@@ -226,7 +229,7 @@ class NeighborQueryIterator {
          *  the primary use-case is to have this object be managed by instances
          *  of the Cython NeighborList class.
          */
-        NeighborList *toNeighborList(bool exclude_ii)
+        NeighborList *toNeighborList()
             {
             typedef tbb::enumerable_thread_specific< std::vector< std::pair<size_t, size_t> > > BondVector;
             BondVector bonds;
@@ -242,7 +245,7 @@ class NeighborQueryIterator {
                         {
                         np = it->next();
                         // If we're excluding ii bonds, we have to check before adding.
-                        if (!exclude_ii || i != np.ref_id)
+                        if (!m_exclude_ii || i != np.ref_id)
                             {
                             // Swap ref_id and id order for backwards compatibility.
                             local_bonds.emplace_back(np.ref_id, i);
@@ -288,6 +291,7 @@ class NeighborQueryIterator {
         unsigned int cur_p;                    //!< The current index into the points (bounded by m_N).
 
         unsigned int m_finished;               //!< Flag to indicate that iteration is complete (must be set by next on termination).
+        bool m_exclude_ii;                     //!< Flag to indicate whether or not to include self bonds.
 };
 
 }; }; // end namespace freud::locality

@@ -360,16 +360,16 @@ void LinkCell::computeCellNeighbors()
 
 //! Given a set of points, find the k elements of this data structure
 //  that are the nearest neighbors for each point.
-std::shared_ptr<NeighborQueryIterator> LinkCell::query(const vec3<float> *points, unsigned int N, unsigned int k) const
+std::shared_ptr<NeighborQueryIterator> LinkCell::query(const vec3<float> *points, unsigned int N, unsigned int k, bool exclude_ii) const
     {
-    return std::make_shared<LinkCellQueryIterator>(this, points, N, k);
+    return std::make_shared<LinkCellQueryIterator>(this, points, N, k, exclude_ii);
     }
 
 //! Given a set of points, find all elements of this data structure
 //  that are within a certain distance r.
-std::shared_ptr<NeighborQueryIterator> LinkCell::queryBall(const vec3<float> *points, unsigned int N, float r) const
+std::shared_ptr<NeighborQueryIterator> LinkCell::queryBall(const vec3<float> *points, unsigned int N, float r, bool exclude_ii) const
     {
-    return std::make_shared<LinkCellQueryBallIterator>(this, points, N, r);
+    return std::make_shared<LinkCellQueryBallIterator>(this, points, N, r, exclude_ii);
     }
 
 NeighborPoint LinkCellQueryBallIterator::next()
@@ -391,7 +391,7 @@ NeighborPoint LinkCellQueryBallIterator::next()
                 const vec3<float> rij(m_neighbor_query->getBox().wrap((*m_linkcell)[j] - m_points[cur_p]));
                 const float rsq(dot(rij, rij));
 
-                if (rsq < r_cutsq)
+                if (rsq < r_cutsq && (!m_exclude_ii || cur_p != j))
                     {
                     return NeighborPoint(cur_p, j, sqrt(rsq));
                     }
@@ -456,6 +456,11 @@ NeighborPoint LinkCellQueryIterator::next()
                     {
                     for (unsigned int j = m_cell_iter.next(); !m_cell_iter.atEnd(); j = m_cell_iter.next())
                         {
+                        // Skip ii matches immediately if requested.
+                        if (m_exclude_ii && cur_p == j)
+                            {
+                            continue;
+                            }
                         const vec3<float> rij(m_neighbor_query->getBox().wrap((*m_linkcell)[j] - m_points[cur_p]));
                         const float rsq(dot(rij, rij));
                         m_current_neighbors.emplace_back(cur_p, j, sqrt(rsq));

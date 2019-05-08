@@ -130,8 +130,6 @@ cdef class NeighborQueryResult:
             npoint = dereference(iterator).next()
             if npoint == ITERATOR_TERMINATOR:
                 break
-            elif self.exclude_ii and npoint.ref_id == npoint.id:
-                continue
             yield (npoint.id, npoint.ref_id, npoint.distance)
 
         raise StopIteration
@@ -146,12 +144,14 @@ cdef class NeighborQueryResult:
             iterator = self.nqptr.query(
                 <vec3[float]*> &l_points[0, 0],
                 self.points.shape[0],
-                self.k)
+                self.k,
+                self.exclude_ii)
         else:
             iterator = self.nqptr.queryBall(
                 <vec3[float]*> &l_points[0, 0],
                 self.points.shape[0],
-                self.r)
+                self.r,
+                self.exclude_ii)
         return iterator
 
     def toNList(self):
@@ -166,7 +166,7 @@ cdef class NeighborQueryResult:
         iterator = self._getIterator()
 
         cdef freud._locality.NeighborList *cnlist = dereference(
-            iterator).toNeighborList(self.exclude_ii)
+            iterator).toNeighborList()
         cdef NeighborList nl = NeighborList()
         nl.refer_to(cnlist)
         # Explicitly manage a manually created nlist so that it will be
@@ -195,7 +195,8 @@ cdef class AABBQueryResult(NeighborQueryResult):
             self.points.shape[0],
             self.k,
             self.r,
-            self.scale)
+            self.scale,
+            self.exclude_ii)
         return iterator
 
 
@@ -266,7 +267,7 @@ cdef class NeighborQuery:
             dereference(args.thisptr))
 
         cdef freud._locality.NeighborList *cnlist = dereference(
-            iterator).toNeighborList(False)
+            iterator).toNeighborList()
         cdef NeighborList nl = NeighborList()
         nl.refer_to(cnlist)
         # Explicitly manage a manually created nlist so that it will be
@@ -304,10 +305,6 @@ cdef class NeighborQuery:
             array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
-
-        # Ensure that enough neighbors are found when excluding
-        if exclude_ii:
-            k += 1
 
         return NeighborQueryResult.init(
             self.nqptr, points, exclude_ii, r=0, k=k)
@@ -838,10 +835,6 @@ cdef class AABBQuery(NeighborQuery):
             array_name="points")
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
-
-        # Ensure that enough neighbors are found when excluding
-        if exclude_ii:
-            k += 1
 
         # Default guess value
         if r == 0:

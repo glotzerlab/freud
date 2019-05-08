@@ -45,15 +45,15 @@ class AABBQuery : public NeighborQuery
         //  different signature, this is not directly overriding the original
         //  method in NeighborQuery, so we have to explicitly invalidate calling
         //  with that signature.
-        virtual std::shared_ptr<NeighborQueryIterator> query(const vec3<float> *points, unsigned int N, unsigned int k) const
+        virtual std::shared_ptr<NeighborQueryIterator> query(const vec3<float> *points, unsigned int N, unsigned int k, bool exclude_ii=false) const
             {
             throw std::runtime_error("AABBQuery k-nearest-neighbor queries must use the function signature that provides rmax and scale guesses.");
             }
-        std::shared_ptr<NeighborQueryIterator> query(const vec3<float> *points, unsigned int N, unsigned int k, float r, float scale) const;
+        std::shared_ptr<NeighborQueryIterator> query(const vec3<float> *points, unsigned int N, unsigned int k, float r, float scale, bool exclude_ii=false) const;
 
         //! Given a set of points, find all elements of this data structure
         //  that are within a certain distance r.
-        virtual std::shared_ptr<NeighborQueryIterator> queryBall(const vec3<float> *points, unsigned int N, float r) const;
+        virtual std::shared_ptr<NeighborQueryIterator> queryBall(const vec3<float> *points, unsigned int N, float r, bool exclude_ii=false) const;
 
         AABBTree m_aabb_tree; //!< AABB tree of points
 
@@ -76,8 +76,8 @@ class AABBIterator : public NeighborQueryIterator
     {
     public:
         //! Constructor
-        AABBIterator(const AABBQuery* neighbor_query, const vec3<float> *points, unsigned int N) :
-            NeighborQueryIterator(neighbor_query, points, N), m_aabb_query(neighbor_query)
+        AABBIterator(const AABBQuery* neighbor_query, const vec3<float> *points, unsigned int N, bool exclude_ii) :
+            NeighborQueryIterator(neighbor_query, points, N, exclude_ii), m_aabb_query(neighbor_query)
             {}
 
         //! Empty Destructor
@@ -98,8 +98,8 @@ class AABBQueryIterator : public AABBIterator
     public:
         //! Constructor
         AABBQueryIterator(const AABBQuery* neighbor_query,
-                const vec3<float> *points, unsigned int N, unsigned int k, float r, float scale) :
-            AABBIterator(neighbor_query, points, N), m_k(k), m_r(r), m_r_cur(r), m_scale(scale), m_current_neighbors()
+                const vec3<float> *points, unsigned int N, unsigned int k, float r, float scale, bool exclude_ii) :
+            AABBIterator(neighbor_query, points, N, exclude_ii), m_k(k), m_r(r), m_r_cur(r), m_scale(scale), m_current_neighbors()
             {
             updateImageVectors(0);
             }
@@ -126,8 +126,8 @@ class AABBQueryBallIterator : public AABBIterator
     {
     public:
         //! Constructor
-        AABBQueryBallIterator(const AABBQuery* neighbor_query, const vec3<float> *points, unsigned int N, float r) :
-            AABBIterator(neighbor_query, points, N), m_r(r), cur_image(0), cur_node_idx(0), cur_ref_p(0)
+        AABBQueryBallIterator(const AABBQuery* neighbor_query, const vec3<float> *points, unsigned int N, float r, bool exclude_ii) :
+            AABBIterator(neighbor_query, points, N, exclude_ii), m_r(r), cur_image(0), cur_node_idx(0), cur_ref_p(0)
             {
             updateImageVectors(m_r);
             }
