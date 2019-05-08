@@ -50,13 +50,19 @@ struct NeighborPoint {
 };
 
 
-//! POD class to hold information about generic queries.
+//! (Almost) POD class to hold information about generic queries.
 /*! This class provides a standard method for specifying the type of query to
  *  perform with a NeighborQuery object. Rather than calling queryBall
  *  specifically, for example, the user can call a generic querying function and
  *  provide an instance of this class to specify the nature of the query.
  */
 struct QueryArgs {
+    //! Define constructor
+    /*! We must violate the strict POD nature of the class to support default
+     *  values for parameters.
+     */
+    QueryArgs() : exclude_ii(false) {}
+
     enum QueryType {
         ball,         //! Query based on distance cutoff.
         nearest       //! Query based on number of requested neighbors.
@@ -65,6 +71,7 @@ struct QueryArgs {
     QueryType mode;     //! The number of nearest neighbors to find.
     unsigned int nn;    //! The number of nearest neighbors to find.
     float rmax;         //! The cutoff distance within which to find neighbors
+    bool exclude_ii;
 };
 
 
@@ -112,11 +119,11 @@ class NeighborQuery
             {
             if (args.mode == QueryArgs::ball)
                 {
-                return queryBall(points, N, args.rmax);
+                return queryBall(points, N, args.rmax, args.exclude_ii);
                 }
             else if (args.mode == QueryArgs::ball)
                 {
-                return query(points, N, args.nn);
+                return query(points, N, args.nn, args.exclude_ii);
                 }
             else
                 {

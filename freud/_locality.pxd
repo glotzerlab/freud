@@ -25,6 +25,7 @@ cdef extern from "NeighborQuery.h" namespace "freud::locality":
         QueryType mode
         unsigned int nn
         float rmax
+        bool exclude_ii
 
     cdef cppclass NeighborQuery:
         NeighborQuery()

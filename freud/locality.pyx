@@ -30,7 +30,7 @@ cdef class _QueryArgs(object):
     ### removed in future releases.
     cdef freud._locality.QueryArgs * thisptr
 
-    def __cinit__(self, mode=None, rmax=None, nn=None):
+    def __cinit__(self, mode=None, rmax=None, nn=None, exclude_ii=None):
         self.thisptr = new freud._locality.QueryArgs()
         if mode is not None:
             self.mode = mode
@@ -38,6 +38,8 @@ cdef class _QueryArgs(object):
             self.rmax = rmax
         if nn is not None:
             self.nn = nn
+        if exclude_ii is not None:
+            self.exclude_ii = exclude_ii
 
     @property
     def mode(self):
@@ -67,6 +69,14 @@ cdef class _QueryArgs(object):
     @nn.setter
     def nn(self, value):
         self.thisptr.nn = value
+
+    @property
+    def exclude_ii(self):
+        return self.thisptr.exclude_ii
+
+    @exclude_ii.setter
+    def exclude_ii(self, value):
+        self.thisptr.exclude_ii = value
 
 cdef _QueryArgs parse_query_args(dict query_args):
     """Convert a dictionary into a query args object.

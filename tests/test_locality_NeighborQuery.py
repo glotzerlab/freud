@@ -338,7 +338,7 @@ class TestNeighborQueryLinkCell(unittest.TestCase):
         nlist = lc._queryGeneric(points, dict(mode='ball', rmax=rcut))
         nlist_neighbors = sorted(list(zip(nlist.index_i, nlist.index_j)))
         # particle 0 has 0 bonds
-        npt.assert_equal(sum(nlist.index_i == 0), 0)
+        npt.assert_equal(sum(nlist.index_i == 0), 1)
         # particle 1 has 2 bonds
         npt.assert_equal(sum(nlist.index_i == 1), 3)
         # particle 2 has 2 bonds
