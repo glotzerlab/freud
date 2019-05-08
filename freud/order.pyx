@@ -82,9 +82,6 @@ cdef class CubaticOrderParameter:
             orientation.
     """  # noqa: E501
     cdef freud._order.CubaticOrderParameter * thisptr
-    cdef t_initial
-    cdef t_final
-    cdef scale
     cdef n_replicates
     cdef seed
 
@@ -117,9 +114,6 @@ cdef class CubaticOrderParameter:
         self.thisptr = new freud._order.CubaticOrderParameter(
             t_initial, t_final, scale, <float*> &r4[0, 0, 0, 0], n_replicates,
             seed)
-        self.t_initial = t_initial
-        self.t_final = t_final
-        self.scale = scale
         self.n_replicates = n_replicates
         self.seed = seed
 
