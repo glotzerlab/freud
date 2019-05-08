@@ -37,16 +37,34 @@ struct NeighborPoint {
 
     //! Default comparator of points is by distance.
     /*! This form of comparison allows easy sorting of nearest neighbors by
-     *  distance
+     *  distance.
      */
     bool operator< (const NeighborPoint &n) const
         {
         return distance < n.distance;
         }
 
-    unsigned int id;
-    unsigned int ref_id;
-    float distance;
+    unsigned int id;            //! The point id.
+    unsigned int ref_id;        //! The reference point id.
+    float distance;             //! The distance between the point and the reference point.
+};
+
+
+//! POD class to hold information about generic queries.
+/*! This class provides a standard method for specifying the type of query to
+ *  perform with a NeighborQuery object. Rather than calling queryBall
+ *  specifically, for example, the user can call a generic querying function and
+ *  provide an instance of this class to specify the nature of the query.
+ */
+struct QueryArgs {
+    enum QueryType {
+        ball,         //! Query based on distance cutoff.
+        nearest       //! Query based on number of requested neighbors.
+    };
+
+    QueryType mode;     //! The number of nearest neighbors to find.
+    unsigned int nn;    //! The number of nearest neighbors to find.
+    float rmax;         //! The cutoff distance within which to find neighbors
 };
 
 
@@ -80,6 +98,27 @@ class NeighborQuery
 
         //! Empty Destructor
         virtual ~NeighborQuery() {}
+
+        //! Perform a query based on a set of query parameters.
+        /*! Given a QueryArgs object and a set of points to perform a query
+         *  with, this function will dispatch the query to the appropriate
+         *  querying function.
+         */
+        virtual std::shared_ptr<NeighborQueryIterator> query(const vec3<float> *points, unsigned int N, QueryArgs args)
+            {
+            if (args.mode == QueryArgs::ball)
+                {
+                return queryBall(points, N, args.rmax);
+                }
+            else if (args.mode == QueryArgs::ball)
+                {
+                return query(points, N, args.nn);
+                }
+            else
+                {
+                assert("Invalid query mode provided to generic query function.");
+                }
+            }
 
         //! Given a point, find the k elements of this data structure
         //  that are the nearest neighbors for each point.
