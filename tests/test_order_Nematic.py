@@ -86,8 +86,8 @@ class TestNematicOrder(unittest.TestCase):
 
         npt.assert_allclose(op.nematic_order_parameter, 0.25, atol=1e-6)
         npt.assert_equal(op.director, np.array([0, 1, 0]))
-        npt.assert_almost_equal(
-            op.nematic_tensor, np.diag([0.25, 0.25, -0.5]))
+        npt.assert_allclose(op.nematic_tensor, np.diag([0.25, 0.25, -0.5]),
+                            rtol=1e-6, atol=1e-6)
 
 
 if __name__ == '__main__':

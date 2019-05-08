@@ -21,7 +21,7 @@ class TestR(unittest.TestCase):
 
         ocf = density.ComplexCF(rmax, dr)
 
-        npt.assert_almost_equal(ocf.R, r_list, decimal=3)
+        npt.assert_allclose(ocf.R, r_list, atol=1e-3)
 
 
 class TestOCF(unittest.TestCase):

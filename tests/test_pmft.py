@@ -31,7 +31,7 @@ class TestPMFTR12(unittest.TestCase):
         nbinsT1 = 20
         nbinsT2 = 30
         myPMFT = freud.pmft.PMFTR12(maxR, nbinsR, nbinsT1, nbinsT2)
-        npt.assert_almost_equal(myPMFT.r_cut, maxR, decimal=6)
+        npt.assert_allclose(myPMFT.r_cut, maxR, atol=1e-6)
 
     def test_bins(self):
         maxR = 5.23
@@ -66,9 +66,9 @@ class TestPMFTR12(unittest.TestCase):
         myPMFT = freud.pmft.PMFTR12(maxR, nbinsR, nbinsT1, nbinsT2)
 
         # Compare expected bins to the info from pmft
-        npt.assert_almost_equal(myPMFT.R, listR, decimal=3)
-        npt.assert_almost_equal(myPMFT.T1, listT1, decimal=3)
-        npt.assert_almost_equal(myPMFT.T2, listT2, decimal=3)
+        npt.assert_allclose(myPMFT.R, listR, atol=1e-3)
+        npt.assert_allclose(myPMFT.T1, listT1, atol=1e-3)
+        npt.assert_allclose(myPMFT.T2, listT2, atol=1e-3)
 
         npt.assert_equal(nbinsR, myPMFT.n_bins_R)
         npt.assert_equal(nbinsT1, myPMFT.n_bins_T1)
@@ -77,8 +77,8 @@ class TestPMFTR12(unittest.TestCase):
         inverse_jacobian = np.array(
             [[[1/(R*dr*dT1*dT2)
                for T1 in listT1] for T2 in listT2] for R in listR])
-        npt.assert_almost_equal(myPMFT.inverse_jacobian, inverse_jacobian,
-                                decimal=5)
+        npt.assert_allclose(myPMFT.inverse_jacobian, inverse_jacobian,
+                            atol=1e-5)
 
         npt.assert_equal(myPMFT.bin_counts.shape, (nbinsR, nbinsT2, nbinsT1))
         npt.assert_equal(myPMFT.PCF.shape, (nbinsR, nbinsT2, nbinsT1))
@@ -195,15 +195,15 @@ class TestPMFTXYT(unittest.TestCase):
         myPMFT = freud.pmft.PMFTXYT(maxX, maxY, nbinsX, nbinsY, nbinsT)
 
         # Compare expected bins to the info from pmft
-        npt.assert_almost_equal(myPMFT.X, listX, decimal=3)
-        npt.assert_almost_equal(myPMFT.Y, listY, decimal=3)
-        npt.assert_almost_equal(myPMFT.T, listT, decimal=3)
+        npt.assert_allclose(myPMFT.X, listX, atol=1e-3)
+        npt.assert_allclose(myPMFT.Y, listY, atol=1e-3)
+        npt.assert_allclose(myPMFT.T, listT, atol=1e-3)
 
         npt.assert_equal(nbinsX, myPMFT.n_bins_X)
         npt.assert_equal(nbinsY, myPMFT.n_bins_Y)
         npt.assert_equal(nbinsT, myPMFT.n_bins_T)
 
-        npt.assert_almost_equal(myPMFT.jacobian, dx*dy*dT)
+        npt.assert_allclose(myPMFT.jacobian, dx*dy*dT)
 
         npt.assert_equal(myPMFT.bin_counts.shape, (nbinsT, nbinsY, nbinsX))
         npt.assert_equal(myPMFT.PCF.shape, (nbinsT, nbinsY, nbinsX))
@@ -314,13 +314,13 @@ class TestPMFTXY2D(unittest.TestCase):
         myPMFT = freud.pmft.PMFTXY2D(maxX, maxY, nbinsX, nbinsY)
 
         # Compare expected bins to the info from pmft
-        npt.assert_almost_equal(myPMFT.X, listX, decimal=3)
-        npt.assert_almost_equal(myPMFT.Y, listY, decimal=3)
+        npt.assert_allclose(myPMFT.X, listX, atol=1e-3)
+        npt.assert_allclose(myPMFT.Y, listY, atol=1e-3)
 
         npt.assert_equal(nbinsX, myPMFT.n_bins_X)
         npt.assert_equal(nbinsY, myPMFT.n_bins_Y)
 
-        npt.assert_almost_equal(myPMFT.jacobian, dx*dy)
+        npt.assert_allclose(myPMFT.jacobian, dx*dy)
 
         npt.assert_equal(myPMFT.bin_counts.shape, (nbinsY, nbinsX))
         npt.assert_equal(myPMFT.PCF.shape, (nbinsY, nbinsX))
@@ -399,7 +399,7 @@ class TestPMFTXYZ(unittest.TestCase):
         nbinsZ = 120
         myPMFT = freud.pmft.PMFTXYZ(maxX, maxY, maxZ, nbinsX, nbinsY, nbinsZ)
         r_cut = np.linalg.norm([maxX, maxY, maxZ])
-        npt.assert_almost_equal(myPMFT.r_cut, r_cut, decimal=6)
+        npt.assert_allclose(myPMFT.r_cut, r_cut, atol=1e-6)
 
     def test_bins(self):
         maxX = 5.23
@@ -434,15 +434,15 @@ class TestPMFTXYZ(unittest.TestCase):
         myPMFT = freud.pmft.PMFTXYZ(maxX, maxY, maxZ, nbinsX, nbinsY, nbinsZ)
 
         # Compare expected bins to the info from pmft
-        npt.assert_almost_equal(myPMFT.X, listX, decimal=3)
-        npt.assert_almost_equal(myPMFT.Y, listY, decimal=3)
-        npt.assert_almost_equal(myPMFT.Z, listZ, decimal=3)
+        npt.assert_allclose(myPMFT.X, listX, atol=1e-3)
+        npt.assert_allclose(myPMFT.Y, listY, atol=1e-3)
+        npt.assert_allclose(myPMFT.Z, listZ, atol=1e-3)
 
         npt.assert_equal(nbinsX, myPMFT.n_bins_X)
         npt.assert_equal(nbinsY, myPMFT.n_bins_Y)
         npt.assert_equal(nbinsZ, myPMFT.n_bins_Z)
 
-        npt.assert_almost_equal(myPMFT.jacobian, dx*dy*dz)
+        npt.assert_allclose(myPMFT.jacobian, dx*dy*dz)
 
         npt.assert_equal(myPMFT.bin_counts.shape, (nbinsZ, nbinsY, nbinsX))
         npt.assert_equal(myPMFT.PCF.shape, (nbinsZ, nbinsY, nbinsX))
