@@ -160,7 +160,8 @@ class TestPMFTXYT(unittest.TestCase):
         nbinsY = 30
         nbinsT = 40
         myPMFT = freud.pmft.PMFTXYT(maxX, maxY, nbinsX, nbinsY, nbinsT)
-        npt.assert_equal(myPMFT.r_cut, np.linalg.norm([maxX, maxY]), atol=1e-6)
+        npt.assert_allclose(myPMFT.r_cut,
+                            np.linalg.norm([maxX, maxY]), atol=1e-6)
 
     def test_bins(self):
         maxX = 3.6
@@ -287,7 +288,8 @@ class TestPMFTXY2D(unittest.TestCase):
         nbinsX = 100
         nbinsY = 110
         myPMFT = freud.pmft.PMFTXY2D(maxX, maxY, nbinsX, nbinsY)
-        npt.assert_equal(myPMFT.r_cut, np.linalg.norm([maxX, maxY]), atol=1e-6)
+        npt.assert_allclose(myPMFT.r_cut,
+                            np.linalg.norm([maxX, maxY]), atol=1e-6)
 
     def test_bins(self):
         maxX = 3.6
