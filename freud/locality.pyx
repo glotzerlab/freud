@@ -83,36 +83,14 @@ cdef class _QueryArgs:
     def exclude_ii(self, value):
         self.thisptr.exclude_ii = value
 
-cdef class _AABBQueryArgs(_QueryArgs):
-    ### This class is temporarily included for testing and may be
-    ### removed in future releases.
-    cdef freud._locality.AABBQueryArgs * aabbargsptr
-
-    def __cinit__(self, mode=None, rmax=None, nn=None, exclude_ii=None, scale=None, *args, **kwargs):
-        if type(self) == _AABBQueryArgs:
-            self.thisptr = self.aabbargsptr = new freud._locality.AABBQueryArgs()
-            if mode is not None:
-                self.mode = mode
-            if rmax is not None:
-                self.rmax = rmax
-            if scale is not None:
-                self.scale = scale
-            if nn is not None:
-                self.nn = nn
-            if exclude_ii is not None:
-                self.exclude_ii = exclude_ii
-
-    def __dealloc__(self):
-        if type(self) == _AABBQueryArgs:
-            del self.aabbargsptr
-
     @property
     def scale(self):
-        return self.aabbargsptr.scale
+        return self.thisptr.scale
 
     @scale.setter
     def scale(self, value):
-        self.aabbargsptr.scale = value
+        self.thisptr.scale = value
+
 
 cdef _QueryArgs parse_query_args(dict query_args):
     """Convert a dictionary into a query args object.
@@ -132,38 +110,6 @@ cdef _QueryArgs parse_query_args(dict query_args):
         _QueryArgs: An object encapsulating query arguments.
     """
     cdef _QueryArgs qa = _QueryArgs()
-    cdef dict invalid_args = {}
-    for key, val in query_args.items():
-        if hasattr(qa, key):
-            setattr(qa, key, val)
-        else:
-            invalid_args[key] = val
-    if invalid_args:
-        raise ValueError(
-            "The following invalid query arguments were provided: "
-            ", ".format("{} = {}".format(key, val)))
-    else:
-        return qa
-
-cdef _AABBQueryArgs parse_query_args_aabb(dict query_args):
-    """Convert a dictionary into a query args object for AABB queries.
-
-    The following keys are supported:
-
-        * mode: The query mode, either 'ball' or 'nearest'.
-        * rmax: The cutoff distance for a ball query.
-        * nn: The number of nearest neighbors to find.
-        * exclude_ii: Whether or not to include self-neighbors.
-        * scale: The degree to rescale ball queries during kN nearest neighbor searches.
-
-    Args:
-        query_args (dict):
-            A dictionary of query arguments.
-
-    Returns
-        _QueryArgs: An object encapsulating query arguments.
-    """
-    cdef _AABBQueryArgs qa = _AABBQueryArgs()
     cdef dict invalid_args = {}
     for key, val in query_args.items():
         if hasattr(qa, key):
@@ -903,11 +849,15 @@ cdef class AABBQuery(NeighborQuery):
 
         cdef shared_ptr[freud._locality.NeighborQueryIterator] iterator
         cdef const float[:, ::1] l_points = points
-        cdef _AABBQueryArgs args = parse_query_args_aabb(query_args)
+        cdef _QueryArgs args = parse_query_args(query_args)
 
         # Default guess value
         if 'rmax' not in query_args:
-            args.rmax = 0.1*min(self._box.L)
+            if query_args['mode'] == 'ball':
+                args.rmax = 0.1*min(self._box.L)
+            else:
+                args.rmax = 0.1*min(self._box.L)
+        # print("the args: ", query_args)
 
         iterator = self.nqptr.query_with_args(
             <vec3[float]*> &l_points[0, 0],

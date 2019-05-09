@@ -25,6 +25,7 @@ cdef extern from "NeighborQuery.h" namespace "freud::locality":
         QueryType mode
         unsigned int nn
         float rmax
+        float scale
         bool exclude_ii
 
     cdef cppclass NeighborQuery:
@@ -143,9 +144,6 @@ cdef extern from "NearestNeighbors.h" namespace "freud::locality":
         NeighborList * getNeighborList()
 
 cdef extern from "AABBQuery.h" namespace "freud::locality":
-    cdef cppclass AABBQueryArgs(QueryArgs):
-        float scale
-
     cdef cppclass AABBQuery(NeighborQuery):
         AABBQuery()
         AABBQuery(const freud._box.Box, const vec3[float]*, unsigned int)
@@ -160,5 +158,3 @@ cdef extern from "AABBQuery.h" namespace "freud::locality":
         shared_ptr[NeighborQueryIterator] query(
             const vec3[float]*, unsigned int, unsigned int,
             float, float, bool) nogil except +
-        shared_ptr[NeighborQueryIterator] query_with_args(
-            const vec3[float]*, unsigned int, AABBQueryArgs) nogil except +

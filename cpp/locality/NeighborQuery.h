@@ -71,7 +71,8 @@ struct QueryArgs {
     QueryType mode;     //! The number of nearest neighbors to find.
     unsigned int nn;    //! The number of nearest neighbors to find.
     float rmax;         //! The cutoff distance within which to find neighbors
-    bool exclude_ii;
+    float scale;        //! The scale factor to use when performing repeated ball queries to find a specified number of nearest neighbors.
+    bool exclude_ii;    //! If true, exclude self-neighbors.
 };
 
 
@@ -251,9 +252,11 @@ class NeighborQueryIterator {
                     while (!it->end())
                         {
                         np = it->next();
+                        std::cout << "Pair: (" << np.ref_id << ", " << i << ")" << std::endl;
                         // If we're excluding ii bonds, we have to check before adding.
                         if (!m_exclude_ii || i != np.ref_id)
                             {
+                            std::cout << "actually adding" << std::endl;
                             // Swap ref_id and id order for backwards compatibility.
                             local_bonds.emplace_back(np.ref_id, i);
                             }

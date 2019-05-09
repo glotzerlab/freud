@@ -28,16 +28,6 @@
 
 namespace freud { namespace locality {
 
-//! Override parent QueryArgs class to support additional query arguments.
-/*! The additional complexity of nearest neighbor queries with AABBs adds more
- *  parameters to the signature that need to be addressed here.
- */
-struct AABBQueryArgs : QueryArgs {
-    //! Define constructor
-    AABBQueryArgs() : QueryArgs() {}
-
-    float scale;         //! The scale factor to use when performing repeated ball queries to find a specified number of nearest neighbors.
-};
 
 class AABBQuery : public NeighborQuery
     {
@@ -54,19 +44,20 @@ class AABBQuery : public NeighborQuery
         //! Perform a query based on a set of query parameters.
         /*! Given a QueryArgs object and a set of points to perform a query
          *  with, this function will dispatch the query to the appropriate
-         *  querying function.
+         *  querying function. We override the parent function to support
+         *  calling the `query` method with the correct signature.
          *
          *  This function should just be called query, but Cython's function
          *  overloading abilities seem buggy at best, so it's easiest to just
          *  rename the function.
          */
-        virtual std::shared_ptr<NeighborQueryIterator> query_with_args(const vec3<float> *points, unsigned int N, AABBQueryArgs args)
+        virtual std::shared_ptr<NeighborQueryIterator> query_with_args(const vec3<float> *points, unsigned int N, QueryArgs args)
             {
             if (args.mode == QueryArgs::ball)
                 {
                 return queryBall(points, N, args.rmax, args.exclude_ii);
                 }
-            else if (args.mode == QueryArgs::ball)
+            else if (args.mode == QueryArgs::nearest)
                 {
                 return query(points, N, args.nn, args.rmax, args.scale, args.exclude_ii);
                 }
