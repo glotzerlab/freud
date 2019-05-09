@@ -7,6 +7,17 @@ import sys
 import unittest
 import warnings
 
+"""
+Define helper functions for getting the neighbors of a point. Note that
+querying doesn't guarantee k results per ref point, but rather per point. As a
+result, we need to be careful with the usage of these functions, and swap their
+usage when we hit freud 2.0 (where we will reverse the ordering).
+"""
+def get_ref_point_neighbors(nl, i):
+    return {x[1] for x in nl if x[0] == i}
+
+def get_point_neighbors(nl, i):
+    return {x[0] for x in nl if x[1] == i}
 
 class TestNeighborQueryAABB(unittest.TestCase):
     def test_query_ball(self):
@@ -72,17 +83,17 @@ class TestNeighborQueryAABB(unittest.TestCase):
         aq = locality.AABBQuery(fbox, points)
 
         result = list(aq.query(points, 3))
-        npt.assert_equal({x[1] for x in result if x[0] == 0}, {0, 1, 3})
-        npt.assert_equal({x[1] for x in result if x[0] == 1}, {0, 1, 3})
-        npt.assert_equal({x[1] for x in result if x[0] == 2}, {1, 2, 3})
-        npt.assert_equal({x[1] for x in result if x[0] == 3}, {1, 2, 3})
+        npt.assert_equal(get_point_neighbors(result, 0), {0, 1, 3})
+        npt.assert_equal(get_point_neighbors(result, 1), {0, 1, 3})
+        npt.assert_equal(get_point_neighbors(result, 2), {1, 2, 3})
+        npt.assert_equal(get_point_neighbors(result, 3), {1, 2, 3})
 
-        # All points are neighbors in this case
+        # All other points are neighbors when self-neighbors are excluded.
         result = list(aq.query(points, 3, exclude_ii=True))
-        npt.assert_equal({x[1] for x in result if x[0] == 0}, {1, 2, 3})
-        npt.assert_equal({x[1] for x in result if x[0] == 1}, {0, 2, 3})
-        npt.assert_equal({x[1] for x in result if x[0] == 2}, {0, 1, 3})
-        npt.assert_equal({x[1] for x in result if x[0] == 3}, {0, 1, 2})
+        npt.assert_equal(get_point_neighbors(result, 0), {1, 2, 3})
+        npt.assert_equal(get_point_neighbors(result, 1), {0, 2, 3})
+        npt.assert_equal(get_point_neighbors(result, 2), {0, 1, 3})
+        npt.assert_equal(get_point_neighbors(result, 3), {0, 1, 2})
 
         # Test overflow case
         npt.assert_equal(list(aq.query(points, 5, exclude_ii=True)), result)
@@ -103,7 +114,7 @@ class TestNeighborQueryAABB(unittest.TestCase):
         result_list = list(aq.queryBall(points, 2))
         result_list = [(b[0], b[1]) for b in result_list]
         nlist = aq.queryBall(points, 2).toNList()
-        list_nlist = list(zip(nlist.index_j, nlist.index_i))
+        list_nlist = list(zip(nlist.index_i, nlist.index_j))
 
         npt.assert_equal(set(result_list), set(list_nlist))
 
@@ -123,7 +134,7 @@ class TestNeighborQueryAABB(unittest.TestCase):
         result_list = list(aq.query(points, 2))
         result_list = [(b[0], b[1]) for b in result_list]
         nlist = aq.query(points, 2).toNList()
-        list_nlist = list(zip(nlist.index_j, nlist.index_i))
+        list_nlist = list(zip(nlist.index_i, nlist.index_j))
 
         npt.assert_equal(set(result_list), set(list_nlist))
 
@@ -249,8 +260,8 @@ class TestNeighborQueryAABB(unittest.TestCase):
 
             aq = locality.AABBQuery(fbox, points)
             result = list(aq.queryBall(points2, rcut))
-            ijs = {(x[1], x[0]) for x in result}
-            counts = Counter([x[1] for x in result])
+            ijs = {(x[0], x[1]) for x in result}
+            counts = Counter([x[0] for x in result])
             counts_list = [counts[j] for j in range(N)]
 
             try:
@@ -409,17 +420,17 @@ class TestNeighborQueryLinkCell(unittest.TestCase):
         lc = locality.LinkCell(fbox, L/10, points)
 
         result = list(lc.query(points, 3))
-        npt.assert_equal({x[1] for x in result if x[0] == 0}, {0, 1, 3})
-        npt.assert_equal({x[1] for x in result if x[0] == 1}, {0, 1, 3})
-        npt.assert_equal({x[1] for x in result if x[0] == 2}, {1, 2, 3})
-        npt.assert_equal({x[1] for x in result if x[0] == 3}, {1, 2, 3})
+        npt.assert_equal(get_point_neighbors(result, 0), {0, 1, 3})
+        npt.assert_equal(get_point_neighbors(result, 1), {0, 1, 3})
+        npt.assert_equal(get_point_neighbors(result, 2), {1, 2, 3})
+        npt.assert_equal(get_point_neighbors(result, 3), {1, 2, 3})
 
         # All points are neighbors in this case
         result = list(lc.query(points, 3, exclude_ii=True))
-        npt.assert_equal({x[1] for x in result if x[0] == 0}, {1, 2, 3})
-        npt.assert_equal({x[1] for x in result if x[0] == 1}, {0, 2, 3})
-        npt.assert_equal({x[1] for x in result if x[0] == 2}, {0, 1, 3})
-        npt.assert_equal({x[1] for x in result if x[0] == 3}, {0, 1, 2})
+        npt.assert_equal(get_point_neighbors(result, 0), {1, 2, 3})
+        npt.assert_equal(get_point_neighbors(result, 1), {0, 2, 3})
+        npt.assert_equal(get_point_neighbors(result, 2), {0, 1, 3})
+        npt.assert_equal(get_point_neighbors(result, 3), {0, 1, 2})
 
         npt.assert_equal(list(lc.query(points, 5, exclude_ii=True)), result)
 
@@ -439,7 +450,7 @@ class TestNeighborQueryLinkCell(unittest.TestCase):
         result_list = list(lc.queryBall(points, 2))
         result_list = [(b[0], b[1]) for b in result_list]
         nlist = lc.queryBall(points, 2).toNList()
-        list_nlist = list(zip(nlist.index_j, nlist.index_i))
+        list_nlist = list(zip(nlist.index_i, nlist.index_j))
 
         npt.assert_equal(set(result_list), set(list_nlist))
 
@@ -459,7 +470,7 @@ class TestNeighborQueryLinkCell(unittest.TestCase):
         result_list = list(lc.query(points, 2))
         result_list = [(b[0], b[1]) for b in result_list]
         nlist = lc.query(points, 2).toNList()
-        list_nlist = list(zip(nlist.index_j, nlist.index_i))
+        list_nlist = list(zip(nlist.index_i, nlist.index_j))
 
         npt.assert_equal(set(result_list), set(list_nlist))
 
@@ -585,8 +596,8 @@ class TestNeighborQueryLinkCell(unittest.TestCase):
 
             lc = locality.LinkCell(fbox, rcut, points)
             result = list(lc.queryBall(points2, rcut))
-            ijs = {(x[1], x[0]) for x in result}
-            counts = Counter([x[1] for x in result])
+            ijs = {(x[0], x[1]) for x in result}
+            counts = Counter([x[0] for x in result])
             counts_list = [counts[j] for j in range(N)]
 
             try:

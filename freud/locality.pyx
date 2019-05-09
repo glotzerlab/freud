@@ -209,7 +209,7 @@ cdef class NeighborQueryResult:
             npoint = dereference(iterator).next()
             if npoint == ITERATOR_TERMINATOR:
                 break
-            yield (npoint.id, npoint.ref_id, npoint.distance)
+            yield (npoint.ref_id, npoint.id, npoint.distance)
 
         raise StopIteration
 
