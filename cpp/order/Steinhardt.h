@@ -167,6 +167,9 @@ class Steinhardt
         virtual void computeYlm(const float theta, const float phi,
                                 std::vector<std::complex<float> > &Ylm);
 
+		//! Reallocates only the necesary arrays when the number of particles changes
+		// unsigned int Np number of particles
+		void reallocate_arrays(unsigned int Np)
 	// Member variables used for compute
         unsigned int m_Np;     //!< Last number of points computed
         box::Box m_box;        //!< Simulation box where the particles belong
@@ -191,7 +194,7 @@ class Steinhardt
         std::shared_ptr<float> m_QliNorm;     //!< QlNorm order parameter for each particle i
         std::shared_ptr<float> m_QliAveNorm;  //!< QlAveNorm order paramter for each particle i
         std::shared_ptr<float> m_Wl;  //!< Wl is the modified Steinhardt parameter that is normalized or averaged as flagged
-	std::unique_ptr<std::shared_ptr> m_orderParameter; //!< OrderParameter points to the correct shared_ptr to return
+		std::unique_ptr<std::shared_ptr> m_orderParameter; //!< orderParameter points to the flagged Steinhardt order parameter
 
     };
 
