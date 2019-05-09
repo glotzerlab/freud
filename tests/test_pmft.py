@@ -141,8 +141,8 @@ class TestPMFTXYT(unittest.TestCase):
         points = np.array([[-1.0, 0.0, 0.0], [1.0, 0.0, 0.0]],
                           dtype=np.float32)
         angles = np.array([0.0, 0.0], dtype=np.float32)
-        maxX = 3.0
-        maxY = 4.0
+        maxX = 3.6
+        maxY = 4.2
         nbinsX = 20
         nbinsY = 30
         nbinsT = 40
@@ -156,17 +156,18 @@ class TestPMFTXYT(unittest.TestCase):
             myPMFT.accumulate(box, points, angles, points, angles)
 
     def test_r_cut(self):
-        maxX = 3.0
-        maxY = 4.0
+        maxX = 3.6
+        maxY = 4.2
         nbinsX = 20
         nbinsY = 30
         nbinsT = 40
         myPMFT = freud.pmft.PMFTXYT(maxX, maxY, nbinsX, nbinsY, nbinsT)
-        npt.assert_equal(myPMFT.r_cut, 5.0)
+        npt.assert_allclose(myPMFT.r_cut,
+                            np.linalg.norm([maxX, maxY]), atol=1e-6)
 
     def test_bins(self):
-        maxX = 3.0
-        maxY = 4.0
+        maxX = 3.6
+        maxY = 4.2
         nbinsX = 20
         nbinsY = 30
         nbinsT = 40
@@ -217,8 +218,8 @@ class TestPMFTXYT(unittest.TestCase):
         points = np.array([[-1.0, 0.0, 0.0], [1.0, 0.1, 0.0]],
                           dtype=np.float32)
         angles = np.array([0.0, np.pi/2], dtype=np.float32)
-        maxX = 3.0
-        maxY = 4.0
+        maxX = 3.6
+        maxY = 4.2
         nbinsX = 20
         nbinsY = 30
         nbinsT = 40
@@ -270,8 +271,8 @@ class TestPMFTXY2D(unittest.TestCase):
         points = np.array([[-1.0, 0.0, 0.0], [1.0, 0.0, 0.0]],
                           dtype=np.float32)
         angles = np.array([0.0, 0.0], dtype=np.float32)
-        maxX = 3.0
-        maxY = 4.0
+        maxX = 3.6
+        maxY = 4.2
         nbinsX = 100
         nbinsY = 110
         myPMFT = freud.pmft.PMFTXY2D(maxX, maxY, nbinsX, nbinsY)
@@ -284,16 +285,17 @@ class TestPMFTXY2D(unittest.TestCase):
             myPMFT.accumulate(box, points, angles, points, angles)
 
     def test_r_cut(self):
-        maxX = 3.0
-        maxY = 4.0
+        maxX = 3.6
+        maxY = 4.2
         nbinsX = 100
         nbinsY = 110
         myPMFT = freud.pmft.PMFTXY2D(maxX, maxY, nbinsX, nbinsY)
-        npt.assert_equal(myPMFT.r_cut, 5.0)
+        npt.assert_allclose(myPMFT.r_cut,
+                            np.linalg.norm([maxX, maxY]), atol=1e-6)
 
     def test_bins(self):
-        maxX = 3.0
-        maxY = 4.0
+        maxX = 3.6
+        maxY = 4.2
         nbinsX = 20
         nbinsY = 30
         dx = (2.0 * maxX / float(nbinsX))
@@ -334,8 +336,8 @@ class TestPMFTXY2D(unittest.TestCase):
         points = np.array([[-1.0, 0.0, 0.0], [1.0, 0.0, 0.0]],
                           dtype=np.float32)
         angles = np.array([0.0, 0.0], dtype=np.float32)
-        maxX = 3.0
-        maxY = 4.0
+        maxX = 3.6
+        maxY = 4.2
         nbinsX = 100
         nbinsY = 110
         dx = (2.0 * maxX / float(nbinsX))

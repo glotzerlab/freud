@@ -2,7 +2,6 @@
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-
 ## Unreleased
 
 ### Added
@@ -11,6 +10,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Changes
 * Use constant memoryviews to prevent errors with read-only inputs.
+
+### Fixed
+* Corrected type of `y_max` argument to PMFTXY2D from int to float.
+* Reduce logging verbosity about array conversion.
 
 ## v1.0.0 - 2019-02-08
 
