@@ -43,8 +43,8 @@ cdef class InterfaceMeasure:
             The particle IDs from :code:`points`.
     """
     cdef float rmax
-    cdef unsigned int[::1] _ref_point_ids
-    cdef unsigned int[::1] _point_ids
+    cdef const unsigned int[::1] _ref_point_ids
+    cdef const unsigned int[::1] _point_ids
 
     def __cinit__(self, float r_cut):
         self.rmax = r_cut

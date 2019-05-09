@@ -15,6 +15,7 @@ class TestLocalDescriptors(unittest.TestCase):
         np.random.seed(0)
         positions = np.random.uniform(-box.Lx/2, box.Lx/2,
                                       size=(N, 3)).astype(np.float32)
+        positions.flags['WRITEABLE'] = False
 
         comp = LocalDescriptors(Nneigh, lmax, rmax, True)
         comp.computeNList(box, positions)

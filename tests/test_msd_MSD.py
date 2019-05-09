@@ -34,6 +34,7 @@ class TestMSD(unittest.TestCase):
             msd_direct.compute(positions).msd, np.arange(10)**2/2)
 
         # Test accumulation
+        positions.flags['WRITEABLE'] = False
         msd.reset()
         msd.accumulate(positions[:, [0], :])
         msd.accumulate(positions[:, [1], :])
