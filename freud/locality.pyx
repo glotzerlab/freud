@@ -25,21 +25,26 @@ cimport numpy as np
 # _always_ do that, or you will have segfaults
 np.import_array()
 
-cdef class _QueryArgs(object):
+cdef class _QueryArgs:
     ### This class is temporarily included for testing and may be
     ### removed in future releases.
     cdef freud._locality.QueryArgs * thisptr
 
-    def __cinit__(self, mode=None, rmax=None, nn=None, exclude_ii=None):
-        self.thisptr = new freud._locality.QueryArgs()
-        if mode is not None:
-            self.mode = mode
-        if rmax is not None:
-            self.rmax = rmax
-        if nn is not None:
-            self.nn = nn
-        if exclude_ii is not None:
-            self.exclude_ii = exclude_ii
+    def __cinit__(self, mode=None, rmax=None, nn=None, exclude_ii=None, *args, **kwargs):
+        if type(self) == _QueryArgs:
+            self.thisptr = new freud._locality.QueryArgs()
+            if mode is not None:
+                self.mode = mode
+            if rmax is not None:
+                self.rmax = rmax
+            if nn is not None:
+                self.nn = nn
+            if exclude_ii is not None:
+                self.exclude_ii = exclude_ii
+
+    def __dealloc__(self):
+        if type(self) == _QueryArgs:
+            del self.thisptr
 
     @property
     def mode(self):
@@ -78,6 +83,37 @@ cdef class _QueryArgs(object):
     def exclude_ii(self, value):
         self.thisptr.exclude_ii = value
 
+cdef class _AABBQueryArgs(_QueryArgs):
+    ### This class is temporarily included for testing and may be
+    ### removed in future releases.
+    cdef freud._locality.AABBQueryArgs * aabbargsptr
+
+    def __cinit__(self, mode=None, rmax=None, nn=None, exclude_ii=None, scale=None, *args, **kwargs):
+        if type(self) == _AABBQueryArgs:
+            self.thisptr = self.aabbargsptr = new freud._locality.AABBQueryArgs()
+            if mode is not None:
+                self.mode = mode
+            if rmax is not None:
+                self.rmax = rmax
+            if scale is not None:
+                self.scale = scale
+            if nn is not None:
+                self.nn = nn
+            if exclude_ii is not None:
+                self.exclude_ii = exclude_ii
+
+    def __dealloc__(self):
+        if type(self) == _AABBQueryArgs:
+            del self.aabbargsptr
+
+    @property
+    def scale(self):
+        return self.aabbargsptr.scale
+
+    @scale.setter
+    def scale(self, value):
+        self.aabbargsptr.scale = value
+
 cdef _QueryArgs parse_query_args(dict query_args):
     """Convert a dictionary into a query args object.
 
@@ -86,6 +122,7 @@ cdef _QueryArgs parse_query_args(dict query_args):
         * mode: The query mode, either 'ball' or 'nearest'.
         * rmax: The cutoff distance for a ball query.
         * nn: The number of nearest neighbors to find.
+        * exclude_ii: Whether or not to include self-neighbors.
 
     Args:
         query_args (dict):
@@ -95,6 +132,38 @@ cdef _QueryArgs parse_query_args(dict query_args):
         _QueryArgs: An object encapsulating query arguments.
     """
     cdef _QueryArgs qa = _QueryArgs()
+    cdef dict invalid_args = {}
+    for key, val in query_args.items():
+        if hasattr(qa, key):
+            setattr(qa, key, val)
+        else:
+            invalid_args[key] = val
+    if invalid_args:
+        raise ValueError(
+            "The following invalid query arguments were provided: "
+            ", ".format("{} = {}".format(key, val)))
+    else:
+        return qa
+
+cdef _AABBQueryArgs parse_query_args_aabb(dict query_args):
+    """Convert a dictionary into a query args object for AABB queries.
+
+    The following keys are supported:
+
+        * mode: The query mode, either 'ball' or 'nearest'.
+        * rmax: The cutoff distance for a ball query.
+        * nn: The number of nearest neighbors to find.
+        * exclude_ii: Whether or not to include self-neighbors.
+        * scale: The degree to rescale ball queries during kN nearest neighbor searches.
+
+    Args:
+        query_args (dict):
+            A dictionary of query arguments.
+
+    Returns
+        _QueryArgs: An object encapsulating query arguments.
+    """
+    cdef _AABBQueryArgs qa = _AABBQueryArgs()
     cdef dict invalid_args = {}
     for key, val in query_args.items():
         if hasattr(qa, key):
@@ -267,10 +336,18 @@ cdef class NeighborQuery:
         ### This function is temporarily included for testing and WILL be
         ### removed in future releases.
         # Can't use this function with old-style NeighborQuery objects
+        points = freud.common.convert_array(
+            np.atleast_2d(points), 2, dtype=np.float32, contiguous=True,
+            array_name="points")
+
         cdef shared_ptr[freud._locality.NeighborQueryIterator] iterator
         cdef const float[:, ::1] l_points = points
         cdef _QueryArgs args = parse_query_args(query_args)
-        cdef unsigned int x = 5
+
+        # Default guess value
+        if 'rmax' not in query_args:
+            args.rmax = 0
+
         iterator = self.nqptr.query_with_args(
             <vec3[float]*> &l_points[0, 0],
             points.shape[0],
@@ -815,6 +892,37 @@ cdef class AABBQuery(NeighborQuery):
     def __dealloc__(self):
         if type(self) is AABBQuery:
             del self.thisptr
+
+    def _queryGeneric(self, points, query_args):
+        ### This function is temporarily included for testing and WILL be
+        ### removed in future releases.
+        # Can't use this function with old-style NeighborQuery objects
+        points = freud.common.convert_array(
+            np.atleast_2d(points), 2, dtype=np.float32, contiguous=True,
+            array_name="points")
+
+        cdef shared_ptr[freud._locality.NeighborQueryIterator] iterator
+        cdef const float[:, ::1] l_points = points
+        cdef _AABBQueryArgs args = parse_query_args_aabb(query_args)
+
+        # Default guess value
+        if 'rmax' not in query_args:
+            args.rmax = 0.1*min(self._box.L)
+
+        iterator = self.nqptr.query_with_args(
+            <vec3[float]*> &l_points[0, 0],
+            points.shape[0],
+            dereference(args.thisptr))
+
+        cdef freud._locality.NeighborList *cnlist = dereference(
+            iterator).toNeighborList()
+        cdef NeighborList nl = NeighborList()
+        nl.refer_to(cnlist)
+        # Explicitly manage a manually created nlist so that it will be
+        # deleted when the Python object is.
+        nl._managed = True
+
+        return nl
 
     def query(self, points, unsigned int k=1, float r=0, float scale=1.1,
               cbool exclude_ii=False):

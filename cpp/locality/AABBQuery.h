@@ -28,6 +28,17 @@
 
 namespace freud { namespace locality {
 
+//! Override parent QueryArgs class to support additional query arguments.
+/*! The additional complexity of nearest neighbor queries with AABBs adds more
+ *  parameters to the signature that need to be addressed here.
+ */
+struct AABBQueryArgs : QueryArgs {
+    //! Define constructor
+    AABBQueryArgs() : QueryArgs() {}
+
+    float scale;         //! The scale factor to use when performing repeated ball queries to find a specified number of nearest neighbors.
+};
+
 class AABBQuery : public NeighborQuery
     {
     public:
@@ -40,6 +51,31 @@ class AABBQuery : public NeighborQuery
         //! Destructor
         ~AABBQuery();
 
+        //! Perform a query based on a set of query parameters.
+        /*! Given a QueryArgs object and a set of points to perform a query
+         *  with, this function will dispatch the query to the appropriate
+         *  querying function.
+         *
+         *  This function should just be called query, but Cython's function
+         *  overloading abilities seem buggy at best, so it's easiest to just
+         *  rename the function.
+         */
+        virtual std::shared_ptr<NeighborQueryIterator> query_with_args(const vec3<float> *points, unsigned int N, AABBQueryArgs args)
+            {
+            if (args.mode == QueryArgs::ball)
+                {
+                return queryBall(points, N, args.rmax, args.exclude_ii);
+                }
+            else if (args.mode == QueryArgs::ball)
+                {
+                return query(points, N, args.nn, args.rmax, args.scale, args.exclude_ii);
+                }
+            else
+                {
+                assert("Invalid query mode provided to generic query function.");
+                }
+            }
+
         //! Given a set of points, find the k elements of this data structure
         //  that are the nearest neighbors for each point. Note that due to the
         //  different signature, this is not directly overriding the original
@@ -49,6 +85,7 @@ class AABBQuery : public NeighborQuery
             {
             throw std::runtime_error("AABBQuery k-nearest-neighbor queries must use the function signature that provides rmax and scale guesses.");
             }
+
         std::shared_ptr<NeighborQueryIterator> query(const vec3<float> *points, unsigned int N, unsigned int k, float r, float scale, bool exclude_ii=false) const;
 
         //! Given a set of points, find all elements of this data structure

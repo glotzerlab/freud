@@ -119,11 +119,11 @@ class NeighborQuery
             {
             if (args.mode == QueryArgs::ball)
                 {
-                return queryBall(points, N, args.rmax, args.exclude_ii);
+                return this->queryBall(points, N, args.rmax, args.exclude_ii);
                 }
-            else if (args.mode == QueryArgs::ball)
+            else if (args.mode == QueryArgs::nearest)
                 {
-                return query(points, N, args.nn, args.exclude_ii);
+                return this->query(points, N, args.nn, args.exclude_ii);
                 }
             else
                 {
