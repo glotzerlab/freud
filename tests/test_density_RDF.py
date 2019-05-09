@@ -47,8 +47,11 @@ class TestRDF(unittest.TestCase):
             nbins = int((rmax - rmin) / dr)
             points = np.random.random_sample((num_points, 3)).astype(
                 np.float32) * box_size - box_size/2
+            
+            points.flags['WRITEABLE'] = False
             rdf = freud.density.RDF(rmax, dr, rmin=rmin)
             box = freud.box.Box.cube(box_size)
+            
             if i < 3:
                 rdf.accumulate(box, points)
             else:

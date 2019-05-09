@@ -89,7 +89,9 @@ class TestPMFTR12(unittest.TestCase):
         box = freud.box.Box.square(boxSize)
         points = np.array([[-1.0, 0.0, 0.0], [1.0, 0.1, 0.0]],
                           dtype=np.float32)
+        points.flags['WRITEABLE'] = False
         angles = np.array([0.0, np.pi/2], dtype=np.float32)
+        angles.flags['WRITEABLE'] = False
         maxR = 5.23
         nbinsR = 10
         nbinsT1 = 20

@@ -13,6 +13,7 @@ class TestCluster(unittest.TestCase):
         fn = os.path.join(self.test_folder, 'bcc.npy')
         xyz = np.load(fn)
         xyz = np.array(xyz, dtype=np.float32)
+        xyz.flags['WRITEABLE'] = False
         L = np.max(xyz)*2
         box = freud.box.Box.cube(L)
 

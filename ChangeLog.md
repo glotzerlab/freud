@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 * Exposed AABB tree to user.
 * All compute objects have `__repr__` and `__str__` methods defined.
 
+### Changes
+* Use constant memoryviews to prevent errors with read-only inputs.
+
 ### Fixed
 * Corrected type of `y_max` argument to PMFTXY2D from int to float.
 * Reduce logging verbosity about array conversion.
