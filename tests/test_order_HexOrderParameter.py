@@ -44,7 +44,7 @@ class TestHexOrderParameter(unittest.TestCase):
         points[:, 2] = 0.0
         hop = freud.order.HexOrderParameter(rmax)
         hop.compute(box, points)
-        npt.assert_almost_equal(np.mean(hop.psi), 0. + 0.j, decimal=1)
+        npt.assert_allclose(np.mean(hop.psi), 0. + 0.j, atol=1e-1)
 
         self.assertTrue(hop.box == box)
 
@@ -65,7 +65,7 @@ class TestHexOrderParameter(unittest.TestCase):
         points[:, 2] = 0.0
         hop = freud.order.HexOrderParameter(rmax)
         hop.compute(box, points)
-        npt.assert_almost_equal(hop.psi[0], 1. + 0.j, decimal=1)
+        npt.assert_allclose(hop.psi[0], 1. + 0.j, atol=1e-1)
 
 
 if __name__ == '__main__':

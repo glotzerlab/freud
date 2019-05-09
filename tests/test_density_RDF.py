@@ -21,7 +21,7 @@ class TestRDF(unittest.TestCase):
                 r2 = r1 + dr
                 r_list[i] = 2.0/3.0 * (r2**3.0 - r1**3.0) / (r2**2.0 - r1**2.0)
             rdf = density.RDF(rmax, dr, rmin=rmin)
-            npt.assert_almost_equal(rdf.R, r_list, decimal=3)
+            npt.assert_allclose(rdf.R, r_list, rtol=1e-4, atol=1e-4)
 
     def test_invalid_rdf(self):
         # Make sure that invalid RDF objects raise errors
