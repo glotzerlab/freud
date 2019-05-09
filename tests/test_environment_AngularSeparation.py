@@ -126,8 +126,8 @@ class TestAngularSeparation(unittest.TestCase):
         # Should find that the angular separation between the first particle
         # and its neighbor is pi/3. The second particle's nearest neighbor will
         # have the same orientation.
-        npt.assert_almost_equal(ang.neighbor_angles[0], np.pi/3, 6)
-        npt.assert_almost_equal(ang.neighbor_angles[1], 0, 6)
+        npt.assert_allclose(ang.neighbor_angles[0], np.pi/3, atol=1e-6)
+        npt.assert_allclose(ang.neighbor_angles[1], 0, atol=1e-6)
 
     def test_compute_global(self):
         num_neigh = 1
@@ -156,10 +156,11 @@ class TestAngularSeparation(unittest.TestCase):
         # global reference quaternion
         for i in [0, 1]:
             for j in [0, 1]:
-                npt.assert_almost_equal(ang.global_angles[i][j], 0, 6)
+                npt.assert_allclose(ang.global_angles[i][j], 0, atol=1e-6)
         for i in [2, 3]:
             for j in [0, 1]:
-                npt.assert_almost_equal(ang.global_angles[i][j], np.pi/16, 6)
+                npt.assert_allclose(ang.global_angles[i][j], np.pi/16,
+                                    atol=1e-6)
 
     def test_repr(self):
         ang = freud.environment.AngularSeparation(3, 12)

@@ -21,7 +21,7 @@ class TestComplexCF(unittest.TestCase):
 
         ocf = freud.density.ComplexCF(rmax, dr)
 
-        npt.assert_almost_equal(ocf.R, r_list, decimal=3)
+        npt.assert_allclose(ocf.R, r_list, atol=1e-3)
 
     def test_random_points(self):
         rmax = 10.0

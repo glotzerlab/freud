@@ -161,7 +161,7 @@ void NematicOrderParameter::compute(quat<float> *orientations,
             m(i,j) = m_nematic_tensor[a_i(i,j)];
             }
 
-    Eigen::EigenSolver<Eigen::MatrixXf> es;
+    Eigen::SelfAdjointEigenSolver<Eigen::MatrixXf> es;
     es.compute(m);
 
     float evec[9];
@@ -185,14 +185,14 @@ void NematicOrderParameter::compute(quat<float> *orientations,
     else
         {
         // columns are eigenvectors
-        Eigen::MatrixXcf eigen_vec = es.eigenvectors();
+        Eigen::MatrixXf eigen_vec = es.eigenvectors();
         for (unsigned int i = 0; i < 3; ++i)
             for (unsigned int j = 0; j < 3; ++j)
-                evec[a_i(i,j)] = eigen_vec(i,j).real();
+                evec[a_i(i,j)] = eigen_vec(i,j);
         auto eigen_val = es.eigenvalues();
-        eval[0] = eigen_val(0).real();
-        eval[1] = eigen_val(1).real();
-        eval[2] = eigen_val(2).real();
+        eval[0] = eigen_val(0);
+        eval[1] = eigen_val(1);
+        eval[2] = eigen_val(2);
         }
 
     // the order parameter is the eigenvector belonging to the largest eigenvalue
