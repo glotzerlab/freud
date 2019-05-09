@@ -18,7 +18,7 @@ class TestLD(unittest.TestCase):
                             dtype=np.float32) * 10 - 5
         self.ld = density.LocalDensity(3, 1, 1)
 
-    @unittest.skipIf('CI' in os.environ, 'Skipping test on CI')
+    @unittest.skip('Skipping slow LocalDensity test.')
     def test_compute_api(self):
         # test 2 args, no keyword
         self.ld.compute(self.box, self.pos)
@@ -40,7 +40,7 @@ class TestLD(unittest.TestCase):
         npt.assert_array_less(
             np.fabs(self.ld.num_neighbors - 1130.973355292), 200)
 
-    @unittest.skipIf('CI' in os.environ, 'Skipping test on CI')
+    @unittest.skip('Skipping slow LocalDensity test.')
     def test_refpoints(self):
         """Test that LocalDensity can compute a correct density at each point
         using the reference points as the data points."""

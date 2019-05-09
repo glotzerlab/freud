@@ -20,13 +20,6 @@ import logging
 from freud.util._VectorMath cimport vec3, quat
 from cython.operator cimport dereference
 
-# The below are maintained for backwards compatibility
-# but have been moved to the environment module
-from freud.environment cimport BondOrder as _EBO
-from freud.environment cimport LocalDescriptors as _ELD
-from freud.environment cimport MatchEnv as _EME
-from freud.environment cimport AngularSeparation as _EAS
-
 cimport freud._order
 cimport freud.locality
 cimport freud.box
@@ -1444,8 +1437,8 @@ cdef class RotationalAutocorrelation:
         if ors.shape[1] != 4:
             raise TypeError('ors should be an Nx4 array')
 
-        cdef float[:, ::1] l_ref_ors = ref_ors
-        cdef float[:, ::1] l_ors = ors
+        cdef const float[:, ::1] l_ref_ors = ref_ors
+        cdef const float[:, ::1] l_ors = ors
         cdef unsigned int nP = ors.shape[0]
 
         with nogil:

@@ -117,6 +117,12 @@ cdef class BondOrder:
 
     .. todo:: remove k, it is not used as such.
     """  # noqa: E501
+    cdef freud._environment.BondOrder * thisptr
+    cdef num_neigh
+    cdef rmax
+    cdef k
+    cdef n_bins_t
+    cdef n_bins_p
 
     def __cinit__(self, float rmax, float k, unsigned int n,
                   unsigned int n_bins_t, unsigned int n_bins_p):
@@ -128,6 +134,9 @@ cdef class BondOrder:
             rmax, k, n, n_bins_t, n_bins_p)
         self.rmax = rmax
         self.num_neigh = n
+        self.k = k
+        self.n_bins_t = n_bins_t
+        self.n_bins_p = n_bins_p
 
     def __dealloc__(self):
         del self.thisptr
@@ -305,6 +314,19 @@ cdef class BondOrder:
     def n_bins_phi(self):
         return self.thisptr.getNBinsPhi()
 
+    def __repr__(self):
+        return ("freud.environment.{cls}(rmax={rmax}, k={k}, " +
+                "num_neigh={num_neigh}, n_bins_t={n_bins_t}, " +
+                "n_bins_p={n_bins_p})".format(cls=type(self).__name__,
+                                              rmax=self.rmax,
+                                              k=self.k,
+                                              num_neigh=self.num_neigh,
+                                              n_bins_t=self.n_bins_t,
+                                              n_bins_p=self.n_bins_p))
+
+    def __str__(self):
+        return repr(self)
+
 
 cdef class LocalDescriptors:
     R"""Compute a set of descriptors (a numerical "fingerprint") of a particle's
@@ -350,6 +372,12 @@ cdef class LocalDescriptors:
         r_max (float):
             The cutoff radius.
     """  # noqa: E501
+    cdef freud._environment.LocalDescriptors * thisptr
+    cdef num_neigh
+    cdef rmax
+    cdef lmax
+    cdef negative_m
+
     known_modes = {'neighborhood': freud._environment.LocalNeighborhood,
                    'global': freud._environment.Global,
                    'particle_local': freud._environment.ParticleLocal}
@@ -359,6 +387,8 @@ cdef class LocalDescriptors:
             num_neighbors, lmax, rmax, negative_m)
         self.num_neigh = num_neighbors
         self.rmax = rmax
+        self.lmax = lmax
+        self.negative_m = negative_m
 
     def __dealloc__(self):
         del self.thisptr
@@ -525,6 +555,18 @@ cdef class LocalDescriptors:
     def l_max(self):
         return self.thisptr.getLMax()
 
+    def __repr__(self):
+        return ("freud.environment.{cls}(num_neigh={num_neigh}, " +
+                "lmax={lmax}, rmax={rmax}, " +
+                "negative_m={negative_m})".format(cls=type(self).__name__,
+                                                  num_neigh=self.num_neigh,
+                                                  lmax=self.lmax,
+                                                  rmax=self.rmax,
+                                                  negative_m=self.negative_m))
+
+    def __str__(self):
+        return repr(self)
+
 
 cdef class MatchEnv:
     R"""Clusters particles according to whether their local environments match
@@ -552,6 +594,10 @@ cdef class MatchEnv:
         clusters (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
             The per-particle index indicating cluster membership.
     """  # noqa: E501
+    cdef freud._environment.MatchEnv * thisptr
+    cdef rmax
+    cdef num_neigh
+    cdef m_box
 
     def __cinit__(self, box, rmax, k):
         cdef freud.box.Box b = freud.common.convert_box(box)
@@ -894,6 +940,13 @@ cdef class MatchEnv:
     def num_clusters(self):
         return self.thisptr.getNumClusters()
 
+    def __repr__(self):
+        return "freud.environment.{cls}(box={box}, rmax={rmax}, k={k})".format(
+            cls=type(self).__name__, box=self.m_box.__repr__(),
+            rmax=self.rmax, k=self.num_neigh)
+
+    def __str__(self):
+        return repr(self)
 
 cdef class AngularSeparation:
     R"""Calculates the minimum angles of separation between particles and
@@ -931,6 +984,10 @@ cdef class AngularSeparation:
     .. todo Need to figure out what happens if you use a neighborlist with
             strict_cut=True
     """  # noqa: E501
+    cdef freud._environment.AngularSeparation * thisptr
+    cdef unsigned int num_neigh
+    cdef float rmax
+    cdef freud.locality.NeighborList nlist_
 
     def __cinit__(self, float rmax, unsigned int n):
         self.thisptr = new freud._environment.AngularSeparation()
@@ -1104,6 +1161,12 @@ cdef class AngularSeparation:
     def n_global(self):
         return self.thisptr.getNglobal()
 
+    def __repr__(self):
+        return "freud.environment.{cls}(rmax={rmax}, n={n})".format(
+            cls=type(self).__name__, rmax=self.rmax, n=self.num_neigh)
+
+    def __str__(self):
+        return repr(self)
 
 cdef class LocalBondProjection:
     R"""Calculates the maximal projection of nearest neighbor bonds for each
@@ -1136,6 +1199,10 @@ cdef class LocalBondProjection:
         box (:class:`freud.box.Box`):
             The box used in the last calculation.
     """  # noqa: E501
+    cdef freud._environment.LocalBondProjection * thisptr
+    cdef float rmax
+    cdef unsigned int num_neigh
+    cdef freud.locality.NeighborList nlist_
 
     def __cinit__(self, rmax, num_neigh):
         self.thisptr = new freud._environment.LocalBondProjection()
@@ -1279,3 +1346,12 @@ cdef class LocalBondProjection:
     @property
     def box(self):
         return freud.box.BoxFromCPP(<freud._box.Box> self.thisptr.getBox())
+
+    def __repr__(self):
+        return ("freud.environment.{cls}(rmax={rmax}, " +
+                "num_neigh={num_neigh})").format(cls=type(self).__name__,
+                                                 rmax=self.rmax,
+                                                 num_neigh=self.num_neigh)
+
+    def __str__(self):
+        return repr(self)

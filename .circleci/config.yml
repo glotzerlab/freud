@@ -24,6 +24,23 @@ references:
   load_code: &load_code
     checkout
 
+  load_code_centos: &load_code_centos
+    # For use with old OS that doesn't support clone over ssh
+    run:
+      name: Checkout repository without ssh
+      command: |
+        cd ~/ci/freud
+        git clone ${CIRCLE_REPOSITORY_URL} .
+        if [ -n "$CIRCLE_TAG" ]
+        then
+          git reset --hard "$CIRCLE_SHA1"
+          git checkout -q "$CIRCLE_TAG"
+        elif [ -n "$CIRCLE_BRANCH" ]
+        then
+          git reset --hard "$CIRCLE_SHA1"
+          git checkout -q -B "$CIRCLE_BRANCH"
+        fi
+
   get_requirements: &get_requirements
     run:
       name: Install dependencies
@@ -32,6 +49,7 @@ references:
         pip${PYVER} install --user -r requirements.txt
         pip${PYVER} install --user flake8==3.7.1
         pip${PYVER} install --user coverage
+        pip${PYVER} install --user -U cython
 
   check_source: &check_source
     run:
@@ -90,7 +108,7 @@ references:
           name: Install software
           working_directory: /root/code
           command: yum install -y openssh-clients
-      - *load_code
+      - *load_code_centos
       - run:
           name: Update freud submodules
           command: |
@@ -111,9 +129,22 @@ references:
 
             # Build wheels
             for PYBIN in /opt/python/*/bin; do
-                echo "Building for `${PYBIN}/python --version`"
-                "${PYBIN}/pip" install -r ~/ci/freud/requirements.txt --progress-bar=off
-                "${PYBIN}/pip" wheel ~/ci/freud/ -w ~/wheelhouse/ --no-deps
+              # Split the echo command and the version since python2
+              # --version doesn't return the value, just prints it.
+              echo "Building for "
+              ${PYBIN}/python --version
+
+              "${PYBIN}/python" -m pip install cython --no-deps --ignore-installed -q --progress-bar=off
+              rm -rf numpy-1.10.4
+              curl -sSLO https://github.com/numpy/numpy/archive/v1.10.4.tar.gz
+              tar -xzf v1.10.4.tar.gz
+              cd numpy-1.10.4
+              rm -f numpy/random/mtrand/mtrand.c
+              rm -f PKG-INFO
+              "${PYBIN}/python" -m pip install . --no-deps --ignore-installed -v --progress-bar=off -q
+
+              "${PYBIN}/pip" install -r ~/ci/freud/requirements.txt --progress-bar=off
+              "${PYBIN}/pip" wheel ~/ci/freud/ -w ~/wheelhouse/ --no-deps --no-build-isolation --no-use-pep517
             done
 
             # Update RPath for wheels
@@ -123,7 +154,7 @@ references:
 
             # Install from and test all wheels
             for PYBIN in /opt/python/*/bin/; do
-                "${PYBIN}/pip" install freud_analysis --no-index -f ~/ci/freud/wheelhouse
+                "${PYBIN}/python" -m pip install freud_analysis --no-deps --no-index -f ~/ci/freud/wheelhouse
                 cd ~/ci/freud/tests
                 "${PYBIN}/python" -m unittest discover . -v
             done
@@ -169,9 +200,19 @@ references:
                 echo "Building for Python ${VERSION}"
                 pyenv install ${VERSION}
                 pyenv global ${VERSION}
+
+                pip install cython --no-deps --ignore-installed -q --progress-bar=off
+                rm -rf numpy-1.10.4
+                curl -sSLO https://github.com/numpy/numpy/archive/v1.10.4.tar.gz
+                tar -xzf v1.10.4.tar.gz
+                cd numpy-1.10.4
+                rm -f numpy/random/mtrand/mtrand.c
+                rm -f PKG-INFO
+                "${PYBIN}/python" -m pip install . --no-deps --ignore-installed -v --progress-bar=off -q
+
                 pip install -r ~/ci/freud/requirements.txt
                 pip install wheel delocate
-                pip wheel ~/ci/freud/ -w ~/wheelhouse/ --no-deps
+                pip wheel ~/ci/freud/ -w ~/wheelhouse/ --no-deps --no-build-isolation --no-use-pep517
             done
 
             # Update RPath for wheels
@@ -181,7 +222,8 @@ references:
 
             # Install from and test all wheels
             for VERSION in ${PY_VERSIONS[@]}; do
-                pip install freud_analysis --no-index -f ~/ci/freud/wheelhouse
+                pyenv global ${VERSION}
+                pip install freud_analysis --no-deps --no-index -f ~/ci/freud/wheelhouse
                 cd ~/ci/freud/tests
                 python -m unittest discover . -v
             done
