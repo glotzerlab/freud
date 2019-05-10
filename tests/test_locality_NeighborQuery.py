@@ -13,11 +13,15 @@ querying doesn't guarantee k results per ref point, but rather per point. As a
 result, we need to be careful with the usage of these functions, and swap their
 usage when we hit freud 2.0 (where we will reverse the ordering).
 """
+
+
 def get_ref_point_neighbors(nl, i):
     return {x[1] for x in nl if x[0] == i}
 
+
 def get_point_neighbors(nl, i):
     return {x[0] for x in nl if x[1] == i}
+
 
 class TestNeighborQuery(object):
     @classmethod
@@ -102,7 +106,8 @@ class TestNeighborQuery(object):
         npt.assert_equal(sum(nlist.index_i == 3), 4)
 
         # Check NeighborList length without self-exclusions.
-        nlist = nq._queryGeneric(points, dict(mode='ball', rmax=rcut, exclude_ii=True))
+        nlist = nq._queryGeneric(
+            points, dict(mode='ball', rmax=rcut, exclude_ii=True))
         nlist_neighbors = sorted(list(zip(nlist.index_i, nlist.index_j)))
         # When excluding, everything has one less neighbor.
         npt.assert_equal(len(nlist_neighbors), 10)
@@ -178,7 +183,8 @@ class TestNeighborQuery(object):
         npt.assert_equal(get_point_neighbors(result, 3), {1, 2, 3})
 
         # All other points are neighbors when self-neighbors are excluded.
-        nlist = nq._queryGeneric(points, dict(mode='nearest', nn=3, exclude_ii=True))
+        nlist = nq._queryGeneric(
+            points, dict(mode='nearest', nn=3, exclude_ii=True))
         result = list(zip(nlist.index_i, nlist.index_j))
         npt.assert_equal(get_point_neighbors(result, 0), {1, 2, 3})
         npt.assert_equal(get_point_neighbors(result, 1), {0, 2, 3})
@@ -187,7 +193,8 @@ class TestNeighborQuery(object):
 
         # Test overflow case. Need to sort because the nlist output of
         # _queryGeneric is sorted by ref_point by construction.
-        all_results = sorted([(x[0], x[1]) for x in nq.query(points, 5, exclude_ii=True)])
+        all_results = sorted(
+            [(x[0], x[1]) for x in nq.query(points, 5, exclude_ii=True)])
         npt.assert_equal(all_results, result)
 
     def test_query_ball_to_nlist(self):
