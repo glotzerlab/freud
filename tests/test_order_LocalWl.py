@@ -48,6 +48,11 @@ class TestLocalWl(unittest.TestCase):
 
         self.assertEqual(len(positions), comp.num_particles)
 
+    def test_repr(self):
+        box = freud.box.Box.cube(10)
+        comp = freud.order.LocalWl(box, 1.5, 6)
+        self.assertEqual(str(comp), str(eval(repr(comp))))
+
 
 class TestLocalWlNear(unittest.TestCase):
     def test_init_kwargs(self):
@@ -96,6 +101,11 @@ class TestLocalWlNear(unittest.TestCase):
         self.assertEqual(box, comp.box)
 
         self.assertEqual(len(positions), comp.num_particles)
+
+    def test_repr(self):
+        box = freud.box.Box.cube(10)
+        comp = freud.order.LocalWlNear(box, 1.5, 6, 12)
+        self.assertEqual(str(comp), str(eval(repr(comp))))
 
 
 if __name__ == '__main__':

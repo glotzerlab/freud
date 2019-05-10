@@ -206,6 +206,10 @@ class TestLocalBondProjection(unittest.TestCase):
         npt.assert_allclose(ang.projections[2], 1.5, atol=1e-6)
         npt.assert_allclose(ang.normed_projections[2], 1, atol=1e-6)
 
+    def test_repr(self):
+        ang = freud.environment.LocalBondProjection(3.0, 8)
+        self.assertEqual(str(ang), str(eval(repr(ang))))
+
 
 if __name__ == '__main__':
     unittest.main()

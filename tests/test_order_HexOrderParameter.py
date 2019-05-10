@@ -20,9 +20,7 @@ class TestHexOrderParameter(unittest.TestCase):
         boxlen = 10
         N = 500
         rmax = 3
-
         box = freud.box.Box.square(boxlen)
-
         np.random.seed(0)
         points = np.asarray(np.random.uniform(-boxlen/2, boxlen/2, (N, 3)),
                             dtype=np.float32)
@@ -35,9 +33,7 @@ class TestHexOrderParameter(unittest.TestCase):
         boxlen = 10
         N = 500
         rmax = 3
-
         box = freud.box.Box.square(boxlen)
-
         np.random.seed(0)
         points = np.asarray(np.random.uniform(-boxlen/2, boxlen/2, (N, 3)),
                             dtype=np.float32)
@@ -51,9 +47,7 @@ class TestHexOrderParameter(unittest.TestCase):
     def test_compute(self):
         boxlen = 10
         rmax = 3
-
         box = freud.box.Box.square(boxlen)
-
         points = [[0.0, 0.0, 0.0]]
 
         for i in range(6):
@@ -66,6 +60,10 @@ class TestHexOrderParameter(unittest.TestCase):
         hop = freud.order.HexOrderParameter(rmax)
         hop.compute(box, points)
         npt.assert_allclose(hop.psi[0], 1. + 0.j, atol=1e-1)
+
+    def test_repr(self):
+        hop = freud.order.HexOrderParameter(3.0, 6, 7)
+        self.assertEqual(str(hop), str(eval(repr(hop))))
 
 
 if __name__ == '__main__':

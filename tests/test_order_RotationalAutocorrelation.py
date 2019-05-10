@@ -69,6 +69,10 @@ class TestRotationalAutocorrelation(unittest.TestCase):
             ra6.compute(orientations, orientations).autocorrelation,
             1, rtol=1e-6)
 
+    def test_repr(self):
+        ra2 = freud.order.RotationalAutocorrelation(2)
+        self.assertEqual(str(ra2), str(eval(repr(ra2))))
+
 
 if __name__ == '__main__':
     unittest.main()

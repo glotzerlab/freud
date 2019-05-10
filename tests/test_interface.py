@@ -56,6 +56,10 @@ class TestInterface(unittest.TestCase):
         self.assertEqual(test_twelve.ref_point_count, 12)
         self.assertEqual(len(test_twelve.ref_point_ids), 12)
 
+    def test_repr(self):
+        inter = freud.interface.InterfaceMeasure(1.5)
+        self.assertEqual(str(inter), str(eval(repr(inter))))
+
 
 if __name__ == '__main__':
     unittest.main()

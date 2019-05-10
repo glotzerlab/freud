@@ -790,7 +790,7 @@ cdef class ParticleBuffer:
 
     def __repr__(self):
         return ("freud.box.{cls}(box={box})").format(
-            cls=type(self).__name__, box=self.buffer_box.__repr__())
+            cls=type(self).__name__, box=repr(self.buffer_box))
 
     def __str__(self):
         return repr(self)

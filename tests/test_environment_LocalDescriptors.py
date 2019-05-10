@@ -107,6 +107,10 @@ class TestLocalDescriptors(unittest.TestCase):
         sphs = comp.sph
         self.assertEqual(sphs.shape[0], N*Nneigh)
 
+    def test_repr(self):
+        comp = LocalDescriptors(4, 8, 0.5, True)
+        self.assertEqual(str(comp), str(eval(repr(comp))))
+
 
 if __name__ == '__main__':
     unittest.main()

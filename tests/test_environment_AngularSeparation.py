@@ -162,6 +162,10 @@ class TestAngularSeparation(unittest.TestCase):
                 npt.assert_allclose(ang.global_angles[i][j], np.pi/16,
                                     atol=1e-6)
 
+    def test_repr(self):
+        ang = freud.environment.AngularSeparation(3, 12)
+        self.assertEqual(str(ang), str(eval(repr(ang))))
+
 
 if __name__ == '__main__':
     unittest.main()

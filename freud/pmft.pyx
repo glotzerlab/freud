@@ -322,6 +322,17 @@ cdef class PMFTR12(_PMFT):
     def n_bins_T2(self):
         return self.pmftr12ptr.getNBinsT2()
 
+    def __repr__(self):
+        return ("freud.pmft.{cls}(r_max={r_max}, n_r={n_r}, n_t1={n_t1}, "
+                "n_t2={n_t2})").format(cls=type(self).__name__,
+                                       r_max=self.rmax,
+                                       n_r=self.n_bins_R,
+                                       n_t1=self.n_bins_T1,
+                                       n_t2=self.n_bins_T2)
+
+    def __str__(self):
+        return repr(self)
+
 
 cdef class PMFTXYT(_PMFT):
     R"""Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ for
@@ -385,12 +396,16 @@ cdef class PMFTXYT(_PMFT):
             histogram.
     """  # noqa: E501
     cdef freud._pmft.PMFTXYT * pmftxytptr
+    cdef xmax
+    cdef ymax
 
     def __cinit__(self, x_max, y_max, n_x, n_y, n_t):
         if type(self) is PMFTXYT:
             self.pmftxytptr = self.pmftptr = new freud._pmft.PMFTXYT(
                 x_max, y_max, n_x, n_y, n_t)
             self.rmax = np.sqrt(x_max**2 + y_max**2)
+            self.xmax = x_max
+            self.ymax = y_max
 
     def __dealloc__(self):
         if type(self) is PMFTXYT:
@@ -552,6 +567,18 @@ cdef class PMFTXYT(_PMFT):
     def n_bins_T(self):
         return self.pmftxytptr.getNBinsT()
 
+    def __repr__(self):
+        return ("freud.pmft.{cls}(x_max={x_max}, y_max={y_max}, n_x={n_x}, "
+                "n_y={n_y}, n_t={n_t})").format(cls=type(self).__name__,
+                                                x_max=self.xmax,
+                                                y_max=self.ymax,
+                                                n_x=self.n_bins_X,
+                                                n_y=self.n_bins_Y,
+                                                n_t=self.n_bins_T)
+
+    def __str__(self):
+        return repr(self)
+
 
 cdef class PMFTXY2D(_PMFT):
     R"""Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ in
@@ -604,12 +631,16 @@ cdef class PMFTXY2D(_PMFT):
             The number of bins in the :math:`y`-dimension of the histogram.
     """  # noqa: E501
     cdef freud._pmft.PMFTXY2D * pmftxy2dptr
+    cdef xmax
+    cdef ymax
 
     def __cinit__(self, x_max, y_max, n_x, n_y):
         if type(self) is PMFTXY2D:
             self.pmftxy2dptr = self.pmftptr = new freud._pmft.PMFTXY2D(
                 x_max, y_max, n_x, n_y)
             self.rmax = np.sqrt(x_max**2 + y_max**2)
+            self.xmax = x_max
+            self.ymax = y_max
 
     def __dealloc__(self):
         if type(self) is PMFTXY2D:
@@ -758,6 +789,17 @@ cdef class PMFTXY2D(_PMFT):
     def jacobian(self):
         return self.pmftxy2dptr.getJacobian()
 
+    def __repr__(self):
+        return ("freud.pmft.{cls}(x_max={x_max}, y_max={y_max}, n_x={n_x}, "
+                "n_y={n_y})").format(cls=type(self).__name__,
+                                     x_max=self.xmax,
+                                     y_max=self.ymax,
+                                     n_x=self.n_bins_X,
+                                     n_y=self.n_bins_Y)
+
+    def __str__(self):
+        return repr(self)
+
 
 cdef class PMFTXYZ(_PMFT):
     R"""Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ in
@@ -821,6 +863,9 @@ cdef class PMFTXYZ(_PMFT):
     """  # noqa: E501
     cdef freud._pmft.PMFTXYZ * pmftxyzptr
     cdef shiftvec
+    cdef xmax
+    cdef ymax
+    cdef zmax
 
     def __cinit__(self, x_max, y_max, z_max, n_x, n_y, n_z,
                   shiftvec=[0, 0, 0]):
@@ -832,6 +877,9 @@ cdef class PMFTXYZ(_PMFT):
                 x_max, y_max, z_max, n_x, n_y, n_z, c_shiftvec)
             self.shiftvec = np.array(shiftvec, dtype=np.float32)
             self.rmax = np.sqrt(x_max**2 + y_max**2 + z_max**2)
+            self.xmax = x_max
+            self.ymax = y_max
+            self.zmax = z_max
 
     def __dealloc__(self):
         if type(self) is PMFTXYZ:
@@ -1063,3 +1111,19 @@ cdef class PMFTXYZ(_PMFT):
     @property
     def jacobian(self):
         return self.pmftxyzptr.getJacobian()
+
+    def __repr__(self):
+        return ("freud.pmft.{cls}(x_max={x_max}, y_max={y_max}, "
+                "z_max={z_max}, n_x={n_x}, n_y={n_y}, n_z={n_z}, "
+                "shiftvec={shiftvec})").format(
+                    cls=type(self).__name__,
+                    x_max=self.xmax,
+                    y_max=self.ymax,
+                    z_max=self.zmax,
+                    n_x=self.n_bins_X,
+                    n_y=self.n_bins_Y,
+                    n_z=self.n_bins_Z,
+                    shiftvec=self.shiftvec.tolist())
+
+    def __str__(self):
+        return repr(self)

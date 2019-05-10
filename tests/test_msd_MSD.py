@@ -65,6 +65,13 @@ class TestMSD(unittest.TestCase):
             npt.assert_allclose(solution, simple, atol=1e-6)
             msd.reset()
 
+    def test_repr(self):
+        msd = freud.msd.MSD()
+        self.assertEqual(str(msd), str(eval(repr(msd))))
+        msd2 = freud.msd.MSD(box=freud.box.Box(1, 2, 3, 4, 5, 6),
+                             mode='direct')
+        self.assertEqual(str(msd2), str(eval(repr(msd2))))
+
 
 if __name__ == '__main__':
     unittest.main()
