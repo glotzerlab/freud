@@ -26,11 +26,11 @@ cimport numpy as np
 np.import_array()
 
 cdef class _QueryArgs:
-    ### This class is temporarily included for testing and may be
-    ### removed in future releases.
+    # This class is temporarily included for testing and may be
+    # removed in future releases.
     cdef freud._locality.QueryArgs * thisptr
 
-    def __cinit__(self, mode=None, rmax=None, nn=None, exclude_ii=None, *args, **kwargs):
+    def __cinit__(self, mode=None, rmax=None, nn=None, exclude_ii=None):
         if type(self) == _QueryArgs:
             self.thisptr = new freud._locality.QueryArgs()
             if mode is not None:
@@ -279,8 +279,8 @@ cdef class NeighborQuery:
         return np.asarray(self.points)
 
     def _queryGeneric(self, points, query_args):
-        ### This function is temporarily included for testing and WILL be
-        ### removed in future releases.
+        # This function is temporarily included for testing and WILL be
+        # removed in future releases.
         # Can't use this function with old-style NeighborQuery objects
         points = freud.common.convert_array(
             np.atleast_2d(points), 2, dtype=np.float32, contiguous=True,
@@ -840,8 +840,8 @@ cdef class AABBQuery(NeighborQuery):
             del self.thisptr
 
     def _queryGeneric(self, points, query_args):
-        ### This function is temporarily included for testing and WILL be
-        ### removed in future releases.
+        # This function is temporarily included for testing and WILL be
+        # removed in future releases.
         # Can't use this function with old-style NeighborQuery objects
         points = freud.common.convert_array(
             np.atleast_2d(points), 2, dtype=np.float32, contiguous=True,

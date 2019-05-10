@@ -16,7 +16,6 @@ cdef extern from "NeighborQuery.h" namespace "freud::locality":
         bool operator==(NeighborPoint)
         bool operator<(NeighborPoint)
 
-
     ctypedef enum QueryType "freud::locality::QueryArgs::QueryType":
         ball "freud::locality::QueryArgs::QueryType::ball"
         nearest "freud::locality::QueryArgs::QueryType::nearest"
@@ -34,7 +33,10 @@ cdef extern from "NeighborQuery.h" namespace "freud::locality":
         shared_ptr[NeighborQueryIterator] queryWithArgs(
             const vec3[float]*, unsigned int, QueryArgs) nogil except +
         shared_ptr[NeighborQueryIterator] query(
-            const vec3[float]*, unsigned int, unsigned int, bool) nogil except +
+            const vec3[float]*,
+            unsigned int,
+            unsigned int,
+            bool) nogil except +
         shared_ptr[NeighborQueryIterator] queryBall(
             const vec3[float]*, unsigned int, float, bool) nogil except +
         const freud._box.Box & getBox() const
