@@ -227,3 +227,10 @@ cdef class MSD:
         self.reset()
         self.accumulate(positions, images)
         return self
+
+    def __repr__(self):
+        return "freud.msd.{cls}(box={box}, mode={mode})".format(
+            cls=type(self).__name__, box=self.box, mode=repr(self.mode))
+
+    def __str__(self):
+        return repr(self)

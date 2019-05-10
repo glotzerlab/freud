@@ -9,7 +9,7 @@ cimport freud.box
 
 cdef class NeighborQueryResult:
     cdef freud._locality.NeighborQuery * nqptr
-    cdef float[:, ::1] points
+    cdef const float[:, ::1] points
     cdef float r
     cdef unsigned int k
     cdef unsigned int Np
@@ -27,7 +27,7 @@ cdef class NeighborQueryResult:
     # compile with a cdef method.
     @staticmethod
     cdef inline NeighborQueryResult init(
-            freud._locality.NeighborQuery * nqptr, float[:, ::1] points,
+            freud._locality.NeighborQuery * nqptr, const float[:, ::1] points,
             cbool exclude_ii, float r=0, unsigned int k=0):
         # Internal API only
         assert r != 0 or k != 0
@@ -56,7 +56,7 @@ cdef class AABBQueryResult(NeighborQueryResult):
 
     @staticmethod
     cdef inline AABBQueryResult init_aabb_nn(
-            freud._locality.AABBQuery * aabbptr, float[:, ::1] points,
+            freud._locality.AABBQuery * aabbptr, const float[:, ::1] points,
             cbool exclude_ii, unsigned int k, float r, float scale):
         # Internal API only
         assert k != 0
@@ -83,7 +83,7 @@ cdef class NeighborQuery:
     cdef freud._locality.NeighborQuery * nqptr
     cdef cbool queryable
     cdef freud.box.Box _box
-    cdef float[:, ::1] points
+    cdef const float[:, ::1] points
 
 cdef class NeighborList:
     cdef freud._locality.NeighborList * thisptr

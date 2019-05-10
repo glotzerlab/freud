@@ -38,7 +38,7 @@ except ImportError:
 np.import_array()
 
 
-class Voronoi:
+class Voronoi(object):
     R"""Compute the Voronoi tessellation of a 2D or 3D system using qhull.
     This uses :class:`scipy.spatial.Voronoi`, accounting for periodic
     boundary conditions.
@@ -442,3 +442,10 @@ class Voronoi:
                 Voronoi polytope volumes/areas.
         """
         return self._poly_volumes
+
+    def __repr__(self):
+        return "freud.voronoi.{cls}(box={box}, buff={buff})".format(
+            cls=type(self).__name__, box=self._box, buff=self._buff)
+
+    def __str__(self):
+        return repr(self)

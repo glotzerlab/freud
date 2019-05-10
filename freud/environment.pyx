@@ -90,7 +90,7 @@ cdef class BondOrder:
     .. moduleauthor:: Erin Teich <erteich@umich.edu>
 
     Args:
-        r_max (float):
+        rmax (float):
             Distance over which to calculate.
         k (unsigned int):
             Order parameter i. To be removed.
@@ -215,10 +215,10 @@ cdef class BondOrder:
             b, ref_points, points, self.num_neigh, nlist, None, self.rmax)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
-        cdef float[:, ::1] l_ref_points = ref_points
-        cdef float[:, ::1] l_points = points
-        cdef float[:, ::1] l_ref_orientations = ref_orientations
-        cdef float[:, ::1] l_orientations = orientations
+        cdef const float[:, ::1] l_ref_points = ref_points
+        cdef const float[:, ::1] l_points = points
+        cdef const float[:, ::1] l_ref_orientations = ref_orientations
+        cdef const float[:, ::1] l_orientations = orientations
         cdef unsigned int n_ref = l_ref_points.shape[0]
         cdef unsigned int n_p = l_points.shape[0]
 
@@ -293,7 +293,7 @@ cdef class BondOrder:
         cdef unsigned int n_bins_theta = self.thisptr.getNBinsTheta()
         if not n_bins_theta:
             return np.asarray([], dtype=np.float32)
-        cdef float[::1] theta = \
+        cdef const float[::1] theta = \
             <float[:n_bins_theta]> self.thisptr.getTheta().get()
         return np.asarray(theta)
 
@@ -302,7 +302,7 @@ cdef class BondOrder:
         cdef unsigned int n_bins_phi = self.thisptr.getNBinsPhi()
         if not n_bins_phi:
             return np.asarray([], dtype=np.float32)
-        cdef float[::1] phi = \
+        cdef const float[::1] phi = \
             <float[:n_bins_phi]> self.thisptr.getPhi().get()
         return np.asarray(phi)
 
@@ -315,14 +315,14 @@ cdef class BondOrder:
         return self.thisptr.getNBinsPhi()
 
     def __repr__(self):
-        return ("freud.environment.{cls}(rmax={rmax}, k={k}, " +
-                "num_neigh={num_neigh}, n_bins_t={n_bins_t}, " +
-                "n_bins_p={n_bins_p})".format(cls=type(self).__name__,
-                                              rmax=self.rmax,
-                                              k=self.k,
-                                              num_neigh=self.num_neigh,
-                                              n_bins_t=self.n_bins_t,
-                                              n_bins_p=self.n_bins_p))
+        return ("freud.environment.{cls}(rmax={rmax}, k={k}, "
+                "n={num_neigh}, n_bins_t={n_bins_t}, "
+                "n_bins_p={n_bins_p})").format(cls=type(self).__name__,
+                                               rmax=self.rmax,
+                                               k=self.k,
+                                               num_neigh=self.num_neigh,
+                                               n_bins_t=self.n_bins_t,
+                                               n_bins_p=self.n_bins_p)
 
     def __str__(self):
         return repr(self)
@@ -422,9 +422,9 @@ cdef class LocalDescriptors:
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        cdef float[:, ::1] l_points_ref = points_ref
+        cdef const float[:, ::1] l_points_ref = points_ref
         cdef unsigned int nRef = l_points_ref.shape[0]
-        cdef float[:, ::1] l_points = points
+        cdef const float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
         with nogil:
             self.thisptr.computeNList(
@@ -484,7 +484,7 @@ cdef class LocalDescriptors:
             raise TypeError('points should be an Nx3 array')
 
         # The l_orientations_ptr is only used for 'particle_local' mode.
-        cdef float[:, ::1] l_orientations
+        cdef const float[:, ::1] l_orientations
         cdef quat[float]* l_orientations_ptr = NULL
         if mode == 'particle_local':
             if orientations is None:
@@ -505,9 +505,9 @@ cdef class LocalDescriptors:
             l_orientations = orientations
             l_orientations_ptr = <quat[float]*> &l_orientations[0, 0]
 
-        cdef float[:, ::1] l_points_ref = points_ref
+        cdef const float[:, ::1] l_points_ref = points_ref
         cdef unsigned int nRef = l_points_ref.shape[0]
-        cdef float[:, ::1] l_points = points
+        cdef const float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
         cdef freud._environment.LocalDescriptorOrientation l_mode
 
@@ -556,13 +556,13 @@ cdef class LocalDescriptors:
         return self.thisptr.getLMax()
 
     def __repr__(self):
-        return ("freud.environment.{cls}(num_neigh={num_neigh}, " +
-                "lmax={lmax}, rmax={rmax}, " +
-                "negative_m={negative_m})".format(cls=type(self).__name__,
-                                                  num_neigh=self.num_neigh,
-                                                  lmax=self.lmax,
-                                                  rmax=self.rmax,
-                                                  negative_m=self.negative_m))
+        return ("freud.environment.{cls}(num_neighbors={num_neigh}, "
+                "lmax={lmax}, rmax={rmax}, "
+                "negative_m={negative_m})").format(cls=type(self).__name__,
+                                                   num_neigh=self.num_neigh,
+                                                   lmax=self.lmax,
+                                                   rmax=self.rmax,
+                                                   negative_m=self.negative_m)
 
     def __str__(self):
         return repr(self)
@@ -657,7 +657,7 @@ cdef class MatchEnv:
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        cdef float[:, ::1] l_points = points
+        cdef const float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
 
         cdef freud.locality.NeighborList nlist_
@@ -826,8 +826,8 @@ cdef class MatchEnv:
         if refPoints2.shape[1] != 3:
             raise TypeError('refPoints2 should be an Nx3 array')
 
-        cdef float[:, ::1] l_refPoints1 = refPoints1
-        cdef float[:, ::1] l_refPoints2 = refPoints2
+        cdef const float[:, ::1] l_refPoints1 = refPoints1
+        cdef const float[:, ::1] l_refPoints2 = refPoints2
         cdef unsigned int nRef1 = l_refPoints1.shape[0]
         cdef unsigned int nRef2 = l_refPoints2.shape[0]
         cdef float threshold_sq = threshold*threshold
@@ -876,8 +876,8 @@ cdef class MatchEnv:
         if refPoints2.shape[1] != 3:
             raise TypeError('refPoints2 should be an Nx3 array')
 
-        cdef float[:, ::1] l_refPoints1 = refPoints1
-        cdef float[:, ::1] l_refPoints2 = refPoints2
+        cdef const float[:, ::1] l_refPoints1 = refPoints1
+        cdef const float[:, ::1] l_refPoints2 = refPoints2
         cdef unsigned int nRef1 = l_refPoints1.shape[0]
         cdef unsigned int nRef2 = l_refPoints2.shape[0]
 
@@ -899,7 +899,7 @@ cdef class MatchEnv:
         cdef unsigned int n_particles = self.thisptr.getNP()
         if not n_particles:
             return np.asarray([], dtype=np.uint32)
-        cdef unsigned int[::1] clusters = \
+        cdef const unsigned int[::1] clusters = \
             <unsigned int[:n_particles]> self.thisptr.getClusters().get()
         return np.asarray(clusters)
 
@@ -916,7 +916,7 @@ cdef class MatchEnv:
         cdef unsigned int max_neighbors = self.thisptr.getMaxNumNeighbors()
         if not max_neighbors:
             return np.asarray([[]], dtype=np.float32)
-        cdef float[:, ::1] environment = \
+        cdef const float[:, ::1] environment = \
             <float[:max_neighbors, :3]> (
                 <float*> self.thisptr.getEnvironment(i).get())
         return np.asarray(environment)
@@ -927,7 +927,7 @@ cdef class MatchEnv:
         cdef unsigned int max_neighbors = self.thisptr.getMaxNumNeighbors()
         if not n_particles or not max_neighbors:
             return np.asarray([[[]]], dtype=np.float32)
-        cdef float[:, :, ::1] tot_environment = \
+        cdef const float[:, :, ::1] tot_environment = \
             <float[:n_particles, :max_neighbors, :3]> (
                 <float*> self.thisptr.getTotEnvironment().get())
         return np.asarray(tot_environment)
@@ -1060,9 +1060,9 @@ cdef class AngularSeparation:
             b, ref_points, points, self.num_neigh, nlist, None, self.rmax)
         self.nlist_ = defaulted_nlist[0].copy()
 
-        cdef float[:, ::1] l_ref_ors = ref_ors
-        cdef float[:, ::1] l_ors = ors
-        cdef float[:, ::1] l_equiv_quats = equiv_quats
+        cdef const float[:, ::1] l_ref_ors = ref_ors
+        cdef const float[:, ::1] l_ors = ors
+        cdef const float[:, ::1] l_equiv_quats = equiv_quats
 
         cdef unsigned int nRef = l_ref_ors.shape[0]
         cdef unsigned int nP = l_ors.shape[0]
@@ -1113,9 +1113,9 @@ cdef class AngularSeparation:
         if equiv_quats.shape[1] != 4:
             raise TypeError('equiv_quats should be an N_equiv x 4 array')
 
-        cdef float[:, ::1] l_global_ors = global_ors
-        cdef float[:, ::1] l_ors = ors
-        cdef float[:, ::1] l_equiv_quats = equiv_quats
+        cdef const float[:, ::1] l_global_ors = global_ors
+        cdef const float[:, ::1] l_ors = ors
+        cdef const float[:, ::1] l_equiv_quats = equiv_quats
 
         cdef unsigned int nGlobal = l_global_ors.shape[0]
         cdef unsigned int nP = l_ors.shape[0]
@@ -1134,7 +1134,7 @@ cdef class AngularSeparation:
         cdef unsigned int n_bonds = len(self.nlist)
         if not n_bonds:
             return np.asarray([], dtype=np.float32)
-        cdef float[::1] neighbor_angles = \
+        cdef const float[::1] neighbor_angles = \
             <float[:n_bonds]> self.thisptr.getNeighborAngles().get()
         return np.asarray(neighbor_angles)
 
@@ -1144,7 +1144,7 @@ cdef class AngularSeparation:
         cdef unsigned int n_global = self.thisptr.getNglobal()
         if not n_particles or not n_global:
             return np.empty((n_particles, n_global), dtype=np.float32)
-        cdef float[:, ::1] global_angles = \
+        cdef const float[:, ::1] global_angles = \
             <float[:n_particles, :n_global]> \
             self.thisptr.getGlobalAngles().get()
         return np.asarray(global_angles)
@@ -1287,11 +1287,11 @@ cdef class LocalBondProjection:
             box, ref_points, points, self.num_neigh, nlist, None, self.rmax)
         self.nlist_ = defaulted_nlist[0].copy()
 
-        cdef float[:, ::1] l_ref_points = ref_points
-        cdef float[:, ::1] l_ref_ors = ref_ors
-        cdef float[:, ::1] l_points = points
-        cdef float[:, ::1] l_equiv_quats = equiv_quats
-        cdef float[:, ::1] l_proj_vecs = proj_vecs
+        cdef const float[:, ::1] l_ref_points = ref_points
+        cdef const float[:, ::1] l_ref_ors = ref_ors
+        cdef const float[:, ::1] l_points = points
+        cdef const float[:, ::1] l_equiv_quats = equiv_quats
+        cdef const float[:, ::1] l_proj_vecs = proj_vecs
 
         cdef unsigned int nRef = l_ref_points.shape[0]
         cdef unsigned int nP = l_points.shape[0]
@@ -1316,7 +1316,7 @@ cdef class LocalBondProjection:
             len(self.nlist) * self.thisptr.getNproj()
         if not n_bond_projections:
             return np.asarray([], dtype=np.float32)
-        cdef float[::1] projections = \
+        cdef const float[::1] projections = \
             <float[:n_bond_projections]> self.thisptr.getProjections().get()
         return np.asarray(projections)
 
@@ -1326,7 +1326,7 @@ cdef class LocalBondProjection:
             len(self.nlist) * self.thisptr.getNproj()
         if not n_bond_projections:
             return np.asarray([], dtype=np.float32)
-        cdef float[::1] normed_projections = \
+        cdef const float[::1] normed_projections = \
             <float[:n_bond_projections]> \
             self.thisptr.getNormedProjections().get()
         return np.asarray(normed_projections)

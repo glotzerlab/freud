@@ -91,6 +91,13 @@ class TestCluster(unittest.TestCase):
 
         self.assertTrue(np.all(ckeys == check_values))
 
+    def test_repr(self):
+        box = freud.box.Box(Lx=2, Ly=2, Lz=2, xy=1, xz=0, yz=1)
+        clust = freud.cluster.Cluster(box, 0.5)
+        self.assertEqual(str(clust), str(eval(repr(clust))))
+        props = freud.cluster.ClusterProperties(box)
+        self.assertEqual(str(props), str(eval(repr(props))))
+
 
 if __name__ == '__main__':
     unittest.main()
