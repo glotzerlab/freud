@@ -294,7 +294,7 @@ cdef class NeighborQuery:
         if 'rmax' not in query_args:
             args.rmax = 0
 
-        iterator = self.nqptr.query_with_args(
+        iterator = self.nqptr.queryWithArgs(
             <vec3[float]*> &l_points[0, 0],
             points.shape[0],
             dereference(args.thisptr))
@@ -851,15 +851,7 @@ cdef class AABBQuery(NeighborQuery):
         cdef const float[:, ::1] l_points = points
         cdef _QueryArgs args = parse_query_args(query_args)
 
-        # Default guess value
-        if 'rmax' not in query_args:
-            if query_args['mode'] == 'ball':
-                args.rmax = 0.1*min(self._box.L)
-            else:
-                args.rmax = 0.1*min(self._box.L)
-        # print("the args: ", query_args)
-
-        iterator = self.nqptr.query_with_args(
+        iterator = self.nqptr.queryWithArgs(
             <vec3[float]*> &l_points[0, 0],
             points.shape[0],
             dereference(args.thisptr))

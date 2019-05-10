@@ -51,8 +51,9 @@ class AABBQuery : public NeighborQuery
          *  overloading abilities seem buggy at best, so it's easiest to just
          *  rename the function.
          */
-        virtual std::shared_ptr<NeighborQueryIterator> query_with_args(const vec3<float> *points, unsigned int N, QueryArgs args)
+        virtual std::shared_ptr<NeighborQueryIterator> queryWithArgs(const vec3<float> *points, unsigned int N, QueryArgs args)
             {
+            this->validateQueryArgs(args);
             if (args.mode == QueryArgs::ball)
                 {
                 return queryBall(points, N, args.rmax, args.exclude_ii);
@@ -85,6 +86,30 @@ class AABBQuery : public NeighborQuery
 
         AABBTree m_aabb_tree; //!< AABB tree of points
 
+    protected:
+        virtual void validateQueryArgs(QueryArgs& args)
+            {
+            if (args.mode == QueryArgs::ball)
+                {
+                if (args.rmax == -1)
+                    throw std::runtime_error("You must set rmax in the query arguments.");
+                }
+            else if (args.mode == QueryArgs::nearest)
+                {
+                if (args.nn == -1)
+                    throw std::runtime_error("You must set nn in the query arguments.");
+                if (args.scale == -1)
+                    {
+                    args.scale = 1.1;
+                    }
+                if (args.rmax == -1)
+                    {
+                    vec3<float> L = this->getBox().getL();
+                    args.rmax = 0.1*std::min(std::min(L.x, L.y), L.z);
+                    }
+                }
+            }
+
     private:
         //! Driver for tree configuration
         void setupTree(unsigned int N);
@@ -100,7 +125,7 @@ class AABBQuery : public NeighborQuery
     };
 
 //! Parent class of AABB iterators that knows how to traverse general AABB tree structures
-class AABBIterator : public NeighborQueryIterator
+class AABBIterator : virtual public NeighborQueryIterator
     {
     public:
         //! Constructor
@@ -121,13 +146,13 @@ class AABBIterator : public NeighborQueryIterator
     };
 
 //! Iterator that gets nearest neighbors from AABB tree structures
-class AABBQueryIterator : public AABBIterator
+class AABBQueryIterator : virtual public NeighborQueryQueryIterator, virtual public AABBIterator
     {
     public:
         //! Constructor
         AABBQueryIterator(const AABBQuery* neighbor_query,
                 const vec3<float> *points, unsigned int N, unsigned int k, float r, float scale, bool exclude_ii) :
-            AABBIterator(neighbor_query, points, N, exclude_ii), m_k(k), m_r(r), m_r_cur(r), m_scale(scale), m_current_neighbors()
+            NeighborQueryIterator(neighbor_query, points, N, exclude_ii), NeighborQueryQueryIterator(neighbor_query, points, N, exclude_ii, k), AABBIterator(neighbor_query, points, N, exclude_ii), m_r(r), m_r_cur(r), m_scale(scale)
             {
             updateImageVectors(0);
             }
@@ -142,20 +167,18 @@ class AABBQueryIterator : public AABBIterator
         virtual std::shared_ptr<NeighborQueryIterator> query(unsigned int idx);
 
     protected:
-        unsigned int m_k; //!< Number of nearest neighbors to find.
         float m_r;        //!< Ball cutoff distance. Used as a guess.
         float m_r_cur;  //!< Current search ball cutoff distance in use for the current particle (expands as needed).
         float m_scale;    //!< The amount to scale m_r by when the current ball is too small.
-        std::vector<NeighborPoint> m_current_neighbors; //!< The current set of found neighbors.
     };
 
 //! Iterator that gets neighbors in a ball of size r using AABB tree structures
-class AABBQueryBallIterator : public AABBIterator
+class AABBQueryBallIterator : virtual public AABBIterator
     {
     public:
         //! Constructor
         AABBQueryBallIterator(const AABBQuery* neighbor_query, const vec3<float> *points, unsigned int N, float r, bool exclude_ii) :
-            AABBIterator(neighbor_query, points, N, exclude_ii), m_r(r), cur_image(0), cur_node_idx(0), cur_ref_p(0)
+            NeighborQueryIterator(neighbor_query, points, N, exclude_ii), AABBIterator(neighbor_query, points, N, exclude_ii), m_r(r), cur_image(0), cur_node_idx(0), cur_ref_p(0)
             {
             updateImageVectors(m_r);
             }

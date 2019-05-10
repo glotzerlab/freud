@@ -31,7 +31,7 @@ cdef extern from "NeighborQuery.h" namespace "freud::locality":
     cdef cppclass NeighborQuery:
         NeighborQuery()
         NeighborQuery(const freud._box.Box &, const vec3[float]*, unsigned int)
-        shared_ptr[NeighborQueryIterator] query_with_args(
+        shared_ptr[NeighborQueryIterator] queryWithArgs(
             const vec3[float]*, unsigned int, QueryArgs) nogil except +
         shared_ptr[NeighborQueryIterator] query(
             const vec3[float]*, unsigned int, unsigned int, bool) nogil except +

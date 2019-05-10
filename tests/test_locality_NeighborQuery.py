@@ -123,8 +123,6 @@ class TestNeighborQuery(object):
         npt.assert_equal(sum(nlist.index_i == 3), 3)
 
     def test_query(self):
-        import freud.parallel
-        freud.parallel.setNumThreads(1)
         L = 10  # Box Dimensions
         N = 4  # number of particles
 
@@ -144,7 +142,7 @@ class TestNeighborQuery(object):
         npt.assert_equal(get_point_neighbors(result, 3), {1, 2, 3})
 
         # All other points are neighbors when self-neighbors are excluded.
-        result = sorted(list(nq.query(points, 3, exclude_ii=True)))
+        result = list(nq.query(points, 3, exclude_ii=True))
         npt.assert_equal(get_point_neighbors(result, 0), {1, 2, 3})
         npt.assert_equal(get_point_neighbors(result, 1), {0, 2, 3})
         npt.assert_equal(get_point_neighbors(result, 2), {0, 1, 3})
@@ -160,8 +158,6 @@ class TestNeighborQuery(object):
         npt.assert_equal(list(nq.query(points, 5, exclude_ii=True)), result)
 
     def test_query_generic(self):
-        import freud.parallel
-        freud.parallel.setNumThreads(1)
         L = 10  # Box Dimensions
         N = 4  # number of particles
 
@@ -174,24 +170,25 @@ class TestNeighborQuery(object):
         points[3] = [2.0, 0.0, 0.0]
         nq = self.build_query_object(box, points, L/10)
 
-        # nlist = nq._queryGeneric(points, dict(mode='nearest', nn=3))
-        # result = sorted(list(zip(nlist.index_i, nlist.index_j)))
-        # npt.assert_equal(get_point_neighbors(result, 0), {0, 1, 3})
-        # npt.assert_equal(get_point_neighbors(result, 1), {0, 1, 3})
-        # npt.assert_equal(get_point_neighbors(result, 2), {1, 2, 3})
-        # npt.assert_equal(get_point_neighbors(result, 3), {1, 2, 3})
+        nlist = nq._queryGeneric(points, dict(mode='nearest', nn=3))
+        result = list(zip(nlist.index_i, nlist.index_j))
+        npt.assert_equal(get_point_neighbors(result, 0), {0, 1, 3})
+        npt.assert_equal(get_point_neighbors(result, 1), {0, 1, 3})
+        npt.assert_equal(get_point_neighbors(result, 2), {1, 2, 3})
+        npt.assert_equal(get_point_neighbors(result, 3), {1, 2, 3})
 
         # All other points are neighbors when self-neighbors are excluded.
         nlist = nq._queryGeneric(points, dict(mode='nearest', nn=3, exclude_ii=True))
-        result = sorted(list(zip(nlist.index_i, nlist.index_j)))
-        print(result)
+        result = list(zip(nlist.index_i, nlist.index_j))
         npt.assert_equal(get_point_neighbors(result, 0), {1, 2, 3})
         npt.assert_equal(get_point_neighbors(result, 1), {0, 2, 3})
         npt.assert_equal(get_point_neighbors(result, 2), {0, 1, 3})
         npt.assert_equal(get_point_neighbors(result, 3), {0, 1, 2})
 
-        # Test overflow case
-        npt.assert_equal(list(nq.query(points, 5, exclude_ii=True)), result)
+        # Test overflow case. Need to sort because the nlist output of
+        # _queryGeneric is sorted by ref_point by construction.
+        all_results = sorted([(x[0], x[1]) for x in nq.query(points, 5, exclude_ii=True)])
+        npt.assert_equal(all_results, result)
 
     def test_query_ball_to_nlist(self):
         """Test that generated NeighborLists are identical to the results of
