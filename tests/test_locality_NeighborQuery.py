@@ -336,7 +336,7 @@ class TestNeighborQuery(object):
                     seed, i))
                 raise
 
-    def test_exhaustive_search_assymmetric(self):
+    def test_exhaustive_search_asymmetric(self):
         L, rcut, N = (10, 1.999, 32)
 
         box = freud.box.Box.cube(L)
@@ -407,6 +407,29 @@ class TestNeighborQuery(object):
         result = list(nq.queryBall(positions, 0.99, exclude_ii=True))
 
         self.assertEqual(len(result), 0)
+
+    def test_random_system_query(self):
+        np.random.seed(0)
+        L = 10
+        box = freud.box.Box.cube(L)
+
+        # Generate random points
+        for N in (100, 1000):
+            positions = box.wrap(L * np.random.rand(N, 3))
+            for k in (1, 5, 10, 50):
+                nq = self.build_query_object(box, positions, L/10)
+
+                nlist = nq.query(positions, k=k, exclude_ii=True).toNList()
+                assert len(nlist) == k * N
+                nlist_array = nlist[:]
+                for i in range(N):
+                    assert not ([i, i] == nlist_array).all(axis=1).any()
+
+                nlist = nq.query(positions, k=k, exclude_ii=False).toNList()
+                assert len(nlist) == k * N
+                nlist_array = nlist[:]
+                for i in range(N):
+                    assert ([i, i] == nlist_array).all(axis=1).any()
 
 
 class TestNeighborQueryAABB(TestNeighborQuery, unittest.TestCase):
