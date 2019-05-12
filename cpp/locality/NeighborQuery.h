@@ -334,7 +334,7 @@ class NeighborQueryQueryIterator : virtual public NeighborQueryIterator
     public:
         //! Constructor
         NeighborQueryQueryIterator(const NeighborQuery* neighbor_query, const vec3<float> *points, unsigned int N, bool exclude_ii, unsigned int k) :
-            NeighborQueryIterator(neighbor_query, points, N, exclude_ii), m_k(k), m_current_neighbors()
+            NeighborQueryIterator(neighbor_query, points, N, exclude_ii), m_count(0), m_k(k), m_current_neighbors()
             {}
 
         //! Empty Destructor
@@ -356,6 +356,7 @@ class NeighborQueryQueryIterator : virtual public NeighborQueryIterator
             }
 
     protected:
+        unsigned int m_count;                           //!< Number of neighbors returned for the current point.
         unsigned int m_k;                               //!< Number of nearest neighbors to find
         std::vector<NeighborPoint> m_current_neighbors; //!< The current set of found neighbors.
     };

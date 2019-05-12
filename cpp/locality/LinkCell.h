@@ -501,7 +501,7 @@ class LinkCellQueryIterator : virtual public NeighborQueryQueryIterator, virtual
     public:
         //! Constructor
         LinkCellQueryIterator(const LinkCell* neighbor_query, const vec3<float> *points, unsigned int N, unsigned int k, bool exclude_ii) :
-            NeighborQueryIterator(neighbor_query, points, N, exclude_ii), NeighborQueryQueryIterator(neighbor_query, points, N, exclude_ii, k), LinkCellIterator(neighbor_query, points, N, exclude_ii), m_count(0)
+            NeighborQueryIterator(neighbor_query, points, N, exclude_ii), NeighborQueryQueryIterator(neighbor_query, points, N, exclude_ii, k), LinkCellIterator(neighbor_query, points, N, exclude_ii)
             {}
 
         //! Empty Destructor
@@ -512,9 +512,6 @@ class LinkCellQueryIterator : virtual public NeighborQueryQueryIterator, virtual
 
         //! Create an equivalent new query iterator on a per-particle basis.
         virtual std::shared_ptr<NeighborQueryIterator> query(unsigned int idx);
-
-    protected:
-        unsigned int m_count;                           //!< Number of neighbors returned for the current point.
     };
 
 //! Iterator that gets neighbors in a ball of size r using LinkCell tree structures

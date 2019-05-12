@@ -231,28 +231,23 @@ NeighborPoint AABBQueryIterator::next()
                 m_r_cur *= m_scale;
                 if ((m_current_neighbors.size() >= m_k) || (m_r_cur > min_plane_distance/2))
                     {
-                    // Note that we use reverse iterators to sort in descending
-                    // order so that we can use pop_back to remove the item from
-                    // the vector before returning it.
-                    std::sort(m_current_neighbors.rbegin(), m_current_neighbors.rend());
+                    std::sort(m_current_neighbors.begin(), m_current_neighbors.end());
                     break;
                     }
                 }
             }
 
         // Now we return all the points found for the current point
-        if (m_current_neighbors.size())
+        while ((m_count < m_k) && (m_count < m_current_neighbors.size()))
             {
-            NeighborPoint ret_obj = m_current_neighbors.back();
-            m_current_neighbors.pop_back();
-
-            if (!m_current_neighbors.size())
-                {
-                m_r_cur = m_r;
-                cur_p++;
-                }
-            return ret_obj;
+            m_count++;
+            return m_current_neighbors[m_count-1];
             }
+
+        cur_p++;
+        m_count = 0;
+        m_current_neighbors.clear();
+        m_r_cur = m_r;
         }
     m_finished = true;
     return NeighborQueryIterator::ITERATOR_TERMINATOR;
