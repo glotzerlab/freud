@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include <tbb/tbb.h>
 #include <tuple>
+#include <limits>
 
 #include "AABBQuery.h"
 
@@ -229,11 +230,38 @@ NeighborPoint AABBQueryIterator::next()
 
                 // Break if there are enough neighbors, or if we are querying beyond the limits of the periodic box.
                 m_r_cur *= m_scale;
-                if ((m_current_neighbors.size() >= m_k) || (m_r_cur > min_plane_distance/2))
+
+                if (m_current_neighbors.size() >= m_k)
                     {
                     std::sort(m_current_neighbors.begin(), m_current_neighbors.end());
                     break;
                     }
+                else if (m_r_cur > min_plane_distance/2)
+                    {
+                    // If we've exceeded the ball query cutoff limit, but this
+                    // is the first time we've hit the limit, then we need to
+                    // make sure that we search the maximum possible radius in
+                    // one round of querying, otherwise we could miss some
+                    // neighbors whose distance from the current particle is
+                    // some small amount epsilon less than the max querying
+                    // distance (min_plane_distance/2).
+                    if (!m_checked_rmax)
+                        {
+                        m_checked_rmax = true;
+                        m_r_cur = (min_plane_distance/2)*(1-std::numeric_limits<float>::epsilon());
+                        }
+                    else
+                        {
+                        std::sort(m_current_neighbors.begin(), m_current_neighbors.end());
+                        break;
+                        }
+                    }
+
+                //if ((m_current_neighbors.size() >= m_k) || (m_r_cur > min_plane_distance/2))
+                    //{
+                    //std::sort(m_current_neighbors.begin(), m_current_neighbors.end());
+                    //break;
+                    //}
                 }
             }
 
@@ -248,6 +276,7 @@ NeighborPoint AABBQueryIterator::next()
         m_count = 0;
         m_current_neighbors.clear();
         m_r_cur = m_r;
+        m_checked_rmax = false;
         }
     m_finished = true;
     return NeighborQueryIterator::ITERATOR_TERMINATOR;

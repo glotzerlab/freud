@@ -152,7 +152,7 @@ class AABBQueryIterator : virtual public NeighborQueryQueryIterator, virtual pub
         //! Constructor
         AABBQueryIterator(const AABBQuery* neighbor_query,
                 const vec3<float> *points, unsigned int N, unsigned int k, float r, float scale, bool exclude_ii) :
-            NeighborQueryIterator(neighbor_query, points, N, exclude_ii), NeighborQueryQueryIterator(neighbor_query, points, N, exclude_ii, k), AABBIterator(neighbor_query, points, N, exclude_ii), m_r(r), m_r_cur(r), m_scale(scale)
+            NeighborQueryIterator(neighbor_query, points, N, exclude_ii), NeighborQueryQueryIterator(neighbor_query, points, N, exclude_ii, k), AABBIterator(neighbor_query, points, N, exclude_ii), m_checked_rmax(false), m_r(r), m_r_cur(r), m_scale(scale)
             {
             updateImageVectors(0);
             }
@@ -167,6 +167,7 @@ class AABBQueryIterator : virtual public NeighborQueryQueryIterator, virtual pub
         virtual std::shared_ptr<NeighborQueryIterator> query(unsigned int idx);
 
     protected:
+        float m_checked_rmax;  //!< Flag to see whether we've reached the max cutoff distance.
         float m_r;        //!< Ball cutoff distance. Used as a guess.
         float m_r_cur;  //!< Current search ball cutoff distance in use for the current particle (expands as needed).
         float m_scale;    //!< The amount to scale m_r by when the current ball is too small.

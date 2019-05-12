@@ -69,7 +69,7 @@ struct QueryArgs {
     };
 
     QueryType mode;     //! The number of nearest neighbors to find.
-    unsigned int nn;    //! The number of nearest neighbors to find.
+    int nn;    //! The number of nearest neighbors to find.
     float rmax;         //! The cutoff distance within which to find neighbors
     float scale;        //! The scale factor to use when performing repeated ball queries to find a specified number of nearest neighbors.
     bool exclude_ii;    //! If true, exclude self-neighbors.
