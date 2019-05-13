@@ -77,7 +77,6 @@ class TestBondOrder(unittest.TestCase):
 
     def test_repr(self):
         bo = freud.environment.BondOrder(1.5, 0, 12, 6, 6)
-        print(repr(bo))
         self.assertEqual(str(bo), str(eval(repr(bo))))
 
 
