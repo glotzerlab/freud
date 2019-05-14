@@ -200,7 +200,11 @@ std::shared_ptr<NeighborQueryIterator> AABBQueryBallIterator::query(unsigned int
 NeighborPoint AABBQueryIterator::next()
     {
     vec3<float> plane_distance = m_neighbor_query->getBox().getNearestPlaneDistance();
-    float min_plane_distance = std::min(std::min(plane_distance.x, plane_distance.y), plane_distance.z);
+    float min_plane_distance = std::min(plane_distance.x, plane_distance.y);
+    if (!m_neighbor_query->getBox().is2D())
+        {
+        min_plane_distance = std::min(min_plane_distance, plane_distance.z);
+        }
 
     while (cur_p < m_N)
         {
@@ -256,12 +260,6 @@ NeighborPoint AABBQueryIterator::next()
                         break;
                         }
                     }
-
-                //if ((m_current_neighbors.size() >= m_k) || (m_r_cur > min_plane_distance/2))
-                    //{
-                    //std::sort(m_current_neighbors.begin(), m_current_neighbors.end());
-                    //break;
-                    //}
                 }
             }
 

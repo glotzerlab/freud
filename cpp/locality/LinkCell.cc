@@ -399,9 +399,7 @@ NeighborPoint LinkCellQueryBallIterator::next()
 
             // Determine the next neighbor cell to consider. We're done if we
             // reach a new shell and the closest point of approach to the new
-            // shell is greater than our rcut. We could be a little more
-            // efficient by also accounting for the position of the point in
-            // the current cell if this is too slow.
+            // shell is greater than our rcut.
             ++m_neigh_cell_iter;
 
             if ((m_neigh_cell_iter.getRange()-1)*m_linkcell->getCellWidth() > m_r)
@@ -435,7 +433,12 @@ std::shared_ptr<NeighborQueryIterator> LinkCellQueryBallIterator::query(unsigned
 NeighborPoint LinkCellQueryIterator::next()
     {
     vec3<float> plane_distance = m_neighbor_query->getBox().getNearestPlaneDistance();
-    float min_plane_distance = std::min(std::min(plane_distance.x, plane_distance.y), plane_distance.z);
+    float min_plane_distance = std::min(plane_distance.x, plane_distance.y);
+    if (!m_neighbor_query->getBox().is2D())
+        {
+        min_plane_distance = std::min(min_plane_distance, plane_distance.z);
+        }
+    std::cout << "Number of cells: " << m_linkcell->getNumCells() << std::endl;
 
     while (cur_p < m_N)
         {
