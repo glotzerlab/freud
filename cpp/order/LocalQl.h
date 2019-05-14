@@ -1,13 +1,14 @@
-// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// Copyright (c) 2010-2019 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #ifndef LOCAL_QL_H
 #define LOCAL_QL_H
 
-#include <memory>
 #include <complex>
 #include <cstring>
+#include <memory>
 #include <stdexcept>
+#include <tbb/tbb.h>
 
 #include "Box.h"
 #include "VectorMath.h"
@@ -18,8 +19,7 @@
     \brief Compute the Ql Steinhardt order parameter.
 */
 
-namespace freud {
-namespace order {
+namespace freud { namespace order {
 
 //! Compute the Steinhardt local rotationally invariant Ql order parameter for a set of points
 /*!
@@ -57,7 +57,8 @@ class LocalQl
          *  \param rmin (optional) Lower bound for computing the local order parameter.
          *                         Allows looking at, for instance, only the second shell, or some other arbitrary rdf region.
          */
-        LocalQl(const box::Box& box, float rmax, unsigned int l, float rmin=0):m_box(box), m_rmax(rmax), m_l(l) , m_rmin(rmin)
+        LocalQl(const box::Box& box, float rmax, unsigned int l, float rmin=0) :
+            m_Np(0), m_box(box), m_rmax(rmax), m_l(l), m_rmin(rmin)
             {
             if (m_rmax < 0.0f || m_rmin < 0.0f)
                 throw std::invalid_argument("LocalQl requires rmin and rmax must be positive.");
@@ -67,8 +68,19 @@ class LocalQl
                 throw std::invalid_argument("LocalQl requires l must be two or greater.");
             }
 
-        //! Empty destructor; all memory management is handled by shared pointers as member variables.
-        virtual ~LocalQl() {};
+        //! Destructor
+        virtual ~LocalQl()
+            {
+            for (tbb::enumerable_thread_specific<std::complex<float> *>::iterator i = m_Qlm_local.begin(); i != m_Qlm_local.end(); ++i)
+                {
+                delete[] (*i);
+                }
+
+            for (tbb::enumerable_thread_specific<std::complex<float> *>::iterator i = m_AveQlm_local.begin(); i != m_AveQlm_local.end(); ++i)
+                {
+                delete[] (*i);
+                }
+            }
 
         //! Get the simulation box
         const box::Box& getBox() const
@@ -88,13 +100,6 @@ class LocalQl
             return m_Np;
             }
 
-        //! Get a reference to the last computed Ql for each particle.
-        //  Returns NaN for particles with no neighbors.
-        std::shared_ptr<float> getQl() const
-            {
-            return m_Qli;
-            }
-
         //! Compute the order parameter
         virtual void compute(const locality::NeighborList *nlist,
                              const vec3<float> *points,
@@ -102,16 +107,26 @@ class LocalQl
 
         //! Compute the order parameter averaged over the second neighbor shell
         virtual void computeAve(const locality::NeighborList *nlist,
-                        const vec3<float> *points,
-                        unsigned int Np);
+                                const vec3<float> *points,
+                                unsigned int Np);
 
         //! Compute the order parameter globally (averaging over the system Qlm)
-        virtual void computeNorm(const vec3<float> *points,
-                         unsigned int Np);
+        virtual void computeNorm(const vec3<float> *points, unsigned int Np);
 
-        //! Compute the order parameter averaged over the second neighbor shell, then take a global average over the entire system
-        virtual void computeAveNorm(const vec3<float> *points,
-                         unsigned int Np);
+        //! Compute the order parameter averaged over the second neighbor shell,
+        //  then take a global average over the entire system
+        virtual void computeAveNorm(const vec3<float> *points, unsigned int Np);
+
+        //! \internal
+        //! helper function to reduce the thread specific arrays into one array
+        void reduce();
+
+        //! Get a reference to the last computed Ql for each particle.
+        //  Returns NaN for particles with no neighbors.
+        std::shared_ptr<float> getQl() const
+            {
+            return m_Qli;
+            }
 
         //! Get a reference to the last computed AveQl for each particle.
         //  Returns NaN for particles with no neighbors.
@@ -136,29 +151,32 @@ class LocalQl
 
     protected:
         //! Spherical harmonics calculation for Ylm filling a
-        //  vector<complex<float>> with values for m = -l..l.
-        virtual void Ylm(const float theta, const float phi, std::vector<std::complex<float> > &Y);
+        //  vector<complex<float> > with values for m = -l..l.
+        virtual void computeYlm(const float theta, const float phi,
+                                std::vector<std::complex<float> > &Ylm);
 
         unsigned int m_Np;     //!< Last number of points computed
         box::Box m_box;        //!< Simulation box where the particles belong
         float m_rmax;          //!< Maximum r at which to determine neighbors
         unsigned int m_l;      //!< Spherical harmonic l value.
         float m_rmin;          //!< Minimum r at which to determine neighbors (default 0)
+        bool m_reduce;         //!< Whether Qlm arrays need to be reduced across threads
 
-        std::shared_ptr< std::complex<float> > m_Qlmi;  //!  Qlm for each particle i
-        std::shared_ptr< std::complex<float> > m_Qlm;         //!< Normalized Qlm for the whole system
+        std::shared_ptr<std::complex<float> > m_Qlmi;  //!< Qlm for each particle i
+        std::shared_ptr<std::complex<float> > m_Qlm;   //!< Normalized Qlm for the whole system
+        tbb::enumerable_thread_specific<std::complex<float> *> m_Qlm_local; //!< Thread-specific m_Qlm
         std::shared_ptr<float> m_Qli;  //!< Ql locally invariant order parameter for each particle i
-        std::shared_ptr< std::complex<float> > m_AveQlmi;     //!< Averaged Qlm with 2nd neighbor shell for each particle i
-        std::shared_ptr< std::complex<float> > m_AveQlm;      //!< Normalized AveQlmi for the whole system
-        std::shared_ptr< float > m_AveQli;  //!< AveQl locally invariant order parameter for each particle i
-        std::shared_ptr< float > m_QliNorm;  //!< QlNorm order parameter for each particle i
-        std::shared_ptr< float > m_QliAveNorm;  //! < QlAveNorm order paramter for each particle i
+        std::shared_ptr<std::complex<float> > m_AveQlmi;  //!< Averaged Qlm with 2nd neighbor shell for each particle i
+        std::shared_ptr<std::complex<float> > m_AveQlm;   //!< Normalized AveQlmi for the whole system
+        tbb::enumerable_thread_specific<std::complex<float> *> m_AveQlm_local; //!< Thread-specific m_AveQlm
+        std::shared_ptr<float> m_AveQli;      //!< AveQl locally invariant order parameter for each particle i
+        std::shared_ptr<float> m_QliNorm;     //!< QlNorm order parameter for each particle i
+        std::shared_ptr<float> m_QliAveNorm;  //!< QlAveNorm order paramter for each particle i
 
     private:
 
     };
 
-}; // end namespace freud::order
-}; // end namespace freud
+}; }; // end namespace freud::order
 
 #endif // LOCAL_QL_H

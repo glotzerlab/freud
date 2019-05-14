@@ -7,11 +7,13 @@ Locality Module
 .. autosummary::
     :nosignatures:
 
+    freud.locality.NeighborQuery
+    freud.locality.NeighborQueryResult
     freud.locality.NeighborList
     freud.locality.IteratorLinkCell
-    freud.locality.AABBQuery
     freud.locality.LinkCell
     freud.locality.NearestNeighbors
+    freud.locality.AABBQuery
 
 .. rubric:: Details
 
@@ -24,23 +26,27 @@ Neighbor List
 .. autoclass:: freud.locality.NeighborList
    :members:
 
-AABB Trees
-==========
+Neighbor Querying
+=================
+
+.. autoclass:: freud.locality.NeighborQuery
+   :members:
+
+.. autoclass:: freud.locality.NeighborQueryResult
+   :members:
 
 .. autoclass:: freud.locality.AABBQuery()
-   :members: compute
+   :members:
+   :inherited-members: queryBall
 
-Cell Lists
-==========
+.. autoclass:: freud.locality.LinkCell(box, cell_width)
+   :members: compute, getCell, getCellNeighbors, itercell, query, queryBall
 
 .. autoclass:: freud.locality.IteratorLinkCell()
    :members:
-
-.. autoclass:: freud.locality.LinkCell(box, cell_width)
-   :members: compute, getCell, getCellNeighbors, itercell
 
 Nearest Neighbors
 =================
 
 .. autoclass:: freud.locality.NearestNeighbors(rmax, n_neigh, scale=1.1, strict_cut=False)
-   :members: compute, getNeighborList, getNeighbors, getRsq, setCutMode
+   :members: compute, getNeighborList, getNeighbors, getRsq

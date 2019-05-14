@@ -17,27 +17,28 @@ class TestMSD(unittest.TestCase):
         self.assertTrue(msd_direct.accumulate(positions).msd == [0])
 
         positions = positions.repeat(10, axis=0)
-        npt.assert_array_almost_equal(msd.compute(positions).msd, 0)
-        npt.assert_array_almost_equal(msd_direct.compute(positions).msd, 0)
+        npt.assert_allclose(msd.compute(positions).msd, 0, atol=1e-4)
+        npt.assert_allclose(msd_direct.compute(positions).msd, 0, atol=1e-4)
 
         positions[:, 0, 0] = np.arange(10)
-        npt.assert_array_almost_equal(
-            msd.compute(positions).msd, np.arange(10)**2, decimal=4)
-        npt.assert_array_almost_equal(
+        npt.assert_allclose(
+            msd.compute(positions).msd, np.arange(10)**2, atol=1e-4)
+        npt.assert_allclose(
             msd_direct.compute(positions).msd, np.arange(10)**2)
 
         positions = positions.repeat(2, axis=1)
         positions[:, 1, :] = 0
-        npt.assert_array_almost_equal(
-            msd.compute(positions).msd, np.arange(10)**2/2, decimal=4)
-        npt.assert_array_almost_equal(
+        npt.assert_allclose(
+            msd.compute(positions).msd, np.arange(10)**2/2, atol=1e-4)
+        npt.assert_allclose(
             msd_direct.compute(positions).msd, np.arange(10)**2/2)
 
         # Test accumulation
+        positions.flags['WRITEABLE'] = False
         msd.reset()
         msd.accumulate(positions[:, [0], :])
         msd.accumulate(positions[:, [1], :])
-        npt.assert_array_almost_equal(
+        npt.assert_allclose(
             msd.msd, msd.compute(positions).msd)
 
         # Test on a lot of random data against a more naive MSD calculation.
@@ -61,8 +62,15 @@ class TestMSD(unittest.TestCase):
             positions = np.random.rand(10, 10, 3)
             simple = simple_msd(positions)
             solution = msd.compute(positions).msd
-            npt.assert_array_almost_equal(solution, simple)
+            npt.assert_allclose(solution, simple, atol=1e-6)
             msd.reset()
+
+    def test_repr(self):
+        msd = freud.msd.MSD()
+        self.assertEqual(str(msd), str(eval(repr(msd))))
+        msd2 = freud.msd.MSD(box=freud.box.Box(1, 2, 3, 4, 5, 6),
+                             mode='direct')
+        self.assertEqual(str(msd2), str(eval(repr(msd2))))
 
 
 if __name__ == '__main__':

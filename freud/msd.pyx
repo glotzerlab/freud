@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2018 The Regents of the University of Michigan
+# Copyright (c) 2010-2019 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 R"""
@@ -85,6 +85,8 @@ cdef class MSD:
         constant over the course of the simulation.
 
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
+
+    .. versionadded:: 1.0
 
     Args:
         box (:class:`freud.box.Box`, optional):
@@ -225,3 +227,10 @@ cdef class MSD:
         self.reset()
         self.accumulate(positions, images)
         return self
+
+    def __repr__(self):
+        return "freud.msd.{cls}(box={box}, mode={mode})".format(
+            cls=type(self).__name__, box=self.box, mode=repr(self.mode))
+
+    def __str__(self):
+        return repr(self)

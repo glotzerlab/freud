@@ -17,11 +17,12 @@ Order Module
     freud.order.LocalWlNear
     freud.order.SolLiq
     freud.order.SolLiqNear
+    freud.order.RotationalAutocorrelation
 
 .. rubric:: Details
 
 .. automodule:: freud.order
-    :synopsis: Compute order parameters
+    :synopsis: Compute order parameters.
 
 Cubatic Order Parameter
 =======================
@@ -73,3 +74,9 @@ Solid-Liquid Order Parameter
 
 .. autoclass:: freud.order.SolLiqNear(box, rmax, Qthreshold, Sthreshold, l, kn)
     :members: compute, computeSolLiqNoNorm, computeSolLiqVariant
+
+Rotational Autocorrelation
+==========================
+
+.. autoclass:: freud.order.RotationalAutocorrelation(l)
+    :members: compute

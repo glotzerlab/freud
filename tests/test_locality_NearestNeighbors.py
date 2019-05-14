@@ -7,6 +7,30 @@ parallel.setNumThreads(1)
 
 
 class TestNearestNeighbors(unittest.TestCase):
+    def test_box_methods(self):
+        L = 10  # Box Dimensions
+        rcut = 3  # Cutoff radius
+        N = 1  # number of particles
+        num_neighbors = 6
+
+        # Initialize Box and cell list
+        cl = locality.NearestNeighbors(rcut, num_neighbors)
+
+        np.random.seed(0)
+        points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
+        cl.compute([L, L, L], points, points)
+
+        self.assertEqual(cl.box, box.Box.cube(L))
+        npt.assert_array_equal(cl.r_sq_list,
+                               [[-1, -1, -1, -1, -1, -1]])
+        npt.assert_array_equal(cl.wrapped_vectors,
+                               [[[-1, -1, -1],
+                                 [-1, -1, -1],
+                                 [-1, -1, -1],
+                                 [-1, -1, -1],
+                                 [-1, -1, -1],
+                                 [-1, -1, -1]]])
+
     def test_neighbor_count(self):
         L = 10  # Box Dimensions
         rcut = 3  # Cutoff radius
@@ -84,8 +108,8 @@ class TestNearestNeighbors(unittest.TestCase):
         rsq_list = cl.r_sq_list
         npt.assert_equal(neighbor_list[0, 0], cl.UINTMAX)
         npt.assert_equal(neighbor_list[1, 0], cl.UINTMAX)
-        npt.assert_equal(rsq_list[0, 0], -1.0)
-        npt.assert_equal(rsq_list[1, 0], -1.0)
+        npt.assert_allclose(rsq_list[0, 0], -1.0, atol=1e-6)
+        npt.assert_allclose(rsq_list[1, 0], -1.0, atol=1e-6)
 
     def test_strict_cutoff(self):
         L = 10  # Box Dimensions
@@ -107,8 +131,8 @@ class TestNearestNeighbors(unittest.TestCase):
         rsq_list = cl.r_sq_list
         npt.assert_equal(neighbor_list[0, 0], 1)
         npt.assert_equal(neighbor_list[0, 1], cl.UINTMAX)
-        npt.assert_equal(rsq_list[0, 0], 1.0)
-        npt.assert_equal(rsq_list[0, 1], -1.0)
+        npt.assert_allclose(rsq_list[0, 0], 1.0, atol=1e-6)
+        npt.assert_allclose(rsq_list[0, 1], -1.0, atol=1e-6)
 
     def test_cheap_hexatic(self):
         """Construct a poor man's hexatic order parameter using
@@ -116,7 +140,7 @@ class TestNearestNeighbors(unittest.TestCase):
         fbox = box.Box.square(10)
 
         # make a square grid
-        xs = np.linspace(-fbox.getLx()/2, fbox.getLx()/2, 10, endpoint=False)
+        xs = np.linspace(-fbox.Lx/2, fbox.Lx/2, 10, endpoint=False)
         positions = np.zeros((len(xs)**2, 3), dtype=np.float32)
         positions[:, :2] = np.array(list(itertools.product(xs, xs)),
                                     dtype=np.float32)

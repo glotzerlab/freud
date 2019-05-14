@@ -13,7 +13,7 @@ Cluster Module
 .. rubric:: Details
 
 .. automodule:: freud.cluster
-    :synopsis: Find clusters
+    :synopsis: Find clusters of points.
 
 Cluster
 =======

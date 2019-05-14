@@ -2,15 +2,11 @@ import numpy as np
 import numpy.testing as npt
 import freud
 import unittest
-from freud.errors import FreudDeprecationWarning
 import warnings
 import util
 
 
 class TestSolLiq(unittest.TestCase):
-    def setUp(self):
-        warnings.simplefilter("ignore", category=FreudDeprecationWarning)
-
     def test_shape(self):
         N = 1000
 
@@ -25,16 +21,11 @@ class TestSolLiq(unittest.TestCase):
         npt.assert_equal(comp.clusters.shape[0], N)
 
         self.assertEqual(box, comp.box)
-        self.assertEqual(box, comp.getBox())
 
         box2 = freud.box.Box.cube(20)
-        comp.setBox(box2)
+        comp.box = box2
         self.assertNotEqual(box, comp.box)
         self.assertEqual(box2, comp.box)
-
-        comp.box = box
-        self.assertNotEqual(box2, comp.box)
-        self.assertEqual(box, comp.box)
 
     def test_identical_environments(self):
         (box, positions) = util.make_fcc(4, 4, 4)
@@ -46,18 +37,19 @@ class TestSolLiq(unittest.TestCase):
         self.assertEqual(len(comp.cluster_sizes), 1)
 
         comp.computeSolLiqNoNorm(positions)
-        self.assertTrue(np.allclose(
-            comp.getLargestClusterSize(), len(positions)))
-        self.assertEqual(len(comp.getClusterSizes()), 1)
+        self.assertTrue(np.allclose(comp.largest_cluster_size, len(positions)))
+        self.assertEqual(len(comp.cluster_sizes), 1)
 
         comp.computeSolLiqVariant(positions)
         self.assertEqual(comp.largest_cluster_size, 1)
+
+    def test_repr(self):
+        box = freud.box.Box.cube(10)
+        comp = freud.order.SolLiq(box, 2, .7, 6, 6)
+        self.assertEqual(str(comp), str(eval(repr(comp))))
 
 
 class TestSolLiqNear(unittest.TestCase):
-    def setUp(self):
-        warnings.simplefilter("ignore", category=FreudDeprecationWarning)
-
     def test_shape(self):
         N = 1000
 
@@ -72,16 +64,11 @@ class TestSolLiqNear(unittest.TestCase):
         npt.assert_equal(comp.clusters.shape[0], N)
 
         self.assertEqual(box, comp.box)
-        self.assertEqual(box, comp.getBox())
 
         box2 = freud.box.Box.cube(20)
-        comp.setBox(box2)
+        comp.box = box2
         self.assertNotEqual(box, comp.box)
         self.assertEqual(box2, comp.box)
-
-        comp.box = box
-        self.assertNotEqual(box2, comp.box)
-        self.assertEqual(box, comp.box)
 
     def test_identical_environments(self):
         (box, positions) = util.make_fcc(4, 4, 4)
@@ -93,12 +80,16 @@ class TestSolLiqNear(unittest.TestCase):
         self.assertEqual(len(comp.cluster_sizes), 1)
 
         comp.computeSolLiqNoNorm(positions)
-        self.assertTrue(np.allclose(
-            comp.getLargestClusterSize(), len(positions)))
-        self.assertEqual(len(comp.getClusterSizes()), 1)
+        self.assertTrue(np.allclose(comp.largest_cluster_size, len(positions)))
+        self.assertEqual(len(comp.cluster_sizes), 1)
 
         comp.computeSolLiqVariant(positions)
         self.assertEqual(comp.largest_cluster_size, 1)
+
+    def test_repr(self):
+        box = freud.box.Box.cube(10)
+        comp = freud.order.SolLiqNear(box, 2, .7, 6, 6, 12)
+        self.assertEqual(str(comp), str(eval(repr(comp))))
 
 
 if __name__ == '__main__':

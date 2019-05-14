@@ -1,15 +1,12 @@
 import numpy as np
+import numpy.testing as npt
 import freud
 import unittest
-from freud.errors import FreudDeprecationWarning
 import warnings
 import itertools
 
 
 class TestTransOrder(unittest.TestCase):
-    def setUp(self):
-        warnings.simplefilter("ignore", category=FreudDeprecationWarning)
-
     def test_simple(self):
         box = freud.box.Box.square(10)
 
@@ -22,14 +19,14 @@ class TestTransOrder(unittest.TestCase):
         trans = freud.order.TransOrderParameter(1.1, 4, 4)
         trans.compute(box, positions)
 
-        self.assertTrue(np.allclose(trans.d_r, 0, atol=1e-7))
-        self.assertTrue(np.allclose(trans.getDr(), 0, atol=1e-7))
+        npt.assert_allclose(trans.d_r, 0, atol=1e-6)
 
         self.assertEqual(box, trans.box)
-        self.assertEqual(box, trans.getBox())
-
         self.assertEqual(len(positions), trans.num_particles)
-        self.assertEqual(len(positions), trans.getNP())
+
+    def test_repr(self):
+        trans = freud.order.TransOrderParameter(1.1, 4, 4)
+        self.assertEqual(str(trans), str(eval(repr(trans))))
 
 
 if __name__ == '__main__':

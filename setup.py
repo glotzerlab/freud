@@ -186,6 +186,8 @@ else:
 directives = {
     'embedsignature': True,
     'binding': True,
+    'boundscheck': False,
+    'wraparound': False,
 }
 macros = []
 
@@ -273,7 +275,7 @@ def find_tbb(tbb_root=None, tbb_include=None, tbb_link=None):
         tbb_include = os.path.join(tbb_root, 'include')
         tbb_link = os.path.join(tbb_root, 'lib')
     elif tbb_include or tbb_link:
-            raise RuntimeError(err_str)
+        raise RuntimeError(err_str)
     else:
         include = os.getenv("TBB_INCLUDE")
         link = os.getenv("TBB_LINK")
@@ -340,6 +342,7 @@ modules = [m.replace(os.path.sep, '.') for m in modules]
 # Source files required for all modules.
 sources_in_all = [
     os.path.join("cpp", "util", "HOOMDMatrix.cc"),
+    os.path.join("cpp", "locality", "NeighborQuery.cc"),
     os.path.join("cpp", "locality", "AABBQuery.cc"),
     os.path.join("cpp", "locality", "LinkCell.cc"),
     os.path.join("cpp", "locality", "NearestNeighbors.cc"),
@@ -379,10 +382,10 @@ if args.use_cython:
 if platform.system() == 'Darwin':
     os.environ["MACOSX_DEPLOYMENT_TARGET"]= "10.12"
 
-version = '0.11.4'
+version = '1.0.0'
 
 # Read README for PyPI, fallback to short description if it fails.
-desc = 'Perform various analyses of particle simulations.'
+desc = 'Powerful, efficient trajectory analysis in scientific Python.'
 try:
     readme_file = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                'README.md')
@@ -402,7 +405,7 @@ try:
               description=desc,
               long_description=readme,
               long_description_content_type='text/markdown',
-              url='http://bitbucket.org/glotzer/freud',
+              url='https://github.com/glotzerlab/freud',
               packages=['freud'],
               python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*',
               install_requires=['numpy>=1.10'],

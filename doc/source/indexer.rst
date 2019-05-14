@@ -13,7 +13,7 @@ Index Module
 .. rubric:: Details
 
 .. automodule:: freud.index
-    :synopsis: Provides flat indexes into higher dimensional arrays
+    :synopsis: Provides flat indexes into higher dimensional arrays.
 
 Index2D
 =======

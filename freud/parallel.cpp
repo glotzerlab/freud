@@ -34,12 +34,14 @@
         "name": "freud.parallel",
         "sources": [
             "freud/parallel.pyx",
-            "cpp/util/HOOMDMatrix.cc",
-            "cpp/box/Box.cc",
-            "cpp/locality/NearestNeighbors.cc",
+            "cpp/locality/NeighborQuery.cc",
             "cpp/locality/NeighborList.cc",
+            "cpp/box/Box.cc",
+            "cpp/locality/LinkCell.cc",
+            "cpp/locality/AABBQuery.cc",
             "cpp/parallel/tbb_config.cc",
-            "cpp/locality/LinkCell.cc"
+            "cpp/locality/NearestNeighbors.cc",
+            "cpp/util/HOOMDMatrix.cc"
         ]
     },
     "module_name": "freud.parallel"
@@ -2431,7 +2433,7 @@ if (!__Pyx_RefNanny) {
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
   /* "freud/parallel.pyx":1
- * # Copyright (c) 2010-2018 The Regents of the University of Michigan             # <<<<<<<<<<<<<<
+ * # Copyright (c) 2010-2019 The Regents of the University of Michigan             # <<<<<<<<<<<<<<
  * # This file is from the freud project, released under the BSD 3-Clause License.
  * 
  */

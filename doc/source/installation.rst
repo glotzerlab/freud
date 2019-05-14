@@ -7,12 +7,12 @@ Installation
 Installing freud
 ================
 
-You can either install freud via `conda <http://conda.pydata.org/docs/>`_ or compile it from source.
+The freud library can be installed via `conda <https://conda.io/projects/conda/>`_ or pip, or compiled from source.
 
 Install via conda
 -----------------
 
-The code below will install freud from conda-forge.
+The code below will install freud from `conda-forge <https://anaconda.org/conda-forge/freud>`_.
 
 .. code-block:: bash
 
@@ -21,7 +21,7 @@ The code below will install freud from conda-forge.
 Install via pip
 -----------------
 
-The code below will install freud from PyPI.
+The code below will install freud from `PyPI <https://pypi.org/project/freud-analysis/>`_.
 
 .. code-block:: bash
 
@@ -38,13 +38,13 @@ The following are **required** for installing freud:
 
 The following are **optional** for installing freud:
 
-- `Cython <http://cython.org/>`_: The freud repository contains Cython-generated :code:`*.cpp` files in the :code:`freud/` directory that can be used directly. However, Cython is necessary if you wish to recompile these files.
+- `Cython <http://cython.org/>`_ (0.28+ required): The freud repository contains Cython-generated :code:`*.cpp` files in the :code:`freud/` directory that can be used directly. However, Cython is necessary if you wish to recompile these files.
 
 The code that follows builds freud and installs it for all users (append `--user` if you wish to install it to your user site directory):
 
 .. code-block:: bash
 
-    git clone --recurse-submodules https://bitbucket.org/glotzer/freud.git
+    git clone --recurse-submodules https://github.com/glotzerlab/freud.git
     cd freud
     python setup.py install
 

@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2018 The Regents of the University of Michigan
+# Copyright (c) 2010-2019 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 from libcpp cimport bool
@@ -27,7 +27,6 @@ cdef extern from "BondOrder.h" namespace "freud::environment":
             quat[float]*,
             unsigned int,
             unsigned int) nogil
-        void reduceBondOrder()
         shared_ptr[float] getBondOrder()
         shared_ptr[float] getTheta()
         shared_ptr[float] getPhi()

@@ -1,0 +1,11 @@
+version: 2
+formats: all
+conda:
+    environment: doc/readthedocs-env.yml
+python:
+    install:
+        - method: setuptools
+          path: .
+submodules:
+    include: all
+    recursive: true

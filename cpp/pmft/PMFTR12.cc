@@ -1,4 +1,4 @@
-// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// Copyright (c) 2010-2019 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <stdexcept>
@@ -11,54 +11,53 @@
 using namespace std;
 using namespace tbb;
 
-/*! \internal
-    \file PMFTR12.cc
-    \brief Routines for computing radial density functions
+/*! \file PMFTR12.cc
+    \brief Routines for computing potential of mean force and torque in R12 coordinates
 */
 
 namespace freud { namespace pmft {
 
-PMFTR12::PMFTR12(float max_r, unsigned int nbins_r, unsigned int nbins_t1, unsigned int nbins_t2)
-    : PMFT(), m_max_r(max_r), m_max_t1(2.0*M_PI), m_max_t2(2.0*M_PI),
-      m_nbins_r(nbins_r), m_nbins_t1(nbins_t1), m_nbins_t2(nbins_t2)
+PMFTR12::PMFTR12(float r_max, unsigned int n_r, unsigned int n_t1, unsigned int n_t2)
+    : PMFT(), m_r_max(r_max), m_t1_max(2.0*M_PI), m_t2_max(2.0*M_PI),
+      m_n_r(n_r), m_n_t1(n_t1), m_n_t2(n_t2)
     {
-    if (nbins_r < 1)
+    if (n_r < 1)
         throw invalid_argument("PMFTR12 requires at least 1 bin in R.");
-    if (nbins_t1 < 1)
+    if (n_t1 < 1)
         throw invalid_argument("PMFTR12 requires at least 1 bin in T1.");
-    if (nbins_t2 < 1)
+    if (n_t2 < 1)
         throw invalid_argument("PMFTR12 requires at least 1 bin in T2.");
-    if (max_r < 0.0f)
-        throw invalid_argument("PMFTR12 requires that max_r must be positive.");
+    if (r_max < 0.0f)
+        throw invalid_argument("PMFTR12 requires that r_max must be positive.");
     // calculate dr, dt1, dt2
-    m_dr = m_max_r / float(m_nbins_r);
-    m_dt1 = m_max_t1 / float(m_nbins_t1);
-    m_dt2 = m_max_t2 / float(m_nbins_t2);
+    m_dr = m_r_max / float(m_n_r);
+    m_dt1 = m_t1_max / float(m_n_t1);
+    m_dt2 = m_t2_max / float(m_n_t2);
 
-    if (m_dr > max_r)
-        throw invalid_argument("PMFTR12 requires that dr is less than or equal to max_r.");
-    if (m_dt1 > m_max_t1)
-        throw invalid_argument("PMFTR12 requires that dt1 is less than or equal to max_t1.");
-    if (m_dt2 > m_max_t2)
-        throw invalid_argument("PMFTR12 requires that dt2 is less than or equal to max_t2.");
+    if (m_dr > r_max)
+        throw invalid_argument("PMFTR12 requires that dr is less than or equal to r_max.");
+    if (m_dt1 > m_t1_max)
+        throw invalid_argument("PMFTR12 requires that dt1 is less than or equal to t1_max.");
+    if (m_dt2 > m_t2_max)
+        throw invalid_argument("PMFTR12 requires that dt2 is less than or equal to t2_max.");
 
     // precompute the bin center positions for r
-    m_r_array = std::shared_ptr<float>(new float[m_nbins_r], std::default_delete<float[]>());
-    for (unsigned int i = 0; i < m_nbins_r; i++)
+    m_r_array = std::shared_ptr<float>(new float[m_n_r], std::default_delete<float[]>());
+    for (unsigned int i = 0; i < m_n_r; i++)
         {
         float r = float(i) * m_dr;
         float nextr = float(i+1) * m_dr;
         m_r_array.get()[i] = 2.0f / 3.0f * (nextr*nextr*nextr - r*r*r) / (nextr*nextr - r*r);
         }
 
-    // calculate the jacobian array; calc'd as the inv for faster use later
-    m_inv_jacobian_array = std::shared_ptr<float>(new float[m_nbins_r*m_nbins_t1*m_nbins_t2], std::default_delete<float[]>());
-    Index3D b_i = Index3D(m_nbins_t1, m_nbins_t2, m_nbins_r);
-    for (unsigned int i = 0; i < m_nbins_t1; i++)
+    // calculate the jacobian array; computed as the inverse for faster use later
+    m_inv_jacobian_array = std::shared_ptr<float>(new float[m_n_r*m_n_t1*m_n_t2], std::default_delete<float[]>());
+    Index3D b_i = Index3D(m_n_t1, m_n_t2, m_n_r);
+    for (unsigned int i = 0; i < m_n_t1; i++)
         {
-        for (unsigned int j = 0; j < m_nbins_t2; j++)
+        for (unsigned int j = 0; j < m_n_t2; j++)
             {
-            for (unsigned int k = 0; k < m_nbins_r; k++)
+            for (unsigned int k = 0; k < m_n_r; k++)
                 {
                 float r = m_r_array.get()[k];
                 m_inv_jacobian_array.get()[b_i((int)i, (int)j, (int)k)] = (float)1.0 / (r * m_dr * m_dt1 * m_dt2);
@@ -67,8 +66,8 @@ PMFTR12::PMFTR12(float max_r, unsigned int nbins_r, unsigned int nbins_t1, unsig
         }
 
     // precompute the bin center positions for T1
-    m_t1_array = std::shared_ptr<float>(new float[m_nbins_t1], std::default_delete<float[]>());
-    for (unsigned int i = 0; i < m_nbins_t1; i++)
+    m_t1_array = std::shared_ptr<float>(new float[m_n_t1], std::default_delete<float[]>());
+    for (unsigned int i = 0; i < m_n_t1; i++)
         {
         float T1 = float(i) * m_dt1;
         float nextT1 = float(i+1) * m_dt1;
@@ -76,8 +75,8 @@ PMFTR12::PMFTR12(float max_r, unsigned int nbins_r, unsigned int nbins_t1, unsig
         }
 
     // precompute the bin center positions for T2
-    m_t2_array = std::shared_ptr<float>(new float[m_nbins_t2], std::default_delete<float[]>());
-    for (unsigned int i = 0; i < m_nbins_t2; i++)
+    m_t2_array = std::shared_ptr<float>(new float[m_n_t2], std::default_delete<float[]>());
+    for (unsigned int i = 0; i < m_n_t2; i++)
         {
         float T2 = float(i) * m_dt2;
         float nextT2 = float(i+1) * m_dt2;
@@ -85,29 +84,30 @@ PMFTR12::PMFTR12(float max_r, unsigned int nbins_r, unsigned int nbins_t1, unsig
         }
 
     // create and populate the pcf_array
-    m_pcf_array = std::shared_ptr<float>(new float[m_nbins_r*m_nbins_t1*m_nbins_t2], std::default_delete<float[]>());
-    memset((void*)m_pcf_array.get(), 0, sizeof(float)*m_nbins_r*m_nbins_t1*m_nbins_t2);
-    m_bin_counts = std::shared_ptr<unsigned int>(new unsigned int[m_nbins_r*m_nbins_t1*m_nbins_t2], std::default_delete<unsigned int[]>());
-    memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins_r*m_nbins_t1*m_nbins_t2);
+    m_pcf_array = std::shared_ptr<float>(new float[m_n_r*m_n_t1*m_n_t2], std::default_delete<float[]>());
+    memset((void*) m_pcf_array.get(), 0, sizeof(float)*m_n_r*m_n_t1*m_n_t2);
+    m_bin_counts = std::shared_ptr<unsigned int>(new unsigned int[m_n_r*m_n_t1*m_n_t2], std::default_delete<unsigned int[]>());
+    memset((void*) m_bin_counts.get(), 0, sizeof(unsigned int)*m_n_r*m_n_t1*m_n_t2);
 
-    m_r_cut = m_max_r;
+    // Set r_cut
+    m_r_cut = m_r_max;
     }
 
 //! \internal
 //! helper function to reduce the thread specific arrays into one array
 void PMFTR12::reducePCF()
     {
-    memset((void*)m_bin_counts.get(), 0, sizeof(unsigned int)*m_nbins_r*m_nbins_t1*m_nbins_t2);
-    memset((void*)m_pcf_array.get(), 0, sizeof(float)*m_nbins_r*m_nbins_t1*m_nbins_t2);
-    parallel_for(blocked_range<size_t>(0,m_nbins_t1),
+    memset((void*) m_bin_counts.get(), 0, sizeof(unsigned int)*m_n_r*m_n_t1*m_n_t2);
+    memset((void*) m_pcf_array.get(), 0, sizeof(float)*m_n_r*m_n_t1*m_n_t2);
+    parallel_for(blocked_range<size_t>(0,m_n_t1),
         [=] (const blocked_range<size_t>& r)
             {
-            Index3D b_i = Index3D(m_nbins_t1, m_nbins_t2, m_nbins_r);
+            Index3D b_i = Index3D(m_n_t1, m_n_t2, m_n_r);
             for (size_t i = r.begin(); i != r.end(); i++)
                 {
-                for (size_t j = 0; j < m_nbins_t2; j++)
+                for (size_t j = 0; j < m_n_t2; j++)
                     {
-                    for (size_t k = 0; k < m_nbins_r; k++)
+                    for (size_t k = 0; k < m_n_r; k++)
                         {
                         for (tbb::enumerable_thread_specific<unsigned int *>::const_iterator local_bins = m_local_bin_counts.begin();
                              local_bins != m_local_bin_counts.end(); ++local_bins)
@@ -122,7 +122,7 @@ void PMFTR12::reducePCF()
     float norm_factor = (float) 1.0 / ((float) this->m_frame_counter * (float) this->m_n_ref);
     // normalize pcf_array
     // avoid need to unravel b/c arrays are in the same index order
-    parallel_for(blocked_range<size_t>(0,m_nbins_r*m_nbins_t1*m_nbins_t2),
+    parallel_for(blocked_range<size_t>(0,m_n_r*m_n_t1*m_n_t2),
         [=] (const blocked_range<size_t>& r)
             {
             for (size_t i = r.begin(); i != r.end(); i++)
@@ -136,7 +136,7 @@ void PMFTR12::reset()
     {
     for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_bin_counts.begin(); i != m_local_bin_counts.end(); ++i)
         {
-        memset((void*)(*i), 0, sizeof(unsigned int)*m_nbins_r*m_nbins_t1*m_nbins_t2);
+        memset((void*) (*i), 0, sizeof(unsigned int)*m_n_r*m_n_t1*m_n_t2);
         }
     this->m_frame_counter = 0;
     this->m_reduce = true;
@@ -165,18 +165,18 @@ void PMFTR12::accumulate(box::Box& box,
             assert(n_p > 0);
 
             float dr_inv = 1.0f / m_dr;
-            float maxrsq = m_max_r * m_max_r;
+            float maxrsq = m_r_max * m_r_max;
             float dt1_inv = 1.0f / m_dt1;
             float dt2_inv = 1.0f / m_dt2;
 
-            Index3D b_i = Index3D(m_nbins_t1, m_nbins_t2, m_nbins_r);
+            Index3D b_i = Index3D(m_n_t1, m_n_t2, m_n_r);
 
             bool exists;
             m_local_bin_counts.local(exists);
             if (! exists)
                 {
-                m_local_bin_counts.local() = new unsigned int [m_nbins_r*m_nbins_t1*m_nbins_t2];
-                memset((void*)m_local_bin_counts.local(), 0, sizeof(unsigned int)*m_nbins_r*m_nbins_t1*m_nbins_t2);
+                m_local_bin_counts.local() = new unsigned int [m_n_r*m_n_t1*m_n_t2];
+                memset((void*) m_local_bin_counts.local(), 0, sizeof(unsigned int)*m_n_r*m_n_t1*m_n_t2);
                 }
 
             size_t bond(nlist->find_first_index(br.begin()));
@@ -231,7 +231,7 @@ void PMFTR12::accumulate(box::Box& box,
                             unsigned int ibin_t2 = (unsigned int)(bin_t2);
                             #endif
 
-                            if ((ibin_r < m_nbins_r) && (ibin_t1 < m_nbins_t1) && (ibin_t2 < m_nbins_t2))
+                            if ((ibin_r < m_n_r) && (ibin_t1 < m_n_t1) && (ibin_t2 < m_n_t2))
                                 {
                                 ++m_local_bin_counts.local()[b_i(ibin_t1, ibin_t2, ibin_r)];
                                 }

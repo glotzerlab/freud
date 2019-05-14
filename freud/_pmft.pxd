@@ -1,4 +1,4 @@
-# Copyright (c) 2010-2018 The Regents of the University of Michigan
+# Copyright (c) 2010-2019 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 from freud.util._VectorMath cimport vec3
@@ -13,7 +13,6 @@ cdef extern from "PMFT.h" namespace "freud::pmft":
 
         const freud._box.Box & getBox() const
         void reset()
-        void reducePCF()
         shared_ptr[unsigned int] getBinCounts()
         shared_ptr[float] getPCF()
         float getRCut()
@@ -61,7 +60,7 @@ cdef extern from "PMFTXYT.h" namespace "freud::pmft":
 
 cdef extern from "PMFTXY2D.h" namespace "freud::pmft":
     cdef cppclass PMFTXY2D(PMFT):
-        PMFTXY2D(float, unsigned int, unsigned int, unsigned int) except +
+        PMFTXY2D(float, float, unsigned int, unsigned int) except +
 
         void accumulate(freud._box.Box &,
                         const freud._locality.NeighborList*,

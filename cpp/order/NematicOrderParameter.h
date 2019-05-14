@@ -1,4 +1,4 @@
-// Copyright (c) 2010-2018 The Regents of the University of Michigan
+// Copyright (c) 2010-2019 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #ifndef NEMATIC_ORDER_PARAMETER_H
@@ -11,7 +11,6 @@
 #include "Box.h"
 #include "VectorMath.h"
 #include "TensorMath.h"
-#include "saruprng.h"
 #include "NearestNeighbors.h"
 #include "Index1D.h"
 
