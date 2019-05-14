@@ -1,4 +1,5 @@
 import numpy as np
+import numpy.testing as npt
 import freud
 import unittest
 import warnings
@@ -18,11 +19,14 @@ class TestTransOrder(unittest.TestCase):
         trans = freud.order.TransOrderParameter(1.1, 4, 4)
         trans.compute(box, positions)
 
-        self.assertTrue(np.allclose(trans.d_r, 0, atol=1e-7))
+        npt.assert_allclose(trans.d_r, 0, atol=1e-6)
 
         self.assertEqual(box, trans.box)
-
         self.assertEqual(len(positions), trans.num_particles)
+
+    def test_repr(self):
+        trans = freud.order.TransOrderParameter(1.1, 4, 4)
+        self.assertEqual(str(trans), str(eval(repr(trans))))
 
 
 if __name__ == '__main__':

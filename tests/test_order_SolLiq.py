@@ -43,6 +43,11 @@ class TestSolLiq(unittest.TestCase):
         comp.computeSolLiqVariant(positions)
         self.assertEqual(comp.largest_cluster_size, 1)
 
+    def test_repr(self):
+        box = freud.box.Box.cube(10)
+        comp = freud.order.SolLiq(box, 2, .7, 6, 6)
+        self.assertEqual(str(comp), str(eval(repr(comp))))
+
 
 class TestSolLiqNear(unittest.TestCase):
     def test_shape(self):
@@ -80,6 +85,11 @@ class TestSolLiqNear(unittest.TestCase):
 
         comp.computeSolLiqVariant(positions)
         self.assertEqual(comp.largest_cluster_size, 1)
+
+    def test_repr(self):
+        box = freud.box.Box.cube(10)
+        comp = freud.order.SolLiqNear(box, 2, .7, 6, 6, 12)
+        self.assertEqual(str(comp), str(eval(repr(comp))))
 
 
 if __name__ == '__main__':

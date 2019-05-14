@@ -1,6 +1,6 @@
 import numpy as np
 import numpy.testing as npt
-from freud.order import NematicOrderParameter as nop
+import freud
 import warnings
 import unittest
 
@@ -27,7 +27,7 @@ class TestNematicOrder(unittest.TestCase):
 
         # Test for parallel to molecular axis
         u = np.array([1, 0, 0])
-        op_parallel = nop(u)
+        op_parallel = freud.order.NematicOrderParameter(u)
         op_parallel.compute(orientations)
 
         self.assertTrue(op_parallel.nematic_order_parameter == 1)
@@ -40,7 +40,7 @@ class TestNematicOrder(unittest.TestCase):
 
         # Test for perpendicular to molecular axis
         u = np.array([0, 1, 0])
-        op_perp = nop(u)
+        op_perp = freud.order.NematicOrderParameter(u)
         op_perp.compute(orientations)
 
         self.assertEqual(op_perp.nematic_order_parameter, 1)
@@ -64,13 +64,13 @@ class TestNematicOrder(unittest.TestCase):
         orientations = gen_quaternions(N, axes, angles)
 
         u = np.array([1, 0, 0])
-        op = nop(u)
+        op = freud.order.NematicOrderParameter(u)
         op.compute(orientations)
 
-        self.assertTrue(np.allclose(op.nematic_order_parameter, 0.25))
+        npt.assert_allclose(op.nematic_order_parameter, 0.25, atol=1e-6)
         self.assertTrue(np.all(op.director == u))
         npt.assert_allclose(
-            op.nematic_tensor, np.diag([0.25, -0.5, 0.25]), rtol=1e-5)
+            op.nematic_tensor, np.diag([0.25, -0.5, 0.25]), atol=1e-6)
 
         # Rotating 90 about z gives some tensor components in y
         axes = np.zeros(shape=(N, 3), dtype=np.float32)
@@ -81,13 +81,18 @@ class TestNematicOrder(unittest.TestCase):
         orientations = gen_quaternions(N, axes, angles)
 
         u = np.array([1, 0, 0])
-        op = nop(u)
+        op = freud.order.NematicOrderParameter(u)
         op.compute(orientations)
 
-        npt.assert_allclose(op.nematic_order_parameter, 0.25, rtol=1e-5)
+        npt.assert_allclose(op.nematic_order_parameter, 0.25, atol=1e-6)
         npt.assert_equal(op.director, np.array([0, 1, 0]))
-        npt.assert_almost_equal(
-            op.nematic_tensor, np.diag([0.25, 0.25, -0.5]))
+        npt.assert_allclose(op.nematic_tensor, np.diag([0.25, 0.25, -0.5]),
+                            rtol=1e-6, atol=1e-6)
+
+    def test_repr(self):
+        u = np.array([1, 0, 0])
+        op = freud.order.NematicOrderParameter(u)
+        self.assertEqual(str(op), str(eval(repr(op))))
 
 
 if __name__ == '__main__':

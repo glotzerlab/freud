@@ -122,14 +122,14 @@ cdef class FloatCF:
             values, 1, dtype=np.float64, contiguous=True)
         if ref_points.shape[1] != 3 or points.shape[1] != 3:
             raise ValueError("The 2nd dimension must have 3 values: x, y, z")
-        cdef float[:, ::1] l_ref_points = ref_points
-        cdef float[:, ::1] l_points
+        cdef const float[:, ::1] l_ref_points = ref_points
+        cdef const float[:, ::1] l_points
         if ref_points is points:
             l_points = l_ref_points
         else:
             l_points = points
-        cdef double[::1] l_ref_values = ref_values
-        cdef double[::1] l_values
+        cdef const double[::1] l_ref_values = ref_values
+        cdef const double[::1] l_values
         if values is ref_values:
             l_values = l_ref_values
         else:
@@ -154,7 +154,7 @@ cdef class FloatCF:
     @property
     def RDF(self):
         cdef unsigned int n_bins = self.thisptr.getNBins()
-        cdef double[::1] RDF = \
+        cdef const double[::1] RDF = \
             <double[:n_bins]> self.thisptr.getRDF().get()
         return np.asarray(RDF)
 
@@ -197,14 +197,14 @@ cdef class FloatCF:
     @property
     def counts(self):
         cdef unsigned int n_bins = self.thisptr.getNBins()
-        cdef unsigned int[::1] counts = \
+        cdef const unsigned int[::1] counts = \
             <unsigned int[:n_bins]> self.thisptr.getCounts().get()
         return np.asarray(counts, dtype=np.uint32)
 
     @property
     def R(self):
         cdef unsigned int n_bins = self.thisptr.getNBins()
-        cdef float[::1] R = \
+        cdef const float[::1] R = \
             <float[:n_bins]> self.thisptr.getR().get()
         return np.asarray(R)
 
@@ -316,8 +316,8 @@ cdef class ComplexCF:
             values, 1, dtype=np.complex128, contiguous=True)
         if ref_points.shape[1] != 3 or points.shape[1] != 3:
             raise ValueError("The 2nd dimension must have 3 values: x, y, z")
-        cdef float[:, ::1] l_ref_points = ref_points
-        cdef float[:, ::1] l_points
+        cdef const float[:, ::1] l_ref_points = ref_points
+        cdef const float[:, ::1] l_points
         if ref_points is points:
             l_points = l_ref_points
         else:
@@ -392,14 +392,14 @@ cdef class ComplexCF:
     @property
     def counts(self):
         cdef unsigned int n_bins = self.thisptr.getNBins()
-        cdef unsigned int[::1] counts = \
+        cdef const unsigned int[::1] counts = \
             <unsigned int[:n_bins]> self.thisptr.getCounts().get()
         return np.asarray(counts, dtype=np.uint32)
 
     @property
     def R(self):
         cdef unsigned int n_bins = self.thisptr.getNBins()
-        cdef float[::1] R = \
+        cdef const float[::1] R = \
             <float[:n_bins]> self.thisptr.getR().get()
         return np.asarray(R)
 
@@ -492,7 +492,7 @@ cdef class GaussianDensity:
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if points.shape[1] != 3:
             raise ValueError("The 2nd dimension must have 3 values: x, y, z")
-        cdef float[:, ::1] l_points = points
+        cdef const float[:, ::1] l_points = points
         cdef unsigned int n_p = points.shape[0]
         with nogil:
             self.thisptr.compute(dereference(b.thisptr),
@@ -508,7 +508,7 @@ cdef class GaussianDensity:
         cdef freud.box.Box box = self.box
         if not box.is2D():
             array_size *= width_z
-        cdef float[::1] density = \
+        cdef const float[::1] density = \
             <float[:array_size]> self.thisptr.getDensity().get()
         if box.is2D():
             array_shape = (width_y, width_x)
@@ -636,8 +636,8 @@ cdef class LocalDensity:
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if ref_points.shape[1] != 3 or points.shape[1] != 3:
             raise ValueError("The 2nd dimension must have 3 values: x, y, z")
-        cdef float[:, ::1] l_ref_points = ref_points
-        cdef float[:, ::1] l_points = points
+        cdef const float[:, ::1] l_ref_points = ref_points
+        cdef const float[:, ::1] l_points = points
         cdef unsigned int n_ref = l_ref_points.shape[0]
         cdef unsigned int n_p = l_points.shape[0]
 
@@ -660,14 +660,14 @@ cdef class LocalDensity:
     @property
     def density(self):
         cdef unsigned int n_ref = self.thisptr.getNRef()
-        cdef float[::1] density = \
+        cdef const float[::1] density = \
             <float[:n_ref]> self.thisptr.getDensity().get()
         return np.asarray(density)
 
     @property
     def num_neighbors(self):
         cdef unsigned int n_ref = self.thisptr.getNRef()
-        cdef float[::1] num_neighbors = \
+        cdef const float[::1] num_neighbors = \
             <float[:n_ref]> self.thisptr.getNumNeighbors().get()
         return np.asarray(num_neighbors)
 
@@ -776,8 +776,8 @@ cdef class RDF:
             points, 2, dtype=np.float32, contiguous=True, array_name="points")
         if ref_points.shape[1] != 3 or points.shape[1] != 3:
             raise ValueError("The 2nd dimension must have 3 values: x, y, z")
-        cdef float[:, ::1] l_ref_points = ref_points
-        cdef float[:, ::1] l_points = points
+        cdef const float[:, ::1] l_ref_points = ref_points
+        cdef const float[:, ::1] l_points = points
         cdef unsigned int n_ref = l_ref_points.shape[0]
         cdef unsigned int n_p = l_points.shape[0]
 
@@ -821,21 +821,21 @@ cdef class RDF:
     @property
     def RDF(self):
         cdef unsigned int n_bins = self.thisptr.getNBins()
-        cdef float[::1] RDF = \
+        cdef const float[::1] RDF = \
             <float[:n_bins]> self.thisptr.getRDF().get()
         return np.asarray(RDF)
 
     @property
     def R(self):
         cdef unsigned int n_bins = self.thisptr.getNBins()
-        cdef float[::1] R = \
+        cdef const float[::1] R = \
             <float[:n_bins]> self.thisptr.getR().get()
         return np.asarray(R)
 
     @property
     def n_r(self):
         cdef unsigned int n_bins = self.thisptr.getNBins()
-        cdef float[::1] n_r = <float[:n_bins]> self.thisptr.getNr().get()
+        cdef const float[::1] n_r = <float[:n_bins]> self.thisptr.getNr().get()
         return np.asarray(n_r)
 
     def __repr__(self):

@@ -75,6 +75,8 @@ cdef class CubaticOrderParameter:
             orientation.
     """  # noqa: E501
     cdef freud._order.CubaticOrderParameter * thisptr
+    cdef n_replicates
+    cdef seed
 
     def __cinit__(self, t_initial, t_final, scale, n_replicates=1, seed=None):
         # run checks
@@ -94,17 +96,19 @@ cdef class CubaticOrderParameter:
 
         # for c++ code
         # create generalized rank four tensor, pass into c++
-        cdef float[:, ::1] kd = np.eye(3, dtype=np.float32)
+        cdef const float[:, ::1] kd = np.eye(3, dtype=np.float32)
         cdef np.ndarray[float, ndim=4] dijkl = np.einsum(
             "ij,kl->ijkl", kd, kd, dtype=np.float32)
         cdef np.ndarray[float, ndim=4] dikjl = np.einsum(
             "ik,jl->ijkl", kd, kd, dtype=np.float32)
         cdef np.ndarray[float, ndim=4] diljk = np.einsum(
             "il,jk->ijkl", kd, kd, dtype=np.float32)
-        cdef float[:, :, :, ::1] r4 = (dijkl + dikjl + diljk) * (2.0/5.0)
+        cdef const float[:, :, :, ::1] r4 = (dijkl + dikjl + diljk) * (2.0/5.0)
         self.thisptr = new freud._order.CubaticOrderParameter(
             t_initial, t_final, scale, <float*> &r4[0, 0, 0, 0], n_replicates,
             seed)
+        self.n_replicates = n_replicates
+        self.seed = seed
 
     def compute(self, orientations):
         R"""Calculates the per-particle and global order parameter.
@@ -119,7 +123,7 @@ cdef class CubaticOrderParameter:
         if orientations.shape[1] != 4:
             raise TypeError('orientations should be an Nx4 array')
 
-        cdef float[:, ::1] l_orientations = orientations
+        cdef const float[:, ::1] l_orientations = orientations
         cdef unsigned int num_particles = l_orientations.shape[0]
 
         with nogil:
@@ -151,7 +155,7 @@ cdef class CubaticOrderParameter:
     @property
     def particle_order_parameter(self):
         cdef unsigned int n_particles = self.thisptr.getNumParticles()
-        cdef float[::1] particle_order_parameter = \
+        cdef const float[::1] particle_order_parameter = \
             <float[:n_particles]> \
             self.thisptr.getParticleCubaticOrderParameter().get()
         return np.asarray(particle_order_parameter)
@@ -159,32 +163,44 @@ cdef class CubaticOrderParameter:
     @property
     def particle_tensor(self):
         cdef unsigned int n_particles = self.thisptr.getNumParticles()
-        cdef float[:, :, :, :, ::1] particle_tensor = \
+        cdef const float[:, :, :, :, ::1] particle_tensor = \
             <float[:n_particles, :3, :3, :3, :3]> \
             self.thisptr.getParticleTensor().get()
         return np.asarray(particle_tensor)
 
     @property
     def global_tensor(self):
-        cdef float[:, :, :, ::1] global_tensor = \
+        cdef const float[:, :, :, ::1] global_tensor = \
             <float[:3, :3, :3, :3]> \
             self.thisptr.getGlobalTensor().get()
         return np.asarray(global_tensor)
 
     @property
     def cubatic_tensor(self):
-        cdef float[:, :, :, ::1] cubatic_tensor = \
+        cdef const float[:, :, :, ::1] cubatic_tensor = \
             <float[:3, :3, :3, :3]> \
             self.thisptr.getCubaticTensor().get()
         return np.asarray(cubatic_tensor)
 
     @property
     def gen_r4_tensor(self):
-        cdef float[:, :, :, ::1] gen_r4_tensor = \
+        cdef const float[:, :, :, ::1] gen_r4_tensor = \
             <float[:3, :3, :3, :3]> \
             self.thisptr.getGenR4Tensor().get()
         return np.asarray(gen_r4_tensor)
 
+    def __repr__(self):
+        return ("freud.order.{cls}(t_initial={t_initial}, t_final={t_final}, "
+                "scale={scale}, n_replicates={n_replicates}, "
+                "seed={seed})").format(cls=type(self).__name__,
+                                       t_initial=self.t_initial,
+                                       t_final=self.t_final,
+                                       scale=self.scale,
+                                       n_replicates=self.n_replicates,
+                                       seed=self.seed)
+
+    def __str__(self):
+        return repr(self)
 
 cdef class NematicOrderParameter:
     R"""Compute the nematic order parameter for a system of particles.
@@ -210,6 +226,7 @@ cdef class NematicOrderParameter:
             3x3 matrix corresponding to the average particle orientation.
     """  # noqa: E501
     cdef freud._order.NematicOrderParameter *thisptr
+    cdef u
 
     def __cinit__(self, u):
         # run checks
@@ -218,6 +235,8 @@ cdef class NematicOrderParameter:
 
         cdef vec3[float] l_u = vec3[float](u[0], u[1], u[2])
         self.thisptr = new freud._order.NematicOrderParameter(l_u)
+        self.u = freud.common.convert_array(
+            u, 1, dtype=np.float32, contiguous=True, array_name="u")
 
     def compute(self, orientations):
         R"""Calculates the per-particle and global order parameter.
@@ -232,7 +251,7 @@ cdef class NematicOrderParameter:
         if orientations.shape[1] != 4:
             raise TypeError('orientations should be an Nx4 array')
 
-        cdef float[:, ::1] l_orientations = orientations
+        cdef const float[:, ::1] l_orientations = orientations
         cdef unsigned int num_particles = l_orientations.shape[0]
 
         with nogil:
@@ -251,16 +270,23 @@ cdef class NematicOrderParameter:
     @property
     def particle_tensor(self):
         cdef unsigned int n_particles = self.thisptr.getNumParticles()
-        cdef float[:, :, ::1] particle_tensor = \
+        cdef const float[:, :, ::1] particle_tensor = \
             <float[:n_particles, :3, :3]> \
             self.thisptr.getParticleTensor().get()
         return np.asarray(particle_tensor)
 
     @property
     def nematic_tensor(self):
-        cdef float[:, ::1] nematic_tensor = \
+        cdef const float[:, ::1] nematic_tensor = \
             <float[:3, :3]> self.thisptr.getNematicTensor().get()
         return np.asarray(nematic_tensor)
+
+    def __repr__(self):
+        return "freud.order.{cls}(u={u})".format(cls=type(self).__name__,
+                                                 u=self.u.tolist())
+
+    def __str__(self):
+        return repr(self)
 
 
 cdef class HexOrderParameter:
@@ -333,7 +359,7 @@ cdef class HexOrderParameter:
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        cdef float[:, ::1] l_points = points
+        cdef const float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
 
         defaulted_nlist = freud.locality.make_default_nlist_nn(
@@ -366,6 +392,14 @@ cdef class HexOrderParameter:
         cdef unsigned int k = self.thisptr.getK()
         return k
 
+    def __repr__(self):
+        return "freud.order.{cls}(rmax={rmax}, k={k}, n={n})".format(
+            cls=type(self).__name__, rmax=self.rmax, k=self.K,
+            n=self.num_neigh)
+
+    def __str__(self):
+        return repr(self)
+
 
 cdef class TransOrderParameter:
     R"""Compute the translational order parameter for each particle.
@@ -387,6 +421,8 @@ cdef class TransOrderParameter:
             Box used in the calculation.
         num_particles (unsigned int):
             Number of particles.
+        K (float):
+            Normalization value (d_r is divided by K).
     """
     cdef freud._order.TransOrderParameter * thisptr
     cdef num_neigh
@@ -417,7 +453,7 @@ cdef class TransOrderParameter:
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        cdef float[:, ::1] l_points = points
+        cdef const float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
 
         defaulted_nlist = freud.locality.make_default_nlist_nn(
@@ -444,6 +480,19 @@ cdef class TransOrderParameter:
     def num_particles(self):
         cdef unsigned int np = self.thisptr.getNP()
         return np
+
+    @property
+    def K(self):
+        cdef float k = self.thisptr.getK()
+        return k
+
+    def __repr__(self):
+        return "freud.order.{cls}(rmax={rmax}, k={k}, n={n})".format(
+            cls=type(self).__name__, rmax=self.rmax, k=self.K,
+            n=self.num_neigh)
+
+    def __str__(self):
+        return repr(self)
 
 
 cdef class LocalQl:
@@ -516,12 +565,16 @@ cdef class LocalQl:
     cdef freud._order.LocalQl * qlptr
     cdef freud.box.Box m_box
     cdef rmax
+    cdef sph_l
+    cdef rmin
 
     def __cinit__(self, box, rmax, l, rmin=0, *args, **kwargs):
         cdef freud.box.Box b = freud.common.convert_box(box)
         if type(self) is LocalQl:
             self.m_box = b
             self.rmax = rmax
+            self.sph_l = l
+            self.rmin = rmin
             self.qlptr = new freud._order.LocalQl(
                 dereference(b.thisptr), rmax, l, rmin)
 
@@ -555,28 +608,28 @@ cdef class LocalQl:
     @property
     def Ql(self):
         cdef unsigned int n_particles = self.qlptr.getNP()
-        cdef float[::1] Ql = \
+        cdef const float[::1] Ql = \
             <float[:n_particles]> self.qlptr.getQl().get()
         return np.asarray(Ql)
 
     @property
     def ave_Ql(self):
         cdef unsigned int n_particles = self.qlptr.getNP()
-        cdef float[::1] ave_Ql = \
+        cdef const float[::1] ave_Ql = \
             <float[:n_particles]> self.qlptr.getAveQl().get()
         return np.asarray(ave_Ql)
 
     @property
     def norm_Ql(self):
         cdef unsigned int n_particles = self.qlptr.getNP()
-        cdef float[::1] norm_Ql = \
+        cdef const float[::1] norm_Ql = \
             <float[:n_particles]> self.qlptr.getQlNorm().get()
         return np.asarray(norm_Ql)
 
     @property
     def ave_norm_Ql(self):
         cdef unsigned int n_particles = self.qlptr.getNP()
-        cdef float[::1] ave_norm_Ql = \
+        cdef const float[::1] ave_norm_Ql = \
             <float[:n_particles]> self.qlptr.getQlAveNorm().get()
         return np.asarray(ave_norm_Ql)
 
@@ -594,7 +647,7 @@ cdef class LocalQl:
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        cdef float[:, ::1] l_points = points
+        cdef const float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
 
         defaulted_nlist = freud.locality.make_default_nlist(
@@ -619,7 +672,7 @@ cdef class LocalQl:
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        cdef float[:, ::1] l_points = points
+        cdef const float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
 
         defaulted_nlist = freud.locality.make_default_nlist(
@@ -647,7 +700,7 @@ cdef class LocalQl:
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        cdef float[:, ::1] l_points = points
+        cdef const float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
 
         defaulted_nlist = freud.locality.make_default_nlist(
@@ -675,7 +728,7 @@ cdef class LocalQl:
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        cdef float[:, ::1] l_points = points
+        cdef const float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
 
         defaulted_nlist = freud.locality.make_default_nlist(
@@ -688,6 +741,17 @@ cdef class LocalQl:
                               <vec3[float]*> &l_points[0, 0], nP)
         self.qlptr.computeAveNorm(<vec3[float]*> &l_points[0, 0], nP)
         return self
+
+    def __repr__(self):
+        return ("freud.order.{cls}(box={box}, rmax={rmax}, l={sph_l}, "
+                "rmin={rmin})").format(cls=type(self).__name__,
+                                       box=self.m_box,
+                                       rmax=self.rmax,
+                                       sph_l=self.sph_l,
+                                       rmin=self.rmin)
+
+    def __str__(self):
+        return repr(self)
 
 
 cdef class LocalQlNear(LocalQl):
@@ -745,6 +809,7 @@ cdef class LocalQlNear(LocalQl):
                 dereference(b.thisptr), rmax, l, 0)
             self.m_box = b
             self.rmax = rmax
+            self.sph_l = l
             self.num_neigh = kn
 
     def __dealloc__(self):
@@ -810,6 +875,17 @@ cdef class LocalQlNear(LocalQl):
             self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         return super(LocalQlNear, self).computeAveNorm(points, nlist_)
+
+    def __repr__(self):
+        return ("freud.order.{cls}(box={box}, rmax={rmax}, l={sph_l}, "
+                "kn={kn})").format(cls=type(self).__name__,
+                                   box=self.m_box,
+                                   rmax=self.rmax,
+                                   sph_l=self.sph_l,
+                                   kn=self.num_neigh)
+
+    def __str__(self):
+        return repr(self)
 
 
 cdef class LocalWl(LocalQl):
@@ -897,6 +973,8 @@ cdef class LocalWl(LocalQl):
                 dereference(b.thisptr), rmax, l, rmin)
             self.m_box = b
             self.rmax = rmax
+            self.sph_l = l
+            self.rmin = rmin
 
     def __dealloc__(self):
         if type(self) is LocalWl:
@@ -943,6 +1021,17 @@ cdef class LocalWl(LocalQl):
         cdef np.complex64_t[::1] ave_norm_Wl = \
             <np.complex64_t[:n_particles]> self.thisptr.getAveNormWl().get()
         return np.asarray(ave_norm_Wl, dtype=np.complex64)
+
+    def __repr__(self):
+        return ("freud.order.{cls}(box={box}, rmax={rmax}, l={sph_l}, "
+                "rmin={rmin})").format(cls=type(self).__name__,
+                                       box=self.m_box,
+                                       rmax=self.rmax,
+                                       sph_l=self.sph_l,
+                                       rmin=self.rmin)
+
+    def __str__(self):
+        return repr(self)
 
 
 cdef class LocalWlNear(LocalWl):
@@ -997,6 +1086,7 @@ cdef class LocalWlNear(LocalWl):
                 dereference(b.thisptr), rmax, l, 0)
             self.m_box = b
             self.rmax = rmax
+            self.sph_l = l
             self.num_neigh = kn
 
     def __dealloc__(self):
@@ -1062,6 +1152,17 @@ cdef class LocalWlNear(LocalWl):
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         return super(LocalWlNear, self).computeAveNorm(points, nlist_)
 
+    def __repr__(self):
+        return ("freud.order.{cls}(box={box}, rmax={rmax}, l={sph_l}, "
+                "kn={kn})").format(cls=type(self).__name__,
+                                   box=self.m_box,
+                                   rmax=self.rmax,
+                                   sph_l=self.sph_l,
+                                   kn=self.num_neigh)
+
+    def __str__(self):
+        return repr(self)
+
 
 cdef class SolLiq:
     R"""Uses dot products of :math:`Q_{lm}` between particles for clustering.
@@ -1112,6 +1213,9 @@ cdef class SolLiq:
     cdef freud._order.SolLiq * thisptr
     cdef freud.box.Box m_box
     cdef rmax
+    cdef Qthreshold
+    cdef Sthreshold
+    cdef sph_l
 
     def __cinit__(self, box, rmax, Qthreshold, Sthreshold, l, *args, **kwargs):
         cdef freud.box.Box b = freud.common.convert_box(box)
@@ -1120,6 +1224,9 @@ cdef class SolLiq:
                 dereference(b.thisptr), rmax, Qthreshold, Sthreshold, l)
             self.m_box = b
             self.rmax = rmax
+            self.Qthreshold = Qthreshold
+            self.Sthreshold = Sthreshold
+            self.sph_l = l
 
     def __dealloc__(self):
         del self.thisptr
@@ -1139,7 +1246,7 @@ cdef class SolLiq:
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        cdef float[:, ::1] l_points = points
+        cdef const float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
 
         defaulted_nlist = freud.locality.make_default_nlist(
@@ -1168,7 +1275,7 @@ cdef class SolLiq:
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        cdef float[:, ::1] l_points = points
+        cdef const float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
 
         defaulted_nlist = freud.locality.make_default_nlist(
@@ -1194,7 +1301,7 @@ cdef class SolLiq:
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        cdef float[:, ::1] l_points = points
+        cdef const float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
 
         defaulted_nlist = freud.locality.make_default_nlist(
@@ -1222,7 +1329,7 @@ cdef class SolLiq:
     @property
     def cluster_sizes(self):
         cdef unsigned int n_clusters = self.thisptr.getNumClusters()
-        cdef unsigned int[::1] cluster_sizes = \
+        cdef const unsigned int[::1] cluster_sizes = \
             <unsigned int[:n_clusters]> self.thisptr.getClusterSizes().data()
         return np.asarray(cluster_sizes, dtype=np.uint32)
 
@@ -1236,14 +1343,14 @@ cdef class SolLiq:
     @property
     def clusters(self):
         cdef unsigned int n_particles = self.thisptr.getNP()
-        cdef unsigned int[::1] clusters = \
+        cdef const unsigned int[::1] clusters = \
             <unsigned int[:n_particles]> self.thisptr.getClusters().get()
         return np.asarray(clusters, dtype=np.uint32)
 
     @property
     def num_connections(self):
         cdef unsigned int n_particles = self.thisptr.getNP()
-        cdef unsigned int[::1] num_connections = \
+        cdef const unsigned int[::1] num_connections = \
             <unsigned int[:n_particles]> \
             self.thisptr.getNumberOfConnections().get()
         return np.asarray(num_connections, dtype=np.uint32)
@@ -1259,6 +1366,19 @@ cdef class SolLiq:
     def num_particles(self):
         cdef unsigned int np = self.thisptr.getNP()
         return np
+
+    def __repr__(self):
+        return ("freud.order.{cls}(box={box}, rmax={rmax}, "
+                "Qthreshold={Qthreshold}, Sthreshold={Sthreshold}, "
+                "l={sph_l})").format(cls=type(self).__name__,
+                                     box=self.m_box,
+                                     rmax=self.rmax,
+                                     Qthreshold=self.Qthreshold,
+                                     Sthreshold=self.Sthreshold,
+                                     sph_l=self.sph_l)
+
+    def __str__(self):
+        return repr(self)
 
 
 cdef class SolLiqNear(SolLiq):
@@ -1318,6 +1438,9 @@ cdef class SolLiqNear(SolLiq):
                 dereference(b.thisptr), rmax, Qthreshold, Sthreshold, l)
             self.m_box = b
             self.rmax = rmax
+            self.Qthreshold = Qthreshold
+            self.Sthreshold = Sthreshold
+            self.sph_l = l
             self.num_neigh = kn
 
     def __dealloc__(self):
@@ -1368,6 +1491,20 @@ cdef class SolLiqNear(SolLiq):
             self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         return SolLiq.computeSolLiqNoNorm(self, points, nlist_)
+
+    def __repr__(self):
+        return ("freud.order.{cls}(box={box}, rmax={rmax}, "
+                "Qthreshold={Qthreshold}, Sthreshold={Sthreshold}, "
+                "l={sph_l}, kn={kn})").format(cls=type(self).__name__,
+                                              box=self.m_box,
+                                              rmax=self.rmax,
+                                              Qthreshold=self.Qthreshold,
+                                              Sthreshold=self.Sthreshold,
+                                              sph_l=self.sph_l,
+                                              kn=self.num_neigh)
+
+    def __str__(self):
+        return repr(self)
 
 
 cdef class RotationalAutocorrelation:
@@ -1469,3 +1606,10 @@ cdef class RotationalAutocorrelation:
     def azimuthal(self):
         cdef unsigned int azimuthal = self.thisptr.getL()
         return azimuthal
+
+    def __repr__(self):
+        return "freud.order.{cls}(l={sph_l})".format(cls=type(self).__name__,
+                                                     sph_l=self.l)
+
+    def __str__(self):
+        return repr(self)

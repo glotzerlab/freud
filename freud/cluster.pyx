@@ -114,7 +114,7 @@ cdef class Cluster:
         else:
             b = freud.common.convert_box(box)
 
-        cdef float[:, ::1] l_points = points
+        cdef const float[:, ::1] l_points = points
         cdef unsigned int Np = l_points.shape[0]
         with nogil:
             self.thisptr.computeClusters(
@@ -137,7 +137,7 @@ cdef class Cluster:
         if keys.shape[0] != self.num_particles:
             raise RuntimeError(
                 'keys must be a 1D array of length num_particles')
-        cdef unsigned int[::1] l_keys = keys
+        cdef const unsigned int[::1] l_keys = keys
         with nogil:
             self.thisptr.computeClusterMembership(<unsigned int*> &l_keys[0])
         return self
@@ -153,7 +153,7 @@ cdef class Cluster:
     @property
     def cluster_idx(self):
         cdef unsigned int n_particles = self.thisptr.getNumParticles()
-        cdef unsigned int[::1] cluster_idx = \
+        cdef const unsigned int[::1] cluster_idx = \
             <unsigned int[:n_particles]> self.thisptr.getClusterIdx().get()
         return np.asarray(cluster_idx)
 
@@ -258,8 +258,8 @@ cdef class ClusterProperties:
             raise RuntimeError(
                 ('cluster_idx must be a 1D array of matching length/number'
                     'of particles to points'))
-        cdef float[:, ::1] l_points = points
-        cdef unsigned int[::1] l_cluster_idx = cluster_idx
+        cdef const float[:, ::1] l_points = points
+        cdef const unsigned int[::1] l_cluster_idx = cluster_idx
         cdef unsigned int Np = l_points.shape[0]
         with nogil:
             self.thisptr.computeProperties(
@@ -278,7 +278,7 @@ cdef class ClusterProperties:
         cdef unsigned int n_clusters = self.thisptr.getNumClusters()
         if not n_clusters:
             return np.asarray([[]], dtype=np.float32)
-        cdef float[:, ::1] cluster_COM = \
+        cdef const float[:, ::1] cluster_COM = \
             <float[:n_clusters, :3]> (
                 <float*> self.thisptr.getClusterCOM().get())
         return np.asarray(cluster_COM)
@@ -288,7 +288,7 @@ cdef class ClusterProperties:
         cdef unsigned int n_clusters = self.thisptr.getNumClusters()
         if not n_clusters:
             return np.asarray([[[]]], dtype=np.float32)
-        cdef float[:, :, ::1] cluster_G = \
+        cdef const float[:, :, ::1] cluster_G = \
             <float[:n_clusters, :3, :3]> (
                 <float*> self.thisptr.getClusterG().get())
         return np.asarray(cluster_G)
@@ -298,7 +298,7 @@ cdef class ClusterProperties:
         cdef unsigned int n_clusters = self.thisptr.getNumClusters()
         if not n_clusters:
             return np.asarray([], dtype=np.uint32)
-        cdef unsigned int[::1] cluster_sizes = \
+        cdef const unsigned int[::1] cluster_sizes = \
             <unsigned int[:n_clusters]> self.thisptr.getClusterSize().get()
         return np.asarray(cluster_sizes, dtype=np.uint32)
 

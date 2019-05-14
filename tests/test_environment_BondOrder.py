@@ -75,6 +75,10 @@ class TestBondOrder(unittest.TestCase):
                    mode='oocd')
         self.assertGreater(np.sum(bo.bond_order > 0), 30)
 
+    def test_repr(self):
+        bo = freud.environment.BondOrder(1.5, 0, 12, 6, 6)
+        self.assertEqual(str(bo), str(eval(repr(bo))))
+
 
 if __name__ == '__main__':
     unittest.main()

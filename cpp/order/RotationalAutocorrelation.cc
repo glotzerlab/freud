@@ -64,7 +64,7 @@ inline std::complex<float> hypersphere_harmonic(const std::complex<float> xi, st
 
     // Doing a summation over non-negative exponents, which requires the additional inner conditional.
     std::complex<float> sum_tracker(0, 0);
-    for (unsigned int k = std::max(0, a+b-l); k <= std::min(a, b); k++)
+    for (int k = std::max(0, a+b-l); k <= std::min(a, b); k++)
         {
         sum_tracker += cpow(xi_conj, k) * cpow(zeta, b-k) *
                           cpow(zeta_conj, a-k) * cpow(-xi, l+k-a-b) /

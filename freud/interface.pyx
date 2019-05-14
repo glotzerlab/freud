@@ -43,8 +43,8 @@ cdef class InterfaceMeasure:
             The particle IDs from :code:`points`.
     """
     cdef float rmax
-    cdef unsigned int[::1] _ref_point_ids
-    cdef unsigned int[::1] _point_ids
+    cdef const unsigned int[::1] _ref_point_ids
+    cdef const unsigned int[::1] _point_ids
 
     def __cinit__(self, float r_cut):
         self.rmax = r_cut
@@ -97,3 +97,10 @@ cdef class InterfaceMeasure:
     @property
     def point_ids(self):
         return np.asarray(self._point_ids)
+
+    def __repr__(self):
+        return "freud.interface.{cls}(r_cut={r_cut})".format(
+            cls=type(self).__name__, r_cut=self.rmax)
+
+    def __str__(self):
+        return repr(self)

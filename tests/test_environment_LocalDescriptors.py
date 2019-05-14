@@ -15,6 +15,7 @@ class TestLocalDescriptors(unittest.TestCase):
         np.random.seed(0)
         positions = np.random.uniform(-box.Lx/2, box.Lx/2,
                                       size=(N, 3)).astype(np.float32)
+        positions.flags['WRITEABLE'] = False
 
         comp = LocalDescriptors(Nneigh, lmax, rmax, True)
         comp.computeNList(box, positions)
@@ -105,6 +106,10 @@ class TestLocalDescriptors(unittest.TestCase):
         comp.compute(box, Nneigh, positions, positions2)
         sphs = comp.sph
         self.assertEqual(sphs.shape[0], N*Nneigh)
+
+    def test_repr(self):
+        comp = LocalDescriptors(4, 8, 0.5, True)
+        self.assertEqual(str(comp), str(eval(repr(comp))))
 
 
 if __name__ == '__main__':
