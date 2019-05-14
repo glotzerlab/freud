@@ -1,15 +1,16 @@
 from __future__ import print_function
 from __future__ import division
 
-import time
 import cProfile
 import os
 import pstats
 import sys
 import multiprocessing
 import numpy
+import timeit
 
 from freud import parallel
+
 
 # Run a given method and print benchmark results
 #
@@ -25,21 +26,26 @@ from freud import parallel
 # Like the unit test module, it is designed to be an overridden class.
 # Users must override run() to run their benchmark.
 # setup() is called once at the start of every benchmark for one time setup.
-
-
 class benchmark(object):
-
     def __init__(self):
         self.__N = None
         self.__t = 0
 
-    # Override this method to provide one-time setup for a benchmark
+    # Override this method to provide one-time setup for a benchmark.
     def setup(self, N):
         pass
 
-    # Override this method to run the benchmark
+    # Override this method to run the benchmark.
     def run(self, N):
         pass
+
+    # Returns timer instance with overridden setup and run functions.
+    def setup_timer(self, N):
+        test_wrapper = self
+        setup = "test_wrapper.setup(N)"
+        stmt = "test_wrapper.run(N)"
+        varmapping = {"test_wrapper": test_wrapper, "N": N}
+        return timeit.Timer(stmt=stmt, setup=setup, globals=varmapping)
 
     # Perform the benchmark
     #
@@ -49,19 +55,15 @@ class benchmark(object):
     # \returns The average time for each call to run()
     #
     def run_benchmark(self, N=None, number=100, print_stats=False):
-        # setup
-        self.setup(N)
-        self.run(N)
+        # initilize timer
+        timer = self.setup_timer(N)
 
-        # run the benchmark
-        start = time.time()
-        for i in range(0, number):
-            self.run(N)
-        end = time.time()
+        # run benchmark
+        t = timer.timeit(number)
 
         # save results for later summarization
         self.__N = N
-        self.__t = (end - start) / number
+        self.__t = t / number
         if print_stats:
             self.print_stats()
 
@@ -85,12 +87,11 @@ class benchmark(object):
     #
     # Runs the benchmark and prints out a cProfile trace
     def run_profile(self, N=None, number=100):
-        # setup
-        self.setup(N)
-        self.run(N)
+        # initilize timer
+        timer = self.setup_timer(N)
 
         # run the profile
-        cProfile.runctx("for i in range(0,number): self.run(N);",
+        cProfile.runctx("timer.timeit(number)",
                         globals(), locals(), "Profile.prof")
         s = pstats.Stats("Profile.prof")
         s.strip_dirs().sort_stats("time").print_stats()
