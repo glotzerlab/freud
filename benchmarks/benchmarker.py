@@ -156,9 +156,10 @@ def main_compare(args):
                     and this_res["params"] == other_res["params"]:
                 print(benchmark_desc(this_res["name"],
                                      this_res["params"]))
-                print("Showing runtime {} ({}) / {} ({})".format(
-                    rt, rev_this[:6],
-                    ro, rev_other[:6]))
+                print("Showing runtime {:6.6} ({:6.6}) / \
+                       {:6.6} ({:6.6})".format(
+                    rt, rev_this,
+                    ro, rev_other))
                 for N in this_res["Ns"]:
                     N = str(N)
                     this_t = this_res["size_scale"][N]
@@ -170,13 +171,14 @@ def main_compare(args):
                             "N": N,
                             "ratio": ratio}
                     if ratio > 1:
-                        print("{} is slower than {}".format(rt, ro))
+                        print("{:6.6} is slower than {:6.6}".format(rt, ro))
                         slowers.append(info)
                     if ratio < 1:
-                        print("{} is faster than {}".format(rt, ro))
+                        print("{:6.6} is faster than {:6.6}".format(rt, ro))
                         fasters.append(info)
                     if ratio == 1:
-                        print("{} and {} have the same speed".format(rt, ro))
+                        print("{:6.6} and {:6.6} \
+                               have the same speed".format(rt, ro))
                         sames.append(info)
                 print('\n ----------------')
 
