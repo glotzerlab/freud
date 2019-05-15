@@ -47,7 +47,7 @@ def do_some_benchmarks(name, Ns, number, classobj, print_stats, **kwargs):
 
 def main_report(args):
     this_script_path = os.path.dirname(os.path.abspath(__file__))
-    filename = os.path.join(this_script_path, args.filename)
+    filename = os.path.join(this_script_path, "report", args.filename)
 
     with open(filename, 'r') as infile:
         data = json.load(infile)
@@ -71,7 +71,10 @@ def print_benchmark_results_in_human_readable_way(data):
 def save_benchmark_result(bresults, filename):
     repo = git.Repo(search_parent_directories=True)
     this_script_path = os.path.dirname(os.path.abspath(__file__))
-    filename = os.path.join(this_script_path, filename)
+    filename = os.path.join(this_script_path, "report", filename)
+
+    if not os.path.exists(os.path.join(this_script_path, "report")):
+        os.mkdir(os.path.join(this_script_path, "report"))
 
     if os.path.exists(filename):
         with open(filename, 'r') as infile:
@@ -138,7 +141,7 @@ def main_compare(args):
     rev_other = str(repo.commit(ro))
 
     this_script_path = os.path.dirname(os.path.abspath(__file__))
-    filename = os.path.join(this_script_path, args.filename)
+    filename = os.path.join(this_script_path, "report", args.filename)
 
     with open(filename, 'r') as infile:
         data = json.load(infile)
