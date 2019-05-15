@@ -303,9 +303,9 @@ workflows:
       - test-py35
       - test-py36
       - benchmarks:
-        requires:
-          - test-py35
-          - test-py36
+          requires:
+            - test-py35
+            - test-py36
   deploy:
     jobs:
       - pypi-osx-wheels:
