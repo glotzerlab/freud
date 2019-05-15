@@ -169,7 +169,13 @@ class Steinhardt
 
 		//! Reallocates only the necesary arrays when the number of particles changes
 		// unsigned int Np number of particles
-		void reallocate_arrays(unsigned int Np)
+		void reallocate_arrays(unsigned int Np);
+
+		//! Calculates the base Ql order parameter before further modifications
+		//if any.
+		void base_compute(const locality::NeighborList *nlist,
+						const vec3<float> *points,
+						unsigned int Np);
 	// Member variables used for compute
         unsigned int m_Np;     //!< Last number of points computed
         box::Box m_box;        //!< Simulation box where the particles belong

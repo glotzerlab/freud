@@ -63,7 +63,6 @@ void Steinhardt::reallocate_arrays(unsigned int Np)
 			if (m_average && m_norm)
 			{
 				m_WliAveNorm = std::shared_ptr<complex<float> >(new complex<float>[m_Np], std::default_delete<complex<float>[]>());
-				memset((void*) m_WliAveNorm.get(), 0, sizeof(complex<float>)*m_Np);
 			}
 			else if (m_average)
 			{
@@ -72,7 +71,6 @@ void Steinhardt::reallocate_arrays(unsigned int Np)
 			else if (m_norm)
 			{
 				m_WliNorm = std::shared_ptr<complex<float> >(new complex<float>[m_Np], std::default_delete<complex<float>[]>());
-				memset((void*) m_WliNorm.get(), 0, sizeof(complex<float>)*m_Np);
 			}
 		}
 	}	
@@ -85,13 +83,22 @@ void Steinhardt::compute(const locality::NeighborList *nlist, const vec3<float> 
 				Steinhardt::reallocate_arrays(Np)
 			}
 		Steinhardt::base_compute(nlist, points, Np)
-		if (m_average && m_norm)
+		if (m_average && m_norm){
+			Steinhardt::computeAve(nlist, points)
+			Steinhardt::computeAveNorm()
+		}
+		else if (m_norm){
+			Steinhardt::computeNorm(nlist, points, Np)
+		}
+		else if (m_average){
+			Steinhardt::computeAve(nlist, points)
+		}
+
 }
 
 void Steinhardt::base_compute(const locality::NeighborList *nlist, const vec3<float> *points, unsigned int Np)
     {
     nlist->validate(Np, Np);
-
 
     memset((void*) m_Qlmi.get(), 0, sizeof(complex<float>)*(2*m_l+1)*m_Np);
     memset((void*) m_Qli.get(), 0, sizeof(float)*m_Np);
@@ -129,11 +136,8 @@ void Steinhardt::base_compute(const locality::NeighborList *nlist, const vec3<fl
                     continue;
                     }
 
-                // rij = rj - ri, vector from i pointing to j.
-		// Create function to do distance check
                 const vec3<float> delta = m_box.wrap(points[j] - ref);
                 const float rsq = dot(delta, delta);
-		// -----------------------------------
 
 		// Replace conditional with function call above.
                 if (rsq < rmaxsq && rsq > rminsq)
@@ -177,22 +181,9 @@ void Steinhardt::base_compute(const locality::NeighborList *nlist, const vec3<fl
     reduce();
     }
 
-void Steinhardt::computeAve(const locality::NeighborList *nlist, const vec3<float> *points, unsigned int Np)
+void Steinhardt::computeAve(const locality::NeighborList *nlist, const vec3<float> *points)
     {
-    nlist->validate(Np, Np);
     const size_t *neighbor_list(nlist->getNeighbors());
-
-    // Conditional reinitialize arrays if size differs from previous call.
-    if (m_Np != Np)
-	{
-
-	m_AveQlmi = std::shared_ptr<complex<float> >(new complex<float> [(2*m_l+1)*Np], std::default_delete<complex<float>[]>());
-	m_AveQli = std::shared_ptr<float>(new float[Np], std::default_delete<float[]>());
-	m_AveQlm = std::shared_ptr<complex<float> >(new complex<float> [(2*m_l+1)], std::default_delete<complex<float>[]>());
-	}
-
-    // Compute non-averaged Ql
-    Steinhardt::compute(nlist, points, Np)
 
     memset((void*)m_AveQlmi.get(), 0, sizeof(complex<float>)*(2*m_l+1)*m_Np);
     memset((void*)m_AveQli.get(), 0, sizeof(float)*m_Np);
@@ -269,17 +260,8 @@ void Steinhardt::computeAve(const locality::NeighborList *nlist, const vec3<floa
         } // Ends loop over particles i for Qlmi calcs
     }
 
-void Steinhardt::computeNorm(const vec3<float> *points, unsigned int Np)
+void Steinhardt::computeNorm()
     {
-    if (m_Np != Np)
-	{
-	// Set local data size
-	m_QliNorm = std::shared_ptr<float>(new float[Np], std::default_delete<float[]>());
-	}
-    
-    // Compute non-averaged Ql
-    Steinhardt::compute(nlist, points, Np)
-  
     memset((void*) m_QliNorm.get(), 0, sizeof(float)*m_Np);
 
     const float normalizationfactor = 4*M_PI/(2*m_l+1);
@@ -302,17 +284,8 @@ void Steinhardt::computeNorm(const vec3<float> *points, unsigned int Np)
         }
     }
 
-void Steinhardt::computeAveNorm(const vec3<float> *points, unsigned int Np)
+void Steinhardt::computeAveNorm()
     {
-    // Set local data size
-    if (m_Np != Np)
-	{
-	m_QliAveNorm = std::shared_ptr<float>(new float[Np], std::default_delete<float[]>());
-	}
-
-    // Compute non-averaged Ql
-    Steinhardt::computeAve(nlist, points, Np)
-
     memset((void*) m_QliAveNorm.get(), 0, sizeof(float)*m_Np);
 
     const float normalizationfactor = 4*M_PI/(2*m_l+1);
