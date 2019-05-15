@@ -6,6 +6,7 @@
 #include <stdexcept>
 #include <tbb/tbb.h>
 #include <tuple>
+#include <cmath>
 
 #include "LinkCell.h"
 
@@ -438,7 +439,7 @@ NeighborPoint LinkCellQueryIterator::next()
         {
         min_plane_distance = std::min(min_plane_distance, plane_distance.z);
         }
-    std::cout << "Number of cells: " << m_linkcell->getNumCells() << std::endl;
+    unsigned int max_range = ceil(min_plane_distance/(2*m_linkcell->getCellWidth()))+1;
 
     while (cur_p < m_N)
         {
@@ -448,7 +449,7 @@ NeighborPoint LinkCellQueryIterator::next()
         if (!m_current_neighbors.size())
             {
             // Expand search cell radius until termination conditions are met.
-            while (true)
+            while (m_neigh_cell_iter != IteratorCellShell(max_range, m_neighbor_query->getBox().is2D()))
                 {
                 // Iterate over the particles in that cell. Using a local counter
                 // variable is safe, because the IteratorLinkCell object is keeping
@@ -472,22 +473,30 @@ NeighborPoint LinkCellQueryIterator::next()
 
                 ++m_neigh_cell_iter;
 
+                // In cases where we need to check the entire box, make sure
+                // that we don't check the same cell on the positive and
+                // negative sides of the IteratorCellShell cube.
+                const vec3<int> neighbor_cell_delta(*m_neigh_cell_iter);
+                if(2*neighbor_cell_delta.x + 1 > (int) m_linkcell->getCellIndexer().getW())
+                    continue;
+                else if(2*neighbor_cell_delta.y + 1 > (int) m_linkcell->getCellIndexer().getH())
+                    continue;
+                else if(2*neighbor_cell_delta.z + 1 > (int) m_linkcell->getCellIndexer().getD())
+                    continue;
+
                 const unsigned int neighbor_cell = m_linkcell->getCellIndexer()(
                         // Need to increment each dimension by the width to avoid taking the modulus of a negative number.
                         (m_linkcell->getCellIndexer().getW() + point_cell.x + (*m_neigh_cell_iter).x) % m_linkcell->getCellIndexer().getW(),
                         (m_linkcell->getCellIndexer().getH() + point_cell.y + (*m_neigh_cell_iter).y) % m_linkcell->getCellIndexer().getH(),
                         (m_linkcell->getCellIndexer().getD() + point_cell.z + (*m_neigh_cell_iter).z) % m_linkcell->getCellIndexer().getD());
                 m_cell_iter = m_linkcell->itercell(neighbor_cell);
-                // Termination is determined when we reach a shell such that we
-                // already have k neighbors closer than the closest possible
-                // neighbor in the new shell.
-                if ((m_current_neighbors.size() >= m_k) || (m_neigh_cell_iter.getRange()*m_linkcell->getCellWidth() > min_plane_distance/2))
+                // We can terminate early if we determine when we reach a shell
+                // such that we already have k neighbors closer than the
+                // closest possible neighbor in the new shell.
+                if ((m_current_neighbors.size() >= m_k) && (m_current_neighbors[m_k-1].distance < (m_neigh_cell_iter.getRange()-1)*m_linkcell->getCellWidth()))
                     {
                     std::sort(m_current_neighbors.begin(), m_current_neighbors.end());
-                    if ((m_current_neighbors[m_k-1].distance < (m_neigh_cell_iter.getRange()-1)*m_linkcell->getCellWidth()) || (m_neigh_cell_iter.getRange()*m_linkcell->getCellWidth() > min_plane_distance/2))
-                        {
-                        break;
-                        }
+                    break;
                     }
                 }
             }
