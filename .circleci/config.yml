@@ -88,7 +88,7 @@ references:
     run:
       name: Run benchmarks
       command: |
-          pip install gitpython
+          pip install --user gitpython
           BENCHSCR="benchmarks/benchmarker.py"
           echo "Running benchmark on current HEAD"
           python "$BENCHSCR" run
