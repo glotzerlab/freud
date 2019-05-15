@@ -26,24 +26,24 @@ from freud import parallel
 # Like the unit test module, it is designed to be an overridden class.
 # Users must override run() to run their benchmark.
 # setup() is called once at the start of every benchmark for one time setup.
-class benchmark(object):
+class Benchmark:
     def __init__(self):
         self.__N = None
         self.__t = 0
 
     # Override this method to provide one-time setup for a benchmark.
-    def setup(self, N):
+    def bench_setup(self, N):
         pass
 
     # Override this method to run the benchmark.
-    def run(self, N):
+    def bench_run(self, N):
         pass
 
     # Returns timer instance with overridden setup and run functions.
     def setup_timer(self, N):
         test_wrapper = self
-        setup = "test_wrapper.setup(N)"
-        stmt = "test_wrapper.run(N)"
+        setup = "test_wrapper.bench_setup(N)"
+        stmt = "test_wrapper.bench_run(N)"
         varmapping = {"test_wrapper": test_wrapper, "N": N}
         return timeit.Timer(stmt=stmt, setup=setup, globals=varmapping)
 
@@ -174,6 +174,7 @@ class benchmark(object):
                     # print('{0:10.2f}'.format(t), end=' | ')
                     sys.stdout.flush()
 
-            print()
+            if print_stats:
+                print()
 
         return times
