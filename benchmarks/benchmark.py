@@ -54,12 +54,12 @@ class Benchmark:
     # \param print_stats Print stats to stdout
     # \returns The average time for each call to run()
     #
-    def run_benchmark(self, N=None, number=100, print_stats=False):
+    def run_benchmark(self, N=None, number=100, print_stats=False, repeat=1):
         # initilize timer
         timer = self.setup_timer(N)
 
         # run benchmark
-        t = timer.timeit(number)
+        t = min(timer.repeat(repeat, number))
 
         # save results for later summarization
         self.__N = N
@@ -107,7 +107,7 @@ class Benchmark:
     #       problem size (down to a minimum of 1).
     #
     def run_size_scaling_benchmark(self, N_list, number=1000,
-                                   print_stats=True):
+                                   print_stats=True, repeat=1):
         if len(N_list) == 0:
             raise TypeError('N_list must be iterable')
 
@@ -122,7 +122,7 @@ class Benchmark:
                 sys.stdout.flush()
 
             current_number = max(int(size // N), 1)
-            t = self.run_benchmark(N, current_number, print_stats)
+            t = self.run_benchmark(N, current_number, print_stats, repeat)
             results.append(t)
 
         return results
@@ -139,7 +139,7 @@ class Benchmark:
     #       problem size (down to a minimum of 1).
     #
     def run_thread_scaling_benchmark(self, N_list, number=1000,
-                                     print_stats=True):
+                                     print_stats=True, repeat=1):
         if len(N_list) == 0:
             raise TypeError('N_list must be iterable')
 
@@ -166,7 +166,7 @@ class Benchmark:
             for j, N in enumerate(N_list):
                 current_number = max(int(size // N), 1)
                 times[ncores, j] = self.run_benchmark(
-                    N, number=current_number, print_stats=False)
+                    N, number=current_number, print_stats=False, repeat=repeat)
 
                 if print_stats:
                     speedup = times[1, j] / times[ncores, j]

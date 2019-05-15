@@ -2,6 +2,8 @@ import numpy as np
 import git
 import json
 import os
+import argparse
+import sys
 
 from freud import locality, box
 from benchmark_density_LocalDensity \
@@ -14,7 +16,7 @@ from benchmark_locality_AABBQuery \
     import BenchmarkLocalityAABBQuery
 
 
-def benchmark_description(name, params):
+def benchmark_desc(name, params):
     s = name + ": \n\t"
     s += ", ".join("{} = {}".format(str(k), str(v)) for k, v in params.items())
     return s
@@ -22,7 +24,7 @@ def benchmark_description(name, params):
 
 def do_some_benchmarks(name, Ns, number, classobj, print_stats, **kwargs):
     if print_stats:
-        print(benchmark_description(name, kwargs))
+        print(benchmark_desc(name, kwargs))
 
     try:
         b = classobj(**kwargs)
@@ -31,29 +33,45 @@ def do_some_benchmarks(name, Ns, number, classobj, print_stats, **kwargs):
             arguments for {}".format(str(classobj)))
         return {"name": name, "misc": "No result"}
 
-    ssr = b.run_size_scaling_benchmark(Ns, number, print_stats)
-    tsr = b.run_thread_scaling_benchmark(Ns, number, print_stats)
+    repeat = 1
+    ssr = b.run_size_scaling_benchmark(Ns, number, print_stats, repeat)
+    tsr = b.run_thread_scaling_benchmark(Ns, number, print_stats, repeat)
 
     if print_stats:
         print('\n ----------------')
 
     return {"name": name, "params": kwargs, "Ns": Ns,
-            "size_scale": ssr, "thread_scale": tsr.tolist()}
+            "size_scale": {N: r for N, r in zip(Ns, ssr)},
+            "thread_scale": tsr.tolist()}
 
 
-def print_benchmark_results_in_human_readable_way(bresult):
-    bdesc = benchmark_description(bresult["name"], bresult["params"])
-    print(bdesc)
-    for N, r in zip(bresult["Ns"], bresult["size_scale"]):
-        print('{0:10d}'.format(N), end=': ')
-        print('{0:8.3f} ms | {1:8.3f} ns per item'.format(
-            r/1e-3, r/N/1e-9))
+def main_report(args):
+    this_script_path = os.path.dirname(os.path.abspath(__file__))
+    filename = os.path.join(this_script_path, args.filename)
+
+    with open(filename, 'r') as infile:
+        data = json.load(infile)
+    for commit in data:
+        print("Commit {}:".format(commit))
+        print_benchmark_results_in_human_readable_way(data[commit])
 
 
-def save_benchmark_result(bresults):
+def print_benchmark_results_in_human_readable_way(data):
+    for bresult in data:
+        bdesc = benchmark_desc(bresult["name"], bresult["params"])
+        print(bdesc)
+        for N, r in bresult["size_scale"].items():
+            N = int(N)
+            r = float(r)
+            print('{0:10d}'.format(N), end=': ')
+            print('{0:8.3f} ms | {1:8.3f} ns per item'.format(
+                float(r)/1e-3, float(r)/int(N)/1e-9))
+
+
+def save_benchmark_result(bresults, filename):
     repo = git.Repo(search_parent_directories=True)
     this_script_path = os.path.dirname(os.path.abspath(__file__))
-    filename = os.path.join(this_script_path, "benchmark.txt")
+    filename = os.path.join(this_script_path, filename)
 
     if os.path.exists(filename):
         with open(filename, 'r') as infile:
@@ -66,55 +84,62 @@ def save_benchmark_result(bresults):
         json.dump(data, outfile, indent=4)
 
 
-def run_benchmarks():
-    Ns = [1000, 10000, 100000]
-    print_stats = False
+def main_run(args):
+    Ns = args.N
+    print_stats = True
     rcut = 0.5
     L = 10
     num_neighbors = 6
     number = 100
 
+    results = []
+
     name = 'freud.locality.NearestNeighbors'
     classobj = BenchmarkLocalityNearestNeighbors
-    r1 = do_some_benchmarks(name, Ns, number, classobj, print_stats,
-                            L=L, rcut=rcut, num_neighbors=num_neighbors)
-    # print(r)
-    # print_benchmark_results_in_human_readable_way(r)
+    r = do_some_benchmarks(name, Ns, number, classobj, print_stats,
+                           L=L, rcut=rcut, num_neighbors=num_neighbors)
+    results.append(r)
 
     name = 'freud.locality.AABBQuery'
-    classobj = BenchmarkLocalityNearestNeighbors
-    r2 = do_some_benchmarks(name, Ns, 100, classobj, print_stats,
-                            L=L, rcut=rcut)
-    # print(r)
-    save_benchmark_result([r1, r2])
+    classobj = BenchmarkLocalityAABBQuery
+    r = do_some_benchmarks(name, Ns, 100, classobj, print_stats,
+                           L=L, rcut=rcut)
+    results.append(r)
 
-    # name = 'freud.locality.LinkCell'
-    # classobj = BenchmarkLocalityLinkCell
-    # do_some_benchmarks(, Ns, 100, classobj, print_stats, L=L, rcut=rcut)
+    name = 'freud.locality.LinkCell'
+    classobj = BenchmarkLocalityLinkCell
+    r = do_some_benchmarks(name, Ns, 100, classobj,
+                           print_stats, L=L, rcut=rcut)
+    results.append(r)
 
-    # rcut = 1.0
+    rcut = 1.0
 
     name = 'freud.locality.NearestNeighbors'
     classobj = BenchmarkLocalityNearestNeighbors
-    do_some_benchmarks(name, Ns, number, classobj, print_stats,
-                       L=L, rcut=rcut, num_neighbors=num_neighbors)
-    # rcut = 10
-    # nu = 1
-    # name = 'freud.density.LocalDensity'
-    # classobj = BenchmarkDensityLocalDensity
-    # do_some_benchmarks(name, Ns, 100, classobj, print_stats,
-    #                     nu=nu, rcut=rcut)
+    r = do_some_benchmarks(name, Ns, number, classobj, print_stats,
+                           L=L, rcut=rcut, num_neighbors=num_neighbors)
+    results.append(r)
+
+    rcut = 10
+    nu = 1
+    name = 'freud.density.LocalDensity'
+    classobj = BenchmarkDensityLocalDensity
+    r = do_some_benchmarks(name, Ns, 100, classobj, print_stats,
+                           nu=nu, rcut=rcut)
+    results.append(r)
+
+    save_benchmark_result(results, args.filename)
 
 
-def compare_benchmarks(rev_this, rev_other):
+def main_compare(args):
+    rt = args.rev_this
+    ro = args.rev_other
     repo = git.Repo(search_parent_directories=True)
-    rev_this = str(repo.commit(rev_this))
-    rev_other = str(repo.commit(rev_other))
-    # print(rev_this)
-    # print(rev_other)
+    rev_this = str(repo.commit(rt))
+    rev_other = str(repo.commit(ro))
 
     this_script_path = os.path.dirname(os.path.abspath(__file__))
-    filename = os.path.join(this_script_path, "benchmark.txt")
+    filename = os.path.join(this_script_path, args.filename)
 
     with open(filename, 'r') as infile:
         data = json.load(infile)
@@ -122,10 +147,122 @@ def compare_benchmarks(rev_this, rev_other):
     rev_this_benchmark = data[rev_this]
     rev_other_benchmark = data[rev_other]
 
-    print(rev_this_benchmark)
-    print(rev_other_benchmark)
+    slowers = []
+    fasters = []
+    sames = []
+
+    for this_res in rev_this_benchmark:
+        for other_res in rev_other_benchmark:
+            if this_res["name"] == other_res["name"] \
+                    and this_res["params"] == other_res["params"]:
+                print(benchmark_desc(this_res["name"],
+                                     this_res["params"]))
+                print("Showing runtime {} ({}) / {} ({})".format(
+                    rt, rev_this[:6],
+                    ro, rev_other[:6]))
+                for N in this_res["Ns"]:
+                    N = str(N)
+                    this_t = this_res["size_scale"][N]
+                    other_t = other_res["size_scale"][N]
+                    ratio = this_t/other_t
+                    print("N: {}, ratio: {:0.2f}".format(N, ratio))
+                    info = {"name": this_res["name"],
+                            "params": this_res["params"],
+                            "N": N,
+                            "ratio": ratio}
+                    if ratio > 1:
+                        print("{} is slower than {}".format(rt, ro))
+                        slowers.append(info)
+                    if ratio < 1:
+                        print("{} is faster than {}".format(rt, ro))
+                        fasters.append(info)
+                    if ratio == 1:
+                        print("{} and {} have the same speed".format(rt, ro))
+                        sames.append(info)
+                print('\n ----------------')
+
+    threshold = 1.2
+    for info in slowers:
+        if info["ratio"] > threshold:
+            desc = benchmark_desc(info["name"], info["params"])
+            print("{} too slow".format(desc))
+            print("ratio = {} > threshold = {}".format(info["ratio"],
+                                                       threshold))
+            sys.exit(1)
 
 
 if __name__ == '__main__':
-    # run_benchmarks()
-    compare_benchmarks("HEAD", "HEAD")
+    parser = argparse.ArgumentParser(
+        "Test the runtime performance of freud")
+    subparsers = parser.add_subparsers()
+
+    parser_run = subparsers.add_parser(
+        name='run',
+        description="Execute performance tests in various categories for "
+                    "specific data space sizes (N).")
+    parser_run.add_argument(
+        '-o', '--output', nargs='?', default='benchmark.txt',
+        help="Specify which collection file to store results \
+              to or '-' for None, "
+             "default='benchmark.txt'.")
+    parser_run.add_argument(
+        '-N', type=int, default=[1000, 10000, 100000], nargs='+',
+        help="The number of data/ state points within the \
+              benchmarked project. "
+             "The default size is 100. Specify more than \
+              one value to test multiple "
+             "different size sequentally.")
+    parser_run.add_argument(
+        '-p', '--profile', action='store_true',
+        help="Activate profiling (Results should not be used for reporting.")
+    parser_run.set_defaults(func=main_run)
+
+    parser_report = subparsers.add_parser(
+        name='report',
+        description="Display results from previous runs.")
+    parser_report.add_argument(
+        'filename', default='benchmark.txt', nargs='?',
+        help="The collection that contains the benchmark data"
+             "default='benchmark.txt'.")
+    parser_report.add_argument(
+        '-f', '--filter', type=str,
+        help="Select a subset of the data.")
+    parser_report.set_defaults(func=main_report)
+
+    parser_compare = subparsers.add_parser(
+        name='compare',
+        description="Compare performance between two \
+                     git-revisions of this repository. "
+             "For example, to compare the current revision \
+              (HEAD) with the "
+             "'master' branch revision, execute `{} compare \
+              master HEAD`. In this specific "
+             "case one could omit both arguments, since 'master'\
+               and 'HEAD' are the two "
+             "default arguments.".format(sys.argv[0]))
+    parser_compare.add_argument(
+        'rev_other', default='master', nargs='?',
+        help="The git revision to compare against. \
+              Valid arguments are  for example "
+             "a branch name, a tag, a specific commit id, \
+              or 'HEAD', defaults to 'master'.")
+    parser_compare.add_argument(
+        'rev_this', default='HEAD', nargs='?',
+        help="The git revision that is benchmarked. \
+              Valid arguments are  for example "
+             "a branch name, a tag, a specific commit id, \
+              or 'HEAD', defaults to 'HEAD'.")
+    parser_compare.add_argument(
+        '--filename', default='benchmark.txt', nargs='?',
+        help="The collection that contains the benchmark data"
+             "default='benchmark.txt'.")
+    parser_compare.add_argument(
+        '-f', '--fail-above',
+        type=float,
+        help="Exit with error code in case that the runtime ratio of "
+             "the worst tested category between this and the other revision "
+             "is above this value.")
+    parser_compare.set_defaults(func=main_compare)
+
+    args = parser.parse_args()
+    args.func(args)
