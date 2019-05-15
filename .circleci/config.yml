@@ -89,6 +89,7 @@ references:
       name: Run benchmarks
       command: |
           pip install --user gitpython
+          export PATH=~/.local/bin:${PATH}
           BENCHSCR="benchmarks/benchmarker.py"
           echo "Running benchmark on current HEAD"
           python "$BENCHSCR" run
