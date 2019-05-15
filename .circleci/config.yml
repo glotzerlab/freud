@@ -84,6 +84,25 @@ references:
       path: test-reports
       destination: test-reports
 
+  benchmark: &benchmark
+    run:
+      name: Run benchmarks
+      command: |
+          BENCHSCR="benchmarks/benchmarker.py"
+          echo "Running benchmark on current HEAD"
+          python "$BENCHSCR" run
+          echo "Comparing with $OTHERREPO"
+          git reset --hard origin/master
+          git checkout "${CIRCLE_SHA1}" -- "$BENCHSCR"
+          echo "Running benchmark on $OTHERREPO"
+          python "$BENCHSCR" run
+          python "$BENCHSCR" compare origin/master "${CIRCLE_SHA1}"
+
+  store_benchmarks: &store_benchmarks
+    store_artifacts:
+      path: benchmarks/reports
+      destination: benchmarks-reports
+
   build_and_test: &build_and_test
     steps:
       - *load_code
@@ -101,6 +120,16 @@ references:
       - *build
       - *test_cov
       - *store
+
+  build_and_benchmark: &build_and_benchmark
+    steps:
+      - *load_code
+      - *get_requirements
+      - *check_source
+      - *build
+      - *benchmark
+      - *store_benchmarks
+
 
   build_linux_wheels: &build_linux_wheels
     steps:
@@ -259,6 +288,13 @@ jobs:
     <<: *container_osx
     <<: *build_osx_wheels
 
+  benchmarks:
+    <<: *test_container_config_arch
+    environment:
+      PYVER: "3.6"
+    <<: *build_and_benchmark
+
+
 workflows:
   version: 2
   test:
@@ -266,6 +302,10 @@ workflows:
       - test-py27
       - test-py35
       - test-py36
+      - benchmarks:
+        requires:
+          - test-py35
+          - test-py36
   deploy:
     jobs:
       - pypi-osx-wheels:

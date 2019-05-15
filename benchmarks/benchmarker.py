@@ -182,13 +182,16 @@ def main_compare(args):
                 print('\n ----------------')
 
     threshold = 1.2
+    fail = False
     for info in slowers:
         if info["ratio"] > threshold:
             desc = benchmark_desc(info["name"], info["params"])
             print("{} too slow".format(desc))
             print("ratio = {} > threshold = {}".format(info["ratio"],
                                                        threshold))
-            sys.exit(1)
+            fail = True
+    if fail:
+        sys.exit(1)
 
 
 if __name__ == '__main__':
@@ -201,10 +204,10 @@ if __name__ == '__main__':
         description="Execute performance tests in various categories for "
                     "specific data space sizes (N).")
     parser_run.add_argument(
-        '-o', '--output', nargs='?', default='benchmark.txt',
+        '-o', '--output', nargs='?', default='benchmark.json',
         help="Specify which collection file to store results "
              "to or '-' for None, "
-             "default='benchmark.txt'.")
+             "default='benchmark.json'.")
     parser_run.add_argument(
         '-N', type=int, default=[1000, 10000, 100000], nargs='+',
         help="The number of data/ state points within the "
@@ -221,9 +224,9 @@ if __name__ == '__main__':
         name='report',
         description="Display results from previous runs.")
     parser_report.add_argument(
-        'filename', default='benchmark.txt', nargs='?',
+        'filename', default='benchmark.json', nargs='?',
         help="The collection that contains the benchmark data"
-             "default='benchmark.txt'.")
+             "default='benchmark.json'.")
     parser_report.add_argument(
         '-f', '--filter', type=str,
         help="Select a subset of the data.")
@@ -253,9 +256,9 @@ if __name__ == '__main__':
              "a branch name, a tag, a specific commit id, "
              "or 'HEAD', defaults to 'HEAD'.")
     parser_compare.add_argument(
-        '--filename', default='benchmark.txt', nargs='?',
+        '--filename', default='benchmark.json', nargs='?',
         help="The collection that contains the benchmark data"
-             "default='benchmark.txt'.")
+             "default='benchmark.json'.")
     parser_compare.add_argument(
         '-f', '--fail-above',
         type=float,
