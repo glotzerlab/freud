@@ -127,7 +127,6 @@ def main_run(args):
     # r = do_some_benchmarks(name, Ns, 100, classobj, print_stats,
     #                        nu=nu, rcut=rcut)
     # results.append(r)
-
     save_benchmark_result(results, args.output)
 
 
