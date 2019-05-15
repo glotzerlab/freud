@@ -156,10 +156,9 @@ def main_compare(args):
                     and this_res["params"] == other_res["params"]:
                 print(benchmark_desc(this_res["name"],
                                      this_res["params"]))
-                print("Showing runtime {:6.6} ({:6.6}) / \
-                       {:6.6} ({:6.6})".format(
-                    rt, rev_this,
-                    ro, rev_other))
+                print("Showing runtime "
+                      "{:6.6} ({:6.6}) / "
+                      "{:6.6} ({:6.6})".format(rt, rev_this, ro, rev_other))
                 for N in this_res["Ns"]:
                     N = str(N)
                     this_t = this_res["size_scale"][N]
@@ -177,8 +176,8 @@ def main_compare(args):
                         print("{:6.6} is faster than {:6.6}".format(rt, ro))
                         fasters.append(info)
                     if ratio == 1:
-                        print("{:6.6} and {:6.6} \
-                               have the same speed".format(rt, ro))
+                        print("{:6.6} and {:6.6} "
+                              "have the same speed".format(rt, ro))
                         sames.append(info)
                 print('\n ----------------')
 
@@ -203,15 +202,15 @@ if __name__ == '__main__':
                     "specific data space sizes (N).")
     parser_run.add_argument(
         '-o', '--output', nargs='?', default='benchmark.txt',
-        help="Specify which collection file to store results \
-              to or '-' for None, "
+        help="Specify which collection file to store results "
+             "to or '-' for None, "
              "default='benchmark.txt'.")
     parser_run.add_argument(
         '-N', type=int, default=[1000, 10000, 100000], nargs='+',
-        help="The number of data/ state points within the \
-              benchmarked project. "
-             "The default size is 100. Specify more than \
-              one value to test multiple "
+        help="The number of data/ state points within the "
+             "benchmarked project. "
+             "The default size is 100. Specify more than "
+             "one value to test multiple "
              "different size sequentally.")
     parser_run.add_argument(
         '-p', '--profile', action='store_true',
@@ -232,27 +231,27 @@ if __name__ == '__main__':
 
     parser_compare = subparsers.add_parser(
         name='compare',
-        description="Compare performance between two \
-                     git-revisions of this repository. "
-             "For example, to compare the current revision \
-              (HEAD) with the "
-             "'master' branch revision, execute `{} compare \
-              master HEAD`. In this specific "
-             "case one could omit both arguments, since 'master'\
-               and 'HEAD' are the two "
-             "default arguments.".format(sys.argv[0]))
+        description="Compare performance between two "
+                    "git-revisions of this repository. "
+                    "For example, to compare the current revision "
+                    "(HEAD) with the "
+                    "'master' branch revision, execute `{} compare "
+                    "master HEAD`. In this specific "
+                    "case one could omit both arguments, since 'master'"
+                    " and 'HEAD' are the two "
+                    "default arguments.".format(sys.argv[0]))
     parser_compare.add_argument(
         'rev_other', default='master', nargs='?',
-        help="The git revision to compare against. \
-              Valid arguments are  for example "
-             "a branch name, a tag, a specific commit id, \
-              or 'HEAD', defaults to 'master'.")
+        help="The git revision to compare against. "
+             "Valid arguments are  for example "
+             "a branch name, a tag, a specific commit id, "
+             "or 'HEAD', defaults to 'master'.")
     parser_compare.add_argument(
         'rev_this', default='HEAD', nargs='?',
-        help="The git revision that is benchmarked. \
-              Valid arguments are  for example "
-             "a branch name, a tag, a specific commit id, \
-              or 'HEAD', defaults to 'HEAD'.")
+        help="The git revision that is benchmarked. "
+             "Valid arguments are  for example "
+             "a branch name, a tag, a specific commit id, "
+             "or 'HEAD', defaults to 'HEAD'.")
     parser_compare.add_argument(
         '--filename', default='benchmark.txt', nargs='?',
         help="The collection that contains the benchmark data"
