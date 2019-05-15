@@ -100,35 +100,35 @@ def main_run(args):
                            L=L, rcut=rcut, num_neighbors=num_neighbors)
     results.append(r)
 
-    name = 'freud.locality.AABBQuery'
-    classobj = BenchmarkLocalityAABBQuery
-    r = do_some_benchmarks(name, Ns, 100, classobj, print_stats,
-                           L=L, rcut=rcut)
-    results.append(r)
+    # name = 'freud.locality.AABBQuery'
+    # classobj = BenchmarkLocalityAABBQuery
+    # r = do_some_benchmarks(name, Ns, 100, classobj, print_stats,
+    #                        L=L, rcut=rcut)
+    # results.append(r)
 
-    name = 'freud.locality.LinkCell'
-    classobj = BenchmarkLocalityLinkCell
-    r = do_some_benchmarks(name, Ns, 100, classobj,
-                           print_stats, L=L, rcut=rcut)
-    results.append(r)
+    # name = 'freud.locality.LinkCell'
+    # classobj = BenchmarkLocalityLinkCell
+    # r = do_some_benchmarks(name, Ns, 100, classobj,
+    #                        print_stats, L=L, rcut=rcut)
+    # results.append(r)
 
-    rcut = 1.0
+    # rcut = 1.0
 
-    name = 'freud.locality.NearestNeighbors'
-    classobj = BenchmarkLocalityNearestNeighbors
-    r = do_some_benchmarks(name, Ns, number, classobj, print_stats,
-                           L=L, rcut=rcut, num_neighbors=num_neighbors)
-    results.append(r)
+    # name = 'freud.locality.NearestNeighbors'
+    # classobj = BenchmarkLocalityNearestNeighbors
+    # r = do_some_benchmarks(name, Ns, number, classobj, print_stats,
+    #                        L=L, rcut=rcut, num_neighbors=num_neighbors)
+    # results.append(r)
 
-    rcut = 10
-    nu = 1
-    name = 'freud.density.LocalDensity'
-    classobj = BenchmarkDensityLocalDensity
-    r = do_some_benchmarks(name, Ns, 100, classobj, print_stats,
-                           nu=nu, rcut=rcut)
-    results.append(r)
+    # rcut = 10
+    # nu = 1
+    # name = 'freud.density.LocalDensity'
+    # classobj = BenchmarkDensityLocalDensity
+    # r = do_some_benchmarks(name, Ns, 100, classobj, print_stats,
+    #                        nu=nu, rcut=rcut)
+    # results.append(r)
 
-    save_benchmark_result(results, args.filename)
+    save_benchmark_result(results, args.output)
 
 
 def main_compare(args):
