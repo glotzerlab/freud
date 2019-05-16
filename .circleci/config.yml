@@ -95,7 +95,7 @@ references:
           python "$BENCHSCR" run
           echo "Comparing with $OTHERREPO"
           git reset --hard origin/master
-          git checkout "${CIRCLE_SHA1}" -- "$BENCHSCR"
+          git checkout "${CIRCLE_SHA1}" -- benchmarks/
           echo "Running benchmark on $OTHERREPO"
           python "$BENCHSCR" run
           python "$BENCHSCR" compare origin/master "${CIRCLE_SHA1}"
