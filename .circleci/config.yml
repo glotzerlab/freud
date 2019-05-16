@@ -91,13 +91,7 @@ references:
           pip install --user gitpython
           BENCHSCR="benchmarks/benchmarker.py"
           echo "Running benchmark on current HEAD"
-          python "$BENCHSCR" run
-          echo "Comparing with $OTHERREPO"
-          git reset --hard origin/master
-          git checkout "${CIRCLE_SHA1}" -- "$BENCHSCR"
-          echo "Running benchmark on $OTHERREPO"
-          python "$BENCHSCR" run
-          python "$BENCHSCR" compare origin/master "${CIRCLE_SHA1}"
+          python -m unittest discover benchmarks -p benchmarker* -v
 
   store_benchmarks: &store_benchmarks
     store_artifacts:

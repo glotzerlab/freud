@@ -4,7 +4,7 @@ import json
 import os
 import argparse
 import sys
-import pathlib
+import unittest
 
 from freud import locality, box
 from benchmark_density_LocalDensity \
@@ -134,6 +134,53 @@ def main_run(args):
     save_benchmark_result(results, args.output)
 
 
+def main_run_temp():
+    Ns = [1000, 10000, 100000]
+    print_stats = True
+    rcut = 0.5
+    L = 10
+    num_neighbors = 6
+    number = 100
+
+    results = []
+
+    name = 'freud.locality.NearestNeighbors'
+    classobj = BenchmarkLocalityNearestNeighbors
+    r = do_some_benchmarks(name, Ns, number, classobj, print_stats,
+                           L=L, rcut=rcut, num_neighbors=num_neighbors)
+    results.append(r)
+
+    # name = 'freud.locality.AABBQuery'
+    # classobj = BenchmarkLocalityAABBQuery
+    # r = do_some_benchmarks(name, Ns, 100, classobj, print_stats,
+    #                        L=L, rcut=rcut)
+    # results.append(r)
+
+    # name = 'freud.locality.LinkCell'
+    # classobj = BenchmarkLocalityLinkCell
+    # r = do_some_benchmarks(name, Ns, 100, classobj,
+    #                        print_stats, L=L, rcut=rcut)
+    # results.append(r)
+
+    # rcut = 1.0
+
+    # name = 'freud.locality.NearestNeighbors'
+    # classobj = BenchmarkLocalityNearestNeighbors
+    # r = do_some_benchmarks(name, Ns, number, classobj, print_stats,
+    #                        L=L, rcut=rcut, num_neighbors=num_neighbors)
+    # results.append(r)
+
+    # rcut = 10
+    # nu = 1
+    # name = 'freud.density.LocalDensity'
+    # classobj = BenchmarkDensityLocalDensity
+    # r = do_some_benchmarks(name, Ns, 100, classobj, print_stats,
+    #                        nu=nu, rcut=rcut)
+    # results.append(r)
+    output_filename = "benchmark.json"
+    save_benchmark_result(results, output_filename)
+
+
 def main_compare(args):
     rt = args.rev_this
     ro = args.rev_other
@@ -198,11 +245,12 @@ def main_compare(args):
         sys.exit(1)
 
 
-if __name__ == '__main__':
-    current_dir =os.path.dirname(os.path.abspath(__file__))
-    upper_dir = pathlib.Path(current_dir).parents[0]
-    sys.path.insert(0, str(upper_dir))
+class BenchmarktWrapper(unittest.TestCase):
+    def test_benchmark_run(self):
+        main_run_temp()
 
+
+if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         "Test the runtime performance of freud")
     subparsers = parser.add_subparsers()
