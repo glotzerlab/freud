@@ -409,17 +409,19 @@ class TestNeighborQuery(object):
         self.assertEqual(len(result), 0)
 
     def test_corner_2d(self):
-        """Check an extreme case where finding enough nearest neighbors requires going beyond normally allowed cutoff."""
+        """Check an extreme case where finding enough nearest neighbors
+        requires going beyond normally allowed cutoff."""
         L = 2.1
         box = freud.box.Box.square(L)
 
-        positions = np.array([[0, 0, 0], [0, 1, 0], [1, 1, 0]], dtype=np.float32)
+        positions = np.array(
+            [[0, 0, 0], [0, 1, 0], [1, 1, 0]], dtype=np.float32)
         nq = self.build_query_object(box, positions, L/10)
         result = list(nq.query(positions[[0]], 3))
         self.assertEqual(get_point_neighbors(result, 0), {0, 1, 2})
 
         # Check the effect of points != ref_points
-        positions[:,:2] -= 0.1  # = np.array([[-0.1, -0.1, 0], [-0.1, 0.9, 0], [0.9, 0.9, 0]])
+        positions[:, :2] -= 0.1
         result = list(nq.query(positions[[0]], 3))
         self.assertEqual(get_point_neighbors(result, 0), {0, 1, 2})
 
@@ -444,13 +446,17 @@ class TestNeighborQuery(object):
                 nq = self.build_query_object(box, positions, L/10)
 
                 nlist = nq.query(positions, k=k, exclude_ii=True).toNList()
-                assert len(nlist) == k * N, 'Wrong nlist length for N = {}, k= {}, length={}'.format(N, k, len(nlist))
+                assert len(nlist) == k * N,\
+                    'Wrong nlist length for N = {}, k= {}, length={}'.format(
+                        N, k, len(nlist))
                 nlist_array = nlist[:]
                 for i in range(N):
                     assert not ([i, i] == nlist_array).all(axis=1).any()
 
                 nlist = nq.query(positions, k=k, exclude_ii=False).toNList()
-                assert len(nlist) == k * N, 'Wrong nlist length for N = {}, k= {}, length={}'.format(N, k, len(nlist))
+                assert len(nlist) == k * N,\
+                    'Wrong nlist length for N = {}, k= {}, length={}'.format(
+                        N, k, len(nlist))
                 nlist_array = nlist[:]
                 for i in range(N):
                     assert ([i, i] == nlist_array).all(axis=1).any()
@@ -464,7 +470,6 @@ class TestNeighborQueryAABB(TestNeighborQuery, unittest.TestCase):
     def test_throws(self):
         """Test that specifying too large an rcut value throws an error"""
         L = 5
-        dr = 0.1
 
         box = freud.box.Box.square(L)
         points = [[0, 0, 0], [1, 1, 0], [1, -1, 0]]
