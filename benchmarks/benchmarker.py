@@ -92,14 +92,14 @@ def list_benchmark_modules():
     import glob
     modules = glob.glob(os.path.join(os.path.dirname(__file__),
                                      "benchmark_*"))
-    modules = [f[:-3] for f in modules]
+    prefixdir = "benchmarks/"
+    modules = [f[len(prefixdir):-3] for f in modules]
     return modules
 
 
 def main_run(args):
     results = []
     modules = list_benchmark_modules()
-
     for m in modules:
         m = try_importing(m)
         results.append(m.run())
