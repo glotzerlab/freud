@@ -5,7 +5,6 @@ from freud import density, box
 from benchmark import Benchmark
 import numpy as np
 import math
-import timeit
 
 
 class BenchmarkDensityLocalDensity(Benchmark):
