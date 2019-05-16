@@ -4,6 +4,7 @@ import json
 import os
 import argparse
 import sys
+import pathlib
 
 from freud import locality, box
 from benchmark_density_LocalDensity \
@@ -198,6 +199,7 @@ def main_compare(args):
 
 
 if __name__ == '__main__':
+    sys.path.insert(0, pathlib.Path(os.path.dirname(__file__)).parents[0])
     parser = argparse.ArgumentParser(
         "Test the runtime performance of freud")
     subparsers = parser.add_subparsers()
