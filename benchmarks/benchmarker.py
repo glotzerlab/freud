@@ -199,7 +199,10 @@ def main_compare(args):
 
 
 if __name__ == '__main__':
-    sys.path.insert(0, pathlib.Path(os.path.dirname(__file__)).parents[0])
+    current_dir =os.path.dirname(os.path.abspath(__file__))
+    upper_dir = pathlib.Path(current_dir).parents[0]
+    sys.path.insert(0, str(upper_dir))
+
     parser = argparse.ArgumentParser(
         "Test the runtime performance of freud")
     subparsers = parser.add_subparsers()
