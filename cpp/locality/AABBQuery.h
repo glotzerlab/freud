@@ -6,6 +6,7 @@
 
 #include <vector>
 #include <memory>
+#include <map>
 
 #include "NeighborQuery.h"
 #include "Box.h"
@@ -152,7 +153,7 @@ class AABBQueryIterator : virtual public NeighborQueryQueryIterator, virtual pub
         //! Constructor
         AABBQueryIterator(const AABBQuery* neighbor_query,
                 const vec3<float> *points, unsigned int N, unsigned int k, float r, float scale, bool exclude_ii) :
-            NeighborQueryIterator(neighbor_query, points, N, exclude_ii), NeighborQueryQueryIterator(neighbor_query, points, N, exclude_ii, k), AABBIterator(neighbor_query, points, N, exclude_ii), m_checked_rmax(false), m_r(r), m_r_cur(r), m_scale(scale)
+            NeighborQueryIterator(neighbor_query, points, N, exclude_ii), NeighborQueryQueryIterator(neighbor_query, points, N, exclude_ii, k), AABBIterator(neighbor_query, points, N, exclude_ii), m_search_extended(false), m_r(r), m_r_cur(r), m_scale(scale), m_all_distances()
             {
             updateImageVectors(0);
             }
@@ -167,10 +168,11 @@ class AABBQueryIterator : virtual public NeighborQueryQueryIterator, virtual pub
         virtual std::shared_ptr<NeighborQueryIterator> query(unsigned int idx);
 
     protected:
-        float m_checked_rmax;  //!< Flag to see whether we've reached the max cutoff distance.
+        float m_search_extended;  //!< Flag to see whether we've gone past the safe cutoff distance and have to be worried about finding duplicates.
         float m_r;        //!< Ball cutoff distance. Used as a guess.
         float m_r_cur;  //!< Current search ball cutoff distance in use for the current particle (expands as needed).
         float m_scale;    //!< The amount to scale m_r by when the current ball is too small.
+        std::map<unsigned int, float> m_all_distances; //!< Hash map of minimum distances found for a given point, used when searching beyond maximum safe AABB distance.
     };
 
 //! Iterator that gets neighbors in a ball of size r using AABB tree structures

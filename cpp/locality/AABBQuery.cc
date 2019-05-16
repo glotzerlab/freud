@@ -68,7 +68,7 @@ void AABBIterator::updateImageVectors(float rmax)
         (periodic.y && nearest_plane_distance.y <= rmax * 2.0) ||
         (!box.is2D() && periodic.z && nearest_plane_distance.z <= rmax * 2.0))
         {
-        throw std::runtime_error("The AABBQuery rcut is too large for this box.");
+        //throw std::runtime_error("The AABBQuery rcut is too large for this box.");
         }
 
     // Now compute the image vectors
@@ -201,9 +201,11 @@ NeighborPoint AABBQueryIterator::next()
     {
     vec3<float> plane_distance = m_neighbor_query->getBox().getNearestPlaneDistance();
     float min_plane_distance = std::min(plane_distance.x, plane_distance.y);
+    float max_plane_distance = std::max(plane_distance.x, plane_distance.y);
     if (!m_neighbor_query->getBox().is2D())
         {
         min_plane_distance = std::min(min_plane_distance, plane_distance.z);
+        max_plane_distance = std::max(max_plane_distance, plane_distance.z);
         }
 
     while (cur_p < m_N)
@@ -223,14 +225,27 @@ NeighborPoint AABBQueryIterator::next()
                 while(!ball_it->end())
                     {
                     NeighborPoint np = ball_it->next();
+                    if (np == NeighborQueryIterator::ITERATOR_TERMINATOR)
+                        continue;
+
                     if (!m_exclude_ii || cur_p != np.ref_id)
                         {
                         np.id = cur_p;
-                        m_current_neighbors.emplace_back(np);
+                        // If we've expanded our search radius beyond safe
+                        // distance, use the map instead of the vector.
+                        if (m_search_extended)
+                            {
+                            if (!m_all_distances.count(np.ref_id) || m_all_distances[np.ref_id] > np.distance)
+                                {
+                                m_all_distances[np.ref_id] = np.distance;
+                                }
+                            }
+                        else
+                            {
+                            m_current_neighbors.emplace_back(np);
+                            }
                         }
                     }
-                // Remove the last item, which is just the terminal sentinel value.
-                m_current_neighbors.pop_back();
 
                 // Break if there are enough neighbors, or if we are querying beyond the limits of the periodic box.
                 m_r_cur *= m_scale;
@@ -240,24 +255,33 @@ NeighborPoint AABBQueryIterator::next()
                     std::sort(m_current_neighbors.begin(), m_current_neighbors.end());
                     break;
                     }
+                else if ((m_r_cur >= max_plane_distance) || (m_all_distances.size() >= m_k))
+                    {
+                    // Once this condition is reached, either we found enough
+                    // neighbors beyond the normal min_plance_distance
+                    // condition or we conclude that there are not enough
+                    // neighbors left in the system.
+                    for (std::map<unsigned int, float>::const_iterator it(m_all_distances.begin()); it != m_all_distances.end(); it++)
+                        {
+                        m_current_neighbors.emplace_back(cur_p, it->first, it->second);
+                        }
+                    std::sort(m_current_neighbors.begin(), m_current_neighbors.end());
+                    break;
+                    }
                 else if (m_r_cur > min_plane_distance/2)
                     {
-                    // If we've exceeded the ball query cutoff limit, but this
-                    // is the first time we've hit the limit, then we need to
-                    // make sure that we search the maximum possible radius in
-                    // one round of querying, otherwise we could miss some
-                    // neighbors whose distance from the current particle is
-                    // some small amount epsilon less than the max querying
-                    // distance (min_plane_distance/2).
-                    if (!m_checked_rmax)
+                    // If we have to go beyond the cutoff radius, we need to
+                    // start tracking what particles are already in the set so
+                    // that we can make sure that we find the closest image
+                    // because we now run the risk of finding duplicates.
+                    // We could make this marginally more efficient by checking
+                    // whether we've exactly hit the limit, or if there's a
+                    // rescaling that would let us try the exact limit once
+                    // before going beyond the min plane distance.
+                    m_search_extended = true;
+                    for (std::vector<NeighborPoint>::const_iterator it(m_current_neighbors.begin()); it != m_current_neighbors.end(); it++)
                         {
-                        m_checked_rmax = true;
-                        m_r_cur = (min_plane_distance/2)*(1-std::numeric_limits<float>::epsilon());
-                        }
-                    else
-                        {
-                        std::sort(m_current_neighbors.begin(), m_current_neighbors.end());
-                        break;
+                        m_all_distances[it->ref_id] = it->distance;
                         }
                     }
                 }
@@ -273,8 +297,9 @@ NeighborPoint AABBQueryIterator::next()
         cur_p++;
         m_count = 0;
         m_current_neighbors.clear();
+        m_all_distances.clear();
         m_r_cur = m_r;
-        m_checked_rmax = false;
+        m_search_extended = false;
         }
     m_finished = true;
     return NeighborQueryIterator::ITERATOR_TERMINATOR;
