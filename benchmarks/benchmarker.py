@@ -36,14 +36,16 @@ def do_some_benchmarks(name, Ns, number, classobj, print_stats, **kwargs):
 
     repeat = 1
     ssr = b.run_size_scaling_benchmark(Ns, number, print_stats, repeat)
-    tsr = b.run_thread_scaling_benchmark(Ns, number, print_stats, repeat)
+    # tsr = b.run_thread_scaling_benchmark(Ns, number, print_stats, repeat)
 
     if print_stats:
         print('\n ----------------')
 
     return {"name": name, "params": kwargs, "Ns": Ns,
-            "size_scale": {N: r for N, r in zip(Ns, ssr)},
-            "thread_scale": tsr.tolist()}
+            "size_scale": {N: r for N, r in zip(Ns, ssr)}}
+    # return {"name": name, "params": kwargs, "Ns": Ns,
+    #         "size_scale": {N: r for N, r in zip(Ns, ssr)},
+    #         "thread_scale": tsr.tolist()}
 
 
 def main_report(args):
