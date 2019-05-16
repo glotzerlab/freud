@@ -15,6 +15,16 @@ from benchmark_locality_LinkCell \
     import BenchmarkLocalityLinkCell
 from benchmark_locality_AABBQuery \
     import BenchmarkLocalityAABBQuery
+from benchmark_density_GaussianDensity \
+    import BenchmarkDensityGaussianDensity
+from benchmark_density_ComplexCF \
+    import BenchmarkDensityComplexCF
+from benchmark_density_FloatCF \
+    import BenchmarkDensityFloatCF
+from benchmark_density_RDF \
+    import BenchmarkDensityRDF
+from benchmark_environment_BondOrder \
+    import BenchmarkEnvironmentBondOrder
 
 
 def benchmark_desc(name, params):
@@ -131,6 +141,52 @@ def main_run(args):
     # r = do_some_benchmarks(name, Ns, 100, classobj, print_stats,
     #                        nu=nu, rcut=rcut)
     # results.append(r)
+
+    # width = 100
+    # rcut = 10
+    # sigma = 0.1
+    # name = 'freud.density.GaussianDensity'
+    # classobj = BenchmarkDensityGaussianDensity
+    # r = do_some_benchmarks(name, Ns, 100, classobj, print_stats,
+    #                        width=width, rcut=rcut, sigma=sigma)
+    # results.append(r)
+
+    # rmax = 10.0
+    # dr = 1.0
+    # name = 'freud.density.ComplexCF'
+    # classobj = BenchmarkDensityComplexCF
+    # r = do_some_benchmarks(name, Ns, 100, classobj, print_stats,
+    #                        rmax=rmax, dr=dr)
+    # results.append(r)
+
+    # rmax = 10.0
+    # dr = 1.0
+    # name = 'freud.density.FloatCF'
+    # classobj = BenchmarkDensityFloatCF
+    # r = do_some_benchmarks(name, Ns, 100, classobj, print_stats,
+    #                        rmax=rmax, dr=dr)
+    # results.append(r)
+
+    # rmax = 10.0
+    # dr = 1.0
+    # rmin = 0
+    # name = 'freud.density.RDF'
+    # classobj = BenchmarkDensityRDF
+    # r = do_some_benchmarks(name, Ns, 100, classobj, print_stats,
+    #                        rmax=rmax, dr=dr, rmin=rmin)
+    # results.append(r)
+
+    # Ns = [4, 8, 16]
+    # r_cut = 1.5
+    # num_neighbors = 12
+    # npt = npp = 6
+    # name = 'freud.environment.BondOrder'
+    # classobj = BenchmarkEnvironmentBondOrder
+    # r = do_some_benchmarks(name, Ns, 100, classobj, print_stats,
+    #                        rmax=r_cut, k=0, num_neighbors=num_neighbors,
+    #                        n_bins_t=npt, n_bins_p=npp)
+    # results.append(r)
+
     save_benchmark_result(results, args.output)
 
 
@@ -177,6 +233,7 @@ def main_run_temp():
     # r = do_some_benchmarks(name, Ns, 100, classobj, print_stats,
     #                        nu=nu, rcut=rcut)
     # results.append(r)
+
     output_filename = "benchmark.json"
     save_benchmark_result(results, output_filename)
 
