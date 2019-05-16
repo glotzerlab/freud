@@ -410,31 +410,24 @@ class TestNeighborQuery(object):
 
     def test_corner_2d(self):
         """Check an extreme case where finding enough nearest neighbors requires going beyond normally allowed cutoff."""
-        import freud.parallel
-        freud.parallel.setNumThreads(1)
         L = 2.1
         box = freud.box.Box.square(L)
 
         positions = np.array([[0, 0, 0], [0, 1, 0], [1, 1, 0]], dtype=np.float32)
-        # nq = self.build_query_object(box, positions, L/10)
-        # result = list(nq.query(positions[[0]], 3))
-        # self.assertEqual(get_point_neighbors(result, 0), {0, 1, 2})
+        nq = self.build_query_object(box, positions, L/10)
+        result = list(nq.query(positions[[0]], 3))
+        self.assertEqual(get_point_neighbors(result, 0), {0, 1, 2})
 
-        # lc = freud.locality.LinkCell(box, 0.5, positions)
-        # aq = freud.locality.AABBQuery(box, positions)
-        # print(list(lc.query(positions[[0]], 3)))
-        # CURRENTLY THIS NLIST FAILS, NEED TO FIGURE OUT WHY
-        # print(lc.query(positions[[0]], 3).toNList()[:])
-        # print(aq.query(positions[[0]], 3).toNList()[:])
-        # nn = freud.locality.NearestNeighbors(0.5, 3).compute(box, positions, positions)
-
+        # Check the effect of points != ref_points
         positions[:,:2] -= 0.1  # = np.array([[-0.1, -0.1, 0], [-0.1, 0.9, 0], [0.9, 0.9, 0]])
-        nn = freud.locality.NearestNeighbors(0.1, 3, strict_cut=False).compute(box, positions, positions[[0], :])
-        print(nn.nlist[:])
-        # result = list(nq.query(positions[[0]], 3))
-        # print(result)
-        # self.assertEqual(get_point_neighbors(result, 0), {0, 1, 2})
+        result = list(nq.query(positions[[0]], 3))
+        self.assertEqual(get_point_neighbors(result, 0), {0, 1, 2})
 
+        # Since the initial position set aligns exactly with cell boundaries,
+        # make sure that the correctness is not affected by that artifact.
+        nq = self.build_query_object(box, positions, L/10)
+        result = list(nq.query(positions[[0]], 3))
+        self.assertEqual(get_point_neighbors(result, 0), {0, 1, 2})
 
     def test_random_system_query(self):
         np.random.seed(0)
@@ -442,11 +435,11 @@ class TestNeighborQuery(object):
         box = freud.box.Box.cube(L)
 
         # Generate random points
-        for N in [10, 100, 1000]:
+        for N in [10, 100, 500]:
             positions = box.wrap(L/2 * np.random.rand(N, 3))
-            ks = [1, 5, 10]
+            ks = [1, 5]
             if N > 10:
-                ks.append(50)
+                ks.extend([10, 50])
             for k in ks:
                 nq = self.build_query_object(box, positions, L/10)
 
