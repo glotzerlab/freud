@@ -27,7 +27,7 @@ class BenchmarkDensityGaussianDensity(Benchmark):
 
 
 def run():
-    Ns = [1000, 10000, 100000]
+    Ns = [1000, 10000]
     width = 100
     rcut = 10
     sigma = 0.1

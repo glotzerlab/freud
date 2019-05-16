@@ -29,7 +29,7 @@ class BenchmarkDensityComplexCF(Benchmark):
 
 
 def run():
-    Ns = [1000, 10000, 100000]
+    Ns = [1000, 10000]
     rmax = 10.0
     dr = 1.0
     name = 'freud.density.ComplexCF'

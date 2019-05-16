@@ -28,7 +28,7 @@ class BenchmarkDensityLocalDensity(Benchmark):
 
 
 def run():
-    Ns = [1000, 10000, 100000]
+    Ns = [1000, 10000]
     rcut = 10
     nu = 1
     name = 'freud.density.LocalDensity'

@@ -26,7 +26,7 @@ class BenchmarkDensityRDF(Benchmark):
 
 
 def run():
-    Ns = [1000, 10000, 100000]
+    Ns = [1000, 10000]
     rmax = 10.0
     dr = 1.0
     rmin = 0
