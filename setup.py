@@ -66,6 +66,7 @@ def stderr_manager(f):
 warnings_str = "--PRINT-WARNINGS"
 coverage_str = "--COVERAGE"
 cython_str = "--ENABLE-CYTHON"
+debug_str = "--DEBUG"
 parallel_str = "-j"
 thread_str = "--NTHREAD"
 tbb_root_str = "--TBB-ROOT"
@@ -93,13 +94,20 @@ parser.add_argument(
     coverage_str,
     action="store_true",
     dest="use_coverage",
-    help="Compile Cython with coverage"
+    help="Compile Cython with coverage."
 )
 parser.add_argument(
     cython_str,
     action="store_true",
     dest="use_cython",
-    help="Compile with Cython instead of using precompiled C++ files"
+    help="Compile with Cython instead of using precompiled C++ files."
+)
+parser.add_argument(
+    debug_str,
+    action="store_true",
+    dest="gdb_debug",
+    help="Enable GDB debug symbols in Cython. Cython compilation must be "
+         "enabled."
 )
 parser.add_argument(
     parallel_str,
@@ -362,7 +370,8 @@ for f, m in zip(files, modules):
 if args.use_cython:
     extensions = cythonize(extensions,
                            compiler_directives=directives,
-                           nthreads=args.nthreads)
+                           nthreads=args.nthreads,
+                           gdb_debug=args.gdb_debug)
 
 
 ####################################
