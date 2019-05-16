@@ -1,6 +1,7 @@
 import numpy as np
-from freud import locality, box
+import freud
 from benchmark import Benchmark
+from benchmarker import do_some_benchmarks
 
 
 class BenchmarkLocalityNearestNeighbors(Benchmark):
@@ -10,8 +11,9 @@ class BenchmarkLocalityNearestNeighbors(Benchmark):
         self.num_neighbors = num_neighbors
 
     def bench_setup(self, N):
-        self.fbox = box.Box.cube(self.L)
-        self.cl = locality.NearestNeighbors(self.rcut, self.num_neighbors)
+        self.fbox = freud.box.Box.cube(self.L)
+        self.cl = freud.locality.NearestNeighbors(self.rcut,
+                                                  self.num_neighbors)
 
         seed = 0
         np.random.seed(seed)
@@ -20,3 +22,17 @@ class BenchmarkLocalityNearestNeighbors(Benchmark):
 
     def bench_run(self, N):
         self.cl.compute(self.fbox, self.points, self.points)
+
+
+def run():
+    Ns = [1000, 10000, 100000]
+    rcut = 0.5
+    L = 10
+    num_neighbors = 6
+    print_stats = True
+    number = 100
+
+    name = 'freud.locality.NearestNeighbors'
+    classobj = BenchmarkLocalityNearestNeighbors
+    return do_some_benchmarks(name, Ns, number, classobj, print_stats,
+                              L=L, rcut=rcut, num_neighbors=num_neighbors)

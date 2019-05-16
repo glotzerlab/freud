@@ -5,26 +5,16 @@ import os
 import argparse
 import sys
 import unittest
+import importlib
 
-from freud import locality, box
-from benchmark_density_LocalDensity \
-    import BenchmarkDensityLocalDensity
-from benchmark_locality_NearestNeighbors \
-    import BenchmarkLocalityNearestNeighbors
-from benchmark_locality_LinkCell \
-    import BenchmarkLocalityLinkCell
-from benchmark_locality_AABBQuery \
-    import BenchmarkLocalityAABBQuery
-from benchmark_density_GaussianDensity \
-    import BenchmarkDensityGaussianDensity
-from benchmark_density_ComplexCF \
-    import BenchmarkDensityComplexCF
-from benchmark_density_FloatCF \
-    import BenchmarkDensityFloatCF
-from benchmark_density_RDF \
-    import BenchmarkDensityRDF
-from benchmark_environment_BondOrder \
-    import BenchmarkEnvironmentBondOrder
+
+def try_importing(module):
+    try:
+        return importlib.import_module(module)
+    except ImportError:
+        print("{} does not exist and thus cannot"
+              " be benchmarked".format(module))
+        return None
 
 
 def benchmark_desc(name, params):
@@ -58,7 +48,7 @@ def do_some_benchmarks(name, Ns, number, classobj, print_stats, **kwargs):
 
 def main_report(args):
     this_script_path = os.path.dirname(os.path.abspath(__file__))
-    filename = os.path.join(this_script_path, "report", args.filename)
+    filename = os.path.join(this_script_path, "reports", args.filename)
 
     with open(filename, 'r') as infile:
         data = json.load(infile)
@@ -82,10 +72,10 @@ def print_benchmark_results_in_human_readable_way(data):
 def save_benchmark_result(bresults, filename):
     repo = git.Repo(search_parent_directories=True)
     this_script_path = os.path.dirname(os.path.abspath(__file__))
-    filename = os.path.join(this_script_path, "report", filename)
+    filename = os.path.join(this_script_path, "reports", filename)
 
-    if not os.path.exists(os.path.join(this_script_path, "report")):
-        os.mkdir(os.path.join(this_script_path, "report"))
+    if not os.path.exists(os.path.join(this_script_path, "reports")):
+        os.mkdir(os.path.join(this_script_path, "reports"))
 
     if os.path.exists(filename):
         with open(filename, 'r') as infile:
@@ -98,144 +88,23 @@ def save_benchmark_result(bresults, filename):
         json.dump(data, outfile, indent=4)
 
 
+def list_benchmark_modules():
+    import glob
+    modules = glob.glob(os.path.join(os.path.dirname(__file__),
+                                     "benchmark_*"))
+    modules = [f[:-3] for f in modules]
+    return modules
+
+
 def main_run(args):
-    Ns = args.N
-    print_stats = True
-    rcut = 0.5
-    L = 10
-    num_neighbors = 6
-    number = 100
-
     results = []
+    modules = list_benchmark_modules()
 
-    name = 'freud.locality.NearestNeighbors'
-    classobj = BenchmarkLocalityNearestNeighbors
-    r = do_some_benchmarks(name, Ns, number, classobj, print_stats,
-                           L=L, rcut=rcut, num_neighbors=num_neighbors)
-    results.append(r)
-
-    # name = 'freud.locality.AABBQuery'
-    # classobj = BenchmarkLocalityAABBQuery
-    # r = do_some_benchmarks(name, Ns, 100, classobj, print_stats,
-    #                        L=L, rcut=rcut)
-    # results.append(r)
-
-    # name = 'freud.locality.LinkCell'
-    # classobj = BenchmarkLocalityLinkCell
-    # r = do_some_benchmarks(name, Ns, 100, classobj,
-    #                        print_stats, L=L, rcut=rcut)
-    # results.append(r)
-
-    # rcut = 1.0
-
-    # name = 'freud.locality.NearestNeighbors'
-    # classobj = BenchmarkLocalityNearestNeighbors
-    # r = do_some_benchmarks(name, Ns, number, classobj, print_stats,
-    #                        L=L, rcut=rcut, num_neighbors=num_neighbors)
-    # results.append(r)
-
-    # rcut = 10
-    # nu = 1
-    # name = 'freud.density.LocalDensity'
-    # classobj = BenchmarkDensityLocalDensity
-    # r = do_some_benchmarks(name, Ns, 100, classobj, print_stats,
-    #                        nu=nu, rcut=rcut)
-    # results.append(r)
-
-    # width = 100
-    # rcut = 10
-    # sigma = 0.1
-    # name = 'freud.density.GaussianDensity'
-    # classobj = BenchmarkDensityGaussianDensity
-    # r = do_some_benchmarks(name, Ns, 100, classobj, print_stats,
-    #                        width=width, rcut=rcut, sigma=sigma)
-    # results.append(r)
-
-    # rmax = 10.0
-    # dr = 1.0
-    # name = 'freud.density.ComplexCF'
-    # classobj = BenchmarkDensityComplexCF
-    # r = do_some_benchmarks(name, Ns, 100, classobj, print_stats,
-    #                        rmax=rmax, dr=dr)
-    # results.append(r)
-
-    # rmax = 10.0
-    # dr = 1.0
-    # name = 'freud.density.FloatCF'
-    # classobj = BenchmarkDensityFloatCF
-    # r = do_some_benchmarks(name, Ns, 100, classobj, print_stats,
-    #                        rmax=rmax, dr=dr)
-    # results.append(r)
-
-    # rmax = 10.0
-    # dr = 1.0
-    # rmin = 0
-    # name = 'freud.density.RDF'
-    # classobj = BenchmarkDensityRDF
-    # r = do_some_benchmarks(name, Ns, 100, classobj, print_stats,
-    #                        rmax=rmax, dr=dr, rmin=rmin)
-    # results.append(r)
-
-    # Ns = [4, 8, 16]
-    # r_cut = 1.5
-    # num_neighbors = 12
-    # npt = npp = 6
-    # name = 'freud.environment.BondOrder'
-    # classobj = BenchmarkEnvironmentBondOrder
-    # r = do_some_benchmarks(name, Ns, 100, classobj, print_stats,
-    #                        rmax=r_cut, k=0, num_neighbors=num_neighbors,
-    #                        n_bins_t=npt, n_bins_p=npp)
-    # results.append(r)
+    for m in modules:
+        m = try_importing(m)
+        results.append(m.run())
 
     save_benchmark_result(results, args.output)
-
-
-def main_run_temp():
-    Ns = [1000, 10000, 100000]
-    print_stats = True
-    rcut = 0.5
-    L = 10
-    num_neighbors = 6
-    number = 100
-
-    results = []
-
-    name = 'freud.locality.NearestNeighbors'
-    classobj = BenchmarkLocalityNearestNeighbors
-    r = do_some_benchmarks(name, Ns, number, classobj, print_stats,
-                           L=L, rcut=rcut, num_neighbors=num_neighbors)
-    results.append(r)
-
-    # name = 'freud.locality.AABBQuery'
-    # classobj = BenchmarkLocalityAABBQuery
-    # r = do_some_benchmarks(name, Ns, 100, classobj, print_stats,
-    #                        L=L, rcut=rcut)
-    # results.append(r)
-
-    # name = 'freud.locality.LinkCell'
-    # classobj = BenchmarkLocalityLinkCell
-    # r = do_some_benchmarks(name, Ns, 100, classobj,
-    #                        print_stats, L=L, rcut=rcut)
-    # results.append(r)
-
-    # rcut = 1.0
-
-    # name = 'freud.locality.NearestNeighbors'
-    # classobj = BenchmarkLocalityNearestNeighbors
-    # r = do_some_benchmarks(name, Ns, number, classobj, print_stats,
-    #                        L=L, rcut=rcut, num_neighbors=num_neighbors)
-    # results.append(r)
-
-    # rcut = 10
-    # nu = 1
-    # name = 'freud.density.LocalDensity'
-    # classobj = BenchmarkDensityLocalDensity
-    # r = do_some_benchmarks(name, Ns, 100, classobj, print_stats,
-    #                        nu=nu, rcut=rcut)
-    # results.append(r)
-
-    output_filename = "benchmark.json"
-    save_benchmark_result(results, output_filename)
 
 
 def main_compare(args):
@@ -246,7 +115,7 @@ def main_compare(args):
     rev_other = str(repo.commit(ro))
 
     this_script_path = os.path.dirname(os.path.abspath(__file__))
-    filename = os.path.join(this_script_path, "report", args.filename)
+    filename = os.path.join(this_script_path, "reports", args.filename)
 
     with open(filename, 'r') as infile:
         data = json.load(infile)
@@ -300,11 +169,6 @@ def main_compare(args):
             fail = True
     if fail:
         sys.exit(1)
-
-
-class BenchmarktWrapper(unittest.TestCase):
-    def test_benchmark_run(self):
-        main_run_temp()
 
 
 if __name__ == '__main__':

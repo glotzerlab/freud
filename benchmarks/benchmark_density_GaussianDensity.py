@@ -3,6 +3,7 @@ import numpy.testing as npt
 import freud
 import unittest
 from benchmark import Benchmark
+from benchmarker import do_some_benchmarks
 
 
 class BenchmarkDensityGaussianDensity(Benchmark):
@@ -23,3 +24,17 @@ class BenchmarkDensityGaussianDensity(Benchmark):
     def bench_run(self, N):
         testBox = freud.box.Box.square(self.box_size)
         self.diff.compute(testBox, self.points)
+
+
+def run():
+    Ns = [1000, 10000, 100000]
+    width = 100
+    rcut = 10
+    sigma = 0.1
+    name = 'freud.density.GaussianDensity'
+    classobj = BenchmarkDensityGaussianDensity
+    print_stats = True
+    number = 100
+
+    return do_some_benchmarks(name, Ns, number, classobj, print_stats,
+                              width=width, rcut=rcut, sigma=sigma)
