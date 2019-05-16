@@ -30,11 +30,15 @@ std::shared_ptr<NeighborQueryIterator> AABBQuery::query(const vec3<float> *point
     return std::make_shared<AABBQueryIterator>(this, points, N, k, r, scale, exclude_ii);
     }
 
-//! Given a set of points, find all elements of this data structure
-//  that are within a certain distance r.
 std::shared_ptr<NeighborQueryIterator> AABBQuery::queryBall(const vec3<float> *points, unsigned int N, float r, bool exclude_ii) const
     {
     return std::make_shared<AABBQueryBallIterator>(this, points, N, r, exclude_ii);
+    }
+
+
+std::shared_ptr<NeighborQueryIterator> AABBQuery::queryBallUnbounded(const vec3<float> *points, unsigned int N, float r, bool exclude_ii) const
+    {
+    return std::make_shared<AABBQueryBallIterator>(this, points, N, r, exclude_ii, false);
     }
 
 
@@ -59,16 +63,19 @@ void AABBQuery::buildTree(const vec3<float> *points, unsigned int Np)
     m_aabb_tree.buildTree(m_aabbs.data(), Np);
     }
 
-void AABBIterator::updateImageVectors(float rmax)
+void AABBIterator::updateImageVectors(float rmax, bool _check_rmax)
     {
     box::Box box = m_neighbor_query->getBox();
     vec3<float> nearest_plane_distance = box.getNearestPlaneDistance();
     vec3<bool> periodic = box.getPeriodic();
-    if ((periodic.x && nearest_plane_distance.x <= rmax * 2.0) ||
-        (periodic.y && nearest_plane_distance.y <= rmax * 2.0) ||
-        (!box.is2D() && periodic.z && nearest_plane_distance.z <= rmax * 2.0))
+    if (_check_rmax)
         {
-        //throw std::runtime_error("The AABBQuery rcut is too large for this box.");
+        if ((periodic.x && nearest_plane_distance.x <= rmax * 2.0) ||
+            (periodic.y && nearest_plane_distance.y <= rmax * 2.0) ||
+            (!box.is2D() && periodic.z && nearest_plane_distance.z <= rmax * 2.0))
+            {
+            throw std::runtime_error("The AABBQuery rcut is too large for this box.");
+            }
         }
 
     // Now compute the image vectors
@@ -219,9 +226,13 @@ NeighborPoint AABBQueryIterator::next()
                 // Perform a ball query to get neighbors. Since we are doing
                 // this on a per-point basis, we don't pass the exclude_ii
                 // parameter through because the indexes won't match. Instead,
-                // we have to filter the ii matches after the fact.
+                // we have to filter the ii matches after the fact. We also
+                // need to do some extra magic to ensure that we allow ball
+                // queries to exceed their normal boundaries, which requires
+                // the cast performed below to expose the appropriate method to
+                // the compiler.
                 m_current_neighbors.clear();
-                std::shared_ptr<NeighborQueryIterator> ball_it = m_neighbor_query->queryBall(&(m_points[cur_p]), 1, m_r_cur);
+                std::shared_ptr<NeighborQueryIterator> ball_it = static_cast<const AABBQuery*>(m_neighbor_query)->queryBallUnbounded(&(m_points[cur_p]), 1, m_r_cur);
                 while(!ball_it->end())
                     {
                     NeighborPoint np = ball_it->next();

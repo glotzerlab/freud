@@ -85,6 +85,16 @@ class AABBQuery : public NeighborQuery
         //  that are within a certain distance r.
         virtual std::shared_ptr<NeighborQueryIterator> queryBall(const vec3<float> *points, unsigned int N, float r, bool exclude_ii=false) const;
 
+        //! Given a set of points, find all elements of this data structure
+        //  that are within a certain distance r, even if that distance is
+        //  larger than the normally allowed distance for AABB tree-based
+        //  queries. Such queries will experience performance losses, but they
+        //  are necessary to support k-nearest neighbor queries. This function
+        //  is declared separately rather than as a simple extra parameter to
+        //  queryBall to avoid complexities with interfering with the virtual
+        //  inherited API that is exported to Cython.
+        std::shared_ptr<NeighborQueryIterator> queryBallUnbounded(const vec3<float> *points, unsigned int N, float r, bool exclude_ii=false) const;
+
         AABBTree m_aabb_tree; //!< AABB tree of points
 
     protected:
@@ -138,7 +148,7 @@ class AABBIterator : virtual public NeighborQueryIterator
         virtual ~AABBIterator() {}
 
         //! Computes the image vectors to query for
-        void updateImageVectors(float rmax);
+        void updateImageVectors(float rmax, bool _check_rmax=true);
 
     protected:
         const AABBQuery *m_aabb_query;            //!< Link to the AABBQuery object
@@ -180,10 +190,10 @@ class AABBQueryBallIterator : virtual public AABBIterator
     {
     public:
         //! Constructor
-        AABBQueryBallIterator(const AABBQuery* neighbor_query, const vec3<float> *points, unsigned int N, float r, bool exclude_ii) :
+        AABBQueryBallIterator(const AABBQuery* neighbor_query, const vec3<float> *points, unsigned int N, float r, bool exclude_ii, bool _check_rmax=true) :
             NeighborQueryIterator(neighbor_query, points, N, exclude_ii), AABBIterator(neighbor_query, points, N, exclude_ii), m_r(r), cur_image(0), cur_node_idx(0), cur_ref_p(0)
             {
-            updateImageVectors(m_r);
+            updateImageVectors(m_r, _check_rmax);
             }
 
         //! Empty Destructor
