@@ -461,6 +461,17 @@ class TestNeighborQueryAABB(TestNeighborQuery, unittest.TestCase):
     def build_query_object(cls, box, ref_points, rcut=None):
         return freud.locality.AABBQuery(box, ref_points)
 
+    def test_throws(self):
+        """Test that specifying too large an rcut value throws an error"""
+        L = 5
+        dr = 0.1
+
+        box = freud.box.Box.square(L)
+        points = [[0, 0, 0], [1, 1, 0], [1, -1, 0]]
+        aq = freud.locality.AABBQuery(box, points)
+        with self.assertRaises(RuntimeError):
+            list(aq.queryBall(points, L))
+
 
 class TestNeighborQueryLinkCell(TestNeighborQuery, unittest.TestCase):
     @classmethod

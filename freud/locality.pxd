@@ -16,7 +16,7 @@ cdef class NeighborQueryResult:
     cdef cbool exclude_ii
     cdef str query_type
 
-    cdef shared_ptr[freud._locality.NeighborQueryIterator] _getIterator(self)
+    cdef shared_ptr[freud._locality.NeighborQueryIterator] _getIterator(self) except *
 
     # This had to be implemented as a factory because the constructors will
     # always get called with Python objects as arguments, and we need typed

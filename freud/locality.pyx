@@ -159,7 +159,7 @@ cdef class NeighborQueryResult:
 
         raise StopIteration
 
-    cdef shared_ptr[freud._locality.NeighborQueryIterator] _getIterator(self):
+    cdef shared_ptr[freud._locality.NeighborQueryIterator] _getIterator(self) except *:
         """Helper function to get an iterator based on whether this object is
         queried for k-nearest neighbors or for all neighbors within a distance
         cutoff."""
@@ -210,7 +210,7 @@ cdef class AABBQueryResult(NeighborQueryResult):
     .. versionadded:: 1.1.0
     """
 
-    cdef shared_ptr[freud._locality.NeighborQueryIterator] _getIterator(self):
+    cdef shared_ptr[freud._locality.NeighborQueryIterator] _getIterator(self) except *:
         """Override parent behavior since this class is only returned for knn
         queries."""
         cdef const float[:, ::1] l_points = self.points
