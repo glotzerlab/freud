@@ -104,7 +104,12 @@ def main_run(args):
     modules = list_benchmark_modules()
     for m in modules:
         m = try_importing(m)
-        results.append(m.run())
+        if m:
+            try:
+                r = m.run()
+                results.append(r)
+            except AttributeError:
+                print("Something is wrong with {}".format(m))
 
     save_benchmark_result(results, args.output)
 
