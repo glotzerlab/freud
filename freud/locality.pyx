@@ -829,8 +829,8 @@ cdef class AABBQuery(NeighborQuery):
             self.queryable = True
             self._box = freud.common.convert_box(box)
             self.points = freud.common.convert_array(
-                points.copy(), 2, dtype=np.float32, contiguous=True,
-                array_name="points")
+                points, 2, dtype=np.float32, contiguous=True,
+                array_name="points").copy()
             l_points = self.points
             self.thisptr = self.nqptr = new freud._locality.AABBQuery(
                 dereference(self._box.thisptr),
@@ -1007,8 +1007,8 @@ cdef class LinkCell(NeighborQuery):
             # The new API
             self.queryable = True
             self.points = freud.common.convert_array(
-                points.copy(), 2, dtype=np.float32, contiguous=True,
-                array_name="points")
+                points, 2, dtype=np.float32, contiguous=True,
+                array_name="points").copy()
             l_points = self.points
             self.thisptr = self.nqptr = new freud._locality.LinkCell(
                 dereference(self._box.thisptr), float(cell_width),
