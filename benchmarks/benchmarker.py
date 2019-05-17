@@ -108,7 +108,7 @@ def list_benchmark_modules():
 
 def main_run(args):
     results = []
-    modules = list_benchmark_modules()[1:2]
+    modules = list_benchmark_modules()
     for m in modules:
         m = try_importing(m)
         if m:
