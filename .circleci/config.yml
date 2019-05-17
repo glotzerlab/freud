@@ -96,6 +96,9 @@ references:
           python "$BENCHSCR" run -c
           echo "Comparing with $OTHERREPO"
           git reset --hard origin/master
+          echo "PYVER=${PYVER}"
+          rm freud/*.cpp
+          python${PYVER} setup.py build_ext --inplace --COVERAGE --ENABLE-CYTHON
           git checkout "${CIRCLE_SHA1}" -- benchmarks/
           echo "Running benchmark on $OTHERREPO"
           python "$BENCHSCR" run -c
