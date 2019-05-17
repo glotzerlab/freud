@@ -20,7 +20,7 @@ class BenchmarkLocalityAABBQuery(Benchmark):
         self.aq.queryBall(self.points, self.rcut, exclude_ii=True)
 
 
-def run():
+def run(on_circleci=False):
     Ns = [1000, 10000, 100000]
     rcut = 0.5
     L = 10
@@ -29,4 +29,4 @@ def run():
 
     name = 'freud.locality.AABBQuery'
     return do_some_benchmarks(name, Ns, number, BenchmarkLocalityAABBQuery,
-                              print_stats, L=L, rcut=rcut)
+                              print_stats, on_circleci, L=L, rcut=rcut)

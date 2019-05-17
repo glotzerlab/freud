@@ -8,6 +8,12 @@ import unittest
 import importlib
 
 
+def get_report_filename(filename):
+    this_script_path = os.path.dirname(os.path.abspath(__file__))
+    report_filename = os.path.join(this_script_path, "reports", filename)
+    return report_filename
+
+
 def try_importing(module):
     try:
         return importlib.import_module(module)
@@ -23,7 +29,8 @@ def benchmark_desc(name, params):
     return s
 
 
-def do_some_benchmarks(name, Ns, number, classobj, print_stats, **kwargs):
+def do_some_benchmarks(name, Ns, number, classobj, print_stats,
+                       on_circleci, **kwargs):
     if print_stats:
         print(benchmark_desc(name, kwargs))
 
@@ -35,22 +42,21 @@ def do_some_benchmarks(name, Ns, number, classobj, print_stats, **kwargs):
         return {"name": name, "misc": "No result"}
 
     repeat = 1
-    ssr = b.run_size_scaling_benchmark(Ns, number, print_stats, repeat)
-    # tsr = b.run_thread_scaling_benchmark(Ns, number, print_stats, repeat)
+    ssr = b.run_size_scaling_benchmark(Ns, number, print_stats,
+                                       repeat)
+    tsr = b.run_thread_scaling_benchmark(Ns, number, print_stats,
+                                         repeat, on_circleci)
 
     if print_stats:
         print('\n ----------------')
 
     return {"name": name, "params": kwargs, "Ns": Ns,
-            "size_scale": {N: r for N, r in zip(Ns, ssr)}}
-    # return {"name": name, "params": kwargs, "Ns": Ns,
-    #         "size_scale": {N: r for N, r in zip(Ns, ssr)},
-    #         "thread_scale": tsr.tolist()}
+            "size_scale": {N: r for N, r in zip(Ns, ssr)},
+            "thread_scale": tsr.tolist()}
 
 
 def main_report(args):
-    this_script_path = os.path.dirname(os.path.abspath(__file__))
-    filename = os.path.join(this_script_path, "reports", args.filename)
+    filename = get_report_filename(args.filename)
 
     with open(filename, 'r') as infile:
         data = json.load(infile)
@@ -73,8 +79,9 @@ def print_benchmark_results_in_human_readable_way(data):
 
 def save_benchmark_result(bresults, filename):
     repo = git.Repo(search_parent_directories=True)
+
+    filename = get_report_filename(filename)
     this_script_path = os.path.dirname(os.path.abspath(__file__))
-    filename = os.path.join(this_script_path, "reports", filename)
 
     if not os.path.exists(os.path.join(this_script_path, "reports")):
         os.mkdir(os.path.join(this_script_path, "reports"))
@@ -101,17 +108,27 @@ def list_benchmark_modules():
 
 def main_run(args):
     results = []
-    modules = list_benchmark_modules()
+    modules = list_benchmark_modules()[1:2]
     for m in modules:
         m = try_importing(m)
         if m:
             try:
-                r = m.run()
+                r = m.run(args.circleci)
                 results.append(r)
             except AttributeError:
                 print("Something is wrong with {}".format(m))
 
     save_benchmark_result(results, args.output)
+
+
+def save_comparison_result(rev_this, rev_other, slowers, fasters, sames):
+    data = {"runtime": "{} / {}".format(rev_this, rev_other)}
+    data["slowers"] = slowers
+    data["fasters"] = fasters
+    data["sames"] = sames
+    filename = get_report_filename("benchmark_comp.json")
+    with open(filename, 'w') as outfile:
+        json.dump(data, outfile, indent=4)
 
 
 def main_compare(args):
@@ -121,8 +138,7 @@ def main_compare(args):
     rev_this = str(repo.commit(rt))
     rev_other = str(repo.commit(ro))
 
-    this_script_path = os.path.dirname(os.path.abspath(__file__))
-    filename = os.path.join(this_script_path, "reports", args.filename)
+    filename = get_report_filename(args.filename)
 
     with open(filename, 'r') as infile:
         data = json.load(infile)
@@ -140,39 +156,78 @@ def main_compare(args):
                     and this_res["params"] == other_res["params"]:
                 print(benchmark_desc(this_res["name"],
                                      this_res["params"]))
-                print("Showing runtime "
+                print("\nShowing runtime "
                       "{:6.6} ({:6.6}) / "
-                      "{:6.6} ({:6.6})".format(rt, rev_this, ro, rev_other))
+                      "{:6.6} ({:6.6})".format(ro, rev_other,
+                                               rt, rev_this))
+                print("")
                 for N in this_res["Ns"]:
                     N = str(N)
                     this_t = this_res["size_scale"][N]
                     other_t = other_res["size_scale"][N]
-                    ratio = this_t/other_t
+                    ratio = other_t/this_t
+
                     print("N: {}, ratio: {:0.2f}".format(N, ratio))
+
                     info = {"name": this_res["name"],
                             "params": this_res["params"],
                             "N": N,
                             "ratio": ratio}
-                    if ratio > 1:
-                        print("{:6.6} is slower than {:6.6}".format(rt, ro))
-                        slowers.append(info)
+
                     if ratio < 1:
-                        print("{:6.6} is faster than {:6.6}".format(rt, ro))
+                        print("\t{:6.6} is {:0.2f} times "
+                              "slower than {:6.6}".format(rt, ratio, ro))
+                        slowers.append(info)
+                    if ratio > 1:
+                        print("\t{:6.6} is {:0.2f} times "
+                              "faster than {:6.6}".format(rt, ratio, ro))
                         fasters.append(info)
                     if ratio == 1:
-                        print("{:6.6} and {:6.6} "
+                        print("\t{:6.6} and {:6.6} "
                               "have the same speed".format(rt, ro))
                         sames.append(info)
+
+                num_threads = len(this_res["thread_scale"]) - 1
+                for i in range(1, num_threads + 1):
+                    for j, N in enumerate(this_res["Ns"]):
+                        this_t = this_res["thread_scale"][i][j]
+                        other_t = other_res["thread_scale"][i][j]
+                        ratio = other_t/this_t
+
+                        print("Threads: {}, N: {}, "
+                              "ratio: {:0.2f}".format(str(i), N, ratio))
+
+                        info = {"name": this_res["name"],
+                                "params": this_res["params"],
+                                "threads": i,
+                                "N": N,
+                                "ratio": ratio}
+
+                        if ratio < 1:
+                            print("\t{:6.6} is {:0.2f} times "
+                                  "slower than {:6.6}".format(rt, ratio, ro))
+                            slowers.append(info)
+                        if ratio > 1:
+                            print("\t{:6.6} is {:0.2f} times "
+                                  "faster than {:6.6}".format(rt, ratio, ro))
+                            fasters.append(info)
+                        if ratio == 1:
+                            print("\t{:6.6} and {:6.6} "
+                                  "have the same speed".format(rt, ro))
+                            sames.append(info)
+
                 print('\n ----------------')
 
-    threshold = 1.2
+    save_comparison_result(rt, ro, slowers, fasters, sames)
+
+    threshold = 0.75
     fail = False
     for info in slowers:
         if info["ratio"] > threshold:
             desc = benchmark_desc(info["name"], info["params"])
-            print("{} too slow".format(desc))
-            print("ratio = {} > threshold = {}".format(info["ratio"],
-                                                       threshold))
+            print("TOO SLOW (beyond threshold of {})".format(threshold))
+            print("\t" + desc)
+            print("\t\tratio = {}".format(info["ratio"], threshold))
             fail = True
     if fail:
         sys.exit(1)
@@ -202,6 +257,9 @@ if __name__ == '__main__':
     parser_run.add_argument(
         '-p', '--profile', action='store_true',
         help="Activate profiling (Results should not be used for reporting.")
+    parser_run.add_argument(
+        '-c', '--circleci', action='store_true',
+        help="Flag for running on circle.ci to fix thread number")
     parser_run.set_defaults(func=main_run)
 
     parser_report = subparsers.add_parser(

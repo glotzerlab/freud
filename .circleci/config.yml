@@ -89,15 +89,16 @@ references:
       name: Run benchmarks
       command: |
           pip install --user gitpython
-          export PYTHONPATH=$PYTHONPATH:.
+          echo 'export PYTHONPATH=$PYTHONPATH:.' >> $BASH_ENV
+          source $BASH_ENV
           BENCHSCR="benchmarks/benchmarker.py"
           echo "Running benchmark on current HEAD"
-          python "$BENCHSCR" run
+          python "$BENCHSCR" run -c
           echo "Comparing with $OTHERREPO"
           git reset --hard origin/master
           git checkout "${CIRCLE_SHA1}" -- benchmarks/
           echo "Running benchmark on $OTHERREPO"
-          python "$BENCHSCR" run
+          python "$BENCHSCR" run -c
           python "$BENCHSCR" compare origin/master "${CIRCLE_SHA1}"
 
   store_benchmarks: &store_benchmarks

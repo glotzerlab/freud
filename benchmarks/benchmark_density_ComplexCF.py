@@ -28,7 +28,7 @@ class BenchmarkDensityComplexCF(Benchmark):
                          self.comp, self.points, np.conj(self.comp))
 
 
-def run():
+def run(on_circleci=False):
     Ns = [1000, 10000]
     rmax = 10.0
     dr = 1.0
@@ -38,4 +38,4 @@ def run():
     number = 100
 
     return do_some_benchmarks(name, Ns, number, classobj, print_stats,
-                              rmax=rmax, dr=dr)
+                              on_circleci, rmax=rmax, dr=dr)

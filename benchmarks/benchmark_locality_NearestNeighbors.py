@@ -24,7 +24,7 @@ class BenchmarkLocalityNearestNeighbors(Benchmark):
         self.cl.compute(self.fbox, self.points, self.points)
 
 
-def run():
+def run(on_circleci=False):
     Ns = [1000, 10000, 100000]
     rcut = 0.5
     L = 10
@@ -35,4 +35,5 @@ def run():
     name = 'freud.locality.NearestNeighbors'
     classobj = BenchmarkLocalityNearestNeighbors
     return do_some_benchmarks(name, Ns, number, classobj, print_stats,
+                              on_circleci,
                               L=L, rcut=rcut, num_neighbors=num_neighbors)

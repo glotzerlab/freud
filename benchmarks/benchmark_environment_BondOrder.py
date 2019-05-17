@@ -32,7 +32,7 @@ class BenchmarkEnvironmentBondOrder(Benchmark):
                         self.positions, self.random_quats)
 
 
-def run():
+def run(on_circleci=False):
     Ns = [4, 8, 16]
     r_cut = 1.5
     num_neighbors = 12
@@ -43,5 +43,6 @@ def run():
     name = 'freud.environment.BondOrder'
     classobj = BenchmarkEnvironmentBondOrder
     return do_some_benchmarks(name, Ns, number, classobj, print_stats,
-                              rmax=r_cut, k=0, num_neighbors=num_neighbors,
+                              on_circleci, rmax=r_cut, k=0,
+                              num_neighbors=num_neighbors,
                               n_bins_t=npt, n_bins_p=npp)

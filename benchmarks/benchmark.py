@@ -139,7 +139,8 @@ class Benchmark:
     #       problem size (down to a minimum of 1).
     #
     def run_thread_scaling_benchmark(self, N_list, number=1000,
-                                     print_stats=True, repeat=1):
+                                     print_stats=True, repeat=1,
+                                     on_circleci=False):
         if len(N_list) == 0:
             raise TypeError('N_list must be iterable')
 
@@ -156,7 +157,19 @@ class Benchmark:
         nproc_increment = int(os.environ.get('BENCHMARK_NPROC_INCREMENT', 1))
         # loop over the cores
         times = numpy.zeros(shape=(multiprocessing.cpu_count()+1, len(N_list)))
-        for ncores in range(1, multiprocessing.cpu_count()+1, nproc_increment):
+
+        if on_circleci:
+            # default circleci resource_class setting medium has 2 vCPUs
+            num_vCPU = 2
+            thread_iter = range(1, num_vCPU + 1)
+            times = numpy.zeros(shape=(num_vCPU+1, len(N_list)))
+        else:
+            thread_iter = range(1, multiprocessing.cpu_count()+1,
+                                nproc_increment)
+            times = numpy.zeros(shape=(multiprocessing.cpu_count()+1,
+                                       len(N_list)))
+
+        for ncores in thread_iter:
             parallel.setNumThreads(ncores)
 
             if print_stats:

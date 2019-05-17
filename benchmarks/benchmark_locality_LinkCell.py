@@ -20,7 +20,7 @@ class BenchmarkLocalityLinkCell(Benchmark):
         self.lc.compute(self.fbox, self.points, self.points, exclude_ii=True)
 
 
-def run():
+def run(on_circleci=False):
     Ns = [1000, 10000, 100000]
     rcut = 1.0
     L = 10
@@ -29,4 +29,4 @@ def run():
 
     name = 'freud.locality.LinkCell'
     return do_some_benchmarks(name, Ns, number, BenchmarkLocalityLinkCell,
-                              print_stats, L=L, rcut=rcut)
+                              print_stats, on_circleci, L=L, rcut=rcut)

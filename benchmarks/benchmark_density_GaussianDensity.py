@@ -26,7 +26,7 @@ class BenchmarkDensityGaussianDensity(Benchmark):
         self.diff.compute(testBox, self.points)
 
 
-def run():
+def run(on_circleci=False):
     Ns = [1000, 10000]
     width = 100
     rcut = 10
@@ -37,4 +37,4 @@ def run():
     number = 100
 
     return do_some_benchmarks(name, Ns, number, classobj, print_stats,
-                              width=width, rcut=rcut, sigma=sigma)
+                              on_circleci, width=width, rcut=rcut, sigma=sigma)

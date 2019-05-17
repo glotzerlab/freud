@@ -27,7 +27,7 @@ class BenchmarkDensityLocalDensity(Benchmark):
         self.ld.compute(freud.box.Box.square(box_size), self.pos)
 
 
-def run():
+def run(on_circleci=False):
     Ns = [1000, 10000]
     rcut = 10
     nu = 1
@@ -37,4 +37,4 @@ def run():
     number = 100
 
     return do_some_benchmarks(name, Ns, number, classobj, print_stats,
-                              nu=nu, rcut=rcut)
+                              on_circleci, nu=nu, rcut=rcut)

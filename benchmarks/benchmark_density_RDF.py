@@ -25,7 +25,7 @@ class BenchmarkDensityRDF(Benchmark):
         self.rdf.compute(freud.box.Box.cube(self.box_size), self.points)
 
 
-def run():
+def run(on_circleci=False):
     Ns = [1000, 10000]
     rmax = 10.0
     dr = 1.0
@@ -35,4 +35,4 @@ def run():
     classobj = BenchmarkDensityRDF
     print_stats = True
     return do_some_benchmarks(name, Ns, number, classobj, print_stats,
-                              rmax=rmax, dr=dr, rmin=rmin)
+                              on_circleci, rmax=rmax, dr=dr, rmin=rmin)
