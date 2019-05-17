@@ -220,7 +220,7 @@ def main_compare(args):
 
     save_comparison_result(rt, ro, slowers, fasters, sames)
 
-    threshold = 0.75
+    threshold = 0.70
     fail = False
     for info in slowers:
         if info["ratio"] < threshold:
