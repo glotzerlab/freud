@@ -41,7 +41,7 @@ def do_some_benchmarks(name, Ns, number, classobj, print_stats,
             arguments for {}".format(str(classobj)))
         return {"name": name, "misc": "No result"}
 
-    repeat = 1
+    repeat = 5
     ssr = b.run_size_scaling_benchmark(Ns, number, print_stats,
                                        repeat)
     tsr = b.run_thread_scaling_benchmark(Ns, number, print_stats,
