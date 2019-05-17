@@ -18,6 +18,7 @@ class BenchmarkEnvironmentBondOrder(Benchmark):
     def bench_setup(self, N):
         # n = 4
         n = N
+        np.random.seed(0)
         (self.box, self.positions) = util.make_fcc(n, n, n)
         self.random_quats = np.random.rand(len(self.positions), 4)
         self.random_quats /= np.linalg.norm(self.random_quats,
