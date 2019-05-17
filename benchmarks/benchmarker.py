@@ -223,7 +223,7 @@ def main_compare(args):
     threshold = 0.75
     fail = False
     for info in slowers:
-        if info["ratio"] > threshold:
+        if info["ratio"] < threshold:
             desc = benchmark_desc(info["name"], info["params"])
             print("TOO SLOW (beyond threshold of {})".format(threshold))
             print("\t" + desc)
