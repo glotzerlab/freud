@@ -25,7 +25,7 @@ class BenchmarkLocalityNearestNeighbors(Benchmark):
 
 
 def run(on_circleci=False):
-    Ns = [1000, 10000, 100000]
+    Ns = [1000, 10000]
     rcut = 0.5
     L = 10
     num_neighbors = 6

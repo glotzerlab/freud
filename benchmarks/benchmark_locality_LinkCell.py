@@ -21,7 +21,7 @@ class BenchmarkLocalityLinkCell(Benchmark):
 
 
 def run(on_circleci=False):
-    Ns = [1000, 10000, 100000]
+    Ns = [1000, 10000]
     rcut = 1.0
     L = 10
     print_stats = True
