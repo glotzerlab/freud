@@ -41,10 +41,9 @@ class Benchmark:
 
     # Returns timer instance with overridden setup and run functions.
     def setup_timer(self, N):
-        test_wrapper = self
-        setup = "test_wrapper.bench_setup(N)"
-        stmt = "test_wrapper.bench_run(N)"
-        varmapping = {"test_wrapper": test_wrapper, "N": N}
+        setup = "self.bench_setup(N)"
+        stmt = "self.bench_run(N)"
+        varmapping = {"self": self, "N": N}
         return timeit.Timer(stmt=stmt, setup=setup, globals=varmapping)
 
     # Perform the benchmark
@@ -55,7 +54,7 @@ class Benchmark:
     # \returns The average time for each call to run()
     #
     def run_benchmark(self, N=None, number=100, print_stats=False, repeat=1):
-        # initilize timer
+        # initialize timer
         timer = self.setup_timer(N)
 
         # run benchmark
@@ -139,8 +138,7 @@ class Benchmark:
     #       problem size (down to a minimum of 1).
     #
     def run_thread_scaling_benchmark(self, N_list, number=1000,
-                                     print_stats=True, repeat=1,
-                                     on_circleci=False):
+                                     print_stats=True, repeat=1):
         if len(N_list) == 0:
             raise TypeError('N_list must be iterable')
 
@@ -155,21 +153,13 @@ class Benchmark:
             print()
 
         nproc_increment = int(os.environ.get('BENCHMARK_NPROC_INCREMENT', 1))
+        nprocs = int(os.environ.get('BENCHMARK_NPROC',
+                                    multiprocessing.cpu_count()))
+
         # loop over the cores
-        times = numpy.zeros(shape=(multiprocessing.cpu_count()+1, len(N_list)))
+        times = numpy.zeros(shape=(nprocs+1, len(N_list)))
 
-        if on_circleci:
-            # default circleci resource_class setting medium has 2 vCPUs
-            num_vCPU = 2
-            thread_iter = range(1, num_vCPU + 1)
-            times = numpy.zeros(shape=(num_vCPU+1, len(N_list)))
-        else:
-            thread_iter = range(1, multiprocessing.cpu_count()+1,
-                                nproc_increment)
-            times = numpy.zeros(shape=(multiprocessing.cpu_count()+1,
-                                       len(N_list)))
-
-        for ncores in thread_iter:
+        for ncores in range(1, nprocs+1, nproc_increment):
             parallel.setNumThreads(ncores)
 
             if print_stats:
@@ -184,7 +174,6 @@ class Benchmark:
                 if print_stats:
                     speedup = times[1, j] / times[ncores, j]
                     print('{0:9.2f}x'.format(speedup), end=' | ')
-                    # print('{0:10.2f}'.format(t), end=' | ')
                     sys.stdout.flush()
 
             if print_stats:
