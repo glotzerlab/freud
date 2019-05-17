@@ -111,7 +111,7 @@ references:
           git checkout "${CIRCLE_SHA1}" -- benchmarks/
           BENCHSCR="benchmarks/benchmarker.py"
           echo "Running benchmark on origin/master"
-          python "$BENCHSCR" run -c
+          python "$BENCHSCR" run
           python "$BENCHSCR" compare origin/master "${CIRCLE_SHA1}"
 
   store_benchmarks: &store_benchmarks
