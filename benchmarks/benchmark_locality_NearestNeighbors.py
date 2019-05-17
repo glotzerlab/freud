@@ -1,7 +1,7 @@
 import numpy as np
 import freud
 from benchmark import Benchmark
-from benchmarker import do_some_benchmarks
+from benchmarker import run_benchmarks
 
 
 class BenchmarkLocalityNearestNeighbors(Benchmark):
@@ -24,7 +24,7 @@ class BenchmarkLocalityNearestNeighbors(Benchmark):
         self.cl.compute(self.fbox, self.points, self.points)
 
 
-def run(on_circleci=False):
+def run():
     Ns = [1000, 10000]
     rcut = 0.5
     L = 10
@@ -34,6 +34,5 @@ def run(on_circleci=False):
 
     name = 'freud.locality.NearestNeighbors'
     classobj = BenchmarkLocalityNearestNeighbors
-    return do_some_benchmarks(name, Ns, number, classobj, print_stats,
-                              on_circleci,
-                              L=L, rcut=rcut, num_neighbors=num_neighbors)
+    return run_benchmarks(name, Ns, number, classobj, print_stats,
+                          L=L, rcut=rcut, num_neighbors=num_neighbors)

@@ -3,7 +3,7 @@ import numpy.testing as npt
 import freud
 import unittest
 from benchmark import Benchmark
-from benchmarker import do_some_benchmarks
+from benchmarker import run_benchmarks
 
 
 class BenchmarkDensityFloatCF(Benchmark):
@@ -26,7 +26,7 @@ class BenchmarkDensityFloatCF(Benchmark):
                          self.points, self.ang)
 
 
-def run(on_circleci=False):
+def run():
     Ns = [1000, 10000]
     rmax = 10.0
     dr = 1.0
@@ -35,5 +35,5 @@ def run(on_circleci=False):
     print_stats = True
     number = 100
 
-    return do_some_benchmarks(name, Ns, number, classobj, print_stats,
-                              on_circleci, rmax=rmax, dr=dr)
+    return run_benchmarks(name, Ns, number, classobj, print_stats,
+                          rmax=rmax, dr=dr)

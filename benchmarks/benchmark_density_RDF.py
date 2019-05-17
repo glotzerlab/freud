@@ -3,7 +3,7 @@ import numpy.testing as npt
 import freud
 import unittest
 from benchmark import Benchmark
-from benchmarker import do_some_benchmarks
+from benchmarker import run_benchmarks
 
 
 class BenchmarkDensityRDF(Benchmark):
@@ -25,7 +25,7 @@ class BenchmarkDensityRDF(Benchmark):
         self.rdf.compute(freud.box.Box.cube(self.box_size), self.points)
 
 
-def run(on_circleci=False):
+def run():
     Ns = [1000, 10000]
     rmax = 10.0
     dr = 1.0
@@ -34,5 +34,5 @@ def run(on_circleci=False):
     name = 'freud.density.RDF'
     classobj = BenchmarkDensityRDF
     print_stats = True
-    return do_some_benchmarks(name, Ns, number, classobj, print_stats,
-                              on_circleci, rmax=rmax, dr=dr, rmin=rmin)
+    return run_benchmarks(name, Ns, number, classobj, print_stats,
+                          rmax=rmax, dr=dr, rmin=rmin)

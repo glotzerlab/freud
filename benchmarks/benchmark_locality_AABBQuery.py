@@ -1,7 +1,7 @@
 import numpy as np
 import freud
 from benchmark import Benchmark
-from benchmarker import do_some_benchmarks
+from benchmarker import run_benchmarks
 
 
 class BenchmarkLocalityAABBQuery(Benchmark):
@@ -20,7 +20,7 @@ class BenchmarkLocalityAABBQuery(Benchmark):
         self.aq.queryBall(self.points, self.rcut, exclude_ii=True)
 
 
-def run(on_circleci=False):
+def run():
     Ns = [1000, 10000]
     rcut = 0.5
     L = 10
@@ -28,5 +28,5 @@ def run(on_circleci=False):
     number = 100
 
     name = 'freud.locality.AABBQuery'
-    return do_some_benchmarks(name, Ns, number, BenchmarkLocalityAABBQuery,
-                              print_stats, on_circleci, L=L, rcut=rcut)
+    return run_benchmarks(name, Ns, number, BenchmarkLocalityAABBQuery,
+                          print_stats, L=L, rcut=rcut)

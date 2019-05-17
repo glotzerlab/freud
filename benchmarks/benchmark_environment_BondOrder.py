@@ -4,7 +4,7 @@ import unittest
 import warnings
 import util
 from benchmark import Benchmark
-from benchmarker import do_some_benchmarks
+from benchmarker import run_benchmarks
 
 
 class BenchmarkEnvironmentBondOrder(Benchmark):
@@ -33,7 +33,7 @@ class BenchmarkEnvironmentBondOrder(Benchmark):
                         self.positions, self.random_quats)
 
 
-def run(on_circleci=False):
+def run():
     Ns = [4, 8, 16]
     r_cut = 1.5
     num_neighbors = 12
@@ -43,7 +43,7 @@ def run(on_circleci=False):
 
     name = 'freud.environment.BondOrder'
     classobj = BenchmarkEnvironmentBondOrder
-    return do_some_benchmarks(name, Ns, number, classobj, print_stats,
-                              on_circleci, rmax=r_cut, k=0,
-                              num_neighbors=num_neighbors,
-                              n_bins_t=npt, n_bins_p=npp)
+    return run_benchmarks(name, Ns, number, classobj, print_stats,
+                          rmax=r_cut, k=0,
+                          num_neighbors=num_neighbors,
+                          n_bins_t=npt, n_bins_p=npp)
