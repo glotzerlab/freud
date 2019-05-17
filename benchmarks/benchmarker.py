@@ -8,12 +8,19 @@ import unittest
 import importlib
 
 
+# To add a new benchmark,
+# 1) Make a file with name starting with benchmark_
+# 2) Inherit Benchmark class
+# 3) Implement run(on_circleci) method in the file
+
+# filename with directory to save benchmark report
 def get_report_filename(filename):
     this_script_path = os.path.dirname(os.path.abspath(__file__))
     report_filename = os.path.join(this_script_path, "reports", filename)
     return report_filename
 
 
+# check if module exists and return the imported module if it exists
 def try_importing(module):
     try:
         return importlib.import_module(module)
@@ -23,17 +30,27 @@ def try_importing(module):
         return None
 
 
+# description string for benchmark run
 def benchmark_desc(name, params):
     s = name + ": \n\t"
     s += ", ".join("{} = {}".format(str(k), str(v)) for k, v in params.items())
     return s
 
 
+# param name: Name of benchmark run to print
+# param Ns: List containing N values to run benchmark on
+# param number: Number of times to run time
+# param classobj: Benchmark class object to benchmark on
+# param print_stats: Print stats if true
+# param on_circleci: Limit thread number if ran on circle.ci
+# param kwargs: Initializer variables for classobj
+# return: Dictionary containing benchmark information
 def do_some_benchmarks(name, Ns, number, classobj, print_stats,
                        on_circleci, **kwargs):
     if print_stats:
         print(benchmark_desc(name, kwargs))
 
+    # initialize classobj instance
     try:
         b = classobj(**kwargs)
     except TypeError:
@@ -41,6 +58,7 @@ def do_some_benchmarks(name, Ns, number, classobj, print_stats,
             arguments for {}".format(str(classobj)))
         return {"name": name, "misc": "No result"}
 
+    # run benchmark with repeat
     repeat = 3
     ssr = b.run_size_scaling_benchmark(Ns, number, print_stats,
                                        repeat)
@@ -55,6 +73,7 @@ def do_some_benchmarks(name, Ns, number, classobj, print_stats,
             "thread_scale": tsr.tolist()}
 
 
+# Print report
 def main_report(args):
     filename = get_report_filename(args.filename)
 
@@ -77,6 +96,7 @@ def print_benchmark_results_in_human_readable_way(data):
                 float(r)/1e-3, float(r)/int(N)/1e-9))
 
 
+# save benchmark result in current_dir/reports/filename
 def save_benchmark_result(bresults, filename):
     repo = git.Repo(search_parent_directories=True)
 
@@ -97,6 +117,19 @@ def save_benchmark_result(bresults, filename):
         json.dump(data, outfile, indent=4)
 
 
+# save benchmark result in current_dir/reports/benchmark_comp.json
+def save_comparison_result(rev_this, rev_other, slowers, fasters, sames):
+    data = {"runtime": "{} / {}".format(rev_this, rev_other)}
+    data["slowers"] = slowers
+    data["fasters"] = fasters
+    data["sames"] = sames
+    filename = get_report_filename("benchmark_comp.json")
+    with open(filename, 'w') as outfile:
+        json.dump(data, outfile, indent=4)
+
+
+# return list of all module names in the directory
+# containing this script starting with name benchmark_
 def list_benchmark_modules():
     import glob
     modules = glob.glob(os.path.join(os.path.dirname(__file__),
@@ -106,6 +139,8 @@ def list_benchmark_modules():
     return modules
 
 
+# run benchmark on all modules in the directory
+# containg this script starting with name benchmark_
 def main_run(args):
     results = []
     modules = list_benchmark_modules()
@@ -121,16 +156,11 @@ def main_run(args):
     save_benchmark_result(results, args.output)
 
 
-def save_comparison_result(rev_this, rev_other, slowers, fasters, sames):
-    data = {"runtime": "{} / {}".format(rev_this, rev_other)}
-    data["slowers"] = slowers
-    data["fasters"] = fasters
-    data["sames"] = sames
-    filename = get_report_filename("benchmark_comp.json")
-    with open(filename, 'w') as outfile:
-        json.dump(data, outfile, indent=4)
-
-
+# compare runtime of two commits and save the comparison
+# result
+# exit 1 if the runtime of rev_this is slower than
+# the runtime of rev_other by more than the threshold ratio
+# STRUCUTRE CAN BE IMPROVED the logic is simple
 def main_compare(args):
     rt = args.rev_this
     ro = args.rev_other
@@ -248,16 +278,6 @@ if __name__ == '__main__':
              "to or '-' for None, "
              "default='benchmark.json'.")
     parser_run.add_argument(
-        '-N', type=int, default=[1000, 10000, 100000], nargs='+',
-        help="The number of data/ state points within the "
-             "benchmarked project. "
-             "The default size is 100. Specify more than "
-             "one value to test multiple "
-             "different size sequentally.")
-    parser_run.add_argument(
-        '-p', '--profile', action='store_true',
-        help="Activate profiling (Results should not be used for reporting.")
-    parser_run.add_argument(
         '-c', '--circleci', action='store_true',
         help="Flag for running on circle.ci to fix thread number")
     parser_run.set_defaults(func=main_run)
@@ -269,10 +289,6 @@ if __name__ == '__main__':
         'filename', default='benchmark.json', nargs='?',
         help="The collection that contains the benchmark data"
              "default='benchmark.json'.")
-    parser_report.add_argument(
-        '-f', '--filter', type=str,
-        help="Select a subset of the data.")
-    parser_report.set_defaults(func=main_report)
 
     parser_compare = subparsers.add_parser(
         name='compare',
