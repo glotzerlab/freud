@@ -269,7 +269,7 @@ NeighborPoint AABBQueryIterator::next()
                 else if ((m_r_cur >= max_plane_distance) || (m_all_distances.size() >= m_k))
                     {
                     // Once this condition is reached, either we found enough
-                    // neighbors beyond the normal min_plance_distance
+                    // neighbors beyond the normal min_plane_distance
                     // condition or we conclude that there are not enough
                     // neighbors left in the system.
                     for (std::map<unsigned int, float>::const_iterator it(m_all_distances.begin()); it != m_all_distances.end(); it++)

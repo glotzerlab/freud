@@ -68,8 +68,8 @@ struct QueryArgs {
         nearest       //! Query based on number of requested neighbors.
     };
 
-    QueryType mode;     //! The number of nearest neighbors to find.
-    int nn;    //! The number of nearest neighbors to find.
+    QueryType mode;     //! Whether to perform a ball or k-nearest neighbor query.
+    int nn;             //! The number of nearest neighbors to find.
     float rmax;         //! The cutoff distance within which to find neighbors
     float scale;        //! The scale factor to use when performing repeated ball queries to find a specified number of nearest neighbors.
     bool exclude_ii;    //! If true, exclude self-neighbors.
@@ -349,9 +349,16 @@ class NeighborQueryQueryIterator : virtual public NeighborQueryIterator
             {
             if (m_exclude_ii)
                 m_k += 1;
-            NeighborList *nlist = NeighborQueryIterator::toNeighborList();
-            if (m_exclude_ii)
-                m_k -= 1;
+            try
+                {
+                NeighborList *nlist = NeighborQueryIterator::toNeighborList();
+                }
+            catch ()
+                {
+                if (m_exclude_ii)
+                    m_k -= 1;
+                throw;
+                }
             return nlist;
             }
 

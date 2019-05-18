@@ -106,7 +106,7 @@ cdef _QueryArgs parse_query_args(dict query_args):
         query_args (dict):
             A dictionary of query arguments.
 
-    Returns
+    Returns:
         _QueryArgs: An object encapsulating query arguments.
     """
     cdef _QueryArgs qa = _QueryArgs()
@@ -119,7 +119,7 @@ cdef _QueryArgs parse_query_args(dict query_args):
     if invalid_args:
         raise ValueError(
             "The following invalid query arguments were provided: "
-            ", ".format("{} = {}".format(key, val)))
+            ", ".join("{} = {}".format(key, val)))
     else:
         return qa
 
@@ -900,8 +900,10 @@ cdef class AABBQuery(NeighborQuery):
 
         # Default guess value
         if r == 0:
-            r = 0.1*min(
-                [length for length in self._box.L if length != 0])
+            r = min(self._box.Lx, self._box.Ly)
+            if not self._box.is2D:
+                r = min(r, self._box.Lz)
+            r *= 0.1
 
         return AABBQueryResult.init_aabb_nn(
             self.thisptr, points, exclude_ii, k, r, scale)
