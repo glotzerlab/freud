@@ -347,13 +347,14 @@ class NeighborQueryQueryIterator : virtual public NeighborQueryIterator
          */
         virtual NeighborList *toNeighborList()
             {
+            NeighborList *nlist;
             if (m_exclude_ii)
                 m_k += 1;
             try
                 {
-                NeighborList *nlist = NeighborQueryIterator::toNeighborList();
+                nlist = NeighborQueryIterator::toNeighborList();
                 }
-            catch ()
+            catch (...)
                 {
                 if (m_exclude_ii)
                     m_k -= 1;

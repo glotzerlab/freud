@@ -116,7 +116,7 @@ class AABBQuery : public NeighborQuery
                 if (args.rmax == -1)
                     {
                     vec3<float> L = this->getBox().getL();
-                    Scalar rmax = std::min(L.x, L.y);
+                    float rmax = std::min(L.x, L.y);
                     args.rmax = this->getBox().is2D() ? 0.1*rmax : 0.1*std::min(rmax, L.z);
                     }
                 }
