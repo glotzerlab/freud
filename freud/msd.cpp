@@ -38,13 +38,13 @@
         "name": "freud.msd",
         "sources": [
             "freud/msd.pyx",
-            "cpp/locality/NeighborQuery.cc",
-            "cpp/locality/NeighborList.cc",
-            "cpp/box/Box.cc",
-            "cpp/locality/LinkCell.cc",
-            "cpp/locality/AABBQuery.cc",
             "cpp/locality/NearestNeighbors.cc",
-            "cpp/util/HOOMDMatrix.cc"
+            "cpp/locality/NeighborQuery.cc",
+            "cpp/locality/LinkCell.cc",
+            "cpp/box/Box.cc",
+            "cpp/util/HOOMDMatrix.cc",
+            "cpp/locality/AABBQuery.cc",
+            "cpp/locality/NeighborList.cc"
         ]
     },
     "module_name": "freud.msd"
@@ -1810,6 +1810,7 @@ static const char __pyx_k_S2[] = "S2";
 static const char __pyx_k_np[] = "np";
 static const char __pyx_k_PSD[] = "PSD";
 static const char __pyx_k_box[] = "box";
+static const char __pyx_k_cls[] = "cls";
 static const char __pyx_k_fft[] = "fft";
 static const char __pyx_k_res[] = "res";
 static const char __pyx_k_sum[] = "sum";
@@ -1836,6 +1837,7 @@ static const char __pyx_k_append[] = "append";
 static const char __pyx_k_arange[] = "arange";
 static const char __pyx_k_common[] = "common";
 static const char __pyx_k_direct[] = "direct";
+static const char __pyx_k_format[] = "format";
 static const char __pyx_k_images[] = "images";
 static const char __pyx_k_import[] = "__import__";
 static const char __pyx_k_linalg[] = "linalg";
@@ -1881,6 +1883,7 @@ static const char __pyx_k_unwrapped_positions[] = "unwrapped_positions";
 static const char __pyx_k_MSD___setstate_cython[] = "MSD.__setstate_cython__";
 static const char __pyx_k_ndarray_is_not_C_contiguous[] = "ndarray is not C contiguous";
 static const char __pyx_k_The_class_freud_msd_module_prov[] = "\nThe :class:`freud.msd` module provides functions for computing the\nmean-squared-displacement (MSD) of particles in periodic systems.\n";
+static const char __pyx_k_freud_msd_cls_box_box_mode_mode[] = "freud.msd.{cls}(box={box}, mode={mode})";
 static const char __pyx_k_numpy_core_multiarray_failed_to[] = "numpy.core.multiarray failed to import";
 static const char __pyx_k_unknown_dtype_code_in_numpy_pxd[] = "unknown dtype code in numpy.pxd (%d)";
 static const char __pyx_k_Format_string_allocated_too_shor[] = "Format string allocated too short, see comment in numpy.pxd";
@@ -1921,6 +1924,7 @@ static PyObject *__pyx_n_s_autocorrelation;
 static PyObject *__pyx_n_s_axis;
 static PyObject *__pyx_n_s_box;
 static PyObject *__pyx_n_s_cline_in_traceback;
+static PyObject *__pyx_n_s_cls;
 static PyObject *__pyx_n_s_common;
 static PyObject *__pyx_n_s_compute;
 static PyObject *__pyx_n_s_concatenate;
@@ -1934,9 +1938,11 @@ static PyObject *__pyx_n_s_direct;
 static PyObject *__pyx_n_s_dtype;
 static PyObject *__pyx_n_s_fft;
 static PyObject *__pyx_n_s_float32;
+static PyObject *__pyx_n_s_format;
 static PyObject *__pyx_n_s_freud;
 static PyObject *__pyx_n_s_freud_common;
 static PyObject *__pyx_n_s_freud_msd;
+static PyObject *__pyx_kp_s_freud_msd_cls_box_box_mode_mode;
 static PyObject *__pyx_kp_s_freud_msd_pyx;
 static PyObject *__pyx_n_s_getstate;
 static PyObject *__pyx_n_s_i;
@@ -1993,8 +1999,10 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_3box___get__(struct __pyx_obj_5freud_
 static PyObject *__pyx_pf_5freud_3msd_3MSD_3msd___get__(struct __pyx_obj_5freud_3msd_MSD *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_5freud_3msd_3MSD_4reset(struct __pyx_obj_5freud_3msd_MSD *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_5freud_3msd_3MSD_6compute(struct __pyx_obj_5freud_3msd_MSD *__pyx_v_self, PyObject *__pyx_v_positions, PyObject *__pyx_v_images); /* proto */
-static PyObject *__pyx_pf_5freud_3msd_3MSD_8__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_5freud_3msd_MSD *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_5freud_3msd_3MSD_10__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_5freud_3msd_MSD *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
+static PyObject *__pyx_pf_5freud_3msd_3MSD_8__repr__(struct __pyx_obj_5freud_3msd_MSD *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_5freud_3msd_3MSD_10__str__(struct __pyx_obj_5freud_3msd_MSD *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_5freud_3msd_3MSD_12__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_5freud_3msd_MSD *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_5freud_3msd_3MSD_14__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_5freud_3msd_MSD *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
 static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, Py_buffer *__pyx_v_info, int __pyx_v_flags); /* proto */
 static void __pyx_pf_5numpy_7ndarray_2__releasebuffer__(PyArrayObject *__pyx_v_self, Py_buffer *__pyx_v_info); /* proto */
 static PyObject *__pyx_tp_new_5freud_3msd_MSD(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
@@ -4340,6 +4348,7 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_6compute(struct __pyx_obj_5freud_3msd
  *         self.reset()
  *         self.accumulate(positions, images)             # <<<<<<<<<<<<<<
  *         return self
+ * 
  */
   __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_accumulate); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 228, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
@@ -4394,6 +4403,8 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_6compute(struct __pyx_obj_5freud_3msd
  *         self.reset()
  *         self.accumulate(positions, images)
  *         return self             # <<<<<<<<<<<<<<
+ * 
+ *     def __repr__(self):
  */
   __Pyx_XDECREF(__pyx_r);
   __Pyx_INCREF(((PyObject *)__pyx_v_self));
@@ -4422,6 +4433,162 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_6compute(struct __pyx_obj_5freud_3msd
   return __pyx_r;
 }
 
+/* "freud/msd.pyx":231
+ *         return self
+ * 
+ *     def __repr__(self):             # <<<<<<<<<<<<<<
+ *         return "freud.msd.{cls}(box={box}, mode={mode})".format(
+ *             cls=type(self).__name__, box=self.box, mode=repr(self.mode))
+ */
+
+/* Python wrapper */
+static PyObject *__pyx_pw_5freud_3msd_3MSD_9__repr__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_5freud_3msd_3MSD_9__repr__(PyObject *__pyx_v_self) {
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("__repr__ (wrapper)", 0);
+  __pyx_r = __pyx_pf_5freud_3msd_3MSD_8__repr__(((struct __pyx_obj_5freud_3msd_MSD *)__pyx_v_self));
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_5freud_3msd_3MSD_8__repr__(struct __pyx_obj_5freud_3msd_MSD *__pyx_v_self) {
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  PyObject *__pyx_t_2 = NULL;
+  PyObject *__pyx_t_3 = NULL;
+  PyObject *__pyx_t_4 = NULL;
+  __Pyx_RefNannySetupContext("__repr__", 0);
+
+  /* "freud/msd.pyx":232
+ * 
+ *     def __repr__(self):
+ *         return "freud.msd.{cls}(box={box}, mode={mode})".format(             # <<<<<<<<<<<<<<
+ *             cls=type(self).__name__, box=self.box, mode=repr(self.mode))
+ * 
+ */
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_kp_s_freud_msd_cls_box_box_mode_mode, __pyx_n_s_format); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 232, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+
+  /* "freud/msd.pyx":233
+ *     def __repr__(self):
+ *         return "freud.msd.{cls}(box={box}, mode={mode})".format(
+ *             cls=type(self).__name__, box=self.box, mode=repr(self.mode))             # <<<<<<<<<<<<<<
+ * 
+ *     def __str__(self):
+ */
+  __pyx_t_2 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 233, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)Py_TYPE(((PyObject *)__pyx_v_self))), __pyx_n_s_name); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 233, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_cls, __pyx_t_3) < 0) __PYX_ERR(0, 233, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_box, ((PyObject *)__pyx_v_self->box)) < 0) __PYX_ERR(0, 233, __pyx_L1_error)
+  __pyx_t_3 = __pyx_v_self->mode;
+  __Pyx_INCREF(__pyx_t_3);
+  __pyx_t_4 = PyObject_Repr(__pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 233, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_mode, __pyx_t_4) < 0) __PYX_ERR(0, 233, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+
+  /* "freud/msd.pyx":232
+ * 
+ *     def __repr__(self):
+ *         return "freud.msd.{cls}(box={box}, mode={mode})".format(             # <<<<<<<<<<<<<<
+ *             cls=type(self).__name__, box=self.box, mode=repr(self.mode))
+ * 
+ */
+  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_empty_tuple, __pyx_t_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 232, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_r = __pyx_t_4;
+  __pyx_t_4 = 0;
+  goto __pyx_L0;
+
+  /* "freud/msd.pyx":231
+ *         return self
+ * 
+ *     def __repr__(self):             # <<<<<<<<<<<<<<
+ *         return "freud.msd.{cls}(box={box}, mode={mode})".format(
+ *             cls=type(self).__name__, box=self.box, mode=repr(self.mode))
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_3);
+  __Pyx_XDECREF(__pyx_t_4);
+  __Pyx_AddTraceback("freud.msd.MSD.__repr__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "freud/msd.pyx":235
+ *             cls=type(self).__name__, box=self.box, mode=repr(self.mode))
+ * 
+ *     def __str__(self):             # <<<<<<<<<<<<<<
+ *         return repr(self)
+ */
+
+/* Python wrapper */
+static PyObject *__pyx_pw_5freud_3msd_3MSD_11__str__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_5freud_3msd_3MSD_11__str__(PyObject *__pyx_v_self) {
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("__str__ (wrapper)", 0);
+  __pyx_r = __pyx_pf_5freud_3msd_3MSD_10__str__(((struct __pyx_obj_5freud_3msd_MSD *)__pyx_v_self));
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_5freud_3msd_3MSD_10__str__(struct __pyx_obj_5freud_3msd_MSD *__pyx_v_self) {
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  __Pyx_RefNannySetupContext("__str__", 0);
+
+  /* "freud/msd.pyx":236
+ * 
+ *     def __str__(self):
+ *         return repr(self)             # <<<<<<<<<<<<<<
+ */
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_1 = PyObject_Repr(((PyObject *)__pyx_v_self)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 236, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+
+  /* "freud/msd.pyx":235
+ *             cls=type(self).__name__, box=self.box, mode=repr(self.mode))
+ * 
+ *     def __str__(self):             # <<<<<<<<<<<<<<
+ *         return repr(self)
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_AddTraceback("freud.msd.MSD.__str__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
 /* "(tree fragment)":1
  * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
  *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
@@ -4429,21 +4596,21 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_6compute(struct __pyx_obj_5freud_3msd
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_3msd_3MSD_9__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static char __pyx_doc_5freud_3msd_3MSD_8__reduce_cython__[] = "MSD.__reduce_cython__(self)";
-static PyMethodDef __pyx_mdef_5freud_3msd_3MSD_9__reduce_cython__ = {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_3msd_3MSD_9__reduce_cython__, METH_NOARGS, __pyx_doc_5freud_3msd_3MSD_8__reduce_cython__};
-static PyObject *__pyx_pw_5freud_3msd_3MSD_9__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_5freud_3msd_3MSD_13__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static char __pyx_doc_5freud_3msd_3MSD_12__reduce_cython__[] = "MSD.__reduce_cython__(self)";
+static PyMethodDef __pyx_mdef_5freud_3msd_3MSD_13__reduce_cython__ = {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_3msd_3MSD_13__reduce_cython__, METH_NOARGS, __pyx_doc_5freud_3msd_3MSD_12__reduce_cython__};
+static PyObject *__pyx_pw_5freud_3msd_3MSD_13__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__reduce_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_5freud_3msd_3MSD_8__reduce_cython__(((struct __pyx_obj_5freud_3msd_MSD *)__pyx_v_self));
+  __pyx_r = __pyx_pf_5freud_3msd_3MSD_12__reduce_cython__(((struct __pyx_obj_5freud_3msd_MSD *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_5freud_3msd_3MSD_8__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_5freud_3msd_MSD *__pyx_v_self) {
+static PyObject *__pyx_pf_5freud_3msd_3MSD_12__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_5freud_3msd_MSD *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -4485,21 +4652,21 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_8__reduce_cython__(CYTHON_UNUSED stru
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_5freud_3msd_3MSD_11__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
-static char __pyx_doc_5freud_3msd_3MSD_10__setstate_cython__[] = "MSD.__setstate_cython__(self, __pyx_state)";
-static PyMethodDef __pyx_mdef_5freud_3msd_3MSD_11__setstate_cython__ = {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_3msd_3MSD_11__setstate_cython__, METH_O, __pyx_doc_5freud_3msd_3MSD_10__setstate_cython__};
-static PyObject *__pyx_pw_5freud_3msd_3MSD_11__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pw_5freud_3msd_3MSD_15__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
+static char __pyx_doc_5freud_3msd_3MSD_14__setstate_cython__[] = "MSD.__setstate_cython__(self, __pyx_state)";
+static PyMethodDef __pyx_mdef_5freud_3msd_3MSD_15__setstate_cython__ = {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_3msd_3MSD_15__setstate_cython__, METH_O, __pyx_doc_5freud_3msd_3MSD_14__setstate_cython__};
+static PyObject *__pyx_pw_5freud_3msd_3MSD_15__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__setstate_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_5freud_3msd_3MSD_10__setstate_cython__(((struct __pyx_obj_5freud_3msd_MSD *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
+  __pyx_r = __pyx_pf_5freud_3msd_3MSD_14__setstate_cython__(((struct __pyx_obj_5freud_3msd_MSD *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_5freud_3msd_3MSD_10__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_5freud_3msd_MSD *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pf_5freud_3msd_3MSD_14__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_5freud_3msd_MSD *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -7065,8 +7232,8 @@ static PyMethodDef __pyx_methods_5freud_3msd_MSD[] = {
   {"accumulate", (PyCFunction)__pyx_pw_5freud_3msd_3MSD_3accumulate, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_3msd_3MSD_2accumulate},
   {"reset", (PyCFunction)__pyx_pw_5freud_3msd_3MSD_5reset, METH_NOARGS, __pyx_doc_5freud_3msd_3MSD_4reset},
   {"compute", (PyCFunction)__pyx_pw_5freud_3msd_3MSD_7compute, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_3msd_3MSD_6compute},
-  {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_3msd_3MSD_9__reduce_cython__, METH_NOARGS, __pyx_doc_5freud_3msd_3MSD_8__reduce_cython__},
-  {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_3msd_3MSD_11__setstate_cython__, METH_O, __pyx_doc_5freud_3msd_3MSD_10__setstate_cython__},
+  {"__reduce_cython__", (PyCFunction)__pyx_pw_5freud_3msd_3MSD_13__reduce_cython__, METH_NOARGS, __pyx_doc_5freud_3msd_3MSD_12__reduce_cython__},
+  {"__setstate_cython__", (PyCFunction)__pyx_pw_5freud_3msd_3MSD_15__setstate_cython__, METH_O, __pyx_doc_5freud_3msd_3MSD_14__setstate_cython__},
   {0, 0, 0, 0}
 };
 
@@ -7091,13 +7258,13 @@ static PyTypeObject __pyx_type_5freud_3msd_MSD = {
   #if PY_MAJOR_VERSION >= 3
   0, /*tp_as_async*/
   #endif
-  0, /*tp_repr*/
+  __pyx_pw_5freud_3msd_3MSD_9__repr__, /*tp_repr*/
   0, /*tp_as_number*/
   0, /*tp_as_sequence*/
   0, /*tp_as_mapping*/
   0, /*tp_hash*/
   0, /*tp_call*/
-  0, /*tp_str*/
+  __pyx_pw_5freud_3msd_3MSD_11__str__, /*tp_str*/
   0, /*tp_getattro*/
   0, /*tp_setattro*/
   0, /*tp_as_buffer*/
@@ -7200,6 +7367,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_axis, __pyx_k_axis, sizeof(__pyx_k_axis), 0, 0, 1, 1},
   {&__pyx_n_s_box, __pyx_k_box, sizeof(__pyx_k_box), 0, 0, 1, 1},
   {&__pyx_n_s_cline_in_traceback, __pyx_k_cline_in_traceback, sizeof(__pyx_k_cline_in_traceback), 0, 0, 1, 1},
+  {&__pyx_n_s_cls, __pyx_k_cls, sizeof(__pyx_k_cls), 0, 0, 1, 1},
   {&__pyx_n_s_common, __pyx_k_common, sizeof(__pyx_k_common), 0, 0, 1, 1},
   {&__pyx_n_s_compute, __pyx_k_compute, sizeof(__pyx_k_compute), 0, 0, 1, 1},
   {&__pyx_n_s_concatenate, __pyx_k_concatenate, sizeof(__pyx_k_concatenate), 0, 0, 1, 1},
@@ -7213,9 +7381,11 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_dtype, __pyx_k_dtype, sizeof(__pyx_k_dtype), 0, 0, 1, 1},
   {&__pyx_n_s_fft, __pyx_k_fft, sizeof(__pyx_k_fft), 0, 0, 1, 1},
   {&__pyx_n_s_float32, __pyx_k_float32, sizeof(__pyx_k_float32), 0, 0, 1, 1},
+  {&__pyx_n_s_format, __pyx_k_format, sizeof(__pyx_k_format), 0, 0, 1, 1},
   {&__pyx_n_s_freud, __pyx_k_freud, sizeof(__pyx_k_freud), 0, 0, 1, 1},
   {&__pyx_n_s_freud_common, __pyx_k_freud_common, sizeof(__pyx_k_freud_common), 0, 0, 1, 1},
   {&__pyx_n_s_freud_msd, __pyx_k_freud_msd, sizeof(__pyx_k_freud_msd), 0, 0, 1, 1},
+  {&__pyx_kp_s_freud_msd_cls_box_box_mode_mode, __pyx_k_freud_msd_cls_box_box_mode_mode, sizeof(__pyx_k_freud_msd_cls_box_box_mode_mode), 0, 0, 1, 0},
   {&__pyx_kp_s_freud_msd_pyx, __pyx_k_freud_msd_pyx, sizeof(__pyx_k_freud_msd_pyx), 0, 0, 1, 0},
   {&__pyx_n_s_getstate, __pyx_k_getstate, sizeof(__pyx_k_getstate), 0, 0, 1, 1},
   {&__pyx_n_s_i, __pyx_k_i, sizeof(__pyx_k_i), 0, 0, 1, 1},
@@ -8143,7 +8313,7 @@ if (!__Pyx_RefNanny) {
  *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
  * def __setstate_cython__(self, __pyx_state):
  */
-  __pyx_t_7 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_3msd_3MSD_9__reduce_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_MSD___reduce_cython, NULL, __pyx_n_s_freud_msd, __pyx_d, ((PyObject *)__pyx_codeobj__42)); if (unlikely(!__pyx_t_7)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_3msd_3MSD_13__reduce_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_MSD___reduce_cython, NULL, __pyx_n_s_freud_msd, __pyx_d, ((PyObject *)__pyx_codeobj__42)); if (unlikely(!__pyx_t_7)) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_reduce_cython, __pyx_t_7) < 0) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
@@ -8154,7 +8324,7 @@ if (!__Pyx_RefNanny) {
  * def __setstate_cython__(self, __pyx_state):             # <<<<<<<<<<<<<<
  *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
  */
-  __pyx_t_7 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_3msd_3MSD_11__setstate_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_MSD___setstate_cython, NULL, __pyx_n_s_freud_msd, __pyx_d, ((PyObject *)__pyx_codeobj__44)); if (unlikely(!__pyx_t_7)) __PYX_ERR(1, 3, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_3msd_3MSD_15__setstate_cython__, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_MSD___setstate_cython, NULL, __pyx_n_s_freud_msd, __pyx_d, ((PyObject *)__pyx_codeobj__44)); if (unlikely(!__pyx_t_7)) __PYX_ERR(1, 3, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_setstate_cython, __pyx_t_7) < 0) __PYX_ERR(1, 3, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;

@@ -46,15 +46,15 @@
         "name": "freud.cluster",
         "sources": [
             "freud/cluster.pyx",
-            "cpp/locality/NeighborQuery.cc",
-            "cpp/locality/NeighborList.cc",
-            "cpp/box/Box.cc",
-            "cpp/cluster/ClusterProperties.cc",
-            "cpp/locality/LinkCell.cc",
-            "cpp/cluster/Cluster.cc",
-            "cpp/locality/AABBQuery.cc",
             "cpp/locality/NearestNeighbors.cc",
-            "cpp/util/HOOMDMatrix.cc"
+            "cpp/cluster/ClusterProperties.cc",
+            "cpp/locality/NeighborQuery.cc",
+            "cpp/cluster/Cluster.cc",
+            "cpp/locality/LinkCell.cc",
+            "cpp/box/Box.cc",
+            "cpp/util/HOOMDMatrix.cc",
+            "cpp/locality/AABBQuery.cc",
+            "cpp/locality/NeighborList.cc"
         ]
     },
     "module_name": "freud.cluster"
@@ -1254,11 +1254,11 @@ struct __pyx_memoryview_obj;
 struct __pyx_memoryviewslice_obj;
 struct __pyx_opt_args_5freud_8locality_19NeighborQueryResult_init;
 
-/* "freud/locality.pxd":29
+/* "freud/locality.pxd":30
  *     # compile with a cdef method.
  *     @staticmethod
  *     cdef inline NeighborQueryResult init(             # <<<<<<<<<<<<<<
- *             freud._locality.NeighborQuery * nqptr, float[:, ::1] points,
+ *             freud._locality.NeighborQuery * nqptr, const float[:, ::1] points,
  *             cbool exclude_ii, float r=0, unsigned int k=0):
  */
 struct __pyx_opt_args_5freud_8locality_19NeighborQueryResult_init {
@@ -1333,7 +1333,7 @@ struct __pyx_obj_5freud_3box_ParticleBuffer {
  * 
  * cdef class NeighborQueryResult:             # <<<<<<<<<<<<<<
  *     cdef freud._locality.NeighborQuery * nqptr
- *     cdef float[:, ::1] points
+ *     cdef const float[:, ::1] points
  */
 struct __pyx_obj_5freud_8locality_NeighborQueryResult {
   PyObject_HEAD
@@ -1348,7 +1348,7 @@ struct __pyx_obj_5freud_8locality_NeighborQueryResult {
 };
 
 
-/* "freud/locality.pxd":53
+/* "freud/locality.pxd":54
  * 
  * 
  * cdef class AABBQueryResult(NeighborQueryResult):             # <<<<<<<<<<<<<<
@@ -1362,7 +1362,7 @@ struct __pyx_obj_5freud_8locality_AABBQueryResult {
 };
 
 
-/* "freud/locality.pxd":81
+/* "freud/locality.pxd":83
  * 
  * 
  * cdef class NeighborQuery:             # <<<<<<<<<<<<<<
@@ -1378,8 +1378,8 @@ struct __pyx_obj_5freud_8locality_NeighborQuery {
 };
 
 
-/* "freud/locality.pxd":87
- *     cdef float[:, ::1] points
+/* "freud/locality.pxd":89
+ *     cdef const float[:, ::1] points
  * 
  * cdef class NeighborList:             # <<<<<<<<<<<<<<
  *     cdef freud._locality.NeighborList * thisptr
@@ -1394,7 +1394,7 @@ struct __pyx_obj_5freud_8locality_NeighborList {
 };
 
 
-/* "freud/locality.pxd":96
+/* "freud/locality.pxd":98
  *     cdef void copy_c(self, NeighborList other)
  * 
  * cdef class IteratorLinkCell:             # <<<<<<<<<<<<<<
@@ -1408,7 +1408,7 @@ struct __pyx_obj_5freud_8locality_IteratorLinkCell {
 };
 
 
-/* "freud/locality.pxd":101
+/* "freud/locality.pxd":103
  *     cdef void copy(self, const freud._locality.IteratorLinkCell & rhs)
  * 
  * cdef class LinkCell(NeighborQuery):             # <<<<<<<<<<<<<<
@@ -1422,7 +1422,7 @@ struct __pyx_obj_5freud_8locality_LinkCell {
 };
 
 
-/* "freud/locality.pxd":105
+/* "freud/locality.pxd":107
  *     cdef NeighborList _nlist
  * 
  * cdef class NearestNeighbors:             # <<<<<<<<<<<<<<
@@ -1439,7 +1439,7 @@ struct __pyx_obj_5freud_8locality_NearestNeighbors {
 };
 
 
-/* "freud/locality.pxd":112
+/* "freud/locality.pxd":114
  *     cdef _cached_box
  * 
  * cdef class AABBQuery(NeighborQuery):             # <<<<<<<<<<<<<<
@@ -1565,7 +1565,7 @@ struct __pyx_memoryviewslice_obj {
  * 
  * cdef class NeighborQueryResult:             # <<<<<<<<<<<<<<
  *     cdef freud._locality.NeighborQuery * nqptr
- *     cdef float[:, ::1] points
+ *     cdef const float[:, ::1] points
  */
 
 struct __pyx_vtabstruct_5freud_8locality_NeighborQueryResult {
@@ -1576,7 +1576,7 @@ static struct __pyx_vtabstruct_5freud_8locality_NeighborQueryResult *__pyx_vtabp
 static CYTHON_INLINE struct __pyx_obj_5freud_8locality_NeighborQueryResult *__pyx_f_5freud_8locality_19NeighborQueryResult_init(freud::locality::NeighborQuery *, __Pyx_memviewslice, bool, struct __pyx_opt_args_5freud_8locality_19NeighborQueryResult_init *__pyx_optional_args);
 
 
-/* "freud/locality.pxd":53
+/* "freud/locality.pxd":54
  * 
  * 
  * cdef class AABBQueryResult(NeighborQueryResult):             # <<<<<<<<<<<<<<
@@ -1586,14 +1586,14 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_NeighborQueryResult *__py
 
 struct __pyx_vtabstruct_5freud_8locality_AABBQueryResult {
   struct __pyx_vtabstruct_5freud_8locality_NeighborQueryResult __pyx_base;
-  struct __pyx_obj_5freud_8locality_AABBQueryResult *(*init2)(freud::locality::AABBQuery *, __Pyx_memviewslice, bool, unsigned int, float, float);
+  struct __pyx_obj_5freud_8locality_AABBQueryResult *(*init_aabb_nn)(freud::locality::AABBQuery *, __Pyx_memviewslice, bool, unsigned int, float, float);
 };
 static struct __pyx_vtabstruct_5freud_8locality_AABBQueryResult *__pyx_vtabptr_5freud_8locality_AABBQueryResult;
-static CYTHON_INLINE struct __pyx_obj_5freud_8locality_AABBQueryResult *__pyx_f_5freud_8locality_15AABBQueryResult_init2(freud::locality::AABBQuery *, __Pyx_memviewslice, bool, unsigned int, float, float);
+static CYTHON_INLINE struct __pyx_obj_5freud_8locality_AABBQueryResult *__pyx_f_5freud_8locality_15AABBQueryResult_init_aabb_nn(freud::locality::AABBQuery *, __Pyx_memviewslice, bool, unsigned int, float, float);
 
 
-/* "freud/locality.pxd":87
- *     cdef float[:, ::1] points
+/* "freud/locality.pxd":89
+ *     cdef const float[:, ::1] points
  * 
  * cdef class NeighborList:             # <<<<<<<<<<<<<<
  *     cdef freud._locality.NeighborList * thisptr
@@ -1608,7 +1608,7 @@ struct __pyx_vtabstruct_5freud_8locality_NeighborList {
 static struct __pyx_vtabstruct_5freud_8locality_NeighborList *__pyx_vtabptr_5freud_8locality_NeighborList;
 
 
-/* "freud/locality.pxd":96
+/* "freud/locality.pxd":98
  *     cdef void copy_c(self, NeighborList other)
  * 
  * cdef class IteratorLinkCell:             # <<<<<<<<<<<<<<
@@ -2311,12 +2311,10 @@ static CYTHON_INLINE PyObject* __Pyx_PyInt_From_long(long value);
 static CYTHON_INLINE PyObject* __Pyx_PyInt_From_unsigned_int(unsigned int value);
 
 /* MemviewDtypeToObject.proto */
-static CYTHON_INLINE PyObject *__pyx_memview_get_unsigned_int(const char *itemp);
-static CYTHON_INLINE int __pyx_memview_set_unsigned_int(const char *itemp, PyObject *obj);
+static CYTHON_INLINE PyObject *__pyx_memview_get_unsigned_int__const__(const char *itemp);
 
 /* MemviewDtypeToObject.proto */
-static CYTHON_INLINE PyObject *__pyx_memview_get_float(const char *itemp);
-static CYTHON_INLINE int __pyx_memview_set_float(const char *itemp, PyObject *obj);
+static CYTHON_INLINE PyObject *__pyx_memview_get_float__const__(const char *itemp);
 
 /* RealImag.proto */
 #if CYTHON_CCOMPLEX
@@ -2436,9 +2434,6 @@ struct __pyx_typeinfo_string {
 static struct __pyx_typeinfo_string __Pyx_TypeInfoToFormat(__Pyx_TypeInfo *type);
 
 /* CIntFromPy.proto */
-static CYTHON_INLINE unsigned int __Pyx_PyInt_As_unsigned_int(PyObject *);
-
-/* CIntFromPy.proto */
 static CYTHON_INLINE int __Pyx_PyInt_As_int(PyObject *);
 
 /* CIntFromPy.proto */
@@ -2474,13 +2469,13 @@ static int __Pyx_ValidateAndInit_memviewslice(
                 PyObject *original_obj);
 
 /* ObjectToMemviewSlice.proto */
-static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_d_dc_float(PyObject *, int writable_flag);
+static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_d_dc_float__const__(PyObject *, int writable_flag);
 
 /* ObjectToMemviewSlice.proto */
-static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_dc_unsigned_int(PyObject *, int writable_flag);
+static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_dc_unsigned_int__const__(PyObject *, int writable_flag);
 
 /* ObjectToMemviewSlice.proto */
-static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_d_d_dc_float(PyObject *, int writable_flag);
+static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_d_d_dc_float__const__(PyObject *, int writable_flag);
 
 /* CheckBinaryVersion.proto */
 static int __Pyx_check_binary_version(void);
@@ -2504,7 +2499,7 @@ static PyTypeObject *__Pyx_ImportType(const char *module_name, const char *class
 static int __Pyx_InitStrings(__Pyx_StringTabEntry *t);
 
 static CYTHON_INLINE struct __pyx_obj_5freud_8locality_NeighborQueryResult *__pyx_f_5freud_8locality_19NeighborQueryResult_init(freud::locality::NeighborQuery *__pyx_v_nqptr, __Pyx_memviewslice __pyx_v_points, bool __pyx_v_exclude_ii, struct __pyx_opt_args_5freud_8locality_19NeighborQueryResult_init *__pyx_optional_args); /* proto*/
-static CYTHON_INLINE struct __pyx_obj_5freud_8locality_AABBQueryResult *__pyx_f_5freud_8locality_15AABBQueryResult_init2(freud::locality::AABBQuery *__pyx_v_aabbptr, __Pyx_memviewslice __pyx_v_points, bool __pyx_v_exclude_ii, unsigned int __pyx_v_k, float __pyx_v_r, float __pyx_v_scale); /* proto*/
+static CYTHON_INLINE struct __pyx_obj_5freud_8locality_AABBQueryResult *__pyx_f_5freud_8locality_15AABBQueryResult_init_aabb_nn(freud::locality::AABBQuery *__pyx_v_aabbptr, __Pyx_memviewslice __pyx_v_points, bool __pyx_v_exclude_ii, unsigned int __pyx_v_k, float __pyx_v_r, float __pyx_v_scale); /* proto*/
 static PyObject *__pyx_array_get_memview(struct __pyx_array_obj *__pyx_v_self); /* proto*/
 static char *__pyx_memoryview_get_item_pointer(struct __pyx_memoryview_obj *__pyx_v_self, PyObject *__pyx_v_index); /* proto*/
 static PyObject *__pyx_memoryview_is_slice(struct __pyx_memoryview_obj *__pyx_v_self, PyObject *__pyx_v_obj); /* proto*/
@@ -2634,6 +2629,8 @@ static PyObject *__pyx_unpickle_Enum__set_state(struct __pyx_MemviewEnum_obj *, 
 static PyObject *__pyx_format_from_typeinfo(__Pyx_TypeInfo *); /*proto*/
 static __Pyx_TypeInfo __Pyx_TypeInfo_unsigned_int = { "unsigned int", NULL, sizeof(unsigned int), { 0 }, 0, IS_UNSIGNED(unsigned int) ? 'U' : 'I', IS_UNSIGNED(unsigned int), 0 };
 static __Pyx_TypeInfo __Pyx_TypeInfo_float = { "float", NULL, sizeof(float), { 0 }, 0, 'R', 0, 0 };
+static __Pyx_TypeInfo __Pyx_TypeInfo_float__const__ = { "const float", NULL, sizeof(float const ), { 0 }, 0, 'R', 0, 0 };
+static __Pyx_TypeInfo __Pyx_TypeInfo_unsigned_int__const__ = { "const unsigned int", NULL, sizeof(unsigned int const ), { 0 }, 0, IS_UNSIGNED(unsigned int const ) ? 'U' : 'I', IS_UNSIGNED(unsigned int const ), 0 };
 #define __Pyx_MODULE_NAME "freud.cluster"
 extern int __pyx_module_is_main_freud__cluster;
 int __pyx_module_is_main_freud__cluster = 0;
@@ -3753,7 +3750,7 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_4computeClusters(struct __pyx
  *         else:
  *             b = freud.common.convert_box(box)             # <<<<<<<<<<<<<<
  * 
- *         cdef float[:, ::1] l_points = points
+ *         cdef const float[:, ::1] l_points = points
  */
   /*else*/ {
     __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_freud); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 115, __pyx_L1_error)
@@ -3816,18 +3813,18 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_4computeClusters(struct __pyx
   /* "freud/cluster.pyx":117
  *             b = freud.common.convert_box(box)
  * 
- *         cdef float[:, ::1] l_points = points             # <<<<<<<<<<<<<<
+ *         cdef const float[:, ::1] l_points = points             # <<<<<<<<<<<<<<
  *         cdef unsigned int Np = l_points.shape[0]
  *         with nogil:
  */
-  __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_float(__pyx_v_points, PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 117, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_float__const__(__pyx_v_points, 0); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 117, __pyx_L1_error)
   __pyx_v_l_points = __pyx_t_9;
   __pyx_t_9.memview = NULL;
   __pyx_t_9.data = NULL;
 
   /* "freud/cluster.pyx":118
  * 
- *         cdef float[:, ::1] l_points = points
+ *         cdef const float[:, ::1] l_points = points
  *         cdef unsigned int Np = l_points.shape[0]             # <<<<<<<<<<<<<<
  *         with nogil:
  *             self.thisptr.computeClusters(
@@ -3835,7 +3832,7 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_4computeClusters(struct __pyx
   __pyx_v_Np = (__pyx_v_l_points.shape[0]);
 
   /* "freud/cluster.pyx":119
- *         cdef float[:, ::1] l_points = points
+ *         cdef const float[:, ::1] l_points = points
  *         cdef unsigned int Np = l_points.shape[0]
  *         with nogil:             # <<<<<<<<<<<<<<
  *             self.thisptr.computeClusters(
@@ -3867,7 +3864,7 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_4computeClusters(struct __pyx
  *                 <vec3[float]*> &l_points[0, 0], Np)
  */
         try {
-          __pyx_v_self->thisptr->computeClusters((*__pyx_v_b->thisptr), ((struct __pyx_vtabstruct_5freud_8locality_NeighborList *)__pyx_v_nlist_->__pyx_vtab)->get_ptr(__pyx_v_nlist_), ((vec3<float>  *)(&(*((float *) ( /* dim=1 */ ((char *) (((float *) ( /* dim=0 */ (__pyx_v_l_points.data + __pyx_t_10 * __pyx_v_l_points.strides[0]) )) + __pyx_t_11)) ))))), __pyx_v_Np);
+          __pyx_v_self->thisptr->computeClusters((*__pyx_v_b->thisptr), ((struct __pyx_vtabstruct_5freud_8locality_NeighborList *)__pyx_v_nlist_->__pyx_vtab)->get_ptr(__pyx_v_nlist_), ((vec3<float>  *)(&(*((float const  *) ( /* dim=1 */ ((char *) (((float const  *) ( /* dim=0 */ (__pyx_v_l_points.data + __pyx_t_10 * __pyx_v_l_points.strides[0]) )) + __pyx_t_11)) ))))), __pyx_v_Np);
         } catch(...) {
           #ifdef WITH_THREAD
           PyGILState_STATE __pyx_gilstate_save = __Pyx_PyGILState_Ensure();
@@ -3881,7 +3878,7 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_4computeClusters(struct __pyx
       }
 
       /* "freud/cluster.pyx":119
- *         cdef float[:, ::1] l_points = points
+ *         cdef const float[:, ::1] l_points = points
  *         cdef unsigned int Np = l_points.shape[0]
  *         with nogil:             # <<<<<<<<<<<<<<
  *             self.thisptr.computeClusters(
@@ -4068,7 +4065,7 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_6computeClusterMembership(str
  *         if keys.shape[0] != self.num_particles:
  *             raise RuntimeError(             # <<<<<<<<<<<<<<
  *                 'keys must be a 1D array of length num_particles')
- *         cdef unsigned int[::1] l_keys = keys
+ *         cdef const unsigned int[::1] l_keys = keys
  */
     __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_RuntimeError, __pyx_tuple__2, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 138, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
@@ -4088,18 +4085,18 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_6computeClusterMembership(str
   /* "freud/cluster.pyx":140
  *             raise RuntimeError(
  *                 'keys must be a 1D array of length num_particles')
- *         cdef unsigned int[::1] l_keys = keys             # <<<<<<<<<<<<<<
+ *         cdef const unsigned int[::1] l_keys = keys             # <<<<<<<<<<<<<<
  *         with nogil:
  *             self.thisptr.computeClusterMembership(<unsigned int*> &l_keys[0])
  */
-  __pyx_t_7 = __Pyx_PyObject_to_MemoryviewSlice_dc_unsigned_int(__pyx_v_keys, PyBUF_WRITABLE); if (unlikely(!__pyx_t_7.memview)) __PYX_ERR(0, 140, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_to_MemoryviewSlice_dc_unsigned_int__const__(__pyx_v_keys, 0); if (unlikely(!__pyx_t_7.memview)) __PYX_ERR(0, 140, __pyx_L1_error)
   __pyx_v_l_keys = __pyx_t_7;
   __pyx_t_7.memview = NULL;
   __pyx_t_7.data = NULL;
 
   /* "freud/cluster.pyx":141
  *                 'keys must be a 1D array of length num_particles')
- *         cdef unsigned int[::1] l_keys = keys
+ *         cdef const unsigned int[::1] l_keys = keys
  *         with nogil:             # <<<<<<<<<<<<<<
  *             self.thisptr.computeClusterMembership(<unsigned int*> &l_keys[0])
  *         return self
@@ -4113,7 +4110,7 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_6computeClusterMembership(str
       /*try:*/ {
 
         /* "freud/cluster.pyx":142
- *         cdef unsigned int[::1] l_keys = keys
+ *         cdef const unsigned int[::1] l_keys = keys
  *         with nogil:
  *             self.thisptr.computeClusterMembership(<unsigned int*> &l_keys[0])             # <<<<<<<<<<<<<<
  *         return self
@@ -4121,7 +4118,7 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_6computeClusterMembership(str
  */
         __pyx_t_8 = 0;
         try {
-          __pyx_v_self->thisptr->computeClusterMembership(((unsigned int *)(&(*((unsigned int *) ( /* dim=0 */ ((char *) (((unsigned int *) __pyx_v_l_keys.data) + __pyx_t_8)) ))))));
+          __pyx_v_self->thisptr->computeClusterMembership(((unsigned int *)(&(*((unsigned int const  *) ( /* dim=0 */ ((char *) (((unsigned int const  *) __pyx_v_l_keys.data) + __pyx_t_8)) ))))));
         } catch(...) {
           #ifdef WITH_THREAD
           PyGILState_STATE __pyx_gilstate_save = __Pyx_PyGILState_Ensure();
@@ -4136,7 +4133,7 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_6computeClusterMembership(str
 
       /* "freud/cluster.pyx":141
  *                 'keys must be a 1D array of length num_particles')
- *         cdef unsigned int[::1] l_keys = keys
+ *         cdef const unsigned int[::1] l_keys = keys
  *         with nogil:             # <<<<<<<<<<<<<<
  *             self.thisptr.computeClusterMembership(<unsigned int*> &l_keys[0])
  *         return self
@@ -4323,7 +4320,7 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_13num_particles___get__(struc
  *     @property
  *     def cluster_idx(self):             # <<<<<<<<<<<<<<
  *         cdef unsigned int n_particles = self.thisptr.getNumParticles()
- *         cdef unsigned int[::1] cluster_idx = \
+ *         cdef const unsigned int[::1] cluster_idx = \
  */
 
 /* Python wrapper */
@@ -4358,14 +4355,14 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_11cluster_idx___get__(struct 
  *     @property
  *     def cluster_idx(self):
  *         cdef unsigned int n_particles = self.thisptr.getNumParticles()             # <<<<<<<<<<<<<<
- *         cdef unsigned int[::1] cluster_idx = \
+ *         cdef const unsigned int[::1] cluster_idx = \
  *             <unsigned int[:n_particles]> self.thisptr.getClusterIdx().get()
  */
   __pyx_v_n_particles = __pyx_v_self->thisptr->getNumParticles();
 
   /* "freud/cluster.pyx":157
  *         cdef unsigned int n_particles = self.thisptr.getNumParticles()
- *         cdef unsigned int[::1] cluster_idx = \
+ *         cdef const unsigned int[::1] cluster_idx = \
  *             <unsigned int[:n_particles]> self.thisptr.getClusterIdx().get()             # <<<<<<<<<<<<<<
  *         return np.asarray(cluster_idx)
  * 
@@ -4385,14 +4382,14 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_11cluster_idx___get__(struct 
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_5 = __Pyx_PyObject_to_MemoryviewSlice_dc_unsigned_int(((PyObject *)__pyx_t_2), PyBUF_WRITABLE); if (unlikely(!__pyx_t_5.memview)) __PYX_ERR(0, 157, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_to_MemoryviewSlice_dc_unsigned_int__const__(((PyObject *)__pyx_t_2), 0); if (unlikely(!__pyx_t_5.memview)) __PYX_ERR(0, 157, __pyx_L1_error)
   __Pyx_DECREF(((PyObject *)__pyx_t_2)); __pyx_t_2 = 0;
   __pyx_v_cluster_idx = __pyx_t_5;
   __pyx_t_5.memview = NULL;
   __pyx_t_5.data = NULL;
 
   /* "freud/cluster.pyx":158
- *         cdef unsigned int[::1] cluster_idx = \
+ *         cdef const unsigned int[::1] cluster_idx = \
  *             <unsigned int[:n_particles]> self.thisptr.getClusterIdx().get()
  *         return np.asarray(cluster_idx)             # <<<<<<<<<<<<<<
  * 
@@ -4404,7 +4401,7 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_11cluster_idx___get__(struct 
   __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_asarray); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 158, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = __pyx_memoryview_fromslice(__pyx_v_cluster_idx, 1, (PyObject *(*)(char *)) __pyx_memview_get_unsigned_int, (int (*)(char *, PyObject *)) __pyx_memview_set_unsigned_int, 0);; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 158, __pyx_L1_error)
+  __pyx_t_3 = __pyx_memoryview_fromslice(__pyx_v_cluster_idx, 1, (PyObject *(*)(char *)) __pyx_memview_get_unsigned_int__const__, (int (*)(char *, PyObject *)) NULL, 0);; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 158, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_7 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_6))) {
@@ -4461,7 +4458,7 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_11cluster_idx___get__(struct 
  *     @property
  *     def cluster_idx(self):             # <<<<<<<<<<<<<<
  *         cdef unsigned int n_particles = self.thisptr.getNumParticles()
- *         cdef unsigned int[::1] cluster_idx = \
+ *         cdef const unsigned int[::1] cluster_idx = \
  */
 
   /* function exit code */
@@ -5542,30 +5539,30 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_4computeProperties
   /* "freud/cluster.pyx":261
  *                 ('cluster_idx must be a 1D array of matching length/number'
  *                     'of particles to points'))
- *         cdef float[:, ::1] l_points = points             # <<<<<<<<<<<<<<
- *         cdef unsigned int[::1] l_cluster_idx = cluster_idx
+ *         cdef const float[:, ::1] l_points = points             # <<<<<<<<<<<<<<
+ *         cdef const unsigned int[::1] l_cluster_idx = cluster_idx
  *         cdef unsigned int Np = l_points.shape[0]
  */
-  __pyx_t_8 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_float(__pyx_v_points, PyBUF_WRITABLE); if (unlikely(!__pyx_t_8.memview)) __PYX_ERR(0, 261, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_float__const__(__pyx_v_points, 0); if (unlikely(!__pyx_t_8.memview)) __PYX_ERR(0, 261, __pyx_L1_error)
   __pyx_v_l_points = __pyx_t_8;
   __pyx_t_8.memview = NULL;
   __pyx_t_8.data = NULL;
 
   /* "freud/cluster.pyx":262
  *                     'of particles to points'))
- *         cdef float[:, ::1] l_points = points
- *         cdef unsigned int[::1] l_cluster_idx = cluster_idx             # <<<<<<<<<<<<<<
+ *         cdef const float[:, ::1] l_points = points
+ *         cdef const unsigned int[::1] l_cluster_idx = cluster_idx             # <<<<<<<<<<<<<<
  *         cdef unsigned int Np = l_points.shape[0]
  *         with nogil:
  */
-  __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_dc_unsigned_int(__pyx_v_cluster_idx, PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 262, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_dc_unsigned_int__const__(__pyx_v_cluster_idx, 0); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 262, __pyx_L1_error)
   __pyx_v_l_cluster_idx = __pyx_t_9;
   __pyx_t_9.memview = NULL;
   __pyx_t_9.data = NULL;
 
   /* "freud/cluster.pyx":263
- *         cdef float[:, ::1] l_points = points
- *         cdef unsigned int[::1] l_cluster_idx = cluster_idx
+ *         cdef const float[:, ::1] l_points = points
+ *         cdef const unsigned int[::1] l_cluster_idx = cluster_idx
  *         cdef unsigned int Np = l_points.shape[0]             # <<<<<<<<<<<<<<
  *         with nogil:
  *             self.thisptr.computeProperties(
@@ -5573,7 +5570,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_4computeProperties
   __pyx_v_Np = (__pyx_v_l_points.shape[0]);
 
   /* "freud/cluster.pyx":264
- *         cdef unsigned int[::1] l_cluster_idx = cluster_idx
+ *         cdef const unsigned int[::1] l_cluster_idx = cluster_idx
  *         cdef unsigned int Np = l_points.shape[0]
  *         with nogil:             # <<<<<<<<<<<<<<
  *             self.thisptr.computeProperties(
@@ -5614,7 +5611,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_4computeProperties
  *                 <vec3[float]*> &l_points[0, 0],
  */
         try {
-          __pyx_v_self->thisptr->computeProperties((*__pyx_v_b->thisptr), ((vec3<float>  *)(&(*((float *) ( /* dim=1 */ ((char *) (((float *) ( /* dim=0 */ (__pyx_v_l_points.data + __pyx_t_10 * __pyx_v_l_points.strides[0]) )) + __pyx_t_11)) ))))), ((unsigned int *)(&(*((unsigned int *) ( /* dim=0 */ ((char *) (((unsigned int *) __pyx_v_l_cluster_idx.data) + __pyx_t_12)) ))))), __pyx_v_Np);
+          __pyx_v_self->thisptr->computeProperties((*__pyx_v_b->thisptr), ((vec3<float>  *)(&(*((float const  *) ( /* dim=1 */ ((char *) (((float const  *) ( /* dim=0 */ (__pyx_v_l_points.data + __pyx_t_10 * __pyx_v_l_points.strides[0]) )) + __pyx_t_11)) ))))), ((unsigned int *)(&(*((unsigned int const  *) ( /* dim=0 */ ((char *) (((unsigned int const  *) __pyx_v_l_cluster_idx.data) + __pyx_t_12)) ))))), __pyx_v_Np);
         } catch(...) {
           #ifdef WITH_THREAD
           PyGILState_STATE __pyx_gilstate_save = __Pyx_PyGILState_Ensure();
@@ -5628,7 +5625,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_4computeProperties
       }
 
       /* "freud/cluster.pyx":264
- *         cdef unsigned int[::1] l_cluster_idx = cluster_idx
+ *         cdef const unsigned int[::1] l_cluster_idx = cluster_idx
  *         cdef unsigned int Np = l_points.shape[0]
  *         with nogil:             # <<<<<<<<<<<<<<
  *             self.thisptr.computeProperties(
@@ -5806,7 +5803,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_11cluster_COM___ge
  *         cdef unsigned int n_clusters = self.thisptr.getNumClusters()
  *         if not n_clusters:             # <<<<<<<<<<<<<<
  *             return np.asarray([[]], dtype=np.float32)
- *         cdef float[:, ::1] cluster_COM = \
+ *         cdef const float[:, ::1] cluster_COM = \
  */
   __pyx_t_1 = ((!(__pyx_v_n_clusters != 0)) != 0);
   if (__pyx_t_1) {
@@ -5815,7 +5812,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_11cluster_COM___ge
  *         cdef unsigned int n_clusters = self.thisptr.getNumClusters()
  *         if not n_clusters:
  *             return np.asarray([[]], dtype=np.float32)             # <<<<<<<<<<<<<<
- *         cdef float[:, ::1] cluster_COM = \
+ *         cdef const float[:, ::1] cluster_COM = \
  *             <float[:n_clusters, :3]> (
  */
     __Pyx_XDECREF(__pyx_r);
@@ -5859,12 +5856,12 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_11cluster_COM___ge
  *         cdef unsigned int n_clusters = self.thisptr.getNumClusters()
  *         if not n_clusters:             # <<<<<<<<<<<<<<
  *             return np.asarray([[]], dtype=np.float32)
- *         cdef float[:, ::1] cluster_COM = \
+ *         cdef const float[:, ::1] cluster_COM = \
  */
   }
 
   /* "freud/cluster.pyx":283
- *         cdef float[:, ::1] cluster_COM = \
+ *         cdef const float[:, ::1] cluster_COM = \
  *             <float[:n_clusters, :3]> (
  *                 <float*> self.thisptr.getClusterCOM().get())             # <<<<<<<<<<<<<<
  *         return np.asarray(cluster_COM)
@@ -5874,7 +5871,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_11cluster_COM___ge
 
   /* "freud/cluster.pyx":282
  *             return np.asarray([[]], dtype=np.float32)
- *         cdef float[:, ::1] cluster_COM = \
+ *         cdef const float[:, ::1] cluster_COM = \
  *             <float[:n_clusters, :3]> (             # <<<<<<<<<<<<<<
  *                 <float*> self.thisptr.getClusterCOM().get())
  *         return np.asarray(cluster_COM)
@@ -5893,7 +5890,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_11cluster_COM___ge
   __Pyx_GOTREF(__pyx_t_8);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_float(((PyObject *)__pyx_t_8), PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 282, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_float__const__(((PyObject *)__pyx_t_8), 0); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 282, __pyx_L1_error)
   __Pyx_DECREF(((PyObject *)__pyx_t_8)); __pyx_t_8 = 0;
   __pyx_v_cluster_COM = __pyx_t_9;
   __pyx_t_9.memview = NULL;
@@ -5912,7 +5909,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_11cluster_COM___ge
   __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_asarray); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 284, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  __pyx_t_6 = __pyx_memoryview_fromslice(__pyx_v_cluster_COM, 2, (PyObject *(*)(char *)) __pyx_memview_get_float, (int (*)(char *, PyObject *)) __pyx_memview_set_float, 0);; if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 284, __pyx_L1_error)
+  __pyx_t_6 = __pyx_memoryview_fromslice(__pyx_v_cluster_COM, 2, (PyObject *(*)(char *)) __pyx_memview_get_float__const__, (int (*)(char *, PyObject *)) NULL, 0);; if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 284, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -6041,7 +6038,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_9cluster_G___get__
  *         cdef unsigned int n_clusters = self.thisptr.getNumClusters()
  *         if not n_clusters:             # <<<<<<<<<<<<<<
  *             return np.asarray([[[]]], dtype=np.float32)
- *         cdef float[:, :, ::1] cluster_G = \
+ *         cdef const float[:, :, ::1] cluster_G = \
  */
   __pyx_t_1 = ((!(__pyx_v_n_clusters != 0)) != 0);
   if (__pyx_t_1) {
@@ -6050,7 +6047,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_9cluster_G___get__
  *         cdef unsigned int n_clusters = self.thisptr.getNumClusters()
  *         if not n_clusters:
  *             return np.asarray([[[]]], dtype=np.float32)             # <<<<<<<<<<<<<<
- *         cdef float[:, :, ::1] cluster_G = \
+ *         cdef const float[:, :, ::1] cluster_G = \
  *             <float[:n_clusters, :3, :3]> (
  */
     __Pyx_XDECREF(__pyx_r);
@@ -6099,12 +6096,12 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_9cluster_G___get__
  *         cdef unsigned int n_clusters = self.thisptr.getNumClusters()
  *         if not n_clusters:             # <<<<<<<<<<<<<<
  *             return np.asarray([[[]]], dtype=np.float32)
- *         cdef float[:, :, ::1] cluster_G = \
+ *         cdef const float[:, :, ::1] cluster_G = \
  */
   }
 
   /* "freud/cluster.pyx":293
- *         cdef float[:, :, ::1] cluster_G = \
+ *         cdef const float[:, :, ::1] cluster_G = \
  *             <float[:n_clusters, :3, :3]> (
  *                 <float*> self.thisptr.getClusterG().get())             # <<<<<<<<<<<<<<
  *         return np.asarray(cluster_G)
@@ -6114,7 +6111,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_9cluster_G___get__
 
   /* "freud/cluster.pyx":292
  *             return np.asarray([[[]]], dtype=np.float32)
- *         cdef float[:, :, ::1] cluster_G = \
+ *         cdef const float[:, :, ::1] cluster_G = \
  *             <float[:n_clusters, :3, :3]> (             # <<<<<<<<<<<<<<
  *                 <float*> self.thisptr.getClusterG().get())
  *         return np.asarray(cluster_G)
@@ -6133,7 +6130,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_9cluster_G___get__
   __Pyx_GOTREF(__pyx_t_8);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_d_d_dc_float(((PyObject *)__pyx_t_8), PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 292, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_d_d_dc_float__const__(((PyObject *)__pyx_t_8), 0); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 292, __pyx_L1_error)
   __Pyx_DECREF(((PyObject *)__pyx_t_8)); __pyx_t_8 = 0;
   __pyx_v_cluster_G = __pyx_t_9;
   __pyx_t_9.memview = NULL;
@@ -6152,7 +6149,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_9cluster_G___get__
   __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_asarray); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 294, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  __pyx_t_6 = __pyx_memoryview_fromslice(__pyx_v_cluster_G, 3, (PyObject *(*)(char *)) __pyx_memview_get_float, (int (*)(char *, PyObject *)) __pyx_memview_set_float, 0);; if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 294, __pyx_L1_error)
+  __pyx_t_6 = __pyx_memoryview_fromslice(__pyx_v_cluster_G, 3, (PyObject *(*)(char *)) __pyx_memview_get_float__const__, (int (*)(char *, PyObject *)) NULL, 0);; if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 294, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_4))) {
@@ -6281,7 +6278,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_13cluster_sizes___
  *         cdef unsigned int n_clusters = self.thisptr.getNumClusters()
  *         if not n_clusters:             # <<<<<<<<<<<<<<
  *             return np.asarray([], dtype=np.uint32)
- *         cdef unsigned int[::1] cluster_sizes = \
+ *         cdef const unsigned int[::1] cluster_sizes = \
  */
   __pyx_t_1 = ((!(__pyx_v_n_clusters != 0)) != 0);
   if (__pyx_t_1) {
@@ -6290,7 +6287,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_13cluster_sizes___
  *         cdef unsigned int n_clusters = self.thisptr.getNumClusters()
  *         if not n_clusters:
  *             return np.asarray([], dtype=np.uint32)             # <<<<<<<<<<<<<<
- *         cdef unsigned int[::1] cluster_sizes = \
+ *         cdef const unsigned int[::1] cluster_sizes = \
  *             <unsigned int[:n_clusters]> self.thisptr.getClusterSize().get()
  */
     __Pyx_XDECREF(__pyx_r);
@@ -6329,13 +6326,13 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_13cluster_sizes___
  *         cdef unsigned int n_clusters = self.thisptr.getNumClusters()
  *         if not n_clusters:             # <<<<<<<<<<<<<<
  *             return np.asarray([], dtype=np.uint32)
- *         cdef unsigned int[::1] cluster_sizes = \
+ *         cdef const unsigned int[::1] cluster_sizes = \
  */
   }
 
   /* "freud/cluster.pyx":302
  *             return np.asarray([], dtype=np.uint32)
- *         cdef unsigned int[::1] cluster_sizes = \
+ *         cdef const unsigned int[::1] cluster_sizes = \
  *             <unsigned int[:n_clusters]> self.thisptr.getClusterSize().get()             # <<<<<<<<<<<<<<
  *         return np.asarray(cluster_sizes, dtype=np.uint32)
  * 
@@ -6355,14 +6352,14 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_13cluster_sizes___
   __Pyx_GOTREF(__pyx_t_8);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_dc_unsigned_int(((PyObject *)__pyx_t_8), PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 302, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_dc_unsigned_int__const__(((PyObject *)__pyx_t_8), 0); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 302, __pyx_L1_error)
   __Pyx_DECREF(((PyObject *)__pyx_t_8)); __pyx_t_8 = 0;
   __pyx_v_cluster_sizes = __pyx_t_9;
   __pyx_t_9.memview = NULL;
   __pyx_t_9.data = NULL;
 
   /* "freud/cluster.pyx":303
- *         cdef unsigned int[::1] cluster_sizes = \
+ *         cdef const unsigned int[::1] cluster_sizes = \
  *             <unsigned int[:n_clusters]> self.thisptr.getClusterSize().get()
  *         return np.asarray(cluster_sizes, dtype=np.uint32)             # <<<<<<<<<<<<<<
  * 
@@ -6374,7 +6371,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_13cluster_sizes___
   __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 303, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_cluster_sizes, 1, (PyObject *(*)(char *)) __pyx_memview_get_unsigned_int, (int (*)(char *, PyObject *)) __pyx_memview_set_unsigned_int, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 303, __pyx_L1_error)
+  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_cluster_sizes, 1, (PyObject *(*)(char *)) __pyx_memview_get_unsigned_int__const__, (int (*)(char *, PyObject *)) NULL, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 303, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = PyTuple_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 303, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
@@ -6708,11 +6705,11 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_12__setstate_cytho
   return __pyx_r;
 }
 
-/* "freud/locality.pxd":29
+/* "freud/locality.pxd":30
  *     # compile with a cdef method.
  *     @staticmethod
  *     cdef inline NeighborQueryResult init(             # <<<<<<<<<<<<<<
- *             freud._locality.NeighborQuery * nqptr, float[:, ::1] points,
+ *             freud._locality.NeighborQuery * nqptr, const float[:, ::1] points,
  *             cbool exclude_ii, float r=0, unsigned int k=0):
  */
 
@@ -6735,7 +6732,7 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_NeighborQueryResult *__py
     }
   }
 
-  /* "freud/locality.pxd":33
+  /* "freud/locality.pxd":34
  *             cbool exclude_ii, float r=0, unsigned int k=0):
  *         # Internal API only
  *         assert r != 0 or k != 0             # <<<<<<<<<<<<<<
@@ -6755,24 +6752,24 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_NeighborQueryResult *__py
     __pyx_L3_bool_binop_done:;
     if (unlikely(!__pyx_t_1)) {
       PyErr_SetNone(PyExc_AssertionError);
-      __PYX_ERR(2, 33, __pyx_L1_error)
+      __PYX_ERR(2, 34, __pyx_L1_error)
     }
   }
   #endif
 
-  /* "freud/locality.pxd":35
+  /* "freud/locality.pxd":36
  *         assert r != 0 or k != 0
  * 
  *         obj = NeighborQueryResult()             # <<<<<<<<<<<<<<
  * 
  *         obj.nqptr = nqptr
  */
-  __pyx_t_3 = __Pyx_PyObject_CallNoArg(((PyObject *)__pyx_ptype_5freud_8locality_NeighborQueryResult)); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 35, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_CallNoArg(((PyObject *)__pyx_ptype_5freud_8locality_NeighborQueryResult)); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 36, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_v_obj = ((struct __pyx_obj_5freud_8locality_NeighborQueryResult *)__pyx_t_3);
   __pyx_t_3 = 0;
 
-  /* "freud/locality.pxd":37
+  /* "freud/locality.pxd":38
  *         obj = NeighborQueryResult()
  * 
  *         obj.nqptr = nqptr             # <<<<<<<<<<<<<<
@@ -6781,7 +6778,7 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_NeighborQueryResult *__py
  */
   __pyx_v_obj->nqptr = __pyx_v_nqptr;
 
-  /* "freud/locality.pxd":38
+  /* "freud/locality.pxd":39
  * 
  *         obj.nqptr = nqptr
  *         obj.points = points             # <<<<<<<<<<<<<<
@@ -6792,7 +6789,7 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_NeighborQueryResult *__py
   __PYX_INC_MEMVIEW(&__pyx_v_points, 0);
   __pyx_v_obj->points = __pyx_v_points;
 
-  /* "freud/locality.pxd":39
+  /* "freud/locality.pxd":40
  *         obj.nqptr = nqptr
  *         obj.points = points
  *         obj.exclude_ii = exclude_ii             # <<<<<<<<<<<<<<
@@ -6801,7 +6798,7 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_NeighborQueryResult *__py
  */
   __pyx_v_obj->exclude_ii = __pyx_v_exclude_ii;
 
-  /* "freud/locality.pxd":40
+  /* "freud/locality.pxd":41
  *         obj.points = points
  *         obj.exclude_ii = exclude_ii
  *         obj.Np = points.shape[0]             # <<<<<<<<<<<<<<
@@ -6810,7 +6807,7 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_NeighborQueryResult *__py
  */
   __pyx_v_obj->Np = (__pyx_v_points.shape[0]);
 
-  /* "freud/locality.pxd":42
+  /* "freud/locality.pxd":43
  *         obj.Np = points.shape[0]
  * 
  *         obj.r = r             # <<<<<<<<<<<<<<
@@ -6819,7 +6816,7 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_NeighborQueryResult *__py
  */
   __pyx_v_obj->r = __pyx_v_r;
 
-  /* "freud/locality.pxd":43
+  /* "freud/locality.pxd":44
  * 
  *         obj.r = r
  *         obj.k = k             # <<<<<<<<<<<<<<
@@ -6828,7 +6825,7 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_NeighborQueryResult *__py
  */
   __pyx_v_obj->k = __pyx_v_k;
 
-  /* "freud/locality.pxd":45
+  /* "freud/locality.pxd":46
  *         obj.k = k
  * 
  *         if obj.r != 0:             # <<<<<<<<<<<<<<
@@ -6838,7 +6835,7 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_NeighborQueryResult *__py
   __pyx_t_1 = ((__pyx_v_obj->r != 0.0) != 0);
   if (__pyx_t_1) {
 
-    /* "freud/locality.pxd":46
+    /* "freud/locality.pxd":47
  * 
  *         if obj.r != 0:
  *             obj.query_type = 'ball'             # <<<<<<<<<<<<<<
@@ -6851,7 +6848,7 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_NeighborQueryResult *__py
     __Pyx_DECREF(__pyx_v_obj->query_type);
     __pyx_v_obj->query_type = __pyx_n_s_ball;
 
-    /* "freud/locality.pxd":45
+    /* "freud/locality.pxd":46
  *         obj.k = k
  * 
  *         if obj.r != 0:             # <<<<<<<<<<<<<<
@@ -6861,7 +6858,7 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_NeighborQueryResult *__py
     goto __pyx_L5;
   }
 
-  /* "freud/locality.pxd":48
+  /* "freud/locality.pxd":49
  *             obj.query_type = 'ball'
  *         else:
  *             obj.query_type = 'nn'             # <<<<<<<<<<<<<<
@@ -6877,7 +6874,7 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_NeighborQueryResult *__py
   }
   __pyx_L5:;
 
-  /* "freud/locality.pxd":50
+  /* "freud/locality.pxd":51
  *             obj.query_type = 'nn'
  * 
  *         return obj             # <<<<<<<<<<<<<<
@@ -6889,11 +6886,11 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_NeighborQueryResult *__py
   __pyx_r = __pyx_v_obj;
   goto __pyx_L0;
 
-  /* "freud/locality.pxd":29
+  /* "freud/locality.pxd":30
  *     # compile with a cdef method.
  *     @staticmethod
  *     cdef inline NeighborQueryResult init(             # <<<<<<<<<<<<<<
- *             freud._locality.NeighborQuery * nqptr, float[:, ::1] points,
+ *             freud._locality.NeighborQuery * nqptr, const float[:, ::1] points,
  *             cbool exclude_ii, float r=0, unsigned int k=0):
  */
 
@@ -6909,22 +6906,22 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_NeighborQueryResult *__py
   return __pyx_r;
 }
 
-/* "freud/locality.pxd":58
+/* "freud/locality.pxd":59
  * 
  *     @staticmethod
- *     cdef inline AABBQueryResult init2(             # <<<<<<<<<<<<<<
- *             freud._locality.AABBQuery * aabbptr, float[:, ::1] points,
+ *     cdef inline AABBQueryResult init_aabb_nn(             # <<<<<<<<<<<<<<
+ *             freud._locality.AABBQuery * aabbptr, const float[:, ::1] points,
  *             cbool exclude_ii, unsigned int k, float r, float scale):
  */
 
-static CYTHON_INLINE struct __pyx_obj_5freud_8locality_AABBQueryResult *__pyx_f_5freud_8locality_15AABBQueryResult_init2(freud::locality::AABBQuery *__pyx_v_aabbptr, __Pyx_memviewslice __pyx_v_points, bool __pyx_v_exclude_ii, unsigned int __pyx_v_k, float __pyx_v_r, float __pyx_v_scale) {
+static CYTHON_INLINE struct __pyx_obj_5freud_8locality_AABBQueryResult *__pyx_f_5freud_8locality_15AABBQueryResult_init_aabb_nn(freud::locality::AABBQuery *__pyx_v_aabbptr, __Pyx_memviewslice __pyx_v_points, bool __pyx_v_exclude_ii, unsigned int __pyx_v_k, float __pyx_v_r, float __pyx_v_scale) {
   struct __pyx_obj_5freud_8locality_AABBQueryResult *__pyx_v_obj = NULL;
   struct __pyx_obj_5freud_8locality_AABBQueryResult *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
-  __Pyx_RefNannySetupContext("init2", 0);
+  __Pyx_RefNannySetupContext("init_aabb_nn", 0);
 
-  /* "freud/locality.pxd":62
+  /* "freud/locality.pxd":63
  *             cbool exclude_ii, unsigned int k, float r, float scale):
  *         # Internal API only
  *         assert k != 0             # <<<<<<<<<<<<<<
@@ -6935,24 +6932,24 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_AABBQueryResult *__pyx_f_
   if (unlikely(!Py_OptimizeFlag)) {
     if (unlikely(!((__pyx_v_k != 0) != 0))) {
       PyErr_SetNone(PyExc_AssertionError);
-      __PYX_ERR(2, 62, __pyx_L1_error)
+      __PYX_ERR(2, 63, __pyx_L1_error)
     }
   }
   #endif
 
-  /* "freud/locality.pxd":64
+  /* "freud/locality.pxd":65
  *         assert k != 0
  * 
  *         obj = AABBQueryResult()             # <<<<<<<<<<<<<<
  * 
  *         obj.aabbptr = obj.nqptr = aabbptr
  */
-  __pyx_t_1 = __Pyx_PyObject_CallNoArg(((PyObject *)__pyx_ptype_5freud_8locality_AABBQueryResult)); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 64, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_CallNoArg(((PyObject *)__pyx_ptype_5freud_8locality_AABBQueryResult)); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 65, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_obj = ((struct __pyx_obj_5freud_8locality_AABBQueryResult *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "freud/locality.pxd":66
+  /* "freud/locality.pxd":67
  *         obj = AABBQueryResult()
  * 
  *         obj.aabbptr = obj.nqptr = aabbptr             # <<<<<<<<<<<<<<
@@ -6962,7 +6959,7 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_AABBQueryResult *__pyx_f_
   __pyx_v_obj->aabbptr = __pyx_v_aabbptr;
   __pyx_v_obj->__pyx_base.nqptr = __pyx_v_aabbptr;
 
-  /* "freud/locality.pxd":67
+  /* "freud/locality.pxd":68
  * 
  *         obj.aabbptr = obj.nqptr = aabbptr
  *         obj.points = points             # <<<<<<<<<<<<<<
@@ -6973,7 +6970,7 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_AABBQueryResult *__pyx_f_
   __PYX_INC_MEMVIEW(&__pyx_v_points, 0);
   __pyx_v_obj->__pyx_base.points = __pyx_v_points;
 
-  /* "freud/locality.pxd":68
+  /* "freud/locality.pxd":69
  *         obj.aabbptr = obj.nqptr = aabbptr
  *         obj.points = points
  *         obj.exclude_ii = exclude_ii             # <<<<<<<<<<<<<<
@@ -6982,34 +6979,34 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_AABBQueryResult *__pyx_f_
  */
   __pyx_v_obj->__pyx_base.exclude_ii = __pyx_v_exclude_ii;
 
-  /* "freud/locality.pxd":69
+  /* "freud/locality.pxd":70
  *         obj.points = points
  *         obj.exclude_ii = exclude_ii
  *         obj.Np = points.shape[0]             # <<<<<<<<<<<<<<
  * 
- *         obj.r = r  # Only for kN queries
+ *         # For AABBs, even kN queries require a distance cutoff
  */
   __pyx_v_obj->__pyx_base.Np = (__pyx_v_points.shape[0]);
 
-  /* "freud/locality.pxd":71
- *         obj.Np = points.shape[0]
+  /* "freud/locality.pxd":73
  * 
- *         obj.r = r  # Only for kN queries             # <<<<<<<<<<<<<<
+ *         # For AABBs, even kN queries require a distance cutoff
+ *         obj.r = r             # <<<<<<<<<<<<<<
  *         obj.k = k
  * 
  */
   __pyx_v_obj->__pyx_base.r = __pyx_v_r;
 
-  /* "freud/locality.pxd":72
- * 
- *         obj.r = r  # Only for kN queries
+  /* "freud/locality.pxd":74
+ *         # For AABBs, even kN queries require a distance cutoff
+ *         obj.r = r
  *         obj.k = k             # <<<<<<<<<<<<<<
  * 
  *         obj.query_type = 'nn'
  */
   __pyx_v_obj->__pyx_base.k = __pyx_v_k;
 
-  /* "freud/locality.pxd":74
+  /* "freud/locality.pxd":76
  *         obj.k = k
  * 
  *         obj.query_type = 'nn'             # <<<<<<<<<<<<<<
@@ -7022,7 +7019,7 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_AABBQueryResult *__pyx_f_
   __Pyx_DECREF(__pyx_v_obj->__pyx_base.query_type);
   __pyx_v_obj->__pyx_base.query_type = __pyx_n_s_nn;
 
-  /* "freud/locality.pxd":76
+  /* "freud/locality.pxd":78
  *         obj.query_type = 'nn'
  * 
  *         obj.scale = scale             # <<<<<<<<<<<<<<
@@ -7031,7 +7028,7 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_AABBQueryResult *__pyx_f_
  */
   __pyx_v_obj->scale = __pyx_v_scale;
 
-  /* "freud/locality.pxd":78
+  /* "freud/locality.pxd":80
  *         obj.scale = scale
  * 
  *         return obj             # <<<<<<<<<<<<<<
@@ -7043,18 +7040,18 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_AABBQueryResult *__pyx_f_
   __pyx_r = __pyx_v_obj;
   goto __pyx_L0;
 
-  /* "freud/locality.pxd":58
+  /* "freud/locality.pxd":59
  * 
  *     @staticmethod
- *     cdef inline AABBQueryResult init2(             # <<<<<<<<<<<<<<
- *             freud._locality.AABBQuery * aabbptr, float[:, ::1] points,
+ *     cdef inline AABBQueryResult init_aabb_nn(             # <<<<<<<<<<<<<<
+ *             freud._locality.AABBQuery * aabbptr, const float[:, ::1] points,
  *             cbool exclude_ii, unsigned int k, float r, float scale):
  */
 
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("freud.locality.AABBQueryResult.init2", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("freud.locality.AABBQueryResult.init_aabb_nn", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __Pyx_XDECREF((PyObject *)__pyx_v_obj);
@@ -24128,7 +24125,7 @@ static int __Pyx_InitCachedConstants(void) {
  *         if keys.shape[0] != self.num_particles:
  *             raise RuntimeError(             # <<<<<<<<<<<<<<
  *                 'keys must be a 1D array of length num_particles')
- *         cdef unsigned int[::1] l_keys = keys
+ *         cdef const unsigned int[::1] l_keys = keys
  */
   __pyx_tuple__2 = PyTuple_Pack(1, __pyx_kp_s_keys_must_be_a_1D_array_of_lengt); if (unlikely(!__pyx_tuple__2)) __PYX_ERR(0, 138, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__2);
@@ -24793,16 +24790,16 @@ static int __Pyx_modinit_type_import_code(void) {
   __pyx_ptype_5freud_3box_ParticleBuffer = __Pyx_ImportType("freud.box", "ParticleBuffer", sizeof(struct __pyx_obj_5freud_3box_ParticleBuffer), 1); if (unlikely(!__pyx_ptype_5freud_3box_ParticleBuffer)) __PYX_ERR(4, 11, __pyx_L1_error)
   __pyx_ptype_5freud_8locality_NeighborQueryResult = __Pyx_ImportType("freud.locality", "NeighborQueryResult", sizeof(struct __pyx_obj_5freud_8locality_NeighborQueryResult), 1); if (unlikely(!__pyx_ptype_5freud_8locality_NeighborQueryResult)) __PYX_ERR(2, 10, __pyx_L1_error)
   __pyx_vtabptr_5freud_8locality_NeighborQueryResult = (struct __pyx_vtabstruct_5freud_8locality_NeighborQueryResult*)__Pyx_GetVtable(__pyx_ptype_5freud_8locality_NeighborQueryResult->tp_dict); if (unlikely(!__pyx_vtabptr_5freud_8locality_NeighborQueryResult)) __PYX_ERR(2, 10, __pyx_L1_error)
-  __pyx_ptype_5freud_8locality_AABBQueryResult = __Pyx_ImportType("freud.locality", "AABBQueryResult", sizeof(struct __pyx_obj_5freud_8locality_AABBQueryResult), 1); if (unlikely(!__pyx_ptype_5freud_8locality_AABBQueryResult)) __PYX_ERR(2, 53, __pyx_L1_error)
-  __pyx_vtabptr_5freud_8locality_AABBQueryResult = (struct __pyx_vtabstruct_5freud_8locality_AABBQueryResult*)__Pyx_GetVtable(__pyx_ptype_5freud_8locality_AABBQueryResult->tp_dict); if (unlikely(!__pyx_vtabptr_5freud_8locality_AABBQueryResult)) __PYX_ERR(2, 53, __pyx_L1_error)
-  __pyx_ptype_5freud_8locality_NeighborQuery = __Pyx_ImportType("freud.locality", "NeighborQuery", sizeof(struct __pyx_obj_5freud_8locality_NeighborQuery), 1); if (unlikely(!__pyx_ptype_5freud_8locality_NeighborQuery)) __PYX_ERR(2, 81, __pyx_L1_error)
-  __pyx_ptype_5freud_8locality_NeighborList = __Pyx_ImportType("freud.locality", "NeighborList", sizeof(struct __pyx_obj_5freud_8locality_NeighborList), 1); if (unlikely(!__pyx_ptype_5freud_8locality_NeighborList)) __PYX_ERR(2, 87, __pyx_L1_error)
-  __pyx_vtabptr_5freud_8locality_NeighborList = (struct __pyx_vtabstruct_5freud_8locality_NeighborList*)__Pyx_GetVtable(__pyx_ptype_5freud_8locality_NeighborList->tp_dict); if (unlikely(!__pyx_vtabptr_5freud_8locality_NeighborList)) __PYX_ERR(2, 87, __pyx_L1_error)
-  __pyx_ptype_5freud_8locality_IteratorLinkCell = __Pyx_ImportType("freud.locality", "IteratorLinkCell", sizeof(struct __pyx_obj_5freud_8locality_IteratorLinkCell), 1); if (unlikely(!__pyx_ptype_5freud_8locality_IteratorLinkCell)) __PYX_ERR(2, 96, __pyx_L1_error)
-  __pyx_vtabptr_5freud_8locality_IteratorLinkCell = (struct __pyx_vtabstruct_5freud_8locality_IteratorLinkCell*)__Pyx_GetVtable(__pyx_ptype_5freud_8locality_IteratorLinkCell->tp_dict); if (unlikely(!__pyx_vtabptr_5freud_8locality_IteratorLinkCell)) __PYX_ERR(2, 96, __pyx_L1_error)
-  __pyx_ptype_5freud_8locality_LinkCell = __Pyx_ImportType("freud.locality", "LinkCell", sizeof(struct __pyx_obj_5freud_8locality_LinkCell), 1); if (unlikely(!__pyx_ptype_5freud_8locality_LinkCell)) __PYX_ERR(2, 101, __pyx_L1_error)
-  __pyx_ptype_5freud_8locality_NearestNeighbors = __Pyx_ImportType("freud.locality", "NearestNeighbors", sizeof(struct __pyx_obj_5freud_8locality_NearestNeighbors), 1); if (unlikely(!__pyx_ptype_5freud_8locality_NearestNeighbors)) __PYX_ERR(2, 105, __pyx_L1_error)
-  __pyx_ptype_5freud_8locality_AABBQuery = __Pyx_ImportType("freud.locality", "AABBQuery", sizeof(struct __pyx_obj_5freud_8locality_AABBQuery), 1); if (unlikely(!__pyx_ptype_5freud_8locality_AABBQuery)) __PYX_ERR(2, 112, __pyx_L1_error)
+  __pyx_ptype_5freud_8locality_AABBQueryResult = __Pyx_ImportType("freud.locality", "AABBQueryResult", sizeof(struct __pyx_obj_5freud_8locality_AABBQueryResult), 1); if (unlikely(!__pyx_ptype_5freud_8locality_AABBQueryResult)) __PYX_ERR(2, 54, __pyx_L1_error)
+  __pyx_vtabptr_5freud_8locality_AABBQueryResult = (struct __pyx_vtabstruct_5freud_8locality_AABBQueryResult*)__Pyx_GetVtable(__pyx_ptype_5freud_8locality_AABBQueryResult->tp_dict); if (unlikely(!__pyx_vtabptr_5freud_8locality_AABBQueryResult)) __PYX_ERR(2, 54, __pyx_L1_error)
+  __pyx_ptype_5freud_8locality_NeighborQuery = __Pyx_ImportType("freud.locality", "NeighborQuery", sizeof(struct __pyx_obj_5freud_8locality_NeighborQuery), 1); if (unlikely(!__pyx_ptype_5freud_8locality_NeighborQuery)) __PYX_ERR(2, 83, __pyx_L1_error)
+  __pyx_ptype_5freud_8locality_NeighborList = __Pyx_ImportType("freud.locality", "NeighborList", sizeof(struct __pyx_obj_5freud_8locality_NeighborList), 1); if (unlikely(!__pyx_ptype_5freud_8locality_NeighborList)) __PYX_ERR(2, 89, __pyx_L1_error)
+  __pyx_vtabptr_5freud_8locality_NeighborList = (struct __pyx_vtabstruct_5freud_8locality_NeighborList*)__Pyx_GetVtable(__pyx_ptype_5freud_8locality_NeighborList->tp_dict); if (unlikely(!__pyx_vtabptr_5freud_8locality_NeighborList)) __PYX_ERR(2, 89, __pyx_L1_error)
+  __pyx_ptype_5freud_8locality_IteratorLinkCell = __Pyx_ImportType("freud.locality", "IteratorLinkCell", sizeof(struct __pyx_obj_5freud_8locality_IteratorLinkCell), 1); if (unlikely(!__pyx_ptype_5freud_8locality_IteratorLinkCell)) __PYX_ERR(2, 98, __pyx_L1_error)
+  __pyx_vtabptr_5freud_8locality_IteratorLinkCell = (struct __pyx_vtabstruct_5freud_8locality_IteratorLinkCell*)__Pyx_GetVtable(__pyx_ptype_5freud_8locality_IteratorLinkCell->tp_dict); if (unlikely(!__pyx_vtabptr_5freud_8locality_IteratorLinkCell)) __PYX_ERR(2, 98, __pyx_L1_error)
+  __pyx_ptype_5freud_8locality_LinkCell = __Pyx_ImportType("freud.locality", "LinkCell", sizeof(struct __pyx_obj_5freud_8locality_LinkCell), 1); if (unlikely(!__pyx_ptype_5freud_8locality_LinkCell)) __PYX_ERR(2, 103, __pyx_L1_error)
+  __pyx_ptype_5freud_8locality_NearestNeighbors = __Pyx_ImportType("freud.locality", "NearestNeighbors", sizeof(struct __pyx_obj_5freud_8locality_NearestNeighbors), 1); if (unlikely(!__pyx_ptype_5freud_8locality_NearestNeighbors)) __PYX_ERR(2, 107, __pyx_L1_error)
+  __pyx_ptype_5freud_8locality_AABBQuery = __Pyx_ImportType("freud.locality", "AABBQuery", sizeof(struct __pyx_obj_5freud_8locality_AABBQuery), 1); if (unlikely(!__pyx_ptype_5freud_8locality_AABBQuery)) __PYX_ERR(2, 114, __pyx_L1_error)
   __pyx_ptype_7cpython_4type_type = __Pyx_ImportType(__Pyx_BUILTIN_MODULE_NAME, "type", 
   #if defined(PYPY_VERSION_NUM) && PYPY_VERSION_NUM < 0x050B0000
   sizeof(PyTypeObject),
@@ -28228,50 +28225,14 @@ __pyx_capsule_create(void *p, CYTHON_UNUSED const char *sig)
     }
 }
 
-/* CIntFromPyVerify */
-            #define __PYX_VERIFY_RETURN_INT(target_type, func_type, func_value)\
-    __PYX__VERIFY_RETURN_INT(target_type, func_type, func_value, 0)
-#define __PYX_VERIFY_RETURN_INT_EXC(target_type, func_type, func_value)\
-    __PYX__VERIFY_RETURN_INT(target_type, func_type, func_value, 1)
-#define __PYX__VERIFY_RETURN_INT(target_type, func_type, func_value, exc)\
-    {\
-        func_type value = func_value;\
-        if (sizeof(target_type) < sizeof(func_type)) {\
-            if (unlikely(value != (func_type) (target_type) value)) {\
-                func_type zero = 0;\
-                if (exc && unlikely(value == (func_type)-1 && PyErr_Occurred()))\
-                    return (target_type) -1;\
-                if (is_unsigned && unlikely(value < zero))\
-                    goto raise_neg_overflow;\
-                else\
-                    goto raise_overflow;\
-            }\
-        }\
-        return (target_type) value;\
-    }
-
 /* MemviewDtypeToObject */
-            static CYTHON_INLINE PyObject *__pyx_memview_get_unsigned_int(const char *itemp) {
-    return (PyObject *) __Pyx_PyInt_From_unsigned_int(*(unsigned int *) itemp);
-}
-static CYTHON_INLINE int __pyx_memview_set_unsigned_int(const char *itemp, PyObject *obj) {
-    unsigned int value = __Pyx_PyInt_As_unsigned_int(obj);
-    if ((value == (unsigned int)-1) && PyErr_Occurred())
-        return 0;
-    *(unsigned int *) itemp = value;
-    return 1;
+            static CYTHON_INLINE PyObject *__pyx_memview_get_unsigned_int__const__(const char *itemp) {
+    return (PyObject *) __Pyx_PyInt_From_unsigned_int(*(unsigned int const  *) itemp);
 }
 
 /* MemviewDtypeToObject */
-            static CYTHON_INLINE PyObject *__pyx_memview_get_float(const char *itemp) {
-    return (PyObject *) PyFloat_FromDouble(*(float *) itemp);
-}
-static CYTHON_INLINE int __pyx_memview_set_float(const char *itemp, PyObject *obj) {
-    float value = __pyx_PyFloat_AsFloat(obj);
-    if ((value == (float)-1) && PyErr_Occurred())
-        return 0;
-    *(float *) itemp = value;
-    return 1;
+            static CYTHON_INLINE PyObject *__pyx_memview_get_float__const__(const char *itemp) {
+    return (PyObject *) PyFloat_FromDouble(*(float const  *) itemp);
 }
 
 /* Declarations */
@@ -28615,6 +28576,28 @@ static CYTHON_INLINE int __pyx_memview_set_float(const char *itemp, PyObject *ob
     }
 }
 
+/* CIntFromPyVerify */
+            #define __PYX_VERIFY_RETURN_INT(target_type, func_type, func_value)\
+    __PYX__VERIFY_RETURN_INT(target_type, func_type, func_value, 0)
+#define __PYX_VERIFY_RETURN_INT_EXC(target_type, func_type, func_value)\
+    __PYX__VERIFY_RETURN_INT(target_type, func_type, func_value, 1)
+#define __PYX__VERIFY_RETURN_INT(target_type, func_type, func_value, exc)\
+    {\
+        func_type value = func_value;\
+        if (sizeof(target_type) < sizeof(func_type)) {\
+            if (unlikely(value != (func_type) (target_type) value)) {\
+                func_type zero = 0;\
+                if (exc && unlikely(value == (func_type)-1 && PyErr_Occurred()))\
+                    return (target_type) -1;\
+                if (is_unsigned && unlikely(value < zero))\
+                    goto raise_neg_overflow;\
+                else\
+                    goto raise_overflow;\
+            }\
+        }\
+        return (target_type) value;\
+    }
+
 /* CIntToPy */
             static CYTHON_INLINE PyObject* __Pyx_PyInt_From_enum__NPY_TYPES(enum NPY_TYPES value) {
     const enum NPY_TYPES neg_one = (enum NPY_TYPES) -1, const_zero = (enum NPY_TYPES) 0;
@@ -28755,195 +28738,6 @@ no_fail:
             break;
     }
     return result;
-}
-
-/* CIntFromPy */
-            static CYTHON_INLINE unsigned int __Pyx_PyInt_As_unsigned_int(PyObject *x) {
-    const unsigned int neg_one = (unsigned int) -1, const_zero = (unsigned int) 0;
-    const int is_unsigned = neg_one > const_zero;
-#if PY_MAJOR_VERSION < 3
-    if (likely(PyInt_Check(x))) {
-        if (sizeof(unsigned int) < sizeof(long)) {
-            __PYX_VERIFY_RETURN_INT(unsigned int, long, PyInt_AS_LONG(x))
-        } else {
-            long val = PyInt_AS_LONG(x);
-            if (is_unsigned && unlikely(val < 0)) {
-                goto raise_neg_overflow;
-            }
-            return (unsigned int) val;
-        }
-    } else
-#endif
-    if (likely(PyLong_Check(x))) {
-        if (is_unsigned) {
-#if CYTHON_USE_PYLONG_INTERNALS
-            const digit* digits = ((PyLongObject*)x)->ob_digit;
-            switch (Py_SIZE(x)) {
-                case  0: return (unsigned int) 0;
-                case  1: __PYX_VERIFY_RETURN_INT(unsigned int, digit, digits[0])
-                case 2:
-                    if (8 * sizeof(unsigned int) > 1 * PyLong_SHIFT) {
-                        if (8 * sizeof(unsigned long) > 2 * PyLong_SHIFT) {
-                            __PYX_VERIFY_RETURN_INT(unsigned int, unsigned long, (((((unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
-                        } else if (8 * sizeof(unsigned int) >= 2 * PyLong_SHIFT) {
-                            return (unsigned int) (((((unsigned int)digits[1]) << PyLong_SHIFT) | (unsigned int)digits[0]));
-                        }
-                    }
-                    break;
-                case 3:
-                    if (8 * sizeof(unsigned int) > 2 * PyLong_SHIFT) {
-                        if (8 * sizeof(unsigned long) > 3 * PyLong_SHIFT) {
-                            __PYX_VERIFY_RETURN_INT(unsigned int, unsigned long, (((((((unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
-                        } else if (8 * sizeof(unsigned int) >= 3 * PyLong_SHIFT) {
-                            return (unsigned int) (((((((unsigned int)digits[2]) << PyLong_SHIFT) | (unsigned int)digits[1]) << PyLong_SHIFT) | (unsigned int)digits[0]));
-                        }
-                    }
-                    break;
-                case 4:
-                    if (8 * sizeof(unsigned int) > 3 * PyLong_SHIFT) {
-                        if (8 * sizeof(unsigned long) > 4 * PyLong_SHIFT) {
-                            __PYX_VERIFY_RETURN_INT(unsigned int, unsigned long, (((((((((unsigned long)digits[3]) << PyLong_SHIFT) | (unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
-                        } else if (8 * sizeof(unsigned int) >= 4 * PyLong_SHIFT) {
-                            return (unsigned int) (((((((((unsigned int)digits[3]) << PyLong_SHIFT) | (unsigned int)digits[2]) << PyLong_SHIFT) | (unsigned int)digits[1]) << PyLong_SHIFT) | (unsigned int)digits[0]));
-                        }
-                    }
-                    break;
-            }
-#endif
-#if CYTHON_COMPILING_IN_CPYTHON
-            if (unlikely(Py_SIZE(x) < 0)) {
-                goto raise_neg_overflow;
-            }
-#else
-            {
-                int result = PyObject_RichCompareBool(x, Py_False, Py_LT);
-                if (unlikely(result < 0))
-                    return (unsigned int) -1;
-                if (unlikely(result == 1))
-                    goto raise_neg_overflow;
-            }
-#endif
-            if (sizeof(unsigned int) <= sizeof(unsigned long)) {
-                __PYX_VERIFY_RETURN_INT_EXC(unsigned int, unsigned long, PyLong_AsUnsignedLong(x))
-#ifdef HAVE_LONG_LONG
-            } else if (sizeof(unsigned int) <= sizeof(unsigned PY_LONG_LONG)) {
-                __PYX_VERIFY_RETURN_INT_EXC(unsigned int, unsigned PY_LONG_LONG, PyLong_AsUnsignedLongLong(x))
-#endif
-            }
-        } else {
-#if CYTHON_USE_PYLONG_INTERNALS
-            const digit* digits = ((PyLongObject*)x)->ob_digit;
-            switch (Py_SIZE(x)) {
-                case  0: return (unsigned int) 0;
-                case -1: __PYX_VERIFY_RETURN_INT(unsigned int, sdigit, (sdigit) (-(sdigit)digits[0]))
-                case  1: __PYX_VERIFY_RETURN_INT(unsigned int,  digit, +digits[0])
-                case -2:
-                    if (8 * sizeof(unsigned int) - 1 > 1 * PyLong_SHIFT) {
-                        if (8 * sizeof(unsigned long) > 2 * PyLong_SHIFT) {
-                            __PYX_VERIFY_RETURN_INT(unsigned int, long, -(long) (((((unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
-                        } else if (8 * sizeof(unsigned int) - 1 > 2 * PyLong_SHIFT) {
-                            return (unsigned int) (((unsigned int)-1)*(((((unsigned int)digits[1]) << PyLong_SHIFT) | (unsigned int)digits[0])));
-                        }
-                    }
-                    break;
-                case 2:
-                    if (8 * sizeof(unsigned int) > 1 * PyLong_SHIFT) {
-                        if (8 * sizeof(unsigned long) > 2 * PyLong_SHIFT) {
-                            __PYX_VERIFY_RETURN_INT(unsigned int, unsigned long, (((((unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
-                        } else if (8 * sizeof(unsigned int) - 1 > 2 * PyLong_SHIFT) {
-                            return (unsigned int) ((((((unsigned int)digits[1]) << PyLong_SHIFT) | (unsigned int)digits[0])));
-                        }
-                    }
-                    break;
-                case -3:
-                    if (8 * sizeof(unsigned int) - 1 > 2 * PyLong_SHIFT) {
-                        if (8 * sizeof(unsigned long) > 3 * PyLong_SHIFT) {
-                            __PYX_VERIFY_RETURN_INT(unsigned int, long, -(long) (((((((unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
-                        } else if (8 * sizeof(unsigned int) - 1 > 3 * PyLong_SHIFT) {
-                            return (unsigned int) (((unsigned int)-1)*(((((((unsigned int)digits[2]) << PyLong_SHIFT) | (unsigned int)digits[1]) << PyLong_SHIFT) | (unsigned int)digits[0])));
-                        }
-                    }
-                    break;
-                case 3:
-                    if (8 * sizeof(unsigned int) > 2 * PyLong_SHIFT) {
-                        if (8 * sizeof(unsigned long) > 3 * PyLong_SHIFT) {
-                            __PYX_VERIFY_RETURN_INT(unsigned int, unsigned long, (((((((unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
-                        } else if (8 * sizeof(unsigned int) - 1 > 3 * PyLong_SHIFT) {
-                            return (unsigned int) ((((((((unsigned int)digits[2]) << PyLong_SHIFT) | (unsigned int)digits[1]) << PyLong_SHIFT) | (unsigned int)digits[0])));
-                        }
-                    }
-                    break;
-                case -4:
-                    if (8 * sizeof(unsigned int) - 1 > 3 * PyLong_SHIFT) {
-                        if (8 * sizeof(unsigned long) > 4 * PyLong_SHIFT) {
-                            __PYX_VERIFY_RETURN_INT(unsigned int, long, -(long) (((((((((unsigned long)digits[3]) << PyLong_SHIFT) | (unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
-                        } else if (8 * sizeof(unsigned int) - 1 > 4 * PyLong_SHIFT) {
-                            return (unsigned int) (((unsigned int)-1)*(((((((((unsigned int)digits[3]) << PyLong_SHIFT) | (unsigned int)digits[2]) << PyLong_SHIFT) | (unsigned int)digits[1]) << PyLong_SHIFT) | (unsigned int)digits[0])));
-                        }
-                    }
-                    break;
-                case 4:
-                    if (8 * sizeof(unsigned int) > 3 * PyLong_SHIFT) {
-                        if (8 * sizeof(unsigned long) > 4 * PyLong_SHIFT) {
-                            __PYX_VERIFY_RETURN_INT(unsigned int, unsigned long, (((((((((unsigned long)digits[3]) << PyLong_SHIFT) | (unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
-                        } else if (8 * sizeof(unsigned int) - 1 > 4 * PyLong_SHIFT) {
-                            return (unsigned int) ((((((((((unsigned int)digits[3]) << PyLong_SHIFT) | (unsigned int)digits[2]) << PyLong_SHIFT) | (unsigned int)digits[1]) << PyLong_SHIFT) | (unsigned int)digits[0])));
-                        }
-                    }
-                    break;
-            }
-#endif
-            if (sizeof(unsigned int) <= sizeof(long)) {
-                __PYX_VERIFY_RETURN_INT_EXC(unsigned int, long, PyLong_AsLong(x))
-#ifdef HAVE_LONG_LONG
-            } else if (sizeof(unsigned int) <= sizeof(PY_LONG_LONG)) {
-                __PYX_VERIFY_RETURN_INT_EXC(unsigned int, PY_LONG_LONG, PyLong_AsLongLong(x))
-#endif
-            }
-        }
-        {
-#if CYTHON_COMPILING_IN_PYPY && !defined(_PyLong_AsByteArray)
-            PyErr_SetString(PyExc_RuntimeError,
-                            "_PyLong_AsByteArray() not available in PyPy, cannot convert large numbers");
-#else
-            unsigned int val;
-            PyObject *v = __Pyx_PyNumber_IntOrLong(x);
- #if PY_MAJOR_VERSION < 3
-            if (likely(v) && !PyLong_Check(v)) {
-                PyObject *tmp = v;
-                v = PyNumber_Long(tmp);
-                Py_DECREF(tmp);
-            }
- #endif
-            if (likely(v)) {
-                int one = 1; int is_little = (int)*(unsigned char *)&one;
-                unsigned char *bytes = (unsigned char *)&val;
-                int ret = _PyLong_AsByteArray((PyLongObject *)v,
-                                              bytes, sizeof(val),
-                                              is_little, !is_unsigned);
-                Py_DECREF(v);
-                if (likely(!ret))
-                    return val;
-            }
-#endif
-            return (unsigned int) -1;
-        }
-    } else {
-        unsigned int val;
-        PyObject *tmp = __Pyx_PyNumber_IntOrLong(x);
-        if (!tmp) return (unsigned int) -1;
-        val = __Pyx_PyInt_As_unsigned_int(tmp);
-        Py_DECREF(tmp);
-        return val;
-    }
-raise_overflow:
-    PyErr_SetString(PyExc_OverflowError,
-        "value too large to convert to unsigned int");
-    return (unsigned int) -1;
-raise_neg_overflow:
-    PyErr_SetString(PyExc_OverflowError,
-        "can't convert negative value to unsigned int");
-    return (unsigned int) -1;
 }
 
 /* CIntFromPy */
@@ -30439,7 +30233,7 @@ no_fail:
 }
 
 /* ObjectToMemviewSlice */
-              static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_d_dc_float(PyObject *obj, int writable_flag) {
+              static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_d_dc_float__const__(PyObject *obj, int writable_flag) {
     __Pyx_memviewslice result = { 0, 0, { 0 }, { 0 }, { 0 } };
     __Pyx_BufFmt_StackElem stack[1];
     int axes_specs[] = { (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_FOLLOW), (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_CONTIG) };
@@ -30450,7 +30244,7 @@ no_fail:
     }
     retcode = __Pyx_ValidateAndInit_memviewslice(axes_specs, __Pyx_IS_C_CONTIG,
                                                  (PyBUF_C_CONTIGUOUS | PyBUF_FORMAT) | writable_flag, 2,
-                                                 &__Pyx_TypeInfo_float, stack,
+                                                 &__Pyx_TypeInfo_float__const__, stack,
                                                  &result, obj);
     if (unlikely(retcode == -1))
         goto __pyx_fail;
@@ -30462,7 +30256,7 @@ __pyx_fail:
 }
 
 /* ObjectToMemviewSlice */
-              static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_dc_unsigned_int(PyObject *obj, int writable_flag) {
+              static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_dc_unsigned_int__const__(PyObject *obj, int writable_flag) {
     __Pyx_memviewslice result = { 0, 0, { 0 }, { 0 }, { 0 } };
     __Pyx_BufFmt_StackElem stack[1];
     int axes_specs[] = { (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_CONTIG) };
@@ -30473,7 +30267,7 @@ __pyx_fail:
     }
     retcode = __Pyx_ValidateAndInit_memviewslice(axes_specs, __Pyx_IS_C_CONTIG,
                                                  (PyBUF_C_CONTIGUOUS | PyBUF_FORMAT) | writable_flag, 1,
-                                                 &__Pyx_TypeInfo_unsigned_int, stack,
+                                                 &__Pyx_TypeInfo_unsigned_int__const__, stack,
                                                  &result, obj);
     if (unlikely(retcode == -1))
         goto __pyx_fail;
@@ -30485,7 +30279,7 @@ __pyx_fail:
 }
 
 /* ObjectToMemviewSlice */
-              static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_d_d_dc_float(PyObject *obj, int writable_flag) {
+              static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_d_d_dc_float__const__(PyObject *obj, int writable_flag) {
     __Pyx_memviewslice result = { 0, 0, { 0 }, { 0 }, { 0 } };
     __Pyx_BufFmt_StackElem stack[1];
     int axes_specs[] = { (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_FOLLOW), (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_FOLLOW), (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_CONTIG) };
@@ -30496,7 +30290,7 @@ __pyx_fail:
     }
     retcode = __Pyx_ValidateAndInit_memviewslice(axes_specs, __Pyx_IS_C_CONTIG,
                                                  (PyBUF_C_CONTIGUOUS | PyBUF_FORMAT) | writable_flag, 3,
-                                                 &__Pyx_TypeInfo_float, stack,
+                                                 &__Pyx_TypeInfo_float__const__, stack,
                                                  &result, obj);
     if (unlikely(retcode == -1))
         goto __pyx_fail;
