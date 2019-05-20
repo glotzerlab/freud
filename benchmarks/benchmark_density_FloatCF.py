@@ -37,3 +37,7 @@ def run():
 
     return run_benchmarks(name, Ns, number, classobj, print_stats,
                           rmax=rmax, dr=dr)
+
+
+if __name__ == '__main__':
+    run()

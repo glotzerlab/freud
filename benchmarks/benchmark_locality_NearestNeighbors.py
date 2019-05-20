@@ -36,3 +36,7 @@ def run():
     classobj = BenchmarkLocalityNearestNeighbors
     return run_benchmarks(name, Ns, number, classobj, print_stats,
                           L=L, rcut=rcut, num_neighbors=num_neighbors)
+
+
+if __name__ == '__main__':
+    run()

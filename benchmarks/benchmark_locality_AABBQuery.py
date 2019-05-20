@@ -30,3 +30,7 @@ def run():
     name = 'freud.locality.AABBQuery'
     return run_benchmarks(name, Ns, number, BenchmarkLocalityAABBQuery,
                           print_stats, L=L, rcut=rcut)
+
+
+if __name__ == '__main__':
+    run()

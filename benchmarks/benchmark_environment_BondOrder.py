@@ -47,3 +47,7 @@ def run():
                           rmax=r_cut, k=0,
                           num_neighbors=num_neighbors,
                           n_bins_t=npt, n_bins_p=npp)
+
+
+if __name__ == '__main__':
+    run()
