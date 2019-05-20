@@ -39,11 +39,15 @@ class Benchmark:
     def bench_run(self, N):
         pass
 
+    def bench_run_parallel(self, N, num_threads):
+        parallel.setNumThreads(num_threads)
+        self.bench_run(N)
+
     # Returns timer instance with overridden setup and run functions.
-    def setup_timer(self, N):
+    def setup_timer(self, N, num_threads):
         setup = "self.bench_setup(N)"
-        stmt = "self.bench_run(N)"
-        varmapping = {"self": self, "N": N}
+        stmt = "self.bench_run_parallel(N, num_threads)"
+        varmapping = {"self": self, "N": N, "num_threads": num_threads}
         return timeit.Timer(stmt=stmt, setup=setup, globals=varmapping)
 
     # Perform the benchmark
@@ -53,9 +57,10 @@ class Benchmark:
     # \param print_stats Print stats to stdout
     # \returns The average time for each call to run()
     #
-    def run_benchmark(self, N=None, number=100, print_stats=False, repeat=1):
+    def run_benchmark(self, N=None, number=100, print_stats=False, repeat=1,
+                      num_threads=0):
         # initialize timer
-        timer = self.setup_timer(N)
+        timer = self.setup_timer(N, num_threads)
 
         # run benchmark
         t = min(timer.repeat(repeat, number))
@@ -169,7 +174,8 @@ class Benchmark:
             for j, N in enumerate(N_list):
                 current_number = max(int(size // N), 1)
                 times[ncores, j] = self.run_benchmark(
-                    N, number=current_number, print_stats=False, repeat=repeat)
+                    N, number=current_number, print_stats=False, repeat=repeat,
+                    num_threads=ncores)
 
                 if print_stats:
                     speedup = times[1, j] / times[ncores, j]
