@@ -32,6 +32,7 @@ def setNumThreads(nthreads=None):
             Number of threads to use. If None (default), use all threads
             available.
     """
+    global _numThreads
     if nthreads is None or nthreads < 0:
         nthreads = 0
 
@@ -57,11 +58,13 @@ class NumThreads:
     """
 
     def __init__(self, N=None):
+        global _numThreads
         self.restore_N = _numThreads
         self.N = N
 
     def __enter__(self):
         setNumThreads(self.N)
+        return self
 
     def __exit__(self, *args):
         setNumThreads(self.restore_N)
