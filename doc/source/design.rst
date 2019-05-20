@@ -51,6 +51,54 @@ behavior of the module. These tests should be simple and short, testing
 a single function each, and completing as quickly as possible
 (ideally < 10 sec, but times up to a minute are acceptable if justified).
 
+Benchmarks
+==========
+
+Modules can be benchmarked in the following way. 
+
+.. code-block:: python
+    
+    # benchmarks/benchmark_example_Example.py
+    import Benchmark from benchmark
+    import freud
+
+    class BenchmarkExample(Benchmark):
+        def __init__(self, **kwargs):
+            # overload this function
+            pass
+
+        def bench_setup(self, N):
+            # overload this function
+            pass
+
+        def bench_run(self, N):
+            # overload this function
+            pass
+
+    def run():
+        Ns = [1000, 10000]
+        name = 'freud.example.example'
+        classobj = BenchmarkExample
+        print_stats = True
+        number = 100
+
+        # example initialization parameters
+        rmax = 10
+        dr = 1.0
+
+        return run_benchmarks(name, Ns, number, classobj, print_stats,
+                              rmax=rmax, dr=dr)
+
+    if __name__ == '__main__':
+        run()
+
+in a file :code:`benchmark_example_Example` in the :code:`benchmarks` directory.
+More concrete examples can be found in the :code:`benchmarks` directory.
+The runtime of :code:`BenchmarkExample.bench_run` will be timed for :code:`number`
+of times for input sizes of :code:`Ns`. Its runtime with respect to the number of threads
+will also be measured. When a commit is pushed, circle.ci will
+report the runtime and compare it with the runtime of :code:`origin/master`.
+
 Make Execution Explicit
 =======================
 
