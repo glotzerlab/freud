@@ -28,7 +28,7 @@ class BenchmarkOrderCubaticOrderParameter(Benchmark):
 
 
 def run():
-    Ns = [1000, 10000, 100000, 500000]
+    Ns = [1000, 5000, 10000]
     print_stats = True
     number = 100
     name = 'freud.order.CubaticOrderParameter'
