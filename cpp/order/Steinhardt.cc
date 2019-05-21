@@ -87,7 +87,7 @@ void Steinhardt::compute(const locality::NeighborList *nlist, const vec3<float> 
 		Steinhardt::reallocateArrays(Np);
 	}
 	// Computes the base Q required for each specialized order parameter
-	Steinhardt::baseCompute(nlist, points, Np);
+	Steinhardt::baseCompute(nlist, points);
 	
 	if (m_average){
 		Steinhardt::computeAve(nlist, points);
@@ -116,9 +116,9 @@ void Steinhardt::compute(const locality::NeighborList *nlist, const vec3<float> 
 	}
 }
 
-void Steinhardt::baseCompute(const locality::NeighborList *nlist, const vec3<float> *points, unsigned int Np)
+void Steinhardt::baseCompute(const locality::NeighborList *nlist, const vec3<float> *points)
     {
-    nlist->validate(Np, Np);
+    nlist->validate(m_Np, m_Np);
 
     memset((void*) m_Qlmi.get(), 0, sizeof(complex<float>)*(2*m_l+1)*m_Np);
     memset((void*) m_Qli.get(), 0, sizeof(float)*m_Np);
@@ -329,7 +329,7 @@ void Steinhardt::computeAveNorm()
 }
 
 void Steinhardt::computeWl()
-{
+	{
     memset((void*) m_Wli.get(), 0, sizeof(complex<float>)*m_Np);
 
     // This normalization happens in the Ql calculation but

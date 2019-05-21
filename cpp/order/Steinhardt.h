@@ -186,8 +186,7 @@ class Steinhardt
 		//! Calculates the base Ql order parameter before further modifications
 		//if any.
 		void baseCompute(const locality::NeighborList *nlist,
-						const vec3<float> *points,
-						unsigned int Np);
+						 const vec3<float> *points);
 		void computeAve(const locality::NeighborList *nlist,
 						const vec3<float> *points);
 		void computeNorm();
