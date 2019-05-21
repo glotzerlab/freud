@@ -6,7 +6,7 @@ import warnings
 import util
 
 
-class TestLocalQl(unittest.TestCase):
+class TestSteinhardt(unittest.TestCase):
     def test_shape(self):
         N = 1000
 
@@ -15,7 +15,7 @@ class TestLocalQl(unittest.TestCase):
         positions = np.random.uniform(-box.Lx/2, box.Lx/2,
                                       size=(N, 3)).astype(np.float32)
 
-        comp = freud.order.LocalQl(box, 1.5, 6)
+        comp = freud.order.Steinhardt(box, 1.5, 6)
         comp.compute(positions)
 
         npt.assert_equal(comp.Ql.shape[0], N)
@@ -69,7 +69,7 @@ class TestLocalQl(unittest.TestCase):
 
         self.assertEqual(box, comp.box)
 
-        # self.assertEqual(len(positions), comp.num_particles)
+        self.assertEqual(len(positions), comp.num_particles)
 
 
 if __name__ == '__main__':
