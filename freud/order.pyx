@@ -494,248 +494,6 @@ cdef class TransOrderParameter:
     def __str__(self):
         return repr(self)
 
-
-cdef class LocalQl:
-    R"""Compute the local Steinhardt [Steinhardt1983]_ rotationally invariant
-    :math:`Q_l` order parameter for a set of points.
-
-    Implements the local rotationally invariant :math:`Q_l` order parameter
-    described by Steinhardt. For a particle i, we calculate the average
-    :math:`Q_l` by summing the spherical harmonics between particle :math:`i`
-    and its neighbors :math:`j` in a local region:
-    :math:`\overline{Q}_{lm}(i) = \frac{1}{N_b}
-    \displaystyle\sum_{j=1}^{N_b} Y_{lm}(\theta(\vec{r}_{ij}),
-    \phi(\vec{r}_{ij}))`. The particles included in the sum are determined
-    by the rmax argument to the constructor.
-
-    This is then combined in a rotationally invariant fashion to remove local
-    orientational order as follows: :math:`Q_l(i)=\sqrt{\frac{4\pi}{2l+1}
-    \displaystyle\sum_{m=-l}^{l} |\overline{Q}_{lm}|^2 }`.
-
-    The :meth:`~computeAve` method provides access to a variant of this
-    parameter that performs a average over the first and second shell combined
-    [Lechner2008]_. To compute this parameter, we perform a second averaging
-    over the first neighbor shell of the particle to implicitly include
-    information about the second neighbor shell. This averaging is performed by
-    replacing the value :math:`\overline{Q}_{lm}(i)` in the original
-    definition by the average value of :math:`\overline{Q}_{lm}(k)` over all
-    the :math:`k` neighbors of particle :math:`i` as well as itself.
-
-    The :meth:`~computeNorm` and :meth:`~computeAveNorm` methods provide
-    normalized versions of :meth:`~compute` and :meth:`~computeAve`,
-    where the normalization is performed by dividing by the average
-    :math:`Q_{lm}` values over all particles.
-
-    .. moduleauthor:: Xiyu Du <xiyudu@umich.edu>
-    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
-
-    Args:
-        box (:class:`freud.box.Box`):
-            Simulation box.
-        rmax (float):
-            Cutoff radius for the local order parameter. Values near the first
-            minimum of the RDF are recommended.
-        l (unsigned int):
-            Spherical harmonic quantum number l. Must be a positive number.
-        rmin (float):
-            Can look at only the second shell or some arbitrary RDF region.
-
-    Attributes:
-        box (:class:`freud.box.Box`):
-            Box used in the calculation.
-        num_particles (unsigned int):
-            Number of particles.
-        Ql (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
-            The last computed :math:`Q_l` for each particle (filled with NaN
-            for particles with no neighbors).
-        ave_Ql (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
-            The last computed :math:`\bar{Q_l}` for each particle (filled with
-            NaN for particles with no neighbors).
-        norm_Ql (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
-            The last computed :math:`Q_l` for each particle normalized by the
-            value over all particles (filled with NaN for particles with no
-            neighbors).
-        ave_norm_Ql (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
-            The last computed :math:`\bar{Q_l}` for each particle normalized
-            by the value over all particles (filled with NaN for particles with
-            no neighbors).
-
-    .. todo:: move box to compute, this is old API
-    """  # noqa: E501
-    cdef freud._order.LocalQl * qlptr
-    cdef freud.box.Box m_box
-    cdef rmax
-    cdef sph_l
-    cdef rmin
-
-    def __cinit__(self, box, rmax, l, rmin=0, *args, **kwargs):
-        cdef freud.box.Box b = freud.common.convert_box(box)
-        if type(self) is LocalQl:
-            self.m_box = b
-            self.rmax = rmax
-            self.sph_l = l
-            self.rmin = rmin
-            self.qlptr = new freud._order.LocalQl(
-                dereference(b.thisptr), rmax, l, rmin)
-
-    def __dealloc__(self):
-        if type(self) is LocalQl:
-            del self.qlptr
-            self.qlptr = NULL
-
-    @property
-    def box(self):
-        return freud.box.BoxFromCPP(<freud._box.Box> self.qlptr.getBox())
-
-    @box.setter
-    def box(self, value):
-        cdef freud.box.Box b = freud.common.convert_box(value)
-        self.qlptr.setBox(dereference(b.thisptr))
-
-    def setBox(self, box):
-        R"""Reset the simulation box.
-
-        Args:
-            box (:class:`freud.box.Box`): Simulation box.
-        """
-        self.box = box
-
-    @property
-    def num_particles(self):
-        cdef unsigned int np = self.qlptr.getNP()
-        return np
-
-    @property
-    def Ql(self):
-        cdef unsigned int n_particles = self.qlptr.getNP()
-        cdef const float[::1] Ql = \
-            <float[:n_particles]> self.qlptr.getQl().get()
-        return np.asarray(Ql)
-
-    @property
-    def ave_Ql(self):
-        cdef unsigned int n_particles = self.qlptr.getNP()
-        cdef const float[::1] ave_Ql = \
-            <float[:n_particles]> self.qlptr.getAveQl().get()
-        return np.asarray(ave_Ql)
-
-    @property
-    def norm_Ql(self):
-        cdef unsigned int n_particles = self.qlptr.getNP()
-        cdef const float[::1] norm_Ql = \
-            <float[:n_particles]> self.qlptr.getQlNorm().get()
-        return np.asarray(norm_Ql)
-
-    @property
-    def ave_norm_Ql(self):
-        cdef unsigned int n_particles = self.qlptr.getNP()
-        cdef const float[::1] ave_norm_Ql = \
-            <float[:n_particles]> self.qlptr.getQlAveNorm().get()
-        return np.asarray(ave_norm_Ql)
-
-    def compute(self, points, nlist=None):
-        R"""Compute the order parameter.
-
-        Args:
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Points to calculate the order parameter.
-            nlist (:class:`freud.locality.NeighborList`, optional):
-                Neighborlist to use to find bonds (Default value = None).
-        """
-        points = freud.common.convert_array(
-            points, 2, dtype=np.float32, contiguous=True, array_name="points")
-        if points.shape[1] != 3:
-            raise TypeError('points should be an Nx3 array')
-
-        cdef const float[:, ::1] l_points = points
-        cdef unsigned int nP = l_points.shape[0]
-
-        defaulted_nlist = freud.locality.make_default_nlist(
-            self.m_box, points, points, self.rmax, nlist, True)
-        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
-
-        self.qlptr.compute(nlist_.get_ptr(), <vec3[float]*> &l_points[0, 0],
-                           nP)
-        return self
-
-    def computeAve(self, points, nlist=None):
-        R"""Compute the order parameter over two nearest neighbor shells.
-
-        Args:
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Points to calculate the order parameter.
-            nlist (:class:`freud.locality.NeighborList`, optional):
-                Neighborlist to use to find bonds (Default value = None).
-        """
-        points = freud.common.convert_array(
-            points, 2, dtype=np.float32, contiguous=True, array_name="points")
-        if points.shape[1] != 3:
-            raise TypeError('points should be an Nx3 array')
-
-        cdef const float[:, ::1] l_points = points
-        cdef unsigned int nP = l_points.shape[0]
-
-        defaulted_nlist = freud.locality.make_default_nlist(
-            self.m_box, points, points, self.rmax, nlist, True)
-        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
-
-        self.qlptr.computeAve(nlist_.get_ptr(),
-                              <vec3[float]*> &l_points[0, 0], nP)
-        return self
-
-    def computeNorm(self, points, nlist=None):
-        R"""Compute the order parameter normalized by the average spherical
-        harmonic value over all the particles.
-
-        Args:
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Points to calculate the order parameter.
-            nlist (:class:`freud.locality.NeighborList`, optional):
-                Neighborlist to use to find bonds (Default value = None).
-        """
-        points = freud.common.convert_array(
-            points, 2, dtype=np.float32, contiguous=True, array_name="points")
-        if points.shape[1] != 3:
-            raise TypeError('points should be an Nx3 array')
-
-        cdef const float[:, ::1] l_points = points
-        cdef unsigned int nP = l_points.shape[0]
-
-        defaulted_nlist = freud.locality.make_default_nlist(
-            self.m_box, points, points, self.rmax, nlist, True)
-        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
-
-        self.qlptr.computeNorm(nlist_.get_ptr(),
-                               <vec3[float]*> &l_points[0, 0], nP)
-        return self
-
-    def computeAveNorm(self, points, nlist=None):
-        R"""Compute the order parameter over two nearest neighbor shells
-        normalized by the average spherical harmonic value over all the
-        particles.
-
-        Args:
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Points to calculate the order parameter.
-            nlist (:class:`freud.locality.NeighborList`, optional):
-                Neighborlist to use to find bonds (Default value = None).
-        """
-        points = freud.common.convert_array(
-            points, 2, dtype=np.float32, contiguous=True, array_name="points")
-        if points.shape[1] != 3:
-            raise TypeError('points should be an Nx3 array')
-
-        cdef const float[:, ::1] l_points = points
-        cdef unsigned int nP = l_points.shape[0]
-
-        defaulted_nlist = freud.locality.make_default_nlist(
-            self.m_box, points, points, self.rmax, nlist, True)
-        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
-
-        self.qlptr.computeAveNorm(nlist_.get_ptr(),
-                                  <vec3[float]*> &l_points[0, 0], nP)
-        return self
-
 cdef class Steinhardt:
     R"""Compute the local Steinhardt [Steinhardt1983]_rotationally invariant
     :math:`Q_l` order parameter for a set of points.
@@ -849,8 +607,8 @@ cdef class Steinhardt:
     @property
     def _wl(self):
         cdef unsigned int n_particles = self.stptr.getNP()
-        cdef float complex[::1] op = \
-            <float complex[:n_particles]> self.stptr.getWl().get()
+        cdef np.complex64_t[::1] op = \
+            <np.complex64_t[:n_particles]> self.stptr.getWl().get()
         return np.asarray(op)
 
     def compute(self, points, nlist=None):
@@ -877,6 +635,251 @@ cdef class Steinhardt:
         self.stptr.compute(nlist_.get_ptr(), <vec3[float]*> &l_points[0, 0],
                            nP)
         return self
+    def __repr__(self):
+        return ("freud.order.{cls}(box={box}, rmax={rmax}, l={sph_l}, "
+                "rmin={rmin})").format(cls=type(self).__name__,
+                                       box=self.m_box,
+                                       rmax=self.rmax,
+                                       sph_l=self.sph_l,
+                                       rmin=self.rmin)
+
+    def __str__(self):
+        return repr(self)
+
+cdef class LocalQl:
+    R"""Compute the local Steinhardt [Steinhardt1983]_ rotationally invariant
+    :math:`Q_l` order parameter for a set of points.
+    Implements the local rotationally invariant :math:`Q_l` order parameter
+    described by Steinhardt. For a particle i, we calculate the average
+    :math:`Q_l` by summing the spherical harmonics between particle :math:`i`
+    and its neighbors :math:`j` in a local region:
+    :math:`\overline{Q}_{lm}(i) = \frac{1}{N_b}
+    \displaystyle\sum_{j=1}^{N_b} Y_{lm}(\theta(\vec{r}_{ij}),
+    \phi(\vec{r}_{ij}))`. The particles included in the sum are determined
+    by the rmax argument to the constructor.
+    This is then combined in a rotationally invariant fashion to remove local
+    orientational order as follows: :math:`Q_l(i)=\sqrt{\frac{4\pi}{2l+1}
+    \displaystyle\sum_{m=-l}^{l} |\overline{Q}_{lm}|^2 }`.
+    The :meth:`~computeAve` method provides access to a variant of this
+    parameter that performs a average over the first and second shell combined
+    [Lechner2008]_. To compute this parameter, we perform a second averaging
+    over the first neighbor shell of the particle to implicitly include
+    information about the second neighbor shell. This averaging is performed by
+    replacing the value :math:`\overline{Q}_{lm}(i)` in the original
+    definition by the average value of :math:`\overline{Q}_{lm}(k)` over all
+    the :math:`k` neighbors of particle :math:`i` as well as itself.
+    The :meth:`~computeNorm` and :meth:`~computeAveNorm` methods provide
+    normalized versions of :meth:`~compute` and :meth:`~computeAve`,
+    where the normalization is performed by dividing by the average
+    :math:`Q_{lm}` values over all particles.
+    .. moduleauthor:: Xiyu Du <xiyudu@umich.edu>
+    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
+    Args:
+        box (:class:`freud.box.Box`):
+            Simulation box.
+        rmax (float):
+            Cutoff radius for the local order parameter. Values near the first
+            minimum of the RDF are recommended.
+        l (unsigned int):
+            Spherical harmonic quantum number l. Must be a positive number.
+        rmin (float):
+            Can look at only the second shell or some arbitrary RDF region.
+    Attributes:
+        box (:class:`freud.box.Box`):
+            Box used in the calculation.
+        num_particles (unsigned int):
+            Number of particles.
+        Ql (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
+            The last computed :math:`Q_l` for each particle (filled with NaN
+            for particles with no neighbors).
+        ave_Ql (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
+            The last computed :math:`\bar{Q_l}` for each particle (filled with
+            NaN for particles with no neighbors).
+        norm_Ql (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
+            The last computed :math:`Q_l` for each particle normalized by the
+            value over all particles (filled with NaN for particles with no
+            neighbors).
+        ave_norm_Ql (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
+            The last computed :math:`\bar{Q_l}` for each particle normalized
+            by the value over all particles (filled with NaN for particles with
+            no neighbors).
+    .. todo:: move box to compute, this is old API
+    """  # noqa: E501
+    cdef freud._order.LocalQl * qlptr
+    cdef freud.box.Box m_box
+    cdef rmax
+    cdef sph_l
+    cdef rmin
+
+    def __cinit__(self, box, rmax, l, rmin=0, *args, **kwargs):
+        cdef freud.box.Box b = freud.common.convert_box(box)
+        if type(self) is LocalQl:
+            self.m_box = b
+            self.rmax = rmax
+            self.sph_l = l
+            self.rmin = rmin
+            self.qlptr = new freud._order.LocalQl(
+                dereference(b.thisptr), rmax, l, rmin)
+
+    def __dealloc__(self):
+        if type(self) is LocalQl:
+            del self.qlptr
+            self.qlptr = NULL
+
+    @property
+    def box(self):
+        return freud.box.BoxFromCPP(<freud._box.Box> self.qlptr.getBox())
+
+    @box.setter
+    def box(self, value):
+        cdef freud.box.Box b = freud.common.convert_box(value)
+        self.qlptr.setBox(dereference(b.thisptr))
+
+    def setBox(self, box):
+        R"""Reset the simulation box.
+        Args:
+            box (:class:`freud.box.Box`): Simulation box.
+        """
+        self.box = box
+
+    @property
+    def num_particles(self):
+        cdef unsigned int np = self.qlptr.getNP()
+        return np
+
+    @property
+    def Ql(self):
+        cdef unsigned int n_particles = self.qlptr.getNP()
+        cdef const float[::1] Ql = \
+            <float[:n_particles]> self.qlptr.getQl().get()
+        return np.asarray(Ql)
+
+    @property
+    def ave_Ql(self):
+        cdef unsigned int n_particles = self.qlptr.getNP()
+        cdef const float[::1] ave_Ql = \
+            <float[:n_particles]> self.qlptr.getAveQl().get()
+        return np.asarray(ave_Ql)
+
+    @property
+    def norm_Ql(self):
+        cdef unsigned int n_particles = self.qlptr.getNP()
+        cdef const float[::1] norm_Ql = \
+            <float[:n_particles]> self.qlptr.getQlNorm().get()
+        return np.asarray(norm_Ql)
+
+    @property
+    def ave_norm_Ql(self):
+        cdef unsigned int n_particles = self.qlptr.getNP()
+        cdef const float[::1] ave_norm_Ql = \
+            <float[:n_particles]> self.qlptr.getQlAveNorm().get()
+        return np.asarray(ave_norm_Ql)
+
+    def compute(self, points, nlist=None):
+        R"""Compute the order parameter.
+        Args:
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Points to calculate the order parameter.
+            nlist (:class:`freud.locality.NeighborList`, optional):
+                Neighborlist to use to find bonds (Default value = None).
+        """
+        points = freud.common.convert_array(
+            points, 2, dtype=np.float32, contiguous=True, array_name="points")
+        if points.shape[1] != 3:
+            raise TypeError('points should be an Nx3 array')
+
+        cdef const float[:, ::1] l_points = points
+        cdef unsigned int nP = l_points.shape[0]
+
+        defaulted_nlist = freud.locality.make_default_nlist(
+            self.m_box, points, points, self.rmax, nlist, True)
+        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
+
+        self.qlptr.compute(nlist_.get_ptr(), <vec3[float]*> &l_points[0, 0],
+                           nP)
+        return self
+
+    def computeAve(self, points, nlist=None):
+        R"""Compute the order parameter over two nearest neighbor shells.
+        Args:
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Points to calculate the order parameter.
+            nlist (:class:`freud.locality.NeighborList`, optional):
+                Neighborlist to use to find bonds (Default value = None).
+        """
+        points = freud.common.convert_array(
+            points, 2, dtype=np.float32, contiguous=True, array_name="points")
+        if points.shape[1] != 3:
+            raise TypeError('points should be an Nx3 array')
+
+        cdef const float[:, ::1] l_points = points
+        cdef unsigned int nP = l_points.shape[0]
+
+        defaulted_nlist = freud.locality.make_default_nlist(
+            self.m_box, points, points, self.rmax, nlist, True)
+        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
+
+        self.qlptr.compute(nlist_.get_ptr(),
+                           <vec3[float]*> &l_points[0, 0], nP)
+        self.qlptr.computeAve(nlist_.get_ptr(),
+                              <vec3[float]*> &l_points[0, 0], nP)
+        return self
+
+    def computeNorm(self, points, nlist=None):
+        R"""Compute the order parameter normalized by the average spherical
+        harmonic value over all the particles.
+        Args:
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Points to calculate the order parameter.
+            nlist (:class:`freud.locality.NeighborList`, optional):
+                Neighborlist to use to find bonds (Default value = None).
+        """
+        points = freud.common.convert_array(
+            points, 2, dtype=np.float32, contiguous=True, array_name="points")
+        if points.shape[1] != 3:
+            raise TypeError('points should be an Nx3 array')
+
+        cdef const float[:, ::1] l_points = points
+        cdef unsigned int nP = l_points.shape[0]
+
+        defaulted_nlist = freud.locality.make_default_nlist(
+            self.m_box, points, points, self.rmax, nlist, True)
+        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
+
+        self.qlptr.compute(nlist_.get_ptr(),
+                           <vec3[float]*> &l_points[0, 0], nP)
+        self.qlptr.computeNorm(<vec3[float]*> &l_points[0, 0], nP)
+        return self
+
+    def computeAveNorm(self, points, nlist=None):
+        R"""Compute the order parameter over two nearest neighbor shells
+        normalized by the average spherical harmonic value over all the
+        particles.
+        Args:
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Points to calculate the order parameter.
+            nlist (:class:`freud.locality.NeighborList`, optional):
+                Neighborlist to use to find bonds (Default value = None).
+        """
+        points = freud.common.convert_array(
+            points, 2, dtype=np.float32, contiguous=True, array_name="points")
+        if points.shape[1] != 3:
+            raise TypeError('points should be an Nx3 array')
+
+        cdef const float[:, ::1] l_points = points
+        cdef unsigned int nP = l_points.shape[0]
+
+        defaulted_nlist = freud.locality.make_default_nlist(
+            self.m_box, points, points, self.rmax, nlist, True)
+        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
+
+        self.qlptr.compute(nlist_.get_ptr(),
+                           <vec3[float]*> &l_points[0, 0], nP)
+        self.qlptr.computeAve(nlist_.get_ptr(),
+                              <vec3[float]*> &l_points[0, 0], nP)
+        self.qlptr.computeAveNorm(<vec3[float]*> &l_points[0, 0], nP)
+        return self
+
     def __repr__(self):
         return ("freud.order.{cls}(box={box}, rmax={rmax}, l={sph_l}, "
                 "rmin={rmin})").format(cls=type(self).__name__,
@@ -1022,11 +1025,9 @@ cdef class LocalQlNear(LocalQl):
     def __str__(self):
         return repr(self)
 
-
 cdef class LocalWl(LocalQl):
     R"""Compute the local Steinhardt [Steinhardt1983]_ rotationally invariant
     :math:`W_l` order parameter for a set of points.
-
     Implements the local rotationally invariant :math:`W_l` order parameter
     described by Steinhardt. For a particle i, we calculate the average
     :math:`W_l` by summing the spherical harmonics between particle :math:`i`
@@ -1035,12 +1036,10 @@ cdef class LocalWl(LocalQl):
     \displaystyle\sum_{j=1}^{N_b} Y_{lm}(\theta(\vec{r}_{ij}),
     \phi(\vec{r}_{ij}))`. The particles included in the sum are determined
     by the rmax argument to the constructor.
-
     The :math:`W_l` is then defined as a weighted average over the
     :math:`\overline{Q}_{lm}(i)` values using Wigner 3j symbols
     (Clebsch-Gordan coefficients). The resulting combination is rotationally
     (i.e. frame) invariant.
-
     The :meth:`~computeAve` method provides access to a variant of this
     parameter that performs a average over the first and second shell combined
     [Lechner2008]_. To compute this parameter, we perform a second averaging
@@ -1049,15 +1048,12 @@ cdef class LocalWl(LocalQl):
     replacing the value :math:`\overline{Q}_{lm}(i)` in the original
     definition by the average value of :math:`\overline{Q}_{lm}(k)` over all
     the :math:`k` neighbors of particle :math:`i` as well as itself.
-
     The :meth:`~computeNorm` and :meth:`~computeAveNorm` methods provide
     normalized versions of :meth:`~compute` and :meth:`~computeAve`,
     where the normalization is performed by dividing by the average
     :math:`Q_{lm}` values over all particles.
-
     .. moduleauthor:: Xiyu Du <xiyudu@umich.edu>
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
-
     Args:
         box (:class:`freud.box.Box`):
             Simulation box.
@@ -1070,7 +1066,6 @@ cdef class LocalWl(LocalQl):
             Lower bound for computing the local order parameter. Allows looking
             at, for instance, only the second shell, or some other arbitrary
             RDF region.
-
     Attributes:
         box (:class:`freud.box.Box`):
             Box used in the calculation.
@@ -1090,7 +1085,6 @@ cdef class LocalWl(LocalQl):
             The last computed :math:`\bar{W}_l` for each particle normalized
             by the value over all particles (filled with NaN for particles with
             no neighbors).
-
     .. todo:: move box to compute, this is old API
     """  # noqa: E501
     cdef freud._order.LocalWl * thisptr
@@ -1174,10 +1168,8 @@ cdef class LocalWlNear(LocalWl):
     over nearest neighbor particles as determined by an instance of
     :class:`freud.locality.NeighborList`. The number of included neighbors
     is determined by the kn parameter to the constructor.
-
     .. moduleauthor:: Xiyu Du <xiyudu@umich.edu>
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
-
     Args:
         box (:class:`freud.box.Box`):
             Simulation box.
@@ -1188,8 +1180,6 @@ cdef class LocalWlNear(LocalWl):
             Spherical harmonic quantum number l. Must be a positive number
         kn (unsigned int):
             Number of nearest neighbors. Must be a positive number.
-
-
     Attributes:
         box (:class:`freud.box.Box`):
             Box used in the calculation.
@@ -1209,7 +1199,6 @@ cdef class LocalWlNear(LocalWl):
             The last computed :math:`\bar{W}_l` for each particle normalized
             by the value over all particles (filled with NaN for particles with
             no neighbors).
-
     .. todo:: move box to compute, this is old API
     """  # noqa: E501
     cdef num_neigh
@@ -1230,7 +1219,6 @@ cdef class LocalWlNear(LocalWl):
 
     def compute(self, points, nlist=None):
         R"""Compute the order parameter.
-
         Args:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Points to calculate the order parameter.
@@ -1244,7 +1232,6 @@ cdef class LocalWlNear(LocalWl):
 
     def computeAve(self, points, nlist=None):
         R"""Compute the order parameter over two nearest neighbor shells.
-
         Args:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Points to calculate the order parameter.
@@ -1259,7 +1246,6 @@ cdef class LocalWlNear(LocalWl):
     def computeNorm(self, points, nlist=None):
         R"""Compute the order parameter normalized by the average spherical
         harmonic value over all the particles.
-
         Args:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Points to calculate the order parameter.
@@ -1275,7 +1261,6 @@ cdef class LocalWlNear(LocalWl):
         R"""Compute the order parameter over two nearest neighbor shells
         normalized by the average spherical harmonic value over all the
         particles.
-
         Args:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Points to calculate the order parameter.

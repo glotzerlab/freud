@@ -97,16 +97,12 @@ void LocalWl::compute(const locality::NeighborList *nlist, const vec3<float> *po
 
 void LocalWl::computeAve(const locality::NeighborList *nlist, const vec3<float> *points, unsigned int Np)
     {
+    LocalQl::computeAve(nlist, points, Np);
 
     // Get wigner3j coefficients from wigner3j.cc
     m_wigner3jvalues = getWigner3j(m_l);
 
-    if (m_Np != Np)
-	    {
-	    m_AveWli = std::shared_ptr<complex<float> >(new complex<float>[Np], std::default_delete<complex<float>[]>());
-	    }
-    LocalQl::computeAve(nlist, points, Np);
-
+    m_AveWli = std::shared_ptr<complex<float> >(new complex<float>[m_Np], std::default_delete<complex<float>[]>());
     memset((void*) m_AveWli.get(), 0, sizeof(float)*m_Np);
 
     for (unsigned int i = 0; i < m_Np; i++)
