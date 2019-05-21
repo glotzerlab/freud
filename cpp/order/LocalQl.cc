@@ -52,16 +52,14 @@ void LocalQl::compute(const locality::NeighborList *nlist, const vec3<float> *po
     memset((void*) m_Qlmi.get(), 0, sizeof(complex<float>)*(2*m_l+1)*m_Np);
     memset((void*) m_Qli.get(), 0, sizeof(float)*m_Np);
 
+    const float rminsq = m_rmin * m_rmin;
+    const float rmaxsq = m_rmax * m_rmax;
+    const float normalizationfactor = 4*M_PI/(2*m_l+1);
+    const size_t *neighbor_list(nlist->getNeighbors());
+
     parallel_for(tbb::blocked_range<size_t>(0, m_Np),
         [=] (const blocked_range<size_t>& r)
         {
-	// May not be necessary check
-        const float rminsq = m_rmin * m_rmin;
-        const float rmaxsq = m_rmax * m_rmax;
-        const float normalizationfactor = 4*M_PI/(2*m_l+1);
-        const size_t *neighbor_list(nlist->getNeighbors());
-	// --------------------------
-
         bool Qlm_exists;
         m_Qlm_local.local(Qlm_exists);
         if (!Qlm_exists)
@@ -102,7 +100,7 @@ void LocalQl::compute(const locality::NeighborList *nlist, const vec3<float> *po
 
                     // If the points are directly on top of each other for whatever reason,
                     // theta should be zero instead of nan.
-                    if (rsq == float(0))
+                    if (rsq == 0)
                         {
                         theta = 0;
                         }

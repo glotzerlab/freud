@@ -20,6 +20,7 @@ class TestInterface(unittest.TestCase):
         one particle is removed from an FCC structure"""
         np.random.seed(0)
         (box, positions) = util.make_fcc(4, 4, 4, noise=1e-2)
+        positions.flags['WRITEABLE'] = False
 
         index = np.random.randint(0, len(positions))
 
@@ -54,6 +55,10 @@ class TestInterface(unittest.TestCase):
         test_twelve = inter.compute(box, others, point, lc.nlist)
         self.assertEqual(test_twelve.ref_point_count, 12)
         self.assertEqual(len(test_twelve.ref_point_ids), 12)
+
+    def test_repr(self):
+        inter = freud.interface.InterfaceMeasure(1.5)
+        self.assertEqual(str(inter), str(eval(repr(inter))))
 
 
 if __name__ == '__main__':

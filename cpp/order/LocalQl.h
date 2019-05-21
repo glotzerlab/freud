@@ -68,8 +68,19 @@ class LocalQl
                 throw std::invalid_argument("LocalQl requires l must be two or greater.");
             }
 
-        //! Empty destructor
-        virtual ~LocalQl() {};
+        //! Destructor
+        virtual ~LocalQl()
+            {
+            for (tbb::enumerable_thread_specific<std::complex<float> *>::iterator i = m_Qlm_local.begin(); i != m_Qlm_local.end(); ++i)
+                {
+                delete[] (*i);
+                }
+
+            for (tbb::enumerable_thread_specific<std::complex<float> *>::iterator i = m_AveQlm_local.begin(); i != m_AveQlm_local.end(); ++i)
+                {
+                delete[] (*i);
+                }
+            }
 
         //! Get the simulation box
         const box::Box& getBox() const

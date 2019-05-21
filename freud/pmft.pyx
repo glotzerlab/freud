@@ -215,10 +215,10 @@ cdef class PMFTR12(_PMFT):
             b, ref_points, points, self.rmax, nlist, None)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
-        cdef float[:, ::1] l_ref_points = ref_points
-        cdef float[:, ::1] l_points = points
-        cdef float[::1] l_ref_orientations = ref_orientations
-        cdef float[::1] l_orientations = orientations
+        cdef const float[:, ::1] l_ref_points = ref_points
+        cdef const float[:, ::1] l_points = points
+        cdef const float[::1] l_ref_orientations = ref_orientations
+        cdef const float[::1] l_orientations = orientations
         cdef unsigned int nRef = l_ref_points.shape[0]
         cdef unsigned int nP = l_points.shape[0]
         with nogil:
@@ -264,7 +264,7 @@ cdef class PMFTR12(_PMFT):
         cdef unsigned int n_bins_R = self.pmftr12ptr.getNBinsR()
         cdef unsigned int n_bins_T2 = self.pmftr12ptr.getNBinsT2()
         cdef unsigned int n_bins_T1 = self.pmftr12ptr.getNBinsT1()
-        cdef unsigned int[:, :, ::1] bin_counts = \
+        cdef const unsigned int[:, :, ::1] bin_counts = \
             <unsigned int[:n_bins_R, :n_bins_T2, :n_bins_T1]> \
             self.pmftr12ptr.getBinCounts().get()
         return np.asarray(bin_counts, dtype=np.uint32)
@@ -274,7 +274,7 @@ cdef class PMFTR12(_PMFT):
         cdef unsigned int n_bins_R = self.pmftr12ptr.getNBinsR()
         cdef unsigned int n_bins_T2 = self.pmftr12ptr.getNBinsT2()
         cdef unsigned int n_bins_T1 = self.pmftr12ptr.getNBinsT1()
-        cdef float[:, :, ::1] PCF = \
+        cdef const float[:, :, ::1] PCF = \
             <float[:n_bins_R, :n_bins_T2, :n_bins_T1]> \
             self.pmftr12ptr.getPCF().get()
         return np.asarray(PCF)
@@ -282,21 +282,21 @@ cdef class PMFTR12(_PMFT):
     @property
     def R(self):
         cdef unsigned int n_bins_R = self.pmftr12ptr.getNBinsR()
-        cdef float[::1] R = \
+        cdef const float[::1] R = \
             <float[:n_bins_R]> self.pmftr12ptr.getR().get()
         return np.asarray(R)
 
     @property
     def T1(self):
         cdef unsigned int n_bins_T1 = self.pmftr12ptr.getNBinsT1()
-        cdef float[::1] T1 = \
+        cdef const float[::1] T1 = \
             <float[:n_bins_T1]> self.pmftr12ptr.getT1().get()
         return np.asarray(T1)
 
     @property
     def T2(self):
         cdef unsigned int n_bins_T2 = self.pmftr12ptr.getNBinsT2()
-        cdef float[::1] T2 = \
+        cdef const float[::1] T2 = \
             <float[:n_bins_T2]> self.pmftr12ptr.getT2().get()
         return np.asarray(T2)
 
@@ -305,7 +305,7 @@ cdef class PMFTR12(_PMFT):
         cdef unsigned int n_bins_R = self.pmftr12ptr.getNBinsR()
         cdef unsigned int n_bins_T2 = self.pmftr12ptr.getNBinsT2()
         cdef unsigned int n_bins_T1 = self.pmftr12ptr.getNBinsT1()
-        cdef float[:, :, ::1] inverse_jacobian = \
+        cdef const float[:, :, ::1] inverse_jacobian = \
             <float[:n_bins_R, :n_bins_T2, :n_bins_T1]> \
             self.pmftr12ptr.getInverseJacobian().get()
         return np.asarray(inverse_jacobian)
@@ -321,6 +321,17 @@ cdef class PMFTR12(_PMFT):
     @property
     def n_bins_T2(self):
         return self.pmftr12ptr.getNBinsT2()
+
+    def __repr__(self):
+        return ("freud.pmft.{cls}(r_max={r_max}, n_r={n_r}, n_t1={n_t1}, "
+                "n_t2={n_t2})").format(cls=type(self).__name__,
+                                       r_max=self.rmax,
+                                       n_r=self.n_bins_R,
+                                       n_t1=self.n_bins_T1,
+                                       n_t2=self.n_bins_T2)
+
+    def __str__(self):
+        return repr(self)
 
 
 cdef class PMFTXYT(_PMFT):
@@ -385,12 +396,16 @@ cdef class PMFTXYT(_PMFT):
             histogram.
     """  # noqa: E501
     cdef freud._pmft.PMFTXYT * pmftxytptr
+    cdef xmax
+    cdef ymax
 
     def __cinit__(self, x_max, y_max, n_x, n_y, n_t):
         if type(self) is PMFTXYT:
             self.pmftxytptr = self.pmftptr = new freud._pmft.PMFTXYT(
                 x_max, y_max, n_x, n_y, n_t)
             self.rmax = np.sqrt(x_max**2 + y_max**2)
+            self.xmax = x_max
+            self.ymax = y_max
 
     def __dealloc__(self):
         if type(self) is PMFTXYT:
@@ -451,10 +466,10 @@ cdef class PMFTXYT(_PMFT):
             b, ref_points, points, self.rmax, nlist, None)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
-        cdef float[:, ::1] l_ref_points = ref_points
-        cdef float[:, ::1] l_points = points
-        cdef float[::1] l_ref_orientations = ref_orientations
-        cdef float[::1] l_orientations = orientations
+        cdef const float[:, ::1] l_ref_points = ref_points
+        cdef const float[:, ::1] l_points = points
+        cdef const float[::1] l_ref_orientations = ref_orientations
+        cdef const float[::1] l_orientations = orientations
         cdef unsigned int nRef = l_ref_points.shape[0]
         cdef unsigned int nP = l_points.shape[0]
         with nogil:
@@ -500,7 +515,7 @@ cdef class PMFTXYT(_PMFT):
         cdef unsigned int n_bins_T = self.pmftxytptr.getNBinsT()
         cdef unsigned int n_bins_Y = self.pmftxytptr.getNBinsY()
         cdef unsigned int n_bins_X = self.pmftxytptr.getNBinsX()
-        cdef unsigned int[:, :, ::1] bin_counts = \
+        cdef const unsigned int[:, :, ::1] bin_counts = \
             <unsigned int[:n_bins_T, :n_bins_Y, :n_bins_X]> \
             self.pmftxytptr.getBinCounts().get()
         return np.asarray(bin_counts, dtype=np.uint32)
@@ -510,7 +525,7 @@ cdef class PMFTXYT(_PMFT):
         cdef unsigned int n_bins_T = self.pmftxytptr.getNBinsT()
         cdef unsigned int n_bins_Y = self.pmftxytptr.getNBinsY()
         cdef unsigned int n_bins_X = self.pmftxytptr.getNBinsX()
-        cdef float[:, :, ::1] PCF = \
+        cdef const float[:, :, ::1] PCF = \
             <float[:n_bins_T, :n_bins_Y, :n_bins_X]> \
             self.pmftxytptr.getPCF().get()
         return np.asarray(PCF)
@@ -518,21 +533,21 @@ cdef class PMFTXYT(_PMFT):
     @property
     def X(self):
         cdef unsigned int n_bins_X = self.pmftxytptr.getNBinsX()
-        cdef float[::1] X = \
+        cdef const float[::1] X = \
             <float[:n_bins_X]> self.pmftxytptr.getX().get()
         return np.asarray(X)
 
     @property
     def Y(self):
         cdef unsigned int n_bins_Y = self.pmftxytptr.getNBinsY()
-        cdef float[::1] Y = \
+        cdef const float[::1] Y = \
             <float[:n_bins_Y]> self.pmftxytptr.getY().get()
         return np.asarray(Y)
 
     @property
     def T(self):
         cdef unsigned int n_bins_T = self.pmftxytptr.getNBinsT()
-        cdef float[::1] T = \
+        cdef const float[::1] T = \
             <float[:n_bins_T]> self.pmftxytptr.getT().get()
         return np.asarray(T)
 
@@ -551,6 +566,18 @@ cdef class PMFTXYT(_PMFT):
     @property
     def n_bins_T(self):
         return self.pmftxytptr.getNBinsT()
+
+    def __repr__(self):
+        return ("freud.pmft.{cls}(x_max={x_max}, y_max={y_max}, n_x={n_x}, "
+                "n_y={n_y}, n_t={n_t})").format(cls=type(self).__name__,
+                                                x_max=self.xmax,
+                                                y_max=self.ymax,
+                                                n_x=self.n_bins_X,
+                                                n_y=self.n_bins_Y,
+                                                n_t=self.n_bins_T)
+
+    def __str__(self):
+        return repr(self)
 
 
 cdef class PMFTXY2D(_PMFT):
@@ -604,12 +631,16 @@ cdef class PMFTXY2D(_PMFT):
             The number of bins in the :math:`y`-dimension of the histogram.
     """  # noqa: E501
     cdef freud._pmft.PMFTXY2D * pmftxy2dptr
+    cdef xmax
+    cdef ymax
 
     def __cinit__(self, x_max, y_max, n_x, n_y):
         if type(self) is PMFTXY2D:
             self.pmftxy2dptr = self.pmftptr = new freud._pmft.PMFTXY2D(
                 x_max, y_max, n_x, n_y)
             self.rmax = np.sqrt(x_max**2 + y_max**2)
+            self.xmax = x_max
+            self.ymax = y_max
 
     def __dealloc__(self):
         if type(self) is PMFTXY2D:
@@ -670,10 +701,10 @@ cdef class PMFTXY2D(_PMFT):
             b, ref_points, points, self.rmax, nlist, None)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
-        cdef float[:, ::1] l_ref_points = ref_points
-        cdef float[:, ::1] l_points = points
-        cdef float[::1] l_ref_orientations = ref_orientations
-        cdef float[::1] l_orientations = orientations
+        cdef const float[:, ::1] l_ref_points = ref_points
+        cdef const float[:, ::1] l_points = points
+        cdef const float[::1] l_ref_orientations = ref_orientations
+        cdef const float[::1] l_orientations = orientations
         cdef unsigned int nRef = l_ref_points.shape[0]
         cdef unsigned int nP = l_points.shape[0]
         with nogil:
@@ -718,7 +749,7 @@ cdef class PMFTXY2D(_PMFT):
     def bin_counts(self):
         cdef unsigned int n_bins_Y = self.pmftxy2dptr.getNBinsY()
         cdef unsigned int n_bins_X = self.pmftxy2dptr.getNBinsX()
-        cdef unsigned int[:, ::1] bin_counts = \
+        cdef const unsigned int[:, ::1] bin_counts = \
             <unsigned int[:n_bins_Y, :n_bins_X]> \
             self.pmftxy2dptr.getBinCounts().get()
         return np.asarray(bin_counts, dtype=np.uint32)
@@ -727,7 +758,7 @@ cdef class PMFTXY2D(_PMFT):
     def PCF(self):
         cdef unsigned int n_bins_Y = self.pmftxy2dptr.getNBinsY()
         cdef unsigned int n_bins_X = self.pmftxy2dptr.getNBinsX()
-        cdef float[:, ::1] PCF = \
+        cdef const float[:, ::1] PCF = \
             <float[:n_bins_Y, :n_bins_X]> \
             self.pmftxy2dptr.getPCF().get()
         return np.asarray(PCF)
@@ -735,14 +766,14 @@ cdef class PMFTXY2D(_PMFT):
     @property
     def X(self):
         cdef unsigned int n_bins_X = self.pmftxy2dptr.getNBinsX()
-        cdef float[::1] X = \
+        cdef const float[::1] X = \
             <float[:n_bins_X]> self.pmftxy2dptr.getX().get()
         return np.asarray(X)
 
     @property
     def Y(self):
         cdef unsigned int n_bins_Y = self.pmftxy2dptr.getNBinsY()
-        cdef float[::1] Y = \
+        cdef const float[::1] Y = \
             <float[:n_bins_Y]> self.pmftxy2dptr.getY().get()
         return np.asarray(Y)
 
@@ -757,6 +788,17 @@ cdef class PMFTXY2D(_PMFT):
     @property
     def jacobian(self):
         return self.pmftxy2dptr.getJacobian()
+
+    def __repr__(self):
+        return ("freud.pmft.{cls}(x_max={x_max}, y_max={y_max}, n_x={n_x}, "
+                "n_y={n_y})").format(cls=type(self).__name__,
+                                     x_max=self.xmax,
+                                     y_max=self.ymax,
+                                     n_x=self.n_bins_X,
+                                     n_y=self.n_bins_Y)
+
+    def __str__(self):
+        return repr(self)
 
 
 cdef class PMFTXYZ(_PMFT):
@@ -821,6 +863,9 @@ cdef class PMFTXYZ(_PMFT):
     """  # noqa: E501
     cdef freud._pmft.PMFTXYZ * pmftxyzptr
     cdef shiftvec
+    cdef xmax
+    cdef ymax
+    cdef zmax
 
     def __cinit__(self, x_max, y_max, z_max, n_x, n_y, n_z,
                   shiftvec=[0, 0, 0]):
@@ -832,6 +877,9 @@ cdef class PMFTXYZ(_PMFT):
                 x_max, y_max, z_max, n_x, n_y, n_z, c_shiftvec)
             self.shiftvec = np.array(shiftvec, dtype=np.float32)
             self.rmax = np.sqrt(x_max**2 + y_max**2 + z_max**2)
+            self.xmax = x_max
+            self.ymax = y_max
+            self.zmax = z_max
 
     def __dealloc__(self):
         if type(self) is PMFTXYZ:
@@ -951,11 +999,11 @@ cdef class PMFTXYZ(_PMFT):
             b, ref_points, points, self.rmax, nlist, None)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
-        cdef float[:, ::1] l_ref_points = ref_points
-        cdef float[:, ::1] l_points = points
-        cdef float[:, ::1] l_ref_orientations = ref_orientations
-        cdef float[:, ::1] l_orientations = orientations
-        cdef float[:, :, ::1] l_face_orientations = face_orientations
+        cdef const float[:, ::1] l_ref_points = ref_points
+        cdef const float[:, ::1] l_points = points
+        cdef const float[:, ::1] l_ref_orientations = ref_orientations
+        cdef const float[:, ::1] l_orientations = orientations
+        cdef const float[:, :, ::1] l_face_orientations = face_orientations
         cdef unsigned int nRef = l_ref_points.shape[0]
         cdef unsigned int nP = l_points.shape[0]
         cdef unsigned int nFaces = l_face_orientations.shape[1]
@@ -1012,7 +1060,7 @@ cdef class PMFTXYZ(_PMFT):
         cdef unsigned int n_bins_Z = self.pmftxyzptr.getNBinsZ()
         cdef unsigned int n_bins_Y = self.pmftxyzptr.getNBinsY()
         cdef unsigned int n_bins_X = self.pmftxyzptr.getNBinsX()
-        cdef unsigned int[:, :, ::1] bin_counts = \
+        cdef const unsigned int[:, :, ::1] bin_counts = \
             <unsigned int[:n_bins_Z, :n_bins_Y, :n_bins_X]> \
             self.pmftxyzptr.getBinCounts().get()
         return np.asarray(bin_counts, dtype=np.uint32)
@@ -1022,7 +1070,7 @@ cdef class PMFTXYZ(_PMFT):
         cdef unsigned int n_bins_Z = self.pmftxyzptr.getNBinsZ()
         cdef unsigned int n_bins_Y = self.pmftxyzptr.getNBinsY()
         cdef unsigned int n_bins_X = self.pmftxyzptr.getNBinsX()
-        cdef float[:, :, ::1] PCF = \
+        cdef const float[:, :, ::1] PCF = \
             <float[:n_bins_Z, :n_bins_Y, :n_bins_X]> \
             self.pmftxyzptr.getPCF().get()
         return np.asarray(PCF)
@@ -1030,21 +1078,21 @@ cdef class PMFTXYZ(_PMFT):
     @property
     def X(self):
         cdef unsigned int n_bins_X = self.pmftxyzptr.getNBinsX()
-        cdef float[::1] X = \
+        cdef const float[::1] X = \
             <float[:n_bins_X]> self.pmftxyzptr.getX().get()
         return np.asarray(X) + self.shiftvec[0]
 
     @property
     def Y(self):
         cdef unsigned int n_bins_Y = self.pmftxyzptr.getNBinsY()
-        cdef float[::1] Y = \
+        cdef const float[::1] Y = \
             <float[:n_bins_Y]> self.pmftxyzptr.getY().get()
         return np.asarray(Y) + self.shiftvec[1]
 
     @property
     def Z(self):
         cdef unsigned int n_bins_Z = self.pmftxyzptr.getNBinsZ()
-        cdef float[::1] Z = \
+        cdef const float[::1] Z = \
             <float[:n_bins_Z]> self.pmftxyzptr.getZ().get()
         return np.asarray(Z) + self.shiftvec[2]
 
@@ -1063,3 +1111,19 @@ cdef class PMFTXYZ(_PMFT):
     @property
     def jacobian(self):
         return self.pmftxyzptr.getJacobian()
+
+    def __repr__(self):
+        return ("freud.pmft.{cls}(x_max={x_max}, y_max={y_max}, "
+                "z_max={z_max}, n_x={n_x}, n_y={n_y}, n_z={n_z}, "
+                "shiftvec={shiftvec})").format(
+                    cls=type(self).__name__,
+                    x_max=self.xmax,
+                    y_max=self.ymax,
+                    z_max=self.zmax,
+                    n_x=self.n_bins_X,
+                    n_y=self.n_bins_Y,
+                    n_z=self.n_bins_Z,
+                    shiftvec=self.shiftvec.tolist())
+
+    def __str__(self):
+        return repr(self)

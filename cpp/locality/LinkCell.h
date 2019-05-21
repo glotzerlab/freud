@@ -10,6 +10,7 @@
 #include "Box.h"
 #include "NeighborList.h"
 #include "Index1D.h"
+#include "NeighborQuery.h"
 
 /*! \file LinkCell.h
     \brief Build a cell list from a set of points.
@@ -110,22 +111,22 @@ class IteratorLinkCell
 
 //! Iterates over sets of shells in a cell list
 /*! This class provides a convenient way to iterate over distinct
-    shells in a cell list structure. For a range of N, these are the
-    faces, edges, and corners of a cube of edge length 2*N + 1 cells
-    large. While IteratorLinkCell provides a way to iterate over
-    neighbors given a cell, IteratorCellShell provides a way to find
-    which cell offsets should be applied to find all the neighbors of
-    a particular reference shell within a distance some number of
-    cells away.
+ *  shells in a cell list structure. For a range of N, these are the
+ *  faces, edges, and corners of a cube of edge length 2*N + 1 cells
+ *  large. While IteratorLinkCell provides a way to iterate over
+ *  neighbors given a cell, IteratorCellShell provides a way to find
+ *  which cell offsets should be applied to find all the neighbors of
+ *  a particular reference shell within a distance some number of
+ *  cells away.
 
-\code
-// Grab neighbor cell offsets within the 3x3x3 typical search distance
-for(IteratorCellShell iter(0); iter != IteratorCellShell(2); ++iter)
-{
-    // still need to apply modulo operation for dimensions of the cell list
-    const vec3<int> offset(*iter);
-}
-\endcode
+ *  \code
+ *  // Grab neighbor cell offsets within the 3x3x3 typical search distance
+ *  for(IteratorCellShell iter(0); iter != IteratorCellShell(2); ++iter)
+ *  {
+ *      // still need to apply modulo operation for dimensions of the cell list
+ *      const vec3<int> offset(*iter);
+ *  }
+ *  \endcode
  */
 class IteratorCellShell
     {
@@ -278,6 +279,13 @@ class IteratorCellShell
             return !(*this == other);
             }
 
+        int getRange() const
+            {
+            return m_range;
+            }
+
+        int m_range;      //!< Find cells this many cells away
+        char m_stage;     //!< stage of the computation (which face is being iterated over)
     private:
         void reset(unsigned int range)
             {
@@ -301,11 +309,9 @@ class IteratorCellShell
                 m_stage = 5;
                 }
             }
-        int m_range;      //!< Find cells this many cells away
         int m_current_x;  //!< Current position in x
         int m_current_y;  //!< Current position in y
         int m_current_z;  //!< Current position in z
-        char m_stage;     //!< stage of the computation (which face is being iterated over)
         bool m_is2D;      //!< true if the cell list is 2D
 };
 
@@ -314,43 +320,46 @@ bool compareFirstNeighborPairs(const std::vector<std::tuple<size_t, size_t, floa
 
 //! Computes a cell id for each particle and a link cell data structure for iterating through it
 /*! For simplicity in only needing a small number of arrays, the link cell
-    algorithm is used to generate and store the cell list data for particles.
+ *  algorithm is used to generate and store the cell list data for particles.
 
-    Cells are given a nominal minimum width \a cell_width. Each dimension of
-    the box is split into an integer number of cells no smaller than
-    \a cell_width wide in that dimension. The actual number of cells along
-    each dimension is stored in an Index3D which is also used to compute the
-    cell index from (i,j,k).
+ *  Cells are given a nominal minimum width \a cell_width. Each dimension of
+ *  the box is split into an integer number of cells no smaller than
+ *  \a cell_width wide in that dimension. The actual number of cells along
+ *  each dimension is stored in an Index3D which is also used to compute the
+ *  cell index from (i,j,k).
 
-    The cell coordinate (i,j,k) itself is computed like so:
-    \code
-    i = floorf((x + Lx/2) / w) % Nw
-    \endcode
-    and so on for j, k (y, z). Call getCellCoord() to do this computation for
-    an arbitrary point.
+ *  The cell coordinate (i,j,k) itself is computed like so:
+ *  \code
+ *  i = floorf((x + Lx/2) / w) % Nw
+ *  \endcode
+ *  and so on for j, k (y, z). Call getCellCoord() to do this computation for
+ *  an arbitrary point.
 
-    <b>Data structures:</b><br>
-    The internal data structure used in LinkCell is a linked list of particle
-    indices. See IteratorLinkCell for information on how to iterate through these.
+ *  <b>Data structures:</b><br>
+ *  The internal data structure used in LinkCell is a linked list of particle
+ *  indices. See IteratorLinkCell for information on how to iterate through these.
 
-    <b>2D:</b><br>
-    LinkCell properly handles 2D boxes. When a 2D box is handed to LinkCell,
-    it creates an m x n x 1 cell list and neighbor cells are only listed in
-    the plane. As with everything else in freud, 2D points must be passed in
-    as 3 component vectors x,y,0. Failing to set 0 in the third component will
-    lead to undefined behavior.
-*/
-class LinkCell
+ *  <b>2D:</b><br>
+ *  LinkCell properly handles 2D boxes. When a 2D box is handed to LinkCell,
+ *  it creates an m x n x 1 cell list and neighbor cells are only listed in
+ *  the plane. As with everything else in freud, 2D points must be passed in
+ *  as 3 component vectors x,y,0. Failing to set 0 in the third component will
+ *  lead to undefined behavior.
+ */
+class LinkCell : public NeighborQuery
     {
     public:
         //! iterator to iterate over particles in the cell
         typedef IteratorLinkCell iteratorcell;
 
-        //! Constructor
+        //! Null Constructor
+        LinkCell();
+
+        //! Old constructor
         LinkCell(const box::Box& box, float cell_width);
 
-        //! Null Constructor for triclinic behavior
-        LinkCell();
+        //! New constructor
+        LinkCell(const box::Box& box, float cell_width, const vec3<float> *ref_points, unsigned int Nref);
 
         //! Update cell_width
         void setCellWidth(float cell_width);
@@ -420,10 +429,10 @@ class LinkCell
             }
 
         //! Compute the cell list
-        void computeCellList(box::Box& box, const vec3<float> *points, unsigned int Np);
+        void computeCellList(const box::Box& box, const vec3<float> *points, unsigned int Np);
 
         //! Compute the neighbor list using the cell list
-        void compute(box::Box& box, const vec3<float> *ref_points,
+        void compute(const box::Box& box, const vec3<float> *ref_points,
                      unsigned int Nref, const vec3<float> *points=0, unsigned int Np=0,
                      bool exclude_ii=true);
 
@@ -432,10 +441,23 @@ class LinkCell
             return &m_neighbor_list;
         }
 
-    private:
+        //! Given a set of points, find the k elements of this data structure
+        //  that are the nearest neighbors for each point.
+        virtual std::shared_ptr<NeighborQueryIterator> query(const vec3<float> *points, unsigned int N, unsigned int k) const;
 
+        //! Given a set of points, find all elements of this data structure
+        //  that are within a certain distance r.
+        virtual std::shared_ptr<NeighborQueryIterator> queryBall(const vec3<float> *points, unsigned int N, float r) const;
+
+    private:
         //! Rounding helper function.
         static unsigned int roundDown(unsigned int v, unsigned int m);
+
+        //! Helper function for updating when the box or cell width change.
+        void updateInternal(const box::Box& box, float cell_width);
+
+        //! Helper function to compute cell neighbors
+        void computeCellNeighbors();
 
         box::Box m_box;                //!< Simulation box where the particles belong
         Index3D m_cell_index;          //!< Indexer to compute cell indices
@@ -444,16 +466,80 @@ class LinkCell
         float m_cell_width;            //!< Minimum necessary cell width cutoff
         vec3<unsigned int> m_celldim;  //!< Cell dimensions
 
-        std::shared_ptr<unsigned int> m_cell_list;  //!< The cell list last computed
-
-        std::vector< std::vector<unsigned int> > m_cell_neighbors;  //!< List of cell neighbors to each cell
-
-        NeighborList m_neighbor_list;  //!< Stored neighbor list
-
-        //! Helper function to compute cell neighbors
-        void computeCellNeighbors();
+        std::shared_ptr<unsigned int> m_cell_list;                 //!< The cell list last computed
+        std::vector< std::vector<unsigned int> > m_cell_neighbors; //!< List of cell neighbors to each cell
+        NeighborList m_neighbor_list;                              //!< Stored neighbor list
     };
 
+
+//! Parent class of LinkCell iterators that knows how to traverse general cell-linked list structures
+class LinkCellIterator : public NeighborQueryIterator
+    {
+    public:
+        //! Constructor
+        /*! The initial state is to search shell 0, the current cell. We then
+         *  iterate outwards from there.
+        */
+        LinkCellIterator(const LinkCell* neighbor_query, const vec3<float> *points, unsigned int N) :
+            NeighborQueryIterator(neighbor_query, points, N), m_linkcell(neighbor_query),
+            m_neigh_cell_iter(0, neighbor_query->getBox().is2D()),
+            m_cell_iter(m_linkcell->itercell(m_linkcell->getCell(m_points[0])))
+            {}
+
+        //! Empty Destructor
+        virtual ~LinkCellIterator() {}
+
+    protected:
+        const LinkCell *m_linkcell;          //!< Link to the LinkCell object
+        IteratorCellShell m_neigh_cell_iter; //!< The shell iterator indicating how far out we're currently searching.
+        LinkCell::iteratorcell m_cell_iter;  //!< The cell iterator indicating which cell we're currently searching.
+    };
+
+//! Iterator that gets nearest neighbors from LinkCell tree structures
+class LinkCellQueryIterator : public LinkCellIterator
+    {
+    public:
+        //! Constructor
+        LinkCellQueryIterator(const LinkCell* neighbor_query, const vec3<float> *points, unsigned int N, unsigned int k) :
+            LinkCellIterator(neighbor_query, points, N), m_k(k), m_current_neighbors(), m_count(0)
+            {}
+
+        //! Empty Destructor
+        virtual ~LinkCellQueryIterator() {}
+
+        //! Get the next element.
+        virtual NeighborPoint next();
+
+        //! Create an equivalent new query iterator on a per-particle basis.
+        virtual std::shared_ptr<NeighborQueryIterator> query(unsigned int idx);
+
+    protected:
+        unsigned int m_k;                               //!< Number of nearest neighbors to find
+        std::vector<NeighborPoint> m_current_neighbors; //!< Current list of neighbors for the current point.
+        unsigned int m_count;                           //!< Number of neighbors returned for the current point.
+    };
+
+//! Iterator that gets neighbors in a ball of size r using LinkCell tree structures
+class LinkCellQueryBallIterator : public LinkCellIterator
+    {
+    public:
+        //! Constructor
+        LinkCellQueryBallIterator(const LinkCell* neighbor_query, const vec3<float> *points, unsigned int N, float r) :
+            LinkCellIterator(neighbor_query, points, N), m_r(r)
+            {}
+
+        //! Empty Destructor
+        virtual ~LinkCellQueryBallIterator() {}
+
+        //! Get the next element.
+        virtual NeighborPoint next();
+
+        //! Create an equivalent new query iterator on a per-particle basis.
+        virtual std::shared_ptr<NeighborQueryIterator> query(unsigned int idx);
+
+    protected:
+        float m_r;  //!< Search ball cutoff distance
+    };
 }; }; // end namespace freud::locality
 
 #endif // LINKCELL_H

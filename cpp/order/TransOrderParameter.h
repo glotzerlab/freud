@@ -55,6 +55,11 @@ class TransOrderParameter
             return m_Np;
             }
 
+        float getK()
+            {
+            return m_k;
+            }
+
     private:
         box::Box m_box;            //!< Simulation box where the particles belong
         float m_k;                 //!< Normalization value (dr is divided by m_k)

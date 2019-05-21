@@ -38,17 +38,8 @@ def convert_array(array, dimensions, dtype=None,
     if array.ndim != dimensions:
         raise TypeError("{}.ndim = {}; expected ndim = {}".format(
             array_name or "array", array.ndim, dimensions))
-    requirements = None
-    if contiguous:
-        if not array.flags.contiguous:
-            msg = 'Converting supplied array to contiguous.'
-            logger.info(msg)
-        requirements = ["C"]
-    if dtype is not None and dtype != array.dtype:
-        msg = 'Converting supplied array dtype {} to dtype {}.'.format(
-            array.dtype, dtype)
-        logger.info(msg)
-    return np.require(array, dtype=dtype, requirements=requirements)
+    return np.require(
+        array, dtype=dtype, requirements=['C'] if contiguous else None)
 
 
 def convert_box(box):
