@@ -73,6 +73,20 @@ cdef extern from "TransOrderParameter.h" namespace "freud::order":
         shared_ptr[float complex] getDr()
         unsigned int getNP()
 
+cdef extern from "Steinhardt.h" namespace "freud::order":
+    cdef cppclass Steinhardt:
+        Steinhardt(const freud._box.Box &, float, unsigned int, float,
+                bool, bool, bool) except +
+        const freud._box.Box & getBox() const
+        unsigned int getNP()
+        void setBox(const freud._box.Box)
+        void compute(const freud._locality.NeighborList *,
+                     const vec3[float]*,
+                     unsigned int) nogil except +
+        shared_ptr[float] getQl()
+        shared_ptr[float complex] getWl()
+        bool getUseWl()
+
 cdef extern from "LocalQl.h" namespace "freud::order":
     cdef cppclass LocalQl:
         LocalQl(const freud._box.Box &, float, unsigned int, float) except +
@@ -87,9 +101,11 @@ cdef extern from "LocalQl.h" namespace "freud::order":
         void computeAve(const freud._locality.NeighborList *,
                         const vec3[float]*,
                         unsigned int) nogil except +
-        void computeNorm(const vec3[float]*,
+        void computeNorm(const freud._locality.NeighborList *,
+                         const vec3[float]*,
                          unsigned int) nogil except +
-        void computeAveNorm(const vec3[float]*,
+        void computeAveNorm(const freud._locality.NeighborList *,
+                            const vec3[float]*,
                             unsigned int) nogil except +
         shared_ptr[float] getAveQl()
         shared_ptr[float] getQlNorm()

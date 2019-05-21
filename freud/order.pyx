@@ -659,7 +659,8 @@ cdef class LocalQl:
             self.m_box, points, points, self.rmax, nlist, True)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
-        self.qlptr.computeNorm(<vec3[float]*> &l_points[0, 0], nP)
+        self.qlptr.computeNorm(nlist_.get_ptr(),
+                               <vec3[float]*> &l_points[0, 0], nP)
         return self
 
     def computeAveNorm(self, points, nlist=None):
@@ -685,9 +686,151 @@ cdef class LocalQl:
             self.m_box, points, points, self.rmax, nlist, True)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
-        self.qlptr.computeAveNorm(<vec3[float]*> &l_points[0, 0], nP)
+        self.qlptr.computeAveNorm(nlist_.get_ptr(),
+                                  <vec3[float]*> &l_points[0, 0], nP)
         return self
 
+cdef class Steinhardt:
+    R"""Compute the local Steinhardt [Steinhardt1983]_rotationally invariant
+    :math:`Q_l` order parameter for a set of points.
+
+    Implements the local rotationally invariant :math:`Q_l` order parameter
+    described by Steinhardt. For a particle i, we calculate the average
+    :math:`Q_l` by summing the spherical harmonics between particle :math:`i`
+    and its neighbors :math:`j` in a local region:
+    :math:`\overline{Q}_{lm}(i) = \frac{1}{N_b}
+    \displaystyle\sum_{j=1}^{N_b} Y_{lm}(\theta(\vec{r}_{ij}),
+    \phi(\vec{r}_{ij}))`. The particles included in the sum are determined
+    by the rmax argument to the constructor.
+
+    This is then combined in a rotationally invariant fashion to remove local
+    orientational order as follows: :math:`Q_l(i)=\sqrt{\frac{4\pi}{2l+1}
+    \displaystyle\sum_{m=-l}^{l} |\overline{Q}_{lm}|^2 }`.
+
+    The :meth:`~computeAve` method provides access to a variant of this
+    parameter that performs a average over the first and second shell combined
+    [Lechner2008]_. To compute this parameter, we perform a second averaging
+    over the first neighbor shell of the particle to implicitly include
+    information about the second neighbor shell. This averaging is performed by
+    replacing the value :math:`\overline{Q}_{lm}(i)` in the original
+    definition by the average value of :math:`\overline{Q}_{lm}(k)` over all
+    the :math:`k` neighbors of particle :math:`i` as well as itself.
+
+    The :meth:`~computeNorm` and :meth:`~computeAveNorm` methods provide
+    normalized versions of :meth:`~compute` and :meth:`~computeAve`,
+    where the normalization is performed by dividing by the average
+    :math:`Q_{lm}` values over all particles.
+
+    .. moduleauthor:: Xiyu Du <xiyudu@umich.edu>
+    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
+
+    Args:
+        box (:class:`freud.box.Box`):
+            Simulation box.
+        rmax (float):
+            Cutoff radius for the local order parameter. Values near the first
+            minimum of the RDF are recommended.
+        l (unsigned int):
+            Spherical harmonic quantum number l. Must be a positive number.
+        rmin (float):
+            Can look at only the second shell or some arbitrary RDF region.
+
+    Attributes:
+        box (:class:`freud.box.Box`):
+            Box used in the calculation.
+        num_particles (unsigned int):
+            Number of particles.
+        op (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
+            The last computed selected variant of the Steinhardt order
+            parameter for each particle (filled with NaN for particles with no
+            neighbors).
+    .. todo:: move box to compute, this is old API
+    """  # noqa: E501
+    cdef freud._order.Steinhardt * stptr
+    cdef freud.box.Box m_box
+    cdef rmax
+
+    def __cinit__(self, box, rmax, l, rmin=0, average=False, norm=False,
+            wl=False, *args, **kwargs):
+        cdef freud.box.Box b = freud.common.convert_box(box)
+        if type(self) is Steinhardt:
+            self.m_box = b
+            self.rmax = rmax
+            self.stptr = new freud._order.Steinhardt(
+                dereference(b.thisptr), rmax, l, rmin,
+                average, norm, wl)
+
+    def __dealloc__(self):
+        if type(self) is Steinhardt:
+            del self.stptr
+            self.stptr = NULL
+
+    @property
+    def box(self):
+        return freud.box.BoxFromCPP(<freud._box.Box> self.stptr.getBox())
+
+    @box.setter
+    def box(self, value):
+        cdef freud.box.Box b = freud.common.convert_box(value)
+        self.stptr.setBox(dereference(b.thisptr))
+
+    def setBox(self, box):
+        R"""Reset the simulation box.
+
+        Args:
+            box (:class:`freud.box.Box`): Simulation box.
+        """
+        self.box = box
+
+    @property
+    def num_particles(self):
+        cdef unsigned int np = self.stptr.getNP()
+        return np
+
+    @property
+    def St(self):
+        if self.stptr.getUseWl():
+            return self._wl
+        return self._ql
+
+    @property
+    def _ql(self):
+        cdef unsigned int n_particles = self.stptr.getNP()
+        cdef float[::1] op = \
+            <float[:n_particles]> self.stptr.getQl().get()
+        return np.asarray(op)
+
+    @property
+    def _wl(self):
+        cdef unsigned int n_particles = self.stptr.getNP()
+        cdef float complex[::1] op = \
+            <float complex[:n_particles]> self.stptr.getWl().get()
+        return np.asarray(op)
+
+    def compute(self, points, nlist=None):
+        R"""Compute the order parameter.
+
+        Args:
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Points to calculate the order parameter.
+            nlist (:class:`freud.locality.NeighborList`, optional):
+                Neighborlist to use to find bonds (Default value = None).
+        """
+        points = freud.common.convert_array(
+            points, 2, dtype=np.float32, contiguous=True, array_name="points")
+        if points.shape[1] != 3:
+            raise TypeError('points should be an Nx3 array')
+
+        cdef float[:, ::1] l_points = points
+        cdef unsigned int nP = l_points.shape[0]
+
+        defaulted_nlist = freud.locality.make_default_nlist(
+            self.m_box, points, points, self.rmax, nlist, True)
+        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
+
+        self.stptr.compute(nlist_.get_ptr(), <vec3[float]*> &l_points[0, 0],
+                           nP)
+        return self
 
 cdef class LocalQlNear(LocalQl):
     R"""A variant of the :class:`~LocalQl` class that performs its average
