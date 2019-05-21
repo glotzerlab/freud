@@ -83,7 +83,7 @@ class Steinhardt
 		m_average(average),
 		m_norm(norm),
 		m_useWl(useWl)
-            {
+		{
 		    // Error Checking
 		    if (m_rmax < 0.0f || m_rmin < 0.0f)
 			throw std::invalid_argument("Steinhardt requires rmin and rmax must be positive.");
@@ -92,34 +92,41 @@ class Steinhardt
 		    if (m_l < 2)
 			throw std::invalid_argument("Steinhardt requires l must be two or greater.");
 
-		    // Assign unique pointer to designated array
-		    if (m_useWl)
-		    {
-			m_orderParameter = &(m_Wl);
-		    }
-		    else
-		    {
-			if (m_average)
+		    // Assign shared pointers to designated array
+			if (m_average && m_norm)
 			{
-			    if (m_norm)
-			    {
-				m_orderParameter = &(m_QliAveNorm);
-			    }
-			    else
-			    {
-				m_orderParameter = &(m_QliAve);
-			    }
+				m_orderParameterWl = m_WliAveNorm;
+			}
+			else if (m_average)
+			{
+			m_orderParameterWl = m_WliAve;
 			}
 			else if (m_norm)
 			{
-			    m_orderParameter = &(m_QliNorm);
+				m_orderParameterWl = m_WliNorm;
 			}
 			else
 			{
-			    m_orderParameter = &(m_Qli);
+				m_orderParameterWl = m_Wli;
 			}
-		    }
-	    }
+
+			if (m_average && m_norm)
+			{
+				m_orderParameter = m_QliAveNorm;
+			}
+			else if (m_average)
+			{
+			m_orderParameter = m_QliAve;
+			}
+			else if (m_norm)
+			{
+				m_orderParameter = m_QliNorm;
+			}
+			else
+			{
+				m_orderParameter = m_Qli;
+			}
+		}
 	    
 
 
@@ -144,12 +151,21 @@ class Steinhardt
             return m_Np;
             }
 	
-	//! Get the last calculated order parameter
-	std::shared_ptr<float> getOrderParameter()
-	{
-	    return *m_OrderParameter;
-	}
+		//! Get the last calculated order parameter
+		std::shared_ptr<float> getQl()
+		{
+			return m_orderParameter;
+		}
 
+		std::shared_ptr<std::complex<float>> getWl()
+		{
+			return m_orderParameterWl;
+		}
+
+		bool getUseWl()
+		{
+			return m_useWl;
+		}
         //! Compute the order parameter
         virtual void compute(const locality::NeighborList *nlist,
                              const vec3<float> *points,
@@ -169,13 +185,22 @@ class Steinhardt
 
 		//! Reallocates only the necesary arrays when the number of particles changes
 		// unsigned int Np number of particles
-		void reallocate_arrays(unsigned int Np);
+		void reallocateArrays(unsigned int Np);
 
 		//! Calculates the base Ql order parameter before further modifications
 		//if any.
-		void base_compute(const locality::NeighborList *nlist,
+		void baseCompute(const locality::NeighborList *nlist,
 						const vec3<float> *points,
 						unsigned int Np);
+		void computeAve(const locality::NeighborList *nlist,
+						const vec3<float> *points);
+		void computeNorm();
+		void computeAveNorm();
+		void computeWl();
+		void computeAveWl();
+		void computeNormWl();
+		void computeAveNormWl();
+
 	// Member variables used for compute
         unsigned int m_Np;     //!< Last number of points computed
         box::Box m_box;        //!< Simulation box where the particles belong
@@ -199,9 +224,14 @@ class Steinhardt
         std::shared_ptr<float> m_QliAve;      //!< AveQl locally invariant order parameter for each particle i
         std::shared_ptr<float> m_QliNorm;     //!< QlNorm order parameter for each particle i
         std::shared_ptr<float> m_QliAveNorm;  //!< QlAveNorm order paramter for each particle i
-        std::shared_ptr<float> m_Wl;  //!< Wl is the modified Steinhardt parameter that is normalized or averaged as flagged
-		std::unique_ptr<std::shared_ptr> m_orderParameter; //!< orderParameter points to the flagged Steinhardt order parameter
-
+        std::shared_ptr< std::complex<float> > m_Wli;         //!< Wl locally invariant order parameter for each particle i;
+        std::shared_ptr< std::complex<float> > m_WliAve;      //!< Averaged Wl with 2nd neighbor shell for each particle i
+        std::shared_ptr< std::complex<float> > m_WliNorm;     //!< Normalized Wl for the whole system
+        std::shared_ptr< std::complex<float> > m_WliAveNorm;  //!< Normalized AveWl for the whole system
+        std::vector<float> m_wigner3jvalues;  //!< Wigner3j coefficients, in j1=-l to l, j2 = max(-l-j1,-l) to min(l-j1,l), maybe.
+		std::shared_ptr<float> m_orderParameter; //!< orderParameter points to the flagged Steinhardt order parameter
+		std::shared_ptr<std::complex<float>> m_orderParameterWl; //!< orderParameter points to the flagged Steinhardt (Wl) order parameter
     };
 
 }; }; // end namespace freud::order
+#endif // STEINHARDT_H

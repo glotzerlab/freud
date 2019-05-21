@@ -35,28 +35,17 @@ void Steinhardt::computeYlm(const float theta, const float phi, std::vector<std:
         }
     }
 
-void Steinhardt::reallocate_arrays(unsigned int Np)
+void Steinhardt::reallocateArrays(unsigned int Np)
 	{
 		m_Np = Np;
 		m_Qlmi = std::shared_ptr<complex<float> >(new complex<float> [(2*m_l+1)*m_Np], std::default_delete<complex<float>[]>());
 		m_Qli = std::shared_ptr<float>(new float[m_Np], std::default_delete<float[]>());
 		m_Qlm = std::shared_ptr<complex<float> >(new complex<float>[2*m_l+1], std::default_delete<complex<float>[]>());
-		if (m_average && m_norm)
+		if (m_average)
 		{
 			m_AveQlmi = std::shared_ptr<complex<float> >(new complex<float> [(2*m_l+1)*Np], std::default_delete<complex<float>[]>());
-			m_AveQli = std::shared_ptr<float>(new float[Np], std::default_delete<float[]>());
+			m_QliAve = std::shared_ptr<float>(new float[Np], std::default_delete<float[]>());
 			m_AveQlm = std::shared_ptr<complex<float> >(new complex<float> [(2*m_l+1)], std::default_delete<complex<float>[]>());
-			m_QliNorm = std::shared_ptr<float>(new float[Np], std::default_delete<float[]>());
-		}
-		else if (m_average)
-		{
-			m_AveQlmi = std::shared_ptr<complex<float> >(new complex<float> [(2*m_l+1)*Np], std::default_delete<complex<float>[]>());
-			m_AveQli = std::shared_ptr<float>(new float[Np], std::default_delete<float[]>());
-			m_AveQlm = std::shared_ptr<complex<float> >(new complex<float> [(2*m_l+1)], std::default_delete<complex<float>[]>());
-		}
-		else if (m_norm)
-		{
-			m_QliNorm = std::shared_ptr<float>(new float[Np], std::default_delete<float[]>());
 		}
 		if (m_useWl)
 		{
@@ -66,37 +55,68 @@ void Steinhardt::reallocate_arrays(unsigned int Np)
 			}
 			else if (m_average)
 			{
-				m_AveWli = std::shared_ptr<complex<float> >(new complex<float>[Np], std::default_delete<complex<float>[]>());
+				m_WliAve = std::shared_ptr<complex<float> >(new complex<float>[Np], std::default_delete<complex<float>[]>());
 			}
 			else if (m_norm)
 			{
 				m_WliNorm = std::shared_ptr<complex<float> >(new complex<float>[m_Np], std::default_delete<complex<float>[]>());
+			}
+			else
+			{
+				m_Wli = std::shared_ptr<complex<float> >(new complex<float>[Np], std::default_delete<complex<float>[]>());
+			}
+		}
+		else
+		{
+			if (m_average && m_norm)
+			{
+				m_QliAveNorm = std::shared_ptr<float>(new float[Np], std::default_delete<float[]>());
+			}
+			else if (m_norm)
+			{
+				m_QliNorm = std::shared_ptr<float>(new float[Np], std::default_delete<float[]>());
 			}
 		}
 	}	
 
 void Steinhardt::compute(const locality::NeighborList *nlist, const vec3<float> *points, unsigned int Np)
 {
-		// Conditional reinitialize arrays if size differs from previous call.
-		if (m_Np != Np)
-			{
-				Steinhardt::reallocate_arrays(Np)
-			}
-		Steinhardt::base_compute(nlist, points, Np)
+	// Conditional reinitialize arrays if size differs from previous call.
+	if (m_Np != Np)
+	{
+		Steinhardt::reallocateArrays(Np);
+	}
+	// Computes the base Q required for each specialized order parameter
+	Steinhardt::baseCompute(nlist, points, Np);
+	
+	if (m_average){
+		Steinhardt::computeAve(nlist, points);
+	}
+	if (m_useWl){
 		if (m_average && m_norm){
-			Steinhardt::computeAve(nlist, points)
-			Steinhardt::computeAveNorm()
+			Steinhardt::computeAveNormWl();
 		}
 		else if (m_norm){
-			Steinhardt::computeNorm(nlist, points, Np)
+			Steinhardt::computeNormWl();
 		}
 		else if (m_average){
-			Steinhardt::computeAve(nlist, points)
+			Steinhardt::computeAveWl();
 		}
-
+		else {
+			Steinhardt::computeWl();
+		}
+	}
+	else {
+		if (m_average && m_norm){
+			Steinhardt::computeAveNorm();
+		}
+		else if (m_norm){
+			Steinhardt::computeNorm();
+		}
+	}
 }
 
-void Steinhardt::base_compute(const locality::NeighborList *nlist, const vec3<float> *points, unsigned int Np)
+void Steinhardt::baseCompute(const locality::NeighborList *nlist, const vec3<float> *points, unsigned int Np)
     {
     nlist->validate(Np, Np);
 
@@ -182,11 +202,11 @@ void Steinhardt::base_compute(const locality::NeighborList *nlist, const vec3<fl
     }
 
 void Steinhardt::computeAve(const locality::NeighborList *nlist, const vec3<float> *points)
-    {
+{
     const size_t *neighbor_list(nlist->getNeighbors());
 
     memset((void*)m_AveQlmi.get(), 0, sizeof(complex<float>)*(2*m_l+1)*m_Np);
-    memset((void*)m_AveQli.get(), 0, sizeof(float)*m_Np);
+    memset((void*)m_QliAve.get(), 0, sizeof(float)*m_Np);
     memset((void*)m_AveQlm.get(), 0, sizeof(complex<float>)*(2*m_l+1));
 
     const float rminsq = m_rmin * m_rmin;
@@ -253,15 +273,15 @@ void Steinhardt::computeAve(const locality::NeighborList *nlist, const vec3<floa
             m_AveQlmi.get()[index] /= neighborcount;
             m_AveQlm.get()[k] += m_AveQlmi.get()[index];
             // Add the norm, which is the complex squared magnitude
-            m_AveQli.get()[i] += norm(m_Qlmi.get()[index]);
+            m_QliAve.get()[i] += norm(m_Qlmi.get()[index]);
             }
-        m_AveQli.get()[i] *= normalizationfactor;
-        m_AveQli.get()[i] = sqrt(m_AveQli.get()[i]);
+        m_QliAve.get()[i] *= normalizationfactor;
+        m_QliAve.get()[i] = sqrt(m_QliAve.get()[i]);
         } // Ends loop over particles i for Qlmi calcs
-    }
+}
 
 void Steinhardt::computeNorm()
-    {
+{
     memset((void*) m_QliNorm.get(), 0, sizeof(float)*m_Np);
 
     const float normalizationfactor = 4*M_PI/(2*m_l+1);
@@ -282,10 +302,10 @@ void Steinhardt::computeNorm()
         m_QliNorm.get()[i] *= normalizationfactor;
         m_QliNorm.get()[i] = sqrt(m_QliNorm.get()[i]);
         }
-    }
+}
 
 void Steinhardt::computeAveNorm()
-    {
+{
     memset((void*) m_QliAveNorm.get(), 0, sizeof(float)*m_Np);
 
     const float normalizationfactor = 4*M_PI/(2*m_l+1);
@@ -306,7 +326,137 @@ void Steinhardt::computeAveNorm()
         m_QliAveNorm.get()[i] *= normalizationfactor;
         m_QliAveNorm.get()[i] = sqrt(m_QliAveNorm.get()[i]);
         }
-    }
+}
+
+void Steinhardt::computeWl()
+{
+    memset((void*) m_Wli.get(), 0, sizeof(complex<float>)*m_Np);
+
+    // This normalization happens in the Ql calculation but
+    // not for Wl, so we need to undo it. In that calculation
+    // the quantity is multiplied by the normalization factor
+    // and then the result is square rooted, so here we just
+    // divide by the square root.
+    float normalizationfactor = sqrt(4*M_PI/(2*m_l+1));
+
+    // Get wigner3j coefficients from wigner3j.cc
+    m_wigner3jvalues = getWigner3j(m_l);
+
+    for (unsigned int i = 0; i < m_Np; i++)
+        {
+        // Revert Ql normalization
+        m_Qli.get()[i] /= normalizationfactor;
+
+        // Wli calculation
+        unsigned int counter = 0;
+        for (unsigned int u1 = 0; u1 < (2*m_l+1); ++u1)
+            {
+            for (unsigned int u2 = max(0, int(m_l)-int(u1)); u2 < min(3*m_l+1-u1, 2*m_l+1); ++u2)
+                {
+                const unsigned int index = (2*m_l+1)*i;
+                const unsigned int u3 = 3*m_l-u1-u2;
+                m_Wli.get()[i] += m_wigner3jvalues[counter] *
+                                  m_Qlmi.get()[index + u1] *
+                                  m_Qlmi.get()[index + u2] *
+                                  m_Qlmi.get()[index + u3];
+                counter++;
+                }
+            } // Ends loop for Wli calcs
+        } // Ends loop over particles
+}
+
+void Steinhardt::computeAveWl()
+{
+
+    // Get wigner3j coefficients from wigner3j.cc
+    m_wigner3jvalues = getWigner3j(m_l);
+
+    memset((void*) m_WliAve.get(), 0, sizeof(float)*m_Np);
+
+    for (unsigned int i = 0; i < m_Np; i++)
+        {
+        // Ave Wli calculation
+        unsigned int counter = 0;
+        for (unsigned int u1 = 0; u1 < (2*m_l+1); ++u1)
+            {
+            for (unsigned int u2 = max(0, int(m_l)-int(u1)); u2 < min(3*m_l+1-u1,2*m_l+1); ++u2)
+                {
+                const unsigned int index = (2*m_l+1)*i;
+                const unsigned int u3 = 3*m_l-u1-u2;
+                m_WliAve.get()[i] += m_wigner3jvalues[counter] *
+                                     m_AveQlmi.get()[index + u1] *
+                                     m_AveQlmi.get()[index + u2] *
+                                     m_AveQlmi.get()[index + u3];
+                counter++;
+                }
+            } // Ends loop for Norm Wli calcs
+        } // Ends loop over particles
+}
+
+void Steinhardt::computeNormWl()
+{
+    // Get wigner3j coefficients from wigner3j.cc
+    m_wigner3jvalues = getWigner3j(m_l);
+
+    memset((void*) m_WliNorm.get(), 0, sizeof(complex<float>)*m_Np);
+
+    // Average Q_lm over all particles, which was calculated in compute
+    for (unsigned int k = 0; k < (2*m_l+1); ++k)
+        {
+        m_Qlm.get()[k] /= m_Np;
+        }
+
+    for (unsigned int i = 0; i < m_Np; ++i)
+        {
+        // Norm Wli calculation
+        unsigned int counter = 0;
+        for (unsigned int u1 = 0; u1 < (2*m_l+1); ++u1)
+            {
+            for (unsigned int u2 = max(0, int(m_l)-int(u1)); u2 < min(3*m_l+1-u1,2*m_l+1); ++u2)
+                {
+                unsigned int u3 = 3*m_l-u1-u2;
+                m_WliNorm.get()[i] += m_wigner3jvalues[counter] *
+                                      m_Qlm.get()[u1] *
+                                      m_Qlm.get()[u2] *
+                                      m_Qlm.get()[u3];
+                counter++;
+                }
+            } // Ends loop for Norm Wli calcs
+        } // Ends loop over particles
+}
+
+void Steinhardt::computeAveNormWl()
+{
+
+    // Get wigner3j coefficients from wigner3j.cc
+    m_wigner3jvalues = getWigner3j(m_l);
+
+    memset((void*) m_WliAveNorm.get(), 0, sizeof(complex<float>)*m_Np);
+
+    // Average Q_lm over all particles, which was calculated in compute
+    for (unsigned int k = 0; k < (2*m_l+1); ++k)
+        {
+        m_AveQlm.get()[k] /= m_Np;
+        }
+
+    for (unsigned int i = 0; i < m_Np; ++i)
+        {
+        // AveNorm Wli calculation
+        unsigned int counter = 0;
+        for (unsigned int u1 = 0; u1 < (2*m_l+1); ++u1)
+            {
+            for (unsigned int u2 = max(0, int(m_l)-int(u1)); u2 < min(3*m_l+1-u1,2*m_l+1); ++u2)
+                {
+                unsigned int u3 = 3*m_l-u1-u2;
+                m_WliAveNorm.get()[i] += m_wigner3jvalues[counter] *
+                                         m_AveQlm.get()[u1] *
+                                         m_AveQlm.get()[u2] *
+                                         m_AveQlm.get()[u3];
+                counter++;
+                }
+            } // Ends loop for Norm Wli calcs
+        } // Ends loop over particles
+}
 
 void Steinhardt::reduce()
     {
