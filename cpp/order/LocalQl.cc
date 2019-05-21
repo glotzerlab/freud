@@ -148,7 +148,7 @@ void LocalQl::computeAve(const locality::NeighborList *nlist, const vec3<float> 
 	}
 
     // Compute non-averaged Ql
-    LocalQl::compute(nlist, points, Np)
+    LocalQl::compute(nlist, points, Np);
 
     memset((void*)m_AveQlmi.get(), 0, sizeof(complex<float>)*(2*m_l+1)*m_Np);
     memset((void*)m_AveQli.get(), 0, sizeof(float)*m_Np);
@@ -225,7 +225,7 @@ void LocalQl::computeAve(const locality::NeighborList *nlist, const vec3<float> 
         } // Ends loop over particles i for Qlmi calcs
     }
 
-void LocalQl::computeNorm(const vec3<float> *points, unsigned int Np)
+void LocalQl::computeNorm(const locality::NeighborList *nlist, const vec3<float> *points, unsigned int Np)
     {
     if (m_Np != Np)
 	{
@@ -234,7 +234,7 @@ void LocalQl::computeNorm(const vec3<float> *points, unsigned int Np)
 	}
     
     // Compute non-averaged Ql
-    LocalQl::compute(nlist, points, Np)
+    LocalQl::compute(nlist, points, Np);
   
     memset((void*) m_QliNorm.get(), 0, sizeof(float)*m_Np);
 
@@ -258,7 +258,7 @@ void LocalQl::computeNorm(const vec3<float> *points, unsigned int Np)
         }
     }
 
-void LocalQl::computeAveNorm(const vec3<float> *points, unsigned int Np)
+void LocalQl::computeAveNorm(const locality::NeighborList *nlist, const vec3<float> *points, unsigned int Np)
     {
     // Set local data size
     if (m_Np != Np)
@@ -267,7 +267,7 @@ void LocalQl::computeAveNorm(const vec3<float> *points, unsigned int Np)
 	}
 
     // Compute non-averaged Ql
-    LocalQl::computeAve(nlist, points, Np)
+    LocalQl::computeAve(nlist, points, Np);
 
     memset((void*) m_QliAveNorm.get(), 0, sizeof(float)*m_Np);
 
