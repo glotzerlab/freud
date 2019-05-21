@@ -6,6 +6,7 @@
 
 #include <memory>
 #include <vector>
+#include <tbb/concurrent_hash_map.h>
 
 #include "Box.h"
 #include "NeighborList.h"
@@ -423,9 +424,19 @@ class LinkCell : public NeighborQuery
             }
 
         //! Get a list of neighbors to a cell
-        const std::vector<unsigned int>& getCellNeighbors(unsigned int cell) const
+        const std::vector<unsigned int>& getCellNeighbors(unsigned int cell)
             {
-            return m_cell_neighbors[cell];
+                CellNeighbors::const_accessor a;
+                if(m_cell_neighbors.find(a, cell)) 
+                    {
+                        return a->second;
+                    }
+                else 
+                    {
+                        computeCellNeighbors(cell);
+                        m_cell_neighbors.find(a, cell);
+                        return a->second;
+                    }
             }
 
         //! Compute the cell list
@@ -457,7 +468,8 @@ class LinkCell : public NeighborQuery
         void updateInternal(const box::Box& box, float cell_width);
 
         //! Helper function to compute cell neighbors
-        void computeCellNeighbors();
+        // void computeCellNeighbors();
+        void computeCellNeighbors(unsigned int cell);
 
         box::Box m_box;                //!< Simulation box where the particles belong
         Index3D m_cell_index;          //!< Indexer to compute cell indices
@@ -467,7 +479,9 @@ class LinkCell : public NeighborQuery
         vec3<unsigned int> m_celldim;  //!< Cell dimensions
 
         std::shared_ptr<unsigned int> m_cell_list;                 //!< The cell list last computed
-        std::vector< std::vector<unsigned int> > m_cell_neighbors; //!< List of cell neighbors to each cell
+        // std::vector< std::vector<unsigned int> > m_cell_neighbors; //!< List of cell neighbors to each cell
+        typedef tbb::concurrent_hash_map<unsigned int, std::vector<unsigned int> >  CellNeighbors;
+        CellNeighbors m_cell_neighbors;
         NeighborList m_neighbor_list;                              //!< Stored neighbor list
     };
 

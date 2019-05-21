@@ -83,7 +83,7 @@ void LinkCell::updateInternal(const box::Box& box, float cell_width)
                 throw runtime_error("At least one cell must be present.");
                 }
             m_celldim = celldim;
-            computeCellNeighbors();
+            // computeCellNeighbors();
             }
         m_cell_width = cell_width;
         }
@@ -269,93 +269,180 @@ void LinkCell::compute(const box::Box& box,
         });
     }
 
-void LinkCell::computeCellNeighbors()
+// void LinkCell::computeCellNeighbors()
+//     {
+//     // clear the list
+//     m_cell_neighbors.clear();
+//     m_cell_neighbors.resize(getNumCells());
+
+//     // for each cell
+//     for (unsigned int k = 0; k < m_cell_index.getD(); k++)
+//         for (unsigned int j = 0; j < m_cell_index.getH(); j++)
+//             for (unsigned int i = 0; i < m_cell_index.getW(); i++)
+//                 {
+//                 // clear the list
+//                 unsigned int cur_cell = m_cell_index(i,j,k);
+//                 m_cell_neighbors[cur_cell].clear();
+
+//                 // loop over the neighbor cells
+//                 int starti, startj, startk;
+//                 int endi, endj, endk;
+//                 if (m_celldim.x < 3)
+//                     {
+//                     starti = (int)i;
+//                     }
+//                 else
+//                     {
+//                     starti = (int)i - 1;
+//                     }
+//                 if (m_celldim.y < 3)
+//                     {
+//                     startj = (int)j;
+//                     }
+//                 else
+//                     {
+//                     startj = (int)j - 1;
+//                     }
+//                 if (m_celldim.z < 3)
+//                     {
+//                     startk = (int)k;
+//                     }
+//                 else
+//                     {
+//                     startk = (int)k - 1;
+//                     }
+
+//                 if (m_celldim.x < 2)
+//                     {
+//                     endi = (int)i;
+//                     }
+//                 else
+//                     {
+//                     endi = (int)i + 1;
+//                     }
+//                 if (m_celldim.y < 2)
+//                     {
+//                     endj = (int)j;
+//                     }
+//                 else
+//                     {
+//                     endj = (int)j + 1;
+//                     }
+//                 if (m_celldim.z < 2)
+//                     {
+//                     endk = (int)k;
+//                     }
+//                 else
+//                     {
+//                     endk = (int)k + 1;
+//                     }
+//                 if (m_box.is2D())
+//                     startk = endk = k;
+
+//                 for (int neighk = startk; neighk <= endk; neighk++)
+//                     for (int neighj = startj; neighj <= endj; neighj++)
+//                         for (int neighi = starti; neighi <= endi; neighi++)
+//                             {
+//                             // wrap back into the box
+//                             int wrapi = (m_cell_index.getW()+neighi) % m_cell_index.getW();
+//                             int wrapj = (m_cell_index.getH()+neighj) % m_cell_index.getH();
+//                             int wrapk = (m_cell_index.getD()+neighk) % m_cell_index.getD();
+
+//                             unsigned int neigh_cell = m_cell_index(wrapi, wrapj, wrapk);
+//                             // add to the list
+//                             m_cell_neighbors[cur_cell].push_back(neigh_cell);
+//                             }
+
+//                 // sort the list
+//                 sort(m_cell_neighbors[cur_cell].begin(), m_cell_neighbors[cur_cell].end());
+//                 }
+//     }
+
+
+void LinkCell::computeCellNeighbors(unsigned int cur_cell)
     {
-    // clear the list
-    m_cell_neighbors.clear();
-    m_cell_neighbors.resize(getNumCells());
+    std::vector<unsigned int> neighbor_cells;
+    vec3<unsigned int> l_idx = m_cell_index(cur_cell);
+    unsigned int i = l_idx.x;
+    unsigned int j = l_idx.y;
+    unsigned int k = l_idx.z;
 
-    // for each cell
-    for (unsigned int k = 0; k < m_cell_index.getD(); k++)
-        for (unsigned int j = 0; j < m_cell_index.getH(); j++)
-            for (unsigned int i = 0; i < m_cell_index.getW(); i++)
+    // loop over the neighbor cells
+    int starti, startj, startk;
+    int endi, endj, endk;
+    if (m_celldim.x < 3)
+        {
+        starti = (int)i;
+        }
+    else
+        {
+        starti = (int)i - 1;
+        }
+    if (m_celldim.y < 3)
+        {
+        startj = (int)j;
+        }
+    else
+        {
+        startj = (int)j - 1;
+        }
+    if (m_celldim.z < 3)
+        {
+        startk = (int)k;
+        }
+    else
+        {
+        startk = (int)k - 1;
+        }
+
+    if (m_celldim.x < 2)
+        {
+        endi = (int)i;
+        }
+    else
+        {
+        endi = (int)i + 1;
+        }
+    if (m_celldim.y < 2)
+        {
+        endj = (int)j;
+        }
+    else
+        {
+        endj = (int)j + 1;
+        }
+    if (m_celldim.z < 2)
+        {
+        endk = (int)k;
+        }
+    else
+        {
+        endk = (int)k + 1;
+        }
+    if (m_box.is2D())
+        startk = endk = k;
+
+    for (int neighk = startk; neighk <= endk; neighk++)
+        for (int neighj = startj; neighj <= endj; neighj++)
+            for (int neighi = starti; neighi <= endi; neighi++)
                 {
-                // clear the list
-                unsigned int cur_cell = m_cell_index(i,j,k);
-                m_cell_neighbors[cur_cell].clear();
+                // wrap back into the box
+                int wrapi = (m_cell_index.getW()+neighi) % m_cell_index.getW();
+                int wrapj = (m_cell_index.getH()+neighj) % m_cell_index.getH();
+                int wrapk = (m_cell_index.getD()+neighk) % m_cell_index.getD();
 
-                // loop over the neighbor cells
-                int starti, startj, startk;
-                int endi, endj, endk;
-                if (m_celldim.x < 3)
-                    {
-                    starti = (int)i;
-                    }
-                else
-                    {
-                    starti = (int)i - 1;
-                    }
-                if (m_celldim.y < 3)
-                    {
-                    startj = (int)j;
-                    }
-                else
-                    {
-                    startj = (int)j - 1;
-                    }
-                if (m_celldim.z < 3)
-                    {
-                    startk = (int)k;
-                    }
-                else
-                    {
-                    startk = (int)k - 1;
-                    }
-
-                if (m_celldim.x < 2)
-                    {
-                    endi = (int)i;
-                    }
-                else
-                    {
-                    endi = (int)i + 1;
-                    }
-                if (m_celldim.y < 2)
-                    {
-                    endj = (int)j;
-                    }
-                else
-                    {
-                    endj = (int)j + 1;
-                    }
-                if (m_celldim.z < 2)
-                    {
-                    endk = (int)k;
-                    }
-                else
-                    {
-                    endk = (int)k + 1;
-                    }
-                if (m_box.is2D())
-                    startk = endk = k;
-
-                for (int neighk = startk; neighk <= endk; neighk++)
-                    for (int neighj = startj; neighj <= endj; neighj++)
-                        for (int neighi = starti; neighi <= endi; neighi++)
-                            {
-                            // wrap back into the box
-                            int wrapi = (m_cell_index.getW()+neighi) % m_cell_index.getW();
-                            int wrapj = (m_cell_index.getH()+neighj) % m_cell_index.getH();
-                            int wrapk = (m_cell_index.getD()+neighk) % m_cell_index.getD();
-
-                            unsigned int neigh_cell = m_cell_index(wrapi, wrapj, wrapk);
-                            // add to the list
-                            m_cell_neighbors[cur_cell].push_back(neigh_cell);
-                            }
-
-                // sort the list
-                sort(m_cell_neighbors[cur_cell].begin(), m_cell_neighbors[cur_cell].end());
+                unsigned int neigh_cell = m_cell_index(wrapi, wrapj, wrapk);
+                // add to the list
+                neighbor_cells.push_back(neigh_cell);
                 }
+
+    // sort the list
+    sort(neighbor_cells.begin(), neighbor_cells.end());
+    // }
+    CellNeighbors::accessor a;
+    m_cell_neighbors.insert(a, cur_cell);
+    a->second = neighbor_cells;
+    return;
     }
 
 //! Given a set of points, find the k elements of this data structure
