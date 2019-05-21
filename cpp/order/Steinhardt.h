@@ -95,36 +95,23 @@ class Steinhardt
 		    // Assign shared pointers to designated array
 			if (m_average && m_norm)
 			{
+				m_orderParameter = m_QliAveNorm;
 				m_orderParameterWl = m_WliAveNorm;
 			}
 			else if (m_average)
 			{
-			m_orderParameterWl = m_WliAve;
-			}
-			else if (m_norm)
-			{
-				m_orderParameterWl = m_WliNorm;
-			}
-			else
-			{
-				m_orderParameterWl = m_Wli;
-			}
-
-			if (m_average && m_norm)
-			{
-				m_orderParameter = m_QliAveNorm;
-			}
-			else if (m_average)
-			{
-			m_orderParameter = m_QliAve;
+				m_orderParameter = m_QliAve;
+				m_orderParameterWl = m_WliAve;
 			}
 			else if (m_norm)
 			{
 				m_orderParameter = m_QliNorm;
+				m_orderParameterWl = m_WliNorm;
 			}
 			else
 			{
 				m_orderParameter = m_Qli;
+				m_orderParameterWl = m_Wli;
 			}
 		}
 	    
