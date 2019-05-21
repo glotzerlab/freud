@@ -1,7 +1,5 @@
 import numpy as np
-import numpy.testing as npt
 import freud
-import unittest
 from benchmark import Benchmark
 from benchmarker import run_benchmarks
 
