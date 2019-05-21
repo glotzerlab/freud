@@ -89,6 +89,7 @@ references:
       name: Run benchmarks
       command: |
           pip install --user gitpython
+          pip install --user rowan
           echo 'export PYTHONPATH=$PYTHONPATH:.' >> $BASH_ENV
           echo 'export BENCHMARK_NPROC=2' >> $BASH_ENV
           source $BASH_ENV
