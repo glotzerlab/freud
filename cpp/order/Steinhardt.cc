@@ -37,7 +37,6 @@ void Steinhardt::computeYlm(const float theta, const float phi, std::vector<std:
 
 void Steinhardt::reallocateArrays(unsigned int Np)
 	{
-		m_Np = Np;
 		m_Qlmi = std::shared_ptr<complex<float> >(new complex<float> [(2*m_l+1)*m_Np], std::default_delete<complex<float>[]>());
 		m_Qli = std::shared_ptr<float>(new float[m_Np], std::default_delete<float[]>());
 		m_Qlm = std::shared_ptr<complex<float> >(new complex<float>[2*m_l+1], std::default_delete<complex<float>[]>());
@@ -84,6 +83,7 @@ void Steinhardt::compute(const locality::NeighborList *nlist, const vec3<float> 
 	// Conditional reinitialize arrays if size differs from previous call.
 	if (m_Np != Np)
 	{
+		m_Np = Np;
 		Steinhardt::reallocateArrays(Np);
 	}
 	// Computes the base Q required for each specialized order parameter

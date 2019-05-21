@@ -92,27 +92,6 @@ class Steinhardt
 		    if (m_l < 2)
 			throw std::invalid_argument("Steinhardt requires l must be two or greater.");
 
-		    // Assign shared pointers to designated array
-			if (m_average && m_norm)
-			{
-				m_orderParameter = m_QliAveNorm;
-				m_orderParameterWl = m_WliAveNorm;
-			}
-			else if (m_average)
-			{
-				m_orderParameter = m_QliAve;
-				m_orderParameterWl = m_WliAve;
-			}
-			else if (m_norm)
-			{
-				m_orderParameter = m_QliNorm;
-				m_orderParameterWl = m_WliNorm;
-			}
-			else
-			{
-				m_orderParameter = m_Qli;
-				m_orderParameterWl = m_Wli;
-			}
 		}
 	    
 
@@ -137,16 +116,46 @@ class Steinhardt
             {
             return m_Np;
             }
-	
+
 		//! Get the last calculated order parameter
 		std::shared_ptr<float> getQl()
 		{
-			return m_orderParameter;
+			if (m_average && m_norm)
+			{
+				return m_QliAveNorm;
+			}
+			else if (m_average)
+			{
+				return m_QliAve;
+			}
+			else if (m_norm)
+			{
+				return m_QliNorm;
+			}
+			else
+			{
+				return m_Qli;
+			}
 		}
 
 		std::shared_ptr<std::complex<float>> getWl()
 		{
-			return m_orderParameterWl;
+			if (m_average && m_norm)
+			{
+				return m_WliAveNorm;
+			}
+			else if (m_average)
+			{
+				return m_WliAve;
+			}
+			else if (m_norm)
+			{
+				return m_WliNorm;
+			}
+			else
+			{
+				return m_Wli;
+			}
 		}
 
 		bool getUseWl()
@@ -216,8 +225,6 @@ class Steinhardt
         std::shared_ptr< std::complex<float> > m_WliNorm;     //!< Normalized Wl for the whole system
         std::shared_ptr< std::complex<float> > m_WliAveNorm;  //!< Normalized AveWl for the whole system
         std::vector<float> m_wigner3jvalues;  //!< Wigner3j coefficients, in j1=-l to l, j2 = max(-l-j1,-l) to min(l-j1,l), maybe.
-		std::shared_ptr<float> m_orderParameter; //!< orderParameter points to the flagged Steinhardt order parameter
-		std::shared_ptr<std::complex<float>> m_orderParameterWl; //!< orderParameter points to the flagged Steinhardt (Wl) order parameter
     };
 
 }; }; // end namespace freud::order

@@ -102,11 +102,9 @@ cdef extern from "LocalQl.h" namespace "freud::order":
         void computeAve(const freud._locality.NeighborList *,
                         const vec3[float]*,
                         unsigned int) nogil except +
-        void computeNorm(const freud._locality.NeighborList *,
-                         const vec3[float]*,
+        void computeNorm(const vec3[float]*,
                          unsigned int) nogil except +
-        void computeAveNorm(const freud._locality.NeighborList *,
-                            const vec3[float]*,
+        void computeAveNorm(const vec3[float]*,
                             unsigned int) nogil except +
         shared_ptr[float] getAveQl()
         shared_ptr[float] getQlNorm()
