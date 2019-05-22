@@ -426,6 +426,9 @@ class LinkCell : public NeighborQuery
         //! Get a list of neighbors to a cell
         const std::vector<unsigned int>& getCellNeighbors(unsigned int cell)
             {
+                // check if the list of neighbors has been already computed
+                // return the list if it has
+                // otherwise, compute it and return
                 CellNeighbors::const_accessor a;
                 if(m_cell_neighbors.find(a, cell)) 
                     {
@@ -433,9 +436,10 @@ class LinkCell : public NeighborQuery
                     }
                 else 
                     {
-                        computeCellNeighbors(cell);
-                        m_cell_neighbors.find(a, cell);
-                        return a->second;
+                        // computeCellNeighbors(cell);
+                        // m_cell_neighbors.find(a, cell);
+                        // return a->second;
+                        return computeCellNeighbors(cell);
                     }
             }
 
@@ -468,8 +472,7 @@ class LinkCell : public NeighborQuery
         void updateInternal(const box::Box& box, float cell_width);
 
         //! Helper function to compute cell neighbors
-        // void computeCellNeighbors();
-        void computeCellNeighbors(unsigned int cell);
+        const std::vector<unsigned int>& computeCellNeighbors(unsigned int cell);
 
         box::Box m_box;                //!< Simulation box where the particles belong
         Index3D m_cell_index;          //!< Indexer to compute cell indices
