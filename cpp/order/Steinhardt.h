@@ -74,7 +74,7 @@ class Steinhardt
 		float rmin=0,
 		bool average=false,
 		bool norm=false,
-		bool useWl=false) :
+		bool Wl=false) :
 		m_Np(0),
 		m_box(box),
 		m_rmax(rmax),
@@ -82,7 +82,7 @@ class Steinhardt
 		m_rmin(rmin),
 		m_average(average),
 		m_norm(norm),
-		m_useWl(useWl)
+		m_Wl(Wl)
 		{
 		    // Error Checking
 		    if (m_rmax < 0.0f || m_rmin < 0.0f)
@@ -160,7 +160,7 @@ class Steinhardt
 
 		bool getUseWl()
 		{
-			return m_useWl;
+			return m_Wl;
 		}
         //! Compute the order parameter
         virtual void compute(const locality::NeighborList *nlist,
@@ -207,7 +207,7 @@ class Steinhardt
 	// Flags
 	bool m_average;	       //!< Whether to take a second shell average (default false)
 	bool m_norm;	       //!< Whether to take the norm of the order parameter (default false)
-	bool m_useWl;          //!< Whether to use the modified order parameter Wl (default false)
+	bool m_Wl;          //!< Whether to use the modified order parameter Wl (default false)
 
         std::shared_ptr<std::complex<float> > m_Qlmi;  //!< Qlm for each particle i
         std::shared_ptr<std::complex<float> > m_Qlm;   //!< Normalized Qlm for the whole system

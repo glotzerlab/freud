@@ -555,14 +555,14 @@ cdef class Steinhardt:
     cdef rmax
 
     def __cinit__(self, box, rmax, l, rmin=0, average=False, norm=False,
-            wl=False, *args, **kwargs):
+            Wl=False, *args, **kwargs):
         cdef freud.box.Box b = freud.common.convert_box(box)
         if type(self) is Steinhardt:
             self.m_box = b
             self.rmax = rmax
             self.stptr = new freud._order.Steinhardt(
                 dereference(b.thisptr), rmax, l, rmin,
-                average, norm, wl)
+                average, norm, Wl)
 
     def __dealloc__(self):
         if type(self) is Steinhardt:

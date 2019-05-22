@@ -27,12 +27,29 @@ void Steinhardt::computeYlm(const float theta, const float phi, std::vector<std:
     // in fsph, the definition is flipped
     sph_eval.compute(theta, phi);
 
-    for (typename fsph::PointSPHEvaluator<float>::iterator iter(sph_eval.begin_l(m_l, 0, true));
-         iter != sph_eval.end(); ++iter)
-        {
-        Ylm[j] = *iter;
-        ++j;
+	if (m_Wl)
+		{
+		for (typename fsph::PointSPHEvaluator<float>::iterator iter(sph_eval.begin_l(m_l, 0, false));
+			iter != sph_eval.end(); ++iter)
+			{
+			Ylm[(j+m_l) % (2*m_l+1)] = *iter;
+			++j;
+			}
+		for (unsigned int i = 1; i <= m_l; i++)
+			{
+			Ylm[-i+m_l] = Ylm[i+m_l];
         }
+
+		}
+	else
+		{
+		for (typename fsph::PointSPHEvaluator<float>::iterator iter(sph_eval.begin_l(m_l, 0, true));
+			iter != sph_eval.end(); ++iter)
+			{
+			Ylm[j] = *iter;
+			++j;
+			}
+		}
     }
 
 void Steinhardt::reallocateArrays(unsigned int Np)
@@ -46,7 +63,7 @@ void Steinhardt::reallocateArrays(unsigned int Np)
 			m_QliAve = std::shared_ptr<float>(new float[Np], std::default_delete<float[]>());
 			m_AveQlm = std::shared_ptr<complex<float> >(new complex<float> [(2*m_l+1)], std::default_delete<complex<float>[]>());
 		}
-		if (m_useWl)
+		if (m_Wl)
 		{
 			if (m_average && m_norm)
 			{
@@ -92,7 +109,7 @@ void Steinhardt::compute(const locality::NeighborList *nlist, const vec3<float> 
 	if (m_average){
 		Steinhardt::computeAve(nlist, points);
 	}
-	if (m_useWl){
+	if (m_Wl){
 		if (m_average && m_norm){
 			Steinhardt::computeAveNormWl();
 		}

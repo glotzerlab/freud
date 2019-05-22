@@ -51,27 +51,27 @@ class TestSteinhardt(unittest.TestCase):
     def test_identical_environments_Wl(self):
         (box, positions) = util.make_fcc(4, 4, 4)
         
-        comp = freud.order.Steinhardt(box, 1.5, 6, useWl=True)
+        comp = freud.order.Steinhardt(box, 1.5, 6, Wl=True)
         comp.compute(positions)
         self.assertTrue(np.isclose(
-            np.real(np.average(comp.St)), -0.002626038, atol=1e-5))
+            np.real(np.average(comp.St)), -0.002626035, atol=1e-5))
         self.assertTrue(np.allclose(comp.St, comp.St[0]))
 
-        comp = freud.order.Steinhardt(box, 1.5, 6, useWl=True,
+        comp = freud.order.Steinhardt(box, 1.5, 6, Wl=True,
                                       average=True)
         comp.compute(positions)
         self.assertTrue(np.isclose(
             np.real(np.average(comp.St)), -0.002626035, atol=1e-5))
         self.assertTrue(np.allclose(comp.St, comp.St[0]))
 
-        comp = freud.order.Steinhardt(box, 1.5, 6, useWl=True,
+        comp = freud.order.Steinhardt(box, 1.5, 6, Wl=True,
                                       norm=True)
         comp.compute(positions)
         self.assertTrue(np.isclose(
-            np.real(np.average(comp.St)), -0.07090395, atol=1e-5))
+            np.real(np.average(comp.St)), -0.002626035, atol=1e-5))
         self.assertTrue(np.allclose(comp.St, comp.St[0]))
 
-        comp = freud.order.Steinhardt(box, 1.5, 6, useWl=True,
+        comp = freud.order.Steinhardt(box, 1.5, 6, Wl=True,
                                       average=True, norm=True)
 
         comp.compute(positions)
