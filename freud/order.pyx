@@ -496,34 +496,40 @@ cdef class TransOrderParameter:
 
 cdef class Steinhardt:
     R"""Compute the local Steinhardt [Steinhardt1983]_rotationally invariant
-    :math:`Q_l` order parameter for a set of points.
+    :math:`Q_l` :math:`Wl` order parameter for a set of points.
 
-    Implements the local rotationally invariant :math:`Q_l` order parameter
-    described by Steinhardt. For a particle i, we calculate the average
-    :math:`Q_l` by summing the spherical harmonics between particle :math:`i`
-    and its neighbors :math:`j` in a local region:
-    :math:`\overline{Q}_{lm}(i) = \frac{1}{N_b}
-    \displaystyle\sum_{j=1}^{N_b} Y_{lm}(\theta(\vec{r}_{ij}),
-    \phi(\vec{r}_{ij}))`. The particles included in the sum are determined
-    by the rmax argument to the constructor.
+    Implements the local rotationally invariant :math:`Q_l` or :math:`Wl` order
+    parameter described by Steinhardt. For a particle i, we calculate the
+    average order parameter by summing the spherical harmonics between particle
+    :math:`i` and its neighbors :math:`j` in a local region:
+    :math:`\overline{Q}_{lm}(i) = \frac{1}{N_b} \displaystyle\sum_{j=1}^{N_b}
+    Y_{lm}(\theta(\vec{r}_{ij}), \phi(\vec{r}_{ij}))`. The particles included in
+    the sum are determined by the rmax argument to the constructor.
 
-    This is then combined in a rotationally invariant fashion to remove local
-    orientational order as follows: :math:`Q_l(i)=\sqrt{\frac{4\pi}{2l+1}
-    \displaystyle\sum_{m=-l}^{l} |\overline{Q}_{lm}|^2 }`.
+    For :math:`Ql`, this is then combined in a rotationally invariant fashion to
+    remove local orientational order as follows:
+    :math:`Q_l(i)=\sqrt{\frac{4\pi}{2l+1} \displaystyle\sum_{m=-l}^{l}
+    |\overline{Q}_{lm}|^2 }`.
 
-    The :meth:`~computeAve` method provides access to a variant of this
-    parameter that performs a average over the first and second shell combined
-    [Lechner2008]_. To compute this parameter, we perform a second averaging
-    over the first neighbor shell of the particle to implicitly include
-    information about the second neighbor shell. This averaging is performed by
-    replacing the value :math:`\overline{Q}_{lm}(i)` in the original
-    definition by the average value of :math:`\overline{Q}_{lm}(k)` over all
-    the :math:`k` neighbors of particle :math:`i` as well as itself.
+    For :math:`W_l`, it is then defined as a weighted average over the
+    :math:`\overline{Q}_{lm}(i)` values using Wigner 3j symbols
+    (Clebsch-Gordan coefficients). The resulting combination is rotationally
+    (i.e. frame) invariant.
 
-    The :meth:`~computeNorm` and :meth:`~computeAveNorm` methods provide
-    normalized versions of :meth:`~compute` and :meth:`~computeAve`,
-    where the normalization is performed by dividing by the average
-    :math:`Q_{lm}` values over all particles.
+    The :data:`average` argument in the constructor provides access to a variant
+    of this parameter that performs a average over the first and second shell
+    combined [Lechner2008]_. To compute this parameter, we perform a second
+    averaging over the first neighbor shell of the particle to implicitly
+    include information about the second neighbor shell. This averaging is
+    performed by replacing the value :math:`\overline{Q}_{lm}(i)` in the
+    original definition by the average value of :math:`\overline{Q}_{lm}(k)`
+    over all the :math:`k` neighbors of particle :math:`i` as well as itself.
+
+    The :data:`norm` constructor arguement provides
+    normalized versions of the plain :math:`Ql` or :math:`Wl` or normalized
+    average if the :data:`average` flag is set to true.  where the normalization
+    is performed by dividing by the average :math:`Q_{lm}` values over all
+    particles.
 
     .. moduleauthor:: Xiyu Du <xiyudu@umich.edu>
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
@@ -538,13 +544,23 @@ cdef class Steinhardt:
             Spherical harmonic quantum number l. Must be a positive number.
         rmin (float):
             Can look at only the second shell or some arbitrary RDF region.
+        average (bool):
+            Determines whether to calcuate the averaged Steinhardt order
+            parameter.
+        norm (bool):
+            Determines whether to calcuate the normalized Steinhardt order
+            parameter.
+        Wl (bool):
+            Determines whether to use the :math:`Wl` version of the Steinhardt
+            order parameter.
+            
 
     Attributes:
         box (:class:`freud.box.Box`):
             Box used in the calculation.
         num_particles (unsigned int):
             Number of particles.
-        op (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
+        St (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
             The last computed selected variant of the Steinhardt order
             parameter for each particle (filled with NaN for particles with no
             neighbors).
