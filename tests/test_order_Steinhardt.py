@@ -15,6 +15,7 @@ class TestSteinhardt(unittest.TestCase):
         positions = np.random.uniform(-box.Lx/2, box.Lx/2,
                                       size=(N, 3)).astype(np.float32)
 
+        positions.flags['WRITEABLE'] = False
         comp = freud.order.Steinhardt(box, 1.5, 6)
         comp.compute(positions)
 

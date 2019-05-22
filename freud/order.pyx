@@ -616,14 +616,14 @@ cdef class Steinhardt:
     @property
     def _ql(self):
         cdef unsigned int n_particles = self.stptr.getNP()
-        cdef float[::1] op = \
+        cdef const float[::1] op = \
             <float[:n_particles]> self.stptr.getQl().get()
         return np.asarray(op)
 
     @property
     def _wl(self):
         cdef unsigned int n_particles = self.stptr.getNP()
-        cdef np.complex64_t[::1] op = \
+        cdef const np.complex64_t[::1] op = \
             <np.complex64_t[:n_particles]> self.stptr.getWl().get()
         return np.asarray(op)
 
@@ -641,7 +641,7 @@ cdef class Steinhardt:
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        cdef float[:, ::1] l_points = points
+        cdef const float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
 
         defaulted_nlist = freud.locality.make_default_nlist(
