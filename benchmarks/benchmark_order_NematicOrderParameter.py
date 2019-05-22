@@ -13,7 +13,7 @@ class BenchmarkOrderNematicOrderParameter(Benchmark):
         seed = 0
         np.random.seed(seed)
         self.orientations = rowan.random.random_sample((N, ))
-        self.nop = freud.order.NematicOrderParameter(self.u)
+        self.nop = freud.order.NematicOrderParameter(np.array(self.u))
 
     def bench_run(self, N):
         self.nop.compute(self.orientations)
@@ -25,7 +25,7 @@ def run():
     number = 100
     name = 'freud.order.NematicOrderParameter'
 
-    kwargs = {"u": np.array([1, 0, 0])}
+    kwargs = {"u": [1, 0, 0]}
 
     return run_benchmarks(name, Ns, number,
                           BenchmarkOrderNematicOrderParameter,
