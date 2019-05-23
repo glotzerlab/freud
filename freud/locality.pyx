@@ -281,7 +281,7 @@ cdef class NeighborQuery:
         return np.asarray(self.points)
 
     def _queryGeneric(self, points, query_args):
-        # This function is temporarily included for testing and WILL be
+        # This function is temporarily included for testing and may be
         # removed in future releases.
         # Can't use this function with old-style NeighborQuery objects
         points = freud.common.convert_array(
