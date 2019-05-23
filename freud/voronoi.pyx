@@ -235,10 +235,12 @@ class Voronoi(object):
 
         self._qhull_compute(positions, b, buff)
 
-        ridge_points = self.voronoi.ridge_points
+        cdef np.ndarray[int, ndim=2] ridge_points = self.voronoi.ridge_points
         ridge_vertices = self.voronoi.ridge_vertices
-        vor_vertices = self.voronoi.vertices
-        N = len(positions)
+
+        # Must keep this in double precision
+        cdef np.ndarray[np.float64_t, ndim=2] vor_vertices = self.voronoi.vertices
+        cdef unsigned int N = len(positions)
 
         # Nearest neighbor index for each point
         self.firstShellNeighborList = [[] for _ in range(N)]
@@ -246,6 +248,10 @@ class Voronoi(object):
         # Weight between nearest neighbors, which is the length of ridge
         # between two points in 2D or the area of the ridge facet in 3D
         self.firstShellWeight = [[] for _ in range(N)]
+
+        cdef unsigned int index_i
+        cdef unsigned int index_j
+        cdef unsigned int k
         for (k, (index_i, index_j)) in enumerate(ridge_points):
 
             if index_i >= N and index_j >= N:
