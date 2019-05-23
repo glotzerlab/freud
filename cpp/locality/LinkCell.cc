@@ -272,61 +272,61 @@ const std::vector<unsigned int>& LinkCell::computeCellNeighbors(unsigned int cur
     {
     std::vector<unsigned int> neighbor_cells;
     vec3<unsigned int> l_idx = m_cell_index(cur_cell);
-    int i = (int) l_idx.x;
-    int j = (int) l_idx.y;
-    int k = (int) l_idx.z;
+    const int i = (int) l_idx.x;
+    const int j = (int) l_idx.y;
+    const int k = (int) l_idx.z;
 
     // loop over the neighbor cells
     int starti, startj, startk;
     int endi, endj, endk;
     if (m_celldim.x < 3)
         {
-        starti = (int)i;
+        starti = i;
         }
     else
         {
-        starti = (int)i - 1;
+        starti = i - 1;
         }
     if (m_celldim.y < 3)
         {
-        startj = (int)j;
+        startj = j;
         }
     else
         {
-        startj = (int)j - 1;
+        startj = j - 1;
         }
     if (m_celldim.z < 3)
         {
-        startk = (int)k;
+        startk = k;
         }
     else
         {
-        startk = (int)k - 1;
+        startk = k - 1;
         }
 
     if (m_celldim.x < 2)
         {
-        endi = (int)i;
+        endi = i;
         }
     else
         {
-        endi = (int)i + 1;
+        endi = i + 1;
         }
     if (m_celldim.y < 2)
         {
-        endj = (int)j;
+        endj = j;
         }
     else
         {
-        endj = (int)j + 1;
+        endj = j + 1;
         }
     if (m_celldim.z < 2)
         {
-        endk = (int)k;
+        endk = k;
         }
     else
         {
-        endk = (int)k + 1;
+        endk = k + 1;
         }
     if (m_box.is2D())
         startk = endk = k;
