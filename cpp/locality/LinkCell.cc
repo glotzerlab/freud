@@ -83,7 +83,6 @@ void LinkCell::updateInternal(const box::Box& box, float cell_width)
                 throw runtime_error("At least one cell must be present.");
                 }
             m_celldim = celldim;
-            // computeCellNeighbors();
             }
         m_cell_width = cell_width;
         }
@@ -273,9 +272,9 @@ const std::vector<unsigned int>& LinkCell::computeCellNeighbors(unsigned int cur
     {
     std::vector<unsigned int> neighbor_cells;
     vec3<unsigned int> l_idx = m_cell_index(cur_cell);
-    unsigned int i = l_idx.x;
-    unsigned int j = l_idx.y;
-    unsigned int k = l_idx.z;
+    int i = (int) l_idx.x;
+    int j = (int) l_idx.y;
+    int k = (int) l_idx.z;
 
     // loop over the neighbor cells
     int starti, startj, startk;

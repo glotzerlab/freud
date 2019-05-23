@@ -430,15 +430,12 @@ class LinkCell : public NeighborQuery
                 // return the list if it has
                 // otherwise, compute it and return
                 CellNeighbors::const_accessor a;
-                if(m_cell_neighbors.find(a, cell)) 
+                if(m_cell_neighbors.find(a, cell))
                     {
                         return a->second;
                     }
-                else 
+                else
                     {
-                        // computeCellNeighbors(cell);
-                        // m_cell_neighbors.find(a, cell);
-                        // return a->second;
                         return computeCellNeighbors(cell);
                     }
             }
@@ -482,9 +479,8 @@ class LinkCell : public NeighborQuery
         vec3<unsigned int> m_celldim;  //!< Cell dimensions
 
         std::shared_ptr<unsigned int> m_cell_list;                 //!< The cell list last computed
-        // std::vector< std::vector<unsigned int> > m_cell_neighbors; //!< List of cell neighbors to each cell
         typedef tbb::concurrent_hash_map<unsigned int, std::vector<unsigned int> >  CellNeighbors;
-        CellNeighbors m_cell_neighbors;
+        CellNeighbors m_cell_neighbors;                            //!< Hash map of cell neighbors for each cell
         NeighborList m_neighbor_list;                              //!< Stored neighbor list
     };
 
