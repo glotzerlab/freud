@@ -44,13 +44,13 @@
         "name": "freud.locality",
         "sources": [
             "freud/locality.pyx",
-            "cpp/locality/NearestNeighbors.cc",
-            "cpp/locality/NeighborQuery.cc",
-            "cpp/locality/LinkCell.cc",
             "cpp/box/Box.cc",
             "cpp/util/HOOMDMatrix.cc",
+            "cpp/locality/NearestNeighbors.cc",
+            "cpp/locality/NeighborList.cc",
+            "cpp/locality/LinkCell.cc",
             "cpp/locality/AABBQuery.cc",
-            "cpp/locality/NeighborList.cc"
+            "cpp/locality/NeighborQuery.cc"
         ]
     },
     "module_name": "freud.locality"
@@ -6277,7 +6277,7 @@ static PyObject *__pyx_pf_5freud_8locality_13NeighborQuery_6points___get__(struc
  *         return np.asarray(self.points)
  * 
  *     def _queryGeneric(self, points, query_args):             # <<<<<<<<<<<<<<
- *         # This function is temporarily included for testing and WILL be
+ *         # This function is temporarily included for testing and may be
  *         # removed in future releases.
  */
 
@@ -6640,7 +6640,7 @@ static PyObject *__pyx_pf_5freud_8locality_13NeighborQuery_2_queryGeneric(struct
  *         return np.asarray(self.points)
  * 
  *     def _queryGeneric(self, points, query_args):             # <<<<<<<<<<<<<<
- *         # This function is temporarily included for testing and WILL be
+ *         # This function is temporarily included for testing and may be
  *         # removed in future releases.
  */
 
@@ -38236,7 +38236,7 @@ static int __Pyx_InitCachedConstants(void) {
  *         return np.asarray(self.points)
  * 
  *     def _queryGeneric(self, points, query_args):             # <<<<<<<<<<<<<<
- *         # This function is temporarily included for testing and WILL be
+ *         # This function is temporarily included for testing and may be
  *         # removed in future releases.
  */
   __pyx_tuple__100 = PyTuple_Pack(8, __pyx_n_s_self, __pyx_n_s_points, __pyx_n_s_query_args, __pyx_n_s_iterator, __pyx_n_s_l_points, __pyx_n_s_args, __pyx_n_s_cnlist, __pyx_n_s_nl); if (unlikely(!__pyx_tuple__100)) __PYX_ERR(0, 283, __pyx_L1_error)
@@ -39297,7 +39297,7 @@ if (!__Pyx_RefNanny) {
  *         return np.asarray(self.points)
  * 
  *     def _queryGeneric(self, points, query_args):             # <<<<<<<<<<<<<<
- *         # This function is temporarily included for testing and WILL be
+ *         # This function is temporarily included for testing and may be
  *         # removed in future releases.
  */
   __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_8locality_13NeighborQuery_3_queryGeneric, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_NeighborQuery__queryGeneric, NULL, __pyx_n_s_freud_locality, __pyx_d, ((PyObject *)__pyx_codeobj__101)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 283, __pyx_L1_error)
