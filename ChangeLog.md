@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 * Corrected type of `y_max` argument to PMFTXY2D from int to float.
 * Reduce logging verbosity about array conversion.
+* Fixed number of threads set upon exiting the NumThreads context manager.
 
 ## v1.0.0 - 2019-02-08
 
