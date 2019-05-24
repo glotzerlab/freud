@@ -129,7 +129,7 @@ class NeighborQuery
                 }
             else
                 {
-                std::runtime_error("Invalid query mode provided to generic query function.");
+                throw std::runtime_error("Invalid query mode provided to generic query function.");
                 }
             }
 
