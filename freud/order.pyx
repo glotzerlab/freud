@@ -536,9 +536,11 @@ cdef class LocalQl:
             Cutoff radius for the local order parameter. Values near the first
             minimum of the RDF are recommended.
         l (unsigned int):
-            Spherical harmonic quantum number l. Must be a positive number.
+            Spherical harmonic quantum number l. Must be a positive integer.
         rmin (float):
-            Can look at only the second shell or some arbitrary RDF region.
+            Lower bound for computing the local order parameter. Allows looking
+            at, for instance, only the second shell, or some other arbitrary
+            RDF region (Default value = 0).
 
     Attributes:
         box (:class:`freud.box.Box`):
@@ -930,11 +932,11 @@ cdef class LocalWl(LocalQl):
             Cutoff radius for the local order parameter. Values near the first
             minimum of the RDF are recommended.
         l (unsigned int):
-            Spherical harmonic quantum number l. Must be a positive number
+            Spherical harmonic quantum number l. Must be a positive integer.
         rmin (float):
             Lower bound for computing the local order parameter. Allows looking
             at, for instance, only the second shell, or some other arbitrary
-            RDF region.
+            RDF region (Default value = 0).
 
     Attributes:
         box (:class:`freud.box.Box`):

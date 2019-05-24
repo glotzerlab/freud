@@ -14,7 +14,7 @@ freud documentation
     :target: https://doi.org/10.5281/zenodo.166564
 .. |PyPI| image:: https://img.shields.io/pypi/v/freud-analysis.svg
     :target: https://pypi.org/project/freud-analysis/
-.. |Anaconda-Server| image:: https://anaconda.org/conda-forge/freud/badges/version.svg
+.. |Anaconda-Server| image:: https://img.shields.io/conda/vn/conda-forge/freud.svg
     :target: https://anaconda.org/conda-forge/freud
 .. |ReadTheDocs| image:: https://readthedocs.org/projects/freud/badge/?version=latest
     :target: https://freud.readthedocs.io/en/latest/?badge=latest

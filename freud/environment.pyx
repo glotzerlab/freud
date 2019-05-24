@@ -156,7 +156,7 @@ cdef class BondOrder:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
                 Points used to calculate bonds. Uses :code:`ref_points` if not
                 provided or :code:`None`.
-            orientations ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
                 Orientations used to calculate bonds. Uses
                 :code:`ref_orientations` if not provided or :code:`None`.
             mode (str, optional):
@@ -272,7 +272,7 @@ cdef class BondOrder:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
                 Points used to calculate bonds. Uses :code:`ref_points` if not
                 provided or :code:`None`.
-            orientations ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
+            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`, optional):
                 Orientations used to calculate bonds. Uses
                 :code:`ref_orientations` if not provided or :code:`None`.
             mode (str, optional):
@@ -1012,7 +1012,7 @@ cdef class AngularSeparation:
                 Simulation box.
             ref_ors ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
                 Reference orientations used to calculate the order parameter.
-            ors ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            ors ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
                 Orientations used to calculate the order parameter.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference points used to calculate the order parameter.
@@ -1085,7 +1085,7 @@ cdef class AngularSeparation:
 
 
         Args:
-            ors ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            ors ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
                 Orientations to calculate the order parameter.
             global_ors ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
                 Reference orientations to calculate the order parameter.
