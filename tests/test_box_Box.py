@@ -193,7 +193,7 @@ class TestBox(unittest.TestCase):
         b_list = [1, 2, 3, 0.1, 0.2, 0.3]
         Lx, Ly, Lz, xy, xz, yz = b_list
         box = freud.box.Box.from_box(b_list)
-        self.assertEqual(
+        npt.assert_allclose(
             box.getLatticeVector(0),
             [Lx, 0, 0]
         )
@@ -208,21 +208,21 @@ class TestBox(unittest.TestCase):
 
     def test_periodic(self):
         box = freud.box.Box(1, 2, 3, 0, 0, 0)
-        false = [False, False, False]
-        true = [True, True, True]
-        self.assertEqual(box.periodic, true)
+        falses = [False, False, False]
+        trues = [True, True, True]
+        npt.assert_equal(box.periodic, trues)
         self.assertTrue(box.periodic_x)
         self.assertTrue(box.periodic_y)
         self.assertTrue(box.periodic_z)
 
-        box.periodic = false
-        self.assertEqual(box.periodic, false)
+        box.periodic = falses
+        npt.assert_equal(box.periodic, falses)
         self.assertFalse(box.periodic_x)
         self.assertFalse(box.periodic_y)
         self.assertFalse(box.periodic_z)
 
-        box.periodic = true
-        self.assertEqual(box.periodic, true)
+        box.periodic = trues
+        npt.assert_equal(box.periodic, trues)
 
         box.periodic_x = False
         box.periodic_y = False
@@ -232,7 +232,7 @@ class TestBox(unittest.TestCase):
         self.assertEqual(box.periodic_z, False)
 
         box.periodic = True
-        self.assertEqual(box.periodic, true)
+        npt.assert_equal(box.periodic, trues)
 
     def test_equal(self):
         box = freud.box.Box(2, 2, 2, 1, 0.5, 0.1)
