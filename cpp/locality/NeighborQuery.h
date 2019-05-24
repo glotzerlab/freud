@@ -37,16 +37,42 @@ struct NeighborPoint {
 
     //! Default comparator of points is by distance.
     /*! This form of comparison allows easy sorting of nearest neighbors by
-     *  distance
+     *  distance.
      */
     bool operator< (const NeighborPoint &n) const
         {
         return distance < n.distance;
         }
 
-    unsigned int id;
-    unsigned int ref_id;
-    float distance;
+    unsigned int id;            //! The point id.
+    unsigned int ref_id;        //! The reference point id.
+    float distance;             //! The distance between the point and the reference point.
+};
+
+
+//! (Almost) POD class to hold information about generic queries.
+/*! This class provides a standard method for specifying the type of query to
+ *  perform with a NeighborQuery object. Rather than calling queryBall
+ *  specifically, for example, the user can call a generic querying function and
+ *  provide an instance of this class to specify the nature of the query.
+ */
+struct QueryArgs {
+    //! Define constructor
+    /*! We must violate the strict POD nature of the class to support default
+     *  values for parameters.
+     */
+    QueryArgs() : nn(-1), rmax(-1), scale(-1), exclude_ii(false) {}
+
+    enum QueryType {
+        ball,         //! Query based on distance cutoff.
+        nearest       //! Query based on number of requested neighbors.
+    };
+
+    QueryType mode;     //! Whether to perform a ball or k-nearest neighbor query.
+    int nn;             //! The number of nearest neighbors to find.
+    float rmax;         //! The cutoff distance within which to find neighbors
+    float scale;        //! The scale factor to use when performing repeated ball queries to find a specified number of nearest neighbors.
+    bool exclude_ii;    //! If true, exclude self-neighbors.
 };
 
 
@@ -81,13 +107,39 @@ class NeighborQuery
         //! Empty Destructor
         virtual ~NeighborQuery() {}
 
+        //! Perform a query based on a set of query parameters.
+        /*! Given a QueryArgs object and a set of points to perform a query
+         *  with, this function will dispatch the query to the appropriate
+         *  querying function.
+         *
+         *  This function should just be called query, but Cython's function
+         *  overloading abilities seem buggy at best, so it's easiest to just
+         *  rename the function.
+         */
+        virtual std::shared_ptr<NeighborQueryIterator> queryWithArgs(const vec3<float> *points, unsigned int N, QueryArgs args)
+            {
+            this->validateQueryArgs(args);
+            if (args.mode == QueryArgs::ball)
+                {
+                return this->queryBall(points, N, args.rmax, args.exclude_ii);
+                }
+            else if (args.mode == QueryArgs::nearest)
+                {
+                return this->query(points, N, args.nn, args.exclude_ii);
+                }
+            else
+                {
+                std::runtime_error("Invalid query mode provided to generic query function.");
+                }
+            }
+
         //! Given a point, find the k elements of this data structure
         //  that are the nearest neighbors for each point.
-        virtual std::shared_ptr<NeighborQueryIterator> query(const vec3<float> *points, unsigned int N, unsigned int k) const = 0;
+        virtual std::shared_ptr<NeighborQueryIterator> query(const vec3<float> *points, unsigned int N, unsigned int k, bool exclude_ii=false) const = 0;
 
         //! Given a point, find all elements of this data structure
         //  that are within a certain distance r.
-        virtual std::shared_ptr<NeighborQueryIterator> queryBall(const vec3<float> *points, unsigned int N, float r) const = 0;
+        virtual std::shared_ptr<NeighborQueryIterator> queryBall(const vec3<float> *points, unsigned int N, float r, bool exclude_ii=false) const = 0;
 
         //! Get the simulation box
         const box::Box& getBox() const
@@ -118,6 +170,20 @@ class NeighborQuery
             }
 
     protected:
+        virtual void validateQueryArgs(QueryArgs& args)
+            {
+            if (args.mode == QueryArgs::ball)
+                {
+                if (args.rmax == -1)
+                    throw std::runtime_error("You must set rmax in the query arguments.");
+                }
+            else if (args.mode == QueryArgs::nearest)
+                {
+                if (args.nn == -1)
+                    throw std::runtime_error("You must set nn in the query arguments.");
+                }
+            }
+
         const box::Box m_box;             //!< Simulation box where the particles belong
         const vec3<float> *m_ref_points;  //!< Reference point coordinates
         unsigned int m_Nref;              //!< Number of reference points
@@ -147,8 +213,8 @@ class NeighborQueryIterator {
 
         //! Constructor
         NeighborQueryIterator(const NeighborQuery* neighbor_query,
-                const vec3<float> *points, unsigned int N) :
-            m_neighbor_query(neighbor_query), m_points(points), m_N(N), cur_p(0), m_finished(false)
+                const vec3<float> *points, unsigned int N, bool exclude_ii) :
+            m_neighbor_query(neighbor_query), m_points(points), m_N(N), cur_p(0), m_finished(false), m_exclude_ii(exclude_ii)
             {
             }
 
@@ -159,6 +225,9 @@ class NeighborQueryIterator {
         virtual bool end() { return m_finished; }
 
         //! Replicate this class's query on a per-particle basis.
+        /*! Note that because this query is on a per-particle basis, there is
+         *  no reason to support ii exclusion, so we neglect that here.
+         */
         virtual std::shared_ptr<NeighborQueryIterator> query(unsigned int idx)
             {
             throw std::runtime_error("The query method must be implemented by child classes.");
@@ -183,7 +252,7 @@ class NeighborQueryIterator {
          *  the primary use-case is to have this object be managed by instances
          *  of the Cython NeighborList class.
          */
-        NeighborList *toNeighborList(bool exclude_ii)
+        virtual NeighborList *toNeighborList()
             {
             typedef tbb::enumerable_thread_specific< std::vector< std::pair<size_t, size_t> > > BondVector;
             BondVector bonds;
@@ -194,12 +263,12 @@ class NeighborQueryIterator {
                 NeighborPoint np;
                 for (size_t i(r.begin()); i != r.end(); ++i)
                     {
-                    std::shared_ptr<NeighborQueryIterator> it = query(i);
+                    std::shared_ptr<NeighborQueryIterator> it = this->query(i);
                     while (!it->end())
                         {
                         np = it->next();
                         // If we're excluding ii bonds, we have to check before adding.
-                        if (!exclude_ii || i != np.ref_id)
+                        if (!m_exclude_ii || i != np.ref_id)
                             {
                             // Swap ref_id and id order for backwards compatibility.
                             local_bonds.emplace_back(np.ref_id, i);
@@ -245,8 +314,60 @@ class NeighborQueryIterator {
         unsigned int cur_p;                    //!< The current index into the points (bounded by m_N).
 
         unsigned int m_finished;               //!< Flag to indicate that iteration is complete (must be set by next on termination).
+        bool m_exclude_ii;                     //!< Flag to indicate whether or not to include self bonds.
 };
 
+//! Iterator for nearest neighbor queries.
+/*! The primary purpose for this class is to ensure that conversion of
+ *  k-nearest neighbor queries into NeighborList objects correctly handles
+ *  self-neighbor exclusions. This problem arises because the generic
+ *  toNeighborList function does not pass the exclude_ii argument through to
+ *  the calls to query that generate new query iterators, but rather filters
+ *  out these exclusions after the fact. The reason it does this is because it
+ *  performs queries on a per-particle basis, so the indices cannot match.
+ *  However, this leads to a new problem, which is that when self-neighbors are
+ *  excluded, one fewer neighbor is found than desired. This class overrides
+ *  that behavior to ensure that the correct number of neighbors is found.
+ */
+class NeighborQueryQueryIterator : virtual public NeighborQueryIterator
+    {
+    public:
+        //! Constructor
+        NeighborQueryQueryIterator(const NeighborQuery* neighbor_query, const vec3<float> *points, unsigned int N, bool exclude_ii, unsigned int k) :
+            NeighborQueryIterator(neighbor_query, points, N, exclude_ii), m_count(0), m_k(k), m_current_neighbors()
+            {}
+
+        //! Empty Destructor
+        virtual ~NeighborQueryQueryIterator() {}
+
+        //! Generate a NeighborList from query.
+        /*! This function is a thin wrapper around the parent class function.
+         * All it needs to do is increase the counter of points to find, find
+         * them, and then reset.
+         */
+        virtual NeighborList *toNeighborList()
+            {
+            NeighborList *nlist;
+            if (m_exclude_ii)
+                m_k += 1;
+            try
+                {
+                nlist = NeighborQueryIterator::toNeighborList();
+                }
+            catch (...)
+                {
+                if (m_exclude_ii)
+                    m_k -= 1;
+                throw;
+                }
+            return nlist;
+            }
+
+    protected:
+        unsigned int m_count;                           //!< Number of neighbors returned for the current point.
+        unsigned int m_k;                               //!< Number of nearest neighbors to find
+        std::vector<NeighborPoint> m_current_neighbors; //!< The current set of found neighbors.
+    };
 }; }; // end namespace freud::locality
 
 #endif // NEIGHBOR_QUERY_H

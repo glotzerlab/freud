@@ -34,14 +34,14 @@
         "name": "freud.parallel",
         "sources": [
             "freud/parallel.pyx",
+            "cpp/parallel/tbb_config.cc",
+            "cpp/box/Box.cc",
+            "cpp/util/HOOMDMatrix.cc",
+            "cpp/locality/NearestNeighbors.cc",
             "cpp/locality/NeighborList.cc",
             "cpp/locality/LinkCell.cc",
-            "cpp/parallel/tbb_config.cc",
-            "cpp/util/HOOMDMatrix.cc",
             "cpp/locality/AABBQuery.cc",
-            "cpp/locality/NeighborQuery.cc",
-            "cpp/locality/NearestNeighbors.cc",
-            "cpp/box/Box.cc"
+            "cpp/locality/NeighborQuery.cc"
         ]
     },
     "module_name": "freud.parallel"
