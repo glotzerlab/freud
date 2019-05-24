@@ -812,14 +812,13 @@ cdef class AABBQuery(NeighborQuery):
     .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
 
+    .. versionadded:: 1.1.0
+
     Attributes:
         box (:class:`freud.locality.Box`):
             The simulation box.
         points (:class:`np.ndarray`):
             The points associated with this class.
-
-    .. versionadded:: 1.1.0
-
     """  # noqa: E501
 
     def __cinit__(self, box, points):
