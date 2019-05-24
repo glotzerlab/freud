@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "Cluster.h"
+#include "NeighborComputeFunctional.h"
 
 using namespace std;
 
@@ -95,37 +96,59 @@ void Cluster::computeClusters(const box::Box& box,
     float rmaxsq = m_rcut * m_rcut;
     DisjointSet dj(m_num_particles);
 
-    size_t bond(0);
+    // size_t bond(0);
 
-    // for each point
-    for (unsigned int i = 0; i < m_num_particles; i++)
-        {
-        // get the cell the point is in
-        vec3<float> p = points[i];
+    // // for each point
+    // for (unsigned int i = 0; i < m_num_particles; i++)
+    //     {
+    //     // get the cell the point is in
+    //     vec3<float> p = points[i];
 
-        for(; bond < nlist->getNumBonds() && neighbor_list[2*bond] == i; ++bond)
-            {
-            const size_t j(neighbor_list[2*bond + 1]);
+    //     for(; bond < nlist->getNumBonds() && neighbor_list[2*bond] == i; ++bond)
+    //         {
+    //         const size_t j(neighbor_list[2*bond + 1]);
+    //             {
+    //             if (i != j)
+    //                 {
+    //                 // compute r between the two particles
+    //                 vec3<float> delta = p - points[j];
+    //                 delta = box.wrap(delta);
+
+    //                 float rsq = dot(delta, delta);
+    //                 if (rsq < rmaxsq)
+    //                     {
+    //                     // merge the two sets using the disjoint set
+    //                     uint32_t a = dj.find(i);
+    //                     uint32_t b = dj.find(j);
+    //                     if (a != b)
+    //                         dj.merge(a,b);
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+    freud::locality::loop_over_NeighborList(nlist, 
+        [&rmaxsq, &dj, &box, points] (size_t i, size_t j) 
+            { 
+            vec3<float> p = points[i];
+            if (i != j)
                 {
-                if (i != j)
-                    {
-                    // compute r between the two particles
-                    vec3<float> delta = p - points[j];
-                    delta = box.wrap(delta);
+                // compute r between the two particles
+                vec3<float> delta = p - points[j];
+                delta = box.wrap(delta);
 
-                    float rsq = dot(delta, delta);
-                    if (rsq < rmaxsq)
-                        {
-                        // merge the two sets using the disjoint set
-                        uint32_t a = dj.find(i);
-                        uint32_t b = dj.find(j);
-                        if (a != b)
-                            dj.merge(a,b);
-                        }
+                float rsq = dot(delta, delta);
+                if (rsq < rmaxsq)
+                    {
+                    // merge the two sets using the disjoint set
+                    uint32_t a = dj.find(i);
+                    uint32_t b = dj.find(j);
+                    if (a != b)
+                        dj.merge(a,b);
                     }
-                }
+                }  
             }
-        }
+        );
 
     // done looping over points. All clusters are now determined. Renumber them from zero to num_clusters-1.
     map<uint32_t, uint32_t> label_map;

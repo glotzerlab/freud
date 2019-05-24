@@ -347,6 +347,7 @@ sources_in_all = [
     os.path.join("cpp", "locality", "LinkCell.cc"),
     os.path.join("cpp", "locality", "NearestNeighbors.cc"),
     os.path.join("cpp", "locality", "NeighborList.cc"),
+    os.path.join("cpp", "locality", "NeighborComputeFunctional.cc"),
     os.path.join("cpp", "box", "Box.cc")
 ]
 
