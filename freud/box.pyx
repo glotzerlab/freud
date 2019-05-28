@@ -228,8 +228,7 @@ cdef class Box:
                 "Invalid dimensions for fractions given to makeCoordinates. "
                 "Valid input is an array of shape (3,) or (N,3).")
 
-        fractions = freud.common.convert_array(
-            fractions, fractions.ndim, dtype=np.float32, contiguous=True)
+        fractions = freud.common.convert_array(fractions, fractions.ndim)
 
         if fractions.ndim == 1:
             fractions[:] = self._makeCoordinates(fractions)
@@ -261,8 +260,7 @@ cdef class Box:
                 "Invalid dimensions for vecs given to makeFraction. "
                 "Valid input is an array of shape (3,) or (N,3).")
 
-        vecs = freud.common.convert_array(
-            vecs, vecs.ndim, dtype=np.float32, contiguous=True)
+        vecs = freud.common.convert_array(vecs, vecs.ndim)
 
         if vecs.ndim == 1:
             vecs[:] = self._makeFraction(vecs)
@@ -296,8 +294,7 @@ cdef class Box:
                 "Invalid dimensions for vecs given to getImage. "
                 "Valid input is an array of shape (3,) or (N,3).")
 
-        vecs = freud.common.convert_array(
-            vecs, vecs.ndim, dtype=np.float32, contiguous=True)
+        vecs = freud.common.convert_array(vecs, vecs.ndim)
 
         if vecs.ndim == 1:
             vecs[:] = self._getImage(vecs)
@@ -350,8 +347,7 @@ cdef class Box:
                 "Invalid dimensions for vecs given to wrap. "
                 "Valid input is an array of shape (3,) or (N,3).")
 
-        vecs = freud.common.convert_array(
-            vecs, vecs.ndim, dtype=np.float32, contiguous=True)
+        vecs = freud.common.convert_array(vecs, vecs.ndim)
 
         if vecs.ndim == 1:
             # only one vector to wrap
@@ -393,10 +389,8 @@ cdef class Box:
                 "Invalid dimensions for vecs given to unwrap. "
                 "Valid input is an array of shape (3,) or (N,3).")
 
-        vecs = freud.common.convert_array(
-            vecs, vecs.ndim, dtype=np.float32, contiguous=True)
-        imgs = freud.common.convert_array(
-            imgs, vecs.ndim, dtype=np.int32, contiguous=True)
+        vecs = freud.common.convert_array(vecs, vecs.ndim)
+        imgs = freud.common.convert_array(imgs, vecs.ndim, dtype=np.int32)
 
         if vecs.ndim == 1:
             # only one vector to unwrap
@@ -740,8 +734,7 @@ cdef class ParticleBuffer:
                 each side, meaning that one image doubles the box side lengths,
                 two images triples the box side lengths, and so on.
         """
-        points = freud.common.convert_array(
-            points, 2, dtype=np.float32, contiguous=True, array_name='points')
+        points = freud.common.convert_array(points, 2, array_name='points')
 
         if points.shape[1] != 3:
             raise RuntimeError(
