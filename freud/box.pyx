@@ -734,7 +734,7 @@ cdef class ParticleBuffer:
                 each side, meaning that one image doubles the box side lengths,
                 two images triples the box side lengths, and so on.
         """
-        points = freud.common.convert_array(points, 2, array_name='points')
+        points = freud.common.convert_array(points, 2)
 
         if points.shape[1] != 3:
             raise RuntimeError(

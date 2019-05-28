@@ -64,11 +64,8 @@ cdef class InterfaceMeasure:
                 Neighborlist to use to find bonds (Default value = None).
         """
         b = freud.common.convert_box(box)
-        ref_points = freud.common.convert_array(
-            ref_points, 2, dtype=np.float32, contiguous=True,
-            array_name="ref_points")
-        points = freud.common.convert_array(
-            points, 2, dtype=np.float32, contiguous=True, array_name="points")
+        ref_points = freud.common.convert_array(ref_points, 2)
+        points = freud.common.convert_array(points, 2)
         if ref_points.shape[1] != 3 or points.shape[1] != 3:
             raise RuntimeError('Need to provide array with x, y, z positions')
 
