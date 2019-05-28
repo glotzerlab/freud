@@ -14,7 +14,6 @@ class BenchmarkEnvironmentBondOrder(Benchmark):
         self.n_bins_p = n_bins_p
 
     def bench_setup(self, N):
-        # n = 4
         n = N
         np.random.seed(0)
         (self.box, self.positions) = util.make_fcc(n, n, n)
