@@ -59,7 +59,7 @@ Modules can be benchmarked in the following way.
 .. code-block:: python
     
     # benchmarks/benchmark_example_Example.py
-    import Benchmark from benchmark
+    from benchmark import Benchmark
     import freud
 
     class BenchmarkExample(Benchmark):
