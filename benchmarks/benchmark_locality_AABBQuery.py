@@ -24,12 +24,11 @@ def run():
     Ns = [1000, 10000]
     rcut = 0.5
     L = 10
-    print_stats = True
     number = 100
 
     name = 'freud.locality.AABBQuery'
     return run_benchmarks(name, Ns, number, BenchmarkLocalityAABBQuery,
-                          print_stats, L=L, rcut=rcut)
+                          L=L, rcut=rcut)
 
 
 if __name__ == '__main__':

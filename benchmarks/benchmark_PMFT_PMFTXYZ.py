@@ -30,7 +30,6 @@ class BenchmarkPMFTPMFTXYZ(Benchmark):
 
 def run():
     Ns = [100, 500, 1000, 2000]
-    print_stats = True
     number = 100
     name = 'freud.PMFT.PMFTXYZ'
 
@@ -43,7 +42,7 @@ def run():
               "n_z": 120}
 
     return run_benchmarks(name, Ns, number, BenchmarkPMFTPMFTXYZ,
-                          print_stats, **kwargs)
+                          **kwargs)
 
 
 if __name__ == '__main__':

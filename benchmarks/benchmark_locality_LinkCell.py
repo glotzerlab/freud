@@ -24,12 +24,11 @@ def run():
     Ns = [1000, 10000]
     rcut = 1.0
     L = 10
-    print_stats = True
     number = 100
 
     name = 'freud.locality.LinkCell'
     return run_benchmarks(name, Ns, number, BenchmarkLocalityLinkCell,
-                          print_stats, L=L, rcut=rcut)
+                          L=L, rcut=rcut)
 
 
 if __name__ == '__main__':

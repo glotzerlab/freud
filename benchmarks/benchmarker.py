@@ -58,7 +58,7 @@ def benchmark_desc(name, params):
     return s
 
 
-def run_benchmarks(name, Ns, number, classobj, print_stats,
+def run_benchmarks(name, Ns, number, classobj, print_stats=True,
                    **kwargs):
     """Function to run benchmark.
 

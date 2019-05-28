@@ -31,8 +31,8 @@ def run():
     number = 100
     name = 'freud.density.RDF'
     classobj = BenchmarkDensityRDF
-    print_stats = True
-    return run_benchmarks(name, Ns, number, classobj, print_stats,
+
+    return run_benchmarks(name, Ns, number, classobj,
                           rmax=rmax, dr=dr, rmin=rmin)
 
 

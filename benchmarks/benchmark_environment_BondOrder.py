@@ -36,12 +36,11 @@ def run():
     r_cut = 1.5
     num_neighbors = 12
     npt = npp = 6
-    print_stats = True
     number = 100
 
     name = 'freud.environment.BondOrder'
     classobj = BenchmarkEnvironmentBondOrder
-    return run_benchmarks(name, Ns, number, classobj, print_stats,
+    return run_benchmarks(name, Ns, number, classobj,
                           rmax=r_cut, k=0,
                           num_neighbors=num_neighbors,
                           n_bins_t=npt, n_bins_p=npp)

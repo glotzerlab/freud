@@ -24,18 +24,14 @@ class BenchmarkParticleBuffer(Benchmark):
 
 def run():
     Ns = [1000, 5000, 10000]
-    print_stats = True
     number = 100
     name = 'freud.box.ParticleBuffer'
 
-    # L = 10
-    # buf = L*0.5
-    # images = False
     L = 10
     buf = 2
     images = True
     return run_benchmarks(name, Ns, number, BenchmarkParticleBuffer,
-                          print_stats, L=L, buf=buf, images=images)
+                          L=L, buf=buf, images=images)
 
 
 if __name__ == '__main__':

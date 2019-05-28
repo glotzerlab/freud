@@ -26,7 +26,7 @@ from freud import parallel
 # Like the unit test module, it is designed to be an overridden class.
 # Users must override run() to run their benchmark.
 # setup() is called once at the start of every benchmark for one time setup.
-class Benchmark:
+class Benchmark(object):
     def __init__(self):
         self.__N = None
         self.__t = 0

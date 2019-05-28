@@ -29,12 +29,11 @@ def run():
     rcut = 0.5
     L = 10
     num_neighbors = 6
-    print_stats = True
     number = 100
 
     name = 'freud.locality.NearestNeighbors'
     classobj = BenchmarkLocalityNearestNeighbors
-    return run_benchmarks(name, Ns, number, classobj, print_stats,
+    return run_benchmarks(name, Ns, number, classobj,
                           L=L, rcut=rcut, num_neighbors=num_neighbors)
 
 

@@ -27,10 +27,9 @@ def run():
     L = 10
     name = 'freud.cluster.Cluster'
     classobj = BenchmarkClusterCluster
-    print_stats = True
     number = 100
 
-    return run_benchmarks(name, Ns, number, classobj, print_stats,
+    return run_benchmarks(name, Ns, number, classobj,
                           L=L, rcut=rcut)
 
 

@@ -26,7 +26,6 @@ class BenchmarkOrderLocalWl(Benchmark):
 
 def run():
     Ns = [100, 500, 1000, 5000]
-    print_stats = True
     number = 100
     name = 'freud.order.LocalWl'
 
@@ -35,7 +34,7 @@ def run():
               "_I": 6}
 
     return run_benchmarks(name, Ns, number, BenchmarkOrderLocalWl,
-                          print_stats, **kwargs)
+                          **kwargs)
 
 
 if __name__ == '__main__':

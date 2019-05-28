@@ -27,7 +27,6 @@ class BenchmarkOrderLocalQlNear(Benchmark):
 
 def run():
     Ns = [100, 500, 1000, 5000]
-    print_stats = True
     number = 100
     name = 'freud.order.LocalQlNear'
 
@@ -37,7 +36,7 @@ def run():
               "kn": 12}
 
     return run_benchmarks(name, Ns, number, BenchmarkOrderLocalQlNear,
-                          print_stats, **kwargs)
+                          **kwargs)
 
 
 if __name__ == '__main__':

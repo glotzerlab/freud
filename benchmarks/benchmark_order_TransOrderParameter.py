@@ -25,7 +25,6 @@ class BenchmarkOrderTransOrderParameter(Benchmark):
 
 def run():
     Ns = [100, 500, 1000, 5000, 10000]
-    print_stats = True
     number = 100
     name = 'freud.order.TransOrderParameter'
 
@@ -34,7 +33,7 @@ def run():
 
     return run_benchmarks(name, Ns, number,
                           BenchmarkOrderTransOrderParameter,
-                          print_stats, **kwargs)
+                          **kwargs)
 
 
 if __name__ == '__main__':

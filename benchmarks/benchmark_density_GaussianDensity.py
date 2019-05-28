@@ -31,10 +31,9 @@ def run():
     sigma = 0.1
     name = 'freud.density.GaussianDensity'
     classobj = BenchmarkDensityGaussianDensity
-    print_stats = True
     number = 100
 
-    return run_benchmarks(name, Ns, number, classobj, print_stats,
+    return run_benchmarks(name, Ns, number, classobj,
                           width=width, rcut=rcut, sigma=sigma)
 
 

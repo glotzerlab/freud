@@ -25,7 +25,6 @@ class BenchmarkMSDMSD(Benchmark):
 
 def run():
     Ns = [100, 500, 1000, 5000]
-    print_stats = True
     number = 100
     name = 'freud.msd.MSD'
 
@@ -33,7 +32,7 @@ def run():
               "mode": "window"}
 
     return run_benchmarks(name, Ns, number, BenchmarkMSDMSD,
-                          print_stats, **kwargs)
+                          **kwargs)
 
 
 if __name__ == '__main__':

@@ -30,10 +30,9 @@ def run():
     dr = 1.0
     name = 'freud.density.FloatCF'
     classobj = BenchmarkDensityFloatCF
-    print_stats = True
     number = 100
 
-    return run_benchmarks(name, Ns, number, classobj, print_stats,
+    return run_benchmarks(name, Ns, number, classobj,
                           rmax=rmax, dr=dr)
 
 
