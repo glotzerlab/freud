@@ -2,39 +2,6 @@ import numpy as np
 import freud
 
 
-def quatRandom():
-    """Returns a random quaternion culled from a uniform distribution on the
-    surface of a 3-sphere. Uses the Marsaglia (1972) method (a la HOOMD).
-    Note that generating a random rotation via a random angle about a random
-    axis of rotation is INCORRECT. See K. Shoemake, "Uniform Random Rotations,"
-    1992, for a nice explanation for this.
-
-    The output quaternion is an array of four numbers: [q0, q1, q2, q3]"""
-
-    # np.random.uniform(low, high) gives a number from the interval [low, high)
-    v1 = np.random.uniform(-1, 1)
-    v2 = np.random.uniform(-1, 1)
-    v3 = np.random.uniform(-1, 1)
-    v4 = np.random.uniform(-1, 1)
-
-    s1 = v1*v1 + v2*v2
-    s2 = v3*v3 + v4*v4
-
-    while (s1 >= 1.):
-        v1 = np.random.uniform(-1, 1)
-        v2 = np.random.uniform(-1, 1)
-        s1 = v1*v1 + v2*v2
-
-    while (s2 >= 1. or s2 == 0.):
-        v3 = np.random.uniform(-1, 1)
-        v4 = np.random.uniform(-1, 1)
-        s2 = v3*v3 + v4*v4
-
-    s3 = np.sqrt((1.-s1)/s2)
-
-    return np.array([v1, v2, v3*s3, v4*s3])
-
-
 def make_fcc(nx=1, ny=1, nz=1, scale=1.0, noise=0.0):
     """Make an FCC crystal for testing
 
