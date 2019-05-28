@@ -99,7 +99,7 @@ cdef class Cluster:
                 Simulation box (Default value = None).
         """
         points = freud.common.convert_array(
-            points, 2, dtype=np.float32, contiguous=True)
+            points, 2, dtype=np.float32)
         if points.shape[1] != 3:
             raise RuntimeError(
                 'Need a list of 3D points for computeClusters()')
@@ -133,7 +133,7 @@ cdef class Cluster:
                 Membership keys, one for each particle.
         """
         keys = freud.common.convert_array(
-            keys, 1, dtype=np.uint32, contiguous=True)
+            keys, 1, dtype=np.uint32)
         if keys.shape[0] != self.num_particles:
             raise RuntimeError(
                 'keys must be a 1D array of length num_particles')
@@ -247,13 +247,12 @@ cdef class ClusterProperties:
         else:
             b = freud.common.convert_box(box)
 
-        points = freud.common.convert_array(
-            points, 2, dtype=np.float32, contiguous=True)
+        points = freud.common.convert_array(points, 2, dtype=np.float32)
         if points.shape[1] != 3:
             raise RuntimeError(
                 'Need a list of 3D points for computeClusterProperties()')
         cluster_idx = freud.common.convert_array(
-            cluster_idx, 1, dtype=np.uint32, contiguous=True)
+            cluster_idx, 1, dtype=np.uint32)
         if cluster_idx.shape[0] != points.shape[0]:
             raise RuntimeError(
                 ('cluster_idx must be a 1D array of matching length/number'
