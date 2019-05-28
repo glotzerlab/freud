@@ -10,7 +10,7 @@ import freud.box
 logger = logging.getLogger(__name__)
 
 
-def convert_array(array, dimensions, dtype=None,
+def convert_array(array, dimensions, dtype=np.float32,
                   contiguous=True, array_name=None):
     """Function which takes a given array, checks the dimensions,
     and converts to a supplied dtype and/or makes the array
