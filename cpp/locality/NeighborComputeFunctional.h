@@ -6,12 +6,13 @@
 // #include "AABBQuery.h"
 #include "NeighborList.h"
 // #include "Index1D.h"
+#include <tbb/tbb.h>
 
 namespace freud { namespace locality {
 
 
 template<typename ComputePairType>
-void loop_over_NeighborList(const NeighborList* nlist, ComputePairType cf)
+void loop_over_NeighborList(const NeighborList* nlist, const ComputePairType& cf)
     {
     const size_t *neighbor_list(nlist->getNeighbors());
     for (size_t bond = 0; bond < nlist->getNumBonds(); ++bond)
@@ -23,7 +24,7 @@ void loop_over_NeighborList(const NeighborList* nlist, ComputePairType cf)
     }
 
 template<typename ComputePairType>
-void loop_over_NeighborList_parallel(const NeighborList* nlist, ComputePairType cf)
+void loop_over_NeighborList_parallel(const NeighborList* nlist, const ComputePairType& cf)
     {
     const size_t *neighbor_list(nlist->getNeighbors());
     size_t n_bonds = nlist->getNumBonds();
@@ -39,7 +40,22 @@ void loop_over_NeighborList_parallel(const NeighborList* nlist, ComputePairType 
         });
     }
 
+// Body should be an object taking in 
+// with operator(size_t begin, size_t end)
+template<typename Body>
+void for_loop_wrapper(bool parallel, size_t begin, size_t end, const Body& body)
+    {
+        if(parallel)
+            {
+                tbb::parallel_for(tbb::blocked_range<size_t>(begin, end), 
+                    [&body] (const tbb::blocked_range<size_t>& r) {body(r.begin(), r.end());});
+            }
+        else
+            {
+                body(begin, end);
+            }
+    }
 
-}; }; // end namespacec freud::locality
+}; }; // end namespace freud::locality
 
 #endif
