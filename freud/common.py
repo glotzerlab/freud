@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 def convert_array(array, dimensions, dtype=np.float32,
-                  contiguous=True, array_name=None):
+                  contiguous=True):
     """Function which takes a given array, checks the dimensions,
     and converts to a supplied dtype and/or makes the array
     contiguous as required by the user.
@@ -23,12 +23,10 @@ def convert_array(array, dimensions, dtype=np.float32,
         dimensions (int): Expected dimensions of the array.
         dtype: code:`dtype` to convert the array to if :code:`array.dtype`
             is different. If `None`, :code:`dtype` will not be changed.
-            (Default value = None).
+            (Default value = `numpy.float32`).
         contiguous (bool): Whether to cast the array to a contiguous (Default
             value = True).
         array. Default behavior casts to a contiguous array.
-        array_name (str): Name of the array, used for errors (Default value =
-            None).
 
     Returns:
         py:class:`numpy.ndarray`: Array.
@@ -37,7 +35,7 @@ def convert_array(array, dimensions, dtype=np.float32,
 
     if array.ndim != dimensions:
         raise TypeError("{}.ndim = {}; expected ndim = {}".format(
-            array_name or "array", array.ndim, dimensions))
+            "array", array.ndim, dimensions))
     return np.require(
         array, dtype=dtype, requirements=['C'] if contiguous else None)
 
