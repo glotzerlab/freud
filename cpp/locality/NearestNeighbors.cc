@@ -9,7 +9,6 @@
 #include <vector>
 
 #include "NearestNeighbors.h"
-#include "HOOMDMatrix.h"
 
 using namespace std;
 using namespace tbb;
