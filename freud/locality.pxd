@@ -16,7 +16,8 @@ cdef class NeighborQueryResult:
     cdef cbool exclude_ii
     cdef str query_type
 
-    cdef shared_ptr[freud._locality.NeighborQueryIterator] _getIterator(self)
+    cdef shared_ptr[
+        freud._locality.NeighborQueryIterator] _getIterator(self) except *
 
     # This had to be implemented as a factory because the constructors will
     # always get called with Python objects as arguments, and we need typed
@@ -55,7 +56,7 @@ cdef class AABBQueryResult(NeighborQueryResult):
     cdef float scale
 
     @staticmethod
-    cdef inline AABBQueryResult init2(
+    cdef inline AABBQueryResult init_aabb_nn(
             freud._locality.AABBQuery * aabbptr, const float[:, ::1] points,
             cbool exclude_ii, unsigned int k, float r, float scale):
         # Internal API only
@@ -68,7 +69,8 @@ cdef class AABBQueryResult(NeighborQueryResult):
         obj.exclude_ii = exclude_ii
         obj.Np = points.shape[0]
 
-        obj.r = r  # Only for kN queries
+        # For AABBs, even kN queries require a distance cutoff
+        obj.r = r
         obj.k = k
 
         obj.query_type = 'nn'

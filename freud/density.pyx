@@ -711,8 +711,8 @@ cdef class RDF:
         dr (float):
             Distance between histogram bins.
         rmin (float, optional):
-            Minimum interparticle distance to include in the calculation.
-            Defaults to 0.
+            Minimum interparticle distance to include in the calculation
+            (Default value = 0).
 
     Attributes:
         box (:class:`freud.box.Box`):

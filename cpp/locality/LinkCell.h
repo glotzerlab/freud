@@ -6,6 +6,7 @@
 
 #include <memory>
 #include <vector>
+#include <tbb/concurrent_hash_map.h>
 
 #include "Box.h"
 #include "NeighborList.h"
@@ -423,9 +424,20 @@ class LinkCell : public NeighborQuery
             }
 
         //! Get a list of neighbors to a cell
-        const std::vector<unsigned int>& getCellNeighbors(unsigned int cell) const
+        const std::vector<unsigned int>& getCellNeighbors(unsigned int cell)
             {
-            return m_cell_neighbors[cell];
+                // check if the list of neighbors has been already computed
+                // return the list if it has
+                // otherwise, compute it and return
+                CellNeighbors::const_accessor a;
+                if(m_cell_neighbors.find(a, cell))
+                    {
+                        return a->second;
+                    }
+                else
+                    {
+                        return computeCellNeighbors(cell);
+                    }
             }
 
         //! Compute the cell list
@@ -443,11 +455,11 @@ class LinkCell : public NeighborQuery
 
         //! Given a set of points, find the k elements of this data structure
         //  that are the nearest neighbors for each point.
-        virtual std::shared_ptr<NeighborQueryIterator> query(const vec3<float> *points, unsigned int N, unsigned int k) const;
+        virtual std::shared_ptr<NeighborQueryIterator> query(const vec3<float> *points, unsigned int N, unsigned int k, bool exclude_ii=false) const;
 
         //! Given a set of points, find all elements of this data structure
         //  that are within a certain distance r.
-        virtual std::shared_ptr<NeighborQueryIterator> queryBall(const vec3<float> *points, unsigned int N, float r) const;
+        virtual std::shared_ptr<NeighborQueryIterator> queryBall(const vec3<float> *points, unsigned int N, float r, bool exclude_ii=false) const;
 
     private:
         //! Rounding helper function.
@@ -457,7 +469,7 @@ class LinkCell : public NeighborQuery
         void updateInternal(const box::Box& box, float cell_width);
 
         //! Helper function to compute cell neighbors
-        void computeCellNeighbors();
+        const std::vector<unsigned int>& computeCellNeighbors(unsigned int cell);
 
         box::Box m_box;                //!< Simulation box where the particles belong
         Index3D m_cell_index;          //!< Indexer to compute cell indices
@@ -467,21 +479,22 @@ class LinkCell : public NeighborQuery
         vec3<unsigned int> m_celldim;  //!< Cell dimensions
 
         std::shared_ptr<unsigned int> m_cell_list;                 //!< The cell list last computed
-        std::vector< std::vector<unsigned int> > m_cell_neighbors; //!< List of cell neighbors to each cell
+        typedef tbb::concurrent_hash_map<unsigned int, std::vector<unsigned int> >  CellNeighbors;
+        CellNeighbors m_cell_neighbors;                            //!< Hash map of cell neighbors for each cell
         NeighborList m_neighbor_list;                              //!< Stored neighbor list
     };
 
 
 //! Parent class of LinkCell iterators that knows how to traverse general cell-linked list structures
-class LinkCellIterator : public NeighborQueryIterator
+class LinkCellIterator : virtual public NeighborQueryIterator
     {
     public:
         //! Constructor
         /*! The initial state is to search shell 0, the current cell. We then
          *  iterate outwards from there.
         */
-        LinkCellIterator(const LinkCell* neighbor_query, const vec3<float> *points, unsigned int N) :
-            NeighborQueryIterator(neighbor_query, points, N), m_linkcell(neighbor_query),
+        LinkCellIterator(const LinkCell* neighbor_query, const vec3<float> *points, unsigned int N, bool exclude_ii) :
+            NeighborQueryIterator(neighbor_query, points, N, exclude_ii), m_linkcell(neighbor_query),
             m_neigh_cell_iter(0, neighbor_query->getBox().is2D()),
             m_cell_iter(m_linkcell->itercell(m_linkcell->getCell(m_points[0])))
             {}
@@ -496,12 +509,12 @@ class LinkCellIterator : public NeighborQueryIterator
     };
 
 //! Iterator that gets nearest neighbors from LinkCell tree structures
-class LinkCellQueryIterator : public LinkCellIterator
+class LinkCellQueryIterator : virtual public NeighborQueryQueryIterator, virtual public LinkCellIterator
     {
     public:
         //! Constructor
-        LinkCellQueryIterator(const LinkCell* neighbor_query, const vec3<float> *points, unsigned int N, unsigned int k) :
-            LinkCellIterator(neighbor_query, points, N), m_k(k), m_current_neighbors(), m_count(0)
+        LinkCellQueryIterator(const LinkCell* neighbor_query, const vec3<float> *points, unsigned int N, unsigned int k, bool exclude_ii) :
+            NeighborQueryIterator(neighbor_query, points, N, exclude_ii), NeighborQueryQueryIterator(neighbor_query, points, N, exclude_ii, k), LinkCellIterator(neighbor_query, points, N, exclude_ii)
             {}
 
         //! Empty Destructor
@@ -512,20 +525,15 @@ class LinkCellQueryIterator : public LinkCellIterator
 
         //! Create an equivalent new query iterator on a per-particle basis.
         virtual std::shared_ptr<NeighborQueryIterator> query(unsigned int idx);
-
-    protected:
-        unsigned int m_k;                               //!< Number of nearest neighbors to find
-        std::vector<NeighborPoint> m_current_neighbors; //!< Current list of neighbors for the current point.
-        unsigned int m_count;                           //!< Number of neighbors returned for the current point.
     };
 
 //! Iterator that gets neighbors in a ball of size r using LinkCell tree structures
-class LinkCellQueryBallIterator : public LinkCellIterator
+class LinkCellQueryBallIterator : virtual public LinkCellIterator
     {
     public:
         //! Constructor
-        LinkCellQueryBallIterator(const LinkCell* neighbor_query, const vec3<float> *points, unsigned int N, float r) :
-            LinkCellIterator(neighbor_query, points, N), m_r(r)
+        LinkCellQueryBallIterator(const LinkCell* neighbor_query, const vec3<float> *points, unsigned int N, float r, bool exclude_ii) :
+            NeighborQueryIterator(neighbor_query, points, N, exclude_ii), LinkCellIterator(neighbor_query, points, N, exclude_ii), m_r(r)
             {}
 
         //! Empty Destructor
