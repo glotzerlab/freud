@@ -228,7 +228,7 @@ cdef class Box:
                 "Invalid dimensions for fractions given to makeCoordinates. "
                 "Valid input is an array of shape (3,) or (N,3).")
 
-        fractions = freud.common.convert_array(fractions, fractions.ndim)
+        fractions = freud.common.convert_array(fractions)
 
         if fractions.ndim == 1:
             fractions[:] = self._makeCoordinates(fractions)
@@ -260,7 +260,7 @@ cdef class Box:
                 "Invalid dimensions for vecs given to makeFraction. "
                 "Valid input is an array of shape (3,) or (N,3).")
 
-        vecs = freud.common.convert_array(vecs, vecs.ndim)
+        vecs = freud.common.convert_array(vecs)
 
         if vecs.ndim == 1:
             vecs[:] = self._makeFraction(vecs)
@@ -294,7 +294,7 @@ cdef class Box:
                 "Invalid dimensions for vecs given to getImage. "
                 "Valid input is an array of shape (3,) or (N,3).")
 
-        vecs = freud.common.convert_array(vecs, vecs.ndim)
+        vecs = freud.common.convert_array(vecs)
 
         if vecs.ndim == 1:
             vecs[:] = self._getImage(vecs)
@@ -347,7 +347,7 @@ cdef class Box:
                 "Invalid dimensions for vecs given to wrap. "
                 "Valid input is an array of shape (3,) or (N,3).")
 
-        vecs = freud.common.convert_array(vecs, vecs.ndim)
+        vecs = freud.common.convert_array(vecs)
 
         if vecs.ndim == 1:
             # only one vector to wrap
@@ -389,7 +389,7 @@ cdef class Box:
                 "Invalid dimensions for vecs given to unwrap. "
                 "Valid input is an array of shape (3,) or (N,3).")
 
-        vecs = freud.common.convert_array(vecs, vecs.ndim)
+        vecs = freud.common.convert_array(vecs)
         imgs = freud.common.convert_array(imgs, vecs.ndim, dtype=np.int32)
 
         if vecs.ndim == 1:

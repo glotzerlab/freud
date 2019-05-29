@@ -242,8 +242,7 @@ cdef class NematicOrderParameter:
             orientations (:math:`\left(N_{particles}, 4 \right)` :class:`numpy.ndarray`):
                 Orientations to calculate the order parameter.
         """  # noqa: E501
-        orientations = freud.common.convert_array(
-            orientations, 2)
+        orientations = freud.common.convert_array(orientations, 2)
         if orientations.shape[1] != 4:
             raise TypeError('orientations should be an Nx4 array')
 
@@ -1552,8 +1551,7 @@ cdef class RotationalAutocorrelation:
             ors ((:math:`N_{orientations}`, 4) :class:`numpy.ndarray`):
                 Orientations for the frame of interest.
         """
-        ref_ors = freud.common.convert_array(
-            ref_ors, 2)
+        ref_ors = freud.common.convert_array(ref_ors, 2)
         if ref_ors.shape[1] != 4:
             raise TypeError('ref_ors should be an Nx4 array')
 

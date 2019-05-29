@@ -10,8 +10,7 @@ import freud.box
 logger = logging.getLogger(__name__)
 
 
-def convert_array(array, dimensions, dtype=np.float32,
-                  contiguous=True):
+def convert_array(array, dimensions=None, dtype=np.float32):
     """Function which takes a given array, checks the dimensions,
     and converts to a supplied dtype and/or makes the array
     contiguous as required by the user.
@@ -24,8 +23,6 @@ def convert_array(array, dimensions, dtype=np.float32,
         dtype: code:`dtype` to convert the array to if :code:`array.dtype`
             is different. If `None`, :code:`dtype` will not be changed.
             (Default value = `numpy.float32`).
-        contiguous (bool): Whether to cast the array to a contiguous (Default
-            value = True).
         array. Default behavior casts to a contiguous array.
 
     Returns:
@@ -33,11 +30,10 @@ def convert_array(array, dimensions, dtype=np.float32,
     """
     array = np.asarray(array)
 
-    if array.ndim != dimensions:
-        raise TypeError("{}.ndim = {}; expected ndim = {}".format(
-            "array", array.ndim, dimensions))
-    return np.require(
-        array, dtype=dtype, requirements=['C'] if contiguous else None)
+    if dimensions is not None and array.ndim != dimensions:
+        raise TypeError("array.ndim = {}; expected ndim = {}".format(
+            array.ndim, dimensions))
+    return np.require(array, dtype=dtype, requirements=['C'])
 
 
 def convert_box(box):

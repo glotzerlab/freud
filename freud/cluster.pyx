@@ -98,8 +98,7 @@ cdef class Cluster:
             box (:class:`freud.box.Box`, optional):
                 Simulation box (Default value = None).
         """
-        points = freud.common.convert_array(
-            points, 2, dtype=np.float32)
+        points = freud.common.convert_array(points, 2)
         if points.shape[1] != 3:
             raise RuntimeError(
                 'Need a list of 3D points for computeClusters()')
@@ -132,8 +131,7 @@ cdef class Cluster:
             keys((:math:`N_{particles}`) :class:`numpy.ndarray`):
                 Membership keys, one for each particle.
         """
-        keys = freud.common.convert_array(
-            keys, 1, dtype=np.uint32)
+        keys = freud.common.convert_array(keys, 1, dtype=np.uint32)
         if keys.shape[0] != self.num_particles:
             raise RuntimeError(
                 'keys must be a 1D array of length num_particles')
@@ -247,7 +245,7 @@ cdef class ClusterProperties:
         else:
             b = freud.common.convert_box(box)
 
-        points = freud.common.convert_array(points, 2, dtype=np.float32)
+        points = freud.common.convert_array(points, 2)
         if points.shape[1] != 3:
             raise RuntimeError(
                 'Need a list of 3D points for computeClusterProperties()')
