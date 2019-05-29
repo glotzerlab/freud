@@ -5,12 +5,12 @@ from benchmarker import run_benchmarks
 
 
 class BenchmarkOrderSolLiqNear(Benchmark):
-    def __init__(self, L, rmax, Qthreshold, Sthreshold, _I, kn):
+    def __init__(self, L, rmax, Qthreshold, Sthreshold, I, kn):
         self.L = L
         self.rmax = rmax
         self.Qthreshold = Qthreshold
         self.Sthreshold = Sthreshold
-        self._I = _I
+        self.I = I # noqa
         self.kn = kn
 
     def bench_setup(self, N):
@@ -21,7 +21,7 @@ class BenchmarkOrderSolLiqNear(Benchmark):
                                                    (N, 3)),
                                  dtype=np.float32)
         self.sl = freud.order.SolLiq(box, self.rmax, self.Qthreshold,
-                                     self.Sthreshold, self._I, self.kn)
+                                     self.Sthreshold, self.I, self.kn)
 
     def bench_run(self, N):
         self.sl.compute(self.points)
@@ -36,7 +36,7 @@ def run():
               "rmax": 2,
               "Qthreshold": 0.7,
               "Sthreshold": 6,
-              "_I": 6,
+              "I": 6,
               "kn": 12}
 
     return run_benchmarks(name, Ns, number, BenchmarkOrderSolLiqNear,
