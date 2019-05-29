@@ -17,10 +17,11 @@ class BenchmarkDensityRDF(Benchmark):
             * self.box_size - self.box_size/2
         self.points.flags['WRITEABLE'] = False
         self.rdf = freud.density.RDF(self.rmax, self.dr, rmin=self.rmin)
+        self.box = freud.box.Box.cube(self.box_size)
 
     def bench_run(self, N):
-        self.rdf.accumulate(freud.box.Box.cube(self.box_size), self.points)
-        self.rdf.compute(freud.box.Box.cube(self.box_size), self.points)
+        self.rdf.accumulate(self.box, self.points)
+        self.rdf.compute(self.box, self.points)
 
 
 def run():

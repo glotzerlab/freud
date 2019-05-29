@@ -18,11 +18,12 @@ class BenchmarkDensityComplexCF(Benchmark):
             * 2.0 * np.pi
         self.comp = np.exp(1j*ang)
         self.ocf = freud.density.ComplexCF(self.rmax, self.dr)
+        self.box = freud.box.Box.square(self.box_size)
 
     def bench_run(self, N):
-        self.ocf.accumulate(freud.box.Box.square(self.box_size), self.points,
+        self.ocf.accumulate(self.box, self.points,
                             self.comp, self.points, np.conj(self.comp))
-        self.ocf.compute(freud.box.Box.square(self.box_size), self.points,
+        self.ocf.compute(self.box, self.points,
                          self.comp, self.points, np.conj(self.comp))
 
 
