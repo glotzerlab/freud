@@ -9,6 +9,7 @@
 #include <tbb/tbb.h>
 
 #include "Box.h"
+#include "NeighborList.h"
 #include "PMFT.h"
 #include "VectorMath.h"
 
