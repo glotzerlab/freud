@@ -27,8 +27,8 @@ class Benchmark(object):
         timing results are normalized by N.
 
         Like the unit test module, it is designed to be an overridden class.
-        Users must override `bench_setup()` and `bench_run()` to run their benchmark.
-        `bench_setup()` is called once at the start of every benchmark for one time setup.
+        Users must override :code:`bench_setup()` and :code:`bench_run()` to run their benchmark.
+        :code:`bench_setup()` is called once at the start of every benchmark for one time setup.
     """  # noqa: E501
     def __init__(self):
         """Initialization
@@ -42,8 +42,8 @@ class Benchmark(object):
         """Setup function for benchmark.
 
         The user must override this method to provide preliminary materials as member
-        variables to be used in the `bench_run()` method. The runtime of this method is
-        not measured, and is run only once before `bench_run()` is run.
+        variables to be used in the :code:`bench_run()` method. The runtime of this method is
+        not measured, and is run only once before :code:`bench_run()` is run.
 
         Args:
             N (int):
@@ -64,7 +64,7 @@ class Benchmark(object):
         pass
 
     def bench_run_parallel(self, N, num_threads):
-        """Run `bench_run()` with `num_threads` many threads.
+        """Run :code:`bench_run()` with :code:`num_threads` many threads.
 
         Args:
             N (int):
@@ -76,8 +76,9 @@ class Benchmark(object):
         self.bench_run(N)
 
     def setup_timer(self, N, num_threads):
-        """Helper function to return a timeit.timer instance that uses `bench_setup()`
-        once to setup and measures the time of `bench_run_parallel()` method.
+        """Helper function to return a timeit.timer instance that uses
+        :code:`bench_setup()` once to setup and measures the time of
+        :code:`bench_run_parallel()` method.
 
         Args:
             N (int):
@@ -110,7 +111,8 @@ class Benchmark(object):
                 (Default value = 0).
 
         Returns:
-            int: The minimum time out of `repeat` many calls to `bench_run()`.
+            int: The minimum time out of :code:`repeat` many
+            calls to :code:`bench_run()`.
         """
         # initialize timer
         timer = self.setup_timer(N, num_threads)
