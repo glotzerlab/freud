@@ -6,6 +6,7 @@
 #include <stdexcept>
 #include <tbb/tbb.h>
 #include <tuple>
+#include <cmath>
 
 #include "LinkCell.h"
 
@@ -83,7 +84,6 @@ void LinkCell::updateInternal(const box::Box& box, float cell_width)
                 throw runtime_error("At least one cell must be present.");
                 }
             m_celldim = celldim;
-            computeCellNeighbors();
             }
         m_cell_width = cell_width;
         }
@@ -269,107 +269,105 @@ void LinkCell::compute(const box::Box& box,
         });
     }
 
-void LinkCell::computeCellNeighbors()
+const std::vector<unsigned int>& LinkCell::computeCellNeighbors(unsigned int cur_cell)
     {
-    // clear the list
-    m_cell_neighbors.clear();
-    m_cell_neighbors.resize(getNumCells());
+    std::vector<unsigned int> neighbor_cells;
+    vec3<unsigned int> l_idx = m_cell_index(cur_cell);
+    const int i = (int) l_idx.x;
+    const int j = (int) l_idx.y;
+    const int k = (int) l_idx.z;
 
-    // for each cell
-    for (unsigned int k = 0; k < m_cell_index.getD(); k++)
-        for (unsigned int j = 0; j < m_cell_index.getH(); j++)
-            for (unsigned int i = 0; i < m_cell_index.getW(); i++)
+    // loop over the neighbor cells
+    int starti, startj, startk;
+    int endi, endj, endk;
+    if (m_celldim.x < 3)
+        {
+        starti = i;
+        }
+    else
+        {
+        starti = i - 1;
+        }
+    if (m_celldim.y < 3)
+        {
+        startj = j;
+        }
+    else
+        {
+        startj = j - 1;
+        }
+    if (m_celldim.z < 3)
+        {
+        startk = k;
+        }
+    else
+        {
+        startk = k - 1;
+        }
+
+    if (m_celldim.x < 2)
+        {
+        endi = i;
+        }
+    else
+        {
+        endi = i + 1;
+        }
+    if (m_celldim.y < 2)
+        {
+        endj = j;
+        }
+    else
+        {
+        endj = j + 1;
+        }
+    if (m_celldim.z < 2)
+        {
+        endk = k;
+        }
+    else
+        {
+        endk = k + 1;
+        }
+    if (m_box.is2D())
+        startk = endk = k;
+
+    for (int neighk = startk; neighk <= endk; neighk++)
+        for (int neighj = startj; neighj <= endj; neighj++)
+            for (int neighi = starti; neighi <= endi; neighi++)
                 {
-                // clear the list
-                unsigned int cur_cell = m_cell_index(i,j,k);
-                m_cell_neighbors[cur_cell].clear();
+                // wrap back into the box
+                int wrapi = (m_cell_index.getW()+neighi) % m_cell_index.getW();
+                int wrapj = (m_cell_index.getH()+neighj) % m_cell_index.getH();
+                int wrapk = (m_cell_index.getD()+neighk) % m_cell_index.getD();
 
-                // loop over the neighbor cells
-                int starti, startj, startk;
-                int endi, endj, endk;
-                if (m_celldim.x < 3)
-                    {
-                    starti = (int)i;
-                    }
-                else
-                    {
-                    starti = (int)i - 1;
-                    }
-                if (m_celldim.y < 3)
-                    {
-                    startj = (int)j;
-                    }
-                else
-                    {
-                    startj = (int)j - 1;
-                    }
-                if (m_celldim.z < 3)
-                    {
-                    startk = (int)k;
-                    }
-                else
-                    {
-                    startk = (int)k - 1;
-                    }
-
-                if (m_celldim.x < 2)
-                    {
-                    endi = (int)i;
-                    }
-                else
-                    {
-                    endi = (int)i + 1;
-                    }
-                if (m_celldim.y < 2)
-                    {
-                    endj = (int)j;
-                    }
-                else
-                    {
-                    endj = (int)j + 1;
-                    }
-                if (m_celldim.z < 2)
-                    {
-                    endk = (int)k;
-                    }
-                else
-                    {
-                    endk = (int)k + 1;
-                    }
-                if (m_box.is2D())
-                    startk = endk = k;
-
-                for (int neighk = startk; neighk <= endk; neighk++)
-                    for (int neighj = startj; neighj <= endj; neighj++)
-                        for (int neighi = starti; neighi <= endi; neighi++)
-                            {
-                            // wrap back into the box
-                            int wrapi = (m_cell_index.getW()+neighi) % m_cell_index.getW();
-                            int wrapj = (m_cell_index.getH()+neighj) % m_cell_index.getH();
-                            int wrapk = (m_cell_index.getD()+neighk) % m_cell_index.getD();
-
-                            unsigned int neigh_cell = m_cell_index(wrapi, wrapj, wrapk);
-                            // add to the list
-                            m_cell_neighbors[cur_cell].push_back(neigh_cell);
-                            }
-
-                // sort the list
-                sort(m_cell_neighbors[cur_cell].begin(), m_cell_neighbors[cur_cell].end());
+                unsigned int neigh_cell = m_cell_index(wrapi, wrapj, wrapk);
+                // add to the list
+                neighbor_cells.push_back(neigh_cell);
                 }
+
+    // sort the list
+    sort(neighbor_cells.begin(), neighbor_cells.end());
+
+    // add the vector of neighbor cells to the hash table
+    CellNeighbors::accessor a;
+    m_cell_neighbors.insert(a, cur_cell);
+    a->second = neighbor_cells;
+    return a->second;
     }
 
 //! Given a set of points, find the k elements of this data structure
 //  that are the nearest neighbors for each point.
-std::shared_ptr<NeighborQueryIterator> LinkCell::query(const vec3<float> *points, unsigned int N, unsigned int k) const
+std::shared_ptr<NeighborQueryIterator> LinkCell::query(const vec3<float> *points, unsigned int N, unsigned int k, bool exclude_ii) const
     {
-    return std::make_shared<LinkCellQueryIterator>(this, points, N, k);
+    return std::make_shared<LinkCellQueryIterator>(this, points, N, k, exclude_ii);
     }
 
 //! Given a set of points, find all elements of this data structure
 //  that are within a certain distance r.
-std::shared_ptr<NeighborQueryIterator> LinkCell::queryBall(const vec3<float> *points, unsigned int N, float r) const
+std::shared_ptr<NeighborQueryIterator> LinkCell::queryBall(const vec3<float> *points, unsigned int N, float r, bool exclude_ii) const
     {
-    return std::make_shared<LinkCellQueryBallIterator>(this, points, N, r);
+    return std::make_shared<LinkCellQueryBallIterator>(this, points, N, r, exclude_ii);
     }
 
 NeighborPoint LinkCellQueryBallIterator::next()
@@ -391,7 +389,7 @@ NeighborPoint LinkCellQueryBallIterator::next()
                 const vec3<float> rij(m_neighbor_query->getBox().wrap((*m_linkcell)[j] - m_points[cur_p]));
                 const float rsq(dot(rij, rij));
 
-                if (rsq < r_cutsq)
+                if (rsq < r_cutsq && (!m_exclude_ii || cur_p != j))
                     {
                     return NeighborPoint(cur_p, j, sqrt(rsq));
                     }
@@ -399,9 +397,7 @@ NeighborPoint LinkCellQueryBallIterator::next()
 
             // Determine the next neighbor cell to consider. We're done if we
             // reach a new shell and the closest point of approach to the new
-            // shell is greater than our rcut. We could be a little more
-            // efficient by also accounting for the position of the point in
-            // the current cell if this is too slow.
+            // shell is greater than our rcut.
             ++m_neigh_cell_iter;
 
             if ((m_neigh_cell_iter.getRange()-1)*m_linkcell->getCellWidth() > m_r)
@@ -435,7 +431,12 @@ std::shared_ptr<NeighborQueryIterator> LinkCellQueryBallIterator::query(unsigned
 NeighborPoint LinkCellQueryIterator::next()
     {
     vec3<float> plane_distance = m_neighbor_query->getBox().getNearestPlaneDistance();
-    float min_plane_distance = std::min(std::min(plane_distance.x, plane_distance.y), plane_distance.z);
+    float min_plane_distance = std::min(plane_distance.x, plane_distance.y);
+    if (!m_neighbor_query->getBox().is2D())
+        {
+        min_plane_distance = std::min(min_plane_distance, plane_distance.z);
+        }
+    unsigned int max_range = ceil(min_plane_distance/(2*m_linkcell->getCellWidth()))+1;
 
     while (cur_p < m_N)
         {
@@ -445,7 +446,7 @@ NeighborPoint LinkCellQueryIterator::next()
         if (!m_current_neighbors.size())
             {
             // Expand search cell radius until termination conditions are met.
-            while (true)
+            while (m_neigh_cell_iter != IteratorCellShell(max_range, m_neighbor_query->getBox().is2D()))
                 {
                 // Iterate over the particles in that cell. Using a local counter
                 // variable is safe, because the IteratorLinkCell object is keeping
@@ -456,6 +457,11 @@ NeighborPoint LinkCellQueryIterator::next()
                     {
                     for (unsigned int j = m_cell_iter.next(); !m_cell_iter.atEnd(); j = m_cell_iter.next())
                         {
+                        // Skip ii matches immediately if requested.
+                        if (m_exclude_ii && cur_p == j)
+                            {
+                            continue;
+                            }
                         const vec3<float> rij(m_neighbor_query->getBox().wrap((*m_linkcell)[j] - m_points[cur_p]));
                         const float rsq(dot(rij, rij));
                         m_current_neighbors.emplace_back(cur_p, j, sqrt(rsq));
@@ -464,22 +470,30 @@ NeighborPoint LinkCellQueryIterator::next()
 
                 ++m_neigh_cell_iter;
 
+                // In cases where we need to check the entire box, make sure
+                // that we don't check the same cell on the positive and
+                // negative sides of the IteratorCellShell cube.
+                const vec3<int> neighbor_cell_delta(*m_neigh_cell_iter);
+                if(2*neighbor_cell_delta.x + 1 > (int) m_linkcell->getCellIndexer().getW())
+                    continue;
+                else if(2*neighbor_cell_delta.y + 1 > (int) m_linkcell->getCellIndexer().getH())
+                    continue;
+                else if(2*neighbor_cell_delta.z + 1 > (int) m_linkcell->getCellIndexer().getD())
+                    continue;
+
                 const unsigned int neighbor_cell = m_linkcell->getCellIndexer()(
                         // Need to increment each dimension by the width to avoid taking the modulus of a negative number.
                         (m_linkcell->getCellIndexer().getW() + point_cell.x + (*m_neigh_cell_iter).x) % m_linkcell->getCellIndexer().getW(),
                         (m_linkcell->getCellIndexer().getH() + point_cell.y + (*m_neigh_cell_iter).y) % m_linkcell->getCellIndexer().getH(),
                         (m_linkcell->getCellIndexer().getD() + point_cell.z + (*m_neigh_cell_iter).z) % m_linkcell->getCellIndexer().getD());
                 m_cell_iter = m_linkcell->itercell(neighbor_cell);
-                // Termination is determined when we reach a shell such that we
-                // already have k neighbors closer than the closest possible
-                // neighbor in the new shell.
-                if ((m_current_neighbors.size() >= m_k) || (m_neigh_cell_iter.getRange()*m_linkcell->getCellWidth() > min_plane_distance/2))
+                // We can terminate early if we determine when we reach a shell
+                // such that we already have k neighbors closer than the
+                // closest possible neighbor in the new shell.
+                if ((m_current_neighbors.size() >= m_k) && (m_current_neighbors[m_k-1].distance < (m_neigh_cell_iter.getRange()-1)*m_linkcell->getCellWidth()))
                     {
                     std::sort(m_current_neighbors.begin(), m_current_neighbors.end());
-                    if ((m_current_neighbors[m_k-1].distance < (m_neigh_cell_iter.getRange()-1)*m_linkcell->getCellWidth()) || (m_neigh_cell_iter.getRange()*m_linkcell->getCellWidth() > min_plane_distance/2))
-                        {
-                        break;
-                        }
+                    break;
                     }
                 }
             }
