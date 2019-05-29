@@ -9,7 +9,6 @@
 #endif
 
 #include "Eigen/Eigen/Dense"
-
 #include "Index1D.h"
 #include "NematicOrderParameter.h"
 
