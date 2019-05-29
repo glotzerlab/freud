@@ -3,7 +3,6 @@ import numpy.testing as npt
 import freud
 import unittest
 import util
-from scipy.sparse import csr_matrix
 
 
 @util.skipIfMissing('scipy.spatial')
