@@ -20,12 +20,12 @@ class TestCommon(unittest.TestCase):
         npt.assert_equal(z.dtype, np.float32)
         # now make contiguous
         npt.assert_equal(y.flags.contiguous, False)
-        z = common.convert_array(y, 2, contiguous=True)
+        z = common.convert_array(y, 2)
         npt.assert_equal(z.flags.contiguous, True)
         # test the dim_message
         try:
             z = common.convert_array(
-                y, 1, dtype=np.float32, contiguous=True,
+                y, 1, dtype=np.float32,
                 dim_message="ref_points must be a 2 dimensional array")
         except TypeError:
             npt.assert_equal(True, True)
