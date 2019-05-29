@@ -4,6 +4,7 @@
 #ifndef AABB_TREE_H
 #define AABB_TREE_H
 
+#include <cassert>
 #include <cstring>
 #include <stack>
 #include <vector>
