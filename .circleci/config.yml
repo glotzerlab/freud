@@ -145,15 +145,6 @@ references:
       - *check_source
       - *build
       - *benchmark
-      - *store_benchmarks
-
-  build_and_benchmark_and_compare: &build_and_benchmark_and_compare
-    steps:
-      - *load_code
-      - *get_requirements
-      - *check_source
-      - *build
-      - *benchmark
       - *comparison
       - *store_benchmarks
 
@@ -321,12 +312,6 @@ jobs:
       PYVER: "3.6"
     <<: *build_and_benchmark
 
-  comparisons:
-    <<: *test_container_config_arch
-    environment:
-      PYVER: "3.6"
-    <<: *build_and_benchmark_and_compare
-
 workflows:
   version: 2
   test:
@@ -338,9 +323,6 @@ workflows:
           requires:
             - test-py35
             - test-py36
-      - comparisons:
-          requires:
-            - benchmarks
   deploy:
     jobs:
       - pypi-osx-wheels:
