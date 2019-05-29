@@ -354,7 +354,7 @@ class Voronoi(object):
         # sum over all shell neighbors, and convert to a linked list
         sparse_neighbors = sum(
             [sparse_neighbors**k for k in range(1, numShells+1)])
-        lil_neighbors = sparse_neighbors.tolil(copy=False)
+        lil_neighbors = sparse_neighbors.tolil()
         # extract all nonzero entries, ignoring diagonals
         nonzero_entries = lil_neighbors.nonzero()
         neighbors = [[] for _ in range(lil_neighbors.shape[0])]
