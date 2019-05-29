@@ -22,12 +22,10 @@ class TestCommon(unittest.TestCase):
         npt.assert_equal(y.flags.contiguous, False)
         z = common.convert_array(y, 2)
         npt.assert_equal(z.flags.contiguous, True)
-        # test the dim_message
-        try:
-            z = common.convert_array(
-                y, 1, dtype=np.float32)
-        except TypeError:
-            npt.assert_equal(True, True)
+
+        # test dimension checking
+        with self.assertRaises(TypeError):
+            z = common.convert_array(y, 1, dtype=np.float32)
 
         # test for non-default dtype
         z = common.convert_array(y, dtype=np.float64)
@@ -39,7 +37,7 @@ class TestCommon(unittest.TestCase):
         z = common.convert_array(y, 2)
         npt.assert_equal(z, zl)
 
-        # test for dimensions defualt argument
+        # test for dimensions default argument
         zd = common.convert_array(y)
         z = common.convert_array(y, 2)
         npt.assert_equal(z, zd)
