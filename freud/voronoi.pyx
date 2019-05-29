@@ -241,7 +241,8 @@ class Voronoi(object):
         ridge_vertices = self.voronoi.ridge_vertices
 
         # Must keep this in double precision
-        cdef np.ndarray[np.float64_t, ndim=2] vor_vertices = self.voronoi.vertices
+        cdef np.ndarray[np.float64_t, ndim=2] vor_vertices = \
+            self.voronoi.vertices
         cdef unsigned int N = len(positions)
 
         cdef unsigned int index_i
@@ -280,7 +281,8 @@ class Voronoi(object):
                     # 3. Project back to get true area of 3D polygon
                     # See link below for sample code and further explanation
                     # http://geomalgorithms.com/a01-_area.html#area3D_Polygon()
-                    vertex_coords = np.array([vor_vertices[i] for i in ridge_vertices[k]])
+                    vertex_coords = np.array(
+                        [vor_vertices[i] for i in ridge_vertices[k]])
 
                     # Get a unit normal vector to the polygonal facet
                     r01 = vertex_coords[1] - vertex_coords[0]
@@ -311,11 +313,12 @@ class Voronoi(object):
                 # is concerned its ridge goes out to infinity
                 weight = 0
 
-            all_bonds[(index_i, index_j)] = max(all_bonds.get((index_i, index_j), 0), weight)
-            all_bonds[(index_j, index_i)] = max(all_bonds.get((index_j, index_i), 0), weight)
+            all_bonds[(index_i, index_j)] = max(all_bonds.get(
+                                                (index_i, index_j), 0), weight)
+            all_bonds[(index_j, index_i)] = max(all_bonds.get(
+                                                (index_j, index_i), 0), weight)
 
-       # Build neighbor list based on voronoi neighbors
-
+        # Build neighbor list based on voronoi neighbors
         cdef np.ndarray[np.float32_t, ndim=1] weights = \
             np.asarray(list(all_bonds.values()), dtype=np.float32)
         cdef np.ndarray[np.uint64_t, ndim=2] bond_indices = \
@@ -345,11 +348,12 @@ class Voronoi(object):
         max_index = np.max(nlist[:]+1)
         # convert neighbor list to a csr matrix and set weights = 1
         sparse_neighbors = csr_matrix(
-                (np.ones(len(nlist)), (nlist.index_i, nlist.index_j)),
-                shape=(max_index, max_index))
+            (np.ones(len(nlist)), (nlist.index_i, nlist.index_j)),
+            shape=(max_index, max_index))
         # take a numShell power of the matrix
         # sum over all shell neighbors, and convert to a linked list
-        sparse_neighbors = sum([sparse_neighbors**k for k in range(1, numShells+1)])
+        sparse_neighbors = sum(
+            [sparse_neighbors**k for k in range(1, numShells+1)])
         lil_neighbors = sparse_neighbors.tolil(copy=False)
         # extract all nonzero entries, ignoring diagonals
         nonzero_entries = lil_neighbors.nonzero()

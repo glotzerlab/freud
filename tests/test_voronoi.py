@@ -5,6 +5,7 @@ import unittest
 import util
 from scipy.sparse import csr_matrix
 
+
 @util.skipIfMissing('scipy.spatial')
 class TestVoronoi(unittest.TestCase):
     def test_basic(self):
