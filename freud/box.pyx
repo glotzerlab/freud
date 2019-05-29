@@ -73,12 +73,12 @@ cdef class Box:
         yz (float):
             The yz tilt factor.
         L (tuple, settable):
-            The box lengths
-        Lx (tuple, settable):
+            The box lengths along x, y, and z.
+        Lx (float, settable):
             The x-dimension length.
-        Ly (tuple, settable):
+        Ly (float, settable):
             The y-dimension length.
-        Lz (tuple, settable):
+        Lz (float, settable):
             The z-dimension length.
         Linv (tuple):
             The inverse box lengths.
