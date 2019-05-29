@@ -5,10 +5,10 @@ from benchmarker import run_benchmarks
 
 
 class BenchmarkOrderLocalWlNear(Benchmark):
-    def __init__(self, L, rmax, I, kn):
+    def __init__(self, L, rmax, sph_l, kn):
         self.L = L
         self.rmax = rmax
-        self.I = I # noqa
+        self.sph_l = sph_l
         self.kn = kn
 
     def bench_setup(self, N):
@@ -18,7 +18,7 @@ class BenchmarkOrderLocalWlNear(Benchmark):
         self.points = np.asarray(np.random.uniform(-self.L/2, self.L/2,
                                                    (N, 3)),
                                  dtype=np.float32)
-        self.lwl = freud.order.LocalWlNear(box, self.rmax, self.I, self.kn)
+        self.lwl = freud.order.LocalWlNear(box, self.rmax, self.sph_l, self.kn)
 
     def bench_run(self, N):
         self.lwl.compute(self.points)
@@ -32,7 +32,7 @@ def run():
 
     kwargs = {"L": 10,
               "rmax": 1.5,
-              "I": 6,
+              "sph_l": 6,
               "kn": 12}
 
     return run_benchmarks(name, Ns, number, BenchmarkOrderLocalWlNear,

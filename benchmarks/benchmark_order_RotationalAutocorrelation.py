@@ -6,14 +6,14 @@ import rowan
 
 
 class BenchmarkOrderRotationalAutocorrelation(Benchmark):
-    def __init__(self, I):
-        self.I = I # noqa
+    def __init__(self, sph_l):
+        self.sph_l = sph_l
 
     def bench_setup(self, N):
         seed = 0
         np.random.seed(seed)
         self.orientations = rowan.random.random_sample((N, ))
-        self.ra = freud.order.RotationalAutocorrelation(self.I)
+        self.ra = freud.order.RotationalAutocorrelation(self.sph_l)
 
     def bench_run(self, N):
         self.ra.compute(self.orientations, self.orientations)
@@ -24,7 +24,7 @@ def run():
     number = 100
     name = 'freud.order.RotationalAutocorrelation'
 
-    kwargs = {"I": 2}
+    kwargs = {"sph_l": 2}
 
     return run_benchmarks(name, Ns, number,
                           BenchmarkOrderRotationalAutocorrelation,
