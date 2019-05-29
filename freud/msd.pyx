@@ -150,7 +150,7 @@ cdef class MSD:
             )
 
         if images is not None:
-            images = freud.common.convert_array(images, 3)
+            images = freud.common.convert_array(images, 3, dtype=np.int32)
             if images.shape[2] != 3:
                 raise TypeError(
                     'images should be a 3-dimensional array of shape'
