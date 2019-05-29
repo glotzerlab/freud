@@ -19,7 +19,8 @@ def convert_array(array, dimensions=None, dtype=np.float32):
 
     Args:
         array (:class:`numpy.ndarray`): Array to check and convert.
-        dimensions (int): Expected dimensions of the array.
+        dimensions (int): Expected dimensions of the array. If 'None',
+            no dimensionality check will be done (Default value = 'None').
         dtype: code:`dtype` to convert the array to if :code:`array.dtype`
             is different. If `None`, :code:`dtype` will not be changed.
             (Default value = `numpy.float32`).
