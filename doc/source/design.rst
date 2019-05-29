@@ -55,49 +55,18 @@ Benchmarks
 ==========
 
 Modules can be benchmarked in the following way. 
+The following code is an example benchmark for the :code:`freud.density.RDF` module.
 
-.. code-block:: python
-    
-    # benchmarks/benchmark_example_Example.py
-    from benchmark import Benchmark
-    import freud
+.. literalinclude:: ../../benchmarks/benchmark_density_RDF.py
+   :language: python
+   :linenos:
 
-    class BenchmarkExample(Benchmark):
-        def __init__(self, **kwargs):
-            # overload this function
-            pass
-
-        def bench_setup(self, N):
-            # overload this function
-            pass
-
-        def bench_run(self, N):
-            # overload this function
-            pass
-
-    def run():
-        Ns = [1000, 10000]
-        name = 'freud.example.example'
-        classobj = BenchmarkExample
-        print_stats = True
-        number = 100
-
-        # example initialization parameters
-        rmax = 10
-        dr = 1.0
-
-        return run_benchmarks(name, Ns, number, classobj, print_stats,
-                              rmax=rmax, dr=dr)
-
-    if __name__ == '__main__':
-        run()
-
-in a file :code:`benchmark_example_Example` in the :code:`benchmarks` directory.
-More concrete examples can be found in the :code:`benchmarks` directory.
-The runtime of :code:`BenchmarkExample.bench_run` will be timed for :code:`number`
-of times for input sizes of :code:`Ns`. Its runtime with respect to the number of threads
-will also be measured. When a commit is pushed, circle.ci will
-report the runtime and compare it with the runtime of :code:`origin/master`.
+in a file :code:`benchmark_density_RDF.py` in the :code:`benchmarks` directory.
+More examples can be found in the :code:`benchmarks` directory.
+The runtime of :code:`BenchmarkDensityRDF.bench_run` will be timed for :code:`number`
+of times on the input sizes of :code:`Ns`. Its runtime with respect to the number of threads
+will also be measured. Benchmarks are run as a part of continuous integration, 
+with performance comparisons between the current commit and the master branch.
 
 Make Execution Explicit
 =======================
