@@ -9,10 +9,8 @@
 #include <tbb/tbb.h>
 
 #include "Box.h"
-#include "VectorMath.h"
-#include "LinkCell.h"
-#include "Index1D.h"
 #include "PMFT.h"
+#include "VectorMath.h"
 
 /*! \file PMFTXYZ.h
     \brief Routines for computing 3D potential of mean force in XYZ coordinates

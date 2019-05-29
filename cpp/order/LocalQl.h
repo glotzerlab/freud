@@ -12,7 +12,6 @@
 
 #include "Box.h"
 #include "VectorMath.h"
-#include "LinkCell.h"
 #include "fsph/src/spherical_harmonics.hpp"
 
 /*! \file LocalQl.h

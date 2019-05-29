@@ -9,7 +9,6 @@
 
 #include "Box.h"
 #include "VectorMath.h"
-#include "Index1D.h"
 
 /*! \file ParticleBuffer.h
     \brief Replicates particles across periodic boundaries.

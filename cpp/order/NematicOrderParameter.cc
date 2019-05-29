@@ -10,6 +10,7 @@
 
 #include "Eigen/Eigen/Dense"
 
+#include "Index1D.h"
 #include "NematicOrderParameter.h"
 
 using namespace std;
