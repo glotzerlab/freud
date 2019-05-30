@@ -564,11 +564,15 @@ cdef class Steinhardt:
     """  # noqa: E501
     cdef freud._order.Steinhardt * stptr
     cdef rmax
+    cdef sph_l
+    cdef rmin
 
     def __cinit__(self, rmax, l, rmin=0, average=False, norm=False,
                   Wl=False, *args, **kwargs):
         if type(self) is Steinhardt:
             self.rmax = rmax
+            self.sph_l = l
+            self.rmin = rmin
             self.stptr = new freud._order.Steinhardt(
                 rmax, l, rmin,
                 average, norm, Wl)

@@ -21,7 +21,6 @@ class TestSteinhardt(unittest.TestCase):
         npt.assert_equal(comp.order.shape[0], N)
 
     def test_identical_environments_Ql(self):
-
         (box, positions) = util.make_fcc(4, 4, 4)
 
         comp = freud.order.Steinhardt(1.5, 6)
@@ -80,6 +79,10 @@ class TestSteinhardt(unittest.TestCase):
         self.assertTrue(np.allclose(comp.order, comp.order[0]))
 
         self.assertEqual(len(positions), comp.num_particles)
+
+    def test_repr(self):
+        comp = freud.order.Steinhardt(1.5, 6)
+        self.assertEqual(str(comp), str(eval(repr(comp))))
 
 
 if __name__ == '__main__':
