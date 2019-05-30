@@ -619,14 +619,17 @@ cdef class Steinhardt:
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
+        cdef freud.box.Box bbox = freud.common.convert_box(box)
         cdef const float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
 
         defaulted_nlist = freud.locality.make_default_nlist(
-            box, points, points, self.rmax, nlist, True)
+            bbox, points, points, self.rmax, nlist, True)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
-        self.stptr.compute(nlist_.get_ptr(), <vec3[float]*> &l_points[0, 0],
+        self.stptr.compute(dereference(bbox.thisptr),
+                           nlist_.get_ptr(),
+                           <vec3[float]*> &l_points[0, 0],
                            nP)
         return self
 
