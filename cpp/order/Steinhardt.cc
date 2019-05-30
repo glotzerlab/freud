@@ -27,113 +27,122 @@ void Steinhardt::computeYlm(const float theta, const float phi, std::vector<std:
     // in fsph, the definition is flipped
     sph_eval.compute(theta, phi);
 
-	if (m_Wl)
-		{
-		for (typename fsph::PointSPHEvaluator<float>::iterator iter(sph_eval.begin_l(m_l, 0, false));
-			iter != sph_eval.end(); ++iter)
-			{
-			Ylm[(j+m_l) % (2*m_l+1)] = *iter;
-			++j;
-			}
-		for (unsigned int i = 1; i <= m_l; i++)
-			{
-			Ylm[-i+m_l] = Ylm[i+m_l];
+    if (m_Wl)
+        {
+        for (typename fsph::PointSPHEvaluator<float>::iterator iter(sph_eval.begin_l(m_l, 0, false));
+            iter != sph_eval.end(); ++iter)
+            {
+            Ylm[(j+m_l) % (2*m_l+1)] = *iter;
+            ++j;
+            }
+        for (unsigned int i = 1; i <= m_l; i++)
+            {
+            Ylm[-i+m_l] = Ylm[i+m_l];
         }
 
-		}
-	else
-		{
-		for (typename fsph::PointSPHEvaluator<float>::iterator iter(sph_eval.begin_l(m_l, 0, true));
-			iter != sph_eval.end(); ++iter)
-			{
-			Ylm[j] = *iter;
-			++j;
-			}
-		}
+        }
+    else
+        {
+        for (typename fsph::PointSPHEvaluator<float>::iterator iter(sph_eval.begin_l(m_l, 0, true));
+            iter != sph_eval.end(); ++iter)
+            {
+            Ylm[j] = *iter;
+            ++j;
+            }
+        }
     }
 
 void Steinhardt::reallocateArrays(unsigned int Np)
-	{
-		m_Qlmi = std::shared_ptr<complex<float> >(new complex<float> [(2*m_l+1)*m_Np], std::default_delete<complex<float>[]>());
-		m_Qli = std::shared_ptr<float>(new float[m_Np], std::default_delete<float[]>());
-		m_Qlm = std::shared_ptr<complex<float> >(new complex<float>[2*m_l+1], std::default_delete<complex<float>[]>());
-		if (m_average)
-		{
-			m_AveQlmi = std::shared_ptr<complex<float> >(new complex<float> [(2*m_l+1)*Np], std::default_delete<complex<float>[]>());
-			m_QliAve = std::shared_ptr<float>(new float[Np], std::default_delete<float[]>());
-			m_AveQlm = std::shared_ptr<complex<float> >(new complex<float> [(2*m_l+1)], std::default_delete<complex<float>[]>());
-		}
-		if (m_Wl)
-		{
-			if (m_average && m_norm)
-			{
-				m_WliAveNorm = std::shared_ptr<complex<float> >(new complex<float>[m_Np], std::default_delete<complex<float>[]>());
-			}
-			else if (m_average)
-			{
-				m_WliAve = std::shared_ptr<complex<float> >(new complex<float>[Np], std::default_delete<complex<float>[]>());
-			}
-			else if (m_norm)
-			{
-				m_WliNorm = std::shared_ptr<complex<float> >(new complex<float>[m_Np], std::default_delete<complex<float>[]>());
-			}
-			else
-			{
-				m_Wli = std::shared_ptr<complex<float> >(new complex<float>[Np], std::default_delete<complex<float>[]>());
-			}
-		}
-		else
-		{
-			if (m_average && m_norm)
-			{
-				m_QliAveNorm = std::shared_ptr<float>(new float[Np], std::default_delete<float[]>());
-			}
-			else if (m_norm)
-			{
-				m_QliNorm = std::shared_ptr<float>(new float[Np], std::default_delete<float[]>());
-			}
-		}
-	}	
+    {
+    m_Qlmi = std::shared_ptr<complex<float> >(new complex<float> [(2*m_l+1)*m_Np], std::default_delete<complex<float>[]>());
+    m_Qli = std::shared_ptr<float>(new float[m_Np], std::default_delete<float[]>());
+    m_Qlm = std::shared_ptr<complex<float> >(new complex<float>[2*m_l+1], std::default_delete<complex<float>[]>());
+    if (m_average)
+        {
+            m_AveQlmi = std::shared_ptr<complex<float> >(new complex<float> [(2*m_l+1)*Np], std::default_delete<complex<float>[]>());
+            m_QliAve = std::shared_ptr<float>(new float[Np], std::default_delete<float[]>());
+            m_AveQlm = std::shared_ptr<complex<float> >(new complex<float> [(2*m_l+1)], std::default_delete<complex<float>[]>());
+        }
+    if (m_Wl)
+        {
+        if (m_average && m_norm)
+            {
+            m_WliAveNorm = std::shared_ptr<complex<float> >(new complex<float>[m_Np], std::default_delete<complex<float>[]>());
+            }
+        else if (m_average)
+            {
+            m_WliAve = std::shared_ptr<complex<float> >(new complex<float>[Np], std::default_delete<complex<float>[]>());
+            }
+        else if (m_norm)
+            {
+            m_WliNorm = std::shared_ptr<complex<float> >(new complex<float>[m_Np], std::default_delete<complex<float>[]>());
+            }
+        else
+            {
+            m_Wli = std::shared_ptr<complex<float> >(new complex<float>[Np], std::default_delete<complex<float>[]>());
+            }
+        }
+    else
+        {
+        if (m_average && m_norm)
+            {
+            m_QliAveNorm = std::shared_ptr<float>(new float[Np], std::default_delete<float[]>());
+            }
+        else if (m_norm)
+            {
+            m_QliNorm = std::shared_ptr<float>(new float[Np], std::default_delete<float[]>());
+            }
+        }
+    }    
 
-void Steinhardt::compute(const locality::NeighborList *nlist, const vec3<float> *points, unsigned int Np)
-{
-	// Conditional reinitialize arrays if size differs from previous call.
-	if (m_Np != Np)
-	{
-		m_Np = Np;
-		Steinhardt::reallocateArrays(Np);
-	}
-	// Computes the base Q required for each specialized order parameter
-	Steinhardt::baseCompute(nlist, points);
-	
-	if (m_average){
-		Steinhardt::computeAve(nlist, points);
-	}
-	if (m_Wl){
-		if (m_average && m_norm){
-			Steinhardt::computeAveNormWl();
-		}
-		else if (m_norm){
-			Steinhardt::computeNormWl();
-		}
-		else if (m_average){
-			Steinhardt::computeAveWl();
-		}
-		else {
-			Steinhardt::computeWl();
-		}
-	}
-	else {
-		if (m_average && m_norm){
-			Steinhardt::computeAveNorm();
-		}
-		else if (m_norm){
-			Steinhardt::computeNorm();
-		}
-	}
-}
+void Steinhardt::compute(const box::Box& box, const locality::NeighborList *nlist, const vec3<float> *points, unsigned int Np)
+    {
+    // Conditional reinitialize arrays if size differs from previous call.
+    if (m_Np != Np)
+        {
+        m_Np = Np;
+        Steinhardt::reallocateArrays(Np);
+        }
+    // Computes the base Q required for each specialized order parameter
+    Steinhardt::baseCompute(box, nlist, points);
+    
+    if (m_average)
+        {
+        Steinhardt::computeAve(box, nlist, points);
+        }
+    if (m_Wl)
+        {
+        if (m_average && m_norm)
+            {
+            Steinhardt::computeAveNormWl();
+            }
+        else if (m_norm)
+            {
+            Steinhardt::computeNormWl();
+            }
+        else if (m_average)
+            {
+            Steinhardt::computeAveWl();
+            }
+        else
+            {
+            Steinhardt::computeWl();
+            }
+        }
+    else
+        {
+        if (m_average && m_norm)
+            {
+            Steinhardt::computeAveNorm();
+            }
+        else if (m_norm)
+            {
+            Steinhardt::computeNorm();
+            }
+        }
+    }
 
-void Steinhardt::baseCompute(const locality::NeighborList *nlist, const vec3<float> *points)
+void Steinhardt::baseCompute(const box::Box& box, const locality::NeighborList *nlist, const vec3<float> *points)
     {
     nlist->validate(m_Np, m_Np);
 
@@ -143,12 +152,10 @@ void Steinhardt::baseCompute(const locality::NeighborList *nlist, const vec3<flo
     parallel_for(tbb::blocked_range<size_t>(0, m_Np),
         [=] (const blocked_range<size_t>& r)
         {
-	// May not be necessary check
         const float rminsq = m_rmin * m_rmin;
         const float rmaxsq = m_rmax * m_rmax;
         const float normalizationfactor = 4*M_PI/(2*m_l+1);
         const size_t *neighbor_list(nlist->getNeighbors());
-	// --------------------------
 
         bool Qlm_exists;
         m_Qlm_local.local(Qlm_exists);
@@ -173,10 +180,9 @@ void Steinhardt::baseCompute(const locality::NeighborList *nlist, const vec3<flo
                     continue;
                     }
 
-                const vec3<float> delta = m_box.wrap(points[j] - ref);
+                const vec3<float> delta = box.wrap(points[j] - ref);
                 const float rsq = dot(delta, delta);
 
-		// Replace conditional with function call above.
                 if (rsq < rmaxsq && rsq > rminsq)
                     {
                     // phi is usually in range 0..2Pi, but
@@ -218,8 +224,8 @@ void Steinhardt::baseCompute(const locality::NeighborList *nlist, const vec3<flo
     reduce();
     }
 
-void Steinhardt::computeAve(const locality::NeighborList *nlist, const vec3<float> *points)
-{
+void Steinhardt::computeAve(const box::Box& box, const locality::NeighborList *nlist, const vec3<float> *points)
+    {
     const size_t *neighbor_list(nlist->getNeighbors());
 
     memset((void*)m_AveQlmi.get(), 0, sizeof(complex<float>)*(2*m_l+1)*m_Np);
@@ -249,7 +255,7 @@ void Steinhardt::computeAve(const locality::NeighborList *nlist, const vec3<floa
                 }
 
             // rin = rn - ri, from i pointing to j.
-            const vec3<float> rin = m_box.wrap(rn - ri);
+            const vec3<float> rin = box.wrap(rn - ri);
             const float rinsq = dot(rin, rin);
 
             if (rinsq < rmaxsq && rinsq > rminsq)
@@ -265,7 +271,7 @@ void Steinhardt::computeAve(const locality::NeighborList *nlist, const vec3<floa
                         }
 
                     // rnj = rj - rn, from n pointing to j.
-                    const vec3<float> rnj = m_box.wrap(points[j] - rn);
+                    const vec3<float> rnj = box.wrap(points[j] - rn);
                     const float rnjsq = dot(rnj, rnj);
 
                     if (rnjsq < rmaxsq && rnjsq > rminsq)
@@ -295,10 +301,10 @@ void Steinhardt::computeAve(const locality::NeighborList *nlist, const vec3<floa
         m_QliAve.get()[i] *= normalizationfactor;
         m_QliAve.get()[i] = sqrt(m_QliAve.get()[i]);
         } // Ends loop over particles i for Qlmi calcs
-}
+    }
 
 void Steinhardt::computeNorm()
-{
+    {
     memset((void*) m_QliNorm.get(), 0, sizeof(float)*m_Np);
 
     const float normalizationfactor = 4*M_PI/(2*m_l+1);
@@ -319,10 +325,10 @@ void Steinhardt::computeNorm()
         m_QliNorm.get()[i] *= normalizationfactor;
         m_QliNorm.get()[i] = sqrt(m_QliNorm.get()[i]);
         }
-}
+    }
 
 void Steinhardt::computeAveNorm()
-{
+    {
     memset((void*) m_QliAveNorm.get(), 0, sizeof(float)*m_Np);
 
     const float normalizationfactor = 4*M_PI/(2*m_l+1);
@@ -343,10 +349,10 @@ void Steinhardt::computeAveNorm()
         m_QliAveNorm.get()[i] *= normalizationfactor;
         m_QliAveNorm.get()[i] = sqrt(m_QliAveNorm.get()[i]);
         }
-}
+    }
 
 void Steinhardt::computeWl()
-	{
+    {
     memset((void*) m_Wli.get(), 0, sizeof(complex<float>)*m_Np);
 
     // This normalization happens in the Ql calculation but
@@ -380,11 +386,10 @@ void Steinhardt::computeWl()
                 }
             } // Ends loop for Wli calcs
         } // Ends loop over particles
-}
+    }
 
 void Steinhardt::computeAveWl()
-{
-
+    {
     // Get wigner3j coefficients from wigner3j.cc
     m_wigner3jvalues = getWigner3j(m_l);
 
@@ -408,10 +413,10 @@ void Steinhardt::computeAveWl()
                 }
             } // Ends loop for Norm Wli calcs
         } // Ends loop over particles
-}
+    }
 
 void Steinhardt::computeNormWl()
-{
+    {
     // Get wigner3j coefficients from wigner3j.cc
     m_wigner3jvalues = getWigner3j(m_l);
 
@@ -440,11 +445,10 @@ void Steinhardt::computeNormWl()
                 }
             } // Ends loop for Norm Wli calcs
         } // Ends loop over particles
-}
+    }
 
 void Steinhardt::computeAveNormWl()
-{
-
+    {
     // Get wigner3j coefficients from wigner3j.cc
     m_wigner3jvalues = getWigner3j(m_l);
 
@@ -473,7 +477,7 @@ void Steinhardt::computeAveNormWl()
                 }
             } // Ends loop for Norm Wli calcs
         } // Ends loop over particles
-}
+    }
 
 void Steinhardt::reduce()
     {

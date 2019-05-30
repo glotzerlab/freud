@@ -59,8 +59,6 @@ class Steinhardt
     public:
         //! Steinhardt Class Constructor
         /*! Constructor for Steinhardt analysis class.
-         *  \param box A freud box object containing the dimensions of the box
-         *             associated with the particles that will be fed into compute.
          *  \param rmax Cutoff radius for running the local order parameter.
          *              Values near first minima of the rdf are recommended.
          *  \param l Spherical harmonic number l.
@@ -68,48 +66,32 @@ class Steinhardt
          *  \param rmin (optional) Lower bound for computing the local order parameter.
          *                         Allows looking at, for instance, only the second shell, or some other arbitrary rdf region.
          */
-        Steinhardt(const box::Box& box,
-		float rmax,
-		unsigned int l,
-		float rmin=0,
-		bool average=false,
-		bool norm=false,
-		bool Wl=false) :
-		m_Np(0),
-		m_box(box),
-		m_rmax(rmax),
-		m_l(l),
-		m_rmin(rmin),
-		m_average(average),
-		m_norm(norm),
-		m_Wl(Wl)
-		{
-		    // Error Checking
-		    if (m_rmax < 0.0f || m_rmin < 0.0f)
-			throw std::invalid_argument("Steinhardt requires rmin and rmax must be positive.");
-		    if (m_rmin >= m_rmax)
-			throw std::invalid_argument("Steinhardt requires rmin must be less than rmax.");
-		    if (m_l < 2)
-			throw std::invalid_argument("Steinhardt requires l must be two or greater.");
+        Steinhardt(float rmax,
+        unsigned int l,
+        float rmin=0,
+        bool average=false,
+        bool norm=false,
+        bool Wl=false) :
+        m_Np(0),
+        m_rmax(rmax),
+        m_l(l),
+        m_rmin(rmin),
+        m_average(average),
+        m_norm(norm),
+        m_Wl(Wl)
+        {
+            // Error Checking
+            if (m_rmax < 0.0f || m_rmin < 0.0f)
+            throw std::invalid_argument("Steinhardt requires rmin and rmax must be positive.");
+            if (m_rmin >= m_rmax)
+            throw std::invalid_argument("Steinhardt requires rmin must be less than rmax.");
+            if (m_l < 2)
+            throw std::invalid_argument("Steinhardt requires l must be two or greater.");
 
-		}
-	    
-
+        }
 
         //! Empty destructor
         virtual ~Steinhardt() {};
-
-        //! Get the simulation box
-        const box::Box& getBox() const
-            {
-            return m_box;
-            }
-
-        //! Reset the simulation box size
-        void setBox(const box::Box newbox)
-            {
-            this->m_box = newbox;
-            }
 
         //! Get the number of particles used in the last compute
         unsigned int getNP()
@@ -117,53 +99,57 @@ class Steinhardt
             return m_Np;
             }
 
-		//! Get the last calculated order parameter
-		std::shared_ptr<float> getQl()
-		{
-			if (m_average && m_norm)
-			{
-				return m_QliAveNorm;
-			}
-			else if (m_average)
-			{
-				return m_QliAve;
-			}
-			else if (m_norm)
-			{
-				return m_QliNorm;
-			}
-			else
-			{
-				return m_Qli;
-			}
-		}
+        //! Get the last calculated order parameter Ql
+        std::shared_ptr<float> getQl()
+        {
+            if (m_average && m_norm)
+            {
+                return m_QliAveNorm;
+            }
+            else if (m_average)
+            {
+                return m_QliAve;
+            }
+            else if (m_norm)
+            {
+                return m_QliNorm;
+            }
+            else
+            {
+                return m_Qli;
+            }
+        }
 
-		std::shared_ptr<std::complex<float>> getWl()
-		{
-			if (m_average && m_norm)
-			{
-				return m_WliAveNorm;
-			}
-			else if (m_average)
-			{
-				return m_WliAve;
-			}
-			else if (m_norm)
-			{
-				return m_WliNorm;
-			}
-			else
-			{
-				return m_Wli;
-			}
-		}
+        //! Get the last calculated order parameter Wl
+        std::shared_ptr<std::complex<float>> getWl()
+        {
+            if (m_average && m_norm)
+            {
+                return m_WliAveNorm;
+            }
+            else if (m_average)
+            {
+                return m_WliAve;
+            }
+            else if (m_norm)
+            {
+                return m_WliNorm;
+            }
+            else
+            {
+                return m_Wli;
+            }
+        }
 
-		bool getUseWl()
-		{
-			return m_Wl;
-		}
+        //! Get whether the Wl flag was set
+        bool getUseWl()
+        {
+            return m_Wl;
+        }
+
         //! Compute the order parameter
-        virtual void compute(const locality::NeighborList *nlist,
+        virtual void compute(const box::Box& box,
+                             const locality::NeighborList *nlist,
                              const vec3<float> *points,
                              unsigned int Np);
 
@@ -171,43 +157,49 @@ class Steinhardt
         //! helper function to reduce the thread specific arrays into one array
         void reduce();
 
-
-
-	private:
+    private:
         //! Spherical harmonics calculation for Ylm filling a
         //  vector<complex<float> > with values for m = -l..l.
         virtual void computeYlm(const float theta, const float phi,
                                 std::vector<std::complex<float> > &Ylm);
 
-		//! Reallocates only the necesary arrays when the number of particles changes
-		// unsigned int Np number of particles
-		void reallocateArrays(unsigned int Np);
+        //! Reallocates only the necessary arrays when the number of particles changes
+        // unsigned int Np number of particles
+        void reallocateArrays(unsigned int Np);
 
-		//! Calculates the base Ql order parameter before further modifications
-		//if any.
-		void baseCompute(const locality::NeighborList *nlist,
-						 const vec3<float> *points);
-		void computeAve(const locality::NeighborList *nlist,
-						const vec3<float> *points);
-		void computeNorm();
-		void computeAveNorm();
-		void computeWl();
-		void computeAveWl();
-		void computeNormWl();
-		void computeAveNormWl();
+        //! Calculates the base Ql order parameter before further modifications
+        // if any.
+        void baseCompute(const box::Box& box,
+                         const locality::NeighborList *nlist,
+                         const vec3<float> *points);
+        //! Calculates the neighbor average Ql order parameter
+        void computeAve(const box::Box& box,
+                        const locality::NeighborList *nlist,
+                        const vec3<float> *points);
+        //! Calculates the normalized Ql order parameter
+        void computeNorm();
+        //! Calculates the neighbor averaged normalized Ql order parameter
+        void computeAveNorm();
+        //! Calculates the Wl order parameter
+        void computeWl();
+        //! Calculates the neighbor averaged Wl order parameter
+        void computeAveWl();
+        //! Calculates the normalized Wl order parameter
+        void computeNormWl();
+        //! Calculates the normalized neighbor averaged Wl order parameter
+        void computeAveNormWl();
 
-	// Member variables used for compute
+        // Member variables used for compute
         unsigned int m_Np;     //!< Last number of points computed
-        box::Box m_box;        //!< Simulation box where the particles belong
         float m_rmax;          //!< Maximum r at which to determine neighbors
         unsigned int m_l;      //!< Spherical harmonic l value.
         float m_rmin;          //!< Minimum r at which to determine neighbors (default 0)
         bool m_reduce;         //!< Whether Qlm arrays need to be reduced across threads
 
-	// Flags
-	bool m_average;	       //!< Whether to take a second shell average (default false)
-	bool m_norm;	       //!< Whether to take the norm of the order parameter (default false)
-	bool m_Wl;          //!< Whether to use the modified order parameter Wl (default false)
+        // Flags
+        bool m_average;           //!< Whether to take a second shell average (default false)
+        bool m_norm;           //!< Whether to take the norm of the order parameter (default false)
+        bool m_Wl;          //!< Whether to use the modified order parameter Wl (default false)
 
         std::shared_ptr<std::complex<float> > m_Qlmi;  //!< Qlm for each particle i
         std::shared_ptr<std::complex<float> > m_Qlm;   //!< Normalized Qlm for the whole system

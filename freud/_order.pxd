@@ -76,12 +76,11 @@ cdef extern from "TransOrderParameter.h" namespace "freud::order":
 
 cdef extern from "Steinhardt.h" namespace "freud::order":
     cdef cppclass Steinhardt:
-        Steinhardt(const freud._box.Box &, float, unsigned int, float,
-                bool, bool, bool) except +
-        const freud._box.Box & getBox() const
+        Steinhardt(float, unsigned int, float,
+                   bool, bool, bool) except +
         unsigned int getNP()
-        void setBox(const freud._box.Box)
-        void compute(const freud._locality.NeighborList *,
+        void compute(const freud._box.Box &,
+                     const freud._locality.NeighborList *,
                      const vec3[float]*,
                      unsigned int) nogil except +
         shared_ptr[float] getQl()
