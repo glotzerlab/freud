@@ -298,13 +298,12 @@ cdef class Box:
 
         vecs = freud.common.convert_array(
             vecs, vecs.ndim, dtype=np.float32, contiguous=True)
-        images = np.empty_like(vecs, dtype=int)
 
         if vecs.ndim == 1:
-            images[:] = self._getImage(vecs)
+            images = np.asarray(self._getImage(vecs), dtype=int)
         elif vecs.ndim == 2:
-            for i, vec in enumerate(vecs):
-                images[i] = self._getImage(vec)
+            images = np.asarray([self.getImage(vec) for vec in vecs],
+                                dtype=int)
         return images
 
     def _getImage(self, vec):

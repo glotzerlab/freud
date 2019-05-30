@@ -208,22 +208,23 @@ class TestBox(unittest.TestCase):
 
     def test_periodic(self):
         box = freud.box.Box(1, 2, 3, 0, 0, 0)
-        falses = [False, False, False]
-        trues = [True, True, True]
-        npt.assert_equal(box.periodic, trues)
+        npt.assert_array_equal(box.periodic, True)
         self.assertTrue(box.periodic_x)
         self.assertTrue(box.periodic_y)
         self.assertTrue(box.periodic_z)
 
-        box.periodic = falses
-        npt.assert_equal(box.periodic, falses)
+        # Test setting all flags together
+        box.periodic = False
+        npt.assert_array_equal(box.periodic, False)
         self.assertFalse(box.periodic_x)
         self.assertFalse(box.periodic_y)
         self.assertFalse(box.periodic_z)
 
-        box.periodic = trues
-        npt.assert_equal(box.periodic, trues)
+        # Test setting flags as a list
+        box.periodic = [True, True, True]
+        npt.assert_array_equal(box.periodic, True)
 
+        # Test setting each flag separately
         box.periodic_x = False
         box.periodic_y = False
         box.periodic_z = False
@@ -232,7 +233,7 @@ class TestBox(unittest.TestCase):
         self.assertEqual(box.periodic_z, False)
 
         box.periodic = True
-        npt.assert_equal(box.periodic, trues)
+        npt.assert_array_equal(box.periodic, True)
 
     def test_equal(self):
         box = freud.box.Box(2, 2, 2, 1, 0.5, 0.1)
