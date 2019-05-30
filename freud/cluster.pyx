@@ -98,11 +98,6 @@ cdef class Cluster:
             box (:class:`freud.box.Box`, optional):
                 Simulation box (Default value = None).
         """
-        points = freud.common.convert_array(
-            points, 2, dtype=np.float32, contiguous=True)
-        if points.shape[1] != 3:
-            raise RuntimeError(
-                'Need a list of 3D points for computeClusters()')
 
         # defaulted_nlist = freud.locality.make_default_nlist(
         #     self.m_box, points, points, self.rmax, nlist, True)
@@ -110,7 +105,18 @@ cdef class Cluster:
 
         cdef freud.locality.NeighborQuery nq = \
             freud.locality.make_default_nq(self.m_box, points)
-        nlistptr = freud.locality.make_nlistptr(nlist)
+        cdef freud._locality.NeighborList * nlistptr \
+            = freud.locality.make_nlistptr(nlist)
+
+        if isinstance(points, freud.locality.AABBQuery) \
+                or isinstance(points, freud.locality.LinkCell):
+            points = points.points
+
+        points = freud.common.convert_array(
+            points, 2, dtype=np.float32, contiguous=True)
+        if points.shape[1] != 3:
+            raise RuntimeError(
+                'Need a list of 3D points for computeClusters()')
 
         cdef freud.box.Box b
         if box is None:
