@@ -66,7 +66,7 @@ class Cluster
         Cluster(float rcut);
 
         //! Compute the point clusters
-        void computeClusters(const box::Box& box,
+        void computeClusters(const freud::locality::NeighborQuery *nq, const box::Box& box,
                              const freud::locality::NeighborList *nlist,
                              const vec3<float> *points,
                              unsigned int Np);

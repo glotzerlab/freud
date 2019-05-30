@@ -52,7 +52,7 @@ class AABBQuery : public NeighborQuery
          *  overloading abilities seem buggy at best, so it's easiest to just
          *  rename the function.
          */
-        virtual std::shared_ptr<NeighborQueryIterator> queryWithArgs(const vec3<float> *points, unsigned int N, QueryArgs args)
+        virtual std::shared_ptr<NeighborQueryIterator> queryWithArgs(const vec3<float> *points, unsigned int N, QueryArgs args) const
             {
             this->validateQueryArgs(args);
             if (args.mode == QueryArgs::ball)
@@ -98,7 +98,7 @@ class AABBQuery : public NeighborQuery
         AABBTree m_aabb_tree; //!< AABB tree of points
 
     protected:
-        virtual void validateQueryArgs(QueryArgs& args)
+        virtual void validateQueryArgs(QueryArgs& args) const
             {
             if (args.mode == QueryArgs::ball)
                 {

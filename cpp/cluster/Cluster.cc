@@ -7,6 +7,8 @@
 
 #include "Cluster.h"
 #include "NeighborComputeFunctional.h"
+#include "dset.h"
+
 
 using namespace std;
 
@@ -77,7 +79,8 @@ Cluster::Cluster(float rcut)
         throw invalid_argument("Cluster requires that rcut must be non-negative.");
     }
 
-void Cluster::computeClusters(const box::Box& box,
+void Cluster::computeClusters(const freud::locality::NeighborQuery *nq, 
+                              const box::Box& box,
                               const freud::locality::NeighborList *nlist,
                               const vec3<float> *points,
                               unsigned int Np)
@@ -85,8 +88,8 @@ void Cluster::computeClusters(const box::Box& box,
     assert(points);
     assert(Np > 0);
 
-    nlist->validate(Np, Np);
-    const size_t *neighbor_list(nlist->getNeighbors());
+    // nlist->validate(Np, Np);
+    // const size_t *neighbor_list(nlist->getNeighbors());
 
     // reallocate the cluster_idx array if the size doesn't match the last one
     if (Np != m_num_particles)
@@ -94,40 +97,14 @@ void Cluster::computeClusters(const box::Box& box,
 
     m_num_particles = Np;
     float rmaxsq = m_rcut * m_rcut;
-    DisjointSet dj(m_num_particles);
+    // DisjointSet dj(m_num_particles);
+    DisjointSets dj(m_num_particles);
 
-    // size_t bond(0);
+    locality::QueryArgs qargs;
+    qargs.mode = locality::QueryArgs::QueryType::ball;
+    qargs.rmax = m_rcut;
 
-    // // for each point
-    // for (unsigned int i = 0; i < m_num_particles; i++)
-    //     {
-    //     // get the cell the point is in
-    //     vec3<float> p = points[i];
-
-    //     for(; bond < nlist->getNumBonds() && neighbor_list[2*bond] == i; ++bond)
-    //         {
-    //         const size_t j(neighbor_list[2*bond + 1]);
-    //             {
-    //             if (i != j)
-    //                 {
-    //                 // compute r between the two particles
-    //                 vec3<float> delta = p - points[j];
-    //                 delta = box.wrap(delta);
-
-    //                 float rsq = dot(delta, delta);
-    //                 if (rsq < rmaxsq)
-    //                     {
-    //                     // merge the two sets using the disjoint set
-    //                     uint32_t a = dj.find(i);
-    //                     uint32_t b = dj.find(j);
-    //                     if (a != b)
-    //                         dj.merge(a,b);
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     }
-    freud::locality::loop_over_NeighborList(nlist, 
+    freud::locality::loop_over_NeighborList(nq, points, Np, qargs, nlist, 
         [&rmaxsq, &dj, &box, points] (size_t i, size_t j) 
             { 
             vec3<float> p = points[i];
@@ -141,10 +118,12 @@ void Cluster::computeClusters(const box::Box& box,
                 if (rsq < rmaxsq)
                     {
                     // merge the two sets using the disjoint set
-                    uint32_t a = dj.find(i);
-                    uint32_t b = dj.find(j);
-                    if (a != b)
-                        dj.merge(a,b);
+                    // uint32_t a = dj.find(i);
+                    // uint32_t b = dj.find(j);
+                    // if (a != b)
+                    //     dj.merge(a,b);
+                    if(!dj.same(i, j))
+                        dj.unite(i, j);
                     }
                 }  
             }

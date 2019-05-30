@@ -1,25 +1,93 @@
 #ifndef NEIGHBOR_COMPUTE_FUNCTIONAL_H
 #define NEIGHBOR_COMPUTE_FUNCTIONAL_H
 
+#include <tbb/tbb.h>
 
 #include "NeighborQuery.h"
-// #include "AABBQuery.h"
+#include "AABBQuery.h"
 #include "NeighborList.h"
-// #include "Index1D.h"
-#include <tbb/tbb.h>
+#include "Index1D.h"
 
 namespace freud { namespace locality {
 
+class RawPoints : public NeighborQuery
+    {
+    public:
+        RawPoints();
+
+        RawPoints(const box::Box &box, const vec3<float> *ref_points, unsigned int Nref) :
+            NeighborQuery(box, ref_points, Nref) {}
+
+        ~RawPoints() {}
+
+        // dummy implementation for pure virtual function in the parent class
+        virtual std::shared_ptr<NeighborQueryIterator> query(const vec3<float> *points, unsigned int N, unsigned int k, bool exclude_ii=false) const
+        {
+            return nullptr;
+        }
+
+        // dummy implementation for pure virtual function in the parent class
+        virtual std::shared_ptr<NeighborQueryIterator> queryBall(const vec3<float> *points, unsigned int N, float r, bool exclude_ii=false) const
+        {
+            return nullptr;
+        }
+
+    };
+
 
 template<typename ComputePairType>
-void loop_over_NeighborList(const NeighborList* nlist, const ComputePairType& cf)
+void loop_over_NeighborList(const NeighborQuery *ref_points, const vec3<float> *points, unsigned int Np,
+                                  QueryArgs qargs, const NeighborList* nlist, const ComputePairType& cf)
     {
-    const size_t *neighbor_list(nlist->getNeighbors());
-    for (size_t bond = 0; bond < nlist->getNumBonds(); ++bond)
+    if(nlist != NULL)
         {
-        size_t i(neighbor_list[2*bond]);
-        size_t j(neighbor_list[2*bond + 1]);
-        cf(i, j);
+        const size_t *neighbor_list(nlist->getNeighbors());
+        size_t n_bonds = nlist->getNumBonds();
+        parallel_for(tbb::blocked_range<size_t>(0, n_bonds),
+            [=] (const tbb::blocked_range<size_t>& r)
+            {
+                for(size_t bond = r.begin(); bond !=r.end(); ++bond)
+                    {
+                    size_t i(neighbor_list[2*bond]);
+                    size_t j(neighbor_list[2*bond + 1]);
+                    cf(i, j);
+                    }
+            });
+        }
+    else
+        {
+        std::shared_ptr<NeighborQueryIterator> iter;
+        AABBQuery* abq = nullptr;
+        if(const RawPoints* rp = dynamic_cast<const RawPoints*>(ref_points))
+            {
+            abq = new AABBQuery(ref_points->getBox(), ref_points->getRefPoints(), ref_points->getNRef());
+            iter = abq->queryWithArgs(points, Np, qargs);
+            }
+        else
+            {
+            iter = ref_points->queryWithArgs(points, Np, qargs);
+            }
+
+        tbb::parallel_for(tbb::blocked_range<size_t>(0, Np),
+            [&] (const tbb::blocked_range<size_t> &r)
+            {
+            NeighborPoint np;
+            for (size_t i(r.begin()); i != r.end(); ++i)
+                {
+                std::shared_ptr<NeighborQueryIterator> it = iter->query(i);
+                np = it->next();
+                while (!it->end())
+                    {
+                    if (!qargs.exclude_ii || i != np.ref_id)
+                        {
+                            cf(np.ref_id, i);
+                        }
+                    np = it->next();
+                    }
+                }
+            });
+
+        delete abq;
         }
     }
 

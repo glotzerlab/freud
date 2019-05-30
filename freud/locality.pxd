@@ -80,11 +80,20 @@ cdef class AABBQueryResult(NeighborQueryResult):
         return obj
 
 
+cdef inline freud._locality.NeighborList* make_nlistptr(nlist):
+    cdef NeighborList _nlist
+    if nlist is not None:
+        _nlist = nlist
+        return _nlist.get_ptr()
+    else:
+        return NULL
+
 cdef class NeighborQuery:
     cdef freud._locality.NeighborQuery * nqptr
     cdef cbool queryable
     cdef freud.box.Box _box
     cdef const float[:, ::1] points
+    cdef freud._locality.NeighborQuery * get_ptr(self) nogil
 
 cdef class NeighborList:
     cdef freud._locality.NeighborList * thisptr
@@ -103,6 +112,7 @@ cdef class IteratorLinkCell:
 cdef class LinkCell(NeighborQuery):
     cdef freud._locality.LinkCell * thisptr
     cdef NeighborList _nlist
+    # cdef freud._locality.LinkCell * get_ptr(self) nogil
 
 cdef class NearestNeighbors:
     cdef freud._locality.NearestNeighbors * thisptr
@@ -114,3 +124,8 @@ cdef class NearestNeighbors:
 cdef class AABBQuery(NeighborQuery):
     cdef freud._locality.AABBQuery * thisptr
     cdef NeighborList _nlist
+    # cdef freud._locality.AABBQuery * get_ptr(self) nogil
+
+cdef class RawPoints(NeighborQuery):
+    cdef freud._locality.RawPoints * thisptr
+    # cdef freud._locality.RawPoints * get_ptr(self) nogil

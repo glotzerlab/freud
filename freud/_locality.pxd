@@ -160,3 +160,8 @@ cdef extern from "AABBQuery.h" namespace "freud::locality":
         shared_ptr[NeighborQueryIterator] query(
             const vec3[float]*, unsigned int, unsigned int,
             float, float, bool) nogil except +
+
+cdef extern from "NeighborComputeFunctional.h" namespace "freud::locality":
+    cdef cppclass RawPoints(NeighborQuery):
+        RawPoints()
+        RawPoints(const freud._box.Box, const vec3[float]*, unsigned int)

@@ -376,6 +376,10 @@ cdef class NeighborQuery:
         return NeighborQueryResult.init(
             self.nqptr, points, exclude_ii, r=r, k=0)
 
+    cdef freud._locality.NeighborQuery * get_ptr(self) nogil:
+        R"""Returns a pointer to the raw C++ object we are wrapping."""
+        pass
+
 
 cdef class NeighborList:
     R"""Class representing a certain number of "bonds" between
@@ -719,6 +723,14 @@ cdef class NeighborList:
         return self
 
 
+def make_default_nq(box, ref_points):
+    if isinstance(ref_points, AABBQuery) or isinstance(ref_points, LinkCell):
+        return ref_points
+
+    cdef RawPoints rp = RawPoints(box, ref_points)
+    return rp
+
+
 def make_default_nlist(box, ref_points, points, rmax, nlist=None,
                        exclude_ii=None):
     R"""Helper function to return a neighbor list object if is given, or to
@@ -804,6 +816,46 @@ def make_default_nlist_nn(box, ref_points, points, n_neigh, nlist=None,
 
     # Return the owner of the neighbor list as well to prevent gc problems
     return nn.nlist, nn
+
+
+cdef class RawPoints(NeighborQuery):
+    R"""Use an AABB tree to find neighbors.
+
+    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
+    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
+
+    Attributes:
+        box (:class:`freud.locality.Box`):
+            The simulation box.
+        points (:class:`np.ndarray`):
+            The points associated with this class.
+
+    .. versionadded:: 1.1.0
+
+    """  # noqa: E501
+
+    def __cinit__(self, box, points):
+        cdef const float[:, ::1] l_points
+        if type(self) is RawPoints:
+            # Assume valid set of arguments is passed
+            self.queryable = True
+            self._box = freud.common.convert_box(box)
+            self.points = freud.common.convert_array(
+                points, 2, dtype=np.float32, contiguous=True,
+                array_name="points").copy()
+            l_points = self.points
+            self.thisptr = self.nqptr = new freud._locality.RawPoints(
+                dereference(self._box.thisptr),
+                <vec3[float]*> &l_points[0, 0],
+                self.points.shape[0])
+
+    def __dealloc__(self):
+        if type(self) is RawPoints:
+            del self.thisptr
+
+    cdef freud._locality.NeighborQuery * get_ptr(self) nogil:
+        R"""Returns a pointer to the raw C++ object we are wrapping."""
+        return self.thisptr
 
 
 cdef class AABBQuery(NeighborQuery):
@@ -907,6 +959,10 @@ cdef class AABBQuery(NeighborQuery):
 
         return AABBQueryResult.init_aabb_nn(
             self.thisptr, points, exclude_ii, k, r, scale)
+
+    cdef freud._locality.NeighborQuery * get_ptr(self) nogil:
+        R"""Returns a pointer to the raw C++ object we are wrapping."""
+        return self.thisptr
 
 
 cdef class IteratorLinkCell:
@@ -1150,6 +1206,10 @@ cdef class LinkCell(NeighborQuery):
     @property
     def nlist(self):
         return self._nlist
+
+    cdef freud._locality.NeighborQuery * get_ptr(self) nogil:
+        R"""Returns a pointer to the raw C++ object we are wrapping."""
+        return self.thisptr
 
 
 cdef class NearestNeighbors:

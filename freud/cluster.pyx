@@ -104,9 +104,13 @@ cdef class Cluster:
             raise RuntimeError(
                 'Need a list of 3D points for computeClusters()')
 
-        defaulted_nlist = freud.locality.make_default_nlist(
-            self.m_box, points, points, self.rmax, nlist, True)
-        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
+        # defaulted_nlist = freud.locality.make_default_nlist(
+        #     self.m_box, points, points, self.rmax, nlist, True)
+        # cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
+
+        cdef freud.locality.NeighborQuery nq = \
+            freud.locality.make_default_nq(self.m_box, points)
+        nlistptr = freud.locality.make_nlistptr(nlist)
 
         cdef freud.box.Box b
         if box is None:
@@ -118,7 +122,8 @@ cdef class Cluster:
         cdef unsigned int Np = l_points.shape[0]
         with nogil:
             self.thisptr.computeClusters(
-                dereference(b.thisptr), nlist_.get_ptr(),
+                nq.get_ptr(),
+                dereference(b.thisptr), nlistptr,
                 <vec3[float]*> &l_points[0, 0], Np)
         return self
 
