@@ -39,8 +39,10 @@ template<typename ComputePairType>
 void loop_over_NeighborList(const NeighborQuery *ref_points, const vec3<float> *points, unsigned int Np,
                                   QueryArgs qargs, const NeighborList* nlist, const ComputePairType& cf)
     {
+    // check if nlist exists
     if(nlist != NULL)
         {
+        // if nlist exists, loop over it parallely
         const size_t *neighbor_list(nlist->getNeighbors());
         size_t n_bonds = nlist->getNumBonds();
         parallel_for(tbb::blocked_range<size_t>(0, n_bonds),
@@ -56,10 +58,12 @@ void loop_over_NeighborList(const NeighborQuery *ref_points, const vec3<float> *
         }
     else
         {
+        // if nlist does not exist, check if ref_points is an actual NeighborQuery
         std::shared_ptr<NeighborQueryIterator> iter;
         AABBQuery* abq = nullptr;
         if(const RawPoints* rp = dynamic_cast<const RawPoints*>(ref_points))
             {
+            // if ref_points is RawPoints, build a NeighborQuery
             abq = new AABBQuery(ref_points->getBox(), ref_points->getRefPoints(), ref_points->getNRef());
             iter = abq->queryWithArgs(points, Np, qargs);
             }
@@ -68,6 +72,7 @@ void loop_over_NeighborList(const NeighborQuery *ref_points, const vec3<float> *
             iter = ref_points->queryWithArgs(points, Np, qargs);
             }
 
+        // iterate over the query object parallely
         tbb::parallel_for(tbb::blocked_range<size_t>(0, Np),
             [&] (const tbb::blocked_range<size_t> &r)
             {
