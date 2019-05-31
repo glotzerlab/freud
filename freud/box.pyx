@@ -72,7 +72,7 @@ cdef class Box:
             The xz tilt factor.
         yz (float):
             The yz tilt factor.
-        L (tuple, settable):
+        L (:math:`\left(3\right)` :class:`numpy.ndarray`, settable):
             The box lengths along x, y, and z.
         Lx (float, settable):
             The x-dimension length.
@@ -80,13 +80,13 @@ cdef class Box:
             The y-dimension length.
         Lz (float, settable):
             The z-dimension length.
-        Linv (tuple):
+        Linv (:math:`\left(3\right)` :class:`numpy.ndarray`):
             The inverse box lengths.
         volume (float):
             The box volume (area in 2D).
         dimensions (int, settable):
             The number of dimensions (2 or 3).
-        periodic (list, settable):
+        periodic (:math:`\left(3\right)` :class:`numpy.ndarray`, settable):
             Whether or not the box is periodic.
         periodic_x (bool, settable):
             Whether or not the box is periodic in x.
@@ -131,7 +131,7 @@ cdef class Box:
     @property
     def L(self):
         cdef vec3[float] result = self.thisptr.getL()
-        return (result.x, result.y, result.z)
+        return np.asarray([result.x, result.y, result.z])
 
     @L.setter
     def L(self, value):
@@ -205,7 +205,7 @@ cdef class Box:
     @property
     def Linv(self):
         cdef vec3[float] result = self.thisptr.getLinv()
-        return (result.x, result.y, result.z)
+        return np.asarray([result.x, result.y, result.z])
 
     @property
     def volume(self):
@@ -300,11 +300,11 @@ cdef class Box:
             vecs, vecs.ndim, dtype=np.float32, contiguous=True)
 
         if vecs.ndim == 1:
-            vecs[:] = self._getImage(vecs)
+            images = np.asarray(self._getImage(vecs), dtype=int)
         elif vecs.ndim == 2:
-            for i, vec in enumerate(vecs):
-                vecs[i] = self._getImage(vec)
-        return vecs
+            images = np.asarray([self.getImage(vec) for vec in vecs],
+                                dtype=int)
+        return images
 
     def _getImage(self, vec):
         cdef const float[::1] l_vec = vec
@@ -320,12 +320,13 @@ cdef class Box:
                 Index (:math:`0 \leq i < d`) of the lattice vector, where :math:`d` is the box dimension (2 or 3).
 
         Returns:
-            list[float, float, float]: Lattice vector with index :math:`i`.
+            :math:`\left(3\right)` :class:`numpy.ndarray`:
+                Lattice vector with index :math:`i`.
         """  # noqa: E501
         cdef vec3[float] result = self.thisptr.getLatticeVector(i)
         if self.thisptr.is2D():
             result.z = 0.0
-        return [result.x, result.y, result.z]
+        return np.asarray([result.x, result.y, result.z])
 
     def wrap(self, vecs):
         R"""Wrap a given array of vectors from real space into the box, using
@@ -419,7 +420,7 @@ cdef class Box:
     @property
     def periodic(self):
         periodic = self.thisptr.getPeriodic()
-        return [periodic.x, periodic.y, periodic.z]
+        return np.asarray([periodic.x, periodic.y, periodic.z])
 
     @periodic.setter
     def periodic(self, periodic):
@@ -484,11 +485,11 @@ cdef class Box:
         R"""Returns the box matrix (3x3).
 
         Returns:
-            list of lists, shape 3x3: box matrix
+            :math:`\left(3, 3\right)` :class:`numpy.ndarray`: Box matrix
         """
-        return [[self.Lx, self.xy * self.Ly, self.xz * self.Lz],
-                [0, self.Ly, self.yz * self.Lz],
-                [0, 0, self.Lz]]
+        return np.asarray([[self.Lx, self.xy * self.Ly, self.xz * self.Lz],
+                           [0, self.Ly, self.yz * self.Lz],
+                           [0, 0, self.Lz]])
 
     def __repr__(self):
         return ("freud.box.{cls}(Lx={Lx}, Ly={Ly}, Lz={Lz}, " +
