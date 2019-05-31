@@ -56,8 +56,8 @@ references:
       name: Install style check dependencies
       command: |
         git submodule update --init
-        pip${PYVER} install --user -r requirements.txt
-        pip${PYVER} install --user flake8==3.7.1
+        pip install --user -r requirements.txt
+        pip install --user flake8==3.7.1
         brew install clang-format
 
   check_cpp_style: &check_cpp_style
