@@ -10,9 +10,8 @@
 #include <tbb/tbb.h>
 
 #include "Box.h"
+#include "NeighborList.h"
 #include "VectorMath.h"
-#include "NearestNeighbors.h"
-#include "Index1D.h"
 
 /*! \file HexOrderParameter.h
     \brief Compute the hexatic order parameter for each particle.

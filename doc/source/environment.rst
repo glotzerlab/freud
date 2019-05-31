@@ -29,7 +29,7 @@ Local Descriptors
 =================
 
 .. autoclass:: freud.environment.LocalDescriptors(num_neighbors, lmax, rmax, negative_m=True)
-    :members: compute, computeNList
+    :members: compute
 
 Match Environments
 ==================
