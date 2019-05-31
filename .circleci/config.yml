@@ -70,7 +70,7 @@ references:
     run:
       name: flake8
       command: |
-        python${PYVER} -m flake8 --show-source .
+        python -m flake8 --show-source .
 
   build: &build
     run:
