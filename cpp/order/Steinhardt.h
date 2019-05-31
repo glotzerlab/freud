@@ -153,11 +153,11 @@ class Steinhardt
                              const vec3<float> *points,
                              unsigned int Np);
 
+    private:
         //! \internal
         //! helper function to reduce the thread specific arrays into one array
         void reduce();
 
-    private:
         //! Spherical harmonics calculation for Ylm filling a
         //  vector<complex<float> > with values for m = -l..l.
         virtual void computeYlm(const float theta, const float phi,
@@ -172,20 +172,27 @@ class Steinhardt
         void baseCompute(const box::Box& box,
                          const locality::NeighborList *nlist,
                          const vec3<float> *points);
+
         //! Calculates the neighbor average Ql order parameter
         void computeAve(const box::Box& box,
                         const locality::NeighborList *nlist,
                         const vec3<float> *points);
+
         //! Calculates the normalized Ql order parameter
         void computeNorm();
+
         //! Calculates the neighbor averaged normalized Ql order parameter
         void computeAveNorm();
+
         //! Calculates the Wl order parameter
         void computeWl();
+
         //! Calculates the neighbor averaged Wl order parameter
         void computeAveWl();
+
         //! Calculates the normalized Wl order parameter
         void computeNormWl();
+
         //! Calculates the normalized neighbor averaged Wl order parameter
         void computeAveNormWl();
 

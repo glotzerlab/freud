@@ -542,15 +542,15 @@ cdef class Steinhardt:
             Spherical harmonic quantum number l. Must be a positive number.
         rmin (float):
             Can look at only the second shell or some arbitrary RDF region.
-        average (bool):
+        average (bool, optional):
             Determines whether to calculate the averaged Steinhardt order
-            parameter.
-        norm (bool):
+            parameter, defaults to False.
+        norm (bool, optional):
             Determines whether to calculate the normalized Steinhardt order
-            parameter.
-        Wl (bool):
+            parameter, defaults to False.
+        Wl (bool, optional):
             Determines whether to use the :math:`Wl` version of the Steinhardt
-            order parameter.
+            order parameter, defaults to False.
 
 
     Attributes:
