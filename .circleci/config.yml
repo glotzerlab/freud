@@ -103,7 +103,6 @@ references:
     steps:
       - *load_code
       - *get_requirements
-      - *check_python_style
       - *build
       - *test
       - *store
@@ -112,7 +111,6 @@ references:
     steps:
       - *load_code
       - *get_requirements
-      - *check_python_style
       - *build
       - *test_cov
       - *store
