@@ -98,19 +98,12 @@ cdef class Cluster:
             box (:class:`freud.box.Box`, optional):
                 Simulation box (Default value = None).
         """
-
-        # defaulted_nlist = freud.locality.make_default_nlist(
-        #     self.m_box, points, points, self.rmax, nlist, True)
-        # cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
-
         cdef freud.locality.NeighborQuery nq = \
             freud.locality.make_default_nq(self.m_box, points)
         cdef freud._locality.NeighborList * nlistptr \
             = freud.locality.make_nlistptr(nlist)
 
-        if isinstance(points, freud.locality.AABBQuery) \
-                or isinstance(points, freud.locality.LinkCell):
-            points = points.points
+        points = nq.points
 
         points = freud.common.convert_array(
             points, 2, dtype=np.float32, contiguous=True)

@@ -724,6 +724,20 @@ cdef class NeighborList:
 
 
 def make_default_nq(box, ref_points):
+    R"""Helper function to return a NeighborQuery object.
+
+    Args:
+        box (:class:`freud.box.Box`):
+            Simulation box.
+        ref_points (:class:`freud.locality.AABBQuery`,
+            :class:`freud.locality.LinkCell`, or :class:`numpy.ndarray`):
+            NeighborQuery object or numpy array to build :class:`RawPoints` out of.
+
+    Returns:
+        :class:`freud.locality.NeighborQuery`
+            The same :class:`NeighborQuery` object if one is given or :class:`RawPoints`
+            built from :code:`box` and :code:`ref_points`.
+    """  # noqa: E501
     if isinstance(ref_points, AABBQuery) or isinstance(ref_points, LinkCell):
         return ref_points
 

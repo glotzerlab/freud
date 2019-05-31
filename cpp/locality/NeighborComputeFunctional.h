@@ -34,7 +34,7 @@ class RawPoints : public NeighborQuery
 
     };
 
-
+// ComputePairType should be a void function that takes (ref_point, point) as input.
 template<typename ComputePairType>
 void loop_over_NeighborList(const NeighborQuery *ref_points, const vec3<float> *points, unsigned int Np,
                                   QueryArgs qargs, const NeighborList* nlist, const ComputePairType& cf)
@@ -42,6 +42,7 @@ void loop_over_NeighborList(const NeighborQuery *ref_points, const vec3<float> *
     // check if nlist exists
     if(nlist != NULL)
         {
+
         // if nlist exists, loop over it parallely
         const size_t *neighbor_list(nlist->getNeighbors());
         size_t n_bonds = nlist->getNumBonds();
@@ -96,6 +97,7 @@ void loop_over_NeighborList(const NeighborQuery *ref_points, const vec3<float> *
         }
     }
 
+// ComputePairType should be a void function that takes (ref_point, point) as input.
 template<typename ComputePairType>
 void loop_over_NeighborList_parallel(const NeighborList* nlist, const ComputePairType& cf)
     {
