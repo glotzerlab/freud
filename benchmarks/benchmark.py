@@ -262,7 +262,8 @@ class Benchmark(object):
 
                 if print_stats:
                     speedup = times[1, j] / times[ncores, j]
-                    print('{0:8.3f} ms {1:9.2f}x'.format(times[ncores, j]*1000, speedup), end=' | ')
+                    print('{0:8.3f} ms {1:9.2f}x'.format(times[ncores, j]*1000,
+                                                         speedup), end=' | ')
                     sys.stdout.flush()
 
             if print_stats:
