@@ -282,7 +282,7 @@ jobs:
   check-style:
     <<: *container_osx
     environment:
-      PYVER: "3.6"
+      PYVER: "3.5"
     <<: *load_check_style
 
 workflows:
