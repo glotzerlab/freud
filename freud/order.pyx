@@ -516,7 +516,7 @@ cdef class Steinhardt:
     (Clebsch-Gordan coefficients). The resulting combination is rotationally
     (i.e. frame) invariant.
 
-    The :argument:`average` argument in the constructor provides access to a variant
+    The average argument in the constructor provides access to a variant
     of this parameter that performs a average over the first and second shell
     combined [Lechner2008]_. To compute this parameter, we perform a second
     averaging over the first neighbor shell of the particle to implicitly
@@ -525,11 +525,10 @@ cdef class Steinhardt:
     original definition by the average value of :math:`\overline{Q}_{lm}(k)`
     over all the :math:`k` neighbors of particle :math:`i` as well as itself.
 
-    The :data:`norm` constructor arguement provides
-    normalized versions of the plain :math:`Q_l` or :math:`W_l` or normalized
-    average if the :data:`average` flag is set to true.  where the normalization
-    is performed by dividing by the average :math:`Q_{lm}` values over all
-    particles.
+    The norm constructor argument provides normalized versions of the
+    plain :math:`Q_l` or :math:`W_l` or normalized average if the
+    average flag is set to true, where the normalization is performed by
+    dividing by the average :math:`Q_{lm}` values over all particles.
 
     .. moduleauthor:: Xiyu Du <xiyudu@umich.edu>
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
@@ -611,8 +610,8 @@ cdef class Steinhardt:
         R"""Compute the order parameter.
 
         Args:
-        box (:class:`freud.box.Box`):
-            Simulation box.
+            box (:class:`freud.box.Box`):
+                Simulation box.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Points to calculate the order parameter.
             nlist (:class:`freud.locality.NeighborList`, optional):
