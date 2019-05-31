@@ -237,7 +237,7 @@ class Benchmark(object):
         if print_stats:
             print('Threads ', end='')
             for N in N_list:
-                print('{0:10d}'.format(N), end=' | ')
+                print('{0:^22d}'.format(N), end=' | ')
             print()
 
         nproc_increment = int(os.environ.get('BENCHMARK_NPROC_INCREMENT', 1))
@@ -262,7 +262,7 @@ class Benchmark(object):
 
                 if print_stats:
                     speedup = times[1, j] / times[ncores, j]
-                    print('{0:9.2f}x'.format(speedup), end=' | ')
+                    print('{0:8.3f} ms {1:9.2f}x'.format(times[ncores, j]*1000, speedup), end=' | ')
                     sys.stdout.flush()
 
             if print_stats:
