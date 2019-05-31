@@ -2,6 +2,14 @@
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## next
+
+### Changed
+* Removed extra C++ includes to speed up builds.
+
+### Removed
+* Removed outdated `computeNList` function from `LocalDescriptors`.
+
 ## v1.1.0 - 2019-05-23
 
 ### Added
@@ -13,7 +21,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 * ParticleBuffer supports different buffer sizes in x, y, z.
 * Box makeCoordinates, makeFraction, getImage now support 2D arrays with multiple points.
 
-### Changes
+### Changed
 * Use constant memoryviews to prevent errors with read-only inputs.
 * LocalQl is now parallelized with TBB.
 * Optimized performance of RotationalAutocorrelation.

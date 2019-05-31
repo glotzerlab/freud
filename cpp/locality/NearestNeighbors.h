@@ -8,10 +8,8 @@
 #include <memory>
 
 #include "Box.h"
-#include "VectorMath.h"
 #include "LinkCell.h"
-#include "Index1D.h"
-
+#include "VectorMath.h"
 #include "tbb/atomic.h"
 
 /*! \file NearestNeighbors.h

@@ -10,8 +10,6 @@
 #include <tbb/tbb.h>
 
 #include "VectorMath.h"
-#include "HOOMDMath.h"
-#include "Index1D.h"
 
 /*! \file RotationalAutocorrelation.h
     \brief Defines the RotationalAutocorrelation class, which computes the total

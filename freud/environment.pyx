@@ -332,11 +332,6 @@ cdef class LocalDescriptors:
     than this number, the last one or more rows of bond spherical
     harmonics for each particle will not be set.
 
-    .. note: **You must always call computeNList before calling compute, the
-             NeighborList will not be populated until this is called. However,
-             the compute method must be called to actually calculate the
-             descriptors.**
-
     .. moduleauthor:: Matthew Spellings <mspells@umich.edu>
 
     Args:
@@ -377,7 +372,7 @@ cdef class LocalDescriptors:
 
     def __cinit__(self, num_neighbors, lmax, rmax, negative_m=True):
         self.thisptr = new freud._environment.LocalDescriptors(
-            num_neighbors, lmax, rmax, negative_m)
+            lmax, negative_m)
         self.num_neigh = num_neighbors
         self.rmax = rmax
         self.lmax = lmax
@@ -386,54 +381,16 @@ cdef class LocalDescriptors:
     def __dealloc__(self):
         del self.thisptr
 
-    def computeNList(self, box, points_ref, points=None):
-        R"""Compute the neighbor list for bonds from a set of source points to
-        a set of destination points.
-
-        Args:
-            box (:class:`freud.box.Box`):
-                Simulation box.
-            points_ref ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Source points to calculate the order parameter.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
-                Destination points to calculate the order parameter
-                (Default value = :code:`None`).
-        """  # noqa: E501
-        cdef freud.box.Box b = freud.common.convert_box(box)
-
-        points_ref = freud.common.convert_array(points_ref, 2)
-        if points_ref.shape[1] != 3:
-            raise TypeError('points_ref should be an Nx3 array')
-
-        if points is None:
-            points = points_ref
-
-        points = freud.common.convert_array(points, 2)
-        if points.shape[1] != 3:
-            raise TypeError('points should be an Nx3 array')
-
-        cdef const float[:, ::1] l_points_ref = points_ref
-        cdef unsigned int nRef = l_points_ref.shape[0]
-        cdef const float[:, ::1] l_points = points
-        cdef unsigned int nP = l_points.shape[0]
-        with nogil:
-            self.thisptr.computeNList(
-                dereference(b.thisptr), <vec3[float]*> &l_points_ref[0, 0],
-                nRef, <vec3[float]*> &l_points[0, 0], nP)
-        return self
-
     def compute(self, box, unsigned int num_neighbors, points_ref, points=None,
                 orientations=None, mode='neighborhood', nlist=None):
         R"""Calculates the local descriptors of bonds from a set of source
         points to a set of destination points.
 
-        .. note: **You must always call computeNList before this method.**
-
         Args:
             box (:class:`freud.box.Box`):
                 Simulation box.
             num_neighbors (unsigned int):
-                Number of neighbors to compute with or to limit to, if the
+                Number of nearest neighbors to compute with or to limit to, if the
                 neighbor list is precomputed.
             points_ref ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Source points to calculate the order parameter.
@@ -450,8 +407,7 @@ cdef class LocalDescriptors:
                 particle orientations, or :code:`'global'` to not rotate
                 environments (Default value = :code:`'neighborhood'`).
             nlist (:class:`freud.locality.NeighborList`, optional):
-                NeighborList to use to find bonds or :code:`'precomputed'` if
-                using :meth:`~.computeNList` (Default value = :code:`None`).
+                NeighborList to use to find bonds (Default value = :code:`None`).
         """  # noqa: E501
         cdef freud.box.Box b = freud.common.convert_box(box)
 
@@ -500,17 +456,15 @@ cdef class LocalDescriptors:
 
         self.num_neigh = num_neighbors
 
-        cdef freud.locality.NeighborList nlist_ = None
-        if not nlist == 'precomputed':
-            defaulted_nlist = freud.locality.make_default_nlist_nn(
-                b, points_ref, points, self.num_neigh, nlist,
-                True, self.rmax)
-            nlist_ = defaulted_nlist[0]
+        defaulted_nlist = freud.locality.make_default_nlist_nn(
+            b, points_ref, points, self.num_neigh, nlist,
+            True, self.rmax)
+        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         with nogil:
             self.thisptr.compute(
                 dereference(b.thisptr),
-                nlist_.get_ptr() if nlist_ is not None else NULL,
+                nlist_.get_ptr(),
                 num_neighbors,
                 <vec3[float]*> &l_points_ref[0, 0],
                 nRef, <vec3[float]*> &l_points[0, 0], nP,
