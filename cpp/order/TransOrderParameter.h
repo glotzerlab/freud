@@ -10,9 +10,9 @@
 #include <tbb/tbb.h>
 
 #include "Box.h"
-#include "VectorMath.h"
-#include "NearestNeighbors.h"
 #include "Index1D.h"
+#include "NearestNeighbors.h"
+#include "VectorMath.h"
 
 /*! \file TransOrderParameter.h
     \brief Compute the translational order parameter for each particle
@@ -22,51 +22,49 @@ namespace freud { namespace order {
 
 //! Compute the translational order parameter for a set of points
 /*!
-*/
+ */
 class TransOrderParameter
+{
+public:
+    //! Constructor
+    TransOrderParameter(float rmax, float k = 6);
+
+    //! Destructor
+    ~TransOrderParameter();
+
+    //! Get the simulation box
+    const box::Box& getBox() const
     {
-    public:
-        //! Constructor
-        TransOrderParameter(float rmax, float k=6);
+        return m_box;
+    }
 
-        //! Destructor
-        ~TransOrderParameter();
+    //! Compute the translational order parameter
+    void compute(box::Box& box, const freud::locality::NeighborList* nlist, const vec3<float>* points,
+                 unsigned int Np);
 
-        //! Get the simulation box
-        const box::Box& getBox() const
-            {
-            return m_box;
-            }
+    //! Get a reference to the last computed dr
+    std::shared_ptr<std::complex<float>> getDr()
+    {
+        return m_dr_array;
+    }
 
-        //! Compute the translational order parameter
-        void compute(box::Box& box,
-                     const freud::locality::NeighborList *nlist,
-                     const vec3<float> *points,
-                     unsigned int Np);
+    unsigned int getNP()
+    {
+        return m_Np;
+    }
 
-        //! Get a reference to the last computed dr
-        std::shared_ptr< std::complex<float> > getDr()
-            {
-            return m_dr_array;
-            }
+    float getK()
+    {
+        return m_k;
+    }
 
-        unsigned int getNP()
-            {
-            return m_Np;
-            }
+private:
+    box::Box m_box;    //!< Simulation box where the particles belong
+    float m_k;         //!< Normalization value (dr is divided by m_k)
+    unsigned int m_Np; //!< Last number of points computed
 
-        float getK()
-            {
-            return m_k;
-            }
-
-    private:
-        box::Box m_box;            //!< Simulation box where the particles belong
-        float m_k;                 //!< Normalization value (dr is divided by m_k)
-        unsigned int m_Np;         //!< Last number of points computed
-
-        std::shared_ptr< std::complex<float> > m_dr_array;         //!< dr array computed
-    };
+    std::shared_ptr<std::complex<float>> m_dr_array; //!< dr array computed
+};
 
 }; }; // end namespace freud::order
 

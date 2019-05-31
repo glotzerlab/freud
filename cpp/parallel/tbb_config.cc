@@ -11,18 +11,18 @@ using namespace tbb;
 
 namespace freud { namespace parallel {
 
-task_scheduler_init *ts = NULL;
+task_scheduler_init* ts = NULL;
 
 /*! \param N Number of threads to use for TBB computations
 
-    You do not need to call setTBBNumThreads. The default is to use the number of threads in the system. Use \a N=0 to
-    set back to the default.
+    You do not need to call setTBBNumThreads. The default is to use the number of threads in the system. Use
+   \a N=0 to set back to the default.
 
     \note setTBBNumThreads should only be called from the main thread.
 */
 void setNumThreads(unsigned int N)
-    {
-    task_scheduler_init *old_ts(ts);
+{
+    task_scheduler_init* old_ts(ts);
 
     if (N == 0)
         N = task_scheduler_init::automatic;
@@ -31,6 +31,6 @@ void setNumThreads(unsigned int N)
 
     // then recreate it
     ts = new task_scheduler_init(N);
-    }
+}
 
 }; }; // end namespace freud::parallel

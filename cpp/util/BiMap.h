@@ -1,14 +1,14 @@
 #ifndef BIMAP_H
 #define BIMAP_H
 
-#include <set>
-#include <vector>
-#include <memory>
-#include <utility>
-#include <cstddef>
-#include <assert.h>
 #include <algorithm>
+#include <assert.h>
+#include <cstddef>
+#include <memory>
+#include <set>
 #include <type_traits>
+#include <utility>
+#include <vector>
 
 /* BiMap container modelled after Boost::BiMap with templatization.
  *
@@ -68,319 +68,304 @@
  *     1 2
  */
 
-template <typename T, typename U>
-class BiMap
+template<typename T, typename U> class BiMap
+{
+private:
+    template<typename I> struct Comp
     {
-    private:
-        template <typename I>
-        struct Comp
+        bool operator()(const I* A, const I* B) const
+        {
+            return *A < *B;
+        }
+    };
+
+public:
+    typedef std::pair<T, U> Pair;
+    typedef std::vector<Pair*> Container_t;
+    template<typename I> using Pointer_Set_t = std::set<const I*, Comp<I>>;
+    using iterator = typename Container_t::iterator;
+    using const_iterator = typename Container_t::const_iterator;
+    using reverse_iterator = typename Container_t::reverse_iterator;
+    using const_reverse_iterator = typename Container_t::const_reverse_iterator;
+
+private:
+    Container_t container;
+    Pointer_Set_t<T> set_A;
+    Pointer_Set_t<U> set_B;
+
+    template<typename I> Pair* getPairVal(const I* Ptr_in) const
+    {
+        return const_cast<Pair*>(reinterpret_cast<const Pair*>(Ptr_in));
+    }
+
+public:
+    BiMap() = default;
+    ~BiMap()
+    {
+        for (size_t i = 0; i < container.size(); ++i)
             {
-            bool operator()(const I* A, const I* B) const
-                {
-                return *A < *B;
-                }
-            };
-
-    public:
-        typedef std::pair<T, U> Pair;
-        typedef std::vector<Pair*> Container_t;
-        template <typename I>
-        using Pointer_Set_t = std::set<const I*, Comp<I> >;
-        using iterator = typename Container_t::iterator;
-        using const_iterator = typename Container_t::const_iterator;
-        using reverse_iterator = typename Container_t::reverse_iterator;
-        using const_reverse_iterator = typename Container_t::const_reverse_iterator;
-
-    private:
-        Container_t  container;
-        Pointer_Set_t<T> set_A;
-        Pointer_Set_t<U> set_B;
-
-        template<typename I>
-        Pair* getPairVal(const I* Ptr_in) const
-            {
-            return const_cast<Pair*>(reinterpret_cast<const Pair*>(Ptr_in));
-            }
-
-    public:
-        BiMap() = default;
-        ~BiMap()
-            {
-            for (size_t i = 0; i < container.size(); ++i)
-                {
                 delete container[i];
-                }
             }
+    }
 
-        BiMap(const BiMap& other)
+    BiMap(const BiMap& other)
+    {
+        for (size_t i = 0; i < other.container.size(); ++i)
             {
-            for (size_t i = 0; i < other.container.size(); ++i)
-                {
                 this->insert(*(other.container[i]));
-                }
             }
+    }
 
-        BiMap& operator=(const BiMap& rhs)
-            {
-            BiMap clone(rhs);
-            std::swap(container, clone.container);
-            std::swap(set_A, clone.set_A);
-            std::swap(set_B, clone.set_B);
-            return *this;
-            }
+    BiMap& operator=(const BiMap& rhs)
+    {
+        BiMap clone(rhs);
+        std::swap(container, clone.container);
+        std::swap(set_A, clone.set_A);
+        std::swap(set_B, clone.set_B);
+        return *this;
+    }
 
-        BiMap& operator=(BiMap&& rhs)
-            {
-            std::swap(container, rhs.container);
-            std::swap(set_A, rhs.set_A);
-            std::swap(set_B, rhs.set_B);
-            return *this;
-            }
+    BiMap& operator=(BiMap&& rhs)
+    {
+        std::swap(container, rhs.container);
+        std::swap(set_A, rhs.set_A);
+        std::swap(set_B, rhs.set_B);
+        return *this;
+    }
 
-        template <typename I, typename J>
-        bool emplace(I&& Arg1_in, J&& Arg2_in)
+    template<typename I, typename J> bool emplace(I&& Arg1_in, J&& Arg2_in)
+    {
+        auto pair = new Pair(std::forward<I>(Arg1_in), std::forward<J>(Arg2_in));
+        if (set_A.count(&(pair->first)) != 0 || set_B.count(&(pair->second)) != 0)
             {
-            auto pair = new Pair(std::forward<I>(Arg1_in),
-                                 std::forward<J>(Arg2_in));
-            if (set_A.count(&(pair->first)) != 0 || set_B.count(&(pair->second)) != 0)
-                {
                 delete pair;
                 return false;
-                }
-            else
-                {
+            }
+        else
+            {
                 set_A.emplace(&(pair->first));
                 set_B.emplace(&(pair->second));
                 container.emplace_back(std::move(pair));
                 return true;
+            }
+    }
+
+    void insert(const Pair& Pair_in)
+    {
+        this->emplace(Pair_in.first, Pair_in.second);
+    }
+
+    class left
+    {
+        friend BiMap;
+
+    private:
+        BiMap<T, U>& b() const
+        {
+            BiMap<T, U> t;
+            return *reinterpret_cast<BiMap*>(reinterpret_cast<char*>((void*) this)
+                                             - (((size_t)(&(&t)->left) - ((size_t) &t))));
+        }
+
+        Pair* getPairPtr(const T* Item_in) const
+        {
+            return b().getPairVal(Item_in);
+        }
+
+        U& getVal(const T* Item_in) const
+        {
+            return getPairPtr(Item_in)->second;
+        }
+
+    public:
+        const U& at(const T& Key_in) const
+        {
+            const auto& itr(this->b().set_A.find(&Key_in));
+            if (itr == std::end(this->b().set_A))
+                {
+                    throw std::out_of_range {"Key not found"};
                 }
-            }
+            return getVal(*itr);
+        }
 
-        void insert(const Pair& Pair_in)
-            {
-            this -> emplace(Pair_in.first, Pair_in.second);
-            }
-
-        class left
+        U& operator[](const T& Key_in) const
         {
-            friend BiMap;
-            private:
-                BiMap<T,U>& b() const
-                    {
-                    BiMap<T,U> t;
-                    return *reinterpret_cast<BiMap*>(
-                        reinterpret_cast<char*>((void*)this)-
-                           (((size_t)(&(&t)->left)-((size_t)&t))));
-                    }
+            if (!this->has(Key_in))
+                {
+                    // Add a new item, initializing U to the default
+                    // then return a reference to U
+                    b().emplace(Key_in, U());
+                }
+            return getVal(*(this->b().set_A.find(&Key_in)));
+        }
 
-                Pair* getPairPtr(const T* Item_in) const
-                    {
-                    return b().getPairVal(Item_in);
-                    }
-
-                U& getVal (const T* Item_in) const
-                    {
-                    return getPairPtr(Item_in) -> second;
-                    }
-
-            public:
-
-                const U& at (const T& Key_in) const
-                    {
-                    const auto& itr(this->b().set_A.find(&Key_in));
-                    if(itr == std::end(this->b().set_A))
-                        {
-                        throw std::out_of_range{"Key not found"};
-                        }
-                    return getVal(*itr);
-                    }
-
-                U& operator[](const T& Key_in) const
-                    {
-                    if(!this->has(Key_in))
-                        {
-                        // Add a new item, initializing U to the default
-                        // then return a reference to U
-                        b().emplace(Key_in, U());
-                        }
-                    return getVal(*(this->b().set_A.find(&Key_in)));
-                    }
-
-                auto find(const T& Key_in) const -> decltype(this->b().set_A.find(&Key_in))
-                    {
-                    return this->b().set_A.find(&Key_in);
-                    }
-
-                int count(const T& Key_in) const
-                    {
-                    return this->b().set_A.count(&Key_in);
-                    }
-
-                bool has(const T& Key_in)  const
-                    {
-                    return find(Key_in) != std::end(this->b().set_A);
-                    }
-
-                void erase(const T& Key_in)
-                    {
-                    assert(this->has(Key_in));
-                    const auto& pairPtr(getPairPtr(&Key_in));
-                    this->b().set_A.erase(&(pairPtr -> first));
-                    this->b().set_B.erase(&(pairPtr -> second));
-                    b().container.erase(
-                        std::remove_if(
-                            this->b().container.begin(), this->b().container.end(),
-                            [&pairPtr](const std::pair<T, U>* i)
-                                {
-                                return *i == pairPtr;
-                                }
-                        ), this->b().container.end());
-                    assert(!has(Key_in));
-                    }
-            } left;
-
-        friend class left;
-
-        class right
+        auto find(const T& Key_in) const -> decltype(this->b().set_A.find(&Key_in))
         {
-            friend BiMap;
-            private:
-                BiMap<T,U>& b() const
-                    {
-                    BiMap<T,U> t;
-                    return *reinterpret_cast<BiMap*>(
-                        reinterpret_cast<char*>((void*)this)-
-                            (((size_t)(&(&t)->right)-((size_t)&t))));
-                    }
+            return this->b().set_A.find(&Key_in);
+        }
 
-                const char* getPairPtr_B(const U* Item_in) const
-                    {
-                    return reinterpret_cast<const char*>(Item_in)-offsetof(Pair, second);
-                    }
+        int count(const T& Key_in) const
+        {
+            return this->b().set_A.count(&Key_in);
+        }
 
-                Pair* getPairPtr (const U* Item_in) const
-                    {
-                    return b().getPairVal(getPairPtr_B(Item_in));
-                    }
+        bool has(const T& Key_in) const
+        {
+            return find(Key_in) != std::end(this->b().set_A);
+        }
 
-                T& getVal (const U* Item_in) const
-                    {
-                    return getPairPtr(Item_in) -> first;
-                    }
+        void erase(const T& Key_in)
+        {
+            assert(this->has(Key_in));
+            const auto& pairPtr(getPairPtr(&Key_in));
+            this->b().set_A.erase(&(pairPtr->first));
+            this->b().set_B.erase(&(pairPtr->second));
+            b().container.erase(
+                std::remove_if(this->b().container.begin(), this->b().container.end(),
+                               [&pairPtr](const std::pair<T, U>* i) { return *i == pairPtr; }),
+                this->b().container.end());
+            assert(!has(Key_in));
+        }
+    } left;
 
-            public:
-                const T& at(const U& Key_in) const
-                    {
-                    const auto& itr(this->b().set_B.find(&Key_in));
-                    if(itr == std::end(this->b().set_B))
-                        {
-                        throw std::out_of_range{"Key not found"};
-                        }
-                    return getVal(*itr);
-                    }
+    friend class left;
 
-                T& operator[](const U& Key_in)
-                    {
-                    if (!this->has(Key_in))
-                        {
-                        // Add a new item, initializing T to the default
-                        // then return a reference to T
-                        b().emplace(T(), Key_in);
-                        }
-                    return getVal(*(this->b().set_B.find(&Key_in)));
-                    }
+    class right
+    {
+        friend BiMap;
 
-                auto find(const U& Key_in) const -> decltype (this->b().set_B.find(&Key_in))
-                    {
-                    return this->b().set_B.find(&Key_in);
-                    }
+    private:
+        BiMap<T, U>& b() const
+        {
+            BiMap<T, U> t;
+            return *reinterpret_cast<BiMap*>(reinterpret_cast<char*>((void*) this)
+                                             - (((size_t)(&(&t)->right) - ((size_t) &t))));
+        }
 
-                int count(const U& Key_in) const
-                    {
-                    return this->b().set_B.count(&Key_in);
-                    }
+        const char* getPairPtr_B(const U* Item_in) const
+        {
+            return reinterpret_cast<const char*>(Item_in) - offsetof(Pair, second);
+        }
 
-                bool has(const U& Key_in) const
-                    {
-                    return find(Key_in) != std::end(this->b().set_B);
-                    }
+        Pair* getPairPtr(const U* Item_in) const
+        {
+            return b().getPairVal(getPairPtr_B(Item_in));
+        }
 
-                void erase(const U& Key_in)
-                    {
-                    assert(this->has(Key_in));
-                    const auto& pairPtr(getPairPtr(&Key_in));
-                    this->b().set_A.erase(&(pairPtr -> first));
-                    this->b().set_B.erase(&(pairPtr -> second));
-                    b().container.erase(
-                        std::remove_if(
-                            this->b().container.begin(), this->b().container.end(),
-                            [&pairPtr](const std::pair<T, U>* i)
-                                {
-                                return *i == pairPtr;
-                                }
-                        ), this->b().container.end());
-                    assert(!has(Key_in));
-                    }
-            } right;
+        T& getVal(const U* Item_in) const
+        {
+            return getPairPtr(Item_in)->first;
+        }
 
-        friend class right;
+    public:
+        const T& at(const U& Key_in) const
+        {
+            const auto& itr(this->b().set_B.find(&Key_in));
+            if (itr == std::end(this->b().set_B))
+                {
+                    throw std::out_of_range {"Key not found"};
+                }
+            return getVal(*itr);
+        }
 
-        void clear()
-            {
-            container.clear();
-            set_A.clear();
-            set_B.clear();
-            }
+        T& operator[](const U& Key_in)
+        {
+            if (!this->has(Key_in))
+                {
+                    // Add a new item, initializing T to the default
+                    // then return a reference to T
+                    b().emplace(T(), Key_in);
+                }
+            return getVal(*(this->b().set_B.find(&Key_in)));
+        }
 
-        bool empty() const
-            {
-            return container.empty();
-            }
+        auto find(const U& Key_in) const -> decltype(this->b().set_B.find(&Key_in))
+        {
+            return this->b().set_B.find(&Key_in);
+        }
 
-        size_t size() const
-            {
-            return container.size();
-            }
+        int count(const U& Key_in) const
+        {
+            return this->b().set_B.count(&Key_in);
+        }
 
-        auto begin() -> decltype(container.begin())
-            {
-            return container.begin();
-            }
+        bool has(const U& Key_in) const
+        {
+            return find(Key_in) != std::end(this->b().set_B);
+        }
 
-        auto end() -> decltype(container.end())
-            {
-            return container.end();
-            }
+        void erase(const U& Key_in)
+        {
+            assert(this->has(Key_in));
+            const auto& pairPtr(getPairPtr(&Key_in));
+            this->b().set_A.erase(&(pairPtr->first));
+            this->b().set_B.erase(&(pairPtr->second));
+            b().container.erase(
+                std::remove_if(this->b().container.begin(), this->b().container.end(),
+                               [&pairPtr](const std::pair<T, U>* i) { return *i == pairPtr; }),
+                this->b().container.end());
+            assert(!has(Key_in));
+        }
+    } right;
 
-        auto cbegin() -> decltype(container.cbegin())
-            {
-            return container.cbegin();
-            }
+    friend class right;
 
-        auto cend() -> decltype(container.cend())
-            {
-            return container.cend();
-            }
+    void clear()
+    {
+        container.clear();
+        set_A.clear();
+        set_B.clear();
+    }
 
-        auto rbegin() -> decltype(container.rbegin())
-            {
-            return container.rbegin();
-            }
+    bool empty() const
+    {
+        return container.empty();
+    }
 
-        auto rend() -> decltype(container.rend())
-            {
-            return container.rend();
-            }
+    size_t size() const
+    {
+        return container.size();
+    }
 
-        auto crbegin() -> decltype(container.crbegin())
-            {
-            return container.crbegin();
-            }
+    auto begin() -> decltype(container.begin())
+    {
+        return container.begin();
+    }
 
-        auto crend() -> decltype(container.crend())
-            {
-            return container.crend();
-            }
-    };
+    auto end() -> decltype(container.end())
+    {
+        return container.end();
+    }
+
+    auto cbegin() -> decltype(container.cbegin())
+    {
+        return container.cbegin();
+    }
+
+    auto cend() -> decltype(container.cend())
+    {
+        return container.cend();
+    }
+
+    auto rbegin() -> decltype(container.rbegin())
+    {
+        return container.rbegin();
+    }
+
+    auto rend() -> decltype(container.rend())
+    {
+        return container.rend();
+    }
+
+    auto crbegin() -> decltype(container.crbegin())
+    {
+        return container.crbegin();
+    }
+
+    auto crend() -> decltype(container.crend())
+    {
+        return container.crend();
+    }
+};
 
 #endif // BIMAP_H

@@ -10,9 +10,9 @@
 #include <tbb/tbb.h>
 
 #include "Box.h"
-#include "VectorMath.h"
-#include "NearestNeighbors.h"
 #include "Index1D.h"
+#include "NearestNeighbors.h"
+#include "VectorMath.h"
 
 /*! \file HexOrderParameter.h
     \brief Compute the hexatic order parameter for each particle.
@@ -22,51 +22,49 @@ namespace freud { namespace order {
 
 //! Compute the hexagonal order parameter for a set of points
 /*!
-*/
+ */
 class HexOrderParameter
+{
+public:
+    //! Constructor
+    HexOrderParameter(float rmax, unsigned int k = 6, unsigned int n = 0);
+
+    //! Destructor
+    ~HexOrderParameter();
+
+    //! Get the simulation box
+    const box::Box& getBox() const
     {
-    public:
-        //! Constructor
-        HexOrderParameter(float rmax, unsigned int k=6, unsigned int n=0);
+        return m_box;
+    }
 
-        //! Destructor
-        ~HexOrderParameter();
+    //! Compute the hex order parameter
+    void compute(box::Box& box, const freud::locality::NeighborList* nlist, const vec3<float>* points,
+                 unsigned int Np);
 
-        //! Get the simulation box
-        const box::Box& getBox() const
-            {
-            return m_box;
-            }
+    //! Get a reference to the last computed psi
+    std::shared_ptr<std::complex<float>> getPsi()
+    {
+        return m_psi_array;
+    }
 
-        //! Compute the hex order parameter
-        void compute(box::Box& box,
-                     const freud::locality::NeighborList *nlist,
-                     const vec3<float> *points,
-                     unsigned int Np);
+    unsigned int getNP()
+    {
+        return m_Np;
+    }
 
-        //! Get a reference to the last computed psi
-        std::shared_ptr< std::complex<float> > getPsi()
-            {
-            return m_psi_array;
-            }
+    unsigned int getK()
+    {
+        return m_k;
+    }
 
-        unsigned int getNP()
-            {
-            return m_Np;
-            }
+private:
+    box::Box m_box;    //!< Simulation box where the particles belong
+    unsigned int m_k;  //!< Multiplier in the exponent
+    unsigned int m_Np; //!< Last number of points computed
 
-        unsigned int getK()
-            {
-            return m_k;
-            }
-
-    private:
-        box::Box m_box;            //!< Simulation box where the particles belong
-        unsigned int m_k;          //!< Multiplier in the exponent
-        unsigned int m_Np;         //!< Last number of points computed
-
-        std::shared_ptr< std::complex<float> > m_psi_array;  //!< psi array computed
-    };
+    std::shared_ptr<std::complex<float>> m_psi_array; //!< psi array computed
+};
 
 }; }; // end namespace freud::order
 
