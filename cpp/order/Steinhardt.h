@@ -12,6 +12,7 @@
 
 #include "Box.h"
 #include "VectorMath.h"
+#include "NeighborList.h"
 #include "fsph/src/spherical_harmonics.hpp"
 #include "wigner3j.h"
 
