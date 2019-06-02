@@ -5,12 +5,12 @@
 #define LINKCELL_H
 
 #include <memory>
-#include <vector>
 #include <tbb/concurrent_hash_map.h>
+#include <vector>
 
 #include "Box.h"
-#include "NeighborList.h"
 #include "Index1D.h"
+#include "NeighborList.h"
 #include "NeighborQuery.h"
 
 /*! \file LinkCell.h

@@ -142,9 +142,7 @@ cdef class MSD:
                 positions are assumed to be unwrapped already.
         """  # noqa: E501
 
-        positions = freud.common.convert_array(
-            positions, 3, dtype=np.float32, contiguous=True,
-            array_name="positions")
+        positions = freud.common.convert_array(positions, 3)
         if positions.shape[2] != 3:
             raise TypeError(
                 'positions should be a 3-dimensional array of shape'
@@ -152,9 +150,7 @@ cdef class MSD:
             )
 
         if images is not None:
-            images = freud.common.convert_array(
-                images, 3, dtype=np.float32, contiguous=True,
-                array_name="images")
+            images = freud.common.convert_array(images, 3, dtype=np.int32)
             if images.shape[2] != 3:
                 raise TypeError(
                     'images should be a 3-dimensional array of shape'
