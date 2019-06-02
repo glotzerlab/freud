@@ -10,9 +10,6 @@
 
 #include "Box.h"
 #include "VectorMath.h"
-#include "LinkCell.h"
-
-#include "Index1D.h"
 
 /*! \internal
     \file PMFT.h

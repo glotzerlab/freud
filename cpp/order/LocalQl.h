@@ -11,8 +11,8 @@
 #include <tbb/tbb.h>
 
 #include "Box.h"
+#include "NeighborList.h"
 #include "VectorMath.h"
-#include "LinkCell.h"
 #include "fsph/src/spherical_harmonics.hpp"
 
 /*! \file LocalQl.h

@@ -9,10 +9,8 @@
 #include <ostream>
 #include <tbb/tbb.h>
 
-#include "Box.h"
 #include "VectorMath.h"
-#include "NearestNeighbors.h"
-#include "Index1D.h"
+#include "NeighborList.h"
 
 /*! \file AngularSeparation.h
     \brief Compute the angular separation for each particle.
