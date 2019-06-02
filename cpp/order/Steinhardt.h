@@ -159,6 +159,8 @@ class Steinhardt
         virtual void computeYlm(const float theta, const float phi,
                                 std::vector<std::complex<float> > &Ylm);
 
+        template <typename T> std::shared_ptr<T> makeArray(size_t size);
+
         //! Reallocates only the necessary arrays when the number of particles changes
         // unsigned int Np number of particles
         void reallocateArrays(unsigned int Np);
@@ -208,9 +210,9 @@ class Steinhardt
         std::shared_ptr<std::complex<float> > m_Qlm;   //!< Normalized Qlm for the whole system
         tbb::enumerable_thread_specific<std::complex<float> *> m_Qlm_local; //!< Thread-specific m_Qlm
         std::shared_ptr<float> m_Qli;  //!< Ql locally invariant order parameter for each particle i
-        std::shared_ptr<std::complex<float> > m_AveQlmi;  //!< Averaged Qlm with 2nd neighbor shell for each particle i
-        std::shared_ptr<std::complex<float> > m_AveQlm;   //!< Normalized AveQlmi for the whole system
-        tbb::enumerable_thread_specific<std::complex<float> *> m_AveQlm_local; //!< Thread-specific m_AveQlm
+        std::shared_ptr<std::complex<float> > m_QlmiAve;  //!< Averaged Qlm with 2nd neighbor shell for each particle i
+        std::shared_ptr<std::complex<float> > m_QlmAve;   //!< Normalized QlmiAve for the whole system
+        tbb::enumerable_thread_specific<std::complex<float> *> m_QlmAve_local; //!< Thread-specific m_QlmAve
         std::shared_ptr<float> m_QliAve;      //!< AveQl locally invariant order parameter for each particle i
         std::shared_ptr<float> m_QliNorm;     //!< QlNorm order parameter for each particle i
         std::shared_ptr<float> m_QliAveNorm;  //!< QlAveNorm order paramter for each particle i
