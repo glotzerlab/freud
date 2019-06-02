@@ -10,36 +10,30 @@ import freud.box
 logger = logging.getLogger(__name__)
 
 
-def convert_array(array, dimensions, dtype=None,
-                  contiguous=True, array_name=None):
+def convert_array(array, dimensions=None, dtype=np.float32):
     """Function which takes a given array, checks the dimensions,
     and converts to a supplied dtype and/or makes the array
-    contiguous as required by the user.
+    contiguous.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
     Args:
         array (:class:`numpy.ndarray`): Array to check and convert.
-        dimensions (int): Expected dimensions of the array.
+        dimensions (int): Expected dimensions of the array. If 'None',
+            no dimensionality check will be done (Default value = 'None').
         dtype: code:`dtype` to convert the array to if :code:`array.dtype`
-            is different. If `None`, :code:`dtype` will not be changed.
-            (Default value = None).
-        contiguous (bool): Whether to cast the array to a contiguous (Default
-            value = True).
-        array. Default behavior casts to a contiguous array.
-        array_name (str): Name of the array, used for errors (Default value =
-            None).
+            is different. If `None`, :code:`dtype` will not be changed
+            (Default value = `numpy.float32`).
 
     Returns:
-        py:class:`numpy.ndarray`: Array.
+        :class:`numpy.ndarray`: Array.
     """
     array = np.asarray(array)
 
-    if array.ndim != dimensions:
-        raise TypeError("{}.ndim = {}; expected ndim = {}".format(
-            array_name or "array", array.ndim, dimensions))
-    return np.require(
-        array, dtype=dtype, requirements=['C'] if contiguous else None)
+    if dimensions is not None and array.ndim != dimensions:
+        raise TypeError("array.ndim = {}; expected ndim = {}".format(
+            array.ndim, dimensions))
+    return np.require(array, dtype=dtype, requirements=['C'])
 
 
 def convert_box(box):
