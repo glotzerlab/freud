@@ -610,8 +610,7 @@ cdef class Steinhardt:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """
-        points = freud.common.convert_array(
-            points, 2, dtype=np.float32, contiguous=True, array_name="points")
+        points = freud.common.convert_array(points, 2)
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
