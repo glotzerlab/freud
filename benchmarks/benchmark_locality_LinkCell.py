@@ -10,14 +10,14 @@ class BenchmarkLocalityLinkCell(Benchmark):
         self.rcut = rcut
 
     def bench_setup(self, N):
-        self.fbox = freud.box.Box.cube(self.L)
+        self.box = freud.box.Box.cube(self.L)
         seed = 0
         np.random.seed(seed)
         self.points = np.random.uniform(-self.L/2, self.L/2, (N, 3))
 
     def bench_run(self, N):
-        self.lc = freud.locality.LinkCell(self.fbox, self.rcut)
-        self.lc.compute(self.fbox, self.points, self.points, exclude_ii=True)
+        lc = freud.locality.LinkCell(self.box, self.rcut)
+        lc.compute(self.box, self.points, self.points, exclude_ii=True)
 
 
 def run():

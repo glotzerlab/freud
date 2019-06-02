@@ -11,11 +11,11 @@ class BenchmarkParticleBuffer(Benchmark):
         self.images = images
 
     def bench_setup(self, N):
-        fbox = freud.box.Box.cube(self.L)
+        box = freud.box.Box.cube(self.L)
         seed = 0
         np.random.seed(seed)
         self.positions = np.random.uniform(-self.L/2, self.L/2, (N, 3))
-        self.pbuff = freud.box.ParticleBuffer(fbox)
+        self.pbuff = freud.box.ParticleBuffer(box)
 
     def bench_run(self, N):
         self.pbuff.compute(self.positions, buffer=self.buffer,

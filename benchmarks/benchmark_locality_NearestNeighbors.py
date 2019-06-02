@@ -11,7 +11,7 @@ class BenchmarkLocalityNearestNeighbors(Benchmark):
         self.num_neighbors = num_neighbors
 
     def bench_setup(self, N):
-        self.fbox = freud.box.Box.cube(self.L)
+        self.box = freud.box.Box.cube(self.L)
         self.cl = freud.locality.NearestNeighbors(self.rcut,
                                                   self.num_neighbors)
 
@@ -21,7 +21,7 @@ class BenchmarkLocalityNearestNeighbors(Benchmark):
                                         (N, 3)).astype(np.float32)
 
     def bench_run(self, N):
-        self.cl.compute(self.fbox, self.points, self.points)
+        self.cl.compute(self.box, self.points, self.points)
 
 
 def run():

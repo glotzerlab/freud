@@ -18,7 +18,7 @@ class BenchmarkClusterCluster(Benchmark):
     def bench_run(self, N):
         clust = freud.cluster.Cluster(self.box, self.rcut)
         clust.computeClusters(self.positions, box=self.box)
-        clust.computeClusterMembership(np.array(range(N)))
+        clust.computeClusterMembership(np.arange(N))
 
 
 def run():
