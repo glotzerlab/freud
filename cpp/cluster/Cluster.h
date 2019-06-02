@@ -10,8 +10,8 @@
 #include <vector>
 
 #include "Box.h"
+#include "NeighborList.h"
 #include "VectorMath.h"
-#include "LinkCell.h"
 
 /*! \file Cluster.h
     \brief Routines for clustering points.

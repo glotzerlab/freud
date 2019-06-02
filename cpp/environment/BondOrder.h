@@ -9,9 +9,8 @@
 #include <tbb/tbb.h>
 
 #include "Box.h"
+#include "NeighborList.h"
 #include "VectorMath.h"
-#include "NearestNeighbors.h"
-#include "Index1D.h"
 
 /*! \file BondOrder.h
     \brief Compute the bond order diagram for the system of particles.

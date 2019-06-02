@@ -20,15 +20,27 @@ class TestCommon(unittest.TestCase):
         npt.assert_equal(z.dtype, np.float32)
         # now make contiguous
         npt.assert_equal(y.flags.contiguous, False)
-        z = common.convert_array(y, 2, contiguous=True)
+        z = common.convert_array(y, 2)
         npt.assert_equal(z.flags.contiguous, True)
-        # test the dim_message
-        try:
-            z = common.convert_array(
-                y, 1, dtype=np.float32, contiguous=True,
-                dim_message="ref_points must be a 2 dimensional array")
-        except TypeError:
-            npt.assert_equal(True, True)
+
+        # test dimension checking
+        with self.assertRaises(TypeError):
+            z = common.convert_array(y, 1, dtype=np.float32)
+
+        # test for non-default dtype
+        z = common.convert_array(y, dtype=np.float64)
+        npt.assert_equal(z.dtype, np.float64)
+
+        # test for list of list input
+        yl = [list(r) for r in y]
+        zl = common.convert_array(yl, 2)
+        z = common.convert_array(y, 2)
+        npt.assert_equal(z, zl)
+
+        # test for dimensions default argument
+        zd = common.convert_array(y)
+        z = common.convert_array(y, 2)
+        npt.assert_equal(z, zd)
 
     def test_convert_matrix_box(self):
         matrix_box = np.array([[1, 2, 3],

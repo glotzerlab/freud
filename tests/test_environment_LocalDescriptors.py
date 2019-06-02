@@ -18,7 +18,6 @@ class TestLocalDescriptors(unittest.TestCase):
         positions.flags['WRITEABLE'] = False
 
         comp = LocalDescriptors(Nneigh, lmax, rmax, True)
-        comp.computeNList(box, positions)
         comp.compute(box, Nneigh, positions)
 
         self.assertEqual(comp.sph.shape[0], N*Nneigh)
@@ -40,7 +39,6 @@ class TestLocalDescriptors(unittest.TestCase):
                                       size=(N, 3)).astype(np.float32)
 
         comp = LocalDescriptors(Nneigh, lmax, .5, True)
-        comp.computeNList(box, positions)
         comp.compute(box, Nneigh, positions, mode='global')
 
         sphs = comp.sph
@@ -61,7 +59,6 @@ class TestLocalDescriptors(unittest.TestCase):
                                        axis=-1))[:, np.newaxis]
 
         comp = LocalDescriptors(Nneigh, lmax, .5, True)
-        comp.computeNList(box, positions)
 
         with self.assertRaises(RuntimeError):
             comp.compute(box, Nneigh, positions, mode='particle_local')
@@ -84,7 +81,6 @@ class TestLocalDescriptors(unittest.TestCase):
                                       size=(N, 3)).astype(np.float32)
 
         comp = LocalDescriptors(Nneigh, lmax, .5, True)
-        comp.computeNList(box, positions)
 
         with self.assertRaises(RuntimeError):
             comp.compute(box, Nneigh, positions, mode='particle_local_wrong')
@@ -102,7 +98,6 @@ class TestLocalDescriptors(unittest.TestCase):
                                        size=(N//3, 3)).astype(np.float32)
 
         comp = LocalDescriptors(Nneigh, lmax, .5, True)
-        comp.computeNList(box, positions, positions2)
         comp.compute(box, Nneigh, positions, positions2)
         sphs = comp.sph
         self.assertEqual(sphs.shape[0], N*Nneigh)
