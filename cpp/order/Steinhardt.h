@@ -12,12 +12,11 @@
 
 #include "Box.h"
 #include "VectorMath.h"
-#include "LinkCell.h"
 #include "fsph/src/spherical_harmonics.hpp"
 #include "wigner3j.h"
 
 /*! \file Steinhardt.h
-    \brief Compute the Steinhardt order parameter requested.
+    \brief Computes variants of Steinhardt order parameters.
 */
 
 namespace freud { namespace order {
@@ -34,24 +33,20 @@ namespace freud { namespace order {
  * orientational order as follows:
  * \f$ Q_l(i)=\sqrt{\frac{4\pi}{2l+1} \displaystyle\sum_{m=-l}^{l} |\overline{Q}_{lm}|^2 }  \f$
  *
- * For more details see PJ Steinhardt (1983) (DOI: 10.1103/PhysRevB.28.784)
- *
  * If the average flag is set, the order parameters averages over the second neighbor shell.
  * For a particle i, we calculate the average Q_l by summing the spherical
  * harmonics between particle i and its neighbors j and the neighbors k of
- * neighbor j in a local region:
- * For more details see Wolfgang Lechner (2008) (DOI: 10.1063/Journal of Chemical Physics 129.114707)
+ * neighbor j in a local region.
  *
- * If the norm flag is set, computeNorm method normalizes the Ql value by the average qlm value for the system.
- 
- * If the flag wl is set the Wl order parameter described by
- * Steinhardt that can aid in distinguishing between FCC, HCP, BCC will
- * be calculated.
+ * If the norm flag is set, the Ql value is normalized by the average Qlm value
+ * for the system.
  *
- * For more details see PJ Steinhardt (1983) (DOI: 10.1103/PhysRevB.28.784)
- * Uses a Python wrapper to pass the wigner3j coefficients to C++
+ * If the flag Wl is set, the third-order invariant Wl order parameter will
+ * be calculated. Wl can aid in distinguishing between FCC, HCP, and BCC.
  *
- * For more details see Wolfgang Lechner (2008) (DOI: 10.1063/Journal of Chemical Physics 129.114707)
+ * For more details see:
+ * - PJ Steinhardt (1983) (DOI: 10.1103/PhysRevB.28.784)
+ * - Wolfgang Lechner (2008) (DOI: 10.1063/Journal of Chemical Physics 129.114707)
 */
 
 class Steinhardt
@@ -204,9 +199,9 @@ class Steinhardt
         bool m_reduce;         //!< Whether Qlm arrays need to be reduced across threads
 
         // Flags
-        bool m_average;           //!< Whether to take a second shell average (default false)
+        bool m_average;        //!< Whether to take a second shell average (default false)
         bool m_norm;           //!< Whether to take the norm of the order parameter (default false)
-        bool m_Wl;          //!< Whether to use the modified order parameter Wl (default false)
+        bool m_Wl;             //!< Whether to use the modified order parameter Wl (default false)
 
         std::shared_ptr<std::complex<float> > m_Qlmi;  //!< Qlm for each particle i
         std::shared_ptr<std::complex<float> > m_Qlm;   //!< Normalized Qlm for the whole system

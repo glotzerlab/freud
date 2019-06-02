@@ -7,7 +7,7 @@ using namespace std;
 using namespace tbb;
 
 /*! \file Steinhardt.cc
-    \brief Compute an user specified Steinhardt order parameter.
+    \brief Computes variants of Steinhardt order parameters.
 */
 
 namespace freud { namespace order {
@@ -57,12 +57,14 @@ void Steinhardt::reallocateArrays(unsigned int Np)
     m_Qlmi = std::shared_ptr<complex<float> >(new complex<float> [(2*m_l+1)*m_Np], std::default_delete<complex<float>[]>());
     m_Qli = std::shared_ptr<float>(new float[m_Np], std::default_delete<float[]>());
     m_Qlm = std::shared_ptr<complex<float> >(new complex<float>[2*m_l+1], std::default_delete<complex<float>[]>());
+
     if (m_average)
         {
-            m_AveQlmi = std::shared_ptr<complex<float> >(new complex<float> [(2*m_l+1)*Np], std::default_delete<complex<float>[]>());
-            m_QliAve = std::shared_ptr<float>(new float[Np], std::default_delete<float[]>());
-            m_AveQlm = std::shared_ptr<complex<float> >(new complex<float> [(2*m_l+1)], std::default_delete<complex<float>[]>());
+        m_AveQlmi = std::shared_ptr<complex<float> >(new complex<float> [(2*m_l+1)*Np], std::default_delete<complex<float>[]>());
+        m_QliAve = std::shared_ptr<float>(new float[Np], std::default_delete<float[]>());
+        m_AveQlm = std::shared_ptr<complex<float> >(new complex<float> [(2*m_l+1)], std::default_delete<complex<float>[]>());
         }
+
     if (m_Wl)
         {
         if (m_average && m_norm)
@@ -93,23 +95,25 @@ void Steinhardt::reallocateArrays(unsigned int Np)
             m_QliNorm = std::shared_ptr<float>(new float[Np], std::default_delete<float[]>());
             }
         }
-    }    
+    }
 
 void Steinhardt::compute(const box::Box& box, const locality::NeighborList *nlist, const vec3<float> *points, unsigned int Np)
     {
-    // Conditional reinitialize arrays if size differs from previous call.
+    // Conditionally reinitialize arrays if size differs from previous call.
     if (m_Np != Np)
         {
         m_Np = Np;
         Steinhardt::reallocateArrays(Np);
         }
+
     // Computes the base Q required for each specialized order parameter
     Steinhardt::baseCompute(box, nlist, points);
-    
+
     if (m_average)
         {
         Steinhardt::computeAve(box, nlist, points);
         }
+
     if (m_Wl)
         {
         if (m_average && m_norm)
@@ -191,7 +195,7 @@ void Steinhardt::baseCompute(const box::Box& box, const locality::NeighborList *
                     float phi = atan2(delta.y, delta.x);     // -Pi..Pi
                     float theta = acos(delta.z / sqrt(rsq)); // 0..Pi
 
-                    // If the points are directly on top of each other for whatever reason,
+                    // If the points are directly on top of each other,
                     // theta should be zero instead of nan.
                     if (rsq == float(0))
                         {
@@ -208,6 +212,7 @@ void Steinhardt::baseCompute(const box::Box& box, const locality::NeighborList *
                     neighborcount++;
                     }
                 } // End loop going over neighbor bonds
+
                 // Normalize!
                 for (unsigned int k = 0; k < (2*m_l+1); ++k)
                     {
@@ -228,9 +233,9 @@ void Steinhardt::computeAve(const box::Box& box, const locality::NeighborList *n
     {
     const size_t *neighbor_list(nlist->getNeighbors());
 
-    memset((void*)m_AveQlmi.get(), 0, sizeof(complex<float>)*(2*m_l+1)*m_Np);
-    memset((void*)m_QliAve.get(), 0, sizeof(float)*m_Np);
-    memset((void*)m_AveQlm.get(), 0, sizeof(complex<float>)*(2*m_l+1));
+    memset((void*) m_AveQlmi.get(), 0, sizeof(complex<float>)*(2*m_l+1)*m_Np);
+    memset((void*) m_QliAve.get(), 0, sizeof(float)*m_Np);
+    memset((void*) m_AveQlm.get(), 0, sizeof(complex<float>)*(2*m_l+1));
 
     const float rminsq = m_rmin * m_rmin;
     const float rmaxsq = m_rmax * m_rmax;
