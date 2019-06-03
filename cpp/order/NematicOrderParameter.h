@@ -29,7 +29,7 @@ public:
     NematicOrderParameter(vec3<float> u);
 
     //! Destructor
-    virtual ~NematicOrderParameter() {};
+    virtual ~NematicOrderParameter(){};
 
     //! Reset the nematic order parameter array to all zeros
     void reset();

@@ -62,15 +62,13 @@ references:
     run:
       name: clang-format
       command: |
-        RETURNVAL=0
         for f in cpp/**/*; do
-          if ! diff <(clang-format-6.0 -style=file $f) $f; then
+          if ! diff $f <(clang-format-6.0 -style=file $f) > /dev/null; then
             echo "$f does not match clang-format style."
-            RETURNVAL=1
+            diff --color $f <(clang-format-6.0 -style=file $f) || true
           fi
         done
-        python${PYVER} -m flake8 --show-source . || RETURNVAL=1
-        exit $RETURNVAL      
+        python${PYVER} -m flake8 --show-source .
 
   build: &build
     run:
