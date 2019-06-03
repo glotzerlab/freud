@@ -97,24 +97,20 @@ class Steinhardt
 
         //! Get the last calculated order parameter Ql
         std::shared_ptr<float> getQl()
-        {
-            if (m_average && m_norm)
             {
-                return m_QliAveNorm;
-            }
+            if (m_norm)
+                {
+                return m_QliOrder;
+                }
             else if (m_average)
-            {
+                {
                 return m_QliAve;
-            }
-            else if (m_norm)
-            {
-                return m_QliNorm;
-            }
+                }
             else
-            {
+                {
                 return m_Qli;
+                }
             }
-        }
 
         //! Get the last calculated order parameter Wl
         std::shared_ptr<std::complex<float>> getWl()
@@ -161,16 +157,14 @@ class Steinhardt
                         const locality::NeighborList *nlist,
                         const vec3<float> *points);
 
-        //! Calculates the normalized Ql order parameter
-        void computeNorm();
-
-        //! Calculates the neighbor averaged normalized Ql order parameter
-        void computeAveNorm();
+        //! Normalize the order parameter
+        void normalize(std::shared_ptr<float> target,
+                       std::shared_ptr<std::complex<float> > source);
 
         //! Sum over Wigner 3j coefficients to compute third-order invariants
         //  Wl from second-order invariants Ql
-        void aggregateWl(std::shared_ptr<complex<float> > target,
-                         std::shared_ptr<complex<float> > source,
+        void aggregateWl(std::shared_ptr<std::complex<float> > target,
+                         std::shared_ptr<std::complex<float> > source,
                          bool per_particle);
 
         // Member variables used for compute
@@ -193,8 +187,7 @@ class Steinhardt
         std::shared_ptr<std::complex<float> > m_QlmAve;   //!< Normalized QlmiAve for the whole system
         tbb::enumerable_thread_specific<std::complex<float> *> m_QlmAve_local; //!< Thread-specific m_QlmAve
         std::shared_ptr<float> m_QliAve;      //!< AveQl locally invariant order parameter for each particle i
-        std::shared_ptr<float> m_QliNorm;     //!< QlNorm order parameter for each particle i
-        std::shared_ptr<float> m_QliAveNorm;  //!< QlAveNorm order paramter for each particle i
+        std::shared_ptr<float> m_QliOrder;    //!< Ql order parameter for each particle i
         std::shared_ptr< std::complex<float> > m_WliOrder;    //!< Wl order parameter for each particle i
     };
 

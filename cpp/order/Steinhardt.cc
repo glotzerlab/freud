@@ -75,16 +75,9 @@ void Steinhardt::reallocateArrays(unsigned int Np)
         {
         m_WliOrder = Steinhardt::makeArray<complex<float> >(Np);
         }
-    else
+    else if (m_norm)
         {
-        if (m_average && m_norm)
-            {
-            m_QliAveNorm = Steinhardt::makeArray<float>(Np);
-            }
-        else if (m_norm)
-            {
-            m_QliNorm = Steinhardt::makeArray<float>(Np);
-            }
+        m_QliOrder = Steinhardt::makeArray<float>(Np);
         }
     }
 
@@ -125,15 +118,15 @@ void Steinhardt::compute(const box::Box& box, const locality::NeighborList *nlis
             Steinhardt::aggregateWl(m_WliOrder, m_Qlmi, true);
             }
         }
-    else
+    else if (m_norm)
         {
-        if (m_average && m_norm)
+        if (m_average)
             {
-            Steinhardt::computeAveNorm();
+            Steinhardt::normalize(m_QliOrder, m_QlmAve);
             }
-        else if (m_norm)
+        else
             {
-            Steinhardt::computeNorm();
+            Steinhardt::normalize(m_QliOrder, m_Qlm);
             }
         }
     }
@@ -300,9 +293,10 @@ void Steinhardt::computeAve(const box::Box& box, const locality::NeighborList *n
         } // Ends loop over particles i for Qlmi calcs
     }
 
-void Steinhardt::computeNorm()
+void Steinhardt::normalize(std::shared_ptr<float> target,
+                           std::shared_ptr<complex<float> > source)
     {
-    memset((void*) m_QliNorm.get(), 0, sizeof(float)*m_Np);
+    memset((void*) target.get(), 0, sizeof(float)*m_Np);
 
     const float normalizationfactor = 4*M_PI/(2*m_l+1);
 
@@ -311,28 +305,9 @@ void Steinhardt::computeNorm()
         for (unsigned int k = 0; k < (2*m_l+1); ++k)
             {
             // Add the norm, which is the complex squared magnitude
-            m_QliNorm.get()[i] += norm(m_Qlm.get()[k]);
+            target.get()[i] += norm(source.get()[k]);
             }
-        m_QliNorm.get()[i] *= normalizationfactor;
-        m_QliNorm.get()[i] = sqrt(m_QliNorm.get()[i]);
-        }
-    }
-
-void Steinhardt::computeAveNorm()
-    {
-    memset((void*) m_QliAveNorm.get(), 0, sizeof(float)*m_Np);
-
-    const float normalizationfactor = 4*M_PI/(2*m_l+1);
-
-    for (unsigned int i = 0; i < m_Np; ++i)
-        {
-        for (unsigned int k = 0; k < (2*m_l+1); ++k)
-            {
-            // Add the norm, which is the complex squared magnitude
-            m_QliAveNorm.get()[i] += norm(m_QlmAve.get()[k]);
-            }
-        m_QliAveNorm.get()[i] *= normalizationfactor;
-        m_QliAveNorm.get()[i] = sqrt(m_QliAveNorm.get()[i]);
+        target.get()[i] = sqrt(target.get()[i] * normalizationfactor);
         }
     }
 
