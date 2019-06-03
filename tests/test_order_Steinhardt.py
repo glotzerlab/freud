@@ -24,59 +24,51 @@ class TestSteinhardt(unittest.TestCase):
         (box, positions) = util.make_fcc(4, 4, 4)
 
         comp = freud.order.Steinhardt(1.5, 6)
-
         comp.compute(box, positions)
-        npt.assert_almost_equal(np.average(comp.order), 0.57452422, decimal=5)
-        npt.assert_almost_equal(comp.order, comp.order[0])
+        npt.assert_allclose(np.average(comp.order), 0.57452422, atol=1e-5)
+        npt.assert_allclose(comp.order, comp.order[0], atol=1e-5)
 
         comp = freud.order.Steinhardt(1.5, 6, average=True)
-
         comp.compute(box, positions)
-        npt.assert_almost_equal(np.average(comp.order), 0.57452422, decimal=5)
-        npt.assert_almost_equal(comp.order, comp.order[0])
+        npt.assert_allclose(np.average(comp.order), 0.57452422, atol=1e-5)
+        npt.assert_allclose(comp.order, comp.order[0], atol=1e-5)
 
         comp = freud.order.Steinhardt(1.5, 6, norm=True)
-
         comp.compute(box, positions)
-        npt.assert_almost_equal(np.average(comp.order), 0.57452422, decimal=5)
-        npt.assert_almost_equal(comp.order, comp.order[0])
+        npt.assert_allclose(np.average(comp.order), 0.57452422, atol=1e-5)
+        npt.assert_allclose(comp.order, comp.order[0], atol=1e-5)
 
         comp = freud.order.Steinhardt(1.5, 6, average=True, norm=True)
-
         comp.compute(box, positions)
-        npt.assert_almost_equal(np.average(comp.order), 0.57452422, decimal=5)
-        npt.assert_almost_equal(comp.order, comp.order[0])
+        npt.assert_allclose(np.average(comp.order), 0.57452422, atol=1e-5)
+        npt.assert_allclose(comp.order, comp.order[0], atol=1e-5)
 
     def test_identical_environments_Wl(self):
         (box, positions) = util.make_fcc(4, 4, 4)
 
         comp = freud.order.Steinhardt(1.5, 6, Wl=True)
         comp.compute(box, positions)
-        self.assertTrue(np.isclose(
-            np.real(np.average(comp.order)), -0.002626035, atol=1e-5))
-        self.assertTrue(np.allclose(comp.order, comp.order[0]))
+        npt.assert_allclose(
+            np.real(np.average(comp.order)), -0.002626035, atol=1e-5)
+        npt.assert_allclose(comp.order, comp.order[0], atol=1e-5)
 
-        comp = freud.order.Steinhardt(1.5, 6, Wl=True,
-                                      average=True)
+        comp = freud.order.Steinhardt(1.5, 6, Wl=True, average=True)
         comp.compute(box, positions)
-        self.assertTrue(np.isclose(
-            np.real(np.average(comp.order)), -0.002626035, atol=1e-5))
-        self.assertTrue(np.allclose(comp.order, comp.order[0]))
+        npt.assert_allclose(
+            np.real(np.average(comp.order)), -0.002626035, atol=1e-5)
+        npt.assert_allclose(comp.order, comp.order[0], atol=1e-5)
 
-        comp = freud.order.Steinhardt(1.5, 6, Wl=True,
-                                      norm=True)
+        comp = freud.order.Steinhardt(1.5, 6, Wl=True, norm=True)
         comp.compute(box, positions)
-        self.assertTrue(np.isclose(
-            np.real(np.average(comp.order)), -0.002626035, atol=1e-5))
-        self.assertTrue(np.allclose(comp.order, comp.order[0]))
+        npt.assert_allclose(
+            np.real(np.average(comp.order)), -0.002626035, atol=1e-5)
+        npt.assert_allclose(comp.order, comp.order[0], atol=1e-5)
 
-        comp = freud.order.Steinhardt(1.5, 6, Wl=True,
-                                      average=True, norm=True)
-
+        comp = freud.order.Steinhardt(1.5, 6, Wl=True, average=True, norm=True)
         comp.compute(box, positions)
-        self.assertTrue(np.isclose(
-            np.real(np.average(comp.order)), -0.002626035, atol=1e-5))
-        self.assertTrue(np.allclose(comp.order, comp.order[0]))
+        npt.assert_allclose(
+            np.real(np.average(comp.order)), -0.002626035, atol=1e-5)
+        npt.assert_allclose(comp.order, comp.order[0], atol=1e-5)
 
         self.assertEqual(len(positions), comp.num_particles)
 
