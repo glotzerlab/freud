@@ -84,6 +84,42 @@ references:
       path: test-reports
       destination: test-reports
 
+  benchmark: &benchmark
+    run:
+      name: Run benchmarks
+      command: |
+          pip install --user gitpython
+          pip install --user rowan
+          echo 'export PYTHONPATH=$PYTHONPATH:.' >> $BASH_ENV
+          echo 'export BENCHMARK_NPROC=2' >> $BASH_ENV
+          source $BASH_ENV
+          BENCHSCR="benchmarks/benchmarker.py"
+          echo "Running benchmark on current HEAD"
+          python "$BENCHSCR" run
+
+  comparison: &comparison
+    run:
+      name: Compare benchmark with origin/master
+      command: |
+          echo "Comparing with origin/master"
+          git reset --hard origin/master
+          echo "PYVER=${PYVER}"
+          echo 'export PYTHONPATH=$PYTHONPATH:.' >> $BASH_ENV
+          echo 'export BENCHMARK_NPROC=2' >> $BASH_ENV
+          source $BASH_ENV
+          rm freud/*.cpp
+          python${PYVER} setup.py build_ext --inplace --COVERAGE --ENABLE-CYTHON
+          git checkout "${CIRCLE_SHA1}" -- benchmarks/
+          BENCHSCR="benchmarks/benchmarker.py"
+          echo "Running benchmark on origin/master"
+          python "$BENCHSCR" run
+          python "$BENCHSCR" compare origin/master "${CIRCLE_SHA1}"
+
+  store_benchmarks: &store_benchmarks
+    store_artifacts:
+      path: benchmarks/reports
+      destination: benchmarks-reports
+
   build_and_test: &build_and_test
     steps:
       - *load_code
@@ -101,6 +137,17 @@ references:
       - *build
       - *test_cov
       - *store
+
+  build_and_benchmark: &build_and_benchmark
+    steps:
+      - *load_code
+      - *get_requirements
+      - *check_source
+      - *build
+      - *benchmark
+      - *comparison
+      - *store_benchmarks
+
 
   build_linux_wheels: &build_linux_wheels
     steps:
@@ -259,6 +306,12 @@ jobs:
     <<: *container_osx
     <<: *build_osx_wheels
 
+  benchmarks:
+    <<: *test_container_config_arch
+    environment:
+      PYVER: "3.6"
+    <<: *build_and_benchmark
+
 workflows:
   version: 2
   test:
@@ -266,6 +319,10 @@ workflows:
       - test-py27
       - test-py35
       - test-py36
+      - benchmarks:
+          requires:
+            - test-py35
+            - test-py36
   deploy:
     jobs:
       - pypi-osx-wheels:
