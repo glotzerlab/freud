@@ -60,7 +60,7 @@ references:
 
   check_style: &check_style
     run:
-      name: clang-format
+      name: clang-format and flake8
       command: |
         for f in cpp/**/*; do
           if ! diff $f <(clang-format-6.0 -style=file $f) > /dev/null; then
