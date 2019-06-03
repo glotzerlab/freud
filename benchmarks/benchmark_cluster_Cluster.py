@@ -4,7 +4,7 @@ from benchmark import Benchmark
 from benchmarker import run_benchmarks
 
 
-class BenchmarkLocalityLinkCell(Benchmark):
+class BenchmarkClusterCluster(Benchmark):
     def __init__(self, L, rcut):
         self.L = L
         self.rcut = rcut
@@ -13,21 +13,23 @@ class BenchmarkLocalityLinkCell(Benchmark):
         self.box = freud.box.Box.cube(self.L)
         seed = 0
         np.random.seed(seed)
-        self.points = np.random.uniform(-self.L/2, self.L/2, (N, 3))
+        self.positions = np.random.uniform(-self.L/2, self.L/2, (N, 3))
 
     def bench_run(self, N):
-        lc = freud.locality.LinkCell(self.box, self.rcut)
-        lc.compute(self.box, self.points, self.points, exclude_ii=True)
+        clust = freud.cluster.Cluster(self.box, self.rcut)
+        clust.computeClusters(self.positions, box=self.box)
+        clust.computeClusterMembership(np.arange(N))
 
 
 def run():
-    Ns = [1000, 10000]
+    Ns = [1000, 5000, 10000]
     rcut = 1.0
     L = 10
+    name = 'freud.cluster.Cluster'
+    classobj = BenchmarkClusterCluster
     number = 100
 
-    name = 'freud.locality.LinkCell'
-    return run_benchmarks(name, Ns, number, BenchmarkLocalityLinkCell,
+    return run_benchmarks(name, Ns, number, classobj,
                           L=L, rcut=rcut)
 
 

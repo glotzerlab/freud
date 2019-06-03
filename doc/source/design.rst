@@ -51,6 +51,23 @@ behavior of the module. These tests should be simple and short, testing
 a single function each, and completing as quickly as possible
 (ideally < 10 sec, but times up to a minute are acceptable if justified).
 
+Benchmarks
+==========
+
+Modules can be benchmarked in the following way. 
+The following code is an example benchmark for the :code:`freud.density.RDF` module.
+
+.. literalinclude:: ../../benchmarks/benchmark_density_RDF.py
+   :language: python
+   :linenos:
+
+in a file :code:`benchmark_density_RDF.py` in the :code:`benchmarks` directory.
+More examples can be found in the :code:`benchmarks` directory.
+The runtime of :code:`BenchmarkDensityRDF.bench_run` will be timed for :code:`number`
+of times on the input sizes of :code:`Ns`. Its runtime with respect to the number of threads
+will also be measured. Benchmarks are run as a part of continuous integration, 
+with performance comparisons between the current commit and the master branch.
+
 Make Execution Explicit
 =======================
 
