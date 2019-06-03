@@ -6,9 +6,11 @@
 
 #include "HOOMDMath.h"
 #include "VectorMath.h"
+#include <cassert>
 #include <cstring>
-#include <vector>
 #include <stack>
+#include <stdexcept>
+#include <vector>
 
 #include "AABB.h"
 

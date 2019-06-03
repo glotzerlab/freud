@@ -9,10 +9,10 @@
 #include <tbb/tbb.h>
 
 #include "Box.h"
-#include "VectorMath.h"
-#include "LinkCell.h"
 #include "Index1D.h"
+#include "LinkCell.h"
 #include "PMFT.h"
+#include "VectorMath.h"
 
 /*! \file PMFTXY2D.h
     \brief Routines for computing 2D potential of mean force in XY coordinates

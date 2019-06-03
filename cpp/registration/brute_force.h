@@ -4,6 +4,7 @@
 #ifndef BRUTE_FORCE_H
 #define BRUTE_FORCE_H
 
+#include <cassert>
 #include <chrono>
 #include <iostream>
 #include <random>

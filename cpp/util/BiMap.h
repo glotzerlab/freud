@@ -1,14 +1,14 @@
 #ifndef BIMAP_H
 #define BIMAP_H
 
-#include <set>
-#include <vector>
-#include <memory>
-#include <utility>
-#include <cstddef>
-#include <assert.h>
 #include <algorithm>
+#include <cassert>
+#include <cstddef>
+#include <memory>
+#include <set>
 #include <type_traits>
+#include <utility>
+#include <vector>
 
 /* BiMap container modelled after Boost::BiMap with templatization.
  *

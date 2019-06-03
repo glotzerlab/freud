@@ -9,8 +9,8 @@
 #include <tbb/tbb.h>
 
 #include "Box.h"
-#include "VectorMath.h"
 #include "NeighborList.h"
+#include "VectorMath.h"
 
 /*! \file LocalDensity.h
     \brief Routines for computing local density around a point.

@@ -13,11 +13,11 @@
 #include <stdexcept>
 #include <vector>
 
+#include "BiMap.h"
 #include "Box.h"
-#include "VectorMath.h"
 #include "Cluster.h"
 #include "NearestNeighbors.h"
-#include "BiMap.h"
+#include "VectorMath.h"
 #include "brute_force.h"
 
 /*! \file MatchEnv.h
@@ -247,7 +247,7 @@ private:
     unsigned int m_maxk; //!< Maximum number of neighbors in any particle's local environment. If
                          //!< hard_r=false, m_maxk = m_k. In the cluster method it is also possible to provide
                          //!< two separate neighborlists, one for environments and one for clustering.
-    unsigned int m_Np;           //!< Last number of points computed
+    unsigned int m_Np;   //!< Last number of points computed
     unsigned int m_num_clusters; //!< Last number of local environments computed
 
     std::shared_ptr<unsigned int> m_env_index; //!< Cluster index determined for each particle

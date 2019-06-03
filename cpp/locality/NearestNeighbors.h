@@ -8,9 +8,9 @@
 #include <memory>
 
 #include "Box.h"
-#include "VectorMath.h"
-#include "LinkCell.h"
 #include "Index1D.h"
+#include "LinkCell.h"
+#include "VectorMath.h"
 
 #include "tbb/atomic.h"
 
