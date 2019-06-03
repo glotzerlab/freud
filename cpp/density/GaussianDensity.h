@@ -8,8 +8,8 @@
 #include <tbb/tbb.h>
 
 #include "Box.h"
-#include "Index1D.h"
 #include "VectorMath.h"
+#include "Index1D.h"
 
 /*! \file GaussianDensity.h
     \brief Routines for computing Gaussian smeared densities from points.

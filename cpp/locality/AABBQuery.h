@@ -4,15 +4,15 @@
 #ifndef AABBQUERY_H
 #define AABBQUERY_H
 
-#include <map>
-#include <memory>
 #include <vector>
+#include <memory>
+#include <map>
 
-#include "AABBTree.h"
-#include "Box.h"
-#include "Index1D.h"
-#include "NeighborList.h"
 #include "NeighborQuery.h"
+#include "Box.h"
+#include "NeighborList.h"
+#include "Index1D.h"
+#include "AABBTree.h"
 
 /*! \file AABBQuery.h
     \brief Build an AABB tree from points and query it for neighbors.

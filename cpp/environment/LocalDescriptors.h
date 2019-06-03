@@ -7,8 +7,8 @@
 #include <memory>
 
 #include "Box.h"
-#include "NearestNeighbors.h"
 #include "VectorMath.h"
+#include "NearestNeighbors.h"
 #include "fsph/src/spherical_harmonics.hpp"
 
 #include "tbb/atomic.h"

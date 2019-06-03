@@ -6,8 +6,8 @@
 
 #include "Box.h"
 #include "NeighborList.h"
-#include <memory>
 #include <stdexcept>
+#include <memory>
 #include <tbb/tbb.h>
 
 /*! \file NeighborQuery.h

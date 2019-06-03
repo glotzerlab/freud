@@ -9,9 +9,9 @@
 #include <tbb/tbb.h>
 
 #include "Box.h"
-#include "Index1D.h"
-#include "NeighborList.h"
 #include "VectorMath.h"
+#include "NeighborList.h"
+#include "Index1D.h"
 
 /*! \file RDF.h
     \brief Routines for computing radial density functions.

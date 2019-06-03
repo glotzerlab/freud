@@ -7,8 +7,8 @@
 #include "HOOMDMath.h"
 #include "VectorMath.h"
 #include <cstring>
-#include <stack>
 #include <vector>
+#include <stack>
 
 #include "AABB.h"
 

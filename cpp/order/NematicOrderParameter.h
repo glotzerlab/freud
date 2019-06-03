@@ -9,10 +9,10 @@
 #include <tbb/tbb.h>
 
 #include "Box.h"
-#include "Index1D.h"
-#include "NearestNeighbors.h"
-#include "TensorMath.h"
 #include "VectorMath.h"
+#include "TensorMath.h"
+#include "NearestNeighbors.h"
+#include "Index1D.h"
 
 /*! \file NematicOrderParameter.h
     \brief Compute the nematic order parameter for each particle

@@ -8,8 +8,8 @@
 #include <utility>
 #include <vector>
 
-#include "HOOMDMatrix.h"
 #include "LocalDescriptors.h"
+#include "HOOMDMatrix.h"
 
 using namespace std;
 using namespace tbb;

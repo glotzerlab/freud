@@ -28,7 +28,7 @@ KeepEmptyLinesAtTheStartOfBlocks: false
 Language: Cpp
 NamespaceIndentation: None
 PointerAlignment: Left
-SortIncludes: 'true'
+SortIncludes: 'false'
 SpaceAfterCStyleCast: 'true'
 SpaceAfterTemplateKeyword: 'false'
 SpaceBeforeParens: ControlStatements

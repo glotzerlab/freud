@@ -8,8 +8,8 @@
 #include <tbb/tbb.h>
 
 #include "Box.h"
-#include "LinkCell.h"
 #include "VectorMath.h"
+#include "LinkCell.h"
 
 /*! \file CorrelationFunction.h
     \brief Generic pairwise correlation functions.
