@@ -4,16 +4,12 @@
 R"""
 The :class:`freud.parallel` module controls the parallelization behavior of
 freud, determining how many threads the TBB-enabled parts of freud will use.
-By default, freud tries to use all available threads for parallelization unless
-directed otherwise.
+freud uses all available threads for parallelization unless directed otherwise.
 """
 
 cimport freud._parallel
 
-# Override TBB's default autoselection. This is necessary because once the
-# automatic selection runs, the user cannot change it.
 _numThreads = 0
-setNumThreads(_numThreads)
 
 
 def getNumThreads():
@@ -62,3 +58,8 @@ class NumThreads:
 
     def __exit__(self, *args):
         setNumThreads(self.restore_N)
+
+
+# Override TBB's default autoselection. This is necessary because once the
+# automatic selection runs, the user cannot change it.
+setNumThreads(0)
