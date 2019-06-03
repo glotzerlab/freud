@@ -134,11 +134,11 @@ public:
     {
         // swap if j > i
         if (j > i)
-            {
-                unsigned int tmp = i;
-                i = j;
-                j = tmp;
-            }
+        {
+            unsigned int tmp = i;
+            i = j;
+            j = tmp;
+        }
         return j * (m_term - j) / 2 + i;
     }
 

@@ -40,20 +40,20 @@ float computeMaxProjection(const vec3<float> proj_vec, const vec3<float> local_b
 
     // loop through all equivalent rotations and see if they have a larger projection onto local_bond
     for (unsigned int i = 0; i < Nequiv; i++)
+    {
+        quat<float> qe = equiv_qs[i];
+        // here we undo a rotation represented by one of the equivalent orientations
+        quat<float> qtest = conj(qconst) * qe;
+        vec3<float> equiv_proj_vec = rotate(qtest, proj_vec);
+
+        float proj_test = dot(equiv_proj_vec, local_bond);
+
+        if (proj_test > max_proj)
         {
-            quat<float> qe = equiv_qs[i];
-            // here we undo a rotation represented by one of the equivalent orientations
-            quat<float> qtest = conj(qconst) * qe;
-            vec3<float> equiv_proj_vec = rotate(qtest, proj_vec);
-
-            float proj_test = dot(equiv_proj_vec, local_bond);
-
-            if (proj_test > max_proj)
-                {
-                    max_proj = proj_test;
-                    max_proj_vec = equiv_proj_vec;
-                }
+            max_proj = proj_test;
+            max_proj_vec = equiv_proj_vec;
         }
+    }
 
     return max_proj;
 }
@@ -82,42 +82,41 @@ void LocalBondProjection::compute(box::Box& box, const freud::locality::Neighbor
 
     // reallocate the output array if it is not the right size
     if (tot_num_neigh != m_tot_num_neigh || Nproj != m_Nproj)
-        {
-            m_local_bond_proj
-                = std::shared_ptr<float>(new float[tot_num_neigh * Nproj], std::default_delete<float[]>());
-            m_local_bond_proj_norm
-                = std::shared_ptr<float>(new float[tot_num_neigh * Nproj], std::default_delete<float[]>());
-        }
+    {
+        m_local_bond_proj
+            = std::shared_ptr<float>(new float[tot_num_neigh * Nproj], std::default_delete<float[]>());
+        m_local_bond_proj_norm
+            = std::shared_ptr<float>(new float[tot_num_neigh * Nproj], std::default_delete<float[]>());
+    }
 
     // compute the order parameter
     parallel_for(blocked_range<size_t>(0, Nref), [=](const blocked_range<size_t>& r) {
         size_t bond(nlist->find_first_index(r.begin()));
         for (size_t i = r.begin(); i != r.end(); ++i)
+        {
+            vec3<float> p = ref_pos[i];
+            quat<float> q = ref_ors[i];
+
+            for (; bond < tot_num_neigh && neighbor_list[2 * bond] == i; ++bond)
             {
-                vec3<float> p = ref_pos[i];
-                quat<float> q = ref_ors[i];
+                const size_t j(neighbor_list[2 * bond + 1]);
+                // compute bond vector between the two particles
+                vec3<float> delta = box.wrap(pos[j] - p);
+                vec3<float> local_bond(delta);
+                // rotate bond vector into the local frame of particle p
+                local_bond = rotate(conj(q), local_bond);
+                // store the length of this local bond
+                float local_bond_len = sqrt(dot(local_bond, local_bond));
 
-                for (; bond < tot_num_neigh && neighbor_list[2 * bond] == i; ++bond)
-                    {
-                        const size_t j(neighbor_list[2 * bond + 1]);
-                        // compute bond vector between the two particles
-                        vec3<float> delta = box.wrap(pos[j] - p);
-                        vec3<float> local_bond(delta);
-                        // rotate bond vector into the local frame of particle p
-                        local_bond = rotate(conj(q), local_bond);
-                        // store the length of this local bond
-                        float local_bond_len = sqrt(dot(local_bond, local_bond));
-
-                        for (unsigned int k = 0; k < Nproj; k++)
-                            {
-                                vec3<float> proj_vec = proj_vecs[k];
-                                float max_proj
-                                    = computeMaxProjection(proj_vec, local_bond, ref_equiv_ors, Nequiv);
-                                m_local_bond_proj.get()[bond * Nproj + k] = max_proj;
-                                m_local_bond_proj_norm.get()[bond * Nproj + k] = max_proj / local_bond_len;
-                            }
-                    }
+                for (unsigned int k = 0; k < Nproj; k++)
+                {
+                    vec3<float> proj_vec = proj_vecs[k];
+                    float max_proj = computeMaxProjection(proj_vec, local_bond, ref_equiv_ors, Nequiv);
+                    m_local_bond_proj.get()[bond * Nproj + k] = max_proj;
+                    m_local_bond_proj_norm.get()[bond * Nproj + k] = max_proj / local_bond_len;
+                }
             }
+        }
     });
 
     // save the last computed box

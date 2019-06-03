@@ -277,28 +277,28 @@ inline void Saru::advance(unsigned int steps)
     unsigned int netDelta = 0;
 
     while (steps)
+    {
+        if (steps & 1)
         {
-            if (steps & 1)
-                {
-                    state = currentA * state + currentC; // LCG step
-                    if (netDelta < oWeylPeriod - currentDelta)
-                        netDelta += currentDelta;
-                    else
-                        netDelta += currentDelta - oWeylPeriod;
-                }
-
-            // Change the LCG to step at twice the rate as before
-            currentC += currentA * currentC;
-            currentA *= currentA;
-
-            // Change the Weyl delta to step at 2X rate
-            if (currentDelta < oWeylPeriod - currentDelta)
-                currentDelta += currentDelta;
+            state = currentA * state + currentC; // LCG step
+            if (netDelta < oWeylPeriod - currentDelta)
+                netDelta += currentDelta;
             else
-                currentDelta += currentDelta - oWeylPeriod;
-
-            steps /= 2;
+                netDelta += currentDelta - oWeylPeriod;
         }
+
+        // Change the LCG to step at twice the rate as before
+        currentC += currentA * currentC;
+        currentA *= currentA;
+
+        // Change the Weyl delta to step at 2X rate
+        if (currentDelta < oWeylPeriod - currentDelta)
+            currentDelta += currentDelta;
+        else
+            currentDelta += currentDelta - oWeylPeriod;
+
+        steps /= 2;
+    }
 
     // Apply the net delta to the Weyl state.
     if (wstate - oWeylOffset < oWeylPeriod - netDelta)

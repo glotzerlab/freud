@@ -44,25 +44,25 @@ CorrelationFunction<T>::CorrelationFunction(float rmax, float dr)
     // precompute the bin center positions
     m_r_array = std::shared_ptr<float>(new float[m_nbins], std::default_delete<float[]>());
     for (unsigned int i = 0; i < m_nbins; i++)
-        {
-            float r = float(i) * m_dr;
-            float nextr = float(i + 1) * m_dr;
-            m_r_array.get()[i] = 2.0f / 3.0f * (nextr * nextr * nextr - r * r * r) / (nextr * nextr - r * r);
-        }
+    {
+        float r = float(i) * m_dr;
+        float nextr = float(i + 1) * m_dr;
+        m_r_array.get()[i] = 2.0f / 3.0f * (nextr * nextr * nextr - r * r * r) / (nextr * nextr - r * r);
+    }
 }
 
 template<typename T> CorrelationFunction<T>::~CorrelationFunction()
 {
     for (tbb::enumerable_thread_specific<unsigned int*>::iterator i = m_local_bin_counts.begin();
          i != m_local_bin_counts.end(); ++i)
-        {
-            delete[](*i);
-        }
+    {
+        delete[](*i);
+    }
     for (typename tbb::enumerable_thread_specific<T*>::iterator i = m_local_rdf_array.begin();
          i != m_local_rdf_array.end(); ++i)
-        {
-            delete[](*i);
-        }
+    {
+        delete[](*i);
+    }
 }
 
 //! \internal
@@ -75,24 +75,24 @@ template<typename T> void CorrelationFunction<T>::reduceCorrelationFunction()
     // now compute the rdf
     parallel_for(tbb::blocked_range<size_t>(0, m_nbins), [=](const blocked_range<size_t>& r) {
         for (size_t i = r.begin(); i != r.end(); i++)
+        {
+            for (tbb::enumerable_thread_specific<unsigned int*>::const_iterator local_bins
+                 = m_local_bin_counts.begin();
+                 local_bins != m_local_bin_counts.end(); ++local_bins)
             {
-                for (tbb::enumerable_thread_specific<unsigned int*>::const_iterator local_bins
-                     = m_local_bin_counts.begin();
-                     local_bins != m_local_bin_counts.end(); ++local_bins)
-                    {
-                        m_bin_counts.get()[i] += (*local_bins)[i];
-                    }
-                for (typename tbb::enumerable_thread_specific<T*>::const_iterator local_rdf
-                     = m_local_rdf_array.begin();
-                     local_rdf != m_local_rdf_array.end(); ++local_rdf)
-                    {
-                        m_rdf_array.get()[i] += (*local_rdf)[i];
-                    }
-                if (m_bin_counts.get()[i])
-                    {
-                        m_rdf_array.get()[i] /= m_bin_counts.get()[i];
-                    }
+                m_bin_counts.get()[i] += (*local_bins)[i];
             }
+            for (typename tbb::enumerable_thread_specific<T*>::const_iterator local_rdf
+                 = m_local_rdf_array.begin();
+                 local_rdf != m_local_rdf_array.end(); ++local_rdf)
+            {
+                m_rdf_array.get()[i] += (*local_rdf)[i];
+            }
+            if (m_bin_counts.get()[i])
+            {
+                m_rdf_array.get()[i] /= m_bin_counts.get()[i];
+            }
+        }
     });
 }
 
@@ -100,9 +100,9 @@ template<typename T> void CorrelationFunction<T>::reduceCorrelationFunction()
 template<typename T> std::shared_ptr<T> CorrelationFunction<T>::getRDF()
 {
     if (m_reduce == true)
-        {
-            reduceCorrelationFunction();
-        }
+    {
+        reduceCorrelationFunction();
+    }
     m_reduce = false;
     return m_rdf_array;
 }
@@ -115,14 +115,14 @@ template<typename T> void CorrelationFunction<T>::reset()
     // zero the bin counts for totaling
     for (tbb::enumerable_thread_specific<unsigned int*>::iterator i = m_local_bin_counts.begin();
          i != m_local_bin_counts.end(); ++i)
-        {
-            memset((void*) (*i), 0, sizeof(unsigned int) * m_nbins);
-        }
+    {
+        memset((void*) (*i), 0, sizeof(unsigned int) * m_nbins);
+    }
     for (typename tbb::enumerable_thread_specific<T*>::iterator i = m_local_rdf_array.begin();
          i != m_local_rdf_array.end(); ++i)
-        {
-            memset((void*) (*i), 0, sizeof(T) * m_nbins);
-        }
+    {
+        memset((void*) (*i), 0, sizeof(T) * m_nbins);
+    }
     // reset the frame counter
     m_frame_counter = 0;
     m_reduce = true;
@@ -151,57 +151,57 @@ void CorrelationFunction<T>::accumulate(const box::Box& box, const freud::locali
         bool bin_exists;
         m_local_bin_counts.local(bin_exists);
         if (!bin_exists)
-            {
-                m_local_bin_counts.local() = new unsigned int[m_nbins];
-                memset((void*) m_local_bin_counts.local(), 0, sizeof(unsigned int) * m_nbins);
-            }
+        {
+            m_local_bin_counts.local() = new unsigned int[m_nbins];
+            memset((void*) m_local_bin_counts.local(), 0, sizeof(unsigned int) * m_nbins);
+        }
 
         bool rdf_exists;
         m_local_rdf_array.local(rdf_exists);
         if (!rdf_exists)
-            {
-                m_local_rdf_array.local() = new T[m_nbins];
-                memset((void*) m_local_rdf_array.local(), 0, sizeof(T) * m_nbins);
-            }
+        {
+            m_local_rdf_array.local() = new T[m_nbins];
+            memset((void*) m_local_rdf_array.local(), 0, sizeof(T) * m_nbins);
+        }
 
         size_t bond(nlist->find_first_index(r.begin()));
         // for each reference point
         for (size_t i = r.begin(); i != r.end(); i++)
+        {
+            // get the cell the point is in
+            vec3<float> ref = ref_points[i];
+            for (; bond < nlist->getNumBonds() && neighbor_list[2 * bond] == i; ++bond)
             {
-                // get the cell the point is in
-                vec3<float> ref = ref_points[i];
-                for (; bond < nlist->getNumBonds() && neighbor_list[2 * bond] == i; ++bond)
+                const size_t j(neighbor_list[2 * bond + 1]);
+                {
+                    // compute r between the two particles
+                    vec3<float> delta = m_box.wrap(points[j] - ref);
+
+                    float rsq = dot(delta, delta);
+
+                    // check that the particle is not checking itself, if it is the same list
+                    if ((i != j || points != ref_points) && rsq < rmaxsq)
                     {
-                        const size_t j(neighbor_list[2 * bond + 1]);
-                        {
-                            // compute r between the two particles
-                            vec3<float> delta = m_box.wrap(points[j] - ref);
+                        float r = sqrtf(rsq);
 
-                            float rsq = dot(delta, delta);
-
-                            // check that the particle is not checking itself, if it is the same list
-                            if ((i != j || points != ref_points) && rsq < rmaxsq)
-                                {
-                                    float r = sqrtf(rsq);
-
-                                    // bin that r
-                                    float binr = r * dr_inv;
+                        // bin that r
+                        float binr = r * dr_inv;
 // fast float to int conversion with truncation
 #ifdef __SSE2__
-                                    unsigned int bin = _mm_cvtt_ss2si(_mm_load_ss(&binr));
+                        unsigned int bin = _mm_cvtt_ss2si(_mm_load_ss(&binr));
 #else
                         unsigned int bin = (unsigned int)(binr);
 #endif
 
-                                    if (bin < m_nbins)
-                                        {
-                                            ++m_local_bin_counts.local()[bin];
-                                            m_local_rdf_array.local()[bin] += ref_values[i] * point_values[j];
-                                        }
-                                }
+                        if (bin < m_nbins)
+                        {
+                            ++m_local_bin_counts.local()[bin];
+                            m_local_rdf_array.local()[bin] += ref_values[i] * point_values[j];
                         }
                     }
-            } // done looping over reference points
+                }
+            }
+        } // done looping over reference points
     });
     m_frame_counter += 1;
     m_reduce = true;

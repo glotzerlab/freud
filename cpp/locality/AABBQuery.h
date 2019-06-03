@@ -56,17 +56,17 @@ public:
     {
         this->validateQueryArgs(args);
         if (args.mode == QueryArgs::ball)
-            {
-                return queryBall(points, N, args.rmax, args.exclude_ii);
-            }
+        {
+            return queryBall(points, N, args.rmax, args.exclude_ii);
+        }
         else if (args.mode == QueryArgs::nearest)
-            {
-                return query(points, N, args.nn, args.rmax, args.scale, args.exclude_ii);
-            }
+        {
+            return query(points, N, args.nn, args.rmax, args.scale, args.exclude_ii);
+        }
         else
-            {
-                throw std::runtime_error("Invalid query mode provided to generic query function.");
-            }
+        {
+            throw std::runtime_error("Invalid query mode provided to generic query function.");
+        }
     }
 
     //! Given a set of points, find the k elements of this data structure
@@ -106,25 +106,25 @@ protected:
     virtual void validateQueryArgs(QueryArgs& args)
     {
         if (args.mode == QueryArgs::ball)
-            {
-                if (args.rmax == -1)
-                    throw std::runtime_error("You must set rmax in the query arguments.");
-            }
+        {
+            if (args.rmax == -1)
+                throw std::runtime_error("You must set rmax in the query arguments.");
+        }
         else if (args.mode == QueryArgs::nearest)
+        {
+            if (args.nn == -1)
+                throw std::runtime_error("You must set nn in the query arguments.");
+            if (args.scale == -1)
             {
-                if (args.nn == -1)
-                    throw std::runtime_error("You must set nn in the query arguments.");
-                if (args.scale == -1)
-                    {
-                        args.scale = 1.1;
-                    }
-                if (args.rmax == -1)
-                    {
-                        vec3<float> L = this->getBox().getL();
-                        float rmax = std::min(L.x, L.y);
-                        args.rmax = this->getBox().is2D() ? 0.1 * rmax : 0.1 * std::min(rmax, L.z);
-                    }
+                args.scale = 1.1;
             }
+            if (args.rmax == -1)
+            {
+                vec3<float> L = this->getBox().getL();
+                float rmax = std::min(L.x, L.y);
+                args.rmax = this->getBox().is2D() ? 0.1 * rmax : 0.1 * std::min(rmax, L.z);
+            }
+        }
     }
 
 private:

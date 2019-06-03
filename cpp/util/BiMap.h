@@ -103,17 +103,17 @@ public:
     ~BiMap()
     {
         for (size_t i = 0; i < container.size(); ++i)
-            {
-                delete container[i];
-            }
+        {
+            delete container[i];
+        }
     }
 
     BiMap(const BiMap& other)
     {
         for (size_t i = 0; i < other.container.size(); ++i)
-            {
-                this->insert(*(other.container[i]));
-            }
+        {
+            this->insert(*(other.container[i]));
+        }
     }
 
     BiMap& operator=(const BiMap& rhs)
@@ -137,17 +137,17 @@ public:
     {
         auto pair = new Pair(std::forward<I>(Arg1_in), std::forward<J>(Arg2_in));
         if (set_A.count(&(pair->first)) != 0 || set_B.count(&(pair->second)) != 0)
-            {
-                delete pair;
-                return false;
-            }
+        {
+            delete pair;
+            return false;
+        }
         else
-            {
-                set_A.emplace(&(pair->first));
-                set_B.emplace(&(pair->second));
-                container.emplace_back(std::move(pair));
-                return true;
-            }
+        {
+            set_A.emplace(&(pair->first));
+            set_B.emplace(&(pair->second));
+            container.emplace_back(std::move(pair));
+            return true;
+        }
     }
 
     void insert(const Pair& Pair_in)
@@ -182,20 +182,20 @@ public:
         {
             const auto& itr(this->b().set_A.find(&Key_in));
             if (itr == std::end(this->b().set_A))
-                {
-                    throw std::out_of_range {"Key not found"};
-                }
+            {
+                throw std::out_of_range {"Key not found"};
+            }
             return getVal(*itr);
         }
 
         U& operator[](const T& Key_in) const
         {
             if (!this->has(Key_in))
-                {
-                    // Add a new item, initializing U to the default
-                    // then return a reference to U
-                    b().emplace(Key_in, U());
-                }
+            {
+                // Add a new item, initializing U to the default
+                // then return a reference to U
+                b().emplace(Key_in, U());
+            }
             return getVal(*(this->b().set_A.find(&Key_in)));
         }
 
@@ -262,20 +262,20 @@ public:
         {
             const auto& itr(this->b().set_B.find(&Key_in));
             if (itr == std::end(this->b().set_B))
-                {
-                    throw std::out_of_range {"Key not found"};
-                }
+            {
+                throw std::out_of_range {"Key not found"};
+            }
             return getVal(*itr);
         }
 
         T& operator[](const U& Key_in)
         {
             if (!this->has(Key_in))
-                {
-                    // Add a new item, initializing T to the default
-                    // then return a reference to T
-                    b().emplace(T(), Key_in);
-                }
+            {
+                // Add a new item, initializing T to the default
+                // then return a reference to T
+                b().emplace(T(), Key_in);
+            }
             return getVal(*(this->b().set_B.find(&Key_in)));
         }
 

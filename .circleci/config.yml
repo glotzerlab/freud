@@ -3,7 +3,7 @@ version: 2
 references:
   container_ubuntu: &test_container_config_ubuntu
     docker:
-      - image: vramasub/freud_py35_ubuntu:20180723
+      - image: glotzerlab/ci:2019.06-ubuntu18.04
     working_directory: ~/ci/freud
 
   container_arch: &test_container_config_arch
@@ -58,7 +58,6 @@ references:
         git submodule update --init
         pip install --user -r requirements.txt
         pip install --user flake8==3.7.1
-        brew install clang-format
 
   check_cpp_style: &check_cpp_style
     run:
@@ -70,7 +69,7 @@ references:
     run:
       name: flake8
       command: |
-        python -m flake8 --show-source .
+        python${PYVER} -m flake8 --show-source .
 
   build: &build
     run:
@@ -280,7 +279,7 @@ jobs:
     <<: *build_osx_wheels
 
   check-style:
-    <<: *container_osx
+    <<: *test_container_config_ubuntu
     environment:
       PYVER: "3.5"
     <<: *load_check_style
@@ -289,19 +288,16 @@ workflows:
   version: 2
   test:
     jobs:
-      # - check-style
-      # - test-py27:
-      #     requires:
-      #       - check-style
-      # - test-py35:
-      #     requires:
-      #       - check-style
-      # - test-py36:
-      #     requires:
-      #       - check-style
-      - test-py27
-      - test-py35
-      - test-py36
+      - check-style
+      - test-py27:
+          requires:
+            - check-style
+      - test-py35:
+          requires:
+            - check-style
+      - test-py36:
+          requires:
+            - check-style
   deploy:
     jobs:
       - pypi-osx-wheels:

@@ -28,18 +28,18 @@ PMFT::~PMFT()
 {
     for (tbb::enumerable_thread_specific<unsigned int*>::iterator i = m_local_bin_counts.begin();
          i != m_local_bin_counts.end(); ++i)
-        {
-            delete[](*i);
-        }
+    {
+        delete[](*i);
+    }
 }
 
 //! Get a reference to the PCF array
 std::shared_ptr<unsigned int> PMFT::getBinCounts()
 {
     if (m_reduce == true)
-        {
-            reducePCF();
-        }
+    {
+        reducePCF();
+    }
     m_reduce = false;
     return m_bin_counts;
 }
@@ -48,9 +48,9 @@ std::shared_ptr<unsigned int> PMFT::getBinCounts()
 std::shared_ptr<float> PMFT::getPCF()
 {
     if (m_reduce == true)
-        {
-            reducePCF();
-        }
+    {
+        reducePCF();
+    }
     m_reduce = false;
     return m_pcf_array;
 }

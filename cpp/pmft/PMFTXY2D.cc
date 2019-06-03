@@ -43,20 +43,20 @@ PMFTXY2D::PMFTXY2D(float x_max, float y_max, unsigned int n_x, unsigned int n_y)
     // precompute the bin center positions for x
     m_x_array = std::shared_ptr<float>(new float[m_n_x], std::default_delete<float[]>());
     for (unsigned int i = 0; i < m_n_x; i++)
-        {
-            float x = float(i) * m_dx;
-            float nextx = float(i + 1) * m_dx;
-            m_x_array.get()[i] = -m_x_max + ((x + nextx) / 2.0);
-        }
+    {
+        float x = float(i) * m_dx;
+        float nextx = float(i + 1) * m_dx;
+        m_x_array.get()[i] = -m_x_max + ((x + nextx) / 2.0);
+    }
 
     // precompute the bin center positions for y
     m_y_array = std::shared_ptr<float>(new float[m_n_y], std::default_delete<float[]>());
     for (unsigned int i = 0; i < m_n_y; i++)
-        {
-            float y = float(i) * m_dy;
-            float nexty = float(i + 1) * m_dy;
-            m_y_array.get()[i] = -m_y_max + ((y + nexty) / 2.0);
-        }
+    {
+        float y = float(i) * m_dy;
+        float nexty = float(i + 1) * m_dy;
+        m_y_array.get()[i] = -m_y_max + ((y + nexty) / 2.0);
+    }
 
     // create and populate the pcf_array
     m_pcf_array = std::shared_ptr<float>(new float[m_n_x * m_n_y], std::default_delete<float[]>());
@@ -78,18 +78,17 @@ void PMFTXY2D::reducePCF()
     parallel_for(blocked_range<size_t>(0, m_n_x), [=](const blocked_range<size_t>& r) {
         Index2D b_i = Index2D(m_n_x, m_n_y);
         for (size_t i = r.begin(); i != r.end(); i++)
+        {
+            for (size_t j = 0; j < m_n_y; j++)
             {
-                for (size_t j = 0; j < m_n_y; j++)
-                    {
-                        for (tbb::enumerable_thread_specific<unsigned int*>::const_iterator local_bins
-                             = m_local_bin_counts.begin();
-                             local_bins != m_local_bin_counts.end(); ++local_bins)
-                            {
-                                m_bin_counts.get()[b_i((int) i, (int) j)]
-                                    += (*local_bins)[b_i((int) i, (int) j)];
-                            }
-                    }
+                for (tbb::enumerable_thread_specific<unsigned int*>::const_iterator local_bins
+                     = m_local_bin_counts.begin();
+                     local_bins != m_local_bin_counts.end(); ++local_bins)
+                {
+                    m_bin_counts.get()[b_i((int) i, (int) j)] += (*local_bins)[b_i((int) i, (int) j)];
+                }
             }
+        }
     });
     float inv_num_dens = this->m_box.getVolume() / (float) this->m_n_p;
     float inv_jacobian = (float) 1.0 / m_jacobian;
@@ -97,10 +96,9 @@ void PMFTXY2D::reducePCF()
     // normalize pcf_array
     parallel_for(blocked_range<size_t>(0, m_n_x * m_n_y), [=](const blocked_range<size_t>& r) {
         for (size_t i = r.begin(); i != r.end(); i++)
-            {
-                m_pcf_array.get()[i]
-                    = (float) m_bin_counts.get()[i] * norm_factor * inv_jacobian * inv_num_dens;
-            }
+        {
+            m_pcf_array.get()[i] = (float) m_bin_counts.get()[i] * norm_factor * inv_jacobian * inv_num_dens;
+        }
     });
 }
 
@@ -112,9 +110,9 @@ void PMFTXY2D::reset()
 {
     for (tbb::enumerable_thread_specific<unsigned int*>::iterator i = m_local_bin_counts.begin();
          i != m_local_bin_counts.end(); ++i)
-        {
-            memset((void*) (*i), 0, sizeof(unsigned int) * m_n_x * m_n_y);
-        }
+    {
+        memset((void*) (*i), 0, sizeof(unsigned int) * m_n_x * m_n_y);
+    }
     this->m_frame_counter = 0;
     this->m_reduce = true;
 }
@@ -147,59 +145,59 @@ void PMFTXY2D::accumulate(box::Box& box, const locality::NeighborList* nlist, ve
         bool exists;
         m_local_bin_counts.local(exists);
         if (!exists)
-            {
-                m_local_bin_counts.local() = new unsigned int[m_n_x * m_n_y];
-                memset((void*) m_local_bin_counts.local(), 0, sizeof(unsigned int) * m_n_x * m_n_y);
-            }
+        {
+            m_local_bin_counts.local() = new unsigned int[m_n_x * m_n_y];
+            memset((void*) m_local_bin_counts.local(), 0, sizeof(unsigned int) * m_n_x * m_n_y);
+        }
 
         size_t bond(nlist->find_first_index(r.begin()));
 
         // for each reference point
         for (size_t i = r.begin(); i != r.end(); i++)
+        {
+            vec3<float> ref = ref_points[i];
+
+            for (; bond < nlist->getNumBonds() && neighbor_list[2 * bond] == i; ++bond)
             {
-                vec3<float> ref = ref_points[i];
+                const size_t j(neighbor_list[2 * bond + 1]);
+                {
+                    vec3<float> delta = this->m_box.wrap(points[j] - ref);
+                    float rsq = dot(delta, delta);
 
-                for (; bond < nlist->getNumBonds() && neighbor_list[2 * bond] == i; ++bond)
+                    // check that the particle is not checking itself
+                    // 1e-6 is an arbitrary value that could be set differently if needed
+                    if (rsq < 1e-6)
                     {
-                        const size_t j(neighbor_list[2 * bond + 1]);
-                        {
-                            vec3<float> delta = this->m_box.wrap(points[j] - ref);
-                            float rsq = dot(delta, delta);
+                        continue;
+                    }
 
-                            // check that the particle is not checking itself
-                            // 1e-6 is an arbitrary value that could be set differently if needed
-                            if (rsq < 1e-6)
-                                {
-                                    continue;
-                                }
+                    // rotate interparticle vector
+                    vec2<float> myVec(delta.x, delta.y);
+                    rotmat2<float> myMat = rotmat2<float>::fromAngle(-ref_orientations[i]);
+                    vec2<float> rotVec = myMat * myVec;
+                    float x = rotVec.x + m_x_max;
+                    float y = rotVec.y + m_y_max;
 
-                            // rotate interparticle vector
-                            vec2<float> myVec(delta.x, delta.y);
-                            rotmat2<float> myMat = rotmat2<float>::fromAngle(-ref_orientations[i]);
-                            vec2<float> rotVec = myMat * myVec;
-                            float x = rotVec.x + m_x_max;
-                            float y = rotVec.y + m_y_max;
-
-                            // find the bin to increment
-                            float binx = floorf(x * dx_inv);
-                            float biny = floorf(y * dy_inv);
+                    // find the bin to increment
+                    float binx = floorf(x * dx_inv);
+                    float biny = floorf(y * dy_inv);
 // fast float to int conversion with truncation
 #ifdef __SSE2__
-                            unsigned int ibinx = _mm_cvtt_ss2si(_mm_load_ss(&binx));
-                            unsigned int ibiny = _mm_cvtt_ss2si(_mm_load_ss(&biny));
+                    unsigned int ibinx = _mm_cvtt_ss2si(_mm_load_ss(&binx));
+                    unsigned int ibiny = _mm_cvtt_ss2si(_mm_load_ss(&biny));
 #else
                         unsigned int ibinx = (unsigned int)(binx);
                         unsigned int ibiny = (unsigned int)(biny);
 #endif
 
-                            // increment the bin
-                            if ((ibinx < m_n_x) && (ibiny < m_n_y))
-                                {
-                                    ++m_local_bin_counts.local()[b_i(ibinx, ibiny)];
-                                }
-                        }
+                    // increment the bin
+                    if ((ibinx < m_n_x) && (ibiny < m_n_y))
+                    {
+                        ++m_local_bin_counts.local()[b_i(ibinx, ibiny)];
                     }
-            } // done looping over reference points
+                }
+            }
+        } // done looping over reference points
     });
     this->m_frame_counter++;
     this->m_n_ref = n_ref;

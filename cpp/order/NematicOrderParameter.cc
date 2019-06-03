@@ -66,10 +66,10 @@ void NematicOrderParameter::compute(quat<float>* orientations, unsigned int n)
 {
     // change the size of the particle tensor if the number of particles
     if (m_n != n)
-        {
-            m_particle_tensor = std::shared_ptr<float>(new float[n * 9], std::default_delete<float[]>());
-            m_n = n;
-        }
+    {
+        m_particle_tensor = std::shared_ptr<float>(new float[n * 9], std::default_delete<float[]>());
+        m_n = n;
+    }
     // reset the values
     memset((void*) m_particle_tensor.get(), 0, sizeof(float) * n * 9);
 
@@ -79,30 +79,30 @@ void NematicOrderParameter::compute(quat<float>* orientations, unsigned int n)
         Index2D a_i = Index2D(3, 9);
 
         for (size_t i = r.begin(); i != r.end(); i++)
+        {
+            // get the director of the particle
+            quat<float> q = orientations[i];
+            vec3<float> u_i = rotate(q, m_u);
+
+            float Q_ab[9];
+
+            Q_ab[a_i(0, 0)] = 1.5f * u_i.x * u_i.x - 0.5f;
+            Q_ab[a_i(0, 1)] = 1.5f * u_i.x * u_i.y;
+            Q_ab[a_i(0, 2)] = 1.5f * u_i.x * u_i.z;
+            Q_ab[a_i(1, 0)] = 1.5f * u_i.y * u_i.x;
+            Q_ab[a_i(1, 1)] = 1.5f * u_i.y * u_i.y - 0.5f;
+            Q_ab[a_i(1, 2)] = 1.5f * u_i.y * u_i.z;
+            Q_ab[a_i(2, 0)] = 1.5f * u_i.z * u_i.x;
+            Q_ab[a_i(2, 1)] = 1.5f * u_i.z * u_i.y;
+            Q_ab[a_i(2, 2)] = 1.5f * u_i.z * u_i.z - 0.5f;
+
+            // Set the values. The per-particle array is used so that both
+            // this loop and the reduction can be done in parallel afterwards
+            for (unsigned int j = 0; j < 9; j++)
             {
-                // get the director of the particle
-                quat<float> q = orientations[i];
-                vec3<float> u_i = rotate(q, m_u);
-
-                float Q_ab[9];
-
-                Q_ab[a_i(0, 0)] = 1.5f * u_i.x * u_i.x - 0.5f;
-                Q_ab[a_i(0, 1)] = 1.5f * u_i.x * u_i.y;
-                Q_ab[a_i(0, 2)] = 1.5f * u_i.x * u_i.z;
-                Q_ab[a_i(1, 0)] = 1.5f * u_i.y * u_i.x;
-                Q_ab[a_i(1, 1)] = 1.5f * u_i.y * u_i.y - 0.5f;
-                Q_ab[a_i(1, 2)] = 1.5f * u_i.y * u_i.z;
-                Q_ab[a_i(2, 0)] = 1.5f * u_i.z * u_i.x;
-                Q_ab[a_i(2, 1)] = 1.5f * u_i.z * u_i.y;
-                Q_ab[a_i(2, 2)] = 1.5f * u_i.z * u_i.z - 0.5f;
-
-                // Set the values. The per-particle array is used so that both
-                // this loop and the reduction can be done in parallel afterwards
-                for (unsigned int j = 0; j < 9; j++)
-                    {
-                        m_particle_tensor.get()[i * 9 + j] += Q_ab[j];
-                    }
+                m_particle_tensor.get()[i * 9 + j] += Q_ab[j];
             }
+        }
     });
 
     // https://stackoverflow.com/questions/9399929/parallel-reduction-of-an-array-on-cpu
@@ -154,9 +154,9 @@ void NematicOrderParameter::compute(quat<float>* orientations, unsigned int n)
     Index2D a_i = Index2D(3, 3);
     for (unsigned int i = 0; i < 3; ++i)
         for (unsigned int j = 0; j < 3; ++j)
-            {
-                m(i, j) = m_nematic_tensor[a_i(i, j)];
-            }
+        {
+            m(i, j) = m_nematic_tensor[a_i(i, j)];
+        }
 
     Eigen::SelfAdjointEigenSolver<Eigen::MatrixXf> es;
     es.compute(m);
@@ -164,33 +164,33 @@ void NematicOrderParameter::compute(quat<float>* orientations, unsigned int n)
     float evec[9];
     float eval[3];
     if (es.info() != Eigen::Success)
-        {
-            // numerical issue, set r to identity matrix
-            for (unsigned int i = 0; i < 3; ++i)
-                for (unsigned int j = 0; j < 3; ++j)
-                    if (i == j)
-                        {
-                            evec[a_i(i, j)] = 1.0;
-                        }
-                    else
-                        {
-                            evec[a_i(j, j)] = 0.0;
-                        }
-            // set order parameter to zero so it's easily detectable
-            eval[0] = eval[1] = eval[2] = 0.0;
-        }
+    {
+        // numerical issue, set r to identity matrix
+        for (unsigned int i = 0; i < 3; ++i)
+            for (unsigned int j = 0; j < 3; ++j)
+                if (i == j)
+                {
+                    evec[a_i(i, j)] = 1.0;
+                }
+                else
+                {
+                    evec[a_i(j, j)] = 0.0;
+                }
+        // set order parameter to zero so it's easily detectable
+        eval[0] = eval[1] = eval[2] = 0.0;
+    }
     else
-        {
-            // columns are eigenvectors
-            Eigen::MatrixXf eigen_vec = es.eigenvectors();
-            for (unsigned int i = 0; i < 3; ++i)
-                for (unsigned int j = 0; j < 3; ++j)
-                    evec[a_i(i, j)] = eigen_vec(i, j);
-            auto eigen_val = es.eigenvalues();
-            eval[0] = eigen_val(0);
-            eval[1] = eigen_val(1);
-            eval[2] = eigen_val(2);
-        }
+    {
+        // columns are eigenvectors
+        Eigen::MatrixXf eigen_vec = es.eigenvectors();
+        for (unsigned int i = 0; i < 3; ++i)
+            for (unsigned int j = 0; j < 3; ++j)
+                evec[a_i(i, j)] = eigen_vec(i, j);
+        auto eigen_val = es.eigenvalues();
+        eval[0] = eigen_val(0);
+        eval[1] = eigen_val(1);
+        eval[2] = eigen_val(2);
+    }
 
     // the order parameter is the eigenvector belonging to the largest eigenvalue
     unsigned int max_idx = 0;
@@ -198,10 +198,10 @@ void NematicOrderParameter::compute(quat<float>* orientations, unsigned int n)
 
     for (unsigned int i = 0; i < 3; ++i)
         if (eval[i] > max_val)
-            {
-                max_val = eval[i];
-                max_idx = i;
-            }
+        {
+            max_val = eval[i];
+            max_idx = i;
+        }
 
     m_nematic_director = vec3<Scalar>(evec[a_i(0, max_idx)], evec[a_i(1, max_idx)], evec[a_i(2, max_idx)]);
     m_nematic_order_parameter = max_val;

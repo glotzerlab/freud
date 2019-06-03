@@ -86,81 +86,81 @@ int diagonalize(float matrix[][3], float* evalues, float evectors[][3])
     float tresh, theta, tau, t, sm, s, h, g, c, b[3], z[3];
 
     for (i = 0; i < 3; i++)
-        {
-            for (j = 0; j < 3; j++)
-                evectors[i][j] = 0.0;
-            evectors[i][i] = 1.0;
-        }
+    {
+        for (j = 0; j < 3; j++)
+            evectors[i][j] = 0.0;
+        evectors[i][i] = 1.0;
+    }
 
     for (i = 0; i < 3; i++)
-        {
-            b[i] = evalues[i] = matrix[i][i];
-            z[i] = 0.0;
-        }
+    {
+        b[i] = evalues[i] = matrix[i][i];
+        z[i] = 0.0;
+    }
 
     for (int iter = 1; iter <= MAXJACOBI; iter++)
+    {
+        sm = 0.0;
+        for (i = 0; i < 2; i++)
+            for (j = i + 1; j < 3; j++)
+                sm += fabs(matrix[i][j]);
+
+        if (sm == 0.0)
+            return 0;
+
+        if (iter < 4)
+            tresh = 0.2 * sm / (3 * 3);
+        else
+            tresh = 0.0;
+
+        for (i = 0; i < 2; i++)
         {
-            sm = 0.0;
-            for (i = 0; i < 2; i++)
-                for (j = i + 1; j < 3; j++)
-                    sm += fabs(matrix[i][j]);
-
-            if (sm == 0.0)
-                return 0;
-
-            if (iter < 4)
-                tresh = 0.2 * sm / (3 * 3);
-            else
-                tresh = 0.0;
-
-            for (i = 0; i < 2; i++)
+            for (j = i + 1; j < 3; j++)
+            {
+                g = 100.0 * fabs(matrix[i][j]);
+                if (iter > 4 && fabs(evalues[i]) + g == fabs(evalues[i])
+                    && fabs(evalues[j]) + g == fabs(evalues[j]))
+                    matrix[i][j] = 0.0;
+                else if (fabs(matrix[i][j]) > tresh)
                 {
-                    for (j = i + 1; j < 3; j++)
-                        {
-                            g = 100.0 * fabs(matrix[i][j]);
-                            if (iter > 4 && fabs(evalues[i]) + g == fabs(evalues[i])
-                                && fabs(evalues[j]) + g == fabs(evalues[j]))
-                                matrix[i][j] = 0.0;
-                            else if (fabs(matrix[i][j]) > tresh)
-                                {
-                                    h = evalues[j] - evalues[i];
-                                    if (fabs(h) + g == fabs(h))
-                                        t = (matrix[i][j]) / h;
-                                    else
-                                        {
-                                            theta = 0.5 * h / (matrix[i][j]);
-                                            t = 1.0 / (fabs(theta) + sqrt(1.0 + theta * theta));
-                                            if (theta < 0.0)
-                                                t = -t;
-                                        }
+                    h = evalues[j] - evalues[i];
+                    if (fabs(h) + g == fabs(h))
+                        t = (matrix[i][j]) / h;
+                    else
+                    {
+                        theta = 0.5 * h / (matrix[i][j]);
+                        t = 1.0 / (fabs(theta) + sqrt(1.0 + theta * theta));
+                        if (theta < 0.0)
+                            t = -t;
+                    }
 
-                                    c = 1.0 / sqrt(1.0 + t * t);
-                                    s = t * c;
-                                    tau = s / (1.0 + c);
-                                    h = t * matrix[i][j];
-                                    z[i] -= h;
-                                    z[j] += h;
-                                    evalues[i] -= h;
-                                    evalues[j] += h;
-                                    matrix[i][j] = 0.0;
-                                    for (k = 0; k < i; k++)
-                                        rotate(matrix, k, i, k, j, s, tau);
-                                    for (k = i + 1; k < j; k++)
-                                        rotate(matrix, i, k, k, j, s, tau);
-                                    for (k = j + 1; k < 3; k++)
-                                        rotate(matrix, i, k, j, k, s, tau);
-                                    for (k = 0; k < 3; k++)
-                                        rotate(evectors, k, i, k, j, s, tau);
-                                }
-                        }
+                    c = 1.0 / sqrt(1.0 + t * t);
+                    s = t * c;
+                    tau = s / (1.0 + c);
+                    h = t * matrix[i][j];
+                    z[i] -= h;
+                    z[j] += h;
+                    evalues[i] -= h;
+                    evalues[j] += h;
+                    matrix[i][j] = 0.0;
+                    for (k = 0; k < i; k++)
+                        rotate(matrix, k, i, k, j, s, tau);
+                    for (k = i + 1; k < j; k++)
+                        rotate(matrix, i, k, k, j, s, tau);
+                    for (k = j + 1; k < 3; k++)
+                        rotate(matrix, i, k, j, k, s, tau);
+                    for (k = 0; k < 3; k++)
+                        rotate(evectors, k, i, k, j, s, tau);
                 }
-
-            for (i = 0; i < 3; i++)
-                {
-                    evalues[i] = b[i] += z[i];
-                    z[i] = 0.0;
-                }
+            }
         }
+
+        for (i = 0; i < 3; i++)
+        {
+            evalues[i] = b[i] += z[i];
+            z[i] = 0.0;
+        }
+    }
 
     return 1;
 }
@@ -183,11 +183,11 @@ void quaternionFromExyz(float4& ex_space, float4& ey_space, float4& ez_space, fl
 
     // then dot product with the third one
     if (ez0 * ez_space.x + ez1 * ez_space.y + ez2 * ez_space.z < 0.0)
-        {
-            ez_space.x = -ez_space.x;
-            ez_space.y = -ez_space.y;
-            ez_space.z = -ez_space.z;
-        }
+    {
+        ez_space.x = -ez_space.x;
+        ez_space.y = -ez_space.y;
+        ez_space.z = -ez_space.z;
+    }
 
     // squares of quaternion components
     float q0sq = 0.25 * (ex_space.x + ey_space.y + ez_space.z + 1.0);
@@ -198,33 +198,33 @@ void quaternionFromExyz(float4& ex_space, float4& ey_space, float4& ez_space, fl
     // some component must be greater than 1/4 since they sum to 1
     // compute other components from it
     if (q0sq >= 0.25)
-        {
-            quat.x = sqrt(q0sq);
-            quat.y = (ey_space.z - ez_space.y) / (4.0 * quat.x);
-            quat.z = (ez_space.x - ex_space.z) / (4.0 * quat.x);
-            quat.w = (ex_space.y - ey_space.x) / (4.0 * quat.x);
-        }
+    {
+        quat.x = sqrt(q0sq);
+        quat.y = (ey_space.z - ez_space.y) / (4.0 * quat.x);
+        quat.z = (ez_space.x - ex_space.z) / (4.0 * quat.x);
+        quat.w = (ex_space.y - ey_space.x) / (4.0 * quat.x);
+    }
     else if (q1sq >= 0.25)
-        {
-            quat.y = sqrt(q1sq);
-            quat.x = (ey_space.z - ez_space.y) / (4.0 * quat.y);
-            quat.z = (ey_space.x + ex_space.y) / (4.0 * quat.y);
-            quat.w = (ex_space.z + ez_space.x) / (4.0 * quat.y);
-        }
+    {
+        quat.y = sqrt(q1sq);
+        quat.x = (ey_space.z - ez_space.y) / (4.0 * quat.y);
+        quat.z = (ey_space.x + ex_space.y) / (4.0 * quat.y);
+        quat.w = (ex_space.z + ez_space.x) / (4.0 * quat.y);
+    }
     else if (q2sq >= 0.25)
-        {
-            quat.z = sqrt(q2sq);
-            quat.x = (ez_space.x - ex_space.z) / (4.0 * quat.z);
-            quat.y = (ey_space.x + ex_space.y) / (4.0 * quat.z);
-            quat.w = (ez_space.y + ey_space.z) / (4.0 * quat.z);
-        }
+    {
+        quat.z = sqrt(q2sq);
+        quat.x = (ez_space.x - ex_space.z) / (4.0 * quat.z);
+        quat.y = (ey_space.x + ex_space.y) / (4.0 * quat.z);
+        quat.w = (ez_space.y + ey_space.z) / (4.0 * quat.z);
+    }
     else if (q3sq >= 0.25)
-        {
-            quat.w = sqrt(q3sq);
-            quat.x = (ex_space.y - ey_space.x) / (4.0 * quat.w);
-            quat.y = (ez_space.x + ex_space.z) / (4.0 * quat.w);
-            quat.z = (ez_space.y + ey_space.z) / (4.0 * quat.w);
-        }
+    {
+        quat.w = sqrt(q3sq);
+        quat.x = (ex_space.y - ey_space.x) / (4.0 * quat.w);
+        quat.y = (ez_space.x + ex_space.z) / (4.0 * quat.w);
+        quat.z = (ez_space.y + ey_space.z) / (4.0 * quat.w);
+    }
 
     // Normalize
     float norm = 1.0 / sqrt(quat.x * quat.x + quat.y * quat.y + quat.z * quat.z + quat.w * quat.w);

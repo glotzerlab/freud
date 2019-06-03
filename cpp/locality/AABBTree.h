@@ -105,17 +105,17 @@ public:
         m_nodes = NULL;
 
         if (from.m_nodes)
+        {
+            // allocate memory
+            int retval = posix_memalign((void**) &m_nodes, 32, m_node_capacity * sizeof(AABBNode));
+            if (retval != 0)
             {
-                // allocate memory
-                int retval = posix_memalign((void**) &m_nodes, 32, m_node_capacity * sizeof(AABBNode));
-                if (retval != 0)
-                    {
-                        throw std::runtime_error("Error allocating AABBTree memory");
-                    }
-
-                // copy over data
-                std::copy(from.m_nodes, from.m_nodes + m_num_nodes, m_nodes);
+                throw std::runtime_error("Error allocating AABBTree memory");
             }
+
+            // copy over data
+            std::copy(from.m_nodes, from.m_nodes + m_num_nodes, m_nodes);
+        }
     }
 
     //! Copy assignment
@@ -132,17 +132,17 @@ public:
         m_nodes = NULL;
 
         if (from.m_nodes)
+        {
+            // allocate memory
+            int retval = posix_memalign((void**) &m_nodes, 32, m_node_capacity * sizeof(AABBNode));
+            if (retval != 0)
             {
-                // allocate memory
-                int retval = posix_memalign((void**) &m_nodes, 32, m_node_capacity * sizeof(AABBNode));
-                if (retval != 0)
-                    {
-                        throw std::runtime_error("Error allocating AABBTree memory");
-                    }
-
-                // copy over data
-                std::copy(from.m_nodes, from.m_nodes + m_num_nodes, m_nodes);
+                throw std::runtime_error("Error allocating AABBTree memory");
             }
+
+            // copy over data
+            std::copy(from.m_nodes, from.m_nodes + m_num_nodes, m_nodes);
+        }
         return *this;
     }
 
@@ -284,25 +284,25 @@ inline unsigned int AABBTree::query(std::vector<unsigned int>& hits, const AABB&
 
     // stackless search
     for (unsigned int current_node_idx = 0; current_node_idx < m_num_nodes; current_node_idx++)
-        {
-            // cache current node pointer
-            const AABBNode& current_node = nodes[current_node_idx];
+    {
+        // cache current node pointer
+        const AABBNode& current_node = nodes[current_node_idx];
 
-            box_overlap_counts++;
-            if (overlap(current_node.aabb, aabb))
-                {
-                    if (current_node.left == INVALID_NODE)
-                        {
-                            for (unsigned int i = 0; i < current_node.num_particles; i++)
-                                hits.push_back(current_node.particles[i]);
-                        }
-                }
-            else
-                {
-                    // skip ahead
-                    current_node_idx += current_node.skip;
-                }
+        box_overlap_counts++;
+        if (overlap(current_node.aabb, aabb))
+        {
+            if (current_node.left == INVALID_NODE)
+            {
+                for (unsigned int i = 0; i < current_node.num_particles; i++)
+                    hits.push_back(current_node.particles[i]);
+            }
         }
+        else
+        {
+            // skip ahead
+            current_node_idx += current_node.skip;
+        }
+    }
 
     return box_overlap_counts;
 }
@@ -323,20 +323,20 @@ inline void AABBTree::update(unsigned int idx, const AABB& aabb)
 
     // grow its AABB if needed
     if (!contains(m_nodes[node_idx].aabb, aabb))
+    {
+        m_nodes[node_idx].aabb = merge(m_nodes[node_idx].aabb, aabb);
+
+        // update all parent node AABBs
+        unsigned int current_node = m_nodes[node_idx].parent;
+        while (current_node != INVALID_NODE)
         {
-            m_nodes[node_idx].aabb = merge(m_nodes[node_idx].aabb, aabb);
+            unsigned int left_idx = m_nodes[current_node].left;
+            unsigned int right_idx = m_nodes[current_node].right;
 
-            // update all parent node AABBs
-            unsigned int current_node = m_nodes[node_idx].parent;
-            while (current_node != INVALID_NODE)
-                {
-                    unsigned int left_idx = m_nodes[current_node].left;
-                    unsigned int right_idx = m_nodes[current_node].right;
-
-                    m_nodes[current_node].aabb = merge(m_nodes[left_idx].aabb, m_nodes[right_idx].aabb);
-                    current_node = m_nodes[current_node].parent;
-                }
+            m_nodes[current_node].aabb = merge(m_nodes[left_idx].aabb, m_nodes[right_idx].aabb);
+            current_node = m_nodes[current_node].parent;
         }
+    }
 }
 
 /*! \param idx Particle to get height for
@@ -358,10 +358,10 @@ inline unsigned int AABBTree::height(unsigned int idx)
 
     unsigned int current_node = m_nodes[node_idx].parent;
     while (current_node != INVALID_NODE)
-        {
-            current_node = m_nodes[current_node].parent;
-            height += 1;
-        }
+    {
+        current_node = m_nodes[current_node].parent;
+        height += 1;
+    }
 
     return height;
 }
@@ -405,31 +405,31 @@ inline unsigned int AABBTree::buildNode(AABB* aabbs, std::vector<unsigned int>& 
     // merge all the AABBs into one
     AABB my_aabb = aabbs[start];
     for (unsigned int i = 1; i < len; i++)
-        {
-            my_aabb = merge(my_aabb, aabbs[start + i]);
-        }
+    {
+        my_aabb = merge(my_aabb, aabbs[start + i]);
+    }
     vec3<float> my_radius = my_aabb.getUpper() - my_aabb.getLower();
 
     // handle the case of a leaf node creation
     if (len <= NODE_CAPACITY)
+    {
+        unsigned int new_node = allocateNode();
+        m_nodes[new_node].aabb = my_aabb;
+        m_nodes[new_node].parent = parent;
+        m_nodes[new_node].num_particles = len;
+
+        for (unsigned int i = 0; i < len; i++)
         {
-            unsigned int new_node = allocateNode();
-            m_nodes[new_node].aabb = my_aabb;
-            m_nodes[new_node].parent = parent;
-            m_nodes[new_node].num_particles = len;
+            // assign the particle indices into the leaf node
+            m_nodes[new_node].particles[i] = idx[start + i];
+            m_nodes[new_node].particle_tags[i] = aabbs[start + i].tag;
 
-            for (unsigned int i = 0; i < len; i++)
-                {
-                    // assign the particle indices into the leaf node
-                    m_nodes[new_node].particles[i] = idx[start + i];
-                    m_nodes[new_node].particle_tags[i] = aabbs[start + i].tag;
-
-                    // assign the reverse mapping from particle indices to leaf node indices
-                    m_mapping[idx[start + i]] = new_node;
-                }
-
-            return new_node;
+            // assign the reverse mapping from particle indices to leaf node indices
+            m_mapping[idx[start + i]] = new_node;
         }
+
+        return new_node;
+    }
 
     // otherwise, we are creating an internal node - allocate an index
     unsigned int my_idx = allocateNode();
@@ -440,82 +440,82 @@ inline unsigned int AABBTree::buildNode(AABB* aabbs, std::vector<unsigned int>& 
 
     // if there are only 2 aabbs, put one on each side
     if (len == 2)
-        {
-            // nothing to do, already partitioned
-        }
+    {
+        // nothing to do, already partitioned
+    }
     else
+    {
+        // otherwise, we need to split them based on a heuristic. split the longest dimension in half
+        if (my_radius.x > my_radius.y && my_radius.x > my_radius.z)
         {
-            // otherwise, we need to split them based on a heuristic. split the longest dimension in half
-            if (my_radius.x > my_radius.y && my_radius.x > my_radius.z)
+            // split on x direction
+            for (unsigned int i = 0; i < start_right; i++)
+            {
+                if (aabbs[start + i].getPosition().x < my_aabb.getPosition().x)
                 {
-                    // split on x direction
-                    for (unsigned int i = 0; i < start_right; i++)
-                        {
-                            if (aabbs[start + i].getPosition().x < my_aabb.getPosition().x)
-                                {
-                                    // if on the left side, everything is happy, just continue on
-                                }
-                            else
-                                {
-                                    // if on the right side, need to swap the current aabb with the one at
-                                    // start_right-1, subtract one off of start_right to indicate the addition
-                                    // of one to the right side and subtract 1 from i to look at the current
-                                    // index (new aabb). This is quick and easy to write, but will randomize
-                                    // indices - might need to look into a stable partitioning algorithm!
-                                    std::swap(aabbs[start + i], aabbs[start + start_right - 1]);
-                                    std::swap(idx[start + i], idx[start + start_right - 1]);
-                                    start_right--;
-                                    i--;
-                                }
-                        }
+                    // if on the left side, everything is happy, just continue on
                 }
-            else if (my_radius.y > my_radius.z)
+                else
                 {
-                    // split on y direction
-                    for (unsigned int i = 0; i < start_right; i++)
-                        {
-                            if (aabbs[start + i].getPosition().y < my_aabb.getPosition().y)
-                                {
-                                    // if on the left side, everything is happy, just continue on
-                                }
-                            else
-                                {
-                                    // if on the right side, need to swap the current aabb with the one at
-                                    // start_right-1, subtract one off of start_right to indicate the addition
-                                    // of one to the right side and subtract 1 from i to look at the current
-                                    // index (new aabb). This is quick and easy to write, but will randomize
-                                    // indices - might need to look into a stable partitioning algorithm!
-                                    std::swap(aabbs[start + i], aabbs[start + start_right - 1]);
-                                    std::swap(idx[start + i], idx[start + start_right - 1]);
-                                    start_right--;
-                                    i--;
-                                }
-                        }
+                    // if on the right side, need to swap the current aabb with the one at
+                    // start_right-1, subtract one off of start_right to indicate the addition
+                    // of one to the right side and subtract 1 from i to look at the current
+                    // index (new aabb). This is quick and easy to write, but will randomize
+                    // indices - might need to look into a stable partitioning algorithm!
+                    std::swap(aabbs[start + i], aabbs[start + start_right - 1]);
+                    std::swap(idx[start + i], idx[start + start_right - 1]);
+                    start_right--;
+                    i--;
                 }
-            else
-                {
-                    // split on z direction
-                    for (unsigned int i = 0; i < start_right; i++)
-                        {
-                            if (aabbs[start + i].getPosition().z < my_aabb.getPosition().z)
-                                {
-                                    // if on the left side, everything is happy, just continue on
-                                }
-                            else
-                                {
-                                    // if on the right side, need to swap the current aabb with the one at
-                                    // start_right-1, subtract one off of start_right to indicate the addition
-                                    // of one to the right side and subtract 1 from i to look at the current
-                                    // index (new aabb). This is quick and easy to write, but will randomize
-                                    // indices - might need to look into a stable partitioning algorithm!
-                                    std::swap(aabbs[start + i], aabbs[start + start_right - 1]);
-                                    std::swap(idx[start + i], idx[start + start_right - 1]);
-                                    start_right--;
-                                    i--;
-                                }
-                        }
-                }
+            }
         }
+        else if (my_radius.y > my_radius.z)
+        {
+            // split on y direction
+            for (unsigned int i = 0; i < start_right; i++)
+            {
+                if (aabbs[start + i].getPosition().y < my_aabb.getPosition().y)
+                {
+                    // if on the left side, everything is happy, just continue on
+                }
+                else
+                {
+                    // if on the right side, need to swap the current aabb with the one at
+                    // start_right-1, subtract one off of start_right to indicate the addition
+                    // of one to the right side and subtract 1 from i to look at the current
+                    // index (new aabb). This is quick and easy to write, but will randomize
+                    // indices - might need to look into a stable partitioning algorithm!
+                    std::swap(aabbs[start + i], aabbs[start + start_right - 1]);
+                    std::swap(idx[start + i], idx[start + start_right - 1]);
+                    start_right--;
+                    i--;
+                }
+            }
+        }
+        else
+        {
+            // split on z direction
+            for (unsigned int i = 0; i < start_right; i++)
+            {
+                if (aabbs[start + i].getPosition().z < my_aabb.getPosition().z)
+                {
+                    // if on the left side, everything is happy, just continue on
+                }
+                else
+                {
+                    // if on the right side, need to swap the current aabb with the one at
+                    // start_right-1, subtract one off of start_right to indicate the addition
+                    // of one to the right side and subtract 1 from i to look at the current
+                    // index (new aabb). This is quick and easy to write, but will randomize
+                    // indices - might need to look into a stable partitioning algorithm!
+                    std::swap(aabbs[start + i], aabbs[start + start_right - 1]);
+                    std::swap(idx[start + i], idx[start + start_right - 1]);
+                    start_right--;
+                    i--;
+                }
+            }
+        }
+    }
 
     // sanity check. The left or right tree may have ended up empty. If so, just borrow one particle from it
     if (start_right == len)
@@ -548,19 +548,19 @@ inline unsigned int AABBTree::updateSkip(unsigned int idx)
 {
     // leaf nodes have no nodes under them
     if (isNodeLeaf(idx))
-        {
-            return 1;
-        }
+    {
+        return 1;
+    }
     else
-        {
-            // node idx needs to skip all the nodes underneath it (determined recursively)
-            unsigned int left_idx = m_nodes[idx].left;
-            unsigned int right_idx = m_nodes[idx].right;
+    {
+        // node idx needs to skip all the nodes underneath it (determined recursively)
+        unsigned int left_idx = m_nodes[idx].left;
+        unsigned int right_idx = m_nodes[idx].right;
 
-            unsigned int skip = updateSkip(left_idx) + updateSkip(right_idx);
-            m_nodes[idx].skip = skip;
-            return skip + 1;
-        }
+        unsigned int skip = updateSkip(left_idx) + updateSkip(right_idx);
+        m_nodes[idx].skip = skip;
+        return skip + 1;
+    }
 }
 
 /*! Allocates a new node in the tree
@@ -569,29 +569,29 @@ inline unsigned int AABBTree::allocateNode()
 {
     // grow the memory if needed
     if (m_num_nodes >= m_node_capacity)
+    {
+        // determine new capacity
+        AABBNode* m_new_nodes = NULL;
+        unsigned int m_new_node_capacity = m_node_capacity * 2;
+        if (m_new_node_capacity == 0)
+            m_new_node_capacity = 16;
+
+        // allocate new memory
+        int retval = posix_memalign((void**) &m_new_nodes, 32, m_new_node_capacity * sizeof(AABBNode));
+        if (retval != 0)
         {
-            // determine new capacity
-            AABBNode* m_new_nodes = NULL;
-            unsigned int m_new_node_capacity = m_node_capacity * 2;
-            if (m_new_node_capacity == 0)
-                m_new_node_capacity = 16;
-
-            // allocate new memory
-            int retval = posix_memalign((void**) &m_new_nodes, 32, m_new_node_capacity * sizeof(AABBNode));
-            if (retval != 0)
-                {
-                    throw std::runtime_error("Error allocating AABBTree memory");
-                }
-
-            // if we have old memory, copy it over
-            if (m_nodes != NULL)
-                {
-                    std::memcpy((void*) m_new_nodes, (void*) m_nodes, sizeof(AABBNode) * m_num_nodes);
-                    posix_memalign_free(m_nodes);
-                }
-            m_nodes = m_new_nodes;
-            m_node_capacity = m_new_node_capacity;
+            throw std::runtime_error("Error allocating AABBTree memory");
         }
+
+        // if we have old memory, copy it over
+        if (m_nodes != NULL)
+        {
+            std::memcpy((void*) m_new_nodes, (void*) m_nodes, sizeof(AABBNode) * m_num_nodes);
+            posix_memalign_free(m_nodes);
+        }
+        m_nodes = m_new_nodes;
+        m_node_capacity = m_new_node_capacity;
+    }
 
     m_nodes[m_num_nodes] = AABBNode();
     m_num_nodes++;

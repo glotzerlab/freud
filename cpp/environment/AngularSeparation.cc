@@ -25,14 +25,14 @@ float computeSeparationAngle(const quat<float> ref_q, const quat<float> q)
 
     // if R.s is 1.0, but slightly greater due to round-off errors, handle that.
     if ((R.s - 1.0) < 1e-7 && (R.s - 1.0) > 0)
-        {
-            R.s = 1.0;
-        }
+    {
+        R.s = 1.0;
+    }
     // if R.s is -1.0, but slightly less due to round-off errors, handle that.
     if ((R.s + 1.0) > -1e-7 && (R.s + 1.0) < 0)
-        {
-            R.s = -1.0;
-        }
+    {
+        R.s = -1.0;
+    }
 
     float theta = 2.0 * acos(R.s);
 
@@ -56,18 +56,18 @@ float computeMinSeparationAngle(const quat<float> ref_q, const quat<float> q, co
 
     // loop through all equivalent rotations and see if they have smaller angles with ref_q
     for (unsigned int i = 0; i < Nequiv; i++)
+    {
+        quat<float> qe = equiv_qs[i];
+        quat<float> qtest = qtemp * qe;
+
+        float angle_test = computeSeparationAngle(ref_q, qtest);
+
+        if (angle_test < min_angle)
         {
-            quat<float> qe = equiv_qs[i];
-            quat<float> qtest = qtemp * qe;
-
-            float angle_test = computeSeparationAngle(ref_q, qtest);
-
-            if (angle_test < min_angle)
-                {
-                    min_angle = angle_test;
-                    min_quat = qtest;
-                }
+            min_angle = angle_test;
+            min_quat = qtest;
         }
+    }
 
     return min_angle;
 }
@@ -84,10 +84,9 @@ void AngularSeparation::computeNeighbor(const freud::locality::NeighborList* nli
 
     // reallocate the output array if it is not the right size
     if (tot_num_neigh != m_tot_num_neigh)
-        {
-            m_neigh_ang_array
-                = std::shared_ptr<float>(new float[tot_num_neigh], std::default_delete<float[]>());
-        }
+    {
+        m_neigh_ang_array = std::shared_ptr<float>(new float[tot_num_neigh], std::default_delete<float[]>());
+    }
 
     // compute the order parameter
     parallel_for(blocked_range<size_t>(0, Nref), [=](const blocked_range<size_t>& r) {
@@ -100,22 +99,22 @@ void AngularSeparation::computeNeighbor(const freud::locality::NeighborList* nli
 
         size_t bond(nlist->find_first_index(r.begin()));
         for (size_t i = r.begin(); i != r.end(); ++i)
+        {
+            // m_neigh_ang_array.get()[i] = 0;
+            quat<float> ref_q = ref_ors[i];
+
+            for (; bond < tot_num_neigh && neighbor_list[2 * bond] == i; ++bond)
             {
-                // m_neigh_ang_array.get()[i] = 0;
-                quat<float> ref_q = ref_ors[i];
+                const size_t j(neighbor_list[2 * bond + 1]);
+                quat<float> q = ors[j];
 
-                for (; bond < tot_num_neigh && neighbor_list[2 * bond] == i; ++bond)
-                    {
-                        const size_t j(neighbor_list[2 * bond + 1]);
-                        quat<float> q = ors[j];
+                float theta = computeMinSeparationAngle(ref_q, q, ref_equiv_ors, Nequiv);
+                // cout<<neighbor_list[2*bond]<<neighbor_list[2*bond+1]<<endl;
+                // cout<<"i: "<<i<<" j: "<<j<<" bond: "<<bond<<" theta: "<<theta<<endl;
 
-                        float theta = computeMinSeparationAngle(ref_q, q, ref_equiv_ors, Nequiv);
-                        // cout<<neighbor_list[2*bond]<<neighbor_list[2*bond+1]<<endl;
-                        // cout<<"i: "<<i<<" j: "<<j<<" bond: "<<bond<<" theta: "<<theta<<endl;
-
-                        m_neigh_ang_array.get()[bond] = theta;
-                    }
+                m_neigh_ang_array.get()[bond] = theta;
             }
+        }
     });
     // save the last computed number of particles
     m_Np = Np;
@@ -133,10 +132,9 @@ void AngularSeparation::computeGlobal(const quat<float>* global_ors, const quat<
 {
     // reallocate the output array if it is not the right size
     if (Np != m_Np || Nglobal != m_Nglobal)
-        {
-            m_global_ang_array
-                = std::shared_ptr<float>(new float[Nglobal * Np], std::default_delete<float[]>());
-        }
+    {
+        m_global_ang_array = std::shared_ptr<float>(new float[Nglobal * Np], std::default_delete<float[]>());
+    }
 
     // compute the order parameter
     parallel_for(blocked_range<size_t>(0, Np), [=](const blocked_range<size_t>& r) {
@@ -148,15 +146,15 @@ void AngularSeparation::computeGlobal(const quat<float>* global_ors, const quat<
         assert(Nequiv > 0);
 
         for (size_t i = r.begin(); i != r.end(); ++i)
+        {
+            quat<float> q = ors[i];
+            for (unsigned int j = 0; j < Nglobal; j++)
             {
-                quat<float> q = ors[i];
-                for (unsigned int j = 0; j < Nglobal; j++)
-                    {
-                        quat<float> global_q = global_ors[j];
-                        float theta = computeMinSeparationAngle(q, global_q, equiv_ors, Nequiv);
-                        m_global_ang_array.get()[i * Nglobal + j] = theta;
-                    }
+                quat<float> global_q = global_ors[j];
+                float theta = computeMinSeparationAngle(q, global_q, equiv_ors, Nequiv);
+                m_global_ang_array.get()[i * Nglobal + j] = theta;
             }
+        }
     });
     // save the last computed number of orientations
     m_Np = Np;

@@ -34,18 +34,18 @@ void DisjointSet::merge(const uint32_t a, const uint32_t b)
 
     // if tree heights are equal, merge to a
     if (rank[a] == rank[b])
-        {
-            rank[a]++;
-            s[b] = a;
-        }
+    {
+        rank[a]++;
+        s[b] = a;
+    }
     else
-        {
-            // merge the shorter tree to the taller one
-            if (rank[a] > rank[b])
-                s[b] = a;
-            else
-                s[a] = b;
-        }
+    {
+        // merge the shorter tree to the taller one
+        if (rank[a] > rank[b])
+            s[b] = a;
+        else
+            s[a] = b;
+    }
 }
 
 /*! \returns the set label that contains the element \c c
@@ -61,11 +61,11 @@ uint32_t DisjointSet::find(const uint32_t c)
     // path compression
     uint32_t i = c;
     while (i != r)
-        {
-            uint32_t j = s[i];
-            s[i] = r;
-            i = j;
-        }
+    {
+        uint32_t j = s[i];
+        s[i] = r;
+        i = j;
+    }
     return r;
 }
 
@@ -97,33 +97,33 @@ void Cluster::computeClusters(const box::Box& box, const freud::locality::Neighb
 
     // for each point
     for (unsigned int i = 0; i < m_num_particles; i++)
+    {
+        // get the cell the point is in
+        vec3<float> p = points[i];
+
+        for (; bond < nlist->getNumBonds() && neighbor_list[2 * bond] == i; ++bond)
         {
-            // get the cell the point is in
-            vec3<float> p = points[i];
-
-            for (; bond < nlist->getNumBonds() && neighbor_list[2 * bond] == i; ++bond)
+            const size_t j(neighbor_list[2 * bond + 1]);
+            {
+                if (i != j)
                 {
-                    const size_t j(neighbor_list[2 * bond + 1]);
-                    {
-                        if (i != j)
-                            {
-                                // compute r between the two particles
-                                vec3<float> delta = p - points[j];
-                                delta = box.wrap(delta);
+                    // compute r between the two particles
+                    vec3<float> delta = p - points[j];
+                    delta = box.wrap(delta);
 
-                                float rsq = dot(delta, delta);
-                                if (rsq < rmaxsq)
-                                    {
-                                        // merge the two sets using the disjoint set
-                                        uint32_t a = dj.find(i);
-                                        uint32_t b = dj.find(j);
-                                        if (a != b)
-                                            dj.merge(a, b);
-                                    }
-                            }
+                    float rsq = dot(delta, delta);
+                    if (rsq < rmaxsq)
+                    {
+                        // merge the two sets using the disjoint set
+                        uint32_t a = dj.find(i);
+                        uint32_t b = dj.find(j);
+                        if (a != b)
+                            dj.merge(a, b);
                     }
                 }
+            }
         }
+    }
 
     // done looping over points. All clusters are now determined. Renumber them from zero to num_clusters-1.
     map<uint32_t, uint32_t> label_map;
@@ -131,19 +131,19 @@ void Cluster::computeClusters(const box::Box& box, const freud::locality::Neighb
     // go over every point
     uint32_t cur_set = 0;
     for (uint32_t i = 0; i < m_num_particles; i++)
+    {
+        uint32_t s = dj.find(i);
+
+        // insert it into the mapping if we haven't seen this one yet
+        if (label_map.count(s) == 0)
         {
-            uint32_t s = dj.find(i);
-
-            // insert it into the mapping if we haven't seen this one yet
-            if (label_map.count(s) == 0)
-                {
-                    label_map[s] = cur_set;
-                    cur_set++;
-                }
-
-            // label this point in cluster_idx
-            m_cluster_idx.get()[i] = label_map[s];
+            label_map[s] = cur_set;
+            cur_set++;
         }
+
+        // label this point in cluster_idx
+        m_cluster_idx.get()[i] = label_map[s];
+    }
 
     // cur_set is now the number of clusters
     m_num_clusters = cur_set;
@@ -168,11 +168,11 @@ void Cluster::computeClusterMembership(const unsigned int* keys)
 
     // add members to the sets
     for (unsigned int i = 0; i < m_num_particles; i++)
-        {
-            unsigned int key = keys[i];
-            unsigned int cluster = m_cluster_idx.get()[i];
-            m_cluster_keys[cluster].push_back(key);
-        }
+    {
+        unsigned int key = keys[i];
+        unsigned int cluster = m_cluster_idx.get()[i];
+        m_cluster_keys[cluster].push_back(key);
+    }
 }
 
 }; }; // end namespace freud::cluster

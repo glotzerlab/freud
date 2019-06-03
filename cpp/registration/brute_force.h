@@ -35,11 +35,11 @@ inline matrix makeEigenMatrix(const std::vector<vec3<float>>& vecs)
     // we know the dimension is 3 bc we're dealing with a vector of vec3's.
     mat.resize(size, 3);
     for (unsigned int i = 0; i < size; i++)
-        {
-            mat(i, 0) = vecs[i].x;
-            mat(i, 1) = vecs[i].y;
-            mat(i, 2) = vecs[i].z;
-        }
+    {
+        mat(i, 0) = vecs[i].x;
+        mat(i, 1) = vecs[i].y;
+        mat(i, 2) = vecs[i].z;
+    }
 
     return mat;
 }
@@ -51,19 +51,19 @@ inline std::vector<vec3<float>> makeVec3Matrix(const matrix& m)
     // take the transpose on your own.
     // Force the user to put this in correctly.
     if (m.cols() != 3)
-        {
-            fprintf(stderr, "Number of columns in the input matrix is %ld\n", m.cols());
-            throw std::invalid_argument("makeVec3Matrix requires the input matrix to be Nx3!");
-        }
+    {
+        fprintf(stderr, "Number of columns in the input matrix is %ld\n", m.cols());
+        throw std::invalid_argument("makeVec3Matrix requires the input matrix to be Nx3!");
+    }
     std::vector<vec3<float>> vecs;
     for (unsigned int i = 0; i < m.rows(); i++)
-        {
-            vec3<float> v;
-            v.x = m(i, 0);
-            v.y = m(i, 1);
-            v.z = m(i, 2);
-            vecs.push_back(v);
-        }
+    {
+        vec3<float> v;
+        v.x = m(i, 0);
+        v.y = m(i, 1);
+        v.z = m(i, 2);
+        vecs.push_back(v);
+    }
     return vecs;
 }
 
@@ -92,11 +92,11 @@ inline matrix Rotate(const matrix& R, const matrix& P)
     // Assume the matrix P is a 3xN matrix.
     // Then make sure that matrix R is ready to act on it
     if (R.cols() != P.rows())
-        {
-            fprintf(stderr, "Number of columns in the rotation matrix is %ld\n", R.cols());
-            fprintf(stderr, "Number of rows in the point matrix is %ld\n", P.rows());
-            throw std::invalid_argument("These values must be equal to perform the rotation!");
-        }
+    {
+        fprintf(stderr, "Number of columns in the rotation matrix is %ld\n", R.cols());
+        fprintf(stderr, "Number of rows in the point matrix is %ld\n", P.rows());
+        throw std::invalid_argument("These values must be equal to perform the rotation!");
+    }
     matrix rotated = matrix::Zero(P.rows(), P.cols());
     // Apply the rotation R.
     rotated = R * P;
@@ -121,9 +121,9 @@ inline void KabschAlgorithm(const matrix& P, const matrix& Q, matrix& Rotation)
     // if the rotation as we've found it, rot=VU^T, is IMPROPER, find the next best
     // (proper) rotation by reflecting the smallest principal axis in rot:
     if (det < 0)
-        {
-            V.col(V.cols() - 1) *= -1.0;
-        }
+    {
+        V.col(V.cols() - 1) *= -1.0;
+    }
     // This is the rotation matrix that minimizes the MSD between all pairs of points P and Q.
     Rotation = V * U.transpose();
 }
@@ -169,119 +169,117 @@ public:
 
         unsigned int N = points.rows();
         if (N != m_ref_points.rows())
-            {
-                fprintf(stderr, "Number of vecs to which we are matching is %ld\n", m_ref_points.rows());
-                fprintf(stderr, "Number of vecs we are trying to match is %d\n", N);
-                throw std::invalid_argument("Brute force matching requires the same number of points!");
-            }
+        {
+            fprintf(stderr, "Number of vecs to which we are matching is %ld\n", m_ref_points.rows());
+            fprintf(stderr, "Number of vecs we are trying to match is %d\n", N);
+            throw std::invalid_argument("Brute force matching requires the same number of points!");
+        }
 
         RandomNumber<std::mt19937_64> rng;
         double rmsd_min = -1.0;
         for (size_t shuffles = 0; shuffles < m_shuffles; shuffles++)
+        {
+            int p0 = 0, p1 = 0, p2 = 0;
+            while (p0 == p1 || p0 == p2 || p1 == p2)
             {
-                int p0 = 0, p1 = 0, p2 = 0;
-                while (p0 == p1 || p0 == p2 || p1 == p2)
-                    {
-                        p0 = rng.random_int(0, N - 1);
-                        if (N == int(1))
-                            {
-                                p1 = int(-2);
-                            }
-                        else
-                            {
-                                p1 = rng.random_int(0, N - 1);
-                            }
-
-                        if (N == int(2) || N == int(1))
-                            {
-                                p2 = int(-1);
-                            }
-                        else
-                            {
-                                p2 = rng.random_int(0, N - 1);
-                            }
-                    }
-
-                size_t comb[3] = {0, 1, 2};
-                if (N == int(2))
-                    {
-                        num_pts = 2;
-                        p.resize(num_pts, m_ref_points.cols());
-                        p.row(0) = m_ref_points.row(p0);
-                        p.row(1) = m_ref_points.row(p1);
-                        q.resize(num_pts, m_ref_points.cols());
-                    }
-                else if (N == int(1))
-                    {
-                        num_pts = 1;
-                        p.resize(num_pts, m_ref_points.cols());
-                        p.row(0) = m_ref_points.row(p0);
-                        q.resize(num_pts, m_ref_points.cols());
-                    }
+                p0 = rng.random_int(0, N - 1);
+                if (N == int(1))
+                {
+                    p1 = int(-2);
+                }
                 else
-                    {
-                        num_pts = 3;
-                        p.resize(num_pts, m_ref_points.cols());
-                        p.row(0) = m_ref_points.row(p0);
-                        p.row(1) = m_ref_points.row(p1);
-                        p.row(2) = m_ref_points.row(p2);
-                        q.resize(num_pts, m_ref_points.cols());
-                    }
+                {
+                    p1 = rng.random_int(0, N - 1);
+                }
+
+                if (N == int(2) || N == int(1))
+                {
+                    p2 = int(-1);
+                }
+                else
+                {
+                    p2 = rng.random_int(0, N - 1);
+                }
+            }
+
+            size_t comb[3] = {0, 1, 2};
+            if (N == int(2))
+            {
+                num_pts = 2;
+                p.resize(num_pts, m_ref_points.cols());
+                p.row(0) = m_ref_points.row(p0);
+                p.row(1) = m_ref_points.row(p1);
+                q.resize(num_pts, m_ref_points.cols());
+            }
+            else if (N == int(1))
+            {
+                num_pts = 1;
+                p.resize(num_pts, m_ref_points.cols());
+                p.row(0) = m_ref_points.row(p0);
+                q.resize(num_pts, m_ref_points.cols());
+            }
+            else
+            {
+                num_pts = 3;
+                p.resize(num_pts, m_ref_points.cols());
+                p.row(0) = m_ref_points.row(p0);
+                p.row(1) = m_ref_points.row(p1);
+                p.row(2) = m_ref_points.row(p2);
+                q.resize(num_pts, m_ref_points.cols());
+            }
+            do
+            {
                 do
+                {
+                    if (N == int(2))
                     {
-                        do
-                            {
-                                if (N == int(2))
-                                    {
-                                        q.row(0) = points.row(comb[0]);
-                                        q.row(1) = points.row(comb[1]);
-                                    }
-                                else if (N == int(1))
-                                    {
-                                        q.row(0) = points.row(comb[0]);
-                                    }
-                                else
-                                    {
-                                        q.row(0) = points.row(comb[0]);
-                                        q.row(1) = points.row(comb[1]);
-                                        q.row(2) = points.row(comb[2]);
-                                    }
-
-                                // finds the optimal rotation of the FIRST input set
-                                // of points such that they match the SECOND input
-                                // set of points
-                                KabschAlgorithm(q, p, r);
-
-                                // The rotation that we've found from the
-                                // KabschAlgorithm actually acts on P^T.
-                                matrix rot_points = Rotate(r, points.transpose());
-
-                                // feed back in the TRANSPOSE of rot_points such that
-                                // the input matrix is (Nx3).
-                                BiMap<unsigned int, unsigned int> vec_map;
-                                double rmsd = AlignedRMSDTree(rot_points.transpose(), vec_map);
-                                if (rmsd < rmsd_min || rmsd_min < 0.0)
-                                    {
-                                        m_rmsd = rmsd;
-                                        m_rotation = r;
-                                        m_vec_map = vec_map;
-                                        rmsd_min = m_rmsd;
-                                        if (rmsd_min < m_tol)
-                                            {
-                                                // The rotation that we've found from the KabschAlgorithm
-                                                // actually acts on P^T.
-                                                matrix ptsT = Rotate(m_rotation, points.transpose());
-                                                // Then we have to take the transpose again to get our matrix
-                                                // back to its original dimensionality.
-                                                pts = makeVec3Matrix(ptsT.transpose());
-                                                return;
-                                            }
-                                    }
-                            }
-                        while (std::next_permutation(comb, comb + num_pts));
+                        q.row(0) = points.row(comb[0]);
+                        q.row(1) = points.row(comb[1]);
                     }
-                while (NextCombination(comb, N, num_pts));
-            } // end for loop over shuffles
+                    else if (N == int(1))
+                    {
+                        q.row(0) = points.row(comb[0]);
+                    }
+                    else
+                    {
+                        q.row(0) = points.row(comb[0]);
+                        q.row(1) = points.row(comb[1]);
+                        q.row(2) = points.row(comb[2]);
+                    }
+
+                    // finds the optimal rotation of the FIRST input set
+                    // of points such that they match the SECOND input
+                    // set of points
+                    KabschAlgorithm(q, p, r);
+
+                    // The rotation that we've found from the
+                    // KabschAlgorithm actually acts on P^T.
+                    matrix rot_points = Rotate(r, points.transpose());
+
+                    // feed back in the TRANSPOSE of rot_points such that
+                    // the input matrix is (Nx3).
+                    BiMap<unsigned int, unsigned int> vec_map;
+                    double rmsd = AlignedRMSDTree(rot_points.transpose(), vec_map);
+                    if (rmsd < rmsd_min || rmsd_min < 0.0)
+                    {
+                        m_rmsd = rmsd;
+                        m_rotation = r;
+                        m_vec_map = vec_map;
+                        rmsd_min = m_rmsd;
+                        if (rmsd_min < m_tol)
+                        {
+                            // The rotation that we've found from the KabschAlgorithm
+                            // actually acts on P^T.
+                            matrix ptsT = Rotate(m_rotation, points.transpose());
+                            // Then we have to take the transpose again to get our matrix
+                            // back to its original dimensionality.
+                            pts = makeVec3Matrix(ptsT.transpose());
+                            return;
+                        }
+                    }
+                } while (std::next_permutation(comb, comb + num_pts));
+            } while (NextCombination(comb, N, num_pts));
+        } // end for loop over shuffles
         // The rotation that we've found from the KabschAlgorithm
         // actually acts on P^T.
         matrix ptsT = Rotate(m_rotation, points.transpose());
@@ -344,33 +342,33 @@ public:
         // guarantees 1-1 mapping
         std::set<unsigned int> unused_indices;
         for (int i = 0; i < m_ref_points.rows(); i++)
-            {
-                unused_indices.insert(i);
-            }
+        {
+            unused_indices.insert(i);
+        }
 
         // loop through all the points
         for (int r = 0; r < points.rows(); r++)
+        {
+            // get the rotated point
+            vec3<float> pfit = make_point(points.row(r));
+            // compute squared distances to all unused reference points
+            std::vector<std::pair<unsigned int, double>> ref_distances;
+            for (auto ref_index : unused_indices)
             {
-                // get the rotated point
-                vec3<float> pfit = make_point(points.row(r));
-                // compute squared distances to all unused reference points
-                std::vector<std::pair<unsigned int, double>> ref_distances;
-                for (auto ref_index : unused_indices)
-                    {
-                        vec3<float> ref_point = make_point(m_ref_points.row(ref_index));
-                        vec3<float> delta = ref_point - pfit;
-                        double rsq = dot(delta, delta);
-                        ref_distances.push_back(std::pair<unsigned int, double>(ref_index, rsq));
-                    }
-                // sort the ref_distances from nearest to farthest
-                sort(ref_distances.begin(), ref_distances.end(), compare_ref_distances);
-                // take the first (nearest) ref_point found and mark it as used
-                unused_indices.erase(ref_distances[0].first);
-                // add this pairing to the mapping between vectors
-                vec_map.emplace(ref_distances[0].first, r);
-                // add this squared distance to the rmsd
-                rmsd += ref_distances[0].second;
+                vec3<float> ref_point = make_point(m_ref_points.row(ref_index));
+                vec3<float> delta = ref_point - pfit;
+                double rsq = dot(delta, delta);
+                ref_distances.push_back(std::pair<unsigned int, double>(ref_index, rsq));
             }
+            // sort the ref_distances from nearest to farthest
+            sort(ref_distances.begin(), ref_distances.end(), compare_ref_distances);
+            // take the first (nearest) ref_point found and mark it as used
+            unused_indices.erase(ref_distances[0].first);
+            // add this pairing to the mapping between vectors
+            vec_map.emplace(ref_distances[0].first, r);
+            // add this squared distance to the rmsd
+            rmsd += ref_distances[0].second;
+        }
 
         m = vec_map;
         return sqrt(rmsd / double(points.rows()));
@@ -402,18 +400,18 @@ private:
         bool bRetVal = false;
 
         for (int i = k - 1; i >= 0; i--)
+        {
+            if (comb[i] + 1 < size_t(N + i - k + 1))
             {
-                if (comb[i] + 1 < size_t(N + i - k + 1))
-                    {
-                        comb[i]++;
-                        for (int j = i + 1; j < k; j++)
-                            {
-                                comb[j] = comb[j - 1] + 1;
-                            }
-                        bRetVal = true;
-                        break;
-                    }
+                comb[i]++;
+                for (int j = i + 1; j < k; j++)
+                {
+                    comb[j] = comb[j - 1] + 1;
+                }
+                bRetVal = true;
+                break;
             }
+        }
 
         return bRetVal;
     }
@@ -436,17 +434,17 @@ private:
         {
             std::vector<size_t> seeds;
             try
-                {
-                    std::random_device rd;
-                    for (size_t i = 0; i < n; i++)
-                        seeds.push_back(rd());
-                }
+            {
+                std::random_device rd;
+                for (size_t i = 0; i < n; i++)
+                    seeds.push_back(rd());
+            }
             catch (...)
-                {
-                    std::cout << "random_device is not available..." << std::endl;
-                    seeds.push_back(size_t(std::chrono::system_clock::now().time_since_epoch().count()));
-                    seeds.push_back(size_t(getpid()));
-                }
+            {
+                std::cout << "random_device is not available..." << std::endl;
+                seeds.push_back(size_t(std::chrono::system_clock::now().time_since_epoch().count()));
+                seeds.push_back(size_t(getpid()));
+            }
             std::seed_seq seq(seeds.begin(), seeds.end());
             m_generator.seed(seq);
         }

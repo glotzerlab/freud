@@ -25,16 +25,16 @@ namespace freud { namespace order {
 inline std::complex<float> cpow(std::complex<float> base, unsigned int p)
 {
     if (p == 0)
-        {
-            return std::complex<float>(1, 0);
-        }
+    {
+        return std::complex<float>(1, 0);
+    }
     else
-        {
-            std::complex<float> val(base);
-            for (unsigned int i = 1; i < p; i++)
-                val *= base;
-            return val;
-        }
+    {
+        std::complex<float> val(base);
+        for (unsigned int i = 1; i < p; i++)
+            val *= base;
+        return val;
+    }
 }
 
 // This convenience function wraps std's gamma function for factorials, with
@@ -63,11 +63,11 @@ inline std::complex<float> hypersphere_harmonic(const std::complex<float> xi, st
     // Doing a summation over non-negative exponents, which requires the additional inner conditional.
     std::complex<float> sum_tracker(0, 0);
     for (int k = std::max(0, a + b - l); k <= std::min(a, b); k++)
-        {
-            sum_tracker += cpow(xi_conj, k) * cpow(zeta, b - k) * cpow(zeta_conj, a - k)
-                * cpow(-xi, l + k - a - b) / factorial(k) / factorial(l + k - a - b) / factorial(a - k)
-                / factorial(b - k);
-        }
+    {
+        sum_tracker += cpow(xi_conj, k) * cpow(zeta, b - k) * cpow(zeta_conj, a - k)
+            * cpow(-xi, l + k - a - b) / factorial(k) / factorial(l + k - a - b) / factorial(a - k)
+            / factorial(b - k);
+    }
     sum_tracker
         *= std::sqrt(factorial(a) * factorial(l - a) * factorial(b) * factorial(l - b) / (float(l) + 1));
     return sum_tracker;
@@ -82,11 +82,11 @@ void RotationalAutocorrelation::compute(const quat<float>* ref_ors, const quat<f
 
     // Resize array if needed. No need to reset memory, we can do that in the loop (in parallel).
     if (N != m_N)
-        {
-            m_RA_array = std::shared_ptr<std::complex<float>>(new std::complex<float>[N],
-                                                              std::default_delete<std::complex<float>[]>());
-            m_N = N;
-        }
+    {
+        m_RA_array = std::shared_ptr<std::complex<float>>(new std::complex<float>[N],
+                                                          std::default_delete<std::complex<float>[]>());
+        m_N = N;
+    }
 
     // Precompute the hyperspherical harmonics for the unit quaternion. The
     // default quaternion constructor gives a unit quaternion. We will assume
@@ -95,43 +95,43 @@ void RotationalAutocorrelation::compute(const quat<float>* ref_ors, const quat<f
     std::pair<std::complex<float>, std::complex<float>> angle_0 = quat_to_greek(quat<float>());
     std::vector<std::complex<float>> unit_harmonics;
     for (int m1 = -1 * m_l / 2; m1 <= m_l / 2; m1++)
+    {
+        for (int m2 = -1 * m_l / 2; m2 <= m_l / 2; m2++)
         {
-            for (int m2 = -1 * m_l / 2; m2 <= m_l / 2; m2++)
-                {
-                    unit_harmonics.push_back(
-                        std::conj(hypersphere_harmonic(angle_0.first, angle_0.second, m_l, m1, m2)));
-                }
+            unit_harmonics.push_back(
+                std::conj(hypersphere_harmonic(angle_0.first, angle_0.second, m_l, m1, m2)));
         }
+    }
 
     // Parallel loop is over orientations (technically (ref_or, or) pairs).
     tbb::parallel_for(tbb::blocked_range<size_t>(0, N), [=](const tbb::blocked_range<size_t>& r) {
         for (size_t i = r.begin(); i != r.end(); ++i)
-            {
-                // Transform the orientation quaternions into Xi/Zeta coordinates;
-                quat<float> qq_1 = conj(ref_ors[i]) * ors[i];
-                std::pair<std::complex<float>, std::complex<float>> angle_1 = quat_to_greek(qq_1);
+        {
+            // Transform the orientation quaternions into Xi/Zeta coordinates;
+            quat<float> qq_1 = conj(ref_ors[i]) * ors[i];
+            std::pair<std::complex<float>, std::complex<float>> angle_1 = quat_to_greek(qq_1);
 
-                // Loop through the valid quantum numbers.
-                m_RA_array.get()[i] = std::complex<float>(0, 0);
-                unsigned int uh_index = 0;
-                for (int m1 = -1 * m_l / 2; m1 <= m_l / 2; m1++)
-                    {
-                        for (int m2 = -1 * m_l / 2; m2 <= m_l / 2; m2++)
-                            {
-                                std::complex<float> combined_value = unit_harmonics[uh_index]
-                                    * hypersphere_harmonic(angle_1.first, angle_1.second, m_l, m1, m2);
-                                m_RA_array.get()[i] += combined_value;
-                                uh_index += 1;
-                            }
-                    }
+            // Loop through the valid quantum numbers.
+            m_RA_array.get()[i] = std::complex<float>(0, 0);
+            unsigned int uh_index = 0;
+            for (int m1 = -1 * m_l / 2; m1 <= m_l / 2; m1++)
+            {
+                for (int m2 = -1 * m_l / 2; m2 <= m_l / 2; m2++)
+                {
+                    std::complex<float> combined_value = unit_harmonics[uh_index]
+                        * hypersphere_harmonic(angle_1.first, angle_1.second, m_l, m1, m2);
+                    m_RA_array.get()[i] += combined_value;
+                    uh_index += 1;
+                }
             }
+        }
     });
 
     float RA_sum(0);
     for (unsigned int i = 0; i < N; i++)
-        {
-            RA_sum += std::real(m_RA_array.get()[i]);
-        }
+    {
+        RA_sum += std::real(m_RA_array.get()[i]);
+    }
     m_Ft = RA_sum / N;
 };
 

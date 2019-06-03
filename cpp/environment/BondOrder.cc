@@ -42,34 +42,34 @@ BondOrder::BondOrder(float rmax, float k, unsigned int n, unsigned int nbins_t, 
     // precompute the bin center positions for t
     m_theta_array = std::shared_ptr<float>(new float[m_nbins_t], std::default_delete<float[]>());
     for (unsigned int i = 0; i < m_nbins_t; i++)
-        {
-            float t = float(i) * m_dt;
-            float nextt = float(i + 1) * m_dt;
-            m_theta_array.get()[i] = ((t + nextt) / 2.0);
-        }
+    {
+        float t = float(i) * m_dt;
+        float nextt = float(i + 1) * m_dt;
+        m_theta_array.get()[i] = ((t + nextt) / 2.0);
+    }
 
     // precompute the bin center positions for p
     m_phi_array = std::shared_ptr<float>(new float[m_nbins_p], std::default_delete<float[]>());
     for (unsigned int i = 0; i < m_nbins_p; i++)
-        {
-            float p = float(i) * m_dp;
-            float nextp = float(i + 1) * m_dp;
-            m_phi_array.get()[i] = ((p + nextp) / 2.0);
-        }
+    {
+        float p = float(i) * m_dp;
+        float nextp = float(i + 1) * m_dp;
+        m_phi_array.get()[i] = ((p + nextp) / 2.0);
+    }
 
     // precompute the surface area array
     m_sa_array = std::shared_ptr<float>(new float[m_nbins_t * m_nbins_p], std::default_delete<float[]>());
     memset((void*) m_sa_array.get(), 0, sizeof(float) * m_nbins_t * m_nbins_p);
     Index2D sa_i = Index2D(m_nbins_t, m_nbins_p);
     for (unsigned int i = 0; i < m_nbins_t; i++)
+    {
+        for (unsigned int j = 0; j < m_nbins_p; j++)
         {
-            for (unsigned int j = 0; j < m_nbins_p; j++)
-                {
-                    float phi = (float) j * m_dp;
-                    float sa = m_dt * (cos(phi) - cos(phi + m_dp));
-                    m_sa_array.get()[sa_i((int) i, (int) j)] = sa;
-                }
+            float phi = (float) j * m_dp;
+            float sa = m_dt * (cos(phi) - cos(phi + m_dp));
+            m_sa_array.get()[sa_i((int) i, (int) j)] = sa;
         }
+    }
 
     // initialize the bin counts
     m_bin_counts = std::shared_ptr<unsigned int>(new unsigned int[m_nbins_t * m_nbins_p],
@@ -85,9 +85,9 @@ BondOrder::~BondOrder()
 {
     for (tbb::enumerable_thread_specific<unsigned int*>::iterator i = m_local_bin_counts.begin();
          i != m_local_bin_counts.end(); ++i)
-        {
-            delete[](*i);
-        }
+    {
+        delete[](*i);
+    }
 }
 
 void BondOrder::reduceBondOrder()
@@ -97,40 +97,39 @@ void BondOrder::reduceBondOrder()
     parallel_for(blocked_range<size_t>(0, m_nbins_t), [=](const blocked_range<size_t>& r) {
         Index2D sa_i = Index2D(m_nbins_t, m_nbins_p);
         for (size_t i = r.begin(); i != r.end(); i++)
+        {
+            for (size_t j = 0; j < m_nbins_p; j++)
             {
-                for (size_t j = 0; j < m_nbins_p; j++)
-                    {
-                        for (tbb::enumerable_thread_specific<unsigned int*>::const_iterator local_bins
-                             = m_local_bin_counts.begin();
-                             local_bins != m_local_bin_counts.end(); ++local_bins)
-                            {
-                                m_bin_counts.get()[sa_i((int) i, (int) j)]
-                                    += (*local_bins)[sa_i((int) i, (int) j)];
-                            }
-                        m_bo_array.get()[sa_i((int) i, (int) j)] = m_bin_counts.get()[sa_i((int) i, (int) j)]
-                            / m_sa_array.get()[sa_i((int) i, (int) j)];
-                    }
+                for (tbb::enumerable_thread_specific<unsigned int*>::const_iterator local_bins
+                     = m_local_bin_counts.begin();
+                     local_bins != m_local_bin_counts.end(); ++local_bins)
+                {
+                    m_bin_counts.get()[sa_i((int) i, (int) j)] += (*local_bins)[sa_i((int) i, (int) j)];
+                }
+                m_bo_array.get()[sa_i((int) i, (int) j)]
+                    = m_bin_counts.get()[sa_i((int) i, (int) j)] / m_sa_array.get()[sa_i((int) i, (int) j)];
             }
+        }
     });
     Index2D sa_i = Index2D(m_nbins_t, m_nbins_p);
     for (unsigned int i = 0; i < m_nbins_t; i++)
+    {
+        for (unsigned int j = 0; j < m_nbins_p; j++)
         {
-            for (unsigned int j = 0; j < m_nbins_p; j++)
-                {
-                    m_bin_counts.get()[sa_i((int) i, (int) j)]
-                        = m_bin_counts.get()[sa_i((int) i, (int) j)] / (float) m_frame_counter;
-                    m_bo_array.get()[sa_i((int) i, (int) j)]
-                        = m_bo_array.get()[sa_i((int) i, (int) j)] / (float) m_frame_counter;
-                }
+            m_bin_counts.get()[sa_i((int) i, (int) j)]
+                = m_bin_counts.get()[sa_i((int) i, (int) j)] / (float) m_frame_counter;
+            m_bo_array.get()[sa_i((int) i, (int) j)]
+                = m_bo_array.get()[sa_i((int) i, (int) j)] / (float) m_frame_counter;
         }
+    }
 }
 
 std::shared_ptr<float> BondOrder::getBondOrder()
 {
     if (m_reduce == true)
-        {
-            reduceBondOrder();
-        }
+    {
+        reduceBondOrder();
+    }
     m_reduce = false;
     return m_bo_array;
 }
@@ -139,9 +138,9 @@ void BondOrder::reset()
 {
     for (tbb::enumerable_thread_specific<unsigned int*>::iterator i = m_local_bin_counts.begin();
          i != m_local_bin_counts.end(); ++i)
-        {
-            memset((void*) (*i), 0, sizeof(unsigned int) * m_nbins_t * m_nbins_p);
-        }
+    {
+        memset((void*) (*i), 0, sizeof(unsigned int) * m_nbins_t * m_nbins_p);
+    }
     // reset the frame counter
     m_frame_counter = 0;
     m_reduce = true;
@@ -168,89 +167,89 @@ void BondOrder::accumulate(box::Box& box, const freud::locality::NeighborList* n
         bool exists;
         m_local_bin_counts.local(exists);
         if (!exists)
-            {
-                m_local_bin_counts.local() = new unsigned int[m_nbins_t * m_nbins_p];
-                memset((void*) m_local_bin_counts.local(), 0, sizeof(unsigned int) * m_nbins_t * m_nbins_p);
-            }
+        {
+            m_local_bin_counts.local() = new unsigned int[m_nbins_t * m_nbins_p];
+            memset((void*) m_local_bin_counts.local(), 0, sizeof(unsigned int) * m_nbins_t * m_nbins_p);
+        }
 
         size_t bond(nlist->find_first_index(br.begin()));
 
         for (size_t i = br.begin(); i != br.end(); ++i)
+        {
+            vec3<float> ref_pos = ref_points[i];
+            quat<float> ref_q(ref_orientations[i]);
+
+            for (; bond < nlist->getNumBonds() && neighbor_list[2 * bond] == i; ++bond)
             {
-                vec3<float> ref_pos = ref_points[i];
-                quat<float> ref_q(ref_orientations[i]);
+                const size_t j(neighbor_list[2 * bond + 1]);
+                // compute r between the two particles
+                vec3<float> delta = m_box.wrap(points[j] - ref_pos);
 
-                for (; bond < nlist->getNumBonds() && neighbor_list[2 * bond] == i; ++bond)
+                float rsq = dot(delta, delta);
+                if (rsq > 1e-6)
+                {
+                    quat<float> q(orientations[j]);
+                    vec3<float> v(delta);
+                    if (b_mode == obcd)
                     {
-                        const size_t j(neighbor_list[2 * bond + 1]);
-                        // compute r between the two particles
-                        vec3<float> delta = m_box.wrap(points[j] - ref_pos);
+                        // give bond directions of neighboring particles rotated by the matrix
+                        // that takes the orientation of particle j to the orientation of
+                        // particle i.
+                        v = rotate(conj(ref_q), v);
+                        v = rotate(q, v);
+                    }
+                    else if (b_mode == lbod)
+                    {
+                        // give bond directions of neighboring particles rotated into the
+                        // local orientation of the central particle.
+                        v = rotate(conj(ref_q), v);
+                    }
+                    else if (b_mode == oocd)
+                    {
+                        // give the directors of neighboring particles rotated into the local
+                        // orientation of the central particle. pick a (random vector)
+                        vec3<float> z(0, 0, 1);
+                        // rotate that vector by the orientation of the neighboring particle
+                        z = rotate(q, z);
+                        // get the direction of this vector with respect to the orientation of
+                        // the central particle
+                        v = rotate(conj(ref_q), z);
+                    }
 
-                        float rsq = dot(delta, delta);
-                        if (rsq > 1e-6)
-                            {
-                                quat<float> q(orientations[j]);
-                                vec3<float> v(delta);
-                                if (b_mode == obcd)
-                                    {
-                                        // give bond directions of neighboring particles rotated by the matrix
-                                        // that takes the orientation of particle j to the orientation of
-                                        // particle i.
-                                        v = rotate(conj(ref_q), v);
-                                        v = rotate(q, v);
-                                    }
-                                else if (b_mode == lbod)
-                                    {
-                                        // give bond directions of neighboring particles rotated into the
-                                        // local orientation of the central particle.
-                                        v = rotate(conj(ref_q), v);
-                                    }
-                                else if (b_mode == oocd)
-                                    {
-                                        // give the directors of neighboring particles rotated into the local
-                                        // orientation of the central particle. pick a (random vector)
-                                        vec3<float> z(0, 0, 1);
-                                        // rotate that vector by the orientation of the neighboring particle
-                                        z = rotate(q, z);
-                                        // get the direction of this vector with respect to the orientation of
-                                        // the central particle
-                                        v = rotate(conj(ref_q), z);
-                                    }
+                    // NOTE that angles are defined in the "mathematical" way, rather than how
+                    // most physics textbooks do it. get theta (azimuthal angle), phi (polar
+                    // angle)
+                    float theta = atan2f(v.y, v.x); //-Pi..Pi
 
-                                // NOTE that angles are defined in the "mathematical" way, rather than how
-                                // most physics textbooks do it. get theta (azimuthal angle), phi (polar
-                                // angle)
-                                float theta = atan2f(v.y, v.x); //-Pi..Pi
+                    theta = fmod(theta, 2 * M_PI);
+                    if (theta < 0)
+                    {
+                        theta += 2 * M_PI;
+                    }
 
-                                theta = fmod(theta, 2 * M_PI);
-                                if (theta < 0)
-                                    {
-                                        theta += 2 * M_PI;
-                                    }
+                    // NOTE that the below has replaced the commented out expression for phi.
+                    float phi = acos(v.z / sqrt(v.x * v.x + v.y * v.y + v.z * v.z)); // 0..Pi
 
-                                // NOTE that the below has replaced the commented out expression for phi.
-                                float phi = acos(v.z / sqrt(v.x * v.x + v.y * v.y + v.z * v.z)); // 0..Pi
-
-                                // bin the point
-                                float bint = floorf(theta * dt_inv);
-                                float binp = floorf(phi * dp_inv);
+                    // bin the point
+                    float bint = floorf(theta * dt_inv);
+                    float binp = floorf(phi * dp_inv);
 // fast float to int conversion with truncation
 #ifdef __SSE2__
-                                unsigned int ibint = _mm_cvtt_ss2si(_mm_load_ss(&bint));
-                                unsigned int ibinp = _mm_cvtt_ss2si(_mm_load_ss(&binp));
+                    unsigned int ibint = _mm_cvtt_ss2si(_mm_load_ss(&bint));
+                    unsigned int ibinp = _mm_cvtt_ss2si(_mm_load_ss(&binp));
 #else
                         unsigned int ibint = (unsigned int)(bint);
                         unsigned int ibinp = (unsigned int)(binp);
 #endif
 
-                                // increment the bin
-                                if ((ibint < m_nbins_t) && (ibinp < m_nbins_p))
-                                    {
-                                        ++m_local_bin_counts.local()[sa_i(ibint, ibinp)];
-                                    }
-                            }
+                    // increment the bin
+                    if ((ibint < m_nbins_t) && (ibinp < m_nbins_p))
+                    {
+                        ++m_local_bin_counts.local()[sa_i(ibint, ibinp)];
                     }
+                }
             }
+        }
     });
 
     // save the last computed number of particles

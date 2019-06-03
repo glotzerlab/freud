@@ -53,13 +53,13 @@ RDF::RDF(float rmax, float dr, float rmin)
     m_vol_array3D = std::shared_ptr<float>(new float[m_nbins], std::default_delete<float[]>());
     memset((void*) m_vol_array3D.get(), 0, sizeof(float) * m_nbins);
     for (unsigned int i = 0; i < m_nbins; i++)
-        {
-            float r = float(i) * m_dr + m_rmin;
-            float nextr = float(i + 1) * m_dr + m_rmin;
-            m_r_array.get()[i] = 2.0f / 3.0f * (nextr * nextr * nextr - r * r * r) / (nextr * nextr - r * r);
-            m_vol_array2D.get()[i] = M_PI * (nextr * nextr - r * r);
-            m_vol_array3D.get()[i] = 4.0f / 3.0f * M_PI * (nextr * nextr * nextr - r * r * r);
-        }
+    {
+        float r = float(i) * m_dr + m_rmin;
+        float nextr = float(i + 1) * m_dr + m_rmin;
+        m_r_array.get()[i] = 2.0f / 3.0f * (nextr * nextr * nextr - r * r * r) / (nextr * nextr - r * r);
+        m_vol_array2D.get()[i] = M_PI * (nextr * nextr - r * r);
+        m_vol_array3D.get()[i] = 4.0f / 3.0f * M_PI * (nextr * nextr * nextr - r * r * r);
+    }
 
 } // end RDF::RDF
 
@@ -67,9 +67,9 @@ RDF::~RDF()
 {
     for (tbb::enumerable_thread_specific<unsigned int*>::iterator i = m_local_bin_counts.begin();
          i != m_local_bin_counts.end(); ++i)
-        {
-            delete[](*i);
-        }
+    {
+        delete[](*i);
+    }
 }
 
 //! \internal
@@ -93,11 +93,11 @@ public:
     {
         float temp = m_sum;
         for (size_t i = r.begin(); i < r.end(); i++)
-            {
-                temp = temp + m_avg_counts[i];
-                if (Tag::is_final_scan())
-                    m_N_r_array[i] = temp;
-            }
+        {
+            temp = temp + m_avg_counts[i];
+            if (Tag::is_final_scan())
+                m_N_r_array[i] = temp;
+        }
         m_sum = temp;
     }
     CumulativeCount(CumulativeCount& b, split)
@@ -131,25 +131,25 @@ void RDF::reduceRDF()
     // now compute the rdf
     parallel_for(blocked_range<size_t>(1, m_nbins), [=](const blocked_range<size_t>& r) {
         for (size_t i = r.begin(); i != r.end(); i++)
+        {
+            for (tbb::enumerable_thread_specific<unsigned int*>::const_iterator local_bins
+                 = m_local_bin_counts.begin();
+                 local_bins != m_local_bin_counts.end(); ++local_bins)
             {
-                for (tbb::enumerable_thread_specific<unsigned int*>::const_iterator local_bins
-                     = m_local_bin_counts.begin();
-                     local_bins != m_local_bin_counts.end(); ++local_bins)
-                    {
-                        m_bin_counts.get()[i] += (*local_bins)[i];
-                    }
-                m_avg_counts.get()[i] = (float) m_bin_counts.get()[i] / m_n_ref;
-                m_rdf_array.get()[i] = m_avg_counts.get()[i] / m_vol_array.get()[i] / ndens;
+                m_bin_counts.get()[i] += (*local_bins)[i];
             }
+            m_avg_counts.get()[i] = (float) m_bin_counts.get()[i] / m_n_ref;
+            m_rdf_array.get()[i] = m_avg_counts.get()[i] / m_vol_array.get()[i] / ndens;
+        }
     });
 
     CumulativeCount myN_r(m_N_r_array.get(), m_avg_counts.get());
     parallel_scan(blocked_range<size_t>(0, m_nbins), myN_r);
     for (unsigned int i = 0; i < m_nbins; i++)
-        {
-            m_rdf_array.get()[i] /= m_frame_counter;
-            m_N_r_array.get()[i] /= m_frame_counter;
-        }
+    {
+        m_rdf_array.get()[i] /= m_frame_counter;
+        m_N_r_array.get()[i] /= m_frame_counter;
+    }
 }
 
 //! get a reference to the histogram bin centers array
@@ -162,9 +162,9 @@ std::shared_ptr<float> RDF::getR()
 std::shared_ptr<float> RDF::getRDF()
 {
     if (m_reduce == true)
-        {
-            reduceRDF();
-        }
+    {
+        reduceRDF();
+    }
     m_reduce = false;
     return m_rdf_array;
 }
@@ -173,9 +173,9 @@ std::shared_ptr<float> RDF::getRDF()
 std::shared_ptr<float> RDF::getNr()
 {
     if (m_reduce == true)
-        {
-            reduceRDF();
-        }
+    {
+        reduceRDF();
+    }
     m_reduce = false;
     return m_N_r_array;
 }
@@ -193,9 +193,9 @@ void RDF::reset()
 {
     for (tbb::enumerable_thread_specific<unsigned int*>::iterator i = m_local_bin_counts.begin();
          i != m_local_bin_counts.end(); ++i)
-        {
-            memset((void*) (*i), 0, sizeof(unsigned int) * m_nbins);
-        }
+    {
+        memset((void*) (*i), 0, sizeof(unsigned int) * m_nbins);
+    }
     // reset the frame counter
     m_frame_counter = 0;
     m_reduce = true;
@@ -225,53 +225,53 @@ void RDF::accumulate(box::Box& box, const locality::NeighborList* nlist, const v
         bool exists;
         m_local_bin_counts.local(exists);
         if (!exists)
-            {
-                m_local_bin_counts.local() = new unsigned int[m_nbins];
-                memset((void*) m_local_bin_counts.local(), 0, sizeof(unsigned int) * m_nbins);
-            }
+        {
+            m_local_bin_counts.local() = new unsigned int[m_nbins];
+            memset((void*) m_local_bin_counts.local(), 0, sizeof(unsigned int) * m_nbins);
+        }
 
         size_t last_i(-1);
         vec3<float> ref;
 
         // for each bond
         for (size_t bond = r.begin(); bond != r.end(); bond++)
+        {
+            size_t i(neighbor_list[2 * bond]);
+
+            if (i != last_i)
             {
-                size_t i(neighbor_list[2 * bond]);
+                ref = ref_points[i];
+            }
+            last_i = i;
 
-                if (i != last_i)
-                    {
-                        ref = ref_points[i];
-                    }
-                last_i = i;
+            const unsigned int j(neighbor_list[2 * bond + 1]);
+            // compute r between the two particles
+            vec3<float> delta = m_box.wrap(points[j] - ref);
 
-                const unsigned int j(neighbor_list[2 * bond + 1]);
-                // compute r between the two particles
-                vec3<float> delta = m_box.wrap(points[j] - ref);
+            float rsq = dot(delta, delta);
 
-                float rsq = dot(delta, delta);
+            if (rsq < rmaxsq && rsq > rminsq)
+            {
+                float r = sqrtf(rsq);
 
-                if (rsq < rmaxsq && rsq > rminsq)
-                    {
-                        float r = sqrtf(rsq);
-
-                        // bin that r
-                        float binr = (r - m_rmin) * dr_inv;
-                        // fast float to int conversion with truncation
+                // bin that r
+                float binr = (r - m_rmin) * dr_inv;
+                // fast float to int conversion with truncation
 #ifdef __SSE2__
-                        unsigned int bin = _mm_cvtt_ss2si(_mm_load_ss(&binr));
+                unsigned int bin = _mm_cvtt_ss2si(_mm_load_ss(&binr));
 #else
                 unsigned int bin = (unsigned int)(binr);
 #endif
 
-                        // There may be a case where rsq < rmaxsq but
-                        // (r - m_rmin) * dr_inv rounds up to m_nbins.
-                        // This additional check prevents a seg fault.
-                        if (bin < m_nbins)
-                            {
-                                ++m_local_bin_counts.local()[bin];
-                            }
-                    }
-            } // done looping over bonds
+                // There may be a case where rsq < rmaxsq but
+                // (r - m_rmin) * dr_inv rounds up to m_nbins.
+                // This additional check prevents a seg fault.
+                if (bin < m_nbins)
+                {
+                    ++m_local_bin_counts.local()[bin];
+                }
+            }
+        } // done looping over bonds
     });
     m_frame_counter += 1;
     m_reduce = true;

@@ -78,84 +78,82 @@ void NearestNeighbors::compute(const box::Box& box, const vec3<float>* ref_pos, 
         vector<pair<float, size_t>> backup_neighbors;
 
         for (size_t i(r.begin()); i != r.end(); ++i)
+        {
+            const vec3<float> ref_point(ref_pos[i]);
+            // look for cells in [min_iter_distance, max_iter_distance)
+            unsigned int min_iter_distance(0), max_iter_distance(2);
+            neighbors.clear();
+            backup_neighbors.clear();
+            // hit_max_distance should be updated each time we change
+            // the maximum distance to make sure we don't go over half
+            // the box length
+            bool hit_max_distance(false);
+
+            do
             {
-                const vec3<float> ref_point(ref_pos[i]);
-                // look for cells in [min_iter_distance, max_iter_distance)
-                unsigned int min_iter_distance(0), max_iter_distance(2);
-                neighbors.clear();
+                neighbors.insert(neighbors.end(), backup_neighbors.begin(), backup_neighbors.end());
                 backup_neighbors.clear();
-                // hit_max_distance should be updated each time we change
-                // the maximum distance to make sure we don't go over half
-                // the box length
-                bool hit_max_distance(false);
+                const vec3<unsigned int> refCell(m_lc->getCellCoord(ref_pos[i]));
 
-                do
+                for (IteratorCellShell neigh_cell_iter(min_iter_distance, m_box.is2D());
+                     neigh_cell_iter != IteratorCellShell(max_iter_distance, m_box.is2D()); ++neigh_cell_iter)
+                {
+                    const vec3<int> neighbor_cell_delta(*neigh_cell_iter);
+                    if (2 * neighbor_cell_delta.x + 1 > (int) indexer.getW())
+                        continue;
+                    else if (2 * neighbor_cell_delta.y + 1 > (int) indexer.getH())
+                        continue;
+                    else if (2 * neighbor_cell_delta.z + 1 > (int) indexer.getD())
+                        continue;
+
+                    vec3<int> neighborCellCoords(refCell.x, refCell.y, refCell.z);
+                    neighborCellCoords += neighbor_cell_delta;
+                    if (neighborCellCoords.x < 0)
+                        neighborCellCoords.x += indexer.getW();
+                    neighborCellCoords.x %= indexer.getW();
+                    if (neighborCellCoords.y < 0)
+                        neighborCellCoords.y += indexer.getH();
+                    neighborCellCoords.y %= indexer.getH();
+                    if (neighborCellCoords.z < 0)
+                        neighborCellCoords.z += indexer.getD();
+                    neighborCellCoords.z %= indexer.getD();
+
+                    const size_t neighborCellIndex(
+                        indexer(neighborCellCoords.x, neighborCellCoords.y, neighborCellCoords.z));
+
+                    // iterate over the particles in that cell
+                    locality::LinkCell::iteratorcell it = m_lc->itercell(neighborCellIndex);
+                    for (unsigned int j = it.next(); !it.atEnd(); j = it.next())
                     {
-                        neighbors.insert(neighbors.end(), backup_neighbors.begin(), backup_neighbors.end());
-                        backup_neighbors.clear();
-                        const vec3<unsigned int> refCell(m_lc->getCellCoord(ref_pos[i]));
+                        if (exclude_ii && i == j)
+                            continue;
 
-                        for (IteratorCellShell neigh_cell_iter(min_iter_distance, m_box.is2D());
-                             neigh_cell_iter != IteratorCellShell(max_iter_distance, m_box.is2D());
-                             ++neigh_cell_iter)
-                            {
-                                const vec3<int> neighbor_cell_delta(*neigh_cell_iter);
-                                if (2 * neighbor_cell_delta.x + 1 > (int) indexer.getW())
-                                    continue;
-                                else if (2 * neighbor_cell_delta.y + 1 > (int) indexer.getH())
-                                    continue;
-                                else if (2 * neighbor_cell_delta.z + 1 > (int) indexer.getD())
-                                    continue;
+                        const vec3<float> rij(m_box.wrap(pos[j] - ref_point));
+                        const float rsq(dot(rij, rij));
 
-                                vec3<int> neighborCellCoords(refCell.x, refCell.y, refCell.z);
-                                neighborCellCoords += neighbor_cell_delta;
-                                if (neighborCellCoords.x < 0)
-                                    neighborCellCoords.x += indexer.getW();
-                                neighborCellCoords.x %= indexer.getW();
-                                if (neighborCellCoords.y < 0)
-                                    neighborCellCoords.y += indexer.getH();
-                                neighborCellCoords.y %= indexer.getH();
-                                if (neighborCellCoords.z < 0)
-                                    neighborCellCoords.z += indexer.getD();
-                                neighborCellCoords.z %= indexer.getD();
-
-                                const size_t neighborCellIndex(indexer(
-                                    neighborCellCoords.x, neighborCellCoords.y, neighborCellCoords.z));
-
-                                // iterate over the particles in that cell
-                                locality::LinkCell::iteratorcell it = m_lc->itercell(neighborCellIndex);
-                                for (unsigned int j = it.next(); !it.atEnd(); j = it.next())
-                                    {
-                                        if (exclude_ii && i == j)
-                                            continue;
-
-                                        const vec3<float> rij(m_box.wrap(pos[j] - ref_point));
-                                        const float rsq(dot(rij, rij));
-
-                                        if (rsq < (max_iter_distance - 1) * (max_iter_distance - 1) * rcutsq)
-                                            neighbors.emplace_back(rsq, j);
-                                        else
-                                            backup_neighbors.emplace_back(rsq, j);
-                                    }
-                            }
-
-                        hit_max_distance = 2 * max_iter_distance > max_cell_distance;
-                        min_iter_distance = max_iter_distance;
-                        ++max_iter_distance;
+                        if (rsq < (max_iter_distance - 1) * (max_iter_distance - 1) * rcutsq)
+                            neighbors.emplace_back(rsq, j);
+                        else
+                            backup_neighbors.emplace_back(rsq, j);
                     }
-                while ((neighbors.size() < m_num_neighbors) && !m_strict_cut && !hit_max_distance);
+                }
 
-                // if we looked at the maximum cell range, add the backup
-                // particles that we found
-                if (!m_strict_cut && hit_max_distance)
-                    neighbors.insert(neighbors.end(), backup_neighbors.begin(), backup_neighbors.end());
-                sort(neighbors.begin(), neighbors.end());
-                const unsigned int k_max = min((unsigned int) neighbors.size(), m_num_neighbors);
-                for (unsigned int k = 0; k < k_max; ++k)
-                    {
-                        bond_vector.emplace_back(i, neighbors[k].second, 1);
-                    }
+                hit_max_distance = 2 * max_iter_distance > max_cell_distance;
+                min_iter_distance = max_iter_distance;
+                ++max_iter_distance;
+            } while ((neighbors.size() < m_num_neighbors) && !m_strict_cut && !hit_max_distance);
+
+            // if we looked at the maximum cell range, add the backup
+            // particles that we found
+            if (!m_strict_cut && hit_max_distance)
+                neighbors.insert(neighbors.end(), backup_neighbors.begin(), backup_neighbors.end());
+            sort(neighbors.begin(), neighbors.end());
+            const unsigned int k_max = min((unsigned int) neighbors.size(), m_num_neighbors);
+            for (unsigned int k = 0; k < k_max; ++k)
+            {
+                bond_vector.emplace_back(i, neighbors[k].second, 1);
             }
+        }
     });
 
     // Sort neighbors by particle i index
@@ -181,16 +179,15 @@ void NearestNeighbors::compute(const box::Box& box, const vec3<float>* ref_pos, 
                          bond += bond_vector_groups[group].size();
 
                      for (size_t group(r.begin()); group < r.end(); ++group)
+                     {
+                         const BondVector& vec(bond_vector_groups[group]);
+                         for (BondVector::const_iterator iter(vec.begin()); iter != vec.end(); ++iter, ++bond)
                          {
-                             const BondVector& vec(bond_vector_groups[group]);
-                             for (BondVector::const_iterator iter(vec.begin()); iter != vec.end();
-                                  ++iter, ++bond)
-                                 {
-                                     std::tie(neighbor_array[2 * bond], neighbor_array[2 * bond + 1],
-                                              neighbor_weights[bond])
-                                         = *iter;
-                                 }
+                             std::tie(neighbor_array[2 * bond], neighbor_array[2 * bond + 1],
+                                      neighbor_weights[bond])
+                                 = *iter;
                          }
+                     }
                  });
 
     // save the last computed number of particles

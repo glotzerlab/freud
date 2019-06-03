@@ -14,7 +14,6 @@ BraceWrapping:
   AfterStruct: true
   AfterUnion: true
   AfterExternBlock: true
-  IndentBraces: true
   BeforeCatch: true
   BeforeElse: true
   SplitEmptyFunction: false

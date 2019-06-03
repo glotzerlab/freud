@@ -75,15 +75,15 @@ size_t NeighborList::filter(const bool* filt)
     float* weights(m_weights.get());
 
     for (size_t i(0); i < m_num_bonds; ++i)
+    {
+        if (filt[i])
         {
-            if (filt[i])
-                {
-                    neighbors[2 * num_good] = neighbors[2 * i];
-                    neighbors[2 * num_good + 1] = neighbors[2 * i + 1];
-                    weights[num_good] = weights[i];
-                    ++num_good;
-                }
+            neighbors[2 * num_good] = neighbors[2 * i];
+            neighbors[2 * num_good + 1] = neighbors[2 * i + 1];
+            weights[num_good] = weights[i];
+            ++num_good;
         }
+    }
 
     const size_t old_size(m_num_bonds);
     m_num_bonds = num_good;
@@ -102,20 +102,20 @@ size_t NeighborList::filter_r(const freud::box::Box& box, const vec3<float>* r_i
     const float rminsq(rmin * rmin);
 
     for (size_t bond(0); bond < m_num_bonds; ++bond)
-        {
-            const size_t i(neighbors[2 * bond]), j(neighbors[2 * bond + 1]);
-            const vec3<float> rij(box.wrap(r_j[j] - r_i[i]));
-            const float rijsq(dot(rij, rij));
-            const bool good(rijsq > rminsq && rijsq < rmaxsq);
+    {
+        const size_t i(neighbors[2 * bond]), j(neighbors[2 * bond + 1]);
+        const vec3<float> rij(box.wrap(r_j[j] - r_i[i]));
+        const float rijsq(dot(rij, rij));
+        const bool good(rijsq > rminsq && rijsq < rmaxsq);
 
-            if (good)
-                {
-                    neighbors[2 * num_good] = neighbors[2 * bond];
-                    neighbors[2 * num_good + 1] = neighbors[2 * bond + 1];
-                    weights[num_good] = weights[bond];
-                    ++num_good;
-                }
+        if (good)
+        {
+            neighbors[2 * num_good] = neighbors[2 * bond];
+            neighbors[2 * num_good + 1] = neighbors[2 * bond + 1];
+            weights[num_good] = weights[bond];
+            ++num_good;
         }
+    }
 
     const size_t old_size(m_num_bonds);
     m_num_bonds = num_good;
@@ -135,11 +135,11 @@ void NeighborList::resize(size_t max_bonds, bool force)
     const bool need_resize(force || max_bonds > m_max_bonds);
 
     if (need_resize)
-        {
-            m_neighbors.reset(new size_t[2 * max_bonds], std::default_delete<size_t[]>());
-            m_weights.reset(new float[max_bonds], std::default_delete<float[]>());
-            m_max_bonds = max_bonds;
-        }
+    {
+        m_neighbors.reset(new size_t[2 * max_bonds], std::default_delete<size_t[]>());
+        m_weights.reset(new float[max_bonds], std::default_delete<float[]>());
+        m_max_bonds = max_bonds;
+    }
 }
 
 void NeighborList::copy(const NeighborList& other)

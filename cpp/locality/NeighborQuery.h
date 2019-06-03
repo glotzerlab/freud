@@ -118,17 +118,17 @@ public:
     {
         this->validateQueryArgs(args);
         if (args.mode == QueryArgs::ball)
-            {
-                return this->queryBall(points, N, args.rmax, args.exclude_ii);
-            }
+        {
+            return this->queryBall(points, N, args.rmax, args.exclude_ii);
+        }
         else if (args.mode == QueryArgs::nearest)
-            {
-                return this->query(points, N, args.nn, args.exclude_ii);
-            }
+        {
+            return this->query(points, N, args.nn, args.exclude_ii);
+        }
         else
-            {
-                throw std::runtime_error("Invalid query mode provided to generic query function.");
-            }
+        {
+            throw std::runtime_error("Invalid query mode provided to generic query function.");
+        }
     }
 
     //! Given a point, find the k elements of this data structure
@@ -163,9 +163,9 @@ public:
     const vec3<float> operator[](unsigned int index) const
     {
         if (index >= m_Nref)
-            {
-                throw std::runtime_error("NeighborQuery attempted to access a point with index >= Nref.");
-            }
+        {
+            throw std::runtime_error("NeighborQuery attempted to access a point with index >= Nref.");
+        }
         return m_ref_points[index];
     }
 
@@ -173,15 +173,15 @@ protected:
     virtual void validateQueryArgs(QueryArgs& args)
     {
         if (args.mode == QueryArgs::ball)
-            {
-                if (args.rmax == -1)
-                    throw std::runtime_error("You must set rmax in the query arguments.");
-            }
+        {
+            if (args.rmax == -1)
+                throw std::runtime_error("You must set rmax in the query arguments.");
+        }
         else if (args.mode == QueryArgs::nearest)
-            {
-                if (args.nn == -1)
-                    throw std::runtime_error("You must set nn in the query arguments.");
-            }
+        {
+            if (args.nn == -1)
+                throw std::runtime_error("You must set nn in the query arguments.");
+        }
     }
 
     const box::Box m_box;            //!< Simulation box where the particles belong
@@ -262,21 +262,21 @@ public:
             BondVector::reference local_bonds(bonds.local());
             NeighborPoint np;
             for (size_t i(r.begin()); i != r.end(); ++i)
+            {
+                std::shared_ptr<NeighborQueryIterator> it = this->query(i);
+                while (!it->end())
                 {
-                    std::shared_ptr<NeighborQueryIterator> it = this->query(i);
-                    while (!it->end())
-                        {
-                            np = it->next();
-                            // If we're excluding ii bonds, we have to check before adding.
-                            if (!m_exclude_ii || i != np.ref_id)
-                                {
-                                    // Swap ref_id and id order for backwards compatibility.
-                                    local_bonds.emplace_back(np.ref_id, i);
-                                }
-                        }
-                    // Remove the last item, which is just the terminal sentinel value.
-                    local_bonds.pop_back();
+                    np = it->next();
+                    // If we're excluding ii bonds, we have to check before adding.
+                    if (!m_exclude_ii || i != np.ref_id)
+                    {
+                        // Swap ref_id and id order for backwards compatibility.
+                        local_bonds.emplace_back(np.ref_id, i);
+                    }
                 }
+                // Remove the last item, which is just the terminal sentinel value.
+                local_bonds.pop_back();
+            }
         });
 
         tbb::flattened2d<BondVector> flat_bonds = tbb::flatten2d(bonds);
@@ -293,10 +293,10 @@ public:
 
         parallel_for(tbb::blocked_range<size_t>(0, num_bonds), [&](const tbb::blocked_range<size_t>& r) {
             for (size_t bond(r.begin()); bond < r.end(); ++bond)
-                {
-                    neighbor_array[2 * bond] = linear_bonds[bond].first;
-                    neighbor_array[2 * bond + 1] = linear_bonds[bond].second;
-                }
+            {
+                neighbor_array[2 * bond] = linear_bonds[bond].first;
+                neighbor_array[2 * bond + 1] = linear_bonds[bond].second;
+            }
         });
         memset((void*) neighbor_weights, 1, sizeof(float) * linear_bonds.size());
 
@@ -352,15 +352,15 @@ public:
         if (m_exclude_ii)
             m_k += 1;
         try
-            {
-                nlist = NeighborQueryIterator::toNeighborList();
-            }
+        {
+            nlist = NeighborQueryIterator::toNeighborList();
+        }
         catch (...)
-            {
-                if (m_exclude_ii)
-                    m_k -= 1;
-                throw;
-            }
+        {
+            if (m_exclude_ii)
+                m_k -= 1;
+            throw;
+        }
         return nlist;
     }
 

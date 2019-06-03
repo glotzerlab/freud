@@ -98,15 +98,15 @@ public:
     void setL(const float Lx, const float Ly, const float Lz)
     {
         if (m_2d)
-            {
-                m_L = vec3<float>(Lx, Ly, 0);
-                m_Linv = vec3<float>(1 / m_L.x, 1 / m_L.y, 0);
-            }
+        {
+            m_L = vec3<float>(Lx, Ly, 0);
+            m_Linv = vec3<float>(1 / m_L.x, 1 / m_L.y, 0);
+        }
         else
-            {
-                m_L = vec3<float>(Lx, Ly, Lz);
-                m_Linv = vec3<float>(1 / m_L.x, 1 / m_L.y, 1 / m_L.z);
-            }
+        {
+            m_L = vec3<float>(Lx, Ly, Lz);
+            m_Linv = vec3<float>(1 / m_L.x, 1 / m_L.y, 1 / m_L.z);
+        }
 
         m_hi = m_L / 2.0f;
         m_lo = -m_hi;
@@ -194,9 +194,9 @@ public:
         v.x += m_xy * v.y + m_xz * v.z;
         v.y += m_yz * v.z;
         if (m_2d)
-            {
-                v.z = 0.0f;
-            }
+        {
+            v.z = 0.0f;
+        }
         return v;
     }
 
@@ -218,9 +218,9 @@ public:
         delta = (delta + ghost_width) / (m_L + 2.0f * ghost_width);
 
         if (m_2d)
-            {
-                delta.z = 0.0f;
-            }
+        {
+            delta.z = 0.0f;
+        }
         return delta;
     }
 
@@ -250,17 +250,17 @@ public:
         tmp.z = fmod(tmp.z, 1.0f);
         // handle negative mod
         if (tmp.x < 0)
-            {
-                tmp.x += 1;
-            }
+        {
+            tmp.x += 1;
+        }
         if (tmp.y < 0)
-            {
-                tmp.y += 1;
-            }
+        {
+            tmp.y += 1;
+        }
         if (tmp.z < 0)
-            {
-                tmp.z += 1;
-            }
+        {
+            tmp.z += 1;
+        }
         return makeCoordinates(tmp);
     }
 
@@ -276,9 +276,9 @@ public:
         newp += getLatticeVector(0) * float(image.x);
         newp += getLatticeVector(1) * float(image.y);
         if (!m_2d)
-            {
-                newp += getLatticeVector(2) * float(image.z);
-            }
+        {
+            newp += getLatticeVector(2) * float(image.z);
+        }
         return newp;
     }
 
@@ -307,21 +307,21 @@ public:
     vec3<float> getLatticeVector(unsigned int i) const
     {
         if (i == 0)
-            {
-                return vec3<float>(m_L.x, 0.0, 0.0);
-            }
+        {
+            return vec3<float>(m_L.x, 0.0, 0.0);
+        }
         else if (i == 1)
-            {
-                return vec3<float>(m_L.y * m_xy, m_L.y, 0.0);
-            }
+        {
+            return vec3<float>(m_L.y * m_xy, m_L.y, 0.0);
+        }
         else if (i == 2 && !m_2d)
-            {
-                return vec3<float>(m_L.z * m_xz, m_L.z * m_yz, m_L.z);
-            }
+        {
+            return vec3<float>(m_L.z * m_xz, m_L.z * m_yz, m_L.z);
+        }
         else
-            {
-                throw std::out_of_range("Box lattice vector index requested does not exist.");
-            }
+        {
+            throw std::out_of_range("Box lattice vector index requested does not exist.");
+        }
         return vec3<float>(0.0, 0.0, 0.0);
     }
 

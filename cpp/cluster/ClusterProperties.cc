@@ -65,75 +65,75 @@ void ClusterProperties::computeProperties(const box::Box& box, const vec3<float>
     // all particles and add the appropriate information to m_cluster_com as
     // we go.
     for (unsigned int i = 0; i < Np; i++)
+    {
+        unsigned int c = cluster_idx[i];
+        vec3<float> pos = points[i];
+
+        // the first time we see the cluster, mark this point as the reference position
+        if (!cluster_seen[c])
         {
-            unsigned int c = cluster_idx[i];
-            vec3<float> pos = points[i];
-
-            // the first time we see the cluster, mark this point as the reference position
-            if (!cluster_seen[c])
-                {
-                    ref_pos[c] = pos;
-                    cluster_seen[c] = true;
-                }
-
-            // To compute the COM in periodic boundary conditions, compute all
-            // reference vectors as wrapped vectors relative to ref_pos. When we
-            // are done, we can add the computed COM to ref_pos to get the COM in
-            // the space frame.
-            vec3<float> delta = pos - ref_pos[c];
-            delta = box.wrap(delta);
-
-            // Add the vector into the COM tally so far
-            m_cluster_com.get()[c] += delta;
-
-            m_cluster_size.get()[c]++;
+            ref_pos[c] = pos;
+            cluster_seen[c] = true;
         }
+
+        // To compute the COM in periodic boundary conditions, compute all
+        // reference vectors as wrapped vectors relative to ref_pos. When we
+        // are done, we can add the computed COM to ref_pos to get the COM in
+        // the space frame.
+        vec3<float> delta = pos - ref_pos[c];
+        delta = box.wrap(delta);
+
+        // Add the vector into the COM tally so far
+        m_cluster_com.get()[c] += delta;
+
+        m_cluster_size.get()[c]++;
+    }
 
     // Now that we have totaled all of the cluster vectors, compute the COM
     // position by averaging and then shifting by ref_pos
     for (unsigned int c = 0; c < m_num_clusters; c++)
-        {
-            float s = float(m_cluster_size.get()[c]);
-            vec3<float> v = m_cluster_com.get()[c] / s + ref_pos[c];
-            m_cluster_com.get()[c] = box.wrap(v);
-        }
+    {
+        float s = float(m_cluster_size.get()[c]);
+        vec3<float> v = m_cluster_com.get()[c] / s + ref_pos[c];
+        m_cluster_com.get()[c] = box.wrap(v);
+    }
 
     // Now that we have determined the centers of mass for each cluster, tally
     // up the G tensor. This has to be done in a loop over the particles, again
     for (unsigned int i = 0; i < Np; i++)
-        {
-            unsigned int c = cluster_idx[i];
-            vec3<float> pos = points[i];
-            vec3<float> delta = box.wrap(pos - m_cluster_com.get()[c]);
+    {
+        unsigned int c = cluster_idx[i];
+        vec3<float> pos = points[i];
+        vec3<float> delta = box.wrap(pos - m_cluster_com.get()[c]);
 
-            // get the start pointer for our 3x3 matrix
-            float* G = m_cluster_G.get() + c * 9;
-            G[0 * 3 + 0] += delta.x * delta.x;
-            G[0 * 3 + 1] += delta.x * delta.y;
-            G[0 * 3 + 2] += delta.x * delta.z;
-            G[1 * 3 + 0] += delta.y * delta.x;
-            G[1 * 3 + 1] += delta.y * delta.y;
-            G[1 * 3 + 2] += delta.y * delta.z;
-            G[2 * 3 + 0] += delta.z * delta.x;
-            G[2 * 3 + 1] += delta.z * delta.y;
-            G[2 * 3 + 2] += delta.z * delta.z;
-        }
+        // get the start pointer for our 3x3 matrix
+        float* G = m_cluster_G.get() + c * 9;
+        G[0 * 3 + 0] += delta.x * delta.x;
+        G[0 * 3 + 1] += delta.x * delta.y;
+        G[0 * 3 + 2] += delta.x * delta.z;
+        G[1 * 3 + 0] += delta.y * delta.x;
+        G[1 * 3 + 1] += delta.y * delta.y;
+        G[1 * 3 + 2] += delta.y * delta.z;
+        G[2 * 3 + 0] += delta.z * delta.x;
+        G[2 * 3 + 1] += delta.z * delta.y;
+        G[2 * 3 + 2] += delta.z * delta.z;
+    }
 
     // now need to divide by the number of particles in each cluster
     for (unsigned int c = 0; c < m_num_clusters; c++)
-        {
-            float* G = m_cluster_G.get() + c * 9;
-            float s = float(m_cluster_size.get()[c]);
-            G[0 * 3 + 0] /= s;
-            G[0 * 3 + 1] /= s;
-            G[0 * 3 + 2] /= s;
-            G[1 * 3 + 0] /= s;
-            G[1 * 3 + 1] /= s;
-            G[1 * 3 + 2] /= s;
-            G[2 * 3 + 0] /= s;
-            G[2 * 3 + 1] /= s;
-            G[2 * 3 + 2] /= s;
-        }
+    {
+        float* G = m_cluster_G.get() + c * 9;
+        float s = float(m_cluster_size.get()[c]);
+        G[0 * 3 + 0] /= s;
+        G[0 * 3 + 1] /= s;
+        G[0 * 3 + 2] /= s;
+        G[1 * 3 + 0] /= s;
+        G[1 * 3 + 1] /= s;
+        G[1 * 3 + 2] /= s;
+        G[2 * 3 + 0] /= s;
+        G[2 * 3 + 1] /= s;
+        G[2 * 3 + 2] /= s;
+    }
 
     // done!
 }
