@@ -47,7 +47,6 @@ references:
       command: |
         git submodule update --init
         pip${PYVER} install --user -r requirements.txt
-        pip${PYVER} install --user flake8==3.7.1
         pip${PYVER} install --user coverage
         pip${PYVER} install --user -U cython
 
@@ -57,19 +56,21 @@ references:
       command: |
         git submodule update --init
         pip install --user -r requirements.txt
-        pip install --user flake8==3.7.1
+        pip install --user flake8==3.7.7
 
-  check_cpp_style: &check_cpp_style
+  check_style: &check_style
     run:
       name: clang-format
       command: |
-        bash clang-format-diff-check.sh
-
-  check_python_style: &check_python_style
-    run:
-      name: flake8
-      command: |
-        python${PYVER} -m flake8 --show-source .
+        RETURNVAL=0
+        for f in cpp/**/*; do
+          if ! diff <(clang-format-6.0 -style=file $f) $f; then
+            echo "$f does not match clang-format style."
+            RETURNVAL=1
+          fi
+        done
+        python${PYVER} -m flake8 --show-source . || RETURNVAL=1
+        exit $RETURNVAL      
 
   build: &build
     run:
@@ -118,8 +119,7 @@ references:
     steps:
       - *load_code
       - *get_style_requirements
-      - *check_cpp_style
-      - *check_python_style
+      - *check_style
 
   build_linux_wheels: &build_linux_wheels
     steps:
@@ -252,50 +252,41 @@ references:
 
 
 jobs:
+  check-style:
+    <<: *test_container_config_ubuntu
+    environment:
+      PYVER: "3.6"
+    <<: *load_check_style
+
+  test-py36:
+    <<: *test_container_config_ubuntu
+    environment:
+      PYVER: "3.6"
+    <<: *build_and_test_with_cov
+
   test-py27:
     <<: *test_container_config_ubuntu
     environment:
       PYVER: "2.7"
     <<: *build_and_test
 
-  test-py35:
-    <<: *test_container_config_ubuntu
-    environment:
-      PYVER: "3.5"
-    <<: *build_and_test
-
-  test-py36:
-    <<: *test_container_config_arch
-    environment:
-      PYVER: "3.6"
-    <<: *build_and_test_with_cov
-
-  pypi-linux-wheels:
-    <<: *container_manylinux
-    <<: *build_linux_wheels
-
   pypi-osx-wheels:
     <<: *container_osx
     <<: *build_osx_wheels
 
-  check-style:
-    <<: *test_container_config_ubuntu
-    environment:
-      PYVER: "3.5"
-    <<: *load_check_style
+  pypi-linux-wheels:
+    <<: *container_manylinux
+    <<: *build_linux_wheels
 
 workflows:
   version: 2
   test:
     jobs:
       - check-style
-      - test-py27:
-          requires:
-            - check-style
-      - test-py35:
-          requires:
-            - check-style
       - test-py36:
+          requires:
+            - check-style
+      - test-py27:
           requires:
             - check-style
   deploy:
