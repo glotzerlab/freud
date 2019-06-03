@@ -182,6 +182,11 @@ class Steinhardt
         //! Calculates the neighbor averaged normalized Ql order parameter
         void computeAveNorm();
 
+        //! Sum over Wigner 3j coefficients to compute third-order invariants
+        void aggregateWl(std::shared_ptr<complex<float> > target,
+                         std::shared_ptr<complex<float> > source,
+                         bool per_particle);
+
         //! Calculates the Wl order parameter
         void computeWl();
 

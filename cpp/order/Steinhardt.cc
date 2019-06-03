@@ -362,75 +362,48 @@ void Steinhardt::computeAveNorm()
         }
     }
 
-void Steinhardt::computeWl()
+void Steinhardt::aggregateWl(std::shared_ptr<complex<float> > target,
+                             std::shared_ptr<complex<float> > source,
+                             bool per_particle)
     {
-    memset((void*) m_Wli.get(), 0, sizeof(complex<float>)*m_Np);
-
-    // This normalization happens in the Ql calculation but
-    // not for Wl, so we need to undo it. In that calculation
-    // the quantity is multiplied by the normalization factor
-    // and then the result is square rooted, so here we just
-    // divide by the square root.
-    float normalizationfactor = sqrt(4*M_PI/(2*m_l+1));
-
-    // Get wigner3j coefficients from wigner3j.cc
+    // Get wigner3j coefficients
     m_wigner3jvalues = getWigner3j(m_l);
 
     for (unsigned int i = 0; i < m_Np; i++)
         {
-        // Revert Ql normalization
-        m_Qli.get()[i] /= normalizationfactor;
-
-        // Wli calculation
         unsigned int counter = 0;
         for (unsigned int u1 = 0; u1 < (2*m_l+1); ++u1)
             {
             for (unsigned int u2 = max(0, int(m_l)-int(u1)); u2 < min(3*m_l+1-u1, 2*m_l+1); ++u2)
                 {
-                const unsigned int index = (2*m_l+1)*i;
+                const unsigned int particle_index = per_particle ? (2*m_l+1)*i : 0;
                 const unsigned int u3 = 3*m_l-u1-u2;
-                m_Wli.get()[i] += m_wigner3jvalues[counter] *
-                                  m_Qlmi.get()[index + u1] *
-                                  m_Qlmi.get()[index + u2] *
-                                  m_Qlmi.get()[index + u3];
+                target.get()[i] += m_wigner3jvalues[counter] *
+                    source.get()[particle_index + u1] *
+                    source.get()[particle_index + u2] *
+                    source.get()[particle_index + u3];
                 counter++;
                 }
-            } // Ends loop for Wli calcs
+            } // Ends loop over Wigner 3j coefficients
         } // Ends loop over particles
+   }
+
+void Steinhardt::computeWl()
+    {
+    memset((void*) m_Wli.get(), 0, sizeof(complex<float>)*m_Np);
+
+    Steinhardt::aggregateWl(m_Wli, m_Qlmi, true);
     }
 
 void Steinhardt::computeAveWl()
     {
-    // Get wigner3j coefficients from wigner3j.cc
-    m_wigner3jvalues = getWigner3j(m_l);
-
     memset((void*) m_WliAve.get(), 0, sizeof(float)*m_Np);
 
-    for (unsigned int i = 0; i < m_Np; i++)
-        {
-        // Ave Wli calculation
-        unsigned int counter = 0;
-        for (unsigned int u1 = 0; u1 < (2*m_l+1); ++u1)
-            {
-            for (unsigned int u2 = max(0, int(m_l)-int(u1)); u2 < min(3*m_l+1-u1,2*m_l+1); ++u2)
-                {
-                const unsigned int index = (2*m_l+1)*i;
-                const unsigned int u3 = 3*m_l-u1-u2;
-                m_WliAve.get()[i] += m_wigner3jvalues[counter] *
-                                     m_QlmiAve.get()[index + u1] *
-                                     m_QlmiAve.get()[index + u2] *
-                                     m_QlmiAve.get()[index + u3];
-                counter++;
-                }
-            } // Ends loop for Norm Wli calcs
-        } // Ends loop over particles
+    Steinhardt::aggregateWl(m_WliAve, m_QlmiAve, true);
     }
 
 void Steinhardt::computeNormWl()
     {
-    // Get wigner3j coefficients from wigner3j.cc
-    m_wigner3jvalues = getWigner3j(m_l);
-
     memset((void*) m_WliNorm.get(), 0, sizeof(complex<float>)*m_Np);
 
     // Average Q_lm over all particles, which was calculated in compute
@@ -439,30 +412,11 @@ void Steinhardt::computeNormWl()
         m_Qlm.get()[k] /= m_Np;
         }
 
-    for (unsigned int i = 0; i < m_Np; ++i)
-        {
-        // Norm Wli calculation
-        unsigned int counter = 0;
-        for (unsigned int u1 = 0; u1 < (2*m_l+1); ++u1)
-            {
-            for (unsigned int u2 = max(0, int(m_l)-int(u1)); u2 < min(3*m_l+1-u1,2*m_l+1); ++u2)
-                {
-                unsigned int u3 = 3*m_l-u1-u2;
-                m_WliNorm.get()[i] += m_wigner3jvalues[counter] *
-                                      m_Qlm.get()[u1] *
-                                      m_Qlm.get()[u2] *
-                                      m_Qlm.get()[u3];
-                counter++;
-                }
-            } // Ends loop for Norm Wli calcs
-        } // Ends loop over particles
+    Steinhardt::aggregateWl(m_WliNorm, m_Qlm, false);
     }
 
 void Steinhardt::computeAveNormWl()
     {
-    // Get wigner3j coefficients from wigner3j.cc
-    m_wigner3jvalues = getWigner3j(m_l);
-
     memset((void*) m_WliAveNorm.get(), 0, sizeof(complex<float>)*m_Np);
 
     // Average Q_lm over all particles, which was calculated in compute
@@ -471,23 +425,7 @@ void Steinhardt::computeAveNormWl()
         m_QlmAve.get()[k] /= m_Np;
         }
 
-    for (unsigned int i = 0; i < m_Np; ++i)
-        {
-        // AveNorm Wli calculation
-        unsigned int counter = 0;
-        for (unsigned int u1 = 0; u1 < (2*m_l+1); ++u1)
-            {
-            for (unsigned int u2 = max(0, int(m_l)-int(u1)); u2 < min(3*m_l+1-u1,2*m_l+1); ++u2)
-                {
-                unsigned int u3 = 3*m_l-u1-u2;
-                m_WliAveNorm.get()[i] += m_wigner3jvalues[counter] *
-                                         m_QlmAve.get()[u1] *
-                                         m_QlmAve.get()[u2] *
-                                         m_QlmAve.get()[u3];
-                counter++;
-                }
-            } // Ends loop for Norm Wli calcs
-        } // Ends loop over particles
+    Steinhardt::aggregateWl(m_WliAveNorm, m_QlmAve, false);
     }
 
 void Steinhardt::reduce()
