@@ -289,16 +289,19 @@ workflows:
   version: 2
   test:
     jobs:
-      - check-style
-      - test-py27:
-          requires:
-            - check-style
-      - test-py35:
-          requires:
-            - check-style
-      - test-py36:
-          requires:
-            - check-style
+      # - check-style
+      # - test-py27:
+      #     requires:
+      #       - check-style
+      # - test-py35:
+      #     requires:
+      #       - check-style
+      # - test-py36:
+      #     requires:
+      #       - check-style
+      - test-py27
+      - test-py35
+      - test-py36
   deploy:
     jobs:
       - pypi-osx-wheels:
