@@ -5,21 +5,20 @@ R"""
 The :class:`freud.parallel` module controls the parallelization behavior of
 freud, determining how many threads the TBB-enabled parts of freud will use.
 By default, freud tries to use all available threads for parallelization unless
-directed otherwise, with one exception.
+directed otherwise.
 """
 
-import platform
-import re
 cimport freud._parallel
 
 # Override TBB's default autoselection. This is necessary because once the
 # automatic selection runs, the user cannot change it.
-
-# On nyx/flux, default to 1 thread. On all other systems, default to as many
-# cores as are available. Users on nyx/flux can opt in to more threads by
-# calling setNumThreads again after initialization.
-
 _numThreads = 0
+setNumThreads(_numThreads)
+
+
+def getNumThreads():
+    global _numThreads
+    return _numThreads
 
 
 def setNumThreads(nthreads=None):
@@ -40,11 +39,6 @@ def setNumThreads(nthreads=None):
 
     cdef unsigned int cNthreads = nthreads
     freud._parallel.setNumThreads(cNthreads)
-
-
-if (re.match("flux.", platform.node()) is not None) or (
-        re.match("nyx.", platform.node()) is not None):
-    setNumThreads(1)
 
 
 class NumThreads:
