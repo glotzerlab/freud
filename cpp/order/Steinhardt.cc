@@ -73,22 +73,7 @@ void Steinhardt::reallocateArrays(unsigned int Np)
 
     if (m_Wl)
         {
-        if (m_average && m_norm)
-            {
-            m_WliAveNorm = Steinhardt::makeArray<complex<float> >(Np);
-            }
-        else if (m_average)
-            {
-            m_WliAve = Steinhardt::makeArray<complex<float> >(Np);
-            }
-        else if (m_norm)
-            {
-            m_WliNorm = Steinhardt::makeArray<complex<float> >(Np);
-            }
-        else
-            {
-            m_Wli = Steinhardt::makeArray<complex<float> >(Np);
-            }
+        m_WliOrder = Steinhardt::makeArray<complex<float> >(Np);
         }
     else
         {
@@ -112,7 +97,7 @@ void Steinhardt::compute(const box::Box& box, const locality::NeighborList *nlis
         Steinhardt::reallocateArrays(Np);
         }
 
-    // Computes the base Q required for each specialized order parameter
+    // Computes the base Qlmi required for each specialized order parameter
     Steinhardt::baseCompute(box, nlist, points);
 
     if (m_average)
@@ -122,21 +107,22 @@ void Steinhardt::compute(const box::Box& box, const locality::NeighborList *nlis
 
     if (m_Wl)
         {
+        memset((void*) m_WliOrder.get(), 0, sizeof(complex<float>)*m_Np);
         if (m_average && m_norm)
             {
-            Steinhardt::computeAveNormWl();
+            Steinhardt::aggregateWl(m_WliOrder, m_QlmAve, false);
             }
         else if (m_norm)
             {
-            Steinhardt::computeNormWl();
+            Steinhardt::aggregateWl(m_WliOrder, m_Qlm, false);
             }
         else if (m_average)
             {
-            Steinhardt::computeAveWl();
+            Steinhardt::aggregateWl(m_WliOrder, m_QlmiAve, true);
             }
         else
             {
-            Steinhardt::computeWl();
+            Steinhardt::aggregateWl(m_WliOrder, m_Qlmi, true);
             }
         }
     else
@@ -226,7 +212,7 @@ void Steinhardt::baseCompute(const box::Box& box, const locality::NeighborList *
                     m_Qlmi.get()[index] /= neighborcount;
                     // Add the norm, which is the (complex) squared magnitude
                     m_Qli.get()[i] += norm(m_Qlmi.get()[index]);
-                    m_Qlm_local.local()[k] += m_Qlmi.get()[index];
+                    m_Qlm_local.local()[k] += m_Qlmi.get()[index] / float(m_Np);
                     }
             m_Qli.get()[i] *= normalizationfactor;
             m_Qli.get()[i] = sqrt(m_Qli.get()[i]);
@@ -305,7 +291,7 @@ void Steinhardt::computeAve(const box::Box& box, const locality::NeighborList *n
             // Adding the Qlm of the particle i itself
             m_QlmiAve.get()[index] += m_Qlmi.get()[index];
             m_QlmiAve.get()[index] /= neighborcount;
-            m_QlmAve.get()[k] += m_QlmiAve.get()[index];
+            m_QlmAve.get()[k] += m_QlmiAve.get()[index] / float(m_Np);
             // Add the norm, which is the complex squared magnitude
             m_QliAve.get()[i] += norm(m_Qlmi.get()[index]);
             }
@@ -319,12 +305,6 @@ void Steinhardt::computeNorm()
     memset((void*) m_QliNorm.get(), 0, sizeof(float)*m_Np);
 
     const float normalizationfactor = 4*M_PI/(2*m_l+1);
-
-    // Average Q_lm over all particles, which was calculated in compute
-    for (unsigned int k = 0; k < (2*m_l+1); ++k)
-        {
-        m_Qlm.get()[k] /= m_Np;
-        }
 
     for (unsigned int i = 0; i < m_Np; ++i)
         {
@@ -344,12 +324,6 @@ void Steinhardt::computeAveNorm()
 
     const float normalizationfactor = 4*M_PI/(2*m_l+1);
 
-    // Average Q_lm over all particles, which was calculated in compute
-    for (unsigned int k = 0; k < (2*m_l+1); ++k)
-        {
-        m_QlmAve.get()[k] /= m_Np;
-        }
-
     for (unsigned int i = 0; i < m_Np; ++i)
         {
         for (unsigned int k = 0; k < (2*m_l+1); ++k)
@@ -366,8 +340,10 @@ void Steinhardt::aggregateWl(std::shared_ptr<complex<float> > target,
                              std::shared_ptr<complex<float> > source,
                              bool per_particle)
     {
-    // Get wigner3j coefficients
-    m_wigner3jvalues = getWigner3j(m_l);
+    // Get Wigner 3j coefficients:
+    // j1 from -l to l
+    // j2 from max(-l-j1, -l) to min(l-j1, l)
+    auto wigner3jvalues = getWigner3j(m_l);
 
     for (unsigned int i = 0; i < m_Np; i++)
         {
@@ -378,7 +354,7 @@ void Steinhardt::aggregateWl(std::shared_ptr<complex<float> > target,
                 {
                 const unsigned int particle_index = per_particle ? (2*m_l+1)*i : 0;
                 const unsigned int u3 = 3*m_l-u1-u2;
-                target.get()[i] += m_wigner3jvalues[counter] *
+                target.get()[i] += wigner3jvalues[counter] *
                     source.get()[particle_index + u1] *
                     source.get()[particle_index + u2] *
                     source.get()[particle_index + u3];
@@ -387,46 +363,6 @@ void Steinhardt::aggregateWl(std::shared_ptr<complex<float> > target,
             } // Ends loop over Wigner 3j coefficients
         } // Ends loop over particles
    }
-
-void Steinhardt::computeWl()
-    {
-    memset((void*) m_Wli.get(), 0, sizeof(complex<float>)*m_Np);
-
-    Steinhardt::aggregateWl(m_Wli, m_Qlmi, true);
-    }
-
-void Steinhardt::computeAveWl()
-    {
-    memset((void*) m_WliAve.get(), 0, sizeof(float)*m_Np);
-
-    Steinhardt::aggregateWl(m_WliAve, m_QlmiAve, true);
-    }
-
-void Steinhardt::computeNormWl()
-    {
-    memset((void*) m_WliNorm.get(), 0, sizeof(complex<float>)*m_Np);
-
-    // Average Q_lm over all particles, which was calculated in compute
-    for (unsigned int k = 0; k < (2*m_l+1); ++k)
-        {
-        m_Qlm.get()[k] /= m_Np;
-        }
-
-    Steinhardt::aggregateWl(m_WliNorm, m_Qlm, false);
-    }
-
-void Steinhardt::computeAveNormWl()
-    {
-    memset((void*) m_WliAveNorm.get(), 0, sizeof(complex<float>)*m_Np);
-
-    // Average Q_lm over all particles, which was calculated in compute
-    for (unsigned int k = 0; k < (2*m_l+1); ++k)
-        {
-        m_QlmAve.get()[k] /= m_Np;
-        }
-
-    Steinhardt::aggregateWl(m_WliAveNorm, m_QlmAve, false);
-    }
 
 void Steinhardt::reduce()
     {

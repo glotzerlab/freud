@@ -119,22 +119,7 @@ class Steinhardt
         //! Get the last calculated order parameter Wl
         std::shared_ptr<std::complex<float>> getWl()
         {
-            if (m_average && m_norm)
-            {
-                return m_WliAveNorm;
-            }
-            else if (m_average)
-            {
-                return m_WliAve;
-            }
-            else if (m_norm)
-            {
-                return m_WliNorm;
-            }
-            else
-            {
-                return m_Wli;
-            }
+            return m_WliOrder;
         }
 
         //! Get whether the Wl flag was set
@@ -183,21 +168,10 @@ class Steinhardt
         void computeAveNorm();
 
         //! Sum over Wigner 3j coefficients to compute third-order invariants
+        //  Wl from second-order invariants Ql
         void aggregateWl(std::shared_ptr<complex<float> > target,
                          std::shared_ptr<complex<float> > source,
                          bool per_particle);
-
-        //! Calculates the Wl order parameter
-        void computeWl();
-
-        //! Calculates the neighbor averaged Wl order parameter
-        void computeAveWl();
-
-        //! Calculates the normalized Wl order parameter
-        void computeNormWl();
-
-        //! Calculates the normalized neighbor averaged Wl order parameter
-        void computeAveNormWl();
 
         // Member variables used for compute
         unsigned int m_Np;     //!< Last number of points computed
@@ -221,11 +195,7 @@ class Steinhardt
         std::shared_ptr<float> m_QliAve;      //!< AveQl locally invariant order parameter for each particle i
         std::shared_ptr<float> m_QliNorm;     //!< QlNorm order parameter for each particle i
         std::shared_ptr<float> m_QliAveNorm;  //!< QlAveNorm order paramter for each particle i
-        std::shared_ptr< std::complex<float> > m_Wli;         //!< Wl locally invariant order parameter for each particle i;
-        std::shared_ptr< std::complex<float> > m_WliAve;      //!< Averaged Wl with 2nd neighbor shell for each particle i
-        std::shared_ptr< std::complex<float> > m_WliNorm;     //!< Normalized Wl for the whole system
-        std::shared_ptr< std::complex<float> > m_WliAveNorm;  //!< Normalized AveWl for the whole system
-        std::vector<float> m_wigner3jvalues;  //!< Wigner3j coefficients, in j1=-l to l, j2 = max(-l-j1,-l) to min(l-j1,l), maybe.
+        std::shared_ptr< std::complex<float> > m_WliOrder;    //!< Wl order parameter for each particle i
     };
 
 }; }; // end namespace freud::order
