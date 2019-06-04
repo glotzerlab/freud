@@ -190,7 +190,8 @@ references:
               rm -f PKG-INFO
               "${PYBIN}/python" -m pip install . --no-deps --ignore-installed -v --progress-bar=off -q
 
-              "${PYBIN}/pip" install -r ~/ci/freud/requirements.txt --progress-bar=off
+              # Force installation of version of SciPy that works with old NumPy.
+              "${PYBIN}/pip" install scipy==1.2.1 --progress-bar=off
               "${PYBIN}/pip" wheel ~/ci/freud/ -w ~/wheelhouse/ --no-deps --no-build-isolation --no-use-pep517
             done
 
@@ -248,6 +249,7 @@ references:
                 pyenv install ${VERSION}
                 pyenv global ${VERSION}
 
+                pip install --upgrade pip
                 pip install cython --no-deps --ignore-installed -q --progress-bar=off
                 rm -rf numpy-1.10.4
                 curl -sSLO https://github.com/numpy/numpy/archive/v1.10.4.tar.gz
@@ -255,10 +257,11 @@ references:
                 cd numpy-1.10.4
                 rm -f numpy/random/mtrand/mtrand.c
                 rm -f PKG-INFO
-                "${PYBIN}/python" -m pip install . --no-deps --ignore-installed -v --progress-bar=off -q
+                pip install . --no-deps --ignore-installed -v -q --progress-bar=off
 
-                pip install -r ~/ci/freud/requirements.txt
-                pip install wheel delocate
+              # Force installation of version of SciPy that works with old NumPy.
+                pip install scipy==1.2.1 --progress-bar=off
+                pip install wheel delocate --progress-bar=off
                 pip wheel ~/ci/freud/ -w ~/wheelhouse/ --no-deps --no-build-isolation --no-use-pep517
             done
 
@@ -299,6 +302,9 @@ jobs:
     <<: *build_and_test_with_cov
 
   pypi-linux-wheels:
+    environment:
+      # Force clone over https instead of git.
+      CIRCLE_REPOSITORY_URL: https://github.com/glotzerlab/freud
     <<: *container_manylinux
     <<: *build_linux_wheels
 
