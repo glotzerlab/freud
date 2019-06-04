@@ -24,6 +24,17 @@ class TestParallel(unittest.TestCase):
             self.assertEqual(freud.parallel._numThreads, 10)
         self.assertEqual(freud.parallel._numThreads, 0)
 
+        self.assertEqual(freud.parallel.getNumThreads(), 0)
+
+        freud.parallel.setNumThreads(3)
+        self.assertEqual(freud.parallel.getNumThreads(), 3)
+
+        freud.parallel.setNumThreads(1)
+        self.assertEqual(freud.parallel.getNumThreads(), 1)
+        with freud.parallel.NumThreads(2):
+            self.assertEqual(freud.parallel.getNumThreads(), 2)
+        self.assertEqual(freud.parallel.getNumThreads(), 1)
+
 
 if __name__ == '__main__':
     unittest.main()
