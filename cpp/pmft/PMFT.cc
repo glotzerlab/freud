@@ -55,4 +55,20 @@ std::shared_ptr<float> PMFT::getPCF()
     return m_pcf_array;
 }
 
+std::shared_ptr<float> PMFT::precomputeAxisBinCenter(unsigned int size, float d, float max)
+{
+    return precomputeArrayGeneral(size, d, [=](float T, float nextT) { return -max + ((T + nextT) / 2.0); });
+}
+
+void PMFT::resetGeneral(unsigned int bin_size)
+{
+    for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_bin_counts.begin(); i != m_local_bin_counts.end(); ++i)
+    {
+        memset((void*) (*i), 0, sizeof(unsigned int)*bin_size);
+    }
+    this->m_frame_counter = 0;
+    this->m_reduce = true;
+}
+
+
 }; }; // end namespace freud::pmft
