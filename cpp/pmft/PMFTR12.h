@@ -20,85 +20,80 @@
 namespace freud { namespace pmft {
 
 class PMFTR12 : public PMFT
+{
+public:
+    //! Constructor
+    PMFTR12(float r_max, unsigned int n_r, unsigned int n_t1, unsigned int n_t2);
+
+    //! Reset the PCF array to all zeros
+    virtual void reset();
+
+    /*! Compute the PCF for the passed in set of points. The function will be added to previous values
+        of the PCF
+    */
+    void accumulate(box::Box& box, const locality::NeighborList* nlist, vec3<float>* ref_points,
+                    float* ref_orientations, unsigned int n_ref, vec3<float>* points, float* orientations,
+                    unsigned int n_p);
+
+    //! \internal
+    //! helper function to reduce the thread specific arrays into one array
+    virtual void reducePCF();
+
+    //! Get a reference to the R array
+    std::shared_ptr<float> getR()
     {
-    public:
-        //! Constructor
-        PMFTR12(float r_max, unsigned int n_r, unsigned int n_t1, unsigned int n_t2);
+        return m_r_array;
+    }
 
-        //! Reset the PCF array to all zeros
-        virtual void reset();
+    //! Get a reference to the T1 array
+    std::shared_ptr<float> getT1()
+    {
+        return m_t1_array;
+    }
 
-        /*! Compute the PCF for the passed in set of points. The function will be added to previous values
-            of the PCF
-        */
-        void accumulate(box::Box& box,
-                        const locality::NeighborList *nlist,
-                        vec3<float> *ref_points,
-                        float *ref_orientations,
-                        unsigned int n_ref,
-                        vec3<float> *points,
-                        float *orientations,
-                        unsigned int n_p);
+    //! Get a reference to the T2 array
+    std::shared_ptr<float> getT2()
+    {
+        return m_t2_array;
+    }
 
-        //! \internal
-        //! helper function to reduce the thread specific arrays into one array
-        virtual void reducePCF();
+    //! Get a reference to the jacobian array
+    std::shared_ptr<float> getInverseJacobian()
+    {
+        return m_inv_jacobian_array;
+    }
 
-        //! Get a reference to the R array
-        std::shared_ptr<float> getR()
-            {
-            return m_r_array;
-            }
+    unsigned int getNBinsR()
+    {
+        return m_n_r;
+    }
 
-        //! Get a reference to the T1 array
-        std::shared_ptr<float> getT1()
-            {
-            return m_t1_array;
-            }
+    unsigned int getNBinsT1()
+    {
+        return m_n_t1;
+    }
 
-        //! Get a reference to the T2 array
-        std::shared_ptr<float> getT2()
-            {
-            return m_t2_array;
-            }
+    unsigned int getNBinsT2()
+    {
+        return m_n_t2;
+    }
 
-        //! Get a reference to the jacobian array
-        std::shared_ptr<float> getInverseJacobian()
-            {
-            return m_inv_jacobian_array;
-            }
+private:
+    float m_r_max;       //!< Maximum r  at which to compute PCF
+    float m_t1_max;      //!< Maximum t1 at which to compute PCF
+    float m_t2_max;      //!< Maximum t2 at which to compute PCF
+    float m_dr;          //!< Bin size for r  in the computation
+    float m_dt1;         //!< Bin size for t1 in the computation
+    float m_dt2;         //!< Bin size for t2 in the computation
+    unsigned int m_n_r;  //!< Number of r  bins to compute PCF over
+    unsigned int m_n_t1; //!< Number of t1 bins to compute PCF over
+    unsigned int m_n_t2; //!< Number of t2 bins to compute PCF over
 
-        unsigned int getNBinsR()
-            {
-            return m_n_r;
-            }
-
-        unsigned int getNBinsT1()
-            {
-            return m_n_t1;
-            }
-
-        unsigned int getNBinsT2()
-            {
-            return m_n_t2;
-            }
-
-    private:
-        float m_r_max;                     //!< Maximum r  at which to compute PCF
-        float m_t1_max;                    //!< Maximum t1 at which to compute PCF
-        float m_t2_max;                    //!< Maximum t2 at which to compute PCF
-        float m_dr;                        //!< Bin size for r  in the computation
-        float m_dt1;                       //!< Bin size for t1 in the computation
-        float m_dt2;                       //!< Bin size for t2 in the computation
-        unsigned int m_n_r;                //!< Number of r  bins to compute PCF over
-        unsigned int m_n_t1;               //!< Number of t1 bins to compute PCF over
-        unsigned int m_n_t2;               //!< Number of t2 bins to compute PCF over
-
-        std::shared_ptr<float> m_r_array;              //!< Array of r  values where the PCF is computed
-        std::shared_ptr<float> m_t1_array;             //!< Array of t1 values where the PCF is computed
-        std::shared_ptr<float> m_t2_array;             //!< Array of t2 values where the PCF is computed
-        std::shared_ptr<float> m_inv_jacobian_array;   //!< Array of inverse jacobians for each bin
-    };
+    std::shared_ptr<float> m_r_array;            //!< Array of r  values where the PCF is computed
+    std::shared_ptr<float> m_t1_array;           //!< Array of t1 values where the PCF is computed
+    std::shared_ptr<float> m_t2_array;           //!< Array of t2 values where the PCF is computed
+    std::shared_ptr<float> m_inv_jacobian_array; //!< Array of inverse jacobians for each bin
+};
 
 }; }; // end namespace freud::pmft
 
