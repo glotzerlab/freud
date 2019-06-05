@@ -2,6 +2,7 @@
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include <cassert>
+#include <cstdio>
 #include <stdexcept>
 
 #include "MatchEnv.h"
@@ -198,6 +199,7 @@ std::vector<unsigned int> EnvDisjointSet::findSet(const unsigned int m)
 
     if (invalid_ind)
     {
+        fprintf(stderr, "m is %d\n", m);
         throw std::invalid_argument("m must be a head index in the environment set!");
     }
 
@@ -248,6 +250,7 @@ std::shared_ptr<vec3<float>> EnvDisjointSet::getAvgEnv(const unsigned int m)
 
     if (invalid_ind)
     {
+        fprintf(stderr, "m is %d\n", m);
         throw std::invalid_argument("m must be a head index in the environment set!");
     }
 
@@ -271,6 +274,7 @@ std::vector<vec3<float>> EnvDisjointSet::getIndividualEnv(const unsigned int m)
     assert(s.size() > 0);
     if (m >= s.size())
     {
+        fprintf(stderr, "m is %d\n", m);
         throw std::invalid_argument(
             "m is indexing into the environment set. It must be less than the size of the set!");
     }

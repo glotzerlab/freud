@@ -1,7 +1,7 @@
 // Copyright (c) 2010-2019 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
-#include <stdexcept>
+#include <iostream>
 #include <vector>
 
 #include "wigner3j.h"
@@ -1309,5 +1309,6 @@ vector<float> getWigner3j(unsigned int l)
         return wigner3jvalue20;
     }
     }
-    throw std::runtime_error("Wigner3j coefficients not found");
+    cout << "Not Implemented";
+    return vector<float>();
 }

@@ -5,6 +5,7 @@
 #define PMFTR12_H
 
 #include <memory>
+#include <ostream>
 #include <tbb/tbb.h>
 
 #include "NeighborList.h"

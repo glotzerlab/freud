@@ -5,6 +5,7 @@
 #define NEMATIC_ORDER_PARAMETER_H
 
 #include <memory>
+#include <ostream>
 #include <tbb/tbb.h>
 
 #include "Box.h"

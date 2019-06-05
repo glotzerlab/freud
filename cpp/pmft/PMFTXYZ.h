@@ -5,6 +5,7 @@
 #define PMFTXYZ_H
 
 #include <memory>
+#include <ostream>
 #include <tbb/tbb.h>
 
 #include "NeighborList.h"
