@@ -45,10 +45,10 @@ def convert_box(box):
 
     Args:
         box (box-like object (see :meth:`freud.box.Box.from_box`)): Box to
-          check and convert if needed.
+            check and convert if needed.
 
     Returns:
-        :py:class:`freud.box.Box`: freud box.
+        :class:`freud.box.Box`: freud box.
     """
     if not isinstance(box, freud.box.Box):
         try:
