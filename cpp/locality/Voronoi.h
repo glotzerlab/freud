@@ -9,6 +9,33 @@
 
 namespace freud { namespace locality {
 
+struct NeighborBond {
+    NeighborBond() : index_i(0), index_j(0), weight(0) {}
+
+    NeighborBond(unsigned int index_i, unsigned int index_j, float w) :
+        index_i(index_i), index_j(index_j), weight(w) {}
+
+    //! Equality checks both i, j pair and weight.
+    bool operator== (const NeighborBond &n)
+        {
+        return (index_i == n.index_i) && (index_j == n.index_j) && (weight == n.weight);
+        }
+
+    //! Default comparator of points is by weight.
+    /*! This form of comparison allows easy sorting of nearest neighbors by
+     *  weight.
+     */
+    bool operator< (const NeighborBond &n) const
+        {
+        return weight < n.weight;
+        }
+
+    unsigned int index_i;     //! The point id.
+    unsigned int index_j;     //! The reference point id.
+    float weight;             //! The weight of this bond.
+};
+
+
 class Voronoi
     {
     public:

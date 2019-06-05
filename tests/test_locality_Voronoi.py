@@ -13,7 +13,7 @@ class TestVoronoi(unittest.TestCase):
         # number of points and polytopes
         L = 10  # Box length
         N = 50  # Number of particles
-        box = freud.box.Box.square(L)  # Initialize box
+        box = freud.box.Box.cube(L)  # Initialize box
         vor = freud.locality.Voronoi(box)
         np.random.seed(0)
         # Generate random points in the box
@@ -66,8 +66,8 @@ class TestVoronoi(unittest.TestCase):
     #     vor.compute(positions)
     #     polytope_centers = set(tuple(point)
     #                            for point in vor.polytopes[0].tolist())
-    # check_centers = set([(1.5, 1.5, 1.5), (1.5, 0.5, 1.5), (1.5, 0.5, 0.5),
-    #                      (1.5, 1.5, 0.5), (0.5, 0.5, 0.5), (0.5, 0.5, 1.5),
+    #   check_centers = set([(1.5, 1.5, 1.5), (1.5, 0.5, 1.5), (1.5, 0.5, 0.5),
+    #                        (1.5, 1.5, 0.5), (0.5, 0.5, 0.5), (0.5, 0.5, 1.5),
     #                          (0.5, 1.5, 0.5), (0.5, 1.5, 1.5)])
     #     self.assertEqual(polytope_centers, check_centers)
 

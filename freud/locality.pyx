@@ -9,6 +9,7 @@ locate points based on their proximity to other points.
 import sys
 import numpy as np
 import freud.common
+import itertools
 import warnings
 import logging
 import copy
@@ -1539,8 +1540,8 @@ cdef class Voronoi:
             buff = self._buff
 
         voronoi, expanded_id = self._qhull_compute(positions, b, buff)
-        cdef const int[::1] expanded_ids = \
-            np.asarray(expanded_id, dtype=np.int32)
+        # cdef const int[::1] expanded_ids = \
+        #    np.asarray(expanded_id, dtype=np.int32)
 
         vertices = voronoi.vertices
 
@@ -1558,35 +1559,61 @@ cdef class Voronoi:
         """
 
         # compute neighbors
-        cdef const int[:, ::1] ridge_points = np.asarray(
-            voronoi.ridge_points, dtype=np.int32)
-        cdef unsigned int n_ridges = ridge_points.shape[0]
-        cdef const int[:, ::1] ridge_vertices = \
-            np.asarray(voronoi.ridge_vertices, dtype=np.int32)
+        # cdef const int[:, ::1] ridge_points = np.asarray(
+        #    voronoi.ridge_points, dtype=np.int32)
+        # cdef unsigned int n_ridges = ridge_points.shape[0]
+        # cdef const int[:, ::1] ridge_vertices = \
+        #    np.asarray(voronoi.ridge_vertices, dtype=np.int32)
 
         # Must keep this in double precision
-        cdef const double[:, ::1] vor_vertices = np.asarray(
-            voronoi.vertices, dtype=np.float64)
+        # cdef const double[:, ::1] vor_vertices = np.asarray(
+        #    voronoi.vertices, dtype=np.float64)
         cdef unsigned int N = len(positions)
 
-        j = 0
-        indices = []
-        for rows in voronoi.ridge_vertices:
-            indices.append(j)
-            for col in rows:
-                # content.append(col)
-                j += 1
-        indices.append(j)
-
-        cdef const int[::1] ridge_vertex_indices = \
-            np.asarray(indices, dtype=np.int32)
         self.thisptr.print_hello()
+
+        # fake_points = np.array([[0, 0, 1], [0, 0, -1]], dtype=np.float64)
+        # fake_vertices = np.array([[1, 1, 0], [0, 2, 0], [-1, 1, 0],
+        # [-1, -1, 0], [1, -1, 0]], dtype=np.float64)
+        # fake_ridge_points = np.array([[0, 1]], dtype=np.int32)
+        # cdef unsigned int n_ridges = fake_ridge_points.shape[0]
+        # fake_ridge_vertices = [[0, 1, 2, 3, 4]]
+        fake_points = np.array([[1, 0, 0], [-1, 0, 0]], dtype=np.float64)
+        fake_vertices = np.array(
+            [[1, 1, 1], [-1, -1, 1], [-1, -1, -1], [1, 1, -1]],
+            dtype=np.float64)
+        fake_ridge_points = np.array([[0, 1]], dtype=np.int32)
+        cdef unsigned int n_ridges = fake_ridge_points.shape[0]
+        fake_ridge_vertices = [[0, 1, 2, 3]]
+
+        N = 2
+        indices = [0]
+        indices.extend(np.cumsum(
+            [len(ridge) for ridge in voronoi.ridge_vertices]))
+        cdef const int[:, ::1] ridge_points = np.asarray(
+            fake_ridge_points, dtype=np.int32)
+        cdef const double[:, ::1] vor_vertices = np.asarray(
+            fake_vertices, dtype=np.float64)
+        cdef const int[::1] ridge_vertices = np.asarray(
+            list(itertools.chain.from_iterable(fake_ridge_vertices)),
+            dtype=np.int32)
+
+        indices = [0]
+        indices.extend(np.cumsum(
+            [len(ridge) for ridge in fake_ridge_vertices]))
+        print(indices)
+
+        cdef const int[::1] expanded_ids = \
+            np.asarray(expanded_id, dtype=np.int32)
+
+        cdef const int[::1] ridge_vertex_indices = np.asarray(
+            indices, dtype=np.int32)
 
         self.thisptr.compute(
             dereference(b.thisptr),
             <vec3[double]*> &vor_vertices[0, 0],
             <int*> &ridge_points[0, 0],
-            <int*> &ridge_vertices[0, 0],
+            <int*> &ridge_vertices[0],
             n_ridges, N,
             <int*> &expanded_ids[0],
             <int*> &ridge_vertex_indices[0])
