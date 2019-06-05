@@ -54,11 +54,8 @@ PMFTXYT::PMFTXYT(float x_max, float y_max, unsigned int n_x, unsigned int n_y, u
     m_t_array = precomputeAxisBinCenter(m_n_t, m_dt, 0);
 
     // create and populate the pcf_array
-    m_pcf_array = std::shared_ptr<float>(new float[m_n_x * m_n_y * m_n_t], std::default_delete<float[]>());
-    memset((void*) m_pcf_array.get(), 0, sizeof(float) * m_n_x * m_n_y * m_n_t);
-    m_bin_counts = std::shared_ptr<unsigned int>(new unsigned int[m_n_x * m_n_y * m_n_t],
-                                                 std::default_delete<unsigned int[]>());
-    memset((void*) m_bin_counts.get(), 0, sizeof(unsigned int) * m_n_x * m_n_y * m_n_t);
+    m_pcf_array = returnEmptyArray<float>(m_n_x * m_n_y * m_n_t);
+    m_bin_counts = returnEmptyArray<unsigned int>(m_n_x * m_n_y * m_n_t);
 
     // Set r_cut
     m_r_cut = sqrtf(m_x_max * m_x_max + m_y_max * m_y_max);
@@ -69,23 +66,18 @@ PMFTXYT::PMFTXYT(float x_max, float y_max, unsigned int n_x, unsigned int n_y, u
 void PMFTXYT::reducePCF()
 {
     float jocob_factor = (float) 1.0 / m_jacobian;
-    reduce3D(m_n_t, m_n_x, m_n_y, [jocob_factor](size_t i) {return jocob_factor;} );
+    reduce3D(m_n_t, m_n_x, m_n_y, [jocob_factor](size_t i) { return jocob_factor; });
 }
 
 void PMFTXYT::reset()
 {
-    resetGeneral(m_n_x*m_n_y*m_n_t);
+    resetGeneral(m_n_x * m_n_y * m_n_t);
 }
 
-void PMFTXYT::accumulate(box::Box& box,
-                         const locality::NeighborList *nlist,
-                         vec3<float> *ref_points,
-                         float *ref_orientations,
-                         unsigned int n_ref,
-                         vec3<float> *points,
-                         float *orientations,
-                         unsigned int n_p)
-    {
+void PMFTXYT::accumulate(box::Box& box, const locality::NeighborList* nlist, vec3<float>* ref_points,
+                         float* ref_orientations, unsigned int n_ref, vec3<float>* points,
+                         float* orientations, unsigned int n_p)
+{
     assert(ref_points);
     assert(points);
     assert(n_ref > 0);
@@ -98,49 +90,49 @@ void PMFTXYT::accumulate(box::Box& box,
 
     Index3D b_i = Index3D(m_n_x, m_n_y, m_n_t);
 
-    accumulateGeneral(box, n_ref, nlist, n_p, m_n_x*m_n_y*m_n_t, [=] (size_t i, size_t j) {
-                vec3<float> ref = ref_points[i];
-                vec3<float> delta = m_box.wrap(points[j] - ref);
+    accumulateGeneral(box, n_ref, nlist, n_p, m_n_x * m_n_y * m_n_t, [=](size_t i, size_t j) {
+        vec3<float> ref = ref_points[i];
+        vec3<float> delta = m_box.wrap(points[j] - ref);
 
-                float rsq = dot(delta, delta);
-                if (rsq < 1e-6)
-                    {
-                    return;
-                    }
-                // rotate interparticle vector
-                vec2<float> myVec(delta.x, delta.y);
-                rotmat2<float> myMat = rotmat2<float>::fromAngle(-ref_orientations[i]);
-                vec2<float> rotVec = myMat * myVec;
-                float x = rotVec.x + m_x_max;
-                float y = rotVec.y + m_y_max;
-                // calculate angle
-                float d_theta = atan2(-delta.y, -delta.x);
-                float t = orientations[j] - d_theta;
-                // make sure that t is bounded between 0 and 2PI
-                t = fmod(t, 2*M_PI);
-                if (t < 0)
-                    {
-                    t += 2*M_PI;
-                    }
-                // bin that point
-                float bin_x = floorf(x * dx_inv);
-                float bin_y = floorf(y * dy_inv);
-                float bin_t = floorf(t * dt_inv);
-                // fast float to int conversion with truncation
-                #ifdef __SSE2__
-                unsigned int ibin_x = _mm_cvtt_ss2si(_mm_load_ss(&bin_x));
-                unsigned int ibin_y = _mm_cvtt_ss2si(_mm_load_ss(&bin_y));
-                unsigned int ibin_t = _mm_cvtt_ss2si(_mm_load_ss(&bin_t));
-                #else
+        float rsq = dot(delta, delta);
+        if (rsq < 1e-6)
+        {
+            return;
+        }
+        // rotate interparticle vector
+        vec2<float> myVec(delta.x, delta.y);
+        rotmat2<float> myMat = rotmat2<float>::fromAngle(-ref_orientations[i]);
+        vec2<float> rotVec = myMat * myVec;
+        float x = rotVec.x + m_x_max;
+        float y = rotVec.y + m_y_max;
+        // calculate angle
+        float d_theta = atan2(-delta.y, -delta.x);
+        float t = orientations[j] - d_theta;
+        // make sure that t is bounded between 0 and 2PI
+        t = fmod(t, 2 * M_PI);
+        if (t < 0)
+        {
+            t += 2 * M_PI;
+        }
+        // bin that point
+        float bin_x = floorf(x * dx_inv);
+        float bin_y = floorf(y * dy_inv);
+        float bin_t = floorf(t * dt_inv);
+// fast float to int conversion with truncation
+#ifdef __SSE2__
+        unsigned int ibin_x = _mm_cvtt_ss2si(_mm_load_ss(&bin_x));
+        unsigned int ibin_y = _mm_cvtt_ss2si(_mm_load_ss(&bin_y));
+        unsigned int ibin_t = _mm_cvtt_ss2si(_mm_load_ss(&bin_t));
+#else
                 unsigned int ibin_x = (unsigned int)(bin_x);
                 unsigned int ibin_y = (unsigned int)(bin_y);
                 unsigned int ibin_t = (unsigned int)(bin_t);
-                #endif
+#endif
 
-                if ((ibin_x < m_n_x) && (ibin_y < m_n_y) && (ibin_t < m_n_t))
-                    {
-                    ++m_local_bin_counts.local()[b_i(ibin_x, ibin_y, ibin_t)];
-                    }
-                });
-    }
+        if ((ibin_x < m_n_x) && (ibin_y < m_n_y) && (ibin_t < m_n_t))
+        {
+            ++m_local_bin_counts.local()[b_i(ibin_x, ibin_y, ibin_t)];
+        }
+    });
+}
 }; }; // end namespace freud::pmft

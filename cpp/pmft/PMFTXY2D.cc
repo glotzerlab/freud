@@ -47,11 +47,8 @@ PMFTXY2D::PMFTXY2D(float x_max, float y_max, unsigned int n_x, unsigned int n_y)
     m_y_array = precomputeAxisBinCenter(m_n_y, m_dy, m_y_max);
 
     // create and populate the pcf_array
-    m_pcf_array = std::shared_ptr<float>(new float[m_n_x * m_n_y], std::default_delete<float[]>());
-    memset((void*) m_pcf_array.get(), 0, sizeof(float) * m_n_x * m_n_y);
-    m_bin_counts = std::shared_ptr<unsigned int>(new unsigned int[m_n_x * m_n_y],
-                                                 std::default_delete<unsigned int[]>());
-    memset((void*) m_bin_counts.get(), 0, sizeof(unsigned int) * m_n_x * m_n_y);
+    m_pcf_array = returnEmptyArray<float>(m_n_x * m_n_y);
+    m_bin_counts = returnEmptyArray<unsigned int>(m_n_x * m_n_y);
 
     // Set r_cut
     m_r_cut = sqrtf(m_x_max * m_x_max + m_y_max * m_y_max);
@@ -62,7 +59,7 @@ PMFTXY2D::PMFTXY2D(float x_max, float y_max, unsigned int n_x, unsigned int n_y)
 void PMFTXY2D::reducePCF()
 {
     float jocob_factor = (float) 1.0 / m_jacobian;
-    reduce2D(m_n_x, m_n_y, [jocob_factor](size_t i) {return jocob_factor;} );
+    reduce2D(m_n_x, m_n_y, [jocob_factor](size_t i) { return jocob_factor; });
 }
 
 //! \internal
@@ -71,20 +68,15 @@ void PMFTXY2D::reducePCF()
 
 void PMFTXY2D::reset()
 {
-    resetGeneral(m_n_x*m_n_y);
+    resetGeneral(m_n_x * m_n_y);
 }
 
 //! \internal
 /*! \brief Helper functionto direct the calculation to the correct helper class
  */
-void PMFTXY2D::accumulate(box::Box& box,
-                          const locality::NeighborList *nlist,
-                         vec3<float> *ref_points,
-                         float *ref_orientations,
-                         unsigned int n_ref,
-                         vec3<float> *points,
-                         float *orientations,
-                         unsigned int n_p)
+void PMFTXY2D::accumulate(box::Box& box, const locality::NeighborList* nlist, vec3<float>* ref_points,
+                          float* ref_orientations, unsigned int n_ref, vec3<float>* points,
+                          float* orientations, unsigned int n_p)
 {
     assert(ref_points);
     assert(points);
@@ -97,45 +89,43 @@ void PMFTXY2D::accumulate(box::Box& box,
 
     Index2D b_i = Index2D(m_n_x, m_n_y);
 
-    accumulateGeneral(box, n_ref, nlist, n_p, m_n_x*m_n_y, 
-        [=] (size_t i, size_t j) 
+    accumulateGeneral(box, n_ref, nlist, n_p, m_n_x * m_n_y, [=](size_t i, size_t j) {
+        vec3<float> ref = ref_points[i];
+        vec3<float> delta = this->m_box.wrap(points[j] - ref);
+        float rsq = dot(delta, delta);
+
+        // check that the particle is not checking itself
+        // 1e-6 is an arbitrary value that could be set differently if needed
+        if (rsq < 1e-6)
         {
-            vec3<float> ref = ref_points[i];
-            vec3<float> delta = this->m_box.wrap(points[j] - ref);
-            float rsq = dot(delta, delta);
+            return;
+        }
 
-            // check that the particle is not checking itself
-            // 1e-6 is an arbitrary value that could be set differently if needed
-            if (rsq < 1e-6)
-            {
-                return;
-            }
+        // rotate interparticle vector
+        vec2<float> myVec(delta.x, delta.y);
+        rotmat2<float> myMat = rotmat2<float>::fromAngle(-ref_orientations[i]);
+        vec2<float> rotVec = myMat * myVec;
+        float x = rotVec.x + m_x_max;
+        float y = rotVec.y + m_y_max;
 
-            // rotate interparticle vector
-            vec2<float> myVec(delta.x, delta.y);
-            rotmat2<float> myMat = rotmat2<float>::fromAngle(-ref_orientations[i]);
-            vec2<float> rotVec = myMat * myVec;
-            float x = rotVec.x + m_x_max;
-            float y = rotVec.y + m_y_max;
-
-            // find the bin to increment
-            float binx = floorf(x * dx_inv);
-            float biny = floorf(y * dy_inv);
-            // fast float to int conversion with truncation
-            #ifdef __SSE2__
-            unsigned int ibinx = _mm_cvtt_ss2si(_mm_load_ss(&binx));
-            unsigned int ibiny = _mm_cvtt_ss2si(_mm_load_ss(&biny));
-            #else
+        // find the bin to increment
+        float binx = floorf(x * dx_inv);
+        float biny = floorf(y * dy_inv);
+// fast float to int conversion with truncation
+#ifdef __SSE2__
+        unsigned int ibinx = _mm_cvtt_ss2si(_mm_load_ss(&binx));
+        unsigned int ibiny = _mm_cvtt_ss2si(_mm_load_ss(&biny));
+#else
             unsigned int ibinx = (unsigned int)(binx);
             unsigned int ibiny = (unsigned int)(biny);
-            #endif
+#endif
 
-            // increment the bin
-            if ((ibinx < m_n_x) && (ibiny < m_n_y))
-            {
-                ++m_local_bin_counts.local()[b_i(ibinx, ibiny)];
-            }
-        });
-    }
+        // increment the bin
+        if ((ibinx < m_n_x) && (ibiny < m_n_y))
+        {
+            ++m_local_bin_counts.local()[b_i(ibinx, ibiny)];
+        }
+    });
+}
 
 }; }; // end namespace freud::pmft

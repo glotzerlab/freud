@@ -20,17 +20,31 @@
 
 namespace freud { namespace pmft {
 
-class NdHistogram 
+template<typename T>
+std::shared_ptr<T> returnEmptyArray(unsigned int size)
+{
+    auto new_arr = std::shared_ptr<T>(new T[size], std::default_delete<T[]>());
+    memset((void*) new_arr.get(), 0, sizeof(T) * size);
+    return new_arr;
+}
+
+//! Parent class for PMFT and RDF
+class NdHistogram
 {
 public:
+    //! Constructor
     NdHistogram();
 
+    //! Destructor
     virtual ~NdHistogram() {};
 
+    //! \internal
+    //! Pure virtual reduce function to make :code:`reduceAndReturn` work.
     virtual void reduce() = 0;
 
+    //! Return :code:`thing_to_return` after reducing.
     template<typename T>
-    T returnIfReduced(T thing_to_return)
+    T reduceAndReturn(T thing_to_return)
     {
         if (m_reduce == true)
         {
@@ -43,13 +57,13 @@ public:
     //! Get a reference to the PCF array
     std::shared_ptr<float> getPCF() 
     {
-        return returnIfReduced(m_pcf_array);
+        return reduceAndReturn(m_pcf_array);
     }
 
     //! Get a reference to the bin counts array
     std::shared_ptr<unsigned int> getBinCounts()
     {
-        return returnIfReduced(m_bin_counts);
+        return reduceAndReturn(m_bin_counts);
     }
 
     //! Get the simulation box
@@ -58,8 +72,13 @@ public:
         return m_box;
     }
 
+    //! \internal
+    //! Reset m_local_bin_counts
     void resetGeneral(unsigned int bin_size);
 
+    //! \internal
+    // Wrapper to do accumulation.
+    // :code:`Func cf` should be some sort of (void*)(size_t, size_t)
     template<typename Func>
     void accumulateGeneral(box::Box& box, unsigned int n_ref, const locality::NeighborList* nlist,
                            unsigned int n_p, unsigned int bin_size, Func cf)
@@ -67,26 +86,24 @@ public:
         m_box = box;
         nlist->validate(n_ref, n_p);
         const size_t* neighbor_list(nlist->getNeighbors());
-
-        tbb::parallel_for(tbb::blocked_range<size_t>(0, n_ref), [=](const tbb::blocked_range<size_t>& r) {
-            bool exists;
-            m_local_bin_counts.local(exists);
-            if (!exists)
+        size_t n_bonds = nlist->getNumBonds();
+        tbb::parallel_for(tbb::blocked_range<size_t>(0, n_bonds),
+            [=] (const tbb::blocked_range<size_t>& r)
             {
-                m_local_bin_counts.local() = new unsigned int[bin_size];
-                memset((void*) m_local_bin_counts.local(), 0, sizeof(unsigned int) * bin_size);
-            }
-            size_t bond(nlist->find_first_index(r.begin()));
-            // for each reference point
-            for (size_t i = r.begin(); i != r.end(); i++)
-            {
-                for (; bond < nlist->getNumBonds() && neighbor_list[2 * bond] == i; ++bond)
+                 bool exists;
+                m_local_bin_counts.local(exists);
+                if (!exists)
                 {
-                    const size_t j(neighbor_list[2 * bond + 1]);
-                    cf(i, j);
+                    m_local_bin_counts.local() = new unsigned int[bin_size];
+                    memset((void*) m_local_bin_counts.local(), 0, sizeof(unsigned int) * bin_size);
                 }
-            } // done looping over reference points
-        });
+                for(size_t bond = r.begin(); bond !=r.end(); ++bond)
+                    {
+                    size_t i(neighbor_list[2*bond]);
+                    size_t j(neighbor_list[2*bond + 1]);
+                    cf(i, j);
+                    }
+            });
         m_frame_counter++;
         m_n_ref = n_ref;
         m_n_p = n_p;
@@ -101,7 +118,7 @@ public:
         unsigned int m_n_p;           //!< The number of points
         bool m_reduce;                //!< Whether or not the PCF needs to be reduced
 
-        std::shared_ptr<float> m_pcf_array;         //!< Array of PCF computed
+        std::shared_ptr<float> m_pcf_array;         //!< Array of PCF/RDF computed 
         std::shared_ptr<unsigned int> m_bin_counts; //!< Counts for each bin
         tbb::enumerable_thread_specific<unsigned int*>
             m_local_bin_counts; //!< Thread local bin counts for TBB parallelism
@@ -130,9 +147,9 @@ public:
     //! \internal
     //! helper function to reduce the thread specific arrays into one array
     //! Must be implemented by subclasses
-
     virtual void reducePCF() = 0;
 
+    //! Implementing pure virtual function from parent class.
     virtual void reduce()
     {
         reducePCF();
@@ -143,9 +160,13 @@ public:
         return m_r_cut;
     }
 
+    //! Helper function to precompute axis bin center,
     std::shared_ptr<float> precomputeAxisBinCenter(unsigned int size, float d, float max);
 
-    template<typename Func> std::shared_ptr<float> precomputeArrayGeneral(unsigned int size, float d, Func cf)
+    //! Helper function to precompute array with the following logic.
+    //! :cpde:`Func cf` should be some sort of (float)(float, float).
+    template<typename Func> 
+    std::shared_ptr<float> precomputeArrayGeneral(unsigned int size, float d, Func cf)
     {
         std::shared_ptr<float> arr = std::shared_ptr<float>(new float[size], std::default_delete<float[]>());
         for (unsigned int i = 0; i < size; i++)
@@ -157,12 +178,14 @@ public:
         return arr;
     }
 
+    //! Helper function to reduce two dimensionally with appropriate Jaocobian.
     template<typename JacobFactor>
     void reduce2D(unsigned int first_dim, unsigned int second_dim, JacobFactor jf)
     {
         reduce3D(1, first_dim, second_dim, jf);
     }
 
+    //! Helper function to reduce three dimensionally with appropriate Jaocobian.
     template<typename JacobFactor>
     void reduce3D(unsigned int n_r, unsigned int first_dim, unsigned int second_dim, JacobFactor jf)
     {
@@ -196,7 +219,6 @@ public:
 
 protected:
     float m_r_cut;                //!< r_cut used in cell list construction
-
 private:
 };
 
