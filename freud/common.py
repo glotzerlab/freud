@@ -44,11 +44,11 @@ def convert_box(box):
     .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
 
     Args:
-      box (box-like object (see :meth:`freud.box.Box.from_box`)): Box to
+        box (box-like object (see :meth:`freud.box.Box.from_box`)): Box to
           check and convert if needed.
 
     Returns:
-      py:class:`freud.box.Box`: freud box.
+        :py:class:`freud.box.Box`: freud box.
     """
     if not isinstance(box, freud.box.Box):
         try:
