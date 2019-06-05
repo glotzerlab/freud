@@ -8,8 +8,8 @@
 #include <utility>
 #include <vector>
 
-#include "NearestNeighbors.h"
 #include "Index1D.h"
+#include "NearestNeighbors.h"
 
 using namespace std;
 using namespace tbb;

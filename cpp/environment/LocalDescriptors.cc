@@ -21,18 +21,15 @@ using hoomd::matrix::diagonalize;
 
 namespace freud { namespace environment {
 
-LocalDescriptors::LocalDescriptors(unsigned int lmax, bool negative_m):
-    m_lmax(lmax), m_negative_m(negative_m), m_Nref(0), m_nSphs(0)
-    {
-    }
+LocalDescriptors::LocalDescriptors(unsigned int lmax, bool negative_m)
+    : m_lmax(lmax), m_negative_m(negative_m), m_Nref(0), m_nSphs(0)
+{}
 
-void LocalDescriptors::compute(const box::Box& box, const freud::locality::NeighborList *nlist,
-                               unsigned int nNeigh,
-                               const vec3<float> *r_ref, unsigned int Nref,
-                               const vec3<float> *r, unsigned int Np,
-                               const quat<float> *q_ref,
+void LocalDescriptors::compute(const box::Box& box, const freud::locality::NeighborList* nlist,
+                               unsigned int nNeigh, const vec3<float>* r_ref, unsigned int Nref,
+                               const vec3<float>* r, unsigned int Np, const quat<float>* q_ref,
                                LocalDescriptorOrientation orientation)
-    {
+{
     nlist->validate(Nref, Np);
     const size_t* neighbor_list(nlist->getNeighbors());
 

@@ -72,10 +72,10 @@ public:
     }
 
 private:
-    unsigned int m_lmax;              //!< Maximum spherical harmonic l to calculate
-    bool m_negative_m;                //!< true if we should compute Ylm for negative m
-    unsigned int m_Nref;              //!< Last number of points computed
-    unsigned int m_nSphs;             //!< Last number of bond spherical harmonics computed
+    unsigned int m_lmax;  //!< Maximum spherical harmonic l to calculate
+    bool m_negative_m;    //!< true if we should compute Ylm for negative m
+    unsigned int m_Nref;  //!< Last number of points computed
+    unsigned int m_nSphs; //!< Last number of bond spherical harmonics computed
 
     //! Spherical harmonics for each neighbor
     std::shared_ptr<std::complex<float>> m_sphArray;
