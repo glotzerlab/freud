@@ -103,11 +103,11 @@ void accumulateGeneral(box::Box& box, unsigned int n_ref, const locality::Neighb
             }
         } // done looping over reference points
     });
-    this->m_frame_counter++;
-    this->m_n_ref = n_ref;
-    this->m_n_p = n_p;
+    m_frame_counter++;
+    m_n_ref = n_ref;
+    m_n_p = n_p;
     // flag to reduce
-    this->m_reduce = true;
+    m_reduce = true;
 }
 
     void resetGeneral(unsigned int bin_size);
@@ -143,8 +143,8 @@ void reduce3D(unsigned int n_r, unsigned int first_dim, unsigned int second_dim,
             }
         }
     });
-    float inv_num_dens = m_box.getVolume() / (float) this->m_n_p;
-    float norm_factor = (float) 1.0 / ((float) this->m_frame_counter * (float) this->m_n_ref);
+    float inv_num_dens = m_box.getVolume() / (float) m_n_p;
+    float norm_factor = (float) 1.0 / ((float) m_frame_counter * (float) m_n_ref);
     // normalize pcf_array
     // avoid need to unravel b/c arrays are in the same index order
     parallel_for(tbb::blocked_range<size_t>(0, n_r * first_dim * second_dim),
