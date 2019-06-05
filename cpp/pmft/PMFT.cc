@@ -18,10 +18,15 @@ using namespace tbb;
 
 namespace freud { namespace pmft {
 
+NdHistogram::NdHistogram()
+    : m_box(box::Box()), m_frame_counter(0), m_n_ref(0), m_n_p(0), m_reduce(true)
+    {
+    }
+
 /*! Initialize box
  */
 PMFT::PMFT()
-    : m_box(box::Box()), m_frame_counter(0), m_n_ref(0), m_n_p(0), m_reduce(true)
+    : NdHistogram()
     {
     }
 
@@ -36,33 +41,33 @@ PMFT::~PMFT()
     }
 
 //! Get a reference to the PCF array
-std::shared_ptr<unsigned int> PMFT::getBinCounts()
-    {
-    if (m_reduce == true)
-        {
-        reducePCF();
-        }
-    m_reduce = false;
-    return m_bin_counts;
-    }
+// std::shared_ptr<unsigned int> PMFT::getBinCounts()
+//     {
+//     if (m_reduce == true)
+//         {
+//         reducePCF();
+//         }
+//     m_reduce = false;
+//     return m_bin_counts;
+//     }
 
-//! Get a reference to the PCF array
-std::shared_ptr<float> PMFT::getPCF()
-    {
-    if (m_reduce == true)
-        {
-        reducePCF();
-        }
-    m_reduce = false;
-    return m_pcf_array;
-    }
+// //! Get a reference to the PCF array
+// std::shared_ptr<float> PMFT::getPCF()
+//     {
+//     if (m_reduce == true)
+//         {
+//         reducePCF();
+//         }
+//     m_reduce = false;
+//     return m_pcf_array;
+//     }
 
 std::shared_ptr<float> PMFT::precomputeAxisBinCenter(unsigned int size, float d, float max)
 {
     return precomputeArrayGeneral(size, d, [=](float T, float nextT) { return -max + ((T + nextT) / 2.0); });
 }
 
-void PMFT::resetGeneral(unsigned int bin_size)
+void NdHistogram::resetGeneral(unsigned int bin_size)
 {
     for (tbb::enumerable_thread_specific<unsigned int *>::iterator i = m_local_bin_counts.begin(); i != m_local_bin_counts.end(); ++i)
     {
