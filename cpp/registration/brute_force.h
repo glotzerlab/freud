@@ -441,7 +441,6 @@ private:
             }
             catch (...)
             {
-                std::cout << "random_device is not available..." << std::endl;
                 seeds.push_back(size_t(std::chrono::system_clock::now().time_since_epoch().count()));
                 seeds.push_back(size_t(getpid()));
             }

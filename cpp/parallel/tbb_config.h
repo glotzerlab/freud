@@ -4,7 +4,6 @@
 #ifndef TBB_CONFIG_H
 #define TBB_CONFIG_H
 
-#include <ostream>
 #include <tbb/tbb.h>
 
 /*! \file tbb_config.h

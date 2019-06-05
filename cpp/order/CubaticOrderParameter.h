@@ -5,7 +5,6 @@
 #define CUBATIC_ORDER_PARAMETER_H
 
 #include <memory>
-#include <ostream>
 #include <tbb/tbb.h>
 
 #include "TensorMath.h"

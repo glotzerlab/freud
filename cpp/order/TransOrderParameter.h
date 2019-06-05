@@ -6,7 +6,6 @@
 
 #include <complex>
 #include <memory>
-#include <ostream>
 #include <tbb/tbb.h>
 
 #include "Box.h"

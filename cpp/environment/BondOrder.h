@@ -5,7 +5,6 @@
 #define BOND_ORDER_H
 
 #include <memory>
-#include <ostream>
 #include <tbb/tbb.h>
 
 #include "Box.h"
