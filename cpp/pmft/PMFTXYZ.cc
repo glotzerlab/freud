@@ -18,13 +18,11 @@ using namespace tbb;
 
 namespace freud { namespace pmft {
 
-PMFTXYZ::PMFTXYZ(float x_max, float y_max, float z_max,
-        unsigned int n_x, unsigned int n_y, unsigned int n_z,
-        vec3<float> shiftvec) :
-    PMFT(), m_x_max(x_max), m_y_max(y_max), m_z_max(z_max),
-    m_n_x(n_x), m_n_y(n_y), m_n_z(n_z),
-    m_n_faces(0), m_shiftvec(shiftvec)
-    {
+PMFTXYZ::PMFTXYZ(float x_max, float y_max, float z_max, unsigned int n_x, unsigned int n_y, unsigned int n_z,
+                 vec3<float> shiftvec)
+    : PMFT(), m_x_max(x_max), m_y_max(y_max), m_z_max(z_max), m_n_x(n_x), m_n_y(n_y), m_n_z(n_z),
+      m_n_faces(0), m_shiftvec(shiftvec)
+{
     if (n_x < 1)
         throw invalid_argument("PMFTXYZ requires at least 1 bin in X.");
     if (n_y < 1)
@@ -60,45 +58,37 @@ PMFTXYZ::PMFTXYZ(float x_max, float y_max, float z_max,
     m_z_array = precomputeAxisBinCenter(m_n_z, m_dz, m_z_max);
 
     // create and populate the pcf_array
-    m_pcf_array = std::shared_ptr<float>(new float[m_n_x*m_n_y*m_n_z], std::default_delete<float[]>());
-    memset((void*) m_pcf_array.get(), 0, sizeof(float)*m_n_x*m_n_y*m_n_z);
-    m_bin_counts = std::shared_ptr<unsigned int>(new unsigned int[m_n_x*m_n_y*m_n_z], std::default_delete<unsigned int[]>());
-    memset((void*) m_bin_counts.get(), 0, sizeof(unsigned int)*m_n_x*m_n_y*m_n_z);
+    m_pcf_array = returnEmptyArray<float>(m_n_x * m_n_y * m_n_z);
+    m_bin_counts = returnEmptyArray<unsigned int>(m_n_x * m_n_y * m_n_z);
 
     // Set r_cut
-    m_r_cut = sqrtf(m_x_max*m_x_max + m_y_max*m_y_max + m_z_max*m_z_max);
-    }
+    m_r_cut = sqrtf(m_x_max * m_x_max + m_y_max * m_y_max + m_z_max * m_z_max);
+}
 
 //! \internal
 //! helper function to reduce the thread specific arrays into one array
 void PMFTXYZ::reducePCF()
 {
     float jocob_factor = (float) 1.0 / m_jacobian;
-    reduce3D(m_n_z, m_n_x, m_n_y, [jocob_factor](size_t i) {return jocob_factor;} );
+    reduce3D(m_n_z, m_n_x, m_n_y, [jocob_factor](size_t i) { return jocob_factor; });
 }
 
 //! \internal
 /*! \brief Function to reset the pcf array if needed e.g. calculating between new particle types
-*/
+ */
 void PMFTXYZ::reset()
 {
-    resetGeneral(m_n_x*m_n_y*m_n_z);
+    resetGeneral(m_n_x * m_n_y * m_n_z);
 }
 
 //! \internal
 /*! \brief Helper function to direct the calculation to the correct helper class
-*/
-void PMFTXYZ::accumulate(box::Box& box,
-                         const locality::NeighborList *nlist,
-                        vec3<float> *ref_points,
-                        quat<float> *ref_orientations,
-                        unsigned int n_ref,
-                        vec3<float> *points,
-                        quat<float> *orientations,
-                        unsigned int n_p,
-                        quat<float> *face_orientations,
-                        unsigned int n_faces)
-    {
+ */
+void PMFTXYZ::accumulate(box::Box& box, const locality::NeighborList* nlist, vec3<float>* ref_points,
+                         quat<float>* ref_orientations, unsigned int n_ref, vec3<float>* points,
+                         quat<float>* orientations, unsigned int n_p, quat<float>* face_orientations,
+                         unsigned int n_faces)
+{
     assert(ref_points);
     assert(points);
     assert(n_ref > 0);
@@ -113,14 +103,13 @@ void PMFTXYZ::accumulate(box::Box& box,
     Index3D b_i = Index3D(m_n_x, m_n_y, m_n_z);
     Index2D q_i = Index2D(n_faces, n_p);
 
-accumulateGeneral(box, n_ref, nlist, n_p, m_n_x*m_n_y*m_n_z, 
-    [=] (size_t i, size_t j) {
+    accumulateGeneral(box, n_ref, nlist, n_p, m_n_x * m_n_y * m_n_z, [=](size_t i, size_t j) {
         vec3<float> ref = ref_points[i];
         // create the reference point quaternion
         quat<float> ref_q(ref_orientations[i]);
-                // make sure that the particles are wrapped into the box
+        // make sure that the particles are wrapped into the box
         vec3<float> delta = m_box.wrap(points[j] - ref);
-        float rsq = dot(delta+m_shiftvec, delta+m_shiftvec);
+        float rsq = dot(delta + m_shiftvec, delta + m_shiftvec);
 
         // check that the particle is not checking itself
         // 1e-6 is an arbitrary value that could be set differently if needed
@@ -128,7 +117,7 @@ accumulateGeneral(box, n_ref, nlist, n_p, m_n_x*m_n_y*m_n_z,
         {
             return;
         }
-        for (unsigned int k=0; k<n_faces; k++)
+        for (unsigned int k = 0; k < n_faces; k++)
         {
             // create the extra quaternion
             quat<float> qe(face_orientations[q_i(k, i)]);
@@ -146,16 +135,16 @@ accumulateGeneral(box, n_ref, nlist, n_p, m_n_x*m_n_y*m_n_z,
             float binx = floorf(x * dx_inv);
             float biny = floorf(y * dy_inv);
             float binz = floorf(z * dz_inv);
-            // fast float to int conversion with truncation
-            #ifdef __SSE2__
+// fast float to int conversion with truncation
+#ifdef __SSE2__
             unsigned int ibinx = _mm_cvtt_ss2si(_mm_load_ss(&binx));
             unsigned int ibiny = _mm_cvtt_ss2si(_mm_load_ss(&biny));
             unsigned int ibinz = _mm_cvtt_ss2si(_mm_load_ss(&binz));
-            #else
+#else
             unsigned int ibinx = (unsigned int)(binx);
             unsigned int ibiny = (unsigned int)(biny);
             unsigned int ibinz = (unsigned int)(binz);
-            #endif
+#endif
 
             // increment the bin
             if ((ibinx < m_n_x) && (ibiny < m_n_y) && (ibinz < m_n_z))

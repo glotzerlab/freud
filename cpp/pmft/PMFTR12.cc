@@ -71,11 +71,8 @@ PMFTR12::PMFTR12(float r_max, unsigned int n_r, unsigned int n_t1, unsigned int 
     m_t2_array = precomputeAxisBinCenter(m_n_t2, m_dt2, 0);
 
     // create and populate the pcf_array
-    m_pcf_array = std::shared_ptr<float>(new float[m_n_r * m_n_t1 * m_n_t2], std::default_delete<float[]>());
-    memset((void*) m_pcf_array.get(), 0, sizeof(float) * m_n_r * m_n_t1 * m_n_t2);
-    m_bin_counts = std::shared_ptr<unsigned int>(new unsigned int[m_n_r * m_n_t1 * m_n_t2],
-                                                 std::default_delete<unsigned int[]>());
-    memset((void*) m_bin_counts.get(), 0, sizeof(unsigned int) * m_n_r * m_n_t1 * m_n_t2);
+    m_pcf_array = returnEmptyArray<float>(m_n_r * m_n_t1 * m_n_t2);
+    m_bin_counts = returnEmptyArray<unsigned int>(m_n_r * m_n_t1 * m_n_t2);
 
     // Set r_cut
     m_r_cut = m_r_max;
