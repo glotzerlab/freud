@@ -9,9 +9,6 @@
 #include <tbb/tbb.h>
 
 #include "Box.h"
-#include "Index1D.h"
-#include "NearestNeighbors.h"
-#include "TensorMath.h"
 #include "VectorMath.h"
 
 /*! \file NematicOrderParameter.h

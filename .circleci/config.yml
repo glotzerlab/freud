@@ -6,11 +6,6 @@ references:
       - image: glotzerlab/ci:2019.06-ubuntu18.04
     working_directory: ~/ci/freud
 
-  container_arch: &test_container_config_arch
-    docker:
-      - image: vramasub/freud_py36_arch:20180124
-    working_directory: ~/ci/freud
-
   container_manylinux: &container_manylinux
     docker:
       - image: quay.io/pypa/manylinux1_x86_64
@@ -97,6 +92,42 @@ references:
       path: test-reports
       destination: test-reports
 
+  benchmark: &benchmark
+    run:
+      name: Run benchmarks
+      command: |
+          pip install --user gitpython
+          pip install --user rowan
+          echo 'export PYTHONPATH=$PYTHONPATH:.' >> $BASH_ENV
+          echo 'export BENCHMARK_NPROC=2' >> $BASH_ENV
+          source $BASH_ENV
+          BENCHSCR="benchmarks/benchmarker.py"
+          echo "Running benchmark on current HEAD"
+          python "$BENCHSCR" run
+
+  comparison: &comparison
+    run:
+      name: Compare benchmark with origin/master
+      command: |
+          echo "Comparing with origin/master"
+          git reset --hard origin/master
+          echo "PYVER=${PYVER}"
+          echo 'export PYTHONPATH=$PYTHONPATH:.' >> $BASH_ENV
+          echo 'export BENCHMARK_NPROC=2' >> $BASH_ENV
+          source $BASH_ENV
+          rm freud/*.cpp
+          python${PYVER} setup.py build_ext --inplace --COVERAGE --ENABLE-CYTHON
+          git checkout "${CIRCLE_SHA1}" -- benchmarks/
+          BENCHSCR="benchmarks/benchmarker.py"
+          echo "Running benchmark on origin/master"
+          python "$BENCHSCR" run
+          python "$BENCHSCR" compare origin/master "${CIRCLE_SHA1}"
+
+  store_benchmarks: &store_benchmarks
+    store_artifacts:
+      path: benchmarks/reports
+      destination: benchmarks-reports
+
   build_and_test: &build_and_test
     steps:
       - *load_code
@@ -118,6 +149,15 @@ references:
       - *load_code
       - *get_style_requirements
       - *check_style
+
+  build_and_benchmark: &build_and_benchmark
+    steps:
+      - *load_code
+      - *get_requirements
+      - *build
+      - *benchmark
+      - *comparison
+      - *store_benchmarks
 
   build_linux_wheels: &build_linux_wheels
     steps:
@@ -160,20 +200,21 @@ references:
               rm -f PKG-INFO
               "${PYBIN}/python" -m pip install . --no-deps --ignore-installed -v --progress-bar=off -q
 
-              "${PYBIN}/pip" install -r ~/ci/freud/requirements.txt --progress-bar=off
+              # Force installation of version of SciPy that works with old NumPy.
+              "${PYBIN}/pip" install scipy==1.2.1 --progress-bar=off
               "${PYBIN}/pip" wheel ~/ci/freud/ -w ~/wheelhouse/ --no-deps --no-build-isolation --no-use-pep517
             done
 
             # Update RPath for wheels
             for whl in ~/wheelhouse/freud*.whl; do
-                auditwheel repair "$whl" -w ~/ci/freud/wheelhouse/
+              auditwheel repair "$whl" -w ~/ci/freud/wheelhouse/
             done
 
             # Install from and test all wheels
             for PYBIN in /opt/python/*/bin/; do
-                "${PYBIN}/python" -m pip install freud_analysis --no-deps --no-index -f ~/ci/freud/wheelhouse
-                cd ~/ci/freud/tests
-                "${PYBIN}/python" -m unittest discover . -v
+              "${PYBIN}/python" -m pip install freud_analysis --no-deps --no-index -f ~/ci/freud/wheelhouse
+              cd ~/ci/freud/tests
+              "${PYBIN}/python" -m unittest discover . -v
             done
 
             # Build source distribution using whichever Python appears last
@@ -214,35 +255,37 @@ references:
 
             # Build wheels
             for VERSION in ${PY_VERSIONS[@]}; do
-                echo "Building for Python ${VERSION}"
-                pyenv install ${VERSION}
-                pyenv global ${VERSION}
+              echo "Building for Python ${VERSION}"
+              pyenv install ${VERSION}
+              pyenv global ${VERSION}
 
-                pip install cython --no-deps --ignore-installed -q --progress-bar=off
-                rm -rf numpy-1.10.4
-                curl -sSLO https://github.com/numpy/numpy/archive/v1.10.4.tar.gz
-                tar -xzf v1.10.4.tar.gz
-                cd numpy-1.10.4
-                rm -f numpy/random/mtrand/mtrand.c
-                rm -f PKG-INFO
-                "${PYBIN}/python" -m pip install . --no-deps --ignore-installed -v --progress-bar=off -q
+              pip install --upgrade pip
+              pip install cython --no-deps --ignore-installed -q --progress-bar=off
+              rm -rf numpy-1.10.4
+              curl -sSLO https://github.com/numpy/numpy/archive/v1.10.4.tar.gz
+              tar -xzf v1.10.4.tar.gz
+              cd numpy-1.10.4
+              rm -f numpy/random/mtrand/mtrand.c
+              rm -f PKG-INFO
+              pip install . --no-deps --ignore-installed -v -q --progress-bar=off
 
-                pip install -r ~/ci/freud/requirements.txt
-                pip install wheel delocate
-                pip wheel ~/ci/freud/ -w ~/wheelhouse/ --no-deps --no-build-isolation --no-use-pep517
+              # Force installation of SciPy version that works with old NumPy.
+              pip install scipy==1.2.1 --progress-bar=off
+              pip install wheel delocate --progress-bar=off
+              pip wheel ~/ci/freud/ -w ~/wheelhouse/ --no-deps --no-build-isolation --no-use-pep517
             done
 
             # Update RPath for wheels
             for whl in ~/wheelhouse/freud*.whl; do
-                delocate-wheel "$whl" -w ~/ci/freud/wheelhouse/
+              delocate-wheel "$whl" -w ~/ci/freud/wheelhouse/
             done
 
             # Install from and test all wheels
             for VERSION in ${PY_VERSIONS[@]}; do
-                pyenv global ${VERSION}
-                pip install freud_analysis --no-deps --no-index -f ~/ci/freud/wheelhouse
-                cd ~/ci/freud/tests
-                python -m unittest discover . -v
+              pyenv global ${VERSION}
+              pip install freud_analysis --no-deps --no-index -f ~/ci/freud/wheelhouse
+              cd ~/ci/freud/tests
+              python -m unittest discover . -v
             done
 
             pip install --user twine
@@ -273,8 +316,17 @@ jobs:
     <<: *build_osx_wheels
 
   pypi-linux-wheels:
+    environment:
+      # Force clone over https instead of ssh.
+      CIRCLE_REPOSITORY_URL: https://github.com/glotzerlab/freud
     <<: *container_manylinux
     <<: *build_linux_wheels
+
+  benchmarks:
+    <<: *test_container_config_ubuntu
+    environment:
+      PYVER: "3.6"
+    <<: *build_and_benchmark
 
 workflows:
   version: 2
@@ -287,6 +339,9 @@ workflows:
       - test-py27:
           requires:
             - check-style
+      - benchmarks:
+          requires:
+            - test-py36
   deploy:
     jobs:
       - pypi-osx-wheels:
@@ -301,4 +356,3 @@ workflows:
                 only: /^v.*/
               branches:
                 ignore: /.*/
-

@@ -10,8 +10,7 @@
 #include <tbb/tbb.h>
 
 #include "Box.h"
-#include "Index1D.h"
-#include "NearestNeighbors.h"
+#include "NeighborList.h"
 #include "VectorMath.h"
 
 /*! \file TransOrderParameter.h

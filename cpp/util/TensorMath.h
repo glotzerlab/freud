@@ -4,7 +4,7 @@
 #ifndef TENSOR_MATH_H
 #define TENSOR_MATH_H
 
-#include "HOOMDMath.h"
+#include "VectorMath.h"
 
 template<class Real> struct tensor4
 {

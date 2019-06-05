@@ -8,10 +8,8 @@
 #include <ostream>
 #include <tbb/tbb.h>
 
-#include "Box.h"
-#include "LinkCell.h"
+#include "NeighborList.h"
 #include "PMFT.h"
-#include "VectorMath.h"
 
 /*! \file PMFTR12.h
     \brief Routines for computing potential of mean force and torque in R12 coordinates

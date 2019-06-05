@@ -7,6 +7,7 @@
 #include <emmintrin.h>
 #endif
 
+#include "Index1D.h"
 #include "PMFTXY2D.h"
 
 using namespace std;

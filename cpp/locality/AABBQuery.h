@@ -10,8 +10,6 @@
 
 #include "AABBTree.h"
 #include "Box.h"
-#include "Index1D.h"
-#include "NeighborList.h"
 #include "NeighborQuery.h"
 
 /*! \file AABBQuery.h

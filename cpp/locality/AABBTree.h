@@ -4,15 +4,13 @@
 #ifndef AABB_TREE_H
 #define AABB_TREE_H
 
-#include "HOOMDMath.h"
-#include "VectorMath.h"
 #include <cassert>
 #include <cstring>
 #include <stack>
-#include <stdexcept>
 #include <vector>
 
 #include "AABB.h"
+#include "VectorMath.h"
 
 /*! \file AABBTree.h
     \brief AABBTree build and query methods

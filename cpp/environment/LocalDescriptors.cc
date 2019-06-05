@@ -21,31 +21,18 @@ using hoomd::matrix::diagonalize;
 
 namespace freud { namespace environment {
 
-LocalDescriptors::LocalDescriptors(unsigned int neighmax, unsigned int lmax, float rmax, bool negative_m)
-    : m_neighmax(neighmax), m_lmax(lmax), m_negative_m(negative_m), m_nn(rmax, neighmax), m_Nref(0),
-      m_nSphs(0)
-{}
-
-void LocalDescriptors::computeNList(const box::Box& box, const vec3<float>* r_ref, unsigned int Nref,
-                                    const vec3<float>* r, unsigned int Np)
-{
-    m_nn.compute(box, r_ref, Nref, r, Np);
-}
-
-void LocalDescriptors::compute(const box::Box& box, const freud::locality::NeighborList* nlist,
-                               unsigned int nNeigh, const vec3<float>* r_ref, unsigned int Nref,
-                               const vec3<float>* r, unsigned int Np, const quat<float>* q_ref,
-                               LocalDescriptorOrientation orientation)
-{
-    // legacy API, use internal NearestNeighbors if nlist is a null pointer
-    if (!nlist)
+LocalDescriptors::LocalDescriptors(unsigned int lmax, bool negative_m):
+    m_lmax(lmax), m_negative_m(negative_m), m_Nref(0), m_nSphs(0)
     {
-        if (m_nn.getNref() != Nref || m_nn.getNp() != Np)
-            throw runtime_error("Must call computeNList() before compute");
-
-        nlist = m_nn.getNeighborList();
     }
 
+void LocalDescriptors::compute(const box::Box& box, const freud::locality::NeighborList *nlist,
+                               unsigned int nNeigh,
+                               const vec3<float> *r_ref, unsigned int Nref,
+                               const vec3<float> *r, unsigned int Np,
+                               const quat<float> *q_ref,
+                               LocalDescriptorOrientation orientation)
+    {
     nlist->validate(Nref, Np);
     const size_t* neighbor_list(nlist->getNeighbors());
 

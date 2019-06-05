@@ -8,6 +8,7 @@
 #endif
 
 #include "CubaticOrderParameter.h"
+#include "Index1D.h"
 
 using namespace std;
 using namespace tbb;

@@ -10,7 +10,7 @@
 #include <vector>
 
 #include "Box.h"
-#include "LinkCell.h"
+#include "NeighborList.h"
 #include "VectorMath.h"
 
 /*! \file Cluster.h

@@ -4,11 +4,12 @@
 #ifndef NEIGHBOR_QUERY_H
 #define NEIGHBOR_QUERY_H
 
-#include "Box.h"
-#include "NeighborList.h"
 #include <memory>
 #include <stdexcept>
 #include <tbb/tbb.h>
+
+#include "Box.h"
+#include "NeighborList.h"
 
 /*! \file NeighborQuery.h
     \brief Defines the abstract API for collections of points that can be

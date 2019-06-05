@@ -4,9 +4,9 @@
 #ifndef AABB_H
 #define AABB_H
 
-#include "HOOMDMath.h"
-#include "VectorMath.h"
 #include <algorithm>
+
+#include "VectorMath.h"
 
 /*! \file AABB.h
     \brief Basic AABB routines

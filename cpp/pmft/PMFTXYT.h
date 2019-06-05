@@ -8,10 +8,8 @@
 #include <ostream>
 #include <tbb/tbb.h>
 
-#include "Box.h"
-#include "LinkCell.h"
+#include "NeighborList.h"
 #include "PMFT.h"
-#include "VectorMath.h"
 
 /*! \file PMFTXYT.h
     \brief Routines for computing potential of mean force and torque in XYT coordinates

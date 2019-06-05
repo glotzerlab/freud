@@ -15,7 +15,6 @@
 
 #include "Box.h"
 #include "Cluster.h"
-#include "LinkCell.h"
 #include "VectorMath.h"
 #include "fsph/src/spherical_harmonics.hpp"
 

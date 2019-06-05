@@ -5,11 +5,9 @@
 #define RDF_H
 
 #include <memory>
-#include <ostream>
 #include <tbb/tbb.h>
 
 #include "Box.h"
-#include "Index1D.h"
 #include "NeighborList.h"
 #include "VectorMath.h"
 

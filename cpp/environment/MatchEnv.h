@@ -15,8 +15,7 @@
 
 #include "BiMap.h"
 #include "Box.h"
-#include "Cluster.h"
-#include "NearestNeighbors.h"
+#include "NeighborList.h"
 #include "VectorMath.h"
 #include "brute_force.h"
 

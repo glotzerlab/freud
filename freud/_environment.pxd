@@ -41,16 +41,11 @@ cdef extern from "LocalDescriptors.h" namespace "freud::environment":
 
     cdef cppclass LocalDescriptors:
         LocalDescriptors(unsigned int,
-                         unsigned int,
-                         float,
                          bool)
         unsigned int getNSphs() const
         unsigned int getLMax() const
         unsigned int getSphWidth() const
         unsigned int getNP()
-        void computeNList(const freud._box.Box &,
-                          const vec3[float]*, unsigned int,
-                          const vec3[float]*, unsigned int) nogil except +
         void compute(
             const freud._box.Box &, const freud._locality.NeighborList*,
             unsigned int, const vec3[float]*,

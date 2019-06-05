@@ -9,8 +9,6 @@
 #include <memory>
 #include <tbb/tbb.h>
 
-#include "HOOMDMath.h"
-#include "Index1D.h"
 #include "VectorMath.h"
 
 /*! \file RotationalAutocorrelation.h

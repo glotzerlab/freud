@@ -8,7 +8,7 @@
 #include <tbb/tbb.h>
 
 #include "Box.h"
-#include "LinkCell.h"
+#include "NeighborList.h"
 #include "VectorMath.h"
 
 /*! \file CorrelationFunction.h
