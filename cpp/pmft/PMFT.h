@@ -110,7 +110,7 @@ void accumulateGeneral(box::Box& box, unsigned int n_ref, const locality::Neighb
     m_reduce = true;
 }
 
-    void resetGeneral(unsigned int bin_size);
+void resetGeneral(unsigned int bin_size);
 
 
 template<typename JacobFactor>
@@ -122,24 +122,17 @@ void reduce2D(unsigned int first_dim, unsigned int second_dim, JacobFactor jf)
 template<typename JacobFactor>
 void reduce3D(unsigned int n_r, unsigned int first_dim, unsigned int second_dim, JacobFactor jf)
 {
-    memset((void*) m_bin_counts.get(), 0, sizeof(unsigned int) * n_r * first_dim * second_dim);
-    memset((void*) m_pcf_array.get(), 0, sizeof(float) * n_r * first_dim * second_dim);
-    parallel_for(tbb::blocked_range<size_t>(0, first_dim), [=](const tbb::blocked_range<size_t>& r) {
-        Index3D b_i = Index3D(first_dim, second_dim, n_r);
+    unsigned int loocal_bin_counts_size = n_r * first_dim * second_dim;
+    memset((void*) m_bin_counts.get(), 0, sizeof(unsigned int) * loocal_bin_counts_size);
+    memset((void*) m_pcf_array.get(), 0, sizeof(float) * loocal_bin_counts_size);
+    parallel_for(tbb::blocked_range<size_t>(0, loocal_bin_counts_size), [=](const tbb::blocked_range<size_t>& r) {
         for (size_t i = r.begin(); i != r.end(); i++)
         {
-            for (size_t j = 0; j < second_dim; j++)
+            for (tbb::enumerable_thread_specific<unsigned int*>::const_iterator local_bins
+                 = m_local_bin_counts.begin();
+                 local_bins != m_local_bin_counts.end(); ++local_bins)
             {
-                for (size_t k = 0; k < n_r; k++)
-                {
-                    for (tbb::enumerable_thread_specific<unsigned int*>::const_iterator local_bins
-                         = m_local_bin_counts.begin();
-                         local_bins != m_local_bin_counts.end(); ++local_bins)
-                    {
-                        m_bin_counts.get()[b_i((int) i, (int) j, (int) k)]
-                            += (*local_bins)[b_i((int) i, (int) j, (int) k)];
-                    }
-                }
+                m_bin_counts.get()[i] += (*local_bins)[i];
             }
         }
     });
