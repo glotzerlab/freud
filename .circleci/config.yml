@@ -50,8 +50,8 @@ references:
       name: Install style check dependencies
       command: |
         git submodule update --init
-        pip install --user -r requirements.txt
-        pip install --user flake8==3.7.7
+        pip${PYVER} install --user -r requirements.txt
+        pip${PYVER} install --user flake8==3.7.7
 
   check_style: &check_style
     run:
@@ -96,14 +96,14 @@ references:
     run:
       name: Run benchmarks
       command: |
-          pip install --user gitpython
-          pip install --user rowan
+          pip${PYVER} install --user gitpython
+          pip${PYVER} install --user rowan
           echo 'export PYTHONPATH=$PYTHONPATH:.' >> $BASH_ENV
           echo 'export BENCHMARK_NPROC=2' >> $BASH_ENV
           source $BASH_ENV
           BENCHSCR="benchmarks/benchmarker.py"
           echo "Running benchmark on current HEAD"
-          python "$BENCHSCR" run
+          python${PYVER} "$BENCHSCR" run
 
   comparison: &comparison
     run:
@@ -120,8 +120,8 @@ references:
           git checkout "${CIRCLE_SHA1}" -- benchmarks/
           BENCHSCR="benchmarks/benchmarker.py"
           echo "Running benchmark on origin/master"
-          python "$BENCHSCR" run
-          python "$BENCHSCR" compare origin/master "${CIRCLE_SHA1}"
+          python${PYVER} "$BENCHSCR" run
+          python${PYVER} "$BENCHSCR" compare origin/master "${CIRCLE_SHA1}"
 
   store_benchmarks: &store_benchmarks
     store_artifacts:
