@@ -56,3 +56,65 @@ def convert_box(box):
         except ValueError:
             raise
     return box
+
+
+def bar_plot(x, height, title=None, xlabel=None, ylabel=None):
+    try:
+        from matplotlib.figure import Figure
+        from matplotlib.backends.backend_agg import FigureCanvasAgg
+        import io
+    except ImportError:
+        return None
+    else:
+        fig = Figure()
+        ax = fig.subplots()
+        ax.bar(x=x, height=height)
+        ax.set_title(title)
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
+        ax.set_xticks(x)
+        ax.set_xticklabels(x)
+        f = io.BytesIO()
+        canvas = FigureCanvasAgg(fig) # noqa F841
+        fig.savefig(f, format='png')
+        return f.getvalue()
+
+
+def histogram_plot(bins, values, title=None, xlabel=None, ylabel=None):
+    try:
+        from matplotlib.figure import Figure
+        from matplotlib.backends.backend_agg import FigureCanvasAgg
+        import io
+    except ImportError:
+        return None
+    else:
+        fig = Figure()
+        ax = fig.subplots()
+        ax.hist(x=values, bins=bins)
+        ax.set_title(title)
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
+        f = io.BytesIO()
+        canvas = FigureCanvasAgg(fig) # noqa F841
+        fig.savefig(f, format='png')
+        return f.getvalue()
+
+
+def line_plot(x, y, title=None, xlabel=None, ylabel=None):
+    try:
+        from matplotlib.figure import Figure
+        from matplotlib.backends.backend_agg import FigureCanvasAgg
+        import io
+    except ImportError:
+        return None
+    else:
+        fig = Figure()
+        ax = fig.subplots()
+        ax.plot(y, x)
+        ax.set_title(title)
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
+        f = io.BytesIO()
+        canvas = FigureCanvasAgg(fig) # noqa F841
+        fig.savefig(f, format='png')
+        return f.getvalue()

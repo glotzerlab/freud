@@ -169,6 +169,17 @@ cdef class Cluster:
     def __str__(self):
         return repr(self)
 
+    def _repr_png_(self):
+        try:
+            count = np.unique(self.cluster_idx, return_counts=True)
+        except ValueError:
+            print("computeClusters should be called before to show")
+            return None
+        return freud.common.bar_plot(count[0], count[1],
+                                     title="Cluster Frequency",
+                                     xlabel="Cluster keys",
+                                     ylabel="Number of particles")
+
 
 cdef class ClusterProperties:
     R"""Routines for computing properties of point clusters.
