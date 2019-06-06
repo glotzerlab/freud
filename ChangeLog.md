@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 * Removed extra C++ includes to speed up builds.
 
+### Fixed
+* Calling setNumThreads works correctly even if a parallel compute method has already been called.
+
 ### Removed
 * Removed outdated `computeNList` function from `LocalDescriptors`.
 

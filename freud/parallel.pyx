@@ -13,6 +13,13 @@ _numThreads = 0
 
 
 def getNumThreads():
+    R"""Get the number of threads for parallel computation.
+
+    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
+
+    Returns:
+        int: Number of threads.
+    """
     global _numThreads
     return _numThreads
 
@@ -43,8 +50,8 @@ class NumThreads:
     .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
 
     Args:
-        N (int): Number of threads to use in this context. Defaults to
-                 None, which will use all available threads.
+        N (int, optional): Number of threads to use in this context. Defaults
+            to None, which will use all available threads.
     """
 
     def __init__(self, N=None):
