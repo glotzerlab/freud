@@ -12,13 +12,14 @@
 #include "NeighborList.h"
 #include "PMFT.h"
 #include "VectorMath.h"
+#include "NdHistogram.h"
 
 /*! \file RDF.h
     \brief Routines for computing radial density functions.
 */
 
 namespace freud { namespace density {
-class RDF : public pmft::NdHistogram
+class RDF : public util::NdHistogram
 {
 public:
     //! Constructor
