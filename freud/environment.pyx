@@ -622,6 +622,7 @@ cdef class MatchEnv:
             env_nlist_.get_ptr(), nlist_.get_ptr(),
             <vec3[float]*> &l_points[0, 0], nP, threshold, hard_r,
             registration, global_search)
+        return self
 
     def matchMotif(self, points, refPoints, threshold, registration=False,
                    nlist=None):
@@ -868,6 +869,21 @@ cdef class MatchEnv:
 
     def __str__(self):
         return repr(self)
+
+    def _repr_png_(self):
+        try:
+            count = np.unique(self.clusters, return_counts=True)
+        except ValueError:
+            print("computeClusters should be called before to show")
+            return None
+        count_sorted = sorted((freq, keys)
+                              for keys, freq in zip(count[0], count[1]))
+        freqs = [i[0] for i in count_sorted[-10:]]
+        keys = [i[1] for i in count_sorted[-10:]]
+        return freud.common.bar_plot(keys, freqs,
+                                     title="Cluster Frequency",
+                                     xlabel="Cluster keys",
+                                     ylabel="Number of particles")
 
 cdef class AngularSeparation:
     R"""Calculates the minimum angles of separation between particles and
