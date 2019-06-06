@@ -211,6 +211,11 @@ cdef class FloatCF:
     def __str__(self):
         return repr(self)
 
+    def _repr_png_(self):
+        return freud.common.line_plot(self.R, self.RDF,
+                                      title="Float CF",
+                                      xlabel="r", ylabel="p*q(r)")
+
 
 cdef class ComplexCF:
     R"""Computes the complex pairwise correlation function.
@@ -401,6 +406,11 @@ cdef class ComplexCF:
 
     def __str__(self):
         return repr(self)
+
+    def _repr_png_(self):
+        return freud.common.line_plot(self.R, np.real(self.RDF),
+                                      title="Complex CF",
+                                      xlabel="r", ylabel="C(r)")
 
 
 cdef class GaussianDensity:
@@ -832,3 +842,7 @@ cdef class RDF:
 
     def __str__(self):
         return repr(self)
+
+    def _repr_png_(self):
+        return freud.common.line_plot(self.R, self.RDF,
+                                      title="RDF")

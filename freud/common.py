@@ -110,7 +110,7 @@ def line_plot(x, y, title=None, xlabel=None, ylabel=None):
     else:
         fig = Figure()
         ax = fig.subplots()
-        ax.plot(y, x)
+        ax.plot(x, y)
         ax.set_title(title)
         ax.set_xlabel(xlabel)
         ax.set_ylabel(ylabel)
