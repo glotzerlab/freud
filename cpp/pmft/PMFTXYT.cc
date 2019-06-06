@@ -54,8 +54,8 @@ PMFTXYT::PMFTXYT(float x_max, float y_max, unsigned int n_x, unsigned int n_y, u
     m_t_array = precomputeAxisBinCenter(m_n_t, m_dt, 0);
 
     // create and populate the pcf_array
-    m_pcf_array = returnEmptyArray<float>(m_n_x * m_n_y * m_n_t);
-    m_bin_counts = returnEmptyArray<unsigned int>(m_n_x * m_n_y * m_n_t);
+    m_pcf_array = util::returnEmptyArray<float>(m_n_x * m_n_y * m_n_t);
+    m_bin_counts = util::returnEmptyArray<unsigned int>(m_n_x * m_n_y * m_n_t);
 
     // Set r_cut
     m_r_cut = sqrtf(m_x_max * m_x_max + m_y_max * m_y_max);

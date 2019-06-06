@@ -8,18 +8,13 @@ cimport freud._box
 cimport freud._locality
 
 cdef extern from "PMFT.h" namespace "freud::pmft":
-    cdef cppclass NdHistogram:
-        NdHistogram() except +
-
-        const freud._box.Box & getBox() const
-        shared_ptr[unsigned int] getBinCounts()
-        shared_ptr[float] getPCF()
-
-cdef extern from "PMFT.h" namespace "freud::pmft":
-    cdef cppclass PMFT(NdHistogram):
+    cdef cppclass PMFT:
         PMFT() except +
 
+        const freud._box.Box & getBox() const
         void reset()
+        shared_ptr[unsigned int] getBinCounts()
+        shared_ptr[float] getPCF()
         float getRCut()
 
 cdef extern from "PMFTR12.h" namespace "freud::pmft":

@@ -351,6 +351,7 @@ extra_module_sources = dict(
     ],
     density=[
         os.path.join("cpp", "locality", "NeighborList.cc"),
+        os.path.join("cpp", "util", "NdHistogram.cc"),
     ],
     environment=[
         os.path.join("cpp", "locality", "NeighborList.cc"),
@@ -363,6 +364,7 @@ extra_module_sources = dict(
     ],
     pmft=[
         os.path.join("cpp", "locality", "NeighborList.cc"),
+        os.path.join("cpp", "util", "NdHistogram.cc"),
     ],
 )
 

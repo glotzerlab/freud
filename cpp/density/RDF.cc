@@ -18,7 +18,7 @@ using namespace tbb;
 
 namespace freud { namespace density {
 
-RDF::RDF(float rmax, float dr, float rmin) : pmft::NdHistogram(), m_rmax(rmax), m_rmin(rmin), m_dr(dr)
+RDF::RDF(float rmax, float dr, float rmin) : util::NdHistogram(), m_rmax(rmax), m_rmin(rmin), m_dr(dr)
 {
     if (dr <= 0.0f)
         throw invalid_argument("RDF requires dr to be positive.");
@@ -33,16 +33,16 @@ RDF::RDF(float rmax, float dr, float rmin) : pmft::NdHistogram(), m_rmax(rmax), 
 
     m_nbins = int(floorf((m_rmax - m_rmin) / m_dr));
     assert(m_nbins > 0);
-    m_pcf_array = pmft::returnEmptyArray<float>(m_nbins);
-    m_bin_counts = pmft::returnEmptyArray<unsigned int>(m_nbins);
-    m_avg_counts = pmft::returnEmptyArray<float>(m_nbins);
-    m_N_r_array = pmft::returnEmptyArray<float>(m_nbins);
+    m_pcf_array = util::returnEmptyArray<float>(m_nbins);
+    m_bin_counts = util::returnEmptyArray<unsigned int>(m_nbins);
+    m_avg_counts = util::returnEmptyArray<float>(m_nbins);
+    m_N_r_array = util::returnEmptyArray<float>(m_nbins);
 
     // precompute the bin center positions and cell volumes
     m_r_array = std::shared_ptr<float>(new float[m_nbins], std::default_delete<float[]>());
-    m_vol_array = pmft::returnEmptyArray<float>(m_nbins);
-    m_vol_array2D = pmft::returnEmptyArray<float>(m_nbins);
-    m_vol_array3D = pmft::returnEmptyArray<float>(m_nbins);
+    m_vol_array = util::returnEmptyArray<float>(m_nbins);
+    m_vol_array2D = util::returnEmptyArray<float>(m_nbins);
+    m_vol_array3D = util::returnEmptyArray<float>(m_nbins);
 
     for (unsigned int i = 0; i < m_nbins; i++)
     {
