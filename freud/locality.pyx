@@ -1471,20 +1471,15 @@ cdef class Voronoi:
             cells.
     """
 
-    cdef freud.box.Box _box
-    cdef float _buff
-    cdef NeighborList _nlist
-    cdef freud._locality.Voronoi * thisptr
-
-    def __init__(self, box, buff=0.1):
+    def __init__(self):
         if not _SCIPY_AVAILABLE:
             raise RuntimeError("You cannot use this class without SciPy")
-        self._box = freud.common.convert_box(box)
-        self._buff = buff
-        self._nlist = freud.locality.NeighborList()
+        # self._buff = buff
+        # self._nlist = freud.locality.NeighborList()
         self.thisptr = new freud._locality.Voronoi()
+        self._nlist = NeighborList()
 
-    def _qhull_compute(self, positions, box=None, buff=None):
+    def _qhull_compute(self, box, positions, buffer, images):
         R"""Calls ParticleBuffer and qhull
 
         Args:
@@ -1492,13 +1487,14 @@ cdef class Voronoi:
                 Points to calculate Voronoi diagram for.
             box (:class:`freud.box.Box`):
                 Simulation box (Default value = None).
-            buff (float):
+            buffer (float):
                 Buffer distance within which to look for images
                 (Default value = None).
         """
         # Compute the buffer particles in C++
         pbuff = freud.box.ParticleBuffer(box)
-        pbuff.compute(positions, buff)
+        # print('positions: ', positions)
+        pbuff.compute(positions, buffer, images)
         buff_ptls = pbuff.buffer_particles
         buff_ids = pbuff.buffer_ids
 
@@ -1515,19 +1511,20 @@ cdef class Voronoi:
             expanded_points = expanded_points[:, :2]
 
         # Use qhull to get the points
-        return qvoronoi(expanded_points), expanded_ids
+        return qvoronoi(expanded_points), expanded_ids, pbuff
 
-    def compute(self, positions, box=None, buff=None):
+    def compute(self, box, positions, buffer=2, images=True):
         R"""Compute Voronoi diagram.
 
         Args:
+            box (:class:`freud.box.Box`):
+                Simulation box.
             positions ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Points to calculate Voronoi diagram for.
-            box (:class:`freud.box.Box`):
-                Simulation box (Default value = None).
-            buff (float):
-                Buffer distance within which to look for images
-                (Default value = None).
+            buffer (float):
+                TODO: UPDATE
+                Buffer distance within which to look for images.
+
         """
 
         # If box or buff is not specified, revert to object quantities
@@ -1536,12 +1533,9 @@ cdef class Voronoi:
             b = self._box
         else:
             b = freud.common.convert_box(box)
-        if buff is None:
-            buff = self._buff
 
-        voronoi, expanded_id = self._qhull_compute(positions, b, buff)
-        # cdef const int[::1] expanded_ids = \
-        #    np.asarray(expanded_id, dtype=np.int32)
+        voronoi, expanded_id, pbuff = self._qhull_compute(
+            b, positions, buffer, images)
 
         vertices = voronoi.vertices
 
@@ -1559,49 +1553,24 @@ cdef class Voronoi:
         """
 
         # compute neighbors
-        # cdef const int[:, ::1] ridge_points = np.asarray(
-        #    voronoi.ridge_points, dtype=np.int32)
-        # cdef unsigned int n_ridges = ridge_points.shape[0]
-        # cdef const int[:, ::1] ridge_vertices = \
-        #    np.asarray(voronoi.ridge_vertices, dtype=np.int32)
+        cdef const int[:, ::1] ridge_points = np.asarray(
+            voronoi.ridge_points, dtype=np.int32)
+        cdef unsigned int n_ridges = ridge_points.shape[0]
+        cdef const int[::1] ridge_vertices = np.asarray(list(
+            itertools.chain.from_iterable(
+                voronoi.ridge_vertices)), dtype=np.int32)
 
         # Must keep this in double precision
-        # cdef const double[:, ::1] vor_vertices = np.asarray(
-        #    voronoi.vertices, dtype=np.float64)
+        cdef const double[:, ::1] vor_vertices = np.asarray(
+            vertices, dtype=np.float64)
         cdef unsigned int N = len(positions)
 
-        self.thisptr.print_hello()
-
-        # fake_points = np.array([[0, 0, 1], [0, 0, -1]], dtype=np.float64)
-        # fake_vertices = np.array([[1, 1, 0], [0, 2, 0], [-1, 1, 0],
-        # [-1, -1, 0], [1, -1, 0]], dtype=np.float64)
-        # fake_ridge_points = np.array([[0, 1]], dtype=np.int32)
-        # cdef unsigned int n_ridges = fake_ridge_points.shape[0]
-        # fake_ridge_vertices = [[0, 1, 2, 3, 4]]
-        fake_points = np.array([[1, 0, 0], [-1, 0, 0]], dtype=np.float64)
-        fake_vertices = np.array(
-            [[1, 1, 1], [-1, -1, 1], [-1, -1, -1], [1, 1, -1]],
-            dtype=np.float64)
-        fake_ridge_points = np.array([[0, 1]], dtype=np.int32)
-        cdef unsigned int n_ridges = fake_ridge_points.shape[0]
-        fake_ridge_vertices = [[0, 1, 2, 3]]
-
-        N = 2
         indices = [0]
         indices.extend(np.cumsum(
             [len(ridge) for ridge in voronoi.ridge_vertices]))
-        cdef const int[:, ::1] ridge_points = np.asarray(
-            fake_ridge_points, dtype=np.int32)
-        cdef const double[:, ::1] vor_vertices = np.asarray(
-            fake_vertices, dtype=np.float64)
-        cdef const int[::1] ridge_vertices = np.asarray(
-            list(itertools.chain.from_iterable(fake_ridge_vertices)),
-            dtype=np.int32)
-
-        indices = [0]
-        indices.extend(np.cumsum(
-            [len(ridge) for ridge in fake_ridge_vertices]))
-        print(indices)
+        # print('vertices:', voronoi.vertices)
+        # print('ridge_vertices:', voronoi.ridge_vertices)
+        # print('indices:', indices)
 
         cdef const int[::1] expanded_ids = \
             np.asarray(expanded_id, dtype=np.int32)
@@ -1618,11 +1587,12 @@ cdef class Voronoi:
             <int*> &expanded_ids[0],
             <int*> &ridge_vertex_indices[0])
 
-        return self
+        cdef freud._locality.NeighborList * nlist
+        nlist = self.thisptr.getNeighborList()
+        self._nlist.refer_to(nlist)
+        self._nlist.base = self
 
-    @property
-    def buffer(self):
-        return self._buff
+        return self
 
     @property
     def polytopes(self):
@@ -1883,8 +1853,8 @@ cdef class Voronoi:
         return self._poly_volumes
 
     def __repr__(self):
-        return "freud.voronoi.{cls}(box={box}, buff={buff})".format(
-            cls=type(self).__name__, box=self._box, buff=self._buff)
+        return "freud.voronoi.{cls}()".format(
+            cls=type(self).__name__)
 
     def __str__(self):
         return repr(self)

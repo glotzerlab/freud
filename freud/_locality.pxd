@@ -165,7 +165,6 @@ cdef extern from "Voronoi.h" namespace "freud::locality":
     cdef cppclass Voronoi:
         Voronoi()
         # Voronoi() # actual constructor
-        void print_hello() nogil except +
         void compute(
             const freud._box.Box &,
             const vec3[double]*,
@@ -175,3 +174,4 @@ cdef extern from "Voronoi.h" namespace "freud::locality":
             unsigned int,
             const int*,
             const int*) nogil except +
+        NeighborList * getNeighborList()

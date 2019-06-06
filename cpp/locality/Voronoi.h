@@ -7,6 +7,8 @@
 #include "VectorMath.h"
 #include <vector>
 
+using namespace std;
+
 namespace freud { namespace locality {
 
 struct NeighborBond {
@@ -26,9 +28,14 @@ struct NeighborBond {
      *  weight.
      */
     bool operator< (const NeighborBond &n) const
-        {
-        return weight < n.weight;
+    {
+        if (index_i < n.index_i) {
+            return true;
+        } else if (index_j < n.index_j) {
+            return true;
         }
+        return weight < n.weight;
+    }
 
     unsigned int index_i;     //! The point id.
     unsigned int index_j;     //! The reference point id.
@@ -39,19 +46,23 @@ struct NeighborBond {
 class Voronoi
     {
     public:
-        // Null constructor
+        // default constructor
         Voronoi();
-
-        void print_hello();
 
         // void compute(const vec3<double>* vertices, const std::vector<int>* ridge_points, const std::vector<int>* ridge_vertices);
         void compute(const box::Box &box, const vec3<double>* vertices,
             const int* ridge_points, const int* ridge_vertices,
             unsigned int n_ridges, unsigned int N, const int* expanded_ids,
             const int* ridge_vertex_indices);
+         NeighborList *getNeighborList()
+        {
+            return &m_neighbor_list;
+        }
 
     private:
         box::Box m_box;
+        NeighborList m_neighbor_list;                              //!< Stored neighbor list
+
     };
 }; }; // end namespace freud::locality
 

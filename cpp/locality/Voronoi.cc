@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <algorithm>
+#include <sstream>
 #include <stdexcept>
 #include <tbb/tbb.h>
 #include <tuple>
@@ -27,11 +28,18 @@ namespace freud { namespace locality {
 // Default constructor
 Voronoi::Voronoi()
     {}
-
-void Voronoi::print_hello()
-    {
-        std::cout << "hello Yezhi" << std::endl;
+class NeighborBondLess{
+public:
+    bool operator()(const NeighborBond &n1, NeighborBond &n2) const {
+        if (n1.index_i != n2.index_i){
+            return n1.index_i < n2.index_i;
+        }
+        if (n1.index_j != n2.index_j){
+            return n1.index_j < n2.index_j;
+        }
+            return n1.weight < n2.weight;
     }
+};
 
 void Voronoi::compute(const box::Box &box, const vec3<double>* vertices,
     const int* ridge_points, const int* ridge_vertices, unsigned int n_ridges,
@@ -39,38 +47,54 @@ void Voronoi::compute(const box::Box &box, const vec3<double>* vertices,
     {
         m_box = box;
 
-        float weight = 0;
         // iterate over ridges in parallel
         typedef tbb::enumerable_thread_specific< std::vector<NeighborBond> > BondVector;
         BondVector bonds;
         tbb::parallel_for(tbb::blocked_range<size_t>(0, n_ridges), [&] (const tbb::blocked_range<size_t> &r) {
              BondVector::reference local_bonds(bonds.local());
             for (size_t ridge(r.begin()); ridge != r.end(); ++ridge) {
-                unsigned int i = expanded_ids[ridge_points[2*ridge]];
-                unsigned int j = expanded_ids[ridge_points[2*ridge+1]];
+                unsigned int i = ridge_points[2*ridge];
+                unsigned int j = ridge_points[2*ridge+1];
+                float weight = 0;
 
+                // Reject bonds between two image particles
                 if (i >= N && j >= N)
                     continue;
 
                 bool exclude_ii = true;
+                // We allow bonds from a particle to its own image
                 if (exclude_ii && i == j)
                     continue;
 
+                // Get the index of the original particle (not its image)
+                i = expanded_ids[i];
+                j = expanded_ids[j];
+
                 // Reject bonds where a ridge goes to infinity (index -1)
                 bool valid_bond = true;
+                vector<int> current_ridge_vertex_ids;
                 for (int ridge_vert_id = ridge_vertex_indices[ridge]; ridge_vert_id < ridge_vertex_indices[ridge+1]; ++ridge_vert_id) {
                     if (ridge_vertices[ridge_vert_id] == -1) {
+                        NeighborBond nb(i, j, weight);
+                        NeighborBond sym_bond(j, i, weight);
+                        local_bonds.emplace_back(nb);
+                        local_bonds.emplace_back(sym_bond);
                         valid_bond = false;
+                        break;
+                    } else {
+                        current_ridge_vertex_ids.push_back(ridge_vertices[ridge_vert_id]);
                     }
                 }
                 if (valid_bond) {
                     if (box.is2D()) {
-                        cout << "This is 2D" << endl;
                         // 2D weight is the length of the ridge edge
-                        vec3<double> rij(vertices[ridge_vertices[2*ridge]] - vertices[ridge_vertices[2*ridge+1]]);
+                        auto v1ind = current_ridge_vertex_ids[0];
+                        auto v2ind = current_ridge_vertex_ids[1];
+                        auto v1 = vertices[v1ind];
+                        auto v2 = vertices[v2ind];
+                        vec3<float> rij(box.wrap(v1 - v2));
                         weight = sqrt(dot(rij, rij));
                     } else {
-                        cout << "This is 3D" << endl;
                         // 3D weight is the area of the ridge facet
                         // Create a vector of all vertices for this facet
                         vector< vec3<double> > vertex_coords;
@@ -80,9 +104,6 @@ void Voronoi::compute(const box::Box &box, const vec3<double>* vertices,
                         {
                             vertex_coords.push_back(vertices[ridge_vertices[ridge_vert_id]]);
                         }
-
-                        cout << "There are " << vertex_coords.size() << " vertices in this ridge." << endl;
-
                         // Code below is adapted from http://geomalgorithms.com/a01-_area.html
                         // Get a unit normal vector to the polygonal facet
                         // Every facet has at least 3 vertices
@@ -107,18 +128,15 @@ void Voronoi::compute(const box::Box &box, const vec3<double>* vertices,
                             int n1 = step % n_verts;
                             int n2 = (step + 1) % n_verts;
                             int n3 = (step - 1 + n_verts) % n_verts;
-                            cout << "n1 = " << n1 << ", n2 = " << n2 << ", n3 = " << n3 << endl;
                             switch(c0)
                             {
                                 case 0:
                                     projected_area += abs(vertex_coords[n1].y * (vertex_coords[n2].z - vertex_coords[n3].z));
                                     break;
                                 case 1:
-                                    cout << "area: " << abs(vertex_coords[n1].z * (vertex_coords[n2].x - vertex_coords[n3].x)) << endl;
                                     projected_area += abs(vertex_coords[n1].z * (vertex_coords[n2].x - vertex_coords[n3].x));
                                     break;
                                 case 2:
-                                    cout << "area: " << (vertex_coords[n1].x * (vertex_coords[n2].y - vertex_coords[n3].y)) << endl;
                                     projected_area += abs(vertex_coords[n1].x * (vertex_coords[n2].y - vertex_coords[n3].y));
                                     break;
                             }
@@ -127,12 +145,11 @@ void Voronoi::compute(const box::Box &box, const vec3<double>* vertices,
 
                         // Project back to get the true area (which is the weight)
                         weight = projected_area / abs(c0_component);
-                        cout << "Projected area: " << projected_area << endl;
-                        cout << "c0: " << c0 << ", component: " << c0_component << endl;
                     }
-                    cout << "i = " << i << ", j = " << j << ", weight = " << weight << endl;
                     NeighborBond nb(i, j, weight);
+                    NeighborBond sym_bond(j, i, weight);
                     local_bonds.emplace_back(nb);
+                    local_bonds.emplace_back(sym_bond);
                 }
             }
 
@@ -140,15 +157,14 @@ void Voronoi::compute(const box::Box &box, const vec3<double>* vertices,
 
         tbb::flattened2d<BondVector> flat_bonds = tbb::flatten2d(bonds);
         std::vector<NeighborBond> linear_bonds(flat_bonds.begin(), flat_bonds.end());
-        tbb::parallel_sort(linear_bonds.begin(), linear_bonds.end());
+        tbb::parallel_sort(linear_bonds.begin(), linear_bonds.end(), NeighborBondLess());
 
         unsigned int num_bonds = linear_bonds.size();
 
-        NeighborList *nl = new NeighborList();
-        nl->resize(num_bonds);
-        nl->setNumBonds(num_bonds, N, N);
-        size_t *neighbor_array(nl->getNeighbors());
-        float *neighbor_weights(nl->getWeights());
+        m_neighbor_list.resize(num_bonds);
+        m_neighbor_list.setNumBonds(num_bonds, N, N);
+        size_t *neighbor_array(m_neighbor_list.getNeighbors());
+        float *neighbor_weights(m_neighbor_list.getWeights());
 
         parallel_for(tbb::blocked_range<size_t>(0, num_bonds),
             [&] (const tbb::blocked_range<size_t> &r) {

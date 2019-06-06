@@ -114,3 +114,7 @@ cdef class NearestNeighbors:
 cdef class AABBQuery(NeighborQuery):
     cdef freud._locality.AABBQuery * thisptr
     cdef NeighborList _nlist
+
+cdef class Voronoi:
+    cdef freud._locality.Voronoi * thisptr
+    cdef NeighborList _nlist
