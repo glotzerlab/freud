@@ -99,7 +99,7 @@ continuous integration (CI) contains the information on the correctness of the s
 Source
 ------
 
--  TBB sections should use lambdas, not templates (see
+-  TBB sections should use lambdas, not functors (see
    `this tutorial <https://software.intel.com/en-us/blogs/2009/08/03/parallel_for-is-easier-with-lambdas-intel-threading-building-blocks>`_).
 
 .. code-block:: c++
