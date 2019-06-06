@@ -41,6 +41,26 @@ public:
     }
 };
 
+typedef tbb::enumerable_thread_specific< std::vector<NeighborBond> > BondVector;
+
+void add_valid_bonds(BondVector::reference local_bonds,
+    unsigned int i, unsigned int expanded_i,
+    unsigned int j, unsigned int expanded_j,
+    unsigned int N, float weight)
+{
+    // Make sure we only add bonds with real particles as the reference
+    if (i < N)
+    {
+        NeighborBond nb(expanded_i, expanded_j, weight);
+        local_bonds.emplace_back(nb);
+    }
+    if (j < N)
+    {
+        NeighborBond nb(expanded_j, expanded_i, weight);
+        local_bonds.emplace_back(nb);
+    }
+}
+
 void Voronoi::compute(const box::Box &box, const vec3<double>* vertices,
     const int* ridge_points, const int* ridge_vertices, unsigned int n_ridges,
     unsigned int N, const int* expanded_ids, const int* ridge_vertex_indices)
@@ -48,7 +68,7 @@ void Voronoi::compute(const box::Box &box, const vec3<double>* vertices,
         m_box = box;
 
         // iterate over ridges in parallel
-        typedef tbb::enumerable_thread_specific< std::vector<NeighborBond> > BondVector;
+
         BondVector bonds;
         tbb::parallel_for(tbb::blocked_range<size_t>(0, n_ridges), [&] (const tbb::blocked_range<size_t> &r) {
              BondVector::reference local_bonds(bonds.local());
@@ -62,30 +82,24 @@ void Voronoi::compute(const box::Box &box, const vec3<double>* vertices,
                     continue;
 
                 bool exclude_ii = true;
-                // We allow bonds from a particle to its own image
+                // We DO allow bonds from a particle to its own image
                 if (exclude_ii && i == j)
                     continue;
 
-                // Get the index of the original particle (not its image)
-                i = expanded_ids[i];
-                j = expanded_ids[j];
-
-                // Reject bonds where a ridge goes to infinity (index -1)
-                bool valid_bond = true;
+                // Bonds where a ridge goes to infinity (index -1) have weight 0
+                bool weighted_bond = true;
                 vector<int> current_ridge_vertex_ids;
                 for (int ridge_vert_id = ridge_vertex_indices[ridge]; ridge_vert_id < ridge_vertex_indices[ridge+1]; ++ridge_vert_id) {
                     if (ridge_vertices[ridge_vert_id] == -1) {
-                        NeighborBond nb(i, j, weight);
-                        NeighborBond sym_bond(j, i, weight);
-                        local_bonds.emplace_back(nb);
-                        local_bonds.emplace_back(sym_bond);
-                        valid_bond = false;
+                        add_valid_bonds(local_bonds, i, expanded_ids[i], j, expanded_ids[j], N, 0);
+                        weighted_bond = false;
                         break;
                     } else {
                         current_ridge_vertex_ids.push_back(ridge_vertices[ridge_vert_id]);
                     }
                 }
-                if (valid_bond) {
+
+                if (weighted_bond) {
                     if (box.is2D()) {
                         // 2D weight is the length of the ridge edge
                         auto v1ind = current_ridge_vertex_ids[0];
@@ -146,10 +160,7 @@ void Voronoi::compute(const box::Box &box, const vec3<double>* vertices,
                         // Project back to get the true area (which is the weight)
                         weight = projected_area / abs(c0_component);
                     }
-                    NeighborBond nb(i, j, weight);
-                    NeighborBond sym_bond(j, i, weight);
-                    local_bonds.emplace_back(nb);
-                    local_bonds.emplace_back(sym_bond);
+                    add_valid_bonds(local_bonds, i, expanded_ids[i], j, expanded_ids[j], N, weight);
                 }
             }
 
