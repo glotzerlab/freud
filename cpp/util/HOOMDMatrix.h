@@ -56,7 +56,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "HOOMDMath.h"
 
-namespace hoomd{namespace matrix{
+namespace hoomd { namespace matrix {
 
 // Maximum number of iterations for Jacobi rotations
 #define MAXJACOBI 50
@@ -73,14 +73,14 @@ namespace hoomd{namespace matrix{
 
 void rotate(float matrix[][3], int i, int j, int k, int l, float s, float tau);
 
-/*! Compute eigenvalues and eigenvectors of 3x3 real symmetric matrix based on Jacobi rotations adapted from Numerical Recipes jacobi() function (LAMMPS)
-    \param matrix Matrix to be diagonalized
-    \param evalues Eigen-values obtained after diagonalized
-    \param evectors Eigen-vectors obtained after diagonalized in columns
+/*! Compute eigenvalues and eigenvectors of 3x3 real symmetric matrix based on Jacobi rotations adapted from
+   Numerical Recipes jacobi() function (LAMMPS) \param matrix Matrix to be diagonalized \param evalues
+   Eigen-values obtained after diagonalized \param evectors Eigen-vectors obtained after diagonalized in
+   columns
 
 */
 
-int diagonalize(float matrix[][3], float *evalues, float evectors[][3]);
+int diagonalize(float matrix[][3], float* evalues, float evectors[][3]);
 
 /*! Calculate the quaternion from three axes
     \param ex_space x-axis unit vector
@@ -89,8 +89,8 @@ int diagonalize(float matrix[][3], float *evalues, float evectors[][3]);
     \param quat returned quaternion
 */
 
-void quaternionFromExyz(float4 &ex_space, float4 &ey_space, float4 &ez_space, float4 &quat);
+void quaternionFromExyz(float4& ex_space, float4& ey_space, float4& ez_space, float4& quat);
 
-};}; // end namespace hoomd::matrix
+}; }; // end namespace hoomd::matrix
 
 #endif // HOOMD_MATRIX_H

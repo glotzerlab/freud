@@ -18,29 +18,25 @@ namespace freud { namespace density {
 
 LocalDensity::LocalDensity(float rcut, float volume, float diameter)
     : m_box(box::Box()), m_rcut(rcut), m_volume(volume), m_diameter(diameter), m_n_ref(0)
-    {
-    }
+{}
 
-LocalDensity::~LocalDensity()
-    {
-    }
+LocalDensity::~LocalDensity() {}
 
-void LocalDensity::compute(const box::Box &box,
-                           const freud::locality::NeighborList *nlist,
-                           const vec3<float> *ref_points, unsigned int n_ref,
-                           const vec3<float> *points, unsigned int Np)
-    {
+void LocalDensity::compute(const box::Box& box, const freud::locality::NeighborList* nlist,
+                           const vec3<float>* ref_points, unsigned int n_ref, const vec3<float>* points,
+                           unsigned int Np)
+{
     m_box = box;
 
     nlist->validate(n_ref, Np);
-    const size_t *neighbor_list(nlist->getNeighbors());
+    const size_t* neighbor_list(nlist->getNeighbors());
 
     // reallocate the output array if it is not the right size
     if (n_ref != m_n_ref)
-        {
+    {
         m_density_array = std::shared_ptr<float>(new float[n_ref], std::default_delete<float[]>());
         m_num_neighbors_array = std::shared_ptr<float>(new float[n_ref], std::default_delete<float[]>());
-        }
+    }
 
     // compute the local density
     // parallel_for(blocked_range<size_t>(0, n_ref),
@@ -142,26 +138,25 @@ void LocalDensity::compute(const box::Box &box,
               }
           }
       });
-
     // save the last computed number of particles
     m_n_ref = n_ref;
-    }
+}
 
 unsigned int LocalDensity::getNRef()
-    {
+{
     return m_n_ref;
-    }
+}
 
 //! Get a reference to the last computed density
 std::shared_ptr<float> LocalDensity::getDensity()
-    {
+{
     return m_density_array;
-    }
+}
 
-    //! Get a reference to the last computed number of neighbors
+//! Get a reference to the last computed number of neighbors
 std::shared_ptr<float> LocalDensity::getNumNeighbors()
-    {
+{
     return m_num_neighbors_array;
-    }
+}
 
 }; }; // end namespace freud::density
