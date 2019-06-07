@@ -55,23 +55,6 @@ void loop_over_NeighborList(const NeighborQuery* ref_points, const vec3<float>* 
         }
 
         // iterate over the query object in parallel
-        // tbb::parallel_for(tbb::blocked_range<size_t>(0, Np), [&](const tbb::blocked_range<size_t>& r) {
-        //     NeighborPoint np;
-        //     for (size_t i(r.begin()); i != r.end(); ++i)
-        //     {
-        //         std::shared_ptr<NeighborQueryIterator> it = iter->query(i);
-        //         np = it->next();
-        //         while (!it->end())
-        //         {
-        //             if (!qargs.exclude_ii || i != np.ref_id)
-        //             {
-        //                 cf(np.ref_id, i);
-        //             }
-        //             np = it->next();
-        //         }
-        //     }
-        // });
-
         for_loop_wrapper(true, 0, Np, [iter, qargs, &cf] (size_t begin, size_t end)
         {
             NeighborPoint np;

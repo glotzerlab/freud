@@ -31,9 +31,6 @@ void Cluster::computeClusters(const freud::locality::NeighborQuery* nq, const bo
     assert(points);
     assert(Np > 0);
 
-    // nlist->validate(Np, Np);
-    // const size_t *neighbor_list(nlist->getNeighbors());
-
     // reallocate the cluster_idx array if the size doesn't match the last one
     if (Np != m_num_particles)
     {
