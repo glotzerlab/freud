@@ -111,8 +111,7 @@ void Cluster::computeClusters(const freud::locality::NeighborQuery *nq,
             if (i != j)
                 {
                 // compute r between the two particles
-                vec3<float> delta = p - points[j];
-                delta = box.wrap(delta);
+                vec3<float> delta = box.wrap(p - points[j]);
 
                 float rsq = dot(delta, delta);
                 if (rsq < rmaxsq)
