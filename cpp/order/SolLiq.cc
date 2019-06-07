@@ -6,6 +6,7 @@
 #include <map>
 
 #include "SolLiq.h"
+#include "DisjointSet.h"
 
 using namespace std;
 
@@ -295,7 +296,7 @@ void SolLiq::computeClustersQS(const locality::NeighborList* nlist, const vec3<f
     }
 
     float rmaxcluster_sq = m_rmax_cluster * m_rmax_cluster;
-    freud::cluster::DisjointSet dj(Np);
+    DisjointSets dj(Np);
 
     size_t bond(0);
 
@@ -319,10 +320,10 @@ void SolLiq::computeClustersQS(const locality::NeighborList* nlist, const vec3<f
                             && (m_number_of_connections.get()[j] >= m_Sthreshold))
                         {
                             // merge the two sets using the disjoint set
-                            uint32_t a = dj.find(i);
-                            uint32_t b = dj.find(j);
-                            if (a != b)
-                                dj.merge(a, b);
+                            if(!dj.same(i, j))
+                            {
+                                dj.unite(i, j);
+                            }
                         }
                     }
                 }
@@ -499,7 +500,7 @@ void SolLiq::computeClustersSharedNeighbors(const locality::NeighborList* nlist,
     m_number_of_shared_connections.clear(); // Reset.
 
     float rmaxcluster_sq = m_rmax_cluster * m_rmax_cluster;
-    freud::cluster::DisjointSet dj(Np);
+    DisjointSets dj(Np);
 
     size_t bond(0);
 
@@ -542,10 +543,10 @@ void SolLiq::computeClustersSharedNeighbors(const locality::NeighborList* nlist,
                         if (num_shared > m_Sthreshold)
                         {
                             // merge the two sets using the disjoint set
-                            uint32_t a = dj.find(i);
-                            uint32_t b = dj.find(j);
-                            if (a != b)
-                                dj.merge(a, b);
+                            if(!dj.same(i, j))
+                            {
+                                dj.unite(i, j);
+                            }
                         }
                     }
                 }

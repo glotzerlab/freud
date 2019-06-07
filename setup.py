@@ -365,7 +365,6 @@ extra_module_sources = dict(
         os.path.join("cpp", "locality", "NeighborList.cc"),
     ],
     order=[
-        os.path.join("cpp", "cluster", "Cluster.cc"),
         os.path.join("cpp", "locality", "NeighborList.cc"),
     ],
     pmft=[

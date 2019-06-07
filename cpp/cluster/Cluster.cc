@@ -7,9 +7,8 @@
 #include <vector>
 
 #include "Cluster.h"
+#include "DisjointSet.h"
 #include "NeighborComputeFunctional.h"
-#include "dset.h"
-
 
 using namespace std;
 
@@ -19,71 +18,16 @@ using namespace std;
 
 namespace freud { namespace cluster {
 
-/*! \param n Number of initial sets
- */
-DisjointSet::DisjointSet(uint32_t n) : s(vector<uint32_t>(n)), rank(vector<uint32_t>(n, 0))
-{
-    // initialize s
-    for (uint32_t i = 0; i < n; i++)
-        s[i] = i;
-}
-
-/*! The two sets labeled \c a and \c b are merged
-    \note Incorrect behavior if \c a == \c b or either are not set labels
-*/
-void DisjointSet::merge(const uint32_t a, const uint32_t b)
-{
-    assert(a < s.size() && b < s.size()); // sanity check
-
-    // if tree heights are equal, merge to a
-    if (rank[a] == rank[b])
-    {
-        rank[a]++;
-        s[b] = a;
-    }
-    else
-    {
-        // merge the shorter tree to the taller one
-        if (rank[a] > rank[b])
-            s[b] = a;
-        else
-            s[a] = b;
-    }
-}
-
-/*! \returns the set label that contains the element \c c
- */
-uint32_t DisjointSet::find(const uint32_t c)
-{
-    uint32_t r = c;
-
-    // follow up to the root of the tree
-    while (s[r] != r)
-        r = s[r];
-
-    // path compression
-    uint32_t i = c;
-    while (i != r)
-    {
-        uint32_t j = s[i];
-        s[i] = r;
-        i = j;
-    }
-    return r;
-}
-
 Cluster::Cluster(float rcut) : m_rcut(rcut), m_num_particles(0), m_num_clusters(0)
 {
     if (m_rcut < 0.0f)
         throw invalid_argument("Cluster requires that rcut must be non-negative.");
 }
 
-void Cluster::computeClusters(const freud::locality::NeighborQuery *nq, 
-                              const box::Box& box,
-                              const freud::locality::NeighborList *nlist,
-                              const vec3<float> *points,
+void Cluster::computeClusters(const freud::locality::NeighborQuery* nq, const box::Box& box,
+                              const freud::locality::NeighborList* nlist, const vec3<float>* points,
                               unsigned int Np)
-    {
+{
     assert(points);
     assert(Np > 0);
 
@@ -92,8 +36,10 @@ void Cluster::computeClusters(const freud::locality::NeighborQuery *nq,
 
     // reallocate the cluster_idx array if the size doesn't match the last one
     if (Np != m_num_particles)
+    {
         m_cluster_idx
             = std::shared_ptr<unsigned int>(new unsigned int[Np], std::default_delete<unsigned int[]>());
+    }
 
     m_num_particles = Np;
     float rmaxsq = m_rcut * m_rcut;
@@ -104,29 +50,29 @@ void Cluster::computeClusters(const freud::locality::NeighborQuery *nq,
     qargs.mode = locality::QueryArgs::QueryType::ball;
     qargs.rmax = m_rcut;
 
-    freud::locality::loop_over_NeighborList(nq, points, Np, qargs, nlist, 
-        [&rmaxsq, &dj, &box, points] (size_t i, size_t j) 
-            { 
-            vec3<float> p = points[i];
-            if (i != j)
-                {
-                // compute r between the two particles
-                vec3<float> delta = box.wrap(p - points[j]);
+    freud::locality::loop_over_NeighborList(nq, points, Np, qargs, nlist,
+                                            [&rmaxsq, &dj, &box, points](size_t i, size_t j) {
+                                                vec3<float> p = points[i];
+                                                if (i != j)
+                                                {
+                                                    // compute r between the two particles
+                                                    vec3<float> delta = box.wrap(p - points[j]);
 
-                float rsq = dot(delta, delta);
-                if (rsq < rmaxsq)
-                    {
-                    // merge the two sets using the disjoint set
-                    // uint32_t a = dj.find(i);
-                    // uint32_t b = dj.find(j);
-                    // if (a != b)
-                    //     dj.merge(a,b);
-                    if(!dj.same(i, j))
-                        dj.unite(i, j);
-                    }
-                }  
-            }
-        );
+                                                    float rsq = dot(delta, delta);
+                                                    if (rsq < rmaxsq)
+                                                    {
+                                                        // merge the two sets using the disjoint set
+                                                        // uint32_t a = dj.find(i);
+                                                        // uint32_t b = dj.find(j);
+                                                        // if (a != b)
+                                                        //     dj.merge(a,b);
+                                                        if (!dj.same(i, j))
+                                                        {
+                                                            dj.unite(i, j);
+                                                        }
+                                                    }
+                                                }
+                                            });
 
     // done looping over points. All clusters are now determined. Renumber them from zero to num_clusters-1.
     map<uint32_t, uint32_t> label_map;
