@@ -107,7 +107,7 @@ public:
         unsigned int m_n_p;           //!< The number of points
         bool m_reduce;                //!< Whether or not the PCF needs to be reduced
 
-        std::shared_ptr<float> m_pcf_array;         //!< Array of PCF/RDF computed 
+        std::shared_ptr<float> m_pcf_array;         //!< Array of computed pair correlation function
         std::shared_ptr<unsigned int> m_bin_counts; //!< Counts for each bin
         tbb::enumerable_thread_specific<unsigned int*>
             m_local_bin_counts; //!< Thread local bin counts for TBB parallelism
