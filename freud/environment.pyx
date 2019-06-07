@@ -874,7 +874,9 @@ cdef class MatchEnv:
         try:
             count = np.unique(self.clusters, return_counts=True)
         except ValueError:
-            print("computeClusters should be called before to show")
+            print("clusters should be called before to show")
+            return None
+        if not self.m_box.is2D():
             return None
         count_sorted = sorted((freq, keys)
                               for keys, freq in zip(count[0], count[1]))
