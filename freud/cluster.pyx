@@ -105,8 +105,7 @@ cdef class Cluster:
 
         points = nq.points
 
-        points = freud.common.convert_array(
-            points, 2, dtype=np.float32, contiguous=True)
+        points = freud.common.convert_array(points, 2)
         if points.shape[1] != 3:
             raise RuntimeError(
                 'Need a list of 3D points for computeClusters()')

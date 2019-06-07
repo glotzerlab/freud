@@ -1,6 +1,7 @@
 #ifndef NEIGHBOR_COMPUTE_FUNCTIONAL_H
 #define NEIGHBOR_COMPUTE_FUNCTIONAL_H
 
+#include <memory>
 #include <tbb/tbb.h>
 
 #include "NeighborQuery.h"
@@ -49,12 +50,12 @@ void loop_over_NeighborList(const NeighborQuery *ref_points, const vec3<float> *
         {
         // if nlist does not exist, check if ref_points is an actual NeighborQuery
         std::shared_ptr<NeighborQueryIterator> iter;
-        AABBQuery* abq = nullptr;
+        std::shared_ptr<AABBQuery> abq;
         if(const RawPoints* rp = dynamic_cast<const RawPoints*>(ref_points))
             {
             // if ref_points is RawPoints, build a NeighborQuery
-            abq = new AABBQuery(ref_points->getBox(), ref_points->getRefPoints(), ref_points->getNRef());
-            iter = abq->queryWithArgs(points, Np, qargs);
+            abq = std::make_shared<AABBQuery>(ref_points->getBox(), ref_points->getRefPoints(), ref_points->getNRef());
+            iter = abq.get()->queryWithArgs(points, Np, qargs);
             }
         else
             {
@@ -80,8 +81,6 @@ void loop_over_NeighborList(const NeighborQuery *ref_points, const vec3<float> *
                     }
                 }
             });
-
-        delete abq;
         }
     }
 

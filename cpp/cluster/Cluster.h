@@ -10,6 +10,7 @@
 #include <vector>
 
 #include "Box.h"
+#include "NeighborQuery.h"
 #include "NeighborList.h"
 #include "VectorMath.h"
 

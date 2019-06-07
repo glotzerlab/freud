@@ -840,8 +840,7 @@ cdef class RawPoints(NeighborQuery):
             self.queryable = True
             self._box = freud.common.convert_box(box)
             self.points = freud.common.convert_array(
-                points, 2, dtype=np.float32, contiguous=True,
-                array_name="points").copy()
+                points, 2).copy()
             l_points = self.points
             self.thisptr = self.nqptr = new freud._locality.RawPoints(
                 dereference(self._box.thisptr),
