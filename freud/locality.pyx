@@ -1568,10 +1568,6 @@ cdef class Voronoi:
         indices = [0]
         indices.extend(np.cumsum(
             [len(ridge) for ridge in voronoi.ridge_vertices]))
-        # print('vertices:', voronoi.vertices)
-        # print('ridge_vertices:', voronoi.ridge_vertices)
-        # print('indices:', indices)
-
         cdef const int[::1] expanded_ids = \
             np.asarray(expanded_id, dtype=np.int32)
 
@@ -1592,7 +1588,7 @@ cdef class Voronoi:
         self._nlist.refer_to(nlist)
         self._nlist.base = self
 
-        return self
+        return self, voronoi
 
     @property
     def polytopes(self):
@@ -1613,155 +1609,6 @@ cdef class Voronoi:
                 vertices.
         """
         return self._poly_verts
-
-    def computeNeighbors(self, positions, box=None, buff=None,
-                         exclude_ii=True):
-        R"""Compute the neighbors of each particle based on the Voronoi
-        tessellation. One can include neighbors from multiple Voronoi shells by
-        specifying :code:`numShells` in :meth:`~.getNeighbors()`.
-        An example of computing neighbors from the first two Voronoi shells
-        for a 2D mesh is shown below.
-
-        Retrieve the results with :meth:`~.getNeighbors()`.
-
-        Example::
-
-            from freud import box, voronoi
-            import numpy as np
-            vor = voronoi.Voronoi(box.Box(5, 5, is2D=True))
-            pos = np.array([[0, 0, 0], [0, 1, 0], [0, 2, 0],
-                            [1, 0, 0], [1, 1, 0], [1, 2, 0],
-                            [2, 0, 0], [2, 1, 0], [2, 2, 0]], dtype=np.float32)
-            first_shell = vor.computeNeighbors(pos).getNeighbors(1)
-            second_shell = vor.computeNeighbors(pos).getNeighbors(2)
-            print('First shell:', first_shell)
-            print('Second shell:', second_shell)
-
-        .. note:: Input positions must be a 3D array. For 2D, set the z value
-                  to 0.
-
-        Args:
-            positions ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Points to calculate Voronoi diagram for.
-            box (:class:`freud.box.Box`):
-                Simulation box (Default value = None).
-            buff (float):
-                Buffer distance within which to look for images
-                (Default value = None).
-            exclude_ii (bool, optional):
-                True if pairs of points with identical indices should be
-                excluded (Default value = True).
-        """
-        # If box or buff is not specified, revert to object quantities
-        cdef freud.box.Box b
-        if box is None:
-            b = self._box
-        else:
-            b = freud.common.convert_box(box)
-        if buff is None:
-            buff = self._buff
-
-        self._qhull_compute(positions, b, buff)
-
-        cdef np.ndarray[int, ndim=2] ridge_points = self.voronoi.ridge_points
-        ridge_vertices = self.voronoi.ridge_vertices
-
-        # Must keep this in double precision
-        cdef np.ndarray[np.float64_t, ndim=2] vor_vertices = \
-            self.voronoi.vertices
-        cdef unsigned int N = len(positions)
-
-        cdef unsigned int index_i
-        cdef unsigned int index_j
-        cdef unsigned int k
-        cdef np.ndarray[np.float64_t, ndim=2] vertex_coords
-
-        # Dictionary of neighbors where keys are neighbor indices (i, j)
-        # and values are bond weights (maximum ridge area shared by (i, j))
-        """
-        all_bonds = {}
-        for (k, (index_i, index_j)) in enumerate(ridge_points):
-
-            if index_i >= N and index_j >= N:
-                # Ignore the ridges between two buffer particles
-                continue
-
-            index_i = self.expanded_ids[index_i]
-            index_j = self.expanded_ids[index_j]
-
-            if exclude_ii and index_i == index_j:
-                continue
-
-            if -1 not in ridge_vertices[k]:
-                if b.is2D():
-                    # The weight for a 2D system is the
-                    # length of the ridge line
-                    weight = np.linalg.norm(
-                        vor_vertices[ridge_vertices[k][0]] -
-                        vor_vertices[ridge_vertices[k][1]])
-                else:
-                    # The weight for a 3D system is the ridge polygon area
-                    # The process to compute this area is:
-                    # 1. Project 3D polygon onto xy, yz, or zx plane,
-                    #    by aligning with max component of the normal vector
-                    # 2. Use shoelace formula to compute 2D area
-                    # 3. Project back to get true area of 3D polygon
-                    # See link below for sample code and further explanation
-                    # http://geomalgorithms.com/a01-_area.html#area3D_Polygon()
-                    vertex_coords = np.array(
-                        [vor_vertices[i] for i in ridge_vertices[k]])
-
-                    # Get a unit normal vector to the polygonal facet
-                    r01 = vertex_coords[1] - vertex_coords[0]
-                    r12 = vertex_coords[2] - vertex_coords[1]
-                    norm_vec = np.cross(r01, r12)
-                    norm_vec /= np.linalg.norm(norm_vec)
-
-                    # Determine projection axis:
-                    # c0 is the largest coordinate (x, y, or z) of the normal
-                    # vector. We project along the c0 axis and use c1, c2 axes
-                    # for computing the projected area.
-                    c0 = np.argmax(np.abs(norm_vec))
-                    c1 = (c0 + 1) % 3
-                    c2 = (c0 + 2) % 3
-
-                    vc1 = vertex_coords[:, c1]
-                    vc2 = vertex_coords[:, c2]
-
-                    # Use shoelace formula for the projected area
-                    projected_area = 0.5*np.abs(
-                        np.dot(vc1, np.roll(vc2, 1)) -
-                        np.dot(vc2, np.roll(vc1, 1)))
-
-                    # Project back to get the true area (which is the weight)
-                    weight = projected_area / np.abs(norm_vec[c0])
-            else:
-                # This point was on the boundary, so as far as qhull
-                # is concerned its ridge goes out to infinity
-                weight = 0
-
-            all_bonds[(index_i, index_j)] = max(all_bonds.get(
-                                                (index_i, index_j), 0), weight)
-            all_bonds[(index_j, index_i)] = max(all_bonds.get(
-                                                (index_j, index_i), 0), weight)
-
-        # Build neighbor list based on voronoi neighbors
-        cdef np.ndarray[np.float32_t, ndim=1] weights = \
-            np.asarray(list(all_bonds.values()), dtype=np.float32)
-        cdef np.ndarray[np.uint64_t, ndim=2] bond_indices = \
-            np.asarray(list(all_bonds.keys()), dtype=np.uint64)
-
-        cdef np.ndarray[np.long_t, ndim=1] sort_indices = \
-            np.lexsort((bond_indices[:, 1], bond_indices[:, 0]))
-
-        bond_indices = bond_indices[sort_indices]
-        weights = weights[sort_indices]
-
-        self._nlist = freud.locality.NeighborList.from_arrays(
-            np.max(bond_indices[:, 0])+1, np.max(bond_indices[:, 1])+1,
-            bond_indices[:, 0], bond_indices[:, 1], weights=weights)
-        return self
-        """
 
     def getNeighbors(self, numShells):
         R"""Get well-sorted neighbors from cumulative Voronoi shells for each
@@ -1853,7 +1700,7 @@ cdef class Voronoi:
         return self._poly_volumes
 
     def __repr__(self):
-        return "freud.voronoi.{cls}()".format(
+        return "freud.locality.{cls}()".format(
             cls=type(self).__name__)
 
     def __str__(self):

@@ -28,16 +28,17 @@ namespace freud { namespace locality {
 // Default constructor
 Voronoi::Voronoi()
     {}
+
 class NeighborBondLess{
 public:
     bool operator()(const NeighborBond &n1, NeighborBond &n2) const {
-        if (n1.index_i != n2.index_i){
+        if (n1.index_i != n2.index_i) {
             return n1.index_i < n2.index_i;
         }
-        if (n1.index_j != n2.index_j){
+        if (n1.index_j != n2.index_j) {
             return n1.index_j < n2.index_j;
         }
-            return n1.weight < n2.weight;
+        return n1.weight < n2.weight;
     }
 };
 
@@ -51,13 +52,14 @@ void add_valid_bonds(BondVector::reference local_bonds,
     // Make sure we only add bonds with real particles as the reference
     if (i < N)
     {
-        NeighborBond nb(expanded_i, expanded_j, weight);
-        local_bonds.emplace_back(nb);
+        NeighborBond nb_ij(expanded_i, expanded_j, weight);
+        local_bonds.emplace_back(nb_ij);
     }
+
     if (j < N)
     {
-        NeighborBond nb(expanded_j, expanded_i, weight);
-        local_bonds.emplace_back(nb);
+        NeighborBond nb_ji(expanded_j, expanded_i, weight);
+        local_bonds.emplace_back(nb_ji);
     }
 }
 
@@ -68,7 +70,6 @@ void Voronoi::compute(const box::Box &box, const vec3<double>* vertices,
         m_box = box;
 
         // iterate over ridges in parallel
-
         BondVector bonds;
         tbb::parallel_for(tbb::blocked_range<size_t>(0, n_ridges), [&] (const tbb::blocked_range<size_t> &r) {
              BondVector::reference local_bonds(bonds.local());
@@ -112,12 +113,15 @@ void Voronoi::compute(const box::Box &box, const vec3<double>* vertices,
                         // 3D weight is the area of the ridge facet
                         // Create a vector of all vertices for this facet
                         vector< vec3<double> > vertex_coords;
-                        for (int ridge_vert_id = ridge_vertex_indices[ridge];
-                            ridge_vert_id < ridge_vertex_indices[ridge+1];
+
+                        for (auto ridge_vert_id = current_ridge_vertex_ids.begin();
+                            ridge_vert_id != current_ridge_vertex_ids.end();
                             ++ridge_vert_id)
                         {
-                            vertex_coords.push_back(vertices[ridge_vertices[ridge_vert_id]]);
+                            auto vert = vertices[*ridge_vert_id];
+                            vertex_coords.push_back(vert);
                         }
+
                         // Code below is adapted from http://geomalgorithms.com/a01-_area.html
                         // Get a unit normal vector to the polygonal facet
                         // Every facet has at least 3 vertices
@@ -145,20 +149,20 @@ void Voronoi::compute(const box::Box &box, const vec3<double>* vertices,
                             switch(c0)
                             {
                                 case 0:
-                                    projected_area += abs(vertex_coords[n1].y * (vertex_coords[n2].z - vertex_coords[n3].z));
+                                    projected_area += vertex_coords[n1].y * (vertex_coords[n2].z - vertex_coords[n3].z);
                                     break;
                                 case 1:
-                                    projected_area += abs(vertex_coords[n1].z * (vertex_coords[n2].x - vertex_coords[n3].x));
+                                    projected_area += vertex_coords[n1].z * (vertex_coords[n2].x - vertex_coords[n3].x);
                                     break;
                                 case 2:
-                                    projected_area += abs(vertex_coords[n1].x * (vertex_coords[n2].y - vertex_coords[n3].y));
+                                    projected_area += vertex_coords[n1].x * (vertex_coords[n2].y - vertex_coords[n3].y);
                                     break;
                             }
                         }
                         projected_area *= 0.5;
 
                         // Project back to get the true area (which is the weight)
-                        weight = projected_area / abs(c0_component);
+                        weight = abs(projected_area / c0_component);
                     }
                     add_valid_bonds(local_bonds, i, expanded_ids[i], j, expanded_ids[j], N, weight);
                 }
