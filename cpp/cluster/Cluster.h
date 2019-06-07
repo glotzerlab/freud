@@ -10,8 +10,8 @@
 #include <vector>
 
 #include "Box.h"
-#include "NeighborQuery.h"
 #include "NeighborList.h"
+#include "NeighborQuery.h"
 #include "VectorMath.h"
 
 /*! \file Cluster.h
@@ -67,44 +67,43 @@ public:
     Cluster(float rcut);
 
     //! Compute the point clusters
-    void computeClusters(const freud::locality::NeighborQuery *nq, const box::Box& box,
-                         const freud::locality::NeighborList *nlist,
-                         const vec3<float> *points,
+    void computeClusters(const freud::locality::NeighborQuery* nq, const box::Box& box,
+                         const freud::locality::NeighborList* nlist, const vec3<float>* points,
                          unsigned int Np);
 
     //! Compute clusters with key membership
-    void computeClusterMembership(const unsigned int *keys);
+    void computeClusterMembership(const unsigned int* keys);
 
     //! Count the number of clusters found in the last call to compute()
     unsigned int getNumClusters()
-        {
+    {
         return m_num_clusters;
-        }
+    }
 
     //! Return the number of particles in the current Compute
     unsigned int getNumParticles()
-        {
+    {
         return m_num_particles;
-        }
+    }
 
     //! Get a reference to the last computed cluster_idx
     std::shared_ptr<unsigned int> getClusterIdx()
-        {
+    {
         return m_cluster_idx;
-        }
+    }
 
     //! Returns the cluster keys last determined by computeClusterKeys
-    const std::vector< std::vector<unsigned int> >& getClusterKeys()
-        {
+    const std::vector<std::vector<unsigned int>>& getClusterKeys()
+    {
         return m_cluster_keys;
-        }
+    }
 
 private:
-    float m_rcut;                    //!< Maximum r at which points will be counted in the same cluster
-    unsigned int m_num_particles;    //!< Number of particles processed in the last call to compute()
-    unsigned int m_num_clusters;     //!< Number of clusters found in the last call to compute()
-    std::shared_ptr<unsigned int> m_cluster_idx;   //!< Cluster index determined for each particle
-    std::vector< std::vector<unsigned int> > m_cluster_keys;   //!< List of keys in each cluster
+    float m_rcut;                 //!< Maximum r at which points will be counted in the same cluster
+    unsigned int m_num_particles; //!< Number of particles processed in the last call to compute()
+    unsigned int m_num_clusters;  //!< Number of clusters found in the last call to compute()
+    std::shared_ptr<unsigned int> m_cluster_idx;           //!< Cluster index determined for each particle
+    std::vector<std::vector<unsigned int>> m_cluster_keys; //!< List of keys in each cluster
 };
 
 }; }; // end namespace freud::cluster

@@ -2,4 +2,4 @@
 
 namespace freud { namespace locality {
 
-}; }; // end namespacec freud::locality
+}; }; // namespace freud::locality
