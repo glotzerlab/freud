@@ -208,3 +208,57 @@ def pmft_plot(pmft):
         canvas = FigureCanvasAgg(fig) # noqa F841
         fig.savefig(f, format='png')
         return f.getvalue()
+
+
+def draw_voronoi(box, cells, color_by_sides=False):
+    try:
+        from matplotlib.figure import Figure
+        from matplotlib.backends.backend_agg import FigureCanvasAgg
+        from matplotlib import cm
+        import io
+        from matplotlib.collections import PatchCollection
+        from matplotlib.patches import Polygon, Rectangle
+    except ImportError:
+        return None
+    fig = Figure()
+    ax = fig.subplots()
+
+    # Draw Voronoi cells
+    patches = [Polygon(cell[:, :2]) for cell in cells]
+    patch_collection = PatchCollection(patches, edgecolors='black', alpha=0.4)
+    cmap = cm.Set1
+
+    if color_by_sides:
+        colors = [len(cell) for cell in cells]
+    else:
+        colors = np.random.permutation(np.arange(len(patches)))
+
+    cmap = cm.get_cmap('Set1', np.unique(colors).size)
+    bounds = np.array(range(min(colors), max(colors)+2))
+
+    patch_collection.set_array(np.array(colors))
+    patch_collection.set_cmap(cmap)
+    patch_collection.set_clim(bounds[0], bounds[-1])
+    ax.add_collection(patch_collection)
+
+    ax.set_title('Voronoi Diagram')
+    ax.set_xlim((-box.Lx/2, box.Lx/2))
+    ax.set_ylim((-box.Ly/2, box.Ly/2))
+
+    # Set equal aspect and draw box
+    ax.set_aspect('equal', 'datalim')
+    box_patch = Rectangle([-box.Lx/2, -box.Ly/2], box.Lx,
+                          box.Ly, alpha=1, fill=None)
+    ax.add_patch(box_patch)
+
+    # Show colorbar for number of sides
+    if color_by_sides:
+        cb = fig.colorbar(patch_collection, ax=ax,
+                          ticks=bounds, boundaries=bounds)
+        cb.set_ticks(cb.formatter.locs + 0.5)
+        cb.set_ticklabels((cb.formatter.locs - 0.5).astype('int'))
+        cb.set_label("Number of sides", fontsize=12)
+    f = io.BytesIO()
+    canvas = FigureCanvasAgg(fig) # noqa F841
+    fig.savefig(f, format='png')
+    return f.getvalue()
