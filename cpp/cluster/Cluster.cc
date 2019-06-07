@@ -43,7 +43,6 @@ void Cluster::computeClusters(const freud::locality::NeighborQuery* nq, const bo
 
     m_num_particles = Np;
     float rmaxsq = m_rcut * m_rcut;
-    // DisjointSet dj(m_num_particles);
     DisjointSets dj(m_num_particles);
 
     locality::QueryArgs qargs;
@@ -62,10 +61,6 @@ void Cluster::computeClusters(const freud::locality::NeighborQuery* nq, const bo
                                                     if (rsq < rmaxsq)
                                                     {
                                                         // merge the two sets using the disjoint set
-                                                        // uint32_t a = dj.find(i);
-                                                        // uint32_t b = dj.find(j);
-                                                        // if (a != b)
-                                                        //     dj.merge(a,b);
                                                         if (!dj.same(i, j))
                                                         {
                                                             dj.unite(i, j);
