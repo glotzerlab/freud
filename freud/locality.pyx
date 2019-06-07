@@ -716,14 +716,14 @@ def make_default_nq(box, ref_points):
             Simulation box.
         ref_points (:class:`freud.locality.AABBQuery`,
             :class:`freud.locality.LinkCell`, or :class:`numpy.ndarray`):
-            NeighborQuery object or numpy array to build :class:`RawPoints` out of.
+            NeighborQuery object or NumPy array used to build :class:`RawPoints`.
 
     Returns:
         :class:`freud.locality.NeighborQuery`
             The same :class:`NeighborQuery` object if one is given or :class:`RawPoints`
             built from :code:`box` and :code:`ref_points`.
     """  # noqa: E501
-    if isinstance(ref_points, AABBQuery) or isinstance(ref_points, LinkCell):
+    if isinstance(ref_points, NeighborQuery):
         return ref_points
 
     cdef RawPoints rp = RawPoints(box, ref_points)
@@ -818,10 +818,10 @@ def make_default_nlist_nn(box, ref_points, points, n_neigh, nlist=None,
 
 
 cdef class RawPoints(NeighborQuery):
-    R"""Use an AABB tree to find neighbors.
+    R"""Dummy class that only contains minimal information
+    to make C++ side work well.
 
-    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
-    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
+    .. moduleauthor:: Jin Soo Ihm <jinihm@umich.edu>
 
     Attributes:
         box (:class:`freud.locality.Box`):

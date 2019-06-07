@@ -370,6 +370,34 @@ protected:
     unsigned int m_k;                               //!< Number of nearest neighbors to find
     std::vector<NeighborPoint> m_current_neighbors; //!< The current set of found neighbors.
 };
+
+// Dummy class to just contain minimal information and not actually query.
+class RawPoints : public NeighborQuery
+{
+public:
+    RawPoints();
+
+    RawPoints(const box::Box& box, const vec3<float>* ref_points, unsigned int Nref)
+        : NeighborQuery(box, ref_points, Nref)
+    {}
+
+    ~RawPoints() {}
+
+    // dummy implementation for pure virtual function in the parent class
+    virtual std::shared_ptr<NeighborQueryIterator> query(const vec3<float>* points, unsigned int N,
+                                                         unsigned int k, bool exclude_ii = false) const
+    {
+        return nullptr;
+    }
+
+    // dummy implementation for pure virtual function in the parent class
+    virtual std::shared_ptr<NeighborQueryIterator> queryBall(const vec3<float>* points, unsigned int N,
+                                                             float r, bool exclude_ii = false) const
+    {
+        return nullptr;
+    }
+};
+
 }; }; // end namespace freud::locality
 
 #endif // NEIGHBOR_QUERY_H

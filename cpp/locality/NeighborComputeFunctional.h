@@ -11,33 +11,22 @@
 
 namespace freud { namespace locality {
 
-class RawPoints : public NeighborQuery
+// Body should be an object taking in
+// with operator(size_t begin, size_t end)
+template<typename Body> void for_loop_wrapper(bool parallel, size_t begin, size_t end, const Body& body)
 {
-public:
-    RawPoints();
-
-    RawPoints(const box::Box& box, const vec3<float>* ref_points, unsigned int Nref)
-        : NeighborQuery(box, ref_points, Nref)
-    {}
-
-    ~RawPoints() {}
-
-    // dummy implementation for pure virtual function in the parent class
-    virtual std::shared_ptr<NeighborQueryIterator> query(const vec3<float>* points, unsigned int N,
-                                                         unsigned int k, bool exclude_ii = false) const
+    if (parallel)
     {
-        return nullptr;
+        tbb::parallel_for(tbb::blocked_range<size_t>(begin, end),
+                          [&body](const tbb::blocked_range<size_t>& r) { body(r.begin(), r.end()); });
     }
-
-    // dummy implementation for pure virtual function in the parent class
-    virtual std::shared_ptr<NeighborQueryIterator> queryBall(const vec3<float>* points, unsigned int N,
-                                                             float r, bool exclude_ii = false) const
+    else
     {
-        return nullptr;
+        body(begin, end);
     }
-};
+}
 
-// ComputePairType should be a void function that takes (ref_point, point) as input.
+// ComputePairType should be a void function that takes (ref_point, point) indices as input.
 template<typename ComputePairType>
 void loop_over_NeighborList(const NeighborQuery* ref_points, const vec3<float>* points, unsigned int Np,
                             QueryArgs qargs, const NeighborList* nlist, const ComputePairType& cf)
@@ -45,7 +34,7 @@ void loop_over_NeighborList(const NeighborQuery* ref_points, const vec3<float>* 
     // check if nlist exists
     if (nlist != NULL)
     {
-        // if nlist exists, loop over it parallely
+        // if nlist exists, loop over it in parallel.
         loop_over_NeighborList_parallel(nlist, cf);
     }
     else
@@ -65,10 +54,28 @@ void loop_over_NeighborList(const NeighborQuery* ref_points, const vec3<float>* 
             iter = ref_points->queryWithArgs(points, Np, qargs);
         }
 
-        // iterate over the query object parallely
-        tbb::parallel_for(tbb::blocked_range<size_t>(0, Np), [&](const tbb::blocked_range<size_t>& r) {
+        // iterate over the query object in parallel
+        // tbb::parallel_for(tbb::blocked_range<size_t>(0, Np), [&](const tbb::blocked_range<size_t>& r) {
+        //     NeighborPoint np;
+        //     for (size_t i(r.begin()); i != r.end(); ++i)
+        //     {
+        //         std::shared_ptr<NeighborQueryIterator> it = iter->query(i);
+        //         np = it->next();
+        //         while (!it->end())
+        //         {
+        //             if (!qargs.exclude_ii || i != np.ref_id)
+        //             {
+        //                 cf(np.ref_id, i);
+        //             }
+        //             np = it->next();
+        //         }
+        //     }
+        // });
+
+        for_loop_wrapper(true, 0, Np, [iter, qargs, &cf] (size_t begin, size_t end)
+        {
             NeighborPoint np;
-            for (size_t i(r.begin()); i != r.end(); ++i)
+            for (size_t i = begin; i != end; ++i)
             {
                 std::shared_ptr<NeighborQueryIterator> it = iter->query(i);
                 np = it->next();
@@ -85,7 +92,7 @@ void loop_over_NeighborList(const NeighborQuery* ref_points, const vec3<float>* 
     }
 }
 
-// ComputePairType should be a void function that takes (ref_point, point) as input.
+// ComputePairType should be a void function that takes (ref_point, point) indices as input.
 template<typename ComputePairType>
 void loop_over_NeighborList_parallel(const NeighborList* nlist, const ComputePairType& cf)
 {
@@ -99,21 +106,6 @@ void loop_over_NeighborList_parallel(const NeighborList* nlist, const ComputePai
             cf(i, j);
         }
     });
-}
-
-// Body should be an object taking in
-// with operator(size_t begin, size_t end)
-template<typename Body> void for_loop_wrapper(bool parallel, size_t begin, size_t end, const Body& body)
-{
-    if (parallel)
-    {
-        tbb::parallel_for(tbb::blocked_range<size_t>(begin, end),
-                          [&body](const tbb::blocked_range<size_t>& r) { body(r.begin(), r.end()); });
-    }
-    else
-    {
-        body(begin, end);
-    }
 }
 
 }; }; // end namespace freud::locality
