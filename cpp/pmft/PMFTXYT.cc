@@ -65,8 +65,8 @@ PMFTXYT::PMFTXYT(float x_max, float y_max, unsigned int n_x, unsigned int n_y, u
 //! helper function to reduce the thread specific arrays into one array
 void PMFTXYT::reducePCF()
 {
-    float jocob_factor = (float) 1.0 / m_jacobian;
-    reduce3D(m_n_t, m_n_x, m_n_y, [jocob_factor](size_t i) { return jocob_factor; });
+    float jacobian_factor = (float) 1.0 / m_jacobian;
+    reduce3D(m_n_t, m_n_x, m_n_y, [jacobian_factor](size_t i) { return jacobian_factor; });
 }
 
 void PMFTXYT::reset()
