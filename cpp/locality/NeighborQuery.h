@@ -6,6 +6,7 @@
 
 #include <memory>
 #include <stdexcept>
+#include <tuple>
 #include <tbb/tbb.h>
 
 #include "Box.h"
@@ -257,7 +258,7 @@ public:
      */
     virtual NeighborList* toNeighborList()
     {
-        typedef tbb::enumerable_thread_specific<std::vector<std::pair<size_t, size_t>>> BondVector;
+        typedef tbb::enumerable_thread_specific<std::vector<std::tuple<size_t, size_t, float>>> BondVector;
         BondVector bonds;
         tbb::parallel_for(tbb::blocked_range<size_t>(0, m_N), [&](const tbb::blocked_range<size_t>& r) {
             BondVector::reference local_bonds(bonds.local());
@@ -272,7 +273,7 @@ public:
                     if (!m_exclude_ii || i != np.ref_id)
                     {
                         // Swap ref_id and id order for backwards compatibility.
-                        local_bonds.emplace_back(np.ref_id, i);
+                        local_bonds.emplace_back(np.ref_id, i, np.distance);
                     }
                 }
                 // Remove the last item, which is just the terminal sentinel value.
@@ -281,7 +282,7 @@ public:
         });
 
         tbb::flattened2d<BondVector> flat_bonds = tbb::flatten2d(bonds);
-        std::vector<std::pair<size_t, size_t>> linear_bonds(flat_bonds.begin(), flat_bonds.end());
+        std::vector<std::tuple<size_t, size_t, float>> linear_bonds(flat_bonds.begin(), flat_bonds.end());
         tbb::parallel_sort(linear_bonds.begin(), linear_bonds.end());
 
         unsigned int num_bonds = linear_bonds.size();
@@ -291,12 +292,14 @@ public:
         nl->setNumBonds(num_bonds, m_neighbor_query->getNRef(), m_N);
         size_t* neighbor_array(nl->getNeighbors());
         float* neighbor_weights(nl->getWeights());
+        float* neighbor_distance(nl->getDistances());
 
         parallel_for(tbb::blocked_range<size_t>(0, num_bonds), [&](const tbb::blocked_range<size_t>& r) {
             for (size_t bond(r.begin()); bond < r.end(); ++bond)
             {
-                neighbor_array[2 * bond] = linear_bonds[bond].first;
-                neighbor_array[2 * bond + 1] = linear_bonds[bond].second;
+                neighbor_array[2 * bond] = std::get<0>(linear_bonds[bond]);
+                neighbor_array[2 * bond + 1] = std::get<1>(linear_bonds[bond]);
+                neighbor_distance[bond] = std::get<2>(linear_bonds[bond]);
             }
         });
         memset((void*) neighbor_weights, 1, sizeof(float) * linear_bonds.size());

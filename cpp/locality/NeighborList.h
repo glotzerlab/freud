@@ -48,11 +48,15 @@ public:
     size_t* getNeighbors();
     //! Access the weights array for reading and writing
     float* getWeights();
+    //! Access the distance array for reading and writing
+    float* getDistances();
 
     //! Access the neighbors array for reading
     const size_t* getNeighbors() const;
     //! Access the weights array for reading
     const float* getWeights() const;
+    //! Access the distance array for reading
+    const float* getDistances() const;
     //! Remove bonds in this object based on an array of boolean values. The array must contain at least
     //! m_num_bonds elements.
     size_t filter(const bool* filt);
@@ -88,6 +92,8 @@ private:
     std::shared_ptr<size_t> m_neighbors;
     //! Neighbor list per-bond weight array
     std::shared_ptr<float> m_weights;
+    //! Neighbor list per-bond distance array
+    std::shared_ptr<float> m_distances;
 };
 
 }; }; // end namespace freud::locality
