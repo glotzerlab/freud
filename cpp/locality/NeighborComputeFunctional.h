@@ -42,20 +42,8 @@ void loop_over_NeighborList(const NeighborQuery *ref_points, const vec3<float> *
     // check if nlist exists
     if(nlist != NULL)
         {
-
         // if nlist exists, loop over it parallely
-        const size_t *neighbor_list(nlist->getNeighbors());
-        size_t n_bonds = nlist->getNumBonds();
-        parallel_for(tbb::blocked_range<size_t>(0, n_bonds),
-            [=] (const tbb::blocked_range<size_t>& r)
-            {
-                for(size_t bond = r.begin(); bond !=r.end(); ++bond)
-                    {
-                    size_t i(neighbor_list[2*bond]);
-                    size_t j(neighbor_list[2*bond + 1]);
-                    cf(i, j);
-                    }
-            });
+            loop_over_NeighborList_parallel(nlist, cf);
         }
     else
         {
