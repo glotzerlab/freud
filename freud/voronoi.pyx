@@ -432,7 +432,7 @@ class Voronoi(object):
         return repr(self)
 
     def _repr_png_(self):
-        if not self._box.is2D:
+        if not self._box.is2D():
             return None
         else:
             return freud.common.draw_voronoi(self._box, self.polytopes)

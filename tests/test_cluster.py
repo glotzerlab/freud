@@ -98,6 +98,25 @@ class TestCluster(unittest.TestCase):
         props = freud.cluster.ClusterProperties(box)
         self.assertEqual(str(props), str(eval(repr(props))))
 
+    def test_repr_png(self):
+        box = freud.box.Box.square(L=5)
+        positions = np.array([[0, -2, 0],
+                              [0, -2, 0],
+                              [0, 2, 0],
+                              [-0.1, 1.9, 0]])
+        clust = freud.cluster.Cluster(box, 0.5)
+        clust.computeClusters(positions, box=box)
+        clust._repr_png_()
+
+        box = freud.box.Box.cube(L=5)
+        positions = np.array([[0, -2, 0],
+                              [0, -2, 0],
+                              [0, 2, 0],
+                              [-0.1, 1.9, 0]])
+        clust = freud.cluster.Cluster(box, 0.5)
+        clust.computeClusters(positions, box=box)
+        self.assertEqual(clust._repr_png_(), None)
+
 
 if __name__ == '__main__':
     unittest.main()
