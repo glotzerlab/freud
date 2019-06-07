@@ -77,7 +77,7 @@ cdef extern from "TransOrderParameter.h" namespace "freud::order":
 cdef extern from "Steinhardt.h" namespace "freud::order":
     cdef cppclass Steinhardt:
         Steinhardt(float, unsigned int, float,
-                   bool, bool, bool) except +
+                   bool, bool) except +
         unsigned int getNP()
         void compute(const freud._box.Box &,
                      const freud._locality.NeighborList *,
@@ -86,6 +86,8 @@ cdef extern from "Steinhardt.h" namespace "freud::order":
         shared_ptr[float] getQl()
         shared_ptr[float complex] getWl()
         bool getUseWl()
+        float complex getNormWl()
+        float getNorm()
 
 cdef extern from "LocalQl.h" namespace "freud::order":
     cdef cppclass LocalQl:

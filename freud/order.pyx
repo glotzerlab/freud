@@ -559,7 +559,7 @@ cdef class Steinhardt:
     cdef sph_l
     cdef rmin
 
-    def __cinit__(self, rmax, l, rmin=0, average=False, norm=False,
+    def __cinit__(self, rmax, l, rmin=0, average=False,
                   Wl=False, *args, **kwargs):
         if type(self) is Steinhardt:
             self.rmax = rmax
@@ -567,7 +567,7 @@ cdef class Steinhardt:
             self.rmin = rmin
             self.stptr = new freud._order.Steinhardt(
                 rmax, l, rmin,
-                average, norm, Wl)
+                average, Wl)
 
     def __dealloc__(self):
         if type(self) is Steinhardt:
@@ -580,13 +580,19 @@ cdef class Steinhardt:
         return np
 
     @property
+    def norm(self):
+        if self.stptr.getUseWl():
+            return self.stptr.getNormWl()
+        return self.stptr.getNorm()
+
+    @property
     def order(self):
         if self.stptr.getUseWl():
             return self._wl
-        return self._ql
+        return self.Ql
 
     @property
-    def _ql(self):
+    def Ql(self):
         cdef unsigned int n_particles = self.stptr.getNP()
         cdef const float[::1] op = \
             <float[:n_particles]> self.stptr.getQl().get()
