@@ -39,56 +39,6 @@ void LocalDensity::compute(const box::Box& box, const freud::locality::NeighborL
     }
 
     // compute the local density
-    // parallel_for(blocked_range<size_t>(0, n_ref),
-    //   [=] (const blocked_range<size_t>& r)
-    //   {
-    //   size_t bond(nlist->find_first_index(r.begin()));
-
-    //   for(size_t i=r.begin(); i != r.end(); ++i)
-    //       {
-    //       float num_neighbors = 0;
-
-    //       const vec3<float> r_i(ref_points[i]);
-
-    //       for(; bond < nlist->getNumBonds() && neighbor_list[2*bond] == i; ++bond)
-    //       {
-    //           const unsigned int j(neighbor_list[2*bond + 1]);
-
-    //           const vec3<float> r_j(points[j]);
-    //           const vec3<float> r_ij(m_box.wrap(r_j - r_i));
-
-    //           float rsq = dot(r_ij, r_ij);
-    //           float r = sqrt(rsq);
-
-    //           // count particles that are fully in the rcut sphere
-    //           if (r < (m_rcut - m_diameter/2.0f))
-    //           {
-    //               num_neighbors += 1.0f;
-    //           }
-    //           else if (r < (m_rcut + m_diameter/2.0f))
-    //           {
-    //               // partially count particles that intersect the rcut sphere
-    //               // this is not particularly accurate for a single particle, but works well on average for
-    //               // lots of them. It smooths out the neighbor count distributions and avoids noisy spikes
-    //               // that obscure data
-    //               num_neighbors += 1.0f + (m_rcut - (r + m_diameter/2.0f)) / m_diameter;
-    //           }
-    //       }
-
-    //       m_num_neighbors_array.get()[i] = num_neighbors;
-    //       if (m_box.is2D())
-    //           {
-    //           // local density is area of particles divided by the area of the circle
-    //           m_density_array.get()[i] = (m_volume * m_num_neighbors_array.get()[i]) / (M_PI * m_rcut * m_rcut);
-    //           }
-    //       else
-    //           {
-    //           // local density is volume of particles divided by the volume of the sphere
-    //           m_density_array.get()[i] = (m_volume * m_num_neighbors_array.get()[i]) / (4.0f/3.0f * M_PI * m_rcut * m_rcut * m_rcut);
-    //           }
-    //       }
-    //   });
-
     freud::locality::for_loop_wrapper(true, 0, n_ref, 
       [=] (size_t r_begin, size_t r_end)
       {
