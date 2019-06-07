@@ -24,55 +24,56 @@ namespace freud { namespace pmft {
  *  as the ability to access the underlying PCF and box. Many of the specific methods must be implemented by
  *  subclasses that account for the proper set of dimensions.The required functions are implemented as pure
  *  virtual functions here to enforce this.
-*/
+ */
 class PMFT
+{
+public:
+    //! Constructor
+    PMFT();
+
+    //! Destructor
+    virtual ~PMFT();
+
+    //! Get the simulation box
+    const box::Box& getBox() const
     {
-    public:
-        //! Constructor
-        PMFT();
+        return m_box;
+    }
 
-        //! Destructor
-        virtual ~PMFT();
+    //! Reset the PCF array to all zeros
+    virtual void reset() = 0;
 
-        //! Get the simulation box
-        const box::Box& getBox() const
-            {
-            return m_box;
-            }
+    //! \internal
+    //! helper function to reduce the thread specific arrays into one array
+    //! Must be implemented by subclasses
+    virtual void reducePCF() = 0;
 
-        //! Reset the PCF array to all zeros
-        virtual void reset() = 0;
+    //! Get a reference to the PCF array
+    std::shared_ptr<float> getPCF();
 
-        //! \internal
-        //! helper function to reduce the thread specific arrays into one array
-        //! Must be implemented by subclasses
-        virtual void reducePCF() = 0;
+    //! Get a reference to the bin counts array
+    std::shared_ptr<unsigned int> getBinCounts();
 
-        //! Get a reference to the PCF array
-        std::shared_ptr<float> getPCF();
+    float getRCut()
+    {
+        return m_r_cut;
+    }
 
-        //! Get a reference to the bin counts array
-        std::shared_ptr<unsigned int> getBinCounts();
+protected:
+    box::Box m_box;               //!< Simulation box where the particles belong
+    float m_r_cut;                //!< r_cut used in cell list construction
+    unsigned int m_frame_counter; //!< Number of frames calculated
+    unsigned int m_n_ref;         //!< The number of reference points
+    unsigned int m_n_p;           //!< The number of points
+    bool m_reduce;                //!< Whether or not the PCF needs to be reduced
 
-        float getRCut()
-            {
-            return m_r_cut;
-            }
+    std::shared_ptr<float> m_pcf_array;         //!< Array of PCF computed
+    std::shared_ptr<unsigned int> m_bin_counts; //!< Counts for each bin
+    tbb::enumerable_thread_specific<unsigned int*>
+        m_local_bin_counts; //!< Thread local bin counts for TBB parallelism
 
-    protected:
-        box::Box m_box;                    //!< Simulation box where the particles belong
-        float m_r_cut;                     //!< r_cut used in cell list construction
-        unsigned int m_frame_counter;      //!< Number of frames calculated
-        unsigned int m_n_ref;              //!< The number of reference points
-        unsigned int m_n_p;                //!< The number of points
-        bool m_reduce;                     //!< Whether or not the PCF needs to be reduced
-
-        std::shared_ptr<float> m_pcf_array;            //!< Array of PCF computed
-        std::shared_ptr<unsigned int> m_bin_counts;    //!< Counts for each bin
-        tbb::enumerable_thread_specific<unsigned int *> m_local_bin_counts; //!< Thread local bin counts for TBB parallelism
-
-    private:
-    };
+private:
+};
 
 }; }; // end namespace freud::pmft
 

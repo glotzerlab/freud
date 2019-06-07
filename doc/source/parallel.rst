@@ -8,6 +8,7 @@ Parallel Module
     :nosignatures:
 
     freud.parallel.NumThreads
+    freud.parallel.getNumThreads
     freud.parallel.setNumThreads
 
 .. rubric:: Details
