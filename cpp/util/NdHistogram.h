@@ -10,7 +10,7 @@
 namespace freud { namespace util {
 
 template<typename T>
-std::shared_ptr<T> returnEmptyArray(unsigned int size)
+std::shared_ptr<T> makeEmptyArray(unsigned int size)
 {
     auto new_arr = std::shared_ptr<T>(new T[size], std::default_delete<T[]>());
     memset((void*) new_arr.get(), 0, sizeof(T) * size);
