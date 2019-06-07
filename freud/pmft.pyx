@@ -192,24 +192,18 @@ cdef class PMFTR12(_PMFT):
         if orientations is None:
             orientations = ref_orientations
 
-        ref_points = freud.common.convert_array(
-            ref_points, 2, dtype=np.float32, contiguous=True,
-            array_name="ref_points")
+        ref_points = freud.common.convert_array(ref_points, 2)
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
 
         ref_orientations = freud.common.convert_array(
-            ref_orientations.squeeze(), 1, dtype=np.float32, contiguous=True,
-            array_name="ref_orientations")
+            ref_orientations.squeeze(), 1)
 
-        points = freud.common.convert_array(
-            points, 2, dtype=np.float32, contiguous=True, array_name="points")
+        points = freud.common.convert_array(points, 2)
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        orientations = freud.common.convert_array(
-            orientations.squeeze(), 1, dtype=np.float32, contiguous=True,
-            array_name="orientations")
+        orientations = freud.common.convert_array(orientations.squeeze(), 1)
 
         defaulted_nlist = freud.locality.make_default_nlist(
             b, ref_points, points, self.rmax, nlist, None)
@@ -242,12 +236,12 @@ cdef class PMFTR12(_PMFT):
                 Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference points used in computation.
-            ref_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
+            ref_orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`):
                 Reference orientations as angles used in computation.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
                 Points used in computation. Uses :code:`ref_points` if not
                 provided or :code:`None`.
-            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`, optional):
+            orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):
                 Orientations as angles used in computation. Uses
                 :code:`ref_orientations` if not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
@@ -443,24 +437,18 @@ cdef class PMFTXYT(_PMFT):
         if orientations is None:
             orientations = ref_orientations
 
-        ref_points = freud.common.convert_array(
-            ref_points, 2, dtype=np.float32, contiguous=True,
-            array_name="ref_points")
+        ref_points = freud.common.convert_array(ref_points, 2)
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
 
         ref_orientations = freud.common.convert_array(
-            ref_orientations.squeeze(), 1, dtype=np.float32, contiguous=True,
-            array_name="ref_orientations")
+            ref_orientations.squeeze(), 1)
 
-        points = freud.common.convert_array(
-            points, 2, dtype=np.float32, contiguous=True, array_name="points")
+        points = freud.common.convert_array(points, 2)
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        orientations = freud.common.convert_array(
-            orientations.squeeze(), 1, dtype=np.float32, contiguous=True,
-            array_name="orientations")
+        orientations = freud.common.convert_array(orientations.squeeze(), 1)
 
         defaulted_nlist = freud.locality.make_default_nlist(
             b, ref_points, points, self.rmax, nlist, None)
@@ -493,12 +481,12 @@ cdef class PMFTXYT(_PMFT):
                 Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference points used in computation.
-            ref_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
+            ref_orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`):
                 Reference orientations as angles used in computation.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
                 Points used in computation. Uses :code:`ref_points` if not
                 provided or :code:`None`.
-            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`, optional):
+            orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):
                 Orientations as angles used in computation. Uses
                 :code:`ref_orientations` if not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
@@ -678,24 +666,19 @@ cdef class PMFTXY2D(_PMFT):
         if orientations is None:
             orientations = ref_orientations
 
-        ref_points = freud.common.convert_array(
-            ref_points, 2, dtype=np.float32, contiguous=True,
-            array_name="ref_points")
+        ref_points = freud.common.convert_array(ref_points, 2)
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
 
         ref_orientations = freud.common.convert_array(
-            ref_orientations.squeeze(), 1, dtype=np.float32, contiguous=True,
-            array_name="ref_orientations")
+            ref_orientations.squeeze(), 1)
 
-        points = freud.common.convert_array(
-            points, 2, dtype=np.float32, contiguous=True, array_name="points")
+        points = freud.common.convert_array(points, 2)
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
         orientations = freud.common.convert_array(
-            orientations.squeeze(), 1, dtype=np.float32, contiguous=True,
-            array_name="orientations")
+            orientations.squeeze(), 1)
 
         defaulted_nlist = freud.locality.make_default_nlist(
             b, ref_points, points, self.rmax, nlist, None)
@@ -728,12 +711,12 @@ cdef class PMFTXY2D(_PMFT):
                 Simulation box.
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference points used in computation.
-            ref_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
+            ref_orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`):
                 Reference orientations as angles used in computation.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
                 Points used in computation. Uses :code:`ref_points` if not
                 provided or :code:`None`.
-            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`, optional):
+            orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):
                 Orientations as angles used in computation. Uses
                 :code:`ref_orientations` if not provided or :code:`None`.
             nlist (:class:`freud.locality.NeighborList`, optional):
@@ -896,12 +879,12 @@ cdef class PMFTXYZ(_PMFT):
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference points used in computation.
             ref_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
-                Reference orientations as angles used in computation.
+                Reference orientations as quaternions used in computation.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
                 Points used in computation. Uses :code:`ref_points` if not
                 provided or :code:`None`.
             orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`, optional):
-                Orientations as angles used in computation. Uses
+                Orientations as quaternions used in computation. Uses
                 :code:`ref_orientations` if not provided or :code:`None`.
             face_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`, optional):
                 Orientations of particle faces to account for particle
@@ -924,52 +907,40 @@ cdef class PMFTXYZ(_PMFT):
         if orientations is None:
             orientations = ref_orientations
 
-        ref_points = freud.common.convert_array(
-            ref_points, 2, dtype=np.float32, contiguous=True,
-            array_name="ref_points")
+        ref_points = freud.common.convert_array(ref_points, 2)
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
 
-        ref_orientations = freud.common.convert_array(
-            ref_orientations, 2, dtype=np.float32, contiguous=True,
-            array_name="ref_orientations")
+        ref_orientations = freud.common.convert_array(ref_orientations, 2)
         if ref_orientations.shape[1] != 4:
             raise ValueError(
-                "The 2nd dimension must have 4 values: q0, q1, q2, q3")
+                "The 2nd dimension must have 4 values: w, x, y, z")
 
-        points = freud.common.convert_array(
-            points, 2, dtype=np.float32, contiguous=True, array_name="points")
+        points = freud.common.convert_array(points, 2)
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
         points = points - self.shiftvec.reshape(1, 3)
 
-        orientations = freud.common.convert_array(
-            orientations, 2, dtype=np.float32, contiguous=True,
-            array_name="orientations")
+        orientations = freud.common.convert_array(orientations, 2)
         if orientations.shape[1] != 4:
             raise ValueError(
-                "The 2nd dimension must have 4 values: q0, q1, q2, q3")
+                "The 2nd dimension must have 4 values: w, x, y, z")
 
         # handle multiple ways to input
         if face_orientations is None:
-            # set to unit quaternion q = [1,0,0,0]
+            # set to unit quaternion, q = [1, 0, 0, 0]
             face_orientations = np.zeros(
                 shape=(ref_points.shape[0], 1, 4), dtype=np.float32)
             face_orientations[:, :, 0] = 1.0
         else:
             if face_orientations.ndim < 2 or face_orientations.ndim > 3:
                 raise ValueError("points must be a 2 or 3 dimensional array")
-            face_orientations = freud.common.convert_array(
-                face_orientations, face_orientations.ndim,
-                dtype=np.float32, contiguous=True,
-                array_name=("face_orientations must be a {} "
-                            "dimensional array").format(
-                                face_orientations.ndim))
+            face_orientations = freud.common.convert_array(face_orientations)
             if face_orientations.ndim == 2:
                 if face_orientations.shape[1] != 4:
                     raise ValueError(
-                        ("2nd dimension for orientations must have 4 values:"
-                            "s, x, y, z"))
+                        "2nd dimension for orientations must have 4 values:"
+                        "w, x, y, z")
                 # need to broadcast into new array
                 tmp_face_orientations = np.zeros(
                     shape=(ref_points.shape[0],
@@ -984,7 +955,7 @@ cdef class PMFTXYZ(_PMFT):
                 if face_orientations.shape[2] != 4:
                     raise ValueError(
                         "2nd dimension for orientations must have 4 values:"
-                        "s, x, y, z")
+                        "w, x, y, z")
                 elif face_orientations.shape[0] not in (
                         1, ref_points.shape[0]):
                     raise ValueError(
@@ -1032,12 +1003,12 @@ cdef class PMFTXYZ(_PMFT):
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference points used in computation.
             ref_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
-                Reference orientations as angles used in computation.
+                Reference orientations as quaternions used in computation.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
                 Points used in computation. Uses :code:`ref_points` if not
                 provided or :code:`None`.
             orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`, optional):
-                Orientations as angles used in computation. Uses
+                Orientations as quaternions used in computation. Uses
                 :code:`ref_orientations` if not provided or :code:`None`.
             face_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`, optional):
                 Orientations of particle faces to account for particle

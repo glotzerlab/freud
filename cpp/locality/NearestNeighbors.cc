@@ -9,7 +9,7 @@
 #include <vector>
 
 #include "NearestNeighbors.h"
-#include "HOOMDMatrix.h"
+#include "Index1D.h"
 
 using namespace std;
 using namespace tbb;

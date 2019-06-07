@@ -281,12 +281,10 @@ cdef class NeighborQuery:
         return np.asarray(self.points)
 
     def _queryGeneric(self, points, query_args):
-        # This function is temporarily included for testing and WILL be
+        # This function is temporarily included for testing and may be
         # removed in future releases.
         # Can't use this function with old-style NeighborQuery objects
-        points = freud.common.convert_array(
-            np.atleast_2d(points), 2, dtype=np.float32, contiguous=True,
-            array_name="points")
+        points = freud.common.convert_array(np.atleast_2d(points), 2)
 
         cdef shared_ptr[freud._locality.NeighborQueryIterator] iterator
         cdef const float[:, ::1] l_points = points
@@ -335,9 +333,7 @@ cdef class NeighborQuery:
             raise RuntimeError("You cannot use the query method unless this "
                                "object was originally constructed with "
                                "reference points")
-        points = freud.common.convert_array(
-            np.atleast_2d(points), 2, dtype=np.float32, contiguous=True,
-            array_name="points")
+        points = freud.common.convert_array(np.atleast_2d(points), 2)
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
@@ -367,9 +363,7 @@ cdef class NeighborQuery:
             raise RuntimeError("You cannot use the query method unless this "
                                "object was originally constructed with "
                                "reference points")
-        points = freud.common.convert_array(
-            np.atleast_2d(points), 2, dtype=np.float32, contiguous=True,
-            array_name="points")
+        points = freud.common.convert_array(np.atleast_2d(points), 2)
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
@@ -469,12 +463,8 @@ cdef class NeighborList:
                 Array of per-bond weights (if :code:`None` is given, use a
                 value of 1 for each weight) (Default value = :code:`None`).
         """
-        index_i = freud.common.convert_array(index_i, dimensions=1,
-                                             dtype=np.uint64, contiguous=True,
-                                             array_name='index_i')
-        index_j = freud.common.convert_array(index_j, dimensions=1,
-                                             dtype=np.uint64, contiguous=True,
-                                             array_name='index_j')
+        index_i = freud.common.convert_array(index_i, 1, dtype=np.uint64)
+        index_j = freud.common.convert_array(index_j, 1, dtype=np.uint64)
 
         if index_i.shape != index_j.shape:
             raise TypeError('index_i and index_j should be the same size')
@@ -482,9 +472,7 @@ cdef class NeighborList:
         if weights is None:
             weights = np.ones(index_i.shape, dtype=np.float32)
         else:
-            weights = freud.common.convert_array(
-                weights, dimensions=1, dtype=np.float32, contiguous=True,
-                array_name='weights')
+            weights = freud.common.convert_array(weights, 1)
 
         if weights.shape != index_i.shape:
             raise TypeError('weights and index_i should be the same size')
@@ -697,14 +685,11 @@ cdef class NeighborList:
                 (Default value = 0).
         """
         cdef freud.box.Box b = freud.common.convert_box(box)
-        ref_points = freud.common.convert_array(
-            ref_points, 2, dtype=np.float32, contiguous=True,
-            array_name="ref_points")
+        ref_points = freud.common.convert_array(ref_points, 2)
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
 
-        points = freud.common.convert_array(
-            points, 2, dtype=np.float32, contiguous=True, array_name="points")
+        points = freud.common.convert_array(points, 2)
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
@@ -878,14 +863,13 @@ cdef class AABBQuery(NeighborQuery):
     .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
 
+    .. versionadded:: 1.1.0
+
     Attributes:
         box (:class:`freud.locality.Box`):
             The simulation box.
         points (:class:`np.ndarray`):
             The points associated with this class.
-
-    .. versionadded:: 1.1.0
-
     """  # noqa: E501
 
     def __cinit__(self, box, points):
@@ -894,9 +878,7 @@ cdef class AABBQuery(NeighborQuery):
             # Assume valid set of arguments is passed
             self.queryable = True
             self._box = freud.common.convert_box(box)
-            self.points = freud.common.convert_array(
-                points, 2, dtype=np.float32, contiguous=True,
-                array_name="points").copy()
+            self.points = freud.common.convert_array(points, 2).copy()
             l_points = self.points
             self.thisptr = self.nqptr = new freud._locality.AABBQuery(
                 dereference(self._box.thisptr),
@@ -911,9 +893,7 @@ cdef class AABBQuery(NeighborQuery):
         # This function is temporarily included for testing and WILL be
         # removed in future releases.
         # Can't use this function with old-style NeighborQuery objects
-        points = freud.common.convert_array(
-            np.atleast_2d(points), 2, dtype=np.float32, contiguous=True,
-            array_name="points")
+        points = freud.common.convert_array(np.atleast_2d(points), 2)
 
         cdef shared_ptr[freud._locality.NeighborQueryIterator] iterator
         cdef const float[:, ::1] l_points = points
@@ -958,9 +938,7 @@ cdef class AABBQuery(NeighborQuery):
             :class:`~.NeighborQueryResult`: Results object containing the
             output of this query.
         """
-        points = freud.common.convert_array(
-            np.atleast_2d(points), 2, dtype=np.float32, contiguous=True,
-            array_name="points")
+        points = freud.common.convert_array(np.atleast_2d(points), 2)
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
@@ -1078,9 +1056,7 @@ cdef class LinkCell(NeighborQuery):
         if points is not None:
             # The new API
             self.queryable = True
-            self.points = freud.common.convert_array(
-                points, 2, dtype=np.float32, contiguous=True,
-                array_name="points").copy()
+            self.points = freud.common.convert_array(points, 2).copy()
             l_points = self.points
             self.thisptr = self.nqptr = new freud._locality.LinkCell(
                 dereference(self._box.thisptr), float(cell_width),
@@ -1114,8 +1090,7 @@ cdef class LinkCell(NeighborQuery):
         Returns:
             unsigned int: Cell index.
         """
-        point = freud.common.convert_array(
-            point, 1, dtype=np.float32, contiguous=True, array_name="point")
+        point = freud.common.convert_array(point, 1)
 
         cdef const float[::1] cPoint = point
 
@@ -1183,17 +1158,14 @@ cdef class LinkCell(NeighborQuery):
             points is ref_points or points is None) \
             if exclude_ii is None else exclude_ii
 
-        ref_points = freud.common.convert_array(
-            ref_points, 2, dtype=np.float32, contiguous=True,
-            array_name="ref_points")
+        ref_points = freud.common.convert_array(ref_points, 2)
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
 
         if points is None:
             points = ref_points
 
-        points = freud.common.convert_array(
-            points, 2, dtype=np.float32, contiguous=True, array_name="points")
+        points = freud.common.convert_array(points, 2)
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
@@ -1438,17 +1410,14 @@ cdef class NearestNeighbors:
             points is ref_points or points is None) \
             if exclude_ii is None else exclude_ii
 
-        ref_points = freud.common.convert_array(
-            ref_points, 2, dtype=np.float32, contiguous=True,
-            array_name="ref_points")
+        ref_points = freud.common.convert_array(ref_points, 2)
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
 
         if points is None:
             points = ref_points
 
-        points = freud.common.convert_array(
-            points, 2, dtype=np.float32, contiguous=True, array_name="points")
+        points = freud.common.convert_array(points, 2)
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 

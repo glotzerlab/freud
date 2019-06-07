@@ -7,11 +7,9 @@
 #include <memory>
 
 #include "Box.h"
+#include "NeighborList.h"
 #include "VectorMath.h"
-#include "NearestNeighbors.h"
 #include "fsph/src/spherical_harmonics.hpp"
-
-#include "tbb/atomic.h"
 
 /*! \file LocalDescriptors.h
   \brief Computes local descriptors.
@@ -32,18 +30,9 @@ class LocalDescriptors
 public:
     //! Constructor
     //!
-    //! \param neighmax Maximum number of neighbors to compute descriptors for
     //! \param lmax Maximum spherical harmonic l to consider
-    //! \param rmax Initial guess of the maximum radius to look for n_neigh neighbors
     //! \param negative_m whether to calculate Ylm for negative m
-    LocalDescriptors(unsigned int neighmax,
-                     unsigned int lmax, float rmax, bool negative_m);
-
-    //! Get the maximum number of neighbors
-    unsigned int getNeighmax() const
-        {
-        return m_neighmax;
-        }
+    LocalDescriptors(unsigned int lmax, bool negative_m);
 
     //! Get the last number of spherical harmonics computed
     unsigned int getNSphs() const
@@ -62,10 +51,6 @@ public:
         {
         return m_Nref;
         }
-
-    //! Compute the nearest neighbors for each particle
-    void computeNList(const box::Box& box, const vec3<float> *r_ref,
-                      unsigned int Nref, const vec3<float> *r, unsigned int Np);
 
     //! Compute the local neighborhood descriptors given some
     //! positions and the number of particles
@@ -90,10 +75,8 @@ public:
         }
 
 private:
-    unsigned int m_neighmax;          //!< Maximum number of neighbors to calculate
     unsigned int m_lmax;              //!< Maximum spherical harmonic l to calculate
     bool m_negative_m;                //!< true if we should compute Ylm for negative m
-    locality::NearestNeighbors m_nn;  //!< NearestNeighbors to find neighbors with
     unsigned int m_Nref;              //!< Last number of points computed
     unsigned int m_nSphs;             //!< Last number of bond spherical harmonics computed
 

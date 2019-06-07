@@ -2,20 +2,43 @@
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## next
+
+### Changed
+* Removed extra C++ includes to speed up builds.
+
+### Fixed
+* Calling setNumThreads works correctly even if a parallel compute method has already been called.
+
+### Removed
+* Removed outdated `computeNList` function from `LocalDescriptors`.
+
+## v1.1.0 - 2019-05-23
 
 ### Added
-* Ability to dynamically select query method based on struct of arguments.
 * New neighbor querying API to enable reuse of query data structures.
-* Exposed AABB tree to user.
+* AABBQuery (AABB tree-based neighbor finding) added to public API.
+* Ability to dynamically select query method based on struct of arguments.
 * All compute objects have `__repr__` and `__str__` methods defined.
+* NeighborLists can be accessed as arrays of particle indices via `__getitem__`.
+* ParticleBuffer supports different buffer sizes in x, y, z.
+* Box makeCoordinates, makeFraction, getImage now support 2D arrays with multiple points.
 
-### Changes
+### Changed
 * Use constant memoryviews to prevent errors with read-only inputs.
+* LocalQl is now parallelized with TBB.
+* Optimized performance of RotationalAutocorrelation.
+* NematicOrderParameter uses SelfAdjointEigenSolver for improved stability.
+* Added build flags for Cython debugging.
+* LinkCell computes cell neighbors on-demand and caches the results for significant speedup.
 
 ### Fixed
 * Corrected type of `y_max` argument to PMFTXY2D from int to float.
 * Reduce logging verbosity about array conversion.
+* Fixed number of threads set upon exiting the NumThreads context manager.
+* Corrected quaternion array sizes and added missing defaults in the documentation.
+* Empty ParticleBuffers return valid array shapes for concatenation.
+* Wheels are built against NumPy 1.10 for improved backwards compatibility.
 
 ## v1.0.0 - 2019-02-08
 

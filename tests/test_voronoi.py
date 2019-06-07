@@ -88,8 +88,8 @@ class TestVoronoi(unittest.TestCase):
         vor.computeNeighbors(positions)
         npt.assert_equal(
             vor.getNeighbors(1),
-            [[1, 3], [0, 2, 4], [5, 1], [0, 6, 4], [3, 5, 1, 7], [8, 2, 4],
-             [3, 7], [6, 8, 4], [5, 7]])
+            [[1, 3], [0, 2, 4], [1, 5], [0, 4, 6], [1, 3, 5, 7], [2, 4, 8],
+             [3, 7], [4, 6, 8], [5, 7]])
         npt.assert_equal(
             vor.getNeighbors(2),
             [[1, 2, 3, 4, 6], [0, 2, 3, 4, 5, 7], [0, 1, 4, 5, 8],

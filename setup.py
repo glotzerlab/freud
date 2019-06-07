@@ -340,22 +340,29 @@ modules = [f.replace(ext, '') for f in files]
 modules = [m.replace(os.path.sep, '.') for m in modules]
 
 # Source files required for all modules.
-sources_in_all = [
-    os.path.join("cpp", "util", "HOOMDMatrix.cc"),
-    os.path.join("cpp", "locality", "NeighborQuery.cc"),
-    os.path.join("cpp", "locality", "AABBQuery.cc"),
-    os.path.join("cpp", "locality", "LinkCell.cc"),
-    os.path.join("cpp", "locality", "NearestNeighbors.cc"),
-    os.path.join("cpp", "locality", "NeighborList.cc"),
-    os.path.join("cpp", "locality", "NeighborComputeFunctional.cc"),
-    os.path.join("cpp", "box", "Box.cc")
-]
+sources_in_all = []
 
 # Any source files required only for specific modules.
 # Dict keys should be specified as the module name without
 # "freud.", i.e. not the fully qualified name.
 extra_module_sources = dict(
-    order=[os.path.join("cpp", "cluster", "Cluster.cc")]
+    cluster=[
+        os.path.join("cpp", "locality", "NeighborList.cc"),
+    ],
+    density=[
+        os.path.join("cpp", "locality", "NeighborList.cc"),
+    ],
+    environment=[
+        os.path.join("cpp", "util", "HOOMDMatrix.cc"),
+        os.path.join("cpp", "locality", "NeighborList.cc"),
+    ],
+    order=[
+        os.path.join("cpp", "cluster", "Cluster.cc"),
+        os.path.join("cpp", "locality", "NeighborList.cc"),
+    ],
+    pmft=[
+        os.path.join("cpp", "locality", "NeighborList.cc"),
+    ],
 )
 
 extensions = []
@@ -383,7 +390,7 @@ if args.use_cython:
 if platform.system() == 'Darwin':
     os.environ["MACOSX_DEPLOYMENT_TARGET"]= "10.12"
 
-version = '1.0.0'
+version = '1.1.0'
 
 # Read README for PyPI, fallback to short description if it fails.
 desc = 'Powerful, efficient trajectory analysis in scientific Python.'

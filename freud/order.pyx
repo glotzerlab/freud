@@ -117,9 +117,7 @@ cdef class CubaticOrderParameter:
             orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
                 Orientations as angles to use in computation.
         """
-        orientations = freud.common.convert_array(
-            orientations, 2, dtype=np.float32, contiguous=True,
-            array_name="orientations")
+        orientations = freud.common.convert_array(orientations, 2)
         if orientations.shape[1] != 4:
             raise TypeError('orientations should be an Nx4 array')
 
@@ -235,8 +233,7 @@ cdef class NematicOrderParameter:
 
         cdef vec3[float] l_u = vec3[float](u[0], u[1], u[2])
         self.thisptr = new freud._order.NematicOrderParameter(l_u)
-        self.u = freud.common.convert_array(
-            u, 1, dtype=np.float32, contiguous=True, array_name="u")
+        self.u = freud.common.convert_array(u, 1)
 
     def compute(self, orientations):
         R"""Calculates the per-particle and global order parameter.
@@ -245,9 +242,7 @@ cdef class NematicOrderParameter:
             orientations (:math:`\left(N_{particles}, 4 \right)` :class:`numpy.ndarray`):
                 Orientations to calculate the order parameter.
         """  # noqa: E501
-        orientations = freud.common.convert_array(
-            orientations, 2, dtype=np.float32, contiguous=True,
-            array_name="orientations")
+        orientations = freud.common.convert_array(orientations, 2)
         if orientations.shape[1] != 4:
             raise TypeError('orientations should be an Nx4 array')
 
@@ -354,8 +349,7 @@ cdef class HexOrderParameter:
                 Neighborlist to use to find bonds.
         """
         cdef freud.box.Box b = freud.common.convert_box(box)
-        points = freud.common.convert_array(
-            points, 2, dtype=np.float32, contiguous=True, array_name="points")
+        points = freud.common.convert_array(points, 2)
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
@@ -448,8 +442,7 @@ cdef class TransOrderParameter:
                 Neighborlist to use to find bonds.
         """
         cdef freud.box.Box b = freud.common.convert_box(box)
-        points = freud.common.convert_array(
-            points, 2, dtype=np.float32, contiguous=True, array_name="points")
+        points = freud.common.convert_array(points, 2)
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
@@ -536,9 +529,11 @@ cdef class LocalQl:
             Cutoff radius for the local order parameter. Values near the first
             minimum of the RDF are recommended.
         l (unsigned int):
-            Spherical harmonic quantum number l. Must be a positive number.
+            Spherical harmonic quantum number l. Must be a positive integer.
         rmin (float):
-            Can look at only the second shell or some arbitrary RDF region.
+            Lower bound for computing the local order parameter. Allows looking
+            at, for instance, only the second shell, or some other arbitrary
+            RDF region (Default value = 0).
 
     Attributes:
         box (:class:`freud.box.Box`):
@@ -642,8 +637,7 @@ cdef class LocalQl:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """
-        points = freud.common.convert_array(
-            points, 2, dtype=np.float32, contiguous=True, array_name="points")
+        points = freud.common.convert_array(points, 2)
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
@@ -667,8 +661,7 @@ cdef class LocalQl:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """
-        points = freud.common.convert_array(
-            points, 2, dtype=np.float32, contiguous=True, array_name="points")
+        points = freud.common.convert_array(points, 2)
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
@@ -695,8 +688,7 @@ cdef class LocalQl:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """
-        points = freud.common.convert_array(
-            points, 2, dtype=np.float32, contiguous=True, array_name="points")
+        points = freud.common.convert_array(points, 2)
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
@@ -723,8 +715,7 @@ cdef class LocalQl:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """
-        points = freud.common.convert_array(
-            points, 2, dtype=np.float32, contiguous=True, array_name="points")
+        points = freud.common.convert_array(points, 2)
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
@@ -930,11 +921,11 @@ cdef class LocalWl(LocalQl):
             Cutoff radius for the local order parameter. Values near the first
             minimum of the RDF are recommended.
         l (unsigned int):
-            Spherical harmonic quantum number l. Must be a positive number
+            Spherical harmonic quantum number l. Must be a positive integer.
         rmin (float):
             Lower bound for computing the local order parameter. Allows looking
             at, for instance, only the second shell, or some other arbitrary
-            RDF region.
+            RDF region (Default value = 0).
 
     Attributes:
         box (:class:`freud.box.Box`):
@@ -1241,8 +1232,7 @@ cdef class SolLiq:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """
-        points = freud.common.convert_array(
-            points, 2, dtype=np.float32, contiguous=True, array_name="points")
+        points = freud.common.convert_array(points, 2)
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
@@ -1270,8 +1260,7 @@ cdef class SolLiq:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """
-        points = freud.common.convert_array(
-            points, 2, dtype=np.float32, contiguous=True, array_name="points")
+        points = freud.common.convert_array(points, 2)
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
@@ -1296,8 +1285,7 @@ cdef class SolLiq:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """
-        points = freud.common.convert_array(
-            points, 2, dtype=np.float32, contiguous=True, array_name="points")
+        points = freud.common.convert_array(points, 2)
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
@@ -1563,14 +1551,11 @@ cdef class RotationalAutocorrelation:
             ors ((:math:`N_{orientations}`, 4) :class:`numpy.ndarray`):
                 Orientations for the frame of interest.
         """
-        ref_ors = freud.common.convert_array(
-            ref_ors, 2, dtype=np.float32, contiguous=True,
-            array_name="ref_ors")
+        ref_ors = freud.common.convert_array(ref_ors, 2)
         if ref_ors.shape[1] != 4:
             raise TypeError('ref_ors should be an Nx4 array')
 
-        ors = freud.common.convert_array(
-            ors, 2, dtype=np.float32, contiguous=True, array_name="ors")
+        ors = freud.common.convert_array(ors, 2)
         if ors.shape[1] != 4:
             raise TypeError('ors should be an Nx4 array')
 
