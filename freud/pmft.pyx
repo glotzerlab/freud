@@ -783,6 +783,9 @@ cdef class PMFTXY2D(_PMFT):
     def __str__(self):
         return repr(self)
 
+    def _repr_png_(self):
+        return freud.common.pmft_plot(self)
+
 
 cdef class PMFTXYZ(_PMFT):
     R"""Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ in
