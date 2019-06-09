@@ -6,8 +6,8 @@
 
 #include <memory>
 #include <stdexcept>
-#include <tuple>
 #include <tbb/tbb.h>
+#include <tuple>
 
 #include "Box.h"
 #include "NeighborList.h"
@@ -297,9 +297,11 @@ public:
         parallel_for(tbb::blocked_range<size_t>(0, num_bonds), [&](const tbb::blocked_range<size_t>& r) {
             for (size_t bond(r.begin()); bond < r.end(); ++bond)
             {
-                neighbor_array[2 * bond] = std::get<0>(linear_bonds[bond]);
-                neighbor_array[2 * bond + 1] = std::get<1>(linear_bonds[bond]);
-                neighbor_distance[bond] = std::get<2>(linear_bonds[bond]);
+                // neighbor_array[2 * bond] = std::get<0>(linear_bonds[bond]);
+                // neighbor_array[2 * bond + 1] = std::get<1>(linear_bonds[bond]);
+                // neighbor_distance[bond] = std::get<2>(linear_bonds[bond]);
+                std::tie(neighbor_array[2 * bond], neighbor_array[2 * bond + 1], neighbor_distance[bond])
+                    = linear_bonds[bond];
             }
         });
         memset((void*) neighbor_weights, 1, sizeof(float) * linear_bonds.size());

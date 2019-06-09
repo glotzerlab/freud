@@ -128,8 +128,8 @@ const vec3<unsigned int> LinkCell::computeDimensions(const box::Box& box, float 
     return dim;
 }
 
-bool compareFirstNeighborPairs(const std::vector<std::tuple<size_t, size_t, float>>& left,
-                               const std::vector<std::tuple<size_t, size_t, float>>& right)
+bool compareFirstNeighborPairs(const std::vector<std::tuple<size_t, size_t, float, float>>& left,
+                               const std::vector<std::tuple<size_t, size_t, float, float>>& right)
 {
     if (left.size() && right.size())
         return left[0] < right[0];
@@ -181,7 +181,7 @@ void LinkCell::compute(const box::Box& box, const vec3<float>* ref_points, unsig
     // for quick access later (not ref_points)
     computeCellList(box, points, Np);
 
-    typedef std::vector<std::tuple<size_t, size_t, float>> BondVector;
+    typedef std::vector<std::tuple<size_t, size_t, float, float>> BondVector;
     typedef std::vector<BondVector> BondVectorVector;
     typedef tbb::enumerable_thread_specific<BondVectorVector> ThreadBondVector;
     ThreadBondVector bond_vectors;
@@ -216,7 +216,7 @@ void LinkCell::compute(const box::Box& box, const vec3<float>* ref_points, unsig
 
                     if (rsq < m_cell_width * m_cell_width)
                     {
-                        bond_vector.emplace_back(i, j, 1);
+                        bond_vector.emplace_back(i, j, 1, sqrt(rsq));
                     }
                 }
             }
@@ -238,6 +238,7 @@ void LinkCell::compute(const box::Box& box, const vec3<float>* ref_points, unsig
 
     size_t* neighbor_array(m_neighbor_list.getNeighbors());
     float* neighbor_weights(m_neighbor_list.getWeights());
+    float* neighbor_distances(m_neighbor_list.getDistances());
 
     // build nlist structure
     parallel_for(blocked_range<size_t>(0, bond_vector_groups.size()),
@@ -252,7 +253,7 @@ void LinkCell::compute(const box::Box& box, const vec3<float>* ref_points, unsig
                          for (BondVector::const_iterator iter(vec.begin()); iter != vec.end(); ++iter, ++bond)
                          {
                              std::tie(neighbor_array[2 * bond], neighbor_array[2 * bond + 1],
-                                      neighbor_weights[bond])
+                                      neighbor_weights[bond], neighbor_distances[bond])
                                  = *iter;
                          }
                      }

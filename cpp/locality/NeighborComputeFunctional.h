@@ -55,8 +55,7 @@ void loop_over_NeighborList(const NeighborQuery* ref_points, const vec3<float>* 
         }
 
         // iterate over the query object in parallel
-        for_loop_wrapper(true, 0, Np, [iter, qargs, &cf] (size_t begin, size_t end)
-        {
+        for_loop_wrapper(true, 0, Np, [iter, qargs, &cf](size_t begin, size_t end) {
             NeighborPoint np;
             for (size_t i = begin; i != end; ++i)
             {
