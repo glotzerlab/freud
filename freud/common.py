@@ -59,6 +59,21 @@ def convert_box(box):
 
 
 def bar_plot(x, height, title=None, xlabel=None, ylabel=None):
+    """ Helper function to draw a bar graph.
+
+    .. moduleauthor:: Jin Soo Ihm <jinihm@umich.edu>
+
+    Args:
+        x (list): x values of the bar graph.
+        height (list): Height values corresponding to :code:`x`.
+        title (str): Title of the graph. (Default value = :code:`None`).
+        xlabel (str): Label of x axis. (Default value = :code:`None`).
+        ylabel (str): Label of y axis. (Default value = :code:`None`).
+
+    Returns:
+        bytes: Byte representation of the graph in png file if import
+            succeeds. Otherwise :code:`None`.
+    """
     try:
         from matplotlib.figure import Figure
         from matplotlib.backends.backend_agg import FigureCanvasAgg
@@ -80,27 +95,22 @@ def bar_plot(x, height, title=None, xlabel=None, ylabel=None):
         return f.getvalue()
 
 
-def histogram_plot(bins, values, title=None, xlabel=None, ylabel=None):
-    try:
-        from matplotlib.figure import Figure
-        from matplotlib.backends.backend_agg import FigureCanvasAgg
-        import io
-    except ImportError:
-        return None
-    else:
-        fig = Figure()
-        ax = fig.subplots()
-        ax.hist(x=values, bins=bins)
-        ax.set_title(title)
-        ax.set_xlabel(xlabel)
-        ax.set_ylabel(ylabel)
-        f = io.BytesIO()
-        canvas = FigureCanvasAgg(fig) # noqa F841
-        fig.savefig(f, format='png')
-        return f.getvalue()
-
-
 def line_plot(x, y, title=None, xlabel=None, ylabel=None):
+    """ Helper function to draw a line graph.
+
+    .. moduleauthor:: Jin Soo Ihm <jinihm@umich.edu>
+
+    Args:
+        x (list): x values of the line graph.
+        y (list): y values corresponding to :code:`x`.
+        title (str): Title of the graph. (Default value = :code:`None`).
+        xlabel (str): Label of x axis. (Default value = :code:`None`).
+        ylabel (str): Label of y axis. (Default value = :code:`None`).
+
+    Returns:
+        bytes: Byte representation of the graph in png file if import
+            succeeds. Otherwise :code:`None`.
+    """
     try:
         from matplotlib.figure import Figure
         from matplotlib.backends.backend_agg import FigureCanvasAgg
@@ -121,6 +131,8 @@ def line_plot(x, y, title=None, xlabel=None, ylabel=None):
 
 
 def make_polygon(sides, radius=1):
+    """ Helper function to draw polygon taken from freud-exapmles.
+    """
     thetas = np.linspace(0, 2*np.pi, sides+1)[:sides]
     vertices = np.array([[radius*np.sin(theta), radius*np.cos(theta)]
                          for theta in thetas])
@@ -128,6 +140,16 @@ def make_polygon(sides, radius=1):
 
 
 def pmft_plot(pmft):
+    """ Helper function to draw 2D PMFT diagram.
+
+    Args:
+        pmft (:class:`freud.pmft.PMFTXY2D`):
+            PMFT2DXY instance.
+
+    Returns:
+        bytes: Byte representation of the diagram in png file if import
+            succeeds. Otherwise :code:`None`.
+    """
     try:
         from matplotlib.figure import Figure
         from matplotlib.backends.backend_agg import FigureCanvasAgg
@@ -211,6 +233,21 @@ def pmft_plot(pmft):
 
 
 def draw_voronoi(box, cells, color_by_sides=False):
+    """ Helper function to draw 2D Voronoi diagram.
+
+    Args:
+        box (:class:`freud.box.Box`):
+            Simulation box.
+        cells (:class:`numpy.ndarray`):
+            Array containing Voronoi polytope vertices.
+        color_by_sides (bool):
+            If :code:`True`, color cells by the number of sides.
+            (Default value = :code:`False`)
+
+    Returns:
+        bytes: Byte representation of the diagram in png file if import
+            succeeds. Otherwise :code:`None`.
+    """
     try:
         from matplotlib.figure import Figure
         from matplotlib.backends.backend_agg import FigureCanvasAgg
