@@ -1,31 +1,35 @@
 import numpy as np
-from freud import locality, box
-from benchmark import benchmark
+import freud
+from benchmark import Benchmark
+from benchmarker import run_benchmarks
 
 
-class benchmark_locality_LinkCell(benchmark):
+class BenchmarkLocalityLinkCell(Benchmark):
     def __init__(self, L, rcut):
         self.L = L
         self.rcut = rcut
 
-    def setup(self, N):
-        self.fbox = box.Box.cube(self.L)
+    def bench_setup(self, N):
+        self.box = freud.box.Box.cube(self.L)
         seed = 0
         np.random.seed(seed)
         self.points = np.random.uniform(-self.L/2, self.L/2, (N, 3))
 
-    def run(self, N):
-        self.lc = locality.LinkCell(self.fbox, self.rcut)
-        self.lc.compute(self.fbox, self.points, self.points, exclude_ii=True)
+    def bench_run(self, N):
+        lc = freud.locality.LinkCell(self.box, self.rcut)
+        lc.compute(self.box, self.points, self.points, exclude_ii=True)
+
+
+def run():
+    Ns = [1000, 10000]
+    rcut = 1.0
+    L = 10
+    number = 100
+
+    name = 'freud.locality.LinkCell'
+    return run_benchmarks(name, Ns, number, BenchmarkLocalityLinkCell,
+                          L=L, rcut=rcut)
 
 
 if __name__ == '__main__':
-    print('freud.locality.LinkCell, L=10, rcut=0.5')
-    b = benchmark_locality_LinkCell(L=10, rcut=0.5)
-    b.run_size_scaling_benchmark([1000, 10000, 100000], number=100)
-    b.run_thread_scaling_benchmark([1000, 10000, 100000], number=100)
-    print('freud.locality.LinkCell, L=10, rcut=1.0')
-    b = benchmark_locality_LinkCell(L=10, rcut=1.0)
-    b.run_size_scaling_benchmark([1000, 10000, 100000], number=100)
-    b.run_thread_scaling_benchmark([1000, 10000, 100000], number=100)
-    print('\n ----------------')
+    run()
