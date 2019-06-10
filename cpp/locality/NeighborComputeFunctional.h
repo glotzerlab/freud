@@ -26,7 +26,8 @@ template<typename Body> void for_loop_wrapper(bool parallel, size_t begin, size_
     }
 }
 
-// ComputePairType should be a void function that takes (ref_point, point) indices as input.
+// ComputePairType should be a void function that takes
+// (ref_point_index, point_index, distance, weight) as input.
 template<typename ComputePairType>
 void loop_over_NeighborList(const NeighborQuery* ref_points, const vec3<float>* points, unsigned int Np,
                             QueryArgs qargs, const NeighborList* nlist, const ComputePairType& cf)
@@ -65,7 +66,9 @@ void loop_over_NeighborList(const NeighborQuery* ref_points, const vec3<float>* 
                 {
                     if (!qargs.exclude_ii || i != np.ref_id)
                     {
-                        cf(np.ref_id, i);
+                        // TODO
+                        // weight set to 1 for now
+                        cf(np.ref_id, i, np.distance, 1);
                     }
                     np = it->next();
                 }
@@ -74,18 +77,21 @@ void loop_over_NeighborList(const NeighborQuery* ref_points, const vec3<float>* 
     }
 }
 
-// ComputePairType should be a void function that takes (ref_point, point) indices as input.
+// ComputePairType should be a void function that takes
+// (ref_point_index, point_index, distance, weight) as input.
 template<typename ComputePairType>
 void loop_over_NeighborList_parallel(const NeighborList* nlist, const ComputePairType& cf)
 {
     const size_t* neighbor_list(nlist->getNeighbors());
     size_t n_bonds = nlist->getNumBonds();
+    const float* neighbor_distances = nlist->getDistances();
+    const float* neighbor_weights = nlist->getWeights();
     parallel_for(tbb::blocked_range<size_t>(0, n_bonds), [=](const tbb::blocked_range<size_t>& r) {
         for (size_t bond = r.begin(); bond != r.end(); ++bond)
         {
             size_t i(neighbor_list[2 * bond]);
             size_t j(neighbor_list[2 * bond + 1]);
-            cf(i, j);
+            cf(i, j, neighbor_distances[bond], neighbor_weights[bond]);
         }
     });
 }
