@@ -8,9 +8,10 @@
 #include <emmintrin.h>
 #endif
 
-#include "Eigen/Eigen/Dense"
+// #include "Eigen/Eigen/Dense"
 #include "Index1D.h"
 #include "NematicOrderParameter.h"
+#include "diagonalize.h"
 
 using namespace std;
 using namespace tbb;
@@ -150,47 +151,50 @@ void NematicOrderParameter::compute(quat<float>* orientations, unsigned int n)
         m_nematic_tensor[i] = matrix.y_[i] / m_n;
 
     // get the nematic order parameter and director
-    Eigen::MatrixXf m(3, 3);
+    // Eigen::MatrixXf m(3, 3);
     Index2D a_i = Index2D(3, 3);
-    for (unsigned int i = 0; i < 3; ++i)
-        for (unsigned int j = 0; j < 3; ++j)
-        {
-            m(i, j) = m_nematic_tensor[a_i(i, j)];
-        }
+    // for (unsigned int i = 0; i < 3; ++i)
+    //     for (unsigned int j = 0; j < 3; ++j)
+    //     {
+    //         m(i, j) = m_nematic_tensor[a_i(i, j)];
+    //     }
 
-    Eigen::SelfAdjointEigenSolver<Eigen::MatrixXf> es;
-    es.compute(m);
+    // Eigen::SelfAdjointEigenSolver<Eigen::MatrixXf> es;
+    // es.compute(m);
 
+    // float evec[9];
+    // float eval[3];
+    // if (es.info() != Eigen::Success)
+    // {
+    //     // numerical issue, set r to identity matrix
+    //     for (unsigned int i = 0; i < 3; ++i)
+    //         for (unsigned int j = 0; j < 3; ++j)
+    //             if (i == j)
+    //             {
+    //                 evec[a_i(i, j)] = 1.0;
+    //             }
+    //             else
+    //             {
+    //                 evec[a_i(j, j)] = 0.0;
+    //             }
+    //     // set order parameter to zero so it's easily detectable
+    //     eval[0] = eval[1] = eval[2] = 0.0;
+    // }
+    // else
+    // {
+    //     // columns are eigenvectors
+    //     Eigen::MatrixXf eigen_vec = es.eigenvectors();
+    //     for (unsigned int i = 0; i < 3; ++i)
+    //         for (unsigned int j = 0; j < 3; ++j)
+    //             evec[a_i(i, j)] = eigen_vec(i, j);
+    //     auto eigen_val = es.eigenvalues();
+    //     eval[0] = eigen_val(0);
+    //     eval[1] = eigen_val(1);
+    //     eval[2] = eigen_val(2);
+    // }
     float evec[9];
     float eval[3];
-    if (es.info() != Eigen::Success)
-    {
-        // numerical issue, set r to identity matrix
-        for (unsigned int i = 0; i < 3; ++i)
-            for (unsigned int j = 0; j < 3; ++j)
-                if (i == j)
-                {
-                    evec[a_i(i, j)] = 1.0;
-                }
-                else
-                {
-                    evec[a_i(j, j)] = 0.0;
-                }
-        // set order parameter to zero so it's easily detectable
-        eval[0] = eval[1] = eval[2] = 0.0;
-    }
-    else
-    {
-        // columns are eigenvectors
-        Eigen::MatrixXf eigen_vec = es.eigenvectors();
-        for (unsigned int i = 0; i < 3; ++i)
-            for (unsigned int j = 0; j < 3; ++j)
-                evec[a_i(i, j)] = eigen_vec(i, j);
-        auto eigen_val = es.eigenvalues();
-        eval[0] = eigen_val(0);
-        eval[1] = eigen_val(1);
-        eval[2] = eigen_val(2);
-    }
+    freud::util::diagonalize33SymmetricMatrix(m_nematic_tensor, eval, evec);
 
     // the order parameter is the eigenvector belonging to the largest eigenvalue
     unsigned int max_idx = 0;
