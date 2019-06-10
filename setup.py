@@ -353,7 +353,7 @@ extra_module_sources = dict(
         os.path.join("cpp", "locality", "NeighborList.cc"),
     ],
     environment=[
-        os.path.join("cpp", "util", "HOOMDMatrix.cc"),
+        os.path.join("cpp", "util", "diagonalize.cc"),
         os.path.join("cpp", "locality", "NeighborList.cc"),
     ],
     order=[
