@@ -103,10 +103,10 @@ void Voronoi::compute(const box::Box &box, const vec3<double>* vertices,
                 if (weighted_bond) {
                     if (box.is2D()) {
                         // 2D weight is the length of the ridge edge
-                        auto v1ind = current_ridge_vertex_ids[0];
-                        auto v2ind = current_ridge_vertex_ids[1];
-                        auto v1 = vertices[v1ind];
-                        auto v2 = vertices[v2ind];
+                        int v1ind = current_ridge_vertex_ids[0];
+                        int v2ind = current_ridge_vertex_ids[1];
+                        vec3<double> v1 = vertices[v1ind];
+                        vec3<double> v2 = vertices[v2ind];
                         vec3<float> rij(box.wrap(v1 - v2));
                         weight = sqrt(dot(rij, rij));
                     } else {
@@ -118,7 +118,7 @@ void Voronoi::compute(const box::Box &box, const vec3<double>* vertices,
                             ridge_vert_id != current_ridge_vertex_ids.end();
                             ++ridge_vert_id)
                         {
-                            auto vert = vertices[*ridge_vert_id];
+                            vec3<double> vert = vertices[*ridge_vert_id];
                             vertex_coords.push_back(vert);
                         }
 

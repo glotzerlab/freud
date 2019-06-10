@@ -1585,13 +1585,6 @@ cdef class Voronoi:
                 continue
             self._polytopes.append(vertices[voronoi.regions[region]])
 
-        self._volumes = np.zeros((len(self._polytopes)))
-
-        for i, verts in enumerate(self._polytopes):
-            is2D = np.all(self._polytopes[0][:, -1] == 0)
-            hull = ConvexHull(verts[:, :2 if is2D else 3])
-            self._volumes[i] = hull.volume
-
         return self
 
     @property
@@ -1654,6 +1647,14 @@ cdef class Voronoi:
             (:math:`\left(N_{cells} \right)`) :class:`numpy.ndarray`:
                 Voronoi polytope volumes/areas.
         """
+
+        self._volumes = np.zeros((len(self._polytopes)))
+
+        for i, verts in enumerate(self._polytopes):
+            is2D = np.all(self._polytopes[0][:, -1] == 0)
+            hull = ConvexHull(verts[:, :2 if is2D else 3])
+            self._volumes[i] = hull.volume
+
         return self._volumes
 
     def __repr__(self):
