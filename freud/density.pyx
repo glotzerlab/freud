@@ -213,8 +213,9 @@ cdef class FloatCF:
 
     def _repr_png_(self):
         return freud.common.line_plot(self.R, self.RDF,
-                                      title="Float CF",
-                                      xlabel="r", ylabel="p*q(r)")
+                                      title="Correlation Function",
+                                      xlabel=r"$r$",
+                                      ylabel=r"$\langle p \ast q \rangle (r)$")
 
 
 cdef class ComplexCF:
@@ -410,7 +411,8 @@ cdef class ComplexCF:
     def _repr_png_(self):
         return freud.common.line_plot(self.R, np.real(self.RDF),
                                       title="Correlation Function",
-                                      xlabel="r", ylabel="$\Re(C(r))$") # noqa W605
+                                      xlabel=r"$r$",
+                                      ylabel=r"$\Re(C(r))$")
 
 
 cdef class GaussianDensity:
