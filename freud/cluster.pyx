@@ -170,6 +170,7 @@ cdef class Cluster:
         return repr(self)
 
     def _repr_png_(self):
+        import plot
         try:
             count = np.unique(self.cluster_idx, return_counts=True)
         except ValueError:
@@ -177,7 +178,7 @@ cdef class Cluster:
         if not self.box.is2D():
             return None
         else:
-            return freud.common.plot_clusters(count[0], count[1])
+            return plot.plot_clusters(count[0], count[1])
 
 
 cdef class ClusterProperties:

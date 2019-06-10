@@ -232,11 +232,12 @@ cdef class MSD:
         return repr(self)
 
     def _repr_png_(self):
+        import plot
         if self.mode == "window":
             xlabel = "Window size"
         else:
             xlabel = "Frame number"
-        return freud.common.line_plot(list(range(len(self.msd))), self.msd,
-                                      title="MSD",
-                                      xlabel=xlabel,
-                                      ylabel="MSD")
+        return plot.line_plot(list(range(len(self.msd))), self.msd,
+                              title="MSD",
+                              xlabel=xlabel,
+                              ylabel="MSD")

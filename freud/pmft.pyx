@@ -784,7 +784,8 @@ cdef class PMFTXY2D(_PMFT):
         return repr(self)
 
     def _repr_png_(self):
-        return freud.common.pmft_plot(self)
+        import plot
+        return plot.pmft_plot(self)
 
 
 cdef class PMFTXYZ(_PMFT):

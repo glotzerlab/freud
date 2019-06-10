@@ -212,10 +212,11 @@ cdef class FloatCF:
         return repr(self)
 
     def _repr_png_(self):
-        return freud.common.line_plot(self.R, self.RDF,
-                                      title="Correlation Function",
-                                      xlabel=r"$r$",
-                                      ylabel=r"$\langle p \ast q \rangle (r)$")
+        import plot
+        return plot.line_plot(self.R, self.RDF,
+                              title="Correlation Function",
+                              xlabel=r"$r$",
+                              ylabel=r"$C(r)$")
 
 
 cdef class ComplexCF:
@@ -409,10 +410,11 @@ cdef class ComplexCF:
         return repr(self)
 
     def _repr_png_(self):
-        return freud.common.line_plot(self.R, np.real(self.RDF),
-                                      title="Correlation Function",
-                                      xlabel=r"$r$",
-                                      ylabel=r"$\Re(C(r))$")
+        import plot
+        return plot.line_plot(self.R, np.real(self.RDF),
+                              title="Correlation Function",
+                              xlabel=r"$r$",
+                              ylabel=r"$Re(C(r))$")
 
 
 cdef class GaussianDensity:
@@ -846,5 +848,6 @@ cdef class RDF:
         return repr(self)
 
     def _repr_png_(self):
-        return freud.common.line_plot(self.R, self.RDF,
-                                      title="RDF")
+        import plot
+        return plot.line_plot(self.R, self.RDF, title="RDF",
+                              xlabel=r"$r$", ylabel=r"$g(r)$")
