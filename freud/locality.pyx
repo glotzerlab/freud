@@ -5,7 +5,6 @@ R"""
 The :class:`freud.locality` module contains data structures to efficiently
 locate points based on their proximity to other points.
 """
-
 import sys
 import numpy as np
 import freud.common
