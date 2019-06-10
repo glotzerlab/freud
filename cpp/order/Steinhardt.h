@@ -96,11 +96,7 @@ class Steinhardt
         //! Get the last calculated order parameter Ql
         std::shared_ptr<float> getQl()
             {
-            if (m_norm)
-                {
-                return m_QliOrder;
-                }
-            else if (m_average)
+            if (m_average)
                 {
                 return m_QliAve;
                 }
@@ -125,13 +121,13 @@ class Steinhardt
 		//! Get Wl norm
 		std::complex<float> getNormWl()
 			{
-			return m_NormWl
+			return m_NormWl;
 			}
 
 		//! Get Ql norm
 		float getNorm()
 			{
-			return m_Norm
+			return m_Norm;
 			}
 
         //! Compute the order parameter
@@ -168,16 +164,15 @@ class Steinhardt
                         const vec3<float> *points);
 
         //! Normalize the order parameter
-		float normalize(std::shared_ptr<std::complex<float> > source);
+		float normalize();
 
 		//! Normalize the Wl order parameter
-		std::complex<float> normalizeWl(std::shared_ptr<std::complex<float> > source);
+		std::complex<float> normalizeWl();
 
         //! Sum over Wigner 3j coefficients to compute third-order invariants
         //  Wl from second-order invariants Ql
         void aggregateWl(std::shared_ptr<std::complex<float> > target,
-                         std::shared_ptr<std::complex<float> > source,
-                         bool per_particle);
+                         std::shared_ptr<std::complex<float> > source);
 
         // Member variables used for compute
         unsigned int m_Np;     //!< Last number of points computed
@@ -194,10 +189,11 @@ class Steinhardt
         std::shared_ptr<std::complex<float> > m_Qlm;   //!< Normalized Qlm(Ave) for the whole system
         tbb::enumerable_thread_specific<std::complex<float> *> m_Qlm_local; //!< Thread-specific m_Qlm(Ave)
         std::shared_ptr<float> m_Qli;  //!< Ql locally invariant order parameter for each particle i
-        std::shared_ptr<std::complex<float> > m_QlmiAve;  //!< Averaged Qlm with 2nd neighbor shell for each particle i
+        std::shared_ptr<float> m_QliAve;  //!< Averaged Ql with 2nd neighbor shell for each particle i
+        std::shared_ptr<complex<float> > m_QlmiAve;  //!< Averaged Qlm with 2nd neighbor shell for each particle i
         std::shared_ptr<std::complex<float> > m_QlmAve;   //!< Normalized QlmiAve for the whole system
-		float m_Norm							//!< System normalized norm over all Qlm(Ave) 
-		std::complex<float> m_NormWl			//!< System normalized norm over all Wlm(Ave)
+		float m_Norm;							//!< System normalized norm over all Qlm(Ave) 
+		std::complex<float> m_NormWl;			//!< System normalized norm over all Wlm(Ave)
         std::shared_ptr< std::complex<float> > m_WliOrder;    //!< Wl order parameter for each particle i
     };
 
