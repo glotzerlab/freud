@@ -61,11 +61,11 @@ def plot_clusters(keys, freqs, num_cluster_to_plot=10):
     count_sorted = sorted([(freq, key)
                           for key, freq in zip(keys, freqs)],
                           key=lambda x: -x[0])
-    freqs = [i[0] for i in count_sorted[:num_cluster_to_plot]]
-    keys = [str(i[1]) for i in count_sorted[:num_cluster_to_plot]]
-    return bar_plot(keys, freqs, title="Cluster Frequency",
+    sorted_freqs = [i[0] for i in count_sorted[:num_cluster_to_plot]]
+    sorted_keys = [str(i[1]) for i in count_sorted[:num_cluster_to_plot]]
+    return bar_plot(sorted_keys, sorted_freqs, title="Cluster Frequency",
                     xlabel="Keys of {} largest clusters (total clusters: "
-                           "{})".format(num_cluster_to_plot, len(freqs)),
+                           "{})".format(len(sorted_freqs), len(freqs)),
                     ylabel="Number of particles")
 
 
