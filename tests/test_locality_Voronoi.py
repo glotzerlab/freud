@@ -21,9 +21,9 @@ class TestVoronoi(unittest.TestCase):
         positions = np.insert(positions, 2, 0, axis=1).astype(np.float32)
         vor.compute(box=box, positions=positions, buffer=L/2)
 
-        # result = vor.polytopes
+        result = vor.polytopes
 
-        # npt.assert_equal(len(result), len(positions))
+        npt.assert_equal(len(result), len(positions))
 
     def test_voronoi_tess_2d(self):
         # Test that the voronoi polytope works for a 2D system
@@ -35,16 +35,15 @@ class TestVoronoi(unittest.TestCase):
             [[0, 0, 0], [0, 1, 0], [0, 2, 0],
              [1, 0, 0], [1, 1, 0], [1, 2, 0],
              [2, 0, 0], [2, 1, 0], [2, 2, 0]]).astype(np.float32)
-        vor.compute(box, positions)
-        # polytope_centers = set(tuple(point)
-        #                        for point in vor.polytopes[0].tolist())
-        # check_centers = set([(1.5, 1.5, 0), (0.5, 1.5, 0),
-        #                      (0.5, 0.5, 0), (1.5, 0.5, 0)])
-        # self.assertEqual(polytope_centers, check_centers)
+        vor.compute(box, positions, 0, False)
+        polytope_centers = set(tuple(point)
+                               for point in vor.polytopes[0].tolist())
+        check_centers = set([(1.5, 1.5, 0), (0.5, 1.5, 0),
+                             (0.5, 0.5, 0), (1.5, 0.5, 0)])
+        self.assertEqual(polytope_centers, check_centers)
 
         # # Verify the cell areas
-        # vor.computeVolumes()
-        # npt.assert_equal(vor.volumes, [1])
+        npt.assert_equal(vor.volumes, [1])
 
     def test_voronoi_tess_3d(self):
         # Test that the voronoi polytope works for a 3D system
@@ -62,52 +61,16 @@ class TestVoronoi(unittest.TestCase):
              [0, 0, 2], [0, 1, 2], [0, 2, 2],
              [1, 0, 2], [1, 1, 2], [1, 2, 2],
              [2, 0, 2], [2, 1, 2], [2, 2, 2]]).astype(np.float32)
-        vor.compute(box, positions)
-        # polytope_centers = set(tuple(point)
-        #                        for point in vor.polytopes[0].tolist())
-    # check_centers = set([(1.5, 1.5, 1.5), (1.5, 0.5, 1.5), (1.5, 0.5, 0.5),
-    #                     (1.5, 1.5, 0.5), (0.5, 0.5, 0.5), (0.5, 0.5, 1.5),
-        #                     (0.5, 1.5, 0.5), (0.5, 1.5, 1.5)])
-        # self.assertEqual(polytope_centers, check_centers)
+        vor.compute(box, positions, 0, False)
+        polytope_centers = set(tuple(point)
+                               for point in vor.polytopes[0].tolist())
+        check_centers = set([(1.5, 1.5, 1.5), (1.5, 0.5, 1.5), (1.5, 0.5, 0.5),
+                             (1.5, 1.5, 0.5), (0.5, 0.5, 0.5), (0.5, 0.5, 1.5),
+                             (0.5, 1.5, 0.5), (0.5, 1.5, 1.5)])
+        self.assertEqual(polytope_centers, check_centers)
 
         # Verify the cell volumes
-        # vor.computeVolumes()
-        # npt.assert_equal(vor.volumes, [1])
-
-    def test_voronoi_neighbors(self):
-        # Test that voronoi neighbors in the first and second shells are
-        # correct in 2D
-        L = 10  # Box length
-        box = freud.box.Box.square(L)
-        vor = freud.locality.Voronoi()
-        # Make a regular grid
-        positions = np.array(
-            [[0, 0, 0], [0, 1, 0], [0, 2, 0],
-             [1, 0, 0], [1, 1, 0], [1, 2, 0],
-             [2, 0, 0], [2, 1, 0], [2, 2, 0]]).astype(np.float32)
-
-        vor.compute(box=box, positions=positions, buffer=0, images=False)
-
-        # print('nlist:')
-        # for bond, weight in zip(vor.nlist, vor.nlist.weights):
-        #     print(bond, weight)
-        # import matplotlib.pyplot as plt
-        # from scipy.spatial import voronoi_plot_2d
-        # voronoi_plot_2d(vv)
-    # for i, (x, y) in enumerate(zip(vv.vertices[:, 0], vv.vertices[:, 1])):
-        #     plt.text(x, y, str(i), color="black", fontsize=11)
-        # plt.savefig('test.png')
-        # import pdb; pdb.set_trace()
-        npt.assert_equal(
-            vor.getNeighbors(1),
-            [[1, 3], [0, 2, 4], [1, 5], [0, 4, 6], [1, 3, 5, 7], [2, 4, 8],
-             [3, 7], [4, 6, 8], [5, 7]])
-        npt.assert_equal(
-            vor.getNeighbors(2),
-            [[1, 2, 3, 4, 6], [0, 2, 3, 4, 5, 7], [0, 1, 4, 5, 8],
-             [0, 1, 4, 5, 6, 7], [0, 1, 2, 3, 5, 6, 7, 8],
-             [1, 2, 3, 4, 7, 8], [0, 3, 4, 7, 8], [1, 3, 4, 5, 6, 8],
-             [2, 4, 5, 6, 7]])
+        npt.assert_equal(vor.volumes, [1])
 
     def test_voronoi_neighbors_wrapped(self):
         # Test that voronoi neighbors in the first shell are
@@ -161,9 +124,9 @@ class TestVoronoi(unittest.TestCase):
                             atol=1e-5)
         # Every cell should have volume 2
         vor.compute(box, positions)
-        # npt.assert_allclose(vor.computeVolumes().volumes,
-        #                     np.full(len(vor.polytopes), 2.),
-        #                     atol=1e-5)
+        npt.assert_allclose(vor.compute(box, positions, rbuf, False).volumes,
+                            np.full(len(vor.polytopes), 2.),
+                            atol=1e-5)
 
     def test_nlist_symmetric(self):
         # Test that the voronoi neighborlist is symmetric
@@ -175,27 +138,12 @@ class TestVoronoi(unittest.TestCase):
         np.random.seed(0)
         points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
         vor = freud.locality.Voronoi()
-        vor, voronoi = vor.compute(
+        vor.compute(
             box=box, positions=points, buffer=rbuf, images=False)
         nlist = vor.nlist
 
         ijs = set(zip(nlist.index_i, nlist.index_j))
         jis = set(zip(nlist.index_j, nlist.index_i))
-        # ijs, counts = np.unique(nlist, axis=0, return_counts=True)
-        # tw_ind = set(np.where(nlist.index_i % 1000 == 12)[0])
-        # tw_ind.update(np.where(nlist.index_j % 1000 == 12)[0])
-        # tw_ind1 = list(tw_ind)
-        # #tw_ind = slice(nlist.segments[12], nlist.segments[12]
-        # +nlist.neighbor_counts[12])
-        # twelves = list(zip(nlist[tw_ind1].tolist(), nlist.weights[tw_ind1]))
-        # duplicates = ijs[counts > 1]
-        # import pdb; pdb.set_trace()
-    # for i, (bond, weight) in enumerate(zip(vor.nlist, vor.nlist.weights)):
-        #     print(bond, weight)
-        # print("ijs", len(ijs))
-        # print("jis", len(jis))
-        # print("weight", len(vor.nlist.weights))
-        # print("nlist_index_i", len(vor.nlist.index_i))
 
         # we shouldn't have duplicate (i, j) pairs in the
         # resulting neighbor list
