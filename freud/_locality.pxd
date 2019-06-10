@@ -164,7 +164,6 @@ cdef extern from "AABBQuery.h" namespace "freud::locality":
 cdef extern from "Voronoi.h" namespace "freud::locality":
     cdef cppclass Voronoi:
         Voronoi()
-        # Voronoi() # actual constructor
         void compute(
             const freud._box.Box &,
             const vec3[double]*,

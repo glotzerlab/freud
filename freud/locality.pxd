@@ -118,3 +118,5 @@ cdef class AABBQuery(NeighborQuery):
 cdef class Voronoi:
     cdef freud._locality.Voronoi * thisptr
     cdef NeighborList _nlist
+    cdef _volumes
+    cdef _polytopes

@@ -1474,8 +1474,6 @@ cdef class Voronoi:
     def __init__(self):
         if not _SCIPY_AVAILABLE:
             raise RuntimeError("You cannot use this class without SciPy")
-        # self._buff = buff
-        # self._nlist = freud.locality.NeighborList()
         self.thisptr = new freud._locality.Voronoi()
         self._nlist = NeighborList()
 
@@ -1493,7 +1491,6 @@ cdef class Voronoi:
         """
         # Compute the buffer particles in C++
         pbuff = freud.box.ParticleBuffer(box)
-        # print('positions: ', positions)
         pbuff.compute(positions, buffer, images)
         buff_ptls = pbuff.buffer_particles
         buff_ids = pbuff.buffer_ids
@@ -1511,7 +1508,7 @@ cdef class Voronoi:
             expanded_points = expanded_points[:, :2]
 
         # Use qhull to get the points
-        return qvoronoi(expanded_points), expanded_ids, pbuff
+        return qvoronoi(expanded_points), expanded_ids
 
     def compute(self, box, positions, buffer=2, images=True):
         R"""Compute Voronoi diagram.
@@ -1522,11 +1519,13 @@ cdef class Voronoi:
             positions ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Points to calculate Voronoi diagram for.
             buffer (float):
-                TODO: UPDATE
                 Buffer distance within which to look for images.
-
+                (Default value = 2).
+            images (bool):
+                If ``False`` (default), ``buffer`` is a distance. If ``True``
+                (default),``buffer`` is a number of images to replicate in each
+                dimension.
         """
-
         # If box or buff is not specified, revert to object quantities
         cdef freud.box.Box b
         if box is None:
@@ -1534,7 +1533,7 @@ cdef class Voronoi:
         else:
             b = freud.common.convert_box(box)
 
-        voronoi, expanded_id, pbuff = self._qhull_compute(
+        voronoi, expanded_id = self._qhull_compute(
             b, positions, buffer, images)
 
         vertices = voronoi.vertices
@@ -1542,15 +1541,6 @@ cdef class Voronoi:
         # Add a z-component of 0 if the box is 2D
         if b.is2D():
             vertices = np.insert(vertices, 2, 0, 1)
-
-        # Construct a list of polytope vertices
-        """
-        self._poly_verts = list()
-        for region in voronoi.point_region[:len(positions)]:
-            if -1 in voronoi.regions[region]:
-                continue
-            self._poly_verts.append(vertices[voronoi.regions[region]])
-        """
 
         # compute neighbors
         cdef const int[:, ::1] ridge_points = np.asarray(
@@ -1588,7 +1578,21 @@ cdef class Voronoi:
         self._nlist.refer_to(nlist)
         self._nlist.base = self
 
-        return self, voronoi
+        # Construct a list of polytope vertices
+        self._polytopes = list()
+        for region in voronoi.point_region[:N]:
+            if -1 in voronoi.regions[region]:
+                continue
+            self._polytopes.append(vertices[voronoi.regions[region]])
+
+        self._volumes = np.zeros((len(self._polytopes)))
+
+        for i, verts in enumerate(self._polytopes):
+            is2D = np.all(self._polytopes[0][:, -1] == 0)
+            hull = ConvexHull(verts[:, :2 if is2D else 3])
+            self._volumes[i] = hull.volume
+
+        return self
 
     @property
     def polytopes(self):
@@ -1608,36 +1612,7 @@ cdef class Voronoi:
                 List of :class:`numpy.ndarray` containing Voronoi polytope
                 vertices.
         """
-        return self._poly_verts
-
-    def getNeighbors(self, numShells):
-        R"""Get well-sorted neighbors from cumulative Voronoi shells for each
-        particle by specifying :code:`numShells`.
-
-        Must call :meth:`~.computeNeighbors()` before this method.
-
-        Args:
-            numShells (int): Number of neighbor shells.
-        """
-        nlist = self.nlist
-        max_index = np.max(nlist[:]+1)
-        # convert neighbor list to a csr matrix and set weights = 1
-        sparse_neighbors = csr_matrix(
-            (np.ones(len(nlist)), (nlist.index_i, nlist.index_j)),
-            shape=(max_index, max_index))
-        # take a numShell power of the matrix
-        # sum over all shell neighbors, and convert to a linked list
-        sparse_neighbors = sum(
-            [sparse_neighbors**k for k in range(1, numShells+1)])
-        lil_neighbors = sparse_neighbors.tolil()
-        # extract all nonzero entries, ignoring diagonals
-        nonzero_entries = lil_neighbors.nonzero()
-        neighbors = [[] for _ in range(lil_neighbors.shape[0])]
-        for i in range(nonzero_entries[0].shape[0]):
-            if nonzero_entries[0][i] != nonzero_entries[1][i]:
-                neighbors[nonzero_entries[0][i]].append(nonzero_entries[1][i])
-        # return a list of list of well-sorted neighbors
-        return neighbors
+        return self._polytopes
 
     @property
     def nlist(self):
@@ -1655,24 +1630,6 @@ cdef class Voronoi:
             :class:`~.locality.NeighborList`: Neighbor list.
         """
         return self._nlist
-
-    def computeVolumes(self):
-        R"""Computes volumes (areas in 2D) of Voronoi cells.
-
-        .. versionadded:: 0.8
-
-        Must call :meth:`freud.voronoi.Voronoi.compute()` before this
-        method. Retrieve the results with the `volumes` attribute.
-        """
-        polytope_verts = self.polytopes
-        self._poly_volumes = np.zeros(shape=len(polytope_verts))
-
-        for i, verts in enumerate(polytope_verts):
-            is2D = np.all(self._poly_verts[0][:, -1] == 0)
-            hull = ConvexHull(verts[:, :2 if is2D else 3])
-            self._poly_volumes[i] = hull.volume
-
-        return self
 
     @property
     def volumes(self):
@@ -1697,7 +1654,7 @@ cdef class Voronoi:
             (:math:`\left(N_{cells} \right)`) :class:`numpy.ndarray`:
                 Voronoi polytope volumes/areas.
         """
-        return self._poly_volumes
+        return self._volumes
 
     def __repr__(self):
         return "freud.locality.{cls}()".format(
