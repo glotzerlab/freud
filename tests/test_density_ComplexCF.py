@@ -139,7 +139,6 @@ class TestComplexCF(unittest.TestCase):
             * 2.0 * np.pi
         comp = np.exp(1j*ang)
         ocf = freud.density.ComplexCF(rmax, dr)
-        # first bin is bad
         ocf.accumulate(freud.box.Box.square(box_size), points, comp,
                        points, np.conj(comp))
         ocf._repr_png_()

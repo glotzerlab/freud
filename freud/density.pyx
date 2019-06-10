@@ -409,8 +409,8 @@ cdef class ComplexCF:
 
     def _repr_png_(self):
         return freud.common.line_plot(self.R, np.real(self.RDF),
-                                      title="Complex CF",
-                                      xlabel="r", ylabel="C(r)")
+                                      title="Correlation Function",
+                                      xlabel="r", ylabel="$\Re(C(r))$") # noqa W605
 
 
 cdef class GaussianDensity:

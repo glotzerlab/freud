@@ -173,19 +173,11 @@ cdef class Cluster:
         try:
             count = np.unique(self.cluster_idx, return_counts=True)
         except ValueError:
-            print("computeClusters should be called before to show")
             return None
         if not self.box.is2D():
             return None
         else:
-            count_sorted = sorted((freq, keys)
-                                  for keys, freq in zip(count[0], count[1]))
-            freqs = [i[0] for i in count_sorted[-10:]]
-            keys = [i[1] for i in count_sorted[-10:]]
-            return freud.common.bar_plot(keys, freqs,
-                                         title="Cluster Frequency",
-                                         xlabel="Cluster keys",
-                                         ylabel="Number of particles")
+            return freud.common.plot_clusters(count[0], count[1])
 
 
 cdef class ClusterProperties:

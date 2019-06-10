@@ -6,6 +6,13 @@
 import logging
 import numpy as np
 import freud.box
+import io
+try:
+    from matplotlib.figure import Figure
+    from matplotlib.backends.backend_agg import FigureCanvasAgg
+    MATPLOTLIB = True
+except ImportError:
+    MATPLOTLIB = False
 
 logger = logging.getLogger(__name__)
 
@@ -71,14 +78,10 @@ def bar_plot(x, height, title=None, xlabel=None, ylabel=None):
         ylabel (str): Label of y axis. (Default value = :code:`None`).
 
     Returns:
-        bytes: Byte representation of the graph in png file if import
-            succeeds. Otherwise :code:`None`.
+        bytes: Byte representation of the graph in png file if matplotlib is
+        available. Otherwise :code:`None`.
     """
-    try:
-        from matplotlib.figure import Figure
-        from matplotlib.backends.backend_agg import FigureCanvasAgg
-        import io
-    except ImportError:
+    if not MATPLOTLIB:
         return None
     else:
         fig = Figure()
@@ -90,9 +93,36 @@ def bar_plot(x, height, title=None, xlabel=None, ylabel=None):
         ax.set_xticks(x)
         ax.set_xticklabels(x)
         f = io.BytesIO()
-        canvas = FigureCanvasAgg(fig) # noqa F841
+        # Sets an Agg backend so this figure can be rendered
+        FigureCanvasAgg(fig)
         fig.savefig(f, format='png')
         return f.getvalue()
+
+
+def plot_clusters(keys, freqs, num_cluster_to_plot=10):
+    """ Helper function to plot most frequent clusters bar graph.
+
+    .. moduleauthor:: Jin Soo Ihm <jinihm@umich.edu>
+
+    Args:
+        keys (list): Cluster keys.
+        freqs (list): Number of particles in each clusters.
+        num_cluster_to_plot (unsigned int): Number of the most frequent
+            clusters to plot.
+
+    Returns:
+        bytes: Byte representation of the graph in png file if matplotlib is
+        available. Otherwise :code:`None`.
+    """
+    count_sorted = sorted([(freq, key)
+                          for key, freq in zip(keys, freqs)],
+                          key=lambda x: -x[0])
+    freqs = [i[0] for i in count_sorted[:num_cluster_to_plot]]
+    keys = [str(i[1]) for i in count_sorted[:num_cluster_to_plot]]
+    return freud.common.bar_plot(keys, freqs,
+                                 title="Cluster Frequency",
+                                 xlabel="Cluster keys",
+                                 ylabel="Number of particles")
 
 
 def line_plot(x, y, title=None, xlabel=None, ylabel=None):
@@ -108,14 +138,10 @@ def line_plot(x, y, title=None, xlabel=None, ylabel=None):
         ylabel (str): Label of y axis. (Default value = :code:`None`).
 
     Returns:
-        bytes: Byte representation of the graph in png file if import
-            succeeds. Otherwise :code:`None`.
+        bytes: Byte representation of the graph in png file if matplotlib is
+        available. Otherwise :code:`None`.
     """
-    try:
-        from matplotlib.figure import Figure
-        from matplotlib.backends.backend_agg import FigureCanvasAgg
-        import io
-    except ImportError:
+    if not MATPLOTLIB:
         return None
     else:
         fig = Figure()
@@ -125,7 +151,8 @@ def line_plot(x, y, title=None, xlabel=None, ylabel=None):
         ax.set_xlabel(xlabel)
         ax.set_ylabel(ylabel)
         f = io.BytesIO()
-        canvas = FigureCanvasAgg(fig) # noqa F841
+        # Sets an Agg backend so this figure can be rendered
+        FigureCanvasAgg(fig)
         fig.savefig(f, format='png')
         return f.getvalue()
 
@@ -147,15 +174,14 @@ def pmft_plot(pmft):
             PMFT2DXY instance.
 
     Returns:
-        bytes: Byte representation of the diagram in png file if import
-            succeeds. Otherwise :code:`None`.
+        bytes: Byte representation of the diagram in png file if matplotlib is
+        available. Otherwise :code:`None`.
     """
+    if not MATPLOTLIB:
+        return None
     try:
-        from matplotlib.figure import Figure
-        from matplotlib.backends.backend_agg import FigureCanvasAgg
         from matplotlib.colors import Normalize
         from matplotlib.cm import viridis
-        import io
         from scipy.ndimage.filters import gaussian_filter
     except ImportError:
         return None
@@ -227,7 +253,8 @@ def pmft_plot(pmft):
         cbar_ax = fig.add_axes([0.88, 0.1, 0.02, 0.8])
         fig.colorbar(im, cax=cbar_ax)
         f = io.BytesIO()
-        canvas = FigureCanvasAgg(fig) # noqa F841
+        # Sets an Agg backend so this figure can be rendered
+        FigureCanvasAgg(fig)
         fig.savefig(f, format='png')
         return f.getvalue()
 
@@ -245,14 +272,13 @@ def draw_voronoi(box, cells, color_by_sides=False):
             (Default value = :code:`False`)
 
     Returns:
-        bytes: Byte representation of the diagram in png file if import
-            succeeds. Otherwise :code:`None`.
+        bytes: Byte representation of the diagram in png file if matplotlib is
+        available. Otherwise :code:`None`.
     """
+    if not MATPLOTLIB:
+        return None
     try:
-        from matplotlib.figure import Figure
-        from matplotlib.backends.backend_agg import FigureCanvasAgg
         from matplotlib import cm
-        import io
         from matplotlib.collections import PatchCollection
         from matplotlib.patches import Polygon, Rectangle
     except ImportError:
@@ -296,6 +322,7 @@ def draw_voronoi(box, cells, color_by_sides=False):
         cb.set_ticklabels((cb.formatter.locs - 0.5).astype('int'))
         cb.set_label("Number of sides", fontsize=12)
     f = io.BytesIO()
-    canvas = FigureCanvasAgg(fig) # noqa F841
+    # Sets an Agg backend so this figure can be rendered
+    FigureCanvasAgg(fig)
     fig.savefig(f, format='png')
     return f.getvalue()

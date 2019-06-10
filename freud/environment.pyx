@@ -874,18 +874,11 @@ cdef class MatchEnv:
         try:
             count = np.unique(self.clusters, return_counts=True)
         except ValueError:
-            print("clusters should be called before to show")
             return None
         if not self.m_box.is2D():
             return None
-        count_sorted = sorted((freq, keys)
-                              for keys, freq in zip(count[0], count[1]))
-        freqs = [i[0] for i in count_sorted[-10:]]
-        keys = [i[1] for i in count_sorted[-10:]]
-        return freud.common.bar_plot(keys, freqs,
-                                     title="Cluster Frequency",
-                                     xlabel="Cluster keys",
-                                     ylabel="Number of particles")
+        return freud.common.plot_clusters(count[0], count[1])
+
 
 cdef class AngularSeparation:
     R"""Calculates the minimum angles of separation between particles and
