@@ -4,7 +4,6 @@
 #include <iostream>
 
 #include "Box.h"
-#include "Index1D.h"
 
 using namespace std;
 

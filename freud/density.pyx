@@ -111,15 +111,11 @@ cdef class FloatCF:
             points = ref_points
         if values is None:
             values = ref_values
-        ref_points = freud.common.convert_array(
-            ref_points, 2, dtype=np.float32, contiguous=True,
-            array_name="ref_points")
-        points = freud.common.convert_array(
-            points, 2, dtype=np.float32, contiguous=True, array_name="points")
+        ref_points = freud.common.convert_array(ref_points, 2)
+        points = freud.common.convert_array(points, 2)
         ref_values = freud.common.convert_array(
-            ref_values, 1, dtype=np.float64, contiguous=True)
-        values = freud.common.convert_array(
-            values, 1, dtype=np.float64, contiguous=True)
+            ref_values, 1, dtype=np.float64)
+        values = freud.common.convert_array(values, 1, dtype=np.float64)
         if ref_points.shape[1] != 3 or points.shape[1] != 3:
             raise ValueError("The 2nd dimension must have 3 values: x, y, z")
         cdef const float[:, ::1] l_ref_points = ref_points
@@ -305,15 +301,11 @@ cdef class ComplexCF:
             points = ref_points
         if values is None:
             values = ref_values
-        ref_points = freud.common.convert_array(
-            ref_points, 2, dtype=np.float32, contiguous=True,
-            array_name="ref_points")
-        points = freud.common.convert_array(
-            points, 2, dtype=np.float32, contiguous=True, array_name="points")
+        ref_points = freud.common.convert_array(ref_points, 2)
+        points = freud.common.convert_array(points, 2)
         ref_values = freud.common.convert_array(
-            ref_values, 1, dtype=np.complex128, contiguous=True)
-        values = freud.common.convert_array(
-            values, 1, dtype=np.complex128, contiguous=True)
+            ref_values, 1, dtype=np.complex128)
+        values = freud.common.convert_array(values, 1, dtype=np.complex128)
         if ref_points.shape[1] != 3 or points.shape[1] != 3:
             raise ValueError("The 2nd dimension must have 3 values: x, y, z")
         cdef const float[:, ::1] l_ref_points = ref_points
@@ -488,8 +480,7 @@ cdef class GaussianDensity:
                 Points to calculate the local density.
         """
         cdef freud.box.Box b = freud.common.convert_box(box)
-        points = freud.common.convert_array(
-            points, 2, dtype=np.float32, contiguous=True, array_name="points")
+        points = freud.common.convert_array(points, 2)
         if points.shape[1] != 3:
             raise ValueError("The 2nd dimension must have 3 values: x, y, z")
         cdef const float[:, ::1] l_points = points
@@ -629,11 +620,8 @@ cdef class LocalDensity:
         cdef freud.box.Box b = freud.common.convert_box(box)
         if points is None:
             points = ref_points
-        ref_points = freud.common.convert_array(
-            ref_points, 2, dtype=np.float32, contiguous=True,
-            array_name="ref_points")
-        points = freud.common.convert_array(
-            points, 2, dtype=np.float32, contiguous=True, array_name="points")
+        ref_points = freud.common.convert_array(ref_points, 2)
+        points = freud.common.convert_array(points, 2)
         if ref_points.shape[1] != 3 or points.shape[1] != 3:
             raise ValueError("The 2nd dimension must have 3 values: x, y, z")
         cdef const float[:, ::1] l_ref_points = ref_points
@@ -769,11 +757,8 @@ cdef class RDF:
         cdef freud.box.Box b = freud.common.convert_box(box)
         if points is None:
             points = ref_points
-        ref_points = freud.common.convert_array(
-            ref_points, 2, dtype=np.float32, contiguous=True,
-            array_name="ref_points")
-        points = freud.common.convert_array(
-            points, 2, dtype=np.float32, contiguous=True, array_name="points")
+        ref_points = freud.common.convert_array(ref_points, 2)
+        points = freud.common.convert_array(points, 2)
         if ref_points.shape[1] != 3 or points.shape[1] != 3:
             raise ValueError("The 2nd dimension must have 3 values: x, y, z")
         cdef const float[:, ::1] l_ref_points = ref_points

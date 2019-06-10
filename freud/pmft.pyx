@@ -192,24 +192,18 @@ cdef class PMFTR12(_PMFT):
         if orientations is None:
             orientations = ref_orientations
 
-        ref_points = freud.common.convert_array(
-            ref_points, 2, dtype=np.float32, contiguous=True,
-            array_name="ref_points")
+        ref_points = freud.common.convert_array(ref_points, 2)
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
 
         ref_orientations = freud.common.convert_array(
-            ref_orientations.squeeze(), 1, dtype=np.float32, contiguous=True,
-            array_name="ref_orientations")
+            ref_orientations.squeeze(), 1)
 
-        points = freud.common.convert_array(
-            points, 2, dtype=np.float32, contiguous=True, array_name="points")
+        points = freud.common.convert_array(points, 2)
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        orientations = freud.common.convert_array(
-            orientations.squeeze(), 1, dtype=np.float32, contiguous=True,
-            array_name="orientations")
+        orientations = freud.common.convert_array(orientations.squeeze(), 1)
 
         defaulted_nlist = freud.locality.make_default_nlist(
             b, ref_points, points, self.rmax, nlist, None)
@@ -443,24 +437,18 @@ cdef class PMFTXYT(_PMFT):
         if orientations is None:
             orientations = ref_orientations
 
-        ref_points = freud.common.convert_array(
-            ref_points, 2, dtype=np.float32, contiguous=True,
-            array_name="ref_points")
+        ref_points = freud.common.convert_array(ref_points, 2)
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
 
         ref_orientations = freud.common.convert_array(
-            ref_orientations.squeeze(), 1, dtype=np.float32, contiguous=True,
-            array_name="ref_orientations")
+            ref_orientations.squeeze(), 1)
 
-        points = freud.common.convert_array(
-            points, 2, dtype=np.float32, contiguous=True, array_name="points")
+        points = freud.common.convert_array(points, 2)
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
-        orientations = freud.common.convert_array(
-            orientations.squeeze(), 1, dtype=np.float32, contiguous=True,
-            array_name="orientations")
+        orientations = freud.common.convert_array(orientations.squeeze(), 1)
 
         defaulted_nlist = freud.locality.make_default_nlist(
             b, ref_points, points, self.rmax, nlist, None)
@@ -678,24 +666,19 @@ cdef class PMFTXY2D(_PMFT):
         if orientations is None:
             orientations = ref_orientations
 
-        ref_points = freud.common.convert_array(
-            ref_points, 2, dtype=np.float32, contiguous=True,
-            array_name="ref_points")
+        ref_points = freud.common.convert_array(ref_points, 2)
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
 
         ref_orientations = freud.common.convert_array(
-            ref_orientations.squeeze(), 1, dtype=np.float32, contiguous=True,
-            array_name="ref_orientations")
+            ref_orientations.squeeze(), 1)
 
-        points = freud.common.convert_array(
-            points, 2, dtype=np.float32, contiguous=True, array_name="points")
+        points = freud.common.convert_array(points, 2)
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
 
         orientations = freud.common.convert_array(
-            orientations.squeeze(), 1, dtype=np.float32, contiguous=True,
-            array_name="orientations")
+            orientations.squeeze(), 1)
 
         defaulted_nlist = freud.locality.make_default_nlist(
             b, ref_points, points, self.rmax, nlist, None)
@@ -924,28 +907,21 @@ cdef class PMFTXYZ(_PMFT):
         if orientations is None:
             orientations = ref_orientations
 
-        ref_points = freud.common.convert_array(
-            ref_points, 2, dtype=np.float32, contiguous=True,
-            array_name="ref_points")
+        ref_points = freud.common.convert_array(ref_points, 2)
         if ref_points.shape[1] != 3:
             raise TypeError('ref_points should be an Nx3 array')
 
-        ref_orientations = freud.common.convert_array(
-            ref_orientations, 2, dtype=np.float32, contiguous=True,
-            array_name="ref_orientations")
+        ref_orientations = freud.common.convert_array(ref_orientations, 2)
         if ref_orientations.shape[1] != 4:
             raise ValueError(
                 "The 2nd dimension must have 4 values: w, x, y, z")
 
-        points = freud.common.convert_array(
-            points, 2, dtype=np.float32, contiguous=True, array_name="points")
+        points = freud.common.convert_array(points, 2)
         if points.shape[1] != 3:
             raise TypeError('points should be an Nx3 array')
         points = points - self.shiftvec.reshape(1, 3)
 
-        orientations = freud.common.convert_array(
-            orientations, 2, dtype=np.float32, contiguous=True,
-            array_name="orientations")
+        orientations = freud.common.convert_array(orientations, 2)
         if orientations.shape[1] != 4:
             raise ValueError(
                 "The 2nd dimension must have 4 values: w, x, y, z")
@@ -959,12 +935,7 @@ cdef class PMFTXYZ(_PMFT):
         else:
             if face_orientations.ndim < 2 or face_orientations.ndim > 3:
                 raise ValueError("points must be a 2 or 3 dimensional array")
-            face_orientations = freud.common.convert_array(
-                face_orientations, face_orientations.ndim,
-                dtype=np.float32, contiguous=True,
-                array_name=("face_orientations must be a {} "
-                            "dimensional array").format(
-                                face_orientations.ndim))
+            face_orientations = freud.common.convert_array(face_orientations)
             if face_orientations.ndim == 2:
                 if face_orientations.shape[1] != 4:
                     raise ValueError(

@@ -42,30 +42,24 @@
 
 #if !defined(__GNUC__) && !defined(_WIN32) && !defined(__ICC)
 
-#error --- !!! UNSUPPORTED COMPILER !!! ---
+#error--- !!! UNSUPPORTED COMPILER !!! ---
 
 #elif defined(__GNUC__) || defined(__ICC)
 
-#define __no_return__ \
-        __attribute__((__noreturn__))
-#define __noinline__ \
-        __attribute__((__noinline__))
-#define __align__(n) \
-        __attribute__((__aligned__(n)))
-#define __thread__ \
-        __thread
+#define __no_return__ __attribute__((__noreturn__))
+#define __noinline__ __attribute__((__noinline__))
+#define __align__(n) __attribute__((__aligned__(n)))
+#define __thread__ __thread
 #define __import__
 #define __export__
-#define __location__(a) \
-        __loc__(__attribute__((a)))
+#define __location__(a) __loc__(__attribute__((a)))
 #define CUDARTAPI
 
 #elif defined(_WIN32)
 
 #if _MSC_VER >= 1400
 
-#define __restrict__ \
-        __restrict
+#define __restrict__ __restrict
 
 #else /* _MSC_VER >= 1400 */
 
@@ -73,33 +67,22 @@
 
 #endif /* _MSC_VER >= 1400 */
 
-#define __inline__ \
-        __inline
-#define __no_return__ \
-        __declspec(noreturn)
-#define __noinline__ \
-        __declspec(noinline)
-#define __align__(n) \
-        __declspec(align(n))
-#define __thread__ \
-        __declspec(thread)
-#define __import__ \
-        __declspec(dllimport)
-#define __export__ \
-        __declspec(dllexport)
-#define __location__(a) \
-        __loc__(__declspec(a))
-#define CUDARTAPI \
-        __stdcall
+#define __inline__ __inline
+#define __no_return__ __declspec(noreturn)
+#define __noinline__ __declspec(noinline)
+#define __align__(n) __declspec(align(n))
+#define __thread__ __declspec(thread)
+#define __import__ __declspec(dllimport)
+#define __export__ __declspec(dllexport)
+#define __location__(a) __loc__(__declspec(a))
+#define CUDARTAPI __stdcall
 
 #endif /* !__GNUC__ && !_WIN32 */
 
 #if defined(__CUDACC__) || defined(__CUDABE__)
 
-#define __loc__(a) \
-        a
-#define __builtin_align__(a) \
-        __align__(a)
+#define __loc__(a) a
+#define __builtin_align__(a) __align__(a)
 
 #else /* __CUDACC__ || __CUDABE__ */
 
@@ -108,17 +91,11 @@
 
 #endif /* __CUDACC__ || __CUDABE__ */
 
-#define __device__ \
-        __location__(__device__)
-#define __host__ \
-        __location__(__host__)
-#define __global__ \
-        __location__(__global__)
-#define __shared__ \
-        __location__(__shared__)
-#define __constant__ \
-        __location__(__constant__)
-#define __launch_bounds__(t, b) \
-        __location__(__launch_bounds__(t, b))
+#define __device__ __location__(__device__)
+#define __host__ __location__(__host__)
+#define __global__ __location__(__global__)
+#define __shared__ __location__(__shared__)
+#define __constant__ __location__(__constant__)
+#define __launch_bounds__(t, b) __location__(__launch_bounds__(t, b))
 
 #endif /* !__HOST_DEFINES_H__ */
