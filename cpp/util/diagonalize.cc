@@ -5,7 +5,7 @@ namespace freud { namespace util {
 void diagonalize33SymmetricMatrix(float mat[9], float eigen_vals[3], float eigen_vecs[9])
 {
     Eigen::Matrix3f m;
-    Index2D a_i = Index2D(3, 3);
+    Index2D a_i = Index2D(3);
     for (unsigned int i = 0; i < 3; ++i)
     {
         for (unsigned int j = 0; j < 3; ++j)
