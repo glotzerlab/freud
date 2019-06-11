@@ -88,8 +88,8 @@ class TestNematicOrder(unittest.TestCase):
 
         npt.assert_allclose(
             op_perp.nematic_tensor, np.diag([-0.5, 1, -0.5]), atol=1e-1)
-        self.assertFalse(np.all(op_perp.nematic_tensor
-                                == np.diag([-0.5, 1, -0.5])))
+        self.assertFalse(np.all(
+            op_perp.nematic_tensor == np.diag([-0.5, 1, -0.5])))
 
     def test_repr(self):
         u = np.array([1, 0, 0])
