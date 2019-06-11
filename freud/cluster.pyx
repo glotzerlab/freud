@@ -9,12 +9,15 @@ of clusters of points in a system.
 import numpy as np
 import warnings
 import freud.locality
+import freud.common
 
 from cython.operator cimport dereference
 from freud.util._VectorMath cimport vec3
+from freud.common cimport Compute
 
 cimport freud._cluster
-cimport freud.box, freud.locality, freud.common
+cimport freud.box, freud.locality
+
 
 cimport numpy as np
 
@@ -22,7 +25,7 @@ cimport numpy as np
 # _always_ do that, or you will have segfaults
 np.import_array()
 
-cdef class Cluster(freud.common.Compute):
+cdef class Cluster(Compute):
     R"""Finds clusters in a set of points.
 
     Given a set of coordinates and a cutoff, :class:`freud.cluster.Cluster`
@@ -88,7 +91,7 @@ cdef class Cluster(freud.common.Compute):
     def box(self):
         return self.m_box
 
-    @freud.common.Compute._compute("computeClusters")
+    @Compute._compute("computeClusters")
     def computeClusters(self, points, nlist=None, box=None):
         R"""Compute the clusters for the given set of points.
 
@@ -123,7 +126,7 @@ cdef class Cluster(freud.common.Compute):
                 <vec3[float]*> &l_points[0, 0], Np)
         return self
 
-    @freud.common.Compute._compute("computeClusterMembership")
+    @Compute._compute("computeClusterMembership")
     def computeClusterMembership(self, keys):
         R"""Compute the clusters with key membership.
         Loops over all particles and adds them to a list of sets.
@@ -143,22 +146,22 @@ cdef class Cluster(freud.common.Compute):
             self.thisptr.computeClusterMembership(<unsigned int*> &l_keys[0])
         return self
 
-    @freud.common.Compute._computed_property("computeClusters")
+    @Compute._computed_property("computeClusters")
     def num_clusters(self):
         return self.thisptr.getNumClusters()
 
-    @freud.common.Compute._computed_property("computeClusters")
+    @Compute._computed_property("computeClusters")
     def num_particles(self):
         return self.thisptr.getNumParticles()
 
-    @freud.common.Compute._computed_property("computeClusters")
+    @Compute._computed_property("computeClusters")
     def cluster_idx(self):
         cdef unsigned int n_particles = self.thisptr.getNumParticles()
         cdef const unsigned int[::1] cluster_idx = \
             <unsigned int[:n_particles]> self.thisptr.getClusterIdx().get()
         return np.asarray(cluster_idx)
 
-    @freud.common.Compute._computed_property("computeClusterMembership")
+    @Compute._computed_property("computeClusterMembership")
     def cluster_keys(self):
         cluster_keys = self.thisptr.getClusterKeys()
         return cluster_keys
