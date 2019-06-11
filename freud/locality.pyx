@@ -333,9 +333,8 @@ cdef class NeighborQuery:
             raise RuntimeError("You cannot use the query method unless this "
                                "object was originally constructed with "
                                "reference points")
-        points = freud.common.convert_array(np.atleast_2d(points), 2)
-        if points.shape[1] != 3:
-            raise TypeError('points should be an Nx3 array')
+        points = freud.common.convert_array(np.atleast_2d(points), 2,
+                                            shape=(None, 3))
 
         return NeighborQueryResult.init(
             self.nqptr, points, exclude_ii, r=0, k=k)
@@ -363,9 +362,8 @@ cdef class NeighborQuery:
             raise RuntimeError("You cannot use the query method unless this "
                                "object was originally constructed with "
                                "reference points")
-        points = freud.common.convert_array(np.atleast_2d(points), 2)
-        if points.shape[1] != 3:
-            raise TypeError('points should be an Nx3 array')
+        points = freud.common.convert_array(np.atleast_2d(points), 2,
+                                            shape=(None, 3))
 
         return NeighborQueryResult.init(
             self.nqptr, points, exclude_ii, r=r, k=0)
@@ -681,13 +679,9 @@ cdef class NeighborList:
                 (Default value = 0).
         """
         cdef freud.box.Box b = freud.common.convert_box(box)
-        ref_points = freud.common.convert_array(ref_points, 2)
-        if ref_points.shape[1] != 3:
-            raise TypeError('ref_points should be an Nx3 array')
+        ref_points = freud.common.convert_array(ref_points, 2, shape=(None, 3))
 
-        points = freud.common.convert_array(points, 2)
-        if points.shape[1] != 3:
-            raise TypeError('points should be an Nx3 array')
+        points = freud.common.convert_array(points, 2, shape=(None, 3))
 
         cdef const float[:, ::1] cRef_points = ref_points
         cdef const float[:, ::1] cPoints = points
@@ -872,9 +866,8 @@ cdef class AABBQuery(NeighborQuery):
             :class:`~.NeighborQueryResult`: Results object containing the
             output of this query.
         """
-        points = freud.common.convert_array(np.atleast_2d(points), 2)
-        if points.shape[1] != 3:
-            raise TypeError('points should be an Nx3 array')
+        points = freud.common.convert_array(np.atleast_2d(points), 2,
+                                            shape=(None, 3))
 
         # Default guess value
         if r == 0:
@@ -1088,16 +1081,12 @@ cdef class LinkCell(NeighborQuery):
             points is ref_points or points is None) \
             if exclude_ii is None else exclude_ii
 
-        ref_points = freud.common.convert_array(ref_points, 2)
-        if ref_points.shape[1] != 3:
-            raise TypeError('ref_points should be an Nx3 array')
+        ref_points = freud.common.convert_array(ref_points, 2, shape=(None, 3))
 
         if points is None:
             points = ref_points
 
-        points = freud.common.convert_array(points, 2)
-        if points.shape[1] != 3:
-            raise TypeError('points should be an Nx3 array')
+        points = freud.common.convert_array(points, 2, shape=(None, 3))
 
         cdef const float[:, ::1] cRef_points = ref_points
         cdef unsigned int n_ref = ref_points.shape[0]
@@ -1336,16 +1325,12 @@ cdef class NearestNeighbors:
             points is ref_points or points is None) \
             if exclude_ii is None else exclude_ii
 
-        ref_points = freud.common.convert_array(ref_points, 2)
-        if ref_points.shape[1] != 3:
-            raise TypeError('ref_points should be an Nx3 array')
+        ref_points = freud.common.convert_array(ref_points, 2, shape=(None, 3))
 
         if points is None:
             points = ref_points
 
-        points = freud.common.convert_array(points, 2)
-        if points.shape[1] != 3:
-            raise TypeError('points should be an Nx3 array')
+        points = freud.common.convert_array(points, 2, shape=(None, 3))
 
         self._cached_ref_points = ref_points
         self._cached_points = points

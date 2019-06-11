@@ -735,11 +735,7 @@ cdef class ParticleBuffer:
                 each side, meaning that one image doubles the box side lengths,
                 two images triples the box side lengths, and so on.
         """
-        points = freud.common.convert_array(points, 2)
-
-        if points.shape[1] != 3:
-            raise RuntimeError(
-                'Need a list of 3D points for ParticleBuffer.compute()')
+        points = freud.common.convert_array(points, 2, shape=(None, 3))
         cdef const float[:, ::1] l_points = points
         cdef unsigned int Np = l_points.shape[0]
 

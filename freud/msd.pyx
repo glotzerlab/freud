@@ -142,24 +142,11 @@ cdef class MSD:
                 positions are assumed to be unwrapped already.
         """  # noqa: E501
 
-        positions = freud.common.convert_array(positions, 3)
-        if positions.shape[2] != 3:
-            raise TypeError(
-                'positions should be a 3-dimensional array of shape'
-                '(N_frames, N_particles, 3)'
-            )
-
+        positions = freud.common.convert_array(positions, 3,
+                                               shape=(None, None, 3))
         if images is not None:
-            images = freud.common.convert_array(images, 3, dtype=np.int32)
-            if images.shape[2] != 3:
-                raise TypeError(
-                    'images should be a 3-dimensional array of shape'
-                    '(N_frames, N_particles, 3)'
-                )
-
-            if not positions.shape == images.shape:
-                raise TypeError(
-                    'The positions and images must have the same shape')
+            images = freud.common.convert_array(images, 3, dtype=np.int32,
+                                                shape=positions.shape)
 
         # Make sure we aren't modifying the provided array
         if self.box is not None and images is not None:
