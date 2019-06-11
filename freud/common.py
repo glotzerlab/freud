@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 def convert_array(array, dimensions=None, dtype=np.float32,
-                  shape=None, err_msg=None):
+                  shape=None):
     """Function which takes a given array, checks the dimensions,
     and converts to a supplied dtype and/or makes the array
     contiguous.
@@ -40,14 +40,14 @@ def convert_array(array, dimensions=None, dtype=np.float32,
     if shape is not None:
         if array.ndim != len(shape):
             raise TypeError("array.ndim = {}; expected ndim = {}".format(
-                array.ndim, len(shape)))
+                return_arr.ndim, len(shape)))
 
         for i, s in enumerate(shape):
             if s is not None and return_arr.shape[i] != s:
-                if err_msg is not None:
-                    raise RuntimeError('Incorrect shape')
-                else:
-                    raise RuntimeError(err_msg)
+                shape_str = "(" + ", ".join(str(i) if i is not None
+                                            else "..." for i in shape) + ")"
+                raise RuntimeError('array.shape= {}; expected shape = {}'
+                                   .format(return_arr.shape, shape_str))
 
     return return_arr
 

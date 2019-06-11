@@ -47,7 +47,7 @@ class TestCommon(unittest.TestCase):
             z = common.convert_array(y, shape=(1), dtype=np.float32)
 
         with self.assertRaises(RuntimeError):
-            common.convert_array(z, shape=(10, 9))
+            common.convert_array(z, shape=(None, 9))
 
     def test_convert_matrix_box(self):
         matrix_box = np.array([[1, 2, 3],
