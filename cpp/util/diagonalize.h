@@ -2,7 +2,6 @@
 #define DIAGONALIZE_H
 
 #include "Eigen/Eigen/Dense"
-#include "Index1D.h"
 
 namespace freud { namespace util {
 // Sets eigen_vals and eigen_vecs to be the
