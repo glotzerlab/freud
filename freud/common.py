@@ -10,7 +10,8 @@ import freud.box
 logger = logging.getLogger(__name__)
 
 
-def convert_array(array, dimensions=None, dtype=np.float32):
+def convert_array(array, dimensions=None, dtype=np.float32,
+                  shape=None, err_msg=None):
     """Function which takes a given array, checks the dimensions,
     and converts to a supplied dtype and/or makes the array
     contiguous.
@@ -33,7 +34,22 @@ def convert_array(array, dimensions=None, dtype=np.float32):
     if dimensions is not None and array.ndim != dimensions:
         raise TypeError("array.ndim = {}; expected ndim = {}".format(
             array.ndim, dimensions))
-    return np.require(array, dtype=dtype, requirements=['C'])
+
+    return_arr = np.require(array, dtype=dtype, requirements=['C'])
+
+    if shape is not None:
+        if array.ndim != len(shape):
+            raise TypeError("array.ndim = {}; expected ndim = {}".format(
+                array.ndim, len(shape)))
+
+        for i, s in enumerate(shape):
+            if s is not None and return_arr.shape[i] != s:
+                if err_msg is not None:
+                    raise RuntimeError('Incorrect shape')
+                else:
+                    raise RuntimeError(err_msg)
+
+    return return_arr
 
 
 def convert_box(box):
