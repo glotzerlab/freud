@@ -12,19 +12,21 @@ logger = logging.getLogger(__name__)
 
 def convert_array(array, dimensions=None, dtype=np.float32,
                   shape=None):
-    """Function which takes a given array, checks the dimensions,
-    and converts to a supplied dtype and/or makes the array
-    contiguous.
+    """Function which takes a given array, checks the dimensions and shape,
+    and converts to a supplied dtype.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
     Args:
         array (:class:`numpy.ndarray`): Array to check and convert.
-        dimensions (int): Expected dimensions of the array. If 'None',
-            no dimensionality check will be done (Default value = 'None').
+        dimensions (int): Expected dimensions of the array. If :code:'None',
+            no dimensionality check will be done
+            (Default value = :code:'None').
         dtype: code:`dtype` to convert the array to if :code:`array.dtype`
-            is different. If `None`, :code:`dtype` will not be changed
+            is different. If :code:`None`, :code:`dtype` will not be changed
             (Default value = `numpy.float32`).
+        shape: (tuple of int and :code:`None`): Expected shape of the array.
+            Only the dimensions that are not :code:`None` are checked.
 
     Returns:
         :class:`numpy.ndarray`: Array.
