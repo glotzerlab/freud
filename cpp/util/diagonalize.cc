@@ -47,4 +47,4 @@ void diagonalize33SymmetricMatrix(float mat[9], float eigen_vals[3], float eigen
     }
 }
 
-}; };
+}; }; // namespace freud::util

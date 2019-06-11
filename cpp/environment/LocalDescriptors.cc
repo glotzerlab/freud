@@ -8,9 +8,9 @@
 #include <utility>
 #include <vector>
 
+#include "Index1D.h"
 #include "LocalDescriptors.h"
 #include "diagonalize.h"
-#include "Index1D.h"
 
 using namespace std;
 using namespace tbb;
@@ -54,7 +54,7 @@ void LocalDescriptors::compute(const box::Box& box, const freud::locality::Neigh
 
             if (orientation == LocalNeighborhood)
             {
-                Index2D a_i(3,3);
+                Index2D a_i(3);
                 float inertiaTensor[9];
                 for (size_t ii(0); ii < 3; ++ii)
                     for (size_t jj(0); jj < 3; ++jj)
@@ -90,9 +90,12 @@ void LocalDescriptors::compute(const box::Box& box, const freud::locality::Neigh
 
                 freud::util::diagonalize33SymmetricMatrix(inertiaTensor, eigenvalues, eigenvectors);
 
-                rotation_0 = vec3<float>(eigenvectors[a_i(0, 0)], eigenvectors[a_i(1, 0)], eigenvectors[a_i(2, 0)]);
-                rotation_1 = vec3<float>(eigenvectors[a_i(0, 1)], eigenvectors[a_i(1, 1)], eigenvectors[a_i(2, 1)]);
-                rotation_2 = vec3<float>(eigenvectors[a_i(0, 2)], eigenvectors[a_i(1, 2)], eigenvectors[a_i(2, 2)]);
+                rotation_0
+                    = vec3<float>(eigenvectors[a_i(0, 0)], eigenvectors[a_i(1, 0)], eigenvectors[a_i(2, 0)]);
+                rotation_1
+                    = vec3<float>(eigenvectors[a_i(0, 1)], eigenvectors[a_i(1, 1)], eigenvectors[a_i(2, 1)]);
+                rotation_2
+                    = vec3<float>(eigenvectors[a_i(0, 2)], eigenvectors[a_i(1, 2)], eigenvectors[a_i(2, 2)]);
             }
             else if (orientation == ParticleLocal)
             {
