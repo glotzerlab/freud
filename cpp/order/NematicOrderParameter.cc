@@ -8,7 +8,6 @@
 #include <emmintrin.h>
 #endif
 
-// #include "Eigen/Eigen/Dense"
 #include "Index1D.h"
 #include "NematicOrderParameter.h"
 #include "diagonalize.h"
@@ -77,7 +76,7 @@ void NematicOrderParameter::compute(quat<float>* orientations, unsigned int n)
     // calculate per-particle tensor
     parallel_for(blocked_range<size_t>(0, n), [=](const blocked_range<size_t>& r) {
         // create index object to access the array
-        Index2D a_i = Index2D(3, 9);
+        Index2D a_i = Index2D(3);
 
         for (size_t i = r.begin(); i != r.end(); i++)
         {
@@ -150,65 +149,13 @@ void NematicOrderParameter::compute(quat<float>* orientations, unsigned int n)
     for (unsigned int i = 0; i < 9; ++i)
         m_nematic_tensor[i] = matrix.y_[i] / m_n;
 
-    // get the nematic order parameter and director
-    // Eigen::MatrixXf m(3, 3);
-    Index2D a_i = Index2D(3, 3);
-    // for (unsigned int i = 0; i < 3; ++i)
-    //     for (unsigned int j = 0; j < 3; ++j)
-    //     {
-    //         m(i, j) = m_nematic_tensor[a_i(i, j)];
-    //     }
-
-    // Eigen::SelfAdjointEigenSolver<Eigen::MatrixXf> es;
-    // es.compute(m);
-
-    // float evec[9];
-    // float eval[3];
-    // if (es.info() != Eigen::Success)
-    // {
-    //     // numerical issue, set r to identity matrix
-    //     for (unsigned int i = 0; i < 3; ++i)
-    //         for (unsigned int j = 0; j < 3; ++j)
-    //             if (i == j)
-    //             {
-    //                 evec[a_i(i, j)] = 1.0;
-    //             }
-    //             else
-    //             {
-    //                 evec[a_i(j, j)] = 0.0;
-    //             }
-    //     // set order parameter to zero so it's easily detectable
-    //     eval[0] = eval[1] = eval[2] = 0.0;
-    // }
-    // else
-    // {
-    //     // columns are eigenvectors
-    //     Eigen::MatrixXf eigen_vec = es.eigenvectors();
-    //     for (unsigned int i = 0; i < 3; ++i)
-    //         for (unsigned int j = 0; j < 3; ++j)
-    //             evec[a_i(i, j)] = eigen_vec(i, j);
-    //     auto eigen_val = es.eigenvalues();
-    //     eval[0] = eigen_val(0);
-    //     eval[1] = eigen_val(1);
-    //     eval[2] = eigen_val(2);
-    // }
+    // the order parameter is the eigenvector belonging to the largest eigenvalue
+    Index2D a_i = Index2D(3);
     float evec[9];
     float eval[3];
     freud::util::diagonalize33SymmetricMatrix(m_nematic_tensor, eval, evec);
-
-    // the order parameter is the eigenvector belonging to the largest eigenvalue
-    unsigned int max_idx = 0;
-    float max_val = std::numeric_limits<float>::lowest();
-
-    for (unsigned int i = 0; i < 3; ++i)
-        if (eval[i] > max_val)
-        {
-            max_val = eval[i];
-            max_idx = i;
-        }
-
-    m_nematic_director = vec3<Scalar>(evec[a_i(0, max_idx)], evec[a_i(1, max_idx)], evec[a_i(2, max_idx)]);
-    m_nematic_order_parameter = max_val;
+    m_nematic_director = vec3<Scalar>(evec[a_i(0, 2)], evec[a_i(1, 2)], evec[a_i(2, 2)]);
+    m_nematic_order_parameter = eval[2];
 }
 
 }; }; // end namespace freud::order
