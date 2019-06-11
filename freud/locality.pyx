@@ -1406,27 +1406,19 @@ cdef class Voronoi:
 
     Since qhull does not support periodic boundary conditions natively, we
     expand the box to include a portion of the particles' periodic images.
-    The buffer width is given by the parameter :code:`buff`. The
+    The buffer width is given by the parameter :code:`buffer`. The
     computation of Voronoi tessellations and neighbors is only guaranteed
-    to be correct if :code:`buff >= L/2` where :code:`L` is the longest side
+    to be correct if :code:`buffer >= L/2` where :code:`L` is the longest side
     of the simulation box. For dense systems with particles filling the
-    entire simulation volume, a smaller value for :code:`buff` is acceptable.
+    entire simulation volume, a smaller value for :code:`buffer` is acceptable.
     If the buffer width is too small, then some polytopes may not be closed
     (they may have a boundary at infinity), and these polytopes' vertices are
     excluded from the list.  If either the polytopes or volumes lists that are
     computed is different from the size of the array of positions used in the
-    :meth:`freud.voronoi.Voronoi.compute()` method, try recomputing using a
+    :meth:`freud.locality.Voronoi.compute()` method, try recomputing using a
     larger buffer width.
 
-    Args:
-        box (:class:`freud.box.Box`):
-            Simulation box.
-        buff (float):
-            Buffer width.
-
     Attributes:
-        buffer (float):
-            Buffer width.
         nlist (:class:`~.locality.NeighborList`):
             Returns a weighted neighbor list.  In 2D systems, the bond weight
             is the "ridge length" of the Voronoi boundary line between the
@@ -1450,13 +1442,17 @@ cdef class Voronoi:
         R"""Calls ParticleBuffer and qhull
 
         Args:
-            positions ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Points to calculate Voronoi diagram for.
             box (:class:`freud.box.Box`):
                 Simulation box (Default value = None).
+            positions ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Points to calculate Voronoi diagram for.
             buffer (float):
                 Buffer distance within which to look for images
                 (Default value = None).
+            images (bool):
+                If ``False``, ``buffer`` is a distance. If ``True``
+                (default),``buffer`` is a number of images to replicate in each
+                dimension.
         """
         # Compute the buffer particles in C++
         pbuff = freud.box.ParticleBuffer(box)
@@ -1491,7 +1487,7 @@ cdef class Voronoi:
                 Buffer distance within which to look for images.
                 (Default value = 2).
             images (bool):
-                If ``False`` (default), ``buffer`` is a distance. If ``True``
+                If ``False``, ``buffer`` is a distance. If ``True``
                 (default),``buffer`` is a number of images to replicate in each
                 dimension.
         """
@@ -1566,7 +1562,7 @@ cdef class Voronoi:
 
         The length of the list returned by this method should be the same
         as the array of positions used in the
-        :meth:`freud.voronoi.Voronoi.compute()` method, if all the polytopes
+        :meth:`freud.locality.Voronoi.compute()` method, if all the polytopes
         are closed. Otherwise try using a larger buffer width.
 
         Returns:
@@ -1600,7 +1596,7 @@ cdef class Voronoi:
 
         .. versionadded:: 0.8
 
-        Must call :meth:`freud.voronoi.Voronoi.computeVolumes()` before this
+        Must call :meth:`freud.locality.Voronoi.compute()` before this
         method.
 
         If the buffer width is too small, then some polytopes may not be
@@ -1609,7 +1605,7 @@ cdef class Voronoi:
 
         The length of the list returned by this method should be the same
         as the array of positions used in the
-        :meth:`freud.voronoi.Voronoi.compute()` method, if all the polytopes
+        :meth:`freud.locality.Voronoi.compute()` method, if all the polytopes
         are closed. Otherwise try using a larger buffer width.
 
         Returns:
