@@ -12,11 +12,49 @@ logger = logging.getLogger(__name__)
 
 
 cdef class Compute:
+    R"""Parent class implementing functions to prevent access of
+    uncomputed values.
+
+    To use this class, one would do, for example,
+
+    .. code-block:: python
+        class Cluster(Compute):
+            def __cinit__(...):
+                self._called_compute["computeClusters"] = False
+
+            @Compute._compute("computeClusters")
+            def computeClusters(...)
+                ...
+
+            @Compute._computed_property("computeClusters")
+            def cluster_idx(self):
+                return ...
+
+            @Compute._reset
+            def reset(...):
+                ...
+
+    .. moduleauthor:: Jin Soo Ihm <jinihm@umich.edu>
+
+    Attributes:
+        _called_compute (dict):
+            Flags representing whether appropriate compute method was called.
+    """
+
     def __cinit__(self):
         self._called_compute = {"compute": False}
 
     @staticmethod
     def _compute(key="compute"):
+        R"""Decorator that sets compute flag to be true.
+
+        Args:
+            key (str): Name of compute flag.
+
+        Returns:
+            Decorator decorating appropriate compute method.
+        """
+
         def _compute_with_key(func, key):
             def wrapper(self, *args, **kwargs):
                 self._called_compute[key] = True
@@ -26,6 +64,15 @@ cdef class Compute:
 
     @staticmethod
     def _computed_property(key="compute"):
+        R"""Decorator that makes a class method to be a property with limited access.
+
+        Args:
+            key (str): Name of compute flag.
+
+        Returns:
+            Decorator decorating appropriate property method.
+        """
+
         def _computed_property_with_key(func, key="compute"):
             @property
             def wrapper(self, *args, **kwargs):
@@ -38,6 +85,12 @@ cdef class Compute:
 
     @staticmethod
     def _reset(func):
+        R"""Decorator that sets all compute flag to be false.
+
+        Returns:
+            Decorator decorating appropriate reset method.
+        """
+
         def wrapper(self, *args, **kwargs):
             for k in self._called_compute:
                 self._called_compute[k] = False

@@ -18,7 +18,6 @@ from freud.common cimport Compute
 cimport freud._cluster
 cimport freud.box, freud.locality
 
-
 cimport numpy as np
 
 # numpy must be initialized. When using numpy from C or Cython you must
