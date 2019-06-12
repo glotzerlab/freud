@@ -287,7 +287,7 @@ cdef class NematicOrderParameter(Compute):
         return repr(self)
 
 
-cdef class HexOrderParameter:
+cdef class HexOrderParameter(Compute):
     R"""Calculates the :math:`k`-atic order parameter for each particle in the
     system.
 
@@ -339,6 +339,7 @@ cdef class HexOrderParameter:
     def __dealloc__(self):
         del self.thisptr
 
+    @Compute._compute()
     def compute(self, box, points, nlist=None):
         R"""Calculates the correlation function and adds to the current
         histogram.
@@ -368,18 +369,18 @@ cdef class HexOrderParameter:
                                  <vec3[float]*> &l_points[0, 0], nP)
         return self
 
-    @property
+    @Compute._computed_property()
     def psi(self):
         cdef unsigned int n_particles = self.thisptr.getNP()
         cdef np.complex64_t[::1] psi = \
             <np.complex64_t[:n_particles]> self.thisptr.getPsi().get()
         return np.asarray(psi, dtype=np.complex64)
 
-    @property
+    @Compute._computed_property()
     def box(self):
         return freud.box.BoxFromCPP(<freud._box.Box> self.thisptr.getBox())
 
-    @property
+    @Compute._computed_property()
     def num_particles(self):
         cdef unsigned int np = self.thisptr.getNP()
         return np
@@ -398,7 +399,7 @@ cdef class HexOrderParameter:
         return repr(self)
 
 
-cdef class TransOrderParameter:
+cdef class TransOrderParameter(Compute):
     R"""Compute the translational order parameter for each particle.
 
     .. moduleauthor:: Wenbo Shen <shenwb@umich.edu>
@@ -433,6 +434,7 @@ cdef class TransOrderParameter:
     def __dealloc__(self):
         del self.thisptr
 
+    @Compute._compute()
     def compute(self, box, points, nlist=None):
         R"""Calculates the local descriptors.
 
@@ -461,18 +463,18 @@ cdef class TransOrderParameter:
                                  <vec3[float]*> &l_points[0, 0], nP)
         return self
 
-    @property
+    @Compute._computed_property()
     def d_r(self):
         cdef unsigned int n_particles = self.thisptr.getNP()
         cdef np.complex64_t[::1] d_r = \
             <np.complex64_t[:n_particles]> self.thisptr.getDr().get()
         return np.asarray(d_r, dtype=np.complex64)
 
-    @property
+    @Compute._computed_property()
     def box(self):
         return freud.box.BoxFromCPP(<freud._box.Box> self.thisptr.getBox())
 
-    @property
+    @Compute._computed_property()
     def num_particles(self):
         cdef unsigned int np = self.thisptr.getNP()
         return np
