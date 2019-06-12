@@ -108,6 +108,7 @@ def convert_array(array, dimensions=None, dtype=np.float32):
     contiguous.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
+    .. moduleauthor:: Jin Soo Ihm <jinihm@umich.edu>
 
     Args:
         array (:class:`numpy.ndarray`): Array to check and convert.

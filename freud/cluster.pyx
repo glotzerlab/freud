@@ -8,12 +8,12 @@ of clusters of points in a system.
 
 import numpy as np
 import warnings
-import freud.locality
 import freud.common
+import freud.locality
 
 from cython.operator cimport dereference
-from freud.util._VectorMath cimport vec3
 from freud.common cimport Compute
+from freud.util._VectorMath cimport vec3
 
 cimport freud._cluster
 cimport freud.box, freud.locality
