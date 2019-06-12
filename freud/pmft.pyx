@@ -876,6 +876,7 @@ cdef class PMFTXYZ(_PMFT):
         if type(self) is PMFTXYZ:
             del self.pmftxyzptr
 
+    @Compute._compute()
     def accumulate(self, box, ref_points, ref_orientations, points=None,
                    orientations=None, face_orientations=None, nlist=None):
         R"""Calculates the positional correlation function and adds to the
@@ -1000,6 +1001,7 @@ cdef class PMFTXYZ(_PMFT):
                 nFaces)
         return self
 
+    @Compute._compute()
     def compute(self, box, ref_points, ref_orientations, points=None,
                 orientations=None, face_orientations=None, nlist=None):
         R"""Calculates the positional correlation function for the given points.
@@ -1034,7 +1036,7 @@ cdef class PMFTXYZ(_PMFT):
                         points, orientations, face_orientations, nlist)
         return self
 
-    @property
+    @Compute._computed_property()
     def bin_counts(self):
         cdef unsigned int n_bins_Z = self.pmftxyzptr.getNBinsZ()
         cdef unsigned int n_bins_Y = self.pmftxyzptr.getNBinsY()
@@ -1044,7 +1046,7 @@ cdef class PMFTXYZ(_PMFT):
             self.pmftxyzptr.getBinCounts().get()
         return np.asarray(bin_counts, dtype=np.uint32)
 
-    @property
+    @Compute._computed_property()
     def PCF(self):
         cdef unsigned int n_bins_Z = self.pmftxyzptr.getNBinsZ()
         cdef unsigned int n_bins_Y = self.pmftxyzptr.getNBinsY()

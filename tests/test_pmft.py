@@ -605,9 +605,56 @@ class TestPMFTXYZ(unittest.TestCase):
 
         npt.assert_allclose(myPMFT.jacobian, dx*dy*dz)
 
+    def test_attribute_access(self):
+        boxSize = 25.0
+        box = freud.box.Box.cube(boxSize)
+        points = np.array([[-1.0, 0.0, 0.0], [1.0, 0.0, 0.0]],
+                          dtype=np.float32)
+        orientations = np.array([[1, 0, 0, 0], [1, 0, 0, 0]], dtype=np.float32)
+        maxX = 5.23
+        maxY = 6.23
+        maxZ = 7.23
+        nbinsX = 100
+        nbinsY = 110
+        nbinsZ = 120
+
+        myPMFT = freud.pmft.PMFTXYZ(maxX, maxY, maxZ, nbinsX, nbinsY, nbinsZ)
+
+        with self.assertRaises(AttributeError):
+            myPMFT.PCF
+        with self.assertRaises(AttributeError):
+            myPMFT.bin_counts
+        with self.assertRaises(AttributeError):
+            myPMFT.box
+        with self.assertRaises(AttributeError):
+            myPMFT.PMFT
+
+        myPMFT.accumulate(box, points, orientations, points, orientations)
+
+        myPMFT.PCF
+        myPMFT.bin_counts
+        myPMFT.PMFT
+        myPMFT.box
         npt.assert_equal(myPMFT.bin_counts.shape, (nbinsZ, nbinsY, nbinsX))
         npt.assert_equal(myPMFT.PCF.shape, (nbinsZ, nbinsY, nbinsX))
         npt.assert_equal(myPMFT.PMFT.shape, (nbinsZ, nbinsY, nbinsX))
+
+        myPMFT.reset()
+
+        with self.assertRaises(AttributeError):
+            myPMFT.PCF
+        with self.assertRaises(AttributeError):
+            myPMFT.bin_counts
+        with self.assertRaises(AttributeError):
+            myPMFT.box
+        with self.assertRaises(AttributeError):
+            myPMFT.PMFT
+
+        myPMFT.compute(box, points, orientations, points, orientations)
+        myPMFT.PCF
+        myPMFT.bin_counts
+        myPMFT.PMFT
+        myPMFT.box
 
     def test_two_particles(self):
         boxSize = 25.0
@@ -644,8 +691,6 @@ class TestPMFTXYZ(unittest.TestCase):
         npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
                             atol=absoluteTolerance)
         myPMFT.reset()
-        npt.assert_allclose(myPMFT.bin_counts, 0,
-                            atol=absoluteTolerance)
         myPMFT.compute(box, points, orientations, points, orientations)
         npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
                             atol=absoluteTolerance)
