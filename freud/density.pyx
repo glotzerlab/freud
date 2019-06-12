@@ -216,7 +216,7 @@ cdef class FloatCF(Compute):
         return repr(self)
 
 
-cdef class ComplexCF:
+cdef class ComplexCF(Compute):
     R"""Computes the complex pairwise correlation function.
 
     The correlation function is given by
@@ -278,6 +278,7 @@ cdef class ComplexCF:
     def __dealloc__(self):
         del self.thisptr
 
+    @Compute._compute()
     def accumulate(self, box, ref_points, ref_values, points=None, values=None,
                    nlist=None):
         R"""Calculates the correlation function and adds to the current
@@ -342,23 +343,25 @@ cdef class ComplexCF:
                 n_p)
         return self
 
-    @property
+    @Compute._computed_property()
     def RDF(self):
         cdef unsigned int n_bins = self.thisptr.getNBins()
         cdef np.complex128_t[::1] RDF = \
             <np.complex128_t[:n_bins]> self.thisptr.getRDF().get()
         return np.asarray(RDF)
 
-    @property
+    @Compute._computed_property()
     def box(self):
         return freud.box.BoxFromCPP(self.thisptr.getBox())
 
+    @Compute._reset
     def reset(self):
         R"""Resets the values of the correlation function histogram in
         memory.
         """
         self.thisptr.reset()
 
+    @Compute._compute()
     def compute(self, box, ref_points, ref_values, points=None, values=None,
                 nlist=None):
         R"""Calculates the correlation function for the given points. Will
@@ -385,7 +388,7 @@ cdef class ComplexCF:
         self.accumulate(box, ref_points, ref_values, points, values, nlist)
         return self
 
-    @property
+    @Compute._computed_property()
     def counts(self):
         cdef unsigned int n_bins = self.thisptr.getNBins()
         cdef const unsigned int[::1] counts = \
