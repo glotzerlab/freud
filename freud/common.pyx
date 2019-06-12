@@ -56,8 +56,9 @@ cdef class Compute:
 
         def _compute_with_key(func):
             def wrapper(self, *args, **kwargs):
+                retval = func(self, *args, **kwargs)
                 self._called_compute[key] = True
-                func(self, *args, **kwargs)
+                return retval
             return wrapper
         return _compute_with_key
 
