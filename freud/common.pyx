@@ -21,7 +21,7 @@ cdef class Compute:
     .. code-block:: python
         class Cluster(Compute):
             def __cinit__(...):
-                self._called_compute["computeClusters"] = False
+                self._set_compute_flag("computeClusters")
 
             @Compute._compute("computeClusters")
             def computeClusters(...)
@@ -44,6 +44,9 @@ cdef class Compute:
 
     def __cinit__(self):
         self._called_compute = {"compute": False}
+
+    def _set_compute_flag(self, flag_name):
+        self._called_compute[flag_name] = False
 
     @staticmethod
     def _compute(key="compute"):
