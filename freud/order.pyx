@@ -493,7 +493,7 @@ cdef class TransOrderParameter(Compute):
         return repr(self)
 
 
-cdef class LocalQl:
+cdef class LocalQl(Compute):
     R"""Compute the local Steinhardt [Steinhardt1983]_ rotationally invariant
     :math:`Q_l` order parameter for a set of points.
 
@@ -570,6 +570,10 @@ cdef class LocalQl:
 
     def __cinit__(self, box, rmax, l, rmin=0, *args, **kwargs):
         cdef freud.box.Box b = freud.common.convert_box(box)
+        self._set_compute_flag("compute")
+        self._set_compute_flag("computeAve")
+        self._set_compute_flag("computeAveNorm")
+        self._set_compute_flag("computeNorm")
         if type(self) is LocalQl:
             self.m_box = b
             self.rmax = rmax
@@ -600,39 +604,41 @@ cdef class LocalQl:
         """
         self.box = box
 
-    @property
+    @Compute._computed_property(("compute", "computeAve",
+                                "computeAveNorm", "computeNorm"))
     def num_particles(self):
         cdef unsigned int np = self.qlptr.getNP()
         return np
 
-    @property
+    @Compute._computed_property("compute")
     def Ql(self):
         cdef unsigned int n_particles = self.qlptr.getNP()
         cdef const float[::1] Ql = \
             <float[:n_particles]> self.qlptr.getQl().get()
         return np.asarray(Ql)
 
-    @property
+    @Compute._computed_property("computeAve")
     def ave_Ql(self):
         cdef unsigned int n_particles = self.qlptr.getNP()
         cdef const float[::1] ave_Ql = \
             <float[:n_particles]> self.qlptr.getAveQl().get()
         return np.asarray(ave_Ql)
 
-    @property
+    @Compute._computed_property("computeNorm")
     def norm_Ql(self):
         cdef unsigned int n_particles = self.qlptr.getNP()
         cdef const float[::1] norm_Ql = \
             <float[:n_particles]> self.qlptr.getQlNorm().get()
         return np.asarray(norm_Ql)
 
-    @property
+    @Compute._computed_property("computeAveNorm")
     def ave_norm_Ql(self):
         cdef unsigned int n_particles = self.qlptr.getNP()
         cdef const float[::1] ave_norm_Ql = \
             <float[:n_particles]> self.qlptr.getQlAveNorm().get()
         return np.asarray(ave_norm_Ql)
 
+    @Compute._compute("compute")
     def compute(self, points, nlist=None):
         R"""Compute the order parameter.
 
@@ -657,6 +663,7 @@ cdef class LocalQl:
                            nP)
         return self
 
+    @Compute._compute("computeAve")
     def computeAve(self, points, nlist=None):
         R"""Compute the order parameter over two nearest neighbor shells.
 
@@ -683,6 +690,7 @@ cdef class LocalQl:
                               <vec3[float]*> &l_points[0, 0], nP)
         return self
 
+    @Compute._compute("computeNorm")
     def computeNorm(self, points, nlist=None):
         R"""Compute the order parameter normalized by the average spherical
         harmonic value over all the particles.
@@ -709,6 +717,7 @@ cdef class LocalQl:
         self.qlptr.computeNorm(<vec3[float]*> &l_points[0, 0], nP)
         return self
 
+    @Compute._compute("computeAveNorm")
     def computeAveNorm(self, points, nlist=None):
         R"""Compute the order parameter over two nearest neighbor shells
         normalized by the average spherical harmonic value over all the
@@ -813,6 +822,7 @@ cdef class LocalQlNear(LocalQl):
             del self.qlptr
             self.qlptr = NULL
 
+    @Compute._compute("compute")
     def compute(self, points, nlist=None):
         R"""Compute the order parameter.
 
@@ -827,6 +837,7 @@ cdef class LocalQlNear(LocalQl):
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         return super(LocalQlNear, self).compute(points, nlist_)
 
+    @Compute._compute("computeAve")
     def computeAve(self, points, nlist=None):
         R"""Compute the order parameter over two nearest neighbor shells.
 
@@ -841,6 +852,7 @@ cdef class LocalQlNear(LocalQl):
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         return super(LocalQlNear, self).computeAve(points, nlist_)
 
+    @Compute._compute("computeNorm")
     def computeNorm(self, points, nlist=None):
         R"""Compute the order parameter normalized by the average spherical
         harmonic value over all the particles.
@@ -856,6 +868,7 @@ cdef class LocalQlNear(LocalQl):
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         return super(LocalQlNear, self).computeNorm(points, nlist_)
 
+    @Compute._compute("computeAveNorm")
     def computeAveNorm(self, points, nlist=None):
         R"""Compute the order parameter over two nearest neighbor shells
         normalized by the average spherical harmonic value over all the
@@ -990,28 +1003,28 @@ cdef class LocalWl(LocalQl):
         return sorted(set(dir(self.__class__)) -
                       set(self.__class__.delattrs))
 
-    @property
+    @Compute._computed_property("compute")
     def Wl(self):
         cdef unsigned int n_particles = self.qlptr.getNP()
         cdef np.complex64_t[::1] Wl = \
             <np.complex64_t[:n_particles]> self.thisptr.getWl().get()
         return np.asarray(Wl, dtype=np.complex64)
 
-    @property
+    @Compute._computed_property("computeAve")
     def ave_Wl(self):
         cdef unsigned int n_particles = self.qlptr.getNP()
         cdef np.complex64_t[::1] ave_Wl = \
             <np.complex64_t[:n_particles]> self.thisptr.getAveWl().get()
         return np.asarray(ave_Wl, dtype=np.complex64)
 
-    @property
+    @Compute._computed_property("computeNorm")
     def norm_Wl(self):
         cdef unsigned int n_particles = self.qlptr.getNP()
         cdef np.complex64_t[::1] norm_Wl = \
             <np.complex64_t[:n_particles]> self.thisptr.getWlNorm().get()
         return np.asarray(norm_Wl, dtype=np.complex64)
 
-    @property
+    @Compute._computed_property("computeAveNorm")
     def ave_norm_Wl(self):
         cdef unsigned int n_particles = self.qlptr.getNP()
         cdef np.complex64_t[::1] ave_norm_Wl = \
@@ -1089,6 +1102,7 @@ cdef class LocalWlNear(LocalWl):
         del self.thisptr
         self.thisptr = NULL
 
+    @Compute._compute("compute")
     def compute(self, points, nlist=None):
         R"""Compute the order parameter.
 
@@ -1103,6 +1117,7 @@ cdef class LocalWlNear(LocalWl):
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         return super(LocalWlNear, self).compute(points, nlist_)
 
+    @Compute._compute("computeAve")
     def computeAve(self, points, nlist=None):
         R"""Compute the order parameter over two nearest neighbor shells.
 
@@ -1117,6 +1132,7 @@ cdef class LocalWlNear(LocalWl):
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         return super(LocalWlNear, self).computeAve(points, nlist_)
 
+    @Compute._compute("computeNorm")
     def computeNorm(self, points, nlist=None):
         R"""Compute the order parameter normalized by the average spherical
         harmonic value over all the particles.
@@ -1132,6 +1148,7 @@ cdef class LocalWlNear(LocalWl):
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         return super(LocalWlNear, self).computeNorm(points, nlist_)
 
+    @Compute._compute("computeAveNorm")
     def computeAveNorm(self, points, nlist=None):
         R"""Compute the order parameter over two nearest neighbor shells
         normalized by the average spherical harmonic value over all the
