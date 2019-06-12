@@ -43,6 +43,7 @@ import freud.common
 import freud.locality
 import warnings
 
+from freud.common cimport Compute
 from freud.util._VectorMath cimport vec3, quat
 from cython.operator cimport dereference
 
@@ -57,7 +58,7 @@ cimport numpy as np
 # _always_ do that, or you will have segfaults
 np.import_array()
 
-cdef class _PMFT:
+cdef class _PMFT(Compute):
     R"""Compute the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ for a
     given set of points.
 
@@ -78,15 +79,16 @@ cdef class _PMFT:
         if type(self) is _PMFT:
             del self.pmftptr
 
-    @property
+    @Compute._computed_property()
     def box(self):
         return freud.box.BoxFromCPP(self.pmftptr.getBox())
 
+    @Compute._reset
     def reset(self):
         R"""Resets the values of the PCF histograms in memory."""
         self.pmftptr.reset()
 
-    @property
+    @Compute._computed_property()
     def PMFT(self):
         with np.warnings.catch_warnings():
             np.warnings.filterwarnings('ignore')
@@ -160,6 +162,7 @@ cdef class PMFTR12(_PMFT):
         if type(self) is PMFTR12:
             del self.pmftr12ptr
 
+    @Compute._compute()
     def accumulate(self, box, ref_points, ref_orientations, points=None,
                    orientations=None, nlist=None):
         R"""Calculates the positional correlation function and adds to the
@@ -226,6 +229,7 @@ cdef class PMFTR12(_PMFT):
                                        nP)
         return self
 
+    @Compute._compute()
     def compute(self, box, ref_points, ref_orientations, points=None,
                 orientations=None, nlist=None):
         R"""Calculates the positional correlation function for the given points.
@@ -253,7 +257,7 @@ cdef class PMFTR12(_PMFT):
                         points, orientations, nlist)
         return self
 
-    @property
+    @Compute._computed_property()
     def bin_counts(self):
         cdef unsigned int n_bins_R = self.pmftr12ptr.getNBinsR()
         cdef unsigned int n_bins_T2 = self.pmftr12ptr.getNBinsT2()
@@ -263,7 +267,7 @@ cdef class PMFTR12(_PMFT):
             self.pmftr12ptr.getBinCounts().get()
         return np.asarray(bin_counts, dtype=np.uint32)
 
-    @property
+    @Compute._computed_property()
     def PCF(self):
         cdef unsigned int n_bins_R = self.pmftr12ptr.getNBinsR()
         cdef unsigned int n_bins_T2 = self.pmftr12ptr.getNBinsT2()
