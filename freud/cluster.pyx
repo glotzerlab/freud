@@ -80,8 +80,8 @@ cdef class Cluster(Compute):
         self.thisptr = new freud._cluster.Cluster(rcut)
         self.m_box = b
         self.rmax = rcut
-        self._called_compute["computeClusters"] = False
-        self._called_compute["computeClusterMembership"] = False
+        self._set_compute_flag("computeClusters")
+        self._set_compute_flag("computeClusterMembership")
 
     def __dealloc__(self):
         del self.thisptr
@@ -175,7 +175,7 @@ cdef class Cluster(Compute):
         return repr(self)
 
 
-cdef class ClusterProperties:
+cdef class ClusterProperties(Compute):
     R"""Routines for computing properties of point clusters.
 
     Given a set of points and cluster ids (from :class:`~.Cluster`, or another
@@ -186,13 +186,9 @@ cdef class ClusterProperties:
      - Gyration tensor
 
     The computed center of mass for each cluster (properly handling periodic
-    boundary conditions) can be accessed with :meth:`~.getClusterCOM()`.
-    This returns a :math:`\left(N_{clusters}, 3 \right)`
-    :class:`numpy.ndarray`.
-
+    boundary conditions) can be accessed with :code:`cluster_COM` attribute.
     The :math:`3 \times 3` gyration tensor :math:`G` can be accessed with
-    :meth:`~.getClusterG()`. This returns a :class:`numpy.ndarray`,
-    shape= :math:`\left(N_{clusters} \times 3 \times 3\right)`.
+    :code:`cluster_G` attribute.
     The tensor is symmetric for each cluster.
 
     .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
@@ -221,6 +217,7 @@ cdef class ClusterProperties:
         cdef freud.box.Box b = freud.common.convert_box(box)
         self.thisptr = new freud._cluster.ClusterProperties()
         self.m_box = b
+        self._set_compute_flag("computeProperties")
 
     def __dealloc__(self):
         del self.thisptr
@@ -229,12 +226,13 @@ cdef class ClusterProperties:
     def box(self):
         return self.m_box
 
+    @Compute._compute("computeProperties")
     def computeProperties(self, points, cluster_idx, box=None):
         R"""Compute properties of the point clusters.
         Loops over all points in the given array and determines the center of
         mass of the cluster as well as the :math:`G` tensor. These can be
         accessed after the call to :meth:`~.computeProperties()` with
-        :meth:`~.getClusterCOM()` and :meth:`~.getClusterG()`.
+        :code:`cluster_COM` and :code:`cluster_G` attributes..
 
         Args:
             points ((:math:`N_{particles}`, 3) :class:`np.ndarray`):
@@ -271,11 +269,11 @@ cdef class ClusterProperties:
                 Np)
         return self
 
-    @property
+    @Compute._computed_property("computeProperties")
     def num_clusters(self):
         return self.thisptr.getNumClusters()
 
-    @property
+    @Compute._computed_property("computeProperties")
     def cluster_COM(self):
         cdef unsigned int n_clusters = self.thisptr.getNumClusters()
         if not n_clusters:
@@ -285,7 +283,7 @@ cdef class ClusterProperties:
                 <float*> self.thisptr.getClusterCOM().get())
         return np.asarray(cluster_COM)
 
-    @property
+    @Compute._computed_property("computeProperties")
     def cluster_G(self):
         cdef unsigned int n_clusters = self.thisptr.getNumClusters()
         if not n_clusters:
@@ -295,7 +293,7 @@ cdef class ClusterProperties:
                 <float*> self.thisptr.getClusterG().get())
         return np.asarray(cluster_G)
 
-    @property
+    @Compute._computed_property("computeProperties")
     def cluster_sizes(self):
         cdef unsigned int n_clusters = self.thisptr.getNumClusters()
         if not n_clusters:
