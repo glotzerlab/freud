@@ -675,7 +675,7 @@ cdef class LocalDensity(Compute):
         return repr(self)
 
 
-cdef class RDF:
+cdef class RDF(Compute):
     R"""Computes RDF for supplied data.
 
     The RDF (:math:`g \left( r \right)`) is computed and averaged for a given
@@ -740,10 +740,11 @@ cdef class RDF:
     def __dealloc__(self):
         del self.thisptr
 
-    @property
+    @Compute._computed_property()
     def box(self):
         return freud.box.BoxFromCPP(self.thisptr.getBox())
 
+    @Compute._compute()
     def accumulate(self, box, ref_points, points=None, nlist=None):
         R"""Calculates the RDF and adds to the current RDF histogram.
 
@@ -784,6 +785,7 @@ cdef class RDF:
                 n_p)
         return self
 
+    @Compute._compute()
     def compute(self, box, ref_points, points=None, nlist=None):
         R"""Calculates the RDF for the specified points. Will overwrite the current
         histogram.
@@ -804,11 +806,12 @@ cdef class RDF:
         self.accumulate(box, ref_points, points, nlist)
         return self
 
+    @Compute._reset
     def reset(self):
         R"""Resets the values of RDF in memory."""
         self.thisptr.reset()
 
-    @property
+    @Compute._computed_property()
     def RDF(self):
         cdef unsigned int n_bins = self.thisptr.getNBins()
         cdef const float[::1] RDF = \
@@ -822,7 +825,7 @@ cdef class RDF:
             <float[:n_bins]> self.thisptr.getR().get()
         return np.asarray(R)
 
-    @property
+    @Compute._computed_property()
     def n_r(self):
         cdef unsigned int n_bins = self.thisptr.getNBins()
         cdef const float[::1] n_r = <float[:n_bins]> self.thisptr.getNr().get()

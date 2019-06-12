@@ -26,7 +26,7 @@ class TestFloatCF(unittest.TestCase):
     def test_attribute_access(self):
         rmax = 10.0
         dr = 1.0
-        num_points = 1000
+        num_points = 100
         box_size = rmax*3.1
         box = freud.box.Box.square(box_size)
         np.random.seed(0)
