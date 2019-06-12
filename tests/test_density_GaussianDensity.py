@@ -20,15 +20,16 @@ class TestDensity(unittest.TestCase):
         points[:, 2] = 0
         diff = freud.density.GaussianDensity(width, rcut, sigma)
 
+        # Test access
         with self.assertRaises(AttributeError):
             diff.box
-
         with self.assertRaises(AttributeError):
             diff.gaussian_density
 
         testBox = freud.box.Box.square(box_size)
         diff.compute(testBox, points)
 
+        # Test access
         diff.box
         diff.gaussian_density
 

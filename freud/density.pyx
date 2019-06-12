@@ -533,7 +533,7 @@ cdef class GaussianDensity(Compute):
         return repr(self)
 
 
-cdef class LocalDensity:
+cdef class LocalDensity(Compute):
     R"""Computes the local density around a particle.
 
     The density of the local environment is computed and averaged for a given
@@ -601,10 +601,11 @@ cdef class LocalDensity:
         self.diameter = diameter
         self.volume = volume
 
-    @property
+    @Compute._computed_property()
     def box(self):
         return freud.box.BoxFromCPP(self.thisptr.getBox())
 
+    @Compute._compute()
     def compute(self, box, ref_points, points=None, nlist=None):
         R"""Calculates the local density for the specified points. Does not
         accumulate (will overwrite current data).
@@ -649,14 +650,14 @@ cdef class LocalDensity:
                 n_p)
         return self
 
-    @property
+    @Compute._computed_property()
     def density(self):
         cdef unsigned int n_ref = self.thisptr.getNRef()
         cdef const float[::1] density = \
             <float[:n_ref]> self.thisptr.getDensity().get()
         return np.asarray(density)
 
-    @property
+    @Compute._computed_property()
     def num_neighbors(self):
         cdef unsigned int n_ref = self.thisptr.getNRef()
         cdef const float[::1] num_neighbors = \
