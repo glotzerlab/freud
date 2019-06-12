@@ -1177,7 +1177,7 @@ cdef class LocalWlNear(LocalWl):
         return repr(self)
 
 
-cdef class SolLiq:
+cdef class SolLiq(Compute):
     R"""Uses dot products of :math:`Q_{lm}` between particles for clustering.
 
     .. moduleauthor:: Richmond Newman <newmanrs@umich.edu>
@@ -1245,6 +1245,7 @@ cdef class SolLiq:
         del self.thisptr
         self.thisptr = NULL
 
+    @Compute._compute()
     def compute(self, points, nlist=None):
         R"""Compute the solid-liquid order parameter.
 
@@ -1269,6 +1270,7 @@ cdef class SolLiq:
                              <vec3[float]*> &l_points[0, 0], nP)
         return self
 
+    @Compute._compute()
     def computeSolLiqVariant(self, points, nlist=None):
         R"""Compute a variant of the solid-liquid order parameter.
 
@@ -1297,6 +1299,7 @@ cdef class SolLiq:
             nlist_.get_ptr(), <vec3[float]*> &l_points[0, 0], nP)
         return self
 
+    @Compute._compute()
     def computeSolLiqNoNorm(self, points, nlist=None):
         R"""Compute the solid-liquid order parameter without normalizing the dot
         product.
@@ -1331,33 +1334,33 @@ cdef class SolLiq:
         cdef freud.box.Box b = freud.common.convert_box(value)
         self.thisptr.setBox(dereference(b.thisptr))
 
-    @property
+    @Compute._computed_property()
     def largest_cluster_size(self):
         cdef unsigned int clusterSize = self.thisptr.getLargestClusterSize()
         return clusterSize
 
-    @property
+    @Compute._computed_property()
     def cluster_sizes(self):
         cdef unsigned int n_clusters = self.thisptr.getNumClusters()
         cdef const unsigned int[::1] cluster_sizes = \
             <unsigned int[:n_clusters]> self.thisptr.getClusterSizes().data()
         return np.asarray(cluster_sizes, dtype=np.uint32)
 
-    @property
+    @Compute._computed_property()
     def Ql_mi(self):
         cdef unsigned int n_particles = self.thisptr.getNP()
         cdef np.complex64_t[::1] Ql_mi = \
             <np.complex64_t[:n_particles]> self.thisptr.getQlmi().get()
         return np.asarray(Ql_mi, dtype=np.complex64)
 
-    @property
+    @Compute._computed_property()
     def clusters(self):
         cdef unsigned int n_particles = self.thisptr.getNP()
         cdef const unsigned int[::1] clusters = \
             <unsigned int[:n_particles]> self.thisptr.getClusters().get()
         return np.asarray(clusters, dtype=np.uint32)
 
-    @property
+    @Compute._computed_property()
     def num_connections(self):
         cdef unsigned int n_particles = self.thisptr.getNP()
         cdef const unsigned int[::1] num_connections = \
@@ -1365,14 +1368,14 @@ cdef class SolLiq:
             self.thisptr.getNumberOfConnections().get()
         return np.asarray(num_connections, dtype=np.uint32)
 
-    @property
+    @Compute._computed_property()
     def Ql_dot_ij(self):
         cdef unsigned int n_clusters = self.thisptr.getNumClusters()
         cdef np.complex64_t[::1] Ql_dot_ij = \
             <np.complex64_t[:n_clusters]> self.thisptr.getQldot_ij().data()
         return np.asarray(Ql_dot_ij, dtype=np.complex64)
 
-    @property
+    @Compute._computed_property()
     def num_particles(self):
         cdef unsigned int np = self.thisptr.getNP()
         return np
@@ -1457,6 +1460,7 @@ cdef class SolLiqNear(SolLiq):
         del self.thisptr
         self.thisptr = NULL
 
+    @Compute._compute()
     def compute(self, points, nlist=None):
         R"""Compute the local rotationally invariant :math:`Q_l` order
         parameter.
@@ -1472,6 +1476,7 @@ cdef class SolLiqNear(SolLiq):
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         return SolLiq.compute(self, points, nlist_)
 
+    @Compute._compute()
     def computeSolLiqVariant(self, points, nlist=None):
         R"""Compute the local rotationally invariant :math:`Q_l` order
         parameter.
@@ -1487,6 +1492,7 @@ cdef class SolLiqNear(SolLiq):
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         return SolLiq.computeSolLiqVariant(self, points, nlist_)
 
+    @Compute._compute()
     def computeSolLiqNoNorm(self, points, nlist=None):
         R"""Compute the local rotationally invariant :math:`Q_l` order
         parameter.
@@ -1517,7 +1523,7 @@ cdef class SolLiqNear(SolLiq):
         return repr(self)
 
 
-cdef class RotationalAutocorrelation:
+cdef class RotationalAutocorrelation(Compute):
     """Calculates a measure of total rotational autocorrelation based on
     hyperspherical harmonics as laid out in "Design rules for engineering
     colloidal plastic crystals of hard polyhedra - phase behavior and
@@ -1564,6 +1570,7 @@ cdef class RotationalAutocorrelation:
     def __dealloc__(self):
         del self.thisptr
 
+    @Compute._compute()
     def compute(self, ref_ors, ors):
         """Calculates the rotational autocorrelation function for a single frame.
 
@@ -1592,19 +1599,19 @@ cdef class RotationalAutocorrelation:
                 nP)
         return self
 
-    @property
+    @Compute._computed_property()
     def autocorrelation(self):
         cdef float Ft = self.thisptr.getRotationalAutocorrelation()
         return Ft
 
-    @property
+    @Compute._computed_property()
     def ra_array(self):
         cdef unsigned int num_orientations = self.thisptr.getN()
         cdef np.complex64_t[::1] result = \
             <np.complex64_t[:num_orientations]> self.thisptr.getRAArray().get()
         return np.asarray(result, dtype=np.complex64)
 
-    @property
+    @Compute._computed_property()
     def num_orientations(self):
         cdef unsigned int num = self.thisptr.getN()
         return num
