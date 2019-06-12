@@ -1078,7 +1078,7 @@ cdef class AngularSeparation(Compute):
     def __str__(self):
         return repr(self)
 
-cdef class LocalBondProjection:
+cdef class LocalBondProjection(Compute):
     R"""Calculates the maximal projection of nearest neighbor bonds for each
     particle onto some set of reference vectors, defined in the particles'
     local reference frame.
@@ -1122,10 +1122,11 @@ cdef class LocalBondProjection:
     def __dealloc__(self):
         del self.thisptr
 
-    @property
+    @Compute._computed_property()
     def nlist(self):
         return self.nlist_
 
+    @Compute._compute()
     def compute(self, box, proj_vecs, ref_points, ref_ors, points=None,
                 equiv_quats=np.array([[1, 0, 0, 0]]), nlist=None):
         R"""Calculates the maximal projections of nearest neighbor bonds
@@ -1210,7 +1211,7 @@ cdef class LocalBondProjection:
                 nP, nRef, nEquiv, nProj)
         return self
 
-    @property
+    @Compute._computed_property()
     def projections(self):
         cdef unsigned int n_bond_projections = \
             len(self.nlist) * self.thisptr.getNproj()
@@ -1220,7 +1221,7 @@ cdef class LocalBondProjection:
             <float[:n_bond_projections]> self.thisptr.getProjections().get()
         return np.asarray(projections)
 
-    @property
+    @Compute._computed_property()
     def normed_projections(self):
         cdef unsigned int n_bond_projections = \
             len(self.nlist) * self.thisptr.getNproj()
@@ -1231,19 +1232,19 @@ cdef class LocalBondProjection:
             self.thisptr.getNormedProjections().get()
         return np.asarray(normed_projections)
 
-    @property
+    @Compute._computed_property()
     def num_particles(self):
         return self.thisptr.getNP()
 
-    @property
+    @Compute._computed_property()
     def num_reference_particles(self):
         return self.thisptr.getNref()
 
-    @property
+    @Compute._computed_property()
     def num_proj_vectors(self):
         return self.thisptr.getNproj()
 
-    @property
+    @Compute._computed_property()
     def box(self):
         return freud.box.BoxFromCPP(<freud._box.Box> self.thisptr.getBox())
 

@@ -137,6 +137,52 @@ class TestLocalBondProjection(unittest.TestCase):
         npt.assert_equal(ang.box.xz, 0)
         npt.assert_equal(ang.box.yz, 0)
 
+    def test_attribute_access(self):
+        boxlen = 10
+        N = 100
+        num_neigh = 8
+        rmax = 3
+
+        box = freud.box.Box.square(boxlen)
+
+        np.random.seed(0)
+        points = np.asarray(
+            np.random.uniform(-boxlen/2, boxlen/2, (N, 3)), dtype=np.float32)
+        ors = []
+        for i in range(N):
+            ors.append(quatRandom())
+
+        ors = np.asarray(ors, dtype=np.float32)
+        equiv_quats = np.asarray([[1, 0, 0, 0]], dtype=np.float32)
+        proj_vecs = np.asarray([[0, 0, 1]])
+
+        ang = freud.environment.LocalBondProjection(rmax, num_neigh)
+
+        with self.assertRaises(AttributeError):
+            ang.nlist
+        with self.assertRaises(AttributeError):
+            ang.projections
+        with self.assertRaises(AttributeError):
+            ang.normed_projections
+        with self.assertRaises(AttributeError):
+            ang.num_particles
+        with self.assertRaises(AttributeError):
+            ang.num_reference_particles
+        with self.assertRaises(AttributeError):
+            ang.num_proj_vectors
+        with self.assertRaises(AttributeError):
+            ang.box
+
+        ang.compute(box, proj_vecs, points, ors, points, equiv_quats)
+
+        ang.nlist
+        ang.projections
+        ang.normed_projections
+        ang.num_particles
+        ang.num_reference_particles
+        ang.num_proj_vectors
+        ang.box
+
     def test_compute(self):
         boxlen = 4
         num_neigh = 1
