@@ -868,7 +868,7 @@ cdef class MatchEnv:
     def __str__(self):
         return repr(self)
 
-cdef class AngularSeparation:
+cdef class AngularSeparation(Compute):
     R"""Calculates the minimum angles of separation between particles and
     references.
 
@@ -913,6 +913,8 @@ cdef class AngularSeparation:
         self.thisptr = new freud._environment.AngularSeparation()
         self.rmax = rmax
         self.num_neigh = n
+        self._set_compute_flag("computeNeighbor")
+        self._set_compute_flag("computeGlobal")
 
     def __dealloc__(self):
         del self.thisptr
@@ -921,6 +923,7 @@ cdef class AngularSeparation:
     def nlist(self):
         return self.nlist_
 
+    @Compute._compute("computeNeighbor")
     def computeNeighbor(self, box, ref_ors, ors, ref_points, points,
                         equiv_quats, nlist=None):
         R"""Calculates the minimum angles of separation between ref_ors and ors,
@@ -989,6 +992,7 @@ cdef class AngularSeparation:
                 nRef, nP, nEquiv)
         return self
 
+    @Compute._compute("computeGlobal")
     def computeGlobal(self, global_ors, ors, equiv_quats):
         R"""Calculates the minimum angles of separation between
         :code:`global_ors` and :code:`ors`, checking for underlying symmetry as
@@ -1035,7 +1039,7 @@ cdef class AngularSeparation:
                 nGlobal, nP, nEquiv)
         return self
 
-    @property
+    @Compute._computed_property("computeNeighbor")
     def neighbor_angles(self):
         cdef unsigned int n_bonds = len(self.nlist)
         if not n_bonds:
@@ -1044,7 +1048,7 @@ cdef class AngularSeparation:
             <float[:n_bonds]> self.thisptr.getNeighborAngles().get()
         return np.asarray(neighbor_angles)
 
-    @property
+    @Compute._computed_property("computeGlobal")
     def global_angles(self):
         cdef unsigned int n_particles = self.thisptr.getNP()
         cdef unsigned int n_global = self.thisptr.getNglobal()
@@ -1055,15 +1059,15 @@ cdef class AngularSeparation:
             self.thisptr.getGlobalAngles().get()
         return np.asarray(global_angles)
 
-    @property
+    @Compute._computed_property(("computeGlobal", "computeNeighbor"))
     def n_p(self):
         return self.thisptr.getNP()
 
-    @property
+    @Compute._computed_property("computeNeighbor")
     def n_ref(self):
         return self.thisptr.getNref()
 
-    @property
+    @Compute._computed_property("computeGlobal")
     def n_global(self):
         return self.thisptr.getNglobal()
 
