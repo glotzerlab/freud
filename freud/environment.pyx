@@ -319,7 +319,7 @@ cdef class BondOrder(Compute):
         return repr(self)
 
 
-cdef class LocalDescriptors:
+cdef class LocalDescriptors(Compute):
     R"""Compute a set of descriptors (a numerical "fingerprint") of a particle's
     local environment.
 
@@ -379,6 +379,7 @@ cdef class LocalDescriptors:
     def __dealloc__(self):
         del self.thisptr
 
+    @Compute._compute()
     def compute(self, box, unsigned int num_neighbors, points_ref, points=None,
                 orientations=None, mode='neighborhood', nlist=None):
         R"""Calculates the local descriptors of bonds from a set of source
@@ -469,7 +470,7 @@ cdef class LocalDescriptors:
                 l_orientations_ptr, l_mode)
         return self
 
-    @property
+    @Compute._computed_property()
     def sph(self):
         cdef unsigned int n_sphs = self.thisptr.getNSphs()
         cdef unsigned int sph_width = self.thisptr.getSphWidth()
@@ -480,11 +481,11 @@ cdef class LocalDescriptors:
             self.thisptr.getSph().get()
         return np.asarray(sph, dtype=np.complex64)
 
-    @property
+    @Compute._computed_property()
     def num_particles(self):
         return self.thisptr.getNP()
 
-    @property
+    @Compute._computed_property()
     def num_neighbors(self):
         return self.thisptr.getNSphs()
 

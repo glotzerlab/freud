@@ -18,7 +18,21 @@ class TestLocalDescriptors(unittest.TestCase):
         positions.flags['WRITEABLE'] = False
 
         comp = LocalDescriptors(Nneigh, lmax, rmax, True)
+
+        # Test access
+        with self.assertRaises(AttributeError):
+            comp.sph
+        with self.assertRaises(AttributeError):
+            comp.num_particles
+        with self.assertRaises(AttributeError):
+            comp.num_neighbors
+
         comp.compute(box, Nneigh, positions)
+
+        # Test access
+        comp.sph
+        comp.num_particles
+        comp.num_neighbors
 
         self.assertEqual(comp.sph.shape[0], N*Nneigh)
 
