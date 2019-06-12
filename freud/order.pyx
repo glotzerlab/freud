@@ -17,6 +17,7 @@ import time
 import freud.locality
 import logging
 
+from freud.common cimport Compute
 from freud.util._VectorMath cimport vec3, quat
 from cython.operator cimport dereference
 
@@ -32,7 +33,7 @@ logger = logging.getLogger(__name__)
 # _always_ do that, or you will have segfaults
 np.import_array()
 
-cdef class CubaticOrderParameter:
+cdef class CubaticOrderParameter(Compute):
     R"""Compute the cubatic order parameter [HajiAkbari2015]_ for a system of
     particles using simulated annealing instead of Newton-Raphson root finding.
 
@@ -110,6 +111,7 @@ cdef class CubaticOrderParameter:
         self.n_replicates = n_replicates
         self.seed = seed
 
+    @Compute._compute()
     def compute(self, orientations):
         R"""Calculates the per-particle and global order parameter.
 
@@ -141,16 +143,16 @@ cdef class CubaticOrderParameter:
     def scale(self):
         return self.thisptr.getScale()
 
-    @property
+    @Compute._computed_property()
     def cubatic_order_parameter(self):
         return self.thisptr.getCubaticOrderParameter()
 
-    @property
+    @Compute._computed_property()
     def orientation(self):
         cdef quat[float] q = self.thisptr.getCubaticOrientation()
         return np.asarray([q.s, q.v.x, q.v.y, q.v.z], dtype=np.float32)
 
-    @property
+    @Compute._computed_property()
     def particle_order_parameter(self):
         cdef unsigned int n_particles = self.thisptr.getNumParticles()
         cdef const float[::1] particle_order_parameter = \
@@ -158,7 +160,7 @@ cdef class CubaticOrderParameter:
             self.thisptr.getParticleCubaticOrderParameter().get()
         return np.asarray(particle_order_parameter)
 
-    @property
+    @Compute._computed_property()
     def particle_tensor(self):
         cdef unsigned int n_particles = self.thisptr.getNumParticles()
         cdef const float[:, :, :, :, ::1] particle_tensor = \
@@ -166,21 +168,21 @@ cdef class CubaticOrderParameter:
             self.thisptr.getParticleTensor().get()
         return np.asarray(particle_tensor)
 
-    @property
+    @Compute._computed_property()
     def global_tensor(self):
         cdef const float[:, :, :, ::1] global_tensor = \
             <float[:3, :3, :3, :3]> \
             self.thisptr.getGlobalTensor().get()
         return np.asarray(global_tensor)
 
-    @property
+    @Compute._computed_property()
     def cubatic_tensor(self):
         cdef const float[:, :, :, ::1] cubatic_tensor = \
             <float[:3, :3, :3, :3]> \
             self.thisptr.getCubaticTensor().get()
         return np.asarray(cubatic_tensor)
 
-    @property
+    @Compute._computed_property()
     def gen_r4_tensor(self):
         cdef const float[:, :, :, ::1] gen_r4_tensor = \
             <float[:3, :3, :3, :3]> \
@@ -200,7 +202,7 @@ cdef class CubaticOrderParameter:
     def __str__(self):
         return repr(self)
 
-cdef class NematicOrderParameter:
+cdef class NematicOrderParameter(Compute):
     R"""Compute the nematic order parameter for a system of particles.
 
     .. moduleauthor:: Jens Glaser <jsglaser@umich.edu>
@@ -235,6 +237,7 @@ cdef class NematicOrderParameter:
         self.thisptr = new freud._order.NematicOrderParameter(l_u)
         self.u = freud.common.convert_array(u, 1)
 
+    @Compute._compute()
     def compute(self, orientations):
         R"""Calculates the per-particle and global order parameter.
 
@@ -253,16 +256,16 @@ cdef class NematicOrderParameter:
             self.thisptr.compute(<quat[float]*> &l_orientations[0, 0],
                                  num_particles)
 
-    @property
+    @Compute._computed_property()
     def nematic_order_parameter(self):
         return self.thisptr.getNematicOrderParameter()
 
-    @property
+    @Compute._computed_property()
     def director(self):
         cdef vec3[float] n = self.thisptr.getNematicDirector()
         return np.asarray([n.x, n.y, n.z], dtype=np.float32)
 
-    @property
+    @Compute._computed_property()
     def particle_tensor(self):
         cdef unsigned int n_particles = self.thisptr.getNumParticles()
         cdef const float[:, :, ::1] particle_tensor = \
@@ -270,7 +273,7 @@ cdef class NematicOrderParameter:
             self.thisptr.getParticleTensor().get()
         return np.asarray(particle_tensor)
 
-    @property
+    @Compute._computed_property()
     def nematic_tensor(self):
         cdef const float[:, ::1] nematic_tensor = \
             <float[:3, :3]> self.thisptr.getNematicTensor().get()
