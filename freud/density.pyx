@@ -12,8 +12,9 @@ import freud.locality
 import warnings
 import numpy as np
 
-from freud.util._VectorMath cimport vec3
 from cython.operator cimport dereference
+from freud.common cimport Compute
+from freud.util._VectorMath cimport vec3
 
 cimport freud._density
 cimport freud.box, freud.locality
@@ -23,7 +24,7 @@ cimport numpy as np
 # _always_ do that, or you will have segfaults
 np.import_array()
 
-cdef class FloatCF:
+cdef class FloatCF(Compute):
     R"""Computes the real pairwise correlation function.
 
     The correlation function is given by
@@ -84,6 +85,7 @@ cdef class FloatCF:
     def __dealloc__(self):
         del self.thisptr
 
+    @Compute._compute()
     def accumulate(self, box, ref_points, ref_values, points=None, values=None,
                    nlist=None):
         R"""Calculates the correlation function and adds to the current
@@ -147,23 +149,25 @@ cdef class FloatCF:
                 n_p)
         return self
 
-    @property
+    @Compute._computed_property()
     def RDF(self):
         cdef unsigned int n_bins = self.thisptr.getNBins()
         cdef const double[::1] RDF = \
             <double[:n_bins]> self.thisptr.getRDF().get()
         return np.asarray(RDF)
 
-    @property
+    @Compute._computed_property()
     def box(self):
         return freud.box.BoxFromCPP(self.thisptr.getBox())
 
+    @Compute._reset
     def reset(self):
         R"""Resets the values of the correlation function histogram in
         memory.
         """
         self.thisptr.reset()
 
+    @Compute._compute()
     def compute(self, box, ref_points, ref_values, points=None, values=None,
                 nlist=None):
         R"""Calculates the correlation function for the given points. Will
@@ -190,7 +194,7 @@ cdef class FloatCF:
         self.accumulate(box, ref_points, ref_values, points, values, nlist)
         return self
 
-    @property
+    @Compute._computed_property()
     def counts(self):
         cdef unsigned int n_bins = self.thisptr.getNBins()
         cdef const unsigned int[::1] counts = \
