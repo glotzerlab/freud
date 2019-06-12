@@ -12,6 +12,7 @@ import copy
 import freud.common
 import warnings
 
+from freud.common cimport Compute
 from freud.util._VectorMath cimport vec3
 from cython.operator cimport dereference
 
@@ -39,7 +40,7 @@ except ImportError:
 np.import_array()
 
 
-class Voronoi(object):
+class Voronoi(Compute):
     R"""Compute the Voronoi tessellation of a 2D or 3D system using qhull.
     This uses :class:`scipy.spatial.Voronoi`, accounting for periodic
     boundary conditions.
@@ -92,6 +93,9 @@ class Voronoi(object):
         self._box = b
         self._buff = buff
         self._nlist = freud.locality.NeighborList()
+        self._set_compute_flag("compute")
+        self._set_compute_flag("computeVolumes")
+        self._set_compute_flag("computeNeighbors")
 
     def _qhull_compute(self, positions, box=None, buff=None):
         R"""Calls ParticleBuffer and qhull
@@ -126,6 +130,7 @@ class Voronoi(object):
         # Use qhull to get the points
         self.voronoi = qvoronoi(self.expanded_points)
 
+    @Compute._compute("compute")
     def compute(self, positions, box=None, buff=None):
         R"""Compute Voronoi diagram.
 
@@ -168,7 +173,7 @@ class Voronoi(object):
     def buffer(self):
         return self._buff
 
-    @property
+    @Compute._computed_property("compute")
     def polytopes(self):
         R"""Returns a list of polytope vertices corresponding to Voronoi cells.
 
@@ -188,6 +193,7 @@ class Voronoi(object):
         """
         return self._poly_verts
 
+    @Compute._compute("computeNeighbors")
     def computeNeighbors(self, positions, box=None, buff=None,
                          exclude_ii=True):
         R"""Compute the neighbors of each particle based on the Voronoi
@@ -335,6 +341,7 @@ class Voronoi(object):
             bond_indices[:, 0], bond_indices[:, 1], weights=weights)
         return self
 
+    @Compute._computed_method("computeNeighbors")
     def getNeighbors(self, numShells):
         R"""Get well-sorted neighbors from cumulative Voronoi shells for each
         particle by specifying :code:`numShells`.
@@ -364,7 +371,7 @@ class Voronoi(object):
         # return a list of list of well-sorted neighbors
         return neighbors
 
-    @property
+    @Compute._computed_property("computeNeighbors")
     def nlist(self):
         R"""Returns a neighbor list object.
 
@@ -381,6 +388,7 @@ class Voronoi(object):
         """
         return self._nlist
 
+    @Compute._compute("computeVolumes")
     def computeVolumes(self):
         R"""Computes volumes (areas in 2D) of Voronoi cells.
 
@@ -399,7 +407,7 @@ class Voronoi(object):
 
         return self
 
-    @property
+    @Compute._computed_property("computeVolumes")
     def volumes(self):
         R"""Returns an array of volumes (areas in 2D) corresponding to Voronoi
         cells.

@@ -14,12 +14,29 @@ class TestVoronoi(unittest.TestCase):
         N = 50  # Number of particles
         box = freud.box.Box.square(L)  # Initialize box
         vor = freud.voronoi.Voronoi(box)
+
+        with self.assertRaises(AttributeError):
+            vor.polytopes
+        with self.assertRaises(AttributeError):
+            vor.nlist
+        with self.assertRaises(AttributeError):
+            vor.volumes
+        with self.assertRaises(AttributeError):
+            vor.getNeighbors(0)
+
         np.random.seed(0)
         # Generate random points in the box
         positions = np.random.uniform(-L/2, L/2, size=(N, 2))
         # Add a z-component of 0
         positions = np.insert(positions, 2, 0, axis=1).astype(np.float32)
         vor.compute(positions, box=box, buff=L/2)
+
+        with self.assertRaises(AttributeError):
+            vor.nlist
+        with self.assertRaises(AttributeError):
+            vor.volumes
+        with self.assertRaises(AttributeError):
+            vor.getNeighbors(0)
 
         result = vor.polytopes
 
