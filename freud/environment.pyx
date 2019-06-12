@@ -506,7 +506,7 @@ cdef class LocalDescriptors(Compute):
         return repr(self)
 
 
-cdef class MatchEnv:
+cdef class MatchEnv(Compute):
     R"""Clusters particles according to whether their local environments match
     or not, according to various shape matching metrics.
 
@@ -560,6 +560,7 @@ cdef class MatchEnv:
         self.thisptr.setBox(dereference(b.thisptr))
         self.m_box = box
 
+    @Compute._compute()
     def cluster(self, points, threshold, hard_r=False, registration=False,
                 global_search=False, env_nlist=None, nlist=None):
         R"""Determine clusters of particles with matching environments.
@@ -622,6 +623,7 @@ cdef class MatchEnv:
             <vec3[float]*> &l_points[0, 0], nP, threshold, hard_r,
             registration, global_search)
 
+    @Compute._compute()
     def matchMotif(self, points, refPoints, threshold, registration=False,
                    nlist=None):
         R"""Determine clusters of particles that match the motif provided by
@@ -668,6 +670,7 @@ cdef class MatchEnv:
             <vec3[float]*> &l_refPoints[0], nRef, threshold,
             registration)
 
+    @Compute._compute()
     def minRMSDMotif(self, points, refPoints, registration=False, nlist=None):
         R"""Rotate (if registration=True) and permute the environments of all
         particles to minimize their RMSD with respect to the motif provided by
@@ -814,7 +817,7 @@ cdef class MatchEnv:
                 nRef1, min_rmsd, registration)
         return [min_rmsd, np.asarray(l_refPoints2), results_map]
 
-    @property
+    @Compute._computed_property()
     def clusters(self):
         cdef unsigned int n_particles = self.thisptr.getNP()
         if not n_particles:
@@ -823,6 +826,7 @@ cdef class MatchEnv:
             <unsigned int[:n_particles]> self.thisptr.getClusters().get()
         return np.asarray(clusters)
 
+    @Compute._computed_method()
     def getEnvironment(self, i):
         R"""Returns the set of vectors defining the environment indexed by i.
 
@@ -841,7 +845,7 @@ cdef class MatchEnv:
                 <float*> self.thisptr.getEnvironment(i).get())
         return np.asarray(environment)
 
-    @property
+    @Compute._computed_property()
     def tot_environment(self):
         cdef unsigned int n_particles = self.thisptr.getNP()
         cdef unsigned int max_neighbors = self.thisptr.getMaxNumNeighbors()
@@ -852,11 +856,11 @@ cdef class MatchEnv:
                 <float*> self.thisptr.getTotEnvironment().get())
         return np.asarray(tot_environment)
 
-    @property
+    @Compute._computed_property()
     def num_particles(self):
         return self.thisptr.getNP()
 
-    @property
+    @Compute._computed_property()
     def num_clusters(self):
         return self.thisptr.getNumClusters()
 

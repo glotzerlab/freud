@@ -93,6 +93,29 @@ cdef class Compute:
         return _computed_property_with_key
 
     @staticmethod
+    def _computed_method(key="compute"):
+        R"""Decorator that makes a class method to be a method with limited access.
+
+        Args:
+            key (str): Name of compute flag.
+
+        Returns:
+            Decorator decorating appropriate property method.
+        """
+        if isinstance(key, str):
+            key = (key,)
+
+        def _computed_property_with_key(func):
+            @wraps(func)
+            def wrapper(self, *args, **kwargs):
+                if not any(self._called_compute[k] for k in key):
+                    raise AttributeError("Property not computed. "
+                                         "Call {key} first.".format(key=key))
+                return func(self, *args, **kwargs)
+            return wrapper
+        return _computed_property_with_key
+
+    @staticmethod
     def _reset(func):
         R"""Decorator that sets all compute flag to be false.
 
