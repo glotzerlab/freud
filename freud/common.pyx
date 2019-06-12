@@ -7,6 +7,8 @@ import logging
 import numpy as np
 import freud.box
 
+from functools import wraps
+
 logger = logging.getLogger(__name__)
 
 
@@ -55,6 +57,7 @@ cdef class Compute:
         """
 
         def _compute_with_key(func):
+            @wraps(func)
             def wrapper(self, *args, **kwargs):
                 retval = func(self, *args, **kwargs)
                 self._called_compute[key] = True
@@ -75,6 +78,7 @@ cdef class Compute:
 
         def _computed_property_with_key(func):
             @property
+            @wraps(func)
             def wrapper(self, *args, **kwargs):
                 if not self._called_compute[key]:
                     raise AttributeError("Property not computed. "
@@ -90,7 +94,7 @@ cdef class Compute:
         Returns:
             Decorator decorating appropriate reset method.
         """
-
+        @wraps(func)
         def wrapper(self, *args, **kwargs):
             for k in self._called_compute:
                 self._called_compute[k] = False
