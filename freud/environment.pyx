@@ -13,6 +13,7 @@ import numpy as np
 import warnings
 import freud.locality
 
+from freud.common cimport Compute
 from freud.util._VectorMath cimport vec3, quat
 from libcpp.vector cimport vector
 from libcpp.map cimport map
@@ -28,7 +29,7 @@ cimport numpy as np
 np.import_array()
 
 
-cdef class BondOrder:
+cdef class BondOrder(Compute):
     R"""Compute the bond orientational order diagram for the system of
     particles.
 
@@ -141,6 +142,7 @@ cdef class BondOrder:
     def __dealloc__(self):
         del self.thisptr
 
+    @Compute._compute()
     def accumulate(self, box, ref_points, ref_orientations, points=None,
                    orientations=None, str mode="bod", nlist=None):
         R"""Calculates the correlation function and adds to the current
@@ -227,29 +229,25 @@ cdef class BondOrder:
                 index)
         return self
 
-    @property
+    @Compute._computed_property()
     def bond_order(self):
         cdef unsigned int n_bins_phi = self.thisptr.getNBinsPhi()
         cdef unsigned int n_bins_theta = self.thisptr.getNBinsTheta()
         cdef float[:, ::1] bod = <float[:n_bins_phi, :n_bins_theta]> \
             self.thisptr.getBondOrder().get()
         result = np.asarray(bod)
-
-        # Because we divide by the surface areas, the bond order will actually
-        # be nans if we try to get the bond_order after resetting. This fixes
-        # that.
-        if np.all(np.isnan(result)):
-            result = np.zeros((n_bins_phi, n_bins_theta), dtype=np.float32)
         return result
 
-    @property
+    @Compute._computed_property()
     def box(self):
         return freud.box.BoxFromCPP(self.thisptr.getBox())
 
+    @Compute._reset
     def reset(self):
         R"""Resets the values of the bond order in memory."""
         self.thisptr.reset()
 
+    @Compute._compute()
     def compute(self, box, ref_points, ref_orientations, points=None,
                 orientations=None, mode="bod", nlist=None):
         R"""Calculates the bond order histogram. Will overwrite the current
