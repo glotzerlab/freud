@@ -78,12 +78,14 @@ cdef class Compute:
         Returns:
             Decorator decorating appropriate property method.
         """
+        if isinstance(key, str):
+            key = (key,)
 
         def _computed_property_with_key(func):
             @property
             @wraps(func)
             def wrapper(self, *args, **kwargs):
-                if not self._called_compute[key]:
+                if not any(self._called_compute[k] for k in key):
                     raise AttributeError("Property not computed. "
                                          "Call {key} first.".format(key=key))
                 return func(self, *args, **kwargs)
