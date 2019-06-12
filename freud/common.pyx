@@ -6,7 +6,6 @@
 import logging
 import numpy as np
 import freud.box
-from functools import partial
 
 logger = logging.getLogger(__name__)
 
@@ -55,12 +54,12 @@ cdef class Compute:
             Decorator decorating appropriate compute method.
         """
 
-        def _compute_with_key(func, key):
+        def _compute_with_key(func):
             def wrapper(self, *args, **kwargs):
                 self._called_compute[key] = True
                 func(self, *args, **kwargs)
             return wrapper
-        return partial(_compute_with_key, key=key)
+        return _compute_with_key
 
     @staticmethod
     def _computed_property(key="compute"):
@@ -73,7 +72,7 @@ cdef class Compute:
             Decorator decorating appropriate property method.
         """
 
-        def _computed_property_with_key(func, key="compute"):
+        def _computed_property_with_key(func):
             @property
             def wrapper(self, *args, **kwargs):
                 if not self._called_compute[key]:
@@ -81,7 +80,7 @@ cdef class Compute:
                                          "Call {key} first.".format(key=key))
                 return func(self, *args, **kwargs)
             return wrapper
-        return partial(_computed_property_with_key, key=key)
+        return _computed_property_with_key
 
     @staticmethod
     def _reset(func):
