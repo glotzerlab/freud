@@ -19,8 +19,19 @@ class TestDensity(unittest.TestCase):
             * box_size - box_size/2
         points[:, 2] = 0
         diff = freud.density.GaussianDensity(width, rcut, sigma)
+
+        with self.assertRaises(AttributeError):
+            diff.box
+
+        with self.assertRaises(AttributeError):
+            diff.gaussian_density
+
         testBox = freud.box.Box.square(box_size)
         diff.compute(testBox, points)
+
+        diff.box
+        diff.gaussian_density
+
         myDiff = diff.gaussian_density
         myFFT = fft(fft(myDiff[:, :], axis=1), axis=0)
         myDiff = (myFFT * np.conj(myFFT)).real

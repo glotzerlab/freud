@@ -410,7 +410,7 @@ cdef class ComplexCF(Compute):
         return repr(self)
 
 
-cdef class GaussianDensity:
+cdef class GaussianDensity(Compute):
     R"""Computes the density of a system on a grid.
 
     Replaces particle positions with a Gaussian blur and calculates the
@@ -452,10 +452,6 @@ cdef class GaussianDensity:
             Box used in the calculation.
         gaussian_density ((:math:`w_x`, :math:`w_y`, :math:`w_z`) :class:`numpy.ndarray`):
             The image grid with the Gaussian density.
-        counts ((:math:`N_{bins}`) :class:`numpy.ndarray`):
-            The number of points in each histogram bin.
-        R ((:math:`N_{bins}`) :class:`numpy.ndarray`):
-            The centers of each bin.
     """  # noqa: E501
     cdef freud._density.GaussianDensity * thisptr
     cdef arglist
@@ -472,10 +468,11 @@ cdef class GaussianDensity:
         else:
             raise TypeError('GaussianDensity takes exactly 3 or 5 arguments')
 
-    @property
+    @Compute._computed_property()
     def box(self):
         return freud.box.BoxFromCPP(self.thisptr.getBox())
 
+    @Compute._compute()
     def compute(self, box, points):
         R"""Calculates the Gaussian blur for the specified points. Does not
         accumulate (will overwrite current image).
@@ -497,7 +494,7 @@ cdef class GaussianDensity:
                                  <vec3[float]*> &l_points[0, 0], n_p)
         return self
 
-    @property
+    @Compute._computed_property()
     def gaussian_density(self):
         cdef unsigned int width_x = self.thisptr.getWidthX()
         cdef unsigned int width_y = self.thisptr.getWidthY()
