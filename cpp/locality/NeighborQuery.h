@@ -258,7 +258,7 @@ public:
      */
     virtual NeighborList* toNeighborList()
     {
-        typedef tbb::enumerable_thread_specific<std::vector<std::tuple<size_t, size_t, float>>> BondVector;
+        typedef tbb::enumerable_thread_specific<std::vector<Bond>> BondVector;
         BondVector bonds;
         tbb::parallel_for(tbb::blocked_range<size_t>(0, m_N), [&](const tbb::blocked_range<size_t>& r) {
             BondVector::reference local_bonds(bonds.local());
@@ -282,7 +282,7 @@ public:
         });
 
         tbb::flattened2d<BondVector> flat_bonds = tbb::flatten2d(bonds);
-        std::vector<std::tuple<size_t, size_t, float>> linear_bonds(flat_bonds.begin(), flat_bonds.end());
+        std::vector<Bond> linear_bonds(flat_bonds.begin(), flat_bonds.end());
         tbb::parallel_sort(linear_bonds.begin(), linear_bonds.end());
 
         unsigned int num_bonds = linear_bonds.size();
@@ -297,9 +297,6 @@ public:
         parallel_for(tbb::blocked_range<size_t>(0, num_bonds), [&](const tbb::blocked_range<size_t>& r) {
             for (size_t bond(r.begin()); bond < r.end(); ++bond)
             {
-                // neighbor_array[2 * bond] = std::get<0>(linear_bonds[bond]);
-                // neighbor_array[2 * bond + 1] = std::get<1>(linear_bonds[bond]);
-                // neighbor_distance[bond] = std::get<2>(linear_bonds[bond]);
                 std::tie(neighbor_array[2 * bond], neighbor_array[2 * bond + 1], neighbor_distance[bond])
                     = linear_bonds[bond];
             }
@@ -392,14 +389,14 @@ public:
     virtual std::shared_ptr<NeighborQueryIterator> query(const vec3<float>* points, unsigned int N,
                                                          unsigned int k, bool exclude_ii = false) const
     {
-        return nullptr;
+        throw std::runtime_error("The query method is not implemented for RawPoints.");
     }
 
     // dummy implementation for pure virtual function in the parent class
     virtual std::shared_ptr<NeighborQueryIterator> queryBall(const vec3<float>* points, unsigned int N,
                                                              float r, bool exclude_ii = false) const
     {
-        return nullptr;
+        throw std::runtime_error("The queryBall method is not implemented for RawPoints.");
     }
 };
 

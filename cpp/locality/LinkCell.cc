@@ -128,15 +128,6 @@ const vec3<unsigned int> LinkCell::computeDimensions(const box::Box& box, float 
     return dim;
 }
 
-bool compareFirstNeighborPairs(const std::vector<std::tuple<size_t, size_t, float, float>>& left,
-                               const std::vector<std::tuple<size_t, size_t, float, float>>& right)
-{
-    if (left.size() && right.size())
-        return left[0] < right[0];
-    else
-        return left.size() < right.size();
-}
-
 void LinkCell::computeCellList(const box::Box& box, const vec3<float>* points, unsigned int Np)
 {
     updateBox(box);
@@ -181,7 +172,7 @@ void LinkCell::compute(const box::Box& box, const vec3<float>* ref_points, unsig
     // for quick access later (not ref_points)
     computeCellList(box, points, Np);
 
-    typedef std::vector<std::tuple<size_t, size_t, float, float>> BondVector;
+    typedef std::vector<WeightedBond> BondVector;
     typedef std::vector<BondVector> BondVectorVector;
     typedef tbb::enumerable_thread_specific<BondVectorVector> ThreadBondVector;
     ThreadBondVector bond_vectors;

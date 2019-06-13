@@ -5,6 +5,8 @@
 #define NEIGHBOR_LIST_H
 
 #include <memory>
+#include <vector>
+#include <tuple>
 
 #include "Box.h"
 #include "VectorMath.h"
@@ -95,6 +97,11 @@ private:
     //! Neighbor list per-bond distance array
     std::shared_ptr<float> m_distances;
 };
+
+typedef std::tuple<size_t, size_t, float> Bond;
+typedef std::tuple<size_t, size_t, float, float> WeightedBond;
+bool compareFirstNeighborPairs(const std::vector<WeightedBond>& left,
+                               const std::vector<WeightedBond>& right);
 
 }; }; // end namespace freud::locality
 

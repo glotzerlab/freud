@@ -11,8 +11,13 @@
 
 namespace freud { namespace locality {
 
-// Body should be an object taking in
-// with operator(size_t begin, size_t end)
+//! Wrapper for for-loop
+/*! \param parallel If true, run body in parallel.
+    \param begin Beginning index.
+    \param end Ending index.
+    \param body Body should be an object taking in 
+           with operator(size_t begin, size_t end).
+*/
 template<typename Body> void for_loop_wrapper(bool parallel, size_t begin, size_t end, const Body& body)
 {
     if (parallel)
@@ -26,8 +31,16 @@ template<typename Body> void for_loop_wrapper(bool parallel, size_t begin, size_
     }
 }
 
-// ComputePairType should be a void function that takes
-// (ref_point_index, point_index, distance, weight) as input.
+//! Wrapper iterating looping over NeighborQuery
+/*! \param ref_points NeighborQuery object to iterate over
+    \param points Points
+    \param Np Number of points
+    \param qargs Query arguments
+    \param nlist Neighbor List. If not NULL, loop over it. Otherwise, use ref_points
+           appropriately with given qargs.
+    \param cf A void function that takes 
+           (ref_point_index, point_index, distance, weight) as input.
+*/
 template<typename ComputePairType>
 void loop_over_NeighborList(const NeighborQuery* ref_points, const vec3<float>* points, unsigned int Np,
                             QueryArgs qargs, const NeighborList* nlist, const ComputePairType& cf)
@@ -43,6 +56,12 @@ void loop_over_NeighborList(const NeighborQuery* ref_points, const vec3<float>* 
         // if nlist does not exist, check if ref_points is an actual NeighborQuery
         std::shared_ptr<NeighborQueryIterator> iter;
         std::shared_ptr<AABBQuery> abq;
+        // check if ref_points is a pointer to a RawPoints object
+        // dynamic_cast will fail if ref_points is not actually pointing to RawPoints
+        // and return a null pointer. Then, the assignment operator will return
+        // a null pointer, making the condition in the if statement to be false.
+        // This is a typical C++ way of checking the type of a polymorphic class
+        // using pointers and casting.
         if (const RawPoints* rp = dynamic_cast<const RawPoints*>(ref_points))
         {
             // if ref_points is RawPoints, build a NeighborQuery
@@ -56,7 +75,7 @@ void loop_over_NeighborList(const NeighborQuery* ref_points, const vec3<float>* 
         }
 
         // iterate over the query object in parallel
-        for_loop_wrapper(true, 0, Np, [iter, qargs, &cf](size_t begin, size_t end) {
+        for_loop_wrapper(true, 0, Np, [&iter, &qargs, &cf](size_t begin, size_t end) {
             NeighborPoint np;
             for (size_t i = begin; i != end; ++i)
             {
@@ -66,7 +85,7 @@ void loop_over_NeighborList(const NeighborQuery* ref_points, const vec3<float>* 
                 {
                     if (!qargs.exclude_ii || i != np.ref_id)
                     {
-                        // TODO
+                        // TODO when Voronoi gets incorporated in NeighborQuery infrastructure
                         // weight set to 1 for now
                         cf(np.ref_id, i, np.distance, 1);
                     }
@@ -77,8 +96,11 @@ void loop_over_NeighborList(const NeighborQuery* ref_points, const vec3<float>* 
     }
 }
 
-// ComputePairType should be a void function that takes
-// (ref_point_index, point_index, distance, weight) as input.
+//! Wrapper iterating looping over NeighborList in parallel.
+/*! \param nlist Neighbor List to loop over.
+    \param cf A void function that takes 
+           (ref_point_index, point_index, distance, weight) as input.
+*/
 template<typename ComputePairType>
 void loop_over_NeighborList_parallel(const NeighborList* nlist, const ComputePairType& cf)
 {

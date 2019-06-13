@@ -312,9 +312,6 @@ private:
     bool m_is2D;     //!< true if the cell list is 2D
 };
 
-bool compareFirstNeighborPairs(const std::vector<std::tuple<size_t, size_t, float, float>>& left,
-                               const std::vector<std::tuple<size_t, size_t, float, float>>& right);
-
 //! Computes a cell id for each particle and a link cell data structure for iterating through it
 /*! For simplicity in only needing a small number of arrays, the link cell
  *  algorithm is used to generate and store the cell list data for particles.

@@ -53,7 +53,7 @@ void NearestNeighbors::compute(const box::Box& box, const vec3<float>* ref_pos, 
     m_box = box;
     m_neighbor_list.resize(num_ref * m_num_neighbors);
 
-    typedef std::vector<std::tuple<size_t, size_t, float, float>> BondVector;
+    typedef std::vector<WeightedBond> BondVector;
     typedef std::vector<BondVector> BondVectorVector;
     typedef tbb::enumerable_thread_specific<BondVectorVector> ThreadBondVector;
     ThreadBondVector bond_vectors;
