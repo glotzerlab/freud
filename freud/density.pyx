@@ -114,9 +114,9 @@ cdef class FloatCF:
         ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
         points = freud.common.convert_array(points, shape=(None, 3))
         ref_values = freud.common.convert_array(
-            ref_values, (ref_points.shape[0], ), dtype=np.float64)
+            ref_values, shape=(ref_points.shape[0], ), dtype=np.float64)
         values = freud.common.convert_array(
-            values, (points.shape[0], ), dtype=np.float64)
+            values, shape=(points.shape[0], ), dtype=np.float64)
         cdef const float[:, ::1] l_ref_points = ref_points
         cdef const float[:, ::1] l_points
         if ref_points is points:
@@ -303,9 +303,9 @@ cdef class ComplexCF:
         ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
         points = freud.common.convert_array(points, shape=(None, 3))
         ref_values = freud.common.convert_array(
-            ref_values, (ref_points.shape[0], ), dtype=np.complex128)
-        values = freud.common.convert_array(values, (points.shape[0], ),
-                                            dtype=np.complex128)
+            ref_values, shape=(ref_points.shape[0], ), dtype=np.complex128)
+        values = freud.common.convert_array(
+            values, shape=(points.shape[0], ), dtype=np.complex128)
         cdef const float[:, ::1] l_ref_points = ref_points
         cdef const float[:, ::1] l_points
         if ref_points is points:

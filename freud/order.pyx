@@ -117,7 +117,8 @@ cdef class CubaticOrderParameter:
             orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
                 Orientations as angles to use in computation.
         """
-        orientations = freud.common.convert_array(orientations, (None, 4))
+        orientations = freud.common.convert_array(
+            orientations, shape=(None, 4))
 
         cdef const float[:, ::1] l_orientations = orientations
         cdef unsigned int num_particles = l_orientations.shape[0]
@@ -231,7 +232,7 @@ cdef class NematicOrderParameter:
 
         cdef vec3[float] l_u = vec3[float](u[0], u[1], u[2])
         self.thisptr = new freud._order.NematicOrderParameter(l_u)
-        self.u = freud.common.convert_array(u, (3, ))
+        self.u = freud.common.convert_array(u, shape=(3, ))
 
     def compute(self, orientations):
         R"""Calculates the per-particle and global order parameter.
@@ -240,7 +241,8 @@ cdef class NematicOrderParameter:
             orientations (:math:`\left(N_{particles}, 4 \right)` :class:`numpy.ndarray`):
                 Orientations to calculate the order parameter.
         """  # noqa: E501
-        orientations = freud.common.convert_array(orientations, (None, 4))
+        orientations = freud.common.convert_array(
+            orientations, shape=(None, 4))
 
         cdef const float[:, ::1] l_orientations = orientations
         cdef unsigned int num_particles = l_orientations.shape[0]

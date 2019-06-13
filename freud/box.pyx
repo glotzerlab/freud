@@ -389,7 +389,7 @@ cdef class Box:
                 "Valid input is an array of shape (3,) or (N,3).")
 
         vecs = freud.common.convert_array(vecs)
-        imgs = freud.common.convert_array(imgs, vecs.shape,
+        imgs = freud.common.convert_array(imgs, shape=vecs.shape,
                                           dtype=np.int32)
 
         if vecs.ndim == 1:

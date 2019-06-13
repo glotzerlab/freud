@@ -195,12 +195,12 @@ cdef class PMFTR12(_PMFT):
         ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
 
         ref_orientations = freud.common.convert_array(
-            ref_orientations.squeeze(), (ref_points.shape[0], ))
+            ref_orientations.squeeze(), shape=(ref_points.shape[0], ))
 
         points = freud.common.convert_array(points, shape=(None, 3))
 
-        orientations = freud.common.convert_array(orientations.squeeze(),
-                                                  (points.shape[0], ))
+        orientations = freud.common.convert_array(
+            orientations.squeeze(), shape=(points.shape[0], ))
 
         defaulted_nlist = freud.locality.make_default_nlist(
             b, ref_points, points, self.rmax, nlist, None)
@@ -437,12 +437,12 @@ cdef class PMFTXYT(_PMFT):
         ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
 
         ref_orientations = freud.common.convert_array(
-            ref_orientations.squeeze(), (ref_points.shape[0], ))
+            ref_orientations.squeeze(), shape=(ref_points.shape[0], ))
 
         points = freud.common.convert_array(points, shape=(None, 3))
 
-        orientations = freud.common.convert_array(orientations.squeeze(),
-                                                  (points.shape[0], ))
+        orientations = freud.common.convert_array(
+            orientations.squeeze(), shape=(points.shape[0], ))
 
         defaulted_nlist = freud.locality.make_default_nlist(
             b, ref_points, points, self.rmax, nlist, None)
@@ -663,12 +663,12 @@ cdef class PMFTXY2D(_PMFT):
         ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
 
         ref_orientations = freud.common.convert_array(
-            ref_orientations.squeeze(), (ref_points.shape[0], ))
+            ref_orientations.squeeze(), shape=(ref_points.shape[0], ))
 
         points = freud.common.convert_array(points, shape=(None, 3))
 
         orientations = freud.common.convert_array(
-            orientations.squeeze(), (points.shape[0], ))
+            orientations.squeeze(), shape=(points.shape[0], ))
 
         defaulted_nlist = freud.locality.make_default_nlist(
             b, ref_points, points, self.rmax, nlist, None)
@@ -897,15 +897,15 @@ cdef class PMFTXYZ(_PMFT):
         if orientations is None:
             orientations = ref_orientations
 
-        ref_points = freud.common.convert_array(ref_points, (None, 3))
-        ref_orientations = freud.common.convert_array(ref_orientations,
-                                                      (ref_points.shape[0], 4))
+        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
+        ref_orientations = freud.common.convert_array(
+            ref_orientations, shape=(ref_points.shape[0], 4))
 
-        points = freud.common.convert_array(points, (None, 3))
+        points = freud.common.convert_array(points, shape=(None, 3))
         points = points - self.shiftvec.reshape(1, 3)
 
         orientations = freud.common.convert_array(
-            orientations, (points.shape[0], 4))
+            orientations, shape=(points.shape[0], 4))
 
         # handle multiple ways to input
         if face_orientations is None:

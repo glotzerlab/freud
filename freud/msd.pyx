@@ -142,7 +142,8 @@ cdef class MSD:
                 positions are assumed to be unwrapped already.
         """  # noqa: E501
 
-        positions = freud.common.convert_array(positions, (None, None, 3))
+        positions = freud.common.convert_array(
+            positions, shape=(None, None, 3))
         if images is not None:
             images = freud.common.convert_array(
                 images, shape=positions.shape, dtype=np.int32)

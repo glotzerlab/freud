@@ -128,8 +128,8 @@ cdef class Cluster:
             keys ((:math:`N_{particles}`) :class:`numpy.ndarray`):
                 Membership keys, one for each particle.
         """
-        keys = freud.common.convert_array(keys, dtype=np.uint32,
-                                          shape=(self.num_particles,))
+        keys = freud.common.convert_array(
+            keys, shape=(self.num_particles, ), dtype=np.uint32)
         cdef const unsigned int[::1] l_keys = keys
         with nogil:
             self.thisptr.computeClusterMembership(<unsigned int*> &l_keys[0])
