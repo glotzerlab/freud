@@ -125,7 +125,7 @@ cdef class Cluster:
         Get the computed list with :attr:`~cluster_keys`.
 
         Args:
-            keys((:math:`N_{particles}`) :class:`numpy.ndarray`):
+            keys ((:math:`N_{particles}`) :class:`numpy.ndarray`):
                 Membership keys, one for each particle.
         """
         keys = freud.common.convert_array(keys, dtype=np.uint32,
@@ -242,7 +242,7 @@ cdef class ClusterProperties:
 
         points = freud.common.convert_array(points, shape=(None, 3))
         cluster_idx = freud.common.convert_array(
-            cluster_idx, dtype=np.uint32, shape=(points.shape[0],))
+            cluster_idx, shape=(points.shape[0], ), dtype=np.uint32)
         cdef const float[:, ::1] l_points = points
         cdef const unsigned int[::1] l_cluster_idx = cluster_idx
         cdef unsigned int Np = l_points.shape[0]

@@ -43,10 +43,10 @@ class TestCommon(unittest.TestCase):
         npt.assert_equal(z, zd)
 
         # test dimension checking
-        with self.assertRaises(TypeError):
-            z = common.convert_array(y, shape=(1), dtype=np.float32)
+        with self.assertRaises(ValueError):
+            z = common.convert_array(y, shape=(1, ), dtype=np.float32)
 
-        with self.assertRaises(RuntimeError):
+        with self.assertRaises(ValueError):
             common.convert_array(z, shape=(None, 9))
 
     def test_convert_matrix_box(self):

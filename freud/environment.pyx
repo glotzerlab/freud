@@ -422,8 +422,8 @@ cdef class LocalDescriptors:
                     ('Orientations must be given to orient LocalDescriptors '
                         'with particles\' orientations'))
 
-            orientations = freud.common.convert_array(orientations,
-                shape=(points_ref.shape[0], 4)) # noqa
+            orientations = freud.common.convert_array(
+                orientations, shape=(points_ref.shape[0], 4))
 
             l_orientations = orientations
             l_orientations_ptr = <quat[float]*> &l_orientations[0, 0]

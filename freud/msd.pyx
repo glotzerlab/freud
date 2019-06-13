@@ -144,8 +144,8 @@ cdef class MSD:
 
         positions = freud.common.convert_array(positions, (None, None, 3))
         if images is not None:
-            images = freud.common.convert_array(images, dtype=np.int32,
-                                                shape=positions.shape)
+            images = freud.common.convert_array(
+                images, shape=positions.shape, dtype=np.int32)
 
         # Make sure we aren't modifying the provided array
         if self.box is not None and images is not None:

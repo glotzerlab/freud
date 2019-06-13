@@ -231,7 +231,7 @@ cdef class NematicOrderParameter:
 
         cdef vec3[float] l_u = vec3[float](u[0], u[1], u[2])
         self.thisptr = new freud._order.NematicOrderParameter(l_u)
-        self.u = freud.common.convert_array(u, (None, ))
+        self.u = freud.common.convert_array(u, (3, ))
 
     def compute(self, orientations):
         R"""Calculates the per-particle and global order parameter.

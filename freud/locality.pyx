@@ -285,7 +285,7 @@ cdef class NeighborQuery:
         # removed in future releases.
         # Can't use this function with old-style NeighborQuery objects
         points = freud.common.convert_array(np.atleast_2d(points),
-                                            (None, None))
+                                            (None, 3))
 
         cdef shared_ptr[freud._locality.NeighborQueryIterator] iterator
         cdef const float[:, ::1] l_points = points
@@ -459,18 +459,12 @@ cdef class NeighborList:
                 value of 1 for each weight) (Default value = :code:`None`).
         """
         index_i = freud.common.convert_array(index_i, (None,), dtype=np.uint64)
-        index_j = freud.common.convert_array(index_j, (None,), dtype=np.uint64)
-
-        if index_i.shape != index_j.shape:
-            raise TypeError('index_i and index_j should be the same size')
+        index_j = freud.common.convert_array(index_j, index_i.shape, dtype=np.uint64)
 
         if weights is None:
             weights = np.ones(index_i.shape, dtype=np.float32)
         else:
-            weights = freud.common.convert_array(weights, (None, ))
-
-        if weights.shape != index_i.shape:
-            raise TypeError('weights and index_i should be the same size')
+            weights = freud.common.convert_array(weights, index_i.shape)
 
         cdef const size_t[::1] c_index_i = index_i
         cdef const size_t[::1] c_index_j = index_j
@@ -808,7 +802,7 @@ cdef class AABBQuery(NeighborQuery):
             self.queryable = True
             self._box = freud.common.convert_box(box)
             self.points = freud.common.convert_array(
-                points, (None, None)).copy()
+                points, (None, 3)).copy()
             l_points = self.points
             self.thisptr = self.nqptr = new freud._locality.AABBQuery(
                 dereference(self._box.thisptr),
@@ -824,7 +818,7 @@ cdef class AABBQuery(NeighborQuery):
         # removed in future releases.
         # Can't use this function with old-style NeighborQuery objects
         points = freud.common.convert_array(
-            np.atleast_2d(points), (None, None))
+            np.atleast_2d(points), (None, 3))
 
         cdef shared_ptr[freud._locality.NeighborQueryIterator] iterator
         cdef const float[:, ::1] l_points = points
@@ -983,7 +977,7 @@ cdef class LinkCell(NeighborQuery):
             # The new API
             self.queryable = True
             self.points = freud.common.convert_array(
-                points, (None, None)).copy()
+                points, (None, 3)).copy()
             l_points = self.points
             self.thisptr = self.nqptr = new freud._locality.LinkCell(
                 dereference(self._box.thisptr), float(cell_width),

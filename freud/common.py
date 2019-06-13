@@ -22,7 +22,7 @@ def convert_array(array, shape=None, dtype=np.float32):
         shape: (tuple of int and :code:`None`): Expected shape of the array.
             Only the dimensions that are not :code:`None` are checked.
             (Default value = :code:'None').
-        dtype: code:`dtype` to convert the array to if :code:`array.dtype`
+        dtype: :code:`dtype` to convert the array to if :code:`array.dtype`
             is different. If :code:`None`, :code:`dtype` will not be changed
             (Default value = `numpy.float32`).
 
@@ -40,7 +40,7 @@ def convert_array(array, shape=None, dtype=np.float32):
             if s is not None and return_arr.shape[i] != s:
                 shape_str = "(" + ", ".join(str(i) if i is not None
                                             else "..." for i in shape) + ")"
-                raise RuntimeError('array.shape= {}; expected shape = {}'
+                raise ValueError('array.shape= {}; expected shape = {}'
                                    .format(return_arr.shape, shape_str))
 
     return return_arr
