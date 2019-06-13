@@ -149,14 +149,14 @@ cdef class BondOrder:
         Args:
             box (:class:`freud.box.Box`):
                 Simulation box.
-            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            ref_points ((:math:`N_{ref_points}`, 3) :class:`numpy.ndarray`):
                 Reference points used to calculate bonds.
-            ref_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
+            ref_orientations ((:math:`N_{ref_points}`, 4) :class:`numpy.ndarray`):
                 Reference orientations used to calculate bonds.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
+            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`, optional):
                 Points used to calculate bonds. Uses :code:`ref_points` if not
                 provided or :code:`None`.
-            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
+            orientations ((:math:`N_{points}`, 4) :class:`numpy.ndarray`):
                 Orientations used to calculate bonds. Uses
                 :code:`ref_orientations` if not provided or :code:`None`.
             mode (str, optional):
@@ -177,9 +177,9 @@ cdef class BondOrder:
         ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
         points = freud.common.convert_array(points, shape=(None, 3))
         ref_orientations = freud.common.convert_array(ref_orientations,
-                                                      shape=(None, 4))
+                                                      shape=(ref_points.shape[0], 4))
         orientations = freud.common.convert_array(orientations,
-                                                  shape=(None, 4))
+                                                  shape=(points.shape[0], 4))
 
         cdef unsigned int index = 0
         if mode == "bod":

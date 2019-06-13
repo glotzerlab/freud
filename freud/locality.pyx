@@ -807,7 +807,7 @@ cdef class AABBQuery(NeighborQuery):
             # Assume valid set of arguments is passed
             self.queryable = True
             self._box = freud.common.convert_box(box)
-            self.points = freud.common.convert_array(points, (None,)*2).copy()
+            self.points = freud.common.convert_array(points, (None, None)).copy()
             l_points = self.points
             self.thisptr = self.nqptr = new freud._locality.AABBQuery(
                 dereference(self._box.thisptr),
@@ -822,7 +822,7 @@ cdef class AABBQuery(NeighborQuery):
         # This function is temporarily included for testing and WILL be
         # removed in future releases.
         # Can't use this function with old-style NeighborQuery objects
-        points = freud.common.convert_array(np.atleast_2d(points), (None,) * 2)
+        points = freud.common.convert_array(np.atleast_2d(points), (None, None))
 
         cdef shared_ptr[freud._locality.NeighborQueryIterator] iterator
         cdef const float[:, ::1] l_points = points
@@ -980,7 +980,7 @@ cdef class LinkCell(NeighborQuery):
         if points is not None:
             # The new API
             self.queryable = True
-            self.points = freud.common.convert_array(points, (None,)*2).copy()
+            self.points = freud.common.convert_array(points, (None, None)).copy()
             l_points = self.points
             self.thisptr = self.nqptr = new freud._locality.LinkCell(
                 dereference(self._box.thisptr), float(cell_width),

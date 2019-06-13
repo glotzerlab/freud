@@ -1530,7 +1530,7 @@ cdef class RotationalAutocorrelation:
                 Orientations for the frame of interest.
         """
         ref_ors = freud.common.convert_array(ref_ors, shape=(None, 4))
-        ors = freud.common.convert_array(ors, shape=(None, 4))
+        ors = freud.common.convert_array(ors, shape=ref_ors.shape)
 
         cdef const float[:, ::1] l_ref_ors = ref_ors
         cdef const float[:, ::1] l_ors = ors
