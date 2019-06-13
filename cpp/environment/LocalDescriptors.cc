@@ -8,12 +8,12 @@
 #include <utility>
 #include <vector>
 
-#include "HOOMDMatrix.h"
+#include "Index1D.h"
 #include "LocalDescriptors.h"
+#include "diagonalize.h"
 
 using namespace std;
 using namespace tbb;
-using hoomd::matrix::diagonalize;
 
 /*! \file LocalDescriptors.cc
   \brief Computes local descriptors.
@@ -54,10 +54,11 @@ void LocalDescriptors::compute(const box::Box& box, const freud::locality::Neigh
 
             if (orientation == LocalNeighborhood)
             {
-                float inertiaTensor[3][3];
+                Index2D a_i(3);
+                float inertiaTensor[9];
                 for (size_t ii(0); ii < 3; ++ii)
                     for (size_t jj(0); jj < 3; ++jj)
-                        inertiaTensor[ii][jj] = 0;
+                        inertiaTensor[a_i(ii, jj)] = 0;
 
                 for (size_t bond_copy(bond); bond_copy < nlist->getNumBonds()
                      && neighbor_list[2 * bond_copy] == i && bond_copy < bond + nNeigh;
@@ -69,50 +70,32 @@ void LocalDescriptors::compute(const box::Box& box, const freud::locality::Neigh
                     const float rsq(dot(rvec, rvec));
 
                     for (size_t ii(0); ii < 3; ++ii)
-                        inertiaTensor[ii][ii] += rsq;
+                    {
+                        inertiaTensor[a_i(ii, ii)] += rsq;
+                    }
 
-                    inertiaTensor[0][0] -= rvec.x * rvec.x;
-                    inertiaTensor[0][1] -= rvec.x * rvec.y;
-                    inertiaTensor[0][2] -= rvec.x * rvec.z;
-                    inertiaTensor[1][0] -= rvec.x * rvec.y;
-                    inertiaTensor[1][1] -= rvec.y * rvec.y;
-                    inertiaTensor[1][2] -= rvec.y * rvec.z;
-                    inertiaTensor[2][0] -= rvec.x * rvec.z;
-                    inertiaTensor[2][1] -= rvec.y * rvec.z;
-                    inertiaTensor[2][2] -= rvec.z * rvec.z;
+                    inertiaTensor[a_i(0, 0)] -= rvec.x * rvec.x;
+                    inertiaTensor[a_i(0, 1)] -= rvec.x * rvec.y;
+                    inertiaTensor[a_i(0, 2)] -= rvec.x * rvec.z;
+                    inertiaTensor[a_i(1, 0)] -= rvec.x * rvec.y;
+                    inertiaTensor[a_i(1, 1)] -= rvec.y * rvec.y;
+                    inertiaTensor[a_i(1, 2)] -= rvec.y * rvec.z;
+                    inertiaTensor[a_i(2, 0)] -= rvec.x * rvec.z;
+                    inertiaTensor[a_i(2, 1)] -= rvec.y * rvec.z;
+                    inertiaTensor[a_i(2, 2)] -= rvec.z * rvec.z;
                 }
 
                 float eigenvalues[3];
-                float eigenvectors[3][3];
+                float eigenvectors[9];
 
-                diagonalize(inertiaTensor, eigenvalues, eigenvectors);
+                freud::util::diagonalize33SymmetricMatrix(inertiaTensor, eigenvalues, eigenvectors);
 
-                // Sort eigenvalues and eigenvectors so that
-                // eigenvalues is in ascending order. This is
-                // a kind of gross way to do it, but it gets
-                // the job done.
-                if (eigenvalues[0] > eigenvalues[1])
-                {
-                    std::swap(eigenvalues[0], eigenvalues[1]);
-                    for (size_t ii(0); ii < 3; ++ii)
-                        std::swap(eigenvectors[ii][0], eigenvectors[ii][1]);
-                }
-                if (eigenvalues[1] > eigenvalues[2])
-                {
-                    std::swap(eigenvalues[1], eigenvalues[2]);
-                    for (size_t ii(0); ii < 3; ++ii)
-                        std::swap(eigenvectors[ii][1], eigenvectors[ii][2]);
-                }
-                if (eigenvalues[0] > eigenvalues[1])
-                {
-                    std::swap(eigenvalues[0], eigenvalues[1]);
-                    for (size_t ii(0); ii < 3; ++ii)
-                        std::swap(eigenvectors[ii][0], eigenvectors[ii][1]);
-                }
-
-                rotation_0 = vec3<float>(eigenvectors[0][0], eigenvectors[1][0], eigenvectors[2][0]);
-                rotation_1 = vec3<float>(eigenvectors[0][1], eigenvectors[1][1], eigenvectors[2][1]);
-                rotation_2 = vec3<float>(eigenvectors[0][2], eigenvectors[1][2], eigenvectors[2][2]);
+                rotation_0
+                    = vec3<float>(eigenvectors[a_i(0, 0)], eigenvectors[a_i(1, 0)], eigenvectors[a_i(2, 0)]);
+                rotation_1
+                    = vec3<float>(eigenvectors[a_i(0, 1)], eigenvectors[a_i(1, 1)], eigenvectors[a_i(2, 1)]);
+                rotation_2
+                    = vec3<float>(eigenvectors[a_i(0, 2)], eigenvectors[a_i(1, 2)], eigenvectors[a_i(2, 2)]);
             }
             else if (orientation == ParticleLocal)
             {
