@@ -29,7 +29,6 @@ logger = logging.getLogger(__name__)
 try:
     from scipy.spatial import Voronoi as qvoronoi
     from scipy.spatial import ConvexHull
-    from scipy.sparse import csr_matrix
     _SCIPY_AVAILABLE = True
 except ImportError:
     qvoronoi = None
@@ -1403,6 +1402,7 @@ cdef class Voronoi:
     .. moduleauthor:: Yina Geng <yinageng@umich.edu>
     .. moduleauthor:: Mayank Agrawal <amayank@umich.edu>
     .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
+    .. moduleauthor:: Yezhi Jin <jinyezhi@umich.com>
 
     Since qhull does not support periodic boundary conditions natively, we
     expand the box to include a portion of the particles' periodic images.
