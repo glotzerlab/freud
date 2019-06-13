@@ -223,7 +223,7 @@ cdef class Box:
                 Vectors of real coordinates: :math:`\left(3\right)` or :math:`\left(N, 3\right)`.
         """  # noqa: E501
         fractions = np.asarray(fractions)
-        if fractions.ndim > 2 or fractions.shape[-1] != 3:
+        if fractions.ndim > 2 or fractions.shape[fractions.ndim-1] != 3:
             raise ValueError(
                 "Invalid dimensions for fractions given to makeCoordinates. "
                 "Valid input is an array of shape (3,) or (N,3).")
