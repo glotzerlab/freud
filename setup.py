@@ -343,10 +343,7 @@ modules = [m.replace(os.path.sep, '.') for m in modules]
 sources_in_all = [
     os.path.join("cpp", "locality", "NeighborQuery.cc"),
     os.path.join("cpp", "locality", "AABBQuery.cc"),
-    os.path.join("cpp", "locality", "LinkCell.cc"),
-    os.path.join("cpp", "locality", "NearestNeighbors.cc"),
     os.path.join("cpp", "locality", "NeighborList.cc"),
-    os.path.join("cpp", "box", "Box.cc")
 ]
 
 # Any source files required only for specific modules.
@@ -355,7 +352,6 @@ sources_in_all = [
 extra_module_sources = dict(
     cluster=[
         os.path.join("cpp", "locality", "NeighborList.cc"),
-        os.path.join("cpp", "locality", "NeighborComputeFunctional.cc"),
     ],
     density=[
         os.path.join("cpp", "locality", "NeighborList.cc"),
