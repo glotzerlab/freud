@@ -15,6 +15,7 @@ from __future__ import print_function
 import warnings
 import numpy as np
 from collections import namedtuple
+from functools import wraps
 import freud.common
 
 import logging
@@ -32,6 +33,54 @@ logger = logging.getLogger(__name__)
 # numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults
 np.import_array()
+
+
+def _support_1d(func):
+    R"""Decorator for class methods that accept one dimensional input or
+    two dimensional input for the first argument.
+    """
+    @wraps(func)
+    def wrapper(self, arg1, *args, **kwargs):
+        arg1 = np.asarray(arg1)
+        if len(arg1.shape) == 1:
+            flat = True
+            arg1 = np.atleast_2d(arg1)
+        else:
+            flat = False
+
+        ret = func(self, arg1, *args, **kwargs)
+        if flat:
+            return ret.squeeze()
+        else:
+            return ret
+    return wrapper
+
+
+def _support_1d_2args(func):
+    R"""Decorator for class methods that accept one dimensional input or
+    two dimensional input for the first two arguments.
+    The decision of squeezing or not will be made based on the first argument.
+    """
+    @wraps(func)
+    def wrapper(self, arg1, arg2, *args, **kwargs):
+        arg1 = np.asarray(arg1)
+        arg2 = np.asarray(arg2)
+        if len(arg1.shape) == 1:
+            flat1 = True
+            arg1 = np.atleast_2d(arg1)
+        else:
+            flat1 = False
+
+        if len(arg2.shape) == 1:
+            arg2 = np.atleast_2d(arg2)
+
+        ret = func(self, arg1, arg2, *args, **kwargs)
+        if flat1:
+            return ret.squeeze()
+        else:
+            return ret
+    return wrapper
+
 
 cdef class Box:
     R"""The freud Box class for simulation boxes.
@@ -211,6 +260,7 @@ cdef class Box:
     def volume(self):
         return self.thisptr.getVolume()
 
+    @_support_1d
     def makeCoordinates(self, fractions):
         R"""Convert fractional coordinates into real coordinates.
 
@@ -222,19 +272,15 @@ cdef class Box:
             :math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
                 Vectors of real coordinates: :math:`\left(3\right)` or :math:`\left(N, 3\right)`.
         """  # noqa: E501
-        fractions = np.asarray(fractions)
-        if fractions.ndim > 2 or fractions.shape[fractions.ndim-1] != 3:
+        if fractions.ndim > 2 or fractions.shape[1] != 3:
             raise ValueError(
                 "Invalid dimensions for fractions given to makeCoordinates. "
                 "Valid input is an array of shape (3,) or (N,3).")
 
         fractions = freud.common.convert_array(fractions)
 
-        if fractions.ndim == 1:
-            fractions[:] = self._makeCoordinates(fractions)
-        elif fractions.ndim == 2:
-            for i, f in enumerate(fractions):
-                fractions[i] = self._makeCoordinates(f)
+        for i, f in enumerate(fractions):
+            fractions[i] = self._makeCoordinates(f)
         return fractions
 
     def _makeCoordinates(self, f):
@@ -243,6 +289,7 @@ cdef class Box:
             <const vec3[float]&> l_vec[0])
         return [result.x, result.y, result.z]
 
+    @_support_1d
     def makeFraction(self, vecs):
         R"""Convert real coordinates into fractional coordinates.
 
@@ -254,19 +301,15 @@ cdef class Box:
             :math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
                 Fractional coordinate vectors: :math:`\left(3\right)` or :math:`\left(N, 3\right)`.
         """  # noqa: E501
-        vecs = np.asarray(vecs)
-        if vecs.ndim > 2 or vecs.shape[vecs.ndim-1] != 3:
+        if vecs.ndim > 2 or vecs.shape[1] != 3:
             raise ValueError(
                 "Invalid dimensions for vecs given to makeFraction. "
                 "Valid input is an array of shape (3,) or (N,3).")
 
         vecs = freud.common.convert_array(vecs)
 
-        if vecs.ndim == 1:
-            vecs[:] = self._makeFraction(vecs)
-        elif vecs.ndim == 2:
-            for i, vec in enumerate(vecs):
-                vecs[i] = self._makeFraction(vec)
+        for i, vec in enumerate(vecs):
+            vecs[i] = self._makeFraction(vec)
         return vecs
 
     def _makeFraction(self, vec):
@@ -275,6 +318,7 @@ cdef class Box:
             <const vec3[float]&> l_vec[0])
         return [result.x, result.y, result.z]
 
+    @_support_1d
     def getImage(self, vecs):
         R"""Returns the image corresponding to a wrapped vector.
 
@@ -288,19 +332,15 @@ cdef class Box:
             :math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
                 Image index vector.
         """  # noqa: E501
-        vecs = np.asarray(vecs)
-        if vecs.ndim > 2 or vecs.shape[vecs.ndim-1] != 3:
+        if vecs.ndim > 2 or vecs.shape[1] != 3:
             raise ValueError(
                 "Invalid dimensions for vecs given to getImage. "
                 "Valid input is an array of shape (3,) or (N,3).")
 
         vecs = freud.common.convert_array(vecs)
 
-        if vecs.ndim == 1:
-            images = np.asarray(self._getImage(vecs), dtype=int)
-        elif vecs.ndim == 2:
-            images = np.asarray([self.getImage(vec) for vec in vecs],
-                                dtype=int)
+        images = np.asarray([self._getImage(vec) for vec in vecs],
+                            dtype=int)
         return images
 
     def _getImage(self, vec):
@@ -325,6 +365,7 @@ cdef class Box:
             result.z = 0.0
         return np.asarray([result.x, result.y, result.z])
 
+    @_support_1d
     def wrap(self, vecs):
         R"""Wrap a given array of vectors from real space into the box, using
         the periodic boundaries.
@@ -342,20 +383,15 @@ cdef class Box:
             :math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`:
                 Vectors wrapped into the box.
         """  # noqa: E501
-        vecs = np.asarray(vecs)
-        if vecs.ndim > 2 or vecs.shape[vecs.ndim-1] != 3:
+        if vecs.ndim > 2 or vecs.shape[1] != 3:
             raise ValueError(
                 "Invalid dimensions for vecs given to wrap. "
                 "Valid input is an array of shape (3,) or (N,3).")
 
         vecs = freud.common.convert_array(vecs)
 
-        if vecs.ndim == 1:
-            # only one vector to wrap
-            vecs[:] = self._wrap(vecs)
-        elif vecs.ndim == 2:
-            for i, vec in enumerate(vecs):
-                vecs[i] = self._wrap(vec)
+        for i, vec in enumerate(vecs):
+            vecs[i] = self._wrap(vec)
         return vecs
 
     def _wrap(self, vec):
@@ -364,6 +400,7 @@ cdef class Box:
         cdef vec3[float] result = self.thisptr.wrap(<vec3[float]&> l_vec[0])
         return (result.x, result.y, result.z)
 
+    @_support_1d_2args
     def unwrap(self, vecs, imgs):
         R"""Unwrap a given array of vectors inside the box back into real space,
         using an array of image indices that determine how many times to
@@ -385,7 +422,7 @@ cdef class Box:
         if vecs.shape != imgs.shape:
             raise ValueError("imgs dimensions do not match vecs dimensions.")
 
-        if vecs.ndim > 2 or vecs.shape[vecs.ndim-1] != 3:
+        if vecs.ndim > 2 or vecs.shape[1] != 3:
             raise ValueError(
                 "Invalid dimensions for vecs given to unwrap. "
                 "Valid input is an array of shape (3,) or (N,3).")
@@ -393,14 +430,10 @@ cdef class Box:
         vecs = freud.common.convert_array(vecs)
         imgs = freud.common.convert_array(imgs, vecs.ndim, dtype=np.int32)
 
-        if vecs.ndim == 1:
-            # only one vector to unwrap
-            vecs = self._unwrap(vecs, imgs)
-        elif vecs.ndim == 2:
-            vecs += imgs[:, [0]]*self.getLatticeVector(0)
-            vecs += imgs[:, [1]]*self.getLatticeVector(1)
-            if self.dimensions == 3:
-                vecs += imgs[:, [2]]*self.getLatticeVector(2)
+        vecs += imgs[:, [0]]*self.getLatticeVector(0)
+        vecs += imgs[:, [1]]*self.getLatticeVector(1)
+        if self.dimensions == 3:
+            vecs += imgs[:, [2]]*self.getLatticeVector(2)
         return vecs
 
     def _unwrap(self, vec, img):
