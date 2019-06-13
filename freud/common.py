@@ -31,12 +31,8 @@ def convert_array(array, shape=None, dtype=np.float32):
     """
     array = np.asarray(array)
     return_arr = np.require(array, dtype=dtype, requirements=['C'])
-    print('Whaaat')
     if shape is not None:
         if array.ndim != len(shape):
-            print('Whaaat')
-            print(array.ndim)
-            print(len(shape))
             raise TypeError("array.ndim = {}; expected ndim = {}".format(
                 return_arr.ndim, len(shape)))
 

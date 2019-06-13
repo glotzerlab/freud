@@ -13,7 +13,7 @@ class TestCommon(unittest.TestCase):
         y = x.reshape(10, 10).T
         # run through convert
         # first check to make sure it passes with default
-        z = common.convert_array(y, 2)
+        z = common.convert_array(y, (None, None))
         npt.assert_equal(y.dtype, x.dtype)
         # now change type
         z = common.convert_array(y, (None, None), dtype=np.float32)
