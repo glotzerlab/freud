@@ -128,7 +128,6 @@ void PMFTXYT::accumulate(box::Box& box, const locality::NeighborList* nlist, vec
                 unsigned int ibin_y = (unsigned int)(bin_y);
                 unsigned int ibin_t = (unsigned int)(bin_t);
 #endif
-
         if ((ibin_x < m_n_x) && (ibin_y < m_n_y) && (ibin_t < m_n_t))
         {
             ++m_local_bin_counts.local()[b_i(ibin_x, ibin_y, ibin_t)];
