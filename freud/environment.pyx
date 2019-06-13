@@ -174,11 +174,11 @@ cdef class BondOrder:
         if orientations is None:
             orientations = ref_orientations
 
-        ref_points = freud.common.convert_array(ref_points, 2, shape=(None, 3))
-        points = freud.common.convert_array(points, 2, shape=(None, 3))
-        ref_orientations = freud.common.convert_array(ref_orientations, 2,
+        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
+        points = freud.common.convert_array(points, shape=(None, 3))
+        ref_orientations = freud.common.convert_array(ref_orientations,
                                                       shape=(None, 4))
-        orientations = freud.common.convert_array(orientations, 2,
+        orientations = freud.common.convert_array(orientations,
                                                   shape=(None, 4))
 
         cdef unsigned int index = 0
@@ -406,12 +406,12 @@ cdef class LocalDescriptors:
             raise RuntimeError(
                 'Unknown LocalDescriptors orientation mode: {}'.format(mode))
 
-        points_ref = freud.common.convert_array(points_ref, 2, shape=(None, 3))
+        points_ref = freud.common.convert_array(points_ref, shape=(None, 3))
 
         if points is None:
             points = points_ref
 
-        points = freud.common.convert_array(points, 2, shape=(None, 3))
+        points = freud.common.convert_array(points, shape=(None, 3))
 
         # The l_orientations_ptr is only used for 'particle_local' mode.
         cdef const float[:, ::1] l_orientations
@@ -422,7 +422,7 @@ cdef class LocalDescriptors:
                     ('Orientations must be given to orient LocalDescriptors '
                         'with particles\' orientations'))
 
-            orientations = freud.common.convert_array(orientations, 2,
+            orientations = freud.common.convert_array(orientations,
                 shape=(points_ref.shape[0], 4)) # noqa
 
             l_orientations = orientations
@@ -572,7 +572,7 @@ cdef class MatchEnv:
                 NeighborList to use to find neighbors of every particle, to
                 compare environments (Default value = :code:`None`).
         """
-        points = freud.common.convert_array(points, 2, shape=(None, 3))
+        points = freud.common.convert_array(points, shape=(None, 3))
 
         cdef const float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
@@ -625,8 +625,8 @@ cdef class MatchEnv:
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
         """
-        points = freud.common.convert_array(points, 2, shape=(None, 3))
-        refPoints = freud.common.convert_array(refPoints, 2, shape=(None, 3))
+        points = freud.common.convert_array(points, shape=(None, 3))
+        refPoints = freud.common.convert_array(refPoints, shape=(None, 3))
 
         cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(
             points.flatten())
@@ -667,8 +667,8 @@ cdef class MatchEnv:
                 Vector of minimal RMSD values, one value per particle.
 
         """
-        points = freud.common.convert_array(points, 2, shape=(None, 3))
-        refPoints = freud.common.convert_array(refPoints, 2, shape=(None, 3))
+        points = freud.common.convert_array(points, shape=(None, 3))
+        refPoints = freud.common.convert_array(refPoints, shape=(None, 3))
 
         cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(
             points.flatten())
@@ -713,8 +713,8 @@ cdef class MatchEnv:
                 correspond to each other. Empty if they do not correspond to
                 each other.
         """  # noqa: E501
-        refPoints1 = freud.common.convert_array(refPoints1, 2, shape=(None, 3))
-        refPoints2 = freud.common.convert_array(refPoints2, 2, shape=(None, 3))
+        refPoints1 = freud.common.convert_array(refPoints1, shape=(None, 3))
+        refPoints2 = freud.common.convert_array(refPoints2, shape=(None, 3))
 
         cdef const float[:, ::1] l_refPoints1 = refPoints1
         cdef const float[:, ::1] l_refPoints2 = refPoints2
@@ -754,8 +754,8 @@ cdef class MatchEnv:
                 set of refPoints2, and the mapping between the vectors of
                 refPoints1 and refPoints2 that somewhat minimizes the RMSD.
         """  # noqa: E501
-        refPoints1 = freud.common.convert_array(refPoints1, 2, shape=(None, 3))
-        refPoints2 = freud.common.convert_array(refPoints2, 2, shape=(None, 3))
+        refPoints1 = freud.common.convert_array(refPoints1, shape=(None, 3))
+        refPoints2 = freud.common.convert_array(refPoints2, shape=(None, 3))
 
         cdef const float[:, ::1] l_refPoints1 = refPoints1
         cdef const float[:, ::1] l_refPoints2 = refPoints2
@@ -909,13 +909,12 @@ cdef class AngularSeparation:
                 :code:`None`).
         """  # noqa: E501
         cdef freud.box.Box b = freud.common.convert_box(box)
-        ref_points = freud.common.convert_array(ref_points, 2, shape=(None, 3))
-        points = freud.common.convert_array(points, 2, shape=(None, 3))
+        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
+        points = freud.common.convert_array(points, shape=(None, 3))
 
-        ref_ors = freud.common.convert_array(ref_ors, 2, shape=(None, 4))
-        ors = freud.common.convert_array(ors, 2, shape=(None, 4))
-        equiv_quats = freud.common.convert_array(equiv_quats, 2,
-                                                 shape=(None, 4))
+        ref_ors = freud.common.convert_array(ref_ors, shape=(None, 4))
+        ors = freud.common.convert_array(ors, shape=(None, 4))
+        equiv_quats = freud.common.convert_array(equiv_quats, shape=(None, 4))
 
         defaulted_nlist = freud.locality.make_default_nlist_nn(
             b, ref_points, points, self.num_neigh, nlist, None, self.rmax)
@@ -956,10 +955,9 @@ cdef class AngularSeparation:
                 Important: :code:`equiv_quats` must include both :math:`q` and
                 :math:`-q`, for all included quaternions.
         """
-        global_ors = freud.common.convert_array(global_ors, 2, shape=(None, 4))
-        ors = freud.common.convert_array(ors, 2, shape=(None, 4))
-        equiv_quats = freud.common.convert_array(equiv_quats, 2,
-                                                 shape=(None, 4))
+        global_ors = freud.common.convert_array(global_ors, shape=(None, 4))
+        ors = freud.common.convert_array(ors, shape=(None, 4))
+        equiv_quats = freud.common.convert_array(equiv_quats, shape=(None, 4))
 
         cdef const float[:, ::1] l_global_ors = global_ors
         cdef const float[:, ::1] l_ors = ors
@@ -1099,15 +1097,14 @@ cdef class LocalBondProjection:
                 :code:`None`).
         """  # noqa: E501
         cdef freud.box.Box b = freud.common.convert_box(box)
-        ref_points = freud.common.convert_array(ref_points, 2, shape=(None, 3))
-        ref_ors = freud.common.convert_array(ref_ors, 2, shape=(None, 4))
+        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
+        ref_ors = freud.common.convert_array(ref_ors, shape=(None, 4))
 
         if points is None:
             points = ref_points
-        points = freud.common.convert_array(points, 2, shape=(None, 3))
-        equiv_quats = freud.common.convert_array(equiv_quats, 2,
-                                                 shape=(None, 4))
-        proj_vecs = freud.common.convert_array(proj_vecs, 2, shape=(None, 3))
+        points = freud.common.convert_array(points, shape=(None, 3))
+        equiv_quats = freud.common.convert_array(equiv_quats, shape=(None, 4))
+        proj_vecs = freud.common.convert_array(proj_vecs, shape=(None, 3))
 
         defaulted_nlist = freud.locality.make_default_nlist_nn(
             box, ref_points, points, self.num_neigh, nlist, None, self.rmax)

@@ -10,37 +10,33 @@ import freud.box
 logger = logging.getLogger(__name__)
 
 
-def convert_array(array, dimensions=None, dtype=np.float32,
-                  shape=None):
+def convert_array(array, shape=None, dtype=np.float32):
     """Function which takes a given array, checks the dimensions and shape,
     and converts to a supplied dtype.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
+    .. moduleauthor:: Jin Soo Ihm <jinihm@umich.edu>
 
     Args:
         array (:class:`numpy.ndarray`): Array to check and convert.
-        dimensions (int): Expected dimensions of the array. If :code:'None',
-            no dimensionality check will be done
+        shape: (tuple of int and :code:`None`): Expected shape of the array.
+            Only the dimensions that are not :code:`None` are checked.
             (Default value = :code:'None').
         dtype: code:`dtype` to convert the array to if :code:`array.dtype`
             is different. If :code:`None`, :code:`dtype` will not be changed
             (Default value = `numpy.float32`).
-        shape: (tuple of int and :code:`None`): Expected shape of the array.
-            Only the dimensions that are not :code:`None` are checked.
 
     Returns:
         :class:`numpy.ndarray`: Array.
     """
     array = np.asarray(array)
-
-    if dimensions is not None and array.ndim != dimensions:
-        raise TypeError("array.ndim = {}; expected ndim = {}".format(
-            array.ndim, dimensions))
-
     return_arr = np.require(array, dtype=dtype, requirements=['C'])
-
+    print('Whaaat')
     if shape is not None:
         if array.ndim != len(shape):
+            print('Whaaat')
+            print(array.ndim)
+            print(len(shape))
             raise TypeError("array.ndim = {}; expected ndim = {}".format(
                 return_arr.ndim, len(shape)))
 

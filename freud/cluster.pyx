@@ -98,7 +98,7 @@ cdef class Cluster:
             box (:class:`freud.box.Box`, optional):
                 Simulation box (Default value = None).
         """
-        points = freud.common.convert_array(points, 2, shape=(None, 3))
+        points = freud.common.convert_array(points, shape=(None, 3))
 
         defaulted_nlist = freud.locality.make_default_nlist(
             self.m_box, points, points, self.rmax, nlist, True)
@@ -128,7 +128,7 @@ cdef class Cluster:
             keys((:math:`N_{particles}`) :class:`numpy.ndarray`):
                 Membership keys, one for each particle.
         """
-        keys = freud.common.convert_array(keys, 1, dtype=np.uint32,
+        keys = freud.common.convert_array(keys, dtype=np.uint32,
                                           shape=(self.num_particles,))
         cdef const unsigned int[::1] l_keys = keys
         with nogil:
@@ -240,9 +240,9 @@ cdef class ClusterProperties:
         else:
             b = freud.common.convert_box(box)
 
-        points = freud.common.convert_array(points, 2, shape=(None, 3))
+        points = freud.common.convert_array(points, shape=(None, 3))
         cluster_idx = freud.common.convert_array(
-            cluster_idx, 1, dtype=np.uint32, shape=(points.shape[0],))
+            cluster_idx, dtype=np.uint32, shape=(points.shape[0],))
         cdef const float[:, ::1] l_points = points
         cdef const unsigned int[::1] l_cluster_idx = cluster_idx
         cdef unsigned int Np = l_points.shape[0]

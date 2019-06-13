@@ -64,8 +64,8 @@ cdef class InterfaceMeasure:
                 Neighborlist to use to find bonds (Default value = None).
         """
         b = freud.common.convert_box(box)
-        ref_points = freud.common.convert_array(ref_points, 2, shape=(None, 3))
-        points = freud.common.convert_array(points, 2, shape=(None, 3))
+        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
+        points = freud.common.convert_array(points, shape=(None, 3))
 
         if nlist is None:
             lc = freud.locality.LinkCell(b, self.rmax)
