@@ -115,7 +115,8 @@ cdef class FloatCF:
         points = freud.common.convert_array(points, shape=(None, 3))
         ref_values = freud.common.convert_array(
             ref_values, (ref_points.shape[0], ), dtype=np.float64)
-        values = freud.common.convert_array(values, (points.shape[0], ), dtype=np.float64)
+        values = freud.common.convert_array(
+            values, (points.shape[0], ), dtype=np.float64)
         cdef const float[:, ::1] l_ref_points = ref_points
         cdef const float[:, ::1] l_points
         if ref_points is points:

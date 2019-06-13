@@ -176,10 +176,10 @@ cdef class BondOrder:
 
         ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
         points = freud.common.convert_array(points, shape=(None, 3))
-        ref_orientations = freud.common.convert_array(ref_orientations,
-                                                      shape=(ref_points.shape[0], 4))
-        orientations = freud.common.convert_array(orientations,
-                                                  shape=(points.shape[0], 4))
+        ref_orientations = freud.common.convert_array(
+            ref_orientations, shape=(ref_points.shape[0], 4))
+        orientations = freud.common.convert_array(
+            orientations, shape=(points.shape[0], 4))
 
         cdef unsigned int index = 0
         if mode == "bod":

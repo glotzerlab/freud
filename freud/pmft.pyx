@@ -904,7 +904,8 @@ cdef class PMFTXYZ(_PMFT):
         points = freud.common.convert_array(points, (None, 3))
         points = points - self.shiftvec.reshape(1, 3)
 
-        orientations = freud.common.convert_array(orientations, (points.shape[0], 4))
+        orientations = freud.common.convert_array(
+            orientations, (points.shape[0], 4))
 
         # handle multiple ways to input
         if face_orientations is None:
