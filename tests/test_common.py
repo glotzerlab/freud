@@ -24,7 +24,7 @@ class TestCommon(unittest.TestCase):
         npt.assert_equal(z.flags.contiguous, True)
 
         # test dimension checking
-        with self.assertRaises(TypeError):
+        with self.assertRaises(ValueError):
             z = common.convert_array(y, (None, ), dtype=np.float32)
 
         # test for non-default dtype

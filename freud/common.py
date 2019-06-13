@@ -33,7 +33,7 @@ def convert_array(array, shape=None, dtype=np.float32):
     return_arr = np.require(array, dtype=dtype, requirements=['C'])
     if shape is not None:
         if array.ndim != len(shape):
-            raise TypeError("array.ndim = {}; expected ndim = {}".format(
+            raise ValueError("array.ndim = {}; expected ndim = {}".format(
                 return_arr.ndim, len(shape)))
 
         for i, s in enumerate(shape):
