@@ -9,8 +9,8 @@
 #include <tbb/tbb.h>
 
 #include "Box.h"
-#include "VectorMath.h"
 #include "NeighborList.h"
+#include "VectorMath.h"
 #include "fsph/src/spherical_harmonics.hpp"
 #include "wigner3j.h"
 
@@ -26,7 +26,8 @@ namespace freud { namespace order {
  * by Steinhardt. For a particle i, we calculate the average Q_l by summing
  * the spherical harmonics between particle i and its neighbors j in a local
  * region:
- * \f$ \overline{Q}_{lm}(i) = \frac{1}{N_b} \displaystyle\sum_{j=1}^{N_b} Y_{lm}(\theta(\vec{r}_{ij}),\phi(\vec{r}_{ij})) \f$
+ * \f$ \overline{Q}_{lm}(i) = \frac{1}{N_b} \displaystyle\sum_{j=1}^{N_b}
+ * Y_{lm}(\theta(\vec{r}_{ij}),\phi(\vec{r}_{ij})) \f$
  *
  * This is then combined in a rotationally invariant fashion to remove local
  * orientational order as follows:
@@ -46,154 +47,138 @@ namespace freud { namespace order {
  * For more details see:
  * - PJ Steinhardt (1983) (DOI: 10.1103/PhysRevB.28.784)
  * - Wolfgang Lechner (2008) (DOI: 10.1063/Journal of Chemical Physics 129.114707)
-*/
+ */
 
 class Steinhardt
+{
+public:
+    //! Steinhardt Class Constructor
+    /*! Constructor for Steinhardt analysis class.
+     *  \param rmax Cutoff radius for running the local order parameter.
+     *              Values near first minima of the rdf are recommended.
+     *  \param l Spherical harmonic number l.
+     *           Must be a positive number.
+     *  \param rmin (optional) Lower bound for computing the local order parameter.
+     *                         Allows looking at, for instance, only the second shell, or some other arbitrary
+     * rdf region.
+     */
+    Steinhardt(float rmax, unsigned int l, float rmin = 0, bool average = false, bool Wl = false)
+        : m_Np(0), m_rmax(rmax), m_l(l), m_rmin(rmin), m_average(average), m_Wl(Wl)
     {
-    public:
-        //! Steinhardt Class Constructor
-        /*! Constructor for Steinhardt analysis class.
-         *  \param rmax Cutoff radius for running the local order parameter.
-         *              Values near first minima of the rdf are recommended.
-         *  \param l Spherical harmonic number l.
-         *           Must be a positive number.
-         *  \param rmin (optional) Lower bound for computing the local order parameter.
-         *                         Allows looking at, for instance, only the second shell, or some other arbitrary rdf region.
-         */
-        Steinhardt(float rmax,
-        unsigned int l,
-        float rmin=0,
-        bool average=false,
-        bool Wl=false) :
-        m_Np(0),
-        m_rmax(rmax),
-        m_l(l),
-        m_rmin(rmin),
-        m_average(average),
-        m_Wl(Wl)
-        {
-            // Error Checking
-            if (m_rmax < 0.0f || m_rmin < 0.0f)
+        // Error Checking
+        if (m_rmax < 0.0f || m_rmin < 0.0f)
             throw std::invalid_argument("Steinhardt requires rmin and rmax must be positive.");
-            if (m_rmin >= m_rmax)
+        if (m_rmin >= m_rmax)
             throw std::invalid_argument("Steinhardt requires rmin must be less than rmax.");
-            if (m_l < 2)
+        if (m_l < 2)
             throw std::invalid_argument("Steinhardt requires l must be two or greater.");
+    }
 
-        }
+    //! Empty destructor
+    virtual ~Steinhardt() {};
 
-        //! Empty destructor
-        virtual ~Steinhardt() {};
+    //! Get the number of particles used in the last compute
+    unsigned int getNP()
+    {
+        return m_Np;
+    }
 
-        //! Get the number of particles used in the last compute
-        unsigned int getNP()
-            {
-            return m_Np;
-            }
-
-        //! Get the last calculated order parameter Ql
-        std::shared_ptr<float> getQl()
-            {
-            if (m_average)
-                {
-                return m_QliAve;
-                }
-            else
-                {
-                return m_Qli;
-                }
-            }
-
-        //! Get the last calculated order parameter Wl
-        std::shared_ptr<std::complex<float>> getWl()
+    //! Get the last calculated order parameter Ql
+    std::shared_ptr<float> getQl()
+    {
+        if (m_average)
         {
-            return m_WliOrder;
+            return m_QliAve;
         }
-
-        //! Get whether the Wl flag was set
-        bool getUseWl()
+        else
         {
-            return m_Wl;
+            return m_Qli;
         }
+    }
 
-        //! Get Wl norm
-        std::complex<float> getNormWl()
-            {
-            return m_NormWl;
-            }
+    //! Get the last calculated order parameter Wl
+    std::shared_ptr<std::complex<float>> getWl()
+    {
+        return m_WliOrder;
+    }
 
-        //! Get Ql norm
-        float getNorm()
-            {
-            return m_Norm;
-            }
+    //! Get whether the Wl flag was set
+    bool getUseWl()
+    {
+        return m_Wl;
+    }
 
-        //! Compute the order parameter
-        virtual void compute(const box::Box& box,
-                             const locality::NeighborList *nlist,
-                             const vec3<float> *points,
-                             unsigned int Np);
+    //! Get Wl norm
+    std::complex<float> getNormWl()
+    {
+        return m_NormWl;
+    }
 
-    private:
-        //! \internal
-        //! helper function to reduce the thread specific arrays into one array
-        void reduce();
+    //! Get Ql norm
+    float getNorm()
+    {
+        return m_Norm;
+    }
 
-        //! Spherical harmonics calculation for Ylm filling a
-        //  vector<complex<float> > with values for m = -l..l.
-        virtual void computeYlm(const float theta, const float phi,
-                                std::vector<std::complex<float> > &Ylm);
+    //! Compute the order parameter
+    virtual void compute(const box::Box& box, const locality::NeighborList* nlist, const vec3<float>* points,
+                         unsigned int Np);
 
-        template <typename T> std::shared_ptr<T> makeArray(size_t size);
+private:
+    //! \internal
+    //! helper function to reduce the thread specific arrays into one array
+    void reduce();
 
-        //! Reallocates only the necessary arrays when the number of particles changes
-        // unsigned int Np number of particles
-        void reallocateArrays(unsigned int Np);
+    //! Spherical harmonics calculation for Ylm filling a
+    //  vector<complex<float> > with values for m = -l..l.
+    virtual void computeYlm(const float theta, const float phi, std::vector<std::complex<float>>& Ylm);
 
-        //! Calculates the base Ql order parameter before further modifications
-        // if any.
-        void baseCompute(const box::Box& box,
-                         const locality::NeighborList *nlist,
-                         const vec3<float> *points);
+    template<typename T> std::shared_ptr<T> makeArray(size_t size);
 
-        //! Calculates the neighbor average Ql order parameter
-        void computeAve(const box::Box& box,
-                        const locality::NeighborList *nlist,
-                        const vec3<float> *points);
+    //! Reallocates only the necessary arrays when the number of particles changes
+    // unsigned int Np number of particles
+    void reallocateArrays(unsigned int Np);
 
-        //! Normalize the order parameter
-        float normalize();
+    //! Calculates the base Ql order parameter before further modifications
+    // if any.
+    void baseCompute(const box::Box& box, const locality::NeighborList* nlist, const vec3<float>* points);
 
-        //! Normalize the Wl order parameter
-        std::complex<float> normalizeWl();
+    //! Calculates the neighbor average Ql order parameter
+    void computeAve(const box::Box& box, const locality::NeighborList* nlist, const vec3<float>* points);
 
-        //! Sum over Wigner 3j coefficients to compute third-order invariants
-        //  Wl from second-order invariants Ql
-        void aggregateWl(std::shared_ptr<std::complex<float> > target,
-                         std::shared_ptr<std::complex<float> > source);
+    //! Normalize the order parameter
+    float normalize();
 
-        // Member variables used for compute
-        unsigned int m_Np;     //!< Last number of points computed
-        float m_rmax;          //!< Maximum r at which to determine neighbors
-        unsigned int m_l;      //!< Spherical harmonic l value.
-        float m_rmin;          //!< Minimum r at which to determine neighbors (default 0)
+    //! Normalize the Wl order parameter
+    std::complex<float> normalizeWl();
 
-        // Flags
-        bool m_average;        //!< Whether to take a second shell average (default false)
-        bool m_norm;           //!< Whether to take the norm of the order parameter (default false)
-        bool m_Wl;             //!< Whether to use the modified order parameter Wl (default false)
+    //! Sum over Wigner 3j coefficients to compute third-order invariants
+    //  Wl from second-order invariants Ql
+    void aggregateWl(std::shared_ptr<std::complex<float>> target,
+                     std::shared_ptr<std::complex<float>> source);
 
-        std::shared_ptr<std::complex<float> > m_Qlmi;  //!< Qlm for each particle i
-        std::shared_ptr<std::complex<float> > m_Qlm;   //!< Normalized Qlm(Ave) for the whole system
-        tbb::enumerable_thread_specific<std::complex<float> *> m_Qlm_local; //!< Thread-specific m_Qlm(Ave)
-        std::shared_ptr<float> m_Qli;  //!< Ql locally invariant order parameter for each particle i
-        std::shared_ptr<float> m_QliAve;  //!< Averaged Ql with 2nd neighbor shell for each particle i
-        std::shared_ptr<complex<float> > m_QlmiAve;  //!< Averaged Qlm with 2nd neighbor shell for each particle i
-        std::shared_ptr<std::complex<float> > m_QlmAve;   //!< Normalized QlmiAve for the whole system
-        float m_Norm;                            //!< System normalized norm over all Qlm(Ave) 
-        std::complex<float> m_NormWl;            //!< System normalized norm over all Wlm(Ave)
-        std::shared_ptr< std::complex<float> > m_WliOrder;    //!< Wl order parameter for each particle i
-    };
+    // Member variables used for compute
+    unsigned int m_Np; //!< Last number of points computed
+    float m_rmax;      //!< Maximum r at which to determine neighbors
+    unsigned int m_l;  //!< Spherical harmonic l value.
+    float m_rmin;      //!< Minimum r at which to determine neighbors (default 0)
 
-}; }; // end namespace freud::order
+    // Flags
+    bool m_average; //!< Whether to take a second shell average (default false)
+    bool m_norm;    //!< Whether to take the norm of the order parameter (default false)
+    bool m_Wl;      //!< Whether to use the modified order parameter Wl (default false)
+
+    std::shared_ptr<std::complex<float>> m_Qlmi; //!< Qlm for each particle i
+    std::shared_ptr<std::complex<float>> m_Qlm;  //!< Normalized Qlm(Ave) for the whole system
+    tbb::enumerable_thread_specific<std::complex<float>*> m_Qlm_local; //!< Thread-specific m_Qlm(Ave)
+    std::shared_ptr<float> m_Qli;              //!< Ql locally invariant order parameter for each particle i
+    std::shared_ptr<float> m_QliAve;           //!< Averaged Ql with 2nd neighbor shell for each particle i
+    std::shared_ptr<complex<float>> m_QlmiAve; //!< Averaged Qlm with 2nd neighbor shell for each particle i
+    std::shared_ptr<std::complex<float>> m_QlmAve;   //!< Normalized QlmiAve for the whole system
+    float m_Norm;                                    //!< System normalized norm over all Qlm(Ave)
+    std::complex<float> m_NormWl;                    //!< System normalized norm over all Wlm(Ave)
+    std::shared_ptr<std::complex<float>> m_WliOrder; //!< Wl order parameter for each particle i
+};
+
+}; };  // end namespace freud::order
 #endif // STEINHARDT_H
