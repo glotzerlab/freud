@@ -40,8 +40,8 @@ def convert_array(array, shape=None, dtype=np.float32):
             if s is not None and return_arr.shape[i] != s:
                 shape_str = "(" + ", ".join(str(i) if i is not None
                                             else "..." for i in shape) + ")"
-                raise ValueError('array.shape= {}; expected shape = {}'
-                                   .format(return_arr.shape, shape_str))
+                raise ValueError('array.shape= {}; expected shape = {}'.format(
+                    return_arr.shape, shape_str))
 
     return return_arr
 
