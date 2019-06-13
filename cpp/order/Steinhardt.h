@@ -5,9 +5,7 @@
 #define STEINHARDT_H
 
 #include <complex>
-#include <cstring>
 #include <memory>
-#include <stdexcept>
 #include <tbb/tbb.h>
 
 #include "Box.h"
@@ -118,17 +116,17 @@ class Steinhardt
             return m_Wl;
         }
 
-		//! Get Wl norm
-		std::complex<float> getNormWl()
-			{
-			return m_NormWl;
-			}
+        //! Get Wl norm
+        std::complex<float> getNormWl()
+            {
+            return m_NormWl;
+            }
 
-		//! Get Ql norm
-		float getNorm()
-			{
-			return m_Norm;
-			}
+        //! Get Ql norm
+        float getNorm()
+            {
+            return m_Norm;
+            }
 
         //! Compute the order parameter
         virtual void compute(const box::Box& box,
@@ -164,10 +162,10 @@ class Steinhardt
                         const vec3<float> *points);
 
         //! Normalize the order parameter
-		float normalize();
+        float normalize();
 
-		//! Normalize the Wl order parameter
-		std::complex<float> normalizeWl();
+        //! Normalize the Wl order parameter
+        std::complex<float> normalizeWl();
 
         //! Sum over Wigner 3j coefficients to compute third-order invariants
         //  Wl from second-order invariants Ql
@@ -192,8 +190,8 @@ class Steinhardt
         std::shared_ptr<float> m_QliAve;  //!< Averaged Ql with 2nd neighbor shell for each particle i
         std::shared_ptr<complex<float> > m_QlmiAve;  //!< Averaged Qlm with 2nd neighbor shell for each particle i
         std::shared_ptr<std::complex<float> > m_QlmAve;   //!< Normalized QlmiAve for the whole system
-		float m_Norm;							//!< System normalized norm over all Qlm(Ave) 
-		std::complex<float> m_NormWl;			//!< System normalized norm over all Wlm(Ave)
+        float m_Norm;                            //!< System normalized norm over all Qlm(Ave) 
+        std::complex<float> m_NormWl;            //!< System normalized norm over all Wlm(Ave)
         std::shared_ptr< std::complex<float> > m_WliOrder;    //!< Wl order parameter for each particle i
     };
 
