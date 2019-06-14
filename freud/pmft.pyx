@@ -785,7 +785,11 @@ cdef class PMFTXY2D(_PMFT):
 
     def _repr_png_(self):
         import plot
-        return plot.pmft_plot(self)
+        return plot.ax_to_bytes(self.plot())
+
+    def plot(self, ax=None):
+        import plot
+        return plot.pmft_plot(self, ax)
 
 
 cdef class PMFTXYZ(_PMFT):

@@ -12,7 +12,7 @@ except ImportError:
 def ax_to_bytes(ax):
     f = io.BytesIO()
     # Sets an Agg backend so this figure can be rendered
-    fig = ax.fig
+    fig = ax.figure
     FigureCanvasAgg(fig)
     fig.savefig(f, format='png')
     return f.getvalue()
@@ -102,7 +102,7 @@ def line_plot(x, y, title=None, xlabel=None, ylabel=None):
         return ax
 
 
-def pmft_plot(pmft):
+def pmft_plot(pmft, ax=None):
     """Helper function to draw 2D PMFT diagram.
 
     Args:
@@ -122,12 +122,13 @@ def pmft_plot(pmft):
     except ImportError:
         return None
     else:
+        # Plot figures
+        if ax is None:
+            fig = Figure()
+            ax = fig.subplots()
+
         pmft_arr = np.copy(pmft.PMFT)
         pmft_arr[np.isinf(pmft_arr)] = np.nan
-
-        # Plot figures
-        fig = Figure()
-        ax = fig.subplots()
 
         xlims = (pmft.X[0], pmft.X[-1])
         ylims = (pmft.Y[0], pmft.Y[-1])
@@ -148,16 +149,10 @@ def pmft_plot(pmft):
         cax = ax_divider.append_axes("right", size="7%", pad="10%")
         cb = colorbar(im, cax=cax)
         cb.set_label_text(r"$k_B T$")
-
-        f = io.BytesIO()
-
-        # Sets an Agg backend so this figure can be rendered
-        FigureCanvasAgg(fig)
-        fig.savefig(f, format='png')
-        return f.getvalue()
+        return ax
 
 
-def draw_voronoi(box, cells, color_by_sides=False):
+def draw_voronoi(box, cells):
     """Helper function to draw 2D Voronoi diagram.
 
     Args:
@@ -189,10 +184,7 @@ def draw_voronoi(box, cells, color_by_sides=False):
     patch_collection = PatchCollection(patches, edgecolors='black', alpha=0.4)
     cmap = cm.Set1
 
-    if color_by_sides:
-        colors = [len(cell) for cell in cells]
-    else:
-        colors = np.random.permutation(np.arange(len(patches)))
+    colors = np.random.permutation(np.arange(len(patches)))
 
     cmap = cm.get_cmap('Set1', np.unique(colors).size)
     bounds = np.array(range(min(colors), max(colors)+2))
@@ -211,16 +203,4 @@ def draw_voronoi(box, cells, color_by_sides=False):
     box_patch = Rectangle([-box.Lx/2, -box.Ly/2], box.Lx,
                           box.Ly, alpha=1, fill=None)
     ax.add_patch(box_patch)
-
-    # Show colorbar for number of sides
-    if color_by_sides:
-        cb = fig.colorbar(patch_collection, ax=ax,
-                          ticks=bounds, boundaries=bounds)
-        cb.set_ticks(cb.formatter.locs + 0.5)
-        cb.set_ticklabels((cb.formatter.locs - 0.5).astype('int'))
-        cb.set_label("Number of sides", fontsize=12)
-    f = io.BytesIO()
-    # Sets an Agg backend so this figure can be rendered
-    FigureCanvasAgg(fig)
-    fig.savefig(f, format='png')
-    return f.getvalue()
+    return ax
