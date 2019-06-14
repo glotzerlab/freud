@@ -40,15 +40,19 @@ def _support_1d(func):
     two dimensional input for the first argument.
     """
     @wraps(func)
-    def wrapper(self, arg1, *args, **kwargs):
+    def wrapper(self, *args, **kwargs):
+        if len(args):
+            arg1 = args[0]
+        else:
+            arg1 = kwargs[next(iter(kwargs))]
         arg1 = np.asarray(arg1)
-        if len(arg1.shape) == 1:
+        if arg1.ndim == 1:
             flat = True
             arg1 = np.atleast_2d(arg1)
         else:
             flat = False
 
-        ret = func(self, arg1, *args, **kwargs)
+        ret = func(self, arg1)
         if flat:
             return ret.squeeze()
         else:
@@ -65,13 +69,13 @@ def _support_1d_2args(func):
     def wrapper(self, arg1, arg2, *args, **kwargs):
         arg1 = np.asarray(arg1)
         arg2 = np.asarray(arg2)
-        if len(arg1.shape) == 1:
+        if arg1.ndim == 1:
             flat1 = True
             arg1 = np.atleast_2d(arg1)
         else:
             flat1 = False
 
-        if len(arg2.shape) == 1:
+        if arg2.ndim == 1:
             arg2 = np.atleast_2d(arg2)
 
         ret = func(self, arg1, arg2, *args, **kwargs)
