@@ -773,6 +773,23 @@ cdef class PMFTXY2D(_PMFT):
     def __str__(self):
         return repr(self)
 
+    def _repr_png_(self):
+        import plot
+        return plot.ax_to_bytes(self.plot())
+
+    def plot(self, ax=None):
+        """Plot PMFTXY2D.
+
+        Args:
+            ax (:class:`matplotlib.axes`): Axis to plot on. If :code:`None`,
+                make a new figure and axis. (Default value = :code:`None`)
+
+        Returns:
+            (:class:`matplotlib.axes`): Axis with the plot.
+        """
+        import plot
+        return plot.pmft_plot(self, ax)
+
 
 cdef class PMFTXYZ(_PMFT):
     R"""Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ in

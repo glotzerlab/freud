@@ -164,6 +164,29 @@ cdef class Cluster:
     def __str__(self):
         return repr(self)
 
+    def plot(self, ax=None):
+        """Plot cluster distribution.
+
+        Args:
+            ax (:class:`matplotlib.axes`): Axis to plot on. If :code:`None`,
+                make a new figure and axis. (Default value = :code:`None`)
+
+        Returns:
+            (:class:`matplotlib.axes`): Axis with the plot.
+        """
+        import plot
+        try:
+            count = np.unique(self.cluster_idx, return_counts=True)
+        except ValueError:
+            return None
+        else:
+            return plot.plot_clusters(count[0], count[1],
+                                      num_cluster_to_plot=10, ax=ax)
+
+    def _repr_png_(self):
+        import plot
+        return plot.ax_to_bytes(self.plot())
+
 
 cdef class ClusterProperties:
     R"""Routines for computing properties of point clusters.

@@ -602,6 +602,7 @@ cdef class MatchEnv:
             env_nlist_.get_ptr(), nlist_.get_ptr(),
             <vec3[float]*> &l_points[0, 0], nP, threshold, hard_r,
             registration, global_search)
+        return self
 
     def matchMotif(self, points, refPoints, threshold, registration=False,
                    nlist=None):
@@ -828,6 +829,30 @@ cdef class MatchEnv:
 
     def __str__(self):
         return repr(self)
+
+    def plot(self, ax=None):
+        """Plot cluster distribution.
+
+        Args:
+            ax (:class:`matplotlib.axes`): Axis to plot on. If :code:`None`,
+                make a new figure and axis. (Default value = :code:`None`)
+
+        Returns:
+            (:class:`matplotlib.axes`): Axis with the plot.
+        """
+        import plot
+        try:
+            counts = np.unique(self.clusters, return_counts=True)
+        except ValueError:
+            return None
+        return plot.plot_clusters(counts[0], counts[1],
+                                  num_cluster_to_plot=10,
+                                  ax=ax)
+
+    def _repr_png_(self):
+        import plot
+        return plot.ax_to_bytes(self.plot())
+
 
 cdef class AngularSeparation:
     R"""Calculates the minimum angles of separation between particles and

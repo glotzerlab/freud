@@ -210,6 +210,27 @@ cdef class FloatCF:
     def __str__(self):
         return repr(self)
 
+    def plot(self, ax=None):
+        """Plot correlation function.
+
+        Args:
+            ax (:class:`matplotlib.axes`): Axis to plot on. If :code:`None`,
+                make a new figure and axis. (Default value = :code:`None`)
+
+        Returns:
+            (:class:`matplotlib.axes`): Axis with the plot.
+        """
+        import plot
+        return plot.line_plot(self.R, self.RDF,
+                              title="Correlation Function",
+                              xlabel=r"$r$",
+                              ylabel=r"$C(r)$",
+                              ax=ax)
+
+    def _repr_png_(self):
+        import plot
+        return plot.ax_to_bytes(self.plot())
+
 
 cdef class ComplexCF:
     R"""Computes the complex pairwise correlation function.
@@ -399,6 +420,27 @@ cdef class ComplexCF:
 
     def __str__(self):
         return repr(self)
+
+    def plot(self, ax=None):
+        """Plot complex correlation function.
+
+        Args:
+            ax (:class:`matplotlib.axes`): Axis to plot on. If :code:`None`,
+                make a new figure and axis. (Default value = :code:`None`)
+
+        Returns:
+            (:class:`matplotlib.axes`): Axis with the plot.
+        """
+        import plot
+        return plot.line_plot(self.R, np.real(self.RDF),
+                              title="Correlation Function",
+                              xlabel=r"$r$",
+                              ylabel=r"$\operatorname{Re}(C(r))$",
+                              ax=ax)
+
+    def _repr_png_(self):
+        import plot
+        return plot.ax_to_bytes(self.plot())
 
 
 cdef class GaussianDensity:
@@ -824,3 +866,23 @@ cdef class RDF:
 
     def __str__(self):
         return repr(self)
+
+    def plot(self, ax=None):
+        """Plot radial distribution function.
+
+        Args:
+            ax (:class:`matplotlib.axes`): Axis to plot on. If :code:`None`,
+                make a new figure and axis. (Default value = :code:`None`)
+
+        Returns:
+            (:class:`matplotlib.axes`): Axis with the plot.
+        """
+        import plot
+        return plot.line_plot(self.R, self.RDF,
+                              title="RDF",
+                              xlabel=r"$r$",
+                              ylabel=r"$g(r)$")
+
+    def _repr_png_(self):
+        import plot
+        return plot.ax_to_bytes(self.plot())
