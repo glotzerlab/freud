@@ -175,8 +175,6 @@ cdef class Cluster:
             count = np.unique(self.cluster_idx, return_counts=True)
         except ValueError:
             return None
-        if not self.box.is2D():
-            return None
         else:
             return plot.plot_clusters(count[0], count[1])
 

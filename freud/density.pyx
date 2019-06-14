@@ -414,7 +414,7 @@ cdef class ComplexCF:
         return plot.line_plot(self.R, np.real(self.RDF),
                               title="Correlation Function",
                               xlabel=r"$r$",
-                              ylabel=r"$Re(C(r))$")
+                              ylabel=r"$\operatorname{Re}(C(r))$")
 
 
 cdef class GaussianDensity:

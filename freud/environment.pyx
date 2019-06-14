@@ -876,8 +876,6 @@ cdef class MatchEnv:
             count = np.unique(self.clusters, return_counts=True)
         except ValueError:
             return None
-        if not self.m_box.is2D():
-            return None
         return plot.plot_clusters(count[0], count[1])
 
 
