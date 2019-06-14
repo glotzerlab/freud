@@ -149,9 +149,9 @@ cdef class BondOrder:
         Args:
             box (:class:`freud.box.Box`):
                 Simulation box.
-            ref_points ((:math:`N_{ref_points}`, 3) :class:`numpy.ndarray`):
+            ref_points ((:math:`N_{ref\_points}`, 3) :class:`numpy.ndarray`):
                 Reference points used to calculate bonds.
-            ref_orientations ((:math:`N_{ref_points}`, 4) :class:`numpy.ndarray`):
+            ref_orientations ((:math:`N_{ref\_points}`, 4) :class:`numpy.ndarray`):
                 Reference orientations used to calculate bonds.
             points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`, optional):
                 Points used to calculate bonds. Uses :code:`ref_points` if not
