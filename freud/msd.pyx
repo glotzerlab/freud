@@ -183,6 +183,7 @@ cdef class MSD(Compute):
 
         return self
 
+    @property
     def box(self):
         return self._box
 
