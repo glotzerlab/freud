@@ -873,12 +873,12 @@ cdef class MatchEnv:
     def _repr_png_(self):
         import plot
         try:
-            count = np.unique(self.clusters, return_counts=True)
+            counts = np.unique(self.clusters, return_counts=True)
         except ValueError:
             return None
         if not self.m_box.is2D():
             return None
-        return plot.plot_clusters(count[0], count[1])
+        return plot.plot_clusters(counts[0], counts[1])
 
 
 cdef class AngularSeparation:
