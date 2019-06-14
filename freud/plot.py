@@ -9,6 +9,15 @@ except ImportError:
     MATPLOTLIB = False
 
 
+def ax_to_bytes(ax):
+    f = io.BytesIO()
+    # Sets an Agg backend so this figure can be rendered
+    fig = ax.fig
+    FigureCanvasAgg(fig)
+    fig.savefig(f, format='png')
+    return f.getvalue()
+
+
 def bar_plot(x, height, title=None, xlabel=None, ylabel=None):
     """Helper function to draw a bar graph.
 
@@ -36,11 +45,7 @@ def bar_plot(x, height, title=None, xlabel=None, ylabel=None):
         ax.set_ylabel(ylabel)
         ax.set_xticks(x)
         ax.set_xticklabels(x)
-        f = io.BytesIO()
-        # Sets an Agg backend so this figure can be rendered
-        FigureCanvasAgg(fig)
-        fig.savefig(f, format='png')
-        return f.getvalue()
+        return ax
 
 
 def plot_clusters(keys, freqs, num_cluster_to_plot=10):
@@ -94,11 +99,7 @@ def line_plot(x, y, title=None, xlabel=None, ylabel=None):
         ax.set_title(title)
         ax.set_xlabel(xlabel)
         ax.set_ylabel(ylabel)
-        f = io.BytesIO()
-        # Sets an Agg backend so this figure can be rendered
-        FigureCanvasAgg(fig)
-        fig.savefig(f, format='png')
-        return f.getvalue()
+        return ax
 
 
 def pmft_plot(pmft):
@@ -115,9 +116,9 @@ def pmft_plot(pmft):
     if not MATPLOTLIB:
         return None
     try:
-        from matplotlib.colors import Normalize
         from matplotlib.cm import viridis
-        from scipy.ndimage.filters import gaussian_filter
+        from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
+        from mpl_toolkits.axes_grid1.colorbar import colorbar
     except ImportError:
         return None
     else:
@@ -143,9 +144,11 @@ def pmft_plot(pmft):
                        interpolation='nearest', cmap='viridis',
                        vmin=-2.5, vmax=3.0)
 
-        cbar_ax = fig.add_axes([0.88, 0.1, 0.02, 0.8])
-        cbar = fig.colorbar(im, cax=cbar_ax)
-        cbar.set_label(r"$k_B T$")
+        ax_divider = make_axes_locatable(ax)
+        cax = ax_divider.append_axes("right", size="7%", pad="10%")
+        cb = colorbar(im, cax=cax)
+        cb.set_label_text(r"$k_B T$")
+
         f = io.BytesIO()
 
         # Sets an Agg backend so this figure can be rendered
