@@ -570,10 +570,6 @@ cdef class LocalQl(Compute):
 
     def __cinit__(self, box, rmax, l, rmin=0, *args, **kwargs):
         cdef freud.box.Box b = freud.common.convert_box(box)
-        self._set_compute_flag("compute")
-        self._set_compute_flag("computeAve")
-        self._set_compute_flag("computeAveNorm")
-        self._set_compute_flag("computeNorm")
         if type(self) is LocalQl:
             self.m_box = b
             self.rmax = rmax

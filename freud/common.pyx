@@ -20,8 +20,6 @@ cdef class Compute:
 
     .. code-block:: python
         class Cluster(Compute):
-            def __cinit__(...):
-                self._set_compute_flag("computeClusters")
 
             @Compute._compute("computeClusters")
             def computeClusters(...)
@@ -85,7 +83,7 @@ cdef class Compute:
             @property
             @wraps(func)
             def wrapper(self, *args, **kwargs):
-                if not any(self._called_compute[k] for k in key):
+                if not any(self._called_compute.get(k, False) for k in key):
                     raise AttributeError("Property not computed. "
                                          "Call {key} first.".format(key=key))
                 return func(self, *args, **kwargs)
@@ -108,7 +106,7 @@ cdef class Compute:
         def _computed_property_with_key(func):
             @wraps(func)
             def wrapper(self, *args, **kwargs):
-                if not any(self._called_compute[k] for k in key):
+                if not any(self._called_compute.get(k, False) for k in key):
                     raise AttributeError("Property not computed. "
                                          "Call {key} first.".format(key=key))
                 return func(self, *args, **kwargs)

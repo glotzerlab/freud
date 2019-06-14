@@ -80,8 +80,6 @@ cdef class Cluster(Compute):
         self.thisptr = new freud._cluster.Cluster(rcut)
         self.m_box = b
         self.rmax = rcut
-        self._set_compute_flag("computeClusters")
-        self._set_compute_flag("computeClusterMembership")
 
     def __dealloc__(self):
         del self.thisptr
@@ -217,7 +215,6 @@ cdef class ClusterProperties(Compute):
         cdef freud.box.Box b = freud.common.convert_box(box)
         self.thisptr = new freud._cluster.ClusterProperties()
         self.m_box = b
-        self._set_compute_flag("computeProperties")
 
     def __dealloc__(self):
         del self.thisptr

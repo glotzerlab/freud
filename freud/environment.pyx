@@ -917,8 +917,6 @@ cdef class AngularSeparation(Compute):
         self.thisptr = new freud._environment.AngularSeparation()
         self.rmax = rmax
         self.num_neigh = n
-        self._set_compute_flag("computeNeighbor")
-        self._set_compute_flag("computeGlobal")
 
     def __dealloc__(self):
         del self.thisptr

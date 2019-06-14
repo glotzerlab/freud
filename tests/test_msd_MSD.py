@@ -12,18 +12,13 @@ class TestMSD(unittest.TestCase):
         msd = freud.msd.MSD()
         with self.assertRaises(AttributeError):
             msd.msd
-        with self.assertRaises(AttributeError):
-            msd.box
 
         msd.accumulate(positions)
         msd.msd
-        msd.box
 
         msd.reset()
         with self.assertRaises(AttributeError):
             msd.msd
-        with self.assertRaises(AttributeError):
-            msd.box
 
         msd.compute(positions)
         msd.msd

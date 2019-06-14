@@ -93,9 +93,6 @@ class Voronoi(Compute):
         self._box = b
         self._buff = buff
         self._nlist = freud.locality.NeighborList()
-        self._set_compute_flag("compute")
-        self._set_compute_flag("computeVolumes")
-        self._set_compute_flag("computeNeighbors")
 
     def _qhull_compute(self, positions, box=None, buff=None):
         R"""Calls ParticleBuffer and qhull

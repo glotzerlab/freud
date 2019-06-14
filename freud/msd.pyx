@@ -104,15 +104,15 @@ cdef class MSD(Compute):
         msd (:math:`\left(N_{frames}, \right)` :class:`numpy.ndarray`):
             The mean squared displacement.
     """   # noqa: E501
-    cdef freud.box.Box m_box
+    cdef freud.box.Box box
     cdef particle_msd
     cdef str mode
 
     def __cinit__(self, box=None, mode='window'):
         if box is not None:
-            self.m_box = freud.common.convert_box(box)
+            self.box = freud.common.convert_box(box)
         else:
-            self.m_box = None
+            self.box = None
 
         self.particle_msd = []
 
@@ -164,10 +164,10 @@ cdef class MSD(Compute):
                     'The positions and images must have the same shape')
 
         # Make sure we aren't modifying the provided array
-        if self.m_box is not None and images is not None:
+        if self.box is not None and images is not None:
             unwrapped_positions = positions.copy()
             for i in range(positions.shape[0]):
-                unwrapped_positions[i, :, :] = self.m_box.unwrap(
+                unwrapped_positions[i, :, :] = self.box.unwrap(
                     unwrapped_positions[i, :, :], images[i, :, :])
             positions = unwrapped_positions
 
@@ -196,9 +196,8 @@ cdef class MSD(Compute):
 
         return self
 
-    @Compute._computed_property()
     def box(self):
-        return self.m_box
+        return self.box
 
     @Compute._computed_property()
     def msd(self):
@@ -230,7 +229,7 @@ cdef class MSD(Compute):
 
     def __repr__(self):
         return "freud.msd.{cls}(box={box}, mode={mode})".format(
-            cls=type(self).__name__, box=self.m_box, mode=repr(self.mode))
+            cls=type(self).__name__, box=self.box, mode=repr(self.mode))
 
     def __str__(self):
         return repr(self)
