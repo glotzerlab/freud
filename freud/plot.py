@@ -131,53 +131,30 @@ def pmft_plot(pmft):
         return None
     else:
         pmft_arr = np.copy(pmft.PMFT)
-
-        # Do some simple post-processing for plotting purposes
         pmft_arr[np.isinf(pmft_arr)] = np.nan
-        dx = (2.0 * 3.0) / pmft.n_bins_X
-        dy = (2.0 * 3.0) / pmft.n_bins_Y
-        nan_arr = np.where(np.isnan(pmft_arr))
-        for i in range(pmft.n_bins_X):
-            x = -3.0 + dx * i
-            for j in range(pmft.n_bins_Y):
-                y = -3.0 + dy * j
-                if ((x*x + y*y < 1.5) and (np.isnan(pmft_arr[j, i]))):
-                    pmft_arr[j, i] = 10.0
-        w = int(2.0 * pmft.n_bins_X / (2.0 * 3.0))
-        center = int(pmft.n_bins_X / 2)
-
-        # Get the center of the histogram bins
-        pmft_image = gaussian_filter(pmft_arr, 1)
-        pmft_image[nan_arr] = np.nan
-        pmft_image = pmft_image[center-w:center+w, center-w:center+w]
 
         # Plot figures
         fig = Figure()
-        values = [-2, -1, 0, 2]
-        norm = Normalize(vmin=-2.5, vmax=3.0)
-        n_values = [norm(i) for i in values]
-        colors = viridis(n_values)
-        colors = colors[:, :3]
+        ax = fig.subplots()
 
-        lims = (-2, 2)
-        ax0 = fig.subplots()
+        xlims = (pmft.X[0], pmft.X[-1])
+        ylims = (pmft.Y[0], pmft.Y[-1])
+        ax.set_xlim(xlims)
+        ax.set_ylim(ylims)
+        ax.xaxis.set_ticks([i for i in range(int(xlims[0]), int(xlims[1]+1))])
+        ax.yaxis.set_ticks([i for i in range(int(ylims[0]), int(ylims[1]+1))])
+        ax.set_xlabel(r'$x$')
+        ax.set_ylabel(r'$y$')
 
-        ax0.set_aspect('equal')
-        ax0.set_xlim(lims)
-        ax0.set_ylim(lims)
-        ax0.xaxis.set_ticks([i for i in range(lims[0], lims[1]+1)])
-        ax0.yaxis.set_ticks([i for i in range(lims[0], lims[1]+1)])
-        ax0.set_xlabel(r'$x$')
-        ax0.set_ylabel(r'$y$')
-
-        ax0.set_title('PMFT Heat Map')
-        im = ax0.imshow(np.flipud(pmft_image),
-                        extent=[lims[0], lims[1], lims[0], lims[1]],
-                        interpolation='nearest', cmap='viridis',
-                        vmin=-2.5, vmax=3.0)
+        ax.set_title('PMFT')
+        im = ax.imshow(np.flipud(pmft_arr),
+                       extent=[xlims[0], xlims[1], ylims[0], ylims[1]],
+                       interpolation='nearest', cmap='viridis',
+                       vmin=-2.5, vmax=3.0)
 
         cbar_ax = fig.add_axes([0.88, 0.1, 0.02, 0.8])
-        fig.colorbar(im, cax=cbar_ax)
+        cbar = fig.colorbar(im, cax=cbar_ax)
+        cbar.set_label(r"$k_B T$")
         f = io.BytesIO()
 
         # Sets an Agg backend so this figure can be rendered
