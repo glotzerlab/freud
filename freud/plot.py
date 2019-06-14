@@ -10,7 +10,7 @@ except ImportError:
 
 
 def bar_plot(x, height, title=None, xlabel=None, ylabel=None):
-    """ Helper function to draw a bar graph.
+    """Helper function to draw a bar graph.
 
     .. moduleauthor:: Jin Soo Ihm <jinihm@umich.edu>
 
@@ -22,7 +22,7 @@ def bar_plot(x, height, title=None, xlabel=None, ylabel=None):
         ylabel (str): Label of y axis. (Default value = :code:`None`).
 
     Returns:
-        bytes: Byte representation of the graph in png file if matplotlib is
+        bytes: Byte representation of the graph in png format if matplotlib is
         available. Otherwise :code:`None`.
     """
     if not MATPLOTLIB:
@@ -44,7 +44,7 @@ def bar_plot(x, height, title=None, xlabel=None, ylabel=None):
 
 
 def plot_clusters(keys, freqs, num_cluster_to_plot=10):
-    """ Helper function to plot most frequent clusters bar graph.
+    """Helper function to plot most frequent clusters in a bar graph.
 
     .. moduleauthor:: Jin Soo Ihm <jinihm@umich.edu>
 
@@ -55,7 +55,7 @@ def plot_clusters(keys, freqs, num_cluster_to_plot=10):
             clusters to plot.
 
     Returns:
-        bytes: Byte representation of the graph in png file if matplotlib is
+        bytes: Byte representation of the graph in png format if matplotlib is
         available. Otherwise :code:`None`.
     """
     count_sorted = sorted([(freq, key)
@@ -70,7 +70,7 @@ def plot_clusters(keys, freqs, num_cluster_to_plot=10):
 
 
 def line_plot(x, y, title=None, xlabel=None, ylabel=None):
-    """ Helper function to draw a line graph.
+    """Helper function to draw a line graph.
 
     .. moduleauthor:: Jin Soo Ihm <jinihm@umich.edu>
 
@@ -82,7 +82,7 @@ def line_plot(x, y, title=None, xlabel=None, ylabel=None):
         ylabel (str): Label of y axis. (Default value = :code:`None`).
 
     Returns:
-        bytes: Byte representation of the graph in png file if matplotlib is
+        bytes: Byte representation of the graph in png format if matplotlib is
         available. Otherwise :code:`None`.
     """
     if not MATPLOTLIB:
@@ -101,25 +101,16 @@ def line_plot(x, y, title=None, xlabel=None, ylabel=None):
         return f.getvalue()
 
 
-def make_polygon(sides, radius=1):
-    """ Helper function to draw polygon taken from freud-exapmles.
-    """
-    thetas = np.linspace(0, 2*np.pi, sides+1)[:sides]
-    vertices = np.array([[radius*np.sin(theta), radius*np.cos(theta)]
-                         for theta in thetas])
-    return vertices
-
-
 def pmft_plot(pmft):
-    """ Helper function to draw 2D PMFT diagram.
+    """Helper function to draw 2D PMFT diagram.
 
     Args:
         pmft (:class:`freud.pmft.PMFTXY2D`):
-            PMFT2DXY instance.
+            PMFTXY2D instance.
 
     Returns:
-        bytes: Byte representation of the diagram in png file if matplotlib is
-        available. Otherwise :code:`None`.
+        bytes: Byte representation of the diagram in png format if matplotlib
+        is available. Otherwise :code:`None`.
     """
     if not MATPLOTLIB:
         return None
@@ -164,7 +155,7 @@ def pmft_plot(pmft):
 
 
 def draw_voronoi(box, cells, color_by_sides=False):
-    """ Helper function to draw 2D Voronoi diagram.
+    """Helper function to draw 2D Voronoi diagram.
 
     Args:
         box (:class:`freud.box.Box`):
@@ -176,8 +167,8 @@ def draw_voronoi(box, cells, color_by_sides=False):
             (Default value = :code:`False`)
 
     Returns:
-        bytes: Byte representation of the diagram in png file if matplotlib is
-        available. Otherwise :code:`None`.
+        bytes: Byte representation of the diagram in png format if matplotlib
+        is available. Otherwise :code:`None`.
     """
     if not MATPLOTLIB:
         return None
