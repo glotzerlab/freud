@@ -183,7 +183,7 @@ public:
             const auto& itr(this->b().set_A.find(&Key_in));
             if (itr == std::end(this->b().set_A))
             {
-                throw std::out_of_range {"Key not found"};
+                throw std::out_of_range{"Key not found"};
             }
             return getVal(*itr);
         }
@@ -263,7 +263,7 @@ public:
             const auto& itr(this->b().set_B.find(&Key_in));
             if (itr == std::end(this->b().set_B))
             {
-                throw std::out_of_range {"Key not found"};
+                throw std::out_of_range{"Key not found"};
             }
             return getVal(*itr);
         }

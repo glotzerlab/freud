@@ -382,8 +382,6 @@ cdef class Box:
         """  # noqa: E501
         vecs = np.asarray(vecs)
         imgs = np.asarray(imgs)
-        if vecs.shape != imgs.shape:
-            raise ValueError("imgs dimensions do not match vecs dimensions.")
 
         if vecs.ndim > 2 or vecs.shape[vecs.ndim-1] != 3:
             raise ValueError(
@@ -391,7 +389,8 @@ cdef class Box:
                 "Valid input is an array of shape (3,) or (N,3).")
 
         vecs = freud.common.convert_array(vecs)
-        imgs = freud.common.convert_array(imgs, vecs.ndim, dtype=np.int32)
+        imgs = freud.common.convert_array(imgs, shape=vecs.shape,
+                                          dtype=np.int32)
 
         if vecs.ndim == 1:
             # only one vector to unwrap
@@ -735,11 +734,7 @@ cdef class ParticleBuffer:
                 each side, meaning that one image doubles the box side lengths,
                 two images triples the box side lengths, and so on.
         """
-        points = freud.common.convert_array(points, 2)
-
-        if points.shape[1] != 3:
-            raise RuntimeError(
-                'Need a list of 3D points for ParticleBuffer.compute()')
+        points = freud.common.convert_array(points, shape=(None, 3))
         cdef const float[:, ::1] l_points = points
         cdef unsigned int Np = l_points.shape[0]
 
