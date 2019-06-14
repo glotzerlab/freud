@@ -119,9 +119,8 @@ cdef class CubaticOrderParameter(Compute):
             orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
                 Orientations as angles to use in computation.
         """
-        orientations = freud.common.convert_array(orientations, 2)
-        if orientations.shape[1] != 4:
-            raise TypeError('orientations should be an Nx4 array')
+        orientations = freud.common.convert_array(
+            orientations, shape=(None, 4))
 
         cdef const float[:, ::1] l_orientations = orientations
         cdef unsigned int num_particles = l_orientations.shape[0]
@@ -235,7 +234,7 @@ cdef class NematicOrderParameter(Compute):
 
         cdef vec3[float] l_u = vec3[float](u[0], u[1], u[2])
         self.thisptr = new freud._order.NematicOrderParameter(l_u)
-        self.u = freud.common.convert_array(u, 1)
+        self.u = freud.common.convert_array(u, shape=(3, ))
 
     @Compute._compute()
     def compute(self, orientations):
@@ -245,9 +244,8 @@ cdef class NematicOrderParameter(Compute):
             orientations (:math:`\left(N_{particles}, 4 \right)` :class:`numpy.ndarray`):
                 Orientations to calculate the order parameter.
         """  # noqa: E501
-        orientations = freud.common.convert_array(orientations, 2)
-        if orientations.shape[1] != 4:
-            raise TypeError('orientations should be an Nx4 array')
+        orientations = freud.common.convert_array(
+            orientations, shape=(None, 4))
 
         cdef const float[:, ::1] l_orientations = orientations
         cdef unsigned int num_particles = l_orientations.shape[0]
@@ -353,9 +351,7 @@ cdef class HexOrderParameter(Compute):
                 Neighborlist to use to find bonds.
         """
         cdef freud.box.Box b = freud.common.convert_box(box)
-        points = freud.common.convert_array(points, 2)
-        if points.shape[1] != 3:
-            raise TypeError('points should be an Nx3 array')
+        points = freud.common.convert_array(points, shape=(None, 3))
 
         cdef const float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
@@ -447,9 +443,7 @@ cdef class TransOrderParameter(Compute):
                 Neighborlist to use to find bonds.
         """
         cdef freud.box.Box b = freud.common.convert_box(box)
-        points = freud.common.convert_array(points, 2)
-        if points.shape[1] != 3:
-            raise TypeError('points should be an Nx3 array')
+        points = freud.common.convert_array(points, shape=(None, 3))
 
         cdef const float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
@@ -644,9 +638,7 @@ cdef class LocalQl(Compute):
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """
-        points = freud.common.convert_array(points, 2)
-        if points.shape[1] != 3:
-            raise TypeError('points should be an Nx3 array')
+        points = freud.common.convert_array(points, shape=(None, 3))
 
         cdef const float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
@@ -669,9 +661,7 @@ cdef class LocalQl(Compute):
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """
-        points = freud.common.convert_array(points, 2)
-        if points.shape[1] != 3:
-            raise TypeError('points should be an Nx3 array')
+        points = freud.common.convert_array(points, shape=(None, 3))
 
         cdef const float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
@@ -697,9 +687,7 @@ cdef class LocalQl(Compute):
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """
-        points = freud.common.convert_array(points, 2)
-        if points.shape[1] != 3:
-            raise TypeError('points should be an Nx3 array')
+        points = freud.common.convert_array(points, shape=(None, 3))
 
         cdef const float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
@@ -725,9 +713,7 @@ cdef class LocalQl(Compute):
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """
-        points = freud.common.convert_array(points, 2)
-        if points.shape[1] != 3:
-            raise TypeError('points should be an Nx3 array')
+        points = freud.common.convert_array(points, shape=(None, 3))
 
         cdef const float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
@@ -1251,9 +1237,7 @@ cdef class SolLiq(Compute):
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """
-        points = freud.common.convert_array(points, 2)
-        if points.shape[1] != 3:
-            raise TypeError('points should be an Nx3 array')
+        points = freud.common.convert_array(points, shape=(None, 3))
 
         cdef const float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
@@ -1280,9 +1264,7 @@ cdef class SolLiq(Compute):
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """
-        points = freud.common.convert_array(points, 2)
-        if points.shape[1] != 3:
-            raise TypeError('points should be an Nx3 array')
+        points = freud.common.convert_array(points, shape=(None, 3))
 
         cdef const float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
@@ -1306,9 +1288,7 @@ cdef class SolLiq(Compute):
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """
-        points = freud.common.convert_array(points, 2)
-        if points.shape[1] != 3:
-            raise TypeError('points should be an Nx3 array')
+        points = freud.common.convert_array(points, shape=(None, 3))
 
         cdef const float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
@@ -1576,13 +1556,8 @@ cdef class RotationalAutocorrelation(Compute):
             ors ((:math:`N_{orientations}`, 4) :class:`numpy.ndarray`):
                 Orientations for the frame of interest.
         """
-        ref_ors = freud.common.convert_array(ref_ors, 2)
-        if ref_ors.shape[1] != 4:
-            raise TypeError('ref_ors should be an Nx4 array')
-
-        ors = freud.common.convert_array(ors, 2)
-        if ors.shape[1] != 4:
-            raise TypeError('ors should be an Nx4 array')
+        ref_ors = freud.common.convert_array(ref_ors, shape=(None, 4))
+        ors = freud.common.convert_array(ors, shape=ref_ors.shape)
 
         cdef const float[:, ::1] l_ref_ors = ref_ors
         cdef const float[:, ::1] l_ors = ors

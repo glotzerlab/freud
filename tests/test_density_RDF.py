@@ -120,6 +120,19 @@ class TestRDF(unittest.TestCase):
         rdf = freud.density.RDF(10, 0.1, rmin=0.5)
         self.assertEqual(str(rdf), str(eval(repr(rdf))))
 
+    def test_repr_png(self):
+        rmax = 10.0
+        dr = 1.0
+        num_points = 10
+        box_size = rmax*3.1
+        np.random.seed(0)
+        points = np.random.random_sample((num_points, 3)).astype(np.float32) \
+            * box_size - box_size/2
+        rdf = freud.density.RDF(rmax, dr)
+        box = freud.box.Box.cube(box_size)
+        rdf.accumulate(box, points)
+        rdf._repr_png_()
+
 
 if __name__ == '__main__':
     unittest.main()

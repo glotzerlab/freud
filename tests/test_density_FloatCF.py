@@ -138,6 +138,21 @@ class TestFloatCF(unittest.TestCase):
         ocf = freud.density.FloatCF(1000, 40)
         self.assertEqual(str(ocf), str(eval(repr(ocf))))
 
+    def test_repr_png(self):
+        rmax = 10.0
+        dr = 1.0
+        num_points = 1000
+        box_size = rmax*3.1
+        box = freud.box.Box.square(box_size)
+        np.random.seed(0)
+        points = np.random.random_sample((num_points, 3)).astype(np.float32) \
+            * box_size - box_size/2
+        ang = np.random.random_sample((num_points)).astype(np.float64) - 0.5
+        ocf = freud.density.FloatCF(rmax, dr)
+        # first bin is bad
+        ocf.accumulate(box, points, ang)
+        ocf._repr_png_()
+
 
 if __name__ == '__main__':
     unittest.main()

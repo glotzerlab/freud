@@ -144,24 +144,11 @@ cdef class MSD(Compute):
                 positions are assumed to be unwrapped already.
         """  # noqa: E501
 
-        positions = freud.common.convert_array(positions, 3)
-        if positions.shape[2] != 3:
-            raise TypeError(
-                'positions should be a 3-dimensional array of shape'
-                '(N_frames, N_particles, 3)'
-            )
-
+        positions = freud.common.convert_array(
+            positions, shape=(None, None, 3))
         if images is not None:
-            images = freud.common.convert_array(images, 3, dtype=np.int32)
-            if images.shape[2] != 3:
-                raise TypeError(
-                    'images should be a 3-dimensional array of shape'
-                    '(N_frames, N_particles, 3)'
-                )
-
-            if not positions.shape == images.shape:
-                raise TypeError(
-                    'The positions and images must have the same shape')
+            images = freud.common.convert_array(
+                images, shape=positions.shape, dtype=np.int32)
 
         # Make sure we aren't modifying the provided array
         if self.box is not None and images is not None:
@@ -233,3 +220,28 @@ cdef class MSD(Compute):
 
     def __str__(self):
         return repr(self)
+
+    def plot(self, ax=None):
+        """Plot MSD.
+
+        Args:
+            ax (:class:`matplotlib.axes`): Axis to plot on. If :code:`None`,
+                make a new figure and axis. (Default value = :code:`None`)
+
+        Returns:
+            (:class:`matplotlib.axes`): Axis with the plot.
+        """
+        import freud.plot
+        if self.mode == "window":
+            xlabel = "Window size"
+        else:
+            xlabel = "Frame number"
+        return freud.plot.line_plot(list(range(len(self.msd))), self.msd,
+                                    title="MSD",
+                                    xlabel=xlabel,
+                                    ylabel="MSD",
+                                    ax=ax)
+
+    def _repr_png_(self):
+        import freud.plot
+        return freud.plot.ax_to_bytes(self.plot())

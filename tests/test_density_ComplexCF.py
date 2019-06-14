@@ -173,6 +173,22 @@ class TestComplexCF(unittest.TestCase):
         cf = freud.density.ComplexCF(1000, 40)
         self.assertEqual(str(cf), str(eval(repr(cf))))
 
+    def test_repr_png(self):
+        rmax = 10.0
+        dr = 1.0
+        num_points = 100
+        box_size = rmax*3.1
+        np.random.seed(0)
+        points = np.random.random_sample((num_points, 3)).astype(np.float32) \
+            * box_size - box_size/2
+        ang = np.random.random_sample((num_points)).astype(np.float64) \
+            * 2.0 * np.pi
+        comp = np.exp(1j*ang)
+        ocf = freud.density.ComplexCF(rmax, dr)
+        ocf.accumulate(freud.box.Box.square(box_size), points, comp,
+                       points, np.conj(comp))
+        ocf._repr_png_()
+
 
 if __name__ == '__main__':
     unittest.main()
