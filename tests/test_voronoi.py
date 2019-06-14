@@ -203,6 +203,11 @@ class TestVoronoi(unittest.TestCase):
         L = 10  # Box length
         box = freud.box.Box.square(L)
         vor = freud.voronoi.Voronoi(box)
+
+        with self.assertRaises(AttributeError):
+            vor.plot()
+        self.assertEqual(vor._repr_png_(), None)
+
         # Make a regular grid
         positions = np.array(
             [[0, 0, 0], [0, 1, 0], [0, 2, 0],

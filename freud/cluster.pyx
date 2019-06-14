@@ -167,6 +167,7 @@ cdef class Cluster(Compute):
     def __str__(self):
         return repr(self)
 
+    @Compute._computed_method("computeClusters")
     def plot(self, ax=None):
         """Plot cluster distribution.
 
@@ -188,7 +189,10 @@ cdef class Cluster(Compute):
 
     def _repr_png_(self):
         import plot
-        return plot.ax_to_bytes(self.plot())
+        try:
+            return plot.ax_to_bytes(self.plot())
+        except AttributeError:
+            return None
 
 
 cdef class ClusterProperties(Compute):

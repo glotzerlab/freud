@@ -375,6 +375,11 @@ class TestCluster(unittest.TestCase):
         xyz[:, 2] = 0
         xyz.flags['WRITEABLE'] = False
         match = freud.environment.MatchEnv(box, rcut, kn)
+
+        with self.assertRaises(AttributeError):
+            match.plot()
+        self.assertEqual(match._repr_png_(), None)
+
         match.cluster(xyz, threshold)
         match._repr_png_()
 

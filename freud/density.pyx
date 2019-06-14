@@ -214,6 +214,7 @@ cdef class FloatCF(Compute):
     def __str__(self):
         return repr(self)
 
+    @Compute._computed_method()
     def plot(self, ax=None):
         """Plot correlation function.
 
@@ -233,7 +234,10 @@ cdef class FloatCF(Compute):
 
     def _repr_png_(self):
         import plot
-        return plot.ax_to_bytes(self.plot())
+        try:
+            return plot.ax_to_bytes(self.plot())
+        except AttributeError:
+            return None
 
 
 cdef class ComplexCF(Compute):
@@ -428,6 +432,7 @@ cdef class ComplexCF(Compute):
     def __str__(self):
         return repr(self)
 
+    @Compute._computed_method()
     def plot(self, ax=None):
         """Plot complex correlation function.
 
@@ -447,7 +452,10 @@ cdef class ComplexCF(Compute):
 
     def _repr_png_(self):
         import plot
-        return plot.ax_to_bytes(self.plot())
+        try:
+            return plot.ax_to_bytes(self.plot())
+        except AttributeError:
+            return None
 
 
 cdef class GaussianDensity(Compute):
@@ -875,6 +883,7 @@ cdef class RDF(Compute):
     def __str__(self):
         return repr(self)
 
+    @Compute._computed_method()
     def plot(self, ax=None):
         """Plot radial distribution function.
 
@@ -893,4 +902,7 @@ cdef class RDF(Compute):
 
     def _repr_png_(self):
         import plot
-        return plot.ax_to_bytes(self.plot())
+        try:
+            return plot.ax_to_bytes(self.plot())
+        except AttributeError:
+            return None

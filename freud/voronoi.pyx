@@ -436,6 +436,7 @@ class Voronoi(Compute):
     def __str__(self):
         return repr(self)
 
+    @Compute._computed_method()
     def plot(self, ax=None):
         """Plot Voronoi diagram.
 
@@ -454,4 +455,7 @@ class Voronoi(Compute):
 
     def _repr_png_(self):
         import plot
-        return plot.ax_to_bytes(self.plot())
+        try:
+            return plot.ax_to_bytes(self.plot())
+        except AttributeError:
+            return None

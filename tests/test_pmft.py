@@ -539,6 +539,11 @@ class TestPMFTXY2D(unittest.TestCase):
         nbinsX = 100
         nbinsY = 110
         myPMFT = freud.pmft.PMFTXY2D(maxX, maxY, nbinsX, nbinsY)
+
+        with self.assertRaises(AttributeError):
+            myPMFT.plot()
+        self.assertEqual(myPMFT._repr_png_(), None)
+
         myPMFT.accumulate(box, points, angles, points, angles)
         myPMFT._repr_png_()
 

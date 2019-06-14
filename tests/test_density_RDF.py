@@ -129,6 +129,11 @@ class TestRDF(unittest.TestCase):
         points = np.random.random_sample((num_points, 3)).astype(np.float32) \
             * box_size - box_size/2
         rdf = freud.density.RDF(rmax, dr)
+
+        with self.assertRaises(AttributeError):
+            rdf.plot()
+        self.assertEqual(rdf._repr_png_(), None)
+
         box = freud.box.Box.cube(box_size)
         rdf.accumulate(box, points)
         rdf._repr_png_()

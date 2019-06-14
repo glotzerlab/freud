@@ -12,6 +12,9 @@ class TestMSD(unittest.TestCase):
         msd = freud.msd.MSD()
         with self.assertRaises(AttributeError):
             msd.msd
+        with self.assertRaises(AttributeError):
+            msd.plot()
+        self.assertEqual(msd._repr_png_(), None)
 
         msd.accumulate(positions)
         msd.msd
@@ -19,10 +22,14 @@ class TestMSD(unittest.TestCase):
         msd.reset()
         with self.assertRaises(AttributeError):
             msd.msd
+        with self.assertRaises(AttributeError):
+            msd.plot()
+        self.assertEqual(msd._repr_png_(), None)
 
         msd.compute(positions)
         msd.msd
         msd.box
+        msd._repr_png_()
 
     def test_MSD(self):
         """Test correct behavior for various constructor signatures"""

@@ -144,6 +144,11 @@ class TestCluster(unittest.TestCase):
                               [0, 2, 0],
                               [-0.1, 1.9, 0]])
         clust = freud.cluster.Cluster(box, 0.5)
+
+        with self.assertRaises(AttributeError):
+            clust.plot()
+        self.assertEqual(clust._repr_png_(), None)
+
         clust.computeClusters(positions, box=box)
         clust._repr_png_()
 

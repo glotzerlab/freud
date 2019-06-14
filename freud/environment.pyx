@@ -833,6 +833,7 @@ cdef class MatchEnv(Compute):
     def __str__(self):
         return repr(self)
 
+    @Compute._computed_method()
     def plot(self, ax=None):
         """Plot cluster distribution.
 
@@ -854,10 +855,13 @@ cdef class MatchEnv(Compute):
 
     def _repr_png_(self):
         import plot
-        return plot.ax_to_bytes(self.plot())
+        try:
+            return plot.ax_to_bytes(self.plot())
+        except AttributeError:
+            return None
 
 
-cdef class AngularSeparation:
+cdef class AngularSeparation(Compute):
     R"""Calculates the minimum angles of separation between particles and
     references.
 

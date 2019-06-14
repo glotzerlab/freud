@@ -783,8 +783,12 @@ cdef class PMFTXY2D(_PMFT):
 
     def _repr_png_(self):
         import plot
-        return plot.ax_to_bytes(self.plot())
+        try:
+            return plot.ax_to_bytes(self.plot())
+        except AttributeError:
+            return None
 
+    @Compute._computed_method()
     def plot(self, ax=None):
         """Plot PMFTXY2D.
 
