@@ -212,14 +212,14 @@ cdef class FloatCF:
         return repr(self)
 
     def plot(self, ax=None):
-        """Plot Float CF.
+        """Plot correlation function.
 
         Args:
-            ax (:class:`matplotlib.axes`) Axis to plot on. If :code:`None`,
-                make a new figure and axis. (Default value=:code:`None`)
+            ax (:class:`matplotlib.axes`): Axis to plot on. If :code:`None`,
+                make a new figure and axis. (Default value = :code:`None`)
 
         Returns:
-            (:class:`matplotlib.axes`) Axis with the plot.
+            (:class:`matplotlib.axes`): Axis with the plot.
         """
         import plot
         return plot.line_plot(self.R, self.RDF,
@@ -424,14 +424,14 @@ cdef class ComplexCF:
         return repr(self)
 
     def plot(self, ax=None):
-        """Plot Complex CF.
+        """Plot complex correlation function.
 
         Args:
-            ax (:class:`matplotlib.axes`) Axis to plot on. If :code:`None`,
-                make a new figure and axis. (Default value=:code:`None`)
+            ax (:class:`matplotlib.axes`): Axis to plot on. If :code:`None`,
+                make a new figure and axis. (Default value = :code:`None`)
 
         Returns:
-            (:class:`matplotlib.axes`) Axis with the plot.
+            (:class:`matplotlib.axes`): Axis with the plot.
         """
         import plot
         return plot.line_plot(self.R, np.real(self.RDF),
@@ -876,14 +876,14 @@ cdef class RDF:
         return repr(self)
 
     def plot(self, ax=None):
-        """Plot RDF.
+        """Plot radial distribution function.
 
         Args:
-            ax (:class:`matplotlib.axes`) Axis to plot on. If :code:`None`,
-                make a new figure and axis. (Default value=:code:`None`)
+            ax (:class:`matplotlib.axes`): Axis to plot on. If :code:`None`,
+                make a new figure and axis. (Default value = :code:`None`)
 
         Returns:
-            (:class:`matplotlib.axes`) Axis with the plot.
+            (:class:`matplotlib.axes`): Axis with the plot.
         """
         import plot
         return plot.line_plot(self.R, self.RDF,

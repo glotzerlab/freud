@@ -874,11 +874,11 @@ cdef class MatchEnv:
         """Plot cluster distribution.
 
         Args:
-            ax (:class:`matplotlib.axes`) Axis to plot on. If :code:`None`,
-                make a new figure and axis. (Default value=:code:`None`)
+            ax (:class:`matplotlib.axes`): Axis to plot on. If :code:`None`,
+                make a new figure and axis. (Default value = :code:`None`)
 
         Returns:
-            (:class:`matplotlib.axes`) Axis with the plot.
+            (:class:`matplotlib.axes`): Axis with the plot.
         """
         import plot
         try:

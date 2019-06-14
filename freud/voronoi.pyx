@@ -432,14 +432,14 @@ class Voronoi(object):
         return repr(self)
 
     def plot(self, ax=None):
-        """Plot Voronoi.
+        """Plot Voronoi diagram.
 
         Args:
-            ax (:class:`matplotlib.axes`) Axis to plot on. If :code:`None`,
-                make a new figure and axis. (Default value=:code:`None`)
+            ax (:class:`matplotlib.axes`): Axis to plot on. If :code:`None`,
+                make a new figure and axis. (Default value = :code:`None`)
 
         Returns:
-            (:class:`matplotlib.axes`) Axis with the plot.
+            (:class:`matplotlib.axes`): Axis with the plot.
         """
         import plot
         if not self._box.is2D():
