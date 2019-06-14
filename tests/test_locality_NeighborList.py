@@ -114,13 +114,13 @@ class TestNeighborList(unittest.TestCase):
                 4, 4, index_j, index_i)
 
         # mismatched array sizes
-        with self.assertRaises(TypeError):
+        with self.assertRaises(ValueError):
             nlist = locality.NeighborList.from_arrays(
                 4, 4, index_i[:-1], index_j)
-        with self.assertRaises(TypeError):
+        with self.assertRaises(ValueError):
             nlist = locality.NeighborList.from_arrays(
                 4, 4, index_i, index_j[:-1])
-        with self.assertRaises(TypeError):
+        with self.assertRaises(ValueError):
             weights = np.ones((len(index_i) - 1,))
             nlist = locality.NeighborList.from_arrays(
                 4, 4, index_i, index_j, weights)
