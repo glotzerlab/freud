@@ -239,6 +239,14 @@ cdef class Box:
             <const vec3[float]&> l_vec[0])
         return [result.x, result.y, result.z]
 
+    def _makeCoordinates_many(self, vecs):
+        cdef const float[:, ::1] l_points = vecs
+        cdef unsigned int Np = l_points.shape[0]
+        with nogil:
+            self.thisptr.makeCoordinates_many(<vec3[float]*> &l_points[0, 0],
+                                              Np)
+        return vecs
+
     def makeFraction(self, vecs):
         R"""Convert real coordinates into fractional coordinates.
 
@@ -255,8 +263,7 @@ cdef class Box:
         vecs = np.atleast_2d(vecs)
         vecs = freud.common.convert_array(vecs, shape=(None, 3))
 
-        for i, vec in enumerate(vecs):
-            vecs[i] = self._makeFraction(vec)
+        vecs = self._makeFraction_many(vecs)
         return np.squeeze(vecs) if flatten else vecs
 
     def _makeFraction(self, vec):
@@ -264,6 +271,13 @@ cdef class Box:
         cdef vec3[float] result = self.thisptr.makeFraction(
             <const vec3[float]&> l_vec[0])
         return [result.x, result.y, result.z]
+
+    def _makeFraction_many(self, vecs):
+        cdef const float[:, ::1] l_points = vecs
+        cdef unsigned int Np = l_points.shape[0]
+        with nogil:
+            self.thisptr.makeFraction_many(<vec3[float]*> &l_points[0, 0], Np)
+        return vecs
 
     def getImage(self, vecs):
         R"""Returns the image corresponding to a wrapped vector.
@@ -283,8 +297,7 @@ cdef class Box:
         vecs = np.atleast_2d(vecs)
         vecs = freud.common.convert_array(vecs, shape=(None, 3))
 
-        images = np.asarray([self._getImage(vec) for vec in vecs],
-                            dtype=int)
+        images = self._getImage_many(vecs)
         return np.squeeze(images) if flatten else images
 
     def _getImage(self, vec):
@@ -292,6 +305,15 @@ cdef class Box:
         cdef vec3[int] result = self.thisptr.getImage(
             <const vec3[float]&> l_vec[0])
         return [result.x, result.y, result.z]
+
+    def _getImage_many(self, vecs):
+        cdef const float[:, ::1] l_points = vecs
+        cdef const int[:, ::1] l_result = np.zeros(vecs.shape, dtype=np.int32)
+        cdef unsigned int Np = l_points.shape[0]
+        with nogil:
+            self.thisptr.getImage_many(<vec3[float]*> &l_points[0, 0], Np,
+                                       <vec3[int]*> &l_result[0, 0])
+        return np.asarray(l_result)
 
     def getLatticeVector(self, i):
         R"""Get the lattice vector with index :math:`i`.
@@ -331,8 +353,7 @@ cdef class Box:
         vecs = np.atleast_2d(vecs)
         vecs = freud.common.convert_array(vecs, shape=(None, 3))
 
-        for i, vec in enumerate(vecs):
-            vecs[i] = self._wrap(vec)
+        vecs = self._wrap_many(vecs)
         return np.squeeze(vecs) if flatten else vecs
 
     def _wrap(self, vec):
@@ -340,6 +361,13 @@ cdef class Box:
         cdef const float[::1] l_vec = vec
         cdef vec3[float] result = self.thisptr.wrap(<vec3[float]&> l_vec[0])
         return (result.x, result.y, result.z)
+
+    def _wrap_many(self, vecs):
+        cdef const float[:, ::1] l_points = vecs
+        cdef unsigned int Np = l_points.shape[0]
+        with nogil:
+            self.thisptr.wrap_many(<vec3[float]*> &l_points[0, 0], Np)
+        return vecs
 
     def unwrap(self, vecs, imgs):
         R"""Unwrap a given array of vectors inside the box back into real space,
@@ -378,6 +406,15 @@ cdef class Box:
         cdef vec3[float] result = self.thisptr.unwrap(
             <vec3[float]&> l_vec[0], <vec3[int]&> l_img[0])
         return [result.x, result.y, result.z]
+
+    def _unwrap_many(self, vecs, imgs):
+        cdef const float[:, ::1] l_points = vecs
+        cdef const int[:, ::1] l_imgs = imgs
+        cdef unsigned int Np = l_points.shape[0]
+        with nogil:
+            self.thisptr.unwrap_many(<vec3[float]*> &l_points[0, 0],
+                                     <vec3[int]*> &l_imgs[0, 0], Np)
+        return vecs
 
     @property
     def periodic(self):

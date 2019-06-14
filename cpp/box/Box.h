@@ -9,6 +9,7 @@
 #include <math.h>
 #include <sstream>
 #include <stdexcept>
+#include <tbb/tbb.h>
 
 #include "VectorMath.h"
 
@@ -200,6 +201,21 @@ public:
         return v;
     }
 
+    //! Convert fractional coordinates into real coordinates in place
+    /*! \param vecs Vectors of fractional coordinates between 0 and 1 within
+     *         parallelpipedal box
+     *  \param Nvecs Number of vectors
+     */
+    void makeCoordinates_many(vec3<float>* vecs, unsigned int Nvecs) const
+    {
+        tbb::parallel_for(tbb::blocked_range<size_t>(0, Nvecs), [=] (const tbb::blocked_range<size_t>& r) {
+            for(size_t i = r.begin(); i < r.end(); ++i)
+            {
+                vecs[i] = makeCoordinates(vecs[i]);
+            }
+        });
+    }
+
     //! Compute the position of the particle in box relative coordinates
     /*! \param p point
      *  \returns alpha
@@ -224,6 +240,17 @@ public:
         return delta;
     }
 
+    void makeFraction_many(vec3<float>* vecs, unsigned int Nvecs) const
+    {
+        tbb::parallel_for(tbb::blocked_range<size_t>(0, Nvecs), [=] (const tbb::blocked_range<size_t>& r) {
+            for(size_t i = r.begin(); i < r.end(); ++i)
+            {
+                vecs[i] = makeFraction(vecs[i]);
+            }
+        });
+    }
+
+
     //! Get the periodic image a vector belongs to
     /*! \param v The vector to check
      *  \returns the integer coordinates of the periodic image
@@ -238,8 +265,23 @@ public:
         return img;
     }
 
+    //! Get the periodic image vectors belongs to
+    /*! \param vecs The vectors to check
+     *  \param Nvecs Number of vectors
+        \param res Array to save the images
+     */
+    void getImage_many(vec3<float>* vecs, unsigned int Nvecs, vec3<int>* res) const
+    {
+        tbb::parallel_for(tbb::blocked_range<size_t>(0, Nvecs), [=] (const tbb::blocked_range<size_t>& r) {
+            for(size_t i = r.begin(); i < r.end(); ++i)
+            {
+                res[i] = getImage(vecs[i]);
+            }
+        });
+    }
+
     //! Wrap a vector back into the box
-    /*! \param w Vector to wrap, updated to the minimum image obeying the periodic settings
+    /*! \param v Vector to wrap, updated to the minimum image obeying the periodic settings
      *  \returns Wrapped vector
      */
     vec3<float> wrap(const vec3<float>& v) const
@@ -264,6 +306,20 @@ public:
         return makeCoordinates(tmp);
     }
 
+    //! Wrap vectors back into the box in place
+    /*! \param vecs Vectors to wrap, updated to the minimum image obeying the periodic settings
+     *  \param Nvecs Number of vectors
+     */
+    void wrap_many(vec3<float>* vecs, unsigned int Nvecs) const
+    {
+        tbb::parallel_for(tbb::blocked_range<size_t>(0, Nvecs), [=] (const tbb::blocked_range<size_t>& r) {
+            for(size_t i = r.begin(); i < r.end(); ++i)
+            {
+                vecs[i] = wrap(vecs[i]);
+            }
+        });
+    }
+
     //! Unwrap a given position to its "real" location
     /*! \param p coordinates to unwrap
      *  \param image image flags for this point
@@ -280,6 +336,21 @@ public:
             newp += getLatticeVector(2) * float(image.z);
         }
         return newp;
+    }
+
+    //! Unwrap given positions to their "real" location in place
+    /*! \param vecs Vectors of coordinates to unwrap
+     *  \param images images flags for this point
+        \param Nvecs Number of vectors
+    */
+    void unwrap_many(vec3<float>* vecs, const vec3<int>* images, unsigned int Nvecs) const
+    {
+        tbb::parallel_for(tbb::blocked_range<size_t>(0, Nvecs), [=] (const tbb::blocked_range<size_t>& r) {
+            for(size_t i = r.begin(); i < r.end(); ++i)
+            {
+                vecs[i] = unwrap(vecs[i], images[i]);
+            }
+        });
     }
 
     //! Get the shortest distance between opposite boundary planes of the box
