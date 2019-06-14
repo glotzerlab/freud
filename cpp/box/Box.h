@@ -208,8 +208,8 @@ public:
      */
     void makeCoordinates_many(vec3<float>* vecs, unsigned int Nvecs) const
     {
-        tbb::parallel_for(tbb::blocked_range<size_t>(0, Nvecs), [=] (const tbb::blocked_range<size_t>& r) {
-            for(size_t i = r.begin(); i < r.end(); ++i)
+        tbb::parallel_for(tbb::blocked_range<size_t>(0, Nvecs), [=](const tbb::blocked_range<size_t>& r) {
+            for (size_t i = r.begin(); i < r.end(); ++i)
             {
                 vecs[i] = makeCoordinates(vecs[i]);
             }
@@ -242,14 +242,13 @@ public:
 
     void makeFraction_many(vec3<float>* vecs, unsigned int Nvecs) const
     {
-        tbb::parallel_for(tbb::blocked_range<size_t>(0, Nvecs), [=] (const tbb::blocked_range<size_t>& r) {
-            for(size_t i = r.begin(); i < r.end(); ++i)
+        tbb::parallel_for(tbb::blocked_range<size_t>(0, Nvecs), [=](const tbb::blocked_range<size_t>& r) {
+            for (size_t i = r.begin(); i < r.end(); ++i)
             {
                 vecs[i] = makeFraction(vecs[i]);
             }
         });
     }
-
 
     //! Get the periodic image a vector belongs to
     /*! \param v The vector to check
@@ -272,8 +271,8 @@ public:
      */
     void getImage_many(vec3<float>* vecs, unsigned int Nvecs, vec3<int>* res) const
     {
-        tbb::parallel_for(tbb::blocked_range<size_t>(0, Nvecs), [=] (const tbb::blocked_range<size_t>& r) {
-            for(size_t i = r.begin(); i < r.end(); ++i)
+        tbb::parallel_for(tbb::blocked_range<size_t>(0, Nvecs), [=](const tbb::blocked_range<size_t>& r) {
+            for (size_t i = r.begin(); i < r.end(); ++i)
             {
                 res[i] = getImage(vecs[i]);
             }
@@ -312,8 +311,8 @@ public:
      */
     void wrap_many(vec3<float>* vecs, unsigned int Nvecs) const
     {
-        tbb::parallel_for(tbb::blocked_range<size_t>(0, Nvecs), [=] (const tbb::blocked_range<size_t>& r) {
-            for(size_t i = r.begin(); i < r.end(); ++i)
+        tbb::parallel_for(tbb::blocked_range<size_t>(0, Nvecs), [=](const tbb::blocked_range<size_t>& r) {
+            for (size_t i = r.begin(); i < r.end(); ++i)
             {
                 vecs[i] = wrap(vecs[i]);
             }
@@ -345,8 +344,8 @@ public:
     */
     void unwrap_many(vec3<float>* vecs, const vec3<int>* images, unsigned int Nvecs) const
     {
-        tbb::parallel_for(tbb::blocked_range<size_t>(0, Nvecs), [=] (const tbb::blocked_range<size_t>& r) {
-            for(size_t i = r.begin(); i < r.end(); ++i)
+        tbb::parallel_for(tbb::blocked_range<size_t>(0, Nvecs), [=](const tbb::blocked_range<size_t>& r) {
+            for (size_t i = r.begin(); i < r.end(); ++i)
             {
                 vecs[i] = unwrap(vecs[i], images[i]);
             }
