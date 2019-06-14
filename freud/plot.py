@@ -10,6 +10,8 @@ except ImportError:
 
 
 def ax_to_bytes(ax):
+    if ax is None:
+        return None
     f = io.BytesIO()
     # Sets an Agg backend so this figure can be rendered
     fig = ax.figure
@@ -18,7 +20,7 @@ def ax_to_bytes(ax):
     return f.getvalue()
 
 
-def bar_plot(x, height, title=None, xlabel=None, ylabel=None):
+def bar_plot(x, height, title=None, xlabel=None, ylabel=None, ax=None):
     """Helper function to draw a bar graph.
 
     .. moduleauthor:: Jin Soo Ihm <jinihm@umich.edu>
@@ -36,19 +38,21 @@ def bar_plot(x, height, title=None, xlabel=None, ylabel=None):
     """
     if not MATPLOTLIB:
         return None
-    else:
+
+    if ax is None:
         fig = Figure()
         ax = fig.subplots()
-        ax.bar(x=x, height=height)
-        ax.set_title(title)
-        ax.set_xlabel(xlabel)
-        ax.set_ylabel(ylabel)
-        ax.set_xticks(x)
-        ax.set_xticklabels(x)
-        return ax
+
+    ax.bar(x=x, height=height)
+    ax.set_title(title)
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+    ax.set_xticks(x)
+    ax.set_xticklabels(x)
+    return ax
 
 
-def plot_clusters(keys, freqs, num_cluster_to_plot=10):
+def plot_clusters(keys, freqs, num_cluster_to_plot=10, ax=None):
     """Helper function to plot most frequent clusters in a bar graph.
 
     .. moduleauthor:: Jin Soo Ihm <jinihm@umich.edu>
@@ -71,10 +75,10 @@ def plot_clusters(keys, freqs, num_cluster_to_plot=10):
     return bar_plot(sorted_keys, sorted_freqs, title="Cluster Frequency",
                     xlabel="Keys of {} largest clusters (total clusters: "
                            "{})".format(len(sorted_freqs), len(freqs)),
-                    ylabel="Number of particles")
+                    ylabel="Number of particles", ax=ax)
 
 
-def line_plot(x, y, title=None, xlabel=None, ylabel=None):
+def line_plot(x, y, title=None, xlabel=None, ylabel=None, ax=None):
     """Helper function to draw a line graph.
 
     .. moduleauthor:: Jin Soo Ihm <jinihm@umich.edu>
@@ -92,14 +96,16 @@ def line_plot(x, y, title=None, xlabel=None, ylabel=None):
     """
     if not MATPLOTLIB:
         return None
-    else:
+
+    if ax is None:
         fig = Figure()
         ax = fig.subplots()
-        ax.plot(x, y)
-        ax.set_title(title)
-        ax.set_xlabel(xlabel)
-        ax.set_ylabel(ylabel)
-        return ax
+
+    ax.plot(x, y)
+    ax.set_title(title)
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+    return ax
 
 
 def pmft_plot(pmft, ax=None):
@@ -152,7 +158,7 @@ def pmft_plot(pmft, ax=None):
         return ax
 
 
-def draw_voronoi(box, cells):
+def draw_voronoi(box, cells, ax=None):
     """Helper function to draw 2D Voronoi diagram.
 
     Args:
@@ -176,8 +182,10 @@ def draw_voronoi(box, cells):
         from matplotlib.patches import Polygon, Rectangle
     except ImportError:
         return None
-    fig = Figure()
-    ax = fig.subplots()
+
+    if ax is None:
+        fig = Figure()
+        ax = fig.subplots()
 
     # Draw Voronoi cells
     patches = [Polygon(cell[:, :2]) for cell in cells]

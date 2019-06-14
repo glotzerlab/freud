@@ -354,14 +354,9 @@ class TestCluster(unittest.TestCase):
         xyz.flags['WRITEABLE'] = False
         L = np.max(xyz)*2
 
-        box = freud.box.Box.cube(L)
         rcut = 3.1
         kn = 14
         threshold = 0.1
-
-        match = freud.environment.MatchEnv(box, rcut, kn)
-        match.cluster(xyz, threshold)
-        self.assertEqual(match._repr_png_(), None)
 
         box = freud.box.Box.square(L)
         xyz = np.load(fn)

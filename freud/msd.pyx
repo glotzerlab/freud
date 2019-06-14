@@ -231,13 +231,27 @@ cdef class MSD:
     def __str__(self):
         return repr(self)
 
-    def _repr_png_(self):
-        import plot
+    def plot(self, ax=None):
+        """Plot MSD.
+
+        Args:
+            ax (:class:`matplotlib.axes`) Axis to plot on. If :code:`None`,
+                make a new figure and axis. (Default value=:code:`None`)
+
+        Returns:
+            (:class:`matplotlib.axes`) Axis with the plot.
+        """
+        import freud.plot
         if self.mode == "window":
             xlabel = "Window size"
         else:
             xlabel = "Frame number"
-        return plot.line_plot(list(range(len(self.msd))), self.msd,
-                              title="MSD",
-                              xlabel=xlabel,
-                              ylabel="MSD")
+        return freud.plot.line_plot(list(range(len(self.msd))), self.msd,
+                                    title="MSD",
+                                    xlabel=xlabel,
+                                    ylabel="MSD",
+                                    ax=ax)
+
+    def _repr_png_(self):
+        import freud.plot
+        return freud.plot.ax_to_bytes(self.plot())
