@@ -1206,7 +1206,7 @@ cdef class LocalBondProjection(Compute):
         return freud.box.BoxFromCPP(<freud._box.Box> self.thisptr.getBox())
 
     def __repr__(self):
-        return ("freud.environment.{cls}(rmax={rmax}, " +
+        return ("freud.environment.{cls}(rmax={rmax}, "
                 "num_neigh={num_neigh})").format(cls=type(self).__name__,
                                                  rmax=self.rmax,
                                                  num_neigh=self.num_neigh)

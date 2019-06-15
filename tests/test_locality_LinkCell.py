@@ -5,7 +5,6 @@ from collections import Counter
 import itertools
 import sys
 import unittest
-import warnings
 
 
 class TestLinkCell(unittest.TestCase):

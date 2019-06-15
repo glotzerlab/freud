@@ -485,8 +485,8 @@ cdef class Box:
                            [0, 0, self.Lz]])
 
     def __repr__(self):
-        return ("freud.box.{cls}(Lx={Lx}, Ly={Ly}, Lz={Lz}, " +
-                "xy={xy}, xz={xz}, yz={yz}, " +
+        return ("freud.box.{cls}(Lx={Lx}, Ly={Ly}, Lz={Lz}, "
+                "xy={xy}, xz={xz}, yz={yz}, "
                 "is2D={is2D})").format(cls=type(self).__name__,
                                        **self.to_dict(),
                                        is2D=self.is2D())
