@@ -250,8 +250,8 @@ cdef class ClusterProperties(Compute):
         R"""Compute properties of the point clusters.
         Loops over all points in the given array and determines the center of
         mass of the cluster as well as the :math:`G` tensor. These can be
-        accessed after the call to :meth:`~.computeProperties()` with
-        :code:`cluster_COM` and :code:`cluster_G` attributes..
+        accessed after the call to :meth:`~.computeProperties()` with the
+        :code:`cluster_COM` and :code:`cluster_G` attributes.
 
         Args:
             points ((:math:`N_{particles}`, 3) :class:`np.ndarray`):

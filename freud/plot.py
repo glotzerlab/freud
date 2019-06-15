@@ -1,6 +1,5 @@
 import io
 import numpy as np
-import freud
 try:
     from matplotlib.figure import Figure
     from matplotlib.backends.backend_agg import FigureCanvasAgg
@@ -122,7 +121,6 @@ def pmft_plot(pmft, ax=None):
     if not MATPLOTLIB:
         return None
     try:
-        from matplotlib.cm import viridis
         from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
         from mpl_toolkits.axes_grid1.colorbar import colorbar
     except ImportError:

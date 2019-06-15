@@ -3,14 +3,10 @@
 
 # Methods used throughout freud for convenience
 
-import logging
 import numpy as np
 import freud.box
 
 from functools import wraps
-
-logger = logging.getLogger(__name__)
-
 
 cdef class Compute:
     R"""Parent class implementing functions to prevent access of
@@ -139,10 +135,10 @@ def convert_array(array, shape=None, dtype=np.float32):
         array (:class:`numpy.ndarray`): Array to check and convert.
         shape: (tuple of int and :code:`None`): Expected shape of the array.
             Only the dimensions that are not :code:`None` are checked.
-            (Default value = :code:'None').
+            (Default value = :code:`None`).
         dtype: :code:`dtype` to convert the array to if :code:`array.dtype`
             is different. If :code:`None`, :code:`dtype` will not be changed
-            (Default value = `numpy.float32`).
+            (Default value = :class:`numpy.float32`).
 
     Returns:
         :class:`numpy.ndarray`: Array.
