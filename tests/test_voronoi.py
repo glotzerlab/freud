@@ -14,12 +14,29 @@ class TestVoronoi(unittest.TestCase):
         N = 50  # Number of particles
         box = freud.box.Box.square(L)  # Initialize box
         vor = freud.voronoi.Voronoi(box)
+
+        with self.assertRaises(AttributeError):
+            vor.polytopes
+        with self.assertRaises(AttributeError):
+            vor.nlist
+        with self.assertRaises(AttributeError):
+            vor.volumes
+        with self.assertRaises(AttributeError):
+            vor.getNeighbors(0)
+
         np.random.seed(0)
         # Generate random points in the box
         positions = np.random.uniform(-L/2, L/2, size=(N, 2))
         # Add a z-component of 0
         positions = np.insert(positions, 2, 0, axis=1).astype(np.float32)
         vor.compute(positions, box=box, buff=L/2)
+
+        with self.assertRaises(AttributeError):
+            vor.nlist
+        with self.assertRaises(AttributeError):
+            vor.volumes
+        with self.assertRaises(AttributeError):
+            vor.getNeighbors(0)
 
         result = vor.polytopes
 
@@ -181,6 +198,40 @@ class TestVoronoi(unittest.TestCase):
         box = freud.box.Box.cube(10)
         vor = freud.voronoi.Voronoi(box)
         self.assertEqual(str(vor), str(eval(repr(vor))))
+
+    def test_repr_png(self):
+        L = 10  # Box length
+        box = freud.box.Box.square(L)
+        vor = freud.voronoi.Voronoi(box)
+
+        with self.assertRaises(AttributeError):
+            vor.plot()
+        self.assertEqual(vor._repr_png_(), None)
+
+        # Make a regular grid
+        positions = np.array(
+            [[0, 0, 0], [0, 1, 0], [0, 2, 0],
+             [1, 0, 0], [1, 1, 0], [1, 2, 0],
+             [2, 0, 0], [2, 1, 0], [2, 2, 0]]).astype(np.float32)
+        vor.compute(positions)
+        vor._repr_png_()
+
+        L = 10  # Box length
+        box = freud.box.Box.cube(L)
+        vor = freud.voronoi.Voronoi(box)
+        # Make a regular grid
+        positions = np.array(
+            [[0, 0, 0], [0, 1, 0], [0, 2, 0],
+             [1, 0, 0], [1, 1, 0], [1, 2, 0],
+             [2, 0, 0], [2, 1, 0], [2, 2, 0],
+             [0, 0, 1], [0, 1, 1], [0, 2, 1],
+             [1, 0, 1], [1, 1, 1], [1, 2, 1],
+             [2, 0, 1], [2, 1, 1], [2, 2, 1],
+             [0, 0, 2], [0, 1, 2], [0, 2, 2],
+             [1, 0, 2], [1, 1, 2], [1, 2, 2],
+             [2, 0, 2], [2, 1, 2], [2, 2, 2]]).astype(np.float32)
+        vor.compute(positions)
+        self.assertEqual(vor._repr_png_(), None)
 
 
 if __name__ == '__main__':
