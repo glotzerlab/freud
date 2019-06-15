@@ -13,6 +13,7 @@ import numpy as np
 import warnings
 import freud.locality
 
+from freud.common cimport Compute
 from freud.util._VectorMath cimport vec3, quat
 from libcpp.vector cimport vector
 from libcpp.map cimport map
@@ -28,7 +29,7 @@ cimport numpy as np
 np.import_array()
 
 
-cdef class BondOrder:
+cdef class BondOrder(Compute):
     R"""Compute the bond orientational order diagram for the system of
     particles.
 
@@ -141,6 +142,7 @@ cdef class BondOrder:
     def __dealloc__(self):
         del self.thisptr
 
+    @Compute._compute()
     def accumulate(self, box, ref_points, ref_orientations, points=None,
                    orientations=None, str mode="bod", nlist=None):
         R"""Calculates the correlation function and adds to the current
@@ -149,14 +151,14 @@ cdef class BondOrder:
         Args:
             box (:class:`freud.box.Box`):
                 Simulation box.
-            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            ref_points ((:math:`N_{ref\_points}`, 3) :class:`numpy.ndarray`):
                 Reference points used to calculate bonds.
-            ref_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
+            ref_orientations ((:math:`N_{ref\_points}`, 4) :class:`numpy.ndarray`):
                 Reference orientations used to calculate bonds.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
+            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`, optional):
                 Points used to calculate bonds. Uses :code:`ref_points` if not
                 provided or :code:`None`.
-            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
+            orientations ((:math:`N_{points}`, 4) :class:`numpy.ndarray`):
                 Orientations used to calculate bonds. Uses
                 :code:`ref_orientations` if not provided or :code:`None`.
             mode (str, optional):
@@ -174,21 +176,12 @@ cdef class BondOrder:
         if orientations is None:
             orientations = ref_orientations
 
-        ref_points = freud.common.convert_array(ref_points, 2)
-        if ref_points.shape[1] != 3:
-            raise TypeError('ref_points should be an Nx3 array')
-
-        points = freud.common.convert_array(points, 2)
-        if points.shape[1] != 3:
-            raise TypeError('points should be an Nx3 array')
-
-        ref_orientations = freud.common.convert_array(ref_orientations, 2)
-        if ref_orientations.shape[1] != 4:
-            raise TypeError('ref_orientations should be an Nx4 array')
-
-        orientations = freud.common.convert_array(orientations, 2)
-        if orientations.shape[1] != 4:
-            raise TypeError('orientations should be an Nx4 array')
+        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
+        points = freud.common.convert_array(points, shape=(None, 3))
+        ref_orientations = freud.common.convert_array(
+            ref_orientations, shape=(ref_points.shape[0], 4))
+        orientations = freud.common.convert_array(
+            orientations, shape=(points.shape[0], 4))
 
         cdef unsigned int index = 0
         if mode == "bod":
@@ -227,29 +220,25 @@ cdef class BondOrder:
                 index)
         return self
 
-    @property
+    @Compute._computed_property()
     def bond_order(self):
         cdef unsigned int n_bins_phi = self.thisptr.getNBinsPhi()
         cdef unsigned int n_bins_theta = self.thisptr.getNBinsTheta()
         cdef float[:, ::1] bod = <float[:n_bins_phi, :n_bins_theta]> \
             self.thisptr.getBondOrder().get()
         result = np.asarray(bod)
-
-        # Because we divide by the surface areas, the bond order will actually
-        # be nans if we try to get the bond_order after resetting. This fixes
-        # that.
-        if np.all(np.isnan(result)):
-            result = np.zeros((n_bins_phi, n_bins_theta), dtype=np.float32)
         return result
 
-    @property
+    @Compute._computed_property()
     def box(self):
         return freud.box.BoxFromCPP(self.thisptr.getBox())
 
+    @Compute._reset
     def reset(self):
         R"""Resets the values of the bond order in memory."""
         self.thisptr.reset()
 
+    @Compute._compute()
     def compute(self, box, ref_points, ref_orientations, points=None,
                 orientations=None, mode="bod", nlist=None):
         R"""Calculates the bond order histogram. Will overwrite the current
@@ -321,7 +310,7 @@ cdef class BondOrder:
         return repr(self)
 
 
-cdef class LocalDescriptors:
+cdef class LocalDescriptors(Compute):
     R"""Compute a set of descriptors (a numerical "fingerprint") of a particle's
     local environment.
 
@@ -381,6 +370,7 @@ cdef class LocalDescriptors:
     def __dealloc__(self):
         del self.thisptr
 
+    @Compute._compute()
     def compute(self, box, unsigned int num_neighbors, points_ref, points=None,
                 orientations=None, mode='neighborhood', nlist=None):
         R"""Calculates the local descriptors of bonds from a set of source
@@ -415,16 +405,12 @@ cdef class LocalDescriptors:
             raise RuntimeError(
                 'Unknown LocalDescriptors orientation mode: {}'.format(mode))
 
-        points_ref = freud.common.convert_array(points_ref, 2)
-        if points_ref.shape[1] != 3:
-            raise TypeError('points_ref should be an Nx3 array')
+        points_ref = freud.common.convert_array(points_ref, shape=(None, 3))
 
         if points is None:
             points = points_ref
 
-        points = freud.common.convert_array(points, 2)
-        if points.shape[1] != 3:
-            raise TypeError('points should be an Nx3 array')
+        points = freud.common.convert_array(points, shape=(None, 3))
 
         # The l_orientations_ptr is only used for 'particle_local' mode.
         cdef const float[:, ::1] l_orientations
@@ -435,13 +421,8 @@ cdef class LocalDescriptors:
                     ('Orientations must be given to orient LocalDescriptors '
                         'with particles\' orientations'))
 
-            orientations = freud.common.convert_array(orientations, 2)
-            if orientations.shape[1] != 4:
-                raise TypeError('orientations should be an Nx4 array')
-
-            if orientations.shape[0] != points_ref.shape[0]:
-                raise ValueError(
-                    "orientations must have the same size as points_ref")
+            orientations = freud.common.convert_array(
+                orientations, shape=(points_ref.shape[0], 4))
 
             l_orientations = orientations
             l_orientations_ptr = <quat[float]*> &l_orientations[0, 0]
@@ -471,7 +452,7 @@ cdef class LocalDescriptors:
                 l_orientations_ptr, l_mode)
         return self
 
-    @property
+    @Compute._computed_property()
     def sph(self):
         cdef unsigned int n_sphs = self.thisptr.getNSphs()
         cdef unsigned int sph_width = self.thisptr.getSphWidth()
@@ -482,11 +463,11 @@ cdef class LocalDescriptors:
             self.thisptr.getSph().get()
         return np.asarray(sph, dtype=np.complex64)
 
-    @property
+    @Compute._computed_property()
     def num_particles(self):
         return self.thisptr.getNP()
 
-    @property
+    @Compute._computed_property()
     def num_neighbors(self):
         return self.thisptr.getNSphs()
 
@@ -507,7 +488,7 @@ cdef class LocalDescriptors:
         return repr(self)
 
 
-cdef class MatchEnv:
+cdef class MatchEnv(Compute):
     R"""Clusters particles according to whether their local environments match
     or not, according to various shape matching metrics.
 
@@ -561,6 +542,7 @@ cdef class MatchEnv:
         self.thisptr.setBox(dereference(b.thisptr))
         self.m_box = box
 
+    @Compute._compute()
     def cluster(self, points, threshold, hard_r=False, registration=False,
                 global_search=False, env_nlist=None, nlist=None):
         R"""Determine clusters of particles with matching environments.
@@ -590,9 +572,7 @@ cdef class MatchEnv:
                 NeighborList to use to find neighbors of every particle, to
                 compare environments (Default value = :code:`None`).
         """
-        points = freud.common.convert_array(points, 2)
-        if points.shape[1] != 3:
-            raise TypeError('points should be an Nx3 array')
+        points = freud.common.convert_array(points, shape=(None, 3))
 
         cdef const float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
@@ -622,7 +602,9 @@ cdef class MatchEnv:
             env_nlist_.get_ptr(), nlist_.get_ptr(),
             <vec3[float]*> &l_points[0, 0], nP, threshold, hard_r,
             registration, global_search)
+        return self
 
+    @Compute._compute()
     def matchMotif(self, points, refPoints, threshold, registration=False,
                    nlist=None):
         R"""Determine clusters of particles that match the motif provided by
@@ -645,13 +627,8 @@ cdef class MatchEnv:
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
         """
-        points = freud.common.convert_array(points, 2)
-        if points.shape[1] != 3:
-            raise TypeError('points should be an Nx3 array')
-
-        refPoints = freud.common.convert_array(refPoints, 2)
-        if refPoints.shape[1] != 3:
-            raise TypeError('refPoints should be an Nx3 array')
+        points = freud.common.convert_array(points, shape=(None, 3))
+        refPoints = freud.common.convert_array(refPoints, shape=(None, 3))
 
         cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(
             points.flatten())
@@ -669,6 +646,7 @@ cdef class MatchEnv:
             <vec3[float]*> &l_refPoints[0], nRef, threshold,
             registration)
 
+    @Compute._compute()
     def minRMSDMotif(self, points, refPoints, registration=False, nlist=None):
         R"""Rotate (if registration=True) and permute the environments of all
         particles to minimize their RMSD with respect to the motif provided by
@@ -692,13 +670,8 @@ cdef class MatchEnv:
                 Vector of minimal RMSD values, one value per particle.
 
         """
-        points = freud.common.convert_array(points, 2)
-        if points.shape[1] != 3:
-            raise TypeError('points should be an Nx3 array')
-
-        refPoints = freud.common.convert_array(refPoints, 2)
-        if refPoints.shape[1] != 3:
-            raise TypeError('refPoints should be an Nx3 array')
+        points = freud.common.convert_array(points, shape=(None, 3))
+        refPoints = freud.common.convert_array(refPoints, shape=(None, 3))
 
         cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(
             points.flatten())
@@ -743,13 +716,8 @@ cdef class MatchEnv:
                 correspond to each other. Empty if they do not correspond to
                 each other.
         """  # noqa: E501
-        refPoints1 = freud.common.convert_array(refPoints1, 2)
-        if refPoints1.shape[1] != 3:
-            raise TypeError('refPoints1 should be an Nx3 array')
-
-        refPoints2 = freud.common.convert_array(refPoints2, 2)
-        if refPoints2.shape[1] != 3:
-            raise TypeError('refPoints2 should be an Nx3 array')
+        refPoints1 = freud.common.convert_array(refPoints1, shape=(None, 3))
+        refPoints2 = freud.common.convert_array(refPoints2, shape=(None, 3))
 
         cdef const float[:, ::1] l_refPoints1 = refPoints1
         cdef const float[:, ::1] l_refPoints2 = refPoints2
@@ -789,13 +757,8 @@ cdef class MatchEnv:
                 set of refPoints2, and the mapping between the vectors of
                 refPoints1 and refPoints2 that somewhat minimizes the RMSD.
         """  # noqa: E501
-        refPoints1 = freud.common.convert_array(refPoints1, 2)
-        if refPoints1.shape[1] != 3:
-            raise TypeError('refPoints1 should be an Nx3 array')
-
-        refPoints2 = freud.common.convert_array(refPoints2, 2)
-        if refPoints2.shape[1] != 3:
-            raise TypeError('refPoints2 should be an Nx3 array')
+        refPoints1 = freud.common.convert_array(refPoints1, shape=(None, 3))
+        refPoints2 = freud.common.convert_array(refPoints2, shape=(None, 3))
 
         cdef const float[:, ::1] l_refPoints1 = refPoints1
         cdef const float[:, ::1] l_refPoints2 = refPoints2
@@ -815,7 +778,7 @@ cdef class MatchEnv:
                 nRef1, min_rmsd, registration)
         return [min_rmsd, np.asarray(l_refPoints2), results_map]
 
-    @property
+    @Compute._computed_property()
     def clusters(self):
         cdef unsigned int n_particles = self.thisptr.getNP()
         if not n_particles:
@@ -824,6 +787,7 @@ cdef class MatchEnv:
             <unsigned int[:n_particles]> self.thisptr.getClusters().get()
         return np.asarray(clusters)
 
+    @Compute._computed_method()
     def getEnvironment(self, i):
         R"""Returns the set of vectors defining the environment indexed by i.
 
@@ -842,7 +806,7 @@ cdef class MatchEnv:
                 <float*> self.thisptr.getEnvironment(i).get())
         return np.asarray(environment)
 
-    @property
+    @Compute._computed_property()
     def tot_environment(self):
         cdef unsigned int n_particles = self.thisptr.getNP()
         cdef unsigned int max_neighbors = self.thisptr.getMaxNumNeighbors()
@@ -853,11 +817,11 @@ cdef class MatchEnv:
                 <float*> self.thisptr.getTotEnvironment().get())
         return np.asarray(tot_environment)
 
-    @property
+    @Compute._computed_property()
     def num_particles(self):
         return self.thisptr.getNP()
 
-    @property
+    @Compute._computed_property()
     def num_clusters(self):
         return self.thisptr.getNumClusters()
 
@@ -869,7 +833,35 @@ cdef class MatchEnv:
     def __str__(self):
         return repr(self)
 
-cdef class AngularSeparation:
+    @Compute._computed_method()
+    def plot(self, ax=None):
+        """Plot cluster distribution.
+
+        Args:
+            ax (:class:`matplotlib.axes`): Axis to plot on. If :code:`None`,
+                make a new figure and axis. (Default value = :code:`None`)
+
+        Returns:
+            (:class:`matplotlib.axes`): Axis with the plot.
+        """
+        import plot
+        try:
+            counts = np.unique(self.clusters, return_counts=True)
+        except ValueError:
+            return None
+        return plot.plot_clusters(counts[0], counts[1],
+                                  num_cluster_to_plot=10,
+                                  ax=ax)
+
+    def _repr_png_(self):
+        import plot
+        try:
+            return plot.ax_to_bytes(self.plot())
+        except AttributeError:
+            return None
+
+
+cdef class AngularSeparation(Compute):
     R"""Calculates the minimum angles of separation between particles and
     references.
 
@@ -922,6 +914,7 @@ cdef class AngularSeparation:
     def nlist(self):
         return self.nlist_
 
+    @Compute._compute("computeNeighbor")
     def computeNeighbor(self, box, ref_ors, ors, ref_points, points,
                         equiv_quats, nlist=None):
         R"""Calculates the minimum angles of separation between ref_ors and ors,
@@ -949,25 +942,12 @@ cdef class AngularSeparation:
                 :code:`None`).
         """  # noqa: E501
         cdef freud.box.Box b = freud.common.convert_box(box)
-        ref_points = freud.common.convert_array(ref_points, 2)
-        if ref_points.shape[1] != 3:
-            raise TypeError('ref_points should be an Nx3 array')
+        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
+        points = freud.common.convert_array(points, shape=(None, 3))
 
-        points = freud.common.convert_array(points, 2)
-        if points.shape[1] != 3:
-            raise TypeError('points should be an Nx3 array')
-
-        ref_ors = freud.common.convert_array(ref_ors, 2)
-        if ref_ors.shape[1] != 4:
-            raise TypeError('ref_ors should be an Nx4 array')
-
-        ors = freud.common.convert_array(ors, 2)
-        if ors.shape[1] != 4:
-            raise TypeError('ors should be an Nx4 array')
-
-        equiv_quats = freud.common.convert_array(equiv_quats, 2)
-        if equiv_quats.shape[1] != 4:
-            raise TypeError('equiv_quats should be an N_equiv x 4 array')
+        ref_ors = freud.common.convert_array(ref_ors, shape=(None, 4))
+        ors = freud.common.convert_array(ors, shape=(None, 4))
+        equiv_quats = freud.common.convert_array(equiv_quats, shape=(None, 4))
 
         defaulted_nlist = freud.locality.make_default_nlist_nn(
             b, ref_points, points, self.num_neigh, nlist, None, self.rmax)
@@ -990,6 +970,7 @@ cdef class AngularSeparation:
                 nRef, nP, nEquiv)
         return self
 
+    @Compute._compute("computeGlobal")
     def computeGlobal(self, global_ors, ors, equiv_quats):
         R"""Calculates the minimum angles of separation between
         :code:`global_ors` and :code:`ors`, checking for underlying symmetry as
@@ -1008,17 +989,9 @@ cdef class AngularSeparation:
                 Important: :code:`equiv_quats` must include both :math:`q` and
                 :math:`-q`, for all included quaternions.
         """
-        global_ors = freud.common.convert_array(global_ors, 2)
-        if global_ors.shape[1] != 4:
-            raise TypeError('global_ors should be an Nx4 array')
-
-        ors = freud.common.convert_array(ors, 2)
-        if ors.shape[1] != 4:
-            raise TypeError('ors should be an Nx4 array')
-
-        equiv_quats = freud.common.convert_array(equiv_quats, 2)
-        if equiv_quats.shape[1] != 4:
-            raise TypeError('equiv_quats should be an N_equiv x 4 array')
+        global_ors = freud.common.convert_array(global_ors, shape=(None, 4))
+        ors = freud.common.convert_array(ors, shape=(None, 4))
+        equiv_quats = freud.common.convert_array(equiv_quats, shape=(None, 4))
 
         cdef const float[:, ::1] l_global_ors = global_ors
         cdef const float[:, ::1] l_ors = ors
@@ -1036,7 +1009,7 @@ cdef class AngularSeparation:
                 nGlobal, nP, nEquiv)
         return self
 
-    @property
+    @Compute._computed_property("computeNeighbor")
     def neighbor_angles(self):
         cdef unsigned int n_bonds = len(self.nlist)
         if not n_bonds:
@@ -1045,7 +1018,7 @@ cdef class AngularSeparation:
             <float[:n_bonds]> self.thisptr.getNeighborAngles().get()
         return np.asarray(neighbor_angles)
 
-    @property
+    @Compute._computed_property("computeGlobal")
     def global_angles(self):
         cdef unsigned int n_particles = self.thisptr.getNP()
         cdef unsigned int n_global = self.thisptr.getNglobal()
@@ -1056,15 +1029,15 @@ cdef class AngularSeparation:
             self.thisptr.getGlobalAngles().get()
         return np.asarray(global_angles)
 
-    @property
+    @Compute._computed_property(("computeGlobal", "computeNeighbor"))
     def n_p(self):
         return self.thisptr.getNP()
 
-    @property
+    @Compute._computed_property("computeNeighbor")
     def n_ref(self):
         return self.thisptr.getNref()
 
-    @property
+    @Compute._computed_property("computeGlobal")
     def n_global(self):
         return self.thisptr.getNglobal()
 
@@ -1075,7 +1048,7 @@ cdef class AngularSeparation:
     def __str__(self):
         return repr(self)
 
-cdef class LocalBondProjection:
+cdef class LocalBondProjection(Compute):
     R"""Calculates the maximal projection of nearest neighbor bonds for each
     particle onto some set of reference vectors, defined in the particles'
     local reference frame.
@@ -1119,10 +1092,11 @@ cdef class LocalBondProjection:
     def __dealloc__(self):
         del self.thisptr
 
-    @property
+    @Compute._computed_property()
     def nlist(self):
         return self.nlist_
 
+    @Compute._compute()
     def compute(self, box, proj_vecs, ref_points, ref_ors, points=None,
                 equiv_quats=np.array([[1, 0, 0, 0]]), nlist=None):
         R"""Calculates the maximal projections of nearest neighbor bonds
@@ -1158,27 +1132,14 @@ cdef class LocalBondProjection:
                 :code:`None`).
         """  # noqa: E501
         cdef freud.box.Box b = freud.common.convert_box(box)
-        ref_points = freud.common.convert_array(ref_points, 2)
-        if ref_points.shape[1] != 3:
-            raise TypeError('ref_points should be an Nx3 array')
-
-        ref_ors = freud.common.convert_array(ref_ors, 2)
-        if ref_ors.shape[1] != 4:
-            raise TypeError('ref_ors should be an Nx4 array')
+        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
+        ref_ors = freud.common.convert_array(ref_ors, shape=(None, 4))
 
         if points is None:
             points = ref_points
-        points = freud.common.convert_array(points, 2)
-        if points.shape[1] != 3:
-            raise TypeError('points should be an Nx3 array')
-
-        equiv_quats = freud.common.convert_array(equiv_quats, 2)
-        if equiv_quats.shape[1] != 4:
-            raise TypeError('equiv_quats should be an N_equiv x 4 array')
-
-        proj_vecs = freud.common.convert_array(proj_vecs, 2)
-        if proj_vecs.shape[1] != 3:
-            raise TypeError('proj_vecs should be an Nx3 array')
+        points = freud.common.convert_array(points, shape=(None, 3))
+        equiv_quats = freud.common.convert_array(equiv_quats, shape=(None, 4))
+        proj_vecs = freud.common.convert_array(proj_vecs, shape=(None, 3))
 
         defaulted_nlist = freud.locality.make_default_nlist_nn(
             box, ref_points, points, self.num_neigh, nlist, None, self.rmax)
@@ -1207,7 +1168,7 @@ cdef class LocalBondProjection:
                 nP, nRef, nEquiv, nProj)
         return self
 
-    @property
+    @Compute._computed_property()
     def projections(self):
         cdef unsigned int n_bond_projections = \
             len(self.nlist) * self.thisptr.getNproj()
@@ -1217,7 +1178,7 @@ cdef class LocalBondProjection:
             <float[:n_bond_projections]> self.thisptr.getProjections().get()
         return np.asarray(projections)
 
-    @property
+    @Compute._computed_property()
     def normed_projections(self):
         cdef unsigned int n_bond_projections = \
             len(self.nlist) * self.thisptr.getNproj()
@@ -1228,19 +1189,19 @@ cdef class LocalBondProjection:
             self.thisptr.getNormedProjections().get()
         return np.asarray(normed_projections)
 
-    @property
+    @Compute._computed_property()
     def num_particles(self):
         return self.thisptr.getNP()
 
-    @property
+    @Compute._computed_property()
     def num_reference_particles(self):
         return self.thisptr.getNref()
 
-    @property
+    @Compute._computed_property()
     def num_proj_vectors(self):
         return self.thisptr.getNproj()
 
-    @property
+    @Compute._computed_property()
     def box(self):
         return freud.box.BoxFromCPP(<freud._box.Box> self.thisptr.getBox())
 
