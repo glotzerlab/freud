@@ -22,6 +22,17 @@ class TestCluster(unittest.TestCase):
         threshold = 0.1
 
         match = freud.environment.MatchEnv(box, rcut, kn)
+        with self.assertRaises(AttributeError):
+            match.tot_environment
+        with self.assertRaises(AttributeError):
+            match.num_particles
+        with self.assertRaises(AttributeError):
+            match.num_clusters
+        with self.assertRaises(AttributeError):
+            match.clusters
+        with self.assertRaises(AttributeError):
+            match.getEnvironment(0)
+
         match.cluster(xyz, threshold)
         clusters = match.clusters
 
@@ -364,6 +375,11 @@ class TestCluster(unittest.TestCase):
         xyz[:, 2] = 0
         xyz.flags['WRITEABLE'] = False
         match = freud.environment.MatchEnv(box, rcut, kn)
+
+        with self.assertRaises(AttributeError):
+            match.plot()
+        self.assertEqual(match._repr_png_(), None)
+
         match.cluster(xyz, threshold)
         match._repr_png_()
 

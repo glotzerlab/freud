@@ -7,6 +7,29 @@ import unittest
 
 
 class TestMSD(unittest.TestCase):
+    def test_attribute_access(self):
+        positions = np.array([[[1, 0, 0]]])
+        msd = freud.msd.MSD()
+        with self.assertRaises(AttributeError):
+            msd.msd
+        with self.assertRaises(AttributeError):
+            msd.plot()
+        self.assertEqual(msd._repr_png_(), None)
+
+        msd.accumulate(positions)
+        msd.msd
+
+        msd.reset()
+        with self.assertRaises(AttributeError):
+            msd.msd
+        with self.assertRaises(AttributeError):
+            msd.plot()
+        self.assertEqual(msd._repr_png_(), None)
+
+        msd.compute(positions)
+        msd.msd
+        msd.box
+        msd._repr_png_()
 
     def test_MSD(self):
         """Test correct behavior for various constructor signatures"""

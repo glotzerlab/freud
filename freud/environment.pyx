@@ -13,6 +13,7 @@ import numpy as np
 import warnings
 import freud.locality
 
+from freud.common cimport Compute
 from freud.util._VectorMath cimport vec3, quat
 from libcpp.vector cimport vector
 from libcpp.map cimport map
@@ -28,7 +29,7 @@ cimport numpy as np
 np.import_array()
 
 
-cdef class BondOrder:
+cdef class BondOrder(Compute):
     R"""Compute the bond orientational order diagram for the system of
     particles.
 
@@ -141,6 +142,7 @@ cdef class BondOrder:
     def __dealloc__(self):
         del self.thisptr
 
+    @Compute._compute()
     def accumulate(self, box, ref_points, ref_orientations, points=None,
                    orientations=None, str mode="bod", nlist=None):
         R"""Calculates the correlation function and adds to the current
@@ -218,29 +220,25 @@ cdef class BondOrder:
                 index)
         return self
 
-    @property
+    @Compute._computed_property()
     def bond_order(self):
         cdef unsigned int n_bins_phi = self.thisptr.getNBinsPhi()
         cdef unsigned int n_bins_theta = self.thisptr.getNBinsTheta()
         cdef float[:, ::1] bod = <float[:n_bins_phi, :n_bins_theta]> \
             self.thisptr.getBondOrder().get()
         result = np.asarray(bod)
-
-        # Because we divide by the surface areas, the bond order will actually
-        # be nans if we try to get the bond_order after resetting. This fixes
-        # that.
-        if np.all(np.isnan(result)):
-            result = np.zeros((n_bins_phi, n_bins_theta), dtype=np.float32)
         return result
 
-    @property
+    @Compute._computed_property()
     def box(self):
         return freud.box.BoxFromCPP(self.thisptr.getBox())
 
+    @Compute._reset
     def reset(self):
         R"""Resets the values of the bond order in memory."""
         self.thisptr.reset()
 
+    @Compute._compute()
     def compute(self, box, ref_points, ref_orientations, points=None,
                 orientations=None, mode="bod", nlist=None):
         R"""Calculates the bond order histogram. Will overwrite the current
@@ -312,7 +310,7 @@ cdef class BondOrder:
         return repr(self)
 
 
-cdef class LocalDescriptors:
+cdef class LocalDescriptors(Compute):
     R"""Compute a set of descriptors (a numerical "fingerprint") of a particle's
     local environment.
 
@@ -372,6 +370,7 @@ cdef class LocalDescriptors:
     def __dealloc__(self):
         del self.thisptr
 
+    @Compute._compute()
     def compute(self, box, unsigned int num_neighbors, points_ref, points=None,
                 orientations=None, mode='neighborhood', nlist=None):
         R"""Calculates the local descriptors of bonds from a set of source
@@ -453,7 +452,7 @@ cdef class LocalDescriptors:
                 l_orientations_ptr, l_mode)
         return self
 
-    @property
+    @Compute._computed_property()
     def sph(self):
         cdef unsigned int n_sphs = self.thisptr.getNSphs()
         cdef unsigned int sph_width = self.thisptr.getSphWidth()
@@ -464,11 +463,11 @@ cdef class LocalDescriptors:
             self.thisptr.getSph().get()
         return np.asarray(sph, dtype=np.complex64)
 
-    @property
+    @Compute._computed_property()
     def num_particles(self):
         return self.thisptr.getNP()
 
-    @property
+    @Compute._computed_property()
     def num_neighbors(self):
         return self.thisptr.getNSphs()
 
@@ -489,7 +488,7 @@ cdef class LocalDescriptors:
         return repr(self)
 
 
-cdef class MatchEnv:
+cdef class MatchEnv(Compute):
     R"""Clusters particles according to whether their local environments match
     or not, according to various shape matching metrics.
 
@@ -543,6 +542,7 @@ cdef class MatchEnv:
         self.thisptr.setBox(dereference(b.thisptr))
         self.m_box = box
 
+    @Compute._compute()
     def cluster(self, points, threshold, hard_r=False, registration=False,
                 global_search=False, env_nlist=None, nlist=None):
         R"""Determine clusters of particles with matching environments.
@@ -604,6 +604,7 @@ cdef class MatchEnv:
             registration, global_search)
         return self
 
+    @Compute._compute()
     def matchMotif(self, points, refPoints, threshold, registration=False,
                    nlist=None):
         R"""Determine clusters of particles that match the motif provided by
@@ -645,6 +646,7 @@ cdef class MatchEnv:
             <vec3[float]*> &l_refPoints[0], nRef, threshold,
             registration)
 
+    @Compute._compute()
     def minRMSDMotif(self, points, refPoints, registration=False, nlist=None):
         R"""Rotate (if registration=True) and permute the environments of all
         particles to minimize their RMSD with respect to the motif provided by
@@ -776,7 +778,7 @@ cdef class MatchEnv:
                 nRef1, min_rmsd, registration)
         return [min_rmsd, np.asarray(l_refPoints2), results_map]
 
-    @property
+    @Compute._computed_property()
     def clusters(self):
         cdef unsigned int n_particles = self.thisptr.getNP()
         if not n_particles:
@@ -785,6 +787,7 @@ cdef class MatchEnv:
             <unsigned int[:n_particles]> self.thisptr.getClusters().get()
         return np.asarray(clusters)
 
+    @Compute._computed_method()
     def getEnvironment(self, i):
         R"""Returns the set of vectors defining the environment indexed by i.
 
@@ -803,7 +806,7 @@ cdef class MatchEnv:
                 <float*> self.thisptr.getEnvironment(i).get())
         return np.asarray(environment)
 
-    @property
+    @Compute._computed_property()
     def tot_environment(self):
         cdef unsigned int n_particles = self.thisptr.getNP()
         cdef unsigned int max_neighbors = self.thisptr.getMaxNumNeighbors()
@@ -814,11 +817,11 @@ cdef class MatchEnv:
                 <float*> self.thisptr.getTotEnvironment().get())
         return np.asarray(tot_environment)
 
-    @property
+    @Compute._computed_property()
     def num_particles(self):
         return self.thisptr.getNP()
 
-    @property
+    @Compute._computed_property()
     def num_clusters(self):
         return self.thisptr.getNumClusters()
 
@@ -830,6 +833,7 @@ cdef class MatchEnv:
     def __str__(self):
         return repr(self)
 
+    @Compute._computed_method()
     def plot(self, ax=None):
         """Plot cluster distribution.
 
@@ -851,10 +855,13 @@ cdef class MatchEnv:
 
     def _repr_png_(self):
         import plot
-        return plot.ax_to_bytes(self.plot())
+        try:
+            return plot.ax_to_bytes(self.plot())
+        except AttributeError:
+            return None
 
 
-cdef class AngularSeparation:
+cdef class AngularSeparation(Compute):
     R"""Calculates the minimum angles of separation between particles and
     references.
 
@@ -907,6 +914,7 @@ cdef class AngularSeparation:
     def nlist(self):
         return self.nlist_
 
+    @Compute._compute("computeNeighbor")
     def computeNeighbor(self, box, ref_ors, ors, ref_points, points,
                         equiv_quats, nlist=None):
         R"""Calculates the minimum angles of separation between ref_ors and ors,
@@ -962,6 +970,7 @@ cdef class AngularSeparation:
                 nRef, nP, nEquiv)
         return self
 
+    @Compute._compute("computeGlobal")
     def computeGlobal(self, global_ors, ors, equiv_quats):
         R"""Calculates the minimum angles of separation between
         :code:`global_ors` and :code:`ors`, checking for underlying symmetry as
@@ -1000,7 +1009,7 @@ cdef class AngularSeparation:
                 nGlobal, nP, nEquiv)
         return self
 
-    @property
+    @Compute._computed_property("computeNeighbor")
     def neighbor_angles(self):
         cdef unsigned int n_bonds = len(self.nlist)
         if not n_bonds:
@@ -1009,7 +1018,7 @@ cdef class AngularSeparation:
             <float[:n_bonds]> self.thisptr.getNeighborAngles().get()
         return np.asarray(neighbor_angles)
 
-    @property
+    @Compute._computed_property("computeGlobal")
     def global_angles(self):
         cdef unsigned int n_particles = self.thisptr.getNP()
         cdef unsigned int n_global = self.thisptr.getNglobal()
@@ -1020,15 +1029,15 @@ cdef class AngularSeparation:
             self.thisptr.getGlobalAngles().get()
         return np.asarray(global_angles)
 
-    @property
+    @Compute._computed_property(("computeGlobal", "computeNeighbor"))
     def n_p(self):
         return self.thisptr.getNP()
 
-    @property
+    @Compute._computed_property("computeNeighbor")
     def n_ref(self):
         return self.thisptr.getNref()
 
-    @property
+    @Compute._computed_property("computeGlobal")
     def n_global(self):
         return self.thisptr.getNglobal()
 
@@ -1039,7 +1048,7 @@ cdef class AngularSeparation:
     def __str__(self):
         return repr(self)
 
-cdef class LocalBondProjection:
+cdef class LocalBondProjection(Compute):
     R"""Calculates the maximal projection of nearest neighbor bonds for each
     particle onto some set of reference vectors, defined in the particles'
     local reference frame.
@@ -1083,10 +1092,11 @@ cdef class LocalBondProjection:
     def __dealloc__(self):
         del self.thisptr
 
-    @property
+    @Compute._computed_property()
     def nlist(self):
         return self.nlist_
 
+    @Compute._compute()
     def compute(self, box, proj_vecs, ref_points, ref_ors, points=None,
                 equiv_quats=np.array([[1, 0, 0, 0]]), nlist=None):
         R"""Calculates the maximal projections of nearest neighbor bonds
@@ -1158,7 +1168,7 @@ cdef class LocalBondProjection:
                 nP, nRef, nEquiv, nProj)
         return self
 
-    @property
+    @Compute._computed_property()
     def projections(self):
         cdef unsigned int n_bond_projections = \
             len(self.nlist) * self.thisptr.getNproj()
@@ -1168,7 +1178,7 @@ cdef class LocalBondProjection:
             <float[:n_bond_projections]> self.thisptr.getProjections().get()
         return np.asarray(projections)
 
-    @property
+    @Compute._computed_property()
     def normed_projections(self):
         cdef unsigned int n_bond_projections = \
             len(self.nlist) * self.thisptr.getNproj()
@@ -1179,19 +1189,19 @@ cdef class LocalBondProjection:
             self.thisptr.getNormedProjections().get()
         return np.asarray(normed_projections)
 
-    @property
+    @Compute._computed_property()
     def num_particles(self):
         return self.thisptr.getNP()
 
-    @property
+    @Compute._computed_property()
     def num_reference_particles(self):
         return self.thisptr.getNref()
 
-    @property
+    @Compute._computed_property()
     def num_proj_vectors(self):
         return self.thisptr.getNproj()
 
-    @property
+    @Compute._computed_property()
     def box(self):
         return freud.box.BoxFromCPP(<freud._box.Box> self.thisptr.getBox())
 

@@ -11,6 +11,7 @@ from __future__ import print_function, division, absolute_import
 import numpy as np
 import freud.common
 
+from freud.common cimport Compute
 cimport freud.box
 cimport numpy as np
 
@@ -32,7 +33,7 @@ def _autocorrelation(x):
     return res/n[:, np.newaxis]
 
 
-cdef class MSD:
+cdef class MSD(Compute):
     R"""Compute the mean squared displacement.
 
     The mean squared displacement (MSD) measures how much particles move over
@@ -103,15 +104,15 @@ cdef class MSD:
         msd (:math:`\left(N_{frames}, \right)` :class:`numpy.ndarray`):
             The mean squared displacement.
     """   # noqa: E501
-    cdef freud.box.Box box
+    cdef freud.box.Box _box
     cdef particle_msd
     cdef str mode
 
     def __cinit__(self, box=None, mode='window'):
         if box is not None:
-            self.box = freud.common.convert_box(box)
+            self._box = freud.common.convert_box(box)
         else:
-            self.box = None
+            self._box = None
 
         self.particle_msd = []
 
@@ -119,6 +120,7 @@ cdef class MSD:
             raise ValueError("Invalid mode")
         self.mode = mode
 
+    @Compute._compute()
     def accumulate(self, positions, images=None):
         """Calculate the MSD for the positions provided and add to the existing
         per-particle data.
@@ -149,10 +151,10 @@ cdef class MSD:
                 images, shape=positions.shape, dtype=np.int32)
 
         # Make sure we aren't modifying the provided array
-        if self.box is not None and images is not None:
+        if self._box is not None and images is not None:
             unwrapped_positions = positions.copy()
             for i in range(positions.shape[0]):
-                unwrapped_positions[i, :, :] = self.box.unwrap(
+                unwrapped_positions[i, :, :] = self._box.unwrap(
                     unwrapped_positions[i, :, :], images[i, :, :])
             positions = unwrapped_positions
 
@@ -183,17 +185,19 @@ cdef class MSD:
 
     @property
     def box(self):
-        return self.box
+        return self._box
 
-    @property
+    @Compute._computed_property()
     def msd(self):
         return np.concatenate(self.particle_msd, axis=1).mean(axis=-1)
 
+    @Compute._reset
     def reset(self):
         R"""Clears the stored MSD values from previous calls to accumulate (or
         the last call to compute)."""
         self.particle_msd = []
 
+    @Compute._compute()
     def compute(self, positions, images=None):
         """Calculate the MSD for the positions provided.
 
@@ -213,11 +217,12 @@ cdef class MSD:
 
     def __repr__(self):
         return "freud.msd.{cls}(box={box}, mode={mode})".format(
-            cls=type(self).__name__, box=self.box, mode=repr(self.mode))
+            cls=type(self).__name__, box=self._box, mode=repr(self.mode))
 
     def __str__(self):
         return repr(self)
 
+    @Compute._computed_method()
     def plot(self, ax=None):
         """Plot MSD.
 
@@ -241,4 +246,7 @@ cdef class MSD:
 
     def _repr_png_(self):
         import freud.plot
-        return freud.plot.ax_to_bytes(self.plot())
+        try:
+            return freud.plot.ax_to_bytes(self.plot())
+        except AttributeError:
+            return None

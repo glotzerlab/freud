@@ -25,12 +25,43 @@ class TestCluster(unittest.TestCase):
         clust = freud.cluster.Cluster(box, 0.5)
         self.assertEqual(clust.box, box)
 
+        # Test protected attribute access
+        with self.assertRaises(AttributeError):
+            clust.num_clusters
+        with self.assertRaises(AttributeError):
+            clust.num_particles
+        with self.assertRaises(AttributeError):
+            clust.cluster_idx
+
         # Test with explicit box provided
         clust.computeClusters(positions, box=box)
 
+        # Test if attributes are accessible now
+        clust.num_clusters
+        clust.num_particles
+        clust.cluster_idx
+
         # Test all property APIs
         props = freud.cluster.ClusterProperties(box)
+
+        # Test protected attribute access
+        with self.assertRaises(AttributeError):
+            props.num_clusters
+        with self.assertRaises(AttributeError):
+            props.cluster_COM
+        with self.assertRaises(AttributeError):
+            props.cluster_G
+        with self.assertRaises(AttributeError):
+            props.cluster_sizes
+
         props.computeProperties(positions, clust.cluster_idx, box=box)
+
+        # Test if attributes are accessible now
+        props.num_clusters
+        props.cluster_COM
+        props.cluster_G
+        props.cluster_sizes
+
         self.assertEqual(props.num_clusters, Ngrid)
         self.assertTrue(np.all(props.cluster_sizes == Nrep))
 
@@ -82,7 +113,15 @@ class TestCluster(unittest.TestCase):
 
         clust = freud.cluster.Cluster(box, 0.5)
         clust.computeClusters(positions, box=box)
+
+        # Test protected attribute access
+        with self.assertRaises(AttributeError):
+            clust.cluster_keys
+
         clust.computeClusterMembership(np.array(range(Nrep*Ngrid)))
+
+        # Test if attributes are accessible now
+        clust.cluster_keys
 
         self.assertEqual(len(clust.cluster_keys), Ngrid)
 
@@ -105,6 +144,11 @@ class TestCluster(unittest.TestCase):
                               [0, 2, 0],
                               [-0.1, 1.9, 0]])
         clust = freud.cluster.Cluster(box, 0.5)
+
+        with self.assertRaises(AttributeError):
+            clust.plot()
+        self.assertEqual(clust._repr_png_(), None)
+
         clust.computeClusters(positions, box=box)
         clust._repr_png_()
 
