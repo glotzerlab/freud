@@ -17,6 +17,14 @@ class TestLD(unittest.TestCase):
                             dtype=np.float32) * 10 - 5
         self.ld = freud.density.LocalDensity(3, 1, 1)
 
+        # Test access
+        with self.assertRaises(AttributeError):
+            self.ld.density
+        with self.assertRaises(AttributeError):
+            self.ld.num_neighbors
+        with self.assertRaises(AttributeError):
+            self.ld.box
+
     @unittest.skip('Skipping slow LocalDensity test.')
     def test_compute_api(self):
         # test 2 args, no keyword
@@ -31,6 +39,12 @@ class TestLD(unittest.TestCase):
     def test_density(self):
         """Test that LocalDensity computes the correct density at each point"""
         self.ld.compute(self.box, self.pos, self.pos)
+
+        # Test access
+        self.ld.density
+        self.ld.num_neighbors
+        self.ld.box
+
         self.assertTrue(self.ld.box == freud.box.Box.cube(10))
 
         npt.assert_array_less(np.fabs(self.ld.density - 10.0), 1.5)

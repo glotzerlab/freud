@@ -6,15 +6,6 @@ import util
 
 
 class TestInterface(unittest.TestCase):
-    def test_initial_zero(self):
-        """Test that the initial point counts are zero."""
-        (box, positions) = util.make_fcc(4, 4, 4, noise=1e-2)
-        inter = freud.interface.InterfaceMeasure(1.5)
-        self.assertEqual(inter.ref_point_count, 0)
-        self.assertEqual(inter.point_count, 0)
-        npt.assert_equal(inter.ref_point_ids, np.array([], dtype=np.uint32))
-        npt.assert_equal(inter.point_ids, np.array([], dtype=np.uint32))
-
     def test_take_one(self):
         """Test that there is exactly 1 or 12 particles at the interface when
         one particle is removed from an FCC structure"""
@@ -29,7 +20,24 @@ class TestInterface(unittest.TestCase):
 
         inter = freud.interface.InterfaceMeasure(1.5)
 
+        # Test attribute access
+        with self.assertRaises(AttributeError):
+            inter.ref_point_count
+        with self.assertRaises(AttributeError):
+            inter.ref_point_ids
+        with self.assertRaises(AttributeError):
+            inter.point_count
+        with self.assertRaises(AttributeError):
+            inter.point_ids
+
         test_one = inter.compute(box, point, others)
+
+        # Test attribute access
+        inter.ref_point_count
+        inter.ref_point_ids
+        inter.point_count
+        inter.point_ids
+
         self.assertEqual(test_one.ref_point_count, 1)
         self.assertEqual(len(test_one.ref_point_ids), 1)
 
