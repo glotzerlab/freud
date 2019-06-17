@@ -80,9 +80,56 @@ class TestPMFTR12(unittest.TestCase):
         npt.assert_allclose(myPMFT.inverse_jacobian, inverse_jacobian,
                             atol=1e-5)
 
+    def test_attribute_access(self):
+        boxSize = 16.0
+        box = freud.box.Box.square(boxSize)
+        points = np.array([[-1.0, 0.0, 0.0], [1.0, 0.1, 0.0]],
+                          dtype=np.float32)
+        points.flags['WRITEABLE'] = False
+        angles = np.array([0.0, np.pi/2], dtype=np.float32)
+        angles.flags['WRITEABLE'] = False
+        maxR = 5.23
+        nbinsR = 10
+        nbinsT1 = 20
+        nbinsT2 = 30
+
+        myPMFT = freud.pmft.PMFTR12(maxR, nbinsR, nbinsT1, nbinsT2)
+
+        with self.assertRaises(AttributeError):
+            myPMFT.PCF
+        with self.assertRaises(AttributeError):
+            myPMFT.bin_counts
+        with self.assertRaises(AttributeError):
+            myPMFT.box
+        with self.assertRaises(AttributeError):
+            myPMFT.PMFT
+
+        myPMFT.accumulate(box, points, angles, points, angles)
+
+        myPMFT.PCF
+        myPMFT.bin_counts
+        myPMFT.PMFT
+        myPMFT.box
         npt.assert_equal(myPMFT.bin_counts.shape, (nbinsR, nbinsT2, nbinsT1))
         npt.assert_equal(myPMFT.PCF.shape, (nbinsR, nbinsT2, nbinsT1))
         npt.assert_equal(myPMFT.PMFT.shape, (nbinsR, nbinsT2, nbinsT1))
+
+        myPMFT.reset()
+
+        with self.assertRaises(AttributeError):
+            myPMFT.PCF
+        with self.assertRaises(AttributeError):
+            myPMFT.bin_counts
+        with self.assertRaises(AttributeError):
+            myPMFT.box
+        with self.assertRaises(AttributeError):
+            myPMFT.PMFT
+
+        myPMFT.compute(box, points, angles, points, angles)
+        myPMFT.PCF
+        myPMFT.bin_counts
+        myPMFT.PMFT
+        myPMFT.box
 
     def test_two_particles(self):
         boxSize = 16.0
@@ -123,8 +170,6 @@ class TestPMFTR12(unittest.TestCase):
         npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
                             atol=absoluteTolerance)
         myPMFT.reset()
-        npt.assert_allclose(myPMFT.bin_counts, 0,
-                            atol=absoluteTolerance)
         myPMFT.compute(box, points, angles, points, angles)
         npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
                             atol=absoluteTolerance)
@@ -216,9 +261,55 @@ class TestPMFTXYT(unittest.TestCase):
 
         npt.assert_allclose(myPMFT.jacobian, dx*dy*dT)
 
+    def test_attribute_access(self):
+        boxSize = 16.0
+        box = freud.box.Box.square(boxSize)
+        points = np.array([[-1.0, 0.0, 0.0], [1.0, 0.1, 0.0]],
+                          dtype=np.float32)
+        angles = np.array([0.0, np.pi/2], dtype=np.float32)
+        maxX = 3.6
+        maxY = 4.2
+        nbinsX = 20
+        nbinsY = 30
+        nbinsT = 40
+
+        myPMFT = freud.pmft.PMFTXYT(maxX, maxY, nbinsX, nbinsY, nbinsT)
+
+        with self.assertRaises(AttributeError):
+            myPMFT.PCF
+        with self.assertRaises(AttributeError):
+            myPMFT.bin_counts
+        with self.assertRaises(AttributeError):
+            myPMFT.box
+        with self.assertRaises(AttributeError):
+            myPMFT.PMFT
+
+        myPMFT.accumulate(box, points, angles, points, angles)
+
+        myPMFT.PCF
+        myPMFT.bin_counts
+        myPMFT.PMFT
+        myPMFT.box
         npt.assert_equal(myPMFT.bin_counts.shape, (nbinsT, nbinsY, nbinsX))
         npt.assert_equal(myPMFT.PCF.shape, (nbinsT, nbinsY, nbinsX))
         npt.assert_equal(myPMFT.PMFT.shape, (nbinsT, nbinsY, nbinsX))
+
+        myPMFT.reset()
+
+        with self.assertRaises(AttributeError):
+            myPMFT.PCF
+        with self.assertRaises(AttributeError):
+            myPMFT.bin_counts
+        with self.assertRaises(AttributeError):
+            myPMFT.box
+        with self.assertRaises(AttributeError):
+            myPMFT.PMFT
+
+        myPMFT.compute(box, points, angles, points, angles)
+        myPMFT.PCF
+        myPMFT.bin_counts
+        myPMFT.PMFT
+        myPMFT.box
 
     def test_two_particles(self):
         boxSize = 16.0
@@ -261,8 +352,6 @@ class TestPMFTXYT(unittest.TestCase):
         npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
                             atol=absoluteTolerance)
         myPMFT.reset()
-        npt.assert_allclose(myPMFT.bin_counts, 0,
-                            atol=absoluteTolerance)
         myPMFT.compute(box, points, angles, points, angles)
         npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
                             atol=absoluteTolerance)
@@ -343,9 +432,54 @@ class TestPMFTXY2D(unittest.TestCase):
 
         npt.assert_allclose(myPMFT.jacobian, dx*dy)
 
+    def test_attribute_access(self):
+        boxSize = 16.0
+        box = freud.box.Box.square(boxSize)
+        points = np.array([[-1.0, 0.0, 0.0], [1.0, 0.0, 0.0]],
+                          dtype=np.float32)
+        angles = np.array([0.0, 0.0], dtype=np.float32)
+        maxX = 3.6
+        maxY = 4.2
+        nbinsX = 100
+        nbinsY = 110
+
+        myPMFT = freud.pmft.PMFTXY2D(maxX, maxY, nbinsX, nbinsY)
+
+        with self.assertRaises(AttributeError):
+            myPMFT.PCF
+        with self.assertRaises(AttributeError):
+            myPMFT.bin_counts
+        with self.assertRaises(AttributeError):
+            myPMFT.box
+        with self.assertRaises(AttributeError):
+            myPMFT.PMFT
+
+        myPMFT.accumulate(box, points, angles, points, angles)
+
+        myPMFT.PCF
+        myPMFT.bin_counts
+        myPMFT.PMFT
+        myPMFT.box
         npt.assert_equal(myPMFT.bin_counts.shape, (nbinsY, nbinsX))
         npt.assert_equal(myPMFT.PCF.shape, (nbinsY, nbinsX))
         npt.assert_equal(myPMFT.PMFT.shape, (nbinsY, nbinsX))
+
+        myPMFT.reset()
+
+        with self.assertRaises(AttributeError):
+            myPMFT.PCF
+        with self.assertRaises(AttributeError):
+            myPMFT.bin_counts
+        with self.assertRaises(AttributeError):
+            myPMFT.box
+        with self.assertRaises(AttributeError):
+            myPMFT.PMFT
+
+        myPMFT.compute(box, points, angles, points, angles)
+        myPMFT.PCF
+        myPMFT.bin_counts
+        myPMFT.PMFT
+        myPMFT.box
 
     def test_two_particles(self):
         boxSize = 16.0
@@ -378,8 +512,6 @@ class TestPMFTXY2D(unittest.TestCase):
         npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
                             atol=absoluteTolerance)
         myPMFT.reset()
-        npt.assert_allclose(myPMFT.bin_counts, 0,
-                            atol=absoluteTolerance)
         myPMFT.compute(box, points, angles, points, angles)
         npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
                             atol=absoluteTolerance)
@@ -407,6 +539,11 @@ class TestPMFTXY2D(unittest.TestCase):
         nbinsX = 100
         nbinsY = 110
         myPMFT = freud.pmft.PMFTXY2D(maxX, maxY, nbinsX, nbinsY)
+
+        with self.assertRaises(AttributeError):
+            myPMFT.plot()
+        self.assertEqual(myPMFT._repr_png_(), None)
+
         myPMFT.accumulate(box, points, angles, points, angles)
         myPMFT._repr_png_()
 
@@ -487,9 +624,56 @@ class TestPMFTXYZ(unittest.TestCase):
 
         npt.assert_allclose(myPMFT.jacobian, dx*dy*dz)
 
+    def test_attribute_access(self):
+        boxSize = 25.0
+        box = freud.box.Box.cube(boxSize)
+        points = np.array([[-1.0, 0.0, 0.0], [1.0, 0.0, 0.0]],
+                          dtype=np.float32)
+        orientations = np.array([[1, 0, 0, 0], [1, 0, 0, 0]], dtype=np.float32)
+        maxX = 5.23
+        maxY = 6.23
+        maxZ = 7.23
+        nbinsX = 100
+        nbinsY = 110
+        nbinsZ = 120
+
+        myPMFT = freud.pmft.PMFTXYZ(maxX, maxY, maxZ, nbinsX, nbinsY, nbinsZ)
+
+        with self.assertRaises(AttributeError):
+            myPMFT.PCF
+        with self.assertRaises(AttributeError):
+            myPMFT.bin_counts
+        with self.assertRaises(AttributeError):
+            myPMFT.box
+        with self.assertRaises(AttributeError):
+            myPMFT.PMFT
+
+        myPMFT.accumulate(box, points, orientations, points, orientations)
+
+        myPMFT.PCF
+        myPMFT.bin_counts
+        myPMFT.PMFT
+        myPMFT.box
         npt.assert_equal(myPMFT.bin_counts.shape, (nbinsZ, nbinsY, nbinsX))
         npt.assert_equal(myPMFT.PCF.shape, (nbinsZ, nbinsY, nbinsX))
         npt.assert_equal(myPMFT.PMFT.shape, (nbinsZ, nbinsY, nbinsX))
+
+        myPMFT.reset()
+
+        with self.assertRaises(AttributeError):
+            myPMFT.PCF
+        with self.assertRaises(AttributeError):
+            myPMFT.bin_counts
+        with self.assertRaises(AttributeError):
+            myPMFT.box
+        with self.assertRaises(AttributeError):
+            myPMFT.PMFT
+
+        myPMFT.compute(box, points, orientations, points, orientations)
+        myPMFT.PCF
+        myPMFT.bin_counts
+        myPMFT.PMFT
+        myPMFT.box
 
     def test_two_particles(self):
         boxSize = 25.0
@@ -526,8 +710,6 @@ class TestPMFTXYZ(unittest.TestCase):
         npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
                             atol=absoluteTolerance)
         myPMFT.reset()
-        npt.assert_allclose(myPMFT.bin_counts, 0,
-                            atol=absoluteTolerance)
         myPMFT.compute(box, points, orientations, points, orientations)
         npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
                             atol=absoluteTolerance)

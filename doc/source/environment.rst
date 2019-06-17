@@ -13,6 +13,7 @@ Environment Module
     freud.environment.LocalDescriptors
     freud.environment.MatchEnv
     freud.environment.AngularSeparation
+    freud.environment.LocalBondProjection
 
 .. rubric:: Details
 
@@ -40,5 +41,11 @@ Match Environments
 Angular Separation
 ==================
 
-.. autoclass:: freud.environment.AngularSeparation(box, rmax, n)
+.. autoclass:: freud.environment.AngularSeparation(rmax, n)
     :members: computeGlobal, computeNeighbor
+
+Local Bond Projection
+=====================
+
+.. autoclass:: freud.environment.LocalBondProjection(rmax, num_neighbors)
+    :members: compute

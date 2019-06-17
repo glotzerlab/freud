@@ -23,6 +23,50 @@ class TestRDF(unittest.TestCase):
             rdf = freud.density.RDF(rmax, dr, rmin=rmin)
             npt.assert_allclose(rdf.R, r_list, rtol=1e-4, atol=1e-4)
 
+    def test_attribute_access(self):
+        rmax = 10.0
+        dr = 1.0
+        num_points = 100
+        box_size = rmax*3.1
+        box = freud.box.Box.square(box_size)
+        np.random.seed(0)
+        points = np.random.random_sample((num_points, 3)).astype(np.float32) \
+            * box_size - box_size/2
+        rdf = freud.density.RDF(rmax, dr)
+
+        # Test protected attribute access
+        with self.assertRaises(AttributeError):
+            rdf.RDF
+        with self.assertRaises(AttributeError):
+            rdf.box
+        with self.assertRaises(AttributeError):
+            rdf.n_r
+
+        rdf.accumulate(box, points)
+
+        # Test if accessible now
+        rdf.RDF
+        rdf.box
+        rdf.n_r
+
+        # reset
+        rdf.reset()
+
+        # Test protected attribute access
+        with self.assertRaises(AttributeError):
+            rdf.RDF
+        with self.assertRaises(AttributeError):
+            rdf.box
+        with self.assertRaises(AttributeError):
+            rdf.n_r
+
+        rdf.compute(box, points)
+
+        # Test if accessible now
+        rdf.RDF
+        rdf.box
+        rdf.n_r
+
     def test_invalid_rdf(self):
         # Make sure that invalid RDF objects raise errors
         with self.assertRaises(ValueError):
@@ -85,6 +129,11 @@ class TestRDF(unittest.TestCase):
         points = np.random.random_sample((num_points, 3)).astype(np.float32) \
             * box_size - box_size/2
         rdf = freud.density.RDF(rmax, dr)
+
+        with self.assertRaises(AttributeError):
+            rdf.plot()
+        self.assertEqual(rdf._repr_png_(), None)
+
         box = freud.box.Box.cube(box_size)
         rdf.accumulate(box, points)
         rdf._repr_png_()
