@@ -229,23 +229,12 @@ cdef class Box:
         fractions = np.atleast_2d(fractions)
         fractions = freud.common.convert_array(fractions, shape=(None, 3))
 
-        for i, f in enumerate(fractions):
-            fractions[i] = self._makeCoordinates(f)
-        return np.squeeze(fractions) if flatten else fractions
-
-    def _makeCoordinates(self, f):
-        cdef const float[::1] l_vec = f
-        cdef vec3[float] result = self.thisptr.makeCoordinates(
-            <const vec3[float]&> l_vec[0])
-        return [result.x, result.y, result.z]
-
-    def _makeCoordinates_many(self, vecs):
-        cdef const float[:, ::1] l_points = vecs
+        cdef const float[:, ::1] l_points = fractions
         cdef unsigned int Np = l_points.shape[0]
         with nogil:
-            self.thisptr.makeCoordinates_many(<vec3[float]*> &l_points[0, 0],
-                                              Np)
-        return vecs
+            self.thisptr.makeCoordinates(<vec3[float]*> &l_points[0, 0], Np)
+
+        return np.squeeze(fractions) if flatten else fractions
 
     def makeFraction(self, vecs):
         R"""Convert real coordinates into fractional coordinates.

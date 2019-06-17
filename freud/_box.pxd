@@ -34,8 +34,7 @@ cdef extern from "Box.h" namespace "freud::box":
         float getTiltFactorYZ() const
 
         float getVolume() const
-        vec3[float] makeCoordinates(const vec3[float] &) const
-        void makeCoordinates_many(vec3[float]*, unsigned int) nogil except +
+        void makeCoordinates(vec3[float]*, unsigned int) nogil except +
         vec3[float] makeFraction(const vec3[float] &) const
         void makeFraction_many(vec3[float]*, unsigned int) nogil except +
         vec3[int] getImage(const vec3[float] &) const

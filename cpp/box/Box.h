@@ -186,10 +186,10 @@ public:
 
     //! Convert fractional coordinates into real coordinates
     /*! \param f Fractional coordinates between 0 and 1 within
-     *         parallelpipedal box
+     *         parallelepipedal box
      *  \return A vector inside the box corresponding to f
      */
-    vec3<float> makeCoordinates(const vec3<float>& f) const
+    vec3<float> makeCoordinatesSingle(const vec3<float>& f) const
     {
         vec3<float> v = m_lo + f * m_L;
         v.x += m_xy * v.y + m_xz * v.z;
@@ -203,15 +203,15 @@ public:
 
     //! Convert fractional coordinates into real coordinates in place
     /*! \param vecs Vectors of fractional coordinates between 0 and 1 within
-     *         parallelpipedal box
+     *         parallelepipedal box
      *  \param Nvecs Number of vectors
      */
-    void makeCoordinates_many(vec3<float>* vecs, unsigned int Nvecs) const
+    void makeCoordinates(vec3<float>* vecs, unsigned int Nvecs) const
     {
         tbb::parallel_for(tbb::blocked_range<size_t>(0, Nvecs), [=](const tbb::blocked_range<size_t>& r) {
             for (size_t i = r.begin(); i < r.end(); ++i)
             {
-                vecs[i] = makeCoordinates(vecs[i]);
+                vecs[i] = makeCoordinatesSingle(vecs[i]);
             }
         });
     }
@@ -302,7 +302,7 @@ public:
         {
             tmp.z += 1;
         }
-        return makeCoordinates(tmp);
+        return makeCoordinatesSingle(tmp);
     }
 
     //! Wrap vectors back into the box in place
