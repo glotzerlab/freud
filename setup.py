@@ -357,11 +357,12 @@ extra_module_sources = dict(
         os.path.join("cpp", "locality", "NeighborList.cc"),
     ],
     environment=[
-        os.path.join("cpp", "util", "HOOMDMatrix.cc"),
         os.path.join("cpp", "locality", "NeighborList.cc"),
+        os.path.join("cpp", "util", "diagonalize.cc"),
     ],
     order=[
         os.path.join("cpp", "locality", "NeighborList.cc"),
+        os.path.join("cpp", "util", "diagonalize.cc"),
     ],
     pmft=[
         os.path.join("cpp", "locality", "NeighborList.cc"),

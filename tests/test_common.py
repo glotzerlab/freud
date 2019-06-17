@@ -13,19 +13,19 @@ class TestCommon(unittest.TestCase):
         y = x.reshape(10, 10).T
         # run through convert
         # first check to make sure it passes with default
-        z = common.convert_array(y, 2)
+        z = common.convert_array(y, (None, None))
         npt.assert_equal(y.dtype, x.dtype)
         # now change type
-        z = common.convert_array(y, 2, dtype=np.float32)
+        z = common.convert_array(y, (None, None), dtype=np.float32)
         npt.assert_equal(z.dtype, np.float32)
         # now make contiguous
         npt.assert_equal(y.flags.contiguous, False)
-        z = common.convert_array(y, 2)
+        z = common.convert_array(y, (None, None))
         npt.assert_equal(z.flags.contiguous, True)
 
         # test dimension checking
-        with self.assertRaises(TypeError):
-            z = common.convert_array(y, 1, dtype=np.float32)
+        with self.assertRaises(ValueError):
+            z = common.convert_array(y, (None, ), dtype=np.float32)
 
         # test for non-default dtype
         z = common.convert_array(y, dtype=np.float64)
@@ -33,14 +33,21 @@ class TestCommon(unittest.TestCase):
 
         # test for list of list input
         yl = [list(r) for r in y]
-        zl = common.convert_array(yl, 2)
-        z = common.convert_array(y, 2)
+        zl = common.convert_array(yl, (None, None))
+        z = common.convert_array(y, (None, None))
         npt.assert_equal(z, zl)
 
         # test for dimensions default argument
         zd = common.convert_array(y)
-        z = common.convert_array(y, 2)
+        z = common.convert_array(y, (None, None))
         npt.assert_equal(z, zd)
+
+        # test dimension checking
+        with self.assertRaises(ValueError):
+            z = common.convert_array(y, shape=(1, ), dtype=np.float32)
+
+        with self.assertRaises(ValueError):
+            common.convert_array(z, shape=(None, 9))
 
     def test_convert_matrix_box(self):
         matrix_box = np.array([[1, 2, 3],

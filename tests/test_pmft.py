@@ -396,6 +396,20 @@ class TestPMFTXY2D(unittest.TestCase):
         myPMFT = freud.pmft.PMFTXY2D(maxX, maxY, nbinsX, nbinsY)
         self.assertEqual(str(myPMFT), str(eval(repr(myPMFT))))
 
+    def test_repr_png(self):
+        boxSize = 16.0
+        box = freud.box.Box.square(boxSize)
+        points = np.array([[-1.0, 0.0, 0.0], [1.0, 0.0, 0.0]],
+                          dtype=np.float32)
+        angles = np.array([0.0, 0.0], dtype=np.float32)
+        maxX = 3.6
+        maxY = 4.2
+        nbinsX = 100
+        nbinsY = 110
+        myPMFT = freud.pmft.PMFTXY2D(maxX, maxY, nbinsX, nbinsY)
+        myPMFT.accumulate(box, points, angles, points, angles)
+        myPMFT._repr_png_()
+
 
 class TestPMFTXYZ(unittest.TestCase):
     def test_box(self):

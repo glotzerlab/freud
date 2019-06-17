@@ -149,14 +149,14 @@ cdef class BondOrder:
         Args:
             box (:class:`freud.box.Box`):
                 Simulation box.
-            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            ref_points ((:math:`N_{ref\_points}`, 3) :class:`numpy.ndarray`):
                 Reference points used to calculate bonds.
-            ref_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
+            ref_orientations ((:math:`N_{ref\_points}`, 4) :class:`numpy.ndarray`):
                 Reference orientations used to calculate bonds.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
+            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`, optional):
                 Points used to calculate bonds. Uses :code:`ref_points` if not
                 provided or :code:`None`.
-            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
+            orientations ((:math:`N_{points}`, 4) :class:`numpy.ndarray`):
                 Orientations used to calculate bonds. Uses
                 :code:`ref_orientations` if not provided or :code:`None`.
             mode (str, optional):
@@ -174,21 +174,12 @@ cdef class BondOrder:
         if orientations is None:
             orientations = ref_orientations
 
-        ref_points = freud.common.convert_array(ref_points, 2)
-        if ref_points.shape[1] != 3:
-            raise TypeError('ref_points should be an Nx3 array')
-
-        points = freud.common.convert_array(points, 2)
-        if points.shape[1] != 3:
-            raise TypeError('points should be an Nx3 array')
-
-        ref_orientations = freud.common.convert_array(ref_orientations, 2)
-        if ref_orientations.shape[1] != 4:
-            raise TypeError('ref_orientations should be an Nx4 array')
-
-        orientations = freud.common.convert_array(orientations, 2)
-        if orientations.shape[1] != 4:
-            raise TypeError('orientations should be an Nx4 array')
+        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
+        points = freud.common.convert_array(points, shape=(None, 3))
+        ref_orientations = freud.common.convert_array(
+            ref_orientations, shape=(ref_points.shape[0], 4))
+        orientations = freud.common.convert_array(
+            orientations, shape=(points.shape[0], 4))
 
         cdef unsigned int index = 0
         if mode == "bod":
@@ -415,16 +406,12 @@ cdef class LocalDescriptors:
             raise RuntimeError(
                 'Unknown LocalDescriptors orientation mode: {}'.format(mode))
 
-        points_ref = freud.common.convert_array(points_ref, 2)
-        if points_ref.shape[1] != 3:
-            raise TypeError('points_ref should be an Nx3 array')
+        points_ref = freud.common.convert_array(points_ref, shape=(None, 3))
 
         if points is None:
             points = points_ref
 
-        points = freud.common.convert_array(points, 2)
-        if points.shape[1] != 3:
-            raise TypeError('points should be an Nx3 array')
+        points = freud.common.convert_array(points, shape=(None, 3))
 
         # The l_orientations_ptr is only used for 'particle_local' mode.
         cdef const float[:, ::1] l_orientations
@@ -435,13 +422,8 @@ cdef class LocalDescriptors:
                     ('Orientations must be given to orient LocalDescriptors '
                         'with particles\' orientations'))
 
-            orientations = freud.common.convert_array(orientations, 2)
-            if orientations.shape[1] != 4:
-                raise TypeError('orientations should be an Nx4 array')
-
-            if orientations.shape[0] != points_ref.shape[0]:
-                raise ValueError(
-                    "orientations must have the same size as points_ref")
+            orientations = freud.common.convert_array(
+                orientations, shape=(points_ref.shape[0], 4))
 
             l_orientations = orientations
             l_orientations_ptr = <quat[float]*> &l_orientations[0, 0]
@@ -590,9 +572,7 @@ cdef class MatchEnv:
                 NeighborList to use to find neighbors of every particle, to
                 compare environments (Default value = :code:`None`).
         """
-        points = freud.common.convert_array(points, 2)
-        if points.shape[1] != 3:
-            raise TypeError('points should be an Nx3 array')
+        points = freud.common.convert_array(points, shape=(None, 3))
 
         cdef const float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
@@ -622,6 +602,7 @@ cdef class MatchEnv:
             env_nlist_.get_ptr(), nlist_.get_ptr(),
             <vec3[float]*> &l_points[0, 0], nP, threshold, hard_r,
             registration, global_search)
+        return self
 
     def matchMotif(self, points, refPoints, threshold, registration=False,
                    nlist=None):
@@ -645,13 +626,8 @@ cdef class MatchEnv:
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
         """
-        points = freud.common.convert_array(points, 2)
-        if points.shape[1] != 3:
-            raise TypeError('points should be an Nx3 array')
-
-        refPoints = freud.common.convert_array(refPoints, 2)
-        if refPoints.shape[1] != 3:
-            raise TypeError('refPoints should be an Nx3 array')
+        points = freud.common.convert_array(points, shape=(None, 3))
+        refPoints = freud.common.convert_array(refPoints, shape=(None, 3))
 
         cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(
             points.flatten())
@@ -692,13 +668,8 @@ cdef class MatchEnv:
                 Vector of minimal RMSD values, one value per particle.
 
         """
-        points = freud.common.convert_array(points, 2)
-        if points.shape[1] != 3:
-            raise TypeError('points should be an Nx3 array')
-
-        refPoints = freud.common.convert_array(refPoints, 2)
-        if refPoints.shape[1] != 3:
-            raise TypeError('refPoints should be an Nx3 array')
+        points = freud.common.convert_array(points, shape=(None, 3))
+        refPoints = freud.common.convert_array(refPoints, shape=(None, 3))
 
         cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(
             points.flatten())
@@ -743,13 +714,8 @@ cdef class MatchEnv:
                 correspond to each other. Empty if they do not correspond to
                 each other.
         """  # noqa: E501
-        refPoints1 = freud.common.convert_array(refPoints1, 2)
-        if refPoints1.shape[1] != 3:
-            raise TypeError('refPoints1 should be an Nx3 array')
-
-        refPoints2 = freud.common.convert_array(refPoints2, 2)
-        if refPoints2.shape[1] != 3:
-            raise TypeError('refPoints2 should be an Nx3 array')
+        refPoints1 = freud.common.convert_array(refPoints1, shape=(None, 3))
+        refPoints2 = freud.common.convert_array(refPoints2, shape=(None, 3))
 
         cdef const float[:, ::1] l_refPoints1 = refPoints1
         cdef const float[:, ::1] l_refPoints2 = refPoints2
@@ -789,13 +755,8 @@ cdef class MatchEnv:
                 set of refPoints2, and the mapping between the vectors of
                 refPoints1 and refPoints2 that somewhat minimizes the RMSD.
         """  # noqa: E501
-        refPoints1 = freud.common.convert_array(refPoints1, 2)
-        if refPoints1.shape[1] != 3:
-            raise TypeError('refPoints1 should be an Nx3 array')
-
-        refPoints2 = freud.common.convert_array(refPoints2, 2)
-        if refPoints2.shape[1] != 3:
-            raise TypeError('refPoints2 should be an Nx3 array')
+        refPoints1 = freud.common.convert_array(refPoints1, shape=(None, 3))
+        refPoints2 = freud.common.convert_array(refPoints2, shape=(None, 3))
 
         cdef const float[:, ::1] l_refPoints1 = refPoints1
         cdef const float[:, ::1] l_refPoints2 = refPoints2
@@ -868,6 +829,30 @@ cdef class MatchEnv:
 
     def __str__(self):
         return repr(self)
+
+    def plot(self, ax=None):
+        """Plot cluster distribution.
+
+        Args:
+            ax (:class:`matplotlib.axes`): Axis to plot on. If :code:`None`,
+                make a new figure and axis. (Default value = :code:`None`)
+
+        Returns:
+            (:class:`matplotlib.axes`): Axis with the plot.
+        """
+        import plot
+        try:
+            counts = np.unique(self.clusters, return_counts=True)
+        except ValueError:
+            return None
+        return plot.plot_clusters(counts[0], counts[1],
+                                  num_cluster_to_plot=10,
+                                  ax=ax)
+
+    def _repr_png_(self):
+        import plot
+        return plot.ax_to_bytes(self.plot())
+
 
 cdef class AngularSeparation:
     R"""Calculates the minimum angles of separation between particles and
@@ -949,25 +934,12 @@ cdef class AngularSeparation:
                 :code:`None`).
         """  # noqa: E501
         cdef freud.box.Box b = freud.common.convert_box(box)
-        ref_points = freud.common.convert_array(ref_points, 2)
-        if ref_points.shape[1] != 3:
-            raise TypeError('ref_points should be an Nx3 array')
+        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
+        points = freud.common.convert_array(points, shape=(None, 3))
 
-        points = freud.common.convert_array(points, 2)
-        if points.shape[1] != 3:
-            raise TypeError('points should be an Nx3 array')
-
-        ref_ors = freud.common.convert_array(ref_ors, 2)
-        if ref_ors.shape[1] != 4:
-            raise TypeError('ref_ors should be an Nx4 array')
-
-        ors = freud.common.convert_array(ors, 2)
-        if ors.shape[1] != 4:
-            raise TypeError('ors should be an Nx4 array')
-
-        equiv_quats = freud.common.convert_array(equiv_quats, 2)
-        if equiv_quats.shape[1] != 4:
-            raise TypeError('equiv_quats should be an N_equiv x 4 array')
+        ref_ors = freud.common.convert_array(ref_ors, shape=(None, 4))
+        ors = freud.common.convert_array(ors, shape=(None, 4))
+        equiv_quats = freud.common.convert_array(equiv_quats, shape=(None, 4))
 
         defaulted_nlist = freud.locality.make_default_nlist_nn(
             b, ref_points, points, self.num_neigh, nlist, None, self.rmax)
@@ -1008,17 +980,9 @@ cdef class AngularSeparation:
                 Important: :code:`equiv_quats` must include both :math:`q` and
                 :math:`-q`, for all included quaternions.
         """
-        global_ors = freud.common.convert_array(global_ors, 2)
-        if global_ors.shape[1] != 4:
-            raise TypeError('global_ors should be an Nx4 array')
-
-        ors = freud.common.convert_array(ors, 2)
-        if ors.shape[1] != 4:
-            raise TypeError('ors should be an Nx4 array')
-
-        equiv_quats = freud.common.convert_array(equiv_quats, 2)
-        if equiv_quats.shape[1] != 4:
-            raise TypeError('equiv_quats should be an N_equiv x 4 array')
+        global_ors = freud.common.convert_array(global_ors, shape=(None, 4))
+        ors = freud.common.convert_array(ors, shape=(None, 4))
+        equiv_quats = freud.common.convert_array(equiv_quats, shape=(None, 4))
 
         cdef const float[:, ::1] l_global_ors = global_ors
         cdef const float[:, ::1] l_ors = ors
@@ -1158,27 +1122,14 @@ cdef class LocalBondProjection:
                 :code:`None`).
         """  # noqa: E501
         cdef freud.box.Box b = freud.common.convert_box(box)
-        ref_points = freud.common.convert_array(ref_points, 2)
-        if ref_points.shape[1] != 3:
-            raise TypeError('ref_points should be an Nx3 array')
-
-        ref_ors = freud.common.convert_array(ref_ors, 2)
-        if ref_ors.shape[1] != 4:
-            raise TypeError('ref_ors should be an Nx4 array')
+        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
+        ref_ors = freud.common.convert_array(ref_ors, shape=(None, 4))
 
         if points is None:
             points = ref_points
-        points = freud.common.convert_array(points, 2)
-        if points.shape[1] != 3:
-            raise TypeError('points should be an Nx3 array')
-
-        equiv_quats = freud.common.convert_array(equiv_quats, 2)
-        if equiv_quats.shape[1] != 4:
-            raise TypeError('equiv_quats should be an N_equiv x 4 array')
-
-        proj_vecs = freud.common.convert_array(proj_vecs, 2)
-        if proj_vecs.shape[1] != 3:
-            raise TypeError('proj_vecs should be an Nx3 array')
+        points = freud.common.convert_array(points, shape=(None, 3))
+        equiv_quats = freud.common.convert_array(equiv_quats, shape=(None, 4))
+        proj_vecs = freud.common.convert_array(proj_vecs, shape=(None, 3))
 
         defaulted_nlist = freud.locality.make_default_nlist_nn(
             box, ref_points, points, self.num_neigh, nlist, None, self.rmax)

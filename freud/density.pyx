@@ -111,13 +111,12 @@ cdef class FloatCF:
             points = ref_points
         if values is None:
             values = ref_values
-        ref_points = freud.common.convert_array(ref_points, 2)
-        points = freud.common.convert_array(points, 2)
+        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
+        points = freud.common.convert_array(points, shape=(None, 3))
         ref_values = freud.common.convert_array(
-            ref_values, 1, dtype=np.float64)
-        values = freud.common.convert_array(values, 1, dtype=np.float64)
-        if ref_points.shape[1] != 3 or points.shape[1] != 3:
-            raise ValueError("The 2nd dimension must have 3 values: x, y, z")
+            ref_values, shape=(ref_points.shape[0], ), dtype=np.float64)
+        values = freud.common.convert_array(
+            values, shape=(points.shape[0], ), dtype=np.float64)
         cdef const float[:, ::1] l_ref_points = ref_points
         cdef const float[:, ::1] l_points
         if ref_points is points:
@@ -211,6 +210,27 @@ cdef class FloatCF:
     def __str__(self):
         return repr(self)
 
+    def plot(self, ax=None):
+        """Plot correlation function.
+
+        Args:
+            ax (:class:`matplotlib.axes`): Axis to plot on. If :code:`None`,
+                make a new figure and axis. (Default value = :code:`None`)
+
+        Returns:
+            (:class:`matplotlib.axes`): Axis with the plot.
+        """
+        import plot
+        return plot.line_plot(self.R, self.RDF,
+                              title="Correlation Function",
+                              xlabel=r"$r$",
+                              ylabel=r"$C(r)$",
+                              ax=ax)
+
+    def _repr_png_(self):
+        import plot
+        return plot.ax_to_bytes(self.plot())
+
 
 cdef class ComplexCF:
     R"""Computes the complex pairwise correlation function.
@@ -301,13 +321,12 @@ cdef class ComplexCF:
             points = ref_points
         if values is None:
             values = ref_values
-        ref_points = freud.common.convert_array(ref_points, 2)
-        points = freud.common.convert_array(points, 2)
+        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
+        points = freud.common.convert_array(points, shape=(None, 3))
         ref_values = freud.common.convert_array(
-            ref_values, 1, dtype=np.complex128)
-        values = freud.common.convert_array(values, 1, dtype=np.complex128)
-        if ref_points.shape[1] != 3 or points.shape[1] != 3:
-            raise ValueError("The 2nd dimension must have 3 values: x, y, z")
+            ref_values, shape=(ref_points.shape[0], ), dtype=np.complex128)
+        values = freud.common.convert_array(
+            values, shape=(points.shape[0], ), dtype=np.complex128)
         cdef const float[:, ::1] l_ref_points = ref_points
         cdef const float[:, ::1] l_points
         if ref_points is points:
@@ -402,6 +421,27 @@ cdef class ComplexCF:
     def __str__(self):
         return repr(self)
 
+    def plot(self, ax=None):
+        """Plot complex correlation function.
+
+        Args:
+            ax (:class:`matplotlib.axes`): Axis to plot on. If :code:`None`,
+                make a new figure and axis. (Default value = :code:`None`)
+
+        Returns:
+            (:class:`matplotlib.axes`): Axis with the plot.
+        """
+        import plot
+        return plot.line_plot(self.R, np.real(self.RDF),
+                              title="Correlation Function",
+                              xlabel=r"$r$",
+                              ylabel=r"$\operatorname{Re}(C(r))$",
+                              ax=ax)
+
+    def _repr_png_(self):
+        import plot
+        return plot.ax_to_bytes(self.plot())
+
 
 cdef class GaussianDensity:
     R"""Computes the density of a system on a grid.
@@ -480,9 +520,7 @@ cdef class GaussianDensity:
                 Points to calculate the local density.
         """
         cdef freud.box.Box b = freud.common.convert_box(box)
-        points = freud.common.convert_array(points, 2)
-        if points.shape[1] != 3:
-            raise ValueError("The 2nd dimension must have 3 values: x, y, z")
+        points = freud.common.convert_array(points, shape=(None, 3))
         cdef const float[:, ::1] l_points = points
         cdef unsigned int n_p = points.shape[0]
         with nogil:
@@ -620,10 +658,8 @@ cdef class LocalDensity:
         cdef freud.box.Box b = freud.common.convert_box(box)
         if points is None:
             points = ref_points
-        ref_points = freud.common.convert_array(ref_points, 2)
-        points = freud.common.convert_array(points, 2)
-        if ref_points.shape[1] != 3 or points.shape[1] != 3:
-            raise ValueError("The 2nd dimension must have 3 values: x, y, z")
+        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
+        points = freud.common.convert_array(points, shape=(None, 3))
         cdef const float[:, ::1] l_ref_points = ref_points
         cdef const float[:, ::1] l_points = points
         cdef unsigned int n_ref = l_ref_points.shape[0]
@@ -757,10 +793,8 @@ cdef class RDF:
         cdef freud.box.Box b = freud.common.convert_box(box)
         if points is None:
             points = ref_points
-        ref_points = freud.common.convert_array(ref_points, 2)
-        points = freud.common.convert_array(points, 2)
-        if ref_points.shape[1] != 3 or points.shape[1] != 3:
-            raise ValueError("The 2nd dimension must have 3 values: x, y, z")
+        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
+        points = freud.common.convert_array(points, shape=(None, 3))
         cdef const float[:, ::1] l_ref_points = ref_points
         cdef const float[:, ::1] l_points = points
         cdef unsigned int n_ref = l_ref_points.shape[0]
@@ -832,3 +866,23 @@ cdef class RDF:
 
     def __str__(self):
         return repr(self)
+
+    def plot(self, ax=None):
+        """Plot radial distribution function.
+
+        Args:
+            ax (:class:`matplotlib.axes`): Axis to plot on. If :code:`None`,
+                make a new figure and axis. (Default value = :code:`None`)
+
+        Returns:
+            (:class:`matplotlib.axes`): Axis with the plot.
+        """
+        import plot
+        return plot.line_plot(self.R, self.RDF,
+                              title="RDF",
+                              xlabel=r"$r$",
+                              ylabel=r"$g(r)$")
+
+    def _repr_png_(self):
+        import plot
+        return plot.ax_to_bytes(self.plot())

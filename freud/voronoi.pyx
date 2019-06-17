@@ -430,3 +430,23 @@ class Voronoi(object):
 
     def __str__(self):
         return repr(self)
+
+    def plot(self, ax=None):
+        """Plot Voronoi diagram.
+
+        Args:
+            ax (:class:`matplotlib.axes`): Axis to plot on. If :code:`None`,
+                make a new figure and axis. (Default value = :code:`None`)
+
+        Returns:
+            (:class:`matplotlib.axes`): Axis with the plot.
+        """
+        import plot
+        if not self._box.is2D():
+            return None
+        else:
+            return plot.draw_voronoi(self._box, self.polytopes, ax=ax)
+
+    def _repr_png_(self):
+        import plot
+        return plot.ax_to_bytes(self.plot())
