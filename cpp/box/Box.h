@@ -298,7 +298,7 @@ public:
     /*! \param vecs Vectors to wrap, updated to the minimum image obeying the periodic settings
      *  \param Nvecs Number of vectors
      */
-    void wrap_many(vec3<float>* vecs, unsigned int Nvecs) const
+    void wrapMany(vec3<float>* vecs, unsigned int Nvecs) const
     {
         tbb::parallel_for(tbb::blocked_range<size_t>(0, Nvecs), [=](const tbb::blocked_range<size_t>& r) {
             for (size_t i = r.begin(); i < r.end(); ++i)
@@ -308,35 +308,22 @@ public:
         });
     }
 
-    //! Unwrap a given position to its "real" location
-    /*! \param p coordinates to unwrap
-     *  \param image image flags for this point
-        \returns The unwrapped coordinates
-    */
-    vec3<float> unwrap(const vec3<float>& p, const vec3<int>& image) const
-    {
-        vec3<float> newp = p;
-
-        newp += getLatticeVector(0) * float(image.x);
-        newp += getLatticeVector(1) * float(image.y);
-        if (!m_2d)
-        {
-            newp += getLatticeVector(2) * float(image.z);
-        }
-        return newp;
-    }
-
     //! Unwrap given positions to their "real" location in place
     /*! \param vecs Vectors of coordinates to unwrap
      *  \param images images flags for this point
         \param Nvecs Number of vectors
     */
-    void unwrap_many(vec3<float>* vecs, const vec3<int>* images, unsigned int Nvecs) const
+    void unwrap(vec3<float>* vecs, const vec3<int>* images, unsigned int Nvecs) const
     {
         tbb::parallel_for(tbb::blocked_range<size_t>(0, Nvecs), [=](const tbb::blocked_range<size_t>& r) {
             for (size_t i = r.begin(); i < r.end(); ++i)
             {
-                vecs[i] = unwrap(vecs[i], images[i]);
+                vecs[i] += getLatticeVector(0) * float(images[i].x);
+                vecs[i] += getLatticeVector(1) * float(images[i].y);
+                if (!m_2d)
+                {
+                    vecs[i] += getLatticeVector(2) * float(images[i].z);
+                }
             }
         });
     }

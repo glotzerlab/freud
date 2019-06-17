@@ -325,21 +325,12 @@ cdef class Box:
         vecs = np.atleast_2d(vecs)
         vecs = freud.common.convert_array(vecs, shape=(None, 3))
 
-        vecs = self._wrap_many(vecs)
-        return np.squeeze(vecs) if flatten else vecs
-
-    def _wrap(self, vec):
-        R"""Wrap a single vector."""
-        cdef const float[::1] l_vec = vec
-        cdef vec3[float] result = self.thisptr.wrap(<vec3[float]&> l_vec[0])
-        return (result.x, result.y, result.z)
-
-    def _wrap_many(self, vecs):
         cdef const float[:, ::1] l_points = vecs
         cdef unsigned int Np = l_points.shape[0]
         with nogil:
-            self.thisptr.wrap_many(<vec3[float]*> &l_points[0, 0], Np)
-        return vecs
+            self.thisptr.wrapMany(<vec3[float]*> &l_points[0, 0], Np)
+
+        return np.squeeze(vecs) if flatten else vecs
 
     def unwrap(self, vecs, imgs):
         R"""Unwrap a given array of vectors inside the box back into real space,
@@ -365,28 +356,14 @@ cdef class Box:
         imgs = freud.common.convert_array(imgs, shape=vecs.shape,
                                           dtype=np.int32)
 
-        vecs += imgs[:, [0]]*self.getLatticeVector(0)
-        vecs += imgs[:, [1]]*self.getLatticeVector(1)
-        if self.dimensions == 3:
-            vecs += imgs[:, [2]]*self.getLatticeVector(2)
-        return np.squeeze(vecs) if flatten else vecs
-
-    def _unwrap(self, vec, img):
-        R"""Unwrap a single vector."""
-        cdef const float[::1] l_vec = vec
-        cdef const int[::1] l_img = img
-        cdef vec3[float] result = self.thisptr.unwrap(
-            <vec3[float]&> l_vec[0], <vec3[int]&> l_img[0])
-        return [result.x, result.y, result.z]
-
-    def _unwrap_many(self, vecs, imgs):
         cdef const float[:, ::1] l_points = vecs
         cdef const int[:, ::1] l_imgs = imgs
         cdef unsigned int Np = l_points.shape[0]
         with nogil:
-            self.thisptr.unwrap_many(<vec3[float]*> &l_points[0, 0],
-                                     <vec3[int]*> &l_imgs[0, 0], Np)
-        return vecs
+            self.thisptr.unwrap(<vec3[float]*> &l_points[0, 0],
+                                <vec3[int]*> &l_imgs[0, 0], Np)
+
+        return np.squeeze(vecs) if flatten else vecs
 
     @property
     def periodic(self):
