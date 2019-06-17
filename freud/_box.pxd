@@ -35,11 +35,8 @@ cdef extern from "Box.h" namespace "freud::box":
 
         float getVolume() const
         void makeCoordinates(vec3[float]*, unsigned int) nogil except +
-        vec3[float] makeFraction(const vec3[float] &) const
-        void makeFraction_many(vec3[float]*, unsigned int) nogil except +
-        vec3[int] getImage(const vec3[float] &) const
-        void getImage_many(vec3[float]*, unsigned int,
-                           vec3[int]*) nogil except +
+        void makeFraction(vec3[float]*, unsigned int) nogil except +
+        void getImage(vec3[float]*, unsigned int, vec3[int]*) nogil except +
         vec3[float] getLatticeVector(unsigned int i) except +
         vec3[float] wrap(vec3[float] & v) const
         void wrap_many(vec3[float]* vs, unsigned int Nv) nogil except +

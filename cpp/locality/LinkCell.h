@@ -401,7 +401,7 @@ public:
     //! Compute cell coordinates for a given position
     vec3<unsigned int> getCellCoord(const vec3<float> p) const
     {
-        vec3<float> alpha = m_box.makeFraction(p);
+        vec3<float> alpha = m_box.makeFractionSingle(p);
         vec3<unsigned int> c;
         c.x = floorf(alpha.x * float(m_cell_index.getW()));
         c.x %= m_cell_index.getW();

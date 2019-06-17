@@ -225,7 +225,7 @@ public:
      *  either direction, it will go larger than 1 or less than 0
      *  keeping the same scaling.
      */
-    vec3<float> makeFraction(const vec3<float>& v,
+    vec3<float> makeFractionSingle(const vec3<float>& v,
                              const vec3<float>& ghost_width = vec3<float>(0.0, 0.0, 0.0)) const
     {
         vec3<float> delta = v - m_lo;
@@ -240,28 +240,14 @@ public:
         return delta;
     }
 
-    void makeFraction_many(vec3<float>* vecs, unsigned int Nvecs) const
+    void makeFraction(vec3<float>* vecs, unsigned int Nvecs) const
     {
         tbb::parallel_for(tbb::blocked_range<size_t>(0, Nvecs), [=](const tbb::blocked_range<size_t>& r) {
             for (size_t i = r.begin(); i < r.end(); ++i)
             {
-                vecs[i] = makeFraction(vecs[i]);
+                vecs[i] = makeFractionSingle(vecs[i]);
             }
         });
-    }
-
-    //! Get the periodic image a vector belongs to
-    /*! \param v The vector to check
-     *  \returns the integer coordinates of the periodic image
-     */
-    vec3<int> getImage(const vec3<float>& v) const
-    {
-        vec3<float> f = makeFraction(v) - vec3<float>(0.5, 0.5, 0.5);
-        vec3<int> img;
-        img.x = (int) ((f.x >= 0.0f) ? f.x + 0.5f : f.x - 0.5f);
-        img.y = (int) ((f.y >= 0.0f) ? f.y + 0.5f : f.y - 0.5f);
-        img.z = (int) ((f.z >= 0.0f) ? f.z + 0.5f : f.z - 0.5f);
-        return img;
     }
 
     //! Get the periodic image vectors belongs to
@@ -269,12 +255,15 @@ public:
      *  \param Nvecs Number of vectors
         \param res Array to save the images
      */
-    void getImage_many(vec3<float>* vecs, unsigned int Nvecs, vec3<int>* res) const
+    void getImage(vec3<float>* vecs, unsigned int Nvecs, vec3<int>* res) const
     {
         tbb::parallel_for(tbb::blocked_range<size_t>(0, Nvecs), [=](const tbb::blocked_range<size_t>& r) {
             for (size_t i = r.begin(); i < r.end(); ++i)
             {
-                res[i] = getImage(vecs[i]);
+                vec3<float> f = makeFractionSingle(vecs[i]) - vec3<float>(0.5, 0.5, 0.5);
+                res[i].x = (int) ((f.x >= 0.0f) ? f.x + 0.5f : f.x - 0.5f);
+                res[i].y = (int) ((f.y >= 0.0f) ? f.y + 0.5f : f.y - 0.5f);
+                res[i].z = (int) ((f.z >= 0.0f) ? f.z + 0.5f : f.z - 0.5f);
             }
         });
     }
@@ -285,7 +274,7 @@ public:
      */
     vec3<float> wrap(const vec3<float>& v) const
     {
-        vec3<float> tmp = makeFraction(v);
+        vec3<float> tmp = makeFractionSingle(v);
         tmp.x = fmod(tmp.x, 1.0f);
         tmp.y = fmod(tmp.y, 1.0f);
         tmp.z = fmod(tmp.z, 1.0f);

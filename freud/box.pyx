@@ -252,21 +252,12 @@ cdef class Box:
         vecs = np.atleast_2d(vecs)
         vecs = freud.common.convert_array(vecs, shape=(None, 3))
 
-        vecs = self._makeFraction_many(vecs)
-        return np.squeeze(vecs) if flatten else vecs
-
-    def _makeFraction(self, vec):
-        cdef const float[::1] l_vec = vec
-        cdef vec3[float] result = self.thisptr.makeFraction(
-            <const vec3[float]&> l_vec[0])
-        return [result.x, result.y, result.z]
-
-    def _makeFraction_many(self, vecs):
         cdef const float[:, ::1] l_points = vecs
         cdef unsigned int Np = l_points.shape[0]
         with nogil:
-            self.thisptr.makeFraction_many(<vec3[float]*> &l_points[0, 0], Np)
-        return vecs
+            self.thisptr.makeFraction(<vec3[float]*> &l_points[0, 0], Np)
+
+        return np.squeeze(vecs) if flatten else vecs
 
     def getImage(self, vecs):
         R"""Returns the image corresponding to a wrapped vector.
@@ -286,23 +277,15 @@ cdef class Box:
         vecs = np.atleast_2d(vecs)
         vecs = freud.common.convert_array(vecs, shape=(None, 3))
 
-        images = self._getImage_many(vecs)
-        return np.squeeze(images) if flatten else images
-
-    def _getImage(self, vec):
-        cdef const float[::1] l_vec = vec
-        cdef vec3[int] result = self.thisptr.getImage(
-            <const vec3[float]&> l_vec[0])
-        return [result.x, result.y, result.z]
-
-    def _getImage_many(self, vecs):
+        images = np.zeros(vecs.shape, dtype=np.int32)
         cdef const float[:, ::1] l_points = vecs
-        cdef const int[:, ::1] l_result = np.zeros(vecs.shape, dtype=np.int32)
+        cdef const int[:, ::1] l_result = images
         cdef unsigned int Np = l_points.shape[0]
         with nogil:
-            self.thisptr.getImage_many(<vec3[float]*> &l_points[0, 0], Np,
-                                       <vec3[int]*> &l_result[0, 0])
-        return np.asarray(l_result)
+            self.thisptr.getImage(<vec3[float]*> &l_points[0, 0], Np,
+                                  <vec3[int]*> &l_result[0, 0])
+
+        return np.squeeze(images) if flatten else images
 
     def getLatticeVector(self, i):
         R"""Get the lattice vector with index :math:`i`.
