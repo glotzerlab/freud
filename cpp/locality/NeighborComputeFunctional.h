@@ -11,6 +11,13 @@
 
 namespace freud { namespace locality {
 
+template<typename T> T* makeNewEmptyArray(unsigned int size)
+{
+    T* tmp = new T[size];
+    memset((void*) tmp, 0, sizeof(T) * size);
+    return tmp;
+}
+
 //! Wrapper for for-loop
 /*! \param parallel If true, run body in parallel.
     \param begin Beginning index.
