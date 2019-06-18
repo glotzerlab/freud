@@ -94,11 +94,7 @@ unsigned int GaussianDensity::getWidthZ()
  */
 void GaussianDensity::reset()
 {
-    for (tbb::enumerable_thread_specific<float*>::iterator i = m_local_bin_counts.array.begin();
-         i != m_local_bin_counts.array.end(); ++i)
-    {
-        memset((void*) (*i), 0, sizeof(float) * m_bi.getNumElements());
-    }
+    m_local_bin_counts.reset();
     this->m_reduce = true;
 }
 
