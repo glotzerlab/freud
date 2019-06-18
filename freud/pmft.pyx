@@ -43,6 +43,7 @@ import freud.common
 import freud.locality
 import warnings
 
+from freud.common cimport Compute
 from freud.util._VectorMath cimport vec3, quat
 from cython.operator cimport dereference
 
@@ -57,7 +58,7 @@ cimport numpy as np
 # _always_ do that, or you will have segfaults
 np.import_array()
 
-cdef class _PMFT:
+cdef class _PMFT(Compute):
     R"""Compute the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ for a
     given set of points.
 
@@ -78,15 +79,16 @@ cdef class _PMFT:
         if type(self) is _PMFT:
             del self.pmftptr
 
-    @property
+    @Compute._computed_property()
     def box(self):
         return freud.box.BoxFromCPP(self.pmftptr.getBox())
 
+    @Compute._reset
     def reset(self):
         R"""Resets the values of the PCF histograms in memory."""
         self.pmftptr.reset()
 
-    @property
+    @Compute._computed_property()
     def PMFT(self):
         with np.warnings.catch_warnings():
             np.warnings.filterwarnings('ignore')
@@ -160,6 +162,7 @@ cdef class PMFTR12(_PMFT):
         if type(self) is PMFTR12:
             del self.pmftr12ptr
 
+    @Compute._compute()
     def accumulate(self, box, ref_points, ref_orientations, points=None,
                    orientations=None, nlist=None):
         R"""Calculates the positional correlation function and adds to the
@@ -192,18 +195,15 @@ cdef class PMFTR12(_PMFT):
         if orientations is None:
             orientations = ref_orientations
 
-        ref_points = freud.common.convert_array(ref_points, 2)
-        if ref_points.shape[1] != 3:
-            raise TypeError('ref_points should be an Nx3 array')
+        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
 
         ref_orientations = freud.common.convert_array(
-            ref_orientations.squeeze(), 1)
+            ref_orientations.squeeze(), shape=(ref_points.shape[0], ))
 
-        points = freud.common.convert_array(points, 2)
-        if points.shape[1] != 3:
-            raise TypeError('points should be an Nx3 array')
+        points = freud.common.convert_array(points, shape=(None, 3))
 
-        orientations = freud.common.convert_array(orientations.squeeze(), 1)
+        orientations = freud.common.convert_array(
+            orientations.squeeze(), shape=(points.shape[0], ))
 
         defaulted_nlist = freud.locality.make_default_nlist(
             b, ref_points, points, self.rmax, nlist, None)
@@ -226,6 +226,7 @@ cdef class PMFTR12(_PMFT):
                                        nP)
         return self
 
+    @Compute._compute()
     def compute(self, box, ref_points, ref_orientations, points=None,
                 orientations=None, nlist=None):
         R"""Calculates the positional correlation function for the given points.
@@ -253,7 +254,7 @@ cdef class PMFTR12(_PMFT):
                         points, orientations, nlist)
         return self
 
-    @property
+    @Compute._computed_property()
     def bin_counts(self):
         cdef unsigned int n_bins_R = self.pmftr12ptr.getNBinsR()
         cdef unsigned int n_bins_T2 = self.pmftr12ptr.getNBinsT2()
@@ -263,7 +264,7 @@ cdef class PMFTR12(_PMFT):
             self.pmftr12ptr.getBinCounts().get()
         return np.asarray(bin_counts, dtype=np.uint32)
 
-    @property
+    @Compute._computed_property()
     def PCF(self):
         cdef unsigned int n_bins_R = self.pmftr12ptr.getNBinsR()
         cdef unsigned int n_bins_T2 = self.pmftr12ptr.getNBinsT2()
@@ -405,6 +406,7 @@ cdef class PMFTXYT(_PMFT):
         if type(self) is PMFTXYT:
             del self.pmftxytptr
 
+    @Compute._compute()
     def accumulate(self, box, ref_points, ref_orientations, points=None,
                    orientations=None, nlist=None):
         R"""Calculates the positional correlation function and adds to the
@@ -437,18 +439,15 @@ cdef class PMFTXYT(_PMFT):
         if orientations is None:
             orientations = ref_orientations
 
-        ref_points = freud.common.convert_array(ref_points, 2)
-        if ref_points.shape[1] != 3:
-            raise TypeError('ref_points should be an Nx3 array')
+        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
 
         ref_orientations = freud.common.convert_array(
-            ref_orientations.squeeze(), 1)
+            ref_orientations.squeeze(), shape=(ref_points.shape[0], ))
 
-        points = freud.common.convert_array(points, 2)
-        if points.shape[1] != 3:
-            raise TypeError('points should be an Nx3 array')
+        points = freud.common.convert_array(points, shape=(None, 3))
 
-        orientations = freud.common.convert_array(orientations.squeeze(), 1)
+        orientations = freud.common.convert_array(
+            orientations.squeeze(), shape=(points.shape[0], ))
 
         defaulted_nlist = freud.locality.make_default_nlist(
             b, ref_points, points, self.rmax, nlist, None)
@@ -471,6 +470,7 @@ cdef class PMFTXYT(_PMFT):
                                        nP)
         return self
 
+    @Compute._compute()
     def compute(self, box, ref_points, ref_orientations, points=None,
                 orientations=None, nlist=None):
         R"""Calculates the positional correlation function for the given points.
@@ -498,7 +498,7 @@ cdef class PMFTXYT(_PMFT):
                         points, orientations, nlist)
         return self
 
-    @property
+    @Compute._computed_property()
     def bin_counts(self):
         cdef unsigned int n_bins_T = self.pmftxytptr.getNBinsT()
         cdef unsigned int n_bins_Y = self.pmftxytptr.getNBinsY()
@@ -508,7 +508,7 @@ cdef class PMFTXYT(_PMFT):
             self.pmftxytptr.getBinCounts().get()
         return np.asarray(bin_counts, dtype=np.uint32)
 
-    @property
+    @Compute._computed_property()
     def PCF(self):
         cdef unsigned int n_bins_T = self.pmftxytptr.getNBinsT()
         cdef unsigned int n_bins_Y = self.pmftxytptr.getNBinsY()
@@ -634,6 +634,7 @@ cdef class PMFTXY2D(_PMFT):
         if type(self) is PMFTXY2D:
             del self.pmftxy2dptr
 
+    @Compute._compute()
     def accumulate(self, box, ref_points, ref_orientations, points=None,
                    orientations=None, nlist=None):
         R"""Calculates the positional correlation function and adds to the
@@ -666,19 +667,15 @@ cdef class PMFTXY2D(_PMFT):
         if orientations is None:
             orientations = ref_orientations
 
-        ref_points = freud.common.convert_array(ref_points, 2)
-        if ref_points.shape[1] != 3:
-            raise TypeError('ref_points should be an Nx3 array')
+        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
 
         ref_orientations = freud.common.convert_array(
-            ref_orientations.squeeze(), 1)
+            ref_orientations.squeeze(), shape=(ref_points.shape[0], ))
 
-        points = freud.common.convert_array(points, 2)
-        if points.shape[1] != 3:
-            raise TypeError('points should be an Nx3 array')
+        points = freud.common.convert_array(points, shape=(None, 3))
 
         orientations = freud.common.convert_array(
-            orientations.squeeze(), 1)
+            orientations.squeeze(), shape=(points.shape[0], ))
 
         defaulted_nlist = freud.locality.make_default_nlist(
             b, ref_points, points, self.rmax, nlist, None)
@@ -701,6 +698,7 @@ cdef class PMFTXY2D(_PMFT):
                                         nP)
         return self
 
+    @Compute._compute()
     def compute(self, box, ref_points, ref_orientations, points=None,
                 orientations=None, nlist=None):
         R"""Calculates the positional correlation function for the given points.
@@ -728,7 +726,7 @@ cdef class PMFTXY2D(_PMFT):
                         points, orientations, nlist)
         return self
 
-    @property
+    @Compute._computed_property()
     def bin_counts(self):
         cdef unsigned int n_bins_Y = self.pmftxy2dptr.getNBinsY()
         cdef unsigned int n_bins_X = self.pmftxy2dptr.getNBinsX()
@@ -737,7 +735,7 @@ cdef class PMFTXY2D(_PMFT):
             self.pmftxy2dptr.getBinCounts().get()
         return np.asarray(bin_counts, dtype=np.uint32)
 
-    @property
+    @Compute._computed_property()
     def PCF(self):
         cdef unsigned int n_bins_Y = self.pmftxy2dptr.getNBinsY()
         cdef unsigned int n_bins_X = self.pmftxy2dptr.getNBinsX()
@@ -782,6 +780,27 @@ cdef class PMFTXY2D(_PMFT):
 
     def __str__(self):
         return repr(self)
+
+    def _repr_png_(self):
+        import plot
+        try:
+            return plot.ax_to_bytes(self.plot())
+        except AttributeError:
+            return None
+
+    @Compute._computed_method()
+    def plot(self, ax=None):
+        """Plot PMFTXY2D.
+
+        Args:
+            ax (:class:`matplotlib.axes`): Axis to plot on. If :code:`None`,
+                make a new figure and axis. (Default value = :code:`None`)
+
+        Returns:
+            (:class:`matplotlib.axes`): Axis with the plot.
+        """
+        import plot
+        return plot.pmft_plot(self, ax)
 
 
 cdef class PMFTXYZ(_PMFT):
@@ -868,6 +887,7 @@ cdef class PMFTXYZ(_PMFT):
         if type(self) is PMFTXYZ:
             del self.pmftxyzptr
 
+    @Compute._compute()
     def accumulate(self, box, ref_points, ref_orientations, points=None,
                    orientations=None, face_orientations=None, nlist=None):
         R"""Calculates the positional correlation function and adds to the
@@ -907,24 +927,15 @@ cdef class PMFTXYZ(_PMFT):
         if orientations is None:
             orientations = ref_orientations
 
-        ref_points = freud.common.convert_array(ref_points, 2)
-        if ref_points.shape[1] != 3:
-            raise TypeError('ref_points should be an Nx3 array')
+        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
+        ref_orientations = freud.common.convert_array(
+            ref_orientations, shape=(ref_points.shape[0], 4))
 
-        ref_orientations = freud.common.convert_array(ref_orientations, 2)
-        if ref_orientations.shape[1] != 4:
-            raise ValueError(
-                "The 2nd dimension must have 4 values: w, x, y, z")
-
-        points = freud.common.convert_array(points, 2)
-        if points.shape[1] != 3:
-            raise TypeError('points should be an Nx3 array')
+        points = freud.common.convert_array(points, shape=(None, 3))
         points = points - self.shiftvec.reshape(1, 3)
 
-        orientations = freud.common.convert_array(orientations, 2)
-        if orientations.shape[1] != 4:
-            raise ValueError(
-                "The 2nd dimension must have 4 values: w, x, y, z")
+        orientations = freud.common.convert_array(
+            orientations, shape=(points.shape[0], 4))
 
         # handle multiple ways to input
         if face_orientations is None:
@@ -992,6 +1003,7 @@ cdef class PMFTXYZ(_PMFT):
                 nFaces)
         return self
 
+    @Compute._compute()
     def compute(self, box, ref_points, ref_orientations, points=None,
                 orientations=None, face_orientations=None, nlist=None):
         R"""Calculates the positional correlation function for the given points.
@@ -1026,7 +1038,7 @@ cdef class PMFTXYZ(_PMFT):
                         points, orientations, face_orientations, nlist)
         return self
 
-    @property
+    @Compute._computed_property()
     def bin_counts(self):
         cdef unsigned int n_bins_Z = self.pmftxyzptr.getNBinsZ()
         cdef unsigned int n_bins_Y = self.pmftxyzptr.getNBinsY()
@@ -1036,7 +1048,7 @@ cdef class PMFTXYZ(_PMFT):
             self.pmftxyzptr.getBinCounts().get()
         return np.asarray(bin_counts, dtype=np.uint32)
 
-    @property
+    @Compute._computed_property()
     def PCF(self):
         cdef unsigned int n_bins_Z = self.pmftxyzptr.getNBinsZ()
         cdef unsigned int n_bins_Y = self.pmftxyzptr.getNBinsY()

@@ -17,7 +17,19 @@ class TestTransOrder(unittest.TestCase):
                                     dtype=np.float32)
 
         trans = freud.order.TransOrderParameter(1.1, 4, 4)
+        # Test access
+        with self.assertRaises(AttributeError):
+            trans.num_particles
+        with self.assertRaises(AttributeError):
+            trans.box
+        with self.assertRaises(AttributeError):
+            trans.d_r
         trans.compute(box, positions)
+
+        # Test access
+        trans.num_particles
+        trans.box
+        trans.d_r
 
         npt.assert_allclose(trans.d_r, 0, atol=1e-6)
 

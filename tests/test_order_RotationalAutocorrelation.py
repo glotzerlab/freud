@@ -28,7 +28,21 @@ class TestRotationalAutocorrelation(unittest.TestCase):
         orientations /= np.linalg.norm(orientations, axis=1)[:, np.newaxis]
 
         ra = freud.order.RotationalAutocorrelation(2)
+
+        # Test access
+        with self.assertRaises(AttributeError):
+            ra.ra_array
+        with self.assertRaises(AttributeError):
+            ra.autocorrelation
+        with self.assertRaises(AttributeError):
+            ra.num_orientations
+
         ra.compute(orientations, orientations)
+
+        # Test access
+        ra.ra_array
+        ra.autocorrelation
+        ra.num_orientations
 
         self.assertEqual(ra.azimuthal, 2)
         self.assertEqual(ra.num_orientations, 4)

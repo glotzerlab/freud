@@ -4,6 +4,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## next
 
+### Added
+* `AttributeError` is raised when one tries to access an attribute that has not yet been computed.
+
 ### Changed
 * Removed extra C++ includes to speed up builds.
 * The C++ style is now based on clang-format.

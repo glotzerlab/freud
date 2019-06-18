@@ -9,6 +9,7 @@ between sets of points.
 import freud.common
 import numpy as np
 
+from freud.common cimport Compute
 from freud.util._VectorMath cimport vec3
 from cython.operator cimport dereference
 import freud.locality
@@ -22,7 +23,7 @@ cimport numpy as np
 # _always_ do that, or you will have segfaults
 np.import_array()
 
-cdef class InterfaceMeasure:
+cdef class InterfaceMeasure(Compute):
     R"""Measures the interface between two sets of points.
 
     .. moduleauthor:: Matthew Spellings <mspells@umich.edu>
@@ -51,6 +52,7 @@ cdef class InterfaceMeasure:
         self._ref_point_ids = np.empty(0, dtype=np.uint32)
         self._point_ids = np.empty(0, dtype=np.uint32)
 
+    @Compute._compute()
     def compute(self, box, ref_points, points, nlist=None):
         R"""Compute the particles at the interface between the two given sets of
         points.
@@ -64,10 +66,8 @@ cdef class InterfaceMeasure:
                 Neighborlist to use to find bonds (Default value = None).
         """
         b = freud.common.convert_box(box)
-        ref_points = freud.common.convert_array(ref_points, 2)
-        points = freud.common.convert_array(points, 2)
-        if ref_points.shape[1] != 3 or points.shape[1] != 3:
-            raise RuntimeError('Need to provide array with x, y, z positions')
+        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
+        points = freud.common.convert_array(points, shape=(None, 3))
 
         if nlist is None:
             lc = freud.locality.LinkCell(b, self.rmax)
@@ -79,19 +79,19 @@ cdef class InterfaceMeasure:
         self._point_ids = np.unique(nlist.index_j).astype(np.uint32)
         return self
 
-    @property
+    @Compute._computed_property()
     def ref_point_count(self):
         return len(self._ref_point_ids)
 
-    @property
+    @Compute._computed_property()
     def ref_point_ids(self):
         return np.asarray(self._ref_point_ids)
 
-    @property
+    @Compute._computed_property()
     def point_count(self):
         return len(self._point_ids)
 
-    @property
+    @Compute._computed_property()
     def point_ids(self):
         return np.asarray(self._point_ids)
 

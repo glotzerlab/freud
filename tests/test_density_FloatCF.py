@@ -23,6 +23,51 @@ class TestFloatCF(unittest.TestCase):
 
         npt.assert_allclose(ocf.R, r_list, atol=1e-3)
 
+    def test_attribute_access(self):
+        rmax = 10.0
+        dr = 1.0
+        num_points = 100
+        box_size = rmax*3.1
+        box = freud.box.Box.square(box_size)
+        np.random.seed(0)
+        points = np.random.random_sample((num_points, 3)).astype(np.float32) \
+            * box_size - box_size/2
+        ang = np.random.random_sample((num_points)).astype(np.float64) - 0.5
+        ocf = freud.density.FloatCF(rmax, dr)
+
+        # Test protected attribute access
+        with self.assertRaises(AttributeError):
+            ocf.RDF
+        with self.assertRaises(AttributeError):
+            ocf.box
+        with self.assertRaises(AttributeError):
+            ocf.counts
+
+        ocf.accumulate(box, points, ang)
+
+        # Test if accessible now
+        ocf.RDF
+        ocf.box
+        ocf.counts
+
+        # reset
+        ocf.reset()
+
+        # Test protected attribute access
+        with self.assertRaises(AttributeError):
+            ocf.RDF
+        with self.assertRaises(AttributeError):
+            ocf.box
+        with self.assertRaises(AttributeError):
+            ocf.counts
+
+        ocf.compute(box, points, ang)
+
+        # Test if accessible now
+        ocf.RDF
+        ocf.box
+        ocf.counts
+
     def test_random_points(self):
         rmax = 10.0
         dr = 1.0
@@ -92,6 +137,25 @@ class TestFloatCF(unittest.TestCase):
     def test_repr(self):
         ocf = freud.density.FloatCF(1000, 40)
         self.assertEqual(str(ocf), str(eval(repr(ocf))))
+
+    def test_repr_png(self):
+        rmax = 10.0
+        dr = 1.0
+        num_points = 1000
+        box_size = rmax*3.1
+        box = freud.box.Box.square(box_size)
+        np.random.seed(0)
+        points = np.random.random_sample((num_points, 3)).astype(np.float32) \
+            * box_size - box_size/2
+        ang = np.random.random_sample((num_points)).astype(np.float64) - 0.5
+        ocf = freud.density.FloatCF(rmax, dr)
+
+        with self.assertRaises(AttributeError):
+            ocf.plot()
+        self.assertEqual(ocf._repr_png_(), None)
+
+        ocf.accumulate(box, points, ang)
+        ocf._repr_png_()
 
 
 if __name__ == '__main__':

@@ -17,11 +17,21 @@ class TestBondOrder(unittest.TestCase):
         npt = npp = 6
         bo = freud.environment.BondOrder(r_cut, 0, num_neighbors, npt, npp)
 
+        # Test access
+        with self.assertRaises(AttributeError):
+            bo.box
+        with self.assertRaises(AttributeError):
+            bo.bond_order
+
         # Test that there are exactly 12 non-zero bins for a perfect FCC
         # structure.
         bo.compute(box, positions, quats, positions, quats)
         op_value = bo.bond_order.copy()
         self.assertEqual(np.sum(op_value > 0), 12)
+
+        # Test access
+        bo.box
+        bo.bond_order
 
         # Test all the basic attributes.
         self.assertEqual(bo.n_bins_theta, npt)
@@ -34,7 +44,11 @@ class TestBondOrder(unittest.TestCase):
 
         # Test that reset works.
         bo.reset()
-        self.assertTrue(np.all(bo.bond_order == 0))
+        # Test access
+        with self.assertRaises(AttributeError):
+            bo.box
+        with self.assertRaises(AttributeError):
+            bo.bond_order
 
         # Test that lbod gives identical results when orientations are the
         # same.
@@ -42,6 +56,10 @@ class TestBondOrder(unittest.TestCase):
         # the desired results.
         bo.accumulate(box, positions, quats, positions, quats, mode='lbod')
         self.assertTrue(np.allclose(bo.bond_order, op_value))
+
+        # Test access
+        bo.box
+        bo.bond_order
 
         # Test that obcd gives identical results when orientations are the
         # same.

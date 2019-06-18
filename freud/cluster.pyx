@@ -12,6 +12,7 @@ import freud.common
 import freud.locality
 
 from cython.operator cimport dereference
+from freud.common cimport Compute
 from freud.util._VectorMath cimport vec3
 
 cimport freud._cluster
@@ -23,7 +24,7 @@ cimport numpy as np
 # _always_ do that, or you will have segfaults
 np.import_array()
 
-cdef class Cluster:
+cdef class Cluster(Compute):
     R"""Finds clusters in a set of points.
 
     Given a set of coordinates and a cutoff, :class:`freud.cluster.Cluster`
@@ -87,6 +88,7 @@ cdef class Cluster:
     def box(self):
         return self.m_box
 
+    @Compute._compute("computeClusters")
     def computeClusters(self, points, nlist=None, box=None):
         R"""Compute the clusters for the given set of points.
 
@@ -98,10 +100,7 @@ cdef class Cluster:
             box (:class:`freud.box.Box`, optional):
                 Simulation box (Default value = None).
         """
-        points = freud.common.convert_array(points, 2)
-        if points.shape[1] != 3:
-            raise RuntimeError(
-                'Need a list of 3D points for computeClusters()')
+        points = freud.common.convert_array(points, shape=(None, 3))
 
         defaulted_nlist = freud.locality.make_default_nlist(
             self.m_box, points, points, self.rmax, nlist, True)
@@ -121,6 +120,7 @@ cdef class Cluster:
                 <vec3[float]*> &l_points[0, 0], Np)
         return self
 
+    @Compute._compute("computeClusterMembership")
     def computeClusterMembership(self, keys):
         R"""Compute the clusters with key membership.
         Loops over all particles and adds them to a list of sets.
@@ -128,34 +128,32 @@ cdef class Cluster:
         Get the computed list with :attr:`~cluster_keys`.
 
         Args:
-            keys((:math:`N_{particles}`) :class:`numpy.ndarray`):
+            keys ((:math:`N_{particles}`) :class:`numpy.ndarray`):
                 Membership keys, one for each particle.
         """
-        keys = freud.common.convert_array(keys, 1, dtype=np.uint32)
-        if keys.shape[0] != self.num_particles:
-            raise RuntimeError(
-                'keys must be a 1D array of length num_particles')
+        keys = freud.common.convert_array(
+            keys, shape=(self.num_particles, ), dtype=np.uint32)
         cdef const unsigned int[::1] l_keys = keys
         with nogil:
             self.thisptr.computeClusterMembership(<unsigned int*> &l_keys[0])
         return self
 
-    @property
+    @Compute._computed_property("computeClusters")
     def num_clusters(self):
         return self.thisptr.getNumClusters()
 
-    @property
+    @Compute._computed_property("computeClusters")
     def num_particles(self):
         return self.thisptr.getNumParticles()
 
-    @property
+    @Compute._computed_property("computeClusters")
     def cluster_idx(self):
         cdef unsigned int n_particles = self.thisptr.getNumParticles()
         cdef const unsigned int[::1] cluster_idx = \
             <unsigned int[:n_particles]> self.thisptr.getClusterIdx().get()
         return np.asarray(cluster_idx)
 
-    @property
+    @Compute._computed_property("computeClusterMembership")
     def cluster_keys(self):
         cluster_keys = self.thisptr.getClusterKeys()
         return cluster_keys
@@ -169,8 +167,35 @@ cdef class Cluster:
     def __str__(self):
         return repr(self)
 
+    @Compute._computed_method("computeClusters")
+    def plot(self, ax=None):
+        """Plot cluster distribution.
 
-cdef class ClusterProperties:
+        Args:
+            ax (:class:`matplotlib.axes`): Axis to plot on. If :code:`None`,
+                make a new figure and axis. (Default value = :code:`None`)
+
+        Returns:
+            (:class:`matplotlib.axes`): Axis with the plot.
+        """
+        import plot
+        try:
+            count = np.unique(self.cluster_idx, return_counts=True)
+        except ValueError:
+            return None
+        else:
+            return plot.plot_clusters(count[0], count[1],
+                                      num_cluster_to_plot=10, ax=ax)
+
+    def _repr_png_(self):
+        import plot
+        try:
+            return plot.ax_to_bytes(self.plot())
+        except AttributeError:
+            return None
+
+
+cdef class ClusterProperties(Compute):
     R"""Routines for computing properties of point clusters.
 
     Given a set of points and cluster ids (from :class:`~.Cluster`, or another
@@ -181,13 +206,9 @@ cdef class ClusterProperties:
      - Gyration tensor
 
     The computed center of mass for each cluster (properly handling periodic
-    boundary conditions) can be accessed with :meth:`~.getClusterCOM()`.
-    This returns a :math:`\left(N_{clusters}, 3 \right)`
-    :class:`numpy.ndarray`.
-
+    boundary conditions) can be accessed with :code:`cluster_COM` attribute.
     The :math:`3 \times 3` gyration tensor :math:`G` can be accessed with
-    :meth:`~.getClusterG()`. This returns a :class:`numpy.ndarray`,
-    shape= :math:`\left(N_{clusters} \times 3 \times 3\right)`.
+    :code:`cluster_G` attribute.
     The tensor is symmetric for each cluster.
 
     .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
@@ -224,12 +245,13 @@ cdef class ClusterProperties:
     def box(self):
         return self.m_box
 
+    @Compute._compute("computeProperties")
     def computeProperties(self, points, cluster_idx, box=None):
         R"""Compute properties of the point clusters.
         Loops over all points in the given array and determines the center of
         mass of the cluster as well as the :math:`G` tensor. These can be
-        accessed after the call to :meth:`~.computeProperties()` with
-        :meth:`~.getClusterCOM()` and :meth:`~.getClusterG()`.
+        accessed after the call to :meth:`~.computeProperties()` with the
+        :code:`cluster_COM` and :code:`cluster_G` attributes.
 
         Args:
             points ((:math:`N_{particles}`, 3) :class:`np.ndarray`):
@@ -245,16 +267,9 @@ cdef class ClusterProperties:
         else:
             b = freud.common.convert_box(box)
 
-        points = freud.common.convert_array(points, 2)
-        if points.shape[1] != 3:
-            raise RuntimeError(
-                'Need a list of 3D points for computeClusterProperties()')
+        points = freud.common.convert_array(points, shape=(None, 3))
         cluster_idx = freud.common.convert_array(
-            cluster_idx, 1, dtype=np.uint32)
-        if cluster_idx.shape[0] != points.shape[0]:
-            raise RuntimeError(
-                ('cluster_idx must be a 1D array of matching length/number'
-                    'of particles to points'))
+            cluster_idx, shape=(points.shape[0], ), dtype=np.uint32)
         cdef const float[:, ::1] l_points = points
         cdef const unsigned int[::1] l_cluster_idx = cluster_idx
         cdef unsigned int Np = l_points.shape[0]
@@ -266,11 +281,11 @@ cdef class ClusterProperties:
                 Np)
         return self
 
-    @property
+    @Compute._computed_property("computeProperties")
     def num_clusters(self):
         return self.thisptr.getNumClusters()
 
-    @property
+    @Compute._computed_property("computeProperties")
     def cluster_COM(self):
         cdef unsigned int n_clusters = self.thisptr.getNumClusters()
         if not n_clusters:
@@ -280,7 +295,7 @@ cdef class ClusterProperties:
                 <float*> self.thisptr.getClusterCOM().get())
         return np.asarray(cluster_COM)
 
-    @property
+    @Compute._computed_property("computeProperties")
     def cluster_G(self):
         cdef unsigned int n_clusters = self.thisptr.getNumClusters()
         if not n_clusters:
@@ -290,7 +305,7 @@ cdef class ClusterProperties:
                 <float*> self.thisptr.getClusterG().get())
         return np.asarray(cluster_G)
 
-    @property
+    @Compute._computed_property("computeProperties")
     def cluster_sizes(self):
         cdef unsigned int n_clusters = self.thisptr.getNumClusters()
         if not n_clusters:

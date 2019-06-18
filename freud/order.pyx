@@ -17,6 +17,7 @@ import time
 import freud.locality
 import logging
 
+from freud.common cimport Compute
 from freud.util._VectorMath cimport vec3, quat
 from cython.operator cimport dereference
 
@@ -32,7 +33,7 @@ logger = logging.getLogger(__name__)
 # _always_ do that, or you will have segfaults
 np.import_array()
 
-cdef class CubaticOrderParameter:
+cdef class CubaticOrderParameter(Compute):
     R"""Compute the cubatic order parameter [HajiAkbari2015]_ for a system of
     particles using simulated annealing instead of Newton-Raphson root finding.
 
@@ -110,6 +111,7 @@ cdef class CubaticOrderParameter:
         self.n_replicates = n_replicates
         self.seed = seed
 
+    @Compute._compute()
     def compute(self, orientations):
         R"""Calculates the per-particle and global order parameter.
 
@@ -117,9 +119,8 @@ cdef class CubaticOrderParameter:
             orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
                 Orientations as angles to use in computation.
         """
-        orientations = freud.common.convert_array(orientations, 2)
-        if orientations.shape[1] != 4:
-            raise TypeError('orientations should be an Nx4 array')
+        orientations = freud.common.convert_array(
+            orientations, shape=(None, 4))
 
         cdef const float[:, ::1] l_orientations = orientations
         cdef unsigned int num_particles = l_orientations.shape[0]
@@ -141,16 +142,16 @@ cdef class CubaticOrderParameter:
     def scale(self):
         return self.thisptr.getScale()
 
-    @property
+    @Compute._computed_property()
     def cubatic_order_parameter(self):
         return self.thisptr.getCubaticOrderParameter()
 
-    @property
+    @Compute._computed_property()
     def orientation(self):
         cdef quat[float] q = self.thisptr.getCubaticOrientation()
         return np.asarray([q.s, q.v.x, q.v.y, q.v.z], dtype=np.float32)
 
-    @property
+    @Compute._computed_property()
     def particle_order_parameter(self):
         cdef unsigned int n_particles = self.thisptr.getNumParticles()
         cdef const float[::1] particle_order_parameter = \
@@ -158,7 +159,7 @@ cdef class CubaticOrderParameter:
             self.thisptr.getParticleCubaticOrderParameter().get()
         return np.asarray(particle_order_parameter)
 
-    @property
+    @Compute._computed_property()
     def particle_tensor(self):
         cdef unsigned int n_particles = self.thisptr.getNumParticles()
         cdef const float[:, :, :, :, ::1] particle_tensor = \
@@ -166,21 +167,21 @@ cdef class CubaticOrderParameter:
             self.thisptr.getParticleTensor().get()
         return np.asarray(particle_tensor)
 
-    @property
+    @Compute._computed_property()
     def global_tensor(self):
         cdef const float[:, :, :, ::1] global_tensor = \
             <float[:3, :3, :3, :3]> \
             self.thisptr.getGlobalTensor().get()
         return np.asarray(global_tensor)
 
-    @property
+    @Compute._computed_property()
     def cubatic_tensor(self):
         cdef const float[:, :, :, ::1] cubatic_tensor = \
             <float[:3, :3, :3, :3]> \
             self.thisptr.getCubaticTensor().get()
         return np.asarray(cubatic_tensor)
 
-    @property
+    @Compute._computed_property()
     def gen_r4_tensor(self):
         cdef const float[:, :, :, ::1] gen_r4_tensor = \
             <float[:3, :3, :3, :3]> \
@@ -200,7 +201,7 @@ cdef class CubaticOrderParameter:
     def __str__(self):
         return repr(self)
 
-cdef class NematicOrderParameter:
+cdef class NematicOrderParameter(Compute):
     R"""Compute the nematic order parameter for a system of particles.
 
     .. moduleauthor:: Jens Glaser <jsglaser@umich.edu>
@@ -233,8 +234,9 @@ cdef class NematicOrderParameter:
 
         cdef vec3[float] l_u = vec3[float](u[0], u[1], u[2])
         self.thisptr = new freud._order.NematicOrderParameter(l_u)
-        self.u = freud.common.convert_array(u, 1)
+        self.u = freud.common.convert_array(u, shape=(3, ))
 
+    @Compute._compute()
     def compute(self, orientations):
         R"""Calculates the per-particle and global order parameter.
 
@@ -242,9 +244,8 @@ cdef class NematicOrderParameter:
             orientations (:math:`\left(N_{particles}, 4 \right)` :class:`numpy.ndarray`):
                 Orientations to calculate the order parameter.
         """  # noqa: E501
-        orientations = freud.common.convert_array(orientations, 2)
-        if orientations.shape[1] != 4:
-            raise TypeError('orientations should be an Nx4 array')
+        orientations = freud.common.convert_array(
+            orientations, shape=(None, 4))
 
         cdef const float[:, ::1] l_orientations = orientations
         cdef unsigned int num_particles = l_orientations.shape[0]
@@ -253,16 +254,16 @@ cdef class NematicOrderParameter:
             self.thisptr.compute(<quat[float]*> &l_orientations[0, 0],
                                  num_particles)
 
-    @property
+    @Compute._computed_property()
     def nematic_order_parameter(self):
         return self.thisptr.getNematicOrderParameter()
 
-    @property
+    @Compute._computed_property()
     def director(self):
         cdef vec3[float] n = self.thisptr.getNematicDirector()
         return np.asarray([n.x, n.y, n.z], dtype=np.float32)
 
-    @property
+    @Compute._computed_property()
     def particle_tensor(self):
         cdef unsigned int n_particles = self.thisptr.getNumParticles()
         cdef const float[:, :, ::1] particle_tensor = \
@@ -270,7 +271,7 @@ cdef class NematicOrderParameter:
             self.thisptr.getParticleTensor().get()
         return np.asarray(particle_tensor)
 
-    @property
+    @Compute._computed_property()
     def nematic_tensor(self):
         cdef const float[:, ::1] nematic_tensor = \
             <float[:3, :3]> self.thisptr.getNematicTensor().get()
@@ -284,7 +285,7 @@ cdef class NematicOrderParameter:
         return repr(self)
 
 
-cdef class HexOrderParameter:
+cdef class HexOrderParameter(Compute):
     R"""Calculates the :math:`k`-atic order parameter for each particle in the
     system.
 
@@ -336,6 +337,7 @@ cdef class HexOrderParameter:
     def __dealloc__(self):
         del self.thisptr
 
+    @Compute._compute()
     def compute(self, box, points, nlist=None):
         R"""Calculates the correlation function and adds to the current
         histogram.
@@ -349,9 +351,7 @@ cdef class HexOrderParameter:
                 Neighborlist to use to find bonds.
         """
         cdef freud.box.Box b = freud.common.convert_box(box)
-        points = freud.common.convert_array(points, 2)
-        if points.shape[1] != 3:
-            raise TypeError('points should be an Nx3 array')
+        points = freud.common.convert_array(points, shape=(None, 3))
 
         cdef const float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
@@ -365,18 +365,18 @@ cdef class HexOrderParameter:
                                  <vec3[float]*> &l_points[0, 0], nP)
         return self
 
-    @property
+    @Compute._computed_property()
     def psi(self):
         cdef unsigned int n_particles = self.thisptr.getNP()
         cdef np.complex64_t[::1] psi = \
             <np.complex64_t[:n_particles]> self.thisptr.getPsi().get()
         return np.asarray(psi, dtype=np.complex64)
 
-    @property
+    @Compute._computed_property()
     def box(self):
         return freud.box.BoxFromCPP(<freud._box.Box> self.thisptr.getBox())
 
-    @property
+    @Compute._computed_property()
     def num_particles(self):
         cdef unsigned int np = self.thisptr.getNP()
         return np
@@ -395,7 +395,7 @@ cdef class HexOrderParameter:
         return repr(self)
 
 
-cdef class TransOrderParameter:
+cdef class TransOrderParameter(Compute):
     R"""Compute the translational order parameter for each particle.
 
     .. moduleauthor:: Wenbo Shen <shenwb@umich.edu>
@@ -430,6 +430,7 @@ cdef class TransOrderParameter:
     def __dealloc__(self):
         del self.thisptr
 
+    @Compute._compute()
     def compute(self, box, points, nlist=None):
         R"""Calculates the local descriptors.
 
@@ -442,9 +443,7 @@ cdef class TransOrderParameter:
                 Neighborlist to use to find bonds.
         """
         cdef freud.box.Box b = freud.common.convert_box(box)
-        points = freud.common.convert_array(points, 2)
-        if points.shape[1] != 3:
-            raise TypeError('points should be an Nx3 array')
+        points = freud.common.convert_array(points, shape=(None, 3))
 
         cdef const float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
@@ -458,18 +457,18 @@ cdef class TransOrderParameter:
                                  <vec3[float]*> &l_points[0, 0], nP)
         return self
 
-    @property
+    @Compute._computed_property()
     def d_r(self):
         cdef unsigned int n_particles = self.thisptr.getNP()
         cdef np.complex64_t[::1] d_r = \
             <np.complex64_t[:n_particles]> self.thisptr.getDr().get()
         return np.asarray(d_r, dtype=np.complex64)
 
-    @property
+    @Compute._computed_property()
     def box(self):
         return freud.box.BoxFromCPP(<freud._box.Box> self.thisptr.getBox())
 
-    @property
+    @Compute._computed_property()
     def num_particles(self):
         cdef unsigned int np = self.thisptr.getNP()
         return np
@@ -659,7 +658,7 @@ cdef class Steinhardt:
     def __str__(self):
         return repr(self)
 
-cdef class LocalQl:
+cdef class LocalQl(Compute):
     R"""Compute the local Steinhardt [Steinhardt1983]_ rotationally invariant
     :math:`Q_l` order parameter for a set of points.
 
@@ -766,39 +765,41 @@ cdef class LocalQl:
         """
         self.box = box
 
-    @property
+    @Compute._computed_property(("compute", "computeAve",
+                                "computeAveNorm", "computeNorm"))
     def num_particles(self):
         cdef unsigned int np = self.qlptr.getNP()
         return np
 
-    @property
+    @Compute._computed_property("compute")
     def Ql(self):
         cdef unsigned int n_particles = self.qlptr.getNP()
         cdef const float[::1] Ql = \
             <float[:n_particles]> self.qlptr.getQl().get()
         return np.asarray(Ql)
 
-    @property
+    @Compute._computed_property("computeAve")
     def ave_Ql(self):
         cdef unsigned int n_particles = self.qlptr.getNP()
         cdef const float[::1] ave_Ql = \
             <float[:n_particles]> self.qlptr.getAveQl().get()
         return np.asarray(ave_Ql)
 
-    @property
+    @Compute._computed_property("computeNorm")
     def norm_Ql(self):
         cdef unsigned int n_particles = self.qlptr.getNP()
         cdef const float[::1] norm_Ql = \
             <float[:n_particles]> self.qlptr.getQlNorm().get()
         return np.asarray(norm_Ql)
 
-    @property
+    @Compute._computed_property("computeAveNorm")
     def ave_norm_Ql(self):
         cdef unsigned int n_particles = self.qlptr.getNP()
         cdef const float[::1] ave_norm_Ql = \
             <float[:n_particles]> self.qlptr.getQlAveNorm().get()
         return np.asarray(ave_norm_Ql)
 
+    @Compute._compute("compute")
     def compute(self, points, nlist=None):
         R"""Compute the order parameter.
 
@@ -808,9 +809,7 @@ cdef class LocalQl:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """
-        points = freud.common.convert_array(points, 2)
-        if points.shape[1] != 3:
-            raise TypeError('points should be an Nx3 array')
+        points = freud.common.convert_array(points, shape=(None, 3))
 
         cdef const float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
@@ -823,6 +822,7 @@ cdef class LocalQl:
                            nP)
         return self
 
+    @Compute._compute("computeAve")
     def computeAve(self, points, nlist=None):
         R"""Compute the order parameter over two nearest neighbor shells.
 
@@ -832,9 +832,7 @@ cdef class LocalQl:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """
-        points = freud.common.convert_array(points, 2)
-        if points.shape[1] != 3:
-            raise TypeError('points should be an Nx3 array')
+        points = freud.common.convert_array(points, shape=(None, 3))
 
         cdef const float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
@@ -849,6 +847,7 @@ cdef class LocalQl:
                               <vec3[float]*> &l_points[0, 0], nP)
         return self
 
+    @Compute._compute("computeNorm")
     def computeNorm(self, points, nlist=None):
         R"""Compute the order parameter normalized by the average spherical
         harmonic value over all the particles.
@@ -859,9 +858,7 @@ cdef class LocalQl:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """
-        points = freud.common.convert_array(points, 2)
-        if points.shape[1] != 3:
-            raise TypeError('points should be an Nx3 array')
+        points = freud.common.convert_array(points, shape=(None, 3))
 
         cdef const float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
@@ -875,6 +872,7 @@ cdef class LocalQl:
         self.qlptr.computeNorm(<vec3[float]*> &l_points[0, 0], nP)
         return self
 
+    @Compute._compute("computeAveNorm")
     def computeAveNorm(self, points, nlist=None):
         R"""Compute the order parameter over two nearest neighbor shells
         normalized by the average spherical harmonic value over all the
@@ -886,9 +884,7 @@ cdef class LocalQl:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """
-        points = freud.common.convert_array(points, 2)
-        if points.shape[1] != 3:
-            raise TypeError('points should be an Nx3 array')
+        points = freud.common.convert_array(points, shape=(None, 3))
 
         cdef const float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
@@ -979,6 +975,7 @@ cdef class LocalQlNear(LocalQl):
             del self.qlptr
             self.qlptr = NULL
 
+    @Compute._compute("compute")
     def compute(self, points, nlist=None):
         R"""Compute the order parameter.
 
@@ -993,6 +990,7 @@ cdef class LocalQlNear(LocalQl):
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         return super(LocalQlNear, self).compute(points, nlist_)
 
+    @Compute._compute("computeAve")
     def computeAve(self, points, nlist=None):
         R"""Compute the order parameter over two nearest neighbor shells.
 
@@ -1007,6 +1005,7 @@ cdef class LocalQlNear(LocalQl):
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         return super(LocalQlNear, self).computeAve(points, nlist_)
 
+    @Compute._compute("computeNorm")
     def computeNorm(self, points, nlist=None):
         R"""Compute the order parameter normalized by the average spherical
         harmonic value over all the particles.
@@ -1022,6 +1021,7 @@ cdef class LocalQlNear(LocalQl):
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         return super(LocalQlNear, self).computeNorm(points, nlist_)
 
+    @Compute._compute("computeAveNorm")
     def computeAveNorm(self, points, nlist=None):
         R"""Compute the order parameter over two nearest neighbor shells
         normalized by the average spherical harmonic value over all the
@@ -1156,28 +1156,28 @@ cdef class LocalWl(LocalQl):
         return sorted(set(dir(self.__class__)) -
                       set(self.__class__.delattrs))
 
-    @property
+    @Compute._computed_property("compute")
     def Wl(self):
         cdef unsigned int n_particles = self.qlptr.getNP()
         cdef np.complex64_t[::1] Wl = \
             <np.complex64_t[:n_particles]> self.thisptr.getWl().get()
         return np.asarray(Wl, dtype=np.complex64)
 
-    @property
+    @Compute._computed_property("computeAve")
     def ave_Wl(self):
         cdef unsigned int n_particles = self.qlptr.getNP()
         cdef np.complex64_t[::1] ave_Wl = \
             <np.complex64_t[:n_particles]> self.thisptr.getAveWl().get()
         return np.asarray(ave_Wl, dtype=np.complex64)
 
-    @property
+    @Compute._computed_property("computeNorm")
     def norm_Wl(self):
         cdef unsigned int n_particles = self.qlptr.getNP()
         cdef np.complex64_t[::1] norm_Wl = \
             <np.complex64_t[:n_particles]> self.thisptr.getWlNorm().get()
         return np.asarray(norm_Wl, dtype=np.complex64)
 
-    @property
+    @Compute._computed_property("computeAveNorm")
     def ave_norm_Wl(self):
         cdef unsigned int n_particles = self.qlptr.getNP()
         cdef np.complex64_t[::1] ave_norm_Wl = \
@@ -1255,6 +1255,7 @@ cdef class LocalWlNear(LocalWl):
         del self.thisptr
         self.thisptr = NULL
 
+    @Compute._compute("compute")
     def compute(self, points, nlist=None):
         R"""Compute the order parameter.
 
@@ -1269,6 +1270,7 @@ cdef class LocalWlNear(LocalWl):
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         return super(LocalWlNear, self).compute(points, nlist_)
 
+    @Compute._compute("computeAve")
     def computeAve(self, points, nlist=None):
         R"""Compute the order parameter over two nearest neighbor shells.
 
@@ -1283,6 +1285,7 @@ cdef class LocalWlNear(LocalWl):
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         return super(LocalWlNear, self).computeAve(points, nlist_)
 
+    @Compute._compute("computeNorm")
     def computeNorm(self, points, nlist=None):
         R"""Compute the order parameter normalized by the average spherical
         harmonic value over all the particles.
@@ -1298,6 +1301,7 @@ cdef class LocalWlNear(LocalWl):
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         return super(LocalWlNear, self).computeNorm(points, nlist_)
 
+    @Compute._compute("computeAveNorm")
     def computeAveNorm(self, points, nlist=None):
         R"""Compute the order parameter over two nearest neighbor shells
         normalized by the average spherical harmonic value over all the
@@ -1326,7 +1330,7 @@ cdef class LocalWlNear(LocalWl):
         return repr(self)
 
 
-cdef class SolLiq:
+cdef class SolLiq(Compute):
     R"""Uses dot products of :math:`Q_{lm}` between particles for clustering.
 
     .. moduleauthor:: Richmond Newman <newmanrs@umich.edu>
@@ -1394,6 +1398,7 @@ cdef class SolLiq:
         del self.thisptr
         self.thisptr = NULL
 
+    @Compute._compute()
     def compute(self, points, nlist=None):
         R"""Compute the solid-liquid order parameter.
 
@@ -1403,9 +1408,7 @@ cdef class SolLiq:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """
-        points = freud.common.convert_array(points, 2)
-        if points.shape[1] != 3:
-            raise TypeError('points should be an Nx3 array')
+        points = freud.common.convert_array(points, shape=(None, 3))
 
         cdef const float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
@@ -1418,6 +1421,7 @@ cdef class SolLiq:
                              <vec3[float]*> &l_points[0, 0], nP)
         return self
 
+    @Compute._compute()
     def computeSolLiqVariant(self, points, nlist=None):
         R"""Compute a variant of the solid-liquid order parameter.
 
@@ -1431,9 +1435,7 @@ cdef class SolLiq:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """
-        points = freud.common.convert_array(points, 2)
-        if points.shape[1] != 3:
-            raise TypeError('points should be an Nx3 array')
+        points = freud.common.convert_array(points, shape=(None, 3))
 
         cdef const float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
@@ -1446,6 +1448,7 @@ cdef class SolLiq:
             nlist_.get_ptr(), <vec3[float]*> &l_points[0, 0], nP)
         return self
 
+    @Compute._compute()
     def computeSolLiqNoNorm(self, points, nlist=None):
         R"""Compute the solid-liquid order parameter without normalizing the dot
         product.
@@ -1456,9 +1459,7 @@ cdef class SolLiq:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """
-        points = freud.common.convert_array(points, 2)
-        if points.shape[1] != 3:
-            raise TypeError('points should be an Nx3 array')
+        points = freud.common.convert_array(points, shape=(None, 3))
 
         cdef const float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
@@ -1480,33 +1481,33 @@ cdef class SolLiq:
         cdef freud.box.Box b = freud.common.convert_box(value)
         self.thisptr.setBox(dereference(b.thisptr))
 
-    @property
+    @Compute._computed_property()
     def largest_cluster_size(self):
         cdef unsigned int clusterSize = self.thisptr.getLargestClusterSize()
         return clusterSize
 
-    @property
+    @Compute._computed_property()
     def cluster_sizes(self):
         cdef unsigned int n_clusters = self.thisptr.getNumClusters()
         cdef const unsigned int[::1] cluster_sizes = \
             <unsigned int[:n_clusters]> self.thisptr.getClusterSizes().data()
         return np.asarray(cluster_sizes, dtype=np.uint32)
 
-    @property
+    @Compute._computed_property()
     def Ql_mi(self):
         cdef unsigned int n_particles = self.thisptr.getNP()
         cdef np.complex64_t[::1] Ql_mi = \
             <np.complex64_t[:n_particles]> self.thisptr.getQlmi().get()
         return np.asarray(Ql_mi, dtype=np.complex64)
 
-    @property
+    @Compute._computed_property()
     def clusters(self):
         cdef unsigned int n_particles = self.thisptr.getNP()
         cdef const unsigned int[::1] clusters = \
             <unsigned int[:n_particles]> self.thisptr.getClusters().get()
         return np.asarray(clusters, dtype=np.uint32)
 
-    @property
+    @Compute._computed_property()
     def num_connections(self):
         cdef unsigned int n_particles = self.thisptr.getNP()
         cdef const unsigned int[::1] num_connections = \
@@ -1514,14 +1515,14 @@ cdef class SolLiq:
             self.thisptr.getNumberOfConnections().get()
         return np.asarray(num_connections, dtype=np.uint32)
 
-    @property
+    @Compute._computed_property()
     def Ql_dot_ij(self):
         cdef unsigned int n_clusters = self.thisptr.getNumClusters()
         cdef np.complex64_t[::1] Ql_dot_ij = \
             <np.complex64_t[:n_clusters]> self.thisptr.getQldot_ij().data()
         return np.asarray(Ql_dot_ij, dtype=np.complex64)
 
-    @property
+    @Compute._computed_property()
     def num_particles(self):
         cdef unsigned int np = self.thisptr.getNP()
         return np
@@ -1606,6 +1607,7 @@ cdef class SolLiqNear(SolLiq):
         del self.thisptr
         self.thisptr = NULL
 
+    @Compute._compute()
     def compute(self, points, nlist=None):
         R"""Compute the local rotationally invariant :math:`Q_l` order
         parameter.
@@ -1621,6 +1623,7 @@ cdef class SolLiqNear(SolLiq):
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         return SolLiq.compute(self, points, nlist_)
 
+    @Compute._compute()
     def computeSolLiqVariant(self, points, nlist=None):
         R"""Compute the local rotationally invariant :math:`Q_l` order
         parameter.
@@ -1636,6 +1639,7 @@ cdef class SolLiqNear(SolLiq):
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         return SolLiq.computeSolLiqVariant(self, points, nlist_)
 
+    @Compute._compute()
     def computeSolLiqNoNorm(self, points, nlist=None):
         R"""Compute the local rotationally invariant :math:`Q_l` order
         parameter.
@@ -1666,7 +1670,7 @@ cdef class SolLiqNear(SolLiq):
         return repr(self)
 
 
-cdef class RotationalAutocorrelation:
+cdef class RotationalAutocorrelation(Compute):
     """Calculates a measure of total rotational autocorrelation based on
     hyperspherical harmonics as laid out in "Design rules for engineering
     colloidal plastic crystals of hard polyhedra - phase behavior and
@@ -1713,6 +1717,7 @@ cdef class RotationalAutocorrelation:
     def __dealloc__(self):
         del self.thisptr
 
+    @Compute._compute()
     def compute(self, ref_ors, ors):
         """Calculates the rotational autocorrelation function for a single frame.
 
@@ -1722,13 +1727,8 @@ cdef class RotationalAutocorrelation:
             ors ((:math:`N_{orientations}`, 4) :class:`numpy.ndarray`):
                 Orientations for the frame of interest.
         """
-        ref_ors = freud.common.convert_array(ref_ors, 2)
-        if ref_ors.shape[1] != 4:
-            raise TypeError('ref_ors should be an Nx4 array')
-
-        ors = freud.common.convert_array(ors, 2)
-        if ors.shape[1] != 4:
-            raise TypeError('ors should be an Nx4 array')
+        ref_ors = freud.common.convert_array(ref_ors, shape=(None, 4))
+        ors = freud.common.convert_array(ors, shape=ref_ors.shape)
 
         cdef const float[:, ::1] l_ref_ors = ref_ors
         cdef const float[:, ::1] l_ors = ors
@@ -1741,19 +1741,19 @@ cdef class RotationalAutocorrelation:
                 nP)
         return self
 
-    @property
+    @Compute._computed_property()
     def autocorrelation(self):
         cdef float Ft = self.thisptr.getRotationalAutocorrelation()
         return Ft
 
-    @property
+    @Compute._computed_property()
     def ra_array(self):
         cdef unsigned int num_orientations = self.thisptr.getN()
         cdef np.complex64_t[::1] result = \
             <np.complex64_t[:num_orientations]> self.thisptr.getRAArray().get()
         return np.asarray(result, dtype=np.complex64)
 
-    @property
+    @Compute._computed_property()
     def num_orientations(self):
         cdef unsigned int num = self.thisptr.getN()
         return num
