@@ -114,23 +114,16 @@ void Steinhardt::compute(const box::Box& box, const locality::NeighborList* nlis
         if (m_average)
         {
             aggregateWl(m_WliOrder, m_QlmiAve);
-            m_NormWl = normalizeWl();
         }
         else
         {
             aggregateWl(m_WliOrder, m_Qlmi);
-            m_NormWl = normalizeWl();
         }
+		m_NormWl = normalizeWl();
     }
+	else
     {
-        if (m_average)
-        {
-            m_Norm = normalize();
-        }
-        else
-        {
-            m_Norm = normalize();
-        }
+		m_Norm = normalize();
     }
 }
 
@@ -145,6 +138,8 @@ void Steinhardt::baseCompute(const box::Box& box, const locality::NeighborList* 
         const float normalizationfactor = 4 * M_PI / (2 * m_l + 1);
         const size_t* neighbor_list(nlist->getNeighbors());
 
+		// Initialize thread-local m_Qlm and compute it in this function, if we
+		// won't average over neighbors later.
         if (!m_average)
         {
             bool Qlm_exists;
@@ -174,30 +169,27 @@ void Steinhardt::baseCompute(const box::Box& box, const locality::NeighborList* 
                 const vec3<float> delta = box.wrap(points[j] - ref);
                 const float rsq = dot(delta, delta);
 
-                if (rsq < rmaxsq && rsq > rminsq)
-                {
-                    // phi is usually in range 0..2Pi, but
-                    // it only appears in Ylm as exp(im\phi),
-                    // so range -Pi..Pi will give same results.
-                    float phi = atan2(delta.y, delta.x);     // -Pi..Pi
-                    float theta = acos(delta.z / sqrt(rsq)); // 0..Pi
+				// phi is usually in range 0..2Pi, but
+				// it only appears in Ylm as exp(im\phi),
+				// so range -Pi..Pi will give same results.
+				float phi = atan2(delta.y, delta.x);     // -Pi..Pi
+				float theta = acos(delta.z / sqrt(rsq)); // 0..Pi
 
-                    // If the points are directly on top of each other,
-                    // theta should be zero instead of nan.
-                    if (rsq == float(0))
-                    {
-                        theta = 0;
-                    }
+				// If the points are directly on top of each other,
+				// theta should be zero instead of nan.
+				if (rsq == float(0))
+				{
+					theta = 0;
+				}
 
-                    std::vector<std::complex<float>> Ylm(2 * m_l + 1);
-                    this->computeYlm(theta, phi, Ylm); // Fill up Ylm
+				std::vector<std::complex<float>> Ylm(2 * m_l + 1);
+				this->computeYlm(theta, phi, Ylm); // Fill up Ylm
 
-                    for (unsigned int k = 0; k < Ylm.size(); ++k)
-                    {
-                        m_Qlmi.get()[(2 * m_l + 1) * i + k] += Ylm[k];
-                    }
-                    neighborcount++;
-                }
+				for (unsigned int k = 0; k < Ylm.size(); ++k)
+				{
+					m_Qlmi.get()[(2 * m_l + 1) * i + k] += Ylm[k];
+				}
+				neighborcount++;
             } // End loop going over neighbor bonds
 
             // Normalize!
@@ -228,9 +220,11 @@ void Steinhardt::computeAve(const box::Box& box, const locality::NeighborList* n
     const float normalizationfactor = 4 * M_PI / (2 * m_l + 1);
 
     parallel_for(tbb::blocked_range<size_t>(0, m_Np), [=](const blocked_range<size_t>& r) {
-        bool QlmAve_exists;
-        m_Qlm_local.local(QlmAve_exists);
-        if (!QlmAve_exists)
+		// Initialize thread-local m_Qlm and compute it averaging over
+		// neighbors, reduced over particles
+        bool Qlm_exists;
+        m_Qlm_local.local(Qlm_exists);
+        if (!Qlm_exists)
         {
             m_Qlm_local.local() = new complex<float>[2 * m_l + 1];
             memset((void*) m_Qlm_local.local(), 0, sizeof(complex<float>) * (2 * m_l + 1));
@@ -253,39 +247,36 @@ void Steinhardt::computeAve(const box::Box& box, const locality::NeighborList* n
                 }
 
                 const vec3<float> rn = points[n];
-                // rin = rn - ri, from i pointing to j.
+                // rin = rn - ri, from i pointing to n.
                 const vec3<float> rin = box.wrap(rn - ri);
                 const float rinsq = dot(rin, rin);
 
-                if (rinsq < rmaxsq && rinsq > rminsq)
-                {
-                    size_t neighborhood_bond(nlist->find_first_index(n));
-                    for (; neighborhood_bond < nlist->getNumBonds()
-                         && neighbor_list[2 * neighborhood_bond] == n;
-                         ++neighborhood_bond)
-                    {
-                        const unsigned int j(neighbor_list[2 * neighborhood_bond + 1]);
+				size_t neighborhood_bond(nlist->find_first_index(n));
+				for (; neighborhood_bond < nlist->getNumBonds()
+						&& neighbor_list[2 * neighborhood_bond] == n;
+						++neighborhood_bond)
+				{
+					const unsigned int j(neighbor_list[2 * neighborhood_bond + 1]);
 
-                        if (n == j)
-                        {
-                            continue;
-                        }
+					if (n == j)
+					{
+						continue;
+					}
 
-                        // rnj = rj - rn, from n pointing to j.
-                        const vec3<float> rnj = box.wrap(points[j] - rn);
-                        const float rnjsq = dot(rnj, rnj);
+					// rnj = rj - rn, from n pointing to j.
+					const vec3<float> rnj = box.wrap(points[j] - rn);
+					const float rnjsq = dot(rnj, rnj);
 
-                        if (rnjsq < rmaxsq && rnjsq > rminsq)
-                        {
-                            for (unsigned int k = 0; k < (2 * m_l + 1); ++k)
-                            {
-                                // Adding all the Qlm of the neighbors
-                                m_QlmiAve.get()[(2 * m_l + 1) * i + k] += m_Qlmi.get()[(2 * m_l + 1) * j + k];
-                            }
-                            neighborcount++;
-                        }
+					if (rnjsq < rmaxsq && rnjsq > rminsq)
+					{
+						for (unsigned int k = 0; k < (2 * m_l + 1); ++k)
+						{
+							// Adding all the Qlm of the neighbors
+							m_QlmiAve.get()[(2 * m_l + 1) * i + k] += m_Qlmi.get()[(2 * m_l + 1) * j + k];
+						}
+						neighborcount++;
+					}
                     } // End loop over particle neighbor's bonds
-                }
             } // End loop over particle's bonds
 
             // Normalize!
