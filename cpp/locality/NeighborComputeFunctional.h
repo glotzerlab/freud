@@ -12,13 +12,6 @@
 
 namespace freud { namespace locality {
 
-template<typename T> T* makeNewEmptyArray(unsigned int size)
-{
-    T* tmp = new T[size];
-    memset((void*) tmp, 0, sizeof(T) * size);
-    return tmp;
-}
-
 template <typename T>
 class ETSArrayWrapper 
 {
@@ -29,22 +22,33 @@ public:
         m_size(0), array(tbb::enumerable_thread_specific<T*>([](){return nullptr;})) 
         {}
 
-    void update(unsigned int size) 
-    {
-        m_size = size;
-        deleteArray();
-        array = tbb::enumerable_thread_specific<T*>([this] ()
-            {
-                return makeNewEmptyArray<T>(m_size);
-            });
-    }
-
     ETSArrayWrapper(unsigned int size):
         m_size(size), array(tbb::enumerable_thread_specific<T*>([this] ()
             {
-                return makeNewEmptyArray<T>(m_size);
+                return makeNewEmptyArray(m_size);
             }))
         {}
+
+    void updateSize(unsigned int size) 
+    {
+        if(size != m_size)
+        {
+            m_size = size;
+            deleteArray();
+            array = tbb::enumerable_thread_specific<T*>([this] ()
+                {
+                    return makeNewEmptyArray(m_size);
+                });
+        }
+    }
+
+    void reset()
+    {
+        for (auto i = array.begin(); i != array.end(); ++i)
+        {
+            memset((void*) (*i), 0, sizeof(T) * m_size);
+        }
+    }
 
     ~ETSArrayWrapper()
     {
@@ -58,6 +62,13 @@ private:
         {
             delete[](*i);
         }
+    }
+
+    T* makeNewEmptyArray(unsigned int size)
+    {
+        T* tmp = new T[size];
+        memset((void*) tmp, 0, sizeof(T) * size);
+        return tmp;
     }
 
     unsigned int m_size;
