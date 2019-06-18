@@ -3,7 +3,6 @@
 
 #include <memory>
 #include <tbb/tbb.h>
-#include <iostream>
 
 #include "AABBQuery.h"
 #include "Index1D.h"
@@ -12,36 +11,45 @@
 
 namespace freud { namespace locality {
 
-template <typename T>
-class ETSArrayWrapper 
+//! Wrapper classfor enumerable_thread_specific<T*>
+/*! It is expected that default value for T is 0.
+ */
+template<typename T> class ETSArrayWrapper
 {
 public:
-    tbb::enumerable_thread_specific<T *> array;
+    tbb::enumerable_thread_specific<T*> array; //!< public to expose all functions
 
-    ETSArrayWrapper(): 
-        m_size(0), array(tbb::enumerable_thread_specific<T*>([](){return nullptr;})) 
-        {}
+    //! Default constructor
+    ETSArrayWrapper() : m_size(0), array(tbb::enumerable_thread_specific<T*>([]() { return nullptr; })) {}
 
-    ETSArrayWrapper(unsigned int size):
-        m_size(size), array(tbb::enumerable_thread_specific<T*>([this] ()
-            {
-                return makeNewEmptyArray(m_size);
-            }))
-        {}
+    //! Constructor with specific size for thread local arrays
+    /*! \param size Size of the thread local arrays
+     */
+    ETSArrayWrapper(unsigned int size)
+        : m_size(size),
+          array(tbb::enumerable_thread_specific<T*>([this]() { return makeNewEmptyArray(m_size); }))
+    {}
 
-    void updateSize(unsigned int size) 
+    //! Destructor
+    ~ETSArrayWrapper()
     {
-        if(size != m_size)
+        deleteArray();
+    }
+
+    //! Update size of the thread local arrays
+    /*! \param size New size of the thread local arrays
+     */
+    void updateSize(unsigned int size)
+    {
+        if (size != m_size)
         {
             m_size = size;
             deleteArray();
-            array = tbb::enumerable_thread_specific<T*>([this] ()
-                {
-                    return makeNewEmptyArray(m_size);
-                });
+            array = tbb::enumerable_thread_specific<T*>([this]() { return makeNewEmptyArray(m_size); });
         }
     }
 
+    //! Reset the contents of thread local arrays to be 0
     void reset()
     {
         for (auto i = array.begin(); i != array.end(); ++i)
@@ -50,20 +58,20 @@ public:
         }
     }
 
-    ~ETSArrayWrapper()
-    {
-        deleteArray();
-    }
-
 private:
+    //! Delete arrays
     void deleteArray()
     {
         for (auto i = array.begin(); i != array.end(); ++i)
         {
             delete[](*i);
+            *i = nullptr;
         }
     }
 
+    //! Make new empty array
+    /*! \param size Size of the thread local arrays
+     */
     T* makeNewEmptyArray(unsigned int size)
     {
         T* tmp = new T[size];
@@ -71,14 +79,14 @@ private:
         return tmp;
     }
 
-    unsigned int m_size;
+    unsigned int m_size; //!< size of thread local array
 };
 
 //! Wrapper for for-loop
 /*! \param parallel If true, run body in parallel.
     \param begin Beginning index.
     \param end Ending index.
-    \param body Body should be an object taking in 
+    \param body Body should be an object taking in
            with operator(size_t begin, size_t end).
 */
 template<typename Body> void for_loop_wrapper(bool parallel, size_t begin, size_t end, const Body& body)
@@ -101,7 +109,7 @@ template<typename Body> void for_loop_wrapper(bool parallel, size_t begin, size_
     \param qargs Query arguments
     \param nlist Neighbor List. If not NULL, loop over it. Otherwise, use ref_points
            appropriately with given qargs.
-    \param cf A void function that takes 
+    \param cf A void function that takes
            (ref_point_index, point_index, distance, weight) as input.
 */
 template<typename ComputePairType>
@@ -161,7 +169,7 @@ void loop_over_NeighborList(const NeighborQuery* ref_points, const vec3<float>* 
 
 //! Wrapper iterating looping over NeighborList in parallel.
 /*! \param nlist Neighbor List to loop over.
-    \param cf A void function that takes 
+    \param cf A void function that takes
            (ref_point_index, point_index, distance, weight) as input.
 */
 template<typename ComputePairType>
