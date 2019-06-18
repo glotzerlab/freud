@@ -528,13 +528,13 @@ cdef class Steinhardt:
     .. moduleauthor:: Brandon Butler <butlerbr@umich.edu>
 
     Args:
-        rmax (float):
-            Cutoff radius for the local order parameter. Values near the first
-            minimum of the RDF are recommended.
         l (unsigned int):
             Spherical harmonic quantum number l. Must be a positive number.
         rmin (float):
             Can look at only the second shell or some arbitrary RDF region.
+        rmax (float):
+            Cutoff radius for the local order parameter. Values near the first
+            minimum of the RDF are recommended.
         average (bool, optional):
             Determines whether to calculate the averaged Steinhardt order
             parameter, defaults to False.
@@ -544,6 +544,9 @@ cdef class Steinhardt:
         Wl (bool, optional):
             Determines whether to use the :math:`Wl` version of the Steinhardt
             order parameter, defaults to False.
+        num_neigh (int, optional):
+            If set to a non-zero positive integer, limit the calculate of the
+            Steinhardt order parameter to num_neigh neighbors.
 
 
     Attributes:
@@ -553,18 +556,23 @@ cdef class Steinhardt:
             The last computed selected variant of the Steinhardt order
             parameter for each particle (filled with NaN for particles with no
             neighbors).
+        norm (float or complex):
+            Stores the system wide normalization of the :math:`Ql` or :math:`Wl`
+            order parameter.
     """  # noqa: E501
     cdef freud._order.Steinhardt * stptr
     cdef rmax
     cdef sph_l
     cdef rmin
+    cdef num_neigh
 
     def __cinit__(self, rmax, l, rmin=0, average=False,
-                  Wl=False, *args, **kwargs):
+                  Wl=False, num_neigh=0, *args, **kwargs):
         if type(self) is Steinhardt:
             self.rmax = rmax
             self.sph_l = l
             self.rmin = rmin
+            self.num_neigh = num_neigh
             self.stptr = new freud._order.Steinhardt(
                 rmax, l, rmin,
                 average, Wl)
@@ -624,8 +632,15 @@ cdef class Steinhardt:
         cdef const float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
 
-        defaulted_nlist = freud.locality.make_default_nlist(
-            bbox, points, points, self.rmax, nlist, True)
+        # Construct the correct neighbor list depending on specified behavior.
+        # Using rmax or num_neigh to determine a hard neighbor limit or hard
+        # rmax cut-off
+        if self.num_neigh > 0:
+            defaulted_nlist = freud.locality.make_default_nlist_nn(
+                bbox, points, points, self.num_neigh, nlist, True, self.rmax)
+        else:
+            defaulted_nlist = freud.locality.make_default_nlist(
+                bbox, points, points, self.rmax, nlist, True)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         self.stptr.compute(dereference(bbox.thisptr),
