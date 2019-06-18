@@ -516,6 +516,9 @@ cdef class GaussianDensity(Compute):
         else:
             raise TypeError('GaussianDensity takes exactly 3 or 5 arguments')
 
+    def __dealloc__(self):
+        del self.thisptr
+
     @Compute._computed_property()
     def box(self):
         return freud.box.BoxFromCPP(self.thisptr.getBox())

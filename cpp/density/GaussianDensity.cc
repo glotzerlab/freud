@@ -5,7 +5,6 @@
 #include <stdexcept>
 
 #include "GaussianDensity.h"
-#include "NeighborComputeFunctional.h"
 
 using namespace std;
 using namespace tbb;
@@ -17,11 +16,7 @@ using namespace tbb;
 namespace freud { namespace density {
 
 GaussianDensity::GaussianDensity(unsigned int width, float r_cut, float sigma)
-    : m_box(box::Box()), m_width_x(width), m_width_y(width), m_width_z(width), m_rcut(r_cut), m_sigma(sigma),
-     m_local_bin_counts(tbb::enumerable_thread_specific<float*>([=] () 
-        {
-            return locality::makeNewEmptyArray<float>(m_bi.getNumElements());
-        }))
+    : m_box(box::Box()), m_width_x(width), m_width_y(width), m_width_z(width), m_rcut(r_cut), m_sigma(sigma)
 {
     if (width <= 0)
         throw invalid_argument("GaussianDensity requires width to be a positive integer.");
@@ -31,11 +26,7 @@ GaussianDensity::GaussianDensity(unsigned int width, float r_cut, float sigma)
 
 GaussianDensity::GaussianDensity(unsigned int width_x, unsigned int width_y, unsigned int width_z,
                                  float r_cut, float sigma)
-    : m_box(box::Box()), m_width_x(width_x), m_width_y(width_y), m_width_z(width_z), m_rcut(r_cut),
-      m_sigma(sigma), m_local_bin_counts( tbb::enumerable_thread_specific<float*>( [=] ()
-        {   
-            return locality::makeNewEmptyArray<float>(m_bi.getNumElements());
-        }))
+    : m_box(box::Box()), m_width_x(width_x), m_width_y(width_y), m_width_z(width_z), m_rcut(r_cut)
 {
     if (width_x <= 0 || width_y <= 0 || width_z <= 0)
         throw invalid_argument("GaussianDensity requires width to be a positive integer.");
@@ -43,14 +34,7 @@ GaussianDensity::GaussianDensity(unsigned int width_x, unsigned int width_y, uns
         throw invalid_argument("GaussianDensity requires r_cut to be positive.");
 }
 
-GaussianDensity::~GaussianDensity()
-{
-    for (tbb::enumerable_thread_specific<float*>::iterator i = m_local_bin_counts.begin();
-         i != m_local_bin_counts.end(); ++i)
-    {
-        delete[](*i);
-    }
-}
+GaussianDensity::~GaussianDensity() {}
 
 void GaussianDensity::reduceDensity()
 {
@@ -60,8 +44,8 @@ void GaussianDensity::reduceDensity()
         for (size_t i = r.begin(); i != r.end(); i++)
         {
             for (tbb::enumerable_thread_specific<float*>::const_iterator local_bins
-                 = m_local_bin_counts.begin();
-                 local_bins != m_local_bin_counts.end(); ++local_bins)
+                 = m_local_bin_counts.array.begin();
+                 local_bins != m_local_bin_counts.array.end(); ++local_bins)
             {
                 m_density_array.get()[i] += (*local_bins)[i];
             }
@@ -110,8 +94,8 @@ unsigned int GaussianDensity::getWidthZ()
  */
 void GaussianDensity::reset()
 {
-    for (tbb::enumerable_thread_specific<float*>::iterator i = m_local_bin_counts.begin();
-         i != m_local_bin_counts.end(); ++i)
+    for (tbb::enumerable_thread_specific<float*>::iterator i = m_local_bin_counts.array.begin();
+         i != m_local_bin_counts.array.end(); ++i)
     {
         memset((void*) (*i), 0, sizeof(float) * m_bi.getNumElements());
     }
@@ -137,6 +121,8 @@ void GaussianDensity::compute(const box::Box& box, const vec3<float>* points, un
     // this does not agree with rest of freud
     m_density_array
         = std::shared_ptr<float>(new float[m_bi.getNumElements()], std::default_delete<float[]>());
+    m_local_bin_counts.update(m_bi.getNumElements());
+
     parallel_for(blocked_range<size_t>(0, Np), [=](const blocked_range<size_t>& r) {
         assert(points);
         assert(Np > 0);
@@ -210,7 +196,7 @@ void GaussianDensity::compute(const box::Box& box, const vec3<float>* points, un
 
                             // store the product of these values in an array - n[i, j, k]
                             // = gx*gy*gz
-                            m_local_bin_counts.local()[m_bi(ni, nj, nk)]
+                            m_local_bin_counts.array.local()[m_bi(ni, nj, nk)]
                                 += x_gaussian * y_gaussian * z_gaussian;
                         }
                     }

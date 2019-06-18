@@ -10,6 +10,7 @@
 #include "Box.h"
 #include "Index1D.h"
 #include "VectorMath.h"
+#include "NeighborComputeFunctional.h"
 
 /*! \file GaussianDensity.h
     \brief Routines for computing Gaussian smeared densities from points.
@@ -67,7 +68,8 @@ private:
     bool m_reduce;                                //!< Whether arrays need to be reduced across threads
 
     std::shared_ptr<float> m_density_array; //! computed density array
-    tbb::enumerable_thread_specific<float*> m_local_bin_counts;
+    // tbb::enumerable_thread_specific<float*> m_local_bin_counts;
+    locality::ETSArrayWrapper<float> m_local_bin_counts;
 };
 
 }; }; // end namespace freud::density

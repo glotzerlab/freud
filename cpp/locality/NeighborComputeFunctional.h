@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <tbb/tbb.h>
+#include <iostream>
 
 #include "AABBQuery.h"
 #include "Index1D.h"
@@ -17,6 +18,50 @@ template<typename T> T* makeNewEmptyArray(unsigned int size)
     memset((void*) tmp, 0, sizeof(T) * size);
     return tmp;
 }
+
+template <typename T>
+class ETSArrayWrapper 
+{
+public:
+    tbb::enumerable_thread_specific<T *> array;
+
+    ETSArrayWrapper(): 
+        m_size(0), array(tbb::enumerable_thread_specific<T*>([](){return nullptr;})) 
+        {}
+
+    void update(unsigned int size) 
+    {
+        m_size = size;
+        deleteArray();
+        array = tbb::enumerable_thread_specific<T*>([this] ()
+            {
+                return makeNewEmptyArray<T>(m_size);
+            });
+    }
+
+    ETSArrayWrapper(unsigned int size):
+        m_size(size), array(tbb::enumerable_thread_specific<T*>([this] ()
+            {
+                return makeNewEmptyArray<T>(m_size);
+            }))
+        {}
+
+    ~ETSArrayWrapper()
+    {
+        deleteArray();
+    }
+
+private:
+    void deleteArray()
+    {
+        for (auto i = array.begin(); i != array.end(); ++i)
+        {
+            delete[](*i);
+        }
+    }
+
+    unsigned int m_size;
+};
 
 //! Wrapper for for-loop
 /*! \param parallel If true, run body in parallel.
