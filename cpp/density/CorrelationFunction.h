@@ -5,11 +5,11 @@
 #define CORRELATION_FUNCTION_H
 
 #include <memory>
-#include <tbb/tbb.h>
 
 #include "Box.h"
 #include "NeighborList.h"
 #include "VectorMath.h"
+#include "ETSWrapper.h"
 
 /*! \file CorrelationFunction.h
     \brief Generic pairwise correlation functions.
@@ -103,8 +103,8 @@ private:
     std::shared_ptr<T> m_rdf_array;             //!< rdf array computed
     std::shared_ptr<unsigned int> m_bin_counts; //!< bin counts that go into computing the rdf array
     std::shared_ptr<float> m_r_array;           //!< array of r values where the rdf is computed
-    tbb::enumerable_thread_specific<unsigned int*> m_local_bin_counts;
-    tbb::enumerable_thread_specific<T*> m_local_rdf_array;
+    util::ETSArrayWrapper<unsigned int> m_local_bin_counts;
+    util::ETSArrayWrapper<T> m_local_rdf_array;
 };
 
 }; }; // end namespace freud::density

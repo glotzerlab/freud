@@ -44,8 +44,8 @@ void GaussianDensity::reduceDensity()
         for (size_t i = r.begin(); i != r.end(); i++)
         {
             for (tbb::enumerable_thread_specific<float*>::const_iterator local_bins
-                 = m_local_bin_counts.array.begin();
-                 local_bins != m_local_bin_counts.array.end(); ++local_bins)
+                 = m_local_bin_counts.begin();
+                 local_bins != m_local_bin_counts.end(); ++local_bins)
             {
                 m_density_array.get()[i] += (*local_bins)[i];
             }
@@ -192,7 +192,7 @@ void GaussianDensity::compute(const box::Box& box, const vec3<float>* points, un
 
                             // store the product of these values in an array - n[i, j, k]
                             // = gx*gy*gz
-                            m_local_bin_counts.array.local()[m_bi(ni, nj, nk)]
+                            m_local_bin_counts.local()[m_bi(ni, nj, nk)]
                                 += x_gaussian * y_gaussian * z_gaussian;
                         }
                     }

@@ -11,8 +11,6 @@ namespace freud { namespace util {
 template<typename T> class ETSArrayWrapper
 {
 public:
-    tbb::enumerable_thread_specific<T*> array; //!< public to expose all functions
-
     //! Default constructor
     ETSArrayWrapper() : m_size(0), array(tbb::enumerable_thread_specific<T*>([]() { return nullptr; })) {}
 
@@ -52,6 +50,31 @@ public:
         }
     }
 
+    typename tbb::enumerable_thread_specific<T*>::const_iterator begin() const
+    {
+        return array.begin();
+    }
+
+    typename tbb::enumerable_thread_specific<T*>::iterator begin()
+    {
+        return array.begin();
+    }
+
+    typename tbb::enumerable_thread_specific<T*>::const_iterator end() const
+    {
+        return array.end();
+    }
+
+    typename tbb::enumerable_thread_specific<T*>::iterator end()
+    {
+        return array.end();
+    }
+
+    typename tbb::enumerable_thread_specific<T*>::reference local()
+    {
+        return array.local();
+    }
+
 private:
     //! Delete arrays
     void deleteArray()
@@ -74,6 +97,7 @@ private:
     }
 
     unsigned int m_size; //!< size of thread local array
+    tbb::enumerable_thread_specific<T*> array; //!< public to expose all functions
 };
 
 
