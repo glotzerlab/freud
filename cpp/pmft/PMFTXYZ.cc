@@ -86,6 +86,8 @@ PMFTXYZ::PMFTXYZ(float x_max, float y_max, float z_max, unsigned int n_x, unsign
 
     // Set r_cut
     m_r_cut = sqrtf(m_x_max * m_x_max + m_y_max * m_y_max + m_z_max * m_z_max);
+
+    m_local_bin_counts.updateSize(m_n_x * m_n_y * m_n_z);
 }
 
 //! \internal
@@ -131,11 +133,7 @@ void PMFTXYZ::reducePCF()
  */
 void PMFTXYZ::reset()
 {
-    for (tbb::enumerable_thread_specific<unsigned int*>::iterator i = m_local_bin_counts.begin();
-         i != m_local_bin_counts.end(); ++i)
-    {
-        memset((void*) (*i), 0, sizeof(unsigned int) * m_n_x * m_n_y * m_n_z);
-    }
+    m_local_bin_counts.reset();
     this->m_frame_counter = 0;
     this->m_reduce = true;
 }
@@ -167,14 +165,6 @@ void PMFTXYZ::accumulate(box::Box& box, const locality::NeighborList* nlist, vec
 
         Index3D b_i = Index3D(m_n_x, m_n_y, m_n_z);
         Index2D q_i = Index2D(n_faces, n_p);
-
-        bool exists;
-        m_local_bin_counts.local(exists);
-        if (!exists)
-        {
-            m_local_bin_counts.local() = new unsigned int[m_n_x * m_n_y * m_n_z];
-            memset((void*) m_local_bin_counts.local(), 0, sizeof(unsigned int) * m_n_x * m_n_y * m_n_z);
-        }
 
         size_t bond(nlist->find_first_index(r.begin()));
 

@@ -68,6 +68,8 @@ PMFTXY2D::PMFTXY2D(float x_max, float y_max, unsigned int n_x, unsigned int n_y)
 
     // Set r_cut
     m_r_cut = sqrtf(m_x_max * m_x_max + m_y_max * m_y_max);
+
+    m_local_bin_counts.updateSize(m_n_x * m_n_y);
 }
 
 //! \internal
@@ -109,11 +111,7 @@ void PMFTXY2D::reducePCF()
 
 void PMFTXY2D::reset()
 {
-    for (tbb::enumerable_thread_specific<unsigned int*>::iterator i = m_local_bin_counts.begin();
-         i != m_local_bin_counts.end(); ++i)
-    {
-        memset((void*) (*i), 0, sizeof(unsigned int) * m_n_x * m_n_y);
-    }
+    m_local_bin_counts.reset();
     this->m_frame_counter = 0;
     this->m_reduce = true;
 }
@@ -142,14 +140,6 @@ void PMFTXY2D::accumulate(box::Box& box, const locality::NeighborList* nlist, ve
         float dy_inv = 1.0f / m_dy;
 
         Index2D b_i = Index2D(m_n_x, m_n_y);
-
-        bool exists;
-        m_local_bin_counts.local(exists);
-        if (!exists)
-        {
-            m_local_bin_counts.local() = new unsigned int[m_n_x * m_n_y];
-            memset((void*) m_local_bin_counts.local(), 0, sizeof(unsigned int) * m_n_x * m_n_y);
-        }
 
         size_t bond(nlist->find_first_index(r.begin()));
 
