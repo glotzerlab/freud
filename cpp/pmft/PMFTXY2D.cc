@@ -69,7 +69,7 @@ PMFTXY2D::PMFTXY2D(float x_max, float y_max, unsigned int n_x, unsigned int n_y)
     // Set r_cut
     m_r_cut = sqrtf(m_x_max * m_x_max + m_y_max * m_y_max);
 
-    m_local_bin_counts.updateSize(m_n_x * m_n_y);
+    m_local_bin_counts.resize(m_n_x * m_n_y);
 }
 
 //! \internal

@@ -97,7 +97,7 @@ PMFTR12::PMFTR12(float r_max, unsigned int n_r, unsigned int n_t1, unsigned int 
     // Set r_cut
     m_r_cut = m_r_max;
 
-    m_local_bin_counts.updateSize(m_n_r * m_n_t1 * m_n_t2);
+    m_local_bin_counts.resize(m_n_r * m_n_t1 * m_n_t2);
 }
 
 //! \internal

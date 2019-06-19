@@ -67,7 +67,7 @@ private:
     bool m_reduce;                                //!< Whether arrays need to be reduced across threads
 
     std::shared_ptr<float> m_density_array; //! computed density array
-    util::ETSArrayWrapper<float> m_local_bin_counts;
+    util::ThreadStorage<float> m_local_bin_counts;
 };
 
 }; }; // end namespace freud::density

@@ -70,7 +70,7 @@ protected:
 
     std::shared_ptr<float> m_pcf_array;         //!< Array of PCF computed
     std::shared_ptr<unsigned int> m_bin_counts; //!< Counts for each bin
-    util::ETSArrayWrapper<unsigned int> m_local_bin_counts; 
+    util::ThreadStorage<unsigned int> m_local_bin_counts; 
         //!< Thread local bin counts for TBB parallelism
 
 private:

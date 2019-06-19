@@ -61,7 +61,7 @@ RDF::RDF(float rmax, float dr, float rmin)
         m_vol_array2D.get()[i] = M_PI * (nextr * nextr - r * r);
         m_vol_array3D.get()[i] = 4.0f / 3.0f * M_PI * (nextr * nextr * nextr - r * r * r);
     }
-    m_local_bin_counts.updateSize(m_nbins);
+    m_local_bin_counts.resize(m_nbins);
 } // end RDF::RDF
 
 //! \internal

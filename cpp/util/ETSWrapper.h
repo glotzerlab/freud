@@ -8,22 +8,22 @@ namespace freud { namespace util {
 //! Wrapper classfor enumerable_thread_specific<T*>
 /*! It is expected that default value for T is 0.
  */
-template<typename T> class ETSArrayWrapper
+template<typename T> class ThreadStorage
 {
 public:
     //! Default constructor
-    ETSArrayWrapper() : m_size(0), array(tbb::enumerable_thread_specific<T*>([]() { return nullptr; })) {}
+    ThreadStorage() : m_size(0), array(tbb::enumerable_thread_specific<T*>([]() { return nullptr; })) {}
 
     //! Constructor with specific size for thread local arrays
     /*! \param size Size of the thread local arrays
      */
-    ETSArrayWrapper(unsigned int size)
+    ThreadStorage(unsigned int size)
         : m_size(size),
           array(tbb::enumerable_thread_specific<T*>([this]() { return makeNewEmptyArray(m_size); }))
     {}
 
     //! Destructor
-    ~ETSArrayWrapper()
+    ~ThreadStorage()
     {
         deleteArray();
     }
@@ -31,7 +31,7 @@ public:
     //! Update size of the thread local arrays
     /*! \param size New size of the thread local arrays
      */
-    void updateSize(unsigned int size)
+    void resize(unsigned int size)
     {
         if (size != m_size)
         {

@@ -49,8 +49,8 @@ CorrelationFunction<T>::CorrelationFunction(float rmax, float dr)
         float nextr = float(i + 1) * m_dr;
         m_r_array.get()[i] = 2.0f / 3.0f * (nextr * nextr * nextr - r * r * r) / (nextr * nextr - r * r);
     }
-    m_local_bin_counts.updateSize(m_nbins);
-    m_local_rdf_array.updateSize(m_nbins);
+    m_local_bin_counts.resize(m_nbins);
+    m_local_rdf_array.resize(m_nbins);
 }
 
 //! \internal

@@ -72,7 +72,7 @@ private:
     std::shared_ptr<float> m_vol_array;         //!< Array of volumes for each slice of r
     std::shared_ptr<float> m_vol_array2D;       //!< Array of volumes for each slice of r
     std::shared_ptr<float> m_vol_array3D;       //!< Array of volumes for each slice of r
-    util::ETSArrayWrapper<unsigned int> m_local_bin_counts;
+    util::ThreadStorage<unsigned int> m_local_bin_counts;
 };
 
 }; }; // end namespace freud::density

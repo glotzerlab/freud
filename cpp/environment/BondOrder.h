@@ -96,7 +96,7 @@ private:
     std::shared_ptr<float> m_sa_array;          //!< surface area array computed
     std::shared_ptr<float> m_theta_array;       //!< theta array computed
     std::shared_ptr<float> m_phi_array;         //!< phi order array computed
-    util::ETSArrayWrapper<unsigned int> m_local_bin_counts;
+    util::ThreadStorage<unsigned int> m_local_bin_counts;
 
 };
 
