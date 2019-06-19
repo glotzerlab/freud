@@ -751,12 +751,12 @@ cdef class LocalQl(Compute):
         Returns:
             (:class:`matplotlib.axes`): Axis with the plot.
         """
-        import plot
-        return plot.histogram_plot(self.Ql,
-                                   title="Local Ql",
-                                   xlabel=r"$Ql$",
-                                   ylabel=r"Number of particles",
-                                   ax=ax)
+        from plot import histogram_plot as hplot
+        return hplot(self.Ql,
+                     title=r"Local $Q_{{{}}}$".format(self.sph_l),
+                     xlabel=r"$Q_{{{}}}$".format(self.sph_l),
+                     ylabel=r"Number of particles",
+                     ax=ax)
 
     def _repr_png_(self):
         import plot
@@ -914,12 +914,12 @@ cdef class LocalQlNear(LocalQl):
         Returns:
             (:class:`matplotlib.axes`): Axis with the plot.
         """
-        import plot
-        return plot.histogram_plot(self.Ql,
-                                   title="Local Ql Near",
-                                   xlabel=r"$Ql$",
-                                   ylabel=r"Number of particles",
-                                   ax=ax)
+        from plot import histogram_plot as hplot
+        return hplot(self.Ql,
+                     title=r"Local $Q_{{{}}}$ Near".format(self.sph_l),
+                     xlabel=r"$Q_{{{}}}$".format(self.sph_l),
+                     ylabel=r"Number of particles",
+                     ax=ax)
 
     def _repr_png_(self):
         import plot
@@ -1085,12 +1085,12 @@ cdef class LocalWl(LocalQl):
         Returns:
             (:class:`matplotlib.axes`): Axis with the plot.
         """
-        import plot
-        return plot.histogram_plot(self.Wl,
-                                   title="Local Wl",
-                                   xlabel=r"$Wl$",
-                                   ylabel=r"Number of particles",
-                                   ax=ax)
+        from plot import histogram_plot as hplot
+        return hplot(self.Wl,
+                     title=r"Local $W_{{{}}}$".format(self.sph_l),
+                     xlabel=r"$W_{{{}}}$".format(self.sph_l),
+                     ylabel=r"Number of particles",
+                     ax=ax)
 
     def _repr_png_(self):
         import plot
@@ -1244,12 +1244,12 @@ cdef class LocalWlNear(LocalWl):
         Returns:
             (:class:`matplotlib.axes`): Axis with the plot.
         """
-        import plot
-        return plot.histogram_plot(self.Wl,
-                                   title="Local Wl Near",
-                                   xlabel=r"$Wl$",
-                                   ylabel=r"Number of particles",
-                                   ax=ax)
+        from plot import histogram_plot as hplot
+        return hplot(self.Wl,
+                     title=r"Local $W_{{{}}}$ Near".format(self.sph_l),
+                     xlabel=r"$W_{{{}}}$".format(self.sph_l),
+                     ylabel=r"Number of particles",
+                     ax=ax)
 
     def _repr_png_(self):
         import plot
