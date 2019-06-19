@@ -59,14 +59,6 @@ void LocalQl::compute(const locality::NeighborList* nlist, const vec3<float>* po
     const size_t* neighbor_list(nlist->getNeighbors());
 
     parallel_for(tbb::blocked_range<size_t>(0, m_Np), [=](const blocked_range<size_t>& r) {
-        bool Qlm_exists;
-        m_Qlm_local.local(Qlm_exists);
-        if (!Qlm_exists)
-        {
-            m_Qlm_local.local() = new complex<float>[2 * m_l + 1];
-            memset((void*) m_Qlm_local.local(), 0, sizeof(complex<float>) * (2 * m_l + 1));
-        }
-
         size_t bond(nlist->find_first_index(r.begin()));
         // for each reference point
         for (size_t i = r.begin(); i != r.end(); i++)

@@ -1,5 +1,5 @@
-#ifndef ETSWRAPPER_H
-#define ETSWRAPPER_H
+#ifndef THREADSTORAGE_H
+#define THREADSTORAGE_H
 
 #include <tbb/tbb.h>
 

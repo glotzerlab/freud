@@ -9,7 +9,7 @@
 #include <tbb/tbb.h>
 
 #include "Box.h"
-#include "ETSWrapper.h"
+#include "ThreadStorage.h"
 #include "VectorMath.h"
 
 /*! \internal

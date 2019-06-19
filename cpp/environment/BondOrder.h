@@ -8,7 +8,7 @@
 #include <ostream>
 
 #include "Box.h"
-#include "ETSWrapper.h"
+#include "ThreadStorage.h"
 #include "NeighborList.h"
 #include "VectorMath.h"
 
