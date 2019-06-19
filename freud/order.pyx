@@ -740,6 +740,31 @@ cdef class LocalQl(Compute):
     def __str__(self):
         return repr(self)
 
+    @Compute._computed_method()
+    def plot(self, ax=None):
+        """Plot Ql.
+
+        Args:
+            ax (:class:`matplotlib.axes`): Axis to plot on. If :code:`None`,
+                make a new figure and axis. (Default value = :code:`None`)
+
+        Returns:
+            (:class:`matplotlib.axes`): Axis with the plot.
+        """
+        import plot
+        return plot.histogram_plot(self.Ql,
+                                   title="Local Ql",
+                                   xlabel=r"$Ql$",
+                                   ylabel=r"Number of particles",
+                                   ax=ax)
+
+    def _repr_png_(self):
+        import plot
+        try:
+            return plot.ax_to_bytes(self.plot())
+        except AttributeError:
+            return None
+
 
 cdef class LocalQlNear(LocalQl):
     R"""A variant of the :class:`~LocalQl` class that performs its average
@@ -877,6 +902,31 @@ cdef class LocalQlNear(LocalQl):
 
     def __str__(self):
         return repr(self)
+
+    @Compute._computed_method()
+    def plot(self, ax=None):
+        """Plot Ql.
+
+        Args:
+            ax (:class:`matplotlib.axes`): Axis to plot on. If :code:`None`,
+                make a new figure and axis. (Default value = :code:`None`)
+
+        Returns:
+            (:class:`matplotlib.axes`): Axis with the plot.
+        """
+        import plot
+        return plot.histogram_plot(self.Ql,
+                                   title="Local Ql Near",
+                                   xlabel=r"$Ql$",
+                                   ylabel=r"Number of particles",
+                                   ax=ax)
+
+    def _repr_png_(self):
+        import plot
+        try:
+            return plot.ax_to_bytes(self.plot())
+        except AttributeError:
+            return None
 
 
 cdef class LocalWl(LocalQl):
@@ -1024,6 +1074,31 @@ cdef class LocalWl(LocalQl):
     def __str__(self):
         return repr(self)
 
+    @Compute._computed_method()
+    def plot(self, ax=None):
+        """Plot Wl.
+
+        Args:
+            ax (:class:`matplotlib.axes`): Axis to plot on. If :code:`None`,
+                make a new figure and axis. (Default value = :code:`None`)
+
+        Returns:
+            (:class:`matplotlib.axes`): Axis with the plot.
+        """
+        import plot
+        return plot.histogram_plot(self.Wl,
+                                   title="Local Wl",
+                                   xlabel=r"$Wl$",
+                                   ylabel=r"Number of particles",
+                                   ax=ax)
+
+    def _repr_png_(self):
+        import plot
+        try:
+            return plot.ax_to_bytes(self.plot())
+        except AttributeError:
+            return None
+
 
 cdef class LocalWlNear(LocalWl):
     R"""A variant of the :class:`~LocalWl` class that performs its average
@@ -1157,6 +1232,31 @@ cdef class LocalWlNear(LocalWl):
 
     def __str__(self):
         return repr(self)
+
+    @Compute._computed_method()
+    def plot(self, ax=None):
+        """Plot Wl.
+
+        Args:
+            ax (:class:`matplotlib.axes`): Axis to plot on. If :code:`None`,
+                make a new figure and axis. (Default value = :code:`None`)
+
+        Returns:
+            (:class:`matplotlib.axes`): Axis with the plot.
+        """
+        import plot
+        return plot.histogram_plot(self.Wl,
+                                   title="Local Wl Near",
+                                   xlabel=r"$Wl$",
+                                   ylabel=r"Number of particles",
+                                   ax=ax)
+
+    def _repr_png_(self):
+        import plot
+        try:
+            return plot.ax_to_bytes(self.plot())
+        except AttributeError:
+            return None
 
 
 cdef class SolLiq(Compute):

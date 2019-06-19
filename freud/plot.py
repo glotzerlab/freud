@@ -107,8 +107,40 @@ def line_plot(x, y, title=None, xlabel=None, ylabel=None, ax=None):
     return ax
 
 
+def histogram_plot(x, title=None, xlabel=None, ylabel=None, ax=None):
+    """Helper function to draw a histogram graph.
+
+    .. moduleauthor:: Jin Soo Ihm <jinihm@umich.edu>
+
+    Args:
+        x (list): x values of the line graph.
+        y (list): y values corresponding to :code:`x`.
+        title (str): Title of the graph. (Default value = :code:`None`).
+        xlabel (str): Label of x axis. (Default value = :code:`None`).
+        ylabel (str): Label of y axis. (Default value = :code:`None`).
+
+    Returns:
+        bytes: Byte representation of the graph in png format if matplotlib is
+        available. Otherwise :code:`None`.
+    """
+    if not MATPLOTLIB:
+        return None
+
+    if ax is None:
+        fig = Figure()
+        ax = fig.subplots()
+
+    ax.hist(x)
+    ax.set_title(title)
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+    return ax
+
+
 def pmft_plot(pmft, ax=None):
     """Helper function to draw 2D PMFT diagram.
+
+    .. moduleauthor:: Jin Soo Ihm <jinihm@umich.edu>
 
     Args:
         pmft (:class:`freud.pmft.PMFTXY2D`):
@@ -191,15 +223,17 @@ def plot_density(density, box, ax=None):
     ylims = (-box.Ly/2, box.Ly/2)
 
     ax.set_title('Gaussian Density')
+    ax.set_xlabel(r'$x$')
+    ax.set_xlabel(r'$x$')
 
     ax_divider = make_axes_locatable(ax)
     cax = ax_divider.append_axes("right", size="7%", pad="10%")
 
     im = ax.imshow(density, extent=[xlims[0], xlims[1], ylims[0], ylims[1]])
+
     transform = matplotlib.transforms.Affine2D().skew(box.xy, 0)
     trans_data = transform + ax.transData
     im.set_transform(trans_data)
-
     x1, x2, y1, y2 = im.get_extent()
     ax.plot([x1, x2, x2, x1, x1], [y1, y1, y2, y2, y1], "y--",
             transform=trans_data)
