@@ -578,6 +578,29 @@ cdef class GaussianDensity(Compute):
     def __str__(self):
         return repr(self)
 
+    @Compute._computed_method()
+    def plot(self, ax=None):
+        """Plot Gaussian Density.
+
+        Args:
+            ax (:class:`matplotlib.axes`): Axis to plot on. If :code:`None`,
+                make a new figure and axis. (Default value = :code:`None`)
+
+        Returns:
+            (:class:`matplotlib.axes`): Axis with the plot.
+        """
+        import plot
+        if not self.box.is2D():
+            return None
+        return plot.plot_density(self.gaussian_density, self.box, ax=ax)
+
+    def _repr_png_(self):
+        import plot
+        try:
+            return plot.ax_to_bytes(self.plot())
+        except AttributeError:
+            return None
+
 
 cdef class LocalDensity(Compute):
     R"""Computes the local density around a particle.

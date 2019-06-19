@@ -122,7 +122,7 @@ def pmft_plot(pmft, ax=None):
         return None
     try:
         from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
-        from mpl_toolkits.axes_grid1.colorbar import colorbar
+        from matplotlib.colorbar import Colorbar
     except ImportError:
         return None
     else:
@@ -142,18 +142,72 @@ def pmft_plot(pmft, ax=None):
         ax.yaxis.set_ticks([i for i in range(int(ylims[0]), int(ylims[1]+1))])
         ax.set_xlabel(r'$x$')
         ax.set_ylabel(r'$y$')
-
         ax.set_title('PMFT')
+
+        ax_divider = make_axes_locatable(ax)
+        cax = ax_divider.append_axes("right", size="7%", pad="10%")
+
         im = ax.imshow(np.flipud(pmft_arr),
                        extent=[xlims[0], xlims[1], ylims[0], ylims[1]],
                        interpolation='nearest', cmap='viridis',
                        vmin=-2.5, vmax=3.0)
 
-        ax_divider = make_axes_locatable(ax)
-        cax = ax_divider.append_axes("right", size="7%", pad="10%")
-        cb = colorbar(im, cax=cax)
-        cb.set_label_text(r"$k_B T$")
+        cb = Colorbar(cax, im)
+        cb.set_label(r"$k_B T$")
+
         return ax
+
+
+def plot_density(density, box, ax=None):
+    """Helper function to density diagram.
+
+    Args:
+        density (:class:`numpy.ndarray`):
+            Array containing density.
+        box (:class:`freud.box.Box`):
+            Simulation box.
+        color_by_sides (bool):
+            If :code:`True`, color cells by the number of sides.
+            (Default value = :code:`False`)
+
+    Returns:
+        bytes: Byte representation of the diagram in png format if matplotlib
+        is available. Otherwise :code:`None`.
+    """
+    if not MATPLOTLIB:
+        return None
+    try:
+        from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
+        from matplotlib.colorbar import Colorbar
+        import matplotlib.transforms
+    except ImportError:
+        return None
+
+    if ax is None:
+        fig = Figure()
+        ax = fig.subplots()
+
+    xlims = (-box.Lx/2, box.Lx/2)
+    ylims = (-box.Ly/2, box.Ly/2)
+
+    ax.set_title('Gaussian Density')
+
+    ax_divider = make_axes_locatable(ax)
+    cax = ax_divider.append_axes("right", size="7%", pad="10%")
+
+    im = ax.imshow(density, extent=[xlims[0], xlims[1], ylims[0], ylims[1]])
+    transform = matplotlib.transforms.Affine2D().skew(box.xy, 0)
+    trans_data = transform + ax.transData
+    im.set_transform(trans_data)
+
+    x1, x2, y1, y2 = im.get_extent()
+    ax.plot([x1, x2, x2, x1, x1], [y1, y1, y2, y2, y1], "y--",
+            transform=trans_data)
+
+    cb = Colorbar(cax, im)
+    cb.set_label("Density")
+
+    return ax
 
 
 def draw_voronoi(box, cells, ax=None):
