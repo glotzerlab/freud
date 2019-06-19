@@ -14,6 +14,7 @@ Locality Module
     freud.locality.LinkCell
     freud.locality.NearestNeighbors
     freud.locality.AABBQuery
+    freud.locality.Voronoi
 
 .. rubric:: Details
 
@@ -50,3 +51,9 @@ Nearest Neighbors
 
 .. autoclass:: freud.locality.NearestNeighbors(rmax, n_neigh, scale=1.1, strict_cut=False)
    :members: compute, getNeighborList, getNeighbors, getRsq
+
+Voronoi
+=================
+
+.. autoclass:: freud.locality.Voronoi
+   :members: compute
