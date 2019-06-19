@@ -3,9 +3,7 @@ import numpy.testing as npt
 import freud
 from collections import Counter
 import itertools
-import sys
 import unittest
-import warnings
 
 """
 Define helper functions for getting the neighbors of a point. Note that

@@ -2,7 +2,6 @@ import numpy as np
 import freud
 import unittest
 import util
-import warnings
 
 
 class TestCluster(unittest.TestCase):

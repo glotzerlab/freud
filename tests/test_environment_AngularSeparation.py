@@ -1,7 +1,6 @@
 import numpy.testing as npt
 import numpy as np
 import freud
-import warnings
 import unittest
 
 
