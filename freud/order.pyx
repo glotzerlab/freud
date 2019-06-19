@@ -486,6 +486,7 @@ cdef class TransOrderParameter(Compute):
     def __str__(self):
         return repr(self)
 
+
 cdef class Steinhardt:
     R"""Compute the local Steinhardt [Steinhardt1983]_rotationally invariant
     :math:`Q_l` :math:`W_l` order parameter for a set of points.
@@ -623,9 +624,7 @@ cdef class Steinhardt:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """
-        points = freud.common.convert_array(points, 2)
-        if points.shape[1] != 3:
-            raise TypeError('points should be an Nx3 array')
+        points = freud.common.convert_array(points, (None, 3))
 
         cdef freud.box.Box bbox = freud.common.convert_box(box)
         cdef const float[:, ::1] l_points = points
@@ -657,6 +656,7 @@ cdef class Steinhardt:
 
     def __str__(self):
         return repr(self)
+
 
 cdef class LocalQl(Compute):
     R"""Compute the local Steinhardt [Steinhardt1983]_ rotationally invariant
