@@ -28,6 +28,7 @@ def ax_to_bytes(ax):
     fig = ax.figure
     FigureCanvasAgg(fig)
     fig.savefig(f, format='png')
+    fig.clf()
     return f.getvalue()
 
 
