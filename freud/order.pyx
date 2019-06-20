@@ -561,6 +561,7 @@ cdef class LocalQl(Compute):
     cdef rmax
     cdef sph_l
     cdef rmin
+    cdef plot_mode
 
     def __cinit__(self, box, rmax, l, rmin=0, *args, **kwargs):
         cdef freud.box.Box b = freud.common.convert_box(box)
@@ -649,6 +650,7 @@ cdef class LocalQl(Compute):
 
         self.qlptr.compute(nlist_.get_ptr(), <vec3[float]*> &l_points[0, 0],
                            nP)
+        self.plot_mode = "Ql"
         return self
 
     @Compute._compute("computeAve")
@@ -674,6 +676,7 @@ cdef class LocalQl(Compute):
                            <vec3[float]*> &l_points[0, 0], nP)
         self.qlptr.computeAve(nlist_.get_ptr(),
                               <vec3[float]*> &l_points[0, 0], nP)
+        self.plot_mode = "ave_Ql"
         return self
 
     @Compute._compute("computeNorm")
@@ -699,6 +702,7 @@ cdef class LocalQl(Compute):
         self.qlptr.compute(nlist_.get_ptr(),
                            <vec3[float]*> &l_points[0, 0], nP)
         self.qlptr.computeNorm(<vec3[float]*> &l_points[0, 0], nP)
+        self.plot_mode = "norm_Ql"
         return self
 
     @Compute._compute("computeAveNorm")
@@ -727,6 +731,7 @@ cdef class LocalQl(Compute):
         self.qlptr.computeAve(nlist_.get_ptr(),
                               <vec3[float]*> &l_points[0, 0], nP)
         self.qlptr.computeAveNorm(<vec3[float]*> &l_points[0, 0], nP)
+        self.plot_mode = "ave_norm_Ql"
         return self
 
     def __repr__(self):
@@ -740,29 +745,60 @@ cdef class LocalQl(Compute):
     def __str__(self):
         return repr(self)
 
-    @Compute._computed_method()
-    def plot(self, ax=None):
+    def _plot(self, mode, name, near, ax):
+        R"""Helper function for plotting.
+
+        Args:
+            mode (str): Plot mode that is an attribute of :code:`self`.
+            name (str): "Q" or "W".
+            near (bool): If true, add Near in title.
+            ax (:class:`matplotlib.axes.Axes`): Axis to plot on. If
+                :code:`None`, make a new figure and axis.
+                (Default value = :code:`None`)
+
+        Returns:
+            (:class:`matplotlib.axes.Axes`): Axis with the plot.
+        """
+        import plot
+        plot_data = getattr(self, mode)
+        mode = mode.replace(name, "Q")
+        if mode == "Ql":
+            mode_str = ""
+        if mode == "ave_Ql":
+            mode_str = "Average"
+        if mode == "norm_Ql":
+            mode_str = "Normalized"
+        if mode == "ave_norm_Ql":
+            mode_str = "Average Normalized"
+        title = r"Local ${}_{{{}}}$".format(name, self.sph_l)
+        if near:
+            title += " Near"
+        xlabel = r"{} ${}_{{{}}}$".format(mode_str, name, self.sph_l)
+        return plot.histogram_plot(plot_data,
+                                   title=title,
+                                   xlabel=xlabel,
+                                   ylabel=r"Number of particles",
+                                   ax=ax)
+
+    @Compute._computed_method(("compute", "computeNorm",
+                               "computeAve", "computeAveNorm"))
+    def plot(self, mode, ax=None):
         """Plot Ql.
 
         Args:
-            ax (:class:`matplotlib.axes`): Axis to plot on. If :code:`None`,
-                make a new figure and axis. (Default value = :code:`None`)
+            ax (:class:`matplotlib.axes.Axes`): Axis to plot on. If
+                :code:`None`, make a new figure and axis.
+                (Default value = :code:`None`)
 
         Returns:
-            (:class:`matplotlib.axes`): Axis with the plot.
+            (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-        import plot
-        return plot.histogram_plot(
-            self.Ql,
-            title=r"Local $Q_{{{}}}$".format(self.sph_l),
-            xlabel=r"$Q_{{{}}}$".format(self.sph_l),
-            ylabel=r"Number of particles",
-            ax=ax)
+        return self._plot(mode, "Q", False, ax)
 
     def _repr_png_(self):
         import plot
         try:
-            return plot.ax_to_bytes(self.plot())
+            return plot.ax_to_bytes(self.plot(self.plot_mode))
         except AttributeError:
             return None
 
@@ -904,31 +940,20 @@ cdef class LocalQlNear(LocalQl):
     def __str__(self):
         return repr(self)
 
-    @Compute._computed_method()
-    def plot(self, ax=None):
+    @Compute._computed_method(("compute", "computeNorm",
+                               "computeAve", "computeAveNorm"))
+    def plot(self, mode, ax=None):
         """Plot Ql.
 
         Args:
-            ax (:class:`matplotlib.axes`): Axis to plot on. If :code:`None`,
-                make a new figure and axis. (Default value = :code:`None`)
+            ax (:class:`matplotlib.axes.Axes`): Axis to plot on. If
+                :code:`None`, make a new figure and axis.
+                (Default value = :code:`None`)
 
         Returns:
-            (:class:`matplotlib.axes`): Axis with the plot.
+            (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-        import plot
-        return plot.histogram_plot(
-            self.Ql,
-            title=r"Local $Q_{{{}}}$ Near".format(self.sph_l),
-            xlabel=r"$Q_{{{}}}$".format(self.sph_l),
-            ylabel=r"Number of particles",
-            ax=ax)
-
-    def _repr_png_(self):
-        import plot
-        try:
-            return plot.ax_to_bytes(self.plot())
-        except AttributeError:
-            return None
+        return self._plot(mode, "Q", True, ax)
 
 
 cdef class LocalWl(LocalQl):
@@ -1076,29 +1101,26 @@ cdef class LocalWl(LocalQl):
     def __str__(self):
         return repr(self)
 
-    @Compute._computed_method()
-    def plot(self, ax=None):
+    @Compute._computed_method(("compute", "computeNorm",
+                               "computeAve", "computeAveNorm"))
+    def plot(self, mode, ax=None):
         """Plot Wl.
 
         Args:
-            ax (:class:`matplotlib.axes`): Axis to plot on. If :code:`None`,
-                make a new figure and axis. (Default value = :code:`None`)
+            ax (:class:`matplotlib.axes.Axes`): Axis to plot on. If
+                :code:`None`, make a new figure and axis.
+                (Default value = :code:`None`)
 
         Returns:
-            (:class:`matplotlib.axes`): Axis with the plot.
+            (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-        import plot
-        return plot.histogram_plot(
-            self.Wl,
-            title=r"Local $W_{{{}}}$".format(self.sph_l),
-            xlabel=r"$W_{{{}}}$".format(self.sph_l),
-            ylabel=r"Number of particles",
-            ax=ax)
+        return self._plot(mode, "W", False, ax)
 
     def _repr_png_(self):
         import plot
         try:
-            return plot.ax_to_bytes(self.plot())
+            return plot.ax_to_bytes(
+                self.plot(self.plot_mode.replace("Q", "W")))
         except AttributeError:
             return None
 
@@ -1236,31 +1258,20 @@ cdef class LocalWlNear(LocalWl):
     def __str__(self):
         return repr(self)
 
-    @Compute._computed_method()
-    def plot(self, ax=None):
+    @Compute._computed_method(("compute", "computeNorm",
+                               "computeAve", "computeAveNorm"))
+    def plot(self, mode, ax=None):
         """Plot Wl.
 
         Args:
-            ax (:class:`matplotlib.axes`): Axis to plot on. If :code:`None`,
-                make a new figure and axis. (Default value = :code:`None`)
+            ax (:class:`matplotlib.axes.Axes`): Axis to plot on. If
+                :code:`None`, make a new figure and axis.
+                (Default value = :code:`None`)
 
         Returns:
-            (:class:`matplotlib.axes`): Axis with the plot.
+            (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-        import plot
-        return plot.histogram_plot(
-            self.Wl,
-            title=r"Local $W_{{{}}}$ Near".format(self.sph_l),
-            xlabel=r"$W_{{{}}}$".format(self.sph_l),
-            ylabel=r"Number of particles",
-            ax=ax)
-
-    def _repr_png_(self):
-        import plot
-        try:
-            return plot.ax_to_bytes(self.plot())
-        except AttributeError:
-            return None
+        return self._plot(mode, "W", True, ax)
 
 
 cdef class SolLiq(Compute):
