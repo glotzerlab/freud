@@ -13,11 +13,11 @@ cdef extern from "CorrelationFunction.h" namespace "freud::density":
         void reset()
         void accumulate(const freud._box.Box &,
                         const freud._locality.NeighborList*,
-                        const vec3[float]*, const T*,
+                        const freud._locality.NeighborQuery*, const T*,
                         unsigned int,
                         const vec3[float]*,
                         const T*,
-                        unsigned int) nogil except +
+                        unsigned int, freud._locality.QueryArgs) nogil except +
         shared_ptr[T] getRDF()
         shared_ptr[unsigned int] getCounts()
         shared_ptr[float] getR()

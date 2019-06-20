@@ -100,17 +100,24 @@ cdef class Cluster(Compute):
             box (:class:`freud.box.Box`, optional):
                 Simulation box (Default value = None).
         """
+        # \begin New NeighborQuery API
         cdef freud.locality.NeighborQuery nq = \
             freud.locality.make_default_nq(self.m_box, points)
         cdef freud._locality.NeighborList * nlistptr \
             = freud.locality.make_nlistptr(nlist)
-
         points = nq.points
+        # \end New NeighborQuery API
 
         points = freud.common.convert_array(points, (None, 3))
         if points.shape[1] != 3:
             raise RuntimeError(
                 'Need a list of 3D points for computeClusters()')
+
+        # \begin old API
+        # defaulted_nlist = freud.locality.make_default_nlist(
+        # self.m_box, points, points, self.rmax, nlist, True)
+        # cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
+        # \end old API
 
         cdef freud.box.Box b
         if box is None:
@@ -120,11 +127,11 @@ cdef class Cluster(Compute):
 
         cdef const float[:, ::1] l_points = points
         cdef unsigned int Np = l_points.shape[0]
-        with nogil:
-            self.thisptr.computeClusters(
-                nq.get_ptr(),
-                dereference(b.thisptr), nlistptr,
-                <vec3[float]*> &l_points[0, 0], Np)
+        # with nogil:
+        #     self.thisptr.computeClusters(
+        #         nq.get_ptr(),
+        #         dereference(b.thisptr), nlistptr,
+        #         <vec3[float]*> &l_points[0, 0], Np)
         return self
 
     @Compute._compute("computeClusterMembership")

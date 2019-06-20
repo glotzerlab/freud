@@ -28,7 +28,6 @@ np.import_array()
 cdef class _QueryArgs:
     # This class is temporarily included for testing and may be
     # removed in future releases.
-    cdef freud._locality.QueryArgs * thisptr
 
     def __cinit__(self, mode=None, rmax=None, nn=None, exclude_ii=None):
         if type(self) == _QueryArgs:
@@ -831,7 +830,7 @@ cdef class RawPoints(NeighborQuery):
             self.queryable = True
             self._box = freud.common.convert_box(box)
             self.points = freud.common.convert_array(
-                points, 2).copy()
+                points, shape=(None, None))
             l_points = self.points
             self.thisptr = self.nqptr = new freud._locality.RawPoints(
                 dereference(self._box.thisptr),

@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <tbb/tbb.h>
+#include <iostream>
 
 #include "AABBQuery.h"
 #include "Index1D.h"
@@ -82,6 +83,9 @@ void loop_over_NeighborList(const NeighborQuery* ref_points, const vec3<float>* 
                 np = it->next();
                 while (!it->end())
                 {
+                    //! Warning! If qargs.exclude_ii is true, NeighborPoint with same indices
+                    // will not be considered regardless of ref_points and points 
+                    // being same set of points 
                     if (!qargs.exclude_ii || i != np.ref_id)
                     {
                         // TODO when Voronoi gets incorporated in NeighborQuery infrastructure
