@@ -59,8 +59,8 @@ public:
      *  \param l Spherical harmonic number l.
      *           Must be a positive number.
      *  \param rmin (optional) Lower bound for computing the local order parameter.
-     *                         Allows looking at, for instance, only the second shell, or some other arbitrary
-     * rdf region.
+     *                         Allows looking at, for instance, only the second shell,
+     *                         or some other arbitrary rdf region.
      */
     Steinhardt(float rmax, unsigned int l, float rmin = 0, bool average = false, bool Wl = false)
         : m_Np(0), m_rmax(rmax), m_l(l), m_rmin(rmin), m_average(average), m_Wl(Wl)
