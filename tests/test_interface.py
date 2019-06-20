@@ -1,25 +1,16 @@
 import numpy as np
-import numpy.testing as npt
 import freud
 import unittest
 import util
 
 
 class TestInterface(unittest.TestCase):
-    def test_initial_zero(self):
-        """Test that the initial point counts are zero."""
-        (box, positions) = util.make_fcc(4, 4, 4, noise=1e-2)
-        inter = freud.interface.InterfaceMeasure(1.5)
-        self.assertEqual(inter.ref_point_count, 0)
-        self.assertEqual(inter.point_count, 0)
-        npt.assert_equal(inter.ref_point_ids, np.array([], dtype=np.uint32))
-        npt.assert_equal(inter.point_ids, np.array([], dtype=np.uint32))
-
     def test_take_one(self):
         """Test that there is exactly 1 or 12 particles at the interface when
         one particle is removed from an FCC structure"""
         np.random.seed(0)
         (box, positions) = util.make_fcc(4, 4, 4, noise=1e-2)
+        positions.flags['WRITEABLE'] = False
 
         index = np.random.randint(0, len(positions))
 
@@ -28,7 +19,24 @@ class TestInterface(unittest.TestCase):
 
         inter = freud.interface.InterfaceMeasure(1.5)
 
+        # Test attribute access
+        with self.assertRaises(AttributeError):
+            inter.ref_point_count
+        with self.assertRaises(AttributeError):
+            inter.ref_point_ids
+        with self.assertRaises(AttributeError):
+            inter.point_count
+        with self.assertRaises(AttributeError):
+            inter.point_ids
+
         test_one = inter.compute(box, point, others)
+
+        # Test attribute access
+        inter.ref_point_count
+        inter.ref_point_ids
+        inter.point_count
+        inter.point_ids
+
         self.assertEqual(test_one.ref_point_count, 1)
         self.assertEqual(len(test_one.ref_point_ids), 1)
 
@@ -54,6 +62,10 @@ class TestInterface(unittest.TestCase):
         test_twelve = inter.compute(box, others, point, lc.nlist)
         self.assertEqual(test_twelve.ref_point_count, 12)
         self.assertEqual(len(test_twelve.ref_point_ids), 12)
+
+    def test_repr(self):
+        inter = freud.interface.InterfaceMeasure(1.5)
+        self.assertEqual(str(inter), str(eval(repr(inter))))
 
 
 if __name__ == '__main__':

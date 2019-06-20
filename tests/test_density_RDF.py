@@ -2,8 +2,7 @@ from __future__ import division
 
 import numpy as np
 import numpy.testing as npt
-from freud import box, density
-import warnings
+import freud
 import unittest
 
 
@@ -20,17 +19,61 @@ class TestRDF(unittest.TestCase):
                 r1 = i * dr + rmin
                 r2 = r1 + dr
                 r_list[i] = 2.0/3.0 * (r2**3.0 - r1**3.0) / (r2**2.0 - r1**2.0)
-            rdf = density.RDF(rmax, dr, rmin=rmin)
-            npt.assert_almost_equal(rdf.R, r_list, decimal=3)
+            rdf = freud.density.RDF(rmax, dr, rmin=rmin)
+            npt.assert_allclose(rdf.R, r_list, rtol=1e-4, atol=1e-4)
+
+    def test_attribute_access(self):
+        rmax = 10.0
+        dr = 1.0
+        num_points = 100
+        box_size = rmax*3.1
+        box = freud.box.Box.square(box_size)
+        np.random.seed(0)
+        points = np.random.random_sample((num_points, 3)).astype(np.float32) \
+            * box_size - box_size/2
+        rdf = freud.density.RDF(rmax, dr)
+
+        # Test protected attribute access
+        with self.assertRaises(AttributeError):
+            rdf.RDF
+        with self.assertRaises(AttributeError):
+            rdf.box
+        with self.assertRaises(AttributeError):
+            rdf.n_r
+
+        rdf.accumulate(box, points)
+
+        # Test if accessible now
+        rdf.RDF
+        rdf.box
+        rdf.n_r
+
+        # reset
+        rdf.reset()
+
+        # Test protected attribute access
+        with self.assertRaises(AttributeError):
+            rdf.RDF
+        with self.assertRaises(AttributeError):
+            rdf.box
+        with self.assertRaises(AttributeError):
+            rdf.n_r
+
+        rdf.compute(box, points)
+
+        # Test if accessible now
+        rdf.RDF
+        rdf.box
+        rdf.n_r
 
     def test_invalid_rdf(self):
         # Make sure that invalid RDF objects raise errors
         with self.assertRaises(ValueError):
-            density.RDF(rmax=-1, dr=0.1)
+            freud.density.RDF(rmax=-1, dr=0.1)
         with self.assertRaises(ValueError):
-            density.RDF(rmax=1, dr=0)
+            freud.density.RDF(rmax=1, dr=0)
         with self.assertRaises(ValueError):
-            density.RDF(rmax=1, dr=0.1, rmin=2)
+            freud.density.RDF(rmax=1, dr=0.1, rmin=2)
 
     def test_random_point(self):
         rmax = 10.0
@@ -47,13 +90,16 @@ class TestRDF(unittest.TestCase):
             nbins = int((rmax - rmin) / dr)
             points = np.random.random_sample((num_points, 3)).astype(
                 np.float32) * box_size - box_size/2
-            rdf = density.RDF(rmax, dr, rmin=rmin)
-            fbox = box.Box.cube(box_size)
+
+            points.flags['WRITEABLE'] = False
+            rdf = freud.density.RDF(rmax, dr, rmin=rmin)
+            box = freud.box.Box.cube(box_size)
+
             if i < 3:
-                rdf.accumulate(fbox, points)
+                rdf.accumulate(box, points)
             else:
-                rdf.compute(fbox, points)
-            self.assertTrue(rdf.box == fbox)
+                rdf.compute(box, points)
+            self.assertTrue(rdf.box == box)
             correct = np.ones(nbins, dtype=np.float32)
             correct[0] = 0.0
             npt.assert_allclose(rdf.RDF, correct, atol=tolerance)
@@ -68,6 +114,28 @@ class TestRDF(unittest.TestCase):
                 )
                 npt.assert_allclose(rdf.n_r, correct_cumulative,
                                     rtol=tolerance*5)
+
+    def test_repr(self):
+        rdf = freud.density.RDF(10, 0.1, rmin=0.5)
+        self.assertEqual(str(rdf), str(eval(repr(rdf))))
+
+    def test_repr_png(self):
+        rmax = 10.0
+        dr = 1.0
+        num_points = 10
+        box_size = rmax*3.1
+        np.random.seed(0)
+        points = np.random.random_sample((num_points, 3)).astype(np.float32) \
+            * box_size - box_size/2
+        rdf = freud.density.RDF(rmax, dr)
+
+        with self.assertRaises(AttributeError):
+            rdf.plot()
+        self.assertEqual(rdf._repr_png_(), None)
+
+        box = freud.box.Box.cube(box_size)
+        rdf.accumulate(box, points)
+        rdf._repr_png_()
 
 
 if __name__ == '__main__':

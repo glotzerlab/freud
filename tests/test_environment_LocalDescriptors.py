@@ -15,10 +15,24 @@ class TestLocalDescriptors(unittest.TestCase):
         np.random.seed(0)
         positions = np.random.uniform(-box.Lx/2, box.Lx/2,
                                       size=(N, 3)).astype(np.float32)
+        positions.flags['WRITEABLE'] = False
 
         comp = LocalDescriptors(Nneigh, lmax, rmax, True)
-        comp.computeNList(box, positions)
+
+        # Test access
+        with self.assertRaises(AttributeError):
+            comp.sph
+        with self.assertRaises(AttributeError):
+            comp.num_particles
+        with self.assertRaises(AttributeError):
+            comp.num_neighbors
+
         comp.compute(box, Nneigh, positions)
+
+        # Test access
+        comp.sph
+        comp.num_particles
+        comp.num_neighbors
 
         self.assertEqual(comp.sph.shape[0], N*Nneigh)
 
@@ -39,7 +53,6 @@ class TestLocalDescriptors(unittest.TestCase):
                                       size=(N, 3)).astype(np.float32)
 
         comp = LocalDescriptors(Nneigh, lmax, .5, True)
-        comp.computeNList(box, positions)
         comp.compute(box, Nneigh, positions, mode='global')
 
         sphs = comp.sph
@@ -60,7 +73,6 @@ class TestLocalDescriptors(unittest.TestCase):
                                        axis=-1))[:, np.newaxis]
 
         comp = LocalDescriptors(Nneigh, lmax, .5, True)
-        comp.computeNList(box, positions)
 
         with self.assertRaises(RuntimeError):
             comp.compute(box, Nneigh, positions, mode='particle_local')
@@ -83,7 +95,6 @@ class TestLocalDescriptors(unittest.TestCase):
                                       size=(N, 3)).astype(np.float32)
 
         comp = LocalDescriptors(Nneigh, lmax, .5, True)
-        comp.computeNList(box, positions)
 
         with self.assertRaises(RuntimeError):
             comp.compute(box, Nneigh, positions, mode='particle_local_wrong')
@@ -101,10 +112,13 @@ class TestLocalDescriptors(unittest.TestCase):
                                        size=(N//3, 3)).astype(np.float32)
 
         comp = LocalDescriptors(Nneigh, lmax, .5, True)
-        comp.computeNList(box, positions, positions2)
         comp.compute(box, Nneigh, positions, positions2)
         sphs = comp.sph
         self.assertEqual(sphs.shape[0], N*Nneigh)
+
+    def test_repr(self):
+        comp = LocalDescriptors(4, 8, 0.5, True)
+        self.assertEqual(str(comp), str(eval(repr(comp))))
 
 
 if __name__ == '__main__':

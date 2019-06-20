@@ -14,14 +14,14 @@ freud documentation
     :target: https://doi.org/10.5281/zenodo.166564
 .. |PyPI| image:: https://img.shields.io/pypi/v/freud-analysis.svg
     :target: https://pypi.org/project/freud-analysis/
-.. |Anaconda-Server| image:: https://anaconda.org/conda-forge/freud/badges/version.svg
+.. |Anaconda-Server| image:: https://img.shields.io/conda/vn/conda-forge/freud.svg
     :target: https://anaconda.org/conda-forge/freud
 .. |ReadTheDocs| image:: https://readthedocs.org/projects/freud/badge/?version=latest
     :target: https://freud.readthedocs.io/en/latest/?badge=latest
 .. |Binder| image:: https://mybinder.org/badge_logo.svg
     :target: https://mybinder.org/v2/gh/glotzerlab/freud-examples/master?filepath=index.ipynb
-.. |Codecov| image:: https://codecov.io/bb/glotzer/freud/branch/master/graph/badge.svg
-    :target: https://codecov.io/bb/glotzer/freud
+.. |Codecov| image:: https://codecov.io/gh/glotzerlab/freud/branch/master/graph/badge.svg
+    :target: https://codecov.io/gh/glotzerlab/freud
 .. |GitHub-Stars| image:: https://img.shields.io/github/stars/glotzerlab/freud.svg?style=social
     :target: https://github.com/glotzerlab/freud
 
@@ -30,7 +30,7 @@ Overview
 
 The freud Python library provides a simple, flexible, powerful set of tools for analyzing trajectories obtained from molecular dynamics or Monte Carlo simulations.
 High performance, parallelized C++ is used to compute standard tools such as radial distribution functions, correlation functions, and clusters, as well as original analysis methods including potentials of mean force and torque (PMFTs) and local environment matching.
-The freud library uses `NumPy arrays <https://www.numpy.org/>`_ for input and output, enabling integration with the scientific Python ecosystem for many typical materials science workflows.
+The freud library uses single-precision `NumPy arrays <https://www.numpy.org/>`_ for input and output, enabling integration with the scientific Python ecosystem for many typical materials science workflows.
 
 .. toctree::
    :maxdepth: 2

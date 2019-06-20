@@ -12,6 +12,7 @@ import copy
 import freud.common
 import warnings
 
+from freud.common cimport Compute
 from freud.util._VectorMath cimport vec3
 from cython.operator cimport dereference
 
@@ -24,6 +25,7 @@ logger = logging.getLogger(__name__)
 try:
     from scipy.spatial import Voronoi as qvoronoi
     from scipy.spatial import ConvexHull
+    from scipy.sparse import csr_matrix
     _SCIPY_AVAILABLE = True
 except ImportError:
     qvoronoi = None
@@ -38,7 +40,7 @@ except ImportError:
 np.import_array()
 
 
-class Voronoi:
+class Voronoi(Compute):
     R"""Compute the Voronoi tessellation of a 2D or 3D system using qhull.
     This uses :class:`scipy.spatial.Voronoi`, accounting for periodic
     boundary conditions.
@@ -90,6 +92,7 @@ class Voronoi:
         cdef freud.box.Box b = freud.common.convert_box(box)
         self._box = b
         self._buff = buff
+        self._nlist = freud.locality.NeighborList()
 
     def _qhull_compute(self, positions, box=None, buff=None):
         R"""Calls ParticleBuffer and qhull
@@ -124,6 +127,7 @@ class Voronoi:
         # Use qhull to get the points
         self.voronoi = qvoronoi(self.expanded_points)
 
+    @Compute._compute("compute")
     def compute(self, positions, box=None, buff=None):
         R"""Compute Voronoi diagram.
 
@@ -166,7 +170,7 @@ class Voronoi:
     def buffer(self):
         return self._buff
 
-    @property
+    @Compute._computed_property("compute")
     def polytopes(self):
         R"""Returns a list of polytope vertices corresponding to Voronoi cells.
 
@@ -186,6 +190,7 @@ class Voronoi:
         """
         return self._poly_verts
 
+    @Compute._compute("computeNeighbors")
     def computeNeighbors(self, positions, box=None, buff=None,
                          exclude_ii=True):
         R"""Compute the neighbors of each particle based on the Voronoi
@@ -235,17 +240,22 @@ class Voronoi:
 
         self._qhull_compute(positions, b, buff)
 
-        ridge_points = self.voronoi.ridge_points
+        cdef np.ndarray[int, ndim=2] ridge_points = self.voronoi.ridge_points
         ridge_vertices = self.voronoi.ridge_vertices
-        vor_vertices = self.voronoi.vertices
-        N = len(positions)
 
-        # Nearest neighbor index for each point
-        self.firstShellNeighborList = [[] for _ in range(N)]
+        # Must keep this in double precision
+        cdef np.ndarray[np.float64_t, ndim=2] vor_vertices = \
+            self.voronoi.vertices
+        cdef unsigned int N = len(positions)
 
-        # Weight between nearest neighbors, which is the length of ridge
-        # between two points in 2D or the area of the ridge facet in 3D
-        self.firstShellWeight = [[] for _ in range(N)]
+        cdef unsigned int index_i
+        cdef unsigned int index_j
+        cdef unsigned int k
+        cdef np.ndarray[np.float64_t, ndim=2] vertex_coords
+
+        # Dictionary of neighbors where keys are neighbor indices (i, j)
+        # and values are bond weights (maximum ridge area shared by (i, j))
+        all_bonds = {}
         for (k, (index_i, index_j)) in enumerate(ridge_points):
 
             if index_i >= N and index_j >= N:
@@ -255,23 +265,7 @@ class Voronoi:
             index_i = self.expanded_ids[index_i]
             index_j = self.expanded_ids[index_j]
 
-            assert index_i < N
-            assert index_j < N
-
             if exclude_ii and index_i == index_j:
-                continue
-
-            added_i = False
-            if index_j not in self.firstShellNeighborList[index_i]:
-                self.firstShellNeighborList[index_i].append(index_j)
-                added_i = True
-
-            added_j = False
-            if index_i not in self.firstShellNeighborList[index_j]:
-                self.firstShellNeighborList[index_j].append(index_i)
-                added_j = True
-
-            if not added_i and not added_j:
                 continue
 
             if -1 not in ridge_vertices[k]:
@@ -290,8 +284,8 @@ class Voronoi:
                     # 3. Project back to get true area of 3D polygon
                     # See link below for sample code and further explanation
                     # http://geomalgorithms.com/a01-_area.html#area3D_Polygon()
-                    vertex_coords = np.array([vor_vertices[i]
-                                              for i in ridge_vertices[k]])
+                    vertex_coords = np.array(
+                        [vor_vertices[i] for i in ridge_vertices[k]])
 
                     # Get a unit normal vector to the polygonal facet
                     r01 = vertex_coords[1] - vertex_coords[0]
@@ -322,43 +316,59 @@ class Voronoi:
                 # is concerned its ridge goes out to infinity
                 weight = 0
 
-            if added_i:
-                self.firstShellWeight[index_i].append(weight)
-            if added_j:
-                self.firstShellWeight[index_j].append(weight)
+            all_bonds[(index_i, index_j)] = max(all_bonds.get(
+                                                (index_i, index_j), 0), weight)
+            all_bonds[(index_j, index_i)] = max(all_bonds.get(
+                                                (index_j, index_i), 0), weight)
 
+        # Build neighbor list based on voronoi neighbors
+        cdef np.ndarray[np.float32_t, ndim=1] weights = \
+            np.asarray(list(all_bonds.values()), dtype=np.float32)
+        cdef np.ndarray[np.uint64_t, ndim=2] bond_indices = \
+            np.asarray(list(all_bonds.keys()), dtype=np.uint64)
+
+        cdef np.ndarray[np.long_t, ndim=1] sort_indices = \
+            np.lexsort((bond_indices[:, 1], bond_indices[:, 0]))
+
+        bond_indices = bond_indices[sort_indices]
+        weights = weights[sort_indices]
+
+        self._nlist = freud.locality.NeighborList.from_arrays(
+            np.max(bond_indices[:, 0])+1, np.max(bond_indices[:, 1])+1,
+            bond_indices[:, 0], bond_indices[:, 1], weights=weights)
         return self
 
+    @Compute._computed_method("computeNeighbors")
     def getNeighbors(self, numShells):
-        R"""Get :code:`numShells` of neighbors for each particle
+        R"""Get well-sorted neighbors from cumulative Voronoi shells for each
+        particle by specifying :code:`numShells`.
 
         Must call :meth:`~.computeNeighbors()` before this method.
 
         Args:
             numShells (int): Number of neighbor shells.
         """
-        neighbor_list = copy.copy(self.firstShellNeighborList)
-        # delete [] in neighbor_list
-        neighbor_list = [x for x in neighbor_list if len(x) > 0]
-        for _ in range(numShells - 1):
-            dummy_neighbor_list = copy.copy(neighbor_list)
-            for i in range(len(neighbor_list)):
-                numNeighbors = len(neighbor_list[i])
-                for j in range(numNeighbors):
-                    dummy_neighbor_list[i] = dummy_neighbor_list[i] + \
-                        self.firstShellNeighborList[neighbor_list[i][j]]
+        nlist = self.nlist
+        max_index = np.max(nlist[:]+1)
+        # convert neighbor list to a csr matrix and set weights = 1
+        sparse_neighbors = csr_matrix(
+            (np.ones(len(nlist)), (nlist.index_i, nlist.index_j)),
+            shape=(max_index, max_index))
+        # take a numShell power of the matrix
+        # sum over all shell neighbors, and convert to a linked list
+        sparse_neighbors = sum(
+            [sparse_neighbors**k for k in range(1, numShells+1)])
+        lil_neighbors = sparse_neighbors.tolil()
+        # extract all nonzero entries, ignoring diagonals
+        nonzero_entries = lil_neighbors.nonzero()
+        neighbors = [[] for _ in range(lil_neighbors.shape[0])]
+        for i in range(nonzero_entries[0].shape[0]):
+            if nonzero_entries[0][i] != nonzero_entries[1][i]:
+                neighbors[nonzero_entries[0][i]].append(nonzero_entries[1][i])
+        # return a list of list of well-sorted neighbors
+        return neighbors
 
-                # remove duplicates
-                dummy_neighbor_list[i] = list(set(dummy_neighbor_list[i]))
-
-                if i in dummy_neighbor_list[i]:
-                    dummy_neighbor_list[i].remove(i)
-
-            neighbor_list = copy.copy(dummy_neighbor_list)
-
-        return neighbor_list
-
-    @property
+    @Compute._computed_property("computeNeighbors")
     def nlist(self):
         R"""Returns a neighbor list object.
 
@@ -373,33 +383,9 @@ class Voronoi:
         Returns:
             :class:`~.locality.NeighborList`: Neighbor list.
         """
-        # Build neighbor list based on voronoi neighbors
-        neighbor_list = copy.copy(self.firstShellNeighborList)
-        weight = copy.copy(self.firstShellWeight)
+        return self._nlist
 
-        # Count number of elements in neighbor_list
-        count = 0
-        for i in range(len(neighbor_list)):
-            count += len(neighbor_list[i])
-
-        # indexAry layout:
-        # First column is reference particle index,
-        # Second column is neighbor particle index,
-        # Third column is weight = ridge length
-        indexAry = np.zeros([count, 3], float)
-        j = 0
-        for i in range(len(neighbor_list)):
-            N = len(neighbor_list[i])
-            indexAry[j:j + N, 0] = i
-            indexAry[j:j + N, 1] = np.array(neighbor_list[i])
-            indexAry[j:j + N, 2] = np.array(weight[i])
-            j += N
-
-        result = freud.locality.NeighborList.from_arrays(
-            len(neighbor_list), len(neighbor_list),
-            indexAry[:, 0], indexAry[:, 1], weights=indexAry[:, 2])
-        return result
-
+    @Compute._compute("computeVolumes")
     def computeVolumes(self):
         R"""Computes volumes (areas in 2D) of Voronoi cells.
 
@@ -418,7 +404,7 @@ class Voronoi:
 
         return self
 
-    @property
+    @Compute._computed_property("computeVolumes")
     def volumes(self):
         R"""Returns an array of volumes (areas in 2D) corresponding to Voronoi
         cells.
@@ -442,3 +428,34 @@ class Voronoi:
                 Voronoi polytope volumes/areas.
         """
         return self._poly_volumes
+
+    def __repr__(self):
+        return "freud.voronoi.{cls}(box={box}, buff={buff})".format(
+            cls=type(self).__name__, box=self._box, buff=self._buff)
+
+    def __str__(self):
+        return repr(self)
+
+    @Compute._computed_method()
+    def plot(self, ax=None):
+        """Plot Voronoi diagram.
+
+        Args:
+            ax (:class:`matplotlib.axes`): Axis to plot on. If :code:`None`,
+                make a new figure and axis. (Default value = :code:`None`)
+
+        Returns:
+            (:class:`matplotlib.axes`): Axis with the plot.
+        """
+        import plot
+        if not self._box.is2D():
+            return None
+        else:
+            return plot.draw_voronoi(self._box, self.polytopes, ax=ax)
+
+    def _repr_png_(self):
+        import plot
+        try:
+            return plot.ax_to_bytes(self.plot())
+        except AttributeError:
+            return None

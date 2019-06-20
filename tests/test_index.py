@@ -1,6 +1,5 @@
 import freud
 import unittest
-import warnings
 
 
 class TestIndex(unittest.TestCase):
@@ -23,6 +22,12 @@ class TestIndex(unittest.TestCase):
                     self.assertEqual(idx(i, j, k), N*N*k+N*j+i)
 
         self.assertEqual(N*N*N, idx.num_elements)
+
+    def test_repr(self):
+        two_d = freud.index.Index2D(4, 5)
+        self.assertEqual(str(two_d), str(eval(repr(two_d))))
+        three_d = freud.index.Index3D(4, 5, 6)
+        self.assertEqual(str(three_d), str(eval(repr(three_d))))
 
 
 if __name__ == '__main__':

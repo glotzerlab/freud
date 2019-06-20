@@ -56,7 +56,6 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <math.h>
 #endif
 
-
 // for vector types
 #ifdef ENABLE_CUDA
 #include <cuda_runtime.h>
@@ -64,8 +63,8 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // for builds on systems where CUDA is not available, include copies of the CUDA header
 // files which define the vector types (float4, etc...)
-#include "cudacpu_vector_types.h"
 #include "cudacpu_vector_functions.h"
+#include "cudacpu_vector_types.h"
 #endif
 
 // need to declare these classes with __host__ __device__ qualifiers when building in nvcc
@@ -93,181 +92,180 @@ typedef double Scalar;
 typedef double2 Scalar2;
 //! Floating point type with x,y,z elements
 struct Scalar3
-    {
-    double x;   //!< x component
-    double y;   //!< y component
-    double z;   //!< z component
-    };
+{
+    double x; //!< x component
+    double y; //!< y component
+    double z; //!< z component
+};
 //! Floating point type with x,y,z,w elements (double precision)
 struct Scalar4
-    {
-    double x;   //!< x component
-    double y;   //!< y component
-    double z;   //!< z component
-    double w;   //!< w component
-    };
+{
+    double x; //!< x component
+    double y; //!< y component
+    double z; //!< z component
+    double w; //!< w component
+};
 #endif
 
 //! make a scalar2 value
 HOSTDEVICE inline Scalar2 make_scalar2(Scalar x, Scalar y)
-    {
+{
     Scalar2 retval;
     retval.x = x;
     retval.y = y;
     return retval;
-    }
+}
 
 //! make a scalar3 value
 HOSTDEVICE inline Scalar3 make_scalar3(Scalar x, Scalar y, Scalar z)
-    {
+{
     Scalar3 retval;
     retval.x = x;
     retval.y = y;
     retval.z = z;
     return retval;
-    }
+}
 
 //! make a scalar4 value
 HOSTDEVICE inline Scalar4 make_scalar4(Scalar x, Scalar y, Scalar z, Scalar w)
-    {
+{
     Scalar4 retval;
     retval.x = x;
     retval.y = y;
     retval.z = z;
     retval.w = w;
     return retval;
-    }
+}
 
 //! Export relevant hoomd math functions to python
 void export_hoomd_math_functions();
 
 //! Fastmath routines
 /*! Routines in the fast namespace map to fast math routines on the CPU and GPU. Where possible, these use the
-    less accurate intrinsics on the GPU (i.e. __sinf). The routines are provide overloads for both single and double
-    so that macro tricks aren't needed to handle single and double precision code.
+    less accurate intrinsics on the GPU (i.e. __sinf). The routines are provide overloads for both single and
+   double so that macro tricks aren't needed to handle single and double precision code.
 */
-namespace fast
-{
+namespace fast {
 
 //! Compute the reciprocal square root of x
 inline HOSTDEVICE float rsqrt(float x)
-    {
-    #ifdef __CUDA_ARCH__
+{
+#ifdef __CUDA_ARCH__
     return ::rsqrtf(x);
-    #else
+#else
     return 1.0f / ::sqrtf(x);
-    #endif
-    }
+#endif
+}
 
 //! Compute the reciprocal square root of x
 inline HOSTDEVICE double rsqrt(double x)
-    {
-    #ifdef __CUDA_ARCH__
+{
+#ifdef __CUDA_ARCH__
     return ::rsqrt(x);
-    #else
+#else
     return 1.0 / ::sqrt(x);
-    #endif
-    }
+#endif
+}
 
 //! Compute the sin of x
 inline HOSTDEVICE float sin(float x)
-    {
-    #ifdef __CUDA_ARCH__
+{
+#ifdef __CUDA_ARCH__
     return __sinf(x);
-    #else
+#else
     return ::sinf(x);
-    #endif
-    }
+#endif
+}
 
 //! Compute the sin of x
 inline HOSTDEVICE double sin(double x)
-    {
+{
     return ::sin(x);
-    }
+}
 
 //! Compute the cos of x
 inline HOSTDEVICE float cos(float x)
-    {
-    #ifdef __CUDA_ARCH__
+{
+#ifdef __CUDA_ARCH__
     return __cosf(x);
-    #else
+#else
     return ::cosf(x);
-    #endif
-    }
+#endif
+}
 
 //! Compute the cos of x
 inline HOSTDEVICE double cos(double x)
-    {
+{
     return ::cos(x);
-    }
+}
 
 //! Compute the pow of x,y
 inline HOSTDEVICE float pow(float x, float y)
-    {
-    #ifdef __CUDA_ARCH__
+{
+#ifdef __CUDA_ARCH__
     return __powf(x, y);
-    #else
+#else
     return ::powf(x, y);
-    #endif
-    }
+#endif
+}
 
 //! Compute the sin of x
 inline HOSTDEVICE double pow(double x, double y)
-    {
+{
     return ::pow(x, y);
-    }
+}
 
 //! Compute the exp of x
 inline HOSTDEVICE float exp(float x)
-    {
-    #ifdef __CUDA_ARCH__
+{
+#ifdef __CUDA_ARCH__
     return __expf(x);
-    #else
+#else
     return ::expf(x);
-    #endif
-    }
+#endif
+}
 
 //! Compute the exp of x
 inline HOSTDEVICE double exp(double x)
-    {
+{
     return ::exp(x);
-    }
+}
 
 //! Compute the sqrt of x
 inline HOSTDEVICE float sqrt(float x)
-    {
+{
     return ::sqrtf(x);
-    }
+}
 
 //! Compute the sqrt of x
 inline HOSTDEVICE double sqrt(double x)
-    {
+{
     return ::sqrt(x);
-    }
+}
 
 //! Compute the erfc of x
 inline HOSTDEVICE float erfc(float x)
-    {
+{
     return ::erfcf(x);
-    }
+}
 
 //! Compute the erfc of x
 inline HOSTDEVICE double erfc(double x)
-    {
+{
     return ::erfc(x);
-    }
+}
 
 //! Compute the acos of x
 inline HOSTDEVICE float acos(float x)
-    {
+{
     return ::acosf(x);
-    }
+}
 
 //! Compute the acos of x
 inline HOSTDEVICE double acos(double x)
-    {
+{
     return ::acos(x);
-    }
 }
+} // namespace fast
 
 #endif // HOOMD_MATH_H

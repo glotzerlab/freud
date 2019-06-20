@@ -12,8 +12,9 @@ import freud.locality
 import warnings
 import numpy as np
 
-from freud.util._VectorMath cimport vec3
 from cython.operator cimport dereference
+from freud.common cimport Compute
+from freud.util._VectorMath cimport vec3
 
 cimport freud._density
 cimport freud.box, freud.locality
@@ -23,7 +24,7 @@ cimport numpy as np
 # _always_ do that, or you will have segfaults
 np.import_array()
 
-cdef class FloatCF:
+cdef class FloatCF(Compute):
     R"""Computes the real pairwise correlation function.
 
     The correlation function is given by
@@ -84,6 +85,7 @@ cdef class FloatCF:
     def __dealloc__(self):
         del self.thisptr
 
+    @Compute._compute()
     def accumulate(self, box, ref_points, ref_values, points=None, values=None,
                    nlist=None):
         R"""Calculates the correlation function and adds to the current
@@ -111,25 +113,20 @@ cdef class FloatCF:
             points = ref_points
         if values is None:
             values = ref_values
-        ref_points = freud.common.convert_array(
-            ref_points, 2, dtype=np.float32, contiguous=True,
-            array_name="ref_points")
-        points = freud.common.convert_array(
-            points, 2, dtype=np.float32, contiguous=True, array_name="points")
+        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
+        points = freud.common.convert_array(points, shape=(None, 3))
         ref_values = freud.common.convert_array(
-            ref_values, 1, dtype=np.float64, contiguous=True)
+            ref_values, shape=(ref_points.shape[0], ), dtype=np.float64)
         values = freud.common.convert_array(
-            values, 1, dtype=np.float64, contiguous=True)
-        if ref_points.shape[1] != 3 or points.shape[1] != 3:
-            raise ValueError("The 2nd dimension must have 3 values: x, y, z")
-        cdef float[:, ::1] l_ref_points = ref_points
-        cdef float[:, ::1] l_points
+            values, shape=(points.shape[0], ), dtype=np.float64)
+        cdef const float[:, ::1] l_ref_points = ref_points
+        cdef const float[:, ::1] l_points
         if ref_points is points:
             l_points = l_ref_points
         else:
             l_points = points
-        cdef double[::1] l_ref_values = ref_values
-        cdef double[::1] l_values
+        cdef const double[::1] l_ref_values = ref_values
+        cdef const double[::1] l_values
         if values is ref_values:
             l_values = l_ref_values
         else:
@@ -151,23 +148,25 @@ cdef class FloatCF:
                 n_p)
         return self
 
-    @property
+    @Compute._computed_property()
     def RDF(self):
         cdef unsigned int n_bins = self.thisptr.getNBins()
-        cdef double[::1] RDF = \
+        cdef const double[::1] RDF = \
             <double[:n_bins]> self.thisptr.getRDF().get()
         return np.asarray(RDF)
 
-    @property
+    @Compute._computed_property()
     def box(self):
         return freud.box.BoxFromCPP(self.thisptr.getBox())
 
+    @Compute._reset
     def reset(self):
         R"""Resets the values of the correlation function histogram in
         memory.
         """
         self.thisptr.reset()
 
+    @Compute._compute()
     def compute(self, box, ref_points, ref_values, points=None, values=None,
                 nlist=None):
         R"""Calculates the correlation function for the given points. Will
@@ -194,17 +193,17 @@ cdef class FloatCF:
         self.accumulate(box, ref_points, ref_values, points, values, nlist)
         return self
 
-    @property
+    @Compute._computed_property()
     def counts(self):
         cdef unsigned int n_bins = self.thisptr.getNBins()
-        cdef unsigned int[::1] counts = \
+        cdef const unsigned int[::1] counts = \
             <unsigned int[:n_bins]> self.thisptr.getCounts().get()
         return np.asarray(counts, dtype=np.uint32)
 
     @property
     def R(self):
         cdef unsigned int n_bins = self.thisptr.getNBins()
-        cdef float[::1] R = \
+        cdef const float[::1] R = \
             <float[:n_bins]> self.thisptr.getR().get()
         return np.asarray(R)
 
@@ -215,8 +214,33 @@ cdef class FloatCF:
     def __str__(self):
         return repr(self)
 
+    @Compute._computed_method()
+    def plot(self, ax=None):
+        """Plot correlation function.
 
-cdef class ComplexCF:
+        Args:
+            ax (:class:`matplotlib.axes`): Axis to plot on. If :code:`None`,
+                make a new figure and axis. (Default value = :code:`None`)
+
+        Returns:
+            (:class:`matplotlib.axes`): Axis with the plot.
+        """
+        import plot
+        return plot.line_plot(self.R, self.RDF,
+                              title="Correlation Function",
+                              xlabel=r"$r$",
+                              ylabel=r"$C(r)$",
+                              ax=ax)
+
+    def _repr_png_(self):
+        import plot
+        try:
+            return plot.ax_to_bytes(self.plot())
+        except AttributeError:
+            return None
+
+
+cdef class ComplexCF(Compute):
     R"""Computes the complex pairwise correlation function.
 
     The correlation function is given by
@@ -278,6 +302,7 @@ cdef class ComplexCF:
     def __dealloc__(self):
         del self.thisptr
 
+    @Compute._compute()
     def accumulate(self, box, ref_points, ref_values, points=None, values=None,
                    nlist=None):
         R"""Calculates the correlation function and adds to the current
@@ -305,19 +330,14 @@ cdef class ComplexCF:
             points = ref_points
         if values is None:
             values = ref_values
-        ref_points = freud.common.convert_array(
-            ref_points, 2, dtype=np.float32, contiguous=True,
-            array_name="ref_points")
-        points = freud.common.convert_array(
-            points, 2, dtype=np.float32, contiguous=True, array_name="points")
+        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
+        points = freud.common.convert_array(points, shape=(None, 3))
         ref_values = freud.common.convert_array(
-            ref_values, 1, dtype=np.complex128, contiguous=True)
+            ref_values, shape=(ref_points.shape[0], ), dtype=np.complex128)
         values = freud.common.convert_array(
-            values, 1, dtype=np.complex128, contiguous=True)
-        if ref_points.shape[1] != 3 or points.shape[1] != 3:
-            raise ValueError("The 2nd dimension must have 3 values: x, y, z")
-        cdef float[:, ::1] l_ref_points = ref_points
-        cdef float[:, ::1] l_points
+            values, shape=(points.shape[0], ), dtype=np.complex128)
+        cdef const float[:, ::1] l_ref_points = ref_points
+        cdef const float[:, ::1] l_points
         if ref_points is points:
             l_points = l_ref_points
         else:
@@ -346,23 +366,25 @@ cdef class ComplexCF:
                 n_p)
         return self
 
-    @property
+    @Compute._computed_property()
     def RDF(self):
         cdef unsigned int n_bins = self.thisptr.getNBins()
         cdef np.complex128_t[::1] RDF = \
             <np.complex128_t[:n_bins]> self.thisptr.getRDF().get()
         return np.asarray(RDF)
 
-    @property
+    @Compute._computed_property()
     def box(self):
         return freud.box.BoxFromCPP(self.thisptr.getBox())
 
+    @Compute._reset
     def reset(self):
         R"""Resets the values of the correlation function histogram in
         memory.
         """
         self.thisptr.reset()
 
+    @Compute._compute()
     def compute(self, box, ref_points, ref_values, points=None, values=None,
                 nlist=None):
         R"""Calculates the correlation function for the given points. Will
@@ -389,17 +411,17 @@ cdef class ComplexCF:
         self.accumulate(box, ref_points, ref_values, points, values, nlist)
         return self
 
-    @property
+    @Compute._computed_property()
     def counts(self):
         cdef unsigned int n_bins = self.thisptr.getNBins()
-        cdef unsigned int[::1] counts = \
+        cdef const unsigned int[::1] counts = \
             <unsigned int[:n_bins]> self.thisptr.getCounts().get()
         return np.asarray(counts, dtype=np.uint32)
 
     @property
     def R(self):
         cdef unsigned int n_bins = self.thisptr.getNBins()
-        cdef float[::1] R = \
+        cdef const float[::1] R = \
             <float[:n_bins]> self.thisptr.getR().get()
         return np.asarray(R)
 
@@ -410,8 +432,33 @@ cdef class ComplexCF:
     def __str__(self):
         return repr(self)
 
+    @Compute._computed_method()
+    def plot(self, ax=None):
+        """Plot complex correlation function.
 
-cdef class GaussianDensity:
+        Args:
+            ax (:class:`matplotlib.axes`): Axis to plot on. If :code:`None`,
+                make a new figure and axis. (Default value = :code:`None`)
+
+        Returns:
+            (:class:`matplotlib.axes`): Axis with the plot.
+        """
+        import plot
+        return plot.line_plot(self.R, np.real(self.RDF),
+                              title="Correlation Function",
+                              xlabel=r"$r$",
+                              ylabel=r"$\operatorname{Re}(C(r))$",
+                              ax=ax)
+
+    def _repr_png_(self):
+        import plot
+        try:
+            return plot.ax_to_bytes(self.plot())
+        except AttributeError:
+            return None
+
+
+cdef class GaussianDensity(Compute):
     R"""Computes the density of a system on a grid.
 
     Replaces particle positions with a Gaussian blur and calculates the
@@ -453,10 +500,6 @@ cdef class GaussianDensity:
             Box used in the calculation.
         gaussian_density ((:math:`w_x`, :math:`w_y`, :math:`w_z`) :class:`numpy.ndarray`):
             The image grid with the Gaussian density.
-        counts ((:math:`N_{bins}`) :class:`numpy.ndarray`):
-            The number of points in each histogram bin.
-        R ((:math:`N_{bins}`) :class:`numpy.ndarray`):
-            The centers of each bin.
     """  # noqa: E501
     cdef freud._density.GaussianDensity * thisptr
     cdef arglist
@@ -473,10 +516,11 @@ cdef class GaussianDensity:
         else:
             raise TypeError('GaussianDensity takes exactly 3 or 5 arguments')
 
-    @property
+    @Compute._computed_property()
     def box(self):
         return freud.box.BoxFromCPP(self.thisptr.getBox())
 
+    @Compute._compute()
     def compute(self, box, points):
         R"""Calculates the Gaussian blur for the specified points. Does not
         accumulate (will overwrite current image).
@@ -488,18 +532,15 @@ cdef class GaussianDensity:
                 Points to calculate the local density.
         """
         cdef freud.box.Box b = freud.common.convert_box(box)
-        points = freud.common.convert_array(
-            points, 2, dtype=np.float32, contiguous=True, array_name="points")
-        if points.shape[1] != 3:
-            raise ValueError("The 2nd dimension must have 3 values: x, y, z")
-        cdef float[:, ::1] l_points = points
+        points = freud.common.convert_array(points, shape=(None, 3))
+        cdef const float[:, ::1] l_points = points
         cdef unsigned int n_p = points.shape[0]
         with nogil:
             self.thisptr.compute(dereference(b.thisptr),
                                  <vec3[float]*> &l_points[0, 0], n_p)
         return self
 
-    @property
+    @Compute._computed_property()
     def gaussian_density(self):
         cdef unsigned int width_x = self.thisptr.getWidthX()
         cdef unsigned int width_y = self.thisptr.getWidthY()
@@ -508,7 +549,7 @@ cdef class GaussianDensity:
         cdef freud.box.Box box = self.box
         if not box.is2D():
             array_size *= width_z
-        cdef float[::1] density = \
+        cdef const float[::1] density = \
             <float[:array_size]> self.thisptr.getDensity().get()
         if box.is2D():
             array_shape = (width_y, width_x)
@@ -518,13 +559,13 @@ cdef class GaussianDensity:
 
     def __repr__(self):
         if len(self.arglist) == 3:
-            return ("freud.density.{cls}({width}, " +
+            return ("freud.density.{cls}({width}, "
                     "{r_cut}, {sigma})").format(cls=type(self).__name__,
                                                 width=self.arglist[0],
                                                 r_cut=self.arglist[1],
                                                 sigma=self.arglist[2])
         elif len(self.arglist) == 5:
-            return ("freud.density.{cls}({width_x}, {width_y}, {width_z}, " +
+            return ("freud.density.{cls}({width_x}, {width_y}, {width_z}, "
                     "{r_cut}, {sigma})").format(cls=type(self).__name__,
                                                 width_x=self.arglist[0],
                                                 width_y=self.arglist[1],
@@ -538,7 +579,7 @@ cdef class GaussianDensity:
         return repr(self)
 
 
-cdef class LocalDensity:
+cdef class LocalDensity(Compute):
     R"""Computes the local density around a particle.
 
     The density of the local environment is computed and averaged for a given
@@ -606,10 +647,11 @@ cdef class LocalDensity:
         self.diameter = diameter
         self.volume = volume
 
-    @property
+    @Compute._computed_property()
     def box(self):
         return freud.box.BoxFromCPP(self.thisptr.getBox())
 
+    @Compute._compute()
     def compute(self, box, ref_points, points=None, nlist=None):
         R"""Calculates the local density for the specified points. Does not
         accumulate (will overwrite current data).
@@ -629,15 +671,10 @@ cdef class LocalDensity:
         cdef freud.box.Box b = freud.common.convert_box(box)
         if points is None:
             points = ref_points
-        ref_points = freud.common.convert_array(
-            ref_points, 2, dtype=np.float32, contiguous=True,
-            array_name="ref_points")
-        points = freud.common.convert_array(
-            points, 2, dtype=np.float32, contiguous=True, array_name="points")
-        if ref_points.shape[1] != 3 or points.shape[1] != 3:
-            raise ValueError("The 2nd dimension must have 3 values: x, y, z")
-        cdef float[:, ::1] l_ref_points = ref_points
-        cdef float[:, ::1] l_points = points
+        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
+        points = freud.common.convert_array(points, shape=(None, 3))
+        cdef const float[:, ::1] l_ref_points = ref_points
+        cdef const float[:, ::1] l_points = points
         cdef unsigned int n_ref = l_ref_points.shape[0]
         cdef unsigned int n_p = l_points.shape[0]
 
@@ -657,22 +694,22 @@ cdef class LocalDensity:
                 n_p)
         return self
 
-    @property
+    @Compute._computed_property()
     def density(self):
         cdef unsigned int n_ref = self.thisptr.getNRef()
-        cdef float[::1] density = \
+        cdef const float[::1] density = \
             <float[:n_ref]> self.thisptr.getDensity().get()
         return np.asarray(density)
 
-    @property
+    @Compute._computed_property()
     def num_neighbors(self):
         cdef unsigned int n_ref = self.thisptr.getNRef()
-        cdef float[::1] num_neighbors = \
+        cdef const float[::1] num_neighbors = \
             <float[:n_ref]> self.thisptr.getNumNeighbors().get()
         return np.asarray(num_neighbors)
 
     def __repr__(self):
-        return ("freud.density.{cls}(r_cut={r_cut}, volume={volume}, " +
+        return ("freud.density.{cls}(r_cut={r_cut}, volume={volume}, "
                 "diameter={diameter})").format(cls=type(self).__name__,
                                                r_cut=self.r_cut,
                                                volume=self.volume,
@@ -682,7 +719,7 @@ cdef class LocalDensity:
         return repr(self)
 
 
-cdef class RDF:
+cdef class RDF(Compute):
     R"""Computes RDF for supplied data.
 
     The RDF (:math:`g \left( r \right)`) is computed and averaged for a given
@@ -711,8 +748,8 @@ cdef class RDF:
         dr (float):
             Distance between histogram bins.
         rmin (float, optional):
-            Minimum interparticle distance to include in the calculation.
-            Defaults to 0.
+            Minimum interparticle distance to include in the calculation
+            (Default value = 0).
 
     Attributes:
         box (:class:`freud.box.Box`):
@@ -747,10 +784,11 @@ cdef class RDF:
     def __dealloc__(self):
         del self.thisptr
 
-    @property
+    @Compute._computed_property()
     def box(self):
         return freud.box.BoxFromCPP(self.thisptr.getBox())
 
+    @Compute._compute()
     def accumulate(self, box, ref_points, points=None, nlist=None):
         R"""Calculates the RDF and adds to the current RDF histogram.
 
@@ -769,15 +807,10 @@ cdef class RDF:
         cdef freud.box.Box b = freud.common.convert_box(box)
         if points is None:
             points = ref_points
-        ref_points = freud.common.convert_array(
-            ref_points, 2, dtype=np.float32, contiguous=True,
-            array_name="ref_points")
-        points = freud.common.convert_array(
-            points, 2, dtype=np.float32, contiguous=True, array_name="points")
-        if ref_points.shape[1] != 3 or points.shape[1] != 3:
-            raise ValueError("The 2nd dimension must have 3 values: x, y, z")
-        cdef float[:, ::1] l_ref_points = ref_points
-        cdef float[:, ::1] l_points = points
+        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
+        points = freud.common.convert_array(points, shape=(None, 3))
+        cdef const float[:, ::1] l_ref_points = ref_points
+        cdef const float[:, ::1] l_points = points
         cdef unsigned int n_ref = l_ref_points.shape[0]
         cdef unsigned int n_p = l_points.shape[0]
 
@@ -794,6 +827,7 @@ cdef class RDF:
                 n_p)
         return self
 
+    @Compute._compute()
     def compute(self, box, ref_points, points=None, nlist=None):
         R"""Calculates the RDF for the specified points. Will overwrite the current
         histogram.
@@ -814,32 +848,33 @@ cdef class RDF:
         self.accumulate(box, ref_points, points, nlist)
         return self
 
+    @Compute._reset
     def reset(self):
         R"""Resets the values of RDF in memory."""
         self.thisptr.reset()
 
-    @property
+    @Compute._computed_property()
     def RDF(self):
         cdef unsigned int n_bins = self.thisptr.getNBins()
-        cdef float[::1] RDF = \
+        cdef const float[::1] RDF = \
             <float[:n_bins]> self.thisptr.getRDF().get()
         return np.asarray(RDF)
 
     @property
     def R(self):
         cdef unsigned int n_bins = self.thisptr.getNBins()
-        cdef float[::1] R = \
+        cdef const float[::1] R = \
             <float[:n_bins]> self.thisptr.getR().get()
         return np.asarray(R)
 
-    @property
+    @Compute._computed_property()
     def n_r(self):
         cdef unsigned int n_bins = self.thisptr.getNBins()
-        cdef float[::1] n_r = <float[:n_bins]> self.thisptr.getNr().get()
+        cdef const float[::1] n_r = <float[:n_bins]> self.thisptr.getNr().get()
         return np.asarray(n_r)
 
     def __repr__(self):
-        return ("freud.density.{cls}(rmax={rmax}, dr={dr}, " +
+        return ("freud.density.{cls}(rmax={rmax}, dr={dr}, "
                 "rmin={rmin})").format(cls=type(self).__name__,
                                        rmax=self.rmax,
                                        dr=self.dr,
@@ -847,3 +882,27 @@ cdef class RDF:
 
     def __str__(self):
         return repr(self)
+
+    @Compute._computed_method()
+    def plot(self, ax=None):
+        """Plot radial distribution function.
+
+        Args:
+            ax (:class:`matplotlib.axes`): Axis to plot on. If :code:`None`,
+                make a new figure and axis. (Default value = :code:`None`)
+
+        Returns:
+            (:class:`matplotlib.axes`): Axis with the plot.
+        """
+        import plot
+        return plot.line_plot(self.R, self.RDF,
+                              title="RDF",
+                              xlabel=r"$r$",
+                              ylabel=r"$g(r)$")
+
+    def _repr_png_(self):
+        import plot
+        try:
+            return plot.ax_to_bytes(self.plot())
+        except AttributeError:
+            return None

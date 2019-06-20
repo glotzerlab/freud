@@ -41,197 +41,197 @@
 #define __VECTOR_TYPES_H__
 
 /*******************************************************************************
-*                                                                              *
-*                                                                              *
-*                                                                              *
-*******************************************************************************/
+ *                                                                              *
+ *                                                                              *
+ *                                                                              *
+ *******************************************************************************/
 
 #include "cudacpu_host_defines.h"
 
 /*******************************************************************************
-*                                                                              *
-*                                                                              *
-*                                                                              *
-*******************************************************************************/
+ *                                                                              *
+ *                                                                              *
+ *                                                                              *
+ *******************************************************************************/
 
 /*DEVICE_BUILTIN*/
 struct char1
 {
-  signed char x;
+    signed char x;
 };
 
 /*DEVICE_BUILTIN*/
 struct uchar1
 {
-  unsigned char x;
+    unsigned char x;
 };
 
 /*DEVICE_BUILTIN*/
 struct __builtin_align__(2) char2
 {
-  signed char x, y;
+    signed char x, y;
 };
 
 /*DEVICE_BUILTIN*/
 struct __builtin_align__(2) uchar2
 {
-  unsigned char x, y;
+    unsigned char x, y;
 };
 
 /*DEVICE_BUILTIN*/
 struct char3
 {
-  signed char x, y, z;
+    signed char x, y, z;
 };
 
 /*DEVICE_BUILTIN*/
 struct uchar3
 {
-  unsigned char x, y, z;
+    unsigned char x, y, z;
 };
 
 /*DEVICE_BUILTIN*/
 struct __builtin_align__(4) char4
 {
-  signed char x, y, z, w;
+    signed char x, y, z, w;
 };
 
 /*DEVICE_BUILTIN*/
 struct __builtin_align__(4) uchar4
 {
-  unsigned char x, y, z, w;
+    unsigned char x, y, z, w;
 };
 
 /*DEVICE_BUILTIN*/
 struct short1
 {
-  short x;
+    short x;
 };
 
 /*DEVICE_BUILTIN*/
 struct ushort1
 {
-  unsigned short x;
+    unsigned short x;
 };
 
 /*DEVICE_BUILTIN*/
 struct __builtin_align__(4) short2
 {
-  short x, y;
+    short x, y;
 };
 
 /*DEVICE_BUILTIN*/
 struct __builtin_align__(4) ushort2
 {
-  unsigned short x, y;
+    unsigned short x, y;
 };
 
 /*DEVICE_BUILTIN*/
 struct short3
 {
-  short x, y, z;
+    short x, y, z;
 };
 
 /*DEVICE_BUILTIN*/
 struct ushort3
 {
-  unsigned short x, y, z;
+    unsigned short x, y, z;
 };
 
 /*DEVICE_BUILTIN*/
 struct __builtin_align__(8) short4
 {
-  short x, y, z, w;
+    short x, y, z, w;
 };
 
 /*DEVICE_BUILTIN*/
 struct __builtin_align__(8) ushort4
 {
-  unsigned short x, y, z, w;
+    unsigned short x, y, z, w;
 };
 
 /*DEVICE_BUILTIN*/
 struct int1
 {
-  int x;
+    int x;
 };
 
 /*DEVICE_BUILTIN*/
 struct uint1
 {
-  unsigned int x;
+    unsigned int x;
 };
 
 /*DEVICE_BUILTIN*/
 struct __builtin_align__(8) int2
 {
-  int x, y;
+    int x, y;
 };
 
 /*DEVICE_BUILTIN*/
 struct __builtin_align__(8) uint2
 {
-  unsigned int x, y;
+    unsigned int x, y;
 };
 
 /*DEVICE_BUILTIN*/
 struct int3
 {
-  int x, y, z;
+    int x, y, z;
 };
 
 /*DEVICE_BUILTIN*/
 struct uint3
 {
-  unsigned int x, y, z;
+    unsigned int x, y, z;
 };
 
 /*DEVICE_BUILTIN*/
 struct __builtin_align__(16) int4
 {
-  int x, y, z, w;
+    int x, y, z, w;
 };
 
 /*DEVICE_BUILTIN*/
 struct __builtin_align__(16) uint4
 {
-  unsigned int x, y, z, w;
+    unsigned int x, y, z, w;
 };
 
 /*DEVICE_BUILTIN*/
 struct long1
 {
-  long int x;
+    long int x;
 };
 
 /*DEVICE_BUILTIN*/
 struct ulong1
 {
-  unsigned long x;
+    unsigned long x;
 };
 
 /*DEVICE_BUILTIN*/
 struct
-#if defined (_WIN32)
-       __builtin_align__(8)
-#else /* _WIN32 */
-       __builtin_align__(2*sizeof(long int))
+#if defined(_WIN32)
+    __builtin_align__(8)
+#else  /* _WIN32 */
+    __builtin_align__(2 * sizeof(long int))
 #endif /* _WIN32 */
-                                             long2
+        long2
 {
-  long int x, y;
+    long int x, y;
 };
 
 /*DEVICE_BUILTIN*/
 struct
-#if defined (_WIN32)
-       __builtin_align__(8)
-#else /* _WIN32 */
-       __builtin_align__(2*sizeof(unsigned long int))
+#if defined(_WIN32)
+    __builtin_align__(8)
+#else  /* _WIN32 */
+    __builtin_align__(2 * sizeof(unsigned long int))
 #endif /* _WIN32 */
-                                                      ulong2
+        ulong2
 {
-  unsigned long int x, y;
+    unsigned long int x, y;
 };
 
 #if !defined(__LP64__)
@@ -239,25 +239,25 @@ struct
 /*DEVICE_BUILTIN*/
 struct long3
 {
-  long int x, y, z;
+    long int x, y, z;
 };
 
 /*DEVICE_BUILTIN*/
 struct ulong3
 {
-  unsigned long int x, y, z;
+    unsigned long int x, y, z;
 };
 
 /*DEVICE_BUILTIN*/
 struct __builtin_align__(16) long4
 {
-  long int x, y, z, w;
+    long int x, y, z, w;
 };
 
 /*DEVICE_BUILTIN*/
 struct __builtin_align__(16) ulong4
 {
-  unsigned long int x, y, z, w;
+    unsigned long int x, y, z, w;
 };
 
 #endif /* !__LP64__ */
@@ -265,44 +265,44 @@ struct __builtin_align__(16) ulong4
 /*DEVICE_BUILTIN*/
 struct float1
 {
-  float x;
+    float x;
 };
 
 /*DEVICE_BUILTIN*/
 struct __builtin_align__(8) float2
 {
-  float x, y;
+    float x, y;
 };
 
 /*DEVICE_BUILTIN*/
 struct float3
 {
-  float x, y, z;
+    float x, y, z;
 };
 
 /*DEVICE_BUILTIN*/
 struct __builtin_align__(16) float4
 {
-  float x, y, z, w;
+    float x, y, z, w;
 };
 
 /*DEVICE_BUILTIN*/
 struct double1
 {
-  double x;
+    double x;
 };
 
 /*DEVICE_BUILTIN*/
 struct __builtin_align__(16) double2
 {
-  double x, y;
+    double x, y;
 };
 
 /*******************************************************************************
-*                                                                              *
-*                                                                              *
-*                                                                              *
-*******************************************************************************/
+ *                                                                              *
+ *                                                                              *
+ *                                                                              *
+ *******************************************************************************/
 
 /*DEVICE_BUILTIN*/
 typedef struct char1 char1;
@@ -382,10 +382,10 @@ typedef struct double1 double1;
 typedef struct double2 double2;
 
 /*******************************************************************************
-*                                                                              *
-*                                                                              *
-*                                                                              *
-*******************************************************************************/
+ *                                                                              *
+ *                                                                              *
+ *                                                                              *
+ *******************************************************************************/
 
 /*DEVICE_BUILTIN*/
 typedef struct dim3 dim3;
@@ -397,7 +397,14 @@ struct dim3
 #if defined(__cplusplus)
     dim3(unsigned int x = 1, unsigned int y = 1, unsigned int z = 1) : x(x), y(y), z(z) {}
     dim3(uint3 v) : x(v.x), y(v.y), z(v.z) {}
-    operator uint3(void) { uint3 t; t.x = x; t.y = y; t.z = z; return t; }
+    operator uint3(void)
+    {
+        uint3 t;
+        t.x = x;
+        t.y = y;
+        t.z = z;
+        return t;
+    }
 #endif /* __cplusplus */
 };
 

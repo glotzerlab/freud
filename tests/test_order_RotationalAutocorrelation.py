@@ -18,8 +18,8 @@ class TestRotationalAutocorrelation(unittest.TestCase):
         ra = freud.order.RotationalAutocorrelation(2)
         ra.compute(orientations, orientations)
 
-        self.assertAlmostEqual(ra.autocorrelation, 1, places=5)
-        npt.assert_array_almost_equal(ra.ra_array, 1, decimal=5)
+        npt.assert_allclose(ra.autocorrelation, 1, rtol=1e-6)
+        npt.assert_allclose(ra.ra_array, 1, rtol=1e-6)
 
     def test_attributes(self):
         """Check that all attributes are sensible."""
@@ -28,7 +28,21 @@ class TestRotationalAutocorrelation(unittest.TestCase):
         orientations /= np.linalg.norm(orientations, axis=1)[:, np.newaxis]
 
         ra = freud.order.RotationalAutocorrelation(2)
+
+        # Test access
+        with self.assertRaises(AttributeError):
+            ra.ra_array
+        with self.assertRaises(AttributeError):
+            ra.autocorrelation
+        with self.assertRaises(AttributeError):
+            ra.num_orientations
+
         ra.compute(orientations, orientations)
+
+        # Test access
+        ra.ra_array
+        ra.autocorrelation
+        ra.num_orientations
 
         self.assertEqual(ra.azimuthal, 2)
         self.assertEqual(ra.num_orientations, 4)
@@ -47,14 +61,14 @@ class TestRotationalAutocorrelation(unittest.TestCase):
             for i in range(orientations.shape[0]):
                 ra2.compute(orientations[0, :, :], orientations[i, :, :])
                 l2.append(ra2.autocorrelation)
-            npt.assert_array_almost_equal(l2, data['l2auto'])
+            npt.assert_allclose(l2, data['l2auto'], atol=1e-6, rtol=1e-6)
 
             ra6 = freud.order.RotationalAutocorrelation(6)
             l6 = []
             for i in range(orientations.shape[0]):
                 ra6.compute(orientations[0, :, :], orientations[i, :, :])
                 l6.append(ra6.autocorrelation)
-            npt.assert_array_almost_equal(l6, data['l6auto'])
+            npt.assert_allclose(l6, data['l6auto'], atol=1e-6, rtol=1e-6)
 
         # As a sanity check, make sure computing with the same object works on
         # new data.
@@ -62,12 +76,16 @@ class TestRotationalAutocorrelation(unittest.TestCase):
         orientations = np.random.rand(4, 4)
         orientations /= np.linalg.norm(orientations, axis=1)[:, np.newaxis]
 
-        self.assertAlmostEqual(
+        npt.assert_allclose(
             ra2.compute(orientations, orientations).autocorrelation,
-            1, places=5)
-        self.assertAlmostEqual(
+            1, rtol=1e-6)
+        npt.assert_allclose(
             ra6.compute(orientations, orientations).autocorrelation,
-            1, places=5)
+            1, rtol=1e-6)
+
+    def test_repr(self):
+        ra2 = freud.order.RotationalAutocorrelation(2)
+        self.assertEqual(str(ra2), str(eval(repr(ra2))))
 
 
 if __name__ == '__main__':

@@ -20,9 +20,7 @@ class TestHexOrderParameter(unittest.TestCase):
         boxlen = 10
         N = 500
         rmax = 3
-
         box = freud.box.Box.square(boxlen)
-
         np.random.seed(0)
         points = np.asarray(np.random.uniform(-boxlen/2, boxlen/2, (N, 3)),
                             dtype=np.float32)
@@ -35,25 +33,21 @@ class TestHexOrderParameter(unittest.TestCase):
         boxlen = 10
         N = 500
         rmax = 3
-
         box = freud.box.Box.square(boxlen)
-
         np.random.seed(0)
         points = np.asarray(np.random.uniform(-boxlen/2, boxlen/2, (N, 3)),
                             dtype=np.float32)
         points[:, 2] = 0.0
         hop = freud.order.HexOrderParameter(rmax)
         hop.compute(box, points)
-        npt.assert_almost_equal(np.mean(hop.psi), 0. + 0.j, decimal=1)
+        npt.assert_allclose(np.mean(hop.psi), 0. + 0.j, atol=1e-1)
 
         self.assertTrue(hop.box == box)
 
     def test_compute(self):
         boxlen = 10
         rmax = 3
-
         box = freud.box.Box.square(boxlen)
-
         points = [[0.0, 0.0, 0.0]]
 
         for i in range(6):
@@ -64,8 +58,26 @@ class TestHexOrderParameter(unittest.TestCase):
         points = np.asarray(points, dtype=np.float32)
         points[:, 2] = 0.0
         hop = freud.order.HexOrderParameter(rmax)
+
+        # Test access
+        with self.assertRaises(AttributeError):
+            hop.num_particles
+        with self.assertRaises(AttributeError):
+            hop.box
+        with self.assertRaises(AttributeError):
+            hop.psi
+
         hop.compute(box, points)
-        npt.assert_almost_equal(hop.psi[0], 1. + 0.j, decimal=1)
+        # Test access
+        hop.num_particles
+        hop.box
+        hop.psi
+
+        npt.assert_allclose(hop.psi[0], 1. + 0.j, atol=1e-1)
+
+    def test_repr(self):
+        hop = freud.order.HexOrderParameter(3.0, 6, 7)
+        self.assertEqual(str(hop), str(eval(repr(hop))))
 
 
 if __name__ == '__main__':

@@ -4,14 +4,12 @@
 #ifndef ROTATIONAL_AUTOCORRELATION_H
 #define ROTATIONAL_AUTOCORRELATION_H
 
+#include <cassert>
 #include <complex>
 #include <memory>
-#include <cassert>
 #include <tbb/tbb.h>
 
 #include "VectorMath.h"
-#include "HOOMDMath.h"
-#include "Index1D.h"
 
 /*! \file RotationalAutocorrelation.h
     \brief Defines the RotationalAutocorrelation class, which computes the total
@@ -33,7 +31,7 @@ namespace freud { namespace order {
  *  complex numbers that map out hyperspherical coordinates in 3 dimensions.
  *  This function generates that mapping.
  */
-std::pair<std::complex<float>, std::complex<float> > quat_to_greek(const quat<float> &q);
+std::pair<std::complex<float>, std::complex<float>> quat_to_greek(const quat<float>& q);
 
 //! Compute a hyperspherical harmonic.
 /*! \param xi The first complex number coordinate.
@@ -48,8 +46,8 @@ std::pair<std::complex<float>, std::complex<float> > quat_to_greek(const quat<fl
  *  functions and matrix elements for hyperspherical quantum field models
  *  (https://doi.org/10.1063/1.526210).
  */
-std::complex<float> hypersphere_harmonic(const std::complex<float> xi, std::complex<float> zeta,
-                                          const int l, const int m1, const int m2);
+std::complex<float> hypersphere_harmonic(const std::complex<float> xi, std::complex<float> zeta, const int l,
+                                         const int m1, const int m2);
 
 //! Compute the total rotational autocorrelation for a set of orientations.
 /*! The desired autocorrelation function is the rotational analog of the
@@ -62,65 +60,65 @@ std::complex<float> hypersphere_harmonic(const std::complex<float> xi, std::comp
  *  and directional entropic forces" by Karas et al. (currently in preparation).
  */
 class RotationalAutocorrelation
+{
+public:
+    //! Explicit default constructor for Cython.
+    RotationalAutocorrelation() {}
+
+    //! Constructor
+    /*! \param l The order of the spherical harmonic.
+     */
+    RotationalAutocorrelation(int l) : m_l(l), m_N(0), m_Ft(0) {}
+
+    //! Destructor
+    ~RotationalAutocorrelation() {}
+
+    //! Get the quantum number l used in calculations.
+    unsigned int getL()
     {
-    public:
-        //! Explicit default constructor for Cython.
-        RotationalAutocorrelation() {}
+        return m_l;
+    }
 
-        //! Constructor
-        /*! \param l The order of the spherical harmonic.
-         */
-        RotationalAutocorrelation(int l) : m_l(l), m_N(0), m_Ft(0) {}
+    //! Get the number of orientations used in the last call to compute.
+    unsigned int getN()
+    {
+        return m_N;
+    }
 
-        //! Destructor
-        ~RotationalAutocorrelation() {}
+    //! Get a reference to the last computed rotational autocorrelation array.
+    std::shared_ptr<std::complex<float>> getRAArray()
+    {
+        return m_RA_array;
+    }
 
-        //! Get the quantum number l used in calculations.
-        unsigned int getL()
-            {
-            return m_l;
-            }
+    //! Get a reference to the last computed value of the rotational autocorrelation.
+    float getRotationalAutocorrelation()
+    {
+        return m_Ft;
+    }
 
-        //! Get the number of orientations used in the last call to compute.
-        unsigned int getN()
-            {
-              return m_N;
-            }
+    //! Compute the rotational autocorrelation.
+    /*! \param ref_ors Quaternions in initial frame.
+     *  \param ors Quaternions in current frame.
+     *  \param N The number of orientations.
+     *
+     *  This function loops over all provided orientations and reference
+     *  orientations and computes their hyperspherical harmonics for the
+     *  desired range of quantum numbers. For each orientation/reference
+     *  pair, the autocorrelation value is computed as the inner product of
+     *  these two hyperspherical harmonics. The value of the autocorrelation
+     *  for the whole system is then the average of the real parts of the
+     *  autocorrelation for the whole system.
+     */
+    void compute(const quat<float>* ref_ors, const quat<float>* ors, unsigned int N);
 
-        //! Get a reference to the last computed rotational autocorrelation array.
-        std::shared_ptr<std::complex <float> > getRAArray()
-            {
-            return m_RA_array;
-            }
+private:
+    int m_l;          //!< Order of the hyperspherical harmonic.
+    unsigned int m_N; //!< Last number of orientations used in compute.
+    float m_Ft;       //!< Real value of calculated RA function.
 
-        //! Get a reference to the last computed value of the rotational autocorrelation.
-        float getRotationalAutocorrelation()
-            {
-            return m_Ft;
-            }
-
-        //! Compute the rotational autocorrelation.
-        /*! \param ref_ors Quaternions in initial frame.
-         *  \param ors Quaternions in current frame.
-         *  \param N The number of orientations.
-         *
-         *  This function loops over all provided orientations and reference
-         *  orientations and computes their hyperspherical harmonics for the
-         *  desired range of quantum numbers. For each orientation/reference
-         *  pair, the autocorrelation value is computed as the inner product of
-         *  these two hyperspherical harmonics. The value of the autocorrelation
-         *  for the whole system is then the average of the real parts of the
-         *  autocorrelation for the whole system.
-         */
-        void compute(const quat<float> *ref_ors, const quat<float> *ors, unsigned int N);
-
-    private:
-        int m_l;                   //!< Order of the hyperspherical harmonic.
-        unsigned int m_N;          //!< Last number of orientations used in compute.
-        float m_Ft;                //!< Real value of calculated RA function.
-
-        std::shared_ptr< std::complex<float> > m_RA_array; //!< Array of RA values per particle
-    };
+    std::shared_ptr<std::complex<float>> m_RA_array; //!< Array of RA values per particle
+};
 
 }; }; // end namespace freud::order
 

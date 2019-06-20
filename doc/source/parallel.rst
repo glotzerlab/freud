@@ -8,6 +8,7 @@ Parallel Module
     :nosignatures:
 
     freud.parallel.NumThreads
+    freud.parallel.getNumThreads
     freud.parallel.setNumThreads
 
 .. rubric:: Details
@@ -15,5 +16,3 @@ Parallel Module
 .. automodule:: freud.parallel
     :synopsis: Manage TBB thread usage.
     :members:
-
-    .. automethod:: freud.parallel.setNumThreads
