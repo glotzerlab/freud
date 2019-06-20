@@ -80,8 +80,8 @@ cdef class Compute:
             @wraps(func)
             def wrapper(self, *args, **kwargs):
                 if not any(self._called_compute.get(k, False) for k in key):
-                    raise AttributeError("Property not computed. "
-                                         "Call {key} first.".format(key=key))
+                    raise AttributeError("Property not computed. Call one of: "
+                                         "{} first.".format(', '.join(key)))
                 return func(self, *args, **kwargs)
             return wrapper
         return _computed_property_with_key
@@ -103,8 +103,8 @@ cdef class Compute:
             @wraps(func)
             def wrapper(self, *args, **kwargs):
                 if not any(self._called_compute.get(k, False) for k in key):
-                    raise AttributeError("Property not computed. "
-                                         "Call {key} first.".format(key=key))
+                    raise AttributeError("Property not computed. Call one of: "
+                                         "{} first.".format(', '.join(key)))
                 return func(self, *args, **kwargs)
             return wrapper
         return _computed_property_with_key
