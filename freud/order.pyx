@@ -764,12 +764,14 @@ cdef class LocalQl(Compute):
         mode = mode.replace(name, "Q")
         if mode == "Ql":
             mode_str = ""
-        if mode == "ave_Ql":
+        elif mode == "ave_Ql":
             mode_str = "Average"
-        if mode == "norm_Ql":
+        elif mode == "norm_Ql":
             mode_str = "Normalized"
-        if mode == "ave_norm_Ql":
+        elif mode == "ave_norm_Ql":
             mode_str = "Average Normalized"
+        else:
+            raise RuntimeError("Invalid plot moode.")
         title = r"Local ${}_{{{}}}$".format(name, self.sph_l)
         if near:
             title += " Near"
@@ -786,6 +788,8 @@ cdef class LocalQl(Compute):
         """Plot Ql.
 
         Args:
+            mode (str): Plotting mode. Must be one of "Ql", "ave_Ql",
+                "norm_Ql" and "ave_norm_Ql". Plots the given attribute.
             ax (:class:`matplotlib.axes.Axes`): Axis to plot on. If
                 :code:`None`, make a new figure and axis.
                 (Default value = :code:`None`)
@@ -946,6 +950,8 @@ cdef class LocalQlNear(LocalQl):
         """Plot Ql.
 
         Args:
+            mode (str): Plotting mode. Must be one of "Ql", "ave_Ql",
+                "norm_Ql" and "ave_norm_Ql". Plots the given attribute.
             ax (:class:`matplotlib.axes.Axes`): Axis to plot on. If
                 :code:`None`, make a new figure and axis.
                 (Default value = :code:`None`)
@@ -1107,6 +1113,8 @@ cdef class LocalWl(LocalQl):
         """Plot Wl.
 
         Args:
+            mode (str): Plotting mode. Must be one of "Wl", "ave_Wl",
+                "norm_Wl" and "ave_norm_Wl". Plots the given attribute.
             ax (:class:`matplotlib.axes.Axes`): Axis to plot on. If
                 :code:`None`, make a new figure and axis.
                 (Default value = :code:`None`)
@@ -1264,6 +1272,8 @@ cdef class LocalWlNear(LocalWl):
         """Plot Wl.
 
         Args:
+            mode (str): Plotting mode. Must be one of "Wl", "ave_Wl",
+                "norm_Wl" and "ave_norm_Wl". Plots the given attribute.
             ax (:class:`matplotlib.axes.Axes`): Axis to plot on. If
                 :code:`None`, make a new figure and axis.
                 (Default value = :code:`None`)
