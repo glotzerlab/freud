@@ -126,3 +126,6 @@ cdef class AABBQuery(NeighborQuery):
 
 cdef class RawPoints(NeighborQuery):
     cdef freud._locality.RawPoints * thisptr
+
+cdef class _QueryArgs:
+    cdef freud._locality.QueryArgs * thisptr
