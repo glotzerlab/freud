@@ -39,7 +39,6 @@ void Cluster::computeClusters(const freud::locality::NeighborQuery* nq, const bo
     }
 
     m_num_particles = Np;
-    float rmaxsq = m_rcut * m_rcut;
     DisjointSets dj(m_num_particles);
 
     locality::QueryArgs qargs;
@@ -47,12 +46,11 @@ void Cluster::computeClusters(const freud::locality::NeighborQuery* nq, const bo
     qargs.rmax = m_rcut;
 
     freud::locality::loop_over_NeighborList(nq, points, Np, qargs, nlist,
-                                            [&rmaxsq, &dj, &box, points](size_t i, size_t j, float dist, float weight) {
+                                            [this, &dj, &box, points](size_t i, size_t j, float dist, float weight) {
                                                 if (i != j)
                                                 {
                                                     // compute r between the two particles
-                                                    float rsq = dist*dist;
-                                                    if (rsq < rmaxsq)
+                                                    if (dist < m_rcut)
                                                     {
                                                         // merge the two sets using the disjoint set
                                                         if (!dj.same(i, j))
