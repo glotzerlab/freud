@@ -23,8 +23,6 @@ void Steinhardt::computeYlm(const float theta, const float phi, std::vector<std:
     fsph::PointSPHEvaluator<float> sph_eval(m_l);
 
     unsigned int j(0);
-    // old definition in compute (theta: 0...pi, phi: 0...2pi)
-    // in fsph, the definition is flipped
     sph_eval.compute(theta, phi);
 
     if (m_Wl)
