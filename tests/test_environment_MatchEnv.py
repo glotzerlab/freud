@@ -22,6 +22,17 @@ class TestCluster(unittest.TestCase):
         threshold = 0.1
 
         match = freud.environment.MatchEnv(box, rcut, kn)
+        with self.assertRaises(AttributeError):
+            match.tot_environment
+        with self.assertRaises(AttributeError):
+            match.num_particles
+        with self.assertRaises(AttributeError):
+            match.num_clusters
+        with self.assertRaises(AttributeError):
+            match.clusters
+        with self.assertRaises(AttributeError):
+            match.getEnvironment(0)
+
         match.cluster(xyz, threshold)
         clusters = match.clusters
 
@@ -346,6 +357,31 @@ class TestCluster(unittest.TestCase):
         kn = 14
         match = freud.environment.MatchEnv(box, rcut, kn)
         self.assertEqual(str(match), str(eval(repr(match))))
+
+    def test_repr_png(self):
+        fn = os.path.join(self.test_folder, 'bcc.npy')
+        xyz = np.load(fn)
+        xyz = np.array(xyz, dtype=np.float32)
+        xyz.flags['WRITEABLE'] = False
+        L = np.max(xyz)*2
+
+        rcut = 3.1
+        kn = 14
+        threshold = 0.1
+
+        box = freud.box.Box.square(L)
+        xyz = np.load(fn)
+        xyz = np.array(xyz, dtype=np.float32)
+        xyz[:, 2] = 0
+        xyz.flags['WRITEABLE'] = False
+        match = freud.environment.MatchEnv(box, rcut, kn)
+
+        with self.assertRaises(AttributeError):
+            match.plot()
+        self.assertEqual(match._repr_png_(), None)
+
+        match.cluster(xyz, threshold)
+        match._repr_png_()
 
 
 if __name__ == '__main__':

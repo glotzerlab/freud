@@ -1,7 +1,6 @@
 import numpy as np
 import numpy.testing as npt
 import freud
-import warnings
 import unittest
 
 
@@ -38,7 +37,33 @@ class TestCubatic(unittest.TestCase):
         n_replicates = 10
         cop = freud.order.CubaticOrderParameter(
             t_initial, t_final, scale, n_replicates)
+
+        # Test access
+        with self.assertRaises(AttributeError):
+            cop.cubatic_order_parameter
+        with self.assertRaises(AttributeError):
+            cop.orientation
+        with self.assertRaises(AttributeError):
+            cop.particle_order_parameter
+        with self.assertRaises(AttributeError):
+            cop.particle_tensor
+        with self.assertRaises(AttributeError):
+            cop.global_tensor
+        with self.assertRaises(AttributeError):
+            cop.cubatic_tensor
+        with self.assertRaises(AttributeError):
+            cop.gen_r4_tensor
+
         cop.compute(orientations)
+
+        # Test access
+        cop.cubatic_order_parameter
+        cop.orientation
+        cop.particle_order_parameter
+        cop.particle_tensor
+        cop.global_tensor
+        cop.cubatic_tensor
+        cop.gen_r4_tensor
 
         # Test values of the OP
         self.assertAlmostEqual(cop.cubatic_order_parameter, 1, places=2,

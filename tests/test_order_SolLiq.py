@@ -2,7 +2,6 @@ import numpy as np
 import numpy.testing as npt
 import freud
 import unittest
-import warnings
 import util
 
 
@@ -42,6 +41,37 @@ class TestSolLiq(unittest.TestCase):
 
         comp.computeSolLiqVariant(positions)
         self.assertEqual(comp.largest_cluster_size, 1)
+
+    def test_attribute_access(self):
+        (box, positions) = util.make_fcc(4, 4, 4)
+        func_names = ["compute", "computeSolLiqVariant", "computeSolLiqNoNorm"]
+        for f in func_names:
+            comp = freud.order.SolLiq(box, 2, .7, 6, 6)
+            with self.assertRaises(AttributeError):
+                comp.largest_cluster_size
+            with self.assertRaises(AttributeError):
+                comp.cluster_sizes
+            with self.assertRaises(AttributeError):
+                comp.Ql_mi
+            with self.assertRaises(AttributeError):
+                comp.clusters
+            with self.assertRaises(AttributeError):
+                comp.num_connections
+            with self.assertRaises(AttributeError):
+                comp.Ql_dot_ij
+            with self.assertRaises(AttributeError):
+                comp.num_particles
+
+            func = getattr(comp, f)
+            func(positions)
+
+            comp.largest_cluster_size
+            comp.cluster_sizes
+            comp.Ql_mi
+            comp.clusters
+            comp.num_connections
+            comp.Ql_dot_ij
+            comp.num_particles
 
     def test_repr(self):
         box = freud.box.Box.cube(10)
@@ -85,6 +115,37 @@ class TestSolLiqNear(unittest.TestCase):
 
         comp.computeSolLiqVariant(positions)
         self.assertEqual(comp.largest_cluster_size, 1)
+
+    def test_attribute_access(self):
+        (box, positions) = util.make_fcc(4, 4, 4)
+        func_names = ["compute", "computeSolLiqVariant", "computeSolLiqNoNorm"]
+        for f in func_names:
+            comp = freud.order.SolLiqNear(box, 2, .7, 6, 6, 12)
+            with self.assertRaises(AttributeError):
+                comp.largest_cluster_size
+            with self.assertRaises(AttributeError):
+                comp.cluster_sizes
+            with self.assertRaises(AttributeError):
+                comp.Ql_mi
+            with self.assertRaises(AttributeError):
+                comp.clusters
+            with self.assertRaises(AttributeError):
+                comp.num_connections
+            with self.assertRaises(AttributeError):
+                comp.Ql_dot_ij
+            with self.assertRaises(AttributeError):
+                comp.num_particles
+
+            func = getattr(comp, f)
+            func(positions)
+
+            comp.largest_cluster_size
+            comp.cluster_sizes
+            comp.Ql_mi
+            comp.clusters
+            comp.num_connections
+            comp.Ql_dot_ij
+            comp.num_particles
 
     def test_repr(self):
         box = freud.box.Box.cube(10)

@@ -58,7 +58,21 @@ class TestHexOrderParameter(unittest.TestCase):
         points = np.asarray(points, dtype=np.float32)
         points[:, 2] = 0.0
         hop = freud.order.HexOrderParameter(rmax)
+
+        # Test access
+        with self.assertRaises(AttributeError):
+            hop.num_particles
+        with self.assertRaises(AttributeError):
+            hop.box
+        with self.assertRaises(AttributeError):
+            hop.psi
+
         hop.compute(box, points)
+        # Test access
+        hop.num_particles
+        hop.box
+        hop.psi
+
         npt.assert_allclose(hop.psi[0], 1. + 0.j, atol=1e-1)
 
     def test_repr(self):

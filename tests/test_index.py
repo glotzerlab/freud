@@ -1,6 +1,5 @@
 import freud
 import unittest
-import warnings
 
 
 class TestIndex(unittest.TestCase):

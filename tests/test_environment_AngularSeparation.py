@@ -1,7 +1,6 @@
 import numpy.testing as npt
 import numpy as np
 import freud
-import warnings
 import unittest
 
 
@@ -58,6 +57,19 @@ class TestAngularSeparation(unittest.TestCase):
         equiv_quats = np.asarray([[1, 0, 0, 0]], dtype=np.float32)
 
         ang = freud.environment.AngularSeparation(rmax, num_neigh)
+
+        # test access
+        with self.assertRaises(AttributeError):
+            ang.neighbor_angles
+        with self.assertRaises(AttributeError):
+            ang.global_angles
+        with self.assertRaises(AttributeError):
+            ang.n_p
+        with self.assertRaises(AttributeError):
+            ang.n_global
+        with self.assertRaises(AttributeError):
+            ang.n_ref
+
         ang.computeNeighbor(box, ors, ors, points, points, equiv_quats)
         npt.assert_equal(ang.n_p, N)
 
@@ -123,6 +135,15 @@ class TestAngularSeparation(unittest.TestCase):
         ang = freud.environment.AngularSeparation(rmax, num_neigh)
         ang.computeNeighbor(box, ors, ors, points, points, equiv_quats)
 
+        # test access
+        ang.neighbor_angles
+        ang.n_p
+        ang.n_ref
+        with self.assertRaises(AttributeError):
+            ang.global_angles
+        with self.assertRaises(AttributeError):
+            ang.n_global
+
         # Should find that the angular separation between the first particle
         # and its neighbor is pi/3. The second particle's nearest neighbor will
         # have the same orientation.
@@ -151,6 +172,15 @@ class TestAngularSeparation(unittest.TestCase):
 
         ang = freud.environment.AngularSeparation(rmax, num_neigh)
         ang.computeGlobal(global_ors, ors, equiv_quats)
+
+        # test access
+        ang.global_angles
+        ang.n_p
+        ang.n_global
+        with self.assertRaises(AttributeError):
+            ang.neighbor_angles
+        with self.assertRaises(AttributeError):
+            ang.n_ref
 
         # Each orientation should be either equal to or pi/16 away from the
         # global reference quaternion
