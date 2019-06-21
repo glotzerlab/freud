@@ -64,13 +64,13 @@ template<typename T> void CorrelationFunction<T>::reduceCorrelationFunction()
     parallel_for(tbb::blocked_range<size_t>(0, m_nbins), [=](const blocked_range<size_t>& r) {
         for (size_t i = r.begin(); i != r.end(); i++)
         {
-            for (tbb::enumerable_thread_specific<unsigned int*>::const_iterator local_bins
+            for (util::ThreadStorage<unsigned int>::const_iterator local_bins
                  = m_local_bin_counts.begin();
                  local_bins != m_local_bin_counts.end(); ++local_bins)
             {
                 m_bin_counts.get()[i] += (*local_bins)[i];
             }
-            for (typename tbb::enumerable_thread_specific<T*>::const_iterator local_rdf
+            for (typename util::ThreadStorage<T>::const_iterator local_rdf
                  = m_local_rdf_array.begin();
                  local_rdf != m_local_rdf_array.end(); ++local_rdf)
             {

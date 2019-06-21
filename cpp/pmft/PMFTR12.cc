@@ -114,7 +114,7 @@ void PMFTR12::reducePCF()
             {
                 for (size_t k = 0; k < m_n_r; k++)
                 {
-                    for (tbb::enumerable_thread_specific<unsigned int*>::const_iterator local_bins
+                    for (util::ThreadStorage<unsigned int>::const_iterator local_bins
                          = m_local_bin_counts.begin();
                          local_bins != m_local_bin_counts.end(); ++local_bins)
                     {

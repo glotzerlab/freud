@@ -93,7 +93,7 @@ void BondOrder::reduceBondOrder()
         {
             for (size_t j = 0; j < m_nbins_p; j++)
             {
-                for (tbb::enumerable_thread_specific<unsigned int*>::const_iterator local_bins
+                for (util::ThreadStorage<unsigned int>::const_iterator local_bins
                      = m_local_bin_counts.begin();
                      local_bins != m_local_bin_counts.end(); ++local_bins)
                 {

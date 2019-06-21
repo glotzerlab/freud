@@ -43,7 +43,7 @@ void GaussianDensity::reduceDensity()
     parallel_for(blocked_range<size_t>(0, m_bi.getNumElements()), [=](const blocked_range<size_t>& r) {
         for (size_t i = r.begin(); i != r.end(); i++)
         {
-            for (tbb::enumerable_thread_specific<float*>::const_iterator local_bins
+            for (util::ThreadStorage<float>::const_iterator local_bins
                  = m_local_bin_counts.begin();
                  local_bins != m_local_bin_counts.end(); ++local_bins)
             {

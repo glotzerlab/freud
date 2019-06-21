@@ -124,7 +124,7 @@ void RDF::reduceRDF()
     parallel_for(blocked_range<size_t>(1, m_nbins), [=](const blocked_range<size_t>& r) {
         for (size_t i = r.begin(); i != r.end(); i++)
         {
-            for (tbb::enumerable_thread_specific<unsigned int*>::const_iterator local_bins
+            for (util::ThreadStorage<unsigned int>::const_iterator local_bins
                  = m_local_bin_counts.begin();
                  local_bins != m_local_bin_counts.end(); ++local_bins)
             {

@@ -5,7 +5,7 @@
 
 namespace freud { namespace util {
 
-//! Wrapper classfor enumerable_thread_specific<T*>
+//! Wrapper class for enumerable_thread_specific<T*>
 /*! It is expected that default value for T is 0.
  */
 template<typename T> class ThreadStorage
@@ -50,27 +50,31 @@ public:
         }
     }
 
-    typename tbb::enumerable_thread_specific<T*>::const_iterator begin() const
+    typedef typename tbb::enumerable_thread_specific<T*>::const_iterator const_iterator;
+    typedef typename tbb::enumerable_thread_specific<T*>::iterator iterator;
+    typedef typename tbb::enumerable_thread_specific<T*>::reference reference;
+
+    const_iterator begin() const
     {
         return array.begin();
     }
 
-    typename tbb::enumerable_thread_specific<T*>::iterator begin()
+    iterator begin()
     {
         return array.begin();
     }
 
-    typename tbb::enumerable_thread_specific<T*>::const_iterator end() const
+    const_iterator end() const
     {
         return array.end();
     }
 
-    typename tbb::enumerable_thread_specific<T*>::iterator end()
+    iterator end()
     {
         return array.end();
     }
 
-    typename tbb::enumerable_thread_specific<T*>::reference local()
+    reference local()
     {
         return array.local();
     }
@@ -97,7 +101,7 @@ private:
     }
 
     unsigned int m_size; //!< size of thread local array
-    tbb::enumerable_thread_specific<T*> array; //!< public to expose all functions
+    tbb::enumerable_thread_specific<T*> array; //!< thread local array
 };
 
 
