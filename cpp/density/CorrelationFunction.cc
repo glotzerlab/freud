@@ -9,6 +9,8 @@
 #include <emmintrin.h>
 #endif
 
+#include <iostream>
+
 #include "CorrelationFunction.h"
 
 using namespace std;
@@ -180,7 +182,7 @@ void CorrelationFunction<T>::accumulate(const box::Box& box, const freud::locali
                     float rsq = dot(delta, delta);
 
                     // check that the particle is not checking itself, if it is the same list
-                    if ((i != j || points != ref_points) && rsq < rmaxsq)
+                    if (rsq < rmaxsq)
                     {
                         float r = sqrtf(rsq);
 

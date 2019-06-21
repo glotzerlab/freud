@@ -82,10 +82,10 @@ class TestFloatCF(unittest.TestCase):
         # first bin is bad
         ocf.accumulate(box, points, ang)
         npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
-        ocf.compute(box, points, ang, points, ang)
+        ocf.compute(box, points, ang, None, ang)
         npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
         ocf.reset()
-        ocf.accumulate(box, points, ang, points, ang)
+        ocf.accumulate(box, points, ang, None, ang)
         npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
         ocf.compute(box, points, ang)
         npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
