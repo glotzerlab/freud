@@ -230,10 +230,11 @@ void SolLiq::computeClustersQdot(const locality::NeighborList* nlist, const vec3
 void SolLiq::computeClustersQdotNoNorm(const locality::NeighborList* nlist, const vec3<float>* points,
                                        unsigned int Np)
 {
-    m_qldot_ij.clear();
-
     nlist->validate(Np, Np);
     const size_t* neighbor_list(nlist->getNeighbors());
+
+    m_qldot_ij.clear();
+    m_qldot_ij.resize(nlist->getNumBonds());
 
     // reallocate the cluster_idx array if the size doesn't match the last one
     if (m_Np != Np)
