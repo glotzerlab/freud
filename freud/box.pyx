@@ -719,6 +719,9 @@ cdef class ParticleBuffer:
         cdef Box b = freud.common.convert_box(box)
         self.thisptr = new freud._box.ParticleBuffer(dereference(b.thisptr))
 
+    def __dealloc__(self):
+        del self.thisptr
+
     def compute(self, points, buffer, bool_t images=False):
         R"""Compute the particle buffer.
 

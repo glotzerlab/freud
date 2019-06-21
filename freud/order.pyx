@@ -111,6 +111,9 @@ cdef class CubaticOrderParameter(Compute):
         self.n_replicates = n_replicates
         self.seed = seed
 
+    def __dealloc__(self):
+        del self.thisptr
+
     @Compute._compute()
     def compute(self, orientations):
         R"""Calculates the per-particle and global order parameter.
@@ -235,6 +238,9 @@ cdef class NematicOrderParameter(Compute):
         cdef vec3[float] l_u = vec3[float](u[0], u[1], u[2])
         self.thisptr = new freud._order.NematicOrderParameter(l_u)
         self.u = freud.common.convert_array(u, shape=(3, ))
+
+    def __dealloc__(self):
+        del self.thisptr
 
     @Compute._compute()
     def compute(self, orientations):
