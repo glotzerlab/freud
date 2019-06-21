@@ -477,6 +477,19 @@ class TestNeighborQueryAABB(TestNeighborQuery, unittest.TestCase):
         with self.assertRaises(RuntimeError):
             list(aq.queryBall(points, L))
 
+    def test_chaining(self):
+        N = 2500
+        L = 10
+        rcut = 1
+        box = freud.box.Box.cube(L)
+        seed = 0
+        np.random.seed(seed)
+        points = np.random.uniform(-L/2, L/2, (N, 3))
+        nlist1 = freud.locality.AABBQuery(box, points).queryBall(points, rcut, exclude_ii=True).toNList()
+        abq = freud.locality.AABBQuery(box, points)
+        nlist2 = abq.queryBall(points, rcut, exclude_ii=True).toNList()
+        self.assertEqual(set((i, j) for i, j in nlist1), set((i, j) for i, j in nlist2))
+
 
 class TestNeighborQueryLinkCell(TestNeighborQuery, unittest.TestCase):
     @classmethod
@@ -498,6 +511,19 @@ class TestNeighborQueryLinkCell(TestNeighborQuery, unittest.TestCase):
         with self.assertRaises(RuntimeError):
             points = np.zeros(shape=(2, 3), dtype=np.float32)
             freud.locality.LinkCell(box, rcut).query(points, rcut)
+
+    def test_chaining(self):
+        N = 2500
+        L = 10
+        rcut = 1
+        box = freud.box.Box.cube(L)
+        seed = 0
+        np.random.seed(seed)
+        points = np.random.uniform(-L/2, L/2, (N, 3))
+        nlist1 = freud.locality.LinkCell(box, 1.0, points).queryBall(points, rcut, exclude_ii=True).toNList()
+        lc = freud.locality.LinkCell(box, 1.0, points)
+        nlist2 = lc.queryBall(points, rcut, exclude_ii=True).toNList()
+        self.assertEqual(set((i, j) for i, j in nlist1), set((i, j) for i, j in nlist2))
 
 
 if __name__ == '__main__':

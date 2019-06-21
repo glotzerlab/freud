@@ -338,7 +338,7 @@ cdef class NeighborQuery:
                                             shape=(None, 3))
 
         return NeighborQueryResult.init(
-            self.nqptr, points, exclude_ii, r=0, k=k)
+            self, points, exclude_ii, r=0, k=k)
 
     def queryBall(self, points, float r, cbool exclude_ii=False):
         R"""Query for all points within a distance r of the provided point(s).
@@ -367,7 +367,7 @@ cdef class NeighborQuery:
                                             shape=(None, 3))
 
         return NeighborQueryResult.init(
-            self.nqptr, points, exclude_ii, r=r, k=0)
+            self, points, exclude_ii, r=r, k=0)
 
 
 cdef class NeighborList:
@@ -876,7 +876,7 @@ cdef class AABBQuery(NeighborQuery):
             r *= 0.1
 
         return AABBQueryResult.init_aabb_nn(
-            self.thisptr, points, exclude_ii, k, r, scale)
+            self, points, exclude_ii, k, r, scale)
 
 
 cdef class IteratorLinkCell:
