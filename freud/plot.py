@@ -14,9 +14,7 @@ def ax_to_bytes(ax):
     .. moduleauthor:: Jin Soo Ihm <jinihm@umich.edu>
 
     Args:
-        ax (:class: matplotlib.axes.Axes): axes object to plot on.
-            If :code:`None`, make a new axes and figure object.
-            (Default value = :code:`None`).
+        ax (:class:`matplotlib.axes.Axes`): axes object to plot.
 
     Returns:
         bytes: Byte representation of the diagram in png format.
@@ -43,12 +41,12 @@ def bar_plot(x, height, title=None, xlabel=None, ylabel=None, ax=None):
         title (str): Title of the graph. (Default value = :code:`None`).
         xlabel (str): Label of x axis. (Default value = :code:`None`).
         ylabel (str): Label of y axis. (Default value = :code:`None`).
-        ax (:class: matplotlib.axes.Axes): axes object to plot on.
+        ax (:class:`matplotlib.axes.Axes`): axes object to plot.
             If :code:`None`, make a new axes and figure object.
             (Default value = :code:`None`).
 
     Returns:
-        :class: matplotlib.axes.Axes: axes object with the diagram.
+        :class:`matplotlib.axes.Axes`: axes object with the diagram.
     """
     if not MATPLOTLIB:
         return None
@@ -76,12 +74,12 @@ def plot_clusters(keys, freqs, num_cluster_to_plot=10, ax=None):
         freqs (list): Number of particles in each clusters.
         num_cluster_to_plot (unsigned int): Number of the most frequent
             clusters to plot.
-        ax (:class: matplotlib.axes.Axes): axes object to plot on.
+        ax (:class:`matplotlib.axes.Axes`): axes object to plot.
             If :code:`None`, make a new axes and figure object.
             (Default value = :code:`None`).
 
     Returns:
-        :class: matplotlib.axes.Axes: axes object with the diagram.
+        :class:`matplotlib.axes.Axes`: axes object with the diagram.
     """
     count_sorted = sorted([(freq, key)
                           for key, freq in zip(keys, freqs)],
@@ -105,12 +103,12 @@ def line_plot(x, y, title=None, xlabel=None, ylabel=None, ax=None):
         title (str): Title of the graph. (Default value = :code:`None`).
         xlabel (str): Label of x axis. (Default value = :code:`None`).
         ylabel (str): Label of y axis. (Default value = :code:`None`).
-        ax (:class: matplotlib.axes.Axes): axes object to plot on.
+        ax (:class:`matplotlib.axes.Axes`): axes object to plot.
             If :code:`None`, make a new axes and figure object.
             (Default value = :code:`None`).
 
     Returns:
-        :class: matplotlib.axes.Axes: axes object with the diagram.
+        :class:`matplotlib.axes.Axes`: axes object with the diagram.
     """
     if not MATPLOTLIB:
         return None
@@ -136,12 +134,12 @@ def histogram_plot(values, title=None, xlabel=None, ylabel=None, ax=None):
         title (str): Title of the graph. (Default value = :code:`None`).
         xlabel (str): Label of x axis. (Default value = :code:`None`).
         ylabel (str): Label of y axis. (Default value = :code:`None`).
-        ax (:class: matplotlib.axes.Axes): axes object to plot on.
+        ax (:class:`matplotlib.axes.Axes`): axes object to plot.
             If :code:`None`, make a new axes and figure object.
             (Default value = :code:`None`).
 
     Returns:
-        :class: matplotlib.axes.Axes: axes object with the diagram.
+        :class:`matplotlib.axes.Axes`: axes object with the diagram.
     """
     if not MATPLOTLIB:
         return None
@@ -165,12 +163,12 @@ def pmft_plot(pmft, ax=None):
     Args:
         pmft (:class:`freud.pmft.PMFTXY2D`):
             PMFTXY2D instance.
-        ax (:class: matplotlib.axes.Axes): axes object to plot on.
+        ax (:class:`matplotlib.axes.Axes`): axes object to plot.
             If :code:`None`, make a new axes and figure object.
             (Default value = :code:`None`).
 
     Returns:
-        :class: matplotlib.axes.Axes: axes object with the diagram.
+        :class:`matplotlib.axes.Axes`: axes object with the diagram.
     """
     if not MATPLOTLIB:
         return None
@@ -220,19 +218,18 @@ def plot_density(density, box, ax=None):
             Array containing density.
         box (:class:`freud.box.Box`):
             Simulation box.
-        ax (:class: matplotlib.axes.Axes): axes object to plot on.
+        ax (:class:`matplotlib.axes.Axes`): axes object to plot.
             If :code:`None`, make a new axes and figure object.
             (Default value = :code:`None`).
 
     Returns:
-        :class: matplotlib.axes.Axes: axes object with the diagram.
+        :class:`matplotlib.axes.Axes`: axes object with the diagram.
     """
     if not MATPLOTLIB:
         return None
     try:
         from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
         from matplotlib.colorbar import Colorbar
-        # import matplotlib.transforms
     except ImportError:
         return None
 
@@ -252,14 +249,6 @@ def plot_density(density, box, ax=None):
 
     im = ax.imshow(density, extent=[xlims[0], xlims[1], ylims[0], ylims[1]])
 
-    # commented out for now
-    # transform = matplotlib.transforms.Affine2D().skew(box.xy, 0)
-    # trans_data = transform + ax.transData
-    # im.set_transform(trans_data)
-    # x1, x2, y1, y2 = im.get_extent()
-    # ax.plot([x1, x2, x2, x1, x1], [y1, y1, y2, y2, y1], "y--",
-    #         transform=trans_data)
-
     cb = Colorbar(cax, im)
     cb.set_label("Density")
 
@@ -277,12 +266,12 @@ def draw_voronoi(box, cells, ax=None):
         color_by_sides (bool):
             If :code:`True`, color cells by the number of sides.
             (Default value = :code:`False`)
-        ax (:class: matplotlib.axes.Axes): axes object to plot on.
+        ax (:class:`matplotlib.axes.Axes`): axes object to plot.
             If :code:`None`, make a new axes and figure object.
             (Default value = :code:`None`).
 
     Returns:
-        :class: matplotlib.axes.Axes: axes object with the diagram.
+        :class:`matplotlib.axes.Axes`: axes object with the diagram.
     """
     if not MATPLOTLIB:
         return None

@@ -84,22 +84,22 @@ class TestLocalWl(unittest.TestCase):
         comp = freud.order.LocalWl(box, 1.5, 6)
 
         with self.assertRaises(AttributeError):
-            comp.plot("Wl")
+            comp.plot(mode="Wl")
         with self.assertRaises(AttributeError):
-            comp.plot("ave_Wl")
+            comp.plot(mode="ave_Wl")
         with self.assertRaises(AttributeError):
-            comp.plot("ave_norm_Wl")
+            comp.plot(mode="ave_norm_Wl")
         with self.assertRaises(AttributeError):
-            comp.plot("norm_Wl")
+            comp.plot(mode="norm_Wl")
         self.assertEqual(comp._repr_png_(), None)
         comp.compute(positions)
-        comp.plot("Wl")
+        comp.plot(mode="Wl")
         comp.computeAve(positions)
-        comp.plot("ave_Wl")
+        comp.plot(mode="ave_Wl")
         comp.computeAveNorm(positions)
-        comp.plot("ave_norm_Wl")
+        comp.plot(mode="ave_norm_Wl")
         comp.computeNorm(positions)
-        comp.plot("norm_Wl")
+        comp.plot(mode="norm_Wl")
 
 
 class TestLocalWlNear(unittest.TestCase):
@@ -186,22 +186,22 @@ class TestLocalWlNear(unittest.TestCase):
         comp = freud.order.LocalWlNear(box, 1.5, 6, 12)
 
         with self.assertRaises(AttributeError):
-            comp.plot("Wl")
+            comp.plot(mode="Wl")
         with self.assertRaises(AttributeError):
-            comp.plot("ave_Wl")
+            comp.plot(mode="ave_Wl")
         with self.assertRaises(AttributeError):
-            comp.plot("ave_norm_Wl")
+            comp.plot(mode="ave_norm_Wl")
         with self.assertRaises(AttributeError):
-            comp.plot("norm_Wl")
+            comp.plot(mode="norm_Wl")
         self.assertEqual(comp._repr_png_(), None)
         comp.compute(positions)
-        comp.plot("Wl")
+        comp.plot(mode="Wl")
         comp.computeAve(positions)
-        comp.plot("ave_Wl")
+        comp.plot(mode="ave_Wl")
         comp.computeAveNorm(positions)
-        comp.plot("ave_norm_Wl")
+        comp.plot(mode="ave_norm_Wl")
         comp.computeNorm(positions)
-        comp.plot("norm_Wl")
+        comp.plot(mode="norm_Wl")
 
 
 if __name__ == '__main__':

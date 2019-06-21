@@ -80,22 +80,22 @@ class TestLocalQl(unittest.TestCase):
         (box, positions) = util.make_fcc(4, 4, 4)
         comp = freud.order.LocalQl(box, 1.5, 6)
         with self.assertRaises(AttributeError):
-            comp.plot("Ql")
+            comp.plot(mode="Ql")
         with self.assertRaises(AttributeError):
-            comp.plot("ave_Ql")
+            comp.plot(mode="ave_Ql")
         with self.assertRaises(AttributeError):
-            comp.plot("ave_norm_Ql")
+            comp.plot(mode="ave_norm_Ql")
         with self.assertRaises(AttributeError):
-            comp.plot("norm_Ql")
+            comp.plot(mode="norm_Ql")
         self.assertEqual(comp._repr_png_(), None)
         comp.compute(positions)
-        comp.plot("Ql")
+        comp.plot(mode="Ql")
         comp.computeAve(positions)
-        comp.plot("ave_Ql")
+        comp.plot(mode="ave_Ql")
         comp.computeAveNorm(positions)
-        comp.plot("ave_norm_Ql")
+        comp.plot(mode="ave_norm_Ql")
         comp.computeNorm(positions)
-        comp.plot("norm_Ql")
+        comp.plot(mode="norm_Ql")
 
 
 class TestLocalQlNear(unittest.TestCase):
@@ -177,22 +177,22 @@ class TestLocalQlNear(unittest.TestCase):
         (box, positions) = util.make_fcc(4, 4, 4)
         comp = freud.order.LocalQlNear(box, 1.5, 6, 12)
         with self.assertRaises(AttributeError):
-            comp.plot("Ql")
+            comp.plot(mode="Ql")
         with self.assertRaises(AttributeError):
-            comp.plot("ave_Ql")
+            comp.plot(mode="ave_Ql")
         with self.assertRaises(AttributeError):
-            comp.plot("ave_norm_Ql")
+            comp.plot(mode="ave_norm_Ql")
         with self.assertRaises(AttributeError):
-            comp.plot("norm_Ql")
+            comp.plot(mode="norm_Ql")
         self.assertEqual(comp._repr_png_(), None)
         comp.compute(positions)
-        comp.plot("Ql")
+        comp.plot(mode="Ql")
         comp.computeAve(positions)
-        comp.plot("ave_Ql")
+        comp.plot(mode="ave_Ql")
         comp.computeAveNorm(positions)
-        comp.plot("ave_norm_Ql")
+        comp.plot(mode="ave_norm_Ql")
         comp.computeNorm(positions)
-        comp.plot("norm_Ql")
+        comp.plot(mode="norm_Ql")
 
 
 if __name__ == '__main__':
