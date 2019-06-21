@@ -34,7 +34,9 @@ of _freud_.
 
 ## Base your work off the correct branch
 
-Bug fixes should be based on `maint`. New features should be based on `master`.
+Use the [OneFlow](https://www.endoflineblog.com/oneflow-a-git-branching-model-and-workflow) model of development:
+  * Both new features and bug fixes should be developed in branches based on `master`.
+  * Hotfixes (critical bugs that need to be released *fast*) should be developed in a branch based on the latest tagged release.
 
 ## Propose a single set of related changes
 
@@ -93,7 +95,7 @@ Include examples on using new functionality.
 
 ## Document version status
 
-Each user-facing python class, method, etc... with a docstring should have [versionadded, versionchanged, and
+Each user-facing Python class, method, etc... with a docstring should have [versionadded, versionchanged, and
 deprecated sphinx paragraphs](https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html#directive-versionadded) so that users will be aware of
 how functionality changes from version to version.
 
