@@ -10,16 +10,46 @@ from __future__ import print_function, division, absolute_import
 
 import numpy as np
 import freud.common
+import freud.parallel
+import logging
 
 from freud.common cimport Compute
 cimport freud.box
 cimport numpy as np
 
-# SciPy's FFT appears faster, so use it if available.
+
+logger = logging.getLogger(__name__)
+
+# Use fastest available fft library
 try:
-    from scipy.fftpack import fft, ifft
+    import pyfftw
+    logger.info("Using PyFFTW for FFTs")
+
+    pyfftw.config.NUM_THREADS = min(1, freud.parallel._numThreads)
+    logger.info("Setting number of threads to {}".format(
+        freud.parallel._numThreads))
+
+    # Note that currently these functions are defined to match only the parts
+    # of the numpy/scipy API that are actually used below. There is no promise
+    # that other aspects of the API will be preserved.
+    def fft(x, n, axis):
+        a = pyfftw.empty_aligned(x.shape, 'complex64')
+        a[:] = x
+        fft_object = pyfftw.builders.fft(a, n=n, axis=axis)
+        return fft_object()
+
+    def ifft(x, axis):
+        a = pyfftw.empty_aligned(x.shape, 'complex64')
+        a[:] = x
+        fft_object = pyfftw.builders.ifft(a, axis=axis)
+        return fft_object()
 except ImportError:
-    from numpy.fft import fft, ifft
+    try:
+        from scipy.fftpack import fft, ifft
+        logger.info("Using SciPy's fftpack for FFTs")
+    except ImportError:
+        from numpy.fft import fft, ifft
+        logger.info("Using NumPy for FFTs")
 
 
 def _autocorrelation(x):
@@ -62,6 +92,25 @@ cdef class MSD(Compute):
       perform this calculation efficiently, we use the algorithm described in
       [Calandrini2011]_ as described in `this StackOverflow thread
       <https://stackoverflow.com/questions/34222272/computing-mean-square-displacement-using-python-and-fft>`_.
+
+        .. note::
+            The most intensive part of this calculation is computing an FFT. To
+            maximize performance, freud attempts to use the fastest FFT library
+            available. By default, the order of preference is `pyFFTW
+            <https://github.com/pyFFTW/pyFFTW>`_, SciPy, and then NumPy. If you
+            are experiencing significant slowdowns in calculating the MSD, you
+            may benefit from installing a faster FFT library, which freud will
+            automatically detect. The performance change will be especially
+            noticeable if the length of your trajectory is a number whose prime
+            factorization consists of extremely large prime factors. The
+            standard Cooley-Tukey FFT algorithm performs very poorly in this
+            case, so installing pyFFTW will significantly improve performance.
+
+            Note that while pyFFTW is released under the BSD 3-Clause license,
+            the FFTW library is available under either GPL or a commercial
+            license. As a result, if you wish to use this module with pyFFTW in
+            code, your code must also be GPL licensed unless you purchase a
+            commercial license.
 
     * :code:`'direct'`:
       Under some circumstances, however, we may be more interested in
