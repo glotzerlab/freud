@@ -15,7 +15,6 @@ from __future__ import print_function
 import warnings
 import numpy as np
 from collections import namedtuple
-from functools import wraps
 import freud.common
 
 import logging
@@ -33,7 +32,6 @@ logger = logging.getLogger(__name__)
 # numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults
 np.import_array()
-
 
 cdef class Box:
     R"""The freud Box class for simulation boxes.
@@ -328,7 +326,7 @@ cdef class Box:
         cdef const float[:, ::1] l_points = vecs
         cdef unsigned int Np = l_points.shape[0]
         with nogil:
-            self.thisptr.wrapMany(<vec3[float]*> &l_points[0, 0], Np)
+            self.thisptr.wrap(<vec3[float]*> &l_points[0, 0], Np)
 
         return np.squeeze(vecs) if flatten else vecs
 

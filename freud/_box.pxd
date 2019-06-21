@@ -38,7 +38,7 @@ cdef extern from "Box.h" namespace "freud::box":
         void makeFraction(vec3[float]*, unsigned int) nogil except +
         void getImage(vec3[float]*, unsigned int, vec3[int]*) nogil except +
         vec3[float] getLatticeVector(unsigned int i) except +
-        void wrapMany(vec3[float]* vs, unsigned int Nv) nogil except +
+        void wrap(vec3[float]* vs, unsigned int Nv) nogil except +
         void unwrap(vec3[float]*, const vec3[int]*,
                     unsigned int) nogil except +
 

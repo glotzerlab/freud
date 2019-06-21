@@ -106,7 +106,7 @@ void ParticleBuffer::compute(const vec3<float>* points, const unsigned int Np, c
                         // fractional coordinates to see if the particles are
                         // inside the buffer box. Unexpected results may occur
                         // due to numerical imprecision in this check!
-                        vec3<float> buff_frac = m_buffer_box.makeFractionSingle(particle_image);
+                        vec3<float> buff_frac = m_buffer_box.makeFraction(particle_image);
                         if (0 <= buff_frac.x && buff_frac.x < 1 && 0 <= buff_frac.y && buff_frac.y < 1
                             && (is2D || (0 <= buff_frac.z && buff_frac.z < 1)))
                         {

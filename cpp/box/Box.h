@@ -189,7 +189,7 @@ public:
      *         parallelepipedal box
      *  \return A vector inside the box corresponding to f
      */
-    vec3<float> makeCoordinatesSingle(const vec3<float>& f) const
+    vec3<float> makeCoordinates(const vec3<float>& f) const
     {
         vec3<float> v = m_lo + f * m_L;
         v.x += m_xy * v.y + m_xz * v.z;
@@ -211,7 +211,7 @@ public:
         tbb::parallel_for(tbb::blocked_range<size_t>(0, Nvecs), [=](const tbb::blocked_range<size_t>& r) {
             for (size_t i = r.begin(); i < r.end(); ++i)
             {
-                vecs[i] = makeCoordinatesSingle(vecs[i]);
+                vecs[i] = makeCoordinates(vecs[i]);
             }
         });
     }
@@ -225,7 +225,7 @@ public:
      *  either direction, it will go larger than 1 or less than 0
      *  keeping the same scaling.
      */
-    vec3<float> makeFractionSingle(const vec3<float>& v,
+    vec3<float> makeFraction(const vec3<float>& v,
                              const vec3<float>& ghost_width = vec3<float>(0.0, 0.0, 0.0)) const
     {
         vec3<float> delta = v - m_lo;
@@ -245,7 +245,7 @@ public:
         tbb::parallel_for(tbb::blocked_range<size_t>(0, Nvecs), [=](const tbb::blocked_range<size_t>& r) {
             for (size_t i = r.begin(); i < r.end(); ++i)
             {
-                vecs[i] = makeFractionSingle(vecs[i]);
+                vecs[i] = makeFraction(vecs[i]);
             }
         });
     }
@@ -260,7 +260,7 @@ public:
         tbb::parallel_for(tbb::blocked_range<size_t>(0, Nvecs), [=](const tbb::blocked_range<size_t>& r) {
             for (size_t i = r.begin(); i < r.end(); ++i)
             {
-                vec3<float> f = makeFractionSingle(vecs[i]) - vec3<float>(0.5, 0.5, 0.5);
+                vec3<float> f = makeFraction(vecs[i]) - vec3<float>(0.5, 0.5, 0.5);
                 res[i].x = (int) ((f.x >= 0.0f) ? f.x + 0.5f : f.x - 0.5f);
                 res[i].y = (int) ((f.y >= 0.0f) ? f.y + 0.5f : f.y - 0.5f);
                 res[i].z = (int) ((f.z >= 0.0f) ? f.z + 0.5f : f.z - 0.5f);
@@ -274,7 +274,7 @@ public:
      */
     vec3<float> wrap(const vec3<float>& v) const
     {
-        vec3<float> tmp = makeFractionSingle(v);
+        vec3<float> tmp = makeFraction(v);
         tmp.x = fmod(tmp.x, 1.0f);
         tmp.y = fmod(tmp.y, 1.0f);
         tmp.z = fmod(tmp.z, 1.0f);
@@ -291,14 +291,14 @@ public:
         {
             tmp.z += 1;
         }
-        return makeCoordinatesSingle(tmp);
+        return makeCoordinates(tmp);
     }
 
     //! Wrap vectors back into the box in place
     /*! \param vecs Vectors to wrap, updated to the minimum image obeying the periodic settings
      *  \param Nvecs Number of vectors
      */
-    void wrapMany(vec3<float>* vecs, unsigned int Nvecs) const
+    void wrap(vec3<float>* vecs, unsigned int Nvecs) const
     {
         tbb::parallel_for(tbb::blocked_range<size_t>(0, Nvecs), [=](const tbb::blocked_range<size_t>& r) {
             for (size_t i = r.begin(); i < r.end(); ++i)
