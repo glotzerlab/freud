@@ -13,7 +13,7 @@ class TestVoronoi(unittest.TestCase):
         L = 10  # Box length
         N = 50  # Number of particles
         box = freud.box.Box.square(L)  # Initialize box
-        vor = freud.locality.Voronoi()
+        vor = freud.locality._Voronoi()
         np.random.seed(0)
         # Generate random points in the box
         positions = np.random.uniform(-L/2, L/2, size=(N, 2))
@@ -29,7 +29,7 @@ class TestVoronoi(unittest.TestCase):
         # Test that the voronoi polytope works for a 2D system
         L = 10  # Box length
         box = freud.box.Box.square(L)
-        vor = freud.locality.Voronoi()
+        vor = freud.locality._Voronoi()
         # Make a regular grid
         positions = np.array(
             [[0, 0, 0], [0, 1, 0], [0, 2, 0],
@@ -49,7 +49,7 @@ class TestVoronoi(unittest.TestCase):
         # Test that the voronoi polytope works for a 3D system
         L = 10  # Box length
         box = freud.box.Box.cube(L)
-        vor = freud.locality.Voronoi()
+        vor = freud.locality._Voronoi()
         # Make a regular grid
         positions = np.array(
             [[0, 0, 0], [0, 1, 0], [0, 2, 0],
@@ -87,7 +87,7 @@ class TestVoronoi(unittest.TestCase):
                               for i in range(int(L))
                               for j in range(int(L))
                               for k in range(int(L))]).astype(np.float32)
-        vor = freud.locality.Voronoi()
+        vor = freud.locality._Voronoi()
         vor.compute(box, positions, rbuf)
         nlist = vor.nlist
 
@@ -106,7 +106,7 @@ class TestVoronoi(unittest.TestCase):
         box, positions = util.make_fcc(nx=L, ny=L, nz=L)
         rbuf = np.max(box.L)/2
 
-        vor = freud.locality.Voronoi()
+        vor = freud.locality._Voronoi()
         vor.compute(box, positions, rbuf, False)
         nlist = vor.nlist
 
@@ -137,7 +137,7 @@ class TestVoronoi(unittest.TestCase):
         box = freud.box.Box.cube(L)  # Initialize box
         np.random.seed(0)
         points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
-        vor = freud.locality.Voronoi()
+        vor = freud.locality._Voronoi()
         vor.compute(
             box=box, positions=points, buffer=rbuf, images=False)
         nlist = vor.nlist
@@ -154,7 +154,7 @@ class TestVoronoi(unittest.TestCase):
         self.assertTrue(all((j, i) in jis for (i, j) in ijs))
 
     def test_repr(self):
-        vor = freud.locality.Voronoi()
+        vor = freud.locality._Voronoi()
         self.assertEqual(str(vor), str(eval(repr(vor))))
 
 

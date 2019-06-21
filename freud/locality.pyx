@@ -1378,7 +1378,7 @@ cdef class NearestNeighbors:
         return self._nlist
 
 
-cdef class Voronoi:
+cdef class _Voronoi:
     R"""Compute the Voronoi tessellation of a 2D or 3D system using qhull.
     This uses :class:`scipy.spatial.Voronoi`, accounting for periodic
     boundary conditions.
@@ -1458,7 +1458,7 @@ cdef class Voronoi:
             expanded_points = expanded_points[:, :2]
 
         # Use qhull to get the points
-        return qvoronoi(expanded_points), expanded_ids
+        return qvoronoi(expanded_points), expanded_ids, expanded_points
 
     def compute(self, box, positions, buffer=2, images=True):
         R"""Compute Voronoi diagram.
@@ -1483,7 +1483,7 @@ cdef class Voronoi:
         else:
             b = freud.common.convert_box(box)
 
-        voronoi, expanded_id = self._qhull_compute(
+        voronoi, expanded_id, expanded_point = self._qhull_compute(
             b, positions, buffer, images)
 
         vertices = voronoi.vertices
@@ -1511,6 +1511,9 @@ cdef class Voronoi:
         cdef const int[::1] expanded_ids = \
             np.asarray(expanded_id, dtype=np.int32)
 
+        cdef const double[:, ::1] expanded_points = \
+            np.asarray(expanded_point, dtype=np.float64)
+
         cdef const int[::1] ridge_vertex_indices = np.asarray(
             indices, dtype=np.int32)
 
@@ -1520,7 +1523,7 @@ cdef class Voronoi:
             <int*> &ridge_points[0, 0],
             <int*> &ridge_vertices[0],
             n_ridges, N,
-            <int*> &expanded_ids[0],
+            <int*> &expanded_ids[0], <vec3[double]*> &expanded_points[0, 0],
             <int*> &ridge_vertex_indices[0])
 
         cdef freud._locality.NeighborList * nlist

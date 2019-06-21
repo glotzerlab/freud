@@ -24,7 +24,7 @@ namespace freud { namespace locality {
 Voronoi::Voronoi()
 {}
 
-// A compare funtion feeding to tbb::parallel_sort to sort NeighborBonds
+// A compare function used to sort NeighborBonds
 bool compareNeighborPairs(const NeighborBond &n1, const NeighborBond &n2)
 {
     if (n1.index_i != n2.index_i)
@@ -43,18 +43,18 @@ typedef tbb::enumerable_thread_specific< std::vector<NeighborBond> > BondVector;
 void add_valid_bonds(BondVector::reference local_bonds,
     unsigned int i, unsigned int expanded_i,
     unsigned int j, unsigned int expanded_j,
-    unsigned int N, float weight)
+    unsigned int N, float weight, float distance)
 {
     // Make sure we only add bonds with real particles as the reference
-    if (i < N)
+    if (i < N && distance != 0)
     {
-        NeighborBond nb_ij(expanded_i, expanded_j, weight);
+        NeighborBond nb_ij(expanded_i, expanded_j, weight, distance);
         local_bonds.emplace_back(nb_ij);
     }
 
-    if (j < N)
+    if (j < N && distance != 0)
     {
-        NeighborBond nb_ji(expanded_j, expanded_i, weight);
+        NeighborBond nb_ji(expanded_j, expanded_i, weight, distance);
         local_bonds.emplace_back(nb_ji);
     }
 }
@@ -63,7 +63,8 @@ void add_valid_bonds(BondVector::reference local_bonds,
 // Any calculation related to vertices coords should also keep in double precision.
 void Voronoi::compute(const box::Box &box, const vec3<double>* vertices,
     const int* ridge_points, const int* ridge_vertices, unsigned int n_ridges,
-    unsigned int N, const int* expanded_ids, const int* ridge_vertex_indices)
+    unsigned int N, const int* expanded_ids, const vec3<double>* expanded_points,
+    const int* ridge_vertex_indices)
     {
         m_box = box;
 
@@ -75,6 +76,10 @@ void Voronoi::compute(const box::Box &box, const vec3<double>* vertices,
                 unsigned int i = ridge_points[2*ridge];
                 unsigned int j = ridge_points[2*ridge+1];
                 float weight = 0;
+
+                // compute distances bewteen two points
+                vec3<double> rij(expanded_points[j] - expanded_points[i]);
+                float distance = sqrt(dot(rij, rij));
 
                 // Reject bonds between two image particles
                 if (i >= N && j >= N)
@@ -91,7 +96,7 @@ void Voronoi::compute(const box::Box &box, const vec3<double>* vertices,
                 {
                     if (ridge_vertices[ridge_vert_id] == -1)
                     {
-                        add_valid_bonds(local_bonds, i, expanded_ids[i], j, expanded_ids[j], N, 0);
+                        add_valid_bonds(local_bonds, i, expanded_ids[i], j, expanded_ids[j], N, 0, distance);
                         weighted_bond = false;
                         break;
                     }
@@ -171,7 +176,7 @@ void Voronoi::compute(const box::Box &box, const vec3<double>* vertices,
                         // Project back to get the true area (which is the weight)
                         weight = std::abs(projected_area / c0_component);
                     }
-                    add_valid_bonds(local_bonds, i, expanded_ids[i], j, expanded_ids[j], N, weight);
+                    add_valid_bonds(local_bonds, i, expanded_ids[i], j, expanded_ids[j], N, weight, distance);
                 }
             }
 

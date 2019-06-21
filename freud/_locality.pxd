@@ -172,5 +172,6 @@ cdef extern from "Voronoi.h" namespace "freud::locality":
             unsigned int,
             unsigned int,
             const int*,
+            const vec3[double]*,
             const int*) nogil except +
         NeighborList * getNeighborList()

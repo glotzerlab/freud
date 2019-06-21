@@ -12,14 +12,15 @@ namespace freud { namespace locality {
 
 struct NeighborBond
 {
-    NeighborBond() : index_i(0), index_j(0), weight(0) {}
+    NeighborBond() : index_i(0), index_j(0), weight(0), distance(0) {}
 
-    NeighborBond(unsigned int index_i, unsigned int index_j, float w) :
-        index_i(index_i), index_j(index_j), weight(w) {}
+    NeighborBond(unsigned int index_i, unsigned int index_j, float w, float d) :
+        index_i(index_i), index_j(index_j), weight(w), distance(d) {}
 
     unsigned int index_i;     //! The point id.
     unsigned int index_j;     //! The reference point id.
     float weight;             //! The weight of this bond.
+    float distance;           //! The distance bewteen the points.
 };
 
 class Voronoi
@@ -31,7 +32,7 @@ class Voronoi
         void compute(const box::Box &box, const vec3<double>* vertices,
             const int* ridge_points, const int* ridge_vertices,
             unsigned int n_ridges, unsigned int N, const int* expanded_ids,
-            const int* ridge_vertex_indices);
+            const vec3<double>* expanded_points, const int* ridge_vertex_indices);
 
         NeighborList *getNeighborList()
         {
