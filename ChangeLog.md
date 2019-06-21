@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 * Removed extra C++ includes to speed up builds.
 * The C++ style is now based on clang-format.
+* Refactored C++ handling of thread-local storage.
 
 ### Fixed
 * Calling setNumThreads works correctly even if a parallel compute method has already been called.

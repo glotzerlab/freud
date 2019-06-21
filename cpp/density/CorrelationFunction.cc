@@ -49,20 +49,8 @@ CorrelationFunction<T>::CorrelationFunction(float rmax, float dr)
         float nextr = float(i + 1) * m_dr;
         m_r_array.get()[i] = 2.0f / 3.0f * (nextr * nextr * nextr - r * r * r) / (nextr * nextr - r * r);
     }
-}
-
-template<typename T> CorrelationFunction<T>::~CorrelationFunction()
-{
-    for (tbb::enumerable_thread_specific<unsigned int*>::iterator i = m_local_bin_counts.begin();
-         i != m_local_bin_counts.end(); ++i)
-    {
-        delete[](*i);
-    }
-    for (typename tbb::enumerable_thread_specific<T*>::iterator i = m_local_rdf_array.begin();
-         i != m_local_rdf_array.end(); ++i)
-    {
-        delete[](*i);
-    }
+    m_local_bin_counts.resize(m_nbins);
+    m_local_rdf_array.resize(m_nbins);
 }
 
 //! \internal
@@ -76,13 +64,13 @@ template<typename T> void CorrelationFunction<T>::reduceCorrelationFunction()
     parallel_for(tbb::blocked_range<size_t>(0, m_nbins), [=](const blocked_range<size_t>& r) {
         for (size_t i = r.begin(); i != r.end(); i++)
         {
-            for (tbb::enumerable_thread_specific<unsigned int*>::const_iterator local_bins
+            for (util::ThreadStorage<unsigned int>::const_iterator local_bins
                  = m_local_bin_counts.begin();
                  local_bins != m_local_bin_counts.end(); ++local_bins)
             {
                 m_bin_counts.get()[i] += (*local_bins)[i];
             }
-            for (typename tbb::enumerable_thread_specific<T*>::const_iterator local_rdf
+            for (typename util::ThreadStorage<T>::const_iterator local_rdf
                  = m_local_rdf_array.begin();
                  local_rdf != m_local_rdf_array.end(); ++local_rdf)
             {
@@ -113,16 +101,8 @@ template<typename T> std::shared_ptr<T> CorrelationFunction<T>::getRDF()
 template<typename T> void CorrelationFunction<T>::reset()
 {
     // zero the bin counts for totaling
-    for (tbb::enumerable_thread_specific<unsigned int*>::iterator i = m_local_bin_counts.begin();
-         i != m_local_bin_counts.end(); ++i)
-    {
-        memset((void*) (*i), 0, sizeof(unsigned int) * m_nbins);
-    }
-    for (typename tbb::enumerable_thread_specific<T*>::iterator i = m_local_rdf_array.begin();
-         i != m_local_rdf_array.end(); ++i)
-    {
-        memset((void*) (*i), 0, sizeof(T) * m_nbins);
-    }
+    m_local_rdf_array.reset();
+    m_local_bin_counts.reset();
     // reset the frame counter
     m_frame_counter = 0;
     m_reduce = true;
@@ -147,22 +127,6 @@ void CorrelationFunction<T>::accumulate(const box::Box& box, const freud::locali
         float dr_inv = 1.0f / m_dr;
         float rmaxsq = m_rmax * m_rmax;
         const size_t* neighbor_list(nlist->getNeighbors());
-
-        bool bin_exists;
-        m_local_bin_counts.local(bin_exists);
-        if (!bin_exists)
-        {
-            m_local_bin_counts.local() = new unsigned int[m_nbins];
-            memset((void*) m_local_bin_counts.local(), 0, sizeof(unsigned int) * m_nbins);
-        }
-
-        bool rdf_exists;
-        m_local_rdf_array.local(rdf_exists);
-        if (!rdf_exists)
-        {
-            m_local_rdf_array.local() = new T[m_nbins];
-            memset((void*) m_local_rdf_array.local(), 0, sizeof(T) * m_nbins);
-        }
 
         size_t bond(nlist->find_first_index(r.begin()));
         // for each reference point
