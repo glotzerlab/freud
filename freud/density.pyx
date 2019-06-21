@@ -559,13 +559,13 @@ cdef class GaussianDensity(Compute):
 
     def __repr__(self):
         if len(self.arglist) == 3:
-            return ("freud.density.{cls}({width}, " +
+            return ("freud.density.{cls}({width}, "
                     "{r_cut}, {sigma})").format(cls=type(self).__name__,
                                                 width=self.arglist[0],
                                                 r_cut=self.arglist[1],
                                                 sigma=self.arglist[2])
         elif len(self.arglist) == 5:
-            return ("freud.density.{cls}({width_x}, {width_y}, {width_z}, " +
+            return ("freud.density.{cls}({width_x}, {width_y}, {width_z}, "
                     "{r_cut}, {sigma})").format(cls=type(self).__name__,
                                                 width_x=self.arglist[0],
                                                 width_y=self.arglist[1],
@@ -709,7 +709,7 @@ cdef class LocalDensity(Compute):
         return np.asarray(num_neighbors)
 
     def __repr__(self):
-        return ("freud.density.{cls}(r_cut={r_cut}, volume={volume}, " +
+        return ("freud.density.{cls}(r_cut={r_cut}, volume={volume}, "
                 "diameter={diameter})").format(cls=type(self).__name__,
                                                r_cut=self.r_cut,
                                                volume=self.volume,
@@ -874,7 +874,7 @@ cdef class RDF(Compute):
         return np.asarray(n_r)
 
     def __repr__(self):
-        return ("freud.density.{cls}(rmax={rmax}, dr={dr}, " +
+        return ("freud.density.{cls}(rmax={rmax}, dr={dr}, "
                 "rmin={rmin})").format(cls=type(self).__name__,
                                        rmax=self.rmax,
                                        dr=self.dr,

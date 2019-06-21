@@ -12,10 +12,6 @@ freud.egg-info
 __pycache__
 build
 dist
-cpp/CMakeLists.txt.orig
-cpp/module.cc.orig
-py/freud/__init__.py.orig
-py/freud/trajectory.py.orig
 doc/build/*
 doc/_build/*
 *.so

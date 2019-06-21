@@ -1,9 +1,7 @@
 import numpy as np
 import numpy.testing as npt
 import freud
-import warnings
 import unittest
-import os
 
 
 class TestLD(unittest.TestCase):
