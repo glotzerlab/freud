@@ -246,47 +246,49 @@ void SolLiq::computeClustersQdotNoNorm(const locality::NeighborList* nlist, cons
     float rmaxsq = m_rmax * m_rmax;
     unsigned int elements = 2 * m_l + 1;
 
-    size_t bond(0);
-
     // for each point
-    for (unsigned int i = 0; i < Np; i++)
-    {
-        vec3<float> p = points[i];
+    tbb::parallel_for(tbb::blocked_range<size_t>(0, Np), [=](const tbb::blocked_range<size_t>& r) {
+      size_t bond(nlist->find_first_index(r.begin()));
+      for (size_t i = r.begin(); i != r.end(); i++)
+      {
+          vec3<float> p = points[i];
 
-        for (; bond < nlist->getNumBonds() && neighbor_list[2 * bond] == i; ++bond)
-        {
-            const size_t j(neighbor_list[2 * bond + 1]);
-            {
-                if (i < j)
-                {
-                    // compute r between the two particles
-                    vec3<float> delta = m_box.wrap(p - points[j]);
-                    float rsq = dot(delta, delta);
+          for (; bond < nlist->getNumBonds() && neighbor_list[2 * bond] == i; ++bond)
+          {
+              const size_t j(neighbor_list[2 * bond + 1]);
+              {
+                  if (i < j)
+                  {
+                      // compute r between the two particles
+                      vec3<float> delta = m_box.wrap(p - points[j]);
+                      float rsq = dot(delta, delta);
 
-                    if (rsq < rmaxsq) // Check distance for candidate i,j
-                    {
-                        // Calc Q dotproduct.
-                        std::complex<float> Qdot(0.0, 0.0);
-                        for (unsigned int k = 0; k < (elements); ++k) // loop over m
-                        {
-                            // Index here?
-                            Qdot += m_Qlmi_array.get()[(elements) *i + k]
-                                * conj(m_Qlmi_array.get()[(elements) *j + k]);
-                        }
-                        m_qldot_ij.push_back(Qdot); // Only i < j, other pairs not added.
-                        // Check if we're bonded via the threshold criterion
-                        if (real(Qdot) > m_Qthreshold)
-                        {
-                            // Tick up counts of number of connections these particles
-                            // have
-                            m_number_of_connections.get()[i]++;
-                            m_number_of_connections.get()[j]++;
-                        }
-                    }
-                }
-            }
-        }
-    }
+                      if (rsq < rmaxsq) // Check distance for candidate i,j
+                      {
+                          // Calc Q dotproduct.
+                          std::complex<float> Qdot(0.0, 0.0);
+                          for (unsigned int k = 0; k < (elements); ++k) // loop over m
+                          {
+                              // Index here?
+                              Qdot += m_Qlmi_array.get()[(elements) *i + k]
+                                  * conj(m_Qlmi_array.get()[(elements) *j + k]);
+                          }
+                          m_qldot_ij[bond] = Qdot;
+                          //
+                          // Check if we're bonded via the threshold criterion
+                          if (real(Qdot) > m_Qthreshold)
+                          {
+                              // Tick up counts of number of connections these particles
+                              // have
+                              m_number_of_connections.get()[i]++;
+                              m_number_of_connections.get()[j]++;
+                          }
+                      }
+                  }
+              }
+          }
+      }
+   });
 }
 
 // Computes the clusters for sol-liq order parameter by using the Sthreshold.
