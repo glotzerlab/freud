@@ -4,6 +4,7 @@
 #include <cstring>
 #include <functional>
 #include <map>
+#include <tbb/tbb.h>
 
 #include "SolLiq.h"
 
@@ -105,47 +106,51 @@ void SolLiq::computeClustersQ(const locality::NeighborList* nlist, const vec3<fl
     memset((void*) m_Qlmi_array.get(), 0, sizeof(complex<float>) * (2 * m_l + 1) * Np);
     memset((void*) m_number_of_neighbors.get(), 0, sizeof(unsigned int) * Np);
 
-    std::vector<std::complex<float>> Y;
-    Y.resize(2 * m_l + 1);
+    tbb::parallel_for(tbb::blocked_range<size_t>(0, Np), [=](const tbb::blocked_range<size_t>& r) {
 
-    size_t bond(0);
+      std::vector<std::complex<float>> Y;
+      Y.resize(2 * m_l + 1);
 
-    for (unsigned int i = 0; i < Np; i++)
-    {
-        // Get cell point is in
-        vec3<float> ref = points[i];
+      size_t bond(nlist->find_first_index(r.begin()));
+      for (size_t i = r.begin(); i != r.end(); i++)
+      {
+          // Get cell point is in
+          vec3<float> ref = points[i];
 
-        for (; bond < nlist->getNumBonds() && neighbor_list[2 * bond] == i; ++bond)
-        {
-            const size_t j(neighbor_list[2 * bond + 1]);
-            {
-                vec3<float> delta = m_box.wrap(points[j] - ref);
-                float rsq = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
+          for (; bond < nlist->getNumBonds() && neighbor_list[2 * bond] == i; ++bond)
+          {
+              const size_t j(neighbor_list[2 * bond + 1]);
+              {
+                  vec3<float> delta = m_box.wrap(points[j] - ref);
+                  float rsq = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
 
-                if (rsq < rmaxsq && i != j)
-                {
-                    float phi = atan2(delta.y, delta.x);     // 0..2Pi
-                    float theta = acos(delta.z / sqrt(rsq)); // 0..Pi
+                  if (rsq < rmaxsq && i != j)
+                  {
+                      float phi = atan2(delta.y, delta.x);     // 0..2Pi
+                      float theta = acos(delta.z / sqrt(rsq)); // 0..Pi
 
-                    SolLiq::Ylm(theta, phi, Y);
+                      SolLiq::Ylm(theta, phi, Y);
 
-                    for (unsigned int k = 0; k < (2 * m_l + 1); ++k)
-                    {
-                        m_Qlmi_array.get()[(2 * m_l + 1) * i + k] += Y[k];
-                    }
-                    m_number_of_neighbors.get()[i]++;
-                }
-            } // End loop over a particular neighbor cell
-        }     // End loops of neighboring cells
-        // if (m_number_of_neighbors[i] != 0)
-        //    {
-        //    for (unsigned int k = 0; k < (2*m_l+1); ++k)
-        //        {
-        //        m_Qlmi_array[(2*m_l+1)*i+k]/=m_number_of_neighbors[i];
-        //        }
-        //    }
-    } // Ends loop over particles i for Qlmi calcs
+                      for (unsigned int k = 0; k < (2 * m_l + 1); ++k)
+                      {
+                          m_Qlmi_array.get()[(2 * m_l + 1) * i + k] += Y[k];
+                      }
+                      m_number_of_neighbors.get()[i]++;
+                  }
+              } // End loop over a particular neighbor cell
+          }     // End loops of neighboring cells
+          // if (m_number_of_neighbors[i] != 0)
+          //    {
+          //    for (unsigned int k = 0; k < (2*m_l+1); ++k)
+          //        {
+          //        m_Qlmi_array[(2*m_l+1)*i+k]/=m_number_of_neighbors[i];
+          //        }
+          //    }
+      } // Ends loop over particles i for Qlmi calcs
+    });
 }
+
+
 
 // Initializes Q6lmi, and number of solid-like neighbors per particle.
 void SolLiq::computeClustersQdot(const locality::NeighborList* nlist, const vec3<float>* points,
