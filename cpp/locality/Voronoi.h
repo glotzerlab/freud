@@ -25,23 +25,23 @@ struct NeighborBond
 
 class Voronoi
 {
-    public:
-        // default constructor
-        Voronoi();
+public:
+    // default constructor
+    Voronoi();
 
-        void compute(const box::Box &box, const vec3<double>* vertices,
-            const int* ridge_points, const int* ridge_vertices,
-            unsigned int n_ridges, unsigned int N, const int* expanded_ids,
-            const vec3<double>* expanded_points, const int* ridge_vertex_indices);
+    void compute(const box::Box &box, const vec3<double>* vertices,
+        const int* ridge_points, const int* ridge_vertices,
+        unsigned int n_ridges, unsigned int N, const int* expanded_ids,
+        const vec3<double>* expanded_points, const int* ridge_vertex_indices);
 
-        NeighborList *getNeighborList()
-        {
-            return &m_neighbor_list;
-        }
+    NeighborList *getNeighborList()
+    {
+        return &m_neighbor_list;
+    }
 
-    private:
-        box::Box m_box;
-        NeighborList m_neighbor_list; //!< Stored neighbor list
+private:
+    box::Box m_box;
+    NeighborList m_neighbor_list; //!< Stored neighbor list
 
 };
 }; }; // end namespace freud::locality
