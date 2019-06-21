@@ -106,6 +106,12 @@ cdef class MSD(Compute):
             standard Cooley-Tukey FFT algorithm performs very poorly in this
             case, so installing pyFFTW will significantly improve performance.
 
+            Note that while pyFFTW is released under the BSD 3-Clause license,
+            the FFTW library is available under either GPL or a commercial
+            license. As a result, if you wish to use this module with pyFFTW in
+            code, your code must also be GPL licensed unless you purchase a
+            commercial license.
+
     * :code:`'direct'`:
       Under some circumstances, however, we may be more interested in
       calculating a different quantity described by
