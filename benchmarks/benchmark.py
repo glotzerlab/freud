@@ -118,7 +118,7 @@ class Benchmark(object):
         timer = self.setup_timer(N, num_threads)
 
         # Run benchmark
-        t = min(timer.repeat(repeat, number))
+        t = numpy.median(timer.repeat(repeat, number))
 
         # Save results for later summarization
         self._N = N
