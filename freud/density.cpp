@@ -48,11 +48,11 @@
         "name": "freud.density",
         "sources": [
             "freud/density.pyx",
-            "cpp/density/LocalDensity.cc",
-            "cpp/density/GaussianDensity.cc",
+            "cpp/locality/NeighborList.cc",
             "cpp/density/CorrelationFunction.cc",
             "cpp/density/RDF.cc",
-            "cpp/locality/NeighborList.cc"
+            "cpp/density/LocalDensity.cc",
+            "cpp/density/GaussianDensity.cc"
         ]
     },
     "module_name": "freud.density"

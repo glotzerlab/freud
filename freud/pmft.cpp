@@ -49,12 +49,12 @@
         "name": "freud.pmft",
         "sources": [
             "freud/pmft.pyx",
-            "cpp/pmft/PMFT.cc",
-            "cpp/pmft/PMFTXYZ.cc",
+            "cpp/locality/NeighborList.cc",
             "cpp/pmft/PMFTXYT.cc",
-            "cpp/pmft/PMFTXY2D.cc",
+            "cpp/pmft/PMFTXYZ.cc",
+            "cpp/pmft/PMFT.cc",
             "cpp/pmft/PMFTR12.cc",
-            "cpp/locality/NeighborList.cc"
+            "cpp/pmft/PMFTXY2D.cc"
         ]
     },
     "module_name": "freud.pmft"
