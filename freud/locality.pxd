@@ -117,4 +117,3 @@ cdef class AABBQueryResult(NeighborQueryResult):
         obj.scale = scale
 
         return obj
-

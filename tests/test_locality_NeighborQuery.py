@@ -23,6 +23,10 @@ def get_point_neighbors(nl, i):
     return {x[0] for x in nl if x[1] == i}
 
 
+def nlist_equal(nlist1, nlist2):
+    return set((i, j) for i, j in nlist1) == set((i, j) for i, j in nlist2)
+
+
 class TestNeighborQuery(object):
     @classmethod
     def build_query_object(cls, box, ref_points, rcut=None):
@@ -485,10 +489,10 @@ class TestNeighborQueryAABB(TestNeighborQuery, unittest.TestCase):
         seed = 0
         np.random.seed(seed)
         points = np.random.uniform(-L/2, L/2, (N, 3))
-        nlist1 = freud.locality.AABBQuery(box, points).queryBall(points, rcut, exclude_ii=True).toNList()
+        nlist1 = freud.locality.AABBQuery(box, points).queryBall(points, rcut, exclude_ii=True).toNList() # noqa
         abq = freud.locality.AABBQuery(box, points)
         nlist2 = abq.queryBall(points, rcut, exclude_ii=True).toNList()
-        self.assertEqual(set((i, j) for i, j in nlist1), set((i, j) for i, j in nlist2))
+        self.assertEqual(nlist_equal(nlist1, nlist2))
 
 
 class TestNeighborQueryLinkCell(TestNeighborQuery, unittest.TestCase):
@@ -520,10 +524,10 @@ class TestNeighborQueryLinkCell(TestNeighborQuery, unittest.TestCase):
         seed = 0
         np.random.seed(seed)
         points = np.random.uniform(-L/2, L/2, (N, 3))
-        nlist1 = freud.locality.LinkCell(box, 1.0, points).queryBall(points, rcut, exclude_ii=True).toNList()
+        nlist1 = freud.locality.LinkCell(box, 1.0, points).queryBall(points, rcut, exclude_ii=True).toNList() # noqa
         lc = freud.locality.LinkCell(box, 1.0, points)
         nlist2 = lc.queryBall(points, rcut, exclude_ii=True).toNList()
-        self.assertEqual(set((i, j) for i, j in nlist1), set((i, j) for i, j in nlist2))
+        self.assertEqual(nlist_equal(nlist1, nlist2))
 
 
 if __name__ == '__main__':
