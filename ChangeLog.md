@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 * `AttributeError` is raised when one tries to access an attribute that has not yet been computed.
+* Added `.plot()` method and IPython/Jupyter PNG representations for many classes.
 
 ### Changed
 * Removed extra C++ includes to speed up builds.
