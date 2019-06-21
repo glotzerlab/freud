@@ -490,7 +490,7 @@ class TestNeighborQueryAABB(TestNeighborQuery, unittest.TestCase):
         nlist1 = freud.locality.AABBQuery(box, points).queryBall(points, rcut, exclude_ii=True).toNList() # noqa
         abq = freud.locality.AABBQuery(box, points)
         nlist2 = abq.queryBall(points, rcut, exclude_ii=True).toNList()
-        self.assertEqual(nlist_equal(nlist1, nlist2))
+        self.assertTrue(nlist_equal(nlist1, nlist2))
 
 
 class TestNeighborQueryLinkCell(TestNeighborQuery, unittest.TestCase):
@@ -525,7 +525,7 @@ class TestNeighborQueryLinkCell(TestNeighborQuery, unittest.TestCase):
         nlist1 = freud.locality.LinkCell(box, 1.0, points).queryBall(points, rcut, exclude_ii=True).toNList() # noqa
         lc = freud.locality.LinkCell(box, 1.0, points)
         nlist2 = lc.queryBall(points, rcut, exclude_ii=True).toNList()
-        self.assertEqual(nlist_equal(nlist1, nlist2))
+        self.assertTrue(nlist_equal(nlist1, nlist2))
 
 
 if __name__ == '__main__':
