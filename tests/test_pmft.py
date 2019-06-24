@@ -348,11 +348,11 @@ class TestPMFTXYT(unittest.TestCase):
         absoluteTolerance = 0.1
 
         myPMFT = freud.pmft.PMFTXYT(maxX, maxY, nbinsX, nbinsY, nbinsT)
-        myPMFT.accumulate(box, points, angles, points, angles)
+        myPMFT.accumulate(box, points, angles)
         npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
                             atol=absoluteTolerance)
         myPMFT.reset()
-        myPMFT.compute(box, points, angles, points, angles)
+        myPMFT.compute(box, points, angles)
         npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
                             atol=absoluteTolerance)
 
@@ -706,11 +706,11 @@ class TestPMFTXYZ(unittest.TestCase):
         absoluteTolerance = 0.1
 
         myPMFT = freud.pmft.PMFTXYZ(maxX, maxY, maxZ, nbinsX, nbinsY, nbinsZ)
-        myPMFT.accumulate(box, points, orientations, points, orientations)
+        myPMFT.accumulate(box, points, orientations)
         npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
                             atol=absoluteTolerance)
         myPMFT.reset()
-        myPMFT.compute(box, points, orientations, points, orientations)
+        myPMFT.compute(box, points, orientations)
         npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
                             atol=absoluteTolerance)
 
@@ -747,7 +747,7 @@ class TestPMFTXYZ(unittest.TestCase):
 
         for pm in [noshift, shift]:
             pm.compute(freud.box.Box.cube(3), points, orientations,
-                       points, orientations, face_orientations=None)
+                       face_orientations=None)
 
         # Ignore warnings about NaNs
         warnings.simplefilter("ignore", category=RuntimeWarning)

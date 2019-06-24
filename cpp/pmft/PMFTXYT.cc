@@ -176,10 +176,6 @@ void PMFTXYT::accumulate(box::Box& box, const locality::NeighborList* nlist, vec
                     vec3<float> delta = m_box.wrap(points[j] - ref);
 
                     float rsq = dot(delta, delta);
-                    if (rsq < 1e-6)
-                    {
-                        continue;
-                    }
                     // rotate interparticle vector
                     vec2<float> myVec(delta.x, delta.y);
                     rotmat2<float> myMat = rotmat2<float>::fromAngle(-ref_orientations[i]);
