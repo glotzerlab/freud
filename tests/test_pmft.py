@@ -508,11 +508,11 @@ class TestPMFTXY2D(unittest.TestCase):
         absoluteTolerance = 0.1
 
         myPMFT = freud.pmft.PMFTXY2D(maxX, maxY, nbinsX, nbinsY)
-        myPMFT.accumulate(box, points, angles, points, angles)
+        myPMFT.accumulate(box, points, angles)
         npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
                             atol=absoluteTolerance)
         myPMFT.reset()
-        myPMFT.compute(box, points, angles, points, angles)
+        myPMFT.compute(box, points, angles)
         npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
                             atol=absoluteTolerance)
 

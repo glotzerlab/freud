@@ -660,6 +660,8 @@ cdef class PMFTXY2D(_PMFT):
         """  # noqa: E501
         cdef freud.box.Box b = freud.common.convert_box(box)
 
+        exclude_ii = points is None
+
         if not b.dimensions == 2:
             raise ValueError("Your box must be 2-dimensional!")
 
@@ -679,7 +681,7 @@ cdef class PMFTXY2D(_PMFT):
             orientations.squeeze(), shape=(points.shape[0], ))
 
         defaulted_nlist = freud.locality.make_default_nlist(
-            b, ref_points, points, self.rmax, nlist, None)
+            b, ref_points, points, self.rmax, nlist, exclude_ii)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         cdef const float[:, ::1] l_ref_points = ref_points
