@@ -187,67 +187,64 @@ void BondOrder::accumulate(box::Box& box, const freud::locality::NeighborList* n
                 vec3<float> delta = m_box.wrap(points[j] - ref_pos);
 
                 float rsq = dot(delta, delta);
-                if (rsq > 1e-6)
+                quat<float> q(orientations[j]);
+                vec3<float> v(delta);
+                if (b_mode == obcd)
                 {
-                    quat<float> q(orientations[j]);
-                    vec3<float> v(delta);
-                    if (b_mode == obcd)
-                    {
-                        // give bond directions of neighboring particles rotated by the matrix
-                        // that takes the orientation of particle j to the orientation of
-                        // particle i.
-                        v = rotate(conj(ref_q), v);
-                        v = rotate(q, v);
-                    }
-                    else if (b_mode == lbod)
-                    {
-                        // give bond directions of neighboring particles rotated into the
-                        // local orientation of the central particle.
-                        v = rotate(conj(ref_q), v);
-                    }
-                    else if (b_mode == oocd)
-                    {
-                        // give the directors of neighboring particles rotated into the local
-                        // orientation of the central particle. pick a (random vector)
-                        vec3<float> z(0, 0, 1);
-                        // rotate that vector by the orientation of the neighboring particle
-                        z = rotate(q, z);
-                        // get the direction of this vector with respect to the orientation of
-                        // the central particle
-                        v = rotate(conj(ref_q), z);
-                    }
+                    // give bond directions of neighboring particles rotated by the matrix
+                    // that takes the orientation of particle j to the orientation of
+                    // particle i.
+                    v = rotate(conj(ref_q), v);
+                    v = rotate(q, v);
+                }
+                else if (b_mode == lbod)
+                {
+                    // give bond directions of neighboring particles rotated into the
+                    // local orientation of the central particle.
+                    v = rotate(conj(ref_q), v);
+                }
+                else if (b_mode == oocd)
+                {
+                    // give the directors of neighboring particles rotated into the local
+                    // orientation of the central particle. pick a (random vector)
+                    vec3<float> z(0, 0, 1);
+                    // rotate that vector by the orientation of the neighboring particle
+                    z = rotate(q, z);
+                    // get the direction of this vector with respect to the orientation of
+                    // the central particle
+                    v = rotate(conj(ref_q), z);
+                }
 
-                    // NOTE that angles are defined in the "mathematical" way, rather than how
-                    // most physics textbooks do it. get theta (azimuthal angle), phi (polar
-                    // angle)
-                    float theta = atan2f(v.y, v.x); //-Pi..Pi
+                // NOTE that angles are defined in the "mathematical" way, rather than how
+                // most physics textbooks do it. get theta (azimuthal angle), phi (polar
+                // angle)
+                float theta = atan2f(v.y, v.x); //-Pi..Pi
 
-                    theta = fmod(theta, 2 * M_PI);
-                    if (theta < 0)
-                    {
-                        theta += 2 * M_PI;
-                    }
+                theta = fmod(theta, 2 * M_PI);
+                if (theta < 0)
+                {
+                    theta += 2 * M_PI;
+                }
 
-                    // NOTE that the below has replaced the commented out expression for phi.
-                    float phi = acos(v.z / sqrt(v.x * v.x + v.y * v.y + v.z * v.z)); // 0..Pi
+                // NOTE that the below has replaced the commented out expression for phi.
+                float phi = acos(v.z / sqrt(v.x * v.x + v.y * v.y + v.z * v.z)); // 0..Pi
 
-                    // bin the point
-                    float bint = floorf(theta * dt_inv);
-                    float binp = floorf(phi * dp_inv);
+                // bin the point
+                float bint = floorf(theta * dt_inv);
+                float binp = floorf(phi * dp_inv);
 // fast float to int conversion with truncation
 #ifdef __SSE2__
-                    unsigned int ibint = _mm_cvtt_ss2si(_mm_load_ss(&bint));
-                    unsigned int ibinp = _mm_cvtt_ss2si(_mm_load_ss(&binp));
+                unsigned int ibint = _mm_cvtt_ss2si(_mm_load_ss(&bint));
+                unsigned int ibinp = _mm_cvtt_ss2si(_mm_load_ss(&binp));
 #else
-                        unsigned int ibint = (unsigned int)(bint);
-                        unsigned int ibinp = (unsigned int)(binp);
+                    unsigned int ibint = (unsigned int)(bint);
+                    unsigned int ibinp = (unsigned int)(binp);
 #endif
 
-                    // increment the bin
-                    if ((ibint < m_nbins_t) && (ibinp < m_nbins_p))
-                    {
-                        ++m_local_bin_counts.local()[sa_i(ibint, ibinp)];
-                    }
+                // increment the bin
+                if ((ibint < m_nbins_t) && (ibinp < m_nbins_p))
+                {
+                    ++m_local_bin_counts.local()[sa_i(ibint, ibinp)];
                 }
             }
         }
