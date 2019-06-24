@@ -82,6 +82,8 @@ PMFTXYT::PMFTXYT(float x_max, float y_max, unsigned int n_x, unsigned int n_y, u
 
     // Set r_cut
     m_r_cut = sqrtf(m_x_max * m_x_max + m_y_max * m_y_max);
+
+    m_local_bin_counts.resize(m_n_x * m_n_y * m_n_t);
 }
 
 //! \internal
@@ -98,7 +100,7 @@ void PMFTXYT::reducePCF()
             {
                 for (size_t k = 0; k < m_n_t; k++)
                 {
-                    for (tbb::enumerable_thread_specific<unsigned int*>::const_iterator local_bins
+                    for (util::ThreadStorage<unsigned int>::const_iterator local_bins
                          = m_local_bin_counts.begin();
                          local_bins != m_local_bin_counts.end(); ++local_bins)
                     {
@@ -123,11 +125,7 @@ void PMFTXYT::reducePCF()
 
 void PMFTXYT::reset()
 {
-    for (tbb::enumerable_thread_specific<unsigned int*>::iterator i = m_local_bin_counts.begin();
-         i != m_local_bin_counts.end(); ++i)
-    {
-        memset((void*) (*i), 0, sizeof(unsigned int) * m_n_x * m_n_y * m_n_t);
-    }
+    m_local_bin_counts.reset();
     this->m_frame_counter = 0;
     this->m_reduce = true;
 }
@@ -153,14 +151,6 @@ void PMFTXYT::accumulate(box::Box& box, const locality::NeighborList* nlist, vec
         float dt_inv = 1.0f / m_dt;
 
         Index3D b_i = Index3D(m_n_x, m_n_y, m_n_t);
-
-        bool exists;
-        m_local_bin_counts.local(exists);
-        if (!exists)
-        {
-            m_local_bin_counts.local() = new unsigned int[m_n_x * m_n_y * m_n_t];
-            memset((void*) m_local_bin_counts.local(), 0, sizeof(unsigned int) * m_n_x * m_n_y * m_n_t);
-        }
 
         size_t bond(nlist->find_first_index(r.begin()));
 
