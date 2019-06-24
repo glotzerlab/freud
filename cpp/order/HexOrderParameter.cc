@@ -53,13 +53,12 @@ void HexOrderParameter::compute(box::Box& box, const freud::locality::NeighborLi
                 vec3<float> delta = m_box.wrap(points[j] - ref);
 
                 float rsq = dot(delta, delta);
-                if (rsq > 1e-6)
-                {
+
                     // Compute psi for neighboring particle
                     // (only constructed for 2d)
                     float psi_ij = atan2f(delta.y, delta.x);
                     m_psi_array.get()[i] += exp(complex<float>(0, m_k * psi_ij));
-                }
+
             }
             m_psi_array.get()[i] /= complex<float>(m_k);
         }
