@@ -105,21 +105,18 @@ void Cluster::computeClusters(const box::Box& box, const freud::locality::Neighb
         {
             const size_t j(neighbor_list[2 * bond + 1]);
             {
-                if (i != j)
-                {
-                    // compute r between the two particles
-                    vec3<float> delta = p - points[j];
-                    delta = box.wrap(delta);
+                // compute r between the two particles
+                vec3<float> delta = p - points[j];
+                delta = box.wrap(delta);
 
-                    float rsq = dot(delta, delta);
-                    if (rsq < rmaxsq)
-                    {
-                        // merge the two sets using the disjoint set
-                        uint32_t a = dj.find(i);
-                        uint32_t b = dj.find(j);
-                        if (a != b)
-                            dj.merge(a, b);
-                    }
+                float rsq = dot(delta, delta);
+                if (rsq < rmaxsq)
+                {
+                    // merge the two sets using the disjoint set
+                    uint32_t a = dj.find(i);
+                    uint32_t b = dj.find(j);
+                    if (a != b)
+                        dj.merge(a, b);
                 }
             }
         }
