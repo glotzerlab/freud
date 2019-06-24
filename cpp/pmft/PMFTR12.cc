@@ -191,10 +191,6 @@ void PMFTR12::accumulate(box::Box& box, const locality::NeighborList* nlist, vec
                     vec3<float> delta = m_box.wrap(points[j] - ref);
 
                     float rsq = dot(delta, delta);
-                    if (rsq < 1e-6)
-                    {
-                        continue;
-                    }
                     if (rsq < maxrsq)
                     {
                         float r = sqrtf(rsq);

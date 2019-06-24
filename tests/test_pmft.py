@@ -166,11 +166,11 @@ class TestPMFTR12(unittest.TestCase):
         absoluteTolerance = 0.1
 
         myPMFT = freud.pmft.PMFTR12(maxR, nbinsR, nbinsT1, nbinsT2)
-        myPMFT.accumulate(box, points, angles, points, angles)
+        myPMFT.accumulate(box, points, angles)
         npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
                             atol=absoluteTolerance)
         myPMFT.reset()
-        myPMFT.compute(box, points, angles, points, angles)
+        myPMFT.compute(box, points, angles)
         npt.assert_allclose(myPMFT.bin_counts, correct_bin_counts,
                             atol=absoluteTolerance)
 
