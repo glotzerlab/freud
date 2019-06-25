@@ -167,13 +167,13 @@ cdef class NeighborQueryResult:
         cdef shared_ptr[freud._locality.NeighborQueryIterator] iterator
         cdef const float[:, ::1] l_points = self.points
         if self.query_type == 'nn':
-            iterator = self.nqptr.query(
+            iterator = self.nq.nqptr.query(
                 <vec3[float]*> &l_points[0, 0],
                 self.points.shape[0],
                 self.k,
                 self.exclude_ii)
         else:
-            iterator = self.nqptr.queryBall(
+            iterator = self.nq.nqptr.queryBall(
                 <vec3[float]*> &l_points[0, 0],
                 self.points.shape[0],
                 self.r,
@@ -217,7 +217,7 @@ cdef class AABBQueryResult(NeighborQueryResult):
         queries."""
         cdef const float[:, ::1] l_points = self.points
         cdef shared_ptr[freud._locality.NeighborQueryIterator] iterator
-        iterator = self.aabbptr.query(
+        iterator = self.aabbq.thisptr.query(
             <vec3[float]*> &l_points[0, 0],
             self.points.shape[0],
             self.k,

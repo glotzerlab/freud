@@ -44,7 +44,6 @@ cdef class AABBQuery(NeighborQuery):
 
 
 cdef class NeighborQueryResult:
-    cdef freud._locality.NeighborQuery * nqptr
     cdef NeighborQuery nq
     cdef const float[:, ::1] points
     cdef float r
@@ -73,7 +72,6 @@ cdef class NeighborQueryResult:
         obj = NeighborQueryResult()
 
         obj.nq = nq
-        obj.nqptr = nq.nqptr
         obj.points = points
         obj.exclude_ii = exclude_ii
         obj.Np = points.shape[0]
@@ -90,7 +88,6 @@ cdef class NeighborQueryResult:
 
 
 cdef class AABBQueryResult(NeighborQueryResult):
-    cdef freud._locality.AABBQuery * aabbptr
     cdef AABBQuery aabbq
     cdef float scale
 
@@ -103,7 +100,6 @@ cdef class AABBQueryResult(NeighborQueryResult):
 
         obj = AABBQueryResult()
         obj.aabbq = obj.nq = aabbq
-        obj.aabbptr = obj.nqptr = aabbq.thisptr
         obj.points = points
         obj.exclude_ii = exclude_ii
         obj.Np = points.shape[0]
