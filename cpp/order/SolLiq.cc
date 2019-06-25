@@ -302,7 +302,7 @@ void SolLiq::computeClustersQdotNoNorm(const locality::NeighborList* nlist, cons
 
 void SolLiq::reduceNumberOfConnections(unsigned int Np)
 {
-    tbb::parallel_for(tbb::blocked_range<size_t>(1, Np), [=](const tbb::blocked_range<size_t>& r) {
+    tbb::parallel_for(tbb::blocked_range<size_t>(0, Np), [=](const tbb::blocked_range<size_t>& r) {
       for (size_t i = r.begin(); i != r.end(); ++i)
       {
         for (util::ThreadStorage<unsigned int>::const_iterator it
