@@ -171,6 +171,8 @@ cdef class BondOrder(Compute):
         """  # noqa: E501
         cdef freud.box.Box b = freud.common.convert_box(box)
 
+        exclude_ii = points is None
+
         if points is None:
             points = ref_points
         if orientations is None:
@@ -198,7 +200,8 @@ cdef class BondOrder(Compute):
                     'bod, lbod, obcd, oocd.').format(mode))
 
         defaulted_nlist = freud.locality.make_default_nlist_nn(
-            b, ref_points, points, self.num_neigh, nlist, None, self.rmax)
+            b, ref_points, points, self.num_neigh,
+            nlist, exclude_ii, self.rmax)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         cdef const float[:, ::1] l_ref_points = ref_points
@@ -590,12 +593,12 @@ cdef class MatchEnv(Compute):
         else:
             defaulted_nlist = freud.locality.make_default_nlist_nn(
                 self.m_box, points, points, self.num_neigh, nlist,
-                None, self.rmax)
+                True, self.rmax)
             nlist_ = defaulted_nlist[0]
 
             defaulted_env_nlist = freud.locality.make_default_nlist_nn(
                 self.m_box, points, points, self.num_neigh, env_nlist,
-                None, self.rmax)
+                True, self.rmax)
             env_nlist_ = defaulted_env_nlist[0]
 
         self.thisptr.cluster(
