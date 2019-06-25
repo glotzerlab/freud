@@ -889,7 +889,7 @@ cdef class AngularSeparation(Compute):
             The neighbor angles in radians. **This field is only populated
             after** :meth:`~.computeNeighbor` **is called.** The angles
             are stored in the order of the neighborlist object.
-        global_angles (:math:`\left(N_{global}, N_{particles} \right)` :class:`numpy.ndarray`):
+        global_angles (:math:`\left(N_{particles}, N_{global} \right)` :class:`numpy.ndarray`):
             The global angles in radians. **This field is only populated
             after** :meth:`~.computeGlobal` **is called.** The angles
             are stored in the order of the neighborlist object.
@@ -979,10 +979,10 @@ cdef class AngularSeparation(Compute):
 
 
         Args:
-            ors ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
-                Orientations to calculate the order parameter.
             global_ors ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
                 Reference orientations to calculate the order parameter.
+            ors ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
+                Orientations to calculate the order parameter.
             equiv_quats ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
                 The set of all equivalent quaternions that takes the particle
                 as it is defined to some global reference orientation.
