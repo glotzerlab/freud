@@ -57,6 +57,7 @@ void SolLiq::compute(const locality::NeighborList* nlist, const vec3<float>* poi
     computeClustersQ(nlist, points, Np);
     // Determines number of solid or liquid like bonds
     computeClustersQdot(nlist, points, Np);
+    reduceNumberOfConnections(Np);
     // Determines if particles are solid or liquid by clustering those
     // with sufficient solid-like bonds
     computeClustersQS(nlist, points, Np);
@@ -85,6 +86,7 @@ void SolLiq::computeSolLiqNoNorm(const locality::NeighborList* nlist, const vec3
     computeClustersQ(nlist, points, Np);
     // Determines number of solid or liquid like bonds
     computeClustersQdotNoNorm(nlist, points, Np);
+    reduceNumberOfConnections(Np);
     // Determines if particles are solid or liquid by clustering those with sufficient solid-like bonds
     computeClustersQS(nlist, points, Np);
     m_Np = Np;
@@ -170,6 +172,9 @@ void SolLiq::computeClustersQdot(const locality::NeighborList* nlist, const vec3
     }
 
     memset((void*) m_number_of_connections.get(), 0, sizeof(unsigned int) * Np);
+    m_number_of_connections_local.resize(Np);
+    m_number_of_connections_local.reset();
+
     float rmaxsq = m_rmax * m_rmax;
     unsigned int elements = 2 * m_l + 1; // m= -l to l elements
 
@@ -215,8 +220,8 @@ void SolLiq::computeClustersQdot(const locality::NeighborList* nlist, const vec3
                           {
                               // Tick up counts of number of connections these particles
                               // have
-                              m_number_of_connections.get()[i]++;
-                              m_number_of_connections.get()[j]++;
+                              m_number_of_connections_local.local()[i]++;
+                              m_number_of_connections_local.local()[j]++;
                           }
                       }
                   }
@@ -244,6 +249,9 @@ void SolLiq::computeClustersQdotNoNorm(const locality::NeighborList* nlist, cons
     }
 
     memset((void*) m_number_of_connections.get(), 0, sizeof(unsigned int) * Np);
+    m_number_of_connections_local.resize(Np);
+    m_number_of_connections_local.reset();
+
     float rmaxsq = m_rmax * m_rmax;
     unsigned int elements = 2 * m_l + 1;
 
@@ -281,8 +289,8 @@ void SolLiq::computeClustersQdotNoNorm(const locality::NeighborList* nlist, cons
                           {
                               // Tick up counts of number of connections these particles
                               // have
-                              m_number_of_connections.get()[i]++;
-                              m_number_of_connections.get()[j]++;
+                              m_number_of_connections_local.local()[i]++;
+                              m_number_of_connections_local.local()[j]++;
                           }
                       }
                   }
@@ -290,6 +298,21 @@ void SolLiq::computeClustersQdotNoNorm(const locality::NeighborList* nlist, cons
           }
       }
    });
+}
+
+void SolLiq::reduceNumberOfConnections(unsigned int Np)
+{
+    tbb::parallel_for(tbb::blocked_range<size_t>(1, Np), [=](const tbb::blocked_range<size_t>& r) {
+      for (size_t i = r.begin(); i != r.end(); ++i)
+      {
+        for (util::ThreadStorage<unsigned int>::const_iterator it
+             = m_number_of_connections_local.begin();
+             it != m_number_of_connections_local.end(); ++it)
+        {
+          m_number_of_connections.get()[i] += (*it)[i];
+        }
+      }
+    });
 }
 
 // Computes the clusters for sol-liq order parameter by using the Sthreshold.
