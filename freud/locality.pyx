@@ -765,7 +765,7 @@ def make_default_nlist_nn(box, ref_points, points, n_neigh, nlist=None,
         return nlist, nlist
 
     cdef NearestNeighbors nn = NearestNeighbors(rmax_guess, n_neigh).compute(
-        box, ref_points, points)
+        box, ref_points, points, exclude_ii=exclude_ii)
 
     # Python does not appear to garbage collect appropriately in this case.
     # If a new neighbor list is created, the associated link cell keeps the
