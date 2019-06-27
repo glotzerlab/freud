@@ -920,8 +920,8 @@ cdef class AngularSeparation(Compute):
         return self.nlist_
 
     @Compute._compute("computeNeighbor")
-    def computeNeighbor(self, box, ref_ors, ors, ref_points, points,
-                        equiv_quats, nlist=None):
+    def computeNeighbor(self, box, ref_ors, ors, ref_points, points=None,
+                        equiv_quats=np.array([[1, 0, 0, 0]]), nlist=None):
         R"""Calculates the minimum angles of separation between ref_ors and ors,
         checking for underlying symmetry as encoded in equiv_quats. The result
         is stored in the :code:`neighbor_angles` class attribute.
@@ -942,12 +942,18 @@ cdef class AngularSeparation(Compute):
                 as it is defined to some global reference orientation.
                 Important: :code:`equiv_quats` must include both :math:`q` and
                 :math:`-q`, for all included quaternions.
+                (Default value = :code:`[[1, 0, 0, 0]]`)
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
         """  # noqa: E501
         cdef freud.box.Box b = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
+
+        exclude_ii = points is None
+        if points is None:
+            points = ref_points
+
         points = freud.common.convert_array(points, shape=(None, 3))
 
         ref_ors = freud.common.convert_array(ref_ors, shape=(None, 4))
@@ -955,7 +961,8 @@ cdef class AngularSeparation(Compute):
         equiv_quats = freud.common.convert_array(equiv_quats, shape=(None, 4))
 
         defaulted_nlist = freud.locality.make_default_nlist_nn(
-            b, ref_points, points, self.num_neigh, nlist, None, self.rmax)
+            b, ref_points, points, self.num_neigh,
+            nlist, exclude_ii, self.rmax)
         self.nlist_ = defaulted_nlist[0].copy()
 
         cdef const float[:, ::1] l_ref_ors = ref_ors
