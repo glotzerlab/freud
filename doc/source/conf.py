@@ -298,7 +298,9 @@ texinfo_documents = [
 # texinfo_no_detailmenu = False
 
 intersphinx_mapping = {'python': ('https://docs.python.org/3', None),
-                       'numpy': ('https://docs.scipy.org/doc/numpy', None)}
+                       'numpy': ('https://docs.scipy.org/doc/numpy', None),
+                       'matplotlib': ('https://matplotlib.org', None),
+                       }
 
 autodoc_mock_import = ["numpy"]
 

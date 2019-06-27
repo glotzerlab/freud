@@ -76,6 +76,27 @@ class TestLocalQl(unittest.TestCase):
         comp = freud.order.LocalQl(box, 1.5, 6)
         self.assertEqual(str(comp), str(eval(repr(comp))))
 
+    def test_repr_png(self):
+        (box, positions) = util.make_fcc(4, 4, 4)
+        comp = freud.order.LocalQl(box, 1.5, 6)
+        with self.assertRaises(AttributeError):
+            comp.plot(mode="Ql")
+        with self.assertRaises(AttributeError):
+            comp.plot(mode="ave_Ql")
+        with self.assertRaises(AttributeError):
+            comp.plot(mode="ave_norm_Ql")
+        with self.assertRaises(AttributeError):
+            comp.plot(mode="norm_Ql")
+        self.assertEqual(comp._repr_png_(), None)
+        comp.compute(positions)
+        comp.plot(mode="Ql")
+        comp.computeAve(positions)
+        comp.plot(mode="ave_Ql")
+        comp.computeAveNorm(positions)
+        comp.plot(mode="ave_norm_Ql")
+        comp.computeNorm(positions)
+        comp.plot(mode="norm_Ql")
+
 
 class TestLocalQlNear(unittest.TestCase):
     def test_init_kwargs(self):
@@ -151,6 +172,27 @@ class TestLocalQlNear(unittest.TestCase):
         box = freud.box.Box.cube(10)
         comp = freud.order.LocalQlNear(box, 1.5, 6, 12)
         self.assertEqual(str(comp), str(eval(repr(comp))))
+
+    def test_repr_png(self):
+        (box, positions) = util.make_fcc(4, 4, 4)
+        comp = freud.order.LocalQlNear(box, 1.5, 6, 12)
+        with self.assertRaises(AttributeError):
+            comp.plot(mode="Ql")
+        with self.assertRaises(AttributeError):
+            comp.plot(mode="ave_Ql")
+        with self.assertRaises(AttributeError):
+            comp.plot(mode="ave_norm_Ql")
+        with self.assertRaises(AttributeError):
+            comp.plot(mode="norm_Ql")
+        self.assertEqual(comp._repr_png_(), None)
+        comp.compute(positions)
+        comp.plot(mode="Ql")
+        comp.computeAve(positions)
+        comp.plot(mode="ave_Ql")
+        comp.computeAveNorm(positions)
+        comp.plot(mode="ave_norm_Ql")
+        comp.computeNorm(positions)
+        comp.plot(mode="norm_Ql")
 
 
 if __name__ == '__main__':

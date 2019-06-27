@@ -567,6 +567,7 @@ cdef class LocalQl(Compute):
     cdef rmax
     cdef sph_l
     cdef rmin
+    cdef plot_mode
 
     def __cinit__(self, box, rmax, l, rmin=0, *args, **kwargs):
         cdef freud.box.Box b = freud.common.convert_box(box)
@@ -655,6 +656,7 @@ cdef class LocalQl(Compute):
 
         self.qlptr.compute(nlist_.get_ptr(), <vec3[float]*> &l_points[0, 0],
                            nP)
+        self.plot_mode = "Ql"
         return self
 
     @Compute._compute("computeAve")
@@ -680,6 +682,7 @@ cdef class LocalQl(Compute):
                            <vec3[float]*> &l_points[0, 0], nP)
         self.qlptr.computeAve(nlist_.get_ptr(),
                               <vec3[float]*> &l_points[0, 0], nP)
+        self.plot_mode = "ave_Ql"
         return self
 
     @Compute._compute("computeNorm")
@@ -705,6 +708,7 @@ cdef class LocalQl(Compute):
         self.qlptr.compute(nlist_.get_ptr(),
                            <vec3[float]*> &l_points[0, 0], nP)
         self.qlptr.computeNorm(<vec3[float]*> &l_points[0, 0], nP)
+        self.plot_mode = "norm_Ql"
         return self
 
     @Compute._compute("computeAveNorm")
@@ -733,6 +737,7 @@ cdef class LocalQl(Compute):
         self.qlptr.computeAve(nlist_.get_ptr(),
                               <vec3[float]*> &l_points[0, 0], nP)
         self.qlptr.computeAveNorm(<vec3[float]*> &l_points[0, 0], nP)
+        self.plot_mode = "ave_norm_Ql"
         return self
 
     def __repr__(self):
@@ -745,6 +750,71 @@ cdef class LocalQl(Compute):
 
     def __str__(self):
         return repr(self)
+
+    def _plot(self, mode, name, near, ax):
+        R"""Helper function for plotting.
+
+        Args:
+            mode (str): Plot mode that is an attribute of :code:`self`.
+            name (str): "Q" or "W".
+            near (bool): If true, add Near in title.
+            ax (:class:`matplotlib.axes.Axes`): Axis to plot on. If
+                :code:`None`, make a new figure and axis.
+                (Default value = :code:`None`)
+
+        Returns:
+            (:class:`matplotlib.axes.Axes`): Axis with the plot.
+        """
+        import plot
+        plot_data = getattr(self, mode)
+        mode = mode.replace(name, "Q")
+        if mode == "Ql":
+            mode_str = ""
+        elif mode == "ave_Ql":
+            mode_str = "Average"
+        elif mode == "norm_Ql":
+            mode_str = "Normalized"
+        elif mode == "ave_norm_Ql":
+            mode_str = "Average Normalized"
+        else:
+            raise RuntimeError("Invalid plot moode.")
+        title = r"Local ${}_{{{}}}$".format(name, self.sph_l)
+        if near:
+            title += " Near"
+        xlabel = r"{} ${}_{{{}}}$".format(mode_str, name, self.sph_l)
+        return plot.histogram_plot(plot_data,
+                                   title=title,
+                                   xlabel=xlabel,
+                                   ylabel=r"Number of particles",
+                                   ax=ax)
+
+    @Compute._computed_method(("compute", "computeNorm",
+                               "computeAve", "computeAveNorm"))
+    def plot(self, ax=None, mode=None):
+        """Plot Ql.
+
+        Args:
+            ax (:class:`matplotlib.axes.Axes`): Axis to plot on. If
+                :code:`None`, make a new figure and axis.
+                (Default value = :code:`None`)
+            mode (str): Plotting mode. Must be one of "Ql", "ave_Ql",
+                "norm_Ql" and "ave_norm_Ql". Plots the given attribute.
+                If :code:`None`, plot the most recent computed attribute.
+                (Default value = :code:`None`)
+
+        Returns:
+            (:class:`matplotlib.axes.Axes`): Axis with the plot.
+        """
+        if mode is None:
+            mode = self.plot_mode
+        return self._plot(mode, "Q", False, ax)
+
+    def _repr_png_(self):
+        import plot
+        try:
+            return plot.ax_to_bytes(self.plot(mode=self.plot_mode))
+        except AttributeError:
+            return None
 
 
 cdef class LocalQlNear(LocalQl):
@@ -883,6 +953,27 @@ cdef class LocalQlNear(LocalQl):
 
     def __str__(self):
         return repr(self)
+
+    @Compute._computed_method(("compute", "computeNorm",
+                               "computeAve", "computeAveNorm"))
+    def plot(self, ax=None, mode=None):
+        """Plot Ql.
+
+        Args:
+            ax (:class:`matplotlib.axes.Axes`): Axis to plot on. If
+                :code:`None`, make a new figure and axis.
+                (Default value = :code:`None`)
+            mode (str): Plotting mode. Must be one of "Ql", "ave_Ql",
+                "norm_Ql" and "ave_norm_Ql". Plots the given attribute.
+                If :code:`None`, plot the most recent computed attribute.
+                (Default value = :code:`None`)
+
+        Returns:
+            (:class:`matplotlib.axes.Axes`): Axis with the plot.
+        """
+        if mode is None:
+            mode = self.plot_mode
+        return self._plot(mode, "Q", True, ax)
 
 
 cdef class LocalWl(LocalQl):
@@ -1030,6 +1121,35 @@ cdef class LocalWl(LocalQl):
     def __str__(self):
         return repr(self)
 
+    @Compute._computed_method(("compute", "computeNorm",
+                               "computeAve", "computeAveNorm"))
+    def plot(self, ax=None, mode=None):
+        """Plot Wl.
+
+        Args:
+            ax (:class:`matplotlib.axes.Axes`): Axis to plot on. If
+                :code:`None`, make a new figure and axis.
+                (Default value = :code:`None`)
+            mode (str): Plotting mode. Must be one of "Wl", "ave_Wl",
+                "norm_Wl" and "ave_norm_Wl". Plots the given attribute.
+                If :code:`None`, plot the most recent computed attribute.
+                (Default value = :code:`None`)
+
+        Returns:
+            (:class:`matplotlib.axes.Axes`): Axis with the plot.
+        """
+        if mode is None:
+            mode = self.plot_mode
+        return self._plot(mode, "W", False, ax)
+
+    def _repr_png_(self):
+        import plot
+        try:
+            return plot.ax_to_bytes(
+                self.plot(mode=self.plot_mode.replace("Q", "W")))
+        except AttributeError:
+            return None
+
 
 cdef class LocalWlNear(LocalWl):
     R"""A variant of the :class:`~LocalWl` class that performs its average
@@ -1163,6 +1283,27 @@ cdef class LocalWlNear(LocalWl):
 
     def __str__(self):
         return repr(self)
+
+    @Compute._computed_method(("compute", "computeNorm",
+                               "computeAve", "computeAveNorm"))
+    def plot(self, ax=None, mode=None):
+        """Plot Wl.
+
+        Args:
+            ax (:class:`matplotlib.axes.Axes`): Axis to plot on. If
+                :code:`None`, make a new figure and axis.
+                (Default value = :code:`None`)
+            mode (str): Plotting mode. Must be one of "Wl", "ave_Wl",
+                "norm_Wl" and "ave_norm_Wl". Plots the given attribute.
+                If :code:`None`, plot the most recent computed attribute.
+                (Default value = :code:`None`)
+
+        Returns:
+            (:class:`matplotlib.axes.Axes`): Axis with the plot.
+        """
+        if mode is None:
+            mode = self.plot_mode
+        return self._plot(mode, "W", True, ax)
 
 
 cdef class SolLiq(Compute):

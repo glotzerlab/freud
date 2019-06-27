@@ -79,6 +79,28 @@ class TestLocalWl(unittest.TestCase):
         comp = freud.order.LocalWl(box, 1.5, 6)
         self.assertEqual(str(comp), str(eval(repr(comp))))
 
+    def test_repr_png(self):
+        (box, positions) = util.make_fcc(4, 4, 4)
+        comp = freud.order.LocalWl(box, 1.5, 6)
+
+        with self.assertRaises(AttributeError):
+            comp.plot(mode="Wl")
+        with self.assertRaises(AttributeError):
+            comp.plot(mode="ave_Wl")
+        with self.assertRaises(AttributeError):
+            comp.plot(mode="ave_norm_Wl")
+        with self.assertRaises(AttributeError):
+            comp.plot(mode="norm_Wl")
+        self.assertEqual(comp._repr_png_(), None)
+        comp.compute(positions)
+        comp.plot(mode="Wl")
+        comp.computeAve(positions)
+        comp.plot(mode="ave_Wl")
+        comp.computeAveNorm(positions)
+        comp.plot(mode="ave_norm_Wl")
+        comp.computeNorm(positions)
+        comp.plot(mode="norm_Wl")
+
 
 class TestLocalWlNear(unittest.TestCase):
     def test_init_kwargs(self):
@@ -158,6 +180,28 @@ class TestLocalWlNear(unittest.TestCase):
         box = freud.box.Box.cube(10)
         comp = freud.order.LocalWlNear(box, 1.5, 6, 12)
         self.assertEqual(str(comp), str(eval(repr(comp))))
+
+    def test_repr_png(self):
+        (box, positions) = util.make_fcc(4, 4, 4)
+        comp = freud.order.LocalWlNear(box, 1.5, 6, 12)
+
+        with self.assertRaises(AttributeError):
+            comp.plot(mode="Wl")
+        with self.assertRaises(AttributeError):
+            comp.plot(mode="ave_Wl")
+        with self.assertRaises(AttributeError):
+            comp.plot(mode="ave_norm_Wl")
+        with self.assertRaises(AttributeError):
+            comp.plot(mode="norm_Wl")
+        self.assertEqual(comp._repr_png_(), None)
+        comp.compute(positions)
+        comp.plot(mode="Wl")
+        comp.computeAve(positions)
+        comp.plot(mode="ave_Wl")
+        comp.computeAveNorm(positions)
+        comp.plot(mode="ave_norm_Wl")
+        comp.computeNorm(positions)
+        comp.plot(mode="norm_Wl")
 
 
 if __name__ == '__main__':

@@ -18,4 +18,4 @@ MSD
 ===
 
 .. autoclass:: freud.msd.MSD(box=None, mode=None)
-    :members: accumulate, compute, reset
+    :members: accumulate, compute, reset, plot
