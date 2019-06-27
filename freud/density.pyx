@@ -676,6 +676,9 @@ cdef class LocalDensity(Compute):
         self.diameter = diameter
         self.volume = volume
 
+    def __dealloc__(self):
+        del self.thisptr
+
     @Compute._computed_property()
     def box(self):
         return freud.box.BoxFromCPP(self.thisptr.getBox())
