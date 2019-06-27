@@ -5,9 +5,9 @@
 #define CORRELATION_FUNCTION_H
 
 #include <memory>
-#include <tbb/tbb.h>
 
 #include "Box.h"
+#include "ThreadStorage.h"
 #include "NeighborList.h"
 #include "VectorMath.h"
 
@@ -49,7 +49,7 @@ public:
     CorrelationFunction(float rmax, float dr);
 
     //! Destructor
-    ~CorrelationFunction();
+    ~CorrelationFunction() {}
 
     //! Get the simulation box
     const box::Box& getBox() const
@@ -103,8 +103,8 @@ private:
     std::shared_ptr<T> m_rdf_array;             //!< rdf array computed
     std::shared_ptr<unsigned int> m_bin_counts; //!< bin counts that go into computing the rdf array
     std::shared_ptr<float> m_r_array;           //!< array of r values where the rdf is computed
-    tbb::enumerable_thread_specific<unsigned int*> m_local_bin_counts;
-    tbb::enumerable_thread_specific<T*> m_local_rdf_array;
+    util::ThreadStorage<unsigned int> m_local_bin_counts;
+    util::ThreadStorage<T> m_local_rdf_array;
 };
 
 }; }; // end namespace freud::density

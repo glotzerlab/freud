@@ -3,6 +3,7 @@
 
 #include <complex>
 #include <stdexcept>
+#include <tbb/tbb.h>
 #ifdef __SSE2__
 #include <emmintrin.h>
 #endif
@@ -21,7 +22,7 @@ namespace freud { namespace environment {
 
 BondOrder::BondOrder(float rmax, float k, unsigned int n, unsigned int nbins_t, unsigned int nbins_p)
     : m_box(box::Box()), m_n_ref(0), m_n_p(0), m_nbins_t(nbins_t), m_nbins_p(nbins_p), m_frame_counter(0),
-      m_reduce(true)
+      m_reduce(true), m_local_bin_counts(nbins_t * nbins_p)
 {
     // sanity checks, but this is actually kinda dumb if these values are 1
     if (nbins_t < 2)
@@ -82,15 +83,6 @@ BondOrder::BondOrder(float rmax, float k, unsigned int n, unsigned int nbins_t, 
     memset((void*) m_bin_counts.get(), 0, sizeof(float) * m_nbins_t * m_nbins_p);
 }
 
-BondOrder::~BondOrder()
-{
-    for (tbb::enumerable_thread_specific<unsigned int*>::iterator i = m_local_bin_counts.begin();
-         i != m_local_bin_counts.end(); ++i)
-    {
-        delete[](*i);
-    }
-}
-
 void BondOrder::reduceBondOrder()
 {
     memset((void*) m_bo_array.get(), 0, sizeof(float) * m_nbins_t * m_nbins_p);
@@ -101,7 +93,7 @@ void BondOrder::reduceBondOrder()
         {
             for (size_t j = 0; j < m_nbins_p; j++)
             {
-                for (tbb::enumerable_thread_specific<unsigned int*>::const_iterator local_bins
+                for (util::ThreadStorage<unsigned int>::const_iterator local_bins
                      = m_local_bin_counts.begin();
                      local_bins != m_local_bin_counts.end(); ++local_bins)
                 {
@@ -137,11 +129,7 @@ std::shared_ptr<float> BondOrder::getBondOrder()
 
 void BondOrder::reset()
 {
-    for (tbb::enumerable_thread_specific<unsigned int*>::iterator i = m_local_bin_counts.begin();
-         i != m_local_bin_counts.end(); ++i)
-    {
-        memset((void*) (*i), 0, sizeof(unsigned int) * m_nbins_t * m_nbins_p);
-    }
+    m_local_bin_counts.reset();
     // reset the frame counter
     m_frame_counter = 0;
     m_reduce = true;
@@ -164,14 +152,6 @@ void BondOrder::accumulate(box::Box& box, const freud::locality::NeighborList* n
         float dt_inv = 1.0f / m_dt;
         float dp_inv = 1.0f / m_dp;
         Index2D sa_i = Index2D(m_nbins_t, m_nbins_p);
-
-        bool exists;
-        m_local_bin_counts.local(exists);
-        if (!exists)
-        {
-            m_local_bin_counts.local() = new unsigned int[m_nbins_t * m_nbins_p];
-            memset((void*) m_local_bin_counts.local(), 0, sizeof(unsigned int) * m_nbins_t * m_nbins_p);
-        }
 
         size_t bond(nlist->find_first_index(br.begin()));
 

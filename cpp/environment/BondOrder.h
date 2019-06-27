@@ -6,9 +6,9 @@
 
 #include <memory>
 #include <ostream>
-#include <tbb/tbb.h>
 
 #include "Box.h"
+#include "ThreadStorage.h"
 #include "NeighborList.h"
 #include "VectorMath.h"
 
@@ -37,7 +37,7 @@ public:
     BondOrder(float rmax, float k, unsigned int n, unsigned int nbins_t, unsigned int nbins_p);
 
     //! Destructor
-    ~BondOrder();
+    ~BondOrder() {}
 
     //! Get the simulation box
     const box::Box& getBox() const
@@ -96,7 +96,8 @@ private:
     std::shared_ptr<float> m_sa_array;          //!< surface area array computed
     std::shared_ptr<float> m_theta_array;       //!< theta array computed
     std::shared_ptr<float> m_phi_array;         //!< phi order array computed
-    tbb::enumerable_thread_specific<unsigned int*> m_local_bin_counts;
+    util::ThreadStorage<unsigned int> m_local_bin_counts;
+
 };
 
 }; }; // end namespace freud::environment

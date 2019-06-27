@@ -3,6 +3,7 @@
 
 #include <cassert>
 #include <stdexcept>
+#include <tbb/tbb.h>
 #ifdef __SSE2__
 #include <emmintrin.h>
 #endif
@@ -60,17 +61,8 @@ RDF::RDF(float rmax, float dr, float rmin)
         m_vol_array2D.get()[i] = M_PI * (nextr * nextr - r * r);
         m_vol_array3D.get()[i] = 4.0f / 3.0f * M_PI * (nextr * nextr * nextr - r * r * r);
     }
-
+    m_local_bin_counts.resize(m_nbins);
 } // end RDF::RDF
-
-RDF::~RDF()
-{
-    for (tbb::enumerable_thread_specific<unsigned int*>::iterator i = m_local_bin_counts.begin();
-         i != m_local_bin_counts.end(); ++i)
-    {
-        delete[](*i);
-    }
-}
 
 //! \internal
 //! CumulativeCount class to perform a parallel reduce to get the cumulative count for each histogram bin
@@ -132,7 +124,7 @@ void RDF::reduceRDF()
     parallel_for(blocked_range<size_t>(1, m_nbins), [=](const blocked_range<size_t>& r) {
         for (size_t i = r.begin(); i != r.end(); i++)
         {
-            for (tbb::enumerable_thread_specific<unsigned int*>::const_iterator local_bins
+            for (util::ThreadStorage<unsigned int>::const_iterator local_bins
                  = m_local_bin_counts.begin();
                  local_bins != m_local_bin_counts.end(); ++local_bins)
             {
@@ -191,11 +183,7 @@ unsigned int RDF::getNBins()
  */
 void RDF::reset()
 {
-    for (tbb::enumerable_thread_specific<unsigned int*>::iterator i = m_local_bin_counts.begin();
-         i != m_local_bin_counts.end(); ++i)
-    {
-        memset((void*) (*i), 0, sizeof(unsigned int) * m_nbins);
-    }
+    m_local_bin_counts.reset();
     // reset the frame counter
     m_frame_counter = 0;
     m_reduce = true;
@@ -221,14 +209,6 @@ void RDF::accumulate(box::Box& box, const locality::NeighborList* nlist, const v
         float dr_inv = 1.0f / m_dr;
         float rminsq = m_rmin * m_rmin;
         float rmaxsq = m_rmax * m_rmax;
-
-        bool exists;
-        m_local_bin_counts.local(exists);
-        if (!exists)
-        {
-            m_local_bin_counts.local() = new unsigned int[m_nbins];
-            memset((void*) m_local_bin_counts.local(), 0, sizeof(unsigned int) * m_nbins);
-        }
 
         size_t last_i(-1);
         vec3<float> ref;

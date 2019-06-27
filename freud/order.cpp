@@ -52,18 +52,18 @@
         "name": "freud.order",
         "sources": [
             "freud/order.pyx",
-            "cpp/util/diagonalize.cc",
-            "cpp/order/LocalWl.cc",
-            "cpp/order/RotationalAutocorrelation.cc",
+            "cpp/locality/NeighborList.cc",
             "cpp/order/CubaticOrderParameter.cc",
-            "cpp/order/LocalQl.cc",
-            "cpp/order/SolLiq.cc",
             "cpp/order/wigner3j.cc",
-            "cpp/order/HexOrderParameter.cc",
-            "cpp/order/TransOrderParameter.cc",
-            "cpp/cluster/Cluster.cc",
+            "cpp/order/LocalWl.cc",
             "cpp/order/NematicOrderParameter.cc",
-            "cpp/locality/NeighborList.cc"
+            "cpp/order/RotationalAutocorrelation.cc",
+            "cpp/order/TransOrderParameter.cc",
+            "cpp/util/diagonalize.cc",
+            "cpp/order/SolLiq.cc",
+            "cpp/order/HexOrderParameter.cc",
+            "cpp/order/LocalQl.cc",
+            "cpp/cluster/Cluster.cc"
         ]
     },
     "module_name": "freud.order"

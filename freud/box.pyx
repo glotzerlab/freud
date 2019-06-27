@@ -223,25 +223,16 @@ cdef class Box:
                 Vectors of real coordinates: :math:`\left(3\right)` or :math:`\left(N, 3\right)`.
         """  # noqa: E501
         fractions = np.asarray(fractions)
-        if fractions.ndim > 2 or fractions.shape[fractions.ndim-1] != 3:
-            raise ValueError(
-                "Invalid dimensions for fractions given to makeCoordinates. "
-                "Valid input is an array of shape (3,) or (N,3).")
+        flatten = fractions.ndim == 1
+        fractions = np.atleast_2d(fractions)
+        fractions = freud.common.convert_array(fractions, shape=(None, 3))
 
-        fractions = freud.common.convert_array(fractions)
+        cdef const float[:, ::1] l_points = fractions
+        cdef unsigned int Np = l_points.shape[0]
+        with nogil:
+            self.thisptr.makeCoordinates(<vec3[float]*> &l_points[0, 0], Np)
 
-        if fractions.ndim == 1:
-            fractions[:] = self._makeCoordinates(fractions)
-        elif fractions.ndim == 2:
-            for i, f in enumerate(fractions):
-                fractions[i] = self._makeCoordinates(f)
-        return fractions
-
-    def _makeCoordinates(self, f):
-        cdef const float[::1] l_vec = f
-        cdef vec3[float] result = self.thisptr.makeCoordinates(
-            <const vec3[float]&> l_vec[0])
-        return [result.x, result.y, result.z]
+        return np.squeeze(fractions) if flatten else fractions
 
     def makeFraction(self, vecs):
         R"""Convert real coordinates into fractional coordinates.
@@ -255,25 +246,16 @@ cdef class Box:
                 Fractional coordinate vectors: :math:`\left(3\right)` or :math:`\left(N, 3\right)`.
         """  # noqa: E501
         vecs = np.asarray(vecs)
-        if vecs.ndim > 2 or vecs.shape[vecs.ndim-1] != 3:
-            raise ValueError(
-                "Invalid dimensions for vecs given to makeFraction. "
-                "Valid input is an array of shape (3,) or (N,3).")
+        flatten = vecs.ndim == 1
+        vecs = np.atleast_2d(vecs)
+        vecs = freud.common.convert_array(vecs, shape=(None, 3))
 
-        vecs = freud.common.convert_array(vecs)
+        cdef const float[:, ::1] l_points = vecs
+        cdef unsigned int Np = l_points.shape[0]
+        with nogil:
+            self.thisptr.makeFraction(<vec3[float]*> &l_points[0, 0], Np)
 
-        if vecs.ndim == 1:
-            vecs[:] = self._makeFraction(vecs)
-        elif vecs.ndim == 2:
-            for i, vec in enumerate(vecs):
-                vecs[i] = self._makeFraction(vec)
-        return vecs
-
-    def _makeFraction(self, vec):
-        cdef const float[::1] l_vec = vec
-        cdef vec3[float] result = self.thisptr.makeFraction(
-            <const vec3[float]&> l_vec[0])
-        return [result.x, result.y, result.z]
+        return np.squeeze(vecs) if flatten else vecs
 
     def getImage(self, vecs):
         R"""Returns the image corresponding to a wrapped vector.
@@ -289,25 +271,19 @@ cdef class Box:
                 Image index vector.
         """  # noqa: E501
         vecs = np.asarray(vecs)
-        if vecs.ndim > 2 or vecs.shape[vecs.ndim-1] != 3:
-            raise ValueError(
-                "Invalid dimensions for vecs given to getImage. "
-                "Valid input is an array of shape (3,) or (N,3).")
+        flatten = vecs.ndim == 1
+        vecs = np.atleast_2d(vecs)
+        vecs = freud.common.convert_array(vecs, shape=(None, 3))
 
-        vecs = freud.common.convert_array(vecs)
+        images = np.zeros(vecs.shape, dtype=np.int32)
+        cdef const float[:, ::1] l_points = vecs
+        cdef const int[:, ::1] l_result = images
+        cdef unsigned int Np = l_points.shape[0]
+        with nogil:
+            self.thisptr.getImage(<vec3[float]*> &l_points[0, 0], Np,
+                                  <vec3[int]*> &l_result[0, 0])
 
-        if vecs.ndim == 1:
-            images = np.asarray(self._getImage(vecs), dtype=int)
-        elif vecs.ndim == 2:
-            images = np.asarray([self.getImage(vec) for vec in vecs],
-                                dtype=int)
-        return images
-
-    def _getImage(self, vec):
-        cdef const float[::1] l_vec = vec
-        cdef vec3[int] result = self.thisptr.getImage(
-            <const vec3[float]&> l_vec[0])
-        return [result.x, result.y, result.z]
+        return np.squeeze(images) if flatten else images
 
     def getLatticeVector(self, i):
         R"""Get the lattice vector with index :math:`i`.
@@ -343,26 +319,16 @@ cdef class Box:
                 Vectors wrapped into the box.
         """  # noqa: E501
         vecs = np.asarray(vecs)
-        if vecs.ndim > 2 or vecs.shape[vecs.ndim-1] != 3:
-            raise ValueError(
-                "Invalid dimensions for vecs given to wrap. "
-                "Valid input is an array of shape (3,) or (N,3).")
+        flatten = vecs.ndim == 1
+        vecs = np.atleast_2d(vecs)
+        vecs = freud.common.convert_array(vecs, shape=(None, 3))
 
-        vecs = freud.common.convert_array(vecs)
+        cdef const float[:, ::1] l_points = vecs
+        cdef unsigned int Np = l_points.shape[0]
+        with nogil:
+            self.thisptr.wrap(<vec3[float]*> &l_points[0, 0], Np)
 
-        if vecs.ndim == 1:
-            # only one vector to wrap
-            vecs[:] = self._wrap(vecs)
-        elif vecs.ndim == 2:
-            for i, vec in enumerate(vecs):
-                vecs[i] = self._wrap(vec)
-        return vecs
-
-    def _wrap(self, vec):
-        R"""Wrap a single vector."""
-        cdef const float[::1] l_vec = vec
-        cdef vec3[float] result = self.thisptr.wrap(<vec3[float]&> l_vec[0])
-        return (result.x, result.y, result.z)
+        return np.squeeze(vecs) if flatten else vecs
 
     def unwrap(self, vecs, imgs):
         R"""Unwrap a given array of vectors inside the box back into real space,
@@ -381,34 +347,21 @@ cdef class Box:
                 Vectors unwrapped by the image indices provided.
         """  # noqa: E501
         vecs = np.asarray(vecs)
-        imgs = np.asarray(imgs)
-
-        if vecs.ndim > 2 or vecs.shape[vecs.ndim-1] != 3:
-            raise ValueError(
-                "Invalid dimensions for vecs given to unwrap. "
-                "Valid input is an array of shape (3,) or (N,3).")
-
-        vecs = freud.common.convert_array(vecs)
+        flatten = vecs.ndim == 1
+        vecs = np.atleast_2d(vecs)
+        vecs = freud.common.convert_array(vecs, shape=(None, 3))
+        imgs = np.atleast_2d(imgs)
         imgs = freud.common.convert_array(imgs, shape=vecs.shape,
                                           dtype=np.int32)
 
-        if vecs.ndim == 1:
-            # only one vector to unwrap
-            vecs = self._unwrap(vecs, imgs)
-        elif vecs.ndim == 2:
-            vecs += imgs[:, [0]]*self.getLatticeVector(0)
-            vecs += imgs[:, [1]]*self.getLatticeVector(1)
-            if self.dimensions == 3:
-                vecs += imgs[:, [2]]*self.getLatticeVector(2)
-        return vecs
+        cdef const float[:, ::1] l_points = vecs
+        cdef const int[:, ::1] l_imgs = imgs
+        cdef unsigned int Np = l_points.shape[0]
+        with nogil:
+            self.thisptr.unwrap(<vec3[float]*> &l_points[0, 0],
+                                <vec3[int]*> &l_imgs[0, 0], Np)
 
-    def _unwrap(self, vec, img):
-        R"""Unwrap a single vector."""
-        cdef const float[::1] l_vec = vec
-        cdef const int[::1] l_img = img
-        cdef vec3[float] result = self.thisptr.unwrap(
-            <vec3[float]&> l_vec[0], <vec3[int]&> l_img[0])
-        return [result.x, result.y, result.z]
+        return np.squeeze(vecs) if flatten else vecs
 
     @property
     def periodic(self):

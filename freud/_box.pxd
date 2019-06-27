@@ -34,12 +34,13 @@ cdef extern from "Box.h" namespace "freud::box":
         float getTiltFactorYZ() const
 
         float getVolume() const
-        vec3[float] makeCoordinates(const vec3[float] &) const
-        vec3[float] makeFraction(const vec3[float] &) const
-        vec3[int] getImage(const vec3[float] &) const
+        void makeCoordinates(vec3[float]*, unsigned int) nogil except +
+        void makeFraction(vec3[float]*, unsigned int) nogil except +
+        void getImage(vec3[float]*, unsigned int, vec3[int]*) nogil except +
         vec3[float] getLatticeVector(unsigned int i) except +
-        vec3[float] wrap(vec3[float] & v) const
-        vec3[float] unwrap(vec3[float] &, vec3[int]&)
+        void wrap(vec3[float]* vs, unsigned int Nv) nogil except +
+        void unwrap(vec3[float]*, const vec3[int]*,
+                    unsigned int) nogil except +
 
         vec3[bool_t] getPeriodic() const
         bool_t getPeriodicX() const
