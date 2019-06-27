@@ -9,6 +9,7 @@
 #include <tbb/tbb.h>
 
 #include "Box.h"
+#include "ThreadStorage.h"
 #include "VectorMath.h"
 
 /*! \internal
@@ -32,7 +33,7 @@ public:
     PMFT();
 
     //! Destructor
-    virtual ~PMFT();
+    virtual ~PMFT() {};
 
     //! Get the simulation box
     const box::Box& getBox() const
@@ -69,8 +70,8 @@ protected:
 
     std::shared_ptr<float> m_pcf_array;         //!< Array of PCF computed
     std::shared_ptr<unsigned int> m_bin_counts; //!< Counts for each bin
-    tbb::enumerable_thread_specific<unsigned int*>
-        m_local_bin_counts; //!< Thread local bin counts for TBB parallelism
+    util::ThreadStorage<unsigned int> m_local_bin_counts; 
+        //!< Thread local bin counts for TBB parallelism
 
 private:
 };
