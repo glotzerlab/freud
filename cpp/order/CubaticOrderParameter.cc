@@ -50,9 +50,6 @@ CubaticOrderParameter::CubaticOrderParameter(float t_initial, float t_final, flo
     memset((void*) m_sp_global_tensor.get(), 0, sizeof(float) * m_n * 81);
     memset((void*) m_sp_cubatic_tensor.get(), 0, sizeof(float) * m_n * 81);
     memset((void*) m_sp_gen_r4_tensor.get(), 0, sizeof(float) * m_n * 81);
-
-    // create random number generator.
-    Saru m_saru(m_seed, 0, 0xffaabb);
 }
 
 void CubaticOrderParameter::calcCubaticTensor(float* cubatic_tensor, quat<float> orientation)
