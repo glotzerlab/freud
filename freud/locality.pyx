@@ -714,6 +714,9 @@ def make_default_nq(box, ref_points):
             built from :code:`box` and :code:`ref_points`.
     """  # noqa: E501
     if isinstance(ref_points, NeighborQuery):
+        if ref_points.box != box:
+            raise ValueError("The box provided and the box of the"
+                             "NeighborQuery object are different")
         return ref_points
 
     cdef RawPoints rp = RawPoints(box, ref_points)
