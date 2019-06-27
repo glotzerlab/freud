@@ -374,7 +374,7 @@ cdef class LocalDescriptors(Compute):
         del self.thisptr
 
     @Compute._compute()
-    def compute(self, box, unsigned int num_neighbors, points_ref, points=None,
+    def compute(self, box, unsigned int num_neighbors, ref_points, points=None,
                 orientations=None, mode='neighborhood', nlist=None):
         R"""Calculates the local descriptors of bonds from a set of source
         points to a set of destination points.
@@ -385,7 +385,7 @@ cdef class LocalDescriptors(Compute):
             num_neighbors (unsigned int):
                 Number of nearest neighbors to compute with or to limit to, if the
                 neighbor list is precomputed.
-            points_ref ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Source points to calculate the order parameter.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
                 Destination points to calculate the order parameter
@@ -408,10 +408,11 @@ cdef class LocalDescriptors(Compute):
             raise RuntimeError(
                 'Unknown LocalDescriptors orientation mode: {}'.format(mode))
 
-        points_ref = freud.common.convert_array(points_ref, shape=(None, 3))
+        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
 
+        exclude_ii = points is None
         if points is None:
-            points = points_ref
+            points = ref_points
 
         points = freud.common.convert_array(points, shape=(None, 3))
 
@@ -425,13 +426,13 @@ cdef class LocalDescriptors(Compute):
                         'with particles\' orientations'))
 
             orientations = freud.common.convert_array(
-                orientations, shape=(points_ref.shape[0], 4))
+                orientations, shape=(ref_points.shape[0], 4))
 
             l_orientations = orientations
             l_orientations_ptr = <quat[float]*> &l_orientations[0, 0]
 
-        cdef const float[:, ::1] l_points_ref = points_ref
-        cdef unsigned int nRef = l_points_ref.shape[0]
+        cdef const float[:, ::1] l_ref_points = ref_points
+        cdef unsigned int nRef = l_ref_points.shape[0]
         cdef const float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
         cdef freud._environment.LocalDescriptorOrientation l_mode
@@ -441,8 +442,8 @@ cdef class LocalDescriptors(Compute):
         self.num_neigh = num_neighbors
 
         defaulted_nlist = freud.locality.make_default_nlist_nn(
-            b, points_ref, points, self.num_neigh, nlist,
-            True, self.rmax)
+            b, ref_points, points, self.num_neigh, nlist,
+            exclude_ii, self.rmax)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         with nogil:
@@ -450,7 +451,7 @@ cdef class LocalDescriptors(Compute):
                 dereference(b.thisptr),
                 nlist_.get_ptr(),
                 num_neighbors,
-                <vec3[float]*> &l_points_ref[0, 0],
+                <vec3[float]*> &l_ref_points[0, 0],
                 nRef, <vec3[float]*> &l_points[0, 0], nP,
                 l_orientations_ptr, l_mode)
         return self
