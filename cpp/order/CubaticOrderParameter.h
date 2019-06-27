@@ -89,9 +89,7 @@ private:
     std::shared_ptr<float>
         m_sp_gen_r4_tensor; //!< Shared pointer for r4 tensor, only used to return values to Python.
 
-    // saru rng
-    Saru m_saru;
-    unsigned int m_seed;
+    unsigned int m_seed; //!< Random seed
 };
 
 }; }; // end namespace freud::order
