@@ -685,8 +685,8 @@ cdef class LocalDensity(Compute):
         # local density of each particle includes itself (cutoff
         # distance is r_cut + diam/2 because of smoothing)
         defaulted_nlist = freud.locality.make_default_nlist(
-            b, ref_points, points, self.r_cut + 0.5*self.diameter, nlist,
-            exclude_ii=False)
+            b, ref_points, points,
+            self.r_cut + 0.5*self.diameter, nlist, False)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         with nogil:
