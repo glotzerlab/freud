@@ -108,6 +108,8 @@ cdef class FloatCF(Compute):
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
         """
+        exclude_ii = points is None
+
         cdef freud.box.Box b = freud.common.convert_box(box)
 
         cdef freud.locality.NeighborQuery nq = \
@@ -115,7 +117,7 @@ cdef class FloatCF(Compute):
         cdef freud._locality.NeighborList * nlistptr \
             = freud.locality.make_nlistptr(nlist)
         cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
-            mode="ball", rmax=self.rmax, exclude_ii=points is None)
+            mode="ball", rmax=self.rmax, exclude_ii=exclude_ii)
         ref_points = nq.points
 
         if points is None:
@@ -142,7 +144,7 @@ cdef class FloatCF(Compute):
             l_values = values
 
         # defaulted_nlist = freud.locality.make_default_nlist(
-        #     b, ref_points, points, self.rmax, nlist, None)
+        #     b, ref_points, points, self.rmax, nlist, exclude_ii)
         # cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         cdef unsigned int n_ref = l_ref_points.shape[0]
@@ -334,6 +336,8 @@ cdef class ComplexCF(Compute):
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
         """
+        exclude_ii = points is None
+
         cdef freud.box.Box b = freud.common.convert_box(box)
 
         # \begin New NeighborQuery API
@@ -342,7 +346,7 @@ cdef class ComplexCF(Compute):
         cdef freud._locality.NeighborList * nlistptr \
             = freud.locality.make_nlistptr(nlist)
         cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
-            mode="ball", rmax=self.rmax, exclude_ii=points is None)
+            mode="ball", rmax=self.rmax, exclude_ii=exclude_ii)
         ref_points = nq.points
         # \end New NeighborQuery API
 
@@ -370,7 +374,7 @@ cdef class ComplexCF(Compute):
             l_values = values
 
         # defaulted_nlist = freud.locality.make_default_nlist(
-        #     b, ref_points, points, self.rmax, nlist, None)
+        #     b, ref_points, points, self.rmax, nlist, exclude_ii)
         # cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         cdef unsigned int n_ref = l_ref_points.shape[0]
@@ -582,13 +586,13 @@ cdef class GaussianDensity(Compute):
 
     def __repr__(self):
         if len(self.arglist) == 3:
-            return ("freud.density.{cls}({width}, " +
+            return ("freud.density.{cls}({width}, "
                     "{r_cut}, {sigma})").format(cls=type(self).__name__,
                                                 width=self.arglist[0],
                                                 r_cut=self.arglist[1],
                                                 sigma=self.arglist[2])
         elif len(self.arglist) == 5:
-            return ("freud.density.{cls}({width_x}, {width_y}, {width_z}, " +
+            return ("freud.density.{cls}({width_x}, {width_y}, {width_z}, "
                     "{r_cut}, {sigma})").format(cls=type(self).__name__,
                                                 width_x=self.arglist[0],
                                                 width_y=self.arglist[1],
@@ -704,8 +708,8 @@ cdef class LocalDensity(Compute):
         # local density of each particle includes itself (cutoff
         # distance is r_cut + diam/2 because of smoothing)
         defaulted_nlist = freud.locality.make_default_nlist(
-            b, ref_points, points, self.r_cut + 0.5*self.diameter, nlist,
-            exclude_ii=False)
+            b, ref_points, points,
+            self.r_cut + 0.5*self.diameter, nlist, False)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         with nogil:
@@ -732,7 +736,7 @@ cdef class LocalDensity(Compute):
         return np.asarray(num_neighbors)
 
     def __repr__(self):
-        return ("freud.density.{cls}(r_cut={r_cut}, volume={volume}, " +
+        return ("freud.density.{cls}(r_cut={r_cut}, volume={volume}, "
                 "diameter={diameter})").format(cls=type(self).__name__,
                                                r_cut=self.r_cut,
                                                volume=self.volume,
@@ -827,6 +831,7 @@ cdef class RDF(Compute):
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
         """
+        exclude_ii = points is None
         cdef freud.box.Box b = freud.common.convert_box(box)
         if points is None:
             points = ref_points
@@ -838,7 +843,7 @@ cdef class RDF(Compute):
         cdef unsigned int n_p = l_points.shape[0]
 
         defaulted_nlist = freud.locality.make_default_nlist(
-            b, ref_points, points, self.rmax, nlist)
+            b, ref_points, points, self.rmax, nlist, exclude_ii)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         with nogil:
@@ -897,7 +902,7 @@ cdef class RDF(Compute):
         return np.asarray(n_r)
 
     def __repr__(self):
-        return ("freud.density.{cls}(rmax={rmax}, dr={dr}, " +
+        return ("freud.density.{cls}(rmax={rmax}, dr={dr}, "
                 "rmin={rmin})").format(cls=type(self).__name__,
                                        rmax=self.rmax,
                                        dr=self.dr,

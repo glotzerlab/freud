@@ -2,8 +2,6 @@ import numpy as np
 import numpy.testing as npt
 import freud
 import unittest
-import warnings
-import os
 
 
 class TestComplexCF(unittest.TestCase):

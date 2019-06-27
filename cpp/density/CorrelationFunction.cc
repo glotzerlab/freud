@@ -9,6 +9,8 @@
 #include <emmintrin.h>
 #endif
 
+#include <iostream>
+
 #include "CorrelationFunction.h"
 #include "NeighborComputeFunctional.h"
 

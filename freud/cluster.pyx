@@ -173,7 +173,7 @@ cdef class Cluster(Compute):
         return cluster_keys
 
     def __repr__(self):
-        return ("freud.cluster.{cls}(box={box}, " +
+        return ("freud.cluster.{cls}(box={box}, "
                 "rcut={rcut})").format(cls=type(self).__name__,
                                        box=self.m_box.__repr__(),
                                        rcut=self.rmax)

@@ -164,14 +164,6 @@ void PMFTXY2D::accumulate(box::Box& box, const locality::NeighborList* nlist, ve
                 {
                     vec3<float> delta = this->m_box.wrap(points[j] - ref);
                     float rsq = dot(delta, delta);
-
-                    // check that the particle is not checking itself
-                    // 1e-6 is an arbitrary value that could be set differently if needed
-                    if (rsq < 1e-6)
-                    {
-                        continue;
-                    }
-
                     // rotate interparticle vector
                     vec2<float> myVec(delta.x, delta.y);
                     rotmat2<float> myMat = rotmat2<float>::fromAngle(-ref_orientations[i]);

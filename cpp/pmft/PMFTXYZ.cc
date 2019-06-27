@@ -192,13 +192,6 @@ void PMFTXYZ::accumulate(box::Box& box, const locality::NeighborList* nlist, vec
                     // make sure that the particles are wrapped into the box
                     vec3<float> delta = m_box.wrap(points[j] - ref);
                     float rsq = dot(delta + m_shiftvec, delta + m_shiftvec);
-
-                    // check that the particle is not checking itself
-                    // 1e-6 is an arbitrary value that could be set differently if needed
-                    if (rsq < 1e-6)
-                    {
-                        continue;
-                    }
                     for (unsigned int k = 0; k < n_faces; k++)
                     {
                         // create the extra quaternion
