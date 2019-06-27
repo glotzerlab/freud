@@ -46,8 +46,8 @@
         "name": "freud.cluster",
         "sources": [
             "freud/cluster.pyx",
-            "cpp/cluster/ClusterProperties.cc",
             "cpp/locality/NeighborList.cc",
+            "cpp/cluster/ClusterProperties.cc",
             "cpp/cluster/Cluster.cc"
         ]
     },
