@@ -10,9 +10,9 @@
 
 #include "Box.h"
 #include "Index1D.h"
+#include "NdHistogram.h"
 #include "NeighborList.h"
 #include "VectorMath.h"
-#include "NdHistogram.h"
 
 /*! \internal
     \file PMFT.h
@@ -61,8 +61,7 @@ public:
 
     //! Helper function to precompute array with the following logic.
     //! :cpde:`Func cf` should be some sort of (float)(float, float).
-    template<typename Func> 
-    std::shared_ptr<float> precomputeArrayGeneral(unsigned int size, float d, Func cf)
+    template<typename Func> std::shared_ptr<float> precomputeArrayGeneral(unsigned int size, float d, Func cf)
     {
         std::shared_ptr<float> arr = std::shared_ptr<float>(new float[size], std::default_delete<float[]>());
         for (unsigned int i = 0; i < size; i++)
@@ -88,17 +87,18 @@ public:
         unsigned int loocal_bin_counts_size = n_r * first_dim * second_dim;
         memset((void*) m_bin_counts.get(), 0, sizeof(unsigned int) * loocal_bin_counts_size);
         memset((void*) m_pcf_array.get(), 0, sizeof(float) * loocal_bin_counts_size);
-        parallel_for(tbb::blocked_range<size_t>(0, loocal_bin_counts_size), [=](const tbb::blocked_range<size_t>& r) {
-            for (size_t i = r.begin(); i != r.end(); i++)
-            {
-                for (util::ThreadStorage<unsigned int>::const_iterator local_bins
-                     = m_local_bin_counts.begin();
-                     local_bins != m_local_bin_counts.end(); ++local_bins)
-                {
-                    m_bin_counts.get()[i] += (*local_bins)[i];
-                }
-            }
-        });
+        parallel_for(tbb::blocked_range<size_t>(0, loocal_bin_counts_size),
+                     [=](const tbb::blocked_range<size_t>& r) {
+                         for (size_t i = r.begin(); i != r.end(); i++)
+                         {
+                             for (util::ThreadStorage<unsigned int>::const_iterator local_bins
+                                  = m_local_bin_counts.begin();
+                                  local_bins != m_local_bin_counts.end(); ++local_bins)
+                             {
+                                 m_bin_counts.get()[i] += (*local_bins)[i];
+                             }
+                         }
+                     });
         float inv_num_dens = m_box.getVolume() / (float) m_n_p;
         float norm_factor = (float) 1.0 / ((float) m_frame_counter * (float) m_n_ref);
         // normalize pcf_array
@@ -114,7 +114,7 @@ public:
     }
 
 protected:
-    float m_r_cut;                //!< r_cut used in cell list construction
+    float m_r_cut; //!< r_cut used in cell list construction
 private:
 };
 

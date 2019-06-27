@@ -100,10 +100,9 @@ private:
         return tmp;
     }
 
-    unsigned int m_size; //!< size of thread local array
+    unsigned int m_size;                       //!< size of thread local array
     tbb::enumerable_thread_specific<T*> array; //!< thread local array
 };
-
 
 }; }; // end namespace freud::util
 

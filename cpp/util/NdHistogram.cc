@@ -11,4 +11,4 @@ void NdHistogram::resetGeneral(unsigned int bin_size)
     this->m_reduce = true;
 }
 
-}; };
+}; }; // namespace freud::util

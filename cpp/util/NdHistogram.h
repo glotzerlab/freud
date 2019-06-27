@@ -10,8 +10,7 @@
 
 namespace freud { namespace util {
 
-template<typename T>
-std::shared_ptr<T> makeEmptyArray(unsigned int size)
+template<typename T> std::shared_ptr<T> makeEmptyArray(unsigned int size)
 {
     auto new_arr = std::shared_ptr<T>(new T[size], std::default_delete<T[]>());
     memset((void*) new_arr.get(), 0, sizeof(T) * size);
@@ -33,8 +32,7 @@ public:
     virtual void reduce() = 0;
 
     //! Return :code:`thing_to_return` after reducing.
-    template<typename T>
-    T reduceAndReturn(T thing_to_return)
+    template<typename T> T reduceAndReturn(T thing_to_return)
     {
         if (m_reduce == true)
         {
@@ -45,7 +43,7 @@ public:
     }
 
     //! Get a reference to the PCF array
-    std::shared_ptr<float> getPCF() 
+    std::shared_ptr<float> getPCF()
     {
         return reduceAndReturn(m_pcf_array);
     }
@@ -77,16 +75,14 @@ public:
         nlist->validate(n_ref, n_p);
         const size_t* neighbor_list(nlist->getNeighbors());
         size_t n_bonds = nlist->getNumBonds();
-        tbb::parallel_for(tbb::blocked_range<size_t>(0, n_bonds),
-            [=] (const tbb::blocked_range<size_t>& r)
+        tbb::parallel_for(tbb::blocked_range<size_t>(0, n_bonds), [=](const tbb::blocked_range<size_t>& r) {
+            for (size_t bond = r.begin(); bond != r.end(); ++bond)
             {
-                for(size_t bond = r.begin(); bond !=r.end(); ++bond)
-                    {
-                    size_t i(neighbor_list[2*bond]);
-                    size_t j(neighbor_list[2*bond + 1]);
-                    cf(i, j);
-                    }
-            });
+                size_t i(neighbor_list[2 * bond]);
+                size_t j(neighbor_list[2 * bond + 1]);
+                cf(i, j);
+            }
+        });
         m_frame_counter++;
         m_n_ref = n_ref;
         m_n_p = n_p;
@@ -94,22 +90,19 @@ public:
         m_reduce = true;
     }
 
-    protected:
-        box::Box m_box;
-        unsigned int m_frame_counter; //!< Number of frames calculated
-        unsigned int m_n_ref;         //!< The number of reference points
-        unsigned int m_n_p;           //!< The number of points
-        bool m_reduce;                //!< Whether or not the PCF needs to be reduced
+protected:
+    box::Box m_box;
+    unsigned int m_frame_counter; //!< Number of frames calculated
+    unsigned int m_n_ref;         //!< The number of reference points
+    unsigned int m_n_p;           //!< The number of points
+    bool m_reduce;                //!< Whether or not the PCF needs to be reduced
 
-        std::shared_ptr<float> m_pcf_array;         //!< Array of computed pair correlation function
-        std::shared_ptr<unsigned int> m_bin_counts; //!< Counts for each bin
-        util::ThreadStorage<unsigned int> m_local_bin_counts; 
-        //!< Thread local bin counts for TBB parallelism
-
+    std::shared_ptr<float> m_pcf_array;         //!< Array of computed pair correlation function
+    std::shared_ptr<unsigned int> m_bin_counts; //!< Counts for each bin
+    util::ThreadStorage<unsigned int> m_local_bin_counts;
+    //!< Thread local bin counts for TBB parallelism
 };
 
-
-
-}; };
+}; }; // namespace freud::util
 
 #endif

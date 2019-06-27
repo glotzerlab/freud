@@ -7,11 +7,11 @@
 #include <memory>
 
 #include "Box.h"
-#include "ThreadStorage.h"
+#include "NdHistogram.h"
 #include "NeighborList.h"
 #include "PMFT.h"
+#include "ThreadStorage.h"
 #include "VectorMath.h"
-#include "NdHistogram.h"
 
 /*! \file RDF.h
     \brief Routines for computing radial density functions.

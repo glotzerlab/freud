@@ -5015,7 +5015,7 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_12__str__(struct __pyx_obj_5freud_3ms
 
 /* Python wrapper */
 static PyObject *__pyx_pw_5freud_3msd_3MSD_15plot(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_5freud_3msd_3MSD_14plot[] = "MSD.plot(self, ax=None)\nPlot MSD.\n\n        Args:\n            ax (:class:`matplotlib.axes`): Axis to plot on. If :code:`None`,\n                make a new figure and axis. (Default value = :code:`None`)\n\n        Returns:\n            (:class:`matplotlib.axes`): Axis with the plot.\n        ";
+static char __pyx_doc_5freud_3msd_3MSD_14plot[] = "MSD.plot(self, ax=None)\nPlot MSD.\n\n        Args:\n            ax (:class:`matplotlib.axes.Axes`): Axis to plot on. If\n                :code:`None`, make a new figure and axis.\n                (Default value = :code:`None`)\n\n        Returns:\n            (:class:`matplotlib.axes.Axes`): Axis with the plot.\n        ";
 static PyMethodDef __pyx_mdef_5freud_3msd_3MSD_15plot = {"plot", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_5freud_3msd_3MSD_15plot, METH_VARARGS|METH_KEYWORDS, __pyx_doc_5freud_3msd_3MSD_14plot};
 static PyObject *__pyx_pw_5freud_3msd_3MSD_15plot(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_ax = 0;
@@ -5085,30 +5085,30 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_14plot(struct __pyx_obj_5freud_3msd_M
   PyObject *__pyx_t_7 = NULL;
   __Pyx_RefNannySetupContext("plot", 0);
 
-  /* "freud/msd.pyx":285
- *             (:class:`matplotlib.axes`): Axis with the plot.
+  /* "freud/msd.pyx":286
+ *             (:class:`matplotlib.axes.Axes`): Axis with the plot.
  *         """
  *         import freud.plot             # <<<<<<<<<<<<<<
  *         if self.mode == "window":
  *             xlabel = "Window size"
  */
-  __pyx_t_1 = __Pyx_Import(__pyx_n_s_freud_plot, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 285, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_Import(__pyx_n_s_freud_plot, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 286, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_freud = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "freud/msd.pyx":286
+  /* "freud/msd.pyx":287
  *         """
  *         import freud.plot
  *         if self.mode == "window":             # <<<<<<<<<<<<<<
  *             xlabel = "Window size"
  *         else:
  */
-  __pyx_t_2 = (__Pyx_PyString_Equals(__pyx_v_self->mode, __pyx_n_s_window, Py_EQ)); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 286, __pyx_L1_error)
+  __pyx_t_2 = (__Pyx_PyString_Equals(__pyx_v_self->mode, __pyx_n_s_window, Py_EQ)); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 287, __pyx_L1_error)
   __pyx_t_3 = (__pyx_t_2 != 0);
   if (__pyx_t_3) {
 
-    /* "freud/msd.pyx":287
+    /* "freud/msd.pyx":288
  *         import freud.plot
  *         if self.mode == "window":
  *             xlabel = "Window size"             # <<<<<<<<<<<<<<
@@ -5118,7 +5118,7 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_14plot(struct __pyx_obj_5freud_3msd_M
     __Pyx_INCREF(__pyx_kp_s_Window_size);
     __pyx_v_xlabel = __pyx_kp_s_Window_size;
 
-    /* "freud/msd.pyx":286
+    /* "freud/msd.pyx":287
  *         """
  *         import freud.plot
  *         if self.mode == "window":             # <<<<<<<<<<<<<<
@@ -5128,7 +5128,7 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_14plot(struct __pyx_obj_5freud_3msd_M
     goto __pyx_L3;
   }
 
-  /* "freud/msd.pyx":289
+  /* "freud/msd.pyx":290
  *             xlabel = "Window size"
  *         else:
  *             xlabel = "Frame number"             # <<<<<<<<<<<<<<
@@ -5141,7 +5141,7 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_14plot(struct __pyx_obj_5freud_3msd_M
   }
   __pyx_L3:;
 
-  /* "freud/msd.pyx":290
+  /* "freud/msd.pyx":291
  *         else:
  *             xlabel = "Frame number"
  *         return freud.plot.line_plot(list(range(len(self.msd))), self.msd,             # <<<<<<<<<<<<<<
@@ -5149,26 +5149,26 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_14plot(struct __pyx_obj_5freud_3msd_M
  *                                     xlabel=xlabel,
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_freud, __pyx_n_s_plot); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 290, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_freud, __pyx_n_s_plot); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 291, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_line_plot); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 290, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_line_plot); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 291, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_msd); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 290, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_msd); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 291, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_5 = PyObject_Length(__pyx_t_1); if (unlikely(__pyx_t_5 == ((Py_ssize_t)-1))) __PYX_ERR(0, 290, __pyx_L1_error)
+  __pyx_t_5 = PyObject_Length(__pyx_t_1); if (unlikely(__pyx_t_5 == ((Py_ssize_t)-1))) __PYX_ERR(0, 291, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyInt_FromSsize_t(__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 290, __pyx_L1_error)
+  __pyx_t_1 = PyInt_FromSsize_t(__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 291, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_6 = __Pyx_PyObject_CallOneArg(__pyx_builtin_range, __pyx_t_1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 290, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_CallOneArg(__pyx_builtin_range, __pyx_t_1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 291, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PySequence_List(__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 290, __pyx_L1_error)
+  __pyx_t_1 = PySequence_List(__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 291, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_msd); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 290, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_msd); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 291, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  __pyx_t_7 = PyTuple_New(2); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 290, __pyx_L1_error)
+  __pyx_t_7 = PyTuple_New(2); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 291, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_GIVEREF(__pyx_t_1);
   PyTuple_SET_ITEM(__pyx_t_7, 0, __pyx_t_1);
@@ -5177,44 +5177,44 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_14plot(struct __pyx_obj_5freud_3msd_M
   __pyx_t_1 = 0;
   __pyx_t_6 = 0;
 
-  /* "freud/msd.pyx":291
+  /* "freud/msd.pyx":292
  *             xlabel = "Frame number"
  *         return freud.plot.line_plot(list(range(len(self.msd))), self.msd,
  *                                     title="MSD",             # <<<<<<<<<<<<<<
  *                                     xlabel=xlabel,
  *                                     ylabel="MSD",
  */
-  __pyx_t_6 = __Pyx_PyDict_NewPresized(4); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 291, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyDict_NewPresized(4); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 292, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  if (PyDict_SetItem(__pyx_t_6, __pyx_n_s_title, __pyx_n_s_MSD) < 0) __PYX_ERR(0, 291, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_6, __pyx_n_s_title, __pyx_n_s_MSD) < 0) __PYX_ERR(0, 292, __pyx_L1_error)
 
-  /* "freud/msd.pyx":292
+  /* "freud/msd.pyx":293
  *         return freud.plot.line_plot(list(range(len(self.msd))), self.msd,
  *                                     title="MSD",
  *                                     xlabel=xlabel,             # <<<<<<<<<<<<<<
  *                                     ylabel="MSD",
  *                                     ax=ax)
  */
-  if (PyDict_SetItem(__pyx_t_6, __pyx_n_s_xlabel, __pyx_v_xlabel) < 0) __PYX_ERR(0, 291, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_6, __pyx_n_s_ylabel, __pyx_n_s_MSD) < 0) __PYX_ERR(0, 291, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_6, __pyx_n_s_xlabel, __pyx_v_xlabel) < 0) __PYX_ERR(0, 292, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_6, __pyx_n_s_ylabel, __pyx_n_s_MSD) < 0) __PYX_ERR(0, 292, __pyx_L1_error)
 
-  /* "freud/msd.pyx":294
+  /* "freud/msd.pyx":295
  *                                     xlabel=xlabel,
  *                                     ylabel="MSD",
  *                                     ax=ax)             # <<<<<<<<<<<<<<
  * 
  *     def _repr_png_(self):
  */
-  if (PyDict_SetItem(__pyx_t_6, __pyx_n_s_ax, __pyx_v_ax) < 0) __PYX_ERR(0, 291, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_6, __pyx_n_s_ax, __pyx_v_ax) < 0) __PYX_ERR(0, 292, __pyx_L1_error)
 
-  /* "freud/msd.pyx":290
+  /* "freud/msd.pyx":291
  *         else:
  *             xlabel = "Frame number"
  *         return freud.plot.line_plot(list(range(len(self.msd))), self.msd,             # <<<<<<<<<<<<<<
  *                                     title="MSD",
  *                                     xlabel=xlabel,
  */
-  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_7, __pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 290, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_7, __pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 291, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
@@ -5247,7 +5247,7 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_14plot(struct __pyx_obj_5freud_3msd_M
   return __pyx_r;
 }
 
-/* "freud/msd.pyx":296
+/* "freud/msd.pyx":297
  *                                     ax=ax)
  * 
  *     def _repr_png_(self):             # <<<<<<<<<<<<<<
@@ -5285,19 +5285,19 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_16_repr_png_(struct __pyx_obj_5freud_
   int __pyx_t_9;
   __Pyx_RefNannySetupContext("_repr_png_", 0);
 
-  /* "freud/msd.pyx":297
+  /* "freud/msd.pyx":298
  * 
  *     def _repr_png_(self):
  *         import freud.plot             # <<<<<<<<<<<<<<
  *         try:
  *             return freud.plot.ax_to_bytes(self.plot())
  */
-  __pyx_t_1 = __Pyx_Import(__pyx_n_s_freud_plot, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 297, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_Import(__pyx_n_s_freud_plot, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 298, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_freud = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "freud/msd.pyx":298
+  /* "freud/msd.pyx":299
  *     def _repr_png_(self):
  *         import freud.plot
  *         try:             # <<<<<<<<<<<<<<
@@ -5313,7 +5313,7 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_16_repr_png_(struct __pyx_obj_5freud_
     __Pyx_XGOTREF(__pyx_t_4);
     /*try:*/ {
 
-      /* "freud/msd.pyx":299
+      /* "freud/msd.pyx":300
  *         import freud.plot
  *         try:
  *             return freud.plot.ax_to_bytes(self.plot())             # <<<<<<<<<<<<<<
@@ -5321,12 +5321,12 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_16_repr_png_(struct __pyx_obj_5freud_
  *             return None
  */
       __Pyx_XDECREF(__pyx_r);
-      __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_freud, __pyx_n_s_plot); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 299, __pyx_L3_error)
+      __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_freud, __pyx_n_s_plot); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 300, __pyx_L3_error)
       __Pyx_GOTREF(__pyx_t_5);
-      __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_ax_to_bytes); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 299, __pyx_L3_error)
+      __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_ax_to_bytes); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 300, __pyx_L3_error)
       __Pyx_GOTREF(__pyx_t_6);
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-      __pyx_t_7 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_plot); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 299, __pyx_L3_error)
+      __pyx_t_7 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_plot); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 300, __pyx_L3_error)
       __Pyx_GOTREF(__pyx_t_7);
       __pyx_t_8 = NULL;
       if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_7))) {
@@ -5340,7 +5340,7 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_16_repr_png_(struct __pyx_obj_5freud_
       }
       __pyx_t_5 = (__pyx_t_8) ? __Pyx_PyObject_CallOneArg(__pyx_t_7, __pyx_t_8) : __Pyx_PyObject_CallNoArg(__pyx_t_7);
       __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
-      if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 299, __pyx_L3_error)
+      if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 300, __pyx_L3_error)
       __Pyx_GOTREF(__pyx_t_5);
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
       __pyx_t_7 = NULL;
@@ -5356,14 +5356,14 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_16_repr_png_(struct __pyx_obj_5freud_
       __pyx_t_1 = (__pyx_t_7) ? __Pyx_PyObject_Call2Args(__pyx_t_6, __pyx_t_7, __pyx_t_5) : __Pyx_PyObject_CallOneArg(__pyx_t_6, __pyx_t_5);
       __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 299, __pyx_L3_error)
+      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 300, __pyx_L3_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
       __pyx_r = __pyx_t_1;
       __pyx_t_1 = 0;
       goto __pyx_L7_try_return;
 
-      /* "freud/msd.pyx":298
+      /* "freud/msd.pyx":299
  *     def _repr_png_(self):
  *         import freud.plot
  *         try:             # <<<<<<<<<<<<<<
@@ -5378,7 +5378,7 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_16_repr_png_(struct __pyx_obj_5freud_
     __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
     __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
 
-    /* "freud/msd.pyx":300
+    /* "freud/msd.pyx":301
  *         try:
  *             return freud.plot.ax_to_bytes(self.plot())
  *         except AttributeError:             # <<<<<<<<<<<<<<
@@ -5387,12 +5387,12 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_16_repr_png_(struct __pyx_obj_5freud_
     __pyx_t_9 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_AttributeError);
     if (__pyx_t_9) {
       __Pyx_AddTraceback("freud.msd.MSD._repr_png_", __pyx_clineno, __pyx_lineno, __pyx_filename);
-      if (__Pyx_GetException(&__pyx_t_1, &__pyx_t_6, &__pyx_t_5) < 0) __PYX_ERR(0, 300, __pyx_L5_except_error)
+      if (__Pyx_GetException(&__pyx_t_1, &__pyx_t_6, &__pyx_t_5) < 0) __PYX_ERR(0, 301, __pyx_L5_except_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_GOTREF(__pyx_t_6);
       __Pyx_GOTREF(__pyx_t_5);
 
-      /* "freud/msd.pyx":301
+      /* "freud/msd.pyx":302
  *             return freud.plot.ax_to_bytes(self.plot())
  *         except AttributeError:
  *             return None             # <<<<<<<<<<<<<<
@@ -5407,7 +5407,7 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_16_repr_png_(struct __pyx_obj_5freud_
     goto __pyx_L5_except_error;
     __pyx_L5_except_error:;
 
-    /* "freud/msd.pyx":298
+    /* "freud/msd.pyx":299
  *     def _repr_png_(self):
  *         import freud.plot
  *         try:             # <<<<<<<<<<<<<<
@@ -5433,7 +5433,7 @@ static PyObject *__pyx_pf_5freud_3msd_3MSD_16_repr_png_(struct __pyx_obj_5freud_
     goto __pyx_L0;
   }
 
-  /* "freud/msd.pyx":296
+  /* "freud/msd.pyx":297
  *                                     ax=ax)
  * 
  *     def _repr_png_(self):             # <<<<<<<<<<<<<<
@@ -8308,7 +8308,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedBuiltins(void) {
   __pyx_builtin_ImportError = __Pyx_GetBuiltinName(__pyx_n_s_ImportError); if (!__pyx_builtin_ImportError) __PYX_ERR(0, 46, __pyx_L1_error)
   __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_n_s_ValueError); if (!__pyx_builtin_ValueError) __PYX_ERR(0, 169, __pyx_L1_error)
   __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 205, __pyx_L1_error)
-  __pyx_builtin_AttributeError = __Pyx_GetBuiltinName(__pyx_n_s_AttributeError); if (!__pyx_builtin_AttributeError) __PYX_ERR(0, 300, __pyx_L1_error)
+  __pyx_builtin_AttributeError = __Pyx_GetBuiltinName(__pyx_n_s_AttributeError); if (!__pyx_builtin_AttributeError) __PYX_ERR(0, 301, __pyx_L1_error)
   __pyx_builtin_TypeError = __Pyx_GetBuiltinName(__pyx_n_s_TypeError); if (!__pyx_builtin_TypeError) __PYX_ERR(1, 2, __pyx_L1_error)
   __pyx_builtin_RuntimeError = __Pyx_GetBuiltinName(__pyx_n_s_RuntimeError); if (!__pyx_builtin_RuntimeError) __PYX_ERR(2, 856, __pyx_L1_error)
   return 0;
@@ -8600,17 +8600,17 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GIVEREF(__pyx_tuple__32);
   __pyx_codeobj__33 = (PyObject*)__Pyx_PyCode_New(2, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__32, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_msd_pyx, __pyx_n_s_plot, 275, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__33)) __PYX_ERR(0, 275, __pyx_L1_error)
 
-  /* "freud/msd.pyx":296
+  /* "freud/msd.pyx":297
  *                                     ax=ax)
  * 
  *     def _repr_png_(self):             # <<<<<<<<<<<<<<
  *         import freud.plot
  *         try:
  */
-  __pyx_tuple__34 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_freud); if (unlikely(!__pyx_tuple__34)) __PYX_ERR(0, 296, __pyx_L1_error)
+  __pyx_tuple__34 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_freud); if (unlikely(!__pyx_tuple__34)) __PYX_ERR(0, 297, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__34);
   __Pyx_GIVEREF(__pyx_tuple__34);
-  __pyx_codeobj__35 = (PyObject*)__Pyx_PyCode_New(1, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__34, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_msd_pyx, __pyx_n_s_repr_png, 296, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__35)) __PYX_ERR(0, 296, __pyx_L1_error)
+  __pyx_codeobj__35 = (PyObject*)__Pyx_PyCode_New(1, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__34, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_msd_pyx, __pyx_n_s_repr_png, 297, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__35)) __PYX_ERR(0, 297, __pyx_L1_error)
 
   /* "(tree fragment)":1
  * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
@@ -9771,16 +9771,16 @@ if (!__Pyx_RefNanny) {
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   PyType_Modified(__pyx_ptype_5freud_3msd_MSD);
 
-  /* "freud/msd.pyx":296
+  /* "freud/msd.pyx":297
  *                                     ax=ax)
  * 
  *     def _repr_png_(self):             # <<<<<<<<<<<<<<
  *         import freud.plot
  *         try:
  */
-  __pyx_t_3 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_3msd_3MSD_17_repr_png_, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_MSD__repr_png, NULL, __pyx_n_s_freud_msd, __pyx_d, ((PyObject *)__pyx_codeobj__35)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 296, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_3msd_3MSD_17_repr_png_, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_MSD__repr_png, NULL, __pyx_n_s_freud_msd, __pyx_d, ((PyObject *)__pyx_codeobj__35)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 297, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_3msd_MSD->tp_dict, __pyx_n_s_repr_png, __pyx_t_3) < 0) __PYX_ERR(0, 296, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_3msd_MSD->tp_dict, __pyx_n_s_repr_png, __pyx_t_3) < 0) __PYX_ERR(0, 297, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   PyType_Modified(__pyx_ptype_5freud_3msd_MSD);
 
