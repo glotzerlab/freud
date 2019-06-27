@@ -14,8 +14,8 @@
 #include <vector>
 
 #include "Box.h"
-#include "ThreadStorage.h"
 #include "Cluster.h"
+#include "ThreadStorage.h"
 #include "VectorMath.h"
 #include "fsph/src/spherical_harmonics.hpp"
 

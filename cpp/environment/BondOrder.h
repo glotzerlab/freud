@@ -8,8 +8,8 @@
 #include <ostream>
 
 #include "Box.h"
-#include "ThreadStorage.h"
 #include "NeighborList.h"
+#include "ThreadStorage.h"
 #include "VectorMath.h"
 
 /*! \file BondOrder.h
@@ -97,7 +97,6 @@ private:
     std::shared_ptr<float> m_theta_array;       //!< theta array computed
     std::shared_ptr<float> m_phi_array;         //!< phi order array computed
     util::ThreadStorage<unsigned int> m_local_bin_counts;
-
 };
 
 }; }; // end namespace freud::environment

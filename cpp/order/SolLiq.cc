@@ -109,50 +109,47 @@ void SolLiq::computeClustersQ(const locality::NeighborList* nlist, const vec3<fl
     memset((void*) m_number_of_neighbors.get(), 0, sizeof(unsigned int) * Np);
 
     tbb::parallel_for(tbb::blocked_range<size_t>(0, Np), [=](const tbb::blocked_range<size_t>& r) {
+        std::vector<std::complex<float>> Y;
+        Y.resize(2 * m_l + 1);
 
-      std::vector<std::complex<float>> Y;
-      Y.resize(2 * m_l + 1);
+        size_t bond(nlist->find_first_index(r.begin()));
+        for (size_t i = r.begin(); i != r.end(); i++)
+        {
+            // Get cell point is in
+            vec3<float> ref = points[i];
 
-      size_t bond(nlist->find_first_index(r.begin()));
-      for (size_t i = r.begin(); i != r.end(); i++)
-      {
-          // Get cell point is in
-          vec3<float> ref = points[i];
+            for (; bond < nlist->getNumBonds() && neighbor_list[2 * bond] == i; ++bond)
+            {
+                const size_t j(neighbor_list[2 * bond + 1]);
+                {
+                    vec3<float> delta = m_box.wrap(points[j] - ref);
+                    float rsq = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
 
-          for (; bond < nlist->getNumBonds() && neighbor_list[2 * bond] == i; ++bond)
-          {
-              const size_t j(neighbor_list[2 * bond + 1]);
-              {
-                  vec3<float> delta = m_box.wrap(points[j] - ref);
-                  float rsq = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
+                    if (rsq < rmaxsq && i != j)
+                    {
+                        float phi = atan2(delta.y, delta.x);     // 0..2Pi
+                        float theta = acos(delta.z / sqrt(rsq)); // 0..Pi
 
-                  if (rsq < rmaxsq && i != j)
-                  {
-                      float phi = atan2(delta.y, delta.x);     // 0..2Pi
-                      float theta = acos(delta.z / sqrt(rsq)); // 0..Pi
+                        SolLiq::Ylm(theta, phi, Y);
 
-                      SolLiq::Ylm(theta, phi, Y);
-
-                      for (unsigned int k = 0; k < (2 * m_l + 1); ++k)
-                      {
-                          m_Qlmi_array.get()[(2 * m_l + 1) * i + k] += Y[k];
-                      }
-                      m_number_of_neighbors.get()[i]++;
-                  }
-              } // End loop over a particular neighbor cell
-          }     // End loops of neighboring cells
-          // if (m_number_of_neighbors[i] != 0)
-          //    {
-          //    for (unsigned int k = 0; k < (2*m_l+1); ++k)
-          //        {
-          //        m_Qlmi_array[(2*m_l+1)*i+k]/=m_number_of_neighbors[i];
-          //        }
-          //    }
-      } // Ends loop over particles i for Qlmi calcs
+                        for (unsigned int k = 0; k < (2 * m_l + 1); ++k)
+                        {
+                            m_Qlmi_array.get()[(2 * m_l + 1) * i + k] += Y[k];
+                        }
+                        m_number_of_neighbors.get()[i]++;
+                    }
+                } // End loop over a particular neighbor cell
+            }     // End loops of neighboring cells
+            // if (m_number_of_neighbors[i] != 0)
+            //    {
+            //    for (unsigned int k = 0; k < (2*m_l+1); ++k)
+            //        {
+            //        m_Qlmi_array[(2*m_l+1)*i+k]/=m_number_of_neighbors[i];
+            //        }
+            //    }
+        } // Ends loop over particles i for Qlmi calcs
     });
 }
-
-
 
 // Initializes Q6lmi, and number of solid-like neighbors per particle.
 void SolLiq::computeClustersQdot(const locality::NeighborList* nlist, const vec3<float>* points,
@@ -178,57 +175,55 @@ void SolLiq::computeClustersQdot(const locality::NeighborList* nlist, const vec3
     float rmaxsq = m_rmax * m_rmax;
     unsigned int elements = 2 * m_l + 1; // m= -l to l elements
 
-
     // for each point
     tbb::parallel_for(tbb::blocked_range<size_t>(0, Np), [=](const tbb::blocked_range<size_t>& r) {
+        size_t bond(nlist->find_first_index(r.begin()));
+        for (size_t i = r.begin(); i != r.end(); i++)
+        {
+            vec3<float> p = points[i];
 
-      size_t bond(nlist->find_first_index(r.begin()));
-      for (size_t i = r.begin(); i != r.end(); i++)
-      {
-          vec3<float> p = points[i];
+            for (; bond < nlist->getNumBonds() && neighbor_list[2 * bond] == i; ++bond)
+            {
+                const size_t j(neighbor_list[2 * bond + 1]);
+                {
+                    if (i < j)
+                    {
+                        vec3<float> delta = m_box.wrap(p - points[j]);
+                        float rsq = dot(delta, delta);
 
-          for (; bond < nlist->getNumBonds() && neighbor_list[2 * bond] == i; ++bond)
-          {
-              const size_t j(neighbor_list[2 * bond + 1]);
-              {
-                  if (i < j)
-                  {
-                      vec3<float> delta = m_box.wrap(p - points[j]);
-                      float rsq = dot(delta, delta);
-
-                      if (rsq < rmaxsq) // Check distance for candidate i,j
-                      {
-                          // Calc Q dotproduct.
-                          std::complex<float> Qdot(0.0, 0.0);
-                          std::complex<float> Qlminorm(0.0, 0.0); // Qlmi norm sq
-                          std::complex<float> Qlmjnorm(0.0, 0.0);
-                          for (unsigned int k = 0; k < (elements); ++k) // loop over m
-                          {
-                              Qdot += m_Qlmi_array.get()[(elements) *i + k]
-                                  * conj(m_Qlmi_array.get()[(elements) *j + k]);
-                              Qlminorm += m_Qlmi_array.get()[(elements) *i + k]
-                                  * conj(m_Qlmi_array.get()[(elements) *i + k]);
-                              Qlmjnorm += m_Qlmi_array.get()[(elements) *j + k]
-                                  * conj(m_Qlmi_array.get()[(elements) *j + k]);
-                          }
-                          Qlminorm = sqrt(Qlminorm);
-                          Qlmjnorm = sqrt(Qlmjnorm);
-                          Qdot = Qdot / real((Qlminorm * Qlmjnorm));
-                          m_qldot_ij[bond] = Qdot;
-                          // Check if we're bonded via the threshold criterion
-                          if (real(Qdot) > m_Qthreshold)
-                          {
-                              // Tick up counts of number of connections these particles
-                              // have
-                              m_number_of_connections_local.local()[i]++;
-                              m_number_of_connections_local.local()[j]++;
-                          }
-                      }
-                  }
-              }
-          }
-      }
-   });
+                        if (rsq < rmaxsq) // Check distance for candidate i,j
+                        {
+                            // Calc Q dotproduct.
+                            std::complex<float> Qdot(0.0, 0.0);
+                            std::complex<float> Qlminorm(0.0, 0.0); // Qlmi norm sq
+                            std::complex<float> Qlmjnorm(0.0, 0.0);
+                            for (unsigned int k = 0; k < (elements); ++k) // loop over m
+                            {
+                                Qdot += m_Qlmi_array.get()[(elements) *i + k]
+                                    * conj(m_Qlmi_array.get()[(elements) *j + k]);
+                                Qlminorm += m_Qlmi_array.get()[(elements) *i + k]
+                                    * conj(m_Qlmi_array.get()[(elements) *i + k]);
+                                Qlmjnorm += m_Qlmi_array.get()[(elements) *j + k]
+                                    * conj(m_Qlmi_array.get()[(elements) *j + k]);
+                            }
+                            Qlminorm = sqrt(Qlminorm);
+                            Qlmjnorm = sqrt(Qlmjnorm);
+                            Qdot = Qdot / real((Qlminorm * Qlmjnorm));
+                            m_qldot_ij[bond] = Qdot;
+                            // Check if we're bonded via the threshold criterion
+                            if (real(Qdot) > m_Qthreshold)
+                            {
+                                // Tick up counts of number of connections these particles
+                                // have
+                                m_number_of_connections_local.local()[i]++;
+                                m_number_of_connections_local.local()[j]++;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    });
 }
 
 // Initializes Qlmi, and number of solid-like neighbors per particle.
@@ -257,61 +252,60 @@ void SolLiq::computeClustersQdotNoNorm(const locality::NeighborList* nlist, cons
 
     // for each point
     tbb::parallel_for(tbb::blocked_range<size_t>(0, Np), [=](const tbb::blocked_range<size_t>& r) {
-      size_t bond(nlist->find_first_index(r.begin()));
-      for (size_t i = r.begin(); i != r.end(); i++)
-      {
-          vec3<float> p = points[i];
+        size_t bond(nlist->find_first_index(r.begin()));
+        for (size_t i = r.begin(); i != r.end(); i++)
+        {
+            vec3<float> p = points[i];
 
-          for (; bond < nlist->getNumBonds() && neighbor_list[2 * bond] == i; ++bond)
-          {
-              const size_t j(neighbor_list[2 * bond + 1]);
-              {
-                  if (i < j)
-                  {
-                      // compute r between the two particles
-                      vec3<float> delta = m_box.wrap(p - points[j]);
-                      float rsq = dot(delta, delta);
+            for (; bond < nlist->getNumBonds() && neighbor_list[2 * bond] == i; ++bond)
+            {
+                const size_t j(neighbor_list[2 * bond + 1]);
+                {
+                    if (i < j)
+                    {
+                        // compute r between the two particles
+                        vec3<float> delta = m_box.wrap(p - points[j]);
+                        float rsq = dot(delta, delta);
 
-                      if (rsq < rmaxsq) // Check distance for candidate i,j
-                      {
-                          // Calc Q dotproduct.
-                          std::complex<float> Qdot(0.0, 0.0);
-                          for (unsigned int k = 0; k < (elements); ++k) // loop over m
-                          {
-                              // Index here?
-                              Qdot += m_Qlmi_array.get()[(elements) *i + k]
-                                  * conj(m_Qlmi_array.get()[(elements) *j + k]);
-                          }
-                          m_qldot_ij[bond] = Qdot;
-                          //
-                          // Check if we're bonded via the threshold criterion
-                          if (real(Qdot) > m_Qthreshold)
-                          {
-                              // Tick up counts of number of connections these particles
-                              // have
-                              m_number_of_connections_local.local()[i]++;
-                              m_number_of_connections_local.local()[j]++;
-                          }
-                      }
-                  }
-              }
-          }
-      }
-   });
+                        if (rsq < rmaxsq) // Check distance for candidate i,j
+                        {
+                            // Calc Q dotproduct.
+                            std::complex<float> Qdot(0.0, 0.0);
+                            for (unsigned int k = 0; k < (elements); ++k) // loop over m
+                            {
+                                // Index here?
+                                Qdot += m_Qlmi_array.get()[(elements) *i + k]
+                                    * conj(m_Qlmi_array.get()[(elements) *j + k]);
+                            }
+                            m_qldot_ij[bond] = Qdot;
+                            //
+                            // Check if we're bonded via the threshold criterion
+                            if (real(Qdot) > m_Qthreshold)
+                            {
+                                // Tick up counts of number of connections these particles
+                                // have
+                                m_number_of_connections_local.local()[i]++;
+                                m_number_of_connections_local.local()[j]++;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    });
 }
 
 void SolLiq::reduceNumberOfConnections(unsigned int Np)
 {
     tbb::parallel_for(tbb::blocked_range<size_t>(0, Np), [=](const tbb::blocked_range<size_t>& r) {
-      for (size_t i = r.begin(); i != r.end(); ++i)
-      {
-        for (util::ThreadStorage<unsigned int>::const_iterator it
-             = m_number_of_connections_local.begin();
-             it != m_number_of_connections_local.end(); ++it)
+        for (size_t i = r.begin(); i != r.end(); ++i)
         {
-          m_number_of_connections.get()[i] += (*it)[i];
+            for (util::ThreadStorage<unsigned int>::const_iterator it = m_number_of_connections_local.begin();
+                 it != m_number_of_connections_local.end(); ++it)
+            {
+                m_number_of_connections.get()[i] += (*it)[i];
+            }
         }
-      }
     });
 }
 

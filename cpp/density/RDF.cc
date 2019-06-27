@@ -64,42 +64,38 @@ private:
     float m_sum;
     float* m_N_r_array;
     float* m_avg_counts;
+
 public:
-    CumulativeCount( float *N_r_array,
-          float *avg_counts )
+    CumulativeCount(float* N_r_array, float* avg_counts)
         : m_sum(0), m_N_r_array(N_r_array), m_avg_counts(avg_counts)
-    {
-    }
+    {}
     float get_sum() const
     {
         return m_sum;
     }
-    template<typename Tag>
-    void operator()( const blocked_range<size_t>& r, Tag )
+    template<typename Tag> void operator()(const blocked_range<size_t>& r, Tag)
     {
         float temp = m_sum;
-        for( size_t i=r.begin(); i<r.end(); i++ )
+        for (size_t i = r.begin(); i < r.end(); i++)
         {
             temp = temp + m_avg_counts[i];
-            if( Tag::is_final_scan() )
+            if (Tag::is_final_scan())
                 m_N_r_array[i] = temp;
         }
         m_sum = temp;
     }
-    CumulativeCount( CumulativeCount& b, split )
+    CumulativeCount(CumulativeCount& b, split)
         : m_sum(0), m_N_r_array(b.m_N_r_array), m_avg_counts(b.m_avg_counts)
-    {
-    }
-    void reverse_join( CumulativeCount& a )
+    {}
+    void reverse_join(CumulativeCount& a)
     {
         m_sum = a.m_sum + m_sum;
     }
-    void assign( CumulativeCount& b )
+    void assign(CumulativeCount& b)
     {
         m_sum = b.m_sum;
     }
 };
-
 
 //! \internal
 //! helper function to reduce the thread specific arrays into one array
@@ -120,8 +116,7 @@ void RDF::reduceRDF()
     parallel_for(blocked_range<size_t>(1, m_nbins), [=](const blocked_range<size_t>& r) {
         for (size_t i = r.begin(); i != r.end(); i++)
         {
-            for (util::ThreadStorage<unsigned int>::const_iterator local_bins
-                 = m_local_bin_counts.begin();
+            for (util::ThreadStorage<unsigned int>::const_iterator local_bins = m_local_bin_counts.begin();
                  local_bins != m_local_bin_counts.end(); ++local_bins)
             {
                 m_bin_counts.get()[i] += (*local_bins)[i];
@@ -132,7 +127,7 @@ void RDF::reduceRDF()
     });
 
     CumulativeCount myN_r(m_N_r_array.get(), m_avg_counts.get());
-    parallel_scan( blocked_range<size_t>(0, m_nbins), myN_r);
+    parallel_scan(blocked_range<size_t>(0, m_nbins), myN_r);
 
     for (unsigned int i = 0; i < m_nbins; i++)
     {

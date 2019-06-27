@@ -7,8 +7,8 @@
 #include <memory>
 
 #include "Box.h"
-#include "ThreadStorage.h"
 #include "NeighborList.h"
+#include "ThreadStorage.h"
 #include "VectorMath.h"
 
 /*! \file CorrelationFunction.h

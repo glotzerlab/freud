@@ -66,48 +66,48 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 class Index2D
 {
-    public:
-        //! Contstructor
-        /*! \param w Width of the square 2D array
-        */
-        HOSTDEVICE inline Index2D(unsigned int w) : m_w(w), m_h(w) {}
+public:
+    //! Contstructor
+    /*! \param w Width of the square 2D array
+     */
+    HOSTDEVICE inline Index2D(unsigned int w) : m_w(w), m_h(w) {}
 
-        //! Contstructor
-        /*! \param w Width of the rectangular 2D array
-            \param h Height of the rectangular 2D array
-        */
-        HOSTDEVICE inline Index2D(unsigned int w, unsigned int h) : m_w(w), m_h(h) {}
+    //! Contstructor
+    /*! \param w Width of the rectangular 2D array
+        \param h Height of the rectangular 2D array
+    */
+    HOSTDEVICE inline Index2D(unsigned int w, unsigned int h) : m_w(w), m_h(h) {}
 
-        //! Calculate an index
-        /*! \param i column index
-            \param j row index
-            \returns 1D array index corresponding to the 2D index (\a i, \a j) in row major order
-        */
-        HOSTDEVICE inline unsigned int operator()(unsigned int i, unsigned int j) const
-            {
-            return j*m_w + i;
-            }
+    //! Calculate an index
+    /*! \param i column index
+        \param j row index
+        \returns 1D array index corresponding to the 2D index (\a i, \a j) in row major order
+    */
+    HOSTDEVICE inline unsigned int operator()(unsigned int i, unsigned int j) const
+    {
+        return j * m_w + i;
+    }
 
-        vec2<unsigned int> operator()(unsigned int i) const
-            {
-            vec2<unsigned int> l_idx;
-            l_idx.x = i % m_w;
-            l_idx.y = i / m_w;
-            return l_idx;
-            }
+    vec2<unsigned int> operator()(unsigned int i) const
+    {
+        vec2<unsigned int> l_idx;
+        l_idx.x = i % m_w;
+        l_idx.y = i / m_w;
+        return l_idx;
+    }
 
-        //! Get the number of 1D elements stored
-        /*! \returns Number of elements stored in the underlying 1D array
-        */
-        HOSTDEVICE inline unsigned int getNumElements()
-            {
-            return m_w*m_h;
-            }
+    //! Get the number of 1D elements stored
+    /*! \returns Number of elements stored in the underlying 1D array
+     */
+    HOSTDEVICE inline unsigned int getNumElements()
+    {
+        return m_w * m_h;
+    }
 
-    private:
-        unsigned int m_w;   //!< Width of the 2D array
-        unsigned int m_h;   //!< Height of the 2D array
-    };
+private:
+    unsigned int m_w; //!< Width of the 2D array
+    unsigned int m_h; //!< Height of the 2D array
+};
 
 //! Index a 2D upper triangular array
 /*! Row major mapping of a 2D upper triangular array onto 1D
