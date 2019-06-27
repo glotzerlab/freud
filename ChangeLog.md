@@ -6,12 +6,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 * `AttributeError` is raised when one tries to access an attribute that has not yet been computed.
-* Parallelize the SolLiq order parameter computations.
+* Added `.plot()` method and IPython/Jupyter PNG representations for many classes.
 
 ### Changed
 * Removed extra C++ includes to speed up builds.
 * The C++ style is now based on clang-format.
 * Refactored C++ handling of thread-local storage.
+* SolLiq order parameter computations are parallelized with TBB.
 
 ### Fixed
 * Calling setNumThreads works correctly even if a parallel compute method has already been called.

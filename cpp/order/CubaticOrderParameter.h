@@ -28,7 +28,7 @@ public:
                           unsigned int replicates, unsigned int seed);
 
     //! Destructor
-    ~CubaticOrderParameter();
+    ~CubaticOrderParameter() {}
 
     //! Reset the bond order array to all zeros
     void reset();
