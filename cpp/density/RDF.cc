@@ -3,6 +3,7 @@
 
 #include <cassert>
 #include <stdexcept>
+#include <tbb/tbb.h>
 #ifdef __SSE2__
 #include <emmintrin.h>
 #endif
@@ -52,17 +53,8 @@ RDF::RDF(float rmax, float dr, float rmin) : util::NdHistogram(), m_rmax(rmax), 
         m_vol_array2D.get()[i] = M_PI * (nextr * nextr - r * r);
         m_vol_array3D.get()[i] = 4.0f / 3.0f * M_PI * (nextr * nextr * nextr - r * r * r);
     }
-
+    m_local_bin_counts.resize(m_nbins);
 } // end RDF::RDF
-
-RDF::~RDF()
-{
-    for (tbb::enumerable_thread_specific<unsigned int*>::iterator i = m_local_bin_counts.begin();
-         i != m_local_bin_counts.end(); ++i)
-    {
-        delete[](*i);
-    }
-}
 
 //! \internal
 //! CumulativeCount class to perform a parallel reduce to get the cumulative count for each histogram bin
@@ -128,7 +120,7 @@ void RDF::reduceRDF()
     parallel_for(blocked_range<size_t>(1, m_nbins), [=](const blocked_range<size_t>& r) {
         for (size_t i = r.begin(); i != r.end(); i++)
         {
-            for (tbb::enumerable_thread_specific<unsigned int*>::const_iterator local_bins
+            for (util::ThreadStorage<unsigned int>::const_iterator local_bins
                  = m_local_bin_counts.begin();
                  local_bins != m_local_bin_counts.end(); ++local_bins)
             {
@@ -192,7 +184,6 @@ void RDF::accumulate(box::Box& box, const locality::NeighborList* nlist, const v
         vec3<float> delta = m_box.wrap(points[j] - ref);
 
         float rsq = dot(delta, delta);
-
         if (rsq < rmaxsq && rsq > rminsq)
         {
             float r = sqrtf(rsq);

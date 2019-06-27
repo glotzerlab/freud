@@ -35,7 +35,7 @@ public:
     PMFT();
 
     //! Destructor
-    virtual ~PMFT();
+    virtual ~PMFT() {};
 
     //! Reset the PCF array to all zeros
     virtual void reset() = 0;
@@ -91,7 +91,7 @@ public:
         parallel_for(tbb::blocked_range<size_t>(0, loocal_bin_counts_size), [=](const tbb::blocked_range<size_t>& r) {
             for (size_t i = r.begin(); i != r.end(); i++)
             {
-                for (tbb::enumerable_thread_specific<unsigned int*>::const_iterator local_bins
+                for (util::ThreadStorage<unsigned int>::const_iterator local_bins
                      = m_local_bin_counts.begin();
                      local_bins != m_local_bin_counts.end(); ++local_bins)
                 {

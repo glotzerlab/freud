@@ -6,6 +6,7 @@
 
 #include "Box.h"
 #include "NeighborList.h"
+#include "ThreadStorage.h"
 
 namespace freud { namespace util {
 
@@ -79,13 +80,6 @@ public:
         tbb::parallel_for(tbb::blocked_range<size_t>(0, n_bonds),
             [=] (const tbb::blocked_range<size_t>& r)
             {
-                 bool exists;
-                m_local_bin_counts.local(exists);
-                if (!exists)
-                {
-                    m_local_bin_counts.local() = new unsigned int[bin_size];
-                    memset((void*) m_local_bin_counts.local(), 0, sizeof(unsigned int) * bin_size);
-                }
                 for(size_t bond = r.begin(); bond !=r.end(); ++bond)
                     {
                     size_t i(neighbor_list[2*bond]);
@@ -109,8 +103,8 @@ public:
 
         std::shared_ptr<float> m_pcf_array;         //!< Array of computed pair correlation function
         std::shared_ptr<unsigned int> m_bin_counts; //!< Counts for each bin
-        tbb::enumerable_thread_specific<unsigned int*>
-            m_local_bin_counts; //!< Thread local bin counts for TBB parallelism
+        util::ThreadStorage<unsigned int> m_local_bin_counts; 
+        //!< Thread local bin counts for TBB parallelism
 
 };
 

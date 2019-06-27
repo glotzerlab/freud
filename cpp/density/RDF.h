@@ -5,9 +5,9 @@
 #define RDF_H
 
 #include <memory>
-#include <tbb/tbb.h>
 
 #include "Box.h"
+#include "ThreadStorage.h"
 #include "NeighborList.h"
 #include "PMFT.h"
 #include "VectorMath.h"
@@ -25,7 +25,7 @@ public:
     RDF(float rmax, float dr, float rmin = 0);
 
     //! Destructor
-    ~RDF();
+    ~RDF() {};
 
     //! Reset the RDF array to all zeros
     void reset();

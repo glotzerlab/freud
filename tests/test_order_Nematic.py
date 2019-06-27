@@ -1,7 +1,6 @@
 import numpy as np
 import numpy.testing as npt
 import freud
-import warnings
 import unittest
 
 
@@ -28,7 +27,24 @@ class TestNematicOrder(unittest.TestCase):
         # Test for parallel to molecular axis
         u = np.array([1, 0, 0])
         op_parallel = freud.order.NematicOrderParameter(u)
+
+        # Test access
+        with self.assertRaises(AttributeError):
+            op_parallel.nematic_order_parameter
+        with self.assertRaises(AttributeError):
+            op_parallel.director
+        with self.assertRaises(AttributeError):
+            op_parallel.particle_tensor
+        with self.assertRaises(AttributeError):
+            op_parallel.nematic_tensor
+
         op_parallel.compute(orientations)
+
+        # Test access
+        op_parallel.nematic_order_parameter
+        op_parallel.director
+        op_parallel.particle_tensor
+        op_parallel.nematic_tensor
 
         self.assertTrue(op_parallel.nematic_order_parameter == 1)
         npt.assert_equal(op_parallel.director, u)

@@ -23,14 +23,6 @@ PMFT::PMFT() : util::NdHistogram() {}
 
 /*! All PMFT classes have the same deletion logic
  */
-PMFT::~PMFT()
-{
-    for (tbb::enumerable_thread_specific<unsigned int*>::iterator i = m_local_bin_counts.begin();
-         i != m_local_bin_counts.end(); ++i)
-    {
-        delete[](*i);
-    }
-}
 
 std::shared_ptr<float> PMFT::precomputeAxisBinCenter(unsigned int size, float d, float max)
 {

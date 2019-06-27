@@ -24,20 +24,46 @@ class TestLocalWl(unittest.TestCase):
 
         comp = freud.order.LocalWl(box, 1.5, 6)
 
+        with self.assertRaises(AttributeError):
+            comp.num_particles
+        with self.assertRaises(AttributeError):
+            comp.Wl
+        with self.assertRaises(AttributeError):
+            comp.ave_Wl
+        with self.assertRaises(AttributeError):
+            comp.norm_Wl
+        with self.assertRaises(AttributeError):
+            comp.ave_norm_Wl
+
         comp.compute(positions)
         self.assertTrue(np.isclose(
             np.real(np.average(comp.Wl)), -0.0026260, atol=1e-5))
         self.assertTrue(np.allclose(comp.Wl, comp.Wl[0]))
+
+        with self.assertRaises(AttributeError):
+            comp.ave_Wl
+        with self.assertRaises(AttributeError):
+            comp.norm_Wl
+        with self.assertRaises(AttributeError):
+            comp.ave_norm_Wl
 
         comp.computeAve(positions)
         self.assertTrue(np.isclose(
             np.real(np.average(comp.Wl)), -0.0026260, atol=1e-5))
         self.assertTrue(np.allclose(comp.ave_Wl, comp.ave_Wl[0]))
 
+        with self.assertRaises(AttributeError):
+            comp.norm_Wl
+        with self.assertRaises(AttributeError):
+            comp.ave_norm_Wl
+
         comp.computeNorm(positions)
         self.assertTrue(np.isclose(
             np.real(np.average(comp.Wl)), -0.0026260, atol=1e-5))
         self.assertTrue(np.allclose(comp.norm_Wl, comp.norm_Wl[0]))
+
+        with self.assertRaises(AttributeError):
+            comp.ave_norm_Wl
 
         comp.computeAveNorm(positions)
         self.assertTrue(np.isclose(
@@ -78,20 +104,46 @@ class TestLocalWlNear(unittest.TestCase):
 
         comp = freud.order.LocalWlNear(box, 1.5, 6, 12)
 
+        with self.assertRaises(AttributeError):
+            comp.num_particles
+        with self.assertRaises(AttributeError):
+            comp.Wl
+        with self.assertRaises(AttributeError):
+            comp.ave_Wl
+        with self.assertRaises(AttributeError):
+            comp.norm_Wl
+        with self.assertRaises(AttributeError):
+            comp.ave_norm_Wl
+
         comp.compute(positions)
         self.assertTrue(np.isclose(
             np.real(np.average(comp.Wl)), -0.0026260, atol=1e-5))
         self.assertTrue(np.allclose(comp.Wl, comp.Wl[0]))
+
+        with self.assertRaises(AttributeError):
+            comp.ave_Wl
+        with self.assertRaises(AttributeError):
+            comp.norm_Wl
+        with self.assertRaises(AttributeError):
+            comp.ave_norm_Wl
 
         comp.computeAve(positions)
         self.assertTrue(np.isclose(
             np.real(np.average(comp.Wl)), -0.0026260, atol=1e-5))
         self.assertTrue(np.allclose(comp.ave_Wl, comp.ave_Wl[0]))
 
+        with self.assertRaises(AttributeError):
+            comp.norm_Wl
+        with self.assertRaises(AttributeError):
+            comp.ave_norm_Wl
+
         comp.computeNorm(positions)
         self.assertTrue(np.isclose(
             np.real(np.average(comp.Wl)), -0.0026260, atol=1e-5))
         self.assertTrue(np.allclose(comp.norm_Wl, comp.norm_Wl[0]))
+
+        with self.assertRaises(AttributeError):
+            comp.ave_norm_Wl
 
         comp.computeAveNorm(positions)
         self.assertTrue(np.isclose(
