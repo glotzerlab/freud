@@ -3,6 +3,7 @@
 
 #include <complex>
 #include <stdexcept>
+#include <tbb/tbb.h>
 #ifdef __SSE2__
 #include <emmintrin.h>
 #endif
@@ -82,9 +83,6 @@ BondOrder::BondOrder(float rmax, float k, unsigned int n, unsigned int nbins_t, 
     memset((void*) m_bin_counts.get(), 0, sizeof(float) * m_nbins_t * m_nbins_p);
 }
 
-BondOrder::~BondOrder()
-{}
-
 void BondOrder::reduceBondOrder()
 {
     memset((void*) m_bo_array.get(), 0, sizeof(float) * m_nbins_t * m_nbins_p);
@@ -95,7 +93,7 @@ void BondOrder::reduceBondOrder()
         {
             for (size_t j = 0; j < m_nbins_p; j++)
             {
-                for (tbb::enumerable_thread_specific<unsigned int*>::const_iterator local_bins
+                for (util::ThreadStorage<unsigned int>::const_iterator local_bins
                      = m_local_bin_counts.begin();
                      local_bins != m_local_bin_counts.end(); ++local_bins)
                 {

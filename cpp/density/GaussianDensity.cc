@@ -3,6 +3,7 @@
 
 #include <cassert>
 #include <stdexcept>
+#include <tbb/tbb.h>
 
 #include "GaussianDensity.h"
 
@@ -34,8 +35,6 @@ GaussianDensity::GaussianDensity(unsigned int width_x, unsigned int width_y, uns
         throw invalid_argument("GaussianDensity requires r_cut to be positive.");
 }
 
-GaussianDensity::~GaussianDensity() {}
-
 void GaussianDensity::reduceDensity()
 {
     memset((void*) m_density_array.get(), 0, sizeof(float) * m_bi.getNumElements());
@@ -43,8 +42,7 @@ void GaussianDensity::reduceDensity()
     parallel_for(blocked_range<size_t>(0, m_bi.getNumElements()), [=](const blocked_range<size_t>& r) {
         for (size_t i = r.begin(); i != r.end(); i++)
         {
-            for (tbb::enumerable_thread_specific<float*>::const_iterator local_bins
-                 = m_local_bin_counts.begin();
+            for (util::ThreadStorage<float>::const_iterator local_bins = m_local_bin_counts.begin();
                  local_bins != m_local_bin_counts.end(); ++local_bins)
             {
                 m_density_array.get()[i] += (*local_bins)[i];
@@ -117,8 +115,12 @@ void GaussianDensity::compute(const box::Box& box, const vec3<float>* points, un
     // this does not agree with rest of freud
     m_density_array
         = std::shared_ptr<float>(new float[m_bi.getNumElements()], std::default_delete<float[]>());
+<<<<<<< HEAD
     m_local_bin_counts.updateSize(m_bi.getNumElements());
 
+=======
+    m_local_bin_counts.resize(m_bi.getNumElements());
+>>>>>>> master
     parallel_for(blocked_range<size_t>(0, Np), [=](const blocked_range<size_t>& r) {
         assert(points);
         assert(Np > 0);

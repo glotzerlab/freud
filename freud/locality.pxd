@@ -8,7 +8,7 @@ cimport freud._locality
 cimport freud.box
 
 cdef class NeighborQueryResult:
-    cdef freud._locality.NeighborQuery * nqptr
+    cdef NeighborQuery nq
     cdef const float[:, ::1] points
     cdef float r
     cdef unsigned int k
@@ -28,14 +28,14 @@ cdef class NeighborQueryResult:
     # compile with a cdef method.
     @staticmethod
     cdef inline NeighborQueryResult init(
-            freud._locality.NeighborQuery * nqptr, const float[:, ::1] points,
+            NeighborQuery nq, const float[:, ::1] points,
             cbool exclude_ii, float r=0, unsigned int k=0):
         # Internal API only
         assert r != 0 or k != 0
 
         obj = NeighborQueryResult()
 
-        obj.nqptr = nqptr
+        obj.nq = nq
         obj.points = points
         obj.exclude_ii = exclude_ii
         obj.Np = points.shape[0]
@@ -52,19 +52,18 @@ cdef class NeighborQueryResult:
 
 
 cdef class AABBQueryResult(NeighborQueryResult):
-    cdef freud._locality.AABBQuery * aabbptr
+    cdef AABBQuery aabbq
     cdef float scale
 
     @staticmethod
     cdef inline AABBQueryResult init_aabb_nn(
-            freud._locality.AABBQuery * aabbptr, const float[:, ::1] points,
+            AABBQuery aabbq, const float[:, ::1] points,
             cbool exclude_ii, unsigned int k, float r, float scale):
         # Internal API only
         assert k != 0
 
         obj = AABBQueryResult()
-
-        obj.aabbptr = obj.nqptr = aabbptr
+        obj.aabbq = obj.nq = aabbq
         obj.points = points
         obj.exclude_ii = exclude_ii
         obj.Np = points.shape[0]

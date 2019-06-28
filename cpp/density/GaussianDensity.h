@@ -9,6 +9,7 @@
 #include "Box.h"
 #include "ETSWrapper.h"
 #include "Index1D.h"
+#include "ThreadStorage.h"
 #include "VectorMath.h"
 #include "NeighborComputeFunctional.h"
 
@@ -32,7 +33,7 @@ public:
                     float sigma);
 
     // Destructor
-    ~GaussianDensity();
+    ~GaussianDensity() {}
 
     //! Get the simulation box
     const box::Box& getBox() const
@@ -68,7 +69,7 @@ private:
     bool m_reduce;                                //!< Whether arrays need to be reduced across threads
 
     std::shared_ptr<float> m_density_array; //! computed density array
-    util::ETSArrayWrapper<float> m_local_bin_counts;
+    util::ThreadStorage<float> m_local_bin_counts;
 };
 
 }; }; // end namespace freud::density

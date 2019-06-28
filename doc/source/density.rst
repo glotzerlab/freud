@@ -22,16 +22,16 @@ Correlation Functions
 =====================
 
 .. autoclass:: freud.density.FloatCF(rmax, dr)
-    :members: accumulate, compute, reset
+    :members: accumulate, compute, reset, plot
 
 .. autoclass:: freud.density.ComplexCF(rmax, dr)
-    :members: accumulate, compute, reset
+    :members: accumulate, compute, reset, plot
 
 Gaussian Density
 ================
 
 .. autoclass:: freud.density.GaussianDensity(\*args)
-    :members: compute
+    :members: compute, plot
 
 Local Density
 =============
@@ -43,4 +43,4 @@ Radial Distribution Function
 ============================
 
 .. autoclass:: freud.density.RDF(rmax, dr, rmin=0)
-    :members: accumulate, compute, reset
+    :members: accumulate, compute, reset, plot

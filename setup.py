@@ -355,6 +355,7 @@ extra_module_sources = dict(
     ],
     density=[
         os.path.join("cpp", "locality", "NeighborList.cc"),
+        os.path.join("cpp", "util", "NdHistogram.cc"),
     ],
     environment=[
         os.path.join("cpp", "locality", "NeighborList.cc"),
@@ -366,6 +367,7 @@ extra_module_sources = dict(
     ],
     pmft=[
         os.path.join("cpp", "locality", "NeighborList.cc"),
+        os.path.join("cpp", "util", "NdHistogram.cc"),
     ],
 )
 
@@ -394,7 +396,7 @@ if args.use_cython:
 if platform.system() == 'Darwin':
     os.environ["MACOSX_DEPLOYMENT_TARGET"]= "10.12"
 
-version = '1.1.0'
+version = '1.2.0'
 
 # Read README for PyPI, fallback to short description if it fails.
 desc = 'Powerful, efficient trajectory analysis in scientific Python.'

@@ -52,13 +52,9 @@ CorrelationFunction<T>::CorrelationFunction(float rmax, float dr)
         float nextr = float(i + 1) * m_dr;
         m_r_array.get()[i] = 2.0f / 3.0f * (nextr * nextr * nextr - r * r * r) / (nextr * nextr - r * r);
     }
-
-    m_local_bin_counts.updateSize(m_nbins);
-    m_local_rdf_array.updateSize(m_nbins);
+    m_local_bin_counts.resize(m_nbins);
+    m_local_rdf_array.resize(m_nbins);
 }
-
-template<typename T> CorrelationFunction<T>::~CorrelationFunction()
-{}
 
 //! \internal
 //! helper function to reduce the thread specific arrays into one array
@@ -71,14 +67,12 @@ template<typename T> void CorrelationFunction<T>::reduceCorrelationFunction()
     parallel_for(tbb::blocked_range<size_t>(0, m_nbins), [=](const blocked_range<size_t>& r) {
         for (size_t i = r.begin(); i != r.end(); i++)
         {
-            for (tbb::enumerable_thread_specific<unsigned int*>::const_iterator local_bins
-                 = m_local_bin_counts.begin();
+            for (util::ThreadStorage<unsigned int>::const_iterator local_bins = m_local_bin_counts.begin();
                  local_bins != m_local_bin_counts.end(); ++local_bins)
             {
                 m_bin_counts.get()[i] += (*local_bins)[i];
             }
-            for (typename tbb::enumerable_thread_specific<T*>::const_iterator local_rdf
-                 = m_local_rdf_array.begin();
+            for (typename util::ThreadStorage<T>::const_iterator local_rdf = m_local_rdf_array.begin();
                  local_rdf != m_local_rdf_array.end(); ++local_rdf)
             {
                 m_rdf_array.get()[i] += (*local_rdf)[i];
@@ -108,8 +102,8 @@ template<typename T> std::shared_ptr<T> CorrelationFunction<T>::getRDF()
 template<typename T> void CorrelationFunction<T>::reset()
 {
     // zero the bin counts for totaling
-    m_local_bin_counts.reset();
     m_local_rdf_array.reset();
+    m_local_bin_counts.reset();
     // reset the frame counter
     m_frame_counter = 0;
     m_reduce = true;
