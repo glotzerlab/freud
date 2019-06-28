@@ -24,6 +24,7 @@ class BenchmarkPMFTPMFTR12(Benchmark):
 
     def bench_run(self, N):
         self.pmft.compute(self.box, self.points, self.orientations)
+        self.pmft.bin_counts
 
 
 def run():

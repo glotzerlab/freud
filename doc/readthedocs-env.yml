@@ -27,6 +27,7 @@ dependencies:
   - jinja2=2.10=py_1
   - jsonschema=3.0.1=py37_0
   - jupyter_core=4.4.0=py_0
+  - jupyter_sphinx
   - libffi=3.2.1=hf484d3e_1005
   - libgcc-ng=7.3.0=hdf63c60_0
   - libgfortran-ng=7.2.0=hdf63c60_3

@@ -27,7 +27,7 @@ PMFT :math:`\left(x, y\right)`
 ==============================
 
 .. autoclass:: freud.pmft.PMFTXY2D(x_max, y_max, n_x, n_y)
-    :members: accumulate, compute, reset
+    :members: accumulate, compute, reset, plot
 
 PMFT :math:`\left(x, y, \theta\right)`
 ======================================

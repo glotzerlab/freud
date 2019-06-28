@@ -52,19 +52,19 @@ Steinhardt :math:`Q_l` Order Parameter
 ======================================
 
 .. autoclass:: freud.order.LocalQl(box, rmax, l, rmin)
-    :members: compute, computeAve, computeAveNorm, computeNorm, setBox
+    :members: compute, computeAve, computeAveNorm, computeNorm, setBox, plot
 
 .. autoclass:: freud.order.LocalQlNear(box, rmax, l, kn)
-    :members: compute, computeAve, computeAveNorm, computeNorm, setBox
+    :members: compute, computeAve, computeAveNorm, computeNorm, setBox, plot
 
 Steinhardt :math:`W_l` Order Parameter
 ======================================
 
 .. autoclass:: freud.order.LocalWl(box, rmax, l)
-    :members: compute, computeAve, computeAveNorm, computeNorm, setBox
+    :members: compute, computeAve, computeAveNorm, computeNorm, setBox, plot
 
 .. autoclass:: freud.order.LocalWlNear(box, rmax, l, kn)
-    :members: compute, computeAve, computeAveNorm, computeNorm, setBox
+    :members: compute, computeAve, computeAveNorm, computeNorm, setBox, plot
 
 Solid-Liquid Order Parameter
 ============================

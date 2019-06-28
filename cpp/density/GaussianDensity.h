@@ -7,8 +7,8 @@
 #include <memory>
 
 #include "Box.h"
-#include "ThreadStorage.h"
 #include "Index1D.h"
+#include "ThreadStorage.h"
 #include "VectorMath.h"
 
 /*! \file GaussianDensity.h

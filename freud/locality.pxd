@@ -7,8 +7,57 @@ from libcpp.memory cimport shared_ptr
 cimport freud._locality
 cimport freud.box
 
-cdef class NeighborQueryResult:
+
+cdef class NeighborQuery:
     cdef freud._locality.NeighborQuery * nqptr
+    cdef cbool queryable
+    cdef freud.box.Box _box
+    cdef const float[:, ::1] points
+
+
+cdef class NeighborList:
+    cdef freud._locality.NeighborList * thisptr
+    cdef char _managed
+    cdef base
+
+    cdef refer_to(self, freud._locality.NeighborList * other)
+    cdef freud._locality.NeighborList * get_ptr(self) nogil
+    cdef void copy_c(self, NeighborList other)
+
+
+cdef class IteratorLinkCell:
+    cdef freud._locality.IteratorLinkCell * thisptr
+
+    cdef void copy(self, const freud._locality.IteratorLinkCell & rhs)
+
+
+cdef class LinkCell(NeighborQuery):
+    cdef freud._locality.LinkCell * thisptr
+    cdef NeighborList _nlist
+
+
+cdef class NearestNeighbors:
+    cdef freud._locality.NearestNeighbors * thisptr
+    cdef NeighborList _nlist
+    cdef _cached_points
+    cdef _cached_ref_points
+    cdef _cached_box
+
+
+cdef class AABBQuery(NeighborQuery):
+    cdef freud._locality.AABBQuery * thisptr
+    cdef NeighborList _nlist
+
+
+cdef class _Voronoi:
+    cdef freud._locality.Voronoi * thisptr
+    cdef NeighborList _nlist
+    cdef _volumes
+    cdef _polytopes
+
+
+cdef class NeighborQueryResult:
+    cdef NeighborQuery nq
     cdef const float[:, ::1] points
     cdef float r
     cdef unsigned int k
@@ -28,14 +77,14 @@ cdef class NeighborQueryResult:
     # compile with a cdef method.
     @staticmethod
     cdef inline NeighborQueryResult init(
-            freud._locality.NeighborQuery * nqptr, const float[:, ::1] points,
+            NeighborQuery nq, const float[:, ::1] points,
             cbool exclude_ii, float r=0, unsigned int k=0):
         # Internal API only
         assert r != 0 or k != 0
 
         obj = NeighborQueryResult()
 
-        obj.nqptr = nqptr
+        obj.nq = nq
         obj.points = points
         obj.exclude_ii = exclude_ii
         obj.Np = points.shape[0]
@@ -52,19 +101,18 @@ cdef class NeighborQueryResult:
 
 
 cdef class AABBQueryResult(NeighborQueryResult):
-    cdef freud._locality.AABBQuery * aabbptr
+    cdef AABBQuery aabbq
     cdef float scale
 
     @staticmethod
     cdef inline AABBQueryResult init_aabb_nn(
-            freud._locality.AABBQuery * aabbptr, const float[:, ::1] points,
+            AABBQuery aabbq, const float[:, ::1] points,
             cbool exclude_ii, unsigned int k, float r, float scale):
         # Internal API only
         assert k != 0
 
         obj = AABBQueryResult()
-
-        obj.aabbptr = obj.nqptr = aabbptr
+        obj.aabbq = obj.nq = aabbq
         obj.points = points
         obj.exclude_ii = exclude_ii
         obj.Np = points.shape[0]
@@ -78,45 +126,3 @@ cdef class AABBQueryResult(NeighborQueryResult):
         obj.scale = scale
 
         return obj
-
-
-cdef class NeighborQuery:
-    cdef freud._locality.NeighborQuery * nqptr
-    cdef cbool queryable
-    cdef freud.box.Box _box
-    cdef const float[:, ::1] points
-
-cdef class NeighborList:
-    cdef freud._locality.NeighborList * thisptr
-    cdef char _managed
-    cdef base
-
-    cdef refer_to(self, freud._locality.NeighborList * other)
-    cdef freud._locality.NeighborList * get_ptr(self) nogil
-    cdef void copy_c(self, NeighborList other)
-
-cdef class IteratorLinkCell:
-    cdef freud._locality.IteratorLinkCell * thisptr
-
-    cdef void copy(self, const freud._locality.IteratorLinkCell & rhs)
-
-cdef class LinkCell(NeighborQuery):
-    cdef freud._locality.LinkCell * thisptr
-    cdef NeighborList _nlist
-
-cdef class NearestNeighbors:
-    cdef freud._locality.NearestNeighbors * thisptr
-    cdef NeighborList _nlist
-    cdef _cached_points
-    cdef _cached_ref_points
-    cdef _cached_box
-
-cdef class AABBQuery(NeighborQuery):
-    cdef freud._locality.AABBQuery * thisptr
-    cdef NeighborList _nlist
-
-cdef class _Voronoi:
-    cdef freud._locality.Voronoi * thisptr
-    cdef NeighborList _nlist
-    cdef _volumes
-    cdef _polytopes

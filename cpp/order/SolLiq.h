@@ -15,6 +15,7 @@
 
 #include "Box.h"
 #include "Cluster.h"
+#include "ThreadStorage.h"
 #include "VectorMath.h"
 #include "fsph/src/spherical_harmonics.hpp"
 
@@ -146,6 +147,8 @@ private:
     void computeClustersQdotNoNorm(const locality::NeighborList* nlist, const vec3<float>* points,
                                    unsigned int Np);
 
+    void reduceNumberOfConnections(unsigned int Np);
+
     box::Box m_box;       //!< Simulation box where the particles belong
     float m_rmax;         //!< Maximum cutoff radius at which to determine local environment
     float m_rmax_cluster; //!< Maximum radius at which to cluster solid-like particles;
@@ -162,6 +165,8 @@ private:
     std::vector<std::complex<float>> m_qldot_ij; //!< All of the Qlmi dot Qlmj's computed
     //! Number of connections for each particle with dot product above Qthreshold
     std::shared_ptr<unsigned int> m_number_of_connections;
+    util::ThreadStorage<unsigned int> m_number_of_connections_local;
+
     //! Number of neighbors for each particle (used for normalizing spherical harmonics)
     std::shared_ptr<unsigned int> m_number_of_neighbors;
     //! Stores number of shared neighbors for all ij pairs considered

@@ -946,7 +946,7 @@ struct __pyx_obj_5freud_6common___pyx_scope_struct_3__computed_property_with_key
  *             @wraps(func)
  *             def wrapper(self, *args, **kwargs):             # <<<<<<<<<<<<<<
  *                 if not any(self._called_compute.get(k, False) for k in key):
- *                     raise AttributeError("Property not computed. "
+ *                     raise AttributeError("Property not computed. Call one of: "
  */
 struct __pyx_obj_5freud_6common___pyx_scope_struct_4_wrapper {
   PyObject_HEAD
@@ -959,8 +959,8 @@ struct __pyx_obj_5freud_6common___pyx_scope_struct_4_wrapper {
  *             @wraps(func)
  *             def wrapper(self, *args, **kwargs):
  *                 if not any(self._called_compute.get(k, False) for k in key):             # <<<<<<<<<<<<<<
- *                     raise AttributeError("Property not computed. "
- *                                          "Call {key} first.".format(key=key))
+ *                     raise AttributeError("Property not computed. Call one of: "
+ *                                          "{} first.".format(', '.join(key)))
  */
 struct __pyx_obj_5freud_6common___pyx_scope_struct_5_genexpr {
   PyObject_HEAD
@@ -1001,7 +1001,7 @@ struct __pyx_obj_5freud_6common___pyx_scope_struct_7__computed_property_with_key
  *             @wraps(func)
  *             def wrapper(self, *args, **kwargs):             # <<<<<<<<<<<<<<
  *                 if not any(self._called_compute.get(k, False) for k in key):
- *                     raise AttributeError("Property not computed. "
+ *                     raise AttributeError("Property not computed. Call one of: "
  */
 struct __pyx_obj_5freud_6common___pyx_scope_struct_8_wrapper {
   PyObject_HEAD
@@ -1014,8 +1014,8 @@ struct __pyx_obj_5freud_6common___pyx_scope_struct_8_wrapper {
  *             @wraps(func)
  *             def wrapper(self, *args, **kwargs):
  *                 if not any(self._called_compute.get(k, False) for k in key):             # <<<<<<<<<<<<<<
- *                     raise AttributeError("Property not computed. "
- *                                          "Call {key} first.".format(key=key))
+ *                     raise AttributeError("Property not computed. Call one of: "
+ *                                          "{} first.".format(', '.join(key)))
  */
 struct __pyx_obj_5freud_6common___pyx_scope_struct_9_genexpr {
   PyObject_HEAD
@@ -1311,6 +1311,24 @@ static CYTHON_INLINE void __Pyx_CyFunction_SetAnnotationsDict(PyObject *m,
                                                               PyObject *dict);
 static int __pyx_CyFunction_init(void);
 
+/* StringJoin.proto */
+#if PY_MAJOR_VERSION < 3
+#define __Pyx_PyString_Join __Pyx_PyBytes_Join
+#define __Pyx_PyBaseString_Join(s, v) (PyUnicode_CheckExact(s) ? PyUnicode_Join(s, v) : __Pyx_PyBytes_Join(s, v))
+#else
+#define __Pyx_PyString_Join PyUnicode_Join
+#define __Pyx_PyBaseString_Join PyUnicode_Join
+#endif
+#if CYTHON_COMPILING_IN_CPYTHON
+    #if PY_MAJOR_VERSION < 3
+    #define __Pyx_PyBytes_Join _PyString_Join
+    #else
+    #define __Pyx_PyBytes_Join _PyBytes_Join
+    #endif
+#else
+static CYTHON_INLINE PyObject* __Pyx_PyBytes_Join(PyObject* sep, PyObject* values);
+#endif
+
 /* PyThreadStateGet.proto */
 #if CYTHON_FAST_THREAD_STATE
 #define __Pyx_PyThreadState_declare  PyThreadState *__pyx_tstate;
@@ -1385,24 +1403,6 @@ static CYTHON_INLINE PyObject *__Pyx_GetItemInt_Fast(PyObject *o, Py_ssize_t i,
 static CYTHON_INLINE PyObject *__Pyx_PyObject_GetItem(PyObject *obj, PyObject* key);
 #else
 #define __Pyx_PyObject_GetItem(obj, key)  PyObject_GetItem(obj, key)
-#endif
-
-/* StringJoin.proto */
-#if PY_MAJOR_VERSION < 3
-#define __Pyx_PyString_Join __Pyx_PyBytes_Join
-#define __Pyx_PyBaseString_Join(s, v) (PyUnicode_CheckExact(s) ? PyUnicode_Join(s, v) : __Pyx_PyBytes_Join(s, v))
-#else
-#define __Pyx_PyString_Join PyUnicode_Join
-#define __Pyx_PyBaseString_Join PyUnicode_Join
-#endif
-#if CYTHON_COMPILING_IN_CPYTHON
-    #if PY_MAJOR_VERSION < 3
-    #define __Pyx_PyBytes_Join _PyString_Join
-    #else
-    #define __Pyx_PyBytes_Join _PyBytes_Join
-    #endif
-#else
-static CYTHON_INLINE PyObject* __Pyx_PyBytes_Join(PyObject* sep, PyObject* values);
 #endif
 
 /* GetTopmostException.proto */
@@ -1641,11 +1641,11 @@ static const char __pyx_k_C[] = "C";
 static const char __pyx_k_i[] = "i";
 static const char __pyx_k_k[] = "k";
 static const char __pyx_k_s[] = "s";
+static const char __pyx_k__5[] = ", ";
 static const char __pyx_k_np[] = "np";
 static const char __pyx_k_Box[] = "Box";
-static const char __pyx_k__17[] = "...";
-static const char __pyx_k__18[] = "(";
-static const char __pyx_k__19[] = ", ";
+static const char __pyx_k__18[] = "...";
+static const char __pyx_k__19[] = "(";
 static const char __pyx_k__20[] = ")";
 static const char __pyx_k_box[] = "box";
 static const char __pyx_k_get[] = "get";
@@ -1726,7 +1726,7 @@ static const char __pyx_k_convert_array_locals_genexpr[] = "convert_array.<local
 static const char __pyx_k_compute_locals__compute_with_ke[] = "_compute.<locals>._compute_with_key.<locals>.wrapper";
 static const char __pyx_k_computed_method_locals__compute[] = "_computed_method.<locals>._computed_property_with_key.<locals>.wrapper.<locals>.genexpr";
 static const char __pyx_k_computed_property_locals__compu[] = "_computed_property.<locals>._computed_property_with_key.<locals>.wrapper.<locals>.genexpr";
-static const char __pyx_k_Property_not_computed_Call_key_f[] = "Property not computed. Call {key} first.";
+static const char __pyx_k_Property_not_computed_Call_one_o[] = "Property not computed. Call one of: {} first.";
 static const char __pyx_k_no_default___reduce___due_to_non[] = "no default __reduce__ due to non-trivial __cinit__";
 static const char __pyx_k_compute_locals__compute_with_ke_2[] = "_compute.<locals>._compute_with_key";
 static const char __pyx_k_computed_method_locals__compute_2[] = "_computed_method.<locals>._computed_property_with_key.<locals>.wrapper";
@@ -1744,13 +1744,13 @@ static PyObject *__pyx_n_s_Compute__computed_method;
 static PyObject *__pyx_n_s_Compute__computed_property;
 static PyObject *__pyx_n_s_Compute__reset;
 static PyObject *__pyx_n_s_Compute__set_compute_flag;
-static PyObject *__pyx_kp_s_Property_not_computed_Call_key_f;
+static PyObject *__pyx_kp_s_Property_not_computed_Call_one_o;
 static PyObject *__pyx_n_s_TypeError;
 static PyObject *__pyx_n_s_ValueError;
-static PyObject *__pyx_kp_s__17;
 static PyObject *__pyx_kp_s__18;
 static PyObject *__pyx_kp_s__19;
 static PyObject *__pyx_kp_s__20;
+static PyObject *__pyx_kp_s__5;
 static PyObject *__pyx_n_s_args;
 static PyObject *__pyx_n_s_array;
 static PyObject *__pyx_kp_s_array_ndim_expected_ndim;
@@ -1871,13 +1871,13 @@ static PyObject *__pyx_int_0;
 static PyObject *__pyx_int_1;
 static PyObject *__pyx_tuple_;
 static PyObject *__pyx_tuple__3;
-static PyObject *__pyx_tuple__5;
-static PyObject *__pyx_tuple__7;
-static PyObject *__pyx_tuple__9;
-static PyObject *__pyx_tuple__11;
-static PyObject *__pyx_tuple__13;
-static PyObject *__pyx_tuple__15;
+static PyObject *__pyx_tuple__6;
+static PyObject *__pyx_tuple__8;
+static PyObject *__pyx_tuple__10;
+static PyObject *__pyx_tuple__12;
+static PyObject *__pyx_tuple__14;
 static PyObject *__pyx_tuple__16;
+static PyObject *__pyx_tuple__17;
 static PyObject *__pyx_tuple__21;
 static PyObject *__pyx_tuple__23;
 static PyObject *__pyx_tuple__25;
@@ -1889,11 +1889,11 @@ static PyObject *__pyx_tuple__35;
 static PyObject *__pyx_tuple__37;
 static PyObject *__pyx_codeobj__2;
 static PyObject *__pyx_codeobj__4;
-static PyObject *__pyx_codeobj__6;
-static PyObject *__pyx_codeobj__8;
-static PyObject *__pyx_codeobj__10;
-static PyObject *__pyx_codeobj__12;
-static PyObject *__pyx_codeobj__14;
+static PyObject *__pyx_codeobj__7;
+static PyObject *__pyx_codeobj__9;
+static PyObject *__pyx_codeobj__11;
+static PyObject *__pyx_codeobj__13;
+static PyObject *__pyx_codeobj__15;
 static PyObject *__pyx_codeobj__22;
 static PyObject *__pyx_codeobj__24;
 static PyObject *__pyx_codeobj__26;
@@ -2562,7 +2562,7 @@ static PyObject *__pyx_pw_5freud_6common_7Compute_18_computed_property_1_compute
  *             @wraps(func)
  *             def wrapper(self, *args, **kwargs):             # <<<<<<<<<<<<<<
  *                 if not any(self._called_compute.get(k, False) for k in key):
- *                     raise AttributeError("Property not computed. "
+ *                     raise AttributeError("Property not computed. Call one of: "
  */
 
 /* Python wrapper */
@@ -2641,8 +2641,8 @@ static PyObject *__pyx_gb_5freud_6common_7Compute_18_computed_property_27_comput
  *             @wraps(func)
  *             def wrapper(self, *args, **kwargs):
  *                 if not any(self._called_compute.get(k, False) for k in key):             # <<<<<<<<<<<<<<
- *                     raise AttributeError("Property not computed. "
- *                                          "Call {key} first.".format(key=key))
+ *                     raise AttributeError("Property not computed. Call one of: "
+ *                                          "{} first.".format(', '.join(key)))
  */
 
 static PyObject *__pyx_pf_5freud_6common_7Compute_18_computed_property_27_computed_property_with_key_7wrapper_genexpr(PyObject *__pyx_self) {
@@ -2841,7 +2841,7 @@ static PyObject *__pyx_gb_5freud_6common_7Compute_18_computed_property_27_comput
  *             @wraps(func)
  *             def wrapper(self, *args, **kwargs):             # <<<<<<<<<<<<<<
  *                 if not any(self._called_compute.get(k, False) for k in key):
- *                     raise AttributeError("Property not computed. "
+ *                     raise AttributeError("Property not computed. Call one of: "
  */
 
 static PyObject *__pyx_pf_5freud_6common_7Compute_18_computed_property_27_computed_property_with_key_wrapper(PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_args, PyObject *__pyx_v_kwargs) {
@@ -2853,6 +2853,7 @@ static PyObject *__pyx_pf_5freud_6common_7Compute_18_computed_property_27_comput
   int __pyx_t_3;
   int __pyx_t_4;
   PyObject *__pyx_t_5 = NULL;
+  PyObject *__pyx_t_6 = NULL;
   __Pyx_RefNannySetupContext("wrapper", 0);
   __pyx_cur_scope = (struct __pyx_obj_5freud_6common___pyx_scope_struct_4_wrapper *)__pyx_tp_new_5freud_6common___pyx_scope_struct_4_wrapper(__pyx_ptype_5freud_6common___pyx_scope_struct_4_wrapper, __pyx_empty_tuple, NULL);
   if (unlikely(!__pyx_cur_scope)) {
@@ -2873,8 +2874,8 @@ static PyObject *__pyx_pf_5freud_6common_7Compute_18_computed_property_27_comput
  *             @wraps(func)
  *             def wrapper(self, *args, **kwargs):
  *                 if not any(self._called_compute.get(k, False) for k in key):             # <<<<<<<<<<<<<<
- *                     raise AttributeError("Property not computed. "
- *                                          "Call {key} first.".format(key=key))
+ *                     raise AttributeError("Property not computed. Call one of: "
+ *                                          "{} first.".format(', '.join(key)))
  */
   __pyx_t_1 = __pyx_pf_5freud_6common_7Compute_18_computed_property_27_computed_property_with_key_7wrapper_genexpr(((PyObject*)__pyx_cur_scope)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 82, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
@@ -2888,32 +2889,46 @@ static PyObject *__pyx_pf_5freud_6common_7Compute_18_computed_property_27_comput
 
     /* "freud/common.pyx":84
  *                 if not any(self._called_compute.get(k, False) for k in key):
- *                     raise AttributeError("Property not computed. "
- *                                          "Call {key} first.".format(key=key))             # <<<<<<<<<<<<<<
+ *                     raise AttributeError("Property not computed. Call one of: "
+ *                                          "{} first.".format(', '.join(key)))             # <<<<<<<<<<<<<<
  *                 return func(self, *args, **kwargs)
  *             return wrapper
  */
-    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_kp_s_Property_not_computed_Call_key_f, __pyx_n_s_format); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 84, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_1 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 84, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_kp_s_Property_not_computed_Call_one_o, __pyx_n_s_format); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 84, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     if (unlikely(!__pyx_cur_scope->__pyx_outer_scope->__pyx_outer_scope->__pyx_v_key)) { __Pyx_RaiseClosureNameError("key"); __PYX_ERR(0, 84, __pyx_L1_error) }
-    if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_key, __pyx_cur_scope->__pyx_outer_scope->__pyx_outer_scope->__pyx_v_key) < 0) __PYX_ERR(0, 84, __pyx_L1_error)
-    __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_empty_tuple, __pyx_t_1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 84, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_5);
-    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+    __pyx_t_5 = __pyx_cur_scope->__pyx_outer_scope->__pyx_outer_scope->__pyx_v_key;
+    __Pyx_INCREF(__pyx_t_5);
+    __pyx_t_6 = __Pyx_PyString_Join(__pyx_kp_s__5, __pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 84, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_6);
+    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+    __pyx_t_5 = NULL;
+    if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_1))) {
+      __pyx_t_5 = PyMethod_GET_SELF(__pyx_t_1);
+      if (likely(__pyx_t_5)) {
+        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_1);
+        __Pyx_INCREF(__pyx_t_5);
+        __Pyx_INCREF(function);
+        __Pyx_DECREF_SET(__pyx_t_1, function);
+      }
+    }
+    __pyx_t_2 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_1, __pyx_t_5, __pyx_t_6) : __Pyx_PyObject_CallOneArg(__pyx_t_1, __pyx_t_6);
+    __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
+    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 84, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
     /* "freud/common.pyx":83
  *             def wrapper(self, *args, **kwargs):
  *                 if not any(self._called_compute.get(k, False) for k in key):
- *                     raise AttributeError("Property not computed. "             # <<<<<<<<<<<<<<
- *                                          "Call {key} first.".format(key=key))
+ *                     raise AttributeError("Property not computed. Call one of: "             # <<<<<<<<<<<<<<
+ *                                          "{} first.".format(', '.join(key)))
  *                 return func(self, *args, **kwargs)
  */
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_builtin_AttributeError, __pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 83, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_builtin_AttributeError, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 83, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_Raise(__pyx_t_1, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __PYX_ERR(0, 83, __pyx_L1_error)
@@ -2922,14 +2937,14 @@ static PyObject *__pyx_pf_5freud_6common_7Compute_18_computed_property_27_comput
  *             @wraps(func)
  *             def wrapper(self, *args, **kwargs):
  *                 if not any(self._called_compute.get(k, False) for k in key):             # <<<<<<<<<<<<<<
- *                     raise AttributeError("Property not computed. "
- *                                          "Call {key} first.".format(key=key))
+ *                     raise AttributeError("Property not computed. Call one of: "
+ *                                          "{} first.".format(', '.join(key)))
  */
   }
 
   /* "freud/common.pyx":85
- *                     raise AttributeError("Property not computed. "
- *                                          "Call {key} first.".format(key=key))
+ *                     raise AttributeError("Property not computed. Call one of: "
+ *                                          "{} first.".format(', '.join(key)))
  *                 return func(self, *args, **kwargs)             # <<<<<<<<<<<<<<
  *             return wrapper
  *         return _computed_property_with_key
@@ -2941,12 +2956,12 @@ static PyObject *__pyx_pf_5freud_6common_7Compute_18_computed_property_27_comput
   __Pyx_INCREF(__pyx_cur_scope->__pyx_v_self);
   __Pyx_GIVEREF(__pyx_cur_scope->__pyx_v_self);
   PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_cur_scope->__pyx_v_self);
-  __pyx_t_5 = PyNumber_Add(__pyx_t_1, __pyx_v_args); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 85, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_5);
+  __pyx_t_2 = PyNumber_Add(__pyx_t_1, __pyx_v_args); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 85, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_cur_scope->__pyx_outer_scope->__pyx_v_func, __pyx_t_5, __pyx_v_kwargs); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 85, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_cur_scope->__pyx_outer_scope->__pyx_v_func, __pyx_t_2, __pyx_v_kwargs); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 85, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
@@ -2956,7 +2971,7 @@ static PyObject *__pyx_pf_5freud_6common_7Compute_18_computed_property_27_comput
  *             @wraps(func)
  *             def wrapper(self, *args, **kwargs):             # <<<<<<<<<<<<<<
  *                 if not any(self._called_compute.get(k, False) for k in key):
- *                     raise AttributeError("Property not computed. "
+ *                     raise AttributeError("Property not computed. Call one of: "
  */
 
   /* function exit code */
@@ -2964,6 +2979,7 @@ static PyObject *__pyx_pf_5freud_6common_7Compute_18_computed_property_27_comput
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_5);
+  __Pyx_XDECREF(__pyx_t_6);
   __Pyx_AddTraceback("freud.common.Compute._computed_property._computed_property_with_key.wrapper", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
@@ -3036,9 +3052,9 @@ static PyObject *__pyx_pf_5freud_6common_7Compute_18_computed_property__computed
  *             @wraps(func)
  *             def wrapper(self, *args, **kwargs):             # <<<<<<<<<<<<<<
  *                 if not any(self._called_compute.get(k, False) for k in key):
- *                     raise AttributeError("Property not computed. "
+ *                     raise AttributeError("Property not computed. Call one of: "
  */
-  __pyx_t_3 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_6common_7Compute_18_computed_property_27_computed_property_with_key_1wrapper, 0, __pyx_n_s_computed_property_locals__compu_2, ((PyObject*)__pyx_cur_scope), __pyx_n_s_freud_common, __pyx_d, ((PyObject *)__pyx_codeobj__6)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 81, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_6common_7Compute_18_computed_property_27_computed_property_with_key_1wrapper, 0, __pyx_n_s_computed_property_locals__compu_2, ((PyObject*)__pyx_cur_scope), __pyx_n_s_freud_common, __pyx_d, ((PyObject *)__pyx_codeobj__7)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 81, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -3071,7 +3087,7 @@ static PyObject *__pyx_pf_5freud_6common_7Compute_18_computed_property__computed
   __pyx_t_2 = 0;
 
   /* "freud/common.pyx":86
- *                                          "Call {key} first.".format(key=key))
+ *                                          "{} first.".format(', '.join(key)))
  *                 return func(self, *args, **kwargs)
  *             return wrapper             # <<<<<<<<<<<<<<
  *         return _computed_property_with_key
@@ -3182,7 +3198,7 @@ static PyObject *__pyx_pf_5freud_6common_7Compute_6_computed_property(PyObject *
  *             @property
  *             @wraps(func)
  */
-  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_6common_7Compute_18_computed_property_1_computed_property_with_key, 0, __pyx_n_s_computed_property_locals__compu_3, ((PyObject*)__pyx_cur_scope), __pyx_n_s_freud_common, __pyx_d, ((PyObject *)__pyx_codeobj__8)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 78, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_6common_7Compute_18_computed_property_1_computed_property_with_key, 0, __pyx_n_s_computed_property_locals__compu_3, ((PyObject*)__pyx_cur_scope), __pyx_n_s_freud_common, __pyx_d, ((PyObject *)__pyx_codeobj__9)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 78, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v__computed_property_with_key = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -3313,7 +3329,7 @@ static PyObject *__pyx_pw_5freud_6common_7Compute_16_computed_method_1_computed_
  *             @wraps(func)
  *             def wrapper(self, *args, **kwargs):             # <<<<<<<<<<<<<<
  *                 if not any(self._called_compute.get(k, False) for k in key):
- *                     raise AttributeError("Property not computed. "
+ *                     raise AttributeError("Property not computed. Call one of: "
  */
 
 /* Python wrapper */
@@ -3392,8 +3408,8 @@ static PyObject *__pyx_gb_5freud_6common_7Compute_16_computed_method_27_computed
  *             @wraps(func)
  *             def wrapper(self, *args, **kwargs):
  *                 if not any(self._called_compute.get(k, False) for k in key):             # <<<<<<<<<<<<<<
- *                     raise AttributeError("Property not computed. "
- *                                          "Call {key} first.".format(key=key))
+ *                     raise AttributeError("Property not computed. Call one of: "
+ *                                          "{} first.".format(', '.join(key)))
  */
 
 static PyObject *__pyx_pf_5freud_6common_7Compute_16_computed_method_27_computed_property_with_key_7wrapper_genexpr(PyObject *__pyx_self) {
@@ -3592,7 +3608,7 @@ static PyObject *__pyx_gb_5freud_6common_7Compute_16_computed_method_27_computed
  *             @wraps(func)
  *             def wrapper(self, *args, **kwargs):             # <<<<<<<<<<<<<<
  *                 if not any(self._called_compute.get(k, False) for k in key):
- *                     raise AttributeError("Property not computed. "
+ *                     raise AttributeError("Property not computed. Call one of: "
  */
 
 static PyObject *__pyx_pf_5freud_6common_7Compute_16_computed_method_27_computed_property_with_key_wrapper(PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_args, PyObject *__pyx_v_kwargs) {
@@ -3604,6 +3620,7 @@ static PyObject *__pyx_pf_5freud_6common_7Compute_16_computed_method_27_computed
   int __pyx_t_3;
   int __pyx_t_4;
   PyObject *__pyx_t_5 = NULL;
+  PyObject *__pyx_t_6 = NULL;
   __Pyx_RefNannySetupContext("wrapper", 0);
   __pyx_cur_scope = (struct __pyx_obj_5freud_6common___pyx_scope_struct_8_wrapper *)__pyx_tp_new_5freud_6common___pyx_scope_struct_8_wrapper(__pyx_ptype_5freud_6common___pyx_scope_struct_8_wrapper, __pyx_empty_tuple, NULL);
   if (unlikely(!__pyx_cur_scope)) {
@@ -3624,8 +3641,8 @@ static PyObject *__pyx_pf_5freud_6common_7Compute_16_computed_method_27_computed
  *             @wraps(func)
  *             def wrapper(self, *args, **kwargs):
  *                 if not any(self._called_compute.get(k, False) for k in key):             # <<<<<<<<<<<<<<
- *                     raise AttributeError("Property not computed. "
- *                                          "Call {key} first.".format(key=key))
+ *                     raise AttributeError("Property not computed. Call one of: "
+ *                                          "{} first.".format(', '.join(key)))
  */
   __pyx_t_1 = __pyx_pf_5freud_6common_7Compute_16_computed_method_27_computed_property_with_key_7wrapper_genexpr(((PyObject*)__pyx_cur_scope)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 105, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
@@ -3639,32 +3656,46 @@ static PyObject *__pyx_pf_5freud_6common_7Compute_16_computed_method_27_computed
 
     /* "freud/common.pyx":107
  *                 if not any(self._called_compute.get(k, False) for k in key):
- *                     raise AttributeError("Property not computed. "
- *                                          "Call {key} first.".format(key=key))             # <<<<<<<<<<<<<<
+ *                     raise AttributeError("Property not computed. Call one of: "
+ *                                          "{} first.".format(', '.join(key)))             # <<<<<<<<<<<<<<
  *                 return func(self, *args, **kwargs)
  *             return wrapper
  */
-    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_kp_s_Property_not_computed_Call_key_f, __pyx_n_s_format); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 107, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_1 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 107, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_kp_s_Property_not_computed_Call_one_o, __pyx_n_s_format); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 107, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     if (unlikely(!__pyx_cur_scope->__pyx_outer_scope->__pyx_outer_scope->__pyx_v_key)) { __Pyx_RaiseClosureNameError("key"); __PYX_ERR(0, 107, __pyx_L1_error) }
-    if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_key, __pyx_cur_scope->__pyx_outer_scope->__pyx_outer_scope->__pyx_v_key) < 0) __PYX_ERR(0, 107, __pyx_L1_error)
-    __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_empty_tuple, __pyx_t_1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 107, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_5);
-    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+    __pyx_t_5 = __pyx_cur_scope->__pyx_outer_scope->__pyx_outer_scope->__pyx_v_key;
+    __Pyx_INCREF(__pyx_t_5);
+    __pyx_t_6 = __Pyx_PyString_Join(__pyx_kp_s__5, __pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 107, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_6);
+    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+    __pyx_t_5 = NULL;
+    if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_1))) {
+      __pyx_t_5 = PyMethod_GET_SELF(__pyx_t_1);
+      if (likely(__pyx_t_5)) {
+        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_1);
+        __Pyx_INCREF(__pyx_t_5);
+        __Pyx_INCREF(function);
+        __Pyx_DECREF_SET(__pyx_t_1, function);
+      }
+    }
+    __pyx_t_2 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_1, __pyx_t_5, __pyx_t_6) : __Pyx_PyObject_CallOneArg(__pyx_t_1, __pyx_t_6);
+    __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
+    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 107, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
     /* "freud/common.pyx":106
  *             def wrapper(self, *args, **kwargs):
  *                 if not any(self._called_compute.get(k, False) for k in key):
- *                     raise AttributeError("Property not computed. "             # <<<<<<<<<<<<<<
- *                                          "Call {key} first.".format(key=key))
+ *                     raise AttributeError("Property not computed. Call one of: "             # <<<<<<<<<<<<<<
+ *                                          "{} first.".format(', '.join(key)))
  *                 return func(self, *args, **kwargs)
  */
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_builtin_AttributeError, __pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 106, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_builtin_AttributeError, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 106, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_Raise(__pyx_t_1, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __PYX_ERR(0, 106, __pyx_L1_error)
@@ -3673,14 +3704,14 @@ static PyObject *__pyx_pf_5freud_6common_7Compute_16_computed_method_27_computed
  *             @wraps(func)
  *             def wrapper(self, *args, **kwargs):
  *                 if not any(self._called_compute.get(k, False) for k in key):             # <<<<<<<<<<<<<<
- *                     raise AttributeError("Property not computed. "
- *                                          "Call {key} first.".format(key=key))
+ *                     raise AttributeError("Property not computed. Call one of: "
+ *                                          "{} first.".format(', '.join(key)))
  */
   }
 
   /* "freud/common.pyx":108
- *                     raise AttributeError("Property not computed. "
- *                                          "Call {key} first.".format(key=key))
+ *                     raise AttributeError("Property not computed. Call one of: "
+ *                                          "{} first.".format(', '.join(key)))
  *                 return func(self, *args, **kwargs)             # <<<<<<<<<<<<<<
  *             return wrapper
  *         return _computed_property_with_key
@@ -3692,12 +3723,12 @@ static PyObject *__pyx_pf_5freud_6common_7Compute_16_computed_method_27_computed
   __Pyx_INCREF(__pyx_cur_scope->__pyx_v_self);
   __Pyx_GIVEREF(__pyx_cur_scope->__pyx_v_self);
   PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_cur_scope->__pyx_v_self);
-  __pyx_t_5 = PyNumber_Add(__pyx_t_1, __pyx_v_args); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 108, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_5);
+  __pyx_t_2 = PyNumber_Add(__pyx_t_1, __pyx_v_args); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 108, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_cur_scope->__pyx_outer_scope->__pyx_v_func, __pyx_t_5, __pyx_v_kwargs); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 108, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_cur_scope->__pyx_outer_scope->__pyx_v_func, __pyx_t_2, __pyx_v_kwargs); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 108, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
@@ -3707,7 +3738,7 @@ static PyObject *__pyx_pf_5freud_6common_7Compute_16_computed_method_27_computed
  *             @wraps(func)
  *             def wrapper(self, *args, **kwargs):             # <<<<<<<<<<<<<<
  *                 if not any(self._called_compute.get(k, False) for k in key):
- *                     raise AttributeError("Property not computed. "
+ *                     raise AttributeError("Property not computed. Call one of: "
  */
 
   /* function exit code */
@@ -3715,6 +3746,7 @@ static PyObject *__pyx_pf_5freud_6common_7Compute_16_computed_method_27_computed
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_5);
+  __Pyx_XDECREF(__pyx_t_6);
   __Pyx_AddTraceback("freud.common.Compute._computed_method._computed_property_with_key.wrapper", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
@@ -3787,9 +3819,9 @@ static PyObject *__pyx_pf_5freud_6common_7Compute_16_computed_method__computed_p
  *             @wraps(func)
  *             def wrapper(self, *args, **kwargs):             # <<<<<<<<<<<<<<
  *                 if not any(self._called_compute.get(k, False) for k in key):
- *                     raise AttributeError("Property not computed. "
+ *                     raise AttributeError("Property not computed. Call one of: "
  */
-  __pyx_t_3 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_6common_7Compute_16_computed_method_27_computed_property_with_key_1wrapper, 0, __pyx_n_s_computed_method_locals__compute_2, ((PyObject*)__pyx_cur_scope), __pyx_n_s_freud_common, __pyx_d, ((PyObject *)__pyx_codeobj__10)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 104, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_6common_7Compute_16_computed_method_27_computed_property_with_key_1wrapper, 0, __pyx_n_s_computed_method_locals__compute_2, ((PyObject*)__pyx_cur_scope), __pyx_n_s_freud_common, __pyx_d, ((PyObject *)__pyx_codeobj__11)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 104, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -3811,7 +3843,7 @@ static PyObject *__pyx_pf_5freud_6common_7Compute_16_computed_method__computed_p
   __pyx_t_1 = 0;
 
   /* "freud/common.pyx":109
- *                                          "Call {key} first.".format(key=key))
+ *                                          "{} first.".format(', '.join(key)))
  *                 return func(self, *args, **kwargs)
  *             return wrapper             # <<<<<<<<<<<<<<
  *         return _computed_property_with_key
@@ -3922,7 +3954,7 @@ static PyObject *__pyx_pf_5freud_6common_7Compute_8_computed_method(PyObject *__
  *             @wraps(func)
  *             def wrapper(self, *args, **kwargs):
  */
-  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_6common_7Compute_16_computed_method_1_computed_property_with_key, 0, __pyx_n_s_computed_method_locals__compute_3, ((PyObject*)__pyx_cur_scope), __pyx_n_s_freud_common, __pyx_d, ((PyObject *)__pyx_codeobj__12)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 102, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_6common_7Compute_16_computed_method_1_computed_property_with_key, 0, __pyx_n_s_computed_method_locals__compute_3, ((PyObject*)__pyx_cur_scope), __pyx_n_s_freud_common, __pyx_d, ((PyObject *)__pyx_codeobj__13)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 102, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v__computed_property_with_key = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -4293,7 +4325,7 @@ static PyObject *__pyx_pf_5freud_6common_7Compute_10_reset(PyObject *__pyx_v_fun
  *             for k in self._called_compute:
  *                 self._called_compute[k] = False
  */
-  __pyx_t_3 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_6common_7Compute_6_reset_1wrapper, 0, __pyx_n_s_reset_locals_wrapper, ((PyObject*)__pyx_cur_scope), __pyx_n_s_freud_common, __pyx_d, ((PyObject *)__pyx_codeobj__14)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 120, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_6common_7Compute_6_reset_1wrapper, 0, __pyx_n_s_reset_locals_wrapper, ((PyObject*)__pyx_cur_scope), __pyx_n_s_freud_common, __pyx_d, ((PyObject *)__pyx_codeobj__15)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 120, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -4475,7 +4507,7 @@ static PyObject *__pyx_pf_5freud_6common_7Compute_12__reduce_cython__(CYTHON_UNU
  * def __setstate_cython__(self, __pyx_state):
  *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
  */
-  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__15, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 2, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__16, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 2, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_Raise(__pyx_t_1, 0, 0, 0);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -4530,7 +4562,7 @@ static PyObject *__pyx_pf_5freud_6common_7Compute_14__setstate_cython__(CYTHON_U
  * def __setstate_cython__(self, __pyx_state):
  *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")             # <<<<<<<<<<<<<<
  */
-  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__16, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 4, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__17, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 4, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_Raise(__pyx_t_1, 0, 0, 0);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -4811,8 +4843,8 @@ static PyObject *__pyx_gb_5freud_6common_13convert_array_2generator2(__pyx_Corou
       __pyx_t_4 = __pyx_t_6;
       __pyx_t_6 = 0;
     } else {
-      __Pyx_INCREF(__pyx_kp_s__17);
-      __pyx_t_4 = __pyx_kp_s__17;
+      __Pyx_INCREF(__pyx_kp_s__18);
+      __pyx_t_4 = __pyx_kp_s__18;
     }
     __pyx_r = __pyx_t_4;
     __pyx_t_4 = 0;
@@ -5205,10 +5237,10 @@ static PyObject *__pyx_pf_5freud_6common_convert_array(CYTHON_UNUSED PyObject *_
  */
         __pyx_t_10 = __pyx_pf_5freud_6common_13convert_array_genexpr(((PyObject*)__pyx_cur_scope)); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 155, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_10);
-        __pyx_t_3 = __Pyx_PyString_Join(__pyx_kp_s__19, __pyx_t_10); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 155, __pyx_L1_error)
+        __pyx_t_3 = __Pyx_PyString_Join(__pyx_kp_s__5, __pyx_t_10); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 155, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_3);
         __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
-        __pyx_t_10 = PyNumber_Add(__pyx_kp_s__18, __pyx_t_3); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 155, __pyx_L1_error)
+        __pyx_t_10 = PyNumber_Add(__pyx_kp_s__19, __pyx_t_3); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 155, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_10);
         __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
@@ -7202,13 +7234,13 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_Compute__computed_property, __pyx_k_Compute__computed_property, sizeof(__pyx_k_Compute__computed_property), 0, 0, 1, 1},
   {&__pyx_n_s_Compute__reset, __pyx_k_Compute__reset, sizeof(__pyx_k_Compute__reset), 0, 0, 1, 1},
   {&__pyx_n_s_Compute__set_compute_flag, __pyx_k_Compute__set_compute_flag, sizeof(__pyx_k_Compute__set_compute_flag), 0, 0, 1, 1},
-  {&__pyx_kp_s_Property_not_computed_Call_key_f, __pyx_k_Property_not_computed_Call_key_f, sizeof(__pyx_k_Property_not_computed_Call_key_f), 0, 0, 1, 0},
+  {&__pyx_kp_s_Property_not_computed_Call_one_o, __pyx_k_Property_not_computed_Call_one_o, sizeof(__pyx_k_Property_not_computed_Call_one_o), 0, 0, 1, 0},
   {&__pyx_n_s_TypeError, __pyx_k_TypeError, sizeof(__pyx_k_TypeError), 0, 0, 1, 1},
   {&__pyx_n_s_ValueError, __pyx_k_ValueError, sizeof(__pyx_k_ValueError), 0, 0, 1, 1},
-  {&__pyx_kp_s__17, __pyx_k__17, sizeof(__pyx_k__17), 0, 0, 1, 0},
   {&__pyx_kp_s__18, __pyx_k__18, sizeof(__pyx_k__18), 0, 0, 1, 0},
   {&__pyx_kp_s__19, __pyx_k__19, sizeof(__pyx_k__19), 0, 0, 1, 0},
   {&__pyx_kp_s__20, __pyx_k__20, sizeof(__pyx_k__20), 0, 0, 1, 0},
+  {&__pyx_kp_s__5, __pyx_k__5, sizeof(__pyx_k__5), 0, 0, 1, 0},
   {&__pyx_n_s_args, __pyx_k_args, sizeof(__pyx_k_args), 0, 0, 1, 1},
   {&__pyx_n_s_array, __pyx_k_array, sizeof(__pyx_k_array), 0, 0, 1, 1},
   {&__pyx_kp_s_array_ndim_expected_ndim, __pyx_k_array_ndim_expected_ndim, sizeof(__pyx_k_array_ndim_expected_ndim), 0, 0, 1, 0},
@@ -7334,12 +7366,12 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  *             @wraps(func)
  *             def wrapper(self, *args, **kwargs):             # <<<<<<<<<<<<<<
  *                 if not any(self._called_compute.get(k, False) for k in key):
- *                     raise AttributeError("Property not computed. "
+ *                     raise AttributeError("Property not computed. Call one of: "
  */
-  __pyx_tuple__5 = PyTuple_Pack(5, __pyx_n_s_self, __pyx_n_s_args, __pyx_n_s_kwargs, __pyx_n_s_genexpr, __pyx_n_s_genexpr); if (unlikely(!__pyx_tuple__5)) __PYX_ERR(0, 81, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__5);
-  __Pyx_GIVEREF(__pyx_tuple__5);
-  __pyx_codeobj__6 = (PyObject*)__Pyx_PyCode_New(1, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS|CO_VARARGS|CO_VARKEYWORDS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__5, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_common_pyx, __pyx_n_s_wrapper, 81, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__6)) __PYX_ERR(0, 81, __pyx_L1_error)
+  __pyx_tuple__6 = PyTuple_Pack(5, __pyx_n_s_self, __pyx_n_s_args, __pyx_n_s_kwargs, __pyx_n_s_genexpr, __pyx_n_s_genexpr); if (unlikely(!__pyx_tuple__6)) __PYX_ERR(0, 81, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__6);
+  __Pyx_GIVEREF(__pyx_tuple__6);
+  __pyx_codeobj__7 = (PyObject*)__Pyx_PyCode_New(1, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS|CO_VARARGS|CO_VARKEYWORDS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__6, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_common_pyx, __pyx_n_s_wrapper, 81, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__7)) __PYX_ERR(0, 81, __pyx_L1_error)
 
   /* "freud/common.pyx":78
  *             key = (key,)
@@ -7348,22 +7380,22 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  *             @property
  *             @wraps(func)
  */
-  __pyx_tuple__7 = PyTuple_Pack(3, __pyx_n_s_func, __pyx_n_s_wrapper, __pyx_n_s_wrapper); if (unlikely(!__pyx_tuple__7)) __PYX_ERR(0, 78, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__7);
-  __Pyx_GIVEREF(__pyx_tuple__7);
-  __pyx_codeobj__8 = (PyObject*)__Pyx_PyCode_New(1, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__7, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_common_pyx, __pyx_n_s_computed_property_with_key, 78, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__8)) __PYX_ERR(0, 78, __pyx_L1_error)
+  __pyx_tuple__8 = PyTuple_Pack(3, __pyx_n_s_func, __pyx_n_s_wrapper, __pyx_n_s_wrapper); if (unlikely(!__pyx_tuple__8)) __PYX_ERR(0, 78, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__8);
+  __Pyx_GIVEREF(__pyx_tuple__8);
+  __pyx_codeobj__9 = (PyObject*)__Pyx_PyCode_New(1, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__8, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_common_pyx, __pyx_n_s_computed_property_with_key, 78, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__9)) __PYX_ERR(0, 78, __pyx_L1_error)
 
   /* "freud/common.pyx":104
  *         def _computed_property_with_key(func):
  *             @wraps(func)
  *             def wrapper(self, *args, **kwargs):             # <<<<<<<<<<<<<<
  *                 if not any(self._called_compute.get(k, False) for k in key):
- *                     raise AttributeError("Property not computed. "
+ *                     raise AttributeError("Property not computed. Call one of: "
  */
-  __pyx_tuple__9 = PyTuple_Pack(5, __pyx_n_s_self, __pyx_n_s_args, __pyx_n_s_kwargs, __pyx_n_s_genexpr, __pyx_n_s_genexpr); if (unlikely(!__pyx_tuple__9)) __PYX_ERR(0, 104, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__9);
-  __Pyx_GIVEREF(__pyx_tuple__9);
-  __pyx_codeobj__10 = (PyObject*)__Pyx_PyCode_New(1, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS|CO_VARARGS|CO_VARKEYWORDS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__9, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_common_pyx, __pyx_n_s_wrapper, 104, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__10)) __PYX_ERR(0, 104, __pyx_L1_error)
+  __pyx_tuple__10 = PyTuple_Pack(5, __pyx_n_s_self, __pyx_n_s_args, __pyx_n_s_kwargs, __pyx_n_s_genexpr, __pyx_n_s_genexpr); if (unlikely(!__pyx_tuple__10)) __PYX_ERR(0, 104, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__10);
+  __Pyx_GIVEREF(__pyx_tuple__10);
+  __pyx_codeobj__11 = (PyObject*)__Pyx_PyCode_New(1, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS|CO_VARARGS|CO_VARKEYWORDS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__10, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_common_pyx, __pyx_n_s_wrapper, 104, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__11)) __PYX_ERR(0, 104, __pyx_L1_error)
 
   /* "freud/common.pyx":102
  *             key = (key,)
@@ -7372,10 +7404,10 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  *             @wraps(func)
  *             def wrapper(self, *args, **kwargs):
  */
-  __pyx_tuple__11 = PyTuple_Pack(3, __pyx_n_s_func, __pyx_n_s_wrapper, __pyx_n_s_wrapper); if (unlikely(!__pyx_tuple__11)) __PYX_ERR(0, 102, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__11);
-  __Pyx_GIVEREF(__pyx_tuple__11);
-  __pyx_codeobj__12 = (PyObject*)__Pyx_PyCode_New(1, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__11, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_common_pyx, __pyx_n_s_computed_property_with_key, 102, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__12)) __PYX_ERR(0, 102, __pyx_L1_error)
+  __pyx_tuple__12 = PyTuple_Pack(3, __pyx_n_s_func, __pyx_n_s_wrapper, __pyx_n_s_wrapper); if (unlikely(!__pyx_tuple__12)) __PYX_ERR(0, 102, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__12);
+  __Pyx_GIVEREF(__pyx_tuple__12);
+  __pyx_codeobj__13 = (PyObject*)__Pyx_PyCode_New(1, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__12, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_common_pyx, __pyx_n_s_computed_property_with_key, 102, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__13)) __PYX_ERR(0, 102, __pyx_L1_error)
 
   /* "freud/common.pyx":120
  *         """
@@ -7384,10 +7416,10 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  *             for k in self._called_compute:
  *                 self._called_compute[k] = False
  */
-  __pyx_tuple__13 = PyTuple_Pack(4, __pyx_n_s_self, __pyx_n_s_args, __pyx_n_s_kwargs, __pyx_n_s_k); if (unlikely(!__pyx_tuple__13)) __PYX_ERR(0, 120, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__13);
-  __Pyx_GIVEREF(__pyx_tuple__13);
-  __pyx_codeobj__14 = (PyObject*)__Pyx_PyCode_New(1, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS|CO_VARARGS|CO_VARKEYWORDS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__13, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_common_pyx, __pyx_n_s_wrapper, 120, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__14)) __PYX_ERR(0, 120, __pyx_L1_error)
+  __pyx_tuple__14 = PyTuple_Pack(4, __pyx_n_s_self, __pyx_n_s_args, __pyx_n_s_kwargs, __pyx_n_s_k); if (unlikely(!__pyx_tuple__14)) __PYX_ERR(0, 120, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__14);
+  __Pyx_GIVEREF(__pyx_tuple__14);
+  __pyx_codeobj__15 = (PyObject*)__Pyx_PyCode_New(1, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS|CO_VARARGS|CO_VARKEYWORDS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__14, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_common_pyx, __pyx_n_s_wrapper, 120, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__15)) __PYX_ERR(0, 120, __pyx_L1_error)
 
   /* "(tree fragment)":2
  * def __reduce_cython__(self):
@@ -7395,18 +7427,18 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * def __setstate_cython__(self, __pyx_state):
  *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
  */
-  __pyx_tuple__15 = PyTuple_Pack(1, __pyx_kp_s_no_default___reduce___due_to_non); if (unlikely(!__pyx_tuple__15)) __PYX_ERR(1, 2, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__15);
-  __Pyx_GIVEREF(__pyx_tuple__15);
+  __pyx_tuple__16 = PyTuple_Pack(1, __pyx_kp_s_no_default___reduce___due_to_non); if (unlikely(!__pyx_tuple__16)) __PYX_ERR(1, 2, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__16);
+  __Pyx_GIVEREF(__pyx_tuple__16);
 
   /* "(tree fragment)":4
  *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
  * def __setstate_cython__(self, __pyx_state):
  *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")             # <<<<<<<<<<<<<<
  */
-  __pyx_tuple__16 = PyTuple_Pack(1, __pyx_kp_s_no_default___reduce___due_to_non); if (unlikely(!__pyx_tuple__16)) __PYX_ERR(1, 4, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__16);
-  __Pyx_GIVEREF(__pyx_tuple__16);
+  __pyx_tuple__17 = PyTuple_Pack(1, __pyx_kp_s_no_default___reduce___due_to_non); if (unlikely(!__pyx_tuple__17)) __PYX_ERR(1, 4, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__17);
+  __Pyx_GIVEREF(__pyx_tuple__17);
 
   /* "freud/common.pyx":42
  *         self._called_compute = {"compute": False}
@@ -9356,6 +9388,13 @@ static CYTHON_INLINE void __Pyx_CyFunction_SetAnnotationsDict(PyObject *func, Py
     Py_INCREF(dict);
 }
 
+/* StringJoin */
+#if !CYTHON_COMPILING_IN_CPYTHON
+static CYTHON_INLINE PyObject* __Pyx_PyBytes_Join(PyObject* sep, PyObject* values) {
+    return PyObject_CallMethodObjArgs(sep, __pyx_n_s_join, values, NULL);
+}
+#endif
+
 /* PyErrFetchRestore */
 #if CYTHON_FAST_THREAD_STATE
 static CYTHON_INLINE void __Pyx_ErrRestoreInState(PyThreadState *tstate, PyObject *type, PyObject *value, PyObject *tb) {
@@ -9776,13 +9815,6 @@ static PyObject *__Pyx_PyObject_GetItem(PyObject *obj, PyObject* key) {
         return m->mp_subscript(obj, key);
     }
     return __Pyx_PyObject_GetIndex(obj, key);
-}
-#endif
-
-/* StringJoin */
-#if !CYTHON_COMPILING_IN_CPYTHON
-static CYTHON_INLINE PyObject* __Pyx_PyBytes_Join(PyObject* sep, PyObject* values) {
-    return PyObject_CallMethodObjArgs(sep, __pyx_n_s_join, values, NULL);
 }
 #endif
 

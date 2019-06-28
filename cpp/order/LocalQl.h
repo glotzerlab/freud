@@ -4,12 +4,12 @@
 #ifndef LOCAL_QL_H
 #define LOCAL_QL_H
 
+#include <ThreadStorage.h>
 #include <complex>
 #include <cstring>
 #include <memory>
 #include <stdexcept>
 #include <tbb/tbb.h>
-#include <ThreadStorage.h>
 
 #include "Box.h"
 #include "NeighborList.h"
@@ -72,7 +72,7 @@ public:
     }
 
     //! Destructor
-    virtual ~LocalQl(){}
+    virtual ~LocalQl() {}
 
     //! Get the simulation box
     const box::Box& getBox() const

@@ -184,13 +184,13 @@ cdef class NeighborQueryResult:
         cdef shared_ptr[freud._locality.NeighborQueryIterator] iterator
         cdef const float[:, ::1] l_points = self.points
         if self.query_type == 'nn':
-            iterator = self.nqptr.query(
+            iterator = self.nq.nqptr.query(
                 <vec3[float]*> &l_points[0, 0],
                 self.points.shape[0],
                 self.k,
                 self.exclude_ii)
         else:
-            iterator = self.nqptr.queryBall(
+            iterator = self.nq.nqptr.queryBall(
                 <vec3[float]*> &l_points[0, 0],
                 self.points.shape[0],
                 self.r,
@@ -234,7 +234,7 @@ cdef class AABBQueryResult(NeighborQueryResult):
         queries."""
         cdef const float[:, ::1] l_points = self.points
         cdef shared_ptr[freud._locality.NeighborQueryIterator] iterator
-        iterator = self.aabbptr.query(
+        iterator = self.aabbq.thisptr.query(
             <vec3[float]*> &l_points[0, 0],
             self.points.shape[0],
             self.k,
@@ -355,7 +355,7 @@ cdef class NeighborQuery:
                                             shape=(None, 3))
 
         return NeighborQueryResult.init(
-            self.nqptr, points, exclude_ii, r=0, k=k)
+            self, points, exclude_ii, r=0, k=k)
 
     def queryBall(self, points, float r, cbool exclude_ii=False):
         R"""Query for all points within a distance r of the provided point(s).
@@ -384,7 +384,7 @@ cdef class NeighborQuery:
                                             shape=(None, 3))
 
         return NeighborQueryResult.init(
-            self.nqptr, points, exclude_ii, r=r, k=0)
+            self, points, exclude_ii, r=r, k=0)
 
 
 cdef class NeighborList:
@@ -782,7 +782,7 @@ def make_default_nlist_nn(box, ref_points, points, n_neigh, nlist=None,
         return nlist, nlist
 
     cdef NearestNeighbors nn = NearestNeighbors(rmax_guess, n_neigh).compute(
-        box, ref_points, points)
+        box, ref_points, points, exclude_ii=exclude_ii)
 
     # Python does not appear to garbage collect appropriately in this case.
     # If a new neighbor list is created, the associated link cell keeps the
@@ -893,7 +893,7 @@ cdef class AABBQuery(NeighborQuery):
             r *= 0.1
 
         return AABBQueryResult.init_aabb_nn(
-            self.thisptr, points, exclude_ii, k, r, scale)
+            self, points, exclude_ii, k, r, scale)
 
 
 cdef class IteratorLinkCell:

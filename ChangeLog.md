@@ -2,18 +2,28 @@
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## next
+## v1.2.0 - 2019-06-27
 
 ### Added
+* Added `.plot()` method and IPython/Jupyter PNG representations for many classes.
 * `AttributeError` is raised when one tries to access an attribute that has not yet been computed.
+* Added `freud.parallel.getNumThreads()` method.
+* New examples for integration with simulation and visualization workflows.
 
 ### Changed
 * Removed extra C++ includes to speed up builds.
 * The C++ style is now based on clang-format.
 * Refactored C++ handling of thread-local storage.
+* SolLiq order parameter computations are parallelized with TBB.
+* Optimized performance of Voronoi.
+* Several Box properties are now given as NumPy arrays instead of tuples.
+* Box methods handling multiple vectors are parallelized with TBB.
+* Eigen is now used for all matrix diagonalizations.
 
 ### Fixed
 * Calling setNumThreads works correctly even if a parallel compute method has already been called.
+* Fixed segfault with chained calls to NeighborQuery API.
+* Correct `exclude_ii` logic.
 
 ### Removed
 * Removed outdated `computeNList` function from `LocalDescriptors`.
