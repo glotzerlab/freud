@@ -213,22 +213,15 @@ cdef class PMFTR12(_PMFT):
         orientations = freud.common.convert_array(
             orientations.squeeze(), shape=(points.shape[0], ))
 
-        # defaulted_nlist = freud.locality.make_default_nlist(
-        #     b, ref_points, points, self.rmax, nlist, exclude_ii)
-        # cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
-
-        cdef const float[:, ::1] l_ref_points = ref_points
         cdef const float[:, ::1] l_points = points
         cdef const float[::1] l_ref_orientations = ref_orientations
         cdef const float[::1] l_orientations = orientations
-        cdef unsigned int nRef = l_ref_points.shape[0]
         cdef unsigned int nP = l_points.shape[0]
         with nogil:
             self.pmftr12ptr.accumulate(dereference(b.thisptr),
                                        nlistptr,
                                        nq.get_ptr(),
                                        <float*> &l_ref_orientations[0],
-                                       nRef,
                                        <vec3[float]*> &l_points[0, 0],
                                        <float*> &l_orientations[0],
                                        nP, dereference(qargs.thisptr))
@@ -466,22 +459,15 @@ cdef class PMFTXYT(_PMFT):
         orientations = freud.common.convert_array(
             orientations.squeeze(), shape=(points.shape[0], ))
 
-        # defaulted_nlist = freud.locality.make_default_nlist(
-        #     b, ref_points, points, self.rmax, nlist, exclude_ii)
-        # cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
-
-        cdef const float[:, ::1] l_ref_points = ref_points
         cdef const float[:, ::1] l_points = points
         cdef const float[::1] l_ref_orientations = ref_orientations
         cdef const float[::1] l_orientations = orientations
-        cdef unsigned int nRef = l_ref_points.shape[0]
         cdef unsigned int nP = l_points.shape[0]
         with nogil:
             self.pmftxytptr.accumulate(dereference(b.thisptr),
                                        nlistptr,
                                        nq.get_ptr(),
                                        <float*> &l_ref_orientations[0],
-                                       nRef,
                                        <vec3[float]*> &l_points[0, 0],
                                        <float*> &l_orientations[0],
                                        nP, dereference(qargs.thisptr))
@@ -703,22 +689,15 @@ cdef class PMFTXY2D(_PMFT):
         orientations = freud.common.convert_array(
             orientations.squeeze(), shape=(points.shape[0], ))
 
-        defaulted_nlist = freud.locality.make_default_nlist(
-            b, ref_points, points, self.rmax, nlist, exclude_ii)
-        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
-
-        cdef const float[:, ::1] l_ref_points = ref_points
         cdef const float[:, ::1] l_points = points
         cdef const float[::1] l_ref_orientations = ref_orientations
         cdef const float[::1] l_orientations = orientations
-        cdef unsigned int nRef = l_ref_points.shape[0]
         cdef unsigned int nP = l_points.shape[0]
         with nogil:
             self.pmftxy2dptr.accumulate(dereference(b.thisptr),
                                         nlistptr,
                                         nq.get_ptr(),
                                         <float*> &l_ref_orientations[0],
-                                        nRef,
                                         <vec3[float]*> &l_points[0, 0],
                                         <float*> &l_orientations[0],
                                         nP, dereference(qargs.thisptr))
@@ -1013,16 +992,10 @@ cdef class PMFTXYZ(_PMFT):
                     face_orientations = np.repeat(
                         face_orientations, ref_points.shape[0], axis=0)
 
-        # defaulted_nlist = freud.locality.make_default_nlist(
-        #     b, ref_points, points, self.rmax, nlist, exclude_ii)
-        # cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
-
-        cdef const float[:, ::1] l_ref_points = ref_points
         cdef const float[:, ::1] l_points = points
         cdef const float[:, ::1] l_ref_orientations = ref_orientations
         cdef const float[:, ::1] l_orientations = orientations
         cdef const float[:, :, ::1] l_face_orientations = face_orientations
-        cdef unsigned int nRef = l_ref_points.shape[0]
         cdef unsigned int nP = l_points.shape[0]
         cdef unsigned int nFaces = l_face_orientations.shape[1]
         with nogil:
@@ -1031,7 +1004,6 @@ cdef class PMFTXYZ(_PMFT):
                 nlistptr,
                 nq.get_ptr(),
                 <quat[float]*> &l_ref_orientations[0, 0],
-                nRef,
                 <vec3[float]*> &l_points[0, 0],
                 <quat[float]*> &l_orientations[0, 0],
                 nP,

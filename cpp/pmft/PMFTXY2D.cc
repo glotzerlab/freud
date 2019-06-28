@@ -78,14 +78,9 @@ void PMFTXY2D::reset()
  */
 void PMFTXY2D::accumulate(box::Box& box, const locality::NeighborList* nlist,
                           const locality::NeighborQuery* ref_points, 
-                          float* ref_orientations, unsigned int n_ref, vec3<float>* points,
+                          float* ref_orientations, vec3<float>* points,
                           float* orientations, unsigned int n_p, freud::locality::QueryArgs qargs)
 {
-    assert(ref_points);
-    assert(points);
-    assert(n_ref > 0);
-    assert(n_p > 0);
-
     // precalc some values for faster computation within the loop
     float dx_inv = 1.0f / m_dx;
     float dy_inv = 1.0f / m_dy;

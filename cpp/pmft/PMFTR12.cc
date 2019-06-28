@@ -95,14 +95,9 @@ void PMFTR12::reset()
 
 void PMFTR12::accumulate(box::Box& box, const locality::NeighborList* nlist, 
                          const locality::NeighborQuery* ref_points,
-                         float* ref_orientations, unsigned int n_ref, vec3<float>* points,
+                         float* ref_orientations, vec3<float>* points,
                          float* orientations, unsigned int n_p, freud::locality::QueryArgs qargs)
 {
-    assert(ref_points);
-    assert(points);
-    assert(n_ref > 0);
-    assert(n_p > 0);
-
     float dr_inv = 1.0f / m_dr;
     float dt1_inv = 1.0f / m_dt1;
     float dt2_inv = 1.0f / m_dt2;

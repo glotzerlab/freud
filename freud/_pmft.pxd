@@ -25,7 +25,6 @@ cdef extern from "PMFTR12.h" namespace "freud::pmft":
                         const freud._locality.NeighborList*,
                         const freud._locality.NeighborQuery*,
                         float*,
-                        unsigned int,
                         vec3[float]*,
                         float*,
                         unsigned int, freud._locality.QueryArgs) nogil
@@ -46,7 +45,6 @@ cdef extern from "PMFTXYT.h" namespace "freud::pmft":
                         const freud._locality.NeighborList*,
                         const freud._locality.NeighborQuery*,
                         float*,
-                        unsigned int,
                         vec3[float]*,
                         float*,
                         unsigned int, freud._locality.QueryArgs) nogil
@@ -66,7 +64,6 @@ cdef extern from "PMFTXY2D.h" namespace "freud::pmft":
                         const freud._locality.NeighborList*,
                         const freud._locality.NeighborQuery*,
                         float*,
-                        unsigned int,
                         vec3[float]*,
                         float*,
                         unsigned int, freud._locality.QueryArgs) nogil
@@ -85,7 +82,6 @@ cdef extern from "PMFTXYZ.h" namespace "freud::pmft":
                         const freud._locality.NeighborList*,
                         const freud._locality.NeighborQuery*,
                         quat[float]*,
-                        unsigned int,
                         vec3[float]*,
                         quat[float]*,
                         unsigned int,

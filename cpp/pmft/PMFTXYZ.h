@@ -32,7 +32,7 @@ public:
     */
     void accumulate(box::Box& box, const locality::NeighborList* nlist, 
                     const locality::NeighborQuery* ref_points, 
-                    quat<float>* ref_orientations, unsigned int n_ref, vec3<float>* points,
+                    quat<float>* ref_orientations, vec3<float>* points,
                     quat<float>* orientations, unsigned int n_p, quat<float>* face_orientations,
                     unsigned int n_faces, freud::locality::QueryArgs qargs);
 
