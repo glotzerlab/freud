@@ -875,9 +875,7 @@ cdef class RDF(Compute):
             points = ref_points
         ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
         points = freud.common.convert_array(points, shape=(None, 3))
-        cdef const float[:, ::1] l_ref_points = ref_points
         cdef const float[:, ::1] l_points = points
-        cdef unsigned int n_ref = l_ref_points.shape[0]
         cdef unsigned int n_p = l_points.shape[0]
 
         # defaulted_nlist = freud.locality.make_default_nlist(
