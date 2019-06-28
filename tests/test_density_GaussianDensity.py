@@ -40,6 +40,24 @@ class TestDensity(unittest.TestCase):
         npt.assert_equal(np.where(myDiff == np.max(myDiff)),
                          (np.array([50]), np.array([50])))
 
+    def test_change_box_dimension(self):
+        width = 100
+        rcut = 10.0
+        sigma = 0.1
+        num_points = 100
+        box_size = rcut*3.1
+        np.random.seed(0)
+        points = np.random.random_sample((num_points, 3)).astype(np.float32) \
+            * box_size - box_size/2
+        points[:, 2] = 0
+        diff = freud.density.GaussianDensity(width, rcut, sigma)
+
+        testBox = freud.box.Box.square(box_size)
+        diff.compute(testBox, points)
+
+        testBox = freud.box.Box.cube(box_size)
+        diff.compute(testBox, points)
+
     def test_repr(self):
         diff = freud.density.GaussianDensity(100, 10.0, 0.1)
         self.assertEqual(str(diff), str(eval(repr(diff))))
@@ -47,6 +65,32 @@ class TestDensity(unittest.TestCase):
         # Use both signatures
         diff3 = freud.density.GaussianDensity(98, 99, 100, 10.0, 0.1)
         self.assertEqual(str(diff3), str(eval(repr(diff3))))
+
+    def test_repr_png(self):
+        width = 100
+        rcut = 10.0
+        sigma = 0.1
+        num_points = 100
+        box_size = rcut*3.1
+        np.random.seed(0)
+        points = np.random.random_sample((num_points, 3)).astype(np.float32) \
+            * box_size - box_size/2
+        points[:, 2] = 0
+        diff = freud.density.GaussianDensity(width, rcut, sigma)
+
+        with self.assertRaises(AttributeError):
+            diff.plot()
+        self.assertEqual(diff._repr_png_(), None)
+
+        testBox = freud.box.Box.square(box_size)
+        diff.compute(testBox, points)
+        diff.plot()
+
+        diff = freud.density.GaussianDensity(width, rcut, sigma)
+        testBox = freud.box.Box.cube(box_size)
+        diff.compute(testBox, points)
+        diff.plot()
+        self.assertEqual(diff._repr_png_(), None)
 
 
 if __name__ == '__main__':

@@ -83,7 +83,7 @@ public:
         \param j row index
         \returns 1D array index corresponding to the 2D index (\a i, \a j) in row major order
     */
-    HOSTDEVICE inline unsigned int operator()(unsigned int i, unsigned int j)
+    HOSTDEVICE inline unsigned int operator()(unsigned int i, unsigned int j) const
     {
         return j * m_w + i;
     }

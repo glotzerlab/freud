@@ -219,11 +219,12 @@ cdef class FloatCF(Compute):
         """Plot correlation function.
 
         Args:
-            ax (:class:`matplotlib.axes`): Axis to plot on. If :code:`None`,
-                make a new figure and axis. (Default value = :code:`None`)
+            ax (:class:`matplotlib.axes.Axes`): Axis to plot on. If
+                :code:`None`, make a new figure and axis.
+                (Default value = :code:`None`)
 
         Returns:
-            (:class:`matplotlib.axes`): Axis with the plot.
+            (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
         import plot
         return plot.line_plot(self.R, self.RDF,
@@ -437,11 +438,12 @@ cdef class ComplexCF(Compute):
         """Plot complex correlation function.
 
         Args:
-            ax (:class:`matplotlib.axes`): Axis to plot on. If :code:`None`,
-                make a new figure and axis. (Default value = :code:`None`)
+            ax (:class:`matplotlib.axes.Axes`): Axis to plot on. If
+                :code:`None`, make a new figure and axis.
+                (Default value = :code:`None`)
 
         Returns:
-            (:class:`matplotlib.axes`): Axis with the plot.
+            (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
         import plot
         return plot.line_plot(self.R, np.real(self.RDF),
@@ -516,6 +518,9 @@ cdef class GaussianDensity(Compute):
         else:
             raise TypeError('GaussianDensity takes exactly 3 or 5 arguments')
 
+    def __dealloc__(self):
+        del self.thisptr
+
     @Compute._computed_property()
     def box(self):
         return freud.box.BoxFromCPP(self.thisptr.getBox())
@@ -577,6 +582,30 @@ cdef class GaussianDensity(Compute):
 
     def __str__(self):
         return repr(self)
+
+    @Compute._computed_method()
+    def plot(self, ax=None):
+        """Plot Gaussian Density.
+
+        Args:
+            ax (:class:`matplotlib.axes.Axes`): Axis to plot on. If
+                :code:`None`, make a new figure and axis.
+                (Default value = :code:`None`)
+
+        Returns:
+            (:class:`matplotlib.axes.Axes`): Axis with the plot.
+        """
+        import plot
+        if not self.box.is2D():
+            return None
+        return plot.plot_density(self.gaussian_density, self.box, ax=ax)
+
+    def _repr_png_(self):
+        import plot
+        try:
+            return plot.ax_to_bytes(self.plot())
+        except AttributeError:
+            return None
 
 
 cdef class LocalDensity(Compute):
@@ -646,6 +675,9 @@ cdef class LocalDensity(Compute):
         self.r_cut = r_cut
         self.diameter = diameter
         self.volume = volume
+
+    def __dealloc__(self):
+        del self.thisptr
 
     @Compute._computed_property()
     def box(self):
@@ -888,11 +920,12 @@ cdef class RDF(Compute):
         """Plot radial distribution function.
 
         Args:
-            ax (:class:`matplotlib.axes`): Axis to plot on. If :code:`None`,
-                make a new figure and axis. (Default value = :code:`None`)
+            ax (:class:`matplotlib.axes.Axes`): Axis to plot on. If
+                :code:`None`, make a new figure and axis.
+                (Default value = :code:`None`)
 
         Returns:
-            (:class:`matplotlib.axes`): Axis with the plot.
+            (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
         import plot
         return plot.line_plot(self.R, self.RDF,

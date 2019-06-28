@@ -4,6 +4,7 @@
 #ifndef LOCAL_QL_H
 #define LOCAL_QL_H
 
+#include <ThreadStorage.h>
 #include <complex>
 #include <cstring>
 #include <memory>
@@ -60,7 +61,7 @@ public:
      * rdf region.
      */
     LocalQl(const box::Box& box, float rmax, unsigned int l, float rmin = 0)
-        : m_Np(0), m_box(box), m_rmax(rmax), m_l(l), m_rmin(rmin)
+        : m_Np(0), m_box(box), m_rmax(rmax), m_l(l), m_rmin(rmin), m_Qlm_local(2 * l + 1)
     {
         if (m_rmax < 0.0f || m_rmin < 0.0f)
             throw std::invalid_argument("LocalQl requires rmin and rmax must be positive.");
@@ -71,20 +72,7 @@ public:
     }
 
     //! Destructor
-    virtual ~LocalQl()
-    {
-        for (tbb::enumerable_thread_specific<std::complex<float>*>::iterator i = m_Qlm_local.begin();
-             i != m_Qlm_local.end(); ++i)
-        {
-            delete[](*i);
-        }
-
-        for (tbb::enumerable_thread_specific<std::complex<float>*>::iterator i = m_AveQlm_local.begin();
-             i != m_AveQlm_local.end(); ++i)
-        {
-            delete[](*i);
-        }
-    }
+    virtual ~LocalQl() {}
 
     //! Get the simulation box
     const box::Box& getBox() const
@@ -163,12 +151,12 @@ protected:
 
     std::shared_ptr<std::complex<float>> m_Qlmi; //!< Qlm for each particle i
     std::shared_ptr<std::complex<float>> m_Qlm;  //!< Normalized Qlm for the whole system
-    tbb::enumerable_thread_specific<std::complex<float>*> m_Qlm_local; //!< Thread-specific m_Qlm
+    util::ThreadStorage<std::complex<float>> m_Qlm_local;
     std::shared_ptr<float> m_Qli; //!< Ql locally invariant order parameter for each particle i
     std::shared_ptr<std::complex<float>>
         m_AveQlmi; //!< Averaged Qlm with 2nd neighbor shell for each particle i
     std::shared_ptr<std::complex<float>> m_AveQlm; //!< Normalized AveQlmi for the whole system
-    tbb::enumerable_thread_specific<std::complex<float>*> m_AveQlm_local; //!< Thread-specific m_AveQlm
+    util::ThreadStorage<std::complex<float>> m_AveQlm_local;
     std::shared_ptr<float> m_AveQli;     //!< AveQl locally invariant order parameter for each particle i
     std::shared_ptr<float> m_QliNorm;    //!< QlNorm order parameter for each particle i
     std::shared_ptr<float> m_QliAveNorm; //!< QlAveNorm order paramter for each particle i
