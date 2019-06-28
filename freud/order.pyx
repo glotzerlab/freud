@@ -493,6 +493,177 @@ cdef class TransOrderParameter(Compute):
         return repr(self)
 
 
+cdef class Steinhardt:
+    R"""Compute the local Steinhardt [Steinhardt1983]_rotationally invariant
+    :math:`Q_l` :math:`W_l` order parameter for a set of points.
+
+    Implements the local rotationally invariant :math:`Q_l` or :math:`W_l` order
+    parameter described by Steinhardt. For a particle i, we calculate the
+    average order parameter by summing the spherical harmonics between particle
+    :math:`i` and its neighbors :math:`j` in a local region:
+    :math:`\overline{Q}_{lm}(i) = \frac{1}{N_b} \displaystyle\sum_{j=1}^{N_b}
+    Y_{lm}(\theta(\vec{r}_{ij}), \phi(\vec{r}_{ij}))`. The particles included in
+    the sum are determined by the rmax argument to the constructor.
+
+    For :math:`Q_l`, this is then combined in a rotationally invariant fashion to
+    remove local orientational order as follows:
+    :math:`Q_l(i)=\sqrt{\frac{4\pi}{2l+1} \displaystyle\sum_{m=-l}^{l}
+    |\overline{Q}_{lm}|^2 }`.
+
+    For :math:`W_l`, it is then defined as a weighted average over the
+    :math:`\overline{Q}_{lm}(i)` values using Wigner 3j symbols
+    (Clebsch-Gordan coefficients). The resulting combination is rotationally
+    (i.e. frame) invariant.
+
+    The average argument in the constructor provides access to a variant
+    of this parameter that performs a average over the first and second shell
+    combined [Lechner2008]_. To compute this parameter, we perform a second
+    averaging over the first neighbor shell of the particle to implicitly
+    include information about the second neighbor shell. This averaging is
+    performed by replacing the value :math:`\overline{Q}_{lm}(i)` in the
+    original definition by the average value of :math:`\overline{Q}_{lm}(k)`
+    over all the :math:`k` neighbors of particle :math:`i` as well as itself.
+
+    The norm constructor argument provides normalized versions of the
+    plain :math:`Q_l` or :math:`W_l` or normalized average if the
+    average flag is set to true, where the normalization is performed by
+    dividing by the average :math:`Q_{lm}` values over all particles.
+
+    .. moduleauthor:: Xiyu Du <xiyudu@umich.edu>
+    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
+    .. moduleauthor:: Brandon Butler <butlerbr@umich.edu>
+
+    Args:
+        l (unsigned int):
+            Spherical harmonic quantum number l. Must be a positive number.
+        rmin (float):
+            Can look at only the second shell or some arbitrary RDF region.
+        rmax (float):
+            Cutoff radius for the local order parameter. Values near the first
+            minimum of the RDF are recommended.
+        average (bool, optional):
+            Determines whether to calculate the averaged Steinhardt order
+            parameter, defaults to False.
+        norm (bool, optional):
+            Determines whether to calculate the normalized Steinhardt order
+            parameter, defaults to False.
+        Wl (bool, optional):
+            Determines whether to use the :math:`Wl` version of the Steinhardt
+            order parameter, defaults to False.
+        num_neigh (int, optional):
+            If set to a non-zero positive integer, limit the calculate of the
+            Steinhardt order parameter to num_neigh neighbors.
+
+
+    Attributes:
+        num_particles (unsigned int):
+            Number of particles.
+        order (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
+            The last computed selected variant of the Steinhardt order
+            parameter for each particle (filled with NaN for particles with no
+            neighbors).
+        norm (float or complex):
+            Stores the system wide normalization of the :math:`Ql` or :math:`Wl`
+            order parameter.
+    """  # noqa: E501
+    cdef freud._order.Steinhardt * stptr
+    cdef rmax
+    cdef sph_l
+    cdef rmin
+    cdef num_neigh
+
+    def __cinit__(self, rmax, l, rmin=0, average=False,
+                  Wl=False, num_neigh=0, *args, **kwargs):
+        if type(self) is Steinhardt:
+            self.rmax = rmax
+            self.sph_l = l
+            self.rmin = rmin
+            self.num_neigh = num_neigh
+            self.stptr = new freud._order.Steinhardt(
+                rmax, l, rmin,
+                average, Wl)
+
+    def __dealloc__(self):
+        if type(self) is Steinhardt:
+            del self.stptr
+            self.stptr = NULL
+
+    @property
+    def num_particles(self):
+        cdef unsigned int np = self.stptr.getNP()
+        return np
+
+    @property
+    def norm(self):
+        if self.stptr.getUseWl():
+            return self.stptr.getNormWl()
+        return self.stptr.getNorm()
+
+    @property
+    def order(self):
+        if self.stptr.getUseWl():
+            return self._wl
+        return self.Ql
+
+    @property
+    def Ql(self):
+        cdef unsigned int n_particles = self.stptr.getNP()
+        cdef const float[::1] op = \
+            <float[:n_particles]> self.stptr.getQl().get()
+        return np.asarray(op)
+
+    @property
+    def _wl(self):
+        cdef unsigned int n_particles = self.stptr.getNP()
+        cdef const np.complex64_t[::1] op = \
+            <np.complex64_t[:n_particles]> self.stptr.getWl().get()
+        return np.asarray(op)
+
+    def compute(self, box, points, nlist=None):
+        R"""Compute the order parameter.
+
+        Args:
+            box (:class:`freud.box.Box`):
+                Simulation box.
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Points to calculate the order parameter.
+            nlist (:class:`freud.locality.NeighborList`, optional):
+                Neighborlist to use to find bonds (Default value = None).
+        """
+        points = freud.common.convert_array(points, (None, 3))
+
+        cdef freud.box.Box bbox = freud.common.convert_box(box)
+        cdef const float[:, ::1] l_points = points
+        cdef unsigned int nP = l_points.shape[0]
+
+        # Construct the correct neighbor list depending on specified behavior.
+        # Using rmax or num_neigh to determine a hard neighbor limit or hard
+        # rmax cut-off
+        if self.num_neigh > 0:
+            defaulted_nlist = freud.locality.make_default_nlist_nn(
+                bbox, points, points, self.num_neigh, nlist, True, self.rmax)
+        else:
+            defaulted_nlist = freud.locality.make_default_nlist(
+                bbox, points, points, self.rmax, nlist, True)
+        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
+
+        self.stptr.compute(dereference(bbox.thisptr),
+                           nlist_.get_ptr(),
+                           <vec3[float]*> &l_points[0, 0],
+                           nP)
+        return self
+
+    def __repr__(self):
+        return ("freud.order.{cls}(rmax={rmax}, l={sph_l}, "
+                "rmin={rmin})").format(cls=type(self).__name__,
+                                       rmax=self.rmax,
+                                       sph_l=self.sph_l,
+                                       rmin=self.rmin)
+
+    def __str__(self):
+        return repr(self)
+
+
 cdef class LocalQl(Compute):
     R"""Compute the local Steinhardt [Steinhardt1983]_ rotationally invariant
     :math:`Q_l` order parameter for a set of points.

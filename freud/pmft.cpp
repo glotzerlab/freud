@@ -49,13 +49,13 @@
         "name": "freud.pmft",
         "sources": [
             "freud/pmft.pyx",
+            "cpp/pmft/PMFTXYZ.cc",
             "cpp/pmft/PMFTXY2D.cc",
-            "cpp/pmft/PMFTXYT.cc",
+            "cpp/pmft/PMFTR12.cc",
             "cpp/util/NdHistogram.cc",
             "cpp/locality/NeighborList.cc",
-            "cpp/pmft/PMFTXYZ.cc",
-            "cpp/pmft/PMFT.cc",
-            "cpp/pmft/PMFTR12.cc"
+            "cpp/pmft/PMFTXYT.cc",
+            "cpp/pmft/PMFT.cc"
         ]
     },
     "module_name": "freud.pmft"
