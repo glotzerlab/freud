@@ -117,7 +117,7 @@ void CorrelationFunction<T>::accumulate(const box::Box& box, const freud::locali
 {
     m_box = box;
     float dr_inv = 1.0f / m_dr;
-    freud::locality::loop_over_NeighborList(nq, points, Np, qargs, nlist,
+    freud::locality::loopOverNeighbors(nq, points, Np, qargs, nlist,
     [=](size_t i, size_t j, float dist, float weight)
         {
             // check that the particle is not checking itself, if it is the same list

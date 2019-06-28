@@ -45,7 +45,7 @@ void Cluster::computeClusters(const freud::locality::NeighborQuery* nq, const bo
     qargs.mode = locality::QueryArgs::QueryType::ball;
     qargs.rmax = m_rcut;
 
-    freud::locality::loop_over_NeighborList(nq, points, Np, qargs, nlist,
+    freud::locality::loopOverNeighbors(nq, points, Np, qargs, nlist,
                                             [this, &dj, &box, points](size_t i, size_t j, float dist, float weight) {
                                                 if (i != j)
                                                 {

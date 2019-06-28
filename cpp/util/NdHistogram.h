@@ -78,7 +78,7 @@ public:
                            Func cf)
     {
         m_box = box;
-        locality::loop_over_NeighborList(ref_points, points, n_p, qargs, nlist, cf);
+        locality::loopOverNeighbors(ref_points, points, n_p, qargs, nlist, cf);
         // const size_t* neighbor_list(nlist->getNeighbors());
         // size_t n_bonds = nlist->getNumBonds();
         // tbb::parallel_for(tbb::blocked_range<size_t>(0, n_bonds), [=](const tbb::blocked_range<size_t>& r) {

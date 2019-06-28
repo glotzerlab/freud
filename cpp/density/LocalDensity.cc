@@ -39,7 +39,7 @@ void LocalDensity::compute(const box::Box& box, const freud::locality::NeighborL
     }
 
     // compute the local density
-    freud::locality::for_loop_wrapper(true, 0, n_ref, 
+    freud::locality::forLoopWrapper(true, 0, n_ref, 
       [=] (size_t r_begin, size_t r_end)
       {
       size_t bond(nlist->find_first_index(r_begin));

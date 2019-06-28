@@ -18,7 +18,7 @@ namespace freud { namespace locality {
     \param body Body should be an object taking in
            with operator(size_t begin, size_t end).
 */
-template<typename Body> void for_loop_wrapper(bool parallel, size_t begin, size_t end, const Body& body)
+template<typename Body> void forLoopWrapper(bool parallel, size_t begin, size_t end, const Body& body)
 {
     if (parallel)
     {
@@ -42,14 +42,14 @@ template<typename Body> void for_loop_wrapper(bool parallel, size_t begin, size_
            (ref_point_index, point_index, distance, weight) as input.
 */
 template<typename ComputePairType>
-void loop_over_NeighborList(const NeighborQuery* ref_points, const vec3<float>* points, unsigned int Np,
+void loopOverNeighbors(const NeighborQuery* ref_points, const vec3<float>* points, unsigned int Np,
                             QueryArgs qargs, const NeighborList* nlist, const ComputePairType& cf)
 {
     // check if nlist exists
     if (nlist != NULL)
     {
         // if nlist exists, loop over it in parallel.
-        loop_over_NeighborList_parallel(nlist, cf);
+        loopOverNeighborList(nlist, cf);
     }
     else
     {
@@ -75,7 +75,7 @@ void loop_over_NeighborList(const NeighborQuery* ref_points, const vec3<float>* 
         }
 
         // iterate over the query object in parallel
-        for_loop_wrapper(true, 0, Np, [&iter, &qargs, &cf](size_t begin, size_t end) {
+        forLoopWrapper(true, 0, Np, [&iter, &qargs, &cf](size_t begin, size_t end) {
             NeighborPoint np;
             for (size_t i = begin; i != end; ++i)
             {
@@ -105,7 +105,7 @@ void loop_over_NeighborList(const NeighborQuery* ref_points, const vec3<float>* 
            (ref_point_index, point_index, distance, weight) as input.
 */
 template<typename ComputePairType>
-void loop_over_NeighborList_parallel(const NeighborList* nlist, const ComputePairType& cf)
+void loopOverNeighborList(const NeighborList* nlist, const ComputePairType& cf)
 {
     const size_t* neighbor_list(nlist->getNeighbors());
     size_t n_bonds = nlist->getNumBonds();
