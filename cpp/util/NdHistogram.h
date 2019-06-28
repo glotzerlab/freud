@@ -5,7 +5,9 @@
 #include <tbb/tbb.h>
 
 #include "Box.h"
+#include "NeighborComputeFunctional.h"
 #include "NeighborList.h"
+#include "NeighborQuery.h"
 #include "ThreadStorage.h"
 
 namespace freud { namespace util {
@@ -68,23 +70,27 @@ public:
     // Wrapper to do accumulation.
     // :code:`Func cf` should be some sort of (void*)(size_t, size_t)
     template<typename Func>
-    void accumulateGeneral(box::Box& box, unsigned int n_ref, const locality::NeighborList* nlist,
-                           unsigned int n_p, unsigned int bin_size, Func cf)
+    void accumulateGeneral(box::Box& box, 
+                           const locality::NeighborQuery* ref_points, 
+                           const vec3<float>* points, unsigned int n_p,
+                           const locality::NeighborList* nlist,
+                           unsigned int bin_size, freud::locality::QueryArgs qargs, 
+                           Func cf)
     {
         m_box = box;
-        nlist->validate(n_ref, n_p);
-        const size_t* neighbor_list(nlist->getNeighbors());
-        size_t n_bonds = nlist->getNumBonds();
-        tbb::parallel_for(tbb::blocked_range<size_t>(0, n_bonds), [=](const tbb::blocked_range<size_t>& r) {
-            for (size_t bond = r.begin(); bond != r.end(); ++bond)
-            {
-                size_t i(neighbor_list[2 * bond]);
-                size_t j(neighbor_list[2 * bond + 1]);
-                cf(i, j);
-            }
-        });
+        locality::loop_over_NeighborList(ref_points, points, n_p, qargs, nlist, cf);
+        // const size_t* neighbor_list(nlist->getNeighbors());
+        // size_t n_bonds = nlist->getNumBonds();
+        // tbb::parallel_for(tbb::blocked_range<size_t>(0, n_bonds), [=](const tbb::blocked_range<size_t>& r) {
+        //     for (size_t bond = r.begin(); bond != r.end(); ++bond)
+        //     {
+        //         size_t i(neighbor_list[2 * bond]);
+        //         size_t j(neighbor_list[2 * bond + 1]);
+        //         cf(i, j);
+        //     }
+        // });
         m_frame_counter++;
-        m_n_ref = n_ref;
+        m_n_ref = ref_points->getNRef();
         m_n_p = n_p;
         // flag to reduce
         m_reduce = true;

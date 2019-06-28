@@ -87,10 +87,11 @@ void PMFTXYZ::reset()
 //! \internal
 /*! \brief Helper function to direct the calculation to the correct helper class
  */
-void PMFTXYZ::accumulate(box::Box& box, const locality::NeighborList* nlist, vec3<float>* ref_points,
+void PMFTXYZ::accumulate(box::Box& box, const locality::NeighborList* nlist,
+                         const locality::NeighborQuery* ref_points,
                          quat<float>* ref_orientations, unsigned int n_ref, vec3<float>* points,
                          quat<float>* orientations, unsigned int n_p, quat<float>* face_orientations,
-                         unsigned int n_faces)
+                         unsigned int n_faces, freud::locality::QueryArgs qargs)
 {
     assert(ref_points);
     assert(points);
@@ -106,20 +107,14 @@ void PMFTXYZ::accumulate(box::Box& box, const locality::NeighborList* nlist, vec
     Index3D b_i = Index3D(m_n_x, m_n_y, m_n_z);
     Index2D q_i = Index2D(n_faces, n_p);
 
-    accumulateGeneral(box, n_ref, nlist, n_p, m_n_x * m_n_y * m_n_z, [=](size_t i, size_t j) {
-        vec3<float> ref = ref_points[i];
+    accumulateGeneral(box, ref_points, points, n_p, nlist, m_n_x * m_n_y * m_n_z, qargs,
+        [=](size_t i, size_t j, float dist, float weight) {
+        vec3<float> ref = ref_points->getRefPoints()[i];
         // create the reference point quaternion
         quat<float> ref_q(ref_orientations[i]);
         // make sure that the particles are wrapped into the box
         vec3<float> delta = m_box.wrap(points[j] - ref);
-        float rsq = dot(delta + m_shiftvec, delta + m_shiftvec);
 
-        // check that the particle is not checking itself
-        // 1e-6 is an arbitrary value that could be set differently if needed
-        if (rsq < 1e-6)
-        {
-            return;
-        }
         for (unsigned int k = 0; k < n_faces; k++)
         {
             // create the extra quaternion

@@ -115,12 +115,7 @@ void GaussianDensity::compute(const box::Box& box, const vec3<float>* points, un
     // this does not agree with rest of freud
     m_density_array
         = std::shared_ptr<float>(new float[m_bi.getNumElements()], std::default_delete<float[]>());
-<<<<<<< HEAD
-    m_local_bin_counts.updateSize(m_bi.getNumElements());
-
-=======
     m_local_bin_counts.resize(m_bi.getNumElements());
->>>>>>> master
     parallel_for(blocked_range<size_t>(0, Np), [=](const blocked_range<size_t>& r) {
         assert(points);
         assert(Np > 0);

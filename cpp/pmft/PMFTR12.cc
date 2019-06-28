@@ -93,9 +93,10 @@ void PMFTR12::reset()
     resetGeneral(m_n_r * m_n_t1 * m_n_t2);
 }
 
-void PMFTR12::accumulate(box::Box& box, const locality::NeighborList* nlist, vec3<float>* ref_points,
+void PMFTR12::accumulate(box::Box& box, const locality::NeighborList* nlist, 
+                         const locality::NeighborQuery* ref_points,
                          float* ref_orientations, unsigned int n_ref, vec3<float>* points,
-                         float* orientations, unsigned int n_p)
+                         float* orientations, unsigned int n_p, freud::locality::QueryArgs qargs)
 {
     assert(ref_points);
     assert(points);
@@ -103,23 +104,17 @@ void PMFTR12::accumulate(box::Box& box, const locality::NeighborList* nlist, vec
     assert(n_p > 0);
 
     float dr_inv = 1.0f / m_dr;
-    float maxrsq = m_r_max * m_r_max;
     float dt1_inv = 1.0f / m_dt1;
     float dt2_inv = 1.0f / m_dt2;
 
     Index3D b_i = Index3D(m_n_t1, m_n_t2, m_n_r);
 
-    accumulateGeneral(box, n_ref, nlist, n_p, m_n_r * m_n_t1 * m_n_t2, [=](size_t i, size_t j) {
-        vec3<float> ref = ref_points[i];
+    accumulateGeneral(box, ref_points, points, n_p, nlist, m_n_r * m_n_t1 * m_n_t2, qargs,
+        [=](size_t i, size_t j, float dist, float weight) {
+        vec3<float> ref = ref_points->getRefPoints()[i];
         vec3<float> delta = m_box.wrap(points[j] - ref);
-        float rsq = dot(delta, delta);
-        if (rsq < 1e-6)
+        if (dist < m_r_max)
         {
-            return;
-        }
-        if (rsq < maxrsq)
-        {
-            float r = sqrtf(rsq);
             // calculate angles
             float d_theta1 = atan2(delta.y, delta.x);
             float d_theta2 = atan2(-delta.y, -delta.x);
@@ -137,7 +132,7 @@ void PMFTR12::accumulate(box::Box& box, const locality::NeighborList* nlist, vec
                 t2 += 2 * M_PI;
             }
             // bin that point
-            float bin_r = r * dr_inv;
+            float bin_r = dist * dr_inv;
             float bin_t1 = floorf(t1 * dt1_inv);
             float bin_t2 = floorf(t2 * dt2_inv);
 // fast float to int conversion with truncation

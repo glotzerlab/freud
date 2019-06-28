@@ -127,11 +127,11 @@ cdef class Cluster(Compute):
 
         cdef const float[:, ::1] l_points = points
         cdef unsigned int Np = l_points.shape[0]
-        # with nogil:
-        #     self.thisptr.computeClusters(
-        #         nq.get_ptr(),
-        #         dereference(b.thisptr), nlistptr,
-        #         <vec3[float]*> &l_points[0, 0], Np)
+        with nogil:
+            self.thisptr.computeClusters(
+                nq.get_ptr(),
+                dereference(b.thisptr), nlistptr,
+                <vec3[float]*> &l_points[0, 0], Np)
         return self
 
     @Compute._compute("computeClusterMembership")

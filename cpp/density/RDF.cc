@@ -153,14 +153,7 @@ unsigned int RDF::getNBins()
  */
 void RDF::reset()
 {
-<<<<<<< HEAD
-    m_local_bin_counts.reset();
-    // reset the frame counter
-    m_frame_counter = 0;
-    m_reduce = true;
-=======
     resetGeneral(m_nbins);
->>>>>>> master
 }
 
 //! \internal
@@ -169,25 +162,6 @@ void RDF::reset()
 void RDF::accumulate(box::Box& box, const locality::NeighborList* nlist, const vec3<float>* ref_points,
                      unsigned int n_ref, const vec3<float>* points, unsigned int n_p)
 {
-<<<<<<< HEAD
-    m_box = box;
-    m_Np = Np;
-    m_n_ref = Nref;
-    nlist->validate(Nref, Np);
-    const size_t* neighbor_list(nlist->getNeighbors());
-    parallel_for(blocked_range<size_t>(0, nlist->getNumBonds()), [=](const blocked_range<size_t>& r) {
-        assert(ref_points);
-        assert(points);
-        assert(m_n_ref > 0);
-        assert(Np > 0);
-
-        float dr_inv = 1.0f / m_dr;
-        float rminsq = m_rmin * m_rmin;
-        float rmaxsq = m_rmax * m_rmax;
-
-        size_t last_i(-1);
-        vec3<float> ref;
-=======
     m_n_p = n_p;
     m_n_ref = n_ref;
 
@@ -208,7 +182,6 @@ void RDF::accumulate(box::Box& box, const locality::NeighborList* nlist, const v
         if (rsq < rmaxsq && rsq > rminsq)
         {
             float r = sqrtf(rsq);
->>>>>>> master
 
             // bin that r
             float binr = (r - m_rmin) * dr_inv;

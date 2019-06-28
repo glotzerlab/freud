@@ -76,9 +76,10 @@ void PMFTXY2D::reset()
 //! \internal
 /*! \brief Helper functionto direct the calculation to the correct helper class
  */
-void PMFTXY2D::accumulate(box::Box& box, const locality::NeighborList* nlist, vec3<float>* ref_points,
+void PMFTXY2D::accumulate(box::Box& box, const locality::NeighborList* nlist,
+                          const locality::NeighborQuery* ref_points, 
                           float* ref_orientations, unsigned int n_ref, vec3<float>* points,
-                          float* orientations, unsigned int n_p)
+                          float* orientations, unsigned int n_p, freud::locality::QueryArgs qargs)
 {
     assert(ref_points);
     assert(points);
@@ -91,17 +92,10 @@ void PMFTXY2D::accumulate(box::Box& box, const locality::NeighborList* nlist, ve
 
     Index2D b_i = Index2D(m_n_x, m_n_y);
 
-    accumulateGeneral(box, n_ref, nlist, n_p, m_n_x * m_n_y, [=](size_t i, size_t j) {
-        vec3<float> ref = ref_points[i];
+    accumulateGeneral(box, ref_points, points, n_p, nlist, m_n_x * m_n_y, qargs,
+        [=](size_t i, size_t j, float dist, float wieght) {
+        vec3<float> ref = ref_points->getRefPoints()[i];
         vec3<float> delta = this->m_box.wrap(points[j] - ref);
-        float rsq = dot(delta, delta);
-
-        // check that the particle is not checking itself
-        // 1e-6 is an arbitrary value that could be set differently if needed
-        if (rsq < 1e-6)
-        {
-            return;
-        }
 
         // rotate interparticle vector
         vec2<float> myVec(delta.x, delta.y);
