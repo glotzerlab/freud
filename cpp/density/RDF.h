@@ -9,6 +9,7 @@
 #include "Box.h"
 #include "NdHistogram.h"
 #include "NeighborList.h"
+#include "NeighborQuery.h"
 #include "PMFT.h"
 #include "ThreadStorage.h"
 #include "VectorMath.h"
@@ -31,8 +32,8 @@ public:
     void reset();
 
     //! Compute the RDF
-    void accumulate(box::Box& box, const freud::locality::NeighborList* nlist, const vec3<float>* ref_points,
-                    unsigned int n_ref, const vec3<float>* points, unsigned int n_p);
+    void accumulate(box::Box& box, const freud::locality::NeighborList* nlist, const freud::locality::NeighborQuery* ref_points,
+                    const vec3<float>* points, unsigned int n_p, freud::locality::QueryArgs qargs);
 
     //! \internal
     //! helper function to reduce the thread specific arrays into one array

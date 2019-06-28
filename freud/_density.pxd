@@ -64,10 +64,9 @@ cdef extern from "RDF.h" namespace "freud::density":
         void reset()
         void accumulate(freud._box.Box &,
                         const freud._locality.NeighborList*,
+                        const freud._locality.NeighborQuery*,
                         const vec3[float]*,
-                        unsigned int,
-                        const vec3[float]*,
-                        unsigned int) nogil except +
+                        unsigned int, freud._locality.QueryArgs) nogil except +
         shared_ptr[float] getRDF()
         shared_ptr[float] getR()
         shared_ptr[float] getNr()
