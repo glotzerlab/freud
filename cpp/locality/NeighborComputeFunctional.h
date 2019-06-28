@@ -1,9 +1,9 @@
 #ifndef NEIGHBOR_COMPUTE_FUNCTIONAL_H
 #define NEIGHBOR_COMPUTE_FUNCTIONAL_H
 
+#include <iostream>
 #include <memory>
 #include <tbb/tbb.h>
-#include <iostream>
 
 #include "AABBQuery.h"
 #include "Index1D.h"
@@ -43,17 +43,18 @@ template<typename Body> void forLoopWrapper(bool parallel, size_t begin, size_t 
 */
 template<typename ComputePairType>
 void loopOverNeighbors(const NeighborQuery* ref_points, const vec3<float>* points, unsigned int Np,
-                            QueryArgs qargs, const NeighborList* nlist, const ComputePairType& cf)
+                       QueryArgs qargs, const NeighborList* nlist, const ComputePairType& cf,
+                       bool parallel = true)
 {
     // check if nlist exists
     if (nlist != NULL)
     {
         // if nlist exists, loop over it in parallel.
-        loopOverNeighborList(nlist, cf);
+        loopOverNeighborList(parallel, nlist, cf);
     }
     else
     {
-        loopOverNeighborQuery(ref_points, points, Np, qargs, cf);
+        loopOverNeighborQuery(parallel, ref_points, points, Np, qargs, cf);
     }
 }
 
@@ -63,14 +64,14 @@ void loopOverNeighbors(const NeighborQuery* ref_points, const vec3<float>* point
            (ref_point_index, point_index, distance, weight) as input.
 */
 template<typename ComputePairType>
-void loopOverNeighborList(const NeighborList* nlist, const ComputePairType& cf)
+void loopOverNeighborList(bool parallel, const NeighborList* nlist, const ComputePairType& cf)
 {
     const size_t* neighbor_list(nlist->getNeighbors());
     size_t n_bonds = nlist->getNumBonds();
     const float* neighbor_distances = nlist->getDistances();
     const float* neighbor_weights = nlist->getWeights();
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, n_bonds), [=](const tbb::blocked_range<size_t>& r) {
-        for (size_t bond = r.begin(); bond != r.end(); ++bond)
+    forLoopWrapper(parallel, 0, n_bonds, [=](size_t begin, size_t end) {
+        for (size_t bond = begin; bond != end; ++bond)
         {
             size_t i(neighbor_list[2 * bond]);
             size_t j(neighbor_list[2 * bond + 1]);
@@ -88,8 +89,8 @@ void loopOverNeighborList(const NeighborList* nlist, const ComputePairType& cf)
            (ref_point_index, point_index, distance, weight) as input.
 */
 template<typename ComputePairType>
-void loopOverNeighborQuery(const NeighborQuery* ref_points, const vec3<float>* points, unsigned int Np,
-                            QueryArgs qargs, const ComputePairType& cf)
+void loopOverNeighborQuery(bool parallel, const NeighborQuery* ref_points, const vec3<float>* points,
+                           unsigned int Np, QueryArgs qargs, const ComputePairType& cf)
 {
     // if nlist does not exist, check if ref_points is an actual NeighborQuery
     std::shared_ptr<NeighborQueryIterator> iter;
@@ -113,7 +114,7 @@ void loopOverNeighborQuery(const NeighborQuery* ref_points, const vec3<float>* p
     }
 
     // iterate over the query object in parallel
-    forLoopWrapper(true, 0, Np, [&iter, &qargs, &cf](size_t begin, size_t end) {
+    forLoopWrapper(parallel, 0, Np, [&iter, &qargs, &cf](size_t begin, size_t end) {
         NeighborPoint np;
         for (size_t i = begin; i != end; ++i)
         {
@@ -122,8 +123,8 @@ void loopOverNeighborQuery(const NeighborQuery* ref_points, const vec3<float>* p
             while (!it->end())
             {
                 //! Warning! If qargs.exclude_ii is true, NeighborPoint with same indices
-                // will not be considered regardless of ref_points and points 
-                // being same set of points 
+                // will not be considered regardless of ref_points and points
+                // being same set of points
                 if (!qargs.exclude_ii || i != np.ref_id)
                 {
                     // TODO when Voronoi gets incorporated in NeighborQuery infrastructure
@@ -150,8 +151,8 @@ void loopOverNeighborQuery(const NeighborQuery* ref_points, const vec3<float>* p
 */
 template<typename ComputePairType, typename PreprocessType, typename PostprocessType>
 void loopOverNeighborsPoint(const NeighborQuery* ref_points, const vec3<float>* points, unsigned int Np,
-                            QueryArgs qargs, const NeighborList* nlist, 
-                            const ComputePairType& cf, const PreprocessType& pre, const PostprocessType& post)
+                            QueryArgs qargs, const NeighborList* nlist, const ComputePairType& cf,
+                            const PreprocessType& pre, const PostprocessType& post)
 {
     // check if nlist exists
     if (nlist != NULL)
@@ -161,11 +162,9 @@ void loopOverNeighborsPoint(const NeighborQuery* ref_points, const vec3<float>* 
     }
     else
     {
-        loopOverNeighborQueryPoint(ref_points, points, Np, 
-                                   qargs, cf, pre, post);
+        loopOverNeighborQueryPoint(ref_points, points, Np, qargs, cf, pre, post);
     }
 }
-
 
 // This function does not work for now since ref_point point orders are different
 // for NiehgborList and NeighborQuery.query().
@@ -175,8 +174,8 @@ void loopOverNeighborsPoint(const NeighborQuery* ref_points, const vec3<float>* 
            (ref_point_index, point_index, distance, weight) as input.
 */
 template<typename ComputePairType, typename PreprocessType, typename PostprocessType>
-void loopOverNeighborListPoint(const NeighborList* nlist, unsigned int Np, const ComputePairType& cf, 
-                          const PreprocessType& pre, const PostprocessType& post)
+void loopOverNeighborListPoint(const NeighborList* nlist, unsigned int Np, const ComputePairType& cf,
+                               const PreprocessType& pre, const PostprocessType& post)
 {
     const size_t* neighbor_list(nlist->getNeighbors());
     const float* neighbor_distances = nlist->getDistances();
@@ -208,7 +207,8 @@ void loopOverNeighborListPoint(const NeighborList* nlist, unsigned int Np, const
 */
 template<typename ComputePairType, typename PreprocessType, typename PostprocessType>
 void loopOverNeighborQueryPoint(const NeighborQuery* ref_points, const vec3<float>* points, unsigned int Np,
-                            QueryArgs qargs, const ComputePairType& cf, const PreprocessType& pre, const PostprocessType& post)
+                                QueryArgs qargs, const ComputePairType& cf, const PreprocessType& pre,
+                                const PostprocessType& post)
 {
     // if nlist does not exist, check if ref_points is an actual NeighborQuery
     std::shared_ptr<NeighborQueryIterator> iter;
@@ -242,8 +242,8 @@ void loopOverNeighborQueryPoint(const NeighborQuery* ref_points, const vec3<floa
             while (!it->end())
             {
                 //! Warning! If qargs.exclude_ii is true, NeighborPoint with same indices
-                // will not be considered regardless of ref_points and points 
-                // being same set of points 
+                // will not be considered regardless of ref_points and points
+                // being same set of points
                 if (!qargs.exclude_ii || i != np.ref_id)
                 {
                     // TODO when Voronoi gets incorporated in NeighborQuery infrastructure
@@ -256,7 +256,6 @@ void loopOverNeighborQueryPoint(const NeighborQuery* ref_points, const vec3<floa
         }
     });
 }
-
 
 }; }; // end namespace freud::locality
 
