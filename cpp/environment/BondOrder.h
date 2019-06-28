@@ -9,6 +9,7 @@
 
 #include "Box.h"
 #include "NeighborList.h"
+#include "NeighborQuery.h"
 #include "ThreadStorage.h"
 #include "VectorMath.h"
 #include "ETSWrapper.h"
@@ -50,9 +51,11 @@ public:
     void reset();
 
     //! Accumulate the bond order
-    void accumulate(box::Box& box, const freud::locality::NeighborList* nlist, vec3<float>* ref_points,
-                    quat<float>* ref_orientations, unsigned int n_ref, vec3<float>* points,
-                    quat<float>* orientations, unsigned int n_p, unsigned int mode);
+    void accumulate(box::Box& box, const freud::locality::NeighborList* nlist,
+                    const locality::NeighborQuery* ref_points,
+                    quat<float>* ref_orientations, vec3<float>* points,
+                    quat<float>* orientations, unsigned int n_p, unsigned int mode,
+                    freud::locality::QueryArgs qargs);
 
     void reduceBondOrder();
 

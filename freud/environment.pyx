@@ -173,6 +173,15 @@ cdef class BondOrder(Compute):
 
         exclude_ii = points is None
 
+        cdef freud.locality.NeighborQuery nq = \
+            freud.locality.make_default_nq(b, ref_points)
+        cdef freud._locality.NeighborList * nlistptr \
+            = freud.locality.make_nlistptr(nlist)
+        cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
+            mode="nearest", nn=self.num_neigh,
+            rmax=self.rmax, exclude_ii=exclude_ii)
+        ref_points = nq.points
+
         if points is None:
             points = ref_points
         if orientations is None:
@@ -199,28 +208,25 @@ cdef class BondOrder(Compute):
                 ('Unknown BOD mode: {}. Options are:'
                     'bod, lbod, obcd, oocd.').format(mode))
 
-        defaulted_nlist = freud.locality.make_default_nlist_nn(
-            b, ref_points, points, self.num_neigh,
-            nlist, exclude_ii, self.rmax)
-        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
+        # defaulted_nlist = freud.locality.make_default_nlist_nn(
+        #     b, ref_points, points, self.num_neigh,
+        #     nlist, exclude_ii, self.rmax)
+        # cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
-        cdef const float[:, ::1] l_ref_points = ref_points
         cdef const float[:, ::1] l_points = points
         cdef const float[:, ::1] l_ref_orientations = ref_orientations
         cdef const float[:, ::1] l_orientations = orientations
-        cdef unsigned int n_ref = l_ref_points.shape[0]
         cdef unsigned int n_p = l_points.shape[0]
 
         with nogil:
             self.thisptr.accumulate(
-                dereference(b.thisptr), nlist_.get_ptr(),
-                <vec3[float]*> &l_ref_points[0, 0],
+                dereference(b.thisptr), nlistptr,
+                nq.get_ptr(),
                 <quat[float]*> &l_ref_orientations[0, 0],
-                n_ref,
                 <vec3[float]*> &l_points[0, 0],
                 <quat[float]*> &l_orientations[0, 0],
                 n_p,
-                index)
+                index, dereference(qargs.thisptr))
         return self
 
     @Compute._computed_property()
