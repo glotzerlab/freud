@@ -31,7 +31,7 @@ template<typename Body> void forLoopWrapper(bool parallel, size_t begin, size_t 
     }
 }
 
-//! Wrapper iterating looping over NeighborQuery
+//! Wrapper iterating looping over NeighborQuery or NeighborList
 /*! \param ref_points NeighborQuery object to iterate over
     \param points Points
     \param Np Number of points
@@ -53,49 +53,7 @@ void loopOverNeighbors(const NeighborQuery* ref_points, const vec3<float>* point
     }
     else
     {
-        // if nlist does not exist, check if ref_points is an actual NeighborQuery
-        std::shared_ptr<NeighborQueryIterator> iter;
-        std::shared_ptr<AABBQuery> abq;
-        // check if ref_points is a pointer to a RawPoints object
-        // dynamic_cast will fail if ref_points is not actually pointing to RawPoints
-        // and return a null pointer. Then, the assignment operator will return
-        // a null pointer, making the condition in the if statement to be false.
-        // This is a typical C++ way of checking the type of a polymorphic class
-        // using pointers and casting.
-        if (const RawPoints* rp = dynamic_cast<const RawPoints*>(ref_points))
-        {
-            // if ref_points is RawPoints, build a NeighborQuery
-            abq = std::make_shared<AABBQuery>(ref_points->getBox(), ref_points->getRefPoints(),
-                                              ref_points->getNRef());
-            iter = abq.get()->queryWithArgs(points, Np, qargs);
-        }
-        else
-        {
-            iter = ref_points->queryWithArgs(points, Np, qargs);
-        }
-
-        // iterate over the query object in parallel
-        forLoopWrapper(true, 0, Np, [&iter, &qargs, &cf](size_t begin, size_t end) {
-            NeighborPoint np;
-            for (size_t i = begin; i != end; ++i)
-            {
-                std::shared_ptr<NeighborQueryIterator> it = iter->query(i);
-                np = it->next();
-                while (!it->end())
-                {
-                    //! Warning! If qargs.exclude_ii is true, NeighborPoint with same indices
-                    // will not be considered regardless of ref_points and points 
-                    // being same set of points 
-                    if (!qargs.exclude_ii || i != np.ref_id)
-                    {
-                        // TODO when Voronoi gets incorporated in NeighborQuery infrastructure
-                        // weight set to 1 for now
-                        cf(np.ref_id, i, np.distance, 1);
-                    }
-                    np = it->next();
-                }
-            }
-        });
+        loopOverNeighborQuery(ref_points, points, Np, qargs, cf);
     }
 }
 
@@ -120,6 +78,64 @@ void loopOverNeighborList(const NeighborList* nlist, const ComputePairType& cf)
         }
     });
 }
+
+//! Wrapper iterating looping over NeighborQuery
+/*! \param ref_points NeighborQuery object to iterate over
+    \param points Points
+    \param Np Number of points
+    \param qargs Query arguments
+    \param cf A void function that takes
+           (ref_point_index, point_index, distance, weight) as input.
+*/
+template<typename ComputePairType>
+void loopOverNeighborQuery(const NeighborQuery* ref_points, const vec3<float>* points, unsigned int Np,
+                            QueryArgs qargs, const ComputePairType& cf)
+{
+    // if nlist does not exist, check if ref_points is an actual NeighborQuery
+    std::shared_ptr<NeighborQueryIterator> iter;
+    std::shared_ptr<AABBQuery> abq;
+    // check if ref_points is a pointer to a RawPoints object
+    // dynamic_cast will fail if ref_points is not actually pointing to RawPoints
+    // and return a null pointer. Then, the assignment operator will return
+    // a null pointer, making the condition in the if statement to be false.
+    // This is a typical C++ way of checking the type of a polymorphic class
+    // using pointers and casting.
+    if (const RawPoints* rp = dynamic_cast<const RawPoints*>(ref_points))
+    {
+        // if ref_points is RawPoints, build a NeighborQuery
+        abq = std::make_shared<AABBQuery>(ref_points->getBox(), ref_points->getRefPoints(),
+                                          ref_points->getNRef());
+        iter = abq.get()->queryWithArgs(points, Np, qargs);
+    }
+    else
+    {
+        iter = ref_points->queryWithArgs(points, Np, qargs);
+    }
+
+    // iterate over the query object in parallel
+    forLoopWrapper(true, 0, Np, [&iter, &qargs, &cf](size_t begin, size_t end) {
+        NeighborPoint np;
+        for (size_t i = begin; i != end; ++i)
+        {
+            std::shared_ptr<NeighborQueryIterator> it = iter->query(i);
+            np = it->next();
+            while (!it->end())
+            {
+                //! Warning! If qargs.exclude_ii is true, NeighborPoint with same indices
+                // will not be considered regardless of ref_points and points 
+                // being same set of points 
+                if (!qargs.exclude_ii || i != np.ref_id)
+                {
+                    // TODO when Voronoi gets incorporated in NeighborQuery infrastructure
+                    // weight set to 1 for now
+                    cf(np.ref_id, i, np.distance, 1);
+                }
+                np = it->next();
+            }
+        }
+    });
+}
+
 
 }; }; // end namespace freud::locality
 
