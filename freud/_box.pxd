@@ -3,7 +3,7 @@
 
 from libcpp.memory cimport shared_ptr
 from libcpp cimport bool as bool_t
-from freud.util._VectorMath cimport vec3
+from freud.util cimport vec3
 from libcpp.vector cimport vector
 from libcpp.string cimport string
 

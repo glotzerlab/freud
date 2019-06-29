@@ -2,8 +2,7 @@
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 from libcpp cimport bool
-from freud.util._VectorMath cimport vec3
-from freud.util._Index1D cimport Index3D
+from freud.util cimport vec3
 from libcpp.memory cimport shared_ptr
 from libcpp.vector cimport vector
 cimport freud._box
@@ -105,7 +104,6 @@ cdef extern from "LinkCell.h" namespace "freud::locality":
         const vec3[unsigned int] computeDimensions(
             const freud._box.Box &,
             float) const
-        const Index3D & getCellIndexer() const
         unsigned int getNumCells() const
         float getCellWidth() const
         unsigned int getCell(const vec3[float] &) const
