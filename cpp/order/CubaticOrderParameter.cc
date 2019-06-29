@@ -157,8 +157,8 @@ quat<float> CubaticOrderParameter::calcRandomQuaternion(Saru& saru, float angle_
     return quat<float>::fromAxisAngle(axis, angle);
 }
 
-void CubaticOrderParameter::compute(quat<float> *orientations, unsigned int n)
-    {
+void CubaticOrderParameter::compute(quat<float>* orientations, unsigned int n)
+{
     // change the size of the particle tensor if the number of particles
     if (m_n != n)
     {
@@ -328,6 +328,6 @@ void CubaticOrderParameter::compute(quat<float> *orientations, unsigned int n)
     });
     // save the last computed number of particles
     m_n = n;
-    }
+}
 
 }; }; // end namespace freud::order
