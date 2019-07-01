@@ -94,17 +94,16 @@ void LocalBondProjection::compute(box::Box& box, const freud::locality::Neighbor
         size_t bond(nlist->find_first_index(r.begin()));
         for (size_t i = r.begin(); i != r.end(); ++i)
         {
-            vec3<float> p = ref_pos[i];
-            quat<float> q = ref_ors[i];
-
+            
             for (; bond < tot_num_neigh && neighbor_list[2 * bond] == i; ++bond)
             {
                 const size_t j(neighbor_list[2 * bond + 1]);
+
                 // compute bond vector between the two particles
-                vec3<float> delta = box.wrap(pos[j] - p);
+                vec3<float> delta = box.wrap(pos[i] - ref_pos[j]);
                 vec3<float> local_bond(delta);
                 // rotate bond vector into the local frame of particle p
-                local_bond = rotate(conj(q), local_bond);
+                local_bond = rotate(conj(ref_ors[j]), local_bond);
                 // store the length of this local bond
                 float local_bond_len = sqrt(dot(local_bond, local_bond));
 
