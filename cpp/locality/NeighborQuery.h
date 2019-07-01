@@ -273,7 +273,7 @@ public:
                     if (!m_exclude_ii || i != np.ref_id)
                     {
                         // Swap ref_id and id order for backwards compatibility.
-                        local_bonds.emplace_back(np.ref_id, i, np.distance);
+                        local_bonds.emplace_back(i, np.ref_id, np.distance);
                     }
                 }
                 // Remove the last item, which is just the terminal sentinel value.

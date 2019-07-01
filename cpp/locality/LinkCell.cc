@@ -207,7 +207,7 @@ void LinkCell::compute(const box::Box& box, const vec3<float>* ref_points, unsig
 
                     if (rsq < m_cell_width * m_cell_width)
                     {
-                        bond_vector.emplace_back(i, j, 1, sqrt(rsq));
+                        bond_vector.emplace_back(j, i, 1, sqrt(rsq));
                     }
                 }
             }
@@ -217,7 +217,38 @@ void LinkCell::compute(const box::Box& box, const vec3<float>* ref_points, unsig
     // Sort neighbors by particle i index
     tbb::flattened2d<ThreadBondVector> flat_bond_vector_groups = tbb::flatten2d(bond_vectors);
     BondVectorVector bond_vector_groups(flat_bond_vector_groups.begin(), flat_bond_vector_groups.end());
-    tbb::parallel_sort(bond_vector_groups.begin(), bond_vector_groups.end(), compareFirstNeighborPairs);
+    // tbb::parallel_sort(bond_vector_groups.begin(), bond_vector_groups.end(), compareFirstNeighborPairs);
+
+    // unsigned int num_bonds(0);
+    // for (BondVectorVector::const_iterator iter(bond_vector_groups.begin()); iter != bond_vector_groups.end();
+    //      ++iter)
+    //     num_bonds += iter->size();
+
+    // m_neighbor_list.resize(num_bonds);
+    // m_neighbor_list.setNumBonds(num_bonds, Nref, Np);
+
+    // size_t* neighbor_array(m_neighbor_list.getNeighbors());
+    // float* neighbor_weights(m_neighbor_list.getWeights());
+    // float* neighbor_distances(m_neighbor_list.getDistances());
+
+    // // build nlist structure
+    // parallel_for(blocked_range<size_t>(0, bond_vector_groups.size()),
+    //              [=, &bond_vector_groups](const blocked_range<size_t>& r) {
+    //                  size_t bond(0);
+    //                  for (size_t group(0); group < r.begin(); ++group)
+    //                      bond += bond_vector_groups[group].size();
+
+    //                  for (size_t group(r.begin()); group < r.end(); ++group)
+    //                  {
+    //                      const BondVector& vec(bond_vector_groups[group]);
+    //                      for (BondVector::const_iterator iter(vec.begin()); iter != vec.end(); ++iter, ++bond)
+    //                      {
+    //                          std::tie(neighbor_array[2 * bond], neighbor_array[2 * bond + 1],
+    //                                   neighbor_weights[bond], neighbor_distances[bond])
+    //                              = *iter;
+    //                      }
+    //                  }
+    //              });
 
     unsigned int num_bonds(0);
     for (BondVectorVector::const_iterator iter(bond_vector_groups.begin()); iter != bond_vector_groups.end();
@@ -227,28 +258,28 @@ void LinkCell::compute(const box::Box& box, const vec3<float>* ref_points, unsig
     m_neighbor_list.resize(num_bonds);
     m_neighbor_list.setNumBonds(num_bonds, Nref, Np);
 
+    BondVector bond_vector;
+    bond_vector.reserve(num_bonds);
+    for (BondVectorVector::const_iterator iter(bond_vector_groups.begin()); iter != bond_vector_groups.end();
+         ++iter)
+        bond_vector.insert(bond_vector.end(), iter->begin(), iter->end());
+
+    tbb::parallel_sort(bond_vector.begin(), bond_vector.end());
+
     size_t* neighbor_array(m_neighbor_list.getNeighbors());
     float* neighbor_weights(m_neighbor_list.getWeights());
     float* neighbor_distances(m_neighbor_list.getDistances());
 
-    // build nlist structure
-    parallel_for(blocked_range<size_t>(0, bond_vector_groups.size()),
-                 [=, &bond_vector_groups](const blocked_range<size_t>& r) {
-                     size_t bond(0);
-                     for (size_t group(0); group < r.begin(); ++group)
-                         bond += bond_vector_groups[group].size();
+    parallel_for(blocked_range<size_t>(0, num_bonds),
+             [=, &bond_vector](const blocked_range<size_t>& r) {
+                 for (size_t bond = r.begin(); bond < r.end(); ++bond)
+                 {
+                     std::tie(neighbor_array[2 * bond], neighbor_array[2 * bond + 1],
+                              neighbor_weights[bond], neighbor_distances[bond])
+                         = bond_vector[bond];
+                 }
+             });
 
-                     for (size_t group(r.begin()); group < r.end(); ++group)
-                     {
-                         const BondVector& vec(bond_vector_groups[group]);
-                         for (BondVector::const_iterator iter(vec.begin()); iter != vec.end(); ++iter, ++bond)
-                         {
-                             std::tie(neighbor_array[2 * bond], neighbor_array[2 * bond + 1],
-                                      neighbor_weights[bond], neighbor_distances[bond])
-                                 = *iter;
-                         }
-                     }
-                 });
 }
 
 const std::vector<unsigned int>& LinkCell::computeCellNeighbors(unsigned int cur_cell)

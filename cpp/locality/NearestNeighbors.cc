@@ -7,6 +7,7 @@
 #include <tbb/tbb.h>
 #include <utility>
 #include <vector>
+#include <tuple>
 
 #include "Index1D.h"
 #include "NearestNeighbors.h"
@@ -152,7 +153,7 @@ void NearestNeighbors::compute(const box::Box& box, const vec3<float>* ref_pos, 
             const unsigned int k_max = min((unsigned int) neighbors.size(), m_num_neighbors);
             for (unsigned int k = 0; k < k_max; ++k)
             {
-                bond_vector.emplace_back(i, neighbors[k].second, 1, sqrt(neighbors[k].first));
+                bond_vector.emplace_back(neighbors[k].second, i, 1, sqrt(neighbors[k].first));
             }
         }
     });
@@ -160,7 +161,31 @@ void NearestNeighbors::compute(const box::Box& box, const vec3<float>* ref_pos, 
     // Sort neighbors by particle i index
     tbb::flattened2d<ThreadBondVector> flat_bond_vector_groups = tbb::flatten2d(bond_vectors);
     BondVectorVector bond_vector_groups(flat_bond_vector_groups.begin(), flat_bond_vector_groups.end());
-    tbb::parallel_sort(bond_vector_groups.begin(), bond_vector_groups.end(), compareFirstNeighborPairs);
+    // std::cout << "Before sorting" << std::endl; 
+    // for(int i = 0; i < bond_vector_groups.size(); ++i)
+    // {
+    //     for(int j = 0; j < bond_vector_groups[i].size(); ++j)
+    //     {
+    //         std::cout << std::get<0>(bond_vector_groups[i][j]) << " ";
+    //         std::cout << std::get<1>(bond_vector_groups[i][j])<< " ";
+    //         std::cout << std::get<2>(bond_vector_groups[i][j])<< " ";
+    //         std::cout << std::get<3>(bond_vector_groups[i][j])<< " ";
+    //         std::cout << std::endl;
+    //     }
+    // }
+    // tbb::parallel_sort(bond_vector_groups.begin(), bond_vector_groups.end(), compareFirstNeighborPairs);
+    // std::cout << "After sorting" << std::endl;
+    //     for(int i = 0; i < bond_vector_groups.size(); ++i)
+    // {
+    //     for(int j = 0; j < bond_vector_groups[i].size(); ++j)
+    //     {
+    //         std::cout << std::get<0>(bond_vector_groups[i][j])<< " ";
+    //         std::cout << std::get<1>(bond_vector_groups[i][j])<< " ";
+    //         std::cout << std::get<2>(bond_vector_groups[i][j])<< " ";
+    //         std::cout << std::get<3>(bond_vector_groups[i][j])<< " ";
+    //         std::cout << std::endl;
+    //     }
+    // }
 
     unsigned int num_bonds(0);
     for (BondVectorVector::const_iterator iter(bond_vector_groups.begin()); iter != bond_vector_groups.end();
@@ -169,26 +194,45 @@ void NearestNeighbors::compute(const box::Box& box, const vec3<float>* ref_pos, 
 
     m_neighbor_list.setNumBonds(num_bonds, num_ref, num_points);
 
+    BondVector bond_vector;
+    bond_vector.reserve(num_bonds);
+    for (BondVectorVector::const_iterator iter(bond_vector_groups.begin()); iter != bond_vector_groups.end();
+         ++iter)
+        bond_vector.insert(bond_vector.end(), iter->begin(), iter->end());
+
+    tbb::parallel_sort(bond_vector.begin(), bond_vector.end());
+
     size_t* neighbor_array(m_neighbor_list.getNeighbors());
     float* neighbor_weights(m_neighbor_list.getWeights());
     float* neighbor_distances(m_neighbor_list.getDistances());
 
-    // build nlist structure
-    parallel_for(blocked_range<size_t>(0, bond_vector_groups.size()),
-                 [=, &bond_vector_groups](const blocked_range<size_t>& r) {
-                     size_t bond(0);
-                     for (size_t group(0); group < r.begin(); ++group)
-                         bond += bond_vector_groups[group].size();
+    // // build nlist structure
+    // parallel_for(blocked_range<size_t>(0, bond_vector_groups.size()),
+    //              [=, &bond_vector_groups](const blocked_range<size_t>& r) {
+    //                  size_t bond(0);
+    //                  for (size_t group(0); group < r.begin(); ++group)
+    //                      bond += bond_vector_groups[group].size();
 
-                     for (size_t group(r.begin()); group < r.end(); ++group)
+    //                  for (size_t group(r.begin()); group < r.end(); ++group)
+    //                  {
+    //                      const BondVector& vec(bond_vector_groups[group]);
+    //                      for (BondVector::const_iterator iter(vec.begin()); iter != vec.end(); ++iter, ++bond)
+    //                      {
+    //                          std::tie(neighbor_array[2 * bond], neighbor_array[2 * bond + 1],
+    //                                   neighbor_weights[bond], neighbor_distances[bond])
+    //                              = *iter;
+    //                      }
+    //                  }
+    //              });
+
+        // build nlist structure
+    parallel_for(blocked_range<size_t>(0, num_bonds),
+                 [=, &bond_vector](const blocked_range<size_t>& r) {
+                     for (size_t bond = r.begin(); bond < r.end(); ++bond)
                      {
-                         const BondVector& vec(bond_vector_groups[group]);
-                         for (BondVector::const_iterator iter(vec.begin()); iter != vec.end(); ++iter, ++bond)
-                         {
-                             std::tie(neighbor_array[2 * bond], neighbor_array[2 * bond + 1],
-                                      neighbor_weights[bond], neighbor_distances[bond])
-                                 = *iter;
-                         }
+                         std::tie(neighbor_array[2 * bond], neighbor_array[2 * bond + 1],
+                                  neighbor_weights[bond], neighbor_distances[bond])
+                             = bond_vector[bond];
                      }
                  });
 
