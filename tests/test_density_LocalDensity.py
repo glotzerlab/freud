@@ -87,11 +87,9 @@ class TestLD(unittest.TestCase):
         ld = freud.density.LocalDensity(rcut, volume, diameter)
         ld.compute(box, ref_points, points)
 
-        correct_density_0 = 2/v_around
-        correct_density_1 =
-        (1 + getFraction(np.sqrt(5), rcut, diameter))/v_around
-
-        correct_density = [correct_density_0, correct_density_1]
+        cd0 = 2/v_around
+        cd1 = (1 + getFraction(np.sqrt(5), rcut, diameter))/v_around
+        correct_density = [cd0, cd1]
 
         npt.assert_allclose(ld.density, correct_density, rtol=1e-4)
 
