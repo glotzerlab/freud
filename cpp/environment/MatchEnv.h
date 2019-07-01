@@ -104,6 +104,10 @@ public:
     Environment buildEnv(const size_t* neighbor_list, size_t num_bonds, size_t& bond,
                          const vec3<float>* points, unsigned int i, unsigned int env_ind, bool hard_r);
 
+    //! Build EnvDisojintSet on given dj. 
+    //! This function is needed since new neighbor list is in points ref_points order.
+    EnvDisjointSet buildEnvDS(EnvDisjointSet& dj, const size_t* neighbor_list, size_t num_bonds, const vec3<float>* points);
+
     //! Determine clusters of particles with matching environments
     //! env_nlist is the neighborlist used to build the environment of every particle.
     //! nlist is the neighborlist used to determine the neighbors against which to compare environments for

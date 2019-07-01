@@ -334,6 +334,24 @@ Environment MatchEnv::buildEnv(const size_t* neighbor_list, size_t num_bonds, si
     return ei;
 }
 
+EnvDisjointSet MatchEnv::buildEnvDS(EnvDisjointSet& dj, const size_t* neighbor_list, size_t num_bonds, const vec3<float>* points)
+{
+    for(unsigned int i = 0; i < m_Np; ++i)
+    {
+        Environment ei = Environment();
+        ei.env_ind = dj.s.size();
+        dj.s.push_back(ei);
+    }
+    for(unsigned int bond = 0; bond < num_bonds; ++bond)
+    {
+        const size_t ref_point_index = neighbor_list[2*bond + 1];
+        const size_t point_index = neighbor_list[2*bond];
+        vec3<float> delta = m_box.wrap(points[point_index] - points[ref_point_index]);
+        dj.s[ref_point_index].addVec(delta);
+    }
+    return dj;
+}
+
 // Is the (PROPERLY REGISTERED) environment e2 similar to the (PROPERLY
 // REGISTERED) environment e1?
 // If so, return a std::pair of the rotation
@@ -668,11 +686,10 @@ void MatchEnv::cluster(const freud::locality::NeighborList* env_nlist,
     // take care, here: set things up s.t. the env_ind of every environment
     // matches its location in the disjoint set.
     // if you don't do this, things will get screwy.
+    buildEnvDS(dj, env_neighbor_list, env_num_bonds, points);
     for (unsigned int i = 0; i < m_Np; i++)
     {
-        Environment ei = buildEnv(env_neighbor_list, env_num_bonds, env_bond, points, i, i, hard_r);
-        dj.s.push_back(ei);
-        m_maxk = std::max(m_maxk, ei.num_vecs);
+        m_maxk = std::max(m_maxk, dj.s[i].num_vecs);
         dj.m_max_num_neigh = m_maxk;
     }
 
@@ -797,11 +814,10 @@ void MatchEnv::matchMotif(const freud::locality::NeighborList* nlist, const vec3
     // take care, here: set things up s.t. the env_ind of every environment
     // matches its location in the disjoint set.
     // if you don't do this, things will get screwy.
+    buildEnvDS(dj, neighbor_list, num_bonds, points);
     for (unsigned int i = 0; i < m_Np; i++)
     {
         unsigned int dummy = i + 1;
-        Environment ei = buildEnv(neighbor_list, num_bonds, bond, points, i, dummy, false);
-        dj.s.push_back(ei);
 
         // if the environment matches e0, merge it into the e0 environment set
         std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int>> mapping
@@ -890,11 +906,10 @@ std::vector<float> MatchEnv::minRMSDMotif(const freud::locality::NeighborList* n
     // take care, here: set things up s.t. the env_ind of every environment
     // matches its location in the disjoint set.
     // if you don't do this, things will get screwy.
+    buildEnvDS(dj, neighbor_list, num_bonds, points);
     for (unsigned int i = 0; i < m_Np; i++)
     {
         unsigned int dummy = i + 1;
-        Environment ei = buildEnv(neighbor_list, num_bonds, bond, points, i, dummy, false);
-        dj.s.push_back(ei);
 
         // if the environment matches e0, merge it into the e0 environment set
         float min_rmsd = -1.0;
