@@ -137,6 +137,35 @@ class TestRDF(unittest.TestCase):
         rdf.accumulate(box, points)
         rdf._repr_png_()
 
+    def test_ref_points_ne_points(self):
+        rmax = 100.0
+        dr = 1
+        box_size = rmax*5
+        box = freud.box.Box.square(box_size)
+
+        rdf = freud.density.RDF(rmax, dr)
+
+        points = []
+        supposed_RDF = [0]
+        N = 100
+
+        # With ref_points closely centered around the origin,
+        # the cumulative average bin counts should be same as
+        # having a single point at the origin.
+        # Also, we can check for whether ref_points are not considered against
+        # each other.
+        ref_points = [[dr/4, 0, 0], [-dr/4, 0, 0], [0, dr/4, 0], [0, -dr/4, 0]]
+        for r in rdf.R:
+            for k in range(N):
+                points.append([r * np.cos(2*np.pi*k/N),
+                               r * np.sin(2*np.pi*k/N), 0])
+            supposed_RDF.append(supposed_RDF[-1] + N)
+        supposed_RDF = np.array(supposed_RDF[:-1])
+
+        rdf.compute(box, ref_points, points)
+
+        npt.assert_allclose(rdf.n_r, supposed_RDF, atol=1e-6)
+
 
 if __name__ == '__main__':
     unittest.main()

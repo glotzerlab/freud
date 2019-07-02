@@ -226,9 +226,13 @@ class TestComplexCF(unittest.TestCase):
 
         supposed_RDF = np.zeros(ocf.R.shape)
 
-        ref_points = [[0, 0, 0]]
+        # ref_points are within distances closer than dr, so their impact on
+        # the result should be minimal.
+        ref_points = [[dr/4, 0, 0], [-dr/4, 0, 0], [0, dr/4, 0], [0, -dr/4, 0]]
+
+        # try for different scalar values.
         for rv in [0, 1, 2, 7]:
-            ref_values = [rv]
+            ref_values = [rv] * 4
 
             ocf.compute(box, ref_points, ref_values, points, values)
             correct = supposed_RDF
