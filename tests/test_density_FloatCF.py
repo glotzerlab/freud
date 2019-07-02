@@ -155,6 +155,46 @@ class TestFloatCF(unittest.TestCase):
         ocf.accumulate(box, points, ang)
         ocf._repr_png_()
 
+    def test_ref_points_ne_points(self):
+        def value_func(_r):
+            return np.sin(_r)
+
+        rmax = 10.0
+        dr = 0.1
+        box_size = rmax*5
+        box = freud.box.Box.square(box_size)
+
+        ocf = freud.density.FloatCF(rmax, dr)
+
+        points = []
+        values = []
+        supposed_RDF = []
+        N = 300
+
+        # We are generating the values so that they are sine wave from 0 to 2pi
+        # rotated around z axis.
+        # Therefore, the RDF should be a scalar multiple sin if we set our
+        # ref_point to be in the origin.
+        for r in ocf.R:
+            for k in range(N):
+                points.append([r * np.cos(2*np.pi*k/N),
+                               r * np.sin(2*np.pi*k/N), 0])
+                values.append(value_func(r))
+            supposed_RDF.append(value_func(r))
+
+        supposed_RDF = np.array(supposed_RDF)
+
+        ref_points = [[0, 0, 0]]
+
+        # try for different scalar values.
+        for rv in [0, 1, 2, 7]:
+            ref_values = [rv]
+
+            ocf.compute(box, ref_points, ref_values, points, values)
+            correct = supposed_RDF * rv
+
+            npt.assert_allclose(ocf.RDF, correct, atol=1e-6)
+
 
 if __name__ == '__main__':
     unittest.main()

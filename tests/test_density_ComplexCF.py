@@ -192,6 +192,49 @@ class TestComplexCF(unittest.TestCase):
                        points, np.conj(comp))
         ocf._repr_png_()
 
+    def test_ref_points_ne_points(self):
+        # Helper function to give complex number representation of a point
+        def value_func(_p):
+            return _p[0] + 1j*_p[1]
+
+        rmax = 10.0
+        dr = 0.1
+        box_size = rmax*5
+        box = freud.box.Box.square(box_size)
+
+        ocf = freud.density.ComplexCF(rmax, dr)
+
+        points = []
+        values = []
+        supposed_RDF = []
+        N = 300
+
+        # We are essentially generating all n-th roots of unities
+        # scalar multiplied by the each bin centers
+        # with the value of a point being its complex number representation.
+        # Therefore, the RDF should be uniformly zero
+        # since the roots of unities add up to zero, if we set our ref_point in
+        # the origin.
+        # Nice proof for this fact is that when the n-th roots of unities
+        # are viewed as vectors, we can draw a regular n-gon
+        # so that we start at the origin and come back to origin.
+        for r in ocf.R:
+            for k in range(N):
+                point = [r * np.cos(2*np.pi*k/N), r * np.sin(2*np.pi*k/N), 0]
+                points.append(point)
+                values.append(value_func(point))
+
+        supposed_RDF = np.zeros(ocf.R.shape)
+
+        ref_points = [[0, 0, 0]]
+        for rv in [0, 1, 2, 7]:
+            ref_values = [rv]
+
+            ocf.compute(box, ref_points, ref_values, points, values)
+            correct = supposed_RDF
+
+            npt.assert_allclose(ocf.RDF, correct, atol=1e-6)
+
 
 if __name__ == '__main__':
     unittest.main()
