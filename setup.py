@@ -358,6 +358,18 @@ extra_module_sources = dict(
     environment=[
         os.path.join("cpp", "util", "diagonalize.cc"),
     ],
+    locality=[
+        os.path.join("extern", "voro++", "src", "cell.cc"),
+        os.path.join("extern", "voro++", "src", "common.cc"),
+        os.path.join("extern", "voro++", "src", "container.cc"),
+        os.path.join("extern", "voro++", "src", "unitcell.cc"),
+        os.path.join("extern", "voro++", "src", "v_compute.cc"),
+        os.path.join("extern", "voro++", "src", "c_loops.cc"),
+        os.path.join("extern", "voro++", "src", "v_base.cc"),
+        os.path.join("extern", "voro++", "src", "wall.cc"),
+        os.path.join("extern", "voro++", "src", "pre_container.cc"),
+        os.path.join("extern", "voro++", "src", "container_prd.cc"),
+    ],
     order=[
         os.path.join("cpp", "util", "diagonalize.cc"),
     ],

@@ -1,0 +1,5 @@
+src/*.o
+html/*
+src/*.a
+src/voro++
+examples/*

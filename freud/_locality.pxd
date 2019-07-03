@@ -141,3 +141,18 @@ cdef extern from "Voronoi.h" namespace "freud::locality":
             const vec3[double]*,
             const int*) except +
         NeighborList * getNeighborList()
+
+cdef extern from "VoroPlusPlus.h" namespace "freud::locality":
+    cdef cppclass VoroPlusPlus:
+        VoroPlusPlus()
+        void compute(
+            const freud._box.Box &,
+            const vec3[double]*,
+            const int*,
+            const int*,
+            unsigned int,
+            unsigned int,
+            const int*,
+            const vec3[double]*,
+            const int*) nogil except +
+        NeighborList * getNeighborList()

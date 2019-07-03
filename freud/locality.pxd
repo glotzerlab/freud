@@ -75,3 +75,9 @@ cdef class _Voronoi:
     cdef NeighborList _nlist
     cdef _volumes
     cdef _polytopes
+
+cdef class _VoroPlusPlus:
+    cdef freud._locality.VoroPlusPlus * thisptr
+    cdef NeighborList _nlist
+    cdef _volumes
+    cdef _polytopes
