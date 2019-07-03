@@ -2,6 +2,58 @@ import numpy as np
 import freud
 
 
+def make_alternating_lattice(lattice_size, angle=0):
+    """Make 2D integer lattice of alternating points and ref_points.
+
+    .. moduleauthor:: Jin Soo Ihm <jinihm@umich.edu>
+
+    Args:
+        lattice_size (int): Size of lattice for ref_points.
+        angle (float): Angle to rotate the lattice.
+
+    Returns:
+        ref_points, points ((:math:`N`, 3) :class:`numpy.ndarray`):
+            Generated ref_points and points
+    """
+    points = []
+    ref_points = []
+    lattice_size = int(lattice_size)
+
+    # Sometimes, we need to rotate the points to avoid the
+    # boundary of bins. Due to numeric precision, boundaries are not
+    # handled well in a convoluted input like this.
+    rotation_matrix = np.array([[np.cos(angle), -np.sin(angle), 0],
+                                [np.sin(angle), np.cos(angle), 0],
+                                [0, 0, 1]])
+
+    # make alternating lattice of points and ref_points
+    for i in range(lattice_size):
+        for j in range(lattice_size):
+            p = np.array([i, j, 0])
+            p = rotation_matrix.dot(p)
+            if (i + j) % 2 == 0:
+                points.append(p)
+            else:
+                ref_points.append(p)
+
+    # put more points around ref_points so that they will find 8 near
+    # neighbors
+    # This may need to change when ref_points and points order is changed
+    # in neighbor list and NearestNeighbor gets deprecated.
+    for i in [-2, -1, lattice_size, lattice_size + 1, lattice_size + 1]:
+        for j in range(-2, lattice_size + 2):
+            p = np.array([i, j, 0])
+            if (i + j) % 2 == 0:
+                p1 = rotation_matrix.dot([i, j, 0])
+                p2 = rotation_matrix.dot([j, i, 0])
+                points.append(p1)
+                points.append(p2)
+
+    # remove duplicate points
+    points = np.array(list(set(tuple(i) for i in points)))
+    return ref_points, points
+
+
 def make_fcc(nx=1, ny=1, nz=1, scale=1.0, noise=0.0):
     """Make an FCC crystal for testing
 

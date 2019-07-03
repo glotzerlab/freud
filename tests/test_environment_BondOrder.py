@@ -97,42 +97,11 @@ class TestBondOrder(unittest.TestCase):
         self.assertEqual(str(bo), str(eval(repr(bo))))
 
     def test_ref_points_ne_points(self):
-        points = []
-        ref_points = []
-        box_size = 10
+        lattice_size = 10
         # big box to ignore periodicity
-        box = freud.box.Box.square(box_size*5)
-
-        # we need to rotate to make sure that points do not go on the
-        # boundary of bins. Due to numeric precision, boundaries are not
-        # handled well in a convoluted input like this.
+        box = freud.box.Box.square(lattice_size*5)
         angle = np.pi/30
-        rotation_matrix = np.array([[np.cos(angle), -np.sin(angle), 0],
-                                    [np.sin(angle), np.cos(angle), 0],
-                                    [0, 0, 1]])
-
-        # make alternating lattice of points and ref_points
-        for i in range(box_size):
-            for j in range(box_size):
-                p = np.array([i, j, 0])
-                p = rotation_matrix.dot(p)
-                if (i + j) % 2 == 0:
-                    points.append(p)
-                else:
-                    ref_points.append(p)
-
-        # put more points around ref_points so that they will find 8 near
-        # neighbors
-        # This may need to change when ref_points and points order is changed
-        # in neighbor list and NearestNeighbor gets deprecated.
-        for i in [-2, -1, box_size, box_size + 1, box_size + 1]:
-            for j in range(-2, box_size + 2):
-                p = np.array([i, j, 0])
-                if (i + j) % 2 == 0:
-                    p1 = rotation_matrix.dot([i, j, 0])
-                    p2 = rotation_matrix.dot([j, i, 0])
-                    points.append(p1)
-                    points.append(p2)
+        ref_points, points = util.make_alternating_lattice(lattice_size, angle)
 
         # actually not used
         rmax = 1.6
@@ -154,6 +123,7 @@ class TestBondOrder(unittest.TestCase):
         # we want to make sure that we get 12 nonzero places, so we can test
         # whether we are not considering neighbors between ref_points
         self.assertEqual(np.count_nonzero(bod.bond_order), 12)
+        self.assertEqual(len(np.unique(bod.bond_order)), 2)
 
 
 if __name__ == '__main__':
