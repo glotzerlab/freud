@@ -39,6 +39,8 @@ def make_alternating_lattice(lattice_size, angle=0, extra_shell=2):
                 if 0 <= i < lattice_size and 0 <= j < lattice_size:
                     ref_points.append(p)
 
+    ref_points = np.array(ref_points)
+    points = np.array(points)
     return ref_points, points
 
 

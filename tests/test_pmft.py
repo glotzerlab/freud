@@ -3,6 +3,7 @@ import numpy.testing as npt
 import freud
 import unittest
 import warnings
+import util
 
 
 class TestPMFTR12(unittest.TestCase):
@@ -185,6 +186,26 @@ class TestPMFTR12(unittest.TestCase):
         nbinsT2 = 30
         myPMFT = freud.pmft.PMFTR12(maxR, nbinsR, nbinsT1, nbinsT2)
         self.assertEqual(str(myPMFT), str(eval(repr(myPMFT))))
+
+    def test_ref_points_ne_points(self):
+        r_max = 2.3
+        n_r = 10
+        n_t1 = 10
+        n_t2 = 10
+        pmft = freud.pmft.PMFTR12(r_max, n_r, n_t1, n_t2)
+
+        lattice_size = 10
+        box = freud.box.Box.square(lattice_size*5)
+
+        ref_points, points = util.make_alternating_lattice(
+            lattice_size, 0.01, 2)
+        ref_orientations = np.array([0]*len(ref_points))
+        orientations = np.array([0]*len(points))
+
+        pmft.compute(box, ref_points, ref_orientations, points, orientations)
+
+        self.assertEqual(np.count_nonzero(np.isinf(pmft.PMFT) == 0), 12)
+        self.assertEqual(len(np.unique(pmft.PMFT)), 3)
 
 
 class TestPMFTXYT(unittest.TestCase):
@@ -546,6 +567,27 @@ class TestPMFTXY2D(unittest.TestCase):
 
         myPMFT.accumulate(box, points, angles, points, angles)
         myPMFT._repr_png_()
+
+    def test_ref_points_ne_points(self):
+        x_max = 2.5
+        y_max = 2.5
+        n_x = 20
+        n_y = 20
+        pmft = freud.pmft.PMFTXY2D(x_max, y_max, n_x, n_y)
+
+        lattice_size = 10
+        box = freud.box.Box.square(lattice_size*5)
+
+        ref_points, points = util.make_alternating_lattice(
+            lattice_size, 0.01, 2)
+
+        ref_orientations = np.array([0]*len(ref_points))
+        orientations = np.array([0]*len(points))
+
+        pmft.compute(box, ref_points, ref_orientations, points, orientations)
+
+        self.assertEqual(np.count_nonzero(np.isinf(pmft.PMFT) == 0), 12)
+        self.assertEqual(len(np.unique(pmft.PMFT)), 2)
 
 
 class TestPMFTXYZ(unittest.TestCase):
