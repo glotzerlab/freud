@@ -390,6 +390,31 @@ class TestPMFTXYT(unittest.TestCase):
         myPMFT = freud.pmft.PMFTXYT(maxX, maxY, nbinsX, nbinsY, nbinsT)
         self.assertEqual(str(myPMFT), str(eval(repr(myPMFT))))
 
+    def test_ref_points_ne_points(self):
+        x_max = 2.5
+        y_max = 2.5
+        n_x = 10
+        n_y = 10
+        n_t = 4
+        pmft = freud.pmft.PMFTXYT(x_max, y_max, n_x, n_y, n_t)
+
+        lattice_size = 10
+        box = freud.box.Box.square(lattice_size*5)
+
+        ref_points, points = util.make_alternating_lattice(
+            lattice_size, 0.01, 2)
+        ref_orientations = np.array([0]*len(ref_points))
+        orientations = np.array([0]*len(points))
+
+        pmft.compute(box, ref_points, ref_orientations, points, orientations)
+
+        # when rotated slightly, for each ref point, each quadrant
+        # (corresponding to two consecutive bins) should contain 3 points.
+        for i in range(n_t):
+            self.assertEqual(np.count_nonzero(np.isinf(pmft.PMFT[i]) == 0), 3)
+
+        self.assertEqual(len(np.unique(pmft.PMFT)), 2)
+
 
 class TestPMFTXY2D(unittest.TestCase):
     def test_box(self):
