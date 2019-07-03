@@ -2,7 +2,7 @@ import numpy as np
 import freud
 
 
-def make_alternating_lattice(lattice_size, angle=0):
+def make_alternating_lattice(lattice_size, angle=0, extra_shell=2):
     """Make 2D integer lattice of alternating points and ref_points.
 
     .. moduleauthor:: Jin Soo Ihm <jinihm@umich.edu>
@@ -10,6 +10,9 @@ def make_alternating_lattice(lattice_size, angle=0):
     Args:
         lattice_size (int): Size of lattice for ref_points.
         angle (float): Angle to rotate the lattice.
+            (Default value = 0)
+        extra_shell (int): Extra shell of points to wrap around ref_points.
+            (Default value = 2)
 
     Returns:
         ref_points, points ((:math:`N`, 3) :class:`numpy.ndarray`):
@@ -17,7 +20,6 @@ def make_alternating_lattice(lattice_size, angle=0):
     """
     points = []
     ref_points = []
-    lattice_size = int(lattice_size)
 
     # Sometimes, we need to rotate the points to avoid the
     # boundary of bins. Due to numeric precision, boundaries are not
@@ -27,14 +29,14 @@ def make_alternating_lattice(lattice_size, angle=0):
                                 [0, 0, 1]])
 
     # make alternating lattice of points and ref_points
-    for i in range(-2, lattice_size + 2):
-        for j in range(-2, lattice_size + 2):
+    for i in range(-extra_shell, lattice_size + extra_shell):
+        for j in range(-extra_shell, lattice_size + extra_shell):
             p = np.array([i, j, 0])
             p = rotation_matrix.dot(p)
             if (i + j) % 2 == 0:
                 points.append(p)
             else:
-                if 0 <= i and i < lattice_size and 0 <= j and j < lattice_size:
+                if 0 <= i < lattice_size and 0 <= j < lattice_size:
                     ref_points.append(p)
 
     return ref_points, points
