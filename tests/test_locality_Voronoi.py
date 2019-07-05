@@ -13,7 +13,7 @@ class TestVoronoi(unittest.TestCase):
         L = 10  # Box length
         N = 50  # Number of particles
         vor = freud.locality._Voronoi()
-        box, positions = util.make_box_and_random_points(L, N, False)
+        box, positions = util.make_box_and_random_points(L, N, True)
         vor.compute(box=box, positions=positions, buffer=L/2)
 
         result = vor.polytopes
