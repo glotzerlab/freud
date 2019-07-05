@@ -45,7 +45,7 @@ class TestAngularSeparation(unittest.TestCase):
         num_neigh = 8
         rmax = 3
 
-        box, points = make_box_and_random_points(boxlen, N, False)
+        box, points = make_box_and_random_points(boxlen, N, True)
 
         ors = []
         for i in range(N):
@@ -94,7 +94,7 @@ class TestAngularSeparation(unittest.TestCase):
         num_neigh = 8
         rmax = 3
 
-        box, points = make_box_and_random_points(boxlen, N, False)
+        box, points = make_box_and_random_points(boxlen, N, True)
 
         ors = []
         for i in range(N):

@@ -28,7 +28,7 @@ class TestRDF(unittest.TestCase):
         dr = 1.0
         num_points = 100
         box_size = rmax*3.1
-        box, points = make_box_and_random_points(box_size, num_points, False)
+        box, points = make_box_and_random_points(box_size, num_points, True)
         rdf = freud.density.RDF(rmax, dr)
 
         # Test protected attribute access

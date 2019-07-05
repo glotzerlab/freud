@@ -3,6 +3,8 @@ import numpy.testing as npt
 import numpy as np
 import random
 import freud
+from util import make_box_and_random_points
+
 
 random.seed(0)
 
@@ -45,11 +47,8 @@ class TestLocalBondProjection(unittest.TestCase):
         num_neigh = 8
         rmax = 3
 
-        box = freud.box.Box.square(boxlen)
+        box, points = make_box_and_random_points(boxlen, N, True)
 
-        np.random.seed(0)
-        points = np.asarray(
-            np.random.uniform(-boxlen/2, boxlen/2, (N, 3)), dtype=np.float32)
         ors = []
         for i in range(N):
             ors.append(quatRandom())
@@ -68,11 +67,8 @@ class TestLocalBondProjection(unittest.TestCase):
         num_neigh = 8
         rmax = 3
 
-        box = freud.box.Box.square(boxlen)
+        box, points = make_box_and_random_points(boxlen, N, True)
 
-        np.random.seed(0)
-        points = np.asarray(
-            np.random.uniform(-boxlen/2, boxlen/2, (N, 3)), dtype=np.float32)
         ors = []
         for i in range(N):
             ors.append(quatRandom())
@@ -91,11 +87,8 @@ class TestLocalBondProjection(unittest.TestCase):
         num_neigh = 8
         rmax = 3
 
-        box = freud.box.Box.square(boxlen)
+        box, points = make_box_and_random_points(boxlen, N, True)
 
-        np.random.seed(0)
-        points = np.asarray(
-            np.random.uniform(-boxlen/2, boxlen/2, (N, 3)), dtype=np.float32)
         ors = []
         for i in range(N):
             ors.append(quatRandom())
@@ -114,11 +107,8 @@ class TestLocalBondProjection(unittest.TestCase):
         num_neigh = 8
         rmax = 3
 
-        box = freud.box.Box.cube(boxlen)
+        box, points = make_box_and_random_points(boxlen, N)
 
-        np.random.seed(0)
-        points = np.asarray(
-            np.random.uniform(-boxlen/2, boxlen/2, (N, 3)), dtype=np.float32)
         ors = []
         for i in range(N):
             ors.append(quatRandom())
@@ -143,11 +133,8 @@ class TestLocalBondProjection(unittest.TestCase):
         num_neigh = 8
         rmax = 3
 
-        box = freud.box.Box.square(boxlen)
+        box, points = make_box_and_random_points(boxlen, N, True)
 
-        np.random.seed(0)
-        points = np.asarray(
-            np.random.uniform(-boxlen/2, boxlen/2, (N, 3)), dtype=np.float32)
         ors = []
         for i in range(N):
             ors.append(quatRandom())
