@@ -2,7 +2,7 @@ import numpy as np
 import freud
 
 
-def make_box_and_random_points(box_size, num_points, is2D, seed=0):
+def make_box_and_random_points(box_size, num_points, is2D=False, seed=0):
     R"""Helper function to make random points with a box.
 
     .. moduleauthor:: Jin Soo Ihm <jinihm@umich.edu>
@@ -11,6 +11,7 @@ def make_box_and_random_points(box_size, num_points, is2D, seed=0):
         box_size (float): Size of box.
         num_points (int): Number of points.
         is2D (bool): If true, points and box are in a 2D system.
+            (Default value = False).
         seed (int): Random seed to use. (Default value = 0).
 
     Returns:
