@@ -2,6 +2,7 @@ import numpy as np
 import numpy.testing as npt
 import freud
 import unittest
+from util import make_box_and_random_points
 
 
 def getFraction(dist, rcut, diameter):
@@ -18,10 +19,9 @@ class TestLD(unittest.TestCase):
 
     def setUp(self):
         """Initialize a box with randomly placed particles"""
-        self.box = freud.box.Box.cube(10)
-        np.random.seed(0)
-        self.pos = np.array(np.random.random(size=(10000, 3)),
-                            dtype=np.float32) * 10 - 5
+        box_size = 10
+        num_points = 10000
+        self.box, self.pos = make_box_and_random_points(box_size, num_points)
         self.ld = freud.density.LocalDensity(3, 1, 1)
 
         # Test access
