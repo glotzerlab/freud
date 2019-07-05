@@ -1,7 +1,7 @@
 import numpy as np
 import freud
-from freud.environment import LocalDescriptors
 import unittest
+from util import make_box_and_random_points
 
 
 class TestLocalDescriptors(unittest.TestCase):
@@ -10,14 +10,12 @@ class TestLocalDescriptors(unittest.TestCase):
         Nneigh = 4
         lmax = 8
         rmax = 0.5
+        L = 10
 
-        box = freud.box.Box.cube(10)
-        np.random.seed(0)
-        positions = np.random.uniform(-box.Lx/2, box.Lx/2,
-                                      size=(N, 3)).astype(np.float32)
+        box, positions = make_box_and_random_points(L, N)
         positions.flags['WRITEABLE'] = False
 
-        comp = LocalDescriptors(Nneigh, lmax, rmax, True)
+        comp = freud.environment.LocalDescriptors(Nneigh, lmax, rmax, True)
 
         # Test access
         with self.assertRaises(AttributeError):
@@ -46,13 +44,11 @@ class TestLocalDescriptors(unittest.TestCase):
         N = 1000
         Nneigh = 4
         lmax = 8
+        L = 10
 
-        box = freud.box.Box.cube(10)
-        np.random.seed(0)
-        positions = np.random.uniform(-box.Lx/2, box.Lx/2,
-                                      size=(N, 3)).astype(np.float32)
+        box, positions = make_box_and_random_points(L, N)
 
-        comp = LocalDescriptors(Nneigh, lmax, .5, True)
+        comp = freud.environment.LocalDescriptors(Nneigh, lmax, .5, True)
         comp.compute(box, Nneigh, positions, mode='global')
 
         sphs = comp.sph
@@ -63,16 +59,14 @@ class TestLocalDescriptors(unittest.TestCase):
         N = 1000
         Nneigh = 4
         lmax = 8
+        L = 10
 
-        box = freud.box.Box.cube(10)
-        np.random.seed(0)
-        positions = np.random.uniform(-box.Lx/2, box.Lx/2,
-                                      size=(N, 3)).astype(np.float32)
+        box, positions = make_box_and_random_points(L, N)
         orientations = np.random.uniform(-1, 1, size=(N, 4)).astype(np.float32)
         orientations /= np.sqrt(np.sum(orientations**2,
                                        axis=-1))[:, np.newaxis]
 
-        comp = LocalDescriptors(Nneigh, lmax, .5, True)
+        comp = freud.environment.LocalDescriptors(Nneigh, lmax, .5, True)
 
         with self.assertRaises(RuntimeError):
             comp.compute(box, Nneigh, positions, mode='particle_local')
@@ -88,13 +82,11 @@ class TestLocalDescriptors(unittest.TestCase):
         N = 1000
         Nneigh = 4
         lmax = 8
+        L = 10
 
-        box = freud.box.Box.cube(10)
-        np.random.seed(0)
-        positions = np.random.uniform(-box.Lx/2, box.Lx/2,
-                                      size=(N, 3)).astype(np.float32)
+        box, positions = make_box_and_random_points(L, N)
 
-        comp = LocalDescriptors(Nneigh, lmax, .5, True)
+        comp = freud.environment.LocalDescriptors(Nneigh, lmax, .5, True)
 
         with self.assertRaises(RuntimeError):
             comp.compute(box, Nneigh, positions, mode='particle_local_wrong')
@@ -103,21 +95,19 @@ class TestLocalDescriptors(unittest.TestCase):
         N = 1000
         Nneigh = 4
         lmax = 8
+        L = 10
 
-        box = freud.box.Box.cube(10)
-        np.random.seed(0)
-        positions = np.random.uniform(-box.Lx/2, box.Lx/2,
-                                      size=(N, 3)).astype(np.float32)
-        positions2 = np.random.uniform(-box.Lx/2, box.Lx/2,
+        box, positions = make_box_and_random_points(L, N)
+        positions2 = np.random.uniform(-L/2, L/2,
                                        size=(N//3, 3)).astype(np.float32)
 
-        comp = LocalDescriptors(Nneigh, lmax, .5, True)
+        comp = freud.environment.LocalDescriptors(Nneigh, lmax, .5, True)
         comp.compute(box, Nneigh, positions, positions2)
         sphs = comp.sph
         self.assertEqual(sphs.shape[0], N*Nneigh)
 
     def test_repr(self):
-        comp = LocalDescriptors(4, 8, 0.5, True)
+        comp = freud.environment.LocalDescriptors(4, 8, 0.5, True)
         self.assertEqual(str(comp), str(eval(repr(comp))))
 
 
