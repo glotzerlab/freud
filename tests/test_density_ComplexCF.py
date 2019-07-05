@@ -2,6 +2,7 @@ import numpy as np
 import numpy.testing as npt
 import freud
 import unittest
+import util
 
 
 class TestComplexCF(unittest.TestCase):
@@ -26,10 +27,9 @@ class TestComplexCF(unittest.TestCase):
         dr = 1.0
         num_points = 100
         box_size = rmax*3.1
-        box = freud.box.Box.square(box_size)
         np.random.seed(0)
-        points = np.random.random_sample((num_points, 3)).astype(np.float32) \
-            * box_size - box_size/2
+        box, points = util.make_box_and_random_points(
+            box_size, num_points, True)
         ang = np.random.random_sample((num_points)).astype(np.float64) \
             * 2.0 * np.pi
         ocf = freud.density.ComplexCF(rmax, dr)
@@ -73,8 +73,8 @@ class TestComplexCF(unittest.TestCase):
         num_points = 1000
         box_size = rmax*3.1
         np.random.seed(0)
-        points = np.random.random_sample((num_points, 3)).astype(np.float32) \
-            * box_size - box_size/2
+        box, points = util.make_box_and_random_points(
+            box_size, num_points, True)
         ang = np.random.random_sample((num_points)).astype(np.float64) \
             * 2.0 * np.pi
         comp = np.exp(1j*ang)
@@ -82,13 +82,13 @@ class TestComplexCF(unittest.TestCase):
         correct = np.zeros(int(rmax/dr), dtype=np.complex64)
         absolute_tolerance = 0.1
         # first bin is bad
-        ocf.accumulate(freud.box.Box.square(box_size), points, comp,
+        ocf.accumulate(box, points, comp,
                        points, np.conj(comp))
         npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
-        ocf.compute(freud.box.Box.square(box_size), points, comp,
+        ocf.compute(box, points, comp,
                     points, np.conj(comp))
         npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
-        self.assertEqual(freud.box.Box.square(box_size), ocf.box)
+        self.assertEqual(box, ocf.box)
 
     def test_zero_points(self):
         rmax = 10.0
@@ -96,12 +96,12 @@ class TestComplexCF(unittest.TestCase):
         num_points = 1000
         box_size = rmax*3.1
         np.random.seed(0)
-        points = np.random.random_sample((num_points, 3)).astype(np.float32) \
-            * box_size - box_size/2
+        box, points = util.make_box_and_random_points(
+            box_size, num_points, True)
         ang = np.zeros(int(num_points), dtype=np.float64)
         comp = np.exp(1j*ang)
         ocf = freud.density.ComplexCF(rmax, dr)
-        ocf.accumulate(freud.box.Box.square(box_size), points, comp,
+        ocf.accumulate(box, points, comp,
                        points, np.conj(comp))
 
         correct = np.ones(int(rmax/dr), dtype=np.float32) + \
@@ -114,11 +114,9 @@ class TestComplexCF(unittest.TestCase):
         dr = 1.0
         num_points = 10
         box_size = rmax*2.1
-        box = freud.box.Box.square(box_size)
         np.random.seed(0)
-        points = np.random.random_sample((num_points, 3)).astype(
-            np.float32) * box_size - box_size/2
-        points[:, 2] = 0
+        box, points = util.make_box_and_random_points(
+            box_size, num_points, True)
         ang = np.zeros(int(num_points), dtype=np.float64)
         comp = np.exp(1j*ang)
 
@@ -145,9 +143,8 @@ class TestComplexCF(unittest.TestCase):
         L = 1000
         np.random.seed(0)
         phi = np.random.rand(N)
-        pos2d = np.random.uniform(-L/2, L/2, size=(N, 3))
-        pos2d[:, 2] = 0
-        box = freud.box.Box.square(L)
+        box, pos2d = util.make_box_and_random_points(
+            L, N, True)
 
         # With a small number of particles, we won't get the average exactly
         # right, so we check for different behavior with different numbers of
@@ -177,8 +174,8 @@ class TestComplexCF(unittest.TestCase):
         num_points = 100
         box_size = rmax*3.1
         np.random.seed(0)
-        points = np.random.random_sample((num_points, 3)).astype(np.float32) \
-            * box_size - box_size/2
+        box, points = util.make_box_and_random_points(
+            box_size, num_points, True)
         ang = np.random.random_sample((num_points)).astype(np.float64) \
             * 2.0 * np.pi
         comp = np.exp(1j*ang)
@@ -188,7 +185,7 @@ class TestComplexCF(unittest.TestCase):
             ocf.plot()
         self.assertEqual(ocf._repr_png_(), None)
 
-        ocf.accumulate(freud.box.Box.square(box_size), points, comp,
+        ocf.accumulate(box, points, comp,
                        points, np.conj(comp))
         ocf._repr_png_()
 
