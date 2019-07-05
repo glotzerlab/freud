@@ -2,6 +2,7 @@ import numpy as np
 import numpy.testing as npt
 import freud
 import unittest
+from util import make_box_and_random_points
 
 
 class TestFloatCF(unittest.TestCase):
@@ -26,10 +27,7 @@ class TestFloatCF(unittest.TestCase):
         dr = 1.0
         num_points = 100
         box_size = rmax*3.1
-        box = freud.box.Box.square(box_size)
-        np.random.seed(0)
-        points = np.random.random_sample((num_points, 3)).astype(np.float32) \
-            * box_size - box_size/2
+        box, points = make_box_and_random_points(box_size, num_points, True)
         ang = np.random.random_sample((num_points)).astype(np.float64) - 0.5
         ocf = freud.density.FloatCF(rmax, dr)
 
@@ -71,10 +69,7 @@ class TestFloatCF(unittest.TestCase):
         dr = 1.0
         num_points = 1000
         box_size = rmax*3.1
-        box = freud.box.Box.square(box_size)
-        np.random.seed(0)
-        points = np.random.random_sample((num_points, 3)).astype(np.float32) \
-            * box_size - box_size/2
+        box, points = make_box_and_random_points(box_size, num_points, True)
         ang = np.random.random_sample((num_points)).astype(np.float64) - 0.5
         ocf = freud.density.FloatCF(rmax, dr)
         correct = np.zeros(int(rmax/dr), dtype=np.float64)
@@ -96,12 +91,10 @@ class TestFloatCF(unittest.TestCase):
         dr = 1.0
         num_points = 1000
         box_size = rmax*3.1
-        np.random.seed(0)
-        points = np.random.random_sample((num_points, 3)).astype(np.float32) \
-            * box_size - box_size/2
+        box, points = make_box_and_random_points(box_size, num_points, True)
         ang = np.zeros(int(num_points), dtype=np.float64)
         ocf = freud.density.FloatCF(rmax, dr)
-        ocf.accumulate(freud.box.Box.square(box_size), points, ang)
+        ocf.accumulate(box, points, ang)
 
         correct = np.zeros(int(rmax/dr), dtype=np.float32)
         absolute_tolerance = 0.1
@@ -112,11 +105,7 @@ class TestFloatCF(unittest.TestCase):
         dr = 1.0
         num_points = 10
         box_size = rmax*2.1
-        box = freud.box.Box.square(box_size)
-        np.random.seed(0)
-        points = np.random.random_sample((num_points, 3)).astype(
-            np.float32) * box_size - box_size/2
-        points[:, 2] = 0
+        box, points = make_box_and_random_points(box_size, num_points, True)
         ang = np.zeros(int(num_points), dtype=np.float64)
 
         vectors = points[np.newaxis, :, :] - points[:, np.newaxis, :]
@@ -141,10 +130,7 @@ class TestFloatCF(unittest.TestCase):
         dr = 1.0
         num_points = 1000
         box_size = rmax*3.1
-        box = freud.box.Box.square(box_size)
-        np.random.seed(0)
-        points = np.random.random_sample((num_points, 3)).astype(np.float32) \
-            * box_size - box_size/2
+        box, points = make_box_and_random_points(box_size, num_points, True)
         ang = np.random.random_sample((num_points)).astype(np.float64) - 0.5
         ocf = freud.density.FloatCF(rmax, dr)
 

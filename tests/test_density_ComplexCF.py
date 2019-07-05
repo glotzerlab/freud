@@ -2,7 +2,7 @@ import numpy as np
 import numpy.testing as npt
 import freud
 import unittest
-import util
+from util import make_box_and_random_points
 
 
 class TestComplexCF(unittest.TestCase):
@@ -27,9 +27,7 @@ class TestComplexCF(unittest.TestCase):
         dr = 1.0
         num_points = 100
         box_size = rmax*3.1
-        np.random.seed(0)
-        box, points = util.make_box_and_random_points(
-            box_size, num_points, True)
+        box, points = make_box_and_random_points(box_size, num_points, True)
         ang = np.random.random_sample((num_points)).astype(np.float64) \
             * 2.0 * np.pi
         ocf = freud.density.ComplexCF(rmax, dr)
@@ -72,9 +70,7 @@ class TestComplexCF(unittest.TestCase):
         dr = 1.0
         num_points = 1000
         box_size = rmax*3.1
-        np.random.seed(0)
-        box, points = util.make_box_and_random_points(
-            box_size, num_points, True)
+        box, points = make_box_and_random_points(box_size, num_points, True)
         ang = np.random.random_sample((num_points)).astype(np.float64) \
             * 2.0 * np.pi
         comp = np.exp(1j*ang)
@@ -95,9 +91,7 @@ class TestComplexCF(unittest.TestCase):
         dr = 1.0
         num_points = 1000
         box_size = rmax*3.1
-        np.random.seed(0)
-        box, points = util.make_box_and_random_points(
-            box_size, num_points, True)
+        box, points = make_box_and_random_points(box_size, num_points, True)
         ang = np.zeros(int(num_points), dtype=np.float64)
         comp = np.exp(1j*ang)
         ocf = freud.density.ComplexCF(rmax, dr)
@@ -114,9 +108,7 @@ class TestComplexCF(unittest.TestCase):
         dr = 1.0
         num_points = 10
         box_size = rmax*2.1
-        np.random.seed(0)
-        box, points = util.make_box_and_random_points(
-            box_size, num_points, True)
+        box, points = make_box_and_random_points(box_size, num_points, True)
         ang = np.zeros(int(num_points), dtype=np.float64)
         comp = np.exp(1j*ang)
 
@@ -141,10 +133,8 @@ class TestComplexCF(unittest.TestCase):
         # threads if the summation is not done robustly
         N = 20000
         L = 1000
-        np.random.seed(0)
         phi = np.random.rand(N)
-        box, pos2d = util.make_box_and_random_points(
-            L, N, True)
+        box, pos2d = make_box_and_random_points(L, N, True)
 
         # With a small number of particles, we won't get the average exactly
         # right, so we check for different behavior with different numbers of
@@ -173,9 +163,7 @@ class TestComplexCF(unittest.TestCase):
         dr = 1.0
         num_points = 100
         box_size = rmax*3.1
-        np.random.seed(0)
-        box, points = util.make_box_and_random_points(
-            box_size, num_points, True)
+        box, points = make_box_and_random_points(box_size, num_points, True)
         ang = np.random.random_sample((num_points)).astype(np.float64) \
             * 2.0 * np.pi
         comp = np.exp(1j*ang)

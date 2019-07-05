@@ -5,6 +5,8 @@ import freud
 def make_box_and_random_points(box_size, num_points, is2D=False, seed=0):
     R"""Helper function to make random points with a box.
 
+    This function has a side effect that it will set the random seed of numpy.
+
     .. moduleauthor:: Jin Soo Ihm <jinihm@umich.edu>
 
     Args:
