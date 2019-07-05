@@ -14,13 +14,13 @@ class TestNearestNeighbors(unittest.TestCase):
         N = 1  # number of particles
         num_neighbors = 6
 
-        # Initialize Box and cell list
+        # Initialize cell list
         cl = locality.NearestNeighbors(rcut, num_neighbors)
 
-        _, points = make_box_and_random_points(L, N)
+        fbox, points = make_box_and_random_points(L, N)
         cl.compute([L, L, L], points, points)
 
-        self.assertEqual(cl.box, box.Box.cube(L))
+        self.assertEqual(cl.box, fbox)
         npt.assert_array_equal(cl.r_sq_list,
                                [[-1, -1, -1, -1, -1, -1]])
         npt.assert_array_equal(cl.wrapped_vectors,
