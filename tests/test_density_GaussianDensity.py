@@ -2,11 +2,11 @@ import numpy as np
 import numpy.testing as npt
 import freud
 import unittest
-import util
+from util import skipIfMissing, make_box_and_random_points
 
 
 class TestDensity(unittest.TestCase):
-    @util.skipIfMissing('scipy.fftpack')
+    @skipIfMissing('scipy.fftpack')
     def test_random_point_with_cell_list(self):
         from scipy.fftpack import fft, fftshift
         width = 100
@@ -14,10 +14,7 @@ class TestDensity(unittest.TestCase):
         sigma = 0.1
         num_points = 10000
         box_size = rcut*3.1
-        np.random.seed(0)
-        points = np.random.random_sample((num_points, 3)).astype(np.float32) \
-            * box_size - box_size/2
-        points[:, 2] = 0
+        box, points = make_box_and_random_points(box_size, num_points, True)
         diff = freud.density.GaussianDensity(width, rcut, sigma)
 
         # Test access
@@ -26,8 +23,7 @@ class TestDensity(unittest.TestCase):
         with self.assertRaises(AttributeError):
             diff.gaussian_density
 
-        testBox = freud.box.Box.square(box_size)
-        diff.compute(testBox, points)
+        diff.compute(box, points)
 
         # Test access
         diff.box
@@ -46,14 +42,10 @@ class TestDensity(unittest.TestCase):
         sigma = 0.1
         num_points = 100
         box_size = rcut*3.1
-        np.random.seed(0)
-        points = np.random.random_sample((num_points, 3)).astype(np.float32) \
-            * box_size - box_size/2
-        points[:, 2] = 0
+        box, points = make_box_and_random_points(box_size, num_points, True)
         diff = freud.density.GaussianDensity(width, rcut, sigma)
 
-        testBox = freud.box.Box.square(box_size)
-        diff.compute(testBox, points)
+        diff.compute(box, points)
 
         testBox = freud.box.Box.cube(box_size)
         diff.compute(testBox, points)
@@ -72,18 +64,14 @@ class TestDensity(unittest.TestCase):
         sigma = 0.1
         num_points = 100
         box_size = rcut*3.1
-        np.random.seed(0)
-        points = np.random.random_sample((num_points, 3)).astype(np.float32) \
-            * box_size - box_size/2
-        points[:, 2] = 0
+        box, points = make_box_and_random_points(box_size, num_points, True)
         diff = freud.density.GaussianDensity(width, rcut, sigma)
 
         with self.assertRaises(AttributeError):
             diff.plot()
         self.assertEqual(diff._repr_png_(), None)
 
-        testBox = freud.box.Box.square(box_size)
-        diff.compute(testBox, points)
+        diff.compute(box, points)
         diff.plot()
 
         diff = freud.density.GaussianDensity(width, rcut, sigma)
