@@ -5,6 +5,7 @@ from collections import Counter
 import itertools
 import sys
 import unittest
+from util import make_box_and_random_points
 
 
 class TestLinkCell(unittest.TestCase):
@@ -62,9 +63,7 @@ class TestLinkCell(unittest.TestCase):
             N = 40  # number of particles
 
             # Initialize test points randomly
-            np.random.seed(0)
-            points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
-            fbox = box.Box.cube(L)  # Initialize Box
+            fbox, points = make_box_and_random_points(L, N)
             cl = locality.LinkCell(fbox, rcut)  # Initialize cell list
             cl.compute(fbox, points)  # Compute cell list
 
@@ -120,9 +119,7 @@ class TestLinkCell(unittest.TestCase):
         pair there also exists a (j, i) neighbor pair for one set of points"""
         L, rcut, N = (10, 2.01, 1024)
 
-        fbox = box.Box.cube(L)
-        np.random.seed(0)
-        points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
+        fbox, points = make_box_and_random_points(L, N)
         lc = locality.LinkCell(fbox, rcut).compute(fbox, points)
 
         ij = set(zip(lc.nlist.index_i, lc.nlist.index_j))
@@ -137,9 +134,7 @@ class TestLinkCell(unittest.TestCase):
         """
         L, rcut, N = (10, 2.01, 1024)
 
-        fbox = box.Box.cube(L)
-        np.random.seed(0)
-        points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
+        fbox, points = make_box_and_random_points(L, N)
         points2 = np.random.uniform(-L/2, L/2, (N//6, 3)).astype(np.float32)
         lc = locality.LinkCell(fbox, rcut).compute(fbox, points, points2)
         lc2 = locality.LinkCell(fbox, rcut).compute(fbox, points2, points)
@@ -152,9 +147,7 @@ class TestLinkCell(unittest.TestCase):
     def test_exclude_ii(self):
         L, rcut, N = (10, 2.01, 1024)
 
-        fbox = box.Box.cube(L)
-        np.random.seed(0)
-        points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
+        fbox, points = make_box_and_random_points(L, N)
         points2 = points[:N//6]
         lc = locality.LinkCell(fbox, rcut).compute(
             fbox, points, points2, exclude_ii=False)
@@ -179,8 +172,7 @@ class TestLinkCell(unittest.TestCase):
         lc = locality.LinkCell(fbox, rcut)
 
         for i in range(10):
-            np.random.seed(seed + i)
-            points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
+            _, points = make_box_and_random_points(L, N, seed=seed+i)
             all_vectors = points[np.newaxis, :, :] - points[:, np.newaxis, :]
             fbox.wrap(all_vectors.reshape((-1, 3)))
             all_rsqs = np.sum(all_vectors**2, axis=-1)
