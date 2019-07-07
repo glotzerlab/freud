@@ -14,7 +14,7 @@ import logging
 import copy
 
 from libcpp cimport bool as cbool
-from freud.util._VectorMath cimport vec3
+from freud.util cimport vec3
 from cython.operator cimport dereference
 from libcpp.memory cimport shared_ptr
 from freud._locality cimport ITERATOR_TERMINATOR

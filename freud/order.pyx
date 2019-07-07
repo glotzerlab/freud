@@ -18,7 +18,7 @@ import freud.locality
 import logging
 
 from freud.common cimport Compute
-from freud.util._VectorMath cimport vec3, quat
+from freud.util cimport vec3, quat
 from cython.operator cimport dereference
 
 cimport freud._order
