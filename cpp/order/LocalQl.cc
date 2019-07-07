@@ -53,8 +53,6 @@ void LocalQl::compute(const locality::NeighborList* nlist, const vec3<float>* po
     memset((void*) m_Qlmi.get(), 0, sizeof(complex<float>) * (2 * m_l + 1) * m_Np);
     memset((void*) m_Qli.get(), 0, sizeof(float) * m_Np);
 
-    const float rminsq = m_rmin * m_rmin;
-    const float rmaxsq = m_rmax * m_rmax;
     const float normalizationfactor = 4 * M_PI / (2 * m_l + 1);
     const size_t* neighbor_list(nlist->getNeighbors());
 
@@ -78,30 +76,27 @@ void LocalQl::compute(const locality::NeighborList* nlist, const vec3<float>* po
                 const vec3<float> delta = m_box.wrap(points[j] - ref);
                 const float rsq = dot(delta, delta);
 
-                if (rsq < rmaxsq && rsq > rminsq)
+                // phi is usually in range 0..2Pi, but
+                // it only appears in Ylm as exp(im\phi),
+                // so range -Pi..Pi will give same results.
+                float phi = atan2(delta.y, delta.x);     // -Pi..Pi
+                float theta = acos(delta.z / sqrt(rsq)); // 0..Pi
+
+                // If the points are directly on top of each other for whatever reason,
+                // theta should be zero instead of nan.
+                if (rsq == 0)
                 {
-                    // phi is usually in range 0..2Pi, but
-                    // it only appears in Ylm as exp(im\phi),
-                    // so range -Pi..Pi will give same results.
-                    float phi = atan2(delta.y, delta.x);     // -Pi..Pi
-                    float theta = acos(delta.z / sqrt(rsq)); // 0..Pi
-
-                    // If the points are directly on top of each other for whatever reason,
-                    // theta should be zero instead of nan.
-                    if (rsq == 0)
-                    {
-                        theta = 0;
-                    }
-
-                    std::vector<std::complex<float>> Ylm(2 * m_l + 1);
-                    this->computeYlm(theta, phi, Ylm); // Fill up Ylm
-
-                    for (unsigned int k = 0; k < Ylm.size(); ++k)
-                    {
-                        m_Qlmi.get()[(2 * m_l + 1) * i + k] += Ylm[k];
-                    }
-                    neighborcount++;
+                    theta = 0;
                 }
+
+                std::vector<std::complex<float>> Ylm(2 * m_l + 1);
+                this->computeYlm(theta, phi, Ylm); // Fill up Ylm
+
+                for (unsigned int k = 0; k < Ylm.size(); ++k)
+                {
+                    m_Qlmi.get()[(2 * m_l + 1) * i + k] += Ylm[k];
+                }
+                neighborcount++;
             } // End loop going over neighbor bonds
             // Normalize!
             for (unsigned int k = 0; k < (2 * m_l + 1); ++k)
