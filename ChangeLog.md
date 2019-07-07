@@ -2,6 +2,11 @@
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## next
+
+### Fixed
+* Repeated Cubatic Order Parameter computations use the correct number of replicates.
+
 ## v1.2.0 - 2019-06-27
 
 ### Added

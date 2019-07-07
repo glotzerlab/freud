@@ -130,7 +130,7 @@ cdef class CubaticOrderParameter(Compute):
 
         with nogil:
             self.thisptr.compute(
-                <quat[float]*> &l_orientations[0, 0], num_particles, 1)
+                <quat[float]*> &l_orientations[0, 0], num_particles)
         return self
 
     @property
