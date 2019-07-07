@@ -21,7 +21,6 @@ cdef extern from "CubaticOrderParameter.h" namespace "freud::order":
                               unsigned int) except +
         void reset()
         void compute(quat[float]*,
-                     unsigned int,
                      unsigned int) nogil except +
         unsigned int getNumParticles()
         float getCubaticOrderParameter()
