@@ -847,7 +847,6 @@ cdef class RawPoints(NeighborQuery):
         cdef const float[:, ::1] l_points
         if type(self) is RawPoints:
             # Assume valid set of arguments is passed
-            self.queryable = True
             self._box = freud.common.convert_box(box)
             self.points = freud.common.convert_array(
                 points, shape=(None, None))
