@@ -14,7 +14,7 @@ ax.set_yticks(y[1:4])
 fontdict = {'fontsize': 14}
 ax.set_xticklabels([r"$r_{cut} - \frac{d}{2}$", r"$r_{cut}$",
                     r"$r_{cut} + \frac{d}{2}$"], fontdict)
-ax.set_yticklabels(["$1.0$", "$0.5$", "$0$"])
+ax.set_yticklabels(["$1.0$", "$0.5$", "$0$"], fontdict)
 ax.hlines(0.5, 0, r_cut, linestyles='dashed')
 ax.vlines(r_cut, 0, 0.5, linestyles='dashed')
 ax.set_xlim([0, 2*r_cut])
