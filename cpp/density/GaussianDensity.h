@@ -7,7 +7,6 @@
 #include <memory>
 
 #include "Box.h"
-#include "ETSWrapper.h"
 #include "Index1D.h"
 #include "ThreadStorage.h"
 #include "VectorMath.h"

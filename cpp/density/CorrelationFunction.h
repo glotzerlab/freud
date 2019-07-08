@@ -11,7 +11,6 @@
 #include "NeighborQuery.h"
 #include "ThreadStorage.h"
 #include "VectorMath.h"
-#include "ETSWrapper.h"
 
 /*! \file CorrelationFunction.h
     \brief Generic pairwise correlation functions.

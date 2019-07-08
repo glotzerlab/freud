@@ -65,7 +65,7 @@ void LocalDensity::compute(const box::Box& box, const freud::locality::NeighborL
               {
                   num_neighbors += 1.0f;
               }
-              else if (r < (m_rcut + m_diameter/2.0f))
+              else
               {
                   // partially count particles that intersect the rcut sphere
                   // this is not particularly accurate for a single particle, but works well on average for
