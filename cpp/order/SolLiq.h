@@ -14,7 +14,6 @@
 #include <vector>
 
 #include "Box.h"
-#include "Cluster.h"
 #include "ThreadStorage.h"
 #include "VectorMath.h"
 #include "NeighborList.h"

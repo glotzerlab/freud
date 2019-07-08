@@ -10,11 +10,11 @@
 #include "NeighborQuery.h"
 
 namespace freud { namespace locality {
-//! Wrapper for for-loop
+//! Wrapper for for-loop to allow the execution in parallel or not.
 /*! \param parallel If true, run body in parallel.
     \param begin Beginning index.
     \param end Ending index.
-    \param body Body should be an object taking in
+    \param body Body should be an object
            with operator(size_t begin, size_t end).
 */
 template<typename Body> void forLoopWrapper(bool parallel, size_t begin, size_t end, const Body& body)
@@ -105,7 +105,7 @@ void loopOverNeighborQuery(bool parallel, const NeighborQuery* ref_points, const
         // if ref_points is RawPoints, build a NeighborQuery
         abq = std::make_shared<AABBQuery>(ref_points->getBox(), ref_points->getRefPoints(),
                                           ref_points->getNRef());
-        iter = abq.get()->queryWithArgs(points, Np, qargs);
+        iter = abq->queryWithArgs(points, Np, qargs);
     }
     else
     {
