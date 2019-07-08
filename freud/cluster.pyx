@@ -100,7 +100,6 @@ cdef class Cluster(Compute):
             box (:class:`freud.box.Box`, optional):
                 Simulation box (Default value = None).
         """
-        # \begin New NeighborQuery API
         cdef freud.locality.NeighborQuery nq = \
             freud.locality.make_default_nq(self.m_box, points)
         cdef freud._locality.NeighborList * nlistptr \
@@ -108,18 +107,11 @@ cdef class Cluster(Compute):
         cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
             mode="ball", rmax=self.rmax, exclude_ii=True)
         points = nq.points
-        # \end New NeighborQuery API
 
         points = freud.common.convert_array(points, (None, 3))
         if points.shape[1] != 3:
             raise RuntimeError(
                 'Need a list of 3D points for computeClusters()')
-
-        # \begin old API
-        # defaulted_nlist = freud.locality.make_default_nlist(
-        # self.m_box, points, points, self.rmax, nlist, True)
-        # cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
-        # \end old API
 
         cdef freud.box.Box b
         if box is None:

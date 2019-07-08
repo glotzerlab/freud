@@ -12,7 +12,6 @@
 #include "NeighborQuery.h"
 #include "ThreadStorage.h"
 #include "VectorMath.h"
-#include "ETSWrapper.h"
 
 /*! \file BondOrder.h
     \brief Compute the bond order diagram for the system of particles.

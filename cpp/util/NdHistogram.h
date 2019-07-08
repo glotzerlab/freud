@@ -79,16 +79,6 @@ public:
     {
         m_box = box;
         locality::loopOverNeighbors(ref_points, points, n_p, qargs, nlist, cf);
-        // const size_t* neighbor_list(nlist->getNeighbors());
-        // size_t n_bonds = nlist->getNumBonds();
-        // tbb::parallel_for(tbb::blocked_range<size_t>(0, n_bonds), [=](const tbb::blocked_range<size_t>& r) {
-        //     for (size_t bond = r.begin(); bond != r.end(); ++bond)
-        //     {
-        //         size_t i(neighbor_list[2 * bond]);
-        //         size_t j(neighbor_list[2 * bond + 1]);
-        //         cf(i, j);
-        //     }
-        // });
         m_frame_counter++;
         m_n_ref = ref_points->getNRef();
         m_n_p = n_p;

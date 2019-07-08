@@ -143,10 +143,6 @@ cdef class FloatCF(Compute):
         else:
             l_values = values
 
-        # defaulted_nlist = freud.locality.make_default_nlist(
-        #     b, ref_points, points, self.rmax, nlist, exclude_ii)
-        # cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
-
         cdef unsigned int n_ref = l_ref_points.shape[0]
         cdef unsigned int n_p = l_points.shape[0]
         with nogil:
