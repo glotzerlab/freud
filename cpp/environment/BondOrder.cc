@@ -156,11 +156,10 @@ void BondOrder::accumulate(box::Box& box, const freud::locality::NeighborList* n
     [=] (size_t i, size_t j, float dist, float weight)
     {
         vec3<float> ref_pos = ref_points->getRefPoints()[i];
-        quat<float> ref_q(ref_orientations[i]);
-        vec3<float> delta = m_box.wrap(points[j] - ref_pos);
+        quat<float>& ref_q = ref_orientations[i];
+        vec3<float> v = m_box.wrap(points[j] - ref_pos);
 
-        quat<float> q(orientations[j]);
-        vec3<float> v(delta);
+        quat<float>& q = orientations[j];
         if (b_mode == obcd)
         {
             // give bond directions of neighboring particles rotated by the matrix
@@ -220,85 +219,6 @@ void BondOrder::accumulate(box::Box& box, const freud::locality::NeighborList* n
         }
     }
     );
-
-//     parallel_for(blocked_range<size_t>(0, n_ref), [=](const blocked_range<size_t>& br) {
-
-//         size_t bond(nlist->find_first_index(br.begin()));
-
-//         for (size_t i = br.begin(); i != br.end(); ++i)
-//         {
-//             vec3<float> ref_pos = ref_points[i];
-//             quat<float> ref_q(ref_orientations[i]);
-
-//             for (; bond < nlist->getNumBonds() && neighbor_list[2 * bond] == i; ++bond)
-//             {
-//                 const size_t j(neighbor_list[2 * bond + 1]);
-//                 // compute r between the two particles
-//                 vec3<float> delta = m_box.wrap(points[j] - ref_pos);
-
-//                 float rsq = dot(delta, delta);
-//                 quat<float> q(orientations[j]);
-//                 vec3<float> v(delta);
-//                 if (b_mode == obcd)
-//                 {
-//                     // give bond directions of neighboring particles rotated by the matrix
-//                     // that takes the orientation of particle j to the orientation of
-//                     // particle i.
-//                     v = rotate(conj(ref_q), v);
-//                     v = rotate(q, v);
-//                 }
-//                 else if (b_mode == lbod)
-//                 {
-//                     // give bond directions of neighboring particles rotated into the
-//                     // local orientation of the central particle.
-//                     v = rotate(conj(ref_q), v);
-//                 }
-//                 else if (b_mode == oocd)
-//                 {
-//                     // give the directors of neighboring particles rotated into the local
-//                     // orientation of the central particle. pick a (random vector)
-//                     vec3<float> z(0, 0, 1);
-//                     // rotate that vector by the orientation of the neighboring particle
-//                     z = rotate(q, z);
-//                     // get the direction of this vector with respect to the orientation of
-//                     // the central particle
-//                     v = rotate(conj(ref_q), z);
-//                 }
-
-//                 // NOTE that angles are defined in the "mathematical" way, rather than how
-//                 // most physics textbooks do it. get theta (azimuthal angle), phi (polar
-//                 // angle)
-//                 float theta = atan2f(v.y, v.x); //-Pi..Pi
-
-//                 theta = fmod(theta, 2 * M_PI);
-//                 if (theta < 0)
-//                 {
-//                     theta += 2 * M_PI;
-//                 }
-
-//                 // NOTE that the below has replaced the commented out expression for phi.
-//                 float phi = acos(v.z / sqrt(v.x * v.x + v.y * v.y + v.z * v.z)); // 0..Pi
-
-//                 // bin the point
-//                 float bint = floorf(theta * dt_inv);
-//                 float binp = floorf(phi * dp_inv);
-// // fast float to int conversion with truncation
-// #ifdef __SSE2__
-//                 unsigned int ibint = _mm_cvtt_ss2si(_mm_load_ss(&bint));
-//                 unsigned int ibinp = _mm_cvtt_ss2si(_mm_load_ss(&binp));
-// #else
-//                     unsigned int ibint = (unsigned int)(bint);
-//                     unsigned int ibinp = (unsigned int)(binp);
-// #endif
-
-//                 // increment the bin
-//                 if ((ibint < m_nbins_t) && (ibinp < m_nbins_p))
-//                 {
-//                     ++m_local_bin_counts.local()[sa_i(ibint, ibinp)];
-//                 }
-//             }
-//         }
-//     });
 
     // save the last computed number of particles
     m_n_ref = ref_points->getNRef();

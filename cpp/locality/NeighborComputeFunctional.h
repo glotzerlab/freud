@@ -1,7 +1,6 @@
 #ifndef NEIGHBOR_COMPUTE_FUNCTIONAL_H
 #define NEIGHBOR_COMPUTE_FUNCTIONAL_H
 
-#include <iostream>
 #include <memory>
 #include <tbb/tbb.h>
 
