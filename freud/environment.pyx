@@ -208,11 +208,6 @@ cdef class BondOrder(Compute):
                 ('Unknown BOD mode: {}. Options are:'
                     'bod, lbod, obcd, oocd.').format(mode))
 
-        # defaulted_nlist = freud.locality.make_default_nlist_nn(
-        #     b, ref_points, points, self.num_neigh,
-        #     nlist, exclude_ii, self.rmax)
-        # cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
-
         cdef const float[:, ::1] l_points = points
         cdef const float[:, ::1] l_ref_orientations = ref_orientations
         cdef const float[:, ::1] l_orientations = orientations
