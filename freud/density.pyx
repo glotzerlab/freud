@@ -868,10 +868,6 @@ cdef class RDF(Compute):
         cdef const float[:, ::1] l_points = points
         cdef unsigned int n_p = l_points.shape[0]
 
-        # defaulted_nlist = freud.locality.make_default_nlist(
-        #     b, ref_points, points, self.rmax, nlist, exclude_ii)
-        # cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
-
         with nogil:
             self.thisptr.accumulate(
                 dereference(b.thisptr), nlistptr,
