@@ -19,7 +19,7 @@ import freud.common
 
 import logging
 
-from freud.util._VectorMath cimport vec3
+from freud.util cimport vec3
 from cython.operator cimport dereference
 from libcpp cimport bool as bool_t
 from cpython.object cimport Py_EQ, Py_NE

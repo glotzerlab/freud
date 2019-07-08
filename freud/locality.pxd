@@ -7,6 +7,7 @@ from libcpp.memory cimport shared_ptr
 cimport freud._locality
 cimport freud.box
 
+
 cdef class NeighborQueryResult:
     cdef NeighborQuery nq
     cdef const float[:, ::1] points
@@ -128,3 +129,9 @@ cdef class RawPoints(NeighborQuery):
 
 cdef class _QueryArgs:
     cdef freud._locality.QueryArgs * thisptr
+
+cdef class _Voronoi:
+    cdef freud._locality.Voronoi * thisptr
+    cdef NeighborList _nlist
+    cdef _volumes
+    cdef _polytopes

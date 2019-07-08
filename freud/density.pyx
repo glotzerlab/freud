@@ -14,7 +14,7 @@ import numpy as np
 
 from cython.operator cimport dereference
 from freud.common cimport Compute
-from freud.util._VectorMath cimport vec3
+from freud.util cimport vec3
 
 cimport freud._density
 cimport freud.box, freud.locality

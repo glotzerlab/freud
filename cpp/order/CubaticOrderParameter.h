@@ -34,7 +34,7 @@ public:
     void reset();
 
     //! Compute the cubatic order parameter
-    void compute(quat<float>* orientations, unsigned int n, unsigned int replicates);
+    void compute(quat<float>* orientations, unsigned int n);
 
     //! Calculate the cubatic tensor
     void calcCubaticTensor(float* cubatic_tensor, quat<float> orientation);

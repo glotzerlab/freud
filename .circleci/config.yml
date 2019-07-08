@@ -201,7 +201,8 @@ references:
               rm -f PKG-INFO
               "${PYBIN}/python" -m pip install . --no-deps --ignore-installed -v --progress-bar=off -q
 
-              # Force installation of version of SciPy that works with old NumPy.
+              # Force installation of version of SciPy (1.2) that works with
+              # old NumPy (1.3 requires newer).
               "${PYBIN}/pip" install scipy==1.2.1 --progress-bar=off
               "${PYBIN}/pip" wheel ~/ci/freud/ -w ~/wheelhouse/ --no-deps --no-build-isolation --no-use-pep517
             done
@@ -270,8 +271,10 @@ references:
               rm -f PKG-INFO
               pip install . --no-deps --ignore-installed -v -q --progress-bar=off
 
-              # Force installation of SciPy version that works with old NumPy.
-              pip install scipy==1.2.1 --progress-bar=off
+              # Force installation of version of SciPy (1.2) that works with
+              # old NumPy (1.3 requires newer).  On Mac, also have to avoid
+              # version 1.2 because its voronoi is broken, so revert to 1.1.0
+              pip install scipy==1.1.0 --progress-bar=off
               pip install wheel delocate --progress-bar=off
               pip wheel ~/ci/freud/ -w ~/wheelhouse/ --no-deps --no-build-isolation --no-use-pep517
             done
