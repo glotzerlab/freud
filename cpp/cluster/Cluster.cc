@@ -45,21 +45,19 @@ void Cluster::computeClusters(const freud::locality::NeighborQuery* nq, const bo
     qargs.mode = locality::QueryArgs::QueryType::ball;
     qargs.rmax = m_rcut;
 
-    freud::locality::loopOverNeighbors(nq, points, Np, qargs, nlist,
-                                            [this, &dj, &box, points](size_t i, size_t j, float dist, float weight) {
-                                                if (i != j)
-                                                {
-                                                    // compute r between the two particles
-                                                    if (dist < m_rcut)
-                                                    {
-                                                        // merge the two sets using the disjoint set
-                                                        if (!dj.same(i, j))
-                                                        {
-                                                            dj.unite(i, j);
-                                                        }
-                                                    }
-                                                }
-                                            });
+    freud::locality::loopOverNeighbors(
+        nq, points, Np, qargs, nlist,
+        [this, &dj, &box, points](size_t i, size_t j, float dist, float weight) {
+            // compute r between the two particles
+            if (dist < m_rcut)
+            {
+                // merge the two sets using the disjoint set
+                if (!dj.same(i, j))
+                {
+                    dj.unite(i, j);
+                }
+            }
+        });
 
     // done looping over points. All clusters are now determined. Renumber them from zero to num_clusters-1.
     map<uint32_t, uint32_t> label_map;
