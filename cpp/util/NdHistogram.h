@@ -2,7 +2,6 @@
 #define NDHISTOGRAM_H
 
 #include <memory>
-#include <tbb/tbb.h>
 
 #include "Box.h"
 #include "NeighborComputeFunctional.h"
