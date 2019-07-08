@@ -337,7 +337,6 @@ cdef class ComplexCF(Compute):
 
         cdef freud.box.Box b = freud.common.convert_box(box)
 
-        # \begin New NeighborQuery API
         cdef freud.locality.NeighborQuery nq = \
             freud.locality.make_default_nq(b, ref_points)
         cdef freud._locality.NeighborList * nlistptr \
@@ -345,7 +344,6 @@ cdef class ComplexCF(Compute):
         cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
             mode="ball", rmax=self.rmax, exclude_ii=exclude_ii)
         ref_points = nq.points
-        # \end New NeighborQuery API
 
         if points is None:
             points = ref_points
@@ -369,10 +367,6 @@ cdef class ComplexCF(Compute):
             l_values = l_ref_values
         else:
             l_values = values
-
-        # defaulted_nlist = freud.locality.make_default_nlist(
-        #     b, ref_points, points, self.rmax, nlist, exclude_ii)
-        # cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         cdef unsigned int n_ref = l_ref_points.shape[0]
         cdef unsigned int n_p = l_points.shape[0]
