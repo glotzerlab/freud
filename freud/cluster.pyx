@@ -105,6 +105,8 @@ cdef class Cluster(Compute):
             freud.locality.make_default_nq(self.m_box, points)
         cdef freud._locality.NeighborList * nlistptr \
             = freud.locality.make_nlistptr(nlist)
+        cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
+            mode="ball", rmax=self.rmax, exclude_ii=True)
         points = nq.points
         # \end New NeighborQuery API
 
@@ -131,7 +133,7 @@ cdef class Cluster(Compute):
             self.thisptr.computeClusters(
                 nq.get_ptr(),
                 dereference(b.thisptr), nlistptr,
-                <vec3[float]*> &l_points[0, 0], Np)
+                <vec3[float]*> &l_points[0, 0], Np, dereference(qargs.thisptr))
         return self
 
     @Compute._compute("computeClusterMembership")

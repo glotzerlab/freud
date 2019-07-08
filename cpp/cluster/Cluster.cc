@@ -26,7 +26,7 @@ Cluster::Cluster(float rcut) : m_rcut(rcut), m_num_particles(0), m_num_clusters(
 
 void Cluster::computeClusters(const freud::locality::NeighborQuery* nq, const box::Box& box,
                               const freud::locality::NeighborList* nlist, const vec3<float>* points,
-                              unsigned int Np)
+                              unsigned int Np, freud::locality::QueryArgs qargs)
 {
     assert(points);
     assert(Np > 0);
@@ -40,10 +40,6 @@ void Cluster::computeClusters(const freud::locality::NeighborQuery* nq, const bo
 
     m_num_particles = Np;
     DisjointSets dj(m_num_particles);
-
-    locality::QueryArgs qargs;
-    qargs.mode = locality::QueryArgs::QueryType::ball;
-    qargs.rmax = m_rcut;
 
     freud::locality::loopOverNeighbors(
         nq, points, Np, qargs, nlist,
