@@ -12,7 +12,8 @@ ax.plot(x, y, color='k')
 ax.set_xticks(x[1:4])
 ax.set_yticks(y[1:4])
 fontdict = {'fontsize': 14}
-ax.set_xticklabels(["$r_{cut} - d$", "$r_{cut}$", "$r_{cut} + d$"], fontdict)
+ax.set_xticklabels([r"$r_{cut} - \frac{d}{2}$", r"$r_{cut}$",
+                    r"$r_{cut} + \frac{d}{2}$"], fontdict)
 ax.set_yticklabels(["$1.0$", "$0.5$", "$0$"], fontdict)
 ax.hlines(0.5, 0, r_cut, linestyles='dashed')
 ax.vlines(r_cut, 0, 0.5, linestyles='dashed')
