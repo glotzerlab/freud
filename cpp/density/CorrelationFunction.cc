@@ -108,12 +108,12 @@ template<typename T> void CorrelationFunction<T>::reset()
 }
 
 template<typename T>
-void CorrelationFunction<T>::accumulate(const box::Box& box, const freud::locality::NeighborList* nlist,
+void CorrelationFunction<T>::accumulate(const freud::locality::NeighborList* nlist,
                                         const freud::locality::NeighborQuery* nq, const T* ref_values,
                                         unsigned int n_ref, const vec3<float>* points, const T* point_values,
                                         unsigned int Np, freud::locality::QueryArgs qargs)
 {
-    m_box = box;
+    m_box = nq->getBox();
     float dr_inv = 1.0f / m_dr;
     freud::locality::loopOverNeighbors(nq, points, Np, qargs, nlist,
     [=](size_t i, size_t j, float dist, float weight)

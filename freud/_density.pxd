@@ -11,8 +11,7 @@ cdef extern from "CorrelationFunction.h" namespace "freud::density":
         CorrelationFunction(float, float) except +
         const freud._box.Box & getBox() const
         void reset()
-        void accumulate(const freud._box.Box &,
-                        const freud._locality.NeighborList*,
+        void accumulate(const freud._locality.NeighborList*,
                         const freud._locality.NeighborQuery*, const T*,
                         unsigned int,
                         const vec3[float]*,

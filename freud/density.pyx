@@ -147,7 +147,7 @@ cdef class FloatCF(Compute):
         cdef unsigned int n_p = l_points.shape[0]
         with nogil:
             self.thisptr.accumulate(
-                dereference(b.thisptr), nlistptr,
+                nlistptr,
                 nq.get_ptr(),
                 <double*> &l_ref_values[0], n_ref,
                 <vec3[float]*> &l_points[0, 0],
@@ -372,7 +372,7 @@ cdef class ComplexCF(Compute):
         cdef unsigned int n_p = l_points.shape[0]
         with nogil:
             self.thisptr.accumulate(
-                dereference(b.thisptr), nlistptr,
+                nlistptr,
                 nq.get_ptr(),
                 <np.complex128_t*> &l_ref_values[0],
                 n_ref,

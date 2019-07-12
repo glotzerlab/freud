@@ -62,7 +62,7 @@ public:
     void reset();
 
     //! accumulate the correlation function
-    void accumulate(const box::Box& box, const freud::locality::NeighborList* nlist,
+    void accumulate(const freud::locality::NeighborList* nlist,
                     const freud::locality::NeighborQuery* nq, const T* ref_values, unsigned int n_ref,
                     const vec3<float>* points, const T* point_values, unsigned int Np, freud::locality::QueryArgs qargs);
 
