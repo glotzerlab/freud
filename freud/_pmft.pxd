@@ -20,8 +20,7 @@ cdef extern from "PMFTR12.h" namespace "freud::pmft":
     cdef cppclass PMFTR12(PMFT):
         PMFTR12(float, unsigned int, unsigned int, unsigned int) except +
 
-        void accumulate(freud._box.Box &,
-                        const freud._locality.NeighborList*,
+        void accumulate(const freud._locality.NeighborList*,
                         const freud._locality.NeighborQuery*,
                         float*,
                         vec3[float]*,
@@ -40,8 +39,7 @@ cdef extern from "PMFTXYT.h" namespace "freud::pmft":
         PMFTXYT(float, float,
                 unsigned int, unsigned int, unsigned int) except +
 
-        void accumulate(freud._box.Box &,
-                        const freud._locality.NeighborList*,
+        void accumulate(const freud._locality.NeighborList*,
                         const freud._locality.NeighborQuery*,
                         float*,
                         vec3[float]*,
@@ -59,8 +57,7 @@ cdef extern from "PMFTXY2D.h" namespace "freud::pmft":
     cdef cppclass PMFTXY2D(PMFT):
         PMFTXY2D(float, float, unsigned int, unsigned int) except +
 
-        void accumulate(freud._box.Box &,
-                        const freud._locality.NeighborList*,
+        void accumulate(const freud._locality.NeighborList*,
                         const freud._locality.NeighborQuery*,
                         float*,
                         vec3[float]*,
@@ -77,8 +74,7 @@ cdef extern from "PMFTXYZ.h" namespace "freud::pmft":
         PMFTXYZ(float, float, float, unsigned int, unsigned int,
                 unsigned int, vec3[float]) except +
 
-        void accumulate(freud._box.Box &,
-                        const freud._locality.NeighborList*,
+        void accumulate(const freud._locality.NeighborList*,
                         const freud._locality.NeighborQuery*,
                         quat[float]*,
                         vec3[float]*,

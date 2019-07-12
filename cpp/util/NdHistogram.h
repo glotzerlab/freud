@@ -69,14 +69,13 @@ public:
     // Wrapper to do accumulation.
     // :code:`Func cf` should be some sort of (void*)(size_t, size_t)
     template<typename Func>
-    void accumulateGeneral(box::Box& box, 
-                           const locality::NeighborQuery* ref_points, 
+    void accumulateGeneral(const locality::NeighborQuery* ref_points, 
                            const vec3<float>* points, unsigned int n_p,
                            const locality::NeighborList* nlist,
                            unsigned int bin_size, freud::locality::QueryArgs qargs, 
                            Func cf)
     {
-        m_box = box;
+        m_box = ref_points->getBox();
         locality::loopOverNeighbors(ref_points, points, n_p, qargs, nlist, cf);
         m_frame_counter++;
         m_n_ref = ref_points->getNRef();

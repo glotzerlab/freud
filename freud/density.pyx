@@ -870,7 +870,7 @@ cdef class RDF(Compute):
 
         with nogil:
             self.thisptr.accumulate(
-                dereference(b.thisptr), nlistptr,
+                nlistptr,
                 nq.get_ptr(),
                 <vec3[float]*> &l_points[0, 0],
                 n_p, dereference(qargs.thisptr))

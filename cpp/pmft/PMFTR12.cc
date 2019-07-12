@@ -93,7 +93,7 @@ void PMFTR12::reset()
     resetGeneral(m_n_r * m_n_t1 * m_n_t2);
 }
 
-void PMFTR12::accumulate(box::Box& box, const locality::NeighborList* nlist, 
+void PMFTR12::accumulate(const locality::NeighborList* nlist, 
                          const locality::NeighborQuery* ref_points,
                          float* ref_orientations, vec3<float>* points,
                          float* orientations, unsigned int n_p, freud::locality::QueryArgs qargs)
@@ -104,7 +104,7 @@ void PMFTR12::accumulate(box::Box& box, const locality::NeighborList* nlist,
 
     Index3D b_i = Index3D(m_n_t1, m_n_t2, m_n_r);
 
-    accumulateGeneral(box, ref_points, points, n_p, nlist, m_n_r * m_n_t1 * m_n_t2, qargs,
+    accumulateGeneral(ref_points, points, n_p, nlist, m_n_r * m_n_t1 * m_n_t2, qargs,
         [=](size_t i, size_t j, float dist, float weight) {
         vec3<float> ref = ref_points->getRefPoints()[i];
         vec3<float> delta = m_box.wrap(points[j] - ref);

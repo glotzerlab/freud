@@ -32,7 +32,7 @@ public:
     void reset();
 
     //! Compute the RDF
-    void accumulate(box::Box& box, const freud::locality::NeighborList* nlist, const freud::locality::NeighborQuery* ref_points,
+    void accumulate(const freud::locality::NeighborList* nlist, const freud::locality::NeighborQuery* ref_points,
                     const vec3<float>* points, unsigned int n_p, freud::locality::QueryArgs qargs);
 
     //! \internal

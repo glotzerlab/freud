@@ -218,8 +218,7 @@ cdef class PMFTR12(_PMFT):
         cdef const float[::1] l_orientations = orientations
         cdef unsigned int nP = l_points.shape[0]
         with nogil:
-            self.pmftr12ptr.accumulate(dereference(b.thisptr),
-                                       nlistptr,
+            self.pmftr12ptr.accumulate(nlistptr,
                                        nq.get_ptr(),
                                        <float*> &l_ref_orientations[0],
                                        <vec3[float]*> &l_points[0, 0],
@@ -464,8 +463,7 @@ cdef class PMFTXYT(_PMFT):
         cdef const float[::1] l_orientations = orientations
         cdef unsigned int nP = l_points.shape[0]
         with nogil:
-            self.pmftxytptr.accumulate(dereference(b.thisptr),
-                                       nlistptr,
+            self.pmftxytptr.accumulate(nlistptr,
                                        nq.get_ptr(),
                                        <float*> &l_ref_orientations[0],
                                        <vec3[float]*> &l_points[0, 0],
@@ -694,8 +692,7 @@ cdef class PMFTXY2D(_PMFT):
         cdef const float[::1] l_orientations = orientations
         cdef unsigned int nP = l_points.shape[0]
         with nogil:
-            self.pmftxy2dptr.accumulate(dereference(b.thisptr),
-                                        nlistptr,
+            self.pmftxy2dptr.accumulate(nlistptr,
                                         nq.get_ptr(),
                                         <float*> &l_ref_orientations[0],
                                         <vec3[float]*> &l_points[0, 0],
@@ -1000,7 +997,6 @@ cdef class PMFTXYZ(_PMFT):
         cdef unsigned int nFaces = l_face_orientations.shape[1]
         with nogil:
             self.pmftxyzptr.accumulate(
-                dereference(b.thisptr),
                 nlistptr,
                 nq.get_ptr(),
                 <quat[float]*> &l_ref_orientations[0, 0],
