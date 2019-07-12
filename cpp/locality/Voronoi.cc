@@ -27,13 +27,13 @@ Voronoi::Voronoi()
 // A compare function used to sort NeighborBonds
 bool compareNeighborPairs(const NeighborBond &n1, const NeighborBond &n2)
 {
-    if (n1.index_i != n2.index_i)
+    if (n1.id != n2.id)
     {
-        return n1.index_i < n2.index_i;
+        return n1.id < n2.id;
     }
-    if (n1.index_j != n2.index_j)
+    if (n1.ref_id != n2.ref_id)
     {
-        return n1.index_j < n2.index_j;
+        return n1.ref_id < n2.ref_id;
     }
     return n1.weight < n2.weight;
 }
@@ -197,8 +197,8 @@ void Voronoi::compute(const box::Box &box, const vec3<double>* vertices,
             [&] (const tbb::blocked_range<size_t> &r) {
             for (size_t bond(r.begin()); bond < r.end(); ++bond)
             {
-                neighbor_array[2*bond] = linear_bonds[bond].index_i;
-                neighbor_array[2*bond+1] = linear_bonds[bond].index_j;
+                neighbor_array[2*bond] = linear_bonds[bond].id;
+                neighbor_array[2*bond+1] = linear_bonds[bond].ref_id;
                 neighbor_weights[bond] = linear_bonds[bond].weight;
             }
         });
