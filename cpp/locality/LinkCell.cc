@@ -172,7 +172,7 @@ void LinkCell::compute(const box::Box& box, const vec3<float>* ref_points, unsig
     // for quick access later (not ref_points)
     computeCellList(box, points, Np);
 
-    typedef std::vector<WeightedBond> BondVector;
+    typedef std::vector<NeighborBond> BondVector;
     typedef std::vector<BondVector> BondVectorVector;
     typedef tbb::enumerable_thread_specific<BondVectorVector> ThreadBondVector;
     ThreadBondVector bond_vectors;
@@ -207,7 +207,7 @@ void LinkCell::compute(const box::Box& box, const vec3<float>* ref_points, unsig
 
                     if (rsq < m_cell_width * m_cell_width)
                     {
-                        bond_vector.emplace_back(i, j, 1, sqrt(rsq));
+                        bond_vector.emplace_back(j, i, sqrt(rsq));
                     }
                 }
             }
@@ -243,9 +243,10 @@ void LinkCell::compute(const box::Box& box, const vec3<float>* ref_points, unsig
                          const BondVector& vec(bond_vector_groups[group]);
                          for (BondVector::const_iterator iter(vec.begin()); iter != vec.end(); ++iter, ++bond)
                          {
-                             std::tie(neighbor_array[2 * bond], neighbor_array[2 * bond + 1],
-                                      neighbor_weights[bond], neighbor_distances[bond])
-                                 = *iter;
+                            neighbor_array[2 * bond] = iter->ref_id;
+                            neighbor_array[2 * bond + 1] = iter->id;
+                            neighbor_weights[bond] = iter->weight;
+                            neighbor_distances[bond] = iter->distance;
                          }
                      }
                  });

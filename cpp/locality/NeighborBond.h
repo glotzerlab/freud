@@ -49,19 +49,19 @@ struct NeighborBond
 
     bool less_as_tuple(const NeighborBond& n) const
     {
-        if (id != n.id)
-        {
-            return id < n.id;
-        }
         if (ref_id != n.ref_id)
         {
             return ref_id < n.ref_id;
         }
-        if (distance != n.distance)
+        if (id != n.id)
         {
-            return distance < n.distance;
+            return id < n.id;
         }
-        return weight < n.weight;
+        if (weight != n.weight)
+        {
+            return weight < n.weight;
+        }
+        return distance < n.distance;
     }
 
     unsigned int id;     //! The point id.

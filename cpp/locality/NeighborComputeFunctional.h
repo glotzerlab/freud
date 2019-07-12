@@ -126,9 +126,7 @@ void loopOverNeighborQuery(bool parallel, const NeighborQuery* ref_points, const
                 // being same set of points
                 if (!qargs.exclude_ii || i != np.ref_id)
                 {
-                    // TODO when Voronoi gets incorporated in NeighborQuery infrastructure
-                    // weight set to 1 for now
-                    cf(np.ref_id, i, np.distance, 1);
+                    cf(np.ref_id, i, np.distance, np.weight);
                 }
                 np = it->next();
             }
@@ -247,7 +245,7 @@ void loopOverNeighborQueryPoint(const NeighborQuery* ref_points, const vec3<floa
                 {
                     // TODO when Voronoi gets incorporated in NeighborQuery infrastructure
                     // weight set to 1 for now
-                    cf(np.ref_id, i, np.distance, 1, &data);
+                    cf(np.ref_id, i, np.distance, np.weight, &data);
                 }
                 np = it->next();
             }

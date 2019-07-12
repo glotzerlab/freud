@@ -227,7 +227,7 @@ public:
      */
     virtual NeighborList* toNeighborList()
     {
-        typedef tbb::enumerable_thread_specific<std::vector<Bond>> BondVector;
+        typedef tbb::enumerable_thread_specific<std::vector<NeighborBond>> BondVector;
         BondVector bonds;
         tbb::parallel_for(tbb::blocked_range<size_t>(0, m_N), [&](const tbb::blocked_range<size_t>& r) {
             BondVector::reference local_bonds(bonds.local());
@@ -242,7 +242,7 @@ public:
                     if (!m_exclude_ii || i != np.ref_id)
                     {
                         // Swap ref_id and id order for backwards compatibility.
-                        local_bonds.emplace_back(np.ref_id, i, np.distance);
+                        local_bonds.emplace_back(i, np.ref_id, np.distance);
                     }
                 }
                 // Remove the last item, which is just the terminal sentinel value.
@@ -251,8 +251,8 @@ public:
         });
 
         tbb::flattened2d<BondVector> flat_bonds = tbb::flatten2d(bonds);
-        std::vector<Bond> linear_bonds(flat_bonds.begin(), flat_bonds.end());
-        tbb::parallel_sort(linear_bonds.begin(), linear_bonds.end());
+        std::vector<NeighborBond> linear_bonds(flat_bonds.begin(), flat_bonds.end());
+        tbb::parallel_sort(linear_bonds.begin(), linear_bonds.end(), compareNeighborBond);
 
         unsigned int num_bonds = linear_bonds.size();
 
@@ -266,9 +266,9 @@ public:
         parallel_for(tbb::blocked_range<size_t>(0, num_bonds), [&](const tbb::blocked_range<size_t>& r) {
             for (size_t bond(r.begin()); bond < r.end(); ++bond)
             {
-                neighbor_array[2 * bond] = std::get<0>(linear_bonds[bond]);
-                neighbor_array[2 * bond + 1] = std::get<1>(linear_bonds[bond]);
-                neighbor_distance[bond] = std::get<2>(linear_bonds[bond]);
+                neighbor_array[2 * bond] = linear_bonds[bond].ref_id;
+                neighbor_array[2 * bond + 1] = linear_bonds[bond].id;
+                neighbor_distance[bond] = linear_bonds[bond].distance;
             }
         });
         memset((void*) neighbor_weights, 1, sizeof(float) * linear_bonds.size());
