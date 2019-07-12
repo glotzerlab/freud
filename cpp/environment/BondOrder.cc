@@ -136,7 +136,7 @@ void BondOrder::reset()
     m_reduce = true;
 }
 
-void BondOrder::accumulate(box::Box& box, const freud::locality::NeighborList* nlist,
+void BondOrder::accumulate(const freud::locality::NeighborList* nlist,
                     const locality::NeighborQuery* ref_points,
                     quat<float>* ref_orientations, vec3<float>* points,
                     quat<float>* orientations, unsigned int n_p, unsigned int mode,
@@ -145,7 +145,7 @@ void BondOrder::accumulate(box::Box& box, const freud::locality::NeighborList* n
     // transform the mode from an integer to an enumerated type (enumerated in BondOrder.h)
     BondOrderMode b_mode = static_cast<BondOrderMode>(mode);
 
-    m_box = box;
+    m_box = ref_points->getBox();
     // compute the order parameter
 
     float dt_inv = 1.0f / m_dt;

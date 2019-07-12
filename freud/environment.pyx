@@ -215,7 +215,7 @@ cdef class BondOrder(Compute):
 
         with nogil:
             self.thisptr.accumulate(
-                dereference(b.thisptr), nlistptr,
+                nlistptr,
                 nq.get_ptr(),
                 <quat[float]*> &l_ref_orientations[0, 0],
                 <vec3[float]*> &l_points[0, 0],

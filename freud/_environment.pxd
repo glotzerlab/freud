@@ -17,7 +17,6 @@ cdef extern from "BondOrder.h" namespace "freud::environment":
         const freud._box.Box & getBox() const
         void reset()
         void accumulate(
-            freud._box.Box &,
             const freud._locality.NeighborList*,
             const freud._locality.NeighborQuery*,
             quat[float]*,
