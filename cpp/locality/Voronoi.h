@@ -14,8 +14,8 @@ struct NeighborBond
 {
     NeighborBond() : index_i(0), index_j(0), weight(0), distance(0) {}
 
-    NeighborBond(unsigned int index_i, unsigned int index_j, float w, float d) :
-        index_i(index_i), index_j(index_j), weight(w), distance(d) {}
+    NeighborBond(unsigned int index_i, unsigned int index_j, float d, float w) :
+        index_i(index_i), index_j(index_j), distance(d), weight(w) {}
 
     unsigned int index_i;     //! The point id.
     unsigned int index_j;     //! The reference point id.

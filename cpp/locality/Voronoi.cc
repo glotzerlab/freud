@@ -48,13 +48,13 @@ void add_valid_bonds(BondVector::reference local_bonds,
     // Make sure we only add bonds with real particles as the reference
     if (i < N && distance != 0)
     {
-        NeighborBond nb_ij(expanded_i, expanded_j, weight, distance);
+        NeighborBond nb_ij(expanded_i, expanded_j, distance, weight);
         local_bonds.emplace_back(nb_ij);
     }
 
     if (j < N && distance != 0)
     {
-        NeighborBond nb_ji(expanded_j, expanded_i, weight, distance);
+        NeighborBond nb_ji(expanded_j, expanded_i, distance, weight);
         local_bonds.emplace_back(nb_ji);
     }
 }
