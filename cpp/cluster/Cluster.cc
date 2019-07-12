@@ -24,7 +24,7 @@ Cluster::Cluster(float rcut) : m_rcut(rcut), m_num_particles(0), m_num_clusters(
         throw invalid_argument("Cluster requires that rcut must be non-negative.");
 }
 
-void Cluster::computeClusters(const freud::locality::NeighborQuery* nq, const box::Box& box,
+void Cluster::computeClusters(const freud::locality::NeighborQuery* nq,
                               const freud::locality::NeighborList* nlist, const vec3<float>* points,
                               unsigned int Np, freud::locality::QueryArgs qargs)
 {
@@ -43,7 +43,7 @@ void Cluster::computeClusters(const freud::locality::NeighborQuery* nq, const bo
 
     freud::locality::loopOverNeighbors(
         nq, points, Np, qargs, nlist,
-        [this, &dj, &box, points](size_t i, size_t j, float dist, float weight) {
+        [this, &dj, points](size_t i, size_t j, float dist, float weight) {
             // compute r between the two particles
             if (dist < m_rcut)
             {

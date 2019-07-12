@@ -124,7 +124,7 @@ cdef class Cluster(Compute):
         with nogil:
             self.thisptr.computeClusters(
                 nq.get_ptr(),
-                dereference(b.thisptr), nlistptr,
+                nlistptr,
                 <vec3[float]*> &l_points[0, 0], Np, dereference(qargs.thisptr))
         return self
 
