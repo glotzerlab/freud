@@ -14,7 +14,7 @@ namespace freud { namespace locality {
 /*! \param parallel If true, run body in parallel.
     \param begin Beginning index.
     \param end Ending index.
-    \param body Body should be an object
+    \param body An object
            with operator(size_t begin, size_t end).
 */
 template<typename Body> void forLoopWrapper(bool parallel, size_t begin, size_t end, const Body& body)
@@ -37,8 +37,9 @@ template<typename Body> void forLoopWrapper(bool parallel, size_t begin, size_t 
     \param qargs Query arguments
     \param nlist Neighbor List. If not NULL, loop over it. Otherwise, use ref_points
            appropriately with given qargs.
-    \param cf A void function that takes
-           (ref_point_index, point_index, distance, weight) as input.
+    \param cf An object with
+           operator(size_t ref_point_index, size_t point_index,
+               float distance, float weight) as input.
 */
 template<typename ComputePairType>
 void loopOverNeighbors(const NeighborQuery* ref_points, const vec3<float>* points, unsigned int Np,
@@ -59,8 +60,9 @@ void loopOverNeighbors(const NeighborQuery* ref_points, const vec3<float>* point
 
 //! Wrapper iterating looping over NeighborList in parallel.
 /*! \param nlist Neighbor List to loop over.
-    \param cf A void function that takes
-           (ref_point_index, point_index, distance, weight) as input.
+    \param cf An object with
+           operator(size_t ref_point_index, size_t point_index,
+               float distance, float weight) as input.
 */
 template<typename ComputePairType>
 void loopOverNeighborList(bool parallel, const NeighborList* nlist, const ComputePairType& cf)
@@ -84,8 +86,9 @@ void loopOverNeighborList(bool parallel, const NeighborList* nlist, const Comput
     \param points Points
     \param Np Number of points
     \param qargs Query arguments
-    \param cf A void function that takes
-           (ref_point_index, point_index, distance, weight) as input.
+    \param cf An object with
+           operator(size_t ref_point_index, size_t point_index,
+               float distance, float weight) as input.
 */
 template<typename ComputePairType>
 void loopOverNeighborQuery(bool parallel, const NeighborQuery* ref_points, const vec3<float>* points,
