@@ -27,15 +27,7 @@ Voronoi::Voronoi()
 // A compare function used to sort NeighborBonds
 bool compareNeighborPairs(const NeighborBond &n1, const NeighborBond &n2)
 {
-    if (n1.id != n2.id)
-    {
-        return n1.id < n2.id;
-    }
-    if (n1.ref_id != n2.ref_id)
-    {
-        return n1.ref_id < n2.ref_id;
-    }
-    return n1.weight < n2.weight;
+    return n1.less_id_ref_weight(n2);
 }
 
 typedef tbb::enumerable_thread_specific< std::vector<NeighborBond> > BondVector;

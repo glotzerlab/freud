@@ -114,14 +114,14 @@ void loopOverNeighborQuery(bool parallel, const NeighborQuery* ref_points, const
 
     // iterate over the query object in parallel
     forLoopWrapper(parallel, 0, Np, [&iter, &qargs, &cf](size_t begin, size_t end) {
-        NeighborPoint np;
+        NeighborBond np;
         for (size_t i = begin; i != end; ++i)
         {
             std::shared_ptr<NeighborQueryIterator> it = iter->query(i);
             np = it->next();
             while (!it->end())
             {
-                //! Warning! If qargs.exclude_ii is true, NeighborPoint with same indices
+                //! Warning! If qargs.exclude_ii is true, NeighborBond with same indices
                 // will not be considered regardless of ref_points and points
                 // being same set of points
                 if (!qargs.exclude_ii || i != np.ref_id)
@@ -232,7 +232,7 @@ void loopOverNeighborQueryPoint(const NeighborQuery* ref_points, const vec3<floa
 
     // iterate over the query object in parallel
     forLoopWrapper(true, 0, Np, [&iter, &qargs, &cf, &pre, &post](size_t begin, size_t end) {
-        NeighborPoint np;
+        NeighborBond np;
         for (size_t i = begin; i != end; ++i)
         {
             std::shared_ptr<NeighborQueryIterator> it = iter->query(i);
@@ -240,7 +240,7 @@ void loopOverNeighborQueryPoint(const NeighborQuery* ref_points, const vec3<floa
             np = it->next();
             while (!it->end())
             {
-                //! Warning! If qargs.exclude_ii is true, NeighborPoint with same indices
+                //! Warning! If qargs.exclude_ii is true, NeighborBond with same indices
                 // will not be considered regardless of ref_points and points
                 // being same set of points
                 if (!qargs.exclude_ii || i != np.ref_id)

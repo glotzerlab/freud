@@ -162,7 +162,7 @@ cdef class NeighborQueryResult:
     """
 
     def __iter__(self):
-        cdef freud._locality.NeighborPoint npoint
+        cdef freud._locality.NeighborBond npoint
 
         cdef shared_ptr[freud._locality.NeighborQueryIterator] iterator
         iterator = self._getIterator()

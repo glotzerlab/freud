@@ -354,7 +354,7 @@ std::shared_ptr<NeighborQueryIterator> LinkCell::queryBall(const vec3<float>* po
     return std::make_shared<LinkCellQueryBallIterator>(this, points, N, r, exclude_ii);
 }
 
-NeighborPoint LinkCellQueryBallIterator::next()
+NeighborBond LinkCellQueryBallIterator::next()
 {
     float r_cutsq = m_r * m_r;
 
@@ -375,7 +375,7 @@ NeighborPoint LinkCellQueryBallIterator::next()
 
                 if (rsq < r_cutsq && (!m_exclude_ii || cur_p != j))
                 {
-                    return NeighborPoint(cur_p, j, sqrt(rsq));
+                    return NeighborBond(cur_p, j, sqrt(rsq));
                 }
             }
 
@@ -416,7 +416,7 @@ std::shared_ptr<NeighborQueryIterator> LinkCellQueryBallIterator::query(unsigned
     return this->m_linkcell->queryBall(&m_points[idx], 1, m_r);
 }
 
-NeighborPoint LinkCellQueryIterator::next()
+NeighborBond LinkCellQueryIterator::next()
 {
     vec3<float> plane_distance = m_neighbor_query->getBox().getNearestPlaneDistance();
     float min_plane_distance = std::min(plane_distance.x, plane_distance.y);
