@@ -37,16 +37,6 @@ inline std::complex<float> cpow(std::complex<float> base, unsigned int p)
     }
 }
 
-// This convenience function wraps std's gamma function for factorials, with
-// the appropriate shift by 1.
-inline float factorial(int n)
-{
-    if (n == 0)
-        return 1;
-    else
-        return n*factorial(n-1);
-}
-
 inline std::pair<std::complex<float>, std::complex<float>> quat_to_greek(const quat<float>& q)
 {
     std::complex<float> xi(q.v.x, q.v.y);
@@ -54,7 +44,7 @@ inline std::pair<std::complex<float>, std::complex<float>> quat_to_greek(const q
     return std::pair<std::complex<float>, std::complex<float>>(xi, zeta);
 }
 
-inline std::complex<float> hypersphere_harmonic(const std::complex<float> xi, std::complex<float> zeta,
+inline std::complex<float> RotationalAutocorrelation::hypersphere_harmonic(const std::complex<float> xi, std::complex<float> zeta,
                                                 const unsigned int l, const unsigned int a, const unsigned int b)
 {
     const std::complex<float> xi_conj = std::conj(xi);
@@ -64,12 +54,11 @@ inline std::complex<float> hypersphere_harmonic(const std::complex<float> xi, st
     std::complex<float> sum_tracker(0, 0);
     for (unsigned int k = (a+b < l ? 0 : a+b-l); k <= std::min(a, b); k++)
     {
-        sum_tracker += cpow(xi_conj, k) * cpow(zeta, b - k) * cpow(zeta_conj, a - k)
-            * cpow(-xi, l + k - a - b) / factorial(k) / factorial(l + k - a - b) / factorial(a - k)
-            / factorial(b - k);
+        float fact_product = m_factorials.get()[k] * m_factorials.get()[l + k - a - b] * m_factorials.get()[a - k] * m_factorials.get()[b - k];
+        sum_tracker += cpow(xi_conj, k) * cpow(zeta, b - k) * cpow(zeta_conj, a - k) * cpow(-xi, l + k - a - b) / fact_product;
     }
     sum_tracker
-        *= std::sqrt(factorial(a) * factorial(l - a) * factorial(b) * factorial(l - b) / (float(l) + 1));
+        *= std::sqrt(m_factorials.get()[a] * m_factorials.get()[l - a] * m_factorials.get()[b] * m_factorials.get()[l - b] / (float(l) + 1));
     return sum_tracker;
 }
 
