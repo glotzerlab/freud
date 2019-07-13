@@ -35,16 +35,6 @@ namespace freud { namespace order {
  */
 std::pair<std::complex<float>, std::complex<float>> quat_to_greek(const quat<float>& q);
 
-// This convenience function wraps std's gamma function for factorials, with
-// the appropriate shift by 1.
-inline unsigned int factorial(int n)
-{
-    if (n == 0)
-        return 1;
-    else
-        return n*factorial(n-1);
-}
-
 //! Compute the total rotational autocorrelation for a set of orientations.
 /*! The desired autocorrelation function is the rotational analog of the
  *  dynamic structure factor, which provides information on the dynamics of
@@ -69,9 +59,10 @@ public:
         // For efficiency, precompute all required factorials;
         m_factorials = std::shared_ptr<unsigned int>(new unsigned int[m_l+1], std::default_delete<unsigned int[]>());
         memset((void*) m_factorials.get(), 0, sizeof(unsigned int) * (m_l+1));
-        for (unsigned int i = 0; i <= m_l; i++)
+        m_factorials.get()[0] = 1;
+        for (unsigned int i = 1; i <= m_l; i++)
         {
-            m_factorials.get()[i] = factorial(i);
+            m_factorials.get()[i] = i*m_factorials.get()[i-1];
         }
     }
 
