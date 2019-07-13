@@ -55,7 +55,7 @@ inline std::pair<std::complex<float>, std::complex<float>> quat_to_greek(const q
 }
 
 inline std::complex<float> hypersphere_harmonic(const std::complex<float> xi, std::complex<float> zeta,
-                                                const int l, const unsigned int a, const unsigned int b)
+                                                const unsigned int l, const unsigned int a, const unsigned int b)
 {
     const std::complex<float> xi_conj = std::conj(xi);
     const std::complex<float> zeta_conj = std::conj(zeta);
@@ -94,12 +94,12 @@ void RotationalAutocorrelation::compute(const quat<float>* ref_ors, const quat<f
     // from having to use a more expensive process (like a map).
     std::pair<std::complex<float>, std::complex<float>> angle_0 = quat_to_greek(quat<float>());
     std::vector<std::complex<float>> unit_harmonics;
-    for (int a = (int) m_l; a >= 0; a--)
+    for (unsigned int a = 0; a <= m_l; a++)
     {
-        for (int b = (int) m_l; b >= 0; b--)
+        for (unsigned int b = 0; b <= m_l; b++)
         {
             unit_harmonics.push_back(
-                std::conj(hypersphere_harmonic(angle_0.first, angle_0.second, (int) m_l, (unsigned int) a, (unsigned int) b)));
+                std::conj(hypersphere_harmonic(angle_0.first, angle_0.second, m_l, a, b)));
         }
     }
 
@@ -114,12 +114,12 @@ void RotationalAutocorrelation::compute(const quat<float>* ref_ors, const quat<f
             // Loop through the valid quantum numbers.
             m_RA_array.get()[i] = std::complex<float>(0, 0);
             unsigned int uh_index = 0;
-            for (int a = (int) m_l; a >= 0; a--)
+            for (unsigned int a = 0; a <= m_l; a++)
             {
-                for (int b = (int) m_l; b >= 0; b--)
+                for (unsigned int b = 0; b <= m_l; b++)
                 {
                     std::complex<float> combined_value = unit_harmonics[uh_index]
-                        * hypersphere_harmonic(angle_1.first, angle_1.second, (int) m_l, (unsigned int) a, (unsigned int) b);
+                        * hypersphere_harmonic(angle_1.first, angle_1.second, m_l, a, b);
                     m_RA_array.get()[i] += combined_value;
                     uh_index += 1;
                 }
