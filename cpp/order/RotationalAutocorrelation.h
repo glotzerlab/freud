@@ -68,7 +68,7 @@ public:
     //! Constructor
     /*! \param l The order of the spherical harmonic.
      */
-    RotationalAutocorrelation(int l) : m_l(l), m_N(0), m_Ft(0) {}
+    RotationalAutocorrelation(unsigned int l) : m_l(l), m_N(0), m_Ft(0) {}
 
     //! Destructor
     ~RotationalAutocorrelation() {}
@@ -113,7 +113,7 @@ public:
     void compute(const quat<float>* ref_ors, const quat<float>* ors, unsigned int N);
 
 private:
-    int m_l;          //!< Order of the hyperspherical harmonic.
+    unsigned int m_l;          //!< Order of the hyperspherical harmonic.
     unsigned int m_N; //!< Last number of orientations used in compute.
     float m_Ft;       //!< Real value of calculated RA function.
 
