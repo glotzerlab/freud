@@ -41,7 +41,10 @@ inline std::complex<float> cpow(std::complex<float> base, unsigned int p)
 // the appropriate shift by 1.
 inline float factorial(int n)
 {
-    return std::tgamma(n + 1);
+    if (n == 0)
+        return 1;
+    else
+        return n*factorial(n-1);
 }
 
 inline std::pair<std::complex<float>, std::complex<float>> quat_to_greek(const quat<float>& q)
