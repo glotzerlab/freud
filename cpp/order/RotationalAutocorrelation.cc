@@ -74,15 +74,16 @@ void RotationalAutocorrelation::compute(const quat<float>* ref_ors, const quat<f
     // Precompute the hyperspherical harmonics for the unit quaternion. The
     // default quaternion constructor gives a unit quaternion. We will assume
     // the same iteration order here as in the loop below to save ourselves
-    // from having to use a more expensive process (like a map).
-    std::complex<float> ang = std::complex<float>(0, 0);
+    // from having to use a more expensive process (i.e. a map).
+    std::complex<float> xi = std::complex<float>(0, 0);
+    std::complex<float> zeta = std::complex<float>(0, 1);
     std::vector<std::complex<float>> unit_harmonics;
     for (unsigned int a = 0; a <= m_l; a++)
     {
         for (unsigned int b = 0; b <= m_l; b++)
         {
             unit_harmonics.push_back(
-                std::conj(hypersphere_harmonic(ang, ang, m_l, a, b)));
+                std::conj(hypersphere_harmonic(xi, zeta, m_l, a, b)));
         }
     }
 
