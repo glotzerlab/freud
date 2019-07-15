@@ -87,7 +87,7 @@ cdef class FloatCF(Compute):
 
     @Compute._compute()
     def accumulate(self, box, ref_points, ref_values, points=None, values=None,
-                   nlist=None):
+                   nlist=None, qargs=None):
         R"""Calculates the correlation function and adds to the current
         histogram.
 
@@ -110,19 +110,24 @@ cdef class FloatCF(Compute):
         """
         exclude_ii = points is None
 
+        if (points is None) != (values is None):
+            raise ValueError("Either both points and values have to be"
+                             "provided or both points and values have to"
+                             "be None")
+
         cdef freud.box.Box b = freud.common.convert_box(box)
 
         nq_nlist = freud.locality.make_nq_nlist(b, ref_points, nlist)
         cdef freud.locality.NeighborQuery nq = nq_nlist[0]
         cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
 
-        cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
+        cdef freud.locality._QueryArgs def_qargs = freud.locality._QueryArgs(
             mode="ball", rmax=self.rmax, exclude_ii=exclude_ii)
+        def_qargs.update(qargs)
         ref_points = nq.points
 
         if points is None:
             points = ref_points
-        if values is None:
             values = ref_values
         ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
         points = freud.common.convert_array(points, shape=(None, 3))
@@ -152,7 +157,7 @@ cdef class FloatCF(Compute):
                 <double*> &l_ref_values[0], n_ref,
                 <vec3[float]*> &l_points[0, 0],
                 <double*> &l_values[0],
-                n_p, dereference(qargs.thisptr))
+                n_p, dereference(def_qargs.thisptr))
         return self
 
     @Compute._computed_property()
@@ -175,7 +180,7 @@ cdef class FloatCF(Compute):
 
     @Compute._compute()
     def compute(self, box, ref_points, ref_values, points=None, values=None,
-                nlist=None):
+                nlist=None, qargs=None):
         R"""Calculates the correlation function for the given points. Will
         overwrite the current histogram.
 
@@ -197,7 +202,8 @@ cdef class FloatCF(Compute):
                 :code:`None`).
         """
         self.reset()
-        self.accumulate(box, ref_points, ref_values, points, values, nlist)
+        self.accumulate(box, ref_points, ref_values, points, values, nlist,
+                        qargs)
         return self
 
     @Compute._computed_property()
@@ -312,7 +318,7 @@ cdef class ComplexCF(Compute):
 
     @Compute._compute()
     def accumulate(self, box, ref_points, ref_values, points=None, values=None,
-                   nlist=None):
+                   nlist=None, qargs=None):
         R"""Calculates the correlation function and adds to the current
         histogram.
 
@@ -335,19 +341,24 @@ cdef class ComplexCF(Compute):
         """
         exclude_ii = points is None
 
+        if (points is None) != (values is None):
+            raise ValueError("Either both points and values have to be"
+                             "provided or both points and values have to"
+                             "be None")
+
         cdef freud.box.Box b = freud.common.convert_box(box)
 
         nq_nlist = freud.locality.make_nq_nlist(b, ref_points, nlist)
         cdef freud.locality.NeighborQuery nq = nq_nlist[0]
         cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
 
-        cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
+        cdef freud.locality._QueryArgs def_qargs = freud.locality._QueryArgs(
             mode="ball", rmax=self.rmax, exclude_ii=exclude_ii)
+        def_qargs.update(qargs)
         ref_points = nq.points
 
         if points is None:
             points = ref_points
-        if values is None:
             values = ref_values
         ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
         points = freud.common.convert_array(points, shape=(None, 3))
@@ -378,7 +389,7 @@ cdef class ComplexCF(Compute):
                 n_ref,
                 <vec3[float]*> &l_points[0, 0],
                 <np.complex128_t*> &l_values[0],
-                n_p, dereference(qargs.thisptr))
+                n_p, dereference(def_qargs.thisptr))
         return self
 
     @Compute._computed_property()
@@ -401,7 +412,7 @@ cdef class ComplexCF(Compute):
 
     @Compute._compute()
     def compute(self, box, ref_points, ref_values, points=None, values=None,
-                nlist=None):
+                nlist=None, qargs=None):
         R"""Calculates the correlation function for the given points. Will
         overwrite the current histogram.
 
@@ -423,7 +434,8 @@ cdef class ComplexCF(Compute):
                 :code:`None`).
         """
         self.reset()
-        self.accumulate(box, ref_points, ref_values, points, values, nlist)
+        self.accumulate(box, ref_points, ref_values, points, values, nlist,
+                        qargs)
         return self
 
     @Compute._computed_property()

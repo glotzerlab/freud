@@ -62,6 +62,15 @@ cdef class _QueryArgs:
         if type(self) == _QueryArgs:
             del self.thisptr
 
+    def update(self, qargs):
+        if qargs is None:
+            return
+        for arg in qargs:
+            if hasattr(self, arg):
+                setattr(self, arg, qargs[arg])
+            else:
+                raise ValueError("You have passed an invalid query argument")
+
     @property
     def mode(self):
         return self.thisptr.mode
