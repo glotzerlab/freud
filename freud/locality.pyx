@@ -387,7 +387,7 @@ cdef class NeighborQuery:
 
     cdef freud._locality.NeighborQuery * get_ptr(self) nogil:
         R"""Returns a pointer to the raw C++ object we are wrapping."""
-        pass
+        return self.nqptr
 
 
 cdef class NeighborList:
@@ -860,10 +860,6 @@ cdef class RawPoints(NeighborQuery):
         if type(self) is RawPoints:
             del self.thisptr
 
-    cdef freud._locality.NeighborQuery * get_ptr(self) nogil:
-        R"""Returns a pointer to the raw C++ object we are wrapping."""
-        return self.thisptr
-
 
 cdef class AABBQuery(NeighborQuery):
     R"""Use an AABB tree to find neighbors.
@@ -960,10 +956,6 @@ cdef class AABBQuery(NeighborQuery):
 
         return AABBQueryResult.init_aabb_nn(
             self, points, exclude_ii, k, r, scale)
-
-    cdef freud._locality.NeighborQuery * get_ptr(self) nogil:
-        R"""Returns a pointer to the raw C++ object we are wrapping."""
-        return self.thisptr
 
 
 cdef class IteratorLinkCell:
@@ -1198,10 +1190,6 @@ cdef class LinkCell(NeighborQuery):
     @property
     def nlist(self):
         return self._nlist
-
-    cdef freud._locality.NeighborQuery * get_ptr(self) nogil:
-        R"""Returns a pointer to the raw C++ object we are wrapping."""
-        return self.thisptr
 
 
 cdef class NearestNeighbors:
