@@ -715,6 +715,33 @@ cdef class NeighborList:
         return self
 
 
+cdef class NlistptrWrapper:
+    R"""Wrapper class to hold :code:`freud._locality.NeighborList *`.
+
+    This class is to handle the logic of changing :code:`None` to :code:`NULL`
+    in Cython.
+
+    Args:
+        nlist (:class:`freud.locality.NeighborList`):
+            Neighbor list or :code:`None`.
+    """
+
+    def __cinit__(self, nlist):
+        cdef NeighborList _nlist
+        if nlist is not None:
+            _nlist = nlist
+            self.nlistptr = _nlist.get_ptr()
+        else:
+            self.nlistptr = NULL
+
+    cdef freud._locality.NeighborList * get_ptr(self) nogil:
+        return self.nlistptr
+
+
+def make_default_args(box, ref_points, nlist):
+    return (make_default_nq(box, ref_points), NlistptrWrapper(nlist))
+
+
 def make_default_nq(box, ref_points):
     R"""Helper function to return a NeighborQuery object.
 

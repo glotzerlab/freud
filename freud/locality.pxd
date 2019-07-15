@@ -79,6 +79,10 @@ cdef class AABBQueryResult(NeighborQueryResult):
 
         return obj
 
+cdef class NlistptrWrapper:
+    cdef freud._locality.NeighborList * nlistptr
+    cdef freud._locality.NeighborList * get_ptr(self) nogil
+
 # If nlist is None, return NULL. Otherwise, return the pointer to it.
 cdef inline freud._locality.NeighborList* make_nlistptr(nlist):
     cdef NeighborList _nlist

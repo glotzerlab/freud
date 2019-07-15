@@ -112,10 +112,10 @@ cdef class FloatCF(Compute):
 
         cdef freud.box.Box b = freud.common.convert_box(box)
 
-        cdef freud.locality.NeighborQuery nq = \
-            freud.locality.make_default_nq(b, ref_points)
-        cdef freud._locality.NeighborList * nlistptr \
-            = freud.locality.make_nlistptr(nlist)
+        defaults = freud.locality.make_default_args(b, ref_points, nlist)
+        cdef freud.locality.NeighborQuery nq = defaults[0]
+        cdef freud.locality.NlistptrWrapper nlistptr = defaults[1]
+
         cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
             mode="ball", rmax=self.rmax, exclude_ii=exclude_ii)
         ref_points = nq.points
@@ -147,7 +147,7 @@ cdef class FloatCF(Compute):
         cdef unsigned int n_p = l_points.shape[0]
         with nogil:
             self.thisptr.accumulate(
-                nlistptr,
+                nlistptr.get_ptr(),
                 nq.get_ptr(),
                 <double*> &l_ref_values[0], n_ref,
                 <vec3[float]*> &l_points[0, 0],
@@ -337,10 +337,10 @@ cdef class ComplexCF(Compute):
 
         cdef freud.box.Box b = freud.common.convert_box(box)
 
-        cdef freud.locality.NeighborQuery nq = \
-            freud.locality.make_default_nq(b, ref_points)
-        cdef freud._locality.NeighborList * nlistptr \
-            = freud.locality.make_nlistptr(nlist)
+        defaults = freud.locality.make_default_args(b, ref_points, nlist)
+        cdef freud.locality.NeighborQuery nq = defaults[0]
+        cdef freud.locality.NlistptrWrapper nlistptr = defaults[1]
+
         cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
             mode="ball", rmax=self.rmax, exclude_ii=exclude_ii)
         ref_points = nq.points
@@ -372,7 +372,7 @@ cdef class ComplexCF(Compute):
         cdef unsigned int n_p = l_points.shape[0]
         with nogil:
             self.thisptr.accumulate(
-                nlistptr,
+                nlistptr.get_ptr(),
                 nq.get_ptr(),
                 <np.complex128_t*> &l_ref_values[0],
                 n_ref,
@@ -853,10 +853,10 @@ cdef class RDF(Compute):
         exclude_ii = points is None
         cdef freud.box.Box b = freud.common.convert_box(box)
 
-        cdef freud.locality.NeighborQuery nq = \
-            freud.locality.make_default_nq(b, ref_points)
-        cdef freud._locality.NeighborList * nlistptr \
-            = freud.locality.make_nlistptr(nlist)
+        defaults = freud.locality.make_default_args(b, ref_points, nlist)
+        cdef freud.locality.NeighborQuery nq = defaults[0]
+        cdef freud.locality.NlistptrWrapper nlistptr = defaults[1]
+
         cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
             mode="ball", rmax=self.rmax, exclude_ii=exclude_ii)
         ref_points = nq.points
@@ -870,7 +870,7 @@ cdef class RDF(Compute):
 
         with nogil:
             self.thisptr.accumulate(
-                nlistptr,
+                nlistptr.get_ptr(),
                 nq.get_ptr(),
                 <vec3[float]*> &l_points[0, 0],
                 n_p, dereference(qargs.thisptr))
