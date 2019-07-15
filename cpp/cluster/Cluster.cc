@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "Cluster.h"
-#include "DisjointSet.h"
+#include "dset/dset.h"
 #include "NeighborComputeFunctional.h"
 
 using namespace std;

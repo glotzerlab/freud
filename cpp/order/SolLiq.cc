@@ -7,7 +7,7 @@
 #include <tbb/tbb.h>
 
 #include "SolLiq.h"
-#include "DisjointSet.h"
+#include "dset/dset.h"
 
 using namespace std;
 
