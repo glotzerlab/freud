@@ -738,7 +738,7 @@ cdef class NlistptrWrapper:
         return self.nlistptr
 
 
-def make_default_args(box, ref_points, nlist):
+def make_nq_nlist(box, ref_points, nlist):
     return (make_default_nq(box, ref_points), NlistptrWrapper(nlist))
 
 
