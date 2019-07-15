@@ -746,8 +746,7 @@ class TestPMFTXYZ(unittest.TestCase):
                                    shiftvec=[1, 1, 1])
 
         for pm in [noshift, shift]:
-            pm.compute(freud.box.Box.cube(3), points, orientations,
-                       face_orientations=None)
+            pm.compute(freud.box.Box.cube(3), points, orientations)
 
         # Ignore warnings about NaNs
         warnings.simplefilter("ignore", category=RuntimeWarning)
