@@ -41,7 +41,7 @@ void LocalDensity::compute(const box::Box& box, const freud::locality::NeighborL
     float area = M_PI * m_rcut * m_rcut;
     float volume = 4.0f/3.0f * M_PI * m_rcut * m_rcut * m_rcut;
     // compute the local density
-    freud::locality::forLoopWrapper(true, 0, n_ref, 
+    freud::locality::forLoopWrapper(0, n_ref, 
       [=] (size_t r_begin, size_t r_end)
       {
       size_t bond(nlist->find_first_index(r_begin));
@@ -89,7 +89,7 @@ void LocalDensity::compute(const box::Box& box, const freud::locality::NeighborL
               m_density_array.get()[i] = (m_volume * m_num_neighbors_array.get()[i]) / volume;
               }
           }
-      });
+      }, true);
     // save the last computed number of particles
     m_n_ref = n_ref;
 }
