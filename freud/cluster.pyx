@@ -100,9 +100,9 @@ cdef class Cluster(Compute):
             box (:class:`freud.box.Box`, optional):
                 Simulation box (Default value = None).
         """
-        defaults = freud.locality.make_nq_nlist(self.m_box, points, nlist)
-        cdef freud.locality.NeighborQuery nq = defaults[0]
-        cdef freud.locality.NlistptrWrapper nlistptr = defaults[1]
+        nq_nlist = freud.locality.make_nq_nlist(self.m_box, points, nlist)
+        cdef freud.locality.NeighborQuery nq = nq_nlist[0]
+        cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
 
         cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
             mode="ball", rmax=self.rmax, exclude_ii=True)

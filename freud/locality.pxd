@@ -83,15 +83,6 @@ cdef class NlistptrWrapper:
     cdef freud._locality.NeighborList * nlistptr
     cdef freud._locality.NeighborList * get_ptr(self) nogil
 
-# If nlist is None, return NULL. Otherwise, return the pointer to it.
-cdef inline freud._locality.NeighborList* make_nlistptr(nlist):
-    cdef NeighborList _nlist
-    if nlist is not None:
-        _nlist = nlist
-        return _nlist.get_ptr()
-    else:
-        return NULL
-
 cdef class NeighborQuery:
     cdef freud._locality.NeighborQuery * nqptr
     cdef cbool queryable

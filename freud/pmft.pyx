@@ -188,10 +188,10 @@ cdef class PMFTR12(_PMFT):
         cdef freud.box.Box b = freud.common.convert_box(box)
         exclude_ii = points is None
 
-        cdef freud.locality.NeighborQuery nq = \
-            freud.locality.make_default_nq(b, ref_points)
-        cdef freud._locality.NeighborList * nlistptr \
-            = freud.locality.make_nlistptr(nlist)
+        nq_nlist = freud.locality.make_nq_nlist(b, ref_points, nlist)
+        cdef freud.locality.NeighborQuery nq = nq_nlist[0]
+        cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
+
         cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
             mode="ball", rmax=self.rmax, exclude_ii=exclude_ii)
 
@@ -218,7 +218,7 @@ cdef class PMFTR12(_PMFT):
         cdef const float[::1] l_orientations = orientations
         cdef unsigned int nP = l_points.shape[0]
         with nogil:
-            self.pmftr12ptr.accumulate(nlistptr,
+            self.pmftr12ptr.accumulate(nlistptr.get_ptr(),
                                        nq.get_ptr(),
                                        <float*> &l_ref_orientations[0],
                                        <vec3[float]*> &l_points[0, 0],
@@ -433,10 +433,10 @@ cdef class PMFTXYT(_PMFT):
 
         exclude_ii = points is None
 
-        cdef freud.locality.NeighborQuery nq = \
-            freud.locality.make_default_nq(b, ref_points)
-        cdef freud._locality.NeighborList * nlistptr \
-            = freud.locality.make_nlistptr(nlist)
+        nq_nlist = freud.locality.make_nq_nlist(b, ref_points, nlist)
+        cdef freud.locality.NeighborQuery nq = nq_nlist[0]
+        cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
+
         cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
             mode="ball", rmax=self.rmax, exclude_ii=exclude_ii)
 
@@ -463,7 +463,7 @@ cdef class PMFTXYT(_PMFT):
         cdef const float[::1] l_orientations = orientations
         cdef unsigned int nP = l_points.shape[0]
         with nogil:
-            self.pmftxytptr.accumulate(nlistptr,
+            self.pmftxytptr.accumulate(nlistptr.get_ptr(),
                                        nq.get_ptr(),
                                        <float*> &l_ref_orientations[0],
                                        <vec3[float]*> &l_points[0, 0],
@@ -662,10 +662,10 @@ cdef class PMFTXY2D(_PMFT):
 
         exclude_ii = points is None
 
-        cdef freud.locality.NeighborQuery nq = \
-            freud.locality.make_default_nq(b, ref_points)
-        cdef freud._locality.NeighborList * nlistptr \
-            = freud.locality.make_nlistptr(nlist)
+        nq_nlist = freud.locality.make_nq_nlist(b, ref_points, nlist)
+        cdef freud.locality.NeighborQuery nq = nq_nlist[0]
+        cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
+
         cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
             mode="ball", rmax=self.rmax, exclude_ii=exclude_ii)
 
@@ -692,7 +692,7 @@ cdef class PMFTXY2D(_PMFT):
         cdef const float[::1] l_orientations = orientations
         cdef unsigned int nP = l_points.shape[0]
         with nogil:
-            self.pmftxy2dptr.accumulate(nlistptr,
+            self.pmftxy2dptr.accumulate(nlistptr.get_ptr(),
                                         nq.get_ptr(),
                                         <float*> &l_ref_orientations[0],
                                         <vec3[float]*> &l_points[0, 0],
@@ -924,10 +924,10 @@ cdef class PMFTXYZ(_PMFT):
 
         exclude_ii = points is None
 
-        cdef freud.locality.NeighborQuery nq = \
-            freud.locality.make_default_nq(b, ref_points)
-        cdef freud._locality.NeighborList * nlistptr \
-            = freud.locality.make_nlistptr(nlist)
+        nq_nlist = freud.locality.make_nq_nlist(b, ref_points, nlist)
+        cdef freud.locality.NeighborQuery nq = nq_nlist[0]
+        cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
+
         cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
             mode="ball", rmax=self.rmax, exclude_ii=exclude_ii)
 
@@ -997,7 +997,7 @@ cdef class PMFTXYZ(_PMFT):
         cdef unsigned int nFaces = l_face_orientations.shape[1]
         with nogil:
             self.pmftxyzptr.accumulate(
-                nlistptr,
+                nlistptr.get_ptr(),
                 nq.get_ptr(),
                 <quat[float]*> &l_ref_orientations[0, 0],
                 <vec3[float]*> &l_points[0, 0],

@@ -112,9 +112,9 @@ cdef class FloatCF(Compute):
 
         cdef freud.box.Box b = freud.common.convert_box(box)
 
-        defaults = freud.locality.make_nq_nlist(b, ref_points, nlist)
-        cdef freud.locality.NeighborQuery nq = defaults[0]
-        cdef freud.locality.NlistptrWrapper nlistptr = defaults[1]
+        nq_nlist = freud.locality.make_nq_nlist(b, ref_points, nlist)
+        cdef freud.locality.NeighborQuery nq = nq_nlist[0]
+        cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
 
         cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
             mode="ball", rmax=self.rmax, exclude_ii=exclude_ii)
@@ -337,9 +337,9 @@ cdef class ComplexCF(Compute):
 
         cdef freud.box.Box b = freud.common.convert_box(box)
 
-        defaults = freud.locality.make_nq_nlist(b, ref_points, nlist)
-        cdef freud.locality.NeighborQuery nq = defaults[0]
-        cdef freud.locality.NlistptrWrapper nlistptr = defaults[1]
+        nq_nlist = freud.locality.make_nq_nlist(b, ref_points, nlist)
+        cdef freud.locality.NeighborQuery nq = nq_nlist[0]
+        cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
 
         cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
             mode="ball", rmax=self.rmax, exclude_ii=exclude_ii)
@@ -853,9 +853,9 @@ cdef class RDF(Compute):
         exclude_ii = points is None
         cdef freud.box.Box b = freud.common.convert_box(box)
 
-        defaults = freud.locality.make_nq_nlist(b, ref_points, nlist)
-        cdef freud.locality.NeighborQuery nq = defaults[0]
-        cdef freud.locality.NlistptrWrapper nlistptr = defaults[1]
+        nq_nlist = freud.locality.make_nq_nlist(b, ref_points, nlist)
+        cdef freud.locality.NeighborQuery nq = nq_nlist[0]
+        cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
 
         cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
             mode="ball", rmax=self.rmax, exclude_ii=exclude_ii)
