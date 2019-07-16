@@ -154,7 +154,7 @@ cdef class NeighborQueryResult:
             npoint = dereference(iterator).next()
             if npoint == ITERATOR_TERMINATOR:
                 break
-            yield (npoint.ref_id, npoint.id, npoint.distance)
+            yield (npoint.id, npoint.ref_id, npoint.distance)
 
         raise StopIteration
 
@@ -506,7 +506,7 @@ cdef class NeighborList:
             c_neighbors_ptr[2*bond + 1] = c_index_j[bond]
             c_weights_ptr[bond] = c_weights[bond]
 
-        c_result.thisptr.setNumBonds(n_bonds, c_Nref, c_Ntarget)
+        c_result.thisptr.setNumBonds(n_bonds, c_Ntarget, c_Nref)
 
         return result
 
@@ -581,6 +581,15 @@ cdef class NeighborList:
         cdef const float[::1] weights = \
             <float[:n_bonds]> self.thisptr.getWeights()
         return np.asarray(weights)
+
+    @property
+    def distances(self):
+        cdef size_t n_bonds = self.thisptr.getNumBonds()
+        if not n_bonds:
+            return np.asarray([], dtype=np.float32)
+        cdef const float[::1] distances = \
+            <float[:n_bonds]> self.thisptr.getDistances()
+        return np.asarray(distances)
 
     @property
     def segments(self):
@@ -688,7 +697,7 @@ cdef class NeighborList:
         cdef size_t nRef = ref_points.shape[0]
         cdef size_t nP = points.shape[0]
 
-        self.thisptr.validate(nRef, nP)
+        self.thisptr.validate(nP, nRef)
         self.thisptr.filter_r(
             dereference(b.thisptr),
             <vec3[float]*> &cRef_points[0, 0],
@@ -1269,6 +1278,10 @@ cdef class NearestNeighbors:
     def n_ref(self):
         return self.thisptr.getNref()
 
+    @property
+    def n_p(self):
+        return self.thisptr.getNp()
+
     def r_max(self):
         return self.thisptr.getRMax()
 
@@ -1304,7 +1317,7 @@ cdef class NearestNeighbors:
                 with UINTMAX if fewer neighbors than requested were found.
         """  # noqa: E501
         result = np.empty(
-            (self.thisptr.getNref(), self.thisptr.getNumNeighbors()),
+            (self.thisptr.getNp(), self.thisptr.getNumNeighbors()),
             dtype=np.uint32)
         result[:] = self.UINTMAX
         idx_i, idx_j = self.nlist.index_i, self.nlist.index_j
