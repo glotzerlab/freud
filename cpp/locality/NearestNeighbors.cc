@@ -152,7 +152,7 @@ void NearestNeighbors::compute(const box::Box& box, const vec3<float>* ref_pos, 
             const unsigned int k_max = min((unsigned int) neighbors.size(), m_num_neighbors);
             for (unsigned int k = 0; k < k_max; ++k)
             {
-                bond_vector.emplace_back(neighbors[k].second, i, sqrt(neighbors[k].first));
+                bond_vector.emplace_back(i, neighbors[k].second, sqrt(neighbors[k].first));
             }
         }
     });
@@ -185,8 +185,8 @@ void NearestNeighbors::compute(const box::Box& box, const vec3<float>* ref_pos, 
                          const BondVector& vec(bond_vector_groups[group]);
                          for (BondVector::const_iterator iter(vec.begin()); iter != vec.end(); ++iter, ++bond)
                          {
-                            neighbor_array[2 * bond] = iter->ref_id;
-                            neighbor_array[2 * bond + 1] = iter->id;
+                            neighbor_array[2 * bond] = iter->id;
+                            neighbor_array[2 * bond + 1] = iter->ref_id;
                             neighbor_weights[bond] = iter->weight;
                             neighbor_distances[bond] = iter->distance;
                          }

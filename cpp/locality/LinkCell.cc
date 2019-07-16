@@ -207,7 +207,7 @@ void LinkCell::compute(const box::Box& box, const vec3<float>* ref_points, unsig
 
                     if (rsq < m_cell_width * m_cell_width)
                     {
-                        bond_vector.emplace_back(j, i, sqrt(rsq));
+                        bond_vector.emplace_back(i, j, sqrt(rsq));
                     }
                 }
             }
@@ -243,8 +243,8 @@ void LinkCell::compute(const box::Box& box, const vec3<float>* ref_points, unsig
                          const BondVector& vec(bond_vector_groups[group]);
                          for (BondVector::const_iterator iter(vec.begin()); iter != vec.end(); ++iter, ++bond)
                          {
-                            neighbor_array[2 * bond] = iter->ref_id;
-                            neighbor_array[2 * bond + 1] = iter->id;
+                            neighbor_array[2 * bond] = iter->id;
+                            neighbor_array[2 * bond + 1] = iter->ref_id;
                             neighbor_weights[bond] = iter->weight;
                             neighbor_distances[bond] = iter->distance;
                          }
