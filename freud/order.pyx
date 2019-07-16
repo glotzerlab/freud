@@ -336,7 +336,7 @@ cdef class HexOrderParameter(Compute):
     cdef float rmax
 
     def __cinit__(self, rmax, k=int(6), n=int(0)):
-        self.thisptr = new freud._order.HexOrderParameter(rmax, k, n)
+        self.thisptr = new freud._order.HexOrderParameter(k)
         self.rmax = rmax
         self.num_neigh = (n if n else int(k))
 
@@ -357,18 +357,18 @@ cdef class HexOrderParameter(Compute):
                 Neighborlist to use to find bonds.
         """
         cdef freud.box.Box b = freud.common.convert_box(box)
-        points = freud.common.convert_array(points, shape=(None, 3))
 
-        cdef const float[:, ::1] l_points = points
-        cdef unsigned int nP = l_points.shape[0]
+        nq_nlist = freud.locality.make_nq_nlist(b, points, nlist)
+        cdef freud.locality.NeighborQuery nq = nq_nlist[0]
+        cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
 
-        defaulted_nlist = freud.locality.make_default_nlist_nn(
-            b, points, points, self.num_neigh, nlist, True, self.rmax)
-        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
+        cdef freud.locality._QueryArgs def_qargs = freud.locality._QueryArgs(
+            mode="nearest", nn=self.num_neigh, rmax=self.rmax,
+            exclude_ii=True)
 
         with nogil:
-            self.thisptr.compute(dereference(b.thisptr), nlist_.get_ptr(),
-                                 <vec3[float]*> &l_points[0, 0], nP)
+            self.thisptr.compute(nlistptr.get_ptr(),
+                                 nq.get_ptr(), dereference(def_qargs.thisptr))
         return self
 
     @Compute._computed_property()
@@ -429,7 +429,7 @@ cdef class TransOrderParameter(Compute):
     cdef rmax
 
     def __cinit__(self, rmax, k=6.0, n=0):
-        self.thisptr = new freud._order.TransOrderParameter(rmax, k)
+        self.thisptr = new freud._order.TransOrderParameter(k)
         self.rmax = rmax
         self.num_neigh = (n if n else int(k))
 
@@ -457,16 +457,6 @@ cdef class TransOrderParameter(Compute):
         cdef freud.locality._QueryArgs def_qargs = freud.locality._QueryArgs(
             mode="nearest", nn=self.num_neigh, rmax=self.rmax,
             exclude_ii=True)
-        # points = nq.points
-
-        # points = freud.common.convert_array(points, shape=(None, 3))
-
-        # cdef const float[:, ::1] l_points = points
-        # cdef unsigned int nP = l_points.shape[0]
-
-        # defaulted_nlist = freud.locality.make_default_nlist_nn(
-        #     b, points, points, self.num_neigh, nlist, True, self.rmax)
-        # cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         with nogil:
             self.thisptr.compute(nlistptr.get_ptr(),

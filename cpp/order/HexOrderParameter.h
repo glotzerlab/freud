@@ -11,6 +11,8 @@
 
 #include "Box.h"
 #include "NeighborList.h"
+#include "NeighborQuery.h"
+#include "OrderParameter.h"
 #include "VectorMath.h"
 
 /*! \file HexOrderParameter.h
@@ -22,47 +24,24 @@ namespace freud { namespace order {
 //! Compute the hexagonal order parameter for a set of points
 /*!
  */
-class HexOrderParameter
+class HexOrderParameter : public OrderParameter<unsigned int>
 {
 public:
     //! Constructor
-    HexOrderParameter(float rmax, unsigned int k = 6, unsigned int n = 0);
+    HexOrderParameter(unsigned int k = 6);
 
     //! Destructor
     ~HexOrderParameter();
 
-    //! Get the simulation box
-    const box::Box& getBox() const
-    {
-        return m_box;
-    }
-
-    //! Compute the hex order parameter
-    void compute(box::Box& box, const freud::locality::NeighborList* nlist, const vec3<float>* points,
-                 unsigned int Np);
-
-    //! Get a reference to the last computed psi
+        //! Get a reference to the last computed psi
     std::shared_ptr<std::complex<float>> getPsi()
     {
         return m_psi_array;
     }
 
-    unsigned int getNP()
-    {
-        return m_Np;
-    }
-
-    unsigned int getK()
-    {
-        return m_k;
-    }
-
-private:
-    box::Box m_box;    //!< Simulation box where the particles belong
-    unsigned int m_k;  //!< Multiplier in the exponent
-    unsigned int m_Np; //!< Last number of points computed
-
-    std::shared_ptr<std::complex<float>> m_psi_array; //!< psi array computed
+    //! Compute the hex order parameter
+    void compute(const freud::locality::NeighborList* nlist,
+                                  const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs);
 };
 
 }; }; // end namespace freud::order

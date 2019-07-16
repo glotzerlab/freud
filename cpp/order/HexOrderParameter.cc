@@ -15,56 +15,22 @@ using namespace tbb;
 
 namespace freud { namespace order {
 
-HexOrderParameter::HexOrderParameter(float rmax, unsigned int k, unsigned int n)
-    : m_box(box::Box()), m_k(k), m_Np(0)
-{}
+HexOrderParameter::HexOrderParameter(unsigned int k)
+    : OrderParameter<unsigned int>(k) {}
 
 HexOrderParameter::~HexOrderParameter() {}
 
-void HexOrderParameter::compute(box::Box& box, const freud::locality::NeighborList* nlist,
-                                const vec3<float>* points, unsigned int Np)
+void HexOrderParameter::compute(const freud::locality::NeighborList* nlist,
+                                const freud::locality::NeighborQuery* points,
+                                freud::locality::QueryArgs qargs)
 {
-    // Compute the cell list
-    m_box = box;
-
-    nlist->validate(Np, Np);
-    const size_t* neighbor_list(nlist->getNeighbors());
-
-    // Reallocate the output array if it is not the right size
-    if (Np != m_Np)
+    computeGeneral(
+    [this] (vec3<float> &delta)
     {
-        m_psi_array = std::shared_ptr<complex<float>>(new complex<float>[Np],
-                                                      std::default_delete<complex<float>[]>());
-    }
-
-    // Compute the order parameter
-    parallel_for(blocked_range<size_t>(0, Np), [=](const blocked_range<size_t>& r) {
-        size_t bond(nlist->find_first_index(r.begin()));
-        for (size_t i = r.begin(); i != r.end(); ++i)
-        {
-            m_psi_array.get()[i] = 0;
-            vec3<float> ref = points[i];
-
-            for (; bond < nlist->getNumBonds() && neighbor_list[2 * bond] == i; ++bond)
-            {
-                const size_t j(neighbor_list[2 * bond + 1]);
-
-                // Compute r between the two particles
-                vec3<float> delta = m_box.wrap(points[j] - ref);
-
-                float rsq = dot(delta, delta);
-
-                    // Compute psi for neighboring particle
-                    // (only constructed for 2d)
-                    float psi_ij = atan2f(delta.y, delta.x);
-                    m_psi_array.get()[i] += exp(complex<float>(0, m_k * psi_ij));
-
-            }
-            m_psi_array.get()[i] /= complex<float>(m_k);
-        }
-    });
-    // Save the last computed number of particles
-    m_Np = Np;
+        float psi_ij = atan2f(delta.y, delta.x); 
+        return exp(complex<float>(0, m_k * psi_ij));
+    }, 
+    nlist, points, qargs);
 }
 
 }; }; // end namespace freud::order

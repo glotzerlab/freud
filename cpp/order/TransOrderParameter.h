@@ -12,6 +12,7 @@
 #include "Box.h"
 #include "NeighborList.h"
 #include "NeighborQuery.h"
+#include "OrderParameter.h"
 #include "VectorMath.h"
 
 /*! \file TransOrderParameter.h
@@ -23,20 +24,14 @@ namespace freud { namespace order {
 //! Compute the translational order parameter for a set of points
 /*!
  */
-class TransOrderParameter
+class TransOrderParameter : public OrderParameter<float>
 {
 public:
     //! Constructor
-    TransOrderParameter(float rmax, float k = 6);
+    TransOrderParameter(float k = 6);
 
     //! Destructor
     ~TransOrderParameter();
-
-    //! Get the simulation box
-    const box::Box& getBox() const
-    {
-        return m_box;
-    }
 
     //! Compute the translational order parameter
     void compute(const freud::locality::NeighborList* nlist,
@@ -45,25 +40,8 @@ public:
     //! Get a reference to the last computed dr
     std::shared_ptr<std::complex<float>> getDr()
     {
-        return m_dr_array;
+        return m_psi_array;
     }
-
-    unsigned int getNP()
-    {
-        return m_Np;
-    }
-
-    float getK()
-    {
-        return m_k;
-    }
-
-private:
-    box::Box m_box;    //!< Simulation box where the particles belong
-    float m_k;         //!< Normalization value (dr is divided by m_k)
-    unsigned int m_Np; //!< Last number of points computed
-
-    std::shared_ptr<std::complex<float>> m_dr_array; //!< dr array computed
 };
 
 }; }; // end namespace freud::order
