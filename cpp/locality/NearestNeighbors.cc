@@ -51,18 +51,18 @@ void NearestNeighbors::compute(const box::Box& box, const vec3<float>* ref_pos, 
                                const vec3<float>* pos, unsigned int num_points, bool exclude_ii)
 {
     m_box = box;
-    m_neighbor_list.resize(num_ref * m_num_neighbors);
+    m_neighbor_list.resize(num_points * m_num_neighbors);
 
     typedef std::vector<NeighborBond> BondVector;
     typedef std::vector<BondVector> BondVectorVector;
     typedef tbb::enumerable_thread_specific<BondVectorVector> ThreadBondVector;
     ThreadBondVector bond_vectors;
 
-    m_lc->computeCellList(m_box, pos, num_points);
+    m_lc->computeCellList(m_box, ref_pos, num_ref);
     const float rcutsq(m_lc->getCellWidth() * m_lc->getCellWidth());
 
     // find the nearest neighbors
-    parallel_for(blocked_range<size_t>(0, num_ref), [=, &bond_vectors](const blocked_range<size_t>& r) {
+    parallel_for(blocked_range<size_t>(0, num_points), [=, &bond_vectors](const blocked_range<size_t>& r) {
         ThreadBondVector::reference bond_vector_vectors(bond_vectors.local());
         bond_vector_vectors.emplace_back();
         BondVector& bond_vector(bond_vector_vectors.back());
@@ -80,7 +80,7 @@ void NearestNeighbors::compute(const box::Box& box, const vec3<float>* ref_pos, 
 
         for (size_t i(r.begin()); i != r.end(); ++i)
         {
-            const vec3<float> ref_point(ref_pos[i]);
+            const vec3<float> ref_point(pos[i]);
             // look for cells in [min_iter_distance, max_iter_distance)
             unsigned int min_iter_distance(0), max_iter_distance(2);
             neighbors.clear();
@@ -94,7 +94,7 @@ void NearestNeighbors::compute(const box::Box& box, const vec3<float>* ref_pos, 
             {
                 neighbors.insert(neighbors.end(), backup_neighbors.begin(), backup_neighbors.end());
                 backup_neighbors.clear();
-                const vec3<unsigned int> refCell(m_lc->getCellCoord(ref_pos[i]));
+                const vec3<unsigned int> refCell(m_lc->getCellCoord(pos[i]));
 
                 for (IteratorCellShell neigh_cell_iter(min_iter_distance, m_box.is2D());
                      neigh_cell_iter != IteratorCellShell(max_iter_distance, m_box.is2D()); ++neigh_cell_iter)
@@ -129,7 +129,7 @@ void NearestNeighbors::compute(const box::Box& box, const vec3<float>* ref_pos, 
                         if (exclude_ii && i == j)
                             continue;
 
-                        const vec3<float> rij(m_box.wrap(pos[j] - ref_point));
+                        const vec3<float> rij(m_box.wrap(ref_pos[j] - ref_point));
                         const float rsq(dot(rij, rij));
 
                         if (rsq < (max_iter_distance - 1) * (max_iter_distance - 1) * rcutsq)
@@ -167,7 +167,7 @@ void NearestNeighbors::compute(const box::Box& box, const vec3<float>* ref_pos, 
          ++iter)
         num_bonds += iter->size();
 
-    m_neighbor_list.setNumBonds(num_bonds, num_ref, num_points);
+    m_neighbor_list.setNumBonds(num_bonds, num_points, num_ref);
 
     size_t* neighbor_array(m_neighbor_list.getNeighbors());
     float* neighbor_weights(m_neighbor_list.getWeights());
@@ -194,8 +194,8 @@ void NearestNeighbors::compute(const box::Box& box, const vec3<float>* ref_pos, 
                  });
 
     // save the last computed number of particles
-    m_num_ref = num_ref;
     m_num_points = num_points;
+    m_num_ref = num_ref;
 }
 
 }; }; // end namespace freud::locality

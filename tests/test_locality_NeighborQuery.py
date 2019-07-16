@@ -14,11 +14,11 @@ usage when we hit freud 2.0 (where we will reverse the ordering).
 
 
 def get_ref_point_neighbors(nl, i):
-    return {x[1] for x in nl if x[0] == i}
+    return {x[0] for x in nl if x[1] == i}
 
 
 def get_point_neighbors(nl, i):
-    return {x[0] for x in nl if x[1] == i}
+    return {x[1] for x in nl if x[0] == i}
 
 
 def nlist_equal(nlist1, nlist2):
@@ -359,8 +359,8 @@ class TestNeighborQuery(object):
             exhaustive_counts = Counter(exhaustive_i)
             exhaustive_counts_list = [exhaustive_counts[j] for j in range(N)]
 
-            nq = self.build_query_object(box, points, rcut)
-            result = list(nq.queryBall(points2, rcut))
+            nq = self.build_query_object(box, points2, rcut)
+            result = list(nq.queryBall(points, rcut))
             ijs = {(x[0], x[1]) for x in result}
             counts = Counter([x[0] for x in result])
             counts_list = [counts[j] for j in range(N)]

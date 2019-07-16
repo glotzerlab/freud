@@ -30,7 +30,7 @@ void LocalDescriptors::compute(const box::Box& box, const freud::locality::Neigh
                                const vec3<float>* r, unsigned int Np, const quat<float>* q_ref,
                                LocalDescriptorOrientation orientation)
 {
-    nlist->validate(Nref, Np);
+    nlist->validate(Np, Nref);
     const size_t* neighbor_list(nlist->getNeighbors());
 
     // reallocate the output array if it is not the right size

@@ -210,18 +210,22 @@ class TestLocalBondProjection(unittest.TestCase):
         # For the first particle, the bond is [1,0,0] and the orientation is
         # [1,0,0,0]. So the local bond is [1,0,0]. The projection onto
         # [0,0,1] is cos(pi/2)=0.
-        npt.assert_allclose(ang.projections[0], 0, atol=1e-6)
-        npt.assert_allclose(ang.normed_projections[0], 0, atol=1e-6)
+        # In the new neighbor list, the corresponding bond is at index 2
+        npt.assert_allclose(ang.projections[1], 0, atol=1e-6)
+        npt.assert_allclose(ang.normed_projections[1], 0, atol=1e-6)
         # For the second particle, the bond is [-1,0,0] and the orientation is
         # rotated about the y-axis by pi/2. So the local bond is [0,0,-1]. The
         # projection onto [0,0,1] is cos(pi)=-1.
-        npt.assert_allclose(ang.projections[1], -1, atol=1e-6)
-        npt.assert_allclose(ang.normed_projections[1], -1, atol=1e-6)
+        # In the new neighbor list, the corresponding bond is at index 0
+        npt.assert_allclose(ang.projections[0], -1, atol=1e-6)
+        npt.assert_allclose(ang.normed_projections[0], -1, atol=1e-6)
         # For the third particle, the bond is [0,0,-1.5] and the orientation is
         # rotated about the z-axis by pi/2. So the local bond is [0,0,-1.5].
         # The projection onto [0,0,1] is 1.5*cos(pi)=-1.5
-        npt.assert_allclose(ang.projections[2], -1.5, atol=1e-6)
-        npt.assert_allclose(ang.normed_projections[2], -1, atol=1e-6)
+        # In the new neighbor list, the corresponding bond is at index 1
+        # and the bond becomes [0, 0, 1.5]
+        npt.assert_allclose(ang.projections[2], 1.5, atol=1e-6)
+        npt.assert_allclose(ang.normed_projections[2], 1, atol=1e-6)
 
         # Specify that rotations about y by +/-pi/2 and rotations about x by pi
         # result in equivalent particle shapes
@@ -239,10 +243,10 @@ class TestLocalBondProjection(unittest.TestCase):
         ang.compute(box, proj_vecs, points, ors, None, equiv_quats)
 
         # Now all projections should be cos(0)=1
-        npt.assert_allclose(ang.projections[0], 1, atol=1e-6)
-        npt.assert_allclose(ang.normed_projections[0], 1, atol=1e-6)
         npt.assert_allclose(ang.projections[1], 1, atol=1e-6)
         npt.assert_allclose(ang.normed_projections[1], 1, atol=1e-6)
+        npt.assert_allclose(ang.projections[0], 1, atol=1e-6)
+        npt.assert_allclose(ang.normed_projections[0], 1, atol=1e-6)
         npt.assert_allclose(ang.projections[2], 1.5, atol=1e-6)
         npt.assert_allclose(ang.normed_projections[2], 1, atol=1e-6)
 

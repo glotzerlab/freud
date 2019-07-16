@@ -170,7 +170,7 @@ void LinkCell::compute(const box::Box& box, const vec3<float>* ref_points, unsig
 {
     // Store points ("j" particles in (i, j) bonds) in the cell list
     // for quick access later (not ref_points)
-    computeCellList(box, points, Np);
+    computeCellList(box, ref_points, Nref);
 
     typedef std::vector<NeighborBond> BondVector;
     typedef std::vector<BondVector> BondVectorVector;
@@ -178,7 +178,7 @@ void LinkCell::compute(const box::Box& box, const vec3<float>* ref_points, unsig
     ThreadBondVector bond_vectors;
 
     // Find (i, j) neighbor pairs
-    parallel_for(blocked_range<size_t>(0, Nref), [=, &bond_vectors](const blocked_range<size_t>& r) {
+    parallel_for(blocked_range<size_t>(0, Np), [=, &bond_vectors](const blocked_range<size_t>& r) {
         ThreadBondVector::reference bond_vector_vectors(bond_vectors.local());
         bond_vector_vectors.emplace_back();
         BondVector& bond_vector(bond_vector_vectors.back());
@@ -186,11 +186,11 @@ void LinkCell::compute(const box::Box& box, const vec3<float>* ref_points, unsig
         for (size_t i(r.begin()); i != r.end(); ++i)
         {
             // get the cell the point is in
-            const vec3<float> ref_point(ref_points[i]);
-            const unsigned int ref_cell(getCell(ref_point));
+            const vec3<float> point(points[i]);
+            const unsigned int point_cell(getCell(point));
 
             // loop over all neighboring cells
-            const std::vector<unsigned int>& neigh_cells = getCellNeighbors(ref_cell);
+            const std::vector<unsigned int>& neigh_cells = getCellNeighbors(point_cell);
             for (unsigned int neigh_idx = 0; neigh_idx < neigh_cells.size(); neigh_idx++)
             {
                 const unsigned int neigh_cell = neigh_cells[neigh_idx];
@@ -202,7 +202,7 @@ void LinkCell::compute(const box::Box& box, const vec3<float>* ref_points, unsig
                     if (exclude_ii && i == j)
                         continue;
 
-                    const vec3<float> rij(m_box.wrap(points[j] - ref_point));
+                    const vec3<float> rij(m_box.wrap(ref_points[j] - point));
                     const float rsq(dot(rij, rij));
 
                     if (rsq < m_cell_width * m_cell_width)
@@ -225,7 +225,7 @@ void LinkCell::compute(const box::Box& box, const vec3<float>* ref_points, unsig
         num_bonds += iter->size();
 
     m_neighbor_list.resize(num_bonds);
-    m_neighbor_list.setNumBonds(num_bonds, Nref, Np);
+    m_neighbor_list.setNumBonds(num_bonds, Np, Nref);
 
     size_t* neighbor_array(m_neighbor_list.getNeighbors());
     float* neighbor_weights(m_neighbor_list.getWeights());

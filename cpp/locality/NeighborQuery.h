@@ -258,7 +258,7 @@ public:
 
         NeighborList* nl = new NeighborList();
         nl->resize(num_bonds);
-        nl->setNumBonds(num_bonds, m_neighbor_query->getNRef(), m_N);
+        nl->setNumBonds(num_bonds, m_N, m_neighbor_query->getNRef());
         size_t* neighbor_array(nl->getNeighbors());
         float* neighbor_weights(nl->getWeights());
         float* neighbor_distance(nl->getDistances());

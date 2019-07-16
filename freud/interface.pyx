@@ -75,8 +75,8 @@ cdef class InterfaceMeasure(Compute):
         else:
             nlist = nlist.copy().filter_r(b, ref_points, points, self.rmax)
 
-        self._ref_point_ids = np.unique(nlist.index_i).astype(np.uint32)
-        self._point_ids = np.unique(nlist.index_j).astype(np.uint32)
+        self._ref_point_ids = np.unique(nlist.index_j).astype(np.uint32)
+        self._point_ids = np.unique(nlist.index_i).astype(np.uint32)
         return self
 
     @Compute._computed_property()
