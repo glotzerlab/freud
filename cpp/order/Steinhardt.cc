@@ -131,24 +131,8 @@ void Steinhardt::baseCompute(const box::Box& box, const locality::NeighborList* 
     nlist->validate(m_Np, m_Np);
 
     parallel_for(tbb::blocked_range<size_t>(0, m_Np), [=](const blocked_range<size_t>& r) {
-        const float rminsq = m_rmin * m_rmin;
-        const float rmaxsq = m_rmax * m_rmax;
         const float normalizationfactor = 4 * M_PI / (2 * m_l + 1);
         const size_t* neighbor_list(nlist->getNeighbors());
-
-        // Initialize thread-local m_Qlm and compute it in this function, if we
-        // won't average over neighbors later.
-        if (!m_average)
-        {
-            bool Qlm_exists;
-            m_Qlm_local.local(Qlm_exists);
-            if (!Qlm_exists)
-            {
-                m_Qlm_local.local() = new complex<float>[2 * m_l + 1];
-                memset((void*) m_Qlm_local.local(), 0, sizeof(complex<float>) * (2 * m_l + 1));
-            }
-        }
-
         size_t bond(nlist->find_first_index(r.begin()));
         // for each reference point
         for (size_t i = r.begin(); i != r.end(); i++)
@@ -218,15 +202,6 @@ void Steinhardt::computeAve(const box::Box& box, const locality::NeighborList* n
     const float normalizationfactor = 4 * M_PI / (2 * m_l + 1);
 
     parallel_for(tbb::blocked_range<size_t>(0, m_Np), [=](const blocked_range<size_t>& r) {
-        // Initialize thread-local m_Qlm and compute it averaging over
-        // neighbors, reduced over particles
-        bool Qlm_exists;
-        m_Qlm_local.local(Qlm_exists);
-        if (!Qlm_exists)
-        {
-            m_Qlm_local.local() = new complex<float>[2 * m_l + 1];
-            memset((void*) m_Qlm_local.local(), 0, sizeof(complex<float>) * (2 * m_l + 1));
-        }
 
         size_t bond(nlist->find_first_index(r.begin()));
         // for each reference point

@@ -12,6 +12,7 @@
 #include "NeighborList.h"
 #include "VectorMath.h"
 #include "fsph/src/spherical_harmonics.hpp"
+#include "ThreadStorage.h"
 #include "wigner3j.h"
 
 /*! \file Steinhardt.h
@@ -63,7 +64,7 @@ public:
      *                         or some other arbitrary rdf region.
      */
     Steinhardt(float rmax, unsigned int l, float rmin = 0, bool average = false, bool Wl = false)
-        : m_Np(0), m_rmax(rmax), m_l(l), m_rmin(rmin), m_average(average), m_Wl(Wl)
+        : m_Np(0), m_rmax(rmax), m_l(l), m_rmin(rmin), m_average(average), m_Wl(Wl), m_Qlm_local(2 * l + 1)
     {
         // Error Checking
         if (m_rmax < 0.0f || m_rmin < 0.0f)
@@ -170,7 +171,7 @@ private:
 
     std::shared_ptr<std::complex<float>> m_Qlmi; //!< Qlm for each particle i
     std::shared_ptr<std::complex<float>> m_Qlm;  //!< Normalized Qlm(Ave) for the whole system
-    tbb::enumerable_thread_specific<std::complex<float>*> m_Qlm_local; //!< Thread-specific m_Qlm(Ave)
+    util::ThreadStorage<std::complex<float>> m_Qlm_local;
     std::shared_ptr<float> m_Qli;              //!< Ql locally invariant order parameter for each particle i
     std::shared_ptr<float> m_QliAve;           //!< Averaged Ql with 2nd neighbor shell for each particle i
     std::shared_ptr<complex<float>> m_QlmiAve; //!< Averaged Qlm with 2nd neighbor shell for each particle i
