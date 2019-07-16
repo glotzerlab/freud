@@ -46,12 +46,10 @@ cdef extern from "LocalDensity.h" namespace "freud::density":
         LocalDensity(float, float, float)
         const freud._box.Box & getBox() const
         void compute(
-            const freud._box.Box &,
             const freud._locality.NeighborList *,
+            const freud._locality.NeighborQuery*,
             const vec3[float]*,
-            unsigned int,
-            const vec3[float]*,
-            unsigned int) nogil except +
+            unsigned int, freud._locality.QueryArgs) nogil except +
         unsigned int getNRef()
         shared_ptr[float] getDensity()
         shared_ptr[float] getNumNeighbors()

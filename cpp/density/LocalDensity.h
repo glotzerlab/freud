@@ -9,6 +9,7 @@
 
 #include "Box.h"
 #include "NeighborList.h"
+#include "NeighborQuery.h"
 #include "VectorMath.h"
 
 /*! \file LocalDensity.h
@@ -36,9 +37,9 @@ public:
     }
 
     //! Compute the local density
-    void compute(const box::Box& box, const freud::locality::NeighborList* nlist,
-                 const vec3<float>* ref_points, unsigned int n_ref, const vec3<float>* points,
-                 unsigned int Np);
+    void compute(const freud::locality::NeighborList* nlist,
+                 const freud::locality::NeighborQuery* ref_points, const vec3<float>* points,
+                 unsigned int Np, freud::locality::QueryArgs qargs);
 
     //! Get the number of reference particles
     unsigned int getNRef();
