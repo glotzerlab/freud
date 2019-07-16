@@ -46,7 +46,7 @@ cdef extern from "NematicOrderParameter.h" namespace "freud::order":
         vec3[float] getNematicDirector()
 
 
-cdef extern from "HexOrderParameter.h" namespace "freud::order":
+cdef extern from "OrderParameter.h" namespace "freud::order":
     cdef cppclass HexOrderParameter:
         HexOrderParameter(unsigned int)
         const freud._box.Box & getBox() const
@@ -59,7 +59,7 @@ cdef extern from "HexOrderParameter.h" namespace "freud::order":
         unsigned int getNP()
         unsigned int getK()
 
-cdef extern from "TransOrderParameter.h" namespace "freud::order":
+cdef extern from "OrderParameter.h" namespace "freud::order":
     cdef cppclass TransOrderParameter:
         TransOrderParameter(float)
         const freud._box.Box & getBox() const,

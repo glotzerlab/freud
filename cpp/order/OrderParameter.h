@@ -16,12 +16,12 @@
 #include "VectorMath.h"
 
 /*! \file OrderParameter.h
-    \brief Compute the hexatic order parameter for each particle.
+    \brief Compute the hexatic/trans order parameter for each particle.
 */
 
 namespace freud { namespace order {
 
-//! Compute the hexagonal order parameter for a set of points
+//! Parent class for HexOrderParameter and TransOrderParameter
 /*!
  */
 template<typename T> class OrderParameter
@@ -94,6 +94,52 @@ protected:
     unsigned int m_Np; //!< Last number of points computed
     T m_k;
     std::shared_ptr<std::complex<float>> m_psi_array; //!< psi array computed
+};
+
+//! Compute the translational order parameter for a set of points
+/*!
+ */
+class TransOrderParameter : public OrderParameter<float>
+{
+public:
+    //! Constructor
+    TransOrderParameter(float k = 6);
+
+    //! Destructor
+    ~TransOrderParameter();
+
+    //! Compute the translational order parameter
+    void compute(const freud::locality::NeighborList* nlist,
+                 const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs);
+
+    //! Get a reference to the last computed dr
+    std::shared_ptr<std::complex<float>> getDr()
+    {
+        return m_psi_array;
+    }
+};
+
+//! Compute the hexagonal order parameter for a set of points
+/*!
+ */
+class HexOrderParameter : public OrderParameter<unsigned int>
+{
+public:
+    //! Constructor
+    HexOrderParameter(unsigned int k = 6);
+
+    //! Destructor
+    ~HexOrderParameter();
+
+        //! Get a reference to the last computed psi
+    std::shared_ptr<std::complex<float>> getPsi()
+    {
+        return m_psi_array;
+    }
+
+    //! Compute the hex order parameter
+    void compute(const freud::locality::NeighborList* nlist,
+                                  const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs);
 };
 
 }; }; // end namespace freud::order
