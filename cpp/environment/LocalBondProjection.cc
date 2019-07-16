@@ -75,7 +75,7 @@ void LocalBondProjection::compute(box::Box& box, const freud::locality::Neighbor
     assert(Nequiv > 0);
     assert(Nproj > 0);
 
-    nlist->validate(Nref, Np);
+    nlist->validate(Np, Nref);
     const size_t* neighbor_list(nlist->getNeighbors());
     // Get the maximum total number of bonds in the neighbor list
     const size_t tot_num_neigh = nlist->getNumBonds();
@@ -90,7 +90,7 @@ void LocalBondProjection::compute(box::Box& box, const freud::locality::Neighbor
     }
 
     // compute the order parameter
-    parallel_for(blocked_range<size_t>(0, Nref), [=](const blocked_range<size_t>& r) {
+    parallel_for(blocked_range<size_t>(0, Np), [=](const blocked_range<size_t>& r) {
         size_t bond(nlist->find_first_index(r.begin()));
         for (size_t i = r.begin(); i != r.end(); ++i)
         {
