@@ -77,7 +77,7 @@ void AngularSeparation::computeNeighbor(const freud::locality::NeighborList* nli
                                         const quat<float>* ref_equiv_ors, unsigned int Nref, unsigned int Np,
                                         unsigned int Nequiv)
 {
-    nlist->validate(Nref, Np);
+    nlist->validate(Np, Nref);
     const size_t* neighbor_list(nlist->getNeighbors());
     // Get the maximum total number of bonds in the neighbor list
     const size_t tot_num_neigh = nlist->getNumBonds();

@@ -28,7 +28,7 @@ void LocalDensity::compute(const box::Box& box, const freud::locality::NeighborL
 {
     m_box = box;
 
-    nlist->validate(n_ref, Np);
+    nlist->validate(Np, n_ref);
     const size_t* neighbor_list(nlist->getNeighbors());
 
     // reallocate the output array if it is not the right size
