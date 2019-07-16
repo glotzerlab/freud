@@ -94,6 +94,10 @@ template<typename ComputePairType>
 void loopOverNeighborQuery(const NeighborQuery* ref_points, const vec3<float>* points,
                            unsigned int Np, QueryArgs qargs, const ComputePairType& cf, bool parallel)
 {
+    if(qargs.exclude_ii && (qargs.mode == QueryArgs::QueryType::nearest))
+    {
+        ++qargs.nn;
+    }
     // if nlist does not exist, check if ref_points is an actual NeighborQuery
     std::shared_ptr<NeighborQueryIterator> iter;
     std::shared_ptr<AABBQuery> abq;
@@ -151,18 +155,18 @@ void loopOverNeighborQuery(const NeighborQuery* ref_points, const vec3<float>* p
 */
 template<typename ComputePairType, typename PreprocessType, typename PostprocessType>
 void loopOverNeighborsPoint(const NeighborQuery* ref_points, const vec3<float>* points, unsigned int Np,
-                            QueryArgs qargs, const NeighborList* nlist, const ComputePairType& cf,
-                            const PreprocessType& pre, const PostprocessType& post, bool parallel = true)
+                            QueryArgs qargs, const NeighborList* nlist, const PreprocessType& pre,
+                            const ComputePairType& cf, const PostprocessType& post, bool parallel = true)
 {
     // check if nlist exists
     if (nlist != NULL)
     {
         // if nlist exists, loop over it in parallel.
-        loopOverNeighborListPoint(nlist, Np, cf, pre, post, parallel);
+        loopOverNeighborListPoint(nlist, Np, pre, cf, post, parallel);
     }
     else
     {
-        loopOverNeighborQueryPoint(ref_points, points, Np, qargs, cf, pre, post, parallel);
+        loopOverNeighborQueryPoint(ref_points, points, Np, qargs, pre, cf, post, parallel);
     }
 }
 
@@ -174,8 +178,8 @@ void loopOverNeighborsPoint(const NeighborQuery* ref_points, const vec3<float>* 
            (ref_point_index, point_index, distance, weight) as input.
 */
 template<typename ComputePairType, typename PreprocessType, typename PostprocessType>
-void loopOverNeighborListPoint(const NeighborList* nlist, unsigned int Np, const ComputePairType& cf,
-                               const PreprocessType& pre, const PostprocessType& post, bool parallel)
+void loopOverNeighborListPoint(const NeighborList* nlist, unsigned int Np, const PreprocessType& pre,
+                               const ComputePairType& cf, const PostprocessType& post, bool parallel)
 {
     const size_t* neighbor_list(nlist->getNeighbors());
     const float* neighbor_distances = nlist->getDistances();
@@ -188,9 +192,9 @@ void loopOverNeighborListPoint(const NeighborList* nlist, unsigned int Np, const
             for (; bond < nlist->getNumBonds() && neighbor_list[2 * bond] == i; ++bond)
             {
                 const size_t j(neighbor_list[2 * bond + 1]);
-                cf(i, j, neighbor_distances[bond], neighbor_weights[bond], &data);
+                cf(i, j, neighbor_distances[bond], neighbor_weights[bond], data);
             }
-            post(i, &data);
+            post(i, data);
         }
     }, parallel);
 }
@@ -207,9 +211,13 @@ void loopOverNeighborListPoint(const NeighborList* nlist, unsigned int Np, const
 */
 template<typename ComputePairType, typename PreprocessType, typename PostprocessType>
 void loopOverNeighborQueryPoint(const NeighborQuery* ref_points, const vec3<float>* points, unsigned int Np,
-                                QueryArgs qargs, const ComputePairType& cf, const PreprocessType& pre,
+                                QueryArgs qargs, const PreprocessType& pre, const ComputePairType& cf,
                                 const PostprocessType& post, bool parallel)
 {
+    if(qargs.exclude_ii && (qargs.mode == QueryArgs::QueryType::nearest))
+    {
+        ++qargs.nn;
+    }
     // if nlist does not exist, check if ref_points is an actual NeighborQuery
     std::shared_ptr<NeighborQueryIterator> iter;
     std::shared_ptr<AABBQuery> abq;
@@ -248,11 +256,11 @@ void loopOverNeighborQueryPoint(const NeighborQuery* ref_points, const vec3<floa
                 {
                     // TODO when Voronoi gets incorporated in NeighborQuery infrastructure
                     // weight set to 1 for now
-                    cf(np.ref_id, i, np.distance, np.weight, &data);
+                    cf(i, np.ref_id, np.distance, np.weight, data);
                 }
                 np = it->next();
             }
-            post(i, &data);
+            post(i, data);
         }
     }, parallel);
 }

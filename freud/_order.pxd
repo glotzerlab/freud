@@ -64,10 +64,9 @@ cdef extern from "TransOrderParameter.h" namespace "freud::order":
     cdef cppclass TransOrderParameter:
         TransOrderParameter(float, float)
         const freud._box.Box & getBox() const,
-        void compute(freud._box.Box &,
-                     const freud._locality.NeighborList*,
-                     const vec3[float]*,
-                     unsigned int) nogil except +
+        void compute(const freud._locality.NeighborList*,
+                     const freud._locality.NeighborQuery*,
+                     freud._locality.QueryArgs) nogil except +
         shared_ptr[float complex] getDr()
         unsigned int getNP()
         float getK()

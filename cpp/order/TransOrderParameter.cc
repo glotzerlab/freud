@@ -3,7 +3,9 @@
 
 #include <complex>
 #include <stdexcept>
+#include <iostream>
 
+#include "NeighborComputeFunctional.h"
 #include "TransOrderParameter.h"
 
 using namespace std;
@@ -19,15 +21,13 @@ TransOrderParameter::TransOrderParameter(float rmax, float k) : m_box(box::Box()
 
 TransOrderParameter::~TransOrderParameter() {}
 
-void TransOrderParameter::compute(box::Box& box, const freud::locality::NeighborList* nlist,
-                                  const vec3<float>* points, unsigned int Np)
+void TransOrderParameter::compute(const freud::locality::NeighborList* nlist,
+                                  const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs)
 {
     // compute the cell list
-    m_box = box;
+    m_box = points->getBox();
 
-    nlist->validate(Np, Np);
-    const size_t* neighbor_list(nlist->getNeighbors());
-
+    unsigned int Np = points->getNRef();
     // reallocate the output array if it is not the right size
     if (Np != m_Np)
     {
@@ -35,27 +35,23 @@ void TransOrderParameter::compute(box::Box& box, const freud::locality::Neighbor
                                                      std::default_delete<complex<float>[]>());
     }
 
-    // compute the order parameter
-    parallel_for(blocked_range<size_t>(0, Np), [=](const blocked_range<size_t>& r) {
-        size_t bond(nlist->find_first_index(r.begin()));
-        for (size_t i = r.begin(); i != r.end(); ++i)
-        {
-            m_dr_array.get()[i] = 0;
-            vec3<float> ref = points[i];
+    freud::locality::loopOverNeighborsPoint(points, points->getRefPoints(), Np, qargs, nlist, 
+    [=](size_t i)
+    {
+        m_dr_array.get()[i] = 0; return 0;
+    }, 
+    [=](size_t i, size_t j, float distance, float weight, int data)
+    {
+        vec3<float> ref = points->getRefPoints()[i];
+        // compute r between the two particles
+        vec3<float> delta = m_box.wrap(points->getRefPoints()[j] - ref);
 
-            for (; bond < nlist->getNumBonds() && neighbor_list[2 * bond] == i; ++bond)
-            {
-                const size_t j(neighbor_list[2 * bond + 1]);
-
-                // compute r between the two particles
-                vec3<float> delta = m_box.wrap(points[j] - ref);
-
-                float rsq = dot(delta, delta);
-                // compute dr for neighboring particle(only constructed for 2d)
-                m_dr_array.get()[i] += complex<float>(delta.x, delta.y);
-            }
-            m_dr_array.get()[i] /= complex<float>(m_k);
-        }
+        // compute dr for neighboring particle(only constructed for 2d)
+        m_dr_array.get()[i] += complex<float>(delta.x, delta.y);
+    },
+    [=](size_t i, int data)
+    {
+        m_dr_array.get()[i] /= complex<float>(m_k);
     });
 
     // save the last computed number of particles

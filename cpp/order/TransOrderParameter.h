@@ -11,6 +11,7 @@
 
 #include "Box.h"
 #include "NeighborList.h"
+#include "NeighborQuery.h"
 #include "VectorMath.h"
 
 /*! \file TransOrderParameter.h
@@ -38,8 +39,8 @@ public:
     }
 
     //! Compute the translational order parameter
-    void compute(box::Box& box, const freud::locality::NeighborList* nlist, const vec3<float>* points,
-                 unsigned int Np);
+    void compute(const freud::locality::NeighborList* nlist,
+                 const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs);
 
     //! Get a reference to the last computed dr
     std::shared_ptr<std::complex<float>> getDr()
