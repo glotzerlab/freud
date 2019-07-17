@@ -64,9 +64,9 @@ struct NeighborBond
         return distance < n.distance;
     }
 
-    unsigned int id;     //! The point id.
-    unsigned int ref_id;     //! The reference point id.
-    float distance;           //! The distance bewteen the points.
+    unsigned int id;          //! The point id.
+    unsigned int ref_id;      //! The reference point id.
+    float distance;           //! The distance between the points.
     float weight;             //! The weight of this bond.
 };
 
