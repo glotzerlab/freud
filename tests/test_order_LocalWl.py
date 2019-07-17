@@ -6,6 +6,7 @@ import util
 
 PERFECT_FCC_W6 = -0.00262604
 
+
 class TestLocalWl(unittest.TestCase):
     def test_shape(self):
         N = 1000
@@ -62,7 +63,8 @@ class TestLocalWl(unittest.TestCase):
 
         # More than 13 particles should change for Wl averaged over neighbors
         self.assertGreater(
-            sum(~np.isclose(np.real(comp.ave_Wl), PERFECT_FCC_W6, rtol=1e-6)), 140)
+            sum(~np.isclose(np.real(comp.ave_Wl), PERFECT_FCC_W6, rtol=1e-6)),
+            13)
 
         with self.assertRaises(AttributeError):
             comp.norm_Wl

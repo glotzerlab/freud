@@ -6,6 +6,7 @@ import util
 
 PERFECT_FCC_Q6 = 0.57452416
 
+
 class TestLocalQl(unittest.TestCase):
     def test_shape(self):
         N = 1000

@@ -7,6 +7,7 @@ import util
 PERFECT_FCC_Q6 = 0.57452416
 PERFECT_FCC_W6 = -0.00262604
 
+
 class TestSteinhardt(unittest.TestCase):
     def test_shape(self):
         N = 1000
