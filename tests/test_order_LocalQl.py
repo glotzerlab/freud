@@ -145,9 +145,15 @@ class TestLocalQlNear(unittest.TestCase):
         with self.assertRaises(AttributeError):
             comp.ave_norm_Ql
 
-        comp.computeAve(positions)
-        npt.assert_allclose(np.average(comp.Ql), 0.57452416, rtol=1e-6)
-        npt.assert_allclose(comp.ave_Ql, comp.ave_Ql[0], rtol=1e-6)
+        # Perturb one position to ensure exactly 13 particles' values change
+        perturbed_positions = positions.copy()
+        perturbed_positions[-1] += [0.1, 0, 0]
+        comp.computeAve(perturbed_positions)
+        perfect = 0.57452416
+        self.assertEqual(sum(~np.isclose(comp.Ql, perfect, rtol=1e-6)), 13)
+
+        # More than 13 particles should change for Ql averaged over neighbors
+        self.assertGreater(sum(~np.isclose(comp.ave_Ql, perfect, rtol=1e-6)), 13)
 
         with self.assertRaises(AttributeError):
             comp.norm_Ql
