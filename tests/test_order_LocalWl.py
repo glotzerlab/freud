@@ -4,6 +4,7 @@ import freud
 import unittest
 import util
 
+PERFECT_FCC_W6 = -0.00262604
 
 class TestLocalWl(unittest.TestCase):
     def test_shape(self):
@@ -37,7 +38,7 @@ class TestLocalWl(unittest.TestCase):
 
         comp.compute(positions)
         self.assertTrue(np.isclose(
-            np.real(np.average(comp.Wl)), -0.0026260, atol=1e-5))
+            np.real(np.average(comp.Wl)), PERFECT_FCC_W6, atol=1e-5))
         self.assertTrue(np.allclose(comp.Wl, comp.Wl[0]))
 
         with self.assertRaises(AttributeError):
@@ -49,8 +50,19 @@ class TestLocalWl(unittest.TestCase):
 
         comp.computeAve(positions)
         self.assertTrue(np.isclose(
-            np.real(np.average(comp.Wl)), -0.0026260, atol=1e-5))
+            np.real(np.average(comp.Wl)), PERFECT_FCC_W6, atol=1e-5))
         self.assertTrue(np.allclose(comp.ave_Wl, comp.ave_Wl[0]))
+
+        # Perturb one position to ensure exactly 13 particles' values change
+        perturbed_positions = positions.copy()
+        perturbed_positions[-1] += [0.1, 0, 0]
+        comp.computeAve(perturbed_positions)
+        self.assertEqual(
+            sum(~np.isclose(np.real(comp.Wl), PERFECT_FCC_W6, rtol=1e-6)), 13)
+
+        # More than 13 particles should change for Wl averaged over neighbors
+        self.assertGreater(
+            sum(~np.isclose(np.real(comp.ave_Wl), PERFECT_FCC_W6, rtol=1e-6)), 140)
 
         with self.assertRaises(AttributeError):
             comp.norm_Wl
@@ -59,7 +71,7 @@ class TestLocalWl(unittest.TestCase):
 
         comp.computeNorm(positions)
         self.assertTrue(np.isclose(
-            np.real(np.average(comp.Wl)), -0.0026260, atol=1e-5))
+            np.real(np.average(comp.Wl)), PERFECT_FCC_W6, atol=1e-5))
         self.assertTrue(np.allclose(comp.norm_Wl, comp.norm_Wl[0]))
 
         with self.assertRaises(AttributeError):
@@ -67,7 +79,7 @@ class TestLocalWl(unittest.TestCase):
 
         comp.computeAveNorm(positions)
         self.assertTrue(np.isclose(
-            np.real(np.average(comp.Wl)), -0.0026260, atol=1e-5))
+            np.real(np.average(comp.Wl)), PERFECT_FCC_W6, atol=1e-5))
         self.assertTrue(np.allclose(comp.ave_norm_Wl, comp.ave_norm_Wl[0]))
 
         self.assertEqual(box, comp.box)
@@ -140,7 +152,7 @@ class TestLocalWlNear(unittest.TestCase):
 
         comp.compute(positions)
         self.assertTrue(np.isclose(
-            np.real(np.average(comp.Wl)), -0.0026260, atol=1e-5))
+            np.real(np.average(comp.Wl)), PERFECT_FCC_W6, atol=1e-5))
         self.assertTrue(np.allclose(comp.Wl, comp.Wl[0]))
 
         with self.assertRaises(AttributeError):
@@ -152,7 +164,7 @@ class TestLocalWlNear(unittest.TestCase):
 
         comp.computeAve(positions)
         self.assertTrue(np.isclose(
-            np.real(np.average(comp.Wl)), -0.0026260, atol=1e-5))
+            np.real(np.average(comp.Wl)), PERFECT_FCC_W6, atol=1e-5))
         self.assertTrue(np.allclose(comp.ave_Wl, comp.ave_Wl[0]))
 
         with self.assertRaises(AttributeError):
@@ -162,7 +174,7 @@ class TestLocalWlNear(unittest.TestCase):
 
         comp.computeNorm(positions)
         self.assertTrue(np.isclose(
-            np.real(np.average(comp.Wl)), -0.0026260, atol=1e-5))
+            np.real(np.average(comp.Wl)), PERFECT_FCC_W6, atol=1e-5))
         self.assertTrue(np.allclose(comp.norm_Wl, comp.norm_Wl[0]))
 
         with self.assertRaises(AttributeError):
@@ -170,7 +182,7 @@ class TestLocalWlNear(unittest.TestCase):
 
         comp.computeAveNorm(positions)
         self.assertTrue(np.isclose(
-            np.real(np.average(comp.Wl)), -0.0026260, atol=1e-5))
+            np.real(np.average(comp.Wl)), PERFECT_FCC_W6, atol=1e-5))
         self.assertTrue(np.allclose(comp.ave_norm_Wl, comp.ave_norm_Wl[0]))
 
         self.assertEqual(box, comp.box)
