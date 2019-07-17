@@ -150,7 +150,6 @@ public:
         return std::make_shared<NeighborQueryPerPointIterator>(iter, point_index, m_qargs.exclude_ii);
     }
 
-
 private:
     std::shared_ptr<AABBQuery> m_abq;
     std::shared_ptr<NeighborQueryIterator> m_nqiter;
@@ -178,20 +177,16 @@ template<typename Body> void forLoopWrapper(size_t begin, size_t end, const Body
     }
 }
 
+std::shared_ptr<NeighborIterator> getNeighborIterator(
+    const NeighborQuery* ref_points, const vec3<float>* points, unsigned int Np,
+    QueryArgs qargs, const NeighborList* nlist);
 
-// This function does not work for now since ref_point point orders are different
-// for NiehgborList and NeighborQuery.query().
-//! Wrapper iterating looping over NeighborList per ref_point in parallel.
-/*! \param nlist Neighbor List to loop over.
-    \param cf A void function that takes
-           (ref_point_index, point_index, distance, weight) as input.
-*/
 template<typename ComputePairType>
-void loopOverNeighborLietPerPointIterator(const NeighborList* nlist, unsigned int Np,
-                               const ComputePairType& cf, bool parallel)
+void loopOverNeighborsIterator(const NeighborQuery* ref_points, const vec3<float>* points, unsigned int Np,
+                            QueryArgs qargs, const NeighborList* nlist, 
+                            const ComputePairType& cf, bool parallel = true)
 {
-    std::shared_ptr<NeighborListNeighborIterator> niter 
-        = std::make_shared<NeighborListNeighborIterator>(nlist);
+    std::shared_ptr<NeighborIterator> niter = getNeighborIterator(ref_points, points, Np, qargs, nlist);
     forLoopWrapper(0, Np, [=](size_t begin, size_t end) {
         for (size_t i = begin; i != end; ++i)
         {
@@ -199,52 +194,6 @@ void loopOverNeighborLietPerPointIterator(const NeighborList* nlist, unsigned in
             cf(i, ppiter);
         }
     }, parallel);
-}
-
-// This function does not work for now since ref_point point orders are different
-// for NiehgborList and NeighborQuery.query().
-//! Wrapper iterating looping over NeighborQuery
-/*! \param ref_points NeighborQuery object to iterate over
-    \param points Points
-    \param Np Number of points
-    \param qargs Query arguments
-    \param cf A void function that takes
-           (ref_point_index, point_index, distance, weight) as input.
-*/
-template<typename ComputePairType>
-void loopOverNeighborQueryPerPointIterator(const NeighborQuery* ref_points, const vec3<float>* points, unsigned int Np,
-                                QueryArgs qargs, const ComputePairType& cf,
-                                bool parallel)
-{
-    // if nlist does not exist, check if ref_points is an actual NeighborQuery
-    std::shared_ptr<NeighborQueryNeighborIterator> niter = 
-        std::make_shared<NeighborQueryNeighborIterator>(ref_points, points, Np, qargs);
-    // iterate over the query object in parallel
-    forLoopWrapper(0, Np, [&niter, &cf](size_t begin, size_t end) {
-        for (size_t i = begin; i != end; ++i)
-        {
-            auto ppiter = niter->queryPerPoint(i);
-            cf(i, ppiter);
-        }
-    }, parallel);
-}
-
-
-template<typename ComputePairType>
-void loopOverNeighborsIterator(const NeighborQuery* ref_points, const vec3<float>* points, unsigned int Np,
-                            QueryArgs qargs, const NeighborList* nlist, 
-                            const ComputePairType& cf, bool parallel = true)
-{
-    // check if nlist exists
-    if (nlist != NULL)
-    {
-        // if nlist exists, loop over it in parallel.
-        loopOverNeighborLietPerPointIterator(nlist, Np, cf, parallel);
-    }
-    else
-    {
-        loopOverNeighborQueryPerPointIterator(ref_points, points, Np, qargs, cf, parallel);
-    }
 }
 
 //! Wrapper iterating looping over NeighborQuery or NeighborList
