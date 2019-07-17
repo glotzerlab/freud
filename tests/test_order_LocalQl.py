@@ -146,6 +146,11 @@ class TestLocalQlNear(unittest.TestCase):
         with self.assertRaises(AttributeError):
             comp.ave_norm_Ql
 
+        comp.computeAve(positions)
+        self.assertTrue(np.isclose(
+            np.real(np.average(comp.Ql)), PERFECT_FCC_Q6, atol=1e-5))
+        self.assertTrue(np.allclose(comp.ave_Ql, comp.ave_Ql[0]))
+
         # Perturb one position to ensure exactly 13 particles' values change
         perturbed_positions = positions.copy()
         perturbed_positions[-1] += [0.1, 0, 0]
