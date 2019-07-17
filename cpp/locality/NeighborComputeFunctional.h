@@ -44,6 +44,7 @@ public:
             m_nlist(nlist), m_point_index(point_index)
             {
                 m_current_index = m_nlist->find_first_index(point_index);
+                m_returned_point_index = m_nlist->getNeighbors()[2 * m_current_index];
             } 
         
         ~NeighborListPerPointIterator() {}
@@ -55,17 +56,19 @@ public:
                                            m_nlist->getDistances()[m_current_index],
                                            m_nlist->getWeights()[m_current_index]);
             ++m_current_index;
+            m_returned_point_index = nb.id;
             return nb;
         }
 
         virtual bool end()
         {
-            return m_nlist->getNeighbors()[2 * m_current_index] != m_point_index;
+            return m_returned_point_index != m_point_index;
         }
 
     private:
         const NeighborList* m_nlist;
         size_t m_current_index;
+        size_t m_returned_point_index;
         size_t m_point_index;
     };
 

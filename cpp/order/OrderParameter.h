@@ -56,15 +56,16 @@ public:
         }
 
         freud::locality::loopOverNeighborsIterator(points, points->getRefPoints(), Np, qargs, nlist, 
-        [=] (size_t i, std::shared_ptr<freud::locality::NeighborIterator::PerPointIterator> niter)
+        [=] (size_t i, std::shared_ptr<freud::locality::NeighborIterator::PerPointIterator> ppiter)
         {
             m_psi_array.get()[i] = 0;
-            freud::locality::NeighborBond nb = niter->next();
-            for(; !niter->end(); nb = niter->next())
+            vec3<float> ref = (*points)[i];
+
+            for(freud::locality::NeighborBond nb = ppiter->next(); !ppiter->end(); nb = ppiter->next())
             {
-                vec3<float> ref = points->getRefPoints()[i];
+                std::cout << i << " " << nb.ref_id << std::endl;
                 // Compute r between the two particles
-                vec3<float> delta = m_box.wrap(points->getRefPoints()[nb.ref_id] - ref);
+                vec3<float> delta = m_box.wrap((*points)[nb.ref_id] - ref);
 
                 // Compute psi for neighboring particle
                 // (only constructed for 2d)
@@ -93,7 +94,7 @@ public:
     //     {
     //         m_psi_array.get()[i] /= std::complex<float>(m_k);
     //     });
-        
+
         // Save the last computed number of particles
         m_Np = Np;
     }

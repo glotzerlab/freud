@@ -75,10 +75,9 @@ cdef extern from "Steinhardt.h" namespace "freud::order":
         Steinhardt(float, unsigned int, float,
                    bool, bool) except +
         unsigned int getNP()
-        void compute(const freud._box.Box &,
-                     const freud._locality.NeighborList *,
-                     const vec3[float]*,
-                     unsigned int) nogil except +
+        void compute(const freud._locality.NeighborList*,
+                     const freud._locality.NeighborQuery*,
+                     freud._locality.QueryArgs) nogil except +
         shared_ptr[float] getQl()
         shared_ptr[float complex] getWl()
         bool getUseWl()

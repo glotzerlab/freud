@@ -630,27 +630,26 @@ cdef class Steinhardt:
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """
-        points = freud.common.convert_array(points, (None, 3))
 
         cdef freud.box.Box bbox = freud.common.convert_box(box)
-        cdef const float[:, ::1] l_points = points
-        cdef unsigned int nP = l_points.shape[0]
 
-        # Construct the correct neighbor list depending on specified behavior.
-        # Using rmax or num_neigh to determine a hard neighbor limit or hard
-        # rmax cut-off
+        nq_nlist = freud.locality.make_nq_nlist(bbox, points, nlist)
+        cdef freud.locality.NeighborQuery nq = nq_nlist[0]
+        cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
+
         if self.num_neigh > 0:
-            defaulted_nlist = freud.locality.make_default_nlist_nn(
-                bbox, points, points, self.num_neigh, nlist, True, self.rmax)
+            _qargs = freud.locality._QueryArgs(
+                mode="nearest", nn=self.num_neigh, rmax=self.rmax,
+                exclude_ii=True)
         else:
-            defaulted_nlist = freud.locality.make_default_nlist(
-                bbox, points, points, self.rmax, nlist, True)
-        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
+            _qargs = freud.locality._QueryArgs(
+                mode="ball", rmax=self.rmax, exclude_ii=True)
 
-        self.stptr.compute(dereference(bbox.thisptr),
-                           nlist_.get_ptr(),
-                           <vec3[float]*> &l_points[0, 0],
-                           nP)
+        cdef freud.locality._QueryArgs def_qargs = _qargs
+
+        self.stptr.compute(nlistptr.get_ptr(),
+                           nq.get_ptr(),
+                           dereference(def_qargs.thisptr))
         return self
 
     def __repr__(self):

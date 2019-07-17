@@ -10,6 +10,7 @@
 
 #include "Box.h"
 #include "NeighborList.h"
+#include "NeighborQuery.h"
 #include "VectorMath.h"
 #include "fsph/src/spherical_harmonics.hpp"
 #include "ThreadStorage.h"
@@ -122,8 +123,8 @@ public:
     }
 
     //! Compute the order parameter
-    virtual void compute(const box::Box& box, const locality::NeighborList* nlist, const vec3<float>* points,
-                         unsigned int Np);
+    virtual void compute(const freud::locality::NeighborList* nlist,
+                                  const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs);
 
 private:
     //! \internal
@@ -142,10 +143,12 @@ private:
 
     //! Calculates the base Ql order parameter before further modifications
     // if any.
-    void baseCompute(const box::Box& box, const locality::NeighborList* nlist, const vec3<float>* points);
+    void baseCompute(const freud::locality::NeighborList* nlist,
+                                  const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs);
 
     //! Calculates the neighbor average Ql order parameter
-    void computeAve(const box::Box& box, const locality::NeighborList* nlist, const vec3<float>* points);
+    void computeAve(const freud::locality::NeighborList* nlist,
+                                  const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs);
 
     //! Normalize the order parameter
     float normalize();
