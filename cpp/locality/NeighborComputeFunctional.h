@@ -30,7 +30,7 @@ template<typename Body> void forLoopWrapper(size_t begin, size_t end, const Body
     }
 }
 
-//! Wrapper iterating looping over NeighborQuery or NeighborList
+//! Wrapper iterating over NeighborQuery or NeighborList
 /*! \param ref_points NeighborQuery object to iterate over
     \param points Points
     \param Np Number of points
@@ -58,7 +58,7 @@ void loopOverNeighbors(const NeighborQuery* ref_points, const vec3<float>* point
     }
 }
 
-//! Wrapper iterating looping over NeighborList in parallel.
+//! Wrapper looping over NeighborList in parallel.
 /*! \param nlist Neighbor List to loop over.
     \param cf An object with
            operator(size_t ref_point_index, size_t point_index,
@@ -81,7 +81,7 @@ void loopOverNeighborList(const NeighborList* nlist, const ComputePairType& cf, 
     }, parallel);
 }
 
-//! Wrapper iterating looping over NeighborQuery
+//! Wrapper looping over NeighborQuery in parallel
 /*! \param ref_points NeighborQuery object to iterate over
     \param points Points
     \param Np Number of points
@@ -138,8 +138,8 @@ void loopOverNeighborQuery(const NeighborQuery* ref_points, const vec3<float>* p
 }
 
 // This function does not work for now since ref_point point orders are different
-// for NiehgborList and NeighborQuery.query().
-//! Wrapper iterating looping over NeighborQuery or NeighborList
+// for NeighborList and NeighborQuery.query().
+//! Wrapper looping over NeighborQuery or NeighborList
 /*! \param ref_points NeighborQuery object to iterate over
     \param points Points
     \param Np Number of points
@@ -167,9 +167,9 @@ void loopOverNeighborsPoint(const NeighborQuery* ref_points, const vec3<float>* 
 }
 
 // This function does not work for now since ref_point point orders are different
-// for NiehgborList and NeighborQuery.query().
-//! Wrapper iterating looping over NeighborList per ref_point in parallel.
-/*! \param nlist Neighbor List to loop over.
+// for NeighborList and NeighborQuery.query().
+//! Wrapper looping over NeighborList per ref_point in parallel.
+/*! \param nlist NeighborList to loop over.
     \param cf A void function that takes
            (ref_point_index, point_index, distance, weight) as input.
 */
@@ -196,8 +196,8 @@ void loopOverNeighborListPoint(const NeighborList* nlist, unsigned int Np, const
 }
 
 // This function does not work for now since ref_point point orders are different
-// for NiehgborList and NeighborQuery.query().
-//! Wrapper iterating looping over NeighborQuery
+// for NeighborList and NeighborQuery.query().
+//! Wrapper looping over NeighborQuery
 /*! \param ref_points NeighborQuery object to iterate over
     \param points Points
     \param Np Number of points
