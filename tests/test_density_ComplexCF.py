@@ -90,6 +90,14 @@ class TestComplexCF(unittest.TestCase):
         npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
         self.assertEqual(freud.box.Box.square(box_size), ocf.box)
 
+        ocf.reset()
+        ocf.accumulate(freud.box.Box.square(box_size), points, comp,
+                       values=np.conj(comp))
+        npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
+        ocf.compute(freud.box.Box.square(box_size), points, comp,
+                    values=np.conj(comp))
+        npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
+
     def test_zero_points(self):
         rmax = 10.0
         dr = 1.0

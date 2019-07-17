@@ -108,11 +108,6 @@ cdef class Cluster(Compute):
             mode="ball", rmax=self.rmax, exclude_ii=True)
         points = nq.points
 
-        points = freud.common.convert_array(points, (None, 3))
-        if points.shape[1] != 3:
-            raise RuntimeError(
-                'Need a list of 3D points for computeClusters()')
-
         cdef freud.box.Box b
         if box is None:
             b = self.m_box

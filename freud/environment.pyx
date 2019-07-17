@@ -187,7 +187,6 @@ cdef class BondOrder(Compute):
         if orientations is None:
             orientations = ref_orientations
 
-        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
         points = freud.common.convert_array(points, shape=(None, 3))
         ref_orientations = freud.common.convert_array(
             ref_orientations, shape=(ref_points.shape[0], 4))
@@ -695,15 +694,15 @@ cdef class MatchEnv(Compute):
 
         return min_rmsd_vec
 
-    def isSimilar(self, ref_points1, ref_points2,
+    def isSimilar(self, ref_points, points,
                   threshold, registration=False):
-        R"""Test if the motif provided by ref_points1 is similar to the motif
-        provided by ref_points2.
+        R"""Test if the motif provided by ref_points is similar to the motif
+        provided by points.
 
         Args:
-            ref_points1 ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Vectors that make up motif 1.
-            ref_points2 ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Vectors that make up motif 2.
             threshold (float):
                 Maximum magnitude of the vector difference between two vectors,
@@ -717,39 +716,39 @@ cdef class MatchEnv(Compute):
         Returns:
             tuple ((:math:`\left(N_{particles}, 3\right)` :class:`numpy.ndarray`), map[int, int]):
                 A doublet that gives the rotated (or not) set of
-                :code:`ref_points2`, and the mapping between the vectors of
-                :code:`ref_points1` and :code:`ref_points2` that will make them
+                :code:`points`, and the mapping between the vectors of
+                :code:`ref_points` and :code:`points` that will make them
                 correspond to each other. Empty if they do not correspond to
                 each other.
         """  # noqa: E501
-        ref_points1 = freud.common.convert_array(ref_points1, shape=(None, 3))
-        ref_points2 = freud.common.convert_array(ref_points2, shape=(None, 3))
+        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
+        points = freud.common.convert_array(points, shape=(None, 3))
 
-        cdef const float[:, ::1] l_ref_points1 = ref_points1
-        cdef const float[:, ::1] l_ref_points2 = ref_points2
-        cdef unsigned int nRef1 = l_ref_points1.shape[0]
-        cdef unsigned int nRef2 = l_ref_points2.shape[0]
+        cdef const float[:, ::1] l_ref_points = ref_points
+        cdef const float[:, ::1] l_points = points
+        cdef unsigned int nRef1 = l_ref_points.shape[0]
+        cdef unsigned int nRef2 = l_points.shape[0]
         cdef float threshold_sq = threshold*threshold
 
         if nRef1 != nRef2:
             raise ValueError(
-                ("The number of vectors in ref_points1 must MATCH"
-                 "the number of vectors in ref_points2"))
+                ("The number of vectors in ref_points must MATCH"
+                 "the number of vectors in points"))
 
         cdef map[unsigned int, unsigned int] vec_map = self.thisptr.isSimilar(
-            <vec3[float]*> &l_ref_points1[0, 0],
-            <vec3[float]*> &l_ref_points2[0, 0],
+            <vec3[float]*> &l_ref_points[0, 0],
+            <vec3[float]*> &l_points[0, 0],
             nRef1, threshold_sq, registration)
-        return [np.asarray(l_ref_points2), vec_map]
+        return [np.asarray(l_points), vec_map]
 
-    def minimizeRMSD(self, ref_points1, ref_points2, registration=False):
-        R"""Get the somewhat-optimal RMSD between the set of vectors ref_points1
-        and the set of vectors ref_points2.
+    def minimizeRMSD(self, ref_points, points, registration=False):
+        R"""Get the somewhat-optimal RMSD between the set of vectors ref_points
+        and the set of vectors points.
 
         Args:
-            ref_points1 ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Vectors that make up motif 1.
-            ref_points2 ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Vectors that make up motif 2.
             registration (bool, optional):
                 If true, first use brute force registration to orient one set
@@ -760,29 +759,29 @@ cdef class MatchEnv(Compute):
         Returns:
             tuple (float, (:math:`\left(N_{particles}, 3\right)` :class:`numpy.ndarray`), map[int, int]):
                 A triplet that gives the associated min_rmsd, rotated (or not)
-                set of ref_points2, and the mapping between the vectors of
-                ref_points1 and ref_points2 that somewhat minimizes the RMSD.
+                set of points, and the mapping between the vectors of
+                ref_points and points that somewhat minimizes the RMSD.
         """  # noqa: E501
-        ref_points1 = freud.common.convert_array(ref_points1, shape=(None, 3))
-        ref_points2 = freud.common.convert_array(ref_points2, shape=(None, 3))
+        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
+        points = freud.common.convert_array(points, shape=(None, 3))
 
-        cdef const float[:, ::1] l_ref_points1 = ref_points1
-        cdef const float[:, ::1] l_ref_points2 = ref_points2
-        cdef unsigned int nRef1 = l_ref_points1.shape[0]
-        cdef unsigned int nRef2 = l_ref_points2.shape[0]
+        cdef const float[:, ::1] l_ref_points = ref_points
+        cdef const float[:, ::1] l_points = points
+        cdef unsigned int nRef1 = l_ref_points.shape[0]
+        cdef unsigned int nRef2 = l_points.shape[0]
 
         if nRef1 != nRef2:
             raise ValueError(
-                ("The number of vectors in ref_points1 must MATCH"
-                 "the number of vectors in ref_points2"))
+                ("The number of vectors in ref_points must MATCH"
+                 "the number of vectors in points"))
 
         cdef float min_rmsd = -1
         cdef map[unsigned int, unsigned int] results_map = \
             self.thisptr.minimizeRMSD(
-                <vec3[float]*> &l_ref_points1[0, 0],
-                <vec3[float]*> &l_ref_points2[0, 0],
+                <vec3[float]*> &l_ref_points[0, 0],
+                <vec3[float]*> &l_points[0, 0],
                 nRef1, min_rmsd, registration)
-        return [min_rmsd, np.asarray(l_ref_points2), results_map]
+        return [min_rmsd, np.asarray(l_points), results_map]
 
     @Compute._computed_property()
     def clusters(self):
