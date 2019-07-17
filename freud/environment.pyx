@@ -1091,6 +1091,8 @@ cdef class LocalBondProjection(Compute):
             The number of projection vectors used in the last calculation.
         box (:class:`freud.box.Box`):
             The box used in the last calculation.
+        nlist (:class:`freud.locality.NeighborList`):
+            The neighbor list generated in the last calculation.
     """  # noqa: E501
     cdef freud._environment.LocalBondProjection * thisptr
     cdef float rmax
