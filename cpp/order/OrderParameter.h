@@ -55,25 +55,44 @@ public:
                                                           std::default_delete<std::complex<float>[]>());
         }
 
-        freud::locality::loopOverNeighborsPoint(points, points->getRefPoints(), Np, qargs, nlist, 
-        [=](size_t i)
+        freud::locality::loopOverNeighborsIterator(points, points->getRefPoints(), Np, qargs, nlist, 
+        [=] (size_t i, std::shared_ptr<freud::locality::NeighborIterator::PerPointIterator> niter)
         {
-            m_psi_array.get()[i] = 0; return 0;
-        }, 
-        [=](size_t i, size_t j, float distance, float weight, int data)
-        {
-            vec3<float> ref = points->getRefPoints()[i];
-            // Compute r between the two particles
-            vec3<float> delta = m_box.wrap(points->getRefPoints()[j] - ref);
+            m_psi_array.get()[i] = 0;
+            freud::locality::NeighborBond nb = niter->next();
+            for(; !niter->end(); nb = niter->next())
+            {
+                vec3<float> ref = points->getRefPoints()[i];
+                // Compute r between the two particles
+                vec3<float> delta = m_box.wrap(points->getRefPoints()[nb.ref_id] - ref);
 
-            // Compute psi for neighboring particle
-            // (only constructed for 2d)
-            m_psi_array.get()[i] += func(delta);
-        },
-        [=](size_t i, int data)
-        {
+                // Compute psi for neighboring particle
+                // (only constructed for 2d)
+                m_psi_array.get()[i] += func(delta);
+            }
+
             m_psi_array.get()[i] /= std::complex<float>(m_k);
         });
+
+        // freud::locality::loopOverNeighborsPoint(points, points->getRefPoints(), Np, qargs, nlist, 
+        // [=](size_t i)
+        // {
+        //     m_psi_array.get()[i] = 0; return 0;
+        // }, 
+        // [=](size_t i, size_t j, float distance, float weight, int data)
+        // {
+        //     vec3<float> ref = points->getRefPoints()[i];
+        //     // Compute r between the two particles
+        //     vec3<float> delta = m_box.wrap(points->getRefPoints()[j] - ref);
+
+        //     // Compute psi for neighboring particle
+        //     // (only constructed for 2d)
+        //     m_psi_array.get()[i] += func(delta);
+        // },
+        // [=](size_t i, int data)
+        // {
+        //     m_psi_array.get()[i] /= std::complex<float>(m_k);
+        // });
         // Save the last computed number of particles
         m_Np = Np;
     }

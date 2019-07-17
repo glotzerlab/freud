@@ -10,6 +10,154 @@
 #include "NeighborQuery.h"
 
 namespace freud { namespace locality {
+
+class NeighborIterator 
+{
+public:
+    NeighborIterator () {}
+    virtual ~NeighborIterator() {}
+
+    class PerPointIterator
+    {
+    public:
+        PerPointIterator() {}
+        virtual ~PerPointIterator() {}
+        virtual NeighborBond next() = 0;
+        virtual bool end() = 0;
+    };
+
+    virtual std::shared_ptr<PerPointIterator> queryPerPoint(size_t point_index) = 0;
+};
+
+class NeighborListNeighborIterator : public NeighborIterator
+{
+public:
+    NeighborListNeighborIterator(const NeighborList * nlist):
+        m_nlist(nlist) {}
+
+    ~NeighborListNeighborIterator() {}
+
+    class NeighborListPerPointIterator : public PerPointIterator
+    {
+    public:
+        NeighborListPerPointIterator(const NeighborList* nlist, size_t point_index):
+            m_nlist(nlist), m_point_index(point_index)
+            {
+                m_current_index = m_nlist->find_first_index(point_index);
+            } 
+        
+        ~NeighborListPerPointIterator() {}
+
+        virtual NeighborBond next()
+        {
+            NeighborBond nb = NeighborBond(m_nlist->getNeighbors()[2 * m_current_index],
+                                           m_nlist->getNeighbors()[2 * m_current_index + 1], 
+                                           m_nlist->getDistances()[m_current_index],
+                                           m_nlist->getWeights()[m_current_index]);
+            ++m_current_index;
+            return nb;
+        }
+
+        virtual bool end()
+        {
+            return m_nlist->getNeighbors()[2 * m_current_index] != m_point_index;
+        }
+
+    private:
+        const NeighborList* m_nlist;
+        size_t m_current_index;
+        size_t m_point_index;
+    };
+
+    virtual std::shared_ptr<PerPointIterator> queryPerPoint(size_t point_index)
+    {
+        return std::make_shared<NeighborListPerPointIterator>(m_nlist, point_index);
+    }
+
+private:
+    const NeighborList * m_nlist;
+};
+
+class NeighborQueryNeighborIterator : public NeighborIterator
+{
+public:
+    NeighborQueryNeighborIterator(const NeighborQuery* nq, const vec3<float> *points, unsigned int N, QueryArgs qargs)
+    {
+        m_qargs = qargs;
+        if(qargs.exclude_ii && (qargs.mode == QueryArgs::QueryType::nearest))
+        {
+            ++m_qargs.nn;
+        }
+
+        // check if ref_points is a pointer to a RawPoints object
+        // dynamic_cast will fail if ref_points is not actually pointing to RawPoints
+        // and return a null pointer. Then, the assignment operator will return
+        // a null pointer, making the condition in the if statement to be false.
+        // This is a typical C++ way of checking the type of a polymorphic class
+        // using pointers and casting.
+        if (const RawPoints* rp = dynamic_cast<const RawPoints*>(nq))
+        {
+            // if nq is RawPoints, build a NeighborQuery
+            m_abq = std::make_shared<AABBQuery>(nq->getBox(), nq->getRefPoints(),
+                                              nq->getNRef());
+            m_nqiter = m_abq->queryWithArgs(points, N, m_qargs);
+        }
+        else
+        {
+            m_nqiter = nq->queryWithArgs(points, N, m_qargs);
+        }
+    }
+
+    ~NeighborQueryNeighborIterator() {}
+
+    class NeighborQueryPerPointIterator : public PerPointIterator
+    {
+    public:
+        NeighborQueryPerPointIterator(std::shared_ptr<NeighborQueryIterator> nqiter, size_t point_index, bool exclude_ii):
+        m_nqiter(nqiter), m_point_index(point_index), m_exclude_ii(exclude_ii) {}
+
+        ~NeighborQueryPerPointIterator() {}
+
+        virtual NeighborBond next()
+        {
+            NeighborBond nb = m_nqiter->next();
+            nb.id = m_point_index;
+            if (!m_exclude_ii || m_point_index != nb.ref_id)
+            {
+                return nb;
+            }
+            else 
+            {
+                nb = m_nqiter->next();
+                nb.id = m_point_index;
+                return nb;
+            }
+        }
+
+        virtual bool end() 
+        {
+            return m_nqiter->end();
+        }
+    private:
+        std::shared_ptr<NeighborQueryIterator> m_nqiter;
+        size_t m_point_index;
+        bool m_exclude_ii;
+    };
+
+    virtual std::shared_ptr<PerPointIterator> queryPerPoint(size_t point_index)
+    {
+        std::shared_ptr<NeighborQueryIterator> iter = m_nqiter->query(point_index);
+        return std::make_shared<NeighborQueryPerPointIterator>(iter, point_index, m_qargs.exclude_ii);
+    }
+
+
+private:
+    std::shared_ptr<AABBQuery> m_abq;
+    std::shared_ptr<NeighborQueryIterator> m_nqiter;
+    QueryArgs m_qargs;
+};
+
+
 //! Wrapper for for-loop to allow the execution in parallel or not.
 /*! \param parallel If true, run body in parallel.
     \param begin Beginning index.
@@ -27,6 +175,75 @@ template<typename Body> void forLoopWrapper(size_t begin, size_t end, const Body
     else
     {
         body(begin, end);
+    }
+}
+
+
+// This function does not work for now since ref_point point orders are different
+// for NiehgborList and NeighborQuery.query().
+//! Wrapper iterating looping over NeighborList per ref_point in parallel.
+/*! \param nlist Neighbor List to loop over.
+    \param cf A void function that takes
+           (ref_point_index, point_index, distance, weight) as input.
+*/
+template<typename ComputePairType>
+void loopOverNeighborLietPerPointIterator(const NeighborList* nlist, unsigned int Np,
+                               const ComputePairType& cf, bool parallel)
+{
+    std::shared_ptr<NeighborListNeighborIterator> niter 
+        = std::make_shared<NeighborListNeighborIterator>(nlist);
+    forLoopWrapper(0, Np, [=](size_t begin, size_t end) {
+        for (size_t i = begin; i != end; ++i)
+        {
+            auto ppiter = niter->queryPerPoint(i);
+            cf(i, ppiter);
+        }
+    }, parallel);
+}
+
+// This function does not work for now since ref_point point orders are different
+// for NiehgborList and NeighborQuery.query().
+//! Wrapper iterating looping over NeighborQuery
+/*! \param ref_points NeighborQuery object to iterate over
+    \param points Points
+    \param Np Number of points
+    \param qargs Query arguments
+    \param cf A void function that takes
+           (ref_point_index, point_index, distance, weight) as input.
+*/
+template<typename ComputePairType>
+void loopOverNeighborQueryPerPointIterator(const NeighborQuery* ref_points, const vec3<float>* points, unsigned int Np,
+                                QueryArgs qargs, const ComputePairType& cf,
+                                bool parallel)
+{
+    // if nlist does not exist, check if ref_points is an actual NeighborQuery
+    std::shared_ptr<NeighborQueryNeighborIterator> niter = 
+        std::make_shared<NeighborQueryNeighborIterator>(ref_points, points, Np, qargs);
+    // iterate over the query object in parallel
+    forLoopWrapper(0, Np, [&niter, &cf](size_t begin, size_t end) {
+        for (size_t i = begin; i != end; ++i)
+        {
+            auto ppiter = niter->queryPerPoint(i);
+            cf(i, ppiter);
+        }
+    }, parallel);
+}
+
+
+template<typename ComputePairType>
+void loopOverNeighborsIterator(const NeighborQuery* ref_points, const vec3<float>* points, unsigned int Np,
+                            QueryArgs qargs, const NeighborList* nlist, 
+                            const ComputePairType& cf, bool parallel = true)
+{
+    // check if nlist exists
+    if (nlist != NULL)
+    {
+        // if nlist exists, loop over it in parallel.
+        loopOverNeighborLietPerPointIterator(nlist, Np, cf, parallel);
+    }
+    else
+    {
+        loopOverNeighborQueryPerPointIterator(ref_points, points, Np, qargs, cf, parallel);
     }
 }
 
