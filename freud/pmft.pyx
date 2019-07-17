@@ -191,6 +191,7 @@ cdef class PMFTR12(_PMFT):
         nq_nlist = freud.locality.make_nq_nlist(b, ref_points, nlist)
         cdef freud.locality.NeighborQuery nq = nq_nlist[0]
         cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
+        ref_points = nq.points
 
         cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
             mode="ball", rmax=self.rmax, exclude_ii=exclude_ii)
@@ -202,8 +203,6 @@ cdef class PMFTR12(_PMFT):
             points = ref_points
         if orientations is None:
             orientations = ref_orientations
-
-        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
 
         ref_orientations = freud.common.convert_array(
             ref_orientations.squeeze(), shape=(ref_points.shape[0], ))
@@ -436,6 +435,7 @@ cdef class PMFTXYT(_PMFT):
         nq_nlist = freud.locality.make_nq_nlist(b, ref_points, nlist)
         cdef freud.locality.NeighborQuery nq = nq_nlist[0]
         cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
+        ref_points = nq.points
 
         cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
             mode="ball", rmax=self.rmax, exclude_ii=exclude_ii)
@@ -447,8 +447,6 @@ cdef class PMFTXYT(_PMFT):
             points = ref_points
         if orientations is None:
             orientations = ref_orientations
-
-        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
 
         ref_orientations = freud.common.convert_array(
             ref_orientations.squeeze(), shape=(ref_points.shape[0], ))
@@ -665,6 +663,7 @@ cdef class PMFTXY2D(_PMFT):
         nq_nlist = freud.locality.make_nq_nlist(b, ref_points, nlist)
         cdef freud.locality.NeighborQuery nq = nq_nlist[0]
         cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
+        ref_points = nq.points
 
         cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
             mode="ball", rmax=self.rmax, exclude_ii=exclude_ii)
@@ -676,8 +675,6 @@ cdef class PMFTXY2D(_PMFT):
             points = ref_points
         if orientations is None:
             orientations = ref_orientations
-
-        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
 
         ref_orientations = freud.common.convert_array(
             ref_orientations.squeeze(), shape=(ref_points.shape[0], ))
@@ -927,6 +924,7 @@ cdef class PMFTXYZ(_PMFT):
         nq_nlist = freud.locality.make_nq_nlist(b, ref_points, nlist)
         cdef freud.locality.NeighborQuery nq = nq_nlist[0]
         cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
+        ref_points = nq.points
 
         cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
             mode="ball", rmax=self.rmax, exclude_ii=exclude_ii)
@@ -939,7 +937,6 @@ cdef class PMFTXYZ(_PMFT):
         if orientations is None:
             orientations = ref_orientations
 
-        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
         ref_orientations = freud.common.convert_array(
             ref_orientations, shape=(ref_points.shape[0], 4))
 

@@ -110,11 +110,6 @@ cdef class FloatCF(Compute):
         """
         exclude_ii = points is None
 
-        if (points is None) != (values is None):
-            raise ValueError("Either both points and values have to be"
-                             "provided or both points and values have to"
-                             "be None")
-
         cdef freud.box.Box b = freud.common.convert_box(box)
 
         nq_nlist = freud.locality.make_nq_nlist(b, ref_points, nlist)
@@ -128,8 +123,8 @@ cdef class FloatCF(Compute):
 
         if points is None:
             points = ref_points
+        if values is None:
             values = ref_values
-        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
         points = freud.common.convert_array(points, shape=(None, 3))
         ref_values = freud.common.convert_array(
             ref_values, shape=(ref_points.shape[0], ), dtype=np.float64)
@@ -341,11 +336,6 @@ cdef class ComplexCF(Compute):
         """
         exclude_ii = points is None
 
-        if (points is None) != (values is None):
-            raise ValueError("Either both points and values have to be"
-                             "provided or both points and values have to"
-                             "be None")
-
         cdef freud.box.Box b = freud.common.convert_box(box)
 
         nq_nlist = freud.locality.make_nq_nlist(b, ref_points, nlist)
@@ -359,8 +349,8 @@ cdef class ComplexCF(Compute):
 
         if points is None:
             points = ref_points
+        if values is None:
             values = ref_values
-        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
         points = freud.common.convert_array(points, shape=(None, 3))
         ref_values = freud.common.convert_array(
             ref_values, shape=(ref_points.shape[0], ), dtype=np.complex128)
@@ -882,7 +872,6 @@ cdef class RDF(Compute):
 
         if points is None:
             points = ref_points
-        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
         points = freud.common.convert_array(points, shape=(None, 3))
         cdef const float[:, ::1] l_points = points
         cdef unsigned int n_p = l_points.shape[0]

@@ -269,7 +269,7 @@ void loopOverNeighbors(const NeighborQuery* ref_points, const vec3<float>* point
     }
 }
 
-//! Wrapper iterating looping over NeighborList in parallel.
+//! Wrapper looping over NeighborList in parallel.
 /*! \param nlist Neighbor List to loop over.
     \param cf An object with
            operator(size_t ref_point_index, size_t point_index,
@@ -292,7 +292,7 @@ void loopOverNeighborList(const NeighborList* nlist, const ComputePairType& cf, 
     }, parallel);
 }
 
-//! Wrapper iterating looping over NeighborQuery
+//! Wrapper looping over NeighborQuery in parallel
 /*! \param ref_points NeighborQuery object to iterate over
     \param points Points
     \param Np Number of points

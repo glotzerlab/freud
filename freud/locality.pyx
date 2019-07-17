@@ -894,7 +894,7 @@ cdef class RawPoints(NeighborQuery):
             # Assume valid set of arguments is passed
             self._box = freud.common.convert_box(box)
             self.points = freud.common.convert_array(
-                points, shape=(None, None))
+                points, shape=(None, 3))
             l_points = self.points
             self.thisptr = self.nqptr = new freud._locality.RawPoints(
                 dereference(self._box.thisptr),
