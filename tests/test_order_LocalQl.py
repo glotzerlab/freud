@@ -4,6 +4,7 @@ import freud
 import unittest
 import util
 
+PERFECT_FCC_Q6 = 0.57452416
 
 class TestLocalQl(unittest.TestCase):
     def test_shape(self):
@@ -135,7 +136,7 @@ class TestLocalQlNear(unittest.TestCase):
             comp.ave_norm_Ql
 
         comp.compute(positions)
-        npt.assert_allclose(np.average(comp.Ql), 0.57452416, rtol=1e-6)
+        npt.assert_allclose(np.average(comp.Ql), PERFECT_FCC_Q6, rtol=1e-6)
         npt.assert_allclose(comp.Ql, comp.Ql[0], rtol=1e-6)
 
         with self.assertRaises(AttributeError):
@@ -149,11 +150,12 @@ class TestLocalQlNear(unittest.TestCase):
         perturbed_positions = positions.copy()
         perturbed_positions[-1] += [0.1, 0, 0]
         comp.computeAve(perturbed_positions)
-        perfect = 0.57452416
-        self.assertEqual(sum(~np.isclose(comp.Ql, perfect, rtol=1e-6)), 13)
+        self.assertEqual(
+            sum(~np.isclose(comp.Ql, PERFECT_FCC_Q6, rtol=1e-6)), 13)
 
         # More than 13 particles should change for Ql averaged over neighbors
-        self.assertGreater(sum(~np.isclose(comp.ave_Ql, perfect, rtol=1e-6)), 13)
+        self.assertGreater(
+            sum(~np.isclose(comp.ave_Ql, PERFECT_FCC_Q6, rtol=1e-6)), 13)
 
         with self.assertRaises(AttributeError):
             comp.norm_Ql
@@ -161,14 +163,14 @@ class TestLocalQlNear(unittest.TestCase):
             comp.ave_norm_Ql
 
         comp.computeNorm(positions)
-        npt.assert_allclose(np.average(comp.Ql), 0.57452416, rtol=1e-6)
+        npt.assert_allclose(np.average(comp.Ql), PERFECT_FCC_Q6, rtol=1e-6)
         npt.assert_allclose(comp.norm_Ql, comp.norm_Ql[0], rtol=1e-6)
 
         with self.assertRaises(AttributeError):
             comp.ave_norm_Ql
 
         comp.computeAveNorm(positions)
-        npt.assert_allclose(np.average(comp.Ql), 0.57452416, rtol=1e-6)
+        npt.assert_allclose(np.average(comp.Ql), PERFECT_FCC_Q6, rtol=1e-6)
         npt.assert_allclose(comp.ave_norm_Ql, comp.ave_norm_Ql[0], rtol=1e-6)
 
         self.assertEqual(box, comp.box)
