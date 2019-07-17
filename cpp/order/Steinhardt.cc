@@ -179,66 +179,6 @@ void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
             m_Qli.get()[i] *= normalizationfactor;
             m_Qli.get()[i] = sqrt(m_Qli.get()[i]);
         });
-    // parallel_for(tbb::blocked_range<size_t>(0, m_Np), [=](const blocked_range<size_t>& r) {
-        
-    //     const size_t* neighbor_list(nlist->getNeighbors());
-    //     size_t bond(nlist->find_first_index(r.begin()));
-    //     // for each reference point
-    //     for (size_t i = r.begin(); i != r.end(); i++)
-    //     {
-    //         unsigned int neighborcount(0);
-    //         const vec3<float> ref(points[i]);
-    //         for (; bond < nlist->getNumBonds() && neighbor_list[2 * bond] == i; ++bond)
-    //         {
-    //             const unsigned int j(neighbor_list[2 * bond + 1]);
-
-    //             if (i == j)
-    //             {
-    //                 continue;
-    //             }
-
-    //             const vec3<float> delta = box.wrap(points[j] - ref);
-    //             const float rsq = dot(delta, delta);
-
-    //             // phi is usually in range 0..2Pi, but
-    //             // it only appears in Ylm as exp(im\phi),
-    //             // so range -Pi..Pi will give same results.
-    //             float phi = atan2(delta.y, delta.x);     // -Pi..Pi
-    //             float theta = acos(delta.z / sqrt(rsq)); // 0..Pi
-
-    //             // If the points are directly on top of each other,
-    //             // theta should be zero instead of nan.
-    //             if (rsq == float(0))
-    //             {
-    //                 theta = 0;
-    //             }
-
-    //             std::vector<std::complex<float>> Ylm(2 * m_l + 1);
-    //             this->computeYlm(theta, phi, Ylm); // Fill up Ylm
-
-    //             for (unsigned int k = 0; k < Ylm.size(); ++k)
-    //             {
-    //                 m_Qlmi.get()[(2 * m_l + 1) * i + k] += Ylm[k];
-    //             }
-    //             neighborcount++;
-    //         } // End loop going over neighbor bonds
-
-    //         // Normalize!
-    //         for (unsigned int k = 0; k < (2 * m_l + 1); ++k)
-    //         {
-    //             const unsigned int index = (2 * m_l + 1) * i + k;
-    //             m_Qlmi.get()[index] /= neighborcount;
-    //             // Add the norm, which is the (complex) squared magnitude
-    //             m_Qli.get()[i] += norm(m_Qlmi.get()[index]);
-    //             if (!m_average)
-    //             {
-    //                 m_Qlm_local.local()[k] += m_Qlmi.get()[index] / float(m_Np);
-    //             }
-    //         }
-    //         m_Qli.get()[i] *= normalizationfactor;
-    //         m_Qli.get()[i] = sqrt(m_Qli.get()[i]);
-    //     } // Ends loop over particles i for Qlmi calcs
-    // });
 }
 
 void Steinhardt::computeAve(const freud::locality::NeighborList* nlist,
@@ -283,72 +223,6 @@ void Steinhardt::computeAve(const freud::locality::NeighborList* nlist,
             m_QliAve.get()[i] *= normalizationfactor;
             m_QliAve.get()[i] = sqrt(m_QliAve.get()[i]);
         });
-
-    // parallel_for(tbb::blocked_range<size_t>(0, m_Np), [=](const blocked_range<size_t>& r) {
-
-    //     size_t bond(nlist->find_first_index(r.begin()));
-    //     // for each reference point
-    //     for (unsigned int i = r.begin(); i != r.end(); i++)
-    //     {
-    //         const vec3<float> ri = points[i];
-    //         unsigned int neighborcount(1);
-
-    //         for (; bond < nlist->getNumBonds() && neighbor_list[2 * bond] == i; ++bond)
-    //         {
-    //             const unsigned int n(neighbor_list[2 * bond + 1]);
-
-    //             if (n == i)
-    //             {
-    //                 continue;
-    //             }
-
-    //             const vec3<float> rn = points[n];
-    //             // rin = rn - ri, from i pointing to n.
-    //             const vec3<float> rin = box.wrap(rn - ri);
-    //             const float rinsq = dot(rin, rin);
-
-    //             size_t neighborhood_bond(nlist->find_first_index(n));
-    //             for (; neighborhood_bond < nlist->getNumBonds() && neighbor_list[2 * neighborhood_bond] == n;
-    //                  ++neighborhood_bond)
-    //             {
-    //                 const unsigned int j(neighbor_list[2 * neighborhood_bond + 1]);
-
-    //                 if (n == j)
-    //                 {
-    //                     continue;
-    //                 }
-
-    //                 // rnj = rj - rn, from n pointing to j.
-    //                 const vec3<float> rnj = box.wrap(points[j] - rn);
-    //                 const float rnjsq = dot(rnj, rnj);
-
-    //                 if (rnjsq < rmaxsq && rnjsq > rminsq)
-    //                 {
-    //                     for (unsigned int k = 0; k < (2 * m_l + 1); ++k)
-    //                     {
-    //                         // Adding all the Qlm of the neighbors
-    //                         m_QlmiAve.get()[(2 * m_l + 1) * i + k] += m_Qlmi.get()[(2 * m_l + 1) * j + k];
-    //                     }
-    //                     neighborcount++;
-    //                 }
-    //             } // End loop over particle neighbor's bonds
-    //         }     // End loop over particle's bonds
-
-    //         // Normalize!
-    //         for (unsigned int k = 0; k < (2 * m_l + 1); ++k)
-    //         {
-    //             const unsigned int index = (2 * m_l + 1) * i + k;
-    //             // Adding the Qlm of the particle i itself
-    //             m_QlmiAve.get()[index] += m_Qlmi.get()[index];
-    //             m_QlmiAve.get()[index] /= neighborcount;
-    //             m_Qlm_local.local()[k] += m_QlmiAve.get()[index] / float(m_Np);
-    //             // Add the norm, which is the complex squared magnitude
-    //             m_QliAve.get()[i] += norm(m_Qlmi.get()[index]);
-    //         }
-    //         m_QliAve.get()[i] *= normalizationfactor;
-    //         m_QliAve.get()[i] = sqrt(m_QliAve.get()[i]);
-    //     } // Ends loop over particles i for Qlmi calcs
-    // });   // End parallel function
 }
 
 float Steinhardt::normalize()
