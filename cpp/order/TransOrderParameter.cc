@@ -51,11 +51,8 @@ void TransOrderParameter::compute(box::Box& box, const freud::locality::Neighbor
                 vec3<float> delta = m_box.wrap(points[j] - ref);
 
                 float rsq = dot(delta, delta);
-                if (rsq > 1e-6)
-                {
-                    // compute dr for neighboring particle(only constructed for 2d)
-                    m_dr_array.get()[i] += complex<float>(delta.x, delta.y);
-                }
+                // compute dr for neighboring particle(only constructed for 2d)
+                m_dr_array.get()[i] += complex<float>(delta.x, delta.y);
             }
             m_dr_array.get()[i] /= complex<float>(m_k);
         }

@@ -8,19 +8,22 @@ namespace freud { namespace locality {
 NeighborList::NeighborList()
     : m_max_bonds(0), m_num_bonds(0), m_num_i(0), m_num_j(0),
       m_neighbors((size_t*) nullptr, std::default_delete<size_t[]>()),
-      m_weights((float*) nullptr, std::default_delete<float[]>())
+      m_weights((float*) nullptr, std::default_delete<float[]>()),
+      m_distances((float*) nullptr, std::default_delete<float[]>())
 {}
 
 NeighborList::NeighborList(size_t max_bonds)
     : m_max_bonds(max_bonds), m_num_bonds(0), m_num_i(0), m_num_j(0),
       m_neighbors(new size_t[2 * max_bonds], std::default_delete<size_t[]>()),
-      m_weights(new float[max_bonds], std::default_delete<float[]>())
+      m_weights(new float[max_bonds], std::default_delete<float[]>()),
+      m_distances(new float[max_bonds], std::default_delete<float[]>())
 {}
 
 NeighborList::NeighborList(const NeighborList& other)
     : m_max_bonds(0), m_num_bonds(0), m_num_i(0), m_num_j(0),
       m_neighbors((size_t*) nullptr, std::default_delete<size_t[]>()),
-      m_weights((float*) nullptr, std::default_delete<float[]>())
+      m_weights((float*) nullptr, std::default_delete<float[]>()),
+      m_distances((float*) nullptr, std::default_delete<float[]>())
 {
     copy(other);
 }
@@ -57,6 +60,11 @@ float* NeighborList::getWeights()
     return m_weights.get();
 }
 
+float* NeighborList::getDistances()
+{
+    return m_distances.get();
+}
+
 const size_t* NeighborList::getNeighbors() const
 {
     return m_neighbors.get();
@@ -65,6 +73,11 @@ const size_t* NeighborList::getNeighbors() const
 const float* NeighborList::getWeights() const
 {
     return m_weights.get();
+}
+
+const float* NeighborList::getDistances() const
+{
+    return m_distances.get();
 }
 
 size_t NeighborList::filter(const bool* filt)
@@ -138,6 +151,7 @@ void NeighborList::resize(size_t max_bonds, bool force)
     {
         m_neighbors.reset(new size_t[2 * max_bonds], std::default_delete<size_t[]>());
         m_weights.reset(new float[max_bonds], std::default_delete<float[]>());
+        m_distances.reset(new float[max_bonds], std::default_delete<float[]>());
         m_max_bonds = max_bonds;
     }
 }
@@ -176,6 +190,24 @@ size_t NeighborList::bisection_search(size_t val, size_t left, size_t right) con
         return bisection_search(val, middle, right);
     else
         return bisection_search(val, left, middle);
+}
+
+bool compareNeighborBond(const NeighborBond& left, const NeighborBond& right)
+{
+    return left.less_as_tuple(right);
+}
+
+bool compareFirstNeighborPairs(const std::vector<NeighborBond>& left,
+                               const std::vector<NeighborBond>& right)
+{
+    if (left.size() && right.size())
+    {
+        return compareNeighborBond(left[0], right[0]);
+    }
+    else
+    {
+        return left.size() < right.size();
+    }
 }
 
 }; }; // end namespace freud::locality

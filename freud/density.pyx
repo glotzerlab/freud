@@ -87,7 +87,7 @@ cdef class FloatCF(Compute):
 
     @Compute._compute()
     def accumulate(self, box, ref_points, ref_values, points=None, values=None,
-                   nlist=None):
+                   nlist=None, qargs=None):
         R"""Calculates the correlation function and adds to the current
         histogram.
 
@@ -108,12 +108,23 @@ cdef class FloatCF(Compute):
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
         """
+        exclude_ii = points is None
+
         cdef freud.box.Box b = freud.common.convert_box(box)
+
+        nq_nlist = freud.locality.make_nq_nlist(b, ref_points, nlist)
+        cdef freud.locality.NeighborQuery nq = nq_nlist[0]
+        cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
+
+        cdef freud.locality._QueryArgs def_qargs = freud.locality._QueryArgs(
+            mode="ball", rmax=self.rmax, exclude_ii=exclude_ii)
+        def_qargs.update(qargs)
+        ref_points = nq.points
+
         if points is None:
             points = ref_points
         if values is None:
             values = ref_values
-        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
         points = freud.common.convert_array(points, shape=(None, 3))
         ref_values = freud.common.convert_array(
             ref_values, shape=(ref_points.shape[0], ), dtype=np.float64)
@@ -132,20 +143,16 @@ cdef class FloatCF(Compute):
         else:
             l_values = values
 
-        defaulted_nlist = freud.locality.make_default_nlist(
-            b, ref_points, points, self.rmax, nlist, None)
-        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
-
         cdef unsigned int n_ref = l_ref_points.shape[0]
         cdef unsigned int n_p = l_points.shape[0]
         with nogil:
             self.thisptr.accumulate(
-                dereference(b.thisptr), nlist_.get_ptr(),
-                <vec3[float]*> &l_ref_points[0, 0],
+                nlistptr.get_ptr(),
+                nq.get_ptr(),
                 <double*> &l_ref_values[0], n_ref,
                 <vec3[float]*> &l_points[0, 0],
                 <double*> &l_values[0],
-                n_p)
+                n_p, dereference(def_qargs.thisptr))
         return self
 
     @Compute._computed_property()
@@ -168,7 +175,7 @@ cdef class FloatCF(Compute):
 
     @Compute._compute()
     def compute(self, box, ref_points, ref_values, points=None, values=None,
-                nlist=None):
+                nlist=None, qargs=None):
         R"""Calculates the correlation function for the given points. Will
         overwrite the current histogram.
 
@@ -190,7 +197,8 @@ cdef class FloatCF(Compute):
                 :code:`None`).
         """
         self.reset()
-        self.accumulate(box, ref_points, ref_values, points, values, nlist)
+        self.accumulate(box, ref_points, ref_values, points, values, nlist,
+                        qargs)
         return self
 
     @Compute._computed_property()
@@ -305,7 +313,7 @@ cdef class ComplexCF(Compute):
 
     @Compute._compute()
     def accumulate(self, box, ref_points, ref_values, points=None, values=None,
-                   nlist=None):
+                   nlist=None, qargs=None):
         R"""Calculates the correlation function and adds to the current
         histogram.
 
@@ -326,12 +334,23 @@ cdef class ComplexCF(Compute):
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
         """
+        exclude_ii = points is None
+
         cdef freud.box.Box b = freud.common.convert_box(box)
+
+        nq_nlist = freud.locality.make_nq_nlist(b, ref_points, nlist)
+        cdef freud.locality.NeighborQuery nq = nq_nlist[0]
+        cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
+
+        cdef freud.locality._QueryArgs def_qargs = freud.locality._QueryArgs(
+            mode="ball", rmax=self.rmax, exclude_ii=exclude_ii)
+        def_qargs.update(qargs)
+        ref_points = nq.points
+
         if points is None:
             points = ref_points
         if values is None:
             values = ref_values
-        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
         points = freud.common.convert_array(points, shape=(None, 3))
         ref_values = freud.common.convert_array(
             ref_values, shape=(ref_points.shape[0], ), dtype=np.complex128)
@@ -350,21 +369,17 @@ cdef class ComplexCF(Compute):
         else:
             l_values = values
 
-        defaulted_nlist = freud.locality.make_default_nlist(
-            b, ref_points, points, self.rmax, nlist, None)
-        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
-
         cdef unsigned int n_ref = l_ref_points.shape[0]
         cdef unsigned int n_p = l_points.shape[0]
         with nogil:
             self.thisptr.accumulate(
-                dereference(b.thisptr), nlist_.get_ptr(),
-                <vec3[float]*> &l_ref_points[0, 0],
+                nlistptr.get_ptr(),
+                nq.get_ptr(),
                 <np.complex128_t*> &l_ref_values[0],
                 n_ref,
                 <vec3[float]*> &l_points[0, 0],
                 <np.complex128_t*> &l_values[0],
-                n_p)
+                n_p, dereference(def_qargs.thisptr))
         return self
 
     @Compute._computed_property()
@@ -387,7 +402,7 @@ cdef class ComplexCF(Compute):
 
     @Compute._compute()
     def compute(self, box, ref_points, ref_values, points=None, values=None,
-                nlist=None):
+                nlist=None, qargs=None):
         R"""Calculates the correlation function for the given points. Will
         overwrite the current histogram.
 
@@ -409,7 +424,8 @@ cdef class ComplexCF(Compute):
                 :code:`None`).
         """
         self.reset()
-        self.accumulate(box, ref_points, ref_values, points, values, nlist)
+        self.accumulate(box, ref_points, ref_values, points, values, nlist,
+                        qargs)
         return self
 
     @Compute._computed_property()
@@ -713,8 +729,8 @@ cdef class LocalDensity(Compute):
         # local density of each particle includes itself (cutoff
         # distance is r_cut + diam/2 because of smoothing)
         defaulted_nlist = freud.locality.make_default_nlist(
-            b, ref_points, points, self.r_cut + 0.5*self.diameter, nlist,
-            exclude_ii=False)
+            b, ref_points, points,
+            self.r_cut + 0.5*self.diameter, nlist, False)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         with nogil:
@@ -836,27 +852,29 @@ cdef class RDF(Compute):
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
         """
+        exclude_ii = points is None
         cdef freud.box.Box b = freud.common.convert_box(box)
+
+        nq_nlist = freud.locality.make_nq_nlist(b, ref_points, nlist)
+        cdef freud.locality.NeighborQuery nq = nq_nlist[0]
+        cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
+
+        cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
+            mode="ball", rmax=self.rmax, exclude_ii=exclude_ii)
+        ref_points = nq.points
+
         if points is None:
             points = ref_points
-        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
         points = freud.common.convert_array(points, shape=(None, 3))
-        cdef const float[:, ::1] l_ref_points = ref_points
         cdef const float[:, ::1] l_points = points
-        cdef unsigned int n_ref = l_ref_points.shape[0]
         cdef unsigned int n_p = l_points.shape[0]
-
-        defaulted_nlist = freud.locality.make_default_nlist(
-            b, ref_points, points, self.rmax, nlist)
-        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         with nogil:
             self.thisptr.accumulate(
-                dereference(b.thisptr), nlist_.get_ptr(),
-                <vec3[float]*> &l_ref_points[0, 0],
-                n_ref,
+                nlistptr.get_ptr(),
+                nq.get_ptr(),
                 <vec3[float]*> &l_points[0, 0],
-                n_p)
+                n_p, dereference(qargs.thisptr))
         return self
 
     @Compute._compute()

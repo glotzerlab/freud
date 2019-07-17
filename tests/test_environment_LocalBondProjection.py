@@ -55,11 +55,10 @@ class TestLocalBondProjection(unittest.TestCase):
             ors.append(quatRandom())
 
         ors = np.asarray(ors, dtype=np.float32)
-        equiv_quats = np.asarray([[1, 0, 0, 0]], dtype=np.float32)
         proj_vecs = np.asarray([[0, 0, 1]])
 
         ang = freud.environment.LocalBondProjection(rmax, num_neigh)
-        ang.compute(box, proj_vecs, points, ors, points, equiv_quats)
+        ang.compute(box, proj_vecs, points, ors)
         npt.assert_equal(ang.num_particles, N)
 
     def test_num_proj_vectors(self):
@@ -78,11 +77,10 @@ class TestLocalBondProjection(unittest.TestCase):
             ors.append(quatRandom())
 
         ors = np.asarray(ors, dtype=np.float32)
-        equiv_quats = np.asarray([[1, 0, 0, 0]], dtype=np.float32)
         proj_vecs = np.asarray([[0, 0, 1]])
 
         ang = freud.environment.LocalBondProjection(rmax, num_neigh)
-        ang.compute(box, proj_vecs, points, ors, points, equiv_quats)
+        ang.compute(box, proj_vecs, points, ors)
         npt.assert_equal(ang.num_proj_vectors, 1)
 
     def test_num_reference_particles(self):
@@ -101,11 +99,10 @@ class TestLocalBondProjection(unittest.TestCase):
             ors.append(quatRandom())
 
         ors = np.asarray(ors, dtype=np.float32)
-        equiv_quats = np.asarray([[1, 0, 0, 0]], dtype=np.float32)
         proj_vecs = np.asarray([[0, 0, 1]])
 
         ang = freud.environment.LocalBondProjection(rmax, num_neigh)
-        ang.compute(box, proj_vecs, points, ors, points, equiv_quats)
+        ang.compute(box, proj_vecs, points, ors)
         npt.assert_equal(ang.num_reference_particles, N)
 
     def test_box(self):
@@ -124,11 +121,10 @@ class TestLocalBondProjection(unittest.TestCase):
             ors.append(quatRandom())
 
         ors = np.asarray(ors, dtype=np.float32)
-        equiv_quats = np.asarray([[1, 0, 0, 0]], dtype=np.float32)
         proj_vecs = np.asarray([[0, 0, 1]])
 
         ang = freud.environment.LocalBondProjection(rmax, num_neigh)
-        ang.compute(box, proj_vecs, points, ors, points, equiv_quats)
+        ang.compute(box, proj_vecs, points, ors)
 
         npt.assert_equal(ang.box.Lx, boxlen)
         npt.assert_equal(ang.box.Ly, boxlen)
@@ -153,7 +149,6 @@ class TestLocalBondProjection(unittest.TestCase):
             ors.append(quatRandom())
 
         ors = np.asarray(ors, dtype=np.float32)
-        equiv_quats = np.asarray([[1, 0, 0, 0]], dtype=np.float32)
         proj_vecs = np.asarray([[0, 0, 1]])
 
         ang = freud.environment.LocalBondProjection(rmax, num_neigh)
@@ -173,7 +168,7 @@ class TestLocalBondProjection(unittest.TestCase):
         with self.assertRaises(AttributeError):
             ang.box
 
-        ang.compute(box, proj_vecs, points, ors, points, equiv_quats)
+        ang.compute(box, proj_vecs, points, ors)
 
         ang.nlist
         ang.projections
@@ -208,10 +203,9 @@ class TestLocalBondProjection(unittest.TestCase):
         points = np.asarray(points, dtype=np.float32)
 
         # First have no particle symmetry
-        equiv_quats = np.asarray([[1, 0, 0, 0]], dtype=np.float32)
 
         ang = freud.environment.LocalBondProjection(rmax, num_neigh)
-        ang.compute(box, proj_vecs, points, ors, points, equiv_quats)
+        ang.compute(box, proj_vecs, points, ors)
 
         # For the first particle, the bond is [1,0,0] and the orientation is
         # [1,0,0,0]. So the local bond is [1,0,0]. The projection onto
@@ -242,7 +236,7 @@ class TestLocalBondProjection(unittest.TestCase):
             equiv_quats.append(np.array([q[0], -q[1], -q[2], -q[3]]))
         equiv_quats = np.asarray(equiv_quats, dtype=np.float32)
 
-        ang.compute(box, proj_vecs, points, ors, points, equiv_quats)
+        ang.compute(box, proj_vecs, points, ors, None, equiv_quats)
 
         # Now all projections should be cos(0)=1
         npt.assert_allclose(ang.projections[0], 1, atol=1e-6)

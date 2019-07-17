@@ -35,6 +35,21 @@ class TestCluster(unittest.TestCase):
         # Test with explicit box provided
         clust.computeClusters(positions, box=box)
 
+        # Test with AABBQuery as ref_points
+        idx = np.copy(clust.cluster_idx)
+        aq = freud.locality.AABBQuery(box, positions)
+        clust.computeClusters(aq, box=box)
+        self.assertTrue(np.all(clust.cluster_idx == idx))
+
+        # Test with explicit NeighborList with AABBQuery as ref_points
+        aq_nlist = aq.queryBall(positions, 0.5, True).toNList()
+        clust.computeClusters(aq, box=box, nlist=aq_nlist)
+        self.assertTrue(np.all(clust.cluster_idx == idx))
+
+        # Test with explicit NeighborList with array as ref_points
+        clust.computeClusters(positions, box=box, nlist=aq_nlist)
+        self.assertTrue(np.all(clust.cluster_idx == idx))
+
         # Test if attributes are accessible now
         clust.num_clusters
         clust.num_particles

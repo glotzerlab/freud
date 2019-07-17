@@ -27,15 +27,7 @@ Voronoi::Voronoi()
 // A compare function used to sort NeighborBonds
 bool compareNeighborPairs(const NeighborBond &n1, const NeighborBond &n2)
 {
-    if (n1.index_i != n2.index_i)
-    {
-        return n1.index_i < n2.index_i;
-    }
-    if (n1.index_j != n2.index_j)
-    {
-        return n1.index_j < n2.index_j;
-    }
-    return n1.weight < n2.weight;
+    return n1.less_id_ref_weight(n2);
 }
 
 typedef tbb::enumerable_thread_specific< std::vector<NeighborBond> > BondVector;
@@ -48,13 +40,13 @@ void add_valid_bonds(BondVector::reference local_bonds,
     // Make sure we only add bonds with real particles as the reference
     if (i < N && distance != 0)
     {
-        NeighborBond nb_ij(expanded_i, expanded_j, weight, distance);
+        NeighborBond nb_ij(expanded_i, expanded_j, distance, weight);
         local_bonds.emplace_back(nb_ij);
     }
 
     if (j < N && distance != 0)
     {
-        NeighborBond nb_ji(expanded_j, expanded_i, weight, distance);
+        NeighborBond nb_ji(expanded_j, expanded_i, distance, weight);
         local_bonds.emplace_back(nb_ji);
     }
 }
@@ -197,8 +189,8 @@ void Voronoi::compute(const box::Box &box, const vec3<double>* vertices,
             [&] (const tbb::blocked_range<size_t> &r) {
             for (size_t bond(r.begin()); bond < r.end(); ++bond)
             {
-                neighbor_array[2*bond] = linear_bonds[bond].index_i;
-                neighbor_array[2*bond+1] = linear_bonds[bond].index_j;
+                neighbor_array[2*bond] = linear_bonds[bond].id;
+                neighbor_array[2*bond+1] = linear_bonds[bond].ref_id;
                 neighbor_weights[bond] = linear_bonds[bond].weight;
             }
         });

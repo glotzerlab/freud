@@ -312,9 +312,6 @@ private:
     bool m_is2D;     //!< true if the cell list is 2D
 };
 
-bool compareFirstNeighborPairs(const std::vector<std::tuple<size_t, size_t, float>>& left,
-                               const std::vector<std::tuple<size_t, size_t, float>>& right);
-
 //! Computes a cell id for each particle and a link cell data structure for iterating through it
 /*! For simplicity in only needing a small number of arrays, the link cell
  *  algorithm is used to generate and store the cell list data for particles.
@@ -523,7 +520,7 @@ public:
     virtual ~LinkCellQueryIterator() {}
 
     //! Get the next element.
-    virtual NeighborPoint next();
+    virtual NeighborBond next();
 
     //! Create an equivalent new query iterator on a per-particle basis.
     virtual std::shared_ptr<NeighborQueryIterator> query(unsigned int idx);
@@ -544,7 +541,7 @@ public:
     virtual ~LinkCellQueryBallIterator() {}
 
     //! Get the next element.
-    virtual NeighborPoint next();
+    virtual NeighborBond next();
 
     //! Create an equivalent new query iterator on a per-particle basis.
     virtual std::shared_ptr<NeighborQueryIterator> query(unsigned int idx);

@@ -29,9 +29,10 @@ public:
     /*! Compute the PCF for the passed in set of points. The result will
      *  be added to previous values of the PCF.
      */
-    void accumulate(box::Box& box, const locality::NeighborList* nlist, vec3<float>* ref_points,
-                    float* ref_orientations, unsigned int n_ref, vec3<float>* points, float* orientations,
-                    unsigned int n_p);
+    void accumulate(const locality::NeighborList* nlist, 
+                    const locality::NeighborQuery* ref_points, 
+                    float* ref_orientations, vec3<float>* points, float* orientations,
+                    unsigned int n_p, freud::locality::QueryArgs qargs);
 
     //! \internal
     //! helper function to reduce the thread specific arrays into one array

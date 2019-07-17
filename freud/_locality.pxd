@@ -7,13 +7,16 @@ from libcpp.memory cimport shared_ptr
 from libcpp.vector cimport vector
 cimport freud._box
 
-cdef extern from "NeighborQuery.h" namespace "freud::locality":
-    cdef cppclass NeighborPoint:
+cdef extern from "NeighborBond.h" namespace "freud::locality":
+    cdef cppclass NeighborBond:
         unsigned int id
         unsigned int ref_id
         float distance
-        bool operator==(NeighborPoint)
-        bool operator<(NeighborPoint)
+        float weight
+        bool operator==(NeighborBond)
+        bool operator<(NeighborBond)
+
+cdef extern from "NeighborQuery.h" namespace "freud::locality":
 
     ctypedef enum QueryType "freud::locality::QueryArgs::QueryType":
         ball "freud::locality::QueryArgs::QueryType::ball"
@@ -43,15 +46,19 @@ cdef extern from "NeighborQuery.h" namespace "freud::locality":
         const unsigned int getNRef const
         const vec3[float] operator[](unsigned int) const
 
-    NeighborPoint ITERATOR_TERMINATOR \
+    NeighborBond ITERATOR_TERMINATOR \
         "freud::locality::NeighborQueryIterator::ITERATOR_TERMINATOR"
 
     cdef cppclass NeighborQueryIterator:
         NeighborQueryIterator()
         NeighborQueryIterator(NeighborQuery*, vec3[float]*, unsigned int)
         bool end()
-        NeighborPoint next()
+        NeighborBond next()
         NeighborList *toNeighborList()
+
+    cdef cppclass RawPoints(NeighborQuery):
+        RawPoints()
+        RawPoints(const freud._box.Box, const vec3[float]*, unsigned int)
 
 cdef extern from "NeighborList.h" namespace "freud::locality":
     cdef cppclass NeighborList:

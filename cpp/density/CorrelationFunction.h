@@ -8,6 +8,7 @@
 
 #include "Box.h"
 #include "NeighborList.h"
+#include "NeighborQuery.h"
 #include "ThreadStorage.h"
 #include "VectorMath.h"
 
@@ -61,9 +62,9 @@ public:
     void reset();
 
     //! accumulate the correlation function
-    void accumulate(const box::Box& box, const freud::locality::NeighborList* nlist,
-                    const vec3<float>* ref_points, const T* ref_values, unsigned int n_ref,
-                    const vec3<float>* points, const T* point_values, unsigned int Np);
+    void accumulate(const freud::locality::NeighborList* nlist,
+                    const freud::locality::NeighborQuery* nq, const T* ref_values, unsigned int n_ref,
+                    const vec3<float>* points, const T* point_values, unsigned int Np, freud::locality::QueryArgs qargs);
 
     //! \internal
     //! helper function to reduce the thread specific arrays into one array

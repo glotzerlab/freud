@@ -7,6 +7,7 @@
 #include <tbb/tbb.h>
 
 #include "SolLiq.h"
+#include "dset/dset.h"
 
 using namespace std;
 
@@ -117,7 +118,6 @@ void SolLiq::computeClustersQ(const locality::NeighborList* nlist, const vec3<fl
         {
             // Get cell point is in
             vec3<float> ref = points[i];
-
             for (; bond < nlist->getNumBonds() && neighbor_list[2 * bond] == i; ++bond)
             {
                 const size_t j(neighbor_list[2 * bond + 1]);
@@ -323,7 +323,7 @@ void SolLiq::computeClustersQS(const locality::NeighborList* nlist, const vec3<f
     }
 
     float rmaxcluster_sq = m_rmax_cluster * m_rmax_cluster;
-    freud::cluster::DisjointSet dj(Np);
+    DisjointSets dj(Np);
 
     size_t bond(0);
 
@@ -336,21 +336,22 @@ void SolLiq::computeClustersQS(const locality::NeighborList* nlist, const vec3<f
         {
             const size_t j(neighbor_list[2 * bond + 1]);
             {
-                if (i != j)
+                // compute r between the two particles
+                vec3<float> delta = m_box.wrap(p - points[j]);
+                float rsq = dot(delta, delta);
+                if (rsq < rmaxcluster_sq) // Check distance for candidate i,j
                 {
-                    // compute r between the two particles
-                    vec3<float> delta = m_box.wrap(p - points[j]);
-                    float rsq = dot(delta, delta);
-                    if (rsq < rmaxcluster_sq && rsq > 1e-6) // Check distance for candidate i,j
+                    if ((m_number_of_connections.get()[i] >= m_Sthreshold)
+                        && (m_number_of_connections.get()[j] >= m_Sthreshold))
                     {
                         if ((m_number_of_connections.get()[i] >= m_Sthreshold)
                             && (m_number_of_connections.get()[j] >= m_Sthreshold))
                         {
                             // merge the two sets using the disjoint set
-                            uint32_t a = dj.find(i);
-                            uint32_t b = dj.find(j);
-                            if (a != b)
-                                dj.merge(a, b);
+                            if(!dj.same(i, j))
+                            {
+                                dj.unite(i, j);
+                            }
                         }
                     }
                 }
@@ -470,44 +471,41 @@ void SolLiq::computeListOfSolidLikeNeighbors(const locality::NeighborList* nlist
         {
             const size_t j(neighbor_list[2 * bond + 1]);
             {
-                if (i != j)
+                // compute r between the two particles
+                vec3<float> delta = m_box.wrap(p - points[j]);
+                float rsq = dot(delta, delta);
+
+                if (rsq < rmaxsq) // Check distance for candidate i,j
                 {
-                    // compute r between the two particles
-                    vec3<float> delta = m_box.wrap(p - points[j]);
-                    float rsq = dot(delta, delta);
-
-                    if (rsq < rmaxsq && rsq > 1e-6) // Check distance for candidate i,j
+                    // Calc Q dotproduct.
+                    std::complex<float> Qdot(0.0, 0.0);
+                    std::complex<float> Qlminorm(0.0, 0.0); // Qlmi norm sq
+                    std::complex<float> Qlmjnorm(0.0, 0.0);
+                    for (unsigned int k = 0; k < (2 * m_l + 1); ++k) // loop over m
                     {
-                        // Calc Q dotproduct.
-                        std::complex<float> Qdot(0.0, 0.0);
-                        std::complex<float> Qlminorm(0.0, 0.0); // Qlmi norm sq
-                        std::complex<float> Qlmjnorm(0.0, 0.0);
-                        for (unsigned int k = 0; k < (2 * m_l + 1); ++k) // loop over m
-                        {
-                            // Symmetry - Could compute Qdot *twice* as fast!
-                            // (I.e. m=-l and m=+l equivalent so some of these
-                            // calcs redundant)
-                            Qdot += m_Qlmi_array.get()[(2 * m_l + 1) * i + k]
-                                * conj(m_Qlmi_array.get()[(2 * m_l + 1) * j + k]);
-                            Qlminorm += m_Qlmi_array.get()[(2 * m_l + 1) * i + k]
-                                * conj(m_Qlmi_array.get()[(2 * m_l + 1) * i + k]);
-                            Qlmjnorm += m_Qlmi_array.get()[(2 * m_l + 1) * j + k]
-                                * conj(m_Qlmi_array.get()[(2 * m_l + 1) * j + k]);
-                        }
-                        Qlminorm = sqrt(Qlminorm);
-                        Qlmjnorm = sqrt(Qlmjnorm);
-                        Qdot = Qdot / (Qlminorm * Qlmjnorm);
+                        // Symmetry - Could compute Qdot *twice* as fast!
+                        // (I.e. m=-l and m=+l equivalent so some of these
+                        // calcs redundant)
+                        Qdot += m_Qlmi_array.get()[(2 * m_l + 1) * i + k]
+                            * conj(m_Qlmi_array.get()[(2 * m_l + 1) * j + k]);
+                        Qlminorm += m_Qlmi_array.get()[(2 * m_l + 1) * i + k]
+                            * conj(m_Qlmi_array.get()[(2 * m_l + 1) * i + k]);
+                        Qlmjnorm += m_Qlmi_array.get()[(2 * m_l + 1) * j + k]
+                            * conj(m_Qlmi_array.get()[(2 * m_l + 1) * j + k]);
+                    }
+                    Qlminorm = sqrt(Qlminorm);
+                    Qlmjnorm = sqrt(Qlmjnorm);
+                    Qdot = Qdot / (Qlminorm * Qlmjnorm);
 
-                        if (i < j)
-                        {
-                            m_qldot_ij.push_back(Qdot);
-                        }
-                        // Check if we're bonded via the threshold criterion
-                        if (real(Qdot) > m_Qthreshold)
-                        {
-                            m_number_of_connections.get()[i]++;
-                            SolidlikeNeighborlist[i].push_back(j);
-                        }
+                    if (i < j)
+                    {
+                        m_qldot_ij.push_back(Qdot);
+                    }
+                    // Check if we're bonded via the threshold criterion
+                    if (real(Qdot) > m_Qthreshold)
+                    {
+                        m_number_of_connections.get()[i]++;
+                        SolidlikeNeighborlist[i].push_back(j);
                     }
                 }
             }
@@ -527,7 +525,7 @@ void SolLiq::computeClustersSharedNeighbors(const locality::NeighborList* nlist,
     m_number_of_shared_connections.clear(); // Reset.
 
     float rmaxcluster_sq = m_rmax_cluster * m_rmax_cluster;
-    freud::cluster::DisjointSet dj(Np);
+    DisjointSets dj(Np);
 
     size_t bond(0);
 
@@ -545,7 +543,7 @@ void SolLiq::computeClustersSharedNeighbors(const locality::NeighborList* nlist,
                     // compute r between the two particles
                     vec3<float> delta = m_box.wrap(p - points[j]);
                     float rsq = dot(delta, delta);
-                    if (rsq < rmaxcluster_sq && rsq > 1e-6) // Check distance for candidate i,j
+                    if (rsq < rmaxcluster_sq) // Check distance for candidate i,j
                     {
                         unsigned int num_shared = 0;
                         map<unsigned int, unsigned int> sharedneighbors;
@@ -570,10 +568,10 @@ void SolLiq::computeClustersSharedNeighbors(const locality::NeighborList* nlist,
                         if (num_shared > m_Sthreshold)
                         {
                             // merge the two sets using the disjoint set
-                            uint32_t a = dj.find(i);
-                            uint32_t b = dj.find(j);
-                            if (a != b)
-                                dj.merge(a, b);
+                            if(!dj.same(i, j))
+                            {
+                                dj.unite(i, j);
+                            }
                         }
                     }
                 }

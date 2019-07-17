@@ -83,12 +83,20 @@ class TestComplexCF(unittest.TestCase):
         absolute_tolerance = 0.1
         # first bin is bad
         ocf.accumulate(freud.box.Box.square(box_size), points, comp,
-                       points, np.conj(comp))
+                       points, np.conj(comp), qargs={"exclude_ii": True})
         npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
         ocf.compute(freud.box.Box.square(box_size), points, comp,
-                    points, np.conj(comp))
+                    points, np.conj(comp), qargs={"exclude_ii": True})
         npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
         self.assertEqual(freud.box.Box.square(box_size), ocf.box)
+
+        ocf.reset()
+        ocf.accumulate(freud.box.Box.square(box_size), points, comp,
+                       values=np.conj(comp))
+        npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
+        ocf.compute(freud.box.Box.square(box_size), points, comp,
+                    values=np.conj(comp))
+        npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
 
     def test_zero_points(self):
         rmax = 10.0
@@ -102,7 +110,7 @@ class TestComplexCF(unittest.TestCase):
         comp = np.exp(1j*ang)
         ocf = freud.density.ComplexCF(rmax, dr)
         ocf.accumulate(freud.box.Box.square(box_size), points, comp,
-                       points, np.conj(comp))
+                       points, np.conj(comp), qargs={"exclude_ii": True})
 
         correct = np.ones(int(rmax/dr), dtype=np.float32) + \
             1j * np.zeros(int(rmax/dr), dtype=np.float32)
@@ -130,10 +138,9 @@ class TestComplexCF(unittest.TestCase):
 
         # Subtract len(points) to exclude the zero i-i distances
         correct = np.sum(vector_lengths < rmax) - len(points)
-
-        ocf = freud.density.FloatCF(rmax, dr)
+        ocf = freud.density.ComplexCF(rmax, dr)
         ocf.compute(freud.box.Box.square(box_size), points, comp,
-                    points, np.conj(comp))
+                    points, np.conj(comp), qargs={"exclude_ii": True})
         self.assertEqual(np.sum(ocf.counts), correct)
 
     @unittest.skip('Skipping slow summation test.')
@@ -189,7 +196,7 @@ class TestComplexCF(unittest.TestCase):
         self.assertEqual(ocf._repr_png_(), None)
 
         ocf.accumulate(freud.box.Box.square(box_size), points, comp,
-                       points, np.conj(comp))
+                       points, np.conj(comp), qargs={"exclude_ii": True})
         ocf._repr_png_()
 
 

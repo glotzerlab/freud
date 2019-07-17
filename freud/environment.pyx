@@ -171,12 +171,22 @@ cdef class BondOrder(Compute):
         """  # noqa: E501
         cdef freud.box.Box b = freud.common.convert_box(box)
 
+        exclude_ii = points is None
+
+        nq_nlist = freud.locality.make_nq_nlist(b, ref_points, nlist)
+        cdef freud.locality.NeighborQuery nq = nq_nlist[0]
+        cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
+
+        cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
+            mode="nearest", nn=self.num_neigh,
+            rmax=self.rmax, exclude_ii=exclude_ii)
+        ref_points = nq.points
+
         if points is None:
             points = ref_points
         if orientations is None:
             orientations = ref_orientations
 
-        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
         points = freud.common.convert_array(points, shape=(None, 3))
         ref_orientations = freud.common.convert_array(
             ref_orientations, shape=(ref_points.shape[0], 4))
@@ -197,27 +207,20 @@ cdef class BondOrder(Compute):
                 ('Unknown BOD mode: {}. Options are:'
                     'bod, lbod, obcd, oocd.').format(mode))
 
-        defaulted_nlist = freud.locality.make_default_nlist_nn(
-            b, ref_points, points, self.num_neigh, nlist, None, self.rmax)
-        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
-
-        cdef const float[:, ::1] l_ref_points = ref_points
         cdef const float[:, ::1] l_points = points
         cdef const float[:, ::1] l_ref_orientations = ref_orientations
         cdef const float[:, ::1] l_orientations = orientations
-        cdef unsigned int n_ref = l_ref_points.shape[0]
         cdef unsigned int n_p = l_points.shape[0]
 
         with nogil:
             self.thisptr.accumulate(
-                dereference(b.thisptr), nlist_.get_ptr(),
-                <vec3[float]*> &l_ref_points[0, 0],
+                nlistptr.get_ptr(),
+                nq.get_ptr(),
                 <quat[float]*> &l_ref_orientations[0, 0],
-                n_ref,
                 <vec3[float]*> &l_points[0, 0],
                 <quat[float]*> &l_orientations[0, 0],
                 n_p,
-                index)
+                index, dereference(qargs.thisptr))
         return self
 
     @Compute._computed_property()
@@ -371,7 +374,7 @@ cdef class LocalDescriptors(Compute):
         del self.thisptr
 
     @Compute._compute()
-    def compute(self, box, unsigned int num_neighbors, points_ref, points=None,
+    def compute(self, box, unsigned int num_neighbors, ref_points, points=None,
                 orientations=None, mode='neighborhood', nlist=None):
         R"""Calculates the local descriptors of bonds from a set of source
         points to a set of destination points.
@@ -382,7 +385,7 @@ cdef class LocalDescriptors(Compute):
             num_neighbors (unsigned int):
                 Number of nearest neighbors to compute with or to limit to, if the
                 neighbor list is precomputed.
-            points_ref ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Source points to calculate the order parameter.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
                 Destination points to calculate the order parameter
@@ -405,10 +408,11 @@ cdef class LocalDescriptors(Compute):
             raise RuntimeError(
                 'Unknown LocalDescriptors orientation mode: {}'.format(mode))
 
-        points_ref = freud.common.convert_array(points_ref, shape=(None, 3))
+        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
 
+        exclude_ii = points is None
         if points is None:
-            points = points_ref
+            points = ref_points
 
         points = freud.common.convert_array(points, shape=(None, 3))
 
@@ -422,13 +426,13 @@ cdef class LocalDescriptors(Compute):
                         'with particles\' orientations'))
 
             orientations = freud.common.convert_array(
-                orientations, shape=(points_ref.shape[0], 4))
+                orientations, shape=(ref_points.shape[0], 4))
 
             l_orientations = orientations
             l_orientations_ptr = <quat[float]*> &l_orientations[0, 0]
 
-        cdef const float[:, ::1] l_points_ref = points_ref
-        cdef unsigned int nRef = l_points_ref.shape[0]
+        cdef const float[:, ::1] l_ref_points = ref_points
+        cdef unsigned int nRef = l_ref_points.shape[0]
         cdef const float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
         cdef freud._environment.LocalDescriptorOrientation l_mode
@@ -438,8 +442,8 @@ cdef class LocalDescriptors(Compute):
         self.num_neigh = num_neighbors
 
         defaulted_nlist = freud.locality.make_default_nlist_nn(
-            b, points_ref, points, self.num_neigh, nlist,
-            True, self.rmax)
+            b, ref_points, points, self.num_neigh, nlist,
+            exclude_ii, self.rmax)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         with nogil:
@@ -447,7 +451,7 @@ cdef class LocalDescriptors(Compute):
                 dereference(b.thisptr),
                 nlist_.get_ptr(),
                 num_neighbors,
-                <vec3[float]*> &l_points_ref[0, 0],
+                <vec3[float]*> &l_ref_points[0, 0],
                 nRef, <vec3[float]*> &l_points[0, 0], nP,
                 l_orientations_ptr, l_mode)
         return self
@@ -590,12 +594,12 @@ cdef class MatchEnv(Compute):
         else:
             defaulted_nlist = freud.locality.make_default_nlist_nn(
                 self.m_box, points, points, self.num_neigh, nlist,
-                None, self.rmax)
+                True, self.rmax)
             nlist_ = defaulted_nlist[0]
 
             defaulted_env_nlist = freud.locality.make_default_nlist_nn(
                 self.m_box, points, points, self.num_neigh, env_nlist,
-                None, self.rmax)
+                True, self.rmax)
             env_nlist_ = defaulted_env_nlist[0]
 
         self.thisptr.cluster(
@@ -605,16 +609,16 @@ cdef class MatchEnv(Compute):
         return self
 
     @Compute._compute()
-    def matchMotif(self, points, refPoints, threshold, registration=False,
+    def matchMotif(self, points, ref_points, threshold, registration=False,
                    nlist=None):
         R"""Determine clusters of particles that match the motif provided by
-        refPoints.
+        ref_points.
 
         Args:
+            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Vectors that make up the motif against which we are matching.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Particle positions.
-            refPoints ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Vectors that make up the motif against which we are matching.
             threshold (float):
                 Maximum magnitude of the vector difference between two vectors,
                 below which they are considered "matching."
@@ -628,35 +632,35 @@ cdef class MatchEnv(Compute):
                 :code:`None`).
         """
         points = freud.common.convert_array(points, shape=(None, 3))
-        refPoints = freud.common.convert_array(refPoints, shape=(None, 3))
+        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
 
         cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(
             points.flatten())
-        cdef np.ndarray[float, ndim=1] l_refPoints = np.ascontiguousarray(
-            refPoints.flatten())
+        cdef np.ndarray[float, ndim=1] l_ref_points = np.ascontiguousarray(
+            ref_points.flatten())
         cdef unsigned int nP = l_points.shape[0]
-        cdef unsigned int nRef = l_refPoints.shape[0]
+        cdef unsigned int nRef = l_ref_points.shape[0]
 
         defaulted_nlist = freud.locality.make_default_nlist_nn(
-            self.m_box, points, points, self.num_neigh, nlist, None, self.rmax)
+            self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         self.thisptr.matchMotif(
             nlist_.get_ptr(), <vec3[float]*> &l_points[0], nP,
-            <vec3[float]*> &l_refPoints[0], nRef, threshold,
+            <vec3[float]*> &l_ref_points[0], nRef, threshold,
             registration)
 
     @Compute._compute()
-    def minRMSDMotif(self, points, refPoints, registration=False, nlist=None):
+    def minRMSDMotif(self, ref_points, points, registration=False, nlist=None):
         R"""Rotate (if registration=True) and permute the environments of all
         particles to minimize their RMSD with respect to the motif provided by
-        refPoints.
+        ref_points.
 
         Args:
+            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Vectors that make up the motif against which we are matching.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Particle positions.
-            refPoints ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Vectors that make up the motif against which we are matching.
             registration (bool, optional):
                 If True, first use brute force registration to orient one set
                 of environment vectors with respect to the other set such that
@@ -671,33 +675,34 @@ cdef class MatchEnv(Compute):
 
         """
         points = freud.common.convert_array(points, shape=(None, 3))
-        refPoints = freud.common.convert_array(refPoints, shape=(None, 3))
+        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
 
         cdef np.ndarray[float, ndim=1] l_points = np.ascontiguousarray(
             points.flatten())
-        cdef np.ndarray[float, ndim=1] l_refPoints = np.ascontiguousarray(
-            refPoints.flatten())
+        cdef np.ndarray[float, ndim=1] l_ref_points = np.ascontiguousarray(
+            ref_points.flatten())
         cdef unsigned int nP = l_points.shape[0]
-        cdef unsigned int nRef = l_refPoints.shape[0]
+        cdef unsigned int nRef = l_ref_points.shape[0]
 
         defaulted_nlist = freud.locality.make_default_nlist_nn(
-            self.m_box, points, points, self.num_neigh, nlist, None, self.rmax)
+            self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         cdef vector[float] min_rmsd_vec = self.thisptr.minRMSDMotif(
             nlist_.get_ptr(), <vec3[float]*> &l_points[0], nP,
-            <vec3[float]*> &l_refPoints[0], nRef, registration)
+            <vec3[float]*> &l_ref_points[0], nRef, registration)
 
         return min_rmsd_vec
 
-    def isSimilar(self, refPoints1, refPoints2, threshold, registration=False):
-        R"""Test if the motif provided by refPoints1 is similar to the motif
-        provided by refPoints2.
+    def isSimilar(self, ref_points, points,
+                  threshold, registration=False):
+        R"""Test if the motif provided by ref_points is similar to the motif
+        provided by points.
 
         Args:
-            refPoints1 ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Vectors that make up motif 1.
-            refPoints2 ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Vectors that make up motif 2.
             threshold (float):
                 Maximum magnitude of the vector difference between two vectors,
@@ -711,39 +716,39 @@ cdef class MatchEnv(Compute):
         Returns:
             tuple ((:math:`\left(N_{particles}, 3\right)` :class:`numpy.ndarray`), map[int, int]):
                 A doublet that gives the rotated (or not) set of
-                :code:`refPoints2`, and the mapping between the vectors of
-                :code:`refPoints1` and :code:`refPoints2` that will make them
+                :code:`points`, and the mapping between the vectors of
+                :code:`ref_points` and :code:`points` that will make them
                 correspond to each other. Empty if they do not correspond to
                 each other.
         """  # noqa: E501
-        refPoints1 = freud.common.convert_array(refPoints1, shape=(None, 3))
-        refPoints2 = freud.common.convert_array(refPoints2, shape=(None, 3))
+        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
+        points = freud.common.convert_array(points, shape=(None, 3))
 
-        cdef const float[:, ::1] l_refPoints1 = refPoints1
-        cdef const float[:, ::1] l_refPoints2 = refPoints2
-        cdef unsigned int nRef1 = l_refPoints1.shape[0]
-        cdef unsigned int nRef2 = l_refPoints2.shape[0]
+        cdef const float[:, ::1] l_ref_points = ref_points
+        cdef const float[:, ::1] l_points = points
+        cdef unsigned int nRef1 = l_ref_points.shape[0]
+        cdef unsigned int nRef2 = l_points.shape[0]
         cdef float threshold_sq = threshold*threshold
 
         if nRef1 != nRef2:
             raise ValueError(
-                ("The number of vectors in refPoints1 must MATCH the number of"
-                    "vectors in refPoints2"))
+                ("The number of vectors in ref_points must MATCH"
+                 "the number of vectors in points"))
 
         cdef map[unsigned int, unsigned int] vec_map = self.thisptr.isSimilar(
-            <vec3[float]*> &l_refPoints1[0, 0],
-            <vec3[float]*> &l_refPoints2[0, 0],
+            <vec3[float]*> &l_ref_points[0, 0],
+            <vec3[float]*> &l_points[0, 0],
             nRef1, threshold_sq, registration)
-        return [np.asarray(l_refPoints2), vec_map]
+        return [np.asarray(l_points), vec_map]
 
-    def minimizeRMSD(self, refPoints1, refPoints2, registration=False):
-        R"""Get the somewhat-optimal RMSD between the set of vectors refPoints1
-        and the set of vectors refPoints2.
+    def minimizeRMSD(self, ref_points, points, registration=False):
+        R"""Get the somewhat-optimal RMSD between the set of vectors ref_points
+        and the set of vectors points.
 
         Args:
-            refPoints1 ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Vectors that make up motif 1.
-            refPoints2 ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Vectors that make up motif 2.
             registration (bool, optional):
                 If true, first use brute force registration to orient one set
@@ -754,29 +759,29 @@ cdef class MatchEnv(Compute):
         Returns:
             tuple (float, (:math:`\left(N_{particles}, 3\right)` :class:`numpy.ndarray`), map[int, int]):
                 A triplet that gives the associated min_rmsd, rotated (or not)
-                set of refPoints2, and the mapping between the vectors of
-                refPoints1 and refPoints2 that somewhat minimizes the RMSD.
+                set of points, and the mapping between the vectors of
+                ref_points and points that somewhat minimizes the RMSD.
         """  # noqa: E501
-        refPoints1 = freud.common.convert_array(refPoints1, shape=(None, 3))
-        refPoints2 = freud.common.convert_array(refPoints2, shape=(None, 3))
+        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
+        points = freud.common.convert_array(points, shape=(None, 3))
 
-        cdef const float[:, ::1] l_refPoints1 = refPoints1
-        cdef const float[:, ::1] l_refPoints2 = refPoints2
-        cdef unsigned int nRef1 = l_refPoints1.shape[0]
-        cdef unsigned int nRef2 = l_refPoints2.shape[0]
+        cdef const float[:, ::1] l_ref_points = ref_points
+        cdef const float[:, ::1] l_points = points
+        cdef unsigned int nRef1 = l_ref_points.shape[0]
+        cdef unsigned int nRef2 = l_points.shape[0]
 
         if nRef1 != nRef2:
             raise ValueError(
-                ("The number of vectors in refPoints1 must MATCH the number of"
-                    "vectors in refPoints2"))
+                ("The number of vectors in ref_points must MATCH"
+                 "the number of vectors in points"))
 
         cdef float min_rmsd = -1
         cdef map[unsigned int, unsigned int] results_map = \
             self.thisptr.minimizeRMSD(
-                <vec3[float]*> &l_refPoints1[0, 0],
-                <vec3[float]*> &l_refPoints2[0, 0],
+                <vec3[float]*> &l_ref_points[0, 0],
+                <vec3[float]*> &l_points[0, 0],
                 nRef1, min_rmsd, registration)
-        return [min_rmsd, np.asarray(l_refPoints2), results_map]
+        return [min_rmsd, np.asarray(l_points), results_map]
 
     @Compute._computed_property()
     def clusters(self):
@@ -916,8 +921,8 @@ cdef class AngularSeparation(Compute):
         return self.nlist_
 
     @Compute._compute("computeNeighbor")
-    def computeNeighbor(self, box, ref_ors, ors, ref_points, points,
-                        equiv_quats, nlist=None):
+    def computeNeighbor(self, box, ref_ors, ors, ref_points, points=None,
+                        equiv_quats=np.array([[1, 0, 0, 0]]), nlist=None):
         R"""Calculates the minimum angles of separation between ref_ors and ors,
         checking for underlying symmetry as encoded in equiv_quats. The result
         is stored in the :code:`neighbor_angles` class attribute.
@@ -938,12 +943,18 @@ cdef class AngularSeparation(Compute):
                 as it is defined to some global reference orientation.
                 Important: :code:`equiv_quats` must include both :math:`q` and
                 :math:`-q`, for all included quaternions.
+                (Default value = :code:`[[1, 0, 0, 0]]`)
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
         """  # noqa: E501
         cdef freud.box.Box b = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
+
+        exclude_ii = points is None
+        if points is None:
+            points = ref_points
+
         points = freud.common.convert_array(points, shape=(None, 3))
 
         ref_ors = freud.common.convert_array(ref_ors, shape=(None, 4))
@@ -951,7 +962,8 @@ cdef class AngularSeparation(Compute):
         equiv_quats = freud.common.convert_array(equiv_quats, shape=(None, 4))
 
         defaulted_nlist = freud.locality.make_default_nlist_nn(
-            b, ref_points, points, self.num_neigh, nlist, None, self.rmax)
+            b, ref_points, points, self.num_neigh,
+            nlist, exclude_ii, self.rmax)
         self.nlist_ = defaulted_nlist[0].copy()
 
         cdef const float[:, ::1] l_ref_ors = ref_ors
@@ -1136,6 +1148,7 @@ cdef class LocalBondProjection(Compute):
         ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
         ref_ors = freud.common.convert_array(ref_ors, shape=(None, 4))
 
+        exclude_ii = points is None
         if points is None:
             points = ref_points
         points = freud.common.convert_array(points, shape=(None, 3))
@@ -1143,7 +1156,8 @@ cdef class LocalBondProjection(Compute):
         proj_vecs = freud.common.convert_array(proj_vecs, shape=(None, 3))
 
         defaulted_nlist = freud.locality.make_default_nlist_nn(
-            box, ref_points, points, self.num_neigh, nlist, None, self.rmax)
+            box, ref_points, points, self.num_neigh, nlist,
+            exclude_ii, self.rmax)
         self.nlist_ = defaulted_nlist[0].copy()
 
         cdef const float[:, ::1] l_ref_points = ref_points

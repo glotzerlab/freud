@@ -20,14 +20,12 @@ cdef extern from "PMFTR12.h" namespace "freud::pmft":
     cdef cppclass PMFTR12(PMFT):
         PMFTR12(float, unsigned int, unsigned int, unsigned int) except +
 
-        void accumulate(freud._box.Box &,
-                        const freud._locality.NeighborList*,
+        void accumulate(const freud._locality.NeighborList*,
+                        const freud._locality.NeighborQuery*,
+                        float*,
                         vec3[float]*,
                         float*,
-                        unsigned int,
-                        vec3[float]*,
-                        float*,
-                        unsigned int) nogil
+                        unsigned int, freud._locality.QueryArgs) nogil
         shared_ptr[float] getR()
         shared_ptr[float] getT1()
         shared_ptr[float] getT2()
@@ -41,14 +39,12 @@ cdef extern from "PMFTXYT.h" namespace "freud::pmft":
         PMFTXYT(float, float,
                 unsigned int, unsigned int, unsigned int) except +
 
-        void accumulate(freud._box.Box &,
-                        const freud._locality.NeighborList*,
+        void accumulate(const freud._locality.NeighborList*,
+                        const freud._locality.NeighborQuery*,
+                        float*,
                         vec3[float]*,
                         float*,
-                        unsigned int,
-                        vec3[float]*,
-                        float*,
-                        unsigned int) nogil
+                        unsigned int, freud._locality.QueryArgs) nogil
         shared_ptr[float] getX()
         shared_ptr[float] getY()
         shared_ptr[float] getT()
@@ -61,14 +57,12 @@ cdef extern from "PMFTXY2D.h" namespace "freud::pmft":
     cdef cppclass PMFTXY2D(PMFT):
         PMFTXY2D(float, float, unsigned int, unsigned int) except +
 
-        void accumulate(freud._box.Box &,
-                        const freud._locality.NeighborList*,
+        void accumulate(const freud._locality.NeighborList*,
+                        const freud._locality.NeighborQuery*,
+                        float*,
                         vec3[float]*,
                         float*,
-                        unsigned int,
-                        vec3[float]*,
-                        float*,
-                        unsigned int) nogil
+                        unsigned int, freud._locality.QueryArgs) nogil
         shared_ptr[float] getX()
         shared_ptr[float] getY()
         float getJacobian()
@@ -80,16 +74,14 @@ cdef extern from "PMFTXYZ.h" namespace "freud::pmft":
         PMFTXYZ(float, float, float, unsigned int, unsigned int,
                 unsigned int, vec3[float]) except +
 
-        void accumulate(freud._box.Box &,
-                        const freud._locality.NeighborList*,
+        void accumulate(const freud._locality.NeighborList*,
+                        const freud._locality.NeighborQuery*,
+                        quat[float]*,
                         vec3[float]*,
                         quat[float]*,
                         unsigned int,
-                        vec3[float]*,
                         quat[float]*,
-                        unsigned int,
-                        quat[float]*,
-                        unsigned int) nogil
+                        unsigned int, freud._locality.QueryArgs) nogil
         shared_ptr[float] getX()
         shared_ptr[float] getY()
         shared_ptr[float] getZ()

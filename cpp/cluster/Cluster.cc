@@ -7,6 +7,8 @@
 #include <vector>
 
 #include "Cluster.h"
+#include "dset/dset.h"
+#include "NeighborComputeFunctional.h"
 
 using namespace std;
 
@@ -16,114 +18,42 @@ using namespace std;
 
 namespace freud { namespace cluster {
 
-/*! \param n Number of initial sets
- */
-DisjointSet::DisjointSet(uint32_t n) : s(vector<uint32_t>(n)), rank(vector<uint32_t>(n, 0))
-{
-    // initialize s
-    for (uint32_t i = 0; i < n; i++)
-        s[i] = i;
-}
-
-/*! The two sets labeled \c a and \c b are merged
-    \note Incorrect behavior if \c a == \c b or either are not set labels
-*/
-void DisjointSet::merge(const uint32_t a, const uint32_t b)
-{
-    assert(a < s.size() && b < s.size()); // sanity check
-
-    // if tree heights are equal, merge to a
-    if (rank[a] == rank[b])
-    {
-        rank[a]++;
-        s[b] = a;
-    }
-    else
-    {
-        // merge the shorter tree to the taller one
-        if (rank[a] > rank[b])
-            s[b] = a;
-        else
-            s[a] = b;
-    }
-}
-
-/*! \returns the set label that contains the element \c c
- */
-uint32_t DisjointSet::find(const uint32_t c)
-{
-    uint32_t r = c;
-
-    // follow up to the root of the tree
-    while (s[r] != r)
-        r = s[r];
-
-    // path compression
-    uint32_t i = c;
-    while (i != r)
-    {
-        uint32_t j = s[i];
-        s[i] = r;
-        i = j;
-    }
-    return r;
-}
-
 Cluster::Cluster(float rcut) : m_rcut(rcut), m_num_particles(0), m_num_clusters(0)
 {
     if (m_rcut < 0.0f)
         throw invalid_argument("Cluster requires that rcut must be non-negative.");
 }
 
-void Cluster::computeClusters(const box::Box& box, const freud::locality::NeighborList* nlist,
-                              const vec3<float>* points, unsigned int Np)
+void Cluster::computeClusters(const freud::locality::NeighborQuery* nq,
+                              const freud::locality::NeighborList* nlist, const vec3<float>* points,
+                              unsigned int Np, freud::locality::QueryArgs qargs)
 {
     assert(points);
     assert(Np > 0);
 
-    nlist->validate(Np, Np);
-    const size_t* neighbor_list(nlist->getNeighbors());
-
     // reallocate the cluster_idx array if the size doesn't match the last one
     if (Np != m_num_particles)
+    {
         m_cluster_idx
             = std::shared_ptr<unsigned int>(new unsigned int[Np], std::default_delete<unsigned int[]>());
+    }
 
     m_num_particles = Np;
-    float rmaxsq = m_rcut * m_rcut;
-    DisjointSet dj(m_num_particles);
+    DisjointSets dj(m_num_particles);
 
-    size_t bond(0);
-
-    // for each point
-    for (unsigned int i = 0; i < m_num_particles; i++)
-    {
-        // get the cell the point is in
-        vec3<float> p = points[i];
-
-        for (; bond < nlist->getNumBonds() && neighbor_list[2 * bond] == i; ++bond)
-        {
-            const size_t j(neighbor_list[2 * bond + 1]);
+    freud::locality::loopOverNeighbors(
+        nq, points, Np, qargs, nlist,
+        [this, &dj, points](size_t i, size_t j, float dist, float weight) {
+            // compute r between the two particles
+            if (dist < m_rcut)
             {
-                if (i != j)
+                // merge the two sets using the disjoint set
+                if (!dj.same(i, j))
                 {
-                    // compute r between the two particles
-                    vec3<float> delta = p - points[j];
-                    delta = box.wrap(delta);
-
-                    float rsq = dot(delta, delta);
-                    if (rsq < rmaxsq)
-                    {
-                        // merge the two sets using the disjoint set
-                        uint32_t a = dj.find(i);
-                        uint32_t b = dj.find(j);
-                        if (a != b)
-                            dj.merge(a, b);
-                    }
+                    dj.unite(i, j);
                 }
             }
-        }
-    }
+        });
 
     // done looping over points. All clusters are now determined. Renumber them from zero to num_clusters-1.
     map<uint32_t, uint32_t> label_map;

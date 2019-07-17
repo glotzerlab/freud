@@ -14,11 +14,11 @@ ctypedef unsigned int uint
 cdef extern from "Cluster.h" namespace "freud::cluster":
     cdef cppclass Cluster:
         Cluster(float) except +
-        void computeClusters(
-            const freud._box.Box &,
-            const freud._locality.NeighborList*,
-            const vec3[float]*,
-            unsigned int) nogil except +
+        void computeClusters(const freud._locality.NeighborQuery*,
+                             const freud._locality.NeighborList*,
+                             const vec3[float]*,
+                             unsigned int,
+                             freud._locality.QueryArgs) nogil except +
         void computeClusterMembership(const unsigned int*) nogil except +
         unsigned int getNumClusters()
         unsigned int getNumParticles()

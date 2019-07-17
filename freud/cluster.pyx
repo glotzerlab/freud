@@ -100,11 +100,13 @@ cdef class Cluster(Compute):
             box (:class:`freud.box.Box`, optional):
                 Simulation box (Default value = None).
         """
-        points = freud.common.convert_array(points, shape=(None, 3))
+        nq_nlist = freud.locality.make_nq_nlist(self.m_box, points, nlist)
+        cdef freud.locality.NeighborQuery nq = nq_nlist[0]
+        cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
 
-        defaulted_nlist = freud.locality.make_default_nlist(
-            self.m_box, points, points, self.rmax, nlist, True)
-        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
+        cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
+            mode="ball", rmax=self.rmax, exclude_ii=True)
+        points = nq.points
 
         cdef freud.box.Box b
         if box is None:
@@ -116,8 +118,9 @@ cdef class Cluster(Compute):
         cdef unsigned int Np = l_points.shape[0]
         with nogil:
             self.thisptr.computeClusters(
-                dereference(b.thisptr), nlist_.get_ptr(),
-                <vec3[float]*> &l_points[0, 0], Np)
+                nq.get_ptr(),
+                nlistptr.get_ptr(),
+                <vec3[float]*> &l_points[0, 0], Np, dereference(qargs.thisptr))
         return self
 
     @Compute._compute("computeClusterMembership")

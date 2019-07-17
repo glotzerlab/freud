@@ -50,7 +50,7 @@ public:
      *  rename the function.
      */
     virtual std::shared_ptr<NeighborQueryIterator> queryWithArgs(const vec3<float>* points, unsigned int N,
-                                                                 QueryArgs args)
+                                                                 QueryArgs args) const
     {
         this->validateQueryArgs(args);
         if (args.mode == QueryArgs::ball)
@@ -101,7 +101,7 @@ public:
     AABBTree m_aabb_tree; //!< AABB tree of points
 
 protected:
-    virtual void validateQueryArgs(QueryArgs& args)
+    virtual void validateQueryArgs(QueryArgs& args) const
     {
         if (args.mode == QueryArgs::ball)
         {
@@ -179,7 +179,7 @@ public:
     virtual ~AABBQueryIterator() {}
 
     //! Get the next element.
-    virtual NeighborPoint next();
+    virtual NeighborBond next();
 
     //! Create an equivalent new query iterator on a per-particle basis.
     virtual std::shared_ptr<NeighborQueryIterator> query(unsigned int idx);
@@ -213,7 +213,7 @@ public:
     virtual ~AABBQueryBallIterator() {}
 
     //! Get the next element.
-    virtual NeighborPoint next();
+    virtual NeighborBond next();
 
     //! Create an equivalent new query iterator on a per-particle basis.
     virtual std::shared_ptr<NeighborQueryIterator> query(unsigned int idx);

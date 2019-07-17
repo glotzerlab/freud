@@ -339,7 +339,11 @@ modules = [f.replace(ext, '') for f in files]
 modules = [m.replace(os.path.sep, '.') for m in modules]
 
 # Source files required for all modules.
-sources_in_all = []
+sources_in_all = [
+    os.path.join("cpp", "locality", "NeighborQuery.cc"),
+    os.path.join("cpp", "locality", "AABBQuery.cc"),
+    os.path.join("cpp", "locality", "NeighborList.cc"),
+]
 
 # Any source files required only for specific modules.
 # Dict keys should be specified as the module name without
@@ -357,7 +361,6 @@ extra_module_sources = dict(
         os.path.join("cpp", "util", "diagonalize.cc"),
     ],
     order=[
-        os.path.join("cpp", "cluster", "Cluster.cc"),
         os.path.join("cpp", "locality", "NeighborList.cc"),
         os.path.join("cpp", "util", "diagonalize.cc"),
     ],

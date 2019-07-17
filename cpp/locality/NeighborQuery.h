@@ -7,8 +7,10 @@
 #include <memory>
 #include <stdexcept>
 #include <tbb/tbb.h>
+#include <tuple>
 
 #include "Box.h"
+#include "NeighborBond.h"
 #include "NeighborList.h"
 
 /*! \file NeighborQuery.h
@@ -17,38 +19,6 @@
 */
 
 namespace freud { namespace locality {
-
-//! Simple data structure encoding neighboring points.
-/*! The primary purpose of this class is to provide a more meaningful struct
- *  than a simple std::pair, which is hard to interpret. Additionally, this
- *  class defines the less than operator according to distance, making it
- *  possible to sort.
- */
-struct NeighborPoint
-{
-    NeighborPoint() : id(0), ref_id(0), distance(0) {}
-
-    NeighborPoint(unsigned int id, unsigned int ref_id, float d) : id(id), ref_id(ref_id), distance(d) {}
-
-    //! Equality checks both id and distance.
-    bool operator==(const NeighborPoint& n)
-    {
-        return (id == n.id) && (ref_id == n.ref_id) && (distance == n.distance);
-    }
-
-    //! Default comparator of points is by distance.
-    /*! This form of comparison allows easy sorting of nearest neighbors by
-     *  distance.
-     */
-    bool operator<(const NeighborPoint& n) const
-    {
-        return distance < n.distance;
-    }
-
-    unsigned int id;     //! The point id.
-    unsigned int ref_id; //! The reference point id.
-    float distance;      //! The distance between the point and the reference point.
-};
 
 //! (Almost) POD class to hold information about generic queries.
 /*! This class provides a standard method for specifying the type of query to
@@ -115,7 +85,7 @@ public:
      *  rename the function.
      */
     virtual std::shared_ptr<NeighborQueryIterator> queryWithArgs(const vec3<float>* points, unsigned int N,
-                                                                 QueryArgs args)
+                                                                 QueryArgs args) const
     {
         this->validateQueryArgs(args);
         if (args.mode == QueryArgs::ball)
@@ -171,7 +141,7 @@ public:
     }
 
 protected:
-    virtual void validateQueryArgs(QueryArgs& args)
+    virtual void validateQueryArgs(QueryArgs& args) const
     {
         if (args.mode == QueryArgs::ball)
         {
@@ -237,7 +207,7 @@ public:
     }
 
     //! Get the next element.
-    virtual NeighborPoint next()
+    virtual NeighborBond next()
     {
         throw std::runtime_error("The next method must be implemented by child classes.");
     }
@@ -257,11 +227,11 @@ public:
      */
     virtual NeighborList* toNeighborList()
     {
-        typedef tbb::enumerable_thread_specific<std::vector<std::pair<size_t, size_t>>> BondVector;
+        typedef tbb::enumerable_thread_specific<std::vector<NeighborBond>> BondVector;
         BondVector bonds;
         tbb::parallel_for(tbb::blocked_range<size_t>(0, m_N), [&](const tbb::blocked_range<size_t>& r) {
             BondVector::reference local_bonds(bonds.local());
-            NeighborPoint np;
+            NeighborBond np;
             for (size_t i(r.begin()); i != r.end(); ++i)
             {
                 std::shared_ptr<NeighborQueryIterator> it = this->query(i);
@@ -272,7 +242,7 @@ public:
                     if (!m_exclude_ii || i != np.ref_id)
                     {
                         // Swap ref_id and id order for backwards compatibility.
-                        local_bonds.emplace_back(np.ref_id, i);
+                        local_bonds.emplace_back(i, np.ref_id, np.distance);
                     }
                 }
                 // Remove the last item, which is just the terminal sentinel value.
@@ -281,8 +251,8 @@ public:
         });
 
         tbb::flattened2d<BondVector> flat_bonds = tbb::flatten2d(bonds);
-        std::vector<std::pair<size_t, size_t>> linear_bonds(flat_bonds.begin(), flat_bonds.end());
-        tbb::parallel_sort(linear_bonds.begin(), linear_bonds.end());
+        std::vector<NeighborBond> linear_bonds(flat_bonds.begin(), flat_bonds.end());
+        tbb::parallel_sort(linear_bonds.begin(), linear_bonds.end(), compareNeighborBond);
 
         unsigned int num_bonds = linear_bonds.size();
 
@@ -291,12 +261,14 @@ public:
         nl->setNumBonds(num_bonds, m_neighbor_query->getNRef(), m_N);
         size_t* neighbor_array(nl->getNeighbors());
         float* neighbor_weights(nl->getWeights());
+        float* neighbor_distance(nl->getDistances());
 
         parallel_for(tbb::blocked_range<size_t>(0, num_bonds), [&](const tbb::blocked_range<size_t>& r) {
             for (size_t bond(r.begin()); bond < r.end(); ++bond)
             {
-                neighbor_array[2 * bond] = linear_bonds[bond].first;
-                neighbor_array[2 * bond + 1] = linear_bonds[bond].second;
+                neighbor_array[2 * bond] = linear_bonds[bond].ref_id;
+                neighbor_array[2 * bond + 1] = linear_bonds[bond].id;
+                neighbor_distance[bond] = linear_bonds[bond].distance;
             }
         });
         memset((void*) neighbor_weights, 1, sizeof(float) * linear_bonds.size());
@@ -304,7 +276,7 @@ public:
         return nl;
     }
 
-    static const NeighborPoint ITERATOR_TERMINATOR; //!< The object returned when iteration is complete.
+    static const NeighborBond ITERATOR_TERMINATOR; //!< The object returned when iteration is complete.
 
 protected:
     const NeighborQuery* m_neighbor_query; //!< Link to the NeighborQuery object.
@@ -368,8 +340,36 @@ public:
 protected:
     unsigned int m_count;                           //!< Number of neighbors returned for the current point.
     unsigned int m_k;                               //!< Number of nearest neighbors to find
-    std::vector<NeighborPoint> m_current_neighbors; //!< The current set of found neighbors.
+    std::vector<NeighborBond> m_current_neighbors; //!< The current set of found neighbors.
 };
+
+// Dummy class to just contain minimal information and not actually query.
+class RawPoints : public NeighborQuery
+{
+public:
+    RawPoints();
+
+    RawPoints(const box::Box& box, const vec3<float>* ref_points, unsigned int Nref)
+        : NeighborQuery(box, ref_points, Nref)
+    {}
+
+    ~RawPoints() {}
+
+    // dummy implementation for pure virtual function in the parent class
+    virtual std::shared_ptr<NeighborQueryIterator> query(const vec3<float>* points, unsigned int N,
+                                                         unsigned int k, bool exclude_ii = false) const
+    {
+        throw std::runtime_error("The query method is not implemented for RawPoints.");
+    }
+
+    // dummy implementation for pure virtual function in the parent class
+    virtual std::shared_ptr<NeighborQueryIterator> queryBall(const vec3<float>* points, unsigned int N,
+                                                             float r, bool exclude_ii = false) const
+    {
+        throw std::runtime_error("The queryBall method is not implemented for RawPoints.");
+    }
+};
+
 }; }; // end namespace freud::locality
 
 #endif // NEIGHBOR_QUERY_H

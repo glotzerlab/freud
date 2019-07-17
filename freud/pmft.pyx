@@ -186,6 +186,15 @@ cdef class PMFTR12(_PMFT):
                 :code:`None`).
         """  # noqa: E501
         cdef freud.box.Box b = freud.common.convert_box(box)
+        exclude_ii = points is None
+
+        nq_nlist = freud.locality.make_nq_nlist(b, ref_points, nlist)
+        cdef freud.locality.NeighborQuery nq = nq_nlist[0]
+        cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
+        ref_points = nq.points
+
+        cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
+            mode="ball", rmax=self.rmax, exclude_ii=exclude_ii)
 
         if not b.dimensions == 2:
             raise ValueError("Your box must be 2-dimensional!")
@@ -195,8 +204,6 @@ cdef class PMFTR12(_PMFT):
         if orientations is None:
             orientations = ref_orientations
 
-        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
-
         ref_orientations = freud.common.convert_array(
             ref_orientations.squeeze(), shape=(ref_points.shape[0], ))
 
@@ -205,25 +212,17 @@ cdef class PMFTR12(_PMFT):
         orientations = freud.common.convert_array(
             orientations.squeeze(), shape=(points.shape[0], ))
 
-        defaulted_nlist = freud.locality.make_default_nlist(
-            b, ref_points, points, self.rmax, nlist, None)
-        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
-
-        cdef const float[:, ::1] l_ref_points = ref_points
         cdef const float[:, ::1] l_points = points
         cdef const float[::1] l_ref_orientations = ref_orientations
         cdef const float[::1] l_orientations = orientations
-        cdef unsigned int nRef = l_ref_points.shape[0]
         cdef unsigned int nP = l_points.shape[0]
         with nogil:
-            self.pmftr12ptr.accumulate(dereference(b.thisptr),
-                                       nlist_.get_ptr(),
-                                       <vec3[float]*> &l_ref_points[0, 0],
+            self.pmftr12ptr.accumulate(nlistptr.get_ptr(),
+                                       nq.get_ptr(),
                                        <float*> &l_ref_orientations[0],
-                                       nRef,
                                        <vec3[float]*> &l_points[0, 0],
                                        <float*> &l_orientations[0],
-                                       nP)
+                                       nP, dereference(qargs.thisptr))
         return self
 
     @Compute._compute()
@@ -431,6 +430,16 @@ cdef class PMFTXYT(_PMFT):
         """  # noqa: E501
         cdef freud.box.Box b = freud.common.convert_box(box)
 
+        exclude_ii = points is None
+
+        nq_nlist = freud.locality.make_nq_nlist(b, ref_points, nlist)
+        cdef freud.locality.NeighborQuery nq = nq_nlist[0]
+        cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
+        ref_points = nq.points
+
+        cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
+            mode="ball", rmax=self.rmax, exclude_ii=exclude_ii)
+
         if not b.dimensions == 2:
             raise ValueError("Your box must be 2-dimensional!")
 
@@ -438,8 +447,6 @@ cdef class PMFTXYT(_PMFT):
             points = ref_points
         if orientations is None:
             orientations = ref_orientations
-
-        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
 
         ref_orientations = freud.common.convert_array(
             ref_orientations.squeeze(), shape=(ref_points.shape[0], ))
@@ -449,25 +456,17 @@ cdef class PMFTXYT(_PMFT):
         orientations = freud.common.convert_array(
             orientations.squeeze(), shape=(points.shape[0], ))
 
-        defaulted_nlist = freud.locality.make_default_nlist(
-            b, ref_points, points, self.rmax, nlist, None)
-        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
-
-        cdef const float[:, ::1] l_ref_points = ref_points
         cdef const float[:, ::1] l_points = points
         cdef const float[::1] l_ref_orientations = ref_orientations
         cdef const float[::1] l_orientations = orientations
-        cdef unsigned int nRef = l_ref_points.shape[0]
         cdef unsigned int nP = l_points.shape[0]
         with nogil:
-            self.pmftxytptr.accumulate(dereference(b.thisptr),
-                                       nlist_.get_ptr(),
-                                       <vec3[float]*> &l_ref_points[0, 0],
+            self.pmftxytptr.accumulate(nlistptr.get_ptr(),
+                                       nq.get_ptr(),
                                        <float*> &l_ref_orientations[0],
-                                       nRef,
                                        <vec3[float]*> &l_points[0, 0],
                                        <float*> &l_orientations[0],
-                                       nP)
+                                       nP, dereference(qargs.thisptr))
         return self
 
     @Compute._compute()
@@ -659,6 +658,16 @@ cdef class PMFTXY2D(_PMFT):
         """  # noqa: E501
         cdef freud.box.Box b = freud.common.convert_box(box)
 
+        exclude_ii = points is None
+
+        nq_nlist = freud.locality.make_nq_nlist(b, ref_points, nlist)
+        cdef freud.locality.NeighborQuery nq = nq_nlist[0]
+        cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
+        ref_points = nq.points
+
+        cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
+            mode="ball", rmax=self.rmax, exclude_ii=exclude_ii)
+
         if not b.dimensions == 2:
             raise ValueError("Your box must be 2-dimensional!")
 
@@ -666,8 +675,6 @@ cdef class PMFTXY2D(_PMFT):
             points = ref_points
         if orientations is None:
             orientations = ref_orientations
-
-        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
 
         ref_orientations = freud.common.convert_array(
             ref_orientations.squeeze(), shape=(ref_points.shape[0], ))
@@ -677,25 +684,17 @@ cdef class PMFTXY2D(_PMFT):
         orientations = freud.common.convert_array(
             orientations.squeeze(), shape=(points.shape[0], ))
 
-        defaulted_nlist = freud.locality.make_default_nlist(
-            b, ref_points, points, self.rmax, nlist, None)
-        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
-
-        cdef const float[:, ::1] l_ref_points = ref_points
         cdef const float[:, ::1] l_points = points
         cdef const float[::1] l_ref_orientations = ref_orientations
         cdef const float[::1] l_orientations = orientations
-        cdef unsigned int nRef = l_ref_points.shape[0]
         cdef unsigned int nP = l_points.shape[0]
         with nogil:
-            self.pmftxy2dptr.accumulate(dereference(b.thisptr),
-                                        nlist_.get_ptr(),
-                                        <vec3[float]*> &l_ref_points[0, 0],
+            self.pmftxy2dptr.accumulate(nlistptr.get_ptr(),
+                                        nq.get_ptr(),
                                         <float*> &l_ref_orientations[0],
-                                        nRef,
                                         <vec3[float]*> &l_points[0, 0],
                                         <float*> &l_orientations[0],
-                                        nP)
+                                        nP, dereference(qargs.thisptr))
         return self
 
     @Compute._compute()
@@ -920,6 +919,16 @@ cdef class PMFTXYZ(_PMFT):
         """  # noqa: E501
         cdef freud.box.Box b = freud.common.convert_box(box)
 
+        exclude_ii = points is None
+
+        nq_nlist = freud.locality.make_nq_nlist(b, ref_points, nlist)
+        cdef freud.locality.NeighborQuery nq = nq_nlist[0]
+        cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
+        ref_points = nq.points
+
+        cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
+            mode="ball", rmax=self.rmax, exclude_ii=exclude_ii)
+
         if not b.dimensions == 3:
             raise ValueError("Your box must be 3-dimensional!")
 
@@ -928,7 +937,6 @@ cdef class PMFTXYZ(_PMFT):
         if orientations is None:
             orientations = ref_orientations
 
-        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
         ref_orientations = freud.common.convert_array(
             ref_orientations, shape=(ref_points.shape[0], 4))
 
@@ -978,30 +986,22 @@ cdef class PMFTXYZ(_PMFT):
                     face_orientations = np.repeat(
                         face_orientations, ref_points.shape[0], axis=0)
 
-        defaulted_nlist = freud.locality.make_default_nlist(
-            b, ref_points, points, self.rmax, nlist, None)
-        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
-
-        cdef const float[:, ::1] l_ref_points = ref_points
         cdef const float[:, ::1] l_points = points
         cdef const float[:, ::1] l_ref_orientations = ref_orientations
         cdef const float[:, ::1] l_orientations = orientations
         cdef const float[:, :, ::1] l_face_orientations = face_orientations
-        cdef unsigned int nRef = l_ref_points.shape[0]
         cdef unsigned int nP = l_points.shape[0]
         cdef unsigned int nFaces = l_face_orientations.shape[1]
         with nogil:
             self.pmftxyzptr.accumulate(
-                dereference(b.thisptr),
-                nlist_.get_ptr(),
-                <vec3[float]*> &l_ref_points[0, 0],
+                nlistptr.get_ptr(),
+                nq.get_ptr(),
                 <quat[float]*> &l_ref_orientations[0, 0],
-                nRef,
                 <vec3[float]*> &l_points[0, 0],
                 <quat[float]*> &l_orientations[0, 0],
                 nP,
                 <quat[float]*> &l_face_orientations[0, 0, 0],
-                nFaces)
+                nFaces, dereference(qargs.thisptr))
         return self
 
     @Compute._compute()

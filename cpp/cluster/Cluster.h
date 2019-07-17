@@ -11,6 +11,7 @@
 
 #include "Box.h"
 #include "NeighborList.h"
+#include "NeighborQuery.h"
 #include "VectorMath.h"
 
 /*! \file Cluster.h
@@ -18,25 +19,6 @@
 */
 
 namespace freud { namespace cluster {
-
-//! A disjoint set
-/*! Implements efficient find and merge for disjoint sets
-    Source of algorithms: Brassard and Bratley, _Fundamentals of Algorithmics_
-*/
-class DisjointSet
-{
-private:
-    std::vector<uint32_t> s;        //!< The disjoint set data
-    std::vector<unsigned int> rank; //!< The rank of each tree in the set
-public:
-    //! Constructor
-    DisjointSet(uint32_t n = 0);
-    //! Merge two sets
-    void merge(const uint32_t a, const uint32_t b);
-    //! Find the set with a given element
-    uint32_t find(const uint32_t c);
-};
-
 //! Find clusters in a set of points
 /*! Given a set of coordinates and a cutoff, Cluster will determine all of the
     clusters of points that are made up of points that are closer than the
@@ -66,8 +48,9 @@ public:
     Cluster(float rcut);
 
     //! Compute the point clusters
-    void computeClusters(const box::Box& box, const freud::locality::NeighborList* nlist,
-                         const vec3<float>* points, unsigned int Np);
+    void computeClusters(const freud::locality::NeighborQuery* nq,
+                         const freud::locality::NeighborList* nlist, const vec3<float>* points,
+                         unsigned int Np, freud::locality::QueryArgs qargs);
 
     //! Compute clusters with key membership
     void computeClusterMembership(const unsigned int* keys);

@@ -45,7 +45,6 @@ np.import_array()
 cdef class _QueryArgs:
     # This class is temporarily included for testing and may be
     # removed in future releases.
-    cdef freud._locality.QueryArgs * thisptr
 
     def __cinit__(self, mode=None, rmax=None, nn=None, exclude_ii=None):
         if type(self) == _QueryArgs:
@@ -62,6 +61,15 @@ cdef class _QueryArgs:
     def __dealloc__(self):
         if type(self) == _QueryArgs:
             del self.thisptr
+
+    def update(self, qargs):
+        if qargs is None:
+            return
+        for arg in qargs:
+            if hasattr(self, arg):
+                setattr(self, arg, qargs[arg])
+            else:
+                raise ValueError("You have passed an invalid query argument")
 
     @property
     def mode(self):
@@ -163,7 +171,7 @@ cdef class NeighborQueryResult:
     """
 
     def __iter__(self):
-        cdef freud._locality.NeighborPoint npoint
+        cdef freud._locality.NeighborBond npoint
 
         cdef shared_ptr[freud._locality.NeighborQueryIterator] iterator
         iterator = self._getIterator()
@@ -385,6 +393,10 @@ cdef class NeighborQuery:
 
         return NeighborQueryResult.init(
             self, points, exclude_ii, r=r, k=0)
+
+    cdef freud._locality.NeighborQuery * get_ptr(self) nogil:
+        R"""Returns a pointer to the raw C++ object we are wrapping."""
+        return self.nqptr
 
 
 cdef class NeighborList:
@@ -712,6 +724,58 @@ cdef class NeighborList:
         return self
 
 
+cdef class NlistptrWrapper:
+    R"""Wrapper class to hold :code:`freud._locality.NeighborList *`.
+
+    This class is to handle the logic of changing :code:`None` to :code:`NULL`
+    in Cython.
+
+    Args:
+        nlist (:class:`freud.locality.NeighborList`):
+            Neighbor list or :code:`None`.
+    """
+
+    def __cinit__(self, nlist):
+        cdef NeighborList _nlist
+        if nlist is not None:
+            _nlist = nlist
+            self.nlistptr = _nlist.get_ptr()
+        else:
+            self.nlistptr = NULL
+
+    cdef freud._locality.NeighborList * get_ptr(self) nogil:
+        return self.nlistptr
+
+
+def make_nq_nlist(box, ref_points, nlist):
+    return (make_default_nq(box, ref_points), NlistptrWrapper(nlist))
+
+
+def make_default_nq(box, ref_points):
+    R"""Helper function to return a NeighborQuery object.
+
+    Args:
+        box (:class:`freud.box.Box`):
+            Simulation box.
+        ref_points (:class:`freud.locality.AABBQuery`,
+            :class:`freud.locality.LinkCell`, or :class:`numpy.ndarray`):
+            NeighborQuery object or NumPy array used to build :class:`RawPoints`.
+
+    Returns:
+        :class:`freud.locality.NeighborQuery`
+            The same :class:`NeighborQuery` object if one is given or :class:`RawPoints`
+            built from :code:`box` and :code:`ref_points`.
+    """  # noqa: E501
+    if isinstance(ref_points, NeighborQuery):
+        if ref_points.box != box:
+            raise ValueError("The box provided and the box of the"
+                             "NeighborQuery object are different")
+        return ref_points
+
+    cdef RawPoints rp = RawPoints(box, ref_points)
+    return rp
+
+
 def make_default_nlist(box, ref_points, points, rmax, nlist=None,
                        exclude_ii=None):
     R"""Helper function to return a neighbor list object if is given, or to
@@ -797,6 +861,40 @@ def make_default_nlist_nn(box, ref_points, points, n_neigh, nlist=None,
 
     # Return the owner of the neighbor list as well to prevent gc problems
     return nn.nlist, nn
+
+
+cdef class RawPoints(NeighborQuery):
+    R"""Dummy class that only contains minimal information
+    to make C++ side work well.
+
+    .. moduleauthor:: Jin Soo Ihm <jinihm@umich.edu>
+
+    Attributes:
+        box (:class:`freud.locality.Box`):
+            The simulation box.
+        points (:class:`np.ndarray`):
+            The points associated with this class.
+
+    .. versionadded:: 1.1.0
+
+    """  # noqa: E501
+
+    def __cinit__(self, box, points):
+        cdef const float[:, ::1] l_points
+        if type(self) is RawPoints:
+            # Assume valid set of arguments is passed
+            self._box = freud.common.convert_box(box)
+            self.points = freud.common.convert_array(
+                points, shape=(None, 3))
+            l_points = self.points
+            self.thisptr = self.nqptr = new freud._locality.RawPoints(
+                dereference(self._box.thisptr),
+                <vec3[float]*> &l_points[0, 0],
+                self.points.shape[0])
+
+    def __dealloc__(self):
+        if type(self) is RawPoints:
+            del self.thisptr
 
 
 cdef class AABBQuery(NeighborQuery):

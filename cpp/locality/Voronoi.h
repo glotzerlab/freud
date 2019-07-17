@@ -7,21 +7,9 @@
 #include "Box.h"
 #include "VectorMath.h"
 #include "NeighborList.h"
+#include "NeighborBond.h"
 
 namespace freud { namespace locality {
-
-struct NeighborBond
-{
-    NeighborBond() : index_i(0), index_j(0), weight(0), distance(0) {}
-
-    NeighborBond(unsigned int index_i, unsigned int index_j, float w, float d) :
-        index_i(index_i), index_j(index_j), weight(w), distance(d) {}
-
-    unsigned int index_i;     //! The point id.
-    unsigned int index_j;     //! The reference point id.
-    float weight;             //! The weight of this bond.
-    float distance;           //! The distance bewteen the points.
-};
 
 class Voronoi
 {

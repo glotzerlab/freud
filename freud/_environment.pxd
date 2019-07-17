@@ -17,15 +17,14 @@ cdef extern from "BondOrder.h" namespace "freud::environment":
         const freud._box.Box & getBox() const
         void reset()
         void accumulate(
-            freud._box.Box &,
             const freud._locality.NeighborList*,
+            const freud._locality.NeighborQuery*,
+            quat[float]*,
             vec3[float]*,
             quat[float]*,
             unsigned int,
-            vec3[float]*,
-            quat[float]*,
             unsigned int,
-            unsigned int) nogil
+            freud._locality.QueryArgs) nogil
         shared_ptr[float] getBondOrder()
         shared_ptr[float] getTheta()
         shared_ptr[float] getPhi()

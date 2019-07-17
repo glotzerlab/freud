@@ -68,12 +68,6 @@ void LocalQl::compute(const locality::NeighborList* nlist, const vec3<float>* po
             for (; bond < nlist->getNumBonds() && neighbor_list[2 * bond] == i; ++bond)
             {
                 const unsigned int j(neighbor_list[2 * bond + 1]);
-
-                if (i == j)
-                {
-                    continue;
-                }
-
                 // rij = rj - ri, vector from i pointing to j.
                 const vec3<float> delta = m_box.wrap(points[j] - ref);
                 const float rsq = dot(delta, delta);
@@ -153,11 +147,6 @@ void LocalQl::computeAve(const locality::NeighborList* nlist, const vec3<float>*
             const unsigned int n(neighbor_list[2 * bond + 1]);
             const vec3<float> rn = points[n];
 
-            if (n == i)
-            {
-                continue;
-            }
-
             // rin = rn - ri, from i pointing to j.
             const vec3<float> rin = m_box.wrap(rn - ri);
             const float rinsq = dot(rin, rin);
@@ -169,11 +158,6 @@ void LocalQl::computeAve(const locality::NeighborList* nlist, const vec3<float>*
                      ++neighborhood_bond)
                 {
                     const unsigned int j(neighbor_list[2 * neighborhood_bond + 1]);
-
-                    if (n == j)
-                    {
-                        continue;
-                    }
 
                     // rnj = rj - rn, from n pointing to j.
                     const vec3<float> rnj = m_box.wrap(points[j] - rn);

@@ -10,6 +10,7 @@
 #endif
 
 #include "CorrelationFunction.h"
+#include "NeighborComputeFunctional.h"
 
 using namespace std;
 using namespace tbb;
@@ -107,64 +108,32 @@ template<typename T> void CorrelationFunction<T>::reset()
 }
 
 template<typename T>
-void CorrelationFunction<T>::accumulate(const box::Box& box, const freud::locality::NeighborList* nlist,
-                                        const vec3<float>* ref_points, const T* ref_values,
+void CorrelationFunction<T>::accumulate(const freud::locality::NeighborList* nlist,
+                                        const freud::locality::NeighborQuery* nq, const T* ref_values,
                                         unsigned int n_ref, const vec3<float>* points, const T* point_values,
-                                        unsigned int Np)
+                                        unsigned int Np, freud::locality::QueryArgs qargs)
 {
-    m_box = box;
-    nlist->validate(n_ref, Np);
-    parallel_for(tbb::blocked_range<size_t>(0, n_ref), [=](const blocked_range<size_t>& r) {
-        assert(ref_points);
-        assert(ref_values);
-        assert(points);
-        assert(point_values);
-        assert(n_ref > 0);
-        assert(Np > 0);
-
-        float dr_inv = 1.0f / m_dr;
-        float rmaxsq = m_rmax * m_rmax;
-        const size_t* neighbor_list(nlist->getNeighbors());
-
-        size_t bond(nlist->find_first_index(r.begin()));
-        // for each reference point
-        for (size_t i = r.begin(); i != r.end(); i++)
+    m_box = nq->getBox();
+    float dr_inv = 1.0f / m_dr;
+    freud::locality::loopOverNeighbors(nq, points, Np, qargs, nlist,
+    [=](size_t i, size_t j, float dist, float weight)
         {
-            // get the cell the point is in
-            vec3<float> ref = ref_points[i];
-            for (; bond < nlist->getNumBonds() && neighbor_list[2 * bond] == i; ++bond)
+            // bin that r
+            float binr = dist * dr_inv;
+            // fast float to int conversion with truncation
+            #ifdef __SSE2__
+            unsigned int bin = _mm_cvtt_ss2si(_mm_load_ss(&binr));
+            #else
+            unsigned int bin = (unsigned int)(binr);
+            #endif
+
+            if (bin < m_nbins)
             {
-                const size_t j(neighbor_list[2 * bond + 1]);
-                {
-                    // compute r between the two particles
-                    vec3<float> delta = m_box.wrap(points[j] - ref);
-
-                    float rsq = dot(delta, delta);
-
-                    // check that the particle is not checking itself, if it is the same list
-                    if ((i != j || points != ref_points) && rsq < rmaxsq)
-                    {
-                        float r = sqrtf(rsq);
-
-                        // bin that r
-                        float binr = r * dr_inv;
-// fast float to int conversion with truncation
-#ifdef __SSE2__
-                        unsigned int bin = _mm_cvtt_ss2si(_mm_load_ss(&binr));
-#else
-                        unsigned int bin = (unsigned int)(binr);
-#endif
-
-                        if (bin < m_nbins)
-                        {
-                            ++m_local_bin_counts.local()[bin];
-                            m_local_rdf_array.local()[bin] += ref_values[i] * point_values[j];
-                        }
-                    }
-                }
+                ++m_local_bin_counts.local()[bin];
+                m_local_rdf_array.local()[bin] += ref_values[i] * point_values[j];
             }
-        } // done looping over reference points
-    });
+        }
+    );
     m_frame_counter += 1;
     m_reduce = true;
 }

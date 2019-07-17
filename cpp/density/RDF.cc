@@ -159,11 +159,11 @@ void RDF::reset()
 //! \internal
 /*! \brief Function to accumulate the given points to the histogram in memory
  */
-void RDF::accumulate(box::Box& box, const locality::NeighborList* nlist, const vec3<float>* ref_points,
-                     unsigned int n_ref, const vec3<float>* points, unsigned int n_p)
+void RDF::accumulate(const freud::locality::NeighborList* nlist, const freud::locality::NeighborQuery* ref_points,
+                    const vec3<float>* points, unsigned int n_p, freud::locality::QueryArgs qargs)
 {
     m_n_p = n_p;
-    m_n_ref = n_ref;
+    m_n_ref = ref_points->getNRef();
 
     assert(ref_points);
     assert(points);
@@ -171,20 +171,12 @@ void RDF::accumulate(box::Box& box, const locality::NeighborList* nlist, const v
     assert(n_p > 0);
 
     float dr_inv = 1.0f / m_dr;
-    float rminsq = m_rmin * m_rmin;
-    float rmaxsq = m_rmax * m_rmax;
-    accumulateGeneral(box, n_ref, nlist, n_p, m_nbins, [=](size_t i, size_t j) {
-        vec3<float> ref = ref_points[i];
-        // compute r between the two particles
-        vec3<float> delta = m_box.wrap(points[j] - ref);
-
-        float rsq = dot(delta, delta);
-        if (rsq < rmaxsq && rsq > rminsq)
+    accumulateGeneral(ref_points, points, n_p, nlist, m_nbins, qargs, 
+        [=](size_t i, size_t j, float dist, float weight) {
+        if (dist < m_rmax && dist > m_rmin)
         {
-            float r = sqrtf(rsq);
-
             // bin that r
-            float binr = (r - m_rmin) * dr_inv;
+            float binr = (dist - m_rmin) * dr_inv;
             // fast float to int conversion with truncation
 #ifdef __SSE2__
             unsigned int bin = _mm_cvtt_ss2si(_mm_load_ss(&binr));
