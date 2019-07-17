@@ -23,7 +23,7 @@ public:
         PerPointIterator() {}
         virtual ~PerPointIterator() {}
         virtual NeighborBond next() = 0;
-        virtual bool end() = 0;
+        virtual bool end() const = 0;
     };
 
     virtual std::shared_ptr<PerPointIterator> queryPerPoint(size_t point_index) = 0;
@@ -45,12 +45,19 @@ public:
             {
                 m_current_index = m_nlist->find_first_index(point_index);
                 m_returned_point_index = m_nlist->getNeighbors()[2 * m_current_index];
+                at_end = m_current_index == m_nlist->getNumBonds();
             } 
         
         ~NeighborListPerPointIterator() {}
 
         virtual NeighborBond next()
         {
+            if(m_current_index == m_nlist->getNumBonds())
+            {
+                at_end = true;
+                return NeighborBond();
+            }
+
             NeighborBond nb = NeighborBond(m_nlist->getNeighbors()[2 * m_current_index],
                                            m_nlist->getNeighbors()[2 * m_current_index + 1], 
                                            m_nlist->getDistances()[m_current_index],
@@ -60,9 +67,9 @@ public:
             return nb;
         }
 
-        virtual bool end()
+        virtual bool end() const
         {
-            return m_returned_point_index != m_point_index;
+            return (m_returned_point_index != m_point_index) || at_end;
         }
 
     private:
@@ -70,6 +77,7 @@ public:
         size_t m_current_index;
         size_t m_returned_point_index;
         size_t m_point_index;
+        bool at_end;
     };
 
     virtual std::shared_ptr<PerPointIterator> queryPerPoint(size_t point_index)
@@ -137,7 +145,7 @@ public:
             }
         }
 
-        virtual bool end() 
+        virtual bool end() const
         {
             return m_nqiter->end();
         }

@@ -63,7 +63,6 @@ public:
 
             for(freud::locality::NeighborBond nb = ppiter->next(); !ppiter->end(); nb = ppiter->next())
             {
-                std::cout << i << " " << nb.ref_id << std::endl;
                 // Compute r between the two particles
                 vec3<float> delta = m_box.wrap((*points)[nb.ref_id] - ref);
 
