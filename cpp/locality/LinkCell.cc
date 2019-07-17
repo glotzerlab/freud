@@ -172,7 +172,7 @@ void LinkCell::compute(const box::Box& box, const vec3<float>* ref_points, unsig
     // for quick access later (not ref_points)
     computeCellList(box, ref_points, Nref);
 
-    typedef std::vector<WeightedBond> BondVector;
+    typedef std::vector<NeighborBond> BondVector;
     typedef std::vector<BondVector> BondVectorVector;
     typedef tbb::enumerable_thread_specific<BondVectorVector> ThreadBondVector;
     ThreadBondVector bond_vectors;
@@ -207,7 +207,7 @@ void LinkCell::compute(const box::Box& box, const vec3<float>* ref_points, unsig
 
                     if (rsq < m_cell_width * m_cell_width)
                     {
-                        bond_vector.emplace_back(i, j, 1, sqrt(rsq));
+                        bond_vector.emplace_back(i, j, sqrt(rsq));
                     }
                 }
             }
@@ -243,9 +243,10 @@ void LinkCell::compute(const box::Box& box, const vec3<float>* ref_points, unsig
                          const BondVector& vec(bond_vector_groups[group]);
                          for (BondVector::const_iterator iter(vec.begin()); iter != vec.end(); ++iter, ++bond)
                          {
-                             std::tie(neighbor_array[2 * bond], neighbor_array[2 * bond + 1],
-                                      neighbor_weights[bond], neighbor_distances[bond])
-                                 = *iter;
+                            neighbor_array[2 * bond] = iter->id;
+                            neighbor_array[2 * bond + 1] = iter->ref_id;
+                            neighbor_weights[bond] = iter->weight;
+                            neighbor_distances[bond] = iter->distance;
                          }
                      }
                  });
@@ -354,7 +355,7 @@ std::shared_ptr<NeighborQueryIterator> LinkCell::queryBall(const vec3<float>* po
     return std::make_shared<LinkCellQueryBallIterator>(this, points, N, r, exclude_ii);
 }
 
-NeighborPoint LinkCellQueryBallIterator::next()
+NeighborBond LinkCellQueryBallIterator::next()
 {
     float r_cutsq = m_r * m_r;
 
@@ -375,7 +376,7 @@ NeighborPoint LinkCellQueryBallIterator::next()
 
                 if (rsq < r_cutsq && (!m_exclude_ii || cur_p != j))
                 {
-                    return NeighborPoint(cur_p, j, sqrt(rsq));
+                    return NeighborBond(cur_p, j, sqrt(rsq));
                 }
             }
 
@@ -416,7 +417,7 @@ std::shared_ptr<NeighborQueryIterator> LinkCellQueryBallIterator::query(unsigned
     return this->m_linkcell->queryBall(&m_points[idx], 1, m_r);
 }
 
-NeighborPoint LinkCellQueryIterator::next()
+NeighborBond LinkCellQueryIterator::next()
 {
     vec3<float> plane_distance = m_neighbor_query->getBox().getNearestPlaneDistance();
     float min_plane_distance = std::min(plane_distance.x, plane_distance.y);

@@ -9,6 +9,7 @@
 #include <tuple>
 
 #include "Box.h"
+#include "NeighborBond.h"
 #include "VectorMath.h"
 
 namespace freud { namespace locality {
@@ -98,10 +99,9 @@ private:
     std::shared_ptr<float> m_distances;
 };
 
-typedef std::tuple<size_t, size_t, float> Bond;
-typedef std::tuple<size_t, size_t, float, float> WeightedBond;
-bool compareFirstNeighborPairs(const std::vector<WeightedBond>& left,
-                               const std::vector<WeightedBond>& right);
+bool compareNeighborBond(const NeighborBond& left, const NeighborBond& right);
+bool compareFirstNeighborPairs(const std::vector<NeighborBond>& left,
+                               const std::vector<NeighborBond>& right);
 
 }; }; // end namespace freud::locality
 

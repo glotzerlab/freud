@@ -38,8 +38,10 @@ void LocalDensity::compute(const box::Box& box, const freud::locality::NeighborL
         m_num_neighbors_array = std::shared_ptr<float>(new float[n_ref], std::default_delete<float[]>());
     }
 
+    float area = M_PI * m_rcut * m_rcut;
+    float volume = 4.0f/3.0f * M_PI * m_rcut * m_rcut * m_rcut;
     // compute the local density
-    freud::locality::forLoopWrapper(true, 0, n_ref, 
+    freud::locality::forLoopWrapper(0, n_ref, 
       [=] (size_t r_begin, size_t r_end)
       {
       size_t bond(nlist->find_first_index(r_begin));
@@ -65,7 +67,7 @@ void LocalDensity::compute(const box::Box& box, const freud::locality::NeighborL
               {
                   num_neighbors += 1.0f;
               }
-              else if (r < (m_rcut + m_diameter/2.0f))
+              else
               {
                   // partially count particles that intersect the rcut sphere
                   // this is not particularly accurate for a single particle, but works well on average for
@@ -79,15 +81,15 @@ void LocalDensity::compute(const box::Box& box, const freud::locality::NeighborL
           if (m_box.is2D())
               {
               // local density is area of particles divided by the area of the circle
-              m_density_array.get()[i] = (m_volume * m_num_neighbors_array.get()[i]) / (M_PI * m_rcut * m_rcut);
+              m_density_array.get()[i] = (m_volume * m_num_neighbors_array.get()[i]) / area;
               }
           else
               {
               // local density is volume of particles divided by the volume of the sphere
-              m_density_array.get()[i] = (m_volume * m_num_neighbors_array.get()[i]) / (4.0f/3.0f * M_PI * m_rcut * m_rcut * m_rcut);
+              m_density_array.get()[i] = (m_volume * m_num_neighbors_array.get()[i]) / volume;
               }
           }
-      });
+      }, true);
     // save the last computed number of particles
     m_n_ref = n_ref;
 }

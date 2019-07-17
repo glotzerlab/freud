@@ -9,8 +9,6 @@
 #include <emmintrin.h>
 #endif
 
-#include <iostream>
-
 #include "CorrelationFunction.h"
 #include "NeighborComputeFunctional.h"
 
@@ -110,36 +108,29 @@ template<typename T> void CorrelationFunction<T>::reset()
 }
 
 template<typename T>
-void CorrelationFunction<T>::accumulate(const box::Box& box, const freud::locality::NeighborList* nlist,
+void CorrelationFunction<T>::accumulate(const freud::locality::NeighborList* nlist,
                                         const freud::locality::NeighborQuery* nq, const T* ref_values,
                                         unsigned int n_ref, const vec3<float>* points, const T* point_values,
                                         unsigned int Np, freud::locality::QueryArgs qargs)
 {
-    m_box = box;
+    m_box = nq->getBox();
     float dr_inv = 1.0f / m_dr;
     freud::locality::loopOverNeighbors(nq, points, Np, qargs, nlist,
     [=](size_t i, size_t j, float dist, float weight)
         {
-            // check that the particle is not checking itself, if it is the same list
-            if(dist < m_rmax)
+            // bin that r
+            float binr = dist * dr_inv;
+            // fast float to int conversion with truncation
+            #ifdef __SSE2__
+            unsigned int bin = _mm_cvtt_ss2si(_mm_load_ss(&binr));
+            #else
+            unsigned int bin = (unsigned int)(binr);
+            #endif
+
+            if (bin < m_nbins)
             {
-                // float r = sqrtf(rsq);
-                float r = dist;
-
-                // bin that r
-                float binr = r * dr_inv;
-                // fast float to int conversion with truncation
-                #ifdef __SSE2__
-                unsigned int bin = _mm_cvtt_ss2si(_mm_load_ss(&binr));
-                #else
-                unsigned int bin = (unsigned int)(binr);
-                #endif
-
-                if (bin < m_nbins)
-                {
-                    ++m_local_bin_counts.local()[bin];
-                    m_local_rdf_array.local()[bin] += ref_values[i] * point_values[j];
-                }
+                ++m_local_bin_counts.local()[bin];
+                m_local_rdf_array.local()[bin] += ref_values[i] * point_values[j];
             }
         }
     );

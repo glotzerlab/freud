@@ -10,7 +10,7 @@ import freud.common
 import numpy as np
 
 from freud.common cimport Compute
-from freud.util._VectorMath cimport vec3
+from freud.util cimport vec3
 from cython.operator cimport dereference
 import freud.locality
 

@@ -2,8 +2,7 @@
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 from libcpp cimport bool
-from freud.util._VectorMath cimport vec3
-from freud.util._VectorMath cimport quat
+from freud.util cimport vec3, quat
 from libcpp.memory cimport shared_ptr
 from libcpp.complex cimport complex
 from libcpp.vector cimport vector
@@ -18,7 +17,6 @@ cdef extern from "BondOrder.h" namespace "freud::environment":
         const freud._box.Box & getBox() const
         void reset()
         void accumulate(
-            freud._box.Box &,
             const freud._locality.NeighborList*,
             const freud._locality.NeighborQuery*,
             quat[float]*,

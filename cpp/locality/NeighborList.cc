@@ -191,13 +191,22 @@ size_t NeighborList::bisection_search(size_t val, size_t left, size_t right) con
         return bisection_search(val, left, middle);
 }
 
-bool compareFirstNeighborPairs(const std::vector<WeightedBond>& left,
-                               const std::vector<WeightedBond>& right)
+bool compareNeighborBond(const NeighborBond& left, const NeighborBond& right)
+{
+    return left.less_as_tuple(right);
+}
+
+bool compareFirstNeighborPairs(const std::vector<NeighborBond>& left,
+                               const std::vector<NeighborBond>& right)
 {
     if (left.size() && right.size())
-        return left[0] < right[0];
+    {
+        return compareNeighborBond(left[0], right[0]);
+    }
     else
+    {
         return left.size() < right.size();
+    }
 }
 
 }; }; // end namespace freud::locality

@@ -13,7 +13,7 @@ import freud.common
 import warnings
 
 from freud.common cimport Compute
-from freud.util._VectorMath cimport vec3
+from freud.util cimport vec3
 from cython.operator cimport dereference
 
 cimport freud.box

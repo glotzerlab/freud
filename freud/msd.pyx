@@ -79,11 +79,12 @@ cdef class MSD(Compute):
 
       .. math::
 
-          MSD(m) = \left\langle\frac{1}{N-m} \sum_{k=0}^{N-m-1} (\vec{r}(k+m) - \vec{r}(k))^2\right\rangle_{particles}
+          MSD(m) = \frac{1}{N_{particles}} \sum_{i=1}^{N_{particles}} \frac{1}{N-m} \sum_{k=0}^{N-m-1} (\vec{r}_i(k+m) - \vec{r}_i(k))^2
 
-      According to this definition, the mean squared displacement is the
-      average displacement over all windows of length :math:`m` over the course
-      of the simulation. Therefore, for any :math:`m`, :math:`MSD(m)` is
+      where :math:`r_i(t)` is the position of particle :math:`i` in frame
+      :math:`t`. According to this definition, the mean squared displacement is
+      the average displacement over all windows of length :math:`m` over the
+      course of the simulation. Therefore, for any :math:`m`, :math:`MSD(m)` is
       averaged over all windows of length :math:`m` and over all particles.
       This calculation can be accessed using the 'window' mode of this
       function.
@@ -120,13 +121,13 @@ cdef class MSD(Compute):
           :nowrap:
 
           \begin{eqnarray*}
-              MSD(t) = &\langle (\vec{r}-\vec{r}_0)^2 \rangle_{particles} \\
-                     = & \dfrac{1}{N} \sum_{n=1}^N (x_n(t) - x_n(0))^2 \\
+              MSD(t) =& \dfrac{1}{N_{particles}} \sum_{i=1}^{N_{particles}} (r_i(t) - r_i(0))^2 \\
           \end{eqnarray*}
 
-      In this case, we simply compute how much particles have moved from their
-      initial position, averaged over all particles. For more information on
-      this calculation, see `the Wikipedia page
+      In this case, at each time point (i.e. simulation frame) we simply
+      compute how much particles have moved from their initial position,
+      averaged over all particles. For more information on this calculation,
+      see `the Wikipedia page
       <https://en.wikipedia.org/wiki/Mean_squared_displacement>`_.
 
     .. note::

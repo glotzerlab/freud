@@ -53,7 +53,7 @@ void NearestNeighbors::compute(const box::Box& box, const vec3<float>* ref_pos, 
     m_box = box;
     m_neighbor_list.resize(num_points * m_num_neighbors);
 
-    typedef std::vector<std::tuple<size_t, size_t, float, float>> BondVector;
+    typedef std::vector<NeighborBond> BondVector;
     typedef std::vector<BondVector> BondVectorVector;
     typedef tbb::enumerable_thread_specific<BondVectorVector> ThreadBondVector;
     ThreadBondVector bond_vectors;
@@ -152,8 +152,7 @@ void NearestNeighbors::compute(const box::Box& box, const vec3<float>* ref_pos, 
             const unsigned int k_max = min((unsigned int) neighbors.size(), m_num_neighbors);
             for (unsigned int k = 0; k < k_max; ++k)
             {
-                // bond_vector.emplace_back(i, neighbors[k].second, 1);
-                bond_vector.emplace_back(i, neighbors[k].second, 1, sqrt(neighbors[k].first));
+                bond_vector.emplace_back(i, neighbors[k].second, sqrt(neighbors[k].first));
             }
         }
     });
@@ -186,9 +185,10 @@ void NearestNeighbors::compute(const box::Box& box, const vec3<float>* ref_pos, 
                          const BondVector& vec(bond_vector_groups[group]);
                          for (BondVector::const_iterator iter(vec.begin()); iter != vec.end(); ++iter, ++bond)
                          {
-                             std::tie(neighbor_array[2 * bond], neighbor_array[2 * bond + 1],
-                                      neighbor_weights[bond], neighbor_distances[bond])
-                                 = *iter;
+                            neighbor_array[2 * bond] = iter->id;
+                            neighbor_array[2 * bond + 1] = iter->ref_id;
+                            neighbor_weights[bond] = iter->weight;
+                            neighbor_distances[bond] = iter->distance;
                          }
                      }
                  });

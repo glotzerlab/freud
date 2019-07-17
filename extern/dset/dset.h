@@ -22,6 +22,7 @@
  */
 class DisjointSets {
 public:
+    // Modified from the original distribution to have a default constructor
     DisjointSets() : mData(0) {
     }
     

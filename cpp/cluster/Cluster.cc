@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "Cluster.h"
-#include "DisjointSet.h"
+#include "dset/dset.h"
 #include "NeighborComputeFunctional.h"
 
 using namespace std;
@@ -24,9 +24,9 @@ Cluster::Cluster(float rcut) : m_rcut(rcut), m_num_particles(0), m_num_clusters(
         throw invalid_argument("Cluster requires that rcut must be non-negative.");
 }
 
-void Cluster::computeClusters(const freud::locality::NeighborQuery* nq, const box::Box& box,
+void Cluster::computeClusters(const freud::locality::NeighborQuery* nq,
                               const freud::locality::NeighborList* nlist, const vec3<float>* points,
-                              unsigned int Np)
+                              unsigned int Np, freud::locality::QueryArgs qargs)
 {
     assert(points);
     assert(Np > 0);
@@ -41,25 +41,19 @@ void Cluster::computeClusters(const freud::locality::NeighborQuery* nq, const bo
     m_num_particles = Np;
     DisjointSets dj(m_num_particles);
 
-    locality::QueryArgs qargs;
-    qargs.mode = locality::QueryArgs::QueryType::ball;
-    qargs.rmax = m_rcut;
-
-    freud::locality::loopOverNeighbors(nq, points, Np, qargs, nlist,
-                                            [this, &dj, &box, points](size_t i, size_t j, float dist, float weight) {
-                                                if (i != j)
-                                                {
-                                                    // compute r between the two particles
-                                                    if (dist < m_rcut)
-                                                    {
-                                                        // merge the two sets using the disjoint set
-                                                        if (!dj.same(i, j))
-                                                        {
-                                                            dj.unite(i, j);
-                                                        }
-                                                    }
-                                                }
-                                            });
+    freud::locality::loopOverNeighbors(
+        nq, points, Np, qargs, nlist,
+        [this, &dj, points](size_t i, size_t j, float dist, float weight) {
+            // compute r between the two particles
+            if (dist < m_rcut)
+            {
+                // merge the two sets using the disjoint set
+                if (!dj.same(i, j))
+                {
+                    dj.unite(i, j);
+                }
+            }
+        });
 
     // done looping over points. All clusters are now determined. Renumber them from zero to num_clusters-1.
     map<uint32_t, uint32_t> label_map;

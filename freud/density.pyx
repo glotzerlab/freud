@@ -14,7 +14,7 @@ import numpy as np
 
 from cython.operator cimport dereference
 from freud.common cimport Compute
-from freud.util._VectorMath cimport vec3
+from freud.util cimport vec3
 
 cimport freud._density
 cimport freud.box, freud.locality
@@ -87,7 +87,7 @@ cdef class FloatCF(Compute):
 
     @Compute._compute()
     def accumulate(self, box, ref_points, ref_values, points=None, values=None,
-                   nlist=None):
+                   nlist=None, qargs=None):
         R"""Calculates the correlation function and adds to the current
         histogram.
 
@@ -112,19 +112,19 @@ cdef class FloatCF(Compute):
 
         cdef freud.box.Box b = freud.common.convert_box(box)
 
-        cdef freud.locality.NeighborQuery nq = \
-            freud.locality.make_default_nq(b, ref_points)
-        cdef freud._locality.NeighborList * nlistptr \
-            = freud.locality.make_nlistptr(nlist)
-        cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
+        nq_nlist = freud.locality.make_nq_nlist(b, ref_points, nlist)
+        cdef freud.locality.NeighborQuery nq = nq_nlist[0]
+        cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
+
+        cdef freud.locality._QueryArgs def_qargs = freud.locality._QueryArgs(
             mode="ball", rmax=self.rmax, exclude_ii=exclude_ii)
+        def_qargs.update(qargs)
         ref_points = nq.points
 
         if points is None:
             points = ref_points
         if values is None:
             values = ref_values
-        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
         points = freud.common.convert_array(points, shape=(None, 3))
         ref_values = freud.common.convert_array(
             ref_values, shape=(ref_points.shape[0], ), dtype=np.float64)
@@ -143,20 +143,16 @@ cdef class FloatCF(Compute):
         else:
             l_values = values
 
-        # defaulted_nlist = freud.locality.make_default_nlist(
-        #     b, ref_points, points, self.rmax, nlist, exclude_ii)
-        # cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
-
         cdef unsigned int n_ref = l_ref_points.shape[0]
         cdef unsigned int n_p = l_points.shape[0]
         with nogil:
             self.thisptr.accumulate(
-                dereference(b.thisptr), nlistptr,
+                nlistptr.get_ptr(),
                 nq.get_ptr(),
                 <double*> &l_ref_values[0], n_ref,
                 <vec3[float]*> &l_points[0, 0],
                 <double*> &l_values[0],
-                n_p, dereference(qargs.thisptr))
+                n_p, dereference(def_qargs.thisptr))
         return self
 
     @Compute._computed_property()
@@ -179,7 +175,7 @@ cdef class FloatCF(Compute):
 
     @Compute._compute()
     def compute(self, box, ref_points, ref_values, points=None, values=None,
-                nlist=None):
+                nlist=None, qargs=None):
         R"""Calculates the correlation function for the given points. Will
         overwrite the current histogram.
 
@@ -201,7 +197,8 @@ cdef class FloatCF(Compute):
                 :code:`None`).
         """
         self.reset()
-        self.accumulate(box, ref_points, ref_values, points, values, nlist)
+        self.accumulate(box, ref_points, ref_values, points, values, nlist,
+                        qargs)
         return self
 
     @Compute._computed_property()
@@ -316,7 +313,7 @@ cdef class ComplexCF(Compute):
 
     @Compute._compute()
     def accumulate(self, box, ref_points, ref_values, points=None, values=None,
-                   nlist=None):
+                   nlist=None, qargs=None):
         R"""Calculates the correlation function and adds to the current
         histogram.
 
@@ -341,21 +338,19 @@ cdef class ComplexCF(Compute):
 
         cdef freud.box.Box b = freud.common.convert_box(box)
 
-        # \begin New NeighborQuery API
-        cdef freud.locality.NeighborQuery nq = \
-            freud.locality.make_default_nq(b, ref_points)
-        cdef freud._locality.NeighborList * nlistptr \
-            = freud.locality.make_nlistptr(nlist)
-        cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
+        nq_nlist = freud.locality.make_nq_nlist(b, ref_points, nlist)
+        cdef freud.locality.NeighborQuery nq = nq_nlist[0]
+        cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
+
+        cdef freud.locality._QueryArgs def_qargs = freud.locality._QueryArgs(
             mode="ball", rmax=self.rmax, exclude_ii=exclude_ii)
+        def_qargs.update(qargs)
         ref_points = nq.points
-        # \end New NeighborQuery API
 
         if points is None:
             points = ref_points
         if values is None:
             values = ref_values
-        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
         points = freud.common.convert_array(points, shape=(None, 3))
         ref_values = freud.common.convert_array(
             ref_values, shape=(ref_points.shape[0], ), dtype=np.complex128)
@@ -374,21 +369,17 @@ cdef class ComplexCF(Compute):
         else:
             l_values = values
 
-        # defaulted_nlist = freud.locality.make_default_nlist(
-        #     b, ref_points, points, self.rmax, nlist, exclude_ii)
-        # cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
-
         cdef unsigned int n_ref = l_ref_points.shape[0]
         cdef unsigned int n_p = l_points.shape[0]
         with nogil:
             self.thisptr.accumulate(
-                dereference(b.thisptr), nlistptr,
+                nlistptr.get_ptr(),
                 nq.get_ptr(),
                 <np.complex128_t*> &l_ref_values[0],
                 n_ref,
                 <vec3[float]*> &l_points[0, 0],
                 <np.complex128_t*> &l_values[0],
-                n_p, dereference(qargs.thisptr))
+                n_p, dereference(def_qargs.thisptr))
         return self
 
     @Compute._computed_property()
@@ -411,7 +402,7 @@ cdef class ComplexCF(Compute):
 
     @Compute._compute()
     def compute(self, box, ref_points, ref_values, points=None, values=None,
-                nlist=None):
+                nlist=None, qargs=None):
         R"""Calculates the correlation function for the given points. Will
         overwrite the current histogram.
 
@@ -433,7 +424,8 @@ cdef class ComplexCF(Compute):
                 :code:`None`).
         """
         self.reset()
-        self.accumulate(box, ref_points, ref_values, points, values, nlist)
+        self.accumulate(box, ref_points, ref_values, points, values, nlist,
+                        qargs)
         return self
 
     @Compute._computed_property()
@@ -863,28 +855,23 @@ cdef class RDF(Compute):
         exclude_ii = points is None
         cdef freud.box.Box b = freud.common.convert_box(box)
 
-        cdef freud.locality.NeighborQuery nq = \
-            freud.locality.make_default_nq(b, ref_points)
-        cdef freud._locality.NeighborList * nlistptr \
-            = freud.locality.make_nlistptr(nlist)
+        nq_nlist = freud.locality.make_nq_nlist(b, ref_points, nlist)
+        cdef freud.locality.NeighborQuery nq = nq_nlist[0]
+        cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
+
         cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
             mode="ball", rmax=self.rmax, exclude_ii=exclude_ii)
         ref_points = nq.points
 
         if points is None:
             points = ref_points
-        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
         points = freud.common.convert_array(points, shape=(None, 3))
         cdef const float[:, ::1] l_points = points
         cdef unsigned int n_p = l_points.shape[0]
 
-        # defaulted_nlist = freud.locality.make_default_nlist(
-        #     b, ref_points, points, self.rmax, nlist, exclude_ii)
-        # cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
-
         with nogil:
             self.thisptr.accumulate(
-                dereference(b.thisptr), nlistptr,
+                nlistptr.get_ptr(),
                 nq.get_ptr(),
                 <vec3[float]*> &l_points[0, 0],
                 n_p, dereference(qargs.thisptr))

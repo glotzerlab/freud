@@ -1,7 +1,7 @@
 # Copyright (c) 2010-2019 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
-from freud.util._VectorMath cimport vec3
+from freud.util cimport vec3
 from libcpp.memory cimport shared_ptr
 cimport freud._box
 cimport freud._locality
@@ -11,8 +11,7 @@ cdef extern from "CorrelationFunction.h" namespace "freud::density":
         CorrelationFunction(float, float) except +
         const freud._box.Box & getBox() const
         void reset()
-        void accumulate(const freud._box.Box &,
-                        const freud._locality.NeighborList*,
+        void accumulate(const freud._locality.NeighborList*,
                         const freud._locality.NeighborQuery*, const T*,
                         unsigned int,
                         const vec3[float]*,
@@ -62,8 +61,7 @@ cdef extern from "RDF.h" namespace "freud::density":
         RDF(float, float, float) except +
         const freud._box.Box & getBox() const
         void reset()
-        void accumulate(freud._box.Box &,
-                        const freud._locality.NeighborList*,
+        void accumulate(const freud._locality.NeighborList*,
                         const freud._locality.NeighborQuery*,
                         const vec3[float]*,
                         unsigned int, freud._locality.QueryArgs) nogil except +

@@ -179,7 +179,7 @@ public:
     virtual ~AABBQueryIterator() {}
 
     //! Get the next element.
-    virtual NeighborPoint next();
+    virtual NeighborBond next();
 
     //! Create an equivalent new query iterator on a per-particle basis.
     virtual std::shared_ptr<NeighborQueryIterator> query(unsigned int idx);
@@ -213,7 +213,7 @@ public:
     virtual ~AABBQueryBallIterator() {}
 
     //! Get the next element.
-    virtual NeighborPoint next();
+    virtual NeighborBond next();
 
     //! Create an equivalent new query iterator on a per-particle basis.
     virtual std::shared_ptr<NeighborQueryIterator> query(unsigned int idx);

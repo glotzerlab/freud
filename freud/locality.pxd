@@ -7,6 +7,7 @@ from libcpp.memory cimport shared_ptr
 cimport freud._locality
 cimport freud.box
 
+
 cdef class NeighborQueryResult:
     cdef NeighborQuery nq
     cdef const float[:, ::1] points
@@ -78,14 +79,9 @@ cdef class AABBQueryResult(NeighborQueryResult):
 
         return obj
 
-# If nlist is None, return NULL. Otherwise, return the pointer to it.
-cdef inline freud._locality.NeighborList* make_nlistptr(nlist):
-    cdef NeighborList _nlist
-    if nlist is not None:
-        _nlist = nlist
-        return _nlist.get_ptr()
-    else:
-        return NULL
+cdef class NlistptrWrapper:
+    cdef freud._locality.NeighborList * nlistptr
+    cdef freud._locality.NeighborList * get_ptr(self) nogil
 
 cdef class NeighborQuery:
     cdef freud._locality.NeighborQuery * nqptr
@@ -128,3 +124,9 @@ cdef class RawPoints(NeighborQuery):
 
 cdef class _QueryArgs:
     cdef freud._locality.QueryArgs * thisptr
+
+cdef class _Voronoi:
+    cdef freud._locality.Voronoi * thisptr
+    cdef NeighborList _nlist
+    cdef _volumes
+    cdef _polytopes

@@ -87,7 +87,7 @@ void PMFTXYZ::reset()
 //! \internal
 /*! \brief Helper function to direct the calculation to the correct helper class
  */
-void PMFTXYZ::accumulate(box::Box& box, const locality::NeighborList* nlist,
+void PMFTXYZ::accumulate(const locality::NeighborList* nlist,
                          const locality::NeighborQuery* ref_points,
                          quat<float>* ref_orientations, vec3<float>* points,
                          quat<float>* orientations, unsigned int n_p, quat<float>* face_orientations,
@@ -101,7 +101,7 @@ void PMFTXYZ::accumulate(box::Box& box, const locality::NeighborList* nlist,
     Index3D b_i = Index3D(m_n_x, m_n_y, m_n_z);
     Index2D q_i = Index2D(n_faces, n_p);
 
-    accumulateGeneral(box, ref_points, points, n_p, nlist, m_n_x * m_n_y * m_n_z, qargs,
+    accumulateGeneral(ref_points, points, n_p, nlist, m_n_x * m_n_y * m_n_z, qargs,
         [=](size_t i, size_t j, float dist, float weight) {
         vec3<float> ref = ref_points->getRefPoints()[i];
         // create the reference point quaternion

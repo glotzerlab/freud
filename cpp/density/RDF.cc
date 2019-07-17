@@ -159,7 +159,7 @@ void RDF::reset()
 //! \internal
 /*! \brief Function to accumulate the given points to the histogram in memory
  */
-void RDF::accumulate(box::Box& box, const freud::locality::NeighborList* nlist, const freud::locality::NeighborQuery* ref_points,
+void RDF::accumulate(const freud::locality::NeighborList* nlist, const freud::locality::NeighborQuery* ref_points,
                     const vec3<float>* points, unsigned int n_p, freud::locality::QueryArgs qargs)
 {
     m_n_p = n_p;
@@ -171,7 +171,7 @@ void RDF::accumulate(box::Box& box, const freud::locality::NeighborList* nlist, 
     assert(n_p > 0);
 
     float dr_inv = 1.0f / m_dr;
-    accumulateGeneral(box, ref_points, points, n_p, nlist, m_nbins, qargs, 
+    accumulateGeneral(ref_points, points, n_p, nlist, m_nbins, qargs, 
         [=](size_t i, size_t j, float dist, float weight) {
         if (dist < m_rmax && dist > m_rmin)
         {

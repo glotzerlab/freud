@@ -7,11 +7,9 @@
 #include <memory>
 
 #include "Box.h"
-#include "ETSWrapper.h"
 #include "Index1D.h"
 #include "ThreadStorage.h"
 #include "VectorMath.h"
-#include "NeighborComputeFunctional.h"
 
 /*! \file GaussianDensity.h
     \brief Routines for computing Gaussian smeared densities from points.

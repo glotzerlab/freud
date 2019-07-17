@@ -12,7 +12,6 @@
 #include "NeighborQuery.h"
 #include "ThreadStorage.h"
 #include "VectorMath.h"
-#include "ETSWrapper.h"
 
 /*! \file BondOrder.h
     \brief Compute the bond order diagram for the system of particles.
@@ -51,7 +50,7 @@ public:
     void reset();
 
     //! Accumulate the bond order
-    void accumulate(box::Box& box, const freud::locality::NeighborList* nlist,
+    void accumulate(const freud::locality::NeighborList* nlist,
                     const locality::NeighborQuery* ref_points,
                     quat<float>* ref_orientations, vec3<float>* points,
                     quat<float>* orientations, unsigned int n_p, unsigned int mode,

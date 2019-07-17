@@ -76,7 +76,7 @@ void PMFTXY2D::reset()
 //! \internal
 /*! \brief Helper functionto direct the calculation to the correct helper class
  */
-void PMFTXY2D::accumulate(box::Box& box, const locality::NeighborList* nlist,
+void PMFTXY2D::accumulate(const locality::NeighborList* nlist,
                           const locality::NeighborQuery* ref_points, 
                           float* ref_orientations, vec3<float>* points,
                           float* orientations, unsigned int n_p, freud::locality::QueryArgs qargs)
@@ -87,7 +87,7 @@ void PMFTXY2D::accumulate(box::Box& box, const locality::NeighborList* nlist,
 
     Index2D b_i = Index2D(m_n_x, m_n_y);
 
-    accumulateGeneral(box, ref_points, points, n_p, nlist, m_n_x * m_n_y, qargs,
+    accumulateGeneral(ref_points, points, n_p, nlist, m_n_x * m_n_y, qargs,
         [=](size_t i, size_t j, float dist, float wieght) {
         vec3<float> ref = ref_points->getRefPoints()[i];
         vec3<float> delta = this->m_box.wrap(points[j] - ref);

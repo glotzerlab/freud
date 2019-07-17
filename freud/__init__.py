@@ -7,7 +7,6 @@ from . import cluster
 from . import common
 from . import density
 from . import environment
-from . import index
 from . import interface
 from . import locality
 from . import msd

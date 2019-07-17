@@ -130,7 +130,7 @@ void AABBIterator::updateImageVectors(float rmax, bool _check_rmax)
     }
 }
 
-NeighborPoint AABBQueryBallIterator::next()
+NeighborBond AABBQueryBallIterator::next()
 {
     float r_cutsq = m_r * m_r;
 
@@ -179,7 +179,7 @@ NeighborPoint AABBQueryBallIterator::next()
                             // Check ii exclusion before including the pair.
                             if (dr_sq < r_cutsq && (!m_exclude_ii || cur_p != j))
                             {
-                                return NeighborPoint(cur_p, j, sqrt(dr_sq));
+                                return NeighborBond(cur_p, j, sqrt(dr_sq));
                             }
                         }
                     }
@@ -208,7 +208,7 @@ std::shared_ptr<NeighborQueryIterator> AABBQueryBallIterator::query(unsigned int
     return this->m_aabb_query->queryBall(&m_points[idx], 1, m_r);
 }
 
-NeighborPoint AABBQueryIterator::next()
+NeighborBond AABBQueryIterator::next()
 {
     vec3<float> plane_distance = m_neighbor_query->getBox().getNearestPlaneDistance();
     float min_plane_distance = std::min(plane_distance.x, plane_distance.y);
@@ -241,7 +241,7 @@ NeighborPoint AABBQueryIterator::next()
                           ->queryBallUnbounded(&(m_points[cur_p]), 1, m_r_cur);
                 while (!ball_it->end())
                 {
-                    NeighborPoint np = ball_it->next();
+                    NeighborBond np = ball_it->next();
                     if (np == NeighborQueryIterator::ITERATOR_TERMINATOR)
                         continue;
 
@@ -298,7 +298,7 @@ NeighborPoint AABBQueryIterator::next()
                     // rescaling that would let us try the exact limit once
                     // before going beyond the min plane distance.
                     m_search_extended = true;
-                    for (std::vector<NeighborPoint>::const_iterator it(m_current_neighbors.begin());
+                    for (std::vector<NeighborBond>::const_iterator it(m_current_neighbors.begin());
                          it != m_current_neighbors.end(); it++)
                     {
                         m_all_distances[it->ref_id] = it->distance;

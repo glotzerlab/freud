@@ -2,19 +2,21 @@
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 from libcpp cimport bool
-from freud.util._VectorMath cimport vec3
-from freud.util._Index1D cimport Index3D
+from freud.util cimport vec3
 from libcpp.memory cimport shared_ptr
 from libcpp.vector cimport vector
 cimport freud._box
 
-cdef extern from "NeighborQuery.h" namespace "freud::locality":
-    cdef cppclass NeighborPoint:
+cdef extern from "NeighborBond.h" namespace "freud::locality":
+    cdef cppclass NeighborBond:
         unsigned int id
         unsigned int ref_id
         float distance
-        bool operator==(NeighborPoint)
-        bool operator<(NeighborPoint)
+        float weight
+        bool operator==(NeighborBond)
+        bool operator<(NeighborBond)
+
+cdef extern from "NeighborQuery.h" namespace "freud::locality":
 
     ctypedef enum QueryType "freud::locality::QueryArgs::QueryType":
         ball "freud::locality::QueryArgs::QueryType::ball"
@@ -44,14 +46,14 @@ cdef extern from "NeighborQuery.h" namespace "freud::locality":
         const unsigned int getNRef const
         const vec3[float] operator[](unsigned int) const
 
-    NeighborPoint ITERATOR_TERMINATOR \
+    NeighborBond ITERATOR_TERMINATOR \
         "freud::locality::NeighborQueryIterator::ITERATOR_TERMINATOR"
 
     cdef cppclass NeighborQueryIterator:
         NeighborQueryIterator()
         NeighborQueryIterator(NeighborQuery*, vec3[float]*, unsigned int)
         bool end()
-        NeighborPoint next()
+        NeighborBond next()
         NeighborList *toNeighborList()
 
     cdef cppclass RawPoints(NeighborQuery):
@@ -110,7 +112,6 @@ cdef extern from "LinkCell.h" namespace "freud::locality":
         const vec3[unsigned int] computeDimensions(
             const freud._box.Box &,
             float) const
-        const Index3D & getCellIndexer() const
         unsigned int getNumCells() const
         float getCellWidth() const
         unsigned int getCell(const vec3[float] &) const
@@ -166,3 +167,18 @@ cdef extern from "AABBQuery.h" namespace "freud::locality":
         shared_ptr[NeighborQueryIterator] query(
             const vec3[float]*, unsigned int, unsigned int,
             float, float, bool) nogil except +
+
+cdef extern from "Voronoi.h" namespace "freud::locality":
+    cdef cppclass Voronoi:
+        Voronoi()
+        void compute(
+            const freud._box.Box &,
+            const vec3[double]*,
+            const int*,
+            const int*,
+            unsigned int,
+            unsigned int,
+            const int*,
+            const vec3[double]*,
+            const int*) nogil except +
+        NeighborList * getNeighborList()

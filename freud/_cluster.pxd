@@ -2,7 +2,7 @@
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 from libcpp cimport bool
-from freud.util._VectorMath cimport vec3
+from freud.util cimport vec3
 from libcpp.memory cimport shared_ptr
 from libcpp.vector cimport vector
 from libc.stdint cimport uint32_t
@@ -15,10 +15,10 @@ cdef extern from "Cluster.h" namespace "freud::cluster":
     cdef cppclass Cluster:
         Cluster(float) except +
         void computeClusters(const freud._locality.NeighborQuery*,
-                             const freud._box.Box &,
                              const freud._locality.NeighborList*,
                              const vec3[float]*,
-                             unsigned int) nogil except +
+                             unsigned int,
+                             freud._locality.QueryArgs) nogil except +
         void computeClusterMembership(const unsigned int*) nogil except +
         unsigned int getNumClusters()
         unsigned int getNumParticles()
