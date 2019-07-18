@@ -4,6 +4,7 @@ import numpy as np
 import numpy.testing as npt
 import freud
 import unittest
+import util
 
 
 class TestRDF(unittest.TestCase):
@@ -92,28 +93,31 @@ class TestRDF(unittest.TestCase):
                 np.float32) * box_size - box_size/2
 
             points.flags['WRITEABLE'] = False
-            rdf = freud.density.RDF(rmax, dr, rmin=rmin)
             box = freud.box.Box.cube(box_size)
+            test_set = util.makeRawQueryNlistTestSet(
+                box, points, points, "ball", rmax, 0, True)
+            for ts in test_set:
+                rdf = freud.density.RDF(rmax, dr, rmin=rmin)
 
-            if i < 3:
-                rdf.accumulate(box, points)
-            else:
-                rdf.compute(box, points)
-            self.assertTrue(rdf.box == box)
-            correct = np.ones(nbins, dtype=np.float32)
-            correct[0] = 0.0
-            npt.assert_allclose(rdf.RDF, correct, atol=tolerance)
+                if i < 3:
+                    rdf.accumulate(box, ts[0], nlist=ts[1])
+                else:
+                    rdf.compute(box, ts[0], nlist=ts[1])
+                self.assertTrue(rdf.box == box)
+                correct = np.ones(nbins, dtype=np.float32)
+                correct[0] = 0.0
+                npt.assert_allclose(rdf.RDF, correct, atol=tolerance)
 
-            # Numerical integration to compute the running coordination number
-            # will be highly inaccurate, so we can only test up to a limited
-            # precision. Also, since dealing with nonzero rmin values requires
-            # extrapolation, we only test when rmin=0.
-            if rmin == 0:
-                correct_cumulative = np.array(
-                    [ig_sphere(rdf.R, rdf.RDF, j) for j in range(1, nbins+1)]
-                )
-                npt.assert_allclose(rdf.n_r, correct_cumulative,
-                                    rtol=tolerance*5)
+                # Numerical integration to compute the running coordination
+                # number will be highly inaccurate, so we can only test up to
+                # a limited precision. Also, since dealing with nonzero rmin
+                # values requires extrapolation, we only test when rmin=0.
+                if rmin == 0:
+                    correct_cumulative = np.array(
+                        [ig_sphere(rdf.R, rdf.RDF, j)
+                            for j in range(1, nbins+1)])
+                    npt.assert_allclose(rdf.n_r, correct_cumulative,
+                                        rtol=tolerance*5)
 
     def test_repr(self):
         rdf = freud.density.RDF(10, 0.1, rmin=0.5)
