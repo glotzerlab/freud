@@ -2,6 +2,7 @@ import numpy.testing as npt
 import numpy as np
 import freud
 import unittest
+import util
 
 
 class TestHexOrderParameter(unittest.TestCase):
@@ -67,13 +68,16 @@ class TestHexOrderParameter(unittest.TestCase):
         with self.assertRaises(AttributeError):
             hop.psi
 
-        hop.compute(box, points)
-        # Test access
-        hop.num_particles
-        hop.box
-        hop.psi
+        test_set = util.makeRawQueryNlistTestSet(
+            box, points, points, 'nearest', rmax, 6, True)
+        for ts in test_set:
+            hop.compute(box, ts[0], nlist=ts[1])
+            # Test access
+            hop.num_particles
+            hop.box
+            hop.psi
 
-        npt.assert_allclose(hop.psi[0], 1. + 0.j, atol=1e-1)
+            npt.assert_allclose(hop.psi[0], 1. + 0.j, atol=1e-1)
 
     def test_repr(self):
         hop = freud.order.HexOrderParameter(3.0, 6, 7)
