@@ -2,6 +2,7 @@ import numpy as np
 import numpy.testing as npt
 import freud
 import unittest
+import util
 
 
 class TestLD(unittest.TestCase):
@@ -13,7 +14,9 @@ class TestLD(unittest.TestCase):
         np.random.seed(0)
         self.pos = np.array(np.random.random(size=(10000, 3)),
                             dtype=np.float32) * 10 - 5
-        self.ld = freud.density.LocalDensity(3, 1, 1)
+        self.r_cut = 3
+        self.diameter = 1
+        self.ld = freud.density.LocalDensity(self.r_cut, 1, self.diameter)
 
         # Test access
         with self.assertRaises(AttributeError):
@@ -36,19 +39,24 @@ class TestLD(unittest.TestCase):
 
     def test_density(self):
         """Test that LocalDensity computes the correct density at each point"""
-        self.ld.compute(self.box, self.pos, self.pos)
 
-        # Test access
-        self.ld.density
-        self.ld.num_neighbors
-        self.ld.box
+        rmax = self.r_cut + 0.5*self.diameter
+        test_set = util.makeRawQueryNlistTestSet(
+            self.box, self.pos, self.pos, "ball", rmax, 0, True)
+        for ts in test_set:
+            self.ld.compute(self.box, ts[0], nlist=ts[1])
 
-        self.assertTrue(self.ld.box == freud.box.Box.cube(10))
+            # Test access
+            self.ld.density
+            self.ld.num_neighbors
+            self.ld.box
 
-        npt.assert_array_less(np.fabs(self.ld.density - 10.0), 1.5)
+            self.assertTrue(self.ld.box == freud.box.Box.cube(10))
 
-        npt.assert_array_less(
-            np.fabs(self.ld.num_neighbors - 1130.973355292), 200)
+            npt.assert_array_less(np.fabs(self.ld.density - 10.0), 1.5)
+
+            npt.assert_array_less(
+                np.fabs(self.ld.num_neighbors - 1130.973355292), 200)
 
     @unittest.skip('Skipping slow LocalDensity test.')
     def test_refpoints(self):
