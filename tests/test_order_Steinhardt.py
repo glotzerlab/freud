@@ -92,6 +92,20 @@ class TestSteinhardt(unittest.TestCase):
         comp = freud.order.Steinhardt(1.5, 6)
         self.assertEqual(str(comp), str(eval(repr(comp))))
 
+    def test_attribute_access(self):
+        comp = freud.order.Steinhardt(1.5, 6)
+
+        with self.assertRaises(AttributeError):
+            comp.norm
+        with self.assertRaises(AttributeError):
+            comp.order
+
+        (box, positions) = util.make_fcc(4, 4, 4)
+        comp.compute(box, positions)
+
+        comp.norm
+        comp.order
+
 
 if __name__ == '__main__':
     unittest.main()
