@@ -2,6 +2,7 @@ import numpy as np
 import numpy.testing as npt
 import freud
 import unittest
+import util
 
 
 class TestFloatCF(unittest.TestCase):
@@ -76,24 +77,28 @@ class TestFloatCF(unittest.TestCase):
         points = np.random.random_sample((num_points, 3)).astype(np.float32) \
             * box_size - box_size/2
         ang = np.random.random_sample((num_points)).astype(np.float64) - 0.5
-        ocf = freud.density.FloatCF(rmax, dr)
         correct = np.zeros(int(rmax/dr), dtype=np.float64)
         absolute_tolerance = 0.1
         # first bin is bad
-        ocf.accumulate(box, points, ang)
-        npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
-        ocf.compute(box, points, ang)
-        npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
-        ocf.reset()
-        ocf.accumulate(box, points, ang, points,
-                       ang, qargs={'exclude_ii': True})
-        npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
-        ocf.reset()
-        ocf.accumulate(box, points, ang, values=ang)
-        npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
-        ocf.compute(box, points, ang)
-        npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
-        self.assertEqual(freud.box.Box.square(box_size), ocf.box)
+
+        test_set = util.makeRawQueryNlistTestSet(
+            box, points, points, 'ball', rmax, 0, True)
+        for ts in test_set:
+            ocf = freud.density.FloatCF(rmax, dr)
+            ocf.accumulate(box, ts[0], ang, nlist=ts[1])
+            npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
+            ocf.compute(box, ts[0], ang, nlist=ts[1])
+            npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
+            ocf.reset()
+            ocf.accumulate(box, ts[0], ang, points,
+                           ang, qargs={'exclude_ii': True}, nlist=ts[1])
+            npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
+            ocf.reset()
+            ocf.accumulate(box, ts[0], ang, values=ang, nlist=ts[1])
+            npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
+            ocf.compute(box, ts[0], ang, nlist=ts[1])
+            npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
+            self.assertEqual(freud.box.Box.square(box_size), ocf.box)
 
     def test_zero_points(self):
         rmax = 10.0

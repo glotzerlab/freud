@@ -2,6 +2,7 @@ import numpy as np
 import numpy.testing as npt
 import freud
 import unittest
+import util
 
 
 class TestComplexCF(unittest.TestCase):
@@ -72,31 +73,33 @@ class TestComplexCF(unittest.TestCase):
         dr = 1.0
         num_points = 1000
         box_size = rmax*3.1
+        box = freud.box.Box.square(box_size)
         np.random.seed(0)
         points = np.random.random_sample((num_points, 3)).astype(np.float32) \
             * box_size - box_size/2
         ang = np.random.random_sample((num_points)).astype(np.float64) \
             * 2.0 * np.pi
         comp = np.exp(1j*ang)
-        ocf = freud.density.ComplexCF(rmax, dr)
         correct = np.zeros(int(rmax/dr), dtype=np.complex64)
         absolute_tolerance = 0.1
         # first bin is bad
-        ocf.accumulate(freud.box.Box.square(box_size), points, comp,
-                       points, np.conj(comp), qargs={"exclude_ii": True})
-        npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
-        ocf.compute(freud.box.Box.square(box_size), points, comp,
-                    points, np.conj(comp), qargs={"exclude_ii": True})
-        npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
-        self.assertEqual(freud.box.Box.square(box_size), ocf.box)
+        test_set = util.makeRawQueryNlistTestSet(
+            box, points, points, 'ball', rmax, 0, True)
+        for ts in test_set:
+            ocf = freud.density.ComplexCF(rmax, dr)
+            ocf.accumulate(box, ts[0], comp, points, np.conj(comp),
+                           qargs={"exclude_ii": True}, nlist=ts[1])
+            npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
+            ocf.compute(box, ts[0], comp, points, np.conj(comp),
+                        qargs={"exclude_ii": True}, nlist=ts[1])
+            npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
+            self.assertEqual(box, ocf.box)
 
-        ocf.reset()
-        ocf.accumulate(freud.box.Box.square(box_size), points, comp,
-                       values=np.conj(comp))
-        npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
-        ocf.compute(freud.box.Box.square(box_size), points, comp,
-                    values=np.conj(comp))
-        npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
+            ocf.reset()
+            ocf.accumulate(box, ts[0], comp, values=np.conj(comp), nlist=ts[1])
+            npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
+            ocf.compute(box, ts[0], comp, values=np.conj(comp), nlist=ts[1])
+            npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
 
     def test_zero_points(self):
         rmax = 10.0
