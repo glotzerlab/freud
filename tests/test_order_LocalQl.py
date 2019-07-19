@@ -4,7 +4,8 @@ import freud
 import unittest
 import util
 
-PERFECT_FCC_Q6 = 0.57452416
+# Validated against manual calculation and pyboo
+PERFECT_FCC_Q6 = 0.5745242597140698
 
 
 class TestLocalQl(unittest.TestCase):
@@ -104,6 +105,7 @@ class TestLocalQlNear(unittest.TestCase):
     def test_init_kwargs(self):
         """Ensure that keyword arguments are correctly accepted"""
         box = freud.box.Box.cube(10)
+        # Use a really small cutoff to ensure that it is used as a soft cutoff
         comp = freud.order.LocalQlNear(box, 0.1, 6, kn=12)  # noqa: F841
 
     def test_shape(self):
@@ -114,6 +116,7 @@ class TestLocalQlNear(unittest.TestCase):
         positions = np.random.uniform(-box.Lx/2, box.Lx/2,
                                       size=(N, 3)).astype(np.float32)
 
+        # Use a really small cutoff to ensure that it is used as a soft cutoff
         comp = freud.order.LocalQlNear(box, 0.1, 6, 12)
         comp.compute(positions)
 
@@ -185,11 +188,13 @@ class TestLocalQlNear(unittest.TestCase):
 
     def test_repr(self):
         box = freud.box.Box.cube(10)
+        # Use a really small cutoff to ensure that it is used as a soft cutoff
         comp = freud.order.LocalQlNear(box, 0.1, 6, 12)
         self.assertEqual(str(comp), str(eval(repr(comp))))
 
     def test_repr_png(self):
         (box, positions) = util.make_fcc(4, 4, 4)
+        # Use a really small cutoff to ensure that it is used as a soft cutoff
         comp = freud.order.LocalQlNear(box, 0.1, 6, 12)
         with self.assertRaises(AttributeError):
             comp.plot(mode="Ql")

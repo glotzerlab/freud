@@ -4,6 +4,7 @@ import freud
 import unittest
 import util
 
+# Validated against manual calculation and pyboo
 PERFECT_FCC_Q6 = 0.57452416
 PERFECT_FCC_W6 = -0.00262604
 
@@ -44,7 +45,8 @@ class TestSteinhardt(unittest.TestCase):
         perturbed_positions = positions.copy()
         perturbed_positions[-1] += [0.1, 0, 0]
 
-        comp = freud.order.Steinhardt(1.5, 6, num_neigh=12)
+        # Use a really small cutoff to ensure that it is used as a soft cutoff
+        comp = freud.order.Steinhardt(0.1, 6, num_neigh=12)
         comp.compute(box, positions)
         npt.assert_allclose(np.average(comp.order), PERFECT_FCC_Q6, atol=1e-5)
         npt.assert_allclose(comp.order, comp.order[0], atol=1e-5)
@@ -88,7 +90,8 @@ class TestSteinhardt(unittest.TestCase):
     def test_identical_environments_Wl_near(self):
         (box, positions) = util.make_fcc(4, 4, 4)
 
-        comp = freud.order.Steinhardt(1.5, 6, num_neigh=12, Wl=True)
+        # Use a really small cutoff to ensure that it is used as a soft cutoff
+        comp = freud.order.Steinhardt(0.1, 6, num_neigh=12, Wl=True)
         comp.compute(box, positions)
         npt.assert_allclose(
             np.real(np.average(comp.order)), PERFECT_FCC_W6, atol=1e-5)
