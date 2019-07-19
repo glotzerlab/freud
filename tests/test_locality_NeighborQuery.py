@@ -447,17 +447,21 @@ class TestNeighborQuery(object):
             for k in ks:
                 nq = self.build_query_object(box, positions, L/10)
 
-                nlist = nq.query(positions, k=k, exclude_ii=True).toNList()
+                nlist = nq.query(
+                    positions, num_neighbors=k, exclude_ii=True).toNList()
                 assert len(nlist) == k * N,\
-                    'Wrong nlist length for N = {}, k= {}, length={}'.format(
+                    ("Wrong nlist length for N = {},"
+                     "num_neighbors = {}, length = {}").format(
                         N, k, len(nlist))
                 nlist_array = nlist[:]
                 for i in range(N):
                     assert not ([i, i] == nlist_array).all(axis=1).any()
 
-                nlist = nq.query(positions, k=k, exclude_ii=False).toNList()
+                nlist = nq.query(
+                    positions, num_neighbors=k, exclude_ii=False).toNList()
                 assert len(nlist) == k * N,\
-                    'Wrong nlist length for N = {}, k= {}, length={}'.format(
+                    ("Wrong nlist length for N = {}, "
+                     "num_neighbors = {}, length = {}").format(
                         N, k, len(nlist))
                 nlist_array = nlist[:]
                 for i in range(N):

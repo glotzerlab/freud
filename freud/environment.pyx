@@ -95,7 +95,7 @@ cdef class BondOrder(Compute):
             Distance over which to calculate.
         k (unsigned int):
             Order parameter i. To be removed.
-        n (unsigned int):
+        num_neighbors (unsigned int):
             Number of neighbors to find.
         n_bins_t (unsigned int):
             Number of :math:`\theta` bins.
@@ -125,16 +125,16 @@ cdef class BondOrder(Compute):
     cdef n_bins_t
     cdef n_bins_p
 
-    def __cinit__(self, float r_max, float k, unsigned int n,
+    def __cinit__(self, float r_max, float k, unsigned int num_neighbors,
                   unsigned int n_bins_t, unsigned int n_bins_p):
         if n_bins_t < 2:
             raise ValueError("Must have at least 2 bins in theta.")
         if n_bins_p < 2:
             raise ValueError("Must have at least 2 bins in phi.")
         self.thisptr = new freud._environment.BondOrder(
-            r_max, k, n, n_bins_t, n_bins_p)
+            r_max, k, num_neighbors, n_bins_t, n_bins_p)
         self.r_max = r_max
-        self.num_neigh = n
+        self.num_neigh = num_neighbors
         self.k = k
         self.n_bins_t = n_bins_t
         self.n_bins_p = n_bins_p
@@ -301,7 +301,7 @@ cdef class BondOrder(Compute):
 
     def __repr__(self):
         return ("freud.environment.{cls}(r_max={r_max}, k={k}, "
-                "n={num_neigh}, n_bins_t={n_bins_t}, "
+                "num_neighbors={num_neigh}, n_bins_t={n_bins_t}, "
                 "n_bins_p={n_bins_p})").format(cls=type(self).__name__,
                                                r_max=self.r_max,
                                                k=self.k,
@@ -504,7 +504,7 @@ cdef class MatchEnv(Compute):
         r_max (float):
             Cutoff radius for cell list and clustering algorithm. Values near
             the first minimum of the RDF are recommended.
-        k (unsigned int):
+        num_neighbors (unsigned int):
             Number of nearest neighbors taken to define the local environment
             of any given particle.
 
@@ -523,14 +523,14 @@ cdef class MatchEnv(Compute):
     cdef num_neigh
     cdef m_box
 
-    def __cinit__(self, box, r_max, k):
+    def __cinit__(self, box, r_max, num_neighbors):
         cdef freud.box.Box b = freud.common.convert_box(box)
 
         self.thisptr = new freud._environment.MatchEnv(
-            dereference(b.thisptr), r_max, k)
+            dereference(b.thisptr), r_max, num_neighbors)
 
         self.r_max = r_max
-        self.num_neigh = k
+        self.num_neigh = num_neighbors
         self.m_box = box
 
     def __dealloc__(self):
@@ -834,10 +834,9 @@ cdef class MatchEnv(Compute):
 
     def __repr__(self):
         return ("freud.environment.{cls}(box={box}, "
-                "r_max={r_max}, k={k})").format(cls=type(self).__name__,
-                                                box=self.m_box.__repr__(),
-                                                r_max=self.r_max,
-                                                k=self.num_neigh)
+                "r_max={r}, num_neighbors={k})").format(
+                    cls=type(self).__name__, box=self.m_box.__repr__(),
+                    r=self.r_max, k=self.num_neigh)
 
     def __str__(self):
         return repr(self)
@@ -882,7 +881,7 @@ cdef class AngularSeparation(Compute):
         r_max (float):
             Cutoff radius for cell list and clustering algorithm. Values near
             the first minimum of the RDF are recommended.
-        n (int):
+        num_neighbors (int):
             The number of neighbors.
 
     Attributes:
@@ -912,10 +911,10 @@ cdef class AngularSeparation(Compute):
     cdef float r_max
     cdef freud.locality.NeighborList nlist_
 
-    def __cinit__(self, float r_max, unsigned int n):
+    def __cinit__(self, float r_max, unsigned int num_neighbors):
         self.thisptr = new freud._environment.AngularSeparation()
         self.r_max = r_max
-        self.num_neigh = n
+        self.num_neigh = num_neighbors
 
     def __dealloc__(self):
         del self.thisptr
@@ -1059,8 +1058,8 @@ cdef class AngularSeparation(Compute):
         return self.thisptr.getNglobal()
 
     def __repr__(self):
-        return "freud.environment.{cls}(r_max={r_max}, n={n})".format(
-            cls=type(self).__name__, r_max=self.r_max, n=self.num_neigh)
+        return "freud.environment.{cls}(r_max={r}, num_neighbors={n})".format(
+            cls=type(self).__name__, r=self.r_max, n=self.num_neigh)
 
     def __str__(self):
         return repr(self)
@@ -1103,10 +1102,10 @@ cdef class LocalBondProjection(Compute):
     cdef unsigned int num_neigh
     cdef freud.locality.NeighborList nlist_
 
-    def __cinit__(self, r_max, num_neigh):
+    def __cinit__(self, r_max, num_neighbors):
         self.thisptr = new freud._environment.LocalBondProjection()
         self.r_max = r_max
-        self.num_neigh = int(num_neigh)
+        self.num_neigh = int(num_neighbors)
 
     def __dealloc__(self):
         del self.thisptr
@@ -1228,9 +1227,9 @@ cdef class LocalBondProjection(Compute):
 
     def __repr__(self):
         return ("freud.environment.{cls}(r_max={r_max}, "
-                "num_neigh={num_neigh})").format(cls=type(self).__name__,
-                                                 r_max=self.r_max,
-                                                 num_neigh=self.num_neigh)
+                "num_neighbors={num_neigh})").format(cls=type(self).__name__,
+                                                     r_max=self.r_max,
+                                                     num_neigh=self.num_neigh)
 
     def __str__(self):
         return repr(self)

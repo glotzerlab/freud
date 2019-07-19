@@ -336,20 +336,22 @@ cdef class NeighborQuery:
 
         return nl
 
-    def query(self, points, unsigned int k=1, cbool exclude_ii=False):
+    def query(self, points, unsigned int num_neighbors=1,
+              cbool exclude_ii=False):
         R"""Query for nearest neighbors of the provided point.
 
         Args:
             points ((:math:`N`, 3) :class:`numpy.ndarray`):
                 Points to query for.
-            k (int):
+            num_neighbors (int):
                 The number of nearest neighbors to find.
+                (Default value = 1)
             exclude_ii (bool, optional):
                 Set this to :code:`True` if pairs of points with identical
                 indices to those in self.points should be excluded. If this is
                 :code:`None`, it will be treated as :code:`True` if
                 :code:`points` is :code:`None` or the same object as
-                :code:`ref_points` (Defaults to :code:`None`).
+                :code:`ref_points` (Defaults value = :code:`None`).
 
         Returns:
             :class:`~.NeighborQueryResult`: Results object containing the
@@ -364,7 +366,7 @@ cdef class NeighborQuery:
                                             shape=(None, 3))
 
         return NeighborQueryResult.init(
-            self, points, exclude_ii, r=0, k=k)
+            self, points, exclude_ii, r=0, k=num_neighbors)
 
     def queryBall(self, points, float r_max, cbool exclude_ii=False):
         R"""Query for all points within a distance r of the provided point(s).
@@ -823,7 +825,7 @@ def make_default_nlist(box, ref_points, points, r_max, nlist=None,
     return aq_nlist, aq
 
 
-def make_default_nlist_nn(box, ref_points, points, n_neigh, nlist=None,
+def make_default_nlist_nn(box, ref_points, points, num_neighbors, nlist=None,
                           exclude_ii=None, r_max_guess=2.0):
     R"""Helper function to return a neighbor list object if is given, or to
     construct one using NearestNeighbors if it is not.
@@ -835,7 +837,7 @@ def make_default_nlist_nn(box, ref_points, points, n_neigh, nlist=None,
             Reference points for the neighborlist.
         points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
             Points to construct the neighborlist.
-        n_neigh (int):
+        num_neighbors (int):
             The number of nearest neighbors to consider.
         nlist (:class:`freud.locality.NeighborList`, optional):
             NeighborList to use to find bonds (Default value = :code:`None`).
@@ -855,8 +857,9 @@ def make_default_nlist_nn(box, ref_points, points, n_neigh, nlist=None,
     if nlist is not None:
         return nlist, nlist
 
-    cdef NearestNeighbors nn = NearestNeighbors(r_max_guess, n_neigh).compute(
-        box, ref_points, points, exclude_ii=exclude_ii)
+    cdef NearestNeighbors nn = NearestNeighbors(
+        r_max_guess, num_neighbors).compute(
+            box, ref_points, points, exclude_ii=exclude_ii)
 
     # Python does not appear to garbage collect appropriately in this case.
     # If a new neighbor list is created, the associated link cell keeps the
@@ -966,8 +969,8 @@ cdef class AABBQuery(NeighborQuery):
 
         return nl
 
-    def query(self, points, unsigned int k=1, float r_guess=0, float scale=1.1,
-              cbool exclude_ii=False):
+    def query(self, points, unsigned int num_neighbors=1, float r_guess=0,
+              float scale=1.1, cbool exclude_ii=False):
         R"""Query for nearest neighbors of the provided point.
 
         This method has a slightly different signature from the parent method
@@ -978,13 +981,15 @@ cdef class AABBQuery(NeighborQuery):
                 Simulation box.
             points ((:math:`N`, 3) :class:`numpy.ndarray`):
                 Points to query for.
-            k (int):
+            num_neighbors (int):
                 The number of nearest neighbors to find.
+                (Default value = 1)
             r_guess (float):
                 The initial guess of a distance to search to find N neighbors.
+                (Default value = 0)
             scale (float):
                 Multiplier by which to increase :code:`r` if not enough
-                neighbors are found.
+                neighbors are found. (Default value = 1.1)
 
         Returns:
             :class:`~.NeighborQueryResult`: Results object containing the
@@ -1001,7 +1006,7 @@ cdef class AABBQuery(NeighborQuery):
             r_guess *= 0.1
 
         return AABBQueryResult.init_aabb_nn(
-            self, points, exclude_ii, k, r_guess, scale)
+            self, points, exclude_ii, num_neighbors, r_guess, scale)
 
 
 cdef class IteratorLinkCell:
@@ -1255,7 +1260,7 @@ cdef class NearestNeighbors:
     Args:
         r_max (float):
             Initial guess of a distance to search within to find N neighbors.
-        n_neigh (unsigned int):
+        num_neighbors (unsigned int):
             Number of neighbors to find for each point.
         scale (float):
             Multiplier by which to automatically increase :code:`r_max` value if
@@ -1292,12 +1297,12 @@ cdef class NearestNeighbors:
        hexatic.compute(box, positions, nlist=nn.nlist)
     """  # noqa: E501
 
-    def __cinit__(self, float r_max, unsigned int n_neigh, float scale=1.1,
-                  strict_cut=False):
+    def __cinit__(self, float r_max, unsigned int num_neighbors,
+                  float scale=1.1, strict_cut=False):
         if scale < 1:
             raise RuntimeError("scale must be greater than 1")
         self.thisptr = new freud._locality.NearestNeighbors(
-            float(r_max), int(n_neigh), float(scale), bool(strict_cut))
+            float(r_max), int(num_neighbors), float(scale), bool(strict_cut))
         self._nlist = NeighborList()
 
     def __dealloc__(self):

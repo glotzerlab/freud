@@ -318,8 +318,8 @@ cdef class HexOrderParameter(Compute):
             +/- r distance to search for neighbors.
         k (unsigned int):
             Symmetry of order parameter (:math:`k=6` is hexatic).
-        n (unsigned int):
-            Number of neighbors (:math:`n=k` if :math:`n` not specified).
+        num_neighbors (unsigned int):
+            Number of neighbors (:math:`num_neighbors=k` if :math:`num_neighbors` not specified).
 
     Attributes:
         psi (:math:`\left(N_{particles} \right)` :class:`numpy.ndarray`):
@@ -330,15 +330,15 @@ cdef class HexOrderParameter(Compute):
             Number of particles.
         K (unsigned int):
             Symmetry of the order parameter.
-    """
+    """  # noqa: E501
     cdef freud._order.HexOrderParameter * thisptr
     cdef int num_neigh
     cdef float r_max
 
-    def __cinit__(self, r_max, k=int(6), n=int(0)):
+    def __cinit__(self, r_max, k=int(6), num_neighbors=int(0)):
         self.thisptr = new freud._order.HexOrderParameter(k)
         self.r_max = r_max
-        self.num_neigh = (n if n else int(k))
+        self.num_neigh = (num_neighbors if num_neighbors else int(k))
 
     def __dealloc__(self):
         del self.thisptr
@@ -393,8 +393,8 @@ cdef class HexOrderParameter(Compute):
         return k
 
     def __repr__(self):
-        return "freud.order.{cls}(r_max={r_max}, k={k}, n={n})".format(
-            cls=type(self).__name__, r_max=self.r_max, k=self.K,
+        return "freud.order.{cls}(r_max={r}, k={k}, num_neighbors={n})".format(
+            cls=type(self).__name__, r=self.r_max, k=self.K,
             n=self.num_neigh)
 
     def __str__(self):
@@ -411,8 +411,8 @@ cdef class TransOrderParameter(Compute):
             +/- r distance to search for neighbors.
         k (float):
             Symmetry of order parameter (:math:`k=6` is hexatic).
-        n (unsigned int):
-            Number of neighbors (:math:`n=k` if :math:`n` not specified).
+        num_neighbors (unsigned int):
+            Number of neighbors (:math:`num_neighbors=k` if :math:`num_neighbors` not specified).
 
     Attributes:
         d_r (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
@@ -423,15 +423,15 @@ cdef class TransOrderParameter(Compute):
             Number of particles.
         K (float):
             Normalization value (d_r is divided by K).
-    """
+    """  # noqa: E501
     cdef freud._order.TransOrderParameter * thisptr
     cdef num_neigh
     cdef r_max
 
-    def __cinit__(self, r_max, k=6.0, n=0):
+    def __cinit__(self, r_max, k=6.0, num_neighbors=0):
         self.thisptr = new freud._order.TransOrderParameter(k)
         self.r_max = r_max
-        self.num_neigh = (n if n else int(k))
+        self.num_neigh = (num_neighbors if num_neighbors else int(k))
 
     def __dealloc__(self):
         del self.thisptr
@@ -485,8 +485,8 @@ cdef class TransOrderParameter(Compute):
         return k
 
     def __repr__(self):
-        return "freud.order.{cls}(r_max={r_max}, k={k}, n={n})".format(
-            cls=type(self).__name__, r_max=self.r_max, k=self.K,
+        return "freud.order.{cls}(r_max={r}, k={k}, num_neighbors={n})".format(
+            cls=type(self).__name__, r=self.r_max, k=self.K,
             n=self.num_neigh)
 
     def __str__(self):
@@ -550,9 +550,9 @@ cdef class Steinhardt:
         Wl (bool, optional):
             Determines whether to use the :math:`Wl` version of the Steinhardt
             order parameter, defaults to False.
-        num_neigh (int, optional):
+        num_neighbors (int, optional):
             If set to a non-zero positive integer, limit the calculate of the
-            Steinhardt order parameter to num_neigh neighbors.
+            Steinhardt order parameter to num_neighbors neighbors.
 
 
     Attributes:
@@ -573,12 +573,12 @@ cdef class Steinhardt:
     cdef num_neigh
 
     def __cinit__(self, r_max, l, r_min=0, average=False,
-                  Wl=False, num_neigh=0, *args, **kwargs):
+                  Wl=False, num_neighbors=0, *args, **kwargs):
         if type(self) is Steinhardt:
             self.r_max = r_max
             self.sph_l = l
             self.r_min = r_min
-            self.num_neigh = num_neigh
+            self.num_neigh = num_neighbors
             self.stptr = new freud._order.Steinhardt(
                 r_max, l, r_min,
                 average, Wl)
@@ -991,7 +991,7 @@ cdef class LocalQlNear(LocalQl):
     R"""A variant of the :class:`~LocalQl` class that performs its average
     over nearest neighbor particles as determined by an instance of
     :class:`freud.locality.NeighborList`. The number of included neighbors
-    is determined by the kn parameter to the constructor.
+    is determined by the num_neighbors parameter to the constructor.
 
     .. moduleauthor:: Xiyu Du <xiyudu@umich.edu>
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
@@ -1004,7 +1004,7 @@ cdef class LocalQlNear(LocalQl):
             minimum of the RDF are recommended.
         l (unsigned int):
             Spherical harmonic quantum number l. Must be a positive number.
-        kn (unsigned int):
+        num_neighbors (unsigned int):
             Number of nearest neighbors. must be a positive integer.
 
     Attributes:
@@ -1031,7 +1031,7 @@ cdef class LocalQlNear(LocalQl):
     """  # noqa: E501
     cdef num_neigh
 
-    def __cinit__(self, box, r_max, l, kn=12):
+    def __cinit__(self, box, r_max, l, num_neighbors=12):
         # Note that we cannot leverage super here because the
         # type conditional in the parent will prevent it.
         # Unfortunately, this is necessary for proper memory
@@ -1043,7 +1043,7 @@ cdef class LocalQlNear(LocalQl):
             self.m_box = b
             self.r_max = r_max
             self.sph_l = l
-            self.num_neigh = kn
+            self.num_neigh = num_neighbors
 
     def __dealloc__(self):
         if type(self) == LocalQlNear:
@@ -1119,11 +1119,11 @@ cdef class LocalQlNear(LocalQl):
 
     def __repr__(self):
         return ("freud.order.{cls}(box={box}, r_max={r_max}, l={sph_l}, "
-                "kn={kn})").format(cls=type(self).__name__,
-                                   box=self.m_box,
-                                   r_max=self.r_max,
-                                   sph_l=self.sph_l,
-                                   kn=self.num_neigh)
+                "num_neighbors={n})").format(cls=type(self).__name__,
+                                             box=self.m_box,
+                                             r_max=self.r_max,
+                                             sph_l=self.sph_l,
+                                             n=self.num_neigh)
 
     def __str__(self):
         return repr(self)
@@ -1329,7 +1329,7 @@ cdef class LocalWlNear(LocalWl):
     R"""A variant of the :class:`~LocalWl` class that performs its average
     over nearest neighbor particles as determined by an instance of
     :class:`freud.locality.NeighborList`. The number of included neighbors
-    is determined by the kn parameter to the constructor.
+    is determined by the num_neighbors parameter to the constructor.
 
     .. moduleauthor:: Xiyu Du <xiyudu@umich.edu>
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
@@ -1342,7 +1342,7 @@ cdef class LocalWlNear(LocalWl):
             minimum of the RDF are recommended.
         l (unsigned int):
             Spherical harmonic quantum number l. Must be a positive number
-        kn (unsigned int):
+        num_neighbors (unsigned int):
             Number of nearest neighbors. Must be a positive number.
 
 
@@ -1370,7 +1370,7 @@ cdef class LocalWlNear(LocalWl):
     """  # noqa: E501
     cdef num_neigh
 
-    def __cinit__(self, box, r_max, l, kn=12):
+    def __cinit__(self, box, r_max, l, num_neighbors=12):
         cdef freud.box.Box b = freud.common.convert_box(box)
         if type(self) is LocalWlNear:
             self.thisptr = self.qlptr = new freud._order.LocalWl(
@@ -1378,7 +1378,7 @@ cdef class LocalWlNear(LocalWl):
             self.m_box = b
             self.r_max = r_max
             self.sph_l = l
-            self.num_neigh = kn
+            self.num_neigh = num_neighbors
 
     def __dealloc__(self):
         del self.thisptr
@@ -1453,11 +1453,11 @@ cdef class LocalWlNear(LocalWl):
 
     def __repr__(self):
         return ("freud.order.{cls}(box={box}, r_max={r_max}, l={sph_l}, "
-                "kn={kn})").format(cls=type(self).__name__,
-                                   box=self.m_box,
-                                   r_max=self.r_max,
-                                   sph_l=self.sph_l,
-                                   kn=self.num_neigh)
+                "num_neighbors={n})").format(cls=type(self).__name__,
+                                             box=self.m_box,
+                                             r_max=self.r_max,
+                                             sph_l=self.sph_l,
+                                             n=self.num_neigh)
 
     def __str__(self):
         return repr(self)
@@ -1697,7 +1697,7 @@ cdef class SolLiq(Compute):
 
 
 cdef class SolLiqNear(SolLiq):
-    R"""A variant of the :class:`~SolLiq` class that performs its average over nearest neighbor particles as determined by an instance of :class:`freud.locality.NeighborList`. The number of included neighbors is determined by the kn parameter to the constructor.
+    R"""A variant of the :class:`~SolLiq` class that performs its average over nearest neighbor particles as determined by an instance of :class:`freud.locality.NeighborList`. The number of included neighbors is determined by the num_neighbors parameter to the constructor.
 
     .. moduleauthor:: Richmond Newman <newmanrs@umich.edu>
 
@@ -1718,7 +1718,7 @@ cdef class SolLiqNear(SolLiq):
             is generally good for FCC or BCC structures).
         l (unsigned int):
             Choose spherical harmonic :math:`Q_l`. Must be positive and even.
-        kn (unsigned int):
+        num_neighbors (unsigned int):
             Number of nearest neighbors. Must be a positive number.
 
     Attributes:
@@ -1746,7 +1746,8 @@ cdef class SolLiqNear(SolLiq):
     """  # noqa: E501
     cdef num_neigh
 
-    def __cinit__(self, box, r_max, Qthreshold, Sthreshold, l, kn=12):
+    def __cinit__(self, box, r_max, Qthreshold, Sthreshold,
+                  l, num_neighbors=12):
         cdef freud.box.Box b = freud.common.convert_box(box)
         if type(self) is SolLiqNear:
             self.thisptr = new freud._order.SolLiq(
@@ -1756,7 +1757,7 @@ cdef class SolLiqNear(SolLiq):
             self.Qthreshold = Qthreshold
             self.Sthreshold = Sthreshold
             self.sph_l = l
-            self.num_neigh = kn
+            self.num_neigh = num_neighbors
 
     def __dealloc__(self):
         del self.thisptr
@@ -1816,13 +1817,14 @@ cdef class SolLiqNear(SolLiq):
     def __repr__(self):
         return ("freud.order.{cls}(box={box}, r_max={r_max}, "
                 "Qthreshold={Qthreshold}, Sthreshold={Sthreshold}, "
-                "l={sph_l}, kn={kn})").format(cls=type(self).__name__,
-                                              box=self.m_box,
-                                              r_max=self.r_max,
-                                              Qthreshold=self.Qthreshold,
-                                              Sthreshold=self.Sthreshold,
-                                              sph_l=self.sph_l,
-                                              kn=self.num_neigh)
+                "l={sph_l}, "
+                "num_neighbors={n})").format(cls=type(self).__name__,
+                                             box=self.m_box,
+                                             r_max=self.r_max,
+                                             Qthreshold=self.Qthreshold,
+                                             Sthreshold=self.Sthreshold,
+                                             sph_l=self.sph_l,
+                                             n=self.num_neigh)
 
     def __str__(self):
         return repr(self)
