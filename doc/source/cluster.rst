@@ -18,11 +18,11 @@ Cluster Module
 Cluster
 =======
 
-.. autoclass:: freud.cluster.Cluster(box, r_max)
+.. autoclass:: freud.cluster.Cluster(r_max)
     :members: computeClusterMembership, computeClusters, plot
 
 Cluster Properties
 ==================
 
-.. autoclass:: freud.cluster.ClusterProperties(box)
+.. autoclass:: freud.cluster.ClusterProperties()
     :members: computeProperties
