@@ -51,7 +51,7 @@ cdef class Cluster(Compute):
     Args:
         box (:class:`freud.box.Box`):
             The simulation box.
-        rcut (float):
+        r_max (float):
             Particle distance cutoff.
 
     .. note::
@@ -73,13 +73,13 @@ cdef class Cluster(Compute):
     """
     cdef freud._cluster.Cluster * thisptr
     cdef freud.box.Box m_box
-    cdef rmax
+    cdef r_max
 
-    def __cinit__(self, box, float rcut):
+    def __cinit__(self, box, float r_max):
         cdef freud.box.Box b = freud.common.convert_box(box)
-        self.thisptr = new freud._cluster.Cluster(rcut)
+        self.thisptr = new freud._cluster.Cluster(r_max)
         self.m_box = b
-        self.rmax = rcut
+        self.r_max = r_max
 
     def __dealloc__(self):
         del self.thisptr
@@ -105,7 +105,7 @@ cdef class Cluster(Compute):
         cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
 
         cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
-            mode="ball", rmax=self.rmax, exclude_ii=True)
+            mode="ball", r_max=self.r_max, exclude_ii=True)
         points = nq.points
 
         cdef freud.box.Box b
@@ -163,9 +163,9 @@ cdef class Cluster(Compute):
 
     def __repr__(self):
         return ("freud.cluster.{cls}(box={box}, "
-                "rcut={rcut})").format(cls=type(self).__name__,
-                                       box=self.m_box.__repr__(),
-                                       rcut=self.rmax)
+                "r_max={r_max})").format(cls=type(self).__name__,
+                                         box=self.m_box.__repr__(),
+                                         r_max=self.r_max)
 
     def __str__(self):
         return repr(self)

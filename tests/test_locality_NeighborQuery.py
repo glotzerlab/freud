@@ -96,7 +96,7 @@ class TestNeighborQuery(object):
         points[3] = [2.0, 0.0, 0.0]
         nq = self.build_query_object(box, points, rcut)
 
-        nlist = nq._queryGeneric(points, dict(mode='ball', rmax=rcut))
+        nlist = nq._queryGeneric(points, dict(mode='ball', r_max=rcut))
         nlist_neighbors = sorted(list(zip(nlist.index_i, nlist.index_j)))
         # particle 0 has 2 bonds
         npt.assert_equal(sum(nlist.index_i == 0), 3)
@@ -109,7 +109,7 @@ class TestNeighborQuery(object):
 
         # Check NeighborList length without self-exclusions.
         nlist = nq._queryGeneric(
-            points, dict(mode='ball', rmax=rcut, exclude_ii=True))
+            points, dict(mode='ball', r_max=rcut, exclude_ii=True))
         nlist_neighbors = sorted(list(zip(nlist.index_i, nlist.index_j)))
         # When excluding, everything has one less neighbor.
         npt.assert_equal(len(nlist_neighbors), 10)
@@ -118,7 +118,7 @@ class TestNeighborQuery(object):
         points[0] = 5
 
         nq = freud.locality.LinkCell(box, rcut, points)
-        nlist = nq._queryGeneric(points, dict(mode='ball', rmax=rcut))
+        nlist = nq._queryGeneric(points, dict(mode='ball', r_max=rcut))
         nlist_neighbors = sorted(list(zip(nlist.index_i, nlist.index_j)))
         # particle 0 has 0 bonds
         npt.assert_equal(sum(nlist.index_i == 0), 1)

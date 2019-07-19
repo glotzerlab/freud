@@ -36,8 +36,8 @@ cdef class FloatCF(Compute):
     given radial distance :math:`r`.
 
     The values of :math:`r` where the correlation function is computed are
-    controlled by the :code:`rmax` and :code:`dr` parameters to the
-    constructor. :code:`rmax` determines the maximum distance at which to
+    controlled by the :code:`r_max` and :code:`dr` parameters to the
+    constructor. :code:`r_max` determines the maximum distance at which to
     compute the correlation function and :code:`dr` is the step size for each
     bin.
 
@@ -55,7 +55,7 @@ cdef class FloatCF(Compute):
     .. moduleauthor:: Matthew Spellings <mspells@umich.edu>
 
     Args:
-        rmax (float):
+        r_max (float):
             Maximum pointwise distance to include in the calculation.
         dr (float):
             Bin size.
@@ -72,14 +72,15 @@ cdef class FloatCF(Compute):
             The centers of each bin.
     """
     cdef freud._density.CorrelationFunction[double] * thisptr
-    cdef rmax
+    cdef r_max
     cdef dr
 
-    def __cinit__(self, float rmax, float dr):
+    def __cinit__(self, float r_max, float dr):
         if dr <= 0.0:
             raise ValueError("dr must be > 0")
-        self.thisptr = new freud._density.CorrelationFunction[double](rmax, dr)
-        self.rmax = rmax
+        self.thisptr = new freud._density.CorrelationFunction[double](
+            r_max, dr)
+        self.r_max = r_max
         self.dr = dr
 
     def __dealloc__(self):
@@ -117,7 +118,7 @@ cdef class FloatCF(Compute):
         cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
 
         cdef freud.locality._QueryArgs def_qargs = freud.locality._QueryArgs(
-            mode="ball", rmax=self.rmax, exclude_ii=exclude_ii)
+            mode="ball", r_max=self.r_max, exclude_ii=exclude_ii)
         def_qargs.update(qargs)
         ref_points = nq.points
 
@@ -216,8 +217,8 @@ cdef class FloatCF(Compute):
         return np.asarray(R)
 
     def __repr__(self):
-        return ("freud.density.{cls}(rmax={rmax}, dr={dr})").format(
-            cls=type(self).__name__, rmax=self.rmax, dr=self.dr)
+        return ("freud.density.{cls}(r_max={r_max}, dr={dr})").format(
+            cls=type(self).__name__, r_max=self.r_max, dr=self.dr)
 
     def __str__(self):
         return repr(self)
@@ -261,8 +262,8 @@ cdef class ComplexCF(Compute):
     given radial distance :math:`r`.
 
     The values of :math:`r` where the correlation function is computed are
-    controlled by the :code:`rmax` and :code:`dr` parameters to the
-    constructor. :code:`rmax` determines the maximum distance at which to
+    controlled by the :code:`r_max` and :code:`dr` parameters to the
+    constructor. :code:`r_max` determines the maximum distance at which to
     compute the correlation function and :code:`dr` is the step size for each
     bin.
 
@@ -280,7 +281,7 @@ cdef class ComplexCF(Compute):
     .. moduleauthor:: Matthew Spellings <mspells@umich.edu>
 
     Args:
-        rmax (float):
+        r_max (float):
             Maximum pointwise distance to include in the calculation.
         dr (float):
             Bin size.
@@ -297,15 +298,15 @@ cdef class ComplexCF(Compute):
             The centers of each bin.
     """
     cdef freud._density.CorrelationFunction[np.complex128_t] * thisptr
-    cdef rmax
+    cdef r_max
     cdef dr
 
-    def __cinit__(self, float rmax, float dr):
+    def __cinit__(self, float r_max, float dr):
         if dr <= 0.0:
             raise ValueError("dr must be > 0")
         self.thisptr = new freud._density.CorrelationFunction[np.complex128_t](
-            rmax, dr)
-        self.rmax = rmax
+            r_max, dr)
+        self.r_max = r_max
         self.dr = dr
 
     def __dealloc__(self):
@@ -343,7 +344,7 @@ cdef class ComplexCF(Compute):
         cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
 
         cdef freud.locality._QueryArgs def_qargs = freud.locality._QueryArgs(
-            mode="ball", rmax=self.rmax, exclude_ii=exclude_ii)
+            mode="ball", r_max=self.r_max, exclude_ii=exclude_ii)
         def_qargs.update(qargs)
         ref_points = nq.points
 
@@ -443,8 +444,8 @@ cdef class ComplexCF(Compute):
         return np.asarray(R)
 
     def __repr__(self):
-        return ("freud.density.{cls}(rmax={rmax}, dr={dr})").format(
-            cls=type(self).__name__, rmax=self.rmax, dr=self.dr)
+        return ("freud.density.{cls}(r_max={r_max}, dr={dr})").format(
+            cls=type(self).__name__, r_max=self.r_max, dr=self.dr)
 
     def __str__(self):
         return repr(self)
@@ -491,11 +492,11 @@ cdef class GaussianDensity(Compute):
 
         Initialize with all dimensions identical::
 
-            freud.density.GaussianDensity(width, r_cut, sigma)
+            freud.density.GaussianDensity(width, r_max, sigma)
 
         Initialize with each dimension specified::
 
-            freud.density.GaussianDensity(width_x, width_y, width_z, r_cut, sigma)
+            freud.density.GaussianDensity(width_x, width_y, width_z, r_max, sigma)
 
     .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
 
@@ -508,7 +509,7 @@ cdef class GaussianDensity(Compute):
             Number of pixels to make the image in y.
         width_z (unsigned int):
             Number of pixels to make the image in z.
-        r_cut (float):
+        r_max (float):
             Distance over which to blur.
         sigma (float):
             Sigma parameter for Gaussian.
@@ -581,17 +582,17 @@ cdef class GaussianDensity(Compute):
     def __repr__(self):
         if len(self.arglist) == 3:
             return ("freud.density.{cls}({width}, "
-                    "{r_cut}, {sigma})").format(cls=type(self).__name__,
+                    "{r_max}, {sigma})").format(cls=type(self).__name__,
                                                 width=self.arglist[0],
-                                                r_cut=self.arglist[1],
+                                                r_max=self.arglist[1],
                                                 sigma=self.arglist[2])
         elif len(self.arglist) == 5:
             return ("freud.density.{cls}({width_x}, {width_y}, {width_z}, "
-                    "{r_cut}, {sigma})").format(cls=type(self).__name__,
+                    "{r_max}, {sigma})").format(cls=type(self).__name__,
                                                 width_x=self.arglist[0],
                                                 width_y=self.arglist[1],
                                                 width_z=self.arglist[2],
-                                                r_cut=self.arglist[3],
+                                                r_max=self.arglist[3],
                                                 sigma=self.arglist[4])
         else:
             raise TypeError('GaussianDensity takes exactly 3 or 5 arguments')
@@ -636,14 +637,14 @@ cdef class LocalDensity(Compute):
     region.
 
     The values to compute the local density are set in the constructor.
-    :code:`r_cut` sets the maximum distance at which data points are included
+    :code:`r_max` sets the maximum distance at which data points are included
     relative to a given reference point. :code:`volume` is the volume of a
     single data points, and :code:`diameter` is the diameter of the
     circumsphere of an individual data point. Note that the volume and diameter
     do not affect the reference point; whether or not data points are counted
     as neighbors of a given reference point is entirely determined by the
     distance between reference point and data point center relative to
-    :code:`r_cut` and the :code:`diameter` of the data point.
+    :code:`r_max` and the :code:`diameter` of the data point.
 
     In order to provide sufficiently smooth data, data points can be
     fractionally counted towards the density.  Rather than perform
@@ -651,9 +652,9 @@ cdef class LocalDensity(Compute):
     determine the exact amount of overlap area (volume), the LocalDensity class
     performs a simple linear interpolation relative to the centers of the data
     points.  Specifically, a point is counted as one neighbor of a given
-    reference point if it is entirely contained within the :code:`r_cut`, half
-    of a neighbor if the distance to its center is exactly :code:`r_cut`, and
-    zero if its center is a distance greater than or equal to :code:`r_cut +
+    reference point if it is entirely contained within the :code:`r_max`, half
+    of a neighbor if the distance to its center is exactly :code:`r_max`, and
+    zero if its center is a distance greater than or equal to :code:`r_max +
     diameter` from the reference point's center. Graphically, this looks like:
 
     .. image:: images/density.png
@@ -666,7 +667,7 @@ cdef class LocalDensity(Compute):
     .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
 
     Args:
-        r_cut (float):
+        r_max (float):
             Maximum distance over which to calculate the density.
         volume (float):
             Volume of a single particle.
@@ -682,13 +683,13 @@ cdef class LocalDensity(Compute):
             Number of neighbor points for each ref_point.
     """
     cdef freud._density.LocalDensity * thisptr
-    cdef r_cut
+    cdef r_max
     cdef diameter
     cdef volume
 
-    def __cinit__(self, float r_cut, float volume, float diameter):
-        self.thisptr = new freud._density.LocalDensity(r_cut, volume, diameter)
-        self.r_cut = r_cut
+    def __cinit__(self, float r_max, float volume, float diameter):
+        self.thisptr = new freud._density.LocalDensity(r_max, volume, diameter)
+        self.r_max = r_max
         self.diameter = diameter
         self.volume = volume
 
@@ -725,7 +726,7 @@ cdef class LocalDensity(Compute):
         cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
 
         cdef freud.locality._QueryArgs def_qargs = freud.locality._QueryArgs(
-            mode="ball", rmax=self.r_cut + 0.5*self.diameter,
+            mode="ball", r_max=self.r_max + 0.5*self.diameter,
             exclude_ii=exclude_ii)
         ref_points = nq.points
 
@@ -739,7 +740,7 @@ cdef class LocalDensity(Compute):
         cdef unsigned int n_p = l_points.shape[0]
 
         # local density of each particle includes itself (cutoff
-        # distance is r_cut + diam/2 because of smoothing)
+        # distance is r_max + diam/2 because of smoothing)
 
         with nogil:
             self.thisptr.compute(
@@ -764,9 +765,9 @@ cdef class LocalDensity(Compute):
         return np.asarray(num_neighbors)
 
     def __repr__(self):
-        return ("freud.density.{cls}(r_cut={r_cut}, volume={volume}, "
+        return ("freud.density.{cls}(r_max={r_max}, volume={volume}, "
                 "diameter={diameter})").format(cls=type(self).__name__,
-                                               r_cut=self.r_cut,
+                                               r_max=self.r_max,
                                                volume=self.volume,
                                                diameter=self.diameter)
 
@@ -784,7 +785,7 @@ cdef class RDF(Compute):
     :code:`R` array.
 
     The values of :math:`r` to compute the RDF are set by the values of
-    :code:`rmin`, :code:`rmax`, :code:`dr` in the constructor. :code:`rmax`
+    :code:`rmin`, :code:`r_max`, :code:`dr` in the constructor. :code:`r_max`
     sets the maximum distance at which to calculate the
     :math:`g \left( r \right)`, :code:`rmin` sets the minimum distance at
     which to calculate the :math:`g \left( r \right)`, and :code:`dr`
@@ -798,11 +799,11 @@ cdef class RDF(Compute):
         Failing to set z=0 will lead to undefined behavior.
 
     Args:
-        rmax (float):
+        r_max (float):
             Maximum interparticle distance to include in the calculation.
         dr (float):
             Distance between histogram bins.
-        rmin (float, optional):
+        r_min (float, optional):
             Minimum interparticle distance to include in the calculation
             (Default value = 0).
 
@@ -817,24 +818,24 @@ cdef class RDF(Compute):
             Histogram of cumulative RDF values (*i.e.* the integrated RDF).
 
     .. versionchanged:: 0.7.0
-       Added optional `rmin` argument.
+       Added optional `r_min` argument.
     """
     cdef freud._density.RDF * thisptr
-    cdef rmax
+    cdef r_max
     cdef dr
-    cdef rmin
+    cdef r_min
 
-    def __cinit__(self, float rmax, float dr, float rmin=0):
-        if rmax <= 0:
-            raise ValueError("rmax must be > 0")
-        if rmax <= rmin:
-            raise ValueError("rmax must be > rmin")
+    def __cinit__(self, float r_max, float dr, float r_min=0):
+        if r_max <= 0:
+            raise ValueError("r_max must be > 0")
+        if r_max <= r_min:
+            raise ValueError("r_max must be > r_min")
         if dr <= 0.0:
             raise ValueError("dr must be > 0")
-        self.thisptr = new freud._density.RDF(rmax, dr, rmin)
-        self.rmax = rmax
+        self.thisptr = new freud._density.RDF(r_max, dr, r_min)
+        self.r_max = r_max
         self.dr = dr
-        self.rmin = rmin
+        self.r_min = r_min
 
     def __dealloc__(self):
         del self.thisptr
@@ -867,7 +868,7 @@ cdef class RDF(Compute):
         cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
 
         cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
-            mode="ball", rmax=self.rmax, exclude_ii=exclude_ii)
+            mode="ball", r_max=self.r_max, exclude_ii=exclude_ii)
         ref_points = nq.points
 
         if points is None:
@@ -931,11 +932,11 @@ cdef class RDF(Compute):
         return np.asarray(n_r)
 
     def __repr__(self):
-        return ("freud.density.{cls}(rmax={rmax}, dr={dr}, "
-                "rmin={rmin})").format(cls=type(self).__name__,
-                                       rmax=self.rmax,
-                                       dr=self.dr,
-                                       rmin=self.rmin)
+        return ("freud.density.{cls}(r_max={r_max}, dr={dr}, "
+                "r_min={r_min})").format(cls=type(self).__name__,
+                                         r_max=self.r_max,
+                                         dr=self.dr,
+                                         r_min=self.r_min)
 
     def __str__(self):
         return repr(self)

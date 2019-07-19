@@ -31,7 +31,7 @@ cdef class InterfaceMeasure(Compute):
 
     Args:
         box (:class:`freud.box.Box`): Simulation box.
-        r_cut (float): Distance to search for particle neighbors.
+        r_max (float): Distance to search for particle neighbors.
 
     Attributes:
         ref_point_count (int):
@@ -43,12 +43,12 @@ cdef class InterfaceMeasure(Compute):
         point_ids (:class:`np.ndarray`):
             The particle IDs from :code:`points`.
     """
-    cdef float rmax
+    cdef float r_max
     cdef const unsigned int[::1] _ref_point_ids
     cdef const unsigned int[::1] _point_ids
 
-    def __cinit__(self, float r_cut):
-        self.rmax = r_cut
+    def __cinit__(self, float r_max):
+        self.r_max = r_max
         self._ref_point_ids = np.empty(0, dtype=np.uint32)
         self._point_ids = np.empty(0, dtype=np.uint32)
 
@@ -70,10 +70,10 @@ cdef class InterfaceMeasure(Compute):
         points = freud.common.convert_array(points, shape=(None, 3))
 
         if nlist is None:
-            lc = freud.locality.LinkCell(b, self.rmax)
+            lc = freud.locality.LinkCell(b, self.r_max)
             nlist = lc.compute(b, ref_points, points).nlist
         else:
-            nlist = nlist.copy().filter_r(b, ref_points, points, self.rmax)
+            nlist = nlist.copy().filter_r(b, ref_points, points, self.r_max)
 
         self._ref_point_ids = np.unique(nlist.index_j).astype(np.uint32)
         self._point_ids = np.unique(nlist.index_i).astype(np.uint32)
@@ -96,8 +96,8 @@ cdef class InterfaceMeasure(Compute):
         return np.asarray(self._point_ids)
 
     def __repr__(self):
-        return "freud.interface.{cls}(r_cut={r_cut})".format(
-            cls=type(self).__name__, r_cut=self.rmax)
+        return "freud.interface.{cls}(r_max={r_max})".format(
+            cls=type(self).__name__, r_max=self.r_max)
 
     def __str__(self):
         return repr(self)

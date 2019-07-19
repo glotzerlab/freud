@@ -314,7 +314,7 @@ cdef class HexOrderParameter(Compute):
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
     Args:
-        rmax (float):
+        r_max (float):
             +/- r distance to search for neighbors.
         k (unsigned int):
             Symmetry of order parameter (:math:`k=6` is hexatic).
@@ -333,11 +333,11 @@ cdef class HexOrderParameter(Compute):
     """
     cdef freud._order.HexOrderParameter * thisptr
     cdef int num_neigh
-    cdef float rmax
+    cdef float r_max
 
-    def __cinit__(self, rmax, k=int(6), n=int(0)):
+    def __cinit__(self, r_max, k=int(6), n=int(0)):
         self.thisptr = new freud._order.HexOrderParameter(k)
-        self.rmax = rmax
+        self.r_max = r_max
         self.num_neigh = (n if n else int(k))
 
     def __dealloc__(self):
@@ -363,7 +363,7 @@ cdef class HexOrderParameter(Compute):
         cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
 
         cdef freud.locality._QueryArgs def_qargs = freud.locality._QueryArgs(
-            mode="nearest", nn=self.num_neigh, rmax=self.rmax,
+            mode="nearest", nn=self.num_neigh, r_max=self.r_max,
             exclude_ii=True)
 
         with nogil:
@@ -393,8 +393,8 @@ cdef class HexOrderParameter(Compute):
         return k
 
     def __repr__(self):
-        return "freud.order.{cls}(rmax={rmax}, k={k}, n={n})".format(
-            cls=type(self).__name__, rmax=self.rmax, k=self.K,
+        return "freud.order.{cls}(r_max={r_max}, k={k}, n={n})".format(
+            cls=type(self).__name__, r_max=self.r_max, k=self.K,
             n=self.num_neigh)
 
     def __str__(self):
@@ -407,7 +407,7 @@ cdef class TransOrderParameter(Compute):
     .. moduleauthor:: Wenbo Shen <shenwb@umich.edu>
 
     Args:
-        rmax (float):
+        r_max (float):
             +/- r distance to search for neighbors.
         k (float):
             Symmetry of order parameter (:math:`k=6` is hexatic).
@@ -426,11 +426,11 @@ cdef class TransOrderParameter(Compute):
     """
     cdef freud._order.TransOrderParameter * thisptr
     cdef num_neigh
-    cdef rmax
+    cdef r_max
 
-    def __cinit__(self, rmax, k=6.0, n=0):
+    def __cinit__(self, r_max, k=6.0, n=0):
         self.thisptr = new freud._order.TransOrderParameter(k)
-        self.rmax = rmax
+        self.r_max = r_max
         self.num_neigh = (n if n else int(k))
 
     def __dealloc__(self):
@@ -455,7 +455,7 @@ cdef class TransOrderParameter(Compute):
         cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
 
         cdef freud.locality._QueryArgs def_qargs = freud.locality._QueryArgs(
-            mode="nearest", nn=self.num_neigh, rmax=self.rmax,
+            mode="nearest", nn=self.num_neigh, r_max=self.r_max,
             exclude_ii=True)
 
         with nogil:
@@ -485,8 +485,8 @@ cdef class TransOrderParameter(Compute):
         return k
 
     def __repr__(self):
-        return "freud.order.{cls}(rmax={rmax}, k={k}, n={n})".format(
-            cls=type(self).__name__, rmax=self.rmax, k=self.K,
+        return "freud.order.{cls}(r_max={r_max}, k={k}, n={n})".format(
+            cls=type(self).__name__, r_max=self.r_max, k=self.K,
             n=self.num_neigh)
 
     def __str__(self):
@@ -503,7 +503,7 @@ cdef class Steinhardt:
     :math:`i` and its neighbors :math:`j` in a local region:
     :math:`\overline{Q}_{lm}(i) = \frac{1}{N_b} \displaystyle\sum_{j=1}^{N_b}
     Y_{lm}(\theta(\vec{r}_{ij}), \phi(\vec{r}_{ij}))`. The particles included in
-    the sum are determined by the rmax argument to the constructor.
+    the sum are determined by the r_max argument to the constructor.
 
     For :math:`Q_l`, this is then combined in a rotationally invariant fashion to
     remove local orientational order as follows:
@@ -536,9 +536,9 @@ cdef class Steinhardt:
     Args:
         l (unsigned int):
             Spherical harmonic quantum number l. Must be a positive number.
-        rmin (float):
+        r_min (float):
             Can look at only the second shell or some arbitrary RDF region.
-        rmax (float):
+        r_max (float):
             Cutoff radius for the local order parameter. Values near the first
             minimum of the RDF are recommended.
         average (bool, optional):
@@ -567,20 +567,20 @@ cdef class Steinhardt:
             order parameter.
     """  # noqa: E501
     cdef freud._order.Steinhardt * stptr
-    cdef rmax
+    cdef r_max
     cdef sph_l
-    cdef rmin
+    cdef r_min
     cdef num_neigh
 
-    def __cinit__(self, rmax, l, rmin=0, average=False,
+    def __cinit__(self, r_max, l, r_min=0, average=False,
                   Wl=False, num_neigh=0, *args, **kwargs):
         if type(self) is Steinhardt:
-            self.rmax = rmax
+            self.r_max = r_max
             self.sph_l = l
-            self.rmin = rmin
+            self.r_min = r_min
             self.num_neigh = num_neigh
             self.stptr = new freud._order.Steinhardt(
-                rmax, l, rmin,
+                r_max, l, r_min,
                 average, Wl)
 
     def __dealloc__(self):
@@ -639,11 +639,11 @@ cdef class Steinhardt:
 
         if self.num_neigh > 0:
             _qargs = freud.locality._QueryArgs(
-                mode="nearest", nn=self.num_neigh, rmax=self.rmax,
+                mode="nearest", nn=self.num_neigh, r_max=self.r_max,
                 exclude_ii=True)
         else:
             _qargs = freud.locality._QueryArgs(
-                mode="ball", rmax=self.rmax, exclude_ii=True)
+                mode="ball", r_max=self.r_max, exclude_ii=True)
 
         cdef freud.locality._QueryArgs def_qargs = _qargs
 
@@ -653,11 +653,11 @@ cdef class Steinhardt:
         return self
 
     def __repr__(self):
-        return ("freud.order.{cls}(rmax={rmax}, l={sph_l}, "
-                "rmin={rmin})").format(cls=type(self).__name__,
-                                       rmax=self.rmax,
-                                       sph_l=self.sph_l,
-                                       rmin=self.rmin)
+        return ("freud.order.{cls}(r_max={r_max}, l={sph_l}, "
+                "r_min={r_min})").format(cls=type(self).__name__,
+                                         r_max=self.r_max,
+                                         sph_l=self.sph_l,
+                                         r_min=self.r_min)
 
     def __str__(self):
         return repr(self)
@@ -674,7 +674,7 @@ cdef class LocalQl(Compute):
     :math:`\overline{Q}_{lm}(i) = \frac{1}{N_b}
     \displaystyle\sum_{j=1}^{N_b} Y_{lm}(\theta(\vec{r}_{ij}),
     \phi(\vec{r}_{ij}))`. The particles included in the sum are determined
-    by the rmax argument to the constructor.
+    by the r_max argument to the constructor.
 
     This is then combined in a rotationally invariant fashion to remove local
     orientational order as follows: :math:`Q_l(i)=\sqrt{\frac{4\pi}{2l+1}
@@ -700,12 +700,12 @@ cdef class LocalQl(Compute):
     Args:
         box (:class:`freud.box.Box`):
             Simulation box.
-        rmax (float):
+        r_max (float):
             Cutoff radius for the local order parameter. Values near the first
             minimum of the RDF are recommended.
         l (unsigned int):
             Spherical harmonic quantum number l. Must be a positive integer.
-        rmin (float):
+        r_min (float):
             Lower bound for computing the local order parameter. Allows looking
             at, for instance, only the second shell, or some other arbitrary
             RDF region (Default value = 0).
@@ -734,20 +734,20 @@ cdef class LocalQl(Compute):
     """  # noqa: E501
     cdef freud._order.LocalQl * qlptr
     cdef freud.box.Box m_box
-    cdef rmax
+    cdef r_max
     cdef sph_l
-    cdef rmin
+    cdef r_min
     cdef plot_mode
 
-    def __cinit__(self, box, rmax, l, rmin=0, *args, **kwargs):
+    def __cinit__(self, box, r_max, l, r_min=0, *args, **kwargs):
         cdef freud.box.Box b = freud.common.convert_box(box)
         if type(self) is LocalQl:
             self.m_box = b
-            self.rmax = rmax
+            self.r_max = r_max
             self.sph_l = l
-            self.rmin = rmin
+            self.r_min = r_min
             self.qlptr = new freud._order.LocalQl(
-                dereference(b.thisptr), rmax, l, rmin)
+                dereference(b.thisptr), r_max, l, r_min)
 
     def __dealloc__(self):
         if type(self) is LocalQl:
@@ -821,7 +821,7 @@ cdef class LocalQl(Compute):
         cdef unsigned int nP = l_points.shape[0]
 
         defaulted_nlist = freud.locality.make_default_nlist(
-            self.m_box, points, points, self.rmax, nlist, True)
+            self.m_box, points, points, self.r_max, nlist, True)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         self.qlptr.compute(nlist_.get_ptr(), <vec3[float]*> &l_points[0, 0],
@@ -845,7 +845,7 @@ cdef class LocalQl(Compute):
         cdef unsigned int nP = l_points.shape[0]
 
         defaulted_nlist = freud.locality.make_default_nlist(
-            self.m_box, points, points, self.rmax, nlist, True)
+            self.m_box, points, points, self.r_max, nlist, True)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         self.qlptr.compute(nlist_.get_ptr(),
@@ -872,7 +872,7 @@ cdef class LocalQl(Compute):
         cdef unsigned int nP = l_points.shape[0]
 
         defaulted_nlist = freud.locality.make_default_nlist(
-            self.m_box, points, points, self.rmax, nlist, True)
+            self.m_box, points, points, self.r_max, nlist, True)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         self.qlptr.compute(nlist_.get_ptr(),
@@ -899,7 +899,7 @@ cdef class LocalQl(Compute):
         cdef unsigned int nP = l_points.shape[0]
 
         defaulted_nlist = freud.locality.make_default_nlist(
-            self.m_box, points, points, self.rmax, nlist, True)
+            self.m_box, points, points, self.r_max, nlist, True)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         self.qlptr.compute(nlist_.get_ptr(),
@@ -911,12 +911,12 @@ cdef class LocalQl(Compute):
         return self
 
     def __repr__(self):
-        return ("freud.order.{cls}(box={box}, rmax={rmax}, l={sph_l}, "
-                "rmin={rmin})").format(cls=type(self).__name__,
-                                       box=self.m_box,
-                                       rmax=self.rmax,
-                                       sph_l=self.sph_l,
-                                       rmin=self.rmin)
+        return ("freud.order.{cls}(box={box}, r_max={r_max}, l={sph_l}, "
+                "r_min={r_min})").format(cls=type(self).__name__,
+                                         box=self.m_box,
+                                         r_max=self.r_max,
+                                         sph_l=self.sph_l,
+                                         r_min=self.r_min)
 
     def __str__(self):
         return repr(self)
@@ -999,7 +999,7 @@ cdef class LocalQlNear(LocalQl):
     Args:
         box (:class:`freud.box.Box`):
             Simulation box.
-        rmax (float):
+        r_max (float):
             Cutoff radius for the local order parameter. Values near the first
             minimum of the RDF are recommended.
         l (unsigned int):
@@ -1031,7 +1031,7 @@ cdef class LocalQlNear(LocalQl):
     """  # noqa: E501
     cdef num_neigh
 
-    def __cinit__(self, box, rmax, l, kn=12):
+    def __cinit__(self, box, r_max, l, kn=12):
         # Note that we cannot leverage super here because the
         # type conditional in the parent will prevent it.
         # Unfortunately, this is necessary for proper memory
@@ -1039,9 +1039,9 @@ cdef class LocalQlNear(LocalQl):
         cdef freud.box.Box b = freud.common.convert_box(box)
         if type(self) == LocalQlNear:
             self.qlptr = new freud._order.LocalQl(
-                dereference(b.thisptr), rmax, l, 0)
+                dereference(b.thisptr), r_max, l, 0)
             self.m_box = b
-            self.rmax = rmax
+            self.r_max = r_max
             self.sph_l = l
             self.num_neigh = kn
 
@@ -1061,7 +1061,8 @@ cdef class LocalQlNear(LocalQl):
                 Neighborlist to use to find bonds (Default value = None).
         """
         defaulted_nlist = freud.locality.make_default_nlist_nn(
-            self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
+            self.m_box, points, points,
+            self.num_neigh, nlist, True, self.r_max)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         return super(LocalQlNear, self).compute(points, nlist_)
 
@@ -1076,7 +1077,8 @@ cdef class LocalQlNear(LocalQl):
                 Neighborlist to use to find bonds (Default value = None).
         """
         defaulted_nlist = freud.locality.make_default_nlist_nn(
-            self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
+            self.m_box, points, points,
+            self.num_neigh, nlist, True, self.r_max)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         return super(LocalQlNear, self).computeAve(points, nlist_)
 
@@ -1092,7 +1094,8 @@ cdef class LocalQlNear(LocalQl):
                 Neighborlist to use to find bonds (Default value = None).
         """
         defaulted_nlist = freud.locality.make_default_nlist_nn(
-            self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
+            self.m_box, points, points,
+            self.num_neigh, nlist, True, self.r_max)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         return super(LocalQlNear, self).computeNorm(points, nlist_)
 
@@ -1109,15 +1112,16 @@ cdef class LocalQlNear(LocalQl):
                 Neighborlist to use to find bonds (Default value = None).
         """
         defaulted_nlist = freud.locality.make_default_nlist_nn(
-            self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
+            self.m_box, points, points,
+            self.num_neigh, nlist, True, self.r_max)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         return super(LocalQlNear, self).computeAveNorm(points, nlist_)
 
     def __repr__(self):
-        return ("freud.order.{cls}(box={box}, rmax={rmax}, l={sph_l}, "
+        return ("freud.order.{cls}(box={box}, r_max={r_max}, l={sph_l}, "
                 "kn={kn})").format(cls=type(self).__name__,
                                    box=self.m_box,
-                                   rmax=self.rmax,
+                                   r_max=self.r_max,
                                    sph_l=self.sph_l,
                                    kn=self.num_neigh)
 
@@ -1157,7 +1161,7 @@ cdef class LocalWl(LocalQl):
     :math:`\overline{Q}_{lm}(i) = \frac{1}{N_b}
     \displaystyle\sum_{j=1}^{N_b} Y_{lm}(\theta(\vec{r}_{ij}),
     \phi(\vec{r}_{ij}))`. The particles included in the sum are determined
-    by the rmax argument to the constructor.
+    by the r_max argument to the constructor.
 
     The :math:`W_l` is then defined as a weighted average over the
     :math:`\overline{Q}_{lm}(i)` values using Wigner 3j symbols
@@ -1184,12 +1188,12 @@ cdef class LocalWl(LocalQl):
     Args:
         box (:class:`freud.box.Box`):
             Simulation box.
-        rmax (float):
+        r_max (float):
             Cutoff radius for the local order parameter. Values near the first
             minimum of the RDF are recommended.
         l (unsigned int):
             Spherical harmonic quantum number l. Must be a positive integer.
-        rmin (float):
+        r_min (float):
             Lower bound for computing the local order parameter. Allows looking
             at, for instance, only the second shell, or some other arbitrary
             RDF region (Default value = 0).
@@ -1224,15 +1228,15 @@ cdef class LocalWl(LocalQl):
                 'norm_Ql', 'getQlNorm',
                 'ave_norm_Ql', 'getQlAveNorm']
 
-    def __cinit__(self, box, rmax, l, rmin=0, *args, **kwargs):
+    def __cinit__(self, box, r_max, l, r_min=0, *args, **kwargs):
         cdef freud.box.Box b = freud.common.convert_box(box)
         if type(self) is LocalWl:
             self.thisptr = self.qlptr = new freud._order.LocalWl(
-                dereference(b.thisptr), rmax, l, rmin)
+                dereference(b.thisptr), r_max, l, r_min)
             self.m_box = b
-            self.rmax = rmax
+            self.r_max = r_max
             self.sph_l = l
-            self.rmin = rmin
+            self.r_min = r_min
 
     def __dealloc__(self):
         if type(self) is LocalWl:
@@ -1281,12 +1285,12 @@ cdef class LocalWl(LocalQl):
         return np.asarray(ave_norm_Wl, dtype=np.complex64)
 
     def __repr__(self):
-        return ("freud.order.{cls}(box={box}, rmax={rmax}, l={sph_l}, "
-                "rmin={rmin})").format(cls=type(self).__name__,
-                                       box=self.m_box,
-                                       rmax=self.rmax,
-                                       sph_l=self.sph_l,
-                                       rmin=self.rmin)
+        return ("freud.order.{cls}(box={box}, r_max={r_max}, l={sph_l}, "
+                "r_min={r_min})").format(cls=type(self).__name__,
+                                         box=self.m_box,
+                                         r_max=self.r_max,
+                                         sph_l=self.sph_l,
+                                         r_min=self.r_min)
 
     def __str__(self):
         return repr(self)
@@ -1333,7 +1337,7 @@ cdef class LocalWlNear(LocalWl):
     Args:
         box (:class:`freud.box.Box`):
             Simulation box.
-        rmax (float):
+        r_max (float):
             Cutoff radius for the local order parameter. Values near the first
             minimum of the RDF are recommended.
         l (unsigned int):
@@ -1366,13 +1370,13 @@ cdef class LocalWlNear(LocalWl):
     """  # noqa: E501
     cdef num_neigh
 
-    def __cinit__(self, box, rmax, l, kn=12):
+    def __cinit__(self, box, r_max, l, kn=12):
         cdef freud.box.Box b = freud.common.convert_box(box)
         if type(self) is LocalWlNear:
             self.thisptr = self.qlptr = new freud._order.LocalWl(
-                dereference(b.thisptr), rmax, l, 0)
+                dereference(b.thisptr), r_max, l, 0)
             self.m_box = b
-            self.rmax = rmax
+            self.r_max = r_max
             self.sph_l = l
             self.num_neigh = kn
 
@@ -1391,7 +1395,8 @@ cdef class LocalWlNear(LocalWl):
                 Neighborlist to use to find bonds (Default value = None).
         """
         defaulted_nlist = freud.locality.make_default_nlist_nn(
-            self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
+            self.m_box, points, points,
+            self.num_neigh, nlist, True, self.r_max)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         return super(LocalWlNear, self).compute(points, nlist_)
 
@@ -1406,7 +1411,8 @@ cdef class LocalWlNear(LocalWl):
                 Neighborlist to use to find bonds (Default value = None).
         """
         defaulted_nlist = freud.locality.make_default_nlist_nn(
-            self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
+            self.m_box, points, points,
+            self.num_neigh, nlist, True, self.r_max)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         return super(LocalWlNear, self).computeAve(points, nlist_)
 
@@ -1422,7 +1428,8 @@ cdef class LocalWlNear(LocalWl):
                 Neighborlist to use to find bonds (Default value = None).
         """
         defaulted_nlist = freud.locality.make_default_nlist_nn(
-            self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
+            self.m_box, points, points,
+            self.num_neigh, nlist, True, self.r_max)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         return super(LocalWlNear, self).computeNorm(points, nlist_)
 
@@ -1439,15 +1446,16 @@ cdef class LocalWlNear(LocalWl):
                 Neighborlist to use to find bonds (Default value = None).
         """
         defaulted_nlist = freud.locality.make_default_nlist_nn(
-            self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
+            self.m_box, points, points,
+            self.num_neigh, nlist, True, self.r_max)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         return super(LocalWlNear, self).computeAveNorm(points, nlist_)
 
     def __repr__(self):
-        return ("freud.order.{cls}(box={box}, rmax={rmax}, l={sph_l}, "
+        return ("freud.order.{cls}(box={box}, r_max={r_max}, l={sph_l}, "
                 "kn={kn})").format(cls=type(self).__name__,
                                    box=self.m_box,
-                                   rmax=self.rmax,
+                                   r_max=self.r_max,
                                    sph_l=self.sph_l,
                                    kn=self.num_neigh)
 
@@ -1484,7 +1492,7 @@ cdef class SolLiq(Compute):
     Args:
         box (:class:`freud.box.Box`):
             Simulation box.
-        rmax (float):
+        r_max (float):
             Cutoff radius for the local order parameter. Values near first
             minimum of the RDF are recommended.
         Qthreshold (float):
@@ -1524,18 +1532,19 @@ cdef class SolLiq(Compute):
     """  # noqa: E501
     cdef freud._order.SolLiq * thisptr
     cdef freud.box.Box m_box
-    cdef rmax
+    cdef r_max
     cdef Qthreshold
     cdef Sthreshold
     cdef sph_l
 
-    def __cinit__(self, box, rmax, Qthreshold, Sthreshold, l, *args, **kwargs):
+    def __cinit__(self, box, r_max, Qthreshold,
+                  Sthreshold, l, *args, **kwargs):
         cdef freud.box.Box b = freud.common.convert_box(box)
         if type(self) is SolLiq:
             self.thisptr = new freud._order.SolLiq(
-                dereference(b.thisptr), rmax, Qthreshold, Sthreshold, l)
+                dereference(b.thisptr), r_max, Qthreshold, Sthreshold, l)
             self.m_box = b
-            self.rmax = rmax
+            self.r_max = r_max
             self.Qthreshold = Qthreshold
             self.Sthreshold = Sthreshold
             self.sph_l = l
@@ -1560,7 +1569,7 @@ cdef class SolLiq(Compute):
         cdef unsigned int nP = l_points.shape[0]
 
         defaulted_nlist = freud.locality.make_default_nlist(
-            self.m_box, points, points, self.rmax, nlist, True)
+            self.m_box, points, points, self.r_max, nlist, True)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         self.thisptr.compute(nlist_.get_ptr(),
@@ -1587,7 +1596,7 @@ cdef class SolLiq(Compute):
         cdef unsigned int nP = l_points.shape[0]
 
         defaulted_nlist = freud.locality.make_default_nlist(
-            self.m_box, points, points, self.rmax, nlist, True)
+            self.m_box, points, points, self.r_max, nlist, True)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         self.thisptr.computeSolLiqVariant(
@@ -1611,7 +1620,7 @@ cdef class SolLiq(Compute):
         cdef unsigned int nP = l_points.shape[0]
 
         defaulted_nlist = freud.locality.make_default_nlist(
-            self.m_box, points, points, self.rmax, nlist, True)
+            self.m_box, points, points, self.r_max, nlist, True)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         self.thisptr.computeSolLiqNoNorm(
@@ -1674,11 +1683,11 @@ cdef class SolLiq(Compute):
         return np
 
     def __repr__(self):
-        return ("freud.order.{cls}(box={box}, rmax={rmax}, "
+        return ("freud.order.{cls}(box={box}, r_max={r_max}, "
                 "Qthreshold={Qthreshold}, Sthreshold={Sthreshold}, "
                 "l={sph_l})").format(cls=type(self).__name__,
                                      box=self.m_box,
-                                     rmax=self.rmax,
+                                     r_max=self.r_max,
                                      Qthreshold=self.Qthreshold,
                                      Sthreshold=self.Sthreshold,
                                      sph_l=self.sph_l)
@@ -1695,7 +1704,7 @@ cdef class SolLiqNear(SolLiq):
     Args:
         box (:class:`freud.box.Box`):
             Simulation box.
-        rmax (float):
+        r_max (float):
             Cutoff radius for the local order parameter. Values near the first
             minimum of the RDF are recommended.
         Qthreshold (float):
@@ -1737,13 +1746,13 @@ cdef class SolLiqNear(SolLiq):
     """  # noqa: E501
     cdef num_neigh
 
-    def __cinit__(self, box, rmax, Qthreshold, Sthreshold, l, kn=12):
+    def __cinit__(self, box, r_max, Qthreshold, Sthreshold, l, kn=12):
         cdef freud.box.Box b = freud.common.convert_box(box)
         if type(self) is SolLiqNear:
             self.thisptr = new freud._order.SolLiq(
-                dereference(b.thisptr), rmax, Qthreshold, Sthreshold, l)
+                dereference(b.thisptr), r_max, Qthreshold, Sthreshold, l)
             self.m_box = b
-            self.rmax = rmax
+            self.r_max = r_max
             self.Qthreshold = Qthreshold
             self.Sthreshold = Sthreshold
             self.sph_l = l
@@ -1765,7 +1774,8 @@ cdef class SolLiqNear(SolLiq):
                 Neighborlist to use to find bonds.
         """
         defaulted_nlist = freud.locality.make_default_nlist_nn(
-            self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
+            self.m_box, points, points,
+            self.num_neigh, nlist, True, self.r_max)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         return SolLiq.compute(self, points, nlist_)
 
@@ -1781,7 +1791,8 @@ cdef class SolLiqNear(SolLiq):
                 Neighborlist to use to find bonds.
         """
         defaulted_nlist = freud.locality.make_default_nlist_nn(
-            self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
+            self.m_box, points, points,
+            self.num_neigh, nlist, True, self.r_max)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         return SolLiq.computeSolLiqVariant(self, points, nlist_)
 
@@ -1797,16 +1808,17 @@ cdef class SolLiqNear(SolLiq):
                 Neighborlist to use to find bonds.
         """
         defaulted_nlist = freud.locality.make_default_nlist_nn(
-            self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
+            self.m_box, points, points,
+            self.num_neigh, nlist, True, self.r_max)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         return SolLiq.computeSolLiqNoNorm(self, points, nlist_)
 
     def __repr__(self):
-        return ("freud.order.{cls}(box={box}, rmax={rmax}, "
+        return ("freud.order.{cls}(box={box}, r_max={r_max}, "
                 "Qthreshold={Qthreshold}, Sthreshold={Sthreshold}, "
                 "l={sph_l}, kn={kn})").format(cls=type(self).__name__,
                                               box=self.m_box,
-                                              rmax=self.rmax,
+                                              r_max=self.r_max,
                                               Qthreshold=self.Qthreshold,
                                               Sthreshold=self.Sthreshold,
                                               sph_l=self.sph_l,

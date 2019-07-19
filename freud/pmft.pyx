@@ -70,7 +70,7 @@ cdef class _PMFT(Compute):
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
     """
     cdef freud._pmft.PMFT * pmftptr
-    cdef float rmax
+    cdef float r_max
 
     def __cinit__(self):
         pass
@@ -156,7 +156,7 @@ cdef class PMFTR12(_PMFT):
         if type(self) is PMFTR12:
             self.pmftr12ptr = self.pmftptr = new freud._pmft.PMFTR12(
                 r_max, n_r, n_t1, n_t2)
-            self.rmax = r_max
+            self.r_max = r_max
 
     def __dealloc__(self):
         if type(self) is PMFTR12:
@@ -194,7 +194,7 @@ cdef class PMFTR12(_PMFT):
         ref_points = nq.points
 
         cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
-            mode="ball", rmax=self.rmax, exclude_ii=exclude_ii)
+            mode="ball", r_max=self.r_max, exclude_ii=exclude_ii)
 
         if not b.dimensions == 2:
             raise ValueError("Your box must be 2-dimensional!")
@@ -319,7 +319,7 @@ cdef class PMFTR12(_PMFT):
     def __repr__(self):
         return ("freud.pmft.{cls}(r_max={r_max}, n_r={n_r}, n_t1={n_t1}, "
                 "n_t2={n_t2})").format(cls=type(self).__name__,
-                                       r_max=self.rmax,
+                                       r_max=self.r_max,
                                        n_r=self.n_bins_R,
                                        n_t1=self.n_bins_T1,
                                        n_t2=self.n_bins_T2)
@@ -397,7 +397,7 @@ cdef class PMFTXYT(_PMFT):
         if type(self) is PMFTXYT:
             self.pmftxytptr = self.pmftptr = new freud._pmft.PMFTXYT(
                 x_max, y_max, n_x, n_y, n_t)
-            self.rmax = np.sqrt(x_max**2 + y_max**2)
+            self.r_max = np.sqrt(x_max**2 + y_max**2)
             self.xmax = x_max
             self.ymax = y_max
 
@@ -438,7 +438,7 @@ cdef class PMFTXYT(_PMFT):
         ref_points = nq.points
 
         cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
-            mode="ball", rmax=self.rmax, exclude_ii=exclude_ii)
+            mode="ball", r_max=self.r_max, exclude_ii=exclude_ii)
 
         if not b.dimensions == 2:
             raise ValueError("Your box must be 2-dimensional!")
@@ -625,7 +625,7 @@ cdef class PMFTXY2D(_PMFT):
         if type(self) is PMFTXY2D:
             self.pmftxy2dptr = self.pmftptr = new freud._pmft.PMFTXY2D(
                 x_max, y_max, n_x, n_y)
-            self.rmax = np.sqrt(x_max**2 + y_max**2)
+            self.r_max = np.sqrt(x_max**2 + y_max**2)
             self.xmax = x_max
             self.ymax = y_max
 
@@ -666,7 +666,7 @@ cdef class PMFTXY2D(_PMFT):
         ref_points = nq.points
 
         cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
-            mode="ball", rmax=self.rmax, exclude_ii=exclude_ii)
+            mode="ball", r_max=self.r_max, exclude_ii=exclude_ii)
 
         if not b.dimensions == 2:
             raise ValueError("Your box must be 2-dimensional!")
@@ -878,7 +878,7 @@ cdef class PMFTXYZ(_PMFT):
             self.pmftxyzptr = self.pmftptr = new freud._pmft.PMFTXYZ(
                 x_max, y_max, z_max, n_x, n_y, n_z, c_shiftvec)
             self.shiftvec = np.array(shiftvec, dtype=np.float32)
-            self.rmax = np.sqrt(x_max**2 + y_max**2 + z_max**2)
+            self.r_max = np.sqrt(x_max**2 + y_max**2 + z_max**2)
             self.xmax = x_max
             self.ymax = y_max
             self.zmax = z_max
@@ -927,7 +927,7 @@ cdef class PMFTXYZ(_PMFT):
         ref_points = nq.points
 
         cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
-            mode="ball", rmax=self.rmax, exclude_ii=exclude_ii)
+            mode="ball", r_max=self.r_max, exclude_ii=exclude_ii)
 
         if not b.dimensions == 3:
             raise ValueError("Your box must be 3-dimensional!")

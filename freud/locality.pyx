@@ -46,13 +46,13 @@ cdef class _QueryArgs:
     # This class is temporarily included for testing and may be
     # removed in future releases.
 
-    def __cinit__(self, mode=None, rmax=None, nn=None, exclude_ii=None):
+    def __cinit__(self, mode=None, r_max=None, nn=None, exclude_ii=None):
         if type(self) == _QueryArgs:
             self.thisptr = new freud._locality.QueryArgs()
             if mode is not None:
                 self.mode = mode
-            if rmax is not None:
-                self.rmax = rmax
+            if r_max is not None:
+                self.r_max = r_max
             if nn is not None:
                 self.nn = nn
             if exclude_ii is not None:
@@ -85,11 +85,11 @@ cdef class _QueryArgs:
             raise ValueError("You have passed an invalid mode.")
 
     @property
-    def rmax(self):
+    def r_max(self):
         return self.thisptr.rmax
 
-    @rmax.setter
-    def rmax(self, value):
+    @r_max.setter
+    def r_max(self, value):
         self.thisptr.rmax = value
 
     @property
@@ -123,7 +123,7 @@ cdef _QueryArgs parse_query_args(dict query_args):
     The following keys are supported:
 
         * mode: The query mode, either 'ball' or 'nearest'.
-        * rmax: The cutoff distance for a ball query.
+        * r_max: The cutoff distance for a ball query.
         * nn: The number of nearest neighbors to find.
         * exclude_ii: Whether or not to include self-neighbors.
 
@@ -142,9 +142,10 @@ cdef _QueryArgs parse_query_args(dict query_args):
         else:
             invalid_args[key] = val
     if invalid_args:
+        err_str = ", ".join(
+            "{} = {}".format(k, v) for k, v in invalid_args.items())
         raise ValueError(
-            "The following invalid query arguments were provided: "
-            ", ".join("{} = {}".format(key, val)))
+            "The following invalid query arguments were provided: " + err_str)
     else:
         return qa
 
@@ -317,8 +318,8 @@ cdef class NeighborQuery:
         cdef _QueryArgs args = parse_query_args(query_args)
 
         # Default guess value
-        if 'rmax' not in query_args:
-            args.rmax = 0
+        if 'r_max' not in query_args:
+            args.r_max = 0
 
         iterator = self.nqptr.queryWithArgs(
             <vec3[float]*> &l_points[0, 0],
@@ -365,7 +366,7 @@ cdef class NeighborQuery:
         return NeighborQueryResult.init(
             self, points, exclude_ii, r=0, k=k)
 
-    def queryBall(self, points, float r, cbool exclude_ii=False):
+    def queryBall(self, points, float r_max, cbool exclude_ii=False):
         R"""Query for all points within a distance r of the provided point(s).
 
         Args:
@@ -392,7 +393,7 @@ cdef class NeighborQuery:
                                             shape=(None, 3))
 
         return NeighborQueryResult.init(
-            self, points, exclude_ii, r=r, k=0)
+            self, points, exclude_ii, r=r_max, k=0)
 
     cdef freud._locality.NeighborQuery * get_ptr(self) nogil:
         R"""Returns a pointer to the raw C++ object we are wrapping."""
@@ -697,7 +698,7 @@ cdef class NeighborList:
         self.thisptr.filter(filt_ptr)
         return self
 
-    def filter_r(self, box, ref_points, points, float rmax, float rmin=0):
+    def filter_r(self, box, ref_points, points, float r_max, float r_min=0):
         R"""Removes bonds that are outside of a given radius range.
 
         Args:
@@ -707,9 +708,9 @@ cdef class NeighborList:
                 Reference points to use for filtering.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Target points to use for filtering.
-            rmax (float):
+            r_max (float):
                 Maximum bond distance in the resulting neighbor list.
-            rmin (float, optional):
+            r_min (float, optional):
                 Minimum bond distance in the resulting neighbor list
                 (Default value = 0).
         """
@@ -728,8 +729,8 @@ cdef class NeighborList:
             dereference(b.thisptr),
             <vec3[float]*> &cRef_points[0, 0],
             <vec3[float]*> &cPoints[0, 0],
-            rmax,
-            rmin)
+            r_max,
+            r_min)
         return self
 
 
@@ -785,7 +786,7 @@ def make_default_nq(box, ref_points):
     return rp
 
 
-def make_default_nlist(box, ref_points, points, rmax, nlist=None,
+def make_default_nlist(box, ref_points, points, r_max, nlist=None,
                        exclude_ii=None):
     R"""Helper function to return a neighbor list object if is given, or to
     construct one using AABBQuery if it is not.
@@ -797,7 +798,7 @@ def make_default_nlist(box, ref_points, points, rmax, nlist=None,
             Reference points for the neighborlist.
         points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
             Points to construct the neighborlist.
-        rmax (float):
+        r_max (float):
             The radius within which to find neighbors.
         nlist (:class:`freud.locality.NeighborList`, optional):
             NeighborList to use to find bonds (Default value = :code:`None`).
@@ -817,13 +818,13 @@ def make_default_nlist(box, ref_points, points, rmax, nlist=None,
 
     cdef AABBQuery aq = AABBQuery(box, ref_points)
     cdef NeighborList aq_nlist = aq.queryBall(
-        points, rmax, exclude_ii).toNList()
+        points, r_max, exclude_ii).toNList()
 
     return aq_nlist, aq
 
 
 def make_default_nlist_nn(box, ref_points, points, n_neigh, nlist=None,
-                          exclude_ii=None, rmax_guess=2.0):
+                          exclude_ii=None, r_max_guess=2.0):
     R"""Helper function to return a neighbor list object if is given, or to
     construct one using NearestNeighbors if it is not.
 
@@ -844,8 +845,8 @@ def make_default_nlist_nn(box, ref_points, points, n_neigh, nlist=None,
             treated as :code:`True` if :code:`points` is :code:`None` or
             the same object as :code:`ref_points` (Defaults to
             :code:`None`).
-        rmax_guess (float):
-            Estimate of rmax, speeds up search if chosen properly.
+        r_max_guess (float):
+            Estimate of r_max, speeds up search if chosen properly.
 
     Returns:
         tuple (:class:`freud.locality.NeighborList`, :class:`freud.locality:NearestNeighbors`):
@@ -854,7 +855,7 @@ def make_default_nlist_nn(box, ref_points, points, n_neigh, nlist=None,
     if nlist is not None:
         return nlist, nlist
 
-    cdef NearestNeighbors nn = NearestNeighbors(rmax_guess, n_neigh).compute(
+    cdef NearestNeighbors nn = NearestNeighbors(r_max_guess, n_neigh).compute(
         box, ref_points, points, exclude_ii=exclude_ii)
 
     # Python does not appear to garbage collect appropriately in this case.
@@ -965,7 +966,7 @@ cdef class AABBQuery(NeighborQuery):
 
         return nl
 
-    def query(self, points, unsigned int k=1, float r=0, float scale=1.1,
+    def query(self, points, unsigned int k=1, float r_guess=0, float scale=1.1,
               cbool exclude_ii=False):
         R"""Query for nearest neighbors of the provided point.
 
@@ -979,7 +980,7 @@ cdef class AABBQuery(NeighborQuery):
                 Points to query for.
             k (int):
                 The number of nearest neighbors to find.
-            r (float):
+            r_guess (float):
                 The initial guess of a distance to search to find N neighbors.
             scale (float):
                 Multiplier by which to increase :code:`r` if not enough
@@ -993,14 +994,14 @@ cdef class AABBQuery(NeighborQuery):
                                             shape=(None, 3))
 
         # Default guess value
-        if r == 0:
-            r = min(self._box.Lx, self._box.Ly)
+        if r_guess == 0:
+            r_guess = min(self._box.Lx, self._box.Ly)
             if not self._box.is2D:
-                r = min(r, self._box.Lz)
-            r *= 0.1
+                r_guess = min(r_guess, self._box.Lz)
+            r_guess *= 0.1
 
         return AABBQueryResult.init_aabb_nn(
-            self, points, exclude_ii, k, r, scale)
+            self, points, exclude_ii, k, r_guess, scale)
 
 
 cdef class IteratorLinkCell:
@@ -1241,27 +1242,27 @@ cdef class NearestNeighbors:
     R"""Supports efficiently finding the :math:`N` nearest neighbors of each
     point in a set for some fixed integer :math:`N`.
 
-    * :code:`strict_cut == True`: :code:`rmax` will be strictly obeyed, and any
+    * :code:`strict_cut == True`: :code:`r_max` will be strictly obeyed, and any
       particle which has fewer than :math:`N` neighbors will have values of
       :code:`UINT_MAX` assigned.
-    * :code:`strict_cut == False` (default): :code:`rmax` will be expanded to
-      find the requested number of neighbors. If :code:`rmax` increases to the
+    * :code:`strict_cut == False` (default): :code:`r_max` will be expanded to
+      find the requested number of neighbors. If :code:`r_max` increases to the
       point that a cell list cannot be constructed, a warning will be raised
       and the neighbors already found will be returned.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
     Args:
-        rmax (float):
+        r_max (float):
             Initial guess of a distance to search within to find N neighbors.
         n_neigh (unsigned int):
             Number of neighbors to find for each point.
         scale (float):
-            Multiplier by which to automatically increase :code:`rmax` value if
+            Multiplier by which to automatically increase :code:`r_max` value if
             the requested number of neighbors is not found. Only utilized if
             :code:`strict_cut` is False. Scale must be greater than 1.
         strict_cut (bool):
-            Whether to use a strict :code:`rmax` or allow for automatic
+            Whether to use a strict :code:`r_max` or allow for automatic
             expansion, default is False.
 
     Attributes:
@@ -1291,12 +1292,12 @@ cdef class NearestNeighbors:
        hexatic.compute(box, positions, nlist=nn.nlist)
     """  # noqa: E501
 
-    def __cinit__(self, float rmax, unsigned int n_neigh, float scale=1.1,
+    def __cinit__(self, float r_max, unsigned int n_neigh, float scale=1.1,
                   strict_cut=False):
         if scale < 1:
             raise RuntimeError("scale must be greater than 1")
         self.thisptr = new freud._locality.NearestNeighbors(
-            float(rmax), int(n_neigh), float(scale), bool(strict_cut))
+            float(r_max), int(n_neigh), float(scale), bool(strict_cut))
         self._nlist = NeighborList()
 
     def __dealloc__(self):
