@@ -114,7 +114,6 @@ cdef class BondOrder(Compute):
         n_bins_phi (unsigned int):
             The number of bins in the :math:`\phi` dimension.
 
-    .. todo:: remove k, it is not used as such.
     """  # noqa: E501
     cdef freud._environment.BondOrder * thisptr
     cdef num_neigh
