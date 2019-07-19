@@ -87,7 +87,7 @@ cdef class FloatCF(Compute):
 
     @Compute._compute()
     def accumulate(self, box, ref_points, ref_values, points=None, values=None,
-                   nlist=None, qargs=None):
+                   nlist=None, query_args={}):
         R"""Calculates the correlation function and adds to the current
         histogram.
 
@@ -116,9 +116,9 @@ cdef class FloatCF(Compute):
         cdef freud.locality.NeighborQuery nq = nq_nlist[0]
         cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
 
-        cdef freud.locality._QueryArgs def_qargs = freud.locality._QueryArgs(
+        cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
             mode="ball", rmax=self.rmax, exclude_ii=exclude_ii)
-        def_qargs.update(qargs)
+        qargs.update(query_args)
         ref_points = nq.points
 
         if points is None:
@@ -152,7 +152,7 @@ cdef class FloatCF(Compute):
                 <double*> &l_ref_values[0], n_ref,
                 <vec3[float]*> &l_points[0, 0],
                 <double*> &l_values[0],
-                n_p, dereference(def_qargs.thisptr))
+                n_p, dereference(qargs.thisptr))
         return self
 
     @Compute._computed_property()
@@ -175,7 +175,7 @@ cdef class FloatCF(Compute):
 
     @Compute._compute()
     def compute(self, box, ref_points, ref_values, points=None, values=None,
-                nlist=None, qargs=None):
+                nlist=None, query_args={}):
         R"""Calculates the correlation function for the given points. Will
         overwrite the current histogram.
 
@@ -198,7 +198,7 @@ cdef class FloatCF(Compute):
         """
         self.reset()
         self.accumulate(box, ref_points, ref_values, points, values, nlist,
-                        qargs)
+                        query_args)
         return self
 
     @Compute._computed_property()
@@ -313,7 +313,7 @@ cdef class ComplexCF(Compute):
 
     @Compute._compute()
     def accumulate(self, box, ref_points, ref_values, points=None, values=None,
-                   nlist=None, qargs=None):
+                   nlist=None, query_args={}):
         R"""Calculates the correlation function and adds to the current
         histogram.
 
@@ -342,9 +342,9 @@ cdef class ComplexCF(Compute):
         cdef freud.locality.NeighborQuery nq = nq_nlist[0]
         cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
 
-        cdef freud.locality._QueryArgs def_qargs = freud.locality._QueryArgs(
+        cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
             mode="ball", rmax=self.rmax, exclude_ii=exclude_ii)
-        def_qargs.update(qargs)
+        qargs.update(query_args)
         ref_points = nq.points
 
         if points is None:
@@ -379,7 +379,7 @@ cdef class ComplexCF(Compute):
                 n_ref,
                 <vec3[float]*> &l_points[0, 0],
                 <np.complex128_t*> &l_values[0],
-                n_p, dereference(def_qargs.thisptr))
+                n_p, dereference(qargs.thisptr))
         return self
 
     @Compute._computed_property()
@@ -402,7 +402,7 @@ cdef class ComplexCF(Compute):
 
     @Compute._compute()
     def compute(self, box, ref_points, ref_values, points=None, values=None,
-                nlist=None, qargs=None):
+                nlist=None, query_args={}):
         R"""Calculates the correlation function for the given points. Will
         overwrite the current histogram.
 
@@ -425,7 +425,7 @@ cdef class ComplexCF(Compute):
         """
         self.reset()
         self.accumulate(box, ref_points, ref_values, points, values, nlist,
-                        qargs)
+                        query_args)
         return self
 
     @Compute._computed_property()
@@ -700,7 +700,7 @@ cdef class LocalDensity(Compute):
         return freud.box.BoxFromCPP(self.thisptr.getBox())
 
     @Compute._compute()
-    def compute(self, box, ref_points, points=None, nlist=None):
+    def compute(self, box, ref_points, points=None, nlist=None, query_args={}):
         R"""Calculates the local density for the specified points. Does not
         accumulate (will overwrite current data).
 
@@ -724,9 +724,10 @@ cdef class LocalDensity(Compute):
         cdef freud.locality.NeighborQuery nq = nq_nlist[0]
         cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
 
-        cdef freud.locality._QueryArgs def_qargs = freud.locality._QueryArgs(
+        cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
             mode="ball", rmax=self.r_cut + 0.5*self.diameter,
             exclude_ii=exclude_ii)
+        qargs.update(query_args)
         ref_points = nq.points
 
         if points is None:
@@ -746,7 +747,7 @@ cdef class LocalDensity(Compute):
                 nlistptr.get_ptr(),
                 nq.get_ptr(),
                 <vec3[float]*> &l_points[0, 0],
-                n_p, dereference(def_qargs.thisptr))
+                n_p, dereference(qargs.thisptr))
         return self
 
     @Compute._computed_property()
@@ -844,7 +845,8 @@ cdef class RDF(Compute):
         return freud.box.BoxFromCPP(self.thisptr.getBox())
 
     @Compute._compute()
-    def accumulate(self, box, ref_points, points=None, nlist=None):
+    def accumulate(self, box, ref_points, points=None, nlist=None,
+                   query_args={}):
         R"""Calculates the RDF and adds to the current RDF histogram.
 
         Args:
@@ -868,6 +870,7 @@ cdef class RDF(Compute):
 
         cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
             mode="ball", rmax=self.rmax, exclude_ii=exclude_ii)
+        qargs.update(query_args)
         ref_points = nq.points
 
         if points is None:
@@ -885,7 +888,7 @@ cdef class RDF(Compute):
         return self
 
     @Compute._compute()
-    def compute(self, box, ref_points, points=None, nlist=None):
+    def compute(self, box, ref_points, points=None, nlist=None, query_args={}):
         R"""Calculates the RDF for the specified points. Will overwrite the current
         histogram.
 
@@ -902,7 +905,7 @@ cdef class RDF(Compute):
                 :code:`None`).
         """
         self.reset()
-        self.accumulate(box, ref_points, points, nlist)
+        self.accumulate(box, ref_points, points, nlist, query_args)
         return self
 
     @Compute._reset

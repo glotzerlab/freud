@@ -86,7 +86,7 @@ class TestFloatCF(unittest.TestCase):
         npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
         ocf.reset()
         ocf.accumulate(box, points, ang, points,
-                       ang, qargs={'exclude_ii': True})
+                       ang, query_args={'exclude_ii': True})
         npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
         ocf.reset()
         ocf.accumulate(box, points, ang, values=ang)
@@ -158,6 +158,35 @@ class TestFloatCF(unittest.TestCase):
 
         ocf.accumulate(box, points, ang)
         ocf._repr_png_()
+
+    def test_query_nn(self):
+        """Test nearest-neighbor-based querying."""
+        box_size = 8
+        rmax = 3
+        dr = 1
+        box = freud.box.Box.cube(box_size)
+        ref_points = np.array([[0, 0, 0]],
+                              dtype=np.float32)
+        points = np.array([[0.4, 0.0, 0.0],
+                           [0.9, 0.0, 0.0],
+                           [0.0, 1.4, 0.0],
+                           [0.0, 1.9, 0.0],
+                           [0.0, 0.0, 2.4],
+                           [0.0, 0.0, 2.9]],
+                          dtype=np.float32)
+        ref_values = np.ones(ref_points.shape[0])
+        values = np.ones(points.shape[0])
+
+        cf = freud.density.FloatCF(rmax, dr)
+        cf.compute(box, ref_points, ref_values, points, values,
+                   query_args={'mode': 'nearest', 'nn': 1})
+        npt.assert_array_equal(cf.RDF, [1, 1, 1])
+        npt.assert_array_equal(cf.counts, [2, 2, 2])
+
+        cf.compute(box, points, values, ref_points, ref_values,
+                   query_args={'mode': 'nearest', 'nn': 1})
+        npt.assert_array_equal(cf.RDF, [1, 0, 0])
+        npt.assert_array_equal(cf.counts, [1, 0, 0])
 
 
 if __name__ == '__main__':
