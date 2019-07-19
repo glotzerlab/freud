@@ -60,7 +60,7 @@ public:
     std::shared_ptr<float> precomputeAxisBinCenter(unsigned int size, float d, float max);
 
     //! Helper function to precompute array with the following logic.
-    //! :cpde:`Func cf` should be some sort of (float)(float, float).
+    //! :code:`Func cf` should be some sort of (float)(float, float).
     template<typename Func> std::shared_ptr<float> precomputeArrayGeneral(unsigned int size, float d, Func cf)
     {
         std::shared_ptr<float> arr = std::shared_ptr<float>(new float[size], std::default_delete<float[]>());
