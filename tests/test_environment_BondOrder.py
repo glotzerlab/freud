@@ -14,7 +14,7 @@ class TestBondOrder(unittest.TestCase):
         r_cut = 1.5
         num_neighbors = 12
         npt = npp = 6
-        bo = freud.environment.BondOrder(r_cut, 0, num_neighbors, npt, npp)
+        bo = freud.environment.BondOrder(r_cut, num_neighbors, npt, npp)
 
         # Test access
         with self.assertRaises(AttributeError):
@@ -95,7 +95,7 @@ class TestBondOrder(unittest.TestCase):
             self.assertGreater(np.sum(bo.bond_order > 0), 30)
 
     def test_repr(self):
-        bo = freud.environment.BondOrder(1.5, 0, 12, 6, 6)
+        bo = freud.environment.BondOrder(1.5, 12, 6, 6)
         self.assertEqual(str(bo), str(eval(repr(bo))))
 
 

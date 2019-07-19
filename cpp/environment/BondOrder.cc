@@ -21,7 +21,7 @@ using namespace tbb;
 
 namespace freud { namespace environment {
 
-BondOrder::BondOrder(float rmax, float k, unsigned int n, unsigned int nbins_t, unsigned int nbins_p)
+BondOrder::BondOrder(float rmax, unsigned int n, unsigned int nbins_t, unsigned int nbins_p)
     : m_box(box::Box()), m_n_ref(0), m_n_p(0), m_nbins_t(nbins_t), m_nbins_p(nbins_p), m_frame_counter(0),
       m_reduce(true), m_local_bin_counts(nbins_t * nbins_p)
 {

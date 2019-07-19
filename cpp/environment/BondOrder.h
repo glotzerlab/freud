@@ -35,7 +35,7 @@ class BondOrder
 {
 public:
     //! Constructor
-    BondOrder(float rmax, float k, unsigned int n, unsigned int nbins_t, unsigned int nbins_p);
+    BondOrder(float rmax, unsigned int n, unsigned int nbins_t, unsigned int nbins_p);
 
     //! Destructor
     ~BondOrder() {}

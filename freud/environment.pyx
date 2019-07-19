@@ -93,8 +93,6 @@ cdef class BondOrder(Compute):
     Args:
         r_max (float):
             Distance over which to calculate.
-        k (unsigned int):
-            Order parameter i. To be removed.
         num_neighbors (unsigned int):
             Number of neighbors to find.
         n_bins_t (unsigned int):
@@ -121,21 +119,19 @@ cdef class BondOrder(Compute):
     cdef freud._environment.BondOrder * thisptr
     cdef num_neigh
     cdef r_max
-    cdef k
     cdef n_bins_t
     cdef n_bins_p
 
-    def __cinit__(self, float r_max, float k, unsigned int num_neighbors,
+    def __cinit__(self, float r_max, unsigned int num_neighbors,
                   unsigned int n_bins_t, unsigned int n_bins_p):
         if n_bins_t < 2:
             raise ValueError("Must have at least 2 bins in theta.")
         if n_bins_p < 2:
             raise ValueError("Must have at least 2 bins in phi.")
         self.thisptr = new freud._environment.BondOrder(
-            r_max, k, num_neighbors, n_bins_t, n_bins_p)
+            r_max, num_neighbors, n_bins_t, n_bins_p)
         self.r_max = r_max
         self.num_neigh = num_neighbors
-        self.k = k
         self.n_bins_t = n_bins_t
         self.n_bins_p = n_bins_p
 
@@ -300,11 +296,10 @@ cdef class BondOrder(Compute):
         return self.thisptr.getNBinsPhi()
 
     def __repr__(self):
-        return ("freud.environment.{cls}(r_max={r_max}, k={k}, "
+        return ("freud.environment.{cls}(r_max={r_max}, "
                 "num_neighbors={num_neigh}, n_bins_t={n_bins_t}, "
                 "n_bins_p={n_bins_p})").format(cls=type(self).__name__,
                                                r_max=self.r_max,
-                                               k=self.k,
                                                num_neigh=self.num_neigh,
                                                n_bins_t=self.n_bins_t,
                                                n_bins_p=self.n_bins_p)
