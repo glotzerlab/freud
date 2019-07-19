@@ -35,11 +35,11 @@ Neighbor Querying
 .. autoclass:: freud.locality.NeighborQueryResult
    :members:
 
-.. autoclass:: freud.locality.AABBQuery()
+.. autoclass:: freud.locality.AABBQuery(box, points)
    :members:
    :inherited-members: queryBall
 
-.. autoclass:: freud.locality.LinkCell(box, cell_width)
+.. autoclass:: freud.locality.LinkCell(box, cell_width, points=None)
    :members: compute, getCell, getCellNeighbors, itercell, query, queryBall
 
 .. autoclass:: freud.locality.IteratorLinkCell()
@@ -48,5 +48,5 @@ Neighbor Querying
 Nearest Neighbors
 =================
 
-.. autoclass:: freud.locality.NearestNeighbors(rmax, n_neigh, scale=1.1, strict_cut=False)
+.. autoclass:: freud.locality.NearestNeighbors(r_max, num_neighbors, scale=1.1, strict_cut=False)
    :members: compute, getNeighborList, getNeighbors, getRsq

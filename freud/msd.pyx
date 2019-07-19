@@ -143,7 +143,7 @@ cdef class MSD(Compute):
         box (:class:`freud.box.Box`, optional):
             If not provided, the class will assume that all positions provided
             in calls to :meth:`~compute` or :meth:`~accumulate` are already
-            unwrapped.
+            unwrapped. (Default value = :code:`None`).
         mode (str, optional):
             Mode of calculation. Options are :code:`'window'` and
             :code:`'direct'`.  (Default value = :code:`'window'`).
@@ -192,6 +192,7 @@ cdef class MSD(Compute):
                 along with a simulation box (in the constructor) if particle
                 positions need to be unwrapped. If neither are provided,
                 positions are assumed to be unwrapped already.
+                (Default value = :code:`None`).
         """  # noqa: E501
 
         positions = freud.common.convert_array(
@@ -260,6 +261,7 @@ cdef class MSD(Compute):
                 along with a simulation box (in the constructor) if particle
                 positions need to be unwrapped. If neither are provided,
                 positions are assumed to be unwrapped already.
+                (Default value = :code:`None`).
         """  # noqa: E501
         self.reset()
         self.accumulate(positions, images)
@@ -277,7 +279,7 @@ cdef class MSD(Compute):
         """Plot MSD.
 
         Args:
-            ax (:class:`matplotlib.axes.Axes`): Axis to plot on. If
+            ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
                 :code:`None`, make a new figure and axis.
                 (Default value = :code:`None`)
 

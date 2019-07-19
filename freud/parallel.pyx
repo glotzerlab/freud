@@ -18,7 +18,7 @@ def getNumThreads():
     .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
 
     Returns:
-        int: Number of threads.
+        (int): Number of threads.
     """
     global _numThreads
     return _numThreads
@@ -31,8 +31,8 @@ def setNumThreads(nthreads=None):
 
     Args:
         nthreads(int, optional):
-            Number of threads to use. If None (default), use all threads
-            available.
+            Number of threads to use. If :code:`None`, use all threads
+            available. (Default value = :code:`None`).
     """
     global _numThreads
     if nthreads is None or nthreads < 0:
@@ -50,8 +50,9 @@ class NumThreads:
     .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
 
     Args:
-        N (int, optional): Number of threads to use in this context. Defaults
-            to None, which will use all available threads.
+        N (int, optional): Number of threads to use in this context. If
+            :code:`None`, which will use all available threads.
+            (Default value = :code:`None`).
     """
 
     def __init__(self, N=None):

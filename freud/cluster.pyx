@@ -96,9 +96,9 @@ cdef class Cluster(Compute):
             points ((:math:`N_{particles}`, 3) :class:`np.ndarray`):
                 Particle coordinates.
             nlist (:class:`freud.locality.NeighborList`, optional):
-                Object to use to find bonds (Default value = None).
+                Object to use to find bonds (Default value = :code:`None`).
             box (:class:`freud.box.Box`, optional):
-                Simulation box (Default value = None).
+                Simulation box (Default value = :code:`None`).
         """
         nq_nlist = freud.locality.make_nq_nlist(self.m_box, points, nlist)
         cdef freud.locality.NeighborQuery nq = nq_nlist[0]
@@ -175,7 +175,7 @@ cdef class Cluster(Compute):
         """Plot cluster distribution.
 
         Args:
-            ax (:class:`matplotlib.axes.Axes`): Axis to plot on. If
+            ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
                 :code:`None`, make a new figure and axis.
                 (Default value = :code:`None`)
 
@@ -263,7 +263,7 @@ cdef class ClusterProperties(Compute):
             cluster_idx (:class:`np.ndarray`):
                 List of cluster indexes for each particle.
             box (:class:`freud.box.Box`, optional):
-                Simulation box (Default value = None).
+                Simulation box (Default value = :code:`None`).
         """
         cdef freud.box.Box b
         if box is None:

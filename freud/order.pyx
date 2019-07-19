@@ -46,10 +46,12 @@ cdef class CubaticOrderParameter(Compute):
             Final temperature.
         scale (float):
             Scaling factor to reduce temperature.
-        n_replicates (unsigned int):
+        n_replicates (unsigned int, optional):
             Number of replicate simulated annealing runs.
-        seed (unsigned int):
-            Random seed to use in calculations. If None, system time is used.
+            (Default value = :code:`1`).
+        seed (unsigned int, optional):
+            Random seed to use in calculations. If :code:`None`, system time is used.
+            (Default value = :code:`None`).
 
     Attributes:
         t_initial (float):
@@ -316,10 +318,11 @@ cdef class HexOrderParameter(Compute):
     Args:
         r_max (float):
             +/- r distance to search for neighbors.
-        k (unsigned int):
-            Symmetry of order parameter (:math:`k=6` is hexatic).
-        num_neighbors (unsigned int):
-            Number of neighbors (:math:`num_neighbors=k` if :math:`num_neighbors` not specified).
+        k (unsigned int, optional):
+            Symmetry of order parameter. (Default value = :code:`6`).
+        num_neighbors (unsigned int, optional):
+            Number of neighbors. Uses :code:`k` if not provided or :code:`0`.
+            (Default value = :code:`0`).
 
     Attributes:
         psi (:math:`\left(N_{particles} \right)` :class:`numpy.ndarray`):
@@ -353,8 +356,9 @@ cdef class HexOrderParameter(Compute):
                 Simulation box.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Points to calculate the order parameter.
-            nlist (:class:`freud.locality.NeighborList`):
+            nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds.
+                (Default value = :code:`None`).
         """
         cdef freud.box.Box b = freud.common.convert_box(box)
 
@@ -409,10 +413,11 @@ cdef class TransOrderParameter(Compute):
     Args:
         r_max (float):
             +/- r distance to search for neighbors.
-        k (float):
-            Symmetry of order parameter (:math:`k=6` is hexatic).
-        num_neighbors (unsigned int):
-            Number of neighbors (:math:`num_neighbors=k` if :math:`num_neighbors` not specified).
+        k (float, optional):
+            Symmetry of order parameter. (Default value = :code:`6.0`).
+        num_neighbors (unsigned int, optional):
+            Number of neighbors. Uses :code:`k` if not provided or :code:`0`.
+            (Default value = :code:`0`).
 
     Attributes:
         d_r (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
@@ -445,8 +450,9 @@ cdef class TransOrderParameter(Compute):
                 Simulation box.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Points to calculate the order parameter.
-            nlist (:class:`freud.locality.NeighborList`):
+            nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds.
+                (Default value = :code:`None`).
         """
         cdef freud.box.Box b = freud.common.convert_box(box)
 
@@ -543,16 +549,17 @@ cdef class Steinhardt:
             minimum of the RDF are recommended.
         average (bool, optional):
             Determines whether to calculate the averaged Steinhardt order
-            parameter, defaults to False.
+            parameter. (Default value = :code:`False`)
         norm (bool, optional):
             Determines whether to calculate the normalized Steinhardt order
-            parameter, defaults to False.
+            parameter. (Default value = :code:`False`)
         Wl (bool, optional):
             Determines whether to use the :math:`Wl` version of the Steinhardt
-            order parameter, defaults to False.
+            order parameter. (Default value = :code:`False`)
         num_neighbors (int, optional):
             If set to a non-zero positive integer, limit the calculate of the
             Steinhardt order parameter to num_neighbors neighbors.
+            (Default value = :code:`0`)
 
 
     Attributes:
@@ -628,7 +635,8 @@ cdef class Steinhardt:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Points to calculate the order parameter.
             nlist (:class:`freud.locality.NeighborList`, optional):
-                Neighborlist to use to find bonds (Default value = None).
+                Neighborlist to use to find bonds.
+                (Default value = :code:`None`).
         """
 
         cdef freud.box.Box bbox = freud.common.convert_box(box)
@@ -705,10 +713,10 @@ cdef class LocalQl(Compute):
             minimum of the RDF are recommended.
         l (unsigned int):
             Spherical harmonic quantum number l. Must be a positive integer.
-        r_min (float):
+        r_min (float, optional):
             Lower bound for computing the local order parameter. Allows looking
             at, for instance, only the second shell, or some other arbitrary
-            RDF region (Default value = 0).
+            RDF region (Default value = :code:`0`).
 
     Attributes:
         box (:class:`freud.box.Box`):
@@ -813,7 +821,8 @@ cdef class LocalQl(Compute):
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Points to calculate the order parameter.
             nlist (:class:`freud.locality.NeighborList`, optional):
-                Neighborlist to use to find bonds (Default value = None).
+                Neighborlist to use to find bonds.
+                (Default value = :code:`None`).
         """
         points = freud.common.convert_array(points, shape=(None, 3))
 
@@ -837,7 +846,8 @@ cdef class LocalQl(Compute):
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Points to calculate the order parameter.
             nlist (:class:`freud.locality.NeighborList`, optional):
-                Neighborlist to use to find bonds (Default value = None).
+                Neighborlist to use to find bonds.
+                (Default value = :code:`None`).
         """
         points = freud.common.convert_array(points, shape=(None, 3))
 
@@ -864,7 +874,8 @@ cdef class LocalQl(Compute):
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Points to calculate the order parameter.
             nlist (:class:`freud.locality.NeighborList`, optional):
-                Neighborlist to use to find bonds (Default value = None).
+                Neighborlist to use to find bonds
+                (Default value = :code:`None`).
         """
         points = freud.common.convert_array(points, shape=(None, 3))
 
@@ -891,7 +902,8 @@ cdef class LocalQl(Compute):
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Points to calculate the order parameter.
             nlist (:class:`freud.locality.NeighborList`, optional):
-                Neighborlist to use to find bonds (Default value = None).
+                Neighborlist to use to find bonds.
+                (Default value = :code:`None`).
         """
         points = freud.common.convert_array(points, shape=(None, 3))
 
@@ -964,10 +976,10 @@ cdef class LocalQl(Compute):
         """Plot Ql.
 
         Args:
-            ax (:class:`matplotlib.axes.Axes`): Axis to plot on. If
+            ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
                 :code:`None`, make a new figure and axis.
                 (Default value = :code:`None`)
-            mode (str): Plotting mode. Must be one of "Ql", "ave_Ql",
+            mode (str, optional): Plotting mode. Must be one of "Ql", "ave_Ql",
                 "norm_Ql" and "ave_norm_Ql". Plots the given attribute.
                 If :code:`None`, plot the most recent computed attribute.
                 (Default value = :code:`None`)
@@ -1004,8 +1016,9 @@ cdef class LocalQlNear(LocalQl):
             minimum of the RDF are recommended.
         l (unsigned int):
             Spherical harmonic quantum number l. Must be a positive number.
-        num_neighbors (unsigned int):
+        num_neighbors (unsigned int, optional):
             Number of nearest neighbors. must be a positive integer.
+            (Default value = :code:`12`).
 
     Attributes:
         box (:class:`freud.box.Box`):
@@ -1058,7 +1071,8 @@ cdef class LocalQlNear(LocalQl):
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Points to calculate the order parameter.
             nlist (:class:`freud.locality.NeighborList`, optional):
-                Neighborlist to use to find bonds (Default value = None).
+                Neighborlist to use to find bonds.
+                (Default value = :code:`None`).
         """
         defaulted_nlist = freud.locality.make_default_nlist_nn(
             self.m_box, points, points,
@@ -1074,7 +1088,8 @@ cdef class LocalQlNear(LocalQl):
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Points to calculate the order parameter.
             nlist (:class:`freud.locality.NeighborList`, optional):
-                Neighborlist to use to find bonds (Default value = None).
+                Neighborlist to use to find bonds.
+                (Default value = :code:`None`).
         """
         defaulted_nlist = freud.locality.make_default_nlist_nn(
             self.m_box, points, points,
@@ -1091,7 +1106,8 @@ cdef class LocalQlNear(LocalQl):
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Points to calculate the order parameter.
             nlist (:class:`freud.locality.NeighborList`, optional):
-                Neighborlist to use to find bonds (Default value = None).
+                Neighborlist to use to find bonds.
+                (Default value = :code:`None`).
         """
         defaulted_nlist = freud.locality.make_default_nlist_nn(
             self.m_box, points, points,
@@ -1109,7 +1125,8 @@ cdef class LocalQlNear(LocalQl):
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Points to calculate the order parameter.
             nlist (:class:`freud.locality.NeighborList`, optional):
-                Neighborlist to use to find bonds (Default value = None).
+                Neighborlist to use to find bonds.
+                (Default value = :code:`None`).
         """
         defaulted_nlist = freud.locality.make_default_nlist_nn(
             self.m_box, points, points,
@@ -1134,13 +1151,13 @@ cdef class LocalQlNear(LocalQl):
         """Plot Ql.
 
         Args:
-            ax (:class:`matplotlib.axes.Axes`): Axis to plot on. If
+            ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
                 :code:`None`, make a new figure and axis.
-                (Default value = :code:`None`)
-            mode (str): Plotting mode. Must be one of "Ql", "ave_Ql",
+                (Default value = :code:`None`).
+            mode (str, optional): Plotting mode. Must be one of "Ql", "ave_Ql",
                 "norm_Ql" and "ave_norm_Ql". Plots the given attribute.
                 If :code:`None`, plot the most recent computed attribute.
-                (Default value = :code:`None`)
+                (Default value = :code:`None`).
 
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
@@ -1193,10 +1210,10 @@ cdef class LocalWl(LocalQl):
             minimum of the RDF are recommended.
         l (unsigned int):
             Spherical harmonic quantum number l. Must be a positive integer.
-        r_min (float):
+        r_min (float, optional):
             Lower bound for computing the local order parameter. Allows looking
             at, for instance, only the second shell, or some other arbitrary
-            RDF region (Default value = 0).
+            RDF region (Default value = :code:`0`).
 
     Attributes:
         box (:class:`freud.box.Box`):
@@ -1301,13 +1318,13 @@ cdef class LocalWl(LocalQl):
         """Plot Wl.
 
         Args:
-            ax (:class:`matplotlib.axes.Axes`): Axis to plot on. If
+            ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
                 :code:`None`, make a new figure and axis.
-                (Default value = :code:`None`)
-            mode (str): Plotting mode. Must be one of "Wl", "ave_Wl",
+                (Default value = :code:`None`).
+            mode (str, optional): Plotting mode. Must be one of "Wl", "ave_Wl",
                 "norm_Wl" and "ave_norm_Wl". Plots the given attribute.
                 If :code:`None`, plot the most recent computed attribute.
-                (Default value = :code:`None`)
+                (Default value = :code:`None`).
 
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
@@ -1342,8 +1359,9 @@ cdef class LocalWlNear(LocalWl):
             minimum of the RDF are recommended.
         l (unsigned int):
             Spherical harmonic quantum number l. Must be a positive number
-        num_neighbors (unsigned int):
+        num_neighbors (unsigned int, optional):
             Number of nearest neighbors. Must be a positive number.
+            (Default value = :code:`12`).
 
 
     Attributes:
@@ -1392,7 +1410,8 @@ cdef class LocalWlNear(LocalWl):
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Points to calculate the order parameter.
             nlist (:class:`freud.locality.NeighborList`, optional):
-                Neighborlist to use to find bonds (Default value = None).
+                Neighborlist to use to find bonds.
+                (Default value = :code:`None`).
         """
         defaulted_nlist = freud.locality.make_default_nlist_nn(
             self.m_box, points, points,
@@ -1408,7 +1427,8 @@ cdef class LocalWlNear(LocalWl):
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Points to calculate the order parameter.
             nlist (:class:`freud.locality.NeighborList`, optional):
-                Neighborlist to use to find bonds (Default value = None).
+                Neighborlist to use to find bonds.
+                (Default value = :code:`None`).
         """
         defaulted_nlist = freud.locality.make_default_nlist_nn(
             self.m_box, points, points,
@@ -1425,7 +1445,8 @@ cdef class LocalWlNear(LocalWl):
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Points to calculate the order parameter.
             nlist (:class:`freud.locality.NeighborList`, optional):
-                Neighborlist to use to find bonds (Default value = None).
+                Neighborlist to use to find bonds.
+                (Default value = :code:`None`).
         """
         defaulted_nlist = freud.locality.make_default_nlist_nn(
             self.m_box, points, points,
@@ -1443,7 +1464,8 @@ cdef class LocalWlNear(LocalWl):
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Points to calculate the order parameter.
             nlist (:class:`freud.locality.NeighborList`, optional):
-                Neighborlist to use to find bonds (Default value = None).
+                Neighborlist to use to find bonds.
+                (Default value = :code:`None`).
         """
         defaulted_nlist = freud.locality.make_default_nlist_nn(
             self.m_box, points, points,
@@ -1468,13 +1490,13 @@ cdef class LocalWlNear(LocalWl):
         """Plot Wl.
 
         Args:
-            ax (:class:`matplotlib.axes.Axes`): Axis to plot on. If
+            ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
                 :code:`None`, make a new figure and axis.
-                (Default value = :code:`None`)
-            mode (str): Plotting mode. Must be one of "Wl", "ave_Wl",
+                (Default value = :code:`None`).
+            mode (str, optional): Plotting mode. Must be one of "Wl", "ave_Wl",
                 "norm_Wl" and "ave_norm_Wl". Plots the given attribute.
                 If :code:`None`, plot the most recent computed attribute.
-                (Default value = :code:`None`)
+                (Default value = :code:`None`).
 
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
@@ -1561,7 +1583,8 @@ cdef class SolLiq(Compute):
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Points to calculate the order parameter.
             nlist (:class:`freud.locality.NeighborList`, optional):
-                Neighborlist to use to find bonds (Default value = None).
+                Neighborlist to use to find bonds.
+                (Default value = :code:`None`).
         """
         points = freud.common.convert_array(points, shape=(None, 3))
 
@@ -1588,7 +1611,8 @@ cdef class SolLiq(Compute):
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Points to calculate the order parameter.
             nlist (:class:`freud.locality.NeighborList`, optional):
-                Neighborlist to use to find bonds (Default value = None).
+                Neighborlist to use to find bonds.
+                (Default value = :code:`None`).
         """
         points = freud.common.convert_array(points, shape=(None, 3))
 
@@ -1612,7 +1636,8 @@ cdef class SolLiq(Compute):
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Points to calculate the order parameter.
             nlist (:class:`freud.locality.NeighborList`, optional):
-                Neighborlist to use to find bonds (Default value = None).
+                Neighborlist to use to find bonds.
+                (Default value = :code:`None`).
         """
         points = freud.common.convert_array(points, shape=(None, 3))
 
@@ -1718,8 +1743,9 @@ cdef class SolLiqNear(SolLiq):
             is generally good for FCC or BCC structures).
         l (unsigned int):
             Choose spherical harmonic :math:`Q_l`. Must be positive and even.
-        num_neighbors (unsigned int):
+        num_neighbors (unsigned int, optional):
             Number of nearest neighbors. Must be a positive number.
+            (Default value = :code:`12`).
 
     Attributes:
         box (:class:`freud.box.Box`):
@@ -1771,8 +1797,9 @@ cdef class SolLiqNear(SolLiq):
         Args:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Points to calculate the order parameter.
-            nlist (:class:`freud.locality.NeighborList`):
+            nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds.
+                (Default value = :code:`None`).
         """
         defaulted_nlist = freud.locality.make_default_nlist_nn(
             self.m_box, points, points,
@@ -1788,8 +1815,9 @@ cdef class SolLiqNear(SolLiq):
         Args:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Points to calculate the order parameter.
-            nlist (:class:`freud.locality.NeighborList`):
+            nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds.
+                (Default value = :code:`None`).
         """
         defaulted_nlist = freud.locality.make_default_nlist_nn(
             self.m_box, points, points,
@@ -1805,8 +1833,9 @@ cdef class SolLiqNear(SolLiq):
         Args:
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Points to calculate the order parameter.
-            nlist (:class:`freud.locality.NeighborList`):
+            nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds.
+                (Default value = :code:`None`).
         """
         defaulted_nlist = freud.locality.make_default_nlist_nn(
             self.m_box, points, points,
@@ -1878,26 +1907,28 @@ cdef class RotationalAutocorrelation(Compute):
         del self.thisptr
 
     @Compute._compute()
-    def compute(self, ref_ors, ors):
+    def compute(self, ref_orientations, orientations):
         """Calculates the rotational autocorrelation function for a single frame.
 
         Args:
-            ref_ors ((:math:`N_{orientations}`, 4) :class:`numpy.ndarray`):
+            ref_orientations ((:math:`N_{orientations}`, 4) :class:`numpy.ndarray`):
                 Reference orientations for the initial frame.
-            ors ((:math:`N_{orientations}`, 4) :class:`numpy.ndarray`):
+            orientations ((:math:`N_{orientations}`, 4) :class:`numpy.ndarray`):
                 Orientations for the frame of interest.
-        """
-        ref_ors = freud.common.convert_array(ref_ors, shape=(None, 4))
-        ors = freud.common.convert_array(ors, shape=ref_ors.shape)
+        """  # noqa
+        ref_orientations = freud.common.convert_array(
+            ref_orientations, shape=(None, 4))
+        orientations = freud.common.convert_array(
+            orientations, shape=ref_orientations.shape)
 
-        cdef const float[:, ::1] l_ref_ors = ref_ors
-        cdef const float[:, ::1] l_ors = ors
-        cdef unsigned int nP = ors.shape[0]
+        cdef const float[:, ::1] l_ref_orientations = ref_orientations
+        cdef const float[:, ::1] l_orientations = orientations
+        cdef unsigned int nP = orientations.shape[0]
 
         with nogil:
             self.thisptr.compute(
-                <quat[float]*> &l_ref_ors[0, 0],
-                <quat[float]*> &l_ors[0, 0],
+                <quat[float]*> &l_ref_orientations[0, 0],
+                <quat[float]*> &l_orientations[0, 0],
                 nP)
         return self
 

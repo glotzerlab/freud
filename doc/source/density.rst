@@ -21,10 +21,10 @@ Density Module
 Correlation Functions
 =====================
 
-.. autoclass:: freud.density.FloatCF(rmax, dr)
+.. autoclass:: freud.density.FloatCF(r_max, dr)
     :members: accumulate, compute, reset, plot
 
-.. autoclass:: freud.density.ComplexCF(rmax, dr)
+.. autoclass:: freud.density.ComplexCF(r_max, dr)
     :members: accumulate, compute, reset, plot
 
 Gaussian Density
@@ -36,11 +36,11 @@ Gaussian Density
 Local Density
 =============
 
-.. autoclass:: freud.density.LocalDensity(r_cut, volume, diameter)
+.. autoclass:: freud.density.LocalDensity(r_max, volume, diameter)
     :members: compute
 
 Radial Distribution Function
 ============================
 
-.. autoclass:: freud.density.RDF(rmax, dr, rmin=0)
+.. autoclass:: freud.density.RDF(r_max, dr, r_min=0)
     :members: accumulate, compute, reset, plot

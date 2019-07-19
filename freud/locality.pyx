@@ -343,9 +343,9 @@ cdef class NeighborQuery:
         Args:
             points ((:math:`N`, 3) :class:`numpy.ndarray`):
                 Points to query for.
-            num_neighbors (int):
+            num_neighbors (int, optional):
                 The number of nearest neighbors to find.
-                (Default value = 1)
+                (Default value = :code:`1`)
             exclude_ii (bool, optional):
                 Set this to :code:`True` if pairs of points with identical
                 indices to those in self.points should be excluded. If this is
@@ -381,7 +381,7 @@ cdef class NeighborQuery:
                 indices to those in self.points should be excluded. If this is
                 :code:`None`, it will be treated as :code:`True` if
                 :code:`points` is :code:`None` or the same object as
-                :code:`ref_points` (Defaults to :code:`None`).
+                :code:`ref_points`. (Default value = :code:`None`).
 
         Returns:
             :class:`~.NeighborQueryResult`: Results object containing the
@@ -714,7 +714,7 @@ cdef class NeighborList:
                 Maximum bond distance in the resulting neighbor list.
             r_min (float, optional):
                 Minimum bond distance in the resulting neighbor list
-                (Default value = 0).
+                (Default value = :code:`0`).
         """
         cdef freud.box.Box b = freud.common.convert_box(box)
         ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
@@ -808,8 +808,8 @@ def make_default_nlist(box, ref_points, points, r_max, nlist=None,
             Set this to :code:`True` if pairs of points with identical
             indices should be excluded. If this is :code:`None`, it will be
             treated as :code:`True` if :code:`points` is :code:`None` or
-            the same object as :code:`ref_points` (Defaults to
-            :code:`None`).
+            the same object as :code:`ref_points`.
+            (Default value = :code:`None`).
 
     Returns:
         tuple (:class:`freud.locality.NeighborList`, :class:`freud.locality.AABBQuery`):
@@ -845,8 +845,8 @@ def make_default_nlist_nn(box, ref_points, points, num_neighbors, nlist=None,
             Set this to :code:`True` if pairs of points with identical
             indices should be excluded. If this is :code:`None`, it will be
             treated as :code:`True` if :code:`points` is :code:`None` or
-            the same object as :code:`ref_points` (Defaults to
-            :code:`None`).
+            the same object as :code:`ref_points`.
+            (Default value = :code:`None`).
         r_max_guess (float):
             Estimate of r_max, speeds up search if chosen properly.
 
@@ -983,13 +983,13 @@ cdef class AABBQuery(NeighborQuery):
                 Points to query for.
             num_neighbors (int):
                 The number of nearest neighbors to find.
-                (Default value = 1)
+                (Default value = :code:`1`)
             r_guess (float):
                 The initial guess of a distance to search to find N neighbors.
-                (Default value = 0)
+                (Default value = :code:`0`)
             scale (float):
                 Multiplier by which to increase :code:`r` if not enough
-                neighbors are found. (Default value = 1.1)
+                neighbors are found. (Default value = :code:`1.1`)
 
         Returns:
             :class:`~.NeighborQueryResult`: Results object containing the
@@ -1065,7 +1065,7 @@ cdef class LinkCell(NeighborQuery):
         points (:class:`np.ndarray`, optional):
             The points associated with this class, if used as a NeighborQuery
             object, i.e. built on one set of points that can then be queried
-            against.  (Defaults to None).
+            against.  (Default value = :code:`None`).
 
     Attributes:
         box (:class:`freud.box.Box`):
@@ -1199,8 +1199,8 @@ cdef class LinkCell(NeighborQuery):
                 Set this to :code:`True` if pairs of points with identical
                 indices should be excluded. If this is :code:`None`, it will be
                 treated as :code:`True` if :code:`points` is :code:`None` or
-                the same object as :code:`ref_points` (Defaults to
-                :code:`None`).
+                the same object as :code:`ref_points`.
+                (Default value = :code:`None`).
         """  # noqa: E501
         if self.queryable:
             raise RuntimeError("You cannot use the compute method because "
@@ -1262,13 +1262,14 @@ cdef class NearestNeighbors:
             Initial guess of a distance to search within to find N neighbors.
         num_neighbors (unsigned int):
             Number of neighbors to find for each point.
-        scale (float):
+        scale (float, optional):
             Multiplier by which to automatically increase :code:`r_max` value if
             the requested number of neighbors is not found. Only utilized if
             :code:`strict_cut` is False. Scale must be greater than 1.
-        strict_cut (bool):
+            (Default value = :code:`1.1`)
+        strict_cut (bool, optional):
             Whether to use a strict :code:`r_max` or allow for automatic
-            expansion, default is False.
+            expansion. (Default value = :code:`False`)
 
     Attributes:
         UINTMAX (unsigned int):
@@ -1445,13 +1446,13 @@ cdef class NearestNeighbors:
             ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference point coordinates.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
-                Point coordinates. Defaults to :code:`ref_points` if not
-                provided or :code:`None`.
+                Point coordinates. Uses :code:`ref_points` if not
+                provided or :code:`None`. (Default value = :code:`None`).
             exclude_ii (bool, optional):
                 Set this to :code:`True` if pairs of points with identical
                 indices should be excluded. If this is :code:`None`, it will be
                 treated as :code:`True` if :code:`points` is :code:`None` or
-                the same object as :code:`ref_points` (Defaults to
+                the same object as :code:`ref_points` (Default value =
                 :code:`None`).
         """  # noqa: E501
         cdef freud.box.Box b = freud.common.convert_box(box)
@@ -1545,12 +1546,12 @@ cdef class _Voronoi:
 
         Args:
             box (:class:`freud.box.Box`):
-                Simulation box (Default value = None).
+                Simulation box (Default value = :code:`None`).
             positions ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Points to calculate Voronoi diagram for.
             buffer (float):
                 Buffer distance within which to look for images
-                (Default value = None).
+                (Default value = :code:`None`).
             images (bool):
                 If ``False``, ``buffer`` is a distance. If ``True``
                 (default),``buffer`` is a number of images to replicate in each

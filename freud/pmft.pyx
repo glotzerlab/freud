@@ -177,10 +177,11 @@ cdef class PMFTR12(_PMFT):
                 Reference orientations as angles used in computation.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
                 Points used in computation. Uses :code:`ref_points` if not
-                provided or :code:`None`.
+                provided or :code:`None`. (Default value = :code:`None`).
             orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):
                 Orientations as angles used in computation. Uses
                 :code:`ref_orientations` if not provided or :code:`None`.
+                (Default value = :code:`None`).
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList used to find bonds (Default value =
                 :code:`None`).
@@ -240,10 +241,11 @@ cdef class PMFTR12(_PMFT):
                 Reference orientations as angles used in computation.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
                 Points used in computation. Uses :code:`ref_points` if not
-                provided or :code:`None`.
+                provided or :code:`None`. (Default value = :code:`None`).
             orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):
                 Orientations as angles used in computation. Uses
                 :code:`ref_orientations` if not provided or :code:`None`.
+                (Default value = :code:`None`).
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList used to find bonds (Default value =
                 :code:`None`).
@@ -420,10 +422,11 @@ cdef class PMFTXYT(_PMFT):
                 Reference orientations as angles used in computation.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
                 Points used in computation. Uses :code:`ref_points` if not
-                provided or :code:`None`.
+                provided or :code:`None`. (Default value = :code:`None`).
             orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):
                 Orientations as angles used in computation. Uses
                 :code:`ref_orientations` if not provided or :code:`None`.
+                (Default value = :code:`None`).
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList used to find bonds (Default value =
                 :code:`None`).
@@ -484,10 +487,11 @@ cdef class PMFTXYT(_PMFT):
                 Reference orientations as angles used in computation.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
                 Points used in computation. Uses :code:`ref_points` if not
-                provided or :code:`None`.
+                provided or :code:`None`. (Default value = :code:`None`).
             orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):
                 Orientations as angles used in computation. Uses
                 :code:`ref_orientations` if not provided or :code:`None`.
+                (Default value = :code:`None`).
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList used to find bonds (Default value =
                 :code:`None`).
@@ -648,10 +652,11 @@ cdef class PMFTXY2D(_PMFT):
                 Reference orientations as angles used in computation.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
                 Points used in computation. Uses :code:`ref_points` if not
-                provided or :code:`None`.
+                provided or :code:`None`. (Default value = :code:`None`).
             orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):
                 Orientations as angles used in computation. Uses
                 :code:`ref_orientations` if not provided or :code:`None`.
+                (Default value = :code:`None`).
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList used to find bonds (Default value =
                 :code:`None`).
@@ -712,10 +717,11 @@ cdef class PMFTXY2D(_PMFT):
                 Reference orientations as angles used in computation.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
                 Points used in computation. Uses :code:`ref_points` if not
-                provided or :code:`None`.
+                provided or :code:`None`. (Default value = :code:`None`).
             orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):
                 Orientations as angles used in computation. Uses
                 :code:`ref_orientations` if not provided or :code:`None`.
+                (Default value = :code:`None`).
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList used to find bonds (Default value =
                 :code:`None`).
@@ -792,7 +798,7 @@ cdef class PMFTXY2D(_PMFT):
         """Plot PMFTXY2D.
 
         Args:
-            ax (:class:`matplotlib.axes.Axes`): Axis to plot on. If
+            ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
                 :code:`None`, make a new figure and axis.
                 (Default value = :code:`None`)
 
@@ -902,10 +908,11 @@ cdef class PMFTXYZ(_PMFT):
                 Reference orientations as quaternions used in computation.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
                 Points used in computation. Uses :code:`ref_points` if not
-                provided or :code:`None`.
+                provided or :code:`None`. (Default value = :code:`None`).
             orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`, optional):
                 Orientations as quaternions used in computation. Uses
                 :code:`ref_orientations` if not provided or :code:`None`.
+                (Default value = :code:`None`).
             face_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`, optional):
                 Orientations of particle faces to account for particle
                 symmetry. If not supplied by user, unit quaternions will be
@@ -1019,10 +1026,11 @@ cdef class PMFTXYZ(_PMFT):
                 Reference orientations as quaternions used in computation.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
                 Points used in computation. Uses :code:`ref_points` if not
-                provided or :code:`None`.
+                provided or :code:`None`. (Default value = :code:`None`).
             orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`, optional):
                 Orientations as quaternions used in computation. Uses
                 :code:`ref_orientations` if not provided or :code:`None`.
+                (Default value = :code:`None`).
             face_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`, optional):
                 Orientations of particle faces to account for particle
                 symmetry. If not supplied by user, unit quaternions will be

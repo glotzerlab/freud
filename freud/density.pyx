@@ -102,9 +102,11 @@ cdef class FloatCF(Compute):
             points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`, optional):
                 Points used to calculate the correlation function.
                 Uses :code:`ref_points` if not provided or :code:`None`.
+                (Default value = :code:`None`).
             values ((:math:`N_{points}`) :class:`numpy.ndarray`, optional):
                 Real values used to calculate the correlation function.
                 Uses :code:`ref_values` if not provided or :code:`None`.
+                (Default value = :code:`None`).
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
@@ -190,9 +192,11 @@ cdef class FloatCF(Compute):
             points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`, optional):
                 Points used to calculate the correlation function.
                 Uses :code:`ref_points` if not provided or :code:`None`.
+                (Default value = :code:`None`).
             values ((:math:`N_{points}`) :class:`numpy.ndarray`, optional):
                 Real values used to calculate the correlation function.
                 Uses :code:`ref_values` if not provided or :code:`None`.
+                (Default value = :code:`None`).
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
@@ -228,7 +232,7 @@ cdef class FloatCF(Compute):
         """Plot correlation function.
 
         Args:
-            ax (:class:`matplotlib.axes.Axes`): Axis to plot on. If
+            ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
                 :code:`None`, make a new figure and axis.
                 (Default value = :code:`None`)
 
@@ -328,9 +332,11 @@ cdef class ComplexCF(Compute):
             points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`, optional):
                 Points used to calculate the correlation function.
                 Uses :code:`ref_points` if not provided or :code:`None`.
+                (Default value = :code:`None`).
             values ((:math:`N_{points}`) :class:`numpy.ndarray`, optional):
                 Complex values used to calculate the correlation function.
                 Uses :code:`ref_values` if not provided or :code:`None`.
+                (Default value = :code:`None`).
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
@@ -417,9 +423,11 @@ cdef class ComplexCF(Compute):
             points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`, optional):
                 Points used to calculate the correlation function.
                 Uses :code:`ref_points` if not provided or :code:`None`.
+                (Default value = :code:`None`).
             values ((:math:`N_{points}`) :class:`numpy.ndarray`, optional):
                 Complex values used to calculate the correlation function.
                 Uses :code:`ref_values` if not provided or :code:`None`.
+                (Default value = :code:`None`).
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
@@ -455,7 +463,7 @@ cdef class ComplexCF(Compute):
         """Plot complex correlation function.
 
         Args:
-            ax (:class:`matplotlib.axes.Axes`): Axis to plot on. If
+            ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
                 :code:`None`, make a new figure and axis.
                 (Default value = :code:`None`)
 
@@ -605,7 +613,7 @@ cdef class GaussianDensity(Compute):
         """Plot Gaussian Density.
 
         Args:
-            ax (:class:`matplotlib.axes.Axes`): Axis to plot on. If
+            ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
                 :code:`None`, make a new figure and axis.
                 (Default value = :code:`None`)
 
@@ -713,6 +721,7 @@ cdef class LocalDensity(Compute):
             points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`, optional):
                 Points to calculate the local density. Uses :code:`ref_points`
                 if not provided or :code:`None`.
+                (Default value = :code:`None`).
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
@@ -805,7 +814,7 @@ cdef class RDF(Compute):
             Distance between histogram bins.
         r_min (float, optional):
             Minimum interparticle distance to include in the calculation
-            (Default value = 0).
+            (Default value = :code:`0`).
 
     Attributes:
         box (:class:`freud.box.Box`):
@@ -897,7 +906,7 @@ cdef class RDF(Compute):
                 Reference points used to calculate the RDF.
             points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`, optional):
                 Points used to calculate the RDF. Uses :code:`ref_points` if
-                not provided or :code:`None`.
+                not provided or :code:`None`. (Default value = :code:`None`).
             nlist (:class:`freud.locality.NeighborList`):
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
@@ -946,7 +955,7 @@ cdef class RDF(Compute):
         """Plot radial distribution function.
 
         Args:
-            ax (:class:`matplotlib.axes.Axes`): Axis to plot on. If
+            ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
                 :code:`None`, make a new figure and axis.
                 (Default value = :code:`None`)
 

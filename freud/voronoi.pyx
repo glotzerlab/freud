@@ -67,8 +67,8 @@ class Voronoi(Compute):
     Args:
         box (:class:`freud.box.Box`):
             Simulation box.
-        buff (float):
-            Buffer width.
+        buff (float, optional):
+            Buffer width. (Default value = :code:`0.1`)
 
     Attributes:
         buffer (float):
@@ -100,11 +100,11 @@ class Voronoi(Compute):
         Args:
             positions ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Points to calculate Voronoi diagram for.
-            box (:class:`freud.box.Box`):
-                Simulation box (Default value = None).
-            buff (float):
+            box (:class:`freud.box.Box`, optional):
+                Simulation box (Default value = :code:`None`).
+            buff (float, optional):
                 Buffer distance within which to look for images
-                (Default value = None).
+                (Default value = :code:`None`).
         """
         # Compute the buffer particles in C++
         pbuff = freud.box.ParticleBuffer(box)
@@ -134,11 +134,11 @@ class Voronoi(Compute):
         Args:
             positions ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Points to calculate Voronoi diagram for.
-            box (:class:`freud.box.Box`):
-                Simulation box (Default value = None).
-            buff (float):
+            box (:class:`freud.box.Box`, optional):
+                Simulation box (Default value = :code:`None`).
+            buff (float, optional):
                 Buffer distance within which to look for images
-                (Default value = None).
+                (Default value = :code:`None`).
         """
 
         # If box or buff is not specified, revert to object quantities
@@ -227,7 +227,7 @@ class Voronoi(Compute):
                 (Default value = None).
             exclude_ii (bool, optional):
                 True if pairs of points with identical indices should be
-                excluded (Default value = True).
+                excluded (Default value = :code:`True`).
         """
         # If box or buff is not specified, revert to object quantities
         cdef freud.box.Box b
@@ -438,10 +438,10 @@ class Voronoi(Compute):
 
     @Compute._computed_method()
     def plot(self, ax=None):
-        """Plot Voronoi diagram.
+        """Plot 2D Voronoi diagram.
 
         Args:
-            ax (:class:`matplotlib.axes.Axes`): Axis to plot on. If
+            ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
                 :code:`None`, make a new figure and axis.
                 (Default value = :code:`None`)
 
