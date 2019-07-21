@@ -7,6 +7,7 @@ Table of Contents
    :maxdepth: 2
    :caption: Getting Started
 
+   introduction
    installation
    examples
 
