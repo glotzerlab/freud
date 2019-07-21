@@ -38,6 +38,7 @@ The freud library uses single-precision `NumPy arrays <https://www.numpy.org/>`_
 
    introduction
    installation
+   gettingstarted
    examples
    modules
    development
