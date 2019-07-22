@@ -107,7 +107,6 @@ class TestBondOrder(unittest.TestCase):
         rmax = 1.6
         k = 0
 
-        # to make sure what we skip ref_points ref_points neighbors
         n = 12
         n_bins_t = 30
         n_bins_p = 2

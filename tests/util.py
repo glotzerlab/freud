@@ -3,7 +3,7 @@ import freud
 
 
 def make_box_and_random_points(box_size, num_points, is2D=False, seed=0):
-    R"""Helper function to make random points with a box.
+    R"""Helper function to make random points with a cubic or square box.
 
     This function has a side effect that it will set the random seed of numpy.
 
@@ -72,9 +72,8 @@ def make_alternating_lattice(lattice_size, angle=0, extra_shell=2):
             p = rotation_matrix.dot(p)
             if (i + j) % 2 == 0:
                 points_2.append(p)
-            else:
-                if 0 <= i < lattice_size and 0 <= j < lattice_size:
-                    points_1.append(p)
+            elif 0 <= i < lattice_size and 0 <= j < lattice_size:
+                points_1.append(p)
 
     points_1 = np.array(points_1)
     points_2 = np.array(points_2)

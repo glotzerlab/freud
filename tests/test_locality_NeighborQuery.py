@@ -207,7 +207,7 @@ class TestNeighborQuery(object):
         N = 400  # number of particles
 
         box, ref_points = make_box_and_random_points(L, N, seed=0)
-        _, points = make_box_and_random_points(L, N, seed=1)
+        points = np.random.rand(N, 3) * L
 
         nq = self.build_query_object(box, ref_points, L/10)
 

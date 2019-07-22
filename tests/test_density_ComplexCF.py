@@ -191,16 +191,15 @@ class TestComplexCF(unittest.TestCase):
 
         points = []
         values = []
-        supposed_RDF = []
         N = 300
 
-        # We are essentially generating all n-th roots of unities
+        # We are essentially generating all n-th roots of unity
         # scalar multiplied by the each bin centers
         # with the value of a point being its complex number representation.
         # Therefore, the RDF should be uniformly zero
-        # since the roots of unities add up to zero, if we set our ref_point in
+        # since the roots of unity add up to zero, if we set our ref_point in
         # the origin.
-        # Nice proof for this fact is that when the n-th roots of unities
+        # Nice proof for this fact is that when the n-th roots of unity
         # are viewed as vectors, we can draw a regular n-gon
         # so that we start at the origin and come back to origin.
         for r in ocf.R:

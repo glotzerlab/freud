@@ -89,7 +89,8 @@ class TestLD(unittest.TestCase):
         ld.compute(box, ref_points, points)
 
         cd0 = 2/v_around
-        cd1 = (1 + getFraction(np.sqrt(5), rcut, diameter))/v_around
+        cd1 = (1 + getFraction(np.linalg.norm(ref_points[1] - points[1]),
+                               rcut, diameter)) / v_around
         correct_density = [cd0, cd1]
         npt.assert_allclose(ld.density, correct_density, rtol=1e-4)
 
