@@ -289,9 +289,9 @@ void loopOverNeighborList(const NeighborList* nlist, const ComputePairType& cf, 
     forLoopWrapper(0, n_bonds, [=](size_t begin, size_t end) {
         for (size_t bond = begin; bond != end; ++bond)
         {
-            size_t i(neighbor_list[2 * bond]);
-            size_t j(neighbor_list[2 * bond + 1]);
-            cf(i, j, neighbor_distances[bond], neighbor_weights[bond]);
+            size_t point_index(neighbor_list[2 * bond]);
+            size_t ref_point_index(neighbor_list[2 * bond + 1]);
+            cf(ref_point_index, point_index, neighbor_distances[bond], neighbor_weights[bond]);
         }
     }, parallel);
 }
