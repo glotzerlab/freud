@@ -538,7 +538,19 @@ public:
                               float r, bool exclude_ii)
         : NeighborQueryIterator(neighbor_query, points, N, exclude_ii),
           LinkCellIterator(neighbor_query, points, N, exclude_ii), m_r(r)
-    {}
+    {
+        // Upon querying, if the search radius is equal to the cell width, we
+        // can guarantee that we don't need to search the cell shell past the
+        // query radius. For simplicity, we store this value as an integer.
+        if (abs(m_r - neighbor_query.getCellWidth()) < 1e-6)
+        {
+            m_extra_search_width = 0;
+        }
+        else
+        {
+            m_extra_search_width = 1;
+        }
+    }
 
     //! Empty Destructor
     virtual ~LinkCellQueryBallIterator() {}
@@ -551,6 +563,7 @@ public:
 
 protected:
     float m_r; //!< Search ball cutoff distance
+    int m_extra_search_width; //!< The extra shell distance to search, always 0 or 1.
 };
 }; }; // end namespace freud::locality
 
