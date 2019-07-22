@@ -12,3 +12,4 @@ Detailed per-module introductions are left for the `examples`_.
    :maxdepth: 2
 
    basics
+   neighborfinding
