@@ -542,7 +542,7 @@ public:
         // Upon querying, if the search radius is equal to the cell width, we
         // can guarantee that we don't need to search the cell shell past the
         // query radius. For simplicity, we store this value as an integer.
-        if (abs(m_r - neighbor_query->getCellWidth()) < 1e-6)
+        if (m_r == neighbor_query->getCellWidth())
         {
             m_extra_search_width = 0;
         }
