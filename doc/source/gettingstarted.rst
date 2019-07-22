@@ -24,7 +24,7 @@ To do so, we simply instantiate the class with the appropriate parameters and th
 .. code-block:: python
 
     import freud
-    rdf = freud.density.RDF(rmax=5, dr=0.1).compute(traj[-1].configuration.box, traj[-1].particles.position)
+    rdf = freud.density.RDF(rmax=5, dr=0.1).compute((traj[-1].configuration.box, traj[-1].particles.position))
 
 We can now access the data through properties of the ``rdf`` object; for example, we might plot the data using Matplotlib:
 
