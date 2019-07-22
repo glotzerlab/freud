@@ -4,6 +4,7 @@ import numpy as np
 import numpy.testing as npt
 import freud
 import unittest
+from util import make_box_and_random_points
 
 
 class TestRDF(unittest.TestCase):
@@ -27,10 +28,7 @@ class TestRDF(unittest.TestCase):
         dr = 1.0
         num_points = 100
         box_size = rmax*3.1
-        box = freud.box.Box.square(box_size)
-        np.random.seed(0)
-        points = np.random.random_sample((num_points, 3)).astype(np.float32) \
-            * box_size - box_size/2
+        box, points = make_box_and_random_points(box_size, num_points, True)
         rdf = freud.density.RDF(rmax, dr)
 
         # Test protected attribute access
@@ -81,19 +79,16 @@ class TestRDF(unittest.TestCase):
         num_points = 10000
         tolerance = 0.1
         box_size = rmax*3.1
-        np.random.seed(0)
 
         def ig_sphere(x, y, j):
             return 4/3*np.pi*np.trapz(y[:j]*(x[:j]+dr/2)**2, x[:j])
 
         for i, rmin in enumerate([0, 0.05, 0.1, 1.0, 3.0]):
             nbins = int((rmax - rmin) / dr)
-            points = np.random.random_sample((num_points, 3)).astype(
-                np.float32) * box_size - box_size/2
-
+            box, points = make_box_and_random_points(box_size, num_points)
             points.flags['WRITEABLE'] = False
+
             rdf = freud.density.RDF(rmax, dr, rmin=rmin)
-            box = freud.box.Box.cube(box_size)
 
             if i < 3:
                 rdf.accumulate(box, points)
@@ -124,18 +119,44 @@ class TestRDF(unittest.TestCase):
         dr = 1.0
         num_points = 10
         box_size = rmax*3.1
-        np.random.seed(0)
-        points = np.random.random_sample((num_points, 3)).astype(np.float32) \
-            * box_size - box_size/2
+        box, points = make_box_and_random_points(box_size, num_points)
         rdf = freud.density.RDF(rmax, dr)
 
         with self.assertRaises(AttributeError):
             rdf.plot()
         self.assertEqual(rdf._repr_png_(), None)
 
-        box = freud.box.Box.cube(box_size)
         rdf.accumulate(box, points)
         rdf._repr_png_()
+
+    def test_ref_points_ne_points(self):
+        rmax = 100.0
+        dr = 1
+        box_size = rmax*5
+        box = freud.box.Box.square(box_size)
+
+        rdf = freud.density.RDF(rmax, dr)
+
+        points = []
+        supposed_RDF = [0]
+        N = 100
+
+        # With ref_points closely centered around the origin,
+        # the cumulative average bin counts should be same as
+        # having a single point at the origin.
+        # Also, we can check for whether ref_points are not considered against
+        # each other.
+        ref_points = [[dr/4, 0, 0], [-dr/4, 0, 0], [0, dr/4, 0], [0, -dr/4, 0]]
+        for r in rdf.R:
+            for k in range(N):
+                points.append([r * np.cos(2*np.pi*k/N),
+                               r * np.sin(2*np.pi*k/N), 0])
+            supposed_RDF.append(supposed_RDF[-1] + N)
+        supposed_RDF = np.array(supposed_RDF[:-1])
+
+        rdf.compute(box, ref_points, points)
+
+        npt.assert_allclose(rdf.n_r, supposed_RDF, atol=1e-6)
 
 
 if __name__ == '__main__':

@@ -8,11 +8,9 @@ import util
 class TestLocalQl(unittest.TestCase):
     def test_shape(self):
         N = 1000
+        L = 10
 
-        box = freud.box.Box.cube(10)
-        np.random.seed(0)
-        positions = np.random.uniform(-box.Lx/2, box.Lx/2,
-                                      size=(N, 3)).astype(np.float32)
+        box, positions = util.make_box_and_random_points(L, N)
         positions.flags['WRITEABLE'] = False
 
         comp = freud.order.LocalQl(box, 1.5, 6)
@@ -106,11 +104,9 @@ class TestLocalQlNear(unittest.TestCase):
 
     def test_shape(self):
         N = 1000
+        L = 10
 
-        box = freud.box.Box.cube(10)
-        np.random.seed(0)
-        positions = np.random.uniform(-box.Lx/2, box.Lx/2,
-                                      size=(N, 3)).astype(np.float32)
+        box, positions = util.make_box_and_random_points(L, N)
 
         comp = freud.order.LocalQlNear(box, 1.5, 6, 12)
         comp.compute(positions)
