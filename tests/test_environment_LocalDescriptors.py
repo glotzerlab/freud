@@ -1,7 +1,8 @@
 import numpy as np
+import numpy.testing as npt
 import freud
 import unittest
-from util import make_box_and_random_points
+from util import make_box_and_random_points, make_sc, make_bcc, make_fcc
 
 
 class TestLocalDescriptors(unittest.TestCase):
@@ -109,6 +110,57 @@ class TestLocalDescriptors(unittest.TestCase):
     def test_repr(self):
         comp = freud.environment.LocalDescriptors(4, 8, 0.5, True)
         self.assertEqual(str(comp), str(eval(repr(comp))))
+
+    def test_ql(self):
+        """Check if we can reproduce Steinhardt OPs."""
+        def get_Ql(p, descriptors, nlist):
+            """Given a set of points and a LocalDescriptors object (and the
+            underlying neighborlist, compute the per-particle Steinhardt order
+            parameter for all :math:`l` values up to the maximum quantum number
+            used in the computation of the descriptors."""
+            Qbar_lm = np.zeros((p.shape[0], descriptors.sph.shape[1]),
+                               dtype=np.complex128)
+            num_neighbors = descriptors.sph.shape[0]/p.shape[0]
+            for i in range(p.shape[0]):
+                indices = nlist.index_i == i
+                Qbar_lm[i, :] = np.sum(descriptors.sph[indices, :],
+                                       axis=0)/num_neighbors
+
+            Ql = np.zeros((Qbar_lm.shape[0], descriptors.l_max+1))
+            for i in range(Ql.shape[0]):
+                for l in range(Ql.shape[1]):
+                    for k in range(l**2, (l+1)**2):
+                        Ql[i, l] += np.absolute(Qbar_lm[i, k])**2
+                    Ql[i, l] = np.sqrt(4*np.pi/(2*l + 1) * Ql[i, l])
+
+            return Ql
+
+        # These exact parameter values aren't important; they won't necessarily
+        # give useful outputs for some of the structures, but that's fine since
+        # we just want to check that LocalDescriptors is consistent with
+        # Steinhardt.
+        num_neighbors = 6
+        l_max = 12
+        r_max = 2
+
+        for struct_func in [make_sc, make_bcc, make_fcc]:
+            box, points = struct_func(5, 5, 5)
+
+            # In order to be able to access information on which particles are
+            # bonded to which ones, we precompute the neighborlist
+            nn = freud.locality.NearestNeighbors(r_max, num_neighbors)
+            nl = nn.compute(box, points).nlist
+            ld = freud.environment.LocalDescriptors(
+                num_neighbors, l_max, r_max)
+            ld.compute(box, num_neighbors, points, mode='global', nlist=nl)
+
+            Ql = get_Ql(points, ld, nl)
+
+            # Test all allowable values of l.
+            for L in range(2, l_max+1):
+                ql = freud.order.LocalQl(box, r_max*2, L, 0)
+                ql.compute(points, nl)
+                npt.assert_array_almost_equal(ql.Ql, Ql[:, L])
 
 
 if __name__ == '__main__':
