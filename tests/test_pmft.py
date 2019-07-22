@@ -196,7 +196,6 @@ class TestPMFTR12(unittest.TestCase):
         n_r = 10
         n_t1 = 10
         n_t2 = 10
-        pmft = freud.pmft.PMFTR12(r_max, n_r, n_t1, n_t2)
 
         lattice_size = 10
         box = freud.box.Box.square(lattice_size*5)
@@ -206,10 +205,15 @@ class TestPMFTR12(unittest.TestCase):
         ref_orientations = np.array([0]*len(ref_points))
         orientations = np.array([0]*len(points))
 
-        pmft.compute(box, ref_points, ref_orientations, points, orientations)
+        test_set = util.makeRawQueryNlistTestSet(
+            box, ref_points, points, "ball", r_max, 0, False)
+        for ts in test_set:
+            pmft = freud.pmft.PMFTR12(r_max, n_r, n_t1, n_t2)
+            pmft.compute(box, ts[0],
+                         ref_orientations, points, orientations, nlist=ts[1])
 
-        self.assertEqual(np.count_nonzero(np.isinf(pmft.PMFT) == 0), 12)
-        self.assertEqual(len(np.unique(pmft.PMFT)), 3)
+            self.assertEqual(np.count_nonzero(np.isinf(pmft.PMFT) == 0), 12)
+            self.assertEqual(len(np.unique(pmft.PMFT)), 3)
 
 
 class TestPMFTXYT(unittest.TestCase):
@@ -404,7 +408,6 @@ class TestPMFTXYT(unittest.TestCase):
         n_x = 10
         n_y = 10
         n_t = 4
-        pmft = freud.pmft.PMFTXYT(x_max, y_max, n_x, n_y, n_t)
 
         lattice_size = 10
         box = freud.box.Box.square(lattice_size*5)
@@ -414,14 +417,22 @@ class TestPMFTXYT(unittest.TestCase):
         ref_orientations = np.array([0]*len(ref_points))
         orientations = np.array([0]*len(points))
 
-        pmft.compute(box, ref_points, ref_orientations, points, orientations)
+        rmax = np.sqrt(x_max**2 + y_max**2)
+        test_set = util.makeRawQueryNlistTestSet(
+            box, ref_points, points, 'ball', rmax, 0, False)
 
-        # when rotated slightly, for each ref point, each quadrant
-        # (corresponding to two consecutive bins) should contain 3 points.
-        for i in range(n_t):
-            self.assertEqual(np.count_nonzero(np.isinf(pmft.PMFT[i]) == 0), 3)
+        for ts in test_set:
+            pmft = freud.pmft.PMFTXYT(x_max, y_max, n_x, n_y, n_t)
+            pmft.compute(box, ts[0],
+                         ref_orientations, points, orientations, nlist=ts[1])
 
-        self.assertEqual(len(np.unique(pmft.PMFT)), 2)
+            # when rotated slightly, for each ref point, each quadrant
+            # (corresponding to two consecutive bins) should contain 3 points.
+            for i in range(n_t):
+                self.assertEqual(
+                    np.count_nonzero(np.isinf(pmft.PMFT[i]) == 0), 3)
+
+            self.assertEqual(len(np.unique(pmft.PMFT)), 2)
 
 
 class TestPMFTXY2D(unittest.TestCase):
@@ -610,7 +621,6 @@ class TestPMFTXY2D(unittest.TestCase):
         y_max = 2.5
         n_x = 20
         n_y = 20
-        pmft = freud.pmft.PMFTXY2D(x_max, y_max, n_x, n_y)
 
         lattice_size = 10
         box = freud.box.Box.square(lattice_size*5)
@@ -621,10 +631,17 @@ class TestPMFTXY2D(unittest.TestCase):
         ref_orientations = np.array([0]*len(ref_points))
         orientations = np.array([0]*len(points))
 
-        pmft.compute(box, ref_points, ref_orientations, points, orientations)
+        rmax = np.sqrt(x_max**2 + y_max**2)
+        test_set = util.makeRawQueryNlistTestSet(
+            box, ref_points, points, 'ball', rmax, 0, False)
 
-        self.assertEqual(np.count_nonzero(np.isinf(pmft.PMFT) == 0), 12)
-        self.assertEqual(len(np.unique(pmft.PMFT)), 2)
+        for ts in test_set:
+            pmft = freud.pmft.PMFTXY2D(x_max, y_max, n_x, n_y)
+            pmft.compute(
+                box, ts[0], ref_orientations, points, orientations, ts[1])
+
+            self.assertEqual(np.count_nonzero(np.isinf(pmft.PMFT) == 0), 12)
+            self.assertEqual(len(np.unique(pmft.PMFT)), 2)
 
 
 class TestPMFTXYZ(unittest.TestCase):

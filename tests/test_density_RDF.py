@@ -157,10 +157,13 @@ class TestRDF(unittest.TestCase):
             supposed_RDF.append(supposed_RDF[-1] + N)
         supposed_RDF = np.array(supposed_RDF[:-1])
 
-        rdf = freud.density.RDF(rmax, dr)
-        rdf.compute(box, ref_points, points)
+        test_set = util.makeRawQueryNlistTestSet(
+            box, ref_points, points, "ball", rmax, 0, False)
+        for ts in test_set:
+            rdf = freud.density.RDF(rmax, dr)
+            rdf.compute(box, ts[0], points, nlist=ts[1])
 
-        npt.assert_allclose(rdf.n_r, supposed_RDF, atol=1e-6)
+            npt.assert_allclose(rdf.n_r, supposed_RDF, atol=1e-6)
 
 
 if __name__ == '__main__':

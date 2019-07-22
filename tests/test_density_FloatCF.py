@@ -182,14 +182,19 @@ class TestFloatCF(unittest.TestCase):
         # the result should be minimal.
         ref_points = [[dr/4, 0, 0], [-dr/4, 0, 0], [0, dr/4, 0], [0, -dr/4, 0]]
 
-        # try for different scalar values.
-        for rv in [0, 1, 2, 7]:
-            ref_values = [rv] * 4
+        test_set = util.makeRawQueryNlistTestSet(
+            box, ref_points, points, "ball", rmax, 0, False)
+        for ts in test_set:
+            ocf = freud.density.FloatCF(rmax, dr)
+            # try for different scalar values.
+            for rv in [0, 1, 2, 7]:
+                ref_values = [rv] * 4
 
-            ocf.compute(box, ref_points, ref_values, points, values)
-            correct = supposed_RDF * rv
+                ocf.compute(
+                    box, ts[0], ref_values, points, values, nlist=ts[1])
+                correct = supposed_RDF * rv
 
-            npt.assert_allclose(ocf.RDF, correct, atol=1e-6)
+                npt.assert_allclose(ocf.RDF, correct, atol=1e-6)
 
 
 if __name__ == '__main__':
