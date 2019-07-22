@@ -375,7 +375,7 @@ cdef class HexOrderParameter(Compute):
     def psi(self):
         cdef unsigned int n_particles = self.thisptr.getNP()
         cdef np.complex64_t[::1] psi = \
-            <np.complex64_t[:n_particles]> self.thisptr.getPsi().get()
+            <np.complex64_t[:n_particles]> self.thisptr.getOrder().get()
         return np.asarray(psi, dtype=np.complex64)
 
     @Compute._computed_property()
@@ -467,7 +467,7 @@ cdef class TransOrderParameter(Compute):
     def d_r(self):
         cdef unsigned int n_particles = self.thisptr.getNP()
         cdef np.complex64_t[::1] d_r = \
-            <np.complex64_t[:n_particles]> self.thisptr.getDr().get()
+            <np.complex64_t[:n_particles]> self.thisptr.getOrder().get()
         return np.asarray(d_r, dtype=np.complex64)
 
     @Compute._computed_property()
