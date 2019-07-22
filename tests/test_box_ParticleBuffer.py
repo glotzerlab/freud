@@ -2,23 +2,18 @@ import numpy as np
 import numpy.testing as npt
 import freud
 import unittest
+import util
 
 
 class TestParticleBuffer(unittest.TestCase):
     def test_square(self):
         L = 10          # Box length
         N = 50          # Number of particles
-        np.random.seed(0)
 
-        fbox = freud.box.Box.square(L)  # Initialize box
-        pbuff = freud.box.ParticleBuffer(fbox)
-
-        # Generate random points in the box
-        positions = np.random.uniform(-L/2, L/2, size=(N, 2))
-
-        # Add a z-component of 0
-        positions = np.insert(positions, 2, 0, axis=1).astype(np.float32)
+        fbox, positions = util.make_box_and_random_points(L, N, True)
         positions.flags['WRITEABLE'] = False
+
+        pbuff = freud.box.ParticleBuffer(fbox)
 
         # Compute with zero buffer distance
         pbuff.compute(positions, buffer=0, images=False)
@@ -63,12 +58,10 @@ class TestParticleBuffer(unittest.TestCase):
         N = 50  # Number of particles
         np.random.seed(0)
 
-        fbox = freud.box.Box.cube(L)  # Initialize box
-        pbuff = freud.box.ParticleBuffer(fbox)
-
-        # Generate random points in the box
-        positions = np.random.uniform(-L/2, L/2, size=(N, 3))
+        fbox, positions = util.make_box_and_random_points(L, N, False)
         positions.flags['WRITEABLE'] = False
+
+        pbuff = freud.box.ParticleBuffer(fbox)
 
         # Compute with zero buffer distance
         pbuff.compute(positions, buffer=0, images=False)

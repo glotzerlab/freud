@@ -1,6 +1,7 @@
 import numpy as np
-from freud import locality, box
+from freud import locality
 import unittest
+from util import make_box_and_random_points
 
 
 class TestNeighborList(unittest.TestCase):
@@ -17,10 +18,8 @@ class TestNeighborList(unittest.TestCase):
         self.num_neighbors = num_neighbors
 
         # Initialize Box and cell list
-        self.fbox = box.Box.cube(self.L)
         self.cl = locality.NearestNeighbors(self.rcut, self.num_neighbors)
-        self.points = np.random.uniform(
-            -self.L/2, self.L/2, (self.N, 3)).astype(np.float32)
+        self.fbox, self.points = make_box_and_random_points(L, N)
 
     def test_writable(self):
         self.setup_nl()

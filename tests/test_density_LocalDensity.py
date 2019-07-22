@@ -1,7 +1,18 @@
+from __future__ import division
 import numpy as np
 import numpy.testing as npt
 import freud
 import unittest
+from util import make_box_and_random_points
+
+
+def getFraction(dist, rcut, diameter):
+    if dist < rcut - diameter/2:
+        return 1
+    if dist > rcut + diameter/2:
+        return 0
+    else:
+        return -dist/diameter + rcut/diameter + 0.5
 
 
 class TestLD(unittest.TestCase):
@@ -9,10 +20,9 @@ class TestLD(unittest.TestCase):
 
     def setUp(self):
         """Initialize a box with randomly placed particles"""
-        self.box = freud.box.Box.cube(10)
-        np.random.seed(0)
-        self.pos = np.array(np.random.random(size=(10000, 3)),
-                            dtype=np.float32) * 10 - 5
+        box_size = 10
+        num_points = 10000
+        self.box, self.pos = make_box_and_random_points(box_size, num_points)
         self.ld = freud.density.LocalDensity(3, 1, 1)
 
         # Test access
@@ -64,6 +74,25 @@ class TestLD(unittest.TestCase):
 
     def test_repr(self):
         self.assertEqual(str(self.ld), str(eval(repr(self.ld))))
+
+    def test_ref_point_ne_point(self):
+        box = freud.box.Box.cube(10)
+        ref_points = np.array([[0, 0, 0], [1, 0, 0]])
+        points = np.array([[0, 1, 0], [-1, -1, 0]])
+        volume = 1
+        diameter = 1
+        rcut = 2
+
+        v_around = 4/3 * (rcut**3) * np.pi
+
+        ld = freud.density.LocalDensity(rcut, volume, diameter)
+        ld.compute(box, ref_points, points)
+
+        cd0 = 2/v_around
+        cd1 = (1 + getFraction(np.linalg.norm(ref_points[1] - points[1]),
+                               rcut, diameter)) / v_around
+        correct_density = [cd0, cd1]
+        npt.assert_allclose(ld.density, correct_density, rtol=1e-4)
 
 
 if __name__ == '__main__':
