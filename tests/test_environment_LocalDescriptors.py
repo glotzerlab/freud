@@ -158,9 +158,9 @@ class TestLocalDescriptors(unittest.TestCase):
 
             # Test all allowable values of l.
             for L in range(2, l_max+1):
-                ql = freud.order.LocalQl(box, r_max*2, L, 0)
-                ql.compute(points, nl)
-                npt.assert_array_almost_equal(ql.Ql, Ql[:, L])
+                steinhardt = freud.order.Steinhardt(r_max*2, L)
+                steinhardt.compute(box, points, nlist=nl)
+                npt.assert_array_almost_equal(steinhardt.order, Ql[:, L])
 
 
 if __name__ == '__main__':
