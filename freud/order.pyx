@@ -375,7 +375,7 @@ cdef class HexOrderParameter(Compute):
     def psi(self):
         cdef unsigned int n_particles = self.thisptr.getNP()
         cdef np.complex64_t[::1] psi = \
-            <np.complex64_t[:n_particles]> self.thisptr.getPsi().get()
+            <np.complex64_t[:n_particles]> self.thisptr.getOrder().get()
         return np.asarray(psi, dtype=np.complex64)
 
     @Compute._computed_property()
@@ -467,7 +467,7 @@ cdef class TransOrderParameter(Compute):
     def d_r(self):
         cdef unsigned int n_particles = self.thisptr.getNP()
         cdef np.complex64_t[::1] d_r = \
-            <np.complex64_t[:n_particles]> self.thisptr.getDr().get()
+            <np.complex64_t[:n_particles]> self.thisptr.getOrder().get()
         return np.asarray(d_r, dtype=np.complex64)
 
     @Compute._computed_property()
@@ -493,7 +493,7 @@ cdef class TransOrderParameter(Compute):
         return repr(self)
 
 
-cdef class Steinhardt:
+cdef class Steinhardt(Compute):
     R"""Compute the local Steinhardt [Steinhardt1983]_rotationally invariant
     :math:`Q_l` :math:`W_l` order parameter for a set of points.
 
@@ -588,18 +588,18 @@ cdef class Steinhardt:
             del self.stptr
             self.stptr = NULL
 
-    @property
+    @Compute._computed_property()
     def num_particles(self):
         cdef unsigned int np = self.stptr.getNP()
         return np
 
-    @property
+    @Compute._computed_property()
     def norm(self):
         if self.stptr.getUseWl():
             return self.stptr.getNormWl()
         return self.stptr.getNorm()
 
-    @property
+    @Compute._computed_property()
     def order(self):
         if self.stptr.getUseWl():
             return self._wl
@@ -619,6 +619,7 @@ cdef class Steinhardt:
             <np.complex64_t[:n_particles]> self.stptr.getWl().get()
         return np.asarray(op)
 
+    @Compute._compute()
     def compute(self, box, points, nlist=None):
         R"""Compute the order parameter.
 

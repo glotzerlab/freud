@@ -3,7 +3,6 @@
 
 #include <complex>
 #include <stdexcept>
-#include <iostream>
 
 #include "LocalDensity.h"
 #include "NeighborComputeFunctional.h"

@@ -691,23 +691,20 @@ void MatchEnv::cluster(const freud::locality::NeighborList* env_nlist,
             for (; bond < nlist->getNumBonds() && neighbor_list[2 * bond] == i; ++bond)
             {
                 const size_t j(neighbor_list[2 * bond + 1]);
-                if (i != j)
+                std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int>> mapping
+                    = isSimilar(dj.s[i], dj.s[j], m_threshold_sq, registration);
+                rotmat3<float> rotation = mapping.first;
+                BiMap<unsigned int, unsigned int> vec_map = mapping.second;
+                // if the mapping between the vectors of the environments
+                // is NOT empty, then the environments are similar, so
+                // merge them.
+                if (!vec_map.empty())
                 {
-                    std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int>> mapping
-                        = isSimilar(dj.s[i], dj.s[j], m_threshold_sq, registration);
-                    rotmat3<float> rotation = mapping.first;
-                    BiMap<unsigned int, unsigned int> vec_map = mapping.second;
-                    // if the mapping between the vectors of the environments
-                    // is NOT empty, then the environments are similar, so
-                    // merge them.
-                    if (!vec_map.empty())
-                    {
-                        // merge the two sets using the disjoint set
-                        unsigned int a = dj.find(i);
-                        unsigned int b = dj.find(j);
-                        if (a != b)
-                            dj.merge(i, j, vec_map, rotation);
-                    }
+                    // merge the two sets using the disjoint set
+                    unsigned int a = dj.find(i);
+                    unsigned int b = dj.find(j);
+                    if (a != b)
+                        dj.merge(i, j, vec_map, rotation);
                 }
             }
         }

@@ -8,11 +8,9 @@ import util
 class TestSteinhardt(unittest.TestCase):
     def test_shape(self):
         N = 1000
+        L = 10
 
-        box = freud.box.Box.cube(10)
-        np.random.seed(0)
-        positions = np.random.uniform(-box.Lx/2, box.Lx/2,
-                                      size=(N, 3)).astype(np.float32)
+        box, positions = util.makeBoxAndRandomPoints(L, N)
 
         comp = freud.order.Steinhardt(1.5, 6)
         comp.compute(box, positions)
@@ -113,6 +111,20 @@ class TestSteinhardt(unittest.TestCase):
     def test_repr(self):
         comp = freud.order.Steinhardt(1.5, 6)
         self.assertEqual(str(comp), str(eval(repr(comp))))
+
+    def test_attribute_access(self):
+        comp = freud.order.Steinhardt(1.5, 6)
+
+        with self.assertRaises(AttributeError):
+            comp.norm
+        with self.assertRaises(AttributeError):
+            comp.order
+
+        (box, positions) = util.make_fcc(4, 4, 4)
+        comp.compute(box, positions)
+
+        comp.norm
+        comp.order
 
 
 if __name__ == '__main__':
