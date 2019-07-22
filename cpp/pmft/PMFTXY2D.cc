@@ -88,7 +88,7 @@ void PMFTXY2D::accumulate(const locality::NeighborList* nlist,
     Index2D b_i = Index2D(m_n_x, m_n_y);
 
     accumulateGeneral(ref_points, points, n_p, nlist, m_n_x * m_n_y, qargs,
-        [=](size_t i, size_t j, float dist, float wieght) {
+        [=](size_t i, size_t j, float dist, float weight) {
         vec3<float> ref = ref_points->getRefPoints()[i];
         vec3<float> delta = this->m_box.wrap(points[j] - ref);
 
