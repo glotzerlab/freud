@@ -164,7 +164,7 @@ cdef class PMFTR12(_PMFT):
 
     @Compute._compute()
     def accumulate(self, box, ref_points, ref_orientations, points=None,
-                   orientations=None, nlist=None):
+                   orientations=None, nlist=None, query_args={}):
         R"""Calculates the positional correlation function and adds to the
         current histogram.
 
@@ -195,6 +195,7 @@ cdef class PMFTR12(_PMFT):
 
         cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
             mode="ball", rmax=self.rmax, exclude_ii=exclude_ii)
+        qargs.update(query_args)
 
         if not b.dimensions == 2:
             raise ValueError("Your box must be 2-dimensional!")
@@ -205,12 +206,13 @@ cdef class PMFTR12(_PMFT):
             orientations = ref_orientations
 
         ref_orientations = freud.common.convert_array(
-            ref_orientations.squeeze(), shape=(ref_points.shape[0], ))
+            np.atleast_1d(ref_orientations.squeeze()),
+            shape=(ref_points.shape[0], ))
 
         points = freud.common.convert_array(points, shape=(None, 3))
 
         orientations = freud.common.convert_array(
-            orientations.squeeze(), shape=(points.shape[0], ))
+            np.atleast_1d(orientations.squeeze()), shape=(points.shape[0], ))
 
         cdef const float[:, ::1] l_points = points
         cdef const float[::1] l_ref_orientations = ref_orientations
@@ -227,7 +229,7 @@ cdef class PMFTR12(_PMFT):
 
     @Compute._compute()
     def compute(self, box, ref_points, ref_orientations, points=None,
-                orientations=None, nlist=None):
+                orientations=None, nlist=None, query_args={}):
         R"""Calculates the positional correlation function for the given points.
         Will overwrite the current histogram.
 
@@ -250,7 +252,7 @@ cdef class PMFTR12(_PMFT):
         """  # noqa: E501
         self.reset()
         self.accumulate(box, ref_points, ref_orientations,
-                        points, orientations, nlist)
+                        points, orientations, nlist, query_args)
         return self
 
     @Compute._computed_property()
@@ -407,7 +409,7 @@ cdef class PMFTXYT(_PMFT):
 
     @Compute._compute()
     def accumulate(self, box, ref_points, ref_orientations, points=None,
-                   orientations=None, nlist=None):
+                   orientations=None, nlist=None, query_args={}):
         R"""Calculates the positional correlation function and adds to the
         current histogram.
 
@@ -439,6 +441,7 @@ cdef class PMFTXYT(_PMFT):
 
         cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
             mode="ball", rmax=self.rmax, exclude_ii=exclude_ii)
+        qargs.update(query_args)
 
         if not b.dimensions == 2:
             raise ValueError("Your box must be 2-dimensional!")
@@ -449,12 +452,13 @@ cdef class PMFTXYT(_PMFT):
             orientations = ref_orientations
 
         ref_orientations = freud.common.convert_array(
-            ref_orientations.squeeze(), shape=(ref_points.shape[0], ))
+            np.atleast_1d(ref_orientations.squeeze()),
+            shape=(ref_points.shape[0], ))
 
         points = freud.common.convert_array(points, shape=(None, 3))
 
         orientations = freud.common.convert_array(
-            orientations.squeeze(), shape=(points.shape[0], ))
+            np.atleast_1d(orientations.squeeze()), shape=(points.shape[0], ))
 
         cdef const float[:, ::1] l_points = points
         cdef const float[::1] l_ref_orientations = ref_orientations
@@ -471,7 +475,7 @@ cdef class PMFTXYT(_PMFT):
 
     @Compute._compute()
     def compute(self, box, ref_points, ref_orientations, points=None,
-                orientations=None, nlist=None):
+                orientations=None, nlist=None, query_args={}):
         R"""Calculates the positional correlation function for the given points.
         Will overwrite the current histogram.
 
@@ -494,7 +498,7 @@ cdef class PMFTXYT(_PMFT):
         """  # noqa: E501
         self.reset()
         self.accumulate(box, ref_points, ref_orientations,
-                        points, orientations, nlist)
+                        points, orientations, nlist, query_args={})
         return self
 
     @Compute._computed_property()
@@ -635,7 +639,7 @@ cdef class PMFTXY2D(_PMFT):
 
     @Compute._compute()
     def accumulate(self, box, ref_points, ref_orientations, points=None,
-                   orientations=None, nlist=None):
+                   orientations=None, nlist=None, query_args={}):
         R"""Calculates the positional correlation function and adds to the
         current histogram.
 
@@ -667,6 +671,7 @@ cdef class PMFTXY2D(_PMFT):
 
         cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
             mode="ball", rmax=self.rmax, exclude_ii=exclude_ii)
+        qargs.update(query_args)
 
         if not b.dimensions == 2:
             raise ValueError("Your box must be 2-dimensional!")
@@ -677,12 +682,13 @@ cdef class PMFTXY2D(_PMFT):
             orientations = ref_orientations
 
         ref_orientations = freud.common.convert_array(
-            ref_orientations.squeeze(), shape=(ref_points.shape[0], ))
+            np.atleast_1d(ref_orientations.squeeze()),
+            shape=(ref_points.shape[0], ))
 
         points = freud.common.convert_array(points, shape=(None, 3))
 
         orientations = freud.common.convert_array(
-            orientations.squeeze(), shape=(points.shape[0], ))
+            np.atleast_1d(orientations.squeeze()), shape=(points.shape[0], ))
 
         cdef const float[:, ::1] l_points = points
         cdef const float[::1] l_ref_orientations = ref_orientations
@@ -699,7 +705,7 @@ cdef class PMFTXY2D(_PMFT):
 
     @Compute._compute()
     def compute(self, box, ref_points, ref_orientations, points=None,
-                orientations=None, nlist=None):
+                orientations=None, nlist=None, query_args={}):
         R"""Calculates the positional correlation function for the given points.
         Will overwrite the current histogram.
 
@@ -722,7 +728,7 @@ cdef class PMFTXY2D(_PMFT):
         """  # noqa: E501
         self.reset()
         self.accumulate(box, ref_points, ref_orientations,
-                        points, orientations, nlist)
+                        points, orientations, nlist, query_args)
         return self
 
     @Compute._computed_property()
@@ -889,7 +895,8 @@ cdef class PMFTXYZ(_PMFT):
 
     @Compute._compute()
     def accumulate(self, box, ref_points, ref_orientations, points=None,
-                   orientations=None, face_orientations=None, nlist=None):
+                   orientations=None, face_orientations=None, nlist=None,
+                   query_args={}):
         R"""Calculates the positional correlation function and adds to the
         current histogram.
 
@@ -928,6 +935,7 @@ cdef class PMFTXYZ(_PMFT):
 
         cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
             mode="ball", rmax=self.rmax, exclude_ii=exclude_ii)
+        qargs.update(query_args)
 
         if not b.dimensions == 3:
             raise ValueError("Your box must be 3-dimensional!")
@@ -938,7 +946,8 @@ cdef class PMFTXYZ(_PMFT):
             orientations = ref_orientations
 
         ref_orientations = freud.common.convert_array(
-            ref_orientations, shape=(ref_points.shape[0], 4))
+            np.atleast_1d(ref_orientations),
+            shape=(ref_points.shape[0], 4))
 
         points = freud.common.convert_array(points, shape=(None, 3))
         points = points - self.shiftvec.reshape(1, 3)
@@ -1006,7 +1015,8 @@ cdef class PMFTXYZ(_PMFT):
 
     @Compute._compute()
     def compute(self, box, ref_points, ref_orientations, points=None,
-                orientations=None, face_orientations=None, nlist=None):
+                orientations=None, face_orientations=None, nlist=None,
+                query_args={}):
         R"""Calculates the positional correlation function for the given points.
         Will overwrite the current histogram.
 
@@ -1036,7 +1046,8 @@ cdef class PMFTXYZ(_PMFT):
         """  # noqa: E501
         self.reset()
         self.accumulate(box, ref_points, ref_orientations,
-                        points, orientations, face_orientations, nlist)
+                        points, orientations, face_orientations, nlist,
+                        query_args)
         return self
 
     @Compute._computed_property()
