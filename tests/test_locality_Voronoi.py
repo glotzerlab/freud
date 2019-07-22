@@ -12,13 +12,8 @@ class TestVoronoi(unittest.TestCase):
         # number of points and polytopes
         L = 10  # Box length
         N = 50  # Number of particles
-        box = freud.box.Box.square(L)  # Initialize box
         vor = freud.locality._Voronoi()
-        np.random.seed(0)
-        # Generate random points in the box
-        positions = np.random.uniform(-L/2, L/2, size=(N, 2))
-        # Add a z-component of 0
-        positions = np.insert(positions, 2, 0, axis=1).astype(np.float32)
+        box, positions = util.make_box_and_random_points(L, N, True)
         vor.compute(box=box, positions=positions, buffer=L/2)
 
         result = vor.polytopes
@@ -134,9 +129,7 @@ class TestVoronoi(unittest.TestCase):
         rbuf = 3  # Cutoff radius
         N = 40  # Number of particles
 
-        box = freud.box.Box.cube(L)  # Initialize box
-        np.random.seed(0)
-        points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
+        box, points = util.make_box_and_random_points(L, N)
         vor = freud.locality._Voronoi()
         vor.compute(
             box=box, positions=points, buffer=rbuf, images=False)

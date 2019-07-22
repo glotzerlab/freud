@@ -94,6 +94,34 @@ class TestBondOrder(unittest.TestCase):
         bo = freud.environment.BondOrder(1.5, 0, 12, 6, 6)
         self.assertEqual(str(bo), str(eval(repr(bo))))
 
+    def test_ref_points_ne_points(self):
+        lattice_size = 10
+        # big box to ignore periodicity
+        box = freud.box.Box.square(lattice_size*5)
+        angle = np.pi/30
+        ref_points, points = util.make_alternating_lattice(lattice_size, angle)
+
+        # actually not used
+        rmax = 1.6
+        k = 0
+
+        n = 12
+        n_bins_t = 30
+        n_bins_p = 2
+        bod = freud.environment.BondOrder(rmax=rmax, k=k, n=n,
+                                          n_bins_t=n_bins_t, n_bins_p=n_bins_p)
+
+        # orientations are not used in bod mode
+        ref_orientations = np.array([[1, 0, 0, 0]]*len(ref_points))
+        orientations = np.array([[1, 0, 0, 0]]*len(points))
+
+        bod.compute(box, ref_points, ref_orientations, points, orientations)
+
+        # we want to make sure that we get 12 nonzero places, so we can test
+        # whether we are not considering neighbors between ref_points
+        self.assertEqual(np.count_nonzero(bod.bond_order), 12)
+        self.assertEqual(len(np.unique(bod.bond_order)), 2)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -3,6 +3,7 @@ import numpy.testing as npt
 from freud import locality, box, parallel
 import unittest
 import itertools
+from util import make_box_and_random_points
 parallel.setNumThreads(1)
 
 
@@ -13,14 +14,13 @@ class TestNearestNeighbors(unittest.TestCase):
         N = 1  # number of particles
         num_neighbors = 6
 
-        # Initialize Box and cell list
+        # Initialize cell list
         cl = locality.NearestNeighbors(rcut, num_neighbors)
 
-        np.random.seed(0)
-        points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
+        fbox, points = make_box_and_random_points(L, N)
         cl.compute([L, L, L], points, points)
 
-        self.assertEqual(cl.box, box.Box.cube(L))
+        self.assertEqual(cl.box, fbox)
         npt.assert_array_equal(cl.r_sq_list,
                                [[-1, -1, -1, -1, -1, -1]])
         npt.assert_array_equal(cl.wrapped_vectors,
@@ -37,12 +37,10 @@ class TestNearestNeighbors(unittest.TestCase):
         N = 40  # number of particles
         num_neighbors = 6
 
-        # Initialize Box and cell list
-        fbox = box.Box.cube(L)
+        # Initialize cell list
         cl = locality.NearestNeighbors(rcut, num_neighbors)
 
-        np.random.seed(0)
-        points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
+        fbox, points = make_box_and_random_points(L, N)
         cl.compute(fbox, points, points)
 
         self.assertEqual(cl.num_neighbors, num_neighbors)
@@ -74,12 +72,10 @@ class TestNearestNeighbors(unittest.TestCase):
         N = 40  # number of particles
         num_neighbors = 6
 
-        # Initialize Box and cell list
-        fbox = box.Box.cube(L)
+        # Initialize cell list
         cl = locality.NearestNeighbors(rcut, num_neighbors)
 
-        np.random.seed(0)
-        points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
+        fbox, points = make_box_and_random_points(L, N)
         cl.compute(fbox, points, points)
 
         neighbor_list = cl.getNeighborList()
@@ -164,12 +160,7 @@ class TestNearestNeighbors(unittest.TestCase):
         N = 40  # number of particles
         num_neighbors = 6
 
-        # Initialize Box
-        fbox = box.Box.cube(L)
-
-        np.random.seed(0)
-
-        pos = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
+        fbox, pos = make_box_and_random_points(L, N)
 
         for rcut in np.random.uniform(L/2, L/5, 128):
             # Initialize cell list
@@ -188,12 +179,7 @@ class TestNearestNeighbors(unittest.TestCase):
         N = 8  # number of particles
         num_neighbors = N - 1
 
-        # Initialize Box
-        fbox = box.Box.cube(L)
-
-        np.random.seed(0)
-
-        pos = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
+        fbox, pos = make_box_and_random_points(L, N)
 
         for box_cell_count in range(2, 8):
             rcut = L/box_cell_count/1.0001

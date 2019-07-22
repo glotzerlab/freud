@@ -2,6 +2,7 @@ import numpy as np
 import numpy.testing as npt
 import freud
 import unittest
+from util import make_box_and_random_points
 
 
 class TestComplexCF(unittest.TestCase):
@@ -26,10 +27,7 @@ class TestComplexCF(unittest.TestCase):
         dr = 1.0
         num_points = 100
         box_size = rmax*3.1
-        box = freud.box.Box.square(box_size)
-        np.random.seed(0)
-        points = np.random.random_sample((num_points, 3)).astype(np.float32) \
-            * box_size - box_size/2
+        box, points = make_box_and_random_points(box_size, num_points, True)
         ang = np.random.random_sample((num_points)).astype(np.float64) \
             * 2.0 * np.pi
         ocf = freud.density.ComplexCF(rmax, dr)
@@ -72,9 +70,7 @@ class TestComplexCF(unittest.TestCase):
         dr = 1.0
         num_points = 1000
         box_size = rmax*3.1
-        np.random.seed(0)
-        points = np.random.random_sample((num_points, 3)).astype(np.float32) \
-            * box_size - box_size/2
+        box, points = make_box_and_random_points(box_size, num_points, True)
         ang = np.random.random_sample((num_points)).astype(np.float64) \
             * 2.0 * np.pi
         comp = np.exp(1j*ang)
@@ -88,7 +84,7 @@ class TestComplexCF(unittest.TestCase):
         ocf.compute(freud.box.Box.square(box_size), points, comp,
                     points, np.conj(comp), qargs={"exclude_ii": True})
         npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
-        self.assertEqual(freud.box.Box.square(box_size), ocf.box)
+        self.assertEqual(box, ocf.box)
 
         ocf.reset()
         ocf.accumulate(freud.box.Box.square(box_size), points, comp,
@@ -103,9 +99,7 @@ class TestComplexCF(unittest.TestCase):
         dr = 1.0
         num_points = 1000
         box_size = rmax*3.1
-        np.random.seed(0)
-        points = np.random.random_sample((num_points, 3)).astype(np.float32) \
-            * box_size - box_size/2
+        box, points = make_box_and_random_points(box_size, num_points, True)
         ang = np.zeros(int(num_points), dtype=np.float64)
         comp = np.exp(1j*ang)
         ocf = freud.density.ComplexCF(rmax, dr)
@@ -122,11 +116,7 @@ class TestComplexCF(unittest.TestCase):
         dr = 1.0
         num_points = 10
         box_size = rmax*2.1
-        box = freud.box.Box.square(box_size)
-        np.random.seed(0)
-        points = np.random.random_sample((num_points, 3)).astype(
-            np.float32) * box_size - box_size/2
-        points[:, 2] = 0
+        box, points = make_box_and_random_points(box_size, num_points, True)
         ang = np.zeros(int(num_points), dtype=np.float64)
         comp = np.exp(1j*ang)
 
@@ -150,11 +140,8 @@ class TestComplexCF(unittest.TestCase):
         # threads if the summation is not done robustly
         N = 20000
         L = 1000
-        np.random.seed(0)
         phi = np.random.rand(N)
-        pos2d = np.random.uniform(-L/2, L/2, size=(N, 3))
-        pos2d[:, 2] = 0
-        box = freud.box.Box.square(L)
+        box, pos2d = make_box_and_random_points(L, N, True)
 
         # With a small number of particles, we won't get the average exactly
         # right, so we check for different behavior with different numbers of
@@ -183,9 +170,7 @@ class TestComplexCF(unittest.TestCase):
         dr = 1.0
         num_points = 100
         box_size = rmax*3.1
-        np.random.seed(0)
-        points = np.random.random_sample((num_points, 3)).astype(np.float32) \
-            * box_size - box_size/2
+        box, points = make_box_and_random_points(box_size, num_points, True)
         ang = np.random.random_sample((num_points)).astype(np.float64) \
             * 2.0 * np.pi
         comp = np.exp(1j*ang)
@@ -198,6 +183,52 @@ class TestComplexCF(unittest.TestCase):
         ocf.accumulate(freud.box.Box.square(box_size), points, comp,
                        points, np.conj(comp), qargs={"exclude_ii": True})
         ocf._repr_png_()
+
+    def test_ref_points_ne_points(self):
+        # Helper function to give complex number representation of a point
+        def value_func(_p):
+            return _p[0] + 1j*_p[1]
+
+        rmax = 10.0
+        dr = 0.1
+        box_size = rmax*5
+        box = freud.box.Box.square(box_size)
+
+        ocf = freud.density.ComplexCF(rmax, dr)
+
+        points = []
+        values = []
+        N = 300
+
+        # We are essentially generating all n-th roots of unity
+        # scalar multiplied by the each bin centers
+        # with the value of a point being its complex number representation.
+        # Therefore, the RDF should be uniformly zero
+        # since the roots of unity add up to zero, if we set our ref_point in
+        # the origin.
+        # Nice proof for this fact is that when the n-th roots of unity
+        # are viewed as vectors, we can draw a regular n-gon
+        # so that we start at the origin and come back to origin.
+        for r in ocf.R:
+            for k in range(N):
+                point = [r * np.cos(2*np.pi*k/N), r * np.sin(2*np.pi*k/N), 0]
+                points.append(point)
+                values.append(value_func(point))
+
+        supposed_RDF = np.zeros(ocf.R.shape)
+
+        # ref_points are within distances closer than dr, so their impact on
+        # the result should be minimal.
+        ref_points = [[dr/4, 0, 0], [-dr/4, 0, 0], [0, dr/4, 0], [0, -dr/4, 0]]
+
+        # try for different scalar values.
+        for rv in [0, 1, 2, 7]:
+            ref_values = [rv] * 4
+
+            ocf.compute(box, ref_points, ref_values, points, values)
+            correct = supposed_RDF
+
+            npt.assert_allclose(ocf.RDF, correct, atol=1e-6)
 
 
 if __name__ == '__main__':
