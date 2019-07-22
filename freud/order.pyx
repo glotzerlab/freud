@@ -493,7 +493,7 @@ cdef class TransOrderParameter(Compute):
         return repr(self)
 
 
-cdef class Steinhardt:
+cdef class Steinhardt(Compute):
     R"""Compute the local Steinhardt [Steinhardt1983]_rotationally invariant
     :math:`Q_l` :math:`W_l` order parameter for a set of points.
 
@@ -588,18 +588,18 @@ cdef class Steinhardt:
             del self.stptr
             self.stptr = NULL
 
-    @property
+    @Compute._computed_property()
     def num_particles(self):
         cdef unsigned int np = self.stptr.getNP()
         return np
 
-    @property
+    @Compute._computed_property()
     def norm(self):
         if self.stptr.getUseWl():
             return self.stptr.getNormWl()
         return self.stptr.getNorm()
 
-    @property
+    @Compute._computed_property()
     def order(self):
         if self.stptr.getUseWl():
             return self._wl
@@ -619,6 +619,7 @@ cdef class Steinhardt:
             <np.complex64_t[:n_particles]> self.stptr.getWl().get()
         return np.asarray(op)
 
+    @Compute._compute()
     def compute(self, box, points, nlist=None):
         R"""Compute the order parameter.
 
