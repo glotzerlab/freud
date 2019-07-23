@@ -163,7 +163,11 @@ sys.argv = ['setup.py'] + extras
 
 on_rtd = os.environ.get('READTHEDOCS') == 'True'
 if on_rtd:
+    logger.warning('Building on Read the Docs with Cython enabled.')
     args.use_cython = True
+    for cython_cpp_file in glob.glob('freud/*.cpp'):
+        logger.warning('Deleting {}'.format(cython_cpp_file))
+        os.remove(cython_cpp_file)
 
 
 ################################
