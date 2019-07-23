@@ -132,7 +132,7 @@ class TestRDF(unittest.TestCase):
         rdf.accumulate(box, points)
         rdf._repr_png_()
 
-    def test_ref_points_ne_points(self):
+    def test_points_ne_query_points(self):
         r_max = 100.0
         dr = 1
         box_size = r_max*5
@@ -140,28 +140,28 @@ class TestRDF(unittest.TestCase):
 
         rdf = freud.density.RDF(r_max, dr)
 
-        points = []
+        query_points = []
         supposed_RDF = [0]
         N = 100
 
-        # With ref_points closely centered around the origin,
+        # With points closely centered around the origin,
         # the cumulative average bin counts should be same as
         # having a single point at the origin.
-        # Also, we can check for whether ref_points are not considered against
+        # Also, we can check for whether points are not considered against
         # each other.
-        ref_points = [[dr/4, 0, 0], [-dr/4, 0, 0], [0, dr/4, 0], [0, -dr/4, 0]]
+        points = [[dr/4, 0, 0], [-dr/4, 0, 0], [0, dr/4, 0], [0, -dr/4, 0]]
         for r in rdf.R:
             for k in range(N):
-                points.append([r * np.cos(2*np.pi*k/N),
-                               r * np.sin(2*np.pi*k/N), 0])
+                query_points.append([r * np.cos(2*np.pi*k/N),
+                                     r * np.sin(2*np.pi*k/N), 0])
             supposed_RDF.append(supposed_RDF[-1] + N)
         supposed_RDF = np.array(supposed_RDF[:-1])
 
         test_set = util.makeRawQueryNlistTestSet(
-            box, ref_points, points, "ball", r_max, 0, False)
+            box, points, query_points, "ball", r_max, 0, False)
         for ts in test_set:
             rdf = freud.density.RDF(r_max, dr)
-            rdf.compute(box, ts[0], points, nlist=ts[1])
+            rdf.compute(box, ts[0], query_points, nlist=ts[1])
 
             npt.assert_allclose(rdf.n_r, supposed_RDF, atol=1e-6)
 

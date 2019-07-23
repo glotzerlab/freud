@@ -90,9 +90,11 @@ class TestComplexCF(unittest.TestCase):
             self.assertEqual(box, ocf.box)
 
             ocf.reset()
-            ocf.accumulate(box, ts[0], comp, values=np.conj(comp), nlist=ts[1])
+            ocf.accumulate(
+                box, ts[0], comp, query_values=np.conj(comp), nlist=ts[1])
             npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
-            ocf.compute(box, ts[0], comp, values=np.conj(comp), nlist=ts[1])
+            ocf.compute(
+                box, ts[0], comp, query_values=np.conj(comp), nlist=ts[1])
             npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
 
     def test_zero_points(self):
@@ -185,7 +187,7 @@ class TestComplexCF(unittest.TestCase):
                        points, np.conj(comp), qargs={"exclude_ii": True})
         ocf._repr_png_()
 
-    def test_ref_points_ne_points(self):
+    def test_points_ne_query_points(self):
         # Helper function to give complex number representation of a point
         def value_func(_p):
             return _p[0] + 1j*_p[1]
@@ -197,8 +199,8 @@ class TestComplexCF(unittest.TestCase):
 
         ocf = freud.density.ComplexCF(rmax, dr)
 
-        points = []
-        values = []
+        query_points = []
+        query_values = []
         N = 300
 
         # We are essentially generating all n-th roots of unity
@@ -213,25 +215,26 @@ class TestComplexCF(unittest.TestCase):
         for r in ocf.R:
             for k in range(N):
                 point = [r * np.cos(2*np.pi*k/N), r * np.sin(2*np.pi*k/N), 0]
-                points.append(point)
-                values.append(value_func(point))
+                query_points.append(point)
+                query_values.append(value_func(point))
 
         supposed_RDF = np.zeros(ocf.R.shape)
 
-        # ref_points are within distances closer than dr, so their impact on
+        # points are within distances closer than dr, so their impact on
         # the result should be minimal.
-        ref_points = [[dr/4, 0, 0], [-dr/4, 0, 0], [0, dr/4, 0], [0, -dr/4, 0]]
+        points = [[dr/4, 0, 0], [-dr/4, 0, 0], [0, dr/4, 0], [0, -dr/4, 0]]
 
         test_set = util.makeRawQueryNlistTestSet(
-            box, ref_points, points, "ball", rmax, 0, False)
+            box, points, query_points, "ball", rmax, 0, False)
         for ts in test_set:
             ocf = freud.density.ComplexCF(rmax, dr)
             # try for different scalar values.
             for rv in [0, 1, 2, 7]:
-                ref_values = [rv] * 4
+                values = [rv] * 4
 
                 ocf.compute(
-                    box, ts[0], ref_values, points, values, nlist=ts[1])
+                    box, ts[0], values,
+                    query_points, query_values, nlist=ts[1])
                 correct = supposed_RDF
 
                 npt.assert_allclose(ocf.RDF, correct, atol=1e-6)
