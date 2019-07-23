@@ -37,39 +37,22 @@ inline std::complex<float> cpow(std::complex<float> base, unsigned int p)
     }
 }
 
-// This convenience function wraps std's gamma function for factorials, with
-// the appropriate shift by 1.
-inline float factorial(int n)
+inline std::complex<float> RotationalAutocorrelation::hypersphere_harmonic(const std::complex<float> xi, std::complex<float> zeta,
+                                                const unsigned int l, const unsigned int a, const unsigned int b)
 {
-    return std::tgamma(n + 1);
-}
-
-inline std::pair<std::complex<float>, std::complex<float>> quat_to_greek(const quat<float>& q)
-{
-    std::complex<float> xi(q.v.x, q.v.y);
-    std::complex<float> zeta(q.v.z, q.s);
-    return std::pair<std::complex<float>, std::complex<float>>(xi, zeta);
-}
-
-inline std::complex<float> hypersphere_harmonic(const std::complex<float> xi, std::complex<float> zeta,
-                                                const int l, const int m1, const int m2)
-{
-    const int a = -(m1 - l / 2);
-    const int b = -(m2 - l / 2);
-
     const std::complex<float> xi_conj = std::conj(xi);
     const std::complex<float> zeta_conj = std::conj(zeta);
 
     // Doing a summation over non-negative exponents, which requires the additional inner conditional.
     std::complex<float> sum_tracker(0, 0);
-    for (int k = std::max(0, a + b - l); k <= std::min(a, b); k++)
+    unsigned int bound = std::min(a, b);
+    for (unsigned int k = (a+b < l ? 0 : a+b-l); k <= bound; k++)
     {
-        sum_tracker += cpow(xi_conj, k) * cpow(zeta, b - k) * cpow(zeta_conj, a - k)
-            * cpow(-xi, l + k - a - b) / factorial(k) / factorial(l + k - a - b) / factorial(a - k)
-            / factorial(b - k);
+        float fact_product = m_factorials.get()[k] * m_factorials.get()[l + k - a - b] * m_factorials.get()[a - k] * m_factorials.get()[b - k];
+        sum_tracker += cpow(xi_conj, k) * cpow(zeta, b - k) * cpow(zeta_conj, a - k) * cpow(-xi, l + k - a - b) / fact_product;
     }
     sum_tracker
-        *= std::sqrt(factorial(a) * factorial(l - a) * factorial(b) * factorial(l - b) / (float(l) + 1));
+        *= std::sqrt(m_factorials.get()[a] * m_factorials.get()[l - a] * m_factorials.get()[b] * m_factorials.get()[l - b] / (float(l) + 1));
     return sum_tracker;
 }
 
@@ -91,15 +74,16 @@ void RotationalAutocorrelation::compute(const quat<float>* ref_ors, const quat<f
     // Precompute the hyperspherical harmonics for the unit quaternion. The
     // default quaternion constructor gives a unit quaternion. We will assume
     // the same iteration order here as in the loop below to save ourselves
-    // from having to use a more expensive process (like a map).
-    std::pair<std::complex<float>, std::complex<float>> angle_0 = quat_to_greek(quat<float>());
+    // from having to use a more expensive process (i.e. a map).
+    std::complex<float> xi = std::complex<float>(0, 0);
+    std::complex<float> zeta = std::complex<float>(0, 1);
     std::vector<std::complex<float>> unit_harmonics;
-    for (int m1 = -1 * m_l / 2; m1 <= m_l / 2; m1++)
+    for (unsigned int a = 0; a <= m_l; a++)
     {
-        for (int m2 = -1 * m_l / 2; m2 <= m_l / 2; m2++)
+        for (unsigned int b = 0; b <= m_l; b++)
         {
             unit_harmonics.push_back(
-                std::conj(hypersphere_harmonic(angle_0.first, angle_0.second, m_l, m1, m2)));
+                std::conj(hypersphere_harmonic(xi, zeta, m_l, a, b)));
         }
     }
 
@@ -109,17 +93,18 @@ void RotationalAutocorrelation::compute(const quat<float>* ref_ors, const quat<f
         {
             // Transform the orientation quaternions into Xi/Zeta coordinates;
             quat<float> qq_1 = conj(ref_ors[i]) * ors[i];
-            std::pair<std::complex<float>, std::complex<float>> angle_1 = quat_to_greek(qq_1);
+            std::complex<float> xi = std::complex<float>(qq_1.v.x, qq_1.v.y);
+            std::complex<float> zeta = std::complex<float>(qq_1.v.z, qq_1.s);
 
             // Loop through the valid quantum numbers.
             m_RA_array.get()[i] = std::complex<float>(0, 0);
             unsigned int uh_index = 0;
-            for (int m1 = -1 * m_l / 2; m1 <= m_l / 2; m1++)
+            for (unsigned int a = 0; a <= m_l; a++)
             {
-                for (int m2 = -1 * m_l / 2; m2 <= m_l / 2; m2++)
+                for (unsigned int b = 0; b <= m_l; b++)
                 {
                     std::complex<float> combined_value = unit_harmonics[uh_index]
-                        * hypersphere_harmonic(angle_1.first, angle_1.second, m_l, m1, m2);
+                        * hypersphere_harmonic(xi, zeta, m_l, a, b);
                     m_RA_array.get()[i] += combined_value;
                     uh_index += 1;
                 }

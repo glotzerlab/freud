@@ -33,22 +33,6 @@ namespace freud { namespace order {
  */
 std::pair<std::complex<float>, std::complex<float>> quat_to_greek(const quat<float>& q);
 
-//! Compute a hyperspherical harmonic.
-/*! \param xi The first complex number coordinate.
- *  \param zeta The second complex number coordinate.
- *  \param l The azimuthal quantum number.
- *  \param m1 The first magnetic quantum number.
- *  \param m2 The second magnetic quantum number.
- *  \return The value of the hyperspherical harmonic (l, m1, m2) at (xi, zeta).
- *
- *  The hyperspherical harmonic function is a generalization of spherical
- *  harmonics from the 2-sphere to the 3-sphere. For details, see Harmonic
- *  functions and matrix elements for hyperspherical quantum field models
- *  (https://doi.org/10.1063/1.526210).
- */
-std::complex<float> hypersphere_harmonic(const std::complex<float> xi, std::complex<float> zeta, const int l,
-                                         const int m1, const int m2);
-
 //! Compute the total rotational autocorrelation for a set of orientations.
 /*! The desired autocorrelation function is the rotational analog of the
  *  dynamic structure factor, which provides information on the dynamics of
@@ -68,7 +52,17 @@ public:
     //! Constructor
     /*! \param l The order of the spherical harmonic.
      */
-    RotationalAutocorrelation(int l) : m_l(l), m_N(0), m_Ft(0) {}
+    RotationalAutocorrelation(unsigned int l) : m_l(l), m_N(0), m_Ft(0)
+    {
+        // For efficiency, precompute all required factorials;
+        m_factorials = std::shared_ptr<unsigned int>(new unsigned int[m_l+1], std::default_delete<unsigned int[]>());
+        memset((void*) m_factorials.get(), 0, sizeof(unsigned int) * (m_l+1));
+        m_factorials.get()[0] = 1;
+        for (unsigned int i = 1; i <= m_l; i++)
+        {
+            m_factorials.get()[i] = i*m_factorials.get()[i-1];
+        }
+    }
 
     //! Destructor
     ~RotationalAutocorrelation() {}
@@ -113,11 +107,30 @@ public:
     void compute(const quat<float>* ref_ors, const quat<float>* ors, unsigned int N);
 
 private:
-    int m_l;          //!< Order of the hyperspherical harmonic.
+    //! Compute a hyperspherical harmonic.
+    /*! \param xi The first complex number coordinate.
+     *  \param zeta The second complex number coordinate.
+     *  \param l The azimuthal quantum number.
+     *  \param m1 The first magnetic quantum number.
+     *  \param m2 The second magnetic quantum number.
+     *  \return The value of the hyperspherical harmonic (l, m1, m2) at (xi, zeta).
+     *
+     *  The hyperspherical harmonic function is a generalization of spherical
+     *  harmonics from the 2-sphere to the 3-sphere. For details, see Harmonic
+     *  functions and matrix elements for hyperspherical quantum field models
+     *  (https://doi.org/10.1063/1.526210). The function needs to be a class
+     *  method to access the cached factorial values for the class's value of
+     *  m_l.
+     */
+    std::complex<float> hypersphere_harmonic(const std::complex<float> xi, std::complex<float> zeta, const unsigned int l,
+                                             const unsigned int m1, const unsigned int m2);
+
+    unsigned int m_l;          //!< Order of the hyperspherical harmonic.
     unsigned int m_N; //!< Last number of orientations used in compute.
     float m_Ft;       //!< Real value of calculated RA function.
 
     std::shared_ptr<std::complex<float>> m_RA_array; //!< Array of RA values per particle
+    std::shared_ptr<unsigned int> m_factorials; //!< Array of cached factorials
 };
 
 }; }; // end namespace freud::order
