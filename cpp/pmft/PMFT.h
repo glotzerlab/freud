@@ -99,8 +99,8 @@ public:
                              }
                          }
                      });
-        float inv_num_dens = m_box.getVolume() / (float) m_n_p;
-        float norm_factor = (float) 1.0 / ((float) m_frame_counter * (float) m_n_ref);
+        float inv_num_dens = m_box.getVolume() / (float) m_n_query_points;
+        float norm_factor = (float) 1.0 / ((float) m_frame_counter * (float) m_n_points);
         // normalize pcf_array
         // avoid need to unravel b/c arrays are in the same index order
         parallel_for(tbb::blocked_range<size_t>(0, n_r * first_dim * second_dim),

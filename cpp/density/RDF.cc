@@ -104,7 +104,7 @@ void RDF::reduceRDF()
     memset((void*) m_bin_counts.get(), 0, sizeof(unsigned int) * m_nbins);
     memset((void*) m_avg_counts.get(), 0, sizeof(float) * m_nbins);
     // now compute the rdf
-    float ndens = float(m_n_p) / m_box.getVolume();
+    float ndens = float(m_n_query_points) / m_box.getVolume();
     m_pcf_array.get()[0] = 0.0f;
     m_N_r_array.get()[0] = 0.0f;
     m_N_r_array.get()[1] = 0.0f;
@@ -121,7 +121,7 @@ void RDF::reduceRDF()
             {
                 m_bin_counts.get()[i] += (*local_bins)[i];
             }
-            m_avg_counts.get()[i] = (float) m_bin_counts.get()[i] / m_n_ref;
+            m_avg_counts.get()[i] = (float) m_bin_counts.get()[i] / m_n_points;
             m_pcf_array.get()[i] = m_avg_counts.get()[i] / m_vol_array.get()[i] / ndens;
         }
     });
@@ -159,19 +159,20 @@ void RDF::reset()
 //! \internal
 /*! \brief Function to accumulate the given points to the histogram in memory
  */
-void RDF::accumulate(const freud::locality::NeighborList* nlist, const freud::locality::NeighborQuery* ref_points,
-                    const vec3<float>* points, unsigned int n_p, freud::locality::QueryArgs qargs)
+void RDF::accumulate(const freud::locality::NeighborQuery* neighbor_query,
+                    const vec3<float>* query_points, unsigned int n_query_points,
+                    const freud::locality::NeighborList* nlist, freud::locality::QueryArgs qargs)
 {
-    m_n_p = n_p;
-    m_n_ref = ref_points->getNRef();
+    m_n_query_points = n_query_points;
+    m_n_points = neighbor_query->getNRef();
 
-    assert(ref_points);
-    assert(points);
-    assert(m_n_ref > 0);
-    assert(n_p > 0);
+    assert(neighbor_query);
+    assert(query_points);
+    assert(m_n_points > 0);
+    assert(n_query_points > 0);
 
     float dr_inv = 1.0f / m_dr;
-    accumulateGeneral(ref_points, points, n_p, nlist, m_nbins, qargs, 
+    accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs, 
         [=](size_t i, size_t j, float dist, float weight) {
         if (dist < m_rmax && dist > m_rmin)
         {

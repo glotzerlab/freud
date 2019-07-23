@@ -11,12 +11,11 @@ cdef extern from "CorrelationFunction.h" namespace "freud::density":
         CorrelationFunction(float, float) except +
         const freud._box.Box & getBox() const
         void reset()
-        void accumulate(const freud._locality.NeighborList*,
-                        const freud._locality.NeighborQuery*, const T*,
-                        unsigned int,
+        void accumulate(const freud._locality.NeighborQuery*, const T*,
                         const vec3[float]*,
                         const T*,
-                        unsigned int, freud._locality.QueryArgs) nogil except +
+                        unsigned int, const freud._locality.NeighborList*,
+                        freud._locality.QueryArgs,) nogil except +
         shared_ptr[T] getRDF()
         shared_ptr[unsigned int] getCounts()
         shared_ptr[float] getR()
@@ -46,11 +45,11 @@ cdef extern from "LocalDensity.h" namespace "freud::density":
         LocalDensity(float, float, float)
         const freud._box.Box & getBox() const
         void compute(
-            const freud._locality.NeighborList *,
             const freud._locality.NeighborQuery*,
             const vec3[float]*,
-            unsigned int, freud._locality.QueryArgs) nogil except +
-        unsigned int getNRef()
+            unsigned int, const freud._locality.NeighborList *,
+            freud._locality.QueryArgs) nogil except +
+        unsigned int getNPoints()
         shared_ptr[float] getDensity()
         shared_ptr[float] getNumNeighbors()
 
@@ -59,10 +58,11 @@ cdef extern from "RDF.h" namespace "freud::density":
         RDF(float, float, float) except +
         const freud._box.Box & getBox() const
         void reset()
-        void accumulate(const freud._locality.NeighborList*,
-                        const freud._locality.NeighborQuery*,
+        void accumulate(const freud._locality.NeighborQuery*,
                         const vec3[float]*,
-                        unsigned int, freud._locality.QueryArgs) nogil except +
+                        unsigned int,
+                        const freud._locality.NeighborList*,
+                        freud._locality.QueryArgs) nogil except +
         shared_ptr[float] getRDF()
         shared_ptr[float] getR()
         shared_ptr[float] getNr()

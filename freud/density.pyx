@@ -147,16 +147,15 @@ cdef class FloatCF(Compute):
         else:
             l_query_values = query_values
 
-        cdef unsigned int n_ref = l_points.shape[0]
         cdef unsigned int n_p = l_query_points.shape[0]
         with nogil:
             self.thisptr.accumulate(
-                nlistptr.get_ptr(),
                 nq.get_ptr(),
-                <double*> &l_values[0], n_ref,
+                <double*> &l_values[0],
                 <vec3[float]*> &l_query_points[0, 0],
                 <double*> &l_query_values[0],
-                n_p, dereference(def_qargs.thisptr))
+                n_p, nlistptr.get_ptr(),
+                dereference(def_qargs.thisptr))
         return self
 
     @Compute._computed_property()
@@ -378,17 +377,15 @@ cdef class ComplexCF(Compute):
         else:
             l_query_values = query_values
 
-        cdef unsigned int n_ref = l_points.shape[0]
         cdef unsigned int n_p = l_query_points.shape[0]
         with nogil:
             self.thisptr.accumulate(
-                nlistptr.get_ptr(),
                 nq.get_ptr(),
                 <np.complex128_t*> &l_values[0],
-                n_ref,
                 <vec3[float]*> &l_query_points[0, 0],
                 <np.complex128_t*> &l_query_values[0],
-                n_p, dereference(def_qargs.thisptr))
+                n_p, nlistptr.get_ptr(),
+                dereference(def_qargs.thisptr))
         return self
 
     @Compute._computed_property()
@@ -756,22 +753,22 @@ cdef class LocalDensity(Compute):
 
         with nogil:
             self.thisptr.compute(
-                nlistptr.get_ptr(),
                 nq.get_ptr(),
                 <vec3[float]*> &l_query_points[0, 0],
-                n_p, dereference(def_qargs.thisptr))
+                n_p, nlistptr.get_ptr(),
+                dereference(def_qargs.thisptr))
         return self
 
     @Compute._computed_property()
     def density(self):
-        cdef unsigned int n_ref = self.thisptr.getNRef()
+        cdef unsigned int n_ref = self.thisptr.getNPoints()
         cdef const float[::1] density = \
             <float[:n_ref]> self.thisptr.getDensity().get()
         return np.asarray(density)
 
     @Compute._computed_property()
     def num_neighbors(self):
-        cdef unsigned int n_ref = self.thisptr.getNRef()
+        cdef unsigned int n_ref = self.thisptr.getNPoints()
         cdef const float[::1] num_neighbors = \
             <float[:n_ref]> self.thisptr.getNumNeighbors().get()
         return np.asarray(num_neighbors)
@@ -892,10 +889,9 @@ cdef class RDF(Compute):
 
         with nogil:
             self.thisptr.accumulate(
-                nlistptr.get_ptr(),
                 nq.get_ptr(),
                 <vec3[float]*> &l_query_points[0, 0],
-                n_p, dereference(qargs.thisptr))
+                n_p, nlistptr.get_ptr(), dereference(qargs.thisptr))
         return self
 
     @Compute._compute()

@@ -62,9 +62,10 @@ public:
     void reset();
 
     //! accumulate the correlation function
-    void accumulate(const freud::locality::NeighborList* nlist,
-                    const freud::locality::NeighborQuery* nq, const T* ref_values, unsigned int n_ref,
-                    const vec3<float>* points, const T* point_values, unsigned int Np, freud::locality::QueryArgs qargs);
+    void accumulate(const freud::locality::NeighborQuery* neighbor_query, const T* values,
+                    const vec3<float>* query_points, const T* query_values,
+                    unsigned int n_query_points, const freud::locality::NeighborList* nlist,
+                    freud::locality::QueryArgs qargs);
 
     //! \internal
     //! helper function to reduce the thread specific arrays into one array

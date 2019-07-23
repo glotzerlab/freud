@@ -17,30 +17,30 @@ using namespace tbb;
 namespace freud { namespace density {
 
 LocalDensity::LocalDensity(float rcut, float volume, float diameter)
-    : m_box(box::Box()), m_rcut(rcut), m_volume(volume), m_diameter(diameter), m_n_ref(0)
+    : m_box(box::Box()), m_rcut(rcut), m_volume(volume), m_diameter(diameter), m_n_points(0)
 {}
 
 LocalDensity::~LocalDensity() {}
 
-void LocalDensity::compute(const freud::locality::NeighborList* nlist,
-                           const freud::locality::NeighborQuery* ref_points, const vec3<float>* points,
-                           unsigned int Np, freud::locality::QueryArgs qargs)
+void LocalDensity::compute(const freud::locality::NeighborQuery* neighbor_query, const vec3<float>* query_points,
+                 unsigned int n_query_points, const freud::locality::NeighborList* nlist,
+                 freud::locality::QueryArgs qargs)
 {
-    m_box = ref_points->getBox();
+    m_box = neighbor_query->getBox();
 
-    unsigned int n_ref = ref_points->getNRef();
+    unsigned int n_points = neighbor_query->getNRef();
 
     // reallocate the output array if it is not the right size
-    if (n_ref != m_n_ref)
+    if (n_points != m_n_points)
     {
-        m_density_array = std::shared_ptr<float>(new float[n_ref], std::default_delete<float[]>());
-        m_num_neighbors_array = std::shared_ptr<float>(new float[n_ref], std::default_delete<float[]>());
+        m_density_array = std::shared_ptr<float>(new float[n_points], std::default_delete<float[]>());
+        m_num_neighbors_array = std::shared_ptr<float>(new float[n_points], std::default_delete<float[]>());
     }
 
     float area = M_PI * m_rcut * m_rcut;
     float volume = 4.0f/3.0f * M_PI * m_rcut * m_rcut * m_rcut;
     // compute the local density
-    freud::locality::loopOverNeighborsIterator(ref_points, points, Np, qargs, nlist, 
+    freud::locality::loopOverNeighborsIterator(neighbor_query, query_points, n_query_points, qargs, nlist, 
     [=](size_t i, std::shared_ptr<freud::locality::NeighborIterator::PerPointIterator> ppiter)
     {
         float num_neighbors = 0;
@@ -72,12 +72,12 @@ void LocalDensity::compute(const freud::locality::NeighborList* nlist,
             }
         }
     });
-    m_n_ref = n_ref;
+    m_n_points = n_points;
 }
 
-unsigned int LocalDensity::getNRef()
+unsigned int LocalDensity::getNPoints()
 {
-    return m_n_ref;
+    return m_n_points;
 }
 
 //! Get a reference to the last computed density

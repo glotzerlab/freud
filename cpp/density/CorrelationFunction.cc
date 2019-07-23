@@ -108,14 +108,14 @@ template<typename T> void CorrelationFunction<T>::reset()
 }
 
 template<typename T>
-void CorrelationFunction<T>::accumulate(const freud::locality::NeighborList* nlist,
-                                        const freud::locality::NeighborQuery* nq, const T* ref_values,
-                                        unsigned int n_ref, const vec3<float>* points, const T* point_values,
-                                        unsigned int Np, freud::locality::QueryArgs qargs)
+void CorrelationFunction<T>::accumulate(const freud::locality::NeighborQuery* neighbor_query, const T* values,
+                                        const vec3<float>* query_points, const T* query_values,
+                                        unsigned int n_query_points, const freud::locality::NeighborList* nlist,
+                                        freud::locality::QueryArgs qargs)
 {
-    m_box = nq->getBox();
+    m_box = neighbor_query->getBox();
     float dr_inv = 1.0f / m_dr;
-    freud::locality::loopOverNeighbors(nq, points, Np, qargs, nlist,
+    freud::locality::loopOverNeighbors(neighbor_query, query_points, n_query_points, qargs, nlist,
     [=](size_t i, size_t j, float dist, float weight)
         {
             // bin that r
@@ -130,7 +130,7 @@ void CorrelationFunction<T>::accumulate(const freud::locality::NeighborList* nli
             if (bin < m_nbins)
             {
                 ++m_local_bin_counts.local()[bin];
-                m_local_rdf_array.local()[bin] += ref_values[i] * point_values[j];
+                m_local_rdf_array.local()[bin] += values[i] * query_values[j];
             }
         }
     );
