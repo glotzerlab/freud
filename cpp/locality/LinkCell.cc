@@ -403,6 +403,17 @@ NeighborPoint LinkCellQueryBallIterator::next()
                     break;
                 }
 
+                // In cases where we need to check the entire box, make sure
+                // that we don't check the same cell on the positive and
+                // negative sides of the IteratorCellShell cube.
+                const vec3<int> neighbor_cell_delta(*m_neigh_cell_iter);
+                if (2 * neighbor_cell_delta.x + 1 > (int) m_linkcell->getCellIndexer().getW())
+                    continue;
+                else if (2 * neighbor_cell_delta.y + 1 > (int) m_linkcell->getCellIndexer().getH())
+                    continue;
+                else if (2 * neighbor_cell_delta.z + 1 > (int) m_linkcell->getCellIndexer().getD())
+                    continue;
+
                 const unsigned int neighbor_cell = m_linkcell->getCellIndexer()(
                     // Need to increment each dimension by the width to avoid taking the modulus
                     // of a negative number.
@@ -457,6 +468,16 @@ NeighborPoint LinkCellQueryIterator::next()
     {
         vec3<unsigned int> point_cell(m_linkcell->getCellCoord(m_points[cur_p]));
         m_searched_cells.clear();
+        const unsigned int point_cell_index = m_linkcell->getCellIndexer()(
+            // Need to increment each dimension by the width to avoid taking the modulus
+            // of a negative number.
+            (m_linkcell->getCellIndexer().getW() + point_cell.x + (*m_neigh_cell_iter).x)
+                % m_linkcell->getCellIndexer().getW(),
+            (m_linkcell->getCellIndexer().getH() + point_cell.y + (*m_neigh_cell_iter).y)
+                % m_linkcell->getCellIndexer().getH(),
+            (m_linkcell->getCellIndexer().getD() + point_cell.z + (*m_neigh_cell_iter).z)
+                % m_linkcell->getCellIndexer().getD());
+        m_searched_cells.insert(point_cell_index);
 
         // Loop over cell list neighbor shells relative to this point's cell.
         if (!m_current_neighbors.size())
@@ -493,6 +514,17 @@ NeighborPoint LinkCellQueryIterator::next()
                     {
                         break;
                     }
+
+                    // In cases where we need to check the entire box, make sure
+                    // that we don't check the same cell on the positive and
+                    // negative sides of the IteratorCellShell cube.
+                    const vec3<int> neighbor_cell_delta(*m_neigh_cell_iter);
+                    if (2 * neighbor_cell_delta.x + 1 > (int) m_linkcell->getCellIndexer().getW())
+                        continue;
+                    else if (2 * neighbor_cell_delta.y + 1 > (int) m_linkcell->getCellIndexer().getH())
+                        continue;
+                    else if (2 * neighbor_cell_delta.z + 1 > (int) m_linkcell->getCellIndexer().getD())
+                        continue;
 
                     const unsigned int neighbor_cell = m_linkcell->getCellIndexer()(
                         // Need to increment each dimension by the width to avoid taking the modulus
