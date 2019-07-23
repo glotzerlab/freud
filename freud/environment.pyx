@@ -1191,21 +1191,20 @@ cdef class LocalBondProjection(Compute):
         cdef const float[:, ::1] l_equiv_quats = equiv_quats
         cdef const float[:, ::1] l_proj_vecs = proj_vecs
 
-        cdef unsigned int nRef = l_points.shape[0]
-        cdef unsigned int nP = l_query_points.shape[0]
-        cdef unsigned int nEquiv = l_equiv_quats.shape[0]
-        cdef unsigned int nProj = l_proj_vecs.shape[0]
+        cdef unsigned int n_points = l_points.shape[0]
+        cdef unsigned int n_query_points = l_query_points.shape[0]
+        cdef unsigned int n_equiv = l_equiv_quats.shape[0]
+        cdef unsigned int n_proj = l_proj_vecs.shape[0]
 
         with nogil:
             self.thisptr.compute(
                 dereference(b.thisptr),
-                self.nlist_.get_ptr(),
-                <vec3[float]*> &l_query_points[0, 0],
+                <vec3[float]*> &l_proj_vecs[0, 0], n_proj,
                 <vec3[float]*> &l_points[0, 0],
-                <quat[float]*> &l_orientations[0, 0],
-                <quat[float]*> &l_equiv_quats[0, 0],
-                <vec3[float]*> &l_proj_vecs[0, 0],
-                nP, nRef, nEquiv, nProj)
+                <quat[float]*> &l_orientations[0, 0], n_points,
+                <vec3[float]*> &l_query_points[0, 0], n_query_points,
+                <quat[float]*> &l_equiv_quats[0, 0], n_equiv,
+                self.nlist_.get_ptr())
         return self
 
     @Compute._computed_property()
@@ -1230,12 +1229,12 @@ cdef class LocalBondProjection(Compute):
         return np.asarray(normed_projections)
 
     @Compute._computed_property()
-    def num_particles(self):
-        return self.thisptr.getNP()
+    def num_points(self):
+        return self.thisptr.getNPoints()
 
     @Compute._computed_property()
-    def num_reference_particles(self):
-        return self.thisptr.getNref()
+    def num_query_points(self):
+        return self.thisptr.getNQueryPoints()
 
     @Compute._computed_property()
     def num_proj_vectors(self):

@@ -34,10 +34,12 @@ public:
     ~LocalBondProjection();
 
     //! Compute the maximal local bond projection
-    void compute(box::Box& box, const freud::locality::NeighborList* nlist, const vec3<float>* pos,
-                 const vec3<float>* ref_pos, const quat<float>* ref_ors, const quat<float>* ref_equiv_ors,
-                 const vec3<float>* proj_vecs, unsigned int Np, unsigned int Nref, unsigned int Nequiv,
-                 unsigned int Nproj);
+    void compute(box::Box& box, 
+        const vec3<float>* proj_vecs,  unsigned int n_proj,
+        const vec3<float>* points, const quat<float>* orientations, unsigned int m_n_points,
+        const vec3<float>* query_points, unsigned int n_query_points,
+        const quat<float>* equiv_quats, unsigned int n_equiv,
+        const freud::locality::NeighborList* nlist);
 
     //! Get a reference to the last computed maximal local bond projection array
     std::shared_ptr<float> getProjections()
@@ -51,19 +53,19 @@ public:
         return m_local_bond_proj_norm;
     }
 
-    unsigned int getNP()
+    unsigned int getNQueryPoints()
     {
-        return m_Np;
+        return m_n_query_points;
     }
 
-    unsigned int getNref()
+    unsigned int getNPoints()
     {
-        return m_Nref;
+        return m_n_points;
     }
 
     unsigned int getNproj()
     {
-        return m_Nproj;
+        return m_n_proj;
     }
 
     const box::Box& getBox() const
@@ -73,10 +75,10 @@ public:
 
 private:
     box::Box m_box;               //!< Last used simulation box
-    unsigned int m_Np;            //!< Last number of particles computed
-    unsigned int m_Nref;          //!< Last number of reference particles used for computation
-    unsigned int m_Nproj;         //!< Last number of projection vectors used for computation
-    unsigned int m_Nequiv;        //!< Last number of equivalent reference orientations used for computation
+    unsigned int m_n_query_points;            //!< Last number of particles computed
+    unsigned int m_n_points;          //!< Last number of reference particles used for computation
+    unsigned int m_n_proj;         //!< Last number of projection vectors used for computation
+    unsigned int m_n_equiv;        //!< Last number of equivalent reference orientations used for computation
     unsigned int m_tot_num_neigh; //!< Last number of total bonds used for computation
 
     std::shared_ptr<float> m_local_bond_proj;      //!< Local bond projection array computed
