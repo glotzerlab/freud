@@ -7,6 +7,7 @@
 #include <cassert>
 #include <memory>
 #include <tbb/concurrent_hash_map.h>
+#include <unordered_set>
 #include <vector>
 
 #include "Box.h"
@@ -505,6 +506,8 @@ protected:
         m_neigh_cell_iter; //!< The shell iterator indicating how far out we're currently searching.
     LinkCell::iteratorcell
         m_cell_iter; //!< The cell iterator indicating which cell we're currently searching.
+    std::unordered_set<unsigned int>
+        m_searched_cells; //!< Set of cells that have already been searched by the cell shell iterator.
 };
 
 //! Iterator that gets nearest neighbors from LinkCell tree structures

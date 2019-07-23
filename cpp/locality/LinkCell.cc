@@ -369,6 +369,7 @@ NeighborPoint LinkCellQueryBallIterator::next()
     while (cur_p < m_N)
     {
         vec3<unsigned int> point_cell(m_linkcell->getCellCoord(m_points[cur_p]));
+        m_searched_cells.clear();
 
         // Loop over cell list neighbor shells relative to this point's cell.
         while (true)
@@ -387,17 +388,21 @@ NeighborPoint LinkCellQueryBallIterator::next()
                 }
             }
 
-            // Determine the next neighbor cell to consider. We're done if we
-            // reach a new shell and the closest point of approach to the new
-            // shell is greater than our rcut.
-            ++m_neigh_cell_iter;
+            bool out_of_range = false;
 
-            if ((m_neigh_cell_iter.getRange() - m_extra_search_width) * m_linkcell->getCellWidth() > m_r)
+            while (true)
             {
-                break;
-            }
-            else
-            {
+                // Determine the next neighbor cell to consider. We're done if we
+                // reach a new shell and the closest point of approach to the new
+                // shell is greater than our rcut.
+                ++m_neigh_cell_iter;
+
+                if ((m_neigh_cell_iter.getRange() - m_extra_search_width) * m_linkcell->getCellWidth() > m_r)
+                {
+                    out_of_range = true;
+                    break;
+                }
+
                 const unsigned int neighbor_cell = m_linkcell->getCellIndexer()(
                     // Need to increment each dimension by the width to avoid taking the modulus
                     // of a negative number.
@@ -407,7 +412,21 @@ NeighborPoint LinkCellQueryBallIterator::next()
                         % m_linkcell->getCellIndexer().getH(),
                     (m_linkcell->getCellIndexer().getD() + point_cell.z + (*m_neigh_cell_iter).z)
                         % m_linkcell->getCellIndexer().getD());
-                m_cell_iter = m_linkcell->itercell(neighbor_cell);
+
+                auto searched_cell_iter = m_searched_cells.find(neighbor_cell);
+                if (searched_cell_iter == m_searched_cells.end())
+                {
+                    // This cell has not been searched yet, so we will iterate
+                    // over its contents. Otherwise, we loop back, increment
+                    // the cell shell iterator, and try the next one.
+                    m_searched_cells.insert(neighbor_cell);
+                    m_cell_iter = m_linkcell->itercell(neighbor_cell);
+                    break;
+                }
+            }
+            if (out_of_range)
+            {
+                break;
             }
         }
         cur_p++;
@@ -437,6 +456,7 @@ NeighborPoint LinkCellQueryIterator::next()
     while (cur_p < m_N)
     {
         vec3<unsigned int> point_cell(m_linkcell->getCellCoord(m_points[cur_p]));
+        m_searched_cells.clear();
 
         // Loop over cell list neighbor shells relative to this point's cell.
         if (!m_current_neighbors.size())
@@ -465,29 +485,36 @@ NeighborPoint LinkCellQueryIterator::next()
                     }
                 }
 
-                ++m_neigh_cell_iter;
+                while (true)
+                {
+                    ++m_neigh_cell_iter;
 
-                // In cases where we need to check the entire box, make sure
-                // that we don't check the same cell on the positive and
-                // negative sides of the IteratorCellShell cube.
-                const vec3<int> neighbor_cell_delta(*m_neigh_cell_iter);
-                if (2 * neighbor_cell_delta.x + 1 > (int) m_linkcell->getCellIndexer().getW())
-                    continue;
-                else if (2 * neighbor_cell_delta.y + 1 > (int) m_linkcell->getCellIndexer().getH())
-                    continue;
-                else if (2 * neighbor_cell_delta.z + 1 > (int) m_linkcell->getCellIndexer().getD())
-                    continue;
+                    const unsigned int neighbor_cell = m_linkcell->getCellIndexer()(
+                        // Need to increment each dimension by the width to avoid taking the modulus
+                        // of a negative number.
+                        (m_linkcell->getCellIndexer().getW() + point_cell.x + (*m_neigh_cell_iter).x)
+                            % m_linkcell->getCellIndexer().getW(),
+                        (m_linkcell->getCellIndexer().getH() + point_cell.y + (*m_neigh_cell_iter).y)
+                            % m_linkcell->getCellIndexer().getH(),
+                        (m_linkcell->getCellIndexer().getD() + point_cell.z + (*m_neigh_cell_iter).z)
+                            % m_linkcell->getCellIndexer().getD());
 
-                const unsigned int neighbor_cell = m_linkcell->getCellIndexer()(
-                    // Need to increment each dimension by the width to avoid taking the modulus
-                    // of a negative number.
-                    (m_linkcell->getCellIndexer().getW() + point_cell.x + (*m_neigh_cell_iter).x)
-                        % m_linkcell->getCellIndexer().getW(),
-                    (m_linkcell->getCellIndexer().getH() + point_cell.y + (*m_neigh_cell_iter).y)
-                        % m_linkcell->getCellIndexer().getH(),
-                    (m_linkcell->getCellIndexer().getD() + point_cell.z + (*m_neigh_cell_iter).z)
-                        % m_linkcell->getCellIndexer().getD());
-                m_cell_iter = m_linkcell->itercell(neighbor_cell);
+                    auto searched_cell_iter = m_searched_cells.find(neighbor_cell);
+                    if (searched_cell_iter == m_searched_cells.end() || m_neigh_cell_iter == IteratorCellShell(max_range, m_neighbor_query->getBox().is2D()))
+                    {
+                        // This cell has not been searched yet, so we will iterate
+                        // over its contents. Otherwise, we loop back, increment
+                        // the cell shell iterator, and try the next one.
+                        m_searched_cells.insert(neighbor_cell);
+                        m_cell_iter = m_linkcell->itercell(neighbor_cell);
+                        break;
+                    }
+                    if (m_neigh_cell_iter == IteratorCellShell(max_range, m_neighbor_query->getBox().is2D()))
+                    {
+                        break;
+                    }
+                }
+
                 // We can terminate early if we determine when we reach a shell
                 // such that we already have k neighbors closer than the
                 // closest possible neighbor in the new shell.
