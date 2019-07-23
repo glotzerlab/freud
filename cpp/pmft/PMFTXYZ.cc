@@ -103,7 +103,7 @@ void PMFTXYZ::accumulate(const locality::NeighborQuery* neighbor_query,
 
     accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,
         [=](size_t i, size_t j, float dist, float weight) {
-        vec3<float> ref = neighbor_query->getRefPoints()[i];
+        vec3<float> ref = neighbor_query->getPoints()[i];
         // create the reference point quaternion
         quat<float> ref_q(orientations[i]);
         // make sure that the particles are wrapped into the box

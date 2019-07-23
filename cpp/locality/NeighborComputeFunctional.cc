@@ -3,7 +3,7 @@
 namespace freud { namespace locality {
 
 std::shared_ptr<NeighborIterator> getNeighborIterator(
-    const NeighborQuery* ref_points, const vec3<float>* points, unsigned int Np,
+    const NeighborQuery* neighbor_query, const vec3<float>* query_points, unsigned int n_query_points,
     QueryArgs qargs, const NeighborList* nlist)
 {
     if (nlist != NULL)
@@ -12,7 +12,7 @@ std::shared_ptr<NeighborIterator> getNeighborIterator(
     }
     else
     {
-        return std::make_shared<NeighborQueryNeighborIterator>(ref_points, points, Np, qargs);
+        return std::make_shared<NeighborQueryNeighborIterator>(neighbor_query, query_points, n_query_points, qargs);
     }
 }
 

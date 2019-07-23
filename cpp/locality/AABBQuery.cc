@@ -11,35 +11,35 @@
 
 namespace freud { namespace locality {
 
-AABBQuery::AABBQuery(const box::Box& box, const vec3<float>* ref_points, unsigned int Nref)
-    : NeighborQuery(box, ref_points, Nref)
+AABBQuery::AABBQuery(const box::Box& box, const vec3<float>* points, unsigned int n_points)
+    : NeighborQuery(box, points, n_points)
 {
     // Allocate memory and create image vectors
-    setupTree(m_Nref);
+    setupTree(m_n_points);
 
     // Build the tree
-    buildTree(m_ref_points, m_Nref);
+    buildTree(m_points, m_n_points);
 }
 
 AABBQuery::~AABBQuery() {}
 
-std::shared_ptr<NeighborQueryIterator> AABBQuery::query(const vec3<float>* points, unsigned int N,
-                                                        unsigned int k, float r, float scale,
+std::shared_ptr<NeighborQueryIterator> AABBQuery::query(const vec3<float>* query_points, unsigned int n_query_points,
+                                                        unsigned int num_neighbors, float r_max, float scale,
                                                         bool exclude_ii) const
 {
-    return std::make_shared<AABBQueryIterator>(this, points, N, k, r, scale, exclude_ii);
+    return std::make_shared<AABBQueryIterator>(this, query_points, n_query_points, num_neighbors, r_max, scale, exclude_ii);
 }
 
-std::shared_ptr<NeighborQueryIterator> AABBQuery::queryBall(const vec3<float>* points, unsigned int N,
-                                                            float r, bool exclude_ii) const
+std::shared_ptr<NeighborQueryIterator> AABBQuery::queryBall(const vec3<float>* query_points, unsigned int n_query_points,
+                                                            float r_max, bool exclude_ii) const
 {
-    return std::make_shared<AABBQueryBallIterator>(this, points, N, r, exclude_ii);
+    return std::make_shared<AABBQueryBallIterator>(this, query_points, n_query_points, r_max, exclude_ii);
 }
 
 std::shared_ptr<NeighborQueryIterator>
-AABBQuery::queryBallUnbounded(const vec3<float>* points, unsigned int N, float r, bool exclude_ii) const
+AABBQuery::queryBallUnbounded(const vec3<float>* query_points, unsigned int n_query_points, float r_max, bool exclude_ii) const
 {
-    return std::make_shared<AABBQueryBallIterator>(this, points, N, r, exclude_ii, false);
+    return std::make_shared<AABBQueryBallIterator>(this, query_points, n_query_points, r_max, exclude_ii, false);
 }
 
 void AABBQuery::setupTree(unsigned int Np)
@@ -63,16 +63,16 @@ void AABBQuery::buildTree(const vec3<float>* points, unsigned int Np)
     m_aabb_tree.buildTree(m_aabbs.data(), Np);
 }
 
-void AABBIterator::updateImageVectors(float rmax, bool _check_rmax)
+void AABBIterator::updateImageVectors(float r_max, bool _check_r_max)
 {
     box::Box box = m_neighbor_query->getBox();
     vec3<float> nearest_plane_distance = box.getNearestPlaneDistance();
     vec3<bool> periodic = box.getPeriodic();
-    if (_check_rmax)
+    if (_check_r_max)
     {
-        if ((periodic.x && nearest_plane_distance.x <= rmax * 2.0)
-            || (periodic.y && nearest_plane_distance.y <= rmax * 2.0)
-            || (!box.is2D() && periodic.z && nearest_plane_distance.z <= rmax * 2.0))
+        if ((periodic.x && nearest_plane_distance.x <= r_max * 2.0)
+            || (periodic.y && nearest_plane_distance.y <= r_max * 2.0)
+            || (!box.is2D() && periodic.z && nearest_plane_distance.z <= r_max * 2.0))
         {
             throw std::runtime_error("The AABBQuery rcut is too large for this box.");
         }
@@ -134,10 +134,10 @@ NeighborBond AABBQueryBallIterator::next()
 {
     float r_cutsq = m_r * m_r;
 
-    while (cur_p < m_N)
+    while (cur_p < m_n_query_points)
     {
         // Read in the position of current point
-        vec3<float> pos_i(m_points[cur_p]);
+        vec3<float> pos_i(m_query_points[cur_p]);
         if (m_neighbor_query->getBox().is2D())
         {
             pos_i.z = 0;
@@ -205,7 +205,7 @@ NeighborBond AABBQueryBallIterator::next()
 
 std::shared_ptr<NeighborQueryIterator> AABBQueryBallIterator::query(unsigned int idx)
 {
-    return this->m_aabb_query->queryBall(&m_points[idx], 1, m_r);
+    return this->m_aabb_query->queryBall(&m_query_points[idx], 1, m_r);
 }
 
 NeighborBond AABBQueryIterator::next()
@@ -219,7 +219,7 @@ NeighborBond AABBQueryIterator::next()
         max_plane_distance = std::max(max_plane_distance, plane_distance.z);
     }
 
-    while (cur_p < m_N)
+    while (cur_p < m_n_query_points)
     {
         // Only try to add new neighbors if there are no neighbors currently cached to return.
         if (!m_current_neighbors.size())
@@ -238,7 +238,7 @@ NeighborBond AABBQueryIterator::next()
                 m_current_neighbors.clear();
                 std::shared_ptr<NeighborQueryIterator> ball_it
                     = static_cast<const AABBQuery*>(m_neighbor_query)
-                          ->queryBallUnbounded(&(m_points[cur_p]), 1, m_r_cur);
+                          ->queryBallUnbounded(&(m_query_points[cur_p]), 1, m_r_cur);
                 while (!ball_it->end())
                 {
                     NeighborBond np = ball_it->next();
@@ -327,6 +327,6 @@ NeighborBond AABBQueryIterator::next()
 
 std::shared_ptr<NeighborQueryIterator> AABBQueryIterator::query(unsigned int idx)
 {
-    return this->m_aabb_query->query(&m_points[idx], 1, m_k, m_r, m_scale);
+    return this->m_aabb_query->query(&m_query_points[idx], 1, m_k, m_r, m_scale);
 }
 }; }; // end namespace freud::locality

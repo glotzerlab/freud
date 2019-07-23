@@ -26,26 +26,26 @@ namespace freud { namespace locality {
 
 // Default constructor
 LinkCell::LinkCell()
-    : NeighborQuery(), m_box(box::Box()), m_Np(0), m_cell_width(0), m_celldim(0, 0, 0), m_neighbor_list()
+    : NeighborQuery(), m_box(box::Box()), m_n_points(0), m_cell_width(0), m_celldim(0, 0, 0), m_neighbor_list()
 {}
 
 LinkCell::LinkCell(const box::Box& box, float cell_width)
-    : NeighborQuery(), m_box(box), m_Np(0), m_cell_width(0), m_celldim(0, 0, 0), m_neighbor_list()
+    : NeighborQuery(), m_box(box), m_n_points(0), m_cell_width(0), m_celldim(0, 0, 0), m_neighbor_list()
 {
     // The initializer list above sets the cell width and cell dimensions to 0
     // so that we can farm out the work to the setCellWidth function.
     updateInternal(box, cell_width);
 }
 
-LinkCell::LinkCell(const box::Box& box, float cell_width, const vec3<float>* ref_points, unsigned int Nref)
-    : NeighborQuery(box, ref_points, Nref), m_box(box), m_Np(0), m_cell_width(0), m_celldim(0, 0, 0),
+LinkCell::LinkCell(const box::Box& box, float cell_width, const vec3<float>* points, unsigned int n_points)
+    : NeighborQuery(box, points, n_points), m_box(box), m_n_points(0), m_cell_width(0), m_celldim(0, 0, 0),
       m_neighbor_list()
 {
     // The initializer list above sets the cell width and cell dimensions to 0
     // so that we can farm out the work to the updateInternal function.
     updateInternal(box, cell_width);
 
-    computeCellList(box, ref_points, Nref);
+    computeCellList(box, points, n_points);
 }
 
 void LinkCell::updateInternal(const box::Box& box, float cell_width)
@@ -128,11 +128,11 @@ const vec3<unsigned int> LinkCell::computeDimensions(const box::Box& box, float 
     return dim;
 }
 
-void LinkCell::computeCellList(const box::Box& box, const vec3<float>* points, unsigned int Np)
+void LinkCell::computeCellList(const box::Box& box, const vec3<float>* points, unsigned int n_points)
 {
     updateBox(box);
 
-    if (Np == 0)
+    if (n_points == 0)
     {
         throw runtime_error("Cannot generate a cell list of 0 particles.");
     }
@@ -140,37 +140,37 @@ void LinkCell::computeCellList(const box::Box& box, const vec3<float>* points, u
     // determine the number of cells and allocate memory
     unsigned int Nc = getNumCells();
     assert(Nc > 0);
-    if ((m_Np != Np) || (m_Nc != Nc))
+    if ((m_n_points != n_points) || (m_Nc != Nc))
     {
         m_cell_list
-            = std::shared_ptr<unsigned int>(new unsigned int[Np + Nc], std::default_delete<unsigned int[]>());
+            = std::shared_ptr<unsigned int>(new unsigned int[n_points + Nc], std::default_delete<unsigned int[]>());
     }
-    m_Np = Np;
+    m_n_points = n_points;
     m_Nc = Nc;
 
     // initialize memory
     for (unsigned int cell = 0; cell < Nc; cell++)
     {
-        m_cell_list.get()[Np + cell] = LINK_CELL_TERMINATOR;
+        m_cell_list.get()[n_points + cell] = LINK_CELL_TERMINATOR;
     }
 
     assert(points);
 
     // generate the cell list
-    for (int i = Np - 1; i >= 0; i--)
+    for (int i = n_points - 1; i >= 0; i--)
     {
         unsigned int cell = getCell(points[i]);
-        m_cell_list.get()[i] = m_cell_list.get()[Np + cell];
-        m_cell_list.get()[Np + cell] = i;
+        m_cell_list.get()[i] = m_cell_list.get()[n_points + cell];
+        m_cell_list.get()[n_points + cell] = i;
     }
 }
 
-void LinkCell::compute(const box::Box& box, const vec3<float>* ref_points, unsigned int Nref,
-                       const vec3<float>* points, unsigned int Np, bool exclude_ii)
+void LinkCell::compute(const box::Box& box, const vec3<float>* points, unsigned int n_points,
+                       const vec3<float>* query_points, unsigned int n_query_points, bool exclude_ii)
 {
     // Store points ("j" particles in (i, j) bonds) in the cell list
-    // for quick access later (not ref_points)
-    computeCellList(box, ref_points, Nref);
+    // for quick access later (not points)
+    computeCellList(box, points, n_points);
 
     typedef std::vector<NeighborBond> BondVector;
     typedef std::vector<BondVector> BondVectorVector;
@@ -178,7 +178,7 @@ void LinkCell::compute(const box::Box& box, const vec3<float>* ref_points, unsig
     ThreadBondVector bond_vectors;
 
     // Find (i, j) neighbor pairs
-    parallel_for(blocked_range<size_t>(0, Np), [=, &bond_vectors](const blocked_range<size_t>& r) {
+    parallel_for(blocked_range<size_t>(0, n_query_points), [=, &bond_vectors](const blocked_range<size_t>& r) {
         ThreadBondVector::reference bond_vector_vectors(bond_vectors.local());
         bond_vector_vectors.emplace_back();
         BondVector& bond_vector(bond_vector_vectors.back());
@@ -186,7 +186,7 @@ void LinkCell::compute(const box::Box& box, const vec3<float>* ref_points, unsig
         for (size_t i(r.begin()); i != r.end(); ++i)
         {
             // get the cell the point is in
-            const vec3<float> point(points[i]);
+            const vec3<float> point(query_points[i]);
             const unsigned int point_cell(getCell(point));
 
             // loop over all neighboring cells
@@ -202,7 +202,7 @@ void LinkCell::compute(const box::Box& box, const vec3<float>* ref_points, unsig
                     if (exclude_ii && i == j)
                         continue;
 
-                    const vec3<float> rij(m_box.wrap(ref_points[j] - point));
+                    const vec3<float> rij(m_box.wrap(points[j] - point));
                     const float rsq(dot(rij, rij));
 
                     if (rsq < m_cell_width * m_cell_width)
@@ -225,7 +225,7 @@ void LinkCell::compute(const box::Box& box, const vec3<float>* ref_points, unsig
         num_bonds += iter->size();
 
     m_neighbor_list.resize(num_bonds);
-    m_neighbor_list.setNumBonds(num_bonds, Np, Nref);
+    m_neighbor_list.setNumBonds(num_bonds, n_query_points, n_points);
 
     size_t* neighbor_array(m_neighbor_list.getNeighbors());
     float* neighbor_weights(m_neighbor_list.getWeights());
@@ -339,29 +339,29 @@ const std::vector<unsigned int>& LinkCell::computeCellNeighbors(unsigned int cur
     return a->second;
 }
 
-//! Given a set of points, find the k elements of this data structure
+//! Given a set of points, find the num_neighbors elements of this data structure
 //  that are the nearest neighbors for each point.
-std::shared_ptr<NeighborQueryIterator> LinkCell::query(const vec3<float>* points, unsigned int N,
-                                                       unsigned int k, bool exclude_ii) const
+std::shared_ptr<NeighborQueryIterator> LinkCell::query(const vec3<float>* query_points, unsigned int n_query_points,
+                                                       unsigned int num_neighbors, bool exclude_ii) const
 {
-    return std::make_shared<LinkCellQueryIterator>(this, points, N, k, exclude_ii);
+    return std::make_shared<LinkCellQueryIterator>(this, query_points, n_query_points, num_neighbors, exclude_ii);
 }
 
 //! Given a set of points, find all elements of this data structure
-//  that are within a certain distance r.
-std::shared_ptr<NeighborQueryIterator> LinkCell::queryBall(const vec3<float>* points, unsigned int N, float r,
+//  that are within a certain distance r_max.
+std::shared_ptr<NeighborQueryIterator> LinkCell::queryBall(const vec3<float>* query_points, unsigned int n_query_points, float r_max,
                                                            bool exclude_ii) const
 {
-    return std::make_shared<LinkCellQueryBallIterator>(this, points, N, r, exclude_ii);
+    return std::make_shared<LinkCellQueryBallIterator>(this, query_points, n_query_points, r_max, exclude_ii);
 }
 
 NeighborBond LinkCellQueryBallIterator::next()
 {
     float r_cutsq = m_r * m_r;
 
-    while (cur_p < m_N)
+    while (cur_p < m_n_query_points)
     {
-        vec3<unsigned int> point_cell(m_linkcell->getCellCoord(m_points[cur_p]));
+        vec3<unsigned int> point_cell(m_linkcell->getCellCoord(m_query_points[cur_p]));
 
         // Loop over cell list neighbor shells relative to this point's cell.
         while (true)
@@ -371,7 +371,7 @@ NeighborBond LinkCellQueryBallIterator::next()
             // track between calls to next.
             for (unsigned int j = m_cell_iter.next(); !m_cell_iter.atEnd(); j = m_cell_iter.next())
             {
-                const vec3<float> rij(m_neighbor_query->getBox().wrap((*m_linkcell)[j] - m_points[cur_p]));
+                const vec3<float> rij(m_neighbor_query->getBox().wrap((*m_linkcell)[j] - m_query_points[cur_p]));
                 const float rsq(dot(rij, rij));
 
                 if (rsq < r_cutsq && (!m_exclude_ii || cur_p != j))
@@ -405,7 +405,7 @@ NeighborBond LinkCellQueryBallIterator::next()
         }
         cur_p++;
         m_neigh_cell_iter = IteratorCellShell(0, m_neighbor_query->getBox().is2D());
-        m_cell_iter = m_linkcell->itercell(m_linkcell->getCell(m_points[cur_p]));
+        m_cell_iter = m_linkcell->itercell(m_linkcell->getCell(m_query_points[cur_p]));
     }
 
     m_finished = true;
@@ -414,7 +414,7 @@ NeighborBond LinkCellQueryBallIterator::next()
 
 std::shared_ptr<NeighborQueryIterator> LinkCellQueryBallIterator::query(unsigned int idx)
 {
-    return this->m_linkcell->queryBall(&m_points[idx], 1, m_r);
+    return this->m_linkcell->queryBall(&m_query_points[idx], 1, m_r);
 }
 
 NeighborBond LinkCellQueryIterator::next()
@@ -427,9 +427,9 @@ NeighborBond LinkCellQueryIterator::next()
     }
     unsigned int max_range = ceil(min_plane_distance / (2 * m_linkcell->getCellWidth())) + 1;
 
-    while (cur_p < m_N)
+    while (cur_p < m_n_query_points)
     {
-        vec3<unsigned int> point_cell(m_linkcell->getCellCoord(m_points[cur_p]));
+        vec3<unsigned int> point_cell(m_linkcell->getCellCoord(m_query_points[cur_p]));
 
         // Loop over cell list neighbor shells relative to this point's cell.
         if (!m_current_neighbors.size())
@@ -452,7 +452,7 @@ NeighborBond LinkCellQueryIterator::next()
                             continue;
                         }
                         const vec3<float> rij(
-                            m_neighbor_query->getBox().wrap((*m_linkcell)[j] - m_points[cur_p]));
+                            m_neighbor_query->getBox().wrap((*m_linkcell)[j] - m_query_points[cur_p]));
                         const float rsq(dot(rij, rij));
                         m_current_neighbors.emplace_back(cur_p, j, sqrt(rsq));
                     }
@@ -503,7 +503,7 @@ NeighborBond LinkCellQueryIterator::next()
         m_count = 0;
         m_current_neighbors.clear();
         m_neigh_cell_iter = IteratorCellShell(0, m_neighbor_query->getBox().is2D());
-        m_cell_iter = m_linkcell->itercell(m_linkcell->getCell(m_points[cur_p]));
+        m_cell_iter = m_linkcell->itercell(m_linkcell->getCell(m_query_points[cur_p]));
     }
 
     m_finished = true;
@@ -512,7 +512,7 @@ NeighborBond LinkCellQueryIterator::next()
 
 std::shared_ptr<NeighborQueryIterator> LinkCellQueryIterator::query(unsigned int idx)
 {
-    return this->m_linkcell->query(&m_points[idx], 1, m_k);
+    return this->m_linkcell->query(&m_query_points[idx], 1, m_k);
 }
 
 }; }; // end namespace freud::locality

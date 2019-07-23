@@ -28,7 +28,7 @@ void LocalDensity::compute(const freud::locality::NeighborQuery* neighbor_query,
 {
     m_box = neighbor_query->getBox();
 
-    unsigned int n_points = neighbor_query->getNRef();
+    unsigned int n_points = neighbor_query->getNPoints();
 
     // reallocate the output array if it is not the right size
     if (n_points != m_n_points)

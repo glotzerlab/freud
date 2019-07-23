@@ -106,7 +106,7 @@ void PMFTR12::accumulate(const locality::NeighborQuery* neighbor_query,
 
     accumulateGeneral(neighbor_query, query_points, n_p, nlist, qargs,
         [=](size_t i, size_t j, float dist, float weight) {
-        vec3<float> ref = neighbor_query->getRefPoints()[i];
+        vec3<float> ref = neighbor_query->getPoints()[i];
         vec3<float> delta = m_box.wrap(query_points[j] - ref);
         if (dist < m_r_max)
         {

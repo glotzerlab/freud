@@ -95,7 +95,7 @@ void Steinhardt::compute(const freud::locality::NeighborList* nlist,
                                   const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs)
 {
     // Allocate and zero out arrays as necessary
-    reallocateArrays(points->getNRef());
+    reallocateArrays(points->getNPoints());
 
     // Computes the base Qlmi required for each specialized order parameter
     baseCompute(nlist, points, qargs);
@@ -132,7 +132,7 @@ void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
 {
     const float normalizationfactor = 4 * M_PI / (2 * m_l + 1);
 
-    freud::locality::loopOverNeighborsIterator(points, points->getRefPoints(), m_Np, qargs, nlist,
+    freud::locality::loopOverNeighborsIterator(points, points->getPoints(), m_Np, qargs, nlist,
         [=](size_t i, std::shared_ptr<freud::locality::NeighborIterator::PerPointIterator> ppiter)
         {
             unsigned int neighborcount(0);
@@ -185,10 +185,10 @@ void Steinhardt::computeAve(const freud::locality::NeighborList* nlist,
                                   const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs)
 {
     std::shared_ptr<freud::locality::NeighborIterator> niter = 
-        freud::locality::getNeighborIterator(points, points->getRefPoints(), m_Np, qargs, nlist);
+        freud::locality::getNeighborIterator(points, points->getPoints(), m_Np, qargs, nlist);
     const float normalizationfactor = 4 * M_PI / (2 * m_l + 1);
 
-    freud::locality::loopOverNeighborsIterator(points, points->getRefPoints(), m_Np, qargs, nlist,
+    freud::locality::loopOverNeighborsIterator(points, points->getPoints(), m_Np, qargs, nlist,
         [=](size_t i, std::shared_ptr<freud::locality::NeighborIterator::PerPointIterator> ppiter)
         {
             unsigned int neighborcount(1);  

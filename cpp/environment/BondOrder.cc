@@ -157,7 +157,7 @@ void BondOrder::accumulate(
     freud::locality::loopOverNeighbors(neighbor_query, query_points, n_query_points, qargs, nlist, 
     [=] (size_t i, size_t j, float dist, float weight)
     {
-        vec3<float> ref_pos = neighbor_query->getRefPoints()[i];
+        vec3<float> ref_pos = neighbor_query->getPoints()[i];
         quat<float>& ref_q = orientations[i];
         vec3<float> v = m_box.wrap(query_points[j] - ref_pos);
 

@@ -42,8 +42,8 @@ cdef extern from "NeighborQuery.h" namespace "freud::locality":
         shared_ptr[NeighborQueryIterator] queryBall(
             const vec3[float]*, unsigned int, float, bool) nogil except +
         const freud._box.Box & getBox() const
-        const vec3[float]* getRefPoints const
-        const unsigned int getNRef const
+        const vec3[float]* getPoints const
+        const unsigned int getNPoints const
         const vec3[float] operator[](unsigned int) const
 
     NeighborBond ITERATOR_TERMINATOR \

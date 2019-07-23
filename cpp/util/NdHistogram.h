@@ -78,7 +78,7 @@ public:
         m_box = neighbor_query->getBox();
         locality::loopOverNeighbors(neighbor_query, query_points, n_query_points, qargs, nlist, cf);
         m_frame_counter++;
-        m_n_points = neighbor_query->getNRef();
+        m_n_points = neighbor_query->getNPoints();
         m_n_query_points = n_query_points;
         // flag to reduce
         m_reduce = true;

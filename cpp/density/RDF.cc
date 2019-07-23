@@ -164,7 +164,7 @@ void RDF::accumulate(const freud::locality::NeighborQuery* neighbor_query,
                     const freud::locality::NeighborList* nlist, freud::locality::QueryArgs qargs)
 {
     m_n_query_points = n_query_points;
-    m_n_points = neighbor_query->getNRef();
+    m_n_points = neighbor_query->getNPoints();
 
     assert(neighbor_query);
     assert(query_points);
