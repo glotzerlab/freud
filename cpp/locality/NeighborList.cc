@@ -2,7 +2,6 @@
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include "NeighborList.h"
-#include <iostream>
 
 namespace freud { namespace locality {
 
