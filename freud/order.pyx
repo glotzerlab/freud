@@ -1852,7 +1852,7 @@ cdef class RotationalAutocorrelation(Compute):
             The autocorrelation computed in the last call to compute.
     """
     cdef freud._order.RotationalAutocorrelation * thisptr
-    cdef int l
+    cdef unsigned int l
 
     def __cinit__(self, l):
         if l % 2 or l < 0:
