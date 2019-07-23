@@ -489,6 +489,11 @@ NeighborPoint LinkCellQueryIterator::next()
                 {
                     ++m_neigh_cell_iter;
 
+                    if (m_neigh_cell_iter == IteratorCellShell(max_range, m_neighbor_query->getBox().is2D()))
+                    {
+                        break;
+                    }
+
                     const unsigned int neighbor_cell = m_linkcell->getCellIndexer()(
                         // Need to increment each dimension by the width to avoid taking the modulus
                         // of a negative number.
@@ -500,17 +505,13 @@ NeighborPoint LinkCellQueryIterator::next()
                             % m_linkcell->getCellIndexer().getD());
 
                     auto searched_cell_iter = m_searched_cells.find(neighbor_cell);
-                    if (searched_cell_iter == m_searched_cells.end() || m_neigh_cell_iter == IteratorCellShell(max_range, m_neighbor_query->getBox().is2D()))
+                    if (searched_cell_iter == m_searched_cells.end())
                     {
                         // This cell has not been searched yet, so we will iterate
                         // over its contents. Otherwise, we loop back, increment
                         // the cell shell iterator, and try the next one.
                         m_searched_cells.insert(neighbor_cell);
                         m_cell_iter = m_linkcell->itercell(neighbor_cell);
-                        break;
-                    }
-                    if (m_neigh_cell_iter == IteratorCellShell(max_range, m_neighbor_query->getBox().is2D()))
-                    {
                         break;
                     }
                 }
