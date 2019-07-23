@@ -119,8 +119,8 @@ public:
             ++m_qargs.nn;
         }
 
-        // check if ref_points is a pointer to a RawPoints object
-        // dynamic_cast will fail if ref_points is not actually pointing to RawPoints
+        // check if nq is a pointer to a RawPoints object
+        // dynamic_cast will fail if nq is not actually pointing to RawPoints
         // and return a null pointer. Then, the assignment operator will return
         // a null pointer, making the condition in the if statement to be false.
         // This is a typical C++ way of checking the type of a polymorphic class

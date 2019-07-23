@@ -353,7 +353,7 @@ public:
     LinkCell(const box::Box& box, float cell_width);
 
     //! New constructor
-    LinkCell(const box::Box& box, float cell_width, const vec3<float>* ref_points, unsigned int Nref);
+    LinkCell(const box::Box& box, float cell_width, const vec3<float>* points, unsigned int n_points);
 
     //! Update cell_width
     void setCellWidth(float cell_width);
