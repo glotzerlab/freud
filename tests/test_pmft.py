@@ -191,7 +191,7 @@ class TestPMFTR12(unittest.TestCase):
         myPMFT = freud.pmft.PMFTR12(maxR, nbinsR, nbinsT1, nbinsT2)
         self.assertEqual(str(myPMFT), str(eval(repr(myPMFT))))
 
-    def test_ref_points_ne_points(self):
+    def test_points_ne_query_points(self):
         r_max = 2.3
         n_r = 10
         n_t1 = 10
@@ -200,17 +200,18 @@ class TestPMFTR12(unittest.TestCase):
         lattice_size = 10
         box = freud.box.Box.square(lattice_size*5)
 
-        ref_points, points = util.makeAlternatingLattice(
+        points, query_points = util.makeAlternatingLattice(
             lattice_size, 0.01, 2)
-        ref_orientations = np.array([0]*len(ref_points))
         orientations = np.array([0]*len(points))
+        query_orientations = np.array([0]*len(query_points))
 
         test_set = util.makeRawQueryNlistTestSet(
-            box, ref_points, points, "ball", r_max, 0, False)
+            box, points, query_points, "ball", r_max, 0, False)
         for ts in test_set:
             pmft = freud.pmft.PMFTR12(r_max, n_r, n_t1, n_t2)
             pmft.compute(box, ts[0],
-                         ref_orientations, points, orientations, nlist=ts[1])
+                         orientations, query_points,
+                         query_orientations, nlist=ts[1])
 
             self.assertEqual(np.count_nonzero(np.isinf(pmft.PMFT) == 0), 12)
             self.assertEqual(len(np.unique(pmft.PMFT)), 3)
@@ -402,7 +403,7 @@ class TestPMFTXYT(unittest.TestCase):
         myPMFT = freud.pmft.PMFTXYT(maxX, maxY, nbinsX, nbinsY, nbinsT)
         self.assertEqual(str(myPMFT), str(eval(repr(myPMFT))))
 
-    def test_ref_points_ne_points(self):
+    def test_points_ne_query_points(self):
         x_max = 2.5
         y_max = 2.5
         n_x = 10
@@ -412,19 +413,20 @@ class TestPMFTXYT(unittest.TestCase):
         lattice_size = 10
         box = freud.box.Box.square(lattice_size*5)
 
-        ref_points, points = util.makeAlternatingLattice(
+        points, query_points = util.makeAlternatingLattice(
             lattice_size, 0.01, 2)
-        ref_orientations = np.array([0]*len(ref_points))
         orientations = np.array([0]*len(points))
+        query_orientations = np.array([0]*len(query_points))
 
         rmax = np.sqrt(x_max**2 + y_max**2)
         test_set = util.makeRawQueryNlistTestSet(
-            box, ref_points, points, 'ball', rmax, 0, False)
+            box, points, query_points, 'ball', rmax, 0, False)
 
         for ts in test_set:
             pmft = freud.pmft.PMFTXYT(x_max, y_max, n_x, n_y, n_t)
             pmft.compute(box, ts[0],
-                         ref_orientations, points, orientations, nlist=ts[1])
+                         orientations, query_points,
+                         query_orientations, nlist=ts[1])
 
             # when rotated slightly, for each ref point, each quadrant
             # (corresponding to two consecutive bins) should contain 3 points.
@@ -625,20 +627,21 @@ class TestPMFTXY2D(unittest.TestCase):
         lattice_size = 10
         box = freud.box.Box.square(lattice_size*5)
 
-        ref_points, points = util.makeAlternatingLattice(
+        points, query_points = util.makeAlternatingLattice(
             lattice_size, 0.01, 2)
 
-        ref_orientations = np.array([0]*len(ref_points))
         orientations = np.array([0]*len(points))
+        query_orientations = np.array([0]*len(query_points))
 
         rmax = np.sqrt(x_max**2 + y_max**2)
         test_set = util.makeRawQueryNlistTestSet(
-            box, ref_points, points, 'ball', rmax, 0, False)
+            box, points, query_points, 'ball', rmax, 0, False)
 
         for ts in test_set:
             pmft = freud.pmft.PMFTXY2D(x_max, y_max, n_x, n_y)
             pmft.compute(
-                box, ts[0], ref_orientations, points, orientations, ts[1])
+                box, ts[0], orientations, query_points,
+                query_orientations, ts[1])
 
             self.assertEqual(np.count_nonzero(np.isinf(pmft.PMFT) == 0), 12)
             self.assertEqual(len(np.unique(pmft.PMFT)), 2)
