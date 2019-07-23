@@ -98,24 +98,22 @@ cdef extern from "MatchEnv.h" namespace "freud::environment":
 cdef extern from "AngularSeparation.h" namespace "freud::environment":
     cdef cppclass AngularSeparation:
         AngularSeparation()
-        void computeNeighbor(const freud._locality.NeighborList*,
-                             quat[float]*,
-                             quat[float]*,
-                             quat[float]*,
-                             unsigned int,
-                             unsigned int,
-                             unsigned int) nogil except +
+        void computeNeighbor(
+            quat[float]*, unsigned int,
+            quat[float]*, unsigned int,
+            quat[float]*, unsigned int,
+            const freud._locality.NeighborList*) nogil except +
         void computeGlobal(quat[float]*,
-                           quat[float]*,
+                           unsigned int,
                            quat[float]*,
                            unsigned int,
-                           unsigned int,
+                           quat[float]*,
                            unsigned int) nogil except +
 
         shared_ptr[float] getNeighborAngles()
         shared_ptr[float] getGlobalAngles()
-        unsigned int getNP()
-        unsigned int getNref()
+        unsigned int getNPoints()
+        unsigned int getNQueryPoints()
         unsigned int getNglobal()
 
 cdef extern from "LocalBondProjection.h" namespace "freud::environment":

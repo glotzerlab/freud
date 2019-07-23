@@ -888,10 +888,10 @@ cdef class AngularSeparation(Compute):
     Attributes:
         nlist (:class:`freud.locality.NeighborList`):
             The neighbor list.
-        n_p (unsigned int):
-            The number of particles used in computing the last set.
-        n_ref (unsigned int):
-            The number of reference particles used in computing the neighbor
+        n_points (unsigned int):
+            The number of points used in computing the last set.
+        n_query_points (unsigned int):
+            The number of query points used in computing the neighbor
             angles.
         n_global (unsigned int):
             The number of global orientations to check against.
@@ -969,9 +969,9 @@ cdef class AngularSeparation(Compute):
             query_points, shape=(None, 3))
 
         orientations = freud.common.convert_array(
-            orientations, shape=(None, 4))
+            orientations, shape=(points.shape[0], 4))
         query_orientations = freud.common.convert_array(
-            query_orientations, shape=(None, 4))
+            query_orientations, shape=(query_points.shape[0], 4))
         equiv_quats = freud.common.convert_array(equiv_quats, shape=(None, 4))
 
         defaulted_nlist = freud.locality.make_default_nlist_nn(
@@ -983,17 +983,19 @@ cdef class AngularSeparation(Compute):
         cdef const float[:, ::1] l_query_orientations = query_orientations
         cdef const float[:, ::1] l_equiv_quats = equiv_quats
 
-        cdef unsigned int nRef = l_orientations.shape[0]
-        cdef unsigned int nP = l_query_orientations.shape[0]
-        cdef unsigned int nEquiv = l_equiv_quats.shape[0]
+        cdef unsigned int n_points = l_orientations.shape[0]
+        cdef unsigned int n_query_points = l_query_orientations.shape[0]
+        cdef unsigned int n_equiv_quats = l_equiv_quats.shape[0]
 
         with nogil:
             self.thisptr.computeNeighbor(
-                self.nlist_.get_ptr(),
                 <quat[float]*> &l_orientations[0, 0],
+                n_points,
                 <quat[float]*> &l_query_orientations[0, 0],
+                n_query_points,
                 <quat[float]*> &l_equiv_quats[0, 0],
-                nRef, nP, nEquiv)
+                n_equiv_quats,
+                self.nlist_.get_ptr(),)
         return self
 
     @Compute._compute("computeGlobal")
@@ -1025,16 +1027,18 @@ cdef class AngularSeparation(Compute):
         cdef const float[:, ::1] l_orientations = orientations
         cdef const float[:, ::1] l_equiv_quats = equiv_quats
 
-        cdef unsigned int nGlobal = l_global_orientations.shape[0]
-        cdef unsigned int nP = l_orientations.shape[0]
-        cdef unsigned int nEquiv = l_equiv_quats.shape[0]
+        cdef unsigned int n_global = l_global_orientations.shape[0]
+        cdef unsigned int n_points = l_orientations.shape[0]
+        cdef unsigned int n_equiv_quats = l_equiv_quats.shape[0]
 
         with nogil:
             self.thisptr.computeGlobal(
                 <quat[float]*> &l_global_orientations[0, 0],
+                n_global,
                 <quat[float]*> &l_orientations[0, 0],
+                n_points,
                 <quat[float]*> &l_equiv_quats[0, 0],
-                nGlobal, nP, nEquiv)
+                n_equiv_quats)
         return self
 
     @Compute._computed_property("computeNeighbor")
@@ -1048,7 +1052,7 @@ cdef class AngularSeparation(Compute):
 
     @Compute._computed_property("computeGlobal")
     def global_angles(self):
-        cdef unsigned int n_particles = self.thisptr.getNP()
+        cdef unsigned int n_particles = self.thisptr.getNPoints()
         cdef unsigned int n_global = self.thisptr.getNglobal()
         if not n_particles or not n_global:
             return np.empty((n_particles, n_global), dtype=np.float32)
@@ -1058,12 +1062,12 @@ cdef class AngularSeparation(Compute):
         return np.asarray(global_angles)
 
     @Compute._computed_property(("computeGlobal", "computeNeighbor"))
-    def n_p(self):
-        return self.thisptr.getNP()
+    def n_points(self):
+        return self.thisptr.getNPoints()
 
     @Compute._computed_property("computeNeighbor")
-    def n_ref(self):
-        return self.thisptr.getNref()
+    def n_query_points(self):
+        return self.thisptr.getNQueryPoints()
 
     @Compute._computed_property("computeGlobal")
     def n_global(self):
