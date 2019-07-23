@@ -67,7 +67,7 @@ class TestAngularSeparation(unittest.TestCase):
         with self.assertRaises(AttributeError):
             ang.n_ref
 
-        ang.computeNeighbor(box, ors, ors, points)
+        ang.computeNeighbor(box, points, ors)
         npt.assert_equal(ang.n_p, N)
 
     def test_getNGlobal(self):
@@ -102,7 +102,7 @@ class TestAngularSeparation(unittest.TestCase):
         ors = np.asarray(ors, dtype=np.float32)
 
         ang = freud.environment.AngularSeparation(rmax, num_neigh)
-        ang.computeNeighbor(box, ors, ors, points)
+        ang.computeNeighbor(box, points, ors)
         npt.assert_equal(ang.n_ref, N)
 
     def test_compute_neighbors(self):
@@ -126,7 +126,7 @@ class TestAngularSeparation(unittest.TestCase):
                                  dtype=np.float32)
 
         ang = freud.environment.AngularSeparation(rmax, num_neigh)
-        ang.computeNeighbor(box, ors, ors, points, None, equiv_quats)
+        ang.computeNeighbor(box, points, ors, equiv_quats=equiv_quats)
 
         # test access
         ang.neighbor_angles
