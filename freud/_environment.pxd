@@ -43,12 +43,13 @@ cdef extern from "LocalDescriptors.h" namespace "freud::environment":
         unsigned int getNSphs() const
         unsigned int getLMax() const
         unsigned int getSphWidth() const
-        unsigned int getNP()
+        unsigned int getNPoints()
         void compute(
-            const freud._box.Box &, const freud._locality.NeighborList*,
-            unsigned int, const vec3[float]*,
-            unsigned int, const vec3[float]*, unsigned int,
-            const quat[float]*, LocalDescriptorOrientation) nogil except +
+            const freud._box.Box &, unsigned int,
+            const vec3[float]*, unsigned int,
+            const vec3[float]*, unsigned int,
+            const quat[float]*, LocalDescriptorOrientation,
+            const freud._locality.NeighborList*) nogil except +
         shared_ptr[float complex] getSph()
 
 cdef extern from "MatchEnv.h" namespace "freud::environment":

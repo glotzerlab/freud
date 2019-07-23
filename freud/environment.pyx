@@ -431,9 +431,9 @@ cdef class LocalDescriptors(Compute):
             l_orientations_ptr = <quat[float]*> &l_orientations[0, 0]
 
         cdef const float[:, ::1] l_points = points
-        cdef unsigned int nRef = l_points.shape[0]
+        cdef unsigned int n_points = l_points.shape[0]
         cdef const float[:, ::1] l_query_points = query_points
-        cdef unsigned int nP = l_query_points.shape[0]
+        cdef unsigned int n_query_points = l_query_points.shape[0]
         cdef freud._environment.LocalDescriptorOrientation l_mode
 
         l_mode = self.known_modes[mode]
@@ -447,12 +447,11 @@ cdef class LocalDescriptors(Compute):
 
         with nogil:
             self.thisptr.compute(
-                dereference(b.thisptr),
-                nlist_.get_ptr(),
-                num_neighbors,
-                <vec3[float]*> &l_points[0, 0],
-                nRef, <vec3[float]*> &l_query_points[0, 0], nP,
-                l_orientations_ptr, l_mode)
+                dereference(b.thisptr), num_neighbors,
+                <vec3[float]*> &l_points[0, 0], n_points,
+                <vec3[float]*> &l_query_points[0, 0], n_query_points,
+                l_orientations_ptr, l_mode,
+                nlist_.get_ptr())
         return self
 
     @Compute._computed_property()
@@ -468,7 +467,7 @@ cdef class LocalDescriptors(Compute):
 
     @Compute._computed_property()
     def num_particles(self):
-        return self.thisptr.getNP()
+        return self.thisptr.getNPoints()
 
     @Compute._computed_property()
     def num_neighbors(self):
