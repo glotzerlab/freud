@@ -208,17 +208,16 @@ cdef class BondOrder(Compute):
         cdef const float[:, ::1] l_query_points = query_points
         cdef const float[:, ::1] l_orientations = orientations
         cdef const float[:, ::1] l_query_orientations = query_orientations
-        cdef unsigned int n_p = l_query_points.shape[0]
+        cdef unsigned int n_query_points = l_query_points.shape[0]
 
         with nogil:
             self.thisptr.accumulate(
-                nlistptr.get_ptr(),
                 nq.get_ptr(),
                 <quat[float]*> &l_orientations[0, 0],
                 <vec3[float]*> &l_query_points[0, 0],
                 <quat[float]*> &l_query_orientations[0, 0],
-                n_p,
-                index, dereference(qargs.thisptr))
+                n_query_points,
+                index, nlistptr.get_ptr(), dereference(qargs.thisptr))
         return self
 
     @Compute._computed_property()
