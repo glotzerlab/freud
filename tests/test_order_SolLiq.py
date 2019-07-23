@@ -8,11 +8,9 @@ import util
 class TestSolLiq(unittest.TestCase):
     def test_shape(self):
         N = 1000
+        L = 10
 
-        box = freud.box.Box.cube(10)
-        np.random.seed(0)
-        positions = np.random.uniform(-box.Lx/2, box.Lx/2,
-                                      size=(N, 3)).astype(np.float32)
+        box, positions = util.make_box_and_random_points(L, N)
 
         comp = freud.order.SolLiq(box, 2, .7, 6, 6)
         comp.compute(positions)
@@ -82,11 +80,9 @@ class TestSolLiq(unittest.TestCase):
 class TestSolLiqNear(unittest.TestCase):
     def test_shape(self):
         N = 1000
+        L = 10
 
-        box = freud.box.Box.cube(10)
-        np.random.seed(0)
-        positions = np.random.uniform(-box.Lx/2, box.Lx/2,
-                                      size=(N, 3)).astype(np.float32)
+        box, positions = util.make_box_and_random_points(L, N)
 
         comp = freud.order.SolLiqNear(box, 2, .7, 6, 6, 12)
         comp.compute(positions)

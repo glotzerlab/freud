@@ -2,6 +2,7 @@ import numpy.testing as npt
 import numpy as np
 import freud
 import unittest
+from util import make_box_and_random_points
 
 
 class TestHexOrderParameter(unittest.TestCase):
@@ -20,11 +21,7 @@ class TestHexOrderParameter(unittest.TestCase):
         boxlen = 10
         N = 500
         rmax = 3
-        box = freud.box.Box.square(boxlen)
-        np.random.seed(0)
-        points = np.asarray(np.random.uniform(-boxlen/2, boxlen/2, (N, 3)),
-                            dtype=np.float32)
-        points[:, 2] = 0.0
+        box, points = make_box_and_random_points(boxlen, N, True)
         hop = freud.order.HexOrderParameter(rmax)
         hop.compute(box, points)
         npt.assert_equal(hop.num_particles, N)
@@ -33,11 +30,7 @@ class TestHexOrderParameter(unittest.TestCase):
         boxlen = 10
         N = 500
         rmax = 3
-        box = freud.box.Box.square(boxlen)
-        np.random.seed(0)
-        points = np.asarray(np.random.uniform(-boxlen/2, boxlen/2, (N, 3)),
-                            dtype=np.float32)
-        points[:, 2] = 0.0
+        box, points = make_box_and_random_points(boxlen, N, True)
         hop = freud.order.HexOrderParameter(rmax)
         hop.compute(box, points)
         npt.assert_allclose(np.mean(hop.psi), 0. + 0.j, atol=1e-1)

@@ -4,6 +4,7 @@ import freud
 from collections import Counter
 import itertools
 import unittest
+from util import make_box_and_random_points
 
 """
 Define helper functions for getting the neighbors of a point. Note that
@@ -205,10 +206,8 @@ class TestNeighborQuery(object):
         L = 10  # Box Dimensions
         N = 400  # number of particles
 
-        box = freud.box.Box.cube(L)
-        np.random.seed(0)
-        ref_points = np.random.rand(N, 3)*L
-        points = np.random.rand(N, 3)*L
+        box, ref_points = make_box_and_random_points(L, N, seed=0)
+        points = np.random.rand(N, 3) * L
 
         nq = self.build_query_object(box, ref_points, L/10)
 
@@ -225,10 +224,8 @@ class TestNeighborQuery(object):
         L = 10  # Box Dimensions
         N = 400  # number of particles
 
-        box = freud.box.Box.cube(L)
-        np.random.seed(0)
-        ref_points = np.random.rand(N, 3)*L
-        points = np.random.rand(N, 3)*L
+        box, ref_points = make_box_and_random_points(L, N, seed=0)
+        _, points = make_box_and_random_points(L, N, seed=1)
 
         nq = self.build_query_object(box, ref_points, L/10)
 
@@ -244,9 +241,7 @@ class TestNeighborQuery(object):
         pair there also exists a (j, i) neighbor pair for one set of points"""
         L, rcut, N = (10, 2.01, 1024)
 
-        box = freud.box.Box.cube(L)
-        np.random.seed(0)
-        points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
+        box, points = make_box_and_random_points(L, N, seed=0)
         nq = self.build_query_object(box, points, rcut)
         result = list(nq.queryBall(points, rcut))
 
@@ -262,10 +257,8 @@ class TestNeighborQuery(object):
         """
         L, rcut, N = (10, 2.01, 1024)
 
-        box = freud.box.Box.cube(L)
-        np.random.seed(0)
-        points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
-        points2 = np.random.uniform(-L/2, L/2, (N//6, 3)).astype(np.float32)
+        box, points = make_box_and_random_points(L, N, seed=0)
+        _, points2 = make_box_and_random_points(L, N//6, seed=1)
         nq = self.build_query_object(box, points, rcut)
         nq2 = self.build_query_object(box, points2, rcut)
 
@@ -280,9 +273,7 @@ class TestNeighborQuery(object):
     def test_exclude_ii(self):
         L, rcut, N = (10, 2.01, 1024)
 
-        box = freud.box.Box.cube(L)
-        np.random.seed(0)
-        points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
+        box, points = make_box_and_random_points(L, N)
         points2 = points[:N//6]
         nq = self.build_query_object(box, points, rcut)
         result = list(nq.queryBall(points2, rcut))
@@ -306,8 +297,7 @@ class TestNeighborQuery(object):
         seed = 0
 
         for i in range(10):
-            np.random.seed(seed + i)
-            points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float32)
+            _, points = make_box_and_random_points(L, N, seed=seed+i)
             all_vectors = points[:, np.newaxis, :] - points[np.newaxis, :, :]
             box.wrap(all_vectors.reshape((-1, 3)))
             all_rsqs = np.sum(all_vectors**2, axis=-1)
@@ -483,10 +473,7 @@ class TestNeighborQueryAABB(TestNeighborQuery, unittest.TestCase):
         N = 500
         L = 10
         rcut = 1
-        box = freud.box.Box.cube(L)
-        seed = 0
-        np.random.seed(seed)
-        points = np.random.uniform(-L/2, L/2, (N, 3))
+        box, points = make_box_and_random_points(L, N)
         nlist1 = freud.locality.AABBQuery(box, points).queryBall(
             points, rcut, exclude_ii=True).toNList()
         abq = freud.locality.AABBQuery(box, points)
@@ -519,10 +506,7 @@ class TestNeighborQueryLinkCell(TestNeighborQuery, unittest.TestCase):
         N = 500
         L = 10
         rcut = 1
-        box = freud.box.Box.cube(L)
-        seed = 0
-        np.random.seed(seed)
-        points = np.random.uniform(-L/2, L/2, (N, 3))
+        box, points = make_box_and_random_points(L, N)
         nlist1 = freud.locality.LinkCell(box, 1.0, points).queryBall(
             points, rcut, exclude_ii=True).toNList()
         lc = freud.locality.LinkCell(box, 1.0, points)

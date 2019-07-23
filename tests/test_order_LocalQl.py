@@ -11,11 +11,9 @@ PERFECT_FCC_Q6 = 0.5745242597140698
 class TestLocalQl(unittest.TestCase):
     def test_shape(self):
         N = 1000
+        L = 10
 
-        box = freud.box.Box.cube(10)
-        np.random.seed(0)
-        positions = np.random.uniform(-box.Lx/2, box.Lx/2,
-                                      size=(N, 3)).astype(np.float32)
+        box, positions = util.make_box_and_random_points(L, N)
         positions.flags['WRITEABLE'] = False
 
         comp = freud.order.LocalQl(box, 1.5, 6)
@@ -110,11 +108,9 @@ class TestLocalQlNear(unittest.TestCase):
 
     def test_shape(self):
         N = 1000
+        L = 10
 
-        box = freud.box.Box.cube(10)
-        np.random.seed(0)
-        positions = np.random.uniform(-box.Lx/2, box.Lx/2,
-                                      size=(N, 3)).astype(np.float32)
+        box, positions = util.make_box_and_random_points(L, N)
 
         # Use a really small cutoff to ensure that it is used as a soft cutoff
         comp = freud.order.LocalQlNear(box, 0.1, 6, 12)
