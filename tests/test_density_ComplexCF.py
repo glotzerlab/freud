@@ -82,10 +82,10 @@ class TestComplexCF(unittest.TestCase):
         for ts in test_set:
             ocf = freud.density.ComplexCF(rmax, dr)
             ocf.accumulate(box, ts[0], comp, points, np.conj(comp),
-                           qargs={"exclude_ii": True}, nlist=ts[1])
+                           query_args={"exclude_ii": True}, nlist=ts[1])
             npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
             ocf.compute(box, ts[0], comp, points, np.conj(comp),
-                        qargs={"exclude_ii": True}, nlist=ts[1])
+                        query_args={"exclude_ii": True}, nlist=ts[1])
             npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
             self.assertEqual(box, ocf.box)
 
@@ -105,7 +105,7 @@ class TestComplexCF(unittest.TestCase):
         comp = np.exp(1j*ang)
         ocf = freud.density.ComplexCF(rmax, dr)
         ocf.accumulate(freud.box.Box.square(box_size), points, comp,
-                       points, np.conj(comp), qargs={"exclude_ii": True})
+                       points, np.conj(comp), query_args={"exclude_ii": True})
 
         correct = np.ones(int(rmax/dr), dtype=np.float32) + \
             1j * np.zeros(int(rmax/dr), dtype=np.float32)
@@ -131,7 +131,7 @@ class TestComplexCF(unittest.TestCase):
         correct = np.sum(vector_lengths < rmax) - len(points)
         ocf = freud.density.ComplexCF(rmax, dr)
         ocf.compute(freud.box.Box.square(box_size), points, comp,
-                    points, np.conj(comp), qargs={"exclude_ii": True})
+                    points, np.conj(comp), query_args={"exclude_ii": True})
         self.assertEqual(np.sum(ocf.counts), correct)
 
     @unittest.skip('Skipping slow summation test.')
@@ -182,8 +182,59 @@ class TestComplexCF(unittest.TestCase):
         self.assertEqual(ocf._repr_png_(), None)
 
         ocf.accumulate(freud.box.Box.square(box_size), points, comp,
-                       points, np.conj(comp), qargs={"exclude_ii": True})
+                       points, np.conj(comp), query_args={"exclude_ii": True})
         ocf._repr_png_()
+
+    def test_query_nn(self):
+        """Test nearest-neighbor-based querying."""
+        box_size = 8
+        rmax = 3
+        dr = 1
+        box = freud.box.Box.cube(box_size)
+        ref_points = np.array([[0, 0, 0]],
+                              dtype=np.float32)
+        points = np.array([[0.4, 0.0, 0.0],
+                           [0.9, 0.0, 0.0],
+                           [0.0, 1.4, 0.0],
+                           [0.0, 1.9, 0.0],
+                           [0.0, 0.0, 2.4],
+                           [0.0, 0.0, 2.9]],
+                          dtype=np.float32)
+        ref_values = np.ones(ref_points.shape[0])
+        values = np.ones(points.shape[0])
+
+        cf = freud.density.ComplexCF(rmax, dr)
+        cf.compute(box, ref_points, ref_values, points, values,
+                   query_args={'mode': 'nearest', 'nn': 1})
+        npt.assert_array_equal(cf.RDF, [1, 1, 1])
+        npt.assert_array_equal(cf.counts, [2, 2, 2])
+
+        cf.compute(box, points, values, ref_points, ref_values,
+                   query_args={'mode': 'nearest', 'nn': 1})
+        npt.assert_array_equal(cf.RDF, [1, 0, 0])
+        npt.assert_array_equal(cf.counts, [1, 0, 0])
+
+        ref_values = [1+1j]
+        values = [1+1j, 1+1j, 2+2j, 2+2j, 3+3j, 3+3j]
+        cf.compute(box, ref_points, ref_values, points, np.conj(values),
+                   query_args={'mode': 'nearest', 'nn': 1})
+        npt.assert_array_equal(cf.RDF, [2, 4, 6])
+        npt.assert_array_equal(cf.counts, [2, 2, 2])
+
+        cf.compute(box, ref_points, ref_values, points, values,
+                   query_args={'mode': 'nearest', 'nn': 1})
+        npt.assert_array_equal(cf.RDF, [2j, 4j, 6j])
+        npt.assert_array_equal(cf.counts, [2, 2, 2])
+
+        cf.compute(box, points, values, ref_points, np.conj(ref_values),
+                   query_args={'mode': 'nearest', 'nn': 1})
+        npt.assert_array_equal(cf.RDF, [2, 0, 0])
+        npt.assert_array_equal(cf.counts, [1, 0, 0])
+
+        cf.compute(box, points, values, ref_points, ref_values,
+                   query_args={'mode': 'nearest', 'nn': 1})
+        npt.assert_array_equal(cf.RDF, [2j, 0, 0])
+        npt.assert_array_equal(cf.counts, [1, 0, 0])
 
     def test_ref_points_ne_points(self):
         # Helper function to give complex number representation of a point
