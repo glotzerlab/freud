@@ -48,7 +48,7 @@ public:
         return m_Np;
     }
 
-    //! Get a reference to the last computed dr
+    //! Get a reference to the order parameter array
     std::shared_ptr<std::complex<float>> getOrder()
     {
         return m_psi_array;
@@ -81,7 +81,8 @@ public:
 
     //! Compute the translational order parameter
     void compute(const freud::locality::NeighborList* nlist,
-                 const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs);
+                 const freud::locality::NeighborQuery* points,
+                 freud::locality::QueryArgs qargs);
 
 };
 
