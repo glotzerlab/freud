@@ -137,6 +137,35 @@ bool compareFirstNeighborPairs(const std::vector<std::tuple<size_t, size_t, floa
         return left.size() < right.size();
 }
 
+unsigned int get_neighbor_cell_index(const LinkCell* linkcell, const vec3<unsigned int> point_cell, const vec3<int> cell_delta)
+{
+    unsigned int w = linkcell->getCellIndexer().getW();
+    unsigned int h = linkcell->getCellIndexer().getH();
+    unsigned int d = linkcell->getCellIndexer().getD();
+
+    return linkcell->getCellIndexer()(
+        // Need to increment each dimension by the width to avoid taking the modulus
+        // of a negative number.
+        (w + point_cell.x + cell_delta.x) % w,
+        (h + point_cell.y + cell_delta.y) % h,
+        (d + point_cell.z + cell_delta.z) % d);
+}
+
+bool check_double_range_shell(const LinkCell* linkcell, const vec3<int> cell_delta)
+{
+    bool range_check = false;
+    unsigned int w = linkcell->getCellIndexer().getW();
+    unsigned int h = linkcell->getCellIndexer().getH();
+    unsigned int d = linkcell->getCellIndexer().getD();
+    if (2 * cell_delta.x + 1 > (int) w)
+        range_check = true;
+    else if (2 * cell_delta.y + 1 > (int) h)
+        range_check = true;
+    else if (2 * cell_delta.z + 1 > (int) d)
+        range_check = true;
+    return range_check;
+}
+
 void LinkCell::computeCellList(const box::Box& box, const vec3<float>* points, unsigned int Np)
 {
     updateBox(box);
@@ -368,8 +397,8 @@ NeighborPoint LinkCellQueryBallIterator::next()
 
     while (cur_p < m_N)
     {
+        printf("Starting cur_p loop, cur_p = %i; m_N = %i.\n", cur_p, m_N);
         vec3<unsigned int> point_cell(m_linkcell->getCellCoord(m_points[cur_p]));
-        m_searched_cells.clear();
 
         // Loop over cell list neighbor shells relative to this point's cell.
         while (true)
@@ -384,6 +413,8 @@ NeighborPoint LinkCellQueryBallIterator::next()
 
                 if (rsq < r_cutsq && (!m_exclude_ii || cur_p != j))
                 {
+                    const unsigned int neighbor_cell = get_neighbor_cell_index(m_linkcell, point_cell, *m_neigh_cell_iter);
+                    printf("Found (%i, %i) in cell %i.\n", cur_p, j, neighbor_cell);
                     return NeighborPoint(cur_p, j, sqrt(rsq));
                 }
             }
@@ -399,6 +430,7 @@ NeighborPoint LinkCellQueryBallIterator::next()
 
                 if ((m_neigh_cell_iter.getRange() - m_extra_search_width) * m_linkcell->getCellWidth() > m_r)
                 {
+                    printf("Hitting out-of-range.\n");
                     out_of_range = true;
                     break;
                 }
@@ -406,23 +438,10 @@ NeighborPoint LinkCellQueryBallIterator::next()
                 // In cases where we need to check the entire box, make sure
                 // that we don't check the same cell on the positive and
                 // negative sides of the IteratorCellShell cube.
-                const vec3<int> neighbor_cell_delta(*m_neigh_cell_iter);
-                if (2 * neighbor_cell_delta.x + 1 > (int) m_linkcell->getCellIndexer().getW())
-                    continue;
-                else if (2 * neighbor_cell_delta.y + 1 > (int) m_linkcell->getCellIndexer().getH())
-                    continue;
-                else if (2 * neighbor_cell_delta.z + 1 > (int) m_linkcell->getCellIndexer().getD())
+                if (check_double_range_shell(m_linkcell, *m_neigh_cell_iter))
                     continue;
 
-                const unsigned int neighbor_cell = m_linkcell->getCellIndexer()(
-                    // Need to increment each dimension by the width to avoid taking the modulus
-                    // of a negative number.
-                    (m_linkcell->getCellIndexer().getW() + point_cell.x + (*m_neigh_cell_iter).x)
-                        % m_linkcell->getCellIndexer().getW(),
-                    (m_linkcell->getCellIndexer().getH() + point_cell.y + (*m_neigh_cell_iter).y)
-                        % m_linkcell->getCellIndexer().getH(),
-                    (m_linkcell->getCellIndexer().getD() + point_cell.z + (*m_neigh_cell_iter).z)
-                        % m_linkcell->getCellIndexer().getD());
+                const unsigned int neighbor_cell = get_neighbor_cell_index(m_linkcell, point_cell, *m_neigh_cell_iter);
 
                 auto searched_cell_iter = m_searched_cells.find(neighbor_cell);
                 if (searched_cell_iter == m_searched_cells.end())
@@ -430,6 +449,13 @@ NeighborPoint LinkCellQueryBallIterator::next()
                     // This cell has not been searched yet, so we will iterate
                     // over its contents. Otherwise, we loop back, increment
                     // the cell shell iterator, and try the next one.
+                    printf("Already searched cells: ");
+                    for (auto it = m_searched_cells.begin(); it != m_searched_cells.end(); it++)
+                    {
+                        printf("%i, ", *it);
+                    }
+                    printf("\n");
+                    printf("Searching cell %i\n.", neighbor_cell);
                     m_searched_cells.insert(neighbor_cell);
                     m_cell_iter = m_linkcell->itercell(neighbor_cell);
                     break;
@@ -440,9 +466,11 @@ NeighborPoint LinkCellQueryBallIterator::next()
                 break;
             }
         }
+        printf("Incrementing particle counter: %i\n", cur_p);
         cur_p++;
         m_neigh_cell_iter = IteratorCellShell(0, m_neighbor_query->getBox().is2D());
         m_cell_iter = m_linkcell->itercell(m_linkcell->getCell(m_points[cur_p]));
+        m_searched_cells.clear();
     }
 
     m_finished = true;
@@ -468,15 +496,7 @@ NeighborPoint LinkCellQueryIterator::next()
     {
         vec3<unsigned int> point_cell(m_linkcell->getCellCoord(m_points[cur_p]));
         m_searched_cells.clear();
-        const unsigned int point_cell_index = m_linkcell->getCellIndexer()(
-            // Need to increment each dimension by the width to avoid taking the modulus
-            // of a negative number.
-            (m_linkcell->getCellIndexer().getW() + point_cell.x + (*m_neigh_cell_iter).x)
-                % m_linkcell->getCellIndexer().getW(),
-            (m_linkcell->getCellIndexer().getH() + point_cell.y + (*m_neigh_cell_iter).y)
-                % m_linkcell->getCellIndexer().getH(),
-            (m_linkcell->getCellIndexer().getD() + point_cell.z + (*m_neigh_cell_iter).z)
-                % m_linkcell->getCellIndexer().getD());
+        const unsigned int point_cell_index = get_neighbor_cell_index(m_linkcell, point_cell, *m_neigh_cell_iter);
         m_searched_cells.insert(point_cell_index);
 
         // Loop over cell list neighbor shells relative to this point's cell.
@@ -518,23 +538,10 @@ NeighborPoint LinkCellQueryIterator::next()
                     // In cases where we need to check the entire box, make sure
                     // that we don't check the same cell on the positive and
                     // negative sides of the IteratorCellShell cube.
-                    const vec3<int> neighbor_cell_delta(*m_neigh_cell_iter);
-                    if (2 * neighbor_cell_delta.x + 1 > (int) m_linkcell->getCellIndexer().getW())
-                        continue;
-                    else if (2 * neighbor_cell_delta.y + 1 > (int) m_linkcell->getCellIndexer().getH())
-                        continue;
-                    else if (2 * neighbor_cell_delta.z + 1 > (int) m_linkcell->getCellIndexer().getD())
+                    if (check_double_range_shell(m_linkcell, *m_neigh_cell_iter))
                         continue;
 
-                    const unsigned int neighbor_cell = m_linkcell->getCellIndexer()(
-                        // Need to increment each dimension by the width to avoid taking the modulus
-                        // of a negative number.
-                        (m_linkcell->getCellIndexer().getW() + point_cell.x + (*m_neigh_cell_iter).x)
-                            % m_linkcell->getCellIndexer().getW(),
-                        (m_linkcell->getCellIndexer().getH() + point_cell.y + (*m_neigh_cell_iter).y)
-                            % m_linkcell->getCellIndexer().getH(),
-                        (m_linkcell->getCellIndexer().getD() + point_cell.z + (*m_neigh_cell_iter).z)
-                            % m_linkcell->getCellIndexer().getD());
+                    const unsigned int neighbor_cell = get_neighbor_cell_index(m_linkcell, point_cell, *m_neigh_cell_iter);
 
                     auto searched_cell_iter = m_searched_cells.find(neighbor_cell);
                     if (searched_cell_iter == m_searched_cells.end())
