@@ -16,7 +16,8 @@ cdef extern from "CorrelationFunction.h" namespace "freud::density":
                         unsigned int,
                         const vec3[float]*,
                         const T*,
-                        unsigned int, freud._locality.QueryArgs) nogil except +
+                        unsigned int,
+                        freud._locality.QueryArgs) nogil except +
         shared_ptr[T] getRDF()
         shared_ptr[unsigned int] getCounts()
         shared_ptr[float] getR()
@@ -49,7 +50,8 @@ cdef extern from "LocalDensity.h" namespace "freud::density":
             const freud._locality.NeighborList *,
             const freud._locality.NeighborQuery*,
             const vec3[float]*,
-            unsigned int, freud._locality.QueryArgs) nogil except +
+            unsigned int,
+            freud._locality.QueryArgs) nogil except +
         unsigned int getNRef()
         shared_ptr[float] getDensity()
         shared_ptr[float] getNumNeighbors()
@@ -62,7 +64,8 @@ cdef extern from "RDF.h" namespace "freud::density":
         void accumulate(const freud._locality.NeighborList*,
                         const freud._locality.NeighborQuery*,
                         const vec3[float]*,
-                        unsigned int, freud._locality.QueryArgs) nogil except +
+                        unsigned int,
+                        freud._locality.QueryArgs) nogil except +
         shared_ptr[float] getRDF()
         shared_ptr[float] getR()
         shared_ptr[float] getNr()
