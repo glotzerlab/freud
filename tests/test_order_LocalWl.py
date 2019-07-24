@@ -128,7 +128,6 @@ class TestLocalWlNear(unittest.TestCase):
 
         box, positions = util.make_box_and_random_points(L, N)
 
-        # Use a really small cutoff to ensure that it is used as a soft cutoff
         comp = freud.order.LocalWlNear(box, 0.1, 6, 12)
         comp.compute(positions)
 
@@ -192,13 +191,11 @@ class TestLocalWlNear(unittest.TestCase):
 
     def test_repr(self):
         box = freud.box.Box.cube(10)
-        # Use a really small cutoff to ensure that it is used as a soft cutoff
         comp = freud.order.LocalWlNear(box, 0.1, 6, 12)
         self.assertEqual(str(comp), str(eval(repr(comp))))
 
     def test_repr_png(self):
         (box, positions) = util.make_fcc(4, 4, 4)
-        # Use a really small cutoff to ensure that it is used as a soft cutoff
         comp = freud.order.LocalWlNear(box, 0.1, 6, 12)
 
         with self.assertRaises(AttributeError):
