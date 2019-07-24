@@ -133,7 +133,6 @@ void LocalQl::computeAve(const locality::NeighborList* nlist, const vec3<float>*
 
     for (unsigned int i = 0; i < m_Np; i++)
     {
-        const vec3<float> ri = points[i];
         unsigned int neighborcount(1);
 
         for (; bond < nlist->getNumBonds() && neighbor_list[2 * bond] == i; ++bond)

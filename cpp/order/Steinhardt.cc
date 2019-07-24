@@ -131,8 +131,6 @@ void Steinhardt::baseCompute(const box::Box& box, const locality::NeighborList* 
     nlist->validate(m_Np, m_Np);
 
     parallel_for(tbb::blocked_range<size_t>(0, m_Np), [=](const blocked_range<size_t>& r) {
-        const float rminsq = m_rmin * m_rmin;
-        const float rmaxsq = m_rmax * m_rmax;
         const float normalizationfactor = 4 * M_PI / (2 * m_l + 1);
         const size_t* neighbor_list(nlist->getNeighbors());
 
@@ -158,11 +156,6 @@ void Steinhardt::baseCompute(const box::Box& box, const locality::NeighborList* 
             for (; bond < nlist->getNumBonds() && neighbor_list[2 * bond] == i; ++bond)
             {
                 const unsigned int j(neighbor_list[2 * bond + 1]);
-
-                if (i == j)
-                {
-                    continue;
-                }
 
                 const vec3<float> delta = box.wrap(points[j] - ref);
                 const float rsq = dot(delta, delta);
@@ -213,8 +206,6 @@ void Steinhardt::computeAve(const box::Box& box, const locality::NeighborList* n
 {
     const size_t* neighbor_list(nlist->getNeighbors());
 
-    const float rminsq = m_rmin * m_rmin;
-    const float rmaxsq = m_rmax * m_rmax;
     const float normalizationfactor = 4 * M_PI / (2 * m_l + 1);
 
     parallel_for(tbb::blocked_range<size_t>(0, m_Np), [=](const blocked_range<size_t>& r) {
@@ -232,22 +223,11 @@ void Steinhardt::computeAve(const box::Box& box, const locality::NeighborList* n
         // for each reference point
         for (unsigned int i = r.begin(); i != r.end(); i++)
         {
-            const vec3<float> ri = points[i];
             unsigned int neighborcount(1);
 
             for (; bond < nlist->getNumBonds() && neighbor_list[2 * bond] == i; ++bond)
             {
                 const unsigned int n(neighbor_list[2 * bond + 1]);
-
-                if (n == i)
-                {
-                    continue;
-                }
-
-                const vec3<float> rn = points[n];
-                // rin = rn - ri, from i pointing to n.
-                const vec3<float> rin = box.wrap(rn - ri);
-                const float rinsq = dot(rin, rin);
 
                 size_t neighborhood_bond(nlist->find_first_index(n));
                 for (; neighborhood_bond < nlist->getNumBonds() && neighbor_list[2 * neighborhood_bond] == n;
@@ -255,24 +235,12 @@ void Steinhardt::computeAve(const box::Box& box, const locality::NeighborList* n
                 {
                     const unsigned int j(neighbor_list[2 * neighborhood_bond + 1]);
 
-                    if (n == j)
+                    for (unsigned int k = 0; k < (2 * m_l + 1); ++k)
                     {
-                        continue;
+                        // Adding all the Qlm of the neighbors
+                        m_QlmiAve.get()[(2 * m_l + 1) * i + k] += m_Qlmi.get()[(2 * m_l + 1) * j + k];
                     }
-
-                    // rnj = rj - rn, from n pointing to j.
-                    const vec3<float> rnj = box.wrap(points[j] - rn);
-                    const float rnjsq = dot(rnj, rnj);
-
-                    if (rnjsq < rmaxsq && rnjsq > rminsq)
-                    {
-                        for (unsigned int k = 0; k < (2 * m_l + 1); ++k)
-                        {
-                            // Adding all the Qlm of the neighbors
-                            m_QlmiAve.get()[(2 * m_l + 1) * i + k] += m_Qlmi.get()[(2 * m_l + 1) * j + k];
-                        }
-                        neighborcount++;
-                    }
+                    neighborcount++;
                 } // End loop over particle neighbor's bonds
             }     // End loop over particle's bonds
 
