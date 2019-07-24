@@ -105,4 +105,4 @@ public:
 
 }; }; // end namespace freud::order
 
-#endif // ORDER_PARAMETER_H
+#endif // HEX_TRANS_ORDER_PARAMETER_H
