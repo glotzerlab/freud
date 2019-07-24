@@ -822,9 +822,16 @@ cdef class LocalQl(Compute):
         cdef const float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
 
+        if nlist is not None:
+            do_filter = False
+
         defaulted_nlist = freud.locality.make_default_nlist(
             self.m_box, points, points, self.rmax, nlist, True)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
+
+        # Filter out points below rmin if we made a default neighborlist.
+        if do_filter:
+            nlist_.filter_r(self.m_box, points, points, self.rmax, self.rmin)
 
         self.qlptr.compute(nlist_.get_ptr(), <vec3[float]*> &l_points[0, 0],
                            nP)
@@ -846,9 +853,16 @@ cdef class LocalQl(Compute):
         cdef const float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
 
+        if nlist is not None:
+            do_filter = False
+
         defaulted_nlist = freud.locality.make_default_nlist(
             self.m_box, points, points, self.rmax, nlist, True)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
+
+        # Filter out points below rmin if we made a default neighborlist.
+        if do_filter:
+            nlist_.filter_r(self.m_box, points, points, self.rmax, self.rmin)
 
         self.qlptr.compute(nlist_.get_ptr(),
                            <vec3[float]*> &l_points[0, 0], nP)
@@ -873,9 +887,16 @@ cdef class LocalQl(Compute):
         cdef const float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
 
+        if nlist is not None:
+            do_filter = False
+
         defaulted_nlist = freud.locality.make_default_nlist(
             self.m_box, points, points, self.rmax, nlist, True)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
+
+        # Filter out points below rmin if we made a default neighborlist.
+        if do_filter:
+            nlist_.filter_r(self.m_box, points, points, self.rmax, self.rmin)
 
         self.qlptr.compute(nlist_.get_ptr(),
                            <vec3[float]*> &l_points[0, 0], nP)
@@ -900,9 +921,16 @@ cdef class LocalQl(Compute):
         cdef const float[:, ::1] l_points = points
         cdef unsigned int nP = l_points.shape[0]
 
+        if nlist is not None:
+            do_filter = False
+
         defaulted_nlist = freud.locality.make_default_nlist(
             self.m_box, points, points, self.rmax, nlist, True)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
+
+        # Filter out points below rmin if we made a default neighborlist.
+        if do_filter:
+            nlist_.filter_r(self.m_box, points, points, self.rmax, self.rmin)
 
         self.qlptr.compute(nlist_.get_ptr(),
                            <vec3[float]*> &l_points[0, 0], nP)
