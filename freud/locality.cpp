@@ -45,12 +45,12 @@
         "name": "freud.locality",
         "sources": [
             "freud/locality.pyx",
-            "cpp/locality/LinkCell.cc",
             "cpp/locality/NearestNeighbors.cc",
             "cpp/locality/AABBQuery.cc",
-            "cpp/locality/Voronoi.cc",
+            "cpp/locality/NeighborQuery.cc",
+            "cpp/locality/LinkCell.cc",
             "cpp/locality/NeighborList.cc",
-            "cpp/locality/NeighborQuery.cc"
+            "cpp/locality/Voronoi.cc"
         ]
     },
     "module_name": "freud.locality"

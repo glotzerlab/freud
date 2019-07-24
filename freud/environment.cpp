@@ -51,11 +51,11 @@
         "sources": [
             "freud/environment.pyx",
             "cpp/environment/LocalDescriptors.cc",
-            "cpp/environment/MatchEnv.cc",
-            "cpp/environment/BondOrder.cc",
-            "cpp/environment/AngularSeparation.cc",
-            "cpp/environment/LocalBondProjection.cc",
             "cpp/util/diagonalize.cc",
+            "cpp/environment/BondOrder.cc",
+            "cpp/environment/MatchEnv.cc",
+            "cpp/environment/LocalBondProjection.cc",
+            "cpp/environment/AngularSeparation.cc",
             "cpp/locality/NeighborList.cc"
         ]
     },
