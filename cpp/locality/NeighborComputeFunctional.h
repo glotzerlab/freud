@@ -208,15 +208,15 @@ template<typename Body> void forLoopWrapper(size_t begin, size_t end, const Body
 }
 
 //! Appropriately generate NeighborIterator
-/*! \param neigbhor_query NeighborQuery object to iterate over
+/*! \param neighbor_query NeighborQuery object to iterate over
     \param query_points Points
     \param n_query_points Number of query_points
     \param qargs Query arguments
     \param nlist Neighbor List. If not NULL, generate an iterator based on it.
-        Otherwise, use neigbhor_query appropriately with given qargs.
+        Otherwise, use neighbor_query appropriately with given qargs.
 */
 std::shared_ptr<NeighborIterator> getNeighborIterator(
-    const NeighborQuery* neigbhor_query, const vec3<float>* query_points, unsigned int n_query_points,
+    const NeighborQuery* neighbor_query, const vec3<float>* query_points, unsigned int n_query_points,
     QueryArgs qargs, const NeighborList* nlist);
 
 //! Wrapper iterating looping over NeighborQuery or NeighborList
