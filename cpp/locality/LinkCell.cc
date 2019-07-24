@@ -385,7 +385,7 @@ NeighborBond LinkCellQueryBallIterator::next()
             // shell is greater than our rcut.
             ++m_neigh_cell_iter;
 
-            if ((m_neigh_cell_iter.getRange() - 1) * m_linkcell->getCellWidth() > m_r)
+            if ((m_neigh_cell_iter.getRange() - m_extra_search_width) * m_linkcell->getCellWidth() > m_r)
             {
                 break;
             }
