@@ -398,6 +398,8 @@ NeighborPoint LinkCellQueryBallIterator::next()
     while (cur_p < m_N)
     {
         vec3<unsigned int> point_cell(m_linkcell->getCellCoord(m_points[cur_p]));
+        const unsigned int point_cell_index = get_neighbor_cell_index(m_linkcell, point_cell, *m_neigh_cell_iter);
+        m_searched_cells.insert(point_cell_index);
 
         // Loop over cell list neighbor shells relative to this point's cell.
         while (true)
@@ -483,7 +485,6 @@ NeighborPoint LinkCellQueryIterator::next()
     while (cur_p < m_N)
     {
         vec3<unsigned int> point_cell(m_linkcell->getCellCoord(m_points[cur_p]));
-        m_searched_cells.clear();
         const unsigned int point_cell_index = get_neighbor_cell_index(m_linkcell, point_cell, *m_neigh_cell_iter);
         m_searched_cells.insert(point_cell_index);
 
@@ -566,6 +567,7 @@ NeighborPoint LinkCellQueryIterator::next()
         m_current_neighbors.clear();
         m_neigh_cell_iter = IteratorCellShell(0, m_neighbor_query->getBox().is2D());
         m_cell_iter = m_linkcell->itercell(m_linkcell->getCell(m_points[cur_p]));
+        m_searched_cells.clear();
     }
 
     m_finished = true;
