@@ -15,7 +15,7 @@
 #include "VectorMath.h"
 
 /*! \file HexTransOrderParameter.h
-    \brief Compute the hexatic/trans order parameter for each particle.
+    \brief Compute the hexatic/translational order parameter for each particle.
 */
 
 namespace freud { namespace order {
@@ -86,7 +86,7 @@ public:
 
 };
 
-//! Compute the hexagonal order parameter for a set of points
+//! Compute the hexatic order parameter for a set of points
 /*!
  */
 class HexOrderParameter : public HexTransOrderParameter<unsigned int>
@@ -98,9 +98,10 @@ public:
     //! Destructor
     ~HexOrderParameter();
 
-    //! Compute the hex order parameter
+    //! Compute the hexatic order parameter
     void compute(const freud::locality::NeighborList* nlist,
-                                  const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs);
+                 const freud::locality::NeighborQuery* points,
+                 freud::locality::QueryArgs qargs);
 };
 
 }; }; // end namespace freud::order
