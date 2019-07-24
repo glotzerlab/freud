@@ -95,8 +95,8 @@ def make_cubic(nx=1, ny=1, nz=1, fractions=np.array([[0, 0, 0]],
                (Default value = 0.0).
 
     Returns:
-        tuple (py:class:`freud.box.Box`, :class:`np.ndarray`): freud Box,
-            particle positions, shape=(nx*ny*nz, 3)
+        tuple (:class:`freud.box.Box`, :class:`np.ndarray`): freud Box,
+            particle positions, shape=(fractions.shape[0]*nx*ny*nz, 3)
     """
 
     fractions = np.tile(fractions[np.newaxis, np.newaxis, np.newaxis],
@@ -116,7 +116,7 @@ def make_cubic(nx=1, ny=1, nz=1, fractions=np.array([[0, 0, 0]],
 
 
 def make_fcc(nx=1, ny=1, nz=1, scale=1.0, noise=0.0):
-    """Make a FCC crystal for testing
+    """Make a FCC crystal for testing.
 
     Args:
         nx: Number of repeats in the x direction, default is 1
@@ -128,8 +128,8 @@ def make_fcc(nx=1, ny=1, nz=1, scale=1.0, noise=0.0):
                (Default value = 0.0).
 
     Returns:
-        tuple (py:class:`freud.box.Box`, :class:`np.ndarray`): freud Box,
-            particle positions, shape=(nx*ny*nz, 3)
+        tuple (:class:`freud.box.Box`, :class:`np.ndarray`): freud Box,
+            particle positions, shape=(4*nx*ny*nz, 3)
     """
     fractions = np.array([[.5, .5, 0],
                           [.5, 0, .5],
@@ -139,7 +139,7 @@ def make_fcc(nx=1, ny=1, nz=1, scale=1.0, noise=0.0):
 
 
 def make_bcc(nx=1, ny=1, nz=1, scale=1.0, noise=0.0):
-    """Make a BCC crystal for testing
+    """Make a body-centered-cubic crystal for testing.
 
     Args:
         nx: Number of repeats in the x direction, default is 1
@@ -151,16 +151,16 @@ def make_bcc(nx=1, ny=1, nz=1, scale=1.0, noise=0.0):
                (Default value = 0.0).
 
     Returns:
-        tuple (py:class:`freud.box.Box`, :class:`np.ndarray`): freud Box,
-            particle positions, shape=(nx*ny*nz, 3)
+        tuple (:class:`freud.box.Box`, :class:`np.ndarray`): freud Box,
+            particle positions, shape=(2*nx*ny*nz, 3)
     """
-    fractions = np.array([[0.5, .5, .5],
+    fractions = np.array([[.5, .5, .5],
                           [0, 0, 0]], dtype=np.float32)
     return make_cubic(nx, ny, nz, fractions, scale, noise)
 
 
 def make_sc(nx=1, ny=1, nz=1, scale=1.0, noise=0.0):
-    """Make an SC crystal for testing
+    """Make a simple cubic for testing.
 
     Args:
         nx: Number of repeats in the x direction, default is 1

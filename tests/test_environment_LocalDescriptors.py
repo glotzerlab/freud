@@ -116,7 +116,7 @@ class TestLocalDescriptors(unittest.TestCase):
         """Check if we can reproduce Steinhardt OPs."""
         def get_Ql(p, descriptors, nlist):
             """Given a set of points and a LocalDescriptors object (and the
-            underlying neighborlist, compute the per-particle Steinhardt order
+            underlying neighborlist), compute the per-particle Steinhardt order
             parameter for all :math:`l` values up to the maximum quantum number
             used in the computation of the descriptors."""
             Qbar_lm = np.zeros((p.shape[0], descriptors.sph.shape[1]),
@@ -163,8 +163,6 @@ class TestLocalDescriptors(unittest.TestCase):
                 steinhardt.compute(box, points, nlist=nl)
                 npt.assert_array_almost_equal(steinhardt.order, Ql[:, L])
 
-
-class TestLocalDescriptors2(unittest.TestCase):
     @skipIfMissing('scipy.special')
     def test_ld(self):
         """Verify the behavior of LocalDescriptors by explicitly calculating
