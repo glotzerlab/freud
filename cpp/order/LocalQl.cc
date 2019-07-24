@@ -38,6 +38,7 @@ void LocalQl::computeYlm(const float theta, const float phi, std::vector<std::co
 void LocalQl::compute(const locality::NeighborList* nlist, const vec3<float>* points, unsigned int Np)
 {
     nlist->validate(Np, Np);
+    m_Qlm_local.reset();
 
     if (m_Np != Np)
     {
