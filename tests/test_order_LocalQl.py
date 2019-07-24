@@ -98,6 +98,18 @@ class TestLocalQl(unittest.TestCase):
         comp.computeNorm(positions)
         comp.plot(mode="norm_Ql")
 
+    def test_compute_twice_norm(self):
+        """Test that computing norm twice works as expected."""
+        L = 5
+        num_points = 100
+        box, points = util.make_box_and_random_points(L, num_points, seed=0)
+
+        ql = freud.order.LocalQl(box, 1.5, 6)
+        first_result = ql.computeNorm(points).norm_Ql.copy()
+        second_result = ql.computeNorm(points).norm_Ql
+
+        npt.assert_array_almost_equal(first_result, second_result)
+
 
 class TestLocalQlNear(unittest.TestCase):
     def test_init_kwargs(self):
