@@ -397,7 +397,6 @@ NeighborPoint LinkCellQueryBallIterator::next()
 
     while (cur_p < m_N)
     {
-        printf("Starting cur_p loop, cur_p = %i; m_N = %i.\n", cur_p, m_N);
         vec3<unsigned int> point_cell(m_linkcell->getCellCoord(m_points[cur_p]));
 
         // Loop over cell list neighbor shells relative to this point's cell.
@@ -413,8 +412,6 @@ NeighborPoint LinkCellQueryBallIterator::next()
 
                 if (rsq < r_cutsq && (!m_exclude_ii || cur_p != j))
                 {
-                    const unsigned int neighbor_cell = get_neighbor_cell_index(m_linkcell, point_cell, *m_neigh_cell_iter);
-                    printf("Found (%i, %i) in cell %i.\n", cur_p, j, neighbor_cell);
                     return NeighborPoint(cur_p, j, sqrt(rsq));
                 }
             }
@@ -430,7 +427,6 @@ NeighborPoint LinkCellQueryBallIterator::next()
 
                 if ((m_neigh_cell_iter.getRange() - m_extra_search_width) * m_linkcell->getCellWidth() > m_r)
                 {
-                    printf("Hitting out-of-range.\n");
                     out_of_range = true;
                     break;
                 }
@@ -449,13 +445,6 @@ NeighborPoint LinkCellQueryBallIterator::next()
                     // This cell has not been searched yet, so we will iterate
                     // over its contents. Otherwise, we loop back, increment
                     // the cell shell iterator, and try the next one.
-                    printf("Already searched cells: ");
-                    for (auto it = m_searched_cells.begin(); it != m_searched_cells.end(); it++)
-                    {
-                        printf("%i, ", *it);
-                    }
-                    printf("\n");
-                    printf("Searching cell %i\n.", neighbor_cell);
                     m_searched_cells.insert(neighbor_cell);
                     m_cell_iter = m_linkcell->itercell(neighbor_cell);
                     break;
@@ -466,7 +455,6 @@ NeighborPoint LinkCellQueryBallIterator::next()
                 break;
             }
         }
-        printf("Incrementing particle counter: %i\n", cur_p);
         cur_p++;
         m_neigh_cell_iter = IteratorCellShell(0, m_neighbor_query->getBox().is2D());
         m_cell_iter = m_linkcell->itercell(m_linkcell->getCell(m_points[cur_p]));
