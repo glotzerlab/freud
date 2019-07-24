@@ -10,7 +10,7 @@
 #include "NeighborQuery.h"
 
 /*! \file NeighborComputeFunctional.h
-    \brief Implements logic for looping over NeughborQuery
+    \brief Implements logic for looping over NeighborQuery
 */
 
 namespace freud { namespace locality {
