@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Fixed
 * Repeated Cubatic Order Parameter computations use the correct number of replicates.
+* Repeated calls to LocalQl.computeNorm properly reset the underlying data.
 
 ## v1.2.0 - 2019-06-27
 
