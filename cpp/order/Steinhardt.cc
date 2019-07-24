@@ -285,7 +285,7 @@ void Steinhardt::computeAve(const box::Box& box, const locality::NeighborList* n
                 m_QlmiAve.get()[index] /= neighborcount;
                 m_Qlm_local.local()[k] += m_QlmiAve.get()[index] / float(m_Np);
                 // Add the norm, which is the complex squared magnitude
-                m_QliAve.get()[i] += norm(m_Qlmi.get()[index]);
+                m_QliAve.get()[i] += norm(m_QlmiAve.get()[index]);
             }
             m_QliAve.get()[i] *= normalizationfactor;
             m_QliAve.get()[i] = sqrt(m_QliAve.get()[i]);
