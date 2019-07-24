@@ -124,6 +124,18 @@ class TestSteinhardt(unittest.TestCase):
         comp.norm
         comp.order
 
+    def test_compute_twice_norm(self):
+        """Test that computing norm twice works as expected."""
+        L = 5
+        num_points = 100
+        box, points = util.make_box_and_random_points(L, num_points, seed=0)
+
+        st = freud.order.Steinhardt(1.5, 6)
+        first_result = st.compute(box, points).norm
+        second_result = st.compute(box, points).norm
+
+        npt.assert_array_almost_equal(first_result, second_result)
+
 
 if __name__ == '__main__':
     unittest.main()
