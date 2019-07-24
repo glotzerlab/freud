@@ -2,6 +2,12 @@
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## Upcoming: Changes for freud 2.0
+
+### Fixed
+* Steinhardt uses the ThreadStorage class and properly resets memory where needed.
+* Removed all neighbor exclusion logic from Steinhardt.
+
 ## next
 
 ### Fixed
