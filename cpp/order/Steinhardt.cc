@@ -129,6 +129,8 @@ void Steinhardt::baseCompute(const box::Box& box, const locality::NeighborList* 
                              const vec3<float>* points)
 {
     nlist->validate(m_Np, m_Np);
+    // For consistency, this reset is done here regardless of whether the array
+    // is populated in baseCompute or computeAve.
     m_Qlm_local.reset();
 
     parallel_for(tbb::blocked_range<size_t>(0, m_Np), [=](const blocked_range<size_t>& r) {
@@ -181,6 +183,7 @@ void Steinhardt::baseCompute(const box::Box& box, const locality::NeighborList* 
                 m_Qlmi.get()[index] /= neighborcount;
                 // Add the norm, which is the (complex) squared magnitude
                 m_Qli.get()[i] += norm(m_Qlmi.get()[index]);
+                // This array gets populated by computeAve in the averaging case.
                 if (!m_average)
                 {
                     m_Qlm_local.local()[k] += m_Qlmi.get()[index] / float(m_Np);
