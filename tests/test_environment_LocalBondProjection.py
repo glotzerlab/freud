@@ -194,25 +194,40 @@ class TestLocalBondProjection(unittest.TestCase):
         ang = freud.environment.LocalBondProjection(rmax, num_neigh)
         ang.compute(box, proj_vecs, points, ors)
 
-        # For the first particle, the bond is [1,0,0] and the orientation is
-        # [1,0,0,0]. So the local bond is [1,0,0]. The projection onto
-        # [0,0,1] is cos(pi/2)=0.
-        # In the new neighbor list, the corresponding bond is at index 2
-        npt.assert_allclose(ang.projections[1], 0, atol=1e-6)
-        npt.assert_allclose(ang.normed_projections[1], 0, atol=1e-6)
-        # For the second particle, the bond is [-1,0,0] and the orientation is
-        # rotated about the y-axis by pi/2. So the local bond is [0,0,-1]. The
-        # projection onto [0,0,1] is cos(pi)=-1.
-        # In the new neighbor list, the corresponding bond is at index 0
-        npt.assert_allclose(ang.projections[0], -1, atol=1e-6)
-        npt.assert_allclose(ang.normed_projections[0], -1, atol=1e-6)
-        # For the third particle, the bond is [0,0,-1.5] and the orientation is
-        # rotated about the z-axis by pi/2. So the local bond is [0,0,-1.5].
-        # The projection onto [0,0,1] is 1.5*cos(pi)=-1.5
-        # In the new neighbor list, the corresponding bond is at index 1
-        # and the bond becomes [0, 0, 1.5]
-        npt.assert_allclose(ang.projections[2], 1.5, atol=1e-6)
-        npt.assert_allclose(ang.normed_projections[2], 1, atol=1e-6)
+        dnlist = freud.locality.make_default_nlist_nn(
+            box, points, points, num_neigh, None, True, rmax)
+        bonds = [(i[0], i[1]) for i in dnlist[0]]
+
+        # We will look at the bond between [1, 0, 0] as ref_point
+        # and [0, 0, 0] as point
+        # This will give bond [-1, 0, 0].
+        # Since [1, 0, 0] is the ref_point at index 1, we rotate
+        # this about y axis by pi/2, which will give
+        # [0, 0, -1].
+        # The projection onto [0, 0, 1] is cos(pi) = -1.
+        index = bonds.index((0, 1))
+        npt.assert_allclose(ang.projections[index], -1, atol=1e-6)
+        npt.assert_allclose(ang.normed_projections[index], -1, atol=1e-6)
+
+        # We will look at the bond between [0, 0, 0] as ref_point
+        # and [1, 0, 0] as point
+        # This will give bond [1, 0, 0].
+        # Since [0, 0, 0] is the ref_point at index 0, we rotate
+        # this by the identity, which will give [1, 0, 0].
+        # The projection onto [0, 0, 1] is 0.
+        index = bonds.index((1, 0))
+        npt.assert_allclose(ang.projections[index], 0, atol=1e-6)
+        npt.assert_allclose(ang.normed_projections[index], 0, atol=1e-6)
+
+        # We will look at the bond between [0, 0, 0] as ref_point
+        # and [0, 0, 1.5] as point
+        # This will give bond [0, 0, 1.5].
+        # Since [0, 0, 0] is the ref_point at index 0, we rotate
+        # this by the identity, which will give [0, 0, 1.5].
+        # The projection onto [0, 0, 1] is 1.5.
+        index = bonds.index((2, 0))
+        npt.assert_allclose(ang.projections[index], 1.5, atol=1e-6)
+        npt.assert_allclose(ang.normed_projections[index], 1, atol=1e-6)
 
         # Specify that rotations about y by +/-pi/2 and rotations about x by pi
         # result in equivalent particle shapes
