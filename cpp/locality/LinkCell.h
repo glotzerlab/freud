@@ -380,6 +380,23 @@ public:
         return m_cell_index;
     }
 
+    //! Compute cell id from cell coordinates
+    unsigned int getCellIndex(const vec3<int> cellCoord)
+    {
+        int w = (int) getCellIndexer().getW();
+        int h = (int) getCellIndexer().getH();
+        int d = (int) getCellIndexer().getD();
+
+        int x = cellCoord.x % w;
+        x += (x < 0 ? w : 0);
+        int y = cellCoord.y % h;
+        y += (y < 0 ? h : 0);
+        int z = cellCoord.z % d;
+        z += (z < 0 ? d : 0);
+
+        return getCellIndexer()(x, y, z);
+    }
+
     //! Get the number of cells
     unsigned int getNumCells() const
     {

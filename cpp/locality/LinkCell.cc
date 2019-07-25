@@ -137,20 +137,6 @@ bool compareFirstNeighborPairs(const std::vector<std::tuple<size_t, size_t, floa
         return left.size() < right.size();
 }
 
-unsigned int get_neighbor_cell_index(const LinkCell* linkcell, const vec3<unsigned int> point_cell, const vec3<int> cell_delta)
-{
-    unsigned int w = linkcell->getCellIndexer().getW();
-    unsigned int h = linkcell->getCellIndexer().getH();
-    unsigned int d = linkcell->getCellIndexer().getD();
-
-    return linkcell->getCellIndexer()(
-        // Need to increment each dimension by the width to avoid taking the modulus
-        // of a negative number.
-        (w + point_cell.x + cell_delta.x) % w,
-        (h + point_cell.y + cell_delta.y) % h,
-        (d + point_cell.z + cell_delta.z) % d);
-}
-
 void LinkCell::computeCellList(const box::Box& box, const vec3<float>* points, unsigned int Np)
 {
     updateBox(box);
@@ -382,8 +368,8 @@ NeighborPoint LinkCellQueryBallIterator::next()
 
     while (cur_p < m_N)
     {
-        vec3<unsigned int> point_cell(m_linkcell->getCellCoord(m_points[cur_p]));
-        const unsigned int point_cell_index = get_neighbor_cell_index(m_linkcell, point_cell, *m_neigh_cell_iter);
+        vec3<int> point_cell(m_linkcell->getCellCoord(m_points[cur_p]));
+        const unsigned int point_cell_index = m_linkcell->getCellIndex(point_cell + *m_neigh_cell_iter);
         m_searched_cells.insert(point_cell_index);
 
         // Loop over cell list neighbor shells relative to this point's cell.
@@ -418,15 +404,16 @@ NeighborPoint LinkCellQueryBallIterator::next()
                     break;
                 }
 
-                const unsigned int neighbor_cell = get_neighbor_cell_index(m_linkcell, point_cell, *m_neigh_cell_iter);
+                const unsigned int neighbor_cell_index = m_linkcell->getCellIndex(point_cell + *m_neigh_cell_iter);
 
-                auto searched_cell_iter = m_searched_cells.find(neighbor_cell);
-                if (searched_cell_iter == m_searched_cells.end())
+                // Insertion to an unordered set returns a pair, the second
+                // element indicates insertion success or failure (if it
+                // already exists)
+                if (m_searched_cells.insert(neighbor_cell_index).second)
                 {
                     // This cell has not been searched yet, so we will iterate
                     // over its contents. Otherwise, we loop back, increment
                     // the cell shell iterator, and try the next one.
-                    m_searched_cells.insert(neighbor_cell);
                     m_cell_iter = m_linkcell->itercell(neighbor_cell);
                     break;
                 }
@@ -463,8 +450,8 @@ NeighborPoint LinkCellQueryIterator::next()
 
     while (cur_p < m_N)
     {
-        vec3<unsigned int> point_cell(m_linkcell->getCellCoord(m_points[cur_p]));
-        const unsigned int point_cell_index = get_neighbor_cell_index(m_linkcell, point_cell, *m_neigh_cell_iter);
+        vec3<int> point_cell(m_linkcell->getCellCoord(m_points[cur_p]));
+        const unsigned int point_cell_index = m_linkcell->getCellIndex(point_cell + *m_neigh_cell_iter);
         m_searched_cells.insert(point_cell_index);
 
         // Loop over cell list neighbor shells relative to this point's cell.
@@ -503,15 +490,17 @@ NeighborPoint LinkCellQueryIterator::next()
                         break;
                     }
 
-                    const unsigned int neighbor_cell = get_neighbor_cell_index(m_linkcell, point_cell, *m_neigh_cell_iter);
+                    const unsigned int neighbor_cell_index = m_linkcell->getCellIndex(point_cell + *m_neigh_cell_iter);
 
-                    auto searched_cell_iter = m_searched_cells.find(neighbor_cell);
-                    if (searched_cell_iter == m_searched_cells.end())
+                    // Insertion to an unordered set returns a pair, the second
+                    // element indicates insertion success or failure (if it
+                    // already exists)
+                    if (m_searched_cells.insert(neighbor_cell_index).second)
                     {
-                        // This cell has not been searched yet, so we will iterate
-                        // over its contents. Otherwise, we loop back, increment
-                        // the cell shell iterator, and try the next one.
-                        m_searched_cells.insert(neighbor_cell);
+                        // This cell has not been searched yet, so we will
+                        // iterate over its contents. Otherwise, we loop back,
+                        // increment the cell shell iterator, and try the next
+                        // one.
                         m_cell_iter = m_linkcell->itercell(neighbor_cell);
                         break;
                     }
