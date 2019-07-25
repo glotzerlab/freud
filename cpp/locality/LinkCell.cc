@@ -151,21 +151,6 @@ unsigned int get_neighbor_cell_index(const LinkCell* linkcell, const vec3<unsign
         (d + point_cell.z + cell_delta.z) % d);
 }
 
-bool check_double_range_shell(const LinkCell* linkcell, const vec3<int> cell_delta)
-{
-    bool range_check = false;
-    unsigned int w = linkcell->getCellIndexer().getW();
-    unsigned int h = linkcell->getCellIndexer().getH();
-    unsigned int d = linkcell->getCellIndexer().getD();
-    if (2 * cell_delta.x + 1 > (int) w)
-        range_check = true;
-    else if (2 * cell_delta.y + 1 > (int) h)
-        range_check = true;
-    else if (2 * cell_delta.z + 1 > (int) d)
-        range_check = true;
-    return range_check;
-}
-
 void LinkCell::computeCellList(const box::Box& box, const vec3<float>* points, unsigned int Np)
 {
     updateBox(box);
@@ -433,12 +418,6 @@ NeighborPoint LinkCellQueryBallIterator::next()
                     break;
                 }
 
-                // In cases where we need to check the entire box, make sure
-                // that we don't check the same cell on the positive and
-                // negative sides of the IteratorCellShell cube.
-                if (check_double_range_shell(m_linkcell, *m_neigh_cell_iter))
-                    continue;
-
                 const unsigned int neighbor_cell = get_neighbor_cell_index(m_linkcell, point_cell, *m_neigh_cell_iter);
 
                 auto searched_cell_iter = m_searched_cells.find(neighbor_cell);
@@ -523,12 +502,6 @@ NeighborPoint LinkCellQueryIterator::next()
                     {
                         break;
                     }
-
-                    // In cases where we need to check the entire box, make sure
-                    // that we don't check the same cell on the positive and
-                    // negative sides of the IteratorCellShell cube.
-                    if (check_double_range_shell(m_linkcell, *m_neigh_cell_iter))
-                        continue;
 
                     const unsigned int neighbor_cell = get_neighbor_cell_index(m_linkcell, point_cell, *m_neigh_cell_iter);
 
