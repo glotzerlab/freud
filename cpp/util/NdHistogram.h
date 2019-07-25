@@ -67,7 +67,14 @@ public:
 
     //! \internal
     // Wrapper to do accumulation.
-    // :code:`Func cf` should be some sort of (void*)(size_t, size_t)
+    /*! \param neighbor_query NeighborQuery object to iterate over
+        \param query_points Points
+        \param n_query_points Number of query_points
+        \param nlist Neighbor List. If not NULL, loop over it. Otherwise, use neighbor_query
+           appropriately with given qargs.
+        \param qargs Query arguments
+        \param cf An object with operator(NeighborBond) as input.
+    */
     template<typename Func>
     void accumulateGeneral(const locality::NeighborQuery* neighbor_query, 
                            const vec3<float>* query_points, unsigned int n_query_points,

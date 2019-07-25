@@ -105,16 +105,16 @@ void PMFTR12::accumulate(const locality::NeighborQuery* neighbor_query,
     Index3D b_i = Index3D(m_n_t1, m_n_t2, m_n_r);
 
     accumulateGeneral(neighbor_query, query_points, n_p, nlist, qargs,
-        [=](size_t i, size_t j, float dist, float weight) {
-        vec3<float> ref = neighbor_query->getPoints()[i];
-        vec3<float> delta = m_box.wrap(query_points[j] - ref);
-        if (dist < m_r_max)
+        [=](const freud::locality::NeighborBond& neighbor_bond) {
+        vec3<float> ref = neighbor_query->getPoints()[neighbor_bond.ref_id];
+        vec3<float> delta = m_box.wrap(query_points[neighbor_bond.id] - ref);
+        if (neighbor_bond.distance < m_r_max)
         {
             // calculate angles
             float d_theta1 = atan2(delta.y, delta.x);
             float d_theta2 = atan2(-delta.y, -delta.x);
-            float t1 = orientations[i] - d_theta1;
-            float t2 = query_orientations[j] - d_theta2;
+            float t1 = orientations[neighbor_bond.ref_id] - d_theta1;
+            float t2 = query_orientations[neighbor_bond.id] - d_theta2;
             // make sure that t1, t2 are bounded between 0 and 2PI
             t1 = fmod(t1, 2 * M_PI);
             if (t1 < 0)
@@ -127,7 +127,7 @@ void PMFTR12::accumulate(const locality::NeighborQuery* neighbor_query,
                 t2 += 2 * M_PI;
             }
             // bin that point
-            float bin_r = dist * dr_inv;
+            float bin_r = neighbor_bond.distance * dr_inv;
             float bin_t1 = floorf(t1 * dt1_inv);
             float bin_t2 = floorf(t2 * dt2_inv);
 // fast float to int conversion with truncation

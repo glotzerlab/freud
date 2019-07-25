@@ -11,6 +11,7 @@
 
 #include "CorrelationFunction.h"
 #include "NeighborComputeFunctional.h"
+#include "NeighborBond.h"
 
 using namespace std;
 using namespace tbb;
@@ -116,10 +117,10 @@ void CorrelationFunction<T>::accumulate(const freud::locality::NeighborQuery* ne
     m_box = neighbor_query->getBox();
     float dr_inv = 1.0f / m_dr;
     freud::locality::loopOverNeighbors(neighbor_query, query_points, n_query_points, qargs, nlist,
-    [=](size_t i, size_t j, float dist, float weight)
+    [=](const freud::locality::NeighborBond& neighbor_bond)
         {
             // bin that r
-            float binr = dist * dr_inv;
+            float binr = neighbor_bond.distance * dr_inv;
             // fast float to int conversion with truncation
             #ifdef __SSE2__
             unsigned int bin = _mm_cvtt_ss2si(_mm_load_ss(&binr));
@@ -130,7 +131,7 @@ void CorrelationFunction<T>::accumulate(const freud::locality::NeighborQuery* ne
             if (bin < m_nbins)
             {
                 ++m_local_bin_counts.local()[bin];
-                m_local_rdf_array.local()[bin] += values[i] * query_values[j];
+                m_local_rdf_array.local()[bin] += values[neighbor_bond.ref_id] * query_values[neighbor_bond.id];
             }
         }
     );

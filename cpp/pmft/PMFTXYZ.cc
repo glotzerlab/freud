@@ -102,17 +102,17 @@ void PMFTXYZ::accumulate(const locality::NeighborQuery* neighbor_query,
     Index2D q_i = Index2D(n_faces, n_query_points);
 
     accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,
-        [=](size_t i, size_t j, float dist, float weight) {
-        vec3<float> ref = neighbor_query->getPoints()[i];
+        [=](const freud::locality::NeighborBond& neighbor_bond) {
+        vec3<float> ref = neighbor_query->getPoints()[neighbor_bond.ref_id];
         // create the reference point quaternion
-        quat<float> ref_q(orientations[i]);
+        quat<float> ref_q(orientations[neighbor_bond.ref_id]);
         // make sure that the particles are wrapped into the box
-        vec3<float> delta = m_box.wrap(query_points[j] - ref);
+        vec3<float> delta = m_box.wrap(query_points[neighbor_bond.id] - ref);
 
         for (unsigned int k = 0; k < n_faces; k++)
         {
             // create the extra quaternion
-            quat<float> qe(face_orientations[q_i(k, i)]);
+            quat<float> qe(face_orientations[q_i(k, neighbor_bond.ref_id)]);
             // create point vector
             vec3<float> v(delta);
             // rotate the vector
