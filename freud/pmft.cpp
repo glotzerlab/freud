@@ -50,11 +50,11 @@
         "name": "freud.pmft",
         "sources": [
             "freud/pmft.pyx",
+            "cpp/pmft/PMFTXY2D.cc",
             "cpp/pmft/PMFTR12.cc",
             "cpp/pmft/PMFTXYZ.cc",
             "cpp/util/NdHistogram.cc",
             "cpp/pmft/PMFTXYT.cc",
-            "cpp/pmft/PMFTXY2D.cc",
             "cpp/locality/NeighborList.cc",
             "cpp/pmft/PMFT.cc"
         ]
