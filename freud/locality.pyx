@@ -348,10 +348,8 @@ cdef class NeighborQuery:
                 (Default value = :code:`1`)
             exclude_ii (bool, optional):
                 Set this to :code:`True` if pairs of points with identical
-                indices to those in self.points should be excluded. If this is
-                :code:`None`, it will be treated as :code:`True` if
-                :code:`query_points` is :code:`None` or the same object as
-                :code:`points` (Defaults value = :code:`None`).
+                indices to those in :code:`self.points` should be excluded.
+                (Default value = :code:`False`).
 
         Returns:
             :class:`~.NeighborQueryResult`: Results object containing the
@@ -378,10 +376,8 @@ cdef class NeighborQuery:
                 The distance within which to find neighbors
             exclude_ii (bool, optional):
                 Set this to :code:`True` if pairs of points with identical
-                indices to those in self.points should be excluded. If this is
-                :code:`None`, it will be treated as :code:`True` if
-                :code:`query_points` is :code:`None` or the same object as
-                :code:`points`. (Default value = :code:`None`).
+                indices to those in :code:`self.points` should be excluded.
+                (Default value = :code:`False`).
 
         Returns:
             :class:`~.NeighborQueryResult`: Results object containing the
@@ -445,11 +441,11 @@ cdef class NeighborList:
         weights ((:math:`N_{bonds}`) :class:`np.ndarray`):
             The per-bond weights from the last set of points this object was
             evaluated with.
-        segments ((:math:`N_{ref\_points}`) :class:`np.ndarray`):
+        segments ((:math:`N_{points}`) :class:`np.ndarray`):
             A segment array, which is an array of length :math:`N_{ref}`
             indicating the first bond index for each reference particle from
             the last set of points this object was evaluated with.
-        neighbor_counts ((:math:`N_{ref\_points}`) :class:`np.ndarray`):
+        neighbor_counts ((:math:`N_{points}`) :class:`np.ndarray`):
             A neighbor count array, which is an array of length
             :math:`N_{ref}` indicating the number of neighbors for each
             reference particle from the last set of points this object was
@@ -790,7 +786,7 @@ def make_default_nq(box, points):
 
 
 def make_default_nlist(box, points, query_points, r_max, nlist=None,
-                       exclude_ii=None):
+                       exclude_ii=False):
     R"""Helper function to return a neighbor list object if is given, or to
     construct one using AABBQuery if it is not.
 
@@ -807,10 +803,7 @@ def make_default_nlist(box, points, query_points, r_max, nlist=None,
             NeighborList to use to find bonds (Default value = :code:`None`).
         exclude_ii (bool, optional):
             Set this to :code:`True` if pairs of points with identical
-            indices should be excluded. If this is :code:`None`, it will be
-            treated as :code:`True` if :code:`query_points` is :code:`None` or
-            the same object as :code:`points`.
-            (Default value = :code:`None`).
+            indices should be excluded. (Default value = :code:`False`).
 
     Returns:
         tuple (:class:`freud.locality.NeighborList`, :class:`freud.locality.AABBQuery`):
@@ -827,7 +820,7 @@ def make_default_nlist(box, points, query_points, r_max, nlist=None,
 
 
 def make_default_nlist_nn(box, points, query_points, num_neighbors, nlist=None,
-                          exclude_ii=None, r_max_guess=2.0):
+                          exclude_ii=False, r_max_guess=2.0):
     R"""Helper function to return a neighbor list object if is given, or to
     construct one using NearestNeighbors if it is not.
 
@@ -844,10 +837,7 @@ def make_default_nlist_nn(box, points, query_points, num_neighbors, nlist=None,
             NeighborList to use to find bonds (Default value = :code:`None`).
         exclude_ii (bool, optional):
             Set this to :code:`True` if pairs of points with identical
-            indices should be excluded. If this is :code:`None`, it will be
-            treated as :code:`True` if :code:`query_points` is :code:`None` or
-            the same object as :code:`points`.
-            (Default value = :code:`None`).
+            indices should be excluded. (Default value = :code:`False`).
         r_max_guess (float):
             Estimate of r_max, speeds up search if chosen properly.
 
@@ -982,15 +972,19 @@ cdef class AABBQuery(NeighborQuery):
                 Simulation box.
             query_points ((:math:`N`, 3) :class:`numpy.ndarray`):
                 Points to query for.
-            num_neighbors (int):
+            num_neighbors (int, optional):
                 The number of nearest neighbors to find.
                 (Default value = :code:`1`)
-            r_guess (float):
+            r_guess (float, optional):
                 The initial guess of a distance to search to find N neighbors.
                 (Default value = :code:`0`)
-            scale (float):
+            scale (float, optional):
                 Multiplier by which to increase :code:`r` if not enough
                 neighbors are found. (Default value = :code:`1.1`)
+            exclude_ii (bool, optional):
+                Set this to :code:`True` if pairs of points with identical
+                indices to those in :code:`self.points` should be excluded.
+                (Default value = :code:`False`).
 
         Returns:
             :class:`~.NeighborQueryResult`: Results object containing the

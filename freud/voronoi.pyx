@@ -438,7 +438,8 @@ class Voronoi(Compute):
 
     @Compute._computed_method()
     def plot(self, ax=None):
-        """Plot 2D Voronoi diagram.
+        """Plot 2D Voronoi diagram. Returns :code:`None` if Voronoi is on a
+        3D system.
 
         Args:
             ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If

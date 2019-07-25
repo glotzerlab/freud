@@ -16,7 +16,7 @@ using namespace tbb;
 
 namespace freud { namespace environment {
 
-LocalBondProjection::LocalBondProjection() : m_n_query_points(0), m_n_points(0), m_n_proj(0), m_n_equiv(0), m_tot_num_neigh(0)
+LocalBondProjection::LocalBondProjection() : m_n_query_points(0), m_n_points(0), m_n_proj(0), m_n_equiv_orientations(0), m_tot_num_neigh(0)
 {}
 
 LocalBondProjection::~LocalBondProjection() {}
@@ -30,7 +30,7 @@ LocalBondProjection::~LocalBondProjection() {}
 // q and -q effect the same rotation on vectors, and here we just use equiv_quats to
 // find all symmetrically equivalent vectors to proj_vec.
 float computeMaxProjection(const vec3<float> proj_vec, const vec3<float> local_bond,
-                           const quat<float>* equiv_qs, unsigned int n_equiv)
+                           const quat<float>* equiv_qs, unsigned int n_equiv_qs)
 {
     quat<float> qconst = equiv_qs[0];
 
@@ -39,7 +39,7 @@ float computeMaxProjection(const vec3<float> proj_vec, const vec3<float> local_b
     float max_proj = dot(proj_vec, local_bond);
 
     // loop through all equivalent rotations and see if they have a larger projection onto local_bond
-    for (unsigned int i = 0; i < n_equiv; i++)
+    for (unsigned int i = 0; i < n_equiv_qs; i++)
     {
         quat<float> qe = equiv_qs[i];
         // here we undo a rotation represented by one of the equivalent orientations
@@ -62,17 +62,17 @@ void LocalBondProjection::compute(box::Box& box,
     const vec3<float>* proj_vecs,  unsigned int n_proj,
     const vec3<float>* points, const quat<float>* orientations, unsigned int n_points,
     const vec3<float>* query_points, unsigned int n_query_points,
-    const quat<float>* equiv_quats, unsigned int n_equiv,
+    const quat<float>* equiv_orientations, unsigned int n_equiv_orientations,
     const freud::locality::NeighborList* nlist)
 {
     assert(query_points);
     assert(points);
     assert(orientations);
-    assert(equiv_quats);
+    assert(equiv_orientations);
     assert(proj_vecs);
     assert(n_query_points > 0);
     assert(n_points > 0);
-    assert(n_equiv > 0);
+    assert(n_equiv_orientations > 0);
     assert(n_proj > 0);
 
     nlist->validate(n_query_points, n_points);
@@ -110,7 +110,7 @@ void LocalBondProjection::compute(box::Box& box,
                 for (unsigned int k = 0; k < n_proj; k++)
                 {
                     vec3<float> proj_vec = proj_vecs[k];
-                    float max_proj = computeMaxProjection(proj_vec, local_bond, equiv_quats, n_equiv);
+                    float max_proj = computeMaxProjection(proj_vec, local_bond, equiv_orientations, n_equiv_orientations);
                     m_local_bond_proj.get()[bond * n_proj + k] = max_proj;
                     m_local_bond_proj_norm.get()[bond * n_proj + k] = max_proj / local_bond_len;
                 }
@@ -125,7 +125,7 @@ void LocalBondProjection::compute(box::Box& box,
     // save the last computed number of reference particles
     m_n_points = n_points;
     // save the last computed number of equivalent quaternions
-    m_n_equiv = n_equiv;
+    m_n_equiv_orientations = n_equiv_orientations;
     // save the last computed number of reference projection vectors
     m_n_proj = n_proj;
     // save the last computed number of total bonds

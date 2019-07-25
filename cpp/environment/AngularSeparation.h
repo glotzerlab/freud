@@ -37,13 +37,13 @@ public:
     //! Compute the angular separation between neighbors
     void computeNeighbor(const quat<float>* orientations,  unsigned int n_points,
                          const quat<float>* query_orientations, unsigned int n_query_points, 
-                         const quat<float>* equiv_quats, unsigned int n_equiv_quats,
+                         const quat<float>* equiv_orientations, unsigned int n_equiv_orientations,
                          const freud::locality::NeighborList* nlist);
 
     //! Compute the angular separation with respect to global orientation
     void computeGlobal(const quat<float>* global_orientations, unsigned int n_global, 
                        const quat<float>* orientations, unsigned int n_points, 
-                       const quat<float>* equiv_quats, unsigned int n_equiv_quats);
+                       const quat<float>* equiv_orientations, unsigned int n_equiv_orientations);
 
     //! Get a reference to the last computed neighbor angle array
     std::shared_ptr<float> getNeighborAngles()
@@ -76,7 +76,7 @@ private:
     unsigned int m_n_query_points;            //!< Last number of orientations computed
     unsigned int m_n_points;          //!< Last number of reference orientations used for computation
     unsigned int m_n_global;       //!< Last number of global orientations used for computation
-    unsigned int m_n_equiv_quats;        //!< Last number of equivalent reference orientations used for computation
+    unsigned int m_n_equiv_orientations;        //!< Last number of equivalent reference orientations used for computation
     unsigned int m_tot_num_neigh; //!< Last number of total bonds used for computation
 
     std::shared_ptr<float> m_neigh_ang_array;  //!< neighbor angle array computed

@@ -925,10 +925,12 @@ cdef class AngularSeparation(Compute):
     @Compute._compute("computeNeighbor")
     def computeNeighbor(self, box, points, orientations, query_points=None,
                         query_orientations=None,
-                        equiv_quats=np.array([[1, 0, 0, 0]]), nlist=None):
-        R"""Calculates the minimum angles of separation between orientations and query_orientations,
-        checking for underlying symmetry as encoded in equiv_quats. The result
-        is stored in the :code:`neighbor_angles` class attribute.
+                        equiv_orientations=np.array([[1, 0, 0, 0]]),
+                        nlist=None):
+        R"""Calculates the minimum angles of separation between :code:`orientations`
+        and :code:`query_orientations`, checking for underlying symmetry as encoded
+        in :code:`equiv_orientations`. The result is stored in the :code:`neighbor_angles`
+        class attribute.
 
         Args:
             box (:class:`freud.box.Box`):
@@ -943,10 +945,10 @@ cdef class AngularSeparation(Compute):
             query_orientations ((:math:`N_{query_points}`, 4) :class:`numpy.ndarray`):
                 query_orientations used to calculate the order parameter. Uses :code:`orientations`
                 if not provided or :code:`None`.
-            equiv_quats ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`, optional):
+            equiv_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`, optional):
                 The set of all equivalent quaternions that takes the particle
                 as it is defined to some global reference orientation.
-                Important: :code:`equiv_quats` must include both :math:`q` and
+                Important: :code:`equiv_orientations` must include both :math:`q` and
                 :math:`-q`, for all included quaternions.
                 (Default value = :code:`[[1, 0, 0, 0]]`)
             nlist (:class:`freud.locality.NeighborList`, optional):
@@ -970,7 +972,8 @@ cdef class AngularSeparation(Compute):
             orientations, shape=(points.shape[0], 4))
         query_orientations = freud.common.convert_array(
             query_orientations, shape=(query_points.shape[0], 4))
-        equiv_quats = freud.common.convert_array(equiv_quats, shape=(None, 4))
+        equiv_orientations = freud.common.convert_array(
+            equiv_orientations, shape=(None, 4))
 
         defaulted_nlist = freud.locality.make_default_nlist_nn(
             b, points, query_points, self.num_neigh,
@@ -979,11 +982,11 @@ cdef class AngularSeparation(Compute):
 
         cdef const float[:, ::1] l_orientations = orientations
         cdef const float[:, ::1] l_query_orientations = query_orientations
-        cdef const float[:, ::1] l_equiv_quats = equiv_quats
+        cdef const float[:, ::1] l_equiv_orientations = equiv_orientations
 
         cdef unsigned int n_points = l_orientations.shape[0]
         cdef unsigned int n_query_points = l_query_orientations.shape[0]
-        cdef unsigned int n_equiv_quats = l_equiv_quats.shape[0]
+        cdef unsigned int n_equiv_orientations = l_equiv_orientations.shape[0]
 
         with nogil:
             self.thisptr.computeNeighbor(
@@ -991,16 +994,17 @@ cdef class AngularSeparation(Compute):
                 n_points,
                 <quat[float]*> &l_query_orientations[0, 0],
                 n_query_points,
-                <quat[float]*> &l_equiv_quats[0, 0],
-                n_equiv_quats,
+                <quat[float]*> &l_equiv_orientations[0, 0],
+                n_equiv_orientations,
                 self.nlist_.get_ptr(),)
         return self
 
     @Compute._compute("computeGlobal")
-    def computeGlobal(self, global_orientations, orientations, equiv_quats):
+    def computeGlobal(self, global_orientations,
+                      orientations, equiv_orientations):
         R"""Calculates the minimum angles of separation between
         :code:`global_orientations` and :code:`orientations`, checking for underlying symmetry as
-        encoded in :code:`equiv_quats`. The result is stored in the
+        encoded in :code:`equiv_orientations`. The result is stored in the
         :code:`global_angles` class attribute.
 
 
@@ -1009,25 +1013,26 @@ cdef class AngularSeparation(Compute):
                 Reference orientations to calculate the order parameter.
             orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
                 Orientations to calculate the order parameter.
-            equiv_quats ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
+            equiv_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
                 The set of all equivalent quaternions that takes the particle
                 as it is defined to some global reference orientation.
-                Important: :code:`equiv_quats` must include both :math:`q` and
+                Important: :code:`equiv_orientations` must include both :math:`q` and
                 :math:`-q`, for all included quaternions.
         """  # noqa
         global_orientations = freud.common.convert_array(
             global_orientations, shape=(None, 4))
         orientations = freud.common.convert_array(
             orientations, shape=(None, 4))
-        equiv_quats = freud.common.convert_array(equiv_quats, shape=(None, 4))
+        equiv_orientations = freud.common.convert_array(
+            equiv_orientations, shape=(None, 4))
 
         cdef const float[:, ::1] l_global_orientations = global_orientations
         cdef const float[:, ::1] l_orientations = orientations
-        cdef const float[:, ::1] l_equiv_quats = equiv_quats
+        cdef const float[:, ::1] l_equiv_orientations = equiv_orientations
 
         cdef unsigned int n_global = l_global_orientations.shape[0]
         cdef unsigned int n_points = l_orientations.shape[0]
-        cdef unsigned int n_equiv_quats = l_equiv_quats.shape[0]
+        cdef unsigned int n_equiv_orientations = l_equiv_orientations.shape[0]
 
         with nogil:
             self.thisptr.computeGlobal(
@@ -1035,8 +1040,8 @@ cdef class AngularSeparation(Compute):
                 n_global,
                 <quat[float]*> &l_orientations[0, 0],
                 n_points,
-                <quat[float]*> &l_equiv_quats[0, 0],
-                n_equiv_quats)
+                <quat[float]*> &l_equiv_orientations[0, 0],
+                n_equiv_orientations)
         return self
 
     @Compute._computed_property("computeNeighbor")
@@ -1131,13 +1136,13 @@ cdef class LocalBondProjection(Compute):
     @Compute._compute()
     def compute(self, box, proj_vecs, points,
                 orientations, query_points=None,
-                equiv_quats=np.array([[1, 0, 0, 0]]), nlist=None):
+                equiv_orientations=np.array([[1, 0, 0, 0]]), nlist=None):
         R"""Calculates the maximal projections of nearest neighbor bonds
         (between :code:`points` and :code:`query_points`) onto the set of
         reference vectors :code:`proj_vecs`, defined in the local reference
         frames of the :code:`points` as defined by the orientations
         :code:`orientations`. This computation accounts for the underlying
-        symmetries of the reference frame as encoded in :code:`equiv_quats`.
+        symmetries of the reference frame as encoded in :code:`equiv_orientations`.
 
         Args:
             box (:class:`freud.box.Box`):
@@ -1155,7 +1160,7 @@ cdef class LocalBondProjection(Compute):
                 calculation. Uses :code:`points` if not provided or
                 :code:`None`.
                 (Default value = :code:`None`).
-            equiv_quats ((:math:`N_{quats}`, 4) :class:`numpy.ndarray`, optional):
+            equiv_orientations ((:math:`N_{quats}`, 4) :class:`numpy.ndarray`, optional):
                 The set of all equivalent quaternions that takes the particle
                 as it is defined to some global reference orientation. Note
                 that this does not need to include both :math:`q` and
@@ -1176,7 +1181,8 @@ cdef class LocalBondProjection(Compute):
             query_points = points
         query_points = freud.common.convert_array(
             query_points, shape=(None, 3))
-        equiv_quats = freud.common.convert_array(equiv_quats, shape=(None, 4))
+        equiv_orientations = freud.common.convert_array(
+            equiv_orientations, shape=(None, 4))
         proj_vecs = freud.common.convert_array(proj_vecs, shape=(None, 3))
 
         defaulted_nlist = freud.locality.make_default_nlist_nn(
@@ -1187,12 +1193,12 @@ cdef class LocalBondProjection(Compute):
         cdef const float[:, ::1] l_points = points
         cdef const float[:, ::1] l_orientations = orientations
         cdef const float[:, ::1] l_query_points = query_points
-        cdef const float[:, ::1] l_equiv_quats = equiv_quats
+        cdef const float[:, ::1] l_equiv_orientations = equiv_orientations
         cdef const float[:, ::1] l_proj_vecs = proj_vecs
 
         cdef unsigned int n_points = l_points.shape[0]
         cdef unsigned int n_query_points = l_query_points.shape[0]
-        cdef unsigned int n_equiv = l_equiv_quats.shape[0]
+        cdef unsigned int n_equiv = l_equiv_orientations.shape[0]
         cdef unsigned int n_proj = l_proj_vecs.shape[0]
 
         with nogil:
@@ -1202,7 +1208,7 @@ cdef class LocalBondProjection(Compute):
                 <vec3[float]*> &l_points[0, 0],
                 <quat[float]*> &l_orientations[0, 0], n_points,
                 <vec3[float]*> &l_query_points[0, 0], n_query_points,
-                <quat[float]*> &l_equiv_quats[0, 0], n_equiv,
+                <quat[float]*> &l_equiv_orientations[0, 0], n_equiv,
                 self.nlist_.get_ptr())
         return self
 

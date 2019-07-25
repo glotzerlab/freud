@@ -16,7 +16,7 @@ using namespace tbb;
 namespace freud { namespace environment {
 
 AngularSeparation::AngularSeparation() : m_n_query_points(0), m_n_points(0), 
-    m_n_global(0), m_n_equiv_quats(0), m_tot_num_neigh(0) {}
+    m_n_global(0), m_n_equiv_orientations(0), m_tot_num_neigh(0) {}
 
 AngularSeparation::~AngularSeparation() {}
 
@@ -75,7 +75,7 @@ float computeMinSeparationAngle(const quat<float> ref_q, const quat<float> q, co
 
 void AngularSeparation::computeNeighbor(const quat<float>* orientations,  unsigned int n_points,
                          const quat<float>* query_orientations, unsigned int n_query_points, 
-                         const quat<float>* equiv_quats, unsigned int n_equiv_quats,
+                         const quat<float>* equiv_orientations, unsigned int n_equiv_orientations,
                          const freud::locality::NeighborList* nlist)
 {
     nlist->validate(n_query_points, n_points);
@@ -94,26 +94,23 @@ void AngularSeparation::computeNeighbor(const quat<float>* orientations,  unsign
     parallel_for(blocked_range<size_t>(0, n_points), [=](const blocked_range<size_t>& r) {
         assert(orientations);
         assert(query_orientations);
-        assert(equiv_quats);
+        assert(equiv_orientations);
         assert(n_points > 0);
         assert(n_query_points > 0);
-        assert(n_equiv_quats > 0);
+        assert(n_equiv_orientations > 0);
 
         size_t bond(nlist->find_first_index(r.begin()));
         for (size_t i = r.begin(); i != r.end(); ++i)
         {
             // m_neigh_ang_array.get()[i] = 0;
-            quat<float> ref_q = orientations[i];
+            quat<float> q = orientations[i];
 
             for (; bond < tot_num_neigh && neighbor_list[2 * bond] == i; ++bond)
             {
                 const size_t j(neighbor_list[2 * bond + 1]);
-                quat<float> q = query_orientations[j];
+                quat<float> query_q = query_orientations[j];
 
-                float theta = computeMinSeparationAngle(ref_q, q, equiv_quats, n_equiv_quats);
-                // cout<<neighbor_list[2*bond]<<neighbor_list[2*bond+1]<<endl;
-                // cout<<"i: "<<i<<" j: "<<j<<" bond: "<<bond<<" theta: "<<theta<<endl;
-
+                float theta = computeMinSeparationAngle(q, query_q, equiv_orientations, n_equiv_orientations);
                 m_neigh_ang_array.get()[bond] = theta;
             }
         }
@@ -123,14 +120,14 @@ void AngularSeparation::computeNeighbor(const quat<float>* orientations,  unsign
     // save the last computed number of reference particles
     m_n_points = n_points;
     // save the last computed number of equivalent quaternions
-    m_n_equiv_quats = n_equiv_quats;
+    m_n_equiv_orientations = n_equiv_orientations;
     // save the last computed number of total bonds
     m_tot_num_neigh = tot_num_neigh;
 }
 
 void AngularSeparation::computeGlobal(const quat<float>* global_orientations, unsigned int n_global, 
                        const quat<float>* orientations, unsigned int n_points, 
-                       const quat<float>* equiv_quats, unsigned int n_equiv_quats)
+                       const quat<float>* equiv_orientations, unsigned int n_equiv_orientations)
 {
     // reallocate the output array if it is not the right size
     if (n_points != m_n_points || n_global != m_n_global)
@@ -142,10 +139,10 @@ void AngularSeparation::computeGlobal(const quat<float>* global_orientations, un
     parallel_for(blocked_range<size_t>(0, n_points), [=](const blocked_range<size_t>& r) {
         assert(global_orientations);
         assert(orientations);
-        assert(equiv_quats);
+        assert(equiv_orientations);
         assert(n_global > 0);
         assert(n_points > 0);
-        assert( n_equiv_quats > 0);
+        assert( n_equiv_orientations > 0);
 
         for (size_t i = r.begin(); i != r.end(); ++i)
         {
@@ -153,7 +150,7 @@ void AngularSeparation::computeGlobal(const quat<float>* global_orientations, un
             for (unsigned int j = 0; j < n_global; j++)
             {
                 quat<float> global_q = global_orientations[j];
-                float theta = computeMinSeparationAngle(q, global_q, equiv_quats,  n_equiv_quats);
+                float theta = computeMinSeparationAngle(q, global_q, equiv_orientations,  n_equiv_orientations);
                 m_global_ang_array.get()[i * n_global + j] = theta;
             }
         }
@@ -163,7 +160,7 @@ void AngularSeparation::computeGlobal(const quat<float>* global_orientations, un
     // save the last computed number of global orientations
     m_n_global = n_global;
     // save the last computed number of equivalent quaternions
-    m_n_equiv_quats =  n_equiv_quats;
+    m_n_equiv_orientations =  n_equiv_orientations;
 }
 
 }; }; // end namespace freud::environment

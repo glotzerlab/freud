@@ -95,9 +95,9 @@ cdef class FloatCF(Compute):
         Args:
             box (:class:`freud.box.Box`):
                 Simulation box.
-            points ((:math:`N_{ref\_points}`, 3) :class:`numpy.ndarray`):
+            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
                 Reference points used to calculate the correlation function.
-            values ((:math:`N_{ref\_points}`) :class:`numpy.ndarray`):
+            values ((:math:`N_{points}`) :class:`numpy.ndarray`):
                 Real values used to calculate the correlation function.
             query_points ((:math:`N_{query_points}`, 3) :class:`numpy.ndarray`, optional):
                 query_points used to calculate the correlation function.
@@ -185,9 +185,9 @@ cdef class FloatCF(Compute):
         Args:
             box (:class:`freud.box.Box`):
                 Simulation box.
-            points ((:math:`N_{ref\_points}`, 3) :class:`numpy.ndarray`):
+            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
                 Reference points used to calculate the correlation function.
-            values ((:math:`N_{ref\_points}`) :class:`numpy.ndarray`):
+            values ((:math:`N_{points}`) :class:`numpy.ndarray`):
                 Real values used to calculate the correlation function.
             query_points ((:math:`N_{query_points}`, 3) :class:`numpy.ndarray`, optional):
                 Points used to calculate the correlation function.
@@ -325,9 +325,9 @@ cdef class ComplexCF(Compute):
         Args:
             box (:class:`freud.box.Box`):
                 Simulation box.
-            points ((:math:`N_{ref\_points}`, 3) :class:`numpy.ndarray`):
+            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
                 Reference points used to calculate the correlation function.
-            values ((:math:`N_{ref\_points}`) :class:`numpy.ndarray`):
+            values ((:math:`N_{points}`) :class:`numpy.ndarray`):
                 Complex values used to calculate the correlation function.
             query_points ((:math:`N_{query_points}`, 3) :class:`numpy.ndarray`, optional):
                 Points used to calculate the correlation function.
@@ -415,9 +415,9 @@ cdef class ComplexCF(Compute):
         Args:
             box (:class:`freud.box.Box`):
                 Simulation box.
-            points ((:math:`N_{ref\_points}`, 3) :class:`numpy.ndarray`):
+            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
                 Reference points used to calculate the correlation function.
-            values ((:math:`N_{ref\_points}`) :class:`numpy.ndarray`):
+            values ((:math:`N_{points}`) :class:`numpy.ndarray`):
                 Complex values used to calculate the correlation function.
             query_points ((:math:`N_{query_points}`, 3) :class:`numpy.ndarray`, optional):
                 Points used to calculate the correlation function.
@@ -684,9 +684,9 @@ cdef class LocalDensity(Compute):
     Attributes:
         box (:class:`freud.box.Box`):
             Box used in the calculation.
-        density ((:math:`N_{ref\_points}`) :class:`numpy.ndarray`):
+        density ((:math:`N_{points}`) :class:`numpy.ndarray`):
             Density of points per ref_point.
-        num_neighbors ((:math:`N_{ref\_points}`) :class:`numpy.ndarray`):
+        num_neighbors ((:math:`N_{points}`) :class:`numpy.ndarray`):
             Number of neighbor points for each ref_point.
     """
     cdef freud._density.LocalDensity * thisptr
@@ -715,7 +715,7 @@ cdef class LocalDensity(Compute):
         Args:
             box (:class:`freud.box.Box`):
                 Simulation box.
-            points ((:math:`N_{ref\_points}`, 3) :class:`numpy.ndarray`):
+            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
                 Reference points to calculate the local density.
             query_points ((:math:`N_{query_points}`, 3) :class:`numpy.ndarray`, optional):
                 Points to calculate the local density. Uses :code:`points`
@@ -860,7 +860,7 @@ cdef class RDF(Compute):
         Args:
             box (:class:`freud.box.Box`):
                 Simulation box.
-            points ((:math:`N_{ref\_points}`, 3) :class:`numpy.ndarray`):
+            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
                 Reference points used to calculate the RDF.
             query_points ((:math:`N_{query_points}`, 3) :class:`numpy.ndarray`, optional):
                 Points used to calculate the RDF. Uses :code:`points` if
@@ -902,7 +902,7 @@ cdef class RDF(Compute):
         Args:
             box (:class:`freud.box.Box`):
                 Simulation box.
-            points ((:math:`N_{ref\_points}`, 3) :class:`numpy.ndarray`):
+            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
                 Reference points used to calculate the RDF.
             query_points ((:math:`N_{query_points}`, 3) :class:`numpy.ndarray`, optional):
                 Points used to calculate the RDF. Uses :code:`points` if

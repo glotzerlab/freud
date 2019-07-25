@@ -119,7 +119,7 @@ class TestAngularSeparation(unittest.TestCase):
                                  dtype=np.float32)
 
         ang = freud.environment.AngularSeparation(rmax, num_neigh)
-        ang.computeNeighbor(box, points, ors, equiv_quats=equiv_quats)
+        ang.computeNeighbor(box, points, ors, equiv_orientations=equiv_quats)
 
         # test access
         ang.neighbor_angles

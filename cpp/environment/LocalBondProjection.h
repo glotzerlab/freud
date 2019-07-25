@@ -38,7 +38,7 @@ public:
         const vec3<float>* proj_vecs,  unsigned int n_proj,
         const vec3<float>* points, const quat<float>* orientations, unsigned int m_n_points,
         const vec3<float>* query_points, unsigned int n_query_points,
-        const quat<float>* equiv_quats, unsigned int n_equiv,
+        const quat<float>* equiv_orientations, unsigned int n_equiv_orientations,
         const freud::locality::NeighborList* nlist);
 
     //! Get a reference to the last computed maximal local bond projection array
@@ -78,7 +78,7 @@ private:
     unsigned int m_n_query_points;            //!< Last number of particles computed
     unsigned int m_n_points;          //!< Last number of reference particles used for computation
     unsigned int m_n_proj;         //!< Last number of projection vectors used for computation
-    unsigned int m_n_equiv;        //!< Last number of equivalent reference orientations used for computation
+    unsigned int m_n_equiv_orientations;        //!< Last number of equivalent reference orientations used for computation
     unsigned int m_tot_num_neigh; //!< Last number of total bonds used for computation
 
     std::shared_ptr<float> m_local_bond_proj;      //!< Local bond projection array computed
