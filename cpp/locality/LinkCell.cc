@@ -368,8 +368,9 @@ NeighborPoint LinkCellQueryBallIterator::next()
 
     while (cur_p < m_N)
     {
-        vec3<int> point_cell(m_linkcell->getCellCoord(m_points[cur_p]));
-        const unsigned int point_cell_index = m_linkcell->getCellIndex(point_cell + *m_neigh_cell_iter);
+        vec3<unsigned int> point_cell(m_linkcell->getCellCoord(m_points[cur_p]));
+        const unsigned int point_cell_index = m_linkcell->getCellIndex(
+                vec3<int>(point_cell.x, point_cell.y, point_cell.z) + (*m_neigh_cell_iter));
         m_searched_cells.insert(point_cell_index);
 
         // Loop over cell list neighbor shells relative to this point's cell.
@@ -404,8 +405,8 @@ NeighborPoint LinkCellQueryBallIterator::next()
                     break;
                 }
 
-                const unsigned int neighbor_cell_index = m_linkcell->getCellIndex(point_cell + *m_neigh_cell_iter);
-
+                const unsigned int neighbor_cell_index = m_linkcell->getCellIndex(
+                        vec3<int>(point_cell.x, point_cell.y, point_cell.z) + (*m_neigh_cell_iter));
                 // Insertion to an unordered set returns a pair, the second
                 // element indicates insertion success or failure (if it
                 // already exists)
@@ -414,7 +415,7 @@ NeighborPoint LinkCellQueryBallIterator::next()
                     // This cell has not been searched yet, so we will iterate
                     // over its contents. Otherwise, we loop back, increment
                     // the cell shell iterator, and try the next one.
-                    m_cell_iter = m_linkcell->itercell(neighbor_cell);
+                    m_cell_iter = m_linkcell->itercell(neighbor_cell_index);
                     break;
                 }
             }
@@ -450,8 +451,10 @@ NeighborPoint LinkCellQueryIterator::next()
 
     while (cur_p < m_N)
     {
-        vec3<int> point_cell(m_linkcell->getCellCoord(m_points[cur_p]));
-        const unsigned int point_cell_index = m_linkcell->getCellIndex(point_cell + *m_neigh_cell_iter);
+
+        vec3<unsigned int> point_cell(m_linkcell->getCellCoord(m_points[cur_p]));
+        const unsigned int point_cell_index = m_linkcell->getCellIndex(
+                vec3<int>(point_cell.x, point_cell.y, point_cell.z) + (*m_neigh_cell_iter));
         m_searched_cells.insert(point_cell_index);
 
         // Loop over cell list neighbor shells relative to this point's cell.
@@ -490,8 +493,8 @@ NeighborPoint LinkCellQueryIterator::next()
                         break;
                     }
 
-                    const unsigned int neighbor_cell_index = m_linkcell->getCellIndex(point_cell + *m_neigh_cell_iter);
-
+                    const unsigned int neighbor_cell_index = m_linkcell->getCellIndex(
+                            vec3<int>(point_cell.x, point_cell.y, point_cell.z) + (*m_neigh_cell_iter));
                     // Insertion to an unordered set returns a pair, the second
                     // element indicates insertion success or failure (if it
                     // already exists)
@@ -501,7 +504,7 @@ NeighborPoint LinkCellQueryIterator::next()
                         // iterate over its contents. Otherwise, we loop back,
                         // increment the cell shell iterator, and try the next
                         // one.
-                        m_cell_iter = m_linkcell->itercell(neighbor_cell);
+                        m_cell_iter = m_linkcell->itercell(neighbor_cell_index);
                         break;
                     }
                 }

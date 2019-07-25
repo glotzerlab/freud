@@ -381,7 +381,7 @@ public:
     }
 
     //! Compute cell id from cell coordinates
-    unsigned int getCellIndex(const vec3<int> cellCoord)
+    unsigned int getCellIndex(const vec3<int> cellCoord) const
     {
         int w = (int) getCellIndexer().getW();
         int h = (int) getCellIndexer().getH();
