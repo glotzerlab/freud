@@ -370,7 +370,7 @@ NeighborPoint LinkCellQueryBallIterator::next()
     {
         vec3<unsigned int> point_cell(m_linkcell->getCellCoord(m_points[cur_p]));
         const unsigned int point_cell_index = m_linkcell->getCellIndex(
-                vec3<int>(point_cell.x, point_cell.y, point_cell.z) + (*m_neigh_cell_iter));
+            vec3<int>(point_cell.x, point_cell.y, point_cell.z) + (*m_neigh_cell_iter));
         m_searched_cells.insert(point_cell_index);
 
         // Loop over cell list neighbor shells relative to this point's cell.
@@ -406,7 +406,7 @@ NeighborPoint LinkCellQueryBallIterator::next()
                 }
 
                 const unsigned int neighbor_cell_index = m_linkcell->getCellIndex(
-                        vec3<int>(point_cell.x, point_cell.y, point_cell.z) + (*m_neigh_cell_iter));
+                    vec3<int>(point_cell.x, point_cell.y, point_cell.z) + (*m_neigh_cell_iter));
                 // Insertion to an unordered set returns a pair, the second
                 // element indicates insertion success or failure (if it
                 // already exists)
@@ -451,10 +451,9 @@ NeighborPoint LinkCellQueryIterator::next()
 
     while (cur_p < m_N)
     {
-
         vec3<unsigned int> point_cell(m_linkcell->getCellCoord(m_points[cur_p]));
         const unsigned int point_cell_index = m_linkcell->getCellIndex(
-                vec3<int>(point_cell.x, point_cell.y, point_cell.z) + (*m_neigh_cell_iter));
+            vec3<int>(point_cell.x, point_cell.y, point_cell.z) + (*m_neigh_cell_iter));
         m_searched_cells.insert(point_cell_index);
 
         // Loop over cell list neighbor shells relative to this point's cell.
@@ -494,7 +493,7 @@ NeighborPoint LinkCellQueryIterator::next()
                     }
 
                     const unsigned int neighbor_cell_index = m_linkcell->getCellIndex(
-                            vec3<int>(point_cell.x, point_cell.y, point_cell.z) + (*m_neigh_cell_iter));
+                        vec3<int>(point_cell.x, point_cell.y, point_cell.z) + (*m_neigh_cell_iter));
                     // Insertion to an unordered set returns a pair, the second
                     // element indicates insertion success or failure (if it
                     // already exists)

@@ -582,7 +582,7 @@ public:
     virtual std::shared_ptr<NeighborQueryIterator> query(unsigned int idx);
 
 protected:
-    float m_r; //!< Search ball cutoff distance
+    float m_r;                //!< Search ball cutoff distance
     int m_extra_search_width; //!< The extra shell distance to search, always 0 or 1.
 };
 }; }; // end namespace freud::locality
