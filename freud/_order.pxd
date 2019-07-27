@@ -46,29 +46,26 @@ cdef extern from "NematicOrderParameter.h" namespace "freud::order":
         vec3[float] getNematicDirector()
 
 
-cdef extern from "HexOrderParameter.h" namespace "freud::order":
+cdef extern from "HexTransOrderParameter.h" namespace "freud::order":
     cdef cppclass HexOrderParameter:
-        HexOrderParameter(float, unsigned int, unsigned int)
+        HexOrderParameter(unsigned int)
         const freud._box.Box & getBox() const
-        void compute(freud._box.Box &,
-                     const freud._locality.NeighborList*,
-                     const vec3[float]*,
-                     unsigned int) nogil except +
+        void compute(const freud._locality.NeighborList*,
+                     const freud._locality.NeighborQuery*,
+                     freud._locality.QueryArgs) nogil except +
         # unsure how to pass back the std::complex,
         # but this seems to compile...
-        shared_ptr[float complex] getPsi()
+        shared_ptr[float complex] getOrder()
         unsigned int getNP()
         unsigned int getK()
 
-cdef extern from "TransOrderParameter.h" namespace "freud::order":
     cdef cppclass TransOrderParameter:
-        TransOrderParameter(float, float)
+        TransOrderParameter(float)
         const freud._box.Box & getBox() const,
-        void compute(freud._box.Box &,
-                     const freud._locality.NeighborList*,
-                     const vec3[float]*,
-                     unsigned int) nogil except +
-        shared_ptr[float complex] getDr()
+        void compute(const freud._locality.NeighborList*,
+                     const freud._locality.NeighborQuery*,
+                     freud._locality.QueryArgs) nogil except +
+        shared_ptr[float complex] getOrder()
         unsigned int getNP()
         float getK()
 
@@ -77,10 +74,9 @@ cdef extern from "Steinhardt.h" namespace "freud::order":
         Steinhardt(float, unsigned int, float,
                    bool, bool) except +
         unsigned int getNP()
-        void compute(const freud._box.Box &,
-                     const freud._locality.NeighborList *,
-                     const vec3[float]*,
-                     unsigned int) nogil except +
+        void compute(const freud._locality.NeighborList*,
+                     const freud._locality.NeighborQuery*,
+                     freud._locality.QueryArgs) nogil except +
         shared_ptr[float] getQl()
         shared_ptr[float complex] getWl()
         bool getUseWl()

@@ -336,7 +336,7 @@ cdef class HexOrderParameter(Compute):
     cdef float rmax
 
     def __cinit__(self, rmax, k=int(6), n=int(0)):
-        self.thisptr = new freud._order.HexOrderParameter(rmax, k, n)
+        self.thisptr = new freud._order.HexOrderParameter(k)
         self.rmax = rmax
         self.num_neigh = (n if n else int(k))
 
@@ -357,25 +357,25 @@ cdef class HexOrderParameter(Compute):
                 Neighborlist to use to find bonds.
         """
         cdef freud.box.Box b = freud.common.convert_box(box)
-        points = freud.common.convert_array(points, shape=(None, 3))
 
-        cdef const float[:, ::1] l_points = points
-        cdef unsigned int nP = l_points.shape[0]
+        nq_nlist = freud.locality.make_nq_nlist(b, points, nlist)
+        cdef freud.locality.NeighborQuery nq = nq_nlist[0]
+        cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
 
-        defaulted_nlist = freud.locality.make_default_nlist_nn(
-            b, points, points, self.num_neigh, nlist, True, self.rmax)
-        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
+        cdef freud.locality._QueryArgs def_qargs = freud.locality._QueryArgs(
+            mode="nearest", nn=self.num_neigh, rmax=self.rmax,
+            exclude_ii=True)
 
         with nogil:
-            self.thisptr.compute(dereference(b.thisptr), nlist_.get_ptr(),
-                                 <vec3[float]*> &l_points[0, 0], nP)
+            self.thisptr.compute(nlistptr.get_ptr(),
+                                 nq.get_ptr(), dereference(def_qargs.thisptr))
         return self
 
     @Compute._computed_property()
     def psi(self):
         cdef unsigned int n_particles = self.thisptr.getNP()
         cdef np.complex64_t[::1] psi = \
-            <np.complex64_t[:n_particles]> self.thisptr.getPsi().get()
+            <np.complex64_t[:n_particles]> self.thisptr.getOrder().get()
         return np.asarray(psi, dtype=np.complex64)
 
     @Compute._computed_property()
@@ -429,7 +429,7 @@ cdef class TransOrderParameter(Compute):
     cdef rmax
 
     def __cinit__(self, rmax, k=6.0, n=0):
-        self.thisptr = new freud._order.TransOrderParameter(rmax, k)
+        self.thisptr = new freud._order.TransOrderParameter(k)
         self.rmax = rmax
         self.num_neigh = (n if n else int(k))
 
@@ -449,25 +449,25 @@ cdef class TransOrderParameter(Compute):
                 Neighborlist to use to find bonds.
         """
         cdef freud.box.Box b = freud.common.convert_box(box)
-        points = freud.common.convert_array(points, shape=(None, 3))
 
-        cdef const float[:, ::1] l_points = points
-        cdef unsigned int nP = l_points.shape[0]
+        nq_nlist = freud.locality.make_nq_nlist(b, points, nlist)
+        cdef freud.locality.NeighborQuery nq = nq_nlist[0]
+        cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
 
-        defaulted_nlist = freud.locality.make_default_nlist_nn(
-            b, points, points, self.num_neigh, nlist, True, self.rmax)
-        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
+        cdef freud.locality._QueryArgs def_qargs = freud.locality._QueryArgs(
+            mode="nearest", nn=self.num_neigh, rmax=self.rmax,
+            exclude_ii=True)
 
         with nogil:
-            self.thisptr.compute(dereference(b.thisptr), nlist_.get_ptr(),
-                                 <vec3[float]*> &l_points[0, 0], nP)
+            self.thisptr.compute(nlistptr.get_ptr(),
+                                 nq.get_ptr(), dereference(def_qargs.thisptr))
         return self
 
     @Compute._computed_property()
     def d_r(self):
         cdef unsigned int n_particles = self.thisptr.getNP()
         cdef np.complex64_t[::1] d_r = \
-            <np.complex64_t[:n_particles]> self.thisptr.getDr().get()
+            <np.complex64_t[:n_particles]> self.thisptr.getOrder().get()
         return np.asarray(d_r, dtype=np.complex64)
 
     @Compute._computed_property()
@@ -631,27 +631,26 @@ cdef class Steinhardt(Compute):
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
         """
-        points = freud.common.convert_array(points, (None, 3))
 
         cdef freud.box.Box bbox = freud.common.convert_box(box)
-        cdef const float[:, ::1] l_points = points
-        cdef unsigned int nP = l_points.shape[0]
 
-        # Construct the correct neighbor list depending on specified behavior.
-        # Using rmax or num_neigh to determine a hard neighbor limit or hard
-        # rmax cut-off
+        nq_nlist = freud.locality.make_nq_nlist(bbox, points, nlist)
+        cdef freud.locality.NeighborQuery nq = nq_nlist[0]
+        cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
+
         if self.num_neigh > 0:
-            defaulted_nlist = freud.locality.make_default_nlist_nn(
-                bbox, points, points, self.num_neigh, nlist, True, self.rmax)
+            _qargs = freud.locality._QueryArgs(
+                mode="nearest", nn=self.num_neigh, rmax=self.rmax,
+                exclude_ii=True)
         else:
-            defaulted_nlist = freud.locality.make_default_nlist(
-                bbox, points, points, self.rmax, nlist, True)
-        cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
+            _qargs = freud.locality._QueryArgs(
+                mode="ball", rmax=self.rmax, exclude_ii=True)
 
-        self.stptr.compute(dereference(bbox.thisptr),
-                           nlist_.get_ptr(),
-                           <vec3[float]*> &l_points[0, 0],
-                           nP)
+        cdef freud.locality._QueryArgs def_qargs = _qargs
+
+        self.stptr.compute(nlistptr.get_ptr(),
+                           nq.get_ptr(),
+                           dereference(def_qargs.thisptr))
         return self
 
     def __repr__(self):

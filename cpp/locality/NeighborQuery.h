@@ -258,7 +258,7 @@ public:
 
         NeighborList* nl = new NeighborList();
         nl->resize(num_bonds);
-        nl->setNumBonds(num_bonds, m_neighbor_query->getNRef(), m_N);
+        nl->setNumBonds(num_bonds, m_N, m_neighbor_query->getNRef());
         size_t* neighbor_array(nl->getNeighbors());
         float* neighbor_weights(nl->getWeights());
         float* neighbor_distance(nl->getDistances());
@@ -266,8 +266,8 @@ public:
         parallel_for(tbb::blocked_range<size_t>(0, num_bonds), [&](const tbb::blocked_range<size_t>& r) {
             for (size_t bond(r.begin()); bond < r.end(); ++bond)
             {
-                neighbor_array[2 * bond] = linear_bonds[bond].ref_id;
-                neighbor_array[2 * bond + 1] = linear_bonds[bond].id;
+                neighbor_array[2 * bond] = linear_bonds[bond].id;
+                neighbor_array[2 * bond + 1] = linear_bonds[bond].ref_id;
                 neighbor_distance[bond] = linear_bonds[bond].distance;
             }
         });

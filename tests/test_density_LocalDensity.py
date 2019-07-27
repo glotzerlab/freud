@@ -3,7 +3,7 @@ import numpy as np
 import numpy.testing as npt
 import freud
 import unittest
-from util import make_box_and_random_points
+import util
 
 
 def getFraction(dist, rcut, diameter):
@@ -22,8 +22,11 @@ class TestLD(unittest.TestCase):
         """Initialize a box with randomly placed particles"""
         box_size = 10
         num_points = 10000
-        self.box, self.pos = make_box_and_random_points(box_size, num_points)
-        self.ld = freud.density.LocalDensity(3, 1, 1)
+        self.box, self.pos = util.make_box_and_random_points(
+            box_size, num_points)
+        self.r_cut = 3
+        self.diameter = 1
+        self.ld = freud.density.LocalDensity(self.r_cut, 1, self.diameter)
 
         # Test access
         with self.assertRaises(AttributeError):
@@ -46,19 +49,24 @@ class TestLD(unittest.TestCase):
 
     def test_density(self):
         """Test that LocalDensity computes the correct density at each point"""
-        self.ld.compute(self.box, self.pos, self.pos)
 
-        # Test access
-        self.ld.density
-        self.ld.num_neighbors
-        self.ld.box
+        rmax = self.r_cut + 0.5*self.diameter
+        test_set = util.make_raw_query_nlist_test_set(
+            self.box, self.pos, self.pos, "ball", rmax, 0, True)
+        for ts in test_set:
+            self.ld.compute(self.box, ts[0], nlist=ts[1])
 
-        self.assertTrue(self.ld.box == freud.box.Box.cube(10))
+            # Test access
+            self.ld.density
+            self.ld.num_neighbors
+            self.ld.box
 
-        npt.assert_array_less(np.fabs(self.ld.density - 10.0), 1.5)
+            self.assertTrue(self.ld.box == freud.box.Box.cube(10))
 
-        npt.assert_array_less(
-            np.fabs(self.ld.num_neighbors - 1130.973355292), 200)
+            npt.assert_array_less(np.fabs(self.ld.density - 10.0), 1.5)
+
+            npt.assert_array_less(
+                np.fabs(self.ld.num_neighbors - 1130.973355292), 200)
 
     @unittest.skip('Skipping slow LocalDensity test.')
     def test_refpoints(self):

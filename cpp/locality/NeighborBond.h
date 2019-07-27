@@ -49,13 +49,13 @@ struct NeighborBond
 
     bool less_as_tuple(const NeighborBond& n) const
     {
-        if (ref_id != n.ref_id)
-        {
-            return ref_id < n.ref_id;
-        }
         if (id != n.id)
         {
             return id < n.id;
+        }
+        if (ref_id != n.ref_id)
+        {
+            return ref_id < n.ref_id;
         }
         if (weight != n.weight)
         {

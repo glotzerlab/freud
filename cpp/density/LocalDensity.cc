@@ -22,14 +22,13 @@ LocalDensity::LocalDensity(float rcut, float volume, float diameter)
 
 LocalDensity::~LocalDensity() {}
 
-void LocalDensity::compute(const box::Box& box, const freud::locality::NeighborList* nlist,
-                           const vec3<float>* ref_points, unsigned int n_ref, const vec3<float>* points,
-                           unsigned int Np)
+void LocalDensity::compute(const freud::locality::NeighborList* nlist,
+                           const freud::locality::NeighborQuery* ref_points, const vec3<float>* points,
+                           unsigned int Np, freud::locality::QueryArgs qargs)
 {
-    m_box = box;
+    m_box = ref_points->getBox();
 
-    nlist->validate(n_ref, Np);
-    const size_t* neighbor_list(nlist->getNeighbors());
+    unsigned int n_ref = ref_points->getNRef();
 
     // reallocate the output array if it is not the right size
     if (n_ref != m_n_ref)
@@ -41,56 +40,38 @@ void LocalDensity::compute(const box::Box& box, const freud::locality::NeighborL
     float area = M_PI * m_rcut * m_rcut;
     float volume = 4.0f/3.0f * M_PI * m_rcut * m_rcut * m_rcut;
     // compute the local density
-    freud::locality::forLoopWrapper(0, n_ref, 
-      [=] (size_t r_begin, size_t r_end)
-      {
-      size_t bond(nlist->find_first_index(r_begin));
-
-      for(size_t i=r_begin; i != r_end; ++i)
-          {
-          float num_neighbors = 0;
-
-          const vec3<float> r_i(ref_points[i]);
-
-          for(; bond < nlist->getNumBonds() && neighbor_list[2*bond] == i; ++bond)
-          {
-              const unsigned int j(neighbor_list[2*bond + 1]);
-
-              const vec3<float> r_j(points[j]);
-              const vec3<float> r_ij(m_box.wrap(r_j - r_i));
-
-              float rsq = dot(r_ij, r_ij);
-              float r = sqrt(rsq);
-
-              // count particles that are fully in the rcut sphere
-              if (r < (m_rcut - m_diameter/2.0f))
-              {
-                  num_neighbors += 1.0f;
-              }
-              else
-              {
-                  // partially count particles that intersect the rcut sphere
-                  // this is not particularly accurate for a single particle, but works well on average for
-                  // lots of them. It smooths out the neighbor count distributions and avoids noisy spikes
-                  // that obscure data
-                  num_neighbors += 1.0f + (m_rcut - (r + m_diameter/2.0f)) / m_diameter;
-              }
-          }
-
-          m_num_neighbors_array.get()[i] = num_neighbors;
-          if (m_box.is2D())
+    freud::locality::loopOverNeighborsIterator(ref_points, points, Np, qargs, nlist, 
+    [=](size_t i, std::shared_ptr<freud::locality::NeighborIterator::PerPointIterator> ppiter)
+    {
+        float num_neighbors = 0;
+        for(freud::locality::NeighborBond nb = ppiter->next(); !ppiter->end(); nb = ppiter->next())
+            {
+            // count particles that are fully in the rcut sphere
+            if (nb.distance < (m_rcut - m_diameter/2.0f))
+            {
+              num_neighbors += 1.0f;
+            }
+            else
+            {
+              // partially count particles that intersect the rcut sphere
+              // this is not particularly accurate for a single particle, but works well on average for
+              // lots of them. It smooths out the neighbor count distributions and avoids noisy spikes
+              // that obscure data
+              num_neighbors += 1.0f + (m_rcut - (nb.distance + m_diameter/2.0f)) / m_diameter;
+            }
+            m_num_neighbors_array.get()[i] = num_neighbors;
+            if (m_box.is2D())
               {
               // local density is area of particles divided by the area of the circle
               m_density_array.get()[i] = (m_volume * m_num_neighbors_array.get()[i]) / area;
               }
-          else
+            else
               {
               // local density is volume of particles divided by the volume of the sphere
               m_density_array.get()[i] = (m_volume * m_num_neighbors_array.get()[i]) / volume;
-              }
-          }
-      }, true);
-    // save the last computed number of particles
+            }
+        }
+    });
     m_n_ref = n_ref;
 }
 

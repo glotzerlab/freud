@@ -67,6 +67,7 @@ cdef extern from "NeighborList.h" namespace "freud::locality":
 
         size_t * getNeighbors()
         float * getWeights()
+        float * getDistances()
 
         size_t getNumI() const
         size_t getNumBonds() const
@@ -140,6 +141,7 @@ cdef extern from "NearestNeighbors.h" namespace "freud::locality":
         float getRMax() const
         unsigned int getUINTMAX() const
         unsigned int getNref() const
+        unsigned int getNp() const
         void setCutMode(const bool)
         void compute(
             const freud._box.Box &,

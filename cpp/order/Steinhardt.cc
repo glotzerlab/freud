@@ -2,6 +2,7 @@
 // This file is from the freud project, released under the BSD 3-Clause License.
 
 #include "Steinhardt.h"
+#include "NeighborComputeFunctional.h"
 
 using namespace std;
 using namespace tbb;
@@ -90,18 +91,18 @@ void Steinhardt::reallocateArrays(unsigned int Np)
     }
 }
 
-void Steinhardt::compute(const box::Box& box, const locality::NeighborList* nlist, const vec3<float>* points,
-                         unsigned int Np)
+void Steinhardt::compute(const freud::locality::NeighborList* nlist,
+                                  const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs)
 {
     // Allocate and zero out arrays as necessary
-    reallocateArrays(Np);
+    reallocateArrays(points->getNRef());
 
     // Computes the base Qlmi required for each specialized order parameter
-    baseCompute(box, nlist, points);
+    baseCompute(nlist, points, qargs);
 
     if (m_average)
     {
-        computeAve(box, nlist, points);
+        computeAve(nlist, points, qargs);
     }
 
     // Reduce Qlm
@@ -125,43 +126,31 @@ void Steinhardt::compute(const box::Box& box, const locality::NeighborList* nlis
     }
 }
 
-void Steinhardt::baseCompute(const box::Box& box, const locality::NeighborList* nlist,
-                             const vec3<float>* points)
+void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
+                             const freud::locality::NeighborQuery* points,
+                             freud::locality::QueryArgs qargs)
 {
-    nlist->validate(m_Np, m_Np);
+    const float normalizationfactor = 4 * M_PI / (2 * m_l + 1);
     // For consistency, this reset is done here regardless of whether the array
     // is populated in baseCompute or computeAve.
     m_Qlm_local.reset();
-
-    parallel_for(tbb::blocked_range<size_t>(0, m_Np), [=](const blocked_range<size_t>& r) {
-        const float normalizationfactor = 4 * M_PI / (2 * m_l + 1);
-        const size_t* neighbor_list(nlist->getNeighbors());
-
-        // Initialize thread-local m_Qlm and compute it in this function, if we
-        // won't average over neighbors later.
-
-        size_t bond(nlist->find_first_index(r.begin()));
-        // for each reference point
-        for (size_t i = r.begin(); i != r.end(); i++)
+    freud::locality::loopOverNeighborsIterator(points, points->getRefPoints(), m_Np, qargs, nlist,
+        [=](size_t i, std::shared_ptr<freud::locality::NeighborIterator::PerPointIterator> ppiter)
         {
             unsigned int neighborcount(0);
-            const vec3<float> ref(points[i]);
-            for (; bond < nlist->getNumBonds() && neighbor_list[2 * bond] == i; ++bond)
+            const vec3<float> ref((*points)[i]);
+            for(freud::locality::NeighborBond nb = ppiter->next(); !ppiter->end(); nb = ppiter->next())
             {
-                const unsigned int j(neighbor_list[2 * bond + 1]);
-
-                const vec3<float> delta = box.wrap(points[j] - ref);
-                const float rsq = dot(delta, delta);
-
+                const vec3<float> delta = points->getBox().wrap((*points)[nb.ref_id] - ref);
                 // phi is usually in range 0..2Pi, but
                 // it only appears in Ylm as exp(im\phi),
                 // so range -Pi..Pi will give same results.
                 float phi = atan2(delta.y, delta.x);     // -Pi..Pi
-                float theta = acos(delta.z / sqrt(rsq)); // 0..Pi
+                float theta = acos(delta.z / nb.distance); // 0..Pi
 
                 // If the points are directly on top of each other,
                 // theta should be zero instead of nan.
-                if (rsq == float(0))
+                if (nb.distance == float(0))
                 {
                     theta = 0;
                 }
@@ -191,43 +180,34 @@ void Steinhardt::baseCompute(const box::Box& box, const locality::NeighborList* 
             }
             m_Qli.get()[i] *= normalizationfactor;
             m_Qli.get()[i] = sqrt(m_Qli.get()[i]);
-        } // Ends loop over particles i for Qlmi calcs
-    });
+        });
 }
 
-void Steinhardt::computeAve(const box::Box& box, const locality::NeighborList* nlist,
-                            const vec3<float>* points)
+void Steinhardt::computeAve(const freud::locality::NeighborList* nlist,
+                                  const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs)
 {
-    const size_t* neighbor_list(nlist->getNeighbors());
-
+    std::shared_ptr<freud::locality::NeighborIterator> niter = 
+        freud::locality::getNeighborIterator(points, points->getRefPoints(), m_Np, qargs, nlist);
     const float normalizationfactor = 4 * M_PI / (2 * m_l + 1);
 
-    parallel_for(tbb::blocked_range<size_t>(0, m_Np), [=](const blocked_range<size_t>& r) {
-        // Initialize thread-local m_Qlm and compute it averaging over
-        // neighbors, reduced over particles
-
-        size_t bond(nlist->find_first_index(r.begin()));
-        // for each reference point
-        for (unsigned int i = r.begin(); i != r.end(); i++)
+    freud::locality::loopOverNeighborsIterator(points, points->getRefPoints(), m_Np, qargs, nlist,
+        [=](size_t i, std::shared_ptr<freud::locality::NeighborIterator::PerPointIterator> ppiter)
         {
-            unsigned int neighborcount(1);
-
-            for (; bond < nlist->getNumBonds() && neighbor_list[2 * bond] == i; ++bond)
+            unsigned int neighborcount(1);  
+            for(freud::locality::NeighborBond nb1 = ppiter->next(); !ppiter->end(); nb1 = ppiter->next())
             {
-                const unsigned int n(neighbor_list[2 * bond + 1]);
-
-                size_t neighborhood_bond(nlist->find_first_index(n));
-                for (; neighborhood_bond < nlist->getNumBonds() && neighbor_list[2 * neighborhood_bond] == n;
-                     ++neighborhood_bond)
+                auto ns_neighbors_iter = niter->queryPerPoint(nb1.ref_id);
+                for(freud::locality::NeighborBond nb2 = ns_neighbors_iter->next(); !ns_neighbors_iter->end(); nb2 = ns_neighbors_iter->next())
                 {
-                    const unsigned int j(neighbor_list[2 * neighborhood_bond + 1]);
-
-                    for (unsigned int k = 0; k < (2 * m_l + 1); ++k)
+                    if (nb2.distance < m_rmax && nb2.distance > m_rmin)
                     {
-                        // Adding all the Qlm of the neighbors
-                        m_QlmiAve.get()[(2 * m_l + 1) * i + k] += m_Qlmi.get()[(2 * m_l + 1) * j + k];
+                        for (unsigned int k = 0; k < (2 * m_l + 1); ++k)
+                        {
+                            // Adding all the Qlm of the neighbors
+                            m_QlmiAve.get()[(2 * m_l + 1) * i + k] += m_Qlmi.get()[(2 * m_l + 1) * nb2.ref_id + k];
+                        }
+                        neighborcount++;
                     }
-                    neighborcount++;
                 } // End loop over particle neighbor's bonds
             }     // End loop over particle's bonds
 
@@ -244,8 +224,7 @@ void Steinhardt::computeAve(const box::Box& box, const locality::NeighborList* n
             }
             m_QliAve.get()[i] *= normalizationfactor;
             m_QliAve.get()[i] = sqrt(m_QliAve.get()[i]);
-        } // Ends loop over particles i for Qlmi calcs
-    });   // End parallel function
+        });
 }
 
 float Steinhardt::normalize()

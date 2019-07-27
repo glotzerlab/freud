@@ -11,8 +11,10 @@
 
 #include "Box.h"
 #include "NeighborList.h"
+#include "NeighborQuery.h"
 #include "VectorMath.h"
 #include "fsph/src/spherical_harmonics.hpp"
+#include "ThreadStorage.h"
 #include "wigner3j.h"
 
 /*! \file Steinhardt.h
@@ -64,7 +66,7 @@ public:
      *                         or some other arbitrary rdf region.
      */
     Steinhardt(float rmax, unsigned int l, float rmin = 0, bool average = false, bool Wl = false)
-        : m_Np(0), m_rmax(rmax), m_l(l), m_rmin(rmin), m_average(average), m_Wl(Wl), m_Qlm_local(2*l+1)
+        : m_Np(0), m_rmax(rmax), m_l(l), m_rmin(rmin), m_average(average), m_Wl(Wl), m_Qlm_local(2 * l + 1)
     {
         // Error Checking
         if (m_rmax < 0.0f || m_rmin < 0.0f)
@@ -122,8 +124,8 @@ public:
     }
 
     //! Compute the order parameter
-    virtual void compute(const box::Box& box, const locality::NeighborList* nlist, const vec3<float>* points,
-                         unsigned int Np);
+    virtual void compute(const freud::locality::NeighborList* nlist,
+                                  const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs);
 
 private:
     //! \internal
@@ -142,10 +144,12 @@ private:
 
     //! Calculates the base Ql order parameter before further modifications
     // if any.
-    void baseCompute(const box::Box& box, const locality::NeighborList* nlist, const vec3<float>* points);
+    void baseCompute(const freud::locality::NeighborList* nlist,
+                                  const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs);
 
     //! Calculates the neighbor average Ql order parameter
-    void computeAve(const box::Box& box, const locality::NeighborList* nlist, const vec3<float>* points);
+    void computeAve(const freud::locality::NeighborList* nlist,
+                                  const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs);
 
     //! Normalize the order parameter
     float normalize();

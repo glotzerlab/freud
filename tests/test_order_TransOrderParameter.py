@@ -3,6 +3,7 @@ import numpy.testing as npt
 import freud
 import unittest
 import itertools
+import util
 
 
 class TestTransOrder(unittest.TestCase):
@@ -15,7 +16,9 @@ class TestTransOrder(unittest.TestCase):
         positions[:, :2] = np.array(list(itertools.product(xs, xs)),
                                     dtype=np.float32)
 
-        trans = freud.order.TransOrderParameter(1.1, 4, 4)
+        rmax = 1.1
+        n = 4
+        trans = freud.order.TransOrderParameter(rmax, 4, n)
         # Test access
         with self.assertRaises(AttributeError):
             trans.num_particles
@@ -23,17 +26,20 @@ class TestTransOrder(unittest.TestCase):
             trans.box
         with self.assertRaises(AttributeError):
             trans.d_r
-        trans.compute(box, positions)
 
-        # Test access
-        trans.num_particles
-        trans.box
-        trans.d_r
+        test_set = util.make_raw_query_nlist_test_set(
+            box, positions, positions, 'nearest', rmax, n, True)
+        for ts in test_set:
+            trans.compute(box, ts[0], nlist=ts[1])
+            # Test access
+            trans.num_particles
+            trans.box
+            trans.d_r
 
-        npt.assert_allclose(trans.d_r, 0, atol=1e-6)
+            npt.assert_allclose(trans.d_r, 0, atol=1e-6)
 
-        self.assertEqual(box, trans.box)
-        self.assertEqual(len(positions), trans.num_particles)
+            self.assertEqual(box, trans.box)
+            self.assertEqual(len(positions), trans.num_particles)
 
     def test_repr(self):
         trans = freud.order.TransOrderParameter(1.1, 4, 4)

@@ -106,7 +106,7 @@ class TestLocalDescriptors(unittest.TestCase):
         comp = freud.environment.LocalDescriptors(Nneigh, lmax, .5, True)
         comp.compute(box, Nneigh, positions, positions2)
         sphs = comp.sph
-        self.assertEqual(sphs.shape[0], N*Nneigh)
+        self.assertEqual(sphs.shape[0], N//3*Nneigh)
 
     def test_repr(self):
         comp = freud.environment.LocalDescriptors(4, 8, 0.5, True)

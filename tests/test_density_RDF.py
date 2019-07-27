@@ -4,7 +4,7 @@ import numpy as np
 import numpy.testing as npt
 import freud
 import unittest
-from util import make_box_and_random_points
+import util
 
 
 class TestRDF(unittest.TestCase):
@@ -28,7 +28,8 @@ class TestRDF(unittest.TestCase):
         dr = 1.0
         num_points = 100
         box_size = rmax*3.1
-        box, points = make_box_and_random_points(box_size, num_points, True)
+        box, points = util.make_box_and_random_points(
+            box_size, num_points, True)
         rdf = freud.density.RDF(rmax, dr)
 
         # Test protected attribute access
@@ -85,30 +86,33 @@ class TestRDF(unittest.TestCase):
 
         for i, rmin in enumerate([0, 0.05, 0.1, 1.0, 3.0]):
             nbins = int((rmax - rmin) / dr)
-            box, points = make_box_and_random_points(box_size, num_points)
+            box, points = util.make_box_and_random_points(box_size, num_points)
             points.flags['WRITEABLE'] = False
+            box = freud.box.Box.cube(box_size)
+            test_set = util.make_raw_query_nlist_test_set(
+                box, points, points, "ball", rmax, 0, True)
+            for ts in test_set:
+                rdf = freud.density.RDF(rmax, dr, rmin=rmin)
 
-            rdf = freud.density.RDF(rmax, dr, rmin=rmin)
+                if i < 3:
+                    rdf.accumulate(box, ts[0], nlist=ts[1])
+                else:
+                    rdf.compute(box, ts[0], nlist=ts[1])
+                self.assertTrue(rdf.box == box)
+                correct = np.ones(nbins, dtype=np.float32)
+                correct[0] = 0.0
+                npt.assert_allclose(rdf.RDF, correct, atol=tolerance)
 
-            if i < 3:
-                rdf.accumulate(box, points)
-            else:
-                rdf.compute(box, points)
-            self.assertTrue(rdf.box == box)
-            correct = np.ones(nbins, dtype=np.float32)
-            correct[0] = 0.0
-            npt.assert_allclose(rdf.RDF, correct, atol=tolerance)
-
-            # Numerical integration to compute the running coordination number
-            # will be highly inaccurate, so we can only test up to a limited
-            # precision. Also, since dealing with nonzero rmin values requires
-            # extrapolation, we only test when rmin=0.
-            if rmin == 0:
-                correct_cumulative = np.array(
-                    [ig_sphere(rdf.R, rdf.RDF, j) for j in range(1, nbins+1)]
-                )
-                npt.assert_allclose(rdf.n_r, correct_cumulative,
-                                    rtol=tolerance*5)
+                # Numerical integration to compute the running coordination
+                # number will be highly inaccurate, so we can only test up to
+                # a limited precision. Also, since dealing with nonzero rmin
+                # values requires extrapolation, we only test when rmin=0.
+                if rmin == 0:
+                    correct_cumulative = np.array(
+                        [ig_sphere(rdf.R, rdf.RDF, j)
+                            for j in range(1, nbins+1)])
+                    npt.assert_allclose(rdf.n_r, correct_cumulative,
+                                        rtol=tolerance*5)
 
     def test_repr(self):
         rdf = freud.density.RDF(10, 0.1, rmin=0.5)
@@ -119,7 +123,7 @@ class TestRDF(unittest.TestCase):
         dr = 1.0
         num_points = 10
         box_size = rmax*3.1
-        box, points = make_box_and_random_points(box_size, num_points)
+        box, points = util.make_box_and_random_points(box_size, num_points)
         rdf = freud.density.RDF(rmax, dr)
 
         with self.assertRaises(AttributeError):
@@ -154,9 +158,13 @@ class TestRDF(unittest.TestCase):
             supposed_RDF.append(supposed_RDF[-1] + N)
         supposed_RDF = np.array(supposed_RDF[:-1])
 
-        rdf.compute(box, ref_points, points)
+        test_set = util.make_raw_query_nlist_test_set(
+            box, ref_points, points, "ball", rmax, 0, False)
+        for ts in test_set:
+            rdf = freud.density.RDF(rmax, dr)
+            rdf.compute(box, ts[0], points, nlist=ts[1])
 
-        npt.assert_allclose(rdf.n_r, supposed_RDF, atol=1e-6)
+            npt.assert_allclose(rdf.n_r, supposed_RDF, atol=1e-6)
 
 
 if __name__ == '__main__':

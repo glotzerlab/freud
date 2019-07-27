@@ -110,22 +110,17 @@ size_t NeighborList::filter_r(const freud::box::Box& box, const vec3<float>* r_i
     size_t num_good(0);
     size_t* neighbors(m_neighbors.get());
     float* weights(m_weights.get());
-
-    const float rmaxsq(rmax * rmax);
-    const float rminsq(rmin * rmin);
+    float* distances(m_distances.get());
 
     for (size_t bond(0); bond < m_num_bonds; ++bond)
     {
-        const size_t i(neighbors[2 * bond]), j(neighbors[2 * bond + 1]);
-        const vec3<float> rij(box.wrap(r_j[j] - r_i[i]));
-        const float rijsq(dot(rij, rij));
-        const bool good(rijsq > rminsq && rijsq < rmaxsq);
-
+        const bool good(distances[bond] > rmin && distances[bond] < rmax);
         if (good)
         {
             neighbors[2 * num_good] = neighbors[2 * bond];
             neighbors[2 * num_good + 1] = neighbors[2 * bond + 1];
             weights[num_good] = weights[bond];
+            distances[num_good] = distances[bond];
             ++num_good;
         }
     }
@@ -161,11 +156,14 @@ void NeighborList::copy(const NeighborList& other)
     resize(other.m_num_bonds);
     const size_t* src_neigh(other.getNeighbors());
     const float* src_weights(other.getWeights());
+    const float* src_distances(other.getDistances());
     size_t* dst_neigh(getNeighbors());
     float* dst_weights(getWeights());
+    float* dst_distances(getDistances());
 
     std::copy(src_neigh, src_neigh + 2 * other.m_num_bonds, dst_neigh);
     std::copy(src_weights, src_weights + other.m_num_bonds, dst_weights);
+    std::copy(src_distances, src_distances + other.m_num_bonds, dst_distances);
     m_num_bonds = other.m_num_bonds;
     m_num_i = other.m_num_i;
     m_num_j = other.m_num_j;
