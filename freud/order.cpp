@@ -54,19 +54,19 @@
         "name": "freud.order",
         "sources": [
             "freud/order.pyx",
-            "cpp/order/NematicOrderParameter.cc",
-            "cpp/cluster/Cluster.cc",
-            "cpp/util/diagonalize.cc",
-            "cpp/order/LocalWl.cc",
             "cpp/order/HexOrderParameter.cc",
-            "cpp/order/Steinhardt.cc",
-            "cpp/order/wigner3j.cc",
-            "cpp/order/LocalQl.cc",
-            "cpp/order/TransOrderParameter.cc",
-            "cpp/order/RotationalAutocorrelation.cc",
-            "cpp/order/CubaticOrderParameter.cc",
             "cpp/locality/NeighborList.cc",
-            "cpp/order/SolLiq.cc"
+            "cpp/order/LocalQl.cc",
+            "cpp/order/NematicOrderParameter.cc",
+            "cpp/util/diagonalize.cc",
+            "cpp/order/CubaticOrderParameter.cc",
+            "cpp/order/LocalWl.cc",
+            "cpp/order/RotationalAutocorrelation.cc",
+            "cpp/order/SolLiq.cc",
+            "cpp/order/TransOrderParameter.cc",
+            "cpp/cluster/Cluster.cc",
+            "cpp/order/Steinhardt.cc",
+            "cpp/order/wigner3j.cc"
         ]
     },
     "module_name": "freud.order"
@@ -1717,7 +1717,7 @@ struct __pyx_obj_5freud_5order_SolLiqNear {
 struct __pyx_obj_5freud_5order_RotationalAutocorrelation {
   struct __pyx_obj_5freud_6common_Compute __pyx_base;
   freud::order::RotationalAutocorrelation *thisptr;
-  int l;
+  unsigned int l;
 };
 
 
@@ -26281,7 +26281,7 @@ static PyObject *__pyx_pf_5freud_5order_10SolLiqNear_16__setstate_cython__(CYTHO
 }
 
 /* "freud/order.pyx":1884
- *     cdef int l
+ *     cdef unsigned int l
  * 
  *     def __cinit__(self, l):             # <<<<<<<<<<<<<<
  *         if l % 2 or l < 0:
@@ -26344,7 +26344,7 @@ static int __pyx_pf_5freud_5order_25RotationalAutocorrelation___cinit__(struct _
   int __pyx_t_1;
   PyObject *__pyx_t_2 = NULL;
   int __pyx_t_3;
-  int __pyx_t_4;
+  unsigned int __pyx_t_4;
   __Pyx_RefNannySetupContext("__cinit__", 0);
 
   /* "freud/order.pyx":1885
@@ -26399,7 +26399,7 @@ static int __pyx_pf_5freud_5order_25RotationalAutocorrelation___cinit__(struct _
  *         self.thisptr = new freud._order.RotationalAutocorrelation(
  *             self.l)
  */
-  __pyx_t_4 = __Pyx_PyInt_As_int(__pyx_v_l); if (unlikely((__pyx_t_4 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 1888, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyInt_As_unsigned_int(__pyx_v_l); if (unlikely((__pyx_t_4 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 1888, __pyx_L1_error)
   __pyx_v_self->l = __pyx_t_4;
 
   /* "freud/order.pyx":1889
@@ -26412,7 +26412,7 @@ static int __pyx_pf_5freud_5order_25RotationalAutocorrelation___cinit__(struct _
   __pyx_v_self->thisptr = new freud::order::RotationalAutocorrelation(__pyx_v_self->l);
 
   /* "freud/order.pyx":1884
- *     cdef int l
+ *     cdef unsigned int l
  * 
  *     def __cinit__(self, l):             # <<<<<<<<<<<<<<
  *         if l % 2 or l < 0:
@@ -27200,7 +27200,7 @@ static PyObject *__pyx_pf_5freud_5order_25RotationalAutocorrelation_12__repr__(s
  * 
  *     def __str__(self):
  */
-  __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_self->l); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1943, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyInt_From_unsigned_int(__pyx_v_self->l); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1943, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_sph_l, __pyx_t_3) < 0) __PYX_ERR(0, 1942, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;

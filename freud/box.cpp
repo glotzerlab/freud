@@ -38,8 +38,8 @@
         "name": "freud.box",
         "sources": [
             "freud/box.pyx",
-            "cpp/box/Box.cc",
-            "cpp/box/ParticleBuffer.cc"
+            "cpp/box/ParticleBuffer.cc",
+            "cpp/box/Box.cc"
         ]
     },
     "module_name": "freud.box"
