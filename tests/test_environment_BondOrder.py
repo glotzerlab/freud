@@ -49,7 +49,7 @@ class TestBondOrder(unittest.TestCase):
         with self.assertRaises(AttributeError):
             bo.bond_order
 
-        test_set = util.makeRawQueryNlistTestSet(
+        test_set = util.make_raw_query_nlist_test_set(
             box, positions, positions, "nearest", r_cut, num_neighbors, True)
         for ts in test_set:
             bo.reset()
@@ -103,7 +103,7 @@ class TestBondOrder(unittest.TestCase):
         # big box to ignore periodicity
         box = freud.box.Box.square(lattice_size*5)
         angle = np.pi/30
-        points, ref_points = util.makeAlternatingLattice(lattice_size, angle)
+        points, ref_points = util.make_alternating_lattice(lattice_size, angle)
 
         # actually not used
         rmax = 1.6
@@ -112,7 +112,7 @@ class TestBondOrder(unittest.TestCase):
         n = 12
         n_bins_t = 30
         n_bins_p = 2
-        test_set = util.makeRawQueryNlistTestSet(
+        test_set = util.make_raw_query_nlist_test_set(
             box, ref_points, points, "nearest", rmax, n, False)
         for ts in test_set:
             bod = freud.environment.BondOrder(

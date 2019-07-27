@@ -3,7 +3,7 @@ import numpy.testing as npt
 import numpy as np
 import random
 import freud
-from util import makeBoxAndRandomPoints
+from util import make_box_and_random_points
 
 
 random.seed(0)
@@ -47,7 +47,7 @@ class TestLocalBondProjection(unittest.TestCase):
         num_neigh = 8
         rmax = 3
 
-        box, points = makeBoxAndRandomPoints(boxlen, N, True)
+        box, points = make_box_and_random_points(boxlen, N, True)
 
         ors = []
         for i in range(N):
@@ -66,7 +66,7 @@ class TestLocalBondProjection(unittest.TestCase):
         num_neigh = 8
         rmax = 3
 
-        box, points = makeBoxAndRandomPoints(boxlen, N, True)
+        box, points = make_box_and_random_points(boxlen, N, True)
 
         ors = []
         for i in range(N):
@@ -85,7 +85,7 @@ class TestLocalBondProjection(unittest.TestCase):
         num_neigh = 8
         rmax = 3
 
-        box, points = makeBoxAndRandomPoints(boxlen, N, True)
+        box, points = make_box_and_random_points(boxlen, N, True)
 
         ors = []
         for i in range(N):
@@ -104,7 +104,7 @@ class TestLocalBondProjection(unittest.TestCase):
         num_neigh = 8
         rmax = 3
 
-        box, points = makeBoxAndRandomPoints(boxlen, N)
+        box, points = make_box_and_random_points(boxlen, N)
 
         ors = []
         for i in range(N):
@@ -129,7 +129,7 @@ class TestLocalBondProjection(unittest.TestCase):
         num_neigh = 8
         rmax = 3
 
-        box, points = makeBoxAndRandomPoints(boxlen, N, True)
+        box, points = make_box_and_random_points(boxlen, N, True)
 
         ors = []
         for i in range(N):

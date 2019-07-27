@@ -2,7 +2,7 @@ import numpy as np
 import numpy.testing as npt
 import freud
 import unittest
-from util import (makeBoxAndRandomPoints, make_sc, make_bcc, make_fcc,
+from util import (make_box_and_random_points, make_sc, make_bcc, make_fcc,
                   skipIfMissing)
 
 
@@ -14,7 +14,7 @@ class TestLocalDescriptors(unittest.TestCase):
         rmax = 0.5
         L = 10
 
-        box, positions = makeBoxAndRandomPoints(L, N)
+        box, positions = make_box_and_random_points(L, N)
         positions.flags['WRITEABLE'] = False
 
         comp = freud.environment.LocalDescriptors(Nneigh, lmax, rmax, True)
@@ -48,7 +48,7 @@ class TestLocalDescriptors(unittest.TestCase):
         lmax = 8
         L = 10
 
-        box, positions = makeBoxAndRandomPoints(L, N)
+        box, positions = make_box_and_random_points(L, N)
 
         comp = freud.environment.LocalDescriptors(Nneigh, lmax, .5, True)
         comp.compute(box, Nneigh, positions, mode='global')
@@ -63,7 +63,7 @@ class TestLocalDescriptors(unittest.TestCase):
         lmax = 8
         L = 10
 
-        box, positions = makeBoxAndRandomPoints(L, N)
+        box, positions = make_box_and_random_points(L, N)
         orientations = np.random.uniform(-1, 1, size=(N, 4)).astype(np.float32)
         orientations /= np.sqrt(np.sum(orientations**2,
                                        axis=-1))[:, np.newaxis]
@@ -86,7 +86,7 @@ class TestLocalDescriptors(unittest.TestCase):
         lmax = 8
         L = 10
 
-        box, positions = makeBoxAndRandomPoints(L, N)
+        box, positions = make_box_and_random_points(L, N)
 
         comp = freud.environment.LocalDescriptors(Nneigh, lmax, .5, True)
 
@@ -99,7 +99,7 @@ class TestLocalDescriptors(unittest.TestCase):
         lmax = 8
         L = 10
 
-        box, positions = makeBoxAndRandomPoints(L, N)
+        box, positions = make_box_and_random_points(L, N)
         positions2 = np.random.uniform(-L/2, L/2,
                                        size=(N//3, 3)).astype(np.float32)
 
@@ -171,7 +171,7 @@ class TestLocalDescriptors(unittest.TestCase):
         atol = 1e-5
         L = 8
         N = 100
-        box, points = makeBoxAndRandomPoints(L, N)
+        box, points = make_box_and_random_points(L, N)
 
         num_neighbors = 1
         r_max = 2
@@ -231,7 +231,7 @@ class TestLocalDescriptors(unittest.TestCase):
         atol = 1e-5
         L = 8
         N = 100
-        box, points = makeBoxAndRandomPoints(L, N)
+        box, points = make_box_and_random_points(L, N)
         ref_points = np.random.rand(N, 3)*L - L/2
 
         num_neighbors = 1

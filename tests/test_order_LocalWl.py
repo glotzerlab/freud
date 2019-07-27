@@ -13,7 +13,7 @@ class TestLocalWl(unittest.TestCase):
         N = 1000
         L = 10
 
-        box, positions = util.makeBoxAndRandomPoints(L, N)
+        box, positions = util.make_box_and_random_points(L, N)
 
         comp = freud.order.LocalWl(box, 1.5, 6)
         comp.compute(positions)
@@ -126,7 +126,7 @@ class TestLocalWlNear(unittest.TestCase):
         N = 1000
         L = 10
 
-        box, positions = util.makeBoxAndRandomPoints(L, N)
+        box, positions = util.make_box_and_random_points(L, N)
 
         comp = freud.order.LocalWlNear(box, 0.1, 6, 12)
         comp.compute(positions)

@@ -13,7 +13,7 @@ class TestLocalQl(unittest.TestCase):
         N = 1000
         L = 10
 
-        box, positions = util.makeBoxAndRandomPoints(L, N)
+        box, positions = util.make_box_and_random_points(L, N)
         positions.flags['WRITEABLE'] = False
 
         comp = freud.order.LocalQl(box, 1.5, 6)
@@ -102,7 +102,7 @@ class TestLocalQl(unittest.TestCase):
         """Test that computing norm twice works as expected."""
         L = 5
         num_points = 100
-        box, points = util.makeBoxAndRandomPoints(L, num_points, seed=0)
+        box, points = util.make_box_and_random_points(L, num_points, seed=0)
 
         ql = freud.order.LocalQl(box, 1.5, 6)
         first_result = ql.computeNorm(points).norm_Ql.copy()
@@ -122,7 +122,7 @@ class TestLocalQlNear(unittest.TestCase):
         N = 1000
         L = 10
 
-        box, positions = util.makeBoxAndRandomPoints(L, N)
+        box, positions = util.make_box_and_random_points(L, N)
 
         # Use a really small cutoff to ensure that it is used as a soft cutoff
         comp = freud.order.LocalQlNear(box, 0.1, 6, 12)

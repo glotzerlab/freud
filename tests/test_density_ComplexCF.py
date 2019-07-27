@@ -27,7 +27,8 @@ class TestComplexCF(unittest.TestCase):
         dr = 1.0
         num_points = 100
         box_size = rmax*3.1
-        box, points = util.makeBoxAndRandomPoints(box_size, num_points, True)
+        box, points = util.make_box_and_random_points(
+            box_size, num_points, True)
         ang = np.random.random_sample((num_points)).astype(np.float64) \
             * 2.0 * np.pi
         ocf = freud.density.ComplexCF(rmax, dr)
@@ -70,14 +71,15 @@ class TestComplexCF(unittest.TestCase):
         dr = 1.0
         num_points = 1000
         box_size = rmax*3.1
-        box, points = util.makeBoxAndRandomPoints(box_size, num_points, True)
+        box, points = util.make_box_and_random_points(
+            box_size, num_points, True)
         ang = np.random.random_sample((num_points)).astype(np.float64) \
             * 2.0 * np.pi
         comp = np.exp(1j*ang)
         correct = np.zeros(int(rmax/dr), dtype=np.complex64)
         absolute_tolerance = 0.1
         # first bin is bad
-        test_set = util.makeRawQueryNlistTestSet(
+        test_set = util.make_raw_query_nlist_test_set(
             box, points, points, 'ball', rmax, 0, True)
         for ts in test_set:
             ocf = freud.density.ComplexCF(rmax, dr)
@@ -100,7 +102,8 @@ class TestComplexCF(unittest.TestCase):
         dr = 1.0
         num_points = 1000
         box_size = rmax*3.1
-        box, points = util.makeBoxAndRandomPoints(box_size, num_points, True)
+        box, points = util.make_box_and_random_points(
+            box_size, num_points, True)
         ang = np.zeros(int(num_points), dtype=np.float64)
         comp = np.exp(1j*ang)
         ocf = freud.density.ComplexCF(rmax, dr)
@@ -117,7 +120,8 @@ class TestComplexCF(unittest.TestCase):
         dr = 1.0
         num_points = 10
         box_size = rmax*2.1
-        box, points = util.makeBoxAndRandomPoints(box_size, num_points, True)
+        box, points = util.make_box_and_random_points(
+            box_size, num_points, True)
         ang = np.zeros(int(num_points), dtype=np.float64)
         comp = np.exp(1j*ang)
 
@@ -142,7 +146,7 @@ class TestComplexCF(unittest.TestCase):
         N = 20000
         L = 1000
         phi = np.random.rand(N)
-        box, pos2d = util.makeBoxAndRandomPoints(L, N, True)
+        box, pos2d = util.make_box_and_random_points(L, N, True)
 
         # With a small number of particles, we won't get the average exactly
         # right, so we check for different behavior with different numbers of
@@ -171,7 +175,8 @@ class TestComplexCF(unittest.TestCase):
         dr = 1.0
         num_points = 100
         box_size = rmax*3.1
-        box, points = util.makeBoxAndRandomPoints(box_size, num_points, True)
+        box, points = util.make_box_and_random_points(
+            box_size, num_points, True)
         ang = np.random.random_sample((num_points)).astype(np.float64) \
             * 2.0 * np.pi
         comp = np.exp(1j*ang)
@@ -273,7 +278,7 @@ class TestComplexCF(unittest.TestCase):
         # the result should be minimal.
         ref_points = [[dr/4, 0, 0], [-dr/4, 0, 0], [0, dr/4, 0], [0, -dr/4, 0]]
 
-        test_set = util.makeRawQueryNlistTestSet(
+        test_set = util.make_raw_query_nlist_test_set(
             box, ref_points, points, "ball", rmax, 0, False)
         for ts in test_set:
             ocf = freud.density.ComplexCF(rmax, dr)

@@ -120,12 +120,11 @@ public:
         }
 
         // check if ref_points is a pointer to a RawPoints object
-        // dynamic_cast will fail if ref_points is not actually pointing to RawPoints
-        // and return a null pointer. Then, the assignment operator will return
-        // a null pointer, making the condition in the if statement to be false.
-        // This is a typical C++ way of checking the type of a polymorphic class
-        // using pointers and casting.
-        if (const RawPoints* rp = dynamic_cast<const RawPoints*>(nq))
+        // dynamic_cast will fail if ref_points is not actually pointing to
+        // RawPoints and return a null pointer making the condition in the if
+        // statement to be false.  This is a typical C++ way of checking the
+        // type of a polymorphic class using pointers and casting.
+        if (dynamic_cast<const RawPoints*>(nq))
         {
             // if nq is RawPoints, build a NeighborQuery
             m_abq = std::make_shared<AABBQuery>(nq->getBox(), nq->getRefPoints(),
@@ -320,12 +319,11 @@ void loopOverNeighborQuery(const NeighborQuery* ref_points, const vec3<float>* p
     std::shared_ptr<NeighborQueryIterator> iter;
     std::shared_ptr<AABBQuery> abq;
     // check if ref_points is a pointer to a RawPoints object
-    // dynamic_cast will fail if ref_points is not actually pointing to RawPoints
-    // and return a null pointer. Then, the assignment operator will return
-    // a null pointer, making the condition in the if statement to be false.
-    // This is a typical C++ way of checking the type of a polymorphic class
-    // using pointers and casting.
-    if (const RawPoints* rp = dynamic_cast<const RawPoints*>(ref_points))
+    // dynamic_cast will fail if ref_points is not actually pointing to
+    // RawPoints and return a null pointer making the condition in the if
+    // statement to be false.  This is a typical C++ way of checking the
+    // type of a polymorphic class using pointers and casting.
+    if (dynamic_cast<const RawPoints*>(ref_points))
     {
         // if ref_points is RawPoints, build a NeighborQuery
         abq = std::make_shared<AABBQuery>(ref_points->getBox(), ref_points->getRefPoints(),

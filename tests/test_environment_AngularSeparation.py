@@ -2,7 +2,7 @@ import numpy.testing as npt
 import numpy as np
 import freud
 import unittest
-from util import makeBoxAndRandomPoints
+from util import make_box_and_random_points
 
 
 def quatRandom():
@@ -45,7 +45,7 @@ class TestAngularSeparation(unittest.TestCase):
         num_neigh = 8
         rmax = 3
 
-        box, points = makeBoxAndRandomPoints(boxlen, N, True)
+        box, points = make_box_and_random_points(boxlen, N, True)
 
         ors = []
         for i in range(N):
@@ -93,7 +93,7 @@ class TestAngularSeparation(unittest.TestCase):
         num_neigh = 8
         rmax = 3
 
-        box, points = makeBoxAndRandomPoints(boxlen, N, True)
+        box, points = make_box_and_random_points(boxlen, N, True)
 
         ors = []
         for i in range(N):

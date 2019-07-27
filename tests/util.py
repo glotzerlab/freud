@@ -2,8 +2,8 @@ import numpy as np
 import freud
 
 
-def makeRawQueryNlistTestSet(box, ref_points, points, mode, rmax,
-                             num_neigh, exclude_ii):
+def make_raw_query_nlist_test_set(box, ref_points, points, mode, rmax,
+                                  num_neigh, exclude_ii):
     test_set = []
     test_set.append((ref_points, None))
     test_set.append((freud.locality.RawPoints(box, ref_points), None))
@@ -19,7 +19,7 @@ def makeRawQueryNlistTestSet(box, ref_points, points, mode, rmax,
     return test_set
 
 
-def makeBoxAndRandomPoints(box_size, num_points, is2D=False, seed=0):
+def make_box_and_random_points(box_size, num_points, is2D=False, seed=0):
     R"""Helper function to make random points with a cubic or square box.
 
     This function has a side effect that it will set the random seed of numpy.
@@ -50,7 +50,7 @@ def makeBoxAndRandomPoints(box_size, num_points, is2D=False, seed=0):
     return box, points
 
 
-def makeAlternatingLattice(lattice_size, angle=0, extra_shell=2):
+def make_alternating_lattice(lattice_size, angle=0, extra_shell=2):
     R"""Make 2D integer lattice of alternating set of points.
 
     Setting extra_shell to 1 will give 4 neighboring points in points_2 at

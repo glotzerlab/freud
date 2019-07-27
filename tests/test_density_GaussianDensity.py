@@ -2,7 +2,7 @@ import numpy as np
 import numpy.testing as npt
 import freud
 import unittest
-from util import skipIfMissing, makeBoxAndRandomPoints
+from util import skipIfMissing, make_box_and_random_points
 
 
 class TestDensity(unittest.TestCase):
@@ -14,7 +14,7 @@ class TestDensity(unittest.TestCase):
         sigma = 0.1
         num_points = 10000
         box_size = rcut*3.1
-        box, points = makeBoxAndRandomPoints(box_size, num_points, True)
+        box, points = make_box_and_random_points(box_size, num_points, True)
         diff = freud.density.GaussianDensity(width, rcut, sigma)
 
         # Test access
@@ -42,7 +42,7 @@ class TestDensity(unittest.TestCase):
         sigma = 0.1
         num_points = 100
         box_size = rcut*3.1
-        box, points = makeBoxAndRandomPoints(box_size, num_points, True)
+        box, points = make_box_and_random_points(box_size, num_points, True)
         diff = freud.density.GaussianDensity(width, rcut, sigma)
 
         diff.compute(box, points)
@@ -64,7 +64,7 @@ class TestDensity(unittest.TestCase):
         sigma = 0.1
         num_points = 100
         box_size = rcut*3.1
-        box, points = makeBoxAndRandomPoints(box_size, num_points, True)
+        box, points = make_box_and_random_points(box_size, num_points, True)
         diff = freud.density.GaussianDensity(width, rcut, sigma)
 
         with self.assertRaises(AttributeError):

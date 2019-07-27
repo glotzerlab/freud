@@ -21,7 +21,7 @@ class TestHexOrderParameter(unittest.TestCase):
         boxlen = 10
         N = 500
         rmax = 3
-        box, points = util.makeBoxAndRandomPoints(boxlen, N, True)
+        box, points = util.make_box_and_random_points(boxlen, N, True)
         hop = freud.order.HexOrderParameter(rmax)
         hop.compute(box, points)
         npt.assert_equal(hop.num_particles, N)
@@ -30,7 +30,7 @@ class TestHexOrderParameter(unittest.TestCase):
         boxlen = 10
         N = 500
         rmax = 3
-        box, points = util.makeBoxAndRandomPoints(boxlen, N, True)
+        box, points = util.make_box_and_random_points(boxlen, N, True)
         hop = freud.order.HexOrderParameter(rmax)
         hop.compute(box, points)
         npt.assert_allclose(np.mean(hop.psi), 0. + 0.j, atol=1e-1)
@@ -60,7 +60,7 @@ class TestHexOrderParameter(unittest.TestCase):
         with self.assertRaises(AttributeError):
             hop.psi
 
-        test_set = util.makeRawQueryNlistTestSet(
+        test_set = util.make_raw_query_nlist_test_set(
             box, points, points, 'nearest', rmax, 6, True)
         for ts in test_set:
             hop.compute(box, ts[0], nlist=ts[1])
