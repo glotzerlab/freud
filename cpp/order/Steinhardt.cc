@@ -92,7 +92,7 @@ void Steinhardt::reallocateArrays(unsigned int Np)
 }
 
 void Steinhardt::compute(const freud::locality::NeighborList* nlist,
-                                  const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs)
+                         const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs)
 {
     // Allocate and zero out arrays as necessary
     reallocateArrays(points->getNRef());
@@ -127,25 +127,24 @@ void Steinhardt::compute(const freud::locality::NeighborList* nlist,
 }
 
 void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
-                             const freud::locality::NeighborQuery* points,
-                             freud::locality::QueryArgs qargs)
+                             const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs)
 {
     const float normalizationfactor = 4 * M_PI / (2 * m_l + 1);
     // For consistency, this reset is done here regardless of whether the array
     // is populated in baseCompute or computeAve.
     m_Qlm_local.reset();
-    freud::locality::loopOverNeighborsIterator(points, points->getRefPoints(), m_Np, qargs, nlist,
-        [=](size_t i, std::shared_ptr<freud::locality::NeighborIterator::PerPointIterator> ppiter)
-        {
+    freud::locality::loopOverNeighborsIterator(
+        points, points->getRefPoints(), m_Np, qargs, nlist,
+        [=](size_t i, std::shared_ptr<freud::locality::NeighborIterator::PerPointIterator> ppiter) {
             unsigned int neighborcount(0);
             const vec3<float> ref((*points)[i]);
-            for(freud::locality::NeighborBond nb = ppiter->next(); !ppiter->end(); nb = ppiter->next())
+            for (freud::locality::NeighborBond nb = ppiter->next(); !ppiter->end(); nb = ppiter->next())
             {
                 const vec3<float> delta = points->getBox().wrap((*points)[nb.ref_id] - ref);
                 // phi is usually in range 0..2Pi, but
                 // it only appears in Ylm as exp(im\phi),
                 // so range -Pi..Pi will give same results.
-                float phi = atan2(delta.y, delta.x);     // -Pi..Pi
+                float phi = atan2(delta.y, delta.x);       // -Pi..Pi
                 float theta = acos(delta.z / nb.distance); // 0..Pi
 
                 // If the points are directly on top of each other,
@@ -184,27 +183,29 @@ void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
 }
 
 void Steinhardt::computeAve(const freud::locality::NeighborList* nlist,
-                                  const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs)
+                            const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs)
 {
-    std::shared_ptr<freud::locality::NeighborIterator> niter =
-        freud::locality::getNeighborIterator(points, points->getRefPoints(), m_Np, qargs, nlist);
+    std::shared_ptr<freud::locality::NeighborIterator> niter
+        = freud::locality::getNeighborIterator(points, points->getRefPoints(), m_Np, qargs, nlist);
     const float normalizationfactor = 4 * M_PI / (2 * m_l + 1);
 
-    freud::locality::loopOverNeighborsIterator(points, points->getRefPoints(), m_Np, qargs, nlist,
-        [=](size_t i, std::shared_ptr<freud::locality::NeighborIterator::PerPointIterator> ppiter)
-        {
+    freud::locality::loopOverNeighborsIterator(
+        points, points->getRefPoints(), m_Np, qargs, nlist,
+        [=](size_t i, std::shared_ptr<freud::locality::NeighborIterator::PerPointIterator> ppiter) {
             unsigned int neighborcount(1);
-            for(freud::locality::NeighborBond nb1 = ppiter->next(); !ppiter->end(); nb1 = ppiter->next())
+            for (freud::locality::NeighborBond nb1 = ppiter->next(); !ppiter->end(); nb1 = ppiter->next())
             {
                 auto ns_neighbors_iter = niter->queryPerPoint(nb1.ref_id);
-                for(freud::locality::NeighborBond nb2 = ns_neighbors_iter->next(); !ns_neighbors_iter->end(); nb2 = ns_neighbors_iter->next())
+                for (freud::locality::NeighborBond nb2 = ns_neighbors_iter->next(); !ns_neighbors_iter->end();
+                     nb2 = ns_neighbors_iter->next())
                 {
                     if (nb2.distance < m_rmax && nb2.distance > m_rmin)
                     {
                         for (unsigned int k = 0; k < (2 * m_l + 1); ++k)
                         {
                             // Adding all the Qlm of the neighbors
-                            m_QlmiAve.get()[(2 * m_l + 1) * i + k] += m_Qlmi.get()[(2 * m_l + 1) * nb2.ref_id + k];
+                            m_QlmiAve.get()[(2 * m_l + 1) * i + k]
+                                += m_Qlmi.get()[(2 * m_l + 1) * nb2.ref_id + k];
                         }
                         neighborcount++;
                     }

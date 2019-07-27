@@ -14,9 +14,9 @@
 #include <vector>
 
 #include "Box.h"
+#include "NeighborList.h"
 #include "ThreadStorage.h"
 #include "VectorMath.h"
-#include "NeighborList.h"
 #include "fsph/src/spherical_harmonics.hpp"
 
 namespace freud { namespace order {

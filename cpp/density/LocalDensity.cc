@@ -38,40 +38,40 @@ void LocalDensity::compute(const freud::locality::NeighborList* nlist,
     }
 
     float area = M_PI * m_rcut * m_rcut;
-    float volume = 4.0f/3.0f * M_PI * m_rcut * m_rcut * m_rcut;
+    float volume = 4.0f / 3.0f * M_PI * m_rcut * m_rcut * m_rcut;
     // compute the local density
-    freud::locality::loopOverNeighborsIterator(ref_points, points, Np, qargs, nlist, 
-    [=](size_t i, std::shared_ptr<freud::locality::NeighborIterator::PerPointIterator> ppiter)
-    {
-        float num_neighbors = 0;
-        for(freud::locality::NeighborBond nb = ppiter->next(); !ppiter->end(); nb = ppiter->next())
+    freud::locality::loopOverNeighborsIterator(
+        ref_points, points, Np, qargs, nlist,
+        [=](size_t i, std::shared_ptr<freud::locality::NeighborIterator::PerPointIterator> ppiter) {
+            float num_neighbors = 0;
+            for (freud::locality::NeighborBond nb = ppiter->next(); !ppiter->end(); nb = ppiter->next())
             {
-            // count particles that are fully in the rcut sphere
-            if (nb.distance < (m_rcut - m_diameter/2.0f))
-            {
-              num_neighbors += 1.0f;
+                // count particles that are fully in the rcut sphere
+                if (nb.distance < (m_rcut - m_diameter / 2.0f))
+                {
+                    num_neighbors += 1.0f;
+                }
+                else
+                {
+                    // partially count particles that intersect the rcut sphere
+                    // this is not particularly accurate for a single particle, but works well on average for
+                    // lots of them. It smooths out the neighbor count distributions and avoids noisy spikes
+                    // that obscure data
+                    num_neighbors += 1.0f + (m_rcut - (nb.distance + m_diameter / 2.0f)) / m_diameter;
+                }
+                m_num_neighbors_array.get()[i] = num_neighbors;
+                if (m_box.is2D())
+                {
+                    // local density is area of particles divided by the area of the circle
+                    m_density_array.get()[i] = (m_volume * m_num_neighbors_array.get()[i]) / area;
+                }
+                else
+                {
+                    // local density is volume of particles divided by the volume of the sphere
+                    m_density_array.get()[i] = (m_volume * m_num_neighbors_array.get()[i]) / volume;
+                }
             }
-            else
-            {
-              // partially count particles that intersect the rcut sphere
-              // this is not particularly accurate for a single particle, but works well on average for
-              // lots of them. It smooths out the neighbor count distributions and avoids noisy spikes
-              // that obscure data
-              num_neighbors += 1.0f + (m_rcut - (nb.distance + m_diameter/2.0f)) / m_diameter;
-            }
-            m_num_neighbors_array.get()[i] = num_neighbors;
-            if (m_box.is2D())
-              {
-              // local density is area of particles divided by the area of the circle
-              m_density_array.get()[i] = (m_volume * m_num_neighbors_array.get()[i]) / area;
-              }
-            else
-              {
-              // local density is volume of particles divided by the volume of the sphere
-              m_density_array.get()[i] = (m_volume * m_num_neighbors_array.get()[i]) / volume;
-            }
-        }
-    });
+        });
     m_n_ref = n_ref;
 }
 

@@ -195,8 +195,7 @@ bool compareNeighborBond(const NeighborBond& left, const NeighborBond& right)
     return left.less_as_tuple(right);
 }
 
-bool compareFirstNeighborPairs(const std::vector<NeighborBond>& left,
-                               const std::vector<NeighborBond>& right)
+bool compareFirstNeighborPairs(const std::vector<NeighborBond>& left, const std::vector<NeighborBond>& right)
 {
     if (left.size() && right.size())
     {

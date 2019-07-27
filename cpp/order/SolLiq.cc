@@ -348,7 +348,7 @@ void SolLiq::computeClustersQS(const locality::NeighborList* nlist, const vec3<f
                             && (m_number_of_connections.get()[j] >= m_Sthreshold))
                         {
                             // merge the two sets using the disjoint set
-                            if(!dj.same(i, j))
+                            if (!dj.same(i, j))
                             {
                                 dj.unite(i, j);
                             }
@@ -568,7 +568,7 @@ void SolLiq::computeClustersSharedNeighbors(const locality::NeighborList* nlist,
                         if (num_shared > m_Sthreshold)
                         {
                             // merge the two sets using the disjoint set
-                            if(!dj.same(i, j))
+                            if (!dj.same(i, j))
                             {
                                 dj.unite(i, j);
                             }

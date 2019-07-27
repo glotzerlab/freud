@@ -185,10 +185,10 @@ void NearestNeighbors::compute(const box::Box& box, const vec3<float>* ref_pos, 
                          const BondVector& vec(bond_vector_groups[group]);
                          for (BondVector::const_iterator iter(vec.begin()); iter != vec.end(); ++iter, ++bond)
                          {
-                            neighbor_array[2 * bond] = iter->id;
-                            neighbor_array[2 * bond + 1] = iter->ref_id;
-                            neighbor_weights[bond] = iter->weight;
-                            neighbor_distances[bond] = iter->distance;
+                             neighbor_array[2 * bond] = iter->id;
+                             neighbor_array[2 * bond + 1] = iter->ref_id;
+                             neighbor_weights[bond] = iter->weight;
+                             neighbor_distances[bond] = iter->distance;
                          }
                      }
                  });
