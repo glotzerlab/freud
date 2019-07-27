@@ -38,8 +38,12 @@
         "name": "freud.box",
         "sources": [
             "freud/box.pyx",
+            "cpp/box/ParticleBuffer.cc",
+            "cpp/locality/NeighborList.cc",
+            "cpp/locality/NeighborQuery.cc",
+            "cpp/locality/AABBQuery.cc",
             "cpp/box/Box.cc",
-            "cpp/box/ParticleBuffer.cc"
+            "cpp/locality/NeighborComputeFunctional.cc"
         ]
     },
     "module_name": "freud.box"
@@ -2403,7 +2407,7 @@ static PyObject *__pyx_memoryviewslice_assign_item_from_object(struct __pyx_memo
 
 /* Module declarations from 'libcpp.memory' */
 
-/* Module declarations from 'freud.util._VectorMath' */
+/* Module declarations from 'freud.util' */
 
 /* Module declarations from 'libcpp.vector' */
 
@@ -31403,7 +31407,7 @@ if (!__Pyx_RefNanny) {
  * 
  * import logging             # <<<<<<<<<<<<<<
  * 
- * from freud.util._VectorMath cimport vec3
+ * from freud.util cimport vec3
  */
   __pyx_t_2 = __Pyx_Import(__pyx_n_s_logging, 0, -1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 20, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);

@@ -186,14 +186,14 @@ void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
 void Steinhardt::computeAve(const freud::locality::NeighborList* nlist,
                                   const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs)
 {
-    std::shared_ptr<freud::locality::NeighborIterator> niter = 
+    std::shared_ptr<freud::locality::NeighborIterator> niter =
         freud::locality::getNeighborIterator(points, points->getRefPoints(), m_Np, qargs, nlist);
     const float normalizationfactor = 4 * M_PI / (2 * m_l + 1);
 
     freud::locality::loopOverNeighborsIterator(points, points->getRefPoints(), m_Np, qargs, nlist,
         [=](size_t i, std::shared_ptr<freud::locality::NeighborIterator::PerPointIterator> ppiter)
         {
-            unsigned int neighborcount(1);  
+            unsigned int neighborcount(1);
             for(freud::locality::NeighborBond nb1 = ppiter->next(); !ppiter->end(); nb1 = ppiter->next())
             {
                 auto ns_neighbors_iter = niter->queryPerPoint(nb1.ref_id);

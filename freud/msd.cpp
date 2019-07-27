@@ -37,7 +37,11 @@
         ],
         "name": "freud.msd",
         "sources": [
-            "freud/msd.pyx"
+            "freud/msd.pyx",
+            "cpp/locality/NeighborList.cc",
+            "cpp/locality/NeighborQuery.cc",
+            "cpp/locality/AABBQuery.cc",
+            "cpp/locality/NeighborComputeFunctional.cc"
         ]
     },
     "module_name": "freud.msd"
@@ -1881,7 +1885,7 @@ static PyTypeObject *__pyx_ptype_5freud_6common_Compute = 0;
 
 /* Module declarations from 'libcpp.memory' */
 
-/* Module declarations from 'freud.util._VectorMath' */
+/* Module declarations from 'freud.util' */
 
 /* Module declarations from 'libcpp.vector' */
 

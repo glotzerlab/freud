@@ -13,10 +13,10 @@
             "cpp/locality/AABBQuery.h",
             "cpp/locality/LinkCell.h",
             "cpp/locality/NearestNeighbors.h",
+            "cpp/locality/NeighborBond.h",
             "cpp/locality/NeighborList.h",
             "cpp/locality/NeighborQuery.h",
             "cpp/locality/Voronoi.h",
-            "cpp/util/Index1D.h",
             "cpp/util/VectorMath.h"
         ],
         "extra_compile_args": [
@@ -47,9 +47,12 @@
         "name": "freud.cluster",
         "sources": [
             "freud/cluster.pyx",
+            "cpp/cluster/Cluster.cc",
             "cpp/locality/NeighborList.cc",
+            "cpp/locality/NeighborQuery.cc",
             "cpp/cluster/ClusterProperties.cc",
-            "cpp/cluster/Cluster.cc"
+            "cpp/locality/AABBQuery.cc",
+            "cpp/locality/NeighborComputeFunctional.cc"
         ]
     },
     "module_name": "freud.cluster"
@@ -678,7 +681,7 @@ static CYTHON_INLINE float __PYX_NAN() {
 #include <string>
 #include "Box.h"
 #include "ParticleBuffer.h"
-#include "Index1D.h"
+#include "NeighborBond.h"
 #include "NeighborQuery.h"
 #include "NeighborList.h"
 #include "LinkCell.h"
@@ -1274,15 +1277,18 @@ static CYTHON_INLINE __pyx_t_double_complex __pyx_t_double_complex_from_parts(do
 struct __pyx_obj_5freud_6common_Compute;
 struct __pyx_obj_5freud_3box_Box;
 struct __pyx_obj_5freud_3box_ParticleBuffer;
+struct __pyx_obj_5freud_8locality_NeighborQueryResult;
+struct __pyx_obj_5freud_8locality_AABBQueryResult;
+struct __pyx_obj_5freud_8locality_NlistptrWrapper;
 struct __pyx_obj_5freud_8locality_NeighborQuery;
 struct __pyx_obj_5freud_8locality_NeighborList;
 struct __pyx_obj_5freud_8locality_IteratorLinkCell;
 struct __pyx_obj_5freud_8locality_LinkCell;
 struct __pyx_obj_5freud_8locality_NearestNeighbors;
 struct __pyx_obj_5freud_8locality_AABBQuery;
+struct __pyx_obj_5freud_8locality_RawPoints;
+struct __pyx_obj_5freud_8locality__QueryArgs;
 struct __pyx_obj_5freud_8locality__Voronoi;
-struct __pyx_obj_5freud_8locality_NeighborQueryResult;
-struct __pyx_obj_5freud_8locality_AABBQueryResult;
 struct __pyx_obj_5freud_7cluster_Cluster;
 struct __pyx_obj_5freud_7cluster_ClusterProperties;
 struct __pyx_array_obj;
@@ -1291,7 +1297,7 @@ struct __pyx_memoryview_obj;
 struct __pyx_memoryviewslice_obj;
 struct __pyx_opt_args_5freud_8locality_19NeighborQueryResult_init;
 
-/* "freud/locality.pxd":79
+/* "freud/locality.pxd":31
  *     # compile with a cdef method.
  *     @staticmethod
  *     cdef inline NeighborQueryResult init(             # <<<<<<<<<<<<<<
@@ -1378,113 +1384,6 @@ struct __pyx_obj_5freud_3box_ParticleBuffer {
 /* "freud/locality.pxd":11
  * 
  * 
- * cdef class NeighborQuery:             # <<<<<<<<<<<<<<
- *     cdef freud._locality.NeighborQuery * nqptr
- *     cdef cbool queryable
- */
-struct __pyx_obj_5freud_8locality_NeighborQuery {
-  PyObject_HEAD
-  freud::locality::NeighborQuery *nqptr;
-  bool queryable;
-  struct __pyx_obj_5freud_3box_Box *_box;
-  __Pyx_memviewslice points;
-};
-
-
-/* "freud/locality.pxd":18
- * 
- * 
- * cdef class NeighborList:             # <<<<<<<<<<<<<<
- *     cdef freud._locality.NeighborList * thisptr
- *     cdef char _managed
- */
-struct __pyx_obj_5freud_8locality_NeighborList {
-  PyObject_HEAD
-  struct __pyx_vtabstruct_5freud_8locality_NeighborList *__pyx_vtab;
-  freud::locality::NeighborList *thisptr;
-  char _managed;
-  PyObject *base;
-};
-
-
-/* "freud/locality.pxd":28
- * 
- * 
- * cdef class IteratorLinkCell:             # <<<<<<<<<<<<<<
- *     cdef freud._locality.IteratorLinkCell * thisptr
- * 
- */
-struct __pyx_obj_5freud_8locality_IteratorLinkCell {
-  PyObject_HEAD
-  struct __pyx_vtabstruct_5freud_8locality_IteratorLinkCell *__pyx_vtab;
-  freud::locality::IteratorLinkCell *thisptr;
-};
-
-
-/* "freud/locality.pxd":34
- * 
- * 
- * cdef class LinkCell(NeighborQuery):             # <<<<<<<<<<<<<<
- *     cdef freud._locality.LinkCell * thisptr
- *     cdef NeighborList _nlist
- */
-struct __pyx_obj_5freud_8locality_LinkCell {
-  struct __pyx_obj_5freud_8locality_NeighborQuery __pyx_base;
-  freud::locality::LinkCell *thisptr;
-  struct __pyx_obj_5freud_8locality_NeighborList *_nlist;
-};
-
-
-/* "freud/locality.pxd":39
- * 
- * 
- * cdef class NearestNeighbors:             # <<<<<<<<<<<<<<
- *     cdef freud._locality.NearestNeighbors * thisptr
- *     cdef NeighborList _nlist
- */
-struct __pyx_obj_5freud_8locality_NearestNeighbors {
-  PyObject_HEAD
-  freud::locality::NearestNeighbors *thisptr;
-  struct __pyx_obj_5freud_8locality_NeighborList *_nlist;
-  PyObject *_cached_points;
-  PyObject *_cached_ref_points;
-  PyObject *_cached_box;
-};
-
-
-/* "freud/locality.pxd":47
- * 
- * 
- * cdef class AABBQuery(NeighborQuery):             # <<<<<<<<<<<<<<
- *     cdef freud._locality.AABBQuery * thisptr
- *     cdef NeighborList _nlist
- */
-struct __pyx_obj_5freud_8locality_AABBQuery {
-  struct __pyx_obj_5freud_8locality_NeighborQuery __pyx_base;
-  freud::locality::AABBQuery *thisptr;
-  struct __pyx_obj_5freud_8locality_NeighborList *_nlist;
-};
-
-
-/* "freud/locality.pxd":52
- * 
- * 
- * cdef class _Voronoi:             # <<<<<<<<<<<<<<
- *     cdef freud._locality.Voronoi * thisptr
- *     cdef NeighborList _nlist
- */
-struct __pyx_obj_5freud_8locality__Voronoi {
-  PyObject_HEAD
-  freud::locality::Voronoi *thisptr;
-  struct __pyx_obj_5freud_8locality_NeighborList *_nlist;
-  PyObject *_volumes;
-  PyObject *_polytopes;
-};
-
-
-/* "freud/locality.pxd":59
- * 
- * 
  * cdef class NeighborQueryResult:             # <<<<<<<<<<<<<<
  *     cdef NeighborQuery nq
  *     cdef const float[:, ::1] points
@@ -1502,7 +1401,7 @@ struct __pyx_obj_5freud_8locality_NeighborQueryResult {
 };
 
 
-/* "freud/locality.pxd":103
+/* "freud/locality.pxd":55
  * 
  * 
  * cdef class AABBQueryResult(NeighborQueryResult):             # <<<<<<<<<<<<<<
@@ -1513,6 +1412,154 @@ struct __pyx_obj_5freud_8locality_AABBQueryResult {
   struct __pyx_obj_5freud_8locality_NeighborQueryResult __pyx_base;
   struct __pyx_obj_5freud_8locality_AABBQuery *aabbq;
   float scale;
+};
+
+
+/* "freud/locality.pxd":82
+ *         return obj
+ * 
+ * cdef class NlistptrWrapper:             # <<<<<<<<<<<<<<
+ *     cdef freud._locality.NeighborList * nlistptr
+ *     cdef freud._locality.NeighborList * get_ptr(self) nogil
+ */
+struct __pyx_obj_5freud_8locality_NlistptrWrapper {
+  PyObject_HEAD
+  struct __pyx_vtabstruct_5freud_8locality_NlistptrWrapper *__pyx_vtab;
+  freud::locality::NeighborList *nlistptr;
+};
+
+
+/* "freud/locality.pxd":86
+ *     cdef freud._locality.NeighborList * get_ptr(self) nogil
+ * 
+ * cdef class NeighborQuery:             # <<<<<<<<<<<<<<
+ *     cdef freud._locality.NeighborQuery * nqptr
+ *     cdef cbool queryable
+ */
+struct __pyx_obj_5freud_8locality_NeighborQuery {
+  PyObject_HEAD
+  struct __pyx_vtabstruct_5freud_8locality_NeighborQuery *__pyx_vtab;
+  freud::locality::NeighborQuery *nqptr;
+  bool queryable;
+  struct __pyx_obj_5freud_3box_Box *_box;
+  __Pyx_memviewslice points;
+};
+
+
+/* "freud/locality.pxd":93
+ *     cdef freud._locality.NeighborQuery * get_ptr(self) nogil
+ * 
+ * cdef class NeighborList:             # <<<<<<<<<<<<<<
+ *     cdef freud._locality.NeighborList * thisptr
+ *     cdef char _managed
+ */
+struct __pyx_obj_5freud_8locality_NeighborList {
+  PyObject_HEAD
+  struct __pyx_vtabstruct_5freud_8locality_NeighborList *__pyx_vtab;
+  freud::locality::NeighborList *thisptr;
+  char _managed;
+  PyObject *base;
+};
+
+
+/* "freud/locality.pxd":102
+ *     cdef void copy_c(self, NeighborList other)
+ * 
+ * cdef class IteratorLinkCell:             # <<<<<<<<<<<<<<
+ *     cdef freud._locality.IteratorLinkCell * thisptr
+ * 
+ */
+struct __pyx_obj_5freud_8locality_IteratorLinkCell {
+  PyObject_HEAD
+  struct __pyx_vtabstruct_5freud_8locality_IteratorLinkCell *__pyx_vtab;
+  freud::locality::IteratorLinkCell *thisptr;
+};
+
+
+/* "freud/locality.pxd":107
+ *     cdef void copy(self, const freud._locality.IteratorLinkCell & rhs)
+ * 
+ * cdef class LinkCell(NeighborQuery):             # <<<<<<<<<<<<<<
+ *     cdef freud._locality.LinkCell * thisptr
+ *     cdef NeighborList _nlist
+ */
+struct __pyx_obj_5freud_8locality_LinkCell {
+  struct __pyx_obj_5freud_8locality_NeighborQuery __pyx_base;
+  freud::locality::LinkCell *thisptr;
+  struct __pyx_obj_5freud_8locality_NeighborList *_nlist;
+};
+
+
+/* "freud/locality.pxd":111
+ *     cdef NeighborList _nlist
+ * 
+ * cdef class NearestNeighbors:             # <<<<<<<<<<<<<<
+ *     cdef freud._locality.NearestNeighbors * thisptr
+ *     cdef NeighborList _nlist
+ */
+struct __pyx_obj_5freud_8locality_NearestNeighbors {
+  PyObject_HEAD
+  freud::locality::NearestNeighbors *thisptr;
+  struct __pyx_obj_5freud_8locality_NeighborList *_nlist;
+  PyObject *_cached_points;
+  PyObject *_cached_ref_points;
+  PyObject *_cached_box;
+};
+
+
+/* "freud/locality.pxd":118
+ *     cdef _cached_box
+ * 
+ * cdef class AABBQuery(NeighborQuery):             # <<<<<<<<<<<<<<
+ *     cdef freud._locality.AABBQuery * thisptr
+ *     cdef NeighborList _nlist
+ */
+struct __pyx_obj_5freud_8locality_AABBQuery {
+  struct __pyx_obj_5freud_8locality_NeighborQuery __pyx_base;
+  freud::locality::AABBQuery *thisptr;
+  struct __pyx_obj_5freud_8locality_NeighborList *_nlist;
+};
+
+
+/* "freud/locality.pxd":122
+ *     cdef NeighborList _nlist
+ * 
+ * cdef class RawPoints(NeighborQuery):             # <<<<<<<<<<<<<<
+ *     cdef freud._locality.RawPoints * thisptr
+ * 
+ */
+struct __pyx_obj_5freud_8locality_RawPoints {
+  struct __pyx_obj_5freud_8locality_NeighborQuery __pyx_base;
+  freud::locality::RawPoints *thisptr;
+};
+
+
+/* "freud/locality.pxd":125
+ *     cdef freud._locality.RawPoints * thisptr
+ * 
+ * cdef class _QueryArgs:             # <<<<<<<<<<<<<<
+ *     cdef freud._locality.QueryArgs * thisptr
+ * 
+ */
+struct __pyx_obj_5freud_8locality__QueryArgs {
+  PyObject_HEAD
+  freud::locality::QueryArgs *thisptr;
+};
+
+
+/* "freud/locality.pxd":128
+ *     cdef freud._locality.QueryArgs * thisptr
+ * 
+ * cdef class _Voronoi:             # <<<<<<<<<<<<<<
+ *     cdef freud._locality.Voronoi * thisptr
+ *     cdef NeighborList _nlist
+ */
+struct __pyx_obj_5freud_8locality__Voronoi {
+  PyObject_HEAD
+  freud::locality::Voronoi *thisptr;
+  struct __pyx_obj_5freud_8locality_NeighborList *_nlist;
+  PyObject *_volumes;
+  PyObject *_polytopes;
 };
 
 
@@ -1531,7 +1578,7 @@ struct __pyx_obj_5freud_7cluster_Cluster {
 };
 
 
-/* "freud/cluster.pyx":199
+/* "freud/cluster.pyx":202
  * 
  * 
  * cdef class ClusterProperties(Compute):             # <<<<<<<<<<<<<<
@@ -1623,37 +1670,7 @@ struct __pyx_memoryviewslice_obj {
 
 
 
-/* "freud/locality.pxd":18
- * 
- * 
- * cdef class NeighborList:             # <<<<<<<<<<<<<<
- *     cdef freud._locality.NeighborList * thisptr
- *     cdef char _managed
- */
-
-struct __pyx_vtabstruct_5freud_8locality_NeighborList {
-  PyObject *(*refer_to)(struct __pyx_obj_5freud_8locality_NeighborList *, freud::locality::NeighborList *);
-  freud::locality::NeighborList *(*get_ptr)(struct __pyx_obj_5freud_8locality_NeighborList *);
-  void (*copy_c)(struct __pyx_obj_5freud_8locality_NeighborList *, struct __pyx_obj_5freud_8locality_NeighborList *);
-};
-static struct __pyx_vtabstruct_5freud_8locality_NeighborList *__pyx_vtabptr_5freud_8locality_NeighborList;
-
-
-/* "freud/locality.pxd":28
- * 
- * 
- * cdef class IteratorLinkCell:             # <<<<<<<<<<<<<<
- *     cdef freud._locality.IteratorLinkCell * thisptr
- * 
- */
-
-struct __pyx_vtabstruct_5freud_8locality_IteratorLinkCell {
-  void (*copy)(struct __pyx_obj_5freud_8locality_IteratorLinkCell *, freud::locality::IteratorLinkCell const &);
-};
-static struct __pyx_vtabstruct_5freud_8locality_IteratorLinkCell *__pyx_vtabptr_5freud_8locality_IteratorLinkCell;
-
-
-/* "freud/locality.pxd":59
+/* "freud/locality.pxd":11
  * 
  * 
  * cdef class NeighborQueryResult:             # <<<<<<<<<<<<<<
@@ -1669,7 +1686,7 @@ static struct __pyx_vtabstruct_5freud_8locality_NeighborQueryResult *__pyx_vtabp
 static CYTHON_INLINE struct __pyx_obj_5freud_8locality_NeighborQueryResult *__pyx_f_5freud_8locality_19NeighborQueryResult_init(struct __pyx_obj_5freud_8locality_NeighborQuery *, __Pyx_memviewslice, bool, struct __pyx_opt_args_5freud_8locality_19NeighborQueryResult_init *__pyx_optional_args);
 
 
-/* "freud/locality.pxd":103
+/* "freud/locality.pxd":55
  * 
  * 
  * cdef class AABBQueryResult(NeighborQueryResult):             # <<<<<<<<<<<<<<
@@ -1683,6 +1700,106 @@ struct __pyx_vtabstruct_5freud_8locality_AABBQueryResult {
 };
 static struct __pyx_vtabstruct_5freud_8locality_AABBQueryResult *__pyx_vtabptr_5freud_8locality_AABBQueryResult;
 static CYTHON_INLINE struct __pyx_obj_5freud_8locality_AABBQueryResult *__pyx_f_5freud_8locality_15AABBQueryResult_init_aabb_nn(struct __pyx_obj_5freud_8locality_AABBQuery *, __Pyx_memviewslice, bool, unsigned int, float, float);
+
+
+/* "freud/locality.pxd":82
+ *         return obj
+ * 
+ * cdef class NlistptrWrapper:             # <<<<<<<<<<<<<<
+ *     cdef freud._locality.NeighborList * nlistptr
+ *     cdef freud._locality.NeighborList * get_ptr(self) nogil
+ */
+
+struct __pyx_vtabstruct_5freud_8locality_NlistptrWrapper {
+  freud::locality::NeighborList *(*get_ptr)(struct __pyx_obj_5freud_8locality_NlistptrWrapper *);
+};
+static struct __pyx_vtabstruct_5freud_8locality_NlistptrWrapper *__pyx_vtabptr_5freud_8locality_NlistptrWrapper;
+
+
+/* "freud/locality.pxd":86
+ *     cdef freud._locality.NeighborList * get_ptr(self) nogil
+ * 
+ * cdef class NeighborQuery:             # <<<<<<<<<<<<<<
+ *     cdef freud._locality.NeighborQuery * nqptr
+ *     cdef cbool queryable
+ */
+
+struct __pyx_vtabstruct_5freud_8locality_NeighborQuery {
+  freud::locality::NeighborQuery *(*get_ptr)(struct __pyx_obj_5freud_8locality_NeighborQuery *);
+};
+static struct __pyx_vtabstruct_5freud_8locality_NeighborQuery *__pyx_vtabptr_5freud_8locality_NeighborQuery;
+
+
+/* "freud/locality.pxd":93
+ *     cdef freud._locality.NeighborQuery * get_ptr(self) nogil
+ * 
+ * cdef class NeighborList:             # <<<<<<<<<<<<<<
+ *     cdef freud._locality.NeighborList * thisptr
+ *     cdef char _managed
+ */
+
+struct __pyx_vtabstruct_5freud_8locality_NeighborList {
+  PyObject *(*refer_to)(struct __pyx_obj_5freud_8locality_NeighborList *, freud::locality::NeighborList *);
+  freud::locality::NeighborList *(*get_ptr)(struct __pyx_obj_5freud_8locality_NeighborList *);
+  void (*copy_c)(struct __pyx_obj_5freud_8locality_NeighborList *, struct __pyx_obj_5freud_8locality_NeighborList *);
+};
+static struct __pyx_vtabstruct_5freud_8locality_NeighborList *__pyx_vtabptr_5freud_8locality_NeighborList;
+
+
+/* "freud/locality.pxd":102
+ *     cdef void copy_c(self, NeighborList other)
+ * 
+ * cdef class IteratorLinkCell:             # <<<<<<<<<<<<<<
+ *     cdef freud._locality.IteratorLinkCell * thisptr
+ * 
+ */
+
+struct __pyx_vtabstruct_5freud_8locality_IteratorLinkCell {
+  void (*copy)(struct __pyx_obj_5freud_8locality_IteratorLinkCell *, freud::locality::IteratorLinkCell const &);
+};
+static struct __pyx_vtabstruct_5freud_8locality_IteratorLinkCell *__pyx_vtabptr_5freud_8locality_IteratorLinkCell;
+
+
+/* "freud/locality.pxd":107
+ *     cdef void copy(self, const freud._locality.IteratorLinkCell & rhs)
+ * 
+ * cdef class LinkCell(NeighborQuery):             # <<<<<<<<<<<<<<
+ *     cdef freud._locality.LinkCell * thisptr
+ *     cdef NeighborList _nlist
+ */
+
+struct __pyx_vtabstruct_5freud_8locality_LinkCell {
+  struct __pyx_vtabstruct_5freud_8locality_NeighborQuery __pyx_base;
+};
+static struct __pyx_vtabstruct_5freud_8locality_LinkCell *__pyx_vtabptr_5freud_8locality_LinkCell;
+
+
+/* "freud/locality.pxd":118
+ *     cdef _cached_box
+ * 
+ * cdef class AABBQuery(NeighborQuery):             # <<<<<<<<<<<<<<
+ *     cdef freud._locality.AABBQuery * thisptr
+ *     cdef NeighborList _nlist
+ */
+
+struct __pyx_vtabstruct_5freud_8locality_AABBQuery {
+  struct __pyx_vtabstruct_5freud_8locality_NeighborQuery __pyx_base;
+};
+static struct __pyx_vtabstruct_5freud_8locality_AABBQuery *__pyx_vtabptr_5freud_8locality_AABBQuery;
+
+
+/* "freud/locality.pxd":122
+ *     cdef NeighborList _nlist
+ * 
+ * cdef class RawPoints(NeighborQuery):             # <<<<<<<<<<<<<<
+ *     cdef freud._locality.RawPoints * thisptr
+ * 
+ */
+
+struct __pyx_vtabstruct_5freud_8locality_RawPoints {
+  struct __pyx_vtabstruct_5freud_8locality_NeighborQuery __pyx_base;
+};
+static struct __pyx_vtabstruct_5freud_8locality_RawPoints *__pyx_vtabptr_5freud_8locality_RawPoints;
 
 
 /* "View.MemoryView":105
@@ -2459,14 +2576,14 @@ static void __Pyx_CppExn2PyErr() {
 /* CIntToPy.proto */
 static CYTHON_INLINE PyObject* __Pyx_PyInt_From_long(long value);
 
+/* MemviewDtypeToObject.proto */
+static CYTHON_INLINE PyObject *__pyx_memview_get_float__const__(const char *itemp);
+
 /* CIntToPy.proto */
 static CYTHON_INLINE PyObject* __Pyx_PyInt_From_unsigned_int(unsigned int value);
 
 /* MemviewDtypeToObject.proto */
 static CYTHON_INLINE PyObject *__pyx_memview_get_unsigned_int__const__(const char *itemp);
-
-/* MemviewDtypeToObject.proto */
-static CYTHON_INLINE PyObject *__pyx_memview_get_float__const__(const char *itemp);
 
 /* RealImag.proto */
 #if CYTHON_CCOMPLEX
@@ -2651,7 +2768,7 @@ static PyObject *__pyx_memoryviewslice_assign_item_from_object(struct __pyx_memo
 /* Module declarations from 'freud.common' */
 static PyTypeObject *__pyx_ptype_5freud_6common_Compute = 0;
 
-/* Module declarations from 'freud.util._VectorMath' */
+/* Module declarations from 'freud.util' */
 
 /* Module declarations from 'libcpp' */
 
@@ -2667,8 +2784,6 @@ static PyTypeObject *__pyx_ptype_5freud_6common_Compute = 0;
 
 /* Module declarations from 'freud._box' */
 
-/* Module declarations from 'freud.util._Index1D' */
-
 /* Module declarations from 'freud._locality' */
 
 /* Module declarations from 'freud.box' */
@@ -2676,15 +2791,18 @@ static PyTypeObject *__pyx_ptype_5freud_3box_Box = 0;
 static PyTypeObject *__pyx_ptype_5freud_3box_ParticleBuffer = 0;
 
 /* Module declarations from 'freud.locality' */
+static PyTypeObject *__pyx_ptype_5freud_8locality_NeighborQueryResult = 0;
+static PyTypeObject *__pyx_ptype_5freud_8locality_AABBQueryResult = 0;
+static PyTypeObject *__pyx_ptype_5freud_8locality_NlistptrWrapper = 0;
 static PyTypeObject *__pyx_ptype_5freud_8locality_NeighborQuery = 0;
 static PyTypeObject *__pyx_ptype_5freud_8locality_NeighborList = 0;
 static PyTypeObject *__pyx_ptype_5freud_8locality_IteratorLinkCell = 0;
 static PyTypeObject *__pyx_ptype_5freud_8locality_LinkCell = 0;
 static PyTypeObject *__pyx_ptype_5freud_8locality_NearestNeighbors = 0;
 static PyTypeObject *__pyx_ptype_5freud_8locality_AABBQuery = 0;
+static PyTypeObject *__pyx_ptype_5freud_8locality_RawPoints = 0;
+static PyTypeObject *__pyx_ptype_5freud_8locality__QueryArgs = 0;
 static PyTypeObject *__pyx_ptype_5freud_8locality__Voronoi = 0;
-static PyTypeObject *__pyx_ptype_5freud_8locality_NeighborQueryResult = 0;
-static PyTypeObject *__pyx_ptype_5freud_8locality_AABBQueryResult = 0;
 
 /* Module declarations from 'freud' */
 
@@ -2798,6 +2916,7 @@ static const char __pyx_k_T[] = "T{";
   static const char __pyx_k_id[] = "id";
   static const char __pyx_k_nn[] = "nn";
   static const char __pyx_k_np[] = "np";
+  static const char __pyx_k_nq[] = "nq";
   static const char __pyx_k__31[] = "^";
   static const char __pyx_k__32[] = "";
   static const char __pyx_k__33[] = ":";
@@ -2820,6 +2939,7 @@ static const char __pyx_k_pack[] = "pack";
 static const char __pyx_k_plot[] = "plot";
 static const char __pyx_k_rcut[] = "rcut";
 static const char __pyx_k_repr[] = "__repr__";
+static const char __pyx_k_rmax[] = "rmax";
 static const char __pyx_k_self[] = "self";
 static const char __pyx_k_size[] = "size";
 static const char __pyx_k_step[] = "step";
@@ -2834,6 +2954,7 @@ static const char __pyx_k_flags[] = "flags";
 static const char __pyx_k_freud[] = "freud";
 static const char __pyx_k_nlist[] = "nlist";
 static const char __pyx_k_numpy[] = "numpy";
+static const char __pyx_k_qargs[] = "qargs";
 static const char __pyx_k_range[] = "range";
 static const char __pyx_k_shape[] = "shape";
 static const char __pyx_k_start[] = "start";
@@ -2857,12 +2978,13 @@ static const char __pyx_k_compute[] = "_compute";
 static const char __pyx_k_float32[] = "float32";
 static const char __pyx_k_fortran[] = "fortran";
 static const char __pyx_k_memview[] = "memview";
-static const char __pyx_k_nlist_2[] = "nlist_";
 static const char __pyx_k_Ellipsis[] = "Ellipsis";
 static const char __pyx_k_getstate[] = "__getstate__";
 static const char __pyx_k_itemsize[] = "itemsize";
 static const char __pyx_k_l_points[] = "l_points";
 static const char __pyx_k_locality[] = "locality";
+static const char __pyx_k_nlistptr[] = "nlistptr";
+static const char __pyx_k_nq_nlist[] = "nq_nlist";
 static const char __pyx_k_pyx_type[] = "__pyx_type";
 static const char __pyx_k_repr_png[] = "_repr_png_";
 static const char __pyx_k_setstate[] = "__setstate__";
@@ -2874,6 +2996,7 @@ static const char __pyx_k_pyx_state[] = "__pyx_state";
 static const char __pyx_k_reduce_ex[] = "__reduce_ex__";
 static const char __pyx_k_IndexError[] = "IndexError";
 static const char __pyx_k_ValueError[] = "ValueError";
+static const char __pyx_k_exclude_ii[] = "exclude_ii";
 static const char __pyx_k_n_clusters[] = "n_clusters";
 static const char __pyx_k_pyx_result[] = "__pyx_result";
 static const char __pyx_k_pyx_vtable[] = "__pyx_vtable__";
@@ -2896,6 +3019,7 @@ static const char __pyx_k_cluster_sizes[] = "cluster_sizes";
 static const char __pyx_k_convert_array[] = "convert_array";
 static const char __pyx_k_freud_cluster[] = "freud.cluster";
 static const char __pyx_k_l_cluster_idx[] = "l_cluster_idx";
+static const char __pyx_k_make_nq_nlist[] = "make_nq_nlist";
 static const char __pyx_k_num_particles[] = "num_particles";
 static const char __pyx_k_plot_clusters[] = "plot_clusters";
 static const char __pyx_k_pyx_getbuffer[] = "__pyx_getbuffer";
@@ -2907,7 +3031,6 @@ static const char __pyx_k_View_MemoryView[] = "View.MemoryView";
 static const char __pyx_k_allocate_buffer[] = "allocate_buffer";
 static const char __pyx_k_computeClusters[] = "computeClusters";
 static const char __pyx_k_computed_method[] = "_computed_method";
-static const char __pyx_k_defaulted_nlist[] = "defaulted_nlist";
 static const char __pyx_k_dtype_is_object[] = "dtype_is_object";
 static const char __pyx_k_pyx_PickleError[] = "__pyx_PickleError";
 static const char __pyx_k_setstate_cython[] = "__setstate_cython__";
@@ -2918,7 +3041,6 @@ static const char __pyx_k_computed_property[] = "_computed_property";
 static const char __pyx_k_freud_cluster_pyx[] = "freud/cluster.pyx";
 static const char __pyx_k_pyx_unpickle_Enum[] = "__pyx_unpickle_Enum";
 static const char __pyx_k_cline_in_traceback[] = "cline_in_traceback";
-static const char __pyx_k_make_default_nlist[] = "make_default_nlist";
 static const char __pyx_k_strided_and_direct[] = "<strided and direct>";
 static const char __pyx_k_Cluster_cluster_idx[] = "Cluster.cluster_idx";
 static const char __pyx_k_num_cluster_to_plot[] = "num_cluster_to_plot";
@@ -3056,13 +3178,13 @@ static PyObject *__pyx_kp_s_contiguous_and_indirect;
 static PyObject *__pyx_n_s_convert_array;
 static PyObject *__pyx_n_s_convert_box;
 static PyObject *__pyx_n_s_count;
-static PyObject *__pyx_n_s_defaulted_nlist;
 static PyObject *__pyx_n_s_dict;
 static PyObject *__pyx_n_s_dtype;
 static PyObject *__pyx_n_s_dtype_is_object;
 static PyObject *__pyx_n_s_encode;
 static PyObject *__pyx_n_s_enumerate;
 static PyObject *__pyx_n_s_error;
+static PyObject *__pyx_n_s_exclude_ii;
 static PyObject *__pyx_n_s_flags;
 static PyObject *__pyx_n_s_float32;
 static PyObject *__pyx_n_s_format;
@@ -3088,7 +3210,7 @@ static PyObject *__pyx_n_s_l_keys;
 static PyObject *__pyx_n_s_l_points;
 static PyObject *__pyx_n_s_locality;
 static PyObject *__pyx_n_s_main;
-static PyObject *__pyx_n_s_make_default_nlist;
+static PyObject *__pyx_n_s_make_nq_nlist;
 static PyObject *__pyx_n_s_memview;
 static PyObject *__pyx_n_s_mode;
 static PyObject *__pyx_n_s_n_clusters;
@@ -3100,10 +3222,12 @@ static PyObject *__pyx_kp_u_ndarray_is_not_Fortran_contiguou;
 static PyObject *__pyx_n_s_ndim;
 static PyObject *__pyx_n_s_new;
 static PyObject *__pyx_n_s_nlist;
-static PyObject *__pyx_n_s_nlist_2;
+static PyObject *__pyx_n_s_nlistptr;
 static PyObject *__pyx_n_s_nn;
 static PyObject *__pyx_kp_s_no_default___reduce___due_to_non;
 static PyObject *__pyx_n_s_np;
+static PyObject *__pyx_n_s_nq;
+static PyObject *__pyx_n_s_nq_nlist;
 static PyObject *__pyx_n_s_num_cluster_to_plot;
 static PyObject *__pyx_n_s_num_clusters;
 static PyObject *__pyx_n_s_num_particles;
@@ -3124,6 +3248,7 @@ static PyObject *__pyx_n_s_pyx_state;
 static PyObject *__pyx_n_s_pyx_type;
 static PyObject *__pyx_n_s_pyx_unpickle_Enum;
 static PyObject *__pyx_n_s_pyx_vtable;
+static PyObject *__pyx_n_s_qargs;
 static PyObject *__pyx_n_s_range;
 static PyObject *__pyx_n_s_rcut;
 static PyObject *__pyx_n_s_reduce;
@@ -3132,6 +3257,7 @@ static PyObject *__pyx_n_s_reduce_ex;
 static PyObject *__pyx_n_s_repr;
 static PyObject *__pyx_n_s_repr_png;
 static PyObject *__pyx_n_s_return_counts;
+static PyObject *__pyx_n_s_rmax;
 static PyObject *__pyx_kp_u_s;
 static PyObject *__pyx_n_s_self;
 static PyObject *__pyx_n_s_setstate;
@@ -3676,9 +3802,11 @@ static PyObject *__pyx_pw_5freud_7cluster_7Cluster_5computeClusters(PyObject *__
 }
 
 static PyObject *__pyx_pf_5freud_7cluster_7Cluster_4computeClusters(struct __pyx_obj_5freud_7cluster_Cluster *__pyx_v_self, PyObject *__pyx_v_points, PyObject *__pyx_v_nlist, PyObject *__pyx_v_box) {
-  PyObject *__pyx_v_defaulted_nlist = NULL;
-  struct __pyx_obj_5freud_8locality_NeighborList *__pyx_v_nlist_ = 0;
-  struct __pyx_obj_5freud_3box_Box *__pyx_v_b = 0;
+  PyObject *__pyx_v_nq_nlist = NULL;
+  struct __pyx_obj_5freud_8locality_NeighborQuery *__pyx_v_nq = 0;
+  struct __pyx_obj_5freud_8locality_NlistptrWrapper *__pyx_v_nlistptr = 0;
+  struct __pyx_obj_5freud_8locality__QueryArgs *__pyx_v_qargs = 0;
+  CYTHON_UNUSED struct __pyx_obj_5freud_3box_Box *__pyx_v_b = 0;
   __Pyx_memviewslice __pyx_v_l_points = { 0, 0, { 0 }, { 0 }, { 0 } };
   unsigned int __pyx_v_Np;
   PyObject *__pyx_r = NULL;
@@ -3686,8 +3814,8 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_4computeClusters(struct __pyx
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
   PyObject *__pyx_t_3 = NULL;
-  PyObject *__pyx_t_4 = NULL;
-  int __pyx_t_5;
+  int __pyx_t_4;
+  PyObject *__pyx_t_5 = NULL;
   int __pyx_t_6;
   int __pyx_t_7;
   __Pyx_memviewslice __pyx_t_8 = { 0, 0, { 0 }, { 0 }, { 0 } };
@@ -3699,131 +3827,135 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_4computeClusters(struct __pyx
   /* "freud/cluster.pyx":103
  *                 Simulation box (Default value = None).
  *         """
- *         points = freud.common.convert_array(points, shape=(None, 3))             # <<<<<<<<<<<<<<
- * 
- *         defaulted_nlist = freud.locality.make_default_nlist(
+ *         nq_nlist = freud.locality.make_nq_nlist(self.m_box, points, nlist)             # <<<<<<<<<<<<<<
+ *         cdef freud.locality.NeighborQuery nq = nq_nlist[0]
+ *         cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_freud); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 103, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_common); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 103, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_freud); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 103, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 103, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 103, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_INCREF(__pyx_v_points);
-  __Pyx_GIVEREF(__pyx_v_points);
-  PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_v_points);
-  __pyx_t_3 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 103, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_locality); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 103, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_shape, __pyx_tuple_) < 0) __PYX_ERR(0, 103, __pyx_L1_error)
-  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 103, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_make_nq_nlist); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 103, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __Pyx_DECREF_SET(__pyx_v_points, __pyx_t_4);
+  __pyx_t_3 = NULL;
   __pyx_t_4 = 0;
-
-  /* "freud/cluster.pyx":105
- *         points = freud.common.convert_array(points, shape=(None, 3))
- * 
- *         defaulted_nlist = freud.locality.make_default_nlist(             # <<<<<<<<<<<<<<
- *             self.m_box, points, points, self.rmax, nlist, True)
- *         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
- */
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_freud); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 105, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_locality); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 105, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_make_default_nlist); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 105, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_3);
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-
-  /* "freud/cluster.pyx":106
- * 
- *         defaulted_nlist = freud.locality.make_default_nlist(
- *             self.m_box, points, points, self.rmax, nlist, True)             # <<<<<<<<<<<<<<
- *         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
- * 
- */
-  __pyx_t_2 = NULL;
-  __pyx_t_5 = 0;
-  if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_3))) {
-    __pyx_t_2 = PyMethod_GET_SELF(__pyx_t_3);
-    if (likely(__pyx_t_2)) {
-      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
-      __Pyx_INCREF(__pyx_t_2);
+  if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
+    __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_2);
+    if (likely(__pyx_t_3)) {
+      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_2);
+      __Pyx_INCREF(__pyx_t_3);
       __Pyx_INCREF(function);
-      __Pyx_DECREF_SET(__pyx_t_3, function);
-      __pyx_t_5 = 1;
+      __Pyx_DECREF_SET(__pyx_t_2, function);
+      __pyx_t_4 = 1;
     }
   }
   #if CYTHON_FAST_PYCALL
-  if (PyFunction_Check(__pyx_t_3)) {
-    PyObject *__pyx_temp[7] = {__pyx_t_2, ((PyObject *)__pyx_v_self->m_box), __pyx_v_points, __pyx_v_points, __pyx_v_self->rmax, __pyx_v_nlist, Py_True};
-    __pyx_t_4 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 6+__pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 105, __pyx_L1_error)
-    __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __Pyx_GOTREF(__pyx_t_4);
+  if (PyFunction_Check(__pyx_t_2)) {
+    PyObject *__pyx_temp[4] = {__pyx_t_3, ((PyObject *)__pyx_v_self->m_box), __pyx_v_points, __pyx_v_nlist};
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_4, 3+__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 103, __pyx_L1_error)
+    __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __Pyx_GOTREF(__pyx_t_1);
   } else
   #endif
   #if CYTHON_FAST_PYCCALL
-  if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
-    PyObject *__pyx_temp[7] = {__pyx_t_2, ((PyObject *)__pyx_v_self->m_box), __pyx_v_points, __pyx_v_points, __pyx_v_self->rmax, __pyx_v_nlist, Py_True};
-    __pyx_t_4 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_5, 6+__pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 105, __pyx_L1_error)
-    __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __Pyx_GOTREF(__pyx_t_4);
+  if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
+    PyObject *__pyx_temp[4] = {__pyx_t_3, ((PyObject *)__pyx_v_self->m_box), __pyx_v_points, __pyx_v_nlist};
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_4, 3+__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 103, __pyx_L1_error)
+    __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __Pyx_GOTREF(__pyx_t_1);
   } else
   #endif
   {
-    __pyx_t_1 = PyTuple_New(6+__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 105, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_1);
-    if (__pyx_t_2) {
-      __Pyx_GIVEREF(__pyx_t_2); PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_t_2); __pyx_t_2 = NULL;
+    __pyx_t_5 = PyTuple_New(3+__pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 103, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_5);
+    if (__pyx_t_3) {
+      __Pyx_GIVEREF(__pyx_t_3); PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_3); __pyx_t_3 = NULL;
     }
     __Pyx_INCREF(((PyObject *)__pyx_v_self->m_box));
     __Pyx_GIVEREF(((PyObject *)__pyx_v_self->m_box));
-    PyTuple_SET_ITEM(__pyx_t_1, 0+__pyx_t_5, ((PyObject *)__pyx_v_self->m_box));
+    PyTuple_SET_ITEM(__pyx_t_5, 0+__pyx_t_4, ((PyObject *)__pyx_v_self->m_box));
     __Pyx_INCREF(__pyx_v_points);
     __Pyx_GIVEREF(__pyx_v_points);
-    PyTuple_SET_ITEM(__pyx_t_1, 1+__pyx_t_5, __pyx_v_points);
-    __Pyx_INCREF(__pyx_v_points);
-    __Pyx_GIVEREF(__pyx_v_points);
-    PyTuple_SET_ITEM(__pyx_t_1, 2+__pyx_t_5, __pyx_v_points);
-    __Pyx_INCREF(__pyx_v_self->rmax);
-    __Pyx_GIVEREF(__pyx_v_self->rmax);
-    PyTuple_SET_ITEM(__pyx_t_1, 3+__pyx_t_5, __pyx_v_self->rmax);
+    PyTuple_SET_ITEM(__pyx_t_5, 1+__pyx_t_4, __pyx_v_points);
     __Pyx_INCREF(__pyx_v_nlist);
     __Pyx_GIVEREF(__pyx_v_nlist);
-    PyTuple_SET_ITEM(__pyx_t_1, 4+__pyx_t_5, __pyx_v_nlist);
-    __Pyx_INCREF(Py_True);
-    __Pyx_GIVEREF(Py_True);
-    PyTuple_SET_ITEM(__pyx_t_1, 5+__pyx_t_5, Py_True);
-    __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_1, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 105, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_4);
-    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+    PyTuple_SET_ITEM(__pyx_t_5, 2+__pyx_t_4, __pyx_v_nlist);
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_5, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 103, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
+    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   }
-  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_v_defaulted_nlist = __pyx_t_4;
-  __pyx_t_4 = 0;
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_v_nq_nlist = __pyx_t_1;
+  __pyx_t_1 = 0;
+
+  /* "freud/cluster.pyx":104
+ *         """
+ *         nq_nlist = freud.locality.make_nq_nlist(self.m_box, points, nlist)
+ *         cdef freud.locality.NeighborQuery nq = nq_nlist[0]             # <<<<<<<<<<<<<<
+ *         cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
+ * 
+ */
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_nq_nlist, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 104, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5freud_8locality_NeighborQuery))))) __PYX_ERR(0, 104, __pyx_L1_error)
+  __pyx_v_nq = ((struct __pyx_obj_5freud_8locality_NeighborQuery *)__pyx_t_1);
+  __pyx_t_1 = 0;
+
+  /* "freud/cluster.pyx":105
+ *         nq_nlist = freud.locality.make_nq_nlist(self.m_box, points, nlist)
+ *         cdef freud.locality.NeighborQuery nq = nq_nlist[0]
+ *         cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]             # <<<<<<<<<<<<<<
+ * 
+ *         cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
+ */
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_nq_nlist, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 105, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5freud_8locality_NlistptrWrapper))))) __PYX_ERR(0, 105, __pyx_L1_error)
+  __pyx_v_nlistptr = ((struct __pyx_obj_5freud_8locality_NlistptrWrapper *)__pyx_t_1);
+  __pyx_t_1 = 0;
+
+  /* "freud/cluster.pyx":108
+ * 
+ *         cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
+ *             mode="ball", rmax=self.rmax, exclude_ii=True)             # <<<<<<<<<<<<<<
+ *         points = nq.points
+ * 
+ */
+  __pyx_t_1 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 108, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_mode, __pyx_n_s_ball) < 0) __PYX_ERR(0, 108, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_rmax, __pyx_v_self->rmax) < 0) __PYX_ERR(0, 108, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_exclude_ii, Py_True) < 0) __PYX_ERR(0, 108, __pyx_L1_error)
 
   /* "freud/cluster.pyx":107
- *         defaulted_nlist = freud.locality.make_default_nlist(
- *             self.m_box, points, points, self.rmax, nlist, True)
- *         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]             # <<<<<<<<<<<<<<
+ *         cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
+ * 
+ *         cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(             # <<<<<<<<<<<<<<
+ *             mode="ball", rmax=self.rmax, exclude_ii=True)
+ *         points = nq.points
+ */
+  __pyx_t_2 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_5freud_8locality__QueryArgs), __pyx_empty_tuple, __pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 107, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_v_qargs = ((struct __pyx_obj_5freud_8locality__QueryArgs *)__pyx_t_2);
+  __pyx_t_2 = 0;
+
+  /* "freud/cluster.pyx":109
+ *         cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
+ *             mode="ball", rmax=self.rmax, exclude_ii=True)
+ *         points = nq.points             # <<<<<<<<<<<<<<
  * 
  *         cdef freud.box.Box b
  */
-  __pyx_t_4 = __Pyx_GetItemInt(__pyx_v_defaulted_nlist, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 107, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
-  if (!(likely(((__pyx_t_4) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_4, __pyx_ptype_5freud_8locality_NeighborList))))) __PYX_ERR(0, 107, __pyx_L1_error)
-  __pyx_v_nlist_ = ((struct __pyx_obj_5freud_8locality_NeighborList *)__pyx_t_4);
-  __pyx_t_4 = 0;
+  if (unlikely(!__pyx_v_nq->points.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 109, __pyx_L1_error)}
+  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_nq->points, 2, (PyObject *(*)(char *)) __pyx_memview_get_float__const__, (int (*)(char *, PyObject *)) NULL, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 109, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_DECREF_SET(__pyx_v_points, __pyx_t_2);
+  __pyx_t_2 = 0;
 
-  /* "freud/cluster.pyx":110
+  /* "freud/cluster.pyx":112
  * 
  *         cdef freud.box.Box b
  *         if box is None:             # <<<<<<<<<<<<<<
@@ -3834,19 +3966,19 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_4computeClusters(struct __pyx
   __pyx_t_7 = (__pyx_t_6 != 0);
   if (__pyx_t_7) {
 
-    /* "freud/cluster.pyx":111
+    /* "freud/cluster.pyx":113
  *         cdef freud.box.Box b
  *         if box is None:
  *             b = self.m_box             # <<<<<<<<<<<<<<
  *         else:
  *             b = freud.common.convert_box(box)
  */
-    __pyx_t_4 = ((PyObject *)__pyx_v_self->m_box);
-    __Pyx_INCREF(__pyx_t_4);
-    __pyx_v_b = ((struct __pyx_obj_5freud_3box_Box *)__pyx_t_4);
-    __pyx_t_4 = 0;
+    __pyx_t_2 = ((PyObject *)__pyx_v_self->m_box);
+    __Pyx_INCREF(__pyx_t_2);
+    __pyx_v_b = ((struct __pyx_obj_5freud_3box_Box *)__pyx_t_2);
+    __pyx_t_2 = 0;
 
-    /* "freud/cluster.pyx":110
+    /* "freud/cluster.pyx":112
  * 
  *         cdef freud.box.Box b
  *         if box is None:             # <<<<<<<<<<<<<<
@@ -3856,7 +3988,7 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_4computeClusters(struct __pyx
     goto __pyx_L3;
   }
 
-  /* "freud/cluster.pyx":113
+  /* "freud/cluster.pyx":115
  *             b = self.m_box
  *         else:
  *             b = freud.common.convert_box(box)             # <<<<<<<<<<<<<<
@@ -3864,48 +3996,48 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_4computeClusters(struct __pyx
  *         cdef const float[:, ::1] l_points = points
  */
   /*else*/ {
-    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_freud); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 113, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_common); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 113, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_freud); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 115, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_convert_box); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 113, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_3);
+    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_common); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 115, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __pyx_t_1 = NULL;
-    if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_3))) {
-      __pyx_t_1 = PyMethod_GET_SELF(__pyx_t_3);
-      if (likely(__pyx_t_1)) {
-        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
-        __Pyx_INCREF(__pyx_t_1);
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_convert_box); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 115, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
+    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+    __pyx_t_5 = NULL;
+    if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_1))) {
+      __pyx_t_5 = PyMethod_GET_SELF(__pyx_t_1);
+      if (likely(__pyx_t_5)) {
+        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_1);
+        __Pyx_INCREF(__pyx_t_5);
         __Pyx_INCREF(function);
-        __Pyx_DECREF_SET(__pyx_t_3, function);
+        __Pyx_DECREF_SET(__pyx_t_1, function);
       }
     }
-    __pyx_t_4 = (__pyx_t_1) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_1, __pyx_v_box) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_v_box);
-    __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
-    if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 113, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_4);
-    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (!(likely(((__pyx_t_4) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_4, __pyx_ptype_5freud_3box_Box))))) __PYX_ERR(0, 113, __pyx_L1_error)
-    __pyx_v_b = ((struct __pyx_obj_5freud_3box_Box *)__pyx_t_4);
-    __pyx_t_4 = 0;
+    __pyx_t_2 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_1, __pyx_t_5, __pyx_v_box) : __Pyx_PyObject_CallOneArg(__pyx_t_1, __pyx_v_box);
+    __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 115, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
+    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+    if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_5freud_3box_Box))))) __PYX_ERR(0, 115, __pyx_L1_error)
+    __pyx_v_b = ((struct __pyx_obj_5freud_3box_Box *)__pyx_t_2);
+    __pyx_t_2 = 0;
   }
   __pyx_L3:;
 
-  /* "freud/cluster.pyx":115
+  /* "freud/cluster.pyx":117
  *             b = freud.common.convert_box(box)
  * 
  *         cdef const float[:, ::1] l_points = points             # <<<<<<<<<<<<<<
  *         cdef unsigned int Np = l_points.shape[0]
  *         with nogil:
  */
-  __pyx_t_8 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_float__const__(__pyx_v_points, 0); if (unlikely(!__pyx_t_8.memview)) __PYX_ERR(0, 115, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_float__const__(__pyx_v_points, 0); if (unlikely(!__pyx_t_8.memview)) __PYX_ERR(0, 117, __pyx_L1_error)
   __pyx_v_l_points = __pyx_t_8;
   __pyx_t_8.memview = NULL;
   __pyx_t_8.data = NULL;
 
-  /* "freud/cluster.pyx":116
+  /* "freud/cluster.pyx":118
  * 
  *         cdef const float[:, ::1] l_points = points
  *         cdef unsigned int Np = l_points.shape[0]             # <<<<<<<<<<<<<<
@@ -3914,12 +4046,12 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_4computeClusters(struct __pyx
  */
   __pyx_v_Np = (__pyx_v_l_points.shape[0]);
 
-  /* "freud/cluster.pyx":117
+  /* "freud/cluster.pyx":119
  *         cdef const float[:, ::1] l_points = points
  *         cdef unsigned int Np = l_points.shape[0]
  *         with nogil:             # <<<<<<<<<<<<<<
  *             self.thisptr.computeClusters(
- *                 dereference(b.thisptr), nlist_.get_ptr(),
+ *                 nq.get_ptr(),
  */
   {
       #ifdef WITH_THREAD
@@ -3929,25 +4061,25 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_4computeClusters(struct __pyx
       #endif
       /*try:*/ {
 
-        /* "freud/cluster.pyx":120
- *             self.thisptr.computeClusters(
- *                 dereference(b.thisptr), nlist_.get_ptr(),
- *                 <vec3[float]*> &l_points[0, 0], Np)             # <<<<<<<<<<<<<<
+        /* "freud/cluster.pyx":123
+ *                 nq.get_ptr(),
+ *                 nlistptr.get_ptr(),
+ *                 <vec3[float]*> &l_points[0, 0], Np, dereference(qargs.thisptr))             # <<<<<<<<<<<<<<
  *         return self
  * 
  */
         __pyx_t_9 = 0;
         __pyx_t_10 = 0;
 
-        /* "freud/cluster.pyx":118
+        /* "freud/cluster.pyx":120
  *         cdef unsigned int Np = l_points.shape[0]
  *         with nogil:
  *             self.thisptr.computeClusters(             # <<<<<<<<<<<<<<
- *                 dereference(b.thisptr), nlist_.get_ptr(),
- *                 <vec3[float]*> &l_points[0, 0], Np)
+ *                 nq.get_ptr(),
+ *                 nlistptr.get_ptr(),
  */
         try {
-          __pyx_v_self->thisptr->computeClusters((*__pyx_v_b->thisptr), ((struct __pyx_vtabstruct_5freud_8locality_NeighborList *)__pyx_v_nlist_->__pyx_vtab)->get_ptr(__pyx_v_nlist_), ((vec3<float>  *)(&(*((float const  *) ( /* dim=1 */ ((char *) (((float const  *) ( /* dim=0 */ (__pyx_v_l_points.data + __pyx_t_9 * __pyx_v_l_points.strides[0]) )) + __pyx_t_10)) ))))), __pyx_v_Np);
+          __pyx_v_self->thisptr->computeClusters(((struct __pyx_vtabstruct_5freud_8locality_NeighborQuery *)__pyx_v_nq->__pyx_vtab)->get_ptr(__pyx_v_nq), ((struct __pyx_vtabstruct_5freud_8locality_NlistptrWrapper *)__pyx_v_nlistptr->__pyx_vtab)->get_ptr(__pyx_v_nlistptr), ((vec3<float>  *)(&(*((float const  *) ( /* dim=1 */ ((char *) (((float const  *) ( /* dim=0 */ (__pyx_v_l_points.data + __pyx_t_9 * __pyx_v_l_points.strides[0]) )) + __pyx_t_10)) ))))), __pyx_v_Np, (*__pyx_v_qargs->thisptr));
         } catch(...) {
           #ifdef WITH_THREAD
           PyGILState_STATE __pyx_gilstate_save = __Pyx_PyGILState_Ensure();
@@ -3956,16 +4088,16 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_4computeClusters(struct __pyx
           #ifdef WITH_THREAD
           __Pyx_PyGILState_Release(__pyx_gilstate_save);
           #endif
-          __PYX_ERR(0, 118, __pyx_L5_error)
+          __PYX_ERR(0, 120, __pyx_L5_error)
         }
       }
 
-      /* "freud/cluster.pyx":117
+      /* "freud/cluster.pyx":119
  *         cdef const float[:, ::1] l_points = points
  *         cdef unsigned int Np = l_points.shape[0]
  *         with nogil:             # <<<<<<<<<<<<<<
  *             self.thisptr.computeClusters(
- *                 dereference(b.thisptr), nlist_.get_ptr(),
+ *                 nq.get_ptr(),
  */
       /*finally:*/ {
         /*normal exit:*/{
@@ -3986,9 +4118,9 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_4computeClusters(struct __pyx
       }
   }
 
-  /* "freud/cluster.pyx":121
- *                 dereference(b.thisptr), nlist_.get_ptr(),
- *                 <vec3[float]*> &l_points[0, 0], Np)
+  /* "freud/cluster.pyx":124
+ *                 nlistptr.get_ptr(),
+ *                 <vec3[float]*> &l_points[0, 0], Np, dereference(qargs.thisptr))
  *         return self             # <<<<<<<<<<<<<<
  * 
  *     @Compute._compute("computeClusterMembership")
@@ -4011,13 +4143,15 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_4computeClusters(struct __pyx
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_XDECREF(__pyx_t_4);
+  __Pyx_XDECREF(__pyx_t_5);
   __PYX_XDEC_MEMVIEW(&__pyx_t_8, 1);
   __Pyx_AddTraceback("freud.cluster.Cluster.computeClusters", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
-  __Pyx_XDECREF(__pyx_v_defaulted_nlist);
-  __Pyx_XDECREF((PyObject *)__pyx_v_nlist_);
+  __Pyx_XDECREF(__pyx_v_nq_nlist);
+  __Pyx_XDECREF((PyObject *)__pyx_v_nq);
+  __Pyx_XDECREF((PyObject *)__pyx_v_nlistptr);
+  __Pyx_XDECREF((PyObject *)__pyx_v_qargs);
   __Pyx_XDECREF((PyObject *)__pyx_v_b);
   __PYX_XDEC_MEMVIEW(&__pyx_v_l_points, 1);
   __Pyx_XDECREF(__pyx_v_points);
@@ -4026,7 +4160,7 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_4computeClusters(struct __pyx
   return __pyx_r;
 }
 
-/* "freud/cluster.pyx":124
+/* "freud/cluster.pyx":127
  * 
  *     @Compute._compute("computeClusterMembership")
  *     def computeClusterMembership(self, keys):             # <<<<<<<<<<<<<<
@@ -4063,61 +4197,61 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_6computeClusterMembership(str
   __Pyx_RefNannySetupContext("computeClusterMembership", 0);
   __Pyx_INCREF(__pyx_v_keys);
 
-  /* "freud/cluster.pyx":134
+  /* "freud/cluster.pyx":137
  *                 Membership keys, one for each particle.
  *         """
  *         keys = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             keys, shape=(self.num_particles, ), dtype=np.uint32)
  *         cdef const unsigned int[::1] l_keys = keys
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_freud); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 134, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_freud); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 137, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_common); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 134, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_common); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 137, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 134, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 137, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "freud/cluster.pyx":135
+  /* "freud/cluster.pyx":138
  *         """
  *         keys = freud.common.convert_array(
  *             keys, shape=(self.num_particles, ), dtype=np.uint32)             # <<<<<<<<<<<<<<
  *         cdef const unsigned int[::1] l_keys = keys
  *         with nogil:
  */
-  __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 134, __pyx_L1_error)
+  __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 137, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_INCREF(__pyx_v_keys);
   __Pyx_GIVEREF(__pyx_v_keys);
   PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_v_keys);
-  __pyx_t_3 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 135, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 138, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_num_particles); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 135, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_num_particles); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 138, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = PyTuple_New(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 135, __pyx_L1_error)
+  __pyx_t_5 = PyTuple_New(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 138, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_GIVEREF(__pyx_t_4);
   PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_4);
   __pyx_t_4 = 0;
-  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_shape, __pyx_t_5) < 0) __PYX_ERR(0, 135, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_shape, __pyx_t_5) < 0) __PYX_ERR(0, 138, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 135, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 138, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_uint32); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 135, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_uint32); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 138, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_dtype, __pyx_t_4) < 0) __PYX_ERR(0, 135, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_dtype, __pyx_t_4) < 0) __PYX_ERR(0, 138, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "freud/cluster.pyx":134
+  /* "freud/cluster.pyx":137
  *                 Membership keys, one for each particle.
  *         """
  *         keys = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             keys, shape=(self.num_particles, ), dtype=np.uint32)
  *         cdef const unsigned int[::1] l_keys = keys
  */
-  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 134, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 137, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -4125,19 +4259,19 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_6computeClusterMembership(str
   __Pyx_DECREF_SET(__pyx_v_keys, __pyx_t_4);
   __pyx_t_4 = 0;
 
-  /* "freud/cluster.pyx":136
+  /* "freud/cluster.pyx":139
  *         keys = freud.common.convert_array(
  *             keys, shape=(self.num_particles, ), dtype=np.uint32)
  *         cdef const unsigned int[::1] l_keys = keys             # <<<<<<<<<<<<<<
  *         with nogil:
  *             self.thisptr.computeClusterMembership(<unsigned int*> &l_keys[0])
  */
-  __pyx_t_6 = __Pyx_PyObject_to_MemoryviewSlice_dc_unsigned_int__const__(__pyx_v_keys, 0); if (unlikely(!__pyx_t_6.memview)) __PYX_ERR(0, 136, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_to_MemoryviewSlice_dc_unsigned_int__const__(__pyx_v_keys, 0); if (unlikely(!__pyx_t_6.memview)) __PYX_ERR(0, 139, __pyx_L1_error)
   __pyx_v_l_keys = __pyx_t_6;
   __pyx_t_6.memview = NULL;
   __pyx_t_6.data = NULL;
 
-  /* "freud/cluster.pyx":137
+  /* "freud/cluster.pyx":140
  *             keys, shape=(self.num_particles, ), dtype=np.uint32)
  *         cdef const unsigned int[::1] l_keys = keys
  *         with nogil:             # <<<<<<<<<<<<<<
@@ -4152,7 +4286,7 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_6computeClusterMembership(str
       #endif
       /*try:*/ {
 
-        /* "freud/cluster.pyx":138
+        /* "freud/cluster.pyx":141
  *         cdef const unsigned int[::1] l_keys = keys
  *         with nogil:
  *             self.thisptr.computeClusterMembership(<unsigned int*> &l_keys[0])             # <<<<<<<<<<<<<<
@@ -4170,11 +4304,11 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_6computeClusterMembership(str
           #ifdef WITH_THREAD
           __Pyx_PyGILState_Release(__pyx_gilstate_save);
           #endif
-          __PYX_ERR(0, 138, __pyx_L4_error)
+          __PYX_ERR(0, 141, __pyx_L4_error)
         }
       }
 
-      /* "freud/cluster.pyx":137
+      /* "freud/cluster.pyx":140
  *             keys, shape=(self.num_particles, ), dtype=np.uint32)
  *         cdef const unsigned int[::1] l_keys = keys
  *         with nogil:             # <<<<<<<<<<<<<<
@@ -4200,7 +4334,7 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_6computeClusterMembership(str
       }
   }
 
-  /* "freud/cluster.pyx":139
+  /* "freud/cluster.pyx":142
  *         with nogil:
  *             self.thisptr.computeClusterMembership(<unsigned int*> &l_keys[0])
  *         return self             # <<<<<<<<<<<<<<
@@ -4212,7 +4346,7 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_6computeClusterMembership(str
   __pyx_r = ((PyObject *)__pyx_v_self);
   goto __pyx_L0;
 
-  /* "freud/cluster.pyx":124
+  /* "freud/cluster.pyx":127
  * 
  *     @Compute._compute("computeClusterMembership")
  *     def computeClusterMembership(self, keys):             # <<<<<<<<<<<<<<
@@ -4238,7 +4372,7 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_6computeClusterMembership(str
   return __pyx_r;
 }
 
-/* "freud/cluster.pyx":142
+/* "freud/cluster.pyx":145
  * 
  *     @Compute._computed_property("computeClusters")
  *     def num_clusters(self):             # <<<<<<<<<<<<<<
@@ -4267,7 +4401,7 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_8num_clusters(struct __pyx_ob
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("num_clusters", 0);
 
-  /* "freud/cluster.pyx":143
+  /* "freud/cluster.pyx":146
  *     @Compute._computed_property("computeClusters")
  *     def num_clusters(self):
  *         return self.thisptr.getNumClusters()             # <<<<<<<<<<<<<<
@@ -4275,13 +4409,13 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_8num_clusters(struct __pyx_ob
  *     @Compute._computed_property("computeClusters")
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_unsigned_int(__pyx_v_self->thisptr->getNumClusters()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 143, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_unsigned_int(__pyx_v_self->thisptr->getNumClusters()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 146, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/cluster.pyx":142
+  /* "freud/cluster.pyx":145
  * 
  *     @Compute._computed_property("computeClusters")
  *     def num_clusters(self):             # <<<<<<<<<<<<<<
@@ -4300,7 +4434,7 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_8num_clusters(struct __pyx_ob
   return __pyx_r;
 }
 
-/* "freud/cluster.pyx":146
+/* "freud/cluster.pyx":149
  * 
  *     @Compute._computed_property("computeClusters")
  *     def num_particles(self):             # <<<<<<<<<<<<<<
@@ -4329,7 +4463,7 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_10num_particles(struct __pyx_
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("num_particles", 0);
 
-  /* "freud/cluster.pyx":147
+  /* "freud/cluster.pyx":150
  *     @Compute._computed_property("computeClusters")
  *     def num_particles(self):
  *         return self.thisptr.getNumParticles()             # <<<<<<<<<<<<<<
@@ -4337,13 +4471,13 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_10num_particles(struct __pyx_
  *     @Compute._computed_property("computeClusters")
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_unsigned_int(__pyx_v_self->thisptr->getNumParticles()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 147, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_unsigned_int(__pyx_v_self->thisptr->getNumParticles()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 150, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/cluster.pyx":146
+  /* "freud/cluster.pyx":149
  * 
  *     @Compute._computed_property("computeClusters")
  *     def num_particles(self):             # <<<<<<<<<<<<<<
@@ -4362,7 +4496,7 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_10num_particles(struct __pyx_
   return __pyx_r;
 }
 
-/* "freud/cluster.pyx":150
+/* "freud/cluster.pyx":153
  * 
  *     @Compute._computed_property("computeClusters")
  *     def cluster_idx(self):             # <<<<<<<<<<<<<<
@@ -4399,7 +4533,7 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_12cluster_idx(struct __pyx_ob
   PyObject *__pyx_t_7 = NULL;
   __Pyx_RefNannySetupContext("cluster_idx", 0);
 
-  /* "freud/cluster.pyx":151
+  /* "freud/cluster.pyx":154
  *     @Compute._computed_property("computeClusters")
  *     def cluster_idx(self):
  *         cdef unsigned int n_particles = self.thisptr.getNumParticles()             # <<<<<<<<<<<<<<
@@ -4408,7 +4542,7 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_12cluster_idx(struct __pyx_ob
  */
   __pyx_v_n_particles = __pyx_v_self->thisptr->getNumParticles();
 
-  /* "freud/cluster.pyx":153
+  /* "freud/cluster.pyx":156
  *         cdef unsigned int n_particles = self.thisptr.getNumParticles()
  *         cdef const unsigned int[::1] cluster_idx = \
  *             <unsigned int[:n_particles]> self.thisptr.getClusterIdx().get()             # <<<<<<<<<<<<<<
@@ -4418,25 +4552,25 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_12cluster_idx(struct __pyx_ob
   __pyx_t_1 = __pyx_v_self->thisptr->getClusterIdx().get();
   if (!__pyx_t_1) {
     PyErr_SetString(PyExc_ValueError,"Cannot create cython.array from NULL pointer");
-    __PYX_ERR(0, 153, __pyx_L1_error)
+    __PYX_ERR(0, 156, __pyx_L1_error)
   }
   __pyx_t_4 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_unsigned_int);
   __pyx_t_3 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)__pyx_v_n_particles));
-  if (unlikely(!__pyx_t_4 || !__pyx_t_3 || !PyBytes_AsString(__pyx_t_4))) __PYX_ERR(0, 153, __pyx_L1_error)
+  if (unlikely(!__pyx_t_4 || !__pyx_t_3 || !PyBytes_AsString(__pyx_t_4))) __PYX_ERR(0, 156, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_2 = __pyx_array_new(__pyx_t_3, sizeof(unsigned int), PyBytes_AS_STRING(__pyx_t_4), (char *) "c", (char *) __pyx_t_1);
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 153, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 156, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_5 = __Pyx_PyObject_to_MemoryviewSlice_dc_unsigned_int__const__(((PyObject *)__pyx_t_2), 0); if (unlikely(!__pyx_t_5.memview)) __PYX_ERR(0, 153, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_to_MemoryviewSlice_dc_unsigned_int__const__(((PyObject *)__pyx_t_2), 0); if (unlikely(!__pyx_t_5.memview)) __PYX_ERR(0, 156, __pyx_L1_error)
   __Pyx_DECREF(((PyObject *)__pyx_t_2)); __pyx_t_2 = 0;
   __pyx_v_cluster_idx = __pyx_t_5;
   __pyx_t_5.memview = NULL;
   __pyx_t_5.data = NULL;
 
-  /* "freud/cluster.pyx":154
+  /* "freud/cluster.pyx":157
  *         cdef const unsigned int[::1] cluster_idx = \
  *             <unsigned int[:n_particles]> self.thisptr.getClusterIdx().get()
  *         return np.asarray(cluster_idx)             # <<<<<<<<<<<<<<
@@ -4444,12 +4578,12 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_12cluster_idx(struct __pyx_ob
  *     @Compute._computed_property("computeClusterMembership")
  */
   __Pyx_XDECREF(__pyx_r);
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 154, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 157, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_asarray); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 154, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_asarray); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 157, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = __pyx_memoryview_fromslice(__pyx_v_cluster_idx, 1, (PyObject *(*)(char *)) __pyx_memview_get_unsigned_int__const__, (int (*)(char *, PyObject *)) NULL, 0);; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 154, __pyx_L1_error)
+  __pyx_t_3 = __pyx_memoryview_fromslice(__pyx_v_cluster_idx, 1, (PyObject *(*)(char *)) __pyx_memview_get_unsigned_int__const__, (int (*)(char *, PyObject *)) NULL, 0);; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 157, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_7 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_6))) {
@@ -4464,14 +4598,14 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_12cluster_idx(struct __pyx_ob
   __pyx_t_4 = (__pyx_t_7) ? __Pyx_PyObject_Call2Args(__pyx_t_6, __pyx_t_7, __pyx_t_3) : __Pyx_PyObject_CallOneArg(__pyx_t_6, __pyx_t_3);
   __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 154, __pyx_L1_error)
+  if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 157, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   __pyx_r = __pyx_t_4;
   __pyx_t_4 = 0;
   goto __pyx_L0;
 
-  /* "freud/cluster.pyx":150
+  /* "freud/cluster.pyx":153
  * 
  *     @Compute._computed_property("computeClusters")
  *     def cluster_idx(self):             # <<<<<<<<<<<<<<
@@ -4496,7 +4630,7 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_12cluster_idx(struct __pyx_ob
   return __pyx_r;
 }
 
-/* "freud/cluster.pyx":157
+/* "freud/cluster.pyx":160
  * 
  *     @Compute._computed_property("computeClusterMembership")
  *     def cluster_keys(self):             # <<<<<<<<<<<<<<
@@ -4526,7 +4660,7 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_14cluster_keys(struct __pyx_o
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("cluster_keys", 0);
 
-  /* "freud/cluster.pyx":158
+  /* "freud/cluster.pyx":161
  *     @Compute._computed_property("computeClusterMembership")
  *     def cluster_keys(self):
  *         cluster_keys = self.thisptr.getClusterKeys()             # <<<<<<<<<<<<<<
@@ -4535,7 +4669,7 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_14cluster_keys(struct __pyx_o
  */
   __pyx_v_cluster_keys = __pyx_v_self->thisptr->getClusterKeys();
 
-  /* "freud/cluster.pyx":159
+  /* "freud/cluster.pyx":162
  *     def cluster_keys(self):
  *         cluster_keys = self.thisptr.getClusterKeys()
  *         return cluster_keys             # <<<<<<<<<<<<<<
@@ -4543,13 +4677,13 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_14cluster_keys(struct __pyx_o
  *     def __repr__(self):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_convert_vector_to_py_std_3a__3a_vector_3c_unsigned_int_3e___(__pyx_v_cluster_keys); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 159, __pyx_L1_error)
+  __pyx_t_1 = __pyx_convert_vector_to_py_std_3a__3a_vector_3c_unsigned_int_3e___(__pyx_v_cluster_keys); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 162, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/cluster.pyx":157
+  /* "freud/cluster.pyx":160
  * 
  *     @Compute._computed_property("computeClusterMembership")
  *     def cluster_keys(self):             # <<<<<<<<<<<<<<
@@ -4568,7 +4702,7 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_14cluster_keys(struct __pyx_o
   return __pyx_r;
 }
 
-/* "freud/cluster.pyx":161
+/* "freud/cluster.pyx":164
  *         return cluster_keys
  * 
  *     def __repr__(self):             # <<<<<<<<<<<<<<
@@ -4599,7 +4733,7 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_16__repr__(struct __pyx_obj_5
   PyObject *__pyx_t_5 = NULL;
   __Pyx_RefNannySetupContext("__repr__", 0);
 
-  /* "freud/cluster.pyx":162
+  /* "freud/cluster.pyx":165
  * 
  *     def __repr__(self):
  *         return ("freud.cluster.{cls}(box={box}, "             # <<<<<<<<<<<<<<
@@ -4608,30 +4742,30 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_16__repr__(struct __pyx_obj_5
  */
   __Pyx_XDECREF(__pyx_r);
 
-  /* "freud/cluster.pyx":163
+  /* "freud/cluster.pyx":166
  *     def __repr__(self):
  *         return ("freud.cluster.{cls}(box={box}, "
  *                 "rcut={rcut})").format(cls=type(self).__name__,             # <<<<<<<<<<<<<<
  *                                        box=self.m_box.__repr__(),
  *                                        rcut=self.rmax)
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_kp_s_freud_cluster_cls_box_box_rcut_r, __pyx_n_s_format); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 163, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_kp_s_freud_cluster_cls_box_box_rcut_r, __pyx_n_s_format); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 166, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 163, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyDict_NewPresized(3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 166, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)Py_TYPE(((PyObject *)__pyx_v_self))), __pyx_n_s_name); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 163, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)Py_TYPE(((PyObject *)__pyx_v_self))), __pyx_n_s_name); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 166, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_cls, __pyx_t_3) < 0) __PYX_ERR(0, 163, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_cls, __pyx_t_3) < 0) __PYX_ERR(0, 166, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "freud/cluster.pyx":164
+  /* "freud/cluster.pyx":167
  *         return ("freud.cluster.{cls}(box={box}, "
  *                 "rcut={rcut})").format(cls=type(self).__name__,
  *                                        box=self.m_box.__repr__(),             # <<<<<<<<<<<<<<
  *                                        rcut=self.rmax)
  * 
  */
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self->m_box), __pyx_n_s_repr); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 164, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self->m_box), __pyx_n_s_repr); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 167, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_5 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_4))) {
@@ -4645,29 +4779,29 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_16__repr__(struct __pyx_obj_5
   }
   __pyx_t_3 = (__pyx_t_5) ? __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_5) : __Pyx_PyObject_CallNoArg(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 164, __pyx_L1_error)
+  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 167, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_box, __pyx_t_3) < 0) __PYX_ERR(0, 163, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_box, __pyx_t_3) < 0) __PYX_ERR(0, 166, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "freud/cluster.pyx":165
+  /* "freud/cluster.pyx":168
  *                 "rcut={rcut})").format(cls=type(self).__name__,
  *                                        box=self.m_box.__repr__(),
  *                                        rcut=self.rmax)             # <<<<<<<<<<<<<<
  * 
  *     def __str__(self):
  */
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_rcut, __pyx_v_self->rmax) < 0) __PYX_ERR(0, 163, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_rcut, __pyx_v_self->rmax) < 0) __PYX_ERR(0, 166, __pyx_L1_error)
 
-  /* "freud/cluster.pyx":163
+  /* "freud/cluster.pyx":166
  *     def __repr__(self):
  *         return ("freud.cluster.{cls}(box={box}, "
  *                 "rcut={rcut})").format(cls=type(self).__name__,             # <<<<<<<<<<<<<<
  *                                        box=self.m_box.__repr__(),
  *                                        rcut=self.rmax)
  */
-  __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_empty_tuple, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 163, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_empty_tuple, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 166, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -4675,7 +4809,7 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_16__repr__(struct __pyx_obj_5
   __pyx_t_3 = 0;
   goto __pyx_L0;
 
-  /* "freud/cluster.pyx":161
+  /* "freud/cluster.pyx":164
  *         return cluster_keys
  * 
  *     def __repr__(self):             # <<<<<<<<<<<<<<
@@ -4698,7 +4832,7 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_16__repr__(struct __pyx_obj_5
   return __pyx_r;
 }
 
-/* "freud/cluster.pyx":167
+/* "freud/cluster.pyx":170
  *                                        rcut=self.rmax)
  * 
  *     def __str__(self):             # <<<<<<<<<<<<<<
@@ -4725,7 +4859,7 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_18__str__(struct __pyx_obj_5f
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__str__", 0);
 
-  /* "freud/cluster.pyx":168
+  /* "freud/cluster.pyx":171
  * 
  *     def __str__(self):
  *         return repr(self)             # <<<<<<<<<<<<<<
@@ -4733,13 +4867,13 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_18__str__(struct __pyx_obj_5f
  *     @Compute._computed_method("computeClusters")
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyObject_Repr(((PyObject *)__pyx_v_self)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 168, __pyx_L1_error)
+  __pyx_t_1 = PyObject_Repr(((PyObject *)__pyx_v_self)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 171, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/cluster.pyx":167
+  /* "freud/cluster.pyx":170
  *                                        rcut=self.rmax)
  * 
  *     def __str__(self):             # <<<<<<<<<<<<<<
@@ -4758,7 +4892,7 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_18__str__(struct __pyx_obj_5f
   return __pyx_r;
 }
 
-/* "freud/cluster.pyx":171
+/* "freud/cluster.pyx":174
  * 
  *     @Compute._computed_method("computeClusters")
  *     def plot(self, ax=None):             # <<<<<<<<<<<<<<
@@ -4797,7 +4931,7 @@ static PyObject *__pyx_pw_5freud_7cluster_7Cluster_21plot(PyObject *__pyx_v_self
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "plot") < 0)) __PYX_ERR(0, 171, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "plot") < 0)) __PYX_ERR(0, 174, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -4811,7 +4945,7 @@ static PyObject *__pyx_pw_5freud_7cluster_7Cluster_21plot(PyObject *__pyx_v_self
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("plot", 0, 0, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 171, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("plot", 0, 0, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 174, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("freud.cluster.Cluster.plot", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -4839,19 +4973,19 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_20plot(struct __pyx_obj_5freu
   int __pyx_t_8;
   __Pyx_RefNannySetupContext("plot", 0);
 
-  /* "freud/cluster.pyx":182
+  /* "freud/cluster.pyx":185
  *             (:class:`matplotlib.axes.Axes`): Axis with the plot.
  *         """
  *         import plot             # <<<<<<<<<<<<<<
  *         try:
  *             count = np.unique(self.cluster_idx, return_counts=True)
  */
-  __pyx_t_1 = __Pyx_Import(__pyx_n_s_plot, 0, -1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 182, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_Import(__pyx_n_s_plot, 0, -1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 185, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_plot = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "freud/cluster.pyx":183
+  /* "freud/cluster.pyx":186
  *         """
  *         import plot
  *         try:             # <<<<<<<<<<<<<<
@@ -4867,29 +5001,29 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_20plot(struct __pyx_obj_5freu
     __Pyx_XGOTREF(__pyx_t_4);
     /*try:*/ {
 
-      /* "freud/cluster.pyx":184
+      /* "freud/cluster.pyx":187
  *         import plot
  *         try:
  *             count = np.unique(self.cluster_idx, return_counts=True)             # <<<<<<<<<<<<<<
  *         except ValueError:
  *             return None
  */
-      __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 184, __pyx_L3_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 187, __pyx_L3_error)
       __Pyx_GOTREF(__pyx_t_1);
-      __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_unique); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 184, __pyx_L3_error)
+      __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_unique); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 187, __pyx_L3_error)
       __Pyx_GOTREF(__pyx_t_5);
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_cluster_idx); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 184, __pyx_L3_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_cluster_idx); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 187, __pyx_L3_error)
       __Pyx_GOTREF(__pyx_t_1);
-      __pyx_t_6 = PyTuple_New(1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 184, __pyx_L3_error)
+      __pyx_t_6 = PyTuple_New(1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 187, __pyx_L3_error)
       __Pyx_GOTREF(__pyx_t_6);
       __Pyx_GIVEREF(__pyx_t_1);
       PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_1);
       __pyx_t_1 = 0;
-      __pyx_t_1 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 184, __pyx_L3_error)
+      __pyx_t_1 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 187, __pyx_L3_error)
       __Pyx_GOTREF(__pyx_t_1);
-      if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_return_counts, Py_True) < 0) __PYX_ERR(0, 184, __pyx_L3_error)
-      __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_6, __pyx_t_1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 184, __pyx_L3_error)
+      if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_return_counts, Py_True) < 0) __PYX_ERR(0, 187, __pyx_L3_error)
+      __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_6, __pyx_t_1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 187, __pyx_L3_error)
       __Pyx_GOTREF(__pyx_t_7);
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
@@ -4897,7 +5031,7 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_20plot(struct __pyx_obj_5freu
       __pyx_v_count = __pyx_t_7;
       __pyx_t_7 = 0;
 
-      /* "freud/cluster.pyx":183
+      /* "freud/cluster.pyx":186
  *         """
  *         import plot
  *         try:             # <<<<<<<<<<<<<<
@@ -4906,7 +5040,7 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_20plot(struct __pyx_obj_5freu
  */
     }
 
-    /* "freud/cluster.pyx":188
+    /* "freud/cluster.pyx":191
  *             return None
  *         else:
  *             return plot.plot_clusters(count[0], count[1],             # <<<<<<<<<<<<<<
@@ -4915,13 +5049,13 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_20plot(struct __pyx_obj_5freu
  */
     /*else:*/ {
       __Pyx_XDECREF(__pyx_r);
-      __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_v_plot, __pyx_n_s_plot_clusters); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 188, __pyx_L5_except_error)
+      __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_v_plot, __pyx_n_s_plot_clusters); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 191, __pyx_L5_except_error)
       __Pyx_GOTREF(__pyx_t_7);
-      __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_count, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 188, __pyx_L5_except_error)
+      __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_count, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 191, __pyx_L5_except_error)
       __Pyx_GOTREF(__pyx_t_1);
-      __pyx_t_6 = __Pyx_GetItemInt(__pyx_v_count, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 188, __pyx_L5_except_error)
+      __pyx_t_6 = __Pyx_GetItemInt(__pyx_v_count, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 191, __pyx_L5_except_error)
       __Pyx_GOTREF(__pyx_t_6);
-      __pyx_t_5 = PyTuple_New(2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 188, __pyx_L5_except_error)
+      __pyx_t_5 = PyTuple_New(2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 191, __pyx_L5_except_error)
       __Pyx_GOTREF(__pyx_t_5);
       __Pyx_GIVEREF(__pyx_t_1);
       PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_1);
@@ -4930,26 +5064,26 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_20plot(struct __pyx_obj_5freu
       __pyx_t_1 = 0;
       __pyx_t_6 = 0;
 
-      /* "freud/cluster.pyx":189
+      /* "freud/cluster.pyx":192
  *         else:
  *             return plot.plot_clusters(count[0], count[1],
  *                                       num_cluster_to_plot=10, ax=ax)             # <<<<<<<<<<<<<<
  * 
  *     def _repr_png_(self):
  */
-      __pyx_t_6 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 189, __pyx_L5_except_error)
+      __pyx_t_6 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 192, __pyx_L5_except_error)
       __Pyx_GOTREF(__pyx_t_6);
-      if (PyDict_SetItem(__pyx_t_6, __pyx_n_s_num_cluster_to_plot, __pyx_int_10) < 0) __PYX_ERR(0, 189, __pyx_L5_except_error)
-      if (PyDict_SetItem(__pyx_t_6, __pyx_n_s_ax, __pyx_v_ax) < 0) __PYX_ERR(0, 189, __pyx_L5_except_error)
+      if (PyDict_SetItem(__pyx_t_6, __pyx_n_s_num_cluster_to_plot, __pyx_int_10) < 0) __PYX_ERR(0, 192, __pyx_L5_except_error)
+      if (PyDict_SetItem(__pyx_t_6, __pyx_n_s_ax, __pyx_v_ax) < 0) __PYX_ERR(0, 192, __pyx_L5_except_error)
 
-      /* "freud/cluster.pyx":188
+      /* "freud/cluster.pyx":191
  *             return None
  *         else:
  *             return plot.plot_clusters(count[0], count[1],             # <<<<<<<<<<<<<<
  *                                       num_cluster_to_plot=10, ax=ax)
  * 
  */
-      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_7, __pyx_t_5, __pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 188, __pyx_L5_except_error)
+      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_7, __pyx_t_5, __pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 191, __pyx_L5_except_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
@@ -4964,7 +5098,7 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_20plot(struct __pyx_obj_5freu
     __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
     __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-    /* "freud/cluster.pyx":185
+    /* "freud/cluster.pyx":188
  *         try:
  *             count = np.unique(self.cluster_idx, return_counts=True)
  *         except ValueError:             # <<<<<<<<<<<<<<
@@ -4974,12 +5108,12 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_20plot(struct __pyx_obj_5freu
     __pyx_t_8 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_ValueError);
     if (__pyx_t_8) {
       __Pyx_AddTraceback("freud.cluster.Cluster.plot", __pyx_clineno, __pyx_lineno, __pyx_filename);
-      if (__Pyx_GetException(&__pyx_t_1, &__pyx_t_6, &__pyx_t_5) < 0) __PYX_ERR(0, 185, __pyx_L5_except_error)
+      if (__Pyx_GetException(&__pyx_t_1, &__pyx_t_6, &__pyx_t_5) < 0) __PYX_ERR(0, 188, __pyx_L5_except_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_GOTREF(__pyx_t_6);
       __Pyx_GOTREF(__pyx_t_5);
 
-      /* "freud/cluster.pyx":186
+      /* "freud/cluster.pyx":189
  *             count = np.unique(self.cluster_idx, return_counts=True)
  *         except ValueError:
  *             return None             # <<<<<<<<<<<<<<
@@ -4996,7 +5130,7 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_20plot(struct __pyx_obj_5freu
     goto __pyx_L5_except_error;
     __pyx_L5_except_error:;
 
-    /* "freud/cluster.pyx":183
+    /* "freud/cluster.pyx":186
  *         """
  *         import plot
  *         try:             # <<<<<<<<<<<<<<
@@ -5016,7 +5150,7 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_20plot(struct __pyx_obj_5freu
     goto __pyx_L0;
   }
 
-  /* "freud/cluster.pyx":171
+  /* "freud/cluster.pyx":174
  * 
  *     @Compute._computed_method("computeClusters")
  *     def plot(self, ax=None):             # <<<<<<<<<<<<<<
@@ -5040,7 +5174,7 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_20plot(struct __pyx_obj_5freu
   return __pyx_r;
 }
 
-/* "freud/cluster.pyx":191
+/* "freud/cluster.pyx":194
  *                                       num_cluster_to_plot=10, ax=ax)
  * 
  *     def _repr_png_(self):             # <<<<<<<<<<<<<<
@@ -5078,19 +5212,19 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_22_repr_png_(struct __pyx_obj
   int __pyx_t_9;
   __Pyx_RefNannySetupContext("_repr_png_", 0);
 
-  /* "freud/cluster.pyx":192
+  /* "freud/cluster.pyx":195
  * 
  *     def _repr_png_(self):
  *         import plot             # <<<<<<<<<<<<<<
  *         try:
  *             return plot.ax_to_bytes(self.plot())
  */
-  __pyx_t_1 = __Pyx_Import(__pyx_n_s_plot, 0, -1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 192, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_Import(__pyx_n_s_plot, 0, -1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 195, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_plot = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "freud/cluster.pyx":193
+  /* "freud/cluster.pyx":196
  *     def _repr_png_(self):
  *         import plot
  *         try:             # <<<<<<<<<<<<<<
@@ -5106,7 +5240,7 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_22_repr_png_(struct __pyx_obj
     __Pyx_XGOTREF(__pyx_t_4);
     /*try:*/ {
 
-      /* "freud/cluster.pyx":194
+      /* "freud/cluster.pyx":197
  *         import plot
  *         try:
  *             return plot.ax_to_bytes(self.plot())             # <<<<<<<<<<<<<<
@@ -5114,9 +5248,9 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_22_repr_png_(struct __pyx_obj
  *             return None
  */
       __Pyx_XDECREF(__pyx_r);
-      __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_plot, __pyx_n_s_ax_to_bytes); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 194, __pyx_L3_error)
+      __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_plot, __pyx_n_s_ax_to_bytes); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 197, __pyx_L3_error)
       __Pyx_GOTREF(__pyx_t_5);
-      __pyx_t_7 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_plot); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 194, __pyx_L3_error)
+      __pyx_t_7 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_plot); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 197, __pyx_L3_error)
       __Pyx_GOTREF(__pyx_t_7);
       __pyx_t_8 = NULL;
       if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_7))) {
@@ -5130,7 +5264,7 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_22_repr_png_(struct __pyx_obj
       }
       __pyx_t_6 = (__pyx_t_8) ? __Pyx_PyObject_CallOneArg(__pyx_t_7, __pyx_t_8) : __Pyx_PyObject_CallNoArg(__pyx_t_7);
       __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
-      if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 194, __pyx_L3_error)
+      if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 197, __pyx_L3_error)
       __Pyx_GOTREF(__pyx_t_6);
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
       __pyx_t_7 = NULL;
@@ -5146,14 +5280,14 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_22_repr_png_(struct __pyx_obj
       __pyx_t_1 = (__pyx_t_7) ? __Pyx_PyObject_Call2Args(__pyx_t_5, __pyx_t_7, __pyx_t_6) : __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_t_6);
       __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 194, __pyx_L3_error)
+      if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 197, __pyx_L3_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
       __pyx_r = __pyx_t_1;
       __pyx_t_1 = 0;
       goto __pyx_L7_try_return;
 
-      /* "freud/cluster.pyx":193
+      /* "freud/cluster.pyx":196
  *     def _repr_png_(self):
  *         import plot
  *         try:             # <<<<<<<<<<<<<<
@@ -5168,7 +5302,7 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_22_repr_png_(struct __pyx_obj
     __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
     __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
 
-    /* "freud/cluster.pyx":195
+    /* "freud/cluster.pyx":198
  *         try:
  *             return plot.ax_to_bytes(self.plot())
  *         except AttributeError:             # <<<<<<<<<<<<<<
@@ -5178,12 +5312,12 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_22_repr_png_(struct __pyx_obj
     __pyx_t_9 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_AttributeError);
     if (__pyx_t_9) {
       __Pyx_AddTraceback("freud.cluster.Cluster._repr_png_", __pyx_clineno, __pyx_lineno, __pyx_filename);
-      if (__Pyx_GetException(&__pyx_t_1, &__pyx_t_5, &__pyx_t_6) < 0) __PYX_ERR(0, 195, __pyx_L5_except_error)
+      if (__Pyx_GetException(&__pyx_t_1, &__pyx_t_5, &__pyx_t_6) < 0) __PYX_ERR(0, 198, __pyx_L5_except_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_GOTREF(__pyx_t_5);
       __Pyx_GOTREF(__pyx_t_6);
 
-      /* "freud/cluster.pyx":196
+      /* "freud/cluster.pyx":199
  *             return plot.ax_to_bytes(self.plot())
  *         except AttributeError:
  *             return None             # <<<<<<<<<<<<<<
@@ -5200,7 +5334,7 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_22_repr_png_(struct __pyx_obj
     goto __pyx_L5_except_error;
     __pyx_L5_except_error:;
 
-    /* "freud/cluster.pyx":193
+    /* "freud/cluster.pyx":196
  *     def _repr_png_(self):
  *         import plot
  *         try:             # <<<<<<<<<<<<<<
@@ -5226,7 +5360,7 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_22_repr_png_(struct __pyx_obj
     goto __pyx_L0;
   }
 
-  /* "freud/cluster.pyx":191
+  /* "freud/cluster.pyx":194
  *                                       num_cluster_to_plot=10, ax=ax)
  * 
  *     def _repr_png_(self):             # <<<<<<<<<<<<<<
@@ -5283,7 +5417,7 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_24__reduce_cython__(CYTHON_UN
  * def __setstate_cython__(self, __pyx_state):
  *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
  */
-  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__2, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 2, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple_, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 2, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_Raise(__pyx_t_1, 0, 0, 0);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -5338,7 +5472,7 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_26__setstate_cython__(CYTHON_
  * def __setstate_cython__(self, __pyx_state):
  *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")             # <<<<<<<<<<<<<<
  */
-  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__3, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 4, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__2, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 4, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_Raise(__pyx_t_1, 0, 0, 0);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -5361,7 +5495,7 @@ static PyObject *__pyx_pf_5freud_7cluster_7Cluster_26__setstate_cython__(CYTHON_
   return __pyx_r;
 }
 
-/* "freud/cluster.pyx":237
+/* "freud/cluster.pyx":240
  *     cdef freud.box.Box m_box
  * 
  *     def __cinit__(self, box):             # <<<<<<<<<<<<<<
@@ -5395,7 +5529,7 @@ static int __pyx_pw_5freud_7cluster_17ClusterProperties_1__cinit__(PyObject *__p
         else goto __pyx_L5_argtuple_error;
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__cinit__") < 0)) __PYX_ERR(0, 237, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__cinit__") < 0)) __PYX_ERR(0, 240, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 1) {
       goto __pyx_L5_argtuple_error;
@@ -5406,7 +5540,7 @@ static int __pyx_pw_5freud_7cluster_17ClusterProperties_1__cinit__(PyObject *__p
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 1, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 237, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 1, 1, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 240, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("freud.cluster.ClusterProperties.__cinit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -5428,19 +5562,19 @@ static int __pyx_pf_5freud_7cluster_17ClusterProperties___cinit__(struct __pyx_o
   PyObject *__pyx_t_3 = NULL;
   __Pyx_RefNannySetupContext("__cinit__", 0);
 
-  /* "freud/cluster.pyx":238
+  /* "freud/cluster.pyx":241
  * 
  *     def __cinit__(self, box):
  *         cdef freud.box.Box b = freud.common.convert_box(box)             # <<<<<<<<<<<<<<
  *         self.thisptr = new freud._cluster.ClusterProperties()
  *         self.m_box = b
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_freud); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 238, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_freud); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 241, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_common); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 238, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_common); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 241, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_convert_box); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 238, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_convert_box); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 241, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_t_3 = NULL;
@@ -5455,14 +5589,14 @@ static int __pyx_pf_5freud_7cluster_17ClusterProperties___cinit__(struct __pyx_o
   }
   __pyx_t_1 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_3, __pyx_v_box) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_box);
   __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 238, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 241, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5freud_3box_Box))))) __PYX_ERR(0, 238, __pyx_L1_error)
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5freud_3box_Box))))) __PYX_ERR(0, 241, __pyx_L1_error)
   __pyx_v_b = ((struct __pyx_obj_5freud_3box_Box *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "freud/cluster.pyx":239
+  /* "freud/cluster.pyx":242
  *     def __cinit__(self, box):
  *         cdef freud.box.Box b = freud.common.convert_box(box)
  *         self.thisptr = new freud._cluster.ClusterProperties()             # <<<<<<<<<<<<<<
@@ -5471,7 +5605,7 @@ static int __pyx_pf_5freud_7cluster_17ClusterProperties___cinit__(struct __pyx_o
  */
   __pyx_v_self->thisptr = new freud::cluster::ClusterProperties();
 
-  /* "freud/cluster.pyx":240
+  /* "freud/cluster.pyx":243
  *         cdef freud.box.Box b = freud.common.convert_box(box)
  *         self.thisptr = new freud._cluster.ClusterProperties()
  *         self.m_box = b             # <<<<<<<<<<<<<<
@@ -5484,7 +5618,7 @@ static int __pyx_pf_5freud_7cluster_17ClusterProperties___cinit__(struct __pyx_o
   __Pyx_DECREF(((PyObject *)__pyx_v_self->m_box));
   __pyx_v_self->m_box = __pyx_v_b;
 
-  /* "freud/cluster.pyx":237
+  /* "freud/cluster.pyx":240
  *     cdef freud.box.Box m_box
  * 
  *     def __cinit__(self, box):             # <<<<<<<<<<<<<<
@@ -5507,7 +5641,7 @@ static int __pyx_pf_5freud_7cluster_17ClusterProperties___cinit__(struct __pyx_o
   return __pyx_r;
 }
 
-/* "freud/cluster.pyx":242
+/* "freud/cluster.pyx":245
  *         self.m_box = b
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -5530,7 +5664,7 @@ static void __pyx_pf_5freud_7cluster_17ClusterProperties_2__dealloc__(struct __p
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__dealloc__", 0);
 
-  /* "freud/cluster.pyx":243
+  /* "freud/cluster.pyx":246
  * 
  *     def __dealloc__(self):
  *         del self.thisptr             # <<<<<<<<<<<<<<
@@ -5539,7 +5673,7 @@ static void __pyx_pf_5freud_7cluster_17ClusterProperties_2__dealloc__(struct __p
  */
   delete __pyx_v_self->thisptr;
 
-  /* "freud/cluster.pyx":242
+  /* "freud/cluster.pyx":245
  *         self.m_box = b
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -5551,7 +5685,7 @@ static void __pyx_pf_5freud_7cluster_17ClusterProperties_2__dealloc__(struct __p
   __Pyx_RefNannyFinishContext();
 }
 
-/* "freud/cluster.pyx":246
+/* "freud/cluster.pyx":249
  * 
  *     @property
  *     def box(self):             # <<<<<<<<<<<<<<
@@ -5577,7 +5711,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_3box___get__(struc
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "freud/cluster.pyx":247
+  /* "freud/cluster.pyx":250
  *     @property
  *     def box(self):
  *         return self.m_box             # <<<<<<<<<<<<<<
@@ -5589,7 +5723,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_3box___get__(struc
   __pyx_r = ((PyObject *)__pyx_v_self->m_box);
   goto __pyx_L0;
 
-  /* "freud/cluster.pyx":246
+  /* "freud/cluster.pyx":249
  * 
  *     @property
  *     def box(self):             # <<<<<<<<<<<<<<
@@ -5604,7 +5738,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_3box___get__(struc
   return __pyx_r;
 }
 
-/* "freud/cluster.pyx":250
+/* "freud/cluster.pyx":253
  * 
  *     @Compute._compute("computeProperties")
  *     def computeProperties(self, points, cluster_idx, box=None):             # <<<<<<<<<<<<<<
@@ -5649,7 +5783,7 @@ static PyObject *__pyx_pw_5freud_7cluster_17ClusterProperties_5computeProperties
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_cluster_idx)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("computeProperties", 0, 2, 3, 1); __PYX_ERR(0, 250, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("computeProperties", 0, 2, 3, 1); __PYX_ERR(0, 253, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
@@ -5659,7 +5793,7 @@ static PyObject *__pyx_pw_5freud_7cluster_17ClusterProperties_5computeProperties
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "computeProperties") < 0)) __PYX_ERR(0, 250, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "computeProperties") < 0)) __PYX_ERR(0, 253, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -5677,7 +5811,7 @@ static PyObject *__pyx_pw_5freud_7cluster_17ClusterProperties_5computeProperties
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("computeProperties", 0, 2, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 250, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("computeProperties", 0, 2, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 253, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("freud.cluster.ClusterProperties.computeProperties", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -5713,7 +5847,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_4computeProperties
   __Pyx_INCREF(__pyx_v_points);
   __Pyx_INCREF(__pyx_v_cluster_idx);
 
-  /* "freud/cluster.pyx":266
+  /* "freud/cluster.pyx":269
  *         """
  *         cdef freud.box.Box b
  *         if box is None:             # <<<<<<<<<<<<<<
@@ -5724,7 +5858,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_4computeProperties
   __pyx_t_2 = (__pyx_t_1 != 0);
   if (__pyx_t_2) {
 
-    /* "freud/cluster.pyx":267
+    /* "freud/cluster.pyx":270
  *         cdef freud.box.Box b
  *         if box is None:
  *             b = self.m_box             # <<<<<<<<<<<<<<
@@ -5736,7 +5870,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_4computeProperties
     __pyx_v_b = ((struct __pyx_obj_5freud_3box_Box *)__pyx_t_3);
     __pyx_t_3 = 0;
 
-    /* "freud/cluster.pyx":266
+    /* "freud/cluster.pyx":269
  *         """
  *         cdef freud.box.Box b
  *         if box is None:             # <<<<<<<<<<<<<<
@@ -5746,7 +5880,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_4computeProperties
     goto __pyx_L3;
   }
 
-  /* "freud/cluster.pyx":269
+  /* "freud/cluster.pyx":272
  *             b = self.m_box
  *         else:
  *             b = freud.common.convert_box(box)             # <<<<<<<<<<<<<<
@@ -5754,12 +5888,12 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_4computeProperties
  *         points = freud.common.convert_array(points, shape=(None, 3))
  */
   /*else*/ {
-    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_freud); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 269, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_freud); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 272, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_common); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 269, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_common); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 272, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_convert_box); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 269, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_convert_box); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 272, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __pyx_t_5 = NULL;
@@ -5774,39 +5908,39 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_4computeProperties
     }
     __pyx_t_3 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_4, __pyx_t_5, __pyx_v_box) : __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_v_box);
     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-    if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 269, __pyx_L1_error)
+    if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 272, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_ptype_5freud_3box_Box))))) __PYX_ERR(0, 269, __pyx_L1_error)
+    if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_ptype_5freud_3box_Box))))) __PYX_ERR(0, 272, __pyx_L1_error)
     __pyx_v_b = ((struct __pyx_obj_5freud_3box_Box *)__pyx_t_3);
     __pyx_t_3 = 0;
   }
   __pyx_L3:;
 
-  /* "freud/cluster.pyx":271
+  /* "freud/cluster.pyx":274
  *             b = freud.common.convert_box(box)
  * 
  *         points = freud.common.convert_array(points, shape=(None, 3))             # <<<<<<<<<<<<<<
  *         cluster_idx = freud.common.convert_array(
  *             cluster_idx, shape=(points.shape[0], ), dtype=np.uint32)
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_freud); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 271, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_freud); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 274, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_common); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 271, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_common); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 274, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 271, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 274, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = PyTuple_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 271, __pyx_L1_error)
+  __pyx_t_4 = PyTuple_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 274, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_INCREF(__pyx_v_points);
   __Pyx_GIVEREF(__pyx_v_points);
   PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_v_points);
-  __pyx_t_5 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 271, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 274, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_shape, __pyx_tuple_) < 0) __PYX_ERR(0, 271, __pyx_L1_error)
-  __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_4, __pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 271, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_shape, __pyx_tuple__3) < 0) __PYX_ERR(0, 274, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_4, __pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 274, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
@@ -5814,64 +5948,64 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_4computeProperties
   __Pyx_DECREF_SET(__pyx_v_points, __pyx_t_6);
   __pyx_t_6 = 0;
 
-  /* "freud/cluster.pyx":272
+  /* "freud/cluster.pyx":275
  * 
  *         points = freud.common.convert_array(points, shape=(None, 3))
  *         cluster_idx = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             cluster_idx, shape=(points.shape[0], ), dtype=np.uint32)
  *         cdef const float[:, ::1] l_points = points
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_freud); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 272, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_freud); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 275, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_common); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 272, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_common); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 275, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 272, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_convert_array); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 275, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "freud/cluster.pyx":273
+  /* "freud/cluster.pyx":276
  *         points = freud.common.convert_array(points, shape=(None, 3))
  *         cluster_idx = freud.common.convert_array(
  *             cluster_idx, shape=(points.shape[0], ), dtype=np.uint32)             # <<<<<<<<<<<<<<
  *         cdef const float[:, ::1] l_points = points
  *         cdef const unsigned int[::1] l_cluster_idx = cluster_idx
  */
-  __pyx_t_5 = PyTuple_New(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 272, __pyx_L1_error)
+  __pyx_t_5 = PyTuple_New(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 275, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_INCREF(__pyx_v_cluster_idx);
   __Pyx_GIVEREF(__pyx_v_cluster_idx);
   PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_v_cluster_idx);
-  __pyx_t_4 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 273, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 276, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_points, __pyx_n_s_shape); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 273, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_points, __pyx_n_s_shape); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 276, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_7 = __Pyx_GetItemInt(__pyx_t_3, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 273, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_GetItemInt(__pyx_t_3, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 276, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 273, __pyx_L1_error)
+  __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 276, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_GIVEREF(__pyx_t_7);
   PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_7);
   __pyx_t_7 = 0;
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_shape, __pyx_t_3) < 0) __PYX_ERR(0, 273, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_shape, __pyx_t_3) < 0) __PYX_ERR(0, 276, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 273, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 276, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_uint32); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 273, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_uint32); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 276, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_dtype, __pyx_t_7) < 0) __PYX_ERR(0, 273, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_dtype, __pyx_t_7) < 0) __PYX_ERR(0, 276, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-  /* "freud/cluster.pyx":272
+  /* "freud/cluster.pyx":275
  * 
  *         points = freud.common.convert_array(points, shape=(None, 3))
  *         cluster_idx = freud.common.convert_array(             # <<<<<<<<<<<<<<
  *             cluster_idx, shape=(points.shape[0], ), dtype=np.uint32)
  *         cdef const float[:, ::1] l_points = points
  */
-  __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_t_5, __pyx_t_4); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 272, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_t_5, __pyx_t_4); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 275, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
@@ -5879,31 +6013,31 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_4computeProperties
   __Pyx_DECREF_SET(__pyx_v_cluster_idx, __pyx_t_7);
   __pyx_t_7 = 0;
 
-  /* "freud/cluster.pyx":274
+  /* "freud/cluster.pyx":277
  *         cluster_idx = freud.common.convert_array(
  *             cluster_idx, shape=(points.shape[0], ), dtype=np.uint32)
  *         cdef const float[:, ::1] l_points = points             # <<<<<<<<<<<<<<
  *         cdef const unsigned int[::1] l_cluster_idx = cluster_idx
  *         cdef unsigned int Np = l_points.shape[0]
  */
-  __pyx_t_8 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_float__const__(__pyx_v_points, 0); if (unlikely(!__pyx_t_8.memview)) __PYX_ERR(0, 274, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_float__const__(__pyx_v_points, 0); if (unlikely(!__pyx_t_8.memview)) __PYX_ERR(0, 277, __pyx_L1_error)
   __pyx_v_l_points = __pyx_t_8;
   __pyx_t_8.memview = NULL;
   __pyx_t_8.data = NULL;
 
-  /* "freud/cluster.pyx":275
+  /* "freud/cluster.pyx":278
  *             cluster_idx, shape=(points.shape[0], ), dtype=np.uint32)
  *         cdef const float[:, ::1] l_points = points
  *         cdef const unsigned int[::1] l_cluster_idx = cluster_idx             # <<<<<<<<<<<<<<
  *         cdef unsigned int Np = l_points.shape[0]
  *         with nogil:
  */
-  __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_dc_unsigned_int__const__(__pyx_v_cluster_idx, 0); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 275, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_dc_unsigned_int__const__(__pyx_v_cluster_idx, 0); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 278, __pyx_L1_error)
   __pyx_v_l_cluster_idx = __pyx_t_9;
   __pyx_t_9.memview = NULL;
   __pyx_t_9.data = NULL;
 
-  /* "freud/cluster.pyx":276
+  /* "freud/cluster.pyx":279
  *         cdef const float[:, ::1] l_points = points
  *         cdef const unsigned int[::1] l_cluster_idx = cluster_idx
  *         cdef unsigned int Np = l_points.shape[0]             # <<<<<<<<<<<<<<
@@ -5912,7 +6046,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_4computeProperties
  */
   __pyx_v_Np = (__pyx_v_l_points.shape[0]);
 
-  /* "freud/cluster.pyx":277
+  /* "freud/cluster.pyx":280
  *         cdef const unsigned int[::1] l_cluster_idx = cluster_idx
  *         cdef unsigned int Np = l_points.shape[0]
  *         with nogil:             # <<<<<<<<<<<<<<
@@ -5927,7 +6061,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_4computeProperties
       #endif
       /*try:*/ {
 
-        /* "freud/cluster.pyx":280
+        /* "freud/cluster.pyx":283
  *             self.thisptr.computeProperties(
  *                 dereference(b.thisptr),
  *                 <vec3[float]*> &l_points[0, 0],             # <<<<<<<<<<<<<<
@@ -5937,7 +6071,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_4computeProperties
         __pyx_t_10 = 0;
         __pyx_t_11 = 0;
 
-        /* "freud/cluster.pyx":281
+        /* "freud/cluster.pyx":284
  *                 dereference(b.thisptr),
  *                 <vec3[float]*> &l_points[0, 0],
  *                 <unsigned int*> &l_cluster_idx[0],             # <<<<<<<<<<<<<<
@@ -5946,7 +6080,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_4computeProperties
  */
         __pyx_t_12 = 0;
 
-        /* "freud/cluster.pyx":278
+        /* "freud/cluster.pyx":281
  *         cdef unsigned int Np = l_points.shape[0]
  *         with nogil:
  *             self.thisptr.computeProperties(             # <<<<<<<<<<<<<<
@@ -5963,11 +6097,11 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_4computeProperties
           #ifdef WITH_THREAD
           __Pyx_PyGILState_Release(__pyx_gilstate_save);
           #endif
-          __PYX_ERR(0, 278, __pyx_L5_error)
+          __PYX_ERR(0, 281, __pyx_L5_error)
         }
       }
 
-      /* "freud/cluster.pyx":277
+      /* "freud/cluster.pyx":280
  *         cdef const unsigned int[::1] l_cluster_idx = cluster_idx
  *         cdef unsigned int Np = l_points.shape[0]
  *         with nogil:             # <<<<<<<<<<<<<<
@@ -5993,7 +6127,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_4computeProperties
       }
   }
 
-  /* "freud/cluster.pyx":283
+  /* "freud/cluster.pyx":286
  *                 <unsigned int*> &l_cluster_idx[0],
  *                 Np)
  *         return self             # <<<<<<<<<<<<<<
@@ -6005,7 +6139,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_4computeProperties
   __pyx_r = ((PyObject *)__pyx_v_self);
   goto __pyx_L0;
 
-  /* "freud/cluster.pyx":250
+  /* "freud/cluster.pyx":253
  * 
  *     @Compute._compute("computeProperties")
  *     def computeProperties(self, points, cluster_idx, box=None):             # <<<<<<<<<<<<<<
@@ -6035,7 +6169,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_4computeProperties
   return __pyx_r;
 }
 
-/* "freud/cluster.pyx":286
+/* "freud/cluster.pyx":289
  * 
  *     @Compute._computed_property("computeProperties")
  *     def num_clusters(self):             # <<<<<<<<<<<<<<
@@ -6064,7 +6198,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_6num_clusters(stru
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("num_clusters", 0);
 
-  /* "freud/cluster.pyx":287
+  /* "freud/cluster.pyx":290
  *     @Compute._computed_property("computeProperties")
  *     def num_clusters(self):
  *         return self.thisptr.getNumClusters()             # <<<<<<<<<<<<<<
@@ -6072,13 +6206,13 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_6num_clusters(stru
  *     @Compute._computed_property("computeProperties")
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_unsigned_int(__pyx_v_self->thisptr->getNumClusters()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 287, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_unsigned_int(__pyx_v_self->thisptr->getNumClusters()); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 290, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/cluster.pyx":286
+  /* "freud/cluster.pyx":289
  * 
  *     @Compute._computed_property("computeProperties")
  *     def num_clusters(self):             # <<<<<<<<<<<<<<
@@ -6097,7 +6231,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_6num_clusters(stru
   return __pyx_r;
 }
 
-/* "freud/cluster.pyx":290
+/* "freud/cluster.pyx":293
  * 
  *     @Compute._computed_property("computeProperties")
  *     def cluster_COM(self):             # <<<<<<<<<<<<<<
@@ -6136,7 +6270,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_8cluster_COM(struc
   __Pyx_memviewslice __pyx_t_9 = { 0, 0, { 0 }, { 0 }, { 0 } };
   __Pyx_RefNannySetupContext("cluster_COM", 0);
 
-  /* "freud/cluster.pyx":291
+  /* "freud/cluster.pyx":294
  *     @Compute._computed_property("computeProperties")
  *     def cluster_COM(self):
  *         cdef unsigned int n_clusters = self.thisptr.getNumClusters()             # <<<<<<<<<<<<<<
@@ -6145,7 +6279,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_8cluster_COM(struc
  */
   __pyx_v_n_clusters = __pyx_v_self->thisptr->getNumClusters();
 
-  /* "freud/cluster.pyx":292
+  /* "freud/cluster.pyx":295
  *     def cluster_COM(self):
  *         cdef unsigned int n_clusters = self.thisptr.getNumClusters()
  *         if not n_clusters:             # <<<<<<<<<<<<<<
@@ -6155,7 +6289,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_8cluster_COM(struc
   __pyx_t_1 = ((!(__pyx_v_n_clusters != 0)) != 0);
   if (__pyx_t_1) {
 
-    /* "freud/cluster.pyx":293
+    /* "freud/cluster.pyx":296
  *         cdef unsigned int n_clusters = self.thisptr.getNumClusters()
  *         if not n_clusters:
  *             return np.asarray([[]], dtype=np.float32)             # <<<<<<<<<<<<<<
@@ -6163,33 +6297,33 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_8cluster_COM(struc
  *             <float[:n_clusters, :3]> (
  */
     __Pyx_XDECREF(__pyx_r);
-    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 293, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 296, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 293, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 296, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_2 = PyList_New(0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 293, __pyx_L1_error)
+    __pyx_t_2 = PyList_New(0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 296, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_4 = PyList_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 293, __pyx_L1_error)
+    __pyx_t_4 = PyList_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 296, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_GIVEREF(__pyx_t_2);
     PyList_SET_ITEM(__pyx_t_4, 0, __pyx_t_2);
     __pyx_t_2 = 0;
-    __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 293, __pyx_L1_error)
+    __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 296, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_GIVEREF(__pyx_t_4);
     PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_t_4);
     __pyx_t_4 = 0;
-    __pyx_t_4 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 293, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 296, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 293, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 296, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_float32); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 293, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_float32); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 296, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_dtype, __pyx_t_6) < 0) __PYX_ERR(0, 293, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_dtype, __pyx_t_6) < 0) __PYX_ERR(0, 296, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_2, __pyx_t_4); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 293, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_2, __pyx_t_4); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 296, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -6198,7 +6332,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_8cluster_COM(struc
     __pyx_t_6 = 0;
     goto __pyx_L0;
 
-    /* "freud/cluster.pyx":292
+    /* "freud/cluster.pyx":295
  *     def cluster_COM(self):
  *         cdef unsigned int n_clusters = self.thisptr.getNumClusters()
  *         if not n_clusters:             # <<<<<<<<<<<<<<
@@ -6207,7 +6341,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_8cluster_COM(struc
  */
   }
 
-  /* "freud/cluster.pyx":296
+  /* "freud/cluster.pyx":299
  *         cdef const float[:, ::1] cluster_COM = \
  *             <float[:n_clusters, :3]> (
  *                 <float*> self.thisptr.getClusterCOM().get())             # <<<<<<<<<<<<<<
@@ -6216,7 +6350,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_8cluster_COM(struc
  */
   __pyx_t_7 = ((float *)__pyx_v_self->thisptr->getClusterCOM().get());
 
-  /* "freud/cluster.pyx":295
+  /* "freud/cluster.pyx":298
  *             return np.asarray([[]], dtype=np.float32)
  *         cdef const float[:, ::1] cluster_COM = \
  *             <float[:n_clusters, :3]> (             # <<<<<<<<<<<<<<
@@ -6225,25 +6359,25 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_8cluster_COM(struc
  */
   if (!__pyx_t_7) {
     PyErr_SetString(PyExc_ValueError,"Cannot create cython.array from NULL pointer");
-    __PYX_ERR(0, 296, __pyx_L1_error)
+    __PYX_ERR(0, 299, __pyx_L1_error)
   }
   __pyx_t_4 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_float);
   __pyx_t_6 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)__pyx_v_n_clusters), ((Py_ssize_t)3));
-  if (unlikely(!__pyx_t_4 || !__pyx_t_6 || !PyBytes_AsString(__pyx_t_4))) __PYX_ERR(0, 295, __pyx_L1_error)
+  if (unlikely(!__pyx_t_4 || !__pyx_t_6 || !PyBytes_AsString(__pyx_t_4))) __PYX_ERR(0, 298, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_GOTREF(__pyx_t_6);
   __pyx_t_8 = __pyx_array_new(__pyx_t_6, sizeof(float), PyBytes_AS_STRING(__pyx_t_4), (char *) "c", (char *) __pyx_t_7);
-  if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 295, __pyx_L1_error)
+  if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 298, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_float__const__(((PyObject *)__pyx_t_8), 0); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 295, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_float__const__(((PyObject *)__pyx_t_8), 0); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 298, __pyx_L1_error)
   __Pyx_DECREF(((PyObject *)__pyx_t_8)); __pyx_t_8 = 0;
   __pyx_v_cluster_COM = __pyx_t_9;
   __pyx_t_9.memview = NULL;
   __pyx_t_9.data = NULL;
 
-  /* "freud/cluster.pyx":297
+  /* "freud/cluster.pyx":300
  *             <float[:n_clusters, :3]> (
  *                 <float*> self.thisptr.getClusterCOM().get())
  *         return np.asarray(cluster_COM)             # <<<<<<<<<<<<<<
@@ -6251,12 +6385,12 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_8cluster_COM(struc
  *     @Compute._computed_property("computeProperties")
  */
   __Pyx_XDECREF(__pyx_r);
-  __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_np); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 297, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_np); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 300, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_asarray); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 297, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_asarray); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 300, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  __pyx_t_6 = __pyx_memoryview_fromslice(__pyx_v_cluster_COM, 2, (PyObject *(*)(char *)) __pyx_memview_get_float__const__, (int (*)(char *, PyObject *)) NULL, 0);; if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 297, __pyx_L1_error)
+  __pyx_t_6 = __pyx_memoryview_fromslice(__pyx_v_cluster_COM, 2, (PyObject *(*)(char *)) __pyx_memview_get_float__const__, (int (*)(char *, PyObject *)) NULL, 0);; if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 300, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -6271,14 +6405,14 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_8cluster_COM(struc
   __pyx_t_4 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_3, __pyx_t_6) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_6);
   __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 297, __pyx_L1_error)
+  if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 300, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_r = __pyx_t_4;
   __pyx_t_4 = 0;
   goto __pyx_L0;
 
-  /* "freud/cluster.pyx":290
+  /* "freud/cluster.pyx":293
  * 
  *     @Compute._computed_property("computeProperties")
  *     def cluster_COM(self):             # <<<<<<<<<<<<<<
@@ -6304,7 +6438,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_8cluster_COM(struc
   return __pyx_r;
 }
 
-/* "freud/cluster.pyx":300
+/* "freud/cluster.pyx":303
  * 
  *     @Compute._computed_property("computeProperties")
  *     def cluster_G(self):             # <<<<<<<<<<<<<<
@@ -6343,7 +6477,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_10cluster_G(struct
   __Pyx_memviewslice __pyx_t_9 = { 0, 0, { 0 }, { 0 }, { 0 } };
   __Pyx_RefNannySetupContext("cluster_G", 0);
 
-  /* "freud/cluster.pyx":301
+  /* "freud/cluster.pyx":304
  *     @Compute._computed_property("computeProperties")
  *     def cluster_G(self):
  *         cdef unsigned int n_clusters = self.thisptr.getNumClusters()             # <<<<<<<<<<<<<<
@@ -6352,7 +6486,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_10cluster_G(struct
  */
   __pyx_v_n_clusters = __pyx_v_self->thisptr->getNumClusters();
 
-  /* "freud/cluster.pyx":302
+  /* "freud/cluster.pyx":305
  *     def cluster_G(self):
  *         cdef unsigned int n_clusters = self.thisptr.getNumClusters()
  *         if not n_clusters:             # <<<<<<<<<<<<<<
@@ -6362,7 +6496,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_10cluster_G(struct
   __pyx_t_1 = ((!(__pyx_v_n_clusters != 0)) != 0);
   if (__pyx_t_1) {
 
-    /* "freud/cluster.pyx":303
+    /* "freud/cluster.pyx":306
  *         cdef unsigned int n_clusters = self.thisptr.getNumClusters()
  *         if not n_clusters:
  *             return np.asarray([[[]]], dtype=np.float32)             # <<<<<<<<<<<<<<
@@ -6370,38 +6504,38 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_10cluster_G(struct
  *             <float[:n_clusters, :3, :3]> (
  */
     __Pyx_XDECREF(__pyx_r);
-    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 303, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 306, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 303, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 306, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_2 = PyList_New(0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 303, __pyx_L1_error)
+    __pyx_t_2 = PyList_New(0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 306, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_4 = PyList_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 303, __pyx_L1_error)
+    __pyx_t_4 = PyList_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 306, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_GIVEREF(__pyx_t_2);
     PyList_SET_ITEM(__pyx_t_4, 0, __pyx_t_2);
     __pyx_t_2 = 0;
-    __pyx_t_2 = PyList_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 303, __pyx_L1_error)
+    __pyx_t_2 = PyList_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 306, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_GIVEREF(__pyx_t_4);
     PyList_SET_ITEM(__pyx_t_2, 0, __pyx_t_4);
     __pyx_t_4 = 0;
-    __pyx_t_4 = PyTuple_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 303, __pyx_L1_error)
+    __pyx_t_4 = PyTuple_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 306, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_GIVEREF(__pyx_t_2);
     PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_2);
     __pyx_t_2 = 0;
-    __pyx_t_2 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 303, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 306, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 303, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 306, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_float32); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 303, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_float32); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 306, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_dtype, __pyx_t_6) < 0) __PYX_ERR(0, 303, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_dtype, __pyx_t_6) < 0) __PYX_ERR(0, 306, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_4, __pyx_t_2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 303, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_4, __pyx_t_2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 306, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
@@ -6410,7 +6544,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_10cluster_G(struct
     __pyx_t_6 = 0;
     goto __pyx_L0;
 
-    /* "freud/cluster.pyx":302
+    /* "freud/cluster.pyx":305
  *     def cluster_G(self):
  *         cdef unsigned int n_clusters = self.thisptr.getNumClusters()
  *         if not n_clusters:             # <<<<<<<<<<<<<<
@@ -6419,7 +6553,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_10cluster_G(struct
  */
   }
 
-  /* "freud/cluster.pyx":306
+  /* "freud/cluster.pyx":309
  *         cdef const float[:, :, ::1] cluster_G = \
  *             <float[:n_clusters, :3, :3]> (
  *                 <float*> self.thisptr.getClusterG().get())             # <<<<<<<<<<<<<<
@@ -6428,7 +6562,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_10cluster_G(struct
  */
   __pyx_t_7 = ((float *)__pyx_v_self->thisptr->getClusterG().get());
 
-  /* "freud/cluster.pyx":305
+  /* "freud/cluster.pyx":308
  *             return np.asarray([[[]]], dtype=np.float32)
  *         cdef const float[:, :, ::1] cluster_G = \
  *             <float[:n_clusters, :3, :3]> (             # <<<<<<<<<<<<<<
@@ -6437,25 +6571,25 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_10cluster_G(struct
  */
   if (!__pyx_t_7) {
     PyErr_SetString(PyExc_ValueError,"Cannot create cython.array from NULL pointer");
-    __PYX_ERR(0, 306, __pyx_L1_error)
+    __PYX_ERR(0, 309, __pyx_L1_error)
   }
   __pyx_t_2 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_float);
   __pyx_t_6 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  __PYX_BUILD_PY_SSIZE_T  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)__pyx_v_n_clusters), ((Py_ssize_t)3), ((Py_ssize_t)3));
-  if (unlikely(!__pyx_t_2 || !__pyx_t_6 || !PyBytes_AsString(__pyx_t_2))) __PYX_ERR(0, 305, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2 || !__pyx_t_6 || !PyBytes_AsString(__pyx_t_2))) __PYX_ERR(0, 308, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_GOTREF(__pyx_t_6);
   __pyx_t_8 = __pyx_array_new(__pyx_t_6, sizeof(float), PyBytes_AS_STRING(__pyx_t_2), (char *) "c", (char *) __pyx_t_7);
-  if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 305, __pyx_L1_error)
+  if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 308, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_d_d_dc_float__const__(((PyObject *)__pyx_t_8), 0); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 305, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_d_d_dc_float__const__(((PyObject *)__pyx_t_8), 0); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 308, __pyx_L1_error)
   __Pyx_DECREF(((PyObject *)__pyx_t_8)); __pyx_t_8 = 0;
   __pyx_v_cluster_G = __pyx_t_9;
   __pyx_t_9.memview = NULL;
   __pyx_t_9.data = NULL;
 
-  /* "freud/cluster.pyx":307
+  /* "freud/cluster.pyx":310
  *             <float[:n_clusters, :3, :3]> (
  *                 <float*> self.thisptr.getClusterG().get())
  *         return np.asarray(cluster_G)             # <<<<<<<<<<<<<<
@@ -6463,12 +6597,12 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_10cluster_G(struct
  *     @Compute._computed_property("computeProperties")
  */
   __Pyx_XDECREF(__pyx_r);
-  __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_np); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 307, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_np); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 310, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_asarray); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 307, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_asarray); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 310, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  __pyx_t_6 = __pyx_memoryview_fromslice(__pyx_v_cluster_G, 3, (PyObject *(*)(char *)) __pyx_memview_get_float__const__, (int (*)(char *, PyObject *)) NULL, 0);; if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 307, __pyx_L1_error)
+  __pyx_t_6 = __pyx_memoryview_fromslice(__pyx_v_cluster_G, 3, (PyObject *(*)(char *)) __pyx_memview_get_float__const__, (int (*)(char *, PyObject *)) NULL, 0);; if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 310, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_4))) {
@@ -6483,14 +6617,14 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_10cluster_G(struct
   __pyx_t_2 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_4, __pyx_t_3, __pyx_t_6) : __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_6);
   __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 307, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 310, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "freud/cluster.pyx":300
+  /* "freud/cluster.pyx":303
  * 
  *     @Compute._computed_property("computeProperties")
  *     def cluster_G(self):             # <<<<<<<<<<<<<<
@@ -6516,7 +6650,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_10cluster_G(struct
   return __pyx_r;
 }
 
-/* "freud/cluster.pyx":310
+/* "freud/cluster.pyx":313
  * 
  *     @Compute._computed_property("computeProperties")
  *     def cluster_sizes(self):             # <<<<<<<<<<<<<<
@@ -6555,7 +6689,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_12cluster_sizes(st
   __Pyx_memviewslice __pyx_t_9 = { 0, 0, { 0 }, { 0 }, { 0 } };
   __Pyx_RefNannySetupContext("cluster_sizes", 0);
 
-  /* "freud/cluster.pyx":311
+  /* "freud/cluster.pyx":314
  *     @Compute._computed_property("computeProperties")
  *     def cluster_sizes(self):
  *         cdef unsigned int n_clusters = self.thisptr.getNumClusters()             # <<<<<<<<<<<<<<
@@ -6564,7 +6698,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_12cluster_sizes(st
  */
   __pyx_v_n_clusters = __pyx_v_self->thisptr->getNumClusters();
 
-  /* "freud/cluster.pyx":312
+  /* "freud/cluster.pyx":315
  *     def cluster_sizes(self):
  *         cdef unsigned int n_clusters = self.thisptr.getNumClusters()
  *         if not n_clusters:             # <<<<<<<<<<<<<<
@@ -6574,7 +6708,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_12cluster_sizes(st
   __pyx_t_1 = ((!(__pyx_v_n_clusters != 0)) != 0);
   if (__pyx_t_1) {
 
-    /* "freud/cluster.pyx":313
+    /* "freud/cluster.pyx":316
  *         cdef unsigned int n_clusters = self.thisptr.getNumClusters()
  *         if not n_clusters:
  *             return np.asarray([], dtype=np.uint32)             # <<<<<<<<<<<<<<
@@ -6582,28 +6716,28 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_12cluster_sizes(st
  *             <unsigned int[:n_clusters]> self.thisptr.getClusterSize().get()
  */
     __Pyx_XDECREF(__pyx_r);
-    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 313, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 316, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 313, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 316, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_2 = PyList_New(0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 313, __pyx_L1_error)
+    __pyx_t_2 = PyList_New(0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 316, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_4 = PyTuple_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 313, __pyx_L1_error)
+    __pyx_t_4 = PyTuple_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 316, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_GIVEREF(__pyx_t_2);
     PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_2);
     __pyx_t_2 = 0;
-    __pyx_t_2 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 313, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 316, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 313, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 316, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_uint32); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 313, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_uint32); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 316, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_dtype, __pyx_t_6) < 0) __PYX_ERR(0, 313, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_dtype, __pyx_t_6) < 0) __PYX_ERR(0, 316, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_4, __pyx_t_2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 313, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_4, __pyx_t_2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 316, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
@@ -6612,7 +6746,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_12cluster_sizes(st
     __pyx_t_6 = 0;
     goto __pyx_L0;
 
-    /* "freud/cluster.pyx":312
+    /* "freud/cluster.pyx":315
  *     def cluster_sizes(self):
  *         cdef unsigned int n_clusters = self.thisptr.getNumClusters()
  *         if not n_clusters:             # <<<<<<<<<<<<<<
@@ -6621,7 +6755,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_12cluster_sizes(st
  */
   }
 
-  /* "freud/cluster.pyx":315
+  /* "freud/cluster.pyx":318
  *             return np.asarray([], dtype=np.uint32)
  *         cdef const unsigned int[::1] cluster_sizes = \
  *             <unsigned int[:n_clusters]> self.thisptr.getClusterSize().get()             # <<<<<<<<<<<<<<
@@ -6631,25 +6765,25 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_12cluster_sizes(st
   __pyx_t_7 = __pyx_v_self->thisptr->getClusterSize().get();
   if (!__pyx_t_7) {
     PyErr_SetString(PyExc_ValueError,"Cannot create cython.array from NULL pointer");
-    __PYX_ERR(0, 315, __pyx_L1_error)
+    __PYX_ERR(0, 318, __pyx_L1_error)
   }
   __pyx_t_2 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_unsigned_int);
   __pyx_t_6 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)__pyx_v_n_clusters));
-  if (unlikely(!__pyx_t_2 || !__pyx_t_6 || !PyBytes_AsString(__pyx_t_2))) __PYX_ERR(0, 315, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2 || !__pyx_t_6 || !PyBytes_AsString(__pyx_t_2))) __PYX_ERR(0, 318, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_GOTREF(__pyx_t_6);
   __pyx_t_8 = __pyx_array_new(__pyx_t_6, sizeof(unsigned int), PyBytes_AS_STRING(__pyx_t_2), (char *) "c", (char *) __pyx_t_7);
-  if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 315, __pyx_L1_error)
+  if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 318, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_dc_unsigned_int__const__(((PyObject *)__pyx_t_8), 0); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 315, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_dc_unsigned_int__const__(((PyObject *)__pyx_t_8), 0); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 318, __pyx_L1_error)
   __Pyx_DECREF(((PyObject *)__pyx_t_8)); __pyx_t_8 = 0;
   __pyx_v_cluster_sizes = __pyx_t_9;
   __pyx_t_9.memview = NULL;
   __pyx_t_9.data = NULL;
 
-  /* "freud/cluster.pyx":316
+  /* "freud/cluster.pyx":319
  *         cdef const unsigned int[::1] cluster_sizes = \
  *             <unsigned int[:n_clusters]> self.thisptr.getClusterSize().get()
  *         return np.asarray(cluster_sizes, dtype=np.uint32)             # <<<<<<<<<<<<<<
@@ -6657,28 +6791,28 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_12cluster_sizes(st
  *     def __repr__(self):
  */
   __Pyx_XDECREF(__pyx_r);
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 316, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 319, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 316, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_asarray); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 319, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_cluster_sizes, 1, (PyObject *(*)(char *)) __pyx_memview_get_unsigned_int__const__, (int (*)(char *, PyObject *)) NULL, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 316, __pyx_L1_error)
+  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_cluster_sizes, 1, (PyObject *(*)(char *)) __pyx_memview_get_unsigned_int__const__, (int (*)(char *, PyObject *)) NULL, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 319, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_4 = PyTuple_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 316, __pyx_L1_error)
+  __pyx_t_4 = PyTuple_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 319, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_GIVEREF(__pyx_t_2);
   PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_2);
   __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 316, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 319, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 316, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 319, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_uint32); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 316, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_uint32); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 319, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_dtype, __pyx_t_5) < 0) __PYX_ERR(0, 316, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_dtype, __pyx_t_5) < 0) __PYX_ERR(0, 319, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_t_4, __pyx_t_2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 316, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_t_4, __pyx_t_2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 319, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
@@ -6687,7 +6821,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_12cluster_sizes(st
   __pyx_t_5 = 0;
   goto __pyx_L0;
 
-  /* "freud/cluster.pyx":310
+  /* "freud/cluster.pyx":313
  * 
  *     @Compute._computed_property("computeProperties")
  *     def cluster_sizes(self):             # <<<<<<<<<<<<<<
@@ -6713,7 +6847,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_12cluster_sizes(st
   return __pyx_r;
 }
 
-/* "freud/cluster.pyx":318
+/* "freud/cluster.pyx":321
  *         return np.asarray(cluster_sizes, dtype=np.uint32)
  * 
  *     def __repr__(self):             # <<<<<<<<<<<<<<
@@ -6744,7 +6878,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_14__repr__(struct 
   PyObject *__pyx_t_5 = NULL;
   __Pyx_RefNannySetupContext("__repr__", 0);
 
-  /* "freud/cluster.pyx":319
+  /* "freud/cluster.pyx":322
  * 
  *     def __repr__(self):
  *         return ("freud.cluster.{cls}(box={box})").format(             # <<<<<<<<<<<<<<
@@ -6752,23 +6886,23 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_14__repr__(struct 
  * 
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_kp_s_freud_cluster_cls_box_box, __pyx_n_s_format); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 319, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_kp_s_freud_cluster_cls_box_box, __pyx_n_s_format); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 322, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
 
-  /* "freud/cluster.pyx":320
+  /* "freud/cluster.pyx":323
  *     def __repr__(self):
  *         return ("freud.cluster.{cls}(box={box})").format(
  *             cls=type(self).__name__, box=self.m_box.__repr__())             # <<<<<<<<<<<<<<
  * 
  *     def __str__(self):
  */
-  __pyx_t_2 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 320, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 323, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)Py_TYPE(((PyObject *)__pyx_v_self))), __pyx_n_s_name); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 320, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)Py_TYPE(((PyObject *)__pyx_v_self))), __pyx_n_s_name); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 323, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_cls, __pyx_t_3) < 0) __PYX_ERR(0, 320, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_cls, __pyx_t_3) < 0) __PYX_ERR(0, 323, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self->m_box), __pyx_n_s_repr); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 320, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self->m_box), __pyx_n_s_repr); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 323, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_5 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_4))) {
@@ -6782,20 +6916,20 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_14__repr__(struct 
   }
   __pyx_t_3 = (__pyx_t_5) ? __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_5) : __Pyx_PyObject_CallNoArg(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 320, __pyx_L1_error)
+  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 323, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_box, __pyx_t_3) < 0) __PYX_ERR(0, 320, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_box, __pyx_t_3) < 0) __PYX_ERR(0, 323, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "freud/cluster.pyx":319
+  /* "freud/cluster.pyx":322
  * 
  *     def __repr__(self):
  *         return ("freud.cluster.{cls}(box={box})").format(             # <<<<<<<<<<<<<<
  *             cls=type(self).__name__, box=self.m_box.__repr__())
  * 
  */
-  __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_empty_tuple, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 319, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_empty_tuple, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 322, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -6803,7 +6937,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_14__repr__(struct 
   __pyx_t_3 = 0;
   goto __pyx_L0;
 
-  /* "freud/cluster.pyx":318
+  /* "freud/cluster.pyx":321
  *         return np.asarray(cluster_sizes, dtype=np.uint32)
  * 
  *     def __repr__(self):             # <<<<<<<<<<<<<<
@@ -6826,7 +6960,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_14__repr__(struct 
   return __pyx_r;
 }
 
-/* "freud/cluster.pyx":322
+/* "freud/cluster.pyx":325
  *             cls=type(self).__name__, box=self.m_box.__repr__())
  * 
  *     def __str__(self):             # <<<<<<<<<<<<<<
@@ -6852,19 +6986,19 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_16__str__(struct _
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__str__", 0);
 
-  /* "freud/cluster.pyx":323
+  /* "freud/cluster.pyx":326
  * 
  *     def __str__(self):
  *         return repr(self)             # <<<<<<<<<<<<<<
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyObject_Repr(((PyObject *)__pyx_v_self)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 323, __pyx_L1_error)
+  __pyx_t_1 = PyObject_Repr(((PyObject *)__pyx_v_self)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 326, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "freud/cluster.pyx":322
+  /* "freud/cluster.pyx":325
  *             cls=type(self).__name__, box=self.m_box.__repr__())
  * 
  *     def __str__(self):             # <<<<<<<<<<<<<<
@@ -6993,7 +7127,7 @@ static PyObject *__pyx_pf_5freud_7cluster_17ClusterProperties_20__setstate_cytho
   return __pyx_r;
 }
 
-/* "freud/locality.pxd":79
+/* "freud/locality.pxd":31
  *     # compile with a cdef method.
  *     @staticmethod
  *     cdef inline NeighborQueryResult init(             # <<<<<<<<<<<<<<
@@ -7020,7 +7154,7 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_NeighborQueryResult *__py
     }
   }
 
-  /* "freud/locality.pxd":83
+  /* "freud/locality.pxd":35
  *             cbool exclude_ii, float r=0, unsigned int k=0):
  *         # Internal API only
  *         assert r != 0 or k != 0             # <<<<<<<<<<<<<<
@@ -7040,24 +7174,24 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_NeighborQueryResult *__py
     __pyx_L3_bool_binop_done:;
     if (unlikely(!__pyx_t_1)) {
       PyErr_SetNone(PyExc_AssertionError);
-      __PYX_ERR(2, 83, __pyx_L1_error)
+      __PYX_ERR(2, 35, __pyx_L1_error)
     }
   }
   #endif
 
-  /* "freud/locality.pxd":85
+  /* "freud/locality.pxd":37
  *         assert r != 0 or k != 0
  * 
  *         obj = NeighborQueryResult()             # <<<<<<<<<<<<<<
  * 
  *         obj.nq = nq
  */
-  __pyx_t_3 = __Pyx_PyObject_CallNoArg(((PyObject *)__pyx_ptype_5freud_8locality_NeighborQueryResult)); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 85, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_CallNoArg(((PyObject *)__pyx_ptype_5freud_8locality_NeighborQueryResult)); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 37, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_v_obj = ((struct __pyx_obj_5freud_8locality_NeighborQueryResult *)__pyx_t_3);
   __pyx_t_3 = 0;
 
-  /* "freud/locality.pxd":87
+  /* "freud/locality.pxd":39
  *         obj = NeighborQueryResult()
  * 
  *         obj.nq = nq             # <<<<<<<<<<<<<<
@@ -7070,7 +7204,7 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_NeighborQueryResult *__py
   __Pyx_DECREF(((PyObject *)__pyx_v_obj->nq));
   __pyx_v_obj->nq = __pyx_v_nq;
 
-  /* "freud/locality.pxd":88
+  /* "freud/locality.pxd":40
  * 
  *         obj.nq = nq
  *         obj.points = points             # <<<<<<<<<<<<<<
@@ -7081,7 +7215,7 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_NeighborQueryResult *__py
   __PYX_INC_MEMVIEW(&__pyx_v_points, 0);
   __pyx_v_obj->points = __pyx_v_points;
 
-  /* "freud/locality.pxd":89
+  /* "freud/locality.pxd":41
  *         obj.nq = nq
  *         obj.points = points
  *         obj.exclude_ii = exclude_ii             # <<<<<<<<<<<<<<
@@ -7090,7 +7224,7 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_NeighborQueryResult *__py
  */
   __pyx_v_obj->exclude_ii = __pyx_v_exclude_ii;
 
-  /* "freud/locality.pxd":90
+  /* "freud/locality.pxd":42
  *         obj.points = points
  *         obj.exclude_ii = exclude_ii
  *         obj.Np = points.shape[0]             # <<<<<<<<<<<<<<
@@ -7099,7 +7233,7 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_NeighborQueryResult *__py
  */
   __pyx_v_obj->Np = (__pyx_v_points.shape[0]);
 
-  /* "freud/locality.pxd":92
+  /* "freud/locality.pxd":44
  *         obj.Np = points.shape[0]
  * 
  *         obj.r = r             # <<<<<<<<<<<<<<
@@ -7108,7 +7242,7 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_NeighborQueryResult *__py
  */
   __pyx_v_obj->r = __pyx_v_r;
 
-  /* "freud/locality.pxd":93
+  /* "freud/locality.pxd":45
  * 
  *         obj.r = r
  *         obj.k = k             # <<<<<<<<<<<<<<
@@ -7117,7 +7251,7 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_NeighborQueryResult *__py
  */
   __pyx_v_obj->k = __pyx_v_k;
 
-  /* "freud/locality.pxd":95
+  /* "freud/locality.pxd":47
  *         obj.k = k
  * 
  *         if obj.r != 0:             # <<<<<<<<<<<<<<
@@ -7127,7 +7261,7 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_NeighborQueryResult *__py
   __pyx_t_1 = ((__pyx_v_obj->r != 0.0) != 0);
   if (__pyx_t_1) {
 
-    /* "freud/locality.pxd":96
+    /* "freud/locality.pxd":48
  * 
  *         if obj.r != 0:
  *             obj.query_type = 'ball'             # <<<<<<<<<<<<<<
@@ -7140,7 +7274,7 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_NeighborQueryResult *__py
     __Pyx_DECREF(__pyx_v_obj->query_type);
     __pyx_v_obj->query_type = __pyx_n_s_ball;
 
-    /* "freud/locality.pxd":95
+    /* "freud/locality.pxd":47
  *         obj.k = k
  * 
  *         if obj.r != 0:             # <<<<<<<<<<<<<<
@@ -7150,7 +7284,7 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_NeighborQueryResult *__py
     goto __pyx_L5;
   }
 
-  /* "freud/locality.pxd":98
+  /* "freud/locality.pxd":50
  *             obj.query_type = 'ball'
  *         else:
  *             obj.query_type = 'nn'             # <<<<<<<<<<<<<<
@@ -7166,7 +7300,7 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_NeighborQueryResult *__py
   }
   __pyx_L5:;
 
-  /* "freud/locality.pxd":100
+  /* "freud/locality.pxd":52
  *             obj.query_type = 'nn'
  * 
  *         return obj             # <<<<<<<<<<<<<<
@@ -7178,7 +7312,7 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_NeighborQueryResult *__py
   __pyx_r = __pyx_v_obj;
   goto __pyx_L0;
 
-  /* "freud/locality.pxd":79
+  /* "freud/locality.pxd":31
  *     # compile with a cdef method.
  *     @staticmethod
  *     cdef inline NeighborQueryResult init(             # <<<<<<<<<<<<<<
@@ -7198,7 +7332,7 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_NeighborQueryResult *__py
   return __pyx_r;
 }
 
-/* "freud/locality.pxd":108
+/* "freud/locality.pxd":60
  * 
  *     @staticmethod
  *     cdef inline AABBQueryResult init_aabb_nn(             # <<<<<<<<<<<<<<
@@ -7213,7 +7347,7 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_AABBQueryResult *__pyx_f_
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("init_aabb_nn", 0);
 
-  /* "freud/locality.pxd":112
+  /* "freud/locality.pxd":64
  *             cbool exclude_ii, unsigned int k, float r, float scale):
  *         # Internal API only
  *         assert k != 0             # <<<<<<<<<<<<<<
@@ -7224,24 +7358,24 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_AABBQueryResult *__pyx_f_
   if (unlikely(!Py_OptimizeFlag)) {
     if (unlikely(!((__pyx_v_k != 0) != 0))) {
       PyErr_SetNone(PyExc_AssertionError);
-      __PYX_ERR(2, 112, __pyx_L1_error)
+      __PYX_ERR(2, 64, __pyx_L1_error)
     }
   }
   #endif
 
-  /* "freud/locality.pxd":114
+  /* "freud/locality.pxd":66
  *         assert k != 0
  * 
  *         obj = AABBQueryResult()             # <<<<<<<<<<<<<<
  *         obj.aabbq = obj.nq = aabbq
  *         obj.points = points
  */
-  __pyx_t_1 = __Pyx_PyObject_CallNoArg(((PyObject *)__pyx_ptype_5freud_8locality_AABBQueryResult)); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 114, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_CallNoArg(((PyObject *)__pyx_ptype_5freud_8locality_AABBQueryResult)); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 66, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_obj = ((struct __pyx_obj_5freud_8locality_AABBQueryResult *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "freud/locality.pxd":115
+  /* "freud/locality.pxd":67
  * 
  *         obj = AABBQueryResult()
  *         obj.aabbq = obj.nq = aabbq             # <<<<<<<<<<<<<<
@@ -7259,7 +7393,7 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_AABBQueryResult *__pyx_f_
   __Pyx_DECREF(((PyObject *)__pyx_v_obj->__pyx_base.nq));
   __pyx_v_obj->__pyx_base.nq = ((struct __pyx_obj_5freud_8locality_NeighborQuery *)__pyx_v_aabbq);
 
-  /* "freud/locality.pxd":116
+  /* "freud/locality.pxd":68
  *         obj = AABBQueryResult()
  *         obj.aabbq = obj.nq = aabbq
  *         obj.points = points             # <<<<<<<<<<<<<<
@@ -7270,7 +7404,7 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_AABBQueryResult *__pyx_f_
   __PYX_INC_MEMVIEW(&__pyx_v_points, 0);
   __pyx_v_obj->__pyx_base.points = __pyx_v_points;
 
-  /* "freud/locality.pxd":117
+  /* "freud/locality.pxd":69
  *         obj.aabbq = obj.nq = aabbq
  *         obj.points = points
  *         obj.exclude_ii = exclude_ii             # <<<<<<<<<<<<<<
@@ -7279,7 +7413,7 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_AABBQueryResult *__pyx_f_
  */
   __pyx_v_obj->__pyx_base.exclude_ii = __pyx_v_exclude_ii;
 
-  /* "freud/locality.pxd":118
+  /* "freud/locality.pxd":70
  *         obj.points = points
  *         obj.exclude_ii = exclude_ii
  *         obj.Np = points.shape[0]             # <<<<<<<<<<<<<<
@@ -7288,7 +7422,7 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_AABBQueryResult *__pyx_f_
  */
   __pyx_v_obj->__pyx_base.Np = (__pyx_v_points.shape[0]);
 
-  /* "freud/locality.pxd":121
+  /* "freud/locality.pxd":73
  * 
  *         # For AABBs, even kN queries require a distance cutoff
  *         obj.r = r             # <<<<<<<<<<<<<<
@@ -7297,7 +7431,7 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_AABBQueryResult *__pyx_f_
  */
   __pyx_v_obj->__pyx_base.r = __pyx_v_r;
 
-  /* "freud/locality.pxd":122
+  /* "freud/locality.pxd":74
  *         # For AABBs, even kN queries require a distance cutoff
  *         obj.r = r
  *         obj.k = k             # <<<<<<<<<<<<<<
@@ -7306,7 +7440,7 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_AABBQueryResult *__pyx_f_
  */
   __pyx_v_obj->__pyx_base.k = __pyx_v_k;
 
-  /* "freud/locality.pxd":124
+  /* "freud/locality.pxd":76
  *         obj.k = k
  * 
  *         obj.query_type = 'nn'             # <<<<<<<<<<<<<<
@@ -7319,7 +7453,7 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_AABBQueryResult *__pyx_f_
   __Pyx_DECREF(__pyx_v_obj->__pyx_base.query_type);
   __pyx_v_obj->__pyx_base.query_type = __pyx_n_s_nn;
 
-  /* "freud/locality.pxd":126
+  /* "freud/locality.pxd":78
  *         obj.query_type = 'nn'
  * 
  *         obj.scale = scale             # <<<<<<<<<<<<<<
@@ -7328,17 +7462,19 @@ static CYTHON_INLINE struct __pyx_obj_5freud_8locality_AABBQueryResult *__pyx_f_
  */
   __pyx_v_obj->scale = __pyx_v_scale;
 
-  /* "freud/locality.pxd":128
+  /* "freud/locality.pxd":80
  *         obj.scale = scale
  * 
  *         return obj             # <<<<<<<<<<<<<<
+ * 
+ * cdef class NlistptrWrapper:
  */
   __Pyx_XDECREF(((PyObject *)__pyx_r));
   __Pyx_INCREF(((PyObject *)__pyx_v_obj));
   __pyx_r = __pyx_v_obj;
   goto __pyx_L0;
 
-  /* "freud/locality.pxd":108
+  /* "freud/locality.pxd":60
  * 
  *     @staticmethod
  *     cdef inline AABBQueryResult init_aabb_nn(             # <<<<<<<<<<<<<<
@@ -24119,13 +24255,13 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_convert_array, __pyx_k_convert_array, sizeof(__pyx_k_convert_array), 0, 0, 1, 1},
   {&__pyx_n_s_convert_box, __pyx_k_convert_box, sizeof(__pyx_k_convert_box), 0, 0, 1, 1},
   {&__pyx_n_s_count, __pyx_k_count, sizeof(__pyx_k_count), 0, 0, 1, 1},
-  {&__pyx_n_s_defaulted_nlist, __pyx_k_defaulted_nlist, sizeof(__pyx_k_defaulted_nlist), 0, 0, 1, 1},
   {&__pyx_n_s_dict, __pyx_k_dict, sizeof(__pyx_k_dict), 0, 0, 1, 1},
   {&__pyx_n_s_dtype, __pyx_k_dtype, sizeof(__pyx_k_dtype), 0, 0, 1, 1},
   {&__pyx_n_s_dtype_is_object, __pyx_k_dtype_is_object, sizeof(__pyx_k_dtype_is_object), 0, 0, 1, 1},
   {&__pyx_n_s_encode, __pyx_k_encode, sizeof(__pyx_k_encode), 0, 0, 1, 1},
   {&__pyx_n_s_enumerate, __pyx_k_enumerate, sizeof(__pyx_k_enumerate), 0, 0, 1, 1},
   {&__pyx_n_s_error, __pyx_k_error, sizeof(__pyx_k_error), 0, 0, 1, 1},
+  {&__pyx_n_s_exclude_ii, __pyx_k_exclude_ii, sizeof(__pyx_k_exclude_ii), 0, 0, 1, 1},
   {&__pyx_n_s_flags, __pyx_k_flags, sizeof(__pyx_k_flags), 0, 0, 1, 1},
   {&__pyx_n_s_float32, __pyx_k_float32, sizeof(__pyx_k_float32), 0, 0, 1, 1},
   {&__pyx_n_s_format, __pyx_k_format, sizeof(__pyx_k_format), 0, 0, 1, 1},
@@ -24151,7 +24287,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_l_points, __pyx_k_l_points, sizeof(__pyx_k_l_points), 0, 0, 1, 1},
   {&__pyx_n_s_locality, __pyx_k_locality, sizeof(__pyx_k_locality), 0, 0, 1, 1},
   {&__pyx_n_s_main, __pyx_k_main, sizeof(__pyx_k_main), 0, 0, 1, 1},
-  {&__pyx_n_s_make_default_nlist, __pyx_k_make_default_nlist, sizeof(__pyx_k_make_default_nlist), 0, 0, 1, 1},
+  {&__pyx_n_s_make_nq_nlist, __pyx_k_make_nq_nlist, sizeof(__pyx_k_make_nq_nlist), 0, 0, 1, 1},
   {&__pyx_n_s_memview, __pyx_k_memview, sizeof(__pyx_k_memview), 0, 0, 1, 1},
   {&__pyx_n_s_mode, __pyx_k_mode, sizeof(__pyx_k_mode), 0, 0, 1, 1},
   {&__pyx_n_s_n_clusters, __pyx_k_n_clusters, sizeof(__pyx_k_n_clusters), 0, 0, 1, 1},
@@ -24163,10 +24299,12 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_ndim, __pyx_k_ndim, sizeof(__pyx_k_ndim), 0, 0, 1, 1},
   {&__pyx_n_s_new, __pyx_k_new, sizeof(__pyx_k_new), 0, 0, 1, 1},
   {&__pyx_n_s_nlist, __pyx_k_nlist, sizeof(__pyx_k_nlist), 0, 0, 1, 1},
-  {&__pyx_n_s_nlist_2, __pyx_k_nlist_2, sizeof(__pyx_k_nlist_2), 0, 0, 1, 1},
+  {&__pyx_n_s_nlistptr, __pyx_k_nlistptr, sizeof(__pyx_k_nlistptr), 0, 0, 1, 1},
   {&__pyx_n_s_nn, __pyx_k_nn, sizeof(__pyx_k_nn), 0, 0, 1, 1},
   {&__pyx_kp_s_no_default___reduce___due_to_non, __pyx_k_no_default___reduce___due_to_non, sizeof(__pyx_k_no_default___reduce___due_to_non), 0, 0, 1, 0},
   {&__pyx_n_s_np, __pyx_k_np, sizeof(__pyx_k_np), 0, 0, 1, 1},
+  {&__pyx_n_s_nq, __pyx_k_nq, sizeof(__pyx_k_nq), 0, 0, 1, 1},
+  {&__pyx_n_s_nq_nlist, __pyx_k_nq_nlist, sizeof(__pyx_k_nq_nlist), 0, 0, 1, 1},
   {&__pyx_n_s_num_cluster_to_plot, __pyx_k_num_cluster_to_plot, sizeof(__pyx_k_num_cluster_to_plot), 0, 0, 1, 1},
   {&__pyx_n_s_num_clusters, __pyx_k_num_clusters, sizeof(__pyx_k_num_clusters), 0, 0, 1, 1},
   {&__pyx_n_s_num_particles, __pyx_k_num_particles, sizeof(__pyx_k_num_particles), 0, 0, 1, 1},
@@ -24187,6 +24325,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_pyx_type, __pyx_k_pyx_type, sizeof(__pyx_k_pyx_type), 0, 0, 1, 1},
   {&__pyx_n_s_pyx_unpickle_Enum, __pyx_k_pyx_unpickle_Enum, sizeof(__pyx_k_pyx_unpickle_Enum), 0, 0, 1, 1},
   {&__pyx_n_s_pyx_vtable, __pyx_k_pyx_vtable, sizeof(__pyx_k_pyx_vtable), 0, 0, 1, 1},
+  {&__pyx_n_s_qargs, __pyx_k_qargs, sizeof(__pyx_k_qargs), 0, 0, 1, 1},
   {&__pyx_n_s_range, __pyx_k_range, sizeof(__pyx_k_range), 0, 0, 1, 1},
   {&__pyx_n_s_rcut, __pyx_k_rcut, sizeof(__pyx_k_rcut), 0, 0, 1, 1},
   {&__pyx_n_s_reduce, __pyx_k_reduce, sizeof(__pyx_k_reduce), 0, 0, 1, 1},
@@ -24195,6 +24334,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_repr, __pyx_k_repr, sizeof(__pyx_k_repr), 0, 0, 1, 1},
   {&__pyx_n_s_repr_png, __pyx_k_repr_png, sizeof(__pyx_k_repr_png), 0, 0, 1, 1},
   {&__pyx_n_s_return_counts, __pyx_k_return_counts, sizeof(__pyx_k_return_counts), 0, 0, 1, 1},
+  {&__pyx_n_s_rmax, __pyx_k_rmax, sizeof(__pyx_k_rmax), 0, 0, 1, 1},
   {&__pyx_kp_u_s, __pyx_k_s, sizeof(__pyx_k_s), 0, 1, 0, 0},
   {&__pyx_n_s_self, __pyx_k_self, sizeof(__pyx_k_self), 0, 0, 1, 1},
   {&__pyx_n_s_setstate, __pyx_k_setstate, sizeof(__pyx_k_setstate), 0, 0, 1, 1},
@@ -24221,8 +24361,8 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {0, 0, 0, 0, 0, 0, 0}
 };
 static CYTHON_SMALL_CODE int __Pyx_InitCachedBuiltins(void) {
-  __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_n_s_ValueError); if (!__pyx_builtin_ValueError) __PYX_ERR(0, 185, __pyx_L1_error)
-  __pyx_builtin_AttributeError = __Pyx_GetBuiltinName(__pyx_n_s_AttributeError); if (!__pyx_builtin_AttributeError) __PYX_ERR(0, 195, __pyx_L1_error)
+  __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_n_s_ValueError); if (!__pyx_builtin_ValueError) __PYX_ERR(0, 188, __pyx_L1_error)
+  __pyx_builtin_AttributeError = __Pyx_GetBuiltinName(__pyx_n_s_AttributeError); if (!__pyx_builtin_AttributeError) __PYX_ERR(0, 198, __pyx_L1_error)
   __pyx_builtin_TypeError = __Pyx_GetBuiltinName(__pyx_n_s_TypeError); if (!__pyx_builtin_TypeError) __PYX_ERR(1, 2, __pyx_L1_error)
   __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(3, 285, __pyx_L1_error)
   __pyx_builtin_RuntimeError = __Pyx_GetBuiltinName(__pyx_n_s_RuntimeError); if (!__pyx_builtin_RuntimeError) __PYX_ERR(3, 856, __pyx_L1_error)
@@ -24241,33 +24381,33 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__Pyx_InitCachedConstants", 0);
 
-  /* "freud/cluster.pyx":103
- *                 Simulation box (Default value = None).
- *         """
- *         points = freud.common.convert_array(points, shape=(None, 3))             # <<<<<<<<<<<<<<
- * 
- *         defaulted_nlist = freud.locality.make_default_nlist(
- */
-  __pyx_tuple_ = PyTuple_Pack(2, Py_None, __pyx_int_3); if (unlikely(!__pyx_tuple_)) __PYX_ERR(0, 103, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple_);
-  __Pyx_GIVEREF(__pyx_tuple_);
-
   /* "(tree fragment)":2
  * def __reduce_cython__(self):
  *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")             # <<<<<<<<<<<<<<
  * def __setstate_cython__(self, __pyx_state):
  *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
  */
-  __pyx_tuple__2 = PyTuple_Pack(1, __pyx_kp_s_no_default___reduce___due_to_non); if (unlikely(!__pyx_tuple__2)) __PYX_ERR(1, 2, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__2);
-  __Pyx_GIVEREF(__pyx_tuple__2);
+  __pyx_tuple_ = PyTuple_Pack(1, __pyx_kp_s_no_default___reduce___due_to_non); if (unlikely(!__pyx_tuple_)) __PYX_ERR(1, 2, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple_);
+  __Pyx_GIVEREF(__pyx_tuple_);
 
   /* "(tree fragment)":4
  *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
  * def __setstate_cython__(self, __pyx_state):
  *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")             # <<<<<<<<<<<<<<
  */
-  __pyx_tuple__3 = PyTuple_Pack(1, __pyx_kp_s_no_default___reduce___due_to_non); if (unlikely(!__pyx_tuple__3)) __PYX_ERR(1, 4, __pyx_L1_error)
+  __pyx_tuple__2 = PyTuple_Pack(1, __pyx_kp_s_no_default___reduce___due_to_non); if (unlikely(!__pyx_tuple__2)) __PYX_ERR(1, 4, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__2);
+  __Pyx_GIVEREF(__pyx_tuple__2);
+
+  /* "freud/cluster.pyx":274
+ *             b = freud.common.convert_box(box)
+ * 
+ *         points = freud.common.convert_array(points, shape=(None, 3))             # <<<<<<<<<<<<<<
+ *         cluster_idx = freud.common.convert_array(
+ *             cluster_idx, shape=(points.shape[0], ), dtype=np.uint32)
+ */
+  __pyx_tuple__3 = PyTuple_Pack(2, Py_None, __pyx_int_3); if (unlikely(!__pyx_tuple__3)) __PYX_ERR(0, 274, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__3);
   __Pyx_GIVEREF(__pyx_tuple__3);
 
@@ -24566,94 +24706,94 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  *         R"""Compute the clusters for the given set of points.
  * 
  */
-  __pyx_tuple__36 = PyTuple_Pack(9, __pyx_n_s_self, __pyx_n_s_points, __pyx_n_s_nlist, __pyx_n_s_box, __pyx_n_s_defaulted_nlist, __pyx_n_s_nlist_2, __pyx_n_s_b, __pyx_n_s_l_points, __pyx_n_s_Np); if (unlikely(!__pyx_tuple__36)) __PYX_ERR(0, 92, __pyx_L1_error)
+  __pyx_tuple__36 = PyTuple_Pack(11, __pyx_n_s_self, __pyx_n_s_points, __pyx_n_s_nlist, __pyx_n_s_box, __pyx_n_s_nq_nlist, __pyx_n_s_nq, __pyx_n_s_nlistptr, __pyx_n_s_qargs, __pyx_n_s_b, __pyx_n_s_l_points, __pyx_n_s_Np); if (unlikely(!__pyx_tuple__36)) __PYX_ERR(0, 92, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__36);
   __Pyx_GIVEREF(__pyx_tuple__36);
-  __pyx_codeobj__37 = (PyObject*)__Pyx_PyCode_New(4, 0, 9, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__36, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_cluster_pyx, __pyx_n_s_computeClusters, 92, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__37)) __PYX_ERR(0, 92, __pyx_L1_error)
+  __pyx_codeobj__37 = (PyObject*)__Pyx_PyCode_New(4, 0, 11, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__36, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_cluster_pyx, __pyx_n_s_computeClusters, 92, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__37)) __PYX_ERR(0, 92, __pyx_L1_error)
 
-  /* "freud/cluster.pyx":124
+  /* "freud/cluster.pyx":127
  * 
  *     @Compute._compute("computeClusterMembership")
  *     def computeClusterMembership(self, keys):             # <<<<<<<<<<<<<<
  *         R"""Compute the clusters with key membership.
  *         Loops over all particles and adds them to a list of sets.
  */
-  __pyx_tuple__38 = PyTuple_Pack(3, __pyx_n_s_self, __pyx_n_s_keys, __pyx_n_s_l_keys); if (unlikely(!__pyx_tuple__38)) __PYX_ERR(0, 124, __pyx_L1_error)
+  __pyx_tuple__38 = PyTuple_Pack(3, __pyx_n_s_self, __pyx_n_s_keys, __pyx_n_s_l_keys); if (unlikely(!__pyx_tuple__38)) __PYX_ERR(0, 127, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__38);
   __Pyx_GIVEREF(__pyx_tuple__38);
-  __pyx_codeobj__39 = (PyObject*)__Pyx_PyCode_New(2, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__38, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_cluster_pyx, __pyx_n_s_computeClusterMembership, 124, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__39)) __PYX_ERR(0, 124, __pyx_L1_error)
+  __pyx_codeobj__39 = (PyObject*)__Pyx_PyCode_New(2, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__38, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_cluster_pyx, __pyx_n_s_computeClusterMembership, 127, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__39)) __PYX_ERR(0, 127, __pyx_L1_error)
 
-  /* "freud/cluster.pyx":142
+  /* "freud/cluster.pyx":145
  * 
  *     @Compute._computed_property("computeClusters")
  *     def num_clusters(self):             # <<<<<<<<<<<<<<
  *         return self.thisptr.getNumClusters()
  * 
  */
-  __pyx_tuple__40 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__40)) __PYX_ERR(0, 142, __pyx_L1_error)
+  __pyx_tuple__40 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__40)) __PYX_ERR(0, 145, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__40);
   __Pyx_GIVEREF(__pyx_tuple__40);
-  __pyx_codeobj__41 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__40, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_cluster_pyx, __pyx_n_s_num_clusters, 142, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__41)) __PYX_ERR(0, 142, __pyx_L1_error)
+  __pyx_codeobj__41 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__40, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_cluster_pyx, __pyx_n_s_num_clusters, 145, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__41)) __PYX_ERR(0, 145, __pyx_L1_error)
 
-  /* "freud/cluster.pyx":146
+  /* "freud/cluster.pyx":149
  * 
  *     @Compute._computed_property("computeClusters")
  *     def num_particles(self):             # <<<<<<<<<<<<<<
  *         return self.thisptr.getNumParticles()
  * 
  */
-  __pyx_tuple__42 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__42)) __PYX_ERR(0, 146, __pyx_L1_error)
+  __pyx_tuple__42 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__42)) __PYX_ERR(0, 149, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__42);
   __Pyx_GIVEREF(__pyx_tuple__42);
-  __pyx_codeobj__43 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__42, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_cluster_pyx, __pyx_n_s_num_particles, 146, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__43)) __PYX_ERR(0, 146, __pyx_L1_error)
+  __pyx_codeobj__43 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__42, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_cluster_pyx, __pyx_n_s_num_particles, 149, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__43)) __PYX_ERR(0, 149, __pyx_L1_error)
 
-  /* "freud/cluster.pyx":150
+  /* "freud/cluster.pyx":153
  * 
  *     @Compute._computed_property("computeClusters")
  *     def cluster_idx(self):             # <<<<<<<<<<<<<<
  *         cdef unsigned int n_particles = self.thisptr.getNumParticles()
  *         cdef const unsigned int[::1] cluster_idx = \
  */
-  __pyx_tuple__44 = PyTuple_Pack(3, __pyx_n_s_self, __pyx_n_s_n_particles, __pyx_n_s_cluster_idx); if (unlikely(!__pyx_tuple__44)) __PYX_ERR(0, 150, __pyx_L1_error)
+  __pyx_tuple__44 = PyTuple_Pack(3, __pyx_n_s_self, __pyx_n_s_n_particles, __pyx_n_s_cluster_idx); if (unlikely(!__pyx_tuple__44)) __PYX_ERR(0, 153, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__44);
   __Pyx_GIVEREF(__pyx_tuple__44);
-  __pyx_codeobj__45 = (PyObject*)__Pyx_PyCode_New(1, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__44, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_cluster_pyx, __pyx_n_s_cluster_idx, 150, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__45)) __PYX_ERR(0, 150, __pyx_L1_error)
+  __pyx_codeobj__45 = (PyObject*)__Pyx_PyCode_New(1, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__44, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_cluster_pyx, __pyx_n_s_cluster_idx, 153, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__45)) __PYX_ERR(0, 153, __pyx_L1_error)
 
-  /* "freud/cluster.pyx":157
+  /* "freud/cluster.pyx":160
  * 
  *     @Compute._computed_property("computeClusterMembership")
  *     def cluster_keys(self):             # <<<<<<<<<<<<<<
  *         cluster_keys = self.thisptr.getClusterKeys()
  *         return cluster_keys
  */
-  __pyx_tuple__46 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_cluster_keys); if (unlikely(!__pyx_tuple__46)) __PYX_ERR(0, 157, __pyx_L1_error)
+  __pyx_tuple__46 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_cluster_keys); if (unlikely(!__pyx_tuple__46)) __PYX_ERR(0, 160, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__46);
   __Pyx_GIVEREF(__pyx_tuple__46);
-  __pyx_codeobj__47 = (PyObject*)__Pyx_PyCode_New(1, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__46, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_cluster_pyx, __pyx_n_s_cluster_keys, 157, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__47)) __PYX_ERR(0, 157, __pyx_L1_error)
+  __pyx_codeobj__47 = (PyObject*)__Pyx_PyCode_New(1, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__46, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_cluster_pyx, __pyx_n_s_cluster_keys, 160, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__47)) __PYX_ERR(0, 160, __pyx_L1_error)
 
-  /* "freud/cluster.pyx":171
+  /* "freud/cluster.pyx":174
  * 
  *     @Compute._computed_method("computeClusters")
  *     def plot(self, ax=None):             # <<<<<<<<<<<<<<
  *         """Plot cluster distribution.
  * 
  */
-  __pyx_tuple__48 = PyTuple_Pack(4, __pyx_n_s_self, __pyx_n_s_ax, __pyx_n_s_plot, __pyx_n_s_count); if (unlikely(!__pyx_tuple__48)) __PYX_ERR(0, 171, __pyx_L1_error)
+  __pyx_tuple__48 = PyTuple_Pack(4, __pyx_n_s_self, __pyx_n_s_ax, __pyx_n_s_plot, __pyx_n_s_count); if (unlikely(!__pyx_tuple__48)) __PYX_ERR(0, 174, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__48);
   __Pyx_GIVEREF(__pyx_tuple__48);
-  __pyx_codeobj__49 = (PyObject*)__Pyx_PyCode_New(2, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__48, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_cluster_pyx, __pyx_n_s_plot, 171, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__49)) __PYX_ERR(0, 171, __pyx_L1_error)
+  __pyx_codeobj__49 = (PyObject*)__Pyx_PyCode_New(2, 0, 4, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__48, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_cluster_pyx, __pyx_n_s_plot, 174, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__49)) __PYX_ERR(0, 174, __pyx_L1_error)
 
-  /* "freud/cluster.pyx":191
+  /* "freud/cluster.pyx":194
  *                                       num_cluster_to_plot=10, ax=ax)
  * 
  *     def _repr_png_(self):             # <<<<<<<<<<<<<<
  *         import plot
  *         try:
  */
-  __pyx_tuple__50 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_plot); if (unlikely(!__pyx_tuple__50)) __PYX_ERR(0, 191, __pyx_L1_error)
+  __pyx_tuple__50 = PyTuple_Pack(2, __pyx_n_s_self, __pyx_n_s_plot); if (unlikely(!__pyx_tuple__50)) __PYX_ERR(0, 194, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__50);
   __Pyx_GIVEREF(__pyx_tuple__50);
-  __pyx_codeobj__51 = (PyObject*)__Pyx_PyCode_New(1, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__50, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_cluster_pyx, __pyx_n_s_repr_png, 191, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__51)) __PYX_ERR(0, 191, __pyx_L1_error)
+  __pyx_codeobj__51 = (PyObject*)__Pyx_PyCode_New(1, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__50, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_cluster_pyx, __pyx_n_s_repr_png, 194, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__51)) __PYX_ERR(0, 194, __pyx_L1_error)
 
   /* "(tree fragment)":1
  * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
@@ -24676,65 +24816,65 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GIVEREF(__pyx_tuple__54);
   __pyx_codeobj__55 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__54, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_setstate_cython, 3, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__55)) __PYX_ERR(1, 3, __pyx_L1_error)
 
-  /* "freud/cluster.pyx":250
+  /* "freud/cluster.pyx":253
  * 
  *     @Compute._compute("computeProperties")
  *     def computeProperties(self, points, cluster_idx, box=None):             # <<<<<<<<<<<<<<
  *         R"""Compute properties of the point clusters.
  *         Loops over all points in the given array and determines the center of
  */
-  __pyx_tuple__56 = PyTuple_Pack(8, __pyx_n_s_self, __pyx_n_s_points, __pyx_n_s_cluster_idx, __pyx_n_s_box, __pyx_n_s_b, __pyx_n_s_l_points, __pyx_n_s_l_cluster_idx, __pyx_n_s_Np); if (unlikely(!__pyx_tuple__56)) __PYX_ERR(0, 250, __pyx_L1_error)
+  __pyx_tuple__56 = PyTuple_Pack(8, __pyx_n_s_self, __pyx_n_s_points, __pyx_n_s_cluster_idx, __pyx_n_s_box, __pyx_n_s_b, __pyx_n_s_l_points, __pyx_n_s_l_cluster_idx, __pyx_n_s_Np); if (unlikely(!__pyx_tuple__56)) __PYX_ERR(0, 253, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__56);
   __Pyx_GIVEREF(__pyx_tuple__56);
-  __pyx_codeobj__57 = (PyObject*)__Pyx_PyCode_New(4, 0, 8, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__56, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_cluster_pyx, __pyx_n_s_computeProperties, 250, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__57)) __PYX_ERR(0, 250, __pyx_L1_error)
+  __pyx_codeobj__57 = (PyObject*)__Pyx_PyCode_New(4, 0, 8, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__56, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_cluster_pyx, __pyx_n_s_computeProperties, 253, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__57)) __PYX_ERR(0, 253, __pyx_L1_error)
 
-  /* "freud/cluster.pyx":286
+  /* "freud/cluster.pyx":289
  * 
  *     @Compute._computed_property("computeProperties")
  *     def num_clusters(self):             # <<<<<<<<<<<<<<
  *         return self.thisptr.getNumClusters()
  * 
  */
-  __pyx_tuple__58 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__58)) __PYX_ERR(0, 286, __pyx_L1_error)
+  __pyx_tuple__58 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__58)) __PYX_ERR(0, 289, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__58);
   __Pyx_GIVEREF(__pyx_tuple__58);
-  __pyx_codeobj__59 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__58, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_cluster_pyx, __pyx_n_s_num_clusters, 286, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__59)) __PYX_ERR(0, 286, __pyx_L1_error)
+  __pyx_codeobj__59 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__58, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_cluster_pyx, __pyx_n_s_num_clusters, 289, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__59)) __PYX_ERR(0, 289, __pyx_L1_error)
 
-  /* "freud/cluster.pyx":290
+  /* "freud/cluster.pyx":293
  * 
  *     @Compute._computed_property("computeProperties")
  *     def cluster_COM(self):             # <<<<<<<<<<<<<<
  *         cdef unsigned int n_clusters = self.thisptr.getNumClusters()
  *         if not n_clusters:
  */
-  __pyx_tuple__60 = PyTuple_Pack(3, __pyx_n_s_self, __pyx_n_s_n_clusters, __pyx_n_s_cluster_COM); if (unlikely(!__pyx_tuple__60)) __PYX_ERR(0, 290, __pyx_L1_error)
+  __pyx_tuple__60 = PyTuple_Pack(3, __pyx_n_s_self, __pyx_n_s_n_clusters, __pyx_n_s_cluster_COM); if (unlikely(!__pyx_tuple__60)) __PYX_ERR(0, 293, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__60);
   __Pyx_GIVEREF(__pyx_tuple__60);
-  __pyx_codeobj__61 = (PyObject*)__Pyx_PyCode_New(1, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__60, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_cluster_pyx, __pyx_n_s_cluster_COM, 290, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__61)) __PYX_ERR(0, 290, __pyx_L1_error)
+  __pyx_codeobj__61 = (PyObject*)__Pyx_PyCode_New(1, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__60, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_cluster_pyx, __pyx_n_s_cluster_COM, 293, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__61)) __PYX_ERR(0, 293, __pyx_L1_error)
 
-  /* "freud/cluster.pyx":300
+  /* "freud/cluster.pyx":303
  * 
  *     @Compute._computed_property("computeProperties")
  *     def cluster_G(self):             # <<<<<<<<<<<<<<
  *         cdef unsigned int n_clusters = self.thisptr.getNumClusters()
  *         if not n_clusters:
  */
-  __pyx_tuple__62 = PyTuple_Pack(3, __pyx_n_s_self, __pyx_n_s_n_clusters, __pyx_n_s_cluster_G); if (unlikely(!__pyx_tuple__62)) __PYX_ERR(0, 300, __pyx_L1_error)
+  __pyx_tuple__62 = PyTuple_Pack(3, __pyx_n_s_self, __pyx_n_s_n_clusters, __pyx_n_s_cluster_G); if (unlikely(!__pyx_tuple__62)) __PYX_ERR(0, 303, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__62);
   __Pyx_GIVEREF(__pyx_tuple__62);
-  __pyx_codeobj__63 = (PyObject*)__Pyx_PyCode_New(1, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__62, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_cluster_pyx, __pyx_n_s_cluster_G, 300, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__63)) __PYX_ERR(0, 300, __pyx_L1_error)
+  __pyx_codeobj__63 = (PyObject*)__Pyx_PyCode_New(1, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__62, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_cluster_pyx, __pyx_n_s_cluster_G, 303, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__63)) __PYX_ERR(0, 303, __pyx_L1_error)
 
-  /* "freud/cluster.pyx":310
+  /* "freud/cluster.pyx":313
  * 
  *     @Compute._computed_property("computeProperties")
  *     def cluster_sizes(self):             # <<<<<<<<<<<<<<
  *         cdef unsigned int n_clusters = self.thisptr.getNumClusters()
  *         if not n_clusters:
  */
-  __pyx_tuple__64 = PyTuple_Pack(3, __pyx_n_s_self, __pyx_n_s_n_clusters, __pyx_n_s_cluster_sizes); if (unlikely(!__pyx_tuple__64)) __PYX_ERR(0, 310, __pyx_L1_error)
+  __pyx_tuple__64 = PyTuple_Pack(3, __pyx_n_s_self, __pyx_n_s_n_clusters, __pyx_n_s_cluster_sizes); if (unlikely(!__pyx_tuple__64)) __PYX_ERR(0, 313, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__64);
   __Pyx_GIVEREF(__pyx_tuple__64);
-  __pyx_codeobj__65 = (PyObject*)__Pyx_PyCode_New(1, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__64, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_cluster_pyx, __pyx_n_s_cluster_sizes, 310, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__65)) __PYX_ERR(0, 310, __pyx_L1_error)
+  __pyx_codeobj__65 = (PyObject*)__Pyx_PyCode_New(1, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__64, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_freud_cluster_pyx, __pyx_n_s_cluster_sizes, 313, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__65)) __PYX_ERR(0, 313, __pyx_L1_error)
 
   /* "(tree fragment)":1
  * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
@@ -24899,15 +25039,15 @@ static int __Pyx_modinit_type_init_code(void) {
   if (__Pyx_setup_reduce((PyObject*)&__pyx_type_5freud_7cluster_Cluster) < 0) __PYX_ERR(0, 27, __pyx_L1_error)
   __pyx_ptype_5freud_7cluster_Cluster = &__pyx_type_5freud_7cluster_Cluster;
   __pyx_type_5freud_7cluster_ClusterProperties.tp_base = __pyx_ptype_5freud_6common_Compute;
-  if (PyType_Ready(&__pyx_type_5freud_7cluster_ClusterProperties) < 0) __PYX_ERR(0, 199, __pyx_L1_error)
+  if (PyType_Ready(&__pyx_type_5freud_7cluster_ClusterProperties) < 0) __PYX_ERR(0, 202, __pyx_L1_error)
   #if PY_VERSION_HEX < 0x030800B1
   __pyx_type_5freud_7cluster_ClusterProperties.tp_print = 0;
   #endif
   if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_5freud_7cluster_ClusterProperties.tp_dictoffset && __pyx_type_5freud_7cluster_ClusterProperties.tp_getattro == PyObject_GenericGetAttr)) {
     __pyx_type_5freud_7cluster_ClusterProperties.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_ClusterProperties, (PyObject *)&__pyx_type_5freud_7cluster_ClusterProperties) < 0) __PYX_ERR(0, 199, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_5freud_7cluster_ClusterProperties) < 0) __PYX_ERR(0, 199, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_ClusterProperties, (PyObject *)&__pyx_type_5freud_7cluster_ClusterProperties) < 0) __PYX_ERR(0, 202, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_5freud_7cluster_ClusterProperties) < 0) __PYX_ERR(0, 202, __pyx_L1_error)
   __pyx_ptype_5freud_7cluster_ClusterProperties = &__pyx_type_5freud_7cluster_ClusterProperties;
   __pyx_vtabptr_array = &__pyx_vtable_array;
   __pyx_vtable_array.get_memview = (PyObject *(*)(struct __pyx_array_obj *))__pyx_array_get_memview;
@@ -24983,28 +25123,39 @@ static int __Pyx_modinit_type_import_code(void) {
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_t_1 = PyImport_ImportModule("freud.locality"); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 11, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_ptype_5freud_8locality_NeighborQuery = __Pyx_ImportType(__pyx_t_1, "freud.locality", "NeighborQuery", sizeof(struct __pyx_obj_5freud_8locality_NeighborQuery), __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_5freud_8locality_NeighborQuery) __PYX_ERR(2, 11, __pyx_L1_error)
-  __pyx_ptype_5freud_8locality_NeighborList = __Pyx_ImportType(__pyx_t_1, "freud.locality", "NeighborList", sizeof(struct __pyx_obj_5freud_8locality_NeighborList), __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_5freud_8locality_NeighborList) __PYX_ERR(2, 18, __pyx_L1_error)
-  __pyx_vtabptr_5freud_8locality_NeighborList = (struct __pyx_vtabstruct_5freud_8locality_NeighborList*)__Pyx_GetVtable(__pyx_ptype_5freud_8locality_NeighborList->tp_dict); if (unlikely(!__pyx_vtabptr_5freud_8locality_NeighborList)) __PYX_ERR(2, 18, __pyx_L1_error)
-  __pyx_ptype_5freud_8locality_IteratorLinkCell = __Pyx_ImportType(__pyx_t_1, "freud.locality", "IteratorLinkCell", sizeof(struct __pyx_obj_5freud_8locality_IteratorLinkCell), __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_5freud_8locality_IteratorLinkCell) __PYX_ERR(2, 28, __pyx_L1_error)
-  __pyx_vtabptr_5freud_8locality_IteratorLinkCell = (struct __pyx_vtabstruct_5freud_8locality_IteratorLinkCell*)__Pyx_GetVtable(__pyx_ptype_5freud_8locality_IteratorLinkCell->tp_dict); if (unlikely(!__pyx_vtabptr_5freud_8locality_IteratorLinkCell)) __PYX_ERR(2, 28, __pyx_L1_error)
-  __pyx_ptype_5freud_8locality_LinkCell = __Pyx_ImportType(__pyx_t_1, "freud.locality", "LinkCell", sizeof(struct __pyx_obj_5freud_8locality_LinkCell), __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_5freud_8locality_LinkCell) __PYX_ERR(2, 34, __pyx_L1_error)
-  __pyx_ptype_5freud_8locality_NearestNeighbors = __Pyx_ImportType(__pyx_t_1, "freud.locality", "NearestNeighbors", sizeof(struct __pyx_obj_5freud_8locality_NearestNeighbors), __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_5freud_8locality_NearestNeighbors) __PYX_ERR(2, 39, __pyx_L1_error)
-  __pyx_ptype_5freud_8locality_AABBQuery = __Pyx_ImportType(__pyx_t_1, "freud.locality", "AABBQuery", sizeof(struct __pyx_obj_5freud_8locality_AABBQuery), __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_5freud_8locality_AABBQuery) __PYX_ERR(2, 47, __pyx_L1_error)
-  __pyx_ptype_5freud_8locality__Voronoi = __Pyx_ImportType(__pyx_t_1, "freud.locality", "_Voronoi", sizeof(struct __pyx_obj_5freud_8locality__Voronoi), __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_5freud_8locality__Voronoi) __PYX_ERR(2, 52, __pyx_L1_error)
   __pyx_ptype_5freud_8locality_NeighborQueryResult = __Pyx_ImportType(__pyx_t_1, "freud.locality", "NeighborQueryResult", sizeof(struct __pyx_obj_5freud_8locality_NeighborQueryResult), __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_5freud_8locality_NeighborQueryResult) __PYX_ERR(2, 59, __pyx_L1_error)
-  __pyx_vtabptr_5freud_8locality_NeighborQueryResult = (struct __pyx_vtabstruct_5freud_8locality_NeighborQueryResult*)__Pyx_GetVtable(__pyx_ptype_5freud_8locality_NeighborQueryResult->tp_dict); if (unlikely(!__pyx_vtabptr_5freud_8locality_NeighborQueryResult)) __PYX_ERR(2, 59, __pyx_L1_error)
+   if (!__pyx_ptype_5freud_8locality_NeighborQueryResult) __PYX_ERR(2, 11, __pyx_L1_error)
+  __pyx_vtabptr_5freud_8locality_NeighborQueryResult = (struct __pyx_vtabstruct_5freud_8locality_NeighborQueryResult*)__Pyx_GetVtable(__pyx_ptype_5freud_8locality_NeighborQueryResult->tp_dict); if (unlikely(!__pyx_vtabptr_5freud_8locality_NeighborQueryResult)) __PYX_ERR(2, 11, __pyx_L1_error)
   __pyx_ptype_5freud_8locality_AABBQueryResult = __Pyx_ImportType(__pyx_t_1, "freud.locality", "AABBQueryResult", sizeof(struct __pyx_obj_5freud_8locality_AABBQueryResult), __Pyx_ImportType_CheckSize_Warn);
-   if (!__pyx_ptype_5freud_8locality_AABBQueryResult) __PYX_ERR(2, 103, __pyx_L1_error)
-  __pyx_vtabptr_5freud_8locality_AABBQueryResult = (struct __pyx_vtabstruct_5freud_8locality_AABBQueryResult*)__Pyx_GetVtable(__pyx_ptype_5freud_8locality_AABBQueryResult->tp_dict); if (unlikely(!__pyx_vtabptr_5freud_8locality_AABBQueryResult)) __PYX_ERR(2, 103, __pyx_L1_error)
+   if (!__pyx_ptype_5freud_8locality_AABBQueryResult) __PYX_ERR(2, 55, __pyx_L1_error)
+  __pyx_vtabptr_5freud_8locality_AABBQueryResult = (struct __pyx_vtabstruct_5freud_8locality_AABBQueryResult*)__Pyx_GetVtable(__pyx_ptype_5freud_8locality_AABBQueryResult->tp_dict); if (unlikely(!__pyx_vtabptr_5freud_8locality_AABBQueryResult)) __PYX_ERR(2, 55, __pyx_L1_error)
+  __pyx_ptype_5freud_8locality_NlistptrWrapper = __Pyx_ImportType(__pyx_t_1, "freud.locality", "NlistptrWrapper", sizeof(struct __pyx_obj_5freud_8locality_NlistptrWrapper), __Pyx_ImportType_CheckSize_Warn);
+   if (!__pyx_ptype_5freud_8locality_NlistptrWrapper) __PYX_ERR(2, 82, __pyx_L1_error)
+  __pyx_vtabptr_5freud_8locality_NlistptrWrapper = (struct __pyx_vtabstruct_5freud_8locality_NlistptrWrapper*)__Pyx_GetVtable(__pyx_ptype_5freud_8locality_NlistptrWrapper->tp_dict); if (unlikely(!__pyx_vtabptr_5freud_8locality_NlistptrWrapper)) __PYX_ERR(2, 82, __pyx_L1_error)
+  __pyx_ptype_5freud_8locality_NeighborQuery = __Pyx_ImportType(__pyx_t_1, "freud.locality", "NeighborQuery", sizeof(struct __pyx_obj_5freud_8locality_NeighborQuery), __Pyx_ImportType_CheckSize_Warn);
+   if (!__pyx_ptype_5freud_8locality_NeighborQuery) __PYX_ERR(2, 86, __pyx_L1_error)
+  __pyx_vtabptr_5freud_8locality_NeighborQuery = (struct __pyx_vtabstruct_5freud_8locality_NeighborQuery*)__Pyx_GetVtable(__pyx_ptype_5freud_8locality_NeighborQuery->tp_dict); if (unlikely(!__pyx_vtabptr_5freud_8locality_NeighborQuery)) __PYX_ERR(2, 86, __pyx_L1_error)
+  __pyx_ptype_5freud_8locality_NeighborList = __Pyx_ImportType(__pyx_t_1, "freud.locality", "NeighborList", sizeof(struct __pyx_obj_5freud_8locality_NeighborList), __Pyx_ImportType_CheckSize_Warn);
+   if (!__pyx_ptype_5freud_8locality_NeighborList) __PYX_ERR(2, 93, __pyx_L1_error)
+  __pyx_vtabptr_5freud_8locality_NeighborList = (struct __pyx_vtabstruct_5freud_8locality_NeighborList*)__Pyx_GetVtable(__pyx_ptype_5freud_8locality_NeighborList->tp_dict); if (unlikely(!__pyx_vtabptr_5freud_8locality_NeighborList)) __PYX_ERR(2, 93, __pyx_L1_error)
+  __pyx_ptype_5freud_8locality_IteratorLinkCell = __Pyx_ImportType(__pyx_t_1, "freud.locality", "IteratorLinkCell", sizeof(struct __pyx_obj_5freud_8locality_IteratorLinkCell), __Pyx_ImportType_CheckSize_Warn);
+   if (!__pyx_ptype_5freud_8locality_IteratorLinkCell) __PYX_ERR(2, 102, __pyx_L1_error)
+  __pyx_vtabptr_5freud_8locality_IteratorLinkCell = (struct __pyx_vtabstruct_5freud_8locality_IteratorLinkCell*)__Pyx_GetVtable(__pyx_ptype_5freud_8locality_IteratorLinkCell->tp_dict); if (unlikely(!__pyx_vtabptr_5freud_8locality_IteratorLinkCell)) __PYX_ERR(2, 102, __pyx_L1_error)
+  __pyx_ptype_5freud_8locality_LinkCell = __Pyx_ImportType(__pyx_t_1, "freud.locality", "LinkCell", sizeof(struct __pyx_obj_5freud_8locality_LinkCell), __Pyx_ImportType_CheckSize_Warn);
+   if (!__pyx_ptype_5freud_8locality_LinkCell) __PYX_ERR(2, 107, __pyx_L1_error)
+  __pyx_vtabptr_5freud_8locality_LinkCell = (struct __pyx_vtabstruct_5freud_8locality_LinkCell*)__Pyx_GetVtable(__pyx_ptype_5freud_8locality_LinkCell->tp_dict); if (unlikely(!__pyx_vtabptr_5freud_8locality_LinkCell)) __PYX_ERR(2, 107, __pyx_L1_error)
+  __pyx_ptype_5freud_8locality_NearestNeighbors = __Pyx_ImportType(__pyx_t_1, "freud.locality", "NearestNeighbors", sizeof(struct __pyx_obj_5freud_8locality_NearestNeighbors), __Pyx_ImportType_CheckSize_Warn);
+   if (!__pyx_ptype_5freud_8locality_NearestNeighbors) __PYX_ERR(2, 111, __pyx_L1_error)
+  __pyx_ptype_5freud_8locality_AABBQuery = __Pyx_ImportType(__pyx_t_1, "freud.locality", "AABBQuery", sizeof(struct __pyx_obj_5freud_8locality_AABBQuery), __Pyx_ImportType_CheckSize_Warn);
+   if (!__pyx_ptype_5freud_8locality_AABBQuery) __PYX_ERR(2, 118, __pyx_L1_error)
+  __pyx_vtabptr_5freud_8locality_AABBQuery = (struct __pyx_vtabstruct_5freud_8locality_AABBQuery*)__Pyx_GetVtable(__pyx_ptype_5freud_8locality_AABBQuery->tp_dict); if (unlikely(!__pyx_vtabptr_5freud_8locality_AABBQuery)) __PYX_ERR(2, 118, __pyx_L1_error)
+  __pyx_ptype_5freud_8locality_RawPoints = __Pyx_ImportType(__pyx_t_1, "freud.locality", "RawPoints", sizeof(struct __pyx_obj_5freud_8locality_RawPoints), __Pyx_ImportType_CheckSize_Warn);
+   if (!__pyx_ptype_5freud_8locality_RawPoints) __PYX_ERR(2, 122, __pyx_L1_error)
+  __pyx_vtabptr_5freud_8locality_RawPoints = (struct __pyx_vtabstruct_5freud_8locality_RawPoints*)__Pyx_GetVtable(__pyx_ptype_5freud_8locality_RawPoints->tp_dict); if (unlikely(!__pyx_vtabptr_5freud_8locality_RawPoints)) __PYX_ERR(2, 122, __pyx_L1_error)
+  __pyx_ptype_5freud_8locality__QueryArgs = __Pyx_ImportType(__pyx_t_1, "freud.locality", "_QueryArgs", sizeof(struct __pyx_obj_5freud_8locality__QueryArgs), __Pyx_ImportType_CheckSize_Warn);
+   if (!__pyx_ptype_5freud_8locality__QueryArgs) __PYX_ERR(2, 125, __pyx_L1_error)
+  __pyx_ptype_5freud_8locality__Voronoi = __Pyx_ImportType(__pyx_t_1, "freud.locality", "_Voronoi", sizeof(struct __pyx_obj_5freud_8locality__Voronoi), __Pyx_ImportType_CheckSize_Warn);
+   if (!__pyx_ptype_5freud_8locality__Voronoi) __PYX_ERR(2, 128, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_t_1 = PyImport_ImportModule(__Pyx_BUILTIN_MODULE_NAME); if (unlikely(!__pyx_t_1)) __PYX_ERR(5, 9, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
@@ -25380,27 +25531,27 @@ if (!__Pyx_RefNanny) {
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   PyType_Modified(__pyx_ptype_5freud_7cluster_Cluster);
 
-  /* "freud/cluster.pyx":124
+  /* "freud/cluster.pyx":127
  * 
  *     @Compute._compute("computeClusterMembership")
  *     def computeClusterMembership(self, keys):             # <<<<<<<<<<<<<<
  *         R"""Compute the clusters with key membership.
  *         Loops over all particles and adds them to a list of sets.
  */
-  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7cluster_7Cluster_7computeClusterMembership, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Cluster_computeClusterMembership, NULL, __pyx_n_s_freud_cluster, __pyx_d, ((PyObject *)__pyx_codeobj__39)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 124, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7cluster_7Cluster_7computeClusterMembership, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Cluster_computeClusterMembership, NULL, __pyx_n_s_freud_cluster, __pyx_d, ((PyObject *)__pyx_codeobj__39)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 127, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7cluster_Cluster->tp_dict, __pyx_n_s_computeClusterMembership, __pyx_t_1) < 0) __PYX_ERR(0, 124, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7cluster_Cluster->tp_dict, __pyx_n_s_computeClusterMembership, __pyx_t_1) < 0) __PYX_ERR(0, 127, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   PyType_Modified(__pyx_ptype_5freud_7cluster_Cluster);
 
-  /* "freud/cluster.pyx":123
+  /* "freud/cluster.pyx":126
  *         return self
  * 
  *     @Compute._compute("computeClusterMembership")             # <<<<<<<<<<<<<<
  *     def computeClusterMembership(self, keys):
  *         R"""Compute the clusters with key membership.
  */
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_6common_Compute), __pyx_n_s_compute); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 123, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_6common_Compute), __pyx_n_s_compute); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 126, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_5 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_4))) {
@@ -25414,18 +25565,18 @@ if (!__Pyx_RefNanny) {
   }
   __pyx_t_3 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_4, __pyx_t_5, __pyx_n_s_computeClusterMembership) : __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_n_s_computeClusterMembership);
   __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 123, __pyx_L1_error)
+  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 126, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "freud/cluster.pyx":124
+  /* "freud/cluster.pyx":127
  * 
  *     @Compute._compute("computeClusterMembership")
  *     def computeClusterMembership(self, keys):             # <<<<<<<<<<<<<<
  *         R"""Compute the clusters with key membership.
  *         Loops over all particles and adds them to a list of sets.
  */
-  __Pyx_GetNameInClass(__pyx_t_4, (PyObject *)__pyx_ptype_5freud_7cluster_Cluster, __pyx_n_s_computeClusterMembership); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 124, __pyx_L1_error)
+  __Pyx_GetNameInClass(__pyx_t_4, (PyObject *)__pyx_ptype_5freud_7cluster_Cluster, __pyx_n_s_computeClusterMembership); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 127, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_5 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -25440,34 +25591,34 @@ if (!__Pyx_RefNanny) {
   __pyx_t_1 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_5, __pyx_t_4) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 123, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 126, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7cluster_Cluster->tp_dict, __pyx_n_s_computeClusterMembership, __pyx_t_1) < 0) __PYX_ERR(0, 124, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7cluster_Cluster->tp_dict, __pyx_n_s_computeClusterMembership, __pyx_t_1) < 0) __PYX_ERR(0, 127, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   PyType_Modified(__pyx_ptype_5freud_7cluster_Cluster);
 
-  /* "freud/cluster.pyx":142
+  /* "freud/cluster.pyx":145
  * 
  *     @Compute._computed_property("computeClusters")
  *     def num_clusters(self):             # <<<<<<<<<<<<<<
  *         return self.thisptr.getNumClusters()
  * 
  */
-  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7cluster_7Cluster_9num_clusters, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Cluster_num_clusters, NULL, __pyx_n_s_freud_cluster, __pyx_d, ((PyObject *)__pyx_codeobj__41)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 142, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7cluster_7Cluster_9num_clusters, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Cluster_num_clusters, NULL, __pyx_n_s_freud_cluster, __pyx_d, ((PyObject *)__pyx_codeobj__41)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 145, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7cluster_Cluster->tp_dict, __pyx_n_s_num_clusters, __pyx_t_1) < 0) __PYX_ERR(0, 142, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7cluster_Cluster->tp_dict, __pyx_n_s_num_clusters, __pyx_t_1) < 0) __PYX_ERR(0, 145, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   PyType_Modified(__pyx_ptype_5freud_7cluster_Cluster);
 
-  /* "freud/cluster.pyx":141
+  /* "freud/cluster.pyx":144
  *         return self
  * 
  *     @Compute._computed_property("computeClusters")             # <<<<<<<<<<<<<<
  *     def num_clusters(self):
  *         return self.thisptr.getNumClusters()
  */
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_6common_Compute), __pyx_n_s_computed_property); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 141, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_6common_Compute), __pyx_n_s_computed_property); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 144, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_5 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_4))) {
@@ -25481,18 +25632,18 @@ if (!__Pyx_RefNanny) {
   }
   __pyx_t_3 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_4, __pyx_t_5, __pyx_n_s_computeClusters) : __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_n_s_computeClusters);
   __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 141, __pyx_L1_error)
+  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 144, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "freud/cluster.pyx":142
+  /* "freud/cluster.pyx":145
  * 
  *     @Compute._computed_property("computeClusters")
  *     def num_clusters(self):             # <<<<<<<<<<<<<<
  *         return self.thisptr.getNumClusters()
  * 
  */
-  __Pyx_GetNameInClass(__pyx_t_4, (PyObject *)__pyx_ptype_5freud_7cluster_Cluster, __pyx_n_s_num_clusters); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 142, __pyx_L1_error)
+  __Pyx_GetNameInClass(__pyx_t_4, (PyObject *)__pyx_ptype_5freud_7cluster_Cluster, __pyx_n_s_num_clusters); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 145, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_5 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -25507,34 +25658,34 @@ if (!__Pyx_RefNanny) {
   __pyx_t_1 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_5, __pyx_t_4) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 141, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 144, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7cluster_Cluster->tp_dict, __pyx_n_s_num_clusters, __pyx_t_1) < 0) __PYX_ERR(0, 142, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7cluster_Cluster->tp_dict, __pyx_n_s_num_clusters, __pyx_t_1) < 0) __PYX_ERR(0, 145, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   PyType_Modified(__pyx_ptype_5freud_7cluster_Cluster);
 
-  /* "freud/cluster.pyx":146
+  /* "freud/cluster.pyx":149
  * 
  *     @Compute._computed_property("computeClusters")
  *     def num_particles(self):             # <<<<<<<<<<<<<<
  *         return self.thisptr.getNumParticles()
  * 
  */
-  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7cluster_7Cluster_11num_particles, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Cluster_num_particles, NULL, __pyx_n_s_freud_cluster, __pyx_d, ((PyObject *)__pyx_codeobj__43)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 146, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7cluster_7Cluster_11num_particles, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Cluster_num_particles, NULL, __pyx_n_s_freud_cluster, __pyx_d, ((PyObject *)__pyx_codeobj__43)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 149, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7cluster_Cluster->tp_dict, __pyx_n_s_num_particles, __pyx_t_1) < 0) __PYX_ERR(0, 146, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7cluster_Cluster->tp_dict, __pyx_n_s_num_particles, __pyx_t_1) < 0) __PYX_ERR(0, 149, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   PyType_Modified(__pyx_ptype_5freud_7cluster_Cluster);
 
-  /* "freud/cluster.pyx":145
+  /* "freud/cluster.pyx":148
  *         return self.thisptr.getNumClusters()
  * 
  *     @Compute._computed_property("computeClusters")             # <<<<<<<<<<<<<<
  *     def num_particles(self):
  *         return self.thisptr.getNumParticles()
  */
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_6common_Compute), __pyx_n_s_computed_property); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 145, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_6common_Compute), __pyx_n_s_computed_property); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 148, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_5 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_4))) {
@@ -25548,18 +25699,18 @@ if (!__Pyx_RefNanny) {
   }
   __pyx_t_3 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_4, __pyx_t_5, __pyx_n_s_computeClusters) : __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_n_s_computeClusters);
   __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 145, __pyx_L1_error)
+  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 148, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "freud/cluster.pyx":146
+  /* "freud/cluster.pyx":149
  * 
  *     @Compute._computed_property("computeClusters")
  *     def num_particles(self):             # <<<<<<<<<<<<<<
  *         return self.thisptr.getNumParticles()
  * 
  */
-  __Pyx_GetNameInClass(__pyx_t_4, (PyObject *)__pyx_ptype_5freud_7cluster_Cluster, __pyx_n_s_num_particles); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 146, __pyx_L1_error)
+  __Pyx_GetNameInClass(__pyx_t_4, (PyObject *)__pyx_ptype_5freud_7cluster_Cluster, __pyx_n_s_num_particles); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 149, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_5 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -25574,34 +25725,34 @@ if (!__Pyx_RefNanny) {
   __pyx_t_1 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_5, __pyx_t_4) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 145, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 148, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7cluster_Cluster->tp_dict, __pyx_n_s_num_particles, __pyx_t_1) < 0) __PYX_ERR(0, 146, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7cluster_Cluster->tp_dict, __pyx_n_s_num_particles, __pyx_t_1) < 0) __PYX_ERR(0, 149, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   PyType_Modified(__pyx_ptype_5freud_7cluster_Cluster);
 
-  /* "freud/cluster.pyx":150
+  /* "freud/cluster.pyx":153
  * 
  *     @Compute._computed_property("computeClusters")
  *     def cluster_idx(self):             # <<<<<<<<<<<<<<
  *         cdef unsigned int n_particles = self.thisptr.getNumParticles()
  *         cdef const unsigned int[::1] cluster_idx = \
  */
-  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7cluster_7Cluster_13cluster_idx, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Cluster_cluster_idx, NULL, __pyx_n_s_freud_cluster, __pyx_d, ((PyObject *)__pyx_codeobj__45)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 150, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7cluster_7Cluster_13cluster_idx, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Cluster_cluster_idx, NULL, __pyx_n_s_freud_cluster, __pyx_d, ((PyObject *)__pyx_codeobj__45)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 153, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7cluster_Cluster->tp_dict, __pyx_n_s_cluster_idx, __pyx_t_1) < 0) __PYX_ERR(0, 150, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7cluster_Cluster->tp_dict, __pyx_n_s_cluster_idx, __pyx_t_1) < 0) __PYX_ERR(0, 153, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   PyType_Modified(__pyx_ptype_5freud_7cluster_Cluster);
 
-  /* "freud/cluster.pyx":149
+  /* "freud/cluster.pyx":152
  *         return self.thisptr.getNumParticles()
  * 
  *     @Compute._computed_property("computeClusters")             # <<<<<<<<<<<<<<
  *     def cluster_idx(self):
  *         cdef unsigned int n_particles = self.thisptr.getNumParticles()
  */
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_6common_Compute), __pyx_n_s_computed_property); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 149, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_6common_Compute), __pyx_n_s_computed_property); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 152, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_5 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_4))) {
@@ -25615,18 +25766,18 @@ if (!__Pyx_RefNanny) {
   }
   __pyx_t_3 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_4, __pyx_t_5, __pyx_n_s_computeClusters) : __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_n_s_computeClusters);
   __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 149, __pyx_L1_error)
+  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 152, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "freud/cluster.pyx":150
+  /* "freud/cluster.pyx":153
  * 
  *     @Compute._computed_property("computeClusters")
  *     def cluster_idx(self):             # <<<<<<<<<<<<<<
  *         cdef unsigned int n_particles = self.thisptr.getNumParticles()
  *         cdef const unsigned int[::1] cluster_idx = \
  */
-  __Pyx_GetNameInClass(__pyx_t_4, (PyObject *)__pyx_ptype_5freud_7cluster_Cluster, __pyx_n_s_cluster_idx); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 150, __pyx_L1_error)
+  __Pyx_GetNameInClass(__pyx_t_4, (PyObject *)__pyx_ptype_5freud_7cluster_Cluster, __pyx_n_s_cluster_idx); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 153, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_5 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -25641,34 +25792,34 @@ if (!__Pyx_RefNanny) {
   __pyx_t_1 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_5, __pyx_t_4) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 149, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 152, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7cluster_Cluster->tp_dict, __pyx_n_s_cluster_idx, __pyx_t_1) < 0) __PYX_ERR(0, 150, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7cluster_Cluster->tp_dict, __pyx_n_s_cluster_idx, __pyx_t_1) < 0) __PYX_ERR(0, 153, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   PyType_Modified(__pyx_ptype_5freud_7cluster_Cluster);
 
-  /* "freud/cluster.pyx":157
+  /* "freud/cluster.pyx":160
  * 
  *     @Compute._computed_property("computeClusterMembership")
  *     def cluster_keys(self):             # <<<<<<<<<<<<<<
  *         cluster_keys = self.thisptr.getClusterKeys()
  *         return cluster_keys
  */
-  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7cluster_7Cluster_15cluster_keys, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Cluster_cluster_keys, NULL, __pyx_n_s_freud_cluster, __pyx_d, ((PyObject *)__pyx_codeobj__47)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 157, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7cluster_7Cluster_15cluster_keys, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Cluster_cluster_keys, NULL, __pyx_n_s_freud_cluster, __pyx_d, ((PyObject *)__pyx_codeobj__47)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 160, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7cluster_Cluster->tp_dict, __pyx_n_s_cluster_keys, __pyx_t_1) < 0) __PYX_ERR(0, 157, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7cluster_Cluster->tp_dict, __pyx_n_s_cluster_keys, __pyx_t_1) < 0) __PYX_ERR(0, 160, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   PyType_Modified(__pyx_ptype_5freud_7cluster_Cluster);
 
-  /* "freud/cluster.pyx":156
+  /* "freud/cluster.pyx":159
  *         return np.asarray(cluster_idx)
  * 
  *     @Compute._computed_property("computeClusterMembership")             # <<<<<<<<<<<<<<
  *     def cluster_keys(self):
  *         cluster_keys = self.thisptr.getClusterKeys()
  */
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_6common_Compute), __pyx_n_s_computed_property); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 156, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_6common_Compute), __pyx_n_s_computed_property); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 159, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_5 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_4))) {
@@ -25682,18 +25833,18 @@ if (!__Pyx_RefNanny) {
   }
   __pyx_t_3 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_4, __pyx_t_5, __pyx_n_s_computeClusterMembership) : __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_n_s_computeClusterMembership);
   __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 156, __pyx_L1_error)
+  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 159, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "freud/cluster.pyx":157
+  /* "freud/cluster.pyx":160
  * 
  *     @Compute._computed_property("computeClusterMembership")
  *     def cluster_keys(self):             # <<<<<<<<<<<<<<
  *         cluster_keys = self.thisptr.getClusterKeys()
  *         return cluster_keys
  */
-  __Pyx_GetNameInClass(__pyx_t_4, (PyObject *)__pyx_ptype_5freud_7cluster_Cluster, __pyx_n_s_cluster_keys); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 157, __pyx_L1_error)
+  __Pyx_GetNameInClass(__pyx_t_4, (PyObject *)__pyx_ptype_5freud_7cluster_Cluster, __pyx_n_s_cluster_keys); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 160, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_5 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -25708,34 +25859,34 @@ if (!__Pyx_RefNanny) {
   __pyx_t_1 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_5, __pyx_t_4) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 156, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 159, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7cluster_Cluster->tp_dict, __pyx_n_s_cluster_keys, __pyx_t_1) < 0) __PYX_ERR(0, 157, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7cluster_Cluster->tp_dict, __pyx_n_s_cluster_keys, __pyx_t_1) < 0) __PYX_ERR(0, 160, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   PyType_Modified(__pyx_ptype_5freud_7cluster_Cluster);
 
-  /* "freud/cluster.pyx":171
+  /* "freud/cluster.pyx":174
  * 
  *     @Compute._computed_method("computeClusters")
  *     def plot(self, ax=None):             # <<<<<<<<<<<<<<
  *         """Plot cluster distribution.
  * 
  */
-  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7cluster_7Cluster_21plot, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Cluster_plot, NULL, __pyx_n_s_freud_cluster, __pyx_d, ((PyObject *)__pyx_codeobj__49)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 171, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7cluster_7Cluster_21plot, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Cluster_plot, NULL, __pyx_n_s_freud_cluster, __pyx_d, ((PyObject *)__pyx_codeobj__49)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 174, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7cluster_Cluster->tp_dict, __pyx_n_s_plot, __pyx_t_1) < 0) __PYX_ERR(0, 171, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7cluster_Cluster->tp_dict, __pyx_n_s_plot, __pyx_t_1) < 0) __PYX_ERR(0, 174, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   PyType_Modified(__pyx_ptype_5freud_7cluster_Cluster);
 
-  /* "freud/cluster.pyx":170
+  /* "freud/cluster.pyx":173
  *         return repr(self)
  * 
  *     @Compute._computed_method("computeClusters")             # <<<<<<<<<<<<<<
  *     def plot(self, ax=None):
  *         """Plot cluster distribution.
  */
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_6common_Compute), __pyx_n_s_computed_method); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 170, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_6common_Compute), __pyx_n_s_computed_method); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 173, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_5 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_4))) {
@@ -25749,18 +25900,18 @@ if (!__Pyx_RefNanny) {
   }
   __pyx_t_3 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_4, __pyx_t_5, __pyx_n_s_computeClusters) : __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_n_s_computeClusters);
   __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 170, __pyx_L1_error)
+  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 173, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "freud/cluster.pyx":171
+  /* "freud/cluster.pyx":174
  * 
  *     @Compute._computed_method("computeClusters")
  *     def plot(self, ax=None):             # <<<<<<<<<<<<<<
  *         """Plot cluster distribution.
  * 
  */
-  __Pyx_GetNameInClass(__pyx_t_4, (PyObject *)__pyx_ptype_5freud_7cluster_Cluster, __pyx_n_s_plot); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 171, __pyx_L1_error)
+  __Pyx_GetNameInClass(__pyx_t_4, (PyObject *)__pyx_ptype_5freud_7cluster_Cluster, __pyx_n_s_plot); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 174, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_5 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -25775,23 +25926,23 @@ if (!__Pyx_RefNanny) {
   __pyx_t_1 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_5, __pyx_t_4) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 170, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 173, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7cluster_Cluster->tp_dict, __pyx_n_s_plot, __pyx_t_1) < 0) __PYX_ERR(0, 171, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7cluster_Cluster->tp_dict, __pyx_n_s_plot, __pyx_t_1) < 0) __PYX_ERR(0, 174, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   PyType_Modified(__pyx_ptype_5freud_7cluster_Cluster);
 
-  /* "freud/cluster.pyx":191
+  /* "freud/cluster.pyx":194
  *                                       num_cluster_to_plot=10, ax=ax)
  * 
  *     def _repr_png_(self):             # <<<<<<<<<<<<<<
  *         import plot
  *         try:
  */
-  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7cluster_7Cluster_23_repr_png_, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Cluster__repr_png, NULL, __pyx_n_s_freud_cluster, __pyx_d, ((PyObject *)__pyx_codeobj__51)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 191, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7cluster_7Cluster_23_repr_png_, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_Cluster__repr_png, NULL, __pyx_n_s_freud_cluster, __pyx_d, ((PyObject *)__pyx_codeobj__51)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 194, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7cluster_Cluster->tp_dict, __pyx_n_s_repr_png, __pyx_t_1) < 0) __PYX_ERR(0, 191, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7cluster_Cluster->tp_dict, __pyx_n_s_repr_png, __pyx_t_1) < 0) __PYX_ERR(0, 194, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   PyType_Modified(__pyx_ptype_5freud_7cluster_Cluster);
 
@@ -25816,27 +25967,27 @@ if (!__Pyx_RefNanny) {
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_setstate_cython, __pyx_t_1) < 0) __PYX_ERR(1, 3, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "freud/cluster.pyx":250
+  /* "freud/cluster.pyx":253
  * 
  *     @Compute._compute("computeProperties")
  *     def computeProperties(self, points, cluster_idx, box=None):             # <<<<<<<<<<<<<<
  *         R"""Compute properties of the point clusters.
  *         Loops over all points in the given array and determines the center of
  */
-  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7cluster_17ClusterProperties_5computeProperties, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_ClusterProperties_computePropert, NULL, __pyx_n_s_freud_cluster, __pyx_d, ((PyObject *)__pyx_codeobj__57)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 250, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7cluster_17ClusterProperties_5computeProperties, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_ClusterProperties_computePropert, NULL, __pyx_n_s_freud_cluster, __pyx_d, ((PyObject *)__pyx_codeobj__57)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 253, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7cluster_ClusterProperties->tp_dict, __pyx_n_s_computeProperties, __pyx_t_1) < 0) __PYX_ERR(0, 250, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7cluster_ClusterProperties->tp_dict, __pyx_n_s_computeProperties, __pyx_t_1) < 0) __PYX_ERR(0, 253, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   PyType_Modified(__pyx_ptype_5freud_7cluster_ClusterProperties);
 
-  /* "freud/cluster.pyx":249
+  /* "freud/cluster.pyx":252
  *         return self.m_box
  * 
  *     @Compute._compute("computeProperties")             # <<<<<<<<<<<<<<
  *     def computeProperties(self, points, cluster_idx, box=None):
  *         R"""Compute properties of the point clusters.
  */
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_6common_Compute), __pyx_n_s_compute); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 249, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_6common_Compute), __pyx_n_s_compute); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 252, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_5 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_4))) {
@@ -25850,18 +26001,18 @@ if (!__Pyx_RefNanny) {
   }
   __pyx_t_3 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_4, __pyx_t_5, __pyx_n_s_computeProperties) : __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_n_s_computeProperties);
   __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 249, __pyx_L1_error)
+  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 252, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "freud/cluster.pyx":250
+  /* "freud/cluster.pyx":253
  * 
  *     @Compute._compute("computeProperties")
  *     def computeProperties(self, points, cluster_idx, box=None):             # <<<<<<<<<<<<<<
  *         R"""Compute properties of the point clusters.
  *         Loops over all points in the given array and determines the center of
  */
-  __Pyx_GetNameInClass(__pyx_t_4, (PyObject *)__pyx_ptype_5freud_7cluster_ClusterProperties, __pyx_n_s_computeProperties); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 250, __pyx_L1_error)
+  __Pyx_GetNameInClass(__pyx_t_4, (PyObject *)__pyx_ptype_5freud_7cluster_ClusterProperties, __pyx_n_s_computeProperties); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 253, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_5 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -25876,34 +26027,34 @@ if (!__Pyx_RefNanny) {
   __pyx_t_1 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_5, __pyx_t_4) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 249, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 252, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7cluster_ClusterProperties->tp_dict, __pyx_n_s_computeProperties, __pyx_t_1) < 0) __PYX_ERR(0, 250, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7cluster_ClusterProperties->tp_dict, __pyx_n_s_computeProperties, __pyx_t_1) < 0) __PYX_ERR(0, 253, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   PyType_Modified(__pyx_ptype_5freud_7cluster_ClusterProperties);
 
-  /* "freud/cluster.pyx":286
+  /* "freud/cluster.pyx":289
  * 
  *     @Compute._computed_property("computeProperties")
  *     def num_clusters(self):             # <<<<<<<<<<<<<<
  *         return self.thisptr.getNumClusters()
  * 
  */
-  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7cluster_17ClusterProperties_7num_clusters, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_ClusterProperties_num_clusters, NULL, __pyx_n_s_freud_cluster, __pyx_d, ((PyObject *)__pyx_codeobj__59)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 286, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7cluster_17ClusterProperties_7num_clusters, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_ClusterProperties_num_clusters, NULL, __pyx_n_s_freud_cluster, __pyx_d, ((PyObject *)__pyx_codeobj__59)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 289, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7cluster_ClusterProperties->tp_dict, __pyx_n_s_num_clusters, __pyx_t_1) < 0) __PYX_ERR(0, 286, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7cluster_ClusterProperties->tp_dict, __pyx_n_s_num_clusters, __pyx_t_1) < 0) __PYX_ERR(0, 289, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   PyType_Modified(__pyx_ptype_5freud_7cluster_ClusterProperties);
 
-  /* "freud/cluster.pyx":285
+  /* "freud/cluster.pyx":288
  *         return self
  * 
  *     @Compute._computed_property("computeProperties")             # <<<<<<<<<<<<<<
  *     def num_clusters(self):
  *         return self.thisptr.getNumClusters()
  */
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_6common_Compute), __pyx_n_s_computed_property); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 285, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_6common_Compute), __pyx_n_s_computed_property); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 288, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_5 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_4))) {
@@ -25917,18 +26068,18 @@ if (!__Pyx_RefNanny) {
   }
   __pyx_t_3 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_4, __pyx_t_5, __pyx_n_s_computeProperties) : __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_n_s_computeProperties);
   __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 285, __pyx_L1_error)
+  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 288, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "freud/cluster.pyx":286
+  /* "freud/cluster.pyx":289
  * 
  *     @Compute._computed_property("computeProperties")
  *     def num_clusters(self):             # <<<<<<<<<<<<<<
  *         return self.thisptr.getNumClusters()
  * 
  */
-  __Pyx_GetNameInClass(__pyx_t_4, (PyObject *)__pyx_ptype_5freud_7cluster_ClusterProperties, __pyx_n_s_num_clusters); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 286, __pyx_L1_error)
+  __Pyx_GetNameInClass(__pyx_t_4, (PyObject *)__pyx_ptype_5freud_7cluster_ClusterProperties, __pyx_n_s_num_clusters); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 289, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_5 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -25943,34 +26094,34 @@ if (!__Pyx_RefNanny) {
   __pyx_t_1 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_5, __pyx_t_4) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 285, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 288, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7cluster_ClusterProperties->tp_dict, __pyx_n_s_num_clusters, __pyx_t_1) < 0) __PYX_ERR(0, 286, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7cluster_ClusterProperties->tp_dict, __pyx_n_s_num_clusters, __pyx_t_1) < 0) __PYX_ERR(0, 289, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   PyType_Modified(__pyx_ptype_5freud_7cluster_ClusterProperties);
 
-  /* "freud/cluster.pyx":290
+  /* "freud/cluster.pyx":293
  * 
  *     @Compute._computed_property("computeProperties")
  *     def cluster_COM(self):             # <<<<<<<<<<<<<<
  *         cdef unsigned int n_clusters = self.thisptr.getNumClusters()
  *         if not n_clusters:
  */
-  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7cluster_17ClusterProperties_9cluster_COM, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_ClusterProperties_cluster_COM, NULL, __pyx_n_s_freud_cluster, __pyx_d, ((PyObject *)__pyx_codeobj__61)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 290, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7cluster_17ClusterProperties_9cluster_COM, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_ClusterProperties_cluster_COM, NULL, __pyx_n_s_freud_cluster, __pyx_d, ((PyObject *)__pyx_codeobj__61)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 293, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7cluster_ClusterProperties->tp_dict, __pyx_n_s_cluster_COM, __pyx_t_1) < 0) __PYX_ERR(0, 290, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7cluster_ClusterProperties->tp_dict, __pyx_n_s_cluster_COM, __pyx_t_1) < 0) __PYX_ERR(0, 293, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   PyType_Modified(__pyx_ptype_5freud_7cluster_ClusterProperties);
 
-  /* "freud/cluster.pyx":289
+  /* "freud/cluster.pyx":292
  *         return self.thisptr.getNumClusters()
  * 
  *     @Compute._computed_property("computeProperties")             # <<<<<<<<<<<<<<
  *     def cluster_COM(self):
  *         cdef unsigned int n_clusters = self.thisptr.getNumClusters()
  */
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_6common_Compute), __pyx_n_s_computed_property); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 289, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_6common_Compute), __pyx_n_s_computed_property); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 292, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_5 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_4))) {
@@ -25984,18 +26135,18 @@ if (!__Pyx_RefNanny) {
   }
   __pyx_t_3 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_4, __pyx_t_5, __pyx_n_s_computeProperties) : __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_n_s_computeProperties);
   __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 289, __pyx_L1_error)
+  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 292, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "freud/cluster.pyx":290
+  /* "freud/cluster.pyx":293
  * 
  *     @Compute._computed_property("computeProperties")
  *     def cluster_COM(self):             # <<<<<<<<<<<<<<
  *         cdef unsigned int n_clusters = self.thisptr.getNumClusters()
  *         if not n_clusters:
  */
-  __Pyx_GetNameInClass(__pyx_t_4, (PyObject *)__pyx_ptype_5freud_7cluster_ClusterProperties, __pyx_n_s_cluster_COM); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 290, __pyx_L1_error)
+  __Pyx_GetNameInClass(__pyx_t_4, (PyObject *)__pyx_ptype_5freud_7cluster_ClusterProperties, __pyx_n_s_cluster_COM); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 293, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_5 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -26010,34 +26161,34 @@ if (!__Pyx_RefNanny) {
   __pyx_t_1 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_5, __pyx_t_4) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 289, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 292, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7cluster_ClusterProperties->tp_dict, __pyx_n_s_cluster_COM, __pyx_t_1) < 0) __PYX_ERR(0, 290, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7cluster_ClusterProperties->tp_dict, __pyx_n_s_cluster_COM, __pyx_t_1) < 0) __PYX_ERR(0, 293, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   PyType_Modified(__pyx_ptype_5freud_7cluster_ClusterProperties);
 
-  /* "freud/cluster.pyx":300
+  /* "freud/cluster.pyx":303
  * 
  *     @Compute._computed_property("computeProperties")
  *     def cluster_G(self):             # <<<<<<<<<<<<<<
  *         cdef unsigned int n_clusters = self.thisptr.getNumClusters()
  *         if not n_clusters:
  */
-  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7cluster_17ClusterProperties_11cluster_G, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_ClusterProperties_cluster_G, NULL, __pyx_n_s_freud_cluster, __pyx_d, ((PyObject *)__pyx_codeobj__63)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 300, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7cluster_17ClusterProperties_11cluster_G, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_ClusterProperties_cluster_G, NULL, __pyx_n_s_freud_cluster, __pyx_d, ((PyObject *)__pyx_codeobj__63)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 303, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7cluster_ClusterProperties->tp_dict, __pyx_n_s_cluster_G, __pyx_t_1) < 0) __PYX_ERR(0, 300, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7cluster_ClusterProperties->tp_dict, __pyx_n_s_cluster_G, __pyx_t_1) < 0) __PYX_ERR(0, 303, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   PyType_Modified(__pyx_ptype_5freud_7cluster_ClusterProperties);
 
-  /* "freud/cluster.pyx":299
+  /* "freud/cluster.pyx":302
  *         return np.asarray(cluster_COM)
  * 
  *     @Compute._computed_property("computeProperties")             # <<<<<<<<<<<<<<
  *     def cluster_G(self):
  *         cdef unsigned int n_clusters = self.thisptr.getNumClusters()
  */
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_6common_Compute), __pyx_n_s_computed_property); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 299, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_6common_Compute), __pyx_n_s_computed_property); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 302, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_5 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_4))) {
@@ -26051,18 +26202,18 @@ if (!__Pyx_RefNanny) {
   }
   __pyx_t_3 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_4, __pyx_t_5, __pyx_n_s_computeProperties) : __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_n_s_computeProperties);
   __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 299, __pyx_L1_error)
+  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 302, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "freud/cluster.pyx":300
+  /* "freud/cluster.pyx":303
  * 
  *     @Compute._computed_property("computeProperties")
  *     def cluster_G(self):             # <<<<<<<<<<<<<<
  *         cdef unsigned int n_clusters = self.thisptr.getNumClusters()
  *         if not n_clusters:
  */
-  __Pyx_GetNameInClass(__pyx_t_4, (PyObject *)__pyx_ptype_5freud_7cluster_ClusterProperties, __pyx_n_s_cluster_G); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 300, __pyx_L1_error)
+  __Pyx_GetNameInClass(__pyx_t_4, (PyObject *)__pyx_ptype_5freud_7cluster_ClusterProperties, __pyx_n_s_cluster_G); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 303, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_5 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -26077,34 +26228,34 @@ if (!__Pyx_RefNanny) {
   __pyx_t_1 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_5, __pyx_t_4) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 299, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 302, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7cluster_ClusterProperties->tp_dict, __pyx_n_s_cluster_G, __pyx_t_1) < 0) __PYX_ERR(0, 300, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7cluster_ClusterProperties->tp_dict, __pyx_n_s_cluster_G, __pyx_t_1) < 0) __PYX_ERR(0, 303, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   PyType_Modified(__pyx_ptype_5freud_7cluster_ClusterProperties);
 
-  /* "freud/cluster.pyx":310
+  /* "freud/cluster.pyx":313
  * 
  *     @Compute._computed_property("computeProperties")
  *     def cluster_sizes(self):             # <<<<<<<<<<<<<<
  *         cdef unsigned int n_clusters = self.thisptr.getNumClusters()
  *         if not n_clusters:
  */
-  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7cluster_17ClusterProperties_13cluster_sizes, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_ClusterProperties_cluster_sizes, NULL, __pyx_n_s_freud_cluster, __pyx_d, ((PyObject *)__pyx_codeobj__65)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 310, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_5freud_7cluster_17ClusterProperties_13cluster_sizes, __Pyx_CYFUNCTION_CCLASS, __pyx_n_s_ClusterProperties_cluster_sizes, NULL, __pyx_n_s_freud_cluster, __pyx_d, ((PyObject *)__pyx_codeobj__65)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 313, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7cluster_ClusterProperties->tp_dict, __pyx_n_s_cluster_sizes, __pyx_t_1) < 0) __PYX_ERR(0, 310, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7cluster_ClusterProperties->tp_dict, __pyx_n_s_cluster_sizes, __pyx_t_1) < 0) __PYX_ERR(0, 313, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   PyType_Modified(__pyx_ptype_5freud_7cluster_ClusterProperties);
 
-  /* "freud/cluster.pyx":309
+  /* "freud/cluster.pyx":312
  *         return np.asarray(cluster_G)
  * 
  *     @Compute._computed_property("computeProperties")             # <<<<<<<<<<<<<<
  *     def cluster_sizes(self):
  *         cdef unsigned int n_clusters = self.thisptr.getNumClusters()
  */
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_6common_Compute), __pyx_n_s_computed_property); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 309, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_ptype_5freud_6common_Compute), __pyx_n_s_computed_property); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 312, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_5 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_4))) {
@@ -26118,18 +26269,18 @@ if (!__Pyx_RefNanny) {
   }
   __pyx_t_3 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_4, __pyx_t_5, __pyx_n_s_computeProperties) : __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_n_s_computeProperties);
   __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 309, __pyx_L1_error)
+  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 312, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "freud/cluster.pyx":310
+  /* "freud/cluster.pyx":313
  * 
  *     @Compute._computed_property("computeProperties")
  *     def cluster_sizes(self):             # <<<<<<<<<<<<<<
  *         cdef unsigned int n_clusters = self.thisptr.getNumClusters()
  *         if not n_clusters:
  */
-  __Pyx_GetNameInClass(__pyx_t_4, (PyObject *)__pyx_ptype_5freud_7cluster_ClusterProperties, __pyx_n_s_cluster_sizes); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 310, __pyx_L1_error)
+  __Pyx_GetNameInClass(__pyx_t_4, (PyObject *)__pyx_ptype_5freud_7cluster_ClusterProperties, __pyx_n_s_cluster_sizes); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 313, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_5 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -26144,10 +26295,10 @@ if (!__Pyx_RefNanny) {
   __pyx_t_1 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_5, __pyx_t_4) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 309, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 312, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7cluster_ClusterProperties->tp_dict, __pyx_n_s_cluster_sizes, __pyx_t_1) < 0) __PYX_ERR(0, 310, __pyx_L1_error)
+  if (PyDict_SetItem((PyObject *)__pyx_ptype_5freud_7cluster_ClusterProperties->tp_dict, __pyx_n_s_cluster_sizes, __pyx_t_1) < 0) __PYX_ERR(0, 313, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   PyType_Modified(__pyx_ptype_5freud_7cluster_ClusterProperties);
 
@@ -29434,6 +29585,11 @@ static CYTHON_INLINE PyObject* __Pyx_PyInt_From_long(long value) {
     }
 }
 
+/* MemviewDtypeToObject */
+static CYTHON_INLINE PyObject *__pyx_memview_get_float__const__(const char *itemp) {
+    return (PyObject *) PyFloat_FromDouble(*(float const  *) itemp);
+}
+
 /* CIntToPy */
 static CYTHON_INLINE PyObject* __Pyx_PyInt_From_unsigned_int(unsigned int value) {
     const unsigned int neg_one = (unsigned int) ((unsigned int) 0 - (unsigned int) 1), const_zero = (unsigned int) 0;
@@ -29468,11 +29624,6 @@ static CYTHON_INLINE PyObject* __Pyx_PyInt_From_unsigned_int(unsigned int value)
 /* MemviewDtypeToObject */
 static CYTHON_INLINE PyObject *__pyx_memview_get_unsigned_int__const__(const char *itemp) {
     return (PyObject *) __Pyx_PyInt_From_unsigned_int(*(unsigned int const  *) itemp);
-}
-
-/* MemviewDtypeToObject */
-static CYTHON_INLINE PyObject *__pyx_memview_get_float__const__(const char *itemp) {
-    return (PyObject *) PyFloat_FromDouble(*(float const  *) itemp);
 }
 
 /* Declarations */

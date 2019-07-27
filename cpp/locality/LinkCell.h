@@ -7,6 +7,7 @@
 #include <cassert>
 #include <memory>
 #include <tbb/concurrent_hash_map.h>
+#include <unordered_set>
 #include <vector>
 
 #include "Box.h"
@@ -376,6 +377,23 @@ public:
         return m_cell_index;
     }
 
+    //! Compute cell id from cell coordinates
+    unsigned int getCellIndex(const vec3<int> cellCoord) const
+    {
+        int w = (int) getCellIndexer().getW();
+        int h = (int) getCellIndexer().getH();
+        int d = (int) getCellIndexer().getD();
+
+        int x = cellCoord.x % w;
+        x += (x < 0 ? w : 0);
+        int y = cellCoord.y % h;
+        y += (y < 0 ? h : 0);
+        int z = cellCoord.z % d;
+        z += (z < 0 ? d : 0);
+
+        return getCellIndexer()(x, y, z);
+    }
+
     //! Get the number of cells
     unsigned int getNumCells() const
     {
@@ -502,6 +520,8 @@ protected:
         m_neigh_cell_iter; //!< The shell iterator indicating how far out we're currently searching.
     LinkCell::iteratorcell
         m_cell_iter; //!< The cell iterator indicating which cell we're currently searching.
+    std::unordered_set<unsigned int>
+        m_searched_cells; //!< Set of cells that have already been searched by the cell shell iterator.
 };
 
 //! Iterator that gets nearest neighbors from LinkCell tree structures
@@ -559,7 +579,7 @@ public:
     virtual std::shared_ptr<NeighborQueryIterator> query(unsigned int idx);
 
 protected:
-    float m_r; //!< Search ball cutoff distance
+    float m_r;                //!< Search ball cutoff distance
     int m_extra_search_width; //!< The extra shell distance to search, always 0 or 1.
 };
 }; }; // end namespace freud::locality
