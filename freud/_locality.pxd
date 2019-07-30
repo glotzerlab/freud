@@ -148,11 +148,5 @@ cdef extern from "VoroPlusPlus.h" namespace "freud::locality":
         void compute(
             const freud._box.Box &,
             const vec3[double]*,
-            const int*,
-            const int*,
-            unsigned int,
-            unsigned int,
-            const int*,
-            const vec3[double]*,
-            const int*) nogil except +
+            const unsigned int) nogil except +
         NeighborList * getNeighborList()

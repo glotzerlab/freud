@@ -7,6 +7,7 @@
 #include "Box.h"
 #include "VectorMath.h"
 #include "NeighborList.h"
+#include <voro++/src/voro++.hh>
 
 namespace freud { namespace locality {
 
@@ -29,10 +30,7 @@ public:
     // default constructor
     VoroPlusPlus();
 
-    void compute(const box::Box &box, const vec3<double>* vertices,
-        const int* ridge_points, const int* ridge_vertices,
-        unsigned int n_ridges, unsigned int N, const int* expanded_ids,
-        const vec3<double>* expanded_points, const int* ridge_vertex_indices);
+    void compute(const box::Box &box, const vec3<double>* points, unsigned int N);
 
     NeighborList *getNeighborList()
     {
@@ -42,6 +40,7 @@ public:
 private:
     box::Box m_box;
     NeighborList m_neighbor_list; //!< Stored neighbor list
+    std::vector<std::vector<vec3<double>>> m_polytopes; //!< Voronoi polytopes
 
 };
 }; }; // end namespace freud::locality

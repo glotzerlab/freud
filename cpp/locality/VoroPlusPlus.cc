@@ -8,7 +8,6 @@
 #include <vector>
 
 #include "VoroPlusPlus.h"
-#include <voro++/src/voro++.hh>
 
 #if defined _WIN32
 #undef min // std::min clashes with a Windows header
@@ -40,35 +39,145 @@ bool compareNeighborPairs(const VoroPlusPlusBond &n1, const VoroPlusPlusBond &n2
 }
 
 typedef tbb::enumerable_thread_specific< std::vector<VoroPlusPlusBond> > BondVector;
+typedef std::vector<VoroPlusPlusBond> SerialBondVector;
 
-void add_valid_bonds(BondVector::reference local_bonds,
-    unsigned int i, unsigned int expanded_i,
-    unsigned int j, unsigned int expanded_j,
-    unsigned int N, float weight, float distance)
-{
-    // Make sure we only add bonds with real particles as the reference
-    if (i < N && distance != 0)
+// Voronoi calculations should be kept in double precision.
+void VoroPlusPlus::compute(const box::Box &box, const vec3<double>* points, unsigned int N)
     {
-        VoroPlusPlusBond nb_ij(expanded_i, expanded_j, weight, distance);
-        local_bonds.emplace_back(nb_ij);
-    }
+        vec3<float> boxLatticeVectors[3];
+        boxLatticeVectors[0] = box.getLatticeVector(0);
+        boxLatticeVectors[1] = box.getLatticeVector(1);
+        if (box.is2D()) {
+            boxLatticeVectors[2] = vec3<float>(0, 0, 1);
+        } else {
+            boxLatticeVectors[2] = box.getLatticeVector(2);
+        }
+        voro::container_periodic container(
+            boxLatticeVectors[0].x,
+            boxLatticeVectors[1].x,
+            boxLatticeVectors[1].y,
+            boxLatticeVectors[2].x,
+            boxLatticeVectors[2].y,
+            boxLatticeVectors[2].z,
+            3, 3, 3, 3
+        );
 
-    if (j < N && distance != 0)
-    {
-        VoroPlusPlusBond nb_ji(expanded_j, expanded_i, weight, distance);
-        local_bonds.emplace_back(nb_ji);
-    }
-}
+        for (size_t pid = 0; pid < N; pid++) {
+            container.put(pid, points[pid].x, points[pid].y, points[pid].z);
+        }
 
-// vertices is passed from scipy.spatial.Voronoi. It must keep in double precision.
-// Any calculation related to vertices coords should also keep in double precision.
-void VoroPlusPlus::compute(const box::Box &box, const vec3<double>* vertices,
-    const int* ridge_points, const int* ridge_vertices, unsigned int n_ridges,
-    unsigned int N, const int* expanded_ids, const vec3<double>* expanded_points,
-    const int* ridge_vertex_indices)
-    {
-        m_box = box;
+        voro::voronoicell_neighbor cell;
+        voro::c_loop_all_periodic voronoi_loop(container);
+        std::vector<double> face_areas;
+        std::vector<int> face_orders;
+        std::vector<int> face_vertices;
+        std::vector<int> neighbors;
+        std::vector<double> normals;
+        std::vector<double> vertices;
+        SerialBondVector bonds;
+        bool print_loud = false;
 
+        if (voronoi_loop.start()) {
+            do {
+                container.compute_cell(cell, voronoi_loop);
+
+                // Get id and position of current particle
+                int pid(voronoi_loop.pid());
+                vec3<double> ri(
+                    voronoi_loop.x(),
+                    voronoi_loop.y(),
+                    voronoi_loop.z()
+                );
+
+                // Get Voronoi cell properties
+                cell.face_areas(face_areas);
+                cell.face_orders(face_orders);
+                cell.face_vertices(face_vertices);
+                cell.neighbors(neighbors);
+                cell.normals(normals);
+                cell.vertices(vertices);
+
+                size_t neighbor_counter(0);
+                for (auto neighbor_iterator = neighbors.begin(); neighbor_iterator != neighbors.end(); neighbor_iterator++) {
+                    int neighbor_id = *neighbor_iterator;
+                    float weight(face_areas[neighbor_counter]);
+
+                    // Get the normal to the current face
+                    vec3<double> normal(
+                        normals[3*neighbor_counter],
+                        normals[3*neighbor_counter+1],
+                        normals[3*neighbor_counter+2]
+                    );
+
+                    // Find a vertex on the current face:
+                    //
+                    // Leverages structure of face_vertices, which has a count
+                    // of the number of vertices for that face followed by the
+                    // corresponding vertex ids for each face.
+                    //
+                    // First, skip through the previous faces
+                    int face_vertices_index = 0;
+                    for (int face_counter = 0; face_counter < neighbor_counter; face_counter++) {
+                        face_vertices_index += face_vertices[face_vertices_index] + 1;
+                    }
+
+                    // Get the first vertex id on this face
+                    int vertex_id_on_face = face_vertices[face_vertices_index+1];
+
+                    // Project the vertex vector onto the face normal to get a
+                    // distance from ri to the face, then double it to get the
+                    // distance to the neighbor particle
+                    vec3<double> rv(
+                        vertices[3*vertex_id_on_face],
+                        vertices[3*vertex_id_on_face+1],
+                        vertices[3*vertex_id_on_face+2]
+                    );
+                    vec3<double> riv(rv - ri);
+                    float dist(2*dot(riv, normal));
+
+
+                    neighbor_counter++;
+                    printf("Bond from %i to %i, weight %f, distance %f, normal (%f, %f, %f)\n", pid, neighbor_id, weight, dist, normal.x, normal.y, normal.z);
+                    printf("Vertex %i on face, ri (%f, %f, %f), rv (%f, %f, %f)\n", vertex_id_on_face, ri.x, ri.y, ri.z, rv.x, rv.y, rv.z);
+                }
+
+                if (print_loud) {
+                    // Print id and position
+                    printf("\n\npid, xyz: ");
+                    printf("%i (%f, %f, %f)\n", pid, ri.x, ri.y, ri.z);
+
+                    // Print normals
+                    printf("Normals: ");
+                    for (std::vector<double>::iterator nn = normals.begin(); nn != normals.end(); nn++) {
+                        printf("%f ", *nn);
+                    }
+                    printf("\n");
+
+                    // Print neighbors
+                    printf("Neighbors: ");
+                    for (std::vector<int>::iterator nn = neighbors.begin(); nn != neighbors.end(); nn++) {
+                        printf("%i ", *nn);
+                    }
+                    printf("\n");
+
+                    // Print face areas
+                    printf("Face areas: ");
+                    for (std::vector<double>::iterator fa = face_areas.begin(); fa != face_areas.end(); fa++) {
+                        printf("%f ", *fa);
+                    }
+                    printf("\n");
+
+                    // Print vertices
+                    printf("Vertices: ");
+                    for (std::vector<double>::iterator vv = vertices.begin(); vv != vertices.end(); vv++) {
+                        printf("%f ", *vv);
+                    }
+                    printf("\n");
+                }
+            } while (voronoi_loop.inc());
+        }
+
+        /*
         // iterate over ridges in parallel
         BondVector bonds;
         tbb::parallel_for(tbb::blocked_range<size_t>(0, n_ridges), [&] (const tbb::blocked_range<size_t> &r) {
@@ -203,6 +312,7 @@ void VoroPlusPlus::compute(const box::Box &box, const vec3<double>* vertices,
                 neighbor_weights[bond] = linear_bonds[bond].weight;
             }
         });
+        */
 
     }
 
