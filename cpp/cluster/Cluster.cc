@@ -8,6 +8,7 @@
 
 #include "Cluster.h"
 #include "NeighborComputeFunctional.h"
+#include "NeighborBond.h"
 #include "dset/dset.h"
 
 using namespace std;
@@ -43,14 +44,14 @@ void Cluster::computeClusters(const freud::locality::NeighborQuery* nq,
 
     freud::locality::loopOverNeighbors(
         nq, points, Np, qargs, nlist,
-        [this, &dj, points](size_t i, size_t j, float dist, float weight) {
+        [this, &dj, points](const freud::locality::NeighborBond& neighbor_bond) {
             // compute r between the two particles
-            if (dist < m_rcut)
+            if (neighbor_bond.distance < m_rcut)
             {
                 // merge the two sets using the disjoint set
-                if (!dj.same(i, j))
+                if (!dj.same(neighbor_bond.ref_id, neighbor_bond.id))
                 {
-                    dj.unite(i, j);
+                    dj.unite(neighbor_bond.ref_id, neighbor_bond.id);
                 }
             }
         });

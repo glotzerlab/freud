@@ -11,6 +11,7 @@
 #include "BondOrder.h"
 #include "Index1D.h"
 #include "NeighborComputeFunctional.h"
+#include "NeighborBond.h"
 
 using namespace std;
 using namespace tbb;
@@ -155,18 +156,18 @@ void BondOrder::accumulate(
     Index2D sa_i = Index2D(m_nbins_t, m_nbins_p);
 
     freud::locality::loopOverNeighbors(neighbor_query, query_points, n_query_points, qargs, nlist, 
-    [=] (size_t i, size_t j, float dist, float weight)
+    [=] (const freud::locality::NeighborBond& neighbor_bond)
     {
-        vec3<float> ref_pos = neighbor_query->getPoints()[i];
-        quat<float>& ref_q = orientations[i];
-        vec3<float> v = m_box.wrap(query_points[j] - ref_pos);
+        vec3<float> ref_pos = neighbor_query->getPoints()[neighbor_bond.ref_id];
+        quat<float>& ref_q = orientations[neighbor_bond.ref_id];
+        vec3<float> v = m_box.wrap(query_points[neighbor_bond.id] - ref_pos);
 
-        quat<float>& q = query_orientations[j];
+        quat<float>& q = query_orientations[neighbor_bond.id];
         if (b_mode == obcd)
         {
             // give bond directions of neighboring particles rotated by the matrix
-            // that takes the orientation of particle j to the orientation of
-            // particle i.
+            // that takes the orientation of particle neighbor_bond.id to the orientation of
+            // particle neighbor_bond.ref_id.
             v = rotate(conj(ref_q), v);
             v = rotate(q, v);
         }

@@ -8,6 +8,7 @@
 #include <emmintrin.h>
 #endif
 
+#include "NeighborBond.h"
 #include "RDF.h"
 
 using namespace std;
@@ -173,11 +174,11 @@ void RDF::accumulate(const freud::locality::NeighborQuery* neighbor_query,
 
     float dr_inv = 1.0f / m_dr;
     accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs, 
-        [=](size_t i, size_t j, float dist, float weight) {
-        if (dist < m_rmax && dist > m_rmin)
+        [=](const freud::locality::NeighborBond& neighbor_bond) {
+        if (neighbor_bond.distance < m_rmax && neighbor_bond.distance > m_rmin)
         {
             // bin that r
-            float binr = (dist - m_rmin) * dr_inv;
+            float binr = (neighbor_bond.distance - m_rmin) * dr_inv;
             // fast float to int conversion with truncation
 #ifdef __SSE2__
             unsigned int bin = _mm_cvtt_ss2si(_mm_load_ss(&binr));

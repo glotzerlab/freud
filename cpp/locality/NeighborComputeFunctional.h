@@ -252,9 +252,7 @@ void loopOverNeighborsIterator(const NeighborQuery* neighbor_query, const vec3<f
     \param qargs Query arguments
     \param nlist Neighbor List. If not NULL, loop over it. Otherwise, use neighbor_query
            appropriately with given qargs.
-    \param cf An object with
-           operator(size_t ref_point_index, size_t point_index,
-               float distance, float weight) as input.
+    \param cf An object with operator(NeighborBond) as input.
 */
 template<typename ComputePairType>
 void loopOverNeighbors(const NeighborQuery* neighbor_query, const vec3<float>* query_points, unsigned int n_query_points,
@@ -275,9 +273,7 @@ void loopOverNeighbors(const NeighborQuery* neighbor_query, const vec3<float>* q
 
 //! Wrapper looping over NeighborList in parallel.
 /*! \param nlist Neighbor List to loop over.
-    \param cf An object with
-           operator(size_t ref_point_index, size_t point_index,
-               float distance, float weight) as input.
+    \param cf An object with operator(NeighborBond) as input.
 */
 template<typename ComputePairType>
 void loopOverNeighborList(const NeighborList* nlist, const ComputePairType& cf, bool parallel)
@@ -291,7 +287,8 @@ void loopOverNeighborList(const NeighborList* nlist, const ComputePairType& cf, 
         {
             size_t point_index(neighbor_list[2 * bond]);
             size_t ref_point_index(neighbor_list[2 * bond + 1]);
-            cf(ref_point_index, point_index, neighbor_distances[bond], neighbor_weights[bond]);
+            const NeighborBond nb(point_index, ref_point_index, neighbor_distances[bond], neighbor_weights[bond]);
+            cf(nb);
         }
     }, parallel);
 }
@@ -301,9 +298,7 @@ void loopOverNeighborList(const NeighborList* nlist, const ComputePairType& cf, 
     \param query_points Points
     \param n_query_points Number of query_points
     \param qargs Query arguments
-    \param cf An object with
-           operator(size_t ref_point_index, size_t point_index,
-               float distance, float weight) as input.
+    \param cf An object with operator(NeighborBond) as input.
 */
 template<typename ComputePairType>
 void loopOverNeighborQuery(const NeighborQuery* neighbor_query, const vec3<float>* query_points,
@@ -351,7 +346,8 @@ void loopOverNeighborQuery(const NeighborQuery* neighbor_query, const vec3<float
                 // being same set of points
                 if (!qargs.exclude_ii || i != np.ref_id)
                 {
-                    cf(np.ref_id, i, np.distance, np.weight);
+                    const NeighborBond nb(i, np.ref_id, np.distance, np.weight);
+                    cf(nb);
                 }
                 np = it->next();
             }
