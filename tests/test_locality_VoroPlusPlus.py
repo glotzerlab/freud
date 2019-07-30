@@ -42,14 +42,14 @@ class TestVoroPlusPlus(unittest.TestCase):
              [1, 0, 0], [1, 1, 0], [1, 2, 0],
              [2, 0, 0], [2, 1, 0], [2, 2, 0]]).astype(np.float64)
         vor.compute(box, positions)
-        polytope_centers = set(tuple(point)
-                               for point in vor.polytopes[0].tolist())
-        check_centers = set([(1.5, 1.5, 0), (0.5, 1.5, 0),
-                             (0.5, 0.5, 0), (1.5, 0.5, 0)])
-        self.assertEqual(polytope_centers, check_centers)
+        center_polytope = sort_rounded_xyz_array(vor.polytopes[4])
+        expected_polytope = sort_rounded_xyz_array(
+            [[1.5, 1.5, 0], [0.5, 1.5, 0], [0.5, 0.5, 0], [1.5, 0.5, 0]])
+        npt.assert_almost_equal(center_polytope, expected_polytope)
 
         # # Verify the cell areas
-        npt.assert_equal(vor.volumes, [1])
+        npt.assert_almost_equal(vor.volumes[4], 1)
+        npt.assert_almost_equal(np.sum(vor.volumes), box.volume)
 
     def test_voronoi_tess_3d(self):
         # Test that the voronoi polytope works for a 3D system
@@ -68,15 +68,17 @@ class TestVoroPlusPlus(unittest.TestCase):
              [1, 0, 2], [1, 1, 2], [1, 2, 2],
              [2, 0, 2], [2, 1, 2], [2, 2, 2]]).astype(np.float64)
         vor.compute(box, positions)
-        polytope_centers = set(tuple(point)
-                               for point in vor.polytopes[0].tolist())
-        check_centers = set([(1.5, 1.5, 1.5), (1.5, 0.5, 1.5), (1.5, 0.5, 0.5),
-                             (1.5, 1.5, 0.5), (0.5, 0.5, 0.5), (0.5, 0.5, 1.5),
-                             (0.5, 1.5, 0.5), (0.5, 1.5, 1.5)])
-        self.assertEqual(polytope_centers, check_centers)
+
+        center_polytope = sort_rounded_xyz_array(vor.polytopes[13])
+        expected_polytope = sort_rounded_xyz_array(
+            [[1.5, 1.5, 1.5], [1.5, 0.5, 1.5], [1.5, 0.5, 0.5],
+             [1.5, 1.5, 0.5], [0.5, 0.5, 0.5], [0.5, 0.5, 1.5],
+             [0.5, 1.5, 0.5], [0.5, 1.5, 1.5]])
+        npt.assert_almost_equal(center_polytope, expected_polytope)
 
         # Verify the cell volumes
-        npt.assert_equal(vor.volumes, [1])
+        npt.assert_almost_equal(vor.volumes[13], 1)
+        npt.assert_almost_equal(np.sum(vor.volumes), box.volume)
 
     def test_voronoi_neighbors_wrapped(self):
         # Test that voronoi neighbors in the first shell are
