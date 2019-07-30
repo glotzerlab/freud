@@ -5,9 +5,10 @@
 #define VORONOI_H
 
 #include "Box.h"
-#include "VectorMath.h"
 #include "NeighborList.h"
 #include "NeighborBond.h"
+#include "VectorMath.h"
+#include "NeighborList.h"
 
 namespace freud { namespace locality {
 

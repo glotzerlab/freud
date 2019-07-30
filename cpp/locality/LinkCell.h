@@ -7,6 +7,7 @@
 #include <cassert>
 #include <memory>
 #include <tbb/concurrent_hash_map.h>
+#include <unordered_set>
 #include <vector>
 
 #include "Box.h"
@@ -376,6 +377,23 @@ public:
         return m_cell_index;
     }
 
+    //! Compute cell id from cell coordinates
+    unsigned int getCellIndex(const vec3<int> cellCoord) const
+    {
+        int w = (int) getCellIndexer().getW();
+        int h = (int) getCellIndexer().getH();
+        int d = (int) getCellIndexer().getD();
+
+        int x = cellCoord.x % w;
+        x += (x < 0 ? w : 0);
+        int y = cellCoord.y % h;
+        y += (y < 0 ? h : 0);
+        int z = cellCoord.z % d;
+        z += (z < 0 ? d : 0);
+
+        return getCellIndexer()(x, y, z);
+    }
+
     //! Get the number of cells
     unsigned int getNumCells() const
     {
@@ -502,6 +520,8 @@ protected:
         m_neigh_cell_iter; //!< The shell iterator indicating how far out we're currently searching.
     LinkCell::iteratorcell
         m_cell_iter; //!< The cell iterator indicating which cell we're currently searching.
+    std::unordered_set<unsigned int>
+        m_searched_cells; //!< Set of cells that have already been searched by the cell shell iterator.
 };
 
 //! Iterator that gets nearest neighbors from LinkCell tree structures
@@ -531,11 +551,23 @@ class LinkCellQueryBallIterator : virtual public LinkCellIterator
 {
 public:
     //! Constructor
-    LinkCellQueryBallIterator(const LinkCell* neighbor_query, const vec3<float>* query_points, unsigned int num_neighbors,
+    LinkCellQueryBallIterator(const LinkCell* neighbor_query, const vec3<float>* query_points, unsigned int n_query_points,
                               float r_max, bool exclude_ii)
-        : NeighborQueryIterator(neighbor_query, query_points, num_neighbors, exclude_ii),
-          LinkCellIterator(neighbor_query, query_points, num_neighbors, exclude_ii), m_r(r_max)
-    {}
+        : NeighborQueryIterator(neighbor_query, query_points, n_query_points, exclude_ii),
+          LinkCellIterator(neighbor_query, query_points, n_query_points, exclude_ii), m_r(r_max)
+    {
+        // Upon querying, if the search radius is equal to the cell width, we
+        // can guarantee that we don't need to search the cell shell past the
+        // query radius. For simplicity, we store this value as an integer.
+        if (m_r == neighbor_query->getCellWidth())
+        {
+            m_extra_search_width = 0;
+        }
+        else
+        {
+            m_extra_search_width = 1;
+        }
+    }
 
     //! Empty Destructor
     virtual ~LinkCellQueryBallIterator() {}
@@ -548,6 +580,7 @@ public:
 
 protected:
     float m_r; //!< Search ball cutoff distance
+    int m_extra_search_width; //!< The extra shell distance to search, always 0 or 1.
 };
 }; }; // end namespace freud::locality
 

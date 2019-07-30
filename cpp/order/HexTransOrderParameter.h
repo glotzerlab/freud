@@ -15,7 +15,7 @@
 #include "VectorMath.h"
 
 /*! \file HexTransOrderParameter.h
-    \brief Compute the hexatic/trans order parameter for each particle.
+    \brief Compute the hexatic/translational order parameter for each particle.
 */
 
 namespace freud { namespace order {
@@ -48,7 +48,7 @@ public:
         return m_Np;
     }
 
-    //! Get a reference to the last computed dr
+    //! Get a reference to the order parameter array
     std::shared_ptr<std::complex<float>> getOrder()
     {
         return m_psi_array;
@@ -81,11 +81,12 @@ public:
 
     //! Compute the translational order parameter
     void compute(const freud::locality::NeighborList* nlist,
-                 const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs);
+                 const freud::locality::NeighborQuery* points,
+                 freud::locality::QueryArgs qargs);
 
 };
 
-//! Compute the hexagonal order parameter for a set of points
+//! Compute the hexatic order parameter for a set of points
 /*!
  */
 class HexOrderParameter : public HexTransOrderParameter<unsigned int>
@@ -97,11 +98,12 @@ public:
     //! Destructor
     ~HexOrderParameter();
 
-    //! Compute the hex order parameter
+    //! Compute the hexatic order parameter
     void compute(const freud::locality::NeighborList* nlist,
-                                  const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs);
+                 const freud::locality::NeighborQuery* points,
+                 freud::locality::QueryArgs qargs);
 };
 
 }; }; // end namespace freud::order
 
-#endif // ORDER_PARAMETER_H
+#endif // HEX_TRANS_ORDER_PARAMETER_H

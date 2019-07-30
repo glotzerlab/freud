@@ -1,7 +1,9 @@
 import numpy as np
+import numpy.testing as npt
 import freud
 import unittest
-from util import makeBoxAndRandomPoints
+from util import (make_box_and_random_points, make_sc, make_bcc, make_fcc,
+                  skipIfMissing)
 
 
 class TestLocalDescriptors(unittest.TestCase):
@@ -12,7 +14,7 @@ class TestLocalDescriptors(unittest.TestCase):
         rmax = 0.5
         L = 10
 
-        box, positions = makeBoxAndRandomPoints(L, N)
+        box, positions = make_box_and_random_points(L, N)
         positions.flags['WRITEABLE'] = False
 
         comp = freud.environment.LocalDescriptors(Nneigh, lmax, rmax, True)
@@ -46,7 +48,7 @@ class TestLocalDescriptors(unittest.TestCase):
         lmax = 8
         L = 10
 
-        box, positions = makeBoxAndRandomPoints(L, N)
+        box, positions = make_box_and_random_points(L, N)
 
         comp = freud.environment.LocalDescriptors(Nneigh, lmax, .5, True)
         comp.compute(box, Nneigh, positions, mode='global')
@@ -61,7 +63,7 @@ class TestLocalDescriptors(unittest.TestCase):
         lmax = 8
         L = 10
 
-        box, positions = makeBoxAndRandomPoints(L, N)
+        box, positions = make_box_and_random_points(L, N)
         orientations = np.random.uniform(-1, 1, size=(N, 4)).astype(np.float32)
         orientations /= np.sqrt(np.sum(orientations**2,
                                        axis=-1))[:, np.newaxis]
@@ -84,7 +86,7 @@ class TestLocalDescriptors(unittest.TestCase):
         lmax = 8
         L = 10
 
-        box, positions = makeBoxAndRandomPoints(L, N)
+        box, positions = make_box_and_random_points(L, N)
 
         comp = freud.environment.LocalDescriptors(Nneigh, lmax, .5, True)
 
@@ -97,7 +99,7 @@ class TestLocalDescriptors(unittest.TestCase):
         lmax = 8
         L = 10
 
-        box, positions = makeBoxAndRandomPoints(L, N)
+        box, positions = make_box_and_random_points(L, N)
         positions2 = np.random.uniform(-L/2, L/2,
                                        size=(N//3, 3)).astype(np.float32)
 
@@ -109,6 +111,179 @@ class TestLocalDescriptors(unittest.TestCase):
     def test_repr(self):
         comp = freud.environment.LocalDescriptors(4, 8, 0.5, True)
         self.assertEqual(str(comp), str(eval(repr(comp))))
+
+    def test_ql(self):
+        """Check if we can reproduce Steinhardt OPs."""
+        def get_Ql(p, descriptors, nlist):
+            """Given a set of points and a LocalDescriptors object (and the
+            underlying neighborlist), compute the per-particle Steinhardt order
+            parameter for all :math:`l` values up to the maximum quantum number
+            used in the computation of the descriptors."""
+            Qbar_lm = np.zeros((p.shape[0], descriptors.sph.shape[1]),
+                               dtype=np.complex128)
+            num_neighbors = descriptors.sph.shape[0]/p.shape[0]
+            for i in range(p.shape[0]):
+                indices = nlist.index_i == i
+                Qbar_lm[i, :] = np.sum(descriptors.sph[indices, :],
+                                       axis=0)/num_neighbors
+
+            Ql = np.zeros((Qbar_lm.shape[0], descriptors.l_max+1))
+            for i in range(Ql.shape[0]):
+                for l in range(Ql.shape[1]):
+                    for k in range(l**2, (l+1)**2):
+                        Ql[i, l] += np.absolute(Qbar_lm[i, k])**2
+                    Ql[i, l] = np.sqrt(4*np.pi/(2*l + 1) * Ql[i, l])
+
+            return Ql
+
+        # These exact parameter values aren't important; they won't necessarily
+        # give useful outputs for some of the structures, but that's fine since
+        # we just want to check that LocalDescriptors is consistent with
+        # Steinhardt.
+        num_neighbors = 6
+        l_max = 12
+        r_max = 2
+
+        for struct_func in [make_sc, make_bcc, make_fcc]:
+            box, points = struct_func(5, 5, 5)
+
+            # In order to be able to access information on which particles are
+            # bonded to which ones, we precompute the neighborlist
+            nn = freud.locality.NearestNeighbors(r_max, num_neighbors)
+            nl = nn.compute(box, points).nlist
+            ld = freud.environment.LocalDescriptors(
+                num_neighbors, l_max, r_max)
+            ld.compute(box, num_neighbors, points, mode='global', nlist=nl)
+
+            Ql = get_Ql(points, ld, nl)
+
+            # Test all allowable values of l.
+            for L in range(2, l_max+1):
+                steinhardt = freud.order.Steinhardt(r_max*2, L)
+                steinhardt.compute(box, points, nlist=nl)
+                npt.assert_array_almost_equal(steinhardt.order, Ql[:, L])
+
+    @skipIfMissing('scipy.special')
+    def test_ld(self):
+        """Verify the behavior of LocalDescriptors by explicitly calculating
+        spherical harmonics manually and verifying them."""
+        from scipy.special import sph_harm
+        atol = 1e-5
+        L = 8
+        N = 100
+        box, points = make_box_and_random_points(L, N)
+
+        num_neighbors = 1
+        r_max = 2
+        l_max = 2
+
+        # We want to provide the NeighborList ourselves since we need to use it
+        # again later anyway.
+        nn = freud.locality.NearestNeighbors(r_max, num_neighbors)
+        nl = nn.compute(box, points).nlist
+
+        ld = freud.environment.LocalDescriptors(
+            num_neighbors, l_max, r_max)
+        ld.compute(box, num_neighbors, points, mode='global', nlist=nl)
+
+        # Loop over the sphs and compute them explicitly.
+        for idx, (i, j) in enumerate(nl):
+            bond = box.wrap(points[j] - points[i])
+            r = np.linalg.norm(bond)
+            theta = np.arccos(bond[2]/r)
+            phi = np.arctan2(bond[1], bond[0])
+
+            count = 0
+            for l in range(l_max+1):
+                for m in range(l+1):
+                    # Explicitly calculate the spherical harmonic with scipy
+                    # and check the output.  Arg order is theta, phi for scipy,
+                    # but we need to pass the swapped angles because it uses
+                    # the opposite convention from fsph (which LocalDescriptors
+                    # uses internally).
+                    scipy_val = sph_harm(m, l, phi, theta)
+                    ld_val = (-1)**abs(m) * ld.sph[idx, count]
+                    self.assertTrue(np.isclose(
+                        scipy_val, ld_val, atol=atol),
+                        msg=("Failed for l={}, m={}, x={}, y = {}"
+                             "\ntheta={}, phi={}").format(
+                            l, m, scipy_val, ld_val,
+                            theta, phi))
+                    count += 1
+
+                for neg_m in range(1, l+1):
+                    m = -neg_m
+                    scipy_val = sph_harm(m, l, phi, theta)
+                    ld_val = ld.sph[idx, count]
+                    self.assertTrue(np.isclose(
+                        scipy_val, ld_val, atol=atol),
+                        msg=("Failed for l={}, m={}, x={}, y = {}"
+                             "\ntheta={}, phi={}").format(
+                            l, m, scipy_val, ld_val,
+                            theta, phi))
+                    count += 1
+
+    @skipIfMissing('scipy.special')
+    def test_ref_point_ne_points(self):
+        """Verify the behavior of LocalDescriptors by explicitly calculating
+        spherical harmonics manually and verifying them."""
+        from scipy.special import sph_harm
+        atol = 1e-5
+        L = 8
+        N = 100
+        box, points = make_box_and_random_points(L, N)
+        ref_points = np.random.rand(N, 3)*L - L/2
+
+        num_neighbors = 1
+        r_max = 2
+        l_max = 2
+
+        # We want to provide the NeighborList ourselves since we need to use it
+        # again later anyway.
+        nn = freud.locality.NearestNeighbors(r_max, num_neighbors)
+        nl = nn.compute(box, ref_points, points).nlist
+
+        ld = freud.environment.LocalDescriptors(
+            num_neighbors, l_max, r_max)
+        ld.compute(box, num_neighbors, ref_points, points, mode='global',
+                   nlist=nl)
+
+        # Loop over the sphs and compute them explicitly.
+        for idx, (i, j) in enumerate(nl):
+            bond = box.wrap(points[j] - ref_points[i])
+            r = np.linalg.norm(bond)
+            theta = np.arccos(bond[2]/r)
+            phi = np.arctan2(bond[1], bond[0])
+
+            count = 0
+            for l in range(l_max+1):
+                for m in range(l+1):
+                    # Explicitly calculate the spherical harmonic with scipy
+                    # and check the output.  Arg order is theta, phi for scipy,
+                    # but we need to pass the swapped angles because it uses
+                    # the opposite convention from fsph (which LocalDescriptors
+                    # uses internally).
+                    scipy_val = sph_harm(m, l, phi, theta)
+                    ld_val = (-1)**abs(m) * ld.sph[idx, count]
+                    self.assertTrue(np.isclose(
+                        scipy_val, ld_val, atol=atol),
+                        msg=("Failed for l={}, m={}, x={}, y = {}"
+                             "\ntheta={}, phi={}").format(
+                            l, m, scipy_val, ld_val,
+                            theta, phi))
+                    count += 1
+
+                for neg_m in range(1, l+1):
+                    m = -neg_m
+                    scipy_val = sph_harm(m, l, phi, theta)
+                    ld_val = ld.sph[idx, count]
+                    self.assertTrue(np.isclose(
+                        scipy_val, ld_val, atol=atol),
+                        msg=("Failed for l={}, m={}, x={}, y = {}"
+                             "\ntheta={}, phi={}").format(
+                            l, m, scipy_val, ld_val,
+                            theta, phi))
+                    count += 1
 
 
 if __name__ == '__main__':

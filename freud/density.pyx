@@ -88,7 +88,7 @@ cdef class FloatCF(Compute):
 
     @Compute._compute()
     def accumulate(self, box, points, values, query_points=None,
-                   query_values=None, nlist=None, qargs=None):
+                   query_values=None, nlist=None, query_args={}):
         R"""Calculates the correlation function and adds to the current
         histogram.
 
@@ -121,7 +121,7 @@ cdef class FloatCF(Compute):
 
         cdef freud.locality._QueryArgs def_qargs = freud.locality._QueryArgs(
             mode="ball", r_max=self.r_max, exclude_ii=exclude_ii)
-        def_qargs.update(qargs)
+        def_qargs.update(query_args)
         points = nq.points
 
         if query_points is None:
@@ -178,7 +178,7 @@ cdef class FloatCF(Compute):
 
     @Compute._compute()
     def compute(self, box, points, values, query_points=None,
-                query_values=None, nlist=None, qargs=None):
+                query_values=None, nlist=None, query_args={}):
         R"""Calculates the correlation function for the given points. Will
         overwrite the current histogram.
 
@@ -203,7 +203,7 @@ cdef class FloatCF(Compute):
         """  # noqa E501
         self.reset()
         self.accumulate(box, points, values, query_points, query_values, nlist,
-                        qargs)
+                        query_args)
         return self
 
     @Compute._computed_property()
@@ -318,7 +318,7 @@ cdef class ComplexCF(Compute):
 
     @Compute._compute()
     def accumulate(self, box, points, values, query_points=None,
-                   query_values=None, nlist=None, qargs=None):
+                   query_values=None, nlist=None, query_args={}):
         R"""Calculates the correlation function and adds to the current
         histogram.
 
@@ -351,7 +351,7 @@ cdef class ComplexCF(Compute):
 
         cdef freud.locality._QueryArgs def_qargs = freud.locality._QueryArgs(
             mode="ball", r_max=self.r_max, exclude_ii=exclude_ii)
-        def_qargs.update(qargs)
+        def_qargs.update(query_args)
         points = nq.points
 
         if query_points is None:
@@ -408,7 +408,7 @@ cdef class ComplexCF(Compute):
 
     @Compute._compute()
     def compute(self, box, points, values, query_points=None,
-                query_values=None, nlist=None, qargs=None):
+                query_values=None, nlist=None, query_args={}):
         R"""Calculates the correlation function for the given points. Will
         overwrite the current histogram.
 
@@ -433,7 +433,7 @@ cdef class ComplexCF(Compute):
         """  # noqa E501
         self.reset()
         self.accumulate(box, points, values, query_points, query_values, nlist,
-                        qargs)
+                        query_args)
         return self
 
     @Compute._computed_property()
@@ -708,7 +708,8 @@ cdef class LocalDensity(Compute):
         return freud.box.BoxFromCPP(self.thisptr.getBox())
 
     @Compute._compute()
-    def compute(self, box, points, query_points=None, nlist=None):
+    def compute(self, box, points, query_points=None, nlist=None,
+                query_args={}):
         R"""Calculates the local density for the specified points. Does not
         accumulate (will overwrite current data).
 
@@ -736,6 +737,7 @@ cdef class LocalDensity(Compute):
         cdef freud.locality._QueryArgs def_qargs = freud.locality._QueryArgs(
             mode="ball", r_max=self.r_max + 0.5*self.diameter,
             exclude_ii=exclude_ii)
+        def_qargs.update(query_args)
         points = nq.points
 
         if query_points is None:
@@ -854,7 +856,8 @@ cdef class RDF(Compute):
         return freud.box.BoxFromCPP(self.thisptr.getBox())
 
     @Compute._compute()
-    def accumulate(self, box, points, query_points=None, nlist=None):
+    def accumulate(self, box, points, query_points=None, nlist=None,
+                   query_args={}):
         R"""Calculates the RDF and adds to the current RDF histogram.
 
         Args:
@@ -878,6 +881,7 @@ cdef class RDF(Compute):
 
         cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
             mode="ball", r_max=self.r_max, exclude_ii=exclude_ii)
+        qargs.update(query_args)
         points = nq.points
 
         if query_points is None:
@@ -895,7 +899,8 @@ cdef class RDF(Compute):
         return self
 
     @Compute._compute()
-    def compute(self, box, points, query_points=None, nlist=None):
+    def compute(self, box, points, query_points=None, nlist=None,
+                query_args={}):
         R"""Calculates the RDF for the specified points. Will overwrite the current
         histogram.
 
@@ -912,7 +917,7 @@ cdef class RDF(Compute):
                 :code:`None`).
         """  # noqa E501
         self.reset()
-        self.accumulate(box, points, query_points, nlist)
+        self.accumulate(box, points, query_points, nlist, query_args)
         return self
 
     @Compute._reset

@@ -156,7 +156,6 @@ protected:
     std::shared_ptr<std::complex<float>>
         m_AveQlmi; //!< Averaged Qlm with 2nd neighbor shell for each particle i
     std::shared_ptr<std::complex<float>> m_AveQlm; //!< Normalized AveQlmi for the whole system
-    util::ThreadStorage<std::complex<float>> m_AveQlm_local;
     std::shared_ptr<float> m_AveQli;     //!< AveQl locally invariant order parameter for each particle i
     std::shared_ptr<float> m_QliNorm;    //!< QlNorm order parameter for each particle i
     std::shared_ptr<float> m_QliAveNorm; //!< QlAveNorm order paramter for each particle i

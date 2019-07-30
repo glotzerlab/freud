@@ -10,7 +10,7 @@ class TestSolLiq(unittest.TestCase):
         N = 1000
         L = 10
 
-        box, positions = util.makeBoxAndRandomPoints(L, N)
+        box, positions = util.make_box_and_random_points(L, N)
 
         comp = freud.order.SolLiq(box, 2, .7, 6, 6)
         comp.compute(positions)
@@ -82,7 +82,7 @@ class TestSolLiqNear(unittest.TestCase):
         N = 1000
         L = 10
 
-        box, positions = util.makeBoxAndRandomPoints(L, N)
+        box, positions = util.make_box_and_random_points(L, N)
 
         comp = freud.order.SolLiqNear(box, 2, .7, 6, 6, 12)
         comp.compute(positions)

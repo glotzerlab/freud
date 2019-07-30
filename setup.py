@@ -163,7 +163,11 @@ sys.argv = ['setup.py'] + extras
 
 on_rtd = os.environ.get('READTHEDOCS') == 'True'
 if on_rtd:
+    logger.warning('Building on Read the Docs with Cython enabled.')
     args.use_cython = True
+    for cython_cpp_file in glob.glob('freud/*.cpp'):
+        logger.warning('Deleting {}'.format(cython_cpp_file))
+        os.remove(cython_cpp_file)
 
 
 ################################
@@ -396,7 +400,7 @@ if args.use_cython:
 if platform.system() == 'Darwin':
     os.environ["MACOSX_DEPLOYMENT_TARGET"]= "10.12"
 
-version = '1.2.0'
+version = '1.2.1'
 
 # Read README for PyPI, fallback to short description if it fails.
 desc = 'Powerful, efficient trajectory analysis in scientific Python.'

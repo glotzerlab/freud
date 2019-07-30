@@ -4,6 +4,7 @@
 #ifndef STEINHARDT_H
 #define STEINHARDT_H
 
+#include <ThreadStorage.h>
 #include <complex>
 #include <memory>
 #include <tbb/tbb.h>
@@ -174,7 +175,7 @@ private:
 
     std::shared_ptr<std::complex<float>> m_Qlmi; //!< Qlm for each particle i
     std::shared_ptr<std::complex<float>> m_Qlm;  //!< Normalized Qlm(Ave) for the whole system
-    util::ThreadStorage<std::complex<float>> m_Qlm_local;
+    util::ThreadStorage<std::complex<float>> m_Qlm_local; //!< Thread-specific m_Qlm(Ave)
     std::shared_ptr<float> m_Qli;              //!< Ql locally invariant order parameter for each particle i
     std::shared_ptr<float> m_QliAve;           //!< Averaged Ql with 2nd neighbor shell for each particle i
     std::shared_ptr<complex<float>> m_QlmiAve; //!< Averaged Qlm with 2nd neighbor shell for each particle i

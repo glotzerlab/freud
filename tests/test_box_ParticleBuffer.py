@@ -10,7 +10,7 @@ class TestParticleBuffer(unittest.TestCase):
         L = 10          # Box length
         N = 50          # Number of particles
 
-        fbox, positions = util.makeBoxAndRandomPoints(L, N, True)
+        fbox, positions = util.make_box_and_random_points(L, N, True)
         positions.flags['WRITEABLE'] = False
 
         pbuff = freud.box.ParticleBuffer(fbox)
@@ -58,7 +58,7 @@ class TestParticleBuffer(unittest.TestCase):
         N = 50  # Number of particles
         np.random.seed(0)
 
-        fbox, positions = util.makeBoxAndRandomPoints(L, N, False)
+        fbox, positions = util.make_box_and_random_points(L, N, False)
         positions.flags['WRITEABLE'] = False
 
         pbuff = freud.box.ParticleBuffer(fbox)

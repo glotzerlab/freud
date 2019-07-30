@@ -116,6 +116,7 @@ cdef class Compute:
         Returns:
             Decorator decorating appropriate reset method.
         """
+
         @wraps(func)
         def wrapper(self, *args, **kwargs):
             for k in self._called_compute:

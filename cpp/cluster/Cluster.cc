@@ -7,9 +7,9 @@
 #include <vector>
 
 #include "Cluster.h"
-#include "dset/dset.h"
 #include "NeighborComputeFunctional.h"
 #include "NeighborBond.h"
+#include "dset/dset.h"
 
 using namespace std;
 
