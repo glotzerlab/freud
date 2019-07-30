@@ -453,6 +453,30 @@ class TestNeighborQuery(object):
                 for i in range(N):
                     assert ([i, i] == nlist_array).all(axis=1).any()
 
+    def test_duplicate_cell_shells(self):
+        box = freud.box.Box.square(5)
+        points = [[-1.5, 0, 0]]
+        ref_points = [[0.9, 0, 0]]
+        rmax = 2.45
+        cell_width = 1
+        nq = self.build_query_object(box, ref_points, cell_width)
+        q = nq.queryBall(points, rmax)
+        self.assertEqual(len(list(q)), 1)
+        q = nq.query(points, 1000)
+        self.assertEqual(len(list(q)), 1)
+
+    def test_duplicate_cell_shells2(self):
+        positions = [[1.5132198, 6.67087, 3.1856632],
+                     [1.3913784, -2.3667011, 4.5227165],
+                     [-3.6133137, 9.043476, 0.8957424]]
+        box = freud.box.Box.cube(21)
+        rmax = 10
+        nq = self.build_query_object(box, positions, rmax)
+        q = nq.queryBall(positions[0], rmax)
+        self.assertEqual(len(list(q)), 3)
+        q = nq.query(positions[0], 1000)
+        self.assertEqual(len(list(q)), 3)
+
 
 class TestNeighborQueryAABB(TestNeighborQuery, unittest.TestCase):
     @classmethod

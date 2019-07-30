@@ -7,8 +7,8 @@
 #include <vector>
 
 #include "Cluster.h"
-#include "dset/dset.h"
 #include "NeighborComputeFunctional.h"
+#include "dset/dset.h"
 
 using namespace std;
 
@@ -41,19 +41,18 @@ void Cluster::computeClusters(const freud::locality::NeighborQuery* nq,
     m_num_particles = Np;
     DisjointSets dj(m_num_particles);
 
-    freud::locality::loopOverNeighbors(
-        nq, points, Np, qargs, nlist,
-        [this, &dj, points](size_t i, size_t j, float dist, float weight) {
-            // compute r between the two particles
-            if (dist < m_rcut)
-            {
-                // merge the two sets using the disjoint set
-                if (!dj.same(i, j))
-                {
-                    dj.unite(i, j);
-                }
-            }
-        });
+    freud::locality::loopOverNeighbors(nq, points, Np, qargs, nlist,
+                                       [this, &dj, points](size_t i, size_t j, float dist, float weight) {
+                                           // compute r between the two particles
+                                           if (dist < m_rcut)
+                                           {
+                                               // merge the two sets using the disjoint set
+                                               if (!dj.same(i, j))
+                                               {
+                                                   dj.unite(i, j);
+                                               }
+                                           }
+                                       });
 
     // done looping over points. All clusters are now determined. Renumber them from zero to num_clusters-1.
     map<uint32_t, uint32_t> label_map;

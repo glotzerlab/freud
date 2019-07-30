@@ -153,7 +153,7 @@ void LocalQl::computeAve(const locality::NeighborList* nlist, const vec3<float>*
                 }
                 neighborcount++;
             } // End loop over particle neighbor's bonds
-        } // End loop over particle's bonds
+        }     // End loop over particle's bonds
 
         // Normalize!
         for (unsigned int k = 0; k < (2 * m_l + 1); ++k)

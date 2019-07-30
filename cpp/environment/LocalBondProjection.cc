@@ -94,7 +94,6 @@ void LocalBondProjection::compute(box::Box& box, const freud::locality::Neighbor
         size_t bond(nlist->find_first_index(r.begin()));
         for (size_t i = r.begin(); i != r.end(); ++i)
         {
-            
             for (; bond < tot_num_neigh && neighbor_list[2 * bond] == i; ++bond)
             {
                 const size_t j(neighbor_list[2 * bond + 1]);

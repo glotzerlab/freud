@@ -34,7 +34,11 @@
         "name": "freud.parallel",
         "sources": [
             "freud/parallel.pyx",
-            "cpp/parallel/tbb_config.cc"
+            "cpp/parallel/tbb_config.cc",
+            "cpp/locality/NeighborList.cc",
+            "cpp/locality/NeighborQuery.cc",
+            "cpp/locality/AABBQuery.cc",
+            "cpp/locality/NeighborComputeFunctional.cc"
         ]
     },
     "module_name": "freud.parallel"

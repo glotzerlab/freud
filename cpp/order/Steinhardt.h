@@ -12,9 +12,9 @@
 #include "Box.h"
 #include "NeighborList.h"
 #include "NeighborQuery.h"
+#include "ThreadStorage.h"
 #include "VectorMath.h"
 #include "fsph/src/spherical_harmonics.hpp"
-#include "ThreadStorage.h"
 #include "wigner3j.h"
 
 /*! \file Steinhardt.h
@@ -125,7 +125,7 @@ public:
 
     //! Compute the order parameter
     virtual void compute(const freud::locality::NeighborList* nlist,
-                                  const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs);
+                         const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs);
 
 private:
     //! \internal
@@ -144,12 +144,12 @@ private:
 
     //! Calculates the base Ql order parameter before further modifications
     // if any.
-    void baseCompute(const freud::locality::NeighborList* nlist,
-                                  const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs);
+    void baseCompute(const freud::locality::NeighborList* nlist, const freud::locality::NeighborQuery* points,
+                     freud::locality::QueryArgs qargs);
 
     //! Calculates the neighbor average Ql order parameter
-    void computeAve(const freud::locality::NeighborList* nlist,
-                                  const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs);
+    void computeAve(const freud::locality::NeighborList* nlist, const freud::locality::NeighborQuery* points,
+                    freud::locality::QueryArgs qargs);
 
     //! Normalize the order parameter
     float normalize();
@@ -173,8 +173,8 @@ private:
     bool m_norm;    //!< Whether to take the norm of the order parameter (default false)
     bool m_Wl;      //!< Whether to use the modified order parameter Wl (default false)
 
-    std::shared_ptr<std::complex<float>> m_Qlmi; //!< Qlm for each particle i
-    std::shared_ptr<std::complex<float>> m_Qlm;  //!< Normalized Qlm(Ave) for the whole system
+    std::shared_ptr<std::complex<float>> m_Qlmi;          //!< Qlm for each particle i
+    std::shared_ptr<std::complex<float>> m_Qlm;           //!< Normalized Qlm(Ave) for the whole system
     util::ThreadStorage<std::complex<float>> m_Qlm_local; //!< Thread-specific m_Qlm(Ave)
     std::shared_ptr<float> m_Qli;              //!< Ql locally invariant order parameter for each particle i
     std::shared_ptr<float> m_QliAve;           //!< Averaged Ql with 2nd neighbor shell for each particle i
