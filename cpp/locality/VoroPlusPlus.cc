@@ -44,8 +44,8 @@ typedef std::vector<VoroPlusPlusBond> SerialBondVector;
 // Voronoi calculations should be kept in double precision.
 void VoroPlusPlus::compute(const box::Box &box, const vec3<double>* points, unsigned int N)
     {
-        m_polytopes.clear();
-        m_volumes.clear();
+        m_polytopes.resize(N);
+        m_volumes.resize(N);
 
         vec3<float> boxLatticeVectors[3];
         boxLatticeVectors[0] = box.getLatticeVector(0);
@@ -98,26 +98,33 @@ void VoroPlusPlus::compute(const box::Box &box, const vec3<double>* points, unsi
                 cell.face_vertices(face_vertices);
                 cell.neighbors(neighbors);
                 cell.normals(normals);
-                cell.vertices(vertices);
+                cell.vertices(ri.x, ri.y, ri.z, vertices);
 
-                // Save polytope vertices
-                //TODO: Only use upper plane (z > 0) vertices if the box is 2D
-                // and set z=0 manually
+                // Save polytope vertices in system coordinates
                 std::vector<vec3<double>> vec3_vertices;
                 auto vertex_iterator = vertices.begin();
                 while (vertex_iterator != vertices.end()) {
-                    double x = *vertex_iterator;
+                    double vert_x = *vertex_iterator;
                     vertex_iterator++;
-                    double y = *vertex_iterator;
+                    double vert_y = *vertex_iterator;
                     vertex_iterator++;
-                    double z = *vertex_iterator;
+                    double vert_z = *vertex_iterator;
                     vertex_iterator++;
-                    vec3_vertices.push_back(vec3<double>(x, y, z));
+
+                    // In 2D systems, only use vertices from the upper plane
+                    // to prevent double-counting, and set z=0 manually
+                    if (box.is2D()) {
+                        if (vert_z < 0) {
+                            continue;
+                        }
+                        vert_z = 0;
+                    }
+                    vec3_vertices.push_back(vec3<double>(vert_x, vert_y, vert_z));
                 }
-                m_polytopes.push_back(vec3_vertices);
+                m_polytopes[pid] = vec3_vertices;
 
                 // Save cell volume
-                m_volumes.push_back(cell.volume());
+                m_volumes[pid] = cell.volume();
 
                 size_t neighbor_counter(0);
                 for (auto neighbor_iterator = neighbors.begin(); neighbor_iterator != neighbors.end(); neighbor_iterator++) {
@@ -159,8 +166,10 @@ void VoroPlusPlus::compute(const box::Box &box, const vec3<double>* points, unsi
 
 
                     neighbor_counter++;
-                    printf("Bond from %i to %i, weight %f, distance %f, normal (%f, %f, %f)\n", pid, neighbor_id, weight, dist, normal.x, normal.y, normal.z);
-                    printf("Vertex %i on face, ri (%f, %f, %f), rv (%f, %f, %f)\n", vertex_id_on_face, ri.x, ri.y, ri.z, rv.x, rv.y, rv.z);
+                    if (print_loud) {
+                        printf("Bond from %i to %i, weight %f, distance %f, normal (%f, %f, %f)\n", pid, neighbor_id, weight, dist, normal.x, normal.y, normal.z);
+                        printf("Vertex %i on face, ri (%f, %f, %f), rv (%f, %f, %f)\n", vertex_id_on_face, ri.x, ri.y, ri.z, rv.x, rv.y, rv.z);
+                    }
                     bonds.push_back(VoroPlusPlusBond(pid, neighbor_id, weight, dist));
                 }
 
@@ -192,8 +201,15 @@ void VoroPlusPlus::compute(const box::Box &box, const vec3<double>* points, unsi
 
                     // Print vertices
                     printf("Vertices: ");
+                    size_t vert_counter = 0;
                     for (std::vector<double>::iterator vv = vertices.begin(); vv != vertices.end(); vv++) {
-                        printf("%f ", *vv);
+                        printf("%f", *vv);
+                        if (vert_counter % 3 == 2) {
+                            printf("\n");
+                        } else {
+                            printf(", ");
+                        }
+                        vert_counter++;
                     }
                     printf("\n");
                 }

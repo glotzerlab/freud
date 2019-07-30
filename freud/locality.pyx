@@ -1200,13 +1200,19 @@ cdef class _VoroPlusPlus:
                 vertices.
         """
         polytopes = []
-        cdef vector[vector[vec3[double]]] raw_polytopes = self.thisptr.getPolytopes()
+        cdef vector[vector[vec3[double]]] raw_polytopes = \
+            self.thisptr.getPolytopes()
         cdef size_t i
+        cdef size_t j
         cdef size_t num_verts
-        cdef const double[:, ::1] polytope_vertices
+        cdef double[:, ::1] polytope_vertices
         for i in range(raw_polytopes.size()):
             num_verts = raw_polytopes[i].size()
-            polytope_vertices = <double[:num_verts, :3]> (<double*> raw_polytopes[i].data())
+            polytope_vertices = np.empty((num_verts, 3), dtype=np.float64)
+            for j in range(num_verts):
+                polytope_vertices[j, 0] = raw_polytopes[i][j].x
+                polytope_vertices[j, 1] = raw_polytopes[i][j].y
+                polytope_vertices[j, 2] = raw_polytopes[i][j].z
             polytopes.append(np.asarray(polytope_vertices))
         return polytopes
 
@@ -1250,7 +1256,7 @@ cdef class _VoroPlusPlus:
             (:math:`\left(N_{cells} \right)`) :class:`numpy.ndarray`:
                 Voronoi polytope volumes/areas.
         """
-        return self.thisptr.getVolumes()
+        return np.asarray(self.thisptr.getVolumes())
 
     def __repr__(self):
         return "freud.locality.{cls}()".format(
