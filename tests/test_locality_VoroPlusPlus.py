@@ -108,7 +108,8 @@ class TestVoroPlusPlus(unittest.TestCase):
             # Drop the tiny facets that come from numerical imprecision
             nlist = nlist.filter(nlist.weights > 1e-5)
 
-            unique_indices, counts = np.unique(nlist.index_i, return_counts=True)
+            unique_indices, counts = np.unique(nlist.index_i,
+                                               return_counts=True)
 
             # Every particle should have six neighbors
             npt.assert_equal(counts, neighbors)
