@@ -159,9 +159,8 @@ void RDF::reset()
 //! \internal
 /*! \brief Function to accumulate the given points to the histogram in memory
  */
-void RDF::accumulate(const freud::locality::NeighborList* nlist,
-                     const freud::locality::NeighborQuery* ref_points, const vec3<float>* points,
-                     unsigned int n_p, freud::locality::QueryArgs qargs)
+void RDF::accumulate(const freud::locality::NeighborList* nlist, const freud::locality::NeighborQuery* ref_points,
+                    const vec3<float>* points, unsigned int n_p, freud::locality::QueryArgs qargs)
 {
     m_n_p = n_p;
     m_n_ref = ref_points->getNRef();
@@ -172,26 +171,26 @@ void RDF::accumulate(const freud::locality::NeighborList* nlist,
     assert(n_p > 0);
 
     float dr_inv = 1.0f / m_dr;
-    accumulateGeneral(ref_points, points, n_p, nlist, m_nbins, qargs,
-                      [=](size_t i, size_t j, float dist, float weight) {
-                          if (dist < m_rmax && dist > m_rmin)
-                          {
-                              // bin that r
-                              float binr = (dist - m_rmin) * dr_inv;
+    accumulateGeneral(ref_points, points, n_p, nlist, m_nbins, qargs, 
+        [=](size_t i, size_t j, float dist, float weight) {
+        if (dist < m_rmax && dist > m_rmin)
+        {
+            // bin that r
+            float binr = (dist - m_rmin) * dr_inv;
             // fast float to int conversion with truncation
 #ifdef __SSE2__
-                              unsigned int bin = _mm_cvtt_ss2si(_mm_load_ss(&binr));
+            unsigned int bin = _mm_cvtt_ss2si(_mm_load_ss(&binr));
 #else
                 unsigned int bin = (unsigned int)(binr);
 #endif
-                              // There may be a case where rsq < rmaxsq but
-                              // (r - m_rmin) * dr_inv rounds up to m_nbins.
-                              // This additional check prevents a seg fault.
-                              if (bin < m_nbins)
-                              {
-                                  ++m_local_bin_counts.local()[bin];
-                              }
-                          }
-                      });
+            // There may be a case where rsq < rmaxsq but
+            // (r - m_rmin) * dr_inv rounds up to m_nbins.
+            // This additional check prevents a seg fault.
+            if (bin < m_nbins)
+            {
+                ++m_local_bin_counts.local()[bin];
+            }
+        }
+    });
 }
 }; }; // end namespace freud::density

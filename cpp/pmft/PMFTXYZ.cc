@@ -87,10 +87,11 @@ void PMFTXYZ::reset()
 //! \internal
 /*! \brief Helper function to direct the calculation to the correct helper class
  */
-void PMFTXYZ::accumulate(const locality::NeighborList* nlist, const locality::NeighborQuery* ref_points,
-                         quat<float>* ref_orientations, vec3<float>* points, quat<float>* orientations,
-                         unsigned int n_p, quat<float>* face_orientations, unsigned int n_faces,
-                         freud::locality::QueryArgs qargs)
+void PMFTXYZ::accumulate(const locality::NeighborList* nlist,
+                         const locality::NeighborQuery* ref_points,
+                         quat<float>* ref_orientations, vec3<float>* points,
+                         quat<float>* orientations, unsigned int n_p, quat<float>* face_orientations,
+                         unsigned int n_faces, freud::locality::QueryArgs qargs)
 {
     // precalc some values for faster computation within the loop
     float dx_inv = 1.0f / m_dx;
@@ -101,49 +102,49 @@ void PMFTXYZ::accumulate(const locality::NeighborList* nlist, const locality::Ne
     Index2D q_i = Index2D(n_faces, n_p);
 
     accumulateGeneral(ref_points, points, n_p, nlist, m_n_x * m_n_y * m_n_z, qargs,
-                      [=](size_t i, size_t j, float dist, float weight) {
-                          vec3<float> ref = ref_points->getRefPoints()[i];
-                          // create the reference point quaternion
-                          quat<float> ref_q(ref_orientations[i]);
-                          // make sure that the particles are wrapped into the box
-                          vec3<float> delta = m_box.wrap(points[j] - ref);
+        [=](size_t i, size_t j, float dist, float weight) {
+        vec3<float> ref = ref_points->getRefPoints()[i];
+        // create the reference point quaternion
+        quat<float> ref_q(ref_orientations[i]);
+        // make sure that the particles are wrapped into the box
+        vec3<float> delta = m_box.wrap(points[j] - ref);
 
-                          for (unsigned int k = 0; k < n_faces; k++)
-                          {
-                              // create the extra quaternion
-                              quat<float> qe(face_orientations[q_i(k, i)]);
-                              // create point vector
-                              vec3<float> v(delta);
-                              // rotate the vector
-                              v = rotate(conj(ref_q), v);
-                              v = rotate(qe, v);
+        for (unsigned int k = 0; k < n_faces; k++)
+        {
+            // create the extra quaternion
+            quat<float> qe(face_orientations[q_i(k, i)]);
+            // create point vector
+            vec3<float> v(delta);
+            // rotate the vector
+            v = rotate(conj(ref_q), v);
+            v = rotate(qe, v);
 
-                              float x = v.x + m_x_max;
-                              float y = v.y + m_y_max;
-                              float z = v.z + m_z_max;
+            float x = v.x + m_x_max;
+            float y = v.y + m_y_max;
+            float z = v.z + m_z_max;
 
-                              // bin that point
-                              float binx = floorf(x * dx_inv);
-                              float biny = floorf(y * dy_inv);
-                              float binz = floorf(z * dz_inv);
+            // bin that point
+            float binx = floorf(x * dx_inv);
+            float biny = floorf(y * dy_inv);
+            float binz = floorf(z * dz_inv);
 // fast float to int conversion with truncation
 #ifdef __SSE2__
-                              unsigned int ibinx = _mm_cvtt_ss2si(_mm_load_ss(&binx));
-                              unsigned int ibiny = _mm_cvtt_ss2si(_mm_load_ss(&biny));
-                              unsigned int ibinz = _mm_cvtt_ss2si(_mm_load_ss(&binz));
+            unsigned int ibinx = _mm_cvtt_ss2si(_mm_load_ss(&binx));
+            unsigned int ibiny = _mm_cvtt_ss2si(_mm_load_ss(&biny));
+            unsigned int ibinz = _mm_cvtt_ss2si(_mm_load_ss(&binz));
 #else
             unsigned int ibinx = (unsigned int)(binx);
             unsigned int ibiny = (unsigned int)(biny);
             unsigned int ibinz = (unsigned int)(binz);
 #endif
 
-                              // increment the bin
-                              if ((ibinx < m_n_x) && (ibiny < m_n_y) && (ibinz < m_n_z))
-                              {
-                                  ++m_local_bin_counts.local()[b_i(ibinx, ibiny, ibinz)];
-                              }
-                          }
-                      });
+            // increment the bin
+            if ((ibinx < m_n_x) && (ibiny < m_n_y) && (ibinz < m_n_z))
+            {
+                ++m_local_bin_counts.local()[b_i(ibinx, ibiny, ibinz)];
+            }
+        }
+    });
 }
 
 }; }; // end namespace freud::pmft

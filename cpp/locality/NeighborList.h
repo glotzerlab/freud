@@ -5,8 +5,8 @@
 #define NEIGHBOR_LIST_H
 
 #include <memory>
-#include <tuple>
 #include <vector>
+#include <tuple>
 
 #include "Box.h"
 #include "NeighborBond.h"
@@ -100,7 +100,8 @@ private:
 };
 
 bool compareNeighborBond(const NeighborBond& left, const NeighborBond& right);
-bool compareFirstNeighborPairs(const std::vector<NeighborBond>& left, const std::vector<NeighborBond>& right);
+bool compareFirstNeighborPairs(const std::vector<NeighborBond>& left,
+                               const std::vector<NeighborBond>& right);
 
 }; }; // end namespace freud::locality
 

@@ -76,9 +76,10 @@ void PMFTXYT::reset()
     resetGeneral(m_n_x * m_n_y * m_n_t);
 }
 
-void PMFTXYT::accumulate(const locality::NeighborList* nlist, const locality::NeighborQuery* ref_points,
-                         float* ref_orientations, vec3<float>* points, float* orientations, unsigned int n_p,
-                         freud::locality::QueryArgs qargs)
+void PMFTXYT::accumulate(const locality::NeighborList* nlist,
+                         const locality::NeighborQuery* ref_points, 
+                         float* ref_orientations, vec3<float>* points,
+                         float* orientations, unsigned int n_p, freud::locality::QueryArgs qargs)
 {
     // precalc some values for faster computation within the loop
     float dx_inv = 1.0f / m_dx;
@@ -88,43 +89,43 @@ void PMFTXYT::accumulate(const locality::NeighborList* nlist, const locality::Ne
     Index3D b_i = Index3D(m_n_x, m_n_y, m_n_t);
 
     accumulateGeneral(ref_points, points, n_p, nlist, m_n_x * m_n_y * m_n_t, qargs,
-                      [=](size_t i, size_t j, float dist, float weight) {
-                          vec3<float> ref = ref_points->getRefPoints()[i];
-                          vec3<float> delta = m_box.wrap(points[j] - ref);
+        [=](size_t i, size_t j, float dist, float weight) {
+        vec3<float> ref = ref_points->getRefPoints()[i];
+        vec3<float> delta = m_box.wrap(points[j] - ref);
 
-                          // rotate interparticle vector
-                          vec2<float> myVec(delta.x, delta.y);
-                          rotmat2<float> myMat = rotmat2<float>::fromAngle(-ref_orientations[i]);
-                          vec2<float> rotVec = myMat * myVec;
-                          float x = rotVec.x + m_x_max;
-                          float y = rotVec.y + m_y_max;
-                          // calculate angle
-                          float d_theta = atan2(-delta.y, -delta.x);
-                          float t = orientations[j] - d_theta;
-                          // make sure that t is bounded between 0 and 2PI
-                          t = fmod(t, 2 * M_PI);
-                          if (t < 0)
-                          {
-                              t += 2 * M_PI;
-                          }
-                          // bin that point
-                          float bin_x = floorf(x * dx_inv);
-                          float bin_y = floorf(y * dy_inv);
-                          float bin_t = floorf(t * dt_inv);
+        // rotate interparticle vector
+        vec2<float> myVec(delta.x, delta.y);
+        rotmat2<float> myMat = rotmat2<float>::fromAngle(-ref_orientations[i]);
+        vec2<float> rotVec = myMat * myVec;
+        float x = rotVec.x + m_x_max;
+        float y = rotVec.y + m_y_max;
+        // calculate angle
+        float d_theta = atan2(-delta.y, -delta.x);
+        float t = orientations[j] - d_theta;
+        // make sure that t is bounded between 0 and 2PI
+        t = fmod(t, 2 * M_PI);
+        if (t < 0)
+        {
+            t += 2 * M_PI;
+        }
+        // bin that point
+        float bin_x = floorf(x * dx_inv);
+        float bin_y = floorf(y * dy_inv);
+        float bin_t = floorf(t * dt_inv);
 // fast float to int conversion with truncation
 #ifdef __SSE2__
-                          unsigned int ibin_x = _mm_cvtt_ss2si(_mm_load_ss(&bin_x));
-                          unsigned int ibin_y = _mm_cvtt_ss2si(_mm_load_ss(&bin_y));
-                          unsigned int ibin_t = _mm_cvtt_ss2si(_mm_load_ss(&bin_t));
+        unsigned int ibin_x = _mm_cvtt_ss2si(_mm_load_ss(&bin_x));
+        unsigned int ibin_y = _mm_cvtt_ss2si(_mm_load_ss(&bin_y));
+        unsigned int ibin_t = _mm_cvtt_ss2si(_mm_load_ss(&bin_t));
 #else
                 unsigned int ibin_x = (unsigned int)(bin_x);
                 unsigned int ibin_y = (unsigned int)(bin_y);
                 unsigned int ibin_t = (unsigned int)(bin_t);
 #endif
-                          if ((ibin_x < m_n_x) && (ibin_y < m_n_y) && (ibin_t < m_n_t))
-                          {
-                              ++m_local_bin_counts.local()[b_i(ibin_x, ibin_y, ibin_t)];
-                          }
-                      });
+        if ((ibin_x < m_n_x) && (ibin_y < m_n_y) && (ibin_t < m_n_t))
+        {
+            ++m_local_bin_counts.local()[b_i(ibin_x, ibin_y, ibin_t)];
+        }
+    });
 }
 }; }; // end namespace freud::pmft

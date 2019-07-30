@@ -2,9 +2,9 @@
 
 namespace freud { namespace locality {
 
-std::shared_ptr<NeighborIterator> getNeighborIterator(const NeighborQuery* ref_points,
-                                                      const vec3<float>* points, unsigned int Np,
-                                                      QueryArgs qargs, const NeighborList* nlist)
+std::shared_ptr<NeighborIterator> getNeighborIterator(
+    const NeighborQuery* ref_points, const vec3<float>* points, unsigned int Np,
+    QueryArgs qargs, const NeighborList* nlist)
 {
     if (nlist != NULL)
     {
@@ -16,4 +16,4 @@ std::shared_ptr<NeighborIterator> getNeighborIterator(const NeighborQuery* ref_p
     }
 }
 
-}; }; // namespace freud::locality
+}; };

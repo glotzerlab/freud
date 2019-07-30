@@ -11,15 +11,13 @@ namespace freud { namespace locality {
  */
 struct NeighborBond
 {
-    NeighborBond() : id(0), ref_id(0), distance(0), weight(0) {}
+    NeighborBond() : id(0), ref_id(0), distance(0),  weight(0) {}
 
-    NeighborBond(unsigned int id, unsigned int ref_id, float d, float w)
-        : id(id), ref_id(ref_id), distance(d), weight(w)
-    {}
+    NeighborBond(unsigned int id, unsigned int ref_id, float d, float w) :
+        id(id), ref_id(ref_id), distance(d), weight(w) {}
 
-    NeighborBond(unsigned int id, unsigned int ref_id, float d)
-        : id(id), ref_id(ref_id), distance(d), weight(1)
-    {}
+    NeighborBond(unsigned int id, unsigned int ref_id, float d) :
+        id(id), ref_id(ref_id), distance(d), weight(1) {}
 
     //! Equality checks both id and distance.
     bool operator==(const NeighborBond& n)
@@ -66,11 +64,12 @@ struct NeighborBond
         return distance < n.distance;
     }
 
-    unsigned int id;     //! The point id.
-    unsigned int ref_id; //! The reference point id.
-    float distance;      //! The distance between the points.
-    float weight;        //! The weight of this bond.
+    unsigned int id;          //! The point id.
+    unsigned int ref_id;      //! The reference point id.
+    float distance;           //! The distance between the points.
+    float weight;             //! The weight of this bond.
 };
+
 
 }; }; // end namespace freud::locality
 

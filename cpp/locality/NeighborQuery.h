@@ -338,8 +338,8 @@ public:
     }
 
 protected:
-    unsigned int m_count;                          //!< Number of neighbors returned for the current point.
-    unsigned int m_k;                              //!< Number of nearest neighbors to find
+    unsigned int m_count;                           //!< Number of neighbors returned for the current point.
+    unsigned int m_k;                               //!< Number of nearest neighbors to find
     std::vector<NeighborBond> m_current_neighbors; //!< The current set of found neighbors.
 };
 

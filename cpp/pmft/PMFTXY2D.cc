@@ -76,9 +76,10 @@ void PMFTXY2D::reset()
 //! \internal
 /*! \brief Helper functionto direct the calculation to the correct helper class
  */
-void PMFTXY2D::accumulate(const locality::NeighborList* nlist, const locality::NeighborQuery* ref_points,
-                          float* ref_orientations, vec3<float>* points, float* orientations, unsigned int n_p,
-                          freud::locality::QueryArgs qargs)
+void PMFTXY2D::accumulate(const locality::NeighborList* nlist,
+                          const locality::NeighborQuery* ref_points, 
+                          float* ref_orientations, vec3<float>* points,
+                          float* orientations, unsigned int n_p, freud::locality::QueryArgs qargs)
 {
     // precalc some values for faster computation within the loop
     float dx_inv = 1.0f / m_dx;
@@ -87,36 +88,36 @@ void PMFTXY2D::accumulate(const locality::NeighborList* nlist, const locality::N
     Index2D b_i = Index2D(m_n_x, m_n_y);
 
     accumulateGeneral(ref_points, points, n_p, nlist, m_n_x * m_n_y, qargs,
-                      [=](size_t i, size_t j, float dist, float weight) {
-                          vec3<float> ref = ref_points->getRefPoints()[i];
-                          vec3<float> delta = this->m_box.wrap(points[j] - ref);
+        [=](size_t i, size_t j, float dist, float weight) {
+        vec3<float> ref = ref_points->getRefPoints()[i];
+        vec3<float> delta = this->m_box.wrap(points[j] - ref);
 
-                          // rotate interparticle vector
-                          vec2<float> myVec(delta.x, delta.y);
-                          rotmat2<float> myMat = rotmat2<float>::fromAngle(-ref_orientations[i]);
-                          vec2<float> rotVec = myMat * myVec;
-                          float x = rotVec.x + m_x_max;
-                          float y = rotVec.y + m_y_max;
+        // rotate interparticle vector
+        vec2<float> myVec(delta.x, delta.y);
+        rotmat2<float> myMat = rotmat2<float>::fromAngle(-ref_orientations[i]);
+        vec2<float> rotVec = myMat * myVec;
+        float x = rotVec.x + m_x_max;
+        float y = rotVec.y + m_y_max;
 
-                          // find the bin to increment
-                          float binx = floorf(x * dx_inv);
-                          float biny = floorf(y * dy_inv);
+        // find the bin to increment
+        float binx = floorf(x * dx_inv);
+        float biny = floorf(y * dy_inv);
 
 // fast float to int conversion with truncation
 #ifdef __SSE2__
-                          unsigned int ibinx = _mm_cvtt_ss2si(_mm_load_ss(&binx));
-                          unsigned int ibiny = _mm_cvtt_ss2si(_mm_load_ss(&biny));
+        unsigned int ibinx = _mm_cvtt_ss2si(_mm_load_ss(&binx));
+        unsigned int ibiny = _mm_cvtt_ss2si(_mm_load_ss(&biny));
 #else
             unsigned int ibinx = (unsigned int)(binx);
             unsigned int ibiny = (unsigned int)(biny);
 #endif
 
-                          // increment the bin
-                          if ((ibinx < m_n_x) && (ibiny < m_n_y))
-                          {
-                              ++m_local_bin_counts.local()[b_i(ibinx, ibiny)];
-                          }
-                      });
+        // increment the bin
+        if ((ibinx < m_n_x) && (ibiny < m_n_y))
+        {
+            ++m_local_bin_counts.local()[b_i(ibinx, ibiny)];
+        }
+    });
 }
 
 }; }; // end namespace freud::pmft

@@ -16,17 +16,17 @@
 namespace freud { namespace locality {
 
 //! Abstract class for generating appropriate iterator of neighbors per point.
-class NeighborIterator
+class NeighborIterator 
 {
 public:
-    NeighborIterator() {}
+    NeighborIterator () {}
     virtual ~NeighborIterator() {}
 
     //! Abstract class for iterator of neighbors per point.
     class PerPointIterator
     {
     public:
-        PerPointIterator(size_t point_index) : m_point_index(point_index) {}
+        PerPointIterator(size_t point_index): m_point_index(point_index) {}
         virtual ~PerPointIterator() {}
 
         //! Get the next NeighborBond
@@ -47,7 +47,8 @@ public:
 class NeighborListNeighborIterator : public NeighborIterator
 {
 public:
-    NeighborListNeighborIterator(const NeighborList* nlist) : m_nlist(nlist) {}
+    NeighborListNeighborIterator(const NeighborList * nlist):
+        m_nlist(nlist) {}
 
     ~NeighborListNeighborIterator() {}
 
@@ -55,26 +56,26 @@ public:
     class NeighborListPerPointIterator : public PerPointIterator
     {
     public:
-        NeighborListPerPointIterator(const NeighborList* nlist, size_t point_index)
-            : PerPointIterator(point_index), m_nlist(nlist)
-        {
-            m_current_index = m_nlist->find_first_index(point_index);
-            m_returned_point_index = m_nlist->getNeighbors()[2 * m_current_index];
-            at_end = m_current_index == m_nlist->getNumBonds();
-        }
-
+        NeighborListPerPointIterator(const NeighborList* nlist, size_t point_index):
+            PerPointIterator(point_index), m_nlist(nlist)
+            {
+                m_current_index = m_nlist->find_first_index(point_index);
+                m_returned_point_index = m_nlist->getNeighbors()[2 * m_current_index];
+                at_end = m_current_index == m_nlist->getNumBonds();
+            } 
+        
         ~NeighborListPerPointIterator() {}
 
         virtual NeighborBond next()
         {
-            if (m_current_index == m_nlist->getNumBonds())
+            if(m_current_index == m_nlist->getNumBonds())
             {
                 at_end = true;
                 return NeighborBond();
             }
 
             NeighborBond nb = NeighborBond(m_nlist->getNeighbors()[2 * m_current_index],
-                                           m_nlist->getNeighbors()[2 * m_current_index + 1],
+                                           m_nlist->getNeighbors()[2 * m_current_index + 1], 
                                            m_nlist->getDistances()[m_current_index],
                                            m_nlist->getWeights()[m_current_index]);
             ++m_current_index;
@@ -100,21 +101,20 @@ public:
     }
 
 private:
-    const NeighborList* m_nlist;
+    const NeighborList * m_nlist;
 };
 
 //! NeighborIterator for NeighborQuery
 class NeighborQueryNeighborIterator : public NeighborIterator
 {
 public:
-    NeighborQueryNeighborIterator(const NeighborQuery* nq, const vec3<float>* points, unsigned int N,
-                                  QueryArgs qargs)
+    NeighborQueryNeighborIterator(const NeighborQuery* nq, const vec3<float> *points, unsigned int N, QueryArgs qargs)
     {
         m_qargs = qargs;
         // The query iterators always finds the point with itself as a neighbor bond.
         // To find the proper number of neighbors, we need to increment
         // the number of neighbors to look for.
-        if (qargs.exclude_ii && (qargs.mode == QueryArgs::QueryType::nearest))
+        if(qargs.exclude_ii && (qargs.mode == QueryArgs::QueryType::nearest))
         {
             ++m_qargs.nn;
         }
@@ -127,7 +127,8 @@ public:
         if (dynamic_cast<const RawPoints*>(nq))
         {
             // if nq is RawPoints, build a NeighborQuery
-            m_abq = std::make_shared<AABBQuery>(nq->getBox(), nq->getRefPoints(), nq->getNRef());
+            m_abq = std::make_shared<AABBQuery>(nq->getBox(), nq->getRefPoints(),
+                                              nq->getNRef());
             m_nqiter = m_abq->queryWithArgs(points, N, m_qargs);
         }
         else
@@ -142,10 +143,8 @@ public:
     class NeighborQueryPerPointIterator : public PerPointIterator
     {
     public:
-        NeighborQueryPerPointIterator(std::shared_ptr<NeighborQueryIterator> nqiter, size_t point_index,
-                                      bool exclude_ii)
-            : PerPointIterator(point_index), m_nqiter(nqiter), m_exclude_ii(exclude_ii)
-        {}
+        NeighborQueryPerPointIterator(std::shared_ptr<NeighborQueryIterator> nqiter, size_t point_index, bool exclude_ii):
+        PerPointIterator(point_index), m_nqiter(nqiter), m_exclude_ii(exclude_ii) {}
 
         ~NeighborQueryPerPointIterator() {}
 
@@ -157,7 +156,7 @@ public:
             {
                 return nb;
             }
-            else
+            else 
             {
                 nb = m_nqiter->next();
                 nb.id = m_point_index;
@@ -169,7 +168,6 @@ public:
         {
             return m_nqiter->end();
         }
-
     private:
         std::shared_ptr<NeighborQueryIterator> m_nqiter;
         bool m_exclude_ii;
@@ -186,6 +184,7 @@ private:
     std::shared_ptr<NeighborQueryIterator> m_nqiter;
     QueryArgs m_qargs;
 };
+
 
 //! Wrapper for for-loop to allow the execution in parallel or not.
 /*! \param parallel If true, run body in parallel.
@@ -215,9 +214,9 @@ template<typename Body> void forLoopWrapper(size_t begin, size_t end, const Body
     \param nlist Neighbor List. If not NULL, generate an iterator based on it.
         Otherwise, use ref_points appropriately with given qargs.
 */
-std::shared_ptr<NeighborIterator> getNeighborIterator(const NeighborQuery* ref_points,
-                                                      const vec3<float>* points, unsigned int Np,
-                                                      QueryArgs qargs, const NeighborList* nlist);
+std::shared_ptr<NeighborIterator> getNeighborIterator(
+    const NeighborQuery* ref_points, const vec3<float>* points, unsigned int Np,
+    QueryArgs qargs, const NeighborList* nlist);
 
 //! Wrapper iterating looping over NeighborQuery or NeighborList
 /*! \param ref_points NeighborQuery object to iterate over
@@ -232,20 +231,17 @@ std::shared_ptr<NeighborIterator> getNeighborIterator(const NeighborQuery* ref_p
 */
 template<typename ComputePairType>
 void loopOverNeighborsIterator(const NeighborQuery* ref_points, const vec3<float>* points, unsigned int Np,
-                               QueryArgs qargs, const NeighborList* nlist, const ComputePairType& cf,
-                               bool parallel = true)
+                            QueryArgs qargs, const NeighborList* nlist, 
+                            const ComputePairType& cf, bool parallel = true)
 {
     std::shared_ptr<NeighborIterator> niter = getNeighborIterator(ref_points, points, Np, qargs, nlist);
-    forLoopWrapper(
-        0, Np,
-        [=](size_t begin, size_t end) {
-            for (size_t i = begin; i != end; ++i)
-            {
-                auto ppiter = niter->queryPerPoint(i);
-                cf(i, ppiter);
-            }
-        },
-        parallel);
+    forLoopWrapper(0, Np, [=](size_t begin, size_t end) {
+        for (size_t i = begin; i != end; ++i)
+        {
+            auto ppiter = niter->queryPerPoint(i);
+            cf(i, ppiter);
+        }
+    }, parallel);
 }
 
 //! Wrapper iterating looping over NeighborQuery or NeighborList
@@ -289,17 +285,14 @@ void loopOverNeighborList(const NeighborList* nlist, const ComputePairType& cf, 
     size_t n_bonds = nlist->getNumBonds();
     const float* neighbor_distances = nlist->getDistances();
     const float* neighbor_weights = nlist->getWeights();
-    forLoopWrapper(
-        0, n_bonds,
-        [=](size_t begin, size_t end) {
-            for (size_t bond = begin; bond != end; ++bond)
-            {
-                size_t point_index(neighbor_list[2 * bond]);
-                size_t ref_point_index(neighbor_list[2 * bond + 1]);
-                cf(ref_point_index, point_index, neighbor_distances[bond], neighbor_weights[bond]);
-            }
-        },
-        parallel);
+    forLoopWrapper(0, n_bonds, [=](size_t begin, size_t end) {
+        for (size_t bond = begin; bond != end; ++bond)
+        {
+            size_t point_index(neighbor_list[2 * bond]);
+            size_t ref_point_index(neighbor_list[2 * bond + 1]);
+            cf(ref_point_index, point_index, neighbor_distances[bond], neighbor_weights[bond]);
+        }
+    }, parallel);
 }
 
 //! Wrapper looping over NeighborQuery in parallel
@@ -312,13 +305,13 @@ void loopOverNeighborList(const NeighborList* nlist, const ComputePairType& cf, 
                float distance, float weight) as input.
 */
 template<typename ComputePairType>
-void loopOverNeighborQuery(const NeighborQuery* ref_points, const vec3<float>* points, unsigned int Np,
-                           QueryArgs qargs, const ComputePairType& cf, bool parallel)
+void loopOverNeighborQuery(const NeighborQuery* ref_points, const vec3<float>* points,
+                           unsigned int Np, QueryArgs qargs, const ComputePairType& cf, bool parallel)
 {
     // The query iterators always finds the point with itself as a neighbor bond.
     // To find the proper number of neighbors, we need to increment
     // the number of neighbors to look for.
-    if (qargs.exclude_ii && (qargs.mode == QueryArgs::QueryType::nearest))
+    if(qargs.exclude_ii && (qargs.mode == QueryArgs::QueryType::nearest))
     {
         ++qargs.nn;
     }
@@ -343,28 +336,25 @@ void loopOverNeighborQuery(const NeighborQuery* ref_points, const vec3<float>* p
     }
 
     // iterate over the query object in parallel
-    forLoopWrapper(
-        0, Np,
-        [&iter, &qargs, &cf](size_t begin, size_t end) {
-            NeighborBond np;
-            for (size_t i = begin; i != end; ++i)
+    forLoopWrapper(0, Np, [&iter, &qargs, &cf](size_t begin, size_t end) {
+        NeighborBond np;
+        for (size_t i = begin; i != end; ++i)
+        {
+            std::shared_ptr<NeighborQueryIterator> it = iter->query(i);
+            np = it->next();
+            while (!it->end())
             {
-                std::shared_ptr<NeighborQueryIterator> it = iter->query(i);
-                np = it->next();
-                while (!it->end())
+                //! Warning! If qargs.exclude_ii is true, NeighborBond with same indices
+                // will not be considered regardless of ref_points and points
+                // being same set of points
+                if (!qargs.exclude_ii || i != np.ref_id)
                 {
-                    //! Warning! If qargs.exclude_ii is true, NeighborBond with same indices
-                    // will not be considered regardless of ref_points and points
-                    // being same set of points
-                    if (!qargs.exclude_ii || i != np.ref_id)
-                    {
-                        cf(np.ref_id, i, np.distance, np.weight);
-                    }
-                    np = it->next();
+                    cf(np.ref_id, i, np.distance, np.weight);
                 }
+                np = it->next();
             }
-        },
-        parallel);
+        }
+    }, parallel);
 }
 
 }; }; // end namespace freud::locality

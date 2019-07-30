@@ -9,8 +9,8 @@
 #include <tbb/tbb.h>
 
 #include "Box.h"
-#include "NeighborComputeFunctional.h"
 #include "NeighborList.h"
+#include "NeighborComputeFunctional.h"
 #include "NeighborQuery.h"
 #include "VectorMath.h"
 
@@ -27,7 +27,7 @@ template<typename T> class HexTransOrderParameter
 {
 public:
     //! Constructor
-    HexTransOrderParameter(T k) : m_box(freud::box::Box()), m_Np(0), m_k(k) {}
+    HexTransOrderParameter(T k): m_box(freud::box::Box()), m_Np(0), m_k(k) {}
 
     //! Destructor
     virtual ~HexTransOrderParameter() {}
@@ -54,11 +54,12 @@ public:
         return m_psi_array;
     }
 
+
 protected:
     //! Compute the order parameter
     template<typename Func>
     void computeGeneral(Func func, const freud::locality::NeighborList* nlist,
-                        const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs);
+                                  const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs);
 
     box::Box m_box;    //!< Simulation box where the particles belong
     unsigned int m_Np; //!< Last number of points computed
@@ -79,8 +80,10 @@ public:
     ~TransOrderParameter();
 
     //! Compute the translational order parameter
-    void compute(const freud::locality::NeighborList* nlist, const freud::locality::NeighborQuery* points,
+    void compute(const freud::locality::NeighborList* nlist,
+                 const freud::locality::NeighborQuery* points,
                  freud::locality::QueryArgs qargs);
+
 };
 
 //! Compute the hexatic order parameter for a set of points
@@ -96,7 +99,8 @@ public:
     ~HexOrderParameter();
 
     //! Compute the hexatic order parameter
-    void compute(const freud::locality::NeighborList* nlist, const freud::locality::NeighborQuery* points,
+    void compute(const freud::locality::NeighborList* nlist,
+                 const freud::locality::NeighborQuery* points,
                  freud::locality::QueryArgs qargs);
 };
 

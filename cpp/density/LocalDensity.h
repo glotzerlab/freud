@@ -37,8 +37,9 @@ public:
     }
 
     //! Compute the local density
-    void compute(const freud::locality::NeighborList* nlist, const freud::locality::NeighborQuery* ref_points,
-                 const vec3<float>* points, unsigned int Np, freud::locality::QueryArgs qargs);
+    void compute(const freud::locality::NeighborList* nlist,
+                 const freud::locality::NeighborQuery* ref_points, const vec3<float>* points,
+                 unsigned int Np, freud::locality::QueryArgs qargs);
 
     //! Get the number of reference particles
     unsigned int getNRef();
