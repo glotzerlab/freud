@@ -8,6 +8,7 @@
 #include "NeighborList.h"
 #include "NeighborBond.h"
 #include "VectorMath.h"
+#include "NeighborList.h"
 
 namespace freud { namespace locality {
 
@@ -17,11 +18,12 @@ public:
     // default constructor
     Voronoi();
 
-    void compute(const box::Box& box, const vec3<double>* vertices, const int* ridge_points,
-                 const int* ridge_vertices, unsigned int n_ridges, unsigned int N, const int* expanded_ids,
-                 const vec3<double>* expanded_points, const int* ridge_vertex_indices);
+    void compute(const box::Box &box, const vec3<double>* vertices,
+        const int* ridge_points, const int* ridge_vertices,
+        unsigned int n_ridges, unsigned int N, const int* expanded_ids,
+        const vec3<double>* expanded_points, const int* ridge_vertex_indices);
 
-    NeighborList* getNeighborList()
+    NeighborList *getNeighborList()
     {
         return &m_neighbor_list;
     }
@@ -29,6 +31,7 @@ public:
 private:
     box::Box m_box;
     NeighborList m_neighbor_list; //!< Stored neighbor list
+
 };
 }; }; // end namespace freud::locality
 

@@ -55,13 +55,12 @@ public:
     RotationalAutocorrelation(unsigned int l) : m_l(l), m_N(0), m_Ft(0)
     {
         // For efficiency, precompute all required factorials;
-        m_factorials
-            = std::shared_ptr<unsigned int>(new unsigned int[m_l + 1], std::default_delete<unsigned int[]>());
-        memset((void*) m_factorials.get(), 0, sizeof(unsigned int) * (m_l + 1));
+        m_factorials = std::shared_ptr<unsigned int>(new unsigned int[m_l+1], std::default_delete<unsigned int[]>());
+        memset((void*) m_factorials.get(), 0, sizeof(unsigned int) * (m_l+1));
         m_factorials.get()[0] = 1;
         for (unsigned int i = 1; i <= m_l; i++)
         {
-            m_factorials.get()[i] = i * m_factorials.get()[i - 1];
+            m_factorials.get()[i] = i*m_factorials.get()[i-1];
         }
     }
 
@@ -123,16 +122,15 @@ private:
      *  method to access the cached factorial values for the class's value of
      *  m_l.
      */
-    std::complex<float> hypersphere_harmonic(const std::complex<float> xi, std::complex<float> zeta,
-                                             const unsigned int l, const unsigned int m1,
-                                             const unsigned int m2);
+    std::complex<float> hypersphere_harmonic(const std::complex<float> xi, std::complex<float> zeta, const unsigned int l,
+                                             const unsigned int m1, const unsigned int m2);
 
-    unsigned int m_l; //!< Order of the hyperspherical harmonic.
+    unsigned int m_l;          //!< Order of the hyperspherical harmonic.
     unsigned int m_N; //!< Last number of orientations used in compute.
     float m_Ft;       //!< Real value of calculated RA function.
 
     std::shared_ptr<std::complex<float>> m_RA_array; //!< Array of RA values per particle
-    std::shared_ptr<unsigned int> m_factorials;      //!< Array of cached factorials
+    std::shared_ptr<unsigned int> m_factorials; //!< Array of cached factorials
 };
 
 }; }; // end namespace freud::order
