@@ -22,7 +22,8 @@ class TestLD(unittest.TestCase):
         """Initialize a box with randomly placed particles"""
         box_size = 10
         num_points = 10000
-        self.box, self.pos = util.makeBoxAndRandomPoints(box_size, num_points)
+        self.box, self.pos = util.make_box_and_random_points(
+            box_size, num_points)
         self.r_cut = 3
         self.diameter = 1
         self.ld = freud.density.LocalDensity(self.r_cut, 1, self.diameter)
@@ -50,7 +51,7 @@ class TestLD(unittest.TestCase):
         """Test that LocalDensity computes the correct density at each point"""
 
         rmax = self.r_cut + 0.5*self.diameter
-        test_set = util.makeRawQueryNlistTestSet(
+        test_set = util.make_raw_query_nlist_test_set(
             self.box, self.pos, self.pos, "ball", rmax, 0, True)
         for ts in test_set:
             self.ld.compute(self.box, ts[0], nlist=ts[1])

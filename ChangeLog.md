@@ -2,10 +2,29 @@
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## next
+## Upcoming: Changes for freud 2.0
 
 ### Fixed
+* Steinhardt uses the ThreadStorage class and properly resets memory where needed.
+* Removed all neighbor exclusion logic from Steinhardt.
+
+## v1.2.1 - 2019-07-26
+
+### Changed
+* Optimized performance for `RotationalAutocorrelation`.
+* Added new tests for cases with two different sets of points.
+
+### Fixed
+* Fixed bug resulting in the `LocalQlNear` and `LocalWlNear` class wrongly using a
+  hard instead of a soft cut-off, which may have resulted in an incorrect
+  number of neighbors. This would cause incorrect results especially for
+  systems with an average n-th nearest-neighbor distance smaller than `rmax`. This
+  problem was introduced in v0.6.4.
+* Fixed duplicate neighbors found by `LinkCell` `NeighborQuery` methods
+* Corrected data in `LocalQl`, `LocalWl` documentation example
 * Repeated Cubatic Order Parameter computations use the correct number of replicates.
+* Repeated calls to `LocalQl.computeNorm` properly reset the underlying data.
+* Clarified documentation for `LocalBondProjection` and `MSD`
 
 ## v1.2.0 - 2019-06-27
 

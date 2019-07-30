@@ -30,7 +30,11 @@
         ],
         "name": "freud.common",
         "sources": [
-            "freud/common.pyx"
+            "freud/common.pyx",
+            "cpp/locality/NeighborList.cc",
+            "cpp/locality/NeighborQuery.cc",
+            "cpp/locality/AABBQuery.cc",
+            "cpp/locality/NeighborComputeFunctional.cc"
         ]
     },
     "module_name": "freud.common"

@@ -10,7 +10,7 @@
 #include "NeighborQuery.h"
 
 /*! \file NeighborComputeFunctional.h
-    \brief Implements logic for looping over NeughborQuery
+    \brief Implements logic for looping over NeighborQuery
 */
 
 namespace freud { namespace locality {
@@ -125,7 +125,7 @@ public:
         // a null pointer, making the condition in the if statement to be false.
         // This is a typical C++ way of checking the type of a polymorphic class
         // using pointers and casting.
-        if (const RawPoints* rp = dynamic_cast<const RawPoints*>(nq))
+        if (dynamic_cast<const RawPoints*>(nq))
         {
             // if nq is RawPoints, build a NeighborQuery
             m_abq = std::make_shared<AABBQuery>(nq->getBox(), nq->getPoints(),
@@ -325,7 +325,7 @@ void loopOverNeighborQuery(const NeighborQuery* neighbor_query, const vec3<float
     // a null pointer, making the condition in the if statement to be false.
     // This is a typical C++ way of checking the type of a polymorphic class
     // using pointers and casting.
-    if (const RawPoints* rp = dynamic_cast<const RawPoints*>(neighbor_query))
+    if (dynamic_cast<const RawPoints*>(neighbor_query))
     {
         // if neighbor_query is RawPoints, build a NeighborQuery
         abq = std::make_shared<AABBQuery>(neighbor_query->getBox(), neighbor_query->getPoints(),

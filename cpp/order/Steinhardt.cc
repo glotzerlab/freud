@@ -131,7 +131,9 @@ void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
                              freud::locality::QueryArgs qargs)
 {
     const float normalizationfactor = 4 * M_PI / (2 * m_l + 1);
-
+    // For consistency, this reset is done here regardless of whether the array
+    // is populated in baseCompute or computeAve.
+    m_Qlm_local.reset();
     freud::locality::loopOverNeighborsIterator(points, points->getPoints(), m_Np, qargs, nlist,
         [=](size_t i, std::shared_ptr<freud::locality::NeighborIterator::PerPointIterator> ppiter)
         {
@@ -140,7 +142,6 @@ void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
             for(freud::locality::NeighborBond nb = ppiter->next(); !ppiter->end(); nb = ppiter->next())
             {
                 const vec3<float> delta = points->getBox().wrap((*points)[nb.ref_id] - ref);
-
                 // phi is usually in range 0..2Pi, but
                 // it only appears in Ylm as exp(im\phi),
                 // so range -Pi..Pi will give same results.
@@ -171,6 +172,7 @@ void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
                 m_Qlmi.get()[index] /= neighborcount;
                 // Add the norm, which is the (complex) squared magnitude
                 m_Qli.get()[i] += norm(m_Qlmi.get()[index]);
+                // This array gets populated by computeAve in the averaging case.
                 if (!m_average)
                 {
                     m_Qlm_local.local()[k] += m_Qlmi.get()[index] / float(m_Np);
@@ -184,14 +186,14 @@ void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
 void Steinhardt::computeAve(const freud::locality::NeighborList* nlist,
                                   const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs)
 {
-    std::shared_ptr<freud::locality::NeighborIterator> niter = 
+    std::shared_ptr<freud::locality::NeighborIterator> niter =
         freud::locality::getNeighborIterator(points, points->getPoints(), m_Np, qargs, nlist);
     const float normalizationfactor = 4 * M_PI / (2 * m_l + 1);
 
     freud::locality::loopOverNeighborsIterator(points, points->getPoints(), m_Np, qargs, nlist,
         [=](size_t i, std::shared_ptr<freud::locality::NeighborIterator::PerPointIterator> ppiter)
         {
-            unsigned int neighborcount(1);  
+            unsigned int neighborcount(1);
             for(freud::locality::NeighborBond nb1 = ppiter->next(); !ppiter->end(); nb1 = ppiter->next())
             {
                 auto ns_neighbors_iter = niter->queryPerPoint(nb1.ref_id);
@@ -218,7 +220,7 @@ void Steinhardt::computeAve(const freud::locality::NeighborList* nlist,
                 m_QlmiAve.get()[index] /= neighborcount;
                 m_Qlm_local.local()[k] += m_QlmiAve.get()[index] / float(m_Np);
                 // Add the norm, which is the complex squared magnitude
-                m_QliAve.get()[i] += norm(m_Qlmi.get()[index]);
+                m_QliAve.get()[i] += norm(m_QlmiAve.get()[index]);
             }
             m_QliAve.get()[i] *= normalizationfactor;
             m_QliAve.get()[i] = sqrt(m_QliAve.get()[i]);

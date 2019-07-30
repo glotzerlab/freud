@@ -171,7 +171,6 @@ void Voronoi::compute(const box::Box &box, const vec3<double>* vertices,
                     add_valid_bonds(local_bonds, i, expanded_ids[i], j, expanded_ids[j], N, weight, distance);
                 }
             }
-
         });
 
         tbb::flattened2d<BondVector> flat_bonds = tbb::flatten2d(bonds);
@@ -194,7 +193,6 @@ void Voronoi::compute(const box::Box &box, const vec3<double>* vertices,
                 neighbor_weights[bond] = linear_bonds[bond].weight;
             }
         });
-
     }
 
 }; }; // end namespace freud::locality

@@ -2,8 +2,8 @@ import numpy as np
 import freud
 
 
-def makeRawQueryNlistTestSet(box, ref_points, points, mode, rmax,
-                             num_neigh, exclude_ii):
+def make_raw_query_nlist_test_set(box, ref_points, points, mode, rmax,
+                                  num_neigh, exclude_ii):
     test_set = []
     test_set.append((ref_points, None))
     test_set.append((freud.locality.RawPoints(box, ref_points), None))
@@ -19,7 +19,7 @@ def makeRawQueryNlistTestSet(box, ref_points, points, mode, rmax,
     return test_set
 
 
-def makeBoxAndRandomPoints(box_size, num_points, is2D=False, seed=0):
+def make_box_and_random_points(box_size, num_points, is2D=False, seed=0):
     R"""Helper function to make random points with a cubic or square box.
 
     This function has a side effect that it will set the random seed of numpy.
@@ -50,7 +50,7 @@ def makeBoxAndRandomPoints(box_size, num_points, is2D=False, seed=0):
     return box, points
 
 
-def makeAlternatingLattice(lattice_size, angle=0, extra_shell=2):
+def make_alternating_lattice(lattice_size, angle=0, extra_shell=2):
     R"""Make 2D integer lattice of alternating set of points.
 
     Setting extra_shell to 1 will give 4 neighboring points in points_2 at
@@ -97,27 +97,24 @@ def makeAlternatingLattice(lattice_size, angle=0, extra_shell=2):
     return points_1, points_2
 
 
-def make_fcc(nx=1, ny=1, nz=1, scale=1.0, noise=0.0):
-    """Make an FCC crystal for testing
+def make_cubic(nx=1, ny=1, nz=1, fractions=np.array([[0, 0, 0]],
+               dtype=np.float32), scale=1.0, noise=0.0):
+    """Make a cubic crystal for testing.
 
-    :param nx: Number of repeats in the x direction, default is 1
-    :param ny: Number of repeats in the y direction, default is 1
-    :param nz: Number of repeats in the z direction, default is 1
-    :param scale: Amount to scale the unit cell by (in distance units),
-        default is 1.0
-    :param noise: Apply Gaussian noise with this width to particle positions
-    :type nx: int
-    :type ny: int
-    :type nz: int
-    :type scale: float
-    :type noise: float
-    :return: freud Box, particle positions, shape=(nx*ny*nz, 3)
-    :rtype: (:class:`freud.box.Box`, :class:`np.ndarray`)
+    Args:
+        nx: Number of repeats in the x direction, default is 1.
+        ny: Number of repeats in the y direction, default is 1.
+        nz: Number of repeats in the z direction, default is 1.
+        fractions: The basis to replicate using the lattice.
+        scale: Amount to scale the unit cell by (in distance units)
+               (Default value = 1.0).
+        noise: Apply Gaussian noise with this width to particle positions
+               (Default value = 0.0).
+
+    Returns:
+        tuple (:class:`freud.box.Box`, :class:`np.ndarray`): freud Box,
+            particle positions, shape=(fractions.shape[0]*nx*ny*nz, 3)
     """
-    fractions = np.array([[.5, .5, 0],
-                          [.5, 0, .5],
-                          [0, .5, .5],
-                          [0, 0, 0]], dtype=np.float32)
 
     fractions = np.tile(fractions[np.newaxis, np.newaxis, np.newaxis],
                         (nx, ny, nz, 1, 1))
@@ -133,6 +130,70 @@ def make_fcc(nx=1, ny=1, nz=1, scale=1.0, noise=0.0):
         positions += np.random.normal(scale=noise, size=positions.shape)
 
     return freud.box.Box(*box), positions
+
+
+def make_fcc(nx=1, ny=1, nz=1, scale=1.0, noise=0.0):
+    """Make a FCC crystal for testing.
+
+    Args:
+        nx: Number of repeats in the x direction, default is 1
+        ny: Number of repeats in the y direction, default is 1
+        nz: Number of repeats in the z direction, default is 1
+        scale: Amount to scale the unit cell by (in distance units)
+               (Default value = 1.0).
+        noise: Apply Gaussian noise with this width to particle positions
+               (Default value = 0.0).
+
+    Returns:
+        tuple (:class:`freud.box.Box`, :class:`np.ndarray`): freud Box,
+            particle positions, shape=(4*nx*ny*nz, 3)
+    """
+    fractions = np.array([[.5, .5, 0],
+                          [.5, 0, .5],
+                          [0, .5, .5],
+                          [0, 0, 0]], dtype=np.float32)
+    return make_cubic(nx, ny, nz, fractions, scale, noise)
+
+
+def make_bcc(nx=1, ny=1, nz=1, scale=1.0, noise=0.0):
+    """Make a body-centered-cubic crystal for testing.
+
+    Args:
+        nx: Number of repeats in the x direction, default is 1
+        ny: Number of repeats in the y direction, default is 1
+        nz: Number of repeats in the z direction, default is 1
+        scale: Amount to scale the unit cell by (in distance units)
+               (Default value = 1.0).
+        noise: Apply Gaussian noise with this width to particle positions
+               (Default value = 0.0).
+
+    Returns:
+        tuple (:class:`freud.box.Box`, :class:`np.ndarray`): freud Box,
+            particle positions, shape=(2*nx*ny*nz, 3)
+    """
+    fractions = np.array([[.5, .5, .5],
+                          [0, 0, 0]], dtype=np.float32)
+    return make_cubic(nx, ny, nz, fractions, scale, noise)
+
+
+def make_sc(nx=1, ny=1, nz=1, scale=1.0, noise=0.0):
+    """Make a simple cubic for testing.
+
+    Args:
+        nx: Number of repeats in the x direction, default is 1
+        ny: Number of repeats in the y direction, default is 1
+        nz: Number of repeats in the z direction, default is 1
+        scale: Amount to scale the unit cell by (in distance units)
+               (Default value = 1.0).
+        noise: Apply Gaussian noise with this width to particle positions
+               (Default value = 0.0).
+
+    Returns:
+        tuple (py:class:`freud.box.Box`, :class:`np.ndarray`): freud Box,
+            particle positions, shape=(nx*ny*nz, 3)
+    """
+    fractions = np.array([[0, 0, 0]], dtype=np.float32)
+    return make_cubic(nx, ny, nz, fractions, scale, noise)
 
 
 def skipIfMissing(library):

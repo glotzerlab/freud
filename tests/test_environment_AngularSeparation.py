@@ -2,7 +2,7 @@ import numpy.testing as npt
 import numpy as np
 import freud
 import unittest
-from util import makeBoxAndRandomPoints
+from util import make_box_and_random_points
 
 
 def quatRandom():
@@ -45,8 +45,8 @@ class TestAngularSeparation(unittest.TestCase):
         num_neigh = 8
         rmax = 3
 
-        box, points = makeBoxAndRandomPoints(boxlen, N, True)
-        _, query_points = makeBoxAndRandomPoints(boxlen, N//3, True)
+        box, points = make_box_and_random_points(boxlen, N, True)
+        _, query_points = make_box_and_random_points(boxlen, N//3, True)
 
         ors = []
         for i in range(N):
@@ -97,6 +97,24 @@ class TestAngularSeparation(unittest.TestCase):
         ang = freud.environment.AngularSeparation(rmax, num_neigh)
         ang.computeGlobal(global_ors, ors, equiv_quats)
         npt.assert_equal(ang.n_global, 1)
+
+    def test_get_num_points(self):
+        boxlen = 10
+        N = 500
+        num_neigh = 8
+        rmax = 3
+
+        box, points = make_box_and_random_points(boxlen, N, True)
+
+        ors = []
+        for i in range(N):
+            ors.append(quatRandom())
+
+        ors = np.asarray(ors, dtype=np.float32)
+
+        ang = freud.environment.AngularSeparation(rmax, num_neigh)
+        ang.computeNeighbor(box, points, ors, query_orientations=ors)
+        npt.assert_equal(ang.n_points, N)
 
     def test_compute_neighbors(self):
         boxlen = 4

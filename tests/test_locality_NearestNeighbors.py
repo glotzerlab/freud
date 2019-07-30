@@ -3,7 +3,7 @@ import numpy.testing as npt
 from freud import locality, box, parallel
 import unittest
 import itertools
-from util import makeBoxAndRandomPoints
+from util import make_box_and_random_points
 parallel.setNumThreads(1)
 
 
@@ -17,7 +17,7 @@ class TestNearestNeighbors(unittest.TestCase):
         # Initialize cell list
         cl = locality.NearestNeighbors(rcut, num_neighbors)
 
-        fbox, points = makeBoxAndRandomPoints(L, N)
+        fbox, points = make_box_and_random_points(L, N)
         cl.compute([L, L, L], points, points)
 
         self.assertEqual(cl.box, fbox)
@@ -40,7 +40,7 @@ class TestNearestNeighbors(unittest.TestCase):
         # Initialize cell list
         cl = locality.NearestNeighbors(rcut, num_neighbors)
 
-        fbox, points = makeBoxAndRandomPoints(L, N)
+        fbox, points = make_box_and_random_points(L, N)
         cl.compute(fbox, points, points)
 
         self.assertEqual(cl.num_neighbors, num_neighbors)
@@ -75,7 +75,7 @@ class TestNearestNeighbors(unittest.TestCase):
         # Initialize cell list
         cl = locality.NearestNeighbors(rcut, num_neighbors)
 
-        fbox, points = makeBoxAndRandomPoints(L, N)
+        fbox, points = make_box_and_random_points(L, N)
         cl.compute(fbox, points, points)
 
         neighbor_list = cl.getNeighborList()
@@ -160,7 +160,7 @@ class TestNearestNeighbors(unittest.TestCase):
         N = 40  # number of particles
         num_neighbors = 6
 
-        fbox, pos = makeBoxAndRandomPoints(L, N)
+        fbox, pos = make_box_and_random_points(L, N)
 
         for rcut in np.random.uniform(L/2, L/5, 128):
             # Initialize cell list
@@ -179,7 +179,7 @@ class TestNearestNeighbors(unittest.TestCase):
         N = 8  # number of particles
         num_neighbors = N - 1
 
-        fbox, pos = makeBoxAndRandomPoints(L, N)
+        fbox, pos = make_box_and_random_points(L, N)
 
         for box_cell_count in range(2, 8):
             rcut = L/box_cell_count/1.0001

@@ -28,7 +28,8 @@ class TestRDF(unittest.TestCase):
         dr = 1.0
         num_points = 100
         box_size = r_max*3.1
-        box, points = util.makeBoxAndRandomPoints(box_size, num_points, True)
+        box, points = util.make_box_and_random_points(
+            box_size, num_points, True)
         rdf = freud.density.RDF(r_max, dr)
 
         # Test protected attribute access
@@ -85,10 +86,10 @@ class TestRDF(unittest.TestCase):
 
         for i, r_min in enumerate([0, 0.05, 0.1, 1.0, 3.0]):
             nbins = int((r_max - r_min) / dr)
-            box, points = util.makeBoxAndRandomPoints(box_size, num_points)
+            box, points = util.make_box_and_random_points(box_size, num_points)
             points.flags['WRITEABLE'] = False
             box = freud.box.Box.cube(box_size)
-            test_set = util.makeRawQueryNlistTestSet(
+            test_set = util.make_raw_query_nlist_test_set(
                 box, points, points, "ball", r_max, 0, True)
             for ts in test_set:
                 rdf = freud.density.RDF(r_max, dr, r_min=r_min)
@@ -122,7 +123,7 @@ class TestRDF(unittest.TestCase):
         dr = 1.0
         num_points = 10
         box_size = r_max*3.1
-        box, points = util.makeBoxAndRandomPoints(box_size, num_points)
+        box, points = util.make_box_and_random_points(box_size, num_points)
         rdf = freud.density.RDF(r_max, dr)
 
         with self.assertRaises(AttributeError):
@@ -157,7 +158,7 @@ class TestRDF(unittest.TestCase):
             supposed_RDF.append(supposed_RDF[-1] + N)
         supposed_RDF = np.array(supposed_RDF[:-1])
 
-        test_set = util.makeRawQueryNlistTestSet(
+        test_set = util.make_raw_query_nlist_test_set(
             box, points, query_points, "ball", r_max, 0, False)
         for ts in test_set:
             rdf = freud.density.RDF(r_max, dr)

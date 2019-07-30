@@ -27,7 +27,7 @@ class TestTransOrder(unittest.TestCase):
         with self.assertRaises(AttributeError):
             trans.d_r
 
-        test_set = util.makeRawQueryNlistTestSet(
+        test_set = util.make_raw_query_nlist_test_set(
             box, positions, positions, 'nearest', rmax, n, True)
         for ts in test_set:
             trans.compute(box, ts[0], nlist=ts[1])

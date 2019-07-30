@@ -167,7 +167,7 @@ class TestPMFTR12(unittest.TestCase):
         absoluteTolerance = 0.1
 
         rmax = maxR
-        test_set = util.makeRawQueryNlistTestSet(
+        test_set = util.make_raw_query_nlist_test_set(
             box, points, points, 'ball', rmax, 0, True)
         for ts in test_set:
             myPMFT = freud.pmft.PMFTR12(maxR, nbinsR, nbinsT1, nbinsT2)
@@ -200,12 +200,12 @@ class TestPMFTR12(unittest.TestCase):
         lattice_size = 10
         box = freud.box.Box.square(lattice_size*5)
 
-        points, query_points = util.makeAlternatingLattice(
+        points, query_points = util.make_alternating_lattice(
             lattice_size, 0.01, 2)
         orientations = np.array([0]*len(points))
         query_orientations = np.array([0]*len(query_points))
 
-        test_set = util.makeRawQueryNlistTestSet(
+        test_set = util.make_raw_query_nlist_test_set(
             box, points, query_points, "ball", r_max, 0, False)
         for ts in test_set:
             pmft = freud.pmft.PMFTR12(r_max, n_r, n_t1, n_t2)
@@ -378,7 +378,7 @@ class TestPMFTXYT(unittest.TestCase):
         absoluteTolerance = 0.1
 
         rmax = np.sqrt(maxX**2 + maxY**2)
-        test_set = util.makeRawQueryNlistTestSet(
+        test_set = util.make_raw_query_nlist_test_set(
             box, points, points, 'ball', rmax, 0, True)
         for ts in test_set:
             myPMFT = freud.pmft.PMFTXYT(maxX, maxY, nbinsX, nbinsY, nbinsT)
@@ -413,13 +413,13 @@ class TestPMFTXYT(unittest.TestCase):
         lattice_size = 10
         box = freud.box.Box.square(lattice_size*5)
 
-        points, query_points = util.makeAlternatingLattice(
+        points, query_points = util.make_alternating_lattice(
             lattice_size, 0.01, 2)
         orientations = np.array([0]*len(points))
         query_orientations = np.array([0]*len(query_points))
 
         rmax = np.sqrt(x_max**2 + y_max**2)
-        test_set = util.makeRawQueryNlistTestSet(
+        test_set = util.make_raw_query_nlist_test_set(
             box, points, query_points, 'ball', rmax, 0, False)
 
         for ts in test_set:
@@ -575,7 +575,7 @@ class TestPMFTXY2D(unittest.TestCase):
         absoluteTolerance = 0.1
 
         rmax = np.sqrt(maxX**2 + maxY**2)
-        test_set = util.makeRawQueryNlistTestSet(
+        test_set = util.make_raw_query_nlist_test_set(
             box, points, points, 'ball', rmax, 0, True)
         for ts in test_set:
             myPMFT = freud.pmft.PMFTXY2D(maxX, maxY, nbinsX, nbinsY)
@@ -627,14 +627,14 @@ class TestPMFTXY2D(unittest.TestCase):
         lattice_size = 10
         box = freud.box.Box.square(lattice_size*5)
 
-        points, query_points = util.makeAlternatingLattice(
+        points, query_points = util.make_alternating_lattice(
             lattice_size, 0.01, 2)
 
         orientations = np.array([0]*len(points))
         query_orientations = np.array([0]*len(query_points))
 
         rmax = np.sqrt(x_max**2 + y_max**2)
-        test_set = util.makeRawQueryNlistTestSet(
+        test_set = util.make_raw_query_nlist_test_set(
             box, points, query_points, 'ball', rmax, 0, False)
 
         for ts in test_set:
@@ -839,7 +839,7 @@ class TestPMFTXYZ(unittest.TestCase):
         absoluteTolerance = 0.1
 
         rmax = np.sqrt(maxX**2 + maxY**2 + maxZ**2)
-        test_set = util.makeRawQueryNlistTestSet(
+        test_set = util.make_raw_query_nlist_test_set(
             box, points, points, 'ball', rmax, 0, True)
         for ts in test_set:
             myPMFT = freud.pmft.PMFTXYZ(

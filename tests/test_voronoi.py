@@ -12,7 +12,7 @@ class TestVoronoi(unittest.TestCase):
         # number of points and polytopes
         L = 10  # Box length
         N = 50  # Number of particles
-        box, positions = util.makeBoxAndRandomPoints(L, N, True)
+        box, positions = util.make_box_and_random_points(L, N, True)
         vor = freud.voronoi.Voronoi(box)
 
         with self.assertRaises(AttributeError):
@@ -171,7 +171,7 @@ class TestVoronoi(unittest.TestCase):
         rbuf = 3  # Cutoff radius
         N = 40  # Number of particles
 
-        box, points = util.makeBoxAndRandomPoints(L, N)
+        box, points = util.make_box_and_random_points(L, N)
         vor = freud.voronoi.Voronoi(box)
         vor.computeNeighbors(points, box, rbuf)
         nlist = vor.nlist
