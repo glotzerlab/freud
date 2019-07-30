@@ -17,8 +17,9 @@ from libcpp cimport bool as cbool
 from freud.util cimport vec3
 from cython.operator cimport dereference
 from libcpp.memory cimport shared_ptr
-from freud._locality cimport ITERATOR_TERMINATOR
 from libcpp.vector cimport vector
+from freud._locality cimport ITERATOR_TERMINATOR
+from freud.common cimport Compute
 
 cimport freud._locality
 cimport freud.box
@@ -1112,27 +1113,11 @@ cdef class _Voronoi:
         return repr(self)
 
 
-cdef class _VoroPlusPlus:
-    R"""Compute the Voronoi tessellation of a 2D or 3D system using qhull.
-    This uses :class:`scipy.spatial.Voronoi`, accounting for periodic
-    boundary conditions.
+cdef class _VoroPlusPlus(Compute):
+    R"""Compute the Voronoi tessellation of a 2D or 3D system using voro++.
 
     .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
     .. moduleauthor:: Yezhi Jin <jinyezhi@umich.com>
-
-    Since qhull does not support periodic boundary conditions natively, we
-    expand the box to include a portion of the particles' periodic images.
-    The buffer width is given by the parameter :code:`buffer`. The
-    computation of Voronoi tessellations and neighbors is only guaranteed
-    to be correct if :code:`buffer >= L/2` where :code:`L` is the longest side
-    of the simulation box. For dense systems with particles filling the
-    entire simulation volume, a smaller value for :code:`buffer` is acceptable.
-    If the buffer width is too small, then some polytopes may not be closed
-    (they may have a boundary at infinity), and these polytopes' vertices are
-    excluded from the list.  If either the polytopes or volumes lists that are
-    computed is different from the size of the array of positions used in the
-    :meth:`freud.locality.Voronoi.compute()` method, try recomputing using a
-    larger buffer width.
 
     Attributes:
         nlist (:class:`~.locality.NeighborList`):
@@ -1142,16 +1127,16 @@ cdef class _VoroPlusPlus:
             "ridge area" of the Voronoi boundary polygon between the
             neighboring particles.
         polytopes (list[:class:`numpy.ndarray`]):
-            List of arrays, each containing Voronoi polytope vertices.
+            List of arrays, each containing Voronoi cell polytope vertices.
         volumes ((:math:`\left(N_{cells} \right)`) :class:`numpy.ndarray`):
-            Returns an array of volumes (areas in 2D) corresponding to Voronoi
-            cells.
+            Returns an array of Voronoi cell volumes (areas in 2D).
     """
 
-    def __init__(self):
+    def __cinit__(self):
         self.thisptr = new freud._locality.VoroPlusPlus()
         self._nlist = NeighborList()
 
+    @Compute._compute()
     def compute(self, box, points):
         R"""Compute Voronoi diagram.
 
@@ -1163,7 +1148,7 @@ cdef class _VoroPlusPlus:
         """
         cdef freud.box.Box b = freud.common.convert_box(box)
 
-        # Must keep this in double precision
+        # voro++ uses double precision
         points = freud.common.convert_array(points, shape=(None, 3),
                                             dtype=np.float64)
         cdef const double[:, ::1] l_points = points
@@ -1181,7 +1166,7 @@ cdef class _VoroPlusPlus:
 
         return self
 
-    @property
+    @Compute._computed_property()
     def polytopes(self):
         R"""Returns a list of polytope vertices corresponding to Voronoi cells.
 
@@ -1205,18 +1190,21 @@ cdef class _VoroPlusPlus:
         cdef size_t i
         cdef size_t j
         cdef size_t num_verts
+        cdef vector[vec3[double]] raw_vertices
+        cdef vec3[double] vertex
         cdef double[:, ::1] polytope_vertices
         for i in range(raw_polytopes.size()):
-            num_verts = raw_polytopes[i].size()
+            raw_vertices = raw_polytopes[i]
+            num_verts = raw_vertices.size()
             polytope_vertices = np.empty((num_verts, 3), dtype=np.float64)
             for j in range(num_verts):
-                polytope_vertices[j, 0] = raw_polytopes[i][j].x
-                polytope_vertices[j, 1] = raw_polytopes[i][j].y
-                polytope_vertices[j, 2] = raw_polytopes[i][j].z
+                polytope_vertices[j, 0] = raw_vertices[j].x
+                polytope_vertices[j, 1] = raw_vertices[j].y
+                polytope_vertices[j, 2] = raw_vertices[j].z
             polytopes.append(np.asarray(polytope_vertices))
         return polytopes
 
-    @property
+    @Compute._computed_property()
     def nlist(self):
         R"""Returns a neighbor list object.
 
@@ -1233,28 +1221,14 @@ cdef class _VoroPlusPlus:
         """
         return self._nlist
 
-    @property
+    @Compute._computed_property()
     def volumes(self):
         R"""Returns an array of volumes (areas in 2D) corresponding to Voronoi
         cells.
 
-        .. versionadded:: 0.8
-
-        Must call :meth:`freud.locality.Voronoi.compute()` before this
-        method.
-
-        If the buffer width is too small, then some polytopes may not be
-        closed (they may have a boundary at infinity), and these polytopes'
-        volumes/areas are excluded from the list.
-
-        The length of the list returned by this method should be the same
-        as the array of positions used in the
-        :meth:`freud.locality.Voronoi.compute()` method, if all the polytopes
-        are closed. Otherwise try using a larger buffer width.
-
         Returns:
             (:math:`\left(N_{cells} \right)`) :class:`numpy.ndarray`:
-                Voronoi polytope volumes/areas.
+                Array of voronoi polytope volumes (areas in 2D).
         """
         return np.asarray(self.thisptr.getVolumes())
 
