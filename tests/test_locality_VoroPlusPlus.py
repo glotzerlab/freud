@@ -13,23 +13,31 @@ def sort_rounded_xyz_array(arr, decimals=4):
 
 
 class TestVoroPlusPlus(unittest.TestCase):
-    def test_basic(self):
+    def test_basic_2d(self):
         # Test that voronoi tessellations of random systems have the same
         # number of points and polytopes
         L = 10  # Box length
         N = 50  # Number of particles
-        box = freud.box.Box.square(L)  # Initialize box
+        box, points = util.make_box_and_random_points(L, N, is2D=True)
         vor = freud.locality._VoroPlusPlus()
-        np.random.seed(0)
-        # Generate random points in the box
-        positions = np.random.uniform(-L/2, L/2, size=(N, 2))
-        # Add a z-component of 0
-        positions = np.insert(positions, 2, 0, axis=1).astype(np.float64)
-        vor.compute(box, positions)
+        vor.compute(box, points)
 
-        result = vor.polytopes
+        npt.assert_equal(len(vor.polytopes), len(points))
+        npt.assert_equal(len(vor.volumes), len(points))
+        npt.assert_almost_equal(np.sum(vor.volumes), box.volume)
 
-        npt.assert_equal(len(result), len(positions))
+    def test_basic_3d(self):
+        # Test that voronoi tessellations of random systems have the same
+        # number of points and polytopes
+        L = 10  # Box length
+        N = 50  # Number of particles
+        box, points = util.make_box_and_random_points(L, N, is2D=False)
+        vor = freud.locality._VoroPlusPlus()
+        vor.compute(box, points)
+
+        npt.assert_equal(len(vor.polytopes), len(points))
+        npt.assert_equal(len(vor.volumes), len(points))
+        npt.assert_almost_equal(np.sum(vor.volumes), box.volume)
 
     def test_voronoi_tess_2d(self):
         # Test that the voronoi polytope works for a 2D system
@@ -47,7 +55,7 @@ class TestVoroPlusPlus(unittest.TestCase):
             [[1.5, 1.5, 0], [0.5, 1.5, 0], [0.5, 0.5, 0], [1.5, 0.5, 0]])
         npt.assert_almost_equal(center_polytope, expected_polytope)
 
-        # # Verify the cell areas
+        # Verify the cell areas
         npt.assert_almost_equal(vor.volumes[4], 1)
         npt.assert_almost_equal(np.sum(vor.volumes), box.volume)
 
@@ -81,36 +89,36 @@ class TestVoroPlusPlus(unittest.TestCase):
         npt.assert_almost_equal(np.sum(vor.volumes), box.volume)
 
     def test_voronoi_neighbors_wrapped(self):
-        # Test that voronoi neighbors in the first shell are
-        # correct for a wrapped 3D system
+        # Test that voronoi neighbors in the first shell are correct for a
+        # wrapped 3D system, also tests multiple compute calls
 
-        L = 3.0  # Box length
-        box = freud.box.Box.cube(L)
-
-        # Make a simple cubic structure
-        positions = np.array([[i + 0.5 - L/2,
-                               j + 0.5 - L/2,
-                               k + 0.5 - L/2]
-                              for i in range(int(L))
-                              for j in range(int(L))
-                              for k in range(int(L))]).astype(np.float64)
+        n = 10
+        structure_neighbors = {
+            'sc': (util.make_sc, 6),
+            'bcc': (util.make_bcc, 14),
+            'fcc': (util.make_fcc, 12),
+        }
         vor = freud.locality._VoroPlusPlus()
-        vor.compute(box, positions)
-        nlist = vor.nlist
 
-        # Drop the tiny facets that come from numerical imprecision
-        nlist = nlist.filter(nlist.weights > 1e-7)
+        for func, neighbors in structure_neighbors.values():
+            box, points = func(nx=n, ny=n, nz=n)
+            vor.compute(box, points)
+            nlist = vor.nlist
 
-        unique_indices, counts = np.unique(nlist.index_i, return_counts=True)
+            # Drop the tiny facets that come from numerical imprecision
+            nlist = nlist.filter(nlist.weights > 1e-5)
 
-        # Every particle should have six neighbors
-        npt.assert_equal(counts, np.full(len(unique_indices), 6))
+            unique_indices, counts = np.unique(nlist.index_i, return_counts=True)
+
+            # Every particle should have six neighbors
+            npt.assert_equal(counts, neighbors)
+            npt.assert_almost_equal(np.sum(vor.volumes), box.volume)
 
     def test_voronoi_weights_fcc(self):
         # Test that voronoi neighbor weights are computed properly for 3D FCC
 
-        L = 3
-        box, positions = util.make_fcc(nx=L, ny=L, nz=L)
+        n = 3
+        box, positions = util.make_fcc(nx=n, ny=n, nz=n)
 
         vor = freud.locality._VoroPlusPlus()
         vor.compute(box, positions)
@@ -128,6 +136,7 @@ class TestVoroPlusPlus(unittest.TestCase):
         npt.assert_allclose(nlist.weights,
                             np.full(len(nlist.weights), 0.5*np.sqrt(2)),
                             atol=1e-5)
+
         # Every cell should have volume 2
         vor.compute(box, positions)
         npt.assert_allclose(vor.compute(box, positions).volumes,
@@ -139,20 +148,13 @@ class TestVoroPlusPlus(unittest.TestCase):
         L = 10  # Box length
         N = 40  # Number of particles
 
-        box = freud.box.Box.cube(L)  # Initialize box
-        np.random.seed(0)
-        points = np.random.uniform(-L/2, L/2, (N, 3)).astype(np.float64)
+        box, points = util.make_box_and_random_points(L, N, is2D=False)
         vor = freud.locality._VoroPlusPlus()
         vor.compute(box, points)
         nlist = vor.nlist
 
         ijs = set(zip(nlist.index_i, nlist.index_j))
         jis = set(zip(nlist.index_j, nlist.index_i))
-
-        # we shouldn't have duplicate (i, j) pairs in the
-        # resulting neighbor list
-        # npt.assert_equal(len(ijs), len(nlist))
-        # npt.assert_equal(len(ijs), len(jis))
 
         # every (i, j) pair should have a corresponding (j, i) pair
         self.assertTrue(all((j, i) in jis for (i, j) in ijs))
