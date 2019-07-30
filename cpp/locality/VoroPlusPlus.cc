@@ -44,6 +44,9 @@ typedef std::vector<VoroPlusPlusBond> SerialBondVector;
 // Voronoi calculations should be kept in double precision.
 void VoroPlusPlus::compute(const box::Box &box, const vec3<double>* points, unsigned int N)
     {
+        m_polytopes.clear();
+        m_volumes.clear();
+
         vec3<float> boxLatticeVectors[3];
         boxLatticeVectors[0] = box.getLatticeVector(0);
         boxLatticeVectors[1] = box.getLatticeVector(1);
@@ -97,6 +100,25 @@ void VoroPlusPlus::compute(const box::Box &box, const vec3<double>* points, unsi
                 cell.normals(normals);
                 cell.vertices(vertices);
 
+                // Save polytope vertices
+                //TODO: Only use upper plane (z > 0) vertices if the box is 2D
+                // and set z=0 manually
+                std::vector<vec3<double>> vec3_vertices;
+                auto vertex_iterator = vertices.begin();
+                while (vertex_iterator != vertices.end()) {
+                    double x = *vertex_iterator;
+                    vertex_iterator++;
+                    double y = *vertex_iterator;
+                    vertex_iterator++;
+                    double z = *vertex_iterator;
+                    vertex_iterator++;
+                    vec3_vertices.push_back(vec3<double>(x, y, z));
+                }
+                m_polytopes.push_back(vec3_vertices);
+
+                // Save cell volume
+                m_volumes.push_back(cell.volume());
+
                 size_t neighbor_counter(0);
                 for (auto neighbor_iterator = neighbors.begin(); neighbor_iterator != neighbors.end(); neighbor_iterator++) {
                     int neighbor_id = *neighbor_iterator;
@@ -117,7 +139,7 @@ void VoroPlusPlus::compute(const box::Box &box, const vec3<double>* points, unsi
                     //
                     // First, skip through the previous faces
                     int face_vertices_index = 0;
-                    for (int face_counter = 0; face_counter < neighbor_counter; face_counter++) {
+                    for (size_t face_counter = 0; face_counter < neighbor_counter; face_counter++) {
                         face_vertices_index += face_vertices[face_vertices_index] + 1;
                     }
 
@@ -139,6 +161,7 @@ void VoroPlusPlus::compute(const box::Box &box, const vec3<double>* points, unsi
                     neighbor_counter++;
                     printf("Bond from %i to %i, weight %f, distance %f, normal (%f, %f, %f)\n", pid, neighbor_id, weight, dist, normal.x, normal.y, normal.z);
                     printf("Vertex %i on face, ri (%f, %f, %f), rv (%f, %f, %f)\n", vertex_id_on_face, ri.x, ri.y, ri.z, rv.x, rv.y, rv.z);
+                    bonds.push_back(VoroPlusPlusBond(pid, neighbor_id, weight, dist));
                 }
 
                 if (print_loud) {
@@ -176,6 +199,25 @@ void VoroPlusPlus::compute(const box::Box &box, const vec3<double>* points, unsi
                 }
             } while (voronoi_loop.inc());
         }
+
+        tbb::parallel_sort(bonds.begin(), bonds.end(), compareNeighborPairs);
+
+        unsigned int num_bonds = bonds.size();
+
+        m_neighbor_list.resize(num_bonds);
+        m_neighbor_list.setNumBonds(num_bonds, N, N);
+        size_t *neighbor_array(m_neighbor_list.getNeighbors());
+        float *neighbor_weights(m_neighbor_list.getWeights());
+
+        parallel_for(tbb::blocked_range<size_t>(0, num_bonds),
+            [&] (const tbb::blocked_range<size_t> &r) {
+            for (size_t bond(r.begin()); bond < r.end(); ++bond)
+            {
+                neighbor_array[2*bond] = bonds[bond].index_i;
+                neighbor_array[2*bond+1] = bonds[bond].index_j;
+                neighbor_weights[bond] = bonds[bond].weight;
+            }
+        });
 
         /*
         // iterate over ridges in parallel

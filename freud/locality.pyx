@@ -1117,9 +1117,6 @@ cdef class _VoroPlusPlus:
     This uses :class:`scipy.spatial.Voronoi`, accounting for periodic
     boundary conditions.
 
-    .. moduleauthor:: Benjamin Schultz <baschult@umich.edu>
-    .. moduleauthor:: Yina Geng <yinageng@umich.edu>
-    .. moduleauthor:: Mayank Agrawal <amayank@umich.edu>
     .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
     .. moduleauthor:: Yezhi Jin <jinyezhi@umich.com>
 
@@ -1202,7 +1199,16 @@ cdef class _VoroPlusPlus:
                 List of :class:`numpy.ndarray` containing Voronoi polytope
                 vertices.
         """
-        return self._polytopes
+        polytopes = []
+        cdef vector[vector[vec3[double]]] raw_polytopes = self.thisptr.getPolytopes()
+        cdef size_t i
+        cdef size_t num_verts
+        cdef const double[:, ::1] polytope_vertices
+        for i in range(raw_polytopes.size()):
+            num_verts = raw_polytopes[i].size()
+            polytope_vertices = <double[:num_verts, :3]> (<double*> raw_polytopes[i].data())
+            polytopes.append(np.asarray(polytope_vertices))
+        return polytopes
 
     @property
     def nlist(self):
@@ -1244,15 +1250,7 @@ cdef class _VoroPlusPlus:
             (:math:`\left(N_{cells} \right)`) :class:`numpy.ndarray`:
                 Voronoi polytope volumes/areas.
         """
-
-        self._volumes = np.zeros((len(self._polytopes)))
-
-        for i, verts in enumerate(self._polytopes):
-            is2D = np.all(self._polytopes[0][:, -1] == 0)
-            hull = ConvexHull(verts[:, :2 if is2D else 3])
-            self._volumes[i] = hull.volume
-
-        return self._volumes
+        return self.thisptr.getVolumes()
 
     def __repr__(self):
         return "freud.locality.{cls}()".format(

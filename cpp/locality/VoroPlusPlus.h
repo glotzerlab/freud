@@ -37,10 +37,21 @@ public:
         return &m_neighbor_list;
     }
 
+    std::vector<std::vector<vec3<double>>> getPolytopes()
+    {
+        return m_polytopes;
+    }
+
+    std::vector<double> getVolumes()
+    {
+        return m_volumes;
+    }
+
 private:
     box::Box m_box;
     NeighborList m_neighbor_list; //!< Stored neighbor list
     std::vector<std::vector<vec3<double>>> m_polytopes; //!< Voronoi polytopes
+    std::vector<double> m_volumes; //!< Voronoi cell volumes
 
 };
 }; }; // end namespace freud::locality

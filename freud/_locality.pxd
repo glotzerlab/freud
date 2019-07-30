@@ -150,3 +150,5 @@ cdef extern from "VoroPlusPlus.h" namespace "freud::locality":
             const vec3[double]*,
             const unsigned int) nogil except +
         NeighborList * getNeighborList()
+        vector[vector[vec3[double]]] getPolytopes()
+        vector[double] getVolumes()
