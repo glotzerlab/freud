@@ -103,7 +103,8 @@ class TestBondOrder(unittest.TestCase):
         # big box to ignore periodicity
         box = freud.box.Box.square(lattice_size*5)
         angle = np.pi/30
-        query_points, points = util.make_alternating_lattice(lattice_size, angle)
+        query_points, points = util.make_alternating_lattice(
+            lattice_size, angle)
 
         r_max = 1.6
 

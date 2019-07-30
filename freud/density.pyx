@@ -708,7 +708,8 @@ cdef class LocalDensity(Compute):
         return freud.box.BoxFromCPP(self.thisptr.getBox())
 
     @Compute._compute()
-    def compute(self, box, points, query_points=None, nlist=None, query_args={}):
+    def compute(self, box, points, query_points=None, nlist=None,
+                query_args={}):
         R"""Calculates the local density for the specified points. Does not
         accumulate (will overwrite current data).
 
@@ -855,7 +856,8 @@ cdef class RDF(Compute):
         return freud.box.BoxFromCPP(self.thisptr.getBox())
 
     @Compute._compute()
-    def accumulate(self, box, points, query_points=None, nlist=None, query_args={}):
+    def accumulate(self, box, points, query_points=None, nlist=None,
+                   query_args={}):
         R"""Calculates the RDF and adds to the current RDF histogram.
 
         Args:
@@ -897,7 +899,8 @@ cdef class RDF(Compute):
         return self
 
     @Compute._compute()
-    def compute(self, box, points, query_points=None, nlist=None, query_args={}):
+    def compute(self, box, points, query_points=None, nlist=None,
+                query_args={}):
         R"""Calculates the RDF for the specified points. Will overwrite the current
         histogram.
 

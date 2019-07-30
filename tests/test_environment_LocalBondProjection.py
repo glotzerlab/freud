@@ -83,25 +83,6 @@ class TestLocalBondProjection(unittest.TestCase):
         ang.compute(box, proj_vecs, points, ors)
         npt.assert_equal(ang.num_proj_vectors, 1)
 
-    def test_num_points(self):
-        boxlen = 10
-        N = 500
-        num_neigh = 8
-        rmax = 3
-
-        box, points = make_box_and_random_points(boxlen, N, True)
-
-        ors = []
-        for i in range(N):
-            ors.append(quatRandom())
-
-        ors = np.asarray(ors, dtype=np.float32)
-        proj_vecs = np.asarray([[0, 0, 1]])
-
-        ang = freud.environment.LocalBondProjection(rmax, num_neigh)
-        ang.compute(box, proj_vecs, points, ors)
-        npt.assert_equal(ang.num_points, N)
-
     def test_box(self):
         boxlen = 10
         N = 500
