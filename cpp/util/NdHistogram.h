@@ -69,17 +69,17 @@ public:
     // Wrapper to do accumulation.
     // :code:`Func cf` should be some sort of (void*)(size_t, size_t)
     template<typename Func>
-    void accumulateGeneral(const locality::NeighborQuery* ref_points, 
-                           const vec3<float>* points, unsigned int n_p,
+    void accumulateGeneral(const locality::NeighborQuery* neighbor_query, 
+                           const vec3<float>* query_points, unsigned int n_query_points,
                            const locality::NeighborList* nlist,
-                           unsigned int bin_size, freud::locality::QueryArgs qargs, 
+                           freud::locality::QueryArgs qargs,
                            Func cf)
     {
-        m_box = ref_points->getBox();
-        locality::loopOverNeighbors(ref_points, points, n_p, qargs, nlist, cf);
+        m_box = neighbor_query->getBox();
+        locality::loopOverNeighbors(neighbor_query, query_points, n_query_points, qargs, nlist, cf);
         m_frame_counter++;
-        m_n_ref = ref_points->getNRef();
-        m_n_p = n_p;
+        m_n_points = neighbor_query->getNPoints();
+        m_n_query_points = n_query_points;
         // flag to reduce
         m_reduce = true;
     }
@@ -87,8 +87,8 @@ public:
 protected:
     box::Box m_box;
     unsigned int m_frame_counter; //!< Number of frames calculated
-    unsigned int m_n_ref;         //!< The number of reference points
-    unsigned int m_n_p;           //!< The number of points
+    unsigned int m_n_points;         //!< The number of points
+    unsigned int m_n_query_points;           //!< The number of query points
     bool m_reduce;                //!< Whether or not the PCF needs to be reduced
 
     std::shared_ptr<float> m_pcf_array;         //!< Array of computed pair correlation function

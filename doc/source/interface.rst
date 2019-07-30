@@ -17,5 +17,5 @@ Interface Module
 Interface Measure
 =================
 
-.. autoclass:: freud.interface.InterfaceMeasure(box, r_cut)
-   :members:
+.. autoclass:: freud.interface.InterfaceMeasure(box, r_max)
+   :members: compute

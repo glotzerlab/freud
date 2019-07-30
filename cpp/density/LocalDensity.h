@@ -37,12 +37,12 @@ public:
     }
 
     //! Compute the local density
-    void compute(const freud::locality::NeighborList* nlist,
-                 const freud::locality::NeighborQuery* ref_points, const vec3<float>* points,
-                 unsigned int Np, freud::locality::QueryArgs qargs);
+    void compute(const freud::locality::NeighborQuery* neighbor_query, const vec3<float>* query_points,
+                 unsigned int n_query_points, const freud::locality::NeighborList* nlist,
+                 freud::locality::QueryArgs qargs);
 
     //! Get the number of reference particles
-    unsigned int getNRef();
+    unsigned int getNPoints();
 
     //! Get a reference to the last computed density
     std::shared_ptr<float> getDensity();
@@ -55,7 +55,7 @@ private:
     float m_rcut;         //!< Maximum neighbor distance
     float m_volume;       //!< Volume (area in 2d) of a single particle
     float m_diameter;     //!< Diameter of the particles
-    unsigned int m_n_ref; //!< Last number of points computed
+    unsigned int m_n_points; //!< Last number of points computed
 
     std::shared_ptr<float> m_density_array;       //!< density array computed
     std::shared_ptr<float> m_num_neighbors_array; //!< number of neighbors array computed

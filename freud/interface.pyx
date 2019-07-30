@@ -31,61 +31,54 @@ cdef class InterfaceMeasure(Compute):
 
     Args:
         box (:class:`freud.box.Box`): Simulation box.
-        r_cut (float): Distance to search for particle neighbors.
+        r_max (float): Distance to search for particle neighbors.
 
     Attributes:
-        ref_point_count (int):
-            Number of particles from :code:`ref_points` on the interface.
-        ref_point_ids (:class:`np.ndarray`):
-            The particle IDs from :code:`ref_points`.
         point_count (int):
             Number of particles from :code:`points` on the interface.
         point_ids (:class:`np.ndarray`):
             The particle IDs from :code:`points`.
+        query_point_count (int):
+            Number of particles from :code:`query_points` on the interface.
+        query_point_ids (:class:`np.ndarray`):
+            The particle IDs from :code:`query_points`.
     """
-    cdef float rmax
-    cdef const unsigned int[::1] _ref_point_ids
+    cdef float r_max
     cdef const unsigned int[::1] _point_ids
+    cdef const unsigned int[::1] _query_point_ids
 
-    def __cinit__(self, float r_cut):
-        self.rmax = r_cut
-        self._ref_point_ids = np.empty(0, dtype=np.uint32)
+    def __cinit__(self, float r_max):
+        self.r_max = r_max
         self._point_ids = np.empty(0, dtype=np.uint32)
+        self._query_point_ids = np.empty(0, dtype=np.uint32)
 
     @Compute._compute()
-    def compute(self, box, ref_points, points, nlist=None):
+    def compute(self, box, points, query_points, nlist=None):
         R"""Compute the particles at the interface between the two given sets of
         points.
 
         Args:
-            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
                 One set of particle positions.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            query_points ((:math:`N_{query_points}`, 3) :class:`numpy.ndarray`):
                 Other set of particle positions.
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Neighborlist to use to find bonds (Default value = None).
-        """
+        """  # noqa E501
         b = freud.common.convert_box(box)
-        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
         points = freud.common.convert_array(points, shape=(None, 3))
+        query_points = freud.common.convert_array(
+            query_points, shape=(None, 3))
 
         if nlist is None:
-            lc = freud.locality.LinkCell(b, self.rmax)
-            nlist = lc.compute(b, ref_points, points).nlist
+            lc = freud.locality.LinkCell(b, self.r_max)
+            nlist = lc.compute(b, points, query_points).nlist
         else:
-            nlist = nlist.copy().filter_r(b, ref_points, points, self.rmax)
+            nlist = nlist.copy().filter_r(b, points, query_points, self.r_max)
 
-        self._ref_point_ids = np.unique(nlist.index_j).astype(np.uint32)
-        self._point_ids = np.unique(nlist.index_i).astype(np.uint32)
+        self._point_ids = np.unique(nlist.index_j).astype(np.uint32)
+        self._query_point_ids = np.unique(nlist.index_i).astype(np.uint32)
         return self
-
-    @Compute._computed_property()
-    def ref_point_count(self):
-        return len(self._ref_point_ids)
-
-    @Compute._computed_property()
-    def ref_point_ids(self):
-        return np.asarray(self._ref_point_ids)
 
     @Compute._computed_property()
     def point_count(self):
@@ -95,9 +88,17 @@ cdef class InterfaceMeasure(Compute):
     def point_ids(self):
         return np.asarray(self._point_ids)
 
+    @Compute._computed_property()
+    def query_point_count(self):
+        return len(self._query_point_ids)
+
+    @Compute._computed_property()
+    def query_point_ids(self):
+        return np.asarray(self._query_point_ids)
+
     def __repr__(self):
-        return "freud.interface.{cls}(r_cut={r_cut})".format(
-            cls=type(self).__name__, r_cut=self.rmax)
+        return "freud.interface.{cls}(r_max={r_max})".format(
+            cls=type(self).__name__, r_max=self.r_max)
 
     def __str__(self):
         return repr(self)

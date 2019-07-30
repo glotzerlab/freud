@@ -15,6 +15,7 @@ Order Module
     freud.order.LocalQlNear
     freud.order.LocalWl
     freud.order.LocalWlNear
+    freud.order.Steinhardt
     freud.order.SolLiq
     freud.order.SolLiqNear
     freud.order.RotationalAutocorrelation
@@ -39,40 +40,46 @@ Nematic Order Parameter
 Hexatic Order Parameter
 =======================
 
-.. autoclass:: freud.order.HexOrderParameter(rmax, k, n)
+.. autoclass:: freud.order.HexOrderParameter(r_max, k=6, num_neighbors=0)
     :members: compute
 
 Translational Order Parameter
 =============================
 
-.. autoclass:: freud.order.TransOrderParameter(rmax, k, n)
+.. autoclass:: freud.order.TransOrderParameter(r_max, k=6.0, num_neighbors=0)
     :members: compute
 
 Steinhardt :math:`Q_l` Order Parameter
 ======================================
 
-.. autoclass:: freud.order.LocalQl(box, rmax, l, rmin)
+.. autoclass:: freud.order.LocalQl(box, r_max, l, r_min=0)
     :members: compute, computeAve, computeAveNorm, computeNorm, setBox, plot
 
-.. autoclass:: freud.order.LocalQlNear(box, rmax, l, kn)
+.. autoclass:: freud.order.LocalQlNear(box, r_max, l, num_neighbors=12)
     :members: compute, computeAve, computeAveNorm, computeNorm, setBox, plot
 
 Steinhardt :math:`W_l` Order Parameter
 ======================================
 
-.. autoclass:: freud.order.LocalWl(box, rmax, l)
+.. autoclass:: freud.order.LocalWl(box, r_max, l, r_min=0)
     :members: compute, computeAve, computeAveNorm, computeNorm, setBox, plot
 
-.. autoclass:: freud.order.LocalWlNear(box, rmax, l, kn)
+.. autoclass:: freud.order.LocalWlNear(box, r_max, l, num_neighbors=12)
     :members: compute, computeAve, computeAveNorm, computeNorm, setBox, plot
+
+Steinhardt
+==========
+
+.. autoclass:: freud.order.Steinhardt(l, r_min, r_max, average=False, norm=False, Wl=False, num_neighbors=0)
+    :members: compute
 
 Solid-Liquid Order Parameter
 ============================
 
-.. autoclass:: freud.order.SolLiq(box, rmax, Qthreshold, Sthreshold, l)
+.. autoclass:: freud.order.SolLiq(box, r_max, Qthreshold, Sthreshold, l)
     :members: compute, computeSolLiqNoNorm, computeSolLiqVariant
 
-.. autoclass:: freud.order.SolLiqNear(box, rmax, Qthreshold, Sthreshold, l, kn)
+.. autoclass:: freud.order.SolLiqNear(box, r_max, Qthreshold, Sthreshold, l, num_neighbors=12)
     :members: compute, computeSolLiqNoNorm, computeSolLiqVariant
 
 Rotational Autocorrelation

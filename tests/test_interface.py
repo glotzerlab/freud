@@ -21,28 +21,28 @@ class TestInterface(unittest.TestCase):
 
         # Test attribute access
         with self.assertRaises(AttributeError):
-            inter.ref_point_count
-        with self.assertRaises(AttributeError):
-            inter.ref_point_ids
-        with self.assertRaises(AttributeError):
             inter.point_count
         with self.assertRaises(AttributeError):
             inter.point_ids
+        with self.assertRaises(AttributeError):
+            inter.query_point_count
+        with self.assertRaises(AttributeError):
+            inter.query_point_ids
 
         test_one = inter.compute(box, point, others)
 
         # Test attribute access
-        inter.ref_point_count
-        inter.ref_point_ids
         inter.point_count
         inter.point_ids
+        inter.query_point_count
+        inter.query_point_ids
 
-        self.assertEqual(test_one.ref_point_count, 1)
-        self.assertEqual(len(test_one.ref_point_ids), 1)
+        self.assertEqual(test_one.point_count, 1)
+        self.assertEqual(len(test_one.point_ids), 1)
 
         test_twelve = inter.compute(box, others, point)
-        self.assertEqual(test_twelve.ref_point_count, 12)
-        self.assertEqual(len(test_twelve.ref_point_ids), 12)
+        self.assertEqual(test_twelve.point_count, 12)
+        self.assertEqual(len(test_twelve.point_ids), 12)
 
     def test_filter_r(self):
         """Test that nlists are filtered to the correct rmax."""
@@ -60,8 +60,8 @@ class TestInterface(unittest.TestCase):
         inter = freud.interface.InterfaceMeasure(1.5)
 
         test_twelve = inter.compute(box, others, point, lc.nlist)
-        self.assertEqual(test_twelve.ref_point_count, 12)
-        self.assertEqual(len(test_twelve.ref_point_ids), 12)
+        self.assertEqual(test_twelve.point_count, 12)
+        self.assertEqual(len(test_twelve.point_ids), 12)
 
     def test_repr(self):
         inter = freud.interface.InterfaceMeasure(1.5)

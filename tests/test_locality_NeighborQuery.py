@@ -97,7 +97,7 @@ class TestNeighborQuery(object):
         points[3] = [2.0, 0.0, 0.0]
         nq = self.build_query_object(box, points, rcut)
 
-        nlist = nq._queryGeneric(points, dict(mode='ball', rmax=rcut))
+        nlist = nq._queryGeneric(points, dict(mode='ball', r_max=rcut))
         nlist_neighbors = sorted(list(zip(nlist.index_i, nlist.index_j)))
         # particle 0 has 2 bonds
         npt.assert_equal(sum(nlist.index_i == 0), 3)
@@ -110,7 +110,7 @@ class TestNeighborQuery(object):
 
         # Check NeighborList length without self-exclusions.
         nlist = nq._queryGeneric(
-            points, dict(mode='ball', rmax=rcut, exclude_ii=True))
+            points, dict(mode='ball', r_max=rcut, exclude_ii=True))
         nlist_neighbors = sorted(list(zip(nlist.index_i, nlist.index_j)))
         # When excluding, everything has one less neighbor.
         npt.assert_equal(len(nlist_neighbors), 10)
@@ -119,7 +119,7 @@ class TestNeighborQuery(object):
         points[0] = 5
 
         nq = freud.locality.LinkCell(box, rcut, points)
-        nlist = nq._queryGeneric(points, dict(mode='ball', rmax=rcut))
+        nlist = nq._queryGeneric(points, dict(mode='ball', r_max=rcut))
         nlist_neighbors = sorted(list(zip(nlist.index_i, nlist.index_j)))
         # particle 0 has 0 bonds
         npt.assert_equal(sum(nlist.index_i == 0), 1)
@@ -437,17 +437,21 @@ class TestNeighborQuery(object):
             for k in ks:
                 nq = self.build_query_object(box, positions, L/10)
 
-                nlist = nq.query(positions, k=k, exclude_ii=True).toNList()
+                nlist = nq.query(
+                    positions, num_neighbors=k, exclude_ii=True).toNList()
                 assert len(nlist) == k * N,\
-                    'Wrong nlist length for N = {}, k= {}, length={}'.format(
+                    ("Wrong nlist length for N = {},"
+                     "num_neighbors = {}, length = {}").format(
                         N, k, len(nlist))
                 nlist_array = nlist[:]
                 for i in range(N):
                     assert not ([i, i] == nlist_array).all(axis=1).any()
 
-                nlist = nq.query(positions, k=k, exclude_ii=False).toNList()
+                nlist = nq.query(
+                    positions, num_neighbors=k, exclude_ii=False).toNList()
                 assert len(nlist) == k * N,\
-                    'Wrong nlist length for N = {}, k= {}, length={}'.format(
+                    ("Wrong nlist length for N = {}, "
+                     "num_neighbors = {}, length = {}").format(
                         N, k, len(nlist))
                 nlist_array = nlist[:]
                 for i in range(N):

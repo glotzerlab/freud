@@ -50,20 +50,27 @@ cdef class Box:
         http://hoomd-blue.readthedocs.io/en/stable/box.html
 
     Args:
-        Lx (float):
-            Length of side x.
-        Ly (float):
-            Length of side y.
-        Lz (float):
-            Length of side z.
-        xy (float):
-            Tilt of xy plane.
-        xz (float):
-            Tilt of xz plane.
-        yz (float):
-            Tilt of yz plane.
-        is2D(bool):
-            Specify that this box is 2-dimensional, default is 3-dimensional.
+        Lx (float, optional):
+            Length of side x. Uses :code:`0` if not provided or :code:`None`.
+            (Default value = :code:`None`).
+        Ly (float, optional):
+            Length of side y. Uses :code:`0` if not provided or :code:`None`.
+            (Default value = :code:`None`).
+        Lz (float, optional):
+            Length of side z. Uses :code:`0` if not provided or :code:`None`.
+            (Default value = :code:`None`).
+        xy (float, optional):
+            Tilt of xy plane. Uses :code:`0` if not provided or :code:`None`.
+            (Default value = :code:`None`).
+        xz (float, optional):
+            Tilt of xz plane. Uses :code:`0` if not provided or :code:`None`.
+            (Default value = :code:`None`).
+        yz (float, optional):
+            Tilt of yz plane. Uses :code:`0` if not provided or :code:`None`.
+            (Default value = :code:`None`).
+        is2D(bool, optional):
+            Specify that this box is 2-dimensional. Uses :code:`Lz == 0`
+            if not provided or :code:`None`. (Default value = :code:`None`)
 
     Attributes:
         xy (float):
@@ -580,7 +587,7 @@ cdef class Box:
             boxMatrix (array-like):
                 A 3x3 matrix or list of lists
             dimensions (int):
-                Number of dimensions (Default value = None)
+                Number of dimensions (Default value = :code:`None`)
         """
         boxMatrix = np.asarray(boxMatrix, dtype=np.float32)
         v0 = boxMatrix[:, 0]
@@ -683,12 +690,13 @@ cdef class ParticleBuffer:
                 Points used to calculate particle buffer.
             buffer (float or list of 3 floats):
                 Buffer distance for replication outside the box.
-            images (bool):
-                If ``False`` (default), ``buffer`` is a distance. If ``True``,
+            images (bool, optional):
+                If ``False``, ``buffer`` is a distance. If ``True``,
                 ``buffer`` is a number of images to replicate in each
                 dimension. Note that one image adds half of a box length to
                 each side, meaning that one image doubles the box side lengths,
                 two images triples the box side lengths, and so on.
+                (Default value = :code:`None`).
         """
         points = freud.common.convert_array(points, shape=(None, 3))
         cdef const float[:, ::1] l_points = points

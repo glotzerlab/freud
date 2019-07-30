@@ -47,7 +47,7 @@ public:
     void reduceDensity();
 
     //! Compute the Density
-    void compute(const box::Box& box, const vec3<float>* points, unsigned int Np);
+    void compute(const box::Box& box, const vec3<float>* points, unsigned int n_points);
 
     //! Get a reference to the last computed Density
     std::shared_ptr<float> getDensity();

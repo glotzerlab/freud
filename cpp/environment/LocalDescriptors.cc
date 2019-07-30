@@ -22,15 +22,16 @@ using namespace tbb;
 namespace freud { namespace environment {
 
 LocalDescriptors::LocalDescriptors(unsigned int lmax, bool negative_m)
-    : m_lmax(lmax), m_negative_m(negative_m), m_Nref(0), m_nSphs(0)
+    : m_lmax(lmax), m_negative_m(negative_m), m_n_points(0), m_nSphs(0)
 {}
 
-void LocalDescriptors::compute(const box::Box& box, const freud::locality::NeighborList* nlist,
-                               unsigned int nNeigh, const vec3<float>* r_ref, unsigned int Nref,
-                               const vec3<float>* r, unsigned int Np, const quat<float>* q_ref,
-                               LocalDescriptorOrientation orientation)
+void LocalDescriptors::compute(const box::Box& box,
+                               unsigned int num_neighbors, const vec3<float>* points, unsigned int n_points,
+                               const vec3<float>* query_points, unsigned int n_query_points,
+                               const quat<float>* orientations, LocalDescriptorOrientation orientation,
+                               const freud::locality::NeighborList* nlist)
 {
-    nlist->validate(Np, Nref);
+    nlist->validate(n_query_points, n_points);
     const size_t* neighbor_list(nlist->getNeighbors());
 
     // reallocate the output array if it is not the right size
@@ -42,13 +43,13 @@ void LocalDescriptors::compute(const box::Box& box, const freud::locality::Neigh
 
     std::complex<float>* const sph_array(m_sphArray.get());
 
-    parallel_for(blocked_range<size_t>(0, Nref), [=](const blocked_range<size_t>& br) {
+    parallel_for(blocked_range<size_t>(0, n_points), [=](const blocked_range<size_t>& br) {
         fsph::PointSPHEvaluator<float> sph_eval(m_lmax);
 
         for (size_t i = br.begin(); i != br.end(); ++i)
         {
             size_t bond(nlist->find_first_index(i));
-            const vec3<float> r_i(r_ref[i]);
+            const vec3<float> r_i(points[i]);
 
             vec3<float> rotation_0, rotation_1, rotation_2;
 
@@ -61,11 +62,11 @@ void LocalDescriptors::compute(const box::Box& box, const freud::locality::Neigh
                         inertiaTensor[a_i(ii, jj)] = 0;
 
                 for (size_t bond_copy(bond); bond_copy < nlist->getNumBonds()
-                     && neighbor_list[2 * bond_copy] == i && bond_copy < bond + nNeigh;
+                     && neighbor_list[2 * bond_copy] == i && bond_copy < bond + num_neighbors;
                      ++bond_copy)
                 {
                     const size_t j(neighbor_list[2 * bond_copy + 1]);
-                    const vec3<float> r_j(r[j]);
+                    const vec3<float> r_j(query_points[j]);
                     const vec3<float> rvec(box.wrap(r_j - r_i));
                     const float rsq(dot(rvec, rvec));
 
@@ -99,7 +100,7 @@ void LocalDescriptors::compute(const box::Box& box, const freud::locality::Neigh
             }
             else if (orientation == ParticleLocal)
             {
-                const rotmat3<float> rotmat(conj(q_ref[i]));
+                const rotmat3<float> rotmat(conj(orientations[i]));
                 rotation_0 = rotmat.row0;
                 rotation_1 = rotmat.row1;
                 rotation_2 = rotmat.row2;
@@ -116,12 +117,12 @@ void LocalDescriptors::compute(const box::Box& box, const freud::locality::Neigh
             }
 
             for (unsigned int count(0);
-                 bond < nlist->getNumBonds() && neighbor_list[2 * bond] == i && count < nNeigh;
+                 bond < nlist->getNumBonds() && neighbor_list[2 * bond] == i && count < num_neighbors;
                  ++bond, ++count)
             {
                 const unsigned int sphCount(bond * getSphWidth());
                 const size_t j(neighbor_list[2 * bond + 1]);
-                const vec3<float> r_j(r[j]);
+                const vec3<float> r_j(query_points[j]);
                 const vec3<float> rij(box.wrap(r_j - r_i));
                 const float rsq(dot(rij, rij));
                 const vec3<float> bond_ij(dot(rotation_0, rij), dot(rotation_1, rij), dot(rotation_2, rij));
@@ -145,7 +146,7 @@ void LocalDescriptors::compute(const box::Box& box, const freud::locality::Neigh
     });
 
     // save the last computed number of particles
-    m_Nref = Nref;
+    m_n_points = n_points;
     m_nSphs = nlist->getNumBonds();
 }
 

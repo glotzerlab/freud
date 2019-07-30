@@ -70,7 +70,7 @@ cdef class _PMFT(Compute):
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
     """
     cdef freud._pmft.PMFT * pmftptr
-    cdef float rmax
+    cdef float r_max
 
     def __cinit__(self):
         pass
@@ -156,103 +156,107 @@ cdef class PMFTR12(_PMFT):
         if type(self) is PMFTR12:
             self.pmftr12ptr = self.pmftptr = new freud._pmft.PMFTR12(
                 r_max, n_r, n_t1, n_t2)
-            self.rmax = r_max
+            self.r_max = r_max
 
     def __dealloc__(self):
         if type(self) is PMFTR12:
             del self.pmftr12ptr
 
     @Compute._compute()
-    def accumulate(self, box, ref_points, ref_orientations, points=None,
-                   orientations=None, nlist=None, query_args={}):
+    def accumulate(self, box, points, orientations, query_points=None,
+                   query_orientations=None, nlist=None, query_args={}):
         R"""Calculates the positional correlation function and adds to the
         current histogram.
 
         Args:
             box (:class:`freud.box.Box`):
                 Simulation box.
-            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference points used in computation.
-            ref_orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`):
+            orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`):
                 Reference orientations as angles used in computation.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
-                Points used in computation. Uses :code:`ref_points` if not
-                provided or :code:`None`.
-            orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):
+            query_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
+                Points used in computation. Uses :code:`points` if not
+                provided or :code:`None`. (Default value = :code:`None`).
+            query_orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):
                 Orientations as angles used in computation. Uses
-                :code:`ref_orientations` if not provided or :code:`None`.
+                :code:`orientations` if not provided or :code:`None`.
+                (Default value = :code:`None`).
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList used to find bonds (Default value =
                 :code:`None`).
         """  # noqa: E501
         cdef freud.box.Box b = freud.common.convert_box(box)
-        exclude_ii = points is None
+        exclude_ii = query_points is None
 
-        nq_nlist = freud.locality.make_nq_nlist(b, ref_points, nlist)
+        nq_nlist = freud.locality.make_nq_nlist(b, points, nlist)
         cdef freud.locality.NeighborQuery nq = nq_nlist[0]
         cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
-        ref_points = nq.points
+        points = nq.points
 
         cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
-            mode="ball", rmax=self.rmax, exclude_ii=exclude_ii)
+            mode="ball", r_max=self.r_max, exclude_ii=exclude_ii)
         qargs.update(query_args)
 
         if not b.dimensions == 2:
             raise ValueError("Your box must be 2-dimensional!")
 
-        if points is None:
-            points = ref_points
-        if orientations is None:
-            orientations = ref_orientations
-
-        ref_orientations = freud.common.convert_array(
-            np.atleast_1d(ref_orientations.squeeze()),
-            shape=(ref_points.shape[0], ))
-
-        points = freud.common.convert_array(points, shape=(None, 3))
+        if query_points is None:
+            query_points = points
+        if query_orientations is None:
+            query_orientations = orientations
 
         orientations = freud.common.convert_array(
-            np.atleast_1d(orientations.squeeze()), shape=(points.shape[0], ))
+            np.atleast_1d(orientations.squeeze()),
+            shape=(points.shape[0], ))
 
-        cdef const float[:, ::1] l_points = points
-        cdef const float[::1] l_ref_orientations = ref_orientations
+        query_points = freud.common.convert_array(
+            query_points, shape=(None, 3))
+
+        query_orientations = freud.common.convert_array(
+            np.atleast_1d(query_orientations.squeeze()),
+            shape=(query_points.shape[0], ))
+
+        cdef const float[:, ::1] l_query_points = query_points
         cdef const float[::1] l_orientations = orientations
-        cdef unsigned int nP = l_points.shape[0]
+        cdef const float[::1] l_query_orientations = query_orientations
+        cdef unsigned int n_query_points = l_query_points.shape[0]
         with nogil:
-            self.pmftr12ptr.accumulate(nlistptr.get_ptr(),
-                                       nq.get_ptr(),
-                                       <float*> &l_ref_orientations[0],
-                                       <vec3[float]*> &l_points[0, 0],
+            self.pmftr12ptr.accumulate(nq.get_ptr(),
                                        <float*> &l_orientations[0],
-                                       nP, dereference(qargs.thisptr))
+                                       <vec3[float]*> &l_query_points[0, 0],
+                                       <float*> &l_query_orientations[0],
+                                       n_query_points, nlistptr.get_ptr(),
+                                       dereference(qargs.thisptr))
         return self
 
     @Compute._compute()
-    def compute(self, box, ref_points, ref_orientations, points=None,
-                orientations=None, nlist=None, query_args={}):
+    def compute(self, box, points, orientations, query_points=None,
+                query_orientations=None, nlist=None, query_args={}):
         R"""Calculates the positional correlation function for the given points.
         Will overwrite the current histogram.
 
         Args:
             box (:class:`freud.box.Box`):
                 Simulation box.
-            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference points used in computation.
-            ref_orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`):
+            orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`):
                 Reference orientations as angles used in computation.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
-                Points used in computation. Uses :code:`ref_points` if not
-                provided or :code:`None`.
-            orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):
+            query_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
+                Points used in computation. Uses :code:`points` if not
+                provided or :code:`None`. (Default value = :code:`None`).
+            query_orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):
                 Orientations as angles used in computation. Uses
-                :code:`ref_orientations` if not provided or :code:`None`.
+                :code:`orientations` if not provided or :code:`None`.
+                (Default value = :code:`None`).
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList used to find bonds (Default value =
                 :code:`None`).
         """  # noqa: E501
         self.reset()
-        self.accumulate(box, ref_points, ref_orientations,
-                        points, orientations, nlist, query_args)
+        self.accumulate(box, points, orientations,
+                        query_points, query_orientations, nlist, query_args)
         return self
 
     @Compute._computed_property()
@@ -321,7 +325,7 @@ cdef class PMFTR12(_PMFT):
     def __repr__(self):
         return ("freud.pmft.{cls}(r_max={r_max}, n_r={n_r}, n_t1={n_t1}, "
                 "n_t2={n_t2})").format(cls=type(self).__name__,
-                                       r_max=self.rmax,
+                                       r_max=self.r_max,
                                        n_r=self.n_bins_R,
                                        n_t1=self.n_bins_T1,
                                        n_t2=self.n_bins_T2)
@@ -399,7 +403,7 @@ cdef class PMFTXYT(_PMFT):
         if type(self) is PMFTXYT:
             self.pmftxytptr = self.pmftptr = new freud._pmft.PMFTXYT(
                 x_max, y_max, n_x, n_y, n_t)
-            self.rmax = np.sqrt(x_max**2 + y_max**2)
+            self.r_max = np.sqrt(x_max**2 + y_max**2)
             self.xmax = x_max
             self.ymax = y_max
 
@@ -408,97 +412,101 @@ cdef class PMFTXYT(_PMFT):
             del self.pmftxytptr
 
     @Compute._compute()
-    def accumulate(self, box, ref_points, ref_orientations, points=None,
-                   orientations=None, nlist=None, query_args={}):
+    def accumulate(self, box, points, orientations, query_points=None,
+                   query_orientations=None, nlist=None, query_args={}):
         R"""Calculates the positional correlation function and adds to the
         current histogram.
 
         Args:
             box (:class:`freud.box.Box`):
                 Simulation box.
-            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference points used in computation.
-            ref_orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`):
+            orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`):
                 Reference orientations as angles used in computation.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
-                Points used in computation. Uses :code:`ref_points` if not
-                provided or :code:`None`.
-            orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):
+            query_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
+                Points used in computation. Uses :code:`points` if not
+                provided or :code:`None`. (Default value = :code:`None`).
+            query_orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):
                 Orientations as angles used in computation. Uses
-                :code:`ref_orientations` if not provided or :code:`None`.
+                :code:`orientations` if not provided or :code:`None`.
+                (Default value = :code:`None`).
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList used to find bonds (Default value =
                 :code:`None`).
         """  # noqa: E501
         cdef freud.box.Box b = freud.common.convert_box(box)
 
-        exclude_ii = points is None
+        exclude_ii = query_points is None
 
-        nq_nlist = freud.locality.make_nq_nlist(b, ref_points, nlist)
+        nq_nlist = freud.locality.make_nq_nlist(b, points, nlist)
         cdef freud.locality.NeighborQuery nq = nq_nlist[0]
         cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
-        ref_points = nq.points
+        points = nq.points
 
         cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
-            mode="ball", rmax=self.rmax, exclude_ii=exclude_ii)
+            mode="ball", r_max=self.r_max, exclude_ii=exclude_ii)
         qargs.update(query_args)
 
         if not b.dimensions == 2:
             raise ValueError("Your box must be 2-dimensional!")
 
-        if points is None:
-            points = ref_points
-        if orientations is None:
-            orientations = ref_orientations
-
-        ref_orientations = freud.common.convert_array(
-            np.atleast_1d(ref_orientations.squeeze()),
-            shape=(ref_points.shape[0], ))
-
-        points = freud.common.convert_array(points, shape=(None, 3))
+        if query_points is None:
+            query_points = points
+        if query_orientations is None:
+            query_orientations = orientations
 
         orientations = freud.common.convert_array(
-            np.atleast_1d(orientations.squeeze()), shape=(points.shape[0], ))
+            np.atleast_1d(orientations.squeeze()),
+            shape=(points.shape[0], ))
 
-        cdef const float[:, ::1] l_points = points
-        cdef const float[::1] l_ref_orientations = ref_orientations
+        query_points = freud.common.convert_array(
+            query_points, shape=(None, 3))
+
+        query_orientations = freud.common.convert_array(
+            np.atleast_1d(query_orientations.squeeze()),
+            shape=(query_points.shape[0], ))
+
+        cdef const float[:, ::1] l_query_points = query_points
         cdef const float[::1] l_orientations = orientations
-        cdef unsigned int nP = l_points.shape[0]
+        cdef const float[::1] l_query_orientations = query_orientations
+        cdef unsigned int n_query_points = l_query_points.shape[0]
         with nogil:
-            self.pmftxytptr.accumulate(nlistptr.get_ptr(),
-                                       nq.get_ptr(),
-                                       <float*> &l_ref_orientations[0],
-                                       <vec3[float]*> &l_points[0, 0],
+            self.pmftxytptr.accumulate(nq.get_ptr(),
                                        <float*> &l_orientations[0],
-                                       nP, dereference(qargs.thisptr))
+                                       <vec3[float]*> &l_query_points[0, 0],
+                                       <float*> &l_query_orientations[0],
+                                       n_query_points, nlistptr.get_ptr(),
+                                       dereference(qargs.thisptr))
         return self
 
     @Compute._compute()
-    def compute(self, box, ref_points, ref_orientations, points=None,
-                orientations=None, nlist=None, query_args={}):
+    def compute(self, box, points, orientations, query_points=None,
+                query_orientations=None, nlist=None, query_args={}):
         R"""Calculates the positional correlation function for the given points.
         Will overwrite the current histogram.
 
         Args:
             box (:class:`freud.box.Box`):
                 Simulation box.
-            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference points used in computation.
-            ref_orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`):
+            orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`):
                 Reference orientations as angles used in computation.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
-                Points used in computation. Uses :code:`ref_points` if not
-                provided or :code:`None`.
-            orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):
+            query_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
+                Points used in computation. Uses :code:`points` if not
+                provided or :code:`None`. (Default value = :code:`None`).
+            query_orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):
                 Orientations as angles used in computation. Uses
-                :code:`ref_orientations` if not provided or :code:`None`.
+                :code:`orientations` if not provided or :code:`None`.
+                (Default value = :code:`None`).
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList used to find bonds (Default value =
                 :code:`None`).
         """  # noqa: E501
         self.reset()
-        self.accumulate(box, ref_points, ref_orientations,
-                        points, orientations, nlist, query_args={})
+        self.accumulate(box, points, orientations,
+                        query_points, query_orientations, nlist, query_args={})
         return self
 
     @Compute._computed_property()
@@ -629,7 +637,7 @@ cdef class PMFTXY2D(_PMFT):
         if type(self) is PMFTXY2D:
             self.pmftxy2dptr = self.pmftptr = new freud._pmft.PMFTXY2D(
                 x_max, y_max, n_x, n_y)
-            self.rmax = np.sqrt(x_max**2 + y_max**2)
+            self.r_max = np.sqrt(x_max**2 + y_max**2)
             self.xmax = x_max
             self.ymax = y_max
 
@@ -638,97 +646,101 @@ cdef class PMFTXY2D(_PMFT):
             del self.pmftxy2dptr
 
     @Compute._compute()
-    def accumulate(self, box, ref_points, ref_orientations, points=None,
-                   orientations=None, nlist=None, query_args={}):
+    def accumulate(self, box, points, orientations, query_points=None,
+                   query_orientations=None, nlist=None, query_args={}):
         R"""Calculates the positional correlation function and adds to the
         current histogram.
 
         Args:
             box (:class:`freud.box.Box`):
                 Simulation box.
-            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference points used in computation.
-            ref_orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`):
+            orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`):
                 Reference orientations as angles used in computation.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
-                Points used in computation. Uses :code:`ref_points` if not
-                provided or :code:`None`.
-            orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):
+            query_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
+                Points used in computation. Uses :code:`points` if not
+                provided or :code:`None`. (Default value = :code:`None`).
+            query_orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):
                 Orientations as angles used in computation. Uses
-                :code:`ref_orientations` if not provided or :code:`None`.
+                :code:`orientations` if not provided or :code:`None`.
+                (Default value = :code:`None`).
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList used to find bonds (Default value =
                 :code:`None`).
         """  # noqa: E501
         cdef freud.box.Box b = freud.common.convert_box(box)
 
-        exclude_ii = points is None
+        exclude_ii = query_points is None
 
-        nq_nlist = freud.locality.make_nq_nlist(b, ref_points, nlist)
+        nq_nlist = freud.locality.make_nq_nlist(b, points, nlist)
         cdef freud.locality.NeighborQuery nq = nq_nlist[0]
         cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
-        ref_points = nq.points
+        points = nq.points
 
         cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
-            mode="ball", rmax=self.rmax, exclude_ii=exclude_ii)
+            mode="ball", r_max=self.r_max, exclude_ii=exclude_ii)
         qargs.update(query_args)
 
         if not b.dimensions == 2:
             raise ValueError("Your box must be 2-dimensional!")
 
-        if points is None:
-            points = ref_points
-        if orientations is None:
-            orientations = ref_orientations
-
-        ref_orientations = freud.common.convert_array(
-            np.atleast_1d(ref_orientations.squeeze()),
-            shape=(ref_points.shape[0], ))
-
-        points = freud.common.convert_array(points, shape=(None, 3))
+        if query_points is None:
+            query_points = points
+        if query_orientations is None:
+            query_orientations = orientations
 
         orientations = freud.common.convert_array(
-            np.atleast_1d(orientations.squeeze()), shape=(points.shape[0], ))
+            np.atleast_1d(orientations.squeeze()),
+            shape=(points.shape[0], ))
 
-        cdef const float[:, ::1] l_points = points
-        cdef const float[::1] l_ref_orientations = ref_orientations
+        query_points = freud.common.convert_array(
+            query_points, shape=(None, 3))
+
+        query_orientations = freud.common.convert_array(
+            np.atleast_1d(query_orientations.squeeze()),
+            shape=(query_points.shape[0], ))
+
+        cdef const float[:, ::1] l_query_points = query_points
         cdef const float[::1] l_orientations = orientations
-        cdef unsigned int nP = l_points.shape[0]
+        cdef const float[::1] l_query_orientations = query_orientations
+        cdef unsigned int n_query_points = l_query_points.shape[0]
         with nogil:
-            self.pmftxy2dptr.accumulate(nlistptr.get_ptr(),
-                                        nq.get_ptr(),
-                                        <float*> &l_ref_orientations[0],
-                                        <vec3[float]*> &l_points[0, 0],
+            self.pmftxy2dptr.accumulate(nq.get_ptr(),
                                         <float*> &l_orientations[0],
-                                        nP, dereference(qargs.thisptr))
+                                        <vec3[float]*> &l_query_points[0, 0],
+                                        <float*> &l_query_orientations[0],
+                                        n_query_points, nlistptr.get_ptr(),
+                                        dereference(qargs.thisptr))
         return self
 
     @Compute._compute()
-    def compute(self, box, ref_points, ref_orientations, points=None,
-                orientations=None, nlist=None, query_args={}):
+    def compute(self, box, points, orientations, query_points=None,
+                query_orientations=None, nlist=None, query_args={}):
         R"""Calculates the positional correlation function for the given points.
         Will overwrite the current histogram.
 
         Args:
             box (:class:`freud.box.Box`):
                 Simulation box.
-            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference points used in computation.
-            ref_orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`):
+            orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`):
                 Reference orientations as angles used in computation.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
-                Points used in computation. Uses :code:`ref_points` if not
-                provided or :code:`None`.
-            orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):
+            query_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
+                Points used in computation. Uses :code:`points` if not
+                provided or :code:`None`. (Default value = :code:`None`).
+            query_orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):
                 Orientations as angles used in computation. Uses
-                :code:`ref_orientations` if not provided or :code:`None`.
+                :code:`orientations` if not provided or :code:`None`.
+                (Default value = :code:`None`).
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList used to find bonds (Default value =
                 :code:`None`).
         """  # noqa: E501
         self.reset()
-        self.accumulate(box, ref_points, ref_orientations,
-                        points, orientations, nlist, query_args)
+        self.accumulate(box, points, orientations,
+                        query_points, query_orientations, nlist, query_args)
         return self
 
     @Compute._computed_property()
@@ -798,7 +810,7 @@ cdef class PMFTXY2D(_PMFT):
         """Plot PMFTXY2D.
 
         Args:
-            ax (:class:`matplotlib.axes.Axes`): Axis to plot on. If
+            ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
                 :code:`None`, make a new figure and axis.
                 (Default value = :code:`None`)
 
@@ -884,7 +896,7 @@ cdef class PMFTXYZ(_PMFT):
             self.pmftxyzptr = self.pmftptr = new freud._pmft.PMFTXYZ(
                 x_max, y_max, z_max, n_x, n_y, n_z, c_shiftvec)
             self.shiftvec = np.array(shiftvec, dtype=np.float32)
-            self.rmax = np.sqrt(x_max**2 + y_max**2 + z_max**2)
+            self.r_max = np.sqrt(x_max**2 + y_max**2 + z_max**2)
             self.xmax = x_max
             self.ymax = y_max
             self.zmax = z_max
@@ -894,8 +906,8 @@ cdef class PMFTXYZ(_PMFT):
             del self.pmftxyzptr
 
     @Compute._compute()
-    def accumulate(self, box, ref_points, ref_orientations, points=None,
-                   orientations=None, face_orientations=None, nlist=None,
+    def accumulate(self, box, points, orientations, query_points=None,
+                   query_orientations=None, face_orientations=None, nlist=None,
                    query_args={}):
         R"""Calculates the positional correlation function and adds to the
         current histogram.
@@ -903,16 +915,17 @@ cdef class PMFTXYZ(_PMFT):
         Args:
             box (:class:`freud.box.Box`):
                 Simulation box.
-            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference points used in computation.
-            ref_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
+            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
                 Reference orientations as quaternions used in computation.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
-                Points used in computation. Uses :code:`ref_points` if not
-                provided or :code:`None`.
-            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`, optional):
+            query_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
+                Points used in computation. Uses :code:`points` if not
+                provided or :code:`None`. (Default value = :code:`None`).
+            query_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`, optional):
                 Orientations as quaternions used in computation. Uses
-                :code:`ref_orientations` if not provided or :code:`None`.
+                :code:`orientations` if not provided or :code:`None`.
+                (Default value = :code:`None`).
             face_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`, optional):
                 Orientations of particle faces to account for particle
                 symmetry. If not supplied by user, unit quaternions will be
@@ -926,40 +939,41 @@ cdef class PMFTXYZ(_PMFT):
         """  # noqa: E501
         cdef freud.box.Box b = freud.common.convert_box(box)
 
-        exclude_ii = points is None
+        exclude_ii = query_points is None
 
-        nq_nlist = freud.locality.make_nq_nlist(b, ref_points, nlist)
+        nq_nlist = freud.locality.make_nq_nlist(b, points, nlist)
         cdef freud.locality.NeighborQuery nq = nq_nlist[0]
         cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
-        ref_points = nq.points
+        points = nq.points
 
         cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
-            mode="ball", rmax=self.rmax, exclude_ii=exclude_ii)
+            mode="ball", r_max=self.r_max, exclude_ii=exclude_ii)
         qargs.update(query_args)
 
         if not b.dimensions == 3:
             raise ValueError("Your box must be 3-dimensional!")
 
-        if points is None:
-            points = ref_points
-        if orientations is None:
-            orientations = ref_orientations
-
-        ref_orientations = freud.common.convert_array(
-            np.atleast_1d(ref_orientations),
-            shape=(ref_points.shape[0], 4))
-
-        points = freud.common.convert_array(points, shape=(None, 3))
-        points = points - self.shiftvec.reshape(1, 3)
+        if query_points is None:
+            query_points = points
+        if query_orientations is None:
+            query_orientations = orientations
 
         orientations = freud.common.convert_array(
-            orientations, shape=(points.shape[0], 4))
+            np.atleast_1d(orientations),
+            shape=(points.shape[0], 4))
+
+        query_points = freud.common.convert_array(
+            query_points, shape=(None, 3))
+        query_points = query_points - self.shiftvec.reshape(1, 3)
+
+        query_orientations = freud.common.convert_array(
+            query_orientations, shape=(query_points.shape[0], 4))
 
         # handle multiple ways to input
         if face_orientations is None:
             # set to unit quaternion, q = [1, 0, 0, 0]
             face_orientations = np.zeros(
-                shape=(ref_points.shape[0], 1, 4), dtype=np.float32)
+                shape=(points.shape[0], 1, 4), dtype=np.float32)
             face_orientations[:, :, 0] = 1.0
         else:
             if face_orientations.ndim < 2 or face_orientations.ndim > 3:
@@ -972,7 +986,7 @@ cdef class PMFTXYZ(_PMFT):
                         "w, x, y, z")
                 # need to broadcast into new array
                 tmp_face_orientations = np.zeros(
-                    shape=(ref_points.shape[0],
+                    shape=(points.shape[0],
                            face_orientations.shape[0],
                            face_orientations.shape[1]),
                     dtype=np.float32)
@@ -986,36 +1000,35 @@ cdef class PMFTXYZ(_PMFT):
                         "2nd dimension for orientations must have 4 values:"
                         "w, x, y, z")
                 elif face_orientations.shape[0] not in (
-                        1, ref_points.shape[0]):
+                        1, points.shape[0]):
                     raise ValueError(
                         "If provided as a 3D array, the first dimension of "
                         "the face_orientations array must be either of "
                         "size 1 or N_particles")
                 elif face_orientations.shape[0] == 1:
                     face_orientations = np.repeat(
-                        face_orientations, ref_points.shape[0], axis=0)
+                        face_orientations, points.shape[0], axis=0)
 
-        cdef const float[:, ::1] l_points = points
-        cdef const float[:, ::1] l_ref_orientations = ref_orientations
+        cdef const float[:, ::1] l_query_points = query_points
         cdef const float[:, ::1] l_orientations = orientations
+        cdef const float[:, ::1] l_query_orientations = query_orientations
         cdef const float[:, :, ::1] l_face_orientations = face_orientations
-        cdef unsigned int nP = l_points.shape[0]
+        cdef unsigned int n_query_points = l_query_points.shape[0]
         cdef unsigned int nFaces = l_face_orientations.shape[1]
         with nogil:
             self.pmftxyzptr.accumulate(
-                nlistptr.get_ptr(),
                 nq.get_ptr(),
-                <quat[float]*> &l_ref_orientations[0, 0],
-                <vec3[float]*> &l_points[0, 0],
                 <quat[float]*> &l_orientations[0, 0],
-                nP,
+                <vec3[float]*> &l_query_points[0, 0],
+                <quat[float]*> &l_query_orientations[0, 0],
+                n_query_points,
                 <quat[float]*> &l_face_orientations[0, 0, 0],
-                nFaces, dereference(qargs.thisptr))
+                nFaces, nlistptr.get_ptr(), dereference(qargs.thisptr))
         return self
 
     @Compute._compute()
-    def compute(self, box, ref_points, ref_orientations, points=None,
-                orientations=None, face_orientations=None, nlist=None,
+    def compute(self, box, points, orientations, query_points=None,
+                query_orientations=None, face_orientations=None, nlist=None,
                 query_args={}):
         R"""Calculates the positional correlation function for the given points.
         Will overwrite the current histogram.
@@ -1023,16 +1036,17 @@ cdef class PMFTXYZ(_PMFT):
         Args:
             box (:class:`freud.box.Box`):
                 Simulation box.
-            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference points used in computation.
-            ref_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
+            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
                 Reference orientations as quaternions used in computation.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
-                Points used in computation. Uses :code:`ref_points` if not
-                provided or :code:`None`.
-            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`, optional):
+            query_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
+                Points used in computation. Uses :code:`points` if not
+                provided or :code:`None`. (Default value = :code:`None`).
+            query_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`, optional):
                 Orientations as quaternions used in computation. Uses
-                :code:`ref_orientations` if not provided or :code:`None`.
+                :code:`orientations` if not provided or :code:`None`.
+                (Default value = :code:`None`).
             face_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`, optional):
                 Orientations of particle faces to account for particle
                 symmetry. If not supplied by user, unit quaternions will be
@@ -1045,9 +1059,9 @@ cdef class PMFTXYZ(_PMFT):
                 :code:`None`).
         """  # noqa: E501
         self.reset()
-        self.accumulate(box, ref_points, ref_orientations,
-                        points, orientations, face_orientations, nlist,
-                        query_args)
+        self.accumulate(box, points, orientations,
+                        query_points, query_orientations, face_orientations,
+                        nlist, query_args)
         return self
 
     @Compute._computed_property()

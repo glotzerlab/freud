@@ -49,16 +49,18 @@ public:
     }
 
     //! Get the number of particles
-    unsigned int getNP() const
+    unsigned int getNPoints() const
     {
-        return m_Nref;
+        return m_n_points;
     }
 
     //! Compute the local neighborhood descriptors given some
     //! positions and the number of particles
-    void compute(const box::Box& box, const freud::locality::NeighborList* nlist, unsigned int nNeigh,
-                 const vec3<float>* r_ref, unsigned int Nref, const vec3<float>* r, unsigned int Np,
-                 const quat<float>* q_ref, LocalDescriptorOrientation orientation);
+    void compute(const box::Box& box, unsigned int num_neighbors, 
+        const vec3<float>* points, unsigned int n_points,
+        const vec3<float>* query_points, unsigned int n_query_points,
+        const quat<float>* orientations, LocalDescriptorOrientation orientation,
+        const freud::locality::NeighborList* nlist);
 
     //! Get a reference to the last computed spherical harmonic array
     std::shared_ptr<std::complex<float>> getSph()
@@ -74,7 +76,7 @@ public:
 private:
     unsigned int m_lmax;  //!< Maximum spherical harmonic l to calculate
     bool m_negative_m;    //!< true if we should compute Ylm for negative m
-    unsigned int m_Nref;  //!< Last number of points computed
+    unsigned int m_n_points;  //!< Last number of points computed
     unsigned int m_nSphs; //!< Last number of bond spherical harmonics computed
 
     //! Spherical harmonics for each neighbor

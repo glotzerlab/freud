@@ -46,13 +46,13 @@ cdef class _QueryArgs:
     # This class is temporarily included for testing and may be
     # removed in future releases.
 
-    def __cinit__(self, mode=None, rmax=None, nn=None, exclude_ii=None):
+    def __cinit__(self, mode=None, r_max=None, nn=None, exclude_ii=None):
         if type(self) == _QueryArgs:
             self.thisptr = new freud._locality.QueryArgs()
             if mode is not None:
                 self.mode = mode
-            if rmax is not None:
-                self.rmax = rmax
+            if r_max is not None:
+                self.r_max = r_max
             if nn is not None:
                 self.nn = nn
             if exclude_ii is not None:
@@ -85,11 +85,11 @@ cdef class _QueryArgs:
             raise ValueError("You have passed an invalid mode.")
 
     @property
-    def rmax(self):
+    def r_max(self):
         return self.thisptr.rmax
 
-    @rmax.setter
-    def rmax(self, value):
+    @r_max.setter
+    def r_max(self, value):
         self.thisptr.rmax = value
 
     @property
@@ -123,7 +123,7 @@ cdef _QueryArgs parse_query_args(dict query_args):
     The following keys are supported:
 
         * mode: The query mode, either 'ball' or 'nearest'.
-        * rmax: The cutoff distance for a ball query.
+        * r_max: The cutoff distance for a ball query.
         * nn: The number of nearest neighbors to find.
         * exclude_ii: Whether or not to include self-neighbors.
 
@@ -142,9 +142,10 @@ cdef _QueryArgs parse_query_args(dict query_args):
         else:
             invalid_args[key] = val
     if invalid_args:
+        err_str = ", ".join(
+            "{} = {}".format(k, v) for k, v in invalid_args.items())
         raise ValueError(
-            "The following invalid query arguments were provided: "
-            ", ".join("{} = {}".format(key, val)))
+            "The following invalid query arguments were provided: " + err_str)
     else:
         return qa
 
@@ -305,24 +306,24 @@ cdef class NeighborQuery:
     def points(self):
         return np.asarray(self.points)
 
-    def _queryGeneric(self, points, query_args):
+    def _queryGeneric(self, query_points, query_args):
         # This function is temporarily included for testing and may be
         # removed in future releases.
         # Can't use this function with old-style NeighborQuery objects
-        points = freud.common.convert_array(np.atleast_2d(points),
-                                            shape=(None, 3))
+        query_points = freud.common.convert_array(
+            np.atleast_2d(query_points), shape=(None, 3))
 
         cdef shared_ptr[freud._locality.NeighborQueryIterator] iterator
-        cdef const float[:, ::1] l_points = points
+        cdef const float[:, ::1] l_query_points = query_points
         cdef _QueryArgs args = parse_query_args(query_args)
 
         # Default guess value
-        if 'rmax' not in query_args:
-            args.rmax = 0
+        if 'r_max' not in query_args:
+            args.r_max = 0
 
         iterator = self.nqptr.queryWithArgs(
-            <vec3[float]*> &l_points[0, 0],
-            points.shape[0],
+            <vec3[float]*> &l_query_points[0, 0],
+            query_points.shape[0],
             dereference(args.thisptr))
 
         cdef freud._locality.NeighborList *cnlist = dereference(
@@ -335,20 +336,20 @@ cdef class NeighborQuery:
 
         return nl
 
-    def query(self, points, unsigned int k=1, cbool exclude_ii=False):
+    def query(self, query_points, unsigned int num_neighbors=1,
+              cbool exclude_ii=False):
         R"""Query for nearest neighbors of the provided point.
 
         Args:
-            points ((:math:`N`, 3) :class:`numpy.ndarray`):
+            query_points ((:math:`N`, 3) :class:`numpy.ndarray`):
                 Points to query for.
-            k (int):
+            num_neighbors (int, optional):
                 The number of nearest neighbors to find.
+                (Default value = :code:`1`)
             exclude_ii (bool, optional):
                 Set this to :code:`True` if pairs of points with identical
-                indices to those in self.points should be excluded. If this is
-                :code:`None`, it will be treated as :code:`True` if
-                :code:`points` is :code:`None` or the same object as
-                :code:`ref_points` (Defaults to :code:`None`).
+                indices to those in :code:`self.points` should be excluded.
+                (Default value = :code:`False`).
 
         Returns:
             :class:`~.NeighborQueryResult`: Results object containing the
@@ -359,26 +360,24 @@ cdef class NeighborQuery:
             raise RuntimeError("You cannot use the query method unless this "
                                "object was originally constructed with "
                                "reference points")
-        points = freud.common.convert_array(np.atleast_2d(points),
-                                            shape=(None, 3))
+        query_points = freud.common.convert_array(
+            np.atleast_2d(query_points), shape=(None, 3))
 
         return NeighborQueryResult.init(
-            self, points, exclude_ii, r=0, k=k)
+            self, query_points, exclude_ii, r=0, k=num_neighbors)
 
-    def queryBall(self, points, float r, cbool exclude_ii=False):
+    def queryBall(self, query_points, float r_max, cbool exclude_ii=False):
         R"""Query for all points within a distance r of the provided point(s).
 
         Args:
-            points ((:math:`N`, 3) :class:`numpy.ndarray`):
+            query_points ((:math:`N`, 3) :class:`numpy.ndarray`):
                 Points to query for.
             r (float):
                 The distance within which to find neighbors
             exclude_ii (bool, optional):
                 Set this to :code:`True` if pairs of points with identical
-                indices to those in self.points should be excluded. If this is
-                :code:`None`, it will be treated as :code:`True` if
-                :code:`points` is :code:`None` or the same object as
-                :code:`ref_points` (Defaults to :code:`None`).
+                indices to those in :code:`self.points` should be excluded.
+                (Default value = :code:`False`).
 
         Returns:
             :class:`~.NeighborQueryResult`: Results object containing the
@@ -388,11 +387,11 @@ cdef class NeighborQuery:
             raise RuntimeError("You cannot use the query method unless this "
                                "object was originally constructed with "
                                "reference points")
-        points = freud.common.convert_array(np.atleast_2d(points),
-                                            shape=(None, 3))
+        query_points = freud.common.convert_array(
+            np.atleast_2d(query_points), shape=(None, 3))
 
         return NeighborQueryResult.init(
-            self, points, exclude_ii, r=r, k=0)
+            self, query_points, exclude_ii, r=r_max, k=0)
 
     cdef freud._locality.NeighborQuery * get_ptr(self) nogil:
         R"""Returns a pointer to the raw C++ object we are wrapping."""
@@ -442,11 +441,11 @@ cdef class NeighborList:
         weights ((:math:`N_{bonds}`) :class:`np.ndarray`):
             The per-bond weights from the last set of points this object was
             evaluated with.
-        segments ((:math:`N_{ref\_points}`) :class:`np.ndarray`):
+        segments ((:math:`N_{points}`) :class:`np.ndarray`):
             A segment array, which is an array of length :math:`N_{ref}`
             indicating the first bond index for each reference particle from
             the last set of points this object was evaluated with.
-        neighbor_counts ((:math:`N_{ref\_points}`) :class:`np.ndarray`):
+        neighbor_counts ((:math:`N_{points}`) :class:`np.ndarray`):
             A neighbor count array, which is an array of length
             :math:`N_{ref}` indicating the number of neighbors for each
             reference particle from the last set of points this object was
@@ -697,39 +696,40 @@ cdef class NeighborList:
         self.thisptr.filter(filt_ptr)
         return self
 
-    def filter_r(self, box, ref_points, points, float rmax, float rmin=0):
+    def filter_r(self, box, points, query_points, float r_max, float r_min=0):
         R"""Removes bonds that are outside of a given radius range.
 
         Args:
             box (:class:`freud.box.Box`):
                 Simulation box.
-            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Reference points to use for filtering.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Target points to use for filtering.
-            rmax (float):
+                Points to use for filtering.
+            query_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+                Query points to use for filtering.
+            r_max (float):
                 Maximum bond distance in the resulting neighbor list.
-            rmin (float, optional):
+            r_min (float, optional):
                 Minimum bond distance in the resulting neighbor list
-                (Default value = 0).
+                (Default value = :code:`0`).
         """
         cdef freud.box.Box b = freud.common.convert_box(box)
-        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
-
         points = freud.common.convert_array(points, shape=(None, 3))
 
-        cdef const float[:, ::1] cRef_points = ref_points
-        cdef const float[:, ::1] cPoints = points
-        cdef size_t nRef = ref_points.shape[0]
-        cdef size_t nP = points.shape[0]
+        query_points = freud.common.convert_array(
+            query_points, shape=(None, 3))
+
+        cdef const float[:, ::1] l_points = points
+        cdef const float[:, ::1] l_query_points = query_points
+        cdef size_t nRef = points.shape[0]
+        cdef size_t nP = query_points.shape[0]
 
         self.thisptr.validate(nP, nRef)
         self.thisptr.filter_r(
             dereference(b.thisptr),
-            <vec3[float]*> &cRef_points[0, 0],
-            <vec3[float]*> &cPoints[0, 0],
-            rmax,
-            rmin)
+            <vec3[float]*> &l_points[0, 0],
+            <vec3[float]*> &l_query_points[0, 0],
+            r_max,
+            r_min)
         return self
 
 
@@ -756,57 +756,54 @@ cdef class NlistptrWrapper:
         return self.nlistptr
 
 
-def make_nq_nlist(box, ref_points, nlist):
-    return (make_default_nq(box, ref_points), NlistptrWrapper(nlist))
+def make_nq_nlist(box, points, nlist):
+    return (make_default_nq(box, points), NlistptrWrapper(nlist))
 
 
-def make_default_nq(box, ref_points):
+def make_default_nq(box, points):
     R"""Helper function to return a NeighborQuery object.
 
     Args:
         box (:class:`freud.box.Box`):
             Simulation box.
-        ref_points (:class:`freud.locality.AABBQuery`,
+        points (:class:`freud.locality.AABBQuery`,
             :class:`freud.locality.LinkCell`, or :class:`numpy.ndarray`):
             NeighborQuery object or NumPy array used to build :class:`RawPoints`.
 
     Returns:
         :class:`freud.locality.NeighborQuery`
             The same :class:`NeighborQuery` object if one is given or :class:`RawPoints`
-            built from :code:`box` and :code:`ref_points`.
+            built from :code:`box` and :code:`points`.
     """  # noqa: E501
-    if isinstance(ref_points, NeighborQuery):
-        if ref_points.box != box:
+    if isinstance(points, NeighborQuery):
+        if points.box != box:
             raise ValueError("The box provided and the box of the"
                              "NeighborQuery object are different")
-        return ref_points
+        return points
 
-    cdef RawPoints rp = RawPoints(box, ref_points)
+    cdef RawPoints rp = RawPoints(box, points)
     return rp
 
 
-def make_default_nlist(box, ref_points, points, rmax, nlist=None,
-                       exclude_ii=None):
+def make_default_nlist(box, points, query_points, r_max, nlist=None,
+                       exclude_ii=False):
     R"""Helper function to return a neighbor list object if is given, or to
     construct one using AABBQuery if it is not.
 
     Args:
         box (:class:`freud.box.Box`):
             Simulation box.
-        ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-            Reference points for the neighborlist.
         points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            Reference points for the neighborlist.
+        query_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
             Points to construct the neighborlist.
-        rmax (float):
+        r_max (float):
             The radius within which to find neighbors.
         nlist (:class:`freud.locality.NeighborList`, optional):
             NeighborList to use to find bonds (Default value = :code:`None`).
         exclude_ii (bool, optional):
             Set this to :code:`True` if pairs of points with identical
-            indices should be excluded. If this is :code:`None`, it will be
-            treated as :code:`True` if :code:`points` is :code:`None` or
-            the same object as :code:`ref_points` (Defaults to
-            :code:`None`).
+            indices should be excluded. (Default value = :code:`False`).
 
     Returns:
         tuple (:class:`freud.locality.NeighborList`, :class:`freud.locality.AABBQuery`):
@@ -815,37 +812,34 @@ def make_default_nlist(box, ref_points, points, rmax, nlist=None,
     if nlist is not None:
         return nlist, nlist
 
-    cdef AABBQuery aq = AABBQuery(box, ref_points)
+    cdef AABBQuery aq = AABBQuery(box, points)
     cdef NeighborList aq_nlist = aq.queryBall(
-        points, rmax, exclude_ii).toNList()
+        query_points, r_max, exclude_ii).toNList()
 
     return aq_nlist, aq
 
 
-def make_default_nlist_nn(box, ref_points, points, n_neigh, nlist=None,
-                          exclude_ii=None, rmax_guess=2.0):
+def make_default_nlist_nn(box, points, query_points, num_neighbors, nlist=None,
+                          exclude_ii=False, r_max_guess=2.0):
     R"""Helper function to return a neighbor list object if is given, or to
     construct one using NearestNeighbors if it is not.
 
     Args:
         box (:class:`freud.box.Box`):
             Simulation box.
-        ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-            Reference points for the neighborlist.
         points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            Reference points for the neighborlist.
+        query_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
             Points to construct the neighborlist.
-        n_neigh (int):
+        num_neighbors (int):
             The number of nearest neighbors to consider.
         nlist (:class:`freud.locality.NeighborList`, optional):
             NeighborList to use to find bonds (Default value = :code:`None`).
         exclude_ii (bool, optional):
             Set this to :code:`True` if pairs of points with identical
-            indices should be excluded. If this is :code:`None`, it will be
-            treated as :code:`True` if :code:`points` is :code:`None` or
-            the same object as :code:`ref_points` (Defaults to
-            :code:`None`).
-        rmax_guess (float):
-            Estimate of rmax, speeds up search if chosen properly.
+            indices should be excluded. (Default value = :code:`False`).
+        r_max_guess (float):
+            Estimate of r_max, speeds up search if chosen properly.
 
     Returns:
         tuple (:class:`freud.locality.NeighborList`, :class:`freud.locality:NearestNeighbors`):
@@ -854,8 +848,9 @@ def make_default_nlist_nn(box, ref_points, points, n_neigh, nlist=None,
     if nlist is not None:
         return nlist, nlist
 
-    cdef NearestNeighbors nn = NearestNeighbors(rmax_guess, n_neigh).compute(
-        box, ref_points, points, exclude_ii=exclude_ii)
+    cdef NearestNeighbors nn = NearestNeighbors(
+        r_max_guess, num_neighbors).compute(
+            box, points, query_points, exclude_ii=exclude_ii)
 
     # Python does not appear to garbage collect appropriately in this case.
     # If a new neighbor list is created, the associated link cell keeps the
@@ -939,20 +934,20 @@ cdef class AABBQuery(NeighborQuery):
         if type(self) is AABBQuery:
             del self.thisptr
 
-    def _queryGeneric(self, points, query_args):
+    def _queryGeneric(self, query_points, query_args):
         # This function is temporarily included for testing and WILL be
         # removed in future releases.
         # Can't use this function with old-style NeighborQuery objects
-        points = freud.common.convert_array(
-            np.atleast_2d(points), shape=(None, 3))
+        query_points = freud.common.convert_array(
+            np.atleast_2d(query_points), shape=(None, 3))
 
         cdef shared_ptr[freud._locality.NeighborQueryIterator] iterator
-        cdef const float[:, ::1] l_points = points
+        cdef const float[:, ::1] l_query_points = query_points
         cdef _QueryArgs args = parse_query_args(query_args)
 
         iterator = self.nqptr.queryWithArgs(
-            <vec3[float]*> &l_points[0, 0],
-            points.shape[0],
+            <vec3[float]*> &l_query_points[0, 0],
+            query_points.shape[0],
             dereference(args.thisptr))
 
         cdef freud._locality.NeighborList *cnlist = dereference(
@@ -965,8 +960,8 @@ cdef class AABBQuery(NeighborQuery):
 
         return nl
 
-    def query(self, points, unsigned int k=1, float r=0, float scale=1.1,
-              cbool exclude_ii=False):
+    def query(self, query_points, unsigned int num_neighbors=1,
+              float r_guess=0, float scale=1.1, cbool exclude_ii=False):
         R"""Query for nearest neighbors of the provided point.
 
         This method has a slightly different signature from the parent method
@@ -975,32 +970,38 @@ cdef class AABBQuery(NeighborQuery):
         Args:
             box (:class:`freud.box.Box`):
                 Simulation box.
-            points ((:math:`N`, 3) :class:`numpy.ndarray`):
+            query_points ((:math:`N`, 3) :class:`numpy.ndarray`):
                 Points to query for.
-            k (int):
+            num_neighbors (int, optional):
                 The number of nearest neighbors to find.
-            r (float):
+                (Default value = :code:`1`)
+            r_guess (float, optional):
                 The initial guess of a distance to search to find N neighbors.
-            scale (float):
+                (Default value = :code:`0`)
+            scale (float, optional):
                 Multiplier by which to increase :code:`r` if not enough
-                neighbors are found.
+                neighbors are found. (Default value = :code:`1.1`)
+            exclude_ii (bool, optional):
+                Set this to :code:`True` if pairs of points with identical
+                indices to those in :code:`self.points` should be excluded.
+                (Default value = :code:`False`).
 
         Returns:
             :class:`~.NeighborQueryResult`: Results object containing the
             output of this query.
         """
-        points = freud.common.convert_array(np.atleast_2d(points),
-                                            shape=(None, 3))
+        query_points = freud.common.convert_array(
+            np.atleast_2d(query_points), shape=(None, 3))
 
         # Default guess value
-        if r == 0:
-            r = min(self._box.Lx, self._box.Ly)
+        if r_guess == 0:
+            r_guess = min(self._box.Lx, self._box.Ly)
             if not self._box.is2D:
-                r = min(r, self._box.Lz)
-            r *= 0.1
+                r_guess = min(r_guess, self._box.Lz)
+            r_guess *= 0.1
 
         return AABBQueryResult.init_aabb_nn(
-            self, points, exclude_ii, k, r, scale)
+            self, query_points, exclude_ii, num_neighbors, r_guess, scale)
 
 
 cdef class IteratorLinkCell:
@@ -1059,7 +1060,7 @@ cdef class LinkCell(NeighborQuery):
         points (:class:`np.ndarray`, optional):
             The points associated with this class, if used as a NeighborQuery
             object, i.e. built on one set of points that can then be queried
-            against.  (Defaults to None).
+            against.  (Default value = :code:`None`).
 
     Attributes:
         box (:class:`freud.box.Box`):
@@ -1178,23 +1179,23 @@ cdef class LinkCell(NeighborQuery):
             result[i] = neighbors[i]
         return result
 
-    def compute(self, box, ref_points, points=None, exclude_ii=None):
+    def compute(self, box, points, query_points=None, exclude_ii=None):
         R"""Update the data structure for the given set of points and compute a
         NeighborList.
 
         Args:
             box (:class:`freud.box.Box`):
                 Simulation box.
-            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference point coordinates.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
+            query_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
                 Point coordinates (Default value = :code:`None`).
             exclude_ii (bool, optional):
                 Set this to :code:`True` if pairs of points with identical
                 indices should be excluded. If this is :code:`None`, it will be
-                treated as :code:`True` if :code:`points` is :code:`None` or
-                the same object as :code:`ref_points` (Defaults to
-                :code:`None`).
+                treated as :code:`True` if :code:`query_points` is :code:`None` or
+                the same object as :code:`points`.
+                (Default value = :code:`None`).
         """  # noqa: E501
         if self.queryable:
             raise RuntimeError("You cannot use the compute method because "
@@ -1202,27 +1203,28 @@ cdef class LinkCell(NeighborQuery):
                                "reference points")
         cdef freud.box.Box b = freud.common.convert_box(box)
         exclude_ii = (
-            points is ref_points or points is None) \
+            query_points is points or query_points is None) \
             if exclude_ii is None else exclude_ii
-
-        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
-
-        if points is None:
-            points = ref_points
 
         points = freud.common.convert_array(points, shape=(None, 3))
 
-        cdef const float[:, ::1] cRef_points = ref_points
-        cdef unsigned int n_ref = ref_points.shape[0]
-        cdef const float[:, ::1] cPoints = points
-        cdef unsigned int Np = points.shape[0]
+        if query_points is None:
+            query_points = points
+
+        query_points = freud.common.convert_array(
+            query_points, shape=(None, 3))
+
+        cdef const float[:, ::1] l_points = points
+        cdef unsigned int n_ref = points.shape[0]
+        cdef const float[:, ::1] l_query_points = query_points
+        cdef unsigned int Np = query_points.shape[0]
         cdef cbool c_exclude_ii = exclude_ii
         with nogil:
             self.thisptr.compute(
                 dereference(b.thisptr),
-                <vec3[float]*> &cRef_points[0, 0],
+                <vec3[float]*> &l_points[0, 0],
                 n_ref,
-                <vec3[float]*> &cPoints[0, 0],
+                <vec3[float]*> &l_query_points[0, 0],
                 Np,
                 c_exclude_ii)
 
@@ -1241,28 +1243,29 @@ cdef class NearestNeighbors:
     R"""Supports efficiently finding the :math:`N` nearest neighbors of each
     point in a set for some fixed integer :math:`N`.
 
-    * :code:`strict_cut == True`: :code:`rmax` will be strictly obeyed, and any
+    * :code:`strict_cut == True`: :code:`r_max` will be strictly obeyed, and any
       particle which has fewer than :math:`N` neighbors will have values of
       :code:`UINT_MAX` assigned.
-    * :code:`strict_cut == False` (default): :code:`rmax` will be expanded to
-      find the requested number of neighbors. If :code:`rmax` increases to the
+    * :code:`strict_cut == False` (default): :code:`r_max` will be expanded to
+      find the requested number of neighbors. If :code:`r_max` increases to the
       point that a cell list cannot be constructed, a warning will be raised
       and the neighbors already found will be returned.
 
     .. moduleauthor:: Eric Harper <harperic@umich.edu>
 
     Args:
-        rmax (float):
+        r_max (float):
             Initial guess of a distance to search within to find N neighbors.
-        n_neigh (unsigned int):
+        num_neighbors (unsigned int):
             Number of neighbors to find for each point.
-        scale (float):
-            Multiplier by which to automatically increase :code:`rmax` value if
+        scale (float, optional):
+            Multiplier by which to automatically increase :code:`r_max` value if
             the requested number of neighbors is not found. Only utilized if
             :code:`strict_cut` is False. Scale must be greater than 1.
-        strict_cut (bool):
-            Whether to use a strict :code:`rmax` or allow for automatic
-            expansion, default is False.
+            (Default value = :code:`1.1`)
+        strict_cut (bool, optional):
+            Whether to use a strict :code:`r_max` or allow for automatic
+            expansion. (Default value = :code:`False`)
 
     Attributes:
         UINTMAX (unsigned int):
@@ -1291,12 +1294,12 @@ cdef class NearestNeighbors:
        hexatic.compute(box, positions, nlist=nn.nlist)
     """  # noqa: E501
 
-    def __cinit__(self, float rmax, unsigned int n_neigh, float scale=1.1,
-                  strict_cut=False):
+    def __cinit__(self, float r_max, unsigned int num_neighbors,
+                  float scale=1.1, strict_cut=False):
         if scale < 1:
             raise RuntimeError("scale must be greater than 1")
         self.thisptr = new freud._locality.NearestNeighbors(
-            float(rmax), int(n_neigh), float(scale), bool(strict_cut))
+            float(r_max), int(num_neighbors), float(scale), bool(strict_cut))
         self._nlist = NeighborList()
 
     def __dealloc__(self):
@@ -1388,8 +1391,9 @@ cdef class NearestNeighbors:
         """
         cdef unsigned int start_idx = self.nlist.find_first_index(i)
         cdef unsigned int end_idx = self.nlist.find_first_index(i + 1)
-        rijs = (self._cached_points[self.nlist.index_j[start_idx:end_idx]] -
-                self._cached_ref_points[self.nlist.index_i[start_idx:end_idx]])
+        rijs = \
+            (self._cached_query_points[self.nlist.index_j[start_idx:end_idx]] -
+                self._cached_points[self.nlist.index_i[start_idx:end_idx]])
         self._cached_box.wrap(rijs)
         result = -np.ones((self.thisptr.getNumNeighbors(),), dtype=np.float32)
         result[:len(rijs)] = np.sum(rijs**2, axis=-1)
@@ -1414,8 +1418,8 @@ cdef class NearestNeighbors:
             current_j *= last_i == idx_i[bond]
             last_i = idx_i[bond]
             result[last_i, current_j] = \
-                self._cached_points[idx_j[bond]] - \
-                self._cached_ref_points[last_i]
+                self._cached_query_points[idx_j[bond]] - \
+                self._cached_points[last_i]
             blank_mask[last_i, current_j] = False
             current_j += 1
 
@@ -1430,51 +1434,52 @@ cdef class NearestNeighbors:
         result[blank_mask] = -1
         return result
 
-    def compute(self, box, ref_points, points=None, exclude_ii=None):
+    def compute(self, box, points, query_points=None, exclude_ii=None):
         R"""Update the data structure for the given set of points.
 
         Args:
             box (:class:`freud.box.Box`):
                 Simulation box.
-            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference point coordinates.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
-                Point coordinates. Defaults to :code:`ref_points` if not
-                provided or :code:`None`.
+            query_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
+                Point coordinates. Uses :code:`points` if not
+                provided or :code:`None`. (Default value = :code:`None`).
             exclude_ii (bool, optional):
                 Set this to :code:`True` if pairs of points with identical
                 indices should be excluded. If this is :code:`None`, it will be
-                treated as :code:`True` if :code:`points` is :code:`None` or
-                the same object as :code:`ref_points` (Defaults to
+                treated as :code:`True` if :code:`query_points` is :code:`None` or
+                the same object as :code:`points` (Default value =
                 :code:`None`).
         """  # noqa: E501
         cdef freud.box.Box b = freud.common.convert_box(box)
         exclude_ii = (
-            points is ref_points or points is None) \
+            query_points is points or query_points is None) \
             if exclude_ii is None else exclude_ii
-
-        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
-
-        if points is None:
-            points = ref_points
 
         points = freud.common.convert_array(points, shape=(None, 3))
 
-        self._cached_ref_points = ref_points
+        if query_points is None:
+            query_points = points
+
+        query_points = freud.common.convert_array(
+            query_points, shape=(None, 3))
+
         self._cached_points = points
+        self._cached_query_points = query_points
         self._cached_box = b
 
-        cdef const float[:, ::1] cRef_points = ref_points
-        cdef unsigned int n_ref = ref_points.shape[0]
-        cdef const float[:, ::1] cPoints = points
-        cdef unsigned int Np = points.shape[0]
+        cdef const float[:, ::1] l_points = points
+        cdef unsigned int n_ref = points.shape[0]
+        cdef const float[:, ::1] l_query_points = query_points
+        cdef unsigned int Np = query_points.shape[0]
         cdef cbool c_exclude_ii = exclude_ii
         with nogil:
             self.thisptr.compute(
                 dereference(b.thisptr),
-                <vec3[float]*> &cRef_points[0, 0],
+                <vec3[float]*> &l_points[0, 0],
                 n_ref,
-                <vec3[float]*> &cPoints[0, 0],
+                <vec3[float]*> &l_query_points[0, 0],
                 Np,
                 c_exclude_ii)
 
@@ -1539,12 +1544,12 @@ cdef class _Voronoi:
 
         Args:
             box (:class:`freud.box.Box`):
-                Simulation box (Default value = None).
+                Simulation box (Default value = :code:`None`).
             positions ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Points to calculate Voronoi diagram for.
             buffer (float):
                 Buffer distance within which to look for images
-                (Default value = None).
+                (Default value = :code:`None`).
             images (bool):
                 If ``False``, ``buffer`` is a distance. If ``True``
                 (default),``buffer`` is a number of images to replicate in each

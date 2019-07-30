@@ -35,7 +35,7 @@ class BondOrder
 {
 public:
     //! Constructor
-    BondOrder(float rmax, float k, unsigned int n, unsigned int nbins_t, unsigned int nbins_p);
+    BondOrder(float rmax, unsigned int n, unsigned int nbins_t, unsigned int nbins_p);
 
     //! Destructor
     ~BondOrder() {}
@@ -50,10 +50,10 @@ public:
     void reset();
 
     //! Accumulate the bond order
-    void accumulate(const freud::locality::NeighborList* nlist,
-                    const locality::NeighborQuery* ref_points,
-                    quat<float>* ref_orientations, vec3<float>* points,
-                    quat<float>* orientations, unsigned int n_p, unsigned int mode,
+    void accumulate(const locality::NeighborQuery* neighbor_query, 
+                    quat<float>* orientations, vec3<float>* query_points,
+                    quat<float>* query_orientations, unsigned int n_query_points,
+                    unsigned int mode, const freud::locality::NeighborList* nlist,
                     freud::locality::QueryArgs qargs);
 
     void reduceBondOrder();
@@ -87,8 +87,6 @@ private:
     box::Box m_box; //!< Simulation box where the particles belong
     float m_dt;
     float m_dp;
-    unsigned int m_n_ref;         //!< Last number of points computed
-    unsigned int m_n_p;           //!< Last number of points computed
     unsigned int m_nbins_t;       //!< number of bins for theta
     unsigned int m_nbins_p;       //!< number of bins for phi
     unsigned int m_frame_counter; //!< number of frames calc'd

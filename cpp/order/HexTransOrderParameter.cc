@@ -10,7 +10,7 @@ void HexTransOrderParameter<T>::computeGeneral(Func func, const freud::locality:
 {
     // Compute the cell list
     m_box = points->getBox();
-    unsigned int Np = points->getNRef();
+    unsigned int Np = points->getNPoints();
 
     // Reallocate the output array if it is not the right size
     if (Np != m_Np)
@@ -19,7 +19,7 @@ void HexTransOrderParameter<T>::computeGeneral(Func func, const freud::locality:
                                                       std::default_delete<std::complex<float>[]>());
     }
 
-    freud::locality::loopOverNeighborsIterator(points, points->getRefPoints(), Np, qargs, nlist, 
+    freud::locality::loopOverNeighborsIterator(points, points->getPoints(), Np, qargs, nlist, 
     [=] (size_t i, std::shared_ptr<freud::locality::NeighborIterator::PerPointIterator> ppiter)
     {
         m_psi_array.get()[i] = 0;

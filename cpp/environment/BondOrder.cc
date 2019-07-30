@@ -21,8 +21,8 @@ using namespace tbb;
 
 namespace freud { namespace environment {
 
-BondOrder::BondOrder(float rmax, float k, unsigned int n, unsigned int nbins_t, unsigned int nbins_p)
-    : m_box(box::Box()), m_n_ref(0), m_n_p(0), m_nbins_t(nbins_t), m_nbins_p(nbins_p), m_frame_counter(0),
+BondOrder::BondOrder(float rmax, unsigned int n, unsigned int nbins_t, unsigned int nbins_p)
+    : m_box(box::Box()), m_nbins_t(nbins_t), m_nbins_p(nbins_p), m_frame_counter(0),
       m_reduce(true), m_local_bin_counts(nbins_t * nbins_p)
 {
     // sanity checks, but this is actually kinda dumb if these values are 1
@@ -136,30 +136,32 @@ void BondOrder::reset()
     m_reduce = true;
 }
 
-void BondOrder::accumulate(const freud::locality::NeighborList* nlist,
-                    const locality::NeighborQuery* ref_points,
-                    quat<float>* ref_orientations, vec3<float>* points,
-                    quat<float>* orientations, unsigned int n_p, unsigned int mode,
+void BondOrder::accumulate(
+                    const locality::NeighborQuery* neighbor_query,
+                    quat<float>* orientations, vec3<float>* query_points,
+                    quat<float>* query_orientations, unsigned int n_query_points,
+                    unsigned int mode,
+                    const freud::locality::NeighborList* nlist,
                     freud::locality::QueryArgs qargs)
 {
     // transform the mode from an integer to an enumerated type (enumerated in BondOrder.h)
     BondOrderMode b_mode = static_cast<BondOrderMode>(mode);
 
-    m_box = ref_points->getBox();
+    m_box = neighbor_query->getBox();
     // compute the order parameter
 
     float dt_inv = 1.0f / m_dt;
     float dp_inv = 1.0f / m_dp;
     Index2D sa_i = Index2D(m_nbins_t, m_nbins_p);
 
-    freud::locality::loopOverNeighbors(ref_points, points, n_p, qargs, nlist, 
+    freud::locality::loopOverNeighbors(neighbor_query, query_points, n_query_points, qargs, nlist, 
     [=] (size_t i, size_t j, float dist, float weight)
     {
-        vec3<float> ref_pos = ref_points->getRefPoints()[i];
-        quat<float>& ref_q = ref_orientations[i];
-        vec3<float> v = m_box.wrap(points[j] - ref_pos);
+        vec3<float> ref_pos = neighbor_query->getPoints()[i];
+        quat<float>& ref_q = orientations[i];
+        vec3<float> v = m_box.wrap(query_points[j] - ref_pos);
 
-        quat<float>& q = orientations[j];
+        quat<float>& q = query_orientations[j];
         if (b_mode == obcd)
         {
             // give bond directions of neighboring particles rotated by the matrix
@@ -221,8 +223,6 @@ void BondOrder::accumulate(const freud::locality::NeighborList* nlist,
     );
 
     // save the last computed number of particles
-    m_n_ref = ref_points->getNRef();
-    m_n_p = n_p;
     m_frame_counter++;
     // flag to reduce
     m_reduce = true;

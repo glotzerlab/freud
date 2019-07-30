@@ -93,10 +93,10 @@ void PMFTR12::reset()
     resetGeneral(m_n_r * m_n_t1 * m_n_t2);
 }
 
-void PMFTR12::accumulate(const locality::NeighborList* nlist, 
-                         const locality::NeighborQuery* ref_points,
-                         float* ref_orientations, vec3<float>* points,
-                         float* orientations, unsigned int n_p, freud::locality::QueryArgs qargs)
+void PMFTR12::accumulate(const locality::NeighborQuery* neighbor_query,
+                         float* orientations, vec3<float>* query_points,
+                         float* query_orientations, unsigned int n_p,
+                         const locality::NeighborList* nlist, freud::locality::QueryArgs qargs)
 {
     float dr_inv = 1.0f / m_dr;
     float dt1_inv = 1.0f / m_dt1;
@@ -104,17 +104,17 @@ void PMFTR12::accumulate(const locality::NeighborList* nlist,
 
     Index3D b_i = Index3D(m_n_t1, m_n_t2, m_n_r);
 
-    accumulateGeneral(ref_points, points, n_p, nlist, m_n_r * m_n_t1 * m_n_t2, qargs,
+    accumulateGeneral(neighbor_query, query_points, n_p, nlist, qargs,
         [=](size_t i, size_t j, float dist, float weight) {
-        vec3<float> ref = ref_points->getRefPoints()[i];
-        vec3<float> delta = m_box.wrap(points[j] - ref);
+        vec3<float> ref = neighbor_query->getPoints()[i];
+        vec3<float> delta = m_box.wrap(query_points[j] - ref);
         if (dist < m_r_max)
         {
             // calculate angles
             float d_theta1 = atan2(delta.y, delta.x);
             float d_theta2 = atan2(-delta.y, -delta.x);
-            float t1 = ref_orientations[i] - d_theta1;
-            float t2 = orientations[j] - d_theta2;
+            float t1 = orientations[i] - d_theta1;
+            float t2 = query_orientations[j] - d_theta2;
             // make sure that t1, t2 are bounded between 0 and 2PI
             t1 = fmod(t1, 2 * M_PI);
             if (t1 < 0)

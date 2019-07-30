@@ -87,11 +87,11 @@ void PMFTXYZ::reset()
 //! \internal
 /*! \brief Helper function to direct the calculation to the correct helper class
  */
-void PMFTXYZ::accumulate(const locality::NeighborList* nlist,
-                         const locality::NeighborQuery* ref_points,
-                         quat<float>* ref_orientations, vec3<float>* points,
-                         quat<float>* orientations, unsigned int n_p, quat<float>* face_orientations,
-                         unsigned int n_faces, freud::locality::QueryArgs qargs)
+void PMFTXYZ::accumulate(const locality::NeighborQuery* neighbor_query,
+                         quat<float>* orientations, vec3<float>* query_points,
+                         quat<float>* query_orientations, unsigned int n_query_points,
+                         quat<float>* face_orientations, unsigned int n_faces,
+                         const locality::NeighborList* nlist, freud::locality::QueryArgs qargs)
 {
     // precalc some values for faster computation within the loop
     float dx_inv = 1.0f / m_dx;
@@ -99,15 +99,15 @@ void PMFTXYZ::accumulate(const locality::NeighborList* nlist,
     float dz_inv = 1.0f / m_dz;
 
     Index3D b_i = Index3D(m_n_x, m_n_y, m_n_z);
-    Index2D q_i = Index2D(n_faces, n_p);
+    Index2D q_i = Index2D(n_faces, n_query_points);
 
-    accumulateGeneral(ref_points, points, n_p, nlist, m_n_x * m_n_y * m_n_z, qargs,
+    accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,
         [=](size_t i, size_t j, float dist, float weight) {
-        vec3<float> ref = ref_points->getRefPoints()[i];
+        vec3<float> ref = neighbor_query->getPoints()[i];
         // create the reference point quaternion
-        quat<float> ref_q(ref_orientations[i]);
+        quat<float> ref_q(orientations[i]);
         // make sure that the particles are wrapped into the box
-        vec3<float> delta = m_box.wrap(points[j] - ref);
+        vec3<float> delta = m_box.wrap(query_points[j] - ref);
 
         for (unsigned int k = 0; k < n_faces; k++)
         {

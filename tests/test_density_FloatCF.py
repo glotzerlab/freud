@@ -89,7 +89,7 @@ class TestFloatCF(unittest.TestCase):
                            ang, query_args={'exclude_ii': True}, nlist=ts[1])
             npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
             ocf.reset()
-            ocf.accumulate(box, ts[0], ang, values=ang, nlist=ts[1])
+            ocf.accumulate(box, ts[0], ang, query_values=ang, nlist=ts[1])
             npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
             ocf.compute(box, ts[0], ang, nlist=ts[1])
             npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
@@ -182,7 +182,7 @@ class TestFloatCF(unittest.TestCase):
         npt.assert_array_equal(cf.RDF, [1, 0, 0])
         npt.assert_array_equal(cf.counts, [1, 0, 0])
 
-    def test_ref_points_ne_points(self):
+    def test_points_ne_query_points(self):
         def value_func(_r):
             return np.sin(_r)
 
@@ -193,8 +193,8 @@ class TestFloatCF(unittest.TestCase):
 
         ocf = freud.density.FloatCF(rmax, dr)
 
-        points = []
-        values = []
+        query_points = []
+        query_values = []
         supposed_RDF = []
         N = 300
 
@@ -204,27 +204,28 @@ class TestFloatCF(unittest.TestCase):
         # ref_point to be in the origin.
         for r in ocf.R:
             for k in range(N):
-                points.append([r * np.cos(2*np.pi*k/N),
-                               r * np.sin(2*np.pi*k/N), 0])
-                values.append(value_func(r))
+                query_points.append([r * np.cos(2*np.pi*k/N),
+                                     r * np.sin(2*np.pi*k/N), 0])
+                query_values.append(value_func(r))
             supposed_RDF.append(value_func(r))
 
         supposed_RDF = np.array(supposed_RDF)
 
-        # ref_points are within distances closer than dr, so their impact on
+        # points are within distances closer than dr, so their impact on
         # the result should be minimal.
-        ref_points = [[dr/4, 0, 0], [-dr/4, 0, 0], [0, dr/4, 0], [0, -dr/4, 0]]
+        points = [[dr/4, 0, 0], [-dr/4, 0, 0], [0, dr/4, 0], [0, -dr/4, 0]]
 
         test_set = util.make_raw_query_nlist_test_set(
-            box, ref_points, points, "ball", rmax, 0, False)
+            box, points, query_points, "ball", rmax, 0, False)
         for ts in test_set:
             ocf = freud.density.FloatCF(rmax, dr)
             # try for different scalar values.
             for rv in [0, 1, 2, 7]:
-                ref_values = [rv] * 4
+                values = [rv] * 4
 
                 ocf.compute(
-                    box, ts[0], ref_values, points, values, nlist=ts[1])
+                    box, ts[0], values,
+                    query_points, query_values, nlist=ts[1])
                 correct = supposed_RDF * rv
 
                 npt.assert_allclose(ocf.RDF, correct, atol=1e-6)

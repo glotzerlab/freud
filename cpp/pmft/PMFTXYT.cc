@@ -76,10 +76,10 @@ void PMFTXYT::reset()
     resetGeneral(m_n_x * m_n_y * m_n_t);
 }
 
-void PMFTXYT::accumulate(const locality::NeighborList* nlist,
-                         const locality::NeighborQuery* ref_points, 
-                         float* ref_orientations, vec3<float>* points,
-                         float* orientations, unsigned int n_p, freud::locality::QueryArgs qargs)
+void PMFTXYT::accumulate(const locality::NeighborQuery* neighbor_query, 
+                         float* orientations, vec3<float>* query_points,
+                         float* query_orientations, unsigned int n_query_points,
+                         const locality::NeighborList* nlist, freud::locality::QueryArgs qargs)
 {
     // precalc some values for faster computation within the loop
     float dx_inv = 1.0f / m_dx;
@@ -88,20 +88,20 @@ void PMFTXYT::accumulate(const locality::NeighborList* nlist,
 
     Index3D b_i = Index3D(m_n_x, m_n_y, m_n_t);
 
-    accumulateGeneral(ref_points, points, n_p, nlist, m_n_x * m_n_y * m_n_t, qargs,
+    accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,
         [=](size_t i, size_t j, float dist, float weight) {
-        vec3<float> ref = ref_points->getRefPoints()[i];
-        vec3<float> delta = m_box.wrap(points[j] - ref);
+        vec3<float> ref = neighbor_query->getPoints()[i];
+        vec3<float> delta = m_box.wrap(query_points[j] - ref);
 
         // rotate interparticle vector
         vec2<float> myVec(delta.x, delta.y);
-        rotmat2<float> myMat = rotmat2<float>::fromAngle(-ref_orientations[i]);
+        rotmat2<float> myMat = rotmat2<float>::fromAngle(-orientations[i]);
         vec2<float> rotVec = myMat * myVec;
         float x = rotVec.x + m_x_max;
         float y = rotVec.y + m_y_max;
         // calculate angle
         float d_theta = atan2(-delta.y, -delta.x);
-        float t = orientations[j] - d_theta;
+        float t = query_orientations[j] - d_theta;
         // make sure that t is bounded between 0 and 2PI
         t = fmod(t, 2 * M_PI);
         if (t < 0)

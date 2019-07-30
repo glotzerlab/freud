@@ -91,11 +91,9 @@ cdef class BondOrder(Compute):
     .. moduleauthor:: Erin Teich <erteich@umich.edu>
 
     Args:
-        rmax (float):
+        r_max (float):
             Distance over which to calculate.
-        k (unsigned int):
-            Order parameter i. To be removed.
-        n (unsigned int):
+        num_neighbors (unsigned int):
             Number of neighbors to find.
         n_bins_t (unsigned int):
             Number of :math:`\theta` bins.
@@ -116,26 +114,23 @@ cdef class BondOrder(Compute):
         n_bins_phi (unsigned int):
             The number of bins in the :math:`\phi` dimension.
 
-    .. todo:: remove k, it is not used as such.
     """  # noqa: E501
     cdef freud._environment.BondOrder * thisptr
     cdef num_neigh
-    cdef rmax
-    cdef k
+    cdef r_max
     cdef n_bins_t
     cdef n_bins_p
 
-    def __cinit__(self, float rmax, float k, unsigned int n,
+    def __cinit__(self, float r_max, unsigned int num_neighbors,
                   unsigned int n_bins_t, unsigned int n_bins_p):
         if n_bins_t < 2:
             raise ValueError("Must have at least 2 bins in theta.")
         if n_bins_p < 2:
             raise ValueError("Must have at least 2 bins in phi.")
         self.thisptr = new freud._environment.BondOrder(
-            rmax, k, n, n_bins_t, n_bins_p)
-        self.rmax = rmax
-        self.num_neigh = n
-        self.k = k
+            r_max, num_neighbors, n_bins_t, n_bins_p)
+        self.r_max = r_max
+        self.num_neigh = num_neighbors
         self.n_bins_t = n_bins_t
         self.n_bins_p = n_bins_p
 
@@ -143,24 +138,26 @@ cdef class BondOrder(Compute):
         del self.thisptr
 
     @Compute._compute()
-    def accumulate(self, box, ref_points, ref_orientations, points=None,
-                   orientations=None, str mode="bod", nlist=None):
+    def accumulate(self, box, points, orientations, query_points=None,
+                   query_orientations=None, str mode="bod", nlist=None):
         R"""Calculates the correlation function and adds to the current
         histogram.
 
         Args:
             box (:class:`freud.box.Box`):
                 Simulation box.
-            ref_points ((:math:`N_{ref\_points}`, 3) :class:`numpy.ndarray`):
+            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
                 Reference points used to calculate bonds.
-            ref_orientations ((:math:`N_{ref\_points}`, 4) :class:`numpy.ndarray`):
-                Reference orientations used to calculate bonds.
-            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`, optional):
-                Points used to calculate bonds. Uses :code:`ref_points` if not
-                provided or :code:`None`.
             orientations ((:math:`N_{points}`, 4) :class:`numpy.ndarray`):
+                Reference orientations used to calculate bonds.
+            query_points ((:math:`N_{query_points}`, 3) :class:`numpy.ndarray`, optional):
+                Points used to calculate bonds. Uses :code:`points` if not
+                provided or :code:`None`.
+                (Default value = :code:`None`).
+            query_orientations ((:math:`N_{query_points}`, 4) :class:`numpy.ndarray`, optional):
                 Orientations used to calculate bonds. Uses
-                :code:`ref_orientations` if not provided or :code:`None`.
+                :code:`orientations` if not provided or :code:`None`.
+                (Default value = :code:`None`).
             mode (str, optional):
                 Mode to calculate bond order. Options are :code:`'bod'`,
                 :code:`'lbod'`, :code:`'obcd'`, or :code:`'oocd'`
@@ -171,27 +168,28 @@ cdef class BondOrder(Compute):
         """  # noqa: E501
         cdef freud.box.Box b = freud.common.convert_box(box)
 
-        exclude_ii = points is None
+        exclude_ii = query_points is None
 
-        nq_nlist = freud.locality.make_nq_nlist(b, ref_points, nlist)
+        nq_nlist = freud.locality.make_nq_nlist(b, points, nlist)
         cdef freud.locality.NeighborQuery nq = nq_nlist[0]
         cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
 
         cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
             mode="nearest", nn=self.num_neigh,
-            rmax=self.rmax, exclude_ii=exclude_ii)
-        ref_points = nq.points
+            r_max=self.r_max, exclude_ii=exclude_ii)
+        points = nq.points
 
-        if points is None:
-            points = ref_points
-        if orientations is None:
-            orientations = ref_orientations
+        if query_points is None:
+            query_points = points
+        if query_orientations is None:
+            query_orientations = orientations
 
-        points = freud.common.convert_array(points, shape=(None, 3))
-        ref_orientations = freud.common.convert_array(
-            ref_orientations, shape=(ref_points.shape[0], 4))
+        query_points = freud.common.convert_array(
+            query_points, shape=(None, 3))
         orientations = freud.common.convert_array(
             orientations, shape=(points.shape[0], 4))
+        query_orientations = freud.common.convert_array(
+            query_orientations, shape=(query_points.shape[0], 4))
 
         cdef unsigned int index = 0
         if mode == "bod":
@@ -207,20 +205,19 @@ cdef class BondOrder(Compute):
                 ('Unknown BOD mode: {}. Options are:'
                     'bod, lbod, obcd, oocd.').format(mode))
 
-        cdef const float[:, ::1] l_points = points
-        cdef const float[:, ::1] l_ref_orientations = ref_orientations
+        cdef const float[:, ::1] l_query_points = query_points
         cdef const float[:, ::1] l_orientations = orientations
-        cdef unsigned int n_p = l_points.shape[0]
+        cdef const float[:, ::1] l_query_orientations = query_orientations
+        cdef unsigned int n_query_points = l_query_points.shape[0]
 
         with nogil:
             self.thisptr.accumulate(
-                nlistptr.get_ptr(),
                 nq.get_ptr(),
-                <quat[float]*> &l_ref_orientations[0, 0],
-                <vec3[float]*> &l_points[0, 0],
                 <quat[float]*> &l_orientations[0, 0],
-                n_p,
-                index, dereference(qargs.thisptr))
+                <vec3[float]*> &l_query_points[0, 0],
+                <quat[float]*> &l_query_orientations[0, 0],
+                n_query_points,
+                index, nlistptr.get_ptr(), dereference(qargs.thisptr))
         return self
 
     @Compute._computed_property()
@@ -242,24 +239,26 @@ cdef class BondOrder(Compute):
         self.thisptr.reset()
 
     @Compute._compute()
-    def compute(self, box, ref_points, ref_orientations, points=None,
-                orientations=None, mode="bod", nlist=None):
+    def compute(self, box, points, orientations, query_points=None,
+                query_orientations=None, mode="bod", nlist=None):
         R"""Calculates the bond order histogram. Will overwrite the current
         histogram.
 
         Args:
             box (:class:`freud.box.Box`):
                 Simulation box.
-            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
                 Reference points used to calculate bonds.
-            ref_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
+            orientations ((:math:`N_{points}`, 4) :class:`numpy.ndarray`):
                 Reference orientations used to calculate bonds.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
-                Points used to calculate bonds. Uses :code:`ref_points` if not
+            query_points ((:math:`N_{query_points}`, 3) :class:`numpy.ndarray`, optional):
+                query_points used to calculate bonds. Uses :code:`points` if not
                 provided or :code:`None`.
-            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`, optional):
+                (Default value = :code:`None`).
+            query_orientations ((:math:`N_{query_points}`, 4) :class:`numpy.ndarray`, optional):
                 Orientations used to calculate bonds. Uses
-                :code:`ref_orientations` if not provided or :code:`None`.
+                :code:`orientations` if not provided or :code:`None`.
+                (Default value = :code:`None`).
             mode (str, optional):
                 Mode to calculate bond order. Options are :code:`'bod'`,
                 :code:`'lbod'`, :code:`'obcd'`, or :code:`'oocd'`
@@ -269,8 +268,8 @@ cdef class BondOrder(Compute):
                 :code:`None`).
         """  # noqa: E501
         self.reset()
-        self.accumulate(box, ref_points, ref_orientations,
-                        points, orientations, mode, nlist)
+        self.accumulate(box, points, orientations,
+                        query_points, query_orientations, mode, nlist)
         return self
 
     @property
@@ -300,11 +299,10 @@ cdef class BondOrder(Compute):
         return self.thisptr.getNBinsPhi()
 
     def __repr__(self):
-        return ("freud.environment.{cls}(rmax={rmax}, k={k}, "
-                "n={num_neigh}, n_bins_t={n_bins_t}, "
+        return ("freud.environment.{cls}(r_max={r_max}, "
+                "num_neighbors={num_neigh}, n_bins_t={n_bins_t}, "
                 "n_bins_p={n_bins_p})").format(cls=type(self).__name__,
-                                               rmax=self.rmax,
-                                               k=self.k,
+                                               r_max=self.r_max,
                                                num_neigh=self.num_neigh,
                                                n_bins_t=self.n_bins_t,
                                                n_bins_p=self.n_bins_p)
@@ -331,11 +329,11 @@ cdef class LocalDescriptors(Compute):
             Maximum number of neighbors to compute descriptors for.
         lmax (unsigned int):
             Maximum spherical harmonic :math:`l` to consider.
-        rmax (float):
+        r_max (float):
             Initial guess of the maximum radius to looks for neighbors.
-        negative_m (bool):
+        negative_m (bool, optional):
             True if we should also calculate :math:`Y_{lm}` for negative
-            :math:`m`.
+            :math:`m`. (Default value = :code:`True`)
 
     Attributes:
         sph (:math:`\left(N_{bonds}, \text{SphWidth} \right)` :class:`numpy.ndarray`):
@@ -354,7 +352,7 @@ cdef class LocalDescriptors(Compute):
     """  # noqa: E501
     cdef freud._environment.LocalDescriptors * thisptr
     cdef num_neigh
-    cdef rmax
+    cdef r_max
     cdef lmax
     cdef negative_m
 
@@ -362,11 +360,11 @@ cdef class LocalDescriptors(Compute):
                    'global': freud._environment.Global,
                    'particle_local': freud._environment.ParticleLocal}
 
-    def __cinit__(self, num_neighbors, lmax, rmax, negative_m=True):
+    def __cinit__(self, num_neighbors, lmax, r_max, negative_m=True):
         self.thisptr = new freud._environment.LocalDescriptors(
             lmax, negative_m)
         self.num_neigh = num_neighbors
-        self.rmax = rmax
+        self.r_max = r_max
         self.lmax = lmax
         self.negative_m = negative_m
 
@@ -374,7 +372,8 @@ cdef class LocalDescriptors(Compute):
         del self.thisptr
 
     @Compute._compute()
-    def compute(self, box, unsigned int num_neighbors, ref_points, points=None,
+    def compute(self, box, unsigned int num_neighbors, points,
+                query_points=None,
                 orientations=None, mode='neighborhood', nlist=None):
         R"""Calculates the local descriptors of bonds from a set of source
         points to a set of destination points.
@@ -385,14 +384,13 @@ cdef class LocalDescriptors(Compute):
             num_neighbors (unsigned int):
                 Number of nearest neighbors to compute with or to limit to, if the
                 neighbor list is precomputed.
-            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
                 Source points to calculate the order parameter.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
+            query_points ((:math:`N_{query_points}`, 3) :class:`numpy.ndarray`, optional):
                 Destination points to calculate the order parameter
                 (Default value = :code:`None`).
-            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`, optional):
-                Orientation of each reference point (Default value =
-                :code:`None`).
+            orientations ((:math:`N_{points}`, 4) :class:`numpy.ndarray`, optional):
+                Orientation of each point (Default value = :code:`None`).
             mode (str, optional):
                 Orientation mode to use for environments, either
                 :code:`'neighborhood'` to use the orientation of the local
@@ -408,13 +406,14 @@ cdef class LocalDescriptors(Compute):
             raise RuntimeError(
                 'Unknown LocalDescriptors orientation mode: {}'.format(mode))
 
-        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
-
-        exclude_ii = points is None
-        if points is None:
-            points = ref_points
-
         points = freud.common.convert_array(points, shape=(None, 3))
+
+        exclude_ii = query_points is None
+        if query_points is None:
+            query_points = points
+
+        query_points = freud.common.convert_array(
+            query_points, shape=(None, 3))
 
         # The l_orientations_ptr is only used for 'particle_local' mode.
         cdef const float[:, ::1] l_orientations
@@ -426,15 +425,15 @@ cdef class LocalDescriptors(Compute):
                         'with particles\' orientations'))
 
             orientations = freud.common.convert_array(
-                orientations, shape=(ref_points.shape[0], 4))
+                orientations, shape=(points.shape[0], 4))
 
             l_orientations = orientations
             l_orientations_ptr = <quat[float]*> &l_orientations[0, 0]
 
-        cdef const float[:, ::1] l_ref_points = ref_points
-        cdef unsigned int nRef = l_ref_points.shape[0]
         cdef const float[:, ::1] l_points = points
-        cdef unsigned int nP = l_points.shape[0]
+        cdef unsigned int n_points = l_points.shape[0]
+        cdef const float[:, ::1] l_query_points = query_points
+        cdef unsigned int n_query_points = l_query_points.shape[0]
         cdef freud._environment.LocalDescriptorOrientation l_mode
 
         l_mode = self.known_modes[mode]
@@ -442,18 +441,17 @@ cdef class LocalDescriptors(Compute):
         self.num_neigh = num_neighbors
 
         defaulted_nlist = freud.locality.make_default_nlist_nn(
-            b, ref_points, points, self.num_neigh, nlist,
-            exclude_ii, self.rmax)
+            b, points, query_points, self.num_neigh, nlist,
+            exclude_ii, self.r_max)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         with nogil:
             self.thisptr.compute(
-                dereference(b.thisptr),
-                nlist_.get_ptr(),
-                num_neighbors,
-                <vec3[float]*> &l_ref_points[0, 0],
-                nRef, <vec3[float]*> &l_points[0, 0], nP,
-                l_orientations_ptr, l_mode)
+                dereference(b.thisptr), num_neighbors,
+                <vec3[float]*> &l_points[0, 0], n_points,
+                <vec3[float]*> &l_query_points[0, 0], n_query_points,
+                l_orientations_ptr, l_mode,
+                nlist_.get_ptr())
         return self
 
     @Compute._computed_property()
@@ -469,7 +467,7 @@ cdef class LocalDescriptors(Compute):
 
     @Compute._computed_property()
     def num_particles(self):
-        return self.thisptr.getNP()
+        return self.thisptr.getNPoints()
 
     @Compute._computed_property()
     def num_neighbors(self):
@@ -481,11 +479,11 @@ cdef class LocalDescriptors(Compute):
 
     def __repr__(self):
         return ("freud.environment.{cls}(num_neighbors={num_neigh}, "
-                "lmax={lmax}, rmax={rmax}, "
+                "lmax={lmax}, r_max={r_max}, "
                 "negative_m={negative_m})").format(cls=type(self).__name__,
                                                    num_neigh=self.num_neigh,
                                                    lmax=self.lmax,
-                                                   rmax=self.rmax,
+                                                   r_max=self.r_max,
                                                    negative_m=self.negative_m)
 
     def __str__(self):
@@ -501,10 +499,10 @@ cdef class MatchEnv(Compute):
     Args:
         box (:class:`freud.box.Box`):
             Simulation box.
-        rmax (float):
+        r_max (float):
             Cutoff radius for cell list and clustering algorithm. Values near
             the first minimum of the RDF are recommended.
-        k (unsigned int):
+        num_neighbors (unsigned int):
             Number of nearest neighbors taken to define the local environment
             of any given particle.
 
@@ -519,18 +517,18 @@ cdef class MatchEnv(Compute):
             The per-particle index indicating cluster membership.
     """  # noqa: E501
     cdef freud._environment.MatchEnv * thisptr
-    cdef rmax
+    cdef r_max
     cdef num_neigh
     cdef m_box
 
-    def __cinit__(self, box, rmax, k):
+    def __cinit__(self, box, r_max, num_neighbors):
         cdef freud.box.Box b = freud.common.convert_box(box)
 
         self.thisptr = new freud._environment.MatchEnv(
-            dereference(b.thisptr), rmax, k)
+            dereference(b.thisptr), r_max, num_neighbors)
 
-        self.rmax = rmax
-        self.num_neigh = k
+        self.r_max = r_max
+        self.num_neigh = num_neighbors
         self.m_box = box
 
     def __dealloc__(self):
@@ -559,16 +557,17 @@ cdef class MatchEnv(Compute):
                 below which they are "matching."
             hard_r (bool):
                 If True, add all particles that fall within the threshold of
-                m_rmaxsq to the environment.
-            registration (bool):
+                m_r_maxsq to the environment.
+            registration (bool, optional):
                 If True, first use brute force registration to orient one set
                 of environment vectors with respect to the other set such that
                 it minimizes the RMSD between the two sets.
-            global_search (bool):
+                (Default value = :code:`False`)
+            global_search (bool, optional):
                 If True, do an exhaustive search wherein the environments of
                 every single pair of particles in the simulation are compared.
                 If False, only compare the environments of neighboring
-                particles.
+                particles. (Default value = :code:`False`)
             env_nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find the environment of every particle
                 (Default value = :code:`None`).
@@ -585,21 +584,21 @@ cdef class MatchEnv(Compute):
         cdef freud.locality.NeighborList env_nlist_
         if hard_r:
             defaulted_nlist = freud.locality.make_default_nlist(
-                self.m_box, points, points, self.rmax, nlist, True)
+                self.m_box, points, points, self.r_max, nlist, True)
             nlist_ = defaulted_nlist[0]
 
             defaulted_env_nlist = freud.locality.make_default_nlist(
-                self.m_box, points, points, self.rmax, env_nlist, True)
+                self.m_box, points, points, self.r_max, env_nlist, True)
             env_nlist_ = defaulted_env_nlist[0]
         else:
             defaulted_nlist = freud.locality.make_default_nlist_nn(
                 self.m_box, points, points, self.num_neigh, nlist,
-                True, self.rmax)
+                True, self.r_max)
             nlist_ = defaulted_nlist[0]
 
             defaulted_env_nlist = freud.locality.make_default_nlist_nn(
                 self.m_box, points, points, self.num_neigh, env_nlist,
-                True, self.rmax)
+                True, self.r_max)
             env_nlist_ = defaulted_env_nlist[0]
 
         self.thisptr.cluster(
@@ -642,7 +641,8 @@ cdef class MatchEnv(Compute):
         cdef unsigned int nRef = l_ref_points.shape[0]
 
         defaulted_nlist = freud.locality.make_default_nlist_nn(
-            self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
+            self.m_box, points, points,
+            self.num_neigh, nlist, True, self.r_max)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         self.thisptr.matchMotif(
@@ -665,7 +665,7 @@ cdef class MatchEnv(Compute):
                 If True, first use brute force registration to orient one set
                 of environment vectors with respect to the other set such that
                 it minimizes the RMSD between the two sets
-                (Default value = False).
+                (Default value = :code:`False`).
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
@@ -685,7 +685,8 @@ cdef class MatchEnv(Compute):
         cdef unsigned int nRef = l_ref_points.shape[0]
 
         defaulted_nlist = freud.locality.make_default_nlist_nn(
-            self.m_box, points, points, self.num_neigh, nlist, True, self.rmax)
+            self.m_box, points, points,
+            self.num_neigh, nlist, True, self.r_max)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         cdef vector[float] min_rmsd_vec = self.thisptr.minRMSDMotif(
@@ -711,7 +712,7 @@ cdef class MatchEnv(Compute):
                 If True, first use brute force registration to orient one set
                 of environment vectors with respect to the other set such that
                 it minimizes the RMSD between the two sets
-                (Default value = False).
+                (Default value = :code:`False`).
 
         Returns:
             tuple ((:math:`\left(N_{particles}, 3\right)` :class:`numpy.ndarray`), map[int, int]):
@@ -754,7 +755,7 @@ cdef class MatchEnv(Compute):
                 If true, first use brute force registration to orient one set
                 of environment vectors with respect to the other set such that
                 it minimizes the RMSD between the two sets
-                (Default value = False).
+                (Default value = :code:`False`).
 
         Returns:
             tuple (float, (:math:`\left(N_{particles}, 3\right)` :class:`numpy.ndarray`), map[int, int]):
@@ -831,9 +832,10 @@ cdef class MatchEnv(Compute):
         return self.thisptr.getNumClusters()
 
     def __repr__(self):
-        return "freud.environment.{cls}(box={box}, rmax={rmax}, k={k})".format(
-            cls=type(self).__name__, box=self.m_box.__repr__(),
-            rmax=self.rmax, k=self.num_neigh)
+        return ("freud.environment.{cls}(box={box}, "
+                "r_max={r}, num_neighbors={k})").format(
+                    cls=type(self).__name__, box=self.m_box.__repr__(),
+                    r=self.r_max, k=self.num_neigh)
 
     def __str__(self):
         return repr(self)
@@ -843,7 +845,7 @@ cdef class MatchEnv(Compute):
         """Plot cluster distribution.
 
         Args:
-            ax (:class:`matplotlib.axes.Axes`): Axis to plot on. If
+            ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
                 :code:`None`, make a new figure and axis.
                 (Default value = :code:`None`)
 
@@ -875,19 +877,19 @@ cdef class AngularSeparation(Compute):
     .. moduleauthor:: Andrew Karas <askaras@umich.edu>
 
     Args:
-        rmax (float):
+        r_max (float):
             Cutoff radius for cell list and clustering algorithm. Values near
             the first minimum of the RDF are recommended.
-        n (int):
+        num_neighbors (int):
             The number of neighbors.
 
     Attributes:
         nlist (:class:`freud.locality.NeighborList`):
             The neighbor list.
-        n_p (unsigned int):
-            The number of particles used in computing the last set.
-        n_ref (unsigned int):
-            The number of reference particles used in computing the neighbor
+        n_points (unsigned int):
+            The number of points used in computing the last set.
+        n_query_points (unsigned int):
+            The number of query points used in computing the neighbor
             angles.
         n_global (unsigned int):
             The number of global orientations to check against.
@@ -905,13 +907,13 @@ cdef class AngularSeparation(Compute):
     """  # noqa: E501
     cdef freud._environment.AngularSeparation * thisptr
     cdef unsigned int num_neigh
-    cdef float rmax
+    cdef float r_max
     cdef freud.locality.NeighborList nlist_
 
-    def __cinit__(self, float rmax, unsigned int n):
+    def __cinit__(self, float r_max, unsigned int num_neighbors):
         self.thisptr = new freud._environment.AngularSeparation()
-        self.rmax = rmax
-        self.num_neigh = n
+        self.r_max = r_max
+        self.num_neigh = num_neighbors
 
     def __dealloc__(self):
         del self.thisptr
@@ -921,27 +923,32 @@ cdef class AngularSeparation(Compute):
         return self.nlist_
 
     @Compute._compute("computeNeighbor")
-    def computeNeighbor(self, box, ref_ors, ors, ref_points, points=None,
-                        equiv_quats=np.array([[1, 0, 0, 0]]), nlist=None):
-        R"""Calculates the minimum angles of separation between ref_ors and ors,
-        checking for underlying symmetry as encoded in equiv_quats. The result
-        is stored in the :code:`neighbor_angles` class attribute.
+    def computeNeighbor(self, box, points, orientations, query_points=None,
+                        query_orientations=None,
+                        equiv_orientations=np.array([[1, 0, 0, 0]]),
+                        nlist=None):
+        R"""Calculates the minimum angles of separation between :code:`orientations`
+        and :code:`query_orientations`, checking for underlying symmetry as encoded
+        in :code:`equiv_orientations`. The result is stored in the :code:`neighbor_angles`
+        class attribute.
 
         Args:
             box (:class:`freud.box.Box`):
                 Simulation box.
-            ref_ors ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
-                Reference orientations used to calculate the order parameter.
-            ors ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
-                Orientations used to calculate the order parameter.
-            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Reference points used to calculate the order parameter.
             points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Points used to calculate the order parameter.
-            equiv_quats ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`, optional):
+                Reference points used to calculate the order parameter.
+            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
+                Reference orientations used to calculate the order parameter.
+            query_points ((:math:`N_{query_points}`, 3) :class:`numpy.ndarray`):
+                Points used to calculate the order parameter. Uses :code:`points`
+                if not provided or :code:`None`.
+            query_orientations ((:math:`N_{query_points}`, 4) :class:`numpy.ndarray`):
+                query_orientations used to calculate the order parameter. Uses :code:`orientations`
+                if not provided or :code:`None`.
+            equiv_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`, optional):
                 The set of all equivalent quaternions that takes the particle
                 as it is defined to some global reference orientation.
-                Important: :code:`equiv_quats` must include both :math:`q` and
+                Important: :code:`equiv_orientations` must include both :math:`q` and
                 :math:`-q`, for all included quaternions.
                 (Default value = :code:`[[1, 0, 0, 0]]`)
             nlist (:class:`freud.locality.NeighborList`, optional):
@@ -949,77 +956,92 @@ cdef class AngularSeparation(Compute):
                 :code:`None`).
         """  # noqa: E501
         cdef freud.box.Box b = freud.common.convert_box(box)
-        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
-
-        exclude_ii = points is None
-        if points is None:
-            points = ref_points
-
         points = freud.common.convert_array(points, shape=(None, 3))
 
-        ref_ors = freud.common.convert_array(ref_ors, shape=(None, 4))
-        ors = freud.common.convert_array(ors, shape=(None, 4))
-        equiv_quats = freud.common.convert_array(equiv_quats, shape=(None, 4))
+        exclude_ii = query_points is None
+        if query_points is None:
+            query_points = points
+
+        if query_orientations is None:
+            query_orientations = orientations
+
+        query_points = freud.common.convert_array(
+            query_points, shape=(None, 3))
+
+        orientations = freud.common.convert_array(
+            orientations, shape=(points.shape[0], 4))
+        query_orientations = freud.common.convert_array(
+            query_orientations, shape=(query_points.shape[0], 4))
+        equiv_orientations = freud.common.convert_array(
+            equiv_orientations, shape=(None, 4))
 
         defaulted_nlist = freud.locality.make_default_nlist_nn(
-            b, ref_points, points, self.num_neigh,
-            nlist, exclude_ii, self.rmax)
+            b, points, query_points, self.num_neigh,
+            nlist, exclude_ii, self.r_max)
         self.nlist_ = defaulted_nlist[0].copy()
 
-        cdef const float[:, ::1] l_ref_ors = ref_ors
-        cdef const float[:, ::1] l_ors = ors
-        cdef const float[:, ::1] l_equiv_quats = equiv_quats
+        cdef const float[:, ::1] l_orientations = orientations
+        cdef const float[:, ::1] l_query_orientations = query_orientations
+        cdef const float[:, ::1] l_equiv_orientations = equiv_orientations
 
-        cdef unsigned int nRef = l_ref_ors.shape[0]
-        cdef unsigned int nP = l_ors.shape[0]
-        cdef unsigned int nEquiv = l_equiv_quats.shape[0]
+        cdef unsigned int n_points = l_orientations.shape[0]
+        cdef unsigned int n_query_points = l_query_orientations.shape[0]
+        cdef unsigned int n_equiv_orientations = l_equiv_orientations.shape[0]
 
         with nogil:
             self.thisptr.computeNeighbor(
-                self.nlist_.get_ptr(),
-                <quat[float]*> &l_ref_ors[0, 0],
-                <quat[float]*> &l_ors[0, 0],
-                <quat[float]*> &l_equiv_quats[0, 0],
-                nRef, nP, nEquiv)
+                <quat[float]*> &l_orientations[0, 0],
+                n_points,
+                <quat[float]*> &l_query_orientations[0, 0],
+                n_query_points,
+                <quat[float]*> &l_equiv_orientations[0, 0],
+                n_equiv_orientations,
+                self.nlist_.get_ptr(),)
         return self
 
     @Compute._compute("computeGlobal")
-    def computeGlobal(self, global_ors, ors, equiv_quats):
+    def computeGlobal(self, global_orientations,
+                      orientations, equiv_orientations):
         R"""Calculates the minimum angles of separation between
-        :code:`global_ors` and :code:`ors`, checking for underlying symmetry as
-        encoded in :code:`equiv_quats`. The result is stored in the
+        :code:`global_orientations` and :code:`orientations`, checking for underlying symmetry as
+        encoded in :code:`equiv_orientations`. The result is stored in the
         :code:`global_angles` class attribute.
 
 
         Args:
-            global_ors ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
+            global_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
                 Reference orientations to calculate the order parameter.
-            ors ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
+            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
                 Orientations to calculate the order parameter.
-            equiv_quats ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
+            equiv_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
                 The set of all equivalent quaternions that takes the particle
                 as it is defined to some global reference orientation.
-                Important: :code:`equiv_quats` must include both :math:`q` and
+                Important: :code:`equiv_orientations` must include both :math:`q` and
                 :math:`-q`, for all included quaternions.
-        """
-        global_ors = freud.common.convert_array(global_ors, shape=(None, 4))
-        ors = freud.common.convert_array(ors, shape=(None, 4))
-        equiv_quats = freud.common.convert_array(equiv_quats, shape=(None, 4))
+        """  # noqa
+        global_orientations = freud.common.convert_array(
+            global_orientations, shape=(None, 4))
+        orientations = freud.common.convert_array(
+            orientations, shape=(None, 4))
+        equiv_orientations = freud.common.convert_array(
+            equiv_orientations, shape=(None, 4))
 
-        cdef const float[:, ::1] l_global_ors = global_ors
-        cdef const float[:, ::1] l_ors = ors
-        cdef const float[:, ::1] l_equiv_quats = equiv_quats
+        cdef const float[:, ::1] l_global_orientations = global_orientations
+        cdef const float[:, ::1] l_orientations = orientations
+        cdef const float[:, ::1] l_equiv_orientations = equiv_orientations
 
-        cdef unsigned int nGlobal = l_global_ors.shape[0]
-        cdef unsigned int nP = l_ors.shape[0]
-        cdef unsigned int nEquiv = l_equiv_quats.shape[0]
+        cdef unsigned int n_global = l_global_orientations.shape[0]
+        cdef unsigned int n_points = l_orientations.shape[0]
+        cdef unsigned int n_equiv_orientations = l_equiv_orientations.shape[0]
 
         with nogil:
             self.thisptr.computeGlobal(
-                <quat[float]*> &l_global_ors[0, 0],
-                <quat[float]*> &l_ors[0, 0],
-                <quat[float]*> &l_equiv_quats[0, 0],
-                nGlobal, nP, nEquiv)
+                <quat[float]*> &l_global_orientations[0, 0],
+                n_global,
+                <quat[float]*> &l_orientations[0, 0],
+                n_points,
+                <quat[float]*> &l_equiv_orientations[0, 0],
+                n_equiv_orientations)
         return self
 
     @Compute._computed_property("computeNeighbor")
@@ -1033,7 +1055,7 @@ cdef class AngularSeparation(Compute):
 
     @Compute._computed_property("computeGlobal")
     def global_angles(self):
-        cdef unsigned int n_particles = self.thisptr.getNP()
+        cdef unsigned int n_particles = self.thisptr.getNPoints()
         cdef unsigned int n_global = self.thisptr.getNglobal()
         if not n_particles or not n_global:
             return np.empty((n_particles, n_global), dtype=np.float32)
@@ -1043,20 +1065,20 @@ cdef class AngularSeparation(Compute):
         return np.asarray(global_angles)
 
     @Compute._computed_property(("computeGlobal", "computeNeighbor"))
-    def n_p(self):
-        return self.thisptr.getNP()
+    def n_points(self):
+        return self.thisptr.getNPoints()
 
     @Compute._computed_property("computeNeighbor")
-    def n_ref(self):
-        return self.thisptr.getNref()
+    def n_query_points(self):
+        return self.thisptr.getNQueryPoints()
 
     @Compute._computed_property("computeGlobal")
     def n_global(self):
         return self.thisptr.getNglobal()
 
     def __repr__(self):
-        return "freud.environment.{cls}(rmax={rmax}, n={n})".format(
-            cls=type(self).__name__, rmax=self.rmax, n=self.num_neigh)
+        return "freud.environment.{cls}(r_max={r}, num_neighbors={n})".format(
+            cls=type(self).__name__, r=self.r_max, n=self.num_neigh)
 
     def __str__(self):
         return repr(self)
@@ -1071,7 +1093,7 @@ cdef class LocalBondProjection(Compute):
     .. versionadded:: 0.11
 
     Args:
-        rmax (float):
+        r_max (float):
             Cutoff radius.
         num_neighbors (unsigned int):
             The number of neighbors.
@@ -1095,14 +1117,14 @@ cdef class LocalBondProjection(Compute):
             The neighbor list generated in the last calculation.
     """  # noqa: E501
     cdef freud._environment.LocalBondProjection * thisptr
-    cdef float rmax
+    cdef float r_max
     cdef unsigned int num_neigh
     cdef freud.locality.NeighborList nlist_
 
-    def __cinit__(self, rmax, num_neigh):
+    def __cinit__(self, r_max, num_neighbors):
         self.thisptr = new freud._environment.LocalBondProjection()
-        self.rmax = rmax
-        self.num_neigh = int(num_neigh)
+        self.r_max = r_max
+        self.num_neigh = int(num_neighbors)
 
     def __dealloc__(self):
         del self.thisptr
@@ -1112,14 +1134,15 @@ cdef class LocalBondProjection(Compute):
         return self.nlist_
 
     @Compute._compute()
-    def compute(self, box, proj_vecs, ref_points, ref_ors, points=None,
-                equiv_quats=np.array([[1, 0, 0, 0]]), nlist=None):
+    def compute(self, box, proj_vecs, points,
+                orientations, query_points=None,
+                equiv_orientations=np.array([[1, 0, 0, 0]]), nlist=None):
         R"""Calculates the maximal projections of nearest neighbor bonds
-        (between :code:`ref_points` and :code:`points`) onto the set of
+        (between :code:`points` and :code:`query_points`) onto the set of
         reference vectors :code:`proj_vecs`, defined in the local reference
-        frames of the :code:`ref_points` as defined by the orientations
-        :code:`ref_ors`. This computation accounts for the underlying
-        symmetries of the reference frame as encoded in :code:`equiv_quats`.
+        frames of the :code:`points` as defined by the orientations
+        :code:`orientations`. This computation accounts for the underlying
+        symmetries of the reference frame as encoded in :code:`equiv_orientations`.
 
         Args:
             box (:class:`freud.box.Box`):
@@ -1128,61 +1151,65 @@ cdef class LocalBondProjection(Compute):
                 The set of reference vectors, defined in the reference
                 particles' reference frame, to calculate maximal local bond
                 projections onto.
-            ref_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
+            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
                 Reference points used in the calculation.
-            ref_ors ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
+            orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`):
                 Reference orientations used in the calculation.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
-                Points (neighbors of :code:`ref_points`) used in the
-                calculation. Uses :code:`ref_points` if not provided or
+            query_points ((:math:`N_{query_points}`, 3) :class:`numpy.ndarray`, optional):
+                Points (neighbors of :code:`points`) used in the
+                calculation. Uses :code:`points` if not provided or
                 :code:`None`.
-            equiv_quats ((:math:`N_{quats}`, 4) :class:`numpy.ndarray`, optional):
+                (Default value = :code:`None`).
+            equiv_orientations ((:math:`N_{quats}`, 4) :class:`numpy.ndarray`, optional):
                 The set of all equivalent quaternions that takes the particle
                 as it is defined to some global reference orientation. Note
                 that this does not need to include both :math:`q` and
                 :math:`-q`, since :math:`q` and :math:`-q` effect the same
-                rotation on vectors. Defaults to an identity quaternion.
+                rotation on vectors. (Default value = :code:`[1, 0, 0, 0]`)
+                (Default value = :code:`None`).
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
         """  # noqa: E501
         cdef freud.box.Box b = freud.common.convert_box(box)
-        ref_points = freud.common.convert_array(ref_points, shape=(None, 3))
-        ref_ors = freud.common.convert_array(ref_ors, shape=(None, 4))
-
-        exclude_ii = points is None
-        if points is None:
-            points = ref_points
         points = freud.common.convert_array(points, shape=(None, 3))
-        equiv_quats = freud.common.convert_array(equiv_quats, shape=(None, 4))
+        orientations = freud.common.convert_array(
+            orientations, shape=(None, 4))
+
+        exclude_ii = query_points is None
+        if query_points is None:
+            query_points = points
+        query_points = freud.common.convert_array(
+            query_points, shape=(None, 3))
+        equiv_orientations = freud.common.convert_array(
+            equiv_orientations, shape=(None, 4))
         proj_vecs = freud.common.convert_array(proj_vecs, shape=(None, 3))
 
         defaulted_nlist = freud.locality.make_default_nlist_nn(
-            box, ref_points, points, self.num_neigh, nlist,
-            exclude_ii, self.rmax)
+            box, points, query_points, self.num_neigh, nlist,
+            exclude_ii, self.r_max)
         self.nlist_ = defaulted_nlist[0].copy()
 
-        cdef const float[:, ::1] l_ref_points = ref_points
-        cdef const float[:, ::1] l_ref_ors = ref_ors
         cdef const float[:, ::1] l_points = points
-        cdef const float[:, ::1] l_equiv_quats = equiv_quats
+        cdef const float[:, ::1] l_orientations = orientations
+        cdef const float[:, ::1] l_query_points = query_points
+        cdef const float[:, ::1] l_equiv_orientations = equiv_orientations
         cdef const float[:, ::1] l_proj_vecs = proj_vecs
 
-        cdef unsigned int nRef = l_ref_points.shape[0]
-        cdef unsigned int nP = l_points.shape[0]
-        cdef unsigned int nEquiv = l_equiv_quats.shape[0]
-        cdef unsigned int nProj = l_proj_vecs.shape[0]
+        cdef unsigned int n_points = l_points.shape[0]
+        cdef unsigned int n_query_points = l_query_points.shape[0]
+        cdef unsigned int n_equiv = l_equiv_orientations.shape[0]
+        cdef unsigned int n_proj = l_proj_vecs.shape[0]
 
         with nogil:
             self.thisptr.compute(
                 dereference(b.thisptr),
-                self.nlist_.get_ptr(),
+                <vec3[float]*> &l_proj_vecs[0, 0], n_proj,
                 <vec3[float]*> &l_points[0, 0],
-                <vec3[float]*> &l_ref_points[0, 0],
-                <quat[float]*> &l_ref_ors[0, 0],
-                <quat[float]*> &l_equiv_quats[0, 0],
-                <vec3[float]*> &l_proj_vecs[0, 0],
-                nP, nRef, nEquiv, nProj)
+                <quat[float]*> &l_orientations[0, 0], n_points,
+                <vec3[float]*> &l_query_points[0, 0], n_query_points,
+                <quat[float]*> &l_equiv_orientations[0, 0], n_equiv,
+                self.nlist_.get_ptr())
         return self
 
     @Compute._computed_property()
@@ -1207,12 +1234,12 @@ cdef class LocalBondProjection(Compute):
         return np.asarray(normed_projections)
 
     @Compute._computed_property()
-    def num_particles(self):
-        return self.thisptr.getNP()
+    def num_points(self):
+        return self.thisptr.getNPoints()
 
     @Compute._computed_property()
-    def num_reference_particles(self):
-        return self.thisptr.getNref()
+    def num_query_points(self):
+        return self.thisptr.getNQueryPoints()
 
     @Compute._computed_property()
     def num_proj_vectors(self):
@@ -1223,10 +1250,10 @@ cdef class LocalBondProjection(Compute):
         return freud.box.BoxFromCPP(<freud._box.Box> self.thisptr.getBox())
 
     def __repr__(self):
-        return ("freud.environment.{cls}(rmax={rmax}, "
-                "num_neigh={num_neigh})").format(cls=type(self).__name__,
-                                                 rmax=self.rmax,
-                                                 num_neigh=self.num_neigh)
+        return ("freud.environment.{cls}(r_max={r_max}, "
+                "num_neighbors={num_neigh})").format(cls=type(self).__name__,
+                                                     r_max=self.r_max,
+                                                     num_neigh=self.num_neigh)
 
     def __str__(self):
         return repr(self)

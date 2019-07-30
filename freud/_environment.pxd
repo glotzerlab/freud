@@ -12,18 +12,18 @@ cimport freud._locality
 
 cdef extern from "BondOrder.h" namespace "freud::environment":
     cdef cppclass BondOrder:
-        BondOrder(float, float, unsigned int,
+        BondOrder(float, unsigned int,
                   unsigned int, unsigned int) except +
         const freud._box.Box & getBox() const
         void reset()
         void accumulate(
-            const freud._locality.NeighborList*,
             const freud._locality.NeighborQuery*,
             quat[float]*,
             vec3[float]*,
             quat[float]*,
             unsigned int,
             unsigned int,
+            const freud._locality.NeighborList*,
             freud._locality.QueryArgs) nogil
         shared_ptr[float] getBondOrder()
         shared_ptr[float] getTheta()
@@ -43,12 +43,13 @@ cdef extern from "LocalDescriptors.h" namespace "freud::environment":
         unsigned int getNSphs() const
         unsigned int getLMax() const
         unsigned int getSphWidth() const
-        unsigned int getNP()
+        unsigned int getNPoints()
         void compute(
-            const freud._box.Box &, const freud._locality.NeighborList*,
-            unsigned int, const vec3[float]*,
-            unsigned int, const vec3[float]*, unsigned int,
-            const quat[float]*, LocalDescriptorOrientation) nogil except +
+            const freud._box.Box &, unsigned int,
+            const vec3[float]*, unsigned int,
+            const vec3[float]*, unsigned int,
+            const quat[float]*, LocalDescriptorOrientation,
+            const freud._locality.NeighborList*) nogil except +
         shared_ptr[float complex] getSph()
 
 cdef extern from "MatchEnv.h" namespace "freud::environment":
@@ -98,44 +99,37 @@ cdef extern from "MatchEnv.h" namespace "freud::environment":
 cdef extern from "AngularSeparation.h" namespace "freud::environment":
     cdef cppclass AngularSeparation:
         AngularSeparation()
-        void computeNeighbor(const freud._locality.NeighborList*,
-                             quat[float]*,
-                             quat[float]*,
-                             quat[float]*,
-                             unsigned int,
-                             unsigned int,
-                             unsigned int) nogil except +
+        void computeNeighbor(
+            quat[float]*, unsigned int,
+            quat[float]*, unsigned int,
+            quat[float]*, unsigned int,
+            const freud._locality.NeighborList*) nogil except +
         void computeGlobal(quat[float]*,
-                           quat[float]*,
+                           unsigned int,
                            quat[float]*,
                            unsigned int,
-                           unsigned int,
+                           quat[float]*,
                            unsigned int) nogil except +
 
         shared_ptr[float] getNeighborAngles()
         shared_ptr[float] getGlobalAngles()
-        unsigned int getNP()
-        unsigned int getNref()
+        unsigned int getNPoints()
+        unsigned int getNQueryPoints()
         unsigned int getNglobal()
 
 cdef extern from "LocalBondProjection.h" namespace "freud::environment":
     cdef cppclass LocalBondProjection:
         LocalBondProjection()
         void compute(freud._box.Box &,
-                     const freud._locality.NeighborList*,
-                     vec3[float]*,
-                     vec3[float]*,
-                     quat[float]*,
-                     quat[float]*,
-                     vec3[float]*,
-                     unsigned int,
-                     unsigned int,
-                     unsigned int,
-                     unsigned int) nogil except +
+                     vec3[float]*, unsigned int,
+                     vec3[float]*, quat[float]*, unsigned int,
+                     vec3[float]*, unsigned int,
+                     quat[float]*, unsigned int,
+                     const freud._locality.NeighborList*) nogil except +
 
         shared_ptr[float] getProjections()
         shared_ptr[float] getNormedProjections()
-        unsigned int getNP()
-        unsigned int getNref()
+        unsigned int getNPoints()
+        unsigned int getNQueryPoints()
         unsigned int getNproj()
         const freud._box.Box & getBox() const

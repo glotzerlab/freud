@@ -18,7 +18,7 @@ Box Module
 Box
 ===
 
-.. autoclass:: freud.box.Box(Lx, Ly, Lz, xy, xz, yz, is2D=None)
+.. autoclass:: freud.box.Box(Lx=None, Ly=None, Lz=None, xy=None, xz=None, yz=None, is2D=None)
     :members: cube, from_box, from_matrix, getImage, getLatticeVector, is2D, makeCoordinates, makeFraction, square, to_dict, to_matrix, to_tuple, unwrap, wrap
 
 Particle Buffer

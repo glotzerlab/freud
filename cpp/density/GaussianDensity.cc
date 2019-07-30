@@ -100,7 +100,7 @@ void GaussianDensity::reset()
 //! internal
 /*! \brief Function to compute the density array
  */
-void GaussianDensity::compute(const box::Box& box, const vec3<float>* points, unsigned int Np)
+void GaussianDensity::compute(const box::Box& box, const vec3<float>* points, unsigned int n_points)
 {
     reset();
     m_box = box;
@@ -117,9 +117,9 @@ void GaussianDensity::compute(const box::Box& box, const vec3<float>* points, un
     m_density_array
         = std::shared_ptr<float>(new float[m_bi.getNumElements()], std::default_delete<float[]>());
     m_local_bin_counts.resize(m_bi.getNumElements());
-    parallel_for(blocked_range<size_t>(0, Np), [=](const blocked_range<size_t>& r) {
+    parallel_for(blocked_range<size_t>(0, n_points), [=](const blocked_range<size_t>& r) {
         assert(points);
-        assert(Np > 0);
+        assert(n_points > 0);
 
         // set up some constants first
         float lx = m_box.getLx();

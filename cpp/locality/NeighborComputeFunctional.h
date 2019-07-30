@@ -119,16 +119,17 @@ public:
             ++m_qargs.nn;
         }
 
-        // check if ref_points is a pointer to a RawPoints object
-        // dynamic_cast will fail if ref_points is not actually pointing to
-        // RawPoints and return a null pointer making the condition in the if
-        // statement to be false.  This is a typical C++ way of checking the
-        // type of a polymorphic class using pointers and casting.
+        // check if nq is a pointer to a RawPoints object
+        // dynamic_cast will fail if nq is not actually pointing to RawPoints
+        // and return a null pointer. Then, the assignment operator will return
+        // a null pointer, making the condition in the if statement to be false.
+        // This is a typical C++ way of checking the type of a polymorphic class
+        // using pointers and casting.
         if (dynamic_cast<const RawPoints*>(nq))
         {
             // if nq is RawPoints, build a NeighborQuery
-            m_abq = std::make_shared<AABBQuery>(nq->getBox(), nq->getRefPoints(),
-                                              nq->getNRef());
+            m_abq = std::make_shared<AABBQuery>(nq->getBox(), nq->getPoints(),
+                                              nq->getNPoints());
             m_nqiter = m_abq->queryWithArgs(points, N, m_qargs);
         }
         else
@@ -207,35 +208,35 @@ template<typename Body> void forLoopWrapper(size_t begin, size_t end, const Body
 }
 
 //! Appropriately generate NeighborIterator
-/*! \param ref_points NeighborQuery object to iterate over
-    \param points Points
-    \param Np Number of points
+/*! \param neighbor_query NeighborQuery object to iterate over
+    \param query_points Points
+    \param n_query_points Number of query_points
     \param qargs Query arguments
     \param nlist Neighbor List. If not NULL, generate an iterator based on it.
-        Otherwise, use ref_points appropriately with given qargs.
+        Otherwise, use neighbor_query appropriately with given qargs.
 */
 std::shared_ptr<NeighborIterator> getNeighborIterator(
-    const NeighborQuery* ref_points, const vec3<float>* points, unsigned int Np,
+    const NeighborQuery* neighbor_query, const vec3<float>* query_points, unsigned int n_query_points,
     QueryArgs qargs, const NeighborList* nlist);
 
 //! Wrapper iterating looping over NeighborQuery or NeighborList
-/*! \param ref_points NeighborQuery object to iterate over
-    \param points Points
-    \param Np Number of points
+/*! \param neighbor_query NeighborQuery object to iterate over
+    \param query_points Points
+    \param n_query_points Number of query_points
     \param qargs Query arguments
-    \param nlist Neighbor List. If not NULL, loop over it. Otherwise, use ref_points
+    \param nlist Neighbor List. If not NULL, loop over it. Otherwise, use neighbor_query
            appropriately with given qargs.
     \param cf An object with
            operator(size_t point_index, std::shared_ptr<NeighborIterator>) as input.
            It should implement iteration logic over the iterator.
 */
 template<typename ComputePairType>
-void loopOverNeighborsIterator(const NeighborQuery* ref_points, const vec3<float>* points, unsigned int Np,
+void loopOverNeighborsIterator(const NeighborQuery* neighbor_query, const vec3<float>* query_points, unsigned int n_query_points,
                             QueryArgs qargs, const NeighborList* nlist, 
                             const ComputePairType& cf, bool parallel = true)
 {
-    std::shared_ptr<NeighborIterator> niter = getNeighborIterator(ref_points, points, Np, qargs, nlist);
-    forLoopWrapper(0, Np, [=](size_t begin, size_t end) {
+    std::shared_ptr<NeighborIterator> niter = getNeighborIterator(neighbor_query, query_points, n_query_points, qargs, nlist);
+    forLoopWrapper(0, n_query_points, [=](size_t begin, size_t end) {
         for (size_t i = begin; i != end; ++i)
         {
             auto ppiter = niter->queryPerPoint(i);
@@ -245,18 +246,18 @@ void loopOverNeighborsIterator(const NeighborQuery* ref_points, const vec3<float
 }
 
 //! Wrapper iterating looping over NeighborQuery or NeighborList
-/*! \param ref_points NeighborQuery object to iterate over
-    \param points Points
-    \param Np Number of points
+/*! \param neighbor_query NeighborQuery object to iterate over
+    \param query_points Points
+    \param n_query_points Number of query_points
     \param qargs Query arguments
-    \param nlist Neighbor List. If not NULL, loop over it. Otherwise, use ref_points
+    \param nlist Neighbor List. If not NULL, loop over it. Otherwise, use neighbor_query
            appropriately with given qargs.
     \param cf An object with
            operator(size_t ref_point_index, size_t point_index,
                float distance, float weight) as input.
 */
 template<typename ComputePairType>
-void loopOverNeighbors(const NeighborQuery* ref_points, const vec3<float>* points, unsigned int Np,
+void loopOverNeighbors(const NeighborQuery* neighbor_query, const vec3<float>* query_points, unsigned int n_query_points,
                        QueryArgs qargs, const NeighborList* nlist, const ComputePairType& cf,
                        bool parallel = true)
 {
@@ -268,7 +269,7 @@ void loopOverNeighbors(const NeighborQuery* ref_points, const vec3<float>* point
     }
     else
     {
-        loopOverNeighborQuery(ref_points, points, Np, qargs, cf, parallel);
+        loopOverNeighborQuery(neighbor_query, query_points, n_query_points, qargs, cf, parallel);
     }
 }
 
@@ -296,17 +297,17 @@ void loopOverNeighborList(const NeighborList* nlist, const ComputePairType& cf, 
 }
 
 //! Wrapper looping over NeighborQuery in parallel
-/*! \param ref_points NeighborQuery object to iterate over
-    \param points Points
-    \param Np Number of points
+/*! \param neighbor_query NeighborQuery object to iterate over
+    \param query_points Points
+    \param n_query_points Number of query_points
     \param qargs Query arguments
     \param cf An object with
            operator(size_t ref_point_index, size_t point_index,
                float distance, float weight) as input.
 */
 template<typename ComputePairType>
-void loopOverNeighborQuery(const NeighborQuery* ref_points, const vec3<float>* points,
-                           unsigned int Np, QueryArgs qargs, const ComputePairType& cf, bool parallel)
+void loopOverNeighborQuery(const NeighborQuery* neighbor_query, const vec3<float>* query_points,
+                           unsigned int n_query_points, QueryArgs qargs, const ComputePairType& cf, bool parallel)
 {
     // The query iterators always finds the point with itself as a neighbor bond.
     // To find the proper number of neighbors, we need to increment
@@ -315,28 +316,29 @@ void loopOverNeighborQuery(const NeighborQuery* ref_points, const vec3<float>* p
     {
         ++qargs.nn;
     }
-    // if nlist does not exist, check if ref_points is an actual NeighborQuery
+    // if nlist does not exist, check if neighbor_query is an actual NeighborQuery
     std::shared_ptr<NeighborQueryIterator> iter;
     std::shared_ptr<AABBQuery> abq;
-    // check if ref_points is a pointer to a RawPoints object
-    // dynamic_cast will fail if ref_points is not actually pointing to
-    // RawPoints and return a null pointer making the condition in the if
-    // statement to be false.  This is a typical C++ way of checking the
-    // type of a polymorphic class using pointers and casting.
-    if (dynamic_cast<const RawPoints*>(ref_points))
+    // check if neighbor_query is a pointer to a RawPoints object
+    // dynamic_cast will fail if neighbor_query is not actually pointing to RawPoints
+    // and return a null pointer. Then, the assignment operator will return
+    // a null pointer, making the condition in the if statement to be false.
+    // This is a typical C++ way of checking the type of a polymorphic class
+    // using pointers and casting.
+    if (dynamic_cast<const RawPoints*>(neighbor_query))
     {
-        // if ref_points is RawPoints, build a NeighborQuery
-        abq = std::make_shared<AABBQuery>(ref_points->getBox(), ref_points->getRefPoints(),
-                                          ref_points->getNRef());
-        iter = abq->queryWithArgs(points, Np, qargs);
+        // if neighbor_query is RawPoints, build a NeighborQuery
+        abq = std::make_shared<AABBQuery>(neighbor_query->getBox(), neighbor_query->getPoints(),
+                                          neighbor_query->getNPoints());
+        iter = abq->queryWithArgs(query_points, n_query_points, qargs);
     }
     else
     {
-        iter = ref_points->queryWithArgs(points, Np, qargs);
+        iter = neighbor_query->queryWithArgs(query_points, n_query_points, qargs);
     }
 
     // iterate over the query object in parallel
-    forLoopWrapper(0, Np, [&iter, &qargs, &cf](size_t begin, size_t end) {
+    forLoopWrapper(0, n_query_points, [&iter, &qargs, &cf](size_t begin, size_t end) {
         NeighborBond np;
         for (size_t i = begin; i != end; ++i)
         {
@@ -345,7 +347,7 @@ void loopOverNeighborQuery(const NeighborQuery* ref_points, const vec3<float>* p
             while (!it->end())
             {
                 //! Warning! If qargs.exclude_ii is true, NeighborBond with same indices
-                // will not be considered regardless of ref_points and points
+                // will not be considered regardless of neighbor_query and query_points
                 // being same set of points
                 if (!qargs.exclude_ii || i != np.ref_id)
                 {

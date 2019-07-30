@@ -14,7 +14,7 @@ class TestBondOrder(unittest.TestCase):
         r_cut = 1.5
         num_neighbors = 12
         npt = npp = 6
-        bo = freud.environment.BondOrder(r_cut, 0, num_neighbors, npt, npp)
+        bo = freud.environment.BondOrder(r_cut, num_neighbors, npt, npp)
 
         # Test access
         with self.assertRaises(AttributeError):
@@ -95,38 +95,38 @@ class TestBondOrder(unittest.TestCase):
             self.assertGreater(np.sum(bo.bond_order > 0), 30)
 
     def test_repr(self):
-        bo = freud.environment.BondOrder(1.5, 0, 12, 6, 6)
+        bo = freud.environment.BondOrder(1.5, 12, 6, 6)
         self.assertEqual(str(bo), str(eval(repr(bo))))
 
-    def test_ref_points_ne_points(self):
+    def test_points_ne_query_points(self):
         lattice_size = 10
         # big box to ignore periodicity
         box = freud.box.Box.square(lattice_size*5)
         angle = np.pi/30
-        points, ref_points = util.make_alternating_lattice(lattice_size, angle)
+        query_points, points = util.make_alternating_lattice(
+            lattice_size, angle)
 
-        # actually not used
-        rmax = 1.6
-        k = 0
+        r_max = 1.6
 
-        n = 12
+        num_neighbors = 12
         n_bins_t = 30
         n_bins_p = 2
         test_set = util.make_raw_query_nlist_test_set(
-            box, ref_points, points, "nearest", rmax, n, False)
+            box, points, query_points, "nearest", r_max, num_neighbors, False)
         for ts in test_set:
             bod = freud.environment.BondOrder(
-                rmax=rmax, k=k, n=n, n_bins_t=n_bins_t, n_bins_p=n_bins_p)
+                r_max=r_max, num_neighbors=num_neighbors,
+                n_bins_t=n_bins_t, n_bins_p=n_bins_p)
 
             # orientations are not used in bod mode
-            ref_orientations = np.array([[1, 0, 0, 0]]*len(ref_points))
-            orientations = np.array([[1, 0, 0, 0]]*len(points))
+            ref_orientations = np.array([[1, 0, 0, 0]]*len(points))
+            orientations = np.array([[1, 0, 0, 0]]*len(query_points))
 
-            bod.compute(box, ts[0],
-                        ref_orientations, points, orientations, nlist=ts[1])
+            bod.compute(box, ts[0], ref_orientations,
+                        query_points, orientations, nlist=ts[1])
 
             # we want to make sure that we get 12 nonzero places, so we can
-            # test whether we are not considering neighbors between ref_points
+            # test whether we are not considering neighbors between points
             self.assertEqual(np.count_nonzero(bod.bond_order), 12)
             self.assertEqual(len(np.unique(bod.bond_order)), 2)
 

@@ -32,8 +32,9 @@ public:
     void reset();
 
     //! Compute the RDF
-    void accumulate(const freud::locality::NeighborList* nlist, const freud::locality::NeighborQuery* ref_points,
-                    const vec3<float>* points, unsigned int n_p, freud::locality::QueryArgs qargs);
+    void accumulate(const freud::locality::NeighborQuery* neighbor_query,
+                    const vec3<float>* query_points, unsigned int n_query_points,
+                    const freud::locality::NeighborList* nlist, freud::locality::QueryArgs qargs);
 
     //! \internal
     //! helper function to reduce the thread specific arrays into one array

@@ -191,7 +191,7 @@ class TestPMFTR12(unittest.TestCase):
         myPMFT = freud.pmft.PMFTR12(maxR, nbinsR, nbinsT1, nbinsT2)
         self.assertEqual(str(myPMFT), str(eval(repr(myPMFT))))
 
-    def test_ref_points_ne_points(self):
+    def test_points_ne_query_points(self):
         r_max = 2.3
         n_r = 10
         n_t1 = 10
@@ -200,17 +200,18 @@ class TestPMFTR12(unittest.TestCase):
         lattice_size = 10
         box = freud.box.Box.square(lattice_size*5)
 
-        ref_points, points = util.make_alternating_lattice(
+        points, query_points = util.make_alternating_lattice(
             lattice_size, 0.01, 2)
-        ref_orientations = np.array([0]*len(ref_points))
         orientations = np.array([0]*len(points))
+        query_orientations = np.array([0]*len(query_points))
 
         test_set = util.make_raw_query_nlist_test_set(
-            box, ref_points, points, "ball", r_max, 0, False)
+            box, points, query_points, "ball", r_max, 0, False)
         for ts in test_set:
             pmft = freud.pmft.PMFTR12(r_max, n_r, n_t1, n_t2)
             pmft.compute(box, ts[0],
-                         ref_orientations, points, orientations, nlist=ts[1])
+                         orientations, query_points,
+                         query_orientations, nlist=ts[1])
 
             self.assertEqual(np.count_nonzero(np.isinf(pmft.PMFT) == 0), 12)
             self.assertEqual(len(np.unique(pmft.PMFT)), 3)
@@ -402,7 +403,7 @@ class TestPMFTXYT(unittest.TestCase):
         myPMFT = freud.pmft.PMFTXYT(maxX, maxY, nbinsX, nbinsY, nbinsT)
         self.assertEqual(str(myPMFT), str(eval(repr(myPMFT))))
 
-    def test_ref_points_ne_points(self):
+    def test_points_ne_query_points(self):
         x_max = 2.5
         y_max = 2.5
         n_x = 10
@@ -412,19 +413,20 @@ class TestPMFTXYT(unittest.TestCase):
         lattice_size = 10
         box = freud.box.Box.square(lattice_size*5)
 
-        ref_points, points = util.make_alternating_lattice(
+        points, query_points = util.make_alternating_lattice(
             lattice_size, 0.01, 2)
-        ref_orientations = np.array([0]*len(ref_points))
         orientations = np.array([0]*len(points))
+        query_orientations = np.array([0]*len(query_points))
 
         rmax = np.sqrt(x_max**2 + y_max**2)
         test_set = util.make_raw_query_nlist_test_set(
-            box, ref_points, points, 'ball', rmax, 0, False)
+            box, points, query_points, 'ball', rmax, 0, False)
 
         for ts in test_set:
             pmft = freud.pmft.PMFTXYT(x_max, y_max, n_x, n_y, n_t)
             pmft.compute(box, ts[0],
-                         ref_orientations, points, orientations, nlist=ts[1])
+                         orientations, query_points,
+                         query_orientations, nlist=ts[1])
 
             # when rotated slightly, for each ref point, each quadrant
             # (corresponding to two consecutive bins) should contain 3 points.
@@ -616,7 +618,7 @@ class TestPMFTXY2D(unittest.TestCase):
         myPMFT.accumulate(box, points, angles, points, angles)
         myPMFT._repr_png_()
 
-    def test_ref_points_ne_points(self):
+    def test_points_ne_query_points(self):
         x_max = 2.5
         y_max = 2.5
         n_x = 20
@@ -625,20 +627,21 @@ class TestPMFTXY2D(unittest.TestCase):
         lattice_size = 10
         box = freud.box.Box.square(lattice_size*5)
 
-        ref_points, points = util.make_alternating_lattice(
+        points, query_points = util.make_alternating_lattice(
             lattice_size, 0.01, 2)
 
-        ref_orientations = np.array([0]*len(ref_points))
         orientations = np.array([0]*len(points))
+        query_orientations = np.array([0]*len(query_points))
 
         rmax = np.sqrt(x_max**2 + y_max**2)
         test_set = util.make_raw_query_nlist_test_set(
-            box, ref_points, points, 'ball', rmax, 0, False)
+            box, points, query_points, 'ball', rmax, 0, False)
 
         for ts in test_set:
             pmft = freud.pmft.PMFTXY2D(x_max, y_max, n_x, n_y)
             pmft.compute(
-                box, ts[0], ref_orientations, points, orientations, ts[1])
+                box, ts[0], orientations, query_points,
+                query_orientations, ts[1])
 
             self.assertEqual(np.count_nonzero(np.isinf(pmft.PMFT) == 0), 12)
             self.assertEqual(len(np.unique(pmft.PMFT)), 2)
@@ -647,29 +650,29 @@ class TestPMFTXY2D(unittest.TestCase):
         """Test that using nn based query args works."""
         boxSize = 8
         box = freud.box.Box.square(boxSize)
-        ref_points = np.array([[0, 0, 0]],
-                              dtype=np.float32)
-        points = np.array([[1.1, 0.0, 0.0],
-                           [-1.2, 0.0, 0.0],
-                           [0.0, 1.3, 0.0],
-                           [0.0, -1.4, 0.0]],
+        points = np.array([[0, 0, 0]],
                           dtype=np.float32)
-        ref_angles = np.array([0.0]*ref_points.shape[0], dtype=np.float32)
+        query_points = np.array([[1.1, 0.0, 0.0],
+                                [-1.2, 0.0, 0.0],
+                                [0.0, 1.3, 0.0],
+                                [0.0, -1.4, 0.0]],
+                                dtype=np.float32)
         angles = np.array([0.0]*points.shape[0], dtype=np.float32)
+        query_angles = np.array([0.0]*query_points.shape[0], dtype=np.float32)
 
         max_width = 3
         nbins = 3
         pmft = freud.pmft.PMFTXY2D(max_width, max_width, nbins, nbins)
-        pmft.compute(box, ref_points, ref_angles, points, angles,
+        pmft.compute(box, points, angles, query_points, query_angles,
                      query_args={'mode': 'nearest', 'nn': 1})
-        # Now every point in points will find the origin as a neighbor.
+        # Now every point in query_points will find the origin as a neighbor.
         npt.assert_array_equal(
             pmft.bin_counts,
             [[0, 1, 0],
              [1, 0, 1],
              [0, 1, 0]])
-        # Now there will be only one neighbor for the single ref_point.
-        pmft.compute(box, points, angles, ref_points, ref_angles,
+        # Now there will be only one neighbor for the single point.
+        pmft.compute(box, query_points, query_angles, points, angles,
                      query_args={'mode': 'nearest', 'nn': 1})
         npt.assert_array_equal(
             pmft.bin_counts,
@@ -910,28 +913,28 @@ class TestPMFTXYZ(unittest.TestCase):
         """Test that using nn based query args works."""
         boxSize = 8
         box = freud.box.Box.cube(boxSize)
-        ref_points = np.array([[0, 0, 0]],
-                              dtype=np.float32)
-        points = np.array([[1.1, 0.0, 0.0],
-                           [-1.2, 0.0, 0.0],
-                           [0.0, 1.3, 0.0],
-                           [0.0, -1.4, 0.0],
-                           [0.0, 0.0, 1.5],
-                           [0.0, 0.0, -1.6]],
+        points = np.array([[0, 0, 0]],
                           dtype=np.float32)
-        ref_angles = np.array([[1.0, 0.0, 0.0, 0.0]]*ref_points.shape[0],
-                              dtype=np.float32)
+        query_points = np.array([[1.1, 0.0, 0.0],
+                                [-1.2, 0.0, 0.0],
+                                [0.0, 1.3, 0.0],
+                                [0.0, -1.4, 0.0],
+                                [0.0, 0.0, 1.5],
+                                [0.0, 0.0, -1.6]],
+                                dtype=np.float32)
         angles = np.array([[1.0, 0.0, 0.0, 0.0]]*points.shape[0],
                           dtype=np.float32)
+        query_angles = np.array([[1.0, 0.0, 0.0, 0.0]]*query_points.shape[0],
+                                dtype=np.float32)
 
         max_width = 3
         nbins = 3
         pmft = freud.pmft.PMFTXYZ(max_width, max_width, max_width,
                                   nbins, nbins, nbins)
-        pmft.compute(box, ref_points, ref_angles, points, angles,
+        pmft.compute(box, points, angles, query_points, query_angles,
                      query_args={'mode': 'nearest', 'nn': 1})
 
-        # Now every point in points will find the origin as a neighbor.
+        # Now every point in query_points will find the origin as a neighbor.
         npt.assert_array_equal(
             pmft.bin_counts,
             [[[0, 0, 0],
@@ -944,7 +947,7 @@ class TestPMFTXYZ(unittest.TestCase):
               [0, 1, 0],
               [0, 0, 0]]])
 
-        pmft.compute(box, points, angles, ref_points, ref_angles,
+        pmft.compute(box, query_points, query_angles, points, angles,
                      query_args={'mode': 'nearest', 'nn': 1})
         # The only nonzero bin is in the left bin for x, but the center for
         # everything else (0 distance in y and z).
