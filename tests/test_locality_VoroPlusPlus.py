@@ -59,6 +59,20 @@ class TestVoroPlusPlus(unittest.TestCase):
         npt.assert_almost_equal(vor.volumes[4], 1)
         npt.assert_almost_equal(np.sum(vor.volumes), box.volume)
 
+        # Verify the neighbor list weights
+        npt.assert_almost_equal(vor.nlist.weights[vor.nlist.index_i == 4], 1)
+
+        # Double the points (still inside the box) and test again
+        positions *= 2
+        vor.compute(box, positions)
+        center_polytope = sort_rounded_xyz_array(vor.polytopes[4])
+        expected_polytope = sort_rounded_xyz_array(
+            [[3, 3, 0], [1, 3, 0], [1, 1, 0], [3, 1, 0]])
+        npt.assert_almost_equal(center_polytope, expected_polytope)
+        npt.assert_almost_equal(vor.volumes[4], 4)
+        npt.assert_almost_equal(np.sum(vor.volumes), box.volume)
+        npt.assert_almost_equal(vor.nlist.weights[vor.nlist.index_i == 4], 2)
+
     def test_voronoi_tess_3d(self):
         # Test that the voronoi polytope works for a 3D system
         L = 10  # Box length
@@ -87,6 +101,22 @@ class TestVoroPlusPlus(unittest.TestCase):
         # Verify the cell volumes
         npt.assert_almost_equal(vor.volumes[13], 1)
         npt.assert_almost_equal(np.sum(vor.volumes), box.volume)
+
+        # Verify the neighbor list weights
+        npt.assert_almost_equal(vor.nlist.weights[vor.nlist.index_i == 13], 1)
+
+        # Double the points (still inside the box) and test again
+        positions *= 2
+        vor.compute(box, positions)
+        center_polytope = sort_rounded_xyz_array(vor.polytopes[13])
+        expected_polytope = sort_rounded_xyz_array(
+            [[3, 3, 3], [3, 1, 3], [3, 1, 1],
+             [3, 3, 1], [1, 1, 1], [1, 1, 3],
+             [1, 3, 1], [1, 3, 3]])
+        npt.assert_almost_equal(center_polytope, expected_polytope)
+        npt.assert_almost_equal(vor.volumes[13], 8)
+        npt.assert_almost_equal(np.sum(vor.volumes), box.volume)
+        npt.assert_almost_equal(vor.nlist.weights[vor.nlist.index_i == 13], 4)
 
     def test_voronoi_neighbors_wrapped(self):
         # Test that voronoi neighbors in the first shell are correct for a
