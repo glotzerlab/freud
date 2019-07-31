@@ -45,8 +45,8 @@
         "name": "freud.interface",
         "sources": [
             "freud/interface.pyx",
-            "cpp/locality/NeighborQuery.cc",
             "cpp/locality/NeighborList.cc",
+            "cpp/locality/NeighborQuery.cc",
             "cpp/locality/NeighborComputeFunctional.cc",
             "cpp/locality/AABBQuery.cc"
         ]

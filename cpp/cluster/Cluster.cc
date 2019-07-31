@@ -35,8 +35,7 @@ void Cluster::computeClusters(const freud::locality::NeighborQuery* nq,
     // reallocate the cluster_idx array if the size doesn't match the last one
     if (Np != m_num_particles)
     {
-        m_cluster_idx
-            = std::shared_ptr<unsigned int>(new unsigned int[Np], std::default_delete<unsigned int[]>());
+        m_cluster_idx.resize(Np);
     }
 
     m_num_particles = Np;
@@ -44,7 +43,7 @@ void Cluster::computeClusters(const freud::locality::NeighborQuery* nq,
 
     freud::locality::loopOverNeighbors(
         nq, points, Np, qargs, nlist,
-        [this, &dj, points](const freud::locality::NeighborBond& neighbor_bond) {
+        [this, &dj](const freud::locality::NeighborBond& neighbor_bond) {
             // compute r between the two particles
             if (neighbor_bond.distance < m_rcut)
             {
@@ -73,7 +72,7 @@ void Cluster::computeClusters(const freud::locality::NeighborQuery* nq,
         }
 
         // label this point in cluster_idx
-        m_cluster_idx.get()[i] = label_map[s];
+        m_cluster_idx[i] = label_map[s];
     }
 
     // cur_set is now the number of clusters
@@ -82,12 +81,12 @@ void Cluster::computeClusters(const freud::locality::NeighborQuery* nq,
 
 /*! \param keys Array of keys (1 per particle)
     Loops over all particles and adds them to a list of sets. Each set contains all the keys that are part of
-   that cluster.
+    that cluster.
 
     Get the computed list with getClusterKeys().
 
     \note The length of keys is assumed to be the same length as the particles in the last call to
-   computeClusters().
+    computeClusters().
 */
 void Cluster::computeClusterMembership(const unsigned int* keys)
 {
@@ -101,7 +100,7 @@ void Cluster::computeClusterMembership(const unsigned int* keys)
     for (unsigned int i = 0; i < m_num_particles; i++)
     {
         unsigned int key = keys[i];
-        unsigned int cluster = m_cluster_idx.get()[i];
+        unsigned int cluster = m_cluster_idx[i];
         m_cluster_keys[cluster].push_back(key);
     }
 }

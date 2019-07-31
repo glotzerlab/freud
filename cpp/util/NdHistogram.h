@@ -93,15 +93,14 @@ public:
 
 protected:
     box::Box m_box;
-    unsigned int m_frame_counter; //!< Number of frames calculated
-    unsigned int m_n_points;         //!< The number of points
-    unsigned int m_n_query_points;           //!< The number of query points
-    bool m_reduce;                //!< Whether or not the PCF needs to be reduced
+    unsigned int m_frame_counter;    //!< Number of frames calculated.
+    unsigned int m_n_points;         //!< The number of points.
+    unsigned int m_n_query_points;   //!< The number of query points.
+    bool m_reduce;                   //!< Whether or not the histogram needs to be reduced.
 
-    std::shared_ptr<float> m_pcf_array;         //!< Array of computed pair correlation function
-    std::shared_ptr<unsigned int> m_bin_counts; //!< Counts for each bin
-    util::ThreadStorage<unsigned int> m_local_bin_counts;
-    //!< Thread local bin counts for TBB parallelism
+    std::shared_ptr<float> m_pcf_array;         //!< Array of computed pair correlation function.
+    std::shared_ptr<unsigned int> m_bin_counts; //!< Counts for each bin.
+    util::ThreadStorage<unsigned int> m_local_bin_counts;   //!< Thread local bin counts for TBB parallelism
 };
 
 }; }; // namespace freud::util

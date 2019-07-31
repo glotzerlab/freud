@@ -42,16 +42,9 @@ void ClusterProperties::computeProperties(const box::Box& box, const vec3<float>
 
     // allocate memory for the cluster properties and temporary arrays
     // initialize arrays to 0
-    m_cluster_com
-        = std::shared_ptr<vec3<float>>(new vec3<float>[m_num_clusters], std::default_delete<vec3<float>[]>());
-    memset((void*) m_cluster_com.get(), 0, sizeof(vec3<float>) * m_num_clusters);
-
-    m_cluster_G = std::shared_ptr<float>(new float[m_num_clusters * 3 * 3], std::default_delete<float[]>());
-    memset((void*) m_cluster_G.get(), 0, sizeof(float) * m_num_clusters * 3 * 3);
-
-    m_cluster_size = std::shared_ptr<unsigned int>(new unsigned int[m_num_clusters],
-                                                   std::default_delete<unsigned int[]>());
-    memset((void*) m_cluster_size.get(), 0, sizeof(unsigned int) * m_num_clusters);
+    m_cluster_com.resize(m_num_clusters);
+    m_cluster_G.resize(m_num_clusters*3*3);
+    m_cluster_size.resize(m_num_clusters);
 
     // ref_particle is the first particle found in a cluster, it is used as a
     // reference to compute the COM in relation to, for handling of the
@@ -84,18 +77,18 @@ void ClusterProperties::computeProperties(const box::Box& box, const vec3<float>
         delta = box.wrap(delta);
 
         // Add the vector into the COM tally so far
-        m_cluster_com.get()[c] += delta;
+        m_cluster_com[c] += delta;
 
-        m_cluster_size.get()[c]++;
+        m_cluster_size[c]++;
     }
 
     // Now that we have totaled all of the cluster vectors, compute the COM
     // position by averaging and then shifting by ref_pos
     for (unsigned int c = 0; c < m_num_clusters; c++)
     {
-        float s = float(m_cluster_size.get()[c]);
-        vec3<float> v = m_cluster_com.get()[c] / s + ref_pos[c];
-        m_cluster_com.get()[c] = box.wrap(v);
+        float s = float(m_cluster_size[c]);
+        vec3<float> v = m_cluster_com[c] / s + ref_pos[c];
+        m_cluster_com[c] = box.wrap(v);
     }
 
     // Now that we have determined the centers of mass for each cluster, tally
@@ -104,38 +97,36 @@ void ClusterProperties::computeProperties(const box::Box& box, const vec3<float>
     {
         unsigned int c = cluster_idx[i];
         vec3<float> pos = points[i];
-        vec3<float> delta = box.wrap(pos - m_cluster_com.get()[c]);
+        vec3<float> delta = box.wrap(pos - m_cluster_com[c]);
 
         // get the start pointer for our 3x3 matrix
-        float* G = m_cluster_G.get() + c * 9;
-        G[0 * 3 + 0] += delta.x * delta.x;
-        G[0 * 3 + 1] += delta.x * delta.y;
-        G[0 * 3 + 2] += delta.x * delta.z;
-        G[1 * 3 + 0] += delta.y * delta.x;
-        G[1 * 3 + 1] += delta.y * delta.y;
-        G[1 * 3 + 2] += delta.y * delta.z;
-        G[2 * 3 + 0] += delta.z * delta.x;
-        G[2 * 3 + 1] += delta.z * delta.y;
-        G[2 * 3 + 2] += delta.z * delta.z;
+        unsigned int start_idx = c*9;
+        m_cluster_G[start_idx + 0 * 3 + 0] += delta.x * delta.x;
+        m_cluster_G[start_idx + 0 * 3 + 1] += delta.x * delta.y;
+        m_cluster_G[start_idx + 0 * 3 + 2] += delta.x * delta.z;
+        m_cluster_G[start_idx + 1 * 3 + 0] += delta.y * delta.x;
+        m_cluster_G[start_idx + 1 * 3 + 1] += delta.y * delta.y;
+        m_cluster_G[start_idx + 1 * 3 + 2] += delta.y * delta.z;
+        m_cluster_G[start_idx + 2 * 3 + 0] += delta.z * delta.x;
+        m_cluster_G[start_idx + 2 * 3 + 1] += delta.z * delta.y;
+        m_cluster_G[start_idx + 2 * 3 + 2] += delta.z * delta.z;
     }
 
-    // now need to divide by the number of particles in each cluster
+    // Normalize by the cluster size.
     for (unsigned int c = 0; c < m_num_clusters; c++)
     {
-        float* G = m_cluster_G.get() + c * 9;
-        float s = float(m_cluster_size.get()[c]);
-        G[0 * 3 + 0] /= s;
-        G[0 * 3 + 1] /= s;
-        G[0 * 3 + 2] /= s;
-        G[1 * 3 + 0] /= s;
-        G[1 * 3 + 1] /= s;
-        G[1 * 3 + 2] /= s;
-        G[2 * 3 + 0] /= s;
-        G[2 * 3 + 1] /= s;
-        G[2 * 3 + 2] /= s;
+        unsigned int start_idx = c*9;
+        float s = float(m_cluster_size[c]);
+        m_cluster_G[start_idx + 0 * 3 + 0] /= s;
+        m_cluster_G[start_idx + 0 * 3 + 1] /= s;
+        m_cluster_G[start_idx + 0 * 3 + 2] /= s;
+        m_cluster_G[start_idx + 1 * 3 + 0] /= s;
+        m_cluster_G[start_idx + 1 * 3 + 1] /= s;
+        m_cluster_G[start_idx + 1 * 3 + 2] /= s;
+        m_cluster_G[start_idx + 2 * 3 + 0] /= s;
+        m_cluster_G[start_idx + 2 * 3 + 1] /= s;
+        m_cluster_G[start_idx + 2 * 3 + 2] /= s;
     }
-
-    // done!
 }
 
 }; }; // end namespace freud::cluster

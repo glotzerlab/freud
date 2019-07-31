@@ -84,10 +84,10 @@ public:
     template<typename JacobFactor>
     void reduce3D(unsigned int n_r, unsigned int first_dim, unsigned int second_dim, JacobFactor jf)
     {
-        unsigned int loocal_bin_counts_size = n_r * first_dim * second_dim;
-        memset((void*) m_bin_counts.get(), 0, sizeof(unsigned int) * loocal_bin_counts_size);
-        memset((void*) m_pcf_array.get(), 0, sizeof(float) * loocal_bin_counts_size);
-        parallel_for(tbb::blocked_range<size_t>(0, loocal_bin_counts_size),
+        unsigned int local_bin_counts_size = n_r * first_dim * second_dim;
+        memset((void*) m_bin_counts.get(), 0, sizeof(unsigned int) * local_bin_counts_size);
+        memset((void*) m_pcf_array.get(), 0, sizeof(float) * local_bin_counts_size);
+        parallel_for(tbb::blocked_range<size_t>(0, local_bin_counts_size),
                      [=](const tbb::blocked_range<size_t>& r) {
                          for (size_t i = r.begin(); i != r.end(); i++)
                          {

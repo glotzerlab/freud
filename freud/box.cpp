@@ -38,12 +38,12 @@
         "name": "freud.box",
         "sources": [
             "freud/box.pyx",
-            "cpp/locality/NeighborQuery.cc",
-            "cpp/box/Box.cc",
             "cpp/locality/NeighborList.cc",
+            "cpp/box/ParticleBuffer.cc",
+            "cpp/locality/NeighborQuery.cc",
             "cpp/locality/NeighborComputeFunctional.cc",
             "cpp/locality/AABBQuery.cc",
-            "cpp/box/ParticleBuffer.cc"
+            "cpp/box/Box.cc"
         ]
     },
     "module_name": "freud.box"
