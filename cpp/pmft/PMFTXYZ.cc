@@ -22,7 +22,7 @@ namespace freud { namespace pmft {
 PMFTXYZ::PMFTXYZ(float x_max, float y_max, float z_max, unsigned int n_x, unsigned int n_y, unsigned int n_z,
                  vec3<float> shiftvec)
     : PMFT(), m_x_max(x_max), m_y_max(y_max), m_z_max(z_max), m_n_x(n_x), m_n_y(n_y), m_n_z(n_z),
-      m_n_faces(0), m_shiftvec(shiftvec)
+      m_shiftvec(shiftvec)
 {
     if (n_x < 1)
         throw invalid_argument("PMFTXYZ requires at least 1 bin in X.");
@@ -38,9 +38,9 @@ PMFTXYZ::PMFTXYZ(float x_max, float y_max, float z_max, unsigned int n_x, unsign
         throw invalid_argument("PMFTXYZ requires that z_max must be positive.");
 
     // calculate dx, dy, dz
-    m_dx = 2.0 * m_x_max / float(m_n_x);
-    m_dy = 2.0 * m_y_max / float(m_n_y);
-    m_dz = 2.0 * m_z_max / float(m_n_z);
+    m_dx = float(2.0) * m_x_max / float(m_n_x);
+    m_dy = float(2.0) * m_y_max / float(m_n_y);
+    m_dz = float(2.0) * m_z_max / float(m_n_z);
 
     if (m_dx > x_max)
         throw invalid_argument("PMFTXYZ requires that dx is less than or equal to x_max.");

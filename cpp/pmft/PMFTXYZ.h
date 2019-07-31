@@ -88,7 +88,6 @@ private:
     unsigned int m_n_x; //!< Number of x bins to compute pcf over
     unsigned int m_n_y; //!< Number of y bins to compute pcf over
     unsigned int m_n_z; //!< Number of z bins to compute pcf over
-    unsigned int m_n_faces;
     float m_jacobian;
     vec3<float> m_shiftvec; //!< vector that points from [0,0,0] to the origin of the pmft
 
