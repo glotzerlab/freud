@@ -152,6 +152,11 @@ void VoroPlusPlus::compute(const box::Box &box, const vec3<double>* points, unsi
                         printf("Bond from %i to %i, weight %f, distance %f, normal (%f, %f, %f)\n", pid, neighbor_id, weight, dist, normal.x, normal.y, normal.z);
                         printf("Vertex %i on face, ri (%f, %f, %f), rv (%f, %f, %f)\n", vertex_id_on_face, ri.x, ri.y, ri.z, rv.x, rv.y, rv.z);
                     }
+
+                    // Ignore bonds in 2D systems that point up or down
+                    if (box.is2D() && abs(normal.z) > 0)
+                        continue;
+
                     bonds.push_back(NeighborBond(pid, neighbor_id, dist, weight));
                 }
 
@@ -198,7 +203,10 @@ void VoroPlusPlus::compute(const box::Box &box, const vec3<double>* points, unsi
             } while (voronoi_loop.inc());
         }
 
-        tbb::parallel_sort(bonds.begin(), bonds.end());
+        tbb::parallel_sort(bonds.begin(), bonds.end(),
+                [](const NeighborBond& n1, const NeighborBond& n2) {
+                    return n1.less_id_ref_weight(n2);
+                });
 
         unsigned int num_bonds = bonds.size();
 
