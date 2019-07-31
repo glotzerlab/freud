@@ -1136,6 +1136,9 @@ cdef class _VoroPlusPlus(Compute):
         self.thisptr = new freud._locality.VoroPlusPlus()
         self._nlist = NeighborList()
 
+    def __dealloc__(self):
+        del self.thisptr
+
     @Compute._compute()
     def compute(self, box, points):
         R"""Compute Voronoi diagram.

@@ -8,6 +8,7 @@ from cython.operator cimport dereference
 
 cimport freud._locality
 cimport freud.box
+from freud.common cimport Compute
 
 
 cdef class NeighborQueryResult:
@@ -76,7 +77,7 @@ cdef class _Voronoi:
     cdef _volumes
     cdef _polytopes
 
-cdef class _VoroPlusPlus:
+cdef class _VoroPlusPlus(Compute):
     cdef freud._locality.VoroPlusPlus * thisptr
     cdef NeighborList _nlist
     cdef _volumes
