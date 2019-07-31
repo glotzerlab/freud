@@ -24,22 +24,8 @@ namespace freud { namespace locality {
 VoroPlusPlus::VoroPlusPlus()
 {}
 
-// A compare function used to sort VoroPlusPlusBonds
-bool compareNeighborPairs(const VoroPlusPlusBond &n1, const VoroPlusPlusBond &n2)
-{
-    if (n1.index_i != n2.index_i)
-    {
-        return n1.index_i < n2.index_i;
-    }
-    if (n1.index_j != n2.index_j)
-    {
-        return n1.index_j < n2.index_j;
-    }
-    return n1.weight < n2.weight;
-}
-
-typedef tbb::enumerable_thread_specific< std::vector<VoroPlusPlusBond> > BondVector;
-typedef std::vector<VoroPlusPlusBond> SerialBondVector;
+typedef tbb::enumerable_thread_specific< std::vector<NeighborBond> > BondVector;
+typedef std::vector<NeighborBond> SerialBondVector;
 
 // Voronoi calculations should be kept in double precision.
 void VoroPlusPlus::compute(const box::Box &box, const vec3<double>* points, unsigned int N)
@@ -72,7 +58,6 @@ void VoroPlusPlus::compute(const box::Box &box, const vec3<double>* points, unsi
         voro::voronoicell_neighbor cell;
         voro::c_loop_all_periodic voronoi_loop(container);
         std::vector<double> face_areas;
-        std::vector<int> face_orders;
         std::vector<int> face_vertices;
         std::vector<int> neighbors;
         std::vector<double> normals;
@@ -94,7 +79,6 @@ void VoroPlusPlus::compute(const box::Box &box, const vec3<double>* points, unsi
 
                 // Get Voronoi cell properties
                 cell.face_areas(face_areas);
-                cell.face_orders(face_orders);
                 cell.face_vertices(face_vertices);
                 cell.neighbors(neighbors);
                 cell.normals(normals);
@@ -127,6 +111,7 @@ void VoroPlusPlus::compute(const box::Box &box, const vec3<double>* points, unsi
                 m_volumes[pid] = cell.volume();
 
                 size_t neighbor_counter(0);
+                size_t face_vertices_index(0);
                 for (auto neighbor_iterator = neighbors.begin(); neighbor_iterator != neighbors.end(); neighbor_iterator++) {
                     int neighbor_id = *neighbor_iterator;
                     float weight(face_areas[neighbor_counter]);
@@ -138,17 +123,13 @@ void VoroPlusPlus::compute(const box::Box &box, const vec3<double>* points, unsi
                         normals[3*neighbor_counter+2]
                     );
 
-                    // Find a vertex on the current face:
-                    //
-                    // Leverages structure of face_vertices, which has a count
-                    // of the number of vertices for that face followed by the
-                    // corresponding vertex ids for each face.
-                    //
-                    // First, skip through the previous faces
-                    int face_vertices_index = 0;
-                    for (size_t face_counter = 0; face_counter < neighbor_counter; face_counter++) {
-                        face_vertices_index += face_vertices[face_vertices_index] + 1;
-                    }
+                    // Find a vertex on the current face: this leverages the
+                    // structure of face_vertices, which has a count of the
+                    // number of vertices for a face followed by the
+                    // corresponding vertex ids for that face. We use this
+                    // structure later when incrementing face_vertices_index.
+                    // face_vertices_index always points to the "vertex
+                    // counter" element of face_vertices for the current face.
 
                     // Get the first vertex id on this face
                     int vertex_id_on_face = face_vertices[face_vertices_index+1];
@@ -166,11 +147,12 @@ void VoroPlusPlus::compute(const box::Box &box, const vec3<double>* points, unsi
 
 
                     neighbor_counter++;
+                    face_vertices_index += face_vertices[face_vertices_index] + 1;
                     if (print_loud) {
                         printf("Bond from %i to %i, weight %f, distance %f, normal (%f, %f, %f)\n", pid, neighbor_id, weight, dist, normal.x, normal.y, normal.z);
                         printf("Vertex %i on face, ri (%f, %f, %f), rv (%f, %f, %f)\n", vertex_id_on_face, ri.x, ri.y, ri.z, rv.x, rv.y, rv.z);
                     }
-                    bonds.push_back(VoroPlusPlusBond(pid, neighbor_id, weight, dist));
+                    bonds.push_back(NeighborBond(pid, neighbor_id, dist, weight));
                 }
 
                 if (print_loud) {
@@ -216,7 +198,7 @@ void VoroPlusPlus::compute(const box::Box &box, const vec3<double>* points, unsi
             } while (voronoi_loop.inc());
         }
 
-        tbb::parallel_sort(bonds.begin(), bonds.end(), compareNeighborPairs);
+        tbb::parallel_sort(bonds.begin(), bonds.end());
 
         unsigned int num_bonds = bonds.size();
 
@@ -224,13 +206,15 @@ void VoroPlusPlus::compute(const box::Box &box, const vec3<double>* points, unsi
         m_neighbor_list.setNumBonds(num_bonds, N, N);
         size_t *neighbor_array(m_neighbor_list.getNeighbors());
         float *neighbor_weights(m_neighbor_list.getWeights());
+        float *neighbor_distances(m_neighbor_list.getDistances());
 
         parallel_for(tbb::blocked_range<size_t>(0, num_bonds),
             [&] (const tbb::blocked_range<size_t> &r) {
             for (size_t bond(r.begin()); bond < r.end(); ++bond)
             {
-                neighbor_array[2*bond] = bonds[bond].index_i;
-                neighbor_array[2*bond+1] = bonds[bond].index_j;
+                neighbor_array[2*bond] = bonds[bond].id;
+                neighbor_array[2*bond+1] = bonds[bond].ref_id;
+                neighbor_distances[bond] = bonds[bond].distance;
                 neighbor_weights[bond] = bonds[bond].weight;
             }
         });
@@ -351,7 +335,7 @@ void VoroPlusPlus::compute(const box::Box &box, const vec3<double>* points, unsi
         });
 
         tbb::flattened2d<BondVector> flat_bonds = tbb::flatten2d(bonds);
-        std::vector<VoroPlusPlusBond> linear_bonds(flat_bonds.begin(), flat_bonds.end());
+        std::vector<NeighborBond> linear_bonds(flat_bonds.begin(), flat_bonds.end());
         tbb::parallel_sort(linear_bonds.begin(), linear_bonds.end(), compareNeighborPairs);
 
         unsigned int num_bonds = linear_bonds.size();

@@ -6,6 +6,7 @@
 
 #include "Box.h"
 #include "VectorMath.h"
+#include "NeighborBond.h"
 #include "NeighborList.h"
 #include <voro++/src/voro++.hh>
 
