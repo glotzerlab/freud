@@ -21,29 +21,62 @@ template<typename T> class NumericalArray
 {
 public:
     //! Default constructor
-    NumericalArray() : m_size(0) {}
+    NumericalArray() : m_size(0), m_managed(true)
+    {
+        // Creating a zero-length array is valid since it's on the heap.
+        m_data = nullptr;
+    }
 
     //! Constructor with specific size for thread local arrays
-    /*! \param size Size of the array to allocate.
-     */
-    NumericalArray(unsigned int size) : m_size(size)
+    /*! When using this constructor, the class automatically manages its own
+     *  memory since it is allocating it.
+     *
+     *  \param size Size of the array to allocate.
+     */  
+    NumericalArray(unsigned int size) : m_size(size), m_managed(true)
     {
-        m_data = std::shared_ptr<T>(new T[size], std::default_delete<T[]>());
+        m_data = new T[size];
         reset();
     }
 
+    //! Construct object from existing array.
+    /*! \param T* Pointer to existing data.
+     *  \param size Size of the array to allocate.
+     */
+    NumericalArray(T* array, unsigned int size) : m_size(size), m_managed(false)
+    {
+        m_data = array;
+    }
+
+    //! Copy constructor.
+    /*! The original object always owns its own memory.
+     *
+     *  \param size Size of the array to allocate.
+     */  
+    NumericalArray(const NumericalArray &first) : m_size(first.size()), m_data(first.get()), m_managed(false) {}
+
     //! Destructor (currently empty because data is managed by shared pointer).
-    ~NumericalArray() {}
+    ~NumericalArray()
+    {
+        if (m_managed && (m_size > 0))
+            delete[](m_data);
+    }
 
     //! Update size of the thread local arrays.
     /*! \param size New size of the thread local arrays.
      */
     void resize(unsigned int size)
     {
+        if (!m_managed)
+        {
+            throw std::runtime_error("NumericalArray can only resize arrays it is managing.");
+        }
         if (size != m_size)
         {
+            if (m_size > 0)
+                delete[](m_data);
             m_size = size;
-            m_data = std::shared_ptr<T>(new T[size], std::default_delete<T[]>());
+            m_data = new T[size];
             reset();
         }
     }
@@ -51,11 +84,16 @@ public:
     //! Reset the contents of thread local arrays to be 0.
     void reset()
     {
-        memset((void*) m_data.get(), 0, sizeof(T) * m_size);
+        if (!m_managed)
+        {
+            throw std::runtime_error("NumericalArray can only reset arrays it is managing.");
+        }
+
+        memset((void*) m_data, 0, sizeof(T) * m_size);
     }
 
     //! Return the underlying pointer.
-    std::shared_ptr<T> getData() const
+    T *get() const
     {
         return m_data;
     }
@@ -67,12 +105,28 @@ public:
         {
             throw std::runtime_error("Attempted to access data out of bounds.");
         }
-        return m_data.get()[index];
+        return m_data[index];
+    }
+
+    //! Read-only index into array.
+    const T &operator[](unsigned int index) const
+    {
+        if (index >= m_size)
+        {
+            throw std::runtime_error("Attempted to access data out of bounds.");
+        }
+        return m_data[index];
+    }
+
+    unsigned int size() const
+    {
+        return m_size;
     }
 
 private:
     unsigned int m_size;        //!< Size of array.
-    std::shared_ptr<T> m_data;  //!< Pointer to array.
+    T *m_data;  //!< Pointer to array.
+    bool m_managed;  //!< Whether or not the array should be managing its own data.
 };
 
 }; }; // end namespace freud::util

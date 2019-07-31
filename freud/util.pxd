@@ -14,3 +14,9 @@ cdef extern from "VectorMath.h":
         quat()
         Real s
         vec3[Real] v
+
+cdef extern from "NumericalArray.h" namespace "freud::util":
+    cdef cppclass NumericalArray[T]:
+        NumericalArray()
+        NumericalArray(T*, unsigned int)
+        T *get()

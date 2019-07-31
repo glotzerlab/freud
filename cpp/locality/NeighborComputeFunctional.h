@@ -4,6 +4,7 @@
 #include <memory>
 #include <tbb/tbb.h>
 
+#include "NumericalArray.h"
 #include "AABBQuery.h"
 #include "Index1D.h"
 #include "NeighborList.h"
@@ -245,6 +246,24 @@ void loopOverNeighborsIterator(const NeighborQuery* neighbor_query, const vec3<f
     }, parallel);
 }
 
+//! Copy of below function that uses new array object.
+template<typename ComputePairType>
+void loopOverNeighbors(const NeighborQuery* neighbor_query, const util::NumericalArray<vec3<float> > query_points,
+                       QueryArgs qargs, const NeighborList* nlist, const ComputePairType& cf,
+                       bool parallel = true)
+{
+    // check if nlist exists
+    if (nlist != NULL)
+    {
+        // if nlist exists, loop over it in parallel.
+        loopOverNeighborList(nlist, cf, parallel);
+    }
+    else
+    {
+        loopOverNeighborQuery(neighbor_query, query_points, qargs, cf, parallel);
+    }
+}
+
 //! Wrapper iterating looping over NeighborQuery or NeighborList
 /*! \param neighbor_query NeighborQuery object to iterate over
     \param query_points Points
@@ -289,6 +308,62 @@ void loopOverNeighborList(const NeighborList* nlist, const ComputePairType& cf, 
             size_t ref_point_index(neighbor_list[2 * bond + 1]);
             const NeighborBond nb(point_index, ref_point_index, neighbor_distances[bond], neighbor_weights[bond]);
             cf(nb);
+        }
+    }, parallel);
+}
+
+//! Copy of below function that uses new array object.
+template<typename ComputePairType>
+void loopOverNeighborQuery(const NeighborQuery* neighbor_query, const util::NumericalArray<vec3<float> > query_points,
+                           QueryArgs qargs, const ComputePairType& cf, bool parallel)
+{
+    // The query iterators always finds the point with itself as a neighbor bond.
+    // To find the proper number of neighbors, we need to increment
+    // the number of neighbors to look for.
+    if(qargs.exclude_ii && (qargs.mode == QueryArgs::QueryType::nearest))
+    {
+        ++qargs.nn;
+    }
+    // if nlist does not exist, check if neighbor_query is an actual NeighborQuery
+    std::shared_ptr<NeighborQueryIterator> iter;
+    std::shared_ptr<AABBQuery> abq;
+    // check if neighbor_query is a pointer to a RawPoints object
+    // dynamic_cast will fail if neighbor_query is not actually pointing to RawPoints
+    // and return a null pointer. Then, the assignment operator will return
+    // a null pointer, making the condition in the if statement to be false.
+    // This is a typical C++ way of checking the type of a polymorphic class
+    // using pointers and casting.
+    if (dynamic_cast<const RawPoints*>(neighbor_query))
+    {
+        // if neighbor_query is RawPoints, build a NeighborQuery
+        abq = std::make_shared<AABBQuery>(neighbor_query->getBox(), neighbor_query->getPoints(),
+                                          neighbor_query->getNPoints());
+        iter = abq->queryWithArgs(query_points, qargs);
+    }
+    else
+    {
+        iter = neighbor_query->queryWithArgs(query_points, qargs);
+    }
+
+    // iterate over the query object in parallel
+    forLoopWrapper(0, query_points.size(), [&iter, &qargs, &cf](size_t begin, size_t end) {
+        NeighborBond np;
+        for (size_t i = begin; i != end; ++i)
+        {
+            std::shared_ptr<NeighborQueryIterator> it = iter->query(i);
+            np = it->next();
+            while (!it->end())
+            {
+                //! Warning! If qargs.exclude_ii is true, NeighborBond with same indices
+                // will not be considered regardless of neighbor_query and query_points
+                // being same set of points
+                if (!qargs.exclude_ii || i != np.ref_id)
+                {
+                    const NeighborBond nb(i, np.ref_id, np.distance, np.weight);
+                    cf(nb);
+                }
+                np = it->next();
+            }
         }
     }, parallel);
 }

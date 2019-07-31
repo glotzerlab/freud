@@ -181,3 +181,17 @@ def convert_box(box):
         except ValueError:
             raise
     return box
+
+# cdef make_array(array):
+    # """Construct a freud array object given a NumPy array.
+
+    # .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
+
+    # Args:
+        # array (:class:`numpy.ndarray`): Array to convert.
+
+    # Returns:
+        # :class:`freud.util.NumericalArray`: Array that can be passed to freud functions.
+    # """
+    # cdef const float[:, ::1] l_query_points = query_points
+    # freud.util.NumericalArray(

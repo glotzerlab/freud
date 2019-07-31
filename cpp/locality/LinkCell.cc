@@ -341,6 +341,12 @@ const std::vector<unsigned int>& LinkCell::computeCellNeighbors(unsigned int cur
 
 //! Given a set of points, find the num_neighbors elements of this data structure
 //  that are the nearest neighbors for each point.
+std::shared_ptr<NeighborQueryIterator> LinkCell::query(const util::NumericalArray<vec3<float> > query_points,
+                                                       unsigned int num_neighbors, bool exclude_ii) const
+{
+    return std::make_shared<LinkCellQueryIterator>(this, query_points, num_neighbors, exclude_ii);
+}
+
 std::shared_ptr<NeighborQueryIterator> LinkCell::query(const vec3<float>* query_points, unsigned int n_query_points,
                                                        unsigned int num_neighbors, bool exclude_ii) const
 {
@@ -349,6 +355,12 @@ std::shared_ptr<NeighborQueryIterator> LinkCell::query(const vec3<float>* query_
 
 //! Given a set of points, find all elements of this data structure
 //  that are within a certain distance r_max.
+std::shared_ptr<NeighborQueryIterator> LinkCell::queryBall(const util::NumericalArray<vec3<float> > query_points, float r_max,
+                                                           bool exclude_ii) const
+{
+    return std::make_shared<LinkCellQueryBallIterator>(this, query_points, r_max, exclude_ii);
+}
+
 std::shared_ptr<NeighborQueryIterator> LinkCell::queryBall(const vec3<float>* query_points, unsigned int n_query_points, float r_max,
                                                            bool exclude_ii) const
 {
@@ -359,7 +371,7 @@ NeighborBond LinkCellQueryBallIterator::next()
 {
     float r_cutsq = m_r * m_r;
 
-    while (cur_p < m_n_query_points)
+    while (cur_p < m_query_points.size())
     {
         vec3<unsigned int> point_cell(m_linkcell->getCellCoord(m_query_points[cur_p]));
         const unsigned int point_cell_index = m_linkcell->getCellIndex(
@@ -442,7 +454,7 @@ NeighborBond LinkCellQueryIterator::next()
     }
     unsigned int max_range = ceil(min_plane_distance / (2 * m_linkcell->getCellWidth())) + 1;
 
-    while (cur_p < m_n_query_points)
+    while (cur_p < m_query_points.size())
     {
         vec3<unsigned int> point_cell(m_linkcell->getCellCoord(m_query_points[cur_p]));
         const unsigned int point_cell_index = m_linkcell->getCellIndex(

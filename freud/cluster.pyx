@@ -17,6 +17,7 @@ from freud.util cimport vec3
 
 cimport freud._cluster
 cimport freud.box, freud.locality
+cimport freud.util
 
 cimport numpy as np
 
@@ -103,11 +104,12 @@ cdef class Cluster(Compute):
 
         cdef const float[:, ::1] l_points = points
         cdef unsigned int Np = l_points.shape[0]
+        cdef freud.util.NumericalArray[vec3[float]] arr = freud.util.NumericalArray[vec3[float]](<vec3[float] *> &l_points[0, 0], Np)
         with nogil:
-            self.thisptr.computeClusters(
+            self.thisptr.compute(
                 nq.get_ptr(),
                 nlistptr.get_ptr(),
-                <vec3[float]*> &l_points[0, 0], Np, dereference(qargs.thisptr))
+                arr, dereference(qargs.thisptr))
         return self
 
     @Compute._compute("computeClusterMembership")

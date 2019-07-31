@@ -49,9 +49,9 @@ public:
     Cluster(float rcut);
 
     //! Compute the point clusters
-    void computeClusters(const freud::locality::NeighborQuery* nq,
-                         const freud::locality::NeighborList* nlist, const vec3<float>* points,
-                         unsigned int Np, freud::locality::QueryArgs qargs);
+    void compute(const freud::locality::NeighborQuery* nq,
+                 const freud::locality::NeighborList* nlist, const util::NumericalArray<vec3<float>> points,
+                 freud::locality::QueryArgs qargs);
 
     //! Compute clusters with key membership
     void computeClusterMembership(const unsigned int* keys);
@@ -69,9 +69,9 @@ public:
     }
 
     //! Get a reference to the last computed cluster_idx
-    std::shared_ptr<unsigned int> getClusterIdx()
+    util::NumericalArray<unsigned int> getClusterIdx()
     {
-        return m_cluster_idx.getData();
+        return m_cluster_idx;
     }
 
     //! Returns the cluster keys last determined by computeClusterKeys

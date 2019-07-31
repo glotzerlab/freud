@@ -8,6 +8,7 @@
 #include <memory>
 #include <vector>
 
+#include "NumericalArray.h"
 #include "AABBTree.h"
 #include "Box.h"
 #include "NeighborQuery.h"
@@ -38,6 +39,25 @@ public:
 
     //! Destructor
     ~AABBQuery();
+
+    //! Copy of below function using new array object.
+    virtual std::shared_ptr<NeighborQueryIterator> queryWithArgs(const util::NumericalArray<vec3<float> > query_points,
+                                                                 QueryArgs args) const
+    {
+        this->validateQueryArgs(args);
+        if (args.mode == QueryArgs::ball)
+        {
+            return queryBall(query_points, args.rmax, args.exclude_ii);
+        }
+        else if (args.mode == QueryArgs::nearest)
+        {
+            return query(query_points, args.nn, args.rmax, args.scale, args.exclude_ii);
+        }
+        else
+        {
+            throw std::runtime_error("Invalid query mode provided to generic query function.");
+        }
+    }
 
     //! Perform a query based on a set of query parameters.
     /*! Given a QueryArgs object and a set of points to perform a query
@@ -71,7 +91,14 @@ public:
     //  that are the nearest neighbors for each point. Note that due to the
     //  different signature, this is not directly overriding the original
     //  method in NeighborQuery, so we have to explicitly invalidate calling
-    //  with that signature.
+    //  with that signature and then create a new function.
+    virtual std::shared_ptr<NeighborQueryIterator> query(const util::NumericalArray<vec3<float> > query_points,
+                                                         unsigned int num_neighbors, bool exclude_ii = false) const
+    {
+        throw std::runtime_error("AABBQuery k-nearest-neighbor queries must use the function signature that "
+                                 "provides rmax and scale guesses.");
+    }
+
     virtual std::shared_ptr<NeighborQueryIterator> query(const vec3<float>* query_points, unsigned int n_query_points,
                                                          unsigned int num_neighbors, bool exclude_ii = false) const
     {
@@ -79,8 +106,16 @@ public:
                                  "provides rmax and scale guesses.");
     }
 
+    // Copy of below function that uses the new array data structure.
+    std::shared_ptr<NeighborQueryIterator> query(const util::NumericalArray<vec3<float> > query_points, unsigned int num_neighbors,
+                                                 float r_max, float scale, bool exclude_ii = false) const;
+
     std::shared_ptr<NeighborQueryIterator> query(const vec3<float>* query_points, unsigned int n_query_points, unsigned int num_neighbors,
                                                  float r_max, float scale, bool exclude_ii = false) const;
+
+    // Copy of below function that uses the new array data structure.
+    virtual std::shared_ptr<NeighborQueryIterator> queryBall(const util::NumericalArray<vec3<float> > query_points,
+                                                             float r_max, bool exclude_ii = false) const;
 
     //! Given a set of points, find all elements of this data structure
     //  that are within a certain distance r.
@@ -133,7 +168,7 @@ private:
     void mapParticlesByType();
 
     //! Driver to build AABB trees
-    void buildTree(const vec3<float>* points, unsigned int N);
+    void buildTree(const util::NumericalArray<vec3<float> > points);
 
     std::vector<AABB> m_aabbs; //!< Flat array of AABBs of all types
     box::Box m_box;            //!< Simulation box where the particles belong
@@ -143,6 +178,11 @@ private:
 class AABBIterator : virtual public NeighborQueryIterator
 {
 public:
+    //! Constructor with new array
+    AABBIterator(const AABBQuery* neighbor_query, const util::NumericalArray<vec3<float> > query_points, bool exclude_ii)
+        : NeighborQueryIterator(neighbor_query, query_points, exclude_ii), m_aabb_query(neighbor_query)
+    {}
+
     //! Constructor
     AABBIterator(const AABBQuery* neighbor_query, const vec3<float>* query_points, unsigned int N, bool exclude_ii)
         : NeighborQueryIterator(neighbor_query, query_points, N, exclude_ii), m_aabb_query(neighbor_query)
@@ -164,6 +204,17 @@ protected:
 class AABBQueryIterator : virtual public NeighborQueryQueryIterator, virtual public AABBIterator
 {
 public:
+    //! Constructor with new structure.
+    AABBQueryIterator(const AABBQuery* neighbor_query, const util::NumericalArray<vec3<float> > points,
+                      unsigned int k, float r, float scale, bool exclude_ii)
+        : NeighborQueryIterator(neighbor_query, points, exclude_ii),
+          NeighborQueryQueryIterator(neighbor_query, points, exclude_ii, k),
+          AABBIterator(neighbor_query, points, exclude_ii), m_search_extended(false), m_r(r), m_r_cur(r),
+          m_scale(scale), m_all_distances()
+    {
+        updateImageVectors(0);
+    }
+
     //! Constructor
     AABBQueryIterator(const AABBQuery* neighbor_query, const vec3<float>* points, unsigned int N,
                       unsigned int k, float r, float scale, bool exclude_ii)
@@ -188,8 +239,7 @@ protected:
     float m_search_extended; //!< Flag to see whether we've gone past the safe cutoff distance and have to be
                              //!< worried about finding duplicates.
     float m_r;               //!< Ball cutoff distance. Used as a guess.
-    float
-        m_r_cur; //!< Current search ball cutoff distance in use for the current particle (expands as needed).
+    float m_r_cur; //!< Current search ball cutoff distance in use for the current particle (expands as needed).
     float m_scale; //!< The amount to scale m_r by when the current ball is too small.
     std::map<unsigned int, float> m_all_distances; //!< Hash map of minimum distances found for a given point,
                                                    //!< used when searching beyond maximum safe AABB distance.
@@ -199,6 +249,16 @@ protected:
 class AABBQueryBallIterator : virtual public AABBIterator
 {
 public:
+    //! Constructor with new structure.
+    AABBQueryBallIterator(const AABBQuery* neighbor_query, const util::NumericalArray<vec3<float> > points, float r,
+                          bool exclude_ii, bool _check_rmax = true)
+        : NeighborQueryIterator(neighbor_query, points, exclude_ii),
+          AABBIterator(neighbor_query, points, exclude_ii), m_r(r), cur_image(0), cur_node_idx(0),
+          cur_ref_p(0)
+    {
+        updateImageVectors(m_r, _check_rmax);
+    }
+
     //! Constructor
     AABBQueryBallIterator(const AABBQuery* neighbor_query, const vec3<float>* points, unsigned int N, float r,
                           bool exclude_ii, bool _check_rmax = true)

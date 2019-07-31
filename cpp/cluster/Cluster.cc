@@ -25,24 +25,24 @@ Cluster::Cluster(float rcut) : m_rcut(rcut), m_num_particles(0), m_num_clusters(
         throw invalid_argument("Cluster requires that rcut must be non-negative.");
 }
 
-void Cluster::computeClusters(const freud::locality::NeighborQuery* nq,
-                              const freud::locality::NeighborList* nlist, const vec3<float>* points,
-                              unsigned int Np, freud::locality::QueryArgs qargs)
+void Cluster::compute(const freud::locality::NeighborQuery* nq,
+                      const freud::locality::NeighborList* nlist, const util::NumericalArray<vec3<float>> points,
+                      freud::locality::QueryArgs qargs)
 {
     assert(points);
     assert(Np > 0);
 
     // reallocate the cluster_idx array if the size doesn't match the last one
-    if (Np != m_num_particles)
+    if (points.size() != m_num_particles)
     {
-        m_cluster_idx.resize(Np);
+        m_cluster_idx.resize(points.size());
     }
 
-    m_num_particles = Np;
+    m_num_particles = points.size();
     DisjointSets dj(m_num_particles);
 
     freud::locality::loopOverNeighbors(
-        nq, points, Np, qargs, nlist,
+        nq, points, qargs, nlist,
         [this, &dj](const freud::locality::NeighborBond& neighbor_bond) {
             // compute r between the two particles
             if (neighbor_bond.distance < m_rcut)

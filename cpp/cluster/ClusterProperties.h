@@ -50,21 +50,21 @@ public:
     }
 
     //! Get a reference to the last computed cluster_com
-    std::shared_ptr<vec3<float>> getClusterCOM()
+    util::NumericalArray<vec3<float>> getClusterCOM()
     {
-        return m_cluster_com.getData();
+        return m_cluster_com;
     }
 
     //! Get a reference to the last computed cluster_G
-    std::shared_ptr<float> getClusterG()
+    util::NumericalArray<float> getClusterG()
     {
-        return m_cluster_G.getData();
+        return m_cluster_G;
     }
 
     //! Get a reference to the last computed cluster size
-    std::shared_ptr<unsigned int> getClusterSize()
+    util::NumericalArray<unsigned int> getClusterSize()
     {
-        return m_cluster_size.getData();
+        return m_cluster_size;
     }
 
 private:

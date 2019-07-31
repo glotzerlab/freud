@@ -8,21 +8,21 @@ from libcpp.vector cimport vector
 from libc.stdint cimport uint32_t
 cimport freud._box
 cimport freud._locality
+cimport freud.util
 
 ctypedef unsigned int uint
 
 cdef extern from "Cluster.h" namespace "freud::cluster":
     cdef cppclass Cluster:
         Cluster(float) except +
-        void computeClusters(const freud._locality.NeighborQuery*,
-                             const freud._locality.NeighborList*,
-                             const vec3[float]*,
-                             unsigned int,
-                             freud._locality.QueryArgs) nogil except +
+        void compute(const freud._locality.NeighborQuery*,
+                     const freud._locality.NeighborList*,
+                     const freud.util.NumericalArray[vec3[float]],
+                     freud._locality.QueryArgs) nogil except +
         void computeClusterMembership(const unsigned int*) nogil except +
         unsigned int getNumClusters()
         unsigned int getNumParticles()
-        shared_ptr[unsigned int] getClusterIdx()
+        const freud.util.NumericalArray[unsigned int] getClusterIdx()
         const vector[vector[uint]] getClusterKeys()
 
 cdef extern from "ClusterProperties.h" namespace "freud::cluster":
@@ -34,6 +34,6 @@ cdef extern from "ClusterProperties.h" namespace "freud::cluster":
             const unsigned int*,
             unsigned int) nogil except +
         unsigned int getNumClusters()
-        shared_ptr[vec3[float]] getClusterCOM()
-        shared_ptr[float] getClusterG()
-        shared_ptr[unsigned int] getClusterSize()
+        const freud.util.NumericalArray[vec3[float]] getClusterCOM()
+        const freud.util.NumericalArray[float] getClusterG()
+        const freud.util.NumericalArray[unsigned int] getClusterSize()
