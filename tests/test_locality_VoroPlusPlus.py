@@ -194,6 +194,25 @@ class TestVoroPlusPlus(unittest.TestCase):
         vor = freud.locality._VoroPlusPlus()
         self.assertEqual(str(vor), str(eval(repr(vor))))
 
+    def test_attributes(self):
+        # Test that the class attributes are protected
+        L = 10  # Box length
+        N = 40  # Number of particles
+        vor = freud.locality._VoroPlusPlus()
+        with self.assertRaises(AttributeError):
+            vor.nlist
+        with self.assertRaises(AttributeError):
+            vor.polytopes
+        with self.assertRaises(AttributeError):
+            vor.volumes
+        box, points = util.make_box_and_random_points(L, N, is2D=False)
+        vor.compute(box, points)
+
+        # Ensure attributes are accessible after calling compute
+        vor.nlist
+        vor.polytopes
+        vor.volumes
+
 
 if __name__ == '__main__':
     unittest.main()
