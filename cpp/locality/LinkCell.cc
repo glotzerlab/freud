@@ -341,7 +341,7 @@ const std::vector<unsigned int>& LinkCell::computeCellNeighbors(unsigned int cur
 
 //! Given a set of points, find the num_neighbors elements of this data structure
 //  that are the nearest neighbors for each point.
-std::shared_ptr<NeighborQueryIterator> LinkCell::query(const util::NumericalArray<vec3<float> > query_points,
+std::shared_ptr<NeighborQueryIterator> LinkCell::query(const util::ManagedArray<vec3<float> > query_points,
                                                        unsigned int num_neighbors, bool exclude_ii) const
 {
     return std::make_shared<LinkCellQueryIterator>(this, query_points, num_neighbors, exclude_ii);
@@ -355,7 +355,7 @@ std::shared_ptr<NeighborQueryIterator> LinkCell::query(const vec3<float>* query_
 
 //! Given a set of points, find all elements of this data structure
 //  that are within a certain distance r_max.
-std::shared_ptr<NeighborQueryIterator> LinkCell::queryBall(const util::NumericalArray<vec3<float> > query_points, float r_max,
+std::shared_ptr<NeighborQueryIterator> LinkCell::queryBall(const util::ManagedArray<vec3<float> > query_points, float r_max,
                                                            bool exclude_ii) const
 {
     return std::make_shared<LinkCellQueryBallIterator>(this, query_points, r_max, exclude_ii);
@@ -443,7 +443,7 @@ NeighborBond LinkCellQueryBallIterator::next()
 
 std::shared_ptr<NeighborQueryIterator> LinkCellQueryBallIterator::query(unsigned int idx)
 {
-    const util::NumericalArray<vec3<float> > narr = util::NumericalArray<vec3<float> >((vec3<float> *) &m_query_points[idx], 1);
+    const util::ManagedArray<vec3<float> > narr = util::ManagedArray<vec3<float> >((vec3<float> *) &m_query_points[idx], 1);
     return this->m_linkcell->queryBall(narr, m_r);
 }
 
@@ -550,7 +550,7 @@ NeighborBond LinkCellQueryIterator::next()
 
 std::shared_ptr<NeighborQueryIterator> LinkCellQueryIterator::query(unsigned int idx)
 {
-    const util::NumericalArray<vec3<float> > narr = util::NumericalArray<vec3<float> >((vec3<float> *) &m_query_points[idx], 1);
+    const util::ManagedArray<vec3<float> > narr = util::ManagedArray<vec3<float> >((vec3<float> *) &m_query_points[idx], 1);
     return this->m_linkcell->query(narr, m_k);
 }
 

@@ -4,7 +4,7 @@
 #include <memory>
 #include <tbb/tbb.h>
 
-#include "NumericalArray.h"
+#include "ManagedArray.h"
 #include "AABBQuery.h"
 #include "Index1D.h"
 #include "NeighborList.h"
@@ -248,7 +248,7 @@ void loopOverNeighborsIterator(const NeighborQuery* neighbor_query, const vec3<f
 
 //! Copy of below function that uses new array object.
 template<typename ComputePairType>
-void loopOverNeighbors(const NeighborQuery* neighbor_query, const util::NumericalArray<vec3<float> > query_points,
+void loopOverNeighbors(const NeighborQuery* neighbor_query, const util::ManagedArray<vec3<float> > query_points,
                        QueryArgs qargs, const NeighborList* nlist, const ComputePairType& cf,
                        bool parallel = true)
 {
@@ -314,7 +314,7 @@ void loopOverNeighborList(const NeighborList* nlist, const ComputePairType& cf, 
 
 //! Copy of below function that uses new array object.
 template<typename ComputePairType>
-void loopOverNeighborQuery(const NeighborQuery* neighbor_query, const util::NumericalArray<vec3<float> > query_points,
+void loopOverNeighborQuery(const NeighborQuery* neighbor_query, const util::ManagedArray<vec3<float> > query_points,
                            QueryArgs qargs, const ComputePairType& cf, bool parallel)
 {
     // The query iterators always finds the point with itself as a neighbor bond.

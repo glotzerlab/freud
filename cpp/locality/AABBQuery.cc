@@ -23,7 +23,7 @@ AABBQuery::AABBQuery(const box::Box& box, const vec3<float>* points, unsigned in
 
 AABBQuery::~AABBQuery() {}
 
-std::shared_ptr<NeighborQueryIterator> AABBQuery::query(const util::NumericalArray<vec3<float> > query_points,
+std::shared_ptr<NeighborQueryIterator> AABBQuery::query(const util::ManagedArray<vec3<float> > query_points,
                                                         unsigned int num_neighbors, float r_max, float scale,
                                                         bool exclude_ii) const
 {
@@ -37,7 +37,7 @@ std::shared_ptr<NeighborQueryIterator> AABBQuery::query(const vec3<float>* query
     return std::make_shared<AABBQueryIterator>(this, query_points, n_query_points, num_neighbors, r_max, scale, exclude_ii);
 }
 
-std::shared_ptr<NeighborQueryIterator> AABBQuery::queryBall(const util::NumericalArray<vec3<float> > query_points,
+std::shared_ptr<NeighborQueryIterator> AABBQuery::queryBall(const util::ManagedArray<vec3<float> > query_points,
                                                             float r_max, bool exclude_ii) const
 {
     return std::make_shared<AABBQueryBallIterator>(this, query_points, r_max, exclude_ii);
@@ -60,7 +60,7 @@ void AABBQuery::setupTree(unsigned int Np)
     m_aabbs.resize(Np);
 }
 
-void AABBQuery::buildTree(const util::NumericalArray<vec3<float> > points)
+void AABBQuery::buildTree(const util::ManagedArray<vec3<float> > points)
 {
     // Construct a point AABB for each point
     for (unsigned int i = 0; i < points.size(); ++i)
@@ -218,7 +218,7 @@ NeighborBond AABBQueryBallIterator::next()
 
 std::shared_ptr<NeighborQueryIterator> AABBQueryBallIterator::query(unsigned int idx)
 {
-    const util::NumericalArray<vec3<float> > narr = util::NumericalArray<vec3<float> >((vec3<float> *) &m_query_points[idx], 1);
+    const util::ManagedArray<vec3<float> > narr = util::ManagedArray<vec3<float> >((vec3<float> *) &m_query_points[idx], 1);
     return this->m_aabb_query->queryBall(narr, m_r);
 }
 
@@ -341,7 +341,7 @@ NeighborBond AABBQueryIterator::next()
 
 std::shared_ptr<NeighborQueryIterator> AABBQueryIterator::query(unsigned int idx)
 {
-    const util::NumericalArray<vec3<float> > narr = util::NumericalArray<vec3<float> >((vec3<float> *) &m_query_points[idx], 1);
+    const util::ManagedArray<vec3<float> > narr = util::ManagedArray<vec3<float> >((vec3<float> *) &m_query_points[idx], 1);
     return this->m_aabb_query->query(narr, m_k, m_r, m_scale);
 }
 }; }; // end namespace freud::locality

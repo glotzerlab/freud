@@ -8,7 +8,7 @@
 #include <memory>
 #include <vector>
 
-#include "NumericalArray.h"
+#include "ManagedArray.h"
 #include "AABBTree.h"
 #include "Box.h"
 #include "NeighborQuery.h"
@@ -41,7 +41,7 @@ public:
     ~AABBQuery();
 
     //! Copy of below function using new array object.
-    virtual std::shared_ptr<NeighborQueryIterator> queryWithArgs(const util::NumericalArray<vec3<float> > query_points,
+    virtual std::shared_ptr<NeighborQueryIterator> queryWithArgs(const util::ManagedArray<vec3<float> > query_points,
                                                                  QueryArgs args) const
     {
         this->validateQueryArgs(args);
@@ -92,7 +92,7 @@ public:
     //  different signature, this is not directly overriding the original
     //  method in NeighborQuery, so we have to explicitly invalidate calling
     //  with that signature and then create a new function.
-    virtual std::shared_ptr<NeighborQueryIterator> query(const util::NumericalArray<vec3<float> > query_points,
+    virtual std::shared_ptr<NeighborQueryIterator> query(const util::ManagedArray<vec3<float> > query_points,
                                                          unsigned int num_neighbors, bool exclude_ii = false) const
     {
         throw std::runtime_error("AABBQuery k-nearest-neighbor queries must use the function signature that "
@@ -107,14 +107,14 @@ public:
     }
 
     // Copy of below function that uses the new array data structure.
-    std::shared_ptr<NeighborQueryIterator> query(const util::NumericalArray<vec3<float> > query_points, unsigned int num_neighbors,
+    std::shared_ptr<NeighborQueryIterator> query(const util::ManagedArray<vec3<float> > query_points, unsigned int num_neighbors,
                                                  float r_max, float scale, bool exclude_ii = false) const;
 
     std::shared_ptr<NeighborQueryIterator> query(const vec3<float>* query_points, unsigned int n_query_points, unsigned int num_neighbors,
                                                  float r_max, float scale, bool exclude_ii = false) const;
 
     // Copy of below function that uses the new array data structure.
-    virtual std::shared_ptr<NeighborQueryIterator> queryBall(const util::NumericalArray<vec3<float> > query_points,
+    virtual std::shared_ptr<NeighborQueryIterator> queryBall(const util::ManagedArray<vec3<float> > query_points,
                                                              float r_max, bool exclude_ii = false) const;
 
     //! Given a set of points, find all elements of this data structure
@@ -168,7 +168,7 @@ private:
     void mapParticlesByType();
 
     //! Driver to build AABB trees
-    void buildTree(const util::NumericalArray<vec3<float> > points);
+    void buildTree(const util::ManagedArray<vec3<float> > points);
 
     std::vector<AABB> m_aabbs; //!< Flat array of AABBs of all types
     box::Box m_box;            //!< Simulation box where the particles belong
@@ -179,7 +179,7 @@ class AABBIterator : virtual public NeighborQueryIterator
 {
 public:
     //! Constructor with new array
-    AABBIterator(const AABBQuery* neighbor_query, const util::NumericalArray<vec3<float> > query_points, bool exclude_ii)
+    AABBIterator(const AABBQuery* neighbor_query, const util::ManagedArray<vec3<float> > query_points, bool exclude_ii)
         : NeighborQueryIterator(neighbor_query, query_points, exclude_ii), m_aabb_query(neighbor_query)
     {}
 
@@ -205,7 +205,7 @@ class AABBQueryIterator : virtual public NeighborQueryQueryIterator, virtual pub
 {
 public:
     //! Constructor with new structure.
-    AABBQueryIterator(const AABBQuery* neighbor_query, const util::NumericalArray<vec3<float> > points,
+    AABBQueryIterator(const AABBQuery* neighbor_query, const util::ManagedArray<vec3<float> > points,
                       unsigned int k, float r, float scale, bool exclude_ii)
         : NeighborQueryIterator(neighbor_query, points, exclude_ii),
           NeighborQueryQueryIterator(neighbor_query, points, exclude_ii, k),
@@ -250,7 +250,7 @@ class AABBQueryBallIterator : virtual public AABBIterator
 {
 public:
     //! Constructor with new structure.
-    AABBQueryBallIterator(const AABBQuery* neighbor_query, const util::NumericalArray<vec3<float> > points, float r,
+    AABBQueryBallIterator(const AABBQuery* neighbor_query, const util::ManagedArray<vec3<float> > points, float r,
                           bool exclude_ii, bool _check_rmax = true)
         : NeighborQueryIterator(neighbor_query, points, exclude_ii),
           AABBIterator(neighbor_query, points, exclude_ii), m_r(r), cur_image(0), cur_node_idx(0),

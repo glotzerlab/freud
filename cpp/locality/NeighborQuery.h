@@ -9,7 +9,7 @@
 #include <tbb/tbb.h>
 #include <tuple>
 
-#include "NumericalArray.h"
+#include "ManagedArray.h"
 #include "Box.h"
 #include "NeighborBond.h"
 #include "NeighborList.h"
@@ -69,20 +69,20 @@ public:
     NeighborQuery() {}
 
     //! Constructor using new array data structure
-    NeighborQuery(const box::Box& box, const util::NumericalArray<vec3<float> > points)
+    NeighborQuery(const box::Box& box, const util::ManagedArray<vec3<float> > points)
         : m_box(box), m_points(points)
     {}
 
     //! Constructor
     NeighborQuery(const box::Box& box, const vec3<float>* points, unsigned int n_points)
-        : m_box(box), m_points(util::NumericalArray<vec3<float> >( (vec3<float> *) points, n_points))
+        : m_box(box), m_points(util::ManagedArray<vec3<float> >( (vec3<float> *) points, n_points))
     {}
 
     //! Empty Destructor
     virtual ~NeighborQuery() {}
 
     //! Copy of below function using new array object.
-    virtual std::shared_ptr<NeighborQueryIterator> queryWithArgs(const util::NumericalArray<vec3<float> > query_points,
+    virtual std::shared_ptr<NeighborQueryIterator> queryWithArgs(const util::ManagedArray<vec3<float> > query_points,
                                                                  QueryArgs args) const
     {
         this->validateQueryArgs(args);
@@ -128,7 +128,7 @@ public:
     }
 
     //! Copy of below function using new array object.
-    virtual std::shared_ptr<NeighborQueryIterator> query(const util::NumericalArray<vec3<float> > query_points,
+    virtual std::shared_ptr<NeighborQueryIterator> query(const util::ManagedArray<vec3<float> > query_points,
                                                          unsigned int num_neighbors, bool exclude_ii = false) const = 0;
 
     //! Given a point, find the k elements of this data structure
@@ -137,7 +137,7 @@ public:
                                                          unsigned int num_neighbors, bool exclude_ii = false) const = 0;
 
     //! Copy of below function using new array object.
-    virtual std::shared_ptr<NeighborQueryIterator> queryBall(const util::NumericalArray<vec3<float> > query_points,
+    virtual std::shared_ptr<NeighborQueryIterator> queryBall(const util::ManagedArray<vec3<float> > query_points,
                                                              float r_max, bool exclude_ii = false) const = 0;
 
     //! Given a point, find all elements of this data structure
@@ -189,7 +189,7 @@ protected:
     }
 
     const box::Box m_box;            //!< Simulation box where the particles belong
-    const util::NumericalArray<vec3<float> > m_points; //!< Reference point coordinates
+    const util::ManagedArray<vec3<float> > m_points; //!< Reference point coordinates
 };
 
 //! The iterator class for neighbor queries on NeighborQuery objects.
@@ -214,7 +214,7 @@ public:
     NeighborQueryIterator() {}
 
     //! Constructor using new array structure.
-    NeighborQueryIterator(const NeighborQuery* neighbor_query, const util::NumericalArray<vec3<float> > query_points,
+    NeighborQueryIterator(const NeighborQuery* neighbor_query, const util::ManagedArray<vec3<float> > query_points,
                           bool exclude_ii)
         : m_neighbor_query(neighbor_query), m_query_points(query_points), cur_p(0), m_finished(false),
           m_exclude_ii(exclude_ii)
@@ -224,7 +224,7 @@ public:
     NeighborQueryIterator(const NeighborQuery* neighbor_query, const vec3<float>* query_points, unsigned int n_query_points,
                           bool exclude_ii)
         // For now, we cast away the const manually. It's safe because the array object is const, and we will be removing this constructor eventually.
-        : m_neighbor_query(neighbor_query), m_query_points(util::NumericalArray<vec3<float> >( (vec3<float> *) query_points, n_query_points)),
+        : m_neighbor_query(neighbor_query), m_query_points(util::ManagedArray<vec3<float> >( (vec3<float> *) query_points, n_query_points)),
           cur_p(0), m_finished(false), m_exclude_ii(exclude_ii)
     { }
 
@@ -320,7 +320,7 @@ public:
 
 protected:
     const NeighborQuery* m_neighbor_query; //!< Link to the NeighborQuery object.
-    const util::NumericalArray<vec3<float> > m_query_points;           //!< Coordinates of query points.
+    const util::ManagedArray<vec3<float> > m_query_points;           //!< Coordinates of query points.
     unsigned int cur_p;                    //!< The current index into the points (bounded by m_n_query_points).
 
     unsigned int m_finished;    //!< Flag to indicate that iteration is complete (must be set by next on termination).
@@ -343,7 +343,7 @@ class NeighborQueryQueryIterator : virtual public NeighborQueryIterator
 {
 public:
     //! Constructor with new array data structure.
-    NeighborQueryQueryIterator(const NeighborQuery* neighbor_query, const util::NumericalArray<vec3<float> > query_points,
+    NeighborQueryQueryIterator(const NeighborQuery* neighbor_query, const util::ManagedArray<vec3<float> > query_points,
                                bool exclude_ii, unsigned int k)
         : NeighborQueryIterator(neighbor_query, query_points, exclude_ii), m_count(0), m_k(k),
           m_current_neighbors()
@@ -401,7 +401,7 @@ public:
     ~RawPoints() {}
 
     // dummy implementation for pure virtual function in the parent class
-    virtual std::shared_ptr<NeighborQueryIterator> query(const util::NumericalArray<vec3<float> > query_points,
+    virtual std::shared_ptr<NeighborQueryIterator> query(const util::ManagedArray<vec3<float> > query_points,
                                                          unsigned int num_neighbors, bool exclude_ii = false) const
     {
         throw std::runtime_error("The query method is not implemented for RawPoints.");
@@ -415,7 +415,7 @@ public:
     }
 
     // dummy implementation for pure virtual function in the parent class
-    virtual std::shared_ptr<NeighborQueryIterator> queryBall(const util::NumericalArray<vec3<float> > query_points,
+    virtual std::shared_ptr<NeighborQueryIterator> queryBall(const util::ManagedArray<vec3<float> > query_points,
                                                              float r_max, bool exclude_ii = false) const
     {
         throw std::runtime_error("The queryBall method is not implemented for RawPoints.");

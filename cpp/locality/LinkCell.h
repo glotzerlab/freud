@@ -10,7 +10,7 @@
 #include <unordered_set>
 #include <vector>
 
-#include "NumericalArray.h"
+#include "ManagedArray.h"
 #include "Box.h"
 #include "Index1D.h"
 #include "NeighborList.h"
@@ -358,7 +358,7 @@ public:
     LinkCell(const box::Box& box, float cell_width, const vec3<float>* points, unsigned int n_points);
 
     //! New constructor using array.
-    LinkCell(const box::Box& box, float cell_width, const util::NumericalArray<vec3<float> > points);
+    LinkCell(const box::Box& box, float cell_width, const util::ManagedArray<vec3<float> > points);
 
     //! Update cell_width
     void setCellWidth(float cell_width);
@@ -468,7 +468,7 @@ public:
     }
 
     //! Copy of below function that uses new array data structure.
-    virtual std::shared_ptr<NeighborQueryIterator> query(const util::NumericalArray<vec3<float> > query_points,
+    virtual std::shared_ptr<NeighborQueryIterator> query(const util::ManagedArray<vec3<float> > query_points,
                                                          unsigned int num_neighbors, bool exclude_ii = false) const;
 
     //! Given a set of points, find the k elements of this data structure
@@ -478,7 +478,7 @@ public:
 
 
     //! Copy of below function that uses new array data structure.
-    virtual std::shared_ptr<NeighborQueryIterator> queryBall(const util::NumericalArray<vec3<float> > query_points,
+    virtual std::shared_ptr<NeighborQueryIterator> queryBall(const util::ManagedArray<vec3<float> > query_points,
                                                              float r_max, bool exclude_ii = false) const;
     //
     //! Given a set of points, find all elements of this data structure
@@ -517,7 +517,7 @@ public:
     /*! The initial state is to search shell 0, the current cell. We then
      *  iterate outwards from there.
      */
-    LinkCellIterator(const LinkCell* neighbor_query, const util::NumericalArray<vec3<float> > query_points,
+    LinkCellIterator(const LinkCell* neighbor_query, const util::ManagedArray<vec3<float> > query_points,
                      bool exclude_ii)
         : NeighborQueryIterator(neighbor_query, query_points, exclude_ii), m_linkcell(neighbor_query),
           m_neigh_cell_iter(0, neighbor_query->getBox().is2D()),
@@ -549,7 +549,7 @@ class LinkCellQueryIterator : virtual public NeighborQueryQueryIterator, virtual
 {
 public:
     //! Constructor
-    LinkCellQueryIterator(const LinkCell* neighbor_query, const util::NumericalArray<vec3<float> > query_points,
+    LinkCellQueryIterator(const LinkCell* neighbor_query, const util::ManagedArray<vec3<float> > query_points,
                           unsigned int num_neighbors, bool exclude_ii)
         : NeighborQueryIterator(neighbor_query, query_points, exclude_ii),
           NeighborQueryQueryIterator(neighbor_query, query_points, exclude_ii, num_neighbors),
@@ -578,7 +578,7 @@ class LinkCellQueryBallIterator : virtual public LinkCellIterator
 {
 public:
     //! Constructor
-    LinkCellQueryBallIterator(const LinkCell* neighbor_query, const util::NumericalArray<vec3<float> > query_points,
+    LinkCellQueryBallIterator(const LinkCell* neighbor_query, const util::ManagedArray<vec3<float> > query_points,
                               float r_max, bool exclude_ii)
         : NeighborQueryIterator(neighbor_query, query_points, exclude_ii),
           LinkCellIterator(neighbor_query, query_points, exclude_ii), m_r(r_max)

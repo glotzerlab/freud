@@ -26,7 +26,7 @@ Cluster::Cluster(float rcut) : m_rcut(rcut), m_num_particles(0), m_num_clusters(
 }
 
 void Cluster::compute(const freud::locality::NeighborQuery* nq,
-                      const freud::locality::NeighborList* nlist, const util::NumericalArray<vec3<float>> points,
+                      const freud::locality::NeighborList* nlist, const util::ManagedArray<vec3<float>> points,
                       freud::locality::QueryArgs qargs)
 {
     assert(points);

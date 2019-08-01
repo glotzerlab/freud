@@ -6,7 +6,7 @@
 
 #include <memory>
 
-#include "NumericalArray.h"
+#include "ManagedArray.h"
 #include "Box.h"
 
 /*! \file ClusterProperties.h
@@ -50,28 +50,28 @@ public:
     }
 
     //! Get a reference to the last computed cluster_com
-    util::NumericalArray<vec3<float>> getClusterCOM()
+    util::ManagedArray<vec3<float>> getClusterCOM()
     {
         return m_cluster_com;
     }
 
     //! Get a reference to the last computed cluster_G
-    util::NumericalArray<float> getClusterG()
+    util::ManagedArray<float> getClusterG()
     {
         return m_cluster_G;
     }
 
     //! Get a reference to the last computed cluster size
-    util::NumericalArray<unsigned int> getClusterSize()
+    util::ManagedArray<unsigned int> getClusterSize()
     {
         return m_cluster_size;
     }
 
 private:
     unsigned int m_num_clusters; //!< Number of clusters found in the last call to computeProperties()
-    util::NumericalArray<vec3<float>> m_cluster_com; //!< Center of mass computed for each cluster (length: m_num_clusters)
-    util::NumericalArray<float> m_cluster_G; //!< Gyration tensor computed for each cluster (m_num_clusters x 3 x 3 array)
-    util::NumericalArray<unsigned int> m_cluster_size; //!< Size per cluster
+    util::ManagedArray<vec3<float>> m_cluster_com; //!< Center of mass computed for each cluster (length: m_num_clusters)
+    util::ManagedArray<float> m_cluster_G; //!< Gyration tensor computed for each cluster (m_num_clusters x 3 x 3 array)
+    util::ManagedArray<unsigned int> m_cluster_size; //!< Size per cluster
 };
 
 }; }; // end namespace freud::cluster

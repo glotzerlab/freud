@@ -4,7 +4,7 @@
 #include <memory>
 #include <tbb/tbb.h>
 
-/*! \file NumericalArray.h
+/*! \file ManagedArray.h
     \brief Defines the standard array class to be used throughout freud.
 */
 
@@ -17,11 +17,11 @@ namespace freud { namespace util {
  * only encompasses numerical data to allow e.g. memset to 0 as a valid
  * operation.
  */
-template<typename T> class NumericalArray
+template<typename T> class ManagedArray
 {
 public:
     //! Default constructor
-    NumericalArray() : m_size(0), m_managed(true)
+    ManagedArray() : m_size(0), m_managed(true)
     {
         // Creating a zero-length array is valid since it's on the heap.
         m_data = nullptr;
@@ -33,7 +33,7 @@ public:
      *
      *  \param size Size of the array to allocate.
      */  
-    NumericalArray(unsigned int size) : m_size(size), m_managed(true)
+    ManagedArray(unsigned int size) : m_size(size), m_managed(true)
     {
         m_data = new T[size];
         reset();
@@ -43,7 +43,7 @@ public:
     /*! \param T* Pointer to existing data.
      *  \param size Size of the array to allocate.
      */
-    NumericalArray(T* array, unsigned int size) : m_size(size), m_managed(false)
+    ManagedArray(T* array, unsigned int size) : m_size(size), m_managed(false)
     {
         m_data = array;
     }
@@ -53,10 +53,10 @@ public:
      *
      *  \param size Size of the array to allocate.
      */  
-    NumericalArray(const NumericalArray &first) : m_size(first.size()), m_data(first.get()), m_managed(false) {}
+    ManagedArray(const ManagedArray &first) : m_size(first.size()), m_data(first.get()), m_managed(false) {}
 
     //! Destructor (currently empty because data is managed by shared pointer).
-    ~NumericalArray()
+    ~ManagedArray()
     {
         if (m_managed && (m_size > 0))
             delete[](m_data);
@@ -69,7 +69,7 @@ public:
     {
         if (!m_managed)
         {
-            throw std::runtime_error("NumericalArray can only resize arrays it is managing.");
+            throw std::runtime_error("ManagedArray can only resize arrays it is managing.");
         }
         if (size != m_size)
         {
@@ -86,7 +86,7 @@ public:
     {
         if (!m_managed)
         {
-            throw std::runtime_error("NumericalArray can only reset arrays it is managing.");
+            throw std::runtime_error("ManagedArray can only reset arrays it is managing.");
         }
 
         memset((void*) m_data, 0, sizeof(T) * m_size);

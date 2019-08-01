@@ -15,8 +15,8 @@ cdef extern from "VectorMath.h":
         Real s
         vec3[Real] v
 
-cdef extern from "NumericalArray.h" namespace "freud::util":
-    cdef cppclass NumericalArray[T]:
-        NumericalArray()
-        NumericalArray(T*, unsigned int)
+cdef extern from "ManagedArray.h" namespace "freud::util":
+    cdef cppclass ManagedArray[T]:
+        ManagedArray()
+        ManagedArray(T*, unsigned int)
         T *get()

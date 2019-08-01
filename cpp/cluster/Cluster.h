@@ -9,7 +9,7 @@
 #include <stdint.h>
 #include <vector>
 
-#include "NumericalArray.h"
+#include "ManagedArray.h"
 #include "Box.h"
 #include "NeighborList.h"
 #include "NeighborQuery.h"
@@ -50,7 +50,7 @@ public:
 
     //! Compute the point clusters
     void compute(const freud::locality::NeighborQuery* nq,
-                 const freud::locality::NeighborList* nlist, const util::NumericalArray<vec3<float>> points,
+                 const freud::locality::NeighborList* nlist, const util::ManagedArray<vec3<float>> points,
                  freud::locality::QueryArgs qargs);
 
     //! Compute clusters with key membership
@@ -69,7 +69,7 @@ public:
     }
 
     //! Get a reference to the last computed cluster_idx
-    util::NumericalArray<unsigned int> getClusterIdx()
+    util::ManagedArray<unsigned int> getClusterIdx()
     {
         return m_cluster_idx;
     }
@@ -84,7 +84,7 @@ private:
     float m_rcut;                 //!< Maximum r at which points will be counted in the same cluster
     unsigned int m_num_particles; //!< Number of particles processed in the last call to compute()
     unsigned int m_num_clusters;  //!< Number of clusters found in the last call to compute()
-    util::NumericalArray<unsigned int> m_cluster_idx; //!< Cluster index determined for each particle
+    util::ManagedArray<unsigned int> m_cluster_idx; //!< Cluster index determined for each particle
     std::vector<std::vector<unsigned int>> m_cluster_keys; //!< List of keys in each cluster
 };
 

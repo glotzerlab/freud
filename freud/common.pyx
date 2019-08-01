@@ -191,7 +191,7 @@ def convert_box(box):
         # array (:class:`numpy.ndarray`): Array to convert.
 
     # Returns:
-        # :class:`freud.util.NumericalArray`: Array that can be passed to freud functions.
+        # :class:`freud.util.ManagedArray`: Array that can be passed to freud functions.
     # """
     # cdef const float[:, ::1] l_query_points = query_points
-    # freud.util.NumericalArray(
+    # freud.util.ManagedArray(
