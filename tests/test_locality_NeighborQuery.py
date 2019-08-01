@@ -118,7 +118,7 @@ class TestNeighborQuery(object):
         # now move particle 0 out of range...
         points[0] = 5
 
-        nq = freud.locality.LinkCell(box, rcut, points)
+        nq = self.build_query_object(box, points, rcut)
         nlist = nq._queryGeneric(points, dict(mode='ball', rmax=rcut))
         nlist_neighbors = sorted(list(zip(nlist.index_i, nlist.index_j)))
         # particle 0 has 0 bonds
