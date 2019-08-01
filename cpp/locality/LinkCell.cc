@@ -443,7 +443,8 @@ NeighborBond LinkCellQueryBallIterator::next()
 
 std::shared_ptr<NeighborQueryIterator> LinkCellQueryBallIterator::query(unsigned int idx)
 {
-    return this->m_linkcell->queryBall(&m_query_points[idx], 1, m_r);
+    const util::NumericalArray<vec3<float> > narr = util::NumericalArray<vec3<float> >((vec3<float> *) &m_query_points[idx], 1);
+    return this->m_linkcell->queryBall(narr, m_r);
 }
 
 NeighborBond LinkCellQueryIterator::next()
@@ -549,7 +550,8 @@ NeighborBond LinkCellQueryIterator::next()
 
 std::shared_ptr<NeighborQueryIterator> LinkCellQueryIterator::query(unsigned int idx)
 {
-    return this->m_linkcell->query(&m_query_points[idx], 1, m_k);
+    const util::NumericalArray<vec3<float> > narr = util::NumericalArray<vec3<float> >((vec3<float> *) &m_query_points[idx], 1);
+    return this->m_linkcell->query(narr, m_k);
 }
 
 }; }; // end namespace freud::locality

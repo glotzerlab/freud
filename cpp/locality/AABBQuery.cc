@@ -218,7 +218,8 @@ NeighborBond AABBQueryBallIterator::next()
 
 std::shared_ptr<NeighborQueryIterator> AABBQueryBallIterator::query(unsigned int idx)
 {
-    return this->m_aabb_query->queryBall(&m_query_points[idx], 1, m_r);
+    const util::NumericalArray<vec3<float> > narr = util::NumericalArray<vec3<float> >((vec3<float> *) &m_query_points[idx], 1);
+    return this->m_aabb_query->queryBall(narr, m_r);
 }
 
 NeighborBond AABBQueryIterator::next()
@@ -340,6 +341,7 @@ NeighborBond AABBQueryIterator::next()
 
 std::shared_ptr<NeighborQueryIterator> AABBQueryIterator::query(unsigned int idx)
 {
-    return this->m_aabb_query->query(&m_query_points[idx], 1, m_k, m_r, m_scale);
+    const util::NumericalArray<vec3<float> > narr = util::NumericalArray<vec3<float> >((vec3<float> *) &m_query_points[idx], 1);
+    return this->m_aabb_query->query(narr, m_k, m_r, m_scale);
 }
 }; }; // end namespace freud::locality
