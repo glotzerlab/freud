@@ -871,249 +871,7 @@ cdef class LinkCell(NeighborQuery):
         return result
 
 
-cdef class _Voronoi:
-    R"""Compute the Voronoi tessellation of a 2D or 3D system using qhull.
-    This uses :class:`scipy.spatial.Voronoi`, accounting for periodic
-    boundary conditions.
-
-    .. moduleauthor:: Benjamin Schultz <baschult@umich.edu>
-    .. moduleauthor:: Yina Geng <yinageng@umich.edu>
-    .. moduleauthor:: Mayank Agrawal <amayank@umich.edu>
-    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
-    .. moduleauthor:: Yezhi Jin <jinyezhi@umich.com>
-
-    Since qhull does not support periodic boundary conditions natively, we
-    expand the box to include a portion of the particles' periodic images.
-    The buffer width is given by the parameter :code:`buffer`. The
-    computation of Voronoi tessellations and neighbors is only guaranteed
-    to be correct if :code:`buffer >= L/2` where :code:`L` is the longest side
-    of the simulation box. For dense systems with particles filling the
-    entire simulation volume, a smaller value for :code:`buffer` is acceptable.
-    If the buffer width is too small, then some polytopes may not be closed
-    (they may have a boundary at infinity), and these polytopes' vertices are
-    excluded from the list.  If either the polytopes or volumes lists that are
-    computed is different from the size of the array of positions used in the
-    :meth:`freud.locality.Voronoi.compute()` method, try recomputing using a
-    larger buffer width.
-
-    Attributes:
-        nlist (:class:`~.locality.NeighborList`):
-            Returns a weighted neighbor list.  In 2D systems, the bond weight
-            is the "ridge length" of the Voronoi boundary line between the
-            neighboring particles.  In 3D systems, the bond weight is the
-            "ridge area" of the Voronoi boundary polygon between the
-            neighboring particles.
-        polytopes (list[:class:`numpy.ndarray`]):
-            List of arrays, each containing Voronoi polytope vertices.
-        volumes ((:math:`\left(N_{cells} \right)`) :class:`numpy.ndarray`):
-            Returns an array of volumes (areas in 2D) corresponding to Voronoi
-            cells.
-    """
-
-    def __init__(self):
-        if not _SCIPY_AVAILABLE:
-            raise RuntimeError("You cannot use this class without SciPy")
-        self.thisptr = new freud._locality.Voronoi()
-        self._nlist = NeighborList()
-
-    def _qhull_compute(self, box, positions, buffer, images):
-        R"""Calls ParticleBuffer and qhull
-
-        Args:
-            box (:class:`freud.box.Box`):
-                Simulation box (Default value = :code:`None`).
-            positions ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Points to calculate Voronoi diagram for.
-            buffer (float):
-                Buffer distance within which to look for images
-                (Default value = :code:`None`).
-            images (bool):
-                If ``False``, ``buffer`` is a distance. If ``True``
-                (default),``buffer`` is a number of images to replicate in each
-                dimension.
-        """
-        # Compute the buffer particles in C++
-        pbuff = freud.box.ParticleBuffer(box)
-        pbuff.compute(positions, buffer, images)
-        buff_ptls = pbuff.buffer_particles
-        buff_ids = pbuff.buffer_ids
-
-        if buff_ptls.size > 0:
-            expanded_points = np.concatenate((positions, buff_ptls))
-            expanded_ids = np.concatenate((
-                np.arange(len(positions)), buff_ids))
-        else:
-            expanded_points = positions
-            expanded_ids = np.arange(len(positions))
-
-        # Use only the first two components if the box is 2D
-        if box.is2D():
-            expanded_points = expanded_points[:, :2]
-
-        expanded_points = freud.common.convert_array(
-            np.atleast_2d(expanded_points),
-            shape=(None, 2 if box.is2D() else 3))
-
-        # Use qhull to get the points
-        return qvoronoi(expanded_points), expanded_ids, expanded_points
-
-    def compute(self, box, positions, buffer=2, images=True):
-        R"""Compute Voronoi diagram.
-
-        Args:
-            box (:class:`freud.box.Box`):
-                Simulation box.
-            positions ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Points to calculate Voronoi diagram for.
-            buffer (float):
-                Buffer distance within which to look for images.
-                (Default value = 2).
-            images (bool):
-                If ``False``, ``buffer`` is a distance. If ``True``
-                (default),``buffer`` is a number of images to replicate in each
-                dimension.
-        """
-        # If box or buff is not specified, revert to object quantities
-        cdef freud.box.Box b
-        if box is None:
-            b = self._box
-        else:
-            b = freud.common.convert_box(box)
-
-        voronoi, expanded_id, expanded_point = self._qhull_compute(
-            b, positions, buffer, images)
-
-        vertices = voronoi.vertices
-
-        # Add a z-component of 0 if the box is 2D
-        if b.is2D():
-            vertices = np.insert(vertices, 2, 0, 1)
-
-        # compute neighbors
-        cdef const int[:, ::1] ridge_points = np.asarray(
-            voronoi.ridge_points, dtype=np.int32)
-        cdef unsigned int n_ridges = ridge_points.shape[0]
-        cdef const int[::1] ridge_vertices = np.asarray(list(
-            itertools.chain.from_iterable(
-                voronoi.ridge_vertices)), dtype=np.int32)
-
-        # Must keep this in double precision
-        cdef const double[:, ::1] vor_vertices = np.asarray(
-            vertices, dtype=np.float64)
-        cdef unsigned int N = len(positions)
-
-        indices = [0]
-        indices.extend(np.cumsum(
-            [len(ridge) for ridge in voronoi.ridge_vertices]))
-        cdef const int[::1] expanded_ids = \
-            np.asarray(expanded_id, dtype=np.int32)
-
-        cdef const double[:, ::1] expanded_points = \
-            np.asarray(expanded_point, dtype=np.float64)
-
-        cdef const int[::1] ridge_vertex_indices = np.asarray(
-            indices, dtype=np.int32)
-
-        self.thisptr.compute(
-            dereference(b.thisptr),
-            <vec3[double]*> &vor_vertices[0, 0],
-            <int*> &ridge_points[0, 0],
-            <int*> &ridge_vertices[0],
-            n_ridges, N,
-            <int*> &expanded_ids[0], <vec3[double]*> &expanded_points[0, 0],
-            <int*> &ridge_vertex_indices[0])
-
-        cdef freud._locality.NeighborList * nlist
-        nlist = self.thisptr.getNeighborList()
-        self._nlist.refer_to(nlist)
-        self._nlist.base = self
-
-        # Construct a list of polytope vertices
-        self._polytopes = list()
-        for region in voronoi.point_region[:N]:
-            if -1 in voronoi.regions[region]:
-                continue
-            self._polytopes.append(vertices[voronoi.regions[region]])
-
-        return self
-
-    @property
-    def polytopes(self):
-        R"""Returns a list of polytope vertices corresponding to Voronoi cells.
-
-        If the buffer width is too small, then some polytopes may not be
-        closed (they may have a boundary at infinity), and these polytopes'
-        vertices are excluded from the list.
-
-        The length of the list returned by this method should be the same
-        as the array of positions used in the
-        :meth:`freud.locality.Voronoi.compute()` method, if all the polytopes
-        are closed. Otherwise try using a larger buffer width.
-
-        Returns:
-            list:
-                List of :class:`numpy.ndarray` containing Voronoi polytope
-                vertices.
-        """
-        return self._polytopes
-
-    @property
-    def nlist(self):
-        R"""Returns a neighbor list object.
-
-        In the neighbor list, each neighbor pair has a weight value.
-
-        In 2D systems, the bond weight is the "ridge length" of the Voronoi
-        boundary line between the neighboring particles.
-
-        In 3D systems, the bond weight is the "ridge area" of the Voronoi
-        boundary polygon between the neighboring particles.
-
-        Returns:
-            :class:`~.locality.NeighborList`: Neighbor list.
-        """
-        return self._nlist
-
-    @property
-    def volumes(self):
-        R"""Returns an array of volumes (areas in 2D) corresponding to Voronoi
-        cells.
-
-        Must call :meth:`freud.locality.Voronoi.compute()` before this
-        method.
-
-        If the buffer width is too small, then some polytopes may not be
-        closed (they may have a boundary at infinity), and these polytopes'
-        volumes/areas are excluded from the list.
-
-        The length of the list returned by this method should be the same
-        as the array of positions used in the
-        :meth:`freud.locality.Voronoi.compute()` method, if all the polytopes
-        are closed. Otherwise try using a larger buffer width.
-
-        Returns:
-            (:math:`\left(N_{cells} \right)`) :class:`numpy.ndarray`:
-                Voronoi polytope volumes/areas.
-        """
-
-        self._volumes = np.zeros((len(self._polytopes)))
-
-        for i, verts in enumerate(self._polytopes):
-            is2D = np.all(self._polytopes[0][:, -1] == 0)
-            hull = ConvexHull(verts[:, :2 if is2D else 3])
-            self._volumes[i] = hull.volume
-
-        return self._volumes
-
-    def __repr__(self):
-        return "freud.locality.{cls}()".format(
-            cls=type(self).__name__)
-
-    def __str__(self):
-        return repr(self)
-
-
-cdef class _VoroPlusPlus(Compute):
+cdef class Voronoi(Compute):
     R"""Compute the Voronoi tessellation of a 2D or 3D system using voro++.
 
     .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
@@ -1121,11 +879,11 @@ cdef class _VoroPlusPlus(Compute):
 
     Attributes:
         nlist (:class:`~.locality.NeighborList`):
-            Returns a weighted neighbor list.  In 2D systems, the bond weight
-            is the "ridge length" of the Voronoi boundary line between the
-            neighboring particles.  In 3D systems, the bond weight is the
-            "ridge area" of the Voronoi boundary polygon between the
-            neighboring particles.
+            Returns a weighted neighbor list. In 2D systems, the bond weight is
+            the "ridge length" of the Voronoi boundary line between the
+            neighboring particles. In 3D systems, the bond weight is the "ridge
+            area" of the Voronoi boundary polygon between the neighboring
+            particles.
         polytopes (list[:class:`numpy.ndarray`]):
             List of arrays, each containing Voronoi cell polytope vertices.
         volumes ((:math:`\left(N_{cells} \right)`) :class:`numpy.ndarray`):
@@ -1149,7 +907,7 @@ cdef class _VoroPlusPlus(Compute):
             points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
                 Points used to calculate Voronoi diagram.
         """
-        cdef freud.box.Box b = freud.common.convert_box(box)
+        self._box = freud.common.convert_box(box)
 
         # voro++ uses double precision
         points = freud.common.convert_array(points, shape=(None, 3),
@@ -1158,7 +916,7 @@ cdef class _VoroPlusPlus(Compute):
         cdef unsigned int N = len(points)
 
         self.thisptr.compute(
-            dereference(b.thisptr),
+            dereference(self._box.thisptr),
             <vec3[double]*> &l_points[0, 0],
             N)
 
@@ -1241,3 +999,28 @@ cdef class _VoroPlusPlus(Compute):
 
     def __str__(self):
         return repr(self)
+
+    @Compute._computed_method()
+    def plot(self, ax=None):
+        """Plot Voronoi diagram.
+
+        Args:
+            ax (:class:`matplotlib.axes.Axes`): Axis to plot on. If
+                :code:`None`, make a new figure and axis.
+                (Default value = :code:`None`)
+
+        Returns:
+            (:class:`matplotlib.axes.Axes`): Axis with the plot.
+        """
+        import plot
+        if not self._box.is2D():
+            return None
+        else:
+            return plot.draw_voronoi(self._box, self.polytopes, ax=ax)
+
+    def _repr_png_(self):
+        import plot
+        try:
+            return plot.ax_to_bytes(self.plot())
+        except AttributeError:
+            return None

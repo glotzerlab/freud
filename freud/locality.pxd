@@ -71,14 +71,7 @@ cdef class RawPoints(NeighborQuery):
 cdef class _QueryArgs:
     cdef freud._locality.QueryArgs * thisptr
 
-cdef class _Voronoi:
-    cdef freud._locality.Voronoi * thisptr
-    cdef NeighborList _nlist
-    cdef _volumes
-    cdef _polytopes
-
-cdef class _VoroPlusPlus(Compute):
+cdef class Voronoi(Compute):
     cdef freud._locality.VoroPlusPlus * thisptr
     cdef NeighborList _nlist
-    cdef _volumes
-    cdef _polytopes
+    cdef freud.box.Box _box
