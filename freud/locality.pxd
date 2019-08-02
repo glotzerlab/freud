@@ -3,12 +3,12 @@
 
 from libcpp cimport bool as cbool
 from libcpp.memory cimport shared_ptr
+from freud.common cimport Compute
 
 from cython.operator cimport dereference
 
 cimport freud._locality
 cimport freud.box
-from freud.common cimport Compute
 
 
 cdef class NeighborQueryResult:
