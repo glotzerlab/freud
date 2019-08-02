@@ -10,7 +10,7 @@
 
 namespace freud { namespace util {
 
-//! RAII class to handle the storage of all arrays of numerical data used in freud.
+//! Class to handle the storage of all arrays of numerical data used in freud.
 /*! The purpose of this class is to handle standard memory management, and to
  * provide an abstraction around the implementation-specific choice of
  * underlying data structure for arrays of data in freud. We specify that it
@@ -20,8 +20,17 @@ namespace freud { namespace util {
 template<typename T> class ManagedArray
 {
 public:
-    //! Default constructor
-    ManagedArray() : m_size(0), m_managed(true)
+    //! Default constructor.
+    /*! Generally, this constructor is relevant to ensure that class member
+     *  arrays are correctly constructed to manage their own memory. However,
+     *  for the purpose of arrays managed through the Python API, it is useful
+     *  to be able to set the management status of the array on initialization
+     *  to enable Python objects to be views into existing ManagedArray
+     *  instances.
+     *
+     *  \param managed Whether or not the array manages its own memory (defaults: true).
+     */
+    ManagedArray(bool managed = true) : m_size(0), m_managed(managed)
     {
         // Creating a zero-length array is valid since it's on the heap.
         m_data = nullptr;
@@ -51,7 +60,7 @@ public:
     //! Copy constructor.
     /*! The original object always owns its own memory.
      *
-     *  \param size Size of the array to allocate.
+     *  \param first ManagedArray instance to copy.
      */  
     ManagedArray(const ManagedArray &first) : m_size(first.size()), m_data(first.get()), m_managed(false) {}
 
@@ -60,6 +69,33 @@ public:
     {
         if (m_managed && (m_size > 0))
             delete[](m_data);
+    }
+
+    //! Factory function to copy a ManagedArray and obtain ownership of its data.
+    /*! The purpose of this function is to explicitly construct a copy that
+     *  will now be in charge of managing the data. Separating this logic into a
+     *  factory function forces the user to think very explicitly about which
+     *  instance is responsible for data management to avoid any issues with
+     *  memory leaks or multiple frees. The primary use-case is in the Python
+     *  API for compute classes so that the Cython mirror classes can acquire
+     *  ownership of exposed arrays after they have been computed.
+     *
+     *  \param first ManagedArray instance to copy.
+     */
+    static ManagedArray *copyAndAcquire(ManagedArray &other)
+    {
+        if (!other.m_managed || (other.m_size == 0))
+        {
+            throw std::runtime_error("Can only acquire data from a ManagedArray that owns its own data.");
+        }
+
+        ManagedArray *new_arr = new ManagedArray();
+        new_arr->m_data = other.get();
+        new_arr->m_size = other.size();
+        new_arr->m_managed = true;
+        other.m_managed = false;
+
+        return new_arr;
     }
 
     //! Update size of the thread local arrays.
@@ -123,10 +159,11 @@ public:
         return m_size;
     }
 
+    bool m_managed;  //!< Whether or not the array should be managing its own data.
+
 private:
     unsigned int m_size;        //!< Size of array.
     T *m_data;  //!< Pointer to array.
-    bool m_managed;  //!< Whether or not the array should be managing its own data.
 };
 
 }; }; // end namespace freud::util

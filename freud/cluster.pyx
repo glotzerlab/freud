@@ -13,7 +13,7 @@ import freud.locality
 
 from cython.operator cimport dereference
 from freud.common cimport Compute
-from freud.util cimport vec3
+from freud.util cimport vec3, uint
 
 cimport freud._cluster
 cimport freud.box, freud.locality
@@ -71,7 +71,8 @@ cdef class Cluster(Compute):
             A list of lists of the keys contained in each cluster.
     """
     cdef freud._cluster.Cluster * thisptr
-    cdef r_max
+    cdef float r_max
+    cdef freud.util.ManagedArrayWrapper _cluster_idx
 
     def __cinit__(self, float r_max):
         self.thisptr = new freud._cluster.Cluster(r_max)
@@ -110,6 +111,12 @@ cdef class Cluster(Compute):
                 nq.get_ptr(),
                 nlistptr.get_ptr(),
                 arr, dereference(qargs.thisptr))
+
+        # Store the cluster index array.
+        cdef unsigned int n_particles = self.thisptr.getNumParticles()
+        self._cluster_idx = freud.util.ManagedArrayWrapper.init(
+            self.thisptr.getClusterIdx())
+
         return self
 
     @Compute._compute("computeClusterMembership")
@@ -142,7 +149,7 @@ cdef class Cluster(Compute):
     def cluster_idx(self):
         cdef unsigned int n_particles = self.thisptr.getNumParticles()
         cdef const unsigned int[::1] cluster_idx = \
-            <unsigned int[:n_particles]> self.thisptr.getClusterIdx().get()
+            <unsigned int[:n_particles]> self._cluster_idx.get()
         return np.asarray(cluster_idx)
 
     @Compute._computed_property("computeClusterMembership")

@@ -22,7 +22,7 @@ cdef extern from "Cluster.h" namespace "freud::cluster":
         void computeClusterMembership(const unsigned int*) nogil except +
         unsigned int getNumClusters()
         unsigned int getNumParticles()
-        const freud.util.ManagedArray[unsigned int] getClusterIdx()
+        const freud.util.ManagedArray[unsigned int] &getClusterIdx()
         const vector[vector[uint]] getClusterKeys()
 
 cdef extern from "ClusterProperties.h" namespace "freud::cluster":
