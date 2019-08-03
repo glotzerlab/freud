@@ -37,6 +37,11 @@ void Cluster::compute(const freud::locality::NeighborQuery* nq,
     {
         m_cluster_idx.resize(points.size());
     }
+    else if (!m_cluster_idx.isManaged())
+    {
+        // If this object has given up ownership then we have to reallocate.
+        m_cluster_idx.reallocate();
+    }
 
     m_num_particles = points.size();
     DisjointSets dj(m_num_particles);

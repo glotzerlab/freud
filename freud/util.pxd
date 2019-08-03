@@ -15,8 +15,7 @@ cdef class ManagedArrayWrapper:
     cdef inline ManagedArrayWrapper init(ManagedArray[uint] &other):
         obj = ManagedArrayWrapper()
 
-        # obj.thisptr = ManagedArray[uint].copyAndAcquire(other)
-        obj.thisptr = new ManagedArray[uint](other.get(), other.size())
+        obj.thisptr = ManagedArray[uint].createAndAcquire(other)
 
         return obj
 

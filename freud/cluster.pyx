@@ -148,8 +148,18 @@ cdef class Cluster(Compute):
     @Compute._computed_property("compute")
     def cluster_idx(self):
         cdef unsigned int n_particles = self.thisptr.getNumParticles()
-        cdef const unsigned int[::1] cluster_idx = \
-            <unsigned int[:n_particles]> self._cluster_idx.get()
+
+
+
+        # cdef const unsigned int[::1] cluster_idx = \
+            # <unsigned int[:n_particles]> self._cluster_idx.get()
+        cdef np.npy_intp nP[1]
+        nP[0] = n_particles
+        cdef np.ndarray[np.uint32_t, ndim=1] cluster_idx = np.PyArray_SimpleNewFromData(
+            1, nP, np.NPY_UINT32, <void*>self._cluster_idx.get())
+
+
+        freud.util.set_base(cluster_idx, self._cluster_idx)
         return np.asarray(cluster_idx)
 
     @Compute._computed_property("computeClusterMembership")

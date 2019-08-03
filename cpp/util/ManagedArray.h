@@ -27,14 +27,8 @@ public:
      *  to be able to set the management status of the array on initialization
      *  to enable Python objects to be views into existing ManagedArray
      *  instances.
-     *
-     *  \param managed Whether or not the array manages its own memory (defaults: true).
      */
-    ManagedArray(bool managed = true) : m_size(0), m_managed(managed)
-    {
-        // Creating a zero-length array is valid since it's on the heap.
-        m_data = nullptr;
-    }
+    ManagedArray() : m_size(0), m_data(nullptr), m_managed(true) {}
 
     //! Constructor with specific size for thread local arrays
     /*! When using this constructor, the class automatically manages its own
@@ -58,11 +52,35 @@ public:
     }
 
     //! Copy constructor.
-    /*! The original object always owns its own memory.
+    /*! This constructor is required to ensure that the original object always
+     *  owns its own memory.
+     *
+     *  \param other ManagedArray instance to copy.
+     */  
+    ManagedArray(const ManagedArray &other) : m_size(other.size()), m_data(other.get()), m_managed(false) {}
+
+    //! Copy assignment.
+    /*! Similar to the copy constructor, this operator must be defined to
+     *  ensure that the original object always owns its own memory.
      *
      *  \param first ManagedArray instance to copy.
      */  
-    ManagedArray(const ManagedArray &first) : m_size(first.size()), m_data(first.get()), m_managed(false) {}
+    ManagedArray& operator= (const ManagedArray &other) 
+    { 
+        // The check that m_size > 0 is unfortunately necessary because there
+        // is no way to guarantee that arrays "declared" in Cython are not
+        // actually initialized in the translated C++ code. Adding an optional
+        // constructor argument does not ameliorate this issue.
+        if (m_managed && (m_size > 0))
+        {
+            throw std::runtime_error("You cannot assign to a ManagedArray that is currently managing its own memory.");
+        }
+
+        m_size = other.size();
+        m_data = other.get();
+        m_managed = false;
+        return *this; 
+    }
 
     //! Destructor (currently empty because data is managed by shared pointer).
     ~ManagedArray()
@@ -82,7 +100,7 @@ public:
      *
      *  \param first ManagedArray instance to copy.
      */
-    static ManagedArray *copyAndAcquire(ManagedArray &other)
+    static ManagedArray *createAndAcquire(ManagedArray &other)
     {
         if (!other.m_managed || (other.m_size == 0))
         {
@@ -96,6 +114,22 @@ public:
         other.m_managed = false;
 
         return new_arr;
+    }
+
+    //! Reallocate memory for this array.
+    /*! This method may only be called for arrays not currently managing their
+     *  own memory (to avoid memory leaks. It allocates new memory for the
+     *  array.
+     */
+    void reallocate()
+    {
+        if (m_managed)
+        {
+            throw std::runtime_error("You cannot reallocate a ManagedArray that is currently managing its own memory.");
+        }
+        m_data = new T[m_size];
+        m_managed = true;
+        reset();
     }
 
     //! Update size of the thread local arrays.
@@ -154,11 +188,13 @@ public:
         return m_data[index];
     }
 
+    //! Get the size of the current array.
     unsigned int size() const
     {
         return m_size;
     }
 
+    //! Check if the array manages its own memory.
     bool isManaged() const
     {
         return m_managed;

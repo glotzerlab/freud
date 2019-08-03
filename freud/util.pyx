@@ -1,10 +1,7 @@
 # Copyright (c) 2010-2019 The Regents of the University of Michigan
 # This file is from the freud project, released under the BSD 3-Clause License.
 
-cimport freud._util
 from freud._util cimport vec3, quat, ManagedArray
-
-from freud.util cimport uint
 
 cdef class ManagedArrayWrapper:
     def __cinit__(self):

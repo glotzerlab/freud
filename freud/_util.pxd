@@ -27,7 +27,7 @@ cdef extern from "ManagedArray.h" namespace "freud::util":
         bool isManaged()
 
         @staticmethod
-        ManagedArray *copyAndAcquire(ManagedArray &other)
+        ManagedArray *createAndAcquire(ManagedArray &other)
 
 cdef extern from "numpy/arrayobject.h":
     cdef int PyArray_SetBaseObject(numpy.ndarray arr, obj)
