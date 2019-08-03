@@ -159,11 +159,15 @@ public:
         return m_size;
     }
 
-    bool m_managed;  //!< Whether or not the array should be managing its own data.
+    bool isManaged() const
+    {
+        return m_managed;
+    }
 
 private:
     unsigned int m_size;        //!< Size of array.
     T *m_data;  //!< Pointer to array.
+    bool m_managed;  //!< Whether or not the array should be managing its own data.
 };
 
 }; }; // end namespace freud::util
