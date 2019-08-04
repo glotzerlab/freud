@@ -19,7 +19,7 @@ using namespace std;
 
 namespace freud { namespace cluster {
 
-Cluster::Cluster(float rcut) : m_rcut(rcut), m_num_particles(0), m_num_clusters(0)
+Cluster::Cluster(float rcut) : m_rcut(rcut), m_num_particles(0), m_num_clusters(0), m_cluster_idx(true)
 {
     if (m_rcut < 0.0f)
         throw invalid_argument("Cluster requires that rcut must be non-negative.");

@@ -20,6 +20,10 @@ cdef extern from "VectorMath.h":
 
 cdef extern from "ManagedArray.h" namespace "freud::util":
     cdef cppclass ManagedArray[T]:
+        # As an additional safety measure, we do not expose the "manage"
+        # optional argument to the constructor; Cython code wishing to
+        # construct a ManagedArray that manages its own data must explicitly
+        # use the factory function signature below.
         ManagedArray()
         ManagedArray(T*, unsigned int)
         T *get()

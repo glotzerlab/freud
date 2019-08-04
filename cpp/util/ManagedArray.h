@@ -21,14 +21,15 @@ template<typename T> class ManagedArray
 {
 public:
     //! Default constructor.
-    /*! Generally, this constructor is relevant to ensure that class member
-     *  arrays are correctly constructed to manage their own memory. However,
-     *  for the purpose of arrays managed through the Python API, it is useful
-     *  to be able to set the management status of the array on initialization
-     *  to enable Python objects to be views into existing ManagedArray
-     *  instances.
+    /*! For safety, these arrays must be constructed with the manage argument
+     *  set to true in order to create an empty instance that manages its own
+     *  memory. By default, constructed arrays do not manage their own memory to
+     *  avoid accidental memory leaks.
+     *
+     *  \param manage Whether or not this instance should manage its own memory
+     *                (Default: false).
      */
-    ManagedArray() : m_size(0), m_data(nullptr), m_managed(true) {}
+    ManagedArray(bool manage=false) : m_size(0), m_data(nullptr), m_managed(manage) {}
 
     //! Constructor with specific size for thread local arrays
     /*! When using this constructor, the class automatically manages its own
@@ -67,11 +68,7 @@ public:
      */  
     ManagedArray& operator= (const ManagedArray &other) 
     { 
-        // The check that m_size > 0 is unfortunately necessary because there
-        // is no way to guarantee that arrays "declared" in Cython are not
-        // actually initialized in the translated C++ code. Adding an optional
-        // constructor argument does not ameliorate this issue.
-        if (m_managed && (m_size > 0))
+        if (m_managed)
         {
             throw std::runtime_error("You cannot assign to a ManagedArray that is currently managing its own memory.");
         }
@@ -85,7 +82,7 @@ public:
     //! Destructor (currently empty because data is managed by shared pointer).
     ~ManagedArray()
     {
-        if (m_managed && (m_size > 0))
+        if (m_managed)
             delete[](m_data);
     }
 
@@ -102,7 +99,7 @@ public:
      */
     static ManagedArray *createAndAcquire(ManagedArray &other)
     {
-        if (!other.m_managed || (other.m_size == 0))
+        if (!other.m_managed)
         {
             throw std::runtime_error("Can only acquire data from a ManagedArray that owns its own data.");
         }
