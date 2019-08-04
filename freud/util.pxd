@@ -19,7 +19,7 @@ cdef class ManagedArrayWrapper:
         PyArray_SetBaseObject(arr, self)
         Py_INCREF(self)
 
-    cdef inline uint *get(self):
+    cdef inline const uint *get(self):
         return self.thisptr.get()
 
     @staticmethod

@@ -58,7 +58,7 @@ public:
      *
      *  \param other ManagedArray instance to copy.
      */  
-    ManagedArray(const ManagedArray &other) : m_size(other.size()), m_data(other.get()), m_managed(false) {}
+    ManagedArray(const ManagedArray &other) : m_size(other.m_size), m_data(other.m_data), m_managed(false) {}
 
     //! Copy assignment.
     /*! Similar to the copy constructor, this operator must be defined to
@@ -73,8 +73,8 @@ public:
             throw std::runtime_error("You cannot assign to a ManagedArray that is currently managing its own memory.");
         }
 
-        m_size = other.size();
-        m_data = other.get();
+        m_size = other.m_size;
+        m_data = other.m_data;
         m_managed = false;
         return *this; 
     }
@@ -105,8 +105,8 @@ public:
         }
 
         ManagedArray *new_arr = new ManagedArray();
-        new_arr->m_data = other.get();
-        new_arr->m_size = other.size();
+        new_arr->m_data = other.m_data;
+        new_arr->m_size = other.m_size;
         new_arr->m_managed = true;
         other.m_managed = false;
 
@@ -160,7 +160,7 @@ public:
     }
 
     //! Return the underlying pointer.
-    T *get() const
+    const T *get() const
     {
         return m_data;
     }
