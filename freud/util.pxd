@@ -9,22 +9,23 @@ from cpython cimport Py_INCREF
 ctypedef unsigned int uint
 
 cdef class ManagedArrayWrapper:
+    cdef int var_typenum
+    cdef unsigned int ndim
     cdef ManagedArray[uint] *thisptr
 
-    @staticmethod
-    cdef inline ManagedArrayWrapper init(ManagedArray[uint] &other):
-        obj = ManagedArrayWrapper()
-
-        obj.thisptr = ManagedArray[uint].createAndAcquire(other)
-
-        return obj
+    cdef inline void set_as_base(self, arr):
+        """Sets the base of arr to be this object and increases the
+        reference count."""
+        PyArray_SetBaseObject(arr, self)
+        Py_INCREF(self)
 
     cdef inline uint *get(self):
         return self.thisptr.get()
 
+    @staticmethod
+    cdef inline ManagedArrayWrapper init(ManagedArray[uint] &other, int typenum, unsigned int ndim):
+        obj = ManagedArrayWrapper(typenum, ndim)
 
-cdef inline set_base(arr, obj):
-    """Sets the base of arr to be this object and increases the
-    reference count"""
-    PyArray_SetBaseObject(arr, obj)
-    Py_INCREF(obj)
+        obj.thisptr = ManagedArray[uint].createAndAcquire(other)
+
+        return obj

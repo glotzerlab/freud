@@ -113,9 +113,8 @@ cdef class Cluster(Compute):
                 arr, dereference(qargs.thisptr))
 
         # Store the cluster index array.
-        cdef unsigned int n_particles = self.thisptr.getNumParticles()
         self._cluster_idx = freud.util.ManagedArrayWrapper.init(
-            self.thisptr.getClusterIdx())
+            self.thisptr.getClusterIdx(), np.NPY_UINT32, 1)
 
         return self
 
