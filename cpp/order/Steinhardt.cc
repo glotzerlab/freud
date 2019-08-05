@@ -122,11 +122,13 @@ void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
     freud::locality::loopOverNeighborsIterator(points, points->getPoints(), m_Np, qargs, nlist,
         [=](size_t i, std::shared_ptr<freud::locality::NeighborIterator::PerPointIterator> ppiter)
         {
-            unsigned int neighborcount(0);
+            float total_weight(0);
             const vec3<float> ref((*points)[i]);
             for(freud::locality::NeighborBond nb = ppiter->next(); !ppiter->end(); nb = ppiter->next())
             {
                 const vec3<float> delta = points->getBox().wrap((*points)[nb.ref_id] - ref);
+                const float weight(m_weighted ? nb.weight : 1.0);
+
                 // phi is usually in range 0..2Pi, but
                 // it only appears in Ylm as exp(im\phi),
                 // so range -Pi..Pi will give same results.
@@ -145,16 +147,16 @@ void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
 
                 for (unsigned int k = 0; k < Ylm.size(); ++k)
                 {
-                    m_Qlmi.get()[(2 * m_l + 1) * i + k] += Ylm[k];
+                    m_Qlmi.get()[(2 * m_l + 1) * i + k] += weight * Ylm[k];
                 }
-                neighborcount++;
+                total_weight += weight;
             } // End loop going over neighbor bonds
 
             // Normalize!
             for (unsigned int k = 0; k < (2 * m_l + 1); ++k)
             {
                 const unsigned int index = (2 * m_l + 1) * i + k;
-                m_Qlmi.get()[index] /= neighborcount;
+                m_Qlmi.get()[index] /= total_weight;
                 // Add the norm, which is the (complex) squared magnitude
                 m_Qli.get()[i] += norm(m_Qlmi.get()[index]);
                 // This array gets populated by computeAve in the averaging case.

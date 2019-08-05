@@ -65,8 +65,8 @@ public:
      *                         Allows looking at, for instance, only the second shell,
      *                         or some other arbitrary rdf region.
      */
-    Steinhardt(float rmax, unsigned int l, float rmin = 0, bool average = false, bool Wl = false)
-        : m_Np(0), m_rmax(rmax), m_l(l), m_rmin(rmin), m_average(average), m_Wl(Wl), m_Qlm_local(2 * l + 1)
+    Steinhardt(float rmax, unsigned int l, float rmin = 0, bool average = false, bool Wl = false, bool weighted = false)
+        : m_Np(0), m_rmax(rmax), m_l(l), m_rmin(rmin), m_average(average), m_Wl(Wl), m_weighted(weighted), m_Qlm_local(2 * l + 1)
     {
         // Error Checking
         if (m_rmax < 0.0f || m_rmin < 0.0f)
@@ -167,6 +167,7 @@ private:
     // Flags
     bool m_average; //!< Whether to take a second shell average (default false)
     bool m_Wl;      //!< Whether to use the third-order invariant Wl (default false)
+    bool m_weighted;      //!< Whether to use neighbor weights in computing Qlmi (default false)
 
     std::shared_ptr<std::complex<float>> m_Qlmi; //!< Qlm for each particle i
     std::shared_ptr<std::complex<float>> m_Qlm;  //!< Normalized Qlm(Ave) for the whole system

@@ -72,7 +72,7 @@ cdef extern from "HexTransOrderParameter.h" namespace "freud::order":
 cdef extern from "Steinhardt.h" namespace "freud::order":
     cdef cppclass Steinhardt:
         Steinhardt(float, unsigned int, float,
-                   bool, bool) except +
+                   bool, bool, bool) except +
         unsigned int getNP()
         void compute(const freud._locality.NeighborList*,
                      const freud._locality.NeighborQuery*,
