@@ -136,6 +136,43 @@ class TestSteinhardt(unittest.TestCase):
 
             self.assertEqual(len(positions), comp.num_particles)
 
+    def test_weighted(self):
+        (box, positions) = util.make_fcc(4, 4, 4)
+        rmax = 1.5
+        n = 12
+        test_set = util.make_raw_query_nlist_test_set(
+            box, positions, positions, 'nearest', rmax, n, True)
+
+        # Skip test sets without an explicit neighbor list
+        for ts in filter(lambda ts: ts[1] is not None, test_set):
+            nlist = ts[1]
+
+            for wt in [0, 0.1, 0.9, 1.1, 10, 1e6]:
+                # Change the weight of the first bond for each particle
+                nlist.weights[nlist.segments] = wt
+
+                comp = freud.order.Steinhardt(rmax, 6, weighted=True)
+                comp.compute(box, ts[0], nlist=nlist)
+
+                # Unequal neighbor weighting in a perfect FCC structure
+                # appears to increase the Q6 order parameter
+                npt.assert_array_less(PERFECT_FCC_Q6, comp.order)
+                npt.assert_allclose(comp.order, comp.order[0], atol=1e-5)
+                npt.assert_array_less(PERFECT_FCC_Q6, comp.norm)
+
+                # Ensure that W6 values are altered by changing the weights
+                comp = freud.order.Steinhardt(rmax, 6, Wl=True, weighted=True)
+                comp.compute(box, ts[0], nlist=nlist)
+                with self.assertRaises(AssertionError):
+                    npt.assert_allclose(
+                        np.real(np.average(comp.order)),
+                        PERFECT_FCC_W6, rtol=1e-5)
+                with self.assertRaises(AssertionError):
+                    npt.assert_allclose(
+                        np.real(comp.norm), PERFECT_FCC_W6, rtol=1e-5)
+
+            self.assertEqual(len(positions), comp.num_particles)
+
     def test_attribute_access(self):
         comp = freud.order.Steinhardt(1.5, 6)
 
