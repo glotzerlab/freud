@@ -33,6 +33,8 @@ cdef class ManagedArrayWrapper:
 
     def __array__(self):
         """Convert the underlying data array into a read-only numpy array."""
+        if self.shape == tuple():
+            raise ValueError("You must specify the shape of the numpy array to be created by calling set_shape.")
         cdef unsigned int ndim = len(self.shape)
         cdef np.npy_intp nP1[1]
         cdef np.npy_intp nP2[2]
