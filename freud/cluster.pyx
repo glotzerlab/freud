@@ -8,6 +8,7 @@ of clusters of points in a system.
 
 import numpy as np
 import warnings
+import sys
 import freud.common
 import freud.locality
 
@@ -77,6 +78,11 @@ cdef class Cluster(Compute):
     def __cinit__(self, float r_max):
         self.thisptr = new freud._cluster.Cluster(r_max)
         self.r_max = r_max
+        # self._cluster_idx = freud.util.ManagedArrayWrapper(&self.thisptr.getClusterIdx(), np.NPY_UINT32, 1)
+        cdef freud.util.arr_ptr_t managed_array
+        managed_array.uint_ptr = &self.thisptr.getClusterIdx()
+        self._cluster_idx = freud.util.ManagedArrayWrapper.init(managed_array, np.NPY_UINT32, 1)
+        self._cluster_idx.acquire()
 
     def __dealloc__(self):
         del self.thisptr
@@ -93,6 +99,22 @@ cdef class Cluster(Compute):
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Object to use to find bonds (Default value = :code:`None`).
         """
+        # If other objects (e.g. NumPy arrays) are referencing this one, then
+        # we reallocate a new Python wrapper object. Otherwise, we relinquish
+        # control of the underlying array to the C++ class for its computation.
+        # In either case, the Python wrapper class reacquires ownership at the
+        # end.
+        refcount = sys.getrefcount(self._cluster_idx)
+        print("The reference count: ", refcount)
+        cdef freud.util.arr_ptr_t managed_array
+        if refcount == 1:
+            self._cluster_idx.release()
+        else:
+            # self._cluster_idx = freud.util.ManagedArrayWrapper(&self.thisptr.getClusterIdx(), np.NPY_UINT32, 1)
+            # self._cluster_idx = freud.util.ManagedArrayWrapper.init(&self.thisptr.getClusterIdx(), np.NPY_UINT32, 1)
+            managed_array.uint_ptr = &self.thisptr.getClusterIdx()
+            self._cluster_idx = freud.util.ManagedArrayWrapper.init(managed_array, np.NPY_UINT32, 1)
+
         cdef freud.box.Box b = freud.common.convert_box(box)
 
         nq_nlist = freud.locality.make_nq_nlist(b, points, nlist)
@@ -113,8 +135,7 @@ cdef class Cluster(Compute):
                 arr, dereference(qargs.thisptr))
 
         # Store the cluster index array.
-        self._cluster_idx = freud.util.ManagedArrayWrapper.init(
-            self.thisptr.getClusterIdx(), np.NPY_UINT32, 1)
+        self._cluster_idx.acquire()
 
         return self
 

@@ -140,30 +140,39 @@ public:
             delete m_size;
     }
 
-    //! Factory function to copy a ManagedArray and obtain ownership of its data.
-    /*! The purpose of this function is to explicitly construct a copy that
-     *  will now be in charge of managing the data. Separating this logic into a
-     *  factory function forces the user to think very explicitly about which
-     *  instance is responsible for data management to avoid any issues with
-     *  memory leaks or multiple frees. The primary use-case is in the Python
-     *  API for compute classes so that the Cython mirror classes can acquire
-     *  ownership of exposed arrays after they have been computed.
+    //! Copy another ManagedArray and obtain ownership of its data.
+    /*! This method allows two ManagedArray instances to trade ownership
+     *  characteristics. The semantics only make sense if one array is managing
+     *  its own memory and the other is not. For conceptual simplicity, an array
+     *  that is initialized as pointing to external data cannot acquire data,
+     *  but in principle there is no reason to prevent this. However, that usage
+     *  pattern is error-prone, so preventing helps avoid subtle memory bugs.
      *
-     *  \param first ManagedArray instance to copy.
+     *  The primary purpose of this function is to support more natural
+     *  behavior of the Python API by taking advantage of Python reference
+     *  counting to avoid bad array references. In particular, judicious use of
+     *  this method prevents numpy arrays from becoming outdated. The expected
+     *  usage is that Cython mirrors of C++ compute classes will take ownership
+     *  of data once it has been computed, and only return the ownership to the
+     *  C++ class if no existing numpy arrays are referencing the array in
+     *  Python.
+     *
+     *  \param other ManagedArray instance to copy.
      */
-    static ManagedArray *createAndAcquire(ManagedArray &other)
+    void acquire(ManagedArray &other)
     {
         if (!other.m_managed)
         {
             throw std::runtime_error("Can only acquire data from a ManagedArray that owns its own data.");
+        } else if (m_managed || m_external_ptr)
+        {
+            throw std::runtime_error("A ManagedArray that owns data cannot acquire another's data.");
         }
 
-        ManagedArray *new_arr = new ManagedArray(true);
-        new_arr->m_data = other.m_data;
-        new_arr->m_size = other.m_size;
+        m_data = other.m_data;
+        m_size = other.m_size;
+        m_managed = true;
         other.m_managed = false;
-
-        return new_arr;
     }
 
     //! Reallocate memory for this array.
@@ -241,7 +250,7 @@ public:
     }
 
     //! Return the underlying pointer.
-    const T *get() const
+    T *get() const
     {
         return m_data;
     }

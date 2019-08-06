@@ -26,12 +26,10 @@ cdef extern from "ManagedArray.h" namespace "freud::util":
         # use the factory function signature below.
         ManagedArray()
         ManagedArray(T*, unsigned int)
-        const T *get()
+        T *get()
         unsigned int size()
         bool isManaged()
-
-        @staticmethod
-        ManagedArray *createAndAcquire(ManagedArray &other)
+        void acquire(ManagedArray &other)
 
 cdef extern from "numpy/arrayobject.h":
     cdef int PyArray_SetBaseObject(numpy.ndarray arr, obj)

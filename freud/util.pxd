@@ -5,13 +5,21 @@
 # arguments to interface with the C++ implementations of all methods.
 from freud._util cimport vec3, quat, ManagedArray, PyArray_SetBaseObject
 from cpython cimport Py_INCREF
+cimport numpy as np
 
 ctypedef unsigned int uint
+
+ctypedef enum arr_type_t:
+    UNSIGNED_INT
+
+ctypedef union arr_ptr_t:
+    ManagedArray[uint] *uint_ptr
 
 cdef class ManagedArrayWrapper:
     cdef int var_typenum
     cdef unsigned int ndim
-    cdef ManagedArray[uint] *thisptr
+    cdef arr_ptr_t thisptr
+    cdef arr_ptr_t sourceptr
 
     cdef inline void set_as_base(self, arr):
         """Sets the base of arr to be this object and increases the
@@ -19,13 +27,24 @@ cdef class ManagedArrayWrapper:
         PyArray_SetBaseObject(arr, self)
         Py_INCREF(self)
 
-    cdef inline const uint *get(self):
-        return self.thisptr.get()
+    cdef inline void *get(self):
+        """Return the raw pointer to the underlying data array.
+
+        Since the primary purpose of this function is to be passed to the
+        Python array generation function, we can just return a void pointer to
+        simplify the code.
+        """
+        return self.thisptr.uint_ptr.get()
 
     @staticmethod
-    cdef inline ManagedArrayWrapper init(ManagedArray[uint] &other, int typenum, unsigned int ndim):
-        obj = ManagedArrayWrapper(typenum, ndim)
+    cdef inline ManagedArrayWrapper init(
+            arr_ptr_t array, typenum, ndim):
+        cdef ManagedArrayWrapper obj = ManagedArrayWrapper(typenum, ndim)
 
-        obj.thisptr = ManagedArray[uint].createAndAcquire(other)
+        obj.var_typenum = typenum
+        obj.ndim = ndim
+        if obj.var_typenum == np.NPY_UINT32:
+            obj.thisptr.uint_ptr = new ManagedArray[uint]()
+            obj.sourceptr.uint_ptr = array.uint_ptr
 
         return obj
