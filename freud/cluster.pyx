@@ -78,10 +78,9 @@ cdef class Cluster(Compute):
     def __cinit__(self, float r_max):
         self.thisptr = new freud._cluster.Cluster(r_max)
         self.r_max = r_max
-        # self._cluster_idx = freud.util.ManagedArrayWrapper(&self.thisptr.getClusterIdx(), np.NPY_UINT32, 1)
         cdef freud.util.arr_ptr_t managed_array
         managed_array.uint_ptr = &self.thisptr.getClusterIdx()
-        self._cluster_idx = freud.util.ManagedArrayWrapper.init(managed_array, np.NPY_UINT32, 1)
+        self._cluster_idx = freud.util.ManagedArrayWrapper.init(managed_array, np.NPY_UINT32)
         self._cluster_idx.acquire()
 
     def __dealloc__(self):
@@ -105,15 +104,12 @@ cdef class Cluster(Compute):
         # In either case, the Python wrapper class reacquires ownership at the
         # end.
         refcount = sys.getrefcount(self._cluster_idx)
-        print("The reference count: ", refcount)
         cdef freud.util.arr_ptr_t managed_array
         if refcount == 1:
             self._cluster_idx.release()
         else:
-            # self._cluster_idx = freud.util.ManagedArrayWrapper(&self.thisptr.getClusterIdx(), np.NPY_UINT32, 1)
-            # self._cluster_idx = freud.util.ManagedArrayWrapper.init(&self.thisptr.getClusterIdx(), np.NPY_UINT32, 1)
             managed_array.uint_ptr = &self.thisptr.getClusterIdx()
-            self._cluster_idx = freud.util.ManagedArrayWrapper.init(managed_array, np.NPY_UINT32, 1)
+            self._cluster_idx = freud.util.ManagedArrayWrapper.init(managed_array, np.NPY_UINT32)
 
         cdef freud.box.Box b = freud.common.convert_box(box)
 
@@ -127,6 +123,7 @@ cdef class Cluster(Compute):
 
         cdef const float[:, ::1] l_points = points
         cdef unsigned int Np = l_points.shape[0]
+        self._cluster_idx.set_shape((Np, ))
         cdef freud.util.ManagedArray[vec3[float]] arr = freud.util.ManagedArray[vec3[float]](<vec3[float] *> &l_points[0, 0], Np)
         with nogil:
             self.thisptr.compute(

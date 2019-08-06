@@ -17,9 +17,9 @@ ctypedef union arr_ptr_t:
 
 cdef class ManagedArrayWrapper:
     cdef int var_typenum
-    cdef unsigned int ndim
     cdef arr_ptr_t thisptr
     cdef arr_ptr_t sourceptr
+    cdef tuple shape
 
     cdef inline void set_as_base(self, arr):
         """Sets the base of arr to be this object and increases the
@@ -38,11 +38,11 @@ cdef class ManagedArrayWrapper:
 
     @staticmethod
     cdef inline ManagedArrayWrapper init(
-            arr_ptr_t array, typenum, ndim):
-        cdef ManagedArrayWrapper obj = ManagedArrayWrapper(typenum, ndim)
+            arr_ptr_t array, typenum):
+        cdef ManagedArrayWrapper obj = ManagedArrayWrapper()
 
         obj.var_typenum = typenum
-        obj.ndim = ndim
+        obj.shape = tuple()
         if obj.var_typenum == np.NPY_UINT32:
             obj.thisptr.uint_ptr = new ManagedArray[uint]()
             obj.sourceptr.uint_ptr = array.uint_ptr
