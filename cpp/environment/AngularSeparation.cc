@@ -35,7 +35,7 @@ float computeSeparationAngle(const quat<float> ref_q, const quat<float> q)
         R.s = -1.0;
     }
 
-    float theta = 2.0 * acos(R.s);
+    float theta = float(2.0 * acos(R.s));
 
     return theta;
 }
