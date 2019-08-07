@@ -155,7 +155,6 @@ class TestCluster(unittest.TestCase):
         clust.compute(box, positions)
         clust._repr_png_()
 
-
     def test_saved_values(self):
         """Check that saved output don't get overwritten by later calls to
         compute or object deletion."""
