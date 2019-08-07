@@ -45,10 +45,14 @@ namespace freud { namespace util {
  *  expectation of a Python wrapper class that will maintain ownership of a
  *  ManagedArray and its underlying data between compute calls.
  *
+ *  There are two specific scenarios when ManagedArrays are invalidated.
+ *      1. ManagedArrays in state 2 will be invalidated if the data source
+ *         array is deleted.
+ *      2. ManagedArrays in state 3 will be invalidated if the data source is
+ *         deleted or changes in size.
  *
- *  TODO: Modify computes to take ManagedArrays by reference so that the user
- *  is forced to store the variable they are passing in (and avoiding passing
- *  through a temporary variable).
+ *  No attempt is made to protect against these failures. The user is
+ *  responsible for avoiding these cases.
  */
 template<typename T> class ManagedArray
 {

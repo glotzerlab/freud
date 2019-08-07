@@ -15,11 +15,12 @@ ctypedef enum arr_type_t:
 ctypedef union arr_ptr_t:
     ManagedArray[uint] *uint_ptr
 
-cdef class ManagedArrayWrapper:
+
+cdef class ManagedArrayManager:
     cdef int var_typenum
     cdef arr_ptr_t thisptr
     cdef arr_ptr_t sourceptr
-    cdef tuple shape
+    cdef tuple _shape
 
     cdef inline void set_as_base(self, arr):
         """Sets the base of arr to be this object and increases the
@@ -37,14 +38,14 @@ cdef class ManagedArrayWrapper:
         return self.thisptr.uint_ptr.get()
 
     @staticmethod
-    cdef inline ManagedArrayWrapper init(
-            arr_ptr_t array, typenum):
-        cdef ManagedArrayWrapper obj = ManagedArrayWrapper()
+    cdef inline ManagedArrayManager init(
+            void *array, typenum):
+        cdef ManagedArrayManager obj = ManagedArrayManager()
 
         obj.var_typenum = typenum
         obj.shape = tuple()
         if obj.var_typenum == np.NPY_UINT32:
             obj.thisptr.uint_ptr = new ManagedArray[uint]()
-            obj.sourceptr.uint_ptr = array.uint_ptr
+            obj.sourceptr.uint_ptr = <ManagedArray[uint] *>array
 
         return obj

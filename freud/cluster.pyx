@@ -8,14 +8,13 @@ of clusters of points in a system.
 
 import numpy as np
 import warnings
-import sys
 import freud.common
 import freud.locality
+import freud.util
 
 from cython.operator cimport dereference
 from freud.common cimport Compute
 from freud.util cimport vec3, uint
-from functools import wraps
 
 cimport freud._cluster
 cimport freud.box, freud.locality
@@ -26,67 +25,6 @@ cimport numpy as np
 # numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults
 np.import_array()
-
-def resolve_arrays(array_names):
-    """Decorator that ensures that all ManagedArrays are released to C++ if
-    possible to minimize memory reallocations.
-
-    Args:
-        array_names (str or list(str)): ManagedArray attributes that should be
-                                        released and reacquired.
-    Returns:
-        callable: A function that behaves as a decorator for a compute call.
-    """
-    if type(array_names) is str:
-        array_names = [array_names]
-
-    def wrapper(func):
-        """The wrapper is the actual decorator that is called on the compute
-        function.
-
-        Args:
-            func (callable): The compute function to manage arrays for.
-
-        Returns:
-            callable: A compute function that manages arrays.
-        """
-        @wraps(func)
-        def acquire_and_compute(self, *args, **kwargs):
-            """This function is the replacement for compute.
-
-            Args:
-                *args: Any positional arguments to the compute call.
-                **kwargs: Any keyword arguments to the compute call.
-
-            Returns:
-                callable: A compute function that manages arrays.
-            """
-            # If other objects (e.g. NumPy arrays) are referencing this one, then
-            # we reallocate a new Python wrapper object. Otherwise, we relinquish
-            # control of the underlying array to the C++ class for its computation.
-            # In either case, the Python wrapper class reacquires ownership at the
-            # end.
-            cdef freud.util.ManagedArrayWrapper array
-            cdef freud.util.arr_ptr_t managed_array
-            for array_name in array_names:
-                refcount = sys.getrefcount(getattr(self, array_name))
-                array = <freud.util.ManagedArrayWrapper> getattr(self, array_name)
-                if refcount <= 2:
-                    array.release()
-                else:
-                    managed_array.uint_ptr = array.sourceptr.uint_ptr
-                    setattr(self, array_name,
-                            freud.util.ManagedArrayWrapper.init(managed_array, np.NPY_UINT32))
-            ret_val = func(self, *args, **kwargs)
-
-            # Store the array locally again.
-            for array_name in array_names:
-                array = <freud.util.ManagedArrayWrapper> getattr(self, array_name)
-                array.acquire()
-
-            return ret_val
-        return acquire_and_compute
-    return wrapper
 
 
 cdef class Cluster(Compute):
@@ -136,20 +74,17 @@ cdef class Cluster(Compute):
     """
     cdef freud._cluster.Cluster * thisptr
     cdef float r_max
-    cdef public freud.util.ManagedArrayWrapper __cluster_idx
+    cdef public freud.util.ManagedArrayManager __cluster_idx
 
     def __cinit__(self, float r_max):
         self.thisptr = new freud._cluster.Cluster(r_max)
         self.r_max = r_max
-        cdef freud.util.arr_ptr_t managed_array
-        managed_array.uint_ptr = &self.thisptr.getClusterIdx()
-        self.__cluster_idx = freud.util.ManagedArrayWrapper.init(managed_array, np.NPY_UINT32)
-        self.__cluster_idx.acquire()
+        self.__cluster_idx = freud.util.ManagedArrayManager.init(&self.thisptr.getClusterIdx(), np.NPY_UINT32).acquire()
 
     def __dealloc__(self):
         del self.thisptr
 
-    @resolve_arrays('__cluster_idx')
+    @freud.util.resolve_arrays('__cluster_idx')
     @Compute._compute("compute")
     def compute(self, box, points, nlist=None):
         R"""Compute the clusters for the given set of points.
@@ -174,7 +109,6 @@ cdef class Cluster(Compute):
 
         cdef const float[:, ::1] l_points = points
         cdef unsigned int Np = l_points.shape[0]
-        self.__cluster_idx.set_shape((Np, ))
         cdef freud.util.ManagedArray[vec3[float]] arr = freud.util.ManagedArray[vec3[float]](<vec3[float] *> &l_points[0, 0], Np)
         with nogil:
             self.thisptr.compute(
@@ -212,6 +146,7 @@ cdef class Cluster(Compute):
 
     @Compute._computed_property("compute")
     def cluster_idx(self):
+        self.__cluster_idx.shape =(self.num_particles, )
         return np.asarray(self.__cluster_idx)
 
     @Compute._computed_property("computeClusterMembership")
