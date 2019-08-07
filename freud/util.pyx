@@ -69,8 +69,8 @@ cdef class ManagedArrayManager:
     def __array__(self):
         """Convert the underlying data array into a read-only numpy array."""
         if self.shape == tuple():
-            raise ValueError("You must specify the shape of the numpy array to "
-                             "be created by calling set_shape.")
+            raise ValueError("You must specify the shape of the numpy array "
+                             "to be created by calling set_shape.")
         cdef unsigned int ndim = len(self.shape)
 
         # These arrays must be allocated at compile time, so we make separate
@@ -135,11 +135,11 @@ def resolve_arrays(array_names):
             Returns:
                 callable: A compute function that manages arrays.
             """
-            # If other objects (e.g. NumPy arrays) are referencing this one, then
-            # we reallocate a new Python wrapper object. Otherwise, we relinquish
-            # control of the underlying array to the C++ class for its computation.
-            # In either case, the Python wrapper class reacquires ownership at the
-            # end.
+            # If other objects (e.g. NumPy arrays) are referencing this one,
+            # then we reallocate a new Python wrapper object. Otherwise, we
+            # relinquish control of the underlying array to the C++ class for
+            # its computation.  In either case, the Python wrapper class
+            # reacquires ownership at the end.
             cdef freud.util.ManagedArrayManager array
             for array_name in array_names:
                 refcount = sys.getrefcount(getattr(self, array_name))

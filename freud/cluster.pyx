@@ -111,7 +111,9 @@ cdef class Cluster(Compute):
 
         cdef const float[:, ::1] l_points = points
         cdef unsigned int Np = l_points.shape[0]
-        cdef freud.util.ManagedArray[vec3[float]] arr = freud.util.ManagedArray[vec3[float]](<vec3[float] *> &l_points[0, 0], Np)
+        cdef freud.util.ManagedArray[vec3[float]] arr = \
+            freud.util.ManagedArray[vec3[float]](
+                <vec3[float] *> &l_points[0, 0], Np)
         with nogil:
             self.thisptr.compute(
                 nq.get_ptr(),
