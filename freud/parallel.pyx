@@ -66,8 +66,3 @@ class NumThreads:
 
     def __exit__(self, *args):
         setNumThreads(self.restore_N)
-
-
-# Override TBB's default autoselection. This is necessary because once the
-# automatic selection runs, the user cannot change it.
-setNumThreads(0)
