@@ -79,7 +79,9 @@ cdef class Cluster(Compute):
     def __cinit__(self, float r_max):
         self.thisptr = new freud._cluster.Cluster(r_max)
         self.r_max = r_max
-        self.__cluster_idx = freud.util.ManagedArrayManager.init(&self.thisptr.getClusterIdx(), np.NPY_UINT32).acquire()
+        self.__cluster_idx = freud.util.ManagedArrayManager.init(
+            &self.thisptr.getClusterIdx(),
+            freud.util.arr_type_t.UNSIGNED_INT).acquire()
 
     def __dealloc__(self):
         del self.thisptr
@@ -146,7 +148,7 @@ cdef class Cluster(Compute):
 
     @Compute._computed_property("compute")
     def cluster_idx(self):
-        self.__cluster_idx.shape =(self.num_particles, )
+        self.__cluster_idx.shape = (self.num_particles, )
         return np.asarray(self.__cluster_idx)
 
     @Compute._computed_property("computeClusterMembership")

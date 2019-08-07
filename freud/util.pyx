@@ -150,7 +150,8 @@ def resolve_arrays(array_names):
                 else:
                     setattr(self, array_name,
                             freud.util.ManagedArrayManager.init(
-                                array.sourceptr.uint_ptr, np.NPY_UINT32))
+                                array.sourceptr.uint_ptr,
+                                arr_type_t.UNSIGNED_INT))
             ret_val = func(self, *args, **kwargs)
 
             # Store the array locally again.

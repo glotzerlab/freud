@@ -39,12 +39,12 @@ cdef class ManagedArrayManager:
 
     @staticmethod
     cdef inline ManagedArrayManager init(
-            void *array, typenum):
+            void *array, arr_type_t arr_type):
         cdef ManagedArrayManager obj = ManagedArrayManager()
 
-        obj.var_typenum = typenum
         obj.shape = tuple()
-        if obj.var_typenum == np.NPY_UINT32:
+        if arr_type == arr_type_t.UNSIGNED_INT:
+            obj.var_typenum = np.NPY_UINT32
             obj.thisptr.uint_ptr = new ManagedArray[uint]()
             obj.sourceptr.uint_ptr = <ManagedArray[uint] *>array
 
