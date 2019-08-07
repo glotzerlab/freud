@@ -366,7 +366,7 @@ NeighborPoint LinkCellQueryBallIterator::next()
 {
     float r_cutsq = m_r * m_r;
 
-    while (cur_p < m_N)
+    while (true)
     {
         vec3<unsigned int> point_cell(m_linkcell->getCellCoord(m_points[cur_p]));
         const unsigned int point_cell_index = m_linkcell->getCellIndex(
@@ -425,6 +425,8 @@ NeighborPoint LinkCellQueryBallIterator::next()
             }
         }
         cur_p++;
+        if (cur_p >= m_N)
+            break;
         m_neigh_cell_iter = IteratorCellShell(0, m_neighbor_query->getBox().is2D());
         m_cell_iter = m_linkcell->itercell(m_linkcell->getCell(m_points[cur_p]));
         m_searched_cells.clear();
@@ -449,7 +451,7 @@ NeighborPoint LinkCellQueryIterator::next()
     }
     unsigned int max_range = ceil(min_plane_distance / (2 * m_linkcell->getCellWidth())) + 1;
 
-    while (cur_p < m_N)
+    while (true)
     {
         vec3<unsigned int> point_cell(m_linkcell->getCellCoord(m_points[cur_p]));
         const unsigned int point_cell_index = m_linkcell->getCellIndex(
@@ -527,6 +529,8 @@ NeighborPoint LinkCellQueryIterator::next()
             return m_current_neighbors[m_count - 1];
         }
         cur_p++;
+        if (cur_p >= m_N)
+            break;
         m_count = 0;
         m_current_neighbors.clear();
         m_neigh_cell_iter = IteratorCellShell(0, m_neighbor_query->getBox().is2D());
