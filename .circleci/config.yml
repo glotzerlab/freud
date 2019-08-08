@@ -42,9 +42,7 @@ references:
       command: |
         git submodule update --init
         pip${PYVER} install --user -r requirements.txt
-        pip${PYVER} install --user coverage
-        pip${PYVER} install --user -U cython
-        pip${PYVER} install --user -U matplotlib
+        pip${PYVER} install --user -U coverage cython matplotlib rowan
 
   get_style_requirements: &get_style_requirements
     run:
