@@ -308,7 +308,7 @@ std::complex<float> Steinhardt::normalizeWl()
             const int m2_index = mIndex(m2);
             const int m3 = -m1 - m2;
             const int m3_index = mIndex(m3);
-            norm += wigner3jvalues[counter] * m_Qlm.get()[m1_index] * m_Qlm.get()[m2_index] * m_Qlm.get()[m3_index];
+            norm += float(wigner3jvalues[counter]) * m_Qlm.get()[m1_index] * m_Qlm.get()[m2_index] * m_Qlm.get()[m3_index];
             counter++;
         }
     } // Ends loop over Wigner 3j coefficients
@@ -337,7 +337,10 @@ void Steinhardt::aggregateWl(std::shared_ptr<complex<float>> target, std::shared
                 const int m3 = -m1 - m2;
                 const int m3_index = mIndex(m3);
 
-                target.get()[i] += wigner3jvalues[counter] * source.get()[particle_index + m1_index] * source.get()[particle_index + m2_index] * source.get()[particle_index + m3_index];
+                target.get()[i] += float(wigner3jvalues[counter])
+                    * source.get()[particle_index + m1_index]
+                    * source.get()[particle_index + m2_index]
+                    * source.get()[particle_index + m3_index];
                 counter++;
             }
         } // Ends loop over Wigner 3j coefficients

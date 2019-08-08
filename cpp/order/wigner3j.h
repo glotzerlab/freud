@@ -12,7 +12,7 @@
 
 using namespace std;
 
-vector<float> getWigner3j(unsigned int l);
+vector<double> getWigner3j(unsigned int l);
 
 // All wigner3j coefficients created using sympy
 /*

@@ -12,7 +12,7 @@ using namespace std;
  *  \brief Stores Wigner 3j coefficients for l ranging from 0 to 20
  */
 
-vector<float> getWigner3j(unsigned int l)
+vector<double> getWigner3j(unsigned int l)
 {
     switch (l)
     {

@@ -105,7 +105,7 @@ private:
         m_AveWli; //!< Averaged Wl with 2nd neighbor shell for each particle i
     std::shared_ptr<std::complex<float>> m_WliNorm;    //!< Normalized Wl for the whole system
     std::shared_ptr<std::complex<float>> m_WliAveNorm; //!< Normalized AveWl for the whole system
-    std::vector<float>
+    std::vector<double>
         m_wigner3jvalues; //!< Wigner3j coefficients, in j1=-l to l, j2 = max(-l-j1,-l) to min(l-j1,l), maybe.
 };
 

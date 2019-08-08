@@ -79,7 +79,7 @@ void LocalWl::compute(const locality::NeighborList* nlist, const vec3<float>* po
             {
                 const unsigned int index = (2 * m_l + 1) * i;
                 const unsigned int u3 = 3 * m_l - u1 - u2;
-                m_Wli.get()[i] += m_wigner3jvalues[counter] * m_Qlmi.get()[index + u1]
+                m_Wli.get()[i] += float(m_wigner3jvalues[counter]) * m_Qlmi.get()[index + u1]
                     * m_Qlmi.get()[index + u2] * m_Qlmi.get()[index + u3];
                 counter++;
             }
@@ -114,7 +114,7 @@ void LocalWl::computeAve(const locality::NeighborList* nlist, const vec3<float>*
             {
                 const unsigned int index = (2 * m_l + 1) * i;
                 const unsigned int u3 = 3 * m_l - u1 - u2;
-                m_AveWli.get()[i] += m_wigner3jvalues[counter] * m_AveQlmi.get()[index + u1]
+                m_AveWli.get()[i] += float(m_wigner3jvalues[counter]) * m_AveQlmi.get()[index + u1]
                     * m_AveQlmi.get()[index + u2] * m_AveQlmi.get()[index + u3];
                 counter++;
             }
@@ -151,7 +151,7 @@ void LocalWl::computeNorm(const vec3<float>* points, unsigned int Np)
             {
                 unsigned int u3 = 3 * m_l - u1 - u2;
                 m_WliNorm.get()[i]
-                    += m_wigner3jvalues[counter] * m_Qlm.get()[u1] * m_Qlm.get()[u2] * m_Qlm.get()[u3];
+                    += float(m_wigner3jvalues[counter]) * m_Qlm.get()[u1] * m_Qlm.get()[u2] * m_Qlm.get()[u3];
                 counter++;
             }
         } // Ends loop for Norm Wli calcs
@@ -186,7 +186,7 @@ void LocalWl::computeAveNorm(const vec3<float>* points, unsigned int Np)
             for (unsigned int u2 = max(0, int(m_l) - int(u1)); u2 < min(3 * m_l + 1 - u1, 2 * m_l + 1); ++u2)
             {
                 unsigned int u3 = 3 * m_l - u1 - u2;
-                m_WliAveNorm.get()[i] += m_wigner3jvalues[counter] * m_AveQlm.get()[u1] * m_AveQlm.get()[u2]
+                m_WliAveNorm.get()[i] += float(m_wigner3jvalues[counter]) * m_AveQlm.get()[u1] * m_AveQlm.get()[u2]
                     * m_AveQlm.get()[u3];
                 counter++;
             }
