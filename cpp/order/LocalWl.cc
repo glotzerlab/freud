@@ -34,12 +34,12 @@ void LocalWl::computeYlm(const float theta, const float phi, std::vector<std::co
     for (typename fsph::PointSPHEvaluator<float>::iterator iter(sph_eval.begin_l(m_l, 0, false));
          iter != sph_eval.end(); ++iter)
     {
-        Ylm[j + m_l] = *iter;
+        // Manually add Condon-Shortley phase
+        float phase = (j % 2 == 1) ? -1 : 1;
+        Ylm[m_l + j] = phase * (*iter);
+        if (j > 0)
+            Ylm[m_l - j] = std::conj(*iter);
         ++j;
-    }
-    for (unsigned int i = 1; i <= m_l; i++)
-    {
-        Ylm[-i + m_l] = Ylm[i + m_l];
     }
 }
 
