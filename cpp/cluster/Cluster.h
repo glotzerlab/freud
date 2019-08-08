@@ -50,7 +50,9 @@ public:
 
     //! Compute the point clusters
     void compute(const freud::locality::NeighborQuery* nq,
-                 const freud::locality::NeighborList* nlist, const util::ManagedArray<vec3<float>> points,
+                 const freud::locality::NeighborList* nlist,
+                 const vec3<float> *points,
+                 unsigned int Np,
                  freud::locality::QueryArgs qargs);
 
     //! Compute clusters with key membership

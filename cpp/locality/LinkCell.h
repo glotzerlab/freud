@@ -10,7 +10,6 @@
 #include <unordered_set>
 #include <vector>
 
-#include "ManagedArray.h"
 #include "Box.h"
 #include "Index1D.h"
 #include "NeighborList.h"
@@ -357,9 +356,6 @@ public:
     //! New constructor
     LinkCell(const box::Box& box, float cell_width, const vec3<float>* points, unsigned int n_points);
 
-    //! New constructor using array.
-    LinkCell(const box::Box& box, float cell_width, const util::ManagedArray<vec3<float> > points);
-
     //! Update cell_width
     void setCellWidth(float cell_width);
 
@@ -467,20 +463,11 @@ public:
         return &m_neighbor_list;
     }
 
-    //! Copy of below function that uses new array data structure.
-    virtual std::shared_ptr<NeighborQueryIterator> query(const util::ManagedArray<vec3<float> > query_points,
-                                                         unsigned int num_neighbors, bool exclude_ii = false) const;
-
     //! Given a set of points, find the k elements of this data structure
     //  that are the nearest neighbors for each point.
     virtual std::shared_ptr<NeighborQueryIterator> query(const vec3<float>* query_points, unsigned int n_query_points,
                                                          unsigned int num_neighbors, bool exclude_ii = false) const;
 
-
-    //! Copy of below function that uses new array data structure.
-    virtual std::shared_ptr<NeighborQueryIterator> queryBall(const util::ManagedArray<vec3<float> > query_points,
-                                                             float r_max, bool exclude_ii = false) const;
-    //
     //! Given a set of points, find all elements of this data structure
     //  that are within a certain distance r.
     virtual std::shared_ptr<NeighborQueryIterator> queryBall(const vec3<float>* query_points, unsigned int n_query_points,
@@ -517,13 +504,6 @@ public:
     /*! The initial state is to search shell 0, the current cell. We then
      *  iterate outwards from there.
      */
-    LinkCellIterator(const LinkCell* neighbor_query, const util::ManagedArray<vec3<float> > query_points,
-                     bool exclude_ii)
-        : NeighborQueryIterator(neighbor_query, query_points, exclude_ii), m_linkcell(neighbor_query),
-          m_neigh_cell_iter(0, neighbor_query->getBox().is2D()),
-          m_cell_iter(m_linkcell->itercell(m_linkcell->getCell(m_query_points[0])))
-    {}
-
     LinkCellIterator(const LinkCell* neighbor_query, const vec3<float>* query_points, unsigned int n_query_points,
                      bool exclude_ii)
         : NeighborQueryIterator(neighbor_query, query_points, n_query_points, exclude_ii), m_linkcell(neighbor_query),
@@ -549,13 +529,6 @@ class LinkCellQueryIterator : virtual public NeighborQueryQueryIterator, virtual
 {
 public:
     //! Constructor
-    LinkCellQueryIterator(const LinkCell* neighbor_query, const util::ManagedArray<vec3<float> > query_points,
-                          unsigned int num_neighbors, bool exclude_ii)
-        : NeighborQueryIterator(neighbor_query, query_points, exclude_ii),
-          NeighborQueryQueryIterator(neighbor_query, query_points, exclude_ii, num_neighbors),
-          LinkCellIterator(neighbor_query, query_points, exclude_ii)
-    {}
-
     LinkCellQueryIterator(const LinkCell* neighbor_query, const vec3<float>* query_points, unsigned int n_query_points,
                           unsigned int num_neighbors, bool exclude_ii)
         : NeighborQueryIterator(neighbor_query, query_points, n_query_points, exclude_ii),
@@ -578,24 +551,6 @@ class LinkCellQueryBallIterator : virtual public LinkCellIterator
 {
 public:
     //! Constructor
-    LinkCellQueryBallIterator(const LinkCell* neighbor_query, const util::ManagedArray<vec3<float> > query_points,
-                              float r_max, bool exclude_ii)
-        : NeighborQueryIterator(neighbor_query, query_points, exclude_ii),
-          LinkCellIterator(neighbor_query, query_points, exclude_ii), m_r(r_max)
-    {
-        // Upon querying, if the search radius is equal to the cell width, we
-        // can guarantee that we don't need to search the cell shell past the
-        // query radius. For simplicity, we store this value as an integer.
-        if (m_r == neighbor_query->getCellWidth())
-        {
-            m_extra_search_width = 0;
-        }
-        else
-        {
-            m_extra_search_width = 1;
-        }
-    }
-
     LinkCellQueryBallIterator(const LinkCell* neighbor_query, const vec3<float>* query_points, unsigned int n_query_points,
                               float r_max, bool exclude_ii)
         : NeighborQueryIterator(neighbor_query, query_points, n_query_points, exclude_ii),

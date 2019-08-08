@@ -26,7 +26,6 @@ cdef extern from "ManagedArray.h" namespace "freud::util":
         # construct a ManagedArray that manages its own data must explicitly
         # use the factory function signature below.
         ManagedArray()
-        ManagedArray(T*, unsigned int)
         T *get()
         unsigned int size()
         bool isManaged()

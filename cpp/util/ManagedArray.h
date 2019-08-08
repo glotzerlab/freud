@@ -81,16 +81,6 @@ public:
         reset();
     }
 
-    //! Construct object from existing array.
-    /*! \param T* Pointer to existing data.
-     *  \param size Size of the array to allocate.
-     */
-    ManagedArray(T* array, unsigned int size) : m_managed(false), m_external_ptr(true)
-    {
-        m_size = new unsigned int(size);
-        m_data = array;
-    }
-
     //! Copy constructor.
     /*! This constructor is required to ensure that the original object always
      *  owns its own memory. However ManagedArrays pointing to external data will always store
