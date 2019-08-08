@@ -157,6 +157,13 @@ private:
     void aggregateWl(std::shared_ptr<std::complex<float>> target,
                      std::shared_ptr<std::complex<float>> source);
 
+    //! Compute array index for m values, indexed like:
+    //  [0, 1, ..., l, -1, -2, ..., -l]
+    int mIndex(int m) const
+    {
+        return m < 0 ? m_l - m : m;
+    }
+
     // Member variables used for compute
     unsigned int m_Np; //!< Last number of points computed
     float m_rmax;      //!< Maximum r at which to determine neighbors
