@@ -34,7 +34,7 @@ void LocalWl::computeYlm(const float theta, const float phi, std::vector<std::co
     for (typename fsph::PointSPHEvaluator<float>::iterator iter(sph_eval.begin_l(m_l, 0, false));
          iter != sph_eval.end(); ++iter)
     {
-        Ylm[(j + m_l) % (2 * m_l + 1)] = *iter;
+        Ylm[j + m_l] = *iter;
         ++j;
     }
     for (unsigned int i = 1; i <= m_l; i++)
