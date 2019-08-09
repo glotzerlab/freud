@@ -61,7 +61,7 @@ void Steinhardt::reallocateArrays(unsigned int Np)
 
         if (m_Wl)
         {
-            m_WliOrder = makeArray<complex<float>>(Np);
+            m_Wli = makeArray<float>(Np);
         }
     }
     // Set arrays to zero
@@ -75,7 +75,7 @@ void Steinhardt::reallocateArrays(unsigned int Np)
     }
     if (m_Wl)
     {
-        memset((void*) m_WliOrder.get(), 0, sizeof(complex<float>) * m_Np);
+        memset((void*) m_Wli.get(), 0, sizeof(float) * m_Np);
     }
 }
 
@@ -100,18 +100,14 @@ void Steinhardt::compute(const box::Box& box, const locality::NeighborList* nlis
     {
         if (m_average)
         {
-            aggregateWl(m_WliOrder, m_QlmiAve);
+            aggregateWl(m_Wli, m_QlmiAve);
         }
         else
         {
-            aggregateWl(m_WliOrder, m_Qlmi);
+            aggregateWl(m_Wli, m_Qlmi);
         }
-        m_NormWl = normalizeWl();
     }
-    else
-    {
-        m_Norm = normalize();
-    }
+    m_norm = normalize();
 }
 
 void Steinhardt::baseCompute(const box::Box& box, const locality::NeighborList* nlist,
@@ -278,83 +274,35 @@ void Steinhardt::computeAve(const box::Box& box, const locality::NeighborList* n
 
 float Steinhardt::normalize()
 {
-    const float normalizationfactor = 4 * M_PI / (2 * m_l + 1);
-    float calc_norm(0);
-
-    for (unsigned int k = 0; k < (2 * m_l + 1); ++k)
+    if (m_Wl)
     {
-        // Add the norm, which is the complex squared magnitude
-        calc_norm += norm(m_Qlm.get()[k]);
+        auto wigner3jvalues = getWigner3j(m_l);
+        return reduceWigner3j(m_Qlm.get(), m_l, wigner3jvalues);
     }
-    return sqrt(calc_norm * normalizationfactor);
-}
-
-std::complex<float> Steinhardt::normalizeWl()
-{
-    // Get Wigner 3j coefficients:
-    // (j1 j2 j3)
-    // (m1 m2 m3)
-    //
-    // j1 = j2 = j3 = l
-    // m1 from -l to l
-    // m2 from max(-l-m1, -l) to min(l-m1, l)
-    // m3 = -m1 - m2
-    auto wigner3jvalues = getWigner3j(m_l);
-    std::complex<float> norm(0);
-    unsigned int counter = 0;
-    const int l(m_l); // Create signed int for simplicity of later code
-    for (int m1 = -l; m1 <= l; m1++)
+    else
     {
-        const int m1_index = mIndex(m1);
-        for (int m2 = max(-l - m1, -l); m2 <= min(l - m1, l); m2++)
-        {
-            const int m2_index = mIndex(m2);
-            const int m3 = -m1 - m2;
-            const int m3_index = mIndex(m3);
+        const float normalizationfactor = 4 * M_PI / (2 * m_l + 1);
+        float calc_norm(0);
 
-            norm += float(wigner3jvalues[counter])
-                * m_Qlm.get()[m1_index]
-                * m_Qlm.get()[m2_index]
-                * m_Qlm.get()[m3_index];
-            counter++;
+        for (unsigned int k = 0; k < (2 * m_l + 1); ++k)
+        {
+            // Add the norm, which is the complex squared magnitude
+            calc_norm += norm(m_Qlm.get()[k]);
         }
-    } // Ends loop over Wigner 3j coefficients
-    return norm;
+        return sqrt(calc_norm * normalizationfactor);
+    }
 }
 
-void Steinhardt::aggregateWl(std::shared_ptr<complex<float>> target, std::shared_ptr<complex<float>> source)
+void Steinhardt::aggregateWl(std::shared_ptr<float> target, std::shared_ptr<complex<float>> source)
 {
-    // Get Wigner 3j coefficients:
-    // (j1 j2 j3)
-    // (m1 m2 m3)
-    //
-    // j1 = j2 = j3 = l
-    // m1 from -l to l
-    // m2 from max(-l-m1, -l) to min(l-m1, l)
-    // m3 = -m1 - m2
     auto wigner3jvalues = getWigner3j(m_l);
-    const int l(m_l); // Create signed int for simplicity of later code
-    for (unsigned int i = 0; i < m_Np; i++)
-    {
-        unsigned int counter = 0;
-        const unsigned int particle_index = (2 * m_l + 1) * i;
-        for (int m1 = -l; m1 <= l; m1++)
+    parallel_for(tbb::blocked_range<size_t>(0, m_Np), [=](const blocked_range<size_t>& r) {
+        for (size_t i = r.begin(); i != r.end(); i++)
         {
-            const int m1_index = mIndex(m1);
-            for (int m2 = max(-l - m1, -l); m2 <= min(l - m1, l); m2++)
-            {
-                const int m2_index = mIndex(m2);
-                const int m3 = -m1 - m2;
-                const int m3_index = mIndex(m3);
-
-                target.get()[i] += float(wigner3jvalues[counter])
-                    * source.get()[particle_index + m1_index]
-                    * source.get()[particle_index + m2_index]
-                    * source.get()[particle_index + m3_index];
-                counter++;
-            }
-        } // Ends loop over Wigner 3j coefficients
-    } // Ends loop over particles
+            const unsigned int particle_index = (2 * m_l + 1) * i;
+            target.get()[i] = reduceWigner3j(&source.get()[particle_index], m_l, wigner3jvalues);
+        }
+    });
 }
 
 void Steinhardt::reduce()

@@ -595,28 +595,20 @@ cdef class Steinhardt:
 
     @property
     def norm(self):
-        if self.stptr.getUseWl():
-            return self.stptr.getNormWl()
         return self.stptr.getNorm()
 
     @property
     def order(self):
-        if self.stptr.getUseWl():
-            return self._wl
-        return self.Ql
+        cdef unsigned int n_particles = self.stptr.getNP()
+        cdef const float[::1] op = \
+            <float[:n_particles]> self.stptr.getOrder().get()
+        return np.asarray(op)
 
     @property
     def Ql(self):
         cdef unsigned int n_particles = self.stptr.getNP()
         cdef const float[::1] op = \
             <float[:n_particles]> self.stptr.getQl().get()
-        return np.asarray(op)
-
-    @property
-    def _wl(self):
-        cdef unsigned int n_particles = self.stptr.getNP()
-        cdef const np.complex64_t[::1] op = \
-            <np.complex64_t[:n_particles]> self.stptr.getWl().get()
         return np.asarray(op)
 
     def compute(self, box, points, nlist=None):

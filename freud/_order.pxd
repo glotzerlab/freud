@@ -83,9 +83,7 @@ cdef extern from "Steinhardt.h" namespace "freud::order":
                      const vec3[float]*,
                      unsigned int) nogil except +
         shared_ptr[float] getQl()
-        shared_ptr[float complex] getWl()
-        bool getUseWl()
-        float complex getNormWl()
+        shared_ptr[float] getOrder()
         float getNorm()
 
 cdef extern from "LocalQl.h" namespace "freud::order":
