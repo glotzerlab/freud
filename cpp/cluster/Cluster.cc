@@ -35,14 +35,10 @@ void Cluster::compute(const freud::locality::NeighborQuery* nq,
     assert(Np > 0);
 
     // reallocate the cluster_idx array if the size doesn't match the last one
-    //std::cout << "Checking whether to resize" << std::endl;
     if (Np != m_num_particles)
     {
-        //std::cout << "Resizing" << std::endl;
         m_cluster_idx.resize(Np);
     }
-    //std::cout << "Upon compute (after resizing), the address of the cluster idx array shared_ptr<T> is " << (unsigned long) m_cluster_idx.m_data.get() << std::endl;
-    //std::cout << "Upon compute (after resizing), the address of the cluster idx underlying T* is " << (unsigned long) ((*m_cluster_idx.m_data.get()).get()) << std::endl;
 
     m_num_particles = Np;
     DisjointSets dj(m_num_particles);
