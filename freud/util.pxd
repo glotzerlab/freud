@@ -6,6 +6,9 @@
 from freud._util cimport vec3, quat, ManagedArray, PyArray_SetBaseObject
 from cpython cimport Py_INCREF
 cimport numpy as np
+from cython.operator cimport dereference
+
+from libcpp.memory cimport shared_ptr
 
 ctypedef unsigned int uint
 
@@ -19,8 +22,8 @@ ctypedef union arr_ptr_t:
 cdef class ManagedArrayManager:
     cdef int var_typenum
     cdef arr_ptr_t thisptr
-    cdef arr_ptr_t sourceptr
     cdef tuple _shape
+    cdef arr_type_t data_type
 
     cdef inline void set_as_base(self, arr):
         """Sets the base of arr to be this object and increases the
@@ -35,7 +38,22 @@ cdef class ManagedArrayManager:
         Python array generation function, we can just return a void pointer to
         simplify the code.
         """
-        return self.thisptr.uint_ptr.get()
+        if self.data_type == arr_type_t.UNSIGNED_INT:
+            return self.thisptr.uint_ptr.get()
+
+    cdef inline void assign_ptr(self, void *new_array):
+        """Assign pointer to a new array to this one."""
+        if self.data_type == arr_type_t.UNSIGNED_INT:
+            self.thisptr.uint_ptr = <ManagedArray[uint] *> new_array
+
+    cdef inline void *deepCopy(self):
+        """Have the underlying ManagedArray take sole ownership of data."""
+        return self.thisptr.uint_ptr.deepCopy()
+
+    cdef inline void reallocate(self):
+        """Reallocate the data in the underlying array."""
+        if self.data_type == arr_type_t.UNSIGNED_INT:
+            self.thisptr.uint_ptr.reallocate()
 
     @staticmethod
     cdef inline ManagedArrayManager init(
@@ -44,8 +62,9 @@ cdef class ManagedArrayManager:
 
         obj.shape = tuple()
         if arr_type == arr_type_t.UNSIGNED_INT:
+            obj.data_type = arr_type_t.UNSIGNED_INT
             obj.var_typenum = np.NPY_UINT32
-            obj.thisptr.uint_ptr = new ManagedArray[uint]()
-            obj.sourceptr.uint_ptr = <ManagedArray[uint] *>array
+            obj.thisptr.uint_ptr = new ManagedArray[uint](
+                dereference(<ManagedArray[uint] *>array))
 
         return obj

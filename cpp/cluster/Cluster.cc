@@ -19,7 +19,7 @@ using namespace std;
 
 namespace freud { namespace cluster {
 
-Cluster::Cluster(float rcut) : m_rcut(rcut), m_num_particles(0), m_num_clusters(0), m_cluster_idx(true)
+Cluster::Cluster(float rcut) : m_rcut(rcut), m_num_particles(0), m_num_clusters(0)
 {
     if (m_rcut < 0.0f)
         throw invalid_argument("Cluster requires that rcut must be non-negative.");
@@ -35,15 +35,14 @@ void Cluster::compute(const freud::locality::NeighborQuery* nq,
     assert(Np > 0);
 
     // reallocate the cluster_idx array if the size doesn't match the last one
+    //std::cout << "Checking whether to resize" << std::endl;
     if (Np != m_num_particles)
     {
+        //std::cout << "Resizing" << std::endl;
         m_cluster_idx.resize(Np);
     }
-    else if (!m_cluster_idx.isManaged())
-    {
-        // If this object has given up ownership then we have to reallocate.
-        m_cluster_idx.reallocate();
-    }
+    //std::cout << "Upon compute (after resizing), the address of the cluster idx array shared_ptr<T> is " << (unsigned long) m_cluster_idx.m_data.get() << std::endl;
+    //std::cout << "Upon compute (after resizing), the address of the cluster idx underlying T* is " << (unsigned long) ((*m_cluster_idx.m_data.get()).get()) << std::endl;
 
     m_num_particles = Np;
     DisjointSets dj(m_num_particles);
@@ -84,6 +83,7 @@ void Cluster::compute(const freud::locality::NeighborQuery* nq,
 
     // cur_set is now the number of clusters
     m_num_clusters = cur_set;
+
 }
 
 /*! \param keys Array of keys (1 per particle)

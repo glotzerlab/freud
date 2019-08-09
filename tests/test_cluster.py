@@ -160,7 +160,7 @@ class TestCluster(unittest.TestCase):
         compute or object deletion."""
         L = 10
         num_points = 100
-        num_tests = 10
+        num_tests = 3
 
         r_max = 2
         copied = []
@@ -170,7 +170,7 @@ class TestCluster(unittest.TestCase):
         box = freud.box.Box.cube(L)
         for i in range(num_tests):
             points = np.random.rand(num_points, 3)*L - L/2
-            cl = freud.cluster.Cluster(r_max).compute(box, points)
+            cl.compute(box, points)
 
             copied.append(np.copy(cl.cluster_idx))
             accessed.append(cl.cluster_idx)

@@ -81,7 +81,7 @@ cdef class Cluster(Compute):
         self.r_max = r_max
         self.__cluster_idx = freud.util.ManagedArrayManager.init(
             &self.thisptr.getClusterIdx(),
-            freud.util.arr_type_t.UNSIGNED_INT).acquire()
+            freud.util.arr_type_t.UNSIGNED_INT)
 
     def __dealloc__(self):
         del self.thisptr

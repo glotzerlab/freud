@@ -2,6 +2,7 @@
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 from libcpp cimport bool
+from libcpp.memory cimport shared_ptr
 
 cimport numpy
 
@@ -21,15 +22,13 @@ cdef extern from "VectorMath.h":
 
 cdef extern from "ManagedArray.h" namespace "freud::util":
     cdef cppclass ManagedArray[T]:
-        # As an additional safety measure, we do not expose the "manage"
-        # optional argument to the constructor; Cython code wishing to
-        # construct a ManagedArray that manages its own data must explicitly
-        # use the factory function signature below.
         ManagedArray()
+        ManagedArray(const ManagedArray &)
         T *get()
+        void reallocate()
         unsigned int size()
-        bool isManaged()
-        void acquire(ManagedArray &other)
+        ManagedArray *deepCopy()
+
 
 cdef extern from "numpy/arrayobject.h":
     cdef int PyArray_SetBaseObject(numpy.ndarray arr, obj)

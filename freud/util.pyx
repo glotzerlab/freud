@@ -40,18 +40,6 @@ cdef class ManagedArrayManager:
         # This class should be initialized via the factory "init" function.
         pass
 
-    def acquire(self):
-        """Acquire ownership of data from the synchronized C++ array."""
-        if self.var_typenum == np.NPY_UINT32:
-            self.thisptr.uint_ptr.acquire(dereference(self.sourceptr.uint_ptr))
-        return self
-
-    def release(self):
-        """Return ownership of data to the synchronized C++ array."""
-        if self.var_typenum == np.NPY_UINT32:
-            self.sourceptr.uint_ptr.acquire(dereference(self.thisptr.uint_ptr))
-        return self
-
     @property
     def shape(self):
         return self._shape
@@ -136,29 +124,34 @@ def resolve_arrays(array_names):
                 callable: A compute function that manages arrays.
             """
             # If other objects (e.g. NumPy arrays) are referencing this one,
-            # then we reallocate a new Python wrapper object. Otherwise, we
+            # then we create a new Python wrapper object. Otherwise, we
             # relinquish control of the underlying array to the C++ class for
             # its computation.  In either case, the Python wrapper class
             # reacquires ownership at the end.
-            cdef freud.util.ManagedArrayManager array
+            cdef freud.util.ManagedArrayManager array, new_array
+            cdef void *new_cpp_array
             for array_name in array_names:
                 refcount = sys.getrefcount(getattr(self, array_name))
                 array = <freud.util.ManagedArrayManager> getattr(
                     self, array_name)
-                if refcount <= 2:
-                    array.release()
-                else:
-                    setattr(self, array_name,
-                            freud.util.ManagedArrayManager.init(
-                                array.sourceptr.uint_ptr,
-                                arr_type_t.UNSIGNED_INT))
+                if refcount > 2:
+                    # If we have external references to this
+                    # ManagedArrayManager, we need to preserve this memory
+                    # and we can't copy it to a different location because the
+                    # existing numpy arrays are views on this exact pointer. As
+                    # a result, we need to instead reallocate the memory for
+                    # the existing array attached to the compute object, which
+                    # we can easily do because any ManagedArrays constructed
+                    # from it will share a reference to the same array.
+                    new_cpp_array = array.thisptr.uint_ptr.deepCopy()
+                    new_array = freud.util.ManagedArrayManager.init(
+                        array.thisptr.uint_ptr, arr_type_t.UNSIGNED_INT)
+                    # For now I'll just call reallocate, but ideally I should
+                    # intelligently choose to resize here if needed.
+                    new_array.reallocate()
+                    array.assign_ptr(new_cpp_array)
+                    setattr(self, array_name, new_array)
             ret_val = func(self, *args, **kwargs)
-
-            # Store the array locally again.
-            for array_name in array_names:
-                array = <freud.util.ManagedArrayManager> getattr(
-                    self, array_name)
-                array.acquire()
 
             return ret_val
         return acquire_and_compute

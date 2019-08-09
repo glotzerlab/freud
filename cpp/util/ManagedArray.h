@@ -3,7 +3,6 @@
 
 #include <memory>
 #include <tbb/tbb.h>
-#include <iostream>
 
 /*! \file ManagedArray.h
     \brief Defines the standard array class to be used throughout freud.
@@ -57,237 +56,112 @@ namespace freud { namespace util {
 template<typename T> class ManagedArray
 {
 public:
-    //! Default constructor.
-    /*! For safety, these arrays must be constructed with the manage argument
-     *  set to true in order to create an empty instance that manages its own
-     *  memory. By default, constructed arrays do not manage their own memory to
-     *  avoid accidental memory leaks.
-     *
-     *  \param manage Whether or not this instance should manage its own memory
-     *                (Default: false).
+    //! Default constructor with optional size for thread local arrays
+    /*! \param size Size of the array to allocate.
      */
-    ManagedArray(bool manage=false) : m_size(nullptr), m_data(nullptr), m_managed(manage), m_external_ptr(false) {}
-
-    //! Constructor with specific size for thread local arrays
-    /*! When using this constructor, the class automatically manages its own
-     *  memory since it is allocating it.
-     *
-     *  \param size Size of the array to allocate.
-     */
-    ManagedArray(unsigned int size) : m_managed(true), m_external_ptr(false)
+    ManagedArray(unsigned int size=0)
     {
-        m_size = new unsigned int(size);
-        m_data = new T[size];
+        m_size = std::make_shared<unsigned int>(size);
+        // Hard code making an array of at least size 1.
+        m_data = std::shared_ptr<std::shared_ptr<T> >(
+            new std::shared_ptr<T>(new T[1], std::default_delete<T[]>()));
+        create_new_array(size);
         reset();
-    }
-
-    //! Copy constructor.
-    /*! This constructor is required to ensure that the original object always
-     *  owns its own memory. However ManagedArrays pointing to external data will always store
-     *
-     *  \param other ManagedArray instance to copy.
-     */
-    ManagedArray(const ManagedArray &other) : m_data(other.m_data), m_managed(false), m_external_ptr(other.m_external_ptr)
-    {
-        if (m_external_ptr)
-        {
-            m_size = new unsigned int(*other.m_size);
-        }
-        else
-        {
-            m_size = other.m_size;
-        }
-    }
-
-    //! Copy assignment.
-    /*! Similar to the copy constructor, this operator must be defined to
-     *  ensure that the original object always owns its own memory.
-     *
-     *  \param first ManagedArray instance to copy.
-     */
-    ManagedArray& operator= (const ManagedArray &other)
-    {
-        if (m_managed)
-        {
-            throw std::runtime_error("You cannot assign to a ManagedArray that is currently managing its own memory.");
-        }
-
-        m_data = other.m_data;
-        m_external_ptr = other.m_external_ptr;
-        if (m_external_ptr)
-        {
-            m_size = new unsigned int(*other.m_size);
-        }
-        else
-        {
-            m_size = other.m_size;
-        }
-        return *this;
     }
 
     //! Destructor (currently empty because data is managed by shared pointer).
-    ~ManagedArray()
-    {
-        if (m_managed)
-            delete[] m_data;
-        if (m_managed || m_external_ptr)
-            delete m_size;
-    }
-
-    //! Copy another ManagedArray and obtain ownership of its data.
-    /*! This method allows two ManagedArray instances to trade ownership
-     *  characteristics. The semantics only make sense if one array is managing
-     *  its own memory and the other is not. For conceptual simplicity, an array
-     *  that is initialized as pointing to external data cannot acquire data,
-     *  but in principle there is no reason to prevent this. However, that usage
-     *  pattern is error-prone, so preventing helps avoid subtle memory bugs.
-     *
-     *  The primary purpose of this function is to support more natural
-     *  behavior of the Python API by taking advantage of Python reference
-     *  counting to avoid bad array references. In particular, judicious use of
-     *  this method prevents numpy arrays from becoming outdated. The expected
-     *  usage is that Cython mirrors of C++ compute classes will take ownership
-     *  of data once it has been computed, and only return the ownership to the
-     *  C++ class if no existing numpy arrays are referencing the array in
-     *  Python.
-     *
-     *  \param other ManagedArray instance to copy.
-     */
-    void acquire(ManagedArray &other)
-    {
-        if (!other.m_managed)
-        {
-            throw std::runtime_error("Can only acquire data from a ManagedArray that owns its own data.");
-        } else if (m_managed || m_external_ptr)
-        {
-            throw std::runtime_error("A ManagedArray that owns data cannot acquire another's data.");
-        }
-
-        m_data = other.m_data;
-        m_size = other.m_size;
-        m_managed = true;
-        other.m_managed = false;
-    }
-
-    //! Reallocate memory for this array.
-    /*! This method may only be called for arrays not currently managing their
-     *  own memory (to avoid memory leaks). It allocates new memory for the
-     *  array.
-     */
-    void reallocate()
-    {
-        if (m_managed)
-        {
-            throw std::runtime_error("You cannot reallocate a ManagedArray that is currently managing its own memory.");
-        } else if (m_external_ptr)
-        {
-            throw std::runtime_error("Reallocation is not allowed for ManagedArrays pointing to external data.");
-        }
-
-        if (m_size != nullptr)
-        {
-            m_size = new unsigned int(size());
-            m_data = new T[*m_size];
-        }
-
-        m_managed = true;
-        m_external_ptr = false;
-        reset();
-    }
+    ~ManagedArray() {}
 
     //! Update size of the array.
     /*! \param size New size of the array.
      */
     void resize(unsigned int size)
     {
-        if (!m_managed)
+        if (size != *m_size)
         {
-            throw std::runtime_error("ManagedArray can only resize arrays it is managing.");
+            *m_size = size;
+            reallocate();
         }
-        if (size != this->size())
-        {
-            if (this->size())
-                delete[](m_data);
+    }
 
-            if (size != 0)
-            {
-                if (m_size == nullptr)
-                {
-                    m_size = new unsigned int(size);
-                }
-                else
-                {
-                    *m_size = size;
-                }
-            }
-            else
-            {
-                m_size = nullptr;
-            }
-
-            if (this->size())
-                m_data = new T[size];
-            reset();
-        }
+    //! Allocate new memory for the array.
+    /*! This function primarily serves as a way to reallocate new memory from
+     *  the Python API if needed.
+     * \param size New size of the array.
+     */
+    void reallocate()
+    {
+        create_new_array(*m_size);
+        reset();
     }
 
     //! Reset the contents of array to be 0.
     void reset()
     {
-        if (!m_managed)
+        if (*m_size != 0)
         {
-            throw std::runtime_error("ManagedArray can only reset arrays it is managing.");
+            memset((void*) get(), 0, sizeof(T) * (*m_size));
         }
-
-        if (size())
-            memset((void*) m_data, 0, sizeof(T) * size());
     }
 
-    //! Return the underlying pointer.
+    //! Return the underlying pointer (requires two levels of indirection).
     T *get() const
     {
-        return m_data;
+        std::shared_ptr<T> * tmp = m_data.get();
+        return (*tmp).get();
     }
 
     //! Writeable index into array.
     T &operator[](unsigned int index)
     {
-        if (index >= size())
+        if (index >= *m_size)
         {
             throw std::runtime_error("Attempted to access data out of bounds.");
         }
-        return m_data[index];
+        return get()[index];
     }
 
     //! Read-only index into array.
     const T &operator[](unsigned int index) const
     {
-        if (index >= size())
+        if (index >= *m_size)
         {
             throw std::runtime_error("Attempted to access data out of bounds.");
         }
-        return m_data[index];
+        return get()[index];
     }
 
     //! Get the size of the current array.
     unsigned int size() const
     {
-        if (m_size == nullptr)
-            return 0;
         return *m_size;
     }
 
-    //! Check if the array manages its own memory.
-    bool isManaged() const
+    //! Make a deep copy of this array (i.e. copy the underlying data).
+    /*! This function returns by value since all memory ownership information
+     *  is transmitted via shared pointers. 
+     */
+    void *deepCopy()
     {
-        return m_managed;
+        ManagedArray<T> *deep_copy = new ManagedArray<T>(size());
+        // This m_data will be a different shared_ptr than the current
+        // instance's, so assigning to it directly shouldn't affect any other
+        // arrays pointing to the memory of the current one.
+        *(*deep_copy).m_data = *m_data;
+        return deep_copy;
     }
-
+        
 private:
-    unsigned int *m_size;        //!< Size of array.
-    T *m_data;  //!< Pointer to array.
-    bool m_managed;  //!< Whether or not the array should be managing its own data.
-    bool m_external_ptr;  //!< Whether or not the array points to another (non-ManagedArray) data source (set upon initialization or copy).
+    //! Reallocate the data array into a new chunk of memory.
+    void create_new_array(unsigned int size)
+    {
+        // Always allocate at least size 1
+        unsigned int new_size = size > 1 ? size : 1;
+        *m_data = std::shared_ptr<T>(new T[new_size], std::default_delete<T[]>());
+    }
+        
+    std::shared_ptr<std::shared_ptr<T> > m_data;                 //!< Pointer to array.
+    std::shared_ptr<unsigned int> m_size;      //!< Size of array.
 };
 
 }; }; // end namespace freud::util
