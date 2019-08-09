@@ -1,6 +1,8 @@
 import numpy as np
 import numpy.testing as npt
 import freud
+from functools import lru_cache
+from sympy.physics.wigner import wigner_3j
 import unittest
 from util import (make_box_and_random_points, make_sc, make_bcc, make_fcc,
                   skipIfMissing)
@@ -113,12 +115,12 @@ class TestLocalDescriptors(unittest.TestCase):
         self.assertEqual(str(comp), str(eval(repr(comp))))
 
     def test_ql(self):
-        """Check if we can reproduce Steinhardt OPs."""
+        """Check if we can reproduce Steinhardt Ql."""
         def get_Ql(p, descriptors, nlist):
             """Given a set of points and a LocalDescriptors object (and the
-            underlying neighborlist), compute the per-particle Steinhardt order
-            parameter for all :math:`l` values up to the maximum quantum number
-            used in the computation of the descriptors."""
+            underlying neighborlist), compute the per-particle Steinhardt Ql
+            order parameter for all :math:`l` values up to the maximum quantum
+            number used in the computation of the descriptors."""
             Qbar_lm = np.zeros((p.shape[0], descriptors.sph.shape[1]),
                                dtype=np.complex128)
             num_neighbors = descriptors.sph.shape[0]/p.shape[0]
@@ -162,6 +164,75 @@ class TestLocalDescriptors(unittest.TestCase):
                 steinhardt = freud.order.Steinhardt(r_max*2, L)
                 steinhardt.compute(box, points, nlist=nl)
                 npt.assert_array_almost_equal(steinhardt.order, Ql[:, L])
+
+    def test_wl(self):
+        """Check if we can reproduce Steinhardt Wl."""
+
+        def lm_index(l, m):
+            return l**2 + (m if m >= 0 else l - m)
+
+        @lru_cache(maxsize=None)
+        def get_wigner3j(l, m1, m2, m3):
+            return float(wigner_3j(l, l, l, m1, m2, m3))
+
+        def get_Wl(p, descriptors, nlist):
+            """Given a set of points and a LocalDescriptors object (and the
+            underlying neighborlist), compute the per-particle Steinhardt Wl
+            order parameter for all :math:`l` values up to the maximum quantum
+            number used in the computation of the descriptors."""
+            Qbar_lm = np.zeros((p.shape[0], descriptors.sph.shape[1]),
+                               dtype=np.complex128)
+
+            num_neighbors = descriptors.sph.shape[0]/p.shape[0]
+            for i in range(p.shape[0]):
+                indices = nlist.index_i == i
+                Qbar_lm[i, :] = np.sum(descriptors.sph[indices, :],
+                                       axis=0)/num_neighbors
+
+            Wl = np.zeros((Qbar_lm.shape[0], descriptors.l_max+1),
+                          dtype=np.complex128)
+            for i in range(Wl.shape[0]):
+                for l in range(Wl.shape[1]):
+                    for m1 in range(-l, l+1):
+                        for m2 in range(max(-l-m1, -l), min(l-m1, l)+1):
+                            m3 = -m1 - m2
+                            # Manually add Condon-Shortley phase
+                            phase = 1
+                            for m in m1, m2, m3:
+                                if m > 0 and m % 2 == 1:
+                                    phase *= -1
+                            Wl[i, l] += phase * get_wigner3j(l, m1, m2, m3) * \
+                                Qbar_lm[i, lm_index(l, m1)] * \
+                                Qbar_lm[i, lm_index(l, m2)] * \
+                                Qbar_lm[i, lm_index(l, m3)]
+            return Wl
+
+        # These exact parameter values aren't important; they won't necessarily
+        # give useful outputs for some of the structures, but that's fine since
+        # we just want to check that LocalDescriptors is consistent with
+        # Steinhardt.
+        num_neighbors = 6
+        l_max = 12
+        r_max = 2
+
+        for struct_func in [make_sc, make_bcc, make_fcc]:
+            box, points = struct_func(5, 5, 5)
+
+            # In order to be able to access information on which particles are
+            # bonded to which ones, we precompute the neighborlist
+            nn = freud.locality.NearestNeighbors(r_max, num_neighbors)
+            nl = nn.compute(box, points).nlist
+            ld = freud.environment.LocalDescriptors(
+                num_neighbors, l_max, r_max)
+            ld.compute(box, num_neighbors, points, mode='global', nlist=nl)
+
+            Wl = get_Wl(points, ld, nl)
+
+            # Test all allowable values of l.
+            for L in range(2, l_max+1):
+                steinhardt = freud.order.Steinhardt(r_max*2, L, Wl=True)
+                steinhardt.compute(box, points, nlist=nl)
+                npt.assert_array_almost_equal(steinhardt.order, Wl[:, L])
 
     @skipIfMissing('scipy.special')
     def test_ld(self):
