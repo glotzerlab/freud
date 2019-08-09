@@ -14,44 +14,20 @@ namespace freud { namespace util {
 /*! The purpose of this class is to handle standard memory management, and to
  *  provide an abstraction around the implementation-specific choice of
  *  underlying data structure for arrays of data in freud. These arrays are
- *  specifically designed for numerical data, allowing operations such as a
- *  memset to 0 for clearing the data.
+ *  specifically designed for numerical data calculated by a compute class,
+ *  particularly for arrays that must be made accessible through the Python API
+ *  of freud.
  *
- *  A ManagedArray can be in one of three states:
- *      1. Managing its own memory (used for class members).
- *      2. Pointing to data managed by another ManagedArray.
- *      3. Pointing to external data through a pointer (e.g. a NumPy array).
- *
- *  To support resizing, a ManagedArray instances stores its size as a pointer,
- *  allowing reference arrays to point to the size of the original array if it
- *  is resized. In other words, ManagedArray instances in state 2 will always
- *  have the correct size available. However, ManagedArray objects in state 3
- *  have a fixed array size and assume that the original data size is fixed for
- *  the lifetime of the ManagedArray. This restriction allows, for instance,
- *  the = operator to be well-defined in terms of the ownership of both array
- *  data and the size information, which is shared by all views into a given
- *  array if it is owned by some ManagedArray.
- *
- *  While the class provides strong protection against memory leaks or improper
- *  access of data, the user is responsible for ensuring that a ManagedArray
- *  that does not manage its own data does not attempt to access data after the
- *  underlying data has been destructed by the owner. This is generally safe
- *  within the freud C++ API because compute classes in freud are designed to
- *  accept ManagedArrays as inputs, which therefore must be constructed by the
- *  calling code. Within the freud Python API, this logic is handled through
- *  proper usage of the acquisition methods of this class, which allow
- *  ManagedArrays to transfer data ownership. The class is designed around the
- *  expectation of a Python wrapper class that will maintain ownership of a
- *  ManagedArray and its underlying data between compute calls.
- *
- *  There are two specific scenarios when ManagedArrays are invalidated.
- *      1. ManagedArrays in state 2 will be invalidated if the data source
- *         array is deleted.
- *      2. ManagedArrays in state 3 will be invalidated if the data source is
- *         deleted or changes in size.
- *
- *  No attempt is made to protect against these failures. The user is
- *  responsible for avoiding these cases.
+ *  To support resizing, a ManagedArray instances stores its data as a pointer
+ *  to a pointer, and its size as a pointer. As a result, copy-assignment or
+ *  initialization will result in a new ManagedArray pointing to the same data,
+ *  and any such array can resize or reallocate this data. The pointer to
+ *  pointer infrastructure ensures that such changes properly propagate to all
+ *  ManagedArrays referencing a given memory space. In addition, this
+ *  infrastructure allows the creation of a completely new ManagedArray with a
+ *  new set of pointers that also manages the same data, allowing it to keep
+ *  the original array alive if the original ManagedArray instances become
+ *  decoupled from it.
  */
 template<typename T> class ManagedArray
 {
