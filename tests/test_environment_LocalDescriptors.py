@@ -164,8 +164,8 @@ class TestLocalDescriptors(unittest.TestCase):
                 steinhardt.compute(box, points, nlist=nl)
                 npt.assert_array_almost_equal(steinhardt.order, Ql[:, L])
 
-    @unittest.skipIf(sys.version_info.major < 3,
-                     "LRU cache only supported on Python 3")
+    @unittest.skipIf(sys.version_info < (3, 2),
+                     "functools.lru_cache only supported on Python 3.2+")
     @skipIfMissing('sympy.physics.wigner')
     def test_wl(self):
         """Check if we can reproduce Steinhardt Wl."""
