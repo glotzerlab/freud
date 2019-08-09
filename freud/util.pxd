@@ -16,6 +16,7 @@ ctypedef enum arr_type_t:
     UNSIGNED_INT
 
 ctypedef union arr_ptr_t:
+    void *null_ptr
     ManagedArray[uint] *uint_ptr
 
 
@@ -41,14 +42,26 @@ cdef class ManagedArrayManager:
         if self.data_type == arr_type_t.UNSIGNED_INT:
             return self.thisptr.uint_ptr.get()
 
-    cdef inline void assign_ptr(self, void *new_array):
-        """Assign pointer to a new array to this one."""
-        if self.data_type == arr_type_t.UNSIGNED_INT:
-            self.thisptr.uint_ptr = <ManagedArray[uint] *> new_array
+    cdef inline void dissociate(self):
+        """Decouple the underlying ManagedArray from other ManagedArrays
+        pointing to the same data.
 
-    cdef inline void *deepCopy(self):
-        """Have the underlying ManagedArray take sole ownership of data."""
-        return self.thisptr.uint_ptr.deepCopy()
+        Since ManagedArrays are implemented as pointers to pointers to arrays,
+        copying a ManagedArray by value copies the first pointer, but all such
+        arrays are pointing to the same second level pointer. This mechanisms
+        supports all such ManagedArrays sharing ownership of the underlying
+        data for the purposes of resizing and reallocation. Here, we take
+        advantage of this structure by actually creating a completely new
+        ManagedArray, so the second level pointer is also distinct from the
+        existing structure. When we reassign it to point to the same data as
+        the current ManagedArrayManager's thisptr, we will have a completely
+        separate pointer->pointer->array hierarchy pointing to the same array,
+        so we can safely resize or reallocate any of the original ManagedArrays
+        and this new instance will retain a reference to the original data,
+        keeping it alive.
+        """
+        if self.data_type == arr_type_t.UNSIGNED_INT:
+            self.thisptr.uint_ptr = <ManagedArray[uint] *> self.thisptr.uint_ptr.deepCopy()
 
     cdef inline void reallocate(self):
         """Reallocate the data in the underlying array."""
@@ -58,12 +71,10 @@ cdef class ManagedArrayManager:
     @staticmethod
     cdef inline ManagedArrayManager init(
             void *array, arr_type_t arr_type):
-        cdef ManagedArrayManager obj = ManagedArrayManager()
+        cdef ManagedArrayManager obj
 
-        obj.shape = tuple()
         if arr_type == arr_type_t.UNSIGNED_INT:
-            obj.data_type = arr_type_t.UNSIGNED_INT
-            obj.var_typenum = np.NPY_UINT32
+            obj = ManagedArrayManager(arr_type_t.UNSIGNED_INT, np.NPY_UINT32)
             obj.thisptr.uint_ptr = new ManagedArray[uint](
                 dereference(<ManagedArray[uint] *>array))
 
