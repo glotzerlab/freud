@@ -1,8 +1,7 @@
 import numpy as np
 import numpy.testing as npt
 import freud
-from functools import lru_cache
-from sympy.physics.wigner import wigner_3j
+import sys
 import unittest
 from util import (make_box_and_random_points, make_sc, make_bcc, make_fcc,
                   skipIfMissing)
@@ -165,8 +164,13 @@ class TestLocalDescriptors(unittest.TestCase):
                 steinhardt.compute(box, points, nlist=nl)
                 npt.assert_array_almost_equal(steinhardt.order, Ql[:, L])
 
+    @unittest.skipIf(sys.version_info.major < 3,
+                     "LRU cache only supported on Python 3")
+    @skipIfMissing('sympy.physics.wigner')
     def test_wl(self):
         """Check if we can reproduce Steinhardt Wl."""
+        from functools import lru_cache
+        from sympy.physics.wigner import wigner_3j
 
         def lm_index(l, m):
             return l**2 + (m if m >= 0 else l - m)
