@@ -5,10 +5,10 @@
 # arguments to interface with the C++ implementations of all methods.
 from freud._util cimport vec3, quat, ManagedArray, PyArray_SetBaseObject
 from cpython cimport Py_INCREF
-cimport numpy as np
 from cython.operator cimport dereference
-
 from libcpp.memory cimport shared_ptr
+
+cimport numpy as np
 
 ctypedef unsigned int uint
 
@@ -61,7 +61,8 @@ cdef class ManagedArrayManager:
         keeping it alive.
         """
         if self.data_type == arr_type_t.UNSIGNED_INT:
-            self.thisptr.uint_ptr = <ManagedArray[uint] *> self.thisptr.uint_ptr.deepCopy()
+            self.thisptr.uint_ptr = <ManagedArray[uint] *> \
+                self.thisptr.uint_ptr.deepCopy()
 
     cdef inline void reallocate(self):
         """Reallocate the data in the underlying array."""
