@@ -15,7 +15,7 @@
 using namespace std;
 
 /*! \file Wigner3j.cc
- *  \brief Stores Wigner 3j coefficients for l ranging from 0 to 20
+ *  \brief Stores and reduces over Wigner 3j coefficients for l from 0 to 20
  */
 
 namespace freud { namespace order {
