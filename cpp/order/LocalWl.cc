@@ -63,7 +63,7 @@ void LocalWl::compute(const locality::NeighborList* nlist, const vec3<float>* po
     // divide by the square root.
     float normalizationfactor = sqrt(4 * M_PI / (2 * m_l + 1));
 
-    // Get wigner3j coefficients from wigner3j.cc
+    // Get Wigner 3j coefficients from Wigner3j.cc
     m_wigner3jvalues = getWigner3j(m_l);
 
     for (unsigned int i = 0; i < m_Np; i++)
@@ -97,7 +97,7 @@ void LocalWl::computeAve(const locality::NeighborList* nlist, const vec3<float>*
 {
     LocalQl::computeAve(nlist, points, Np);
 
-    // Get wigner3j coefficients from wigner3j.cc
+    // Get Wigner 3j coefficients from Wigner3j.cc
     m_wigner3jvalues = getWigner3j(m_l);
 
     m_AveWli
@@ -125,7 +125,7 @@ void LocalWl::computeAve(const locality::NeighborList* nlist, const vec3<float>*
 
 void LocalWl::computeNorm(const vec3<float>* points, unsigned int Np)
 {
-    // Get wigner3j coefficients from wigner3j.cc
+    // Get Wigner 3j coefficients from Wigner3j.cc
     m_wigner3jvalues = getWigner3j(m_l);
 
     // Set local data size
@@ -161,7 +161,7 @@ void LocalWl::computeNorm(const vec3<float>* points, unsigned int Np)
 
 void LocalWl::computeAveNorm(const vec3<float>* points, unsigned int Np)
 {
-    // Get wigner3j coefficients from wigner3j.cc
+    // Get Wigner 3j coefficients from Wigner3j.cc
     m_wigner3jvalues = getWigner3j(m_l);
 
     // Set local data size

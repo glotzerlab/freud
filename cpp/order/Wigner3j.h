@@ -9,7 +9,7 @@
 
 using namespace std;
 
-/*! \file wigner3j.h
+/*! \file Wigner3j.h
  *  \brief Stores and reduces over Wigner 3j coefficients for l from 0 to 20
  */
 
@@ -25,7 +25,7 @@ int lmIndex(int l, int m);
 float reduceWigner3j(const complex<float>* source, unsigned int l_, const vector<double> &wigner3j);
 
 vector<double> getWigner3j(unsigned int l);
-// All wigner3j coefficients created using sympy
+// All Wigner 3j coefficients created using sympy
 /*
 
 from sympy.physics.wigner import wigner_3j

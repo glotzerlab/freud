@@ -12,7 +12,7 @@
 #include "NeighborList.h"
 #include "VectorMath.h"
 #include "fsph/src/spherical_harmonics.hpp"
-#include "wigner3j.h"
+#include "Wigner3j.h"
 
 /*! \file Steinhardt.h
     \brief Computes variants of Steinhardt order parameters.
