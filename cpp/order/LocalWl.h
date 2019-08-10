@@ -62,22 +62,22 @@ public:
 
     //! Get a reference to the last computed Wl/WlNorm for each particle.
     //  Returns NaN for particles with no neighbors.
-    std::shared_ptr<std::complex<float>> getWl()
+    std::shared_ptr<float> getWl()
     {
         return m_Wli;
     }
-    std::shared_ptr<std::complex<float>> getWlNorm()
+    std::shared_ptr<float> getWlNorm()
     {
         return m_WliNorm;
     }
 
     //! Get a reference to the last computed AveWl/AveWlNorm for each particle.
     //  Returns NaN for particles with no neighbors.
-    std::shared_ptr<std::complex<float>> getAveWl()
+    std::shared_ptr<float> getAveWl()
     {
         return m_AveWli;
     }
-    std::shared_ptr<std::complex<float>> getAveNormWl()
+    std::shared_ptr<float> getAveNormWl()
     {
         return m_WliAveNorm;
     }
@@ -100,11 +100,10 @@ private:
     bool
         m_normalizeWl; //!< Enable/disable normalize by |Qli|^(3/2). Defaults to false when Wl is constructed.
 
-    std::shared_ptr<std::complex<float>> m_Wli; //!< Wl locally invariant order parameter for each particle i;
-    std::shared_ptr<std::complex<float>>
-        m_AveWli; //!< Averaged Wl with 2nd neighbor shell for each particle i
-    std::shared_ptr<std::complex<float>> m_WliNorm;    //!< Normalized Wl for the whole system
-    std::shared_ptr<std::complex<float>> m_WliAveNorm; //!< Normalized AveWl for the whole system
+    std::shared_ptr<float> m_Wli; //!< Wl locally invariant order parameter for each particle i;
+    std::shared_ptr<float> m_AveWli; //!< Averaged Wl with 2nd neighbor shell for each particle i
+    std::shared_ptr<float> m_WliNorm;    //!< Normalized Wl for the whole system
+    std::shared_ptr<float> m_WliAveNorm; //!< Normalized AveWl for the whole system
     std::vector<double>
         m_wigner3jvalues; //!< Wigner3j coefficients, in j1=-l to l, j2 = max(-l-j1,-l) to min(l-j1,l), maybe.
 };

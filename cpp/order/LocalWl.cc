@@ -48,10 +48,10 @@ void LocalWl::compute(const locality::NeighborList* nlist, const vec3<float>* po
     if (m_Np != Np)
     {
         // Don't actually change the size, let the parent do that.
-        m_Wli = std::shared_ptr<complex<float>>(new complex<float>[Np],
-                                                std::default_delete<complex<float>[]>());
+        m_Wli = std::shared_ptr<float>(new float[Np],
+                                                std::default_delete<float[]>());
     }
-    memset((void*) m_Wli.get(), 0, sizeof(complex<float>) * Np);
+    memset((void*) m_Wli.get(), 0, sizeof(float) * Np);
 
     // Call parent to compute Ql values used for calculating Wl.
     LocalQl::compute(nlist, points, Np);
@@ -79,8 +79,8 @@ void LocalWl::compute(const locality::NeighborList* nlist, const vec3<float>* po
             {
                 const unsigned int index = (2 * m_l + 1) * i;
                 const unsigned int u3 = 3 * m_l - u1 - u2;
-                m_Wli.get()[i] += float(m_wigner3jvalues[counter]) * m_Qlmi.get()[index + u1]
-                    * m_Qlmi.get()[index + u2] * m_Qlmi.get()[index + u3];
+                m_Wli.get()[i] += (float(m_wigner3jvalues[counter]) * m_Qlmi.get()[index + u1]
+                    * m_Qlmi.get()[index + u2] * m_Qlmi.get()[index + u3]).real();
                 counter++;
             }
         } // Ends loop for Wli calcs
@@ -101,7 +101,7 @@ void LocalWl::computeAve(const locality::NeighborList* nlist, const vec3<float>*
     m_wigner3jvalues = getWigner3j(m_l);
 
     m_AveWli
-        = std::shared_ptr<complex<float>>(new complex<float>[m_Np], std::default_delete<complex<float>[]>());
+        = std::shared_ptr<float>(new float[m_Np], std::default_delete<float[]>());
     memset((void*) m_AveWli.get(), 0, sizeof(float) * m_Np);
 
     for (unsigned int i = 0; i < m_Np; i++)
@@ -114,8 +114,8 @@ void LocalWl::computeAve(const locality::NeighborList* nlist, const vec3<float>*
             {
                 const unsigned int index = (2 * m_l + 1) * i;
                 const unsigned int u3 = 3 * m_l - u1 - u2;
-                m_AveWli.get()[i] += float(m_wigner3jvalues[counter]) * m_AveQlmi.get()[index + u1]
-                    * m_AveQlmi.get()[index + u2] * m_AveQlmi.get()[index + u3];
+                m_AveWli.get()[i] += (float(m_wigner3jvalues[counter]) * m_AveQlmi.get()[index + u1]
+                    * m_AveQlmi.get()[index + u2] * m_AveQlmi.get()[index + u3]).real();
                 counter++;
             }
         } // Ends loop for Norm Wli calcs
@@ -132,8 +132,8 @@ void LocalWl::computeNorm(const vec3<float>* points, unsigned int Np)
     m_Np = Np;
 
     m_WliNorm
-        = std::shared_ptr<complex<float>>(new complex<float>[m_Np], std::default_delete<complex<float>[]>());
-    memset((void*) m_WliNorm.get(), 0, sizeof(complex<float>) * m_Np);
+        = std::shared_ptr<float>(new float[m_Np], std::default_delete<float[]>());
+    memset((void*) m_WliNorm.get(), 0, sizeof(float) * m_Np);
 
     // Average Q_lm over all particles, which was calculated in compute
     for (unsigned int k = 0; k < (2 * m_l + 1); ++k)
@@ -151,7 +151,7 @@ void LocalWl::computeNorm(const vec3<float>* points, unsigned int Np)
             {
                 unsigned int u3 = 3 * m_l - u1 - u2;
                 m_WliNorm.get()[i]
-                    += float(m_wigner3jvalues[counter]) * m_Qlm.get()[u1] * m_Qlm.get()[u2] * m_Qlm.get()[u3];
+                    += (float(m_wigner3jvalues[counter]) * m_Qlm.get()[u1] * m_Qlm.get()[u2] * m_Qlm.get()[u3]).real();
                 counter++;
             }
         } // Ends loop for Norm Wli calcs
@@ -168,8 +168,8 @@ void LocalWl::computeAveNorm(const vec3<float>* points, unsigned int Np)
     m_Np = Np;
 
     m_WliAveNorm
-        = std::shared_ptr<complex<float>>(new complex<float>[m_Np], std::default_delete<complex<float>[]>());
-    memset((void*) m_WliAveNorm.get(), 0, sizeof(complex<float>) * m_Np);
+        = std::shared_ptr<float>(new float[m_Np], std::default_delete<float[]>());
+    memset((void*) m_WliAveNorm.get(), 0, sizeof(float) * m_Np);
 
     // Average Q_lm over all particles, which was calculated in compute
     for (unsigned int k = 0; k < (2 * m_l + 1); ++k)
@@ -186,8 +186,8 @@ void LocalWl::computeAveNorm(const vec3<float>* points, unsigned int Np)
             for (unsigned int u2 = max(0, int(m_l) - int(u1)); u2 < min(3 * m_l + 1 - u1, 2 * m_l + 1); ++u2)
             {
                 unsigned int u3 = 3 * m_l - u1 - u2;
-                m_WliAveNorm.get()[i] += float(m_wigner3jvalues[counter]) * m_AveQlm.get()[u1] * m_AveQlm.get()[u2]
-                    * m_AveQlm.get()[u3];
+                m_WliAveNorm.get()[i] += (float(m_wigner3jvalues[counter]) * m_AveQlm.get()[u1] * m_AveQlm.get()[u2]
+                    * m_AveQlm.get()[u3]).real();
                 counter++;
             }
         } // Ends loop for Norm Wli calcs
