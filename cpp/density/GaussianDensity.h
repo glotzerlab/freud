@@ -37,6 +37,12 @@ public:
         return m_box;
     }
 
+    //! Get the simulation box
+    float getSigma() const
+    {
+        return m_sigma;
+    }
+
     //! Reset the gaussian array to all zeros
     void reset();
 

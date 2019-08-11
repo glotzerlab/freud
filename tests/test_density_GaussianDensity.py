@@ -56,7 +56,7 @@ class TestDensity(unittest.TestCase):
         self.assertEqual(str(diff), str(eval(repr(diff))))
 
         # Use both signatures
-        diff3 = freud.density.GaussianDensity(98, 99, 100, 10.0, 0.1)
+        diff3 = freud.density.GaussianDensity((98, 99, 100), 10.0, 0.1)
         self.assertEqual(str(diff3), str(eval(repr(diff3))))
 
     def test_repr_png(self):

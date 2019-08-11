@@ -525,6 +525,7 @@ cdef class GaussianDensity(Compute):
             The image grid with the Gaussian density.
     """  # noqa: E501
     cdef freud._density.GaussianDensity * thisptr
+    cdef float r_max
 
     def __cinit__(self, width, r_max, sigma):
         cdef vec3[uint] width_vector
@@ -534,7 +535,7 @@ cdef class GaussianDensity(Compute):
             if len(width) == 2:
                 width_vector = vec3[uint](width[0], width[1], 1)
             elif len(width) == 3:
-                width_vector = vec3[uint](width[0], width[1], width)
+                width_vector = vec3[uint](width[0], width[1], width[2])
             else:
                 raise ValueError("The width must be either a number of pixels "
                                   "or a list of length 3 (2) indicating the "
@@ -544,6 +545,7 @@ cdef class GaussianDensity(Compute):
                                 "or a list of length 3 (2) indicating the "
                                 "widths in the 3 (2) spatial dimensions.")
 
+        self.r_max = r_max
         self.thisptr = new freud._density.GaussianDensity(
             width_vector, r_max, sigma)
 
@@ -589,23 +591,13 @@ cdef class GaussianDensity(Compute):
             array_shape = (width.z, width.y, width.x)
         return np.reshape(np.asarray(density), array_shape)
 
-    # def __repr__(self):
-        # if len(self.arglist) == 3:
-            # return ("freud.density.{cls}({width}, "
-                    # "{r_max}, {sigma})").format(cls=type(self).__name__,
-                                                # width=self.arglist[0],
-                                                # r_max=self.arglist[1],
-                                                # sigma=self.arglist[2])
-        # elif len(self.arglist) == 5:
-            # return ("freud.density.{cls}({width_x}, {width_y}, {width_z}, "
-                    # "{r_max}, {sigma})").format(cls=type(self).__name__,
-                                                # width_x=self.arglist[0],
-                                                # width_y=self.arglist[1],
-                                                # width_z=self.arglist[2],
-                                                # r_max=self.arglist[3],
-                                                # sigma=self.arglist[4])
-        # else:
-            # raise TypeError('GaussianDensity takes exactly 3 or 5 arguments')
+    def __repr__(self):
+        cdef vec3[uint] width = self.thisptr.getWidth()
+        return ("freud.density.{cls}({width}, "
+                "{r_max}, {sigma})").format(cls=type(self).__name__,
+                                            width=(width.x, width.y, width.z),
+                                            r_max=self.r_max,
+                                            sigma=self.thisptr.getSigma())
 
     def __str__(self):
         return repr(self)
