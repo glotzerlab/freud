@@ -591,13 +591,21 @@ cdef class GaussianDensity(Compute):
             array_shape = (width.z, width.y, width.x)
         return np.reshape(np.asarray(density), array_shape)
 
-    def __repr__(self):
+    @property
+    def sigma(self):
+        return self.thisptr.getSigma()
+
+    @property
+    def width(self):
         cdef vec3[uint] width = self.thisptr.getWidth()
+        return (width.x, width.y, width.z)
+
+    def __repr__(self):
         return ("freud.density.{cls}({width}, "
                 "{r_max}, {sigma})").format(cls=type(self).__name__,
-                                            width=(width.x, width.y, width.z),
+                                            width=self.width,
                                             r_max=self.r_max,
-                                            sigma=self.thisptr.getSigma())
+                                            sigma=self.sigma)
 
     def __str__(self):
         return repr(self)
