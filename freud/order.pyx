@@ -532,6 +532,7 @@ cdef class Steinhardt:
     .. moduleauthor:: Xiyu Du <xiyudu@umich.edu>
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
     .. moduleauthor:: Brandon Butler <butlerbr@umich.edu>
+    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
 
     Args:
         l (unsigned int):
@@ -1201,6 +1202,7 @@ cdef class LocalWl(LocalQl):
 
     .. moduleauthor:: Xiyu Du <xiyudu@umich.edu>
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
+    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
 
     Args:
         box (:class:`freud.box.Box`):
