@@ -23,11 +23,11 @@ cdef extern from "VectorMath.h":
 cdef extern from "ManagedArray.h" namespace "freud::util":
     cdef cppclass ManagedArray[T]:
         ManagedArray()
-        ManagedArray(const ManagedArray &)
+        ManagedArray(const ManagedArray[T] &)
         T *get()
         void reallocate()
         unsigned int size()
-        ManagedArray *deepCopy()
+        ManagedArray[T] *dissociate()
 
 
 cdef extern from "numpy/arrayobject.h":

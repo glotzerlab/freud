@@ -62,7 +62,7 @@ cdef class ManagedArrayManager:
         """
         if self.data_type == arr_type_t.UNSIGNED_INT:
             self.thisptr.uint_ptr = <ManagedArray[uint] *> \
-                self.thisptr.uint_ptr.deepCopy()
+                self.thisptr.uint_ptr.dissociate()
 
     cdef inline void reallocate(self):
         """Reallocate the data in the underlying array."""

@@ -38,10 +38,8 @@ public:
     ManagedArray(unsigned int size=0)
     {
         m_size = std::make_shared<unsigned int>(size);
-        // Hard code making an array of at least size 1.
         m_data = std::shared_ptr<std::shared_ptr<T> >(
-            new std::shared_ptr<T>(new T[1], std::default_delete<T[]>()));
-        create_new_array(size);
+            new std::shared_ptr<T>(new T[size], std::default_delete<T[]>()));
         reset();
     }
 
@@ -67,7 +65,7 @@ public:
      */
     void reallocate()
     {
-        create_new_array(*m_size);
+        *m_data = std::shared_ptr<T>(new T[*m_size], std::default_delete<T[]>());
         reset();
     }
 
@@ -113,11 +111,16 @@ public:
         return *m_size;
     }
 
-    //! Make a deep copy of this array (i.e. copy the underlying data).
-    /*! This function returns by value since all memory ownership information
-     *  is transmitted via shared pointers. 
+    //! Dissociate this ManagedArray from others referencing the same data.
+    /*! ManagedArrays share ownership of an array of data using a pointer to a
+     * pointer to the data, such that all arrays sharing data have distinct
+     * top-level pointers all pointing to the same second pointer. If we want
+     * to break this association between the current ManagedArray and the
+     * others without destroying or modifying the underlying data, we need to
+     * allocate a new second-level pointer for this ManagedArray and point it
+     * at the same underlying data.
      */
-    void *deepCopy()
+    ManagedArray<T> *dissociate()
     {
         ManagedArray<T> *deep_copy = new ManagedArray<T>(size());
         // This *m_data will be a different shared_ptr than the current
@@ -129,16 +132,8 @@ public:
     }
         
 private:
-    //! Reallocate the data array into a new chunk of memory.
-    void create_new_array(unsigned int size)
-    {
-        // Always allocate at least size 1
-        unsigned int new_size = size > 1 ? size : 1;
-        *m_data = std::shared_ptr<T>(new T[new_size], std::default_delete<T[]>());
-    }
-        
-    std::shared_ptr<std::shared_ptr<T> > m_data;                 //!< Pointer to array.
-    std::shared_ptr<unsigned int> m_size;      //!< Size of array.
+    std::shared_ptr<std::shared_ptr<T> > m_data;           //!< Pointer to array.
+    std::shared_ptr<unsigned int> m_size;                  //!< Size of array.
 };
 
 }; }; // end namespace freud::util
