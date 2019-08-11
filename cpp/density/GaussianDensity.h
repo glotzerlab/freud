@@ -26,9 +26,7 @@ class GaussianDensity
 {
 public:
     //! Constructor
-    GaussianDensity(unsigned int width, float r_cut, float sigma);
-    GaussianDensity(unsigned int width_x, unsigned int width_y, unsigned int width_z, float r_cut,
-                    float sigma);
+    GaussianDensity(vec3<unsigned int> width, float r_cut, float sigma);
 
     // Destructor
     ~GaussianDensity() {}
@@ -44,7 +42,7 @@ public:
 
     //! \internal
     //! helper function to reduce the thread specific arrays into one array
-    void reduceDensity();
+    void reduce();
 
     //! Compute the Density
     void compute(const box::Box& box, const vec3<float>* points, unsigned int n_points);
@@ -52,15 +50,11 @@ public:
     //! Get a reference to the last computed Density
     std::shared_ptr<float> getDensity();
 
-    unsigned int getWidthX();
-
-    unsigned int getWidthY();
-
-    unsigned int getWidthZ();
+    vec3<unsigned int> getWidth();
 
 private:
     box::Box m_box;                               //!< Simulation box where the particles belong
-    unsigned int m_width_x, m_width_y, m_width_z; //!< Num of bins on one side of the cube
+    vec3<unsigned int> m_width;                   //!< Num of bins on each side of the cube
     float m_rcut;                                 //!< Max r at which to compute density
     float m_sigma;                                //!< Variance
     Index3D m_bi;                                 //!< Bin indexer

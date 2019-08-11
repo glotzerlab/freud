@@ -15,26 +15,27 @@ class TestDensity(unittest.TestCase):
         num_points = 10000
         box_size = rcut*3.1
         box, points = make_box_and_random_points(box_size, num_points, True)
-        diff = freud.density.GaussianDensity(width, rcut, sigma)
+        for w in (width, (width, width), [width, width]):
+            diff = freud.density.GaussianDensity(w, rcut, sigma)
 
-        # Test access
-        with self.assertRaises(AttributeError):
+            # Test access
+            with self.assertRaises(AttributeError):
+                diff.box
+            with self.assertRaises(AttributeError):
+                diff.gaussian_density
+
+            diff.compute(box, points)
+
+            # Test access
             diff.box
-        with self.assertRaises(AttributeError):
             diff.gaussian_density
 
-        diff.compute(box, points)
-
-        # Test access
-        diff.box
-        diff.gaussian_density
-
-        myDiff = diff.gaussian_density
-        myFFT = fft(fft(myDiff[:, :], axis=1), axis=0)
-        myDiff = (myFFT * np.conj(myFFT)).real
-        myDiff = fftshift(myDiff)[:, :]
-        npt.assert_equal(np.where(myDiff == np.max(myDiff)),
-                         (np.array([50]), np.array([50])))
+            myDiff = diff.gaussian_density
+            myFFT = fft(fft(myDiff[:, :], axis=1), axis=0)
+            myDiff = (myFFT * np.conj(myFFT)).real
+            myDiff = fftshift(myDiff)[:, :]
+            npt.assert_equal(np.where(myDiff == np.max(myDiff)),
+                             (np.array([50]), np.array([50])))
 
     def test_change_box_dimension(self):
         width = 100

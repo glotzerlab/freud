@@ -16,27 +16,14 @@ using namespace tbb;
 
 namespace freud { namespace density {
 
-GaussianDensity::GaussianDensity(unsigned int width, float r_cut, float sigma)
-    : m_box(box::Box()), m_width_x(width), m_width_y(width), m_width_z(width), m_rcut(r_cut), m_sigma(sigma)
+GaussianDensity::GaussianDensity(vec3<unsigned int> width, float r_cut, float sigma)
+    : m_box(box::Box()), m_width(width), m_rcut(r_cut), m_sigma(sigma)
 {
-    if (width <= 0)
-        throw invalid_argument("GaussianDensity requires width to be a positive integer.");
     if (r_cut <= 0.0f)
         throw invalid_argument("GaussianDensity requires r_cut to be positive.");
 }
 
-GaussianDensity::GaussianDensity(unsigned int width_x, unsigned int width_y, unsigned int width_z,
-                                 float r_cut, float sigma)
-    : m_box(box::Box()), m_width_x(width_x), m_width_y(width_y), m_width_z(width_z), m_rcut(r_cut),
-      m_sigma(sigma)
-{
-    if (width_x <= 0 || width_y <= 0 || width_z <= 0)
-        throw invalid_argument("GaussianDensity requires width to be a positive integer.");
-    if (r_cut <= 0.0f)
-        throw invalid_argument("GaussianDensity requires r_cut to be positive.");
-}
-
-void GaussianDensity::reduceDensity()
+void GaussianDensity::reduce()
 {
     memset((void*) m_density_array.get(), 0, sizeof(float) * m_bi.getNumElements());
     // combine arrays
@@ -57,35 +44,16 @@ std::shared_ptr<float> GaussianDensity::getDensity()
 {
     if (m_reduce == true)
     {
-        reduceDensity();
+        reduce();
     }
     m_reduce = false;
     return m_density_array;
 }
 
-//! Get x width
-unsigned int GaussianDensity::getWidthX()
+//! Get width.
+vec3<unsigned int> GaussianDensity::getWidth()
 {
-    return m_width_x;
-}
-
-//! Get y width
-unsigned int GaussianDensity::getWidthY()
-{
-    return m_width_y;
-}
-
-//! Get z width
-unsigned int GaussianDensity::getWidthZ()
-{
-    if (!m_box.is2D())
-    {
-        return m_width_z;
-    }
-    else
-    {
-        return 0;
-    }
+    return m_width;
 }
 
 //! \internal
@@ -106,11 +74,11 @@ void GaussianDensity::compute(const box::Box& box, const vec3<float>* points, un
     m_box = box;
     if (m_box.is2D())
     {
-        m_bi = Index3D(m_width_x, m_width_y, 1);
+        m_bi = Index3D(m_width.x, m_width.y, 1);
     }
     else
     {
-        m_bi = Index3D(m_width_x, m_width_y, m_width_z);
+        m_bi = Index3D(m_width.x, m_width.y, m_width.z);
     }
 
     // this does not agree with rest of freud
@@ -126,9 +94,9 @@ void GaussianDensity::compute(const box::Box& box, const vec3<float>* points, un
         float ly = m_box.getLy();
         float lz = m_box.getLz();
 
-        float grid_size_x = lx / m_width_x;
-        float grid_size_y = ly / m_width_y;
-        float grid_size_z = lz / m_width_z;
+        float grid_size_x = lx / m_width.x;
+        float grid_size_y = ly / m_width.y;
+        float grid_size_z = lz / m_width.z;
 
         float sigmasq = m_sigma * m_sigma;
         float A = sqrt(1.0f / (2.0f * M_PI * sigmasq));
@@ -184,9 +152,9 @@ void GaussianDensity::compute(const box::Box& box, const vec3<float>* points, un
 
                             // Assure that out of range indices are corrected for storage
                             // in the array i.e. bin -1 is actually bin 29 for nbins = 30
-                            unsigned int ni = (i + m_width_x) % m_width_x;
-                            unsigned int nj = (j + m_width_y) % m_width_y;
-                            unsigned int nk = (k + m_width_z) % m_width_z;
+                            unsigned int ni = (i + m_width.x) % m_width.x;
+                            unsigned int nj = (j + m_width.y) % m_width.y;
+                            unsigned int nk = (k + m_width.z) % m_width.z;
 
                             // store the product of these values in an array - n[i, j, k]
                             // = gx*gy*gz
