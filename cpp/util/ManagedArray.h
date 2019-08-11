@@ -120,15 +120,10 @@ public:
      * allocate a new second-level pointer for this ManagedArray and point it
      * at the same underlying data.
      */
-    ManagedArray<T> *dissociate()
+    void dissociate()
     {
-        ManagedArray<T> *deep_copy = new ManagedArray<T>(size());
-        // This *m_data will be a different shared_ptr than the current
-        // instance's, so assigning to it directly shouldn't affect any other
-        // arrays pointing to the memory of the current one and reallocating
-        // the memory of others won't affect this one.
-        *((*deep_copy).m_data) = *m_data;
-        return deep_copy;
+        m_data = std::shared_ptr<std::shared_ptr<T> >(
+            new std::shared_ptr<T>(*m_data));
     }
         
 private:
