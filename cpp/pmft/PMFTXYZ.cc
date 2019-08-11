@@ -22,7 +22,7 @@ namespace freud { namespace pmft {
 PMFTXYZ::PMFTXYZ(float x_max, float y_max, float z_max, unsigned int n_x, unsigned int n_y, unsigned int n_z,
                  vec3<float> shiftvec)
     : PMFT(), m_x_max(x_max), m_y_max(y_max), m_z_max(z_max), m_n_x(n_x), m_n_y(n_y), m_n_z(n_z),
-      m_n_faces(0), m_shiftvec(shiftvec)
+      m_shiftvec(shiftvec)
 {
     if (n_x < 1)
         throw invalid_argument("PMFTXYZ requires at least 1 bin in X.");
@@ -89,9 +89,9 @@ void PMFTXYZ::reset()
  */
 void PMFTXYZ::accumulate(const locality::NeighborQuery* neighbor_query,
                          quat<float>* orientations, vec3<float>* query_points,
-                         quat<float>* query_orientations, unsigned int n_query_points,
-                         quat<float>* face_orientations, unsigned int n_faces,
-                         const locality::NeighborList* nlist, freud::locality::QueryArgs qargs)
+                         unsigned int n_query_points, quat<float>* face_orientations,
+                         unsigned int n_faces, const locality::NeighborList* nlist,
+                         freud::locality::QueryArgs qargs)
 {
     // precalc some values for faster computation within the loop
     float dx_inv = 1.0f / m_dx;

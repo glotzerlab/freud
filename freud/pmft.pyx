@@ -907,7 +907,7 @@ cdef class PMFTXYZ(_PMFT):
 
     @Compute._compute()
     def accumulate(self, box, points, orientations, query_points=None,
-                   query_orientations=None, face_orientations=None, nlist=None,
+                   face_orientations=None, nlist=None,
                    query_args={}):
         R"""Calculates the positional correlation function and adds to the
         current histogram.
@@ -922,10 +922,6 @@ cdef class PMFTXYZ(_PMFT):
             query_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
                 Points used in computation. Uses :code:`points` if not
                 provided or :code:`None`. (Default value = :code:`None`).
-            query_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`, optional):
-                Orientations as quaternions used in computation. Uses
-                :code:`orientations` if not provided or :code:`None`.
-                (Default value = :code:`None`).
             face_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`, optional):
                 Orientations of particle faces to account for particle
                 symmetry. If not supplied by user, unit quaternions will be
@@ -955,8 +951,6 @@ cdef class PMFTXYZ(_PMFT):
 
         if query_points is None:
             query_points = points
-        if query_orientations is None:
-            query_orientations = orientations
 
         orientations = freud.common.convert_array(
             np.atleast_1d(orientations),
@@ -965,9 +959,6 @@ cdef class PMFTXYZ(_PMFT):
         query_points = freud.common.convert_array(
             query_points, shape=(None, 3))
         query_points = query_points - self.shiftvec.reshape(1, 3)
-
-        query_orientations = freud.common.convert_array(
-            query_orientations, shape=(query_points.shape[0], 4))
 
         # handle multiple ways to input
         if face_orientations is None:
@@ -1011,7 +1002,6 @@ cdef class PMFTXYZ(_PMFT):
 
         cdef const float[:, ::1] l_query_points = query_points
         cdef const float[:, ::1] l_orientations = orientations
-        cdef const float[:, ::1] l_query_orientations = query_orientations
         cdef const float[:, :, ::1] l_face_orientations = face_orientations
         cdef unsigned int n_query_points = l_query_points.shape[0]
         cdef unsigned int nFaces = l_face_orientations.shape[1]
@@ -1020,7 +1010,6 @@ cdef class PMFTXYZ(_PMFT):
                 nq.get_ptr(),
                 <quat[float]*> &l_orientations[0, 0],
                 <vec3[float]*> &l_query_points[0, 0],
-                <quat[float]*> &l_query_orientations[0, 0],
                 n_query_points,
                 <quat[float]*> &l_face_orientations[0, 0, 0],
                 nFaces, nlistptr.get_ptr(), dereference(qargs.thisptr))
@@ -1028,7 +1017,7 @@ cdef class PMFTXYZ(_PMFT):
 
     @Compute._compute()
     def compute(self, box, points, orientations, query_points=None,
-                query_orientations=None, face_orientations=None, nlist=None,
+                face_orientations=None, nlist=None,
                 query_args={}):
         R"""Calculates the positional correlation function for the given points.
         Will overwrite the current histogram.
@@ -1043,10 +1032,6 @@ cdef class PMFTXYZ(_PMFT):
             query_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
                 Points used in computation. Uses :code:`points` if not
                 provided or :code:`None`. (Default value = :code:`None`).
-            query_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`, optional):
-                Orientations as quaternions used in computation. Uses
-                :code:`orientations` if not provided or :code:`None`.
-                (Default value = :code:`None`).
             face_orientations ((:math:`N_{particles}`, 4) :class:`numpy.ndarray`, optional):
                 Orientations of particle faces to account for particle
                 symmetry. If not supplied by user, unit quaternions will be
@@ -1060,7 +1045,7 @@ cdef class PMFTXYZ(_PMFT):
         """  # noqa: E501
         self.reset()
         self.accumulate(box, points, orientations,
-                        query_points, query_orientations, face_orientations,
+                        query_points, face_orientations,
                         nlist, query_args)
         return self
 
