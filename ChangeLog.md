@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 * Steinhardt uses the ThreadStorage class and properly resets memory where needed.
 * Removed all neighbor exclusion logic from Steinhardt.
 
+### Changed
+* Removed unused query\_orientations from PMFTXYZ.
+
 ## v1.2.1 - 2019-07-26
 
 ### Changed
