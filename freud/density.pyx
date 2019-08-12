@@ -497,16 +497,6 @@ cdef class GaussianDensity(Compute):
     dimensions of the image (grid) are set in the constructor, and can either
     be set equally for all dimensions or for each dimension independently.
 
-    - Constructor Calls:
-
-        Initialize with all dimensions identical::
-
-            freud.density.GaussianDensity(width, r_max, sigma)
-
-        Initialize with each dimension specified::
-
-            freud.density.GaussianDensity(width_x, width_y, width_z, r_max, sigma)
-
     .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
 
     Args:

@@ -4,9 +4,24 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Upcoming: Changes for freud 2.0
 
+### Added
+* Ability to specify NeighborQuery objects as points for neighbor-based pair computes.
+* Various validation tests.
+
+### Changed
+* All compute objects that perform neighbor computations now use NeighborQuery internally.
+* All compute objects that perform neighbor computations now loop over NeighborBond objects.
+* Renamed ref\_points, points to points, query\_points to clarify their usage.
+* Standardized naming of various standard parameters across freud.
+* Updated GaussianDensity constructor to accept tuples as width instead of having 2 distinct signatures.
+
 ### Fixed
 * Steinhardt uses the ThreadStorage class and properly resets memory where needed.
-* Removed all neighbor exclusion logic from Steinhardt.
+* Removed all neighbor exclusion logic from all classes, depends entirely on locality module now.
+
+### Removed
+* The freud.util module.
+
 
 ## v1.2.1 - 2019-07-26
 
@@ -55,7 +70,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## v1.1.0 - 2019-05-23
 
 ### Added
-* New neighbor querying API to enable reuse of query data structures.
+* New neighbor querying API to enable reuse of query data structures (see NeighborQuery class).
 * AABBQuery (AABB tree-based neighbor finding) added to public API.
 * Ability to dynamically select query method based on struct of arguments.
 * All compute objects have `__repr__` and `__str__` methods defined.
