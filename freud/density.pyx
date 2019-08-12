@@ -528,12 +528,12 @@ cdef class GaussianDensity(Compute):
                 width_vector = vec3[uint](width[0], width[1], width[2])
             else:
                 raise ValueError("The width must be either a number of pixels "
-                                  "or a list of length 3 (2) indicating the "
-                                  "widths in the 3 (2) spatial dimensions.")
+                                 "or a list of length 3 (2) indicating the "
+                                 "widths in the 3 (2) spatial dimensions.")
         else:
             raise ValueError("The width must be either a number of pixels "
-                                "or a list of length 3 (2) indicating the "
-                                "widths in the 3 (2) spatial dimensions.")
+                             "or a list of length 3 (2) indicating the "
+                             "widths in the 3 (2) spatial dimensions.")
 
         self.r_max = r_max
         self.thisptr = new freud._density.GaussianDensity(
