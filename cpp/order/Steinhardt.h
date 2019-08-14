@@ -103,11 +103,7 @@ public:
     //! Get the last calculated Ql
     std::shared_ptr<float> getQl()
     {
-        if (m_Wl)
-        {
-            return m_Wli;
-        }
-        else if (m_average)
+        if (m_average)
         {
             return m_QliAve;
         }
