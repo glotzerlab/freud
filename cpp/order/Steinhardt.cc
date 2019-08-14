@@ -300,7 +300,7 @@ void Steinhardt::aggregateWl(std::shared_ptr<float> target, std::shared_ptr<comp
         for (size_t i = r.begin(); i != r.end(); i++)
         {
             const unsigned int particle_index = (2 * m_l + 1) * i;
-            target.get()[i] = reduceWigner3j(&source.get()[particle_index], m_l, wigner3jvalues);
+            target.get()[i] = reduceWigner3j(&(source.get()[particle_index]), m_l, wigner3jvalues);
         }
     });
 }
