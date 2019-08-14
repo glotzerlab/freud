@@ -171,7 +171,7 @@ private:
     std::shared_ptr<complex<float>> m_QlmiAve; //!< Averaged Qlm with 2nd neighbor shell for each particle i
     std::shared_ptr<std::complex<float>> m_QlmAve;   //!< Normalized QlmiAve for the whole system
     float m_norm;                                    //!< System normalized order parameter
-    std::shared_ptr<float> m_Wli; //!< Wl order parameter for each particle i
+    std::shared_ptr<float> m_Wli; //!< Wl order parameter for each particle i, also used for Wl averaged data
 };
 
 }; };  // end namespace freud::order
