@@ -23,30 +23,19 @@ void Steinhardt::computeYlm(const float theta, const float phi, std::vector<std:
 
     fsph::PointSPHEvaluator<float> sph_eval(m_l);
 
-    unsigned int j(0);
+    unsigned int m_index(0);
     sph_eval.compute(theta, phi);
 
-    if (m_Wl)
+    for (typename fsph::PointSPHEvaluator<float>::iterator iter(sph_eval.begin_l(m_l, 0, true));
+         iter != sph_eval.end(); ++iter)
     {
-        for (typename fsph::PointSPHEvaluator<float>::iterator iter(sph_eval.begin_l(m_l, 0, false));
-             iter != sph_eval.end(); ++iter)
-        {
-            Ylm[(j + m_l) % (2 * m_l + 1)] = *iter;
-            ++j;
-        }
-        for (unsigned int i = 1; i <= m_l; i++)
-        {
-            Ylm[m_l - i] = Ylm[i + m_l];
-        }
-    }
-    else
-    {
-        for (typename fsph::PointSPHEvaluator<float>::iterator iter(sph_eval.begin_l(m_l, 0, true));
-             iter != sph_eval.end(); ++iter)
-        {
-            Ylm[j] = *iter;
-            ++j;
-        }
+        // Manually add the Condon-Shortley phase, (-1)^m, to positive odd m
+        float phase = 1;
+        if (m_index <= m_l && m_index % 2 == 1)
+            phase = -1;
+
+        Ylm[m_index] = phase * (*iter);
+        ++m_index;
     }
 }
 
@@ -73,7 +62,7 @@ void Steinhardt::reallocateArrays(unsigned int Np)
 
         if (m_Wl)
         {
-            m_WliOrder = makeArray<complex<float>>(Np);
+            m_Wli = makeArray<float>(Np);
         }
     }
     // Set arrays to zero
@@ -87,7 +76,7 @@ void Steinhardt::reallocateArrays(unsigned int Np)
     }
     if (m_Wl)
     {
-        memset((void*) m_WliOrder.get(), 0, sizeof(complex<float>) * m_Np);
+        memset((void*) m_Wli.get(), 0, sizeof(float) * m_Np);
     }
 }
 
@@ -112,18 +101,14 @@ void Steinhardt::compute(const freud::locality::NeighborList* nlist,
     {
         if (m_average)
         {
-            aggregateWl(m_WliOrder, m_QlmiAve);
+            aggregateWl(m_Wli, m_QlmiAve);
         }
         else
         {
-            aggregateWl(m_WliOrder, m_Qlmi);
+            aggregateWl(m_Wli, m_Qlmi);
         }
-        m_NormWl = normalizeWl();
     }
-    else
-    {
-        m_Norm = normalize();
-    }
+    m_norm = normalize();
 }
 
 void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
@@ -209,7 +194,7 @@ void Steinhardt::computeAve(const freud::locality::NeighborList* nlist,
                         neighborcount++;
                     }
                 } // End loop over particle neighbor's bonds
-            }     // End loop over particle's bonds
+            } // End loop over particle's bonds
 
             // Normalize!
             for (unsigned int k = 0; k < (2 * m_l + 1); ++k)
@@ -229,59 +214,35 @@ void Steinhardt::computeAve(const freud::locality::NeighborList* nlist,
 
 float Steinhardt::normalize()
 {
-    const float normalizationfactor = 4 * M_PI / (2 * m_l + 1);
-    float calc_norm(0);
-
-    for (unsigned int k = 0; k < (2 * m_l + 1); ++k)
+    if (m_Wl)
     {
-        // Add the norm, which is the complex squared magnitude
-        calc_norm += norm(m_Qlm.get()[k]);
+        auto wigner3jvalues = getWigner3j(m_l);
+        return reduceWigner3j(m_Qlm.get(), m_l, wigner3jvalues);
     }
-    return sqrt(calc_norm * normalizationfactor);
-}
-
-std::complex<float> Steinhardt::normalizeWl()
-{
-    // Get Wigner 3j coefficients:
-    // j1 from -l to l
-    // j2 from max(-l-j1, -l) to min(l-j1, l)
-    auto wigner3jvalues = getWigner3j(m_l);
-    std::complex<float> norm(0);
-    unsigned int counter = 0;
-    for (unsigned int u1 = 0; u1 < (2 * m_l + 1); ++u1)
+    else
     {
-        for (unsigned int u2 = max(0, int(m_l) - int(u1)); u2 < min(3 * m_l + 1 - u1, 2 * m_l + 1); ++u2)
+        const float normalizationfactor = 4 * M_PI / (2 * m_l + 1);
+        float calc_norm(0);
+
+        for (unsigned int k = 0; k < (2 * m_l + 1); ++k)
         {
-            const unsigned int u3 = 3 * m_l - u1 - u2;
-            norm += wigner3jvalues[counter] * m_Qlm.get()[u1] * m_Qlm.get()[u2] * m_Qlm.get()[u3];
-            counter++;
+            // Add the norm, which is the complex squared magnitude
+            calc_norm += norm(m_Qlm.get()[k]);
         }
-    } // Ends loop over Wigner 3j coefficients
-    return norm;
+        return sqrt(calc_norm * normalizationfactor);
+    }
 }
 
-void Steinhardt::aggregateWl(std::shared_ptr<complex<float>> target, std::shared_ptr<complex<float>> source)
+void Steinhardt::aggregateWl(std::shared_ptr<float> target, std::shared_ptr<complex<float>> source)
 {
-    // Get Wigner 3j coefficients:
-    // j1 from -l to l
-    // j2 from max(-l-j1, -l) to min(l-j1, l)
     auto wigner3jvalues = getWigner3j(m_l);
-
-    for (unsigned int i = 0; i < m_Np; i++)
-    {
-        unsigned int counter = 0;
-        for (unsigned int u1 = 0; u1 < (2 * m_l + 1); ++u1)
+    parallel_for(tbb::blocked_range<size_t>(0, m_Np), [=](const blocked_range<size_t>& r) {
+        for (size_t i = r.begin(); i != r.end(); i++)
         {
-            for (unsigned int u2 = max(0, int(m_l) - int(u1)); u2 < min(3 * m_l + 1 - u1, 2 * m_l + 1); ++u2)
-            {
-                const unsigned int particle_index = (2 * m_l + 1) * i;
-                const unsigned int u3 = 3 * m_l - u1 - u2;
-                target.get()[i] += wigner3jvalues[counter] * source.get()[particle_index + u1]
-                    * source.get()[particle_index + u2] * source.get()[particle_index + u3];
-                counter++;
-            }
-        } // Ends loop over Wigner 3j coefficients
-    }     // Ends loop over particles
+            const unsigned int particle_index = (2 * m_l + 1) * i;
+            target.get()[i] = reduceWigner3j(&source.get()[particle_index], m_l, wigner3jvalues);
+        }
+    });
 }
 
 void Steinhardt::reduce()
