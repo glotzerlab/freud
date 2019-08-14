@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 * Reduced various compiler warnings.
 * Possible out of bounds LinkCell access.
+* RDF plots now use the provided `ax` object.
 
 
 ## v1.2.1 - 2019-07-26
