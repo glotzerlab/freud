@@ -11,8 +11,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 * All compute objects that perform neighbor computations now use NeighborQuery internally.
 * All compute objects that perform neighbor computations now loop over NeighborBond objects.
-* Renamed ref\_points, points to points, query\_points to clarify their usage.
-* Standardized naming of various standard parameters across freud.
+* Renamed (ref\_points, points) to (points, query\_points) to clarify their usage.
+* Standardized naming of various common parameters across freud such as the search distance r\_max.
 * Updated GaussianDensity constructor to accept tuples as width instead of having 2 distinct signatures.
 
 ### Fixed

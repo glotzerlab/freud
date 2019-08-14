@@ -37,7 +37,7 @@ public:
         return m_box;
     }
 
-    //! Get the simulation box
+    //! Get the width of the gaussian distributions.
     float getSigma() const
     {
         return m_sigma;

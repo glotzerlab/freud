@@ -16,6 +16,8 @@ from cython.operator cimport dereference
 from freud.common cimport Compute
 from freud.util cimport vec3
 
+from collections.abc import Sequence
+
 cimport freud._density
 cimport freud.box, freud.locality
 cimport numpy as np
@@ -501,7 +503,7 @@ cdef class GaussianDensity(Compute):
 
     Args:
         width (int or list or tuple):
-            The number of pixels to make the image in each direction (identical
+            The number of bins to make the image in each direction (identical
             in all dimensions if a single integer value is provided).
         r_max (float):
             Distance over which to blur.
@@ -521,19 +523,20 @@ cdef class GaussianDensity(Compute):
         cdef vec3[uint] width_vector
         if isinstance(width, int):
             width_vector = vec3[uint](width, width, width)
-        elif isinstance(width, (list, tuple)):
+        elif isinstance(width, Sequence):
             if len(width) == 2:
                 width_vector = vec3[uint](width[0], width[1], 1)
             elif len(width) == 3:
                 width_vector = vec3[uint](width[0], width[1], width[2])
             else:
-                raise ValueError("The width must be either a number of pixels "
-                                 "or a list of length 3 (2) indicating the "
-                                 "widths in the 3 (2) spatial dimensions.")
+                raise ValueError("The width must be either a number of bins "
+                                 "or a list indicating the widths in each "
+                                 "spatial dimension (length 2 in 2D, length 3 "
+                                 "in 3D).")
         else:
-            raise ValueError("The width must be either a number of pixels "
-                             "or a list of length 3 (2) indicating the "
-                             "widths in the 3 (2) spatial dimensions.")
+            raise ValueError("The width must be either a number of bins or a "
+                             "list indicating the widths in each " "spatial "
+                             "dimension (length 2 in 2D, length 3 " "in 3D).")
 
         self.r_max = r_max
         self.thisptr = new freud._density.GaussianDensity(
@@ -568,11 +571,9 @@ cdef class GaussianDensity(Compute):
 
     @Compute._computed_property()
     def gaussian_density(self):
-        cdef vec3[uint] width = self.thisptr.getWidth()
-        cdef unsigned int array_size = width.x * width.y
         cdef freud.box.Box box = self.box
-        if not box.is2D():
-            array_size *= width.z
+        cdef vec3[uint] width = self.thisptr.getWidth()
+        cdef unsigned int array_size = width.x * width.y * (1 if box.is2D() else width.z)
         cdef const float[::1] density = \
             <float[:array_size]> self.thisptr.getDensity().get()
         if box.is2D():

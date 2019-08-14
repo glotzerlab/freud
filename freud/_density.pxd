@@ -6,8 +6,6 @@ from libcpp.memory cimport shared_ptr
 cimport freud._box
 cimport freud._locality
 
-ctypedef unsigned int uint
-
 cdef extern from "CorrelationFunction.h" namespace "freud::density":
     cdef cppclass CorrelationFunction[T]:
         CorrelationFunction(float, float) except +
@@ -25,7 +23,7 @@ cdef extern from "CorrelationFunction.h" namespace "freud::density":
 
 cdef extern from "GaussianDensity.h" namespace "freud::density":
     cdef cppclass GaussianDensity:
-        GaussianDensity(vec3[uint], float, float) except +
+        GaussianDensity(vec3[unsigned int], float, float) except +
         const freud._box.Box & getBox() const
         void reset()
         void compute(
@@ -33,7 +31,7 @@ cdef extern from "GaussianDensity.h" namespace "freud::density":
             const vec3[float]*,
             unsigned int) nogil except +
         shared_ptr[float] getDensity()
-        vec3[uint] getWidth()
+        vec3[unsigned int] getWidth()
         float getSigma()
 
 cdef extern from "LocalDensity.h" namespace "freud::density":
