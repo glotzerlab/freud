@@ -4,17 +4,28 @@
 #ifndef WIGNER3J_H
 #define WIGNER3J_H
 
+#include <complex>
 #include <vector>
-
-/*! \file wigner3j.h
- *  \brief Stores wigner3j coefficients for l ranging from 2 to 20
- */
 
 using namespace std;
 
-vector<double> getWigner3j(unsigned int l);
+/*! \file Wigner3j.h
+ *  \brief Stores and reduces over Wigner 3j coefficients for l from 0 to 20
+ */
 
-// All wigner3j coefficients created using sympy
+namespace freud { namespace order {
+
+//! Compute array index for m values, indexed like:
+//  [0, 1, ..., l, -1, -2, ..., -l]
+int lmIndex(int l, int m);
+
+//! Reduce an array using Wigner 3j coefficients to construct a
+//  third-order rotational invariant quantity.
+//  source array must be indexed by m, like [0, 1, ..., l, -1, -2, ..., -l].
+float reduceWigner3j(const complex<float>* source, unsigned int l_, const vector<double> &wigner3j);
+
+vector<double> getWigner3j(unsigned int l);
+// All Wigner 3j coefficients created using sympy
 /*
 
 from sympy.physics.wigner import wigner_3j
@@ -52,4 +63,5 @@ for l in sorted(wigner.keys()):
 
 */
 
+}; };  // end namespace freud::order
 #endif // WIGNER3J_H

@@ -72,17 +72,15 @@ class TestSteinhardt(unittest.TestCase):
 
         comp = freud.order.Steinhardt(1.5, 6, Wl=True)
         comp.compute(box, positions)
-        npt.assert_allclose(
-            np.real(np.average(comp.order)), PERFECT_FCC_W6, atol=1e-5)
+        npt.assert_allclose(np.average(comp.order), PERFECT_FCC_W6, atol=1e-5)
         npt.assert_allclose(comp.order, comp.order[0], atol=1e-5)
-        self.assertAlmostEqual(np.real(comp.norm), PERFECT_FCC_W6, delta=1e-5)
+        self.assertAlmostEqual(comp.norm, PERFECT_FCC_W6, delta=1e-5)
 
         comp = freud.order.Steinhardt(1.5, 6, Wl=True, average=True)
         comp.compute(box, positions)
-        npt.assert_allclose(
-            np.real(np.average(comp.order)), PERFECT_FCC_W6, atol=1e-5)
+        npt.assert_allclose(np.average(comp.order), PERFECT_FCC_W6, atol=1e-5)
         npt.assert_allclose(comp.order, comp.order[0], atol=1e-5)
-        self.assertAlmostEqual(np.real(comp.norm), PERFECT_FCC_W6, delta=1e-5)
+        self.assertAlmostEqual(comp.norm, PERFECT_FCC_W6, delta=1e-5)
 
         self.assertEqual(len(positions), comp.num_particles)
 
@@ -92,18 +90,16 @@ class TestSteinhardt(unittest.TestCase):
         # Use a really small cutoff to ensure that it is used as a soft cutoff
         comp = freud.order.Steinhardt(0.1, 6, num_neigh=12, Wl=True)
         comp.compute(box, positions)
-        npt.assert_allclose(
-            np.real(np.average(comp.order)), PERFECT_FCC_W6, atol=1e-5)
+        npt.assert_allclose(np.average(comp.order), PERFECT_FCC_W6, atol=1e-5)
         npt.assert_allclose(comp.order, comp.order[0], atol=1e-5)
-        self.assertAlmostEqual(np.real(comp.norm), PERFECT_FCC_W6, delta=1e-5)
+        self.assertAlmostEqual(comp.norm, PERFECT_FCC_W6, delta=1e-5)
 
         comp = freud.order.Steinhardt(1.5, 6, num_neigh=12, Wl=True,
                                       average=True)
         comp.compute(box, positions)
-        npt.assert_allclose(
-            np.real(np.average(comp.order)), PERFECT_FCC_W6, atol=1e-5)
+        npt.assert_allclose(np.average(comp.order), PERFECT_FCC_W6, atol=1e-5)
         npt.assert_allclose(comp.order, comp.order[0], atol=1e-5)
-        self.assertAlmostEqual(np.real(comp.norm), PERFECT_FCC_W6, delta=1e-5)
+        self.assertAlmostEqual(comp.norm, PERFECT_FCC_W6, delta=1e-5)
 
         self.assertEqual(len(positions), comp.num_particles)
 

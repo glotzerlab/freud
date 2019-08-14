@@ -532,6 +532,7 @@ cdef class Steinhardt:
     .. moduleauthor:: Xiyu Du <xiyudu@umich.edu>
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
     .. moduleauthor:: Brandon Butler <butlerbr@umich.edu>
+    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
 
     Args:
         l (unsigned int):
@@ -595,28 +596,20 @@ cdef class Steinhardt:
 
     @property
     def norm(self):
-        if self.stptr.getUseWl():
-            return self.stptr.getNormWl()
         return self.stptr.getNorm()
 
     @property
     def order(self):
-        if self.stptr.getUseWl():
-            return self._wl
-        return self.Ql
+        cdef unsigned int n_particles = self.stptr.getNP()
+        cdef const float[::1] op = \
+            <float[:n_particles]> self.stptr.getOrder().get()
+        return np.asarray(op)
 
     @property
     def Ql(self):
         cdef unsigned int n_particles = self.stptr.getNP()
         cdef const float[::1] op = \
             <float[:n_particles]> self.stptr.getQl().get()
-        return np.asarray(op)
-
-    @property
-    def _wl(self):
-        cdef unsigned int n_particles = self.stptr.getNP()
-        cdef const np.complex64_t[::1] op = \
-            <np.complex64_t[:n_particles]> self.stptr.getWl().get()
         return np.asarray(op)
 
     def compute(self, box, points, nlist=None):
@@ -1209,6 +1202,7 @@ cdef class LocalWl(LocalQl):
 
     .. moduleauthor:: Xiyu Du <xiyudu@umich.edu>
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
+    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
 
     Args:
         box (:class:`freud.box.Box`):
@@ -1284,30 +1278,30 @@ cdef class LocalWl(LocalQl):
     @Compute._computed_property("compute")
     def Wl(self):
         cdef unsigned int n_particles = self.qlptr.getNP()
-        cdef np.complex64_t[::1] Wl = \
-            <np.complex64_t[:n_particles]> self.thisptr.getWl().get()
-        return np.asarray(Wl, dtype=np.complex64)
+        cdef const float[::1] Wl = \
+            <float[:n_particles]> self.thisptr.getWl().get()
+        return np.asarray(Wl)
 
     @Compute._computed_property("computeAve")
     def ave_Wl(self):
         cdef unsigned int n_particles = self.qlptr.getNP()
-        cdef np.complex64_t[::1] ave_Wl = \
-            <np.complex64_t[:n_particles]> self.thisptr.getAveWl().get()
-        return np.asarray(ave_Wl, dtype=np.complex64)
+        cdef const float[::1] ave_Wl = \
+            <float[:n_particles]> self.thisptr.getAveWl().get()
+        return np.asarray(ave_Wl)
 
     @Compute._computed_property("computeNorm")
     def norm_Wl(self):
         cdef unsigned int n_particles = self.qlptr.getNP()
-        cdef np.complex64_t[::1] norm_Wl = \
-            <np.complex64_t[:n_particles]> self.thisptr.getWlNorm().get()
-        return np.asarray(norm_Wl, dtype=np.complex64)
+        cdef const float[::1] norm_Wl = \
+            <float[:n_particles]> self.thisptr.getWlNorm().get()
+        return np.asarray(norm_Wl)
 
     @Compute._computed_property("computeAveNorm")
     def ave_norm_Wl(self):
         cdef unsigned int n_particles = self.qlptr.getNP()
-        cdef np.complex64_t[::1] ave_norm_Wl = \
-            <np.complex64_t[:n_particles]> self.thisptr.getAveNormWl().get()
-        return np.asarray(ave_norm_Wl, dtype=np.complex64)
+        cdef const float[::1] ave_norm_Wl = \
+            <float[:n_particles]> self.thisptr.getAveNormWl().get()
+        return np.asarray(ave_norm_Wl)
 
     def __repr__(self):
         return ("freud.order.{cls}(box={box}, rmax={rmax}, l={sph_l}, "

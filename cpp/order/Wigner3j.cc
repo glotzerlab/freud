@@ -1,16 +1,66 @@
 // Copyright (c) 2010-2019 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
+#include <algorithm>
 #include <iostream>
 #include <vector>
 
-#include "wigner3j.h"
+#include "Wigner3j.h"
+
+#if defined _WIN32
+#undef min // std::min clashes with a Windows header
+#undef max // std::max clashes with a Windows header
+#endif
 
 using namespace std;
 
-/*! \file wigner3j.cc
- *  \brief Stores Wigner 3j coefficients for l ranging from 0 to 20
+/*! \file Wigner3j.cc
+ *  \brief Stores and reduces over Wigner 3j coefficients for l from 0 to 20
  */
+
+namespace freud { namespace order {
+
+inline int lmIndex(int l, int m)
+{
+    return m < 0 ? l - m : m;
+}
+
+float reduceWigner3j(const complex<float>* source, unsigned int l_, const vector<double> &wigner3j)
+{
+    /*
+     * Wigner 3j coefficients:
+     * (j1 j2 j3)
+     * (m1 m2 m3)
+     *
+     * We know:
+     * j1 = j2 = j3 = l
+     * -l <= m1, m2, m3 <= l
+     * m1 + m2 + m3 = 0
+     *
+     * To iterate, we use:
+     * m1 from -l to l
+     * m2 from max(-l-m1, -l) to min(l-m1, l)
+     * m3 = -m1 - m2
+     */
+
+    const int l(l_); // Create signed int for simplicity of following code
+    float result = 0;
+    unsigned int counter = 0;
+    for (int m1 = -l; m1 <= l; m1++)
+    {
+        const int m1_index = lmIndex(l, m1);
+        for (int m2 = max(-l - m1, -l); m2 <= min(l - m1, l); m2++)
+        {
+            const int m2_index = lmIndex(l, m2);
+            const int m3 = -m1 - m2;
+            const int m3_index = lmIndex(l, m3);
+            result += (float(wigner3j[counter]) * source[m1_index]
+                    * source[m2_index] * source[m3_index]).real();
+            counter++;
+        }
+    } // Ends loop over Wigner 3j coefficients
+    return result;
+}
 
 vector<double> getWigner3j(unsigned int l)
 {
@@ -2472,3 +2522,5 @@ vector<double> getWigner3j(unsigned int l)
     }
     throw out_of_range("Wigner 3j coefficients are implemented for l <= 20.");
 }
+
+}; };  // end namespace freud::order
