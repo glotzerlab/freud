@@ -19,10 +19,10 @@ Cluster
 =======
 
 .. autoclass:: freud.cluster.Cluster(r_max)
-    :members: computeClusterMembership, computeClusters, plot
+    :members: compute, computeClusterMembership, plot
 
 Cluster Properties
 ==================
 
 .. autoclass:: freud.cluster.ClusterProperties()
-    :members: computeProperties
+    :members: compute
