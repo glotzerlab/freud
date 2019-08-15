@@ -267,8 +267,6 @@ cdef class Box:
     def getImage(self, vecs):
         R"""Returns the image corresponding to a wrapped vector.
 
-        .. versionadded:: 0.8
-
         Args:
             vecs (:math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
                 Coordinates of a single vector or array of :math:`N` unwrapped vectors.
@@ -660,8 +658,6 @@ cdef class ParticleBuffer:
 
     .. moduleauthor:: Ben Schultz <baschult@umich.edu>
     .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
-
-    .. versionadded:: 0.11
 
     Args:
         box (:py:class:`freud.box.Box`): Simulation box.
