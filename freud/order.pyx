@@ -666,7 +666,7 @@ cdef class Steinhardt(Compute):
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
         import plot
-        mode_letter = 'W' if self.stptr.getUseWl() else 'Q'
+        mode_letter = 'W' if self.stptr.isWl() else 'Q'
         xlabel = r"${}_{{{}}}$".format(mode_letter, self.sph_l)
         return plot.histogram_plot(self.order,
                                    title="Steinhardt Order Parameter",

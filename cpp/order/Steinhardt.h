@@ -122,6 +122,24 @@ public:
         return m_norm;
     }
 
+    //!< Whether to take a second shell average
+    bool isAverage()
+    {
+        return m_average;
+    }
+
+    //!< Whether to use the third-order invariant Wl
+    bool isWl()
+    {
+        return m_Wl;
+    }
+
+    //!< Whether to use neighbor weights in computing Qlmi
+    bool isWeighted()
+    {
+        return m_weighted;
+    }
+
     //! Compute the order parameter
     virtual void compute(const freud::locality::NeighborList* nlist,
                                   const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs);
