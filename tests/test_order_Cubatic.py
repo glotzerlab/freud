@@ -1,18 +1,8 @@
 import numpy as np
 import numpy.testing as npt
 import freud
+import rowan
 import unittest
-
-
-def gen_quaternions(n, axes, angles):
-    q = np.zeros(shape=(n, 4), dtype=np.float32)
-    for i, (axis, angle) in enumerate(zip(axes, angles)):
-        q[i] = [np.cos(angle/2.0),
-                np.sin(angle/2.0) * axis[0],
-                np.sin(angle/2.0) * axis[1],
-                np.sin(angle/2.0) * axis[2]]
-        q[i] /= np.linalg.norm(q[i])
-    return q
 
 
 class TestCubatic(unittest.TestCase):
@@ -26,9 +16,7 @@ class TestCubatic(unittest.TestCase):
         # generate similar angles
         np.random.seed(1030)
         angles = np.random.uniform(low=0.0, high=0.05, size=N)
-
-        # generate quaternions
-        orientations = gen_quaternions(N, axes, angles)
+        orientations = rowan.from_axis_angle(axes, angles)
 
         # create cubatic object
         t_initial = 5.0
@@ -84,8 +72,6 @@ class TestCubatic(unittest.TestCase):
         self.assertEqual(cop.global_tensor.shape, (3, 3, 3, 3))
         self.assertEqual(cop.gen_r4_tensor.shape, (3, 3, 3, 3))
 
-    @unittest.skip("This test appears to be flawed, "
-                   "for some random angles it can fail")
     def test_disordered(self):
         # do not need positions, just orientations
         N = 1000
@@ -95,17 +81,15 @@ class TestCubatic(unittest.TestCase):
         ax_list = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1],
                             [1, 1, 0], [1, 0, 1], [0, 1, 1],
                             [1, 1, 1]], dtype=np.float32)
-        for ax in ax_list:
-            ax /= np.linalg.norm(ax)
+        ax_list /= np.linalg.norm(ax_list, axis=-1)[:, np.newaxis]
+
         for i in range(N):
             axes[i] = ax_list[i % ax_list.shape[0]]
 
-        # generate disordered angles
+        # generate disordered orientations
         np.random.seed(0)
         angles = np.random.uniform(low=np.pi/4.0, high=np.pi/2.0, size=N)
-
-        # generate quaternions
-        orientations = gen_quaternions(N, axes, angles)
+        orientations = rowan.from_axis_angle(axes, angles)
 
         # create cubatic object
         cubaticOP = freud.order.CubaticOrderParameter(5.0, 0.001, 0.95, 10)
