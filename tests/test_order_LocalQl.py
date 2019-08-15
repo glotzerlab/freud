@@ -1,6 +1,7 @@
 import numpy as np
 import numpy.testing as npt
 import freud
+import rowan
 import unittest
 import util
 
@@ -110,6 +111,38 @@ class TestLocalQl(unittest.TestCase):
 
         npt.assert_array_almost_equal(first_result, second_result)
 
+    def test_rotational_invariance(self):
+        box = freud.box.Box.cube(10)
+        positions = np.array([[0, 0, 0],
+                              [-1, -1, 0],
+                              [-1, 1, 0],
+                              [1, -1, 0],
+                              [1, 1, 0],
+                              [-1, 0, -1],
+                              [-1, 0, 1],
+                              [1, 0, -1],
+                              [1, 0, 1],
+                              [0, -1, -1],
+                              [0, -1, 1],
+                              [0, 1, -1],
+                              [0, 1, 1]])
+        index_i = np.zeros(12)
+        index_j = np.arange(1, 13)
+        nlist = freud.locality.NeighborList.from_arrays(
+            13, 13, index_i, index_j)
+
+        q6 = freud.order.LocalQl(box, 1.5, 6)
+        q6.compute(positions, nlist=nlist)
+        q6_unrotated_order = q6.Ql[0]
+
+        for i in range(10):
+            np.random.seed(i)
+            quat = rowan.random.rand()
+            positions_rotated = rowan.rotate(quat, positions)
+            q6.compute(positions_rotated, nlist=nlist)
+            npt.assert_almost_equal(q6.Ql[0], q6_unrotated_order)
+            npt.assert_almost_equal(q6.Ql[0], PERFECT_FCC_Q6)
+
 
 class TestLocalQlNear(unittest.TestCase):
     def test_init_kwargs(self):
@@ -158,7 +191,7 @@ class TestLocalQlNear(unittest.TestCase):
 
         comp.computeAve(positions)
         self.assertTrue(np.isclose(
-            np.real(np.average(comp.Ql)), PERFECT_FCC_Q6, atol=1e-5))
+            np.average(comp.Ql), PERFECT_FCC_Q6, atol=1e-5))
         self.assertTrue(np.allclose(comp.ave_Ql, comp.ave_Ql[0]))
 
         # Perturb one position to ensure exactly 13 particles' values change
@@ -217,6 +250,38 @@ class TestLocalQlNear(unittest.TestCase):
         comp.plot(mode="ave_norm_Ql")
         comp.computeNorm(positions)
         comp.plot(mode="norm_Ql")
+
+    def test_rotational_invariance(self):
+        box = freud.box.Box.cube(10)
+        positions = np.array([[0, 0, 0],
+                              [-1, -1, 0],
+                              [-1, 1, 0],
+                              [1, -1, 0],
+                              [1, 1, 0],
+                              [-1, 0, -1],
+                              [-1, 0, 1],
+                              [1, 0, -1],
+                              [1, 0, 1],
+                              [0, -1, -1],
+                              [0, -1, 1],
+                              [0, 1, -1],
+                              [0, 1, 1]])
+        index_i = np.zeros(12)
+        index_j = np.arange(1, 13)
+        nlist = freud.locality.NeighborList.from_arrays(
+            13, 13, index_i, index_j)
+
+        q6 = freud.order.LocalQlNear(box, 0.1, 6, 12)
+        q6.compute(positions, nlist=nlist)
+        q6_unrotated_order = q6.Ql[0]
+
+        for i in range(10):
+            np.random.seed(i)
+            quat = rowan.random.rand()
+            positions_rotated = rowan.rotate(quat, positions)
+            q6.compute(positions_rotated, nlist=nlist)
+            npt.assert_almost_equal(q6.Ql[0], q6_unrotated_order)
+            npt.assert_almost_equal(q6.Ql[0], PERFECT_FCC_Q6)
 
 
 if __name__ == '__main__':
