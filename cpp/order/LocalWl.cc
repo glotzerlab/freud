@@ -39,7 +39,7 @@ void LocalWl::computeYlm(const float theta, const float phi, std::vector<std::co
     }
     for (unsigned int i = 1; i <= m_l; i++)
     {
-        Ylm[-i + m_l] = Ylm[i + m_l];
+        Ylm[m_l - i] = Ylm[i + m_l];
     }
 }
 
@@ -61,7 +61,7 @@ void LocalWl::compute(const locality::NeighborList* nlist, const vec3<float>* po
     // the quantity is multiplied by the normalization factor
     // and then the result is square rooted, so here we just
     // divide by the square root.
-    float normalizationfactor = sqrt(4 * M_PI / (2 * m_l + 1));
+    float normalizationfactor = sqrtf(4 * M_PI / (2 * m_l + 1));
 
     // Get wigner3j coefficients from wigner3j.cc
     m_wigner3jvalues = getWigner3j(m_l);

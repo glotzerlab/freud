@@ -36,7 +36,7 @@ void Steinhardt::computeYlm(const float theta, const float phi, std::vector<std:
         }
         for (unsigned int i = 1; i <= m_l; i++)
         {
-            Ylm[-i + m_l] = Ylm[i + m_l];
+            Ylm[m_l - i] = Ylm[i + m_l];
         }
     }
     else
@@ -130,7 +130,7 @@ void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
                              const freud::locality::NeighborQuery* points,
                              freud::locality::QueryArgs qargs)
 {
-    const float normalizationfactor = 4 * M_PI / (2 * m_l + 1);
+    const float normalizationfactor = float(4 * M_PI / (2 * m_l + 1));
     // For consistency, this reset is done here regardless of whether the array
     // is populated in baseCompute or computeAve.
     m_Qlm_local.reset();

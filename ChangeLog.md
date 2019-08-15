@@ -4,12 +4,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Upcoming: Changes for freud 2.0
 
+### Changed
+* Removed unused query\_orientations from PMFTXYZ.
+
 ### Fixed
 * Steinhardt uses the ThreadStorage class and properly resets memory where needed.
 * Removed all neighbor exclusion logic from Steinhardt.
 
-### Changed
-* Removed unused query\_orientations from PMFTXYZ.
+## Next
+
+### Fixed
+* Reduced various compiler warnings.
+* Possible out of bounds LinkCell access.
+* RDF plots now use the provided `ax` object.
 
 ## v1.2.1 - 2019-07-26
 

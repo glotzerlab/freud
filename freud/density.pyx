@@ -971,7 +971,8 @@ cdef class RDF(Compute):
         return plot.line_plot(self.R, self.RDF,
                               title="RDF",
                               xlabel=r"$r$",
-                              ylabel=r"$g(r)$")
+                              ylabel=r"$g(r)$",
+                              ax=ax)
 
     def _repr_png_(self):
         import plot

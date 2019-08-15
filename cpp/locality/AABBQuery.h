@@ -114,13 +114,13 @@ protected:
                 throw std::runtime_error("You must set nn in the query arguments.");
             if (args.scale == -1)
             {
-                args.scale = 1.1;
+                args.scale = float(1.1);
             }
             if (args.rmax == -1)
             {
                 vec3<float> L = this->getBox().getL();
                 float rmax = std::min(L.x, L.y);
-                args.rmax = this->getBox().is2D() ? 0.1 * rmax : 0.1 * std::min(rmax, L.z);
+                args.rmax = this->getBox().is2D() ? float(0.1) * rmax : float(0.1) * std::min(rmax, L.z);
             }
         }
     }
@@ -164,6 +164,9 @@ protected:
 class AABBQueryIterator : virtual public NeighborQueryQueryIterator, virtual public AABBIterator
 {
 public:
+    // Explicitly indicate which toNeighborList function is used.
+    using NeighborQueryQueryIterator::toNeighborList;
+
     //! Constructor
     AABBQueryIterator(const AABBQuery* neighbor_query, const vec3<float>* points, unsigned int N,
                       unsigned int k, float r, float scale, bool exclude_ii)
