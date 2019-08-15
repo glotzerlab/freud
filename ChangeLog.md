@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 * Steinhardt uses the ThreadStorage class and properly resets memory where needed.
 * Removed all neighbor exclusion logic from Steinhardt.
 
+### Removed
+* Python 2 is no longer supported. Python 3.5+ is required.
+
 ## Next
 
 ### Fixed
