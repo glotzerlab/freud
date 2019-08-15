@@ -188,10 +188,11 @@ else:
 
 # Set directives and macros
 directives = {
-    'embedsignature': True,
     'binding': True,
     'boundscheck': False,
     'wraparound': False,
+    'embedsignature': True,
+    'language_level': 3,
 }
 macros = []
 
