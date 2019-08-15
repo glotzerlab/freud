@@ -40,9 +40,6 @@ cdef class Box:
     .. moduleauthor:: Carl Simon Adorf <csadorf@umich.edu>
     .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
 
-    .. versionchanged:: 0.7.0
-       Added box periodicity interface
-
     The Box class is defined according to the conventions of the
     HOOMD-blue simulation software.
     For more information, please see:
