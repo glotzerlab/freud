@@ -523,20 +523,14 @@ cdef class GaussianDensity(Compute):
         cdef vec3[uint] width_vector
         if isinstance(width, int):
             width_vector = vec3[uint](width, width, width)
-        elif isinstance(width, Sequence):
-            if len(width) == 2:
-                width_vector = vec3[uint](width[0], width[1], 1)
-            elif len(width) == 3:
-                width_vector = vec3[uint](width[0], width[1], width[2])
-            else:
-                raise ValueError("The width must be either a number of bins "
-                                 "or a list indicating the widths in each "
-                                 "spatial dimension (length 2 in 2D, length 3 "
-                                 "in 3D).")
+        elif isinstance(width, Sequence) and len(width) == 2:
+            width_vector = vec3[uint](width[0], width[1], 1)
+        elif isinstance(width, Sequence) and len(width) == 3:
+            width_vector = vec3[uint](width[0], width[1], width[2])
         else:
             raise ValueError("The width must be either a number of bins or a "
-                             "list indicating the widths in each " "spatial "
-                             "dimension (length 2 in 2D, length 3 " "in 3D).")
+                             "list indicating the widths in each spatial "
+                             "dimension (length 2 in 2D, length 3 in 3D).")
 
         self.r_max = r_max
         self.thisptr = new freud._density.GaussianDensity(
