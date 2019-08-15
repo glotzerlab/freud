@@ -677,7 +677,7 @@ cdef class Steinhardt(Compute):
     def _repr_png_(self):
         import plot
         try:
-            return plot.ax_to_bytes(self.plot(mode=self.plot_mode))
+            return plot.ax_to_bytes(self.plot())
         except AttributeError:
             return None
 
