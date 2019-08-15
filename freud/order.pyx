@@ -976,7 +976,7 @@ cdef class LocalQl(Compute):
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-        import plot
+        import freud.plot
         plot_data = getattr(self, mode)
         mode = mode.replace(name, "Q")
         if mode == "Ql":
@@ -993,11 +993,11 @@ cdef class LocalQl(Compute):
         if near:
             title += " Near"
         xlabel = r"{} ${}_{{{}}}$".format(mode_str, name, self.sph_l)
-        return plot.histogram_plot(plot_data,
-                                   title=title,
-                                   xlabel=xlabel,
-                                   ylabel=r"Number of particles",
-                                   ax=ax)
+        return freud.plot.histogram_plot(plot_data,
+                                         title=title,
+                                         xlabel=xlabel,
+                                         ylabel=r"Number of particles",
+                                         ax=ax)
 
     @Compute._computed_method(("compute", "computeNorm",
                                "computeAve", "computeAveNorm"))
@@ -1021,9 +1021,9 @@ cdef class LocalQl(Compute):
         return self._plot(mode, "Q", False, ax)
 
     def _repr_png_(self):
-        import plot
+        import freud.plot
         try:
-            return plot.ax_to_bytes(self.plot(mode=self.plot_mode))
+            return freud.plot.ax_to_bytes(self.plot(mode=self.plot_mode))
         except AttributeError:
             return None
 
@@ -1363,9 +1363,9 @@ cdef class LocalWl(LocalQl):
         return self._plot(mode, "W", False, ax)
 
     def _repr_png_(self):
-        import plot
+        import freud.plot
         try:
-            return plot.ax_to_bytes(
+            return freud.plot.ax_to_bytes(
                 self.plot(mode=self.plot_mode.replace("Q", "W")))
         except AttributeError:
             return None
