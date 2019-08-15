@@ -428,6 +428,7 @@ try:
               packages=['freud'],
               python_requires='>=3.5',
               install_requires=['numpy>=1.10'],
+              tests_require=['matplotlib>=2.0', 'rowan>=1.0', 'sympy>=1.0'],
               ext_modules=extensions)
 except SystemExit:
     # The errors we're explicitly checking for are whether or not

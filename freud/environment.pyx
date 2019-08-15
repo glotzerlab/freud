@@ -857,8 +857,8 @@ cdef class MatchEnv(Compute):
             counts = np.unique(self.clusters, return_counts=True)
         except ValueError:
             return None
-        return freud.plot.plot_clusters(counts[0], counts[1],
-                                        num_cluster_to_plot=10, ax=ax)
+        return freud.plot.clusters_plot(counts[0], counts[1],
+                                        num_clusters_to_plot=10, ax=ax)
 
     def _repr_png_(self):
         import freud.plot

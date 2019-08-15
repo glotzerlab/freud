@@ -78,9 +78,7 @@ cdef extern from "Steinhardt.h" namespace "freud::order":
                      const freud._locality.NeighborQuery*,
                      freud._locality.QueryArgs) nogil except +
         shared_ptr[float] getQl()
-        shared_ptr[float complex] getWl()
-        bool getUseWl()
-        float complex getNormWl()
+        shared_ptr[float] getOrder()
         float getNorm()
 
 cdef extern from "LocalQl.h" namespace "freud::order":
@@ -89,8 +87,6 @@ cdef extern from "LocalQl.h" namespace "freud::order":
         const freud._box.Box & getBox() const
         unsigned int getNP()
         void setBox(const freud._box.Box)
-        shared_ptr[float] getQl()
-
         void compute(const freud._locality.NeighborList *,
                      const vec3[float]*,
                      unsigned int) nogil except +
@@ -101,6 +97,7 @@ cdef extern from "LocalQl.h" namespace "freud::order":
                          unsigned int) nogil except +
         void computeAveNorm(const vec3[float]*,
                             unsigned int) nogil except +
+        shared_ptr[float] getQl()
         shared_ptr[float] getAveQl()
         shared_ptr[float] getQlNorm()
         shared_ptr[float] getQlAveNorm()
@@ -108,10 +105,10 @@ cdef extern from "LocalQl.h" namespace "freud::order":
 cdef extern from "LocalWl.h" namespace "freud::order":
     cdef cppclass LocalWl(LocalQl):
         LocalWl(const freud._box.Box &, float, unsigned int, float)
-        shared_ptr[float complex] getWl()
-        shared_ptr[float complex] getAveWl()
-        shared_ptr[float complex] getWlNorm()
-        shared_ptr[float complex] getAveNormWl()
+        shared_ptr[float] getWl()
+        shared_ptr[float] getAveWl()
+        shared_ptr[float] getWlNorm()
+        shared_ptr[float] getAveNormWl()
         void enableNormalization()
         void disableNormalization()
 

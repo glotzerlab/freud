@@ -17,6 +17,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## Next
 
 ### Fixed
+* Fixed missing Condon-Shortley phase affecting LocalWl and Steinhardt Wl
+  computations. This missing factor of -1 caused results for third-order (Wl)
+  Steinhardt order parameters to be incorrect, shown by their lack of
+  rotational invariance. This problem was introduced in v0.5.0.
 * Reduced various compiler warnings.
 * Possible out of bounds LinkCell access.
 * RDF plots now use the provided `ax` object.
