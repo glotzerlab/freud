@@ -453,7 +453,7 @@ class Voronoi(Compute):
         if not self._box.is2D():
             return None
         else:
-            return plot.draw_voronoi(self._box, self.polytopes, ax=ax)
+            return plot.voronoi_plot(self._box, self.polytopes, ax=ax)
 
     def _repr_png_(self):
         import plot

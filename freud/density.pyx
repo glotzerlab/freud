@@ -622,7 +622,7 @@ cdef class GaussianDensity(Compute):
         import plot
         if not self.box.is2D():
             return None
-        return plot.plot_density(self.gaussian_density, self.box, ax=ax)
+        return plot.density_plot(self.gaussian_density, self.box, ax=ax)
 
     def _repr_png_(self):
         import plot
