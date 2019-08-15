@@ -81,37 +81,6 @@ cdef extern from "Steinhardt.h" namespace "freud::order":
         shared_ptr[float] getOrder()
         float getNorm()
 
-cdef extern from "LocalQl.h" namespace "freud::order":
-    cdef cppclass LocalQl:
-        LocalQl(const freud._box.Box &, float, unsigned int, float) except +
-        const freud._box.Box & getBox() const
-        unsigned int getNP()
-        void setBox(const freud._box.Box)
-        void compute(const freud._locality.NeighborList *,
-                     const vec3[float]*,
-                     unsigned int) nogil except +
-        void computeAve(const freud._locality.NeighborList *,
-                        const vec3[float]*,
-                        unsigned int) nogil except +
-        void computeNorm(const vec3[float]*,
-                         unsigned int) nogil except +
-        void computeAveNorm(const vec3[float]*,
-                            unsigned int) nogil except +
-        shared_ptr[float] getQl()
-        shared_ptr[float] getAveQl()
-        shared_ptr[float] getQlNorm()
-        shared_ptr[float] getQlAveNorm()
-
-cdef extern from "LocalWl.h" namespace "freud::order":
-    cdef cppclass LocalWl(LocalQl):
-        LocalWl(const freud._box.Box &, float, unsigned int, float)
-        shared_ptr[float] getWl()
-        shared_ptr[float] getAveWl()
-        shared_ptr[float] getWlNorm()
-        shared_ptr[float] getAveNormWl()
-        void enableNormalization()
-        void disableNormalization()
-
 cdef extern from "SolLiq.h" namespace "freud::order":
     cdef cppclass SolLiq:
         SolLiq(const freud._box.Box &, float,
