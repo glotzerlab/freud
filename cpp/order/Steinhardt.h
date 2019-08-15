@@ -12,7 +12,7 @@
 #include "NeighborList.h"
 #include "VectorMath.h"
 #include "fsph/src/spherical_harmonics.hpp"
-#include "wigner3j.h"
+#include "Wigner3j.h"
 
 /*! \file Steinhardt.h
     \brief Computes variants of Steinhardt order parameters.
@@ -83,7 +83,24 @@ public:
         return m_Np;
     }
 
-    //! Get the last calculated order parameter Ql
+    //! Get the last calculated order parameter
+    std::shared_ptr<float> getOrder()
+    {
+        if (m_Wl)
+        {
+            return m_Wli;
+        }
+        else if (m_average)
+        {
+            return m_QliAve;
+        }
+        else
+        {
+            return m_Qli;
+        }
+    }
+
+    //! Get the last calculated Ql
     std::shared_ptr<float> getQl()
     {
         if (m_average)
@@ -96,28 +113,10 @@ public:
         }
     }
 
-    //! Get the last calculated order parameter Wl
-    std::shared_ptr<std::complex<float>> getWl()
-    {
-        return m_WliOrder;
-    }
-
-    //! Get whether the Wl flag was set
-    bool getUseWl()
-    {
-        return m_Wl;
-    }
-
-    //! Get Wl norm
-    std::complex<float> getNormWl()
-    {
-        return m_NormWl;
-    }
-
-    //! Get Ql norm
+    //! Get norm
     float getNorm()
     {
-        return m_Norm;
+        return m_norm;
     }
 
     //! Compute the order parameter
@@ -149,12 +148,9 @@ private:
     //! Normalize the order parameter
     float normalize();
 
-    //! Normalize the Wl order parameter
-    std::complex<float> normalizeWl();
-
     //! Sum over Wigner 3j coefficients to compute third-order invariants
     //  Wl from second-order invariants Ql
-    void aggregateWl(std::shared_ptr<std::complex<float>> target,
+    void aggregateWl(std::shared_ptr<float> target,
                      std::shared_ptr<std::complex<float>> source);
 
     // Member variables used for compute
@@ -165,8 +161,7 @@ private:
 
     // Flags
     bool m_average; //!< Whether to take a second shell average (default false)
-    bool m_norm;    //!< Whether to take the norm of the order parameter (default false)
-    bool m_Wl;      //!< Whether to use the modified order parameter Wl (default false)
+    bool m_Wl;      //!< Whether to use the third-order invariant Wl (default false)
 
     std::shared_ptr<std::complex<float>> m_Qlmi; //!< Qlm for each particle i
     std::shared_ptr<std::complex<float>> m_Qlm;  //!< Normalized Qlm(Ave) for the whole system
@@ -175,9 +170,8 @@ private:
     std::shared_ptr<float> m_QliAve;           //!< Averaged Ql with 2nd neighbor shell for each particle i
     std::shared_ptr<complex<float>> m_QlmiAve; //!< Averaged Qlm with 2nd neighbor shell for each particle i
     std::shared_ptr<std::complex<float>> m_QlmAve;   //!< Normalized QlmiAve for the whole system
-    float m_Norm;                                    //!< System normalized norm over all Qlm(Ave)
-    std::complex<float> m_NormWl;                    //!< System normalized norm over all Wlm(Ave)
-    std::shared_ptr<std::complex<float>> m_WliOrder; //!< Wl order parameter for each particle i
+    float m_norm;                                    //!< System normalized order parameter
+    std::shared_ptr<float> m_Wli; //!< Wl order parameter for each particle i, also used for Wl averaged data
 };
 
 }; };  // end namespace freud::order
