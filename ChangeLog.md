@@ -1,8 +1,11 @@
-# Change Log
-The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
-and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
+# Change Log The format is based on [Keep a
+Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to
+[Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## Next
+## v1.2.2 - 2019-08-15
+
+### Changed
+* LocalWl return values are real instead of complex.
 
 ### Fixed
 * Fixed missing Condon-Shortley phase affecting LocalWl and Steinhardt Wl
@@ -20,22 +23,25 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 * Added new tests for cases with two different sets of points.
 
 ### Fixed
-* Fixed bug resulting in the `LocalQlNear` and `LocalWlNear` class wrongly using a
-  hard instead of a soft cut-off, which may have resulted in an incorrect
-  number of neighbors. This would cause incorrect results especially for
-  systems with an average n-th nearest-neighbor distance smaller than `rmax`. This
-  problem was introduced in v0.6.4.
+* Fixed bug resulting in the `LocalQlNear` and `LocalWlNear` class wrongly
+  using a hard instead of a soft cut-off, which may have resulted in an
+  incorrect number of neighbors. This would cause incorrect results especially
+  for systems with an average n-th nearest-neighbor distance smaller than
+  `rmax`. This problem was introduced in v0.6.4.
 * Fixed duplicate neighbors found by `LinkCell` `NeighborQuery` methods
 * Corrected data in `LocalQl`, `LocalWl` documentation example
-* Repeated Cubatic Order Parameter computations use the correct number of replicates.
+* Repeated Cubatic Order Parameter computations use the correct number of
+  replicates.
 * Repeated calls to `LocalQl.computeNorm` properly reset the underlying data.
 * Clarified documentation for `LocalBondProjection` and `MSD`
 
 ## v1.2.0 - 2019-06-27
 
 ### Added
-* Added `.plot()` method and IPython/Jupyter PNG representations for many classes.
-* `AttributeError` is raised when one tries to access an attribute that has not yet been computed.
+* Added `.plot()` method and IPython/Jupyter PNG representations for many
+  classes.
+* `AttributeError` is raised when one tries to access an attribute that has not
+  yet been computed.
 * Added `freud.parallel.getNumThreads()` method.
 * New examples for integration with simulation and visualization workflows.
 
@@ -50,7 +56,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 * Eigen is now used for all matrix diagonalizations.
 
 ### Fixed
-* Calling setNumThreads works correctly even if a parallel compute method has already been called.
+* Calling setNumThreads works correctly even if a parallel compute method has
+  already been called.
 * Fixed segfault with chained calls to NeighborQuery API.
 * Correct `exclude_ii` logic.
 
@@ -64,9 +71,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 * AABBQuery (AABB tree-based neighbor finding) added to public API.
 * Ability to dynamically select query method based on struct of arguments.
 * All compute objects have `__repr__` and `__str__` methods defined.
-* NeighborLists can be accessed as arrays of particle indices via `__getitem__`.
+* NeighborLists can be accessed as arrays of particle indices via
+  `__getitem__`.
 * ParticleBuffer supports different buffer sizes in x, y, z.
-* Box makeCoordinates, makeFraction, getImage now support 2D arrays with multiple points.
+* Box makeCoordinates, makeFraction, getImage now support 2D arrays with
+  multiple points.
 
 ### Changed
 * Use constant memoryviews to prevent errors with read-only inputs.
@@ -74,13 +83,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 * Optimized performance of RotationalAutocorrelation.
 * NematicOrderParameter uses SelfAdjointEigenSolver for improved stability.
 * Added build flags for Cython debugging.
-* LinkCell computes cell neighbors on-demand and caches the results for significant speedup.
+* LinkCell computes cell neighbors on-demand and caches the results for
+  significant speedup.
 
 ### Fixed
 * Corrected type of `y_max` argument to PMFTXY2D from int to float.
 * Reduce logging verbosity about array conversion.
 * Fixed number of threads set upon exiting the NumThreads context manager.
-* Corrected quaternion array sizes and added missing defaults in the documentation.
+* Corrected quaternion array sizes and added missing defaults in the
+  documentation.
 * Empty ParticleBuffers return valid array shapes for concatenation.
 * Wheels are built against NumPy 1.10 for improved backwards compatibility.
 
@@ -123,7 +134,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## v0.11.3 - 2018-10-18
 
 ### Fixed
-* Linux wheels are now pushed to the real PyPI server instead of the test server.
+* Linux wheels are now pushed to the real PyPI server instead of the test
+  server.
 * macOS deployment pyenv requires patch versions to be specified.
 
 ## v0.11.2 - 2018-10-18
@@ -137,7 +149,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 * PyPI builds automatically deploy for Mac and Linux.
 
 ### Changed
-* macOS deployment target is now 10.12 instead of 10.9 to ensure TBB compatibility.
+* macOS deployment target is now 10.12 instead of 10.9 to ensure TBB
+  compatibility.
 * Unwrapping positions with images is now vectorized.
 * Minor documentation fixes.
 
@@ -150,21 +163,26 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 * Example notebooks are now shown in the documentation.
 * Many unit tests were added.
 * New class: `freud.environment.LocalBondProjection`.
-* `freud` is now available on the Python Package Index (PyPI) as `freud-analysis`.
+* `freud` is now available on the Python Package Index (PyPI) as
+  `freud-analysis`.
 
 ### Changed
 * Documentation was revised for several modules.
-* New class `freud.box.ParticleBuffer` was adapted from the previous `VoronoiBuffer` to include support for triclinic boxes.
-* The `bond` and `pmft` modules verify system dimensionality matches the coordinate system used.
+* New class `freud.box.ParticleBuffer` was adapted from the previous
+  `VoronoiBuffer` to include support for triclinic boxes.
+* The `bond` and `pmft` modules verify system dimensionality matches the
+  coordinate system used.
 * Minor optimization: arrays are reduced across threads only when necessary.
 
 ### Fixed
 * NumPy arrays of lengths 2, 3, 6 are now correctly ducktyped into boxes.
 * Removed internal use of deprecated code.
-* C++ code using `uint` has been changed to `unsigned int`, to improve compiler compatibility.
+* C++ code using `uint` has been changed to `unsigned int`, to improve compiler
+  compatibility.
 
 ### Deprecated
-* In `freud.locality.LinkCell`, `computeCellList()` has been replaced by `compute()`.
+* In `freud.locality.LinkCell`, `computeCellList()` has been replaced by
+  `compute()`.
 
 ### Removed
 * The `kspace` module has been removed.
@@ -173,23 +191,29 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 * Codecov to track test coverage.
-* Properties were added to MatchEnv, AngularSeparation, Cubatic/Nematic order parameters, Voronoi.
+* Properties were added to MatchEnv, AngularSeparation, Cubatic/Nematic order
+  parameters, Voronoi.
 
 ### Changed
 * freud uses Cython and setup.py instead of CMake for installation.
-* Properties (not get functions) are the official way to access computed results.
+* Properties (not get functions) are the official way to access computed
+  results.
 * Interface module has been improved significantly.
-* density.FloatCF, density.ComplexCF, order parameter documentation is improved.
-* Many compute methods now use points, orientations from ref\_points, ref\_orientations if not provided.
+* density.FloatCF, density.ComplexCF, order parameter documentation is
+  improved.
+* Many compute methods now use points, orientations from ref\_points,
+  ref\_orientations if not provided.
 * Reset methods have been renamed to `reset`.
 
 ### Fixed
-* `kspace` module had a missing factor of pi in the volume calculation of `FTsphere`.
+* `kspace` module had a missing factor of pi in the volume calculation of
+  `FTsphere`.
 
 ### Deprecated
 * Get functions have been deprecated.
 * Setter methods have been deprecated.
-* Reduce methods are called internally, so the user-facing methods have been deprecated.
+* Reduce methods are called internally, so the user-facing methods have been
+  deprecated.
 
 ### Removed
 * GaussianDensity.resetDensity() is called internally.
@@ -197,27 +221,35 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## v0.9.0 - 2018-07-30
 
 ### Added
-* Allow specification of rmin for LocalWl (previously was only possible for LocalQl).
+* Allow specification of rmin for LocalWl (previously was only possible for
+  LocalQl).
 * New environment module. Contains classes split from the order module.
-* Box duck-typing: methods accepting a box argument will convert box-like objects into freud.box.Box objects.
-* All Python/Cython code is now validated with flake8 during continuous integration.
+* Box duck-typing: methods accepting a box argument will convert box-like
+  objects into freud.box.Box objects.
+* All Python/Cython code is now validated with flake8 during continuous
+  integration.
 
 ### Changed
 * Refactoring of LocalQl and LocalWl Steinhardt order parameters.
 * MatchEnv uses BiMap instead of boost::bimap.
 * All boost shared\_arrays have been replaced with std::shared\_ptr.
-* Replaced boost geometry with standard containers in brute force registration code.
-* NearestNeighbors automatically uses ref\_points as the points if points are not provided.
+* Replaced boost geometry with standard containers in brute force registration
+  code.
+* NearestNeighbors automatically uses ref\_points as the points if points are
+  not provided.
 * Box::unwrap and Box::wrap return the vectors after updating.
-* Everything other than true order parameters moved from Order module to Environment module.
+* Everything other than true order parameters moved from Order module to
+  Environment module.
 * Use lambda function in parallel\_for in CorrelationFunction.
 * Tests no longer depend on nose. Python's unittest is used instead.
 * Vastly improved documentation clarity and correctness across all modules.
-* Docstrings are now in Google format. The developer guide offers guidance for module authors.
+* Docstrings are now in Google format. The developer guide offers guidance for
+  module authors.
 
 ### Fixed
 * Fixed LocalDescriptors producing NaN's in some cases.
-* Fixed cython passing C++ the default argument force\_resize to NeighborList::resize.
+* Fixed cython passing C++ the default argument force\_resize to
+  NeighborList::resize.
 * Standardize freud.common.convert\_array error message.
 
 ### Removed
@@ -228,7 +260,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## v0.8.2 - 2018-06-07
 
 ### Added
-* Allow specification of maximum number of neighbors to use when computing LocalDescriptors
+* Allow specification of maximum number of neighbors to use when computing
+  LocalDescriptors
 
 ### Changed
 * Using the default neighbor list with LocalDescriptors requires specifying the
@@ -296,7 +329,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 * trajectory module removed
 * box constructor API updated
-* PMFTXYZ API updated to take in more quaternions for `face_orientations`, or have a sensible default value
+* PMFTXYZ API updated to take in more quaternions for `face_orientations`, or
+  have a sensible default value
 * NearestNeighbors:
     - over-expanding box fixed
     - strict rmax mode added
@@ -311,17 +345,20 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 * Moved all tbb template classes to lambda expressions
 * Moved trajectory.Box to box.Box
 * trajectory is deprecated
-* Fixed Bond Order Diagram and allow for global, local, or orientation correlation
+* Fixed Bond Order Diagram and allow for global, local, or orientation
+  correlation
 * Added python-level voronoi calculation
 * Fixed issues with compiling on OS X, including against conda python installs
 * Added code to compute bonds between particles in various coordinate systems
 
 ## v0.4.1
 * PMFT: Fixed issue involving binning of angles correctly
-* PMFT: Fixed issue in R12 which prevented compute/accumulate from being called with non-flattened arrays
+* PMFT: Fixed issue in R12 which prevented compute/accumulate from being called
+  with non-flattened arrays
 * PMFT: Updated xyz api to allow simpler symmetric orientations to be supplied
 * PMFT: Updated pmftXY2D api
-* PMFT: Histograms are properly normalized, allowing for comparison between systems without needing to "zero" the system
+* PMFT: Histograms are properly normalized, allowing for comparison between
+  systems without needing to "zero" the system
 * fsph: Added library to calculate spherical harmonics via cython
 * Local Descriptors: Uses fsph, updates to API
 * Parallel: Added default behavior to setNumThreads and added context manager
@@ -347,4 +384,4 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
     - X, Y, T2
 * viz removed (is not compatible with cython)
 
-## No change logs prior to v0.4.0 ##
+## No change logs prior to v0.4.0
