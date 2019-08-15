@@ -29,10 +29,10 @@ Enforcing the requirement of right-handedness guarantees that the box can be rep
 
 where each column is one of the box vectors.
 
-As such, the box is characterized by six parameters: the box vector lengths :math:`Lx`, :math:`Ly`, and :math:`Lz`, and the tilt factors :math:`xy`, :math:`xz`, and :math:`yz`.
+As such, the box is characterized by six parameters: the box vector lengths :math:`L_x`, :math:`L_y`, and :math:`L_z`, and the tilt factors :math:`xy`, :math:`xz`, and :math:`yz`.
 The tilt factors are directly related to the angles between the box vectors.
 All computations in **freud** are built around this class, ensuring that they naturally handle data from simulations conducted in non-cubic systems.
-Two-dimensional systems are also intrinsically supported, so **freud** can also be used to analyze simulations of two-dimensional systems.
+There is also native support for two-dimensional (2D) systems when setting :math:`L_z = 0`.
 
 Boxes can be constructed in a variety of ways.
 For simple use-cases, one of the factory functions of the :py:class:`freud.box.Box` provides the easiest possible interface:
@@ -49,25 +49,25 @@ For more complex use-cases, the :py:meth:`freud.box.Box.from_box` method provide
 
 .. code-block:: python
 
-    # Create a 10x10 square box.
+    # Create a 10x10 square box from a list of two items.
     freud.box.Box.from_box([10, 10])
 
-    # Create a 10x10x10 cubic box.
+    # Create a 10x10x10 cubic box from a list of three items.
     freud.box.Box.from_box([10, 10, 10])
 
-    # Create a triclinic box from a list including tilt factor.
+    # Create a triclinic box from a list of six items (including tilt factors).
     freud.box.Box.from_box([10, 5, 2, 0.1, 0.5, 0.7])
 
-    # Create a triclinic box from a dictionaries.
-    freud.box.Box.from_box(dict(Lz=10, xy=0.5, yz=0.2, Ly=7, Lx=8, xz=0.7])
+    # Create a triclinic box from a dictionary.
+    freud.box.Box.from_box(dict(Lx=8, Ly=7, Lz=10, xy=0.5, xz=0.7, yz=0.2))
 
-    # Directly call the constructor
+    # Directly call the constructor.
     freud.box.Box(Lx=8, Ly=7, Lz=10, xy=0.5, xz=0.7, yz=0.2, dimensions=3)
 
 
 .. note::
-    All freud boxes are centered at the origin, so for a given box the range of
-    possible positions is :math:`[-L/2, L/2)`.
+    All **freud** boxes are centered at the origin, so for a given box the
+    range of possible positions is :math:`[-L/2, L/2)`.
 
 
 Compute Classes
@@ -88,5 +88,6 @@ We can look at the :py:class:`freud.order.HexOrderParameter` class as an example
     from matplotlib import pyplot as plt
     plt.plot(op.psi)
 
-Here, we are calculating the hexatic order parameter, then using matplotlib to plot it.
+Here, we are calculating the hexatic order parameter, then using Matplotlib to plot it.
+For this example, points must be provided as a list or an array of positions like :code:`[x, y, 0]` because this order parameter is designed for 2D systems.
 Note that in general, the points may be provided as anything that can be interpreted as an :math:`N\times 3` list of positions, in particular either a list of lists or a NumPy array of shape :math:`(N, 3)`.

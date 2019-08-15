@@ -1,13 +1,13 @@
 .. _neighbors:
 
-=================
+================
 Neighbor Finding
-=================
+================
 
 Problem Statement
 =================
 
-A central task in many of the computations in **freud** is finding nearest neighbors.
+A central task in many of the computations in **freud** is finding particles' neighbors.
 Many of the methods characterize the environments of particles based on their relative positions.
 As a result, the computations involve performing pair calculations.
 Although in principle such calculations should typically be conducted for all possible pairs, it is usually sufficient to perform analyses only on particles within a given distance that characterizes the local environment.
@@ -23,7 +23,7 @@ The :py:class:`freud.locality.NeighborQuery` class defines an abstract interface
 These classes represent data structures used to accelerate neighbor finding.
 
 In general, these data structures operate by constructing them using one set of points, after which they can be queried to efficiently find the neighbors of arbitrary other points.
-The queries can either be based stricly on a distance cutoff (using :py:class:`freud.locality.NeighborQuery.queryBall`), or by searching for a specific number of neighbors (using :py:class:`freud.locality.NeighborQuery.query`).
+The queries can either be based strictly on a distance cutoff (using :py:class:`freud.locality.NeighborQuery.queryBall`), or by searching for a specific number of neighbors (using :py:class:`freud.locality.NeighborQuery.query`).
 These classes expose a standardized API for this task, returning a generator than can be easily looped over.
 Alternatively, the pairs of points can be converted into a :py:class:`freud.locality.NeighborList`, a lightweight class that can be used to store pairs of bonds that will be used multiple times.
 For example, the following code first uses the :py:class:`freud.locality.LinkCell` to search for at least 6 neighbors for all points in a given set and calculate the average distances between them, and then uses a :py:class:`freud.locality.AABBQuery` to create a :py:class:`freud.locality.NeighborList` based on a distance cutoff:
@@ -43,8 +43,8 @@ For example, the following code first uses the :py:class:`freud.locality.LinkCel
     points = np.random.rand(num_points)*L - L/2
     box = freud.box.Box.cube(L)
 
-    # Linked cell list are parameterized by the size of the individual cells.
-    # Intelligent choices of the cell width are crucial for good performance.
+    # Linked cell lists are parameterized by the size of the individual cells.
+    # The cell width significantly affects neighbor-finding performance.
     # In general, for a single distance-based query a good choice for the cell
     # width is the actual distance to query; in this case, since we are asking
     # for a specific number of neighbors, we simply provide a reasonable guess.
@@ -74,7 +74,7 @@ The ``nq`` argument can be either a :py:class:`freud.locality.NeighborQuery` or 
 
 The API for these classes is intended to offer maximal flexibility, allowing users to choose the fastest way to iterate over neighbors for a given computation, but the options can be a bit complex, so we provide an overview here.
 The simplest usage of one of these classes is to simply call ``compute((box, points), METHOD_SPECIFIC_ARGS...)``, in which case the class will internally build a :py:class:`freud.locality.NeighborQuery` class using the points and then find their neighbors.
-However, if the user expects to perform multiple different **freud** calculations (for instance, the calculation of various order parameters) on the same pairs of points, it is worthwhile to cache the :py:class:`freud.locality.NeighborQuery` object between calls and pass it into each of the computations to spare the cost of rebuilding the object. 
+However, if the user expects to perform multiple different **freud** calculations (for instance, the calculation of various order parameters) on the same pairs of points, it is worthwhile to cache the :py:class:`freud.locality.NeighborQuery` object between calls and pass it into each of the computations to spare the cost of rebuilding the object.
 
 .. code-block:: python
 
@@ -106,7 +106,7 @@ This mode of operation is particularly useful when the user wishes to use a :py:
 
 .. code-block:: python
 
-    # Reusing the AABBQuery object constructed in the previous example, 
+    # Reusing the AABBQuery object constructed in the previous example,
     # we first attempt the computation for various values of l using a
     # distance based cutoff for neighbor finding.
     rmax = 3
@@ -117,9 +117,10 @@ This mode of operation is particularly useful when the user wishes to use a :py:
         q6_ball_arrays.append(ql.compute((box, points), nlist_ball).order)
 
     nlist_number = nq.queryBall(points, num_neighbors=6)
-    for l in range(3, 6):
+    q6_number_arrays = []
+    for l in [4, 6, 8]:
         q6 = freud.density.Steinhardt(l=l)
-        q6_number_arrays.append(ql.compute((box, points), nlist_order).order)
+        q6_number_arrays.append(ql.compute((box, points), nlist_number).order)
 
 
 Notably, in this example we used two different methods for finding neighbors.
@@ -130,7 +131,7 @@ For instance, to replicate the above results, we could instead do the following:
 
 .. code-block:: python
 
-    # Reusing the AABBQuery object constructed in the previous example, 
+    # Reusing the AABBQuery object constructed in the previous example,
     # we first attempt the computation for various values of l using a
     # distance based cutoff for neighbor finding.
     q6_ball_arrays = []
@@ -207,11 +208,14 @@ To understand what this means, consider the following simple example:
 The reason these calculations give different results is simple.
 We only asked for one neighbor for each point, but in the first case we queried for two points, and as a result, it found us one neighbor for each of the two points.
 In the second case, we constructed our object with two points, but then only requested the neighbors for the single point in ``positions_A``; as a result, we only found one neighbor.
-This logic is precisely what governs the ``query_points`` argument; the ``points`` are used to build the query object, and the ``query_points`` are what is passed to the ``query*`` methods.
+This logic is precisely what governs the ``query_points`` argument; the ``points`` are used to build the query object, and the ``query_points`` are what is passed to the query methods.
+
+Neighbor Self-Exclusion
++++++++++++++++++++++++
 
 We are now in a position to explain the ``exclude_ii`` query argument.
 When performing a calculation on a single-component system, we typically do not wish to include a particle as its own neighbor.
-The ``exclude_ii`` argument indicates to a ``query*`` method that any pair of particles with identical indices in the ``points`` and ``query_points`` arrays should be ignored.
+The ``exclude_ii`` argument indicates to a query method that any pair of particles with identical indices in the ``points`` and ``query_points`` arrays should be ignored.
 Since this behavior is generally expected for single-component systems, it is automatically set to ``True`` in compute classes if ``query_points`` are not passed in explicitly (in which case the ``points`` are reused as the ``query_points``).
 Conversely, the argument defaults to ``False`` when ``query_points`` are explicitly provided.
-In both cases, the user can reverse the behavior by passing the argument explicitly to the ``query_args``.
+In both cases, the user can override the default behavior by passing the argument explicitly in ``query_args``.
