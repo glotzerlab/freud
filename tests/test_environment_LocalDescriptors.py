@@ -164,6 +164,64 @@ class TestLocalDescriptors(unittest.TestCase):
                 steinhardt.compute(box, points, nlist=nl)
                 npt.assert_array_almost_equal(steinhardt.order, Ql[:, L])
 
+    def test_ql_weighted(self):
+        """Check if we can reproduce Steinhardt Ql with bond weights."""
+        np.random.seed(0)
+
+        def get_Ql(p, descriptors, nlist):
+            """Given a set of points and a LocalDescriptors object (and the
+            underlying neighborlist), compute the per-particle Steinhardt Ql
+            order parameter for all :math:`l` values up to the maximum quantum
+            number used in the computation of the descriptors."""
+            Qbar_lm = np.zeros((p.shape[0], descriptors.sph.shape[1]),
+                               dtype=np.complex128)
+            for i in range(p.shape[0]):
+                indices = nlist.index_i == i
+                Ylms = descriptors.sph[indices, :]
+                weights = nlist.weights[indices, np.newaxis]
+                weights /= np.sum(weights)
+                Qbar_lm[i, :] = np.sum(Ylms * weights, axis=0)
+
+            Ql = np.zeros((Qbar_lm.shape[0], descriptors.l_max+1))
+            for i in range(Ql.shape[0]):
+                for l in range(Ql.shape[1]):
+                    for k in range(l**2, (l+1)**2):
+                        Ql[i, l] += np.absolute(Qbar_lm[i, k])**2
+                    Ql[i, l] = np.sqrt(4*np.pi/(2*l + 1) * Ql[i, l])
+
+            return Ql
+
+        # These exact parameter values aren't important; they won't necessarily
+        # give useful outputs for some of the structures, but that's fine since
+        # we just want to check that LocalDescriptors is consistent with
+        # Steinhardt.
+        num_neighbors = 6
+        l_max = 12
+        r_max = 2
+
+        for struct_func in [make_sc, make_bcc, make_fcc]:
+            box, points = struct_func(5, 5, 5)
+
+            # In order to be able to access information on which particles are
+            # bonded to which ones, we precompute the neighborlist
+            nn = freud.locality.NearestNeighbors(r_max, num_neighbors)
+            nl = nn.compute(box, points).nlist
+            ld = freud.environment.LocalDescriptors(
+                num_neighbors, l_max, r_max)
+            ld.compute(box, num_neighbors, points, mode='global', nlist=nl)
+
+            # Generate random weights for each bond
+            nl.weights[:] = np.random.rand(len(nl.weights))
+
+            Ql = get_Ql(points, ld, nl)
+
+            # Test all allowable values of l.
+            for L in range(2, l_max+1):
+                steinhardt = freud.order.Steinhardt(
+                    r_max, L, weighted=True, num_neighbors=num_neighbors)
+                steinhardt.compute(box, points, nlist=nl)
+                npt.assert_array_almost_equal(steinhardt.order, Ql[:, L])
+
     @unittest.skipIf(sys.version_info < (3, 2),
                      "functools.lru_cache only supported on Python 3.2+")
     @skipIfMissing('sympy.physics.wigner')
