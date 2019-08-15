@@ -80,6 +80,9 @@ cdef extern from "Steinhardt.h" namespace "freud::order":
         shared_ptr[float] getQl()
         shared_ptr[float] getOrder()
         float getNorm()
+        bool isAverage()
+        bool isWl()
+        bool isWeighted()
 
 cdef extern from "SolLiq.h" namespace "freud::order":
     cdef cppclass SolLiq:
