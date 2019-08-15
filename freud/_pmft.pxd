@@ -80,7 +80,6 @@ cdef extern from "PMFTXYZ.h" namespace "freud::pmft":
         void accumulate(const freud._locality.NeighborQuery*,
                         quat[float]*,
                         vec3[float]*,
-                        quat[float]*,
                         unsigned int,
                         quat[float]*,
                         unsigned int,

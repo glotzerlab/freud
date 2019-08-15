@@ -931,7 +931,7 @@ class TestPMFTXYZ(unittest.TestCase):
         nbins = 3
         pmft = freud.pmft.PMFTXYZ(max_width, max_width, max_width,
                                   nbins, nbins, nbins)
-        pmft.compute(box, points, angles, query_points, query_angles,
+        pmft.compute(box, points, angles, query_points,
                      query_args={'mode': 'nearest', 'nn': 1})
 
         # Now every point in query_points will find the origin as a neighbor.
@@ -947,7 +947,7 @@ class TestPMFTXYZ(unittest.TestCase):
               [0, 1, 0],
               [0, 0, 0]]])
 
-        pmft.compute(box, query_points, query_angles, points, angles,
+        pmft.compute(box, query_points, query_angles, points,
                      query_args={'mode': 'nearest', 'nn': 1})
         # The only nonzero bin is in the left bin for x, but the center for
         # everything else (0 distance in y and z).

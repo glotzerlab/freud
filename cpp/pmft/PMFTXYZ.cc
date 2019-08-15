@@ -89,9 +89,9 @@ void PMFTXYZ::reset()
  */
 void PMFTXYZ::accumulate(const locality::NeighborQuery* neighbor_query,
                          quat<float>* orientations, vec3<float>* query_points,
-                         quat<float>* query_orientations, unsigned int n_query_points,
-                         quat<float>* face_orientations, unsigned int n_faces,
-                         const locality::NeighborList* nlist, freud::locality::QueryArgs qargs)
+                         unsigned int n_query_points, quat<float>* face_orientations,
+                         unsigned int n_faces, const locality::NeighborList* nlist,
+                         freud::locality::QueryArgs qargs)
 {
     // precalc some values for faster computation within the loop
     float dx_inv = 1.0f / m_dx;
