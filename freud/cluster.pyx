@@ -174,8 +174,9 @@ cdef class Cluster(Compute):
         except ValueError:
             return None
         else:
-            return plot.plot_clusters(count[0], count[1],
-                                      num_cluster_to_plot=10, ax=ax)
+            return plot.clusters_plot(count[0], count[1],
+                                      num_clusters_to_plot=10,
+                                      ax=ax)
 
     def _repr_png_(self):
         import plot
