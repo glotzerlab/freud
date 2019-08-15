@@ -573,7 +573,8 @@ cdef class GaussianDensity(Compute):
     def gaussian_density(self):
         cdef freud.box.Box box = self.box
         cdef vec3[uint] width = self.thisptr.getWidth()
-        cdef unsigned int array_size = width.x * width.y * (1 if box.is2D() else width.z)
+        cdef unsigned int array_size = \
+            width.x * width.y * (1 if box.is2D() else width.z)
         cdef const float[::1] density = \
             <float[:array_size]> self.thisptr.getDensity().get()
         if box.is2D():
