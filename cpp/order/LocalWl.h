@@ -19,7 +19,6 @@ namespace freud { namespace order {
  * Steinhardt that can aid in distinguishing between FCC, HCP, BCC.
  *
  * For more details see PJ Steinhardt (1983) (DOI: 10.1103/PhysRevB.28.784)
- * Uses a Python wrapper to pass the Wigner 3j coefficients to C++
  */
 //! Added first/second shell combined average Wl order parameter for a set of points
 /*!
