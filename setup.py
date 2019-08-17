@@ -401,7 +401,7 @@ if args.use_cython:
 if platform.system() == 'Darwin':
     os.environ["MACOSX_DEPLOYMENT_TARGET"]= "10.12"
 
-version = '1.2.1'
+version = '1.2.2'
 
 # Read README for PyPI, fallback to short description if it fails.
 desc = 'Powerful, efficient trajectory analysis in scientific Python.'

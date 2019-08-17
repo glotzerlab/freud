@@ -827,9 +827,6 @@ cdef class RDF(Compute):
             The centers of each bin.
         n_r ((:math:`N_{bins}`,) :class:`numpy.ndarray`):
             Histogram of cumulative RDF values (*i.e.* the integrated RDF).
-
-    .. versionchanged:: 0.7.0
-       Added optional `r_min` argument.
     """
     cdef freud._density.RDF * thisptr
     cdef r_max
