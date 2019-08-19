@@ -1,5 +1,6 @@
 import numpy as np
 import freud
+import rowan
 import unittest
 import util
 
@@ -8,8 +9,7 @@ class TestBondOrder(unittest.TestCase):
     def test_bond_order(self):
         """Test the bond order diagram calculation."""
         (box, positions) = util.make_fcc(4, 4, 4)
-        quats = np.zeros((len(positions), 4), dtype=np.float32)
-        quats[:, 0] = 1
+        quats = np.array([[1, 0, 0, 0]] * len(positions))
 
         r_cut = 1.5
         num_neighbors = 12
@@ -71,8 +71,7 @@ class TestBondOrder(unittest.TestCase):
 
             # Test that normal bod looks ordered for randomized orientations.
             np.random.seed(10893)
-            random_quats = np.random.rand(len(positions), 4)
-            random_quats /= np.linalg.norm(random_quats, axis=1)[:, np.newaxis]
+            random_quats = rowan.random.rand(len(positions))
             bo.compute(box, ts[0], random_quats, nlist=ts[1])
             self.assertTrue(np.allclose(bo.bond_order, op_value))
 

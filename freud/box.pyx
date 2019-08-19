@@ -40,9 +40,6 @@ cdef class Box:
     .. moduleauthor:: Carl Simon Adorf <csadorf@umich.edu>
     .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
 
-    .. versionchanged:: 0.7.0
-       Added box periodicity interface
-
     The Box class is defined according to the conventions of the
     HOOMD-blue simulation software.
     For more information, please see:
@@ -266,8 +263,6 @@ cdef class Box:
 
     def getImage(self, vecs):
         R"""Returns the image corresponding to a wrapped vector.
-
-        .. versionadded:: 0.8
 
         Args:
             vecs (:math:`\left(3\right)` or :math:`\left(N, 3\right)` :class:`numpy.ndarray`):
@@ -660,8 +655,6 @@ cdef class ParticleBuffer:
 
     .. moduleauthor:: Ben Schultz <baschult@umich.edu>
     .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
-
-    .. versionadded:: 0.11
 
     Args:
         box (:py:class:`freud.box.Box`): Simulation box.

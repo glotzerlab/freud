@@ -1,43 +1,9 @@
 import unittest
 import numpy.testing as npt
 import numpy as np
-import random
 import freud
+import rowan
 from util import make_box_and_random_points
-
-
-random.seed(0)
-
-
-# Returns a random quaternion culled from a uniform distribution on the surface
-# of a 3-sphere. Uses the MARSAGLIA (1972) method (a la hoomd) NOTE THAT
-# generating a random rotation via a random angle about a random axis of
-# rotation is INCORRECT. See K. Shoemake, "Uniform Random Rotations," 1992,
-# for a nice explanation for this. Output quat is an array of four numbers:
-# [q0, q1, q2, q3]
-def quatRandom():
-    # random.uniform(a,b) gives number in [a,b]
-    v1 = random.uniform(-1, 1)
-    v2 = random.uniform(-1, 1)
-    v3 = random.uniform(-1, 1)
-    v4 = random.uniform(-1, 1)
-
-    s1 = v1*v1 + v2*v2
-    s2 = v3*v3 + v4*v4
-
-    while (s1 >= 1.):
-        v1 = random.uniform(-1, 1)
-        v2 = random.uniform(-1, 1)
-        s1 = v1*v1 + v2*v2
-
-    while (s2 >= 1. or s2 == 0.):
-        v3 = random.uniform(-1, 1)
-        v4 = random.uniform(-1, 1)
-        s2 = v3*v3 + v4*v4
-
-    s3 = np.sqrt((1.-s1)/s2)
-
-    return np.array([v1, v2, v3*s3, v4*s3])
 
 
 class TestLocalBondProjection(unittest.TestCase):
@@ -51,12 +17,7 @@ class TestLocalBondProjection(unittest.TestCase):
 
         box, points = make_box_and_random_points(boxlen, N, True)
         _, query_points = make_box_and_random_points(boxlen, N_query, True)
-
-        ors = []
-        for i in range(N):
-            ors.append(quatRandom())
-
-        ors = np.asarray(ors, dtype=np.float32)
+        ors = rowan.random.rand(N)
         proj_vecs = np.asarray([[0, 0, 1]])
 
         ang = freud.environment.LocalBondProjection(rmax, num_neigh)
@@ -71,12 +32,7 @@ class TestLocalBondProjection(unittest.TestCase):
         rmax = 3
 
         box, points = make_box_and_random_points(boxlen, N, True)
-
-        ors = []
-        for i in range(N):
-            ors.append(quatRandom())
-
-        ors = np.asarray(ors, dtype=np.float32)
+        ors = rowan.random.rand(N)
         proj_vecs = np.asarray([[0, 0, 1]])
 
         ang = freud.environment.LocalBondProjection(rmax, num_neigh)
@@ -90,12 +46,7 @@ class TestLocalBondProjection(unittest.TestCase):
         rmax = 3
 
         box, points = make_box_and_random_points(boxlen, N)
-
-        ors = []
-        for i in range(N):
-            ors.append(quatRandom())
-
-        ors = np.asarray(ors, dtype=np.float32)
+        ors = rowan.random.rand(N)
         proj_vecs = np.asarray([[0, 0, 1]])
 
         ang = freud.environment.LocalBondProjection(rmax, num_neigh)
@@ -115,12 +66,7 @@ class TestLocalBondProjection(unittest.TestCase):
         rmax = 3
 
         box, points = make_box_and_random_points(boxlen, N, True)
-
-        ors = []
-        for i in range(N):
-            ors.append(quatRandom())
-
-        ors = np.asarray(ors, dtype=np.float32)
+        ors = rowan.random.rand(N)
         proj_vecs = np.asarray([[0, 0, 1]])
 
         ang = freud.environment.LocalBondProjection(rmax, num_neigh)

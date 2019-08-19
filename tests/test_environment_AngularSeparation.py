@@ -1,41 +1,9 @@
 import numpy.testing as npt
 import numpy as np
 import freud
+import rowan
 import unittest
 from util import make_box_and_random_points
-
-
-def quatRandom():
-    """Returns a random quaternion culled from a uniform distribution on the
-    surface of a 3-sphere. Uses the Marsaglia (1972) method (a la HOOMD).
-    Note that generating a random rotation via a random angle about a random
-    axis of rotation is INCORRECT. See K. Shoemake, "Uniform Random Rotations,"
-    1992, for a nice explanation for this.
-
-    The output quaternion is an array of four numbers: [q0, q1, q2, q3]"""
-
-    # np.random.uniform(low, high) gives a number from the interval [low, high)
-    v1 = np.random.uniform(-1, 1)
-    v2 = np.random.uniform(-1, 1)
-    v3 = np.random.uniform(-1, 1)
-    v4 = np.random.uniform(-1, 1)
-
-    s1 = v1*v1 + v2*v2
-    s2 = v3*v3 + v4*v4
-
-    while (s1 >= 1.):
-        v1 = np.random.uniform(-1, 1)
-        v2 = np.random.uniform(-1, 1)
-        s1 = v1*v1 + v2*v2
-
-    while (s2 >= 1. or s2 == 0.):
-        v3 = np.random.uniform(-1, 1)
-        v4 = np.random.uniform(-1, 1)
-        s2 = v3*v3 + v4*v4
-
-    s3 = np.sqrt((1.-s1)/s2)
-
-    return np.array([v1, v2, v3*s3, v4*s3])
 
 
 class TestAngularSeparation(unittest.TestCase):
@@ -47,16 +15,8 @@ class TestAngularSeparation(unittest.TestCase):
 
         box, points = make_box_and_random_points(boxlen, N, True)
         _, query_points = make_box_and_random_points(boxlen, N//3, True)
-
-        ors = []
-        for i in range(N):
-            ors.append(quatRandom())
-
-        query_ors = []
-        for i in range(N//3):
-            query_ors.append(quatRandom())
-
-        ors = np.asarray(ors, dtype=np.float32)
+        ors = rowan.random.rand(N)
+        query_ors = rowan.random.rand(N//3)
 
         ang = freud.environment.AngularSeparation(rmax, num_neigh)
 
@@ -86,11 +46,7 @@ class TestAngularSeparation(unittest.TestCase):
         num_neigh = 8
         rmax = 3
 
-        ors = []
-        for i in range(N):
-            ors.append(quatRandom())
-
-        ors = np.asarray(ors, dtype=np.float32)
+        ors = rowan.random.rand(N)
         equiv_quats = np.asarray([[1, 0, 0, 0]], dtype=np.float32)
         global_ors = np.array([[1, 0, 0, 0]], dtype=np.float32)
 
@@ -105,12 +61,7 @@ class TestAngularSeparation(unittest.TestCase):
         rmax = 3
 
         box, points = make_box_and_random_points(boxlen, N, True)
-
-        ors = []
-        for i in range(N):
-            ors.append(quatRandom())
-
-        ors = np.asarray(ors, dtype=np.float32)
+        ors = rowan.random.rand(N)
 
         ang = freud.environment.AngularSeparation(rmax, num_neigh)
         ang.computeNeighbor(box, points, ors, query_orientations=ors)

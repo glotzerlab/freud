@@ -18,7 +18,7 @@ from . import voronoi
 # automatic selection runs, the user cannot change it.
 parallel.setNumThreads(0)
 
-__version__ = '1.2.1'
+__version__ = '1.2.2'
 
 __all__ = [
     '__version__',
