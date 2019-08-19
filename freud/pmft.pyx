@@ -799,9 +799,9 @@ cdef class PMFTXY2D(_PMFT):
         return repr(self)
 
     def _repr_png_(self):
-        import plot
+        import freud.plot
         try:
-            return plot.ax_to_bytes(self.plot())
+            return freud.plot.ax_to_bytes(self.plot())
         except AttributeError:
             return None
 
@@ -817,8 +817,8 @@ cdef class PMFTXY2D(_PMFT):
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-        import plot
-        return plot.pmft_plot(self, ax)
+        import freud.plot
+        return freud.plot.pmft_plot(self, ax)
 
 
 cdef class PMFTXYZ(_PMFT):

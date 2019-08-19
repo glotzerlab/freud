@@ -188,10 +188,11 @@ else:
 
 # Set directives and macros
 directives = {
-    'embedsignature': True,
     'binding': True,
     'boundscheck': False,
     'wraparound': False,
+    'embedsignature': True,
+    'language_level': 3,
 }
 macros = []
 
@@ -425,7 +426,7 @@ try:
               long_description_content_type='text/markdown',
               url='https://github.com/glotzerlab/freud',
               packages=['freud'],
-              python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*',
+              python_requires='>=3.5',
               install_requires=['numpy>=1.10'],
               tests_require=['matplotlib>=2.0', 'rowan>=1.0', 'sympy>=1.0'],
               ext_modules=extensions)

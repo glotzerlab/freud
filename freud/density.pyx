@@ -239,17 +239,17 @@ cdef class FloatCF(Compute):
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-        import plot
-        return plot.line_plot(self.R, self.RDF,
-                              title="Correlation Function",
-                              xlabel=r"$r$",
-                              ylabel=r"$C(r)$",
-                              ax=ax)
+        import freud.plot
+        return freud.plot.line_plot(self.R, self.RDF,
+                                    title="Correlation Function",
+                                    xlabel=r"$r$",
+                                    ylabel=r"$C(r)$",
+                                    ax=ax)
 
     def _repr_png_(self):
-        import plot
+        import freud.plot
         try:
-            return plot.ax_to_bytes(self.plot())
+            return freud.plot.ax_to_bytes(self.plot())
         except AttributeError:
             return None
 
@@ -469,17 +469,17 @@ cdef class ComplexCF(Compute):
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-        import plot
-        return plot.line_plot(self.R, np.real(self.RDF),
-                              title="Correlation Function",
-                              xlabel=r"$r$",
-                              ylabel=r"$\operatorname{Re}(C(r))$",
-                              ax=ax)
+        import freud.plot
+        return freud.plot.line_plot(self.R, np.real(self.RDF),
+                                    title="Correlation Function",
+                                    xlabel=r"$r$",
+                                    ylabel=r"$\operatorname{Re}(C(r))$",
+                                    ax=ax)
 
     def _repr_png_(self):
-        import plot
+        import freud.plot
         try:
-            return plot.ax_to_bytes(self.plot())
+            return freud.plot.ax_to_bytes(self.plot())
         except AttributeError:
             return None
 
@@ -619,15 +619,15 @@ cdef class GaussianDensity(Compute):
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-        import plot
+        import freud.plot
         if not self.box.is2D():
             return None
-        return plot.density_plot(self.gaussian_density, self.box, ax=ax)
+        return freud.plot.density_plot(self.gaussian_density, self.box, ax=ax)
 
     def _repr_png_(self):
-        import plot
+        import freud.plot
         try:
-            return plot.ax_to_bytes(self.plot())
+            return freud.plot.ax_to_bytes(self.plot())
         except AttributeError:
             return None
 
@@ -964,16 +964,16 @@ cdef class RDF(Compute):
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-        import plot
-        return plot.line_plot(self.R, self.RDF,
-                              title="RDF",
-                              xlabel=r"$r$",
-                              ylabel=r"$g(r)$",
-                              ax=ax)
+        import freud.plot
+        return freud.plot.line_plot(self.R, self.RDF,
+                                    title="RDF",
+                                    xlabel=r"$r$",
+                                    ylabel=r"$g(r)$",
+                                    ax=ax)
 
     def _repr_png_(self):
-        import plot
+        import freud.plot
         try:
-            return plot.ax_to_bytes(self.plot())
+            return freud.plot.ax_to_bytes(self.plot())
         except AttributeError:
             return None
