@@ -30,7 +30,7 @@ Correlation Functions
 Gaussian Density
 ================
 
-.. autoclass:: freud.density.GaussianDensity(\*args)
+.. autoclass:: freud.density.GaussianDensity(width, r_max, sigma)
     :members: compute, plot
 
 Local Density

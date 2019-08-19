@@ -4,13 +4,24 @@ Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to
 
 ## Upcoming: Changes for freud 2.0
 
+### Added
+* Ability to specify NeighborQuery objects as points for neighbor-based pair computes.
+* Various validation tests.
+
 ### Changed
+* All compute objects that perform neighbor computations now use NeighborQuery internally.
+* All compute objects that perform neighbor computations now loop over NeighborBond objects.
+* Renamed (ref\_points, points) to (points, query\_points) to clarify their usage.
+* Standardized naming of various common parameters across freud such as the search distance r\_max.
+* Updated GaussianDensity constructor to accept tuples as width instead of having 2 distinct signatures.
 * Removed unused query\_orientations from PMFTXYZ.
 
 ### Fixed
-* Steinhardt uses the ThreadStorage class and properly resets memory where
-  needed.
-* Removed all neighbor exclusion logic from Steinhardt.
+* Steinhardt uses the ThreadStorage class and properly resets memory where needed.
+* Removed all neighbor exclusion logic from all classes, depends entirely on locality module now.
+
+### Removed
+* The freud.util module.
 
 ### Removed
 * Python 2 is no longer supported. Python 3.5+ is required.
@@ -80,7 +91,7 @@ Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to
 ## v1.1.0 - 2019-05-23
 
 ### Added
-* New neighbor querying API to enable reuse of query data structures.
+* New neighbor querying API to enable reuse of query data structures (see NeighborQuery class).
 * AABBQuery (AABB tree-based neighbor finding) added to public API.
 * Ability to dynamically select query method based on struct of arguments.
 * All compute objects have `__repr__` and `__str__` methods defined.
