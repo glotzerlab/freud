@@ -1012,15 +1012,15 @@ cdef class Voronoi(Compute):
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-        import plot
+        import freud.plot
         if not self._box.is2D():
             return None
         else:
-            return plot.draw_voronoi(self._box, self.polytopes, ax=ax)
+            return freud.plot.voronoi_plot(self._box, self.polytopes, ax=ax)
 
     def _repr_png_(self):
-        import plot
+        import freud.plot
         try:
-            return plot.ax_to_bytes(self.plot())
+            return freud.plot.ax_to_bytes(self.plot())
         except AttributeError:
             return None
