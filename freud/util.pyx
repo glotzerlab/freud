@@ -2,11 +2,13 @@
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 import sys
+import numpy as np
+
 from functools import wraps
 
 from cython.operator cimport dereference
-cimport freud.util
 
+cimport freud.util
 cimport numpy as np
 
 # numpy must be initialized. When using numpy from C or Cython you must
@@ -61,36 +63,22 @@ cdef class ManagedArrayManager:
     def __array__(self):
         """Convert the underlying data array into a read-only numpy array."""
         if self.shape == tuple():
-            raise ValueError("You must specify the shape of the numpy array "
-                             "to be created by calling set_shape.")
-        cdef unsigned int ndim = len(self.shape)
+            raise ValueError("You must set the shape attribute of the "
+                             "ManagedArrayManager through the property API.")
 
-        # These arrays must be allocated at compile time, so we make separate
-        # branches for different dimensionalities.
-        cdef np.npy_intp nP1[1]
-        cdef np.npy_intp nP2[2]
-        cdef np.npy_intp nP3[3]
+        # To simplify the code, we allocate a single linear array and then
+        # reshape it on return. The reshape is just a view on the arr array
+        # created below, so it creates a chain reshaped_array->arr->self that
+        # ensures proper garbage collection.
+        cdef np.npy_intp size[1]
         cdef np.ndarray arr
-        if len(self.shape) == 1:
-            nP1[0] = self.shape[0]
-            arr = np.PyArray_SimpleNewFromData(
-                ndim, nP1, self.var_typenum, self.get())
-        elif len(self.shape) == 2:
-            nP2[0] = self.shape[0]
-            nP2[1] = self.shape[1]
-            arr = np.PyArray_SimpleNewFromData(
-                ndim, nP2, self.var_typenum, self.get())
-        elif len(self.shape) == 3:
-            nP3[0] = self.shape[0]
-            nP3[1] = self.shape[1]
-            nP3[2] = self.shape[2]
-            arr = np.PyArray_SimpleNewFromData(
-                ndim, nP3, self.var_typenum, self.get())
+        size[0] = np.prod(self.shape)
+        arr = np.PyArray_SimpleNewFromData(
+            1, size, self.var_typenum, self.get())
 
         arr.setflags(write=False)
-
         self.set_as_base(arr)
-        return arr
+        return np.reshape(arr, self.shape)
 
 
 def resolve_arrays(array_names):
