@@ -355,23 +355,16 @@ sources_in_all = [
 # Dict keys should be specified as the module name without
 # "freud.", i.e. not the fully qualified name.
 extra_module_sources = dict(
-    cluster=[
-        os.path.join("cpp", "locality", "NeighborList.cc"),
-    ],
     density=[
-        os.path.join("cpp", "locality", "NeighborList.cc"),
         os.path.join("cpp", "util", "NdHistogram.cc"),
     ],
     environment=[
-        os.path.join("cpp", "locality", "NeighborList.cc"),
         os.path.join("cpp", "util", "diagonalize.cc"),
     ],
     order=[
-        os.path.join("cpp", "locality", "NeighborList.cc"),
         os.path.join("cpp", "util", "diagonalize.cc"),
     ],
     pmft=[
-        os.path.join("cpp", "locality", "NeighborList.cc"),
         os.path.join("cpp", "util", "NdHistogram.cc"),
     ],
 )

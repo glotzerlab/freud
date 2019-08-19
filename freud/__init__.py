@@ -12,7 +12,6 @@ from . import msd
 from . import order
 from . import parallel
 from . import pmft
-from . import voronoi
 
 # Override TBB's default autoselection. This is necessary because once the
 # automatic selection runs, the user cannot change it.
