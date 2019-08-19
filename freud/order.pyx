@@ -211,8 +211,6 @@ cdef class NematicOrderParameter(Compute):
 
     .. moduleauthor:: Jens Glaser <jsglaser@umich.edu>
 
-    .. versionadded:: 0.7.0
-
     Args:
         u (:math:`\left(3 \right)` :class:`numpy.ndarray`):
             The nematic director of a single particle in the reference state
@@ -1031,8 +1029,6 @@ cdef class RotationalAutocorrelation(Compute):
 
     .. moduleauthor:: Andrew Karas <askaras@umich.edu>
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
-
-    .. versionadded:: 1.0
 
     Args:
         l (int):

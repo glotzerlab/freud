@@ -852,19 +852,18 @@ cdef class MatchEnv(Compute):
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-        import plot
+        import freud.plot
         try:
             counts = np.unique(self.clusters, return_counts=True)
         except ValueError:
             return None
-        return plot.clusters_plot(counts[0], counts[1],
-                                  num_clusters_to_plot=10,
-                                  ax=ax)
+        return freud.plot.clusters_plot(counts[0], counts[1],
+                                        num_clusters_to_plot=10, ax=ax)
 
     def _repr_png_(self):
-        import plot
+        import freud.plot
         try:
-            return plot.ax_to_bytes(self.plot())
+            return freud.plot.ax_to_bytes(self.plot())
         except AttributeError:
             return None
 
@@ -1089,8 +1088,6 @@ cdef class LocalBondProjection(Compute):
     local reference frame.
 
     .. moduleauthor:: Erin Teich <erteich@umich.edu>
-
-    .. versionadded:: 0.11
 
     Args:
         r_max (float):
