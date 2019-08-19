@@ -214,7 +214,7 @@ class TestVoronoi(unittest.TestCase):
     def test_repr_png(self):
         L = 10  # Box length
         box = freud.box.Box.square(L)
-        vor = freud.voronoi.Voronoi(box)
+        vor = freud.locality.Voronoi()
 
         with self.assertRaises(AttributeError):
             vor.plot()
@@ -225,12 +225,12 @@ class TestVoronoi(unittest.TestCase):
             [[0, 0, 0], [0, 1, 0], [0, 2, 0],
              [1, 0, 0], [1, 1, 0], [1, 2, 0],
              [2, 0, 0], [2, 1, 0], [2, 2, 0]]).astype(np.float32)
-        vor.compute(positions)
+        vor.compute(box, positions)
         vor._repr_png_()
 
         L = 10  # Box length
         box = freud.box.Box.cube(L)
-        vor = freud.voronoi.Voronoi(box)
+        vor = freud.locality.Voronoi()
         # Make a regular grid
         positions = np.array(
             [[0, 0, 0], [0, 1, 0], [0, 2, 0],
@@ -242,7 +242,7 @@ class TestVoronoi(unittest.TestCase):
              [0, 0, 2], [0, 1, 2], [0, 2, 2],
              [1, 0, 2], [1, 1, 2], [1, 2, 2],
              [2, 0, 2], [2, 1, 2], [2, 2, 2]]).astype(np.float32)
-        vor.compute(positions)
+        vor.compute(box, positions)
         self.assertEqual(vor._repr_png_(), None)
 
 
