@@ -211,8 +211,6 @@ cdef class NematicOrderParameter(Compute):
 
     .. moduleauthor:: Jens Glaser <jsglaser@umich.edu>
 
-    .. versionadded:: 0.7.0
-
     Args:
         u (:math:`\left(3 \right)` :class:`numpy.ndarray`):
             The nematic director of a single particle in the reference state
@@ -538,6 +536,7 @@ cdef class Steinhardt(Compute):
     .. moduleauthor:: Xiyu Du <xiyudu@umich.edu>
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
     .. moduleauthor:: Brandon Butler <butlerbr@umich.edu>
+    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
 
     Args:
         l (unsigned int):
@@ -602,28 +601,20 @@ cdef class Steinhardt(Compute):
 
     @Compute._computed_property()
     def norm(self):
-        if self.stptr.getUseWl():
-            return self.stptr.getNormWl()
         return self.stptr.getNorm()
 
     @Compute._computed_property()
     def order(self):
-        if self.stptr.getUseWl():
-            return self._wl
-        return self.Ql
+        cdef unsigned int n_particles = self.stptr.getNP()
+        cdef const float[::1] op = \
+            <float[:n_particles]> self.stptr.getOrder().get()
+        return np.asarray(op)
 
     @property
     def Ql(self):
         cdef unsigned int n_particles = self.stptr.getNP()
         cdef const float[::1] op = \
             <float[:n_particles]> self.stptr.getQl().get()
-        return np.asarray(op)
-
-    @property
-    def _wl(self):
-        cdef unsigned int n_particles = self.stptr.getNP()
-        cdef const np.complex64_t[::1] op = \
-            <np.complex64_t[:n_particles]> self.stptr.getWl().get()
         return np.asarray(op)
 
     @Compute._compute()
@@ -976,7 +967,7 @@ cdef class LocalQl(Compute):
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-        import plot
+        import freud.plot
         plot_data = getattr(self, mode)
         mode = mode.replace(name, "Q")
         if mode == "Ql":
@@ -993,11 +984,11 @@ cdef class LocalQl(Compute):
         if near:
             title += " Near"
         xlabel = r"{} ${}_{{{}}}$".format(mode_str, name, self.sph_l)
-        return plot.histogram_plot(plot_data,
-                                   title=title,
-                                   xlabel=xlabel,
-                                   ylabel=r"Number of particles",
-                                   ax=ax)
+        return freud.plot.histogram_plot(plot_data,
+                                         title=title,
+                                         xlabel=xlabel,
+                                         ylabel=r"Number of particles",
+                                         ax=ax)
 
     @Compute._computed_method(("compute", "computeNorm",
                                "computeAve", "computeAveNorm"))
@@ -1021,9 +1012,9 @@ cdef class LocalQl(Compute):
         return self._plot(mode, "Q", False, ax)
 
     def _repr_png_(self):
-        import plot
+        import freud.plot
         try:
-            return plot.ax_to_bytes(self.plot(mode=self.plot_mode))
+            return freud.plot.ax_to_bytes(self.plot(mode=self.plot_mode))
         except AttributeError:
             return None
 
@@ -1230,6 +1221,7 @@ cdef class LocalWl(LocalQl):
 
     .. moduleauthor:: Xiyu Du <xiyudu@umich.edu>
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
+    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
 
     Args:
         box (:class:`freud.box.Box`):
@@ -1305,30 +1297,30 @@ cdef class LocalWl(LocalQl):
     @Compute._computed_property("compute")
     def Wl(self):
         cdef unsigned int n_particles = self.qlptr.getNP()
-        cdef np.complex64_t[::1] Wl = \
-            <np.complex64_t[:n_particles]> self.thisptr.getWl().get()
-        return np.asarray(Wl, dtype=np.complex64)
+        cdef const float[::1] Wl = \
+            <float[:n_particles]> self.thisptr.getWl().get()
+        return np.asarray(Wl)
 
     @Compute._computed_property("computeAve")
     def ave_Wl(self):
         cdef unsigned int n_particles = self.qlptr.getNP()
-        cdef np.complex64_t[::1] ave_Wl = \
-            <np.complex64_t[:n_particles]> self.thisptr.getAveWl().get()
-        return np.asarray(ave_Wl, dtype=np.complex64)
+        cdef const float[::1] ave_Wl = \
+            <float[:n_particles]> self.thisptr.getAveWl().get()
+        return np.asarray(ave_Wl)
 
     @Compute._computed_property("computeNorm")
     def norm_Wl(self):
         cdef unsigned int n_particles = self.qlptr.getNP()
-        cdef np.complex64_t[::1] norm_Wl = \
-            <np.complex64_t[:n_particles]> self.thisptr.getWlNorm().get()
-        return np.asarray(norm_Wl, dtype=np.complex64)
+        cdef const float[::1] norm_Wl = \
+            <float[:n_particles]> self.thisptr.getWlNorm().get()
+        return np.asarray(norm_Wl)
 
     @Compute._computed_property("computeAveNorm")
     def ave_norm_Wl(self):
         cdef unsigned int n_particles = self.qlptr.getNP()
-        cdef np.complex64_t[::1] ave_norm_Wl = \
-            <np.complex64_t[:n_particles]> self.thisptr.getAveNormWl().get()
-        return np.asarray(ave_norm_Wl, dtype=np.complex64)
+        cdef const float[::1] ave_norm_Wl = \
+            <float[:n_particles]> self.thisptr.getAveNormWl().get()
+        return np.asarray(ave_norm_Wl)
 
     def __repr__(self):
         return ("freud.order.{cls}(box={box}, r_max={r_max}, l={sph_l}, "
@@ -1363,9 +1355,9 @@ cdef class LocalWl(LocalQl):
         return self._plot(mode, "W", False, ax)
 
     def _repr_png_(self):
-        import plot
+        import freud.plot
         try:
-            return plot.ax_to_bytes(
+            return freud.plot.ax_to_bytes(
                 self.plot(mode=self.plot_mode.replace("Q", "W")))
         except AttributeError:
             return None
@@ -1901,8 +1893,6 @@ cdef class RotationalAutocorrelation(Compute):
 
     .. moduleauthor:: Andrew Karas <askaras@umich.edu>
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
-
-    .. versionadded:: 1.0
 
     Args:
         l (int):

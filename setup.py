@@ -188,10 +188,11 @@ else:
 
 # Set directives and macros
 directives = {
-    'embedsignature': True,
     'binding': True,
     'boundscheck': False,
     'wraparound': False,
+    'embedsignature': True,
+    'language_level': 3,
 }
 macros = []
 
@@ -400,7 +401,7 @@ if args.use_cython:
 if platform.system() == 'Darwin':
     os.environ["MACOSX_DEPLOYMENT_TARGET"]= "10.12"
 
-version = '1.2.1'
+version = '1.2.2'
 
 # Read README for PyPI, fallback to short description if it fails.
 desc = 'Powerful, efficient trajectory analysis in scientific Python.'
@@ -425,8 +426,9 @@ try:
               long_description_content_type='text/markdown',
               url='https://github.com/glotzerlab/freud',
               packages=['freud'],
-              python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*',
+              python_requires='>=3.5',
               install_requires=['numpy>=1.10'],
+              tests_require=['matplotlib>=2.0', 'rowan>=1.0', 'sympy>=1.0'],
               ext_modules=extensions)
 except SystemExit:
     # The errors we're explicitly checking for are whether or not

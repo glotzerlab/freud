@@ -64,7 +64,7 @@ def bar_plot(x, height, title=None, xlabel=None, ylabel=None, ax=None):
     return ax
 
 
-def plot_clusters(keys, freqs, num_cluster_to_plot=10, ax=None):
+def clusters_plot(keys, freqs, num_clusters_to_plot=10, ax=None):
     """Helper function to plot most frequent clusters in a bar graph.
 
     .. moduleauthor:: Jin Soo Ihm <jinihm@umich.edu>
@@ -72,8 +72,8 @@ def plot_clusters(keys, freqs, num_cluster_to_plot=10, ax=None):
     Args:
         keys (list): Cluster keys.
         freqs (list): Number of particles in each clusters.
-        num_cluster_to_plot (unsigned int): Number of the most frequent
-            clusters to plot.
+        num_clusters_to_plot (unsigned int): Number of largest clusters to
+            plot.
         ax (:class:`matplotlib.axes.Axes`): axes object to plot.
             If :code:`None`, make a new axes and figure object.
             (Default value = :code:`None`).
@@ -84,8 +84,8 @@ def plot_clusters(keys, freqs, num_cluster_to_plot=10, ax=None):
     count_sorted = sorted([(freq, key)
                           for key, freq in zip(keys, freqs)],
                           key=lambda x: -x[0])
-    sorted_freqs = [i[0] for i in count_sorted[:num_cluster_to_plot]]
-    sorted_keys = [str(i[1]) for i in count_sorted[:num_cluster_to_plot]]
+    sorted_freqs = [i[0] for i in count_sorted[:num_clusters_to_plot]]
+    sorted_keys = [str(i[1]) for i in count_sorted[:num_clusters_to_plot]]
     return bar_plot(sorted_keys, sorted_freqs, title="Cluster Frequency",
                     xlabel="Keys of {} largest clusters (total clusters: "
                            "{})".format(len(sorted_freqs), len(freqs)),
@@ -210,7 +210,7 @@ def pmft_plot(pmft, ax=None):
         return ax
 
 
-def plot_density(density, box, ax=None):
+def density_plot(density, box, ax=None):
     R"""Helper function to plot density diagram.
 
     Args:
@@ -255,7 +255,7 @@ def plot_density(density, box, ax=None):
     return ax
 
 
-def draw_voronoi(box, cells, ax=None):
+def voronoi_plot(box, cells, ax=None):
     """Helper function to draw 2D Voronoi diagram.
 
     Args:

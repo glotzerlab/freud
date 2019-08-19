@@ -418,11 +418,11 @@ public:
     {
         vec3<float> alpha = m_box.makeFraction(p);
         vec3<unsigned int> c;
-        c.x = floorf(alpha.x * float(m_cell_index.getW()));
+        c.x = (unsigned int) floorf(alpha.x * float(m_cell_index.getW()));
         c.x %= m_cell_index.getW();
-        c.y = floorf(alpha.y * float(m_cell_index.getH()));
+        c.y = (unsigned int) floorf(alpha.y * float(m_cell_index.getH()));
         c.y %= m_cell_index.getH();
-        c.z = floorf(alpha.z * float(m_cell_index.getD()));
+        c.z = (unsigned int) floorf(alpha.z * float(m_cell_index.getD()));
         c.z %= m_cell_index.getD();
         return c;
     }
@@ -528,6 +528,9 @@ protected:
 class LinkCellQueryIterator : virtual public NeighborQueryQueryIterator, virtual public LinkCellIterator
 {
 public:
+    // Explicitly indicate which toNeighborList function is used.
+    using NeighborQueryQueryIterator::toNeighborList;
+
     //! Constructor
     LinkCellQueryIterator(const LinkCell* neighbor_query, const vec3<float>* query_points, unsigned int n_query_points,
                           unsigned int num_neighbors, bool exclude_ii)

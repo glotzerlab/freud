@@ -130,15 +130,16 @@ void PMFTR12::accumulate(const locality::NeighborQuery* neighbor_query,
             float bin_r = neighbor_bond.distance * dr_inv;
             float bin_t1 = floorf(t1 * dt1_inv);
             float bin_t2 = floorf(t2 * dt2_inv);
-// fast float to int conversion with truncation
+
+            // fast float to int conversion with truncation
 #ifdef __SSE2__
             unsigned int ibin_r = _mm_cvtt_ss2si(_mm_load_ss(&bin_r));
             unsigned int ibin_t1 = _mm_cvtt_ss2si(_mm_load_ss(&bin_t1));
             unsigned int ibin_t2 = _mm_cvtt_ss2si(_mm_load_ss(&bin_t2));
 #else
-                unsigned int ibin_r = (unsigned int)(bin_r);
-                unsigned int ibin_t1 = (unsigned int)(bin_t1);
-                unsigned int ibin_t2 = (unsigned int)(bin_t2);
+            unsigned int ibin_r = (unsigned int)(bin_r);
+            unsigned int ibin_t1 = (unsigned int)(bin_t1);
+            unsigned int ibin_t2 = (unsigned int)(bin_t2);
 #endif
 
             if ((ibin_r < m_n_r) && (ibin_t1 < m_n_t1) && (ibin_t2 < m_n_t2))

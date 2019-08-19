@@ -44,7 +44,7 @@ void Cluster::computeClusters(const freud::locality::NeighborQuery* nq,
 
     freud::locality::loopOverNeighbors(
         nq, points, Np, qargs, nlist,
-        [this, &dj, points](const freud::locality::NeighborBond& neighbor_bond) {
+        [this, &dj](const freud::locality::NeighborBond& neighbor_bond) {
             // compute r between the two particles
             if (neighbor_bond.distance < m_rcut)
             {
