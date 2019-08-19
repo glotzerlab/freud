@@ -23,12 +23,7 @@ cdef extern from "CorrelationFunction.h" namespace "freud::density":
 
 cdef extern from "GaussianDensity.h" namespace "freud::density":
     cdef cppclass GaussianDensity:
-        GaussianDensity(unsigned int, float, float) except +
-        GaussianDensity(unsigned int,
-                        unsigned int,
-                        unsigned int,
-                        float,
-                        float) except +
+        GaussianDensity(vec3[unsigned int], float, float) except +
         const freud._box.Box & getBox() const
         void reset()
         void compute(
@@ -36,9 +31,8 @@ cdef extern from "GaussianDensity.h" namespace "freud::density":
             const vec3[float]*,
             unsigned int) nogil except +
         shared_ptr[float] getDensity()
-        unsigned int getWidthX()
-        unsigned int getWidthY()
-        unsigned int getWidthZ()
+        vec3[unsigned int] getWidth()
+        float getSigma()
 
 cdef extern from "LocalDensity.h" namespace "freud::density":
     cdef cppclass LocalDensity:

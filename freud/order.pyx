@@ -830,7 +830,7 @@ cdef class LocalQl(Compute):
 
         # Filter out points below rmin if we made a default neighborlist.
         if do_filter:
-            nlist_.filter_r(self.m_box, points, points, self.rmax, self.rmin)
+            nlist_.filter_r(self.m_box, points, points, self.r_max, self.r_min)
 
         self.qlptr.compute(nlist_.get_ptr(), <vec3[float]*> &l_points[0, 0],
                            nP)
@@ -862,7 +862,7 @@ cdef class LocalQl(Compute):
 
         # Filter out points below rmin if we made a default neighborlist.
         if do_filter:
-            nlist_.filter_r(self.m_box, points, points, self.rmax, self.rmin)
+            nlist_.filter_r(self.m_box, points, points, self.r_max, self.r_min)
 
         self.qlptr.compute(nlist_.get_ptr(),
                            <vec3[float]*> &l_points[0, 0], nP)
@@ -897,7 +897,7 @@ cdef class LocalQl(Compute):
 
         # Filter out points below rmin if we made a default neighborlist.
         if do_filter:
-            nlist_.filter_r(self.m_box, points, points, self.rmax, self.rmin)
+            nlist_.filter_r(self.m_box, points, points, self.r_max, self.r_min)
 
         self.qlptr.compute(nlist_.get_ptr(),
                            <vec3[float]*> &l_points[0, 0], nP)
@@ -932,7 +932,7 @@ cdef class LocalQl(Compute):
 
         # Filter out points below rmin if we made a default neighborlist.
         if do_filter:
-            nlist_.filter_r(self.m_box, points, points, self.rmax, self.rmin)
+            nlist_.filter_r(self.m_box, points, points, self.r_max, self.r_min)
 
         self.qlptr.compute(nlist_.get_ptr(),
                            <vec3[float]*> &l_points[0, 0], nP)
