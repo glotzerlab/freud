@@ -46,7 +46,7 @@ cdef class _QueryArgs:
     # This class is temporarily included for testing and may be
     # removed in future releases.
 
-    def __cinit__(self, mode=None, r_max=None, nn=None, exclude_ii=None):
+    def __cinit__(self, mode=None, r_max=None, nn=None, exclude_ii=None, scale=None, **kwargs):
         if type(self) == _QueryArgs:
             self.thisptr = new freud._locality.QueryArgs()
             if mode is not None:
@@ -57,6 +57,13 @@ cdef class _QueryArgs:
                 self.nn = nn
             if exclude_ii is not None:
                 self.exclude_ii = exclude_ii
+            if scale is not None:
+                self.scale = scale
+            if len(kwargs):
+                err_str = ", ".join(
+                    "{} = {}".format(k, v) for k, v in kwargs.items())
+                raise ValueError(
+                    "The following invalid query arguments were provided: " + err_str)
 
     def __dealloc__(self):
         if type(self) == _QueryArgs:
@@ -116,38 +123,6 @@ cdef class _QueryArgs:
     def scale(self, value):
         self.thisptr.scale = value
 
-
-cdef _QueryArgs parse_query_args(dict query_args):
-    """Convert a dictionary into a query args object.
-
-    The following keys are supported:
-
-        * mode: The query mode, either 'ball' or 'nearest'.
-        * r_max: The cutoff distance for a ball query.
-        * nn: The number of nearest neighbors to find.
-        * exclude_ii: Whether or not to include self-neighbors.
-
-    Args:
-        query_args (dict):
-            A dictionary of query arguments.
-
-    Returns:
-        _QueryArgs: An object encapsulating query arguments.
-    """
-    cdef _QueryArgs qa = _QueryArgs()
-    cdef dict invalid_args = {}
-    for key, val in query_args.items():
-        if hasattr(qa, key):
-            setattr(qa, key, val)
-        else:
-            invalid_args[key] = val
-    if invalid_args:
-        err_str = ", ".join(
-            "{} = {}".format(k, v) for k, v in invalid_args.items())
-        raise ValueError(
-            "The following invalid query arguments were provided: " + err_str)
-    else:
-        return qa
 
 cdef class NeighborQueryResult:
     R"""Class encapsulating the output of queries of NeighborQuery objects.
@@ -309,7 +284,7 @@ cdef class NeighborQuery:
 
         cdef shared_ptr[freud._locality.NeighborQueryIterator] iterator
         cdef const float[:, ::1] l_query_points = query_points
-        cdef _QueryArgs args = parse_query_args(query_args)
+        cdef _QueryArgs args = _QueryArgs(**query_args)
 
         # Default guess value
         if 'r_max' not in query_args:
@@ -930,7 +905,7 @@ cdef class AABBQuery(NeighborQuery):
 
         cdef shared_ptr[freud._locality.NeighborQueryIterator] iterator
         cdef const float[:, ::1] l_query_points = query_points
-        cdef _QueryArgs args = parse_query_args(query_args)
+        cdef _QueryArgs args = _QueryArgs(**query_args)
 
         iterator = self.nqptr.queryWithArgs(
             <vec3[float]*> &l_query_points[0, 0],
