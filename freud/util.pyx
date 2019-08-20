@@ -26,10 +26,13 @@ cdef class ManagedArrayManager:
     have a reasonable expectation that these arrays will remain valid after the
     compute class recomputes or goes out of scope. To enforce this requirement,
     all such data members should be stored in using the ManagedArray class in
-    C++ and then synchronized using a ManagedArrayManager in Python. This class
-    retains a Python-level version of the array that maintains ownership of the
-    data between compute calls and only relinquishes ownership to the C++ class
-    if no outstanding references to the data exist in Python.
+    C++ and then returned by creation of a ManagedArrayManager in Python. This
+    class creates a copy of the ManagedArray that shares ownership of the data,
+    and the ManagedArrayManager is tied to the lifetime of any numpy arrays
+    created from it, ensuring that the data remains valid for the lifetime of
+    such objects. Compute classes must use the `prepare` method of the
+    ManagedArray class to ensure that they do not overwrite memory spaces still
+    in use on the Python side.
 
     This class should always be initialized using the static factory
     :meth:`~ManagedArrayManager.init` method, which creates the Python copy of
