@@ -144,8 +144,8 @@ class TestLocalWl(unittest.TestCase):
             quat = rowan.random.rand()
             positions_rotated = rowan.rotate(quat, positions)
             w6.compute(positions_rotated, nlist=nlist)
-            npt.assert_almost_equal(w6.Wl[0], w6_unrotated_order)
-            npt.assert_almost_equal(w6.Wl[0], PERFECT_FCC_W6)
+            npt.assert_allclose(w6.Wl[0], w6_unrotated_order, rtol=1e-5)
+            npt.assert_allclose(w6.Wl[0], PERFECT_FCC_W6, rtol=1e-5)
 
 
 class TestLocalWlNear(unittest.TestCase):
@@ -278,8 +278,8 @@ class TestLocalWlNear(unittest.TestCase):
             quat = rowan.random.rand()
             positions_rotated = rowan.rotate(quat, positions)
             w6.compute(positions_rotated, nlist=nlist)
-            npt.assert_almost_equal(w6.Wl[0], w6_unrotated_order)
-            npt.assert_almost_equal(w6.Wl[0], PERFECT_FCC_W6)
+            npt.assert_allclose(w6.Wl[0], w6_unrotated_order, rtol=1e-5)
+            npt.assert_allclose(w6.Wl[0], PERFECT_FCC_W6, rtol=1e-5)
 
 
 if __name__ == '__main__':

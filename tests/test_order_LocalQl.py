@@ -140,8 +140,8 @@ class TestLocalQl(unittest.TestCase):
             quat = rowan.random.rand()
             positions_rotated = rowan.rotate(quat, positions)
             q6.compute(positions_rotated, nlist=nlist)
-            npt.assert_almost_equal(q6.Ql[0], q6_unrotated_order)
-            npt.assert_almost_equal(q6.Ql[0], PERFECT_FCC_Q6)
+            npt.assert_allclose(q6.Ql[0], q6_unrotated_order, rtol=1e-5)
+            npt.assert_allclose(q6.Ql[0], PERFECT_FCC_Q6, rtol=1e-5)
 
 
 class TestLocalQlNear(unittest.TestCase):
@@ -282,8 +282,8 @@ class TestLocalQlNear(unittest.TestCase):
             quat = rowan.random.rand()
             positions_rotated = rowan.rotate(quat, positions)
             q6.compute(positions_rotated, nlist=nlist)
-            npt.assert_almost_equal(q6.Ql[0], q6_unrotated_order)
-            npt.assert_almost_equal(q6.Ql[0], PERFECT_FCC_Q6)
+            npt.assert_allclose(q6.Ql[0], q6_unrotated_order, rtol=1e-5)
+            npt.assert_allclose(q6.Ql[0], PERFECT_FCC_Q6, rtol=1e-5)
 
 
 if __name__ == '__main__':
