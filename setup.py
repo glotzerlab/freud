@@ -188,10 +188,11 @@ else:
 
 # Set directives and macros
 directives = {
-    'embedsignature': True,
     'binding': True,
     'boundscheck': False,
     'wraparound': False,
+    'embedsignature': True,
+    'language_level': 3,
 }
 macros = []
 
@@ -354,23 +355,16 @@ sources_in_all = [
 # Dict keys should be specified as the module name without
 # "freud.", i.e. not the fully qualified name.
 extra_module_sources = dict(
-    cluster=[
-        os.path.join("cpp", "locality", "NeighborList.cc"),
-    ],
     density=[
-        os.path.join("cpp", "locality", "NeighborList.cc"),
         os.path.join("cpp", "util", "NdHistogram.cc"),
     ],
     environment=[
-        os.path.join("cpp", "locality", "NeighborList.cc"),
         os.path.join("cpp", "util", "diagonalize.cc"),
     ],
     order=[
-        os.path.join("cpp", "locality", "NeighborList.cc"),
         os.path.join("cpp", "util", "diagonalize.cc"),
     ],
     pmft=[
-        os.path.join("cpp", "locality", "NeighborList.cc"),
         os.path.join("cpp", "util", "NdHistogram.cc"),
     ],
 )
@@ -400,7 +394,7 @@ if args.use_cython:
 if platform.system() == 'Darwin':
     os.environ["MACOSX_DEPLOYMENT_TARGET"]= "10.12"
 
-version = '1.2.1'
+version = '1.2.2'
 
 # Read README for PyPI, fallback to short description if it fails.
 desc = 'Powerful, efficient trajectory analysis in scientific Python.'
@@ -425,8 +419,9 @@ try:
               long_description_content_type='text/markdown',
               url='https://github.com/glotzerlab/freud',
               packages=['freud'],
-              python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*',
+              python_requires='>=3.5',
               install_requires=['numpy>=1.10'],
+              tests_require=['matplotlib>=2.0', 'rowan>=1.0', 'sympy>=1.0'],
               ext_modules=extensions)
 except SystemExit:
     # The errors we're explicitly checking for are whether or not

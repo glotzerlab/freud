@@ -32,9 +32,9 @@ public:
     */
     void accumulate(const locality::NeighborQuery* neighbor_query, 
                     quat<float>* orientations, vec3<float>* query_points,
-                    quat<float>* query_orientations, unsigned int n_query_points, 
-                    quat<float>* face_orientations, unsigned int n_faces, 
-                    const locality::NeighborList* nlist, freud::locality::QueryArgs qargs);
+                    unsigned int n_query_points, quat<float>* face_orientations,
+                    unsigned int n_faces, const locality::NeighborList* nlist,
+                    freud::locality::QueryArgs qargs);
 
     //! \internal
     //! helper function to reduce the thread specific arrays into one array
@@ -88,7 +88,6 @@ private:
     unsigned int m_n_x; //!< Number of x bins to compute pcf over
     unsigned int m_n_y; //!< Number of y bins to compute pcf over
     unsigned int m_n_z; //!< Number of z bins to compute pcf over
-    unsigned int m_n_faces;
     float m_jacobian;
     vec3<float> m_shiftvec; //!< vector that points from [0,0,0] to the origin of the pmft
 

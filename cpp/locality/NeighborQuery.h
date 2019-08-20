@@ -284,8 +284,7 @@ protected:
     unsigned int m_n_query_points;                      //!< Number of query_points.
     unsigned int cur_p;                    //!< The current index into the points (bounded by m_n_query_points).
 
-    unsigned int
-        m_finished;    //!< Flag to indicate that iteration is complete (must be set by next on termination).
+    bool m_finished;    //!< Flag to indicate that iteration is complete (must be set by next on termination).
     bool m_exclude_ii; //!< Flag to indicate whether or not to include self bonds.
 };
 

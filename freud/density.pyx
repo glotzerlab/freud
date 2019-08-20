@@ -16,6 +16,8 @@ from cython.operator cimport dereference
 from freud.common cimport Compute
 from freud.util cimport vec3
 
+from collections.abc import Sequence
+
 cimport freud._density
 cimport freud.box, freud.locality
 cimport numpy as np
@@ -23,6 +25,8 @@ cimport numpy as np
 # numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults
 np.import_array()
+
+ctypedef unsigned int uint
 
 cdef class FloatCF(Compute):
     R"""Computes the real pairwise correlation function.
@@ -239,17 +243,17 @@ cdef class FloatCF(Compute):
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-        import plot
-        return plot.line_plot(self.R, self.RDF,
-                              title="Correlation Function",
-                              xlabel=r"$r$",
-                              ylabel=r"$C(r)$",
-                              ax=ax)
+        import freud.plot
+        return freud.plot.line_plot(self.R, self.RDF,
+                                    title="Correlation Function",
+                                    xlabel=r"$r$",
+                                    ylabel=r"$C(r)$",
+                                    ax=ax)
 
     def _repr_png_(self):
-        import plot
+        import freud.plot
         try:
-            return plot.ax_to_bytes(self.plot())
+            return freud.plot.ax_to_bytes(self.plot())
         except AttributeError:
             return None
 
@@ -469,17 +473,17 @@ cdef class ComplexCF(Compute):
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-        import plot
-        return plot.line_plot(self.R, np.real(self.RDF),
-                              title="Correlation Function",
-                              xlabel=r"$r$",
-                              ylabel=r"$\operatorname{Re}(C(r))$",
-                              ax=ax)
+        import freud.plot
+        return freud.plot.line_plot(self.R, np.real(self.RDF),
+                                    title="Correlation Function",
+                                    xlabel=r"$r$",
+                                    ylabel=r"$\operatorname{Re}(C(r))$",
+                                    ax=ax)
 
     def _repr_png_(self):
-        import plot
+        import freud.plot
         try:
-            return plot.ax_to_bytes(self.plot())
+            return freud.plot.ax_to_bytes(self.plot())
         except AttributeError:
             return None
 
@@ -495,27 +499,12 @@ cdef class GaussianDensity(Compute):
     dimensions of the image (grid) are set in the constructor, and can either
     be set equally for all dimensions or for each dimension independently.
 
-    - Constructor Calls:
-
-        Initialize with all dimensions identical::
-
-            freud.density.GaussianDensity(width, r_max, sigma)
-
-        Initialize with each dimension specified::
-
-            freud.density.GaussianDensity(width_x, width_y, width_z, r_max, sigma)
-
     .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
 
     Args:
-        width (unsigned int):
-            Number of pixels to make the image.
-        width_x (unsigned int):
-            Number of pixels to make the image in x.
-        width_y (unsigned int):
-            Number of pixels to make the image in y.
-        width_z (unsigned int):
-            Number of pixels to make the image in z.
+        width (int or list or tuple):
+            The number of bins to make the image in each direction (identical
+            in all dimensions if a single integer value is provided).
         r_max (float):
             Distance over which to blur.
         sigma (float):
@@ -528,19 +517,24 @@ cdef class GaussianDensity(Compute):
             The image grid with the Gaussian density.
     """  # noqa: E501
     cdef freud._density.GaussianDensity * thisptr
-    cdef arglist
+    cdef float r_max
 
-    def __cinit__(self, *args):
-        if len(args) == 3:
-            self.thisptr = new freud._density.GaussianDensity(
-                args[0], args[1], args[2])
-            self.arglist = [args[0], args[1], args[2]]
-        elif len(args) == 5:
-            self.thisptr = new freud._density.GaussianDensity(
-                args[0], args[1], args[2], args[3], args[4])
-            self.arglist = [args[0], args[1], args[2], args[3], args[4]]
+    def __cinit__(self, width, r_max, sigma):
+        cdef vec3[uint] width_vector
+        if isinstance(width, int):
+            width_vector = vec3[uint](width, width, width)
+        elif isinstance(width, Sequence) and len(width) == 2:
+            width_vector = vec3[uint](width[0], width[1], 1)
+        elif isinstance(width, Sequence) and len(width) == 3:
+            width_vector = vec3[uint](width[0], width[1], width[2])
         else:
-            raise TypeError('GaussianDensity takes exactly 3 or 5 arguments')
+            raise ValueError("The width must be either a number of bins or a "
+                             "list indicating the widths in each spatial "
+                             "dimension (length 2 in 2D, length 3 in 3D).")
+
+        self.r_max = r_max
+        self.thisptr = new freud._density.GaussianDensity(
+            width_vector, r_max, sigma)
 
     def __dealloc__(self):
         del self.thisptr
@@ -571,38 +565,33 @@ cdef class GaussianDensity(Compute):
 
     @Compute._computed_property()
     def gaussian_density(self):
-        cdef unsigned int width_x = self.thisptr.getWidthX()
-        cdef unsigned int width_y = self.thisptr.getWidthY()
-        cdef unsigned int width_z = self.thisptr.getWidthZ()
-        cdef unsigned int array_size = width_x * width_y
         cdef freud.box.Box box = self.box
-        if not box.is2D():
-            array_size *= width_z
+        cdef vec3[uint] width = self.thisptr.getWidth()
+        cdef unsigned int array_size = \
+            width.x * width.y * (1 if box.is2D() else width.z)
         cdef const float[::1] density = \
             <float[:array_size]> self.thisptr.getDensity().get()
         if box.is2D():
-            array_shape = (width_y, width_x)
+            array_shape = (width.y, width.x)
         else:
-            array_shape = (width_z, width_y, width_x)
+            array_shape = (width.z, width.y, width.x)
         return np.reshape(np.asarray(density), array_shape)
 
+    @property
+    def sigma(self):
+        return self.thisptr.getSigma()
+
+    @property
+    def width(self):
+        cdef vec3[uint] width = self.thisptr.getWidth()
+        return (width.x, width.y, width.z)
+
     def __repr__(self):
-        if len(self.arglist) == 3:
-            return ("freud.density.{cls}({width}, "
-                    "{r_max}, {sigma})").format(cls=type(self).__name__,
-                                                width=self.arglist[0],
-                                                r_max=self.arglist[1],
-                                                sigma=self.arglist[2])
-        elif len(self.arglist) == 5:
-            return ("freud.density.{cls}({width_x}, {width_y}, {width_z}, "
-                    "{r_max}, {sigma})").format(cls=type(self).__name__,
-                                                width_x=self.arglist[0],
-                                                width_y=self.arglist[1],
-                                                width_z=self.arglist[2],
-                                                r_max=self.arglist[3],
-                                                sigma=self.arglist[4])
-        else:
-            raise TypeError('GaussianDensity takes exactly 3 or 5 arguments')
+        return ("freud.density.{cls}({width}, "
+                "{r_max}, {sigma})").format(cls=type(self).__name__,
+                                            width=self.width,
+                                            r_max=self.r_max,
+                                            sigma=self.sigma)
 
     def __str__(self):
         return repr(self)
@@ -619,15 +608,15 @@ cdef class GaussianDensity(Compute):
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-        import plot
+        import freud.plot
         if not self.box.is2D():
             return None
-        return plot.plot_density(self.gaussian_density, self.box, ax=ax)
+        return freud.plot.density_plot(self.gaussian_density, self.box, ax=ax)
 
     def _repr_png_(self):
-        import plot
+        import freud.plot
         try:
-            return plot.ax_to_bytes(self.plot())
+            return freud.plot.ax_to_bytes(self.plot())
         except AttributeError:
             return None
 
@@ -827,9 +816,6 @@ cdef class RDF(Compute):
             The centers of each bin.
         n_r ((:math:`N_{bins}`,) :class:`numpy.ndarray`):
             Histogram of cumulative RDF values (*i.e.* the integrated RDF).
-
-    .. versionchanged:: 0.7.0
-       Added optional `r_min` argument.
     """
     cdef freud._density.RDF * thisptr
     cdef r_max
@@ -967,15 +953,16 @@ cdef class RDF(Compute):
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-        import plot
-        return plot.line_plot(self.R, self.RDF,
-                              title="RDF",
-                              xlabel=r"$r$",
-                              ylabel=r"$g(r)$")
+        import freud.plot
+        return freud.plot.line_plot(self.R, self.RDF,
+                                    title="RDF",
+                                    xlabel=r"$r$",
+                                    ylabel=r"$g(r)$",
+                                    ax=ax)
 
     def _repr_png_(self):
-        import plot
+        import freud.plot
         try:
-            return plot.ax_to_bytes(self.plot())
+            return freud.plot.ax_to_bytes(self.plot())
         except AttributeError:
             return None

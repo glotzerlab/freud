@@ -175,19 +175,19 @@ cdef class Cluster(Compute):
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-        import plot
+        import freud.plot
         try:
             count = np.unique(self.cluster_idx, return_counts=True)
         except ValueError:
             return None
         else:
-            return plot.plot_clusters(count[0], count[1],
-                                      num_cluster_to_plot=10, ax=ax)
+            return freud.plot.clusters_plot(count[0], count[1],
+                                            num_clusters_to_plot=10, ax=ax)
 
     def _repr_png_(self):
-        import plot
+        import freud.plot
         try:
-            return plot.ax_to_bytes(self.plot())
+            return freud.plot.ax_to_bytes(self.plot())
         except AttributeError:
             return None
 

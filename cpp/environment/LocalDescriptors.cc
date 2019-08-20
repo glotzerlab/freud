@@ -130,7 +130,7 @@ void LocalDescriptors::compute(const box::Box& box,
                 const float magR(sqrt(rsq));
                 float theta(atan2(bond_ij.y, bond_ij.x)); // theta in [-pi..pi] initially
                 if (theta < 0)
-                    theta += 2 * M_PI;             // move theta into [0..2*pi]
+                    theta += float(2 * M_PI);             // move theta into [0..2*pi]
                 float phi(acos(bond_ij.z / magR)); // phi in [0..pi]
 
                 // catch cases where bond_ij.z/magR falls outside [-1, 1]

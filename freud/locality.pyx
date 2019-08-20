@@ -167,8 +167,6 @@ cdef class NeighborQueryResult:
     object.
 
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
-
-    .. versionadded:: 1.1.0
     """
 
     def __iter__(self):
@@ -233,8 +231,6 @@ cdef class AABBQueryResult(NeighborQueryResult):
     to call the C++ query function with the correct set of arguments.
 
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
-
-    .. versionadded:: 1.1.0
     """
 
     cdef shared_ptr[
@@ -275,8 +271,6 @@ cdef class NeighborQuery:
     data structure.
 
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
-
-    .. versionadded:: 1.1.0
 
     Args:
         box (:class:`freud.box.Box`):
@@ -417,8 +411,6 @@ cdef class NeighborList:
     :meth:`find_first_index`.
 
     .. moduleauthor:: Matthew Spellings <mspells@umich.edu>
-
-    .. versionadded:: 0.6.4
 
     .. note::
 
@@ -878,9 +870,6 @@ cdef class RawPoints(NeighborQuery):
             The simulation box.
         points (:class:`np.ndarray`):
             The points associated with this class.
-
-    .. versionadded:: 1.1.0
-
     """  # noqa: E501
 
     def __cinit__(self, box, points):
@@ -906,8 +895,6 @@ cdef class AABBQuery(NeighborQuery):
 
     .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
-
-    .. versionadded:: 1.1.0
 
     Attributes:
         box (:class:`freud.locality.Box`):
@@ -1697,8 +1684,6 @@ cdef class _Voronoi:
     def volumes(self):
         R"""Returns an array of volumes (areas in 2D) corresponding to Voronoi
         cells.
-
-        .. versionadded:: 0.8
 
         Must call :meth:`freud.locality.Voronoi.compute()` before this
         method.

@@ -239,7 +239,7 @@ private:
     box::Box m_box; //!< Simulation box
     float m_rmax;   //!< Maximum cutoff radius at which to determine local environment
     float m_rmaxsq; //!< Square of m_rmax
-    float m_k;      //!< Default number of nearest neighbors used to determine which environments are compared
+    unsigned int m_k;      //!< Default number of nearest neighbors used to determine which environments are compared
                //!< during local environment clustering. If hard_r=false, this is also the number of neighbors
                //!< in each local environment.
     unsigned int m_maxk; //!< Maximum number of neighbors in any particle's local environment. If
