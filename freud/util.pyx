@@ -7,6 +7,7 @@ import numpy as np
 from functools import wraps
 
 from cython.operator cimport dereference
+from libcpp.vector cimport vector
 
 cimport freud.util
 cimport numpy as np
@@ -43,18 +44,11 @@ cdef class ManagedArrayManager:
         # function, but some logic is included here for ease of use.
         self.data_type = arr_type
         self.var_typenum = typenum
-        self._shape = tuple()
         self.thisptr.null_ptr = NULL
 
     @property
     def shape(self):
-        return self._shape
-
-    @shape.setter
-    def shape(self, shape):
-        """Set the shape of the output numpy array when :meth:`numpy.asarray`
-        is called."""
-        self._shape = shape
+        return tuple(self.thisptr.uint_ptr.shape())
 
     def __dealloc__(self):
         if self.var_typenum == np.NPY_UINT32:
@@ -62,10 +56,6 @@ cdef class ManagedArrayManager:
 
     def __array__(self):
         """Convert the underlying data array into a read-only numpy array."""
-        if self.shape == tuple():
-            raise ValueError("You must set the shape attribute of the "
-                             "ManagedArrayManager through the property API.")
-
         # To simplify the code, we allocate a single linear array and then
         # reshape it on return. The reshape is just a view on the arr array
         # created below, so it creates a chain reshaped_array->arr->self that

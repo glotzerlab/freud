@@ -2,7 +2,7 @@
 #define NUMERICAL_ARRAY_H
 
 #include <memory>
-#include <tbb/tbb.h>
+#include <vector>
 
 /*! \file ManagedArray.h
     \brief Defines the standard array class to be used throughout freud.
@@ -16,10 +16,12 @@ namespace freud { namespace util {
  *  underlying data structure for arrays of data in freud. These arrays are
  *  specifically designed for numerical data calculated by a compute class,
  *  particularly for arrays that must be made accessible through the Python API
- *  of freud.
+ *  of freud. To support multidimensional arrays, the underlying data is stored
+ *  in a linear array that can be indexed into according to standard freud
+ *  indexing.
  *
  *  To support resizing, a ManagedArray instances stores its data as a pointer
- *  to a pointer, and its size as a pointer. As a result, copy-assignment or
+ *  to a pointer, and its shape as a pointer. As a result, copy-assignment or
  *  initialization will result in a new ManagedArray pointing to the same data,
  *  and any such array can resize or reallocate this data. The pointer to
  *  pointer infrastructure ensures that such changes properly propagate to all
@@ -32,14 +34,17 @@ namespace freud { namespace util {
 template<typename T> class ManagedArray
 {
 public:
-    //! Default constructor with optional size for thread local arrays
-    /*! \param size Size of the array to allocate.
+    //! Constructor based on a shape tuple.
+    /*! Including a default value for the shape allows the usage of this
+     *  constructor as the default constructor.
+     *  \param shape Shape of the array to allocate.
      */
-    ManagedArray(unsigned int size=0)
+    ManagedArray(std::vector<unsigned int> shape = {0})
     {
-        m_size = std::make_shared<unsigned int>(size);
+        m_shape = std::make_shared<std::vector<unsigned int> >(shape);
+
         m_data = std::shared_ptr<std::shared_ptr<T> >(
-            new std::shared_ptr<T>(new T[size], std::default_delete<T[]>()));
+            new std::shared_ptr<T>(new T[size()], std::default_delete<T[]>()));
         reset();
     }
 
@@ -51,9 +56,17 @@ public:
      */
     void resize(unsigned int size)
     {
-        if (size != *m_size)
+        resize(std::vector<unsigned int> {size});
+    }
+
+    //! Update size of the array.
+    /*! \param shape New shape of the array.
+     */
+    void resize(std::vector<unsigned int> shape)
+    {
+        if (shape != *m_shape)
         {
-            *m_size = size;
+            *m_shape = shape;
             reallocate();
         }
     }
@@ -65,30 +78,30 @@ public:
      */
     void reallocate()
     {
-        *m_data = std::shared_ptr<T>(new T[*m_size], std::default_delete<T[]>());
+        *m_data = std::shared_ptr<T>(new T[size()], std::default_delete<T[]>());
         reset();
     }
 
     //! Reset the contents of array to be 0.
     void reset()
     {
-        if (*m_size != 0)
+        if (size() != 0)
         {
-            memset((void*) get(), 0, sizeof(T) * (*m_size));
+            memset((void*) get(), 0, sizeof(T) * size());
         }
     }
 
     //! Return the underlying pointer (requires two levels of indirection).
     T *get() const
     {
-        std::shared_ptr<T> * tmp = m_data.get();
+        std::shared_ptr<T> *tmp = m_data.get();
         return (*tmp).get();
     }
 
     //! Writeable index into array.
     T &operator[](unsigned int index)
     {
-        if (index >= *m_size)
+        if (index >= size())
         {
             throw std::runtime_error("Attempted to access data out of bounds.");
         }
@@ -98,7 +111,7 @@ public:
     //! Read-only index into array.
     const T &operator[](unsigned int index) const
     {
-        if (index >= *m_size)
+        if (index >= size())
         {
             throw std::runtime_error("Attempted to access data out of bounds.");
         }
@@ -108,7 +121,18 @@ public:
     //! Get the size of the current array.
     unsigned int size() const
     {
-        return *m_size;
+        unsigned int size = 1;
+        for (unsigned int i = 0; i < m_shape->size(); i++)
+        {
+            size *= (*m_shape)[i];
+        }
+        return size;
+    }
+
+    //! Get the shape of the current array.
+    std::vector<unsigned int> shape() const
+    {
+        return *m_shape;
     }
 
     //! Dissociate this ManagedArray from others referencing the same data.
@@ -128,7 +152,7 @@ public:
         
 private:
     std::shared_ptr<std::shared_ptr<T> > m_data;           //!< Pointer to array.
-    std::shared_ptr<unsigned int> m_size;                  //!< Size of array.
+    std::shared_ptr<std::vector<unsigned int> > m_shape;                  //!< Size of array.
 };
 
 }; }; // end namespace freud::util

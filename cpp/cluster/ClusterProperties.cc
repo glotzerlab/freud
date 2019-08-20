@@ -18,7 +18,7 @@ using namespace std;
 
 namespace freud { namespace cluster {
 
-ClusterProperties::ClusterProperties() : m_num_clusters(0), m_cluster_com(true), m_cluster_G(true), m_cluster_size(true) {}
+ClusterProperties::ClusterProperties() : m_num_clusters(0) {}
 
 /*! \param box Box containing the particles
     \param points Positions of the particles making up the clusters

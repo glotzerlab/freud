@@ -4,7 +4,6 @@
 #include <cassert>
 #include <map>
 #include <stdexcept>
-#include <vector>
 
 #include "Cluster.h"
 #include "NeighborComputeFunctional.h"

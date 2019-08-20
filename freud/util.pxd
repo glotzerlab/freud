@@ -23,7 +23,6 @@ ctypedef union arr_ptr_t:
 cdef class ManagedArrayManager:
     cdef int var_typenum
     cdef arr_ptr_t thisptr
-    cdef tuple _shape
     cdef arr_type_t data_type
 
     cdef inline void set_as_base(self, arr):

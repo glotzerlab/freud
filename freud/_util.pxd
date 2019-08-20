@@ -3,6 +3,7 @@
 
 from libcpp cimport bool
 from libcpp.memory cimport shared_ptr
+from libcpp.vector cimport vector
 
 cimport numpy
 
@@ -27,6 +28,7 @@ cdef extern from "ManagedArray.h" namespace "freud::util":
         T *get()
         void reallocate()
         unsigned int size()
+        vector[unsigned int] shape()
         void dissociate()
 
 

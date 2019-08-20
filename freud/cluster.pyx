@@ -148,7 +148,6 @@ cdef class Cluster(Compute):
 
     @Compute._computed_property("compute")
     def cluster_idx(self):
-        self.__cluster_idx.shape = (self.num_particles, )
         return np.asarray(self.__cluster_idx)
 
     @Compute._computed_property("computeClusterMembership")
