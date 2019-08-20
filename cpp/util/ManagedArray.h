@@ -60,6 +60,23 @@ public:
         resize(std::vector<unsigned int> {size});
     }
 
+    void prepare(unsigned int new_size)
+    {
+        prepare(std::vector<unsigned int> {new_size});
+    }
+
+    void prepare(std::vector<unsigned int> new_shape)
+    {
+        // If we resized, or if there are outstanding references, we create a new array. No matter what, reset.
+        if ((m_data.use_count() > 1) || (new_shape != shape()))
+        {
+            m_shape = std::make_shared<std::vector<unsigned int> >(new_shape);
+            m_data = std::shared_ptr<std::shared_ptr<T> >(
+                new std::shared_ptr<T>(new T[size()], std::default_delete<T[]>()));
+        }
+        reset();
+    }
+
     //! Update size of the array.
     /*! \param shape New shape of the array.
      */

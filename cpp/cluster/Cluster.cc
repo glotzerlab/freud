@@ -33,11 +33,7 @@ void Cluster::compute(const freud::locality::NeighborQuery* nq,
     assert(points);
     assert(Np > 0);
 
-    // reallocate the cluster_idx array if the size doesn't match the last one
-    if (Np != m_num_particles)
-    {
-        m_cluster_idx.resize(Np);
-    }
+    m_cluster_idx.prepare(Np);
 
     m_num_particles = Np;
     DisjointSets dj(m_num_particles);
