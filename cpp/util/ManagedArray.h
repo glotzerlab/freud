@@ -52,11 +52,22 @@ public:
     //! Destructor (currently empty because data is managed by shared pointer).
     ~ManagedArray() {}
 
+    //! Simple convenience for 1D arrays that calls through to the shape based `prepare` function.
+    /*! \param new_size Size of the 1D array to allocate.
+     */
     void prepare(unsigned int new_size)
     {
         prepare(std::vector<unsigned int> {new_size});
     }
 
+    //! Prepare for writing new data.
+    /*! This function always resets the array to contain zeros, but it will
+     * also reallocate if there are other ManagedArrays pointing to the data in
+     * order to ensure that those array references are not invalidated when
+     * this function clears the data.
+     *
+     *  \param new_shape Shape of the array to allocate.
+     */
     void prepare(std::vector<unsigned int> new_shape)
     {
         // If we resized, or if there are outstanding references, we create a new array. No matter what, reset.
