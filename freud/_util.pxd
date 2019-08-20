@@ -26,10 +26,8 @@ cdef extern from "ManagedArray.h" namespace "freud::util":
         ManagedArray()
         ManagedArray(const ManagedArray[T] &)
         T *get()
-        void reallocate()
         unsigned int size()
         vector[unsigned int] shape()
-        void dissociate()
 
 
 cdef extern from "numpy/arrayobject.h":

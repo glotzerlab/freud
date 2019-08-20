@@ -36,18 +36,6 @@ cdef class ManagedArrayManager:
         if self.data_type == arr_type_t.UNSIGNED_INT:
             return self.thisptr.uint_ptr.get()
 
-    cdef inline void dissociate(self):
-        """Decouple the underlying ManagedArray from other ManagedArrays
-        pointing to the same data, allowing the other ManagedArrays to be
-        repointed without destructing the underlying data."""
-        if self.data_type == arr_type_t.UNSIGNED_INT:
-            self.thisptr.uint_ptr.dissociate()
-
-    cdef inline void reallocate(self):
-        """Reallocate the data in the underlying array."""
-        if self.data_type == arr_type_t.UNSIGNED_INT:
-            self.thisptr.uint_ptr.reallocate()
-
     @staticmethod
     cdef inline ManagedArrayManager init(
             void *array, arr_type_t arr_type):

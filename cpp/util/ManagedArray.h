@@ -52,14 +52,6 @@ public:
     //! Destructor (currently empty because data is managed by shared pointer).
     ~ManagedArray() {}
 
-    //! Update size of the array.
-    /*! \param size New size of the array.
-     */
-    void resize(unsigned int size)
-    {
-        resize(std::vector<unsigned int> {size});
-    }
-
     void prepare(unsigned int new_size)
     {
         prepare(std::vector<unsigned int> {new_size});
@@ -74,29 +66,6 @@ public:
             m_data = std::shared_ptr<std::shared_ptr<T> >(
                 new std::shared_ptr<T>(new T[size()], std::default_delete<T[]>()));
         }
-        reset();
-    }
-
-    //! Update size of the array.
-    /*! \param shape New shape of the array.
-     */
-    void resize(std::vector<unsigned int> shape)
-    {
-        if (shape != *m_shape)
-        {
-            *m_shape = shape;
-            reallocate();
-        }
-    }
-
-    //! Allocate new memory for the array.
-    /*! This function primarily serves as a way to reallocate new memory from
-     *  the Python API if needed.
-     * \param size New size of the array.
-     */
-    void reallocate()
-    {
-        *m_data = std::shared_ptr<T>(new T[size()], std::default_delete<T[]>());
         reset();
     }
 
@@ -153,25 +122,6 @@ public:
         return *m_shape;
     }
 
-    //! Dissociate this ManagedArray from others referencing the same data.
-    /*! ManagedArrays share ownership of an array of data using a pointer to a
-     *  pointer to the data, such that all arrays sharing data have distinct
-     *  top-level pointers all pointing to the same second pointer. If we want
-     *  to break this association between the current ManagedArray and the
-     *  others without destroying or modifying the underlying data, we need to
-     *  allocate a new second-level pointer for this ManagedArray and point it
-     *  at the same underlying data. This creates a completely separate
-     *  pointer->pointer->array hierarchy pointing to the same array, so we can
-     *  safely resize or reallocate any of the original ManagedArrays and this
-     *  new instance will retain a reference to the original data, keeping it
-     *  alive.
-     */
-    void dissociate()
-    {
-        m_data = std::shared_ptr<std::shared_ptr<T> >(
-            new std::shared_ptr<T>(*m_data));
-    }
-        
 private:
     std::shared_ptr<std::shared_ptr<T> > m_data;           //!< Pointer to array.
     std::shared_ptr<std::vector<unsigned int> > m_shape;   //!< Shape of array.

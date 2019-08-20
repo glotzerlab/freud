@@ -42,9 +42,9 @@ void ClusterProperties::computeProperties(const box::Box& box, const vec3<float>
 
     // allocate memory for the cluster properties and temporary arrays
     // initialize arrays to 0
-    m_cluster_com.resize(m_num_clusters);
-    m_cluster_G.resize(m_num_clusters*3*3);
-    m_cluster_size.resize(m_num_clusters);
+    m_cluster_com.prepare(m_num_clusters);
+    m_cluster_G.prepare(m_num_clusters*3*3);
+    m_cluster_size.prepare(m_num_clusters);
 
     // ref_particle is the first particle found in a cluster, it is used as a
     // reference to compute the COM in relation to, for handling of the
