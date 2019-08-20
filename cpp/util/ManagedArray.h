@@ -37,6 +37,7 @@ public:
     //! Constructor based on a shape tuple.
     /*! Including a default value for the shape allows the usage of this
      *  constructor as the default constructor.
+     *
      *  \param shape Shape of the array to allocate.
      */
     ManagedArray(std::vector<unsigned int> shape = {0})
@@ -137,12 +138,16 @@ public:
 
     //! Dissociate this ManagedArray from others referencing the same data.
     /*! ManagedArrays share ownership of an array of data using a pointer to a
-     * pointer to the data, such that all arrays sharing data have distinct
-     * top-level pointers all pointing to the same second pointer. If we want
-     * to break this association between the current ManagedArray and the
-     * others without destroying or modifying the underlying data, we need to
-     * allocate a new second-level pointer for this ManagedArray and point it
-     * at the same underlying data.
+     *  pointer to the data, such that all arrays sharing data have distinct
+     *  top-level pointers all pointing to the same second pointer. If we want
+     *  to break this association between the current ManagedArray and the
+     *  others without destroying or modifying the underlying data, we need to
+     *  allocate a new second-level pointer for this ManagedArray and point it
+     *  at the same underlying data. This creates a completely separate
+     *  pointer->pointer->array hierarchy pointing to the same array, so we can
+     *  safely resize or reallocate any of the original ManagedArrays and this
+     *  new instance will retain a reference to the original data, keeping it
+     *  alive.
      */
     void dissociate()
     {
@@ -152,7 +157,7 @@ public:
         
 private:
     std::shared_ptr<std::shared_ptr<T> > m_data;           //!< Pointer to array.
-    std::shared_ptr<std::vector<unsigned int> > m_shape;                  //!< Size of array.
+    std::shared_ptr<std::vector<unsigned int> > m_shape;   //!< Shape of array.
 };
 
 }; }; // end namespace freud::util

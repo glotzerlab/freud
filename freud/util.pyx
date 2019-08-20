@@ -55,11 +55,13 @@ cdef class ManagedArrayManager:
             del self.thisptr.uint_ptr
 
     def __array__(self):
-        """Convert the underlying data array into a read-only numpy array."""
-        # To simplify the code, we allocate a single linear array and then
-        # reshape it on return. The reshape is just a view on the arr array
-        # created below, so it creates a chain reshaped_array->arr->self that
-        # ensures proper garbage collection.
+        """Convert the underlying data array into a read-only numpy array.
+
+        To simplify the code, we allocate a single linear array and then
+        reshape it on return. The reshape is just a view on the arr array
+        created below, so it creates a chain reshaped_array->arr->self that
+        ensures proper garbage collection.
+        """
         cdef np.npy_intp size[1]
         cdef np.ndarray arr
         size[0] = np.prod(self.shape)
