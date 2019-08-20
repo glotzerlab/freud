@@ -74,19 +74,19 @@ cdef class Cluster(Compute):
     """
     cdef freud._cluster.Cluster * thisptr
     cdef float r_max
-    cdef public freud.util.ManagedArrayManager __cluster_idx
+    cdef public freud.util.ManagedArrayManager _cluster_idx
 
     def __cinit__(self, float r_max):
         self.thisptr = new freud._cluster.Cluster(r_max)
         self.r_max = r_max
-        self.__cluster_idx = freud.util.ManagedArrayManager.init(
+        self._cluster_idx = freud.util.ManagedArrayManager.init(
             &self.thisptr.getClusterIdx(),
             freud.util.arr_type_t.UNSIGNED_INT)
 
     def __dealloc__(self):
         del self.thisptr
 
-    @freud.util.resolve_arrays('__cluster_idx')
+    @freud.util.resolve_arrays('_cluster_idx')
     @Compute._compute("compute")
     def compute(self, box, points, nlist=None):
         R"""Compute the clusters for the given set of points.
@@ -148,7 +148,7 @@ cdef class Cluster(Compute):
 
     @Compute._computed_property("compute")
     def cluster_idx(self):
-        return np.asarray(self.__cluster_idx)
+        return np.asarray(self._cluster_idx)
 
     @Compute._computed_property("computeClusterMembership")
     def cluster_keys(self):
