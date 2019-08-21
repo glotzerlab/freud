@@ -6,10 +6,10 @@
 import numpy as np
 import freud.box
 
+from functools import wraps
+
 cimport freud.box
 cimport freud.locality
-
-from functools import wraps
 
 cdef class Compute:
     R"""Parent class for all compute classes in freud.
@@ -145,8 +145,9 @@ cdef class PairCompute(Compute):
 
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
     """
+
     def preprocess_arguments(self, box, points, query_points=None, nlist=None,
-                              query_args=None):
+                             query_args=None):
         """Process standard compute arguments into freud's internal types by
         calling all the required internal functions.
 
@@ -169,7 +170,7 @@ cdef class PairCompute(Compute):
                 :code:`None`).
             query_args (dict): A dictionary of query arguments (Default value =
                 :code:`None`).
-        """
+        """  # noqa E501
         cdef freud.box.Box b = freud.common.convert_box(box)
 
         cdef freud.locality.NeighborQuery nq = freud.locality.make_default_nq(
@@ -194,7 +195,7 @@ cdef class PairCompute(Compute):
             "The {} class must must define a get_default_query_args function. "
             "This is a bug in freud, please report at "
             "https://github.com/glotzerlab/freud/issues.".format(
-            type(self).__name__))
+                type(self).__name__))
 
 
 def convert_array(array, shape=None, dtype=np.float32):
