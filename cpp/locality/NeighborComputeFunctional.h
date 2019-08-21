@@ -116,7 +116,7 @@ public:
         // the number of neighbors to look for.
         if(qargs.exclude_ii && (qargs.mode == QueryArgs::QueryType::nearest))
         {
-            ++m_qargs.nn;
+            ++m_qargs.num_neigh;
         }
 
         // check if nq is a pointer to a RawPoints object
@@ -309,7 +309,7 @@ void loopOverNeighborQuery(const NeighborQuery* neighbor_query, const vec3<float
     // the number of neighbors to look for.
     if(qargs.exclude_ii && (qargs.mode == QueryArgs::QueryType::nearest))
     {
-        ++qargs.nn;
+        ++qargs.num_neigh;
     }
     // if nlist does not exist, check if neighbor_query is an actual NeighborQuery
     std::shared_ptr<NeighborQueryIterator> iter;

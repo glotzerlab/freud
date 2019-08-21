@@ -31,7 +31,7 @@ struct QueryArgs
     //! Default constructor.
     /*! We set default values for all parameters here.
      */
-    QueryArgs() : mode(none), nn(-1), rmax(-1), scale(-1), exclude_ii(false) {}
+    QueryArgs() : mode(none), num_neigh(-1), r_max(-1), scale(-1), exclude_ii(false) {}
 
     enum QueryType
     {
@@ -40,44 +40,25 @@ struct QueryArgs
         nearest //! Query based on number of requested neighbors.
     };
 
-    //! Validate the combination of specified arguments.
-    /*! Before checking if the combination of parameters currently set is
-     *  valid, this function first attempts to infer a mode if one is not set in
-     *  order to allow the user to specify certain simple minimal argument
-     *  combinations (e.g. just an r_max) without having to specify the mode
-     *  explicitly.
-     */
-    void validate()
+    void inferMode()
     {
         // Infer mode if possible.
         if (mode == QueryArgs::none)
         {
-            if (nn != -1)
+            if (num_neigh != -1)
             {
                 mode = QueryArgs::nearest;
             }
-            else if (rmax != -1)
+            else if (r_max != -1)
             {
                 mode = QueryArgs::ball;
             }
         }
-
-        // Validate remaining arguments.
-        if (mode == QueryArgs::ball)
-        {
-            if (rmax == -1)
-                throw std::runtime_error("You must set rmax in the query arguments when performing ball queries.");
-        }
-        else if (mode == QueryArgs::nearest)
-        {
-            if (nn == -1)
-                throw std::runtime_error("You must set nn in the query arguments when performing number of neighbor queries.");
-        }
     }
 
     QueryType mode; //! Whether to perform a ball or k-nearest neighbor query.
-    int nn;         //! The number of nearest neighbors to find.
-    float rmax;     //! The cutoff distance within which to find neighbors
+    int num_neigh;         //! The number of nearest neighbors to find.
+    float r_max;     //! The cutoff distance within which to find neighbors
     float scale; //! The scale factor to use when performing repeated ball queries to find a specified number
                  //! of nearest neighbors.
     bool exclude_ii; //! If true, exclude self-neighbors.
@@ -122,14 +103,14 @@ public:
     virtual std::shared_ptr<NeighborQueryIterator> queryWithArgs(const vec3<float>* query_points, unsigned int n_query_points,
                                                                  QueryArgs args) const
     {
-        args.validate();
+        this->validateQueryArgs(args);
         if (args.mode == QueryArgs::ball)
         {
-            return this->queryBall(query_points, n_query_points, args.rmax, args.exclude_ii);
+            return this->queryBall(query_points, n_query_points, args.r_max, args.exclude_ii);
         }
         else if (args.mode == QueryArgs::nearest)
         {
-            return this->query(query_points, n_query_points, args.nn, args.exclude_ii);
+            return this->query(query_points, n_query_points, args.num_neigh, args.exclude_ii);
         }
         else
         {
@@ -176,6 +157,29 @@ public:
     }
 
 protected:
+    //! Validate the combination of specified arguments.
+    /*! Before checking if the combination of parameters currently set is
+     *  valid, this function first attempts to infer a mode if one is not set in
+     *  order to allow the user to specify certain simple minimal argument
+     *  combinations (e.g. just an r_max) without having to specify the mode
+     *  explicitly.
+     */
+    virtual void validateQueryArgs(QueryArgs& args) const
+    {
+        args.inferMode();
+        // Validate remaining arguments.
+        if (args.mode == QueryArgs::ball)
+        {
+            if (args.r_max == -1)
+                throw std::runtime_error("You must set r_max in the query arguments when performing ball queries.");
+        }
+        else if (args.mode == QueryArgs::nearest)
+        {
+            if (args.num_neigh == -1)
+                throw std::runtime_error("You must set num_neigh in the query arguments when performing number of neighbor queries.");
+        }
+    }
+
     const box::Box m_box;            //!< Simulation box where the particles belong
     const vec3<float>* m_points; //!< Reference point coordinates
     unsigned int m_n_points;             //!< Number of reference points

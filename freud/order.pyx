@@ -365,7 +365,7 @@ cdef class HexOrderParameter(Compute):
         cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
 
         cdef freud.locality._QueryArgs def_qargs = freud.locality._QueryArgs(
-            mode="nearest", nn=self.num_neigh, r_max=self.r_max,
+            mode="nearest", num_neigh=self.num_neigh, r_max=self.r_max,
             exclude_ii=True)
 
         with nogil:
@@ -459,7 +459,7 @@ cdef class TransOrderParameter(Compute):
         cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
 
         cdef freud.locality._QueryArgs def_qargs = freud.locality._QueryArgs(
-            mode="nearest", nn=self.num_neigh, r_max=self.r_max,
+            mode="nearest", num_neigh=self.num_neigh, r_max=self.r_max,
             exclude_ii=True)
 
         with nogil:
@@ -639,7 +639,7 @@ cdef class Steinhardt(Compute):
 
         if self.num_neigh > 0:
             _qargs = freud.locality._QueryArgs(
-                mode="nearest", nn=self.num_neigh, r_max=self.r_max,
+                mode="nearest", num_neigh=self.num_neigh, r_max=self.r_max,
                 exclude_ii=True)
         else:
             _qargs = freud.locality._QueryArgs(

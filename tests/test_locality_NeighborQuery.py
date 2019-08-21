@@ -178,7 +178,7 @@ class TestNeighborQuery(object):
         points[3] = [2.0, 0.0, 0.0]
         nq = self.build_query_object(box, points, L/10)
 
-        nlist = nq._queryGeneric(points, dict(mode='nearest', nn=3))
+        nlist = nq._queryGeneric(points, dict(mode='nearest', num_neigh=3))
         result = list(zip(nlist.index_i, nlist.index_j))
         npt.assert_equal(get_point_neighbors(result, 0), {0, 1, 3})
         npt.assert_equal(get_point_neighbors(result, 1), {0, 1, 3})
@@ -187,7 +187,7 @@ class TestNeighborQuery(object):
 
         # All other points are neighbors when self-neighbors are excluded.
         nlist = nq._queryGeneric(
-            points, dict(mode='nearest', nn=3, exclude_ii=True))
+            points, dict(mode='nearest', num_neigh=3, exclude_ii=True))
         result = list(zip(nlist.index_i, nlist.index_j))
         npt.assert_equal(get_point_neighbors(result, 0), {1, 2, 3})
         npt.assert_equal(get_point_neighbors(result, 1), {0, 2, 3})
