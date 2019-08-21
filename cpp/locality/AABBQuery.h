@@ -55,11 +55,11 @@ public:
         this->validateQueryArgs(args);
         if (args.mode == QueryArgs::ball)
         {
-            return queryBall(query_points, n_query_points, args.rmax, args.exclude_ii);
+            return queryBall(query_points, n_query_points, args.r_max, args.exclude_ii);
         }
         else if (args.mode == QueryArgs::nearest)
         {
-            return query(query_points, n_query_points, args.nn, args.rmax, args.scale, args.exclude_ii);
+            return query(query_points, n_query_points, args.num_neigh, args.r_max, args.scale, args.exclude_ii);
         }
         else
         {
@@ -76,7 +76,7 @@ public:
                                                          unsigned int num_neighbors, bool exclude_ii = false) const
     {
         throw std::runtime_error("AABBQuery k-nearest-neighbor queries must use the function signature that "
-                                 "provides rmax and scale guesses.");
+                                 "provides r_max and scale guesses.");
     }
 
     std::shared_ptr<NeighborQueryIterator> query(const vec3<float>* query_points, unsigned int n_query_points, unsigned int num_neighbors,
@@ -101,26 +101,31 @@ public:
     AABBTree m_aabb_tree; //!< AABB tree of points
 
 protected:
+    //! Validate the combination of specified arguments.
+    /*! Override parent function to account for the various arguments
+     *  specifically required for AABBQuery nearest neighbor queries.
+     */
     virtual void validateQueryArgs(QueryArgs& args) const
     {
+        args.inferMode();
         if (args.mode == QueryArgs::ball)
         {
-            if (args.rmax == -1)
-                throw std::runtime_error("You must set rmax in the query arguments.");
+            if (args.r_max == -1)
+                throw std::runtime_error("You must set r_max in the query arguments.");
         }
         else if (args.mode == QueryArgs::nearest)
         {
-            if (args.nn == -1)
+            if (args.num_neigh == -1)
                 throw std::runtime_error("You must set nn in the query arguments.");
             if (args.scale == -1)
             {
                 args.scale = float(1.1);
             }
-            if (args.rmax == -1)
+            if (args.r_max == -1)
             {
                 vec3<float> L = this->getBox().getL();
-                float rmax = std::min(L.x, L.y);
-                args.rmax = this->getBox().is2D() ? float(0.1) * rmax : float(0.1) * std::min(rmax, L.z);
+                float r_max = std::min(L.x, L.y);
+                args.r_max = this->getBox().is2D() ? float(0.1) * r_max : float(0.1) * std::min(r_max, L.z);
             }
         }
     }
@@ -152,7 +157,7 @@ public:
     virtual ~AABBIterator() {}
 
     //! Computes the image vectors to query for
-    void updateImageVectors(float rmax, bool _check_rmax = true);
+    void updateImageVectors(float r_max, bool _check_r_max = true);
 
 protected:
     const AABBQuery* m_aabb_query;         //!< Link to the AABBQuery object
@@ -204,12 +209,12 @@ class AABBQueryBallIterator : virtual public AABBIterator
 public:
     //! Constructor
     AABBQueryBallIterator(const AABBQuery* neighbor_query, const vec3<float>* points, unsigned int N, float r,
-                          bool exclude_ii, bool _check_rmax = true)
+                          bool exclude_ii, bool _check_r_max = true)
         : NeighborQueryIterator(neighbor_query, points, N, exclude_ii),
           AABBIterator(neighbor_query, points, N, exclude_ii), m_r(r), cur_image(0), cur_node_idx(0),
           cur_ref_p(0)
     {
-        updateImageVectors(m_r, _check_rmax);
+        updateImageVectors(m_r, _check_r_max);
     }
 
     //! Empty Destructor

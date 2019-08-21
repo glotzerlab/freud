@@ -46,15 +46,15 @@ cdef class _QueryArgs:
     # This class is temporarily included for testing and may be
     # removed in future releases.
 
-    def __cinit__(self, mode=None, r_max=None, nn=None, exclude_ii=None, scale=None, **kwargs):
+    def __cinit__(self, mode=None, r_max=None, num_neigh=None, exclude_ii=None, scale=None, **kwargs):
         if type(self) == _QueryArgs:
             self.thisptr = new freud._locality.QueryArgs()
             if mode is not None:
                 self.mode = mode
             if r_max is not None:
                 self.r_max = r_max
-            if nn is not None:
-                self.nn = nn
+            if num_neigh is not None:
+                self.num_neigh = num_neigh
             if exclude_ii is not None:
                 self.exclude_ii = exclude_ii
             if scale is not None:
@@ -83,10 +83,6 @@ cdef class _QueryArgs:
         """Create QueryArgs from mapping."""
         return cls(**mapping)
 
-    def validate(self):
-        """Validate this _QueryArgs object and infer parameters if possible."""
-        self.thisptr.validate()
-
     @property
     def mode(self):
         return self.thisptr.mode
@@ -102,19 +98,19 @@ cdef class _QueryArgs:
 
     @property
     def r_max(self):
-        return self.thisptr.rmax
+        return self.thisptr.r_max
 
     @r_max.setter
     def r_max(self, value):
-        self.thisptr.rmax = value
+        self.thisptr.r_max = value
 
     @property
-    def nn(self):
-        return self.thisptr.nn
+    def num_neigh(self):
+        return self.thisptr.num_neigh
 
-    @nn.setter
-    def nn(self, value):
-        self.thisptr.nn = value
+    @num_neigh.setter
+    def num_neigh(self, value):
+        self.thisptr.num_neigh = value
 
     @property
     def exclude_ii(self):
@@ -174,17 +170,17 @@ cdef class NeighborQueryResult:
         cutoff."""
         cdef shared_ptr[freud._locality.NeighborQueryIterator] iterator
         cdef const float[:, ::1] l_points = self.points
-        if self.query_type == 'nn':
+        if self.query_type == 'num_neigh':
             iterator = self.nq.nqptr.query(
                 <vec3[float]*> &l_points[0, 0],
                 self.points.shape[0],
-                self.k,
+                self.num_neigh,
                 self.exclude_ii)
         else:
             iterator = self.nq.nqptr.queryBall(
                 <vec3[float]*> &l_points[0, 0],
                 self.points.shape[0],
-                self.r,
+                self.r_max,
                 self.exclude_ii)
         return iterator
 
@@ -226,8 +222,8 @@ cdef class AABBQueryResult(NeighborQueryResult):
         iterator = self.aabbq.thisptr.query(
             <vec3[float]*> &l_points[0, 0],
             self.points.shape[0],
-            self.k,
-            self.r,
+            self.num_neigh,
+            self.r_max,
             self.scale,
             self.exclude_ii)
         return iterator
@@ -342,7 +338,7 @@ cdef class NeighborQuery:
             np.atleast_2d(query_points), shape=(None, 3))
 
         return NeighborQueryResult.init(
-            self, query_points, exclude_ii, r=0, k=num_neighbors)
+            self, query_points, exclude_ii, r_max=0, num_neigh=num_neighbors)
 
     def queryBall(self, query_points, float r_max, cbool exclude_ii=False):
         R"""Query for all points within a distance r of the provided point(s).
@@ -369,7 +365,7 @@ cdef class NeighborQuery:
             np.atleast_2d(query_points), shape=(None, 3))
 
         return NeighborQueryResult.init(
-            self, query_points, exclude_ii, r=r_max, k=0)
+            self, query_points, exclude_ii, r_max=r_max, num_neigh=0)
 
     cdef freud._locality.NeighborQuery * get_ptr(self) nogil:
         R"""Returns a pointer to the raw C++ object we are wrapping."""
