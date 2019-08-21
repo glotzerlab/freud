@@ -173,12 +173,12 @@ class TestFloatCF(unittest.TestCase):
 
         cf = freud.density.FloatCF(rmax, dr)
         cf.compute(box, ref_points, ref_values, points, values,
-                   query_args={'mode': 'nearest', 'num_neigh': 1})
+                   query_args={'mode': 'nearest', 'num_neighbors': 1})
         npt.assert_array_equal(cf.RDF, [1, 1, 1])
         npt.assert_array_equal(cf.counts, [2, 2, 2])
 
         cf.compute(box, points, values, ref_points, ref_values,
-                   query_args={'mode': 'nearest', 'num_neigh': 1})
+                   query_args={'mode': 'nearest', 'num_neighbors': 1})
         npt.assert_array_equal(cf.RDF, [1, 0, 0])
         npt.assert_array_equal(cf.counts, [1, 0, 0])
 

@@ -25,7 +25,7 @@ cdef extern from "NeighborQuery.h" namespace "freud::locality":
 
     cdef cppclass QueryArgs:
         QueryType mode
-        int num_neigh
+        int num_neighbors
         float r_max
         float scale
         bool exclude_ii

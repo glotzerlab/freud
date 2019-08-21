@@ -59,7 +59,7 @@ public:
         }
         else if (args.mode == QueryArgs::nearest)
         {
-            return query(query_points, n_query_points, args.num_neigh, args.r_max, args.scale, args.exclude_ii);
+            return query(query_points, n_query_points, args.num_neighbors, args.r_max, args.scale, args.exclude_ii);
         }
         else
         {
@@ -115,8 +115,8 @@ protected:
         }
         else if (args.mode == QueryArgs::nearest)
         {
-            if (args.num_neigh == QueryArgs::DEFAULT_NUM_NEIGH)
-                throw std::runtime_error("You must set num_neigh in the query arguments when performing number of neighbor queries.");
+            if (args.num_neighbors == QueryArgs::DEFAULT_NUM_NEIGHBORS)
+                throw std::runtime_error("You must set num_neighbors in the query arguments when performing number of neighbor queries.");
             if (args.scale == QueryArgs::DEFAULT_SCALE)
             {
                 args.scale = float(1.1);
