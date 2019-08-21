@@ -78,6 +78,15 @@ cdef class _QueryArgs:
             else:
                 raise ValueError("You have passed an invalid query argument")
 
+    @classmethod
+    def from_dict(cls, mapping):
+        """Create QueryArgs from mapping."""
+        return cls(**mapping)
+
+    def validate(self):
+        """Validate this _QueryArgs object and infer parameters if possible."""
+        self.thisptr.validate()
+
     @property
     def mode(self):
         return self.thisptr.mode

@@ -20,7 +20,7 @@
 
 namespace freud { namespace locality {
 
-//! (Almost) POD class to hold information about generic queries.
+//! POD class to hold information about generic queries.
 /*! This class provides a standard method for specifying the type of query to
  *  perform with a NeighborQuery object. Rather than calling queryBall
  *  specifically, for example, the user can call a generic querying function and
@@ -28,17 +28,52 @@ namespace freud { namespace locality {
  */
 struct QueryArgs
 {
-    //! Define constructor
-    /*! We must violate the strict POD nature of the class to support default
-     *  values for parameters.
+    //! Default constructor.
+    /*! We set default values for all parameters here.
      */
-    QueryArgs() : nn(-1), rmax(-1), scale(-1), exclude_ii(false) {}
+    QueryArgs() : mode(none), nn(-1), rmax(-1), scale(-1), exclude_ii(false) {}
 
     enum QueryType
     {
+        none,   //! Default query type to avoid implicit default types.
         ball,   //! Query based on distance cutoff.
         nearest //! Query based on number of requested neighbors.
     };
+
+    //! Validate the combination of specified arguments.
+    /*! Before checking if the combination of parameters currently set is
+     *  valid, this function first attempts to infer a mode if one is not set in
+     *  order to allow the user to specify certain simple minimal argument
+     *  combinations (e.g. just an r_max) without having to specify the mode
+     *  explicitly.
+     */
+    void validate()
+    {
+        // Infer mode if possible.
+        if (mode == QueryArgs::none)
+        {
+            if (nn != -1)
+            {
+                mode = QueryArgs::nearest;
+            }
+            else if (rmax != -1)
+            {
+                mode = QueryArgs::ball;
+            }
+        }
+
+        // Validate remaining arguments.
+        if (mode == QueryArgs::ball)
+        {
+            if (rmax == -1)
+                throw std::runtime_error("You must set rmax in the query arguments when performing ball queries.");
+        }
+        else if (mode == QueryArgs::nearest)
+        {
+            if (nn == -1)
+                throw std::runtime_error("You must set nn in the query arguments when performing number of neighbor queries.");
+        }
+    }
 
     QueryType mode; //! Whether to perform a ball or k-nearest neighbor query.
     int nn;         //! The number of nearest neighbors to find.
@@ -87,7 +122,7 @@ public:
     virtual std::shared_ptr<NeighborQueryIterator> queryWithArgs(const vec3<float>* query_points, unsigned int n_query_points,
                                                                  QueryArgs args) const
     {
-        this->validateQueryArgs(args);
+        args.validate();
         if (args.mode == QueryArgs::ball)
         {
             return this->queryBall(query_points, n_query_points, args.rmax, args.exclude_ii);
@@ -125,7 +160,7 @@ public:
     }
 
     //! Get the number of reference points
-    const unsigned int getNPoints() const
+    unsigned int getNPoints() const
     {
         return m_n_points;
     }
@@ -141,20 +176,6 @@ public:
     }
 
 protected:
-    virtual void validateQueryArgs(QueryArgs& args) const
-    {
-        if (args.mode == QueryArgs::ball)
-        {
-            if (args.rmax == -1)
-                throw std::runtime_error("You must set rmax in the query arguments.");
-        }
-        else if (args.mode == QueryArgs::nearest)
-        {
-            if (args.nn == -1)
-                throw std::runtime_error("You must set nn in the query arguments.");
-        }
-    }
-
     const box::Box m_box;            //!< Simulation box where the particles belong
     const vec3<float>* m_points; //!< Reference point coordinates
     unsigned int m_n_points;             //!< Number of reference points
