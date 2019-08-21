@@ -843,7 +843,7 @@ cdef class RDF(Compute):
 
     @Compute._compute()
     def accumulate(self, box, points, query_points=None, nlist=None,
-                   query_args={}):
+                   query_args=None):
         R"""Calculates the RDF and adds to the current RDF histogram.
 
         Args:
@@ -858,16 +858,15 @@ cdef class RDF(Compute):
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
         """  # noqa E501
-        exclude_ii = query_points is None
         cdef freud.box.Box b = freud.common.convert_box(box)
 
         nq_nlist = freud.locality.make_nq_nlist(b, points, nlist)
         cdef freud.locality.NeighborQuery nq = nq_nlist[0]
         cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
 
-        cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
-            mode="ball", r_max=self.r_max, exclude_ii=exclude_ii)
-        qargs.update(query_args)
+        cdef freud.locality._QueryArgs qargs = \
+            freud.locality._QueryArgs.from_dict(query_args if query_args else
+                    self.get_default_query_args(query_points is None))
         points = nq.points
 
         if query_points is None:
@@ -883,6 +882,9 @@ cdef class RDF(Compute):
                 <vec3[float]*> &l_query_points[0, 0],
                 n_p, nlistptr.get_ptr(), dereference(qargs.thisptr))
         return self
+
+    def get_default_query_args(self, exclude_ii):
+        return dict(mode="ball", r_max=self.r_max, exclude_ii=exclude_ii)
 
     @Compute._compute()
     def compute(self, box, points, query_points=None, nlist=None,
