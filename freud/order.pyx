@@ -665,19 +665,19 @@ cdef class Steinhardt(Compute):
         Returns:
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
-        import plot
+        import freud.plot
         mode_letter = 'W' if self.stptr.isWl() else 'Q'
         xlabel = r"${}_{{{}}}$".format(mode_letter, self.sph_l)
-        return plot.histogram_plot(self.order,
-                                   title="Steinhardt Order Parameter",
-                                   xlabel=xlabel,
-                                   ylabel=r"Number of particles",
-                                   ax=ax)
+        return freud.plot.histogram_plot(self.order,
+                                         title="Steinhardt Order Parameter",
+                                         xlabel=xlabel,
+                                         ylabel=r"Number of particles",
+                                         ax=ax)
 
     def _repr_png_(self):
-        import plot
+        import freud.plot
         try:
-            return plot.ax_to_bytes(self.plot())
+            return freud.plot.ax_to_bytes(self.plot())
         except AttributeError:
             return None
 
