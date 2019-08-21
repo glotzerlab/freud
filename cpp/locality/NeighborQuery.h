@@ -31,13 +31,15 @@ struct QueryArgs
     //! Default constructor.
     /*! We set default values for all parameters here.
      */
-    QueryArgs() : mode(none), num_neigh(-1), r_max(-1), scale(-1), exclude_ii(false) {}
+    QueryArgs() : mode(DEFAULT_MODE), num_neigh(DEFAULT_NUM_NEIGH), r_max(DEFAULT_R_MAX),
+                  scale(DEFAULT_SCALE), exclude_ii(DEFAULT_EXCLUDE_II) {}
 
+    //! Enumeration for types of queries.
     enum QueryType
     {
-        none,   //! Default query type to avoid implicit default types.
-        ball,   //! Query based on distance cutoff.
-        nearest //! Query based on number of requested neighbors.
+        none,    //! Default query type to avoid implicit default types.
+        ball,    //! Query based on distance cutoff.
+        nearest, //! Query based on number of requested neighbors.
     };
 
     QueryType mode; //! Whether to perform a ball or k-nearest neighbor query.
@@ -46,6 +48,12 @@ struct QueryArgs
     float scale; //! The scale factor to use when performing repeated ball queries to find a specified number
                  //! of nearest neighbors.
     bool exclude_ii; //! If true, exclude self-neighbors.
+
+    static const QueryType DEFAULT_MODE;       //!< Default mode.
+    static const unsigned int DEFAULT_NUM_NEIGH;        //!< Default number of neighbors.
+    static const float DEFAULT_R_MAX;          //!< Default query distance.
+    static const float DEFAULT_SCALE;          //!< Default scaling parameter for AABB nearest neighbor queries.
+    static const bool DEFAULT_EXCLUDE_II;      //!< Default for whether or not to include self-neighbors.
 };
 
 // Forward declare the iterator
