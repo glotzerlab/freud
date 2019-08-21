@@ -43,17 +43,17 @@ struct QueryArgs
     };
 
     QueryType mode; //! Whether to perform a ball or k-nearest neighbor query.
-    int num_neigh;         //! The number of nearest neighbors to find.
+    unsigned int num_neigh;         //! The number of nearest neighbors to find.
     float r_max;     //! The cutoff distance within which to find neighbors
     float scale; //! The scale factor to use when performing repeated ball queries to find a specified number
                  //! of nearest neighbors.
     bool exclude_ii; //! If true, exclude self-neighbors.
 
-    static const QueryType DEFAULT_MODE;       //!< Default mode.
+    static const QueryType DEFAULT_MODE;                //!< Default mode.
     static const unsigned int DEFAULT_NUM_NEIGH;        //!< Default number of neighbors.
-    static const float DEFAULT_R_MAX;          //!< Default query distance.
-    static const float DEFAULT_SCALE;          //!< Default scaling parameter for AABB nearest neighbor queries.
-    static const bool DEFAULT_EXCLUDE_II;      //!< Default for whether or not to include self-neighbors.
+    static const float DEFAULT_R_MAX;                   //!< Default query distance.
+    static const float DEFAULT_SCALE;                   //!< Default scaling parameter for AABB nearest neighbor queries.
+    static const bool DEFAULT_EXCLUDE_II;               //!< Default for whether or not to include self-neighbors.
 };
 
 // Forward declare the iterator
@@ -162,12 +162,12 @@ protected:
         // Validate remaining arguments.
         if (args.mode == QueryArgs::ball)
         {
-            if (args.r_max == -1)
+            if (args.r_max == QueryArgs::DEFAULT_R_MAX)
                 throw std::runtime_error("You must set r_max in the query arguments when performing ball queries.");
         }
         else if (args.mode == QueryArgs::nearest)
         {
-            if (args.num_neigh == -1)
+            if (args.num_neigh == QueryArgs::DEFAULT_NUM_NEIGH)
                 throw std::runtime_error("You must set num_neigh in the query arguments when performing number of neighbor queries.");
         }
     }
@@ -183,11 +183,11 @@ protected:
         // Infer mode if possible.
         if (args.mode == QueryArgs::none)
         {
-            if (args.num_neigh != -1)
+            if (args.num_neigh != QueryArgs::DEFAULT_NUM_NEIGH)
             {
                 args.mode = QueryArgs::nearest;
             }
-            else if (args.r_max != -1)
+            else if (args.r_max != QueryArgs::DEFAULT_R_MAX)
             {
                 args.mode = QueryArgs::ball;
             }

@@ -110,18 +110,18 @@ protected:
         inferMode(args);
         if (args.mode == QueryArgs::ball)
         {
-            if (args.r_max == -1)
+            if (args.r_max == QueryArgs::DEFAULT_R_MAX)
                 throw std::runtime_error("You must set r_max in the query arguments when performing ball queries.");
         }
         else if (args.mode == QueryArgs::nearest)
         {
-            if (args.num_neigh == -1)
+            if (args.num_neigh == QueryArgs::DEFAULT_NUM_NEIGH)
                 throw std::runtime_error("You must set num_neigh in the query arguments when performing number of neighbor queries.");
-            if (args.scale == -1)
+            if (args.scale == QueryArgs::DEFAULT_SCALE)
             {
                 args.scale = float(1.1);
             }
-            if (args.r_max == -1)
+            if (args.r_max == QueryArgs::DEFAULT_R_MAX)
             {
                 vec3<float> L = this->getBox().getL();
                 float r_max = std::min(L.x, L.y);
