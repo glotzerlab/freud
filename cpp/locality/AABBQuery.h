@@ -107,16 +107,16 @@ protected:
      */
     virtual void validateQueryArgs(QueryArgs& args) const
     {
-        args.inferMode();
+        inferMode(args);
         if (args.mode == QueryArgs::ball)
         {
             if (args.r_max == -1)
-                throw std::runtime_error("You must set r_max in the query arguments.");
+                throw std::runtime_error("You must set r_max in the query arguments when performing ball queries.");
         }
         else if (args.mode == QueryArgs::nearest)
         {
             if (args.num_neigh == -1)
-                throw std::runtime_error("You must set nn in the query arguments.");
+                throw std::runtime_error("You must set num_neigh in the query arguments when performing number of neighbor queries.");
             if (args.scale == -1)
             {
                 args.scale = float(1.1);

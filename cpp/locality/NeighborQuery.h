@@ -40,22 +40,6 @@ struct QueryArgs
         nearest //! Query based on number of requested neighbors.
     };
 
-    void inferMode()
-    {
-        // Infer mode if possible.
-        if (mode == QueryArgs::none)
-        {
-            if (num_neigh != -1)
-            {
-                mode = QueryArgs::nearest;
-            }
-            else if (r_max != -1)
-            {
-                mode = QueryArgs::ball;
-            }
-        }
-    }
-
     QueryType mode; //! Whether to perform a ball or k-nearest neighbor query.
     int num_neigh;         //! The number of nearest neighbors to find.
     float r_max;     //! The cutoff distance within which to find neighbors
@@ -166,7 +150,7 @@ protected:
      */
     virtual void validateQueryArgs(QueryArgs& args) const
     {
-        args.inferMode();
+        inferMode(args);
         // Validate remaining arguments.
         if (args.mode == QueryArgs::ball)
         {
@@ -177,6 +161,28 @@ protected:
         {
             if (args.num_neigh == -1)
                 throw std::runtime_error("You must set num_neigh in the query arguments when performing number of neighbor queries.");
+        }
+    }
+
+    //! Try to determine the query mode if one is not specified.
+    /*! If no mode is specified and a number of neighbors is specified, the
+     *  query mode must be a nearest neighbors query (all other arguments can
+     *  reasonably modify that query). Otherwise, if a max distance is set we
+     *  can assume a ball query is desired.
+     */
+    virtual void inferMode(QueryArgs& args) const
+    {
+        // Infer mode if possible.
+        if (args.mode == QueryArgs::none)
+        {
+            if (args.num_neigh != -1)
+            {
+                args.mode = QueryArgs::nearest;
+            }
+            else if (args.r_max != -1)
+            {
+                args.mode = QueryArgs::ball;
+            }
         }
     }
 
