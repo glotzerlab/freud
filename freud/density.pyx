@@ -865,8 +865,9 @@ cdef class RDF(PairCompute):
             cdef freud.locality._QueryArgs qargs
             cdef const float[:, ::1] l_query_points
             cdef unsigned int n_p
-        b, nq, nlistptr, qargs, l_query_points, n_p = self.preprocess_arguments(
-            box, points, query_points, nlist, query_args)
+        b, nq, nlistptr, qargs, l_query_points, n_p = \
+            self.preprocess_arguments(box, points, query_points, nlist,
+                                      query_args)
 
         with nogil:
             self.thisptr.accumulate(
