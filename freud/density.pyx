@@ -865,8 +865,9 @@ cdef class RDF(Compute):
         cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
 
         cdef freud.locality._QueryArgs qargs = \
-            freud.locality._QueryArgs.from_dict(query_args if query_args else
-                    self.get_default_query_args(query_points is None))
+            freud.locality._QueryArgs.from_dict(
+                query_args if query_args else
+                self.get_default_query_args(query_points is None))
         points = nq.points
 
         if query_points is None:
