@@ -13,7 +13,7 @@ import warnings
 import numpy as np
 
 from cython.operator cimport dereference
-from freud.common cimport Compute
+from freud.common cimport Compute, PairCompute
 from freud.util cimport vec3
 
 from collections.abc import Sequence
@@ -775,7 +775,7 @@ cdef class LocalDensity(Compute):
         return repr(self)
 
 
-cdef class RDF(Compute):
+cdef class RDF(PairCompute):
     R"""Computes RDF for supplied data.
 
     The RDF (:math:`g \left( r \right)`) is computed and averaged for a given
@@ -840,25 +840,6 @@ cdef class RDF(Compute):
     @Compute._computed_property()
     def box(self):
         return freud.box.BoxFromCPP(self.thisptr.getBox())
-
-    cdef preprocess_arguments(self, box, points, query_points=None, nlist=None,
-                              query_args=None):
-        cdef freud.box.Box b = freud.common.convert_box(box)
-
-        cdef freud.locality.NeighborQuery nq = freud.locality.make_default_nq(box, points)
-        cdef freud.locality.NlistptrWrapper nlistptr = freud.locality.NlistptrWrapper(nlist)
-
-        cdef freud.locality._QueryArgs qargs = \
-            freud.locality._QueryArgs.from_dict(
-                query_args if query_args else
-                self.get_default_query_args(query_points is None))
-        if query_points is None:
-            query_points = nq.points
-        query_points = freud.common.convert_array(
-            query_points, shape=(None, 3))
-        cdef const float[:, ::1] l_query_points = query_points
-        cdef unsigned int n_p = l_query_points.shape[0]
-        return (b, nq, nlistptr, qargs, l_query_points, n_p)
 
     @Compute._compute()
     def accumulate(self, box, points, query_points=None, nlist=None,
