@@ -19,6 +19,7 @@ cdef extern from "NeighborBond.h" namespace "freud::locality":
 cdef extern from "NeighborQuery.h" namespace "freud::locality":
 
     ctypedef enum QueryType "freud::locality::QueryArgs::QueryType":
+        none "freud::locality::QueryArgs::QueryType::none"
         ball "freud::locality::QueryArgs::QueryType::ball"
         nearest "freud::locality::QueryArgs::QueryType::nearest"
 
@@ -28,6 +29,7 @@ cdef extern from "NeighborQuery.h" namespace "freud::locality":
         float rmax
         float scale
         bool exclude_ii
+        void validate() except +
 
     cdef cppclass NeighborQuery:
         NeighborQuery()
