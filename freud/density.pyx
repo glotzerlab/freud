@@ -841,6 +841,25 @@ cdef class RDF(Compute):
     def box(self):
         return freud.box.BoxFromCPP(self.thisptr.getBox())
 
+    cdef preprocess_arguments(self, box, points, query_points=None, nlist=None,
+                              query_args=None):
+        cdef freud.box.Box b = freud.common.convert_box(box)
+
+        cdef freud.locality.NeighborQuery nq = freud.locality.make_default_nq(box, points)
+        cdef freud.locality.NlistptrWrapper nlistptr = freud.locality.NlistptrWrapper(nlist)
+
+        cdef freud.locality._QueryArgs qargs = \
+            freud.locality._QueryArgs.from_dict(
+                query_args if query_args else
+                self.get_default_query_args(query_points is None))
+        if query_points is None:
+            query_points = nq.points
+        query_points = freud.common.convert_array(
+            query_points, shape=(None, 3))
+        cdef const float[:, ::1] l_query_points = query_points
+        cdef unsigned int n_p = l_query_points.shape[0]
+        return (b, nq, nlistptr, qargs, l_query_points, n_p)
+
     @Compute._compute()
     def accumulate(self, box, points, query_points=None, nlist=None,
                    query_args=None):
@@ -858,24 +877,15 @@ cdef class RDF(Compute):
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
         """  # noqa E501
-        cdef freud.box.Box b = freud.common.convert_box(box)
-
-        nq_nlist = freud.locality.make_nq_nlist(b, points, nlist)
-        cdef freud.locality.NeighborQuery nq = nq_nlist[0]
-        cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
-
-        cdef freud.locality._QueryArgs qargs = \
-            freud.locality._QueryArgs.from_dict(
-                query_args if query_args else
-                self.get_default_query_args(query_points is None))
-        points = nq.points
-
-        if query_points is None:
-            query_points = points
-        query_points = freud.common.convert_array(
-            query_points, shape=(None, 3))
-        cdef const float[:, ::1] l_query_points = query_points
-        cdef unsigned int n_p = l_query_points.shape[0]
+        cdef:
+            freud.box.Box b
+            cdef freud.locality.NeighborQuery nq
+            cdef freud.locality.NlistptrWrapper nlistptr
+            cdef freud.locality._QueryArgs qargs
+            cdef const float[:, ::1] l_query_points
+            cdef unsigned int n_p
+        b, nq, nlistptr, qargs, l_query_points, n_p = self.preprocess_arguments(
+            box, points, query_points, nlist, query_args)
 
         with nogil:
             self.thisptr.accumulate(
