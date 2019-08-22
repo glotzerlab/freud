@@ -603,7 +603,7 @@ cdef class GaussianDensity(Compute):
             return None
 
 
-cdef class LocalDensity(Compute):
+cdef class LocalDensity(PairCompute):
     R"""Computes the local density around a particle.
 
     The density of the local environment is computed and averaged for a given
@@ -680,7 +680,7 @@ cdef class LocalDensity(Compute):
 
     @Compute._compute()
     def compute(self, box, points, query_points=None, nlist=None,
-                query_args={}):
+                query_args=None):
         R"""Calculates the local density for the specified points. Does not
         accumulate (will overwrite current data).
 
@@ -697,40 +697,29 @@ cdef class LocalDensity(Compute):
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
         """  # noqa E501
-        exclude_ii = query_points is None
+        cdef:
+            freud.box.Box b
+            freud.locality.NeighborQuery nq
+            freud.locality.NlistptrWrapper nlistptr
+            freud.locality._QueryArgs qargs
+            const float[:, ::1] l_query_points
+            unsigned int num_query_points
 
-        cdef freud.box.Box b = freud.common.convert_box(box)
-
-        nq_nlist = freud.locality.make_nq_nlist(b, points, nlist)
-        cdef freud.locality.NeighborQuery nq = nq_nlist[0]
-        cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
-
-        cdef freud.locality._QueryArgs def_qargs = freud.locality._QueryArgs(
-            mode="ball", r_max=self.r_max + 0.5*self.diameter,
-            exclude_ii=exclude_ii)
-        def_qargs.update(query_args)
-        points = nq.points
-
-        if query_points is None:
-            query_points = points
-
-        points = freud.common.convert_array(points, shape=(None, 3))
-        query_points = freud.common.convert_array(
-            query_points, shape=(None, 3))
-        cdef const float[:, ::1] l_points = points
-        cdef const float[:, ::1] l_query_points = query_points
-        cdef unsigned int n_p = l_query_points.shape[0]
-
-        # local density of each particle includes itself (cutoff
-        # distance is r_max + diam/2 because of smoothing)
-
+        b, nq, nlistptr, qargs, l_query_points, num_query_points = \
+            self.preprocess_arguments(box, points, query_points, nlist,
+                                      query_args)
         with nogil:
             self.thisptr.compute(
                 nq.get_ptr(),
                 <vec3[float]*> &l_query_points[0, 0],
-                n_p, nlistptr.get_ptr(),
-                dereference(def_qargs.thisptr))
+                num_query_points, nlistptr.get_ptr(),
+                dereference(qargs.thisptr))
         return self
+
+    @property
+    def default_query_args(self):
+        return dict(mode="ball",
+                r_max=self.r_max + 0.5*self.diameter)
 
     @Compute._computed_property()
     def density(self):
