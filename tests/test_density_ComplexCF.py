@@ -84,10 +84,12 @@ class TestComplexCF(unittest.TestCase):
         for ts in test_set:
             ocf = freud.density.ComplexCF(rmax, dr)
             ocf.accumulate(box, ts[0], comp, points, np.conj(comp),
-                           query_args={"exclude_ii": True}, nlist=ts[1])
+                           query_args={"r_max": rmax, "exclude_ii": True},
+                           nlist=ts[1])
             npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
             ocf.compute(box, ts[0], comp, points, np.conj(comp),
-                        query_args={"exclude_ii": True}, nlist=ts[1])
+                        query_args={"r_max": rmax, "exclude_ii": True},
+                        nlist=ts[1])
             npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
             self.assertEqual(box, ocf.box)
 
@@ -110,7 +112,8 @@ class TestComplexCF(unittest.TestCase):
         comp = np.exp(1j*ang)
         ocf = freud.density.ComplexCF(rmax, dr)
         ocf.accumulate(freud.box.Box.square(box_size), points, comp,
-                       points, np.conj(comp), query_args={"exclude_ii": True})
+                       points, np.conj(comp),
+                       query_args={"r_max": rmax, "exclude_ii": True})
 
         correct = np.ones(int(rmax/dr), dtype=np.float32) + \
             1j * np.zeros(int(rmax/dr), dtype=np.float32)
@@ -137,7 +140,8 @@ class TestComplexCF(unittest.TestCase):
         correct = np.sum(vector_lengths < rmax) - len(points)
         ocf = freud.density.ComplexCF(rmax, dr)
         ocf.compute(freud.box.Box.square(box_size), points, comp,
-                    points, np.conj(comp), query_args={"exclude_ii": True})
+                    points, np.conj(comp),
+                    query_args={"r_max": rmax, "exclude_ii": True})
         self.assertEqual(np.sum(ocf.counts), correct)
 
     @unittest.skip('Skipping slow summation test.')
@@ -189,7 +193,8 @@ class TestComplexCF(unittest.TestCase):
         self.assertEqual(ocf._repr_png_(), None)
 
         ocf.accumulate(freud.box.Box.square(box_size), points, comp,
-                       points, np.conj(comp), query_args={"exclude_ii": True})
+                       points, np.conj(comp),
+                       query_args={"r_max": rmax, "exclude_ii": True})
         ocf._repr_png_()
 
     def test_query_nn(self):
