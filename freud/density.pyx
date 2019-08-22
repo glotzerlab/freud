@@ -245,7 +245,7 @@ cdef class FloatCF(PairCompute):
             return None
 
 
-cdef class ComplexCF(Compute):
+cdef class ComplexCF(PairCompute):
     R"""Computes the complex pairwise correlation function.
 
     The correlation function is given by
@@ -309,7 +309,7 @@ cdef class ComplexCF(Compute):
 
     @Compute._compute()
     def accumulate(self, box, points, values, query_points=None,
-                   query_values=None, nlist=None, query_args={}):
+                   query_values=None, nlist=None, query_args=None):
         R"""Calculates the correlation function and adds to the current
         histogram.
 
@@ -332,52 +332,43 @@ cdef class ComplexCF(Compute):
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
         """  # noqa E501
-        exclude_ii = query_points is None
+        cdef:
+            freud.box.Box b
+            freud.locality.NeighborQuery nq
+            freud.locality.NlistptrWrapper nlistptr
+            freud.locality._QueryArgs qargs
+            const float[:, ::1] l_query_points
+            unsigned int num_query_points
 
-        cdef freud.box.Box b = freud.common.convert_box(box)
+        b, nq, nlistptr, qargs, l_query_points, num_query_points = \
+            self.preprocess_arguments(box, points, query_points, nlist,
+                                      query_args)
 
-        nq_nlist = freud.locality.make_nq_nlist(b, points, nlist)
-        cdef freud.locality.NeighborQuery nq = nq_nlist[0]
-        cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
-
-        cdef freud.locality._QueryArgs def_qargs = freud.locality._QueryArgs(
-            mode="ball", r_max=self.r_max, exclude_ii=exclude_ii)
-        def_qargs.update(query_args)
-        points = nq.points
-
-        if query_points is None:
-            query_points = points
+        values = freud.common.convert_array(
+            values, shape=(nq.points.shape[0], ), dtype=np.complex128)
         if query_values is None:
             query_values = values
-        query_points = freud.common.convert_array(
-            query_points, shape=(None, 3))
-        values = freud.common.convert_array(
-            values, shape=(points.shape[0], ), dtype=np.complex128)
-        query_values = freud.common.convert_array(
-            query_values, shape=(query_points.shape[0], ), dtype=np.complex128)
-        cdef const float[:, ::1] l_points = points
-        cdef const float[:, ::1] l_query_points
-        if points is query_points:
-            l_query_points = l_points
         else:
-            l_query_points = query_points
-        cdef np.complex128_t[::1] l_values = values
-        cdef np.complex128_t[::1] l_query_values
-        if query_values is values:
-            l_query_values = l_values
-        else:
-            l_query_values = query_values
+            query_values = freud.common.convert_array(
+                query_values, shape=(l_query_points.shape[0], ),
+                dtype=np.complex128)
 
-        cdef unsigned int n_p = l_query_points.shape[0]
+        cdef np.complex128_t[::1] l_values = values
+        cdef np.complex128_t[::1] l_query_values = query_values
+
         with nogil:
             self.thisptr.accumulate(
                 nq.get_ptr(),
                 <np.complex128_t*> &l_values[0],
                 <vec3[float]*> &l_query_points[0, 0],
                 <np.complex128_t*> &l_query_values[0],
-                n_p, nlistptr.get_ptr(),
-                dereference(def_qargs.thisptr))
+                num_query_points, nlistptr.get_ptr(),
+                dereference(qargs.thisptr))
         return self
+
+    @property
+    def default_query_args(self):
+        return dict(mode="ball", r_max=self.r_max)
 
     @Compute._computed_property()
     def RDF(self):
@@ -399,7 +390,7 @@ cdef class ComplexCF(Compute):
 
     @Compute._compute()
     def compute(self, box, points, values, query_points=None,
-                query_values=None, nlist=None, query_args={}):
+                query_values=None, nlist=None, query_args=None):
         R"""Calculates the correlation function for the given points. Will
         overwrite the current histogram.
 
