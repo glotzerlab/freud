@@ -86,7 +86,8 @@ class TestFloatCF(unittest.TestCase):
             npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
             ocf.reset()
             ocf.accumulate(box, ts[0], ang, points,
-                           ang, query_args={'exclude_ii': True}, nlist=ts[1])
+                           ang, query_args={'r_max': rmax, 'exclude_ii': True},
+                           nlist=ts[1])
             npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
             ocf.reset()
             ocf.accumulate(box, ts[0], ang, query_values=ang, nlist=ts[1])

@@ -199,8 +199,9 @@ cdef class PairCompute(Compute):
 
         if query_points is None:
             query_points = nq.points
-        query_points = freud.common.convert_array(
-            query_points, shape=(None, 3))
+        else:
+            query_points = freud.common.convert_array(
+                query_points, shape=(None, 3))
         cdef const float[:, ::1] l_query_points = query_points
         cdef unsigned int num_query_points = l_query_points.shape[0]
         return (b, nq, nlistptr, qargs, l_query_points, num_query_points)
