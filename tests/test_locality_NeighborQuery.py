@@ -130,6 +130,52 @@ class TestNeighborQuery(object):
         # particle 3 has 2 bonds
         npt.assert_equal(sum(nlist.index_i == 3), 3)
 
+    def test_query_generic_mode_inference(self):
+        """Check that the generic querying method correctly infers modes."""
+        L = 10  # Box Dimensions
+        r_cut = 2.01  # Cutoff radius
+        num_neighbors = 3
+        N = 10  # number of particles
+
+        box = freud.box.Box.cube(L)  # Initialize Box
+        points = np.random.rand(N, 3).astype(np.float32)
+        nq = self.build_query_object(box, points, r_cut)
+
+        # Test ball query.
+        nlist1 = nq._queryGeneric(points, dict(mode='ball', r_max=r_cut))
+        nlist_neighbors1 = sorted(list(zip(nlist1.index_i, nlist1.index_j)))
+        nlist2 = nq._queryGeneric(points, dict(r_max=r_cut))
+        nlist_neighbors2 = sorted(list(zip(nlist2.index_i, nlist2.index_j)))
+        npt.assert_equal(nlist_neighbors1, nlist_neighbors2)
+
+        # Test ball query with exclusion.
+        nlist1 = nq._queryGeneric(
+            points, dict(mode='ball', r_max=r_cut, exclude_ii=True))
+        nlist_neighbors1 = sorted(list(zip(nlist1.index_i, nlist1.index_j)))
+        nlist2 = nq._queryGeneric(
+            points, dict(r_max=r_cut, exclude_ii=True))
+        nlist_neighbors2 = sorted(list(zip(nlist2.index_i, nlist2.index_j)))
+        npt.assert_equal(nlist_neighbors1, nlist_neighbors2)
+
+        # Test number of neighbors.
+        nlist1 = nq._queryGeneric(
+            points, dict(mode='nearest', num_neighbors=num_neighbors))
+        nlist_neighbors1 = sorted(list(zip(nlist1.index_i, nlist1.index_j)))
+        nlist2 = nq._queryGeneric(points, dict(num_neighbors=num_neighbors))
+        nlist_neighbors2 = sorted(list(zip(nlist2.index_i, nlist2.index_j)))
+        npt.assert_equal(nlist_neighbors1, nlist_neighbors2)
+
+        # Test number of neighbors with exclusion.
+        nlist1 = nq._queryGeneric(
+            points, dict(mode='nearest',
+                         num_neighbors=num_neighbors,
+                         exclude_ii=True))
+        nlist_neighbors1 = sorted(list(zip(nlist1.index_i, nlist1.index_j)))
+        nlist2 = nq._queryGeneric(
+            points, dict(num_neighbors=num_neighbors, exclude_ii=True))
+        nlist_neighbors2 = sorted(list(zip(nlist2.index_i, nlist2.index_j)))
+        npt.assert_equal(nlist_neighbors1, nlist_neighbors2)
+
     def test_query(self):
         L = 10  # Box Dimensions
         N = 4  # number of particles
