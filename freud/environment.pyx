@@ -326,7 +326,7 @@ cdef class LocalDescriptors(Compute):
     Args:
         num_neighbors (unsigned int):
             Maximum number of neighbors to compute descriptors for.
-        lmax (unsigned int):
+        l_max (unsigned int):
             Maximum spherical harmonic :math:`l` to consider.
         r_max (float):
             Initial guess of the maximum radius to looks for neighbors.
@@ -341,11 +341,10 @@ cdef class LocalDescriptors(Compute):
             The number of points passed to the last call to :meth:`~.compute`.
         num_sphs (unsigned int):
             The last number of spherical harmonics computed. This is equal to
-            the number of bonds in the last computation, which is bounded from
-            above by the number of reference points multiplied by the lower of
-            the num_neighbors arguments passed to the last compute call or the
-            constructor (the reason it's a bound and not an equality is because
-            there may not be enough neighbors for every particle).
+            the number of bonds in the last computation, which is at most the
+            number of `points` multiplied by the lower of the `num_neighbors`
+            arguments passed to the last compute call or the constructor (it
+            may be less if there are not enough neighbors for every particle).
         l_max (unsigned int):
             The maximum spherical harmonic :math:`l` to calculate for.
         r_max (float):
@@ -354,19 +353,17 @@ cdef class LocalDescriptors(Compute):
     cdef freud._environment.LocalDescriptors * thisptr
     cdef num_neighbors
     cdef r_max
-    cdef lmax
     cdef negative_m
 
     known_modes = {'neighborhood': freud._environment.LocalNeighborhood,
                    'global': freud._environment.Global,
                    'particle_local': freud._environment.ParticleLocal}
 
-    def __cinit__(self, num_neighbors, lmax, r_max, negative_m=True):
+    def __cinit__(self, num_neighbors, l_max, r_max, negative_m=True):
         self.thisptr = new freud._environment.LocalDescriptors(
-            lmax, negative_m)
+            l_max, negative_m)
         self.num_neighbors = num_neighbors
         self.r_max = r_max
-        self.lmax = lmax
         self.negative_m = negative_m
 
     def __dealloc__(self):
@@ -480,10 +477,10 @@ cdef class LocalDescriptors(Compute):
 
     def __repr__(self):
         return ("freud.environment.{cls}(num_neighbors={num_neighbors}, "
-                "lmax={lmax}, r_max={r_max}, "
+                "l_max={l_max}, r_max={r_max}, "
                 "negative_m={negative_m})").format(
                     cls=type(self).__name__, num_neighbors=self.num_neighbors,
-                    lmax=self.lmax, r_max=self.r_max,
+                    l_max=self.l_max, r_max=self.r_max,
                     negative_m=self.negative_m)
 
     def __str__(self):

@@ -32,7 +32,7 @@ cdef class NeighborQueryResult:
             NeighborQuery nq, const float[:, ::1] points,
             cbool exclude_ii, float r_max=0, unsigned int num_neighbors=0):
         # Internal API only
-        assert r_max != 0 or num_neighbors != 0
+        assert r_max > 0 or num_neighbors > 0
 
         obj = NeighborQueryResult()
 
@@ -63,7 +63,7 @@ cdef class AABBQueryResult(NeighborQueryResult):
             unsigned int num_neighbors, float r_max,
             float scale):
         # Internal API only
-        assert num_neighbors != 0
+        assert num_neighbors > 0
 
         obj = AABBQueryResult()
         obj.aabbq = obj.nq = aabbq

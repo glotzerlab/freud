@@ -860,12 +860,12 @@ cdef class RDF(PairCompute):
         """  # noqa E501
         cdef:
             freud.box.Box b
-            cdef freud.locality.NeighborQuery nq
-            cdef freud.locality.NlistptrWrapper nlistptr
-            cdef freud.locality._QueryArgs qargs
-            cdef const float[:, ::1] l_query_points
-            cdef unsigned int n_p
-        b, nq, nlistptr, qargs, l_query_points, n_p = \
+            freud.locality.NeighborQuery nq
+            freud.locality.NlistptrWrapper nlistptr
+            freud.locality._QueryArgs qargs
+            const float[:, ::1] l_query_points
+            unsigned int num_query_points
+        b, nq, nlistptr, qargs, l_query_points, num_query_points = \
             self.preprocess_arguments(box, points, query_points, nlist,
                                       query_args)
 
@@ -873,15 +873,17 @@ cdef class RDF(PairCompute):
             self.thisptr.accumulate(
                 nq.get_ptr(),
                 <vec3[float]*> &l_query_points[0, 0],
-                n_p, nlistptr.get_ptr(), dereference(qargs.thisptr))
+                num_query_points, nlistptr.get_ptr(),
+                dereference(qargs.thisptr))
         return self
 
-    def get_default_query_args(self, exclude_ii):
-        return dict(mode="ball", r_max=self.r_max, exclude_ii=exclude_ii)
+    @property
+    def default_query_args(self):
+        return dict(mode="ball", r_max=self.r_max)
 
     @Compute._compute()
     def compute(self, box, points, query_points=None, nlist=None,
-                query_args={}):
+                query_args=None):
         R"""Calculates the RDF for the specified points. Will overwrite the current
         histogram.
 
