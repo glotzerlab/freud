@@ -123,9 +123,11 @@ protected:
             }
             if (args.r_max == QueryArgs::DEFAULT_R_MAX)
             {
+                // By default, we use 1/10 the smallest box dimension as the guessed query distance.
                 vec3<float> L = this->getBox().getL();
                 float r_max = std::min(L.x, L.y);
-                args.r_max = this->getBox().is2D() ? float(0.1) * r_max : float(0.1) * std::min(r_max, L.z);
+                r_max = this->getBox().is2D() ? r_max : std::min(r_max, L.z);
+                args.r_max = float(0.1) * r_max;
             }
         }
     }

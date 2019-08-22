@@ -151,11 +151,11 @@ cdef class PairCompute(Compute):
         """Process standard compute arguments into freud's internal types by
         calling all the required internal functions.
 
-        The preprocessing of boxes and points into NeighborQuery objects, the
-        determination of how to handle the NeighborList object, the creation
-        of default query arguments as needed, deciding what query_points are,
-        and setting the appropriate exclude_ii flag are all handled in this
-        function.
+        This function handles the preprocessing of boxes and points into
+        :class:`freud.locality.NeighborQuery` objects, the determination of how
+        to handle the NeighborList object, the creation of default query
+        arguments as needed, deciding what `query_points` are, and setting the
+        appropriate `exclude_ii` flag.
 
         Args:
             box (:class:`freud.box.Box`):
@@ -178,24 +178,36 @@ cdef class PairCompute(Compute):
         cdef freud.locality.NlistptrWrapper nlistptr = \
             freud.locality.NlistptrWrapper(nlist)
 
-        cdef freud.locality._QueryArgs qargs = \
-            freud.locality._QueryArgs.from_dict(
-                query_args if query_args else
-                self.get_default_query_args(query_points is None))
+        cdef freud.locality._QueryArgs qargs
+        if query_args is not None:
+            qargs = freud.locality._QueryArgs.from_dict(query_args)
+        else:
+            try:
+                qargs = freud.locality._QueryArgs.from_dict(
+                    self.default_query_args)
+                qargs.update({'exclude_ii': query_points is None})
+            except ValueError:
+                # If a NeighborList was provided, then the user need not povide
+                # QueryArgs.
+                if nlist is None:
+                    raise
+                else:
+                    qargs = freud.locality._QueryArgs()
+
         if query_points is None:
             query_points = nq.points
         query_points = freud.common.convert_array(
             query_points, shape=(None, 3))
         cdef const float[:, ::1] l_query_points = query_points
-        cdef unsigned int n_p = l_query_points.shape[0]
-        return (b, nq, nlistptr, qargs, l_query_points, n_p)
+        cdef unsigned int num_query_points = l_query_points.shape[0]
+        return (b, nq, nlistptr, qargs, l_query_points, num_query_points)
 
-    def get_default_query_args(self, exclude_ii):
-        raise RuntimeError(
-            "The {} class must must define a get_default_query_args function. "
-            "This is a bug in freud, please report at "
-            "https://github.com/glotzerlab/freud/issues.".format(
-                type(self).__name__))
+    @property
+    def default_query_args(self):
+        raise ValueError(
+            "The {} class does not provide default query arguments. You must "
+            "either provide query arguments or a neighbor list to this "
+            "compute method.".format(type(self).__name__))
 
 
 def convert_array(array, shape=None, dtype=np.float32):

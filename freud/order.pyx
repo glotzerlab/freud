@@ -434,7 +434,7 @@ cdef class TransOrderParameter(Compute):
     def __cinit__(self, r_max, k=6.0, num_neighbors=0):
         self.thisptr = new freud._order.TransOrderParameter(k)
         self.r_max = r_max
-        self.num_neighbors = (num_neighbors if num_neighbors else int(k))
+        self.num_neighbors = (num_neighbors if num_neighbors > 0 else int(k))
 
     def __dealloc__(self):
         del self.thisptr

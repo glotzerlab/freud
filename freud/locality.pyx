@@ -2,7 +2,7 @@
 # This file is from the freud project, released under the BSD 3-Clause License.
 
 R"""
-The :class:`freud.locality` module contains data structures to efficiently
+The :mod:`freud.locality` module contains data structures to efficiently
 locate points based on their proximity to other points.
 """
 import sys
@@ -89,7 +89,12 @@ cdef class _QueryArgs:
 
     @property
     def mode(self):
-        return self.thisptr.mode
+        if self.thisptr.mode == freud._locality.QueryType.ball:
+            return 'ball'
+        elif self.thisptr.mode == freud._locality.QueryType.nearest:
+            return 'nearest'
+        else:
+            raise ValueError("Unknown mode {} set!".format(self.thisptr.mode))
 
     @mode.setter
     def mode(self, value):
