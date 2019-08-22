@@ -300,10 +300,6 @@ cdef class NeighborQuery:
         cdef const float[:, ::1] l_query_points = query_points
         cdef _QueryArgs args = _QueryArgs(**query_args)
 
-        # Default guess value
-        if 'r_max' not in query_args:
-            args.r_max = 0
-
         iterator = self.nqptr.queryWithArgs(
             <vec3[float]*> &l_query_points[0, 0],
             query_points.shape[0],
@@ -910,32 +906,6 @@ cdef class AABBQuery(NeighborQuery):
     def __dealloc__(self):
         if type(self) is AABBQuery:
             del self.thisptr
-
-    def _queryGeneric(self, query_points, query_args):
-        # This function is temporarily included for testing and WILL be
-        # removed in future releases.
-        # Can't use this function with old-style NeighborQuery objects
-        query_points = freud.common.convert_array(
-            np.atleast_2d(query_points), shape=(None, 3))
-
-        cdef shared_ptr[freud._locality.NeighborQueryIterator] iterator
-        cdef const float[:, ::1] l_query_points = query_points
-        cdef _QueryArgs args = _QueryArgs(**query_args)
-
-        iterator = self.nqptr.queryWithArgs(
-            <vec3[float]*> &l_query_points[0, 0],
-            query_points.shape[0],
-            dereference(args.thisptr))
-
-        cdef freud._locality.NeighborList *cnlist = dereference(
-            iterator).toNeighborList()
-        cdef NeighborList nl = NeighborList()
-        nl.refer_to(cnlist)
-        # Explicitly manage a manually created nlist so that it will be
-        # deleted when the Python object is.
-        nl._managed = True
-
-        return nl
 
     def query(self, query_points, unsigned int num_neighbors=1,
               float r_guess=0, float scale=1.1, cbool exclude_ii=False):
