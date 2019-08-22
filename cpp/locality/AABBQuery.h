@@ -102,21 +102,14 @@ public:
 
 protected:
     //! Validate the combination of specified arguments.
-    /*! Override parent function to account for the various arguments
+    /*! Add to parent function to account for the various arguments
      *  specifically required for AABBQuery nearest neighbor queries.
      */
     virtual void validateQueryArgs(QueryArgs& args) const
     {
-        inferMode(args);
-        if (args.mode == QueryArgs::ball)
+        NeighborQuery::validateQueryArgs(args);
+        if (args.mode == QueryArgs::nearest)
         {
-            if (args.r_max == QueryArgs::DEFAULT_R_MAX)
-                throw std::runtime_error("You must set r_max in the query arguments when performing ball queries.");
-        }
-        else if (args.mode == QueryArgs::nearest)
-        {
-            if (args.num_neighbors == QueryArgs::DEFAULT_NUM_NEIGHBORS)
-                throw std::runtime_error("You must set num_neighbors in the query arguments when performing number of neighbor queries.");
             if (args.scale == QueryArgs::DEFAULT_SCALE)
             {
                 args.scale = float(1.1);

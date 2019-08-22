@@ -187,8 +187,8 @@ cdef class PairCompute(Compute):
                     self.default_query_args)
                 qargs.update({'exclude_ii': query_points is None})
             except ValueError:
-                # If a NeighborList was provided, then the user need not povide
-                # QueryArgs.
+                # If a NeighborList was provided, then the user need not
+                # provide QueryArgs.
                 if nlist is None:
                     raise
                 else:
