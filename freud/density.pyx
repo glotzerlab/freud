@@ -13,7 +13,7 @@ import warnings
 import numpy as np
 
 from cython.operator cimport dereference
-from freud.common cimport Compute
+from freud.common cimport Compute, PairCompute
 from freud.util cimport vec3
 
 from collections.abc import Sequence
@@ -775,7 +775,7 @@ cdef class LocalDensity(Compute):
         return repr(self)
 
 
-cdef class RDF(Compute):
+cdef class RDF(PairCompute):
     R"""Computes RDF for supplied data.
 
     The RDF (:math:`g \left( r \right)`) is computed and averaged for a given
@@ -843,7 +843,7 @@ cdef class RDF(Compute):
 
     @Compute._compute()
     def accumulate(self, box, points, query_points=None, nlist=None,
-                   query_args={}):
+                   query_args=None):
         R"""Calculates the RDF and adds to the current RDF histogram.
 
         Args:
@@ -858,35 +858,32 @@ cdef class RDF(Compute):
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
         """  # noqa E501
-        exclude_ii = query_points is None
-        cdef freud.box.Box b = freud.common.convert_box(box)
-
-        nq_nlist = freud.locality.make_nq_nlist(b, points, nlist)
-        cdef freud.locality.NeighborQuery nq = nq_nlist[0]
-        cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
-
-        cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
-            mode="ball", r_max=self.r_max, exclude_ii=exclude_ii)
-        qargs.update(query_args)
-        points = nq.points
-
-        if query_points is None:
-            query_points = points
-        query_points = freud.common.convert_array(
-            query_points, shape=(None, 3))
-        cdef const float[:, ::1] l_query_points = query_points
-        cdef unsigned int n_p = l_query_points.shape[0]
+        cdef:
+            freud.box.Box b
+            freud.locality.NeighborQuery nq
+            freud.locality.NlistptrWrapper nlistptr
+            freud.locality._QueryArgs qargs
+            const float[:, ::1] l_query_points
+            unsigned int num_query_points
+        b, nq, nlistptr, qargs, l_query_points, num_query_points = \
+            self.preprocess_arguments(box, points, query_points, nlist,
+                                      query_args)
 
         with nogil:
             self.thisptr.accumulate(
                 nq.get_ptr(),
                 <vec3[float]*> &l_query_points[0, 0],
-                n_p, nlistptr.get_ptr(), dereference(qargs.thisptr))
+                num_query_points, nlistptr.get_ptr(),
+                dereference(qargs.thisptr))
         return self
+
+    @property
+    def default_query_args(self):
+        return dict(mode="ball", r_max=self.r_max)
 
     @Compute._compute()
     def compute(self, box, points, query_points=None, nlist=None,
-                query_args={}):
+                query_args=None):
         R"""Calculates the RDF for the specified points. Will overwrite the current
         histogram.
 

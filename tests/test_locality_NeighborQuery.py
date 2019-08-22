@@ -130,6 +130,69 @@ class TestNeighborQuery(object):
         # particle 3 has 2 bonds
         npt.assert_equal(sum(nlist.index_i == 3), 3)
 
+    def test_query_generic_mode_inference(self):
+        """Check that the generic querying method correctly infers modes."""
+        L = 10  # Box Dimensions
+        r_cut = 2.01  # Cutoff radius
+        num_neighbors = 3
+        N = 10  # number of particles
+
+        box = freud.box.Box.cube(L)  # Initialize Box
+        points = np.random.rand(N, 3).astype(np.float32)
+        nq = self.build_query_object(box, points, r_cut)
+
+        # Test ball query.
+        nlist1 = nq._queryGeneric(points, dict(mode='ball', r_max=r_cut))
+        nlist_neighbors1 = sorted(list(zip(nlist1.index_i, nlist1.index_j)))
+        nlist2 = nq._queryGeneric(points, dict(r_max=r_cut))
+        nlist_neighbors2 = sorted(list(zip(nlist2.index_i, nlist2.index_j)))
+        npt.assert_equal(nlist_neighbors1, nlist_neighbors2)
+
+        # Test ball query with exclusion.
+        nlist1 = nq._queryGeneric(
+            points, dict(mode='ball', r_max=r_cut, exclude_ii=True))
+        nlist_neighbors1 = sorted(list(zip(nlist1.index_i, nlist1.index_j)))
+        nlist2 = nq._queryGeneric(
+            points, dict(r_max=r_cut, exclude_ii=True))
+        nlist_neighbors2 = sorted(list(zip(nlist2.index_i, nlist2.index_j)))
+        npt.assert_equal(nlist_neighbors1, nlist_neighbors2)
+
+        # Test number of neighbors.
+        nlist1 = nq._queryGeneric(
+            points, dict(mode='nearest', num_neighbors=num_neighbors))
+        nlist_neighbors1 = sorted(list(zip(nlist1.index_i, nlist1.index_j)))
+        nlist2 = nq._queryGeneric(points, dict(num_neighbors=num_neighbors))
+        nlist_neighbors2 = sorted(list(zip(nlist2.index_i, nlist2.index_j)))
+        npt.assert_equal(nlist_neighbors1, nlist_neighbors2)
+
+        # Test number of neighbors with exclusion.
+        nlist1 = nq._queryGeneric(
+            points, dict(mode='nearest',
+                         num_neighbors=num_neighbors,
+                         exclude_ii=True))
+        nlist_neighbors1 = sorted(list(zip(nlist1.index_i, nlist1.index_j)))
+        nlist2 = nq._queryGeneric(
+            points, dict(num_neighbors=num_neighbors, exclude_ii=True))
+        nlist_neighbors2 = sorted(list(zip(nlist2.index_i, nlist2.index_j)))
+        npt.assert_equal(nlist_neighbors1, nlist_neighbors2)
+
+    def test_query_generic_invalid(self):
+        """Check that mode inference fails for invalid combinations."""
+        L = 10  # Box Dimensions
+        r_cut = 2.01  # Cutoff radius
+        num_neighbors = 3
+        N = 10  # number of particles
+
+        box = freud.box.Box.cube(L)  # Initialize Box
+        points = np.random.rand(N, 3).astype(np.float32)
+        nq = self.build_query_object(box, points, r_cut)
+
+        # Test failure cases.
+        with self.assertRaises(RuntimeError):
+            nq._queryGeneric(
+                points,
+                dict(mode='ball', num_neighbors=num_neighbors, r_max=r_cut))
+
     def test_query(self):
         L = 10  # Box Dimensions
         N = 4  # number of particles
@@ -178,7 +241,7 @@ class TestNeighborQuery(object):
         points[3] = [2.0, 0.0, 0.0]
         nq = self.build_query_object(box, points, L/10)
 
-        nlist = nq._queryGeneric(points, dict(mode='nearest', nn=3))
+        nlist = nq._queryGeneric(points, dict(mode='nearest', num_neighbors=3))
         result = list(zip(nlist.index_i, nlist.index_j))
         npt.assert_equal(get_point_neighbors(result, 0), {0, 1, 3})
         npt.assert_equal(get_point_neighbors(result, 1), {0, 1, 3})
@@ -187,7 +250,7 @@ class TestNeighborQuery(object):
 
         # All other points are neighbors when self-neighbors are excluded.
         nlist = nq._queryGeneric(
-            points, dict(mode='nearest', nn=3, exclude_ii=True))
+            points, dict(mode='nearest', num_neighbors=3, exclude_ii=True))
         result = list(zip(nlist.index_i, nlist.index_j))
         npt.assert_equal(get_point_neighbors(result, 0), {1, 2, 3})
         npt.assert_equal(get_point_neighbors(result, 1), {0, 2, 3})

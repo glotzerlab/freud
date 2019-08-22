@@ -20,7 +20,7 @@
 
 namespace freud { namespace locality {
 
-//! (Almost) POD class to hold information about generic queries.
+//! POD class to hold information about generic queries.
 /*! This class provides a standard method for specifying the type of query to
  *  perform with a NeighborQuery object. Rather than calling queryBall
  *  specifically, for example, the user can call a generic querying function and
@@ -28,24 +28,32 @@ namespace freud { namespace locality {
  */
 struct QueryArgs
 {
-    //! Define constructor
-    /*! We must violate the strict POD nature of the class to support default
-     *  values for parameters.
+    //! Default constructor.
+    /*! We set default values for all parameters here.
      */
-    QueryArgs() : nn(-1), rmax(-1), scale(-1), exclude_ii(false) {}
+    QueryArgs() : mode(DEFAULT_MODE), num_neighbors(DEFAULT_NUM_NEIGHBORS), r_max(DEFAULT_R_MAX),
+                  scale(DEFAULT_SCALE), exclude_ii(DEFAULT_EXCLUDE_II) {}
 
+    //! Enumeration for types of queries.
     enum QueryType
     {
-        ball,   //! Query based on distance cutoff.
-        nearest //! Query based on number of requested neighbors.
+        none,    //! Default query type to avoid implicit default types.
+        ball,    //! Query based on distance cutoff.
+        nearest, //! Query based on number of requested neighbors.
     };
 
     QueryType mode; //! Whether to perform a ball or k-nearest neighbor query.
-    int nn;         //! The number of nearest neighbors to find.
-    float rmax;     //! The cutoff distance within which to find neighbors
+    unsigned int num_neighbors;         //! The number of nearest neighbors to find.
+    float r_max;     //! The cutoff distance within which to find neighbors
     float scale; //! The scale factor to use when performing repeated ball queries to find a specified number
                  //! of nearest neighbors.
     bool exclude_ii; //! If true, exclude self-neighbors.
+
+    static const QueryType DEFAULT_MODE;                //!< Default mode.
+    static const unsigned int DEFAULT_NUM_NEIGHBORS;        //!< Default number of neighbors.
+    static const float DEFAULT_R_MAX;                   //!< Default query distance.
+    static const float DEFAULT_SCALE;                   //!< Default scaling parameter for AABB nearest neighbor queries.
+    static const bool DEFAULT_EXCLUDE_II;               //!< Default for whether or not to include self-neighbors.
 };
 
 // Forward declare the iterator
@@ -90,11 +98,11 @@ public:
         this->validateQueryArgs(args);
         if (args.mode == QueryArgs::ball)
         {
-            return this->queryBall(query_points, n_query_points, args.rmax, args.exclude_ii);
+            return this->queryBall(query_points, n_query_points, args.r_max, args.exclude_ii);
         }
         else if (args.mode == QueryArgs::nearest)
         {
-            return this->query(query_points, n_query_points, args.nn, args.exclude_ii);
+            return this->query(query_points, n_query_points, args.num_neighbors, args.exclude_ii);
         }
         else
         {
@@ -125,7 +133,7 @@ public:
     }
 
     //! Get the number of reference points
-    const unsigned int getNPoints() const
+    unsigned int getNPoints() const
     {
         return m_n_points;
     }
@@ -141,17 +149,50 @@ public:
     }
 
 protected:
+    //! Validate the combination of specified arguments.
+    /*! Before checking if the combination of parameters currently set is
+     *  valid, this function first attempts to infer a mode if one is not set in
+     *  order to allow the user to specify certain simple minimal argument
+     *  combinations (e.g. just an r_max) without having to specify the mode
+     *  explicitly.
+     */
     virtual void validateQueryArgs(QueryArgs& args) const
     {
+        inferMode(args);
+        // Validate remaining arguments.
         if (args.mode == QueryArgs::ball)
         {
-            if (args.rmax == -1)
-                throw std::runtime_error("You must set rmax in the query arguments.");
+            if (args.r_max == QueryArgs::DEFAULT_R_MAX)
+                throw std::runtime_error("You must set r_max in the query arguments when performing ball queries.");
+            if (args.num_neighbors != QueryArgs::DEFAULT_NUM_NEIGHBORS)
+                throw std::runtime_error("You cannot set num_neighbors in the query arguments when performing ball queries.");
         }
         else if (args.mode == QueryArgs::nearest)
         {
-            if (args.nn == -1)
-                throw std::runtime_error("You must set nn in the query arguments.");
+            if (args.num_neighbors == QueryArgs::DEFAULT_NUM_NEIGHBORS)
+                throw std::runtime_error("You must set num_neighbors in the query arguments when performing number of neighbor queries.");
+        }
+    }
+
+    //! Try to determine the query mode if one is not specified.
+    /*! If no mode is specified and a number of neighbors is specified, the
+     *  query mode must be a nearest neighbors query (all other arguments can
+     *  reasonably modify that query). Otherwise, if a max distance is set we
+     *  can assume a ball query is desired.
+     */
+    virtual void inferMode(QueryArgs& args) const
+    {
+        // Infer mode if possible.
+        if (args.mode == QueryArgs::none)
+        {
+            if (args.num_neighbors != QueryArgs::DEFAULT_NUM_NEIGHBORS)
+            {
+                args.mode = QueryArgs::nearest;
+            }
+            else if (args.r_max != QueryArgs::DEFAULT_R_MAX)
+            {
+                args.mode = QueryArgs::ball;
+            }
         }
     }
 

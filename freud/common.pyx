@@ -8,9 +8,17 @@ import freud.box
 
 from functools import wraps
 
+cimport freud.box
+cimport freud.locality
+
 cdef class Compute:
-    R"""Parent class implementing functions to prevent access of
-    uncomputed values.
+    R"""Parent class for all compute classes in freud.
+
+    Currently, the primary purpose of this class is implementing functions to
+    prevent access of uncomputed values. This is accomplished by maintaining a
+    dictionary of compute functions in a class that have been called and
+    decorating class properties with the names of the compute function that
+    must be called to populate that property.
 
     To use this class, one would do, for example,
 
@@ -123,6 +131,83 @@ cdef class Compute:
                 self._called_compute[k] = False
             func(self, *args, **kwargs)
         return wrapper
+
+
+cdef class PairCompute(Compute):
+    R"""Parent class for all compute classes in freud that depend on finding
+    nearest neighbors.
+
+    The purpose of this class is to consolidate some of the logic for parsing
+    the numerous possible inputs to the compute calls of such classes. In
+    particular, this class contains a helper function that calls the necessary
+    functions to create NeighborQuery and NeighborList classes as needed, as
+    well as dealing with boxes and query arguments.
+
+    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
+    """
+
+    def preprocess_arguments(self, box, points, query_points=None, nlist=None,
+                             query_args=None):
+        """Process standard compute arguments into freud's internal types by
+        calling all the required internal functions.
+
+        This function handles the preprocessing of boxes and points into
+        :class:`freud.locality.NeighborQuery` objects, the determination of how
+        to handle the NeighborList object, the creation of default query
+        arguments as needed, deciding what `query_points` are, and setting the
+        appropriate `exclude_ii` flag.
+
+        Args:
+            box (:class:`freud.box.Box`):
+                Simulation box.
+            points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
+                Reference points used to calculate the RDF.
+            query_points ((:math:`N_{query_points}`, 3) :class:`numpy.ndarray`, optional):
+                Points used to calculate the RDF. Uses :code:`points` if
+                not provided or :code:`None`.
+            nlist (:class:`freud.locality.NeighborList`, optional):
+                NeighborList to use to find bonds (Default value =
+                :code:`None`).
+            query_args (dict): A dictionary of query arguments (Default value =
+                :code:`None`).
+        """  # noqa E501
+        cdef freud.box.Box b = freud.common.convert_box(box)
+
+        cdef freud.locality.NeighborQuery nq = freud.locality.make_default_nq(
+            box, points)
+        cdef freud.locality.NlistptrWrapper nlistptr = \
+            freud.locality.NlistptrWrapper(nlist)
+
+        cdef freud.locality._QueryArgs qargs
+        if query_args is not None:
+            qargs = freud.locality._QueryArgs.from_dict(query_args)
+        else:
+            try:
+                qargs = freud.locality._QueryArgs.from_dict(
+                    self.default_query_args)
+                qargs.update({'exclude_ii': query_points is None})
+            except ValueError:
+                # If a NeighborList was provided, then the user need not
+                # provide QueryArgs.
+                if nlist is None:
+                    raise
+                else:
+                    qargs = freud.locality._QueryArgs()
+
+        if query_points is None:
+            query_points = nq.points
+        query_points = freud.common.convert_array(
+            query_points, shape=(None, 3))
+        cdef const float[:, ::1] l_query_points = query_points
+        cdef unsigned int num_query_points = l_query_points.shape[0]
+        return (b, nq, nlistptr, qargs, l_query_points, num_query_points)
+
+    @property
+    def default_query_args(self):
+        raise ValueError(
+            "The {} class does not provide default query arguments. You must "
+            "either provide query arguments or a neighbor list to this "
+            "compute method.".format(type(self).__name__))
 
 
 def convert_array(array, shape=None, dtype=np.float32):

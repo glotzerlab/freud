@@ -333,13 +333,13 @@ cdef class HexOrderParameter(Compute):
             Symmetry of the order parameter.
     """  # noqa: E501
     cdef freud._order.HexOrderParameter * thisptr
-    cdef int num_neigh
+    cdef int num_neighbors
     cdef float r_max
 
     def __cinit__(self, r_max, k=int(6), num_neighbors=int(0)):
         self.thisptr = new freud._order.HexOrderParameter(k)
         self.r_max = r_max
-        self.num_neigh = (num_neighbors if num_neighbors else int(k))
+        self.num_neighbors = (num_neighbors if num_neighbors else int(k))
 
     def __dealloc__(self):
         del self.thisptr
@@ -365,7 +365,7 @@ cdef class HexOrderParameter(Compute):
         cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
 
         cdef freud.locality._QueryArgs def_qargs = freud.locality._QueryArgs(
-            mode="nearest", nn=self.num_neigh, r_max=self.r_max,
+            mode="nearest", num_neighbors=self.num_neighbors, r_max=self.r_max,
             exclude_ii=True)
 
         with nogil:
@@ -397,7 +397,7 @@ cdef class HexOrderParameter(Compute):
     def __repr__(self):
         return "freud.order.{cls}(r_max={r}, k={k}, num_neighbors={n})".format(
             cls=type(self).__name__, r=self.r_max, k=self.K,
-            n=self.num_neigh)
+            n=self.num_neighbors)
 
     def __str__(self):
         return repr(self)
@@ -428,13 +428,13 @@ cdef class TransOrderParameter(Compute):
             Normalization value (d_r is divided by K).
     """  # noqa: E501
     cdef freud._order.TransOrderParameter * thisptr
-    cdef num_neigh
+    cdef num_neighbors
     cdef r_max
 
     def __cinit__(self, r_max, k=6.0, num_neighbors=0):
         self.thisptr = new freud._order.TransOrderParameter(k)
         self.r_max = r_max
-        self.num_neigh = (num_neighbors if num_neighbors else int(k))
+        self.num_neighbors = (num_neighbors if num_neighbors > 0 else int(k))
 
     def __dealloc__(self):
         del self.thisptr
@@ -459,7 +459,7 @@ cdef class TransOrderParameter(Compute):
         cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
 
         cdef freud.locality._QueryArgs def_qargs = freud.locality._QueryArgs(
-            mode="nearest", nn=self.num_neigh, r_max=self.r_max,
+            mode="nearest", num_neighbors=self.num_neighbors, r_max=self.r_max,
             exclude_ii=True)
 
         with nogil:
@@ -491,7 +491,7 @@ cdef class TransOrderParameter(Compute):
     def __repr__(self):
         return "freud.order.{cls}(r_max={r}, k={k}, num_neighbors={n})".format(
             cls=type(self).__name__, r=self.r_max, k=self.K,
-            n=self.num_neigh)
+            n=self.num_neighbors)
 
     def __str__(self):
         return repr(self)
@@ -576,7 +576,7 @@ cdef class Steinhardt(Compute):
     cdef r_max
     cdef sph_l
     cdef r_min
-    cdef num_neigh
+    cdef num_neighbors
 
     def __cinit__(self, r_max, l, r_min=0, average=False,
                   Wl=False, num_neighbors=0, *args, **kwargs):
@@ -584,7 +584,7 @@ cdef class Steinhardt(Compute):
             self.r_max = r_max
             self.sph_l = l
             self.r_min = r_min
-            self.num_neigh = num_neighbors
+            self.num_neighbors = num_neighbors
             self.stptr = new freud._order.Steinhardt(
                 r_max, l, r_min,
                 average, Wl)
@@ -637,10 +637,10 @@ cdef class Steinhardt(Compute):
         cdef freud.locality.NeighborQuery nq = nq_nlist[0]
         cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
 
-        if self.num_neigh > 0:
+        if self.num_neighbors > 0:
             _qargs = freud.locality._QueryArgs(
-                mode="nearest", nn=self.num_neigh, r_max=self.r_max,
-                exclude_ii=True)
+                mode="nearest", num_neighbors=self.num_neighbors,
+                r_max=self.r_max, exclude_ii=True)
         else:
             _qargs = freud.locality._QueryArgs(
                 mode="ball", r_max=self.r_max, exclude_ii=True)
@@ -927,7 +927,7 @@ cdef class SolLiqNear(SolLiq):
 
     .. todo:: move box to compute, this is old API
     """  # noqa: E501
-    cdef num_neigh
+    cdef num_neighbors
 
     def __cinit__(self, box, r_max, Qthreshold, Sthreshold,
                   l, num_neighbors=12):
@@ -940,7 +940,7 @@ cdef class SolLiqNear(SolLiq):
             self.Qthreshold = Qthreshold
             self.Sthreshold = Sthreshold
             self.sph_l = l
-            self.num_neigh = num_neighbors
+            self.num_neighbors = num_neighbors
 
     def __dealloc__(self):
         del self.thisptr
@@ -960,7 +960,7 @@ cdef class SolLiqNear(SolLiq):
         """
         defaulted_nlist = freud.locality.make_default_nlist_nn(
             self.m_box, points, points,
-            self.num_neigh, nlist, True, self.r_max)
+            self.num_neighbors, nlist, True, self.r_max)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         return SolLiq.compute(self, points, nlist_)
 
@@ -978,7 +978,7 @@ cdef class SolLiqNear(SolLiq):
         """
         defaulted_nlist = freud.locality.make_default_nlist_nn(
             self.m_box, points, points,
-            self.num_neigh, nlist, True, self.r_max)
+            self.num_neighbors, nlist, True, self.r_max)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         return SolLiq.computeSolLiqVariant(self, points, nlist_)
 
@@ -996,7 +996,7 @@ cdef class SolLiqNear(SolLiq):
         """
         defaulted_nlist = freud.locality.make_default_nlist_nn(
             self.m_box, points, points,
-            self.num_neigh, nlist, True, self.r_max)
+            self.num_neighbors, nlist, True, self.r_max)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
         return SolLiq.computeSolLiqNoNorm(self, points, nlist_)
 
@@ -1010,7 +1010,7 @@ cdef class SolLiqNear(SolLiq):
                                              Qthreshold=self.Qthreshold,
                                              Sthreshold=self.Sthreshold,
                                              sph_l=self.sph_l,
-                                             n=self.num_neigh)
+                                             n=self.num_neighbors)
 
     def __str__(self):
         return repr(self)

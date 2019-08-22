@@ -7,6 +7,7 @@ Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to
 ### Added
 * Ability to specify NeighborQuery objects as points for neighbor-based pair computes.
 * Various validation tests.
+* Added standard method for preprocessing arguments of pair computations.
 
 ### Changed
 * All compute objects that perform neighbor computations now use NeighborQuery internally.
@@ -22,8 +23,6 @@ Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to
 
 ### Removed
 * The freud.util module.
-
-### Removed
 * Python 2 is no longer supported. Python 3.5+ is required.
 
 ## v1.2.2 - 2019-08-15

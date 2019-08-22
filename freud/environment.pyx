@@ -116,7 +116,7 @@ cdef class BondOrder(Compute):
 
     """  # noqa: E501
     cdef freud._environment.BondOrder * thisptr
-    cdef num_neigh
+    cdef num_neighbors
     cdef r_max
     cdef n_bins_t
     cdef n_bins_p
@@ -130,7 +130,7 @@ cdef class BondOrder(Compute):
         self.thisptr = new freud._environment.BondOrder(
             r_max, num_neighbors, n_bins_t, n_bins_p)
         self.r_max = r_max
-        self.num_neigh = num_neighbors
+        self.num_neighbors = num_neighbors
         self.n_bins_t = n_bins_t
         self.n_bins_p = n_bins_p
 
@@ -175,7 +175,7 @@ cdef class BondOrder(Compute):
         cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
 
         cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
-            mode="nearest", nn=self.num_neigh,
+            mode="nearest", num_neighbors=self.num_neighbors,
             r_max=self.r_max, exclude_ii=exclude_ii)
         points = nq.points
 
@@ -300,12 +300,11 @@ cdef class BondOrder(Compute):
 
     def __repr__(self):
         return ("freud.environment.{cls}(r_max={r_max}, "
-                "num_neighbors={num_neigh}, n_bins_t={n_bins_t}, "
-                "n_bins_p={n_bins_p})").format(cls=type(self).__name__,
-                                               r_max=self.r_max,
-                                               num_neigh=self.num_neigh,
-                                               n_bins_t=self.n_bins_t,
-                                               n_bins_p=self.n_bins_p)
+                "num_neighbors={num_neighbors}, n_bins_t={n_bins_t}, "
+                "n_bins_p={n_bins_p})").format(
+                    cls=type(self).__name__, r_max=self.r_max,
+                    num_neighbors=self.num_neighbors, n_bins_t=self.n_bins_t,
+                    n_bins_p=self.n_bins_p)
 
     def __str__(self):
         return repr(self)
@@ -327,7 +326,7 @@ cdef class LocalDescriptors(Compute):
     Args:
         num_neighbors (unsigned int):
             Maximum number of neighbors to compute descriptors for.
-        lmax (unsigned int):
+        l_max (unsigned int):
             Maximum spherical harmonic :math:`l` to consider.
         r_max (float):
             Initial guess of the maximum radius to looks for neighbors.
@@ -340,32 +339,31 @@ cdef class LocalDescriptors(Compute):
             A reference to the last computed spherical harmonic array.
         num_particles (unsigned int):
             The number of points passed to the last call to :meth:`~.compute`.
-        num_neighbors (unsigned int):
-            The number of neighbors used by the last call to compute. Bounded
-            from above by the number of reference points multiplied by the
-            lower of the num_neighbors arguments passed to the last compute
-            call or the constructor.
+        num_sphs (unsigned int):
+            The last number of spherical harmonics computed. This is equal to
+            the number of bonds in the last computation, which is at most the
+            number of `points` multiplied by the lower of the `num_neighbors`
+            arguments passed to the last compute call or the constructor (it
+            may be less if there are not enough neighbors for every particle).
         l_max (unsigned int):
             The maximum spherical harmonic :math:`l` to calculate for.
         r_max (float):
             The cutoff radius.
     """  # noqa: E501
     cdef freud._environment.LocalDescriptors * thisptr
-    cdef num_neigh
+    cdef num_neighbors
     cdef r_max
-    cdef lmax
     cdef negative_m
 
     known_modes = {'neighborhood': freud._environment.LocalNeighborhood,
                    'global': freud._environment.Global,
                    'particle_local': freud._environment.ParticleLocal}
 
-    def __cinit__(self, num_neighbors, lmax, r_max, negative_m=True):
+    def __cinit__(self, num_neighbors, l_max, r_max, negative_m=True):
         self.thisptr = new freud._environment.LocalDescriptors(
-            lmax, negative_m)
-        self.num_neigh = num_neighbors
+            l_max, negative_m)
+        self.num_neighbors = num_neighbors
         self.r_max = r_max
-        self.lmax = lmax
         self.negative_m = negative_m
 
     def __dealloc__(self):
@@ -438,10 +436,10 @@ cdef class LocalDescriptors(Compute):
 
         l_mode = self.known_modes[mode]
 
-        self.num_neigh = num_neighbors
+        self.num_neighbors = num_neighbors
 
         defaulted_nlist = freud.locality.make_default_nlist_nn(
-            b, points, query_points, self.num_neigh, nlist,
+            b, points, query_points, self.num_neighbors, nlist,
             exclude_ii, self.r_max)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
@@ -470,7 +468,7 @@ cdef class LocalDescriptors(Compute):
         return self.thisptr.getNPoints()
 
     @Compute._computed_property()
-    def num_neighbors(self):
+    def num_sphs(self):
         return self.thisptr.getNSphs()
 
     @property
@@ -478,13 +476,12 @@ cdef class LocalDescriptors(Compute):
         return self.thisptr.getLMax()
 
     def __repr__(self):
-        return ("freud.environment.{cls}(num_neighbors={num_neigh}, "
-                "lmax={lmax}, r_max={r_max}, "
-                "negative_m={negative_m})").format(cls=type(self).__name__,
-                                                   num_neigh=self.num_neigh,
-                                                   lmax=self.lmax,
-                                                   r_max=self.r_max,
-                                                   negative_m=self.negative_m)
+        return ("freud.environment.{cls}(num_neighbors={num_neighbors}, "
+                "l_max={l_max}, r_max={r_max}, "
+                "negative_m={negative_m})").format(
+                    cls=type(self).__name__, num_neighbors=self.num_neighbors,
+                    l_max=self.l_max, r_max=self.r_max,
+                    negative_m=self.negative_m)
 
     def __str__(self):
         return repr(self)
@@ -518,7 +515,7 @@ cdef class MatchEnv(Compute):
     """  # noqa: E501
     cdef freud._environment.MatchEnv * thisptr
     cdef r_max
-    cdef num_neigh
+    cdef num_neighbors
     cdef m_box
 
     def __cinit__(self, box, r_max, num_neighbors):
@@ -528,7 +525,7 @@ cdef class MatchEnv(Compute):
             dereference(b.thisptr), r_max, num_neighbors)
 
         self.r_max = r_max
-        self.num_neigh = num_neighbors
+        self.num_neighbors = num_neighbors
         self.m_box = box
 
     def __dealloc__(self):
@@ -592,12 +589,12 @@ cdef class MatchEnv(Compute):
             env_nlist_ = defaulted_env_nlist[0]
         else:
             defaulted_nlist = freud.locality.make_default_nlist_nn(
-                self.m_box, points, points, self.num_neigh, nlist,
+                self.m_box, points, points, self.num_neighbors, nlist,
                 True, self.r_max)
             nlist_ = defaulted_nlist[0]
 
             defaulted_env_nlist = freud.locality.make_default_nlist_nn(
-                self.m_box, points, points, self.num_neigh, env_nlist,
+                self.m_box, points, points, self.num_neighbors, env_nlist,
                 True, self.r_max)
             env_nlist_ = defaulted_env_nlist[0]
 
@@ -642,7 +639,7 @@ cdef class MatchEnv(Compute):
 
         defaulted_nlist = freud.locality.make_default_nlist_nn(
             self.m_box, points, points,
-            self.num_neigh, nlist, True, self.r_max)
+            self.num_neighbors, nlist, True, self.r_max)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         self.thisptr.matchMotif(
@@ -686,7 +683,7 @@ cdef class MatchEnv(Compute):
 
         defaulted_nlist = freud.locality.make_default_nlist_nn(
             self.m_box, points, points,
-            self.num_neigh, nlist, True, self.r_max)
+            self.num_neighbors, nlist, True, self.r_max)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
         cdef vector[float] min_rmsd_vec = self.thisptr.minRMSDMotif(
@@ -835,7 +832,7 @@ cdef class MatchEnv(Compute):
         return ("freud.environment.{cls}(box={box}, "
                 "r_max={r}, num_neighbors={k})").format(
                     cls=type(self).__name__, box=self.m_box.__repr__(),
-                    r=self.r_max, k=self.num_neigh)
+                    r=self.r_max, k=self.num_neighbors)
 
     def __str__(self):
         return repr(self)
@@ -905,14 +902,14 @@ cdef class AngularSeparation(Compute):
             strict_cut=True
     """  # noqa: E501
     cdef freud._environment.AngularSeparation * thisptr
-    cdef unsigned int num_neigh
+    cdef unsigned int num_neighbors
     cdef float r_max
     cdef freud.locality.NeighborList nlist_
 
     def __cinit__(self, float r_max, unsigned int num_neighbors):
         self.thisptr = new freud._environment.AngularSeparation()
         self.r_max = r_max
-        self.num_neigh = num_neighbors
+        self.num_neighbors = num_neighbors
 
     def __dealloc__(self):
         del self.thisptr
@@ -975,7 +972,7 @@ cdef class AngularSeparation(Compute):
             equiv_orientations, shape=(None, 4))
 
         defaulted_nlist = freud.locality.make_default_nlist_nn(
-            b, points, query_points, self.num_neigh,
+            b, points, query_points, self.num_neighbors,
             nlist, exclude_ii, self.r_max)
         self.nlist_ = defaulted_nlist[0].copy()
 
@@ -1077,7 +1074,7 @@ cdef class AngularSeparation(Compute):
 
     def __repr__(self):
         return "freud.environment.{cls}(r_max={r}, num_neighbors={n})".format(
-            cls=type(self).__name__, r=self.r_max, n=self.num_neigh)
+            cls=type(self).__name__, r=self.r_max, n=self.num_neighbors)
 
     def __str__(self):
         return repr(self)
@@ -1115,13 +1112,13 @@ cdef class LocalBondProjection(Compute):
     """  # noqa: E501
     cdef freud._environment.LocalBondProjection * thisptr
     cdef float r_max
-    cdef unsigned int num_neigh
+    cdef unsigned int num_neighbors
     cdef freud.locality.NeighborList nlist_
 
     def __cinit__(self, r_max, num_neighbors):
         self.thisptr = new freud._environment.LocalBondProjection()
         self.r_max = r_max
-        self.num_neigh = int(num_neighbors)
+        self.num_neighbors = int(num_neighbors)
 
     def __dealloc__(self):
         del self.thisptr
@@ -1183,7 +1180,7 @@ cdef class LocalBondProjection(Compute):
         proj_vecs = freud.common.convert_array(proj_vecs, shape=(None, 3))
 
         defaulted_nlist = freud.locality.make_default_nlist_nn(
-            box, points, query_points, self.num_neigh, nlist,
+            box, points, query_points, self.num_neighbors, nlist,
             exclude_ii, self.r_max)
         self.nlist_ = defaulted_nlist[0].copy()
 
@@ -1248,9 +1245,9 @@ cdef class LocalBondProjection(Compute):
 
     def __repr__(self):
         return ("freud.environment.{cls}(r_max={r_max}, "
-                "num_neighbors={num_neigh})").format(cls=type(self).__name__,
-                                                     r_max=self.r_max,
-                                                     num_neigh=self.num_neigh)
+                "num_neighbors={num_neighbors})").format(
+                    cls=type(self).__name__, r_max=self.r_max,
+                    num_neighbors=self.num_neighbors)
 
     def __str__(self):
         return repr(self)

@@ -664,7 +664,7 @@ class TestPMFTXY2D(unittest.TestCase):
         nbins = 3
         pmft = freud.pmft.PMFTXY2D(max_width, max_width, nbins, nbins)
         pmft.compute(box, points, angles, query_points, query_angles,
-                     query_args={'mode': 'nearest', 'nn': 1})
+                     query_args={'mode': 'nearest', 'num_neighbors': 1})
         # Now every point in query_points will find the origin as a neighbor.
         npt.assert_array_equal(
             pmft.bin_counts,
@@ -673,7 +673,7 @@ class TestPMFTXY2D(unittest.TestCase):
              [0, 1, 0]])
         # Now there will be only one neighbor for the single point.
         pmft.compute(box, query_points, query_angles, points, angles,
-                     query_args={'mode': 'nearest', 'nn': 1})
+                     query_args={'mode': 'nearest', 'num_neighbors': 1})
         npt.assert_array_equal(
             pmft.bin_counts,
             [[0, 0, 0],
@@ -932,7 +932,7 @@ class TestPMFTXYZ(unittest.TestCase):
         pmft = freud.pmft.PMFTXYZ(max_width, max_width, max_width,
                                   nbins, nbins, nbins)
         pmft.compute(box, points, angles, query_points,
-                     query_args={'mode': 'nearest', 'nn': 1})
+                     query_args={'mode': 'nearest', 'num_neighbors': 1})
 
         # Now every point in query_points will find the origin as a neighbor.
         npt.assert_array_equal(
@@ -948,7 +948,7 @@ class TestPMFTXYZ(unittest.TestCase):
               [0, 0, 0]]])
 
         pmft.compute(box, query_points, query_angles, points,
-                     query_args={'mode': 'nearest', 'nn': 1})
+                     query_args={'mode': 'nearest', 'num_neighbors': 1})
         # The only nonzero bin is in the left bin for x, but the center for
         # everything else (0 distance in y and z).
         self.assertEqual(pmft.bin_counts[1, 1, 0], 1)

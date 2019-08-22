@@ -11,8 +11,8 @@ cimport freud.box
 cdef class NeighborQueryResult:
     cdef NeighborQuery nq
     cdef const float[:, ::1] points
-    cdef float r
-    cdef unsigned int k
+    cdef float r_max
+    cdef unsigned int num_neighbors
     cdef unsigned int Np
     cdef cbool exclude_ii
     cdef str query_type
@@ -30,9 +30,9 @@ cdef class NeighborQueryResult:
     @staticmethod
     cdef inline NeighborQueryResult init(
             NeighborQuery nq, const float[:, ::1] points,
-            cbool exclude_ii, float r=0, unsigned int k=0):
+            cbool exclude_ii, float r_max=0, unsigned int num_neighbors=0):
         # Internal API only
-        assert r != 0 or k != 0
+        assert r_max > 0 or num_neighbors > 0
 
         obj = NeighborQueryResult()
 
@@ -41,13 +41,13 @@ cdef class NeighborQueryResult:
         obj.exclude_ii = exclude_ii
         obj.Np = points.shape[0]
 
-        obj.r = r
-        obj.k = k
+        obj.r_max = r_max
+        obj.num_neighbors = num_neighbors
 
-        if obj.r != 0:
+        if obj.r_max != 0:
             obj.query_type = 'ball'
         else:
-            obj.query_type = 'nn'
+            obj.query_type = 'nearest'
 
         return obj
 
@@ -59,9 +59,11 @@ cdef class AABBQueryResult(NeighborQueryResult):
     @staticmethod
     cdef inline AABBQueryResult init_aabb_nn(
             AABBQuery aabbq, const float[:, ::1] points,
-            cbool exclude_ii, unsigned int k, float r, float scale):
+            cbool exclude_ii,
+            unsigned int num_neighbors, float r_max,
+            float scale):
         # Internal API only
-        assert k != 0
+        assert num_neighbors > 0
 
         obj = AABBQueryResult()
         obj.aabbq = obj.nq = aabbq
@@ -70,10 +72,10 @@ cdef class AABBQueryResult(NeighborQueryResult):
         obj.Np = points.shape[0]
 
         # For AABBs, even kN queries require a distance cutoff
-        obj.r = r
-        obj.k = k
+        obj.r_max = r_max
+        obj.num_neighbors = num_neighbors
 
-        obj.query_type = 'nn'
+        obj.query_type = 'nearest'
 
         obj.scale = scale
 

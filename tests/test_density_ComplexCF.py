@@ -212,34 +212,34 @@ class TestComplexCF(unittest.TestCase):
 
         cf = freud.density.ComplexCF(rmax, dr)
         cf.compute(box, ref_points, ref_values, points, values,
-                   query_args={'mode': 'nearest', 'nn': 1})
+                   query_args={'mode': 'nearest', 'num_neighbors': 1})
         npt.assert_array_equal(cf.RDF, [1, 1, 1])
         npt.assert_array_equal(cf.counts, [2, 2, 2])
 
         cf.compute(box, points, values, ref_points, ref_values,
-                   query_args={'mode': 'nearest', 'nn': 1})
+                   query_args={'mode': 'nearest', 'num_neighbors': 1})
         npt.assert_array_equal(cf.RDF, [1, 0, 0])
         npt.assert_array_equal(cf.counts, [1, 0, 0])
 
         ref_values = [1+1j]
         values = [1+1j, 1+1j, 2+2j, 2+2j, 3+3j, 3+3j]
         cf.compute(box, ref_points, ref_values, points, np.conj(values),
-                   query_args={'mode': 'nearest', 'nn': 1})
+                   query_args={'mode': 'nearest', 'num_neighbors': 1})
         npt.assert_array_equal(cf.RDF, [2, 4, 6])
         npt.assert_array_equal(cf.counts, [2, 2, 2])
 
         cf.compute(box, ref_points, ref_values, points, values,
-                   query_args={'mode': 'nearest', 'nn': 1})
+                   query_args={'mode': 'nearest', 'num_neighbors': 1})
         npt.assert_array_equal(cf.RDF, [2j, 4j, 6j])
         npt.assert_array_equal(cf.counts, [2, 2, 2])
 
         cf.compute(box, points, values, ref_points, np.conj(ref_values),
-                   query_args={'mode': 'nearest', 'nn': 1})
+                   query_args={'mode': 'nearest', 'num_neighbors': 1})
         npt.assert_array_equal(cf.RDF, [2, 0, 0])
         npt.assert_array_equal(cf.counts, [1, 0, 0])
 
         cf.compute(box, points, values, ref_points, ref_values,
-                   query_args={'mode': 'nearest', 'nn': 1})
+                   query_args={'mode': 'nearest', 'num_neighbors': 1})
         npt.assert_array_equal(cf.RDF, [2j, 0, 0])
         npt.assert_array_equal(cf.counts, [1, 0, 0])
 
