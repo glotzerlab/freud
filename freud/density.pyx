@@ -719,7 +719,7 @@ cdef class LocalDensity(PairCompute):
     @property
     def default_query_args(self):
         return dict(mode="ball",
-                r_max=self.r_max + 0.5*self.diameter)
+                    r_max=self.r_max + 0.5*self.diameter)
 
     @Compute._computed_property()
     def density(self):
