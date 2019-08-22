@@ -164,6 +164,8 @@ protected:
         {
             if (args.r_max == QueryArgs::DEFAULT_R_MAX)
                 throw std::runtime_error("You must set r_max in the query arguments when performing ball queries.");
+            if (args.num_neighbors != QueryArgs::DEFAULT_NUM_NEIGHBORS)
+                throw std::runtime_error("You cannot set num_neighbors in the query arguments when performing ball queries.");
         }
         else if (args.mode == QueryArgs::nearest)
         {
