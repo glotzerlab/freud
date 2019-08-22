@@ -763,6 +763,8 @@ def make_default_nq(box, points):
                              "NeighborQuery object are different")
         return points
 
+    points = freud.common.convert_array(
+        points, shape=(None, 3))
     cdef RawPoints rp = RawPoints(box, points)
     return rp
 
