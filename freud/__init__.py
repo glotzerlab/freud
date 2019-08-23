@@ -11,6 +11,7 @@ from . import locality
 from . import msd
 from . import order
 from . import parallel
+from . import plot
 from . import pmft
 
 # Override TBB's default autoselection. This is necessary because once the
@@ -31,6 +32,7 @@ __all__ = [
     'msd',
     'order',
     'parallel',
+    'plot',
     'pmft',
     'voronoi',
 ]
