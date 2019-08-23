@@ -18,8 +18,8 @@ cdef extern from "Cluster.h" namespace "freud::cluster":
                              const freud._locality.NeighborList*,
                              const vec3[float]*,
                              unsigned int,
-                             freud._locality.QueryArgs) nogil except +
-        void computeClusterMembership(const unsigned int*) nogil except +
+                             freud._locality.QueryArgs) except +
+        void computeClusterMembership(const unsigned int*) except +
         unsigned int getNumClusters()
         unsigned int getNumParticles()
         shared_ptr[unsigned int] getClusterIdx()
@@ -32,7 +32,7 @@ cdef extern from "ClusterProperties.h" namespace "freud::cluster":
             const freud._box.Box &,
             const vec3[float]*,
             const unsigned int*,
-            unsigned int) nogil except +
+            unsigned int) except +
         unsigned int getNumClusters()
         shared_ptr[vec3[float]] getClusterCOM()
         shared_ptr[float] getClusterG()
