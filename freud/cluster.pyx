@@ -153,9 +153,6 @@ cdef class Cluster(Compute):
                 "r_max={r_max})").format(cls=type(self).__name__,
                                          r_max=self.r_max)
 
-    def __str__(self):
-        return repr(self)
-
     @Compute._computed_method("compute")
     def plot(self, ax=None):
         """Plot cluster distribution.
@@ -291,6 +288,3 @@ cdef class ClusterProperties(Compute):
     def __repr__(self):
         return ("freud.cluster.{cls}()").format(
             cls=type(self).__name__)
-
-    def __str__(self):
-        return repr(self)

@@ -228,10 +228,6 @@ cdef class FloatCF(Compute):
         return ("freud.density.{cls}(r_max={r_max}, dr={dr})").format(
             cls=type(self).__name__, r_max=self.r_max, dr=self.dr)
 
-    def __str__(self):
-        return repr(self)
-
-    @Compute._computed_method()
     def plot(self, ax=None):
         """Plot correlation function.
 
@@ -458,10 +454,6 @@ cdef class ComplexCF(Compute):
         return ("freud.density.{cls}(r_max={r_max}, dr={dr})").format(
             cls=type(self).__name__, r_max=self.r_max, dr=self.dr)
 
-    def __str__(self):
-        return repr(self)
-
-    @Compute._computed_method()
     def plot(self, ax=None):
         """Plot complex correlation function.
 
@@ -592,9 +584,6 @@ cdef class GaussianDensity(Compute):
                                             width=self.width,
                                             r_max=self.r_max,
                                             sigma=self.sigma)
-
-    def __str__(self):
-        return repr(self)
 
     @Compute._computed_method()
     def plot(self, ax=None):
@@ -771,9 +760,6 @@ cdef class LocalDensity(Compute):
                                                volume=self.volume,
                                                diameter=self.diameter)
 
-    def __str__(self):
-        return repr(self)
-
 
 cdef class RDF(PairCompute):
     R"""Computes RDF for supplied data.
@@ -934,9 +920,6 @@ cdef class RDF(PairCompute):
                                          r_max=self.r_max,
                                          dr=self.dr,
                                          r_min=self.r_min)
-
-    def __str__(self):
-        return repr(self)
 
     @Compute._computed_method()
     def plot(self, ax=None):

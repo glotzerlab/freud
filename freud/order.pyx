@@ -203,8 +203,6 @@ cdef class CubaticOrderParameter(Compute):
                                        n_replicates=self.n_replicates,
                                        seed=self.seed)
 
-    def __str__(self):
-        return repr(self)
 
 cdef class NematicOrderParameter(Compute):
     R"""Compute the nematic order parameter for a system of particles.
@@ -286,9 +284,6 @@ cdef class NematicOrderParameter(Compute):
     def __repr__(self):
         return "freud.order.{cls}(u={u})".format(cls=type(self).__name__,
                                                  u=self.u.tolist())
-
-    def __str__(self):
-        return repr(self)
 
 
 cdef class HexOrderParameter(Compute):
@@ -399,9 +394,6 @@ cdef class HexOrderParameter(Compute):
             cls=type(self).__name__, r=self.r_max, k=self.K,
             n=self.num_neighbors)
 
-    def __str__(self):
-        return repr(self)
-
 
 cdef class TransOrderParameter(Compute):
     R"""Compute the translational order parameter for each particle.
@@ -492,9 +484,6 @@ cdef class TransOrderParameter(Compute):
         return "freud.order.{cls}(r_max={r}, k={k}, num_neighbors={n})".format(
             cls=type(self).__name__, r=self.r_max, k=self.K,
             n=self.num_neighbors)
-
-    def __str__(self):
-        return repr(self)
 
 
 cdef class Steinhardt(Compute):
@@ -658,9 +647,6 @@ cdef class Steinhardt(Compute):
                                          r_max=self.r_max,
                                          sph_l=self.sph_l,
                                          r_min=self.r_min)
-
-    def __str__(self):
-        return repr(self)
 
 
 cdef class SolLiq(Compute):
@@ -874,9 +860,6 @@ cdef class SolLiq(Compute):
                                      Sthreshold=self.Sthreshold,
                                      sph_l=self.sph_l)
 
-    def __str__(self):
-        return repr(self)
-
 
 cdef class SolLiqNear(SolLiq):
     R"""A variant of the :class:`~SolLiq` class that performs its average over nearest neighbor particles as determined by an instance of :class:`freud.locality.NeighborList`. The number of included neighbors is determined by the num_neighbors parameter to the constructor.
@@ -1012,9 +995,6 @@ cdef class SolLiqNear(SolLiq):
                                              sph_l=self.sph_l,
                                              n=self.num_neighbors)
 
-    def __str__(self):
-        return repr(self)
-
 
 cdef class RotationalAutocorrelation(Compute):
     """Calculates a measure of total rotational autocorrelation based on
@@ -1112,6 +1092,3 @@ cdef class RotationalAutocorrelation(Compute):
     def __repr__(self):
         return "freud.order.{cls}(l={sph_l})".format(cls=type(self).__name__,
                                                      sph_l=self.l)
-
-    def __str__(self):
-        return repr(self)

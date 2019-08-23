@@ -306,9 +306,6 @@ cdef class BondOrder(Compute):
                     num_neighbors=self.num_neighbors, n_bins_t=self.n_bins_t,
                     n_bins_p=self.n_bins_p)
 
-    def __str__(self):
-        return repr(self)
-
 
 cdef class LocalDescriptors(Compute):
     R"""Compute a set of descriptors (a numerical "fingerprint") of a particle's
@@ -482,9 +479,6 @@ cdef class LocalDescriptors(Compute):
                     cls=type(self).__name__, num_neighbors=self.num_neighbors,
                     l_max=self.l_max, r_max=self.r_max,
                     negative_m=self.negative_m)
-
-    def __str__(self):
-        return repr(self)
 
 
 cdef class MatchEnv(Compute):
@@ -834,9 +828,6 @@ cdef class MatchEnv(Compute):
                     cls=type(self).__name__, box=self.m_box.__repr__(),
                     r=self.r_max, k=self.num_neighbors)
 
-    def __str__(self):
-        return repr(self)
-
     @Compute._computed_method()
     def plot(self, ax=None):
         """Plot cluster distribution.
@@ -1076,8 +1067,6 @@ cdef class AngularSeparation(Compute):
         return "freud.environment.{cls}(r_max={r}, num_neighbors={n})".format(
             cls=type(self).__name__, r=self.r_max, n=self.num_neighbors)
 
-    def __str__(self):
-        return repr(self)
 
 cdef class LocalBondProjection(Compute):
     R"""Calculates the maximal projection of nearest neighbor bonds for each
@@ -1248,6 +1237,3 @@ cdef class LocalBondProjection(Compute):
                 "num_neighbors={num_neighbors})").format(
                     cls=type(self).__name__, r_max=self.r_max,
                     num_neighbors=self.num_neighbors)
-
-    def __str__(self):
-        return repr(self)

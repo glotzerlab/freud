@@ -132,6 +132,9 @@ cdef class Compute:
             func(self, *args, **kwargs)
         return wrapper
 
+    def __str__(self):
+        return repr(self)
+
 
 cdef class PairCompute(Compute):
     R"""Parent class for all compute classes in freud that depend on finding
