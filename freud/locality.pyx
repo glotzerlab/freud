@@ -373,7 +373,7 @@ cdef class NeighborQuery:
         return NeighborQueryResult.init(
             self, query_points, exclude_ii, r_max=r_max, num_neighbors=0)
 
-    cdef freud._locality.NeighborQuery * get_ptr(self) nogil:
+    cdef freud._locality.NeighborQuery * get_ptr(self):
         R"""Returns a pointer to the raw C++ object we are wrapping."""
         return self.nqptr
 
@@ -530,7 +530,7 @@ cdef class NeighborList:
         if self._managed:
             del self.thisptr
 
-    cdef freud._locality.NeighborList * get_ptr(self) nogil:
+    cdef freud._locality.NeighborList * get_ptr(self):
         R"""Returns a pointer to the raw C++ object we are wrapping."""
         return self.thisptr
 
@@ -730,7 +730,7 @@ cdef class NlistptrWrapper:
         else:
             self.nlistptr = NULL
 
-    cdef freud._locality.NeighborList * get_ptr(self) nogil:
+    cdef freud._locality.NeighborList * get_ptr(self):
         return self.nlistptr
 
 
@@ -1168,14 +1168,13 @@ cdef class LinkCell(NeighborQuery):
         cdef const float[:, ::1] l_query_points = query_points
         cdef unsigned int Np = query_points.shape[0]
         cdef cbool c_exclude_ii = exclude_ii
-        with nogil:
-            self.thisptr.compute(
-                dereference(b.thisptr),
-                <vec3[float]*> &l_points[0, 0],
-                n_ref,
-                <vec3[float]*> &l_query_points[0, 0],
-                Np,
-                c_exclude_ii)
+        self.thisptr.compute(
+            dereference(b.thisptr),
+            <vec3[float]*> &l_points[0, 0],
+            n_ref,
+            <vec3[float]*> &l_query_points[0, 0],
+            Np,
+            c_exclude_ii)
 
         cdef freud._locality.NeighborList * nlist
         nlist = self.thisptr.getNeighborList()
@@ -1423,14 +1422,13 @@ cdef class NearestNeighbors:
         cdef const float[:, ::1] l_query_points = query_points
         cdef unsigned int Np = query_points.shape[0]
         cdef cbool c_exclude_ii = exclude_ii
-        with nogil:
-            self.thisptr.compute(
-                dereference(b.thisptr),
-                <vec3[float]*> &l_points[0, 0],
-                n_ref,
-                <vec3[float]*> &l_query_points[0, 0],
-                Np,
-                c_exclude_ii)
+        self.thisptr.compute(
+            dereference(b.thisptr),
+            <vec3[float]*> &l_points[0, 0],
+            n_ref,
+            <vec3[float]*> &l_query_points[0, 0],
+            Np,
+            c_exclude_ii)
 
         cdef freud._locality.NeighborList * nlist
         nlist = self.thisptr.getNeighborList()

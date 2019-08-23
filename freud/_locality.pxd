@@ -34,14 +34,14 @@ cdef extern from "NeighborQuery.h" namespace "freud::locality":
         NeighborQuery()
         NeighborQuery(const freud._box.Box &, const vec3[float]*, unsigned int)
         shared_ptr[NeighborQueryIterator] queryWithArgs(
-            const vec3[float]*, unsigned int, QueryArgs) nogil except +
+            const vec3[float]*, unsigned int, QueryArgs) except +
         shared_ptr[NeighborQueryIterator] query(
             const vec3[float]*,
             unsigned int,
             unsigned int,
-            bool) nogil except +
+            bool) except +
         shared_ptr[NeighborQueryIterator] queryBall(
-            const vec3[float]*, unsigned int, float, bool) nogil except +
+            const vec3[float]*, unsigned int, float, bool) except +
         const freud._box.Box & getBox() const
         const vec3[float]* getPoints const
         const unsigned int getNPoints const
@@ -121,14 +121,14 @@ cdef extern from "LinkCell.h" namespace "freud::locality":
         void computeCellList(
             const freud._box.Box &,
             const vec3[float]*,
-            unsigned int) nogil except +
+            unsigned int) except +
         void compute(
             const freud._box.Box &,
             const vec3[float]*,
             unsigned int,
             const vec3[float]*,
             unsigned int,
-            bool) nogil except +
+            bool) except +
         NeighborList * getNeighborList()
 
 cdef extern from "NearestNeighbors.h" namespace "freud::locality":
@@ -150,7 +150,7 @@ cdef extern from "NearestNeighbors.h" namespace "freud::locality":
             unsigned int,
             const vec3[float]*,
             unsigned int,
-            bool) nogil except +
+            bool) except +
         NeighborList * getNeighborList()
 
 cdef extern from "AABBQuery.h" namespace "freud::locality":
@@ -164,10 +164,10 @@ cdef extern from "AABBQuery.h" namespace "freud::locality":
             unsigned int,
             const vec3[float]*,
             unsigned int,
-            bool) nogil except +
+            bool) except +
         shared_ptr[NeighborQueryIterator] query(
             const vec3[float]*, unsigned int, unsigned int,
-            float, float, bool) nogil except +
+            float, float, bool) except +
 
 cdef extern from "Voronoi.h" namespace "freud::locality":
     cdef cppclass Voronoi:
@@ -181,5 +181,5 @@ cdef extern from "Voronoi.h" namespace "freud::locality":
             unsigned int,
             const int*,
             const vec3[double]*,
-            const int*) nogil except +
+            const int*) except +
         NeighborList * getNeighborList()
