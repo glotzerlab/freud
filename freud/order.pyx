@@ -542,11 +542,16 @@ cdef class Steinhardt(Compute):
             Determines whether to calculate the normalized Steinhardt order
             parameter. (Default value = :code:`False`)
         Wl (bool, optional):
-            Determines whether to use the :math:`Wl` version of the Steinhardt
+            Determines whether to use the :math:`W_l` version of the Steinhardt
             order parameter. (Default value = :code:`False`)
+        weighted (bool, optional):
+            Determines whether to use neighbor weights in the computation of
+            spherical harmonics over neighbors. If enabled and used with a
+            Voronoi neighbor list, this results in the Minkowski Structure
+            Metrics :math:`Q'_l`. (Default value = :code:`False`)
         num_neighbors (int, optional):
-            If set to a non-zero positive integer, limit the calculate of the
-            Steinhardt order parameter to num_neighbors neighbors.
+            If set to a non-zero positive integer, limit the calculation of the
+            Steinhardt order parameter to :code:`num_neighbors` neighbors.
             (Default value = :code:`0`)
 
 
@@ -567,8 +572,8 @@ cdef class Steinhardt(Compute):
     cdef r_min
     cdef num_neighbors
 
-    def __cinit__(self, r_max, l, r_min=0, average=False,
-                  Wl=False, num_neighbors=0, *args, **kwargs):
+    def __cinit__(self, r_max, l, r_min=0, average=False, Wl=False,
+                  weighted=False, num_neighbors=0):
         if type(self) is Steinhardt:
             self.r_max = r_max
             self.sph_l = l
@@ -576,12 +581,24 @@ cdef class Steinhardt(Compute):
             self.num_neighbors = num_neighbors
             self.stptr = new freud._order.Steinhardt(
                 r_max, l, r_min,
-                average, Wl)
+                average, Wl, weighted)
 
     def __dealloc__(self):
         if type(self) is Steinhardt:
             del self.stptr
             self.stptr = NULL
+
+    @property
+    def average(self):
+        return self.stptr.isAverage()
+
+    @property
+    def Wl(self):
+        return self.stptr.isWl()
+
+    @property
+    def weighted(self):
+        return self.stptr.isWeighted()
 
     @Compute._computed_property()
     def num_particles(self):
@@ -599,7 +616,7 @@ cdef class Steinhardt(Compute):
             <float[:n_particles]> self.stptr.getOrder().get()
         return np.asarray(op)
 
-    @property
+    @Compute._computed_property()
     def Ql(self):
         cdef unsigned int n_particles = self.stptr.getNP()
         cdef const float[::1] op = \
@@ -643,10 +660,49 @@ cdef class Steinhardt(Compute):
 
     def __repr__(self):
         return ("freud.order.{cls}(r_max={r_max}, l={sph_l}, "
-                "r_min={r_min})").format(cls=type(self).__name__,
-                                         r_max=self.r_max,
-                                         sph_l=self.sph_l,
-                                         r_min=self.r_min)
+                "r_min={r_min}, average={average}, Wl={Wl}, "
+                "weighted={weighted}, num_neighbors={num_neighbors})").format(
+                    cls=type(self).__name__,
+                    r_max=self.r_max,
+                    sph_l=self.sph_l,
+                    r_min=self.r_min,
+                    average=self.average,
+                    Wl=self.Wl,
+                    weighted=self.weighted,
+                    num_neighbors=self.num_neighbors)
+
+    @Compute._computed_method()
+    def plot(self, ax=None):
+        """Plot order parameter distribution.
+
+        Args:
+            ax (:class:`matplotlib.axes.Axes`, optional): Axis to plot on. If
+                :code:`None`, make a new figure and axis.
+                (Default value = :code:`None`)
+
+        Returns:
+            (:class:`matplotlib.axes.Axes`): Axis with the plot.
+        """
+        import freud.plot
+        xlabel = r"${mode_letter}{prime}_{{{sph_l}{average}}}$".format(
+            mode_letter='w' if self.Wl else 'q',
+            prime='\'' if self.weighted else '',
+            sph_l=self.sph_l,
+            average=',ave' if self.average else '')
+
+        return freud.plot.histogram_plot(
+            self.order,
+            title="Steinhardt Order Parameter " + xlabel,
+            xlabel=xlabel,
+            ylabel=r"Number of particles",
+            ax=ax)
+
+    def _repr_png_(self):
+        import freud.plot
+        try:
+            return freud.plot.ax_to_bytes(self.plot())
+        except AttributeError:
+            return None
 
 
 cdef class SolLiq(Compute):
