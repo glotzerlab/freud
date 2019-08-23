@@ -256,6 +256,10 @@ class TestSteinhardt(unittest.TestCase):
     def test_repr(self):
         comp = freud.order.Steinhardt(1.5, 6)
         self.assertEqual(str(comp), str(eval(repr(comp))))
+        # Use non-default arguments for all parameters
+        comp = freud.order.Steinhardt(1.5, 6, 0.1, average=True, Wl=True,
+                                      weighted=True, num_neighbors=7)
+        self.assertEqual(str(comp), str(eval(repr(comp))))
 
 
 if __name__ == '__main__':
