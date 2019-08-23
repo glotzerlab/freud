@@ -26,7 +26,7 @@ cdef extern from "PMFTR12.h" namespace "freud::pmft":
                         float*,
                         unsigned int,
                         const freud._locality.NeighborList*,
-                        freud._locality.QueryArgs) nogil except +
+                        freud._locality.QueryArgs) except +
         shared_ptr[float] getR()
         shared_ptr[float] getT1()
         shared_ptr[float] getT2()
@@ -46,7 +46,7 @@ cdef extern from "PMFTXYT.h" namespace "freud::pmft":
                         float*,
                         unsigned int,
                         const freud._locality.NeighborList*,
-                        freud._locality.QueryArgs) nogil except +
+                        freud._locality.QueryArgs) except +
         shared_ptr[float] getX()
         shared_ptr[float] getY()
         shared_ptr[float] getT()
@@ -64,7 +64,7 @@ cdef extern from "PMFTXY2D.h" namespace "freud::pmft":
                         vec3[float]*,
                         unsigned int,
                         const freud._locality.NeighborList*,
-                        freud._locality.QueryArgs) nogil except +
+                        freud._locality.QueryArgs) except +
         shared_ptr[float] getX()
         shared_ptr[float] getY()
         float getJacobian()
@@ -83,7 +83,7 @@ cdef extern from "PMFTXYZ.h" namespace "freud::pmft":
                         quat[float]*,
                         unsigned int,
                         const freud._locality.NeighborList*,
-                        freud._locality.QueryArgs) nogil except +
+                        freud._locality.QueryArgs) except +
         shared_ptr[float] getX()
         shared_ptr[float] getY()
         shared_ptr[float] getZ()
