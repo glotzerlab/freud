@@ -62,7 +62,6 @@ cdef extern from "PMFTXY2D.h" namespace "freud::pmft":
         void accumulate(const freud._locality.NeighborQuery*,
                         float*,
                         vec3[float]*,
-                        float*,
                         unsigned int,
                         const freud._locality.NeighborList*,
                         freud._locality.QueryArgs) nogil except +

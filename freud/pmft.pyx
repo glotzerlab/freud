@@ -623,7 +623,7 @@ cdef class PMFTXY2D(_PMFT):
 
     @Compute._compute()
     def accumulate(self, box, points, orientations, query_points=None,
-                   query_orientations=None, nlist=None, query_args=None):
+                   nlist=None, query_args=None):
         R"""Calculates the positional correlation function and adds to the
         current histogram.
 
@@ -637,10 +637,6 @@ cdef class PMFTXY2D(_PMFT):
             query_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
                 Points used in computation. Uses :code:`points` if not
                 provided or :code:`None`. (Default value = :code:`None`).
-            query_orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):
-                Orientations as angles used in computation. Uses
-                :code:`orientations` if not provided or :code:`None`.
-                (Default value = :code:`None`).
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList used to find bonds (Default value =
                 :code:`None`).
@@ -660,27 +656,19 @@ cdef class PMFTXY2D(_PMFT):
         orientations = freud.common.convert_array(
             np.atleast_1d(orientations.squeeze()),
             shape=(nq.points.shape[0], ))
-        if query_orientations is None:
-            query_orientations = orientations
-        else:
-            query_orientations = freud.common.convert_array(
-                np.atleast_1d(query_orientations.squeeze()),
-                shape=(l_query_points.shape[0], ))
         cdef const float[::1] l_orientations = orientations
-        cdef const float[::1] l_query_orientations = query_orientations
 
         with nogil:
             self.pmftxy2dptr.accumulate(nq.get_ptr(),
                                         <float*> &l_orientations[0],
                                         <vec3[float]*> &l_query_points[0, 0],
-                                        <float*> &l_query_orientations[0],
                                         num_query_points, nlistptr.get_ptr(),
                                         dereference(qargs.thisptr))
         return self
 
     @Compute._compute()
     def compute(self, box, points, orientations, query_points=None,
-                query_orientations=None, nlist=None, query_args=None):
+                nlist=None, query_args=None):
         R"""Calculates the positional correlation function for the given points.
         Will overwrite the current histogram.
 
@@ -694,17 +682,13 @@ cdef class PMFTXY2D(_PMFT):
             query_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
                 Points used in computation. Uses :code:`points` if not
                 provided or :code:`None`. (Default value = :code:`None`).
-            query_orientations ((:math:`N_{particles}`, 1) or (:math:`N_{particles}`,) :class:`numpy.ndarray`, optional):
-                Orientations as angles used in computation. Uses
-                :code:`orientations` if not provided or :code:`None`.
-                (Default value = :code:`None`).
             nlist (:class:`freud.locality.NeighborList`, optional):
                 NeighborList used to find bonds (Default value =
                 :code:`None`).
         """  # noqa: E501
         self.reset()
         self.accumulate(box, points, orientations,
-                        query_points, query_orientations, nlist, query_args)
+                        query_points, nlist, query_args)
         return self
 
     @Compute._computed_property()
