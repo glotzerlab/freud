@@ -15,7 +15,7 @@ Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to
 * Renamed (ref\_points, points) to (points, query\_points) to clarify their usage.
 * Standardized naming of various common parameters across freud such as the search distance r\_max.
 * Updated GaussianDensity constructor to accept tuples as width instead of having 2 distinct signatures.
-* Removed unused query\_orientations from PMFTXYZ.
+* Removed unused query\_orientations from PMFTXYZ and PMFTXY2D.
 
 ### Fixed
 * Steinhardt uses the ThreadStorage class and properly resets memory where needed.
