@@ -197,14 +197,15 @@ cdef class PMFTR12(_PMFT):
             self.preprocess_arguments(box, points, query_points, nlist,
                                       query_args, dimensions=2)
 
-        if query_orientations is None:
-            query_orientations = orientations
         orientations = freud.common.convert_array(
             np.atleast_1d(orientations.squeeze()),
             shape=(nq.points.shape[0], ))
-        query_orientations = freud.common.convert_array(
-            np.atleast_1d(query_orientations.squeeze()),
-            shape=(l_query_points.shape[0], ))
+        if query_orientations is None:
+            query_orientations = orientations
+        else:
+            query_orientations = freud.common.convert_array(
+                np.atleast_1d(query_orientations.squeeze()),
+                shape=(l_query_points.shape[0], ))
         cdef const float[::1] l_orientations = orientations
         cdef const float[::1] l_query_orientations = query_orientations
 
@@ -400,7 +401,7 @@ cdef class PMFTXYT(_PMFT):
 
     @Compute._compute()
     def accumulate(self, box, points, orientations, query_points=None,
-                   query_orientations=None, nlist=None, query_args={}):
+                   query_orientations=None, nlist=None, query_args=None):
         R"""Calculates the positional correlation function and adds to the
         current histogram.
 
@@ -422,54 +423,42 @@ cdef class PMFTXYT(_PMFT):
                 NeighborList used to find bonds (Default value =
                 :code:`None`).
         """  # noqa: E501
-        cdef freud.box.Box b = freud.common.convert_box(box)
+        cdef:
+            freud.box.Box b
+            freud.locality.NeighborQuery nq
+            freud.locality.NlistptrWrapper nlistptr
+            freud.locality._QueryArgs qargs
+            const float[:, ::1] l_query_points
+            unsigned int num_query_points
 
-        exclude_ii = query_points is None
-
-        nq_nlist = freud.locality.make_nq_nlist(b, points, nlist)
-        cdef freud.locality.NeighborQuery nq = nq_nlist[0]
-        cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
-        points = nq.points
-
-        cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
-            mode="ball", r_max=self.r_max, exclude_ii=exclude_ii)
-        qargs.update(query_args)
-
-        if not b.dimensions == 2:
-            raise ValueError("Your box must be 2-dimensional!")
-
-        if query_points is None:
-            query_points = points
-        if query_orientations is None:
-            query_orientations = orientations
+        b, nq, nlistptr, qargs, l_query_points, num_query_points = \
+            self.preprocess_arguments(box, points, query_points, nlist,
+                                      query_args, dimensions=2)
 
         orientations = freud.common.convert_array(
             np.atleast_1d(orientations.squeeze()),
-            shape=(points.shape[0], ))
-
-        query_points = freud.common.convert_array(
-            query_points, shape=(None, 3))
-
-        query_orientations = freud.common.convert_array(
-            np.atleast_1d(query_orientations.squeeze()),
-            shape=(query_points.shape[0], ))
-
-        cdef const float[:, ::1] l_query_points = query_points
+            shape=(nq.points.shape[0], ))
+        if query_orientations is None:
+            query_orientations = orientations
+        else:
+            query_orientations = freud.common.convert_array(
+                np.atleast_1d(query_orientations.squeeze()),
+                shape=(query_points.shape[0], ))
         cdef const float[::1] l_orientations = orientations
         cdef const float[::1] l_query_orientations = query_orientations
-        cdef unsigned int n_query_points = l_query_points.shape[0]
+
         with nogil:
             self.pmftxytptr.accumulate(nq.get_ptr(),
                                        <float*> &l_orientations[0],
                                        <vec3[float]*> &l_query_points[0, 0],
                                        <float*> &l_query_orientations[0],
-                                       n_query_points, nlistptr.get_ptr(),
+                                       num_query_points, nlistptr.get_ptr(),
                                        dereference(qargs.thisptr))
         return self
 
     @Compute._compute()
     def compute(self, box, points, orientations, query_points=None,
-                query_orientations=None, nlist=None, query_args={}):
+                query_orientations=None, nlist=None, query_args=None):
         R"""Calculates the positional correlation function for the given points.
         Will overwrite the current histogram.
 
@@ -493,7 +482,7 @@ cdef class PMFTXYT(_PMFT):
         """  # noqa: E501
         self.reset()
         self.accumulate(box, points, orientations,
-                        query_points, query_orientations, nlist, query_args={})
+                        query_points, query_orientations, nlist, query_args)
         return self
 
     @Compute._computed_property()
