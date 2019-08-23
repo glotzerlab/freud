@@ -17,7 +17,7 @@ import time
 import freud.locality
 import logging
 
-from freud.common cimport Compute
+from freud.common cimport Compute, PairCompute
 from freud.util cimport vec3, quat
 from cython.operator cimport dereference
 
@@ -286,7 +286,7 @@ cdef class NematicOrderParameter(Compute):
                                                  u=self.u.tolist())
 
 
-cdef class HexOrderParameter(Compute):
+cdef class HexOrderParameter(PairCompute):
     R"""Calculates the :math:`k`-atic order parameter for each particle in the
     system.
 
@@ -340,7 +340,7 @@ cdef class HexOrderParameter(Compute):
         del self.thisptr
 
     @Compute._compute()
-    def compute(self, box, points, nlist=None):
+    def compute(self, box, points, nlist=None, query_args=None):
         R"""Calculates the correlation function and adds to the current
         histogram.
 
@@ -353,20 +353,26 @@ cdef class HexOrderParameter(Compute):
                 Neighborlist to use to find bonds.
                 (Default value = :code:`None`).
         """
-        cdef freud.box.Box b = freud.common.convert_box(box)
+        cdef:
+            freud.box.Box b
+            freud.locality.NeighborQuery nq
+            freud.locality.NlistptrWrapper nlistptr
+            freud.locality._QueryArgs qargs
+            const float[:, ::1] l_query_points
+            unsigned int num_query_points
 
-        nq_nlist = freud.locality.make_nq_nlist(b, points, nlist)
-        cdef freud.locality.NeighborQuery nq = nq_nlist[0]
-        cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
-
-        cdef freud.locality._QueryArgs def_qargs = freud.locality._QueryArgs(
-            mode="nearest", num_neighbors=self.num_neighbors, r_max=self.r_max,
-            exclude_ii=True)
-
+        b, nq, nlistptr, qargs, l_query_points, num_query_points = \
+            self.preprocess_arguments(box, points, nlist=nlist,
+                                      query_args=query_args)
         with nogil:
             self.thisptr.compute(nlistptr.get_ptr(),
-                                 nq.get_ptr(), dereference(def_qargs.thisptr))
+                                 nq.get_ptr(), dereference(qargs.thisptr))
         return self
+
+    @property
+    def default_query_args(self):
+        return dict(mode="nearest", num_neighbors=self.num_neighbors,
+                    r_max=self.r_max)
 
     @Compute._computed_property()
     def psi(self):
