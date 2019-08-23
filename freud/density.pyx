@@ -13,7 +13,7 @@ import warnings
 import numpy as np
 
 from cython.operator cimport dereference
-from freud.common cimport Compute, PairCompute
+from freud.common cimport Compute, PairCompute, SpatialHistogram
 from freud.util cimport vec3
 
 from collections.abc import Sequence
@@ -28,7 +28,7 @@ np.import_array()
 
 ctypedef unsigned int uint
 
-cdef class FloatCF(PairCompute):
+cdef class FloatCF(SpatialHistogram):
     R"""Computes the real pairwise correlation function.
 
     The correlation function is given by
@@ -76,7 +76,6 @@ cdef class FloatCF(PairCompute):
             The centers of each bin.
     """  # noqa E501
     cdef freud._density.CorrelationFunction[double] * thisptr
-    cdef r_max
     cdef dr
 
     def __cinit__(self, float r_max, float dr):
@@ -167,10 +166,6 @@ cdef class FloatCF(PairCompute):
         """
         self.thisptr.reset()
 
-    @property
-    def default_query_args(self):
-        return dict(mode="ball", r_max=self.r_max)
-
     @Compute._compute()
     def compute(self, box, points, values, query_points=None,
                 query_values=None, nlist=None, query_args=None):
@@ -249,7 +244,7 @@ cdef class FloatCF(PairCompute):
             return None
 
 
-cdef class ComplexCF(PairCompute):
+cdef class ComplexCF(SpatialHistogram):
     R"""Computes the complex pairwise correlation function.
 
     The correlation function is given by
@@ -297,7 +292,6 @@ cdef class ComplexCF(PairCompute):
             The centers of each bin.
     """  # noqa E501
     cdef freud._density.CorrelationFunction[np.complex128_t] * thisptr
-    cdef r_max
     cdef dr
 
     def __cinit__(self, float r_max, float dr):
@@ -369,10 +363,6 @@ cdef class ComplexCF(PairCompute):
                 num_query_points, nlistptr.get_ptr(),
                 dereference(qargs.thisptr))
         return self
-
-    @property
-    def default_query_args(self):
-        return dict(mode="ball", r_max=self.r_max)
 
     @Compute._computed_property()
     def RDF(self):
@@ -746,7 +736,7 @@ cdef class LocalDensity(PairCompute):
         return repr(self)
 
 
-cdef class RDF(PairCompute):
+cdef class RDF(SpatialHistogram):
     R"""Computes RDF for supplied data.
 
     The RDF (:math:`g \left( r \right)`) is computed and averaged for a given
@@ -789,7 +779,6 @@ cdef class RDF(PairCompute):
             Histogram of cumulative RDF values (*i.e.* the integrated RDF).
     """
     cdef freud._density.RDF * thisptr
-    cdef r_max
     cdef dr
     cdef r_min
 
@@ -847,10 +836,6 @@ cdef class RDF(PairCompute):
                 num_query_points, nlistptr.get_ptr(),
                 dereference(qargs.thisptr))
         return self
-
-    @property
-    def default_query_args(self):
-        return dict(mode="ball", r_max=self.r_max)
 
     @Compute._compute()
     def compute(self, box, points, query_points=None, nlist=None,

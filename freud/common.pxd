@@ -3,3 +3,6 @@ cdef class Compute:
 
 cdef class PairCompute(Compute):
     pass
+
+cdef class SpatialHistogram(PairCompute):
+    cdef float r_max

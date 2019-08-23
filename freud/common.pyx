@@ -211,6 +211,23 @@ cdef class PairCompute(Compute):
             "compute method.".format(type(self).__name__))
 
 
+cdef class SpatialHistogram(PairCompute):
+    R"""Parent class for all compute classes in freud that perform a spatial
+    binning of particle bonds by distnace.
+
+
+    .. note::
+        This class does not mirror the C++ NdHistogram class, it merely
+        provides certain conveniences for Cython classes that build histograms.
+
+    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
+    """
+
+    @property
+    def default_query_args(self):
+        return dict(mode="ball", r_max=self.r_max)
+
+
 def convert_array(array, shape=None, dtype=np.float32):
     """Function which takes a given array, checks the dimensions and shape,
     and converts to a supplied dtype.
