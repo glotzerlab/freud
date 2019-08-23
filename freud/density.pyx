@@ -138,14 +138,13 @@ cdef class FloatCF(SpatialHistogram):
         cdef const double[::1] l_values = values
         cdef const double[::1] l_query_values = query_values
 
-        with nogil:
-            self.thisptr.accumulate(
-                nq.get_ptr(),
-                <double*> &l_values[0],
-                <vec3[float]*> &l_query_points[0, 0],
-                <double*> &l_query_values[0],
-                num_query_points, nlistptr.get_ptr(),
-                dereference(qargs.thisptr))
+        self.thisptr.accumulate(
+            nq.get_ptr(),
+            <double*> &l_values[0],
+            <vec3[float]*> &l_query_points[0, 0],
+            <double*> &l_query_values[0],
+            num_query_points, nlistptr.get_ptr(),
+            dereference(qargs.thisptr))
         return self
 
     @Compute._computed_property()
@@ -350,14 +349,13 @@ cdef class ComplexCF(SpatialHistogram):
         cdef np.complex128_t[::1] l_values = values
         cdef np.complex128_t[::1] l_query_values = query_values
 
-        with nogil:
-            self.thisptr.accumulate(
-                nq.get_ptr(),
-                <np.complex128_t*> &l_values[0],
-                <vec3[float]*> &l_query_points[0, 0],
-                <np.complex128_t*> &l_query_values[0],
-                num_query_points, nlistptr.get_ptr(),
-                dereference(qargs.thisptr))
+        self.thisptr.accumulate(
+            nq.get_ptr(),
+            <np.complex128_t*> &l_values[0],
+            <vec3[float]*> &l_query_points[0, 0],
+            <np.complex128_t*> &l_query_values[0],
+            num_query_points, nlistptr.get_ptr(),
+            dereference(qargs.thisptr))
         return self
 
     @Compute._computed_property()
@@ -522,9 +520,8 @@ cdef class GaussianDensity(Compute):
         points = freud.common.convert_array(points, shape=(None, 3))
         cdef const float[:, ::1] l_points = points
         cdef unsigned int n_p = points.shape[0]
-        with nogil:
-            self.thisptr.compute(dereference(b.thisptr),
-                                 <vec3[float]*> &l_points[0, 0], n_p)
+        self.thisptr.compute(dereference(b.thisptr),
+                             <vec3[float]*> &l_points[0, 0], n_p)
         return self
 
     @Compute._computed_property()
@@ -687,12 +684,11 @@ cdef class LocalDensity(PairCompute):
         b, nq, nlistptr, qargs, l_query_points, num_query_points = \
             self.preprocess_arguments(box, points, query_points, nlist,
                                       query_args)
-        with nogil:
-            self.thisptr.compute(
-                nq.get_ptr(),
-                <vec3[float]*> &l_query_points[0, 0],
-                num_query_points, nlistptr.get_ptr(),
-                dereference(qargs.thisptr))
+        self.thisptr.compute(
+            nq.get_ptr(),
+            <vec3[float]*> &l_query_points[0, 0],
+            num_query_points, nlistptr.get_ptr(),
+            dereference(qargs.thisptr))
         return self
 
     @property
@@ -815,12 +811,11 @@ cdef class RDF(SpatialHistogram):
             self.preprocess_arguments(box, points, query_points, nlist,
                                       query_args)
 
-        with nogil:
-            self.thisptr.accumulate(
-                nq.get_ptr(),
-                <vec3[float]*> &l_query_points[0, 0],
-                num_query_points, nlistptr.get_ptr(),
-                dereference(qargs.thisptr))
+        self.thisptr.accumulate(
+            nq.get_ptr(),
+            <vec3[float]*> &l_query_points[0, 0],
+            num_query_points, nlistptr.get_ptr(),
+            dereference(qargs.thisptr))
         return self
 
     @Compute._compute()
