@@ -76,9 +76,9 @@ void PMFTXY2D::reset()
 //! \internal
 /*! \brief Helper functionto direct the calculation to the correct helper class
  */
-void PMFTXY2D::accumulate(const locality::NeighborQuery* neighbor_query, 
+void PMFTXY2D::accumulate(const locality::NeighborQuery* neighbor_query,
                           float* orientations, vec3<float>* query_points,
-                          float* query_orientations, unsigned int n_query_points, 
+                          unsigned int n_query_points,
                           const locality::NeighborList* nlist, freud::locality::QueryArgs qargs)
 {
     // precalc some values for faster computation within the loop
