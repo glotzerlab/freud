@@ -1,6 +1,7 @@
 #ifndef NUMERICAL_ARRAY_H
 #define NUMERICAL_ARRAY_H
 
+#include <cstring>
 #include <memory>
 #include <vector>
 
