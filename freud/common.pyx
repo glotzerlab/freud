@@ -150,7 +150,7 @@ cdef class PairCompute(Compute):
     """
 
     def preprocess_arguments(self, box, points, query_points=None, nlist=None,
-                             query_args=None):
+                             query_args=None, dimensions=None):
         """Process standard compute arguments into freud's internal types by
         calling all the required internal functions.
 
@@ -173,8 +173,10 @@ cdef class PairCompute(Compute):
                 :code:`None`).
             query_args (dict): A dictionary of query arguments (Default value =
                 :code:`None`).
+        dimensions (int): Number of dimensions the box should be. If not None,
+            used to verify the box dimensions (Default value = :code:`None`).
         """  # noqa E501
-        cdef freud.box.Box b = freud.common.convert_box(box)
+        cdef freud.box.Box b = freud.common.convert_box(box, dimensions)
 
         cdef freud.locality.NeighborQuery nq = freud.locality.make_default_nq(
             box, points)
@@ -199,8 +201,9 @@ cdef class PairCompute(Compute):
 
         if query_points is None:
             query_points = nq.points
-        query_points = freud.common.convert_array(
-            query_points, shape=(None, 3))
+        else:
+            query_points = freud.common.convert_array(
+                query_points, shape=(None, 3))
         cdef const float[:, ::1] l_query_points = query_points
         cdef unsigned int num_query_points = l_query_points.shape[0]
         return (b, nq, nlistptr, qargs, l_query_points, num_query_points)
@@ -211,6 +214,23 @@ cdef class PairCompute(Compute):
             "The {} class does not provide default query arguments. You must "
             "either provide query arguments or a neighbor list to this "
             "compute method.".format(type(self).__name__))
+
+
+cdef class SpatialHistogram(PairCompute):
+    R"""Parent class for all compute classes in freud that perform a spatial
+    binning of particle bonds by distnace.
+
+
+    .. note::
+        This class does not mirror the C++ NdHistogram class, it merely
+        provides certain conveniences for Cython classes that build histograms.
+
+    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
+    """
+
+    @property
+    def default_query_args(self):
+        return dict(mode="ball", r_max=self.r_max)
 
 
 def convert_array(array, shape=None, dtype=np.float32):
@@ -249,16 +269,19 @@ def convert_array(array, shape=None, dtype=np.float32):
     return return_arr
 
 
-def convert_box(box):
+def convert_box(box, dimensions=None):
     """Function which takes a box-like object and attempts to convert it to
     :class:`freud.box.Box`. Existing :class:`freud.box.Box` objects are
     used directly.
 
     .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
+    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.com>
 
     Args:
         box (box-like object (see :meth:`freud.box.Box.from_box`)): Box to
             check and convert if needed.
+        dimensions (int): Number of dimensions the box should be. If not None,
+            used to verify the box dimensions (Default value = :code:`None`).
 
     Returns:
         :class:`freud.box.Box`: freud box.
@@ -268,4 +291,8 @@ def convert_box(box):
             box = freud.box.Box.from_box(box)
         except ValueError:
             raise
+
+    if dimensions is not None and box.dimensions != dimensions:
+        raise ValueError("The box must be {}-dimensional.".format(dimensions))
+
     return box
