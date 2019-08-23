@@ -150,7 +150,7 @@ cdef class PairCompute(Compute):
     """
 
     def preprocess_arguments(self, box, points, query_points=None, nlist=None,
-                             query_args=None):
+                             query_args=None, dimensions=None):
         """Process standard compute arguments into freud's internal types by
         calling all the required internal functions.
 
@@ -173,8 +173,10 @@ cdef class PairCompute(Compute):
                 :code:`None`).
             query_args (dict): A dictionary of query arguments (Default value =
                 :code:`None`).
+        dimensions (int): Number of dimensions the box should be. If not None,
+            used to verify the box dimensions (Default value = :code:`None`).
         """  # noqa E501
-        cdef freud.box.Box b = freud.common.convert_box(box)
+        cdef freud.box.Box b = freud.common.convert_box(box, dimensions)
 
         cdef freud.locality.NeighborQuery nq = freud.locality.make_default_nq(
             box, points)
@@ -267,16 +269,19 @@ def convert_array(array, shape=None, dtype=np.float32):
     return return_arr
 
 
-def convert_box(box):
+def convert_box(box, dimensions=None):
     """Function which takes a box-like object and attempts to convert it to
     :class:`freud.box.Box`. Existing :class:`freud.box.Box` objects are
     used directly.
 
     .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
+    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.com>
 
     Args:
         box (box-like object (see :meth:`freud.box.Box.from_box`)): Box to
             check and convert if needed.
+        dimensions (int): Number of dimensions the box should be. If not None,
+            used to verify the box dimensions (Default value = :code:`None`).
 
     Returns:
         :class:`freud.box.Box`: freud box.
@@ -286,4 +291,8 @@ def convert_box(box):
             box = freud.box.Box.from_box(box)
         except ValueError:
             raise
+
+    if dimensions is not None and box.dimensions != dimensions:
+        raise ValueError("The box must be {}-dimensional.".format(dimensions))
+
     return box
