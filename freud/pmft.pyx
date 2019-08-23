@@ -330,9 +330,6 @@ cdef class PMFTR12(_PMFT):
                                        n_t1=self.n_bins_T1,
                                        n_t2=self.n_bins_T2)
 
-    def __str__(self):
-        return repr(self)
-
 
 cdef class PMFTXYT(_PMFT):
     R"""Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ for
@@ -575,9 +572,6 @@ cdef class PMFTXYT(_PMFT):
                                                 n_y=self.n_bins_Y,
                                                 n_t=self.n_bins_T)
 
-    def __str__(self):
-        return repr(self)
-
 
 cdef class PMFTXY2D(_PMFT):
     R"""Computes the PMFT [vanAndersKlotsa2014]_ [vanAndersAhmed2014]_ in
@@ -794,9 +788,6 @@ cdef class PMFTXY2D(_PMFT):
                                      y_max=self.ymax,
                                      n_x=self.n_bins_X,
                                      n_y=self.n_bins_Y)
-
-    def __str__(self):
-        return repr(self)
 
     def _repr_png_(self):
         import freud.plot
@@ -1118,6 +1109,3 @@ cdef class PMFTXYZ(_PMFT):
                     n_y=self.n_bins_Y,
                     n_z=self.n_bins_Z,
                     shiftvec=self.shiftvec.tolist())
-
-    def __str__(self):
-        return repr(self)
