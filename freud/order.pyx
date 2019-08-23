@@ -573,7 +573,7 @@ cdef class Steinhardt(Compute):
     cdef num_neighbors
 
     def __cinit__(self, r_max, l, r_min=0, average=False, Wl=False,
-                  weighted=False, num_neighbors=0, *args, **kwargs):
+                  weighted=False, num_neighbors=0):
         if type(self) is Steinhardt:
             self.r_max = r_max
             self.sph_l = l
@@ -587,6 +587,18 @@ cdef class Steinhardt(Compute):
         if type(self) is Steinhardt:
             del self.stptr
             self.stptr = NULL
+
+    @property
+    def average(self):
+        return self.stptr.isAverage()
+
+    @property
+    def Wl(self):
+        return self.stptr.isWl()
+
+    @property
+    def weighted(self):
+        return self.stptr.isWeighted()
 
     @Compute._computed_property()
     def num_particles(self):
@@ -648,10 +660,16 @@ cdef class Steinhardt(Compute):
 
     def __repr__(self):
         return ("freud.order.{cls}(r_max={r_max}, l={sph_l}, "
-                "r_min={r_min})").format(cls=type(self).__name__,
-                                         r_max=self.r_max,
-                                         sph_l=self.sph_l,
-                                         r_min=self.r_min)
+                "r_min={r_min}, average={average}, Wl={Wl}, "
+                "weighted={weighted}, num_neighbors={num_neighbors})").format(
+                    cls=type(self).__name__,
+                    r_max=self.r_max,
+                    sph_l=self.sph_l,
+                    r_min=self.r_min,
+                    average=self.average,
+                    Wl=self.Wl,
+                    weighted=self.weighted,
+                    num_neighbors=self.num_neighbors)
 
     @Compute._computed_method()
     def plot(self, ax=None):
@@ -666,13 +684,18 @@ cdef class Steinhardt(Compute):
             (:class:`matplotlib.axes.Axes`): Axis with the plot.
         """
         import freud.plot
-        mode_letter = 'W' if self.stptr.isWl() else 'Q'
-        xlabel = r"${}_{{{}}}$".format(mode_letter, self.sph_l)
-        return freud.plot.histogram_plot(self.order,
-                                         title="Steinhardt Order Parameter",
-                                         xlabel=xlabel,
-                                         ylabel=r"Number of particles",
-                                         ax=ax)
+        xlabel = r"${mode_letter}{prime}_{{{sph_l}{average}}}$".format(
+            mode_letter='w' if self.Wl else 'q',
+            prime='\'' if self.weighted else '',
+            sph_l=self.sph_l,
+            average=',ave' if self.average else '')
+
+        return freud.plot.histogram_plot(
+            self.order,
+            title="Steinhardt Order Parameter " + xlabel,
+            xlabel=xlabel,
+            ylabel=r"Number of particles",
+            ax=ax)
 
     def _repr_png_(self):
         import freud.plot
