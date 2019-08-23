@@ -269,9 +269,6 @@ cdef class MSD(Compute):
         return "freud.msd.{cls}(box={box}, mode={mode})".format(
             cls=type(self).__name__, box=self._box, mode=repr(self.mode))
 
-    def __str__(self):
-        return repr(self)
-
     @Compute._computed_method()
     def plot(self, ax=None):
         """Plot MSD.
