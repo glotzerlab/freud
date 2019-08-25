@@ -12,7 +12,7 @@ import freud.common
 import freud.locality
 
 from cython.operator cimport dereference
-from freud.common cimport Compute
+from freud.common cimport Compute, PairCompute
 from freud.util cimport vec3
 
 cimport freud._cluster
@@ -24,7 +24,7 @@ cimport numpy as np
 # _always_ do that, or you will have segfaults
 np.import_array()
 
-cdef class Cluster(Compute):
+cdef class Cluster(PairCompute):
     R"""Finds clusters in a set of points.
 
     Given a set of coordinates and a cutoff, :class:`freud.cluster.Cluster`
@@ -80,7 +80,7 @@ cdef class Cluster(Compute):
         del self.thisptr
 
     @Compute._compute("compute")
-    def compute(self, box, points, nlist=None):
+    def compute(self, box, points, nlist=None, query_args=None):
         R"""Compute the clusters for the given set of points.
 
         Args:
@@ -91,23 +91,24 @@ cdef class Cluster(Compute):
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Object to use to find bonds (Default value = :code:`None`).
         """
-        cdef freud.box.Box b = freud.common.convert_box(box)
+        cdef:
+            freud.box.Box b
+            freud.locality.NeighborQuery nq
+            freud.locality.NlistptrWrapper nlistptr
+            freud.locality._QueryArgs qargs
+            const float[:, ::1] l_query_points
+            unsigned int num_query_points
 
-        nq_nlist = freud.locality.make_nq_nlist(b, points, nlist)
-        cdef freud.locality.NeighborQuery nq = nq_nlist[0]
-        cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
+        b, nq, nlistptr, qargs, l_query_points, num_query_points = \
+            self.preprocess_arguments(box, points, nlist=nlist,
+                                      query_args=query_args)
 
-        cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
-            mode="ball", r_max=self.r_max, exclude_ii=True)
-        points = nq.points
-
-        cdef const float[:, ::1] l_points = points
-        cdef unsigned int Np = l_points.shape[0]
         with nogil:
             self.thisptr.computeClusters(
                 nq.get_ptr(),
                 nlistptr.get_ptr(),
-                <vec3[float]*> &l_points[0, 0], Np, dereference(qargs.thisptr))
+                <vec3[float]*> &l_query_points[0, 0],
+                num_query_points, dereference(qargs.thisptr))
         return self
 
     @Compute._compute("computeClusterMembership")
@@ -127,6 +128,10 @@ cdef class Cluster(Compute):
         with nogil:
             self.thisptr.computeClusterMembership(<unsigned int*> &l_keys[0])
         return self
+
+    @property
+    def default_query_args(self):
+        return dict(mode="ball", r_max=self.r_max)
 
     @Compute._computed_property("compute")
     def num_clusters(self):
