@@ -75,14 +75,14 @@ cdef class Cluster(PairCompute):
     cdef float r_max
 
     def __cinit__(self, float r_max):
-        self.thisptr = new freud._cluster.Cluster(r_max)
+        self.thisptr = new freud._cluster.Cluster()
         self.r_max = r_max
 
     def __dealloc__(self):
         del self.thisptr
 
-    @Compute._compute("compute")
-    def compute(self, box, points, nlist=None, query_args=None):
+    @Compute._compute()
+    def compute(self, box, points, keys=None, nlist=None, query_args=None):
         R"""Compute the clusters for the given set of points.
 
         Args:
@@ -90,6 +90,8 @@ cdef class Cluster(PairCompute):
                 Simulation box.
             points ((:math:`N_{particles}`, 3) :class:`np.ndarray`):
                 Particle coordinates.
+            keys ((:math:`N_{particles}`) :class:`numpy.ndarray`):
+                Membership keys, one for each particle.
             nlist (:class:`freud.locality.NeighborList`, optional):
                 Object to use to find bonds (Default value = :code:`None`).
         """
@@ -105,50 +107,41 @@ cdef class Cluster(PairCompute):
             self.preprocess_arguments(box, points, nlist=nlist,
                                       query_args=query_args)
 
+        cdef unsigned int* l_keys_ptr = NULL
+        cdef unsigned int[::1] l_keys
+        if keys is not None:
+            l_keys = freud.common.convert_array(
+                keys, shape=(num_query_points, ), dtype=np.uint32)
+            l_keys_ptr = &l_keys[0]
+
         self.thisptr.compute(
             nq.get_ptr(),
             nlistptr.get_ptr(),
             <vec3[float]*> &l_query_points[0, 0],
-            num_query_points, dereference(qargs.thisptr))
-
-        return self
-
-    @Compute._compute("computeClusterMembership")
-    def computeClusterMembership(self, keys):
-        R"""Compute the clusters with key membership.
-        Loops over all particles and adds them to a list of sets.
-        Each set contains all the keys that are part of that cluster.
-        Get the computed list with :attr:`~cluster_keys`.
-
-        Args:
-            keys ((:math:`N_{particles}`) :class:`numpy.ndarray`):
-                Membership keys, one for each particle.
-        """
-        keys = freud.common.convert_array(
-            keys, shape=(self.num_particles, ), dtype=np.uint32)
-        cdef const unsigned int[::1] l_keys = keys
-        self.thisptr.computeClusterMembership(<unsigned int*> &l_keys[0])
+            num_query_points,
+            dereference(qargs.thisptr),
+            l_keys_ptr)
         return self
 
     @property
     def default_query_args(self):
         return dict(mode="ball", r_max=self.r_max)
 
-    @Compute._computed_property("compute")
+    @Compute._computed_property()
     def num_clusters(self):
         return self.thisptr.getNumClusters()
 
-    @Compute._computed_property("compute")
+    @Compute._computed_property()
     def num_particles(self):
         return self.thisptr.getNumParticles()
 
-    @Compute._computed_property("compute")
+    @Compute._computed_property()
     def cluster_idx(self):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getClusterIdx(),
             freud.util.arr_type_t.UNSIGNED_INT)
 
-    @Compute._computed_property("computeClusterMembership")
+    @Compute._computed_property()
     def cluster_keys(self):
         cluster_keys = self.thisptr.getClusterKeys()
         return cluster_keys
@@ -158,7 +151,7 @@ cdef class Cluster(PairCompute):
                 "r_max={r_max})").format(cls=type(self).__name__,
                                          r_max=self.r_max)
 
-    @Compute._computed_method("compute")
+    @Compute._computed_method()
     def plot(self, ax=None):
         """Plot cluster distribution.
 
