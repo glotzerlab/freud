@@ -83,7 +83,7 @@ cdef extern from "Steinhardt.h" namespace "freud::order":
 
 cdef extern from "SolidLiquid.h" namespace "freud::order":
     cdef cppclass SolidLiquid:
-        SolidLiquid(unsigned int, float, unsigned int, bool) except +
+        SolidLiquid(unsigned int, float, unsigned int, bool, bool) except +
         void compute(const freud._locality.NeighborList*,
                      const freud._locality.NeighborQuery*,
                      freud._locality.QueryArgs) nogil except +

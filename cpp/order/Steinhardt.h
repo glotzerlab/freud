@@ -65,7 +65,7 @@ public:
     }
 
     //! Empty destructor
-    virtual ~Steinhardt() {};
+    ~Steinhardt() {};
 
     //! Get the number of particles used in the last compute
     unsigned int getNP() const
@@ -99,6 +99,12 @@ public:
         }
     }
 
+    //! Get the last calculated Qlm for each particle
+    std::shared_ptr<float> getQlm()
+    {
+        return m_Qlmi;
+    }
+
     //! Get norm
     float getNorm() const
     {
@@ -124,8 +130,13 @@ public:
     }
 
     //! Compute the order parameter
-    virtual void compute(const freud::locality::NeighborList* nlist,
+    void compute(const freud::locality::NeighborList* nlist,
                                   const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs);
+
+    //! Calculates Qlms and the Ql order parameter before any further modifications
+    void baseCompute(const freud::locality::NeighborList* nlist,
+                                  const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs);
+
 
 private:
     //! \internal
@@ -134,7 +145,7 @@ private:
 
     //! Spherical harmonics calculation for Ylm filling a
     //  vector<complex<float> > with values for m = -l..l.
-    virtual void computeYlm(const float theta, const float phi, std::vector<std::complex<float>>& Ylm);
+    void computeYlm(const float theta, const float phi, std::vector<std::complex<float>>& Ylm);
 
     template<typename T> std::shared_ptr<T> makeArray(size_t size);
 

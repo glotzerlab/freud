@@ -618,15 +618,27 @@ cdef class SolidLiquid(PairCompute):
     Args:
         l (unsigned int):
             Choose spherical harmonic :math:`Q_l`. Must be positive and even.
-        Qthreshold (float):
+        Q_threshold (float):
             Value of dot product threshold when evaluating
             :math:`Q_{lm}^*(i) Q_{lm}(j)` to determine if a neighbor pair is a
             solid-like bond. (For :math:`l=6`, 0.7 generally good for FCC or
             BCC structures).
-        Sthreshold (unsigned int):
+        S_threshold (unsigned int):
             Minimum required number of adjacent solid-like bonds for a particle
             to be considered solid-like for clustering. (For :math:`l=6`, 6-8
             is generally good for FCC or BCC structures).
+        normalize_Q (bool):
+            Whether to normalize the dot product :math:`Q_{lm}^*(i) Q_{lm}(j)`
+            by the quantity
+            :math:`\sqrt{\lvert Q_{lm}(i) \rvert \lvert Q_{lm}(j) \rvert}`
+            (Default value = :code:`True`).
+        common_neighbors (bool):
+            If :code:`False`, two solid-like particles are clustered if they
+            are neighbors and have at least :math:`S_{threshold}` solid-like
+            neighbors.
+            If :code:`True`, two solid-like particles are clustered if they are
+            neighbors and share at least :math:`S_{threshold}` solid-like
+            common neighbors (Default value = :code:`False`).
 
     Attributes:
         clusters (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
@@ -638,22 +650,23 @@ cdef class SolidLiquid(PairCompute):
             The largest cluster size. Must call a compute method first.
         num_connections (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
             The number of connections per particle.
-        Ql_dot_ij (:math:`\left(N_{particles}\right)` :class:`numpy.ndarray`):
-            Reference to the qldot_ij values.
     """  # noqa: E501
     cdef freud._order.SolidLiquid * thisptr
     cdef int sph_l
-    cdef float Qthreshold
-    cdef float Sthreshold
+    cdef float Q_threshold
+    cdef float S_threshold
+    cdef bool normalize_Q
     cdef bool normalize_Q
 
-    def __cinit__(self, l, Qthreshold, Sthreshold, normalize_Q=True):
+    def __cinit__(self, l, Q_threshold, S_threshold, normalize_Q=True,
+                  common_neighbors=False):
         self.sph_l = l
-        self.Qthreshold = Qthreshold
-        self.Sthreshold = Sthreshold
+        self.Q_threshold = Q_threshold
+        self.S_threshold = S_threshold
         self.normalize_Q = normalize_Q
+        self.common_neighbors = common_neighbors
         self.thisptr = new freud._order.SolidLiquid(
-            l, Qthreshold, Sthreshold, normalize_Q)
+            l, Q_threshold, S_threshold, normalize_Q, common_neighbors)
 
     def __dealloc__(self):
         del self.thisptr
@@ -688,34 +701,6 @@ cdef class SolidLiquid(PairCompute):
                              nq.get_ptr(),
                              dereference(qargs.thisptr))
 
-    @Compute._compute()
-    def computeSolidLiquidVariant(self, points, nlist=None):
-        R"""Compute a variant of the solid-liquid order parameter.
-
-        This variant method places a minimum threshold on the number
-        of solid-like bonds a particle must have to be considered solid-like
-        for clustering purposes.
-
-        Args:
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Points to calculate the order parameter.
-            nlist (:class:`freud.locality.NeighborList`, optional):
-                Neighborlist to use to find bonds.
-                (Default value = :code:`None`).
-        """
-        points = freud.common.convert_array(points, shape=(None, 3))
-
-        cdef const float[:, ::1] l_points = points
-        cdef unsigned int nP = l_points.shape[0]
-
-        cdef freud.locality.NeighborList nlist_
-        nlist_ = freud.locality.make_default_nlist(
-            self.m_box, points, None, dict(r_max=self.r_max), nlist)
-
-        self.thisptr.computeSolidLiquidVariant(
-            nlist_.get_ptr(), <vec3[float]*> &l_points[0, 0], nP)
-        return self
-
     @Compute._computed_property()
     def clusters(self):
         cdef unsigned int n_particles = self.thisptr.getNP()
@@ -744,12 +729,13 @@ cdef class SolidLiquid(PairCompute):
         return np.asarray(num_connections, dtype=np.uint32)
 
     def __repr__(self):
-        return ("freud.order.{cls}(l={sph_l}, Qthreshold={Qthreshold}, "
-                "Sthreshold={Sthreshold}, normalize_Q={normalize_Q})").format(
+        return ("freud.order.{cls}(l={sph_l}, Q_threshold={Q_threshold}, "
+                "S_threshold={S_threshold}, "
+                "normalize_Q={normalize_Q})").format(
                     cls=type(self).__name__,
                     sph_l=self.sph_l,
-                    Qthreshold=self.Qthreshold,
-                    Sthreshold=self.Sthreshold,
+                    Q_threshold=self.Q_threshold,
+                    S_threshold=self.S_threshold,
                     normalize_Q=self.normalize_Q)
 
 

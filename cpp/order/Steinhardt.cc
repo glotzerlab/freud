@@ -62,9 +62,6 @@ void Steinhardt::reallocateArrays(unsigned int Np)
 void Steinhardt::compute(const freud::locality::NeighborList* nlist,
                                   const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs)
 {
-    // Allocate and zero out arrays as necessary
-    reallocateArrays(points->getNPoints());
-
     // Computes the base Qlmi required for each specialized order parameter
     baseCompute(nlist, points, qargs);
 

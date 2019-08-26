@@ -30,46 +30,20 @@ public:
     /*! Constructor for Solid-Liquid analysis class. After creation, call
      *  compute to calculate solid-like clusters. Use accessor functions
      *  to retrieve data.
-     *  \param box A freud box for the trajectory.
-     *  \param r_max Cutoff radius for cell list and clustering algorithm.
-          Values near first minima of the rdf are recommended.
-     *  \param Qthreshold Value of dot product threshold when evaluating
-           \f$Q_{lm}^*(i) Q_{lm}(j)\f$ to determine if a neighbor pair is
-           a solid-like bond. (For l=6, 0.7 generally good for FCC or BCC
-           structures)
-     *  \param Sthreshold Minimum required number of adjacent solid-link bonds
-           for a particle to be considered solid-like for clustering. (For
-           l=6, 6-8 generally good for FCC or BCC structures)
      *  \param l Choose spherical harmonic Ql. Must be positive and even.
-    **/
-    SolidLiquid(const box::Box& box, float r_max, float Qthreshold, unsigned int Sthreshold, unsigned int l);
-
-    //! Get the simulation box
-    const box::Box& getBox()
-    {
-        return m_box;
-    }
-
-    //! Reset the simulation box size
-    void setBox(const box::Box newbox)
-    {
-        m_box = newbox;
-    }
-
-    //! Reset the simulation box size
-    void setClusteringRadius(float r_max_cluster)
-    {
-        if (r_max_cluster < m_r_max)
-            throw std::invalid_argument(
-                "SolidLiquid requires that r_max_cluster must be greater than r_max (for local env).");
-        // May not be necessary if std::max(m_r_max, m_r_max_cluster) is used to rebuild cell list here, and in
-        // setBox.
-
-        m_r_max_cluster = r_max_cluster;
-    }
+     *  \param Q_threshold Value of dot product threshold when evaluating
+     *     \f$Q_{lm}^*(i) Q_{lm}(j)\f$ to determine if a neighbor pair is
+     *     a solid-like bond. (For l=6, 0.7 generally good for FCC or BCC
+     *     structures)
+     *  \param S_threshold Minimum required number of adjacent solid-link bonds
+     *     for a particle to be considered solid-like for clustering. (For
+     *     l=6, 6-8 generally good for FCC or BCC structures)
+     */
+    SolidLiquid(unsigned int l, float Q_threshold, unsigned int S_threshold, bool normalize_Q=true, bool common_neighbors=false);
 
     //! Compute the Solid-Liquid Order Parameter
-    void compute(const locality::NeighborList* nlist, const vec3<float>* points, unsigned int Np);
+    void compute(const freud::locality::NeighborList* nlist,
+                                  const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs);
 
     //! Try to cluster requiring particles to have S_threshold number of
     //  shared neighbors to be clustered. This enforces stronger
@@ -81,20 +55,11 @@ public:
     //  product. This is for comparisons with literature.
     void computeSolidLiquidNoNorm(const locality::NeighborList* nlist, const vec3<float>* points, unsigned int Np);
 
-    //! Calculates spherical harmonic Ylm for given theta, phi using fsph.
-    void Ylm(const float theta, const float phi, std::vector<std::complex<float>>& Y);
-
     //! Returns largest cluster size.
     unsigned int getLargestClusterSize();
 
     //! Returns a vector containing the size of all clusters.
     std::vector<unsigned int> getClusterSizes();
-
-    //! Get a reference to the last computed Qlmi
-    std::shared_ptr<std::complex<float>> getQlmi()
-    {
-        return m_Qlmi_array;
-    }
 
     //! Get a reference to the last computed set of solid-like cluster
     //  indices for each particle
@@ -109,23 +74,13 @@ public:
         return m_number_of_connections;
     }
 
-    //! Get a reference to the Qldot_ij values
-    std::vector<std::complex<float>> getQldot_ij()
-    {
-        return m_qldot_ij;
-    }
-
-    unsigned int getNP()
-    {
-        return m_Np;
-    }
-
     unsigned int getNumClusters()
     {
         return m_num_clusters;
     }
 
 private:
+<<<<<<< HEAD
     // Calculates Qlmi
     void computeClustersQ(const locality::NeighborList* nlist, const vec3<float>* points, unsigned int Np);
     //! Computes the number of solid-like neighbors based on the dot product thresholds
@@ -157,13 +112,22 @@ private:
     std::shared_ptr<std::complex<float>> m_Qlmi_array; //!< Stores Qlm for each particle i
     float m_Qthreshold;                                //!< Dotproduct cutoff
     unsigned int m_Sthreshold;                         //!< Solid-like num connections cutoff
+=======
+>>>>>>> dfd2e891... Intermediate work on API and refactoring Steinhardt to be a useful member object.
     unsigned int m_l;                                  //!< Value of l for the spherical harmonic.
+    float m_Q_threshold;                               //!< Dot product cutoff
+    unsigned int m_S_threshold;                        //!< Solid-like num connections cutoff
+    bool m_normalize_Q;                                //!< Whether to normalize the Qlmi dot products.
+    bool m_common_neighbors;                           //!< Whether to threshold on common neighbors.
+
+    freud::order::Steinhardt m_steinhardt;                     //!< Steinhardt class used to compute Qlm
+    freud::cluster::Cluster m_cluster;                           //!< Cluster class used to cluster solid-like bonds
 
     // Pull cluster data into these
     unsigned int m_num_clusters;                 //!< Number of clusters found in the last call to compute()
     std::shared_ptr<unsigned int> m_cluster_idx; //!< Cluster index determined for each particle
     std::vector<std::complex<float>> m_qldot_ij; //!< All of the Qlmi dot Qlmj's computed
-    //! Number of connections for each particle with dot product above Qthreshold
+    //! Number of connections for each particle with dot product above Q_threshold
     std::shared_ptr<unsigned int> m_number_of_connections;
     util::ThreadStorage<unsigned int> m_number_of_connections_local;
 
