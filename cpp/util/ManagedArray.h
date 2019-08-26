@@ -117,11 +117,81 @@ public:
         return get()[index];
     }
 
+    //! Convenience for multi-dimensional indexing using variadic templates.
+    template <typename ... Ints>
+    T &operator()(Ints ... indices)
+    {
+        return (*this)({indices...});
+    }
+
+    //! Convenience function for multi-dimensional indexing.
+    T &operator()(std::vector<int> indices)
+    {
+        if (indices.size() != m_shape->size())
+        {
+            throw std::runtime_error("Incorrect number of indices for this array.");
+        }
+
+        // Support negative indexing.
+        for (unsigned int i = 0; i < indices.size(); ++i)
+        {
+            indices[i] %= (*m_shape)[i];
+        }
+
+        // Now get the corresponding linear bin.
+        size_t cur_prod = 1;
+        size_t idx = 0;
+        // We must iterate over bins in reverse order to build up the value of
+        // prod because each subsequent axis contributes less according to
+        // row-major ordering.
+        for (int i = indices.size() - 1; i >= 0; --i)
+        {
+            idx += indices[i] * cur_prod;
+            cur_prod *= (*m_shape)[i];
+        }
+        return (*this)[idx];
+    }
+
+    //! Convenience for multi-dimensional indexing using variadic templates.
+    template <typename ... Ints>
+    const T &operator()(Ints ... indices) const
+    {
+        return (*this)({indices...});
+    }
+
+    //! Convenience function for multi-dimensional indexing.
+    const T &operator()(std::vector<int> indices) const
+    {
+        if (indices.size() != m_shape->size())
+        {
+            throw std::runtime_error("Incorrect number of indices for this array.");
+        }
+
+        // Support negative indexing.
+        for (unsigned int i = 0; i < indices.size(); ++i)
+        {
+            indices[i] %= (*m_shape)[i];
+        }
+
+        // Now get the corresponding linear bin.
+        size_t cur_prod = 1;
+        size_t idx = 0;
+        // We must iterate over bins in reverse order to build up the value of
+        // prod because each subsequent axis contributes less according to
+        // row-major ordering.
+        for (int i = indices.size() - 1; i >= 0; i--)
+        {
+            idx += indices[i] * cur_prod;
+            cur_prod *= m_shape[i]->size();
+        }
+        return (*this)[idx];
+    }
+
     //! Get the size of the current array.
     unsigned int size() const
     {
         unsigned int size = 1;
-        for (unsigned int i = 0; i < m_shape->size(); i++)
+        for (unsigned int i = 0; i < m_shape->size(); ++i)
         {
             size *= (*m_shape)[i];
         }
