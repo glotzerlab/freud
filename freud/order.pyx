@@ -613,6 +613,7 @@ cdef class SolidLiquid(PairCompute):
     R"""Uses dot products of :math:`Q_{lm}` between particles for clustering.
 
     .. moduleauthor:: Richmond Newman <newmanrs@umich.edu>
+    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
 
     Args:
         l (unsigned int):
@@ -646,11 +647,13 @@ cdef class SolidLiquid(PairCompute):
     cdef float Sthreshold
     cdef bool normalize_Q
 
-    def __cinit__(self, l, Qthreshold, Sthreshold):
+    def __cinit__(self, l, Qthreshold, Sthreshold, normalize_Q=True):
         self.sph_l = l
         self.Qthreshold = Qthreshold
         self.Sthreshold = Sthreshold
-        self.thisptr = new freud._order.SolidLiquid(l, Qthreshold, Sthreshold)
+        self.normalize_Q = normalize_Q
+        self.thisptr = new freud._order.SolidLiquid(
+            l, Qthreshold, Sthreshold, normalize_Q)
 
     def __dealloc__(self):
         del self.thisptr
@@ -741,14 +744,13 @@ cdef class SolidLiquid(PairCompute):
         return np.asarray(num_connections, dtype=np.uint32)
 
     def __repr__(self):
-        return ("freud.order.{cls}(box={box}, r_max={r_max}, "
-                "Qthreshold={Qthreshold}, Sthreshold={Sthreshold}, "
-                "l={sph_l})").format(cls=type(self).__name__,
-                                     box=self.m_box,
-                                     r_max=self.r_max,
-                                     Qthreshold=self.Qthreshold,
-                                     Sthreshold=self.Sthreshold,
-                                     sph_l=self.sph_l)
+        return ("freud.order.{cls}(l={sph_l}, Qthreshold={Qthreshold}, "
+                "Sthreshold={Sthreshold}, normalize_Q={normalize_Q})").format(
+                    cls=type(self).__name__,
+                    sph_l=self.sph_l,
+                    Qthreshold=self.Qthreshold,
+                    Sthreshold=self.Sthreshold,
+                    normalize_Q=self.normalize_Q)
 
 
 cdef class RotationalAutocorrelation(Compute):
