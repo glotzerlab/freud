@@ -57,22 +57,13 @@ class Steinhardt
 public:
     //! Steinhardt Class Constructor
     /*! Constructor for Steinhardt analysis class.
-     *  \param r_max Cutoff radius for running the local order parameter.
-     *              Values near first minima of the rdf are recommended.
      *  \param l Spherical harmonic number l.
      *           Must be a positive number.
-     *  \param r_min (optional) Lower bound for computing the local order parameter.
-     *                         Allows looking at, for instance, only the second shell,
-     *                         or some other arbitrary rdf region.
      */
-    Steinhardt(float r_max, unsigned int l, float r_min = 0, bool average = false, bool Wl = false, bool weighted = false)
-        : m_Np(0), m_r_max(r_max), m_l(l), m_r_min(r_min), m_average(average), m_Wl(Wl), m_weighted(weighted), m_Qlm_local(2 * l + 1)
+    Steinhardt(unsigned int l, bool average = false, bool Wl = false, bool weighted = false)
+        : m_Np(0), m_l(l), m_average(average), m_Wl(Wl), m_weighted(weighted), m_Qlm_local(2 * l + 1)
     {
-        // Error Checking
-        if (m_r_max < 0.0f || m_r_min < 0.0f)
-            throw std::invalid_argument("Steinhardt requires r_min and r_max must be positive.");
-        if (m_r_min >= m_r_max)
-            throw std::invalid_argument("Steinhardt requires r_min must be less than r_max.");
+        // Error checking
         if (m_l < 2)
             throw std::invalid_argument("Steinhardt requires l must be two or greater.");
     }
@@ -178,9 +169,7 @@ private:
 
     // Member variables used for compute
     unsigned int m_Np; //!< Last number of points computed
-    float m_r_max;      //!< Maximum r at which to determine neighbors
     unsigned int m_l;  //!< Spherical harmonic l value.
-    float m_r_min;      //!< Minimum r at which to determine neighbors (default 0)
 
     // Flags
     bool m_average; //!< Whether to take a second shell average (default false)
