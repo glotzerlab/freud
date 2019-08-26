@@ -168,6 +168,19 @@ cdef class _QueryArgs:
     def scale(self, value):
         self.thisptr.scale = value
 
+    def __repr__(self):
+        return ("freud.locality.{cls}(mode={mode}, r_max={r_max}, "
+                "num_neighbors={num_neighbors}, exclude_ii={exclude_ii}, "
+                "scale={scale})").format(
+                    cls=type(self).__name__,
+                    mode=self.mode, r_max=self.r_max,
+                    num_neighbors=self.num_neighbors,
+                    exclude_ii=self.exclude_ii,
+                    scale=self.scale)
+
+    def __str__(self):
+        return repr(self)
+
 
 cdef class NeighborQueryResult:
     R"""Class encapsulating the output of queries of NeighborQuery objects.
