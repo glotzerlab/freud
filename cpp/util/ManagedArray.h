@@ -45,6 +45,12 @@ public:
     {
         m_shape = std::make_shared<std::vector<unsigned int> >(shape);
 
+        m_size = std::make_shared<unsigned int>(1);
+        for (unsigned int i = 0; i < m_shape->size(); ++i)
+        {
+            (*m_size) *= (*m_shape)[i];
+        }
+
         m_data = std::shared_ptr<std::shared_ptr<T> >(
             new std::shared_ptr<T>(new T[size()], std::default_delete<T[]>()));
         reset();
@@ -75,6 +81,13 @@ public:
         if ((m_data.use_count() > 1) || (new_shape != shape()))
         {
             m_shape = std::make_shared<std::vector<unsigned int> >(new_shape);
+
+            m_size = std::make_shared<unsigned int>(1);
+            for (unsigned int i = 0; i < m_shape->size(); ++i)
+            {
+                (*m_size) *= (*m_shape)[i];
+            }
+
             m_data = std::shared_ptr<std::shared_ptr<T> >(
                 new std::shared_ptr<T>(new T[size()], std::default_delete<T[]>()));
         }
@@ -112,9 +125,41 @@ public:
     {
         if (index >= size())
         {
-            throw std::runtime_error("Attempted to access data out of bounds.");
+            throw std::invalid_argument("Attempted to access data out of bounds.");
         }
         return get()[index];
+    }
+
+    //! Get the linear index corresponding to a vector of indices in each dimension.
+    /*!
+     *  \param indices The index in each dimension.
+     */
+    size_t getIndex(std::vector<int> indices)
+    {
+        if (indices.size() != m_shape->size())
+        {
+            throw std::invalid_argument("Incorrect number of indices for this array.");
+        }
+
+        for (unsigned int i = 0; i < indices.size(); ++i)
+        {
+            if (indices[i] < 0 || indices[i] > (*m_shape)[i])
+            {
+                throw std::invalid_argument("Accessing data out of bounds.");
+            }
+        }
+
+        // In getting the linear bin, we must iterate over bins in reverse
+        // order to build up the value of prod because each subsequent axis
+        // contributes less according to row-major ordering.
+        size_t cur_prod = 1;
+        size_t idx = 0;
+        for (int i = indices.size() - 1; i >= 0; --i)
+        {
+            idx += indices[i] * cur_prod;
+            cur_prod *= (*m_shape)[i];
+        }
+        return idx;
     }
 
     //! Convenience for multi-dimensional indexing using variadic templates.
@@ -127,29 +172,7 @@ public:
     //! Convenience function for multi-dimensional indexing.
     T &operator()(std::vector<int> indices)
     {
-        if (indices.size() != m_shape->size())
-        {
-            throw std::runtime_error("Incorrect number of indices for this array.");
-        }
-
-        // Support negative indexing.
-        for (unsigned int i = 0; i < indices.size(); ++i)
-        {
-            indices[i] %= (*m_shape)[i];
-        }
-
-        // Now get the corresponding linear bin.
-        size_t cur_prod = 1;
-        size_t idx = 0;
-        // We must iterate over bins in reverse order to build up the value of
-        // prod because each subsequent axis contributes less according to
-        // row-major ordering.
-        for (int i = indices.size() - 1; i >= 0; --i)
-        {
-            idx += indices[i] * cur_prod;
-            cur_prod *= (*m_shape)[i];
-        }
-        return (*this)[idx];
+        return (*this)[getIndex(indices)];
     }
 
     //! Convenience for multi-dimensional indexing using variadic templates.
@@ -162,40 +185,13 @@ public:
     //! Convenience function for multi-dimensional indexing.
     const T &operator()(std::vector<int> indices) const
     {
-        if (indices.size() != m_shape->size())
-        {
-            throw std::runtime_error("Incorrect number of indices for this array.");
-        }
-
-        // Support negative indexing.
-        for (unsigned int i = 0; i < indices.size(); ++i)
-        {
-            indices[i] %= (*m_shape)[i];
-        }
-
-        // Now get the corresponding linear bin.
-        size_t cur_prod = 1;
-        size_t idx = 0;
-        // We must iterate over bins in reverse order to build up the value of
-        // prod because each subsequent axis contributes less according to
-        // row-major ordering.
-        for (int i = indices.size() - 1; i >= 0; i--)
-        {
-            idx += indices[i] * cur_prod;
-            cur_prod *= m_shape[i]->size();
-        }
-        return (*this)[idx];
+        return (*this)[getIndex(indices)];
     }
 
     //! Get the size of the current array.
     unsigned int size() const
     {
-        unsigned int size = 1;
-        for (unsigned int i = 0; i < m_shape->size(); ++i)
-        {
-            size *= (*m_shape)[i];
-        }
-        return size;
+        return *m_size;
     }
 
     //! Get the shape of the current array.
@@ -207,6 +203,7 @@ public:
 private:
     std::shared_ptr<std::shared_ptr<T> > m_data;           //!< Pointer to array.
     std::shared_ptr<std::vector<unsigned int> > m_shape;   //!< Shape of array.
+    std::shared_ptr<unsigned int> m_size;                  //!< Size of array.
 };
 
 }; }; // end namespace freud::util
