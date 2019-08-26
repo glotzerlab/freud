@@ -6,31 +6,31 @@
 #include <map>
 #include <tbb/tbb.h>
 
-#include "SolLiq.h"
+#include "SolidLiquid.h"
 #include "dset/dset.h"
 
 using namespace std;
 
 namespace freud { namespace order {
 
-SolLiq::SolLiq(const box::Box& box, float r_max, float Qthreshold, unsigned int Sthreshold, unsigned int l)
+SolidLiquid::SolidLiquid(const box::Box& box, float r_max, float Qthreshold, unsigned int Sthreshold, unsigned int l)
     : m_box(box), m_r_max(r_max), m_r_max_cluster(r_max), m_Qthreshold(Qthreshold), m_Sthreshold(Sthreshold),
       m_l(l)
 {
     m_Np = 0;
     if (m_r_max < 0.0f)
-        throw invalid_argument("SolLiq requires that r_max must be positive.");
+        throw invalid_argument("SolidLiquid requires that r_max must be positive.");
     if (m_Qthreshold < 0.0)
         throw invalid_argument(
-            "SolLiq requires that the dot product cutoff Qthreshold must be non-negative.");
+            "SolidLiquid requires that the dot product cutoff Qthreshold must be non-negative.");
     if (m_l % 2 == 1)
-        throw invalid_argument("SolLiq requires that l must be even.");
+        throw invalid_argument("SolidLiquid requires that l must be even.");
     if (m_l <= 0)
-        throw invalid_argument("SolLiq requires that l must be greater than zero.");
+        throw invalid_argument("SolidLiquid requires that l must be greater than zero.");
 }
 
 // Calculating Ylm using fsph module
-void SolLiq::Ylm(const float theta, const float phi, std::vector<std::complex<float>>& Y)
+void SolidLiquid::Ylm(const float theta, const float phi, std::vector<std::complex<float>>& Y)
 {
     if (Y.size() != 2 * m_l + 1)
         Y.resize(2 * m_l + 1);
@@ -51,8 +51,8 @@ void SolLiq::Ylm(const float theta, const float phi, std::vector<std::complex<fl
 }
 
 // Begins calculation of the solid-liquid order parameters.
-// Note that the SolLiq container class contains the threshold cutoffs
-void SolLiq::compute(const locality::NeighborList* nlist, const vec3<float>* points, unsigned int Np)
+// Note that the SolidLiquid container class contains the threshold cutoffs
+void SolidLiquid::compute(const locality::NeighborList* nlist, const vec3<float>* points, unsigned int Np)
 {
     // Initialize Qlmi
     computeClustersQ(nlist, points, Np);
@@ -68,7 +68,7 @@ void SolLiq::compute(const locality::NeighborList* nlist, const vec3<float>* poi
 // Begins calculation of solid-liquid order parameter. This variant requires
 // particles to share at least S_threshold neighbors in order to cluster
 // them, rather than each possess S_threshold neighbors.
-void SolLiq::computeSolLiqVariant(const locality::NeighborList* nlist, const vec3<float>* points,
+void SolidLiquid::computeSolidLiquidVariant(const locality::NeighborList* nlist, const vec3<float>* points,
                                   unsigned int Np)
 {
     // Initialize Qlmi
@@ -80,7 +80,7 @@ void SolLiq::computeSolLiqVariant(const locality::NeighborList* nlist, const vec
 }
 
 // Calculate solid-liquid order parameter, without doing normalization.
-void SolLiq::computeSolLiqNoNorm(const locality::NeighborList* nlist, const vec3<float>* points,
+void SolidLiquid::computeSolidLiquidNoNorm(const locality::NeighborList* nlist, const vec3<float>* points,
                                  unsigned int Np)
 {
     // Initialize Qlmi
@@ -93,7 +93,7 @@ void SolLiq::computeSolLiqNoNorm(const locality::NeighborList* nlist, const vec3
     m_Np = Np;
 }
 
-void SolLiq::computeClustersQ(const locality::NeighborList* nlist, const vec3<float>* points, unsigned int Np)
+void SolidLiquid::computeClustersQ(const locality::NeighborList* nlist, const vec3<float>* points, unsigned int Np)
 {
     nlist->validate(Np, Np);
 
@@ -129,7 +129,7 @@ void SolLiq::computeClustersQ(const locality::NeighborList* nlist, const vec3<fl
                         float phi = atan2(delta.y, delta.x);     // 0..2Pi
                         float theta = acos(delta.z / sqrt(r_sq)); // 0..Pi
 
-                        SolLiq::Ylm(theta, phi, Y);
+                        SolidLiquid::Ylm(theta, phi, Y);
 
                         for (unsigned int k = 0; k < (2 * m_l + 1); ++k)
                         {
@@ -151,7 +151,7 @@ void SolLiq::computeClustersQ(const locality::NeighborList* nlist, const vec3<fl
 }
 
 // Initializes Q6lmi, and number of solid-like neighbors per particle.
-void SolLiq::computeClustersQdot(const locality::NeighborList* nlist, const vec3<float>* points,
+void SolidLiquid::computeClustersQdot(const locality::NeighborList* nlist, const vec3<float>* points,
                                  unsigned int Np)
 {
     nlist->validate(Np, Np);
@@ -225,7 +225,7 @@ void SolLiq::computeClustersQdot(const locality::NeighborList* nlist, const vec3
 }
 
 // Initializes Qlmi, and number of solid-like neighbors per particle.
-void SolLiq::computeClustersQdotNoNorm(const locality::NeighborList* nlist, const vec3<float>* points,
+void SolidLiquid::computeClustersQdotNoNorm(const locality::NeighborList* nlist, const vec3<float>* points,
                                        unsigned int Np)
 {
     nlist->validate(Np, Np);
@@ -292,7 +292,7 @@ void SolLiq::computeClustersQdotNoNorm(const locality::NeighborList* nlist, cons
     });
 }
 
-void SolLiq::reduceNumberOfConnections(unsigned int Np)
+void SolidLiquid::reduceNumberOfConnections(unsigned int Np)
 {
     tbb::parallel_for(tbb::blocked_range<size_t>(0, Np), [=](const tbb::blocked_range<size_t>& r) {
         for (size_t i = r.begin(); i != r.end(); ++i)
@@ -307,7 +307,7 @@ void SolLiq::reduceNumberOfConnections(unsigned int Np)
 }
 
 // Computes the clusters for sol-liq order parameter by using the Sthreshold.
-void SolLiq::computeClustersQS(const locality::NeighborList* nlist, const vec3<float>* points,
+void SolidLiquid::computeClustersQS(const locality::NeighborList* nlist, const vec3<float>* points,
                                unsigned int Np)
 {
     nlist->validate(Np, Np);
@@ -380,7 +380,7 @@ void SolLiq::computeClustersQS(const locality::NeighborList* nlist, const vec3<f
     m_num_clusters = cur_set;
 }
 
-unsigned int SolLiq::getLargestClusterSize()
+unsigned int SolidLiquid::getLargestClusterSize()
 {
     std::map<unsigned int, unsigned int> freqcount;
     // m_cluster_idx stores the cluster ID for each particle.
@@ -405,7 +405,7 @@ unsigned int SolLiq::getLargestClusterSize()
     return largestcluster;
 }
 
-std::vector<unsigned int> SolLiq::getClusterSizes()
+std::vector<unsigned int> SolidLiquid::getClusterSizes()
 {
     std::map<unsigned int, unsigned int> freqcount;
     // m_cluster_idx stores the cluster ID for each particle.  Count by adding to map.
@@ -431,7 +431,7 @@ std::vector<unsigned int> SolLiq::getClusterSizes()
     return clustersizes;
 }
 
-void SolLiq::computeListOfSolidLikeNeighbors(const locality::NeighborList* nlist, const vec3<float>* points,
+void SolidLiquid::computeListOfSolidLikeNeighbors(const locality::NeighborList* nlist, const vec3<float>* points,
                                              unsigned int Np,
                                              vector<vector<unsigned int>>& SolidlikeNeighborlist)
 {
@@ -508,7 +508,7 @@ void SolLiq::computeListOfSolidLikeNeighbors(const locality::NeighborList* nlist
     }
 }
 
-void SolLiq::computeClustersSharedNeighbors(const locality::NeighborList* nlist, const vec3<float>* points,
+void SolidLiquid::computeClustersSharedNeighbors(const locality::NeighborList* nlist, const vec3<float>* points,
                                             unsigned int Np,
                                             const vector<vector<unsigned int>>& SolidlikeNeighborlist)
 {

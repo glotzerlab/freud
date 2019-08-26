@@ -1,8 +1,8 @@
 // Copyright (c) 2010-2019 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
-#ifndef SOL_LIQ_H
-#define SOL_LIQ_H
+#ifndef SOLID_LIQUID_H
+#define SOLID_LIQUID_H
 
 #include <algorithm>
 #include <complex>
@@ -23,7 +23,7 @@ namespace freud { namespace order {
 
 //! Computes dot products of Qlm between particles and uses these for clustering
 
-class SolLiq
+class SolidLiquid
 {
 public:
     //! Constructor
@@ -42,7 +42,7 @@ public:
            l=6, 6-8 generally good for FCC or BCC structures)
      *  \param l Choose spherical harmonic Ql. Must be positive and even.
     **/
-    SolLiq(const box::Box& box, float r_max, float Qthreshold, unsigned int Sthreshold, unsigned int l);
+    SolidLiquid(const box::Box& box, float r_max, float Qthreshold, unsigned int Sthreshold, unsigned int l);
 
     //! Get the simulation box
     const box::Box& getBox()
@@ -61,7 +61,7 @@ public:
     {
         if (r_max_cluster < m_r_max)
             throw std::invalid_argument(
-                "SolLiq requires that r_max_cluster must be greater than r_max (for local env).");
+                "SolidLiquid requires that r_max_cluster must be greater than r_max (for local env).");
         // May not be necessary if std::max(m_r_max, m_r_max_cluster) is used to rebuild cell list here, and in
         // setBox.
 
@@ -74,17 +74,17 @@ public:
     //! Try to cluster requiring particles to have S_threshold number of
     //  shared neighbors to be clustered. This enforces stronger
     //  conditions on orientations.
-    void computeSolLiqVariant(const locality::NeighborList* nlist, const vec3<float>* points,
+    void computeSolidLiquidVariant(const locality::NeighborList* nlist, const vec3<float>* points,
                               unsigned int Np);
 
     //! Compute Solid-Liquid order parameter without normalizing the dot
     //  product. This is for comparisons with literature.
-    void computeSolLiqNoNorm(const locality::NeighborList* nlist, const vec3<float>* points, unsigned int Np);
+    void computeSolidLiquidNoNorm(const locality::NeighborList* nlist, const vec3<float>* points, unsigned int Np);
 
     //! Calculates spherical harmonic Ylm for given theta, phi using fsph.
     void Ylm(const float theta, const float phi, std::vector<std::complex<float>>& Y);
 
-    //! Returns largest cluster size! Please compute solliq first!
+    //! Returns largest cluster size.
     unsigned int getLargestClusterSize();
 
     //! Returns a vector containing the size of all clusters.
@@ -175,4 +175,4 @@ private:
 
 }; }; // end namespace freud::order
 
-#endif // SOL_LIQ_H
+#endif // SOLID_LIQUID_H
