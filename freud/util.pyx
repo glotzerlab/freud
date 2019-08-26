@@ -9,7 +9,6 @@ from functools import wraps
 from cython.operator cimport dereference
 from libcpp.vector cimport vector
 
-cimport freud.util
 cimport numpy as np
 
 # numpy must be initialized. When using numpy from C or Cython you must
@@ -56,6 +55,17 @@ cdef class ManagedArrayManager:
     def __dealloc__(self):
         if self.var_typenum == np.NPY_UINT32:
             del self.thisptr.uint_ptr
+
+    cdef void set_as_base(self, arr):
+        """Sets the base of arr to be this object and increases the
+        reference count."""
+        PyArray_SetBaseObject(arr, self)
+        Py_INCREF(self)
+
+    cdef void *get(self):
+        """Return the raw pointer to the underlying data array."""
+        if self.data_type == arr_type_t.UNSIGNED_INT:
+            return self.thisptr.uint_ptr.get()
 
     def __array__(self):
         """Convert the underlying data array into a read-only numpy array.

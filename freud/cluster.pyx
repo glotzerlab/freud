@@ -143,11 +143,9 @@ cdef class Cluster(Compute):
 
     @Compute._computed_property("compute")
     def cluster_idx(self):
-        cdef freud.util.ManagedArray[uint] ma = self.thisptr.getClusterIdx()
-        cdef freud.util.ManagedArrayManager mam = \
-            freud.util.ManagedArrayManager.init(
-                &ma, freud.util.arr_type_t.UNSIGNED_INT)
-        return np.asarray(mam)
+        return freud.util.make_managed_numpy_array(
+            <const void *> &self.thisptr.getClusterIdx(),
+            freud.util.arr_type_t.UNSIGNED_INT)
 
     @Compute._computed_property("computeClusterMembership")
     def cluster_keys(self):

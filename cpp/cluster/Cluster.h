@@ -71,7 +71,7 @@ public:
     }
 
     //! Get a reference to the last computed cluster_idx
-    util::ManagedArray<unsigned int> getClusterIdx()
+    const util::ManagedArray<unsigned int> &getClusterIdx()
     {
         return m_cluster_idx;
     }
