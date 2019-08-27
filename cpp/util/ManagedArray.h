@@ -17,8 +17,7 @@ namespace freud { namespace util {
  *  underlying data structure for arrays of data in freud. These arrays are
  *  specifically designed for numerical data calculated by a compute class,
  *  particularly for arrays that must be made accessible through the Python API
- *  of freud. To support multidimensional arrays, the underlying data is stored
- *  in a linear array that can be indexed into according to standard freud
+ *  of freud. The array shape is stored and used to support multidimensional
  *  indexing.
  *
  *  To support resizing, a ManagedArray instances stores its data as a pointer

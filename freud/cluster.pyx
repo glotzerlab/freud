@@ -146,7 +146,7 @@ cdef class Cluster(PairCompute):
     @Compute._computed_property("compute")
     def cluster_idx(self):
         return freud.util.make_managed_numpy_array(
-            <const void *> &self.thisptr.getClusterIdx(),
+            &self.thisptr.getClusterIdx(),
             freud.util.arr_type_t.UNSIGNED_INT)
 
     @Compute._computed_property("computeClusterMembership")
@@ -265,19 +265,19 @@ cdef class ClusterProperties(Compute):
     @Compute._computed_property("compute")
     def cluster_COM(self):
         return freud.util.make_managed_numpy_array(
-            <const void *> &self.thisptr.getClusterCOM(),
+            &self.thisptr.getClusterCOM(),
             freud.util.arr_type_t.FLOAT, 3)
 
     @Compute._computed_property("compute")
     def cluster_G(self):
         return freud.util.make_managed_numpy_array(
-            <const void *> &self.thisptr.getClusterG(),
+            &self.thisptr.getClusterG(),
             freud.util.arr_type_t.FLOAT)
 
     @Compute._computed_property("compute")
     def cluster_sizes(self):
         return freud.util.make_managed_numpy_array(
-            <const void *> &self.thisptr.getClusterSize(),
+            &self.thisptr.getClusterSize(),
             freud.util.arr_type_t.UNSIGNED_INT)
 
     def __repr__(self):
