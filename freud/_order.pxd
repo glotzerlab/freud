@@ -20,7 +20,7 @@ cdef extern from "CubaticOrderParameter.h" namespace "freud::order":
                               unsigned int) except +
         void reset()
         void compute(quat[float]*,
-                     unsigned int) nogil except +
+                     unsigned int) except +
         unsigned int getNumParticles()
         float getCubaticOrderParameter()
         shared_ptr[float] getParticleCubaticOrderParameter()
@@ -38,7 +38,7 @@ cdef extern from "NematicOrderParameter.h" namespace "freud::order":
         NematicOrderParameter(vec3[float])
         void reset()
         void compute(quat[float]*,
-                     unsigned int) nogil except +
+                     unsigned int) except +
         unsigned int getNumParticles()
         float getNematicOrderParameter()
         shared_ptr[float] getParticleTensor()
@@ -52,7 +52,7 @@ cdef extern from "HexTransOrderParameter.h" namespace "freud::order":
         const freud._box.Box & getBox() const
         void compute(const freud._locality.NeighborList*,
                      const freud._locality.NeighborQuery*,
-                     freud._locality.QueryArgs) nogil except +
+                     freud._locality.QueryArgs) except +
         # unsure how to pass back the std::complex,
         # but this seems to compile...
         shared_ptr[float complex] getOrder()
@@ -64,7 +64,7 @@ cdef extern from "HexTransOrderParameter.h" namespace "freud::order":
         const freud._box.Box & getBox() const,
         void compute(const freud._locality.NeighborList*,
                      const freud._locality.NeighborQuery*,
-                     freud._locality.QueryArgs) nogil except +
+                     freud._locality.QueryArgs) except +
         shared_ptr[float complex] getOrder()
         unsigned int getNP()
         float getK()
@@ -76,7 +76,7 @@ cdef extern from "Steinhardt.h" namespace "freud::order":
         unsigned int getNP()
         void compute(const freud._locality.NeighborList*,
                      const freud._locality.NeighborQuery*,
-                     freud._locality.QueryArgs) nogil except +
+                     freud._locality.QueryArgs) except +
         shared_ptr[float] getQl()
         shared_ptr[float] getOrder()
         float getNorm()
@@ -93,13 +93,13 @@ cdef extern from "SolLiq.h" namespace "freud::order":
         void setClusteringRadius(float) except +
         void compute(const freud._locality.NeighborList *,
                      const vec3[float]*,
-                     unsigned int) nogil except +
+                     unsigned int) except +
         void computeSolLiqVariant(const freud._locality.NeighborList *,
                                   const vec3[float]*,
-                                  unsigned int) nogil except +
+                                  unsigned int) except +
         void computeSolLiqNoNorm(const freud._locality.NeighborList *,
                                  const vec3[float]*,
-                                 unsigned int) nogil except +
+                                 unsigned int) except +
         unsigned int getLargestClusterSize()
         vector[unsigned int] getClusterSizes()
         shared_ptr[float complex] getQlmi()
@@ -117,4 +117,4 @@ cdef extern from "RotationalAutocorrelation.h" namespace "freud::order":
         unsigned int getN()
         shared_ptr[float complex] getRAArray()
         float getRotationalAutocorrelation()
-        void compute(quat[float]*, quat[float]*, unsigned int) nogil except +
+        void compute(quat[float]*, quat[float]*, unsigned int) except +

@@ -130,9 +130,8 @@ cdef class CubaticOrderParameter(Compute):
         cdef const float[:, ::1] l_orientations = orientations
         cdef unsigned int num_particles = l_orientations.shape[0]
 
-        with nogil:
-            self.thisptr.compute(
-                <quat[float]*> &l_orientations[0, 0], num_particles)
+        self.thisptr.compute(
+            <quat[float]*> &l_orientations[0, 0], num_particles)
         return self
 
     @property
@@ -254,9 +253,9 @@ cdef class NematicOrderParameter(Compute):
         cdef const float[:, ::1] l_orientations = orientations
         cdef unsigned int num_particles = l_orientations.shape[0]
 
-        with nogil:
-            self.thisptr.compute(<quat[float]*> &l_orientations[0, 0],
-                                 num_particles)
+        self.thisptr.compute(<quat[float]*> &l_orientations[0, 0],
+                             num_particles)
+        return self
 
     @Compute._computed_property()
     def nematic_order_parameter(self):
@@ -364,9 +363,8 @@ cdef class HexOrderParameter(PairCompute):
         b, nq, nlistptr, qargs, l_query_points, num_query_points = \
             self.preprocess_arguments(box, points, nlist=nlist,
                                       query_args=query_args)
-        with nogil:
-            self.thisptr.compute(nlistptr.get_ptr(),
-                                 nq.get_ptr(), dereference(qargs.thisptr))
+        self.thisptr.compute(nlistptr.get_ptr(),
+                             nq.get_ptr(), dereference(qargs.thisptr))
         return self
 
     @property
@@ -462,9 +460,8 @@ cdef class TransOrderParameter(PairCompute):
             self.preprocess_arguments(box, points, nlist=nlist,
                                       query_args=query_args)
 
-        with nogil:
-            self.thisptr.compute(nlistptr.get_ptr(),
-                                 nq.get_ptr(), dereference(qargs.thisptr))
+        self.thisptr.compute(nlistptr.get_ptr(),
+                             nq.get_ptr(), dereference(qargs.thisptr))
         return self
 
     @property
@@ -1132,11 +1129,10 @@ cdef class RotationalAutocorrelation(Compute):
         cdef const float[:, ::1] l_orientations = orientations
         cdef unsigned int nP = orientations.shape[0]
 
-        with nogil:
-            self.thisptr.compute(
-                <quat[float]*> &l_ref_orientations[0, 0],
-                <quat[float]*> &l_orientations[0, 0],
-                nP)
+        self.thisptr.compute(
+            <quat[float]*> &l_ref_orientations[0, 0],
+            <quat[float]*> &l_orientations[0, 0],
+            nP)
         return self
 
     @Compute._computed_property()

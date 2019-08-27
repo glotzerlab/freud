@@ -210,14 +210,13 @@ cdef class BondOrder(Compute):
         cdef const float[:, ::1] l_query_orientations = query_orientations
         cdef unsigned int n_query_points = l_query_points.shape[0]
 
-        with nogil:
-            self.thisptr.accumulate(
-                nq.get_ptr(),
-                <quat[float]*> &l_orientations[0, 0],
-                <vec3[float]*> &l_query_points[0, 0],
-                <quat[float]*> &l_query_orientations[0, 0],
-                n_query_points,
-                index, nlistptr.get_ptr(), dereference(qargs.thisptr))
+        self.thisptr.accumulate(
+            nq.get_ptr(),
+            <quat[float]*> &l_orientations[0, 0],
+            <vec3[float]*> &l_query_points[0, 0],
+            <quat[float]*> &l_query_orientations[0, 0],
+            n_query_points,
+            index, nlistptr.get_ptr(), dereference(qargs.thisptr))
         return self
 
     @Compute._computed_property()
@@ -440,13 +439,12 @@ cdef class LocalDescriptors(Compute):
             exclude_ii, self.r_max)
         cdef freud.locality.NeighborList nlist_ = defaulted_nlist[0]
 
-        with nogil:
-            self.thisptr.compute(
-                dereference(b.thisptr), num_neighbors,
-                <vec3[float]*> &l_points[0, 0], n_points,
-                <vec3[float]*> &l_query_points[0, 0], n_query_points,
-                l_orientations_ptr, l_mode,
-                nlist_.get_ptr())
+        self.thisptr.compute(
+            dereference(b.thisptr), num_neighbors,
+            <vec3[float]*> &l_points[0, 0], n_points,
+            <vec3[float]*> &l_query_points[0, 0], n_query_points,
+            l_orientations_ptr, l_mode,
+            nlist_.get_ptr())
         return self
 
     @Compute._computed_property()
@@ -975,15 +973,14 @@ cdef class AngularSeparation(Compute):
         cdef unsigned int n_query_points = l_query_orientations.shape[0]
         cdef unsigned int n_equiv_orientations = l_equiv_orientations.shape[0]
 
-        with nogil:
-            self.thisptr.computeNeighbor(
-                <quat[float]*> &l_orientations[0, 0],
-                n_points,
-                <quat[float]*> &l_query_orientations[0, 0],
-                n_query_points,
-                <quat[float]*> &l_equiv_orientations[0, 0],
-                n_equiv_orientations,
-                self.nlist_.get_ptr(),)
+        self.thisptr.computeNeighbor(
+            <quat[float]*> &l_orientations[0, 0],
+            n_points,
+            <quat[float]*> &l_query_orientations[0, 0],
+            n_query_points,
+            <quat[float]*> &l_equiv_orientations[0, 0],
+            n_equiv_orientations,
+            self.nlist_.get_ptr(),)
         return self
 
     @Compute._compute("computeGlobal")
@@ -1021,14 +1018,13 @@ cdef class AngularSeparation(Compute):
         cdef unsigned int n_points = l_orientations.shape[0]
         cdef unsigned int n_equiv_orientations = l_equiv_orientations.shape[0]
 
-        with nogil:
-            self.thisptr.computeGlobal(
-                <quat[float]*> &l_global_orientations[0, 0],
-                n_global,
-                <quat[float]*> &l_orientations[0, 0],
-                n_points,
-                <quat[float]*> &l_equiv_orientations[0, 0],
-                n_equiv_orientations)
+        self.thisptr.computeGlobal(
+            <quat[float]*> &l_global_orientations[0, 0],
+            n_global,
+            <quat[float]*> &l_orientations[0, 0],
+            n_points,
+            <quat[float]*> &l_equiv_orientations[0, 0],
+            n_equiv_orientations)
         return self
 
     @Compute._computed_property("computeNeighbor")
@@ -1184,15 +1180,14 @@ cdef class LocalBondProjection(Compute):
         cdef unsigned int n_equiv = l_equiv_orientations.shape[0]
         cdef unsigned int n_proj = l_proj_vecs.shape[0]
 
-        with nogil:
-            self.thisptr.compute(
-                dereference(b.thisptr),
-                <vec3[float]*> &l_proj_vecs[0, 0], n_proj,
-                <vec3[float]*> &l_points[0, 0],
-                <quat[float]*> &l_orientations[0, 0], n_points,
-                <vec3[float]*> &l_query_points[0, 0], n_query_points,
-                <quat[float]*> &l_equiv_orientations[0, 0], n_equiv,
-                self.nlist_.get_ptr())
+        self.thisptr.compute(
+            dereference(b.thisptr),
+            <vec3[float]*> &l_proj_vecs[0, 0], n_proj,
+            <vec3[float]*> &l_points[0, 0],
+            <quat[float]*> &l_orientations[0, 0], n_points,
+            <vec3[float]*> &l_query_points[0, 0], n_query_points,
+            <quat[float]*> &l_equiv_orientations[0, 0], n_equiv,
+            self.nlist_.get_ptr())
         return self
 
     @Compute._computed_property()

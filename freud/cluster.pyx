@@ -105,12 +105,12 @@ cdef class Cluster(PairCompute):
             self.preprocess_arguments(box, points, nlist=nlist,
                                       query_args=query_args)
 
-        with nogil:
-            self.thisptr.compute(
-                nq.get_ptr(),
-                nlistptr.get_ptr(),
-                <vec3[float]*> &l_query_points[0, 0],
-                num_query_points, dereference(qargs.thisptr))
+        self.thisptr.compute(
+            nq.get_ptr(),
+            nlistptr.get_ptr(),
+            <vec3[float]*> &l_query_points[0, 0],
+            num_query_points, dereference(qargs.thisptr))
+
         return self
 
     @Compute._compute("computeClusterMembership")
@@ -127,8 +127,7 @@ cdef class Cluster(PairCompute):
         keys = freud.common.convert_array(
             keys, shape=(self.num_particles, ), dtype=np.uint32)
         cdef const unsigned int[::1] l_keys = keys
-        with nogil:
-            self.thisptr.computeClusterMembership(<unsigned int*> &l_keys[0])
+        self.thisptr.computeClusterMembership(<unsigned int*> &l_keys[0])
         return self
 
     @property
@@ -250,12 +249,11 @@ cdef class ClusterProperties(Compute):
         cdef const float[:, ::1] l_points = points
         cdef const unsigned int[::1] l_cluster_idx = cluster_idx
         cdef unsigned int Np = l_points.shape[0]
-        with nogil:
-            self.thisptr.computeProperties(
-                dereference(b.thisptr),
-                <vec3[float]*> &l_points[0, 0],
-                <unsigned int*> &l_cluster_idx[0],
-                Np)
+        self.thisptr.computeProperties(
+            dereference(b.thisptr),
+            <vec3[float]*> &l_points[0, 0],
+            <unsigned int*> &l_cluster_idx[0],
+            Np)
         return self
 
     @Compute._computed_property("compute")

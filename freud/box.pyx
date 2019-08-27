@@ -233,8 +233,7 @@ cdef class Box:
 
         cdef const float[:, ::1] l_points = fractions
         cdef unsigned int Np = l_points.shape[0]
-        with nogil:
-            self.thisptr.makeCoordinates(<vec3[float]*> &l_points[0, 0], Np)
+        self.thisptr.makeCoordinates(<vec3[float]*> &l_points[0, 0], Np)
 
         return np.squeeze(fractions) if flatten else fractions
 
@@ -256,8 +255,7 @@ cdef class Box:
 
         cdef const float[:, ::1] l_points = vecs
         cdef unsigned int Np = l_points.shape[0]
-        with nogil:
-            self.thisptr.makeFraction(<vec3[float]*> &l_points[0, 0], Np)
+        self.thisptr.makeFraction(<vec3[float]*> &l_points[0, 0], Np)
 
         return np.squeeze(vecs) if flatten else vecs
 
@@ -281,9 +279,8 @@ cdef class Box:
         cdef const float[:, ::1] l_points = vecs
         cdef const int[:, ::1] l_result = images
         cdef unsigned int Np = l_points.shape[0]
-        with nogil:
-            self.thisptr.getImage(<vec3[float]*> &l_points[0, 0], Np,
-                                  <vec3[int]*> &l_result[0, 0])
+        self.thisptr.getImage(<vec3[float]*> &l_points[0, 0], Np,
+                              <vec3[int]*> &l_result[0, 0])
 
         return np.squeeze(images) if flatten else images
 
@@ -327,8 +324,7 @@ cdef class Box:
 
         cdef const float[:, ::1] l_points = vecs
         cdef unsigned int Np = l_points.shape[0]
-        with nogil:
-            self.thisptr.wrap(<vec3[float]*> &l_points[0, 0], Np)
+        self.thisptr.wrap(<vec3[float]*> &l_points[0, 0], Np)
 
         return np.squeeze(vecs) if flatten else vecs
 
@@ -359,9 +355,8 @@ cdef class Box:
         cdef const float[:, ::1] l_points = vecs
         cdef const int[:, ::1] l_imgs = imgs
         cdef unsigned int Np = l_points.shape[0]
-        with nogil:
-            self.thisptr.unwrap(<vec3[float]*> &l_points[0, 0],
-                                <vec3[int]*> &l_imgs[0, 0], Np)
+        self.thisptr.unwrap(<vec3[float]*> &l_points[0, 0],
+                            <vec3[int]*> &l_imgs[0, 0], Np)
 
         return np.squeeze(vecs) if flatten else vecs
 

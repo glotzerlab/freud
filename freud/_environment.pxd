@@ -24,7 +24,7 @@ cdef extern from "BondOrder.h" namespace "freud::environment":
             unsigned int,
             unsigned int,
             const freud._locality.NeighborList*,
-            freud._locality.QueryArgs) nogil
+            freud._locality.QueryArgs)
         shared_ptr[float] getBondOrder()
         shared_ptr[float] getTheta()
         shared_ptr[float] getPhi()
@@ -49,12 +49,12 @@ cdef extern from "LocalDescriptors.h" namespace "freud::environment":
             const vec3[float]*, unsigned int,
             const vec3[float]*, unsigned int,
             const quat[float]*, LocalDescriptorOrientation,
-            const freud._locality.NeighborList*) nogil except +
+            const freud._locality.NeighborList*) except +
         shared_ptr[float complex] getSph()
 
 cdef extern from "MatchEnv.h" namespace "freud::environment":
     cdef cppclass MatchEnv:
-        MatchEnv(const freud._box.Box &, float, unsigned int) nogil except +
+        MatchEnv(const freud._box.Box &, float, unsigned int) except +
         void setBox(const freud._box.Box)
         void cluster(const freud._locality.NeighborList*,
                      const freud._locality.NeighborList*,
@@ -63,31 +63,31 @@ cdef extern from "MatchEnv.h" namespace "freud::environment":
                      float,
                      bool,
                      bool,
-                     bool) nogil except +
+                     bool) except +
         void matchMotif(const freud._locality.NeighborList*,
                         const vec3[float]*,
                         unsigned int,
                         const vec3[float]*,
                         unsigned int,
                         float,
-                        bool) nogil except +
+                        bool) except +
         vector[float] minRMSDMotif(
             const freud._locality.NeighborList*,
             const vec3[float]*,
             unsigned int,
             const vec3[float]*,
             unsigned int,
-            bool) nogil except +
+            bool) except +
         map[unsigned int, unsigned int] isSimilar(const vec3[float]*,
                                                   vec3[float]*,
                                                   unsigned int,
                                                   float,
-                                                  bool) nogil except +
+                                                  bool) except +
         map[unsigned int, unsigned int] minimizeRMSD(const vec3[float]*,
                                                      vec3[float]*,
                                                      unsigned int,
                                                      float &,
-                                                     bool) nogil except +
+                                                     bool) except +
         shared_ptr[unsigned int] getClusters()
         shared_ptr[vec3[float]] getEnvironment(unsigned int)
         shared_ptr[vec3[float]] getTotEnvironment()
@@ -103,13 +103,13 @@ cdef extern from "AngularSeparation.h" namespace "freud::environment":
             quat[float]*, unsigned int,
             quat[float]*, unsigned int,
             quat[float]*, unsigned int,
-            const freud._locality.NeighborList*) nogil except +
+            const freud._locality.NeighborList*) except +
         void computeGlobal(quat[float]*,
                            unsigned int,
                            quat[float]*,
                            unsigned int,
                            quat[float]*,
-                           unsigned int) nogil except +
+                           unsigned int) except +
 
         shared_ptr[float] getNeighborAngles()
         shared_ptr[float] getGlobalAngles()
@@ -125,7 +125,7 @@ cdef extern from "LocalBondProjection.h" namespace "freud::environment":
                      vec3[float]*, quat[float]*, unsigned int,
                      vec3[float]*, unsigned int,
                      quat[float]*, unsigned int,
-                     const freud._locality.NeighborList*) nogil except +
+                     const freud._locality.NeighborList*) except +
 
         shared_ptr[float] getProjections()
         shared_ptr[float] getNormedProjections()

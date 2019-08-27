@@ -209,13 +209,12 @@ cdef class PMFTR12(_PMFT):
         cdef const float[::1] l_orientations = orientations
         cdef const float[::1] l_query_orientations = query_orientations
 
-        with nogil:
-            self.pmftr12ptr.accumulate(nq.get_ptr(),
-                                       <float*> &l_orientations[0],
-                                       <vec3[float]*> &l_query_points[0, 0],
-                                       <float*> &l_query_orientations[0],
-                                       num_query_points, nlistptr.get_ptr(),
-                                       dereference(qargs.thisptr))
+        self.pmftr12ptr.accumulate(nq.get_ptr(),
+                                   <float*> &l_orientations[0],
+                                   <vec3[float]*> &l_query_points[0, 0],
+                                   <float*> &l_query_orientations[0],
+                                   num_query_points, nlistptr.get_ptr(),
+                                   dereference(qargs.thisptr))
         return self
 
     @Compute._compute()
@@ -444,13 +443,12 @@ cdef class PMFTXYT(_PMFT):
         cdef const float[::1] l_orientations = orientations
         cdef const float[::1] l_query_orientations = query_orientations
 
-        with nogil:
-            self.pmftxytptr.accumulate(nq.get_ptr(),
-                                       <float*> &l_orientations[0],
-                                       <vec3[float]*> &l_query_points[0, 0],
-                                       <float*> &l_query_orientations[0],
-                                       num_query_points, nlistptr.get_ptr(),
-                                       dereference(qargs.thisptr))
+        self.pmftxytptr.accumulate(nq.get_ptr(),
+                                   <float*> &l_orientations[0],
+                                   <vec3[float]*> &l_query_points[0, 0],
+                                   <float*> &l_query_orientations[0],
+                                   num_query_points, nlistptr.get_ptr(),
+                                   dereference(qargs.thisptr))
         return self
 
     @Compute._compute()
@@ -652,12 +650,11 @@ cdef class PMFTXY2D(_PMFT):
             shape=(nq.points.shape[0], ))
         cdef const float[::1] l_orientations = orientations
 
-        with nogil:
-            self.pmftxy2dptr.accumulate(nq.get_ptr(),
-                                        <float*> &l_orientations[0],
-                                        <vec3[float]*> &l_query_points[0, 0],
-                                        num_query_points, nlistptr.get_ptr(),
-                                        dereference(qargs.thisptr))
+        self.pmftxy2dptr.accumulate(nq.get_ptr(),
+                                    <float*> &l_orientations[0],
+                                    <vec3[float]*> &l_query_points[0, 0],
+                                    num_query_points, nlistptr.get_ptr(),
+                                    dereference(qargs.thisptr))
         return self
 
     @Compute._compute()
@@ -932,14 +929,13 @@ cdef class PMFTXYZ(_PMFT):
 
         cdef const float[:, :, ::1] l_face_orientations = face_orientations
         cdef unsigned int num_faces = l_face_orientations.shape[1]
-        with nogil:
-            self.pmftxyzptr.accumulate(
-                nq.get_ptr(),
-                <quat[float]*> &l_orientations[0, 0],
-                <vec3[float]*> &l_query_points[0, 0],
-                num_query_points,
-                <quat[float]*> &l_face_orientations[0, 0, 0],
-                num_faces, nlistptr.get_ptr(), dereference(qargs.thisptr))
+        self.pmftxyzptr.accumulate(
+            nq.get_ptr(),
+            <quat[float]*> &l_orientations[0, 0],
+            <vec3[float]*> &l_query_points[0, 0],
+            num_query_points,
+            <quat[float]*> &l_face_orientations[0, 0, 0],
+            num_faces, nlistptr.get_ptr(), dereference(qargs.thisptr))
         return self
 
     @Compute._compute()
