@@ -265,32 +265,21 @@ cdef class ClusterProperties(Compute):
 
     @Compute._computed_property("compute")
     def cluster_COM(self):
-        cdef unsigned int n_clusters = self.thisptr.getNumClusters()
-        if not n_clusters:
-            return np.asarray([[]], dtype=np.float32)
-        cdef const float[:, ::1] cluster_COM = \
-            <float[:n_clusters, :3]> (
-                <float*> self.thisptr.getClusterCOM().get())
-        return np.asarray(cluster_COM)
+        return freud.util.make_managed_numpy_array(
+            <const void *> &self.thisptr.getClusterCOM(),
+            freud.util.arr_type_t.FLOAT, 3)
 
     @Compute._computed_property("compute")
     def cluster_G(self):
-        cdef unsigned int n_clusters = self.thisptr.getNumClusters()
-        if not n_clusters:
-            return np.asarray([[[]]], dtype=np.float32)
-        cdef const float[:, :, ::1] cluster_G = \
-            <float[:n_clusters, :3, :3]> (
-                <float*> self.thisptr.getClusterG().get())
-        return np.asarray(cluster_G)
+        return freud.util.make_managed_numpy_array(
+            <const void *> &self.thisptr.getClusterG(),
+            freud.util.arr_type_t.FLOAT)
 
     @Compute._computed_property("compute")
     def cluster_sizes(self):
-        cdef unsigned int n_clusters = self.thisptr.getNumClusters()
-        if not n_clusters:
-            return np.asarray([], dtype=np.uint32)
-        cdef const unsigned int[::1] cluster_sizes = \
-            <unsigned int[:n_clusters]> self.thisptr.getClusterSize().get()
-        return np.asarray(cluster_sizes, dtype=np.uint32)
+        return freud.util.make_managed_numpy_array(
+            <const void *> &self.thisptr.getClusterSize(),
+            freud.util.arr_type_t.UNSIGNED_INT)
 
     def __repr__(self):
         return ("freud.cluster.{cls}()").format(

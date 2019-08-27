@@ -104,6 +104,11 @@ public:
     }
 
     //! Return the underlying pointer (requires two levels of indirection).
+    /*! This function SHOULD NOT BE USED. It is only part of the public API for
+     * the purpose of freud's Python API, which requires a non-const pointer to
+     * the data to construct a numpy array. However, this pointer to the
+     * underlying should never be accessed by client code.
+     */
     T *get() const
     {
         std::shared_ptr<T> *tmp = m_data.get();

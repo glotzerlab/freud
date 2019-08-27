@@ -41,20 +41,30 @@ cdef class ManagedArrayManager:
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
     """
 
-    def __cinit__(self, arr_type, typenum):
+    def __cinit__(self, arr_type, typenum, element_size):
         # This class should generally be initialized via the factory "init"
         # function, but some logic is included here for ease of use.
+        self._element_size = element_size
         self.data_type = arr_type
         self.var_typenum = typenum
         self.thisptr.null_ptr = NULL
 
     @property
     def shape(self):
-        return tuple(self.thisptr.uint_ptr.shape())
+        if self.data_type == arr_type_t.UNSIGNED_INT:
+            return tuple(self.thisptr.uint_ptr.shape())
+        elif self.data_type == arr_type_t.FLOAT:
+            return tuple(self.thisptr.float_ptr.shape())
+
+    @property
+    def element_size(self):
+        return self._element_size
 
     def __dealloc__(self):
-        if self.var_typenum == np.NPY_UINT32:
+        if self.data_type == arr_type_t.UNSIGNED_INT:
             del self.thisptr.uint_ptr
+        elif self.data_type == arr_type_t.FLOAT:
+            del self.thisptr.float_ptr
 
     cdef void set_as_base(self, arr):
         """Sets the base of arr to be this object and increases the
@@ -63,9 +73,11 @@ cdef class ManagedArrayManager:
         Py_INCREF(self)
 
     cdef void *get(self):
-        """Return the raw pointer to the underlying data array."""
+        """Return a constant raw pointer to the underlying data array."""
         if self.data_type == arr_type_t.UNSIGNED_INT:
             return self.thisptr.uint_ptr.get()
+        elif self.data_type == arr_type_t.FLOAT:
+            return self.thisptr.float_ptr.get()
 
     def __array__(self):
         """Convert the underlying data array into a read-only numpy array.
@@ -77,10 +89,13 @@ cdef class ManagedArrayManager:
         """
         cdef np.npy_intp size[1]
         cdef np.ndarray arr
-        size[0] = np.prod(self.shape)
+        size[0] = np.prod(self.shape) * self.element_size
         arr = np.PyArray_SimpleNewFromData(
             1, size, self.var_typenum, self.get())
 
         arr.setflags(write=False)
         self.set_as_base(arr)
-        return np.reshape(arr, self.shape)
+
+        return np.reshape(
+            arr, self.shape if self.element_size == 1
+            else self.shape + (self.element_size, ))

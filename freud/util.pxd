@@ -17,13 +17,16 @@ ctypedef unsigned int uint
 
 ctypedef enum arr_type_t:
     UNSIGNED_INT
+    FLOAT
 
 ctypedef union arr_ptr_t:
     const void *null_ptr
     const ManagedArray[uint] *uint_ptr
+    const ManagedArray[float] *float_ptr
 
 
 cdef class ManagedArrayManager:
+    cdef uint _element_size
     cdef int var_typenum
     cdef arr_ptr_t thisptr
     cdef arr_type_t data_type
@@ -33,18 +36,23 @@ cdef class ManagedArrayManager:
 
     @staticmethod
     cdef inline ManagedArrayManager init(
-            const void *array, arr_type_t arr_type):
+            const void *array, arr_type_t arr_type, uint element_size=1):
         cdef ManagedArrayManager obj
 
         if arr_type == arr_type_t.UNSIGNED_INT:
-            obj = ManagedArrayManager(arr_type_t.UNSIGNED_INT, np.NPY_UINT32)
+            obj = ManagedArrayManager(arr_type_t.UNSIGNED_INT, np.NPY_UINT32,
+                                      element_size)
             obj.thisptr.uint_ptr = new const ManagedArray[uint](
                 dereference(<const ManagedArray[uint] *>array))
+        elif arr_type == arr_type_t.FLOAT:
+            obj = ManagedArrayManager(arr_type_t.UNSIGNED_INT, np.NPY_FLOAT,
+                                      element_size)
+            obj.thisptr.float_ptr = new const ManagedArray[float](
+                dereference(<const ManagedArray[float] *>array))
 
         return obj
 
 cdef inline make_managed_numpy_array(
-        const void *array, arr_type_t arr_type):
+        const void *array, arr_type_t arr_type, uint element_size=1):
     """Make a ManagedArrayManager and return an array pointing to its data."""
-    return np.asarray(ManagedArrayManager.init(
-        array, arr_type_t.UNSIGNED_INT))
+    return np.asarray(ManagedArrayManager.init(array, arr_type, element_size))
