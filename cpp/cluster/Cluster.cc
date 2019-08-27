@@ -14,10 +14,7 @@
 
 using namespace std;
 
-/*! \file Cluster.cc
-    \brief Routines for clustering points.
-*/
-
+//! Finds clusters using a network of neighbors.
 namespace freud { namespace cluster {
 
 Cluster::Cluster() : m_num_particles(0), m_num_clusters(0) {}
@@ -38,7 +35,7 @@ void Cluster::compute(const freud::locality::NeighborQuery* nq,
 
     freud::locality::loopOverNeighbors(
         nq, points, Np, qargs, nlist,
-        [this, &dj](const freud::locality::NeighborBond& neighbor_bond) {
+        [&dj](const freud::locality::NeighborBond& neighbor_bond) {
             // merge the two sets using the disjoint set
             if (!dj.same(neighbor_bond.ref_id, neighbor_bond.id))
             {
@@ -115,7 +112,7 @@ void Cluster::compute(const freud::locality::NeighborQuery* nq,
 
 // Returns inverse permutation of cluster indices, sorted from largest to smallest.
 // Adapted from https://stackoverflow.com/questions/1577475/c-sorting-and-keeping-track-of-indexes
-std::vector<size_t> sort_indexes_inverse(const std::vector<size_t> &counts, const std::vector<size_t> &min_ids) {
+std::vector<size_t> Cluster::sort_indexes_inverse(const std::vector<size_t> &counts, const std::vector<size_t> &min_ids) {
 
     // Initialize original index locations
     std::vector<size_t> idx(counts.size());

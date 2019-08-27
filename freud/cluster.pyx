@@ -27,34 +27,31 @@ cimport numpy as np
 np.import_array()
 
 cdef class Cluster(PairCompute):
-    R"""Finds clusters in a set of points.
+    """Finds clusters using a network of neighbors.
 
-    Given a set of coordinates and a cutoff, :class:`freud.cluster.Cluster`
-    will determine all of the clusters of points that are made up of points
-    that are closer than the cutoff. Clusters are 0-indexed. The class contains
-    an index array, the :code:`cluster_idx` attribute, which can be used to
-    identify which cluster a particle is associated with:
-    :code:`cluster_obj.cluster_idx[i]` is the cluster index in which particle
-    :code:`i` is found. By the definition of a cluster, points that are not
-    within the cutoff of another point end up in their own 1-particle cluster.
+    Given a set of particles and their neighbors,
+    :class:`freud.cluster.Cluster` will determine all of the connected
+    components of the network formed by those neighbor bonds.  That is, two
+    points are in the same cluster if and only if a path exists between them on
+    the network of bonds. The class attribute :code:`cluster_idx` holds an
+    array of cluster indices for each particle. By the definition of a cluster,
+    points that are not bonded to any other point end up in their own
+    1-particle cluster.
 
-    Identifying micelles is one primary use-case for finding clusters. This
-    operation is somewhat different, though. In a cluster of points, each and
-    every point belongs to one and only one cluster. However, because a string
-    of points belongs to a polymer, that single polymer may be present in more
-    than one cluster. To handle this situation, an optional layer is presented
-    on top of the :code:`cluster_idx` array. Given a key value per particle
-    (i.e. the polymer id), the computeClusterMembership function will process
-    :code:`cluster_idx` with the key values in mind and provide a list of keys
-    that are present in each cluster.
+    Identifying micelles is one use-case for finding clusters. This operation
+    is somewhat different, though. In a cluster of points, each and every point
+    belongs to one and only one cluster. However, because a string of points
+    belongs to a polymer, that single polymer may be present in more than one
+    cluster. To handle this situation, an optional layer is presented on top of
+    the :code:`cluster_idx` array. Given a key value per particle (e.g. the
+    polymer id), the compute function will process clusters with the key values
+    in mind and provide a list of keys that are present in each cluster in the
+    attribute :code:`cluster_keys`, as a list of lists. If keys are not
+    provided, every particle is assigned a key corresponding to its index, and
+    :code:`cluster_keys` contains the particle ids present in each cluster.
 
     .. moduleauthor:: Joshua Anderson <joaander@umich.edu>
-
-    Args:
-        box (:class:`freud.box.Box`):
-            The simulation box.
-        r_max (float):
-            Particle distance cutoff.
+    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
 
     .. note::
         **2D:** :class:`freud.cluster.Cluster` properly handles 2D boxes.
