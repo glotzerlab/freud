@@ -10,13 +10,15 @@ import numpy as np
 import warnings
 import freud.common
 import freud.locality
+import freud.util
 
 from cython.operator cimport dereference
 from freud.common cimport Compute, PairCompute
-from freud.util cimport vec3
+from freud.util cimport vec3, uint
 
 cimport freud._cluster
 cimport freud.box, freud.locality
+cimport freud.util
 
 cimport numpy as np
 
@@ -70,7 +72,7 @@ cdef class Cluster(PairCompute):
             A list of lists of the keys contained in each cluster.
     """
     cdef freud._cluster.Cluster * thisptr
-    cdef r_max
+    cdef float r_max
 
     def __cinit__(self, float r_max):
         self.thisptr = new freud._cluster.Cluster(r_max)
@@ -104,7 +106,7 @@ cdef class Cluster(PairCompute):
                                       query_args=query_args)
 
         with nogil:
-            self.thisptr.computeClusters(
+            self.thisptr.compute(
                 nq.get_ptr(),
                 nlistptr.get_ptr(),
                 <vec3[float]*> &l_query_points[0, 0],
@@ -143,10 +145,9 @@ cdef class Cluster(PairCompute):
 
     @Compute._computed_property("compute")
     def cluster_idx(self):
-        cdef unsigned int n_particles = self.thisptr.getNumParticles()
-        cdef const unsigned int[::1] cluster_idx = \
-            <unsigned int[:n_particles]> self.thisptr.getClusterIdx().get()
-        return np.asarray(cluster_idx)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getClusterIdx(),
+            freud.util.arr_type_t.UNSIGNED_INT)
 
     @Compute._computed_property("computeClusterMembership")
     def cluster_keys(self):
@@ -263,32 +264,21 @@ cdef class ClusterProperties(Compute):
 
     @Compute._computed_property("compute")
     def cluster_COM(self):
-        cdef unsigned int n_clusters = self.thisptr.getNumClusters()
-        if not n_clusters:
-            return np.asarray([[]], dtype=np.float32)
-        cdef const float[:, ::1] cluster_COM = \
-            <float[:n_clusters, :3]> (
-                <float*> self.thisptr.getClusterCOM().get())
-        return np.asarray(cluster_COM)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getClusterCOM(),
+            freud.util.arr_type_t.FLOAT, 3)
 
     @Compute._computed_property("compute")
     def cluster_G(self):
-        cdef unsigned int n_clusters = self.thisptr.getNumClusters()
-        if not n_clusters:
-            return np.asarray([[[]]], dtype=np.float32)
-        cdef const float[:, :, ::1] cluster_G = \
-            <float[:n_clusters, :3, :3]> (
-                <float*> self.thisptr.getClusterG().get())
-        return np.asarray(cluster_G)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getClusterG(),
+            freud.util.arr_type_t.FLOAT)
 
     @Compute._computed_property("compute")
     def cluster_sizes(self):
-        cdef unsigned int n_clusters = self.thisptr.getNumClusters()
-        if not n_clusters:
-            return np.asarray([], dtype=np.uint32)
-        cdef const unsigned int[::1] cluster_sizes = \
-            <unsigned int[:n_clusters]> self.thisptr.getClusterSize().get()
-        return np.asarray(cluster_sizes, dtype=np.uint32)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getClusterSize(),
+            freud.util.arr_type_t.UNSIGNED_INT)
 
     def __repr__(self):
         return ("freud.cluster.{cls}()").format(

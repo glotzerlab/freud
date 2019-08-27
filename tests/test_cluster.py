@@ -1,4 +1,5 @@
 import numpy as np
+import numpy.testing as npt
 import freud
 import unittest
 import util
@@ -153,6 +154,30 @@ class TestCluster(unittest.TestCase):
 
         clust.compute(box, positions)
         clust._repr_png_()
+
+    def test_saved_values(self):
+        """Check that saved output don't get overwritten by later calls to
+        compute or object deletion."""
+        L = 10
+        num_points = 100
+        num_tests = 3
+
+        r_max = 2
+        copied = []
+        accessed = []
+        cl = freud.cluster.Cluster(r_max)
+
+        box = freud.box.Box.cube(L)
+        for i in range(num_tests):
+            points = np.random.rand(num_points, 3)*L - L/2
+            cl.compute(box, points)
+
+            copied.append(np.copy(cl.cluster_idx))
+            accessed.append(cl.cluster_idx)
+        npt.assert_array_equal(copied, accessed)
+
+        del cl
+        npt.assert_array_equal(copied, accessed)
 
 
 if __name__ == '__main__':
