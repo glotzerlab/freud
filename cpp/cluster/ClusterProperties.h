@@ -50,19 +50,19 @@ public:
     }
 
     //! Get a reference to the last computed cluster_com
-    util::ManagedArray<vec3<float>> getClusterCOM()
+    const util::ManagedArray<vec3<float>> &getClusterCOM()
     {
         return m_cluster_com;
     }
 
     //! Get a reference to the last computed cluster_G
-    util::ManagedArray<float> getClusterG()
+    const util::ManagedArray<float> &getClusterG()
     {
         return m_cluster_G;
     }
 
     //! Get a reference to the last computed cluster size
-    util::ManagedArray<unsigned int> getClusterSize()
+    const util::ManagedArray<unsigned int> &getClusterSize()
     {
         return m_cluster_size;
     }

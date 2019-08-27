@@ -43,7 +43,7 @@ void ClusterProperties::computeProperties(const box::Box& box, const vec3<float>
     // allocate memory for the cluster properties and temporary arrays
     // initialize arrays to 0
     m_cluster_com.prepare(m_num_clusters);
-    m_cluster_G.prepare(m_num_clusters*3*3);
+    m_cluster_G.prepare({m_num_clusters, 3, 3});
     m_cluster_size.prepare(m_num_clusters);
 
     // ref_particle is the first particle found in a cluster, it is used as a
@@ -100,32 +100,30 @@ void ClusterProperties::computeProperties(const box::Box& box, const vec3<float>
         vec3<float> delta = box.wrap(pos - m_cluster_com[c]);
 
         // get the start pointer for our 3x3 matrix
-        unsigned int start_idx = c*9;
-        m_cluster_G[start_idx + 0 * 3 + 0] += delta.x * delta.x;
-        m_cluster_G[start_idx + 0 * 3 + 1] += delta.x * delta.y;
-        m_cluster_G[start_idx + 0 * 3 + 2] += delta.x * delta.z;
-        m_cluster_G[start_idx + 1 * 3 + 0] += delta.y * delta.x;
-        m_cluster_G[start_idx + 1 * 3 + 1] += delta.y * delta.y;
-        m_cluster_G[start_idx + 1 * 3 + 2] += delta.y * delta.z;
-        m_cluster_G[start_idx + 2 * 3 + 0] += delta.z * delta.x;
-        m_cluster_G[start_idx + 2 * 3 + 1] += delta.z * delta.y;
-        m_cluster_G[start_idx + 2 * 3 + 2] += delta.z * delta.z;
+        m_cluster_G(c, 0, 0) += delta.x * delta.x;
+        m_cluster_G(c, 0, 1) += delta.x * delta.y;
+        m_cluster_G(c, 0, 2) += delta.x * delta.z;
+        m_cluster_G(c, 1, 0) += delta.y * delta.x;
+        m_cluster_G(c, 1, 1) += delta.y * delta.y;
+        m_cluster_G(c, 1, 2) += delta.y * delta.z;
+        m_cluster_G(c, 2, 0) += delta.z * delta.x;
+        m_cluster_G(c, 2, 1) += delta.z * delta.y;
+        m_cluster_G(c, 2, 2) += delta.z * delta.z;
     }
 
     // Normalize by the cluster size.
     for (unsigned int c = 0; c < m_num_clusters; c++)
     {
-        unsigned int start_idx = c*9;
         float s = float(m_cluster_size[c]);
-        m_cluster_G[start_idx + 0 * 3 + 0] /= s;
-        m_cluster_G[start_idx + 0 * 3 + 1] /= s;
-        m_cluster_G[start_idx + 0 * 3 + 2] /= s;
-        m_cluster_G[start_idx + 1 * 3 + 0] /= s;
-        m_cluster_G[start_idx + 1 * 3 + 1] /= s;
-        m_cluster_G[start_idx + 1 * 3 + 2] /= s;
-        m_cluster_G[start_idx + 2 * 3 + 0] /= s;
-        m_cluster_G[start_idx + 2 * 3 + 1] /= s;
-        m_cluster_G[start_idx + 2 * 3 + 2] /= s;
+        m_cluster_G(c, 0, 0) /= s;
+        m_cluster_G(c, 0, 1) /= s;
+        m_cluster_G(c, 0, 2) /= s;
+        m_cluster_G(c, 1, 0) /= s;
+        m_cluster_G(c, 1, 1) /= s;
+        m_cluster_G(c, 1, 2) /= s;
+        m_cluster_G(c, 2, 0) /= s;
+        m_cluster_G(c, 2, 1) /= s;
+        m_cluster_G(c, 2, 2) /= s;
     }
 }
 

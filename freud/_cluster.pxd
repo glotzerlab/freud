@@ -33,6 +33,6 @@ cdef extern from "ClusterProperties.h" namespace "freud::cluster":
             const unsigned int*,
             unsigned int) nogil except +
         unsigned int getNumClusters()
-        const freud.util.ManagedArray[vec3[float]] getClusterCOM()
-        const freud.util.ManagedArray[float] getClusterG()
-        const freud.util.ManagedArray[unsigned int] getClusterSize()
+        const freud.util.ManagedArray[vec3[float]] &getClusterCOM()
+        const freud.util.ManagedArray[float] &getClusterG()
+        const freud.util.ManagedArray[unsigned int] &getClusterSize()
