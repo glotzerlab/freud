@@ -16,27 +16,29 @@ cimport numpy as np
 np.import_array()
 
 
-cdef class ManagedArrayManager:
+cdef class _ManagedArrayContainer:
     """Class responsible for synchronizing ownership between two ManagedArray
     instances.
 
     The purpose of this container is to minimize memory copies while avoiding
-    reference rot. Users obtaining numpy arrays as outputs from a compute class
+    reference rot. Users obtaining NumPy arrays as outputs from a compute class
     have a reasonable expectation that these arrays will remain valid after the
     compute class recomputes or goes out of scope. To enforce this requirement,
-    all such data members should be stored in using the ManagedArray class in
-    C++ and then returned by creation of a ManagedArrayManager in Python. This
-    class creates a copy of the ManagedArray that shares ownership of the data,
-    and the ManagedArrayManager is tied to the lifetime of any numpy arrays
-    created from it, ensuring that the data remains valid for the lifetime of
-    such objects. Compute classes must use the `prepare` method of the
-    ManagedArray class to ensure that they do not overwrite memory spaces still
-    in use on the Python side.
+    freud stores all such data members on the C++ side using the ManagedArray
+    template class. A ManagedArray shares ownership of its data array through a
+    shared pointer, allowing multiple ManagedArrays to share ownership of data.
+    Compute classes must use the `prepare` method of the ManagedArray class to
+    ensure that they do not overwrite memory spaces shared with other arrays.
+
+    This class creates a copy of a provided ManagedArray to share ownership of
+    its data. The resulting _ManagedArrayContainer can be converted to a NumPy
+    array and is tied to the lifetime of any such NumPy arrays created from it,
+    ensuring that the data remains valid for the lifetime of such objects.
 
     This class should always be initialized using the static factory
-    :meth:`~ManagedArrayManager.init` method, which creates the Python copy of
-    a ManagedArray provided the instance member of the underlying C++ compute
-    class.
+    :meth:`~_ManagedArrayContainer.init` method, which creates the Python copy
+    of a ManagedArray provided the instance member of the underlying C++
+    compute class.
 
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
     """

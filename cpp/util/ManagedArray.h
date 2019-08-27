@@ -208,7 +208,7 @@ public:
         }
 
         // In getting the linear bin, we must iterate over bins in reverse
-        // order to build up the value of prod because each subsequent axis
+        // order to build up the value of cur_prod because each subsequent axis
         // contributes less according to row-major ordering.
         size_t cur_prod = 1;
         size_t idx = 0;
@@ -223,13 +223,13 @@ public:
 
 private:
 
-    //! Argument building, base case for signed ints.
+    //! The base case for building up the index.
     /*! These argument building functions are templated on two types, one that
      *  encapsulates the current object being operated on and the other being
      *  the list of remaining arguments. Since users may provide both signed and
      *  unsigned ints to the function, we perform the appropriate check on each
      *  Int object. The second function is used for template recursion in
-     *  unwrapping the list of arguments
+     *  unwrapping the list of arguments.
      */
     template <typename Int>
     static std::vector<unsigned int> buildIndex(Int index)
@@ -239,7 +239,7 @@ private:
         return {static_cast<unsigned int>(index)};
     }
 
-    //! Argument building, recursive case for signed ints.
+    //! The recursive case for building up the index (see above).
     template <typename Int, typename ... Ints>
     static std::vector<unsigned int> buildIndex(Int index, Ints ... indices)
     {
