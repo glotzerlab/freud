@@ -151,24 +151,21 @@ public:
     // indices, we provide overloads of the indexing operator. For convenience,
     // all calls eventually funnel through the simplest function interface, a
     // std::vector of indices. However, the more convenient approach is enabled
-    // using variadic template arguments. To properly handle the possibility
-    // that users could pass both ints and unsigned ints, various templated
-    // overloads of the private buildArgs function exist below to provide
-    // appropriate function resolution.
+    // using variadic template arguments. 
     //*************************************************************************
 
-    //! Implementation of variadic indexing function for unsigned ints.
+    //! Implementation of variadic indexing function.
     template <typename ... Ints>
     T &operator()(Ints ... indices)
     {
-        return (*this)(buildArgs(indices...));
+        return (*this)(buildIndex(indices...));
     }
 
-    //! Constant recursive implementation of variadic indexing function for unsigned ints.
+    //! Constant implementation of variadic indexing function.
     template <typename ... Ints>
     const T &operator()(Ints ... indices) const
     {
-        return (*this)(buildArgs(indices ...));
+        return (*this)(buildIndex(indices ...));
     }
 
     //! Core function for multidimensional indexing.
@@ -226,81 +223,30 @@ public:
 
 private:
 
-    //*************************************************************************
-    // The various buildArgs functions below define template methods for
-    // indexing ManagedArrays using the () operator. Due to the possibility of
-    // users passing in either signed or unsigned integers, we unfortunately
-    // need to have some extra template functions in place to properly handle
-    // the different behaviors. However, the individual functions are very
-    // short and readable, they are simply setting up template-based recursion.
-    //*************************************************************************
-
-    //! Base case for unsigned ints.
-    std::vector<unsigned int> buildArgs(unsigned int index)
-    {
-        return {index};
-    }
-
-    //! Base case for signed ints.
-    std::vector<unsigned int> buildArgs(int index)
+    //! Argument building, base case for signed ints.
+    /*! These argument building functions are templated on two types, one that
+     *  encapsulates the current object being operated on and the other being
+     *  the list of remaining arguments. Since users may provide both signed and
+     *  unsigned ints to the function, we perform the appropriate check on each
+     *  Int object. The second function is used for template recursion in
+     *  unwrapping the list of arguments
+     */
+    template <typename Int>
+    static std::vector<unsigned int> buildIndex(Int index)
     {
         if (index < 0)
             throw std::invalid_argument("Value must be positive.");
         return {static_cast<unsigned int>(index)};
     }
 
-    //! Recursive case for unsigned ints.
-    template <typename ... Ints>
-    std::vector<unsigned int> buildArgs(unsigned int index, Ints ... indices)
-    {
-        std::vector<unsigned int> tmp = buildArgs(indices...);
-        tmp.insert(tmp.begin(), index);
-        return tmp;
-    }
-
-    //! Recursive case for signed ints.
-    template <typename ... Ints>
-    std::vector<unsigned int> buildArgs(int index, Ints ... indices)
+    //! Argument building, recursive case for signed ints.
+    template <typename Int, typename ... Ints>
+    static std::vector<unsigned int> buildIndex(Int index, Ints ... indices)
     {
         if (index < 0)
             throw std::invalid_argument("Value must be positive.");
 
-        std::vector<unsigned int> tmp = buildArgs(indices...);
-        tmp.insert(tmp.begin(), static_cast<unsigned int>(index));
-        return tmp;
-    }
-
-    //! Base case for unsigned ints for const instance of class.
-    const std::vector<unsigned int> buildArgs(unsigned int index) const
-    {
-        return {index};
-    }
-
-    //! Base case for signed ints for const instance of class.
-    const std::vector<unsigned int> buildArgs(int index) const
-    {
-        if (index < 0)
-            throw std::invalid_argument("Value must be positive.");
-        return {static_cast<unsigned int>(index)};
-    }
-
-    //! Recursive case for unsigned ints for const instance of class.
-    template <typename ... Ints>
-    const std::vector<unsigned int> buildArgs(unsigned int index, Ints ... indices) const
-    {
-        std::vector<unsigned int> tmp = buildArgs(indices...);
-        tmp.insert(tmp.begin(), index);
-        return tmp;
-    }
-
-    //! Recursive case for signed ints for const instance of class.
-    template <typename ... Ints>
-    const std::vector<unsigned int> buildArgs(int index, Ints ... indices) const
-    {
-        if (index < 0)
-            throw std::invalid_argument("Value must be positive.");
-
-        std::vector<unsigned int> tmp = buildArgs(indices...);
+        std::vector<unsigned int> tmp = buildIndex(indices...);
         tmp.insert(tmp.begin(), static_cast<unsigned int>(index));
         return tmp;
     }
