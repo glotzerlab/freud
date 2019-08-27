@@ -5,7 +5,6 @@
 #define BOX_H
 
 #include <cassert>
-#include <iostream>
 #include <math.h>
 #include <sstream>
 #include <stdexcept>

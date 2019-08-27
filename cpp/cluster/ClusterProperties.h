@@ -6,6 +6,7 @@
 
 #include <memory>
 
+#include "ManagedArray.h"
 #include "Box.h"
 
 /*! \file ClusterProperties.h
@@ -49,30 +50,28 @@ public:
     }
 
     //! Get a reference to the last computed cluster_com
-    std::shared_ptr<vec3<float>> getClusterCOM()
+    const util::ManagedArray<vec3<float>> &getClusterCOM()
     {
         return m_cluster_com;
     }
 
     //! Get a reference to the last computed cluster_G
-    std::shared_ptr<float> getClusterG()
+    const util::ManagedArray<float> &getClusterG()
     {
         return m_cluster_G;
     }
 
     //! Get a reference to the last computed cluster size
-    std::shared_ptr<unsigned int> getClusterSize()
+    const util::ManagedArray<unsigned int> &getClusterSize()
     {
         return m_cluster_size;
     }
 
 private:
     unsigned int m_num_clusters; //!< Number of clusters found in the last call to computeProperties()
-    std::shared_ptr<vec3<float>>
-        m_cluster_com; //!< Center of mass computed for each cluster (length: m_num_clusters)
-    std::shared_ptr<float>
-        m_cluster_G; //!< Gyration tensor computed for each cluster (m_num_clusters x 3 x 3 array)
-    std::shared_ptr<unsigned int> m_cluster_size; //!< Size per cluster
+    util::ManagedArray<vec3<float>> m_cluster_com; //!< Center of mass computed for each cluster (length: m_num_clusters)
+    util::ManagedArray<float> m_cluster_G; //!< Gyration tensor computed for each cluster (m_num_clusters x 3 x 3 array)
+    util::ManagedArray<unsigned int> m_cluster_size; //!< Size per cluster
 };
 
 }; }; // end namespace freud::cluster
