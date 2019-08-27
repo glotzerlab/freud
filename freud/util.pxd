@@ -40,12 +40,12 @@ cdef class ManagedArrayManager:
         cdef ManagedArrayManager obj
 
         if arr_type == arr_type_t.UNSIGNED_INT:
-            obj = ManagedArrayManager(arr_type_t.UNSIGNED_INT, np.NPY_UINT32,
+            obj = ManagedArrayManager(arr_type, np.NPY_UINT32,
                                       element_size)
             obj.thisptr.uint_ptr = new const ManagedArray[uint](
                 dereference(<const ManagedArray[uint] *>array))
         elif arr_type == arr_type_t.FLOAT:
-            obj = ManagedArrayManager(arr_type_t.UNSIGNED_INT, np.NPY_FLOAT,
+            obj = ManagedArrayManager(arr_type, np.NPY_FLOAT,
                                       element_size)
             obj.thisptr.float_ptr = new const ManagedArray[float](
                 dereference(<const ManagedArray[float] *>array))
