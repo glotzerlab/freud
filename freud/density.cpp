@@ -49,15 +49,15 @@
         "name": "freud.density",
         "sources": [
             "freud/density.pyx",
-            "cpp/locality/NeighborList.cc",
-            "cpp/density/CorrelationFunction.cc",
-            "cpp/density/RDF.cc",
-            "cpp/density/GaussianDensity.cc",
-            "cpp/util/NdHistogram.cc",
-            "cpp/density/LocalDensity.cc",
             "cpp/locality/NeighborQuery.cc",
+            "cpp/density/CorrelationFunction.cc",
+            "cpp/locality/NeighborList.cc",
             "cpp/locality/NeighborComputeFunctional.cc",
-            "cpp/locality/AABBQuery.cc"
+            "cpp/locality/AABBQuery.cc",
+            "cpp/density/GaussianDensity.cc",
+            "cpp/density/LocalDensity.cc",
+            "cpp/util/NdHistogram.cc",
+            "cpp/density/RDF.cc"
         ]
     },
     "module_name": "freud.density"

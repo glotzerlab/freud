@@ -50,16 +50,16 @@
         "name": "freud.pmft",
         "sources": [
             "freud/pmft.pyx",
-            "cpp/locality/NeighborList.cc",
-            "cpp/pmft/PMFTXYT.cc",
-            "cpp/pmft/PMFTXY2D.cc",
-            "cpp/pmft/PMFT.cc",
-            "cpp/pmft/PMFTXYZ.cc",
-            "cpp/util/NdHistogram.cc",
-            "cpp/locality/NeighborQuery.cc",
             "cpp/pmft/PMFTR12.cc",
+            "cpp/pmft/PMFTXYZ.cc",
+            "cpp/locality/NeighborQuery.cc",
+            "cpp/pmft/PMFTXY2D.cc",
+            "cpp/locality/NeighborList.cc",
             "cpp/locality/NeighborComputeFunctional.cc",
-            "cpp/locality/AABBQuery.cc"
+            "cpp/locality/AABBQuery.cc",
+            "cpp/util/NdHistogram.cc",
+            "cpp/pmft/PMFTXYT.cc",
+            "cpp/pmft/PMFT.cc"
         ]
     },
     "module_name": "freud.pmft"

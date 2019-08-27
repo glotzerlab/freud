@@ -31,8 +31,8 @@
         "name": "freud.common",
         "sources": [
             "freud/common.pyx",
-            "cpp/locality/NeighborList.cc",
             "cpp/locality/NeighborQuery.cc",
+            "cpp/locality/NeighborList.cc",
             "cpp/locality/NeighborComputeFunctional.cc",
             "cpp/locality/AABBQuery.cc"
         ]

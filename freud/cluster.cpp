@@ -47,12 +47,12 @@
         "name": "freud.cluster",
         "sources": [
             "freud/cluster.pyx",
-            "cpp/locality/NeighborList.cc",
-            "cpp/locality/NeighborQuery.cc",
-            "cpp/cluster/ClusterProperties.cc",
             "cpp/cluster/Cluster.cc",
+            "cpp/locality/NeighborQuery.cc",
+            "cpp/locality/NeighborList.cc",
             "cpp/locality/NeighborComputeFunctional.cc",
-            "cpp/locality/AABBQuery.cc"
+            "cpp/locality/AABBQuery.cc",
+            "cpp/cluster/ClusterProperties.cc"
         ]
     },
     "module_name": "freud.cluster"
