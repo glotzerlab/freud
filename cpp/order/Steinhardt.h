@@ -100,7 +100,7 @@ public:
     }
 
     //! Get the last calculated Qlm for each particle
-    std::shared_ptr<float> getQlm()
+    std::shared_ptr<std::complex<float>> getQlm()
     {
         return m_Qlmi;
     }
@@ -152,11 +152,6 @@ private:
     //! Reallocates only the necessary arrays when the number of particles changes
     // unsigned int Np number of particles
     void reallocateArrays(unsigned int Np);
-
-    //! Calculates the base Ql order parameter before further modifications
-    // if any.
-    void baseCompute(const freud::locality::NeighborList* nlist,
-                                  const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs);
 
     //! Calculates the neighbor average Ql order parameter
     void computeAve(const freud::locality::NeighborList* nlist,

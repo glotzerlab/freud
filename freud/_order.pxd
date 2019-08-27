@@ -84,6 +84,11 @@ cdef extern from "Steinhardt.h" namespace "freud::order":
 cdef extern from "SolidLiquid.h" namespace "freud::order":
     cdef cppclass SolidLiquid:
         SolidLiquid(unsigned int, float, unsigned int, bool, bool) except +
+        unsigned int getL()
+        float getQThreshold()
+        unsigned int getSThreshold()
+        bool getNormalizeQ()
+        bool getCommonNeighbors()
         void compute(const freud._locality.NeighborList*,
                      const freud._locality.NeighborQuery*,
                      freud._locality.QueryArgs) nogil except +
@@ -91,7 +96,6 @@ cdef extern from "SolidLiquid.h" namespace "freud::order":
         vector[unsigned int] getClusterSizes()
         shared_ptr[unsigned int] getClusters()
         shared_ptr[unsigned int] getNumberOfConnections()
-        unsigned int getNP()
         unsigned int getNumClusters()
 
 

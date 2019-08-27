@@ -28,25 +28,30 @@ SolidLiquid::SolidLiquid(unsigned int l, float Q_threshold, unsigned int S_thres
 void SolidLiquid::compute(const freud::locality::NeighborList* nlist,
         const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs)
 {
-    // Make NeighborList
+    // Make NeighborList from NeighborQuery if needed
+    if (nlist == NULL)
+    {
+        auto nqiter(points->queryWithArgs(points->getPoints(), points->getNPoints(), qargs));
+        nlist = nqiter->toNeighborList();
+    }
 
     // Compute Steinhardt using neighbor list (also gets Ql for normalization)
     m_steinhardt.baseCompute(nlist, points, qargs);
 
     // Compute (normalized) dot products for each bond in the neighbor list
-    custom math
+    //custom math
 
     // Filter neighbors to contain only solid-like bonds
-    nlist.filter();
+    //nlist.filter();
 
     // Save the neighbor counts of solid-like bonds
-    m_number_of_connections = nlist.getNeighborCounts()
+    //m_number_of_connections = nlist.getNeighborCounts()
 
     // Filter nlist using solid-like threshold of (common) neighbors
-    nlist.filter()
+    //nlist.filter()
 
     // Cluster using filtered neighbor list
-    m_cluster.compute()
+    //m_cluster.compute()
 }
 
 unsigned int SolidLiquid::getLargestClusterSize()

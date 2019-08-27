@@ -652,11 +652,6 @@ cdef class SolidLiquid(PairCompute):
             The number of connections per particle.
     """  # noqa: E501
     cdef freud._order.SolidLiquid * thisptr
-    cdef int sph_l
-    cdef float Q_threshold
-    cdef float S_threshold
-    cdef bool normalize_Q
-    cdef bool normalize_Q
 
     def __cinit__(self, l, Q_threshold, S_threshold, normalize_Q=True,
                   common_neighbors=False):
@@ -701,12 +696,35 @@ cdef class SolidLiquid(PairCompute):
                              nq.get_ptr(),
                              dereference(qargs.thisptr))
 
+    @property
+    def l(self):  # noqa: E743
+        return self.thisptr.getL()
+
+    @property
+    def Q_threshold(self):
+        return self.thisptr.getQThreshold()
+
+    @property
+    def S_threshold(self):
+        return self.thisptr.getSThreshold()
+
+    @property
+    def normalize_Q(self):
+        return self.thisptr.getNormalizeQ()
+
+    @property
+    def common_neighbors(self):
+        return self.thisptr.getCommonNeighbors()
+
     @Compute._computed_property()
     def clusters(self):
+        return []
+        """
         cdef unsigned int n_particles = self.thisptr.getNP()
         cdef const unsigned int[::1] clusters = \
             <unsigned int[:n_particles]> self.thisptr.getClusters().get()
         return np.asarray(clusters, dtype=np.uint32)
+        """
 
     @Compute._computed_property()
     def cluster_sizes(self):
@@ -722,11 +740,14 @@ cdef class SolidLiquid(PairCompute):
 
     @Compute._computed_property()
     def num_connections(self):
+        return []
+        """
         cdef unsigned int n_particles = self.thisptr.getNP()
         cdef const unsigned int[::1] num_connections = \
             <unsigned int[:n_particles]> \
             self.thisptr.getNumberOfConnections().get()
         return np.asarray(num_connections, dtype=np.uint32)
+        """
 
     def __repr__(self):
         return ("freud.order.{cls}(l={sph_l}, Q_threshold={Q_threshold}, "

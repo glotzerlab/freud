@@ -14,9 +14,11 @@
 #include <vector>
 
 #include "Box.h"
+#include "Cluster.h"
+#include "NeighborList.h"
+#include "Steinhardt.h"
 #include "ThreadStorage.h"
 #include "VectorMath.h"
-#include "NeighborList.h"
 #include "fsph/src/spherical_harmonics.hpp"
 
 namespace freud { namespace order {
@@ -40,6 +42,31 @@ public:
      *     l=6, 6-8 generally good for FCC or BCC structures)
      */
     SolidLiquid(unsigned int l, float Q_threshold, unsigned int S_threshold, bool normalize_Q=true, bool common_neighbors=false);
+
+    unsigned int getL()
+    {
+        return m_l;
+    }
+
+    float getQThreshold()
+    {
+        return m_Q_threshold;
+    }
+
+    unsigned int getSThreshold()
+    {
+        return m_S_threshold;
+    }
+
+    bool getNormalizeQ()
+    {
+        return m_normalize_Q;
+    }
+
+    bool getCommonNeighbors()
+    {
+        return m_common_neighbors;
+    }
 
     //! Compute the Solid-Liquid Order Parameter
     void compute(const freud::locality::NeighborList* nlist,
