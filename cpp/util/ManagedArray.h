@@ -130,11 +130,68 @@ public:
         return get()[index];
     }
 
+    //! Get the size of the current array.
+    unsigned int size() const
+    {
+        return *m_size;
+    }
+
+    //! Get the shape of the current array.
+    std::vector<unsigned int> shape() const
+    {
+        return *m_shape;
+    }
+
+    //*************************************************************************
+    // In order to support convenient indexing using arbitrary numbers of
+    // indices, we provide overloads of the indexing operator. For convenience,
+    // all calls eventually funnel through the simplest function interface, a
+    // std::vector of indices. However, the more convenient approach is enabled
+    // using variadic template arguments. To properly handle the possibility
+    // that users could pass both ints and unsigned ints, various templated
+    // overloads of the private buildArgs function exist below to provide
+    // appropriate function resolution.
+    //*************************************************************************
+
+    //! Implementation of variadic indexing function for unsigned ints.
+    template <typename ... Ints>
+    T &operator()(Ints ... indices)
+    {
+        return (*this)(buildArgs(indices...));
+    }
+
+    //! Constant recursive implementation of variadic indexing function for unsigned ints.
+    template <typename ... Ints>
+    const T &operator()(Ints ... indices) const
+    {
+        return (*this)(buildArgs(indices ...));
+    }
+
+    //! Core function for multidimensional indexing.
+    /*! All the other convenience functions for indexing ultimately call this
+     * function, which operates on a vector of indexes. The core logic for
+     * converting the vector of indices to a linear index is farmed out to
+     * getIndex, and then directly indexes into it.
+    */
+    T &operator()(std::vector<unsigned int> indices)
+    {
+        return (*this)[getIndex(indices)];
+    }
+
+    //! Const version of core function for multidimensional indexing.
+    const T &operator()(std::vector<unsigned int> indices) const
+    {
+        return (*this)[getIndex(indices)];
+    }
+
     //! Get the linear index corresponding to a vector of indices in each dimension.
-    /*!
+    /*! This function performs the actual conversion of a vector of indices
+     *  into a linear index into the underlying data array of the ManagedArray.
+     *  It also performs some sanity checks on the input.
+     *
      *  \param indices The index in each dimension.
      */
-    size_t getIndex(std::vector<int> indices)
+    size_t getIndex(std::vector<unsigned int> indices)
     {
         if (indices.size() != m_shape->size())
         {
@@ -143,7 +200,7 @@ public:
 
         for (unsigned int i = 0; i < indices.size(); ++i)
         {
-            if (indices[i] < 0 || indices[i] > (*m_shape)[i])
+            if (indices[i] > (*m_shape)[i])
             {
                 throw std::invalid_argument("Accessing data out of bounds.");
             }
@@ -162,45 +219,88 @@ public:
         return idx;
     }
 
-    //! Convenience for multi-dimensional indexing using variadic templates.
-    template <typename ... Ints>
-    T &operator()(Ints ... indices)
-    {
-        return (*this)({indices...});
-    }
-
-    //! Convenience function for multi-dimensional indexing.
-    T &operator()(std::vector<int> indices)
-    {
-        return (*this)[getIndex(indices)];
-    }
-
-    //! Convenience for multi-dimensional indexing using variadic templates.
-    template <typename ... Ints>
-    const T &operator()(Ints ... indices) const
-    {
-        return (*this)({indices...});
-    }
-
-    //! Convenience function for multi-dimensional indexing.
-    const T &operator()(std::vector<int> indices) const
-    {
-        return (*this)[getIndex(indices)];
-    }
-
-    //! Get the size of the current array.
-    unsigned int size() const
-    {
-        return *m_size;
-    }
-
-    //! Get the shape of the current array.
-    std::vector<unsigned int> shape() const
-    {
-        return *m_shape;
-    }
 
 private:
+
+    //*************************************************************************
+    // The various buildArgs functions below define template methods for
+    // indexing ManagedArrays using the () operator. Due to the possibility of
+    // users passing in either signed or unsigned integers, we unfortunately
+    // need to have some extra template functions in place to properly handle
+    // the different behaviors. However, the individual functions are very
+    // short and readable, they are simply setting up template-based recursion.
+    //*************************************************************************
+
+    //! Base case for unsigned ints.
+    std::vector<unsigned int> buildArgs(unsigned int index)
+    {
+        return {index};
+    }
+
+    //! Base case for signed ints.
+    std::vector<unsigned int> buildArgs(int index)
+    {
+        if (index < 0)
+            throw std::invalid_argument("Value must be positive.");
+        return {static_cast<unsigned int>(index)};
+    }
+
+    //! Recursive case for unsigned ints.
+    template <typename ... Ints>
+    std::vector<unsigned int> buildArgs(unsigned int index, Ints ... indices)
+    {
+        std::vector<unsigned int> tmp = buildArgs(indices...);
+        tmp.insert(tmp.begin(), index);
+        return tmp;
+    }
+
+    //! Recursive case for signed ints.
+    template <typename ... Ints>
+    std::vector<unsigned int> buildArgs(int index, Ints ... indices)
+    {
+        if (index < 0)
+            throw std::invalid_argument("Value must be positive.");
+
+        std::vector<unsigned int> tmp = buildArgs(indices...);
+        tmp.insert(tmp.begin(), static_cast<unsigned int>(index));
+        return tmp;
+    }
+
+    //! Base case for unsigned ints for const instance of class.
+    const std::vector<unsigned int> buildArgs(unsigned int index) const
+    {
+        return {index};
+    }
+
+    //! Base case for signed ints for const instance of class.
+    const std::vector<unsigned int> buildArgs(int index) const
+    {
+        if (index < 0)
+            throw std::invalid_argument("Value must be positive.");
+        return {static_cast<unsigned int>(index)};
+    }
+
+    //! Recursive case for unsigned ints for const instance of class.
+    template <typename ... Ints>
+    const std::vector<unsigned int> buildArgs(unsigned int index, Ints ... indices) const
+    {
+        std::vector<unsigned int> tmp = buildArgs(indices...);
+        tmp.insert(tmp.begin(), index);
+        return tmp;
+    }
+
+    //! Recursive case for signed ints for const instance of class.
+    template <typename ... Ints>
+    const std::vector<unsigned int> buildArgs(int index, Ints ... indices) const
+    {
+        if (index < 0)
+            throw std::invalid_argument("Value must be positive.");
+
+        std::vector<unsigned int> tmp = buildArgs(indices...);
+        tmp.insert(tmp.begin(), static_cast<unsigned int>(index));
+        return tmp;
+    }
+
     std::shared_ptr<std::shared_ptr<T> > m_data;           //!< Pointer to array.
     std::shared_ptr<std::vector<unsigned int> > m_shape;   //!< Shape of array.
     std::shared_ptr<unsigned int> m_size;                  //!< Size of array.
