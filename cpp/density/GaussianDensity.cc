@@ -139,11 +139,11 @@ void GaussianDensity::compute(const box::Box& box, const vec3<float>* points, un
                         float dx = float((grid_size_x * i + grid_size_x / 2.0f) - points[idx].x - lx / 2.0f);
                         vec3<float> delta = m_box.wrap(vec3<float>(dx, dy, dz));
 
-                        float rsq = dot(delta, delta);
-                        float rsqrt = sqrtf(rsq);
+                        float r_sq = dot(delta, delta);
+                        float r_sqrt = sqrtf(r_sq);
 
                         // Check to see if this distance is within the specified r_cut
-                        if (rsqrt < m_rcut)
+                        if (r_sqrt < m_rcut)
                         {
                             // Evaluate the gaussian ...
                             float x_gaussian = A * exp((-1.0f) * (delta.x * delta.x) / (2.0f * sigmasq));

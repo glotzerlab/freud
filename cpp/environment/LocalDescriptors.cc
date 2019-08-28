@@ -67,23 +67,23 @@ void LocalDescriptors::compute(const box::Box& box,
                 {
                     const size_t j(neighbor_list[2 * bond_copy + 1]);
                     const vec3<float> r_j(query_points[j]);
-                    const vec3<float> rvec(box.wrap(r_j - r_i));
-                    const float rsq(dot(rvec, rvec));
+                    const vec3<float> r_ij(box.wrap(r_j - r_i));
+                    const float r_sq(dot(r_ij, r_ij));
 
                     for (size_t ii(0); ii < 3; ++ii)
                     {
-                        inertiaTensor[a_i(ii, ii)] += rsq;
+                        inertiaTensor[a_i(ii, ii)] += r_sq;
                     }
 
-                    inertiaTensor[a_i(0, 0)] -= rvec.x * rvec.x;
-                    inertiaTensor[a_i(0, 1)] -= rvec.x * rvec.y;
-                    inertiaTensor[a_i(0, 2)] -= rvec.x * rvec.z;
-                    inertiaTensor[a_i(1, 0)] -= rvec.x * rvec.y;
-                    inertiaTensor[a_i(1, 1)] -= rvec.y * rvec.y;
-                    inertiaTensor[a_i(1, 2)] -= rvec.y * rvec.z;
-                    inertiaTensor[a_i(2, 0)] -= rvec.x * rvec.z;
-                    inertiaTensor[a_i(2, 1)] -= rvec.y * rvec.z;
-                    inertiaTensor[a_i(2, 2)] -= rvec.z * rvec.z;
+                    inertiaTensor[a_i(0, 0)] -= r_ij.x * r_ij.x;
+                    inertiaTensor[a_i(0, 1)] -= r_ij.x * r_ij.y;
+                    inertiaTensor[a_i(0, 2)] -= r_ij.x * r_ij.z;
+                    inertiaTensor[a_i(1, 0)] -= r_ij.x * r_ij.y;
+                    inertiaTensor[a_i(1, 1)] -= r_ij.y * r_ij.y;
+                    inertiaTensor[a_i(1, 2)] -= r_ij.y * r_ij.z;
+                    inertiaTensor[a_i(2, 0)] -= r_ij.x * r_ij.z;
+                    inertiaTensor[a_i(2, 1)] -= r_ij.y * r_ij.z;
+                    inertiaTensor[a_i(2, 2)] -= r_ij.z * r_ij.z;
                 }
 
                 float eigenvalues[3];
@@ -123,11 +123,11 @@ void LocalDescriptors::compute(const box::Box& box,
                 const unsigned int sphCount(bond * getSphWidth());
                 const size_t j(neighbor_list[2 * bond + 1]);
                 const vec3<float> r_j(query_points[j]);
-                const vec3<float> rij(box.wrap(r_j - r_i));
-                const float rsq(dot(rij, rij));
-                const vec3<float> bond_ij(dot(rotation_0, rij), dot(rotation_1, rij), dot(rotation_2, rij));
+                const vec3<float> r_ij(box.wrap(r_j - r_i));
+                const float r_sq(dot(r_ij, r_ij));
+                const vec3<float> bond_ij(dot(rotation_0, r_ij), dot(rotation_1, r_ij), dot(rotation_2, r_ij));
 
-                const float magR(sqrt(rsq));
+                const float magR(sqrt(r_sq));
                 float theta(atan2(bond_ij.y, bond_ij.x)); // theta in [-pi..pi] initially
                 if (theta < 0)
                     theta += float(2 * M_PI);             // move theta into [0..2*pi]

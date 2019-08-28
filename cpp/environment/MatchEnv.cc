@@ -297,14 +297,14 @@ std::vector<vec3<float>> EnvDisjointSet::getIndividualEnv(const unsigned int m)
 }
 
 // Constructor
-MatchEnv::MatchEnv(const box::Box& box, float rmax, unsigned int k) : m_box(box), m_rmax(rmax), m_k(k)
+MatchEnv::MatchEnv(const box::Box& box, float r_max, unsigned int k) : m_box(box), m_r_max(r_max), m_k(k)
 {
     m_Np = 0;
     m_num_clusters = 0;
     m_maxk = 0;
-    if (m_rmax < 0.0f)
-        throw std::invalid_argument("rmax must be positive!");
-    m_rmaxsq = m_rmax * m_rmax;
+    if (m_r_max < 0.0f)
+        throw std::invalid_argument("r_max must be positive!");
+    m_r_max_sq = m_r_max * m_r_max;
 }
 
 // Destructor
@@ -342,7 +342,7 @@ Environment MatchEnv::buildEnv(const size_t* neighbor_list, size_t num_bonds, si
 // will make them correspond to each other.
 // If not, return a std::pair of the identity matrix AND an empty map.
 // The threshold is a unitless number, which we multiply by the length scale
-// of the MatchEnv instance, rmax.
+// of the MatchEnv instance, r_max.
 // This quantity is the maximum squared magnitude of the vector difference
 // between two vectors, below which you call them matching.
 // The bool registration controls whether we first use brute force registration
@@ -393,8 +393,8 @@ MatchEnv::isSimilar(Environment& e1, Environment& e2, float threshold_sq, bool r
             // Does this vector mapping pass the more stringent criterion
             // imposed by the threshold?
             vec3<float> delta = v1[(*it)->first] - v2[(*it)->second];
-            float rsq = dot(delta, delta);
-            if (rsq < threshold_sq * m_rmaxsq)
+            float r_sq = dot(delta, delta);
+            if (r_sq < threshold_sq * m_r_max_sq)
             {
                 vec_map.emplace((*it)->first, (*it)->second);
             }
@@ -409,8 +409,8 @@ MatchEnv::isSimilar(Environment& e1, Environment& e2, float threshold_sq, bool r
             for (unsigned int j = 0; j < e2.vecs.size(); j++)
             {
                 vec3<float> delta = v1[i] - v2[j];
-                float rsq = dot(delta, delta);
-                if (rsq < threshold_sq * m_rmaxsq)
+                float r_sq = dot(delta, delta);
+                if (r_sq < threshold_sq * m_r_max_sq)
                 {
                     // these vectors are deemed "matching"
                     // since this is a bimap, this (i,j) pair is only inserted

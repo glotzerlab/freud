@@ -65,8 +65,8 @@ public:
     size_t filter(const bool* filt);
     //! Remove bonds in this object based on minimum and maximum distance constraints and the given position
     //! arrays r_i and r_j. r_i and r_j must have m_num_i and m_num_j elements, respectively.
-    size_t filter_r(const freud::box::Box& box, const vec3<float>* r_i, const vec3<float>* r_j, float rmax,
-                    float rmin = 0);
+    size_t filter_r(const freud::box::Box& box, const vec3<float>* r_i, const vec3<float>* r_j, float r_max,
+                    float r_min = 0);
 
     //! Return the first bond index corresponding to reference point i
     size_t find_first_index(size_t i) const;

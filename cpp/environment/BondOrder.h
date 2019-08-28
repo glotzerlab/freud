@@ -35,7 +35,7 @@ class BondOrder
 {
 public:
     //! Constructor
-    BondOrder(float rmax, unsigned int n, unsigned int nbins_t, unsigned int nbins_p);
+    BondOrder(float r_max, unsigned int n, unsigned int nbins_t, unsigned int nbins_p);
 
     //! Destructor
     ~BondOrder() {}
@@ -50,7 +50,7 @@ public:
     void reset();
 
     //! Accumulate the bond order
-    void accumulate(const locality::NeighborQuery* neighbor_query, 
+    void accumulate(const locality::NeighborQuery* neighbor_query,
                     quat<float>* orientations, vec3<float>* query_points,
                     quat<float>* query_orientations, unsigned int n_query_points,
                     unsigned int mode, const freud::locality::NeighborList* nlist,

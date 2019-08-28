@@ -70,8 +70,8 @@ void Voronoi::compute(const box::Box &box, const vec3<double>* vertices,
                 float weight = 0;
 
                 // compute distances bewteen two points
-                vec3<double> rij(expanded_points[j] - expanded_points[i]);
-                float distance = sqrtf(dot(rij, rij));
+                vec3<double> r_ij(expanded_points[j] - expanded_points[i]);
+                float distance = sqrtf(dot(r_ij, r_ij));
 
                 // Reject bonds between two image particles
                 if (i >= N && j >= N)
@@ -106,8 +106,8 @@ void Voronoi::compute(const box::Box &box, const vec3<double>* vertices,
                         vec3<double> v1 = current_ridge_vertex[0];
                         vec3<double> v2 = current_ridge_vertex[1];
                         // not necessary to have double precision in weight calculation
-                        vec3<float> rij(box.wrap(v1 - v2));
-                        weight = sqrtf(dot(rij, rij));
+                        vec3<float> r_ij(box.wrap(v1 - v2));
+                        weight = sqrtf(dot(r_ij, r_ij));
                     }
                     else
                     {

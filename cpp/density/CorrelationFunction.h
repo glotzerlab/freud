@@ -26,7 +26,7 @@ namespace freud { namespace density {
     radial distance.
 
     The values of r at which to compute the correlation function are
-    controlled by the rmax and dr parameters to the constructor. rmax
+    controlled by the r_max and dr parameters to the constructor. r_max
     determines the maximum r at which to compute the correlation
     function and dr is the step size for each bin.
 
@@ -47,7 +47,7 @@ template<typename T> class CorrelationFunction
 {
 public:
     //! Constructor
-    CorrelationFunction(float rmax, float dr);
+    CorrelationFunction(float r_max, float dr);
 
     //! Destructor
     ~CorrelationFunction() {}
@@ -94,7 +94,7 @@ public:
 
 private:
     box::Box m_box;               //!< Simulation box where the particles belong
-    float m_rmax;                 //!< Maximum r at which to compute g(r)
+    float m_r_max;                 //!< Maximum r at which to compute g(r)
     float m_dr;                   //!< Step size for r in the computation
     unsigned int m_nbins;         //!< Number of r bins to compute g(r) over
     unsigned int m_n_ref;         //!< number of reference particles

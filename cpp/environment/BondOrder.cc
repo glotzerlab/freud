@@ -22,7 +22,7 @@ using namespace tbb;
 
 namespace freud { namespace environment {
 
-BondOrder::BondOrder(float rmax, unsigned int n, unsigned int nbins_t, unsigned int nbins_p)
+BondOrder::BondOrder(float r_max, unsigned int n, unsigned int nbins_t, unsigned int nbins_p)
     : m_box(box::Box()), m_nbins_t(nbins_t), m_nbins_p(nbins_p), m_frame_counter(0),
       m_reduce(true), m_local_bin_counts(nbins_t * nbins_p)
 {
@@ -155,7 +155,7 @@ void BondOrder::accumulate(
     float dp_inv = 1.0f / m_dp;
     Index2D sa_i = Index2D(m_nbins_t, m_nbins_p);
 
-    freud::locality::loopOverNeighbors(neighbor_query, query_points, n_query_points, qargs, nlist, 
+    freud::locality::loopOverNeighbors(neighbor_query, query_points, n_query_points, qargs, nlist,
     [=] (const freud::locality::NeighborBond& neighbor_bond)
     {
         vec3<float> ref_pos = neighbor_query->getPoints()[neighbor_bond.ref_id];

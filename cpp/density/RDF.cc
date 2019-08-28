@@ -20,20 +20,20 @@ using namespace tbb;
 
 namespace freud { namespace density {
 
-RDF::RDF(float rmax, float dr, float rmin) : util::NdHistogram(), m_rmax(rmax), m_rmin(rmin), m_dr(dr)
+RDF::RDF(float r_max, float dr, float r_min) : util::NdHistogram(), m_r_max(r_max), m_r_min(r_min), m_dr(dr)
 {
     if (dr <= 0.0f)
         throw invalid_argument("RDF requires dr to be positive.");
-    if (rmax <= 0.0f)
-        throw invalid_argument("RDF requires rmax to be positive.");
-    if (dr > rmax)
-        throw invalid_argument("RDF requires dr must be less than or equal to rmax.");
-    if (rmax <= rmin)
-        throw invalid_argument("RDF requires that rmax must be greater than rmin.");
-    if (rmax - rmin < dr)
-        throw invalid_argument("RDF requires that the range (rmax-rmin) must be greater than dr.");
+    if (r_max <= 0.0f)
+        throw invalid_argument("RDF requires r_max to be positive.");
+    if (dr > r_max)
+        throw invalid_argument("RDF requires dr must be less than or equal to r_max.");
+    if (r_max <= r_min)
+        throw invalid_argument("RDF requires that r_max must be greater than r_min.");
+    if (r_max - r_min < dr)
+        throw invalid_argument("RDF requires that the range (r_max-r_min) must be greater than dr.");
 
-    m_nbins = int(floorf((m_rmax - m_rmin) / m_dr));
+    m_nbins = int(floorf((m_r_max - m_r_min) / m_dr));
     assert(m_nbins > 0);
     m_pcf_array = util::makeEmptyArray<float>(m_nbins);
     m_bin_counts = util::makeEmptyArray<unsigned int>(m_nbins);
@@ -48,8 +48,8 @@ RDF::RDF(float rmax, float dr, float rmin) : util::NdHistogram(), m_rmax(rmax), 
 
     for (unsigned int i = 0; i < m_nbins; i++)
     {
-        float r = float(i) * m_dr + m_rmin;
-        float nextr = float(i + 1) * m_dr + m_rmin;
+        float r = float(i) * m_dr + m_r_min;
+        float nextr = float(i + 1) * m_dr + m_r_min;
         m_r_array.get()[i] = 2.0f / 3.0f * (nextr * nextr * nextr - r * r * r) / (nextr * nextr - r * r);
         m_vol_array2D.get()[i] = M_PI * (nextr * nextr - r * r);
         m_vol_array3D.get()[i] = 4.0f / 3.0f * M_PI * (nextr * nextr * nextr - r * r * r);
@@ -173,20 +173,20 @@ void RDF::accumulate(const freud::locality::NeighborQuery* neighbor_query,
     assert(n_query_points > 0);
 
     float dr_inv = 1.0f / m_dr;
-    accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs, 
+    accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,
         [=](const freud::locality::NeighborBond& neighbor_bond) {
-        if (neighbor_bond.distance < m_rmax && neighbor_bond.distance > m_rmin)
+        if (neighbor_bond.distance < m_r_max && neighbor_bond.distance > m_r_min)
         {
             // bin that r
-            float binr = (neighbor_bond.distance - m_rmin) * dr_inv;
+            float binr = (neighbor_bond.distance - m_r_min) * dr_inv;
             // fast float to int conversion with truncation
 #ifdef __SSE2__
             unsigned int bin = _mm_cvtt_ss2si(_mm_load_ss(&binr));
 #else
                 unsigned int bin = (unsigned int)(binr);
 #endif
-            // There may be a case where rsq < rmaxsq but
-            // (r - m_rmin) * dr_inv rounds up to m_nbins.
+            // There may be a case where r_sq < r_max_sq but
+            // (r - m_r_min) * dr_inv rounds up to m_nbins.
             // This additional check prevents a seg fault.
             if (bin < m_nbins)
             {
