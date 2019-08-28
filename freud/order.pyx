@@ -497,7 +497,7 @@ cdef class TransOrderParameter(PairCompute):
 
 
 cdef class Steinhardt(PairCompute):
-    R"""Compute the local Steinhardt [Steinhardt1983]_rotationally invariant
+    R"""Compute the local Steinhardt [Steinhardt1983]_ rotationally invariant
     :math:`Q_l` :math:`W_l` order parameter for a set of points.
 
     Implements the local rotationally invariant :math:`Q_l` or :math:`W_l` order
