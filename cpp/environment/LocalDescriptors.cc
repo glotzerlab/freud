@@ -21,8 +21,8 @@ using namespace tbb;
 
 namespace freud { namespace environment {
 
-LocalDescriptors::LocalDescriptors(unsigned int lmax, bool negative_m)
-    : m_lmax(lmax), m_negative_m(negative_m), m_n_points(0), m_nSphs(0)
+LocalDescriptors::LocalDescriptors(unsigned int l_max, bool negative_m)
+    : m_l_max(l_max), m_negative_m(negative_m), m_n_points(0), m_nSphs(0)
 {}
 
 void LocalDescriptors::compute(const box::Box& box,
@@ -44,7 +44,7 @@ void LocalDescriptors::compute(const box::Box& box,
     std::complex<float>* const sph_array(m_sphArray.get());
 
     parallel_for(blocked_range<size_t>(0, n_points), [=](const blocked_range<size_t>& br) {
-        fsph::PointSPHEvaluator<float> sph_eval(m_lmax);
+        fsph::PointSPHEvaluator<float> sph_eval(m_l_max);
 
         for (size_t i = br.begin(); i != br.end(); ++i)
         {
