@@ -57,15 +57,15 @@ public:
     }
 
     //! Reset the simulation box size
-    void setClusteringRadius(float rcut_cluster)
+    void setClusteringRadius(float r_cut_cluster)
     {
-        if (rcut_cluster < m_r_max)
+        if (r_cut_cluster < m_r_max)
             throw std::invalid_argument(
-                "SolLiq requires that rcut_cluster must be greater than rcut (for local env).");
+                "SolLiq requires that r_cut_cluster must be greater than r_cut (for local env).");
         // May not be necessary if std::max(m_r_max, m_r_max_cluster) is used to rebuild cell list here, and in
         // setBox.
 
-        m_r_max_cluster = rcut_cluster;
+        m_r_max_cluster = r_cut_cluster;
     }
 
     //! Compute the Solid-Liquid Order Parameter

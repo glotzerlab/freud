@@ -17,7 +17,7 @@ using namespace tbb;
 namespace freud { namespace density {
 
 GaussianDensity::GaussianDensity(vec3<unsigned int> width, float r_cut, float sigma)
-    : m_box(box::Box()), m_width(width), m_rcut(r_cut), m_sigma(sigma)
+    : m_box(box::Box()), m_width(width), m_r_cut(r_cut), m_sigma(sigma)
 {
     if (r_cut <= 0.0f)
         throw invalid_argument("GaussianDensity requires r_cut to be positive.");
@@ -112,9 +112,9 @@ void GaussianDensity::compute(const box::Box& box, const vec3<float>* points, un
             int bin_z = int((points[idx].z + lz / 2.0f) / grid_size_z);
 
             // Find the number of bins within r_cut
-            int bin_cut_x = int(m_rcut / grid_size_x);
-            int bin_cut_y = int(m_rcut / grid_size_y);
-            int bin_cut_z = int(m_rcut / grid_size_z);
+            int bin_cut_x = int(m_r_cut / grid_size_x);
+            int bin_cut_y = int(m_r_cut / grid_size_y);
+            int bin_cut_z = int(m_r_cut / grid_size_z);
 
             // in 2D, only loop over the 0 z plane
             if (m_box.is2D())
@@ -143,7 +143,7 @@ void GaussianDensity::compute(const box::Box& box, const vec3<float>* points, un
                         float r_sqrt = sqrtf(r_sq);
 
                         // Check to see if this distance is within the specified r_cut
-                        if (r_sqrt < m_rcut)
+                        if (r_sqrt < m_r_cut)
                         {
                             // Evaluate the gaussian ...
                             float x_gaussian = A * exp((-1.0f) * (delta.x * delta.x) / (2.0f * sigmasq));

@@ -52,7 +52,7 @@ public:
 
 private:
     box::Box m_box;       //!< Simulation box where the particles belong
-    float m_rcut;         //!< Maximum neighbor distance
+    float m_r_cut;         //!< Maximum neighbor distance
     float m_volume;       //!< Volume (area in 2d) of a single particle
     float m_diameter;     //!< Diameter of the particles
     unsigned int m_n_points; //!< Last number of points computed

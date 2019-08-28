@@ -73,7 +73,7 @@ void AABBIterator::updateImageVectors(float r_max, bool _check_r_max)
             || (periodic.y && nearest_plane_distance.y <= r_max * 2.0)
             || (!box.is2D() && periodic.z && nearest_plane_distance.z <= r_max * 2.0))
         {
-            throw std::runtime_error("The AABBQuery rcut is too large for this box.");
+            throw std::runtime_error("The AABBQuery r_cut is too large for this box.");
         }
     }
 

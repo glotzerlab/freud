@@ -61,7 +61,7 @@ public:
 private:
     box::Box m_box;                               //!< Simulation box where the particles belong
     vec3<unsigned int> m_width;                   //!< Num of bins on each side of the cube
-    float m_rcut;                                 //!< Max r at which to compute density
+    float m_r_cut;                                 //!< Max r at which to compute density
     float m_sigma;                                //!< Variance
     Index3D m_bi;                                 //!< Bin indexer
     bool m_reduce;                                //!< Whether arrays need to be reduced across threads
