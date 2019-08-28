@@ -31,7 +31,7 @@ class TestNeighborList(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.cl.nlist.query_point_index[:] = 0
 
-        # if query_point_index isn't writable, point_index probably also shouldn't be
+        # if query_point_index isn't writable, point_index shouldn't be
         with self.assertRaises(ValueError):
             self.cl.nlist.point_index[:] = 0
 
@@ -144,8 +144,10 @@ class TestNeighborList(unittest.TestCase):
         self.setup_nl()
         np.random.seed(0)
         self.cl.compute(self.fbox, self.points, self.points)
-        self.assertEqual(len(self.cl.nlist), len(self.cl.nlist.query_point_index))
-        self.assertEqual(len(self.cl.nlist), len(self.cl.nlist.point_index))
+        self.assertEqual(len(self.cl.nlist),
+                         len(self.cl.nlist.query_point_index))
+        self.assertEqual(len(self.cl.nlist),
+                         len(self.cl.nlist.point_index))
 
     def test_index_error(self):
         self.setup_nl()

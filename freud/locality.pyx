@@ -341,8 +341,9 @@ cdef class NeighborList:
         distances ((:math:`N_{bonds}`) :class:`np.ndarray`):
             The distances for each bond.
         segments ((:math:`N_{querypoints}`) :class:`np.ndarray`):
-            A segment array, which is an array of length :math:`N_{querypoints}`
-            indicating the first bond index for each query point.
+            A segment array, which is an array of length
+            :math:`N_{querypoints}` indicating the first bond index for each
+            query point.
         neighbor_counts ((:math:`N_{querypoints}`) :class:`np.ndarray`):
             A neighbor count array, which is an array of length
             :math:`N_{querypoints}` indicating the number of neighbors for each
@@ -393,11 +394,13 @@ cdef class NeighborList:
         point_index = freud.common.convert_array(
             point_index, shape=query_point_index.shape, dtype=np.uintc)
 
-        distances = freud.common.convert_array(distances, shape=query_point_index.shape)
+        distances = freud.common.convert_array(
+            distances, shape=query_point_index.shape)
 
         if weights is None:
             weights = np.ones(query_point_index.shape, dtype=np.float32)
-        weights = freud.common.convert_array(weights, shape=query_point_index.shape)
+        weights = freud.common.convert_array(
+            weights, shape=query_point_index.shape)
 
         cdef const unsigned int[::1] l_query_point_index = query_point_index
         cdef const unsigned int[::1] l_point_index = point_index
@@ -523,7 +526,7 @@ cdef class NeighborList:
 
             # Keep only the bonds between particles of type A and type B
             nlist.filter(types[nlist.query_point_index] != types[nlist.point_index])
-        """
+        """  # noqa E501
         filt = np.ascontiguousarray(filt, dtype=np.bool)
         cdef np.ndarray[np.uint8_t, ndim=1, cast=True] filt_c = filt
         cdef cbool * filt_ptr = <cbool*> filt_c.data
@@ -1013,7 +1016,8 @@ cdef class NearestNeighbors:
         result[:] = self.UINTMAX
         cdef unsigned int start_idx = self.nlist.find_first_index(i)
         cdef unsigned int end_idx = self.nlist.find_first_index(i + 1)
-        result[:end_idx - start_idx] = self.nlist.point_index[start_idx:end_idx]
+        result[:end_idx - start_idx] = \
+            self.nlist.point_index[start_idx:end_idx]
 
         return result
 
@@ -1059,8 +1063,10 @@ cdef class NearestNeighbors:
         cdef unsigned int start_idx = self.nlist.find_first_index(i)
         cdef unsigned int end_idx = self.nlist.find_first_index(i + 1)
         rijs = \
-            (self._cached_query_points[self.nlist.point_index[start_idx:end_idx]] -
-                self._cached_points[self.nlist.query_point_index[start_idx:end_idx]])
+            (self._cached_query_points[
+                self.nlist.point_index[start_idx:end_idx]] -
+             self._cached_points[
+                 self.nlist.query_point_index[start_idx:end_idx]])
         self._cached_box.wrap(rijs)
         result = -np.ones((self.thisptr.getNumNeighbors(),), dtype=np.float32)
         result[:len(rijs)] = np.sum(rijs**2, axis=-1)
