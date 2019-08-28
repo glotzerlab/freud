@@ -49,54 +49,31 @@ public:
      *  overloading abilities seem buggy at best, so it's easiest to just
      *  rename the function.
      */
-    virtual std::shared_ptr<NeighborQueryIterator> queryWithArgs(const vec3<float>* query_points, unsigned int n_query_points,
-                                                                 QueryArgs args) const
+    virtual std::shared_ptr<NeighborQueryPerPointIterator> queryWithArgs(const vec3<float> query_point, unsigned int query_point_idx,
+                                                                 QueryArgs args) const;
+
+      //! Given a set of points, find the k elements of this data structure
+      //  that are the nearest neighbors for each point. Note that due to the
+      //  different signature, this is not directly overriding the original
+      //  method in NeighborQuery, so we have to explicitly invalidate calling
+      //  with that signature.
+      virtual std::shared_ptr<NeighborQueryIterator> query(const vec3<float>* query_points, unsigned int n_query_points, unsigned int num_neighbors, bool exclude_ii = false) const
+      {
+          throw std::runtime_error("AABBQuery k-nearest-neighbor queries must use the function signature that "
+                                   "provides r_max and scale guesses.");
+      }
+
+      std::shared_ptr<NeighborQueryIterator> query(const vec3<float>* query_points, unsigned int n_query_points, unsigned int num_neighbors,
+                                                   float r_max, float scale, bool exclude_ii = false) const
     {
-        this->validateQueryArgs(args);
-        if (args.mode == QueryArgs::ball)
-        {
-            return queryBall(query_points, n_query_points, args.r_max, args.exclude_ii);
-        }
-        else if (args.mode == QueryArgs::nearest)
-        {
-            return query(query_points, n_query_points, args.num_neighbors, args.r_max, args.scale, args.exclude_ii);
-        }
-        else
-        {
-            throw std::runtime_error("Invalid query mode provided to generic query function.");
-        }
+        QueryArgs qargs;
+        qargs.mode = QueryArgs::QueryType::nearest;
+        qargs.num_neighbors = num_neighbors;
+        qargs.r_max = r_max;
+        qargs.scale = scale;
+        qargs.exclude_ii = exclude_ii;
+        return std::make_shared<NeighborQueryIterator>(this, query_points, n_query_points, qargs);
     }
-
-    //! Given a set of points, find the k elements of this data structure
-    //  that are the nearest neighbors for each point. Note that due to the
-    //  different signature, this is not directly overriding the original
-    //  method in NeighborQuery, so we have to explicitly invalidate calling
-    //  with that signature.
-    virtual std::shared_ptr<NeighborQueryIterator> query(const vec3<float>* query_points, unsigned int n_query_points,
-                                                         unsigned int num_neighbors, bool exclude_ii = false) const
-    {
-        throw std::runtime_error("AABBQuery k-nearest-neighbor queries must use the function signature that "
-                                 "provides r_max and scale guesses.");
-    }
-
-    std::shared_ptr<NeighborQueryIterator> query(const vec3<float>* query_points, unsigned int n_query_points, unsigned int num_neighbors,
-                                                 float r_max, float scale, bool exclude_ii = false) const;
-
-    //! Given a set of points, find all elements of this data structure
-    //  that are within a certain distance r.
-    virtual std::shared_ptr<NeighborQueryIterator> queryBall(const vec3<float>* query_points, unsigned int n_query_points,
-                                                             float r_max, bool exclude_ii = false) const;
-
-    //! Given a set of points, find all elements of this data structure
-    //  that are within a certain distance r, even if that distance is
-    //  larger than the normally allowed distance for AABB tree-based
-    //  queries. Such queries will experience performance losses, but they
-    //  are necessary to support k-nearest neighbor queries. This function
-    //  is declared separately rather than as a simple extra parameter to
-    //  queryBall to avoid complexities with interfering with the virtual
-    //  inherited API that is exported to Cython.
-    std::shared_ptr<NeighborQueryIterator> queryBallUnbounded(const vec3<float>* query_points, unsigned int n_query_points,
-                                                              float r_max, bool exclude_ii = false) const;
 
     AABBTree m_aabb_tree; //!< AABB tree of points
 
@@ -140,12 +117,12 @@ private:
 };
 
 //! Parent class of AABB iterators that knows how to traverse general AABB tree structures
-class AABBIterator : public NeighborQueryIterator
+class AABBIterator : public NeighborQueryPerPointIterator
 {
 public:
     //! Constructor
     AABBIterator(const AABBQuery* neighbor_query, const vec3<float> query_point, unsigned int query_point_idx, bool exclude_ii)
-        : NeighborQueryIterator(neighbor_query, query_point, query_point_idx, exclude_ii), m_aabb_query(neighbor_query)
+        : NeighborQueryPerPointIterator(neighbor_query, query_point, query_point_idx, exclude_ii), m_aabb_query(neighbor_query)
     {}
 
     //! Empty Destructor
@@ -200,7 +177,7 @@ protected:
 };
 
 //! Iterator that gets neighbors in a ball of size r using AABB tree structures
-class AABBQueryBallIterator : virtual public AABBIterator
+class AABBQueryBallIterator : public AABBIterator
 {
 public:
     //! Constructor

@@ -463,15 +463,19 @@ public:
         return &m_neighbor_list;
     }
 
-    //! Given a set of points, find the k elements of this data structure
-    //  that are the nearest neighbors for each point.
-    virtual std::shared_ptr<NeighborQueryIterator> query(const vec3<float>* query_points, unsigned int n_query_points,
-                                                         unsigned int num_neighbors, bool exclude_ii = false) const;
+    //! Perform a query based on a set of query parameters.
+    /*! Given a QueryArgs object and a set of points to perform a query
+     *  with, this function will dispatch the query to the appropriate
+     *  querying function. We override the parent function to support
+     *  calling the `query` method with the correct signature.
+     *
+     *  This function should just be called query, but Cython's function
+     *  overloading abilities seem buggy at best, so it's easiest to just
+     *  rename the function.
+     */
+    virtual std::shared_ptr<NeighborQueryPerPointIterator> queryWithArgs(const vec3<float> query_point, unsigned int query_point_idx,
+                                                                 QueryArgs args) const;
 
-    //! Given a set of points, find all elements of this data structure
-    //  that are within a certain distance r.
-    virtual std::shared_ptr<NeighborQueryIterator> queryBall(const vec3<float>* query_points, unsigned int n_query_points,
-                                                             float r_max, bool exclude_ii = false) const;
 
 private:
     //! Rounding helper function.
@@ -497,7 +501,7 @@ private:
 };
 
 //! Parent class of LinkCell iterators that knows how to traverse general cell-linked list structures
-class LinkCellIterator : virtual public NeighborQueryIterator
+class LinkCellIterator : public NeighborQueryPerPointIterator
 {
 public:
     //! Constructor
@@ -506,7 +510,7 @@ public:
      */
     LinkCellIterator(const LinkCell* neighbor_query, const vec3<float> query_point, unsigned int query_point_idx,
                      bool exclude_ii)
-        : NeighborQueryIterator(neighbor_query, query_point, query_point_idx, exclude_ii), m_linkcell(neighbor_query),
+        : NeighborQueryPerPointIterator(neighbor_query, query_point, query_point_idx, exclude_ii), m_linkcell(neighbor_query),
           m_neigh_cell_iter(0, neighbor_query->getBox().is2D()),
           m_cell_iter(m_linkcell->itercell(m_linkcell->getCell(m_query_point)))
     {}

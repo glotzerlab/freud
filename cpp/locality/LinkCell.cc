@@ -338,20 +338,22 @@ const std::vector<unsigned int>& LinkCell::computeCellNeighbors(unsigned int cur
     return a->second;
 }
 
-//! Given a set of points, find the num_neighbors elements of this data structure
-//  that are the nearest neighbors for each point.
-std::shared_ptr<NeighborQueryIterator> LinkCell::query(const vec3<float>* query_points, unsigned int n_query_points,
-                                                       unsigned int num_neighbors, bool exclude_ii) const
+std::shared_ptr<NeighborQueryPerPointIterator> LinkCell::queryWithArgs(const vec3<float> query_point, unsigned int query_point_idx,
+                                                             QueryArgs args) const
 {
-    return std::make_shared<LinkCellQueryIterator>(this, query_points, n_query_points, num_neighbors, exclude_ii);
-}
-
-//! Given a set of points, find all elements of this data structure
-//  that are within a certain distance r_max.
-std::shared_ptr<NeighborQueryIterator> LinkCell::queryBall(const vec3<float>* query_points, unsigned int n_query_points, float r_max,
-                                                           bool exclude_ii) const
-{
-    return std::make_shared<LinkCellQueryBallIterator>(this, query_points, n_query_points, r_max, exclude_ii);
+    this->validateQueryArgs(args);
+    if (args.mode == QueryArgs::ball)
+    {
+        return std::make_shared<LinkCellQueryBallIterator>(this, query_point, query_point_idx, args.r_max, args.exclude_ii);
+    }
+    else if (args.mode == QueryArgs::nearest)
+    {
+        return std::make_shared<LinkCellQueryIterator>(this, query_point, query_point_idx, args.num_neighbors, args.exclude_ii);
+    }
+    else
+    {
+        throw std::runtime_error("Invalid query mode provided to generic query function.");
+    }
 }
 
 NeighborBond LinkCellQueryBallIterator::next()

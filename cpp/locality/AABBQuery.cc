@@ -23,23 +23,22 @@ AABBQuery::AABBQuery(const box::Box& box, const vec3<float>* points, unsigned in
 
 AABBQuery::~AABBQuery() {}
 
-std::shared_ptr<NeighborQueryIterator> AABBQuery::query(const vec3<float>* query_points, unsigned int n_query_points,
-                                                        unsigned int num_neighbors, float r_max, float scale,
-                                                        bool exclude_ii) const
+std::shared_ptr<NeighborQueryPerPointIterator> AABBQuery::queryWithArgs(const vec3<float> query_point, unsigned int query_point_idx,
+                                                             QueryArgs args) const
 {
-    return std::make_shared<AABBQueryIterator>(this, query_points, n_query_points, num_neighbors, r_max, scale, exclude_ii);
-}
-
-std::shared_ptr<NeighborQueryIterator> AABBQuery::queryBall(const vec3<float>* query_points, unsigned int n_query_points,
-                                                            float r_max, bool exclude_ii) const
-{
-    return std::make_shared<AABBQueryBallIterator>(this, query_points, n_query_points, r_max, exclude_ii);
-}
-
-std::shared_ptr<NeighborQueryIterator>
-AABBQuery::queryBallUnbounded(const vec3<float>* query_points, unsigned int n_query_points, float r_max, bool exclude_ii) const
-{
-    return std::make_shared<AABBQueryBallIterator>(this, query_points, n_query_points, r_max, exclude_ii, false);
+    this->validateQueryArgs(args);
+    if (args.mode == QueryArgs::ball)
+    {
+        return std::make_shared<AABBQueryBallIterator>(this, query_point, query_point_idx, args.r_max, args.exclude_ii);
+    }
+    else if (args.mode == QueryArgs::nearest)
+    {
+        return std::make_shared<AABBQueryIterator>(this, query_point, query_point_idx, args.num_neighbors, args.r_max, args.scale, args.exclude_ii);
+    }
+    else
+    {
+        throw std::runtime_error("Invalid query mode provided to generic query function.");
+    }
 }
 
 void AABBQuery::setupTree(unsigned int Np)
@@ -229,9 +228,8 @@ NeighborBond AABBQueryIterator::next()
             // the cast performed below to expose the appropriate method to
             // the compiler.
             m_current_neighbors.clear();
-            std::shared_ptr<NeighborQueryIterator> ball_it
-                = static_cast<const AABBQuery*>(m_neighbor_query)
-                      ->queryBallUnbounded(&(m_query_point), 1, m_r_cur);
+            std::shared_ptr<NeighborQueryPerPointIterator> ball_it
+                = std::make_shared<AABBQueryBallIterator>(static_cast<const AABBQuery*>(m_neighbor_query), m_query_point, m_query_point_idx, m_r_cur, m_exclude_ii, false);
             while (!ball_it->end())
             {
                 NeighborBond np = ball_it->next();
