@@ -6,13 +6,13 @@ import unittest
 import util
 
 
-def getFraction(dist, rcut, diameter):
-    if dist < rcut - diameter/2:
+def getFraction(dist, r_max, diameter):
+    if dist < r_max - diameter/2:
         return 1
-    if dist > rcut + diameter/2:
+    if dist > r_max + diameter/2:
         return 0
     else:
-        return -dist/diameter + rcut/diameter + 0.5
+        return -dist/diameter + r_max/diameter + 0.5
 
 
 class TestLD(unittest.TestCase):
@@ -50,9 +50,9 @@ class TestLD(unittest.TestCase):
     def test_density(self):
         """Test that LocalDensity computes the correct density at each point"""
 
-        rmax = self.r_cut + 0.5*self.diameter
+        r_max = self.r_cut + 0.5*self.diameter
         test_set = util.make_raw_query_nlist_test_set(
-            self.box, self.pos, self.pos, "ball", rmax, 0, True)
+            self.box, self.pos, self.pos, "ball", r_max, 0, True)
         for ts in test_set:
             self.ld.compute(self.box, ts[0], nlist=ts[1])
 
@@ -89,16 +89,16 @@ class TestLD(unittest.TestCase):
         query_points = np.array([[0, 1, 0], [-1, -1, 0]])
         volume = 1
         diameter = 1
-        rcut = 2
+        r_max = 2
 
-        v_around = 4/3 * (rcut**3) * np.pi
+        v_around = 4/3 * (r_max**3) * np.pi
 
-        ld = freud.density.LocalDensity(rcut, volume, diameter)
+        ld = freud.density.LocalDensity(r_max, volume, diameter)
         ld.compute(box, points, query_points)
 
         cd0 = 2/v_around
         cd1 = (1 + getFraction(np.linalg.norm(points[1] - query_points[1]),
-                               rcut, diameter)) / v_around
+                               r_max, diameter)) / v_around
         correct_density = [cd0, cd1]
         npt.assert_allclose(ld.density, correct_density, rtol=1e-4)
 

@@ -10,15 +10,15 @@ class TestAngularSeparation(unittest.TestCase):
     def test_getN(self):
         boxlen = 10
         N = 500
-        num_neigh = 8
-        rmax = 3
+        num_neighbors = 8
+        r_max = 3
 
         box, points = make_box_and_random_points(boxlen, N, True)
         _, query_points = make_box_and_random_points(boxlen, N//3, True)
         ors = rowan.random.rand(N)
         query_ors = rowan.random.rand(N//3)
 
-        ang = freud.environment.AngularSeparation(rmax, num_neigh)
+        ang = freud.environment.AngularSeparation(r_max, num_neighbors)
 
         # test access
         with self.assertRaises(AttributeError):
@@ -33,8 +33,8 @@ class TestAngularSeparation(unittest.TestCase):
             ang.n_query_points
 
         # defaulted_nlist = freud.locality.make_default_nlist_nn(
-        #     box, points, query_points, num_neigh,
-        #     None, False, rmax)
+        #     box, points, query_points, num_neighbors,
+        #     None, False, r_max)
         # for i, j in defaulted_nlist[0]:
         #     print(i, j)
         ang.computeNeighbor(box, points, ors, query_points, query_ors)
@@ -43,34 +43,34 @@ class TestAngularSeparation(unittest.TestCase):
 
     def test_getNGlobal(self):
         N = 500
-        num_neigh = 8
-        rmax = 3
+        num_neighbors = 8
+        r_max = 3
 
         ors = rowan.random.rand(N)
         equiv_quats = np.asarray([[1, 0, 0, 0]], dtype=np.float32)
         global_ors = np.array([[1, 0, 0, 0]], dtype=np.float32)
 
-        ang = freud.environment.AngularSeparation(rmax, num_neigh)
+        ang = freud.environment.AngularSeparation(r_max, num_neighbors)
         ang.computeGlobal(global_ors, ors, equiv_quats)
         npt.assert_equal(ang.n_global, 1)
 
     def test_get_num_points(self):
         boxlen = 10
         N = 500
-        num_neigh = 8
-        rmax = 3
+        num_neighbors = 8
+        r_max = 3
 
         box, points = make_box_and_random_points(boxlen, N, True)
         ors = rowan.random.rand(N)
 
-        ang = freud.environment.AngularSeparation(rmax, num_neigh)
+        ang = freud.environment.AngularSeparation(r_max, num_neighbors)
         ang.computeNeighbor(box, points, ors, query_orientations=ors)
         npt.assert_equal(ang.n_points, N)
 
     def test_compute_neighbors(self):
         boxlen = 4
-        num_neigh = 1
-        rmax = 2
+        num_neighbors = 1
+        r_max = 2
 
         box = freud.box.Box.square(boxlen)
 
@@ -87,7 +87,7 @@ class TestAngularSeparation(unittest.TestCase):
         equiv_quats = np.asarray([[1, 0, 0, 0], [-1, 0, 0, 0]],
                                  dtype=np.float32)
 
-        ang = freud.environment.AngularSeparation(rmax, num_neigh)
+        ang = freud.environment.AngularSeparation(r_max, num_neighbors)
         ang.computeNeighbor(box, points, ors, equiv_orientations=equiv_quats)
 
         # test access
@@ -106,8 +106,8 @@ class TestAngularSeparation(unittest.TestCase):
         npt.assert_allclose(ang.neighbor_angles[1], 0, atol=1e-6)
 
     def test_compute_global(self):
-        num_neigh = 1
-        rmax = 2
+        num_neighbors = 1
+        r_max = 2
 
         # Going to make sure that the use of equiv_quats captures both of the
         # global reference orientations
@@ -125,7 +125,7 @@ class TestAngularSeparation(unittest.TestCase):
 
         ors = np.asarray(ors, dtype=np.float32)
 
-        ang = freud.environment.AngularSeparation(rmax, num_neigh)
+        ang = freud.environment.AngularSeparation(r_max, num_neighbors)
         ang.computeGlobal(global_ors, ors, equiv_quats)
 
         # test access

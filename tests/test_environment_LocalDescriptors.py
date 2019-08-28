@@ -12,13 +12,13 @@ class TestLocalDescriptors(unittest.TestCase):
         N = 1000
         Nneigh = 4
         lmax = 8
-        rmax = 0.5
+        r_max = 0.5
         L = 10
 
         box, positions = make_box_and_random_points(L, N)
         positions.flags['WRITEABLE'] = False
 
-        comp = freud.environment.LocalDescriptors(Nneigh, lmax, rmax, True)
+        comp = freud.environment.LocalDescriptors(Nneigh, lmax, r_max, True)
 
         # Test access
         with self.assertRaises(AttributeError):

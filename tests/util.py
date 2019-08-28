@@ -2,19 +2,19 @@ import numpy as np
 import freud
 
 
-def make_raw_query_nlist_test_set(box, ref_points, points, mode, rmax,
-                                  num_neigh, exclude_ii):
+def make_raw_query_nlist_test_set(box, ref_points, points, mode, r_max,
+                                  num_neighbors, exclude_ii):
     test_set = []
     test_set.append((ref_points, None))
     test_set.append((freud.locality.RawPoints(box, ref_points), None))
     test_set.append((freud.locality.AABBQuery(box, ref_points), None))
-    # test_set.append((freud.locality.LinkCell(box, rmax, ref_points), None))
+    # test_set.append((freud.locality.LinkCell(box, r_max, ref_points), None))
     if mode == "ball":
         nlist = freud.locality.make_default_nlist(
-            box, ref_points, points, rmax, None, exclude_ii)
+            box, ref_points, points, r_max, None, exclude_ii)
     if mode == "nearest":
         nlist = freud.locality.make_default_nlist_nn(
-            box, ref_points, points, num_neigh, None, exclude_ii, rmax)
+            box, ref_points, points, num_neighbors, None, exclude_ii, r_max)
     test_set.append((ref_points, nlist[0], nlist[1]))
     return test_set
 

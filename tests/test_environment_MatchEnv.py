@@ -17,11 +17,11 @@ class TestCluster(unittest.TestCase):
         L = np.max(xyz)*2
         box = freud.box.Box.cube(L)
 
-        rcut = 3.1
-        kn = 14
+        r_max = 3.1
+        num_neighbors = 14
         threshold = 0.1
 
-        match = freud.environment.MatchEnv(box, rcut, kn)
+        match = freud.environment.MatchEnv(box, r_max, num_neighbors)
         with self.assertRaises(AttributeError):
             match.tot_environment
         with self.assertRaises(AttributeError):
@@ -71,11 +71,11 @@ class TestCluster(unittest.TestCase):
         xyz = np.array(xyz, dtype=np.float32)
         box = freud.box.Box.cube(21)
 
-        rcut = 4
-        kn = 6
+        r_max = 4
+        num_neighbors = 6
         threshold = 0.1
 
-        match = freud.environment.MatchEnv(box, rcut, kn)
+        match = freud.environment.MatchEnv(box, r_max, num_neighbors)
         match.cluster(xyz, threshold)
         clusters = match.clusters
 
@@ -117,11 +117,11 @@ class TestCluster(unittest.TestCase):
         L = np.max(xyz)*2
         box = freud.box.Box.cube(L)
 
-        rcut = 3.1
-        kn = 14
+        r_max = 3.1
+        num_neighbors = 14
         threshold = 0.1
 
-        match = freud.environment.MatchEnv(box, rcut, kn)
+        match = freud.environment.MatchEnv(box, r_max, num_neighbors)
         match.cluster(xyz, threshold, hard_r=False, registration=False)
         clusters = match.clusters
 
@@ -161,11 +161,11 @@ class TestCluster(unittest.TestCase):
         L = np.max(xyz)*2
         box = freud.box.Box.cube(L)
 
-        rcut = 3.1
-        kn = 14
+        r_max = 3.1
+        num_neighbors = 14
         threshold = 0.1
 
-        match = freud.environment.MatchEnv(box, rcut, kn)
+        match = freud.environment.MatchEnv(box, r_max, num_neighbors)
         match.cluster(xyz, threshold, hard_r=True, registration=False)
         clusters = match.clusters
 
@@ -204,8 +204,8 @@ class TestCluster(unittest.TestCase):
         xyz = np.load(fn)
         xyz = np.array(xyz, dtype=np.float32)
 
-        rcut = 4
-        kn = 6
+        r_max = 4
+        num_neighbors = 6
         threshold = 0.005
 
         # Define rotation matrix, rotate along z axis by pi/24 degree
@@ -221,7 +221,7 @@ class TestCluster(unittest.TestCase):
         L = np.max(xyz)*3.0
         box = freud.box.Box(L, L, L, 0, 0, 0)
 
-        match = freud.environment.MatchEnv(box, rcut, kn)
+        match = freud.environment.MatchEnv(box, r_max, num_neighbors)
         match.cluster(xyz, threshold, hard_r=False,
                       registration=True, global_search=True)
         clusters = match.clusters
@@ -237,7 +237,7 @@ class TestCluster(unittest.TestCase):
         # Particle 22 and particle 31's local environments should match
         returnResult = match.isSimilar(tot_env[22], tot_env[31],
                                        0.005, registration=True)
-        npt.assert_equal(len(returnResult[1]), kn,
+        npt.assert_equal(len(returnResult[1]), num_neighbors,
                          err_msg="two environments are not similar")
 
     # Test MatchEnv.minimizeRMSD and registration functionality.
@@ -255,9 +255,9 @@ class TestCluster(unittest.TestCase):
 
         theta = np.pi/10
 
-        # r_cut and num_neigh are meaningless here
+        # r_cut and num_neighbors are meaningless here
         r_cut = 2
-        num_neigh = len(env_vec)
+        num_neighbors = len(env_vec)
 
         ux = norm[0]
         uy = norm[1]
@@ -283,7 +283,7 @@ class TestCluster(unittest.TestCase):
         np.random.shuffle(e1)
         # 3. Verify that OUR method isSimilar gives that these two
         #    environments are similar.
-        match = freud.environment.MatchEnv(box, r_cut, num_neigh)
+        match = freud.environment.MatchEnv(box, r_cut, num_neighbors)
         [refPoints2, isSim_vec_map] = match.isSimilar(
             e0, e1, threshold, registration=False)
         npt.assert_allclose(
@@ -353,9 +353,9 @@ class TestCluster(unittest.TestCase):
     def test_repr(self):
         L = 10
         box = freud.box.Box.cube(L)
-        rcut = 3.1
-        kn = 14
-        match = freud.environment.MatchEnv(box, rcut, kn)
+        r_max = 3.1
+        num_neighbors = 14
+        match = freud.environment.MatchEnv(box, r_max, num_neighbors)
         self.assertEqual(str(match), str(eval(repr(match))))
 
     def test_repr_png(self):
@@ -365,8 +365,8 @@ class TestCluster(unittest.TestCase):
         xyz.flags['WRITEABLE'] = False
         L = np.max(xyz)*2
 
-        rcut = 3.1
-        kn = 14
+        r_max = 3.1
+        num_neighbors = 14
         threshold = 0.1
 
         box = freud.box.Box.square(L)
@@ -374,7 +374,7 @@ class TestCluster(unittest.TestCase):
         xyz = np.array(xyz, dtype=np.float32)
         xyz[:, 2] = 0
         xyz.flags['WRITEABLE'] = False
-        match = freud.environment.MatchEnv(box, rcut, kn)
+        match = freud.environment.MatchEnv(box, r_max, num_neighbors)
 
         with self.assertRaises(AttributeError):
             match.plot()

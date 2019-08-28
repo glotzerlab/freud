@@ -10,8 +10,8 @@ class TestLocalBondProjection(unittest.TestCase):
     def test_num_points(self):
         boxlen = 10
         N = 500
-        num_neigh = 8
-        rmax = 3
+        num_neighbors = 8
+        r_max = 3
 
         N_query = N//3
 
@@ -20,7 +20,7 @@ class TestLocalBondProjection(unittest.TestCase):
         ors = rowan.random.rand(N)
         proj_vecs = np.asarray([[0, 0, 1]])
 
-        ang = freud.environment.LocalBondProjection(rmax, num_neigh)
+        ang = freud.environment.LocalBondProjection(r_max, num_neighbors)
         ang.compute(box, proj_vecs, points, ors, query_points)
         self.assertEqual(ang.num_points, N)
         self.assertEqual(ang.num_query_points, N_query)
@@ -28,28 +28,28 @@ class TestLocalBondProjection(unittest.TestCase):
     def test_num_proj_vectors(self):
         boxlen = 10
         N = 500
-        num_neigh = 8
-        rmax = 3
+        num_neighbors = 8
+        r_max = 3
 
         box, points = make_box_and_random_points(boxlen, N, True)
         ors = rowan.random.rand(N)
         proj_vecs = np.asarray([[0, 0, 1]])
 
-        ang = freud.environment.LocalBondProjection(rmax, num_neigh)
+        ang = freud.environment.LocalBondProjection(r_max, num_neighbors)
         ang.compute(box, proj_vecs, points, ors)
         npt.assert_equal(ang.num_proj_vectors, 1)
 
     def test_box(self):
         boxlen = 10
         N = 500
-        num_neigh = 8
-        rmax = 3
+        num_neighbors = 8
+        r_max = 3
 
         box, points = make_box_and_random_points(boxlen, N)
         ors = rowan.random.rand(N)
         proj_vecs = np.asarray([[0, 0, 1]])
 
-        ang = freud.environment.LocalBondProjection(rmax, num_neigh)
+        ang = freud.environment.LocalBondProjection(r_max, num_neighbors)
         ang.compute(box, proj_vecs, points, ors)
 
         npt.assert_equal(ang.box.Lx, boxlen)
@@ -62,14 +62,14 @@ class TestLocalBondProjection(unittest.TestCase):
     def test_attribute_access(self):
         boxlen = 10
         N = 100
-        num_neigh = 8
-        rmax = 3
+        num_neighbors = 8
+        r_max = 3
 
         box, points = make_box_and_random_points(boxlen, N, True)
         ors = rowan.random.rand(N)
         proj_vecs = np.asarray([[0, 0, 1]])
 
-        ang = freud.environment.LocalBondProjection(rmax, num_neigh)
+        ang = freud.environment.LocalBondProjection(r_max, num_neighbors)
 
         with self.assertRaises(AttributeError):
             ang.nlist
@@ -91,15 +91,15 @@ class TestLocalBondProjection(unittest.TestCase):
         ang.nlist
         ang.projections
         ang.normed_projections
-        ang.num_points
+        ang.num_query_points
         ang.num_points
         ang.num_proj_vectors
         ang.box
 
     def test_compute(self):
         boxlen = 4
-        num_neigh = 1
-        rmax = 2
+        num_neighbors = 1
+        r_max = 2
 
         box = freud.box.Box.cube(boxlen)
 
@@ -122,11 +122,11 @@ class TestLocalBondProjection(unittest.TestCase):
 
         # First have no particle symmetry
 
-        ang = freud.environment.LocalBondProjection(rmax, num_neigh)
+        ang = freud.environment.LocalBondProjection(r_max, num_neighbors)
         ang.compute(box, proj_vecs, points, ors)
 
         dnlist = freud.locality.make_default_nlist_nn(
-            box, points, points, num_neigh, None, True, rmax)
+            box, points, points, num_neighbors, None, True, r_max)
         bonds = [(i[0], i[1]) for i in dnlist[0]]
 
         # We will look at the bond between [1, 0, 0] as ref_point

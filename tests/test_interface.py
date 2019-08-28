@@ -45,7 +45,7 @@ class TestInterface(unittest.TestCase):
         self.assertEqual(len(test_twelve.point_ids), 12)
 
     def test_filter_r(self):
-        """Test that nlists are filtered to the correct rmax."""
+        """Test that nlists are filtered to the correct r_max."""
         np.random.seed(0)
         r_max = 3.0
         (box, positions) = util.make_fcc(4, 4, 4, noise=1e-2)
@@ -55,7 +55,7 @@ class TestInterface(unittest.TestCase):
         point = positions[index].reshape((1, 3))
         others = np.concatenate([positions[:index], positions[index + 1:]])
 
-        # Creates a neighborlist with rmax larger than the interface rmax
+        # Creates a neighborlist with r_max larger than the interface r_max
         lc = freud.locality.LinkCell(box, r_max, others)
         nlist = lc.query(point, dict(r_max=r_max)).toNeighborList()
 

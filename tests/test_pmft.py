@@ -166,9 +166,9 @@ class TestPMFTR12(unittest.TestCase):
         correct_bin_counts[bins[0], bins[1], bins[2]] = 1
         absoluteTolerance = 0.1
 
-        rmax = maxR
+        r_max = maxR
         test_set = util.make_raw_query_nlist_test_set(
-            box, points, points, 'ball', rmax, 0, True)
+            box, points, points, 'ball', r_max, 0, True)
         for ts in test_set:
             myPMFT = freud.pmft.PMFTR12(maxR, nbinsR, nbinsT1, nbinsT2)
             myPMFT.accumulate(box, ts[0], angles, nlist=ts[1])
@@ -377,9 +377,9 @@ class TestPMFTXYT(unittest.TestCase):
         correct_bin_counts[bins[2], bins[1], bins[0]] = 1
         absoluteTolerance = 0.1
 
-        rmax = np.sqrt(maxX**2 + maxY**2)
+        r_max = np.sqrt(maxX**2 + maxY**2)
         test_set = util.make_raw_query_nlist_test_set(
-            box, points, points, 'ball', rmax, 0, True)
+            box, points, points, 'ball', r_max, 0, True)
         for ts in test_set:
             myPMFT = freud.pmft.PMFTXYT(maxX, maxY, nbinsX, nbinsY, nbinsT)
             myPMFT.accumulate(box, ts[0], angles, nlist=ts[1])
@@ -418,9 +418,9 @@ class TestPMFTXYT(unittest.TestCase):
         orientations = np.array([0]*len(points))
         query_orientations = np.array([0]*len(query_points))
 
-        rmax = np.sqrt(x_max**2 + y_max**2)
+        r_max = np.sqrt(x_max**2 + y_max**2)
         test_set = util.make_raw_query_nlist_test_set(
-            box, points, query_points, 'ball', rmax, 0, False)
+            box, points, query_points, 'ball', r_max, 0, False)
 
         for ts in test_set:
             pmft = freud.pmft.PMFTXYT(x_max, y_max, n_x, n_y, n_t)
@@ -574,9 +574,9 @@ class TestPMFTXY2D(unittest.TestCase):
         correct_bin_counts[bins[1], bins[0]] = 1
         absoluteTolerance = 0.1
 
-        rmax = np.sqrt(maxX**2 + maxY**2)
+        r_max = np.sqrt(maxX**2 + maxY**2)
         test_set = util.make_raw_query_nlist_test_set(
-            box, points, points, 'ball', rmax, 0, True)
+            box, points, points, 'ball', r_max, 0, True)
         for ts in test_set:
             myPMFT = freud.pmft.PMFTXY2D(maxX, maxY, nbinsX, nbinsY)
             myPMFT.accumulate(box, ts[0], angles, nlist=ts[1])
@@ -632,9 +632,9 @@ class TestPMFTXY2D(unittest.TestCase):
 
         orientations = np.array([0]*len(points))
 
-        rmax = np.sqrt(x_max**2 + y_max**2)
+        r_max = np.sqrt(x_max**2 + y_max**2)
         test_set = util.make_raw_query_nlist_test_set(
-            box, points, query_points, 'ball', rmax, 0, False)
+            box, points, query_points, 'ball', r_max, 0, False)
 
         for ts in test_set:
             pmft = freud.pmft.PMFTXY2D(x_max, y_max, n_x, n_y)
@@ -836,9 +836,9 @@ class TestPMFTXYZ(unittest.TestCase):
         correct_bin_counts[bins[2], bins[1], bins[0]] = 1
         absoluteTolerance = 0.1
 
-        rmax = np.sqrt(maxX**2 + maxY**2 + maxZ**2)
+        r_max = np.sqrt(maxX**2 + maxY**2 + maxZ**2)
         test_set = util.make_raw_query_nlist_test_set(
-            box, points, points, 'ball', rmax, 0, True)
+            box, points, points, 'ball', r_max, 0, True)
         for ts in test_set:
             myPMFT = freud.pmft.PMFTXYZ(
                 maxX, maxY, maxZ, nbinsX, nbinsY, nbinsZ)
