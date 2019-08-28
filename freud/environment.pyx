@@ -170,9 +170,8 @@ cdef class BondOrder(Compute):
 
         exclude_ii = query_points is None
 
-        nq_nlist = freud.locality.make_nq_nlist(b, points, nlist)
-        cdef freud.locality.NeighborQuery nq = nq_nlist[0]
-        cdef freud.locality.NlistptrWrapper nlistptr = nq_nlist[1]
+        cdef freud.locality.NeighborQuery nq = make_default_nq(box, points)
+        cdef freud.locality.NlistptrWrapper nlistptr = NlistptrWrapper(nlist)
 
         cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
             mode="nearest", num_neighbors=self.num_neighbors,

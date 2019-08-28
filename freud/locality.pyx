@@ -734,10 +734,6 @@ cdef class NlistptrWrapper:
         return self.nlistptr
 
 
-def make_nq_nlist(box, points, nlist):
-    return (make_default_nq(box, points), NlistptrWrapper(nlist))
-
-
 def make_default_nq(box, points):
     R"""Helper function to return a NeighborQuery object.
 
