@@ -62,8 +62,9 @@ cdef extern from "NeighborList.h" namespace "freud::locality":
     cdef cppclass NeighborList:
         NeighborList()
         NeighborList(unsigned int)
-        NeighborList(unsigned int, const unsigned int*, unsigned int, const unsigned int*,
-                     unsigned int, const float*, const float*)
+        NeighborList(unsigned int, const unsigned int*, unsigned int,
+                     const unsigned int*, unsigned int, const float*,
+                     const float*) except +
 
         freud.util.ManagedArray[unsigned int] &getNeighbors()
         freud.util.ManagedArray[float] &getDistances()

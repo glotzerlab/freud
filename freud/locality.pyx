@@ -389,9 +389,9 @@ cdef class NeighborList:
                 value of 1 for each weight) (Default value = :code:`None`).
         """
         query_point_index = freud.common.convert_array(
-            query_point_index, shape=(None,), dtype=np.uint64)
+            query_point_index, shape=(None,), dtype=np.uintc)
         point_index = freud.common.convert_array(
-            point_index, shape=query_point_index.shape, dtype=np.uint64)
+            point_index, shape=query_point_index.shape, dtype=np.uintc)
 
         distances = freud.common.convert_array(distances, shape=query_point_index.shape)
 
@@ -462,15 +462,15 @@ cdef class NeighborList:
         R"""Access the bond array by index or slice."""
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getNeighbors(),
-            freud.util.arr_type_t.UNSIGNED_INT)
+            freud.util.arr_type_t.UNSIGNED_INT)[key]
 
     @property
     def query_point_index(self):
-        return np.asarray(self[:])[:, 0]
+        return self[:, 0]
 
     @property
     def point_index(self):
-        return np.asarray(self[:])[:, 1]
+        return self[:, 1]
 
     @property
     def weights(self):

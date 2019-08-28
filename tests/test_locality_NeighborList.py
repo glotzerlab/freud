@@ -59,7 +59,7 @@ class TestNeighborList(unittest.TestCase):
         self.assertLessEqual(len(self.cl.nlist), old_size)
 
         # should be able to further filter
-        self.cl.nlist.filter_r(self.fbox, self.points, self.points, 2.5)
+        self.cl.nlist.filter_r(2.5)
 
     def test_find_first_index(self):
         self.setup_nl()
@@ -84,41 +84,45 @@ class TestNeighborList(unittest.TestCase):
         distances = np.ones(len(query_point_index))
 
         # implicit weights
-        nlist = locality.NeighborList.from_arrays(4, 4, query_point_index, point_index, distances)
+        nlist = locality.NeighborList.from_arrays(
+            4, 4, query_point_index, point_index, distances)
         self.assertTrue(np.allclose(nlist.weights, 1))
 
         # explicit weights
-        weights = np.ones((len(query_point_index),))*4.
+        weights = np.ones(len(query_point_index))*4.
         nlist = locality.NeighborList.from_arrays(
-            4, 4, query_point_index, point_index, weights)
+            4, 4, query_point_index, point_index, distances, weights)
         self.assertTrue(np.allclose(nlist.weights, 4))
 
         # too few reference particles
         with self.assertRaises(RuntimeError):
             nlist = locality.NeighborList.from_arrays(
-                3, 4, query_point_index, point_index)
+                3, 4, query_point_index, point_index, distances)
 
         # too few target particles
         with self.assertRaises(RuntimeError):
             nlist = locality.NeighborList.from_arrays(
-                4, 3, query_point_index, point_index)
+                4, 3, query_point_index, point_index, distances)
 
-        # reference particles not sorted
+        # query particles not sorted
         with self.assertRaises(RuntimeError):
             nlist = locality.NeighborList.from_arrays(
-                4, 4, point_index, query_point_index)
+                4, 4, point_index, query_point_index, distances)
 
         # mismatched array sizes
         with self.assertRaises(ValueError):
             nlist = locality.NeighborList.from_arrays(
-                4, 4, query_point_index[:-1], point_index)
+                4, 4, query_point_index[:-1], point_index, distances)
         with self.assertRaises(ValueError):
             nlist = locality.NeighborList.from_arrays(
-                4, 4, query_point_index, point_index[:-1])
+                4, 4, query_point_index, point_index[:-1], distances)
+        with self.assertRaises(ValueError):
+            nlist = locality.NeighborList.from_arrays(
+                4, 4, query_point_index, point_index, distances[:-1])
         with self.assertRaises(ValueError):
             weights = np.ones((len(query_point_index) - 1,))
             nlist = locality.NeighborList.from_arrays(
-                4, 4, query_point_index, point_index, weights)
+                4, 4, query_point_index, point_index, distances, weights)
 
     def test_indexing(self):
         self.setup_nl()
