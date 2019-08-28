@@ -312,7 +312,9 @@ public:
                           QueryArgs qargs)
         : m_neighbor_query(neighbor_query), m_query_points(query_points), m_num_query_points(num_query_points),
           m_qargs(qargs), m_finished(false), m_cur_p(0)
-    {}
+    {
+        m_iter = m_neighbor_query->queryWithArgs(m_query_points[m_cur_p], m_cur_p, m_qargs);
+    }
 
     //! Empty Destructor
     ~NeighborQueryIterator() {}
@@ -332,22 +334,24 @@ public:
     //! Get the next element.
     NeighborBond next()
     {
-        std::shared_ptr<NeighborQueryPerPointIterator> iter;
+        if (m_finished)
+            return ITERATOR_TERMINATOR;
         NeighborBond nb;
         while (true)
         {
-            iter = m_neighbor_query->queryWithArgs(m_query_points[m_cur_p], m_cur_p, m_qargs);
-            while (!iter->end())
+            while (!m_iter->end())
             {
-                nb = iter->next();
+                nb = m_iter->next();
 
                 if (nb != ITERATOR_TERMINATOR)
                     return nb;
             }
             m_cur_p++;
-            if (m_cur_p < m_num_query_points)
+            if (m_cur_p >= m_num_query_points)
                 break;
+            m_iter = m_neighbor_query->queryWithArgs(m_query_points[m_cur_p], m_cur_p, m_qargs);
         }
+        m_finished = true;
         return ITERATOR_TERMINATOR;
     }
 
@@ -420,6 +424,7 @@ protected:
     unsigned int m_num_query_points; //!< The index of the query point.
     unsigned int cur_p;                    //!< The current index into the points (bounded by m_n_query_points).
     const QueryArgs m_qargs;  //!< The current query arguments
+    std::shared_ptr<NeighborQueryPerPointIterator> m_iter;  //!< The per-point iterator being used.
 
     bool m_finished;    //!< Flag to indicate that iteration is complete (must be set by next on termination).
     bool m_exclude_ii; //!< Flag to indicate whether or not to include self bonds.
