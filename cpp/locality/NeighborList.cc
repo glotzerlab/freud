@@ -117,6 +117,7 @@ unsigned int NeighborList::filter(const bool* filt)
 {
     // number of good (unfiltered-out) elements so far
     unsigned int num_good(0);
+    const unsigned int old_size(getNumBonds());
 
     for (unsigned int i(0); i < getNumBonds(); ++i)
     {
@@ -129,31 +130,19 @@ unsigned int NeighborList::filter(const bool* filt)
             ++num_good;
         }
     }
-    const unsigned int old_size(getNumBonds());
-    resize(num_good, false);
-    return (unsigned int) num_good - old_size;
+    resize(num_good);
+    return old_size - num_good;
 }
 
 unsigned int NeighborList::filter_r(float r_max, float r_min)
 {
-    // number of good (unfiltered-out) elements so far
-    unsigned int num_good(0);
-
+    // Can't use vector<bool> because that is specialized for compact storage
+    std::unique_ptr<bool[]> dist_filter(new bool[getNumBonds()]);
     for (unsigned int i(0); i < getNumBonds(); ++i)
     {
-        if (m_distances[i] > r_min && m_distances[i] < r_max)
-        {
-            m_neighbors(num_good, 0) = m_neighbors(i, 0);
-            m_neighbors(num_good, 1) = m_neighbors(i, 1);
-            m_weights[num_good] = m_weights[i];
-            m_distances[num_good] = m_distances[i];
-            ++num_good;
-        }
+        dist_filter[i] = (m_distances[i] >= r_min && m_distances[i] < r_max);
     }
-
-    const unsigned int old_size(getNumBonds());
-    resize(num_good, false);
-    return (unsigned int) num_good - old_size;
+    return filter(dist_filter.get());
 }
 
 unsigned int NeighborList::find_first_index(unsigned int i) const
@@ -164,14 +153,27 @@ unsigned int NeighborList::find_first_index(unsigned int i) const
         return 0;
 }
 
-void NeighborList::resize(unsigned int num_bonds, bool reset)
+void NeighborList::resize(unsigned int num_bonds)
 {
-    if (num_bonds != getNumBonds())
+    auto new_neighbors = util::ManagedArray<unsigned int>({num_bonds, 2});
+    auto new_distances = util::ManagedArray<float>({num_bonds});
+    auto new_weights = util::ManagedArray<float>({num_bonds});
+
+    // On shrinking resizes, keep existing data.
+    if (num_bonds <= getNumBonds())
     {
-        m_neighbors.prepare({num_bonds, 2}, reset);
-        m_weights.prepare(num_bonds, reset);
-        m_distances.prepare(num_bonds, reset);
+        for (unsigned int i = 0; i < num_bonds; i++)
+        {
+            new_neighbors(i, 0) = m_neighbors(i, 0);
+            new_neighbors(i, 1) = m_neighbors(i, 1);
+            new_distances[i] = m_distances[i];
+            new_weights[i] = m_weights[i];
+        }
     }
+
+    m_neighbors = new_neighbors;
+    m_distances = new_distances;
+    m_weights = new_weights;
     m_segments_counts_updated = false;
 }
 

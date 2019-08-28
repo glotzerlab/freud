@@ -76,15 +76,12 @@ cdef extern from "NeighborList.h" namespace "freud::locality":
         unsigned int getNumPoints() const
         unsigned int getNumQueryPoints() const
         void setNumBonds(unsigned int, unsigned int, unsigned int)
-        unsigned int filter(const bool*)
-        unsigned int filter_r(float, float)
+        unsigned int filter(const bool*) except +
+        unsigned int filter_r(float, float) except +
 
         unsigned int find_first_index(unsigned int)
 
-        # Include separate definitions for resize with and without optional
-        # parameter
         void resize(unsigned int)
-        void resize(unsigned int, bool)
         void copy(const NeighborList &)
         void validate(unsigned int, unsigned int) except +
 

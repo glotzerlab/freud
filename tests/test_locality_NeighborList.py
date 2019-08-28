@@ -1,4 +1,5 @@
 import numpy as np
+import numpy.testing as npt
 from freud import locality
 import unittest
 from util import make_box_and_random_points
@@ -36,17 +37,78 @@ class TestNeighborList(unittest.TestCase):
             self.cl.nlist.point_index[:] = 0
 
         # the weights array may be useful to write to, though
-        self.cl.nlist.weights[18] = 3
-        self.assertEqual(self.cl.nlist.weights[18], 3)
+        # TODO: weights aren't writable since changing to ManagedArray
+        with self.assertRaises(ValueError):
+            self.cl.nlist.weights[18] = 3
+        # self.assertEqual(self.cl.nlist.weights[18], 3)
 
-    def test_filter_r(self):
+    def test_filter_r_max(self):
         self.setup_nl()
         np.random.seed(0)
         points2 = self.points[:self.N//2]
-        self.cl.compute(self.fbox, self.points, self.points)
+        filter_max_distance = 2.5
 
         self.cl.compute(self.fbox, self.points, points2)
-        self.cl.nlist.filter_r(2.5)
+        old_size = len(self.cl.nlist)
+
+        # Make sure weights are 1
+        npt.assert_equal(self.cl.nlist.weights, 1)
+
+        # Compute neighbor pairs that we expect to be kept after the filter
+        kept_neighbors = self.cl.nlist[
+            self.cl.nlist.distances < filter_max_distance]
+
+        self.cl.nlist.filter_r(filter_max_distance)
+        new_size = len(self.cl.nlist)
+
+        self.assertGreater(old_size, 0)
+        self.assertGreater(new_size, 0)
+        self.assertLessEqual(new_size, old_size)
+
+        # Make sure weights are still 1 after resize
+        npt.assert_equal(self.cl.nlist.weights, 1)
+
+        # Make sure distances are filtered
+        npt.assert_array_less(self.cl.nlist.distances,
+                              np.full(new_size, filter_max_distance))
+
+        npt.assert_equal(kept_neighbors, self.cl.nlist)
+
+    def test_filter_r_max_min(self):
+        self.setup_nl()
+        np.random.seed(0)
+        points2 = self.points[:self.N//2]
+        filter_min_distance = 1.5
+        filter_max_distance = 2.5
+
+        self.cl.compute(self.fbox, self.points, points2)
+        old_size = len(self.cl.nlist)
+
+        # Make sure weights are 1
+        npt.assert_equal(self.cl.nlist.weights, 1)
+
+        # Compute neighbor pairs that we expect to be kept after the filter
+        kept_neighbors = self.cl.nlist[np.logical_and(
+            self.cl.nlist.distances < filter_max_distance,
+            self.cl.nlist.distances >= filter_min_distance)]
+
+        self.cl.nlist.filter_r(filter_max_distance, filter_min_distance)
+        new_size = len(self.cl.nlist)
+
+        self.assertGreater(old_size, 0)
+        self.assertGreater(new_size, 0)
+        self.assertLessEqual(new_size, old_size)
+
+        # Make sure weights are still 1 after resize
+        npt.assert_equal(self.cl.nlist.weights, 1)
+
+        # Make sure distances are filtered
+        npt.assert_array_less(self.cl.nlist.distances,
+                              np.full(new_size, filter_max_distance))
+        npt.assert_array_less(np.full(new_size, filter_min_distance),
+                              self.cl.nlist.distances)
+
+        npt.assert_equal(kept_neighbors, self.cl.nlist)
 
     def test_filter(self):
         self.setup_nl()

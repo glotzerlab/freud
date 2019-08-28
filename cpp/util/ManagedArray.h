@@ -62,9 +62,9 @@ public:
     //! Simple convenience for 1D arrays that calls through to the shape based `prepare` function.
     /*! \param new_size Size of the 1D array to allocate.
      */
-    void prepare(unsigned int new_size, bool reset_data=true)
+    void prepare(unsigned int new_size)
     {
-        prepare(std::vector<unsigned int> {new_size}, reset_data);
+        prepare(std::vector<unsigned int> {new_size});
     }
 
     //! Prepare for writing new data.
@@ -75,9 +75,9 @@ public:
      *
      *  \param new_shape Shape of the array to allocate.
      */
-    void prepare(std::vector<unsigned int> new_shape, bool reset_data=true)
+    void prepare(std::vector<unsigned int> new_shape)
     {
-        // If we resized, or if there are outstanding references, we create a new array.
+        // If we resized, or if there are outstanding references, we create a new array. No matter what, reset.
         if ((m_data.use_count() > 1) || (new_shape != shape()))
         {
             m_shape = std::make_shared<std::vector<unsigned int> >(new_shape);
@@ -91,10 +91,7 @@ public:
             m_data = std::shared_ptr<std::shared_ptr<T> >(
                 new std::shared_ptr<T>(new T[size()], std::default_delete<T[]>()));
         }
-        if (reset_data)
-        {
-            reset();
-        }
+        reset();
     }
 
     //! Reset the contents of array to be 0.

@@ -111,16 +111,17 @@ public:
 
     //! Remove bonds in this object based on an array of boolean values. The
     //  array must be at least as long as the number of neighbor bonds.
+    //  Returns the number of bonds removed.
     unsigned int filter(const bool* filt);
     //! Remove bonds in this object based on minimum and maximum distance
-    //  constraints.
+    //  constraints. Returns the number of bonds removed.
     unsigned int filter_r(float r_max, float r_min = 0);
 
     //! Return the first bond index corresponding to point i
     unsigned int find_first_index(unsigned int i) const;
 
     //! Resize member arrays to a different size
-    void resize(unsigned int num_bonds, bool reset = true);
+    void resize(unsigned int num_bonds);
 
     //! Copy the bonds from another NeighborList object
     void copy(const NeighborList& other);
