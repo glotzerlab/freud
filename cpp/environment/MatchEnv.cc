@@ -312,7 +312,7 @@ MatchEnv::~MatchEnv() {}
 
 // Build and return a local environment surrounding a particle.
 // Label its environment with env_ind.
-Environment MatchEnv::buildEnv(const size_t* neighbor_list, size_t num_bonds, size_t& bond,
+Environment MatchEnv::buildEnv(const freud::locality::NeighborList* nlist, size_t num_bonds, size_t& bond,
                                const vec3<float>* points, unsigned int i, unsigned int env_ind, bool hard_r)
 {
     Environment ei = Environment();
@@ -320,10 +320,10 @@ Environment MatchEnv::buildEnv(const size_t* neighbor_list, size_t num_bonds, si
     ei.env_ind = env_ind;
 
     vec3<float> p = points[i];
-    for (; bond < num_bonds && neighbor_list[2 * bond] == i; ++bond)
+    for (; bond < num_bonds && nlist->getNeighbors()(bond, 0) == i; ++bond)
     {
         // compute vec{r} between the two particles
-        const size_t j(neighbor_list[2 * bond + 1]);
+        const size_t j(nlist->getNeighbors()(bond, 1));
         if (i != j)
         {
             vec3<float> delta = m_box.wrap(points[j] - p);
@@ -654,10 +654,7 @@ void MatchEnv::cluster(const freud::locality::NeighborList* env_nlist,
     float m_threshold_sq = threshold * threshold;
 
     nlist->validate(Np, Np);
-    const size_t* neighbor_list(nlist->getNeighbors());
-
     env_nlist->validate(Np, Np);
-    const size_t* env_neighbor_list(env_nlist->getNeighbors());
     size_t env_bond(0);
     const size_t env_num_bonds(env_nlist->getNumBonds());
 
@@ -670,7 +667,7 @@ void MatchEnv::cluster(const freud::locality::NeighborList* env_nlist,
     // if you don't do this, things will get screwy.
     for (unsigned int i = 0; i < m_Np; i++)
     {
-        Environment ei = buildEnv(env_neighbor_list, env_num_bonds, env_bond, points, i, i, hard_r);
+        Environment ei = buildEnv(env_nlist, env_num_bonds, env_bond, points, i, i, hard_r);
         dj.s.push_back(ei);
         m_max_num_neighbors = std::max(m_max_num_neighbors, ei.num_vecs);
         dj.m_max_num_neigh = m_max_num_neighbors;
@@ -688,9 +685,9 @@ void MatchEnv::cluster(const freud::locality::NeighborList* env_nlist,
         if (global == false)
         {
             // loop over the neighbors
-            for (; bond < nlist->getNumBonds() && neighbor_list[2 * bond] == i; ++bond)
+            for (; bond < nlist->getNumBonds() && nlist->getNeighbors()(bond, 0) == i; ++bond)
             {
-                const size_t j(neighbor_list[2 * bond + 1]);
+                const size_t j(nlist->getNeighbors()(bond, 1));
                 std::pair<rotmat3<float>, BiMap<unsigned int, unsigned int>> mapping
                     = isSimilar(dj.s[i], dj.s[j], m_threshold_sq, registration);
                 rotmat3<float> rotation = mapping.first;
@@ -756,7 +753,6 @@ void MatchEnv::matchMotif(const freud::locality::NeighborList* nlist, const vec3
     float m_threshold_sq = threshold * threshold;
 
     nlist->validate(Np, Np);
-    const size_t* neighbor_list(nlist->getNeighbors());
 
     // create a disjoint set where all particles belong in their own cluster.
     // this has to have ONE MORE environment than there are actual particles,
@@ -800,7 +796,7 @@ void MatchEnv::matchMotif(const freud::locality::NeighborList* nlist, const vec3
     for (unsigned int i = 0; i < m_Np; i++)
     {
         unsigned int dummy = i + 1;
-        Environment ei = buildEnv(neighbor_list, num_bonds, bond, points, i, dummy, false);
+        Environment ei = buildEnv(nlist, num_bonds, bond, points, i, dummy, false);
         dj.s.push_back(ei);
 
         // if the environment matches e0, merge it into the e0 environment set
@@ -849,7 +845,6 @@ std::vector<float> MatchEnv::minRMSDMotif(const freud::locality::NeighborList* n
     std::vector<float> min_rmsd_vec(m_Np);
 
     nlist->validate(Np, Np);
-    const size_t* neighbor_list(nlist->getNeighbors());
 
     // create a disjoint set where all particles belong in their own cluster.
     // this has to have ONE MORE environment than there are actual particles,
@@ -893,7 +888,7 @@ std::vector<float> MatchEnv::minRMSDMotif(const freud::locality::NeighborList* n
     for (unsigned int i = 0; i < m_Np; i++)
     {
         unsigned int dummy = i + 1;
-        Environment ei = buildEnv(neighbor_list, num_bonds, bond, points, i, dummy, false);
+        Environment ei = buildEnv(nlist, num_bonds, bond, points, i, dummy, false);
         dj.s.push_back(ei);
 
         // if the environment matches e0, merge it into the e0 environment set

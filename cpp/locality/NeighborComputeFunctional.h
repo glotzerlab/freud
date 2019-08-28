@@ -30,10 +30,10 @@ public:
         NeighborPerPointIterator(point_index), m_nlist(nlist)
         {
             m_current_index = m_nlist->find_first_index(point_index);
-            m_returned_point_index = m_nlist->getNeighbors()[2 * m_current_index];
+            m_returned_point_index = m_nlist->getNeighbors()(m_current_index, 0);
             m_finished = m_current_index == m_nlist->getNumBonds();
-        } 
-    
+        }
+
     ~NeighborListPerPointIterator() {}
 
     virtual NeighborBond next()
@@ -44,8 +44,8 @@ public:
             return ITERATOR_TERMINATOR;
         }
 
-        NeighborBond nb = NeighborBond(m_nlist->getNeighbors()[2 * m_current_index],
-                                        m_nlist->getNeighbors()[2 * m_current_index + 1], 
+        NeighborBond nb = NeighborBond(m_nlist->getNeighbors()(m_current_index, 0),
+                                        m_nlist->getNeighbors()(m_current_index, 1),
                                         m_nlist->getDistances()[m_current_index],
                                         m_nlist->getWeights()[m_current_index]);
         ++m_current_index;
@@ -110,7 +110,7 @@ template<typename Body> void forLoopWrapper(size_t begin, size_t end, const Body
  */
 template<typename ComputePairType>
 void loopOverNeighborsIterator(const NeighborQuery* neighbor_query, const vec3<float>* query_points, unsigned int n_query_points,
-                            QueryArgs qargs, const NeighborList* nlist, 
+                            QueryArgs qargs, const NeighborList* nlist,
                             const ComputePairType& cf, bool parallel = true)
 {
     // check if nlist exists

@@ -15,7 +15,7 @@ using namespace tbb;
 
 namespace freud { namespace environment {
 
-AngularSeparation::AngularSeparation() : m_n_query_points(0), m_n_points(0), 
+AngularSeparation::AngularSeparation() : m_n_query_points(0), m_n_points(0),
     m_n_global(0), m_n_equiv_orientations(0), m_tot_num_neigh(0) {}
 
 AngularSeparation::~AngularSeparation() {}
@@ -74,13 +74,12 @@ float computeMinSeparationAngle(const quat<float> ref_q, const quat<float> q, co
 }
 
 void AngularSeparation::computeNeighbor(const quat<float>* orientations,  unsigned int n_points,
-                         const quat<float>* query_orientations, unsigned int n_query_points, 
+                         const quat<float>* query_orientations, unsigned int n_query_points,
                          const quat<float>* equiv_orientations, unsigned int n_equiv_orientations,
                          const freud::locality::NeighborList* nlist)
 {
     nlist->validate(n_query_points, n_points);
-    
-    const size_t* neighbor_list(nlist->getNeighbors());
+
     // Get the maximum total number of bonds in the neighbor list
     const size_t tot_num_neigh = nlist->getNumBonds();
 
@@ -105,9 +104,9 @@ void AngularSeparation::computeNeighbor(const quat<float>* orientations,  unsign
             // m_neigh_ang_array.get()[i] = 0;
             quat<float> q = orientations[i];
 
-            for (; bond < tot_num_neigh && neighbor_list[2 * bond] == i; ++bond)
+            for (; bond < tot_num_neigh && nlist->getNeighbors()(bond, 0) == i; ++bond)
             {
-                const size_t j(neighbor_list[2 * bond + 1]);
+                const size_t j(nlist->getNeighbors()(bond, 1));
                 quat<float> query_q = query_orientations[j];
 
                 float theta = computeMinSeparationAngle(q, query_q, equiv_orientations, n_equiv_orientations);
@@ -125,8 +124,8 @@ void AngularSeparation::computeNeighbor(const quat<float>* orientations,  unsign
     m_tot_num_neigh = tot_num_neigh;
 }
 
-void AngularSeparation::computeGlobal(const quat<float>* global_orientations, unsigned int n_global, 
-                       const quat<float>* orientations, unsigned int n_points, 
+void AngularSeparation::computeGlobal(const quat<float>* global_orientations, unsigned int n_global,
+                       const quat<float>* orientations, unsigned int n_points,
                        const quat<float>* equiv_orientations, unsigned int n_equiv_orientations)
 {
     // reallocate the output array if it is not the right size

@@ -349,21 +349,17 @@ public:
 
         NeighborList* nl = new NeighborList();
         nl->resize(num_bonds);
-        nl->setNumBonds(num_bonds, m_num_query_points, m_neighbor_query->getNPoints());
-        size_t* neighbor_array(nl->getNeighbors());
-        float* neighbor_weights(nl->getWeights());
-        float* neighbor_distance(nl->getDistances());
+        nl->setNumBonds(num_bonds, m_n_query_points, m_neighbor_query->getNPoints());
 
         parallel_for(tbb::blocked_range<size_t>(0, num_bonds), [&](const tbb::blocked_range<size_t>& r) {
             for (size_t bond(r.begin()); bond < r.end(); ++bond)
             {
-                neighbor_array[2 * bond] = linear_bonds[bond].id;
-                neighbor_array[2 * bond + 1] = linear_bonds[bond].ref_id;
-                neighbor_distance[bond] = linear_bonds[bond].distance;
+                nl->getNeighbors()(bond, 0) = linear_bonds[bond].id;
+                nl->getNeighbors()(bond, 1) = linear_bonds[bond].ref_id;
+                nl->getDistances()[bond] = linear_bonds[bond].distance;
+                nl->getWeights()[bond] = 1;
             }
         });
-        memset((void*) neighbor_weights, 1, sizeof(float) * linear_bonds.size());
-
         return nl;
     }
 

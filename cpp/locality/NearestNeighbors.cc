@@ -169,10 +169,6 @@ void NearestNeighbors::compute(const box::Box& box, const vec3<float>* ref_pos, 
 
     m_neighbor_list.setNumBonds(num_bonds, num_points, num_ref);
 
-    size_t* neighbor_array(m_neighbor_list.getNeighbors());
-    float* neighbor_weights(m_neighbor_list.getWeights());
-    float* neighbor_distances(m_neighbor_list.getDistances());
-
     // build nlist structure
     parallel_for(blocked_range<size_t>(0, bond_vector_groups.size()),
                  [=, &bond_vector_groups](const blocked_range<size_t>& r) {
@@ -185,10 +181,10 @@ void NearestNeighbors::compute(const box::Box& box, const vec3<float>* ref_pos, 
                          const BondVector& vec(bond_vector_groups[group]);
                          for (BondVector::const_iterator iter(vec.begin()); iter != vec.end(); ++iter, ++bond)
                          {
-                            neighbor_array[2 * bond] = iter->id;
-                            neighbor_array[2 * bond + 1] = iter->ref_id;
-                            neighbor_weights[bond] = iter->weight;
-                            neighbor_distances[bond] = iter->distance;
+                            m_neighbor_list.getNeighbors()(bond, 0) = iter->id;
+                            m_neighbor_list.getNeighbors()(bond, 1) = iter->ref_id;
+                            m_neighbor_list.getDistances()(bond) = iter->distance;
+                            m_neighbor_list.getWeights()(bond) = iter->weight;
                          }
                      }
                  });

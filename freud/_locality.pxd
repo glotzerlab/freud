@@ -6,6 +6,7 @@ from freud.util cimport vec3
 from libcpp.memory cimport shared_ptr
 from libcpp.vector cimport vector
 cimport freud._box
+cimport freud.util
 
 cdef extern from "NeighborBond.h" namespace "freud::locality":
     cdef cppclass NeighborBond:
@@ -60,30 +61,31 @@ cdef extern from "RawPoints.h" namespace "freud::locality":
 cdef extern from "NeighborList.h" namespace "freud::locality":
     cdef cppclass NeighborList:
         NeighborList()
-        NeighborList(size_t)
+        NeighborList(unsigned int)
+        NeighborList(unsigned int, const unsigned int*, unsigned int, const unsigned int*,
+                     unsigned int, const float*, const float*)
 
-        size_t * getNeighbors()
-        float * getWeights()
-        float * getDistances()
+        freud.util.ManagedArray[unsigned int] &getNeighbors()
+        freud.util.ManagedArray[float] &getDistances()
+        freud.util.ManagedArray[float] &getWeights()
+        freud.util.ManagedArray[float] &getSegments()
+        freud.util.ManagedArray[float] &getCounts()
 
-        size_t getNumI() const
-        size_t getNumBonds() const
-        void setNumBonds(size_t, size_t, size_t)
-        size_t filter(const bool*)
-        size_t filter_r(
-            const freud._box.Box &,
-            const vec3[float]*,
-            const vec3[float]*,
-            float, float)
+        unsigned int getNumBonds() const
+        unsigned int getNumPoints() const
+        unsigned int getNumQueryPoints() const
+        void setNumBonds(unsigned int, unsigned int, unsigned int)
+        unsigned int filter(const bool*)
+        unsigned int filter_r(float, float)
 
-        size_t find_first_index(size_t)
+        unsigned int find_first_index(unsigned int)
 
         # Include separate definitions for resize with and without optional
         # parameter
-        void resize(size_t)
-        void resize(size_t, bool)
+        void resize(unsigned int)
+        void resize(unsigned int, bool)
         void copy(const NeighborList &)
-        void validate(size_t, size_t) except +
+        void validate(unsigned int, unsigned int) except +
 
 cdef extern from "LinkCell.h" namespace "freud::locality":
     cdef cppclass IteratorLinkCell:
