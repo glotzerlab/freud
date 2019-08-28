@@ -383,8 +383,6 @@ public:
                         local_bonds.emplace_back(nb.id, nb.ref_id, nb.distance);
                     }
                 }
-                // Remove the last item, which is just the terminal sentinel value.
-                local_bonds.pop_back();
             }
         });
 
