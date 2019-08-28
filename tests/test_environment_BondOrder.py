@@ -13,8 +13,9 @@ class TestBondOrder(unittest.TestCase):
 
         r_cut = 1.5
         num_neighbors = 12
-        npt = npp = 6
-        bo = freud.environment.BondOrder(r_cut, num_neighbors, npt, npp)
+        n_bins_theta = n_bins_phi = 6
+        bo = freud.environment.BondOrder(r_cut, num_neighbors,
+                                         n_bins_theta, n_bins_phi)
 
         # Test access
         with self.assertRaises(AttributeError):
@@ -33,13 +34,13 @@ class TestBondOrder(unittest.TestCase):
         bo.bond_order
 
         # Test all the basic attributes.
-        self.assertEqual(bo.n_bins_theta, npt)
-        self.assertEqual(bo.n_bins_phi, npp)
+        self.assertEqual(bo.n_bins_theta, n_bins_theta)
+        self.assertEqual(bo.n_bins_phi, n_bins_phi)
         self.assertEqual(bo.box, box)
         self.assertTrue(np.allclose(
-            bo.theta, np.array([(2*i+1)*np.pi/6 for i in range(npt)])))
+            bo.theta, (2*np.arange(n_bins_theta)+1)*np.pi/6))
         self.assertTrue(np.allclose(
-            bo.phi, np.array([(2*i+1)*np.pi/12 for i in range(npp)])))
+            bo.phi, (2*np.arange(n_bins_phi)+1)*np.pi/12))
 
         # Test that reset works.
         bo.reset()
@@ -108,14 +109,14 @@ class TestBondOrder(unittest.TestCase):
         r_max = 1.6
 
         num_neighbors = 12
-        n_bins_t = 30
-        n_bins_p = 2
+        n_bins_theta = 30
+        n_bins_phi = 2
         test_set = util.make_raw_query_nlist_test_set(
             box, points, query_points, "nearest", r_max, num_neighbors, False)
         for ts in test_set:
             bod = freud.environment.BondOrder(
                 r_max=r_max, num_neighbors=num_neighbors,
-                n_bins_t=n_bins_t, n_bins_p=n_bins_p)
+                n_bins_theta=n_bins_theta, n_bins_phi=n_bins_phi)
 
             # orientations are not used in bod mode
             ref_orientations = np.array([[1, 0, 0, 0]]*len(points))
