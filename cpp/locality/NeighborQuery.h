@@ -94,7 +94,7 @@ public:
      *  overloading abilities seem buggy at best, so it's easiest to just
      *  rename the function.
      */
-    std::shared_ptr<NeighborQueryIterator> queryWithArgs(const vec3<float>* query_points, unsigned int n_query_points,
+    virtual std::shared_ptr<NeighborQueryIterator> queryWithArgs(const vec3<float>* query_points, unsigned int n_query_points,
                                                                  QueryArgs args) const
     {
         this->validateQueryArgs(args);
@@ -344,7 +344,9 @@ public:
                 nb = m_iter->next();
 
                 if (nb != ITERATOR_TERMINATOR)
+                {
                     return nb;
+                }
             }
             m_cur_p++;
             if (m_cur_p >= m_num_query_points)

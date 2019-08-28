@@ -538,7 +538,7 @@ public:
     //! Constructor
     LinkCellQueryIterator(const LinkCell* neighbor_query, const vec3<float> query_point, unsigned int query_point_idx,
                           unsigned int num_neighbors, bool exclude_ii)
-        : LinkCellIterator(neighbor_query, query_point, query_point_idx, exclude_ii), m_num_neighbors(num_neighbors)
+        : LinkCellIterator(neighbor_query, query_point, query_point_idx, exclude_ii), m_count(0), m_num_neighbors(num_neighbors)
     {}
 
     //! Empty Destructor

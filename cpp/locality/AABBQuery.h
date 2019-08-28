@@ -52,6 +52,9 @@ public:
     virtual std::shared_ptr<NeighborQueryPerPointIterator> queryWithArgs(const vec3<float> query_point, unsigned int query_point_idx,
                                                                  QueryArgs args) const;
 
+    virtual std::shared_ptr<NeighborQueryIterator> queryWithArgs(const vec3<float>* query_points, unsigned int n_query_points,
+                                                                    QueryArgs args) const;
+
       //! Given a set of points, find the k elements of this data structure
       //  that are the nearest neighbors for each point. Note that due to the
       //  different signature, this is not directly overriding the original
@@ -147,7 +150,7 @@ public:
     //! Constructor
     AABBQueryIterator(const AABBQuery* neighbor_query, const vec3<float> query_point, unsigned int query_point_idx,
                       unsigned int num_neighbors, float r, float scale, bool exclude_ii)
-        : AABBIterator(neighbor_query, query_point, query_point_idx, exclude_ii), m_num_neighbors(num_neighbors), m_search_extended(false), m_r(r), m_r_cur(r),
+        : AABBIterator(neighbor_query, query_point, query_point_idx, exclude_ii), m_count(0), m_num_neighbors(num_neighbors), m_search_extended(false), m_r(r), m_r_cur(r),
           m_scale(scale), m_all_distances()
     {
         updateImageVectors(0);
