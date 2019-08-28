@@ -95,9 +95,9 @@ cdef class BondOrder(Compute):
             Distance over which to calculate.
         num_neighbors (unsigned int):
             Number of neighbors to find.
-        n_bins_t (unsigned int):
+        n_bins_theta (unsigned int):
             Number of :math:`\theta` bins.
-        n_bins_p (unsigned int):
+        n_bins_phi (unsigned int):
             Number of :math:`\phi` bins.
 
     Attributes:
@@ -118,21 +118,21 @@ cdef class BondOrder(Compute):
     cdef freud._environment.BondOrder * thisptr
     cdef num_neighbors
     cdef r_max
-    cdef n_bins_t
-    cdef n_bins_p
+    cdef n_bins_theta
+    cdef n_bins_phi
 
     def __cinit__(self, float r_max, unsigned int num_neighbors,
-                  unsigned int n_bins_t, unsigned int n_bins_p):
-        if n_bins_t < 2:
+                  unsigned int n_bins_theta, unsigned int n_bins_phi):
+        if n_bins_theta < 2:
             raise ValueError("Must have at least 2 bins in theta.")
-        if n_bins_p < 2:
+        if n_bins_phi < 2:
             raise ValueError("Must have at least 2 bins in phi.")
         self.thisptr = new freud._environment.BondOrder(
-            r_max, num_neighbors, n_bins_t, n_bins_p)
+            r_max, num_neighbors, n_bins_theta, n_bins_phi)
         self.r_max = r_max
         self.num_neighbors = num_neighbors
-        self.n_bins_t = n_bins_t
-        self.n_bins_p = n_bins_p
+        self.n_bins_theta = n_bins_theta
+        self.n_bins_phi = n_bins_phi
 
     def __dealloc__(self):
         del self.thisptr
@@ -300,11 +300,12 @@ cdef class BondOrder(Compute):
 
     def __repr__(self):
         return ("freud.environment.{cls}(r_max={r_max}, "
-                "num_neighbors={num_neighbors}, n_bins_t={n_bins_t}, "
-                "n_bins_p={n_bins_p})").format(
+                "num_neighbors={num_neighbors}, n_bins_theta={n_bins_theta}, "
+                "n_bins_phi={n_bins_phi})").format(
                     cls=type(self).__name__, r_max=self.r_max,
-                    num_neighbors=self.num_neighbors, n_bins_t=self.n_bins_t,
-                    n_bins_p=self.n_bins_p)
+                    num_neighbors=self.num_neighbors,
+                    n_bins_theta=self.n_bins_theta,
+                    n_bins_phi=self.n_bins_phi)
 
 
 cdef class LocalDescriptors(Compute):
@@ -547,7 +548,7 @@ cdef class MatchEnv(Compute):
                 below which they are "matching."
             hard_r (bool):
                 If True, add all particles that fall within the threshold of
-                m_r_maxsq to the environment.
+                :code:`r_max` to the environment.
             registration (bool, optional):
                 If True, first use brute force registration to orient one set
                 of environment vectors with respect to the other set such that
@@ -823,9 +824,9 @@ cdef class MatchEnv(Compute):
 
     def __repr__(self):
         return ("freud.environment.{cls}(box={box}, "
-                "r_max={r}, num_neighbors={k})").format(
+                "r_max={r_max}, num_neighbors={num_neighbors})").format(
                     cls=type(self).__name__, box=self.m_box.__repr__(),
-                    r=self.r_max, k=self.num_neighbors)
+                    r_max=self.r_max, num_neighbors=self.num_neighbors)
 
     @Compute._computed_method()
     def plot(self, ax=None):
