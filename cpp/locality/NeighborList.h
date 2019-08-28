@@ -15,15 +15,15 @@
 
 namespace freud { namespace locality {
 
-//! Store a number of near-neighbor bonds from one set of positions ("points")
-//  to another set ("query points")
+//! Store a number of near-neighbor bonds from one set of positions
+//  ("query points") to another set ("points")
 /*! A NeighborList object acts as a source of neighbor information for
     freud's compute methods. Briefly, each bond is associated with a
-    point index, a query point index, a distance, and a weight.
+    query point index, a point index, a distance, and a weight.
 
     <b>Data structures:</b>
 
-    Point and query point indices are stored in a 2D array m_neighbors of shape
+    Query point and point indices are stored in a 2D array m_neighbors of shape
     (n_bonds, 2). The distances and weights arrays are flat per-bond arrays.
  */
 class NeighborList
@@ -43,12 +43,13 @@ public:
 
     //! Return the number of bonds stored in this NeighborList
     unsigned int getNumBonds() const;
-    //! Return the number of points this NeighborList was built with
-    unsigned int getNumPoints() const;
     //! Return the number of query points this NeighborList was built with
     unsigned int getNumQueryPoints() const;
-    //! Set the number of bonds, points, and query points for this NeighborList object
-    void setNumBonds(unsigned int num_bonds, unsigned int num_points, unsigned int num_query_points);
+    //! Return the number of points this NeighborList was built with
+    unsigned int getNumPoints() const;
+
+    //! Set the number of bonds, query points, and points for this NeighborList object
+    void setNumBonds(unsigned int num_bonds, unsigned int num_query_points, unsigned int num_points);
     //! Update the arrays of neighbor counts and segments
     void updateSegmentCounts() const;
 
@@ -71,7 +72,7 @@ public:
     util::ManagedArray<unsigned int> &getCounts()
     {
         updateSegmentCounts();
-        return m_segments;
+        return m_counts;
     }
     //! Access the segments array for reading
     util::ManagedArray<unsigned int> &getSegments()
@@ -131,16 +132,19 @@ private:
     //! Helper method for bisection search of the neighbor list, used in find_first_index
     unsigned int bisection_search(unsigned int val, unsigned int left, unsigned int right) const;
 
-    //! Number of points
-    unsigned int m_num_points;
     //! Number of query points
     unsigned int m_num_query_points;
+    //! Number of points
+    unsigned int m_num_points;
     //! Neighbor list indices array
     util::ManagedArray<unsigned int> m_neighbors;
     //! Neighbor list per-bond distance array
     util::ManagedArray<float> m_distances;
     //! Neighbor list per-bond weight array
     util::ManagedArray<float> m_weights;
+
+    //! Track whether segments and counts are up to date
+    mutable bool m_segments_counts_updated;
     //! Neighbor counts for each query point
     mutable util::ManagedArray<unsigned int> m_counts;
     //! Neighbor segments for each query point

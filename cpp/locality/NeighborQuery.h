@@ -348,7 +348,6 @@ public:
         unsigned int num_bonds = linear_bonds.size();
 
         NeighborList* nl = new NeighborList();
-        nl->resize(num_bonds);
         nl->setNumBonds(num_bonds, m_n_query_points, m_neighbor_query->getNPoints());
 
         parallel_for(tbb::blocked_range<size_t>(0, num_bonds), [&](const tbb::blocked_range<size_t>& r) {

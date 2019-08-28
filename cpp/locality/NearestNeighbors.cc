@@ -167,7 +167,7 @@ void NearestNeighbors::compute(const box::Box& box, const vec3<float>* ref_pos, 
          ++iter)
         num_bonds += iter->size();
 
-    m_neighbor_list.setNumBonds(num_bonds, num_points, num_ref);
+    m_neighbor_list.setNumBonds(num_bonds, num_ref, num_points);
 
     // build nlist structure
     parallel_for(blocked_range<size_t>(0, bond_vector_groups.size()),

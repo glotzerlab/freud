@@ -6,41 +6,35 @@
 namespace freud { namespace locality {
 
 NeighborList::NeighborList()
-    : m_num_points(0), m_num_query_points(0)
+    : m_num_query_points(0), m_num_points(0)
 {
     m_neighbors.prepare({0, 2});
 }
 
 NeighborList::NeighborList(unsigned int num_bonds)
-    : m_num_points(0), m_num_query_points(0)
+    : m_num_query_points(0), m_num_points(0)
 {
     m_neighbors.prepare({num_bonds, 2});
     m_weights.prepare(num_bonds);
     m_distances.prepare(num_bonds);
-    m_counts.prepare(m_num_query_points);
-    m_segments.prepare(m_num_query_points);
 }
 
 NeighborList::NeighborList(const NeighborList& other)
-    : m_num_points(0), m_num_query_points(0)
+    : m_num_query_points(other.getNumQueryPoints()), m_num_points(other.getNumPoints())
 {
     m_neighbors = other.getNeighbors();
     m_weights = other.getWeights();
     m_distances = other.getDistances();
-    m_counts = other.getCounts();
-    m_segments = other.getSegments();
 }
 
 NeighborList::NeighborList(unsigned int num_bonds, const unsigned int* query_point_index,
                  unsigned int num_query_points, const unsigned int* point_index,
                  unsigned int num_points, const float* distances, const float* weights)
-    : m_num_points(num_points), m_num_query_points(num_query_points)
+    : m_num_query_points(num_query_points), m_num_points(num_points)
 {
     m_neighbors.prepare({num_bonds, 2});
     m_weights.prepare(num_bonds);
     m_distances.prepare(num_bonds);
-    m_counts.prepare(m_num_query_points);
-    m_segments.prepare(m_num_query_points);
     unsigned int last_index(0);
     unsigned int index(0);
     for (unsigned int i = 0; i < num_bonds; i++)
@@ -65,49 +59,57 @@ unsigned int NeighborList::getNumBonds() const
     return m_neighbors.shape()[0];
 }
 
-unsigned int NeighborList::getNumPoints() const
-{
-    return m_num_points;
-}
-
 unsigned int NeighborList::getNumQueryPoints() const
 {
     return m_num_query_points;
 }
 
-void NeighborList::setNumBonds(unsigned int num_bonds, unsigned int num_points, unsigned int num_query_points)
+unsigned int NeighborList::getNumPoints() const
+{
+    return m_num_points;
+}
+
+void NeighborList::setNumBonds(unsigned int num_bonds, unsigned int num_query_points,
+                               unsigned int num_points)
 {
     resize(num_bonds);
-    m_num_points = num_points;
     m_num_query_points = num_query_points;
+    m_num_points = num_points;
+    m_segments_counts_updated = false;
 }
 
 void NeighborList::updateSegmentCounts() const
 {
-    int index(-1);
-    int last_index(-1);
-    unsigned int counter(0);
-    for (unsigned int i = 0; i < getNumBonds(); i++)
+    if (!m_segments_counts_updated)
     {
-        index = m_neighbors(i, 0);
-        if (index != last_index)
+        m_counts.prepare(m_num_query_points);
+        m_segments.prepare(m_num_query_points);
+        int index(-1);
+        int last_index(-1);
+        unsigned int counter(0);
+        for (unsigned int i = 0; i < getNumBonds(); i++)
         {
-            m_segments[index] = i;
-            if (index > 0)
+            index = m_neighbors(i, 0);
+            if (index != last_index)
             {
-                if (last_index >= 0)
+                m_segments[index] = i;
+                if (index > 0)
                 {
-                    m_counts[last_index] = counter;
+                    if (last_index >= 0)
+                    {
+                        m_counts[last_index] = counter;
+                    }
+                    counter = 0;
                 }
-                counter = 0;
             }
+            last_index = index;
+            counter++;
         }
-        last_index = index;
-        counter++;
-    }
-    if (last_index >= 0)
-    {
-        m_counts[last_index] = counter;
+        if (last_index >= 0)
+        {
+            m_counts[last_index] = counter;
+        }
+        m_segments_counts_updated = true;
     }
 }
 
@@ -170,22 +172,22 @@ void NeighborList::resize(unsigned int num_bonds, bool reset)
         m_weights.prepare(num_bonds, reset);
         m_distances.prepare(num_bonds, reset);
     }
+    m_segments_counts_updated = false;
 }
 
 void NeighborList::copy(const NeighborList& other)
 {
-    m_num_points = other.getNumPoints();
-    m_num_query_points = other.getNumQueryPoints();
+    setNumBonds(other.getNumBonds(), other.getNumQueryPoints(), other.getNumPoints());
     m_neighbors = other.getNeighbors();
     m_weights = other.getWeights();
     m_distances = other.getDistances();
 }
 
-void NeighborList::validate(unsigned int num_points, unsigned int num_query_points) const
+void NeighborList::validate(unsigned int num_query_points, unsigned int num_points) const
 {
-    if (num_points != m_num_points)
-        throw std::runtime_error("NeighborList found inconsistent array sizes.");
     if (num_query_points != m_num_query_points)
+        throw std::runtime_error("NeighborList found inconsistent array sizes.");
+    if (num_points != m_num_points)
         throw std::runtime_error("NeighborList found inconsistent array sizes.");
 }
 
