@@ -7,7 +7,9 @@ namespace freud { namespace locality {
 
 NeighborList::NeighborList()
     : m_num_points(0), m_num_query_points(0)
-{}
+{
+    m_neighbors.prepare({0, 2});
+}
 
 NeighborList::NeighborList(unsigned int num_bonds)
     : m_num_points(0), m_num_query_points(0)
