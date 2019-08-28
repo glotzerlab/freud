@@ -90,9 +90,9 @@ public:
     against an input motif.  Use accessor functions to retrieve data.
     @param r_max Cutoff radius for cell list and clustering algorithm.  Values near first minimum of the rdf
     are recommended.
-    @param k Number of nearest neighbors taken to define the local environment of any given particle.
+    @param num_neighbors Number of nearest neighbors taken to define the local environment of any given particle.
     **/
-    MatchEnv(const box::Box& box, float r_max, unsigned int k = 12);
+    MatchEnv(const box::Box& box, float r_max, unsigned int num_neighbors = 12);
 
     //! Destructor
     ~MatchEnv();
@@ -228,22 +228,22 @@ public:
     }
     unsigned int getNumNeighbors()
     {
-        return m_k;
+        return m_num_neighbors;
     }
     unsigned int getMaxNumNeighbors()
     {
-        return m_maxk;
+        return m_max_num_neighbors;
     }
 
 private:
     box::Box m_box; //!< Simulation box
     float m_r_max;   //!< Maximum cutoff radius at which to determine local environment
     float m_r_max_sq; //!< Square of m_r_max
-    unsigned int m_k;      //!< Default number of nearest neighbors used to determine which environments are compared
+    unsigned int m_num_neighbors;      //!< Default number of nearest neighbors used to determine which environments are compared
                //!< during local environment clustering. If hard_r=false, this is also the number of neighbors
                //!< in each local environment.
-    unsigned int m_maxk; //!< Maximum number of neighbors in any particle's local environment. If
-                         //!< hard_r=false, m_maxk = m_k. In the cluster method it is also possible to provide
+    unsigned int m_max_num_neighbors; //!< Maximum number of neighbors in any particle's local environment. If
+                         //!< hard_r=false, m_max_num_neighbors = m_num_neighbors. In the cluster method it is also possible to provide
                          //!< two separate neighborlists, one for environments and one for clustering.
     unsigned int m_Np;   //!< Last number of points computed
     unsigned int m_num_clusters; //!< Last number of local environments computed
@@ -251,7 +251,7 @@ private:
     std::shared_ptr<unsigned int> m_env_index; //!< Cluster index determined for each particle
     std::map<unsigned int, std::shared_ptr<vec3<float>>> m_env; //!< Dictionary of (cluster id, vectors) pairs
     std::shared_ptr<vec3<float>>
-        m_tot_env; //!< m_NP by m_maxk by 3 matrix of all environments for all particles
+        m_tot_env; //!< m_NP by m_max_num_neighbors by 3 matrix of all environments for all particles
 };
 
 }; }; // end namespace freud::environment
