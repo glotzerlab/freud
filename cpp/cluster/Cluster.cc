@@ -3,13 +3,12 @@
 
 #include <algorithm>
 #include <cassert>
-#include <map>
 #include <numeric>
 #include <stdexcept>
 
 #include "Cluster.h"
-#include "NeighborComputeFunctional.h"
 #include "NeighborBond.h"
+#include "NeighborComputeFunctional.h"
 #include "dset/dset.h"
 
 using namespace std;
@@ -17,7 +16,7 @@ using namespace std;
 //! Finds clusters using a network of neighbors.
 namespace freud { namespace cluster {
 
-Cluster::Cluster() : m_num_particles(0), m_num_clusters(0) {}
+Cluster::Cluster() {}
 
 void Cluster::compute(const freud::locality::NeighborQuery* nq,
                       const freud::locality::NeighborList* nlist,
@@ -36,7 +35,7 @@ void Cluster::compute(const freud::locality::NeighborQuery* nq,
     freud::locality::loopOverNeighbors(
         nq, points, Np, qargs, nlist,
         [&dj](const freud::locality::NeighborBond& neighbor_bond) {
-            // merge the two sets using the disjoint set
+            // Merge the two sets using the disjoint set
             if (!dj.same(neighbor_bond.ref_id, neighbor_bond.id))
             {
                 dj.unite(neighbor_bond.ref_id, neighbor_bond.id);
@@ -45,53 +44,43 @@ void Cluster::compute(const freud::locality::NeighborQuery* nq,
 
     // Done looping over points. All clusters are now determined.
     // Next, we renumber clusters from zero to num_clusters-1.
-    // These new cluster indices are then sorted by cluster size from largest
+    // These new cluster indexes are then sorted by cluster size from largest
     // to smallest, with equally-sized clusters sorted based on their minimum
     // particle index.
-    map<size_t, size_t> label_map;
-    map<size_t, size_t> label_counts;
-    map<size_t, size_t> label_min_id;
+    vector<size_t> cluster_label(m_num_particles, -1);
+    vector<size_t> cluster_label_count(m_num_particles);
+    vector<size_t> cluster_min_id(m_num_particles);
 
-    // Go over every point
-    size_t cur_set = 0;
+    // Loop over every particle.
+    m_num_clusters = 0;
     for (size_t i = 0; i < m_num_particles; i++)
     {
         size_t s = dj.find(i);
 
-        // Insert this cluster id into the mapping if we haven't seen it yet
-        if (label_map.count(s) == 0)
+        // Label this cluster if we haven't seen it yet.
+        if (cluster_label[s] == -1)
         {
-            label_map[s] = cur_set;
-            label_min_id[cur_set] = m_num_particles;
-            cur_set++;
+            // Label this cluster uniquely.
+            cluster_label[s] = m_num_clusters;
+            // Track the smallest particle index in this cluster.
+            cluster_min_id[cluster_label[s]] = i;
+            // Increment the count of unique clusters.
+            m_num_clusters++;
         }
 
-        // Increment the counter for this cluster label
-        label_counts[label_map[s]]++;
-
-        // Track the smallest particle index in this cluster
-        label_min_id[label_map[s]] = std::min(label_min_id[label_map[s]], i);
+        // Increment the counter for this cluster label.
+        cluster_label_count[cluster_label[s]]++;
     }
 
-    // cur_set is now the total number of clusters
-    m_num_clusters = cur_set;
+    // Resize label counts and min ids to the number of unique clusters found.
+    cluster_label_count.resize(m_num_clusters);
+    cluster_min_id.resize(m_num_clusters);
 
-    // Build vectors of counts/min_ids from the maps of label counts/min_ids
-    vector<size_t> counts(m_num_clusters);
-    vector<size_t> min_ids(m_num_clusters);
-    for (size_t i = 0; i < m_num_clusters; i++)
-    {
-        counts[i] = label_counts[i];
-        min_ids[i] = label_min_id[i];
-    }
-
-    // Get a permutation that reorders clusters, largest to smallest
-    vector<size_t> cluster_reindex = sort_indexes_inverse(counts, min_ids);
+    // Get a permutation that reorders clusters, largest to smallest.
+    vector<size_t> cluster_reindex = sort_indexes_inverse(cluster_label_count, cluster_min_id);
 
     // Clear the cluster keys
-    m_cluster_keys.resize(m_num_clusters);
-    for (auto v : m_cluster_keys)
-        v.clear();
+    m_cluster_keys = vector<vector<unsigned int>>(m_num_clusters, vector<unsigned int>());
 
     /* Loop over all particles, set their cluster ids and add them to a list of
      * sets. Each set contains all the keys that are part of that cluster. If
@@ -101,7 +90,7 @@ void Cluster::compute(const freud::locality::NeighborQuery* nq,
     for (size_t i = 0; i < m_num_particles; i++)
     {
         size_t s = dj.find(i);
-        size_t cluster_idx = cluster_reindex[label_map[s]];
+        size_t cluster_idx = cluster_reindex[cluster_label[s]];
         m_cluster_idx[i] = cluster_idx;
         unsigned int key = i;
         if (keys != NULL)
@@ -110,30 +99,29 @@ void Cluster::compute(const freud::locality::NeighborQuery* nq,
     }
 }
 
-// Returns inverse permutation of cluster indices, sorted from largest to smallest.
+// Returns inverse permutation of cluster indexes, sorted from largest to smallest.
 // Adapted from https://stackoverflow.com/questions/1577475/c-sorting-and-keeping-track-of-indexes
 std::vector<size_t> Cluster::sort_indexes_inverse(const std::vector<size_t> &counts, const std::vector<size_t> &min_ids) {
-
-    // Initialize original index locations
+    // Initialize original index locations.
     std::vector<size_t> idx(counts.size());
     std::iota(idx.begin(), idx.end(), 0);
 
-    // Sort indexes based on comparing values in counts, min_ids
+    // Sort indexes based on comparing values in counts, min_ids.
     std::sort(idx.begin(), idx.end(), [&counts, &min_ids](size_t i1, size_t i2) {
         if (counts[i1] != counts[i2])
         {
-            // If the counts are unequal, return the largest cluster first
+            // If the counts are unequal, return the largest cluster first.
             return counts[i1] > counts[i2];
         }
         else
         {
             // If the counts are equal, return the cluster with the smallest
-            // particle id first
+            // particle id first.
             return min_ids[i1] < min_ids[i2];
         }
     });
 
-    // Invert the permutation
+    // Invert the permutation.
     std::vector<size_t> inv_idx(idx.size());
     for (size_t i = 0; i < idx.size(); i++)
         inv_idx[idx[i]] = i;
