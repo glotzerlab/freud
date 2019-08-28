@@ -1,4 +1,3 @@
-//The new plan is to define a new class, NeighborQueryPerPointIterator, which will become the parent of all the existing iterators, which will now just iterate over a single point. The query methods for all the NeighborQuery objects will remain unchanged, returning a NeighborQueryIterator. However, the NeighborQueryIterator will no longer contain any significant logic; it will instead loop over its query points and create a NeighborQueryPerPointIterator for each one to find its neighbors. It will retain a query method that can be used to get a specific point's NeighborQueryPerPointIterator. That way, the existing APIs have to change minimally and we will be able to support the parallel case without much change to the existing code paths. The only downside is that every querying method in every class will now have to define both an Iterator and a PerPointIterator. There might be a way around that, but we'll have to see.
 // Copyright (c) 2010-2019 The Regents of the University of Michigan
 // This file is from the freud project, released under the BSD 3-Clause License.
 
@@ -231,6 +230,31 @@ protected:
     unsigned int m_n_points;             //!< Number of reference points
 };
 
+class NeighborPerPointIterator
+{
+public:
+    //! Nullary constructor for Cython
+    NeighborPerPointIterator() {}
+
+    //! Constructor
+    NeighborPerPointIterator(unsigned int query_point_idx)
+        : m_query_point_idx(query_point_idx) {}
+
+    //! Empty Destructor
+    virtual ~NeighborPerPointIterator() {}
+
+    //! Indicate when done.
+    virtual bool end() = 0;
+
+    //! Get the next element.
+    virtual NeighborBond next() = 0;
+
+    static const NeighborBond ITERATOR_TERMINATOR; //!< The object returned when iteration is complete.
+
+protected:
+    unsigned int m_query_point_idx; //!< The index of the query point.
+};
+
 //! The iterator class for neighbor queries on NeighborQuery objects.
 /*! This is an abstract class that defines the abstract API for neighbor
  *  iteration. All subclasses of NeighborQuery should also subclass
@@ -246,7 +270,7 @@ protected:
  *  NeighborQueryPerPointIterator::ITERATOR_TERMINATOR on all calls after the last neighbor is
  *  found in order to guarantee that the correct set of neighbors is considered.
  */
-class NeighborQueryPerPointIterator
+class NeighborQueryPerPointIterator : public NeighborPerPointIterator
 {
 public:
     //! Nullary constructor for Cython
@@ -255,9 +279,7 @@ public:
     //! Constructor
     NeighborQueryPerPointIterator(const NeighborQuery* neighbor_query, const vec3<float> query_point, unsigned int query_point_idx,
                           bool exclude_ii)
-        : m_neighbor_query(neighbor_query), m_query_point(query_point), m_query_point_idx(query_point_idx), m_finished(false),
-          m_exclude_ii(exclude_ii)
-    {}
+        : NeighborPerPointIterator(query_point_idx), m_neighbor_query(neighbor_query), m_query_point(query_point), m_finished(false), m_exclude_ii(exclude_ii) {}
 
     //! Empty Destructor
     virtual ~NeighborQueryPerPointIterator() {}
@@ -279,9 +301,7 @@ public:
 protected:
     const NeighborQuery* m_neighbor_query; //!< Link to the NeighborQuery object.
     const vec3<float> m_query_point;           //!< Coordinates of the query point.
-    unsigned int m_query_point_idx; //!< The index of the query point.
     unsigned int cur_p;                    //!< The current index into the points (bounded by m_n_query_points).
-
     bool m_finished;    //!< Flag to indicate that iteration is complete (must be set by next on termination).
     bool m_exclude_ii; //!< Flag to indicate whether or not to include self bonds.
 };

@@ -41,7 +41,7 @@ void LocalDensity::compute(const freud::locality::NeighborQuery* neighbor_query,
     float volume = 4.0f/3.0f * M_PI * m_rcut * m_rcut * m_rcut;
     // compute the local density
     freud::locality::loopOverNeighborsIterator(neighbor_query, query_points, n_query_points, qargs, nlist, 
-    [=](size_t i, std::shared_ptr<freud::locality::NeighborIterator::PerPointIterator> ppiter)
+    [=](size_t i, std::shared_ptr<freud::locality::NeighborPerPointIterator> ppiter)
     {
         float num_neighbors = 0;
         for(freud::locality::NeighborBond nb = ppiter->next(); !ppiter->end(); nb = ppiter->next())
