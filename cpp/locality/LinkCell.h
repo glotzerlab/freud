@@ -504,11 +504,11 @@ public:
     /*! The initial state is to search shell 0, the current cell. We then
      *  iterate outwards from there.
      */
-    LinkCellIterator(const LinkCell* neighbor_query, const vec3<float>* query_points, unsigned int n_query_points,
+    LinkCellIterator(const LinkCell* neighbor_query, const vec3<float> query_point, unsigned int query_point_idx,
                      bool exclude_ii)
-        : NeighborQueryIterator(neighbor_query, query_points, n_query_points, exclude_ii), m_linkcell(neighbor_query),
+        : NeighborQueryIterator(neighbor_query, query_point, query_point_idx, exclude_ii), m_linkcell(neighbor_query),
           m_neigh_cell_iter(0, neighbor_query->getBox().is2D()),
-          m_cell_iter(m_linkcell->itercell(m_linkcell->getCell(m_query_points[0])))
+          m_cell_iter(m_linkcell->itercell(m_linkcell->getCell(m_query_point)))
     {}
 
     //! Empty Destructor
@@ -525,18 +525,16 @@ protected:
 };
 
 //! Iterator that gets nearest neighbors from LinkCell tree structures
-class LinkCellQueryIterator : virtual public NeighborQueryQueryIterator, virtual public LinkCellIterator
+class LinkCellQueryIterator : public LinkCellIterator
 {
 public:
-    // Explicitly indicate which toNeighborList function is used.
-    using NeighborQueryQueryIterator::toNeighborList;
+    //// Explicitly indicate which toNeighborList function is used.
+    //using NeighborQueryQueryIterator::toNeighborList;
 
     //! Constructor
-    LinkCellQueryIterator(const LinkCell* neighbor_query, const vec3<float>* query_points, unsigned int n_query_points,
+    LinkCellQueryIterator(const LinkCell* neighbor_query, const vec3<float> query_point, unsigned int query_point_idx,
                           unsigned int num_neighbors, bool exclude_ii)
-        : NeighborQueryIterator(neighbor_query, query_points, n_query_points, exclude_ii),
-          NeighborQueryQueryIterator(neighbor_query, query_points, n_query_points, exclude_ii, num_neighbors),
-          LinkCellIterator(neighbor_query, query_points, n_query_points, exclude_ii)
+        : LinkCellIterator(neighbor_query, query_point, query_point_idx, exclude_ii), m_num_neighbors(num_neighbors)
     {}
 
     //! Empty Destructor
@@ -545,19 +543,23 @@ public:
     //! Get the next element.
     virtual NeighborBond next();
 
-    //! Create an equivalent new query iterator on a per-particle basis.
-    virtual std::shared_ptr<NeighborQueryIterator> query(unsigned int idx);
+    ////! Create an equivalent new query iterator on a per-particle basis.
+    //virtual std::shared_ptr<NeighborQueryIterator> query(unsigned int idx);
+
+protected:
+    unsigned int m_count;                           //!< Number of neighbors returned for the current point.
+    unsigned int m_num_neighbors;                               //!< Number of nearest neighbors to find
+    std::vector<NeighborBond> m_current_neighbors; //!< The current set of found neighbors.
 };
 
 //! Iterator that gets neighbors in a ball of size r using LinkCell tree structures
-class LinkCellQueryBallIterator : virtual public LinkCellIterator
+class LinkCellQueryBallIterator : public LinkCellIterator
 {
 public:
     //! Constructor
-    LinkCellQueryBallIterator(const LinkCell* neighbor_query, const vec3<float>* query_points, unsigned int n_query_points,
+    LinkCellQueryBallIterator(const LinkCell* neighbor_query, const vec3<float> query_point, unsigned int query_point_idx,
                               float r_max, bool exclude_ii)
-        : NeighborQueryIterator(neighbor_query, query_points, n_query_points, exclude_ii),
-          LinkCellIterator(neighbor_query, query_points, n_query_points, exclude_ii), m_r(r_max)
+        : LinkCellIterator(neighbor_query, query_point, query_point_idx, exclude_ii), m_r(r_max)
     {
         // Upon querying, if the search radius is equal to the cell width, we
         // can guarantee that we don't need to search the cell shell past the
@@ -578,8 +580,8 @@ public:
     //! Get the next element.
     virtual NeighborBond next();
 
-    //! Create an equivalent new query iterator on a per-particle basis.
-    virtual std::shared_ptr<NeighborQueryIterator> query(unsigned int idx);
+    ////! Create an equivalent new query iterator on a per-particle basis.
+    //virtual std::shared_ptr<NeighborQueryIterator> query(unsigned int idx);
 
 protected:
     float m_r; //!< Search ball cutoff distance

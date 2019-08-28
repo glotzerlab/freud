@@ -223,9 +223,9 @@ public:
     NeighborQueryIterator() {}
 
     //! Constructor
-    NeighborQueryIterator(const NeighborQuery* neighbor_query, const vec3<float>* query_points, unsigned int n_query_points,
+    NeighborQueryIterator(const NeighborQuery* neighbor_query, const vec3<float> query_point, unsigned int query_point_idx,
                           bool exclude_ii)
-        : m_neighbor_query(neighbor_query), m_query_points(query_points), m_n_query_points(n_query_points), cur_p(0), m_finished(false),
+        : m_neighbor_query(neighbor_query), m_query_point(query_point), m_query_point_idx(query_point_idx), m_finished(false),
           m_exclude_ii(exclude_ii)
     {}
 
@@ -238,14 +238,14 @@ public:
         return m_finished;
     }
 
-    //! Replicate this class's query on a per-particle basis.
+    ////! Replicate this class's query on a per-particle basis.
     /*! Note that because this query is on a per-particle basis, there is
      *  no reason to support ii exclusion, so we neglect that here.
      */
-    virtual std::shared_ptr<NeighborQueryIterator> query(unsigned int idx)
-    {
-        throw std::runtime_error("The query method must be implemented by child classes.");
-    }
+    //virtual std::shared_ptr<NeighborQueryIterator> query(unsigned int idx)
+    //{
+        //throw std::runtime_error("The query method must be implemented by child classes.");
+    //}
 
     //! Get the next element.
     virtual NeighborBond next()
@@ -253,7 +253,7 @@ public:
         throw std::runtime_error("The next method must be implemented by child classes.");
     }
 
-    //! Generate a NeighborList from query.
+    ////! Generate a NeighborList from query.
     /*! This function exploits parallelism by finding the neighbors for
      *  each query point in parallel and adding them to a list, which is
      *  then sorted in parallel as well before being added to the
@@ -266,70 +266,70 @@ public:
      *  the primary use-case is to have this object be managed by instances
      *  of the Cython NeighborList class.
      */
-    virtual NeighborList* toNeighborList()
-    {
-        typedef tbb::enumerable_thread_specific<std::vector<NeighborBond>> BondVector;
-        BondVector bonds;
-        tbb::parallel_for(tbb::blocked_range<size_t>(0, m_n_query_points), [&](const tbb::blocked_range<size_t>& r) {
-            BondVector::reference local_bonds(bonds.local());
-            NeighborBond np;
-            for (size_t i(r.begin()); i != r.end(); ++i)
-            {
-                std::shared_ptr<NeighborQueryIterator> it = this->query(i);
-                while (!it->end())
-                {
-                    np = it->next();
-                    // If we're excluding ii bonds, we have to check before adding.
-                    if (!m_exclude_ii || i != np.ref_id)
-                    {
-                        // Swap ref_id and id order for backwards compatibility.
-                        local_bonds.emplace_back(i, np.ref_id, np.distance);
-                    }
-                }
-                // Remove the last item, which is just the terminal sentinel value.
-                local_bonds.pop_back();
-            }
-        });
+    //virtual NeighborList* toNeighborList()
+    //{
+        //typedef tbb::enumerable_thread_specific<std::vector<NeighborBond>> BondVector;
+        //BondVector bonds;
+        //tbb::parallel_for(tbb::blocked_range<size_t>(0, m_n_query_points), [&](const tbb::blocked_range<size_t>& r) {
+            //BondVector::reference local_bonds(bonds.local());
+            //NeighborBond np;
+            //for (size_t i(r.begin()); i != r.end(); ++i)
+            //{
+                //std::shared_ptr<NeighborQueryIterator> it = this->query(i);
+                //while (!it->end())
+                //{
+                    //np = it->next();
+                    //// If we're excluding ii bonds, we have to check before adding.
+                    //if (!m_exclude_ii || i != np.ref_id)
+                    //{
+                        //// Swap ref_id and id order for backwards compatibility.
+                        //local_bonds.emplace_back(i, np.ref_id, np.distance);
+                    //}
+                //}
+                //// Remove the last item, which is just the terminal sentinel value.
+                //local_bonds.pop_back();
+            //}
+        //});
 
-        tbb::flattened2d<BondVector> flat_bonds = tbb::flatten2d(bonds);
-        std::vector<NeighborBond> linear_bonds(flat_bonds.begin(), flat_bonds.end());
-        tbb::parallel_sort(linear_bonds.begin(), linear_bonds.end(), compareNeighborBond);
+        //tbb::flattened2d<BondVector> flat_bonds = tbb::flatten2d(bonds);
+        //std::vector<NeighborBond> linear_bonds(flat_bonds.begin(), flat_bonds.end());
+        //tbb::parallel_sort(linear_bonds.begin(), linear_bonds.end(), compareNeighborBond);
 
-        unsigned int num_bonds = linear_bonds.size();
+        //unsigned int num_bonds = linear_bonds.size();
 
-        NeighborList* nl = new NeighborList();
-        nl->resize(num_bonds);
-        nl->setNumBonds(num_bonds, m_n_query_points, m_neighbor_query->getNPoints());
-        size_t* neighbor_array(nl->getNeighbors());
-        float* neighbor_weights(nl->getWeights());
-        float* neighbor_distance(nl->getDistances());
+        //NeighborList* nl = new NeighborList();
+        //nl->resize(num_bonds);
+        //nl->setNumBonds(num_bonds, m_n_query_points, m_neighbor_query->getNPoints());
+        //size_t* neighbor_array(nl->getNeighbors());
+        //float* neighbor_weights(nl->getWeights());
+        //float* neighbor_distance(nl->getDistances());
 
-        parallel_for(tbb::blocked_range<size_t>(0, num_bonds), [&](const tbb::blocked_range<size_t>& r) {
-            for (size_t bond(r.begin()); bond < r.end(); ++bond)
-            {
-                neighbor_array[2 * bond] = linear_bonds[bond].id;
-                neighbor_array[2 * bond + 1] = linear_bonds[bond].ref_id;
-                neighbor_distance[bond] = linear_bonds[bond].distance;
-            }
-        });
-        memset((void*) neighbor_weights, 1, sizeof(float) * linear_bonds.size());
+        //parallel_for(tbb::blocked_range<size_t>(0, num_bonds), [&](const tbb::blocked_range<size_t>& r) {
+            //for (size_t bond(r.begin()); bond < r.end(); ++bond)
+            //{
+                //neighbor_array[2 * bond] = linear_bonds[bond].id;
+                //neighbor_array[2 * bond + 1] = linear_bonds[bond].ref_id;
+                //neighbor_distance[bond] = linear_bonds[bond].distance;
+            //}
+        //});
+        //memset((void*) neighbor_weights, 1, sizeof(float) * linear_bonds.size());
 
-        return nl;
-    }
+        //return nl;
+    //}
 
     static const NeighborBond ITERATOR_TERMINATOR; //!< The object returned when iteration is complete.
 
 protected:
     const NeighborQuery* m_neighbor_query; //!< Link to the NeighborQuery object.
-    const vec3<float>* m_query_points;           //!< Coordinates of query points.
-    unsigned int m_n_query_points;                      //!< Number of query_points.
+    const vec3<float> m_query_point;           //!< Coordinates of the query point.
+    unsigned int m_query_point_idx; //!< The index of the query point.
     unsigned int cur_p;                    //!< The current index into the points (bounded by m_n_query_points).
 
     bool m_finished;    //!< Flag to indicate that iteration is complete (must be set by next on termination).
     bool m_exclude_ii; //!< Flag to indicate whether or not to include self bonds.
 };
 
-//! Iterator for nearest neighbor queries.
+////! Iterator for nearest neighbor queries.
 /*! The primary purpose for this class is to ensure that conversion of
  *  k-nearest neighbor queries into NeighborList objects correctly handles
  *  self-neighbor exclusions. This problem arises because the generic
@@ -341,47 +341,47 @@ protected:
  *  excluded, one fewer neighbor is found than desired. This class overrides
  *  that behavior to ensure that the correct number of neighbors is found.
  */
-class NeighborQueryQueryIterator : virtual public NeighborQueryIterator
-{
-public:
-    //! Constructor
-    NeighborQueryQueryIterator(const NeighborQuery* neighbor_query, const vec3<float>* query_points, unsigned int N,
-                               bool exclude_ii, unsigned int k)
-        : NeighborQueryIterator(neighbor_query, query_points, N, exclude_ii), m_count(0), m_k(k),
-          m_current_neighbors()
-    {}
+//class NeighborQueryQueryIterator : virtual public NeighborQueryIterator
+//{
+//public:
+    ////! Constructor
+    //NeighborQueryQueryIterator(const NeighborQuery* neighbor_query, const vec3<float>* query_points, unsigned int N,
+                               //bool exclude_ii, unsigned int k)
+        //: NeighborQueryIterator(neighbor_query, query_points, N, exclude_ii), m_count(0), m_k(k),
+          //m_current_neighbors()
+    //{}
 
-    //! Empty Destructor
-    virtual ~NeighborQueryQueryIterator() {}
+    ////! Empty Destructor
+    //virtual ~NeighborQueryQueryIterator() {}
 
-    //! Generate a NeighborList from query.
+    ////! Generate a NeighborList from query.
     /*! This function is a thin wrapper around the parent class function.
      * All it needs to do is increase the counter of points to find, find
      * them, and then reset.
      */
-    virtual NeighborList* toNeighborList()
-    {
-        NeighborList* nlist;
-        if (m_exclude_ii)
-            m_k += 1;
-        try
-        {
-            nlist = NeighborQueryIterator::toNeighborList();
-        }
-        catch (...)
-        {
-            if (m_exclude_ii)
-                m_k -= 1;
-            throw;
-        }
-        return nlist;
-    }
+    //virtual NeighborList* toNeighborList()
+    //{
+        //NeighborList* nlist;
+        //if (m_exclude_ii)
+            //m_k += 1;
+        //try
+        //{
+            //nlist = NeighborQueryIterator::toNeighborList();
+        //}
+        //catch (...)
+        //{
+            //if (m_exclude_ii)
+                //m_k -= 1;
+            //throw;
+        //}
+        //return nlist;
+    //}
 
-protected:
-    unsigned int m_count;                           //!< Number of neighbors returned for the current point.
-    unsigned int m_k;                               //!< Number of nearest neighbors to find
-    std::vector<NeighborBond> m_current_neighbors; //!< The current set of found neighbors.
-};
+//protected:
+    //unsigned int m_count;                           //!< Number of neighbors returned for the current point.
+    //unsigned int m_k;                               //!< Number of nearest neighbors to find
+    //std::vector<NeighborBond> m_current_neighbors; //!< The current set of found neighbors.
+//};
 
 // Dummy class to just contain minimal information and not actually query.
 class RawPoints : public NeighborQuery
