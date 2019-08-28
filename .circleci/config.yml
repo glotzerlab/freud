@@ -332,9 +332,10 @@ workflows:
       - test-py36:
           requires:
             - check-style
-      - benchmarks:
-          requires:
-            - test-py36
+# Disabled benchmarks on CI - currently broken
+#     - benchmarks:
+#         requires:
+#           - test-py36
   deploy:
     jobs:
       - pypi-osx-wheels:
