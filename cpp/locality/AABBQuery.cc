@@ -215,11 +215,6 @@ NeighborBond AABBQueryBallIterator::next()
     return NeighborQueryIterator::ITERATOR_TERMINATOR;
 }
 
-//std::shared_ptr<NeighborQueryIterator> AABBQueryBallIterator::query(unsigned int idx)
-//{
-    //return this->m_aabb_query->queryBall(&m_query_points[idx], 1, m_r_max);
-//}
-
 NeighborBond AABBQueryIterator::next()
 {
     vec3<float> plane_distance = m_neighbor_query->getBox().getNearestPlaneDistance();
@@ -327,8 +322,4 @@ NeighborBond AABBQueryIterator::next()
     return NeighborQueryIterator::ITERATOR_TERMINATOR;
 }
 
-//std::shared_ptr<NeighborQueryIterator> AABBQueryIterator::query(unsigned int idx)
-//{
-    //return this->m_aabb_query->query(&m_query_points[idx], 1, m_num_neighbors, m_r_max, m_scale);
-//}
 }; }; // end namespace freud::locality

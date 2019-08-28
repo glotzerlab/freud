@@ -421,11 +421,6 @@ NeighborBond LinkCellQueryBallIterator::next()
     return NeighborQueryIterator::ITERATOR_TERMINATOR;
 }
 
-//std::shared_ptr<NeighborQueryIterator> LinkCellQueryBallIterator::query(unsigned int idx)
-//{
-    //return this->m_linkcell->queryBall(&m_query_points[idx], 1, m_r);
-//}
-
 NeighborBond LinkCellQueryIterator::next()
 {
     vec3<float> plane_distance = m_neighbor_query->getBox().getNearestPlaneDistance();
@@ -515,10 +510,5 @@ NeighborBond LinkCellQueryIterator::next()
     m_finished = true;
     return NeighborQueryIterator::ITERATOR_TERMINATOR;
 }
-
-//std::shared_ptr<NeighborQueryIterator> LinkCellQueryIterator::query(unsigned int idx)
-//{
-    //return this->m_linkcell->query(&m_query_points[idx], 1, m_num_neighbors);
-//}
 
 }; }; // end namespace freud::locality
