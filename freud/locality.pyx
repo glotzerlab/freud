@@ -138,6 +138,69 @@ cdef class _QueryArgs:
         self.thisptr.scale = value
 
 
+cdef class NewResultClass:
+    R"""Class encapsulating the output of queries of NeighborQuery objects.
+
+    .. warning::
+
+        This class should not be instantiated directly, it is the
+        return value of all `query*` functions of
+        :class:`~NeighborQuery`. The class provides a convenient
+        interface for iterating over query results, and can be
+        transparently converted into a list or a
+        :class:`~NeighborList` object.
+
+    The :class:`~NeighborQueryResult` makes it easy to work with the results of
+    queries and convert them to various natural objects. Additionally, the
+    result is a generator, making it easy for users to lazily iterate over the
+    object.
+
+    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
+    """
+
+    def __iter__(self):
+        cdef freud._locality.NeighborBond npoint
+
+        cdef const float[:, ::1] l_points = self.points
+        cdef shared_ptr[freud._locality.NeighborQueryIterator] iterator = \
+            self.nq.nqptr.queryWithArgs(
+                <vec3[float]*> &l_points[0, 0],
+                self.points.shape[0],
+                dereference(self.query_args.thisptr))
+
+        npoint = dereference(iterator).next()
+        while npoint != ITERATOR_TERMINATOR:
+            yield (npoint.id, npoint.ref_id, npoint.distance)
+            npoint = dereference(iterator).next()
+
+        raise StopIteration
+
+    def toNList(self):
+        """Convert query result to a freud NeighborList.
+
+        Returns:
+            :class:`~NeighborList`: A :mod:`freud` :class:`~NeighborList`
+            containing all neighbor pairs found by the query generating this
+            result object.
+        """
+        cdef const float[:, ::1] l_points = self.points
+        cdef shared_ptr[freud._locality.NeighborQueryIterator] iterator = \
+            self.nq.nqptr.queryWithArgs(
+                <vec3[float]*> &l_points[0, 0],
+                self.points.shape[0],
+                dereference(self.query_args.thisptr))
+
+        cdef freud._locality.NeighborList *cnlist = dereference(
+            iterator).toNeighborList()
+        cdef NeighborList nl = NeighborList()
+        nl.refer_to(cnlist)
+        # Explicitly manage a manually created nlist so that it will be
+        # deleted when the Python object is.
+        nl._managed = True
+
+        return nl
+
+
 cdef class NeighborQueryResult:
     R"""Class encapsulating the output of queries of NeighborQuery objects.
 
@@ -295,6 +358,9 @@ cdef class NeighborQuery:
         # Can't use this function with old-style NeighborQuery objects
         query_points = freud.common.convert_array(
             np.atleast_2d(query_points), shape=(None, 3))
+
+        cdef _QueryArgs args = _QueryArgs(**query_args)
+        return NewResultClass.init(self, query_points, args)
 
         cdef shared_ptr[freud._locality.NeighborQueryIterator] iterator
         cdef const float[:, ::1] l_query_points = query_points

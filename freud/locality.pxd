@@ -8,6 +8,30 @@ cimport freud._locality
 cimport freud.box
 
 
+cdef class NewResultClass:
+    cdef NeighborQuery nq
+    cdef const float[:, ::1] points
+    cdef _QueryArgs query_args
+
+    # This had to be implemented as a factory because the constructors will
+    # always get called with Python objects as arguments, and we need typed
+    # objects. See the link below for more information.
+    # https://cython.readthedocs.io/en/latest/src/userguide/special_methods.html#initialisation-methods-cinit-and-init
+    # This needed to be declared inline because it needed to be in the pxd,
+    # which in turn was the only way to get the staticmethod decorator to
+    # compile with a cdef method.
+    @staticmethod
+    cdef inline NewResultClass init(NeighborQuery nq, const float[:, ::1]
+                                    points, _QueryArgs query_args):
+
+        obj = NewResultClass()
+
+        obj.nq = nq
+        obj.points = points
+        obj.query_args = query_args
+
+        return obj
+
 cdef class NeighborQueryResult:
     cdef NeighborQuery nq
     cdef const float[:, ::1] points

@@ -14,6 +14,7 @@ cdef extern from "NeighborBond.h" namespace "freud::locality":
         float distance
         float weight
         bool operator==(NeighborBond)
+        bool operator!=(NeighborBond)
         bool operator<(NeighborBond)
 
 cdef extern from "NeighborQuery.h" namespace "freud::locality":
