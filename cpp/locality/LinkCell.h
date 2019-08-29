@@ -547,9 +547,6 @@ public:
     //! Get the next element.
     virtual NeighborBond next();
 
-    ////! Create an equivalent new query iterator on a per-particle basis.
-    //virtual std::shared_ptr<NeighborQueryIterator> query(unsigned int idx);
-
 protected:
     unsigned int m_count;                           //!< Number of neighbors returned for the current point.
     unsigned int m_num_neighbors;                               //!< Number of nearest neighbors to find
@@ -583,9 +580,6 @@ public:
 
     //! Get the next element.
     virtual NeighborBond next();
-
-    ////! Create an equivalent new query iterator on a per-particle basis.
-    //virtual std::shared_ptr<NeighborQueryIterator> query(unsigned int idx);
 
 protected:
     float m_r; //!< Search ball cutoff distance
