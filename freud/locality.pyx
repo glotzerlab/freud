@@ -356,6 +356,10 @@ cdef class NeighborQuery:
         # This function is temporarily included for testing and may be
         # removed in future releases.
         # Can't use this function with old-style NeighborQuery objects
+        if not self.queryable:
+            raise RuntimeError("You cannot use the query method unless this "
+                               "object was originally constructed with "
+                               "reference points")
         query_points = freud.common.convert_array(
             np.atleast_2d(query_points), shape=(None, 3))
 

@@ -176,8 +176,6 @@ public:
         return m_points[index];
     }
 
-
-protected:
     //! Validate the combination of specified arguments.
     /*! Before checking if the combination of parameters currently set is
      *  valid, this function first attempts to infer a mode if one is not set in
@@ -203,6 +201,8 @@ protected:
         }
     }
 
+
+protected:
     //! Try to determine the query mode if one is not specified.
     /*! If no mode is specified and a number of neighbors is specified, the
      *  query mode must be a nearest neighbors query (all other arguments can

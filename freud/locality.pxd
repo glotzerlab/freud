@@ -4,6 +4,8 @@
 from libcpp cimport bool as cbool
 from libcpp.memory cimport shared_ptr
 
+from cython.operator cimport dereference
+
 cimport freud._locality
 cimport freud.box
 
@@ -29,6 +31,7 @@ cdef class NewResultClass:
         obj.nq = nq
         obj.points = points
         obj.query_args = query_args
+        obj.nq.nqptr.validateQueryArgs(dereference(query_args.thisptr))
 
         return obj
 
