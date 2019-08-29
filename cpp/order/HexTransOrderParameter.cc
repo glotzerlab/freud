@@ -20,7 +20,7 @@ void HexTransOrderParameter<T>::computeGeneral(Func func, const freud::locality:
     }
 
     freud::locality::loopOverNeighborsIterator(points, points->getPoints(), Np, qargs, nlist, 
-    [=] (size_t i, std::shared_ptr<freud::locality::NeighborIterator::PerPointIterator> ppiter)
+    [=] (size_t i, std::shared_ptr<freud::locality::NeighborPerPointIterator> ppiter)
     {
         m_psi_array.get()[i] = 0;
         vec3<float> ref = (*points)[i];
