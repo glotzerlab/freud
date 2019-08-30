@@ -454,10 +454,6 @@ public:
     //! Compute the cell list
     void computeCellList(const box::Box& box, const vec3<float>* points, unsigned int n_points);
 
-    //! Compute the neighbor list using the cell list
-    void compute(const box::Box& box, const vec3<float>* points, unsigned int n_points,
-                 const vec3<float>* query_points = 0, unsigned int n_query_points = 0, bool exclude_ii = true);
-
     NeighborList* getNeighborList()
     {
         return &m_neighbor_list;

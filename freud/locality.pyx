@@ -974,60 +974,6 @@ cdef class LinkCell(NeighborQuery):
             result[i] = neighbors[i]
         return result
 
-    def compute(self, box, points, query_points=None, exclude_ii=None):
-        R"""Update the data structure for the given set of points and compute a
-        NeighborList.
-
-        Args:
-            box (:class:`freud.box.Box`):
-                Simulation box.
-            points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-                Reference point coordinates.
-            query_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`, optional):
-                Point coordinates (Default value = :code:`None`).
-            exclude_ii (bool, optional):
-                Set this to :code:`True` if pairs of points with identical
-                indices should be excluded. If this is :code:`None`, it will be
-                treated as :code:`True` if :code:`query_points` is :code:`None` or
-                the same object as :code:`points`.
-                (Default value = :code:`None`).
-        """  # noqa: E501
-        if self.queryable:
-            raise RuntimeError("You cannot use the compute method because "
-                               "this object was originally constructed with "
-                               "reference points")
-        cdef freud.box.Box b = freud.common.convert_box(box)
-        exclude_ii = (
-            query_points is points or query_points is None) \
-            if exclude_ii is None else exclude_ii
-
-        points = freud.common.convert_array(points, shape=(None, 3))
-
-        if query_points is None:
-            query_points = points
-
-        query_points = freud.common.convert_array(
-            query_points, shape=(None, 3))
-
-        cdef const float[:, ::1] l_points = points
-        cdef unsigned int n_ref = points.shape[0]
-        cdef const float[:, ::1] l_query_points = query_points
-        cdef unsigned int Np = query_points.shape[0]
-        cdef cbool c_exclude_ii = exclude_ii
-        self.thisptr.compute(
-            dereference(b.thisptr),
-            <vec3[float]*> &l_points[0, 0],
-            n_ref,
-            <vec3[float]*> &l_query_points[0, 0],
-            Np,
-            c_exclude_ii)
-
-        cdef freud._locality.NeighborList * nlist
-        nlist = self.thisptr.getNeighborList()
-        self._nlist.refer_to(nlist)
-        self._nlist.base = self
-        return self
-
     @property
     def nlist(self):
         return self._nlist

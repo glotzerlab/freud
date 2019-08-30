@@ -117,13 +117,6 @@ cdef extern from "LinkCell.h" namespace "freud::locality":
             const freud._box.Box &,
             const vec3[float]*,
             unsigned int) except +
-        void compute(
-            const freud._box.Box &,
-            const vec3[float]*,
-            unsigned int,
-            const vec3[float]*,
-            unsigned int,
-            bool) except +
         NeighborList * getNeighborList()
 
 cdef extern from "NearestNeighbors.h" namespace "freud::locality":
@@ -152,14 +145,6 @@ cdef extern from "AABBQuery.h" namespace "freud::locality":
     cdef cppclass AABBQuery(NeighborQuery):
         AABBQuery()
         AABBQuery(const freud._box.Box, const vec3[float]*, unsigned int)
-        void compute(
-            const freud._box.Box &,
-            float,
-            const vec3[float]*,
-            unsigned int,
-            const vec3[float]*,
-            unsigned int,
-            bool) except +
 
 cdef extern from "Voronoi.h" namespace "freud::locality":
     cdef cppclass Voronoi:

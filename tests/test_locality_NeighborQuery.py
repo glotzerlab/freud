@@ -4,6 +4,8 @@ import freud
 from collections import Counter
 import itertools
 import unittest
+import sys
+
 from util import make_box_and_random_points
 
 """
@@ -505,9 +507,6 @@ class TestNeighborQueryLinkCell(TestNeighborQuery, unittest.TestCase):
         rcut = 1.0
 
         box = freud.box.Box.cube(L)
-        with self.assertRaises(RuntimeError):
-            points = np.zeros(shape=(2, 3), dtype=np.float32)
-            freud.locality.LinkCell(box, rcut, points).compute(box, points)
 
         with self.assertRaises(RuntimeError):
             points = np.zeros(shape=(2, 3), dtype=np.float32)
@@ -523,6 +522,72 @@ class TestNeighborQueryLinkCell(TestNeighborQuery, unittest.TestCase):
         lc = freud.locality.LinkCell(box, 1.0, points)
         nlist2 = lc.query(points, dict(r_max=rcut, exclude_ii=True)).toNList()
         self.assertTrue(nlist_equal(nlist1, nlist2))
+
+    def test_unique_neighbors(self):
+        """Check that cells have the appropriate number of neighbors."""
+        L = 10  # Box Dimensions
+        rcut = 3  # Cutoff radius
+
+        # Initialize Box, initialize and compute cell list
+        fbox = freud.box.Box.cube(L)
+        cl = freud.locality.LinkCell(fbox, rcut, np.zeros((1, 3)))
+
+        # 27 is the total number of cells
+        for i in range(27):
+            neighbors = cl.getCellNeighbors(i)
+            self.assertEqual(
+                len(np.unique(neighbors)), 27,
+                msg="Cell %d does not have 27 unique adjacent cell indices, "
+                "it has %d" % (i, len(np.unique(neighbors))))
+
+    def test_cell_neighbors(self):
+        """Check that cells have the appropriate neighbors."""
+        L = 31  # Box Dimensions
+        rcut = 3  # Cutoff radius
+
+        # Initialize test points across periodic boundary condition
+        testpoints = np.array([[-5.0, 0, 0],
+                               [2.05, 0, 0]], dtype=np.float32)
+
+        # Initialize Box, initialize and compute cell list
+        fbox = freud.box.Box.cube(L)
+        cl = freud.locality.LinkCell(fbox, rcut, testpoints)
+
+        # Get cell index
+        cell_index0 = cl.getCell(testpoints[0])
+        cell_index1 = cl.getCell(testpoints[1])
+
+        # Get cell neighbors
+        neighbors0 = cl.getCellNeighbors(cell_index0)
+        neighbors1 = cl.getCellNeighbors(cell_index1)
+
+        # Check if particle 0 is in a cell neighboring particle 1
+        # np.where returns [[index]] if found, otherwise [[]]
+        test0 = np.where(neighbors1 == cell_index0)[0]
+        test1 = np.where(neighbors0 == cell_index1)[0]
+        self.assertEqual(len(test0), len(test1))
+
+    @unittest.skipIf(sys.version_info.major < 3,
+                     "Not running on Python 2")
+    def test_symmetric(self):
+        """Check that cell list neighbors are symmetric."""
+        L = 10  # Box Dimensions
+        rcut = 2  # Cutoff radius
+        N = 40  # number of particles
+
+        # Initialize test points randomly
+        fbox, points = make_box_and_random_points(L, N)
+        cl = freud.locality.LinkCell(fbox, rcut, points)
+
+        neighbors_ij = set()
+        for i in range(N):
+            cells = cl.getCellNeighbors(cl.getCell(points[i]))
+            for cell in cells:
+                neighbors_ij.update([(i, j) for j in cl.itercell(cell)])
+
+        neighbors_ji = set((j, i) for (i, j) in neighbors_ij)
+        # if i is a neighbor of j, then j should be a neighbor of i
+        self.assertEqual(neighbors_ij, neighbors_ji)
 
 
 if __name__ == '__main__':
