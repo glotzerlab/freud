@@ -40,7 +40,6 @@ cdef extern from "NeighborQuery.h" namespace "freud::locality":
         const vec3[float]* getPoints const
         const unsigned int getNPoints const
         const vec3[float] operator[](unsigned int) const
-        void validateQueryArgs(QueryArgs) except +
 
     NeighborBond ITERATOR_TERMINATOR \
         "freud::locality::NeighborQueryIterator::ITERATOR_TERMINATOR"

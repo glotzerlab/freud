@@ -54,6 +54,7 @@ public:
 
     AABBTree m_aabb_tree; //!< AABB tree of points
 
+protected:
     //! Validate the combination of specified arguments.
     /*! Add to parent function to account for the various arguments
      *  specifically required for AABBQuery nearest neighbor queries.

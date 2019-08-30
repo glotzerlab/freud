@@ -31,7 +31,6 @@ cdef class NeighborQueryResult:
         obj.nq = nq
         obj.points = points
         obj.query_args = query_args
-        obj.nq.nqptr.validateQueryArgs(dereference(query_args.thisptr))
 
         return obj
 

@@ -12,6 +12,7 @@
 #include "Box.h"
 #include "NeighborBond.h"
 #include "NeighborList.h"
+#include "NeighborPerPointIterator.h"
 
 /*! \file NeighborQuery.h
     \brief Defines the abstract API for collections of points that can be
@@ -64,11 +65,8 @@ class NeighborQueryPerPointIterator;
 /*! This class defines the API for all data structures for accelerating
  *  neighbor finding. The object encapsulates a set of points and a system box
  *  that define the set of points to search and the periodic system within these
- *  points can be found.
- *
- *  The primary interface to this class is through the query and queryBall
- *  methods, which support k-nearest neighbor queries and distance-based
- *  queries, respectively.
+ *  points can be found. The interface for finding neighbors is the query
+ *  method, which generates an iterator that finds all requested neighbors.
  */
 class NeighborQuery
 {
@@ -86,31 +84,22 @@ public:
 
     //! Perform a query based on a set of query parameters.
     /*! Given a QueryArgs object and a set of points to perform a query
-     *  with, this function will dispatch the query to the appropriate
-     *  querying function.
+     *  with, this function creates an iterator object that loops over all \c
+     *  query_points and returns their neighbors. Specific query logic is
+     *  implemented on a per-particle basis through the querySingle function,
+     *  which should be overriden by subclasses to apply the correct neighbor
+     *  finding logic.
      *
-     *  This function should just be called query, but Cython's function
-     *  overloading abilities seem buggy at best, so it's easiest to just
-     *  rename the function.
+     *  \param query_points The points to find neighbors for.
+     *  \param n_query_points The number of query points.
+     *  \param qargs The query arguments that should be used to find neighbors.
      */
-    virtual std::shared_ptr<NeighborQueryIterator> query(const vec3<float>* query_points, unsigned int n_query_points,
-                                                                 QueryArgs qargs) const
+    std::shared_ptr<NeighborQueryIterator> query(const vec3<float>* query_points, unsigned int n_query_points,
+                                                                 QueryArgs query_args) const
     {
-        this->validateQueryArgs(qargs);
-        return std::make_shared<NeighborQueryIterator>(this, query_points, n_query_points, qargs);
+        this->validateQueryArgs(query_args);
+        return std::make_shared<NeighborQueryIterator>(this, query_points, n_query_points, query_args);
     }
-
-    //! Perform a query based on a set of query parameters.
-    /*! Given a QueryArgs object and a set of points to perform a query
-     *  with, this function will dispatch the query to the appropriate
-     *  querying function.
-     *
-     *  This function should just be called query, but Cython's function
-     *  overloading abilities seem buggy at best, so it's easiest to just
-     *  rename the function.
-     */
-    virtual std::shared_ptr<NeighborQueryPerPointIterator> querySingle(const vec3<float> query_point, unsigned int query_point_idx,
-                                                                 QueryArgs args) const = 0;
 
     //! Get the simulation box
     const box::Box& getBox() const
@@ -131,6 +120,8 @@ public:
     }
 
     //! Get a point's coordinates using index operator notation
+    /*! \param index The point index to return.
+     */
     const vec3<float> operator[](unsigned int index) const
     {
         if (index >= m_n_points)
@@ -140,6 +131,20 @@ public:
         return m_points[index];
     }
 
+    //! Perform a per-particle query based on a set of query parameters.
+    /*! This function is the primary interface by which subclasses provide
+     *  logic for finding neighbors. All such logic should be contained in
+     *  subclasses of the NeighborQueryPerPointIterator that can then generate
+     *  neighbors on-the-fly.
+     *
+     *  \param query_point The point to find neighbors for.
+     *  \param n_query_points The number of query points.
+     *  \param qargs The query arguments that should be used to find neighbors.
+     */
+    virtual std::shared_ptr<NeighborQueryPerPointIterator> querySingle(const vec3<float> query_point, unsigned int query_point_idx,
+                                                                 QueryArgs args) const = 0;
+
+protected:
     //! Validate the combination of specified arguments.
     /*! Before checking if the combination of parameters currently set is
      *  valid, this function first attempts to infer a mode if one is not set in
@@ -165,8 +170,6 @@ public:
         }
     }
 
-
-protected:
     //! Try to determine the query mode if one is not specified.
     /*! If no mode is specified and a number of neighbors is specified, the
      *  query mode must be a nearest neighbors query (all other arguments can
@@ -189,50 +192,19 @@ protected:
         }
     }
 
-    const box::Box m_box;            //!< Simulation box where the particles belong
-    const vec3<float>* m_points; //!< Reference point coordinates
-    unsigned int m_n_points;             //!< Number of reference points
+    const box::Box m_box;            //!< Simulation box where the particles belong.
+    const vec3<float>* m_points;     //!< Point coordinates.
+    unsigned int m_n_points;         //!< Number of points.
 };
 
-class NeighborPerPointIterator
-{
-public:
-    //! Nullary constructor for Cython
-    NeighborPerPointIterator() {}
-
-    //! Constructor
-    NeighborPerPointIterator(unsigned int query_point_idx)
-        : m_query_point_idx(query_point_idx) {}
-
-    //! Empty Destructor
-    virtual ~NeighborPerPointIterator() {}
-
-    //! Indicate when done.
-    virtual bool end() = 0;
-
-    //! Get the next element.
-    virtual NeighborBond next() = 0;
-
-    static const NeighborBond ITERATOR_TERMINATOR; //!< The object returned when iteration is complete.
-
-protected:
-    unsigned int m_query_point_idx; //!< The index of the query point.
-};
-
-//! The iterator class for neighbor queries on NeighborQuery objects.
-/*! This is an abstract class that defines the abstract API for neighbor
- *  iteration. All subclasses of NeighborQuery should also subclass
- *  NeighborQueryPerPointIterator and define the next() method appropriately. The next()
- *  method is the primary mode of interaction with the iterator, and allows
- *  looping through the iterator.
- *
- *  Note that due to the fact that there is no way to know when iteration is
- *  complete until all relevant points are actually checked (irrespective of the
- *  underlying data structure), the end() method will not return true until the
- *  next method reaches the end of control flow at least once without finding a
- *  next neighbor. As a result, the next() method is required to return
- *  NeighborQueryPerPointIterator::ITERATOR_TERMINATOR on all calls after the last neighbor is
- *  found in order to guarantee that the correct set of neighbors is considered.
+//! Implementation of per-point finding logic for NeighborQuery objects.
+/*! This abstract class specializes a few of the methods of its parent for the
+ *  case of working with NeighborQuery objects. In particular, on construction
+ *  it takes information on the NeighborQuery object it is attached to, allowing
+ *  iterators to access the points the NeighborQuery was constructed for.
+ *  Additionally, it defines the standard interface by which such iterations
+ *  should indicate that all neighbors have been found, which is by setting the
+ *  m_finished flag.
  */
 class NeighborQueryPerPointIterator : public NeighborPerPointIterator
 {
@@ -255,35 +227,29 @@ public:
     }
 
     //! Get the next element.
-    virtual NeighborBond next()
-    {
-        throw std::runtime_error("The next method must be implemented by child classes.");
-    }
+    virtual NeighborBond next() = 0;
 
     static const NeighborBond ITERATOR_TERMINATOR; //!< The object returned when iteration is complete.
 
 protected:
-    const NeighborQuery* m_neighbor_query; //!< Link to the NeighborQuery object.
+    const NeighborQuery* m_neighbor_query;     //!< Link to the NeighborQuery object.
     const vec3<float> m_query_point;           //!< Coordinates of the query point.
-    unsigned int cur_p;                    //!< The current index into the points (bounded by m_n_query_points).
-    bool m_finished;    //!< Flag to indicate that iteration is complete (must be set by next on termination).
-    bool m_exclude_ii; //!< Flag to indicate whether or not to include self bonds.
+    unsigned int cur_p;                        //!< The current index into the points (bounded by m_n_query_points).
+    bool m_finished;                           //!< Flag to indicate that iteration is complete (must be set by next() on termination).
+    bool m_exclude_ii;                         //!< Flag to indicate whether or not to include self bonds.
 };
 
 //! The iterator class for neighbor queries on NeighborQuery objects.
-/*! This is an abstract class that defines the abstract API for neighbor
- *  iteration. All subclasses of NeighborQuery should also subclass
- *  NeighborQueryIterator and define the next() method appropriately. The next()
- *  method is the primary mode of interaction with the iterator, and allows
- *  looping through the iterator.
- *
- *  Note that due to the fact that there is no way to know when iteration is
- *  complete until all relevant points are actually checked (irrespective of the
- *  underlying data structure), the end() method will not return true until the
- *  next method reaches the end of control flow at least once without finding a
- *  next neighbor. As a result, the next() method is required to return
- *  NeighborQueryIterator::ITERATOR_TERMINATOR on all calls after the last neighbor is
- *  found in order to guarantee that the correct set of neighbors is considered.
+/*! All queries to a NeighborQuery return instances of this class. The
+ *  NeighborQueryIterator is capable of either iterating over all neighbors of
+ *  the provided query_points based on the set of points contained in the
+ *  NeighborQuery object, or of providing NeighborQueryPerPoint iterator
+ *  instances for any of the query_points it was constructed with. The first
+ *  interface is much more convenient for user interaction, while the second is
+ *  primarily provided to support thread-safe parallelism. This class is not
+ *  designed to be inherited from; the implementation of the querySingle method
+ *  in NeighborQuery subclasses (to return per-point iterators) should be
+ *  sufficient for this class to work.
  */
 class NeighborQueryIterator
 {
@@ -297,7 +263,7 @@ public:
         : m_neighbor_query(neighbor_query), m_query_points(query_points), m_num_query_points(num_query_points),
           m_qargs(qargs), m_finished(false), m_cur_p(0)
     {
-        m_iter = m_neighbor_query->querySingle(m_query_points[m_cur_p], m_cur_p, m_qargs);
+        m_iter = this->query(m_cur_p);
     }
 
     //! Empty Destructor
@@ -335,7 +301,7 @@ public:
             m_cur_p++;
             if (m_cur_p >= m_num_query_points)
                 break;
-            m_iter = m_neighbor_query->querySingle(m_query_points[m_cur_p], m_cur_p, m_qargs);
+            m_iter = this->query(m_cur_p);
         }
         m_finished = true;
         return ITERATOR_TERMINATOR;
@@ -413,7 +379,6 @@ protected:
     std::shared_ptr<NeighborQueryPerPointIterator> m_iter;  //!< The per-point iterator being used.
 
     bool m_finished;    //!< Flag to indicate that iteration is complete (must be set by next on termination).
-    bool m_exclude_ii; //!< Flag to indicate whether or not to include self bonds.
     unsigned int m_cur_p;  //!< The current particle under consideration.
 };
 

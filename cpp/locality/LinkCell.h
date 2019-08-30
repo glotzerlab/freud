@@ -472,7 +472,6 @@ public:
     virtual std::shared_ptr<NeighborQueryPerPointIterator> querySingle(const vec3<float> query_point, unsigned int query_point_idx,
                                                                  QueryArgs args) const;
 
-
 private:
     //! Rounding helper function.
     static unsigned int roundDown(unsigned int v, unsigned int m);

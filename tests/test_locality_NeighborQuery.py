@@ -139,9 +139,9 @@ class TestNeighborQuery(object):
 
         # Test failure cases.
         with self.assertRaises(RuntimeError):
-            nq.query(
-                points,
-                dict(mode='ball', num_neighbors=num_neighbors, r_max=r_cut))
+            list(nq.query(points, dict(mode='ball',
+                                       num_neighbors=num_neighbors,
+                                       r_max=r_cut)))
 
     def test_query_nearest(self):
         L = 10  # Box Dimensions
