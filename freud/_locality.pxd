@@ -36,13 +36,6 @@ cdef extern from "NeighborQuery.h" namespace "freud::locality":
         NeighborQuery(const freud._box.Box &, const vec3[float]*, unsigned int)
         shared_ptr[NeighborQueryIterator] queryWithArgs(
             const vec3[float]*, unsigned int, QueryArgs) except +
-        shared_ptr[NeighborQueryIterator] query(
-            const vec3[float]*,
-            unsigned int,
-            unsigned int,
-            bool) except +
-        shared_ptr[NeighborQueryIterator] queryBall(
-            const vec3[float]*, unsigned int, float, bool) except +
         const freud._box.Box & getBox() const
         const vec3[float]* getPoints const
         const unsigned int getNPoints const
@@ -167,9 +160,6 @@ cdef extern from "AABBQuery.h" namespace "freud::locality":
             const vec3[float]*,
             unsigned int,
             bool) except +
-        shared_ptr[NeighborQueryIterator] query(
-            const vec3[float]*, unsigned int, unsigned int,
-            float, float, bool) except +
 
 cdef extern from "Voronoi.h" namespace "freud::locality":
     cdef cppclass Voronoi:

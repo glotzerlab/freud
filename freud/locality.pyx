@@ -201,106 +201,6 @@ cdef class NewResultClass:
         return nl
 
 
-cdef class NeighborQueryResult:
-    R"""Class encapsulating the output of queries of NeighborQuery objects.
-
-    .. warning::
-
-        This class should not be instantiated directly, it is the
-        return value of all `query*` functions of
-        :class:`~NeighborQuery`. The class provides a convenient
-        interface for iterating over query results, and can be
-        transparently converted into a list or a
-        :class:`~NeighborList` object.
-
-    The :class:`~NeighborQueryResult` makes it easy to work with the results of
-    queries and convert them to various natural objects. Additionally, the
-    result is a generator, making it easy for users to lazily iterate over the
-    object.
-
-    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
-    """
-
-    def __iter__(self):
-        cdef freud._locality.NeighborBond npoint
-
-        cdef shared_ptr[freud._locality.NeighborQueryIterator] iterator
-        iterator = self._getIterator()
-
-        while True:
-            npoint = dereference(iterator).next()
-            if npoint == ITERATOR_TERMINATOR:
-                break
-            yield (npoint.id, npoint.ref_id, npoint.distance)
-
-        raise StopIteration
-
-    cdef shared_ptr[
-            freud._locality.NeighborQueryIterator] _getIterator(self) except *:
-        """Helper function to get an iterator based on whether this object is
-        queried for k-nearest neighbors or for all neighbors within a distance
-        cutoff."""
-        cdef shared_ptr[freud._locality.NeighborQueryIterator] iterator
-        cdef const float[:, ::1] l_points = self.points
-        if self.query_type == 'nearest':
-            iterator = self.nq.nqptr.query(
-                <vec3[float]*> &l_points[0, 0],
-                self.points.shape[0],
-                self.num_neighbors,
-                self.exclude_ii)
-        else:
-            iterator = self.nq.nqptr.queryBall(
-                <vec3[float]*> &l_points[0, 0],
-                self.points.shape[0],
-                self.r_max,
-                self.exclude_ii)
-        return iterator
-
-    def toNList(self):
-        """Convert query result to a freud NeighborList.
-
-        Returns:
-            :class:`~NeighborList`: A :mod:`freud` :class:`~NeighborList`
-            containing all neighbor pairs found by the query generating this
-            result object.
-        """
-        cdef shared_ptr[freud._locality.NeighborQueryIterator] iterator
-        iterator = self._getIterator()
-
-        cdef freud._locality.NeighborList *cnlist = dereference(
-            iterator).toNeighborList()
-        cdef NeighborList nl = NeighborList()
-        nl.refer_to(cnlist)
-        # Explicitly manage a manually created nlist so that it will be
-        # deleted when the Python object is.
-        nl._managed = True
-
-        return nl
-
-
-cdef class AABBQueryResult(NeighborQueryResult):
-    R"""Extend NeighborQuery class for the AABB k-nearest neighbors query case
-    to call the C++ query function with the correct set of arguments.
-
-    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
-    """
-
-    cdef shared_ptr[
-            freud._locality.NeighborQueryIterator] _getIterator(self) except *:
-        """Override parent behavior since this class is only returned for knn
-        queries."""
-        cdef const float[:, ::1] l_points = self.points
-        cdef shared_ptr[freud._locality.NeighborQueryIterator] iterator
-        iterator = self.aabbq.thisptr.query(
-            <vec3[float]*> &l_points[0, 0],
-            self.points.shape[0],
-            self.num_neighbors,
-            self.r_max,
-            self.scale,
-            self.exclude_ii)
-        return iterator
-
-
 cdef class NeighborQuery:
     R"""Class representing a set of points along with the ability to query for
     neighbors of these points.
@@ -365,83 +265,6 @@ cdef class NeighborQuery:
 
         cdef _QueryArgs args = _QueryArgs(**query_args)
         return NewResultClass.init(self, query_points, args)
-
-        cdef shared_ptr[freud._locality.NeighborQueryIterator] iterator
-        cdef const float[:, ::1] l_query_points = query_points
-        cdef _QueryArgs args = _QueryArgs(**query_args)
-
-        iterator = self.nqptr.queryWithArgs(
-            <vec3[float]*> &l_query_points[0, 0],
-            query_points.shape[0],
-            dereference(args.thisptr))
-
-        cdef freud._locality.NeighborList *cnlist = dereference(
-            iterator).toNeighborList()
-        cdef NeighborList nl = NeighborList()
-        nl.refer_to(cnlist)
-        # Explicitly manage a manually created nlist so that it will be
-        # deleted when the Python object is.
-        nl._managed = True
-
-        return nl
-
-    def query(self, query_points, unsigned int num_neighbors=1,
-              cbool exclude_ii=False):
-        R"""Query for nearest neighbors of the provided point.
-
-        Args:
-            query_points ((:math:`N`, 3) :class:`numpy.ndarray`):
-                Points to query for.
-            num_neighbors (int, optional):
-                The number of nearest neighbors to find.
-                (Default value = :code:`1`)
-            exclude_ii (bool, optional):
-                Set this to :code:`True` if pairs of points with identical
-                indices to those in :code:`self.points` should be excluded.
-                (Default value = :code:`False`).
-
-        Returns:
-            :class:`~.NeighborQueryResult`: Results object containing the
-            output of this query.
-        """
-        # Can't use this function with old-style NeighborQuery objects
-        if not self.queryable:
-            raise RuntimeError("You cannot use the query method unless this "
-                               "object was originally constructed with "
-                               "reference points")
-        query_points = freud.common.convert_array(
-            np.atleast_2d(query_points), shape=(None, 3))
-
-        return NeighborQueryResult.init(
-            self, query_points, exclude_ii, r_max=0,
-            num_neighbors=num_neighbors)
-
-    def queryBall(self, query_points, float r_max, cbool exclude_ii=False):
-        R"""Query for all points within a distance r of the provided point(s).
-
-        Args:
-            query_points ((:math:`N`, 3) :class:`numpy.ndarray`):
-                Points to query for.
-            r (float):
-                The distance within which to find neighbors
-            exclude_ii (bool, optional):
-                Set this to :code:`True` if pairs of points with identical
-                indices to those in :code:`self.points` should be excluded.
-                (Default value = :code:`False`).
-
-        Returns:
-            :class:`~.NeighborQueryResult`: Results object containing the
-            output of this query.
-        """
-        if not self.queryable:
-            raise RuntimeError("You cannot use the query method unless this "
-                               "object was originally constructed with "
-                               "reference points")
-        query_points = freud.common.convert_array(
-            np.atleast_2d(query_points), shape=(None, 3))
-
-        return NeighborQueryResult.init(
-            self, query_points, exclude_ii, r_max=r_max, num_neighbors=0)
 
     cdef freud._locality.NeighborQuery * get_ptr(self):
         R"""Returns a pointer to the raw C++ object we are wrapping."""
@@ -859,8 +682,8 @@ def make_default_nlist(box, points, query_points, r_max, nlist=None,
         return nlist, nlist
 
     cdef AABBQuery aq = AABBQuery(box, points)
-    cdef NeighborList aq_nlist = aq.queryBall(
-        query_points, r_max, exclude_ii).toNList()
+    cdef NeighborList aq_nlist = aq._queryGeneric(
+        query_points, dict(r_max=r_max, exclude_ii=exclude_ii)).toNList()
 
     return aq_nlist, aq
 
@@ -974,49 +797,6 @@ cdef class AABBQuery(NeighborQuery):
     def __dealloc__(self):
         if type(self) is AABBQuery:
             del self.thisptr
-
-    def query(self, query_points, unsigned int num_neighbors=1,
-              float r_guess=0, float scale=1.1, cbool exclude_ii=False):
-        R"""Query for nearest neighbors of the provided point.
-
-        This method has a slightly different signature from the parent method
-        to support querying based on a specified guessed rcut and scaling.
-
-        Args:
-            box (:class:`freud.box.Box`):
-                Simulation box.
-            query_points ((:math:`N`, 3) :class:`numpy.ndarray`):
-                Points to query for.
-            num_neighbors (int, optional):
-                The number of nearest neighbors to find.
-                (Default value = :code:`1`)
-            r_guess (float, optional):
-                The initial guess of a distance to search to find N neighbors.
-                (Default value = :code:`0`)
-            scale (float, optional):
-                Multiplier by which to increase :code:`r` if not enough
-                neighbors are found. (Default value = :code:`1.1`)
-            exclude_ii (bool, optional):
-                Set this to :code:`True` if pairs of points with identical
-                indices to those in :code:`self.points` should be excluded.
-                (Default value = :code:`False`).
-
-        Returns:
-            :class:`~.NeighborQueryResult`: Results object containing the
-            output of this query.
-        """
-        query_points = freud.common.convert_array(
-            np.atleast_2d(query_points), shape=(None, 3))
-
-        # Default guess value
-        if r_guess == 0:
-            r_guess = min(self._box.Lx, self._box.Ly)
-            if not self._box.is2D:
-                r_guess = min(r_guess, self._box.Lz)
-            r_guess *= 0.1
-
-        return AABBQueryResult.init_aabb_nn(
-            self, query_points, exclude_ii, num_neighbors, r_guess, scale)
 
 
 cdef class IteratorLinkCell:
