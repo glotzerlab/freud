@@ -93,7 +93,7 @@ private:
     box::Box m_box;            //!< Simulation box where the particles belong
 };
 
-//! Parent class of AABB iterators that knows how to traverse general AABB tree structures
+//! Parent class of AABB iterators that knows how to traverse general AABB tree structures.
 class AABBIterator : public NeighborQueryPerPointIterator
 {
 public:
@@ -114,7 +114,7 @@ protected:
     unsigned int m_n_images;               //!< The number of image vectors to check
 };
 
-//! Iterator that gets nearest neighbors from AABB tree structures
+//! Iterator that gets a specified number of nearest neighbors from AABB tree structures.
 class AABBQueryIterator : public AABBIterator
 {
 public:
@@ -150,7 +150,7 @@ protected:
                                                    //!< used when searching beyond maximum safe AABB distance.
 };
 
-//! Iterator that gets neighbors in a ball of size r using AABB tree structures
+//! Iterator that gets neighbors in a ball of size r using AABB tree structures.
 class AABBQueryBallIterator : public AABBIterator
 {
 public:

@@ -271,7 +271,7 @@ std::shared_ptr<NeighborQueryPerPointIterator> LinkCell::querySingle(const vec3<
 
 NeighborBond LinkCellQueryBallIterator::next()
 {
-    float r_cutsq = m_r * m_r;
+    float r_cutsq = m_r_max * m_r_max;
 
     vec3<unsigned int> point_cell(m_linkcell->getCellCoord(m_query_point));
     const unsigned int point_cell_index = m_linkcell->getCellIndex(
@@ -304,7 +304,7 @@ NeighborBond LinkCellQueryBallIterator::next()
             // shell is greater than our rcut.
             ++m_neigh_cell_iter;
 
-            if ((m_neigh_cell_iter.getRange() - m_extra_search_width) * m_linkcell->getCellWidth() > m_r)
+            if ((m_neigh_cell_iter.getRange() - m_extra_search_width) * m_linkcell->getCellWidth() > m_r_max)
             {
                 out_of_range = true;
                 break;

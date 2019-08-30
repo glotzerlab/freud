@@ -484,7 +484,7 @@ private:
 
     box::Box m_box;               //!< Simulation box where the particles belong
     Index3D m_cell_index;         //!< Indexer to compute cell indices
-    unsigned int m_n_points;            //!< Number of particles last placed into the cell list
+    unsigned int m_n_points;      //!< Number of particles last placed into the cell list
     unsigned int m_Nc;            //!< Number of cells last used
     float m_cell_width;           //!< Minimum necessary cell width cutoff
     vec3<unsigned int> m_celldim; //!< Cell dimensions
@@ -495,7 +495,7 @@ private:
     NeighborList m_neighbor_list;   //!< Stored neighbor list
 };
 
-//! Parent class of LinkCell iterators that knows how to traverse general cell-linked list structures
+//! Parent class of LinkCell iterators that knows how to traverse general cell-linked list structures.
 class LinkCellIterator : public NeighborQueryPerPointIterator
 {
 public:
@@ -523,7 +523,7 @@ protected:
         m_searched_cells; //!< Set of cells that have already been searched by the cell shell iterator.
 };
 
-//! Iterator that gets nearest neighbors from LinkCell tree structures
+//! Iterator that gets specified numbers of nearest neighbors from LinkCell tree structures.
 class LinkCellQueryIterator : public LinkCellIterator
 {
 public:
@@ -548,19 +548,19 @@ protected:
     std::vector<NeighborBond> m_current_neighbors; //!< The current set of found neighbors.
 };
 
-//! Iterator that gets neighbors in a ball of size r using LinkCell tree structures
+//! Iterator that gets neighbors in a ball of size r using LinkCell tree structures.
 class LinkCellQueryBallIterator : public LinkCellIterator
 {
 public:
     //! Constructor
     LinkCellQueryBallIterator(const LinkCell* neighbor_query, const vec3<float> query_point, unsigned int query_point_idx,
                               float r_max, bool exclude_ii)
-        : LinkCellIterator(neighbor_query, query_point, query_point_idx, exclude_ii), m_r(r_max)
+        : LinkCellIterator(neighbor_query, query_point, query_point_idx, exclude_ii), m_r_max(r_max)
     {
         // Upon querying, if the search radius is equal to the cell width, we
         // can guarantee that we don't need to search the cell shell past the
         // query radius. For simplicity, we store this value as an integer.
-        if (m_r == neighbor_query->getCellWidth())
+        if (m_r_max == neighbor_query->getCellWidth())
         {
             m_extra_search_width = 0;
         }
@@ -577,7 +577,7 @@ public:
     virtual NeighborBond next();
 
 protected:
-    float m_r; //!< Search ball cutoff distance
+    float m_r_max; //!< Search ball cutoff distance
     int m_extra_search_width; //!< The extra shell distance to search, always 0 or 1.
 };
 }; }; // end namespace freud::locality

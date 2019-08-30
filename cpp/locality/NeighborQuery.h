@@ -101,6 +101,19 @@ public:
         return std::make_shared<NeighborQueryIterator>(this, query_points, n_query_points, query_args);
     }
 
+    //! Perform a per-particle query based on a set of query parameters.
+    /*! This function is the primary interface by which subclasses provide
+     *  logic for finding neighbors. All such logic should be contained in
+     *  subclasses of the NeighborQueryPerPointIterator that can then generate
+     *  neighbors on-the-fly.
+     *
+     *  \param query_point The point to find neighbors for.
+     *  \param n_query_points The number of query points.
+     *  \param qargs The query arguments that should be used to find neighbors.
+     */
+    virtual std::shared_ptr<NeighborQueryPerPointIterator> querySingle(const vec3<float> query_point, unsigned int query_point_idx,
+                                                                 QueryArgs args) const = 0;
+
     //! Get the simulation box
     const box::Box& getBox() const
     {
@@ -130,19 +143,6 @@ public:
         }
         return m_points[index];
     }
-
-    //! Perform a per-particle query based on a set of query parameters.
-    /*! This function is the primary interface by which subclasses provide
-     *  logic for finding neighbors. All such logic should be contained in
-     *  subclasses of the NeighborQueryPerPointIterator that can then generate
-     *  neighbors on-the-fly.
-     *
-     *  \param query_point The point to find neighbors for.
-     *  \param n_query_points The number of query points.
-     *  \param qargs The query arguments that should be used to find neighbors.
-     */
-    virtual std::shared_ptr<NeighborQueryPerPointIterator> querySingle(const vec3<float> query_point, unsigned int query_point_idx,
-                                                                 QueryArgs args) const = 0;
 
 protected:
     //! Validate the combination of specified arguments.
@@ -234,7 +234,6 @@ public:
 protected:
     const NeighborQuery* m_neighbor_query;     //!< Link to the NeighborQuery object.
     const vec3<float> m_query_point;           //!< Coordinates of the query point.
-    unsigned int cur_p;                        //!< The current index into the points (bounded by m_n_query_points).
     bool m_finished;                           //!< Flag to indicate that iteration is complete (must be set by next() on termination).
     bool m_exclude_ii;                         //!< Flag to indicate whether or not to include self bonds.
 };
@@ -307,7 +306,7 @@ public:
         return ITERATOR_TERMINATOR;
     }
 
-    ////! Generate a NeighborList from query.
+    //! Generate a NeighborList from query.
     /*! This function exploits parallelism by finding the neighbors for
      *  each query point in parallel and adding them to a list, which is
      *  then sorted in parallel as well before being added to the
@@ -371,27 +370,32 @@ public:
     static const NeighborBond ITERATOR_TERMINATOR; //!< The object returned when iteration is complete.
 
 protected:
-    const NeighborQuery* m_neighbor_query; //!< Link to the NeighborQuery object.
-    const vec3<float> *m_query_points;           //!< Coordinates of the query point.
-    unsigned int m_num_query_points; //!< The index of the query point.
-    unsigned int cur_p;                    //!< The current index into the points (bounded by m_n_query_points).
-    const QueryArgs m_qargs;  //!< The current query arguments
+    const NeighborQuery* m_neighbor_query;                  //!< Link to the NeighborQuery object.
+    const vec3<float> *m_query_points;                      //!< Coordinates of the query points.
+    unsigned int m_num_query_points;                        //!< The number of query points.
+    const QueryArgs m_qargs;                                //!< The query arguments
     std::shared_ptr<NeighborQueryPerPointIterator> m_iter;  //!< The per-point iterator being used.
 
-    bool m_finished;    //!< Flag to indicate that iteration is complete (must be set by next on termination).
-    unsigned int m_cur_p;  //!< The current particle under consideration.
+    bool m_finished;                                        //!< Flag to indicate that iteration is complete (must be set by next on termination).
+    unsigned int m_cur_p;                                   //!< The current particle under consideration.
 };
 
 
-// Dummy class to just contain minimal information and not actually query.
+//! Dummy class to just contain minimal information and not actually query.
+/*! The purpose of this class is to support dynamic NeighborQuery object
+ *  resolution. Users may pass instances of this class instead of providing a
+ *  NeighborQuery to various compute functions throughout freud, which is an
+ *  indication that the function needs to compute its own NeighborQuery. That
+ *  logic, which is primary encapsulated in the NeighborComputeFunctional.h
+ *  file, helps provide a nice Python API as well.
+ */
 class RawPoints : public NeighborQuery
 {
 public:
     RawPoints();
 
     RawPoints(const box::Box& box, const vec3<float>* points, unsigned int n_points)
-        : NeighborQuery(box, points, n_points)
-    {}
+        : NeighborQuery(box, points, n_points) {}
 
     ~RawPoints() {}
 
@@ -399,7 +403,7 @@ public:
     virtual std::shared_ptr<NeighborQueryPerPointIterator> querySingle(const vec3<float> query_point, unsigned int query_point_idx,
                                                          QueryArgs qargs) const
     {
-        throw std::runtime_error("The queryArgs method is not implemented for RawPoints.");
+        throw std::runtime_error("The querySingle method is not implemented for RawPoints.");
     }
 };
 

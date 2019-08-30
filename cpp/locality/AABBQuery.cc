@@ -37,7 +37,7 @@ std::shared_ptr<NeighborQueryPerPointIterator> AABBQuery::querySingle(const vec3
     }
     else
     {
-        throw std::runtime_error("Invalid query mode provided to generic query function.");
+        throw std::runtime_error("Invalid query mode provided to query function in AABBQuery.");
     }
 }
 
