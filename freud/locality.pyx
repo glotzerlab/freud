@@ -252,7 +252,7 @@ cdef class NeighborQuery:
     def points(self):
         return np.asarray(self.points)
 
-    def _queryGeneric(self, query_points, query_args):
+    def query(self, query_points, query_args):
         # This function is temporarily included for testing and may be
         # removed in future releases.
         # Can't use this function with old-style NeighborQuery objects
@@ -682,7 +682,7 @@ def make_default_nlist(box, points, query_points, r_max, nlist=None,
         return nlist, nlist
 
     cdef AABBQuery aq = AABBQuery(box, points)
-    cdef NeighborList aq_nlist = aq._queryGeneric(
+    cdef NeighborList aq_nlist = aq.query(
         query_points, dict(r_max=r_max, exclude_ii=exclude_ii)).toNList()
 
     return aq_nlist, aq
