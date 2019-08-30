@@ -78,4 +78,4 @@ struct NeighborBond
 
 }; }; // end namespace freud::locality
 
-#endif
+#endif // NEIGHBOR_BOND_H

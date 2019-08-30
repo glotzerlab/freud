@@ -1,3 +1,10 @@
+#ifndef NEIGHBOR_PER_POINT_ITERATOR_H
+#define NEIGHBOR_PER_POINT_ITERATOR_H
+
+/*! \file NeighborPerPointIterator.h
+    \brief Defines interface for iterator looping over sets of neighbors.
+*/
+
 #include "NeighborBond.h"
 
 namespace freud { namespace locality {
@@ -52,3 +59,5 @@ protected:
 };
 
 }; }; // end namespace freud::locality
+
+#endif // NEIGHBOR_PER_POINT_ITERATOR_H
