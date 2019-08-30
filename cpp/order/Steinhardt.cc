@@ -182,11 +182,11 @@ void Steinhardt::computeAve(const freud::locality::NeighborList* nlist,
             // if neighbor_query is RawPoints, build a AABBQuery
             nq = std::make_shared<locality::AABBQuery>(points->getBox(), points->getPoints(),
                                             points->getNPoints());
-            iter = nq->queryWithArgs(points->getPoints(), points->getNPoints(), qargs);
+            iter = nq->query(points->getPoints(), points->getNPoints(), qargs);
         }
         else
         {
-            iter = points->queryWithArgs(points->getPoints(), points->getNPoints(), qargs);
+            iter = points->query(points->getPoints(), points->getNPoints(), qargs);
         }
     }
 

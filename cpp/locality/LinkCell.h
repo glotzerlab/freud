@@ -473,7 +473,7 @@ public:
      *  overloading abilities seem buggy at best, so it's easiest to just
      *  rename the function.
      */
-    virtual std::shared_ptr<NeighborQueryPerPointIterator> queryWithArgs(const vec3<float> query_point, unsigned int query_point_idx,
+    virtual std::shared_ptr<NeighborQueryPerPointIterator> querySingle(const vec3<float> query_point, unsigned int query_point_idx,
                                                                  QueryArgs args) const;
 
 

@@ -338,7 +338,7 @@ const std::vector<unsigned int>& LinkCell::computeCellNeighbors(unsigned int cur
     return a->second;
 }
 
-std::shared_ptr<NeighborQueryPerPointIterator> LinkCell::queryWithArgs(const vec3<float> query_point, unsigned int query_point_idx,
+std::shared_ptr<NeighborQueryPerPointIterator> LinkCell::querySingle(const vec3<float> query_point, unsigned int query_point_idx,
                                                              QueryArgs args) const
 {
     this->validateQueryArgs(args);

@@ -163,7 +163,7 @@ cdef class NewResultClass:
 
         cdef const float[:, ::1] l_points = self.points
         cdef shared_ptr[freud._locality.NeighborQueryIterator] iterator = \
-            self.nq.nqptr.queryWithArgs(
+            self.nq.nqptr.query(
                 <vec3[float]*> &l_points[0, 0],
                 self.points.shape[0],
                 dereference(self.query_args.thisptr))
@@ -185,7 +185,7 @@ cdef class NewResultClass:
         """
         cdef const float[:, ::1] l_points = self.points
         cdef shared_ptr[freud._locality.NeighborQueryIterator] iterator = \
-            self.nq.nqptr.queryWithArgs(
+            self.nq.nqptr.query(
                 <vec3[float]*> &l_points[0, 0],
                 self.points.shape[0],
                 dereference(self.query_args.thisptr))

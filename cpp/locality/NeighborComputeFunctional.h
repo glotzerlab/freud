@@ -122,11 +122,11 @@ void loopOverNeighborsIterator(const NeighborQuery* neighbor_query, const vec3<f
             // if neighbor_query is RawPoints, build a NeighborQuery
             abq = std::make_shared<AABBQuery>(neighbor_query->getBox(), neighbor_query->getPoints(),
                                             neighbor_query->getNPoints());
-            iter = abq->queryWithArgs(query_points, n_query_points, qargs);
+            iter = abq->query(query_points, n_query_points, qargs);
         }
         else
         {
-            iter = neighbor_query->queryWithArgs(query_points, n_query_points, qargs);
+            iter = neighbor_query->query(query_points, n_query_points, qargs);
         }
 
         // iterate over the query object in parallel
@@ -215,11 +215,11 @@ void loopOverNeighborQuery(const NeighborQuery* neighbor_query, const vec3<float
         // if neighbor_query is RawPoints, build a NeighborQuery
         abq = std::make_shared<AABBQuery>(neighbor_query->getBox(), neighbor_query->getPoints(),
                                           neighbor_query->getNPoints());
-        iter = abq->queryWithArgs(query_points, n_query_points, qargs);
+        iter = abq->query(query_points, n_query_points, qargs);
     }
     else
     {
-        iter = neighbor_query->queryWithArgs(query_points, n_query_points, qargs);
+        iter = neighbor_query->query(query_points, n_query_points, qargs);
     }
 
     // iterate over the query object in parallel

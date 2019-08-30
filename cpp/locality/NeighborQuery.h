@@ -93,7 +93,7 @@ public:
      *  overloading abilities seem buggy at best, so it's easiest to just
      *  rename the function.
      */
-    virtual std::shared_ptr<NeighborQueryIterator> queryWithArgs(const vec3<float>* query_points, unsigned int n_query_points,
+    virtual std::shared_ptr<NeighborQueryIterator> query(const vec3<float>* query_points, unsigned int n_query_points,
                                                                  QueryArgs qargs) const
     {
         this->validateQueryArgs(qargs);
@@ -109,7 +109,7 @@ public:
      *  overloading abilities seem buggy at best, so it's easiest to just
      *  rename the function.
      */
-    virtual std::shared_ptr<NeighborQueryPerPointIterator> queryWithArgs(const vec3<float> query_point, unsigned int query_point_idx,
+    virtual std::shared_ptr<NeighborQueryPerPointIterator> querySingle(const vec3<float> query_point, unsigned int query_point_idx,
                                                                  QueryArgs args) const = 0;
 
     //! Get the simulation box
@@ -297,7 +297,7 @@ public:
         : m_neighbor_query(neighbor_query), m_query_points(query_points), m_num_query_points(num_query_points),
           m_qargs(qargs), m_finished(false), m_cur_p(0)
     {
-        m_iter = m_neighbor_query->queryWithArgs(m_query_points[m_cur_p], m_cur_p, m_qargs);
+        m_iter = m_neighbor_query->querySingle(m_query_points[m_cur_p], m_cur_p, m_qargs);
     }
 
     //! Empty Destructor
@@ -312,7 +312,7 @@ public:
     //! Get an iterator for a specific query point by index.
     std::shared_ptr<NeighborQueryPerPointIterator> query(unsigned int i)
     {
-        return m_neighbor_query->queryWithArgs(m_query_points[i], i, m_qargs);
+        return m_neighbor_query->querySingle(m_query_points[i], i, m_qargs);
     }
 
     //! Get the next element.
@@ -335,7 +335,7 @@ public:
             m_cur_p++;
             if (m_cur_p >= m_num_query_points)
                 break;
-            m_iter = m_neighbor_query->queryWithArgs(m_query_points[m_cur_p], m_cur_p, m_qargs);
+            m_iter = m_neighbor_query->querySingle(m_query_points[m_cur_p], m_cur_p, m_qargs);
         }
         m_finished = true;
         return ITERATOR_TERMINATOR;
@@ -431,7 +431,7 @@ public:
     ~RawPoints() {}
 
     // dummy implementation for pure virtual function in the parent class
-    virtual std::shared_ptr<NeighborQueryPerPointIterator> queryWithArgs(const vec3<float> query_point, unsigned int query_point_idx,
+    virtual std::shared_ptr<NeighborQueryPerPointIterator> querySingle(const vec3<float> query_point, unsigned int query_point_idx,
                                                          QueryArgs qargs) const
     {
         throw std::runtime_error("The queryArgs method is not implemented for RawPoints.");

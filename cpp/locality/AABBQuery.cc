@@ -23,14 +23,7 @@ AABBQuery::AABBQuery(const box::Box& box, const vec3<float>* points, unsigned in
 
 AABBQuery::~AABBQuery() {}
 
-std::shared_ptr<NeighborQueryIterator> AABBQuery::queryWithArgs(const vec3<float>* query_points, unsigned int n_query_points,
-                                                                QueryArgs qargs) const
-{
-    this->validateQueryArgs(qargs);
-    return std::make_shared<NeighborQueryIterator>(this, query_points, n_query_points, qargs);
-}
-
-std::shared_ptr<NeighborQueryPerPointIterator> AABBQuery::queryWithArgs(const vec3<float> query_point, unsigned int query_point_idx,
+std::shared_ptr<NeighborQueryPerPointIterator> AABBQuery::querySingle(const vec3<float> query_point, unsigned int query_point_idx,
                                                              QueryArgs args) const
 {
     this->validateQueryArgs(args);
