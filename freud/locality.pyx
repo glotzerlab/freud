@@ -42,14 +42,22 @@ except ImportError:
 # _always_ do that, or you will have segfaults
 np.import_array()
 
-cdef class _QueryArgs:
-    # This class is temporarily included for testing and may be
-    # removed in future releases.
+cdef class QueryArgs:
+    R"""POD class to contain query arguments.
+
+    This class is use internally throughout freud to provide a nice interface
+    between keyword- or dict-style query arguments and the C++ QueryArgs
+    object. All arguments are funneled through this interface, which constructs
+    the appropriate C++ QueryArgs object that can then be used in C++ compute
+    calls.
+
+    .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
+    """
 
     def __cinit__(self, mode=None, r_max=None,
                   num_neighbors=None, exclude_ii=None,
                   scale=None, **kwargs):
-        if type(self) == _QueryArgs:
+        if type(self) == QueryArgs:
             self.thisptr = new freud._locality.QueryArgs()
             if mode is not None:
                 self.mode = mode
@@ -70,7 +78,7 @@ cdef class _QueryArgs:
                     err_str)
 
     def __dealloc__(self):
-        if type(self) == _QueryArgs:
+        if type(self) == QueryArgs:
             del self.thisptr
 
     def update(self, qargs):
@@ -175,7 +183,7 @@ cdef class NeighborQueryResult:
 
         raise StopIteration
 
-    def toNList(self):
+    def toNeighborList(self):
         """Convert query result to a freud NeighborList.
 
         Returns:
@@ -252,14 +260,31 @@ cdef class NeighborQuery:
     def points(self):
         return np.asarray(self.points)
 
-    def query(self, query_points, query_args):
-        # This function is temporarily included for testing and may be
-        # removed in future releases.
-        # Can't use this function with old-style NeighborQuery objects
+    def query(self, query_points, **query_args):
+        R"""Query for nearest neighbors of the provided point.
+
+        Args:
+            query_points ((:math:`N`, 3) :class:`numpy.ndarray`):
+                Points to query for.
+            **query_args:
+                Query arguments determining how to find neighbors. For
+                information on valid query argument, see the documentation of
+                `~.QueryArgs`.
+
+        Returns:
+            :class:`~.NeighborQueryResult`: Results object containing the
+            output of this query.
+
+        .. note::
+
+            All query arguments must be passed as keyword arguments. The
+            function will not accept any positional arguments other than the
+            query points.
+        """
         query_points = freud.common.convert_array(
             np.atleast_2d(query_points), shape=(None, 3))
 
-        cdef _QueryArgs args = _QueryArgs(**query_args)
+        cdef QueryArgs args = QueryArgs.from_dict(query_args)
         return NeighborQueryResult.init(self, query_points, args)
 
     cdef freud._locality.NeighborQuery * get_ptr(self):
@@ -679,7 +704,7 @@ def make_default_nlist(box, points, query_points, r_max, nlist=None,
 
     cdef AABBQuery aq = AABBQuery(box, points)
     cdef NeighborList aq_nlist = aq.query(
-        query_points, dict(r_max=r_max, exclude_ii=exclude_ii)).toNList()
+        query_points, r_max=r_max, exclude_ii=exclude_ii).toNeighborList()
 
     return aq_nlist, aq
 

@@ -356,7 +356,7 @@ cdef class HexOrderParameter(PairCompute):
             freud.box.Box b
             freud.locality.NeighborQuery nq
             freud.locality.NlistptrWrapper nlistptr
-            freud.locality._QueryArgs qargs
+            freud.locality.QueryArgs qargs
             const float[:, ::1] l_query_points
             unsigned int num_query_points
 
@@ -452,7 +452,7 @@ cdef class TransOrderParameter(PairCompute):
             freud.box.Box b
             freud.locality.NeighborQuery nq
             freud.locality.NlistptrWrapper nlistptr
-            freud.locality._QueryArgs qargs
+            freud.locality.QueryArgs qargs
             const float[:, ::1] l_query_points
             unsigned int num_query_points
 
@@ -650,7 +650,7 @@ cdef class Steinhardt(PairCompute):
             freud.box.Box b
             freud.locality.NeighborQuery nq
             freud.locality.NlistptrWrapper nlistptr
-            freud.locality._QueryArgs qargs
+            freud.locality.QueryArgs qargs
             const float[:, ::1] l_query_points
             unsigned int num_query_points
 

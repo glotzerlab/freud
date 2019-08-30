@@ -189,7 +189,7 @@ cdef class PMFTR12(_PMFT):
             freud.box.Box b
             freud.locality.NeighborQuery nq
             freud.locality.NlistptrWrapper nlistptr
-            freud.locality._QueryArgs qargs
+            freud.locality.QueryArgs qargs
             const float[:, ::1] l_query_points
             unsigned int num_query_points
 
@@ -423,7 +423,7 @@ cdef class PMFTXYT(_PMFT):
             freud.box.Box b
             freud.locality.NeighborQuery nq
             freud.locality.NlistptrWrapper nlistptr
-            freud.locality._QueryArgs qargs
+            freud.locality.QueryArgs qargs
             const float[:, ::1] l_query_points
             unsigned int num_query_points
 
@@ -637,7 +637,7 @@ cdef class PMFTXY2D(_PMFT):
             freud.box.Box b
             freud.locality.NeighborQuery nq
             freud.locality.NlistptrWrapper nlistptr
-            freud.locality._QueryArgs qargs
+            freud.locality.QueryArgs qargs
             const float[:, ::1] l_query_points
             unsigned int num_query_points
 
@@ -872,7 +872,7 @@ cdef class PMFTXYZ(_PMFT):
             freud.box.Box b
             freud.locality.NeighborQuery nq
             freud.locality.NlistptrWrapper nlistptr
-            freud.locality._QueryArgs qargs
+            freud.locality.QueryArgs qargs
             const float[:, ::1] l_query_points
             unsigned int num_query_points
 

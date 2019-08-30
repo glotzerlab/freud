@@ -183,12 +183,12 @@ cdef class PairCompute(Compute):
         cdef freud.locality.NlistptrWrapper nlistptr = \
             freud.locality.NlistptrWrapper(nlist)
 
-        cdef freud.locality._QueryArgs qargs
+        cdef freud.locality.QueryArgs qargs
         if query_args is not None:
-            qargs = freud.locality._QueryArgs.from_dict(query_args)
+            qargs = freud.locality.QueryArgs.from_dict(query_args)
         else:
             try:
-                qargs = freud.locality._QueryArgs.from_dict(
+                qargs = freud.locality.QueryArgs.from_dict(
                     self.default_query_args)
                 qargs.update({'exclude_ii': query_points is None})
             except ValueError:
@@ -197,7 +197,7 @@ cdef class PairCompute(Compute):
                 if nlist is None:
                     raise
                 else:
-                    qargs = freud.locality._QueryArgs()
+                    qargs = freud.locality.QueryArgs()
 
         if query_points is None:
             query_points = nq.points
