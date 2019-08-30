@@ -138,7 +138,7 @@ cdef class _QueryArgs:
         self.thisptr.scale = value
 
 
-cdef class NewResultClass:
+cdef class NeighborQueryResult:
     R"""Class encapsulating the output of queries of NeighborQuery objects.
 
     .. warning::
@@ -256,15 +256,11 @@ cdef class NeighborQuery:
         # This function is temporarily included for testing and may be
         # removed in future releases.
         # Can't use this function with old-style NeighborQuery objects
-        if not self.queryable:
-            raise RuntimeError("You cannot use the query method unless this "
-                               "object was originally constructed with "
-                               "reference points")
         query_points = freud.common.convert_array(
             np.atleast_2d(query_points), shape=(None, 3))
 
         cdef _QueryArgs args = _QueryArgs(**query_args)
-        return NewResultClass.init(self, query_points, args)
+        return NeighborQueryResult.init(self, query_points, args)
 
     cdef freud._locality.NeighborQuery * get_ptr(self):
         R"""Returns a pointer to the raw C++ object we are wrapping."""
@@ -784,7 +780,6 @@ cdef class AABBQuery(NeighborQuery):
         cdef const float[:, ::1] l_points
         if type(self) is AABBQuery:
             # Assume valid set of arguments is passed
-            self.queryable = True
             self._box = freud.common.convert_box(box)
             self.points = freud.common.convert_array(
                 points, shape=(None, 3)).copy()
@@ -892,25 +887,16 @@ cdef class LinkCell(NeighborQuery):
        dens.compute(box, positions, nlist=lc.nlist)
     """
 
-    def __cinit__(self, box, cell_width, points=None):
+    def __cinit__(self, box, cell_width, points):
         self._box = freud.common.convert_box(box)
         cdef const float[:, ::1] l_points
-        if points is not None:
-            # The new API
-            self.queryable = True
-            self.points = freud.common.convert_array(
-                points, shape=(None, 3)).copy()
-            l_points = self.points
-            self.thisptr = self.nqptr = new freud._locality.LinkCell(
-                dereference(self._box.thisptr), float(cell_width),
-                <vec3[float]*> &l_points[0, 0],
-                self.points.shape[0])
-        else:
-            # The old API
-            self.queryable = False
-            self.thisptr = self.nqptr = new freud._locality.LinkCell(
-                dereference(self._box.thisptr), float(cell_width))
-        self._nlist = NeighborList()
+        self.points = freud.common.convert_array(
+            points, shape=(None, 3)).copy()
+        l_points = self.points
+        self.thisptr = self.nqptr = new freud._locality.LinkCell(
+            dereference(self._box.thisptr), float(cell_width),
+            <vec3[float]*> &l_points[0, 0],
+            self.points.shape[0])
 
     def __dealloc__(self):
         del self.thisptr
@@ -973,10 +959,6 @@ cdef class LinkCell(NeighborQuery):
         for i in range(neighbors.size()):
             result[i] = neighbors[i]
         return result
-
-    @property
-    def nlist(self):
-        return self._nlist
 
 
 cdef class NearestNeighbors:

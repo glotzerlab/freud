@@ -501,17 +501,6 @@ class TestNeighborQueryLinkCell(TestNeighborQuery, unittest.TestCase):
             raise ValueError("Building LinkCells requires passing an rcut.")
         return freud.locality.LinkCell(box, rcut, ref_points)
 
-    def test_throws(self):
-        """Ensure that mixing old and new APIs throws an error"""
-        L = 10
-        rcut = 1.0
-
-        box = freud.box.Box.cube(L)
-
-        with self.assertRaises(RuntimeError):
-            points = np.zeros(shape=(2, 3), dtype=np.float32)
-            freud.locality.LinkCell(box, rcut).query(points, dict(r_max=rcut))
-
     def test_chaining(self):
         N = 500
         L = 10

@@ -10,7 +10,7 @@ cimport freud._locality
 cimport freud.box
 
 
-cdef class NewResultClass:
+cdef class NeighborQueryResult:
     cdef NeighborQuery nq
     cdef const float[:, ::1] points
     cdef _QueryArgs query_args
@@ -23,10 +23,10 @@ cdef class NewResultClass:
     # which in turn was the only way to get the staticmethod decorator to
     # compile with a cdef method.
     @staticmethod
-    cdef inline NewResultClass init(NeighborQuery nq, const float[:, ::1]
-                                    points, _QueryArgs query_args):
+    cdef inline NeighborQueryResult init(NeighborQuery nq, const float[:, ::1]
+                                         points, _QueryArgs query_args):
 
-        obj = NewResultClass()
+        obj = NeighborQueryResult()
 
         obj.nq = nq
         obj.points = points
@@ -41,7 +41,6 @@ cdef class NlistptrWrapper:
 
 cdef class NeighborQuery:
     cdef freud._locality.NeighborQuery * nqptr
-    cdef cbool queryable
     cdef freud.box.Box _box
     cdef const float[:, ::1] points
     cdef freud._locality.NeighborQuery * get_ptr(self)
@@ -62,7 +61,6 @@ cdef class IteratorLinkCell:
 
 cdef class LinkCell(NeighborQuery):
     cdef freud._locality.LinkCell * thisptr
-    cdef NeighborList _nlist
 
 cdef class NearestNeighbors:
     cdef freud._locality.NearestNeighbors * thisptr
@@ -73,7 +71,6 @@ cdef class NearestNeighbors:
 
 cdef class AABBQuery(NeighborQuery):
     cdef freud._locality.AABBQuery * thisptr
-    cdef NeighborList _nlist
 
 cdef class RawPoints(NeighborQuery):
     cdef freud._locality.RawPoints * thisptr
