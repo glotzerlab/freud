@@ -94,21 +94,10 @@ public:
      *  rename the function.
      */
     virtual std::shared_ptr<NeighborQueryIterator> queryWithArgs(const vec3<float>* query_points, unsigned int n_query_points,
-                                                                 QueryArgs args) const
+                                                                 QueryArgs qargs) const
     {
-        this->validateQueryArgs(args);
-        if (args.mode == QueryArgs::ball)
-        {
-            return this->queryBall(query_points, n_query_points, args.r_max, args.exclude_ii);
-        }
-        else if (args.mode == QueryArgs::nearest)
-        {
-            return this->query(query_points, n_query_points, args.num_neighbors, args.exclude_ii);
-        }
-        else
-        {
-            throw std::runtime_error("Invalid query mode provided to generic query function.");
-        }
+        this->validateQueryArgs(qargs);
+        return std::make_shared<NeighborQueryIterator>(this, query_points, n_query_points, qargs);
     }
 
     //! Perform a query based on a set of query parameters.
@@ -122,31 +111,6 @@ public:
      */
     virtual std::shared_ptr<NeighborQueryPerPointIterator> queryWithArgs(const vec3<float> query_point, unsigned int query_point_idx,
                                                                  QueryArgs args) const = 0;
-
-    //! Given a set of points, find the num_neighbors elements of this data structure
-    //  that are the nearest neighbors for each point.
-    virtual std::shared_ptr<NeighborQueryIterator> query(const vec3<float>* query_points, unsigned int n_query_points,
-                                                         unsigned int num_neighbors, bool exclude_ii = false) const
-    {
-        QueryArgs qargs;
-        qargs.mode = QueryArgs::QueryType::nearest;
-        qargs.num_neighbors = num_neighbors;
-        qargs.exclude_ii = exclude_ii;
-        return std::make_shared<NeighborQueryIterator>(this, query_points, n_query_points, qargs);
-    }
-
-
-    //! Given a point, find all elements of this data structure
-    //  that are within a certain distance.
-    virtual std::shared_ptr<NeighborQueryIterator> queryBall(const vec3<float>* query_points, unsigned int n_query_points,
-                                                             float r_max, bool exclude_ii = false) const
-    {
-        QueryArgs qargs;
-        qargs.mode = QueryArgs::QueryType::ball;
-        qargs.r_max = r_max;
-        qargs.exclude_ii = exclude_ii;
-        return std::make_shared<NeighborQueryIterator>(this, query_points, n_query_points, qargs);
-    }
 
     //! Get the simulation box
     const box::Box& getBox() const

@@ -24,21 +24,10 @@ AABBQuery::AABBQuery(const box::Box& box, const vec3<float>* points, unsigned in
 AABBQuery::~AABBQuery() {}
 
 std::shared_ptr<NeighborQueryIterator> AABBQuery::queryWithArgs(const vec3<float>* query_points, unsigned int n_query_points,
-                                                                QueryArgs args) const
+                                                                QueryArgs qargs) const
 {
-    this->validateQueryArgs(args);
-    if (args.mode == QueryArgs::ball)
-    {
-        return this->queryBall(query_points, n_query_points, args.r_max, args.exclude_ii);
-    }
-    else if (args.mode == QueryArgs::nearest)
-    {
-        return this->query(query_points, n_query_points, args.num_neighbors, args.r_max, args.scale, args.exclude_ii);
-    }
-    else
-    {
-        throw std::runtime_error("Invalid query mode provided to generic query function.");
-    }
+    this->validateQueryArgs(qargs);
+    return std::make_shared<NeighborQueryIterator>(this, query_points, n_query_points, qargs);
 }
 
 std::shared_ptr<NeighborQueryPerPointIterator> AABBQuery::queryWithArgs(const vec3<float> query_point, unsigned int query_point_idx,

@@ -223,7 +223,7 @@ void loopOverNeighborQuery(const NeighborQuery* neighbor_query, const vec3<float
     }
 
     // iterate over the query object in parallel
-    forLoopWrapper(0, n_query_points, [&iter, &qargs, &cf](size_t begin, size_t end) {
+    forLoopWrapper(0, n_query_points, [&iter, &cf](size_t begin, size_t end) {
         NeighborBond nb;
         for (size_t i = begin; i != end; ++i)
         {
