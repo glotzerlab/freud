@@ -39,15 +39,10 @@ public:
     //! Destructor
     ~AABBQuery();
 
-    //! Perform a query based on a set of query parameters.
-    /*! Given a QueryArgs object and a set of points to perform a query
-     *  with, this function will dispatch the query to the appropriate
-     *  querying function. We override the parent function to support
-     *  calling the `query` method with the correct signature.
-     *
-     *  This function should just be called query, but Cython's function
-     *  overloading abilities seem buggy at best, so it's easiest to just
-     *  rename the function.
+    //! Implementation of per-particle query for AABBQuery (see NeighborQuery.h for documentation).
+    /*! \param query_point The point to find neighbors for.
+     *  \param n_query_points The number of query points.
+     *  \param qargs The query arguments that should be used to find neighbors.
      */
     virtual std::shared_ptr<NeighborQueryPerPointIterator> querySingle(const vec3<float> query_point, unsigned int query_point_idx,
                                                                  QueryArgs args) const;
@@ -118,13 +113,10 @@ protected:
 class AABBQueryIterator : public AABBIterator
 {
 public:
-    //// Explicitly indicate which toNeighborList function is used.
-    //using NeighborQueryQueryIterator::toNeighborList;
-
     //! Constructor
     AABBQueryIterator(const AABBQuery* neighbor_query, const vec3<float> query_point, unsigned int query_point_idx,
                       unsigned int num_neighbors, float r, float scale, bool exclude_ii)
-        : AABBIterator(neighbor_query, query_point, query_point_idx, exclude_ii), m_count(0), m_num_neighbors(num_neighbors), m_search_extended(false), m_r(r), m_r_cur(r),
+        : AABBIterator(neighbor_query, query_point, query_point_idx, exclude_ii), m_count(0), m_num_neighbors(num_neighbors), m_search_extended(false), m_r_cur(r),
           m_scale(scale), m_all_distances()
     {
         updateImageVectors(0);
@@ -142,7 +134,6 @@ protected:
     std::vector<NeighborBond> m_current_neighbors; //!< The current set of found neighbors.
     float m_search_extended; //!< Flag to see whether we've gone past the safe cutoff distance and have to be
                              //!< worried about finding duplicates.
-    float m_r;               //!< Ball cutoff distance. Used as a guess.
     float
         m_r_cur; //!< Current search ball cutoff distance in use for the current particle (expands as needed).
     float m_scale; //!< The amount to scale m_r by when the current ball is too small.
@@ -150,7 +141,7 @@ protected:
                                                    //!< used when searching beyond maximum safe AABB distance.
 };
 
-//! Iterator that gets neighbors in a ball of size r using AABB tree structures.
+//! Iterator that gets neighbors in a ball of size r_max using AABB tree structures.
 class AABBQueryBallIterator : public AABBIterator
 {
 public:

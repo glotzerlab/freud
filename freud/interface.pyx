@@ -72,7 +72,8 @@ cdef class InterfaceMeasure(Compute):
 
         if nlist is None:
             lc = freud.locality.LinkCell(b, self.r_max, points)
-            nlist = lc.query(query_points, dict(r_max=self.r_max)).toNList()
+            nlist = lc.query(query_points,
+                             dict(r_max=self.r_max)).toNeighborList()
         else:
             nlist = nlist.copy().filter_r(b, points, query_points, self.r_max)
 

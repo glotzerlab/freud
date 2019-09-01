@@ -459,15 +459,10 @@ public:
         return &m_neighbor_list;
     }
 
-    //! Perform a query based on a set of query parameters.
-    /*! Given a QueryArgs object and a set of points to perform a query
-     *  with, this function will dispatch the query to the appropriate
-     *  querying function. We override the parent function to support
-     *  calling the `query` method with the correct signature.
-     *
-     *  This function should just be called query, but Cython's function
-     *  overloading abilities seem buggy at best, so it's easiest to just
-     *  rename the function.
+    //! Implementation of per-particle query for LinkCell (see NeighborQuery.h for documentation).
+    /*! \param query_point The point to find neighbors for.
+     *  \param n_query_points The number of query points.
+     *  \param qargs The query arguments that should be used to find neighbors.
      */
     virtual std::shared_ptr<NeighborQueryPerPointIterator> querySingle(const vec3<float> query_point, unsigned int query_point_idx,
                                                                  QueryArgs args) const;
@@ -527,9 +522,6 @@ protected:
 class LinkCellQueryIterator : public LinkCellIterator
 {
 public:
-    //// Explicitly indicate which toNeighborList function is used.
-    //using NeighborQueryQueryIterator::toNeighborList;
-
     //! Constructor
     LinkCellQueryIterator(const LinkCell* neighbor_query, const vec3<float> query_point, unsigned int query_point_idx,
                           unsigned int num_neighbors, bool exclude_ii)

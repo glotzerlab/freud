@@ -43,7 +43,7 @@ except ImportError:
 np.import_array()
 
 cdef class _QueryArgs:
-    R"""POD class to contain query arguments.
+    R"""Container for query arguments.
 
     This class is use internally throughout freud to provide a nice interface
     between keyword- or dict-style query arguments and the C++ QueryArgs
@@ -698,7 +698,8 @@ def make_default_nlist(box, points, query_points, r_max, nlist=None,
 
     cdef AABBQuery aq = AABBQuery(box, points)
     cdef NeighborList aq_nlist = aq.query(
-        query_points, r_max=r_max, exclude_ii=exclude_ii).toNeighborList()
+        query_points, dict(r_max=r_max,
+                           exclude_ii=exclude_ii)).toNeighborList()
 
     return aq_nlist, aq
 

@@ -173,7 +173,6 @@ void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
 void Steinhardt::computeAve(const freud::locality::NeighborList* nlist,
                                   const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs)
 {
-    std::shared_ptr<locality::NeighborQuery> nq;
     std::shared_ptr<locality::NeighborQueryIterator> iter;
     if (nlist == NULL)
     {
@@ -189,7 +188,7 @@ void Steinhardt::computeAve(const freud::locality::NeighborList* nlist,
             for(freud::locality::NeighborBond nb1 = ppiter->next(); !ppiter->end(); nb1 = ppiter->next())
             {
                 // Since we need to find neighbors of neighbors, we need to add some extra logic here to create the appropriate iterators.
-                std::shared_ptr<freud::locality::NeighborPerPointIterator> ns_neighbors_iter ;
+                std::shared_ptr<freud::locality::NeighborPerPointIterator> ns_neighbors_iter;
                 if (nlist != NULL)
                 {
                     ns_neighbors_iter = std::make_shared<locality::NeighborListPerPointIterator>(nlist, nb1.ref_id);

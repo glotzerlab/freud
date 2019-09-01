@@ -123,7 +123,7 @@ class TestNeighborQuery(object):
             points, dict(mode='nearest', num_neighbors=num_neighbors,
                          exclude_ii=True)))
         result2 = list(nq.query(
-            points, num_neighbors=num_neighbors, exclude_ii=True))
+            points, dict(num_neighbors=num_neighbors, exclude_ii=True)))
         npt.assert_equal(result1, result2)
 
     def test_query_invalid(self):
