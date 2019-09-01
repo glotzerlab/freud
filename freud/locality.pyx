@@ -59,8 +59,7 @@ cdef class _QueryArgs:
                   scale=None, **kwargs):
         if type(self) == _QueryArgs:
             self.thisptr = new freud._locality.QueryArgs()
-            if mode is not None:
-                self.mode = mode
+            self.mode = mode
             if r_max is not None:
                 self.r_max = r_max
             if num_neighbors is not None:
@@ -97,7 +96,9 @@ cdef class _QueryArgs:
 
     @property
     def mode(self):
-        if self.thisptr.mode == freud._locality.QueryType.ball:
+        if self.thisptr.mode == freud._locality.QueryType.none:
+            return None
+        elif self.thisptr.mode == freud._locality.QueryType.ball:
             return 'ball'
         elif self.thisptr.mode == freud._locality.QueryType.nearest:
             return 'nearest'
@@ -106,7 +107,9 @@ cdef class _QueryArgs:
 
     @mode.setter
     def mode(self, value):
-        if value == 'ball':
+        if value == 'none' or value is None:
+            self.thisptr.mode = freud._locality.QueryType.none
+        elif value == 'ball':
             self.thisptr.mode = freud._locality.QueryType.ball
         elif value == 'nearest':
             self.thisptr.mode = freud._locality.QueryType.nearest
