@@ -41,7 +41,7 @@ public:
         if(m_current_index == m_nlist->getNumBonds())
         {
             m_finished = true;
-            return NeighborBond();
+            return ITERATOR_TERMINATOR;
         }
 
         NeighborBond nb = NeighborBond(m_nlist->getNeighbors()[2 * m_current_index],
