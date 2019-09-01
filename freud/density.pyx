@@ -118,7 +118,7 @@ cdef class FloatCF(SpatialHistogram):
             freud.box.Box b
             freud.locality.NeighborQuery nq
             freud.locality.NlistptrWrapper nlistptr
-            freud.locality.QueryArgs qargs
+            freud.locality._QueryArgs qargs
             const float[:, ::1] l_query_points
             unsigned int num_query_points
 
@@ -329,7 +329,7 @@ cdef class ComplexCF(SpatialHistogram):
             freud.box.Box b
             freud.locality.NeighborQuery nq
             freud.locality.NlistptrWrapper nlistptr
-            freud.locality.QueryArgs qargs
+            freud.locality._QueryArgs qargs
             const float[:, ::1] l_query_points
             unsigned int num_query_points
 
@@ -677,7 +677,7 @@ cdef class LocalDensity(PairCompute):
             freud.box.Box b
             freud.locality.NeighborQuery nq
             freud.locality.NlistptrWrapper nlistptr
-            freud.locality.QueryArgs qargs
+            freud.locality._QueryArgs qargs
             const float[:, ::1] l_query_points
             unsigned int num_query_points
 
@@ -804,7 +804,7 @@ cdef class RDF(SpatialHistogram):
             freud.box.Box b
             freud.locality.NeighborQuery nq
             freud.locality.NlistptrWrapper nlistptr
-            freud.locality.QueryArgs qargs
+            freud.locality._QueryArgs qargs
             const float[:, ::1] l_query_points
             unsigned int num_query_points
         b, nq, nlistptr, qargs, l_query_points, num_query_points = \

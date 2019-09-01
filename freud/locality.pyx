@@ -42,7 +42,7 @@ except ImportError:
 # _always_ do that, or you will have segfaults
 np.import_array()
 
-cdef class QueryArgs:
+cdef class _QueryArgs:
     R"""POD class to contain query arguments.
 
     This class is use internally throughout freud to provide a nice interface
@@ -57,7 +57,7 @@ cdef class QueryArgs:
     def __cinit__(self, mode=None, r_max=None,
                   num_neighbors=None, exclude_ii=None,
                   scale=None, **kwargs):
-        if type(self) == QueryArgs:
+        if type(self) == _QueryArgs:
             self.thisptr = new freud._locality.QueryArgs()
             if mode is not None:
                 self.mode = mode
@@ -78,7 +78,7 @@ cdef class QueryArgs:
                     err_str)
 
     def __dealloc__(self):
-        if type(self) == QueryArgs:
+        if type(self) == _QueryArgs:
             del self.thisptr
 
     def update(self, qargs):
@@ -92,7 +92,7 @@ cdef class QueryArgs:
 
     @classmethod
     def from_dict(cls, mapping):
-        """Create QueryArgs from mapping."""
+        """Create _QueryArgs from mapping."""
         return cls(**mapping)
 
     @property
@@ -269,7 +269,7 @@ cdef class NeighborQuery:
             **query_args:
                 Query arguments determining how to find neighbors. For
                 information on valid query argument, see the documentation of
-                `~.QueryArgs`.
+                `~._QueryArgs`.
 
         Returns:
             :class:`~.NeighborQueryResult`: Results object containing the
@@ -284,7 +284,7 @@ cdef class NeighborQuery:
         query_points = freud.common.convert_array(
             np.atleast_2d(query_points), shape=(None, 3))
 
-        cdef QueryArgs args = QueryArgs.from_dict(query_args)
+        cdef _QueryArgs args = _QueryArgs.from_dict(query_args)
         return NeighborQueryResult.init(self, query_points, args)
 
     cdef freud._locality.NeighborQuery * get_ptr(self):

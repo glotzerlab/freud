@@ -13,7 +13,7 @@ cimport freud.box
 cdef class NeighborQueryResult:
     cdef NeighborQuery nq
     cdef const float[:, ::1] points
-    cdef QueryArgs query_args
+    cdef _QueryArgs query_args
 
     # This had to be implemented as a factory because the constructors will
     # always get called with Python objects as arguments, and we need typed
@@ -24,7 +24,7 @@ cdef class NeighborQueryResult:
     # compile with a cdef method.
     @staticmethod
     cdef inline NeighborQueryResult init(NeighborQuery nq, const float[:, ::1]
-                                         points, QueryArgs query_args):
+                                         points, _QueryArgs query_args):
 
         obj = NeighborQueryResult()
 
@@ -74,7 +74,7 @@ cdef class AABBQuery(NeighborQuery):
 cdef class RawPoints(NeighborQuery):
     cdef freud._locality.RawPoints * thisptr
 
-cdef class QueryArgs:
+cdef class _QueryArgs:
     cdef freud._locality.QueryArgs * thisptr
 
 cdef class _Voronoi:

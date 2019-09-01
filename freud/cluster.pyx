@@ -97,7 +97,7 @@ cdef class Cluster(PairCompute):
             freud.box.Box b
             freud.locality.NeighborQuery nq
             freud.locality.NlistptrWrapper nlistptr
-            freud.locality.QueryArgs qargs
+            freud.locality._QueryArgs qargs
             const float[:, ::1] l_query_points
             unsigned int num_query_points
 
