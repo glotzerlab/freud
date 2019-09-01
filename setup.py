@@ -345,6 +345,7 @@ modules = [m.replace(os.path.sep, '.') for m in modules]
 
 # Source files required for all modules.
 sources_in_all = [
+    os.path.join("cpp", "locality", "NeighborPerPointIterator.cc"),
     os.path.join("cpp", "locality", "NeighborQuery.cc"),
     os.path.join("cpp", "locality", "AABBQuery.cc"),
     os.path.join("cpp", "locality", "NeighborList.cc"),
