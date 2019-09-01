@@ -260,13 +260,13 @@ cdef class NeighborQuery:
     def points(self):
         return np.asarray(self.points)
 
-    def query(self, query_points, **query_args):
+    def query(self, query_points, query_args):
         R"""Query for nearest neighbors of the provided point.
 
         Args:
             query_points ((:math:`N`, 3) :class:`numpy.ndarray`):
                 Points to query for.
-            **query_args:
+            query_args (dict):
                 Query arguments determining how to find neighbors. For
                 information on valid query argument, see the documentation of
                 `~._QueryArgs`.
@@ -274,12 +274,6 @@ cdef class NeighborQuery:
         Returns:
             :class:`~.NeighborQueryResult`: Results object containing the
             output of this query.
-
-        .. note::
-
-            All query arguments must be passed as keyword arguments. The
-            function will not accept any positional arguments other than the
-            query points.
         """
         query_points = freud.common.convert_array(
             np.atleast_2d(query_points), shape=(None, 3))
