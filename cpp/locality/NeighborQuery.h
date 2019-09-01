@@ -380,33 +380,6 @@ protected:
     unsigned int m_cur_p;                                   //!< The current particle under consideration.
 };
 
-
-//! Dummy class to just contain minimal information and not actually query.
-/*! The purpose of this class is to support dynamic NeighborQuery object
- *  resolution. Users may pass instances of this class instead of providing a
- *  NeighborQuery to various compute functions throughout freud, which is an
- *  indication that the function needs to compute its own NeighborQuery. That
- *  logic, which is primary encapsulated in the NeighborComputeFunctional.h
- *  file, helps provide a nice Python API as well.
- */
-class RawPoints : public NeighborQuery
-{
-public:
-    RawPoints();
-
-    RawPoints(const box::Box& box, const vec3<float>* points, unsigned int n_points)
-        : NeighborQuery(box, points, n_points) {}
-
-    ~RawPoints() {}
-
-    // dummy implementation for pure virtual function in the parent class
-    virtual std::shared_ptr<NeighborQueryPerPointIterator> querySingle(const vec3<float> query_point, unsigned int query_point_idx,
-                                                         QueryArgs qargs) const
-    {
-        throw std::runtime_error("The querySingle method is not implemented for RawPoints.");
-    }
-};
-
 }; }; // end namespace freud::locality
 
 #endif // NEIGHBOR_QUERY_H

@@ -126,26 +126,7 @@ void loopOverNeighborsIterator(const NeighborQuery* neighbor_query, const vec3<f
     }
     else
     {
-        // if nlist does not exist, check if neighbor_query is an actual NeighborQuery
-        std::shared_ptr<NeighborQueryIterator> iter;
-        std::shared_ptr<AABBQuery> abq;
-        // check if neighbor_query is a pointer to a RawPoints object
-        // dynamic_cast will fail if neighbor_query is not actually pointing to RawPoints
-        // and return a null pointer. Then, the assignment operator will return
-        // a null pointer, making the condition in the if statement to be false.
-        // This is a typical C++ way of checking the type of a polymorphic class
-        // using pointers and casting.
-        if (dynamic_cast<const RawPoints*>(neighbor_query))
-        {
-            // if neighbor_query is RawPoints, build a NeighborQuery
-            abq = std::make_shared<AABBQuery>(neighbor_query->getBox(), neighbor_query->getPoints(),
-                                            neighbor_query->getNPoints());
-            iter = abq->query(query_points, n_query_points, qargs);
-        }
-        else
-        {
-            iter = neighbor_query->query(query_points, n_query_points, qargs);
-        }
+        std::shared_ptr<NeighborQueryIterator> iter = neighbor_query->query(query_points, n_query_points, qargs);
 
         // iterate over the query object in parallel
         forLoopWrapper(0, n_query_points, [=](size_t begin, size_t end) {
@@ -191,84 +172,42 @@ void loopOverNeighbors(const NeighborQuery* neighbor_query, const vec3<float>* q
     // check if nlist exists
     if (nlist != NULL)
     {
-        // if nlist exists, loop over it in parallel.
-        loopOverNeighborList(nlist, cf, parallel);
-    }
-    else
-    {
-        loopOverNeighborQuery(neighbor_query, query_points, n_query_points, qargs, cf, parallel);
-    }
-}
-
-//! Wrapper looping over NeighborList in parallel.
-/*! \param nlist Neighbor List to loop over.
-    \param cf An object with operator(NeighborBond) as input.
-*/
-template<typename ComputePairType>
-void loopOverNeighborList(const NeighborList* nlist, const ComputePairType& cf, bool parallel)
-{
-    const size_t* neighbor_list(nlist->getNeighbors());
-    size_t n_bonds = nlist->getNumBonds();
-    const float* neighbor_distances = nlist->getDistances();
-    const float* neighbor_weights = nlist->getWeights();
-    forLoopWrapper(0, n_bonds, [=](size_t begin, size_t end) {
-        for (size_t bond = begin; bond != end; ++bond)
-        {
-            size_t point_index(neighbor_list[2 * bond]);
-            size_t ref_point_index(neighbor_list[2 * bond + 1]);
-            const NeighborBond nb(point_index, ref_point_index, neighbor_distances[bond], neighbor_weights[bond]);
-            cf(nb);
-        }
-    }, parallel);
-}
-
-//! Wrapper looping over NeighborQuery in parallel
-/*! \param neighbor_query NeighborQuery object to iterate over
-    \param query_points Points
-    \param n_query_points Number of query_points
-    \param qargs Query arguments
-    \param cf An object with operator(NeighborBond) as input.
-*/
-template<typename ComputePairType>
-void loopOverNeighborQuery(const NeighborQuery* neighbor_query, const vec3<float>* query_points,
-                           unsigned int n_query_points, QueryArgs qargs, const ComputePairType& cf, bool parallel)
-{
-    // if nlist does not exist, check if neighbor_query is an actual NeighborQuery
-    std::shared_ptr<NeighborQueryIterator> iter;
-    std::shared_ptr<AABBQuery> abq;
-    // check if neighbor_query is a pointer to a RawPoints object
-    // dynamic_cast will fail if neighbor_query is not actually pointing to RawPoints
-    // and return a null pointer. Then, the assignment operator will return
-    // a null pointer, making the condition in the if statement to be false.
-    // This is a typical C++ way of checking the type of a polymorphic class
-    // using pointers and casting.
-    if (dynamic_cast<const RawPoints*>(neighbor_query))
-    {
-        // if neighbor_query is RawPoints, build a NeighborQuery
-        abq = std::make_shared<AABBQuery>(neighbor_query->getBox(), neighbor_query->getPoints(),
-                                          neighbor_query->getNPoints());
-        iter = abq->query(query_points, n_query_points, qargs);
-    }
-    else
-    {
-        iter = neighbor_query->query(query_points, n_query_points, qargs);
-    }
-
-    // iterate over the query object in parallel
-    forLoopWrapper(0, n_query_points, [&iter, &cf](size_t begin, size_t end) {
-        NeighborBond nb;
-        for (size_t i = begin; i != end; ++i)
-        {
-            std::shared_ptr<NeighborQueryPerPointIterator> it = iter->query(i);
-            nb = it->next();
-            while (!it->end())
+        const size_t* neighbor_list(nlist->getNeighbors());
+        size_t n_bonds = nlist->getNumBonds();
+        const float* neighbor_distances = nlist->getDistances();
+        const float* neighbor_weights = nlist->getWeights();
+        forLoopWrapper(0, n_bonds, [=](size_t begin, size_t end) {
+            for (size_t bond = begin; bond != end; ++bond)
             {
+                size_t point_index(neighbor_list[2 * bond]);
+                size_t ref_point_index(neighbor_list[2 * bond + 1]);
+                const NeighborBond nb(point_index, ref_point_index, neighbor_distances[bond], neighbor_weights[bond]);
                 cf(nb);
-                nb = it->next();
             }
-        }
-    }, parallel);
+        }, parallel);
+    }
+    else
+    {
+        std::shared_ptr<NeighborQueryIterator> iter = neighbor_query->query(query_points, n_query_points, qargs);
+
+        // iterate over the query object in parallel
+        forLoopWrapper(0, n_query_points, [&iter, &cf](size_t begin, size_t end) {
+            NeighborBond nb;
+            for (size_t i = begin; i != end; ++i)
+            {
+                std::shared_ptr<NeighborQueryPerPointIterator> it = iter->query(i);
+                nb = it->next();
+                while (!it->end())
+                {
+                    cf(nb);
+                    nb = it->next();
+                }
+            }
+        }, parallel);
+    }
 }
+
+
 
 }; }; // end namespace freud::locality
 

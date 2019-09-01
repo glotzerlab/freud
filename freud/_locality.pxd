@@ -51,6 +51,8 @@ cdef extern from "NeighborQuery.h" namespace "freud::locality":
         NeighborBond next()
         NeighborList *toNeighborList()
 
+cdef extern from "RawPoints.h" namespace "freud::locality":
+
     cdef cppclass RawPoints(NeighborQuery):
         RawPoints()
         RawPoints(const freud._box.Box, const vec3[float]*, unsigned int)

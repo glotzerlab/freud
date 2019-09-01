@@ -177,17 +177,7 @@ void Steinhardt::computeAve(const freud::locality::NeighborList* nlist,
     std::shared_ptr<locality::NeighborQueryIterator> iter;
     if (nlist == NULL)
     {
-        if (dynamic_cast<const locality::RawPoints*>(points))
-        {
-            // if neighbor_query is RawPoints, build a AABBQuery
-            nq = std::make_shared<locality::AABBQuery>(points->getBox(), points->getPoints(),
-                                            points->getNPoints());
-            iter = nq->query(points->getPoints(), points->getNPoints(), qargs);
-        }
-        else
-        {
-            iter = points->query(points->getPoints(), points->getNPoints(), qargs);
-        }
+        iter = points->query(points->getPoints(), points->getNPoints(), qargs);
     }
 
     const float normalizationfactor = 4 * M_PI / (2 * m_l + 1);
