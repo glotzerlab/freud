@@ -56,6 +56,13 @@ public:
 #else
         unsigned int bin = (unsigned int)(val);
 #endif
+        // There may be a case where rsq < rmaxsq but
+        // (r - m_rmin) * dr_inv rounds up to m_nbins.
+        // This additional check prevents a seg fault.
+        if (bin == m_nbins)
+        {
+            --bin;
+        }
         return bin;
     }
 
@@ -69,7 +76,11 @@ protected:
 class Histogram
 {
 public:
-    typedef std::vector<std::shared_ptr<Axis> >::const_iterator AxisIterator;
+    typedef std::vector<std::shared_ptr<Axis> > Axes;
+    typedef Axes::const_iterator AxisIterator;
+
+    //! Default constructor
+    Histogram() {}
 
     //! Constructor
     Histogram(std::vector<std::shared_ptr<Axis>> axes) : m_axes(axes)
@@ -81,7 +92,7 @@ public:
     }
 
     //! Destructor
-    virtual ~Histogram() {};
+    ~Histogram() {};
 
     //! Implementation of variadic indexing function.
     template <typename ... Floats>
@@ -110,12 +121,27 @@ public:
         return m_bin_counts.getIndex(ax_bins);
     }
 
+    //! Getter to expose the histogram to Python.
+    /*! Like the ManagedArray's get function, this method is only part of the
+     *  public API to support the Python API of freud. It should never be used
+     *  in C++ code using the Histogram class.
+     */
+    const ManagedArray<unsigned int> &getBinCounts()
+    {
+        return m_bin_counts;
+    }
+
+    //! Reset the histogram.
+    void reset()
+    {
+        m_bin_counts.reset();
+    }
+
     ManagedArray<unsigned int> m_bin_counts; //!< Counts for each bin
 
 protected:
     std::vector<std::shared_ptr<Axis > > m_axes; //!< The axes.
 
-private:
     std::vector<float> getValueVector(float value)
     {
         return {value};
