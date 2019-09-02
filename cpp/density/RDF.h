@@ -13,6 +13,8 @@
 #include "PMFT.h"
 #include "ThreadStorage.h"
 #include "VectorMath.h"
+#include "Histogram.h"
+#include "ManagedArray.h"
 
 /*! \file RDF.h
     \brief Routines for computing radial density functions.
@@ -49,13 +51,15 @@ public:
     //! Get a reference to the PCF array
     std::shared_ptr<float> getRDF()
     {
-        return reduceAndReturn(m_pcf_array);
+        reduceIfNeeded();
+        return m_pcf_array;
     }
 
     //! Get a reference to the bin counts array
-    std::shared_ptr<unsigned int> getBinCounts()
+    const freud::util::ManagedArray<unsigned int> &getBinCounts()
     {
-        return reduceAndReturn(m_bin_counts);
+        reduceIfNeeded();
+        return m_bin_counts.getBinCounts();
     }
 
     //! Get the simulation box
@@ -67,21 +71,20 @@ public:
     //! Get a reference to the r array
     std::shared_ptr<float> getR();
 
-    //! Return :code:`thing_to_return` after reducing.
-    template<typename T> T reduceAndReturn(T thing_to_return)
+    void reduceIfNeeded()
     {
         if (m_reduce == true)
         {
             reduce();
         }
         m_reduce = false;
-        return thing_to_return;
     }
 
     //! Get a reference to the N_r array
     std::shared_ptr<float> getNr()
     {
-        return reduceAndReturn(m_N_r_array);
+        reduceIfNeeded();
+        return m_N_r_array;
     }
 
     unsigned int getNBins();
@@ -106,8 +109,8 @@ private:
     bool m_reduce;                   //!< Whether or not the histogram needs to be reduced.
 
     std::shared_ptr<float> m_pcf_array;         //!< Array of computed pair correlation function.
-    std::shared_ptr<unsigned int> m_bin_counts; //!< Counts for each bin.
-    util::ThreadStorage<unsigned int> m_local_bin_counts;   //!< Thread local bin counts for TBB parallelism
+    freud::util::Histogram m_bin_counts; //!< Counts for each bin.
+    freud::util::Histogram::ThreadLocalHistogram m_local_bin_counts; //!< Thread local bin counts for TBB parallelism
 };
 
 }; }; // end namespace freud::density

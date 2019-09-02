@@ -236,7 +236,7 @@ def parallelCCompile(self, sources, output_dir=None, macros=None,
     return objects
 
 
-distutils.ccompiler.CCompiler.compile=parallelCCompile
+distutils.ccompiler.CCompiler.compile = parallelCCompile
 
 
 #########################
@@ -392,7 +392,7 @@ if args.use_cython:
 
 # Ensure that builds on Mac use correct stdlib.
 if platform.system() == 'Darwin':
-    os.environ["MACOSX_DEPLOYMENT_TARGET"]= "10.12"
+    os.environ["MACOSX_DEPLOYMENT_TARGET"] = "10.12"
 
 version = '1.2.2'
 

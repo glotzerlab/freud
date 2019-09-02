@@ -8,6 +8,7 @@
 #include <emmintrin.h>
 #endif
 #include <sstream>
+#include <tbb/tbb.h>
 
 namespace freud { namespace util {
 
@@ -73,9 +74,66 @@ protected:
     float m_dr; //!< Gap between bins
 };
 
+
+//! Data structure and methods for computing histograms
+/*! 
+*/
 class Histogram
 {
 public:
+    //! A container for thread-local copies of a provided histogram.
+    /*! To simplify the implementation and avoid unnecessary copies, the thread
+    *  local copies all share the same axes. This should cause no problems, but
+    *  can be refactored if needed.
+    */
+    class ThreadLocalHistogram
+    {
+    public:
+        ThreadLocalHistogram() {}
+
+        ThreadLocalHistogram(Histogram histogram) : m_local_histograms([histogram]() { return Histogram(histogram.m_axes); }) {}
+
+        typedef typename tbb::enumerable_thread_specific<Histogram>::const_iterator const_iterator;
+        typedef typename tbb::enumerable_thread_specific<Histogram>::iterator iterator;
+        typedef typename tbb::enumerable_thread_specific<Histogram>::reference reference;
+
+        const_iterator begin() const
+        {
+            return m_local_histograms.begin();
+        }
+
+        iterator begin()
+        {
+            return m_local_histograms.begin();
+        }
+
+        const_iterator end() const
+        {
+            return m_local_histograms.end();
+        }
+
+        iterator end()
+        {
+            return m_local_histograms.end();
+        }
+
+        reference local()
+        {
+            return m_local_histograms.local();
+        }
+
+        void reset()
+        {
+            for (auto hist = m_local_histograms.begin(); hist != m_local_histograms.end(); ++hist)
+            {
+                hist->reset();
+            }
+        }
+
+    protected:
+        tbb::enumerable_thread_specific<Histogram> m_local_histograms;  //!< The thread-local copies of m_histogram.
+    };
+
     typedef std::vector<std::shared_ptr<Axis> > Axes;
     typedef Axes::const_iterator AxisIterator;
 
@@ -100,7 +158,7 @@ public:
     {
         std::vector<float> value_vector = getValueVector(values ...);
         size_t bin = getBin(value_vector);
-        m_bin_counts.get()[bin]++; // Will want to replace this with custom accumulation at some point.
+        m_bin_counts[bin]++; // Will want to replace this with custom accumulation at some point.
     }
 
     size_t getBin(std::vector<float> values)
@@ -138,6 +196,39 @@ public:
     }
 
     ManagedArray<unsigned int> m_bin_counts; //!< Counts for each bin
+
+    //!< Compute this histogram by reducing over a set of thread-local copies.
+    void reduceOverThreads(ThreadLocalHistogram &local_histograms)
+    {
+        tbb::parallel_for(tbb::blocked_range<size_t>(0, m_bin_counts.size()), [=](const tbb::blocked_range<size_t>& r) {
+            for (size_t i = r.begin(); i != r.end(); i++)
+            {
+                for (ThreadLocalHistogram::const_iterator local_bins = local_histograms.begin();
+                    local_bins != local_histograms.end(); ++local_bins)
+                {
+                    m_bin_counts[i] += (*local_bins).m_bin_counts[i];
+                }
+            }
+        });
+    }
+
+    //!< Compute this histogram by reducing over a set of thread-local copies, performing any post-processing as specified per bin as specified by the ComputeFunction cf.
+    template <typename ComputeFunction>
+    void reduceOverThreadsPerParticle(ThreadLocalHistogram &local_histograms, const ComputeFunction &cf)
+    {
+        tbb::parallel_for(tbb::blocked_range<size_t>(0, m_bin_counts.size()), [=](const tbb::blocked_range<size_t>& r) {
+            for (size_t i = r.begin(); i != r.end(); i++)
+            {
+                for (ThreadLocalHistogram::const_iterator local_bins = local_histograms.begin();
+                    local_bins != local_histograms.end(); ++local_bins)
+                {
+                    m_bin_counts.get()[i] += (*local_bins).m_bin_counts[i];
+                }
+                
+                cf(i);
+            }
+        });
+    }
 
 protected:
     std::vector<std::shared_ptr<Axis > > m_axes; //!< The axes.

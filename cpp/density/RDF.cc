@@ -7,6 +7,7 @@
 #ifdef __SSE2__
 #include <emmintrin.h>
 #endif
+#include <iostream>
 
 #include "NeighborBond.h"
 #include "RDF.h"
@@ -37,9 +38,14 @@ RDF::RDF(float rmax, float dr, float rmin) : m_rmax(rmax), m_rmin(rmin), m_dr(dr
     m_nbins = int(floorf((m_rmax - m_rmin) / m_dr));
     assert(m_nbins > 0);
     m_pcf_array = util::makeEmptyArray<float>(m_nbins);
-    m_bin_counts = util::makeEmptyArray<unsigned int>(m_nbins);
     m_avg_counts = util::makeEmptyArray<float>(m_nbins);
     m_N_r_array = util::makeEmptyArray<float>(m_nbins);
+
+
+    std::vector<std::shared_ptr<util::Axis> > axes;
+    axes.push_back(std::make_shared<util::RegularAxis>(m_nbins, m_rmin, m_rmax));
+    m_bin_counts = util::Histogram(axes);
+    m_local_bin_counts = util::Histogram::ThreadLocalHistogram(m_bin_counts);
 
     // precompute the bin center positions and cell volumes
     m_r_array = std::shared_ptr<float>(new float[m_nbins], std::default_delete<float[]>());
@@ -55,7 +61,6 @@ RDF::RDF(float rmax, float dr, float rmin) : m_rmax(rmax), m_rmin(rmin), m_dr(dr
         m_vol_array2D.get()[i] = M_PI * (nextr * nextr - r * r);
         m_vol_array3D.get()[i] = 4.0f / 3.0f * M_PI * (nextr * nextr * nextr - r * r * r);
     }
-    m_local_bin_counts.resize(m_nbins);
 } // end RDF::RDF
 
 //! \internal
@@ -103,7 +108,7 @@ public:
 //! helper function to reduce the thread specific arrays into one array
 void RDF::reduceRDF()
 {
-    memset((void*) m_bin_counts.get(), 0, sizeof(unsigned int) * m_nbins);
+    m_bin_counts.reset();
     memset((void*) m_avg_counts.get(), 0, sizeof(float) * m_nbins);
     // now compute the rdf
     float ndens = float(m_n_query_points) / m_box.getVolume();
@@ -114,18 +119,10 @@ void RDF::reduceRDF()
         m_vol_array = m_vol_array2D;
     else
         m_vol_array = m_vol_array3D;
-    // now compute the rdf
-    parallel_for(blocked_range<size_t>(1, m_nbins), [=](const blocked_range<size_t>& r) {
-        for (size_t i = r.begin(); i != r.end(); i++)
-        {
-            for (util::ThreadStorage<unsigned int>::const_iterator local_bins = m_local_bin_counts.begin();
-                 local_bins != m_local_bin_counts.end(); ++local_bins)
-            {
-                m_bin_counts.get()[i] += (*local_bins)[i];
-            }
-            m_avg_counts.get()[i] = (float) m_bin_counts.get()[i] / m_n_points;
-            m_pcf_array.get()[i] = m_avg_counts.get()[i] / m_vol_array.get()[i] / ndens;
-        }
+    // Now compute the rdf. We skip the 0 bin since there can't be anything there.
+    m_bin_counts.reduceOverThreadsPerParticle(m_local_bin_counts, [this, &ndens](unsigned int i) {
+        this->m_avg_counts.get()[i] = static_cast<float>(this->m_bin_counts.getBinCounts()[i]) / this->m_n_points;
+        this->m_pcf_array.get()[i] = this->m_avg_counts.get()[i] / m_vol_array.get()[i] / ndens;
     });
 
     CumulativeCount myN_r(m_N_r_array.get(), m_avg_counts.get());
@@ -175,30 +172,20 @@ void RDF::accumulate(const freud::locality::NeighborQuery* neighbor_query,
     assert(m_n_points > 0);
     assert(n_query_points > 0);
 
-    float dr_inv = 1.0f / m_dr;
-
     m_box = neighbor_query->getBox();
     locality::loopOverNeighbors(neighbor_query, query_points, n_query_points, qargs, nlist,
            [=](const freud::locality::NeighborBond& neighbor_bond) {
         if (neighbor_bond.distance < m_rmax && neighbor_bond.distance > m_rmin)
         {
-            // bin that r
-            float binr = (neighbor_bond.distance - m_rmin) * dr_inv;
-            // fast float to int conversion with truncation
-#ifdef __SSE2__
-            unsigned int bin = _mm_cvtt_ss2si(_mm_load_ss(&binr));
-#else
-                unsigned int bin = (unsigned int)(binr);
-#endif
-            // There may be a case where rsq < rmaxsq but
-            // (r - m_rmin) * dr_inv rounds up to m_nbins.
-            // This additional check prevents a seg fault.
-            if (bin < m_nbins)
-            {
-                ++m_local_bin_counts.local()[bin];
-            }
+            m_local_bin_counts.local()(neighbor_bond.distance);
         }
     });
+    // We ignore anything binned in the zero bin to avoid any confusion.
+    // USING THIS CODE MAKES THE CUMULATIVE COUNT RIGHT, BUT IT MAKES THE RDF WRONG. NEED TO THINK ABOUT EXACTLY WHY TO MAKE SURE I UNDERSTAND THE RIGHT WAY TO DO IT.
+    //for (auto it = m_local_bin_counts.begin(); it != m_local_bin_counts.end(); it++)
+    //{
+        //(*it).m_bin_counts[0] = 0;
+    //}
     m_frame_counter++;
     m_n_points = neighbor_query->getNPoints();
     m_n_query_points = n_query_points;
