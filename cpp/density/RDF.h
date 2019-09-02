@@ -19,7 +19,7 @@
 */
 
 namespace freud { namespace density {
-class RDF : public util::NdHistogram
+class RDF
 {
 public:
     //! Constructor
@@ -49,11 +49,34 @@ public:
     //! Get a reference to the PCF array
     std::shared_ptr<float> getRDF()
     {
-        return getPCF();
+        return reduceAndReturn(m_pcf_array);
+    }
+
+    //! Get a reference to the bin counts array
+    std::shared_ptr<unsigned int> getBinCounts()
+    {
+        return reduceAndReturn(m_bin_counts);
+    }
+
+    //! Get the simulation box
+    const box::Box& getBox() const
+    {
+        return m_box;
     }
 
     //! Get a reference to the r array
     std::shared_ptr<float> getR();
+
+    //! Return :code:`thing_to_return` after reducing.
+    template<typename T> T reduceAndReturn(T thing_to_return)
+    {
+        if (m_reduce == true)
+        {
+            reduce();
+        }
+        m_reduce = false;
+        return thing_to_return;
+    }
 
     //! Get a reference to the N_r array
     std::shared_ptr<float> getNr()
@@ -75,6 +98,16 @@ private:
     std::shared_ptr<float> m_vol_array;   //!< Array of volumes for each slice of r
     std::shared_ptr<float> m_vol_array2D; //!< Array of volumes for each slice of r
     std::shared_ptr<float> m_vol_array3D; //!< Array of volumes for each slice of r
+
+    box::Box m_box;
+    unsigned int m_frame_counter;    //!< Number of frames calculated.
+    unsigned int m_n_points;         //!< The number of points.
+    unsigned int m_n_query_points;   //!< The number of query points.
+    bool m_reduce;                   //!< Whether or not the histogram needs to be reduced.
+
+    std::shared_ptr<float> m_pcf_array;         //!< Array of computed pair correlation function.
+    std::shared_ptr<unsigned int> m_bin_counts; //!< Counts for each bin.
+    util::ThreadStorage<unsigned int> m_local_bin_counts;   //!< Thread local bin counts for TBB parallelism
 };
 
 }; }; // end namespace freud::density
