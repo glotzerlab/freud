@@ -39,64 +39,13 @@ public:
     //! Destructor
     ~AABBQuery();
 
-    //! Perform a query based on a set of query parameters.
-    /*! Given a QueryArgs object and a set of points to perform a query
-     *  with, this function will dispatch the query to the appropriate
-     *  querying function. We override the parent function to support
-     *  calling the `query` method with the correct signature.
-     *
-     *  This function should just be called query, but Cython's function
-     *  overloading abilities seem buggy at best, so it's easiest to just
-     *  rename the function.
+    //! Implementation of per-particle query for AABBQuery (see NeighborQuery.h for documentation).
+    /*! \param query_point The point to find neighbors for.
+     *  \param n_query_points The number of query points.
+     *  \param qargs The query arguments that should be used to find neighbors.
      */
-    virtual std::shared_ptr<NeighborQueryIterator> queryWithArgs(const vec3<float>* query_points, unsigned int n_query_points,
-                                                                 QueryArgs args) const
-    {
-        this->validateQueryArgs(args);
-        if (args.mode == QueryArgs::ball)
-        {
-            return queryBall(query_points, n_query_points, args.r_max, args.exclude_ii);
-        }
-        else if (args.mode == QueryArgs::nearest)
-        {
-            return query(query_points, n_query_points, args.num_neighbors, args.r_max, args.scale, args.exclude_ii);
-        }
-        else
-        {
-            throw std::runtime_error("Invalid query mode provided to generic query function.");
-        }
-    }
-
-    //! Given a set of points, find the k elements of this data structure
-    //  that are the nearest neighbors for each point. Note that due to the
-    //  different signature, this is not directly overriding the original
-    //  method in NeighborQuery, so we have to explicitly invalidate calling
-    //  with that signature.
-    virtual std::shared_ptr<NeighborQueryIterator> query(const vec3<float>* query_points, unsigned int n_query_points,
-                                                         unsigned int num_neighbors, bool exclude_ii = false) const
-    {
-        throw std::runtime_error("AABBQuery k-nearest-neighbor queries must use the function signature that "
-                                 "provides r_max and scale guesses.");
-    }
-
-    std::shared_ptr<NeighborQueryIterator> query(const vec3<float>* query_points, unsigned int n_query_points, unsigned int num_neighbors,
-                                                 float r_max, float scale, bool exclude_ii = false) const;
-
-    //! Given a set of points, find all elements of this data structure
-    //  that are within a certain distance r.
-    virtual std::shared_ptr<NeighborQueryIterator> queryBall(const vec3<float>* query_points, unsigned int n_query_points,
-                                                             float r_max, bool exclude_ii = false) const;
-
-    //! Given a set of points, find all elements of this data structure
-    //  that are within a certain distance r, even if that distance is
-    //  larger than the normally allowed distance for AABB tree-based
-    //  queries. Such queries will experience performance losses, but they
-    //  are necessary to support k-nearest neighbor queries. This function
-    //  is declared separately rather than as a simple extra parameter to
-    //  queryBall to avoid complexities with interfering with the virtual
-    //  inherited API that is exported to Cython.
-    std::shared_ptr<NeighborQueryIterator> queryBallUnbounded(const vec3<float>* query_points, unsigned int n_query_points,
-                                                              float r_max, bool exclude_ii = false) const;
+    virtual std::shared_ptr<NeighborQueryPerPointIterator> querySingle(const vec3<float> query_point, unsigned int query_point_idx,
+                                                                 QueryArgs args) const;
 
     AABBTree m_aabb_tree; //!< AABB tree of points
 
@@ -139,13 +88,13 @@ private:
     box::Box m_box;            //!< Simulation box where the particles belong
 };
 
-//! Parent class of AABB iterators that knows how to traverse general AABB tree structures
-class AABBIterator : virtual public NeighborQueryIterator
+//! Parent class of AABB iterators that knows how to traverse general AABB tree structures.
+class AABBIterator : public NeighborQueryPerPointIterator
 {
 public:
     //! Constructor
-    AABBIterator(const AABBQuery* neighbor_query, const vec3<float>* query_points, unsigned int N, bool exclude_ii)
-        : NeighborQueryIterator(neighbor_query, query_points, N, exclude_ii), m_aabb_query(neighbor_query)
+    AABBIterator(const AABBQuery* neighbor_query, const vec3<float> query_point, unsigned int query_point_idx, bool exclude_ii)
+        : NeighborQueryPerPointIterator(neighbor_query, query_point, query_point_idx, exclude_ii), m_aabb_query(neighbor_query)
     {}
 
     //! Empty Destructor
@@ -160,19 +109,14 @@ protected:
     unsigned int m_n_images;               //!< The number of image vectors to check
 };
 
-//! Iterator that gets nearest neighbors from AABB tree structures
-class AABBQueryIterator : virtual public NeighborQueryQueryIterator, virtual public AABBIterator
+//! Iterator that gets a specified number of nearest neighbors from AABB tree structures.
+class AABBQueryIterator : public AABBIterator
 {
 public:
-    // Explicitly indicate which toNeighborList function is used.
-    using NeighborQueryQueryIterator::toNeighborList;
-
     //! Constructor
-    AABBQueryIterator(const AABBQuery* neighbor_query, const vec3<float>* points, unsigned int N,
-                      unsigned int k, float r, float scale, bool exclude_ii)
-        : NeighborQueryIterator(neighbor_query, points, N, exclude_ii),
-          NeighborQueryQueryIterator(neighbor_query, points, N, exclude_ii, k),
-          AABBIterator(neighbor_query, points, N, exclude_ii), m_search_extended(false), m_r(r), m_r_cur(r),
+    AABBQueryIterator(const AABBQuery* neighbor_query, const vec3<float> query_point, unsigned int query_point_idx,
+                      unsigned int num_neighbors, float r, float scale, bool exclude_ii)
+        : AABBIterator(neighbor_query, query_point, query_point_idx, exclude_ii), m_count(0), m_num_neighbors(num_neighbors), m_search_extended(false), m_r_cur(r),
           m_scale(scale), m_all_distances()
     {
         updateImageVectors(0);
@@ -184,13 +128,12 @@ public:
     //! Get the next element.
     virtual NeighborBond next();
 
-    //! Create an equivalent new query iterator on a per-particle basis.
-    virtual std::shared_ptr<NeighborQueryIterator> query(unsigned int idx);
-
 protected:
+    unsigned int m_count;                           //!< Number of neighbors returned for the current point.
+    unsigned int m_num_neighbors;                               //!< Number of nearest neighbors to find
+    std::vector<NeighborBond> m_current_neighbors; //!< The current set of found neighbors.
     float m_search_extended; //!< Flag to see whether we've gone past the safe cutoff distance and have to be
                              //!< worried about finding duplicates.
-    float m_r;               //!< Ball cutoff distance. Used as a guess.
     float
         m_r_cur; //!< Current search ball cutoff distance in use for the current particle (expands as needed).
     float m_scale; //!< The amount to scale m_r by when the current ball is too small.
@@ -198,18 +141,17 @@ protected:
                                                    //!< used when searching beyond maximum safe AABB distance.
 };
 
-//! Iterator that gets neighbors in a ball of size r using AABB tree structures
-class AABBQueryBallIterator : virtual public AABBIterator
+//! Iterator that gets neighbors in a ball of size r_max using AABB tree structures.
+class AABBQueryBallIterator : public AABBIterator
 {
 public:
     //! Constructor
-    AABBQueryBallIterator(const AABBQuery* neighbor_query, const vec3<float>* points, unsigned int N, float r,
+    AABBQueryBallIterator(const AABBQuery* neighbor_query, const vec3<float> query_point, unsigned int query_point_idx, float r_max,
                           bool exclude_ii, bool _check_r_max = true)
-        : NeighborQueryIterator(neighbor_query, points, N, exclude_ii),
-          AABBIterator(neighbor_query, points, N, exclude_ii), m_r(r), cur_image(0), cur_node_idx(0),
+        : AABBIterator(neighbor_query, query_point, query_point_idx, exclude_ii), m_r_max(r_max), cur_image(0), cur_node_idx(0),
           cur_ref_p(0)
     {
-        updateImageVectors(m_r, _check_r_max);
+        updateImageVectors(m_r_max, _check_r_max);
     }
 
     //! Empty Destructor
@@ -218,11 +160,8 @@ public:
     //! Get the next element.
     virtual NeighborBond next();
 
-    //! Create an equivalent new query iterator on a per-particle basis.
-    virtual std::shared_ptr<NeighborQueryIterator> query(unsigned int idx);
-
 protected:
-    float m_r; //!< Search ball cutoff distance.
+    float m_r_max; //!< Search ball cutoff distance.
 
 private:
     unsigned int cur_image;    //!< The current node in the tree.
