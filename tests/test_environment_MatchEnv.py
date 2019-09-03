@@ -255,8 +255,8 @@ class TestCluster(unittest.TestCase):
 
         theta = np.pi/10
 
-        # r_cut and num_neighbors are meaningless here
-        r_cut = 2
+        # r_max and num_neighbors are meaningless here
+        r_max = 2
         num_neighbors = len(env_vec)
 
         ux = norm[0]
@@ -283,7 +283,7 @@ class TestCluster(unittest.TestCase):
         np.random.shuffle(e1)
         # 3. Verify that OUR method isSimilar gives that these two
         #    environments are similar.
-        match = freud.environment.MatchEnv(box, r_cut, num_neighbors)
+        match = freud.environment.MatchEnv(box, r_max, num_neighbors)
         [refPoints2, isSim_vec_map] = match.isSimilar(
             e0, e1, threshold, registration=False)
         npt.assert_allclose(

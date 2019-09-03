@@ -87,7 +87,7 @@ private:
     box::Box m_box;               //!< Simulation box where the particles belong
     float m_r_max;                 //!< Maximum r at which to determine neighbors
     unsigned int m_num_neighbors; //!< Number of neighbors to calculate
-    bool m_strict_cut;            //!< use a strict r_cut, or allow freud to expand the r_cut as needed
+    bool m_strict_cut;            //!< use a strict r_max, or allow freud to expand the r_max as needed
     unsigned int m_num_points;    //!< Number of particles for which nearest neighbors checks
     unsigned int m_num_ref;       //!< Number of particles for which nearest neighbors calcs
     locality::LinkCell* m_lc;     //!< LinkCell to bin particles for the computation

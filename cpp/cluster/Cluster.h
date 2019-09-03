@@ -46,7 +46,7 @@ class Cluster
 {
 public:
     //! Constructor
-    Cluster(float r_cut);
+    Cluster(float r_max);
 
     //! Compute the point clusters
     void compute(const freud::locality::NeighborQuery* nq,
@@ -83,7 +83,7 @@ public:
     }
 
 private:
-    float m_r_cut;                 //!< Maximum r at which points will be counted in the same cluster
+    float m_r_max;                 //!< Maximum r at which points will be counted in the same cluster
     unsigned int m_num_particles; //!< Number of particles processed in the last call to compute()
     unsigned int m_num_clusters;  //!< Number of clusters found in the last call to compute()
     util::ManagedArray<unsigned int> m_cluster_idx; //!< Cluster index determined for each particle

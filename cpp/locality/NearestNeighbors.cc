@@ -59,7 +59,7 @@ void NearestNeighbors::compute(const box::Box& box, const vec3<float>* ref_pos, 
     ThreadBondVector bond_vectors;
 
     m_lc->computeCellList(m_box, ref_pos, num_ref);
-    const float r_cut_sq(m_lc->getCellWidth() * m_lc->getCellWidth());
+    const float r_max_sq(m_lc->getCellWidth() * m_lc->getCellWidth());
 
     // find the nearest neighbors
     parallel_for(blocked_range<size_t>(0, num_points), [=, &bond_vectors](const blocked_range<size_t>& r) {
@@ -132,7 +132,7 @@ void NearestNeighbors::compute(const box::Box& box, const vec3<float>* ref_pos, 
                         const vec3<float> r_ij(m_box.wrap(ref_pos[j] - ref_point));
                         const float r_sq(dot(r_ij, r_ij));
 
-                        if (r_sq < (max_iter_distance - 1) * (max_iter_distance - 1) * r_cut_sq)
+                        if (r_sq < (max_iter_distance - 1) * (max_iter_distance - 1) * r_max_sq)
                             neighbors.emplace_back(r_sq, j);
                         else
                             backup_neighbors.emplace_back(r_sq, j);

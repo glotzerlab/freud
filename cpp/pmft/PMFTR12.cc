@@ -75,9 +75,6 @@ PMFTR12::PMFTR12(float r_max, unsigned int n_r, unsigned int n_t1, unsigned int 
     m_pcf_array = util::makeEmptyArray<float>(m_n_r * m_n_t1 * m_n_t2);
     m_bin_counts = util::makeEmptyArray<unsigned int>(m_n_r * m_n_t1 * m_n_t2);
 
-    // Set r_cut
-    m_r_cut = m_r_max;
-
     m_local_bin_counts.resize(m_n_r * m_n_t1 * m_n_t2);
 }
 

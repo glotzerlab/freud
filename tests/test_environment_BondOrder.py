@@ -11,10 +11,10 @@ class TestBondOrder(unittest.TestCase):
         (box, positions) = util.make_fcc(4, 4, 4)
         quats = np.array([[1, 0, 0, 0]] * len(positions))
 
-        r_cut = 1.5
+        r_max = 1.5
         num_neighbors = 12
         n_bins_theta = n_bins_phi = 6
-        bo = freud.environment.BondOrder(r_cut, num_neighbors,
+        bo = freud.environment.BondOrder(r_max, num_neighbors,
                                          n_bins_theta, n_bins_phi)
 
         # Test access
@@ -51,7 +51,7 @@ class TestBondOrder(unittest.TestCase):
             bo.bond_order
 
         test_set = util.make_raw_query_nlist_test_set(
-            box, positions, positions, "nearest", r_cut, num_neighbors, True)
+            box, positions, positions, "nearest", r_max, num_neighbors, True)
         for ts in test_set:
             bo.reset()
             # Test that lbod gives identical results when orientations are the

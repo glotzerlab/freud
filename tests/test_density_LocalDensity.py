@@ -24,9 +24,9 @@ class TestLD(unittest.TestCase):
         num_points = 10000
         self.box, self.pos = util.make_box_and_random_points(
             box_size, num_points)
-        self.r_cut = 3
+        self.r_max = 3
         self.diameter = 1
-        self.ld = freud.density.LocalDensity(self.r_cut, 1, self.diameter)
+        self.ld = freud.density.LocalDensity(self.r_max, 1, self.diameter)
 
         # Test access
         with self.assertRaises(AttributeError):
@@ -50,7 +50,7 @@ class TestLD(unittest.TestCase):
     def test_density(self):
         """Test that LocalDensity computes the correct density at each point"""
 
-        r_max = self.r_cut + 0.5*self.diameter
+        r_max = self.r_max + 0.5*self.diameter
         test_set = util.make_raw_query_nlist_test_set(
             self.box, self.pos, self.pos, "ball", r_max, 0, True)
         for ts in test_set:

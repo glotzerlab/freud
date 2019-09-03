@@ -26,7 +26,7 @@ class GaussianDensity
 {
 public:
     //! Constructor
-    GaussianDensity(vec3<unsigned int> width, float r_cut, float sigma);
+    GaussianDensity(vec3<unsigned int> width, float r_max, float sigma);
 
     // Destructor
     ~GaussianDensity() {}
@@ -61,7 +61,7 @@ public:
 private:
     box::Box m_box;                               //!< Simulation box where the particles belong
     vec3<unsigned int> m_width;                   //!< Num of bins on each side of the cube
-    float m_r_cut;                                 //!< Max r at which to compute density
+    float m_r_max;                                 //!< Max r at which to compute density
     float m_sigma;                                //!< Variance
     Index3D m_bi;                                 //!< Bin indexer
     bool m_reduce;                                //!< Whether arrays need to be reduced across threads
