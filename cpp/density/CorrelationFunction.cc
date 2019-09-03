@@ -44,12 +44,12 @@ CorrelationFunction<T>::CorrelationFunction(float r_max, float dr)
     memset((void*) m_bin_counts.get(), 0, sizeof(unsigned int) * m_nbins);
 
     // precompute the bin center positions
-    m_r_array = std::shared_ptr<float>(new float[m_nbins], std::default_delete<float[]>());
+    m_r_array.prepare(m_nbins);
     for (unsigned int i = 0; i < m_nbins; i++)
     {
         float r = float(i) * m_dr;
         float nextr = float(i + 1) * m_dr;
-        m_r_array.get()[i] = 2.0f / 3.0f * (nextr * nextr * nextr - r * r * r) / (nextr * nextr - r * r);
+        m_r_array[i] = 2.0f / 3.0f * (nextr * nextr * nextr - r * r * r) / (nextr * nextr - r * r);
     }
     m_local_bin_counts.resize(m_nbins);
     m_local_rdf_array.resize(m_nbins);

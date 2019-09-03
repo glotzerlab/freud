@@ -21,6 +21,7 @@ from collections.abc import Sequence
 cimport freud._density
 cimport freud.box, freud.locality
 cimport numpy as np
+cimport freud.util
 
 # numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults
@@ -204,10 +205,9 @@ cdef class FloatCF(SpatialHistogram):
 
     @property
     def R(self):
-        cdef unsigned int n_bins = self.thisptr.getNBins()
-        cdef const float[::1] R = \
-            <float[:n_bins]> self.thisptr.getR().get()
-        return np.asarray(R)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getR(),
+            freud.util.arr_type_t.FLOAT)
 
     def __repr__(self):
         return ("freud.density.{cls}(r_max={r_max}, dr={dr})").format(
@@ -415,10 +415,9 @@ cdef class ComplexCF(SpatialHistogram):
 
     @property
     def R(self):
-        cdef unsigned int n_bins = self.thisptr.getNBins()
-        cdef const float[::1] R = \
-            <float[:n_bins]> self.thisptr.getR().get()
-        return np.asarray(R)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getR(),
+            freud.util.arr_type_t.FLOAT)
 
     def __repr__(self):
         return ("freud.density.{cls}(r_max={r_max}, dr={dr})").format(

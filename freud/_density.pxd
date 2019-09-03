@@ -5,6 +5,7 @@ from freud.util cimport vec3
 from libcpp.memory cimport shared_ptr
 cimport freud._box
 cimport freud._locality
+cimport freud.util
 
 cdef extern from "CorrelationFunction.h" namespace "freud::density":
     cdef cppclass CorrelationFunction[T]:
@@ -18,7 +19,7 @@ cdef extern from "CorrelationFunction.h" namespace "freud::density":
                         freud._locality.QueryArgs) except +
         shared_ptr[T] getRDF()
         shared_ptr[unsigned int] getCounts()
-        shared_ptr[float] getR()
+        const freud.util.ManagedArray[float] &getR()
         unsigned int getNBins() const
 
 cdef extern from "GaussianDensity.h" namespace "freud::density":
