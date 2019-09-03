@@ -271,7 +271,7 @@ std::shared_ptr<NeighborQueryPerPointIterator> LinkCell::querySingle(const vec3<
 
 NeighborBond LinkCellQueryBallIterator::next()
 {
-    float r_cutsq = m_r_max * m_r_max;
+    float r_max_sq = m_r_max * m_r_max;
 
     vec3<unsigned int> point_cell(m_linkcell->getCellCoord(m_query_point));
     const unsigned int point_cell_index = m_linkcell->getCellIndex(
@@ -286,12 +286,12 @@ NeighborBond LinkCellQueryBallIterator::next()
         // track between calls to next.
         for (unsigned int j = m_cell_iter.next(); !m_cell_iter.atEnd(); j = m_cell_iter.next())
         {
-            const vec3<float> rij(m_neighbor_query->getBox().wrap((*m_linkcell)[j] - m_query_point));
-            const float rsq(dot(rij, rij));
+            const vec3<float> r_ij(m_neighbor_query->getBox().wrap((*m_linkcell)[j] - m_query_point));
+            const float r_sq(dot(r_ij, r_ij));
 
-            if (rsq < r_cutsq && (!m_exclude_ii || m_query_point_idx != j))
+            if (r_sq < r_max_sq && (!m_exclude_ii || m_query_point_idx != j))
             {
-                return NeighborBond(m_query_point_idx, j, sqrt(rsq));
+                return NeighborBond(m_query_point_idx, j, sqrt(r_sq));
             }
         }
 
@@ -369,10 +369,10 @@ NeighborBond LinkCellQueryIterator::next()
                     {
                         continue;
                     }
-                    const vec3<float> rij(
+                    const vec3<float> r_ij(
                         m_neighbor_query->getBox().wrap((*m_linkcell)[j] - m_query_point));
-                    const float rsq(dot(rij, rij));
-                    m_current_neighbors.emplace_back(m_query_point_idx, j, sqrt(rsq));
+                    const float r_sq(dot(r_ij, r_ij));
+                    m_current_neighbors.emplace_back(m_query_point_idx, j, sqrt(r_sq));
                 }
             }
 

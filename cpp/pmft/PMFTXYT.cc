@@ -57,8 +57,8 @@ PMFTXYT::PMFTXYT(float x_max, float y_max, unsigned int n_x, unsigned int n_y, u
     m_pcf_array = util::makeEmptyArray<float>(m_n_x * m_n_y * m_n_t);
     m_bin_counts = util::makeEmptyArray<unsigned int>(m_n_x * m_n_y * m_n_t);
 
-    // Set r_cut
-    m_r_cut = sqrtf(m_x_max * m_x_max + m_y_max * m_y_max);
+    // Set r_max
+    m_r_max = sqrtf(m_x_max * m_x_max + m_y_max * m_y_max);
 
     m_local_bin_counts.resize(m_n_x * m_n_y * m_n_t);
 }
@@ -76,7 +76,7 @@ void PMFTXYT::reset()
     resetGeneral(m_n_x * m_n_y * m_n_t);
 }
 
-void PMFTXYT::accumulate(const locality::NeighborQuery* neighbor_query, 
+void PMFTXYT::accumulate(const locality::NeighborQuery* neighbor_query,
                          float* orientations, vec3<float>* query_points,
                          float* query_orientations, unsigned int n_query_points,
                          const locality::NeighborList* nlist, freud::locality::QueryArgs qargs)

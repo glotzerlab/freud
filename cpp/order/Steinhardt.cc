@@ -200,7 +200,7 @@ void Steinhardt::computeAve(const freud::locality::NeighborList* nlist,
 
                 for(freud::locality::NeighborBond nb2 = ns_neighbors_iter->next(); !ns_neighbors_iter->end(); nb2 = ns_neighbors_iter->next())
                 {
-                    if (nb2.distance < m_rmax && nb2.distance > m_rmin)
+                    if (nb2.distance < m_r_max && nb2.distance > m_r_min)
                     {
                         for (unsigned int k = 0; k < (2 * m_l + 1); ++k)
                         {

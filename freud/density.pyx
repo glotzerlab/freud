@@ -728,9 +728,9 @@ cdef class RDF(SpatialHistogram):
     :code:`R` array.
 
     The values of :math:`r` to compute the RDF are set by the values of
-    :code:`rmin`, :code:`r_max`, :code:`dr` in the constructor. :code:`r_max`
+    :code:`r_min`, :code:`r_max`, :code:`dr` in the constructor. :code:`r_max`
     sets the maximum distance at which to calculate the
-    :math:`g \left( r \right)`, :code:`rmin` sets the minimum distance at
+    :math:`g \left( r \right)`, :code:`r_min` sets the minimum distance at
     which to calculate the :math:`g \left( r \right)`, and :code:`dr`
     determines the step size for each bin.
 

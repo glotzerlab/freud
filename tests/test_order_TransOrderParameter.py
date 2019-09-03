@@ -16,9 +16,9 @@ class TestTransOrder(unittest.TestCase):
         positions[:, :2] = np.array(list(itertools.product(xs, xs)),
                                     dtype=np.float32)
 
-        rmax = 1.1
+        r_max = 1.1
         n = 4
-        trans = freud.order.TransOrderParameter(rmax, 4, n)
+        trans = freud.order.TransOrderParameter(r_max, 4, n)
         # Test access
         with self.assertRaises(AttributeError):
             trans.num_particles
@@ -28,7 +28,7 @@ class TestTransOrder(unittest.TestCase):
             trans.d_r
 
         test_set = util.make_raw_query_nlist_test_set(
-            box, positions, positions, 'nearest', rmax, n, True)
+            box, positions, positions, 'nearest', r_max, n, True)
         for ts in test_set:
             trans.compute(box, ts[0], nlist=ts[1])
             # Test access

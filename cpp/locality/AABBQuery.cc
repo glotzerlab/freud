@@ -73,7 +73,7 @@ void AABBIterator::updateImageVectors(float r_max, bool _check_r_max)
             || (periodic.y && nearest_plane_distance.y <= r_max * 2.0)
             || (!box.is2D() && periodic.z && nearest_plane_distance.z <= r_max * 2.0))
         {
-            throw std::runtime_error("The AABBQuery rcut is too large for this box.");
+            throw std::runtime_error("The AABBQuery r_max is too large for this box.");
         }
     }
 
@@ -131,7 +131,7 @@ void AABBIterator::updateImageVectors(float r_max, bool _check_r_max)
 
 NeighborBond AABBQueryBallIterator::next()
 {
-    float r_cutsq = m_r_max * m_r_max;
+    float r_max_sq = m_r_max * m_r_max;
 
     // Read in the position of current point
     vec3<float> pos_i(m_query_point);
@@ -168,15 +168,15 @@ NeighborBond AABBQueryBallIterator::next()
                         }
 
                         // Compute distance
-                        const vec3<float> drij = pos_j - pos_i_image;
-                        const float dr_sq = dot(drij, drij);
+                        const vec3<float> r_ij = pos_j - pos_i_image;
+                        const float r_sq = dot(r_ij, r_ij);
 
                         // Increment before possible return.
                         cur_ref_p++;
                         // Check ii exclusion before including the pair.
-                        if (dr_sq < r_cutsq && (!m_exclude_ii || m_query_point_idx != j))
+                        if (r_sq < r_max_sq && (!m_exclude_ii || m_query_point_idx != j))
                         {
-                            return NeighborBond(m_query_point_idx, j, sqrt(dr_sq));
+                            return NeighborBond(m_query_point_idx, j, sqrt(r_sq));
                         }
                     }
                 }
