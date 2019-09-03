@@ -46,8 +46,8 @@ cdef extern from "LocalDensity.h" namespace "freud::density":
             unsigned int, const freud._locality.NeighborList *,
             freud._locality.QueryArgs) except +
         unsigned int getNPoints()
-        shared_ptr[float] getDensity()
-        shared_ptr[float] getNumNeighbors()
+        const freud.util.ManagedArray[float] &getDensity()
+        const freud.util.ManagedArray[float] &getNumNeighbors()
 
 cdef extern from "RDF.h" namespace "freud::density":
     cdef cppclass RDF:

@@ -693,17 +693,15 @@ cdef class LocalDensity(PairCompute):
 
     @Compute._computed_property()
     def density(self):
-        cdef unsigned int n_ref = self.thisptr.getNPoints()
-        cdef const float[::1] density = \
-            <float[:n_ref]> self.thisptr.getDensity().get()
-        return np.asarray(density)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getDensity(),
+            freud.util.arr_type_t.FLOAT)
 
     @Compute._computed_property()
     def num_neighbors(self):
-        cdef unsigned int n_ref = self.thisptr.getNPoints()
-        cdef const float[::1] num_neighbors = \
-            <float[:n_ref]> self.thisptr.getNumNeighbors().get()
-        return np.asarray(num_neighbors)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getNumNeighbors(),
+            freud.util.arr_type_t.FLOAT)
 
     def __repr__(self):
         return ("freud.density.{cls}(r_max={r_max}, volume={volume}, "
