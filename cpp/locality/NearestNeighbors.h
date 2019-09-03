@@ -26,14 +26,14 @@ public:
     // Null constructor for use in triclinic; will be removed when cell list is fixed
     NearestNeighbors();
     //! Constructor
-    NearestNeighbors(float rmax, unsigned int num_neighbors, float scale = 1.1, bool strict_cut = false);
+    NearestNeighbors(float r_max, unsigned int num_neighbors, float scale = 1.1, bool strict_cut = false);
 
     ~NearestNeighbors();
 
-    void setRMax(float rmax)
+    void setRMax(float r_max)
     {
-        m_rmax = rmax;
-        m_lc->setCellWidth(m_rmax);
+        m_r_max = r_max;
+        m_lc->setCellWidth(m_r_max);
     }
 
     //! Get the simulation box
@@ -69,7 +69,7 @@ public:
     //! Get the current cutoff radius used
     float getRMax() const
     {
-        return m_rmax;
+        return m_r_max;
     }
 
     void setCutMode(const bool strict_cut);
@@ -85,9 +85,9 @@ public:
 
 private:
     box::Box m_box;               //!< Simulation box where the particles belong
-    float m_rmax;                 //!< Maximum r at which to determine neighbors
+    float m_r_max;                 //!< Maximum r at which to determine neighbors
     unsigned int m_num_neighbors; //!< Number of neighbors to calculate
-    bool m_strict_cut;            //!< use a strict r_cut, or allow freud to expand the r_cut as needed
+    bool m_strict_cut;            //!< use a strict r_max, or allow freud to expand the r_max as needed
     unsigned int m_num_points;    //!< Number of particles for which nearest neighbors checks
     unsigned int m_num_ref;       //!< Number of particles for which nearest neighbors calcs
     locality::LinkCell* m_lc;     //!< LinkCell to bin particles for the computation

@@ -51,9 +51,9 @@ public:
         reducePCF();
     }
 
-    float getRCut()
+    float getRMax()
     {
-        return m_r_cut;
+        return m_r_max;
     }
 
     //! Helper function to precompute axis bin center,
@@ -114,8 +114,7 @@ public:
     }
 
 protected:
-    float m_r_cut; //!< r_cut used in cell list construction
-private:
+    float m_r_max; //!< r_max used in cell list construction
 };
 
 }; }; // end namespace freud::pmft

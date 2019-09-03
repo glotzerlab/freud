@@ -88,17 +88,17 @@ public:
     /**Constructor for Match-Environment analysis class.  After creation, call cluster to agnostically
     calculate clusters grouped by matching environment, or matchMotif to match all particle environments
     against an input motif.  Use accessor functions to retrieve data.
-    @param rmax Cutoff radius for cell list and clustering algorithm.  Values near first minimum of the rdf
+    @param r_max Cutoff radius for cell list and clustering algorithm.  Values near first minimum of the rdf
     are recommended.
-    @param k Number of nearest neighbors taken to define the local environment of any given particle.
+    @param num_neighbors Number of nearest neighbors taken to define the local environment of any given particle.
     **/
-    MatchEnv(const box::Box& box, float rmax, unsigned int k = 12);
+    MatchEnv(const box::Box& box, float r_max, unsigned int num_neighbors = 12);
 
     //! Destructor
     ~MatchEnv();
 
     //! Construct and return a local environment surrounding the particle indexed by i. Set the environment
-    //! index to env_ind. if hard_r is true, add all particles that fall within the threshold of m_rmaxsq to
+    //! index to env_ind. if hard_r is true, add all particles that fall within the threshold of m_r_max_sq to
     //! the environment
     Environment buildEnv(const size_t* neighbor_list, size_t num_bonds, size_t& bond,
                          const vec3<float>* points, unsigned int i, unsigned int env_ind, bool hard_r);
@@ -107,10 +107,10 @@ public:
     //! env_nlist is the neighborlist used to build the environment of every particle.
     //! nlist is the neighborlist used to determine the neighbors against which to compare environments for
     //! every particle, if hard_r = False. The threshold is a unitless number, which we multiply by the length
-    //! scale of the MatchEnv instance, rmax. This quantity is the maximum squared magnitude of the vector
+    //! scale of the MatchEnv instance, r_max. This quantity is the maximum squared magnitude of the vector
     //! difference between two vectors, below which you call them matching. Note that ONLY values of
-    //! (threshold < 2) make any sense, since 2*rmax is the absolute maximum difference between any two
-    //! environment vectors. If hard_r is true, add all particles that fall within the threshold of m_rmaxsq
+    //! (threshold < 2) make any sense, since 2*r_max is the absolute maximum difference between any two
+    //! environment vectors. If hard_r is true, add all particles that fall within the threshold of m_r_max_sq
     //! to the environment The bool registration controls whether we first use brute force registration to
     //! orient the second set of vectors such that it minimizes the RMSD between the two sets If global is
     //! true, do an exhaustive search wherein you compare the environments of every single pair of particles
@@ -121,9 +121,9 @@ public:
 
     //! Determine whether particles match a given input motif, characterized by refPoints (of which there are
     //! numRef) The threshold is a unitless number, which we multiply by the length scale of the MatchEnv
-    //! instance, rmax. This quantity is the maximum squared magnitude of the vector difference between two
+    //! instance, r_max. This quantity is the maximum squared magnitude of the vector difference between two
     //! vectors, below which you call them matching. Note that ONLY values of (threshold < 2) make any sense,
-    //! since 2*rmax is the absolute maximum difference between any two environment vectors. The bool
+    //! since 2*r_max is the absolute maximum difference between any two environment vectors. The bool
     //! registration controls whether we first use brute force registration to orient the second set of
     //! vectors such that it minimizes the RMSD between the two sets
     void matchMotif(const freud::locality::NeighborList* nlist, const vec3<float>* points, unsigned int Np,
@@ -148,7 +148,7 @@ public:
     //! If so, return a std::pair of the rotation matrix that takes the vectors of e2 to the vectors of e1 AND
     //! the mapping between the properly indexed vectors of the environments that will make them correspond to
     //! each other. If not, return a std::pair of the identity matrix AND an empty map. The threshold is a
-    //! unitless number, which we multiply by the length scale of the MatchEnv instance, rmax. This quantity
+    //! unitless number, which we multiply by the length scale of the MatchEnv instance, r_max. This quantity
     //! is the maximum squared magnitude of the vector difference between two vectors, below which you call
     //! them matching. The bool registration controls whether we first use brute force registration to orient
     //! the second set of vectors such that it minimizes the RMSD between the two sets
@@ -228,22 +228,22 @@ public:
     }
     unsigned int getNumNeighbors()
     {
-        return m_k;
+        return m_num_neighbors;
     }
     unsigned int getMaxNumNeighbors()
     {
-        return m_maxk;
+        return m_max_num_neighbors;
     }
 
 private:
     box::Box m_box; //!< Simulation box
-    float m_rmax;   //!< Maximum cutoff radius at which to determine local environment
-    float m_rmaxsq; //!< Square of m_rmax
-    unsigned int m_k;      //!< Default number of nearest neighbors used to determine which environments are compared
+    float m_r_max;   //!< Maximum cutoff radius at which to determine local environment
+    float m_r_max_sq; //!< Square of m_r_max
+    unsigned int m_num_neighbors;      //!< Default number of nearest neighbors used to determine which environments are compared
                //!< during local environment clustering. If hard_r=false, this is also the number of neighbors
                //!< in each local environment.
-    unsigned int m_maxk; //!< Maximum number of neighbors in any particle's local environment. If
-                         //!< hard_r=false, m_maxk = m_k. In the cluster method it is also possible to provide
+    unsigned int m_max_num_neighbors; //!< Maximum number of neighbors in any particle's local environment. If
+                         //!< hard_r=false, m_max_num_neighbors = m_num_neighbors. In the cluster method it is also possible to provide
                          //!< two separate neighborlists, one for environments and one for clustering.
     unsigned int m_Np;   //!< Last number of points computed
     unsigned int m_num_clusters; //!< Last number of local environments computed
@@ -251,7 +251,7 @@ private:
     std::shared_ptr<unsigned int> m_env_index; //!< Cluster index determined for each particle
     std::map<unsigned int, std::shared_ptr<vec3<float>>> m_env; //!< Dictionary of (cluster id, vectors) pairs
     std::shared_ptr<vec3<float>>
-        m_tot_env; //!< m_NP by m_maxk by 3 matrix of all environments for all particles
+        m_tot_env; //!< m_NP by m_max_num_neighbors by 3 matrix of all environments for all particles
 };
 
 }; }; // end namespace freud::environment

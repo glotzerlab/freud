@@ -22,18 +22,18 @@ namespace freud { namespace locality {
 
 // stop using
 NearestNeighbors::NearestNeighbors()
-    : m_box(box::Box()), m_rmax(0), m_num_neighbors(0), m_strict_cut(false), m_num_points(0), m_num_ref(0),
+    : m_box(box::Box()), m_r_max(0), m_num_neighbors(0), m_strict_cut(false), m_num_points(0), m_num_ref(0),
       m_deficits()
 {
     m_lc = new locality::LinkCell();
     m_deficits = 0;
 }
 
-NearestNeighbors::NearestNeighbors(float rmax, unsigned int num_neighbors, float scale, bool strict_cut)
-    : m_box(box::Box()), m_rmax(rmax), m_num_neighbors(num_neighbors), m_strict_cut(strict_cut),
+NearestNeighbors::NearestNeighbors(float r_max, unsigned int num_neighbors, float scale, bool strict_cut)
+    : m_box(box::Box()), m_r_max(r_max), m_num_neighbors(num_neighbors), m_strict_cut(strict_cut),
       m_num_points(0), m_num_ref(0), m_deficits()
 {
-    m_lc = new locality::LinkCell(m_box, m_rmax);
+    m_lc = new locality::LinkCell(m_box, m_r_max);
     m_deficits = 0;
 }
 
@@ -59,7 +59,7 @@ void NearestNeighbors::compute(const box::Box& box, const vec3<float>* ref_pos, 
     ThreadBondVector bond_vectors;
 
     m_lc->computeCellList(m_box, ref_pos, num_ref);
-    const float rcutsq(m_lc->getCellWidth() * m_lc->getCellWidth());
+    const float r_max_sq(m_lc->getCellWidth() * m_lc->getCellWidth());
 
     // find the nearest neighbors
     parallel_for(blocked_range<size_t>(0, num_points), [=, &bond_vectors](const blocked_range<size_t>& r) {
@@ -129,13 +129,13 @@ void NearestNeighbors::compute(const box::Box& box, const vec3<float>* ref_pos, 
                         if (exclude_ii && i == j)
                             continue;
 
-                        const vec3<float> rij(m_box.wrap(ref_pos[j] - ref_point));
-                        const float rsq(dot(rij, rij));
+                        const vec3<float> r_ij(m_box.wrap(ref_pos[j] - ref_point));
+                        const float r_sq(dot(r_ij, r_ij));
 
-                        if (rsq < (max_iter_distance - 1) * (max_iter_distance - 1) * rcutsq)
-                            neighbors.emplace_back(rsq, j);
+                        if (r_sq < (max_iter_distance - 1) * (max_iter_distance - 1) * r_max_sq)
+                            neighbors.emplace_back(r_sq, j);
                         else
-                            backup_neighbors.emplace_back(rsq, j);
+                            backup_neighbors.emplace_back(r_sq, j);
                     }
                 }
 

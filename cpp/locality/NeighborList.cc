@@ -104,7 +104,7 @@ size_t NeighborList::filter(const bool* filt)
 }
 
 size_t NeighborList::filter_r(const freud::box::Box& box, const vec3<float>* r_i, const vec3<float>* r_j,
-                              float rmax, float rmin)
+                              float r_max, float r_min)
 {
     // number of good (unfiltered-out) elements so far
     size_t num_good(0);
@@ -114,7 +114,7 @@ size_t NeighborList::filter_r(const freud::box::Box& box, const vec3<float>* r_i
 
     for (size_t bond(0); bond < m_num_bonds; ++bond)
     {
-        const bool good(distances[bond] > rmin && distances[bond] < rmax);
+        const bool good(distances[bond] > r_min && distances[bond] < r_max);
         if (good)
         {
             neighbors[2 * num_good] = neighbors[2 * bond];

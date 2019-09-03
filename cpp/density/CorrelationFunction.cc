@@ -23,17 +23,17 @@ using namespace tbb;
 namespace freud { namespace density {
 
 template<typename T>
-CorrelationFunction<T>::CorrelationFunction(float rmax, float dr)
-    : m_box(box::Box()), m_rmax(rmax), m_dr(dr), m_frame_counter(0), m_reduce(true)
+CorrelationFunction<T>::CorrelationFunction(float r_max, float dr)
+    : m_box(box::Box()), m_r_max(r_max), m_dr(dr), m_frame_counter(0), m_reduce(true)
 {
     if (dr <= 0.0f)
         throw invalid_argument("CorrelationFunction requires dr to be positive.");
-    if (rmax <= 0.0f)
-        throw invalid_argument("CorrelationFunction requires rmax to be positive.");
-    if (dr > rmax)
-        throw invalid_argument("CorrelationFunction requires dr must be less than or equal to rmax.");
+    if (r_max <= 0.0f)
+        throw invalid_argument("CorrelationFunction requires r_max to be positive.");
+    if (dr > r_max)
+        throw invalid_argument("CorrelationFunction requires dr must be less than or equal to r_max.");
 
-    m_nbins = int(floorf(m_rmax / m_dr));
+    m_nbins = int(floorf(m_r_max / m_dr));
     assert(m_nbins > 0);
     m_rdf_array = std::shared_ptr<T>(new T[m_nbins], std::default_delete<T[]>());
     // Less efficient: initialize each bin sequentially using default ctor

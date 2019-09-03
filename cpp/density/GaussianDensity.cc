@@ -16,11 +16,11 @@ using namespace tbb;
 
 namespace freud { namespace density {
 
-GaussianDensity::GaussianDensity(vec3<unsigned int> width, float r_cut, float sigma)
-    : m_box(box::Box()), m_width(width), m_rcut(r_cut), m_sigma(sigma)
+GaussianDensity::GaussianDensity(vec3<unsigned int> width, float r_max, float sigma)
+    : m_box(box::Box()), m_width(width), m_r_max(r_max), m_sigma(sigma)
 {
-    if (r_cut <= 0.0f)
-        throw invalid_argument("GaussianDensity requires r_cut to be positive.");
+    if (r_max <= 0.0f)
+        throw invalid_argument("GaussianDensity requires r_max to be positive.");
 }
 
 void GaussianDensity::reduce()
@@ -111,10 +111,10 @@ void GaussianDensity::compute(const box::Box& box, const vec3<float>* points, un
             int bin_y = int((points[idx].y + ly / 2.0f) / grid_size_y);
             int bin_z = int((points[idx].z + lz / 2.0f) / grid_size_z);
 
-            // Find the number of bins within r_cut
-            int bin_cut_x = int(m_rcut / grid_size_x);
-            int bin_cut_y = int(m_rcut / grid_size_y);
-            int bin_cut_z = int(m_rcut / grid_size_z);
+            // Find the number of bins within r_max
+            int bin_cut_x = int(m_r_max / grid_size_x);
+            int bin_cut_y = int(m_r_max / grid_size_y);
+            int bin_cut_z = int(m_r_max / grid_size_z);
 
             // in 2D, only loop over the 0 z plane
             if (m_box.is2D())
@@ -139,11 +139,11 @@ void GaussianDensity::compute(const box::Box& box, const vec3<float>* points, un
                         float dx = float((grid_size_x * i + grid_size_x / 2.0f) - points[idx].x - lx / 2.0f);
                         vec3<float> delta = m_box.wrap(vec3<float>(dx, dy, dz));
 
-                        float rsq = dot(delta, delta);
-                        float rsqrt = sqrtf(rsq);
+                        float r_sq = dot(delta, delta);
+                        float r_sqrt = sqrtf(r_sq);
 
-                        // Check to see if this distance is within the specified r_cut
-                        if (rsqrt < m_rcut)
+                        // Check to see if this distance is within the specified r_max
+                        if (r_sqrt < m_r_max)
                         {
                             // Evaluate the gaussian ...
                             float x_gaussian = A * exp((-1.0f) * (delta.x * delta.x) / (2.0f * sigmasq));

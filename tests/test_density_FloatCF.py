@@ -7,9 +7,9 @@ import util
 
 class TestFloatCF(unittest.TestCase):
     def test_generateR(self):
-        rmax = 51.23
+        r_max = 51.23
         dr = 0.1
-        nbins = int(rmax / dr)
+        nbins = int(r_max / dr)
 
         # make sure the radius for each bin is generated correctly
         r_list = np.zeros(nbins, dtype=np.float32)
@@ -18,19 +18,19 @@ class TestFloatCF(unittest.TestCase):
             r2 = r1 + dr
             r_list[i] = 2.0/3.0 * (r2**3.0 - r1**3.0) / (r2**2.0 - r1**2.0)
 
-        ocf = freud.density.FloatCF(rmax, dr)
+        ocf = freud.density.FloatCF(r_max, dr)
 
         npt.assert_allclose(ocf.R, r_list, atol=1e-3)
 
     def test_attribute_access(self):
-        rmax = 10.0
+        r_max = 10.0
         dr = 1.0
         num_points = 100
-        box_size = rmax*3.1
+        box_size = r_max*3.1
         box, points = util.make_box_and_random_points(
             box_size, num_points, True)
         ang = np.random.random_sample((num_points)).astype(np.float64) - 0.5
-        ocf = freud.density.FloatCF(rmax, dr)
+        ocf = freud.density.FloatCF(r_max, dr)
 
         # Test protected attribute access
         with self.assertRaises(AttributeError):
@@ -66,27 +66,27 @@ class TestFloatCF(unittest.TestCase):
         ocf.counts
 
     def test_random_points(self):
-        rmax = 10.0
+        r_max = 10.0
         dr = 1.0
         num_points = 1000
-        box_size = rmax*3.1
+        box_size = r_max*3.1
         box, points = util.make_box_and_random_points(
             box_size, num_points, True)
         ang = np.random.random_sample((num_points)).astype(np.float64) - 0.5
-        correct = np.zeros(int(rmax/dr), dtype=np.float64)
+        correct = np.zeros(int(r_max/dr), dtype=np.float64)
         absolute_tolerance = 0.1
         # first bin is bad
         test_set = util.make_raw_query_nlist_test_set(
-            box, points, points, 'ball', rmax, 0, True)
+            box, points, points, 'ball', r_max, 0, True)
         for ts in test_set:
-            ocf = freud.density.FloatCF(rmax, dr)
+            ocf = freud.density.FloatCF(r_max, dr)
             ocf.accumulate(box, ts[0], ang, nlist=ts[1])
             npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
             ocf.compute(box, ts[0], ang, nlist=ts[1])
             npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
             ocf.reset()
-            ocf.accumulate(box, ts[0], ang, points,
-                           ang, query_args={'r_max': rmax, 'exclude_ii': True},
+            ocf.accumulate(box, ts[0], ang, points, ang,
+                           query_args={'r_max': r_max, 'exclude_ii': True},
                            nlist=ts[1])
             npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
             ocf.reset()
@@ -97,25 +97,25 @@ class TestFloatCF(unittest.TestCase):
             self.assertEqual(freud.box.Box.square(box_size), ocf.box)
 
     def test_zero_points(self):
-        rmax = 10.0
+        r_max = 10.0
         dr = 1.0
         num_points = 1000
-        box_size = rmax*3.1
+        box_size = r_max*3.1
         box, points = util.make_box_and_random_points(
             box_size, num_points, True)
         ang = np.zeros(int(num_points), dtype=np.float64)
-        ocf = freud.density.FloatCF(rmax, dr)
+        ocf = freud.density.FloatCF(r_max, dr)
         ocf.accumulate(box, points, ang)
 
-        correct = np.zeros(int(rmax/dr), dtype=np.float32)
+        correct = np.zeros(int(r_max/dr), dtype=np.float32)
         absolute_tolerance = 0.1
         npt.assert_allclose(ocf.RDF, correct, atol=absolute_tolerance)
 
     def test_counts(self):
-        rmax = 10.0
+        r_max = 10.0
         dr = 1.0
         num_points = 10
-        box_size = rmax*2.1
+        box_size = r_max*2.1
         box, points = util.make_box_and_random_points(
             box_size, num_points, True)
         ang = np.zeros(int(num_points), dtype=np.float64)
@@ -127,9 +127,9 @@ class TestFloatCF(unittest.TestCase):
              for j in range(num_points)])
 
         # Subtract len(points) to exclude the zero i-i distances
-        correct = np.sum(vector_lengths < rmax) - len(points)
+        correct = np.sum(vector_lengths < r_max) - len(points)
 
-        ocf = freud.density.FloatCF(rmax, dr)
+        ocf = freud.density.FloatCF(r_max, dr)
         ocf.compute(freud.box.Box.square(box_size), points, ang)
         self.assertEqual(np.sum(ocf.counts), correct)
 
@@ -138,14 +138,14 @@ class TestFloatCF(unittest.TestCase):
         self.assertEqual(str(ocf), str(eval(repr(ocf))))
 
     def test_repr_png(self):
-        rmax = 10.0
+        r_max = 10.0
         dr = 1.0
         num_points = 1000
-        box_size = rmax*3.1
+        box_size = r_max*3.1
         box, points = util.make_box_and_random_points(
             box_size, num_points, True)
         ang = np.random.random_sample((num_points)).astype(np.float64) - 0.5
-        ocf = freud.density.FloatCF(rmax, dr)
+        ocf = freud.density.FloatCF(r_max, dr)
 
         with self.assertRaises(AttributeError):
             ocf.plot()
@@ -157,7 +157,7 @@ class TestFloatCF(unittest.TestCase):
     def test_query_nn(self):
         """Test nearest-neighbor-based querying."""
         box_size = 8
-        rmax = 3
+        r_max = 3
         dr = 1
         box = freud.box.Box.cube(box_size)
         ref_points = np.array([[0, 0, 0]],
@@ -172,7 +172,7 @@ class TestFloatCF(unittest.TestCase):
         ref_values = np.ones(ref_points.shape[0])
         values = np.ones(points.shape[0])
 
-        cf = freud.density.FloatCF(rmax, dr)
+        cf = freud.density.FloatCF(r_max, dr)
         cf.compute(box, ref_points, ref_values, points, values,
                    query_args={'mode': 'nearest', 'num_neighbors': 1})
         npt.assert_array_equal(cf.RDF, [1, 1, 1])
@@ -187,12 +187,12 @@ class TestFloatCF(unittest.TestCase):
         def value_func(_r):
             return np.sin(_r)
 
-        rmax = 10.0
+        r_max = 10.0
         dr = 0.1
-        box_size = rmax*5
+        box_size = r_max*5
         box = freud.box.Box.square(box_size)
 
-        ocf = freud.density.FloatCF(rmax, dr)
+        ocf = freud.density.FloatCF(r_max, dr)
 
         query_points = []
         query_values = []
@@ -217,9 +217,9 @@ class TestFloatCF(unittest.TestCase):
         points = [[dr/4, 0, 0], [-dr/4, 0, 0], [0, dr/4, 0], [0, -dr/4, 0]]
 
         test_set = util.make_raw_query_nlist_test_set(
-            box, points, query_points, "ball", rmax, 0, False)
+            box, points, query_points, "ball", r_max, 0, False)
         for ts in test_set:
-            ocf = freud.density.FloatCF(rmax, dr)
+            ocf = freud.density.FloatCF(r_max, dr)
             # try for different scalar values.
             for rv in [0, 1, 2, 7]:
                 values = [rv] * 4

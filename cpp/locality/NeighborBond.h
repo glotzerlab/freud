@@ -20,10 +20,15 @@ struct NeighborBond
         id(id), ref_id(ref_id), distance(d), weight(1) {}
 
     //! Equality checks both id and distance.
-    bool operator==(const NeighborBond& n)
+    bool operator==(const NeighborBond& other)
     {
-        return (id == n.id) && (ref_id == n.ref_id) && (distance == n.distance);
+        return (id == other.id) && (ref_id == other.ref_id) && (distance == other.distance);
     }
+
+    //! Not equals checks inverse of equality.
+	bool operator!=(const NeighborBond& other) {
+	  return !(*this == other);
+	}
 
     //! Default comparator of points is by distance.
     /*! This form of comparison allows easy sorting of nearest neighbors by
@@ -73,4 +78,4 @@ struct NeighborBond
 
 }; }; // end namespace freud::locality
 
-#endif
+#endif // NEIGHBOR_BOND_H

@@ -32,9 +32,9 @@ class LocalDescriptors
 public:
     //! Constructor
     //!
-    //! \param lmax Maximum spherical harmonic l to consider
+    //! \param l_max Maximum spherical harmonic l to consider
     //! \param negative_m whether to calculate Ylm for negative m
-    LocalDescriptors(unsigned int lmax, bool negative_m);
+    LocalDescriptors(unsigned int l_max, bool negative_m);
 
     //! Get the last number of spherical harmonics computed
     unsigned int getNSphs() const
@@ -45,7 +45,7 @@ public:
     //! Get the maximum spherical harmonic l to calculate for
     unsigned int getLMax() const
     {
-        return m_lmax;
+        return m_l_max;
     }
 
     //! Get the number of particles
@@ -56,7 +56,7 @@ public:
 
     //! Compute the local neighborhood descriptors given some
     //! positions and the number of particles
-    void compute(const box::Box& box, unsigned int num_neighbors, 
+    void compute(const box::Box& box, unsigned int num_neighbors,
         const vec3<float>* points, unsigned int n_points,
         const vec3<float>* query_points, unsigned int n_query_points,
         const quat<float>* orientations, LocalDescriptorOrientation orientation,
@@ -70,11 +70,11 @@ public:
 
     unsigned int getSphWidth() const
     {
-        return fsph::sphCount(m_lmax) + (m_lmax > 0 && m_negative_m ? fsph::sphCount(m_lmax - 1) : 0);
+        return fsph::sphCount(m_l_max) + (m_l_max > 0 && m_negative_m ? fsph::sphCount(m_l_max - 1) : 0);
     }
 
 private:
-    unsigned int m_lmax;  //!< Maximum spherical harmonic l to calculate
+    unsigned int m_l_max;  //!< Maximum spherical harmonic l to calculate
     bool m_negative_m;    //!< true if we should compute Ylm for negative m
     unsigned int m_n_points;  //!< Last number of points computed
     unsigned int m_nSphs; //!< Last number of bond spherical harmonics computed

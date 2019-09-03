@@ -10,13 +10,13 @@ class TestDensity(unittest.TestCase):
     def test_random_point_with_cell_list(self):
         from scipy.fftpack import fft, fftshift
         width = 100
-        rcut = 10.0
+        r_max = 10.0
         sigma = 0.1
         num_points = 10000
-        box_size = rcut*3.1
+        box_size = r_max*3.1
         box, points = make_box_and_random_points(box_size, num_points, True)
         for w in (width, (width, width), [width, width]):
-            diff = freud.density.GaussianDensity(w, rcut, sigma)
+            diff = freud.density.GaussianDensity(w, r_max, sigma)
 
             # Test access
             with self.assertRaises(AttributeError):
@@ -39,12 +39,12 @@ class TestDensity(unittest.TestCase):
 
     def test_change_box_dimension(self):
         width = 100
-        rcut = 10.0
+        r_max = 10.0
         sigma = 0.1
         num_points = 100
-        box_size = rcut*3.1
+        box_size = r_max*3.1
         box, points = make_box_and_random_points(box_size, num_points, True)
-        diff = freud.density.GaussianDensity(width, rcut, sigma)
+        diff = freud.density.GaussianDensity(width, r_max, sigma)
 
         diff.compute(box, points)
 
@@ -61,12 +61,12 @@ class TestDensity(unittest.TestCase):
 
     def test_repr_png(self):
         width = 100
-        rcut = 10.0
+        r_max = 10.0
         sigma = 0.1
         num_points = 100
-        box_size = rcut*3.1
+        box_size = r_max*3.1
         box, points = make_box_and_random_points(box_size, num_points, True)
-        diff = freud.density.GaussianDensity(width, rcut, sigma)
+        diff = freud.density.GaussianDensity(width, r_max, sigma)
 
         with self.assertRaises(AttributeError):
             diff.plot()
@@ -75,7 +75,7 @@ class TestDensity(unittest.TestCase):
         diff.compute(box, points)
         diff.plot()
 
-        diff = freud.density.GaussianDensity(width, rcut, sigma)
+        diff = freud.density.GaussianDensity(width, r_max, sigma)
         testBox = freud.box.Box.cube(box_size)
         diff.compute(testBox, points)
         diff.plot()

@@ -14,7 +14,7 @@ cdef extern from "PMFT.h" namespace "freud::pmft":
         void reset()
         shared_ptr[unsigned int] getBinCounts()
         shared_ptr[float] getPCF()
-        float getRCut()
+        float getRMax()
 
 cdef extern from "PMFTR12.h" namespace "freud::pmft":
     cdef cppclass PMFTR12(PMFT):

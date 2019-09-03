@@ -23,13 +23,13 @@ Environment Module
 Bond Order
 ==========
 
-.. autoclass:: freud.environment.BondOrder(r_max, num_neighbors, nBinsT, nBinsP)
+.. autoclass:: freud.environment.BondOrder(r_max, num_neighbors, n_bins_theta, n_bins_phi)
     :members: accumulate, compute, reset
 
 Local Descriptors
 =================
 
-.. autoclass:: freud.environment.LocalDescriptors(num_neighbors, lmax, r_max, negative_m=True)
+.. autoclass:: freud.environment.LocalDescriptors(num_neighbors, l_max, r_max, negative_m=True)
     :members: compute
 
 Match Environments

@@ -35,7 +35,7 @@ class BondOrder
 {
 public:
     //! Constructor
-    BondOrder(float rmax, unsigned int n, unsigned int nbins_t, unsigned int nbins_p);
+    BondOrder(float r_max, unsigned int n, unsigned int n_bins_theta, unsigned int n_bins_phi);
 
     //! Destructor
     ~BondOrder() {}
@@ -50,7 +50,7 @@ public:
     void reset();
 
     //! Accumulate the bond order
-    void accumulate(const locality::NeighborQuery* neighbor_query, 
+    void accumulate(const locality::NeighborQuery* neighbor_query,
                     quat<float>* orientations, vec3<float>* query_points,
                     quat<float>* query_orientations, unsigned int n_query_points,
                     unsigned int mode, const freud::locality::NeighborList* nlist,
@@ -75,21 +75,21 @@ public:
 
     unsigned int getNBinsTheta()
     {
-        return m_nbins_t;
+        return m_n_bins_theta;
     }
 
     unsigned int getNBinsPhi()
     {
-        return m_nbins_p;
+        return m_n_bins_phi;
     }
 
 private:
     box::Box m_box; //!< Simulation box where the particles belong
     float m_dt;
     float m_dp;
-    unsigned int m_nbins_t;       //!< number of bins for theta
-    unsigned int m_nbins_p;       //!< number of bins for phi
-    unsigned int m_frame_counter; //!< number of frames calc'd
+    unsigned int m_n_bins_theta;  //!< number of bins for theta
+    unsigned int m_n_bins_phi;    //!< number of bins for phi
+    unsigned int m_frame_counter; //!< number of frames calculated
     bool m_reduce;                //!< Whether arrays need to be reduced across threads
 
     std::shared_ptr<unsigned int> m_bin_counts; //!< bin counts computed

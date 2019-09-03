@@ -4,6 +4,8 @@ import freud
 from collections import Counter
 import itertools
 import unittest
+import sys
+
 from util import make_box_and_random_points
 
 """
@@ -28,7 +30,7 @@ def nlist_equal(nlist1, nlist2):
 
 class TestNeighborQuery(object):
     @classmethod
-    def build_query_object(cls, box, ref_points, rcut=None):
+    def build_query_object(cls, box, ref_points, r_max=None):
         raise RuntimeError(
             "The build_query_object function must be defined for every "
             "subclass of NeighborQuery in a separate subclass of "
@@ -36,7 +38,7 @@ class TestNeighborQuery(object):
 
     def test_query_ball(self):
         L = 10  # Box Dimensions
-        rcut = 2.01  # Cutoff radius
+        r_max = 2.01  # Cutoff radius
         N = 4  # number of particles
 
         box = freud.box.Box.cube(L)  # Initialize Box
@@ -46,71 +48,25 @@ class TestNeighborQuery(object):
         points[1] = [1.0, 0.0, 0.0]
         points[2] = [3.0, 0.0, 0.0]
         points[3] = [2.0, 0.0, 0.0]
-        nq = self.build_query_object(box, points, rcut)
+        nq = self.build_query_object(box, points, r_max)
 
         # particle 0 has 3 bonds
-        npt.assert_equal(len(list(nq.queryBall(points[[0]], rcut))), 3)
+        npt.assert_equal(len(list(nq.query(
+            points[[0]], dict(mode='ball', r_max=r_max)))), 3)
         # particle 1 has 4 bonds
-        npt.assert_equal(len(list(nq.queryBall(points[[1]], rcut))), 4)
+        npt.assert_equal(len(list(nq.query(
+            points[[1]], dict(mode='ball', r_max=r_max)))), 4)
         # particle 2 has 3 bonds
-        npt.assert_equal(len(list(nq.queryBall(points[[2]], rcut))), 3)
+        npt.assert_equal(len(list(nq.query(
+            points[[2]], dict(mode='ball', r_max=r_max)))), 3)
         # particle 3 has 4 bonds
-        npt.assert_equal(len(list(nq.queryBall(points[[3]], rcut))), 4)
+        npt.assert_equal(len(list(nq.query(
+            points[[3]], dict(mode='ball', r_max=r_max)))), 4)
 
         # Check NeighborList length without self-exclusions.
-        npt.assert_equal(
-            len(nq.queryBall(points, rcut, exclude_ii=False).toNList()), 14)
-
-        # When excluding, check that everything has one less neighbor and that
-        # the toNList method correctly excludes neighbors.
-        list_of_neighbors = sorted(list(
-            nq.queryBall(points, rcut, exclude_ii=True)))
-        # Remove distances, which are not used here.
-        list_of_neighbors = [[p[0], p[1]] for p in list_of_neighbors]
-        nlist = nq.queryBall(points, rcut, exclude_ii=True).toNList()
-        nlist_neighbors = sorted(list(zip(nlist.index_i, nlist.index_j)))
-
-        # Number of neighbors is one less per-particle than before.
-        npt.assert_equal(len(list_of_neighbors), 10)
-        npt.assert_equal(len(nlist_neighbors), 10)
-
-        # Actual set of neighbors should be identical from both methods.
-        npt.assert_array_equal(list_of_neighbors, nlist_neighbors)
-
-        # now move particle 0 out of range...
-        points[0] = 5
-
-        # particle 0 has no bonds now
-        npt.assert_equal(len(list(nq.queryBall(points[[0]], rcut))), 0)
-
-    def test_query_ball_generic(self):
-        L = 10  # Box Dimensions
-        rcut = 2.01  # Cutoff radius
-        N = 4  # number of particles
-
-        box = freud.box.Box.cube(L)  # Initialize Box
-
-        points = np.zeros(shape=(N, 3), dtype=np.float32)
-        points[0] = [0.0, 0.0, 0.0]
-        points[1] = [1.0, 0.0, 0.0]
-        points[2] = [3.0, 0.0, 0.0]
-        points[3] = [2.0, 0.0, 0.0]
-        nq = self.build_query_object(box, points, rcut)
-
-        nlist = nq._queryGeneric(points, dict(mode='ball', r_max=rcut))
-        nlist_neighbors = sorted(list(zip(nlist.index_i, nlist.index_j)))
-        # particle 0 has 2 bonds
-        npt.assert_equal(sum(nlist.index_i == 0), 3)
-        # particle 1 has 3 bonds
-        npt.assert_equal(sum(nlist.index_i == 1), 4)
-        # particle 2 has 2 bonds
-        npt.assert_equal(sum(nlist.index_i == 2), 3)
-        # particle 3 has 3 bonds
-        npt.assert_equal(sum(nlist.index_i == 3), 4)
-
-        # Check NeighborList length without self-exclusions.
-        nlist = nq._queryGeneric(
-            points, dict(mode='ball', r_max=rcut, exclude_ii=True))
+        nlist = nq.query(
+            points, dict(mode='ball', r_max=r_max,
+                         exclude_ii=True)).toNeighborList()
         nlist_neighbors = sorted(list(zip(nlist.index_i, nlist.index_j)))
         # When excluding, everything has one less neighbor.
         npt.assert_equal(len(nlist_neighbors), 10)
@@ -118,82 +74,76 @@ class TestNeighborQuery(object):
         # now move particle 0 out of range...
         points[0] = 5
 
-        nq = self.build_query_object(box, points, rcut)
-        nlist = nq._queryGeneric(points, dict(mode='ball', r_max=rcut))
-        nlist_neighbors = sorted(list(zip(nlist.index_i, nlist.index_j)))
-        # particle 0 has 0 bonds
-        npt.assert_equal(sum(nlist.index_i == 0), 1)
-        # particle 1 has 2 bonds
-        npt.assert_equal(sum(nlist.index_i == 1), 3)
-        # particle 2 has 2 bonds
-        npt.assert_equal(sum(nlist.index_i == 2), 3)
-        # particle 3 has 2 bonds
-        npt.assert_equal(sum(nlist.index_i == 3), 3)
+        nq = self.build_query_object(box, points, r_max)
 
-    def test_query_generic_mode_inference(self):
+        # particle 0 has 1 bonds
+        npt.assert_equal(len(list(nq.query(
+            points[[0]], dict(mode='ball', r_max=r_max)))), 1)
+        # particle 1 has 3 bonds
+        npt.assert_equal(len(list(nq.query(
+            points[[1]], dict(mode='ball', r_max=r_max)))), 3)
+        # particle 2 has 3 bonds
+        npt.assert_equal(len(list(nq.query(
+            points[[2]], dict(mode='ball', r_max=r_max)))), 3)
+        # particle 3 has 3 bonds
+        npt.assert_equal(len(list(nq.query(
+            points[[3]], dict(mode='ball', r_max=r_max)))), 3)
+
+    def test_query_mode_inference(self):
         """Check that the generic querying method correctly infers modes."""
         L = 10  # Box Dimensions
-        r_cut = 2.01  # Cutoff radius
+        r_max = 2.01  # Cutoff radius
         num_neighbors = 3
         N = 10  # number of particles
 
         box = freud.box.Box.cube(L)  # Initialize Box
         points = np.random.rand(N, 3).astype(np.float32)
-        nq = self.build_query_object(box, points, r_cut)
+        nq = self.build_query_object(box, points, r_max)
 
         # Test ball query.
-        nlist1 = nq._queryGeneric(points, dict(mode='ball', r_max=r_cut))
-        nlist_neighbors1 = sorted(list(zip(nlist1.index_i, nlist1.index_j)))
-        nlist2 = nq._queryGeneric(points, dict(r_max=r_cut))
-        nlist_neighbors2 = sorted(list(zip(nlist2.index_i, nlist2.index_j)))
-        npt.assert_equal(nlist_neighbors1, nlist_neighbors2)
+        result1 = list(nq.query(points, dict(mode='ball', r_max=r_max)))
+        result2 = list(nq.query(points, dict(r_max=r_max)))
+        npt.assert_equal(result1, result2)
 
         # Test ball query with exclusion.
-        nlist1 = nq._queryGeneric(
-            points, dict(mode='ball', r_max=r_cut, exclude_ii=True))
-        nlist_neighbors1 = sorted(list(zip(nlist1.index_i, nlist1.index_j)))
-        nlist2 = nq._queryGeneric(
-            points, dict(r_max=r_cut, exclude_ii=True))
-        nlist_neighbors2 = sorted(list(zip(nlist2.index_i, nlist2.index_j)))
-        npt.assert_equal(nlist_neighbors1, nlist_neighbors2)
+        result1 = list(nq.query(
+            points, dict(mode='ball', r_max=r_max, exclude_ii=True)))
+        result2 = list(nq.query(
+            points, dict(r_max=r_max, exclude_ii=True)))
+        npt.assert_equal(result1, result2)
 
         # Test number of neighbors.
-        nlist1 = nq._queryGeneric(
-            points, dict(mode='nearest', num_neighbors=num_neighbors))
-        nlist_neighbors1 = sorted(list(zip(nlist1.index_i, nlist1.index_j)))
-        nlist2 = nq._queryGeneric(points, dict(num_neighbors=num_neighbors))
-        nlist_neighbors2 = sorted(list(zip(nlist2.index_i, nlist2.index_j)))
-        npt.assert_equal(nlist_neighbors1, nlist_neighbors2)
+        result1 = list(nq.query(
+            points, dict(mode='nearest', num_neighbors=num_neighbors)))
+        result2 = list(nq.query(points, dict(num_neighbors=num_neighbors)))
+        npt.assert_equal(result1, result2)
 
         # Test number of neighbors with exclusion.
-        nlist1 = nq._queryGeneric(
-            points, dict(mode='nearest',
-                         num_neighbors=num_neighbors,
-                         exclude_ii=True))
-        nlist_neighbors1 = sorted(list(zip(nlist1.index_i, nlist1.index_j)))
-        nlist2 = nq._queryGeneric(
-            points, dict(num_neighbors=num_neighbors, exclude_ii=True))
-        nlist_neighbors2 = sorted(list(zip(nlist2.index_i, nlist2.index_j)))
-        npt.assert_equal(nlist_neighbors1, nlist_neighbors2)
+        result1 = list(nq.query(
+            points, dict(mode='nearest', num_neighbors=num_neighbors,
+                         exclude_ii=True)))
+        result2 = list(nq.query(
+            points, dict(num_neighbors=num_neighbors, exclude_ii=True)))
+        npt.assert_equal(result1, result2)
 
-    def test_query_generic_invalid(self):
+    def test_query_invalid(self):
         """Check that mode inference fails for invalid combinations."""
         L = 10  # Box Dimensions
-        r_cut = 2.01  # Cutoff radius
+        r_max = 2.01  # Cutoff radius
         num_neighbors = 3
         N = 10  # number of particles
 
         box = freud.box.Box.cube(L)  # Initialize Box
         points = np.random.rand(N, 3).astype(np.float32)
-        nq = self.build_query_object(box, points, r_cut)
+        nq = self.build_query_object(box, points, r_max)
 
         # Test failure cases.
         with self.assertRaises(RuntimeError):
-            nq._queryGeneric(
-                points,
-                dict(mode='ball', num_neighbors=num_neighbors, r_max=r_cut))
+            list(nq.query(points, dict(mode='ball',
+                                       num_neighbors=num_neighbors,
+                                       r_max=r_max)))
 
-    def test_query(self):
+    def test_query_nearest(self):
         L = 10  # Box Dimensions
         N = 4  # number of particles
 
@@ -206,62 +156,25 @@ class TestNeighborQuery(object):
         points[3] = [2.0, 0.0, 0.0]
         nq = self.build_query_object(box, points, L/10)
 
-        result = list(nq.query(points, 3))
+        result = list(nq.query(points, dict(mode='nearest', num_neighbors=3)))
         npt.assert_equal(get_point_neighbors(result, 0), {0, 1, 3})
         npt.assert_equal(get_point_neighbors(result, 1), {0, 1, 3})
         npt.assert_equal(get_point_neighbors(result, 2), {1, 2, 3})
         npt.assert_equal(get_point_neighbors(result, 3), {1, 2, 3})
 
         # All other points are neighbors when self-neighbors are excluded.
-        result = list(nq.query(points, 3, exclude_ii=True))
-        npt.assert_equal(get_point_neighbors(result, 0), {1, 2, 3})
-        npt.assert_equal(get_point_neighbors(result, 1), {0, 2, 3})
-        npt.assert_equal(get_point_neighbors(result, 2), {0, 1, 3})
-        npt.assert_equal(get_point_neighbors(result, 3), {0, 1, 2})
-
-        # Make sure the result is not changed by conversion to a NeighborList.
-        nlist = nq.query(points, 3, exclude_ii=True).toNList()
-        nlist_result = sorted(list(zip(nlist.index_i, nlist.index_j)))
-        original_result = sorted([(x[0], x[1]) for x in result])
-        npt.assert_equal(nlist_result, original_result)
-
-        # Test overflow case
-        npt.assert_equal(list(nq.query(points, 5, exclude_ii=True)), result)
-
-    def test_query_generic(self):
-        L = 10  # Box Dimensions
-        N = 4  # number of particles
-
-        box = freud.box.Box.cube(L)  # Initialize Box
-
-        points = np.zeros(shape=(N, 3), dtype=np.float32)
-        points[0] = [0.0, 0.0, 0.0]
-        points[1] = [1.0, 0.0, 0.0]
-        points[2] = [3.0, 0.0, 0.0]
-        points[3] = [2.0, 0.0, 0.0]
-        nq = self.build_query_object(box, points, L/10)
-
-        nlist = nq._queryGeneric(points, dict(mode='nearest', num_neighbors=3))
-        result = list(zip(nlist.index_i, nlist.index_j))
-        npt.assert_equal(get_point_neighbors(result, 0), {0, 1, 3})
-        npt.assert_equal(get_point_neighbors(result, 1), {0, 1, 3})
-        npt.assert_equal(get_point_neighbors(result, 2), {1, 2, 3})
-        npt.assert_equal(get_point_neighbors(result, 3), {1, 2, 3})
-
-        # All other points are neighbors when self-neighbors are excluded.
-        nlist = nq._queryGeneric(
-            points, dict(mode='nearest', num_neighbors=3, exclude_ii=True))
-        result = list(zip(nlist.index_i, nlist.index_j))
+        result = list(nq.query(points, dict(mode='nearest', num_neighbors=3,
+                               exclude_ii=True)))
         npt.assert_equal(get_point_neighbors(result, 0), {1, 2, 3})
         npt.assert_equal(get_point_neighbors(result, 1), {0, 2, 3})
         npt.assert_equal(get_point_neighbors(result, 2), {0, 1, 3})
         npt.assert_equal(get_point_neighbors(result, 3), {0, 1, 2})
 
         # Test overflow case. Need to sort because the nlist output of
-        # _queryGeneric is sorted by ref_point by construction.
-        all_results = sorted(
-            [(x[0], x[1]) for x in nq.query(points, 5, exclude_ii=True)])
-        npt.assert_equal(all_results, result)
+        # query is sorted by ref_point by construction.
+        npt.assert_equal(list(nq.query(points, dict(mode='nearest',
+                                                    num_neighbors=5,
+                                                    exclude_ii=True))), result)
 
     def test_query_ball_to_nlist(self):
         """Test that generated NeighborLists are identical to the results of
@@ -274,9 +187,9 @@ class TestNeighborQuery(object):
 
         nq = self.build_query_object(box, ref_points, L/10)
 
-        result_list = list(nq.queryBall(points, 2))
+        result_list = list(nq.query(points, dict(mode='ball', r_max=2)))
         result_list = [(b[0], b[1]) for b in result_list]
-        nlist = nq.queryBall(points, 2).toNList()
+        nlist = nq.query(points, dict(mode='ball', r_max=2)).toNeighborList()
         list_nlist = list(zip(nlist.index_i, nlist.index_j))
 
         npt.assert_equal(set(result_list), set(list_nlist))
@@ -292,9 +205,9 @@ class TestNeighborQuery(object):
 
         nq = self.build_query_object(box, ref_points, L/10)
 
-        result_list = list(nq.query(points, 2))
+        result_list = list(nq.query(points, dict(mode='ball', r_max=2)))
         result_list = [(b[0], b[1]) for b in result_list]
-        nlist = nq.query(points, 2).toNList()
+        nlist = nq.query(points, dict(mode='ball', r_max=2)).toNeighborList()
         list_nlist = list(zip(nlist.index_i, nlist.index_j))
 
         npt.assert_equal(set(result_list), set(list_nlist))
@@ -302,11 +215,11 @@ class TestNeighborQuery(object):
     def test_reciprocal(self):
         """Test that, for a random set of points, for each (i, j) neighbor
         pair there also exists a (j, i) neighbor pair for one set of points"""
-        L, rcut, N = (10, 2.01, 1024)
+        L, r_max, N = (10, 2.01, 1024)
 
         box, points = make_box_and_random_points(L, N, seed=0)
-        nq = self.build_query_object(box, points, rcut)
-        result = list(nq.queryBall(points, rcut))
+        nq = self.build_query_object(box, points, r_max)
+        result = list(nq.query(points, dict(mode='ball', r_max=r_max)))
 
         ij = {(x[0], x[1]) for x in result}
         ji = set((j, i) for (i, j) in ij)
@@ -318,15 +231,15 @@ class TestNeighborQuery(object):
         pair there also exists a (j, i) neighbor pair for two sets of
         different points
         """
-        L, rcut, N = (10, 2.01, 1024)
+        L, r_max, N = (10, 2.01, 1024)
 
         box, points = make_box_and_random_points(L, N, seed=0)
         _, points2 = make_box_and_random_points(L, N//6, seed=1)
-        nq = self.build_query_object(box, points, rcut)
-        nq2 = self.build_query_object(box, points2, rcut)
+        nq = self.build_query_object(box, points, r_max)
+        nq2 = self.build_query_object(box, points2, r_max)
 
-        result = list(nq.queryBall(points2, rcut))
-        result2 = list(nq2.queryBall(points, rcut))
+        result = list(nq.query(points2, dict(mode='ball', r_max=r_max)))
+        result2 = list(nq2.query(points, dict(mode='ball', r_max=r_max)))
 
         ij = {(x[0], x[1]) for x in result}
         ij2 = {(x[1], x[0]) for x in result2}
@@ -334,16 +247,17 @@ class TestNeighborQuery(object):
         self.assertEqual(ij, ij2)
 
     def test_exclude_ii(self):
-        L, rcut, N = (10, 2.01, 1024)
+        L, r_max, N = (10, 2.01, 1024)
 
         box, points = make_box_and_random_points(L, N)
         points2 = points[:N//6]
-        nq = self.build_query_object(box, points, rcut)
-        result = list(nq.queryBall(points2, rcut))
+        nq = self.build_query_object(box, points, r_max)
+        result = list(nq.query(points2, dict(mode='ball', r_max=r_max)))
 
         ij1 = {(x[0], x[1]) for x in result}
 
-        result2 = list(nq.queryBall(points2, rcut, exclude_ii=True))
+        result2 = list(nq.query(points2, dict(mode='ball', r_max=r_max,
+                                exclude_ii=True)))
 
         ij2 = {(x[0], x[1]) for x in result2}
 
@@ -354,7 +268,7 @@ class TestNeighborQuery(object):
         self.assertEqual(ij1, ij2)
 
     def test_exhaustive_search(self):
-        L, rcut, N = (10, 1.999, 32)
+        L, r_max, N = (10, 1.999, 32)
 
         box = freud.box.Box.cube(L)
         seed = 0
@@ -365,14 +279,15 @@ class TestNeighborQuery(object):
             box.wrap(all_vectors.reshape((-1, 3)))
             all_rsqs = np.sum(all_vectors**2, axis=-1)
             (exhaustive_i, exhaustive_j) = np.where(np.logical_and(
-                all_rsqs < rcut**2, all_rsqs > 0))
+                all_rsqs < r_max**2, all_rsqs > 0))
 
             exhaustive_ijs = set(zip(exhaustive_i, exhaustive_j))
             exhaustive_counts = Counter(exhaustive_i)
             exhaustive_counts_list = [exhaustive_counts[j] for j in range(N)]
 
-            nq = self.build_query_object(box, points, rcut)
-            result = list(nq.queryBall(points, rcut, exclude_ii=True))
+            nq = self.build_query_object(box, points, r_max)
+            result = list(nq.query(points, dict(mode='ball', r_max=r_max,
+                                                exclude_ii=True)))
             ijs = {(x[1], x[0]) for x in result}
             counts = Counter([x[1] for x in result])
             counts_list = [counts[j] for j in range(N)]
@@ -392,7 +307,7 @@ class TestNeighborQuery(object):
                 raise
 
     def test_exhaustive_search_asymmetric(self):
-        L, rcut, N = (10, 1.999, 32)
+        L, r_max, N = (10, 1.999, 32)
 
         box = freud.box.Box.cube(L)
         seed = 0
@@ -406,14 +321,14 @@ class TestNeighborQuery(object):
             box.wrap(all_vectors.reshape((-1, 3)))
             all_rsqs = np.sum(all_vectors**2, axis=-1)
             (exhaustive_i, exhaustive_j) = np.where(np.logical_and(
-                all_rsqs < rcut**2, all_rsqs > 0))
+                all_rsqs < r_max**2, all_rsqs > 0))
 
             exhaustive_ijs = set(zip(exhaustive_i, exhaustive_j))
             exhaustive_counts = Counter(exhaustive_i)
             exhaustive_counts_list = [exhaustive_counts[j] for j in range(N)]
 
-            nq = self.build_query_object(box, points2, rcut)
-            result = list(nq.queryBall(points, rcut))
+            nq = self.build_query_object(box, points2, r_max)
+            result = list(nq.query(points, dict(mode='ball', r_max=r_max)))
             ijs = {(x[0], x[1]) for x in result}
             counts = Counter([x[0] for x in result])
             counts_list = [counts[j] for j in range(N)]
@@ -457,9 +372,10 @@ class TestNeighborQuery(object):
         positions = list(itertools.product(lattice_xs, lattice_xs, lattice_xs))
         positions = np.array(positions, dtype=np.float32)
 
-        # rcut is slightly smaller than the distance for any particle
+        # r_max is slightly smaller than the distance for any particle
         nq = self.build_query_object(box, positions, L/10)
-        result = list(nq.queryBall(positions, 0.99, exclude_ii=True))
+        result = list(nq.query(positions, dict(mode='ball', r_max=0.99,
+                                               exclude_ii=True)))
 
         self.assertEqual(len(result), 0)
 
@@ -472,18 +388,21 @@ class TestNeighborQuery(object):
         positions = np.array(
             [[0, 0, 0], [0, 1, 0], [1, 1, 0]], dtype=np.float32)
         nq = self.build_query_object(box, positions, L/10)
-        result = list(nq.query(positions[[0]], 3))
+        result = list(nq.query(positions[[0]], dict(mode='nearest',
+                                                    num_neighbors=3)))
         self.assertEqual(get_point_neighbors(result, 0), {0, 1, 2})
 
         # Check the effect of points != ref_points
         positions[:, :2] -= 0.1
-        result = list(nq.query(positions[[0]], 3))
+        result = list(nq.query(positions[[0]], dict(mode='nearest',
+                                                    num_neighbors=3)))
         self.assertEqual(get_point_neighbors(result, 0), {0, 1, 2})
 
         # Since the initial position set aligns exactly with cell boundaries,
         # make sure that the correctness is not affected by that artifact.
         nq = self.build_query_object(box, positions, L/10)
-        result = list(nq.query(positions[[0]], 3))
+        result = list(nq.query(positions[[0]], dict(mode='nearest',
+                                                    num_neighbors=3)))
         self.assertEqual(get_point_neighbors(result, 0), {0, 1, 2})
 
     def test_random_system_query(self):
@@ -501,7 +420,8 @@ class TestNeighborQuery(object):
                 nq = self.build_query_object(box, positions, L/10)
 
                 nlist = nq.query(
-                    positions, num_neighbors=k, exclude_ii=True).toNList()
+                    positions, dict(num_neighbors=k,
+                                    exclude_ii=True)).toNeighborList()
                 assert len(nlist) == k * N,\
                     ("Wrong nlist length for N = {},"
                      "num_neighbors = {}, length = {}").format(
@@ -511,7 +431,8 @@ class TestNeighborQuery(object):
                     assert not ([i, i] == nlist_array).all(axis=1).any()
 
                 nlist = nq.query(
-                    positions, num_neighbors=k, exclude_ii=False).toNList()
+                    positions, dict(num_neighbors=k,
+                                    exclude_ii=False)).toNeighborList()
                 assert len(nlist) == k * N,\
                     ("Wrong nlist length for N = {}, "
                      "num_neighbors = {}, length = {}").format(
@@ -524,12 +445,12 @@ class TestNeighborQuery(object):
         box = freud.box.Box.square(5)
         points = [[-1.5, 0, 0]]
         ref_points = [[0.9, 0, 0]]
-        rmax = 2.45
+        r_max = 2.45
         cell_width = 1
         nq = self.build_query_object(box, ref_points, cell_width)
-        q = nq.queryBall(points, rmax)
+        q = nq.query(points, dict(r_max=r_max))
         self.assertEqual(len(list(q)), 1)
-        q = nq.query(points, 1000)
+        q = nq.query(points, dict(num_neighbors=1000))
         self.assertEqual(len(list(q)), 1)
 
     def test_duplicate_cell_shells2(self):
@@ -537,72 +458,126 @@ class TestNeighborQuery(object):
                      [1.3913784, -2.3667011, 4.5227165],
                      [-3.6133137, 9.043476, 0.8957424]]
         box = freud.box.Box.cube(21)
-        rmax = 10
-        nq = self.build_query_object(box, positions, rmax)
-        q = nq.queryBall(positions[0], rmax)
+        r_max = 10
+        nq = self.build_query_object(box, positions, r_max)
+        q = nq.query(positions[0], dict(r_max=r_max))
         self.assertEqual(len(list(q)), 3)
-        q = nq.query(positions[0], 1000)
+        q = nq.query(positions[0], dict(num_neighbors=1000))
         self.assertEqual(len(list(q)), 3)
 
 
 class TestNeighborQueryAABB(TestNeighborQuery, unittest.TestCase):
     @classmethod
-    def build_query_object(cls, box, ref_points, rcut=None):
+    def build_query_object(cls, box, ref_points, r_max=None):
         return freud.locality.AABBQuery(box, ref_points)
 
     def test_throws(self):
-        """Test that specifying too large an rcut value throws an error"""
+        """Test that specifying too large an r_max value throws an error"""
         L = 5
 
         box = freud.box.Box.square(L)
         points = [[0, 0, 0], [1, 1, 0], [1, -1, 0]]
         aq = freud.locality.AABBQuery(box, points)
         with self.assertRaises(RuntimeError):
-            list(aq.queryBall(points, L))
+            list(aq.query(points, dict(r_max=L)))
 
     def test_chaining(self):
         N = 500
         L = 10
-        rcut = 1
+        r_max = 1
         box, points = make_box_and_random_points(L, N)
-        nlist1 = freud.locality.AABBQuery(box, points).queryBall(
-            points, rcut, exclude_ii=True).toNList()
+        nlist1 = freud.locality.AABBQuery(box, points).query(
+            points, dict(r_max=r_max, exclude_ii=True)).toNeighborList()
         abq = freud.locality.AABBQuery(box, points)
-        nlist2 = abq.queryBall(points, rcut, exclude_ii=True).toNList()
+        nlist2 = abq.query(points, dict(r_max=r_max,
+                                        exclude_ii=True)).toNeighborList()
         self.assertTrue(nlist_equal(nlist1, nlist2))
 
 
 class TestNeighborQueryLinkCell(TestNeighborQuery, unittest.TestCase):
     @classmethod
-    def build_query_object(cls, box, ref_points, rcut=None):
-        if rcut is None:
-            raise ValueError("Building LinkCells requires passing an rcut.")
-        return freud.locality.LinkCell(box, rcut, ref_points)
-
-    def test_throws(self):
-        """Ensure that mixing old and new APIs throws an error"""
-        L = 10
-        rcut = 1.0
-
-        box = freud.box.Box.cube(L)
-        with self.assertRaises(RuntimeError):
-            points = np.zeros(shape=(2, 3), dtype=np.float32)
-            freud.locality.LinkCell(box, rcut, points).compute(box, points)
-
-        with self.assertRaises(RuntimeError):
-            points = np.zeros(shape=(2, 3), dtype=np.float32)
-            freud.locality.LinkCell(box, rcut).query(points, rcut)
+    def build_query_object(cls, box, ref_points, r_max=None):
+        if r_max is None:
+            raise ValueError("Building LinkCells requires passing an r_max.")
+        return freud.locality.LinkCell(box, r_max, ref_points)
 
     def test_chaining(self):
         N = 500
         L = 10
-        rcut = 1
+        r_max = 1
         box, points = make_box_and_random_points(L, N)
-        nlist1 = freud.locality.LinkCell(box, 1.0, points).queryBall(
-            points, rcut, exclude_ii=True).toNList()
+        nlist1 = freud.locality.LinkCell(box, 1.0, points).query(
+            points, dict(r_max=r_max, exclude_ii=True)).toNeighborList()
         lc = freud.locality.LinkCell(box, 1.0, points)
-        nlist2 = lc.queryBall(points, rcut, exclude_ii=True).toNList()
+        nlist2 = lc.query(points, dict(r_max=r_max,
+                                       exclude_ii=True)).toNeighborList()
         self.assertTrue(nlist_equal(nlist1, nlist2))
+
+    def test_unique_neighbors(self):
+        """Check that cells have the appropriate number of neighbors."""
+        L = 10  # Box Dimensions
+        r_max = 3  # Cutoff radius
+
+        # Initialize Box, initialize and compute cell list
+        fbox = freud.box.Box.cube(L)
+        cl = freud.locality.LinkCell(fbox, r_max, np.zeros((1, 3)))
+
+        # 27 is the total number of cells
+        for i in range(27):
+            neighbors = cl.getCellNeighbors(i)
+            self.assertEqual(
+                len(np.unique(neighbors)), 27,
+                msg="Cell %d does not have 27 unique adjacent cell indices, "
+                "it has %d" % (i, len(np.unique(neighbors))))
+
+    def test_cell_neighbors(self):
+        """Check that cells have the appropriate neighbors."""
+        L = 31  # Box Dimensions
+        r_max = 3  # Cutoff radius
+
+        # Initialize test points across periodic boundary condition
+        testpoints = np.array([[-5.0, 0, 0],
+                               [2.05, 0, 0]], dtype=np.float32)
+
+        # Initialize Box, initialize and compute cell list
+        fbox = freud.box.Box.cube(L)
+        cl = freud.locality.LinkCell(fbox, r_max, testpoints)
+
+        # Get cell index
+        cell_index0 = cl.getCell(testpoints[0])
+        cell_index1 = cl.getCell(testpoints[1])
+
+        # Get cell neighbors
+        neighbors0 = cl.getCellNeighbors(cell_index0)
+        neighbors1 = cl.getCellNeighbors(cell_index1)
+
+        # Check if particle 0 is in a cell neighboring particle 1
+        # np.where returns [[index]] if found, otherwise [[]]
+        test0 = np.where(neighbors1 == cell_index0)[0]
+        test1 = np.where(neighbors0 == cell_index1)[0]
+        self.assertEqual(len(test0), len(test1))
+
+    @unittest.skipIf(sys.version_info.major < 3,
+                     "Not running on Python 2")
+    def test_symmetric(self):
+        """Check that cell list neighbors are symmetric."""
+        L = 10  # Box Dimensions
+        r_max = 2  # Cutoff radius
+        N = 40  # number of particles
+
+        # Initialize test points randomly
+        fbox, points = make_box_and_random_points(L, N)
+        cl = freud.locality.LinkCell(fbox, r_max, points)
+
+        neighbors_ij = set()
+        for i in range(N):
+            cells = cl.getCellNeighbors(cl.getCell(points[i]))
+            for cell in cells:
+                neighbors_ij.update([(i, j) for j in cl.itercell(cell)])
+
+        neighbors_ji = set((j, i) for (i, j) in neighbors_ij)
+        # if i is a neighbor of j, then j should be a neighbor of i
+        self.assertEqual(neighbors_ij, neighbors_ji)
 
 
 if __name__ == '__main__':

@@ -25,7 +25,7 @@ class RDF
 {
 public:
     //! Constructor
-    RDF(float rmax, float dr, float rmin = 0);
+    RDF(float r_max, float dr, float r_min = 0);
 
     //! Destructor
     ~RDF() {};
@@ -90,8 +90,8 @@ public:
     unsigned int getNBins();
 
 private:
-    float m_rmax;         //!< Maximum r at which to compute g(r)
-    float m_rmin;         //!< Minimum r at which to compute g(r)
+    float m_r_max;         //!< Maximum r at which to compute g(r)
+    float m_r_min;         //!< Minimum r at which to compute g(r)
     float m_dr;           //!< Step size for r in the computation
     unsigned int m_nbins; //!< Number of r bins to compute g(r) over
 

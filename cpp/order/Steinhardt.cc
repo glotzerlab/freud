@@ -120,7 +120,7 @@ void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
     // is populated in baseCompute or computeAve.
     m_Qlm_local.reset();
     freud::locality::loopOverNeighborsIterator(points, points->getPoints(), m_Np, qargs, nlist,
-        [=](size_t i, std::shared_ptr<freud::locality::NeighborIterator::PerPointIterator> ppiter)
+        [=](size_t i, std::shared_ptr<freud::locality::NeighborPerPointIterator> ppiter)
         {
             float total_weight(0);
             const vec3<float> ref((*points)[i]);
@@ -173,20 +173,34 @@ void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
 void Steinhardt::computeAve(const freud::locality::NeighborList* nlist,
                                   const freud::locality::NeighborQuery* points, freud::locality::QueryArgs qargs)
 {
-    std::shared_ptr<freud::locality::NeighborIterator> niter =
-        freud::locality::getNeighborIterator(points, points->getPoints(), m_Np, qargs, nlist);
+    std::shared_ptr<locality::NeighborQueryIterator> iter;
+    if (nlist == NULL)
+    {
+        iter = points->query(points->getPoints(), points->getNPoints(), qargs);
+    }
+
     const float normalizationfactor = 4 * M_PI / (2 * m_l + 1);
 
     freud::locality::loopOverNeighborsIterator(points, points->getPoints(), m_Np, qargs, nlist,
-        [=](size_t i, std::shared_ptr<freud::locality::NeighborIterator::PerPointIterator> ppiter)
+        [=](size_t i, std::shared_ptr<freud::locality::NeighborPerPointIterator> ppiter)
         {
             unsigned int neighborcount(1);
             for(freud::locality::NeighborBond nb1 = ppiter->next(); !ppiter->end(); nb1 = ppiter->next())
             {
-                auto ns_neighbors_iter = niter->queryPerPoint(nb1.ref_id);
+                // Since we need to find neighbors of neighbors, we need to add some extra logic here to create the appropriate iterators.
+                std::shared_ptr<freud::locality::NeighborPerPointIterator> ns_neighbors_iter;
+                if (nlist != NULL)
+                {
+                    ns_neighbors_iter = std::make_shared<locality::NeighborListPerPointIterator>(nlist, nb1.ref_id);
+                }
+                else
+                {
+                    ns_neighbors_iter = iter->query(nb1.ref_id);
+                }
+
                 for(freud::locality::NeighborBond nb2 = ns_neighbors_iter->next(); !ns_neighbors_iter->end(); nb2 = ns_neighbors_iter->next())
                 {
-                    if (nb2.distance < m_rmax && nb2.distance > m_rmin)
+                    if (nb2.distance < m_r_max && nb2.distance > m_r_min)
                     {
                         for (unsigned int k = 0; k < (2 * m_l + 1); ++k)
                         {

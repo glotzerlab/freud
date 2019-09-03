@@ -95,8 +95,8 @@ cdef class _PMFT(SpatialHistogram):
         return result
 
     @property
-    def r_cut(self):
-        return self.pmftptr.getRCut()
+    def r_max(self):
+        return self.pmftptr.getRMax()
 
 
 cdef class PMFTR12(_PMFT):
@@ -130,7 +130,7 @@ cdef class PMFTR12(_PMFT):
             The positional correlation function.
         PMFT (:math:`\left(N_{r}, N_{\theta2}, N_{\theta1}\right)`):
             The potential of mean force and torque.
-        r_cut (float):
+        r_max (float):
             The cutoff used in the cell list.
         R (:math:`\left(N_{r}\right)` :class:`numpy.ndarray`):
             The array of :math:`r`-values for the PCF histogram.
@@ -361,7 +361,7 @@ cdef class PMFTXYT(_PMFT):
             The positional correlation function.
         PMFT (:math:`\left(N_{\theta}, N_{y}, N_{x}\right)` :class:`numpy.ndarray`):
             The potential of mean force and torque.
-        r_cut (float):
+        r_max (float):
             The cutoff used in the cell list.
         X (:math:`\left(N_{x}\right)` :class:`numpy.ndarray`):
             The array of :math:`x`-values for the PCF histogram.
@@ -584,7 +584,7 @@ cdef class PMFTXY2D(_PMFT):
             The positional correlation function.
         PMFT (:math:`\left(N_{y}, N_{x}\right)` :class:`numpy.ndarray`):
             The potential of mean force and torque.
-        r_cut (float):
+        r_max (float):
             The cutoff used in the cell list.
         X (:math:`\left(N_{x}\right)` :class:`numpy.ndarray`):
             The array of :math:`x`-values for the PCF histogram.
@@ -800,7 +800,7 @@ cdef class PMFTXYZ(_PMFT):
             The positional correlation function.
         PMFT (:math:`\left(N_{z}, N_{y}, N_{x}\right)` :class:`numpy.ndarray`):
             The potential of mean force and torque.
-        r_cut (float):
+        r_max (float):
             The cutoff used in the cell list.
         X (:math:`\left(N_{x}\right)` :class:`numpy.ndarray`):
             The array of :math:`x`-values for the PCF histogram.

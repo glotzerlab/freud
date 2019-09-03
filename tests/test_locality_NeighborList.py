@@ -8,17 +8,17 @@ class TestNeighborList(unittest.TestCase):
 
     def setup_nl(self,
                  L=10,
-                 rcut=3,
+                 r_max=3,
                  N=40,
                  num_neighbors=6):
         # Define values
         self.L = L
-        self.rcut = rcut
+        self.r_max = r_max
         self.N = N
         self.num_neighbors = num_neighbors
 
         # Initialize Box and cell list
-        self.cl = locality.NearestNeighbors(self.rcut, self.num_neighbors)
+        self.cl = locality.NearestNeighbors(self.r_max, self.num_neighbors)
         self.fbox, self.points = make_box_and_random_points(L, N)
 
     def test_writable(self):

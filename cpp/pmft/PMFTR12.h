@@ -29,7 +29,7 @@ public:
     /*! Compute the PCF for the passed in set of points. The function will be added to previous values
         of the PCF
     */
-    void accumulate(const locality::NeighborQuery* neighbor_query, 
+    void accumulate(const locality::NeighborQuery* neighbor_query,
                     float* orientations, vec3<float>* query_points, float* query_orientations,
                     unsigned int n_query_points, const locality::NeighborList* nlist, freud::locality::QueryArgs qargs);
 
@@ -77,7 +77,6 @@ public:
     }
 
 private:
-    float m_r_max;       //!< Maximum r  at which to compute PCF
     float m_t1_max;      //!< Maximum t1 at which to compute PCF
     float m_t2_max;      //!< Maximum t2 at which to compute PCF
     float m_dr;          //!< Bin size for r  in the computation

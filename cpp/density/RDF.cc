@@ -21,21 +21,21 @@ using namespace tbb;
 
 namespace freud { namespace density {
 
-RDF::RDF(float rmax, float dr, float rmin) : m_rmax(rmax), m_rmin(rmin), m_dr(dr), m_box(box::Box()), m_frame_counter(0), m_n_points(0),
+RDF::RDF(float r_max, float dr, float r_min) : m_r_max(r_max), m_r_min(r_min), m_dr(dr), m_box(box::Box()), m_frame_counter(0), m_n_points(0),
     m_n_query_points(0), m_reduce(true)
 {
     if (dr <= 0.0f)
         throw invalid_argument("RDF requires dr to be positive.");
-    if (rmax <= 0.0f)
-        throw invalid_argument("RDF requires rmax to be positive.");
-    if (dr > rmax)
-        throw invalid_argument("RDF requires dr must be less than or equal to rmax.");
-    if (rmax <= rmin)
-        throw invalid_argument("RDF requires that rmax must be greater than rmin.");
-    if (rmax - rmin < dr)
-        throw invalid_argument("RDF requires that the range (rmax-rmin) must be greater than dr.");
+    if (r_max <= 0.0f)
+        throw invalid_argument("RDF requires r_max to be positive.");
+    if (dr > r_max)
+        throw invalid_argument("RDF requires dr must be less than or equal to r_max.");
+    if (r_max <= r_min)
+        throw invalid_argument("RDF requires that r_max must be greater than r_min.");
+    if (r_max - r_min < dr)
+        throw invalid_argument("RDF requires that the range (r_max-r_min) must be greater than dr.");
 
-    m_nbins = int(floorf((m_rmax - m_rmin) / m_dr));
+    m_nbins = int(floorf((m_r_max - m_r_min) / m_dr));
     assert(m_nbins > 0);
     m_pcf_array = util::makeEmptyArray<float>(m_nbins);
     m_avg_counts = util::makeEmptyArray<float>(m_nbins);
@@ -43,7 +43,7 @@ RDF::RDF(float rmax, float dr, float rmin) : m_rmax(rmax), m_rmin(rmin), m_dr(dr
 
 
     std::vector<std::shared_ptr<util::Axis> > axes;
-    axes.push_back(std::make_shared<util::RegularAxis>(m_nbins, m_rmin, m_rmax));
+    axes.push_back(std::make_shared<util::RegularAxis>(m_nbins, m_r_min, m_r_max));
     m_bin_counts = util::Histogram(axes);
     m_local_bin_counts = util::Histogram::ThreadLocalHistogram(m_bin_counts);
 
@@ -55,8 +55,8 @@ RDF::RDF(float rmax, float dr, float rmin) : m_rmax(rmax), m_rmin(rmin), m_dr(dr
 
     for (unsigned int i = 0; i < m_nbins; i++)
     {
-        float r = float(i) * m_dr + m_rmin;
-        float nextr = float(i + 1) * m_dr + m_rmin;
+        float r = float(i) * m_dr + m_r_min;
+        float nextr = float(i + 1) * m_dr + m_r_min;
         m_r_array.get()[i] = 2.0f / 3.0f * (nextr * nextr * nextr - r * r * r) / (nextr * nextr - r * r);
         m_vol_array2D.get()[i] = M_PI * (nextr * nextr - r * r);
         m_vol_array3D.get()[i] = 4.0f / 3.0f * M_PI * (nextr * nextr * nextr - r * r * r);
@@ -175,7 +175,7 @@ void RDF::accumulate(const freud::locality::NeighborQuery* neighbor_query,
     m_box = neighbor_query->getBox();
     locality::loopOverNeighbors(neighbor_query, query_points, n_query_points, qargs, nlist,
            [=](const freud::locality::NeighborBond& neighbor_bond) {
-        if (neighbor_bond.distance < m_rmax && neighbor_bond.distance > m_rmin)
+        if (neighbor_bond.distance < m_r_max && neighbor_bond.distance > m_r_min)
         {
             m_local_bin_counts.local()(neighbor_bond.distance);
         }

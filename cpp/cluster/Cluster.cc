@@ -18,10 +18,10 @@ using namespace std;
 
 namespace freud { namespace cluster {
 
-Cluster::Cluster(float rcut) : m_rcut(rcut), m_num_particles(0), m_num_clusters(0)
+Cluster::Cluster(float r_max) : m_r_max(r_max), m_num_particles(0), m_num_clusters(0)
 {
-    if (m_rcut < 0.0f)
-        throw invalid_argument("Cluster requires that rcut must be non-negative.");
+    if (m_r_max < 0.0f)
+        throw invalid_argument("Cluster requires that r_max must be non-negative.");
 }
 
 void Cluster::compute(const freud::locality::NeighborQuery* nq,
@@ -42,7 +42,7 @@ void Cluster::compute(const freud::locality::NeighborQuery* nq,
         nq, points, Np, qargs, nlist,
         [this, &dj](const freud::locality::NeighborBond& neighbor_bond) {
             // compute r between the two particles
-            if (neighbor_bond.distance < m_rcut)
+            if (neighbor_bond.distance < m_r_max)
             {
                 // merge the two sets using the disjoint set
                 if (!dj.same(neighbor_bond.ref_id, neighbor_bond.id))

@@ -357,8 +357,8 @@ public:
             {
                 vec3<float> ref_point = make_point(m_ref_points.row(ref_index));
                 vec3<float> delta = ref_point - pfit;
-                double rsq = dot(delta, delta);
-                ref_distances.push_back(std::pair<unsigned int, double>(ref_index, rsq));
+                double r_sq = dot(delta, delta);
+                ref_distances.push_back(std::pair<unsigned int, double>(ref_index, r_sq));
             }
             // sort the ref_distances from nearest to farthest
             sort(ref_distances.begin(), ref_distances.end(), compare_ref_distances);
