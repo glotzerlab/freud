@@ -20,7 +20,7 @@ using namespace tbb;
 namespace freud { namespace pmft {
 
 PMFTR12::PMFTR12(float r_max, unsigned int n_r, unsigned int n_t1, unsigned int n_t2)
-    : PMFT(), m_r_max(r_max), m_t1_max(2.0 * M_PI), m_t2_max(2.0 * M_PI), m_n_r(n_r), m_n_t1(n_t1),
+    : PMFT(), m_t1_max(2.0 * M_PI), m_t2_max(2.0 * M_PI), m_n_r(n_r), m_n_t1(n_t1),
       m_n_t2(n_t2)
 {
     if (n_r < 1)
@@ -32,6 +32,7 @@ PMFTR12::PMFTR12(float r_max, unsigned int n_r, unsigned int n_t1, unsigned int 
     if (r_max < 0.0f)
         throw invalid_argument("PMFTR12 requires that r_max must be positive.");
     // calculate dr, dt1, dt2
+    m_r_max = r_max;
     m_dr = m_r_max / float(m_n_r);
     m_dt1 = m_t1_max / float(m_n_t1);
     m_dt2 = m_t2_max / float(m_n_t2);
