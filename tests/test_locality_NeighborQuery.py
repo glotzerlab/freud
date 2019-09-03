@@ -448,7 +448,7 @@ class TestNeighborQuery(object):
         r_max = 2.45
         cell_width = 1
         nq = self.build_query_object(box, ref_points, cell_width)
-        q = nq.query(points, dict(r_max=rmax))
+        q = nq.query(points, dict(r_max=r_max))
         self.assertEqual(len(list(q)), 1)
         q = nq.query(points, dict(num_neighbors=1000))
         self.assertEqual(len(list(q)), 1)
