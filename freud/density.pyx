@@ -150,10 +150,9 @@ cdef class FloatCF(SpatialHistogram):
 
     @Compute._computed_property()
     def RDF(self):
-        cdef unsigned int n_bins = self.thisptr.getNBins()
-        cdef const double[::1] RDF = \
-            <double[:n_bins]> self.thisptr.getRDF().get()
-        return np.asarray(RDF)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getRDF(),
+            freud.util.arr_type_t.DOUBLE)
 
     @Compute._computed_property()
     def box(self):
@@ -359,10 +358,9 @@ cdef class ComplexCF(SpatialHistogram):
 
     @Compute._computed_property()
     def RDF(self):
-        cdef unsigned int n_bins = self.thisptr.getNBins()
-        cdef np.complex128_t[::1] RDF = \
-            <np.complex128_t[:n_bins]> self.thisptr.getRDF().get()
-        return np.asarray(RDF)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getRDF(),
+            freud.util.arr_type_t.COMPLEX_DOUBLE)
 
     @Compute._computed_property()
     def box(self):

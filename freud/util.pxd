@@ -15,17 +15,23 @@ from libcpp.memory cimport shared_ptr
 cimport numpy as np
 
 ctypedef unsigned int uint
+ctypedef float complex fcomplex
+ctypedef double complex dcomplex
 
 ctypedef enum arr_type_t:
     UNSIGNED_INT
     FLOAT
-    COMPLEX
+    DOUBLE
+    COMPLEX_FLOAT
+    COMPLEX_DOUBLE
 
 ctypedef union arr_ptr_t:
     const void *null_ptr
     const ManagedArray[uint] *uint_ptr
     const ManagedArray[float] *float_ptr
-    const ManagedArray[float complex] *complex_ptr
+    const ManagedArray[double] *double_ptr
+    const ManagedArray[float complex] *complex_float_ptr
+    const ManagedArray[double complex] *complex_double_ptr
 
 
 cdef class _ManagedArrayContainer:
@@ -52,11 +58,21 @@ cdef class _ManagedArrayContainer:
                                          element_size)
             obj.thisptr.float_ptr = new const ManagedArray[float](
                 dereference(<const ManagedArray[float] *>array))
-        elif arr_type == arr_type_t.COMPLEX:
+        elif arr_type == arr_type_t.DOUBLE:
+            obj = _ManagedArrayContainer(arr_type, np.NPY_DOUBLE,
+                                         element_size)
+            obj.thisptr.double_ptr = new const ManagedArray[double](
+                dereference(<const ManagedArray[double] *>array))
+        elif arr_type == arr_type_t.COMPLEX_FLOAT:
             obj = _ManagedArrayContainer(arr_type, np.NPY_COMPLEX64,
                                          element_size)
-            obj.thisptr.complex_ptr = new const ManagedArray[float complex](
-                dereference(<const ManagedArray[float complex] *>array))
+            obj.thisptr.complex_float_ptr = new const ManagedArray[fcomplex](
+                dereference(<const ManagedArray[fcomplex] *>array))
+        elif arr_type == arr_type_t.COMPLEX_DOUBLE:
+            obj = _ManagedArrayContainer(arr_type, np.NPY_COMPLEX128,
+                                         element_size)
+            obj.thisptr.complex_double_ptr = new const ManagedArray[dcomplex](
+                dereference(<const ManagedArray[dcomplex] *>array))
 
         return obj
 
