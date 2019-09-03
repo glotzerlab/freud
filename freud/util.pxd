@@ -8,6 +8,7 @@ import numpy as np
 
 from freud._util cimport vec3, quat, ManagedArray, PyArray_SetBaseObject
 from cpython cimport Py_INCREF
+from libcpp.complex cimport complex
 from cython.operator cimport dereference
 from libcpp.memory cimport shared_ptr
 
@@ -18,11 +19,13 @@ ctypedef unsigned int uint
 ctypedef enum arr_type_t:
     UNSIGNED_INT
     FLOAT
+    COMPLEX
 
 ctypedef union arr_ptr_t:
     const void *null_ptr
     const ManagedArray[uint] *uint_ptr
     const ManagedArray[float] *float_ptr
+    const ManagedArray[float complex] *complex_ptr
 
 
 cdef class _ManagedArrayContainer:
@@ -49,6 +52,11 @@ cdef class _ManagedArrayContainer:
                                          element_size)
             obj.thisptr.float_ptr = new const ManagedArray[float](
                 dereference(<const ManagedArray[float] *>array))
+        elif arr_type == arr_type_t.COMPLEX:
+            obj = _ManagedArrayContainer(arr_type, np.NPY_COMPLEX64,
+                                         element_size)
+            obj.thisptr.complex_ptr = new const ManagedArray[float complex](
+                dereference(<const ManagedArray[float complex] *>array))
 
         return obj
 
