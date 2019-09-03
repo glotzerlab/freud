@@ -76,7 +76,7 @@ public:
     std::shared_ptr<T> getRDF();
 
     //! Get a reference to the bin counts array
-    std::shared_ptr<unsigned int> getCounts()
+    const util::ManagedArray<unsigned int> &getCounts()
     {
         reduceCorrelationFunction();
         return m_bin_counts;
@@ -104,7 +104,7 @@ private:
     bool m_reduce;                //!< Whether arrays need to be reduced across threads
 
     std::shared_ptr<T> m_rdf_array;             //!< rdf array computed
-    std::shared_ptr<unsigned int> m_bin_counts; //!< bin counts that go into computing the rdf array
+    util::ManagedArray<unsigned int> m_bin_counts; //!< bin counts that go into computing the rdf array
     util::ManagedArray<float> m_r_array;           //!< array of r values where the rdf is computed
     util::ThreadStorage<unsigned int> m_local_bin_counts;
     util::ThreadStorage<T> m_local_rdf_array;

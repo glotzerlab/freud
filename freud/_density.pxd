@@ -18,7 +18,7 @@ cdef extern from "CorrelationFunction.h" namespace "freud::density":
                         unsigned int, const freud._locality.NeighborList*,
                         freud._locality.QueryArgs) except +
         shared_ptr[T] getRDF()
-        shared_ptr[unsigned int] getCounts()
+        const freud.util.ManagedArray[unsigned int] &getCounts()
         const freud.util.ManagedArray[float] &getR()
         unsigned int getNBins() const
 

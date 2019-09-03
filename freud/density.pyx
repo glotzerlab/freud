@@ -198,10 +198,9 @@ cdef class FloatCF(SpatialHistogram):
 
     @Compute._computed_property()
     def counts(self):
-        cdef unsigned int n_bins = self.thisptr.getNBins()
-        cdef const unsigned int[::1] counts = \
-            <unsigned int[:n_bins]> self.thisptr.getCounts().get()
-        return np.asarray(counts, dtype=np.uint32)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getCounts(),
+            freud.util.arr_type_t.UNSIGNED_INT)
 
     @property
     def R(self):
@@ -408,10 +407,9 @@ cdef class ComplexCF(SpatialHistogram):
 
     @Compute._computed_property()
     def counts(self):
-        cdef unsigned int n_bins = self.thisptr.getNBins()
-        cdef const unsigned int[::1] counts = \
-            <unsigned int[:n_bins]> self.thisptr.getCounts().get()
-        return np.asarray(counts, dtype=np.uint32)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getCounts(),
+            freud.util.arr_type_t.UNSIGNED_INT)
 
     @property
     def R(self):

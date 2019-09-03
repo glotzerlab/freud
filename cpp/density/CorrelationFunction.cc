@@ -39,9 +39,7 @@ CorrelationFunction<T>::CorrelationFunction(float r_max, float dr)
     // Less efficient: initialize each bin sequentially using default ctor
     for (size_t i(0); i < m_nbins; ++i)
         m_rdf_array.get()[i] = T();
-    m_bin_counts
-        = std::shared_ptr<unsigned int>(new unsigned int[m_nbins], std::default_delete<unsigned int[]>());
-    memset((void*) m_bin_counts.get(), 0, sizeof(unsigned int) * m_nbins);
+    m_bin_counts.prepare(m_nbins);
 
     // precompute the bin center positions
     m_r_array.prepare(m_nbins);
@@ -59,7 +57,7 @@ CorrelationFunction<T>::CorrelationFunction(float r_max, float dr)
 //! helper function to reduce the thread specific arrays into one array
 template<typename T> void CorrelationFunction<T>::reduceCorrelationFunction()
 {
-    memset((void*) m_bin_counts.get(), 0, sizeof(unsigned int) * m_nbins);
+    m_bin_counts.prepare(m_nbins);
     for (size_t i(0); i < m_nbins; ++i)
         m_rdf_array.get()[i] = T();
     // now compute the rdf
@@ -69,16 +67,16 @@ template<typename T> void CorrelationFunction<T>::reduceCorrelationFunction()
             for (util::ThreadStorage<unsigned int>::const_iterator local_bins = m_local_bin_counts.begin();
                  local_bins != m_local_bin_counts.end(); ++local_bins)
             {
-                m_bin_counts.get()[i] += (*local_bins)[i];
+                m_bin_counts[i] += (*local_bins)[i];
             }
             for (typename util::ThreadStorage<T>::const_iterator local_rdf = m_local_rdf_array.begin();
                  local_rdf != m_local_rdf_array.end(); ++local_rdf)
             {
                 m_rdf_array.get()[i] += (*local_rdf)[i];
             }
-            if (m_bin_counts.get()[i])
+            if (m_bin_counts[i])
             {
-                m_rdf_array.get()[i] /= m_bin_counts.get()[i];
+                m_rdf_array.get()[i] /= m_bin_counts[i];
             }
         }
     });
