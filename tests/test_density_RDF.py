@@ -15,11 +15,8 @@ class TestRDF(unittest.TestCase):
             nbins = int((r_max - r_min) / dr)
 
             # make sure the radius for each bin is generated correctly
-            r_list = np.zeros(nbins, dtype=np.float32)
-            for i in range(nbins):
-                r1 = i * dr + r_min
-                r2 = r1 + dr
-                r_list[i] = 2.0/3.0 * (r2**3.0 - r1**3.0) / (r2**2.0 - r1**2.0)
+            r_list = np.array([r_min + dr*(i+1/2) for i in range(nbins) if
+                               r_min + dr*(i+1/2) < r_max])
             rdf = freud.density.RDF(r_max, dr, r_min=r_min)
             npt.assert_allclose(rdf.R, r_list, rtol=1e-4, atol=1e-4)
 
