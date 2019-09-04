@@ -9,6 +9,7 @@ Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to
 * Various validation tests.
 * Added standard method for preprocessing arguments of pair computations.
 * New internal array object that allows data persistence and improves indexing in C++.
+* Internal threaded storage is uses the standard ManagedArray object.
 
 ### Changed
 * All compute objects that perform neighbor computations now use NeighborQuery internally.
@@ -18,10 +19,13 @@ Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to
 * Updated GaussianDensity constructor to accept tuples as width instead of having 2 distinct signatures.
 * Removed unused query\_orientations from PMFTXYZ and PMFTXY2D.
 * Arrays returned to Python persist even after the compute object is destroyed or resizes its arrays.
+* RDF bin centers are now strictly at the center of bins.
+* RDF no longer performs parallel accumulation of cumulative counts (provided no performance gains and was substantially more complex code).
 
 ### Fixed
 * Steinhardt uses the ThreadStorage class and properly resets memory where needed.
 * Removed all neighbor exclusion logic from all classes, depends entirely on locality module now.
+* RDF no longer forces the first bin of the PCF and first two bins of the cumulative counts to be 0.
 
 ### Removed
 * The freud.util module.
