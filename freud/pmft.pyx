@@ -281,13 +281,9 @@ cdef class PMFTR12(_PMFT):
 
     @property
     def inverse_jacobian(self):
-        cdef unsigned int n_bins_R = self.pmftr12ptr.getNBinsR()
-        cdef unsigned int n_bins_T2 = self.pmftr12ptr.getNBinsT2()
-        cdef unsigned int n_bins_T1 = self.pmftr12ptr.getNBinsT1()
-        cdef const float[:, :, ::1] inverse_jacobian = \
-            <float[:n_bins_R, :n_bins_T2, :n_bins_T1]> \
-            self.pmftr12ptr.getInverseJacobian().get()
-        return np.asarray(inverse_jacobian)
+        return freud.util.make_managed_numpy_array(
+            &self.pmftr12ptr.getInverseJacobian(),
+            freud.util.arr_type_t.FLOAT)
 
     @property
     def n_bins_R(self):

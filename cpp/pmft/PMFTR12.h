@@ -56,7 +56,7 @@ public:
     }
 
     //! Get a reference to the jacobian array
-    std::shared_ptr<float> getInverseJacobian()
+    const util::ManagedArray<float> &getInverseJacobian()
     {
         return m_inv_jacobian_array;
     }
@@ -89,7 +89,7 @@ private:
     std::shared_ptr<float> m_r_array;            //!< Array of r  values where the PCF is computed
     std::shared_ptr<float> m_t1_array;           //!< Array of t1 values where the PCF is computed
     std::shared_ptr<float> m_t2_array;           //!< Array of t2 values where the PCF is computed
-    std::shared_ptr<float> m_inv_jacobian_array; //!< Array of inverse jacobians for each bin
+    util::ManagedArray<float> m_inv_jacobian_array; //!< Array of inverse jacobians for each bin
 };
 
 }; }; // end namespace freud::pmft

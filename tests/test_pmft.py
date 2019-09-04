@@ -77,7 +77,7 @@ class TestPMFTR12(unittest.TestCase):
 
         inverse_jacobian = np.array(
             [[[1/(R*dr*dT1*dT2)
-               for T1 in listT1] for T2 in listT2] for R in listR])
+               for T2 in listT2] for T1 in listT1] for R in listR])
         npt.assert_allclose(myPMFT.inverse_jacobian, inverse_jacobian,
                             atol=1e-5)
 
@@ -432,7 +432,7 @@ class TestPMFTXYT(unittest.TestCase):
             # (corresponding to two consecutive bins) should contain 3 points.
             for i in range(n_t):
                 self.assertEqual(
-                    np.count_nonzero(np.isinf(pmft.PMFT[i]) == 0), 3)
+                    np.count_nonzero(np.isinf(pmft.PMFT[..., i]) == 0), 3)
 
             self.assertEqual(len(np.unique(pmft.PMFT)), 2)
 
@@ -561,7 +561,7 @@ class TestPMFTXY2D(unittest.TestCase):
         dx = (2.0 * maxX / float(nbinsX))
         dy = (2.0 * maxY / float(nbinsY))
 
-        correct_bin_counts = np.zeros(shape=(nbinsY, nbinsX), dtype=np.int32)
+        correct_bin_counts = np.zeros(shape=(nbinsX, nbinsY), dtype=np.int32)
 
         # calculation for array idxs
         def get_bin(point_i, point_j):
@@ -674,8 +674,8 @@ class TestPMFTXY2D(unittest.TestCase):
                      query_args={'mode': 'nearest', 'num_neighbors': 1})
         npt.assert_array_equal(
             pmft.bin_counts,
-            [[0, 0, 0],
-             [1, 0, 0],
+            [[0, 1, 0],
+             [0, 0, 0],
              [0, 0, 0]])
 
 
@@ -822,7 +822,7 @@ class TestPMFTXYZ(unittest.TestCase):
         dy = (2.0 * maxY / float(nbinsY))
         dz = (2.0 * maxZ / float(nbinsZ))
 
-        correct_bin_counts = np.zeros(shape=(nbinsZ, nbinsY, nbinsX),
+        correct_bin_counts = np.zeros(shape=(nbinsX, nbinsY, nbinsZ),
                                       dtype=np.int32)
 
         # calculation for array idxs
@@ -949,7 +949,7 @@ class TestPMFTXYZ(unittest.TestCase):
                      query_args={'mode': 'nearest', 'num_neighbors': 1})
         # The only nonzero bin is in the left bin for x, but the center for
         # everything else (0 distance in y and z).
-        self.assertEqual(pmft.bin_counts[1, 1, 0], 1)
+        self.assertEqual(pmft.bin_counts[0, 1, 1], 1)
         self.assertEqual(np.sum(pmft.bin_counts), 1)
         self.assertTrue(np.all(pmft.bin_counts >= 0))
 

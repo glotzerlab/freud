@@ -31,7 +31,7 @@ cdef extern from "PMFTR12.h" namespace "freud::pmft":
         shared_ptr[float] getR()
         shared_ptr[float] getT1()
         shared_ptr[float] getT2()
-        shared_ptr[float] getInverseJacobian()
+        const freud.util.ManagedArray[float] &getInverseJacobian()
         unsigned int getNBinsR()
         unsigned int getNBinsT1()
         unsigned int getNBinsT2()
