@@ -85,8 +85,8 @@ public:
     void reduce3D(unsigned int n_r, unsigned int first_dim, unsigned int second_dim, JacobFactor jf)
     {
         unsigned int local_bin_counts_size = n_r * first_dim * second_dim;
-        m_bin_counts.prepare({n_r, first_dim, second_dim});
-        m_pcf_array.prepare({n_r, first_dim, second_dim});
+        m_bin_counts.prepare({first_dim, second_dim, n_r});
+        m_pcf_array.prepare({first_dim, second_dim, n_r});
         parallel_for(tbb::blocked_range<size_t>(0, local_bin_counts_size),
                      [=](const tbb::blocked_range<size_t>& r) {
                          for (size_t i = r.begin(); i != r.end(); i++)
