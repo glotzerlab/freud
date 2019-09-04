@@ -21,6 +21,7 @@ from collections.abc import Sequence
 cimport freud._density
 cimport freud.box, freud.locality
 cimport numpy as np
+cimport freud.util
 
 # numpy must be initialized. When using numpy from C or Cython you must
 # _always_ do that, or you will have segfaults
@@ -149,10 +150,9 @@ cdef class FloatCF(SpatialHistogram):
 
     @Compute._computed_property()
     def RDF(self):
-        cdef unsigned int n_bins = self.thisptr.getNBins()
-        cdef const double[::1] RDF = \
-            <double[:n_bins]> self.thisptr.getRDF().get()
-        return np.asarray(RDF)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getRDF(),
+            freud.util.arr_type_t.DOUBLE)
 
     @Compute._computed_property()
     def box(self):
@@ -197,17 +197,15 @@ cdef class FloatCF(SpatialHistogram):
 
     @Compute._computed_property()
     def counts(self):
-        cdef unsigned int n_bins = self.thisptr.getNBins()
-        cdef const unsigned int[::1] counts = \
-            <unsigned int[:n_bins]> self.thisptr.getCounts().get()
-        return np.asarray(counts, dtype=np.uint32)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getCounts(),
+            freud.util.arr_type_t.UNSIGNED_INT)
 
     @property
     def R(self):
-        cdef unsigned int n_bins = self.thisptr.getNBins()
-        cdef const float[::1] R = \
-            <float[:n_bins]> self.thisptr.getR().get()
-        return np.asarray(R)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getR(),
+            freud.util.arr_type_t.FLOAT)
 
     def __repr__(self):
         return ("freud.density.{cls}(r_max={r_max}, dr={dr})").format(
@@ -360,10 +358,9 @@ cdef class ComplexCF(SpatialHistogram):
 
     @Compute._computed_property()
     def RDF(self):
-        cdef unsigned int n_bins = self.thisptr.getNBins()
-        cdef np.complex128_t[::1] RDF = \
-            <np.complex128_t[:n_bins]> self.thisptr.getRDF().get()
-        return np.asarray(RDF)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getRDF(),
+            freud.util.arr_type_t.COMPLEX_DOUBLE)
 
     @Compute._computed_property()
     def box(self):
@@ -408,17 +405,15 @@ cdef class ComplexCF(SpatialHistogram):
 
     @Compute._computed_property()
     def counts(self):
-        cdef unsigned int n_bins = self.thisptr.getNBins()
-        cdef const unsigned int[::1] counts = \
-            <unsigned int[:n_bins]> self.thisptr.getCounts().get()
-        return np.asarray(counts, dtype=np.uint32)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getCounts(),
+            freud.util.arr_type_t.UNSIGNED_INT)
 
     @property
     def R(self):
-        cdef unsigned int n_bins = self.thisptr.getNBins()
-        cdef const float[::1] R = \
-            <float[:n_bins]> self.thisptr.getR().get()
-        return np.asarray(R)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getR(),
+            freud.util.arr_type_t.FLOAT)
 
     def __repr__(self):
         return ("freud.density.{cls}(r_max={r_max}, dr={dr})").format(
@@ -698,17 +693,15 @@ cdef class LocalDensity(PairCompute):
 
     @Compute._computed_property()
     def density(self):
-        cdef unsigned int n_ref = self.thisptr.getNPoints()
-        cdef const float[::1] density = \
-            <float[:n_ref]> self.thisptr.getDensity().get()
-        return np.asarray(density)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getDensity(),
+            freud.util.arr_type_t.FLOAT)
 
     @Compute._computed_property()
     def num_neighbors(self):
-        cdef unsigned int n_ref = self.thisptr.getNPoints()
-        cdef const float[::1] num_neighbors = \
-            <float[:n_ref]> self.thisptr.getNumNeighbors().get()
-        return np.asarray(num_neighbors)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getNumNeighbors(),
+            freud.util.arr_type_t.FLOAT)
 
     def __repr__(self):
         return ("freud.density.{cls}(r_max={r_max}, volume={volume}, "
