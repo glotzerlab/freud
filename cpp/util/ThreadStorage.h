@@ -14,7 +14,7 @@ template<typename T> class ThreadStorage
 {
 public:
     //! Default constructor
-    ThreadStorage() : m_size(0), arrays(tbb::enumerable_thread_specific<ManagedArray<T> >([]() { return ManagedArray<T>(); })) {}
+    ThreadStorage() : arrays(tbb::enumerable_thread_specific<ManagedArray<T> >([]() { return ManagedArray<T>(); })) {}
 
     //! Constructor with specific size for thread local arrays
     /*! \param size Size of the thread local arrays
@@ -26,15 +26,7 @@ public:
     /*! \param shape Vector of sizes in each dimension of the thread local arrays
      */
     ThreadStorage(std::vector<unsigned int> shape)
-        : m_shape(shape),
-          arrays(tbb::enumerable_thread_specific<ManagedArray<T> >([this]() { return ManagedArray<T>(m_shape); }))
-    {
-        m_size = 1;
-        for (unsigned int i = 0; i < m_shape.size(); ++i)
-        {
-            m_size *= m_shape[i];
-        }
-    }
+        : arrays(tbb::enumerable_thread_specific<ManagedArray<T> >([shape]() { return ManagedArray<T>(shape); })) {}
 
     //! Destructor
     ~ThreadStorage() {}
@@ -52,13 +44,7 @@ public:
      */
     void resize(std::vector<unsigned int> shape)
     {
-        m_shape = shape;
-        m_size = 1;
-        for (unsigned int i = 0; i < m_shape.size(); ++i)
-        {
-            m_size *= m_shape[i];
-        }
-        arrays = tbb::enumerable_thread_specific<ManagedArray<T> >([this]() { return ManagedArray<T>(m_shape); });
+        arrays = tbb::enumerable_thread_specific<ManagedArray<T> >([shape]() { return ManagedArray<T>(shape); });
     }
 
     //! Reset the contents of thread local arrays to be 0
@@ -100,8 +86,6 @@ public:
     }
 
 private:
-    unsigned int m_size;                       //!< size of thread local arrays
-    std::vector<unsigned int> m_shape;         //!< Shape of arrays.
     tbb::enumerable_thread_specific<ManagedArray<T> > arrays; //!< thread local arrays
 };
 
