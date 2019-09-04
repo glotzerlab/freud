@@ -8,6 +8,7 @@ Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to
 * Ability to specify NeighborQuery objects as points for neighbor-based pair computes.
 * Various validation tests.
 * Added standard method for preprocessing arguments of pair computations.
+* New internal array object that allows data persistence and improves indexing in C++.
 
 ### Changed
 * All compute objects that perform neighbor computations now use NeighborQuery internally.
@@ -16,6 +17,7 @@ Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to
 * Standardized naming of various common parameters across freud such as the search distance r\_max.
 * Updated GaussianDensity constructor to accept tuples as width instead of having 2 distinct signatures.
 * Removed unused query\_orientations from PMFTXYZ and PMFTXY2D.
+* Arrays returned to Python persist even after the compute object is destroyed or resizes its arrays.
 
 ### Fixed
 * Steinhardt uses the ThreadStorage class and properly resets memory where needed.
