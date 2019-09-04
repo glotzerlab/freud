@@ -50,7 +50,7 @@ RDF::RDF(float r_max, float dr, float r_min) : util::NdHistogram(), m_r_max(r_ma
     {
         float r = float(i) * m_dr + m_r_min;
         float nextr = float(i + 1) * m_dr + m_r_min;
-        m_r_array.get()[i] = r + m_dr/2;
+        m_r_array.get()[i] = (r + nextr)/2;
         m_vol_array2D.get()[i] = M_PI * (nextr * nextr - r * r);
         m_vol_array3D.get()[i] = 4.0f / 3.0f * M_PI * (nextr * nextr * nextr - r * r * r);
     }
