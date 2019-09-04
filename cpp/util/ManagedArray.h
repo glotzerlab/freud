@@ -4,6 +4,7 @@
 #include <cstring>
 #include <memory>
 #include <vector>
+#include <sstream>
 
 /*! \file ManagedArray.h
     \brief Defines the standard array class to be used throughout freud.
@@ -119,17 +120,22 @@ public:
     {
         if (index >= size())
         {
-            throw std::runtime_error("Attempted to access data out of bounds.");
+            std::ostringstream msg;
+            msg << "Attempted to access index " << index << " in an array of size " << size() << std::endl;
+            throw std::invalid_argument(msg.str());
         }
         return get()[index];
     }
+
 
     //! Read-only index into array.
     const T &operator[](unsigned int index) const
     {
         if (index >= size())
         {
-            throw std::invalid_argument("Attempted to access data out of bounds.");
+            std::ostringstream msg;
+            msg << "Attempted to access index " << index << " in an array of size " << size() << std::endl;
+            throw std::invalid_argument(msg.str());
         }
         return get()[index];
     }
@@ -203,7 +209,9 @@ public:
         {
             if (indices[i] > (*m_shape)[i])
             {
-                throw std::invalid_argument("Accessing data out of bounds.");
+                std::ostringstream msg;
+                msg << "Attempted to access index " << indices[i] << " in dimension " << i << ", which has size" << (*m_shape)[i] << std::endl;
+                throw std::invalid_argument(msg.str());
             }
         }
 
