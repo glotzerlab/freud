@@ -758,7 +758,11 @@ cdef class RDF(SpatialHistogram):
         R ((:math:`N_{bins}`) :class:`numpy.ndarray`):
             The centers of each bin.
         n_r ((:math:`N_{bins}`,) :class:`numpy.ndarray`):
-            Histogram of cumulative RDF values (*i.e.* the integrated RDF).
+            Histogram of cumulative bin_counts values. More precisely,
+            :code:`n_r[i]` is the average number of points contained within a
+            ball of radius :code:`R[i]+dr/2` centered at a given
+            :code:`query_point` averaged over all :code:`query_points` in the
+            last call to :meth:`~.compute` (or :meth:`~.accumulate`).
     """
     cdef freud._density.RDF * thisptr
     cdef dr

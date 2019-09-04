@@ -55,7 +55,11 @@ public:
     //! Get a reference to the r array
     std::shared_ptr<float> getR();
 
-    //! Get a reference to the N_r array
+    //! Get a reference to the N_r array.
+    /*! Mathematically, m_N_r_array[i] is the average number of points
+     * contained within a ball of radius m_r_array[i]+dr/2 centered at a given
+     * query_point, averaged over all query_points.
+     */
     std::shared_ptr<float> getNr()
     {
         return reduceAndReturn(m_N_r_array);
