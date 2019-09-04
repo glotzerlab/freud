@@ -266,8 +266,7 @@ void Steinhardt::reduce()
     parallel_for(tbb::blocked_range<size_t>(0, 2 * m_l + 1), [=](const blocked_range<size_t>& r) {
         for (size_t i = r.begin(); i != r.end(); i++)
         {
-            for (tbb::enumerable_thread_specific<complex<float>*>::const_iterator Ql_local
-                 = m_Qlm_local.begin();
+            for (util::ThreadStorage<complex<float>>::const_iterator Ql_local = m_Qlm_local.begin();
                  Ql_local != m_Qlm_local.end(); Ql_local++)
             {
                 m_Qlm.get()[i] += (*Ql_local)[i];
