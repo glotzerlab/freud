@@ -59,8 +59,8 @@ PMFTXYZ::PMFTXYZ(float x_max, float y_max, float z_max, unsigned int n_x, unsign
     m_z_array = precomputeAxisBinCenter(m_n_z, m_dz, m_z_max);
 
     // create and populate the pcf_array
-    m_pcf_array = util::makeEmptyArray<float>(m_n_x * m_n_y * m_n_z);
-    m_bin_counts = util::makeEmptyArray<unsigned int>(m_n_x * m_n_y * m_n_z);
+    m_pcf_array.prepare({m_n_x, m_n_y, m_n_z});
+    m_bin_counts.prepare({m_n_x, m_n_y, m_n_z});
 
     // Set r_max
     m_r_max = sqrtf(m_x_max * m_x_max + m_y_max * m_y_max + m_z_max * m_z_max);

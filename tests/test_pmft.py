@@ -111,9 +111,9 @@ class TestPMFTR12(unittest.TestCase):
         myPMFT.bin_counts
         myPMFT.PMFT
         myPMFT.box
-        npt.assert_equal(myPMFT.bin_counts.shape, (nbinsR, nbinsT2, nbinsT1))
-        npt.assert_equal(myPMFT.PCF.shape, (nbinsR, nbinsT2, nbinsT1))
-        npt.assert_equal(myPMFT.PMFT.shape, (nbinsR, nbinsT2, nbinsT1))
+        npt.assert_equal(myPMFT.bin_counts.shape, (nbinsR, nbinsT1, nbinsT2))
+        npt.assert_equal(myPMFT.PCF.shape, (nbinsR, nbinsT1, nbinsT2))
+        npt.assert_equal(myPMFT.PMFT.shape, (nbinsR, nbinsT1, nbinsT2))
 
         myPMFT.reset()
 
@@ -156,9 +156,9 @@ class TestPMFTR12(unittest.TestCase):
             delta_t2 = np.arctan2(-delta_x[1], -delta_x[0])
             t1_bin = np.floor(((angle_i - delta_t1) % (2. * np.pi))/dT1)
             t2_bin = np.floor(((angle_j - delta_t2) % (2. * np.pi))/dT2)
-            return np.array([r_bin, t2_bin, t1_bin], dtype=np.int32)
+            return np.array([r_bin, t1_bin, t2_bin], dtype=np.int32)
 
-        correct_bin_counts = np.zeros(shape=(nbinsR, nbinsT2, nbinsT1),
+        correct_bin_counts = np.zeros(shape=(nbinsR, nbinsT1, nbinsT2),
                                       dtype=np.int32)
         bins = get_bin(points[0], points[1], angles[0], angles[1])
         correct_bin_counts[bins[0], bins[1], bins[2]] = 1
@@ -320,9 +320,9 @@ class TestPMFTXYT(unittest.TestCase):
         myPMFT.bin_counts
         myPMFT.PMFT
         myPMFT.box
-        npt.assert_equal(myPMFT.bin_counts.shape, (nbinsT, nbinsY, nbinsX))
-        npt.assert_equal(myPMFT.PCF.shape, (nbinsT, nbinsY, nbinsX))
-        npt.assert_equal(myPMFT.PMFT.shape, (nbinsT, nbinsY, nbinsX))
+        npt.assert_equal(myPMFT.bin_counts.shape, (nbinsX, nbinsY, nbinsT))
+        npt.assert_equal(myPMFT.PCF.shape, (nbinsX, nbinsY, nbinsT))
+        npt.assert_equal(myPMFT.PMFT.shape, (nbinsX, nbinsY, nbinsT))
 
         myPMFT.reset()
 
@@ -369,12 +369,12 @@ class TestPMFTXYT(unittest.TestCase):
                  (2. * np.pi)) / dT).astype(np.int32)
             return [xy_bins[0], xy_bins[1], angle_bin]
 
-        correct_bin_counts = np.zeros(shape=(nbinsT, nbinsY, nbinsX),
+        correct_bin_counts = np.zeros(shape=(nbinsX, nbinsY, nbinsT),
                                       dtype=np.int32)
         bins = get_bin(points[0], points[1], angles[0], angles[1])
-        correct_bin_counts[bins[2], bins[1], bins[0]] = 1
+        correct_bin_counts[bins[0], bins[1], bins[2]] = 1
         bins = get_bin(points[1], points[0], angles[1], angles[0])
-        correct_bin_counts[bins[2], bins[1], bins[0]] = 1
+        correct_bin_counts[bins[0], bins[1], bins[2]] = 1
         absoluteTolerance = 0.1
 
         r_max = np.sqrt(maxX**2 + maxY**2)
@@ -527,9 +527,9 @@ class TestPMFTXY2D(unittest.TestCase):
         myPMFT.bin_counts
         myPMFT.PMFT
         myPMFT.box
-        npt.assert_equal(myPMFT.bin_counts.shape, (nbinsY, nbinsX))
-        npt.assert_equal(myPMFT.PCF.shape, (nbinsY, nbinsX))
-        npt.assert_equal(myPMFT.PMFT.shape, (nbinsY, nbinsX))
+        npt.assert_equal(myPMFT.bin_counts.shape, (nbinsX, nbinsY))
+        npt.assert_equal(myPMFT.PCF.shape, (nbinsX, nbinsY))
+        npt.assert_equal(myPMFT.PMFT.shape, (nbinsX, nbinsY))
 
         myPMFT.reset()
 
@@ -569,9 +569,9 @@ class TestPMFTXY2D(unittest.TestCase):
                             [dx, dy, 1]).astype(np.int32)[:2]
 
         bins = get_bin(points[0], points[1])
-        correct_bin_counts[bins[1], bins[0]] = 1
+        correct_bin_counts[bins[0], bins[1]] = 1
         bins = get_bin(points[1], points[0])
-        correct_bin_counts[bins[1], bins[0]] = 1
+        correct_bin_counts[bins[0], bins[1]] = 1
         absoluteTolerance = 0.1
 
         r_max = np.sqrt(maxX**2 + maxY**2)
@@ -785,9 +785,9 @@ class TestPMFTXYZ(unittest.TestCase):
         myPMFT.bin_counts
         myPMFT.PMFT
         myPMFT.box
-        npt.assert_equal(myPMFT.bin_counts.shape, (nbinsZ, nbinsY, nbinsX))
-        npt.assert_equal(myPMFT.PCF.shape, (nbinsZ, nbinsY, nbinsX))
-        npt.assert_equal(myPMFT.PMFT.shape, (nbinsZ, nbinsY, nbinsX))
+        npt.assert_equal(myPMFT.bin_counts.shape, (nbinsX, nbinsY, nbinsZ))
+        npt.assert_equal(myPMFT.PCF.shape, (nbinsX, nbinsY, nbinsZ))
+        npt.assert_equal(myPMFT.PMFT.shape, (nbinsX, nbinsY, nbinsZ))
 
         myPMFT.reset()
 
@@ -831,9 +831,9 @@ class TestPMFTXYZ(unittest.TestCase):
                             [dx, dy, dz]).astype(np.int32)
 
         bins = get_bin(points[0], points[1])
-        correct_bin_counts[bins[2], bins[1], bins[0]] = 1
+        correct_bin_counts[bins[0], bins[1], bins[2]] = 1
         bins = get_bin(points[1], points[0])
-        correct_bin_counts[bins[2], bins[1], bins[0]] = 1
+        correct_bin_counts[bins[0], bins[1], bins[2]] = 1
         absoluteTolerance = 0.1
 
         r_max = np.sqrt(maxX**2 + maxY**2 + maxZ**2)

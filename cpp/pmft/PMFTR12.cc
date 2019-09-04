@@ -73,8 +73,8 @@ PMFTR12::PMFTR12(float r_max, unsigned int n_r, unsigned int n_t1, unsigned int 
     m_t2_array = precomputeAxisBinCenter(m_n_t2, m_dt2, 0);
 
     // create and populate the pcf_array
-    m_pcf_array = util::makeEmptyArray<float>(m_n_r * m_n_t1 * m_n_t2);
-    m_bin_counts = util::makeEmptyArray<unsigned int>(m_n_r * m_n_t1 * m_n_t2);
+    m_pcf_array.prepare({m_n_r, m_n_t1, m_n_t2});
+    m_bin_counts.prepare({m_n_r, m_n_t1, m_n_t2});
 
     m_local_bin_counts.resize(m_n_r * m_n_t1 * m_n_t2);
 }

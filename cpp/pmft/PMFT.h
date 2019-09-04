@@ -85,8 +85,8 @@ public:
     void reduce3D(unsigned int n_r, unsigned int first_dim, unsigned int second_dim, JacobFactor jf)
     {
         unsigned int local_bin_counts_size = n_r * first_dim * second_dim;
-        memset((void*) m_bin_counts.get(), 0, sizeof(unsigned int) * local_bin_counts_size);
-        memset((void*) m_pcf_array.get(), 0, sizeof(float) * local_bin_counts_size);
+        m_bin_counts.prepare({n_r, first_dim, second_dim});
+        m_pcf_array.prepare({n_r, first_dim, second_dim});
         parallel_for(tbb::blocked_range<size_t>(0, local_bin_counts_size),
                      [=](const tbb::blocked_range<size_t>& r) {
                          for (size_t i = r.begin(); i != r.end(); i++)
@@ -95,7 +95,7 @@ public:
                                   = m_local_bin_counts.begin();
                                   local_bins != m_local_bin_counts.end(); ++local_bins)
                              {
-                                 m_bin_counts.get()[i] += (*local_bins)[i];
+                                 m_bin_counts[i] += (*local_bins)[i];
                              }
                          }
                      });
@@ -107,8 +107,8 @@ public:
                      [=](const tbb::blocked_range<size_t>& r) {
                          for (size_t i = r.begin(); i != r.end(); i++)
                          {
-                             m_pcf_array.get()[i]
-                                 = (float) m_bin_counts.get()[i] * norm_factor * jf(i) * inv_num_dens;
+                             m_pcf_array[i]
+                                 = (float) m_bin_counts[i] * norm_factor * jf(i) * inv_num_dens;
                          }
                      });
     }

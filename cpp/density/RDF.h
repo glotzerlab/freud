@@ -47,7 +47,7 @@ public:
     }
 
     //! Get a reference to the PCF array
-    std::shared_ptr<float> getRDF()
+    const util::ManagedArray<float> &getRDF()
     {
         return getPCF();
     }

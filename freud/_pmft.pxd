@@ -5,6 +5,7 @@ from freud.util cimport vec3, quat
 from libcpp.memory cimport shared_ptr
 cimport freud._box
 cimport freud._locality
+cimport freud.util
 
 cdef extern from "PMFT.h" namespace "freud::pmft":
     cdef cppclass PMFT:
@@ -12,8 +13,8 @@ cdef extern from "PMFT.h" namespace "freud::pmft":
 
         const freud._box.Box & getBox() const
         void reset()
-        shared_ptr[unsigned int] getBinCounts()
-        shared_ptr[float] getPCF()
+        const freud.util.ManagedArray[unsigned int] &getBinCounts()
+        const freud.util.ManagedArray[float] &getPCF()
         float getRMax()
 
 cdef extern from "PMFTR12.h" namespace "freud::pmft":

@@ -94,6 +94,18 @@ cdef class _PMFT(SpatialHistogram):
             result = -np.log(np.copy(self.PCF))
         return result
 
+    @Compute._computed_property()
+    def bin_counts(self):
+        return freud.util.make_managed_numpy_array(
+            &self.pmftptr.getBinCounts(),
+            freud.util.arr_type_t.UNSIGNED_INT)
+
+    @Compute._computed_property()
+    def PCF(self):
+        return freud.util.make_managed_numpy_array(
+            &self.pmftptr.getPCF(),
+            freud.util.arr_type_t.FLOAT)
+
     @property
     def r_max(self):
         return self.pmftptr.getRMax()
@@ -245,26 +257,6 @@ cdef class PMFTR12(_PMFT):
         self.accumulate(box, points, orientations,
                         query_points, query_orientations, nlist, query_args)
         return self
-
-    @Compute._computed_property()
-    def bin_counts(self):
-        cdef unsigned int n_bins_R = self.pmftr12ptr.getNBinsR()
-        cdef unsigned int n_bins_T2 = self.pmftr12ptr.getNBinsT2()
-        cdef unsigned int n_bins_T1 = self.pmftr12ptr.getNBinsT1()
-        cdef const unsigned int[:, :, ::1] bin_counts = \
-            <unsigned int[:n_bins_R, :n_bins_T2, :n_bins_T1]> \
-            self.pmftr12ptr.getBinCounts().get()
-        return np.asarray(bin_counts, dtype=np.uint32)
-
-    @Compute._computed_property()
-    def PCF(self):
-        cdef unsigned int n_bins_R = self.pmftr12ptr.getNBinsR()
-        cdef unsigned int n_bins_T2 = self.pmftr12ptr.getNBinsT2()
-        cdef unsigned int n_bins_T1 = self.pmftr12ptr.getNBinsT1()
-        cdef const float[:, :, ::1] PCF = \
-            <float[:n_bins_R, :n_bins_T2, :n_bins_T1]> \
-            self.pmftr12ptr.getPCF().get()
-        return np.asarray(PCF)
 
     @property
     def R(self):
@@ -480,26 +472,6 @@ cdef class PMFTXYT(_PMFT):
                         query_points, query_orientations, nlist, query_args)
         return self
 
-    @Compute._computed_property()
-    def bin_counts(self):
-        cdef unsigned int n_bins_T = self.pmftxytptr.getNBinsT()
-        cdef unsigned int n_bins_Y = self.pmftxytptr.getNBinsY()
-        cdef unsigned int n_bins_X = self.pmftxytptr.getNBinsX()
-        cdef const unsigned int[:, :, ::1] bin_counts = \
-            <unsigned int[:n_bins_T, :n_bins_Y, :n_bins_X]> \
-            self.pmftxytptr.getBinCounts().get()
-        return np.asarray(bin_counts, dtype=np.uint32)
-
-    @Compute._computed_property()
-    def PCF(self):
-        cdef unsigned int n_bins_T = self.pmftxytptr.getNBinsT()
-        cdef unsigned int n_bins_Y = self.pmftxytptr.getNBinsY()
-        cdef unsigned int n_bins_X = self.pmftxytptr.getNBinsX()
-        cdef const float[:, :, ::1] PCF = \
-            <float[:n_bins_T, :n_bins_Y, :n_bins_X]> \
-            self.pmftxytptr.getPCF().get()
-        return np.asarray(PCF)
-
     @property
     def X(self):
         cdef unsigned int n_bins_X = self.pmftxytptr.getNBinsX()
@@ -684,21 +656,17 @@ cdef class PMFTXY2D(_PMFT):
 
     @Compute._computed_property()
     def bin_counts(self):
-        cdef unsigned int n_bins_Y = self.pmftxy2dptr.getNBinsY()
-        cdef unsigned int n_bins_X = self.pmftxy2dptr.getNBinsX()
-        cdef const unsigned int[:, ::1] bin_counts = \
-            <unsigned int[:n_bins_Y, :n_bins_X]> \
-            self.pmftxy2dptr.getBinCounts().get()
-        return np.asarray(bin_counts, dtype=np.uint32)
+        # Currently this returns a 3D array that must be squeezed due to the
+        # internal choices in the histogramming; this will be fixed in future
+        # changes.
+        return np.squeeze(super(PMFTXY2D, self).bin_counts)
 
     @Compute._computed_property()
     def PCF(self):
-        cdef unsigned int n_bins_Y = self.pmftxy2dptr.getNBinsY()
-        cdef unsigned int n_bins_X = self.pmftxy2dptr.getNBinsX()
-        cdef const float[:, ::1] PCF = \
-            <float[:n_bins_Y, :n_bins_X]> \
-            self.pmftxy2dptr.getPCF().get()
-        return np.asarray(PCF)
+        # Currently this returns a 3D array that must be squeezed due to the
+        # internal choices in the histogramming; this will be fixed in future
+        # changes.
+        return np.squeeze(super(PMFTXY2D, self).PCF)
 
     @property
     def X(self):
@@ -971,26 +939,6 @@ cdef class PMFTXYZ(_PMFT):
                         query_points, face_orientations,
                         nlist, query_args)
         return self
-
-    @Compute._computed_property()
-    def bin_counts(self):
-        cdef unsigned int n_bins_Z = self.pmftxyzptr.getNBinsZ()
-        cdef unsigned int n_bins_Y = self.pmftxyzptr.getNBinsY()
-        cdef unsigned int n_bins_X = self.pmftxyzptr.getNBinsX()
-        cdef const unsigned int[:, :, ::1] bin_counts = \
-            <unsigned int[:n_bins_Z, :n_bins_Y, :n_bins_X]> \
-            self.pmftxyzptr.getBinCounts().get()
-        return np.asarray(bin_counts, dtype=np.uint32)
-
-    @Compute._computed_property()
-    def PCF(self):
-        cdef unsigned int n_bins_Z = self.pmftxyzptr.getNBinsZ()
-        cdef unsigned int n_bins_Y = self.pmftxyzptr.getNBinsY()
-        cdef unsigned int n_bins_X = self.pmftxyzptr.getNBinsX()
-        cdef const float[:, :, ::1] PCF = \
-            <float[:n_bins_Z, :n_bins_Y, :n_bins_X]> \
-            self.pmftxyzptr.getPCF().get()
-        return np.asarray(PCF)
 
     @property
     def X(self):

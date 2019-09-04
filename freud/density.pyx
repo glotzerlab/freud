@@ -844,10 +844,9 @@ cdef class RDF(SpatialHistogram):
 
     @Compute._computed_property()
     def RDF(self):
-        cdef unsigned int n_bins = self.thisptr.getNBins()
-        cdef const float[::1] RDF = \
-            <float[:n_bins]> self.thisptr.getRDF().get()
-        return np.asarray(RDF)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getRDF(),
+            freud.util.arr_type_t.FLOAT)
 
     @property
     def R(self):
