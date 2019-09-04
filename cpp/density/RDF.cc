@@ -58,47 +58,6 @@ RDF::RDF(float r_max, float dr, float r_min) : util::NdHistogram(), m_r_max(r_ma
 } // end RDF::RDF
 
 //! \internal
-//! CumulativeCount class to perform a parallel reduce to get the cumulative count for each histogram bin
-class CumulativeCount
-{
-private:
-    float m_sum;
-    float* m_N_r_array;
-    float* m_avg_counts;
-
-public:
-    CumulativeCount(float* N_r_array, float* avg_counts)
-        : m_sum(0), m_N_r_array(N_r_array), m_avg_counts(avg_counts)
-    {}
-    float get_sum() const
-    {
-        return m_sum;
-    }
-    template<typename Tag> void operator()(const blocked_range<size_t>& r, Tag)
-    {
-        float temp = m_sum;
-        for (size_t i = r.begin(); i < r.end(); i++)
-        {
-            temp = temp + m_avg_counts[i];
-            if (Tag::is_final_scan())
-                m_N_r_array[i] = temp;
-        }
-        m_sum = temp;
-    }
-    CumulativeCount(CumulativeCount& b, split)
-        : m_sum(0), m_N_r_array(b.m_N_r_array), m_avg_counts(b.m_avg_counts)
-    {}
-    void reverse_join(CumulativeCount& a)
-    {
-        m_sum = a.m_sum + m_sum;
-    }
-    void assign(CumulativeCount& b)
-    {
-        m_sum = b.m_sum;
-    }
-};
-
-//! \internal
 //! helper function to reduce the thread specific arrays into one array
 void RDF::reduceRDF()
 {
@@ -124,8 +83,11 @@ void RDF::reduceRDF()
         }
     });
 
-    CumulativeCount myN_r(m_N_r_array.get(), m_avg_counts.get());
-    parallel_scan(blocked_range<size_t>(0, m_nbins), myN_r);
+    m_N_r_array.get()[0] = m_avg_counts.get()[0];
+    for (unsigned int i = 1; i < m_nbins; i++)
+    {
+        m_N_r_array.get()[i] = m_N_r_array.get()[i-1] + m_avg_counts.get()[i];
+    }
 
     for (unsigned int i = 0; i < m_nbins; i++)
     {
