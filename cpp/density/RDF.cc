@@ -106,15 +106,12 @@ void RDF::reduceRDF()
     memset((void*) m_avg_counts.get(), 0, sizeof(float) * m_nbins);
     // now compute the rdf
     float ndens = float(m_n_query_points) / m_box.getVolume();
-    m_pcf_array.get()[0] = 0.0f;
-    m_N_r_array.get()[0] = 0.0f;
-    m_N_r_array.get()[1] = 0.0f;
     if (m_box.is2D())
         m_vol_array = m_vol_array2D;
     else
         m_vol_array = m_vol_array3D;
     // now compute the rdf
-    parallel_for(blocked_range<size_t>(1, m_nbins), [=](const blocked_range<size_t>& r) {
+    parallel_for(blocked_range<size_t>(0, m_nbins), [=](const blocked_range<size_t>& r) {
         for (size_t i = r.begin(); i != r.end(); i++)
         {
             for (util::ThreadStorage<unsigned int>::const_iterator local_bins = m_local_bin_counts.begin();
