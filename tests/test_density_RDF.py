@@ -84,8 +84,6 @@ class TestRDF(unittest.TestCase):
         for i, r_min in enumerate([0, 0.05, 0.1, 1.0, 3.0]):
             nbins = int((r_max - r_min) / dr)
             box, points = util.make_box_and_random_points(box_size, num_points)
-            points.flags['WRITEABLE'] = False
-            box = freud.box.Box.cube(box_size)
             test_set = util.make_raw_query_nlist_test_set(
                 box, points, points, "ball", r_max, 0, True)
             for ts in test_set:
@@ -104,8 +102,8 @@ class TestRDF(unittest.TestCase):
                 # a limited precision. Also, since dealing with nonzero r_min
                 # values requires extrapolation, we only test when r_min=0.
                 ndens = points.shape[0]/box.volume
-                bin_boundaries = np.linspace(r_min, r_max,
-                                             int((r_max-r_min)/dr)+1)
+                bin_boundaries = np.array([r_min + dr*i for i in range(nbins+1)
+                                           if r_min + dr*i <= r_max])
                 bin_volumes = 4/3*np.pi*np.diff(bin_boundaries**3)
                 avg_counts = rdf.RDF*ndens*bin_volumes
                 npt.assert_allclose(rdf.n_r, np.cumsum(avg_counts),
