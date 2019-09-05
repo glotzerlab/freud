@@ -32,7 +32,7 @@ cdef extern from "GaussianDensity.h" namespace "freud::density":
             const freud._box.Box &,
             const vec3[float]*,
             unsigned int) except +
-        shared_ptr[float] getDensity()
+        const freud.util.ManagedArray[float] &getDensity()
         vec3[unsigned int] getWidth()
         float getSigma()
 
