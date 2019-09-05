@@ -16,6 +16,37 @@
 */
 
 namespace freud { namespace order {
+
+//! Helper 4th-order tensor class for cubatic calculations.
+/*! The cubatic order parameter involves many calculations that use a 4th-order
+ *  tensor of size 3 in each dimension. This simple helper class functions as a
+ *  data container that also defines various operators to simplify the code.
+ */
+struct tensor4
+{
+    tensor4();
+    tensor4(vec3<float> _vector);
+    tensor4 operator+=(const tensor4& b);
+    tensor4 operator+=(const float& b);
+    tensor4 operator-(const tensor4& b);
+    tensor4 operator-=(const tensor4& b);
+    tensor4 operator*(const float& b);
+    tensor4 operator*=(const float& b);
+
+    void reset();
+
+    float data[81];
+};
+
+float dot(const tensor4& a, const tensor4& b);
+
+
+
+
+
+
+
+
 //! Compute the cubatic order parameter for a set of points
 /*!
  */
@@ -41,29 +72,65 @@ public:
     void calcCubaticOrderParameter(float& cubatic_order_parameter, float* cubatic_tensor);
 
     //! Get a reference to the last computed cubatic order parameter
-    float getCubaticOrderParameter();
+    float getCubaticOrderParameter()
+    {
+        return m_cubatic_order_parameter;
+    }
 
     quat<float> calcRandomQuaternion(Saru& saru, float angle_multiplier);
 
-    std::shared_ptr<float> getParticleCubaticOrderParameter();
+    std::shared_ptr<float> getParticleCubaticOrderParameter()
+    {
+        return m_particle_order_parameter;
+    }
 
-    std::shared_ptr<float> getParticleTensor();
+    std::shared_ptr<float> getParticleTensor()
+    {
+        return m_particle_tensor;
+    }
 
-    std::shared_ptr<float> getGlobalTensor();
+    std::shared_ptr<float> getGlobalTensor()
+    {
+        memcpy(m_sp_global_tensor.get(), (void*) &m_global_tensor.data, sizeof(float) * 81);
+        return m_sp_global_tensor;
+    }
 
-    std::shared_ptr<float> getCubaticTensor();
+    std::shared_ptr<float> getCubaticTensor()
+    {
+        memcpy(m_sp_cubatic_tensor.get(), (void*) &m_cubatic_tensor.data, sizeof(float) * 81);
+        return m_sp_cubatic_tensor;
+    }
 
-    std::shared_ptr<float> getGenR4Tensor();
+    std::shared_ptr<float> getGenR4Tensor()
+    {
+        memcpy(m_sp_gen_r4_tensor.get(), (void*) &m_gen_r4_tensor.data, sizeof(float) * 81);
+        return m_sp_gen_r4_tensor;
+    }
 
-    unsigned int getNumParticles();
+    unsigned int getNumParticles()
+    {
+        return m_n;
+    }
 
-    float getTInitial();
+    float getTInitial()
+    {
+        return m_t_initial;
+    }
 
-    float getTFinal();
+    float getTFinal()
+    {
+        return m_t_final;
+    }
 
-    float getScale();
+    float getScale()
+    {
+        return m_scale;
+    }
 
-    quat<float> getCubaticOrientation();
+    quat<float> getCubaticOrientation()
+    {
+        return m_cubatic_orientation;
+    }
 
 private:
     float m_t_initial;         //!< Initial temperature for simulated annealing.
@@ -75,9 +142,9 @@ private:
     float m_cubatic_order_parameter;   //!< The value of the order parameter.
     quat<float> m_cubatic_orientation; //!< The cubatic orientation.
 
-    tensor4<float> m_gen_r4_tensor;
-    tensor4<float> m_global_tensor;
-    tensor4<float> m_cubatic_tensor;
+    tensor4 m_gen_r4_tensor;
+    tensor4 m_global_tensor;
+    tensor4 m_cubatic_tensor;
 
     std::shared_ptr<float> m_particle_order_parameter; //!< The per-particle value of the order parameter.
     std::shared_ptr<float>

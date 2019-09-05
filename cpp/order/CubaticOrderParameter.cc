@@ -19,108 +19,110 @@ using namespace tbb;
 
 namespace freud { namespace order {
 
-template<class Real>
-struct tensor4
+
+tensor4::tensor4()
 {
-    tensor4()
+    memset((void*) &data, 0, sizeof(float) * 81);
+}
+tensor4::tensor4(vec3<float> vector)
+{
+    unsigned int cnt = 0;
+    float v[3];
+    v[0] = vector.x;
+    v[1] = vector.y;
+    v[2] = vector.z;
+    for (unsigned int i = 0; i < 3; i++)
     {
-        memset((void*) &data, 0, sizeof(float) * 81);
-    }
-    tensor4(vec3<Real>& _vector)
-    {
-        unsigned int cnt = 0;
-        float v[3];
-        v[0] = _vector.x;
-        v[1] = _vector.y;
-        v[2] = _vector.z;
-        for (unsigned int i = 0; i < 3; i++)
+        for (unsigned int j = 0; j < 3; j++)
         {
-            float v_i = v[i];
-            for (unsigned int j = 0; j < 3; j++)
+            for (unsigned int k = 0; k < 3; k++)
             {
-                float v_j = v[j];
-                for (unsigned int k = 0; k < 3; k++)
+                for (unsigned int l = 0; l < 3; l++)
                 {
-                    float v_k = v[k];
-                    for (unsigned int l = 0; l < 3; l++)
-                    {
-                        float v_l = v[l];
-                        data[cnt] = v_i * v_j * v_k * v_l;
-                        cnt++;
-                    }
+                    data[cnt] = v[i] * v[j] * v[k] * v[l];
+                    cnt++;
                 }
             }
         }
     }
-    Real data[81];
+}
 
-    tensor4<Real> operator+=(const tensor4<Real>& b)
-    {
-        for (unsigned int i = 0; i < 81; i++)
-        {
-            data[i] += b.data[i];
-        }
-        return *this;
-    }
-
-    tensor4<Real> operator+=(const Real& b)
-    {
-        for (unsigned int i = 0; i < 81; i++)
-        {
-            data[i] += b;
-        }
-        return *this;
-    }
-
-    tensor4<Real> operator-(const tensor4<Real>& b)
-    {
-        tensor4<Real> c;
-        for (unsigned int i = 0; i < 81; i++)
-        {
-            c.data[i] = data[i] - b.data[i];
-        }
-        return c;
-    }
-
-    tensor4<Real> operator-=(const tensor4<Real>& b)
-    {
-        for (unsigned int i = 0; i < 81; i++)
-        {
-            data[i] -= b.data[i];
-        }
-        return *this;
-    }
-
-    tensor4<Real> operator*(const Real& b)
-    {
-        tensor4<Real> c;
-        for (unsigned int i = 0; i < 81; i++)
-        {
-            c.data[i] = data[i] * b;
-        }
-        return c;
-    }
-
-    tensor4<Real> operator*=(const Real& b)
-    {
-        for (unsigned int i = 0; i < 81; i++)
-        {
-            data[i] *= b;
-        }
-        return *this;
-    }
-};
-
-template <typename Real>
-float dot(const tensor4<Real>& a, const tensor4<Real>& b)
+tensor4 tensor4::operator+=(const tensor4& b)
 {
-    Real c = 0;
+    for (unsigned int i = 0; i < 81; i++)
+    {
+        data[i] += b.data[i];
+    }
+    return *this;
+}
+
+tensor4 tensor4::operator+=(const float& b)
+{
+    for (unsigned int i = 0; i < 81; i++)
+    {
+        data[i] += b;
+    }
+    return *this;
+}
+
+tensor4 tensor4::operator-(const tensor4& b)
+{
+    tensor4 c;
+    for (unsigned int i = 0; i < 81; i++)
+    {
+        c.data[i] = data[i] - b.data[i];
+    }
+    return c;
+}
+
+tensor4 tensor4::operator-=(const tensor4& b)
+{
+    for (unsigned int i = 0; i < 81; i++)
+    {
+        data[i] -= b.data[i];
+    }
+    return *this;
+}
+
+tensor4 tensor4::operator*(const float& b)
+{
+    tensor4 c;
+    for (unsigned int i = 0; i < 81; i++)
+    {
+        c.data[i] = data[i] * b;
+    }
+    return c;
+}
+
+tensor4 tensor4::operator*=(const float& b)
+{
+    for (unsigned int i = 0; i < 81; i++)
+    {
+        data[i] *= b;
+    }
+    return *this;
+}
+
+void tensor4::reset()
+{
+    memset((void *) &data, 0, sizeof(float) * 81);
+}
+
+float dot(const tensor4& a, const tensor4& b)
+{
+    float c = 0;
     for (unsigned int i = 0; i < 81; i++)
     {
         c += a.data[i] * b.data[i];
     }
     return c;
 }
+
+
+
+
+
+
 
 
 
@@ -138,8 +140,8 @@ CubaticOrderParameter::CubaticOrderParameter(float t_initial, float t_final, flo
         throw invalid_argument("CubaticOrderParameter requires that scale must be between 0 and 1.");
 
     // required to not have memory overwritten
-    memset((void*) &m_global_tensor.data, 0, sizeof(float) * 81);
-    memset((void*) &m_cubatic_tensor.data, 0, sizeof(float) * 81);
+    m_global_tensor.reset();
+    m_cubatic_tensor.reset();
     memcpy((void*) &m_gen_r4_tensor.data, r4_tensor, sizeof(float) * 81);
 
     // Create shared pointer tensor arrays, which are used for returning to Python.
@@ -164,18 +166,15 @@ void CubaticOrderParameter::calcCubaticTensor(float* cubatic_tensor, quat<float>
     system_vectors[0] = vec3<float>(1, 0, 0);
     system_vectors[1] = vec3<float>(0, 1, 0);
     system_vectors[2] = vec3<float>(0, 0, 1);
-    tensor4<float> calculated_tensor = tensor4<float>();
-    // rotate by supplied orientation
+    tensor4 calculated_tensor = tensor4();
+
+    // The cubatic tensor is computed by rotating each basis vector by the
+    // provided rotation and then summing the resulting tensors.
     for (unsigned int i = 0; i < 3; i++)
     {
-        system_vectors[i] = rotate(orientation, system_vectors[i]);
+        calculated_tensor += tensor4(rotate(orientation, system_vectors[i]));
     }
-    // calculate for each system vector
-    for (unsigned int v_idx = 0; v_idx < 3; v_idx++)
-    {
-        tensor4<float> l_tensor(system_vectors[v_idx]);
-        calculated_tensor += l_tensor;
-    }
+
     // normalize
     calculated_tensor *= (float) 2.0;
     calculated_tensor -= m_gen_r4_tensor;
@@ -185,69 +184,10 @@ void CubaticOrderParameter::calcCubaticTensor(float* cubatic_tensor, quat<float>
 
 void CubaticOrderParameter::calcCubaticOrderParameter(float& cubatic_order_parameter, float* cubatic_tensor)
 {
-    tensor4<float> l_cubatic_tensor = tensor4<float>();
+    tensor4 l_cubatic_tensor = tensor4();
     memcpy((void*) &l_cubatic_tensor.data, (void*) cubatic_tensor, sizeof(float) * 81);
-    tensor4<float> diff;
-    diff = m_global_tensor - l_cubatic_tensor;
+    tensor4 diff = m_global_tensor - l_cubatic_tensor;
     cubatic_order_parameter = 1.0 - dot(diff, diff) / dot(l_cubatic_tensor, l_cubatic_tensor);
-}
-
-float CubaticOrderParameter::getCubaticOrderParameter()
-{
-    return m_cubatic_order_parameter;
-}
-
-std::shared_ptr<float> CubaticOrderParameter::getParticleCubaticOrderParameter()
-{
-    return m_particle_order_parameter;
-}
-
-std::shared_ptr<float> CubaticOrderParameter::getParticleTensor()
-{
-    return m_particle_tensor;
-}
-
-std::shared_ptr<float> CubaticOrderParameter::getGlobalTensor()
-{
-    memcpy(m_sp_global_tensor.get(), (void*) &m_global_tensor.data, sizeof(float) * 81);
-    return m_sp_global_tensor;
-}
-
-std::shared_ptr<float> CubaticOrderParameter::getCubaticTensor()
-{
-    memcpy(m_sp_cubatic_tensor.get(), (void*) &m_cubatic_tensor.data, sizeof(float) * 81);
-    return m_sp_cubatic_tensor;
-}
-
-std::shared_ptr<float> CubaticOrderParameter::getGenR4Tensor()
-{
-    memcpy(m_sp_gen_r4_tensor.get(), (void*) &m_gen_r4_tensor.data, sizeof(float) * 81);
-    return m_sp_gen_r4_tensor;
-}
-
-unsigned int CubaticOrderParameter::getNumParticles()
-{
-    return m_n;
-}
-
-float CubaticOrderParameter::getTInitial()
-{
-    return m_t_initial;
-}
-
-float CubaticOrderParameter::getTFinal()
-{
-    return m_t_final;
-}
-
-float CubaticOrderParameter::getScale()
-{
-    return m_scale;
-}
-
-quat<float> CubaticOrderParameter::getCubaticOrientation()
-{
-    return m_cubatic_orientation;
 }
 
 quat<float> CubaticOrderParameter::calcRandomQuaternion(Saru& saru, float angle_multiplier = 1.0)
@@ -287,12 +227,12 @@ void CubaticOrderParameter::compute(quat<float>* orientations, unsigned int n)
         {
             // get the orientation for the particle
             quat<float> l_orientation = orientations[i];
-            tensor4<float> l_mbar = tensor4<float>();
+            tensor4 l_mbar = tensor4();
             for (unsigned int j = 0; j < 3; j++)
             {
                 // rotate local vector
                 vec3<float> v_r = rotate(l_orientation, v[j]);
-                tensor4<float> r4_tensor(v_r);
+                tensor4 r4_tensor(v_r);
                 l_mbar += r4_tensor;
             }
             // apply normalization
@@ -341,8 +281,8 @@ void CubaticOrderParameter::compute(quat<float>* orientations, unsigned int n)
         Index2D a_i = Index2D(m_replicates, 81);
         for (size_t i = r.begin(); i != r.end(); i++)
         {
-            tensor4<float> cubatic_tensor;
-            tensor4<float> new_cubatic_tensor;
+            tensor4 cubatic_tensor;
+            tensor4 new_cubatic_tensor;
             // need to generate random orientation
             quat<float> cubatic_orientation = calcRandomQuaternion(l_saru);
             quat<float> current_orientation = cubatic_orientation;
@@ -416,14 +356,14 @@ void CubaticOrderParameter::compute(quat<float>* orientations, unsigned int n)
     m_cubatic_order_parameter = p_cubatic_order_parameter.get()[max_idx];
     // now calculate the per-particle order parameters
     parallel_for(blocked_range<size_t>(0, n), [=](const blocked_range<size_t>& r) {
-        tensor4<float> l_mbar;
+        tensor4 l_mbar;
         for (size_t i = r.begin(); i != r.end(); i++)
         {
             // use the cubatic OP calc to compute per-particle OP
             // i.e. what is the value of the COP
             // if the global orientation were the particle orientation
             // load the orientation
-            tensor4<float> l_particle_tensor;
+            tensor4 l_particle_tensor;
             float l_particle_op;
             quat<float> l_orientation = orientations[i];
             calcCubaticTensor((float*) &l_particle_tensor.data, l_orientation);
