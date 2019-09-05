@@ -19,6 +19,111 @@ using namespace tbb;
 
 namespace freud { namespace order {
 
+template<class Real>
+struct tensor4
+{
+    tensor4()
+    {
+        memset((void*) &data, 0, sizeof(float) * 81);
+    }
+    tensor4(vec3<Real>& _vector)
+    {
+        unsigned int cnt = 0;
+        float v[3];
+        v[0] = _vector.x;
+        v[1] = _vector.y;
+        v[2] = _vector.z;
+        for (unsigned int i = 0; i < 3; i++)
+        {
+            float v_i = v[i];
+            for (unsigned int j = 0; j < 3; j++)
+            {
+                float v_j = v[j];
+                for (unsigned int k = 0; k < 3; k++)
+                {
+                    float v_k = v[k];
+                    for (unsigned int l = 0; l < 3; l++)
+                    {
+                        float v_l = v[l];
+                        data[cnt] = v_i * v_j * v_k * v_l;
+                        cnt++;
+                    }
+                }
+            }
+        }
+    }
+    Real data[81];
+
+    tensor4<Real> operator+=(const tensor4<Real>& b)
+    {
+        for (unsigned int i = 0; i < 81; i++)
+        {
+            data[i] += b.data[i];
+        }
+        return *this;
+    }
+
+    tensor4<Real> operator+=(const Real& b)
+    {
+        for (unsigned int i = 0; i < 81; i++)
+        {
+            data[i] += b;
+        }
+        return *this;
+    }
+
+    tensor4<Real> operator-(const tensor4<Real>& b)
+    {
+        tensor4<Real> c;
+        for (unsigned int i = 0; i < 81; i++)
+        {
+            c.data[i] = data[i] - b.data[i];
+        }
+        return c;
+    }
+
+    tensor4<Real> operator-=(const tensor4<Real>& b)
+    {
+        for (unsigned int i = 0; i < 81; i++)
+        {
+            data[i] -= b.data[i];
+        }
+        return *this;
+    }
+
+    tensor4<Real> operator*(const Real& b)
+    {
+        tensor4<Real> c;
+        for (unsigned int i = 0; i < 81; i++)
+        {
+            c.data[i] = data[i] * b;
+        }
+        return c;
+    }
+
+    tensor4<Real> operator*=(const Real& b)
+    {
+        for (unsigned int i = 0; i < 81; i++)
+        {
+            data[i] *= b;
+        }
+        return *this;
+    }
+};
+
+template <typename Real>
+float dot(const tensor4<Real>& a, const tensor4<Real>& b)
+{
+    Real c = 0;
+    for (unsigned int i = 0; i < 81; i++)
+    {
+        c += a.data[i] * b.data[i];
+    }
+    return c;
+}
+
+
+
 CubaticOrderParameter::CubaticOrderParameter(float t_initial, float t_final, float scale, float* r4_tensor,
                                              unsigned int replicates, unsigned int seed)
     : m_t_initial(t_initial), m_t_final(t_final), m_scale(scale), m_n(0), m_replicates(replicates),

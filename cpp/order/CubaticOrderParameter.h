@@ -8,7 +8,6 @@
 #include <ostream>
 #include <tbb/tbb.h>
 
-#include "TensorMath.h"
 #include "VectorMath.h"
 #include "saruprng.h"
 
