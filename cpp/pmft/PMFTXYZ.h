@@ -41,19 +41,19 @@ public:
     virtual void reducePCF();
 
     //! Get a reference to the x array
-    std::shared_ptr<float> getX()
+    const util::ManagedArray<float> &getX()
     {
         return m_x_array;
     }
 
     //! Get a reference to the y array
-    std::shared_ptr<float> getY()
+    const util::ManagedArray<float> &getY()
     {
         return m_y_array;
     }
 
     //! Get a reference to the z array
-    std::shared_ptr<float> getZ()
+    const util::ManagedArray<float> &getZ()
     {
         return m_z_array;
     }
@@ -91,9 +91,9 @@ private:
     float m_jacobian;
     vec3<float> m_shiftvec; //!< vector that points from [0,0,0] to the origin of the pmft
 
-    std::shared_ptr<float> m_x_array; //!< array of x values that the pcf is computed at
-    std::shared_ptr<float> m_y_array; //!< array of y values that the pcf is computed at
-    std::shared_ptr<float> m_z_array; //!< array of z values that the pcf is computed at
+    util::ManagedArray<float> m_x_array; //!< array of x values that the pcf is computed at
+    util::ManagedArray<float> m_y_array; //!< array of y values that the pcf is computed at
+    util::ManagedArray<float> m_z_array; //!< array of z values that the pcf is computed at
 };
 
 }; }; // end namespace freud::pmft

@@ -57,18 +57,19 @@ public:
     }
 
     //! Helper function to precompute axis bin center,
-    std::shared_ptr<float> precomputeAxisBinCenter(unsigned int size, float d, float max);
+    util::ManagedArray<float> precomputeAxisBinCenter(unsigned int size, float d, float max);
 
     //! Helper function to precompute array with the following logic.
     //! :code:`Func cf` should be some sort of (float)(float, float).
-    template<typename Func> std::shared_ptr<float> precomputeArrayGeneral(unsigned int size, float d, Func cf)
+    template<typename Func>
+    util::ManagedArray<float> precomputeArrayGeneral(unsigned int size, float d, Func cf)
     {
-        std::shared_ptr<float> arr = std::shared_ptr<float>(new float[size], std::default_delete<float[]>());
+        util::ManagedArray<float> arr({size});
         for (unsigned int i = 0; i < size; i++)
         {
-            float T = float(i) * d;
+            float T = float(i) * d ;
             float nextT = float(i + 1) * d;
-            arr.get()[i] = cf(T, nextT);
+            arr[i] = cf(T, nextT);
         }
         return arr;
     }

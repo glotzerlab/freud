@@ -38,19 +38,19 @@ public:
     virtual void reducePCF();
 
     //! Get a reference to the X array
-    std::shared_ptr<float> getX()
+    const util::ManagedArray<float> &getX()
     {
         return m_x_array;
     }
 
     //! Get a reference to the Y array
-    std::shared_ptr<float> getY()
+    const util::ManagedArray<float> &getY()
     {
         return m_y_array;
     }
 
     //! Get a reference to the T array
-    std::shared_ptr<float> getT()
+    const util::ManagedArray<float> &getT()
     {
         return m_t_array;
     }
@@ -87,9 +87,9 @@ private:
     unsigned int m_n_t; //!< Number of t bins to compute PCF over
     float m_jacobian;
 
-    std::shared_ptr<float> m_x_array; //!< Array of x values where the PCF is computed
-    std::shared_ptr<float> m_y_array; //!< Array of y values where the PCF is computed
-    std::shared_ptr<float> m_t_array; //!< Array of t values where the PCF is computed
+    util::ManagedArray<float> m_x_array; //!< Array of x values where the PCF is computed
+    util::ManagedArray<float> m_y_array; //!< Array of y values where the PCF is computed
+    util::ManagedArray<float> m_t_array; //!< Array of t values where the PCF is computed
 };
 
 }; }; // end namespace freud::pmft

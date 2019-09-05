@@ -38,19 +38,19 @@ public:
     virtual void reducePCF();
 
     //! Get a reference to the R array
-    std::shared_ptr<float> getR()
+    const util::ManagedArray<float> &getR()
     {
         return m_r_array;
     }
 
     //! Get a reference to the T1 array
-    std::shared_ptr<float> getT1()
+    const util::ManagedArray<float> &getT1()
     {
         return m_t1_array;
     }
 
     //! Get a reference to the T2 array
-    std::shared_ptr<float> getT2()
+    const util::ManagedArray<float> &getT2()
     {
         return m_t2_array;
     }
@@ -86,9 +86,9 @@ private:
     unsigned int m_n_t1; //!< Number of t1 bins to compute PCF over
     unsigned int m_n_t2; //!< Number of t2 bins to compute PCF over
 
-    std::shared_ptr<float> m_r_array;            //!< Array of r  values where the PCF is computed
-    std::shared_ptr<float> m_t1_array;           //!< Array of t1 values where the PCF is computed
-    std::shared_ptr<float> m_t2_array;           //!< Array of t2 values where the PCF is computed
+    util::ManagedArray<float> m_r_array;            //!< Array of r  values where the PCF is computed
+    util::ManagedArray<float> m_t1_array;           //!< Array of t1 values where the PCF is computed
+    util::ManagedArray<float> m_t2_array;           //!< Array of t2 values where the PCF is computed
     util::ManagedArray<float> m_inv_jacobian_array; //!< Array of inverse jacobians for each bin
 };
 

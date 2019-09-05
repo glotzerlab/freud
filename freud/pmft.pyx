@@ -260,24 +260,21 @@ cdef class PMFTR12(_PMFT):
 
     @property
     def R(self):
-        cdef unsigned int n_bins_R = self.pmftr12ptr.getNBinsR()
-        cdef const float[::1] R = \
-            <float[:n_bins_R]> self.pmftr12ptr.getR().get()
-        return np.asarray(R)
+        return freud.util.make_managed_numpy_array(
+            &self.pmftr12ptr.getR(),
+            freud.util.arr_type_t.FLOAT)
 
     @property
     def T1(self):
-        cdef unsigned int n_bins_T1 = self.pmftr12ptr.getNBinsT1()
-        cdef const float[::1] T1 = \
-            <float[:n_bins_T1]> self.pmftr12ptr.getT1().get()
-        return np.asarray(T1)
+        return freud.util.make_managed_numpy_array(
+            &self.pmftr12ptr.getT1(),
+            freud.util.arr_type_t.FLOAT)
 
     @property
     def T2(self):
-        cdef unsigned int n_bins_T2 = self.pmftr12ptr.getNBinsT2()
-        cdef const float[::1] T2 = \
-            <float[:n_bins_T2]> self.pmftr12ptr.getT2().get()
-        return np.asarray(T2)
+        return freud.util.make_managed_numpy_array(
+            &self.pmftr12ptr.getT2(),
+            freud.util.arr_type_t.FLOAT)
 
     @property
     def inverse_jacobian(self):
@@ -470,24 +467,21 @@ cdef class PMFTXYT(_PMFT):
 
     @property
     def X(self):
-        cdef unsigned int n_bins_X = self.pmftxytptr.getNBinsX()
-        cdef const float[::1] X = \
-            <float[:n_bins_X]> self.pmftxytptr.getX().get()
-        return np.asarray(X)
+        return freud.util.make_managed_numpy_array(
+            &self.pmftxytptr.getX(),
+            freud.util.arr_type_t.FLOAT)
 
     @property
     def Y(self):
-        cdef unsigned int n_bins_Y = self.pmftxytptr.getNBinsY()
-        cdef const float[::1] Y = \
-            <float[:n_bins_Y]> self.pmftxytptr.getY().get()
-        return np.asarray(Y)
+        return freud.util.make_managed_numpy_array(
+            &self.pmftxytptr.getY(),
+            freud.util.arr_type_t.FLOAT)
 
     @property
     def T(self):
-        cdef unsigned int n_bins_T = self.pmftxytptr.getNBinsT()
-        cdef const float[::1] T = \
-            <float[:n_bins_T]> self.pmftxytptr.getT().get()
-        return np.asarray(T)
+        return freud.util.make_managed_numpy_array(
+            &self.pmftxytptr.getT(),
+            freud.util.arr_type_t.FLOAT)
 
     @property
     def jacobian(self):
@@ -666,17 +660,15 @@ cdef class PMFTXY2D(_PMFT):
 
     @property
     def X(self):
-        cdef unsigned int n_bins_X = self.pmftxy2dptr.getNBinsX()
-        cdef const float[::1] X = \
-            <float[:n_bins_X]> self.pmftxy2dptr.getX().get()
-        return np.asarray(X)
+        return freud.util.make_managed_numpy_array(
+            &self.pmftxy2dptr.getX(),
+            freud.util.arr_type_t.FLOAT)
 
     @property
     def Y(self):
-        cdef unsigned int n_bins_Y = self.pmftxy2dptr.getNBinsY()
-        cdef const float[::1] Y = \
-            <float[:n_bins_Y]> self.pmftxy2dptr.getY().get()
-        return np.asarray(Y)
+        return freud.util.make_managed_numpy_array(
+            &self.pmftxy2dptr.getY(),
+            freud.util.arr_type_t.FLOAT)
 
     @property
     def n_bins_X(self):
@@ -938,24 +930,21 @@ cdef class PMFTXYZ(_PMFT):
 
     @property
     def X(self):
-        cdef unsigned int n_bins_X = self.pmftxyzptr.getNBinsX()
-        cdef const float[::1] X = \
-            <float[:n_bins_X]> self.pmftxyzptr.getX().get()
-        return np.asarray(X) + self.shiftvec[0]
+        return freud.util.make_managed_numpy_array(
+            &self.pmftxyzptr.getX(),
+            freud.util.arr_type_t.FLOAT)
 
     @property
     def Y(self):
-        cdef unsigned int n_bins_Y = self.pmftxyzptr.getNBinsY()
-        cdef const float[::1] Y = \
-            <float[:n_bins_Y]> self.pmftxyzptr.getY().get()
-        return np.asarray(Y) + self.shiftvec[1]
+        return freud.util.make_managed_numpy_array(
+            &self.pmftxyzptr.getY(),
+            freud.util.arr_type_t.FLOAT)
 
     @property
     def Z(self):
-        cdef unsigned int n_bins_Z = self.pmftxyzptr.getNBinsZ()
-        cdef const float[::1] Z = \
-            <float[:n_bins_Z]> self.pmftxyzptr.getZ().get()
-        return np.asarray(Z) + self.shiftvec[2]
+        return freud.util.make_managed_numpy_array(
+            &self.pmftxyzptr.getZ(),
+            freud.util.arr_type_t.FLOAT)
 
     @property
     def n_bins_X(self):
