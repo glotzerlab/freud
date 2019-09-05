@@ -9,6 +9,7 @@ from libcpp.vector cimport vector
 from libcpp.map cimport map
 cimport freud._box
 cimport freud._locality
+cimport freud.util
 
 cdef extern from "CubaticOrderParameter.h" namespace "freud::order":
     cdef cppclass CubaticOrderParameter:
@@ -33,6 +34,7 @@ cdef extern from "CubaticOrderParameter.h" namespace "freud::order":
         float getScale()
         quat[float] getCubaticOrientation()
 
+
 cdef extern from "NematicOrderParameter.h" namespace "freud::order":
     cdef cppclass NematicOrderParameter:
         NematicOrderParameter(vec3[float])
@@ -55,7 +57,7 @@ cdef extern from "HexTransOrderParameter.h" namespace "freud::order":
                      freud._locality.QueryArgs) except +
         # unsure how to pass back the std::complex,
         # but this seems to compile...
-        shared_ptr[float complex] getOrder()
+        const freud.util.ManagedArray[float complex] &getOrder()
         unsigned int getNP()
         unsigned int getK()
 
@@ -65,9 +67,10 @@ cdef extern from "HexTransOrderParameter.h" namespace "freud::order":
         void compute(const freud._locality.NeighborList*,
                      const freud._locality.NeighborQuery*,
                      freud._locality.QueryArgs) except +
-        shared_ptr[float complex] getOrder()
+        const freud.util.ManagedArray[float complex] &getOrder()
         unsigned int getNP()
         float getK()
+
 
 cdef extern from "Steinhardt.h" namespace "freud::order":
     cdef cppclass Steinhardt:
@@ -83,6 +86,7 @@ cdef extern from "Steinhardt.h" namespace "freud::order":
         bool isAverage()
         bool isWl()
         bool isWeighted()
+
 
 cdef extern from "SolLiq.h" namespace "freud::order":
     cdef cppclass SolLiq:
@@ -108,6 +112,7 @@ cdef extern from "SolLiq.h" namespace "freud::order":
         vector[float complex] getQldot_ij()
         unsigned int getNP()
         unsigned int getNumClusters()
+
 
 cdef extern from "RotationalAutocorrelation.h" namespace "freud::order":
     cdef cppclass RotationalAutocorrelation:

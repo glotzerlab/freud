@@ -24,6 +24,7 @@ from cython.operator cimport dereference
 cimport freud._order
 cimport freud.locality
 cimport freud.box
+cimport freud.util
 
 cimport numpy as np
 
@@ -374,10 +375,9 @@ cdef class HexOrderParameter(PairCompute):
 
     @Compute._computed_property()
     def psi(self):
-        cdef unsigned int n_particles = self.thisptr.getNP()
-        cdef np.complex64_t[::1] psi = \
-            <np.complex64_t[:n_particles]> self.thisptr.getOrder().get()
-        return np.asarray(psi, dtype=np.complex64)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getOrder(),
+            freud.util.arr_type_t.COMPLEX_FLOAT)
 
     @Compute._computed_property()
     def box(self):
@@ -471,10 +471,9 @@ cdef class TransOrderParameter(PairCompute):
 
     @Compute._computed_property()
     def d_r(self):
-        cdef unsigned int n_particles = self.thisptr.getNP()
-        cdef np.complex64_t[::1] d_r = \
-            <np.complex64_t[:n_particles]> self.thisptr.getOrder().get()
-        return np.asarray(d_r, dtype=np.complex64)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getOrder(),
+            freud.util.arr_type_t.COMPLEX_FLOAT)
 
     @Compute._computed_property()
     def box(self):
@@ -482,13 +481,11 @@ cdef class TransOrderParameter(PairCompute):
 
     @Compute._computed_property()
     def num_particles(self):
-        cdef unsigned int np = self.thisptr.getNP()
-        return np
+        return self.thisptr.getNP()
 
     @property
     def K(self):
-        cdef float k = self.thisptr.getK()
-        return k
+        return self.thisptr.getK()
 
     def __repr__(self):
         return "freud.order.{cls}(r_max={r}, k={k}, num_neighbors={n})".format(
