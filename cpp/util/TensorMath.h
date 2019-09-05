@@ -6,7 +6,8 @@
 
 #include "VectorMath.h"
 
-template<class Real> struct tensor4
+template<class Real>
+struct tensor4
 {
     tensor4()
     {
@@ -38,38 +39,11 @@ template<class Real> struct tensor4
             }
         }
     }
-    tensor4(Real (&_data)[81])
-    {
-        memcpy((void*) data, (void*) _data, sizeof(float) * 81);
-    }
-    tensor4(float* _data)
-    {
-        memcpy((void*) data, (void*) _data, sizeof(float) * 81);
-    }
     Real data[81];
 };
 
-template<class Real> tensor4<Real> operator+(const tensor4<Real>& a, const tensor4<Real>& b)
-{
-    tensor4<Real> c;
-    for (unsigned int i = 0; i < 81; i++)
-    {
-        c.data[i] = a.data[i] + b.data[i];
-    }
-    return c;
-}
-
-template<class Real> tensor4<Real> operator+(const tensor4<Real>& a, const Real& b)
-{
-    tensor4<Real> c;
-    for (unsigned int i = 0; i < 81; i++)
-    {
-        c.data[i] = a.data[i] + b;
-    }
-    return c;
-}
-
-template<class Real> tensor4<Real> operator+=(tensor4<Real>& a, const tensor4<Real>& b)
+template<class Real>
+tensor4<Real> operator+=(tensor4<Real>& a, const tensor4<Real>& b)
 {
     for (unsigned int i = 0; i < 81; i++)
     {
@@ -78,7 +52,8 @@ template<class Real> tensor4<Real> operator+=(tensor4<Real>& a, const tensor4<Re
     return a;
 }
 
-template<class Real> tensor4<Real> operator+=(tensor4<Real>& a, const Real& b)
+template<class Real>
+tensor4<Real> operator+=(tensor4<Real>& a, const Real& b)
 {
     for (unsigned int i = 0; i < 81; i++)
     {
@@ -87,7 +62,8 @@ template<class Real> tensor4<Real> operator+=(tensor4<Real>& a, const Real& b)
     return a;
 }
 
-template<class Real> tensor4<Real> operator-(const tensor4<Real>& a, const tensor4<Real>& b)
+template<class Real>
+tensor4<Real> operator-(const tensor4<Real>& a, const tensor4<Real>& b)
 {
     tensor4<Real> c;
     for (unsigned int i = 0; i < 81; i++)
@@ -97,17 +73,8 @@ template<class Real> tensor4<Real> operator-(const tensor4<Real>& a, const tenso
     return c;
 }
 
-template<class Real> tensor4<Real> operator-(const tensor4<Real>& a, const Real& b)
-{
-    tensor4<Real> c;
-    for (unsigned int i = 0; i < 81; i++)
-    {
-        c.data[i] = a.data[i] - b;
-    }
-    return c;
-}
-
-template<class Real> tensor4<Real> operator-=(tensor4<Real>& a, const tensor4<Real>& b)
+template<class Real>
+tensor4<Real> operator-=(tensor4<Real>& a, const tensor4<Real>& b)
 {
     for (unsigned int i = 0; i < 81; i++)
     {
@@ -116,15 +83,8 @@ template<class Real> tensor4<Real> operator-=(tensor4<Real>& a, const tensor4<Re
     return a;
 }
 
-template<class Real> tensor4<Real> operator-=(tensor4<Real>& a, const Real& b)
-{
-    for (unsigned int i = 0; i < 81; i++)
-    {
-        a.data[i] -= b;
-    }
-}
-
-template<class Real> float dot(const tensor4<Real>& a, const tensor4<Real>& b)
+template<class Real>
+float dot(const tensor4<Real>& a, const tensor4<Real>& b)
 {
     Real c = 0;
     for (unsigned int i = 0; i < 81; i++)
@@ -134,7 +94,8 @@ template<class Real> float dot(const tensor4<Real>& a, const tensor4<Real>& b)
     return c;
 }
 
-template<class Real> tensor4<Real> operator*(const tensor4<Real>& a, const Real& b)
+template<class Real>
+tensor4<Real> operator*(const tensor4<Real>& a, const Real& b)
 {
     tensor4<Real> c;
     for (unsigned int i = 0; i < 81; i++)
@@ -144,32 +105,12 @@ template<class Real> tensor4<Real> operator*(const tensor4<Real>& a, const Real&
     return c;
 }
 
-template<class Real> tensor4<Real> operator/(const tensor4<Real>& a, const Real& b)
-{
-    Real b_inv = 1.0 / b;
-    tensor4<Real> c;
-    for (unsigned int i = 0; i < 81; i++)
-    {
-        c.data[i] = a.data[i] * b_inv;
-    }
-    return c;
-}
-
-template<class Real> tensor4<Real> operator*=(tensor4<Real>& a, const Real& b)
+template<class Real>
+tensor4<Real> operator*=(tensor4<Real>& a, const Real& b)
 {
     for (unsigned int i = 0; i < 81; i++)
     {
         a.data[i] *= b;
-    }
-    return a;
-}
-
-template<class Real> tensor4<Real> operator/=(tensor4<Real>& a, const Real& b)
-{
-    Real b_inv = 1.0 / b;
-    for (unsigned int i = 0; i < 81; i++)
-    {
-        a.data[i] *= b_inv;
     }
     return a;
 }
