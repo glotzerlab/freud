@@ -6,9 +6,11 @@
 #ifdef __SSE2__
 #include <emmintrin.h>
 #endif
+#include <iostream>
 
 #include "CubaticOrderParameter.h"
 #include "Index1D.h"
+#include "ManagedArray.h"
 
 using namespace std;
 using namespace tbb;
@@ -45,6 +47,12 @@ tensor4::tensor4(vec3<float> vector)
             }
         }
     }
+}
+
+//! Writeable index into array.
+float &tensor4::operator[](unsigned int index)
+{
+    return data[index];
 }
 
 tensor4 tensor4::operator+=(const tensor4& b)
@@ -119,14 +127,36 @@ float dot(const tensor4& a, const tensor4& b)
 }
 
 
+tensor4 genR4Tensor()
+{
+    // Construct the identity matrix to build the delta functions.
+    util::ManagedArray<float> identity({3, 3});
+    identity(0, 0) = 1;
+    identity(1, 1) = 1;
+    identity(2, 2) = 1;
+
+    unsigned int cnt = 0;
+    tensor4 r4 = tensor4();
+    r4.reset();
+    for (unsigned int i = 0; i < 3; i++)
+        for (unsigned int j = 0; j < 3; j++)
+            for (unsigned int k = 0; k < 3; k++)
+                for (unsigned int l = 0; l < 3; l++)
+                {
+                    // ijkl term
+                    r4[cnt] += identity(i, j)*identity(k, l);
+                    // ikjl term
+                    r4[cnt] += identity(i, k)*identity(j, l);
+                    // iljk term
+                    r4[cnt] += identity(i, l)*identity(j, k);
+                    r4[cnt] *= 2.0/5.0;
+                    ++cnt;
+                }
+    return r4;
+}
 
 
-
-
-
-
-
-CubaticOrderParameter::CubaticOrderParameter(float t_initial, float t_final, float scale, float* r4_tensor,
+CubaticOrderParameter::CubaticOrderParameter(float t_initial, float t_final, float scale,
                                              unsigned int replicates, unsigned int seed)
     : m_t_initial(t_initial), m_t_final(t_final), m_scale(scale), m_n(0), m_replicates(replicates),
       m_seed(seed)
@@ -142,21 +172,19 @@ CubaticOrderParameter::CubaticOrderParameter(float t_initial, float t_final, flo
     // required to not have memory overwritten
     m_global_tensor.reset();
     m_cubatic_tensor.reset();
-    memcpy((void*) &m_gen_r4_tensor.data, r4_tensor, sizeof(float) * 81);
+    m_gen_r4_tensor = genR4Tensor();
 
     // Create shared pointer tensor arrays, which are used for returning to Python.
     m_particle_tensor = std::shared_ptr<float>(new float[m_n * 81], std::default_delete<float[]>());
     m_particle_order_parameter = std::shared_ptr<float>(new float[m_n], std::default_delete<float[]>());
     m_sp_global_tensor = std::shared_ptr<float>(new float[81], std::default_delete<float[]>());
     m_sp_cubatic_tensor = std::shared_ptr<float>(new float[81], std::default_delete<float[]>());
-    m_sp_gen_r4_tensor = std::shared_ptr<float>(new float[81], std::default_delete<float[]>());
 
     // Initialize the shared pointers
     memset((void*) m_particle_tensor.get(), 0, sizeof(float) * m_n * 81);
     memset((void*) m_particle_order_parameter.get(), 0, sizeof(float) * m_n);
     memset((void*) m_sp_global_tensor.get(), 0, sizeof(float) * m_n * 81);
     memset((void*) m_sp_cubatic_tensor.get(), 0, sizeof(float) * m_n * 81);
-    memset((void*) m_sp_gen_r4_tensor.get(), 0, sizeof(float) * m_n * 81);
 }
 
 void CubaticOrderParameter::calcCubaticTensor(float* cubatic_tensor, quat<float> orientation)

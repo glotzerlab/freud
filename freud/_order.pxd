@@ -16,7 +16,6 @@ cdef extern from "CubaticOrderParameter.h" namespace "freud::order":
         CubaticOrderParameter(float,
                               float,
                               float,
-                              float*,
                               unsigned int,
                               unsigned int) except +
         void reset()

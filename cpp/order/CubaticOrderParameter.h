@@ -32,19 +32,27 @@ struct tensor4
     tensor4 operator-=(const tensor4& b);
     tensor4 operator*(const float& b);
     tensor4 operator*=(const float& b);
+    float &operator[](unsigned int index);
 
     void reset();
 
     float data[81];
 };
 
+//! Complete tensor contraction.
+/*! This function is simply a sum-product over two tensors. For reference, see eq. 4.
+ *  \param a The first tensor.
+ *  \param a The second tensor.
+ */ 
 float dot(const tensor4& a, const tensor4& b);
 
-
-
-
-
-
+//! Generate the r4 tensor.
+/*! The r4 tensor is not a word used in the paper, but is a name introduced in
+ *  this code to refer to the second term in eqs. 27 in the paper. It is simply
+ *  a scaled sum of some delta function products. For convenience, its
+ *  calculation is performed in a single function.
+ */ 
+tensor4 genR4Tensor();
 
 
 //! Compute the cubatic order parameter for a set of points
@@ -68,7 +76,7 @@ class CubaticOrderParameter
 {
 public:
     //! Constructor
-    CubaticOrderParameter(float t_initial, float t_final, float scale, float* r4_tensor,
+    CubaticOrderParameter(float t_initial, float t_final, float scale,
                           unsigned int replicates, unsigned int seed);
 
     //! Destructor
@@ -124,12 +132,6 @@ public:
         return m_sp_cubatic_tensor;
     }
 
-    std::shared_ptr<float> getGenR4Tensor()
-    {
-        memcpy(m_sp_gen_r4_tensor.get(), (void*) &m_gen_r4_tensor.data, sizeof(float) * 81);
-        return m_sp_gen_r4_tensor;
-    }
-
     unsigned int getNumParticles()
     {
         return m_n;
@@ -175,8 +177,6 @@ private:
     std::shared_ptr<float>
         m_sp_cubatic_tensor; //!< Shared pointer for cubatic tensor, only used to return values to Python.
     std::shared_ptr<float> m_particle_tensor;
-    std::shared_ptr<float>
-        m_sp_gen_r4_tensor; //!< Shared pointer for r4 tensor, only used to return values to Python.
 
     unsigned int m_seed; //!< Random seed
 };

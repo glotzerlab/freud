@@ -98,20 +98,8 @@ cdef class CubaticOrderParameter(Compute):
                                "Using current time as seed.")
                 seed = int(time.time())
 
-        # np.einsum provides a very convenient method for generating a
-        # constant tensor required in the calculation of the cubatic order
-        # parameter (see the second terms of eqs. 27 in the paper), so we
-        # perform the calculation in Python and pass the outputs through to C++
-        cdef const float[:, ::1] kd = np.eye(3, dtype=np.float32)
-        cdef np.ndarray[float, ndim=4] dijkl = np.einsum(
-            "ij,kl->ijkl", kd, kd, dtype=np.float32)
-        cdef np.ndarray[float, ndim=4] dikjl = np.einsum(
-            "ik,jl->ijkl", kd, kd, dtype=np.float32)
-        cdef np.ndarray[float, ndim=4] diljk = np.einsum(
-            "il,jk->ijkl", kd, kd, dtype=np.float32)
-        cdef const float[:, :, :, ::1] r4 = (dijkl + dikjl + diljk) * (2.0/5.0)
         self.thisptr = new freud._order.CubaticOrderParameter(
-            t_initial, t_final, scale, <float*> &r4[0, 0, 0, 0], n_replicates,
+            t_initial, t_final, scale, n_replicates,
             seed)
         self.n_replicates = n_replicates
         self.seed = seed
@@ -187,13 +175,6 @@ cdef class CubaticOrderParameter(Compute):
             <float[:3, :3, :3, :3]> \
             self.thisptr.getCubaticTensor().get()
         return np.asarray(cubatic_tensor)
-
-    @Compute._computed_property()
-    def gen_r4_tensor(self):
-        cdef const float[:, :, :, ::1] gen_r4_tensor = \
-            <float[:3, :3, :3, :3]> \
-            self.thisptr.getGenR4Tensor().get()
-        return np.asarray(gen_r4_tensor)
 
     def __repr__(self):
         return ("freud.order.{cls}(t_initial={t_initial}, t_final={t_final}, "
