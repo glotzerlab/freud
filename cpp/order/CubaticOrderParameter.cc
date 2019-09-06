@@ -229,12 +229,12 @@ quat<float> CubaticOrderParameter::calcRandomQuaternion(Saru& saru, float angle_
     return quat<float>::fromAxisAngle(axis, angle);
 }
 
-void CubaticOrderParameter::calculatePerParticleTensor(quat<float>* orientations, unsigned int n)
+void CubaticOrderParameter::calculatePerParticleTensor(quat<float>* orientations)
 {
     // calculate per-particle tensor
-    parallel_for(blocked_range<size_t>(0, n), [=](const blocked_range<size_t>& r) {
+    parallel_for(blocked_range<size_t>(0, m_n), [=](const blocked_range<size_t>& r) {
         // create index object to access the array
-        Index2D a_i = Index2D(n, 81);
+        Index2D a_i = Index2D(m_n, 81);
 
         for (size_t i = r.begin(); i != r.end(); ++i)
         {
@@ -260,17 +260,17 @@ void CubaticOrderParameter::calculatePerParticleTensor(quat<float>* orientations
     });
 }
 
-void CubaticOrderParameter::calculateGlobalTensor(unsigned int n)
+void CubaticOrderParameter::calculateGlobalTensor()
 {
     // now calculate the global tensor
     parallel_for(blocked_range<size_t>(0, 81), [=](const blocked_range<size_t>& r) {
         // create index object to access the array
-        Index2D a_i = Index2D(n, 81);
-        float n_inv = 1.0 / (float) n;
+        Index2D a_i = Index2D(m_n, 81);
+        float n_inv = 1.0 / (float) m_n;
         for (size_t i = r.begin(); i != r.end(); i++)
         {
             float tensor_value = 0;
-            for (unsigned int j = 0; j < n; j++)
+            for (unsigned int j = 0; j < m_n; j++)
             {
                 tensor_value += m_particle_tensor.get()[a_i(j, i)];
             }
@@ -291,19 +291,23 @@ void CubaticOrderParameter::compute(quat<float>* orientations, unsigned int n)
     // change the size of the particle tensor if the number of particles
     if (m_n != n)
     {
-        m_particle_tensor = std::shared_ptr<float>(new float[n * 81], std::default_delete<float[]>());
-        m_particle_order_parameter = std::shared_ptr<float>(new float[n], std::default_delete<float[]>());
+        m_n = n;
+        m_particle_tensor = std::shared_ptr<float>(new float[m_n * 81], std::default_delete<float[]>());
+        m_particle_order_parameter = std::shared_ptr<float>(new float[m_n], std::default_delete<float[]>());
     }
     // reset the values
     memset((void*) &m_global_tensor.data, 0, sizeof(float) * 81);
-    memset((void*) m_particle_tensor.get(), 0, sizeof(float) * n * 81);
-    memset((void*) m_particle_order_parameter.get(), 0, sizeof(float) * n);
+    memset((void*) m_particle_tensor.get(), 0, sizeof(float) * m_n * 81);
+    memset((void*) m_particle_order_parameter.get(), 0, sizeof(float) * m_n);
 
     // Calculate the per-particle tensor
-    calculatePerParticleTensor(orientations, n);
-    calculateGlobalTensor(n);
+    calculatePerParticleTensor(orientations);
+    calculateGlobalTensor();
 
-    // prep for the simulated annealing
+    // The paper recommends using a Newton-Raphson scheme to optimize the order
+    // parameter, but in practice we find that simulated annealing performs
+    // much better, so we perform replicates of the process and choose the best
+    // one.
     std::shared_ptr<float> p_cubatic_tensor
         = std::shared_ptr<float>(new float[m_replicates * 81], std::default_delete<float[]>());
     memset((void*) p_cubatic_tensor.get(), 0, sizeof(float) * m_replicates * 81);
@@ -314,11 +318,12 @@ void CubaticOrderParameter::compute(quat<float>* orientations, unsigned int n)
         = std::shared_ptr<quat<float>>(new quat<float>[m_replicates], std::default_delete<quat<float>[]>());
     memset((void*) p_cubatic_orientation.get(), 0, sizeof(quat<float>) * m_replicates);
 
-    // parallel for to handle the replicates...
     parallel_for(blocked_range<size_t>(0, m_replicates), [=](const blocked_range<size_t>& r) {
+
         // create thread-specific rng
         unsigned int thread_start = (unsigned int) r.begin();
         Saru l_saru(m_seed, thread_start, 0xffaabb);
+
         // create Index2D to access shared arrays
         Index2D a_i = Index2D(m_replicates, 81);
         for (size_t i = r.begin(); i != r.end(); i++)
@@ -378,7 +383,8 @@ void CubaticOrderParameter::compute(quat<float>* orientations, unsigned int n)
             p_cubatic_order_parameter.get()[i] = cubatic_order_parameter;
         }
     });
-    // now, find max and set the values
+
+    // Loop over threads and choose the replicate that found the highest order.
     unsigned int max_idx = 0;
     float max_cubatic_order_parameter = p_cubatic_order_parameter.get()[max_idx];
     for (unsigned int i = 1; i < m_replicates; i++)
@@ -389,6 +395,7 @@ void CubaticOrderParameter::compute(quat<float>* orientations, unsigned int n)
             max_cubatic_order_parameter = p_cubatic_order_parameter.get()[i];
         }
     }
+
     // set the values
     Index2D a_i = Index2D(m_replicates, 81);
     memcpy((void*) &m_cubatic_tensor.data, (void*) &(p_cubatic_tensor.get()[a_i(max_idx, 0)]),
@@ -396,8 +403,9 @@ void CubaticOrderParameter::compute(quat<float>* orientations, unsigned int n)
     m_cubatic_orientation.s = p_cubatic_orientation.get()[max_idx].s;
     m_cubatic_orientation.v = p_cubatic_orientation.get()[max_idx].v;
     m_cubatic_order_parameter = p_cubatic_order_parameter.get()[max_idx];
+
     // now calculate the per-particle order parameters
-    parallel_for(blocked_range<size_t>(0, n), [=](const blocked_range<size_t>& r) {
+    parallel_for(blocked_range<size_t>(0, m_n), [=](const blocked_range<size_t>& r) {
         tensor4 l_mbar;
         for (size_t i = r.begin(); i != r.end(); i++)
         {
@@ -413,8 +421,6 @@ void CubaticOrderParameter::compute(quat<float>* orientations, unsigned int n)
             m_particle_order_parameter.get()[i] = l_particle_op;
         }
     });
-    // save the last computed number of particles
-    m_n = n;
 }
 
 }; }; // end namespace freud::order

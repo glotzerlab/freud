@@ -115,17 +115,14 @@ public:
     *  is stored in the member variable m_particle_tensor.
     *
     *  \param orientations The per-particle orientations.
-    *  \param n The number of particles (matching the number of orientations).
     */
-    void calculatePerParticleTensor(quat<float>* orientations, unsigned int n);
+    void calculatePerParticleTensor(quat<float>* orientations);
 
     //! Calculate the global tensor for the system.
     /*! Implements the third line of eq. 27, the calculation of \bar{M}. The output
     *  is stored in the member variable m_global_tensor.
-    *
-    *  \param n The number of particles (matching the number of orientations).
     */
-    void calculateGlobalTensor(unsigned int n);
+    void calculateGlobalTensor();
 
     //! Calculate a random quaternion.
     /*! To calculate a random quaternion in a way that obeys the right
