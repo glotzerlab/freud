@@ -98,8 +98,10 @@ cdef class CubaticOrderParameter(Compute):
                                "Using current time as seed.")
                 seed = int(time.time())
 
-        # for c++ code
-        # create generalized rank four tensor, pass into c++
+        # np.einsum provides a very convenient method for generating a
+        # constant tensor required in the calculation of the cubatic order
+        # parameter (see the second terms of eqs. 27 in the paper), so we
+        # perform the calculation in Python and pass the outputs through to C++
         cdef const float[:, ::1] kd = np.eye(3, dtype=np.float32)
         cdef np.ndarray[float, ndim=4] dijkl = np.einsum(
             "ij,kl->ijkl", kd, kd, dtype=np.float32)

@@ -48,7 +48,21 @@ float dot(const tensor4& a, const tensor4& b);
 
 
 //! Compute the cubatic order parameter for a set of points
-/*!
+/*! The cubatic order parameter is defined according to the paper "Strong
+ * orientational coordinates and orientational order parameters for symmetric
+ * objects" by Amir Haji-Akbar
+ * (http://dx.doi.org/10.1088/1751-8113/48/48/485201). Comments throughout this
+ * file reference notes and equations from that paper for clarity. The central
+ * idea is to define, for a given symmetry, a minimal set of vectors that can
+ * be used to construct a coordinate system that has no degeneracies, i.e. one
+ * that is equivalent for any two points that are identical up to any of the
+ * transformations in the symmetry group. The set of vectors for a given rigid
+ * body R is known as a symmetric descriptor of that object, and is constructed
+ * from orbits of that vector (eq. 8). Strong orientational coordinates (SOCs)
+ * are then constructed as homogeneous tensors constructed from this set (eq.
+ * 3). The central idea of the paper is to then develop tensor functions of the
+ * SOCs that can be used to quantify order.
+ *
  */
 class CubaticOrderParameter
 {
@@ -67,8 +81,17 @@ public:
     void compute(quat<float>* orientations, unsigned int n);
 
     //! Calculate the cubatic tensor
+    /*! Implements eq. 22
+     *  \param cubatic_order_parameter The output value (updated as a reference)
+     *  \param cubatic_tensor The cubatic tensor (denoted M_{\omega} in eq. 22), calculated according to 
+     */
     void calcCubaticTensor(float* cubatic_tensor, quat<float> orientation);
 
+    //! Calculate the scalar cubatic order parameter.
+    /*! Implements eq. 22
+     *  \param cubatic_order_parameter The output value (updated as a reference)
+     *  \param cubatic_tensor The cubatic tensor (denoted M_{\omega} in eq. 22), calculated according to 
+     */
     void calcCubaticOrderParameter(float& cubatic_order_parameter, float* cubatic_tensor);
 
     //! Get a reference to the last computed cubatic order parameter
