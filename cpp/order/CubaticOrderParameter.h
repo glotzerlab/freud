@@ -41,6 +41,7 @@ struct tensor4
 
 //! Complete tensor contraction.
 /*! This function is simply a sum-product over two tensors. For reference, see eq. 4.
+ *
  *  \param a The first tensor.
  *  \param a The second tensor.
  */ 
@@ -70,7 +71,6 @@ tensor4 genR4Tensor();
  * are then constructed as homogeneous tensors constructed from this set (eq.
  * 3). The central idea of the paper is to then develop tensor functions of the
  * SOCs that can be used to quantify order.
- *
  */
 class CubaticOrderParameter
 {
@@ -89,14 +89,16 @@ public:
     void compute(quat<float>* orientations, unsigned int n);
 
     //! Calculate the cubatic tensor
-    /*! Implements eq. 22
-     *  \param cubatic_order_parameter The output value (updated as a reference)
-     *  \param cubatic_tensor The cubatic tensor (denoted M_{\omega} in eq. 22), calculated according to 
+    /*! Implements the second line of eq. 27, the calculation of M_{\omega}.
+     *
+     *  \param cubatic_tensor The cubatic tensor (denoted M_{\omega} in the paper), overwritten by reference.
+     *  \param orientation The orientation that will be used to determine the vectors used in the calculation.
      */
     void calcCubaticTensor(float* cubatic_tensor, quat<float> orientation);
 
     //! Calculate the scalar cubatic order parameter.
     /*! Implements eq. 22
+     *
      *  \param cubatic_order_parameter The output value (updated as a reference)
      *  \param cubatic_tensor The cubatic tensor (denoted M_{\omega} in eq. 22), calculated according to 
      */
@@ -108,6 +110,29 @@ public:
         return m_cubatic_order_parameter;
     }
 
+    //! Calculate the per-particle tensor.
+    /*! Implements the first line of eq. 27, the calculation of M. The output
+    *  is stored in the member variable m_particle_tensor.
+    *
+    *  \param orientations The per-particle orientations.
+    *  \param n The number of particles (matching the number of orientations).
+    */
+    void calculatePerParticleTensor(quat<float>* orientations, unsigned int n);
+
+    //! Calculate the global tensor for the system.
+    /*! Implements the third line of eq. 27, the calculation of \bar{M}. The output
+    *  is stored in the member variable m_global_tensor.
+    *
+    *  \param n The number of particles (matching the number of orientations).
+    */
+    void calculateGlobalTensor(unsigned int n);
+
+    //! Calculate a random quaternion.
+    /*! To calculate a random quaternion in a way that obeys the right
+     *  distribution of angles, we cannot simply just choose 4 random numbers
+     *  and then normalize the quaternion. This function implements an
+     *  appropriate calculation.
+     */
     quat<float> calcRandomQuaternion(Saru& saru, float angle_multiplier);
 
     std::shared_ptr<float> getParticleCubaticOrderParameter()
@@ -179,6 +204,8 @@ private:
     std::shared_ptr<float> m_particle_tensor;
 
     unsigned int m_seed; //!< Random seed
+
+    vec3<float> m_system_vectors[3]; //!< The global coordinate system, always use a simple Euclidean basis.
 };
 
 }; }; // end namespace freud::order
