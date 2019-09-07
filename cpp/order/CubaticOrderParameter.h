@@ -10,6 +10,7 @@
 
 #include "VectorMath.h"
 #include "saruprng.h"
+#include "ManagedArray.h"
 
 /*! \file CubaticOrderParameter.h
     \brief Compute the cubatic order parameter for each particle.
@@ -112,16 +113,16 @@ public:
 
     //! Calculate the per-particle tensor.
     /*! Implements the first line of eq. 27, the calculation of M. The output
-    *  is stored in the member variable m_particle_tensor.
-    *
-    *  \param orientations The per-particle orientations.
-    */
+     *  is stored in the member variable m_particle_tensor.
+     *
+     *  \param orientations The per-particle orientations.
+     */
     void calculatePerParticleTensor(quat<float>* orientations);
 
     //! Calculate the global tensor for the system.
     /*! Implements the third line of eq. 27, the calculation of \bar{M}. The output
-    *  is stored in the member variable m_global_tensor.
-    */
+     *  is stored in the member variable m_global_tensor.
+     */
     void calculateGlobalTensor();
 
     //! Calculate a random quaternion.
@@ -132,7 +133,7 @@ public:
      */
     quat<float> calcRandomQuaternion(Saru& saru, float angle_multiplier);
 
-    std::shared_ptr<float> getParticleCubaticOrderParameter()
+    const util::ManagedArray<float> &getParticleOrderParameter()
     {
         return m_particle_order_parameter;
     }
@@ -193,7 +194,7 @@ private:
     tensor4 m_global_tensor;
     tensor4 m_cubatic_tensor;
 
-    std::shared_ptr<float> m_particle_order_parameter; //!< The per-particle value of the order parameter.
+    util::ManagedArray<float> m_particle_order_parameter; //!< The per-particle value of the order parameter.
     std::shared_ptr<float>
         m_sp_global_tensor; //!< Shared pointer for global tensor, only used to return values to Python.
     std::shared_ptr<float>

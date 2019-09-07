@@ -148,11 +148,9 @@ cdef class CubaticOrderParameter(Compute):
 
     @Compute._computed_property()
     def particle_order_parameter(self):
-        cdef unsigned int n_particles = self.thisptr.getNumParticles()
-        cdef const float[::1] particle_order_parameter = \
-            <float[:n_particles]> \
-            self.thisptr.getParticleCubaticOrderParameter().get()
-        return np.asarray(particle_order_parameter)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getParticleOrderParameter(),
+            freud.util.arr_type_t.FLOAT)
 
     @Compute._computed_property()
     def particle_tensor(self):

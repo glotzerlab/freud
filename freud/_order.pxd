@@ -23,7 +23,7 @@ cdef extern from "CubaticOrderParameter.h" namespace "freud::order":
                      unsigned int) except +
         unsigned int getNumParticles()
         float getCubaticOrderParameter()
-        shared_ptr[float] getParticleCubaticOrderParameter()
+        const freud.util.ManagedArray[float] &getParticleOrderParameter()
         shared_ptr[float] getParticleTensor()
         shared_ptr[float] getGlobalTensor()
         shared_ptr[float] getCubaticTensor()

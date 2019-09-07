@@ -10,7 +10,6 @@
 
 #include "CubaticOrderParameter.h"
 #include "Index1D.h"
-#include "ManagedArray.h"
 
 using namespace std;
 using namespace tbb;
@@ -176,13 +175,11 @@ CubaticOrderParameter::CubaticOrderParameter(float t_initial, float t_final, flo
 
     // Create shared pointer tensor arrays, which are used for returning to Python.
     m_particle_tensor = std::shared_ptr<float>(new float[m_n * 81], std::default_delete<float[]>());
-    m_particle_order_parameter = std::shared_ptr<float>(new float[m_n], std::default_delete<float[]>());
     m_sp_global_tensor = std::shared_ptr<float>(new float[81], std::default_delete<float[]>());
     m_sp_cubatic_tensor = std::shared_ptr<float>(new float[81], std::default_delete<float[]>());
 
     // Initialize the shared pointers
     memset((void*) m_particle_tensor.get(), 0, sizeof(float) * m_n * 81);
-    memset((void*) m_particle_order_parameter.get(), 0, sizeof(float) * m_n);
     memset((void*) m_sp_global_tensor.get(), 0, sizeof(float) * m_n * 81);
     memset((void*) m_sp_cubatic_tensor.get(), 0, sizeof(float) * m_n * 81);
 
@@ -293,12 +290,12 @@ void CubaticOrderParameter::compute(quat<float>* orientations, unsigned int n)
     {
         m_n = n;
         m_particle_tensor = std::shared_ptr<float>(new float[m_n * 81], std::default_delete<float[]>());
-        m_particle_order_parameter = std::shared_ptr<float>(new float[m_n], std::default_delete<float[]>());
     }
     // reset the values
-    memset((void*) &m_global_tensor.data, 0, sizeof(float) * 81);
+    m_global_tensor.reset();
     memset((void*) m_particle_tensor.get(), 0, sizeof(float) * m_n * 81);
-    memset((void*) m_particle_order_parameter.get(), 0, sizeof(float) * m_n);
+
+    m_particle_order_parameter.prepare({m_n});
 
     // Calculate the per-particle tensor
     calculatePerParticleTensor(orientations);
@@ -415,7 +412,7 @@ void CubaticOrderParameter::compute(quat<float>* orientations, unsigned int n)
             quat<float> l_orientation = orientations[i];
             calcCubaticTensor((float*) &l_particle_tensor.data, l_orientation);
             calcCubaticOrderParameter(l_particle_op, (float*) &l_particle_tensor.data);
-            m_particle_order_parameter.get()[i] = l_particle_op;
+            m_particle_order_parameter[i] = l_particle_op;
         }
     });
 }
