@@ -43,6 +43,8 @@ public:
 
     vec3<float> getNematicDirector();
 
+    vec3<float> getU();
+
 private:
     unsigned int m_n;                //!< Last number of points computed
     vec3<float> m_u;                 //!< The molecular axis

@@ -43,6 +43,7 @@ cdef extern from "NematicOrderParameter.h" namespace "freud::order":
         const freud.util.ManagedArray[float] &getParticleTensor()
         const freud.util.ManagedArray[float] &getNematicTensor()
         vec3[float] getNematicDirector()
+        vec3[float] getU()
 
 
 cdef extern from "HexTransOrderParameter.h" namespace "freud::order":

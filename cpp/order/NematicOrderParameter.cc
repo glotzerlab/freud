@@ -51,6 +51,11 @@ vec3<float> NematicOrderParameter::getNematicDirector()
     return m_nematic_director;
 }
 
+vec3<float> NematicOrderParameter::getU()
+{
+    return m_u;
+}
+
 void NematicOrderParameter::compute(quat<float>* orientations, unsigned int n)
 {
     m_n = n;

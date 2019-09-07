@@ -195,9 +195,11 @@ cdef class NematicOrderParameter(Compute):
             particle orientation.
         nematic_tensor (:math:`\left(3, 3 \right)` :class:`numpy.ndarray`):
             3x3 matrix corresponding to the average particle orientation.
+        u (:math:`\left(3 \right)` :class:`numpy.ndarray`):
+            The normalized reference director (the normalized vector provided
+            on construction).
     """  # noqa: E501
     cdef freud._order.NematicOrderParameter *thisptr
-    cdef u
 
     def __cinit__(self, u):
         # run checks
@@ -206,7 +208,6 @@ cdef class NematicOrderParameter(Compute):
 
         cdef vec3[float] l_u = vec3[float](u[0], u[1], u[2])
         self.thisptr = new freud._order.NematicOrderParameter(l_u)
-        self.u = freud.common.convert_array(u, shape=(3, ))
 
     def __dealloc__(self):
         del self.thisptr
@@ -249,6 +250,11 @@ cdef class NematicOrderParameter(Compute):
         return freud.util.make_managed_numpy_array(
             &self.thisptr.getNematicTensor(),
             freud.util.arr_type_t.FLOAT)
+
+    @property
+    def u(self):
+        cdef vec3[float] u = self.thisptr.getU()
+        return np.asarray([u.x, u.y, u.z], dtype=np.float32)
 
     def __repr__(self):
         return "freud.order.{cls}(u={u})".format(cls=type(self).__name__,
