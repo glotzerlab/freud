@@ -162,17 +162,15 @@ cdef class CubaticOrderParameter(Compute):
 
     @Compute._computed_property()
     def global_tensor(self):
-        cdef const float[:, :, :, ::1] global_tensor = \
-            <float[:3, :3, :3, :3]> \
-            self.thisptr.getGlobalTensor().get()
-        return np.asarray(global_tensor)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getGlobalTensor(),
+            freud.util.arr_type_t.FLOAT)
 
     @Compute._computed_property()
     def cubatic_tensor(self):
-        cdef const float[:, :, :, ::1] cubatic_tensor = \
-            <float[:3, :3, :3, :3]> \
-            self.thisptr.getCubaticTensor().get()
-        return np.asarray(cubatic_tensor)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getCubaticTensor(),
+            freud.util.arr_type_t.FLOAT)
 
     def __repr__(self):
         return ("freud.order.{cls}(t_initial={t_initial}, t_final={t_final}, "

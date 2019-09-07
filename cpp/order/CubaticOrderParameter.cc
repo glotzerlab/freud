@@ -175,13 +175,9 @@ CubaticOrderParameter::CubaticOrderParameter(float t_initial, float t_final, flo
 
     // Create shared pointer tensor arrays, which are used for returning to Python.
     m_particle_tensor = std::shared_ptr<float>(new float[m_n * 81], std::default_delete<float[]>());
-    m_sp_global_tensor = std::shared_ptr<float>(new float[81], std::default_delete<float[]>());
-    m_sp_cubatic_tensor = std::shared_ptr<float>(new float[81], std::default_delete<float[]>());
 
     // Initialize the shared pointers
     memset((void*) m_particle_tensor.get(), 0, sizeof(float) * m_n * 81);
-    memset((void*) m_sp_global_tensor.get(), 0, sizeof(float) * m_n * 81);
-    memset((void*) m_sp_cubatic_tensor.get(), 0, sizeof(float) * m_n * 81);
 
     // Initialize the system vectors using Euclidean vectors.
     m_system_vectors[0] = vec3<float>(1, 0, 0);
@@ -295,7 +291,7 @@ void CubaticOrderParameter::compute(quat<float>* orientations, unsigned int n)
     m_global_tensor.reset();
     memset((void*) m_particle_tensor.get(), 0, sizeof(float) * m_n * 81);
 
-    m_particle_order_parameter.prepare({m_n});
+    m_particle_order_parameter.prepare(m_n);
 
     // Calculate the per-particle tensor
     calculatePerParticleTensor(orientations);

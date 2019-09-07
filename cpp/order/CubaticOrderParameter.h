@@ -89,49 +89,11 @@ public:
     //! Compute the cubatic order parameter
     void compute(quat<float>* orientations, unsigned int n);
 
-    //! Calculate the cubatic tensor
-    /*! Implements the second line of eq. 27, the calculation of M_{\omega}.
-     *
-     *  \param cubatic_tensor The cubatic tensor (denoted M_{\omega} in the paper), overwritten by reference.
-     *  \param orientation The orientation that will be used to determine the vectors used in the calculation.
-     */
-    void calcCubaticTensor(float* cubatic_tensor, quat<float> orientation);
-
-    //! Calculate the scalar cubatic order parameter.
-    /*! Implements eq. 22
-     *
-     *  \param cubatic_order_parameter The output value (updated as a reference)
-     *  \param cubatic_tensor The cubatic tensor (denoted M_{\omega} in eq. 22), calculated according to 
-     */
-    void calcCubaticOrderParameter(float& cubatic_order_parameter, float* cubatic_tensor);
-
     //! Get a reference to the last computed cubatic order parameter
     float getCubaticOrderParameter()
     {
         return m_cubatic_order_parameter;
     }
-
-    //! Calculate the per-particle tensor.
-    /*! Implements the first line of eq. 27, the calculation of M. The output
-     *  is stored in the member variable m_particle_tensor.
-     *
-     *  \param orientations The per-particle orientations.
-     */
-    void calculatePerParticleTensor(quat<float>* orientations);
-
-    //! Calculate the global tensor for the system.
-    /*! Implements the third line of eq. 27, the calculation of \bar{M}. The output
-     *  is stored in the member variable m_global_tensor.
-     */
-    void calculateGlobalTensor();
-
-    //! Calculate a random quaternion.
-    /*! To calculate a random quaternion in a way that obeys the right
-     *  distribution of angles, we cannot simply just choose 4 random numbers
-     *  and then normalize the quaternion. This function implements an
-     *  appropriate calculation.
-     */
-    quat<float> calcRandomQuaternion(Saru& saru, float angle_multiplier);
 
     const util::ManagedArray<float> &getParticleOrderParameter()
     {
@@ -143,14 +105,16 @@ public:
         return m_particle_tensor;
     }
 
-    std::shared_ptr<float> getGlobalTensor()
+    const util::ManagedArray<float> &getGlobalTensor()
     {
+        m_sp_global_tensor.prepare({3, 3, 3, 3});
         memcpy(m_sp_global_tensor.get(), (void*) &m_global_tensor.data, sizeof(float) * 81);
         return m_sp_global_tensor;
     }
 
-    std::shared_ptr<float> getCubaticTensor()
+    const util::ManagedArray<float> &getCubaticTensor()
     {
+        m_sp_cubatic_tensor.prepare({3, 3, 3, 3});
         memcpy(m_sp_cubatic_tensor.get(), (void*) &m_cubatic_tensor.data, sizeof(float) * 81);
         return m_sp_cubatic_tensor;
     }
@@ -180,6 +144,47 @@ public:
         return m_cubatic_orientation;
     }
 
+protected:
+
+    //! Calculate the cubatic tensor
+    /*! Implements the second line of eq. 27, the calculation of M_{\omega}.
+     *
+     *  \param cubatic_tensor The cubatic tensor (denoted M_{\omega} in the paper), overwritten by reference.
+     *  \param orientation The orientation that will be used to determine the vectors used in the calculation.
+     */
+    void calcCubaticTensor(float* cubatic_tensor, quat<float> orientation);
+
+    //! Calculate the scalar cubatic order parameter.
+    /*! Implements eq. 22
+     *
+     *  \param cubatic_order_parameter The output value (updated as a reference)
+     *  \param cubatic_tensor The cubatic tensor (denoted M_{\omega} in eq. 22)
+     */
+    void calcCubaticOrderParameter(float& cubatic_order_parameter, float* cubatic_tensor);
+
+    //! Calculate the per-particle tensor.
+    /*! Implements the first line of eq. 27, the calculation of M. The output
+     *  is stored in the member variable m_particle_tensor.
+     *
+     *  \param orientations The per-particle orientations.
+     */
+    void calculatePerParticleTensor(quat<float>* orientations);
+
+    //! Calculate the global tensor for the system.
+    /*! Implements the third line of eq. 27, the calculation of \bar{M}. The output
+     *  is stored in the member variable m_global_tensor.
+     */
+    void calculateGlobalTensor();
+
+    //! Calculate a random quaternion.
+    /*! To calculate a random quaternion in a way that obeys the right
+     *  distribution of angles, we cannot simply just choose 4 random numbers
+     *  and then normalize the quaternion. This function implements an
+     *  appropriate calculation.
+     */
+    quat<float> calcRandomQuaternion(Saru& saru, float angle_multiplier);
+
+
 private:
     float m_t_initial;         //!< Initial temperature for simulated annealing.
     float m_t_final;           //!< Final temperature for simulated annealing.
@@ -195,9 +200,9 @@ private:
     tensor4 m_cubatic_tensor;
 
     util::ManagedArray<float> m_particle_order_parameter; //!< The per-particle value of the order parameter.
-    std::shared_ptr<float>
-        m_sp_global_tensor; //!< Shared pointer for global tensor, only used to return values to Python.
-    std::shared_ptr<float>
+    util::ManagedArray<float>
+        m_sp_global_tensor; //!< Copy of global tensor used to return persistent data.
+    util::ManagedArray<float>
         m_sp_cubatic_tensor; //!< Shared pointer for cubatic tensor, only used to return values to Python.
     std::shared_ptr<float> m_particle_tensor;
 
