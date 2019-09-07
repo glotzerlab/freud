@@ -248,9 +248,9 @@ cdef class NematicOrderParameter(Compute):
 
     @Compute._computed_property()
     def nematic_tensor(self):
-        cdef const float[:, ::1] nematic_tensor = \
-            <float[:3, :3]> self.thisptr.getNematicTensor().get()
-        return np.asarray(nematic_tensor)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getNematicTensor(),
+            freud.util.arr_type_t.FLOAT)
 
     def __repr__(self):
         return "freud.order.{cls}(u={u})".format(cls=type(self).__name__,

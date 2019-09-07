@@ -41,7 +41,7 @@ cdef extern from "NematicOrderParameter.h" namespace "freud::order":
         unsigned int getNumParticles()
         float getNematicOrderParameter()
         shared_ptr[float] getParticleTensor()
-        shared_ptr[float] getNematicTensor()
+        const freud.util.ManagedArray[float] &getNematicTensor()
         vec3[float] getNematicDirector()
 
 

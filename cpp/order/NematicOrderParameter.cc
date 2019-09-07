@@ -23,8 +23,7 @@ namespace freud { namespace order {
 
 // m_u is the molecular axis, normalized to a unit vector
 NematicOrderParameter::NematicOrderParameter(vec3<float> u)
-    : m_n(0), m_u(u / sqrt(dot(u, u))),
-      m_sp_nematic_tensor(std::shared_ptr<float>(new float[9], std::default_delete<float[]>()))
+    : m_n(0), m_u(u / sqrt(dot(u, u)))
 {}
 
 float NematicOrderParameter::getNematicOrderParameter()
@@ -37,11 +36,9 @@ std::shared_ptr<float> NematicOrderParameter::getParticleTensor()
     return m_particle_tensor;
 }
 
-std::shared_ptr<float> NematicOrderParameter::getNematicTensor()
+util::ManagedArray<float> &NematicOrderParameter::getNematicTensor()
 {
-    // return nematic_tensor
-    memcpy(m_sp_nematic_tensor.get(), m_nematic_tensor, sizeof(float) * 9);
-    return m_sp_nematic_tensor;
+    return m_nematic_tensor;
 }
 
 unsigned int NematicOrderParameter::getNumParticles()
@@ -52,14 +49,6 @@ unsigned int NematicOrderParameter::getNumParticles()
 vec3<float> NematicOrderParameter::getNematicDirector()
 {
     return m_nematic_director;
-}
-
-void NematicOrderParameter::reset()
-{
-    memset((void*) m_particle_tensor.get(), 0, sizeof(float) * m_n * 9);
-    for (unsigned int i = 0; i < 9; ++i)
-        m_nematic_tensor[i] = 0.0;
-    m_nematic_order_parameter = 0.0;
 }
 
 void NematicOrderParameter::compute(quat<float>* orientations, unsigned int n)
@@ -146,6 +135,7 @@ void NematicOrderParameter::compute(quat<float>* orientations, unsigned int n)
     parallel_reduce(blocked_range<unsigned int>(0, m_n), matrix);
 
     // set the averaged Q_ab
+    m_nematic_tensor.prepare({3, 3});
     for (unsigned int i = 0; i < 9; ++i)
         m_nematic_tensor[i] = matrix.y_[i] / m_n;
 

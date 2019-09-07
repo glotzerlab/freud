@@ -85,6 +85,12 @@ void tensor4::copyToManagedArray(util::ManagedArray<float> &ma)
     memcpy(ma.get(), (void*) &data, sizeof(float) * 81);
 }
 
+//! Complete tensor contraction.
+/*! This function is simply a sum-product over two tensors. For reference, see eq. 4.
+ *
+ *  \param a The first tensor.
+ *  \param a The second tensor.
+ */ 
 float dot(const tensor4& a, const tensor4& b)
 {
     float c = 0;
@@ -95,7 +101,12 @@ float dot(const tensor4& a, const tensor4& b)
     return c;
 }
 
-
+//! Generate the r4 tensor.
+/*! The r4 tensor is not a word used in the paper, but is a name introduced in
+ *  this code to refer to the second term in eqs. 27 in the paper. It is simply
+ *  a scaled sum of some delta function products. For convenience, its
+ *  calculation is performed in a single function.
+ */ 
 tensor4 genR4Tensor()
 {
     // Construct the identity matrix to build the delta functions.

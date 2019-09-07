@@ -10,6 +10,7 @@
 
 #include "Box.h"
 #include "VectorMath.h"
+#include "ManagedArray.h"
 
 /*! \file NematicOrderParameter.h
     \brief Compute the nematic order parameter for each particle
@@ -28,9 +29,6 @@ public:
     //! Destructor
     virtual ~NematicOrderParameter() {};
 
-    //! Reset the nematic order parameter array to all zeros
-    void reset();
-
     //! Compute the nematic order parameter
     void compute(quat<float>* orientations, unsigned int n);
 
@@ -39,7 +37,7 @@ public:
 
     std::shared_ptr<float> getParticleTensor();
 
-    std::shared_ptr<float> getNematicTensor();
+    util::ManagedArray<float> &getNematicTensor();
 
     unsigned int getNumParticles();
 
@@ -50,9 +48,8 @@ private:
     vec3<float> m_u;                 //!< The molecular axis
     float m_nematic_order_parameter; //!< Current value of the order parameter
     vec3<float> m_nematic_director;  //!< The director (eigenvector corresponding to the OP)
-    float m_nematic_tensor[9];       //!< The Q tensor
 
-    std::shared_ptr<float> m_sp_nematic_tensor; //!< Pointer to nematic tensor that is passed back
+    util::ManagedArray<float> m_nematic_tensor; //!< Pointer to nematic tensor that is passed back
                                                 //!< to python to provide a view into the object
     std::shared_ptr<float> m_particle_tensor;   //!< The per-particle tensor that is summed up to Q
                                                 //!< Used to allow parallelized calculation of Q

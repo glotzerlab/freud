@@ -2,6 +2,14 @@
 
 namespace freud { namespace util {
 
+void diagonalize33SymmetricMatrix(const util::ManagedArray<float> &mat, float eigen_vals[3], float eigen_vecs[9])
+{
+    float tmp[9];
+    for (unsigned int i = 0; i < 9; i++)
+        tmp[i] = mat[i];
+    diagonalize33SymmetricMatrix(tmp, eigen_vals, eigen_vecs);
+}
+
 void diagonalize33SymmetricMatrix(float mat[9], float eigen_vals[3], float eigen_vecs[9])
 {
     Eigen::Matrix3f m = Eigen::Map<Eigen::Matrix3f>(mat);
