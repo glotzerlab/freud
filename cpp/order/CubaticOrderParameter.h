@@ -19,9 +19,11 @@
 namespace freud { namespace order {
 
 //! Helper 4th-order tensor class for cubatic calculations.
-/*! The cubatic order parameter involves many calculations that use a 4th-order
- *  tensor of size 3 in each dimension. This simple helper class functions as a
- *  data container that also defines various operators to simplify the code.
+/*! Strong orientational coordinates in the paper are defined as homogeneous
+ *  4th order tensors constructed from tensor products of orbit vectors. The
+ *  tensor4 class encapsulates some of the basic features required to enable
+ *  these calculations, in particular the construction of the tensor from a
+ *  vector and some arithmetic operations that help simplify the code.
  */
 struct tensor4
 {
@@ -36,6 +38,7 @@ struct tensor4
     float &operator[](unsigned int index);
 
     void reset();
+    void copyToManagedArray(util::ManagedArray<float> &ma);
 
     float data[81];
 };
@@ -107,16 +110,12 @@ public:
 
     const util::ManagedArray<float> &getGlobalTensor()
     {
-        m_sp_global_tensor.prepare({3, 3, 3, 3});
-        memcpy(m_sp_global_tensor.get(), (void*) &m_global_tensor.data, sizeof(float) * 81);
-        return m_sp_global_tensor;
+        return m_global_tensor;
     }
 
     const util::ManagedArray<float> &getCubaticTensor()
     {
-        m_sp_cubatic_tensor.prepare({3, 3, 3, 3});
-        memcpy(m_sp_cubatic_tensor.get(), (void*) &m_cubatic_tensor.data, sizeof(float) * 81);
-        return m_sp_cubatic_tensor;
+        return m_cubatic_tensor;
     }
 
     unsigned int getNumParticles()
@@ -160,7 +159,7 @@ protected:
      *  \param cubatic_order_parameter The output value (updated as a reference)
      *  \param cubatic_tensor The cubatic tensor (denoted M_{\omega} in eq. 22)
      */
-    void calcCubaticOrderParameter(float& cubatic_order_parameter, float* cubatic_tensor);
+    float calcCubaticOrderParameter(float* cubatic_tensor, tensor4 global_tensor);
 
     //! Calculate the per-particle tensor.
     /*! Implements the first line of eq. 27, the calculation of M. The output
@@ -171,10 +170,9 @@ protected:
     void calculatePerParticleTensor(quat<float>* orientations);
 
     //! Calculate the global tensor for the system.
-    /*! Implements the third line of eq. 27, the calculation of \bar{M}. The output
-     *  is stored in the member variable m_global_tensor.
+    /*! Implements the third line of eq. 27, the calculation of \bar{M}.
      */
-    void calculateGlobalTensor();
+    tensor4 calculateGlobalTensor();
 
     //! Calculate a random quaternion.
     /*! To calculate a random quaternion in a way that obeys the right
@@ -195,15 +193,13 @@ private:
     float m_cubatic_order_parameter;   //!< The value of the order parameter.
     quat<float> m_cubatic_orientation; //!< The cubatic orientation.
 
-    tensor4 m_gen_r4_tensor;
-    tensor4 m_global_tensor;
-    tensor4 m_cubatic_tensor;
+    tensor4 m_gen_r4_tensor;  //!< The sum of various products of Kronecker deltas that is stored as a member for convenient reuse.
 
     util::ManagedArray<float> m_particle_order_parameter; //!< The per-particle value of the order parameter.
     util::ManagedArray<float>
-        m_sp_global_tensor; //!< Copy of global tensor used to return persistent data.
+        m_global_tensor; //!< Copy of global tensor used to return persistent data.
     util::ManagedArray<float>
-        m_sp_cubatic_tensor; //!< Shared pointer for cubatic tensor, only used to return values to Python.
+        m_cubatic_tensor; //!< Shared pointer for cubatic tensor, only used to return values to Python.
     std::shared_ptr<float> m_particle_tensor;
 
     unsigned int m_seed; //!< Random seed
