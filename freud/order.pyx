@@ -1114,10 +1114,9 @@ cdef class RotationalAutocorrelation(Compute):
 
     @Compute._computed_property()
     def ra_array(self):
-        cdef unsigned int num_orientations = self.thisptr.getN()
-        cdef np.complex64_t[::1] result = \
-            <np.complex64_t[:num_orientations]> self.thisptr.getRAArray().get()
-        return np.asarray(result, dtype=np.complex64)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getRAArray(),
+            freud.util.arr_type_t.COMPLEX_FLOAT)
 
     @Compute._computed_property()
     def num_orientations(self):

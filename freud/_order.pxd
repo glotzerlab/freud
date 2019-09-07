@@ -118,6 +118,6 @@ cdef extern from "RotationalAutocorrelation.h" namespace "freud::order":
         RotationalAutocorrelation(unsigned int)
         unsigned int getL()
         unsigned int getN()
-        shared_ptr[float complex] getRAArray()
+        const freud.util.ManagedArray[float complex] &getRAArray()
         float getRotationalAutocorrelation()
         void compute(quat[float]*, quat[float]*, unsigned int) except +
