@@ -29,12 +29,9 @@ struct tensor4
 {
     tensor4();
     tensor4(vec3<float> _vector);
-    tensor4 operator+=(const tensor4& b);
-    tensor4 operator+=(const float& b);
-    tensor4 operator-(const tensor4& b);
-    tensor4 operator-=(const tensor4& b);
-    tensor4 operator*(const float& b);
-    tensor4 operator*=(const float& b);
+    tensor4 operator+=(const tensor4 &b);
+    tensor4 operator-(const tensor4 &b) const;
+    tensor4 operator*(const float &b) const;
     float &operator[](unsigned int index);
 
     void copyToManagedArray(util::ManagedArray<float> &ma);
@@ -48,7 +45,7 @@ struct tensor4
  *  \param a The first tensor.
  *  \param a The second tensor.
  */ 
-float dot(const tensor4& a, const tensor4& b);
+float dot(const tensor4 &a, const tensor4 &b);
 
 //! Generate the r4 tensor.
 /*! The r4 tensor is not a word used in the paper, but is a name introduced in
@@ -89,7 +86,7 @@ public:
     void reset();
 
     //! Compute the cubatic order parameter
-    void compute(quat<float>* orientations, unsigned int n);
+    void compute(quat<float>* orientations, unsigned int num_orientations);
 
     //! Get a reference to the last computed cubatic order parameter
     float getCubaticOrderParameter()
@@ -148,7 +145,7 @@ protected:
      *  \param cubatic_tensor The cubatic tensor (denoted M_{\omega} in the paper), overwritten by reference.
      *  \param orientation The orientation that will be used to determine the vectors used in the calculation.
      */
-    tensor4 calcCubaticTensor(quat<float> orientation);
+    tensor4 calcCubaticTensor(quat<float> &orientation);
 
     //! Calculate the scalar cubatic order parameter.
     /*! Implements eq. 22
@@ -156,19 +153,19 @@ protected:
      *  \param cubatic_order_parameter The output value (updated as a reference)
      *  \param cubatic_tensor The cubatic tensor (denoted M_{\omega} in eq. 22)
      */
-    float calcCubaticOrderParameter(tensor4 cubatic_tensor, tensor4 global_tensor);
+    float calcCubaticOrderParameter(const tensor4 &cubatic_tensor, const tensor4 &global_tensor) const;
 
     //! Calculate the per-particle tensor.
     /*! Implements the first line of eq. 27, the calculation of M.
      *
      *  \param orientations The per-particle orientations.
      */
-    util::ManagedArray<tensor4> calculatePerParticleTensor(quat<float>* orientations);
+    util::ManagedArray<tensor4> calculatePerParticleTensor(const quat<float>* orientations) const;
 
     //! Calculate the global tensor for the system.
     /*! Implements the third line of eq. 27, the calculation of \bar{M}.
      */
-    tensor4 calculateGlobalTensor(quat<float>* orientations);
+    tensor4 calculateGlobalTensor(quat<float>* orientations) const;
 
     //! Calculate a random quaternion.
     /*! To calculate a random quaternion in a way that obeys the right
@@ -176,7 +173,7 @@ protected:
      *  and then normalize the quaternion. This function implements an
      *  appropriate calculation.
      */
-    quat<float> calcRandomQuaternion(Saru& saru, float angle_multiplier);
+    quat<float> calcRandomQuaternion(Saru& saru, float angle_multiplier) const;
 
 
 private:
