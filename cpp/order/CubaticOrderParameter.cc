@@ -176,12 +176,6 @@ CubaticOrderParameter::CubaticOrderParameter(float t_initial, float t_final, flo
     // required to not have memory overwritten
     m_gen_r4_tensor = genR4Tensor();
 
-    // Create shared pointer tensor arrays, which are used for returning to Python.
-    m_particle_tensor = std::shared_ptr<float>(new float[m_n * 81], std::default_delete<float[]>());
-
-    // Initialize the shared pointers
-    memset((void*) m_particle_tensor.get(), 0, sizeof(float) * m_n * 81);
-
     // Initialize the system vectors using Euclidean vectors.
     m_system_vectors[0] = vec3<float>(1, 0, 0);
     m_system_vectors[1] = vec3<float>(0, 1, 0);
@@ -226,9 +220,6 @@ void CubaticOrderParameter::calculatePerParticleTensor(quat<float>* orientations
 {
     // calculate per-particle tensor
     parallel_for(blocked_range<size_t>(0, m_n), [=](const blocked_range<size_t>& r) {
-        // create index object to access the array
-        Index2D a_i = Index2D(m_n, 81);
-
         for (size_t i = r.begin(); i != r.end(); ++i)
         {
             tensor4 l_mbar = tensor4();
@@ -241,14 +232,8 @@ void CubaticOrderParameter::calculatePerParticleTensor(quat<float>* orientations
                 l_mbar += r4_tensor;
             }
 
-            // The prefactor from the sum in equation 27.
-            l_mbar *= (float) 2.0;
-
-            // set the values
-            for (unsigned int j = 0; j < 81; ++j)
-            {
-                m_particle_tensor.get()[a_i(i, j)] = l_mbar.data[j];
-            }
+            // Apply the prefactor from the sum in equation 27 before assigning.
+            m_particle_tensor[i] = l_mbar*2.0;
         }
     });
 }
@@ -261,14 +246,13 @@ tensor4 CubaticOrderParameter::calculateGlobalTensor()
     // now calculate the global tensor
     parallel_for(blocked_range<size_t>(0, 81), [=, &global_tensor](const blocked_range<size_t>& r) {
         // create index object to access the array
-        Index2D a_i = Index2D(m_n, 81);
         float n_inv = 1.0 / (float) m_n;
         for (size_t i = r.begin(); i != r.end(); i++)
         {
             float tensor_value = 0;
             for (unsigned int j = 0; j < m_n; j++)
             {
-                tensor_value += m_particle_tensor.get()[a_i(j, i)];
+                tensor_value += m_particle_tensor[j][i];
             }
             // Note that in the third equation in eq. 27, the prefactor of the
             // sum is 2/N, but the factor of 2 is already accounted for in the
@@ -286,15 +270,8 @@ tensor4 CubaticOrderParameter::calculateGlobalTensor()
 
 void CubaticOrderParameter::compute(quat<float>* orientations, unsigned int n)
 {
-    // change the size of the particle tensor if the number of particles
-    if (m_n != n)
-    {
-        m_n = n;
-        m_particle_tensor = std::shared_ptr<float>(new float[m_n * 81], std::default_delete<float[]>());
-    }
-    // reset the values
-    memset((void*) m_particle_tensor.get(), 0, sizeof(float) * m_n * 81);
-
+    m_n = n;
+    m_particle_tensor.prepare(m_n);
     m_particle_order_parameter.prepare(m_n);
 
     // Calculate the per-particle tensor

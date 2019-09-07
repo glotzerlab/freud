@@ -103,11 +103,6 @@ public:
         return m_particle_order_parameter;
     }
 
-    std::shared_ptr<float> getParticleTensor()
-    {
-        return m_particle_tensor;
-    }
-
     const util::ManagedArray<float> &getGlobalTensor()
     {
         return m_global_tensor;
@@ -147,6 +142,9 @@ protected:
 
     //! Calculate the cubatic tensor
     /*! Implements the second line of eq. 27, the calculation of M_{\omega}.
+     *  The cubatic tensor is computed by creating the homogeneous tensor
+     *  corresponding to each basis vector rotated by the provided orientation
+     *  and then summing all these resulting tensors.
      *
      *  \param cubatic_tensor The cubatic tensor (denoted M_{\omega} in the paper), overwritten by reference.
      *  \param orientation The orientation that will be used to determine the vectors used in the calculation.
@@ -200,7 +198,7 @@ private:
         m_global_tensor; //!< Copy of global tensor used to return persistent data.
     util::ManagedArray<float>
         m_cubatic_tensor; //!< Shared pointer for cubatic tensor, only used to return values to Python.
-    std::shared_ptr<float> m_particle_tensor;
+    util::ManagedArray<tensor4> m_particle_tensor; //!< Per-particle tensors based on global orientation.
 
     unsigned int m_seed; //!< Random seed
 
