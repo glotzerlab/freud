@@ -110,11 +110,6 @@ tensor4 tensor4::operator*=(const float& b)
     return *this;
 }
 
-void tensor4::reset()
-{
-    memset((void *) &data, 0, sizeof(float) * 81);
-}
-
 void tensor4::copyToManagedArray(util::ManagedArray<float> &ma)
 {
     memcpy(ma.get(), (void*) &data, sizeof(float) * 81);
@@ -141,7 +136,6 @@ tensor4 genR4Tensor()
 
     unsigned int cnt = 0;
     tensor4 r4 = tensor4();
-    r4.reset();
     for (unsigned int i = 0; i < 3; ++i)
         for (unsigned int j = 0; j < 3; ++j)
             for (unsigned int k = 0; k < 3; ++k)
@@ -185,24 +179,17 @@ CubaticOrderParameter::CubaticOrderParameter(float t_initial, float t_final, flo
 tensor4 CubaticOrderParameter::calcCubaticTensor(quat<float> orientation)
 {
     tensor4 calculated_tensor = tensor4();
-
-    // The cubatic tensor is computed by rotating each basis vector by the
-    // provided rotation and then summing the resulting tensors.
     for (unsigned int i = 0; i < 3; i++)
     {
         calculated_tensor += tensor4(rotate(orientation, m_system_vectors[i]));
     }
-
-    // normalize
-    calculated_tensor *= (float) 2.0;
-    calculated_tensor -= m_gen_r4_tensor;
-    return calculated_tensor;
+    return calculated_tensor*float(2.0) - m_gen_r4_tensor;
 }
 
 float CubaticOrderParameter::calcCubaticOrderParameter(tensor4 cubatic_tensor, tensor4 global_tensor)
 {
     tensor4 diff = global_tensor - cubatic_tensor;
-    return 1.0 - dot(diff, diff) / dot(cubatic_tensor, cubatic_tensor);
+    return float(1.0) - dot(diff, diff) / dot(cubatic_tensor, cubatic_tensor);
 }
 
 quat<float> CubaticOrderParameter::calcRandomQuaternion(Saru& saru, float angle_multiplier = 1.0)
@@ -216,10 +203,13 @@ quat<float> CubaticOrderParameter::calcRandomQuaternion(Saru& saru, float angle_
     return quat<float>::fromAxisAngle(axis, angle);
 }
 
-void CubaticOrderParameter::calculatePerParticleTensor(quat<float>* orientations)
+util::ManagedArray<tensor4> CubaticOrderParameter::calculatePerParticleTensor(quat<float>* orientations)
 {
+    util::ManagedArray<tensor4> particle_tensor;
+    particle_tensor.prepare(m_n);
+
     // calculate per-particle tensor
-    parallel_for(blocked_range<size_t>(0, m_n), [=](const blocked_range<size_t>& r) {
+    parallel_for(blocked_range<size_t>(0, m_n), [=, &particle_tensor](const blocked_range<size_t>& r) {
         for (size_t i = r.begin(); i != r.end(); ++i)
         {
             tensor4 l_mbar = tensor4();
@@ -233,50 +223,46 @@ void CubaticOrderParameter::calculatePerParticleTensor(quat<float>* orientations
             }
 
             // Apply the prefactor from the sum in equation 27 before assigning.
-            m_particle_tensor[i] = l_mbar*2.0;
+            particle_tensor[i] = l_mbar*2.0;
         }
     });
+    return particle_tensor;
 }
 
-tensor4 CubaticOrderParameter::calculateGlobalTensor()
+tensor4 CubaticOrderParameter::calculateGlobalTensor(quat<float>* orientations)
 {
-    tensor4 global_tensor;
-    global_tensor.reset();
+    tensor4 global_tensor = tensor4();
+    util::ManagedArray<tensor4> particle_tensor = calculatePerParticleTensor(orientations);
 
     // now calculate the global tensor
-    parallel_for(blocked_range<size_t>(0, 81), [=, &global_tensor](const blocked_range<size_t>& r) {
-        // create index object to access the array
-        float n_inv = 1.0 / (float) m_n;
+    float n_inv = 1.0 / (float) m_n;
+
+    parallel_for(blocked_range<size_t>(0, 81), [=, &global_tensor, &n_inv, &particle_tensor](const blocked_range<size_t>& r) {
         for (size_t i = r.begin(); i != r.end(); i++)
         {
             float tensor_value = 0;
             for (unsigned int j = 0; j < m_n; j++)
             {
-                tensor_value += m_particle_tensor[j][i];
+                tensor_value += particle_tensor[j][i];
             }
             // Note that in the third equation in eq. 27, the prefactor of the
             // sum is 2/N, but the factor of 2 is already accounted for in the
             // calculation of per particle calculation in
-            // calculatePerParticleTensor.
-            tensor_value *= n_inv;
-            global_tensor.data[i] = tensor_value;
+            // calculatePerParticleTensor, so here we just need to apply the
+            // 1/N scaling.
+            global_tensor[i] = tensor_value*n_inv;
         }
     });
-    // Subtract off the general tensor
-    global_tensor -= m_gen_r4_tensor;
-
-    return global_tensor;
+    return global_tensor - m_gen_r4_tensor;
 }
 
 void CubaticOrderParameter::compute(quat<float>* orientations, unsigned int n)
 {
     m_n = n;
-    m_particle_tensor.prepare(m_n);
     m_particle_order_parameter.prepare(m_n);
 
     // Calculate the per-particle tensor
-    calculatePerParticleTensor(orientations);
-    tensor4 global_tensor = calculateGlobalTensor();
+    tensor4 global_tensor = calculateGlobalTensor(orientations);
     m_global_tensor.prepare({3, 3, 3, 3});
     global_tensor.copyToManagedArray(m_global_tensor);
 
@@ -366,8 +352,7 @@ void CubaticOrderParameter::compute(quat<float>* orientations, unsigned int n)
     // set the values
     m_cubatic_tensor.prepare({3, 3, 3, 3});
     p_cubatic_tensor[max_idx].copyToManagedArray(m_cubatic_tensor);
-    m_cubatic_orientation.s = p_cubatic_orientation[max_idx].s;
-    m_cubatic_orientation.v = p_cubatic_orientation[max_idx].v;
+    m_cubatic_orientation = p_cubatic_orientation[max_idx];
     m_cubatic_order_parameter = p_cubatic_order_parameter[max_idx];
 
     // now calculate the per-particle order parameters

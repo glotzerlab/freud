@@ -37,7 +37,6 @@ struct tensor4
     tensor4 operator*=(const float& b);
     float &operator[](unsigned int index);
 
-    void reset();
     void copyToManagedArray(util::ManagedArray<float> &ma);
 
     float data[81];
@@ -160,17 +159,16 @@ protected:
     float calcCubaticOrderParameter(tensor4 cubatic_tensor, tensor4 global_tensor);
 
     //! Calculate the per-particle tensor.
-    /*! Implements the first line of eq. 27, the calculation of M. The output
-     *  is stored in the member variable m_particle_tensor.
+    /*! Implements the first line of eq. 27, the calculation of M.
      *
      *  \param orientations The per-particle orientations.
      */
-    void calculatePerParticleTensor(quat<float>* orientations);
+    util::ManagedArray<tensor4> calculatePerParticleTensor(quat<float>* orientations);
 
     //! Calculate the global tensor for the system.
     /*! Implements the third line of eq. 27, the calculation of \bar{M}.
      */
-    tensor4 calculateGlobalTensor();
+    tensor4 calculateGlobalTensor(quat<float>* orientations);
 
     //! Calculate a random quaternion.
     /*! To calculate a random quaternion in a way that obeys the right
@@ -198,8 +196,6 @@ private:
         m_global_tensor; //!< Copy of global tensor used to return persistent data.
     util::ManagedArray<float>
         m_cubatic_tensor; //!< Shared pointer for cubatic tensor, only used to return values to Python.
-    util::ManagedArray<tensor4> m_particle_tensor; //!< Per-particle tensors based on global orientation.
-
     unsigned int m_seed; //!< Random seed
 
     vec3<float> m_system_vectors[3]; //!< The global coordinate system, always use a simple Euclidean basis.
