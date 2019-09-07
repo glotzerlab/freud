@@ -151,7 +151,7 @@ protected:
      *  \param cubatic_tensor The cubatic tensor (denoted M_{\omega} in the paper), overwritten by reference.
      *  \param orientation The orientation that will be used to determine the vectors used in the calculation.
      */
-    void calcCubaticTensor(float* cubatic_tensor, quat<float> orientation);
+    tensor4 calcCubaticTensor(quat<float> orientation);
 
     //! Calculate the scalar cubatic order parameter.
     /*! Implements eq. 22
