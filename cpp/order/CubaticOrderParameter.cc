@@ -205,12 +205,10 @@ tensor4 CubaticOrderParameter::calcCubaticTensor(quat<float> orientation)
     return calculated_tensor;
 }
 
-float CubaticOrderParameter::calcCubaticOrderParameter(float* cubatic_tensor, tensor4 global_tensor)
+float CubaticOrderParameter::calcCubaticOrderParameter(tensor4 cubatic_tensor, tensor4 global_tensor)
 {
-    tensor4 l_cubatic_tensor = tensor4();
-    memcpy((void*) &l_cubatic_tensor.data, (void*) cubatic_tensor, sizeof(float) * 81);
-    tensor4 diff = global_tensor - l_cubatic_tensor;
-    return 1.0 - dot(diff, diff) / dot(l_cubatic_tensor, l_cubatic_tensor);
+    tensor4 diff = global_tensor - cubatic_tensor;
+    return 1.0 - dot(diff, diff) / dot(cubatic_tensor, cubatic_tensor);
 }
 
 quat<float> CubaticOrderParameter::calcRandomQuaternion(Saru& saru, float angle_multiplier = 1.0)
@@ -324,14 +322,16 @@ void CubaticOrderParameter::compute(quat<float>* orientations, unsigned int n)
         {
             tensor4 cubatic_tensor;
             tensor4 new_cubatic_tensor;
+
             // need to generate random orientation
             quat<float> cubatic_orientation = calcRandomQuaternion(l_saru);
-            quat<float> current_orientation = cubatic_orientation;
-            float cubatic_order_parameter = 0;
+            quat<float> new_orientation = cubatic_orientation;
+
             // now calculate the cubatic tensor
             cubatic_tensor = calcCubaticTensor(cubatic_orientation);
-            cubatic_order_parameter = calcCubaticOrderParameter((float*) &cubatic_tensor.data, global_tensor);
+            float cubatic_order_parameter = calcCubaticOrderParameter(cubatic_tensor, global_tensor);
             float new_order_parameter = cubatic_order_parameter;
+
             // set initial temperature and count
             float t_current = m_t_initial;
             unsigned int loop_count = 0;
@@ -339,16 +339,15 @@ void CubaticOrderParameter::compute(quat<float>* orientations, unsigned int n)
             while ((t_current > m_t_final) && (loop_count < 10000))
             {
                 loop_count++;
-                current_orientation = calcRandomQuaternion(l_saru, 0.1) * (cubatic_orientation);
+                new_orientation = calcRandomQuaternion(l_saru, 0.1) * (cubatic_orientation);
                 // now calculate the cubatic tensor
-                new_cubatic_tensor = calcCubaticTensor(current_orientation);
-                new_order_parameter = calcCubaticOrderParameter((float*) &new_cubatic_tensor.data, global_tensor);
+                new_cubatic_tensor = calcCubaticTensor(new_orientation);
+                new_order_parameter = calcCubaticOrderParameter(new_cubatic_tensor, global_tensor);
                 if (new_order_parameter > cubatic_order_parameter)
                 {
-                    memcpy((void*) &cubatic_tensor.data, (void*) &new_cubatic_tensor.data,
-                           sizeof(float) * 81);
+                    cubatic_tensor = new_cubatic_tensor;
                     cubatic_order_parameter = new_order_parameter;
-                    cubatic_orientation = current_orientation;
+                    cubatic_orientation = new_orientation;
                 }
                 else
                 {
@@ -358,7 +357,7 @@ void CubaticOrderParameter::compute(quat<float>* orientations, unsigned int n)
                     {
                         cubatic_tensor = new_cubatic_tensor;
                         cubatic_order_parameter = new_order_parameter;
-                        cubatic_orientation = current_orientation;
+                        cubatic_orientation = new_orientation;
                     }
                     else
                     {
@@ -378,7 +377,7 @@ void CubaticOrderParameter::compute(quat<float>* orientations, unsigned int n)
     // Loop over threads and choose the replicate that found the highest order.
     unsigned int max_idx = 0;
     float max_cubatic_order_parameter = p_cubatic_order_parameter[max_idx];
-    for (unsigned int i = 1; i < m_replicates; i++)
+    for (unsigned int i = 1; i < m_replicates; ++i)
     {
         if (p_cubatic_order_parameter[i] > max_cubatic_order_parameter)
         {
@@ -402,10 +401,7 @@ void CubaticOrderParameter::compute(quat<float>* orientations, unsigned int n)
             // i.e. what is the value of the COP
             // if the global orientation were the particle orientation
             // load the orientation
-            tensor4 l_particle_tensor;
-            quat<float> l_orientation = orientations[i];
-            l_particle_tensor = calcCubaticTensor(l_orientation);
-            m_particle_order_parameter[i] = calcCubaticOrderParameter((float*) &l_particle_tensor.data, global_tensor);;
+            m_particle_order_parameter[i] = calcCubaticOrderParameter(calcCubaticTensor(orientations[i]), global_tensor);;
         }
     });
 }

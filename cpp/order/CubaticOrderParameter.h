@@ -159,7 +159,7 @@ protected:
      *  \param cubatic_order_parameter The output value (updated as a reference)
      *  \param cubatic_tensor The cubatic tensor (denoted M_{\omega} in eq. 22)
      */
-    float calcCubaticOrderParameter(float* cubatic_tensor, tensor4 global_tensor);
+    float calcCubaticOrderParameter(tensor4 cubatic_tensor, tensor4 global_tensor);
 
     //! Calculate the per-particle tensor.
     /*! Implements the first line of eq. 27, the calculation of M. The output
