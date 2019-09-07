@@ -311,14 +311,11 @@ void CubaticOrderParameter::compute(quat<float>* orientations, unsigned int n)
     std::shared_ptr<float> p_cubatic_tensor
         = std::shared_ptr<float>(new float[m_replicates * 81], std::default_delete<float[]>());
     memset((void*) p_cubatic_tensor.get(), 0, sizeof(float) * m_replicates * 81);
-    std::shared_ptr<float> p_cubatic_order_parameter
-        = std::shared_ptr<float>(new float[m_replicates], std::default_delete<float[]>());
-    memset((void*) p_cubatic_order_parameter.get(), 0, sizeof(float) * m_replicates);
-    std::shared_ptr<quat<float>> p_cubatic_orientation
-        = std::shared_ptr<quat<float>>(new quat<float>[m_replicates], std::default_delete<quat<float>[]>());
-    memset((void*) p_cubatic_orientation.get(), 0, sizeof(quat<float>) * m_replicates);
 
-    parallel_for(blocked_range<size_t>(0, m_replicates), [=](const blocked_range<size_t>& r) {
+    util::ManagedArray<float> p_cubatic_order_parameter({m_replicates});
+    util::ManagedArray<quat<float> > p_cubatic_orientation({m_replicates});
+
+    parallel_for(blocked_range<size_t>(0, m_replicates), [=, &p_cubatic_orientation, &p_cubatic_order_parameter](const blocked_range<size_t>& r) {
 
         // create thread-specific rng
         unsigned int thread_start = (unsigned int) r.begin();
@@ -378,21 +375,21 @@ void CubaticOrderParameter::compute(quat<float>* orientations, unsigned int n)
             // set values
             float* tensor_ptr = (float*) &(p_cubatic_tensor.get()[a_i(i, 0)]);
             memcpy((void*) tensor_ptr, (void*) &cubatic_tensor, sizeof(float) * 81);
-            p_cubatic_orientation.get()[i].s = cubatic_orientation.s;
-            p_cubatic_orientation.get()[i].v = cubatic_orientation.v;
-            p_cubatic_order_parameter.get()[i] = cubatic_order_parameter;
+            p_cubatic_orientation[i].s = cubatic_orientation.s;
+            p_cubatic_orientation[i].v = cubatic_orientation.v;
+            p_cubatic_order_parameter[i] = cubatic_order_parameter;
         }
     });
 
     // Loop over threads and choose the replicate that found the highest order.
     unsigned int max_idx = 0;
-    float max_cubatic_order_parameter = p_cubatic_order_parameter.get()[max_idx];
+    float max_cubatic_order_parameter = p_cubatic_order_parameter[max_idx];
     for (unsigned int i = 1; i < m_replicates; i++)
     {
-        if (p_cubatic_order_parameter.get()[i] > max_cubatic_order_parameter)
+        if (p_cubatic_order_parameter[i] > max_cubatic_order_parameter)
         {
             max_idx = i;
-            max_cubatic_order_parameter = p_cubatic_order_parameter.get()[i];
+            max_cubatic_order_parameter = p_cubatic_order_parameter[i];
         }
     }
 
@@ -400,9 +397,9 @@ void CubaticOrderParameter::compute(quat<float>* orientations, unsigned int n)
     Index2D a_i = Index2D(m_replicates, 81);
     memcpy((void*) &m_cubatic_tensor.data, (void*) &(p_cubatic_tensor.get()[a_i(max_idx, 0)]),
            sizeof(float) * 81);
-    m_cubatic_orientation.s = p_cubatic_orientation.get()[max_idx].s;
-    m_cubatic_orientation.v = p_cubatic_orientation.get()[max_idx].v;
-    m_cubatic_order_parameter = p_cubatic_order_parameter.get()[max_idx];
+    m_cubatic_orientation.s = p_cubatic_orientation[max_idx].s;
+    m_cubatic_orientation.v = p_cubatic_orientation[max_idx].v;
+    m_cubatic_order_parameter = p_cubatic_order_parameter[max_idx];
 
     // now calculate the per-particle order parameters
     parallel_for(blocked_range<size_t>(0, m_n), [=](const blocked_range<size_t>& r) {
