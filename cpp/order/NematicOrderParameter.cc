@@ -31,12 +31,12 @@ float NematicOrderParameter::getNematicOrderParameter()
     return m_nematic_order_parameter;
 }
 
-std::shared_ptr<float> NematicOrderParameter::getParticleTensor()
+const util::ManagedArray<float> &NematicOrderParameter::getParticleTensor()
 {
     return m_particle_tensor;
 }
 
-util::ManagedArray<float> &NematicOrderParameter::getNematicTensor()
+const util::ManagedArray<float> &NematicOrderParameter::getNematicTensor()
 {
     return m_nematic_tensor;
 }
@@ -53,19 +53,11 @@ vec3<float> NematicOrderParameter::getNematicDirector()
 
 void NematicOrderParameter::compute(quat<float>* orientations, unsigned int n)
 {
-    // change the size of the particle tensor if the number of particles
-    if (m_n != n)
-    {
-        m_particle_tensor = std::shared_ptr<float>(new float[n * 9], std::default_delete<float[]>());
-        m_n = n;
-    }
-    // reset the values
-    memset((void*) m_particle_tensor.get(), 0, sizeof(float) * n * 9);
+    m_n = n;
+    m_particle_tensor.prepare({m_n, 3, 3});
 
     // calculate per-particle tensor
     parallel_for(blocked_range<size_t>(0, n), [=](const blocked_range<size_t>& r) {
-        // create index object to access the array
-        Index2D a_i = Index2D(3);
 
         for (size_t i = r.begin(); i != r.end(); i++)
         {
@@ -73,64 +65,69 @@ void NematicOrderParameter::compute(quat<float>* orientations, unsigned int n)
             quat<float> q = orientations[i];
             vec3<float> u_i = rotate(q, m_u);
 
-            float Q_ab[9];
+            util::ManagedArray<float> Q_ab({3, 3});
 
-            Q_ab[a_i(0, 0)] = 1.5f * u_i.x * u_i.x - 0.5f;
-            Q_ab[a_i(0, 1)] = 1.5f * u_i.x * u_i.y;
-            Q_ab[a_i(0, 2)] = 1.5f * u_i.x * u_i.z;
-            Q_ab[a_i(1, 0)] = 1.5f * u_i.y * u_i.x;
-            Q_ab[a_i(1, 1)] = 1.5f * u_i.y * u_i.y - 0.5f;
-            Q_ab[a_i(1, 2)] = 1.5f * u_i.y * u_i.z;
-            Q_ab[a_i(2, 0)] = 1.5f * u_i.z * u_i.x;
-            Q_ab[a_i(2, 1)] = 1.5f * u_i.z * u_i.y;
-            Q_ab[a_i(2, 2)] = 1.5f * u_i.z * u_i.z - 0.5f;
+            Q_ab(0, 0) = 1.5f * u_i.x * u_i.x - 0.5f;
+            Q_ab(0, 1) = 1.5f * u_i.x * u_i.y;
+            Q_ab(0, 2) = 1.5f * u_i.x * u_i.z;
+            Q_ab(1, 0) = 1.5f * u_i.y * u_i.x;
+            Q_ab(1, 1) = 1.5f * u_i.y * u_i.y - 0.5f;
+            Q_ab(1, 2) = 1.5f * u_i.y * u_i.z;
+            Q_ab(2, 0) = 1.5f * u_i.z * u_i.x;
+            Q_ab(2, 1) = 1.5f * u_i.z * u_i.y;
+            Q_ab(2, 2) = 1.5f * u_i.z * u_i.z - 0.5f;
 
             // Set the values. The per-particle array is used so that both
             // this loop and the reduction can be done in parallel afterwards
-            for (unsigned int j = 0; j < 9; j++)
-            {
-                m_particle_tensor.get()[i * 9 + j] += Q_ab[j];
-            }
+            for (unsigned int j = 0; j < 3; j++)
+                for (unsigned int k = 0; k < 3; k++)
+                    m_particle_tensor(i, j, k) += Q_ab(j, k);
         }
     });
 
     // https://stackoverflow.com/questions/9399929/parallel-reduction-of-an-array-on-cpu
     struct reduce_matrix
     {
-        float y_[9];
-        const float* m_; // reference to a matrix
+        util::ManagedArray<float> y_;
+        const util::ManagedArray<float> m_; // reference to array of matrices per-particle
 
-        reduce_matrix(const float* m) : m_(m)
+        reduce_matrix(const util::ManagedArray<float> m) : m_(m)
         {
-            for (int i = 0; i < 9; ++i)
-                y_[i] = 0.0; // prepare for accumulation
+            y_.prepare({3, 3});
+            for (int i = 0; i < 3; ++i)
+                for (int j = 0; j < 3; ++j)
+                    y_(i, j) = 0.0; // prepare for accumulation
         }
 
         // splitting constructor required by TBB
         reduce_matrix(reduce_matrix& rm, tbb::split) : m_(rm.m_)
         {
-            for (int i = 0; i < 9; ++i)
-                y_[i] = 0.0;
+            y_.prepare({3, 3});
+            for (int i = 0; i < 3; ++i)
+                for (int j = 0; j < 3; ++j)
+                    y_(i, j) = 0.0;
         }
 
         // adding the elements
         void operator()(const tbb::blocked_range<unsigned int>& r)
         {
-            for (unsigned int i = r.begin(); i < r.end(); ++i)
-                for (int j = 0; j < 9; ++j)
-                    y_[j] += m_[i * 9 + j];
+            for (unsigned int n = r.begin(); n < r.end(); ++n)
+                for (int i = 0; i < 3; ++i)
+                    for (int j = 0; j < 3; ++j)
+                        y_(i, j) += m_(n, i, j);
         }
 
         // reduce computations in two matrices
         void join(reduce_matrix& rm)
         {
-            for (int i = 0; i < 9; ++i)
-                y_[i] += rm.y_[i];
+            for (int i = 0; i < 3; ++i)
+                for (int j = 0; j < 3; ++j)
+                    y_(i, j) += rm.y_(i, j);
         }
     };
 
     // now calculate the sum of Q_ab's
-    reduce_matrix matrix(m_particle_tensor.get());
+    reduce_matrix matrix(m_particle_tensor);
 
     parallel_reduce(blocked_range<unsigned int>(0, m_n), matrix);
 

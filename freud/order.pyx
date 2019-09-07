@@ -240,11 +240,9 @@ cdef class NematicOrderParameter(Compute):
 
     @Compute._computed_property()
     def particle_tensor(self):
-        cdef unsigned int n_particles = self.thisptr.getNumParticles()
-        cdef const float[:, :, ::1] particle_tensor = \
-            <float[:n_particles, :3, :3]> \
-            self.thisptr.getParticleTensor().get()
-        return np.asarray(particle_tensor)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getParticleTensor(),
+            freud.util.arr_type_t.FLOAT)
 
     @Compute._computed_property()
     def nematic_tensor(self):

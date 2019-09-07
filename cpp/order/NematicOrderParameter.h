@@ -35,9 +35,9 @@ public:
     //! Get the value of the last computed nematic order parameter
     float getNematicOrderParameter();
 
-    std::shared_ptr<float> getParticleTensor();
+    const util::ManagedArray<float> &getParticleTensor();
 
-    util::ManagedArray<float> &getNematicTensor();
+    const util::ManagedArray<float> &getNematicTensor();
 
     unsigned int getNumParticles();
 
@@ -51,7 +51,7 @@ private:
 
     util::ManagedArray<float> m_nematic_tensor; //!< Pointer to nematic tensor that is passed back
                                                 //!< to python to provide a view into the object
-    std::shared_ptr<float> m_particle_tensor;   //!< The per-particle tensor that is summed up to Q
+    util::ManagedArray<float> m_particle_tensor;   //!< The per-particle tensor that is summed up to Q
                                                 //!< Used to allow parallelized calculation of Q
 };
 
