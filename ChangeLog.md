@@ -26,6 +26,7 @@ Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to
 ### Removed
 * The freud.util module.
 * Python 2 is no longer supported. Python 3.5+ is required.
+* CubaticOrderParameter no longer returns the per-particle tensor or the constant r4 tensor.
 
 ## v1.2.2 - 2019-08-15
 
