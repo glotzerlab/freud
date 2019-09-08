@@ -8,8 +8,8 @@ Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to
 * Ability to specify NeighborQuery objects as points for neighbor-based pair computes.
 * Various validation tests.
 * Added standard method for preprocessing arguments of pair computations.
-* New internal array object that allows data persistence and improves indexing in C++.
-* Internal threaded storage is uses the standard ManagedArray object.
+* New internal ManagedArray object that allows data persistence and improves indexing in C++.
+* Internal threaded storage uses the standard ManagedArray object.
 
 ### Changed
 * All compute objects that perform neighbor computations now use NeighborQuery internally.
