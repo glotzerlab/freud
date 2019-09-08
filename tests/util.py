@@ -34,9 +34,13 @@ def make_raw_query_nlist_test_set(box, points, query_points, mode, r_max,
             query_args :class:`dict` or :code:`None`.
     """  # noqa: E501
     test_set = []
-    query_args = {'mode': mode, 'r_max': r_max, 'exclude_ii': exclude_ii}
+    query_args = {'mode': mode, 'exclude_ii': exclude_ii}
+    if mode == "ball":
+        query_args['r_max'] = r_max
+
     if mode == 'nearest':
         query_args['num_neighbors'] = num_neighbors
+        query_args['r_guess'] = r_max
 
     test_set.append((points, None, query_args))
     test_set.append((freud.locality.RawPoints(box, points), None, query_args))

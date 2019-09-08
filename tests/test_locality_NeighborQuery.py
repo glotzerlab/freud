@@ -587,6 +587,7 @@ class TestAlternatingPoints(unittest.TestCase):
         # big box to ignore periodicity
         box = freud.box.Box.square(lattice_size*5)
         query_points, points = util.make_alternating_lattice(lattice_size)
+        query_points = query_points[[7]]
         r_max = 1.6
         num_neighbors = 12
 
