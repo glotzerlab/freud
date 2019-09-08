@@ -54,7 +54,7 @@ cdef class _QueryArgs:
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
     """
 
-    def __cinit__(self, mode=None, r_max=None,
+    def __cinit__(self, mode=None, r_max=None, r_guess=None,
                   num_neighbors=None, exclude_ii=None,
                   scale=None, **kwargs):
         if type(self) == _QueryArgs:
@@ -62,6 +62,8 @@ cdef class _QueryArgs:
             self.mode = mode
             if r_max is not None:
                 self.r_max = r_max
+            if r_guess is not None:
+                self.r_guess = r_guess
             if num_neighbors is not None:
                 self.num_neighbors = num_neighbors
             if exclude_ii is not None:
@@ -115,6 +117,14 @@ cdef class _QueryArgs:
             self.thisptr.mode = freud._locality.QueryType.nearest
         else:
             raise ValueError("You have passed an invalid mode.")
+
+    @property
+    def r_guess(self):
+        return self.thisptr.r_guess
+
+    @r_guess.setter
+    def r_guess(self, value):
+        self.thisptr.r_guess = value
 
     @property
     def r_max(self):

@@ -177,7 +177,7 @@ cdef class BondOrder(Compute):
 
         cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
             mode="nearest", num_neighbors=self.num_neighbors,
-            r_max=self.r_max, exclude_ii=exclude_ii)
+            r_guess=self.r_max, exclude_ii=exclude_ii)
         points = nq.points
 
         if query_points is None:

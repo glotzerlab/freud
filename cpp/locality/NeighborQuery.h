@@ -33,7 +33,7 @@ struct QueryArgs
     /*! We set default values for all parameters here.
      */
     QueryArgs() : mode(DEFAULT_MODE), num_neighbors(DEFAULT_NUM_NEIGHBORS), r_max(DEFAULT_R_MAX),
-                  scale(DEFAULT_SCALE), exclude_ii(DEFAULT_EXCLUDE_II) {}
+                  r_guess(DEFAULT_R_GUESS), scale(DEFAULT_SCALE), exclude_ii(DEFAULT_EXCLUDE_II) {}
 
     //! Enumeration for types of queries.
     enum QueryType
@@ -43,9 +43,10 @@ struct QueryArgs
         nearest, //! Query based on number of requested neighbors.
     };
 
-    QueryType mode; //! Whether to perform a ball or k-nearest neighbor query.
+    QueryType mode;    //! Whether to perform a ball or k-nearest neighbor query.
     unsigned int num_neighbors;         //! The number of nearest neighbors to find.
-    float r_max;     //! The cutoff distance within which to find neighbors
+    float r_max;       //! The cutoff distance within which to find neighbors.
+    float r_guess;     //! The initial distance for finding neighbors, used by some algorithms to initialize a number of neighbors query.
     float scale; //! The scale factor to use when performing repeated ball queries to find a specified number
                  //! of nearest neighbors.
     bool exclude_ii; //! If true, exclude self-neighbors.
@@ -53,6 +54,7 @@ struct QueryArgs
     static const QueryType DEFAULT_MODE;                //!< Default mode.
     static const unsigned int DEFAULT_NUM_NEIGHBORS;        //!< Default number of neighbors.
     static const float DEFAULT_R_MAX;                   //!< Default query distance.
+    static const float DEFAULT_R_GUESS;                   //!< Default guess query distance.
     static const float DEFAULT_SCALE;                   //!< Default scaling parameter for AABB nearest neighbor queries.
     static const bool DEFAULT_EXCLUDE_II;               //!< Default for whether or not to include self-neighbors.
 };

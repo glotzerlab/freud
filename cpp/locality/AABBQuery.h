@@ -7,6 +7,7 @@
 #include <map>
 #include <memory>
 #include <vector>
+#include <limits>
 
 #include "AABBTree.h"
 #include "Box.h"
@@ -63,13 +64,17 @@ protected:
             {
                 args.scale = float(1.1);
             }
-            if (args.r_max == QueryArgs::DEFAULT_R_MAX)
+            if (args.r_guess == QueryArgs::DEFAULT_R_GUESS)
             {
                 // By default, we use 1/10 the smallest box dimension as the guessed query distance.
                 vec3<float> L = this->getBox().getL();
-                float r_max = std::min(L.x, L.y);
-                r_max = this->getBox().is2D() ? r_max : std::min(r_max, L.z);
-                args.r_max = float(0.1) * r_max;
+                float r_guess = std::min(L.x, L.y);
+                r_guess = this->getBox().is2D() ? r_guess : std::min(r_guess, L.z);
+                args.r_guess = float(0.1) * r_guess;
+            }
+            if (args.r_max == QueryArgs::DEFAULT_R_MAX)
+            {
+                args.r_max = std::numeric_limits<float>::infinity();
             }
         }
     }
@@ -115,8 +120,8 @@ class AABBQueryIterator : public AABBIterator
 public:
     //! Constructor
     AABBQueryIterator(const AABBQuery* neighbor_query, const vec3<float> query_point, unsigned int query_point_idx,
-                      unsigned int num_neighbors, float r, float scale, bool exclude_ii)
-        : AABBIterator(neighbor_query, query_point, query_point_idx, exclude_ii), m_count(0), m_num_neighbors(num_neighbors), m_search_extended(false), m_r_cur(r),
+                      unsigned int num_neighbors, float r_guess, float r_max, float scale, bool exclude_ii)
+        : AABBIterator(neighbor_query, query_point, query_point_idx, exclude_ii), m_count(0), m_num_neighbors(num_neighbors), m_search_extended(false), m_r_cur(r_guess), m_r_max(r_max),
           m_scale(scale), m_all_distances()
     {
         updateImageVectors(0);
@@ -136,6 +141,8 @@ protected:
                              //!< worried about finding duplicates.
     float
         m_r_cur; //!< Current search ball cutoff distance in use for the current particle (expands as needed).
+    float
+        m_r_max; //!< Upper bound for distance, used as a strict cutoff if provided.
     float m_scale; //!< The amount to scale m_r by when the current ball is too small.
     std::map<unsigned int, float> m_all_distances; //!< Hash map of minimum distances found for a given point,
                                                    //!< used when searching beyond maximum safe AABB distance.
