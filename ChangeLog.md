@@ -26,10 +26,12 @@ Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to
 * Steinhardt uses the ThreadStorage class and properly resets memory where needed.
 * Removed all neighbor exclusion logic from all classes, depends entirely on locality module now.
 * RDF no longer forces the first bin of the PCF and first two bins of the cumulative counts to be 0.
+* LinkCell nearest neighbor queries properly check the largest distance found before proceeding to next shell.
 
 ### Removed
 * The freud.util module.
 * Python 2 is no longer supported. Python 3.5+ is required.
+* CubaticOrderParameter no longer returns the per-particle tensor or the constant r4 tensor.
 
 ## v1.2.2 - 2019-08-15
 

@@ -404,11 +404,11 @@ NeighborBond LinkCellQueryIterator::next()
             // We can terminate early if we determine when we reach a shell
             // such that we already have k neighbors closer than the
             // closest possible neighbor in the new shell.
+            std::sort(m_current_neighbors.begin(), m_current_neighbors.end());
             if ((m_current_neighbors.size() >= m_num_neighbors)
                 && (m_current_neighbors[m_num_neighbors - 1].distance
                     < (m_neigh_cell_iter.getRange() - 1) * m_linkcell->getCellWidth()))
             {
-                std::sort(m_current_neighbors.begin(), m_current_neighbors.end());
                 break;
             }
         }

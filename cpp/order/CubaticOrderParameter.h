@@ -8,23 +8,59 @@
 #include <ostream>
 #include <tbb/tbb.h>
 
-#include "TensorMath.h"
 #include "VectorMath.h"
 #include "saruprng.h"
+#include "ManagedArray.h"
 
 /*! \file CubaticOrderParameter.h
     \brief Compute the cubatic order parameter for each particle.
 */
 
 namespace freud { namespace order {
+
+//! Helper 4th-order tensor class for cubatic calculations.
+/*! Strong orientational coordinates in the paper are defined as homogeneous
+ *  4th order tensors constructed from tensor products of orbit vectors. The
+ *  tensor4 class encapsulates some of the basic features required to enable
+ *  these calculations, in particular the construction of the tensor from a
+ *  vector and some arithmetic operations that help simplify the code.
+ */
+struct tensor4
+{
+    tensor4();
+    tensor4(vec3<float> _vector);
+    tensor4 operator+=(const tensor4 &b);
+    tensor4 operator-(const tensor4 &b) const;
+    tensor4 operator*(const float &b) const;
+    float &operator[](unsigned int index);
+
+    void copyToManagedArray(util::ManagedArray<float> &ma);
+
+    float data[81];
+};
+
+
 //! Compute the cubatic order parameter for a set of points
-/*!
+/*! The cubatic order parameter is defined according to the paper "Strong
+ * orientational coordinates and orientational order parameters for symmetric
+ * objects" by Amir Haji-Akbari
+ * (http://dx.doi.org/10.1088/1751-8113/48/48/485201). Comments throughout this
+ * file reference notes and equations from that paper for clarity. The central
+ * idea is to define, for a given symmetry, a minimal set of vectors that can
+ * be used to construct a coordinate system that has no degeneracies, i.e. one
+ * that is equivalent for any two points that are identical up to any of the
+ * transformations in the symmetry group. The set of vectors for a given rigid
+ * body R is known as a symmetric descriptor of that object, and is constructed
+ * from orbits of that vector (eq. 8). Strong orientational coordinates (SOCs)
+ * are then constructed as homogeneous tensors constructed from this set (eq.
+ * 3). The central idea of the paper is to then develop tensor functions of the
+ * SOCs that can be used to quantify order.
  */
 class CubaticOrderParameter
 {
 public:
     //! Constructor
-    CubaticOrderParameter(float t_initial, float t_final, float scale, float* r4_tensor,
+    CubaticOrderParameter(float t_initial, float t_final, float scale,
                           unsigned int replicates, unsigned int seed);
 
     //! Destructor
@@ -34,37 +70,98 @@ public:
     void reset();
 
     //! Compute the cubatic order parameter
-    void compute(quat<float>* orientations, unsigned int n);
-
-    //! Calculate the cubatic tensor
-    void calcCubaticTensor(float* cubatic_tensor, quat<float> orientation);
-
-    void calcCubaticOrderParameter(float& cubatic_order_parameter, float* cubatic_tensor);
+    void compute(quat<float>* orientations, unsigned int num_orientations);
 
     //! Get a reference to the last computed cubatic order parameter
-    float getCubaticOrderParameter();
+    float getCubaticOrderParameter()
+    {
+        return m_cubatic_order_parameter;
+    }
 
-    quat<float> calcRandomQuaternion(Saru& saru, float angle_multiplier);
+    const util::ManagedArray<float> &getParticleOrderParameter()
+    {
+        return m_particle_order_parameter;
+    }
 
-    std::shared_ptr<float> getParticleCubaticOrderParameter();
+    const util::ManagedArray<float> &getGlobalTensor()
+    {
+        return m_global_tensor;
+    }
 
-    std::shared_ptr<float> getParticleTensor();
+    const util::ManagedArray<float> &getCubaticTensor()
+    {
+        return m_cubatic_tensor;
+    }
 
-    std::shared_ptr<float> getGlobalTensor();
+    unsigned int getNumParticles()
+    {
+        return m_n;
+    }
 
-    std::shared_ptr<float> getCubaticTensor();
+    float getTInitial()
+    {
+        return m_t_initial;
+    }
 
-    std::shared_ptr<float> getGenR4Tensor();
+    float getTFinal()
+    {
+        return m_t_final;
+    }
 
-    unsigned int getNumParticles();
+    float getScale()
+    {
+        return m_scale;
+    }
 
-    float getTInitial();
+    quat<float> getCubaticOrientation()
+    {
+        return m_cubatic_orientation;
+    }
 
-    float getTFinal();
+protected:
 
-    float getScale();
+    //! Calculate the cubatic tensor
+    /*! Implements the second line of eq. 27, the calculation of M_{\omega}.
+     *  The cubatic tensor is computed by creating the homogeneous tensor
+     *  corresponding to each basis vector rotated by the provided orientation
+     *  and then summing all these resulting tensors.
+     *
+     *  \return The cubatic tensor M_{\omega}.
+     */
+    tensor4 calcCubaticTensor(quat<float> &orientation);
 
-    quat<float> getCubaticOrientation();
+    //! Calculate the scalar cubatic order parameter.
+    /*! Implements eq. 22.
+     *
+     *  \param cubatic_tensor The cubatic tensor M_{\omega}.
+     *  \param global_tensor The tensor encoding the average system orientation (denoted \bar{M}).
+     *
+     *  \return The value of the cubatic order parameter.
+     */
+    float calcCubaticOrderParameter(const tensor4 &cubatic_tensor, const tensor4 &global_tensor) const;
+
+    //! Calculate the per-particle tensor.
+    /*! Implements the first line of eq. 27, the calculation of M.
+     *
+     *  \param orientations The per-particle orientations.
+     *
+     *  \return The per-particle cubatic tensors value M^{ijkl}.
+     */
+    util::ManagedArray<tensor4> calculatePerParticleTensor(const quat<float>* orientations) const;
+
+    //! Calculate the global tensor for the system.
+    /*! Implements the third line of eq. 27, the calculation of \bar{M}.
+     */
+    tensor4 calculateGlobalTensor(quat<float>* orientations) const;
+
+    //! Calculate a random quaternion.
+    /*! To calculate a random quaternion in a way that obeys the right
+     *  distribution of angles, we cannot simply just choose 4 random numbers
+     *  and then normalize the quaternion. This function implements an
+     *  appropriate calculation.
+     */
+    quat<float> calcRandomQuaternion(Saru& saru, float angle_multiplier) const;
+
 
 private:
     float m_t_initial;         //!< Initial temperature for simulated annealing.
@@ -76,20 +173,16 @@ private:
     float m_cubatic_order_parameter;   //!< The value of the order parameter.
     quat<float> m_cubatic_orientation; //!< The cubatic orientation.
 
-    tensor4<float> m_gen_r4_tensor;
-    tensor4<float> m_global_tensor;
-    tensor4<float> m_cubatic_tensor;
+    tensor4 m_gen_r4_tensor;  //!< The sum of various products of Kronecker deltas that is stored as a member for convenient reuse.
 
-    std::shared_ptr<float> m_particle_order_parameter; //!< The per-particle value of the order parameter.
-    std::shared_ptr<float>
-        m_sp_global_tensor; //!< Shared pointer for global tensor, only used to return values to Python.
-    std::shared_ptr<float>
-        m_sp_cubatic_tensor; //!< Shared pointer for cubatic tensor, only used to return values to Python.
-    std::shared_ptr<float> m_particle_tensor;
-    std::shared_ptr<float>
-        m_sp_gen_r4_tensor; //!< Shared pointer for r4 tensor, only used to return values to Python.
+    util::ManagedArray<float> m_particle_order_parameter; //!< The per-particle value of the order parameter.
+    util::ManagedArray<float>
+        m_global_tensor; //!< The system-averaged homogeneous tensor encoding all particle orientations.
+    util::ManagedArray<float>
+        m_cubatic_tensor; //!< The output tensor computed via simulated annealing.
+    unsigned int m_seed; //!< Random seed.
 
-    unsigned int m_seed; //!< Random seed
+    vec3<float> m_system_vectors[3]; //!< The global coordinate system, always use a simple Euclidean basis.
 };
 
 }; }; // end namespace freud::order

@@ -486,7 +486,7 @@ cdef class GaussianDensity(Compute):
             width_vector = vec3[uint](width[0], width[1], width[2])
         else:
             raise ValueError("The width must be either a number of bins or a "
-                             "list indicating the widths in each spatial "
+                             "sequence indicating the widths in each spatial "
                              "dimension (length 2 in 2D, length 3 in 3D).")
 
         self.r_max = r_max
@@ -521,17 +521,12 @@ cdef class GaussianDensity(Compute):
 
     @Compute._computed_property()
     def gaussian_density(self):
-        cdef freud.box.Box box = self.box
-        cdef vec3[uint] width = self.thisptr.getWidth()
-        cdef unsigned int array_size = \
-            width.x * width.y * (1 if box.is2D() else width.z)
-        cdef const float[::1] density = \
-            <float[:array_size]> self.thisptr.getDensity().get()
-        if box.is2D():
-            array_shape = (width.y, width.x)
+        if self.box.is2D():
+            return np.squeeze(freud.util.make_managed_numpy_array(
+                &self.thisptr.getDensity(), freud.util.arr_type_t.FLOAT))
         else:
-            array_shape = (width.z, width.y, width.x)
-        return np.reshape(np.asarray(density), array_shape)
+            return freud.util.make_managed_numpy_array(
+                &self.thisptr.getDensity(), freud.util.arr_type_t.FLOAT)
 
     @property
     def sigma(self):

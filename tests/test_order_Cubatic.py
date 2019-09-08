@@ -34,13 +34,9 @@ class TestCubatic(unittest.TestCase):
         with self.assertRaises(AttributeError):
             cop.particle_order_parameter
         with self.assertRaises(AttributeError):
-            cop.particle_tensor
-        with self.assertRaises(AttributeError):
             cop.global_tensor
         with self.assertRaises(AttributeError):
             cop.cubatic_tensor
-        with self.assertRaises(AttributeError):
-            cop.gen_r4_tensor
 
         cop.compute(orientations)
 
@@ -48,10 +44,8 @@ class TestCubatic(unittest.TestCase):
         cop.cubatic_order_parameter
         cop.orientation
         cop.particle_order_parameter
-        cop.particle_tensor
         cop.global_tensor
         cop.cubatic_tensor
-        cop.gen_r4_tensor
 
         # Test values of the OP
         self.assertAlmostEqual(cop.cubatic_order_parameter, 1, places=2,
@@ -66,11 +60,8 @@ class TestCubatic(unittest.TestCase):
 
         # Test shapes for the tensor since we can't ensure values.
         self.assertEqual(cop.orientation.shape, (4,))
-        self.assertEqual(
-            cop.particle_tensor.shape, (len(orientations), 3, 3, 3, 3))
         self.assertEqual(cop.cubatic_tensor.shape, (3, 3, 3, 3))
         self.assertEqual(cop.global_tensor.shape, (3, 3, 3, 3))
-        self.assertEqual(cop.gen_r4_tensor.shape, (3, 3, 3, 3))
 
     def test_disordered(self):
         # do not need positions, just orientations

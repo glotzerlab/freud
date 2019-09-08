@@ -6,7 +6,7 @@ import itertools
 import unittest
 import sys
 
-from util import make_box_and_random_points
+import util
 
 """
 Define helper functions for getting the neighbors of a point. Note that
@@ -182,7 +182,7 @@ class TestNeighborQuery(object):
         L = 10  # Box Dimensions
         N = 400  # number of particles
 
-        box, ref_points = make_box_and_random_points(L, N, seed=0)
+        box, ref_points = util.make_box_and_random_points(L, N, seed=0)
         points = np.random.rand(N, 3) * L
 
         nq = self.build_query_object(box, ref_points, L/10)
@@ -200,8 +200,8 @@ class TestNeighborQuery(object):
         L = 10  # Box Dimensions
         N = 400  # number of particles
 
-        box, ref_points = make_box_and_random_points(L, N, seed=0)
-        _, points = make_box_and_random_points(L, N, seed=1)
+        box, ref_points = util.make_box_and_random_points(L, N, seed=0)
+        _, points = util.make_box_and_random_points(L, N, seed=1)
 
         nq = self.build_query_object(box, ref_points, L/10)
 
@@ -217,7 +217,7 @@ class TestNeighborQuery(object):
         pair there also exists a (j, i) neighbor pair for one set of points"""
         L, r_max, N = (10, 2.01, 1024)
 
-        box, points = make_box_and_random_points(L, N, seed=0)
+        box, points = util.make_box_and_random_points(L, N, seed=0)
         nq = self.build_query_object(box, points, r_max)
         result = list(nq.query(points, dict(mode='ball', r_max=r_max)))
 
@@ -233,8 +233,8 @@ class TestNeighborQuery(object):
         """
         L, r_max, N = (10, 2.01, 1024)
 
-        box, points = make_box_and_random_points(L, N, seed=0)
-        _, points2 = make_box_and_random_points(L, N//6, seed=1)
+        box, points = util.make_box_and_random_points(L, N, seed=0)
+        _, points2 = util.make_box_and_random_points(L, N//6, seed=1)
         nq = self.build_query_object(box, points, r_max)
         nq2 = self.build_query_object(box, points2, r_max)
 
@@ -249,7 +249,7 @@ class TestNeighborQuery(object):
     def test_exclude_ii(self):
         L, r_max, N = (10, 2.01, 1024)
 
-        box, points = make_box_and_random_points(L, N)
+        box, points = util.make_box_and_random_points(L, N)
         points2 = points[:N//6]
         nq = self.build_query_object(box, points, r_max)
         result = list(nq.query(points2, dict(mode='ball', r_max=r_max)))
@@ -274,7 +274,7 @@ class TestNeighborQuery(object):
         seed = 0
 
         for i in range(10):
-            _, points = make_box_and_random_points(L, N, seed=seed+i)
+            _, points = util.make_box_and_random_points(L, N, seed=seed+i)
             all_vectors = points[:, np.newaxis, :] - points[np.newaxis, :, :]
             box.wrap(all_vectors.reshape((-1, 3)))
             all_rsqs = np.sum(all_vectors**2, axis=-1)
@@ -485,7 +485,7 @@ class TestNeighborQueryAABB(TestNeighborQuery, unittest.TestCase):
         N = 500
         L = 10
         r_max = 1
-        box, points = make_box_and_random_points(L, N)
+        box, points = util.make_box_and_random_points(L, N)
         nlist1 = freud.locality.AABBQuery(box, points).query(
             points, dict(r_max=r_max, exclude_ii=True)).toNeighborList()
         abq = freud.locality.AABBQuery(box, points)
@@ -505,7 +505,7 @@ class TestNeighborQueryLinkCell(TestNeighborQuery, unittest.TestCase):
         N = 500
         L = 10
         r_max = 1
-        box, points = make_box_and_random_points(L, N)
+        box, points = util.make_box_and_random_points(L, N)
         nlist1 = freud.locality.LinkCell(box, 1.0, points).query(
             points, dict(r_max=r_max, exclude_ii=True)).toNeighborList()
         lc = freud.locality.LinkCell(box, 1.0, points)
@@ -566,7 +566,7 @@ class TestNeighborQueryLinkCell(TestNeighborQuery, unittest.TestCase):
         N = 40  # number of particles
 
         # Initialize test points randomly
-        fbox, points = make_box_and_random_points(L, N)
+        fbox, points = util.make_box_and_random_points(L, N)
         cl = freud.locality.LinkCell(fbox, r_max, points)
 
         neighbors_ij = set()
@@ -578,6 +578,27 @@ class TestNeighborQueryLinkCell(TestNeighborQuery, unittest.TestCase):
         neighbors_ji = set((j, i) for (i, j) in neighbors_ij)
         # if i is a neighbor of j, then j should be a neighbor of i
         self.assertEqual(neighbors_ij, neighbors_ji)
+
+
+class TestAlternatingPoints(unittest.TestCase):
+
+    def test_alternating_points(self):
+        lattice_size = 10
+        # big box to ignore periodicity
+        box = freud.box.Box.square(lattice_size*5)
+        query_points, points = util.make_alternating_lattice(lattice_size)
+        r_max = 1.6
+        num_neighbors = 12
+
+        test_set = util.make_raw_query_nlist_test_set(
+            box, points, query_points, "nearest", r_max, num_neighbors, False)
+        nlist = test_set[-1][1]
+        for ts in test_set:
+            if not isinstance(ts[0], freud.locality.NeighborQuery):
+                continue
+            check_nlist = ts[0].query(
+                query_points, query_args=ts[2]).toNeighborList()
+            self.assertTrue(nlist_equal(nlist, check_nlist))
 
 
 if __name__ == '__main__':
