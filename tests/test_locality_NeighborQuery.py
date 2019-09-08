@@ -586,9 +586,7 @@ class TestAlternatingPoints(unittest.TestCase):
         lattice_size = 10
         # big box to ignore periodicity
         box = freud.box.Box.square(lattice_size*5)
-        angle = 0
-        query_points, points = util.make_alternating_lattice(
-            lattice_size, angle)
+        query_points, points = util.make_alternating_lattice(lattice_size)
         r_max = 1.6
         num_neighbors = 12
 
@@ -596,40 +594,11 @@ class TestAlternatingPoints(unittest.TestCase):
             box, points, query_points, "nearest", r_max, num_neighbors, False)
         nlist = test_set[-1][1]
         for ts in test_set:
-            print()
-            if not isinstance(ts[0], freud.locality.NeighborQuery) and \
-                    not isinstance(ts[1], freud.locality.NeighborList):
-                print('skipping', [type(t).__name__ for t in ts])
+            if not isinstance(ts[0], freud.locality.NeighborQuery):
                 continue
-            if ts[1] is not None:
-                print('checking nlist')
-                check_nlist = ts[1]
-            else:
-                print('checking query')
-                check_nlist = ts[0].query(
-                    query_points, query_args=ts[2]).toNeighborList()
-            worked = True
-            for bond in check_nlist:
-                try:
-                    assert bond.tolist() in nlist[:].tolist()
-                except AssertionError:
-                    worked = False
-                    print('bond', bond, 'is in check_nlist but not nlist')
-            if not worked:
-                print()
-            for bond in nlist:
-                try:
-                    assert bond.tolist() in check_nlist[:].tolist()
-                except AssertionError:
-                    worked = False
-                    print('bond', bond, 'is in nlist but not check_nlist')
-            if not worked:
-                print()
-            if worked:
-                print('worked for', [type(t).__name__ for t in ts])
-            else:
-                print('failed for', [type(t).__name__ for t in ts])
-                raise AssertionError
+            check_nlist = ts[0].query(
+                query_points, query_args=ts[2]).toNeighborList()
+            self.assertTrue(nlist_equal(nlist, check_nlist))
 
 
 if __name__ == '__main__':
