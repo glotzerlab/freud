@@ -22,6 +22,7 @@ Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to
 ### Fixed
 * Steinhardt uses the ThreadStorage class and properly resets memory where needed.
 * Removed all neighbor exclusion logic from all classes, depends entirely on locality module now.
+* LinkCell nearest neighbor queries properly check the largest distance found before proceeding to next shell.
 
 ### Removed
 * The freud.util module.
