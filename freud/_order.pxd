@@ -53,8 +53,6 @@ cdef extern from "HexTransOrderParameter.h" namespace "freud::order":
         void compute(const freud._locality.NeighborList*,
                      const freud._locality.NeighborQuery*,
                      freud._locality.QueryArgs) except +
-        # unsure how to pass back the std::complex,
-        # but this seems to compile...
         const freud.util.ManagedArray[float complex] &getOrder()
         unsigned int getNP()
         unsigned int getK()

@@ -43,7 +43,7 @@ struct tensor4
 //! Compute the cubatic order parameter for a set of points
 /*! The cubatic order parameter is defined according to the paper "Strong
  * orientational coordinates and orientational order parameters for symmetric
- * objects" by Amir Haji-Akbar
+ * objects" by Amir Haji-Akbari
  * (http://dx.doi.org/10.1088/1751-8113/48/48/485201). Comments throughout this
  * file reference notes and equations from that paper for clarity. The central
  * idea is to define, for a given symmetry, a minimal set of vectors that can
@@ -126,16 +126,17 @@ protected:
      *  corresponding to each basis vector rotated by the provided orientation
      *  and then summing all these resulting tensors.
      *
-     *  \param cubatic_tensor The cubatic tensor (denoted M_{\omega} in the paper), overwritten by reference.
-     *  \param orientation The orientation that will be used to determine the vectors used in the calculation.
+     *  \return The cubatic tensor M_{\omega}.
      */
     tensor4 calcCubaticTensor(quat<float> &orientation);
 
     //! Calculate the scalar cubatic order parameter.
-    /*! Implements eq. 22
+    /*! Implements eq. 22.
      *
-     *  \param cubatic_order_parameter The output value (updated as a reference)
-     *  \param cubatic_tensor The cubatic tensor (denoted M_{\omega} in eq. 22)
+     *  \param cubatic_tensor The cubatic tensor M_{\omega}.
+     *  \param global_tensor The tensor encoding the average system orientation (denoted \bar{M}).
+     *
+     *  \return The value of the cubatic order parameter.
      */
     float calcCubaticOrderParameter(const tensor4 &cubatic_tensor, const tensor4 &global_tensor) const;
 
@@ -143,6 +144,8 @@ protected:
     /*! Implements the first line of eq. 27, the calculation of M.
      *
      *  \param orientations The per-particle orientations.
+     *
+     *  \return The per-particle cubatic tensors value M^{ijkl}.
      */
     util::ManagedArray<tensor4> calculatePerParticleTensor(const quat<float>* orientations) const;
 
@@ -174,10 +177,10 @@ private:
 
     util::ManagedArray<float> m_particle_order_parameter; //!< The per-particle value of the order parameter.
     util::ManagedArray<float>
-        m_global_tensor; //!< Copy of global tensor used to return persistent data.
+        m_global_tensor; //!< The system-averaged homogeneous tensor encoding all particle orientations.
     util::ManagedArray<float>
-        m_cubatic_tensor; //!< Shared pointer for cubatic tensor, only used to return values to Python.
-    unsigned int m_seed; //!< Random seed
+        m_cubatic_tensor; //!< The output tensor computed via simulated annealing.
+    unsigned int m_seed; //!< Random seed.
 
     vec3<float> m_system_vectors[3]; //!< The global coordinate system, always use a simple Euclidean basis.
 };

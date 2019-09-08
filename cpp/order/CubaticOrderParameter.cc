@@ -89,7 +89,7 @@ void tensor4::copyToManagedArray(util::ManagedArray<float> &ma)
 /*! This function is simply a sum-product over two tensors. For reference, see eq. 4.
  *
  *  \param a The first tensor.
- *  \param a The second tensor.
+ *  \param b The second tensor.
  */ 
 float dot(const tensor4& a, const tensor4& b)
 {
@@ -140,7 +140,6 @@ CubaticOrderParameter::CubaticOrderParameter(float t_initial, float t_final, flo
     : m_t_initial(t_initial), m_t_final(t_final), m_scale(scale), m_n(0), m_replicates(replicates),
       m_seed(seed)
 {
-    // sanity checks, should be caught in python
     if (m_t_initial < m_t_final)
         throw std::invalid_argument("CubaticOrderParameter requires that t_initial must be greater than t_final.");
     if (t_final < 1e-6)
@@ -148,7 +147,6 @@ CubaticOrderParameter::CubaticOrderParameter(float t_initial, float t_final, flo
     if ((scale > 1) || (scale < 0))
         throw std::invalid_argument("CubaticOrderParameter requires that scale must be between 0 and 1.");
 
-    // required to not have memory overwritten
     m_gen_r4_tensor = genR4Tensor();
 
     // Initialize the system vectors using Euclidean vectors.
@@ -337,7 +335,7 @@ void CubaticOrderParameter::compute(quat<float>* orientations, unsigned int num_
             // The per-particle order parameter is defined as the value of the
             // cubatic order parameter if the global oreintation was the
             // particle orientation, so we can reuse the same machinery.
-            m_particle_order_parameter[i] = calcCubaticOrderParameter(calcCubaticTensor(orientations[i]), global_tensor);;
+            m_particle_order_parameter[i] = calcCubaticOrderParameter(calcCubaticTensor(orientations[i]), global_tensor);
         }
     });
 }
