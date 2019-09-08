@@ -24,7 +24,7 @@ PMFT::PMFT() : util::NdHistogram() {}
 /*! All PMFT classes have the same deletion logic
  */
 
-std::shared_ptr<float> PMFT::precomputeAxisBinCenter(unsigned int size, float d, float max)
+util::ManagedArray<float> PMFT::precomputeAxisBinCenter(unsigned int size, float d, float max)
 {
     return precomputeArrayGeneral(size, d, [=](float T, float nextT) { return -max + ((T + nextT) / 2.0); });
 }

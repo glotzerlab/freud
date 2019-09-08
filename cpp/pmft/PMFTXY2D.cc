@@ -47,13 +47,13 @@ PMFTXY2D::PMFTXY2D(float x_max, float y_max, unsigned int n_x, unsigned int n_y)
     m_y_array = precomputeAxisBinCenter(m_n_y, m_dy, m_y_max);
 
     // create and populate the pcf_array
-    m_pcf_array = util::makeEmptyArray<float>(m_n_x * m_n_y);
-    m_bin_counts = util::makeEmptyArray<unsigned int>(m_n_x * m_n_y);
+    m_pcf_array.prepare({m_n_x, m_n_y});
+    m_bin_counts.prepare({m_n_x, m_n_y});
 
     // Set r_max
     m_r_max = sqrtf(m_x_max * m_x_max + m_y_max * m_y_max);
 
-    m_local_bin_counts.resize(m_n_x * m_n_y);
+    m_local_bin_counts.resize({m_n_x, m_n_y});
 }
 
 //! \internal
@@ -85,8 +85,6 @@ void PMFTXY2D::accumulate(const locality::NeighborQuery* neighbor_query,
     float dx_inv = 1.0f / m_dx;
     float dy_inv = 1.0f / m_dy;
 
-    Index2D b_i = Index2D(m_n_x, m_n_y);
-
     accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,
         [=](const freud::locality::NeighborBond& neighbor_bond) {
         vec3<float> ref = neighbor_query->getPoints()[neighbor_bond.ref_id];
@@ -115,7 +113,7 @@ void PMFTXY2D::accumulate(const locality::NeighborQuery* neighbor_query,
         // increment the bin
         if ((ibinx < m_n_x) && (ibiny < m_n_y))
         {
-            ++m_local_bin_counts.local()[b_i(ibinx, ibiny)];
+            ++m_local_bin_counts.local()(ibinx, ibiny);
         }
     });
 }

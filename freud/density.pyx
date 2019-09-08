@@ -839,23 +839,21 @@ cdef class RDF(SpatialHistogram):
 
     @Compute._computed_property()
     def RDF(self):
-        cdef unsigned int n_bins = self.thisptr.getNBins()
-        cdef const float[::1] RDF = \
-            <float[:n_bins]> self.thisptr.getRDF().get()
-        return np.asarray(RDF)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getRDF(),
+            freud.util.arr_type_t.FLOAT)
 
     @property
     def R(self):
-        cdef unsigned int n_bins = self.thisptr.getNBins()
-        cdef const float[::1] R = \
-            <float[:n_bins]> self.thisptr.getR().get()
-        return np.asarray(R)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getR(),
+            freud.util.arr_type_t.FLOAT)
 
     @Compute._computed_property()
     def n_r(self):
-        cdef unsigned int n_bins = self.thisptr.getNBins()
-        cdef const float[::1] n_r = <float[:n_bins]> self.thisptr.getNr().get()
-        return np.asarray(n_r)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getNr(),
+            freud.util.arr_type_t.FLOAT)
 
     def __repr__(self):
         return ("freud.density.{cls}(r_max={r_max}, dr={dr}, "
