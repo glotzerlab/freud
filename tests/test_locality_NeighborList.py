@@ -1,174 +1,149 @@
 import numpy as np
-from freud import locality
+import freud.locality
 import unittest
 from util import make_box_and_random_points
 
 
 class TestNeighborList(unittest.TestCase):
 
-    def setup_nl(self,
-                 L=10,
-                 r_max=3,
-                 N=40,
-                 num_neighbors=6):
+    def setUp(self):
         # Define values
-        self.L = L
-        self.r_max = r_max
-        self.N = N
-        self.num_neighbors = num_neighbors
+        self.L = 10
+        self.N = 40
+
+        self.query_args = dict(mode="nearest", num_neighbors=6, r_guess=3,
+                               exclude_ii=True)
 
         # Initialize Box and cell list
-        self.cl = locality.NearestNeighbors(self.r_max, self.num_neighbors)
-        self.fbox, self.points = make_box_and_random_points(L, N)
+        box, points = make_box_and_random_points(self.L, self.N)
+        self.nq = freud.locality.LinkCell(box, self.query_args['r_guess']/10,
+                                          points)
+        self.nlist = self.nq.query(points,
+                                   self.query_args).toNeighborList()
 
     def test_writable(self):
-        self.setup_nl()
-        np.random.seed(0)
-        self.cl.compute(self.fbox, self.points, self.points)
-
         # index_i shouldn't be writable in general or users may break
         # the ordered property of the neighbor list
         with self.assertRaises(ValueError):
-            self.cl.nlist.index_i[:] = 0
+            self.nlist.index_i[:] = 0
 
         # if index_i isn't writable, index_j probably also shouldn't be
         with self.assertRaises(ValueError):
-            self.cl.nlist.index_j[:] = 0
+            self.nlist.index_j[:] = 0
 
         # the weights array may be useful to write to, though
-        self.cl.nlist.weights[18] = 3
-        self.assertEqual(self.cl.nlist.weights[18], 3)
+        self.nlist.weights[18] = 3
+        self.assertEqual(self.nlist.weights[18], 3)
 
     def test_validation(self):
-        self.setup_nl()
-        np.random.seed(0)
-        points2 = self.points[:self.N//2]
-        self.cl.compute(self.fbox, self.points, self.points)
+        points2 = self.nq.points[:self.N//2]
 
         # should fail in validation when we give inconsistent sized arrays
         with self.assertRaises(RuntimeError):
-            self.cl.nlist.filter_r(self.fbox, self.points, points2, 2.5)
+            self.nlist.filter_r(self.nq.box, self.nq.points, points2, 2.5)
 
         # filter_r should work fine after recomputing using both sets of points
-        self.cl.compute(self.fbox, self.points, points2)
-        self.cl.nlist.filter_r(self.fbox, self.points, points2, 2.5)
+        nlist = self.nq.query(points2, self.query_args).toNeighborList()
+        nlist.filter_r(self.nq.box, self.nq.points, points2, 2.5)
 
     def test_filter(self):
-        self.setup_nl()
-        np.random.seed(0)
-        self.cl.compute(self.fbox, self.points, self.points)
-        old_size = len(self.cl.nlist)
-        filt = (self.cl.nlist.index_j.astype(np.int32) -
-                self.cl.nlist.index_i.astype(np.int32)) % 2 == 0
-        self.cl.nlist.filter(filt)
-        self.assertLessEqual(len(self.cl.nlist), old_size)
+        old_size = len(self.nlist)
+        filt = (self.nlist.index_j.astype(np.int32) -
+                self.nlist.index_i.astype(np.int32)) % 2 == 0
+        self.nlist.filter(filt)
+        self.assertLessEqual(len(self.nlist), old_size)
 
         # should be able to further filter
-        self.cl.nlist.filter_r(self.fbox, self.points, self.points, 2.5)
+        self.nlist.filter_r(self.nq.box, self.nq.points, self.nq.points, 2.5)
 
     def test_find_first_index(self):
-        self.setup_nl()
-        np.random.seed(0)
-        self.cl.compute(self.fbox, self.points, self.points)
-        nlist = self.cl.nlist
+        nlist = self.nlist
         for (idx, i) in enumerate(nlist.index_i):
             self.assertLessEqual(nlist.find_first_index(i), idx)
 
     def test_segments(self):
-        self.setup_nl()
-        np.random.seed(0)
-        self.cl.compute(self.fbox, self.points, self.points)
-        ones = np.ones(len(self.cl.nlist), dtype=np.float32)
+        ones = np.ones(len(self.nlist), dtype=np.float32)
         self.assertTrue(
-            np.allclose(np.add.reduceat(ones, self.cl.nlist.segments), 6))
-        self.assertTrue(np.allclose(self.cl.nlist.neighbor_counts, 6))
+            np.allclose(np.add.reduceat(ones, self.nlist.segments), 6))
+        self.assertTrue(np.allclose(self.nlist.neighbor_counts, 6))
 
     def test_from_arrays(self):
         index_i = [0, 0, 1, 2, 3]
         index_j = [1, 2, 3, 0, 0]
 
         # implicit weights
-        nlist = locality.NeighborList.from_arrays(4, 4, index_i, index_j)
+        nlist = freud.locality.NeighborList.from_arrays(4, 4, index_i, index_j)
         self.assertTrue(np.allclose(nlist.weights, 1))
 
         # explicit weights
         weights = np.ones((len(index_i),))*4.
-        nlist = locality.NeighborList.from_arrays(
+        nlist = freud.locality.NeighborList.from_arrays(
             4, 4, index_i, index_j, weights)
         self.assertTrue(np.allclose(nlist.weights, 4))
 
         # too few reference particles
         with self.assertRaises(RuntimeError):
-            nlist = locality.NeighborList.from_arrays(
+            nlist = freud.locality.NeighborList.from_arrays(
                 3, 4, index_i, index_j)
 
         # too few target particles
         with self.assertRaises(RuntimeError):
-            nlist = locality.NeighborList.from_arrays(
+            nlist = freud.locality.NeighborList.from_arrays(
                 4, 3, index_i, index_j)
 
         # reference particles not sorted
         with self.assertRaises(RuntimeError):
-            nlist = locality.NeighborList.from_arrays(
+            nlist = freud.locality.NeighborList.from_arrays(
                 4, 4, index_j, index_i)
 
         # mismatched array sizes
         with self.assertRaises(ValueError):
-            nlist = locality.NeighborList.from_arrays(
+            nlist = freud.locality.NeighborList.from_arrays(
                 4, 4, index_i[:-1], index_j)
         with self.assertRaises(ValueError):
-            nlist = locality.NeighborList.from_arrays(
+            nlist = freud.locality.NeighborList.from_arrays(
                 4, 4, index_i, index_j[:-1])
         with self.assertRaises(ValueError):
             weights = np.ones((len(index_i) - 1,))
-            nlist = locality.NeighborList.from_arrays(
+            nlist = freud.locality.NeighborList.from_arrays(
                 4, 4, index_i, index_j, weights)
 
     def test_indexing(self):
-        self.setup_nl()
-        np.random.seed(0)
-
         # Ensure that empty NeighborLists have the right shape
-        self.assertEqual(self.cl.nlist[:].shape, (0, 2))
+        nlist = self.nq.query(np.empty((0, 3)),
+                              self.query_args).toNeighborList()
+        self.assertEqual(nlist[:].shape, (0, 2))
 
         # Make sure indexing the NeighborList is the same as indexing arrays
-        self.cl.compute(self.fbox, self.points, self.points)
-        for i, (idx_i, idx_j) in enumerate(self.cl.nlist):
-            self.assertEqual(idx_i, self.cl.nlist.index_i[i])
-            self.assertEqual(idx_j, self.cl.nlist.index_j[i])
+        for i, (idx_i, idx_j) in enumerate(self.nlist):
+            self.assertEqual(idx_i, self.nlist.index_i[i])
+            self.assertEqual(idx_j, self.nlist.index_j[i])
 
-        for i, j in self.cl.nlist:
+        print(self.nlist[:])
+        for i, j in self.nlist:
             self.assertNotEqual(i, j)
 
     def test_nl_size(self):
-        self.setup_nl()
-        np.random.seed(0)
-        self.cl.compute(self.fbox, self.points, self.points)
-        self.assertEqual(len(self.cl.nlist), len(self.cl.nlist.index_i))
-        self.assertEqual(len(self.cl.nlist), len(self.cl.nlist.index_j))
+        self.assertEqual(len(self.nlist), len(self.nlist.index_i))
+        self.assertEqual(len(self.nlist), len(self.nlist.index_j))
 
     def test_index_error(self):
-        self.setup_nl()
         with self.assertRaises(IndexError):
-            nbonds = len(self.cl.nlist)
-            self.cl.nlist[nbonds+1]
+            nbonds = len(self.nlist)
+            self.nlist[nbonds+1]
 
     def test_index_writable(self):
-        self.setup_nl()
-        np.random.seed(0)
-        self.cl.compute(self.fbox, self.points, self.points)
+        with self.assertRaises(TypeError):
+            self.nlist[:, 0] = 0
 
         with self.assertRaises(TypeError):
-            self.cl.nlist[:, 0] = 0
+            self.nlist[1, :] = 0
 
         with self.assertRaises(TypeError):
-            self.cl.nlist[1, :] = 0
+            self.nlist[:] = 0
 
         with self.assertRaises(TypeError):
-            self.cl.nlist[:] = 0
-
-        with self.assertRaises(TypeError):
-            self.cl.nlist[0, 0] = 0
+            self.nlist[0, 0] = 0
 
 
 if __name__ == '__main__':
