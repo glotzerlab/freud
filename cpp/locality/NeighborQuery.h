@@ -169,6 +169,10 @@ protected:
         {
             if (args.num_neighbors == QueryArgs::DEFAULT_NUM_NEIGHBORS)
                 throw std::runtime_error("You must set num_neighbors in the query arguments when performing number of neighbor queries.");
+            if (args.r_max == QueryArgs::DEFAULT_R_MAX)
+            {
+                args.r_max = std::numeric_limits<float>::infinity();
+            }
         }
     }
 

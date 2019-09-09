@@ -261,7 +261,7 @@ std::shared_ptr<NeighborQueryPerPointIterator> LinkCell::querySingle(const vec3<
     }
     else if (args.mode == QueryArgs::nearest)
     {
-        return std::make_shared<LinkCellQueryIterator>(this, query_point, query_point_idx, args.num_neighbors, args.exclude_ii);
+        return std::make_shared<LinkCellQueryIterator>(this, query_point, query_point_idx, args.num_neighbors, args.r_max, args.exclude_ii);
     }
     else
     {
@@ -372,7 +372,8 @@ NeighborBond LinkCellQueryIterator::next()
                     const vec3<float> r_ij(
                         m_neighbor_query->getBox().wrap((*m_linkcell)[j] - m_query_point));
                     const float r_sq(dot(r_ij, r_ij));
-                    m_current_neighbors.emplace_back(m_query_point_idx, j, sqrt(r_sq));
+                    if (r_sq < m_r_max*m_r_max)
+                        m_current_neighbors.emplace_back(m_query_point_idx, j, sqrt(r_sq));
                 }
             }
 
@@ -417,6 +418,11 @@ NeighborBond LinkCellQueryIterator::next()
     while ((m_count < m_num_neighbors) && (m_count < m_current_neighbors.size()))
     {
         m_count++;
+        if (m_current_neighbors[m_count - 1].distance > m_r_max)
+        {
+            m_finished = true;
+            return NeighborQueryIterator::ITERATOR_TERMINATOR;
+        }
         return m_current_neighbors[m_count - 1];
     }
 

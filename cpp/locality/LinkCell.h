@@ -524,8 +524,8 @@ class LinkCellQueryIterator : public LinkCellIterator
 public:
     //! Constructor
     LinkCellQueryIterator(const LinkCell* neighbor_query, const vec3<float> query_point, unsigned int query_point_idx,
-                          unsigned int num_neighbors, bool exclude_ii)
-        : LinkCellIterator(neighbor_query, query_point, query_point_idx, exclude_ii), m_count(0), m_num_neighbors(num_neighbors)
+                          unsigned int num_neighbors, float r_max, bool exclude_ii)
+        : LinkCellIterator(neighbor_query, query_point, query_point_idx, exclude_ii), m_count(0), m_r_max(r_max), m_num_neighbors(num_neighbors)
     {}
 
     //! Empty Destructor
@@ -536,6 +536,7 @@ public:
 
 protected:
     unsigned int m_count;                           //!< Number of neighbors returned for the current point.
+    float m_r_max;  //!< Hard cutoff beyond which neighbors should not be included.
     unsigned int m_num_neighbors;                               //!< Number of nearest neighbors to find
     std::vector<NeighborBond> m_current_neighbors; //!< The current set of found neighbors.
 };

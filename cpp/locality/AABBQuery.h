@@ -72,10 +72,6 @@ protected:
                 r_guess = this->getBox().is2D() ? r_guess : std::min(r_guess, L.z);
                 args.r_guess = float(0.1) * r_guess;
             }
-            if (args.r_max == QueryArgs::DEFAULT_R_MAX)
-            {
-                args.r_max = std::numeric_limits<float>::infinity();
-            }
         }
     }
 
