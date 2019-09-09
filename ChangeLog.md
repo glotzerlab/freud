@@ -23,6 +23,7 @@ and this project adheres to
 * Arrays returned to Python persist even after the compute object is destroyed or resizes its arrays.
 * RDF bin centers are now strictly at the center of bins.
 * RDF no longer performs parallel accumulation of cumulative counts (provided no performance gains and was substantially more complex code).
+* Cluster now finds connected components of the neighbor graph (the cluster cutoff distance is given through query arguments).
 * Steinhardt uses query arguments.
 
 ### Fixed
