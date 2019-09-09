@@ -365,12 +365,6 @@ public:
     //! Compute LinkCell dimensions
     const vec3<unsigned int> computeDimensions(const box::Box& box, float cell_width) const;
 
-    //! Get the simulation box
-    const box::Box& getBox() const
-    {
-        return m_box;
-    }
-
     //! Get the cell indexer
     const Index3D& getCellIndexer() const
     {
@@ -477,7 +471,6 @@ private:
     //! Helper function to compute cell neighbors
     const std::vector<unsigned int>& computeCellNeighbors(unsigned int cell);
 
-    box::Box m_box;               //!< Simulation box where the particles belong
     Index3D m_cell_index;         //!< Indexer to compute cell indices
     unsigned int m_n_points;      //!< Number of particles last placed into the cell list
     unsigned int m_Nc;            //!< Number of cells last used

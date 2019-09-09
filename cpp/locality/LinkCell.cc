@@ -25,19 +25,11 @@ namespace freud { namespace locality {
 
 // Default constructor
 LinkCell::LinkCell()
-    : NeighborQuery(), m_box(box::Box()), m_n_points(0), m_cell_width(0), m_celldim(0, 0, 0), m_neighbor_list()
+    : NeighborQuery(), m_n_points(0), m_cell_width(0), m_celldim(0, 0, 0), m_neighbor_list()
 {}
 
-LinkCell::LinkCell(const box::Box& box, float cell_width)
-    : NeighborQuery(), m_box(box), m_n_points(0), m_cell_width(0), m_celldim(0, 0, 0), m_neighbor_list()
-{
-    // The initializer list above sets the cell width and cell dimensions to 0
-    // so that we can farm out the work to the setCellWidth function.
-    updateInternal(box, cell_width);
-}
-
 LinkCell::LinkCell(const box::Box& box, float cell_width, const vec3<float>* points, unsigned int n_points)
-    : NeighborQuery(box, points, n_points), m_box(box), m_n_points(0), m_cell_width(0), m_celldim(0, 0, 0),
+    : NeighborQuery(box, points, n_points), m_n_points(0), m_cell_width(0), m_celldim(0, 0, 0),
       m_neighbor_list()
 {
     // The initializer list above sets the cell width and cell dimensions to 0
@@ -71,7 +63,6 @@ void LinkCell::updateInternal(const box::Box& box, float cell_width)
         }
 
         // Check if the dims changed
-        m_box = box;
         if (!((celldim.x == m_celldim.x) && (celldim.y == m_celldim.y) && (celldim.z == m_celldim.z)))
         {
             m_cell_index = Index3D(celldim.x, celldim.y, celldim.z);

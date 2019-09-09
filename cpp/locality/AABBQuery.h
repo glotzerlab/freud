@@ -86,7 +86,6 @@ private:
     void buildTree(const vec3<float>* points, unsigned int N);
 
     std::vector<AABB> m_aabbs; //!< Flat array of AABBs of all types
-    box::Box m_box;            //!< Simulation box where the particles belong
 };
 
 //! Parent class of AABB iterators that knows how to traverse general AABB tree structures.
