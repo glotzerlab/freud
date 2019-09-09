@@ -29,61 +29,33 @@ LinkCell::LinkCell()
 {}
 
 LinkCell::LinkCell(const box::Box& box, float cell_width, const vec3<float>* points, unsigned int n_points)
-    : NeighborQuery(box, points, n_points), m_n_points(0), m_cell_width(0), m_celldim(0, 0, 0),
+    : NeighborQuery(box, points, n_points), m_n_points(0), m_cell_width(cell_width), m_celldim(0, 0, 0),
       m_neighbor_list()
 {
-    // The initializer list above sets the cell width and cell dimensions to 0
-    // so that we can farm out the work to the updateInternal function.
-    updateInternal(box, cell_width);
+    vec3<unsigned int> celldim = computeDimensions(box, m_cell_width);
 
-    computeCellList(box, points, n_points);
-}
-
-void LinkCell::updateInternal(const box::Box& box, float cell_width)
-{
-    if (cell_width != m_cell_width || box != m_box)
+    // Check if box is too small!
+    vec3<float> nearest_plane_distance = box.getNearestPlaneDistance();
+    if ((m_cell_width * 2.0 > nearest_plane_distance.x) || (m_cell_width * 2.0 > nearest_plane_distance.y)
+        || (!box.is2D() && m_cell_width * 2.0 > nearest_plane_distance.z))
     {
-        vec3<unsigned int> celldim = computeDimensions(box, cell_width);
-        // Check if the box is non-null
-        if (box != box::Box())
-        {
-            // Check if box is too small!
-            vec3<float> nearest_plane_distance = box.getNearestPlaneDistance();
-            if ((cell_width * 2.0 > nearest_plane_distance.x) || (cell_width * 2.0 > nearest_plane_distance.y)
-                || (!box.is2D() && cell_width * 2.0 > nearest_plane_distance.z))
-            {
-                throw runtime_error(
-                    "Cannot generate a cell list where cell_width is larger than half the box.");
-            }
-            // Only 1 cell deep in 2D
-            if (box.is2D())
-            {
-                celldim.z = 1;
-            }
-        }
-
-        // Check if the dims changed
-        if (!((celldim.x == m_celldim.x) && (celldim.y == m_celldim.y) && (celldim.z == m_celldim.z)))
-        {
-            m_cell_index = Index3D(celldim.x, celldim.y, celldim.z);
-            if (m_cell_index.getNumElements() < 1)
-            {
-                throw runtime_error("At least one cell must be present.");
-            }
-            m_celldim = celldim;
-        }
-        m_cell_width = cell_width;
+        throw runtime_error(
+            "Cannot generate a cell list where cell_width is larger than half the box.");
     }
-}
+    // Only 1 cell deep in 2D
+    if (box.is2D())
+    {
+        celldim.z = 1;
+    }
 
-void LinkCell::setCellWidth(float cell_width)
-{
-    updateInternal(m_box, cell_width);
-}
+    m_cell_index = Index3D(celldim.x, celldim.y, celldim.z);
+    if (m_cell_index.getNumElements() < 1)
+    {
+        throw runtime_error("At least one cell must be present.");
+    }
+    m_celldim = celldim;
 
-void LinkCell::updateBox(const box::Box& box)
-{
-    updateInternal(box, m_cell_width);
+    computeCellList(points, n_points);
 }
 
 const vec3<unsigned int> LinkCell::computeDimensions(const box::Box& box, float cell_width) const
@@ -118,10 +90,8 @@ const vec3<unsigned int> LinkCell::computeDimensions(const box::Box& box, float 
     return dim;
 }
 
-void LinkCell::computeCellList(const box::Box& box, const vec3<float>* points, unsigned int n_points)
+void LinkCell::computeCellList(const vec3<float>* points, unsigned int n_points)
 {
-    updateBox(box);
-
     if (n_points == 0)
     {
         throw runtime_error("Cannot generate a cell list of 0 particles.");

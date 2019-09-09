@@ -156,8 +156,10 @@ class TestLocalDescriptors(unittest.TestCase):
 
             # In order to be able to access information on which particles are
             # bonded to which ones, we precompute the neighborlist
-            nn = freud.locality.NearestNeighbors(r_max, num_neighbors)
-            nl = nn.compute(box, points).nlist
+            lc = freud.locality.LinkCell(box, r_max/10, points)
+            nl = lc.query(points,
+                          dict(exclude_ii=True,
+                               num_neighbors=num_neighbors)).toNeighborList()
             ld = freud.environment.LocalDescriptors(
                 num_neighbors, l_max, r_max)
             ld.compute(box, num_neighbors, points, mode='global', nlist=nl)
@@ -210,8 +212,10 @@ class TestLocalDescriptors(unittest.TestCase):
 
             # In order to be able to access information on which particles are
             # bonded to which ones, we precompute the neighborlist
-            nn = freud.locality.NearestNeighbors(r_max, num_neighbors)
-            nl = nn.compute(box, points).nlist
+            lc = freud.locality.LinkCell(box, r_max/10, points)
+            nl = lc.query(points,
+                          dict(exclude_ii=True,
+                               num_neighbors=num_neighbors)).toNeighborList()
             ld = freud.environment.LocalDescriptors(
                 num_neighbors, l_max, r_max)
             ld.compute(box, num_neighbors, points, mode='global', nlist=nl)
@@ -287,8 +291,10 @@ class TestLocalDescriptors(unittest.TestCase):
 
             # In order to be able to access information on which particles are
             # bonded to which ones, we precompute the neighborlist
-            nn = freud.locality.NearestNeighbors(r_max, num_neighbors)
-            nl = nn.compute(box, points).nlist
+            lc = freud.locality.LinkCell(box, r_max/10, points)
+            nl = lc.query(points,
+                          dict(exclude_ii=True,
+                               num_neighbors=num_neighbors)).toNeighborList()
             ld = freud.environment.LocalDescriptors(
                 num_neighbors, l_max, r_max)
             ld.compute(box, num_neighbors, points, mode='global', nlist=nl)
@@ -317,8 +323,10 @@ class TestLocalDescriptors(unittest.TestCase):
 
         # We want to provide the NeighborList ourselves since we need to use it
         # again later anyway.
-        nn = freud.locality.NearestNeighbors(r_max, num_neighbors)
-        nl = nn.compute(box, points).nlist
+        lc = freud.locality.LinkCell(box, r_max/10, points)
+        nl = lc.query(points,
+                      dict(exclude_ii=True,
+                           num_neighbors=num_neighbors)).toNeighborList()
 
         ld = freud.environment.LocalDescriptors(
             num_neighbors, l_max, r_max)
@@ -378,8 +386,10 @@ class TestLocalDescriptors(unittest.TestCase):
 
         # We want to provide the NeighborList ourselves since we need to use it
         # again later anyway.
-        nn = freud.locality.NearestNeighbors(r_max, num_neighbors)
-        nl = nn.compute(box, ref_points, points).nlist
+        lc = freud.locality.LinkCell(box, r_max/10, points)
+        nl = lc.query(points,
+                      dict(exclude_ii=True,
+                           num_neighbors=num_neighbors)).toNeighborList()
 
         ld = freud.environment.LocalDescriptors(
             num_neighbors, l_max, r_max)

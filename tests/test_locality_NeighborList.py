@@ -119,7 +119,6 @@ class TestNeighborList(unittest.TestCase):
             self.assertEqual(idx_i, self.nlist.index_i[i])
             self.assertEqual(idx_j, self.nlist.index_j[i])
 
-        print(self.nlist[:])
         for i, j in self.nlist:
             self.assertNotEqual(i, j)
 

@@ -356,12 +356,6 @@ public:
     //! New constructor
     LinkCell(const box::Box& box, float cell_width, const vec3<float>* points, unsigned int n_points);
 
-    //! Update cell_width
-    void setCellWidth(float cell_width);
-
-    //! Update box used in linkCell
-    void updateBox(const box::Box& box);
-
     //! Compute LinkCell dimensions
     const vec3<unsigned int> computeDimensions(const box::Box& box, float cell_width) const;
 
@@ -446,7 +440,7 @@ public:
     }
 
     //! Compute the cell list
-    void computeCellList(const box::Box& box, const vec3<float>* points, unsigned int n_points);
+    void computeCellList(const vec3<float>* points, unsigned int n_points);
 
     NeighborList* getNeighborList()
     {
@@ -464,9 +458,6 @@ public:
 private:
     //! Rounding helper function.
     static unsigned int roundDown(unsigned int v, unsigned int m);
-
-    //! Helper function for updating when the box or cell width change.
-    void updateInternal(const box::Box& box, float cell_width);
 
     //! Helper function to compute cell neighbors
     const std::vector<unsigned int>& computeCellNeighbors(unsigned int cell);
