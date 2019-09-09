@@ -44,7 +44,7 @@ void Cluster::compute(const freud::locality::NeighborQuery* nq,
     // particle index.
     vector<size_t> cluster_label(m_num_particles, -1);
     vector<size_t> cluster_label_count(m_num_particles);
-    vector<size_t> cluster_min_id(m_num_particles);
+    vector<size_t> cluster_min_id(m_num_particles, -1);
 
     // Loop over every particle.
     m_num_clusters = 0;
@@ -69,7 +69,9 @@ void Cluster::compute(const freud::locality::NeighborQuery* nq,
 
     // Resize label counts and min ids to the number of unique clusters found.
     cluster_label_count.resize(m_num_clusters);
+    cluster_label_count.shrink_to_fit();
     cluster_min_id.resize(m_num_clusters);
+    cluster_min_id.shrink_to_fit();
 
     // Get a permutation that reorders clusters, largest to smallest.
     vector<size_t> cluster_reindex = sort_indexes_inverse(cluster_label_count, cluster_min_id);

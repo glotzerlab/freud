@@ -31,7 +31,7 @@ cdef class Cluster(PairCompute):
 
     Given a set of particles and their neighbors,
     :class:`freud.cluster.Cluster` will determine all of the connected
-    components of the network formed by those neighbor bonds.  That is, two
+    components of the network formed by those neighbor bonds. That is, two
     points are in the same cluster if and only if a path exists between them on
     the network of bonds. The class attribute :code:`cluster_idx` holds an
     array of cluster indices for each particle. By the definition of a cluster,
