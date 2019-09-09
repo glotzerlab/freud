@@ -12,8 +12,7 @@ cimport freud._locality
 
 cdef extern from "BondOrder.h" namespace "freud::environment":
     cdef cppclass BondOrder:
-        BondOrder(float, unsigned int,
-                  unsigned int, unsigned int) except +
+        BondOrder(unsigned int, unsigned int) except +
         const freud._box.Box & getBox() const
         void reset()
         void accumulate(
