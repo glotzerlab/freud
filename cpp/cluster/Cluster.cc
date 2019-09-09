@@ -20,20 +20,15 @@ Cluster::Cluster() {}
 
 void Cluster::compute(const freud::locality::NeighborQuery* nq,
                       const freud::locality::NeighborList* nlist,
-                      const vec3<float>* points, unsigned int Np,
                       freud::locality::QueryArgs qargs,
                       const unsigned int* keys)
 {
-    assert(points);
-    assert(Np > 0);
-
-    m_cluster_idx.prepare(Np);
-
-    m_num_particles = Np;
+    m_num_particles = nq->getNPoints();
+    m_cluster_idx.prepare(m_num_particles);
     DisjointSets dj(m_num_particles);
 
     freud::locality::loopOverNeighbors(
-        nq, points, Np, qargs, nlist,
+        nq, nq->getPoints(), m_num_particles, qargs, nlist,
         [&dj](const freud::locality::NeighborBond& neighbor_bond) {
             // Merge the two sets using the disjoint set
             if (!dj.same(neighbor_bond.ref_id, neighbor_bond.id))

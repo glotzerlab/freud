@@ -114,8 +114,6 @@ cdef class Cluster(PairCompute):
         self.thisptr.compute(
             nq.get_ptr(),
             nlistptr.get_ptr(),
-            <vec3[float]*> &l_query_points[0, 0],
-            num_query_points,
             dereference(qargs.thisptr),
             l_keys_ptr)
         return self
