@@ -25,22 +25,21 @@ GaussianDensity::GaussianDensity(vec3<unsigned int> width, float r_max, float si
 
 void GaussianDensity::reduce()
 {
-    memset((void*) m_density_array.get(), 0, sizeof(float) * m_bi.getNumElements());
     // combine arrays
-    parallel_for(blocked_range<size_t>(0, m_bi.getNumElements()), [=](const blocked_range<size_t>& r) {
+    parallel_for(blocked_range<size_t>(0, m_density_array.size()), [=](const blocked_range<size_t>& r) {
         for (size_t i = r.begin(); i != r.end(); i++)
         {
             for (util::ThreadStorage<float>::const_iterator local_bins = m_local_bin_counts.begin();
                  local_bins != m_local_bin_counts.end(); ++local_bins)
             {
-                m_density_array.get()[i] += (*local_bins)[i];
+                m_density_array[i] += (*local_bins)[i];
             }
         }
     });
 }
 
 //! Get a reference to the last computed Density
-std::shared_ptr<float> GaussianDensity::getDensity()
+const util::ManagedArray<float> &GaussianDensity::getDensity()
 {
     if (m_reduce == true)
     {
@@ -72,19 +71,14 @@ void GaussianDensity::compute(const box::Box& box, const vec3<float>* points, un
 {
     reset();
     m_box = box;
-    if (m_box.is2D())
-    {
-        m_bi = Index3D(m_width.x, m_width.y, 1);
-    }
-    else
-    {
-        m_bi = Index3D(m_width.x, m_width.y, m_width.z);
-    }
 
-    // this does not agree with rest of freud
-    m_density_array
-        = std::shared_ptr<float>(new float[m_bi.getNumElements()], std::default_delete<float[]>());
-    m_local_bin_counts.resize(m_bi.getNumElements());
+    vec3<unsigned int> width(m_width);
+    if (box.is2D())
+    {
+        width.z = 1;
+    }
+    m_density_array.prepare({width.x, width.y, width.z});
+    m_local_bin_counts.resize({width.x, width.y, width.z});
     parallel_for(blocked_range<size_t>(0, n_points), [=](const blocked_range<size_t>& r) {
         assert(points);
         assert(n_points > 0);
@@ -158,8 +152,7 @@ void GaussianDensity::compute(const box::Box& box, const vec3<float>* points, un
 
                             // store the product of these values in an array - n[i, j, k]
                             // = gx*gy*gz
-                            m_local_bin_counts.local()[m_bi(ni, nj, nk)]
-                                += x_gaussian * y_gaussian * z_gaussian;
+                            m_local_bin_counts.local()(ni, nj, nk) += x_gaussian * y_gaussian * z_gaussian;
                         }
                     }
                 }

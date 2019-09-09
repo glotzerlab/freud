@@ -24,6 +24,7 @@ from cython.operator cimport dereference
 cimport freud._order
 cimport freud.locality
 cimport freud.box
+cimport freud.util
 
 cimport numpy as np
 
@@ -97,18 +98,8 @@ cdef class CubaticOrderParameter(Compute):
                                "Using current time as seed.")
                 seed = int(time.time())
 
-        # for c++ code
-        # create generalized rank four tensor, pass into c++
-        cdef const float[:, ::1] kd = np.eye(3, dtype=np.float32)
-        cdef np.ndarray[float, ndim=4] dijkl = np.einsum(
-            "ij,kl->ijkl", kd, kd, dtype=np.float32)
-        cdef np.ndarray[float, ndim=4] dikjl = np.einsum(
-            "ik,jl->ijkl", kd, kd, dtype=np.float32)
-        cdef np.ndarray[float, ndim=4] diljk = np.einsum(
-            "il,jk->ijkl", kd, kd, dtype=np.float32)
-        cdef const float[:, :, :, ::1] r4 = (dijkl + dikjl + diljk) * (2.0/5.0)
         self.thisptr = new freud._order.CubaticOrderParameter(
-            t_initial, t_final, scale, <float*> &r4[0, 0, 0, 0], n_replicates,
+            t_initial, t_final, scale, n_replicates,
             seed)
         self.n_replicates = n_replicates
         self.seed = seed
@@ -157,40 +148,21 @@ cdef class CubaticOrderParameter(Compute):
 
     @Compute._computed_property()
     def particle_order_parameter(self):
-        cdef unsigned int n_particles = self.thisptr.getNumParticles()
-        cdef const float[::1] particle_order_parameter = \
-            <float[:n_particles]> \
-            self.thisptr.getParticleCubaticOrderParameter().get()
-        return np.asarray(particle_order_parameter)
-
-    @Compute._computed_property()
-    def particle_tensor(self):
-        cdef unsigned int n_particles = self.thisptr.getNumParticles()
-        cdef const float[:, :, :, :, ::1] particle_tensor = \
-            <float[:n_particles, :3, :3, :3, :3]> \
-            self.thisptr.getParticleTensor().get()
-        return np.asarray(particle_tensor)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getParticleOrderParameter(),
+            freud.util.arr_type_t.FLOAT)
 
     @Compute._computed_property()
     def global_tensor(self):
-        cdef const float[:, :, :, ::1] global_tensor = \
-            <float[:3, :3, :3, :3]> \
-            self.thisptr.getGlobalTensor().get()
-        return np.asarray(global_tensor)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getGlobalTensor(),
+            freud.util.arr_type_t.FLOAT)
 
     @Compute._computed_property()
     def cubatic_tensor(self):
-        cdef const float[:, :, :, ::1] cubatic_tensor = \
-            <float[:3, :3, :3, :3]> \
-            self.thisptr.getCubaticTensor().get()
-        return np.asarray(cubatic_tensor)
-
-    @Compute._computed_property()
-    def gen_r4_tensor(self):
-        cdef const float[:, :, :, ::1] gen_r4_tensor = \
-            <float[:3, :3, :3, :3]> \
-            self.thisptr.getGenR4Tensor().get()
-        return np.asarray(gen_r4_tensor)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getCubaticTensor(),
+            freud.util.arr_type_t.FLOAT)
 
     def __repr__(self):
         return ("freud.order.{cls}(t_initial={t_initial}, t_final={t_final}, "
@@ -223,9 +195,11 @@ cdef class NematicOrderParameter(Compute):
             particle orientation.
         nematic_tensor (:math:`\left(3, 3 \right)` :class:`numpy.ndarray`):
             3x3 matrix corresponding to the average particle orientation.
+        u (:math:`\left(3 \right)` :class:`numpy.ndarray`):
+            The normalized reference director (the normalized vector provided
+            on construction).
     """  # noqa: E501
     cdef freud._order.NematicOrderParameter *thisptr
-    cdef u
 
     def __cinit__(self, u):
         # run checks
@@ -234,7 +208,6 @@ cdef class NematicOrderParameter(Compute):
 
         cdef vec3[float] l_u = vec3[float](u[0], u[1], u[2])
         self.thisptr = new freud._order.NematicOrderParameter(l_u)
-        self.u = freud.common.convert_array(u, shape=(3, ))
 
     def __dealloc__(self):
         del self.thisptr
@@ -268,17 +241,20 @@ cdef class NematicOrderParameter(Compute):
 
     @Compute._computed_property()
     def particle_tensor(self):
-        cdef unsigned int n_particles = self.thisptr.getNumParticles()
-        cdef const float[:, :, ::1] particle_tensor = \
-            <float[:n_particles, :3, :3]> \
-            self.thisptr.getParticleTensor().get()
-        return np.asarray(particle_tensor)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getParticleTensor(),
+            freud.util.arr_type_t.FLOAT)
 
     @Compute._computed_property()
     def nematic_tensor(self):
-        cdef const float[:, ::1] nematic_tensor = \
-            <float[:3, :3]> self.thisptr.getNematicTensor().get()
-        return np.asarray(nematic_tensor)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getNematicTensor(),
+            freud.util.arr_type_t.FLOAT)
+
+    @property
+    def u(self):
+        cdef vec3[float] u = self.thisptr.getU()
+        return np.asarray([u.x, u.y, u.z], dtype=np.float32)
 
     def __repr__(self):
         return "freud.order.{cls}(u={u})".format(cls=type(self).__name__,
@@ -374,10 +350,9 @@ cdef class HexOrderParameter(PairCompute):
 
     @Compute._computed_property()
     def psi(self):
-        cdef unsigned int n_particles = self.thisptr.getNP()
-        cdef np.complex64_t[::1] psi = \
-            <np.complex64_t[:n_particles]> self.thisptr.getOrder().get()
-        return np.asarray(psi, dtype=np.complex64)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getOrder(),
+            freud.util.arr_type_t.COMPLEX_FLOAT)
 
     @Compute._computed_property()
     def box(self):
@@ -471,10 +446,9 @@ cdef class TransOrderParameter(PairCompute):
 
     @Compute._computed_property()
     def d_r(self):
-        cdef unsigned int n_particles = self.thisptr.getNP()
-        cdef np.complex64_t[::1] d_r = \
-            <np.complex64_t[:n_particles]> self.thisptr.getOrder().get()
-        return np.asarray(d_r, dtype=np.complex64)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getOrder(),
+            freud.util.arr_type_t.COMPLEX_FLOAT)
 
     @Compute._computed_property()
     def box(self):
@@ -482,13 +456,11 @@ cdef class TransOrderParameter(PairCompute):
 
     @Compute._computed_property()
     def num_particles(self):
-        cdef unsigned int np = self.thisptr.getNP()
-        return np
+        return self.thisptr.getNP()
 
     @property
     def K(self):
-        cdef float k = self.thisptr.getK()
-        return k
+        return self.thisptr.getK()
 
     def __repr__(self):
         return "freud.order.{cls}(r_max={r}, k={k}, num_neighbors={n})".format(
@@ -1142,10 +1114,9 @@ cdef class RotationalAutocorrelation(Compute):
 
     @Compute._computed_property()
     def ra_array(self):
-        cdef unsigned int num_orientations = self.thisptr.getN()
-        cdef np.complex64_t[::1] result = \
-            <np.complex64_t[:num_orientations]> self.thisptr.getRAArray().get()
-        return np.asarray(result, dtype=np.complex64)
+        return freud.util.make_managed_numpy_array(
+            &self.thisptr.getRAArray(),
+            freud.util.arr_type_t.COMPLEX_FLOAT)
 
     @Compute._computed_property()
     def num_orientations(self):

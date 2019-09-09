@@ -5,6 +5,7 @@ from freud.util cimport vec3, quat
 from libcpp.memory cimport shared_ptr
 cimport freud._box
 cimport freud._locality
+cimport freud.util
 
 cdef extern from "PMFT.h" namespace "freud::pmft":
     cdef cppclass PMFT:
@@ -12,8 +13,8 @@ cdef extern from "PMFT.h" namespace "freud::pmft":
 
         const freud._box.Box & getBox() const
         void reset()
-        shared_ptr[unsigned int] getBinCounts()
-        shared_ptr[float] getPCF()
+        const freud.util.ManagedArray[unsigned int] &getBinCounts()
+        const freud.util.ManagedArray[float] &getPCF()
         float getRMax()
 
 cdef extern from "PMFTR12.h" namespace "freud::pmft":
@@ -27,10 +28,10 @@ cdef extern from "PMFTR12.h" namespace "freud::pmft":
                         unsigned int,
                         const freud._locality.NeighborList*,
                         freud._locality.QueryArgs) except +
-        shared_ptr[float] getR()
-        shared_ptr[float] getT1()
-        shared_ptr[float] getT2()
-        shared_ptr[float] getInverseJacobian()
+        const freud.util.ManagedArray[float] &getR()
+        const freud.util.ManagedArray[float] &getT1()
+        const freud.util.ManagedArray[float] &getT2()
+        const freud.util.ManagedArray[float] &getInverseJacobian()
         unsigned int getNBinsR()
         unsigned int getNBinsT1()
         unsigned int getNBinsT2()
@@ -47,9 +48,9 @@ cdef extern from "PMFTXYT.h" namespace "freud::pmft":
                         unsigned int,
                         const freud._locality.NeighborList*,
                         freud._locality.QueryArgs) except +
-        shared_ptr[float] getX()
-        shared_ptr[float] getY()
-        shared_ptr[float] getT()
+        const freud.util.ManagedArray[float] &getX()
+        const freud.util.ManagedArray[float] &getY()
+        const freud.util.ManagedArray[float] &getT()
         float getJacobian()
         unsigned int getNBinsX()
         unsigned int getNBinsY()
@@ -65,8 +66,8 @@ cdef extern from "PMFTXY2D.h" namespace "freud::pmft":
                         unsigned int,
                         const freud._locality.NeighborList*,
                         freud._locality.QueryArgs) except +
-        shared_ptr[float] getX()
-        shared_ptr[float] getY()
+        const freud.util.ManagedArray[float] &getX()
+        const freud.util.ManagedArray[float] &getY()
         float getJacobian()
         unsigned int getNBinsX()
         unsigned int getNBinsY()
@@ -84,9 +85,9 @@ cdef extern from "PMFTXYZ.h" namespace "freud::pmft":
                         unsigned int,
                         const freud._locality.NeighborList*,
                         freud._locality.QueryArgs) except +
-        shared_ptr[float] getX()
-        shared_ptr[float] getY()
-        shared_ptr[float] getZ()
+        const freud.util.ManagedArray[float] &getX()
+        const freud.util.ManagedArray[float] &getY()
+        const freud.util.ManagedArray[float] &getZ()
         float getJacobian()
         unsigned int getNBinsX()
         unsigned int getNBinsY()

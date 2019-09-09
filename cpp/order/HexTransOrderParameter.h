@@ -13,6 +13,7 @@
 #include "NeighborComputeFunctional.h"
 #include "NeighborQuery.h"
 #include "VectorMath.h"
+#include "ManagedArray.h"
 
 /*! \file HexTransOrderParameter.h
     \brief Compute the hexatic/translational order parameter for each particle.
@@ -49,7 +50,7 @@ public:
     }
 
     //! Get a reference to the order parameter array
-    std::shared_ptr<std::complex<float>> getOrder()
+    const util::ManagedArray<std::complex<float>> &getOrder()
     {
         return m_psi_array;
     }
@@ -64,7 +65,7 @@ protected:
     box::Box m_box;    //!< Simulation box where the particles belong
     unsigned int m_Np; //!< Last number of points computed
     T m_k;
-    std::shared_ptr<std::complex<float>> m_psi_array; //!< psi array computed
+    util::ManagedArray <std::complex<float>> m_psi_array; //!< psi array computed
 };
 
 //! Compute the translational order parameter for a set of points

@@ -94,6 +94,18 @@ cdef class _PMFT(SpatialHistogram):
             result = -np.log(np.copy(self.PCF))
         return result
 
+    @Compute._computed_property()
+    def bin_counts(self):
+        return freud.util.make_managed_numpy_array(
+            &self.pmftptr.getBinCounts(),
+            freud.util.arr_type_t.UNSIGNED_INT)
+
+    @Compute._computed_property()
+    def PCF(self):
+        return freud.util.make_managed_numpy_array(
+            &self.pmftptr.getPCF(),
+            freud.util.arr_type_t.FLOAT)
+
     @property
     def r_max(self):
         return self.pmftptr.getRMax()
@@ -124,11 +136,11 @@ cdef class PMFTR12(_PMFT):
     Attributes:
         box (:class:`freud.box.Box`):
             Box used in the calculation.
-        bin_counts (:math:`\left(N_{r}, N_{\theta2}, N_{\theta1}\right)`):
+        bin_counts (:math:`\left(N_{r}, N_{\theta1}, N_{\theta2}\right)`):
             Bin counts.
-        PCF (:math:`\left(N_{r}, N_{\theta2}, N_{\theta1}\right)`):
+        PCF (:math:`\left(N_{r}, N_{\theta1}, N_{\theta2}\right)`):
             The positional correlation function.
-        PMFT (:math:`\left(N_{r}, N_{\theta2}, N_{\theta1}\right)`):
+        PMFT (:math:`\left(N_{r}, N_{\theta1}, N_{\theta2}\right)`):
             The potential of mean force and torque.
         r_max (float):
             The cutoff used in the cell list.
@@ -138,7 +150,7 @@ cdef class PMFTR12(_PMFT):
             The array of :math:`\theta_1`-values for the PCF histogram.
         T2 (:math:`\left(N_{\theta2}\right)` :class:`numpy.ndarray`):
             The array of :math:`\theta_2`-values for the PCF histogram.
-        inverse_jacobian (:math:`\left(N_{r}, N_{\theta2}, N_{\theta1}\right)`):
+        inverse_jacobian (:math:`\left(N_{r}, N_{\theta1}, N_{\theta2}\right)`):
             The inverse Jacobian used in the PMFT.
         n_bins_R (unsigned int):
             The number of bins in the :math:`r`-dimension of the histogram.
@@ -246,56 +258,29 @@ cdef class PMFTR12(_PMFT):
                         query_points, query_orientations, nlist, query_args)
         return self
 
-    @Compute._computed_property()
-    def bin_counts(self):
-        cdef unsigned int n_bins_R = self.pmftr12ptr.getNBinsR()
-        cdef unsigned int n_bins_T2 = self.pmftr12ptr.getNBinsT2()
-        cdef unsigned int n_bins_T1 = self.pmftr12ptr.getNBinsT1()
-        cdef const unsigned int[:, :, ::1] bin_counts = \
-            <unsigned int[:n_bins_R, :n_bins_T2, :n_bins_T1]> \
-            self.pmftr12ptr.getBinCounts().get()
-        return np.asarray(bin_counts, dtype=np.uint32)
-
-    @Compute._computed_property()
-    def PCF(self):
-        cdef unsigned int n_bins_R = self.pmftr12ptr.getNBinsR()
-        cdef unsigned int n_bins_T2 = self.pmftr12ptr.getNBinsT2()
-        cdef unsigned int n_bins_T1 = self.pmftr12ptr.getNBinsT1()
-        cdef const float[:, :, ::1] PCF = \
-            <float[:n_bins_R, :n_bins_T2, :n_bins_T1]> \
-            self.pmftr12ptr.getPCF().get()
-        return np.asarray(PCF)
-
     @property
     def R(self):
-        cdef unsigned int n_bins_R = self.pmftr12ptr.getNBinsR()
-        cdef const float[::1] R = \
-            <float[:n_bins_R]> self.pmftr12ptr.getR().get()
-        return np.asarray(R)
+        return freud.util.make_managed_numpy_array(
+            &self.pmftr12ptr.getR(),
+            freud.util.arr_type_t.FLOAT)
 
     @property
     def T1(self):
-        cdef unsigned int n_bins_T1 = self.pmftr12ptr.getNBinsT1()
-        cdef const float[::1] T1 = \
-            <float[:n_bins_T1]> self.pmftr12ptr.getT1().get()
-        return np.asarray(T1)
+        return freud.util.make_managed_numpy_array(
+            &self.pmftr12ptr.getT1(),
+            freud.util.arr_type_t.FLOAT)
 
     @property
     def T2(self):
-        cdef unsigned int n_bins_T2 = self.pmftr12ptr.getNBinsT2()
-        cdef const float[::1] T2 = \
-            <float[:n_bins_T2]> self.pmftr12ptr.getT2().get()
-        return np.asarray(T2)
+        return freud.util.make_managed_numpy_array(
+            &self.pmftr12ptr.getT2(),
+            freud.util.arr_type_t.FLOAT)
 
     @property
     def inverse_jacobian(self):
-        cdef unsigned int n_bins_R = self.pmftr12ptr.getNBinsR()
-        cdef unsigned int n_bins_T2 = self.pmftr12ptr.getNBinsT2()
-        cdef unsigned int n_bins_T1 = self.pmftr12ptr.getNBinsT1()
-        cdef const float[:, :, ::1] inverse_jacobian = \
-            <float[:n_bins_R, :n_bins_T2, :n_bins_T1]> \
-            self.pmftr12ptr.getInverseJacobian().get()
-        return np.asarray(inverse_jacobian)
+        return freud.util.make_managed_numpy_array(
+            &self.pmftr12ptr.getInverseJacobian(),
+            freud.util.arr_type_t.FLOAT)
 
     @property
     def n_bins_R(self):
@@ -355,11 +340,11 @@ cdef class PMFTXYT(_PMFT):
     Attributes:
         box (:class:`freud.box.Box`):
             Box used in the calculation.
-        bin_counts (:math:`\left(N_{\theta}, N_{y}, N_{x}\right)` :class:`numpy.ndarray`):
+        bin_counts (:math:`\left(N_{x}, N_{y}, N_{\theta}\right)` :class:`numpy.ndarray`):
             Bin counts.
-        PCF (:math:`\left(N_{\theta}, N_{y}, N_{x}\right)` :class:`numpy.ndarray`):
+        PCF (:math:`\left(N_{x}, N_{y}, N_{\theta}\right)` :class:`numpy.ndarray`):
             The positional correlation function.
-        PMFT (:math:`\left(N_{\theta}, N_{y}, N_{x}\right)` :class:`numpy.ndarray`):
+        PMFT (:math:`\left(N_{x}, N_{y}, N_{\theta}\right)` :class:`numpy.ndarray`):
             The potential of mean force and torque.
         r_max (float):
             The cutoff used in the cell list.
@@ -480,46 +465,23 @@ cdef class PMFTXYT(_PMFT):
                         query_points, query_orientations, nlist, query_args)
         return self
 
-    @Compute._computed_property()
-    def bin_counts(self):
-        cdef unsigned int n_bins_T = self.pmftxytptr.getNBinsT()
-        cdef unsigned int n_bins_Y = self.pmftxytptr.getNBinsY()
-        cdef unsigned int n_bins_X = self.pmftxytptr.getNBinsX()
-        cdef const unsigned int[:, :, ::1] bin_counts = \
-            <unsigned int[:n_bins_T, :n_bins_Y, :n_bins_X]> \
-            self.pmftxytptr.getBinCounts().get()
-        return np.asarray(bin_counts, dtype=np.uint32)
-
-    @Compute._computed_property()
-    def PCF(self):
-        cdef unsigned int n_bins_T = self.pmftxytptr.getNBinsT()
-        cdef unsigned int n_bins_Y = self.pmftxytptr.getNBinsY()
-        cdef unsigned int n_bins_X = self.pmftxytptr.getNBinsX()
-        cdef const float[:, :, ::1] PCF = \
-            <float[:n_bins_T, :n_bins_Y, :n_bins_X]> \
-            self.pmftxytptr.getPCF().get()
-        return np.asarray(PCF)
-
     @property
     def X(self):
-        cdef unsigned int n_bins_X = self.pmftxytptr.getNBinsX()
-        cdef const float[::1] X = \
-            <float[:n_bins_X]> self.pmftxytptr.getX().get()
-        return np.asarray(X)
+        return freud.util.make_managed_numpy_array(
+            &self.pmftxytptr.getX(),
+            freud.util.arr_type_t.FLOAT)
 
     @property
     def Y(self):
-        cdef unsigned int n_bins_Y = self.pmftxytptr.getNBinsY()
-        cdef const float[::1] Y = \
-            <float[:n_bins_Y]> self.pmftxytptr.getY().get()
-        return np.asarray(Y)
+        return freud.util.make_managed_numpy_array(
+            &self.pmftxytptr.getY(),
+            freud.util.arr_type_t.FLOAT)
 
     @property
     def T(self):
-        cdef unsigned int n_bins_T = self.pmftxytptr.getNBinsT()
-        cdef const float[::1] T = \
-            <float[:n_bins_T]> self.pmftxytptr.getT().get()
-        return np.asarray(T)
+        return freud.util.make_managed_numpy_array(
+            &self.pmftxytptr.getT(),
+            freud.util.arr_type_t.FLOAT)
 
     @property
     def jacobian(self):
@@ -578,11 +540,11 @@ cdef class PMFTXY2D(_PMFT):
     Attributes:
         box (:class:`freud.box.Box`):
             Box used in the calculation.
-        bin_counts (:math:`\left(N_{y}, N_{x}\right)` :class:`numpy.ndarray`):
+        bin_counts (:math:`\left(N_{x}, N_{y}\right)` :class:`numpy.ndarray`):
             Bin counts.
-        PCF (:math:`\left(N_{y}, N_{x}\right)` :class:`numpy.ndarray`):
+        PCF (:math:`\left(N_{x}, N_{y}\right)` :class:`numpy.ndarray`):
             The positional correlation function.
-        PMFT (:math:`\left(N_{y}, N_{x}\right)` :class:`numpy.ndarray`):
+        PMFT (:math:`\left(N_{x}, N_{y}\right)` :class:`numpy.ndarray`):
             The potential of mean force and torque.
         r_max (float):
             The cutoff used in the cell list.
@@ -684,35 +646,29 @@ cdef class PMFTXY2D(_PMFT):
 
     @Compute._computed_property()
     def bin_counts(self):
-        cdef unsigned int n_bins_Y = self.pmftxy2dptr.getNBinsY()
-        cdef unsigned int n_bins_X = self.pmftxy2dptr.getNBinsX()
-        cdef const unsigned int[:, ::1] bin_counts = \
-            <unsigned int[:n_bins_Y, :n_bins_X]> \
-            self.pmftxy2dptr.getBinCounts().get()
-        return np.asarray(bin_counts, dtype=np.uint32)
+        # Currently this returns a 3D array that must be squeezed due to the
+        # internal choices in the histogramming; this will be fixed in future
+        # changes.
+        return np.squeeze(super(PMFTXY2D, self).bin_counts)
 
     @Compute._computed_property()
     def PCF(self):
-        cdef unsigned int n_bins_Y = self.pmftxy2dptr.getNBinsY()
-        cdef unsigned int n_bins_X = self.pmftxy2dptr.getNBinsX()
-        cdef const float[:, ::1] PCF = \
-            <float[:n_bins_Y, :n_bins_X]> \
-            self.pmftxy2dptr.getPCF().get()
-        return np.asarray(PCF)
+        # Currently this returns a 3D array that must be squeezed due to the
+        # internal choices in the histogramming; this will be fixed in future
+        # changes.
+        return np.squeeze(super(PMFTXY2D, self).PCF)
 
     @property
     def X(self):
-        cdef unsigned int n_bins_X = self.pmftxy2dptr.getNBinsX()
-        cdef const float[::1] X = \
-            <float[:n_bins_X]> self.pmftxy2dptr.getX().get()
-        return np.asarray(X)
+        return freud.util.make_managed_numpy_array(
+            &self.pmftxy2dptr.getX(),
+            freud.util.arr_type_t.FLOAT)
 
     @property
     def Y(self):
-        cdef unsigned int n_bins_Y = self.pmftxy2dptr.getNBinsY()
-        cdef const float[::1] Y = \
-            <float[:n_bins_Y]> self.pmftxy2dptr.getY().get()
-        return np.asarray(Y)
+        return freud.util.make_managed_numpy_array(
+            &self.pmftxy2dptr.getY(),
+            freud.util.arr_type_t.FLOAT)
 
     @property
     def n_bins_X(self):
@@ -794,11 +750,11 @@ cdef class PMFTXYZ(_PMFT):
     Attributes:
         box (:class:`freud.box.Box`):
             Box used in the calculation.
-        bin_counts (:math:`\left(N_{z}, N_{y}, N_{x}\right)` :class:`numpy.ndarray`):
+        bin_counts (:math:`\left(N_{x}, N_{y}, N_{z}\right)` :class:`numpy.ndarray`):
             Bin counts.
-        PCF (:math:`\left(N_{z}, N_{y}, N_{x}\right)` :class:`numpy.ndarray`):
+        PCF (:math:`\left(N_{x}, N_{y}, N_{z}\right)` :class:`numpy.ndarray`):
             The positional correlation function.
-        PMFT (:math:`\left(N_{z}, N_{y}, N_{x}\right)` :class:`numpy.ndarray`):
+        PMFT (:math:`\left(N_{x}, N_{y}, N_{z}\right)` :class:`numpy.ndarray`):
             The potential of mean force and torque.
         r_max (float):
             The cutoff used in the cell list.
@@ -972,46 +928,23 @@ cdef class PMFTXYZ(_PMFT):
                         nlist, query_args)
         return self
 
-    @Compute._computed_property()
-    def bin_counts(self):
-        cdef unsigned int n_bins_Z = self.pmftxyzptr.getNBinsZ()
-        cdef unsigned int n_bins_Y = self.pmftxyzptr.getNBinsY()
-        cdef unsigned int n_bins_X = self.pmftxyzptr.getNBinsX()
-        cdef const unsigned int[:, :, ::1] bin_counts = \
-            <unsigned int[:n_bins_Z, :n_bins_Y, :n_bins_X]> \
-            self.pmftxyzptr.getBinCounts().get()
-        return np.asarray(bin_counts, dtype=np.uint32)
-
-    @Compute._computed_property()
-    def PCF(self):
-        cdef unsigned int n_bins_Z = self.pmftxyzptr.getNBinsZ()
-        cdef unsigned int n_bins_Y = self.pmftxyzptr.getNBinsY()
-        cdef unsigned int n_bins_X = self.pmftxyzptr.getNBinsX()
-        cdef const float[:, :, ::1] PCF = \
-            <float[:n_bins_Z, :n_bins_Y, :n_bins_X]> \
-            self.pmftxyzptr.getPCF().get()
-        return np.asarray(PCF)
-
     @property
     def X(self):
-        cdef unsigned int n_bins_X = self.pmftxyzptr.getNBinsX()
-        cdef const float[::1] X = \
-            <float[:n_bins_X]> self.pmftxyzptr.getX().get()
-        return np.asarray(X) + self.shiftvec[0]
+        return freud.util.make_managed_numpy_array(
+            &self.pmftxyzptr.getX(),
+            freud.util.arr_type_t.FLOAT)
 
     @property
     def Y(self):
-        cdef unsigned int n_bins_Y = self.pmftxyzptr.getNBinsY()
-        cdef const float[::1] Y = \
-            <float[:n_bins_Y]> self.pmftxyzptr.getY().get()
-        return np.asarray(Y) + self.shiftvec[1]
+        return freud.util.make_managed_numpy_array(
+            &self.pmftxyzptr.getY(),
+            freud.util.arr_type_t.FLOAT)
 
     @property
     def Z(self):
-        cdef unsigned int n_bins_Z = self.pmftxyzptr.getNBinsZ()
-        cdef const float[::1] Z = \
-            <float[:n_bins_Z]> self.pmftxyzptr.getZ().get()
-        return np.asarray(Z) + self.shiftvec[2]
+        return freud.util.make_managed_numpy_array(
+            &self.pmftxyzptr.getZ(),
+            freud.util.arr_type_t.FLOAT)
 
     @property
     def n_bins_X(self):

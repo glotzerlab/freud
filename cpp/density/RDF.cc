@@ -35,16 +35,16 @@ RDF::RDF(float r_max, float dr, float r_min) : util::NdHistogram(), m_r_max(r_ma
 
     m_nbins = int(floorf((m_r_max - m_r_min) / m_dr));
     assert(m_nbins > 0);
-    m_pcf_array = util::makeEmptyArray<float>(m_nbins);
-    m_bin_counts = util::makeEmptyArray<unsigned int>(m_nbins);
-    m_avg_counts = util::makeEmptyArray<float>(m_nbins);
-    m_N_r_array = util::makeEmptyArray<float>(m_nbins);
+    m_pcf_array.prepare(m_nbins);
+    m_bin_counts.prepare(m_nbins);
+    m_avg_counts.prepare(m_nbins);
+    m_N_r_array.prepare(m_nbins);
 
     // precompute the bin center positions and cell volumes
-    m_r_array = std::shared_ptr<float>(new float[m_nbins], std::default_delete<float[]>());
-    m_vol_array = util::makeEmptyArray<float>(m_nbins);
-    m_vol_array2D = util::makeEmptyArray<float>(m_nbins);
-    m_vol_array3D = util::makeEmptyArray<float>(m_nbins);
+    m_r_array.prepare(m_nbins);
+    m_vol_array.prepare(m_nbins);
+    m_vol_array2D.prepare(m_nbins);
+    m_vol_array3D.prepare(m_nbins);
 
     for (unsigned int i = 0; i < m_nbins; i++)
     {
@@ -61,8 +61,8 @@ RDF::RDF(float r_max, float dr, float r_min) : util::NdHistogram(), m_r_max(r_ma
 //! helper function to reduce the thread specific arrays into one array
 void RDF::reduceRDF()
 {
-    memset((void*) m_bin_counts.get(), 0, sizeof(unsigned int) * m_nbins);
-    memset((void*) m_avg_counts.get(), 0, sizeof(float) * m_nbins);
+    m_bin_counts.prepare(m_nbins);
+    m_avg_counts.prepare(m_nbins);
     // now compute the rdf
     float ndens = float(m_n_query_points) / m_box.getVolume();
     if (m_box.is2D())
@@ -76,10 +76,10 @@ void RDF::reduceRDF()
             for (util::ThreadStorage<unsigned int>::const_iterator local_bins = m_local_bin_counts.begin();
                  local_bins != m_local_bin_counts.end(); ++local_bins)
             {
-                m_bin_counts.get()[i] += (*local_bins)[i];
+                m_bin_counts[i] += (*local_bins)[i];
             }
-            m_avg_counts.get()[i] = (float) m_bin_counts.get()[i] / m_n_points;
-            m_pcf_array.get()[i] = m_avg_counts.get()[i] / m_vol_array.get()[i] / ndens;
+            m_avg_counts[i] = (float) m_bin_counts[i] / m_n_points;
+            m_pcf_array[i] = m_avg_counts[i] / m_vol_array[i] / ndens;
         }
     });
 
@@ -91,13 +91,13 @@ void RDF::reduceRDF()
 
     for (unsigned int i = 0; i < m_nbins; i++)
     {
-        m_pcf_array.get()[i] /= m_frame_counter;
+        m_pcf_array[i] /= m_frame_counter;
         m_N_r_array.get()[i] /= m_frame_counter;
     }
 }
 
 //! get a reference to the histogram bin centers array
-std::shared_ptr<float> RDF::getR()
+const util::ManagedArray<float> &RDF::getR()
 {
     return m_r_array;
 }

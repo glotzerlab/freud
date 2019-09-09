@@ -198,7 +198,7 @@ public:
      *
      *  \param indices The index in each dimension.
      */
-    size_t getIndex(std::vector<unsigned int> indices)
+    size_t getIndex(std::vector<unsigned int> indices) const
     {
         if (indices.size() != m_shape->size())
         {

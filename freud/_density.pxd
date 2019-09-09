@@ -32,7 +32,7 @@ cdef extern from "GaussianDensity.h" namespace "freud::density":
             const freud._box.Box &,
             const vec3[float]*,
             unsigned int) except +
-        shared_ptr[float] getDensity()
+        const freud.util.ManagedArray[float] &getDensity()
         vec3[unsigned int] getWidth()
         float getSigma()
 
@@ -59,7 +59,7 @@ cdef extern from "RDF.h" namespace "freud::density":
                         unsigned int,
                         const freud._locality.NeighborList*,
                         freud._locality.QueryArgs) except +
-        shared_ptr[float] getRDF()
-        shared_ptr[float] getR()
-        shared_ptr[float] getNr()
+        const freud.util.ManagedArray[float] &getRDF()
+        const freud.util.ManagedArray[float] &getR()
+        const freud.util.ManagedArray[float] &getNr()
         unsigned int getNBins()
