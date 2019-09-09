@@ -213,6 +213,7 @@ references:
             # Install from and test all wheels
             for PYBIN in /opt/python/*/bin/; do
               "${PYBIN}/python" -m pip install freud_analysis --no-deps --no-index -f ~/ci/freud/wheelhouse
+              "${PYBIN}/python" -m pip install rowan sympy
               cd ~/ci/freud/tests
               "${PYBIN}/python" -m unittest discover . -v
             done
@@ -286,6 +287,7 @@ references:
             for VERSION in ${PY_VERSIONS[@]}; do
               pyenv global ${VERSION}
               pip install freud_analysis --no-deps --no-index -f ~/ci/freud/wheelhouse
+              pip install rowan sympy
               cd ~/ci/freud/tests
               python -m unittest discover . -v
             done

@@ -232,13 +232,13 @@ class TestSteinhardt(unittest.TestCase):
 
             # Ensure Q6 is rotationally invariant
             q6.compute(box, positions_rotated, nlist=nlist)
-            npt.assert_almost_equal(q6.order[0], q6_unrotated_order)
-            npt.assert_almost_equal(q6.order[0], PERFECT_FCC_Q6)
+            npt.assert_allclose(q6.order[0], q6_unrotated_order, rtol=1e-5)
+            npt.assert_allclose(q6.order[0], PERFECT_FCC_Q6, rtol=1e-5)
 
             # Ensure W6 is rotationally invariant
             w6.compute(box, positions_rotated, nlist=nlist)
-            npt.assert_almost_equal(w6.order[0], w6_unrotated_order)
-            npt.assert_almost_equal(w6.order[0], PERFECT_FCC_W6)
+            npt.assert_allclose(w6.order[0], w6_unrotated_order, rtol=1e-5)
+            npt.assert_allclose(w6.order[0], PERFECT_FCC_W6, rtol=1e-5)
 
     def test_repr(self):
         comp = freud.order.Steinhardt(6)
