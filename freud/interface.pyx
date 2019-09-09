@@ -75,10 +75,10 @@ cdef class InterfaceMeasure(Compute):
             nlist = lc.query(query_points,
                              dict(r_max=self.r_max)).toNeighborList()
         else:
-            nlist = nlist.copy().filter_r(b, points, query_points, self.r_max)
+            nlist = nlist.copy().filter_r(self.r_max)
 
-        self._point_ids = np.unique(nlist.index_j).astype(np.uint32)
-        self._query_point_ids = np.unique(nlist.index_i).astype(np.uint32)
+        self._point_ids = np.unique(nlist.point_index)
+        self._query_point_ids = np.unique(nlist.query_point_index)
         return self
 
     @Compute._computed_property()

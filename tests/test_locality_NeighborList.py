@@ -234,6 +234,17 @@ class TestNeighborList(unittest.TestCase):
         with self.assertRaises(TypeError):
             self.cl.nlist[0, 0] = 0
 
+    def test_copy(self):
+        self.setup_nl()
+        self.cl.compute(self.fbox, self.points, self.points)
+        nlist = self.cl.nlist
+        nlist2 = nlist.copy()
+        npt.assert_equal(nlist[:], nlist2[:])
+        npt.assert_equal(nlist.distances, nlist2.distances)
+        npt.assert_equal(nlist.weights, nlist2.weights)
+        npt.assert_equal(nlist.segments, nlist2.segments)
+        npt.assert_equal(nlist.neighbor_counts, nlist2.neighbor_counts)
+
 
 if __name__ == '__main__':
     unittest.main()

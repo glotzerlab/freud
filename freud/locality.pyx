@@ -606,9 +606,9 @@ def make_default_nlist(box, points, query_points, r_max, nlist=None,
         box (:class:`freud.box.Box`):
             Simulation box.
         points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-            Reference points for the neighborlist.
+            Points for the neighborlist.
         query_points ((:math:`N_{particles}`, 3) :class:`numpy.ndarray`):
-            Points to construct the neighborlist.
+            Query points to construct the neighborlist.
         r_max (float):
             The radius within which to find neighbors.
         nlist (:class:`freud.locality.NeighborList`, optional):

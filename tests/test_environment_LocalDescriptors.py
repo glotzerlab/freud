@@ -217,7 +217,10 @@ class TestLocalDescriptors(unittest.TestCase):
             ld.compute(box, num_neighbors, points, mode='global', nlist=nl)
 
             # Generate random weights for each bond
-            nl.weights[:] = np.random.rand(len(nl.weights))
+            nl = freud.locality.NeighborList.from_arrays(
+                len(points), len(points),
+                nl.query_point_index, nl.point_index,
+                nl.distances, np.random.rand(len(nl.weights)))
 
             Ql = get_Ql(points, ld, nl)
 

@@ -101,7 +101,6 @@ void AngularSeparation::computeNeighbor(const quat<float>* orientations,  unsign
         size_t bond(nlist->find_first_index(r.begin()));
         for (size_t i = r.begin(); i != r.end(); ++i)
         {
-            // m_neigh_ang_array.get()[i] = 0;
             quat<float> q = orientations[i];
 
             for (; bond < tot_num_neigh && nlist->getNeighbors()(bond, 0) == i; ++bond)
