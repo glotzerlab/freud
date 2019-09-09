@@ -172,16 +172,14 @@ void loopOverNeighbors(const NeighborQuery* neighbor_query, const vec3<float>* q
     // check if nlist exists
     if (nlist != NULL)
     {
-        const size_t* neighbor_list(nlist->getNeighbors());
-        size_t n_bonds = nlist->getNumBonds();
-        const float* neighbor_distances = nlist->getDistances();
-        const float* neighbor_weights = nlist->getWeights();
-        forLoopWrapper(0, n_bonds, [=](size_t begin, size_t end) {
+        forLoopWrapper(0, nlist->getNumBonds(), [=](size_t begin, size_t end) {
             for (size_t bond = begin; bond != end; ++bond)
             {
-                size_t point_index(neighbor_list[2 * bond]);
-                size_t ref_point_index(neighbor_list[2 * bond + 1]);
-                const NeighborBond nb(point_index, ref_point_index, neighbor_distances[bond], neighbor_weights[bond]);
+                const NeighborBond nb(
+                        nlist->getNeighbors()(bond, 0),
+                        nlist->getNeighbors()(bond, 1),
+                        nlist->getDistances()[bond],
+                        nlist->getWeights()[bond]);
                 cf(nb);
             }
         }, parallel);
