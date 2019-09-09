@@ -22,14 +22,14 @@ using namespace tbb;
 
 namespace freud { namespace environment {
 
-BondOrder::BondOrder(float r_max, unsigned int n, unsigned int n_bins_theta, unsigned int n_bins_phi)
+BondOrder::BondOrder(unsigned int n_bins_theta, unsigned int n_bins_phi)
     : m_box(box::Box()), m_n_bins_theta(n_bins_theta), m_n_bins_phi(n_bins_phi), m_frame_counter(0),
       m_reduce(true), m_local_bin_counts(n_bins_theta * n_bins_phi)
 {
     // sanity checks, but this is actually kinda dumb if these values are 1
-    if (n_bins_theta < 2)
+    if (m_n_bins_theta < 2)
         throw invalid_argument("BondOrder requires at least 2 bins in theta.");
-    if (n_bins_phi < 2)
+    if (m_n_bins_phi < 2)
         throw invalid_argument("BondOrder requires at least 2 bins in phi.");
     // calculate dt, dp
     /*
@@ -161,7 +161,6 @@ void BondOrder::accumulate(
         vec3<float> ref_pos = neighbor_query->getPoints()[neighbor_bond.ref_id];
         quat<float>& ref_q = orientations[neighbor_bond.ref_id];
         vec3<float> v = m_box.wrap(query_points[neighbor_bond.id] - ref_pos);
-
         quat<float>& q = query_orientations[neighbor_bond.id];
         if (b_mode == obcd)
         {
@@ -220,8 +219,7 @@ void BondOrder::accumulate(
         {
             ++m_local_bin_counts.local()[sa_i(ibin_theta, ibin_phi)];
         }
-    }
-    );
+    });
 
     // save the last computed number of particles
     m_frame_counter++;
