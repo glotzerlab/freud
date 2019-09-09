@@ -499,10 +499,10 @@ cdef class Steinhardt(PairCompute):
     original definition by the average value of :math:`\overline{Q}_{lm}(k)`
     over all the :math:`k` neighbors of particle :math:`i` as well as itself.
 
-    The norm constructor argument provides normalized versions of the
-    plain :math:`Q_l` or :math:`W_l` or normalized average if the
-    average flag is set to true, where the normalization is performed by
-    dividing by the average :math:`Q_{lm}` values over all particles.
+    The :code:`norm` attribute argument provides normalized versions of the
+    order parameter, where the normalization is performed by averaging the
+    :math:`Q_{lm}` values over all particles before computing the order
+    parameter of choice.
 
     .. moduleauthor:: Xiyu Du <xiyudu@umich.edu>
     .. moduleauthor:: Vyas Ramasubramani <vramasub@umich.edu>
@@ -512,16 +512,8 @@ cdef class Steinhardt(PairCompute):
     Args:
         l (unsigned int):
             Spherical harmonic quantum number l. Must be a positive number.
-        r_min (float):
-            Can look at only the second shell or some arbitrary RDF region.
-        r_max (float):
-            Cutoff radius for the local order parameter. Values near the first
-            minimum of the RDF are recommended.
         average (bool, optional):
             Determines whether to calculate the averaged Steinhardt order
-            parameter. (Default value = :code:`False`)
-        norm (bool, optional):
-            Determines whether to calculate the normalized Steinhardt order
             parameter. (Default value = :code:`False`)
         Wl (bool, optional):
             Determines whether to use the :math:`W_l` version of the Steinhardt
@@ -531,11 +523,6 @@ cdef class Steinhardt(PairCompute):
             spherical harmonics over neighbors. If enabled and used with a
             Voronoi neighbor list, this results in the Minkowski Structure
             Metrics :math:`Q'_l`. (Default value = :code:`False`)
-        num_neighbors (int, optional):
-            If set to a non-zero positive integer, limit the calculation of the
-            Steinhardt order parameter to :code:`num_neighbors` neighbors.
-            (Default value = :code:`0`)
-
 
     Attributes:
         num_particles (unsigned int):
@@ -549,21 +536,11 @@ cdef class Steinhardt(PairCompute):
             order parameter.
     """  # noqa: E501
     cdef freud._order.Steinhardt * stptr
-    cdef r_max
     cdef sph_l
-    cdef r_min
-    cdef num_neighbors
 
-    def __cinit__(self, r_max, l, r_min=0, average=False, Wl=False,
-                  weighted=False, num_neighbors=0):
-        if type(self) is Steinhardt:
-            self.r_max = r_max
-            self.sph_l = l
-            self.r_min = r_min
-            self.num_neighbors = num_neighbors
-            self.stptr = new freud._order.Steinhardt(
-                r_max, l, r_min,
-                average, Wl, weighted)
+    def __cinit__(self, l, average=False, Wl=False, weighted=False):
+        self.sph_l = l
+        self.stptr = new freud._order.Steinhardt(l, average, Wl, weighted)
 
     def __dealloc__(self):
         if type(self) is Steinhardt:
@@ -635,26 +612,14 @@ cdef class Steinhardt(PairCompute):
                            dereference(qargs.thisptr))
         return self
 
-    @property
-    def default_query_args(self):
-        if self.num_neighbors > 0:
-            return dict(mode="nearest", num_neighbors=self.num_neighbors,
-                        r_guess=self.r_max)
-        else:
-            return dict(mode="ball", r_max=self.r_max)
-
     def __repr__(self):
-        return ("freud.order.{cls}(r_max={r_max}, l={sph_l}, "
-                "r_min={r_min}, average={average}, Wl={Wl}, "
-                "weighted={weighted}, num_neighbors={num_neighbors})").format(
+        return ("freud.order.{cls}(l={sph_l}, average={average}, Wl={Wl}, "
+                "weighted={weighted})").format(
                     cls=type(self).__name__,
-                    r_max=self.r_max,
                     sph_l=self.sph_l,
-                    r_min=self.r_min,
                     average=self.average,
                     Wl=self.Wl,
-                    weighted=self.weighted,
-                    num_neighbors=self.num_neighbors)
+                    weighted=self.weighted)
 
     @Compute._computed_method()
     def plot(self, ax=None):

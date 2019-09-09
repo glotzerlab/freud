@@ -116,13 +116,12 @@ class TestCluster(unittest.TestCase):
         positions = np.array(positions).reshape((-1, 3))
 
         clust = freud.cluster.Cluster(0.5)
-        clust.compute(box, positions)
 
         # Test protected attribute access
         with self.assertRaises(AttributeError):
             clust.cluster_keys
 
-        clust.computeClusterMembership(np.array(range(Nrep*Ngrid)))
+        clust.compute(box, positions, keys=np.arange(Nrep*Ngrid))
 
         # Test if attributes are accessible now
         clust.cluster_keys

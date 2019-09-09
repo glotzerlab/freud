@@ -17,8 +17,8 @@ class TestSteinhardt(unittest.TestCase):
 
         box, positions = util.make_box_and_random_points(L, N)
 
-        comp = freud.order.Steinhardt(1.5, 6)
-        comp.compute(box, positions)
+        comp = freud.order.Steinhardt(6)
+        comp.compute(box, positions, query_args={'r_max': 1.5})
 
         npt.assert_equal(comp.order.shape[0], N)
 
@@ -28,15 +28,15 @@ class TestSteinhardt(unittest.TestCase):
         test_set = util.make_raw_query_nlist_test_set(
             box, positions, positions, 'ball', r_max, 0, True)
         for ts in test_set:
-            comp = freud.order.Steinhardt(r_max, 6)
-            comp.compute(box, ts[0], nlist=ts[1])
+            comp = freud.order.Steinhardt(6)
+            comp.compute(box, ts[0], nlist=ts[1], query_args=ts[2])
             npt.assert_allclose(
                 np.average(comp.order), PERFECT_FCC_Q6, atol=1e-5)
             npt.assert_allclose(comp.order, comp.order[0], atol=1e-5)
             self.assertAlmostEqual(comp.norm, PERFECT_FCC_Q6, delta=1e-5)
 
-            comp = freud.order.Steinhardt(1.5, 6, average=True)
-            comp.compute(box, positions)
+            comp = freud.order.Steinhardt(6, average=True)
+            comp.compute(box, ts[0], nlist=ts[1], query_args=ts[2])
             npt.assert_allclose(
                 np.average(comp.order), PERFECT_FCC_Q6, atol=1e-5)
             npt.assert_allclose(comp.order, comp.order[0], atol=1e-5)
@@ -50,16 +50,15 @@ class TestSteinhardt(unittest.TestCase):
         test_set = util.make_raw_query_nlist_test_set(
             box, positions, positions, 'nearest', r_max, n, True)
         for ts in test_set:
-            comp = freud.order.Steinhardt(r_max, 6, num_neighbors=n)
-            comp.compute(box, ts[0], nlist=ts[1])
+            comp = freud.order.Steinhardt(6)
+            comp.compute(box, ts[0], nlist=ts[1], query_args=ts[2])
             npt.assert_allclose(
                 np.average(comp.order), PERFECT_FCC_Q6, atol=1e-5)
             npt.assert_allclose(comp.order, comp.order[0], atol=1e-5)
             self.assertAlmostEqual(comp.norm, PERFECT_FCC_Q6, delta=1e-5)
 
-            comp = freud.order.Steinhardt(r_max, 6, num_neighbors=n,
-                                          average=True)
-            comp.compute(box, ts[0], nlist=ts[1])
+            comp = freud.order.Steinhardt(6, average=True)
+            comp.compute(box, ts[0], nlist=ts[1], query_args=ts[2])
             npt.assert_allclose(
                 np.average(comp.order), PERFECT_FCC_Q6, atol=1e-5)
             npt.assert_allclose(comp.order, comp.order[0], atol=1e-5)
@@ -74,16 +73,15 @@ class TestSteinhardt(unittest.TestCase):
             'nearest', r_max, n, True)
         # Ensure exactly 13 values change for the perturbed system
         for ts in test_set:
-            comp = freud.order.Steinhardt(r_max, 6, num_neighbors=n)
-            comp.compute(box, ts[0], nlist=ts[1])
+            comp = freud.order.Steinhardt(6)
+            comp.compute(box, ts[0], nlist=ts[1], query_args=ts[2])
             self.assertEqual(
                 sum(~np.isclose(comp.Ql, PERFECT_FCC_Q6, rtol=1e-6)), 13)
 
             # More than 13 particles should change for
             # Ql averaged over neighbors
-            comp = freud.order.Steinhardt(r_max, 6, num_neighbors=n,
-                                          average=True)
-            comp.compute(box, ts[0], nlist=ts[1])
+            comp = freud.order.Steinhardt(6, average=True)
+            comp.compute(box, ts[0], nlist=ts[1], query_args=ts[2])
             self.assertGreater(
                 sum(~np.isclose(comp.order, PERFECT_FCC_Q6, rtol=1e-6)), 13)
 
@@ -94,15 +92,15 @@ class TestSteinhardt(unittest.TestCase):
         test_set = util.make_raw_query_nlist_test_set(
             box, positions, positions, 'ball', r_max, 0, True)
         for ts in test_set:
-            comp = freud.order.Steinhardt(r_max, 6, Wl=True)
-            comp.compute(box, ts[0], nlist=ts[1])
+            comp = freud.order.Steinhardt(6, Wl=True)
+            comp.compute(box, ts[0], nlist=ts[1], query_args=ts[2])
             npt.assert_allclose(
                 np.average(comp.order), PERFECT_FCC_W6, atol=1e-5)
             npt.assert_allclose(comp.order, comp.order[0], atol=1e-5)
             self.assertAlmostEqual(comp.norm, PERFECT_FCC_W6, delta=1e-5)
 
-            comp = freud.order.Steinhardt(1.5, 6, Wl=True, average=True)
-            comp.compute(box, positions)
+            comp = freud.order.Steinhardt(6, Wl=True, average=True)
+            comp.compute(box, ts[0], nlist=ts[1], query_args=ts[2])
             npt.assert_allclose(
                 np.average(comp.order), PERFECT_FCC_W6, atol=1e-5)
             npt.assert_allclose(comp.order, comp.order[0], atol=1e-5)
@@ -117,17 +115,16 @@ class TestSteinhardt(unittest.TestCase):
         test_set = util.make_raw_query_nlist_test_set(
             box, positions, positions, 'nearest', r_max, n, True)
         for ts in test_set:
-            comp = freud.order.Steinhardt(r_max, 6, num_neighbors=n, Wl=True)
-            comp.compute(box, ts[0], nlist=ts[1])
+            comp = freud.order.Steinhardt(6, Wl=True)
+            comp.compute(box, ts[0], nlist=ts[1], query_args=ts[2])
             npt.assert_allclose(
                 np.real(np.average(comp.order)), PERFECT_FCC_W6, atol=1e-5)
             npt.assert_allclose(comp.order, comp.order[0], atol=1e-5)
             self.assertAlmostEqual(
                 np.real(comp.norm), PERFECT_FCC_W6, delta=1e-5)
 
-            comp = freud.order.Steinhardt(r_max, 6, num_neighbors=n, Wl=True,
-                                          average=True)
-            comp.compute(box, ts[0], nlist=ts[1])
+            comp = freud.order.Steinhardt(6, Wl=True, average=True)
+            comp.compute(box, ts[0], nlist=ts[1], query_args=ts[2])
             npt.assert_allclose(
                 np.real(np.average(comp.order)), PERFECT_FCC_W6, atol=1e-5)
             npt.assert_allclose(comp.order, comp.order[0], atol=1e-5)
@@ -151,7 +148,7 @@ class TestSteinhardt(unittest.TestCase):
                 # Change the weight of the first bond for each particle
                 nlist.weights[nlist.segments] = wt
 
-                comp = freud.order.Steinhardt(r_max, 6, weighted=True)
+                comp = freud.order.Steinhardt(6, weighted=True)
                 comp.compute(box, ts[0], nlist=nlist)
 
                 # Unequal neighbor weighting in a perfect FCC structure
@@ -161,7 +158,7 @@ class TestSteinhardt(unittest.TestCase):
                 npt.assert_array_less(PERFECT_FCC_Q6, comp.norm)
 
                 # Ensure that W6 values are altered by changing the weights
-                comp = freud.order.Steinhardt(r_max, 6, Wl=True, weighted=True)
+                comp = freud.order.Steinhardt(6, Wl=True, weighted=True)
                 comp.compute(box, ts[0], nlist=nlist)
                 with self.assertRaises(AssertionError):
                     npt.assert_allclose(
@@ -174,7 +171,7 @@ class TestSteinhardt(unittest.TestCase):
             self.assertEqual(len(positions), comp.num_particles)
 
     def test_attribute_access(self):
-        comp = freud.order.Steinhardt(1.5, 6)
+        comp = freud.order.Steinhardt(6)
 
         with self.assertRaises(AttributeError):
             comp.norm
@@ -182,20 +179,10 @@ class TestSteinhardt(unittest.TestCase):
             comp.order
 
         (box, positions) = util.make_fcc(4, 4, 4)
-        comp.compute(box, positions)
+        comp.compute(box, positions, query_args={'r_max': 1.5})
 
         comp.norm
         comp.order
-
-    def test_soft_cutoff(self):
-        (box, positions) = util.make_fcc(4, 4, 4)
-
-        # Use a really small cutoff to ensure that it is used as a soft cutoff
-        comp = freud.order.Steinhardt(0.1, 6, num_neighbors=12, Wl=True)
-        comp.compute(box, positions)
-        npt.assert_allclose(np.average(comp.order), PERFECT_FCC_W6, atol=1e-5)
-        npt.assert_allclose(comp.order, comp.order[0], atol=1e-5)
-        self.assertAlmostEqual(comp.norm, PERFECT_FCC_W6, delta=1e-5)
 
     def test_compute_twice_norm(self):
         """Test that computing norm twice works as expected."""
@@ -203,9 +190,9 @@ class TestSteinhardt(unittest.TestCase):
         num_points = 100
         box, points = util.make_box_and_random_points(L, num_points, seed=0)
 
-        st = freud.order.Steinhardt(1.5, 6)
-        first_result = st.compute(box, points).norm
-        second_result = st.compute(box, points).norm
+        st = freud.order.Steinhardt(6)
+        first_result = st.compute(box, points, query_args={'r_max': 1.5}).norm
+        second_result = st.compute(box, points, query_args={'r_max': 1.5}).norm
 
         npt.assert_array_almost_equal(first_result, second_result)
 
@@ -230,8 +217,8 @@ class TestSteinhardt(unittest.TestCase):
             13, 13, index_i, index_j)
         nlist.distances[:] = np.sqrt(2)
 
-        q6 = freud.order.Steinhardt(1.5, 6)
-        w6 = freud.order.Steinhardt(1.5, 6, Wl=True)
+        q6 = freud.order.Steinhardt(6)
+        w6 = freud.order.Steinhardt(6, Wl=True)
 
         q6.compute(box, positions, nlist=nlist)
         q6_unrotated_order = q6.order[0]
@@ -245,20 +232,19 @@ class TestSteinhardt(unittest.TestCase):
 
             # Ensure Q6 is rotationally invariant
             q6.compute(box, positions_rotated, nlist=nlist)
-            npt.assert_almost_equal(q6.order[0], q6_unrotated_order)
-            npt.assert_almost_equal(q6.order[0], PERFECT_FCC_Q6)
+            npt.assert_allclose(q6.order[0], q6_unrotated_order, rtol=1e-5)
+            npt.assert_allclose(q6.order[0], PERFECT_FCC_Q6, rtol=1e-5)
 
             # Ensure W6 is rotationally invariant
             w6.compute(box, positions_rotated, nlist=nlist)
-            npt.assert_almost_equal(w6.order[0], w6_unrotated_order)
-            npt.assert_almost_equal(w6.order[0], PERFECT_FCC_W6)
+            npt.assert_allclose(w6.order[0], w6_unrotated_order, rtol=1e-5)
+            npt.assert_allclose(w6.order[0], PERFECT_FCC_W6, rtol=1e-5)
 
     def test_repr(self):
-        comp = freud.order.Steinhardt(1.5, 6)
+        comp = freud.order.Steinhardt(6)
         self.assertEqual(str(comp), str(eval(repr(comp))))
         # Use non-default arguments for all parameters
-        comp = freud.order.Steinhardt(1.5, 6, 0.1, average=True, Wl=True,
-                                      weighted=True, num_neighbors=7)
+        comp = freud.order.Steinhardt(6, average=True, Wl=True, weighted=True)
         self.assertEqual(str(comp), str(eval(repr(comp))))
 
 

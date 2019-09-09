@@ -28,7 +28,7 @@ def nlist_equal(nlist1, nlist2):
     return set((i, j) for i, j in nlist1) == set((i, j) for i, j in nlist2)
 
 
-class TestNeighborQuery(object):
+class NeighborQueryTest(object):
     @classmethod
     def build_query_object(cls, box, ref_points, r_max=None):
         raise RuntimeError(
@@ -474,7 +474,7 @@ class TestNeighborQuery(object):
         self.assertEqual(len(list(q)), 3)
 
 
-class TestNeighborQueryAABB(TestNeighborQuery, unittest.TestCase):
+class TestNeighborQueryAABB(NeighborQueryTest, unittest.TestCase):
     @classmethod
     def build_query_object(cls, box, ref_points, r_max=None):
         return freud.locality.AABBQuery(box, ref_points)
@@ -528,7 +528,7 @@ class TestNeighborQueryAABB(TestNeighborQuery, unittest.TestCase):
                     original_nlist = nlist
 
 
-class TestNeighborQueryLinkCell(TestNeighborQuery, unittest.TestCase):
+class TestNeighborQueryLinkCell(NeighborQueryTest, unittest.TestCase):
     @classmethod
     def build_query_object(cls, box, ref_points, r_max=None):
         if r_max is None:
