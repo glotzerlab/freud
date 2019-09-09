@@ -30,8 +30,11 @@ public:
         NeighborPerPointIterator(point_index), m_nlist(nlist)
         {
             m_current_index = m_nlist->find_first_index(point_index);
-            m_returned_point_index = m_nlist->getNeighbors()(m_current_index, 0);
             m_finished = m_current_index == m_nlist->getNumBonds();
+            if (!m_finished)
+            {
+                m_returned_point_index = m_nlist->getNeighbors()(m_current_index, 0);
+            }
         }
 
     ~NeighborListPerPointIterator() {}
@@ -45,9 +48,9 @@ public:
         }
 
         NeighborBond nb = NeighborBond(m_nlist->getNeighbors()(m_current_index, 0),
-                                        m_nlist->getNeighbors()(m_current_index, 1),
-                                        m_nlist->getDistances()[m_current_index],
-                                        m_nlist->getWeights()[m_current_index]);
+                                       m_nlist->getNeighbors()(m_current_index, 1),
+                                       m_nlist->getDistances()[m_current_index],
+                                       m_nlist->getWeights()[m_current_index]);
         ++m_current_index;
         m_returned_point_index = nb.id;
         return nb;
