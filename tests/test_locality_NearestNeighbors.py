@@ -144,7 +144,8 @@ class TestNearestNeighbors(unittest.TestCase):
         nn = locality.NearestNeighbors(1.5, 4)
         nn.compute(fbox, positions, positions)
 
-        rijs = positions[nn.nlist.index_j] - positions[nn.nlist.index_i]
+        rijs = positions[nn.nlist.point_index] - \
+            positions[nn.nlist.query_point_index]
         fbox.wrap(rijs)
         thetas = np.arctan2(rijs[:, 1], rijs[:, 0])
 
@@ -167,7 +168,8 @@ class TestNearestNeighbors(unittest.TestCase):
             cl = locality.NearestNeighbors(r_max, num_neighbors)
             nlist = cl.compute(fbox, pos, pos).nlist
 
-            all_pairs = list(set(zip(nlist.index_i, nlist.index_j)))
+            all_pairs = list(set(zip(nlist.query_point_index,
+                                     nlist.point_index)))
 
             if len(all_pairs) != len(nlist):
                 raise AssertionError(

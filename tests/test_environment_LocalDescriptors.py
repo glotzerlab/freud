@@ -130,7 +130,7 @@ class TestLocalDescriptors(unittest.TestCase):
                                dtype=np.complex128)
             num_neighbors = descriptors.sph.shape[0]/p.shape[0]
             for i in range(p.shape[0]):
-                indices = nlist.index_i == i
+                indices = nlist.query_point_index == i
                 Qbar_lm[i, :] = np.sum(descriptors.sph[indices, :],
                                        axis=0)/num_neighbors
 
@@ -182,7 +182,7 @@ class TestLocalDescriptors(unittest.TestCase):
             Qbar_lm = np.zeros((p.shape[0], descriptors.sph.shape[1]),
                                dtype=np.complex128)
             for i in range(p.shape[0]):
-                indices = nlist.index_i == i
+                indices = nlist.query_point_index == i
                 Ylms = descriptors.sph[indices, :]
                 weights = nlist.weights[indices, np.newaxis]
                 weights /= np.sum(weights)
@@ -252,7 +252,7 @@ class TestLocalDescriptors(unittest.TestCase):
 
             num_neighbors = descriptors.sph.shape[0]/p.shape[0]
             for i in range(p.shape[0]):
-                indices = nlist.index_i == i
+                indices = nlist.query_point_index == i
                 Qbar_lm[i, :] = np.sum(descriptors.sph[indices, :],
                                        axis=0)/num_neighbors
 

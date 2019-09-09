@@ -67,7 +67,8 @@ class NeighborQueryTest(object):
         nlist = nq.query(
             points, dict(mode='ball', r_max=r_max,
                          exclude_ii=True)).toNeighborList()
-        nlist_neighbors = sorted(list(zip(nlist.index_i, nlist.index_j)))
+        nlist_neighbors = sorted(list(zip(nlist.query_point_index,
+                                          nlist.point_index)))
         # When excluding, everything has one less neighbor.
         npt.assert_equal(len(nlist_neighbors), 10)
 
@@ -190,7 +191,7 @@ class NeighborQueryTest(object):
         result_list = list(nq.query(points, dict(mode='ball', r_max=2)))
         result_list = [(b[0], b[1]) for b in result_list]
         nlist = nq.query(points, dict(mode='ball', r_max=2)).toNeighborList()
-        list_nlist = list(zip(nlist.index_i, nlist.index_j))
+        list_nlist = list(zip(nlist.query_point_index, nlist.point_index))
 
         npt.assert_equal(set(result_list), set(list_nlist))
 
@@ -208,7 +209,7 @@ class NeighborQueryTest(object):
         result_list = list(nq.query(points, dict(mode='ball', r_max=2)))
         result_list = [(b[0], b[1]) for b in result_list]
         nlist = nq.query(points, dict(mode='ball', r_max=2)).toNeighborList()
-        list_nlist = list(zip(nlist.index_i, nlist.index_j))
+        list_nlist = list(zip(nlist.query_point_index, nlist.point_index))
 
         npt.assert_equal(set(result_list), set(list_nlist))
 

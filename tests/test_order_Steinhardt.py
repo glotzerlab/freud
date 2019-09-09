@@ -146,10 +146,17 @@ class TestSteinhardt(unittest.TestCase):
 
             for wt in [0, 0.1, 0.9, 1.1, 10, 1e6]:
                 # Change the weight of the first bond for each particle
-                nlist.weights[nlist.segments] = wt
+                weights = nlist.weights.copy()
+                weights[nlist.segments] = wt
+                weighted_nlist = freud.locality.NeighborList.from_arrays(
+                    len(positions), len(positions),
+                    nlist.query_point_index,
+                    nlist.point_index,
+                    nlist.distances,
+                    weights)
 
                 comp = freud.order.Steinhardt(6, weighted=True)
-                comp.compute(box, ts[0], nlist=nlist)
+                comp.compute(box, ts[0], nlist=weighted_nlist)
 
                 # Unequal neighbor weighting in a perfect FCC structure
                 # appears to increase the Q6 order parameter
@@ -159,7 +166,7 @@ class TestSteinhardt(unittest.TestCase):
 
                 # Ensure that W6 values are altered by changing the weights
                 comp = freud.order.Steinhardt(6, Wl=True, weighted=True)
-                comp.compute(box, ts[0], nlist=nlist)
+                comp.compute(box, ts[0], nlist=weighted_nlist)
                 with self.assertRaises(AssertionError):
                     npt.assert_allclose(
                         np.real(np.average(comp.order)),
@@ -211,11 +218,10 @@ class TestSteinhardt(unittest.TestCase):
                               [0, -1, 1],
                               [0, 1, -1],
                               [0, 1, 1]])
-        index_i = np.zeros(12)
-        index_j = np.arange(1, 13)
+        query_point_index = np.zeros(12)
+        point_index = np.arange(1, 13)
         nlist = freud.locality.NeighborList.from_arrays(
-            13, 13, index_i, index_j)
-        nlist.distances[:] = np.sqrt(2)
+            13, 13, query_point_index, point_index, np.full(12, np.sqrt(2)))
 
         q6 = freud.order.Steinhardt(6)
         w6 = freud.order.Steinhardt(6, Wl=True)
