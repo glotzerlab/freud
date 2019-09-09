@@ -184,30 +184,6 @@ class TestSteinhardt(unittest.TestCase):
         comp.norm
         comp.order
 
-    def test_soft_cutoff(self):
-        (box, positions) = util.make_fcc(4, 4, 4)
-
-        comp = freud.order.Steinhardt(6, Wl=True)
-        comp.compute(box, positions, query_args={
-            'mode': 'nearest', 'exclude_ii': True, 'num_neighbors': 12})
-        npt.assert_allclose(np.average(comp.order), PERFECT_FCC_W6, atol=1e-5)
-        npt.assert_allclose(comp.order, comp.order[0], atol=1e-5)
-        self.assertAlmostEqual(comp.norm, PERFECT_FCC_W6, delta=1e-5)
-        comp.compute(box, positions, query_args={
-            'mode': 'nearest', 'num_neighbors': 12})
-        npt.assert_allclose(np.average(comp.order), PERFECT_FCC_W6, atol=1e-5)
-        npt.assert_allclose(comp.order, comp.order[0], atol=1e-5)
-        self.assertAlmostEqual(comp.norm, PERFECT_FCC_W6, delta=1e-5)
-        comp.compute(box, positions, query_args={
-            'exclude_ii': True, 'num_neighbors': 12})
-        npt.assert_allclose(np.average(comp.order), PERFECT_FCC_W6, atol=1e-5)
-        npt.assert_allclose(comp.order, comp.order[0], atol=1e-5)
-        self.assertAlmostEqual(comp.norm, PERFECT_FCC_W6, delta=1e-5)
-        comp.compute(box, positions, query_args={'num_neighbors': 12})
-        npt.assert_allclose(np.average(comp.order), PERFECT_FCC_W6, atol=1e-5)
-        npt.assert_allclose(comp.order, comp.order[0], atol=1e-5)
-        self.assertAlmostEqual(comp.norm, PERFECT_FCC_W6, delta=1e-5)
-
     def test_compute_twice_norm(self):
         """Test that computing norm twice works as expected."""
         L = 5
