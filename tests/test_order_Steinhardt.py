@@ -218,10 +218,11 @@ class TestSteinhardt(unittest.TestCase):
                               [0, -1, 1],
                               [0, 1, -1],
                               [0, 1, 1]])
-        query_point_index = np.zeros(12)
-        point_index = np.arange(1, 13)
+        query_point_index = np.zeros(len(positions)-1)
+        point_index = np.arange(1, len(positions))
         nlist = freud.locality.NeighborList.from_arrays(
-            13, 13, query_point_index, point_index, np.full(12, np.sqrt(2)))
+            len(positions), len(positions), query_point_index, point_index,
+            np.full(len(query_point_index), np.sqrt(2)))
 
         q6 = freud.order.Steinhardt(6)
         w6 = freud.order.Steinhardt(6, Wl=True)
