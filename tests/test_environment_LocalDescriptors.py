@@ -166,7 +166,7 @@ class TestLocalDescriptors(unittest.TestCase):
 
             # Test all allowable values of l.
             for L in range(2, l_max+1):
-                steinhardt = freud.order.Steinhardt(r_max*2, L)
+                steinhardt = freud.order.Steinhardt(L)
                 steinhardt.compute(box, points, nlist=nl)
                 npt.assert_array_almost_equal(steinhardt.order, Ql[:, L])
 
@@ -223,8 +223,7 @@ class TestLocalDescriptors(unittest.TestCase):
 
             # Test all allowable values of l.
             for L in range(2, l_max+1):
-                steinhardt = freud.order.Steinhardt(
-                    r_max, L, weighted=True, num_neighbors=num_neighbors)
+                steinhardt = freud.order.Steinhardt(L, weighted=True)
                 steinhardt.compute(box, points, nlist=nl)
                 npt.assert_array_almost_equal(steinhardt.order, Ql[:, L])
 
@@ -298,7 +297,7 @@ class TestLocalDescriptors(unittest.TestCase):
 
             # Test all allowable values of l.
             for L in range(2, l_max+1):
-                steinhardt = freud.order.Steinhardt(r_max*2, L, Wl=True)
+                steinhardt = freud.order.Steinhardt(L, Wl=True)
                 steinhardt.compute(box, points, nlist=nl)
                 npt.assert_array_almost_equal(steinhardt.order, Wl[:, L])
 

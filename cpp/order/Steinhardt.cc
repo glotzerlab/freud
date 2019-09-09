@@ -200,15 +200,12 @@ void Steinhardt::computeAve(const freud::locality::NeighborList* nlist,
 
                 for(freud::locality::NeighborBond nb2 = ns_neighbors_iter->next(); !ns_neighbors_iter->end(); nb2 = ns_neighbors_iter->next())
                 {
-                    if (nb2.distance < m_r_max && nb2.distance > m_r_min)
+                    for (unsigned int k = 0; k < (2 * m_l + 1); ++k)
                     {
-                        for (unsigned int k = 0; k < (2 * m_l + 1); ++k)
-                        {
-                            // Adding all the Qlm of the neighbors
-                            m_QlmiAve.get()[(2 * m_l + 1) * i + k] += m_Qlmi.get()[(2 * m_l + 1) * nb2.ref_id + k];
-                        }
-                        neighborcount++;
+                        // Adding all the Qlm of the neighbors
+                        m_QlmiAve.get()[(2 * m_l + 1) * i + k] += m_Qlmi.get()[(2 * m_l + 1) * nb2.ref_id + k];
                     }
+                    neighborcount++;
                 } // End loop over particle neighbor's bonds
             } // End loop over particle's bonds
 

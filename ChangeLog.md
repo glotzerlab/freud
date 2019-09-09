@@ -22,6 +22,7 @@ Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to
 * RDF bin centers are now strictly at the center of bins.
 * RDF no longer performs parallel accumulation of cumulative counts (provided no performance gains and was substantially more complex code).
 * Cluster now finds connected components of the neighbor graph (the cluster cutoff distance is given through query arguments).
+* Steinhardt uses query arguments.
 
 ### Fixed
 * Steinhardt uses the ThreadStorage class and properly resets memory where needed.
