@@ -13,7 +13,7 @@ import numpy as np
 import warnings
 import freud.locality
 
-from freud.common cimport Compute
+from freud.common cimport Compute, PairCompute
 from freud.util cimport vec3, quat
 from libcpp.vector cimport vector
 from libcpp.map cimport map
@@ -29,7 +29,7 @@ cimport numpy as np
 np.import_array()
 
 
-cdef class BondOrder(Compute):
+cdef class BondOrder(PairCompute):
     R"""Compute the bond orientational order diagram for the system of
     particles.
 
@@ -128,7 +128,7 @@ cdef class BondOrder(Compute):
         if n_bins_phi < 2:
             raise ValueError("Must have at least 2 bins in phi.")
         self.thisptr = new freud._environment.BondOrder(
-            r_max, num_neighbors, n_bins_theta, n_bins_phi)
+            n_bins_theta, n_bins_phi)
         self.r_max = r_max
         self.num_neighbors = num_neighbors
         self.n_bins_theta = n_bins_theta
@@ -136,6 +136,11 @@ cdef class BondOrder(Compute):
 
     def __dealloc__(self):
         del self.thisptr
+
+    @property
+    def default_query_args(self):
+        return dict(mode="nearest", r_guess=self.r_max,
+                    num_neighbors=self.num_neighbors)
 
     @Compute._compute()
     def accumulate(self, box, points, orientations, query_points=None,
@@ -166,31 +171,24 @@ cdef class BondOrder(Compute):
                 NeighborList to use to find bonds (Default value =
                 :code:`None`).
         """  # noqa: E501
-        cdef freud.box.Box b = freud.common.convert_box(box)
+        cdef:
+            freud.box.Box b
+            freud.locality.NeighborQuery nq
+            freud.locality.NlistptrWrapper nlistptr
+            freud.locality._QueryArgs qargs
+            const float[:, ::1] l_query_points
+            unsigned int num_query_points
 
-        exclude_ii = query_points is None
-
-        cdef freud.locality.NeighborQuery nq = freud.locality.make_default_nq(
-            box, points)
-        cdef freud.locality.NlistptrWrapper nlistptr = \
-            freud.locality.NlistptrWrapper(nlist)
-
-        cdef freud.locality._QueryArgs qargs = freud.locality._QueryArgs(
-            mode="nearest", num_neighbors=self.num_neighbors,
-            r_guess=self.r_max, exclude_ii=exclude_ii)
-        points = nq.points
-
-        if query_points is None:
-            query_points = points
+        b, nq, nlistptr, qargs, l_query_points, num_query_points = \
+            self.preprocess_arguments(box, points, query_points, nlist,
+                                      self.default_query_args)
         if query_orientations is None:
             query_orientations = orientations
 
-        query_points = freud.common.convert_array(
-            query_points, shape=(None, 3))
         orientations = freud.common.convert_array(
-            orientations, shape=(points.shape[0], 4))
+            orientations, shape=(nq.points.shape[0], 4))
         query_orientations = freud.common.convert_array(
-            query_orientations, shape=(query_points.shape[0], 4))
+            query_orientations, shape=(num_query_points, 4))
 
         cdef unsigned int index = 0
         if mode == "bod":
@@ -206,17 +204,15 @@ cdef class BondOrder(Compute):
                 ('Unknown BOD mode: {}. Options are:'
                     'bod, lbod, obcd, oocd.').format(mode))
 
-        cdef const float[:, ::1] l_query_points = query_points
         cdef const float[:, ::1] l_orientations = orientations
         cdef const float[:, ::1] l_query_orientations = query_orientations
-        cdef unsigned int n_query_points = l_query_points.shape[0]
 
         self.thisptr.accumulate(
             nq.get_ptr(),
             <quat[float]*> &l_orientations[0, 0],
             <vec3[float]*> &l_query_points[0, 0],
             <quat[float]*> &l_query_orientations[0, 0],
-            n_query_points,
+            num_query_points,
             index, nlistptr.get_ptr(), dereference(qargs.thisptr))
         return self
 
