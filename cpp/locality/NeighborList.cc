@@ -25,11 +25,9 @@ NeighborList::NeighborList(const NeighborList& other)
 NeighborList::NeighborList(unsigned int num_bonds, const unsigned int* query_point_index,
                  unsigned int num_query_points, const unsigned int* point_index,
                  unsigned int num_points, const float* distances, const float* weights)
-    : m_num_query_points(num_query_points), m_num_points(num_points)
+    : m_num_query_points(num_query_points), m_num_points(num_points),
+    m_neighbors({num_bonds, 2}), m_distances({num_bonds}), m_weights({num_bonds})
 {
-    m_neighbors.prepare({num_bonds, 2});
-    m_weights.prepare(num_bonds);
-    m_distances.prepare(num_bonds);
     unsigned int last_index(0);
     unsigned int index(0);
     for (unsigned int i = 0; i < num_bonds; i++)
