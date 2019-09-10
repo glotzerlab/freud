@@ -306,15 +306,16 @@ cdef class NeighborList:
     R"""Class representing bonds between two sets of points.
 
     Compute classes contain a set of bonds between two sets of position
-    arrays ("query points" and "points") and hold a set of index pairs
-    :math:`\left(i, j\right): i < N_{querypoints}, j < N_{points}`
+    arrays ("query points" and "points") and hold a list of index pairs
+    :math:`\left(i, j\right)` where :math:`i < N_{querypoints}, j < N_{points}`
     corresponding to neighbor pairs between the two sets.
 
-    For efficiency, all bonds for a particular query point :math:`i`
-    are contiguous. Bonds have an query point index :math:`i` and a point
+    For efficiency, all bonds must be sorted by the query point index, from
+    least to greatest. Bonds have an query point index :math:`i` and a point
     index :math:`j`. The first bond index corresponding to a given query point
     can be found in :math:`\log(N_{bonds})` time using
-    :meth:`find_first_index`.
+    :meth:`find_first_index`, because bonds are ordered by the query point
+    index.
 
     .. moduleauthor:: Matthew Spellings <mspells@umich.edu>
     .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
@@ -328,32 +329,30 @@ cdef class NeighborList:
        :class:`freud.locality.AABBQuery`, or :class:`freud.locality.Voronoi`.
 
     Attributes:
-        point_index ((:math:`N_{bonds}`) :class:`np.ndarray`):
-            The point indices for each bond. This array is read-only to
-            prevent breakage of :meth:`~.find_first_index()`. Equivalent to
-            indexing with :code:`[:, 1]`.
         query_point_index ((:math:`N_{bonds}`) :class:`np.ndarray`):
             The query point indices for each bond. This array is read-only to
             prevent breakage of :meth:`~.find_first_index()`. Equivalent to
             indexing with :code:`[:, 0]`.
+        point_index ((:math:`N_{bonds}`) :class:`np.ndarray`):
+            The point indices for each bond. This array is read-only to
+            prevent breakage of :meth:`~.find_first_index()`. Equivalent to
+            indexing with :code:`[:, 1]`.
         weights ((:math:`N_{bonds}`) :class:`np.ndarray`):
             The weights for each bond. By default, bonds have a weight of 1.
         distances ((:math:`N_{bonds}`) :class:`np.ndarray`):
             The distances for each bond.
         segments ((:math:`N_{querypoints}`) :class:`np.ndarray`):
-            A segment array, which is an array of length
-            :math:`N_{querypoints}` indicating the first bond index for each
-            query point.
+            A segment array indicating the first bond index for each query
+            point.
         neighbor_counts ((:math:`N_{querypoints}`) :class:`np.ndarray`):
-            A neighbor count array, which is an array of length
-            :math:`N_{querypoints}` indicating the number of neighbors for each
+            A neighbor count array indicating the number of neighbors for each
             query point.
 
     Example::
 
        # Assume we have position as Nx3 array
        aq = freud.locality.AABBQuery(box, positions)
-       nlist = aq.query(r_max=3).toNList()
+       nlist = aq.query(positions, {'r_max': 3}).toNeighborList()
 
        # Get all vectors from central particles to their neighbors
        rijs = positions[nlist.point_index] - positions[nlist.query_point_index]
@@ -1016,7 +1015,7 @@ cdef class NearestNeighbors:
         result[:] = self.UINTMAX
         cdef unsigned int start_idx = self.nlist.find_first_index(i)
         cdef unsigned int end_idx = self.nlist.find_first_index(i + 1)
-        result[:end_idx - start_idx] = \
+        result[:(end_idx - start_idx)] = \
             self.nlist.point_index[start_idx:end_idx]
 
         return result

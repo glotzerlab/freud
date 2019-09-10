@@ -40,7 +40,6 @@ class TestNeighborList(unittest.TestCase):
         # TODO: weights aren't writable since changing to ManagedArray
         with self.assertRaises(ValueError):
             self.cl.nlist.weights[18] = 3
-        # self.assertEqual(self.cl.nlist.weights[18], 3)
 
     def test_filter_r_max(self):
         self.setup_nl()

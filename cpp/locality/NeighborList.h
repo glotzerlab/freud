@@ -100,7 +100,7 @@ public:
     const util::ManagedArray<unsigned int> &getCounts() const
     {
         updateSegmentCounts();
-        return m_segments;
+        return m_counts;
     }
     //! Access the segments array for reading
     const util::ManagedArray<unsigned int> &getSegments() const

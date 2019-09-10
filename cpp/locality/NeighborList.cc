@@ -6,25 +6,20 @@
 namespace freud { namespace locality {
 
 NeighborList::NeighborList()
-    : m_num_query_points(0), m_num_points(0)
+    : m_num_query_points(0), m_num_points(0), m_neighbors({0, 2})
 {
-    m_neighbors.prepare({0, 2});
 }
 
 NeighborList::NeighborList(unsigned int num_bonds)
-    : m_num_query_points(0), m_num_points(0)
+    : m_num_query_points(0), m_num_points(0), m_neighbors({num_bonds, 2}),
+    m_weights(num_bonds), m_distances(num_bonds)
 {
-    m_neighbors.prepare({num_bonds, 2});
-    m_weights.prepare(num_bonds);
-    m_distances.prepare(num_bonds);
 }
 
 NeighborList::NeighborList(const NeighborList& other)
-    : m_num_query_points(other.getNumQueryPoints()), m_num_points(other.getNumPoints())
+    : m_num_query_points(other.m_num_query_points), m_num_points(other.m_num_points),
+    m_neighbors(other.m_neighbors), m_weights(other.m_weights), m_distances(other.m_distances)
 {
-    m_neighbors = other.getNeighbors();
-    m_weights = other.getWeights();
-    m_distances = other.getDistances();
 }
 
 NeighborList::NeighborList(unsigned int num_bonds, const unsigned int* query_point_index,
@@ -119,7 +114,7 @@ unsigned int NeighborList::filter(const bool* filt)
     unsigned int num_good(0);
     const unsigned int old_size(getNumBonds());
 
-    for (unsigned int i(0); i < getNumBonds(); ++i)
+    for (unsigned int i(0); i < old_size; ++i)
     {
         if (filt[i])
         {
@@ -180,9 +175,9 @@ void NeighborList::resize(unsigned int num_bonds)
 void NeighborList::copy(const NeighborList& other)
 {
     setNumBonds(other.getNumBonds(), other.getNumQueryPoints(), other.getNumPoints());
-    m_neighbors = other.getNeighbors();
-    m_weights = other.getWeights();
-    m_distances = other.getDistances();
+    m_neighbors = other.m_neighbors;
+    m_weights = other.m_weights;
+    m_distances = other.m_distances;
 }
 
 void NeighborList::validate(unsigned int num_query_points, unsigned int num_points) const
