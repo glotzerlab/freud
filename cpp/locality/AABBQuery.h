@@ -8,6 +8,7 @@
 #include <memory>
 #include <vector>
 #include <limits>
+#include <cmath>
 
 #include "AABBTree.h"
 #include "Box.h"
@@ -25,6 +26,9 @@
  * are treated by translating the query AABB by all possible image vectors,
  * many of which are trivially rejected for not intersecting the root node.
  */
+
+//! Define a constant PI.
+const float PI = 3.14159265358979323846;
 
 namespace freud { namespace locality {
 
@@ -64,13 +68,33 @@ protected:
             {
                 args.scale = float(1.1);
             }
+            else if (args.scale <= float(1.0))
+            {
+                throw std::runtime_error("The scale query argument must be greater than 1.");
+            }
+
             if (args.r_guess == QueryArgs::DEFAULT_R_GUESS)
             {
-                // By default, we use 1/10 the smallest box dimension as the guessed query distance.
-                vec3<float> L = this->getBox().getL();
-                float r_guess = std::min(L.x, L.y);
-                r_guess = this->getBox().is2D() ? r_guess : std::min(r_guess, L.z);
-                args.r_guess = float(0.1) * r_guess;
+                // By default, we assume a homogeneous system density and use
+                // that to estimate the distance we need to query. This
+                // calculation assumes a constant density of N/V, where N is
+                // the number of particles and V is the box volume, and it
+                // calculates the radius of a sphere that will contain the
+                // desired number of neighbors.
+                float r_guess = std::cbrtf((3.0*static_cast<float>(args.num_neighbors)*m_box.getVolume())/(4.0*PI*static_cast<float>(getNPoints())));
+
+                // The upper bound is set by the minimum nearest plane distances.
+                vec3<float> nearest_plane_distance = m_box.getNearestPlaneDistance();
+                float min_plane_distance = std::min(nearest_plane_distance.x, nearest_plane_distance.y);
+                if (!m_box.is2D())
+                    min_plane_distance = std::min(min_plane_distance, nearest_plane_distance.z);
+
+                args.r_guess = std::min(r_guess, min_plane_distance/float(2.0));
+            }
+            if (args.r_guess > args.r_max)
+            {
+                // No need to search past the requested bounds even if requested.
+                args.r_guess = args.r_max;
             }
         }
     }
