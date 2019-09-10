@@ -156,6 +156,20 @@ class TestNeighborList(unittest.TestCase):
             4, 4, query_point_index, point_index, distances, weights)
         self.assertTrue(np.allclose(nlist.weights, 4))
 
+        # copy of existing nlist by arrays
+        weights = np.random.rand(len(query_point_index))
+        nlist = locality.NeighborList.from_arrays(
+            4, 4, query_point_index, point_index, distances, weights)
+        nlist2 = locality.NeighborList.from_arrays(
+            4, 4, nlist.query_point_index, nlist.point_index,
+            nlist.distances, nlist.weights)
+        npt.assert_equal(nlist.query_point_index, nlist2.query_point_index)
+        npt.assert_equal(nlist.point_index, nlist2.point_index)
+        npt.assert_equal(nlist.distances, nlist2.distances)
+        npt.assert_equal(nlist.weights, nlist2.weights)
+        npt.assert_equal(nlist.neighbor_counts, nlist2.neighbor_counts)
+        npt.assert_equal(nlist.segments, nlist2.segments)
+
         # too few reference particles
         with self.assertRaises(RuntimeError):
             nlist = locality.NeighborList.from_arrays(
