@@ -390,9 +390,9 @@ cdef class NeighborList:
                 value of 1 for each weight) (Default value = :code:`None`).
         """
         query_point_index = freud.common.convert_array(
-            query_point_index, shape=(None,), dtype=np.uintc)
+            query_point_index, shape=(None,), dtype=np.uint32)
         point_index = freud.common.convert_array(
-            point_index, shape=query_point_index.shape, dtype=np.uintc)
+            point_index, shape=query_point_index.shape, dtype=np.uint32)
 
         distances = freud.common.convert_array(
             distances, shape=query_point_index.shape)
