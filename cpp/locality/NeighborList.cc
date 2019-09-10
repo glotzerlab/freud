@@ -12,13 +12,13 @@ NeighborList::NeighborList()
 
 NeighborList::NeighborList(unsigned int num_bonds)
     : m_num_query_points(0), m_num_points(0), m_neighbors({num_bonds, 2}),
-    m_weights(num_bonds), m_distances(num_bonds)
+    m_distances({num_bonds}), m_weights({num_bonds})
 {
 }
 
 NeighborList::NeighborList(const NeighborList& other)
     : m_num_query_points(other.m_num_query_points), m_num_points(other.m_num_points),
-    m_neighbors(other.m_neighbors), m_weights(other.m_weights), m_distances(other.m_distances)
+    m_neighbors(other.m_neighbors), m_distances(other.m_distances), m_weights(other.m_weights)
 {
 }
 
