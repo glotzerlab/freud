@@ -636,50 +636,6 @@ class TestMultipleMethods(unittest.TestCase):
                 query_points, query_args=ts[2]).toNeighborList()
             self.assertTrue(nlist_equal(nlist, check_nlist))
 
-    def test_structures(self):
-        """Test various common structures."""
-
-        num_neighbors = 12
-        r_max = 2
-
-        for struct_func in [util.make_sc, util.make_bcc, util.make_fcc]:
-            print("testing for struct_func = ", struct_func.__name__)
-            box, points = struct_func(5, 5, 5)
-
-            test_set = util.make_raw_query_nlist_test_set(
-                box, points, points, "nearest", r_max, num_neighbors, False)
-            nlist = None
-            for ts in test_set:
-                if not isinstance(ts[0], freud.locality.NeighborQuery):
-                    continue
-                test_index = 0
-                check_nlist = ts[0].query(
-                    points[[test_index]], query_args=ts[2]).toNeighborList()
-
-                if nlist is None:
-                    default_method = type(ts[0])
-                    nlist = check_nlist
-                else:
-                    def nlist_set(nlist1, nlist2):
-                        return set((i, j) for i, j in nlist1), set((i, j) for
-                                                                   i, j in
-                                                                   nlist2)
-                    nl_set, nl2_set = nlist_set(nlist, check_nlist)
-                    try:
-                        self.assertEqual(
-                            nl_set, nl2_set, msg="Failed for default = {}, "
-                            "used = {}".format(default_method, type(ts[0])))
-                    except AssertionError:
-                        print(nl_set)
-                        print(nl2_set)
-                        print(points[[0, 9, 29, 45, 105]])
-                        raise
-
-                    self.assertTrue(
-                        nlist_equal(nlist, check_nlist), msg="Failed for "
-                        "method {} on a {} structure".format(
-                            type(ts[0]), struct_func.__name__))
-
 
 if __name__ == '__main__':
     unittest.main()

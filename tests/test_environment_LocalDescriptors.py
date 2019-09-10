@@ -156,7 +156,7 @@ class TestLocalDescriptors(unittest.TestCase):
 
             # In order to be able to access information on which particles are
             # bonded to which ones, we precompute the neighborlist
-            lc = freud.locality.LinkCell(box, r_max/10, points)
+            lc = freud.locality.AABBQuery(box, points)
             nl = lc.query(points,
                           dict(exclude_ii=True,
                                num_neighbors=num_neighbors)).toNeighborList()
@@ -170,7 +170,15 @@ class TestLocalDescriptors(unittest.TestCase):
             for L in range(2, l_max+1):
                 steinhardt = freud.order.Steinhardt(L)
                 steinhardt.compute(box, points, nlist=nl)
-                npt.assert_array_almost_equal(steinhardt.order, Ql[:, L])
+                # Some of the calculations done for Steinhardt can be imprecise
+                # in cases where there is no symmetry. Since simple cubic
+                # should have a 0 Ql value in many cases, we need to set high
+                # tolerances for those specific cases.
+                npt.assert_allclose(
+                    steinhardt.order, Ql[:, L],
+                    atol=1e-3 if struct_func == make_sc else 1e-6,
+                    err_msg="Failed for {}, L = {}".format(
+                        struct_func.__name__, L))
 
     def test_ql_weighted(self):
         """Check if we can reproduce Steinhardt Ql with bond weights."""
@@ -212,7 +220,7 @@ class TestLocalDescriptors(unittest.TestCase):
 
             # In order to be able to access information on which particles are
             # bonded to which ones, we precompute the neighborlist
-            lc = freud.locality.LinkCell(box, r_max/10, points)
+            lc = freud.locality.AABBQuery(box, points)
             nl = lc.query(points,
                           dict(exclude_ii=True,
                                num_neighbors=num_neighbors)).toNeighborList()
@@ -307,122 +315,6 @@ class TestLocalDescriptors(unittest.TestCase):
                 steinhardt.compute(box, points, nlist=nl)
                 npt.assert_array_almost_equal(steinhardt.order, Wl[:, L])
 
-    @unittest.skipIf(sys.version_info < (3, 2),
-                     "functools.lru_cache only supported on Python 3.2+")
-    @skipIfMissing('sympy.physics.wigner')
-    def test_wl_new(self):
-        """Check if we can reproduce Steinhardt Wl."""
-        from functools import lru_cache
-        from sympy.physics.wigner import wigner_3j
-
-        def lm_index(l, m):
-            return l**2 + (m if m >= 0 else l - m)
-
-        @lru_cache(maxsize=None)
-        def get_wigner3j(l, m1, m2, m3):
-            return float(wigner_3j(l, l, l, m1, m2, m3))
-
-        def get_Wl(p, descriptors, nlist):
-            """Given a set of points and a LocalDescriptors object (and the
-            underlying neighborlist), compute the per-particle Steinhardt Wl
-            order parameter for all :math:`l` values up to the maximum quantum
-            number used in the computation of the descriptors."""
-            Qbar_lm = np.zeros((p.shape[0], descriptors.sph.shape[1]),
-                               dtype=np.complex128)
-
-            num_neighbors = descriptors.sph.shape[0]/p.shape[0]
-            for i in range(p.shape[0]):
-                indices = nlist.index_i == i
-                Qbar_lm[i, :] = np.sum(descriptors.sph[indices, :],
-                                       axis=0)/num_neighbors
-
-            Wl = np.zeros((Qbar_lm.shape[0], descriptors.l_max+1),
-                          dtype=np.complex128)
-            for i in range(Wl.shape[0]):
-                for l in range(Wl.shape[1]):
-                    for m1 in range(-l, l+1):
-                        for m2 in range(max(-l-m1, -l), min(l-m1, l)+1):
-                            m3 = -m1 - m2
-                            # Manually add Condon-Shortley phase
-                            phase = 1
-                            for m in m1, m2, m3:
-                                if m > 0 and m % 2 == 1:
-                                    phase *= -1
-                            Wl[i, l] += phase * get_wigner3j(l, m1, m2, m3) * \
-                                Qbar_lm[i, lm_index(l, m1)] * \
-                                Qbar_lm[i, lm_index(l, m2)] * \
-                                Qbar_lm[i, lm_index(l, m3)]
-            return Wl
-
-        # These exact parameter values aren't important; they won't necessarily
-        # give useful outputs for some of the structures, but that's fine since
-        # we just want to check that LocalDescriptors is consistent with
-        # Steinhardt.
-        num_neighbors = 6
-        l_max = 12
-        r_max = 2
-
-        for struct_func in [make_sc, make_bcc, make_fcc]:
-            print("testing function ", struct_func.__name__)
-            box, points = struct_func(5, 5, 5)
-
-            # In order to be able to access information on which particles are
-            # bonded to which ones, we precompute the neighborlist
-            aq = freud.locality.AABBQuery(box, points)
-            nl_aq = aq.query(
-                points,
-                dict(exclude_ii=True,
-                     num_neighbors=num_neighbors)).toNeighborList()
-
-            lc = freud.locality.LinkCell(box, r_max/10, points)
-            nl_lc = lc.query(
-                points,
-                dict(exclude_ii=True,
-                     num_neighbors=num_neighbors)).toNeighborList()
-
-            try:
-                npt.assert_array_equal(nl_aq[:], nl_lc[:])
-            except AssertionError:
-                print("Neighbors are not exactly the same for structure ",
-                      struct_func.__name__)
-                continue
-
-            try:
-                npt.assert_array_equal(nl_aq.distances, nl_lc.distances)
-            except AssertionError:
-                npt.assert_array_almost_equal(nl_aq.distances, nl_lc.distances)
-                # print(nl_aq.distances)
-                # print(nl_lc.distances)
-                print("Distances close but not exactly equal")
-
-            ld_aq = freud.environment.LocalDescriptors(
-                num_neighbors, l_max, r_max)
-            ld_aq.compute(box, num_neighbors, points, mode='global',
-                          nlist=nl_aq)
-
-            ld_lc = freud.environment.LocalDescriptors(
-                num_neighbors, l_max, r_max)
-            ld_lc.compute(box, num_neighbors, points, mode='global',
-                          nlist=nl_lc)
-
-            Wl_aq = get_Wl(points, ld_aq, nl_aq)
-            Wl_lc = get_Wl(points, ld_lc, nl_lc)
-
-            npt.assert_array_almost_equal(Wl_aq, Wl_lc)
-
-            # Test all allowable values of l.
-            for L in range(2, l_max+1):
-                steinhardt = freud.order.Steinhardt(L, Wl=True)
-                try:
-                    steinhardt.compute(box, points, nlist=nl_aq)
-                    npt.assert_array_almost_equal(steinhardt.order, Wl_aq[:,
-                                                                          L])
-                except AssertionError:
-                    steinhardt.compute(box, points, nlist=nl_lc)
-                    npt.assert_array_almost_equal(steinhardt.order, Wl_lc[:,
-                                                                          L])
-                    print("Worked for LinkCell, not AABBQuery for L = ", L)
-
     @skipIfMissing('scipy.special')
     def test_ld(self):
         """Verify the behavior of LocalDescriptors by explicitly calculating
@@ -439,7 +331,7 @@ class TestLocalDescriptors(unittest.TestCase):
 
         # We want to provide the NeighborList ourselves since we need to use it
         # again later anyway.
-        lc = freud.locality.LinkCell(box, r_max/10, points)
+        lc = freud.locality.AABBQuery(box, points)
         nl = lc.query(points,
                       dict(exclude_ii=True,
                            num_neighbors=num_neighbors)).toNeighborList()
@@ -502,7 +394,7 @@ class TestLocalDescriptors(unittest.TestCase):
 
         # We want to provide the NeighborList ourselves since we need to use it
         # again later anyway.
-        lc = freud.locality.LinkCell(box, r_max/10, points)
+        lc = freud.locality.AABBQuery(box, points)
         nl = lc.query(points,
                       dict(exclude_ii=True,
                            num_neighbors=num_neighbors)).toNeighborList()
