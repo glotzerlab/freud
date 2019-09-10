@@ -366,9 +366,9 @@ public:
                 neighbor_array[2 * bond] = linear_bonds[bond].id;
                 neighbor_array[2 * bond + 1] = linear_bonds[bond].ref_id;
                 neighbor_distance[bond] = linear_bonds[bond].distance;
+                neighbor_weights[bond] = float(1.0);
             }
         });
-        memset((void*) neighbor_weights, 1, sizeof(float) * linear_bonds.size());
 
         return nl;
     }
