@@ -150,8 +150,8 @@ class TestSteinhardt(unittest.TestCase):
                 weights[nlist.segments] = wt
                 weighted_nlist = freud.locality.NeighborList.from_arrays(
                     len(positions), len(positions),
-                    nlist.query_point_index,
-                    nlist.point_index,
+                    nlist.query_point_indices,
+                    nlist.point_indices,
                     nlist.distances,
                     weights)
 
@@ -218,11 +218,11 @@ class TestSteinhardt(unittest.TestCase):
                               [0, -1, 1],
                               [0, 1, -1],
                               [0, 1, 1]])
-        query_point_index = np.zeros(len(positions)-1)
-        point_index = np.arange(1, len(positions))
+        query_point_indices = np.zeros(len(positions)-1)
+        point_indices = np.arange(1, len(positions))
         nlist = freud.locality.NeighborList.from_arrays(
-            len(positions), len(positions), query_point_index, point_index,
-            np.full(len(query_point_index), np.sqrt(2)))
+            len(positions), len(positions), query_point_indices, point_indices,
+            np.full(len(query_point_indices), np.sqrt(2)))
 
         q6 = freud.order.Steinhardt(6)
         w6 = freud.order.Steinhardt(6, Wl=True)

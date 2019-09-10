@@ -307,8 +307,9 @@ cdef class NeighborList:
 
     Compute classes contain a set of bonds between two sets of position
     arrays ("query points" and "points") and hold a list of index pairs
-    :math:`\left(i, j\right)` where :math:`i < N_{querypoints}, j < N_{points}`
-    corresponding to neighbor pairs between the two sets.
+    :math:`\left(i, j\right)` where
+    :math:`i < N_{query\_points}, j < N_{points}` corresponding to neighbor
+    pairs between the two sets.
 
     For efficiency, all bonds must be sorted by the query point index, from
     least to greatest. Bonds have an query point index :math:`i` and a point
@@ -329,11 +330,11 @@ cdef class NeighborList:
        :class:`freud.locality.AABBQuery`, or :class:`freud.locality.Voronoi`.
 
     Attributes:
-        query_point_index ((:math:`N_{bonds}`) :class:`np.ndarray`):
+        query_point_indices ((:math:`N_{bonds}`) :class:`np.ndarray`):
             The query point indices for each bond. This array is read-only to
             prevent breakage of :meth:`~.find_first_index()`. Equivalent to
             indexing with :code:`[:, 0]`.
-        point_index ((:math:`N_{bonds}`) :class:`np.ndarray`):
+        point_indices ((:math:`N_{bonds}`) :class:`np.ndarray`):
             The point indices for each bond. This array is read-only to
             prevent breakage of :meth:`~.find_first_index()`. Equivalent to
             indexing with :code:`[:, 1]`.
@@ -341,10 +342,10 @@ cdef class NeighborList:
             The weights for each bond. By default, bonds have a weight of 1.
         distances ((:math:`N_{bonds}`) :class:`np.ndarray`):
             The distances for each bond.
-        segments ((:math:`N_{querypoints}`) :class:`np.ndarray`):
+        segments ((:math:`N_{query\_points}`) :class:`np.ndarray`):
             A segment array indicating the first bond index for each query
             point.
-        neighbor_counts ((:math:`N_{querypoints}`) :class:`np.ndarray`):
+        neighbor_counts ((:math:`N_{query\_points}`) :class:`np.ndarray`):
             A neighbor count array indicating the number of neighbors for each
             query point.
 
@@ -355,7 +356,8 @@ cdef class NeighborList:
        nlist = aq.query(positions, {'r_max': 3}).toNeighborList()
 
        # Get all vectors from central particles to their neighbors
-       rijs = positions[nlist.point_index] - positions[nlist.query_point_index]
+       rijs = (positions[nlist.point_indices] -
+              positions[nlist.query_point_indices])
        rijs = box.wrap(rijs)
 
     The NeighborList can be indexed to access bond particle indices. Example::
@@ -365,20 +367,20 @@ cdef class NeighborList:
     """
 
     @classmethod
-    def from_arrays(cls, num_query_points, num_points, query_point_index,
-                    point_index, distances, weights=None):
+    def from_arrays(cls, num_query_points, num_points, query_point_indices,
+                    point_indices, distances, weights=None):
         R"""Create a NeighborList from a set of bond information arrays.
 
         Args:
             num_query_points (int):
                 Number of query points (corresponding to
-                :code:`query_point_index`).
+                :code:`query_point_indices`).
             num_points (int):
-                Number of points (corresponding to :code:`point_index`).
-            query_point_index (:class:`np.ndarray`):
+                Number of points (corresponding to :code:`point_indices`).
+            query_point_indices (:class:`np.ndarray`):
                 Array of integers corresponding to indices in the set of
                 query points.
-            point_index (:class:`np.ndarray`):
+            point_indices (:class:`np.ndarray`):
                 Array of integers corresponding to indices in the set of
                 points.
             distances (:class:`np.ndarray`):
@@ -388,32 +390,33 @@ cdef class NeighborList:
                 Array of per-bond weights (if :code:`None` is given, use a
                 value of 1 for each weight) (Default value = :code:`None`).
         """
-        query_point_index = freud.common.convert_array(
-            query_point_index, shape=(None,), dtype=np.uint32)
-        point_index = freud.common.convert_array(
-            point_index, shape=query_point_index.shape, dtype=np.uint32)
+        query_point_indices = freud.common.convert_array(
+            query_point_indices, shape=(None,), dtype=np.uint32)
+        point_indices = freud.common.convert_array(
+            point_indices, shape=query_point_indices.shape, dtype=np.uint32)
 
         distances = freud.common.convert_array(
-            distances, shape=query_point_index.shape)
+            distances, shape=query_point_indices.shape)
 
         if weights is None:
-            weights = np.ones(query_point_index.shape, dtype=np.float32)
+            weights = np.ones(query_point_indices.shape, dtype=np.float32)
         weights = freud.common.convert_array(
-            weights, shape=query_point_index.shape)
+            weights, shape=query_point_indices.shape)
 
-        cdef const unsigned int[::1] l_query_point_index = query_point_index
-        cdef const unsigned int[::1] l_point_index = point_index
+        cdef const unsigned int[::1] l_query_point_indices = \
+            query_point_indices
+        cdef const unsigned int[::1] l_point_indices = point_indices
         cdef const float[::1] l_distances = distances
         cdef const float[::1] l_weights = weights
-        cdef unsigned int l_num_bonds = l_query_point_index.shape[0]
+        cdef unsigned int l_num_bonds = l_query_point_indices.shape[0]
         cdef unsigned int l_num_query_points = num_query_points
         cdef unsigned int l_num_points = num_points
 
         cdef NeighborList result
         result = cls()
         result.thisptr = new freud._locality.NeighborList(
-            l_num_bonds, &l_query_point_index[0], l_num_query_points,
-            &l_point_index[0], l_num_points, &l_distances[0], &l_weights[0])
+            l_num_bonds, &l_query_point_indices[0], l_num_query_points,
+            &l_point_indices[0], l_num_points, &l_distances[0], &l_weights[0])
 
         return result
 
@@ -467,11 +470,11 @@ cdef class NeighborList:
             freud.util.arr_type_t.UNSIGNED_INT)[key]
 
     @property
-    def query_point_index(self):
+    def query_point_indices(self):
         return self[:, 0]
 
     @property
-    def point_index(self):
+    def point_indices(self):
         return self[:, 1]
 
     @property
@@ -524,7 +527,7 @@ cdef class NeighborList:
         Example::
 
             # Keep only the bonds between particles of type A and type B
-            nlist.filter(types[nlist.query_point_index] != types[nlist.point_index])
+            nlist.filter(types[nlist.query_point_indices] != types[nlist.point_indices])
         """  # noqa E501
         filt = np.ascontiguousarray(filt, dtype=np.bool)
         cdef np.ndarray[np.uint8_t, ndim=1, cast=True] filt_c = filt
@@ -1016,7 +1019,7 @@ cdef class NearestNeighbors:
         cdef unsigned int start_idx = self.nlist.find_first_index(i)
         cdef unsigned int end_idx = self.nlist.find_first_index(i + 1)
         result[:(end_idx - start_idx)] = \
-            self.nlist.point_index[start_idx:end_idx]
+            self.nlist.point_indices[start_idx:end_idx]
 
         return result
 
@@ -1033,8 +1036,8 @@ cdef class NearestNeighbors:
             (self.thisptr.getNp(), self.thisptr.getNumNeighbors()),
             dtype=np.uint32)
         result[:] = self.UINTMAX
-        idx_i, idx_j = self.nlist.query_point_index, self.nlist.point_index
-        cdef unsigned int num_bonds = len(self.nlist.query_point_index)
+        idx_i, idx_j = self.nlist.query_point_indices, self.nlist.point_indices
+        cdef unsigned int num_bonds = len(self.nlist.query_point_indices)
         cdef unsigned int bond
         cdef unsigned int last_i = 0
         cdef unsigned int current_j = 0
@@ -1063,9 +1066,9 @@ cdef class NearestNeighbors:
         cdef unsigned int end_idx = self.nlist.find_first_index(i + 1)
         rijs = \
             (self._cached_query_points[
-                self.nlist.point_index[start_idx:end_idx]] -
+                self.nlist.point_indices[start_idx:end_idx]] -
              self._cached_points[
-                 self.nlist.query_point_index[start_idx:end_idx]])
+                 self.nlist.query_point_indices[start_idx:end_idx]])
         self._cached_box.wrap(rijs)
         result = -np.ones((self.thisptr.getNumNeighbors(),), dtype=np.float32)
         result[:len(rijs)] = np.sum(rijs**2, axis=-1)
@@ -1082,8 +1085,8 @@ cdef class NearestNeighbors:
         blank_mask = np.ones(
             (self.thisptr.getNref(), self.thisptr.getNumNeighbors()),
             dtype=np.bool)
-        idx_i, idx_j = self.nlist.query_point_index, self.nlist.point_index
-        cdef unsigned int num_bonds = len(self.nlist.query_point_index)
+        idx_i, idx_j = self.nlist.query_point_indices, self.nlist.point_indices
+        cdef unsigned int num_bonds = len(self.nlist.query_point_indices)
         cdef unsigned int last_i = 0
         cdef unsigned int current_j = 0
         for bond in range(num_bonds):

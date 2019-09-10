@@ -27,14 +27,14 @@ class TestNeighborList(unittest.TestCase):
         np.random.seed(0)
         self.cl.compute(self.fbox, self.points, self.points)
 
-        # query_point_index shouldn't be writable in general or users may break
-        # the ordered property of the neighbor list
+        # query_point_indices shouldn't be writable in general or users may
+        # break the ordered property of the neighbor list
         with self.assertRaises(ValueError):
-            self.cl.nlist.query_point_index[:] = 0
+            self.cl.nlist.query_point_indices[:] = 0
 
-        # if query_point_index isn't writable, point_index shouldn't be
+        # if query_point_indices isn't writable, point_indices shouldn't be
         with self.assertRaises(ValueError):
-            self.cl.nlist.point_index[:] = 0
+            self.cl.nlist.point_indices[:] = 0
 
         # the weights array may be useful to write to, though
         # TODO: weights aren't writable since changing to ManagedArray
@@ -114,8 +114,8 @@ class TestNeighborList(unittest.TestCase):
         np.random.seed(0)
         self.cl.compute(self.fbox, self.points, self.points)
         old_size = len(self.cl.nlist)
-        filt = (self.cl.nlist.point_index.astype(np.int32) -
-                self.cl.nlist.query_point_index.astype(np.int32)) % 2 == 0
+        filt = (self.cl.nlist.point_indices.astype(np.int32) -
+                self.cl.nlist.query_point_indices.astype(np.int32)) % 2 == 0
         self.cl.nlist.filter(filt)
         self.assertLessEqual(len(self.cl.nlist), old_size)
 
@@ -127,7 +127,7 @@ class TestNeighborList(unittest.TestCase):
         np.random.seed(0)
         self.cl.compute(self.fbox, self.points, self.points)
         nlist = self.cl.nlist
-        for (idx, i) in enumerate(nlist.query_point_index):
+        for (idx, i) in enumerate(nlist.query_point_indices):
             self.assertLessEqual(nlist.find_first_index(i), idx)
 
     def test_segments(self):
@@ -140,30 +140,30 @@ class TestNeighborList(unittest.TestCase):
         self.assertTrue(np.allclose(self.cl.nlist.neighbor_counts, 6))
 
     def test_from_arrays(self):
-        query_point_index = [0, 0, 1, 2, 3]
-        point_index = [1, 2, 3, 0, 0]
-        distances = np.ones(len(query_point_index))
+        query_point_indices = [0, 0, 1, 2, 3]
+        point_indices = [1, 2, 3, 0, 0]
+        distances = np.ones(len(query_point_indices))
 
         # implicit weights
         nlist = locality.NeighborList.from_arrays(
-            4, 4, query_point_index, point_index, distances)
+            4, 4, query_point_indices, point_indices, distances)
         self.assertTrue(np.allclose(nlist.weights, 1))
 
         # explicit weights
-        weights = np.ones(len(query_point_index))*4.
+        weights = np.ones(len(query_point_indices))*4.
         nlist = locality.NeighborList.from_arrays(
-            4, 4, query_point_index, point_index, distances, weights)
+            4, 4, query_point_indices, point_indices, distances, weights)
         self.assertTrue(np.allclose(nlist.weights, 4))
 
         # copy of existing nlist by arrays
-        weights = np.random.rand(len(query_point_index))
+        weights = np.random.rand(len(query_point_indices))
         nlist = locality.NeighborList.from_arrays(
-            4, 4, query_point_index, point_index, distances, weights)
+            4, 4, query_point_indices, point_indices, distances, weights)
         nlist2 = locality.NeighborList.from_arrays(
-            4, 4, nlist.query_point_index, nlist.point_index,
+            4, 4, nlist.query_point_indices, nlist.point_indices,
             nlist.distances, nlist.weights)
-        npt.assert_equal(nlist.query_point_index, nlist2.query_point_index)
-        npt.assert_equal(nlist.point_index, nlist2.point_index)
+        npt.assert_equal(nlist.query_point_indices, nlist2.query_point_indices)
+        npt.assert_equal(nlist.point_indices, nlist2.point_indices)
         npt.assert_equal(nlist.distances, nlist2.distances)
         npt.assert_equal(nlist.weights, nlist2.weights)
         npt.assert_equal(nlist.neighbor_counts, nlist2.neighbor_counts)
@@ -172,32 +172,32 @@ class TestNeighborList(unittest.TestCase):
         # too few reference particles
         with self.assertRaises(RuntimeError):
             nlist = locality.NeighborList.from_arrays(
-                3, 4, query_point_index, point_index, distances)
+                3, 4, query_point_indices, point_indices, distances)
 
         # too few target particles
         with self.assertRaises(RuntimeError):
             nlist = locality.NeighborList.from_arrays(
-                4, 3, query_point_index, point_index, distances)
+                4, 3, query_point_indices, point_indices, distances)
 
         # query particles not sorted
         with self.assertRaises(RuntimeError):
             nlist = locality.NeighborList.from_arrays(
-                4, 4, point_index, query_point_index, distances)
+                4, 4, point_indices, query_point_indices, distances)
 
         # mismatched array sizes
         with self.assertRaises(ValueError):
             nlist = locality.NeighborList.from_arrays(
-                4, 4, query_point_index[:-1], point_index, distances)
+                4, 4, query_point_indices[:-1], point_indices, distances)
         with self.assertRaises(ValueError):
             nlist = locality.NeighborList.from_arrays(
-                4, 4, query_point_index, point_index[:-1], distances)
+                4, 4, query_point_indices, point_indices[:-1], distances)
         with self.assertRaises(ValueError):
             nlist = locality.NeighborList.from_arrays(
-                4, 4, query_point_index, point_index, distances[:-1])
+                4, 4, query_point_indices, point_indices, distances[:-1])
         with self.assertRaises(ValueError):
-            weights = np.ones((len(query_point_index) - 1,))
+            weights = np.ones((len(query_point_indices) - 1,))
             nlist = locality.NeighborList.from_arrays(
-                4, 4, query_point_index, point_index, distances, weights)
+                4, 4, query_point_indices, point_indices, distances, weights)
 
     def test_indexing(self):
         self.setup_nl()
@@ -209,8 +209,8 @@ class TestNeighborList(unittest.TestCase):
         # Make sure indexing the NeighborList is the same as indexing arrays
         self.cl.compute(self.fbox, self.points, self.points)
         for i, (idx_i, idx_j) in enumerate(self.cl.nlist):
-            self.assertEqual(idx_i, self.cl.nlist.query_point_index[i])
-            self.assertEqual(idx_j, self.cl.nlist.point_index[i])
+            self.assertEqual(idx_i, self.cl.nlist.query_point_indices[i])
+            self.assertEqual(idx_j, self.cl.nlist.point_indices[i])
 
         for i, j in self.cl.nlist:
             self.assertNotEqual(i, j)
@@ -220,9 +220,9 @@ class TestNeighborList(unittest.TestCase):
         np.random.seed(0)
         self.cl.compute(self.fbox, self.points, self.points)
         self.assertEqual(len(self.cl.nlist),
-                         len(self.cl.nlist.query_point_index))
+                         len(self.cl.nlist.query_point_indices))
         self.assertEqual(len(self.cl.nlist),
-                         len(self.cl.nlist.point_index))
+                         len(self.cl.nlist.point_indices))
 
     def test_index_error(self):
         self.setup_nl()

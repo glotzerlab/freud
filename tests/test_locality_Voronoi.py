@@ -132,8 +132,8 @@ class TestVoronoi(unittest.TestCase):
             box=box, positions=points, buffer=rbuf, images=False)
         nlist = vor.nlist
 
-        ijs = set(zip(nlist.query_point_index, nlist.point_index))
-        jis = set(zip(nlist.point_index, nlist.query_point_index))
+        ijs = set(zip(nlist.query_point_indices, nlist.point_indices))
+        jis = set(zip(nlist.point_indices, nlist.query_point_indices))
 
         # every (i, j) pair should have a corresponding (j, i) pair
         self.assertTrue(all((j, i) in jis for (i, j) in ijs))
