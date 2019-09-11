@@ -139,7 +139,7 @@ cdef class BondOrder(PairCompute):
 
     @property
     def default_query_args(self):
-        return dict(mode="nearest", r_max=self.r_max,
+        return dict(mode="nearest", r_guess=self.r_max,
                     num_neighbors=self.num_neighbors)
 
     @Compute._compute()

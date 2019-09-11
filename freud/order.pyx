@@ -346,7 +346,7 @@ cdef class HexOrderParameter(PairCompute):
     @property
     def default_query_args(self):
         return dict(mode="nearest", num_neighbors=self.num_neighbors,
-                    r_max=self.r_max)
+                    r_guess=self.r_max)
 
     @Compute._computed_property()
     def psi(self):
@@ -442,7 +442,7 @@ cdef class TransOrderParameter(PairCompute):
     @property
     def default_query_args(self):
         return dict(mode="nearest", num_neighbors=self.num_neighbors,
-                    r_max=self.r_max)
+                    r_guess=self.r_max)
 
     @Compute._computed_property()
     def d_r(self):

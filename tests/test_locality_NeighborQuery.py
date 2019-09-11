@@ -176,6 +176,14 @@ class NeighborQueryTest(object):
                                                     num_neighbors=5,
                                                     exclude_ii=True))), result)
 
+        # Test setting r_max as a filter
+        result = list(nq.query(points, dict(mode='nearest', num_neighbors=3,
+                                            r_max=1.9, exclude_ii=True)))
+        npt.assert_equal(get_point_neighbors(result, 0), {1})
+        npt.assert_equal(get_point_neighbors(result, 1), {0, 3})
+        npt.assert_equal(get_point_neighbors(result, 2), {3})
+        npt.assert_equal(get_point_neighbors(result, 3), {1, 2})
+
     def test_query_ball_to_nlist(self):
         """Test that generated NeighborLists are identical to the results of
         querying"""
@@ -493,6 +501,32 @@ class TestNeighborQueryAABB(NeighborQueryTest, unittest.TestCase):
                                         exclude_ii=True)).toNeighborList()
         self.assertTrue(nlist_equal(nlist1, nlist2))
 
+    def test_r_guess_scale(self):
+        """Ensure that r_guess and scale have no effect on query results."""
+        np.random.seed(0)
+        L = 10
+        box = freud.box.Box.cube(L)
+
+        N = 100
+        positions = box.wrap(L/2 * np.random.rand(N, 3))
+        nq = self.build_query_object(box, positions, L/10)
+
+        k = 10
+        r_guess_vals = [L/20, L/10, L/5]
+        scales = [1.01, 1.1, 1.3]
+
+        original_nlist = None
+        for r_guess in r_guess_vals:
+            for scale in scales:
+                nlist = nq.query(
+                    positions, dict(num_neighbors=k, exclude_ii=True,
+                                    r_guess=r_guess,
+                                    scale=scale)).toNeighborList()
+                if original_nlist is not None:
+                    self.assertTrue(nlist_equal(nlist, original_nlist))
+                else:
+                    original_nlist = nlist
+
 
 class TestNeighborQueryLinkCell(NeighborQueryTest, unittest.TestCase):
     @classmethod
@@ -580,7 +614,9 @@ class TestNeighborQueryLinkCell(NeighborQueryTest, unittest.TestCase):
         self.assertEqual(neighbors_ij, neighbors_ji)
 
 
-class TestAlternatingPoints(unittest.TestCase):
+class TestMultipleMethods(unittest.TestCase):
+    """Check that different methods of making a NeighborList give the same
+    result."""
 
     def test_alternating_points(self):
         lattice_size = 10

@@ -7,6 +7,8 @@
 #include <map>
 #include <memory>
 #include <vector>
+#include <limits>
+#include <cmath>
 
 #include "AABBTree.h"
 #include "Box.h"
@@ -24,6 +26,9 @@
  * are treated by translating the query AABB by all possible image vectors,
  * many of which are trivially rejected for not intersecting the root node.
  */
+
+//! Define a constant PI.
+const float PI = 3.14159265358979323846;
 
 namespace freud { namespace locality {
 
@@ -63,13 +68,33 @@ protected:
             {
                 args.scale = float(1.1);
             }
-            if (args.r_max == QueryArgs::DEFAULT_R_MAX)
+            else if (args.scale <= float(1.0))
             {
-                // By default, we use 1/10 the smallest box dimension as the guessed query distance.
-                vec3<float> L = this->getBox().getL();
-                float r_max = std::min(L.x, L.y);
-                r_max = this->getBox().is2D() ? r_max : std::min(r_max, L.z);
-                args.r_max = float(0.1) * r_max;
+                throw std::runtime_error("The scale query argument must be greater than 1.");
+            }
+
+            if (args.r_guess == QueryArgs::DEFAULT_R_GUESS)
+            {
+                // By default, we assume a homogeneous system density and use
+                // that to estimate the distance we need to query. This
+                // calculation assumes a constant density of N/V, where N is
+                // the number of particles and V is the box volume, and it
+                // calculates the radius of a sphere that will contain the
+                // desired number of neighbors.
+                float r_guess = std::cbrtf((3.0*static_cast<float>(args.num_neighbors)*m_box.getVolume())/(4.0*PI*static_cast<float>(getNPoints())));
+
+                // The upper bound is set by the minimum nearest plane distances.
+                vec3<float> nearest_plane_distance = m_box.getNearestPlaneDistance();
+                float min_plane_distance = std::min(nearest_plane_distance.x, nearest_plane_distance.y);
+                if (!m_box.is2D())
+                    min_plane_distance = std::min(min_plane_distance, nearest_plane_distance.z);
+
+                args.r_guess = std::min(r_guess, min_plane_distance/float(2.0));
+            }
+            if (args.r_guess > args.r_max)
+            {
+                // No need to search past the requested bounds even if requested.
+                args.r_guess = args.r_max;
             }
         }
     }
@@ -85,7 +110,6 @@ private:
     void buildTree(const vec3<float>* points, unsigned int N);
 
     std::vector<AABB> m_aabbs; //!< Flat array of AABBs of all types
-    box::Box m_box;            //!< Simulation box where the particles belong
 };
 
 //! Parent class of AABB iterators that knows how to traverse general AABB tree structures.
@@ -115,8 +139,8 @@ class AABBQueryIterator : public AABBIterator
 public:
     //! Constructor
     AABBQueryIterator(const AABBQuery* neighbor_query, const vec3<float> query_point, unsigned int query_point_idx,
-                      unsigned int num_neighbors, float r, float scale, bool exclude_ii)
-        : AABBIterator(neighbor_query, query_point, query_point_idx, exclude_ii), m_count(0), m_num_neighbors(num_neighbors), m_search_extended(false), m_r_cur(r),
+                      unsigned int num_neighbors, float r_guess, float r_max, float scale, bool exclude_ii)
+        : AABBIterator(neighbor_query, query_point, query_point_idx, exclude_ii), m_count(0), m_num_neighbors(num_neighbors), m_search_extended(false), m_r_cur(r_guess), m_r_max(r_max),
           m_scale(scale), m_all_distances()
     {
         updateImageVectors(0);
@@ -136,6 +160,8 @@ protected:
                              //!< worried about finding duplicates.
     float
         m_r_cur; //!< Current search ball cutoff distance in use for the current particle (expands as needed).
+    float
+        m_r_max; //!< Upper bound for distance, used as a strict cutoff if provided.
     float m_scale; //!< The amount to scale m_r by when the current ball is too small.
     std::map<unsigned int, float> m_all_distances; //!< Hash map of minimum distances found for a given point,
                                                    //!< used when searching beyond maximum safe AABB distance.

@@ -13,6 +13,11 @@ using namespace tbb;
 
 namespace freud { namespace order {
 
+//! Clip v if it is outside the range [lo, hi].
+float clamp(float v, float lo, float hi) {
+  return std::max(lo, std::min(v, hi));
+}
+
 // Calculating Ylm using fsph module
 void Steinhardt::computeYlm(const float theta, const float phi, std::vector<std::complex<float>>& Ylm)
 {
@@ -133,7 +138,12 @@ void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
                 // it only appears in Ylm as exp(im\phi),
                 // so range -Pi..Pi will give same results.
                 float phi = atan2(delta.y, delta.x);     // -Pi..Pi
-                float theta = acos(delta.z / nb.distance); // 0..Pi
+
+                // This value must be clamped in cases where the particles are
+                // aligned along z, otherwise due to floating point error we
+                // could get delta.z/nb.distance = -1-eps, which is outside the
+                // valid range of acos.
+                float theta = acos(clamp(delta.z / nb.distance, -1, 1)); // 0..Pi
 
                 // If the points are directly on top of each other,
                 // theta should be zero instead of nan.
