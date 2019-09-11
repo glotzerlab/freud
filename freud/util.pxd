@@ -19,19 +19,19 @@ ctypedef float complex fcomplex
 ctypedef double complex dcomplex
 
 ctypedef enum arr_type_t:
-    UNSIGNED_INT
     FLOAT
     DOUBLE
     COMPLEX_FLOAT
     COMPLEX_DOUBLE
+    UNSIGNED_INT
 
 ctypedef union arr_ptr_t:
     const void *null_ptr
-    const ManagedArray[uint] *uint_ptr
     const ManagedArray[float] *float_ptr
     const ManagedArray[double] *double_ptr
     const ManagedArray[float complex] *complex_float_ptr
     const ManagedArray[double complex] *complex_double_ptr
+    const ManagedArray[uint] *uint_ptr
 
 
 cdef class _ManagedArrayContainer:
@@ -48,12 +48,7 @@ cdef class _ManagedArrayContainer:
             const void *array, arr_type_t arr_type, uint element_size=1):
         cdef _ManagedArrayContainer obj
 
-        if arr_type == arr_type_t.UNSIGNED_INT:
-            obj = _ManagedArrayContainer(arr_type, np.NPY_UINT32,
-                                         element_size)
-            obj.thisptr.uint_ptr = new const ManagedArray[uint](
-                dereference(<const ManagedArray[uint] *>array))
-        elif arr_type == arr_type_t.FLOAT:
+        if arr_type == arr_type_t.FLOAT:
             obj = _ManagedArrayContainer(arr_type, np.NPY_FLOAT,
                                          element_size)
             obj.thisptr.float_ptr = new const ManagedArray[float](
@@ -73,6 +68,11 @@ cdef class _ManagedArrayContainer:
                                          element_size)
             obj.thisptr.complex_double_ptr = new const ManagedArray[dcomplex](
                 dereference(<const ManagedArray[dcomplex] *>array))
+        elif arr_type == arr_type_t.UNSIGNED_INT:
+            obj = _ManagedArrayContainer(arr_type, np.NPY_UINT32,
+                                         element_size)
+            obj.thisptr.uint_ptr = new const ManagedArray[uint](
+                dereference(<const ManagedArray[uint] *>array))
 
         return obj
 

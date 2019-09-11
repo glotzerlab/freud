@@ -884,9 +884,6 @@ cdef class AngularSeparation(Compute):
             The global angles in radians. **This field is only populated
             after** :meth:`~.computeGlobal` **is called.** The angles
             are stored in the order of the neighborlist object.
-
-    .. todo Need to figure out what happens if you use a neighborlist with
-            strict_cut=True
     """  # noqa: E501
     cdef freud._environment.AngularSeparation * thisptr
     cdef unsigned int num_neighbors

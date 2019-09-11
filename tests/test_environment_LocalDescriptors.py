@@ -18,7 +18,7 @@ def get_Ql(p, descriptors, nlist, weighted=False):
     Qbar_lm = np.zeros((p.shape[0], descriptors.sph.shape[1]),
                        dtype=np.complex128)
     for i in range(p.shape[0]):
-        indices = nlist.index_i == i
+        indices = nlist.query_point_indices == i
         Ylms = descriptors.sph[indices, :]
         if weighted:
             weights = nlist.weights[indices, np.newaxis]
@@ -58,7 +58,7 @@ def get_Wl(p, descriptors, nlist):
 
     num_neighbors = descriptors.sph.shape[0]/p.shape[0]
     for i in range(p.shape[0]):
-        indices = nlist.index_i == i
+        indices = nlist.query_point_indices == i
         Qbar_lm[i, :] = np.sum(descriptors.sph[indices, :],
                                axis=0)/num_neighbors
 
@@ -257,7 +257,10 @@ class TestLocalDescriptors(unittest.TestCase):
             ld.compute(box, num_neighbors, points, mode='global', nlist=nl)
 
             # Generate random weights for each bond
-            nl.weights[:] = np.random.rand(len(nl.weights))
+            nl = freud.locality.NeighborList.from_arrays(
+                len(points), len(points),
+                nl.query_point_indices, nl.point_indices,
+                nl.distances, np.random.rand(len(nl.weights)))
 
             Ql = get_Ql(points, ld, nl, True)
 
