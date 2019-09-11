@@ -212,18 +212,15 @@ void VoroPlusPlus::compute(const box::Box &box, const vec3<double>* points, unsi
 
         m_neighbor_list.resize(num_bonds);
         m_neighbor_list.setNumBonds(num_bonds, N, N);
-        size_t *neighbor_array(m_neighbor_list.getNeighbors());
-        float *neighbor_weights(m_neighbor_list.getWeights());
-        float *neighbor_distances(m_neighbor_list.getDistances());
 
         parallel_for(tbb::blocked_range<size_t>(0, num_bonds),
             [&] (const tbb::blocked_range<size_t> &r) {
             for (size_t bond(r.begin()); bond < r.end(); ++bond)
             {
-                neighbor_array[2*bond] = bonds[bond].id;
-                neighbor_array[2*bond+1] = bonds[bond].ref_id;
-                neighbor_distances[bond] = bonds[bond].distance;
-                neighbor_weights[bond] = bonds[bond].weight;
+                m_neighbor_list.getNeighbors()(bond, 0) = bonds[bond].id;
+                m_neighbor_list.getNeighbors()(bond, 1) = bonds[bond].ref_id;
+                m_neighbor_list.getDistances()[bond] = bonds[bond].distance;
+                m_neighbor_list.getWeights()[bond] = bonds[bond].weight;
             }
         });
 

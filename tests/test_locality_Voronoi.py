@@ -60,7 +60,8 @@ class TestVoronoi(unittest.TestCase):
         npt.assert_almost_equal(np.sum(vor.volumes), box.volume)
 
         # Verify the neighbor list weights
-        npt.assert_almost_equal(vor.nlist.weights[vor.nlist.index_i == 4], 1)
+        npt.assert_almost_equal(
+            vor.nlist.weights[vor.nlist.query_point_indices == 4], 1)
 
         # Double the points (still inside the box) and test again
         positions *= 2
@@ -71,7 +72,8 @@ class TestVoronoi(unittest.TestCase):
         npt.assert_almost_equal(center_polytope, expected_polytope)
         npt.assert_almost_equal(vor.volumes[4], 4)
         npt.assert_almost_equal(np.sum(vor.volumes), box.volume)
-        npt.assert_almost_equal(vor.nlist.weights[vor.nlist.index_i == 4], 2)
+        npt.assert_almost_equal(
+            vor.nlist.weights[vor.nlist.query_point_indices == 4], 2)
 
     def test_voronoi_tess_3d(self):
         # Test that the voronoi polytope works for a 3D system
@@ -103,7 +105,8 @@ class TestVoronoi(unittest.TestCase):
         npt.assert_almost_equal(np.sum(vor.volumes), box.volume)
 
         # Verify the neighbor list weights
-        npt.assert_almost_equal(vor.nlist.weights[vor.nlist.index_i == 13], 1)
+        npt.assert_almost_equal(
+            vor.nlist.weights[vor.nlist.query_point_indices == 13], 1)
 
         # Double the points (still inside the box) and test again
         positions *= 2
@@ -116,7 +119,8 @@ class TestVoronoi(unittest.TestCase):
         npt.assert_almost_equal(center_polytope, expected_polytope)
         npt.assert_almost_equal(vor.volumes[13], 8)
         npt.assert_almost_equal(np.sum(vor.volumes), box.volume)
-        npt.assert_almost_equal(vor.nlist.weights[vor.nlist.index_i == 13], 4)
+        npt.assert_almost_equal(
+            vor.nlist.weights[vor.nlist.query_point_indices == 13], 4)
 
     def test_voronoi_neighbors_wrapped(self):
         # Test that voronoi neighbors in the first shell are correct for a
@@ -138,7 +142,7 @@ class TestVoronoi(unittest.TestCase):
             # Drop the tiny facets that come from numerical imprecision
             nlist = nlist.filter(nlist.weights > 1e-5)
 
-            unique_indices, counts = np.unique(nlist.index_i,
+            unique_indices, counts = np.unique(nlist.query_point_indices,
                                                return_counts=True)
 
             # Every particle should have six neighbors
