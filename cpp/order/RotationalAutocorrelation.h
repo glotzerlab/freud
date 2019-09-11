@@ -10,6 +10,7 @@
 #include <tbb/tbb.h>
 
 #include "VectorMath.h"
+#include "ManagedArray.h"
 
 /*! \file RotationalAutocorrelation.h
     \brief Defines the RotationalAutocorrelation class, which computes the total
@@ -54,13 +55,13 @@ public:
      */
     RotationalAutocorrelation(unsigned int l) : m_l(l), m_N(0), m_Ft(0)
     {
-        // For efficiency, precompute all required factorials;
-        m_factorials = std::shared_ptr<unsigned int>(new unsigned int[m_l+1], std::default_delete<unsigned int[]>());
-        memset((void*) m_factorials.get(), 0, sizeof(unsigned int) * (m_l+1));
-        m_factorials.get()[0] = 1;
+        // For efficiency, we precompute all required factorials for use during
+        // the per-particle computation.
+        m_factorials.prepare(m_l+1);
+        m_factorials[0] = 1;
         for (unsigned int i = 1; i <= m_l; i++)
         {
-            m_factorials.get()[i] = i*m_factorials.get()[i-1];
+            m_factorials[i] = i*m_factorials[i-1];
         }
     }
 
@@ -80,7 +81,7 @@ public:
     }
 
     //! Get a reference to the last computed rotational autocorrelation array.
-    std::shared_ptr<std::complex<float>> getRAArray()
+    const util::ManagedArray<std::complex<float>> &getRAArray()
     {
         return m_RA_array;
     }
@@ -129,8 +130,8 @@ private:
     unsigned int m_N; //!< Last number of orientations used in compute.
     float m_Ft;       //!< Real value of calculated RA function.
 
-    std::shared_ptr<std::complex<float>> m_RA_array; //!< Array of RA values per particle
-    std::shared_ptr<unsigned int> m_factorials; //!< Array of cached factorials
+    util::ManagedArray<std::complex<float>> m_RA_array; //!< Array of RA values per particle
+    util::ManagedArray<unsigned int> m_factorials; //!< Array of cached factorials
 };
 
 }; }; // end namespace freud::order

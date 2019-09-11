@@ -9,13 +9,13 @@ from libcpp.vector cimport vector
 from libcpp.map cimport map
 cimport freud._box
 cimport freud._locality
+cimport freud.util
 
 cdef extern from "CubaticOrderParameter.h" namespace "freud::order":
     cdef cppclass CubaticOrderParameter:
         CubaticOrderParameter(float,
                               float,
                               float,
-                              float*,
                               unsigned int,
                               unsigned int) except +
         void reset()
@@ -23,15 +23,14 @@ cdef extern from "CubaticOrderParameter.h" namespace "freud::order":
                      unsigned int) except +
         unsigned int getNumParticles()
         float getCubaticOrderParameter()
-        shared_ptr[float] getParticleCubaticOrderParameter()
-        shared_ptr[float] getParticleTensor()
-        shared_ptr[float] getGlobalTensor()
-        shared_ptr[float] getCubaticTensor()
-        shared_ptr[float] getGenR4Tensor()
+        const freud.util.ManagedArray[float] &getParticleOrderParameter()
+        const freud.util.ManagedArray[float] &getGlobalTensor()
+        const freud.util.ManagedArray[float] &getCubaticTensor()
         float getTInitial()
         float getTFinal()
         float getScale()
         quat[float] getCubaticOrientation()
+
 
 cdef extern from "NematicOrderParameter.h" namespace "freud::order":
     cdef cppclass NematicOrderParameter:
@@ -41,9 +40,10 @@ cdef extern from "NematicOrderParameter.h" namespace "freud::order":
                      unsigned int) except +
         unsigned int getNumParticles()
         float getNematicOrderParameter()
-        shared_ptr[float] getParticleTensor()
-        shared_ptr[float] getNematicTensor()
+        const freud.util.ManagedArray[float] &getParticleTensor()
+        const freud.util.ManagedArray[float] &getNematicTensor()
         vec3[float] getNematicDirector()
+        vec3[float] getU()
 
 
 cdef extern from "HexTransOrderParameter.h" namespace "freud::order":
@@ -53,9 +53,7 @@ cdef extern from "HexTransOrderParameter.h" namespace "freud::order":
         void compute(const freud._locality.NeighborList*,
                      const freud._locality.NeighborQuery*,
                      freud._locality.QueryArgs) except +
-        # unsure how to pass back the std::complex,
-        # but this seems to compile...
-        shared_ptr[float complex] getOrder()
+        const freud.util.ManagedArray[float complex] &getOrder()
         unsigned int getNP()
         unsigned int getK()
 
@@ -65,14 +63,14 @@ cdef extern from "HexTransOrderParameter.h" namespace "freud::order":
         void compute(const freud._locality.NeighborList*,
                      const freud._locality.NeighborQuery*,
                      freud._locality.QueryArgs) except +
-        shared_ptr[float complex] getOrder()
+        const freud.util.ManagedArray[float complex] &getOrder()
         unsigned int getNP()
         float getK()
 
+
 cdef extern from "Steinhardt.h" namespace "freud::order":
     cdef cppclass Steinhardt:
-        Steinhardt(float, unsigned int, float,
-                   bool, bool, bool) except +
+        Steinhardt(unsigned int, bool, bool, bool) except +
         unsigned int getNP()
         void compute(const freud._locality.NeighborList*,
                      const freud._locality.NeighborQuery*,
@@ -83,6 +81,7 @@ cdef extern from "Steinhardt.h" namespace "freud::order":
         bool isAverage()
         bool isWl()
         bool isWeighted()
+
 
 cdef extern from "SolLiq.h" namespace "freud::order":
     cdef cppclass SolLiq:
@@ -109,12 +108,13 @@ cdef extern from "SolLiq.h" namespace "freud::order":
         unsigned int getNP()
         unsigned int getNumClusters()
 
+
 cdef extern from "RotationalAutocorrelation.h" namespace "freud::order":
     cdef cppclass RotationalAutocorrelation:
         RotationalAutocorrelation()
         RotationalAutocorrelation(unsigned int)
         unsigned int getL()
         unsigned int getN()
-        shared_ptr[float complex] getRAArray()
+        const freud.util.ManagedArray[float complex] &getRAArray()
         float getRotationalAutocorrelation()
         void compute(quat[float]*, quat[float]*, unsigned int) except +

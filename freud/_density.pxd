@@ -3,8 +3,10 @@
 
 from freud.util cimport vec3
 from libcpp.memory cimport shared_ptr
+from libcpp.complex cimport complex
 cimport freud._box
 cimport freud._locality
+cimport freud.util
 
 cdef extern from "CorrelationFunction.h" namespace "freud::density":
     cdef cppclass CorrelationFunction[T]:
@@ -16,9 +18,9 @@ cdef extern from "CorrelationFunction.h" namespace "freud::density":
                         const T*,
                         unsigned int, const freud._locality.NeighborList*,
                         freud._locality.QueryArgs) except +
-        shared_ptr[T] getRDF()
-        shared_ptr[unsigned int] getCounts()
-        shared_ptr[float] getR()
+        const freud.util.ManagedArray[T] &getRDF()
+        const freud.util.ManagedArray[unsigned int] &getCounts()
+        const freud.util.ManagedArray[float] &getR()
         unsigned int getNBins() const
 
 cdef extern from "GaussianDensity.h" namespace "freud::density":
@@ -30,7 +32,7 @@ cdef extern from "GaussianDensity.h" namespace "freud::density":
             const freud._box.Box &,
             const vec3[float]*,
             unsigned int) except +
-        shared_ptr[float] getDensity()
+        const freud.util.ManagedArray[float] &getDensity()
         vec3[unsigned int] getWidth()
         float getSigma()
 
@@ -44,8 +46,8 @@ cdef extern from "LocalDensity.h" namespace "freud::density":
             unsigned int, const freud._locality.NeighborList *,
             freud._locality.QueryArgs) except +
         unsigned int getNPoints()
-        shared_ptr[float] getDensity()
-        shared_ptr[float] getNumNeighbors()
+        const freud.util.ManagedArray[float] &getDensity()
+        const freud.util.ManagedArray[float] &getNumNeighbors()
 
 cdef extern from "RDF.h" namespace "freud::density":
     cdef cppclass RDF:
@@ -57,7 +59,7 @@ cdef extern from "RDF.h" namespace "freud::density":
                         unsigned int,
                         const freud._locality.NeighborList*,
                         freud._locality.QueryArgs) except +
-        shared_ptr[float] getRDF()
-        shared_ptr[float] getR()
-        shared_ptr[float] getNr()
+        const freud.util.ManagedArray[float] &getRDF()
+        const freud.util.ManagedArray[float] &getR()
+        const freud.util.ManagedArray[float] &getNr()
         unsigned int getNBins()

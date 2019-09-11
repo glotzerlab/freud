@@ -33,7 +33,7 @@ std::shared_ptr<NeighborQueryPerPointIterator> AABBQuery::querySingle(const vec3
     }
     else if (args.mode == QueryArgs::nearest)
     {
-        return std::make_shared<AABBQueryIterator>(this, query_point, query_point_idx, args.num_neighbors, args.r_max, args.scale, args.exclude_ii);
+        return std::make_shared<AABBQueryIterator>(this, query_point, query_point_idx, args.num_neighbors, args.r_guess, args.r_max, args.scale, args.exclude_ii);
     }
     else
     {
@@ -259,7 +259,7 @@ NeighborBond AABBQueryIterator::next()
                 std::sort(m_current_neighbors.begin(), m_current_neighbors.end());
                 break;
             }
-            else if ((m_r_cur >= max_plane_distance) || (m_all_distances.size() >= m_num_neighbors))
+            else if ((m_r_cur > m_r_max) || (m_r_cur >= max_plane_distance) || (m_all_distances.size() >= m_num_neighbors))
             {
                 // Once this condition is reached, either we found enough
                 // neighbors beyond the normal min_plane_distance
@@ -293,10 +293,16 @@ NeighborBond AABBQueryIterator::next()
         }
     }
 
-    // Now we return all the points found for the current point
+    // Now we return all the points found for the current point, stopping when
+    // any are beyond the maximum distance allowed.
     while ((m_count < m_num_neighbors) && (m_count < m_current_neighbors.size()))
     {
         m_count++;
+        if (m_current_neighbors[m_count - 1].distance > m_r_max)
+        {
+            m_finished = true;
+            return NeighborQueryIterator::ITERATOR_TERMINATOR;
+        }
         return m_current_neighbors[m_count - 1];
     }
 

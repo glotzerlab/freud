@@ -39,13 +39,13 @@ public:
     virtual void reducePCF();
 
     //! Get a reference to the x array
-    std::shared_ptr<float> getX()
+    const util::ManagedArray<float> &getX()
     {
         return m_x_array;
     }
 
     //! Get a reference to the y array
-    std::shared_ptr<float> getY()
+    const util::ManagedArray<float> &getY()
     {
         return m_y_array;
     }
@@ -75,8 +75,8 @@ private:
     unsigned int m_n_y; //!< Number of y bins to compute PCF over
     float m_jacobian;   //!< Determinant of Jacobian, bin area
 
-    std::shared_ptr<float> m_x_array; //!< Array of x values where the PCF is computed
-    std::shared_ptr<float> m_y_array; //!< Array of y values where the PCF is computed
+    util::ManagedArray<float> m_x_array; //!< Array of x values where the PCF is computed
+    util::ManagedArray<float> m_y_array; //!< Array of y values where the PCF is computed
 };
 
 }; }; // end namespace freud::pmft

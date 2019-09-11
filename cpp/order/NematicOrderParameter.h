@@ -10,6 +10,7 @@
 
 #include "Box.h"
 #include "VectorMath.h"
+#include "ManagedArray.h"
 
 /*! \file NematicOrderParameter.h
     \brief Compute the nematic order parameter for each particle
@@ -28,34 +29,30 @@ public:
     //! Destructor
     virtual ~NematicOrderParameter() {};
 
-    //! Reset the nematic order parameter array to all zeros
-    void reset();
-
     //! Compute the nematic order parameter
     void compute(quat<float>* orientations, unsigned int n);
 
     //! Get the value of the last computed nematic order parameter
     float getNematicOrderParameter();
 
-    std::shared_ptr<float> getParticleTensor();
+    const util::ManagedArray<float> &getParticleTensor();
 
-    std::shared_ptr<float> getNematicTensor();
+    const util::ManagedArray<float> &getNematicTensor();
 
     unsigned int getNumParticles();
 
     vec3<float> getNematicDirector();
+
+    vec3<float> getU();
 
 private:
     unsigned int m_n;                //!< Last number of points computed
     vec3<float> m_u;                 //!< The molecular axis
     float m_nematic_order_parameter; //!< Current value of the order parameter
     vec3<float> m_nematic_director;  //!< The director (eigenvector corresponding to the OP)
-    float m_nematic_tensor[9];       //!< The Q tensor
 
-    std::shared_ptr<float> m_sp_nematic_tensor; //!< Pointer to nematic tensor that is passed back
-                                                //!< to python to provide a view into the object
-    std::shared_ptr<float> m_particle_tensor;   //!< The per-particle tensor that is summed up to Q
-                                                //!< Used to allow parallelized calculation of Q
+    util::ManagedArray<float> m_nematic_tensor;   //!< The computed nematic tensor.
+    util::ManagedArray<float> m_particle_tensor;  //!< The per-particle tensor that is summed up to Q. Used to allow parallelized calculation of Q
 };
 
 }; }; // end namespace freud::order

@@ -13,15 +13,13 @@
 #include "PMFT.h"
 #include "ThreadStorage.h"
 #include "VectorMath.h"
-#include "Histogram.h"
-#include "ManagedArray.h"
 
 /*! \file RDF.h
     \brief Routines for computing radial density functions.
 */
 
 namespace freud { namespace density {
-class RDF
+class RDF : public util::NdHistogram
 {
 public:
     //! Constructor
@@ -49,42 +47,22 @@ public:
     }
 
     //! Get a reference to the PCF array
-    std::shared_ptr<float> getRDF()
+    const util::ManagedArray<float> &getRDF()
     {
-        reduceIfNeeded();
-        return m_pcf_array;
-    }
-
-    //! Get a reference to the bin counts array
-    const freud::util::ManagedArray<unsigned int> &getBinCounts()
-    {
-        reduceIfNeeded();
-        return m_bin_counts.getBinCounts();
-    }
-
-    //! Get the simulation box
-    const box::Box& getBox() const
-    {
-        return m_box;
+        return getPCF();
     }
 
     //! Get a reference to the r array
-    std::shared_ptr<float> getR();
+    const util::ManagedArray<float> &getR();
 
-    void reduceIfNeeded()
+    //! Get a reference to the N_r array.
+    /*! Mathematically, m_N_r_array[i] is the average number of points
+     * contained within a ball of radius m_r_array[i]+dr/2 centered at a given
+     * query_point, averaged over all query_points.
+     */
+    const util::ManagedArray<float> &getNr()
     {
-        if (m_reduce == true)
-        {
-            reduce();
-        }
-        m_reduce = false;
-    }
-
-    //! Get a reference to the N_r array
-    std::shared_ptr<float> getNr()
-    {
-        reduceIfNeeded();
-        return m_N_r_array;
+        return reduceAndReturn(m_N_r_array);
     }
 
     unsigned int getNBins();
@@ -95,22 +73,12 @@ private:
     float m_dr;           //!< Step size for r in the computation
     unsigned int m_nbins; //!< Number of r bins to compute g(r) over
 
-    std::shared_ptr<float> m_avg_counts;  //!< Bin counts that go into computing the RDF array
-    std::shared_ptr<float> m_N_r_array;   //!< Cumulative bin sum N(r)
-    std::shared_ptr<float> m_r_array;     //!< Array of r values that the RDF is computed at
-    std::shared_ptr<float> m_vol_array;   //!< Array of volumes for each slice of r
-    std::shared_ptr<float> m_vol_array2D; //!< Array of volumes for each slice of r
-    std::shared_ptr<float> m_vol_array3D; //!< Array of volumes for each slice of r
-
-    box::Box m_box;
-    unsigned int m_frame_counter;    //!< Number of frames calculated.
-    unsigned int m_n_points;         //!< The number of points.
-    unsigned int m_n_query_points;   //!< The number of query points.
-    bool m_reduce;                   //!< Whether or not the histogram needs to be reduced.
-
-    std::shared_ptr<float> m_pcf_array;         //!< Array of computed pair correlation function.
-    freud::util::Histogram m_bin_counts; //!< Counts for each bin.
-    freud::util::Histogram::ThreadLocalHistogram m_local_bin_counts; //!< Thread local bin counts for TBB parallelism
+    util::ManagedArray<float> m_avg_counts;  //!< Bin counts that go into computing the RDF array
+    util::ManagedArray<float> m_N_r_array;   //!< Cumulative bin sum N(r)
+    util::ManagedArray<float> m_r_array;     //!< Array of r values that the RDF is computed at
+    util::ManagedArray<float> m_vol_array;   //!< Array of volumes for each slice of r
+    util::ManagedArray<float> m_vol_array2D; //!< Array of volumes for each slice of r
+    util::ManagedArray<float> m_vol_array3D; //!< Array of volumes for each slice of r
 };
 
 }; }; // end namespace freud::density

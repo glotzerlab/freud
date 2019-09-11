@@ -50,18 +50,15 @@ PMFTR12::PMFTR12(float r_max, unsigned int n_r, unsigned int n_t1, unsigned int 
     });
 
     // calculate the jacobian array; computed as the inverse for faster use later
-    m_inv_jacobian_array
-        = std::shared_ptr<float>(new float[m_n_r * m_n_t1 * m_n_t2], std::default_delete<float[]>());
-    Index3D b_i = Index3D(m_n_t1, m_n_t2, m_n_r);
-    for (unsigned int i = 0; i < m_n_t1; i++)
+    m_inv_jacobian_array.prepare({m_n_r, m_n_t1, m_n_t2});
+    for (unsigned int i = 0; i < m_n_r; i++)
     {
-        for (unsigned int j = 0; j < m_n_t2; j++)
+        float r = m_r_array.get()[i];
+        for (unsigned int j = 0; j < m_n_t1; j++)
         {
-            for (unsigned int k = 0; k < m_n_r; k++)
+            for (unsigned int k = 0; k < m_n_t2; k++)
             {
-                float r = m_r_array.get()[k];
-                m_inv_jacobian_array.get()[b_i((int) i, (int) j, (int) k)]
-                    = (float) 1.0 / (r * m_dr * m_dt1 * m_dt2);
+                m_inv_jacobian_array(i, j, k) = (float) 1.0 / (r * m_dr * m_dt1 * m_dt2);
             }
         }
     }
@@ -73,17 +70,17 @@ PMFTR12::PMFTR12(float r_max, unsigned int n_r, unsigned int n_t1, unsigned int 
     m_t2_array = precomputeAxisBinCenter(m_n_t2, m_dt2, 0);
 
     // create and populate the pcf_array
-    m_pcf_array = util::makeEmptyArray<float>(m_n_r * m_n_t1 * m_n_t2);
-    m_bin_counts = util::makeEmptyArray<unsigned int>(m_n_r * m_n_t1 * m_n_t2);
+    m_pcf_array.prepare({m_n_r, m_n_t1, m_n_t2});
+    m_bin_counts.prepare({m_n_r, m_n_t1, m_n_t2});
 
-    m_local_bin_counts.resize(m_n_r * m_n_t1 * m_n_t2);
+    m_local_bin_counts.resize({m_n_r, m_n_t1, m_n_t2});
 }
 
 //! \internal
 //! helper function to reduce the thread specific arrays into one array
 void PMFTR12::reducePCF()
 {
-    reduce3D(m_n_r, m_n_t1, m_n_t2, [this](size_t i) { return m_inv_jacobian_array.get()[i]; });
+    reduce3D(m_n_t2, m_n_r, m_n_t1, [this](size_t i) { return m_inv_jacobian_array.get()[i]; });
 }
 
 void PMFTR12::reset()
@@ -99,8 +96,6 @@ void PMFTR12::accumulate(const locality::NeighborQuery* neighbor_query,
     float dr_inv = 1.0f / m_dr;
     float dt1_inv = 1.0f / m_dt1;
     float dt2_inv = 1.0f / m_dt2;
-
-    Index3D b_i = Index3D(m_n_t1, m_n_t2, m_n_r);
 
     accumulateGeneral(neighbor_query, query_points, n_p, nlist, qargs,
         [=](const freud::locality::NeighborBond& neighbor_bond) {
@@ -142,7 +137,7 @@ void PMFTR12::accumulate(const locality::NeighborQuery* neighbor_query,
 
             if ((ibin_r < m_n_r) && (ibin_t1 < m_n_t1) && (ibin_t2 < m_n_t2))
             {
-                ++m_local_bin_counts.local()[b_i(ibin_t1, ibin_t2, ibin_r)];
+                ++m_local_bin_counts.local()(ibin_r, ibin_t1, ibin_t2);
             }
         }
     });

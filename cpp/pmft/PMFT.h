@@ -57,18 +57,19 @@ public:
     }
 
     //! Helper function to precompute axis bin center,
-    std::shared_ptr<float> precomputeAxisBinCenter(unsigned int size, float d, float max);
+    util::ManagedArray<float> precomputeAxisBinCenter(unsigned int size, float d, float max);
 
     //! Helper function to precompute array with the following logic.
     //! :code:`Func cf` should be some sort of (float)(float, float).
-    template<typename Func> std::shared_ptr<float> precomputeArrayGeneral(unsigned int size, float d, Func cf)
+    template<typename Func>
+    util::ManagedArray<float> precomputeArrayGeneral(unsigned int size, float d, Func cf)
     {
-        std::shared_ptr<float> arr = std::shared_ptr<float>(new float[size], std::default_delete<float[]>());
+        util::ManagedArray<float> arr({size});
         for (unsigned int i = 0; i < size; i++)
         {
-            float T = float(i) * d;
+            float T = float(i) * d ;
             float nextT = float(i + 1) * d;
-            arr.get()[i] = cf(T, nextT);
+            arr[i] = cf(T, nextT);
         }
         return arr;
     }
@@ -85,8 +86,8 @@ public:
     void reduce3D(unsigned int n_r, unsigned int first_dim, unsigned int second_dim, JacobFactor jf)
     {
         unsigned int local_bin_counts_size = n_r * first_dim * second_dim;
-        memset((void*) m_bin_counts.get(), 0, sizeof(unsigned int) * local_bin_counts_size);
-        memset((void*) m_pcf_array.get(), 0, sizeof(float) * local_bin_counts_size);
+        m_bin_counts.prepare({first_dim, second_dim, n_r});
+        m_pcf_array.prepare({first_dim, second_dim, n_r});
         parallel_for(tbb::blocked_range<size_t>(0, local_bin_counts_size),
                      [=](const tbb::blocked_range<size_t>& r) {
                          for (size_t i = r.begin(); i != r.end(); i++)
@@ -95,7 +96,7 @@ public:
                                   = m_local_bin_counts.begin();
                                   local_bins != m_local_bin_counts.end(); ++local_bins)
                              {
-                                 m_bin_counts.get()[i] += (*local_bins)[i];
+                                 m_bin_counts[i] += (*local_bins)[i];
                              }
                          }
                      });
@@ -107,8 +108,8 @@ public:
                      [=](const tbb::blocked_range<size_t>& r) {
                          for (size_t i = r.begin(); i != r.end(); i++)
                          {
-                             m_pcf_array.get()[i]
-                                 = (float) m_bin_counts.get()[i] * norm_factor * jf(i) * inv_num_dens;
+                             m_pcf_array[i]
+                                 = (float) m_bin_counts[i] * norm_factor * jf(i) * inv_num_dens;
                          }
                      });
     }

@@ -185,12 +185,13 @@ cdef class PairCompute(Compute):
 
         cdef freud.locality._QueryArgs qargs
         if query_args is not None:
+            query_args.setdefault('exclude_ii', query_points is None)
             qargs = freud.locality._QueryArgs.from_dict(query_args)
         else:
             try:
-                qargs = freud.locality._QueryArgs.from_dict(
-                    self.default_query_args)
-                qargs.update({'exclude_ii': query_points is None})
+                query_args = self.default_query_args
+                query_args.setdefault('exclude_ii', query_points is None)
+                qargs = freud.locality._QueryArgs.from_dict(query_args)
             except ValueError:
                 # If a NeighborList was provided, then the user need not
                 # provide _QueryArgs.

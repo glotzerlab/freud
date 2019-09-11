@@ -30,12 +30,8 @@ void LocalDensity::compute(const freud::locality::NeighborQuery* neighbor_query,
 
     unsigned int n_points = neighbor_query->getNPoints();
 
-    // reallocate the output array if it is not the right size
-    if (n_points != m_n_points)
-    {
-        m_density_array = std::shared_ptr<float>(new float[n_points], std::default_delete<float[]>());
-        m_num_neighbors_array = std::shared_ptr<float>(new float[n_points], std::default_delete<float[]>());
-    }
+    m_density_array.prepare(n_points);
+    m_num_neighbors_array.prepare(n_points);
 
     float area = M_PI * m_r_max * m_r_max;
     float volume = 4.0f/3.0f * M_PI * m_r_max * m_r_max * m_r_max;
@@ -59,16 +55,16 @@ void LocalDensity::compute(const freud::locality::NeighborQuery* neighbor_query,
               // that obscure data
               num_neighbors += 1.0f + (m_r_max - (nb.distance + m_diameter/2.0f)) / m_diameter;
             }
-            m_num_neighbors_array.get()[i] = num_neighbors;
+            m_num_neighbors_array[i] = num_neighbors;
             if (m_box.is2D())
               {
               // local density is area of particles divided by the area of the circle
-              m_density_array.get()[i] = (m_volume * m_num_neighbors_array.get()[i]) / area;
+              m_density_array[i] = (m_volume * m_num_neighbors_array[i]) / area;
               }
             else
               {
               // local density is volume of particles divided by the volume of the sphere
-              m_density_array.get()[i] = (m_volume * m_num_neighbors_array.get()[i]) / volume;
+              m_density_array[i] = (m_volume * m_num_neighbors_array[i]) / volume;
             }
         }
     });
@@ -81,13 +77,13 @@ unsigned int LocalDensity::getNPoints()
 }
 
 //! Get a reference to the last computed density
-std::shared_ptr<float> LocalDensity::getDensity()
+const util::ManagedArray<float> &LocalDensity::getDensity()
 {
     return m_density_array;
 }
 
 //! Get a reference to the last computed number of neighbors
-std::shared_ptr<float> LocalDensity::getNumNeighbors()
+const util::ManagedArray<float> &LocalDensity::getNumNeighbors()
 {
     return m_num_neighbors_array;
 }

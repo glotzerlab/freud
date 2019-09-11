@@ -13,6 +13,11 @@ using namespace tbb;
 
 namespace freud { namespace order {
 
+//! Clip v if it is outside the range [lo, hi].
+float clamp(float v, float lo, float hi) {
+  return std::max(lo, std::min(v, hi));
+}
+
 // Calculating Ylm using fsph module
 void Steinhardt::computeYlm(const float theta, const float phi, std::vector<std::complex<float>>& Ylm)
 {
@@ -133,7 +138,12 @@ void Steinhardt::baseCompute(const freud::locality::NeighborList* nlist,
                 // it only appears in Ylm as exp(im\phi),
                 // so range -Pi..Pi will give same results.
                 float phi = atan2(delta.y, delta.x);     // -Pi..Pi
-                float theta = acos(delta.z / nb.distance); // 0..Pi
+
+                // This value must be clamped in cases where the particles are
+                // aligned along z, otherwise due to floating point error we
+                // could get delta.z/nb.distance = -1-eps, which is outside the
+                // valid range of acos.
+                float theta = acos(clamp(delta.z / nb.distance, -1, 1)); // 0..Pi
 
                 // If the points are directly on top of each other,
                 // theta should be zero instead of nan.
@@ -200,15 +210,12 @@ void Steinhardt::computeAve(const freud::locality::NeighborList* nlist,
 
                 for(freud::locality::NeighborBond nb2 = ns_neighbors_iter->next(); !ns_neighbors_iter->end(); nb2 = ns_neighbors_iter->next())
                 {
-                    if (nb2.distance < m_r_max && nb2.distance > m_r_min)
+                    for (unsigned int k = 0; k < (2 * m_l + 1); ++k)
                     {
-                        for (unsigned int k = 0; k < (2 * m_l + 1); ++k)
-                        {
-                            // Adding all the Qlm of the neighbors
-                            m_QlmiAve.get()[(2 * m_l + 1) * i + k] += m_Qlmi.get()[(2 * m_l + 1) * nb2.ref_id + k];
-                        }
-                        neighborcount++;
+                        // Adding all the Qlm of the neighbors
+                        m_QlmiAve.get()[(2 * m_l + 1) * i + k] += m_Qlmi.get()[(2 * m_l + 1) * nb2.ref_id + k];
                     }
+                    neighborcount++;
                 } // End loop over particle neighbor's bonds
             } // End loop over particle's bonds
 
@@ -266,8 +273,7 @@ void Steinhardt::reduce()
     parallel_for(tbb::blocked_range<size_t>(0, 2 * m_l + 1), [=](const blocked_range<size_t>& r) {
         for (size_t i = r.begin(); i != r.end(); i++)
         {
-            for (tbb::enumerable_thread_specific<complex<float>*>::const_iterator Ql_local
-                 = m_Qlm_local.begin();
+            for (util::ThreadStorage<complex<float>>::const_iterator Ql_local = m_Qlm_local.begin();
                  Ql_local != m_Qlm_local.end(); Ql_local++)
             {
                 m_Qlm.get()[i] += (*Ql_local)[i];

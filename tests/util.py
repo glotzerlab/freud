@@ -2,20 +2,58 @@ import numpy as np
 import freud
 
 
-def make_raw_query_nlist_test_set(box, ref_points, points, mode, r_max,
+def make_raw_query_nlist_test_set(box, points, query_points, mode, r_max,
                                   num_neighbors, exclude_ii):
+    """Helper function to test multiple neighbor-finding data structures.
+
+    .. moduleauthor:: Jin Soo Ihm <jinihm@umich.edu>
+    .. moduleauthor:: Bradley Dice <bdice@bradleydice.com>
+
+    Args:
+        box (:class:`freud.box.Box`):
+            Simulation box.
+        points ((:math:`N_{points}`, 3) :class:`numpy.ndarray`):
+            Reference points used to calculate the correlation function.
+        query_points ((:math:`N_{query_points}`, 3) :class:`numpy.ndarray`, optional):
+            query_points used to calculate the correlation function.
+            Uses :code:`points` if not provided or :code:`None`.
+            (Default value = :code:`None`).
+        mode (str):
+            String indicating query mode.
+        r_max (float):
+            Maximum cutoff distance.
+        num_neighbors (int):
+            Number of nearest neighbors to include.
+        exclude_ii (bool):
+            Whether to exclude self-neighbors.
+
+    Returns:
+        tuple:
+            Contains points or :class:`freud.locality.NeighborQuery`,
+            :class:`freud.locality.NeighborList` or :code:`None`,
+            query_args :class:`dict` or :code:`None`.
+    """  # noqa: E501
     test_set = []
-    test_set.append((ref_points, None))
-    test_set.append((freud.locality.RawPoints(box, ref_points), None))
-    test_set.append((freud.locality.AABBQuery(box, ref_points), None))
-    # test_set.append((freud.locality.LinkCell(box, r_max, ref_points), None))
+    query_args = {'mode': mode, 'exclude_ii': exclude_ii}
+    if mode == "ball":
+        query_args['r_max'] = r_max
+
+    if mode == 'nearest':
+        query_args['num_neighbors'] = num_neighbors
+        query_args['r_guess'] = r_max
+
+    test_set.append((points, None, query_args))
+    test_set.append((freud.locality.RawPoints(box, points), None, query_args))
+    test_set.append((freud.locality.AABBQuery(box, points), None, query_args))
+    test_set.append(
+        (freud.locality.LinkCell(box, r_max, points), None, query_args))
     if mode == "ball":
         nlist = freud.locality.make_default_nlist(
-            box, ref_points, points, r_max, None, exclude_ii)
+            box, points, query_points, r_max, None, exclude_ii)
     if mode == "nearest":
         nlist = freud.locality.make_default_nlist_nn(
-            box, ref_points, points, num_neighbors, None, exclude_ii, r_max)
-    test_set.append((ref_points, nlist[0], nlist[1]))
+            box, points, query_points, num_neighbors, None, exclude_ii, r_max)
+    test_set.append((points, nlist[0], None, nlist[1]))
     return test_set
 
 

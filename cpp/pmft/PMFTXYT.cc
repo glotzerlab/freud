@@ -54,13 +54,13 @@ PMFTXYT::PMFTXYT(float x_max, float y_max, unsigned int n_x, unsigned int n_y, u
     m_t_array = precomputeAxisBinCenter(m_n_t, m_dt, 0);
 
     // create and populate the pcf_array
-    m_pcf_array = util::makeEmptyArray<float>(m_n_x * m_n_y * m_n_t);
-    m_bin_counts = util::makeEmptyArray<unsigned int>(m_n_x * m_n_y * m_n_t);
+    m_pcf_array.prepare({m_n_x, m_n_y, m_n_t});
+    m_bin_counts.prepare({m_n_x, m_n_y, m_n_t});
 
     // Set r_max
     m_r_max = sqrtf(m_x_max * m_x_max + m_y_max * m_y_max);
 
-    m_local_bin_counts.resize(m_n_x * m_n_y * m_n_t);
+    m_local_bin_counts.resize({m_n_x, m_n_y, m_n_t});
 }
 
 //! \internal
@@ -85,8 +85,6 @@ void PMFTXYT::accumulate(const locality::NeighborQuery* neighbor_query,
     float dx_inv = 1.0f / m_dx;
     float dy_inv = 1.0f / m_dy;
     float dt_inv = 1.0f / m_dt;
-
-    Index3D b_i = Index3D(m_n_x, m_n_y, m_n_t);
 
     accumulateGeneral(neighbor_query, query_points, n_query_points, nlist, qargs,
         [=](const freud::locality::NeighborBond& neighbor_bond) {
@@ -124,7 +122,7 @@ void PMFTXYT::accumulate(const locality::NeighborQuery* neighbor_query,
 #endif
         if ((ibin_x < m_n_x) && (ibin_y < m_n_y) && (ibin_t < m_n_t))
         {
-            ++m_local_bin_counts.local()[b_i(ibin_x, ibin_y, ibin_t)];
+            ++m_local_bin_counts.local()(ibin_x, ibin_y, ibin_t);
         }
     });
 }

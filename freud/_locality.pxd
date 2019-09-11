@@ -28,6 +28,7 @@ cdef extern from "NeighborQuery.h" namespace "freud::locality":
         QueryType mode
         int num_neighbors
         float r_max
+        float r_guess
         float scale
         bool exclude_ii
 
@@ -118,28 +119,6 @@ cdef extern from "LinkCell.h" namespace "freud::locality":
             const freud._box.Box &,
             const vec3[float]*,
             unsigned int) except +
-        NeighborList * getNeighborList()
-
-cdef extern from "NearestNeighbors.h" namespace "freud::locality":
-    cdef cppclass NearestNeighbors:
-        NearestNeighbors()
-        NearestNeighbors(float, unsigned int, float, bool)
-
-        void setRMax(float)
-        const freud._box.Box & getBox() const
-        unsigned int getNumNeighbors() const
-        float getRMax() const
-        unsigned int getUINTMAX() const
-        unsigned int getNref() const
-        unsigned int getNp() const
-        void setCutMode(const bool)
-        void compute(
-            const freud._box.Box &,
-            const vec3[float]*,
-            unsigned int,
-            const vec3[float]*,
-            unsigned int,
-            bool) except +
         NeighborList * getNeighborList()
 
 cdef extern from "AABBQuery.h" namespace "freud::locality":
