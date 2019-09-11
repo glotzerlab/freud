@@ -3,7 +3,6 @@
 
 #include <stdexcept>
 #include <tbb/tbb.h>
-#include <tuple>
 #include <cmath>
 #include <vector>
 
@@ -23,9 +22,6 @@ namespace freud { namespace locality {
 // Default constructor
 VoroPlusPlus::VoroPlusPlus()
 {}
-
-typedef tbb::enumerable_thread_specific< std::vector<NeighborBond> > BondVector;
-typedef std::vector<NeighborBond> SerialBondVector;
 
 // Voronoi calculations should be kept in double precision.
 void VoroPlusPlus::compute(const box::Box &box, const vec3<double>* points, unsigned int N)
@@ -62,8 +58,7 @@ void VoroPlusPlus::compute(const box::Box &box, const vec3<double>* points, unsi
         std::vector<int> neighbors;
         std::vector<double> normals;
         std::vector<double> vertices;
-        SerialBondVector bonds;
-        bool print_loud = false;
+        std::vector<NeighborBond> bonds;
 
         if (voronoi_loop.start()) {
             do {
@@ -148,10 +143,6 @@ void VoroPlusPlus::compute(const box::Box &box, const vec3<double>* points, unsi
 
                     neighbor_counter++;
                     face_vertices_index += face_vertices[face_vertices_index] + 1;
-                    if (print_loud) {
-                        printf("Bond from %i to %i, weight %f, distance %f, normal (%f, %f, %f)\n", pid, neighbor_id, weight, dist, normal.x, normal.y, normal.z);
-                        printf("Vertex %i on face, ri (%f, %f, %f), rv (%f, %f, %f)\n", vertex_id_on_face, ri.x, ri.y, ri.z, rv.x, rv.y, rv.z);
-                    }
 
                     // Ignore bonds in 2D systems that point up or down
                     if (box.is2D() && abs(normal.z) > 0)
@@ -160,46 +151,6 @@ void VoroPlusPlus::compute(const box::Box &box, const vec3<double>* points, unsi
                     bonds.push_back(NeighborBond(pid, neighbor_id, dist, weight));
                 }
 
-                if (print_loud) {
-                    // Print id and position
-                    printf("\n\npid, xyz: ");
-                    printf("%i (%f, %f, %f)\n", pid, ri.x, ri.y, ri.z);
-
-                    // Print normals
-                    printf("Normals: ");
-                    for (std::vector<double>::iterator nn = normals.begin(); nn != normals.end(); nn++) {
-                        printf("%f ", *nn);
-                    }
-                    printf("\n");
-
-                    // Print neighbors
-                    printf("Neighbors: ");
-                    for (std::vector<int>::iterator nn = neighbors.begin(); nn != neighbors.end(); nn++) {
-                        printf("%i ", *nn);
-                    }
-                    printf("\n");
-
-                    // Print face areas
-                    printf("Face areas: ");
-                    for (std::vector<double>::iterator fa = face_areas.begin(); fa != face_areas.end(); fa++) {
-                        printf("%f ", *fa);
-                    }
-                    printf("\n");
-
-                    // Print vertices
-                    printf("Vertices: ");
-                    size_t vert_counter = 0;
-                    for (std::vector<double>::iterator vv = vertices.begin(); vv != vertices.end(); vv++) {
-                        printf("%f", *vv);
-                        if (vert_counter % 3 == 2) {
-                            printf("\n");
-                        } else {
-                            printf(", ");
-                        }
-                        vert_counter++;
-                    }
-                    printf("\n");
-                }
             } while (voronoi_loop.inc());
         }
 
