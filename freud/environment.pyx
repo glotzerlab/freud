@@ -13,7 +13,8 @@ import numpy as np
 import warnings
 import freud.locality
 
-from freud.common cimport Compute, PairCompute
+from freud.common cimport Compute
+from freud.locality cimport PairCompute
 from freud.util cimport vec3, quat
 from libcpp.vector cimport vector
 from libcpp.map cimport map

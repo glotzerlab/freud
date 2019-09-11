@@ -13,7 +13,8 @@ import warnings
 import numpy as np
 
 from cython.operator cimport dereference
-from freud.common cimport Compute, PairCompute, SpatialHistogram
+from freud.common cimport Compute
+from freud.locality cimport PairCompute, SpatialHistogram
 from freud.util cimport vec3
 
 from collections.abc import Sequence

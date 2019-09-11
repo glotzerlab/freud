@@ -17,7 +17,8 @@ import time
 import freud.locality
 import logging
 
-from freud.common cimport Compute, PairCompute
+from freud.common cimport Compute
+from freud.locality cimport PairCompute
 from freud.util cimport vec3, quat
 from cython.operator cimport dereference
 
