@@ -42,9 +42,9 @@ void Cluster::compute(const freud::locality::NeighborQuery* nq,
     // These new cluster indexes are then sorted by cluster size from largest
     // to smallest, with equally-sized clusters sorted based on their minimum
     // particle index.
-    vector<size_t> cluster_label(m_num_particles, -1);
+    vector<size_t> cluster_label(m_num_particles, m_num_particles);
     vector<size_t> cluster_label_count(m_num_particles);
-    vector<size_t> cluster_min_id(m_num_particles, -1);
+    vector<size_t> cluster_min_id(m_num_particles, m_num_particles);
 
     // Loop over every particle.
     m_num_clusters = 0;
@@ -53,7 +53,7 @@ void Cluster::compute(const freud::locality::NeighborQuery* nq,
         size_t s = dj.find(i);
 
         // Label this cluster if we haven't seen it yet.
-        if (cluster_label[s] == -1)
+        if (cluster_label[s] == m_num_particles)
         {
             // Label this cluster uniquely.
             cluster_label[s] = m_num_clusters;
