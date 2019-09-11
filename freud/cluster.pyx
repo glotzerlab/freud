@@ -13,7 +13,8 @@ import freud.locality
 import freud.util
 
 from cython.operator cimport dereference
-from freud.common cimport Compute, PairCompute
+from freud.common cimport Compute
+from freud.locality cimport PairCompute
 from freud.util cimport vec3, uint
 
 cimport freud._cluster

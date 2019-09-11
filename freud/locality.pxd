@@ -75,3 +75,9 @@ cdef class Voronoi(Compute):
     cdef freud._locality.VoroPlusPlus * thisptr
     cdef NeighborList _nlist
     cdef freud.box.Box _box
+
+cdef class PairCompute(Compute):
+    pass
+
+cdef class SpatialHistogram(PairCompute):
+    cdef float r_max

@@ -43,7 +43,8 @@ import freud.common
 import freud.locality
 import warnings
 
-from freud.common cimport Compute, SpatialHistogram
+from freud.common cimport Compute
+from freud.locality cimport SpatialHistogram
 from freud.util cimport vec3, quat
 from cython.operator cimport dereference
 
